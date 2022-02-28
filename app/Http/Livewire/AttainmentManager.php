@@ -21,7 +21,6 @@ class AttainmentManager extends Component
 
     public $eductionLevelId;
 
-
     public function mount()
     {
         $filter = [
@@ -35,13 +34,13 @@ class AttainmentManager extends Component
             ->whereNull('attainment_id')
             ->get()
             ->each(function ($domain) {
-                    $this->domains[$domain->id] = $domain->description;
+                    $this->domains[$domain->id] = sprintf("[%s] %s", $domain->code, $domain->description);
             });
         if ($this->value){
             Attainment::whereIn('id',$this->value)->each(function($attainment){
                 if ($attainment->attainment_id == null) {
                     $this->domainId = $attainment->id;
-                }  else {
+                } else {
                     $this->subdomainId = $attainment->id;
                 }
             });
@@ -51,7 +50,8 @@ class AttainmentManager extends Component
         }
     }
 
-    public function updatedSubdomainId($value) {
+    public function updatedSubdomainId($value)
+    {
         $this->emitUpdatedValuesEvent();
     }
 
@@ -62,10 +62,10 @@ class AttainmentManager extends Component
 
     public function updatedDomainId($value)
     {
-            $this->subdomainId = '';
-            $this->subdomains = [];
-            $this->reloadSubdomainsListForAttainmentId($value);
-            $this->emitUpdatedValuesEvent();
+        $this->subdomainId = '';
+        $this->subdomains = [];
+        $this->reloadSubdomainsListForAttainmentId($value);
+        $this->emitUpdatedValuesEvent();
     }
 
     private function reloadSubdomainsListForAttainmentId($attainmentId)

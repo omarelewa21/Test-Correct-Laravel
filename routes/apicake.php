@@ -47,8 +47,9 @@ Route::get('temporary_login/{tlid}', ['as' => 'user.temporary_login', 'uses'=>'U
 
 Route::get('check_for_deployment_maintenance',['uses' => 'DeploymentMaintenanceController@checkForMaintenance']);
 
-Route::group(['middleware' => ['api']], function() {
+Route::group(['middleware' => ['api', 'bindings']], function() {
     Route::get('info', [tcCore\Http\Controllers\InfoController::class, 'index']);
+    Route::post('info/removeDashboardInfo/{info}', [tcCore\Http\Controllers\InfoController::class,'removeDashboardInfo']);
 });
 
 Route::group(['middleware' => ['api', 'dl', 'authorize', 'authorizeBinds', 'bindings']], function(){
@@ -58,6 +59,7 @@ Route::group(['middleware' => ['api', 'dl', 'authorize', 'authorizeBinds', 'bind
     Route::post('info',[tcCore\Http\Controllers\InfoController::class,'store']);
     Route::put('info/{info}',[tcCore\Http\Controllers\InfoController::class,'update']);
     Route::delete('info/{info}',[tcCore\Http\Controllers\InfoController::class,'delete']);
+
 
     Route::get('role',[\tcCore\Http\Controllers\RolesController::class,'index']);
 
@@ -85,6 +87,7 @@ Route::group(['middleware' => ['api', 'dl', 'authorize', 'authorizeBinds', 'bind
 	Route::resource('test', 'TestsController', ['except' => ['create', 'edit']]);
 	Route::get('test_max_score/{test}','TestsController@maxScoreResponse')->name('test.max_score');
     Route::resource('cito_test','Cito\TestsController')->only(['index','show']);
+    Route::resource('exam_test','Exam\TestsController')->only(['index','show']);
 
     Route::get('shared_sections','SharedSectionsController@index');
 
@@ -165,7 +168,6 @@ Route::group(['middleware' => ['api', 'dl', 'authorize', 'authorizeBinds', 'bind
     Route::put('test_take/{test_take}/archive','TestTakesController@archive')->name('test_take.archive');
 	Route::put('test_take/{test_take}/un-archive','TestTakesController@unarchive')->name('test_take.un_archive');
 
-
 	Route::post('test/{test}/with_temporary_login',  'TestsController@withTemporaryLogin')->name('test.with_short_code');
 	Route::post('test_take/{test_take}/with_temporary_login',  'TestTakesController@withTemporaryLogin')->name('test_take.with_short_code');
 
@@ -218,6 +220,7 @@ Route::group(['middleware' => ['api', 'dl', 'authorize', 'authorizeBinds', 'bind
 	// Subjects
 	Route::resource('subject', 'SubjectsController', ['except' => ['create', 'edit']]);
 	Route::resource('cito_subject','Cito\SubjectsController')->only(['index']);
+    Route::resource('exam_subject','Exam\SubjectsController')->only(['index']);
 
 	// Test kinds
 	Route::get('test_kind/list', ['as' => 'test_kind.list', 'uses' => 'TestKindsController@lists']);

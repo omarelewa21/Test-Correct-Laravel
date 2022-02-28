@@ -118,28 +118,56 @@ document.addEventListener('alpine:init', () => {
             // })
         },
     }));
-    Alpine.data('selectionOptions', () => ({
+    Alpine.data('selectionOptions', (entangle) => ({
+        showPopup: entangle.value,
+        editorId: entangle.editorId,
+        hasError: {empty: [], false: []},
         data: {
             elements: [],
 
         },
+        maxOptions: 10,
+        minOptions: 2,
 
         init() {
-            for (let i = 0; i < 3; i++) {
+            for (let i = 0; i < this.minOptions; i++) {
                 this.addRow();
             }
         },
 
         initWithSelection() {
-           let text = window.editor.getSelection();
+            let text = window.editor.getSelectedHtml().$.textContent
+                .trim()
+                .replace('[', '')
+                .replace(']', '');
 
+            let content = text;
+            if (text.contains('|')) {
+                content = text.split("|");
+            }
+
+            let currentDataRows = this.data.elements.length;
+            this.data.elements[0].checked = 'true';
+
+            if (!Array.isArray(content)) {
+                this.data.elements[0].value = content;
+                return;
+            }
+
+            content.forEach((word, key) => {
+                if (key === currentDataRows) {
+                    this.addRow();
+                    currentDataRows++;
+                }
+                this.data.elements[key].value = word.trim();
+            })
         },
 
-        addRow() {
+        addRow(value = '', checked = 'false') {
             let component = {
                 id: this.data.elements.length,
-                checked: 'false',
-                value: '',
+                checked: checked,
+                value: value,
             };
             this.data.elements.push(component);
         },
@@ -147,6 +175,7 @@ document.addEventListener('alpine:init', () => {
         trash(event, element) {
             event.stopPropagation();
             this.data.elements = this.data.elements.filter(el => el.id != element.id);
+            this.data.elements.forEach((el, key) => el.id = key);
         },
 
         toggleChecked(event, element) {
@@ -160,27 +189,159 @@ document.addEventListener('alpine:init', () => {
             });
         },
 
-        save() {
+        insertDataInEditor: function () {
             let correct = this.data.elements.find(el => el.value != '' && el.checked == 'true');
             let result = this.data.elements.filter(el => el.value != '' && el.checked == 'false').map(el => el.value);
 
-            if (correct) {
-                result.unshift(correct.value)
-                result = '[' + result.join('|') + ']';
-                let lw = livewire.find(document.getElementById('cms').getAttribute('wire:id'));
-                lw.set('showSelectionOptionsModal', true)
+            result.unshift(correct.value)
+            result = '[' + result.join('|') + ']';
+            let lw = livewire.find(document.getElementById('cms').getAttribute('wire:id'));
+            lw.set('showSelectionOptionsModal', true)
 
-                window.editor.insertText(result);
+            window.editor.insertText(result);
 
-            } else {
-                alert('none correct');
+            setTimeout(() => {
+                this.$wire.setQuestionProperty('question',window.editor.getData());
+            }, 300);
+        },
+        validateInput: function () {
+            const emptyFields = this.data.elements.filter(element => element.value === '')
+            const falseValues = this.data.elements.filter(element => element.checked === 'false')
+
+            if (emptyFields.length !== 0 || this.data.elements.length === falseValues.length) {
+                this.hasError.empty = emptyFields.map(item => item.id);
+
+                if (this.data.elements.length === falseValues.length) {
+                    this.hasError.false = falseValues.map(item => item.id);
+                }
+
+                Notify.notify('Niet alle velden zijn (correct) ingevuld', 'error');
+                return false;
+            }
+
+            return true;
+        },
+        save() {
+            if (!this.validateInput()) {
+                return;
+            }
+
+            this.insertDataInEditor();
+
+            this.closePopup();
+        },
+        disabled() {
+            if (this.data.elements.length >= this.maxOptions) {
+                return true
+            }
+            return !!this.data.elements.find(element => element.value === '');
+        },
+        closePopup() {
+            this.showPopup = false;
+            this.data.elements = [];
+            this.init();
+        },
+        canDelete() {
+            return this.data.elements.length <= 2
+        },
+        resetHasError() {
+            this.hasError.empty = [];
+            this.hasError.false = [];
+        }
+    }));
+    Alpine.data('badge', (videoUrl = null) => ({
+        options: false,
+        videoTitle: videoUrl,
+        resolvingTitle: true,
+        index: 1,
+        async init() {
+            this.setIndex();
+
+            this.$watch('options', value => {
+                if (value) {
+                    let pWidth = this.$refs.optionscontainer.parentElement.offsetWidth;
+                    let pPos = this.$refs.optionscontainer.parentElement.getBoundingClientRect().left;
+                    if ((pWidth + pPos) < 288) {
+                        this.$refs.optionscontainer.classList.remove('right-0');
+                    }
+                }
+            })
+            if (videoUrl) {
+                const fetchedTitle = await getTitleForVideoUrl(videoUrl);
+                this.videoTitle = fetchedTitle || videoUrl;
+                this.resolvingTitle = false;
+                this.$wire.setVideoTitle(videoUrl, this.videoTitle);
             }
         },
+        setIndex() {
+            const parent = document.getElementById('attachment-badges')
+            this.index = Array.prototype.indexOf.call(parent.children, this.$el) + 1;
+        }
     }));
 
+    Alpine.data('drawingTool', (questionId, entanglements, isTeacher) => ({
+        show: false,
+        questionId: questionId,
+        answerSvg: entanglements.answerSvg,
+        questionSvg: entanglements.questionSvg,
+        gridSvg: entanglements.gridSvg,
+        isTeacher: isTeacher,
+        init() {
+            window['drawingTool_' + questionId] = initDrawingQuestion(this.$root);
+            const toolName = window['drawingTool_' + questionId];
+
+            if(this.isTeacher) {
+                this.makeGridIfNecessary();
+            }
+
+            this.$watch('show', show => {
+                if (show) {
+                    toolName.Canvas.data.answer = this.answerSvg;
+                    toolName.Canvas.data.question = this.questionSvg;
+
+                    this.handleGrid(toolName);
+
+                    toolName.drawingApp.init();
+                } else {
+                    Livewire.emit('refresh');
+                }
+            })
+
+            toolName.Canvas.layers.answer.enable();
+            toolName.Canvas.setCurrentLayer("answer");
+        },
+        handleGrid(toolName) {
+            if (this.gridSvg !== '0.00') {
+                let parsedGrid = parseFloat(this.gridSvg);
+                if (toolName.drawingApp.isTeacher()) {
+                    toolName.UI.gridSize.value = parsedGrid;
+                    toolName.UI.gridToggle.checked = true;
+                } else {
+                    toolName.drawingApp.params.gridSize = parsedGrid;
+                    toolName.Canvas.layers.grid.params.hidden = false;
+                }
+            }
+        },
+        makeGridIfNecessary() {
+            if (this.gridSvg !== '') {
+                makePreviewGrid(this.gridSvg);
+            }
+        }
+    }));
 
     Alpine.directive('global', function (el, {expression}) {
         let f = new Function('_', '$data', '_.' + expression + ' = $data;return;');
         f(window, el._x_dataStack[0]);
     });
 });
+
+function getTitleForVideoUrl(videoUrl) {
+    return fetch('https://noembed.com/embed?url=' + videoUrl)
+        .then((response) => response.json())
+        .then((data) => {
+            if (!data.error) {
+                return data.title;
+            }
+            return null;
+        });
+}

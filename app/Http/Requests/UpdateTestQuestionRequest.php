@@ -33,6 +33,14 @@ class UpdateTestQuestionRequest extends UpdateQuestionRequest {
 
     }
 
+    public function messages(){
+        return [
+            'title.required' => 'A title is required',
+            'body.required'  => 'A message is required',
+        ];
+    
+    }
+
     /**
      * Determine if the user is authorized to make this request.
      *

@@ -2,20 +2,26 @@
 
 namespace tcCore\Http\Livewire\Teacher\Questions;
 
-// http://test-correct.test/teacher/questions/open-short/add?owner=test&owner_id=2a60f858-3129-4903-b275-796cbce5f610&test_question_id=4a508b73-d01b-4729-be38-440f8fd76c8e
-
-// http://test-correct.test/teacher/questions/open-short/add?owner=test&owner_id=7dfda5b2-c0fc-44c0-8ff9-e7a3c831e4a6&test_question_id=a01fd5e2-36dc-4bc1-823f-ca794e034c3f
-//
-use Illuminate\Http\Request;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 use Livewire\Component;
 use Livewire\WithFileUploads;
+use Ramsey\Uuid\Uuid;
 use tcCore\Attachment;
+use tcCore\GroupQuestionQuestion;
+use tcCore\Http\Controllers\GroupQuestionQuestions\AttachmentsController as GroupAttachmentsController;
+use tcCore\Http\Controllers\GroupQuestionQuestionsController;
+use tcCore\Http\Controllers\TestQuestions\AttachmentsController;
+use tcCore\Http\Controllers\TestQuestionsController;
 use tcCore\Http\Helpers\QuestionHelper;
+use tcCore\Http\Livewire\Preview\DrawingQuestion;
 use tcCore\Http\Requests\CreateAttachmentRequest;
+use tcCore\Http\Requests\CreateGroupQuestionQuestionRequest;
 use tcCore\Http\Requests\CreateTestQuestionRequest;
+use tcCore\Http\Requests\Request;
+use tcCore\Lib\GroupQuestionQuestion\GroupQuestionQuestionManager;
 use tcCore\TemporaryLogin;
 use tcCore\Test;
 use tcCore\TestQuestion;
@@ -28,9 +34,13 @@ class OpenShort extends Component
 
     public $openTab = 1;
 
-    public $owner_id;
+    public $testQuestionId;
 
-    public $test_question_id;
+    public $testId;
+
+    public $owner;
+
+    public $groupQuestionQuestionId;
 
     public $uploads = [];
 
@@ -40,11 +50,20 @@ class OpenShort extends Component
 
     public $questionEditorId;
 
-    protected $queryString = ['owner_id', 'test_question_id'];
-
     public $attachments = [];
 
     public $initWithTags = [];
+
+    public $isPartOfGroupQuestion = false;
+
+    public $isCloneRequest = false;
+
+    protected $queryString = ['testId', 'testQuestionId', 'groupQuestionQuestionId', 'owner', 'isCloneRequest'];
+
+    protected $settingsGeneralPropertiesVisibility = [
+        'autoCheckAnswer'              => false,
+        'autoCheckAnswerCaseSensitive' => false
+    ];
 
     public $videos = [];
 
@@ -54,6 +73,8 @@ class OpenShort extends Component
 
     public $subjectId;
 
+    public $educationLevelId;
+
     public $action;
 
     protected $tags = [];
@@ -62,50 +83,93 @@ class OpenShort extends Component
 
     public $pValues = [];
 
+    public $questionIndex;
+
+    public $attachmentsCount = 0;
+
+    public $cmsPropertyBag = [];
+
+    public $rttiToggle = false;
+    public $bloomToggle = false;
+    public $millerToggle = false;
+    public $rttiWarningShown = false;
+    public $bloomWarningShown = false;
+    public $millerWarningShown = false;
 
     public $question = [
         'add_to_database'        => 1,
         'answer'                 => '',
         'bloom'                  => '',
-        'closable'               => 0,
+        'closeable'              => 0,
         'decimal_score'          => 0,
         'discuss'                => 1,
         'maintain_position'      => 0,
         'miller'                 => '',
-        "is_open_source_content" => 1,
-        "tags"                   => [],
+        'is_open_source_content' => 0,
+        'tags'                   => [],
         'note_type'              => 'NONE',
         'order'                  => 0,
         'question'               => '',
         'rtti'                   => '',
-        'score'                  => 6,
+        'score'                  => 5,
         'subtype'                => '',
         'type'                   => '',
-        "attainments"            => [],
-        "test_id"                => '',
+        'attainments'            => [],
+        'test_id'                => '',
+        'all_or_nothing'         => false,
     ];
+    /**
+     * @var CmsInfoScreen|CmsMultipleChoice|CmsOpen|CmsRanking|CmsTrueFalse|null
+     */
+    private $obj;
+
+    public $sortOrderAttachments = [];
+
 
     protected function rules()
     {
         $rules = ['question.question' => 'required'];
-
+        if ($this->obj && method_exists($this->obj, 'mergeRules')) {
+            $this->obj->mergeRules($rules);
+            return $rules;
+        }
         if ($this->requiresAnswer()) {
             $rules += ['question.answer' => 'required'];
         }
+
         return $rules;
     }
 
     protected function getValidationAttributes()
     {
-        return [
+
+        $return = [
             'question.question' => __('cms.Vraagstelling'),
             'question.answer'   => __('cms.Antwoordmodel')
         ];
+        if($this->obj instanceof CmsInfoScreen){
+            $return['question.question'] = __('cms.Informatietekst');
+        }
+
+        return $return;
     }
+
+    protected function getMessages()
+    {
+        return [
+            'question.rtti.required'   => __('cms.rtti warning'),
+            'question.bloom.required'  => __('cms.bloom warning'),
+            'question.miller.required' => __('cms.miller warning'),
+        ];
+    }
+
 
     public function requiresAnswer()
     {
-        return $this->isShortOpenQuestion() || $this->isMediumOpenQuestion();
+        if ($this->obj && property_exists($this->obj, 'requiresAnswer')) {
+            return $this->obj->requiresAnswer;
+        }
+        return false;
     }
 
     protected function getListeners()
@@ -113,20 +177,27 @@ class OpenShort extends Component
         return [
             'new-tags-for-question' => 'handleTags',
             'updated-attainment'    => 'handleAttainment',
-            'new-video-attachment'  => 'handleNewVideoAttachment'
+            'new-video-attachment'  => 'handleNewVideoAttachment',
+            'drawing_data_updated'  => 'handleUpdateDrawingData',
+            'refresh'               => 'render',
         ];
+    }
+
+    public function handleUpdateDrawingData($data)
+    {
+        $this->question['answer_svg'] = $data['svg_answer'];
+        $this->question['question_svg'] = $data['svg_question'];
+        $this->question['grid_svg'] = $data['svg_grid'];
+        $this->question['zoom_group'] = $data['svg_zoom_group'];
     }
 
     public function getQuestionTypeProperty()
     {
+        if ($this->obj && method_exists($this->obj, 'getTranslationKey')) {
+            return __($this->obj->getTranslationKey());
+        }
+
         switch ($this->question['type']) {
-            case 'CompletionQuestion':
-                if ($this->question['subtype'] == 'multi') {
-                    $translation = 'cms.selection-question';
-                    break;
-                }
-                $translation = 'cms.completion-question';
-                break;
             case 'OpenQuestion':
                 if ($this->question['subtype'] == 'short') {
                     $translation = 'cms.open-question-short';
@@ -142,63 +213,57 @@ class OpenShort extends Component
         return __($translation);
     }
 
+    public function booted()
+    {
+        $this->obj = CmsFactory::create($this);
+    }
+
+    // @TODO mag ik deze test zien;
+    // @TODO mag ik deze testQuestion editen?
+    // @TODO is deze test uberhaupt onderdeel van deze test?
     public function mount($action, $type, $subType)
     {
-        $this->action = $action;
-        $this->question['type'] = $type;
-        $this->question['subtype'] = $subType;
+        $activeTest = Test::whereUuid($this->testId)->with('testAuthors', 'testAuthors.user')->first();
+        $this->initializeContext($action, $type, $subType, $activeTest);
+        $this->obj = CmsFactory::create($this);
+        $this->initializePropertyBag($activeTest);
+    }
 
-        $this->answerEditorId = Str::uuid()->__toString();
-        $this->questionEditorId = Str::uuid()->__toString();
-
-        if (request()->input('owner') == 'test') {
-            // @TODO mag ik deze test zien;
-            // @TODO mag ik deze testQuestion editen?
-            // @TODO is deze test uberhaupt onderdeel van deze test?
-            // @TODO what to do when owner is a GroupQuestion?
-
-            $activeTest = Test::with('testAuthors',
-                'testAuthors.user')->whereUuid(request()->input('owner_id'))->first();
-            $this->testName = $activeTest->name;
-            $this->testAuthors = $activeTest->AuthorsAsString;
-            $this->subjectId = $activeTest->subjectId;
-            $this->question['test_id'] = $activeTest->id;
-
-            if ($this->test_question_id) {
-                $tq = TestQuestion::whereUuid($this->test_question_id)->first();
-                $q = $tq->question;
-
-                if ($q) {
-                    $q = (new QuestionHelper())->getTotalQuestion($q->question);
-
-                    $this->pValues = $q->getQuestionInstance()->getRelation('pValue');
-                }
-
-
-                $this->questionId = $q->question->getKey();
-                $this->question['bloom'] = $q->bloom;
-                $this->question['rtti'] = $q->rtti;
-                $this->question['miller'] = $q->miller;
-                $this->question['answer'] = $q->answer;
-                $this->question['question'] = $q->question->getQuestionHTML();
-                $this->question['score'] = $q->score;
-                $this->question['note_type'] = $q->note_type;
-                $this->question['attainments'] = $q->getQuestionAttainmentsAsArray();
-                $this->question['order'] = $tq->order;
-
-                $this->initWithTags = $q->tags;
-                $this->attachments = $q->attachments;
-            }
+    public function __call($method, $arguments = null)
+    {
+        if ($this->obj && is_array($method) && method_exists($this->obj, 'arrayCallback')) {
+            return $this->obj->arrayCallback($method);
         }
+
+        if ($this->obj && method_exists($this->obj, $method)) {
+            if ($arguments) {
+                return $this->obj->$method($arguments);
+            }
+            return $this->obj->$method();
+        }
+
+        $newName = '_' . $method;
+        if (method_exists($this, $newName)) {
+            return $this->$newName($arguments);
+        }
+
+        return parent::__call($method, $arguments);
     }
 
     public function save()
     {
+        if ($this->obj && method_exists($this->obj, 'prepareForSave')) {
+            $this->obj->prepareForSave();
+        }
+
         $this->validateAndReturnErrorsToTabOne();
 
-        if ($this->action == 'edit') {
+        if ($this->action == 'edit' && !$this->isCloneRequest) {
             $response = $this->updateQuestion();
         } else {
+            if ($this->isCloneRequest) {
+                $this->prepareForClone();
+            }
             $response = $this->saveNewQuestion();
         }
 
@@ -209,44 +274,83 @@ class OpenShort extends Component
         $this->returnToTestOverview();
     }
 
-
-    public function isShortOpenQuestion()
+    protected function prepareForClone()
     {
-        if ($this->question['type'] !== 'OpenQuestion') {
-            return false;
+        $this->question['order'] = 0;
+        if (count($this->attachments)) {
+            $this->question['clone_attachments'] = $this->attachments->map(function ($attachment) {
+                return $attachment->uuid;
+            })->toArray();
         }
-        return ($this->question['subtype'] === 'short');
     }
 
-    public function isMediumOpenQuestion()
+    public function updated($name, $value)
     {
-        if ($this->question['type'] !== 'OpenQuestion') {
-            return false;
+        $method = 'updated' . ucfirst($name);
+        if ($this->obj && method_exists($this->obj, $method)) {
+            $this->obj->$method($value);
         }
-        return ($this->question['subtype'] === 'medium');
+        if ($this->obj && method_exists($this->obj, 'updated')) {
+            $this->obj->updated($name, $value);
+        }
     }
 
-    public function isCompletionQuestion()
+    public function showStatistics()
     {
-        if ($this->question['type'] !== 'CompletionQuestion') {
+        if ($this->isCloneRequest) {
             return false;
         }
 
-        return $this->question['subtype'] == 'completion';
+        $method = 'showStatistics';
+        if (method_exists($this->obj, $method)) {
+            return $this->obj->$method();
+        }
+        return true;
     }
 
-    public function isSelectionQuestion()
+    protected function _showSettingsTaxonomy()
     {
-        if ($this->question['type'] !== 'CompletionQuestion') {
-            return false;
-        }
+        return true;
+    }
 
-        return $this->question['subtype'] == 'multi';
+    protected function _showSettingsAttainments()
+    {
+        return true;
+    }
+
+    protected function _showSettingsTags()
+    {
+        return true;
+    }
+
+
+
+    public function hasAllOrNothing()
+    {
+        return $this->obj instanceof CmsMultipleChoice;
+    }
+
+    public function showQuestionScore()
+    {
+        $method = 'showQuestionScore';
+        if(method_exists($this->obj,$method)){
+            return $this->obj->$method();
+        }
+        return true;
     }
 
     private function saveNewQuestion()
     {
-        return app(\tcCore\Http\Controllers\TestQuestionsController::class)->store(new CreateTestQuestionRequest($this->question));
+        Request::filter($this->question);
+
+        if ($this->isPartOfGroupQuestion()) {
+            $gqqm = GroupQuestionQuestionManager::getInstanceWithUuid($this->testQuestionId);
+            $cgqqr = new CreateGroupQuestionQuestionRequest($this->question);
+
+            return (new GroupQuestionQuestionsController)->store($gqqm, $cgqqr);
+        }
+
+        return (new TestQuestionsController)->store(new CreateTestQuestionRequest($this->question));
     }
 
     private function handleAttachments($response)
@@ -262,7 +366,10 @@ class OpenShort extends Component
 
     public function render()
     {
-        return view('livewire.teacher.questions.open-short')->layout('layouts.base');
+        if ($this->obj && method_exists($this->obj, 'getTemplate')) {
+            return view('livewire.teacher.questions.' . $this->obj->getTemplate())->layout('layouts.base');
+        }
+        throw new \Exception('No template found for this question type.');
     }
 
     public function handleTags($tags)
@@ -280,11 +387,26 @@ class OpenShort extends Component
         if (!is_array($value) && Str::contains($value, 'fake')) {
             $value = $this->uploads;
         }
+
+        if (is_array($value)) {
+            $lastIndex = array_key_last($value);
+            if (array_key_exists($lastIndex, $value)) {
+                $tmpFileUpload = $value[array_key_last($value)];
+                $this->sortOrderAttachments[] = $tmpFileUpload->getFileName();
+            }
+        }
     }
 
     public function returnToTestOverview(): void
     {
-        $url = sprintf("tests/view/%s", $this->owner_id);
+        $url = sprintf("tests/view/%s", $this->testId);
+        if ($this->isPartOfGroupQuestion()) {
+            $url = sprintf(
+                'questions/view_group/%s/%s',
+                $this->testId,
+                $this->testQuestionId
+            );
+        }
         $options = TemporaryLogin::buildValidOptionObject('page', $url);
 
         Auth::user()->redirectToCakeWithTemporaryLogin($options);
@@ -294,6 +416,11 @@ class OpenShort extends Component
     {
         try {
             $this->validate();
+            if ($this->obj && method_exists($this->obj, 'customValidation')) {
+                $this->obj->customValidation();
+            }
+            $this->checkTaxonomyValues();
+
         } catch (ValidationException $e) {
             $this->dispatchBrowserEvent('opentab', 1);
             throw ($e);
@@ -302,19 +429,64 @@ class OpenShort extends Component
 
     private function updateQuestion()
     {
-        $request = new Request();
+        $request = new CmsRequest();
         $request->merge($this->question);
+        $request->filterInput();
 
-        return app(\tcCore\Http\Controllers\TestQuestionsController::class)
-            ->updateFromWithin(
-                TestQuestion::whereUUID($this->test_question_id)->first(),
+        if ($this->isPartOfGroupQuestion()) {
+            $groupQuestionQuestion = GroupQuestionQuestion::whereUuid($this->groupQuestionQuestionId)->first();
+            $groupQuestionQuestionManager = GroupQuestionQuestionManager::getInstanceWithUuid($this->testQuestionId); //'577fa17d-68b7-4695-ace5-e14afd913757');
+
+            $response = (new GroupQuestionQuestionsController)->updateGeneric(
+                $groupQuestionQuestionManager,
+                $groupQuestionQuestion,
                 $request
             );
+
+        } else {
+            $response = (new TestQuestionsController)->updateFromWithin(
+                TestQuestion::whereUUID($this->testQuestionId)->first(),
+                $request
+            );
+        }
+
+        return $response;
+    }
+
+    public function isSettingsGeneralPropertyVisible($property)
+    {
+        if ($this->obj && property_exists($this->obj, 'settingsGeneralPropertiesVisibility') && is_array($this->obj->settingsGeneralPropertiesVisibility)) {
+            $this->settingsGeneralPropertiesVisibility = array_merge($this->settingsGeneralPropertiesVisibility, $this->obj->settingsGeneralPropertiesVisibility);
+        }
+
+        if (array_key_exists($property, $this->settingsGeneralPropertiesVisibility)) {
+            return (bool)$this->settingsGeneralPropertiesVisibility[$property];
+        }
+
+        return true;
+    }
+
+    public function isSettingsGeneralPropertyDisabled($property, $asText = false)
+    {
+        if ($this->obj && method_exists($this->obj, 'isSettingsGeneralPropertyDisabled')) {
+            return $this->obj->isSettingsGeneralPropertyDisabled($property, $asText);
+        }
+
+        if ($this->obj && property_exists($this->obj, 'settingsGeneralDisabledProperties') && is_array($this->obj->settingsGeneralDisabledProperties) && in_array($property, $this->obj->settingsGeneralDisabledProperties)) {
+            if ($asText) {
+                return 'true';
+            }
+            return true;
+        }
+        if ($asText) {
+            return 'false';
+        }
+        return false;
     }
 
     public function handleAttachmentSettingChange($data, $attachmentUuid)
     {
-        $attachment = collect($this->attachments)->where('uuid', $attachmentUuid)->first();
+        $attachment = $this->attachments->where('uuid', $attachmentUuid)->first();
 
         $currentJson = json_decode($attachment->json, true);
         $json = array_merge($currentJson, $data);
@@ -329,7 +501,8 @@ class OpenShort extends Component
         $changedSetting = [$setting => $value];
 
         if (array_key_exists($attachmentName, $this->audioUploadOptions)) {
-            $this->audioUploadOptions[$attachmentName] = array_merge($this->audioUploadOptions[$attachmentName], $changedSetting);
+            $this->audioUploadOptions[$attachmentName] = array_merge($this->audioUploadOptions[$attachmentName],
+                $changedSetting);
             return;
         }
 
@@ -338,36 +511,62 @@ class OpenShort extends Component
 
     public function removeAttachment($attachmentUuid)
     {
-        $testQuestion = TestQuestion::whereUuid($this->test_question_id)->first();
         $attachment = Attachment::whereUuid($attachmentUuid)->first();
 
-        $response = app(\tcCore\Http\Controllers\TestQuestions\AttachmentsController::class)
-            ->destroy($testQuestion, $attachment);
+        if (!$this->isCloneRequest) {
+            if ($this->isPartOfGroupQuestion()) {
+                $response = (new GroupAttachmentsController)
+                    ->destroy(
+                        GroupQuestionQuestionManager::getInstanceWithUuid($this->testQuestionId),
+                        $attachment
+                    );
+            } else {
+                $response = (new AttachmentsController)
+                    ->destroy(
+                        TestQuestion::whereUuid($this->testQuestionId)->first(),
+                        $attachment
+                    );
+            }
+        }
 
-        if ($response->getStatusCode() == 200) {
-            $this->attachments = collect($this->attachments)->reject(function ($attachment) use ($attachmentUuid) {
+        if ($this->isCloneRequest || $response->getStatusCode()) {
+            $this->attachments = $this->attachments->reject(function ($attachment) use ($attachmentUuid) {
                 return $attachment->uuid == $attachmentUuid;
             });
         }
+        $this->attachmentsCount--;
     }
 
-    public function removeFromUploads($tempFile)
+    public function removeUpload($tempFile)
     {
         $this->uploads = collect($this->uploads)->reject(function ($tempUpload) use ($tempFile) {
-            return $tempUpload->getClientOriginalName() == $tempFile;
+            return $tempUpload->getFileName() == $tempFile;
         })->toArray();
+        $this->attachmentsCount--;
     }
 
-    public function removeVideo($video)
+    public function removeVideo($videoId)
     {
-        $this->videos = collect($this->videos)->reject(function ($item) use ($video) {
-            return $item == $video;
+        $this->videos = collect($this->videos)->reject(function ($item) use ($videoId) {
+            return $item['id'] == $videoId;
         })->toArray();
+        $this->sortOrderAttachments = collect($this->sortOrderAttachments)->reject(function ($item) use ($videoId) {
+            return $item == $videoId;
+        })->toArray();
+
+        $this->attachmentsCount--;
     }
 
     public function handleNewVideoAttachment($link)
     {
-        $this->videos[] = $link;
+        if ($this->validateVideoLink($link)) {
+            $video = ['id' => Uuid::uuid4()->toString(), 'link' => $link];
+            $this->videos[] = $video;
+            $this->sortOrderAttachments[] = $video['id'];
+            return $this->attachmentsCount++;
+        }
+
+        $this->dispatchBrowserEvent('video-url-not-supported', __('cms.Video URL not supported'));
     }
 
     private function handleFileAttachments($response): void
@@ -375,17 +574,13 @@ class OpenShort extends Component
         collect($this->uploads)->each(function ($upload) use ($response) {
             $upload->store('', 'attachments');
             $uploadJson = $this->audioUploadOptions[$upload->getClientOriginalName()] ?? [];
-
-            $testQuestion = $response->original;
-            $attachementRequest = new  CreateAttachmentRequest([
+            $attachementRequest = new CreateAttachmentRequest([
                 "type"       => "file",
                 "title"      => $upload->getClientOriginalName(),
                 "json"       => json_encode($uploadJson),
                 "attachment" => $upload,
             ]);
-
-            $response = app(\tcCore\Http\Controllers\TestQuestions\AttachmentsController::class)
-                ->store($testQuestion, $attachementRequest);
+            $this->createAttachementWithRequest($attachementRequest, $response);
         });
     }
 
@@ -394,12 +589,260 @@ class OpenShort extends Component
         collect($this->videos)->each(function ($video) use ($response) {
             $testQuestion = $response->original;
             $attachementRequest = new  CreateAttachmentRequest([
-                "type" => "video",
-                "link" => $video
+                "type"  => "video",
+                "link"  => $video['link'],
+                "title" => $video['title']
             ]);
 
-            $response = app(\tcCore\Http\Controllers\TestQuestions\AttachmentsController::class)
-                ->store($testQuestion, $attachementRequest);
+            $response = $this->createAttachementWithRequest($attachementRequest, $response);
         });
+    }
+
+    public function createAttachementWithRequest(CreateAttachmentRequest $request, $response)
+    {
+        if ($this->isPartOfGroupQuestion()) {
+            return (new GroupAttachmentsController)
+                ->store(
+                    GroupQuestionQuestionManager::getInstanceWithUuid($response->original->group_question_question_path),
+                    $request
+                );
+        }
+        return (new AttachmentsController)
+            ->store(
+                $testQuestion = $response->original,
+                $request
+            );
+    }
+
+
+    public function removeItem($item, $id)
+    {
+        $method = 'remove' . Str::ucfirst($item);
+        if (method_exists($this, $method)) {
+            $this->$method($id);
+        }
+        $this->dispatchBrowserEvent('attachments-updated');
+    }
+
+    private function removeQuestion()
+    {
+        if (!$this->questionId) {
+            $this->returnToTestOverview();
+        }
+
+        $testQuestion = TestQuestion::whereUuid($this->testQuestionId)->firstOrFail();
+
+        $response = (new TestQuestionsController)->destroy($testQuestion);
+
+        if ($response->getStatusCode() == 200) {
+            $this->returnToTestOverview();
+        }
+    }
+
+    public function updatedUploads($value)
+    {
+        $this->attachmentsCount++;
+    }
+
+    public function decodeCompletionTags($question)
+    {
+        if (!$question->completionQuestionAnswers) {
+            return $question->getQuestionHtml();
+        }
+
+        $tags = [];
+        $question->completionQuestionAnswers->each(function ($tag) use (&$tags) {
+            $tags[$tag['tag']][] = $tag['answer'];
+        });
+
+        $searchPattern = '/\[([0-9]+)\]/i';
+        $replacementFunction = function ($matches) use ($question, $tags) {
+            $tag_id = $matches[1]; // the completion_question_answers list is 1 based
+            if (isset($tags[$tag_id])) {
+                return sprintf('[%s]', implode('|', $tags[$tag_id]));
+            }
+        };
+
+        return preg_replace_callback($searchPattern, $replacementFunction, $question->getQuestionHtml());
+    }
+
+    public function isPartOfGroupQuestion(): bool
+    {
+        return $this->isPartOfGroupQuestion;
+    }
+
+    private function setIsPartOfGroupQuestion()
+    {
+        $this->isPartOfGroupQuestion = (request('owner') == 'group');
+    }
+
+    private function editModeForExistingQuestion()
+    {
+        if (empty($this->testQuestionId)) {
+            return false;
+        }
+
+        if ($this->isPartOfGroupQuestion()) {
+            if (empty($this->groupQuestionQuestionId)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    private function initializeContext($action, $type, $subType, Test $activeTest): void
+    {
+        $this->action = $action;
+        $this->question['type'] = $type;
+        $this->question['subtype'] = $subType;
+        $this->setIsPartOfGroupQuestion();
+
+        $this->answerEditorId = Str::uuid()->__toString();
+        $this->questionEditorId = Str::uuid()->__toString();
+
+        $this->testName = $activeTest->name;
+        $this->testAuthors = $activeTest->AuthorsAsString;
+        $this->subjectId = $activeTest->subject_id;
+        $this->educationLevelId = $activeTest->education_level_id;
+    }
+
+    private function initializePropertyBag($activeTest): void
+    {
+        if ($this->obj && method_exists($this->obj, 'preparePropertyBag')) {
+            $this->obj->preparePropertyBag();
+        }
+
+        $this->question['test_id'] = $activeTest->id;
+        $this->question['is_open_source_content'] = $activeTest->is_open_source_content ?? 0;
+
+        if ($this->editModeForExistingQuestion()) {
+            if ($this->isPartOfGroupQuestion()) {
+                $tq = GroupQuestionQuestion::whereUuid($this->groupQuestionQuestionId)->first();
+                $this->attachments = $tq->groupQuestion->attachments;
+                $q = $tq->question;
+            } else {
+                $tq = TestQuestion::whereUuid($this->testQuestionId)->first();
+                $q = $tq->question;
+                $this->attachments = $q->attachments;
+            }
+
+            $q = (new QuestionHelper())->getTotalQuestion($q->question);
+            $this->pValues = $q->getQuestionInstance()->getRelation('pValue');
+
+            $this->questionId = $q->question->getKey();
+            $this->question['bloom'] = $q->bloom;
+            $this->question['rtti'] = $q->rtti;
+            $this->question['miller'] = $q->miller;
+            $this->question['answer'] = $q->answer;
+            $this->question['question'] = $q->question->getQuestionHTML();
+            $this->question['score'] = $q->score;
+            $this->question['note_type'] = $q->note_type;
+            $this->question['attainments'] = $q->getQuestionAttainmentsAsArray();
+            $this->question['order'] = $tq->order;
+            $this->question['all_or_nothing'] = $q->all_or_nothing;
+            $this->question['closeable'] = $q->closeable;
+            $this->question['maintain_position'] = $tq->maintain_position;
+            $this->question['add_to_database'] = $q->add_to_database;
+            $this->question['discuss'] = $tq->discuss;
+            $this->question['decimal_score'] = $q->decimal_score;
+
+            $this->educationLevelId = $q->education_level_id;
+            $this->rttiToggle = filled($this->question['rtti']);
+            $this->bloomToggle = filled($this->question['bloom']);
+            $this->millerToggle = filled($this->question['miller']);
+            $this->initWithTags = $q->tags;
+            $this->initWithTags->each(function ($tag) {
+                $this->question['tags'][] = $tag->name;
+            });
+
+            $this->attachmentsCount = count($this->attachments);
+
+            if ($this->obj && method_exists($this->obj, 'initializePropertyBag')) {
+                $this->obj->initializePropertyBag($q);
+            }
+        }
+
+        if ($this->obj && method_exists($this->obj, 'createAnswerStruct')) {
+            $this->obj->createAnswerStruct();
+        }
+    }
+
+    private function validateVideoLink($link)
+    {
+        return !!$this->getVideoHost($link);
+    }
+
+    private function getVideoHost($link)
+    {
+        $youtube = collect(['youtube.com', 'youtu.be']);
+        $vimeo = collect(['vimeo.com']);
+        $host = null;
+
+        $youtube->each(function ($opt) use ($link, &$host) {
+            if (Str::contains($link, $opt)) {
+                $host = 'youtube';
+            }
+        });
+
+        $vimeo->each(function ($opt) use ($link, &$host) {
+            if (Str::contains($link, $opt)) {
+                $host = 'vimeo';
+            }
+        });
+
+        return $host;
+    }
+
+    private function checkTaxonomyValues()
+    {
+        $rulesToValidate = null;
+        collect(['rtti', 'bloom', 'miller'])->each(function ($taxonomy) use (&$rulesToValidate) {
+            $toggle = $taxonomy . 'Toggle';
+            $warningShow = $taxonomy . 'WarningShown';
+            if ($this->$toggle && blank($this->question[$taxonomy]) && !$this->$warningShow) {
+                $this->$warningShow = true;
+                $rulesToValidate["question.$taxonomy"] = 'required';
+            }
+            if (!$this->$toggle && filled($this->question[$taxonomy])) {
+                $this->question[$taxonomy] = '';
+            }
+        });
+
+        if ($rulesToValidate) {
+            $this->validate($rulesToValidate);
+        }
+    }
+
+    public function getUploadOrVideo($sortHash)
+    {
+        $video = $upload = null;
+
+        $upload = collect($this->uploads)->first(function ($upload) use ($sortHash) {
+            return $upload->getFileName() === $sortHash;
+//            return $upload->id == $sortHash;
+        });
+
+        $video = collect($this->videos)->first(function ($video) use ($sortHash) {
+            return $video['id'] == $sortHash;
+//            return $video == $sortHash;
+        });
+
+        return [$upload, $video];
+    }
+
+    public function setVideoTitle($videoUrl, $title)
+    {
+        $this->videos = collect($this->videos)->map(function ($video) use ($title, $videoUrl) {
+            if ($video['link'] == $videoUrl) {
+                $video['title'] = $title;
+            }
+            return $video;
+        })->toArray();
+    }
+
+    public function setQuestionProperty($property, $value)
+    {
+        $this->question[$property] = $value;
     }
 }

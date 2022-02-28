@@ -57,6 +57,8 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
         CanResetPassword;
     use UuidTrait;
 
+    const MIN_PASSWORD_LENGTH = 8;
+
     protected $casts = [
         'uuid'    => EfficientUuid::class,
         'intense' => 'boolean',
@@ -164,6 +166,11 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
         $user = (new Factory(new self))->generate($data);
         $user->save();
         return $user;
+    }
+
+    public static function getPasswordLengthRule()
+    {
+        return 'min:' . User::MIN_PASSWORD_LENGTH;
     }
 
     public function fill(array $attributes)
@@ -1297,6 +1304,14 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
         return (bool) $this->subjects()->where('name', 'like', 'cito%')->count() > 0;
     }
 
+    public function isInExamSchool(): bool
+    {
+        if(optional($this->schoolLocation)->customer_code==config('custom.examschool_customercode')){
+            return true;
+        }
+        return false;
+    }
+
     public function getNameFullAttribute()
     {
         $result = '';
@@ -2149,15 +2164,19 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
 
     public function getRedirectUrlSplashOrStartAndLoginIfNeeded($options = null)
     {
-        if($this->isA('student')){
-            if($this->schoolLocation->allow_new_student_environment){
-                $this->loginThisUser();
-                $options = [
-                  'internal_page' => '/users/student_splash',
-                ];
-                return $this->getTemporaryCakeLoginUrl($options);
+        // added conditional for Thijs to test the new app with fallback if we forget to remove the conditional
+        // should be removed before deployment to live
+//        if(Carbon::now() > Carbon::createFromFormat('Y-m-d','2022-01-22')) {
+            if ($this->isA('student')) {
+                if ($this->schoolLocation->allow_new_student_environment) {
+                    $this->loginThisUser();
+                    $options = [
+                        'internal_page' => '/users/student_splash',
+                    ];
+                    return $this->getTemporaryCakeLoginUrl($options);
+                }
             }
-        }
+//        }
 
         return $this->getTemporaryCakeLoginUrl($options);
     }
@@ -2401,6 +2420,16 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
     public function getActiveLanguage()
     {
         return session()->has('locale') ? session()->get('locale') : optional($this->schoolLocation)->school_language ??  config('app.locale');
+    }
+
+    public function hasSingleSchoolLocation()
+    {
+        return ($this->allowedSchoolLocations()->count() == 1);
+    }
+
+    public function hasMultipleSchoolLocations()
+    {
+        return ($this->allowedSchoolLocations()->count() > 1);
     }
 
     public function hasSingleSchoolLocationNoSharedSections()

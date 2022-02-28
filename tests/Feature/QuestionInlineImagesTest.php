@@ -56,4 +56,29 @@ class QuestionInlineImagesTest extends TestCase
         $this->assertStringContainsString('<math', $convertedHtml);
         $this->assertStringNotContainsString('testportal.test-correct.nl/custom/imageload.php?filename=PoOSvV6RZQ-2020_05_12_11_40_271.png', $convertedHtml);
     }
+
+    /** @test */
+    public function integration_test_with_sample_that_does_not_convert_correct()
+    {
+        $html = '<p><strong>Aangepast groepje</strong><math xmlns="http://www.w3.org/1998/Math/MathML"></math><mroot><mn></mn><math xmlns="http://www.w3.org/1998/Math/MathML"><mroot><mn>5</mn><mn>2</mn></mroot></math></mroot></p>
+
+<p><img height="142" src="https://testportal.test-correct.nl/custom/imageload.php?filename=f2x9TseUoNmdXZo9BfDw" width="354" alt="imageload.php?filename=f2x9TseUoNmdXZo9BfDw"></p>
+
+<p> </p>';
+        $questionHtmlConverter = new QuestionHtmlConverter($html);
+
+        $convertedHtml = $questionHtmlConverter->convertImageSourcesWithPatternToNamedRoute('inline-image', Question::INLINE_IMAGE_PATTERN );
+        dd($convertedHtml);
+    }
+
+    /** @test */
+    public function integration_test_for_willem_van_oranje_where_question_inline_image_is_rendered_from_portal_not_laravel()
+    {
+        $html = '<p><img height="142" src="https://testportal.test-correct.nl/custom/imageload.php?filename=f2x9TseUoNmdXZo9BfDw" width="354" alt="imageload.php?filename=f2x9TseUoNmdXZo9BfDw"></p>';
+
+
+        $questionHtmlConverter= new QuestionHtmlConverter($html);
+        $convertedHtml = $questionHtmlConverter->convertImageSourcesWithPatternToNamedRoute('inline-image', Question::INLINE_IMAGE_PATTERN );
+        dd($convertedHtml);
+    }
 }

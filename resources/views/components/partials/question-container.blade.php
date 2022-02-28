@@ -33,6 +33,7 @@
         }
     "
      x-on:start-timeout="
+             $wire.set('blockAttachments',true);
              progressBar = true;
              startTime = $event.detail.timeout;
              progress = startTime;
@@ -53,9 +54,9 @@
      x-on:force-taken-away-blur.window="$el.style.opacity = $event.detail.shouldBlur ? 0 : 1 ;"
 >
     <div class="flex justify-end space-x-4 mt-6">
-        @if(!$this->closed)
-            <x-attachment.attachments-button :question="$question"></x-attachment.attachments-button>
-            <x-question.notepad-button :question="$question"></x-question.notepad-button>
+        @if(!$this->closed )
+            <x-attachment.attachments-button :question="$question" :blockAttachments="$this->blockAttachments"></x-attachment.attachments-button>
+            <x-question.notepad-button :question="$question" ></x-question.notepad-button>
         @endif
     </div>
 
@@ -85,7 +86,7 @@
         <div class="flex flex-1 flex-col">
             @if(!$this->closed)
                 @if($this->group)
-                    <div class="mb-5" questionHtml wire:ignore>{!! $this->group->question->getQuestionHtml() !!}</div>
+                    <div class="mb-5" questionHtml wire:ignore>{!! $this->group->question->converted_question_html !!}</div>
                 @endif
                 {{ $slot }}
             @else

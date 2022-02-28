@@ -4,7 +4,7 @@ return [
     'name_last_required'       => 'Surname is required',
     'gender_required'          => 'Please provide your gender',
     'password_required'        => 'Password is required',
-    'password_min'             => 'Password must be longer than 8 characters',
+    'password_min'             => 'Password must contain at least 8 characters',
     'password_regex'           => 'Password does not meet the requirements',
     'password_same'            => 'Password does not match',
     'school_location_required' => 'School name is required',

@@ -10,14 +10,15 @@
                             }
                             CKEDITOR.replace( '{{ $editorId }}', {
                                 removePlugins : 'pastefromword,advanced,simpleuploads,dropoff,copyformatting,image,pastetext,uploadwidget,uploadimage',
-                                extraPlugins : 'blockimagepaste,quicktable,ckeditor_wiris,autogrow',
+                                extraPlugins : 'blockimagepaste,quicktable,ckeditor_wiris,autogrow,wordcount,notification,readspeaker',
                                 toolbar: [
                                     { name: 'basicstyles', items: [ 'Bold', 'Italic', 'Underline', 'Strike', 'Subscript', 'Superscript' ] },
                                     { name: 'paragraph', items: [ 'NumberedList', 'BulletedList' ] },
                                     { name: 'insert', items: [ 'Table' ] },
                                     { name: 'styles', items: ['Font', 'FontSize' ] },
                                     { name: 'wirisplugins', items: ['ckeditor_wiris_formulaEditor', 'ckeditor_wiris_formulaEditorChemistry']}
-                                ]
+                                ],
+                                contentsCss : '/ckeditor/student.css'
                             })
                             CKEDITOR.config.readOnly = true
                             CKEDITOR.instances['{{ $editorId }}']

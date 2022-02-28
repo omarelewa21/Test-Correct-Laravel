@@ -79,7 +79,12 @@ class UserImportRequest extends Request {
             'data.*.name' => 'required',
             'data.*.external_id' => 'required',
         ]);
-        if ($extra_rule === []) {
+
+        if ($extra_rule === [] && request()->type == 'teacher') {
+            $mergedRules = $rules->merge([
+                'data.*.external_id' => '',
+            ]);
+        }elseif ($extra_rule === []) {
             $mergedRules = $rules->merge([
                 'data.*.external_id' => 'required',
             ]);

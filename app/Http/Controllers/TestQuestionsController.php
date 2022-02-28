@@ -229,13 +229,6 @@ class TestQuestionsController extends Controller {
         $question = $testQuestion->question;
         DB::beginTransaction();
         try {
-            if($question->type == "CompletionQuestion" && $question->subtype == "multi"){
-                $qHelper = new QuestionHelper();
-				$questionData = $qHelper->getQuestionStringAndAnswerDetailsForSavingCompletionQuestion($request->question, true);
-				if($questionData["error"]){
-					throw new QuestionException($questionData["error"]);
-				}
-            }
             $testQuestion->fill($request->all());
             $question->updateWithRequest($request,$testQuestion);
             $testQuestion->setAttribute('question_id', $question->getKeyAfterPossibleDuplicate());

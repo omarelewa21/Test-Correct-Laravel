@@ -14,7 +14,7 @@
     </div>
     <div class="flex relative mb-2">
         <div class="flex flex-row-reverse z-20">
-            <x-button.secondary class="items-center pr-2 pl-6 -ml-4 relative hide-shadow" wire:click="addQueryAsTag()">
+            <x-button.secondary style="box-shadow: none;" class="items-center pr-2 pl-6 -ml-4 relative hide-shadow" wire:click="addQueryAsTag()" selid="add-tag-btn">
                 <x-icon.plus/>
             </x-button.secondary>
             <x-input.text
@@ -27,6 +27,7 @@
                     wire:keydown.arrow-up="decrementHighlight()"
                     wire:keydown.arrow-down="incrementHighlight()"
                     wire:keydown.enter="selectTag()"
+                    selid="tag-input"
                     @click.outside="if (query) { query = ''}"
             />
         </div>

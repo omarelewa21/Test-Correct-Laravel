@@ -1,3 +1,9 @@
+@props([
+    'title' => 'unkown',
+    'upload',
+    'attachment',
+])
+
 @php
     $type =  '';
     if($upload) {
@@ -9,27 +15,25 @@
     } else {
         $type = $attachment->getFileType();
     }
+    if($type == 'video') {
+        $host = $this->getVideoHost($attachment->link);
+    }
 @endphp
 
 <div class="flex border rounded-lg border-blue-grey items-center mr-4 mb-2"
-     x-data="{options: false}"
-     x-init="
-        $watch('options', value => {
-            if (value) {
-                let pWidth = $refs.optionscontainer.parentElement.offsetWidth;
-                let pPos = $refs.optionscontainer.parentElement.getBoundingClientRect().left;
-                if ((pWidth + pPos) < 288) {
-                    $refs.optionscontainer.classList.remove('right-0');
-                }
-            }
-        })
-     "
+     x-data="badge('{{ $type == 'video' ? $attachment->link : null }}')"
+     wire:key="{{ $attributes['wire:key'] }}"
+     @attachments-updated.window="setIndex()"
 >
     <div class="flex p-2 border-r border-blue-grey h-full items-center">
         @if($type == 'image')
             <x-icon.image/>
         @elseif($type == 'video')
-            <x-icon.youtube/>
+            @if($host === 'vimeo')
+                <x-icon.vimeo/>
+            @else
+                <x-icon.youtube/>
+            @endif
         @elseif($type == 'audio')
             <x-icon.audiofile/>
         @elseif($type == 'pdf')
@@ -39,9 +43,13 @@
         @endif
     </div>
     <div class="flex base items-center relative">
+        <span class="pl-2" x-text="index + ':'"></span>
         @if($type == 'video')
-        <span class="p-2 text-base max-w-[200px] truncate" title="{{ $attachment->link }}">
-            {{ $attachment->link }}
+        <span class="p-2 text-base max-w-[200px] truncate"
+              :class="{'text-midgrey': resolvingTitle}"
+              :title="videoTitle"
+              x-text="videoTitle"
+        >
         </span>
         @else
         <span class="p-2 text-base max-w-[200px] truncate" title="{{ $title }}">
@@ -118,7 +126,7 @@
                                 <x-input.text
                                         type="number"
                                         maxlength="4"
-                                        class="w-24 pr-10"
+                                        class="w-24 pr-10 text-base"
                                         placeholder="250"
                                         @change="$wire.handleUploadSettingChange('timeout', $event.target.value, '{{ $title }}')"
                                 />
@@ -126,7 +134,7 @@
                                 <x-input.text
                                         type="number"
                                         maxlength="4"
-                                        class="w-24 pr-10"
+                                        class="w-24 pr-10 text-base"
                                         placeholder="250"
                                         @change="$wire.handleAttachmentSettingChange({'timeout': $event.target.value}, '{{ $attachment->uuid }}')"
                                         :value="optional(json_decode($attachment->json))->timeout"
@@ -139,14 +147,9 @@
                 <div class="flex w-full h-px bg-blue-grey mb-2"></div>
             @endif
             <button class="flex items-center space-x-2 py-1 px-4 base hover:text-primary hover:bg-offwhite transition w-full"
-                 @if($upload)
-                 wire:click="removeFromUploads('{{ $title }}')"
-                 @else
-                 wire:click="removeAttachment('{{ $attachment->uuid }}')"
-                 @endif
-                 @click="options = false"
+                    @click="$dispatch('delete-modal', ['{{ $upload ? 'upload' : 'attachment'}}', '{{ $upload ? $attachment->getFileName() : $attachment->uuid }}'])"
             >
-                <x-icon.trash/>
+                <x-icon.remove/>
                 <span class="text-base bold inherit">{{ __('cms.Verwijderen') }}</span>
             </button>
         </div>

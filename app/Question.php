@@ -14,15 +14,18 @@ use Dyrynda\Database\Casts\EfficientUuid;
 use Dyrynda\Database\Support\GeneratesUuid;
 use Ramsey\Uuid\Uuid;
 use tcCore\Services\QuestionHtmlConverter;
+use tcCore\Traits\ExamSchoolQuestionTrait;
 use tcCore\Traits\UuidTrait;
 use \Exception;
 
 class Question extends MtiBaseModel {
     use SoftDeletes;
     use UuidTrait;
+    use ExamSchoolQuestionTrait;
 
     protected $casts = [
         'uuid' => EfficientUuid::class,
+        'all_or_nothing' => 'boolean',
     ];
 
     public $mtiBaseClass = 'tcCore\Question';
@@ -70,7 +73,8 @@ class Question extends MtiBaseModel {
                             'styling',
                             'closeable',
                             'html_specialchars_encoded',
-                            'is_subquestion'
+                            'is_subquestion',
+                            'all_or_nothing',
                             ];
 
     /**
@@ -192,6 +196,10 @@ class Question extends MtiBaseModel {
         static::created(function(Question $question)
         {
             QuestionAuthor::addAuthorToQuestion($question);
+        });
+        static::saving(function(Question $question)
+        {
+            $question->handleExamPublishingQuestion();
         });
 
         static::saved(function(Question $question)
@@ -379,7 +387,7 @@ class Question extends MtiBaseModel {
 
     protected function allOrNothingQuestion()
     {
-        return $this->isCitoQuestion();
+        return $this->isCitoQuestion() || $this->all_or_nothing;
     }
 
     public function isCitoQuestion()
