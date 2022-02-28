@@ -48,7 +48,7 @@ RichTextEditor = {
         }
 
         CKEDITOR.replace(editorId, {
-            extraPlugins: 'selection,blockimagepaste,quicktable,ckeditor_wiris,autogrow,wordcount,notification',
+            extraPlugins: 'selection,quicktable,ckeditor_wiris,autogrow,wordcount,notification',
             toolbar: [
                 {name: 'basicstyles', items: ['Bold', 'Italic', 'Underline', 'Strike', 'Subscript', 'Superscript']},
                 {name: 'paragraph', items: ['NumberedList', 'BulletedList']},
