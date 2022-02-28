@@ -9,6 +9,7 @@
 @import url("question-editor.css");
 @import url("filepond.css");
 @import url("drawing-question.css");
+@import url("ckeditor5.css");
 
 @tailwind base;
 @tailwind components;
