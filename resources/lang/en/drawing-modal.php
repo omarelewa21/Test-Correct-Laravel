@@ -34,7 +34,8 @@ return [
     'Verbergen'                  => 'Hide',
     'Versleep volgorde'          => 'Drag order',
     'Laag toevoegen'             => 'Add layer',
-    'Explainer answer'           => 'In this tab you draw the objects for the answer model. The answer model is not show to the students when they\'re making the test. It will be visible when discussing and grading the test.',
-    'Explainer question'         => 'In this tab you draw the objects for the question. This is what the student sees when making a test',
+    'Explainer answer teacher'   => 'In this tab you draw the objects for the answer model. The answer model is not show to the students when they\'re making the test. It will be visible when discussing and grading the test.',
+    'Explainer question teacher' => 'In this tab you draw the objects for the question. This is what the student sees when making a test',
+    'Explainer answer student'   => '',
 ];
 ?>

@@ -3,7 +3,7 @@ import * as svgShape from "./svgShape.js";
 import {UIElements, warningBox} from "./uiElements.js";
 import * as sidebar from "./sidebar.js";
 
-window.initDrawingQuestion = function (rootElement) {
+window.initDrawingQuestion = function (rootElement, isTeacher) {
 
     /**
      * @typedef Cursor
@@ -41,6 +41,7 @@ window.initDrawingQuestion = function (rootElement) {
             gridSize: 1,
             spacebarPressed: false,
             root: rootElement,
+            isTeacher: isTeacher
         },
         firstInit: true,
         warnings: {},
@@ -134,7 +135,7 @@ window.initDrawingQuestion = function (rootElement) {
             return this.params.currentTool === toolname;
         },
         isTeacher() {
-            return !(UI.gridSize === undefined);
+            return this.params.isTeacher;
         }
     };
 
@@ -629,6 +630,71 @@ window.initDrawingQuestion = function (rootElement) {
                     callback: () => {},
                 }
             }
+        },
+        {
+            element: UI.gridToggle,
+            events: {
+                "change": {
+                    callback: processGridToggleChange,
+                }
+            }
+        },
+        {
+            element: UI.gridSize,
+            events: {
+                "input": {
+                    callback: updateGrid,
+                },
+                "blur": {
+                    callback: () => {
+                        handleGridSizeButtonStates();
+                    }
+                }
+            }
+        },
+        {
+            element: UI.decrGridSize,
+            events: {
+                "click": {
+                    callback: () => {
+                        UI.gridSize.stepDown();
+                        handleGridSizeButtonStates();
+                        updateGrid();
+                    },
+                },
+                "focus": {
+                    callback: () => {
+                        UI.gridSize.classList.add("active");
+                    },
+                },
+                "blur": {
+                    callback: () => {
+                        UI.gridSize.classList.remove("active");
+                    },
+                },
+            }
+        },
+        {
+            element: UI.incrGridSize,
+            events: {
+                "click": {
+                    callback: () => {
+                        UI.gridSize.stepUp();
+                        handleGridSizeButtonStates();
+                        updateGrid();
+                    },
+                },
+                "focus": {
+                    callback: () => {
+                        UI.gridSize.classList.add("active");
+                    },
+                },
+                "blur": {
+                    callback: () => {
+                        UI.gridSize.classList.remove("active");
+                    },
+                },
+            }
         }
     ];
 
@@ -640,71 +706,6 @@ window.initDrawingQuestion = function (rootElement) {
                     "change": {
                         callback: processUploadedImages,
                     }
-                }
-            },
-            {
-                element: UI.gridToggle,
-                events: {
-                    "change": {
-                        callback: processGridToggleChange,
-                    }
-                }
-            },
-            {
-                element: UI.gridSize,
-                events: {
-                    "input": {
-                        callback: updateGrid,
-                    },
-                    "blur": {
-                        callback: () => {
-                            handleGridSizeButtonStates();
-                        }
-                    }
-                }
-            },
-            {
-                element: UI.decrGridSize,
-                events: {
-                    "click": {
-                        callback: () => {
-                            UI.gridSize.stepDown();
-                            handleGridSizeButtonStates();
-                            updateGrid();
-                        },
-                    },
-                    "focus": {
-                        callback: () => {
-                            UI.gridSize.classList.add("active");
-                        },
-                    },
-                    "blur": {
-                        callback: () => {
-                            UI.gridSize.classList.remove("active");
-                        },
-                    },
-                }
-            },
-            {
-                element: UI.incrGridSize,
-                events: {
-                    "click": {
-                        callback: () => {
-                            UI.gridSize.stepUp();
-                            handleGridSizeButtonStates();
-                            updateGrid();
-                        },
-                    },
-                    "focus": {
-                        callback: () => {
-                            UI.gridSize.classList.add("active");
-                        },
-                    },
-                    "blur": {
-                        callback: () => {
-                            UI.gridSize.classList.remove("active");
-                        },
-                    },
                 }
             }
         );
@@ -1478,10 +1479,8 @@ window.initDrawingQuestion = function (rootElement) {
     }
 
     function processGridToggleChange() {
-        if (drawingApp.isTeacher()) {
-            const gridState = !UI.gridToggle.checked;
-            updateGridButtonStates(gridState);
-        }
+        const gridState = !UI.gridToggle.checked;
+        updateGridButtonStates(gridState);
         updateGridVisibility();
     }
 
@@ -1792,7 +1791,10 @@ window.calculatePreviewBounds = function (parent) {
     const matrix = new DOMMatrix();
     const height = parent.clientHeight,
         width = parent.clientWidth;
-    const scale = parent.viewBox.baseVal.width / width;
+    let scale = parent.viewBox.baseVal.width / width;
+    if (parent.viewBox.baseVal.width > width) {
+        scale = width / parent.viewBox.baseVal.width
+    }
     return {
         top: -(matrix.f + (height)) / scale,
         bottom: (height - matrix.f) / scale,

@@ -34,7 +34,8 @@ return [
     'Verbergen'                  => 'Verbergen',
     'Versleep volgorde'          => 'Versleep volgorde',
     'Laag toevoegen'             => 'Laag toevoegen',
-    'Explainer answer'           => 'Onder deze tab teken je de objecten die horen bij het antwoordmodel. Het antwoordmodel is niet te zien voor de student bij het maken van de tekenvraag, maar allen zichtbaar bij het bespreken en nakijken van de vraag.',
-    'Explainer question'         => 'Onder deze tab teken je de objecten die horen bij het vraagmodel. Het vraagmodel ziet de student bij het maken van de tekenvraag.',
+    'Explainer answer teacher'   => 'Onder deze tab teken je de objecten die horen bij het antwoordmodel. Het antwoordmodel is niet te zien voor de student bij het maken van de tekenvraag, maar allen zichtbaar bij het bespreken en nakijken van de vraag.',
+    'Explainer question teacher' => 'Onder deze tab teken je de objecten die horen bij het vraagmodel. Het vraagmodel ziet de student bij het maken van de tekenvraag.',
+    'Explainer answer student'   => '',
 ];
 ?>

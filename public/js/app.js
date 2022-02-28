@@ -5787,7 +5787,7 @@ document.addEventListener('alpine:init', function () {
         var _this7 = this;
 
         this.toolName = "drawingTool_".concat(questionId);
-        var toolName = window[this.toolName] = initDrawingQuestion(this.$root);
+        var toolName = window[this.toolName] = initDrawingQuestion(this.$root, this.isTeacher);
 
         if (this.isTeacher) {
           this.makeGridIfNecessary(toolName);
@@ -5809,15 +5809,15 @@ document.addEventListener('alpine:init', function () {
         toolName.Canvas.setCurrentLayer("answer");
       },
       handleGrid: function handleGrid(toolName) {
-        if (this.gridSvg !== '0.00') {
+        if (this.gridSvg !== '0.00' && this.gridSvg !== '') {
           var parsedGrid = parseFloat(this.gridSvg);
+          toolName.UI.gridSize.value = parsedGrid;
+          toolName.UI.gridToggle.checked = true;
+          toolName.drawingApp.params.gridSize = parsedGrid;
+          toolName.Canvas.layers.grid.params.hidden = false;
 
-          if (toolName.drawingApp.isTeacher()) {
-            toolName.UI.gridSize.value = parsedGrid;
-            toolName.UI.gridToggle.checked = true;
-          } else {
-            toolName.drawingApp.params.gridSize = parsedGrid;
-            toolName.Canvas.layers.grid.params.hidden = false;
+          if (!this.isTeacher) {
+            this.$root.querySelector('#grid-background').remove();
           }
         }
       },
@@ -6562,7 +6562,7 @@ function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
 
 
 
-window.initDrawingQuestion = function (rootElement) {
+window.initDrawingQuestion = function (rootElement, isTeacher) {
   var _this2 = this;
 
   /**
@@ -6600,7 +6600,8 @@ window.initDrawingQuestion = function (rootElement) {
       endmarkerType: "no-endmarker",
       gridSize: 1,
       spacebarPressed: false,
-      root: rootElement
+      root: rootElement,
+      isTeacher: isTeacher
     },
     firstInit: true,
     warnings: {},
@@ -6695,7 +6696,7 @@ window.initDrawingQuestion = function (rootElement) {
       return this.params.currentTool === toolname;
     },
     isTeacher: function isTeacher() {
-      return !(UI.gridSize === undefined);
+      return this.params.isTeacher;
     }
   };
   /**
@@ -7209,6 +7210,67 @@ window.initDrawingQuestion = function (rootElement) {
         callback: function callback() {}
       }
     }
+  }, {
+    element: UI.gridToggle,
+    events: {
+      "change": {
+        callback: processGridToggleChange
+      }
+    }
+  }, {
+    element: UI.gridSize,
+    events: {
+      "input": {
+        callback: updateGrid
+      },
+      "blur": {
+        callback: function callback() {
+          handleGridSizeButtonStates();
+        }
+      }
+    }
+  }, {
+    element: UI.decrGridSize,
+    events: {
+      "click": {
+        callback: function callback() {
+          UI.gridSize.stepDown();
+          handleGridSizeButtonStates();
+          updateGrid();
+        }
+      },
+      "focus": {
+        callback: function callback() {
+          UI.gridSize.classList.add("active");
+        }
+      },
+      "blur": {
+        callback: function callback() {
+          UI.gridSize.classList.remove("active");
+        }
+      }
+    }
+  }, {
+    element: UI.incrGridSize,
+    events: {
+      "click": {
+        callback: function callback() {
+          UI.gridSize.stepUp();
+          handleGridSizeButtonStates();
+          updateGrid();
+        }
+      },
+      "focus": {
+        callback: function callback() {
+          UI.gridSize.classList.add("active");
+        }
+      },
+      "blur": {
+        callback: function callback() {
+          UI.gridSize.classList.remove("active");
+        }
+      }
+    }
   }];
 
   if (drawingApp.isTeacher()) {
@@ -7217,67 +7279,6 @@ window.initDrawingQuestion = function (rootElement) {
       events: {
         "change": {
           callback: processUploadedImages
-        }
-      }
-    }, {
-      element: UI.gridToggle,
-      events: {
-        "change": {
-          callback: processGridToggleChange
-        }
-      }
-    }, {
-      element: UI.gridSize,
-      events: {
-        "input": {
-          callback: updateGrid
-        },
-        "blur": {
-          callback: function callback() {
-            handleGridSizeButtonStates();
-          }
-        }
-      }
-    }, {
-      element: UI.decrGridSize,
-      events: {
-        "click": {
-          callback: function callback() {
-            UI.gridSize.stepDown();
-            handleGridSizeButtonStates();
-            updateGrid();
-          }
-        },
-        "focus": {
-          callback: function callback() {
-            UI.gridSize.classList.add("active");
-          }
-        },
-        "blur": {
-          callback: function callback() {
-            UI.gridSize.classList.remove("active");
-          }
-        }
-      }
-    }, {
-      element: UI.incrGridSize,
-      events: {
-        "click": {
-          callback: function callback() {
-            UI.gridSize.stepUp();
-            handleGridSizeButtonStates();
-            updateGrid();
-          }
-        },
-        "focus": {
-          callback: function callback() {
-            UI.gridSize.classList.add("active");
-          }
-        },
-        "blur": {
-          callback: function callback() {
-            UI.gridSize.classList.remove("active");
-          }
         }
       }
     });
@@ -8099,11 +8100,8 @@ window.initDrawingQuestion = function (rootElement) {
   }
 
   function processGridToggleChange() {
-    if (drawingApp.isTeacher()) {
-      var gridState = !UI.gridToggle.checked;
-      updateGridButtonStates(gridState);
-    }
-
+    var gridState = !UI.gridToggle.checked;
+    updateGridButtonStates(gridState);
     updateGridVisibility();
   }
 
@@ -8442,6 +8440,11 @@ window.calculatePreviewBounds = function (parent) {
   var height = parent.clientHeight,
       width = parent.clientWidth;
   var scale = parent.viewBox.baseVal.width / width;
+
+  if (parent.viewBox.baseVal.width > width) {
+    scale = width / parent.viewBox.baseVal.width;
+  }
+
   return {
     top: -(matrix.f + height) / scale,
     bottom: (height - matrix.f) / scale,
