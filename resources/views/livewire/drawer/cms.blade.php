@@ -15,65 +15,49 @@
         </div>
 
         <div id="sidebar-carousel-container"
-             x-data="{
-                slideWidth: 300,
-                init() {
-                    this.slideWidth = $root.offsetWidth;
-                },
-                next(currentEl) {
-                    const left = currentEl.scrollLeft + this.slideWidth;
-                    this.scroll(left);
-
-                    this.handleVerticalScroll(currentEl.nextElementSibling);
-                },
-                prev(currentEl) {
-                    const left = currentEl.scrollLeft - this.slideWidth;
-                    this.scroll(left);
-                    this.handleVerticalScroll(currentEl.previousElementSibling);
-                },
-                home() {
-                    this.scroll(0);
-                },
-                scroll(position) {
-                    this.$root.scrollTo({
-                        left: position >= 0 ? position : 0,
-                        behavior: 'smooth'
-                    });
-                },
-                handleVerticalScroll(el) {
-                    const drawer = document.querySelector('.drawer');
-                    if (el.offsetHeight > drawer.offsetHeight) {
-                        drawer.classList.add('overflow-auto');
-                    } else {
-                        drawer.classList.remove('overflow-auto');
-                    }
-                }
-             }"
+             x-data="questionEditorSidebar"
         >
-            <x-sidebar.slide-container x-ref="container1" class="p-2.5 border border-allred">
-                <x-button.text-button @click="next($refs.container1)">
-                    <span>Nieuwe vraag</span>
-                    <x-icon.plus/>
-                </x-button.text-button>
-
-                @foreach($this->testQuestionUuids as $uuid)
-                    <div class="@if($this->testQuestionId === $uuid) border border-primary @endif">
-                        <x-button.text-button wire:click="showQuestion('{{ $uuid }}')"
-                                              @click="$dispatch('question-change', {old: '{{ $this->testQuestionId }}', new: '{{ $uuid }}' })"
-                                              class=""
+            <x-sidebar.slide-container class="divide-y divide-bluegrey" x-ref="container1">
+                <div>
+                    @foreach($this->currentTestQuestions as $question)
+                        <div>
+                        <span class="flex @if($this->testQuestionId === $question['uuid']) primary @endif"
+                              wire:click="showQuestion('{{ $question['uuid'] }}')"
+                              @click="$dispatch('question-change', {old: '{{ $this->testQuestionId }}', new: '{{ $question['uuid'] }}' })"
                         >
-                            <span>Vraag {{ $loop->iteration }}</span>
-                        </x-button.text-button>
-                    </div>
-                @endforeach()
+                            <span class="w-8 h-8 rounded-full text-white text-sm flex items-center justify-center
+                            @if($this->testQuestionId === $question['uuid']) bg-primary @else bg-sysbase @endif">
+                                <span>{{ $question['order'] == 0 ? '1' : $loop->iteration}}</span>
+                            </span>
+
+                            <span>{!! $question['question'] !!}</span>
+                        </span>
+                        </div>
+                    @endforeach
+                </div>
+
+                <div class="flex px-6 py-2.5 space-x-2.5 hover:text-primary">
+                    <x-icon.plus-in-circle/>
+                    <button class="bold">Vraaggroep toevoegen</button>
+                </div>
+
+                <div class="flex px-6 py-2.5 space-x-2.5 hover:text-primary"
+                     @click="next($refs.container1)"
+                >
+                    <x-icon.plus-in-circle/>
+                    <button class="bold">Vraag toevoegen</button>
+                </div>
+                <span></span>
             </x-sidebar.slide-container>
 
-            <x-sidebar.slide-container x-ref="container2" class="border border-primary">
-                <x-button.text-button class="rotate-svg-180"
-                                      @click="prev($refs.container2)">
-                    <x-icon.arrow/>
-                    <span>Terug</span>
-                </x-button.text-button>
+            <x-sidebar.slide-container x-ref="container2">
+                <div class="py-1 px-6">
+                    <x-button.text-button class="rotate-svg-180"
+                                          @click="prev($refs.container2)">
+                        <x-icon.arrow/>
+                        <span>{{ __('cms.choose-question-type') }}</span>
+                    </x-button.text-button>
+                </div>
 
                 <x-sidebar.question-types/>
 

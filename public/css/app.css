@@ -1012,6 +1012,9 @@ input[type=number] {
 .drawer.collapsed {
     width: var(--collapsed-sidebar-width);
 }
+.drawer.collapsed #sidebar-carousel-container{
+    visibility: hidden;
+}
 
 .drawer .collapse-toggle {
     display: flex;
@@ -1055,11 +1058,18 @@ input[type=number] {
 }
 
 #sidebar-carousel-container {
+    transition: visibility var(--sidebar-transition);
     display: flex;
     overflow: hidden;
+    visibility: visible
 }
 #sidebar-carousel-container > div {
     flex: 1 0 100%;
+}
+
+.add-question-card:hover .content .bold,
+.add-question-card:hover .content button {
+    color: var(--primary);
 }
 
 /* Kleiner dan 840*/
@@ -3555,6 +3565,9 @@ video {
 .border-4{
 	border-width: 4px;
 }
+.border-\[3px\]{
+	border-width: 3px;
+}
 .border-b{
 	border-bottom-width: 1px;
 }
@@ -3623,6 +3636,13 @@ video {
 .border-indigo-200{
 	--tw-border-opacity: 1;
 	border-color: rgba(199, 210, 254, var(--tw-border-opacity));
+}
+.border-sysbase{
+	--tw-border-opacity: 1;
+	border-color: rgba(4, 31, 116, var(--tw-border-opacity));
+}
+.border-current{
+	border-color: currentColor;
 }
 .border-b-gray-200{
 	--tw-border-opacity: 1;
@@ -3699,6 +3719,9 @@ video {
 .bg-sysbase{
 	--tw-bg-opacity: 1;
 	background-color: rgba(4, 31, 116, var(--tw-bg-opacity));
+}
+.bg-current{
+	background-color: currentColor;
 }
 .bg-opacity-0{
 	--tw-bg-opacity: 0;
@@ -4138,6 +4161,13 @@ video {
 .text-allred{
 	--tw-text-opacity: 1;
 	color: rgba(207, 27, 4, var(--tw-text-opacity));
+}
+.text-primary{
+	--tw-text-opacity: 1;
+	color: rgba(0, 77, 245, var(--tw-text-opacity));
+}
+.text-current{
+	color: currentColor;
 }
 .underline{
 	text-decoration: underline;

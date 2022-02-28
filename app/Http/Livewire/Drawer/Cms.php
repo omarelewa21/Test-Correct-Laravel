@@ -14,13 +14,13 @@ class Cms extends Component
     public string $testQuestionId = '';
     public string $action = '';
 
-    public $testQuestionUuids = [];
+    public $currentTestQuestions = [];
 
     public $newQuestions = [];
 
     public function mount()
     {
-        $this->testQuestionUuids = Test::whereUuid($this->testId)->first()->testQuestions()->pluck('uuid');
+        $this->currentTestQuestions = $this->getCurrentTestQuestions();
         $this->newQuestions = $this->newQuestionInfo();
     }
 
@@ -34,6 +34,25 @@ class Cms extends Component
         $this->emitTo('teacher.questions.open-short', 'showQuestion', $questionUuid);
 
         $this->testQuestionId = $questionUuid;
+    }
+
+    public function getCurrentTestQuestions()
+    {
+        $testQuestions = Test::whereUuid($this->testId)->first()->testQuestions;
+
+        $testQuestions = $testQuestions->sortBy('order');
+
+        return $testQuestions->map(function ($tq) {
+            return [$tq->uuid => [
+                'uuid'        => $tq->uuid,
+                'question'    => $tq->question->getQuestionHtml(),
+                'type'        => $tq->question->type,
+                'subtype'     => $tq->question->subtype,
+                'score'       => $tq->question->score,
+                'attachments' => $tq->question->attachments()->count(),
+                'order'       => $tq->order,
+            ]];
+        })->collapse();
     }
 
     public function newQuestionInfo()

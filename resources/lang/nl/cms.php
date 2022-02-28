@@ -71,4 +71,8 @@ return [
     'coordinaten' => 'Coördinaten',
     'Teken in de tekentool het antwoordmodel voor de vraag.' => 'Teken in de tekentool het antwoordmodel voor de vraag.',
     'waarschuwing_aanpassen_oude_tekenvraag' => 'Je kan met de nieuwe tekentool de tekening later aanpassen. Tekeningen die gemaakt zijn met de oude tekentool kunnen helaas alleen als plaatje ingeladen worden, maar kunnen niet aangepast worden.',
+    'choose-question-type' => 'Kies type vraag',
+    'open-questions'       => 'Open vragen',
+    'closed-questions'     => 'Gesloten vragen',
+    'extra'                => 'Overig',
 ];

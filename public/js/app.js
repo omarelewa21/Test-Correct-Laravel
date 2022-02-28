@@ -5827,6 +5827,42 @@ document.addEventListener('alpine:init', function () {
       }
     };
   });
+  alpinejs__WEBPACK_IMPORTED_MODULE_1__["default"].data('questionEditorSidebar', function () {
+    return {
+      slideWidth: 300,
+      init: function init() {
+        this.slideWidth = this.$root.offsetWidth;
+      },
+      next: function next(currentEl) {
+        var left = currentEl.scrollLeft + this.slideWidth;
+        this.scroll(left);
+        this.handleVerticalScroll(currentEl.nextElementSibling);
+      },
+      prev: function prev(currentEl) {
+        var left = currentEl.scrollLeft - this.slideWidth;
+        this.scroll(left);
+        this.handleVerticalScroll(currentEl.previousElementSibling);
+      },
+      home: function home() {
+        this.scroll(0);
+      },
+      scroll: function scroll(position) {
+        this.$root.scrollTo({
+          left: position >= 0 ? position : 0,
+          behavior: 'smooth'
+        });
+      },
+      handleVerticalScroll: function handleVerticalScroll(el) {
+        var drawer = document.querySelector('.drawer');
+
+        if (el.offsetHeight > drawer.offsetHeight) {
+          drawer.classList.add('overflow-auto');
+        } else {
+          drawer.classList.remove('overflow-auto');
+        }
+      }
+    };
+  });
   alpinejs__WEBPACK_IMPORTED_MODULE_1__["default"].directive('global', function (el, _ref) {
     var expression = _ref.expression;
     var f = new Function('_', '$data', '_.' + expression + ' = $data;return;');

@@ -146,6 +146,9 @@
 .drawer.collapsed {
     width: var(--collapsed-sidebar-width);
 }
+.drawer.collapsed #sidebar-carousel-container{
+    visibility: hidden;
+}
 
 .drawer .collapse-toggle {
     display: flex;
@@ -189,11 +192,18 @@
 }
 
 #sidebar-carousel-container {
+    transition: visibility var(--sidebar-transition);
     display: flex;
     overflow: hidden;
+    visibility: visible
 }
 #sidebar-carousel-container > div {
     flex: 1 0 100%;
+}
+
+.add-question-card:hover .content .bold,
+.add-question-card:hover .content button {
+    color: var(--primary);
 }
 
 /* Kleiner dan 840*/
