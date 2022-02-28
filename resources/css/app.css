@@ -46,7 +46,10 @@
     --deployment-testing-color: darkorange;
 
     --header-height: 70px;
+
     --sidebar-width: 300px;
+    --sidebar-transition: .5s ease;
+    --collapsed-sidebar-width: 24px;
 
     --primary-gradient: linear-gradient(to right, var(--teacher-primary) 0%,var(--teacher-primary-light) 100%)
 }

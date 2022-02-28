@@ -14,6 +14,7 @@
     <div class="question-editor-content w-full max-w-7xl mx-auto"
          x-data=""
          x-on:question-change.window="console.log($event.detail)"
+         wire:key="container-{{ $this->testQuestionId }}"
     >
         <div class="flex w-full flex-col">
             <div class="flex w-full border-b border-secondary mt-2.5 py-2.5">
@@ -159,7 +160,6 @@
                  x-transition:enter="transition duration-200"
                  x-transition:enter-start="opacity-0 delay-200"
                  x-transition:enter-end="opacity-100"
-                 wire:key="{{ $this->testQuestionId }}"
             >
                 @if($this->isPartOfGroupQuestion())
                     <x-partials.group-question-question-section/>

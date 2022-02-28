@@ -136,24 +136,32 @@
     position: sticky;
     top: var(--header-height);
     width: var(--sidebar-width);
-    height: calc(100vh - var(--header-height));
+    height: calc(100vh - var(--header-height) * 2);
     background-color: white;
     box-shadow: var(--main-shadow);
     z-index: 1;
-    transition: width .5s ease;
+    transition: width var(--sidebar-transition);
 }
 
 .drawer.collapsed {
-    width: 24px;
+    width: var(--collapsed-sidebar-width);
 }
 
 .drawer .collapse-toggle {
     display: flex;
-    position: absolute;
+    position: fixed;
     border-radius: 20px;
     place-content: center;
     border: solid 1px;
+    top: calc(var(--header-height) + 40px);
+    left: calc(var(--sidebar-width) - 15px);
+    transition: left var(--sidebar-transition);
 }
+
+.drawer.collapsed .collapse-toggle {
+    left: calc(var(--collapsed-sidebar-width) - 15px);
+}
+
 .drawer .collapse-toggle.horizontal {
     width: 40px;
     height: 30px;
