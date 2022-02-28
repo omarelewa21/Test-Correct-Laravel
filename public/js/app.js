@@ -5783,7 +5783,7 @@ document.addEventListener('alpine:init', function () {
       gridSvg: entanglements.gridSvg,
       isTeacher: isTeacher,
       init: function init() {
-        var _this5 = this;
+        var _this7 = this;
 
         window['drawingTool_' + questionId] = initDrawingQuestion(this.$root);
         var toolName = window['drawingTool_' + questionId];
@@ -5794,10 +5794,10 @@ document.addEventListener('alpine:init', function () {
 
         this.$watch('show', function (show) {
           if (show) {
-            toolName.Canvas.data.answer = _this5.answerSvg;
-            toolName.Canvas.data.question = _this5.questionSvg;
+            toolName.Canvas.data.answer = _this7.answerSvg;
+            toolName.Canvas.data.question = _this7.questionSvg;
 
-            _this5.handleGrid(toolName);
+            _this7.handleGrid(toolName);
 
             toolName.drawingApp.init();
           } else {
@@ -6128,7 +6128,7 @@ window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
 window.Pusher = __webpack_require__(/*! pusher-js */ "./node_modules/pusher-js/dist/web/pusher.js");
 window.Echo = new laravel_echo__WEBPACK_IMPORTED_MODULE_0__["default"]({
   broadcaster: 'pusher',
-  key: "51d7221bf733999d7138",
+  key: "2149988ad52a600a2309",
   cluster: "eu",
   forceTLS: true
 });
@@ -10747,7 +10747,7 @@ RichTextEditor = {
 
     CKEDITOR.replace(editorId, {
       removePlugins: 'pastefromword,pastefromgdocs,advanced,simpleuploads,dropoff,copyformatting,image,pastetext,uploadwidget,uploadimage',
-      extraPlugins: 'blockimagepaste,quicktable,ckeditor_wiris,autogrow,wordcount,notification,readspeaker',
+      extraPlugins: 'blockimagepaste,quicktable,ckeditor_wiris,autogrow,wordcount,notification',
       toolbar: [{
         name: 'basicstyles',
         items: ['Bold', 'Italic', 'Underline', 'Strike', 'Subscript', 'Superscript']
@@ -10831,7 +10831,7 @@ RichTextEditor = {
     }
 
     CKEDITOR.replace(editorId, {
-      extraPlugins: 'completion,blockimagepaste,quicktable,ckeditor_wiris,autogrow,wordcount,notification',
+      extraPlugins: 'completion,quicktable,ckeditor_wiris,autogrow,wordcount,notification',
       toolbar: [{
         name: 'clipboard',
         items: ['Undo', 'Redo']

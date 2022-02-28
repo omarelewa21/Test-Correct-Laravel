@@ -70,7 +70,7 @@ RichTextEditor = {
             editor.destroy(true)
         }
         CKEDITOR.replace(editorId, {
-            extraPlugins: 'completion,blockimagepaste,quicktable,ckeditor_wiris,autogrow,wordcount,notification',
+            extraPlugins: 'completion,quicktable,ckeditor_wiris,autogrow,wordcount,notification',
             toolbar : [
                 { name: 'clipboard', items: [ 'Undo', 'Redo' ] },
                 { name: 'basicstyles', items: [ 'Bold', 'Italic', 'Underline', 'Strike', 'RemoveFormat', 'Subscript', 'Superscript' ] },
