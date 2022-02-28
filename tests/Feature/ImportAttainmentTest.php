@@ -10,13 +10,22 @@ use tcCore\Attainment;
 use tcCore\BaseSubject;
 use tcCore\Http\Controllers\AttainmentImportController;
 use tcCore\Http\Controllers\TestQuestionsController;
+use tcCore\Question;
+use tcCore\TestQuestion;
 use tcCore\User;
 use Tests\TestCase;
+use Tests\Traits\OpenQuestionTrait;
+use Tests\Traits\TestTrait;
 
 
 class ImportAttainmentTest extends TestCase
 {
     use DatabaseTransactions;
+    use TestTrait;
+    use OpenQuestionTrait;
+
+    private  $aardrijskundeSubjectId = 36;
+    private  $aardrijskundeBaseSubjectId = 16;
 
     /** @test */
     public function it_should_import_attainments_without_errors()
@@ -448,6 +457,74 @@ class ImportAttainmentTest extends TestCase
         $this->logoutAdmin();
     }
 
+    /** @test */
+    public function it_should_import_attainments_and_repair_questions()
+    {
+        $questionId = $this->createAardrijkskundeQuestion();
+        $this->addAttainmentsToQuestion($questionId,[95,700]);
+        $this->loginAdmin();
+        $this->inactivateAttainmentToMakeImportPossible();
+        $testXslx = __DIR__.'/../files/import_attainments_for_questions_integrity.xlsx';
+        $this->assertFileExists($testXslx);
+        $request  = new Request();
+        $params = [
+            'session_hash' => Auth::user()->session_hash,
+            'user'         => Auth::user()->username,
+            'attainments' => $testXslx,
+        ];
+        $request->merge($params);
+        $response = (new AttainmentImportController())->importForUpdateOrCreate($request);
+        $this->assertEquals(200,$response->getStatusCode());
+        $this->logoutAdmin();
+    }
+
+    /** @test */
+    public function it_should_import_attainments_and_repair_questions_fill_missing()
+    {
+        $questionId = $this->createAardrijkskundeQuestion();
+        $this->addAttainmentsToQuestion($questionId,[3042,3047]);
+        $this->loginAdmin();
+        $this->inactivateAttainmentToMakeImportPossible();
+        $testXslx = __DIR__.'/../files/import_attainments_for_questions_integrity.xlsx';
+        $this->assertFileExists($testXslx);
+        $request  = new Request();
+        $params = [
+            'session_hash' => Auth::user()->session_hash,
+            'user'         => Auth::user()->username,
+            'attainments' => $testXslx,
+        ];
+        $request->merge($params);
+        $response = (new AttainmentImportController())->importForUpdateOrCreate($request);
+        $this->assertEquals(200,$response->getStatusCode());
+        $question = Question::find($questionId);
+        $this->assertCount(3,$question->getQuestionInstance()->attainments);
+        $this->logoutAdmin();
+    }
+
+    /** @test */
+    public function it_should_import_attainments_and_repair_questions_remove_rogue()
+    {
+        $questionId = $this->createAardrijkskundeQuestion();
+        $this->addAttainmentsToQuestion($questionId,[1401,1402]);
+        $this->loginAdmin();
+        $this->inactivateAttainmentToMakeImportPossible();
+        $testXslx = __DIR__.'/../files/import_attainments_for_questions_integrity_with_rogue.xlsx';
+        $this->assertFileExists($testXslx);
+        $request  = new Request();
+        $params = [
+            'session_hash' => Auth::user()->session_hash,
+            'user'         => Auth::user()->username,
+            'attainments' => $testXslx,
+        ];
+        $request->merge($params);
+        $response = (new AttainmentImportController())->importForUpdateOrCreate($request);
+        $this->assertEquals(200,$response->getStatusCode());
+        $question = Question::find($questionId);
+        $this->assertCount(3,$question->getQuestionInstance()->attainments);
+        $this->logoutAdmin();
+    }
+
+
     private function inactivateAttainmentToMakeImportPossible()
     {
         $attainment = Attainment::create([  'base_subject_id' => 1,
@@ -476,6 +553,68 @@ class ImportAttainmentTest extends TestCase
         Auth::logout();
     }
 
+    private function createAardrijkskundeQuestion()
+    {
+        $test = $this->createNewTest();
+        $response = $this->post(
+            '/api-c/test_question',
+            static::getTeacherOneAuthRequestData([
+                'question'               => '<p>aa</p>',
+                'answer'                 => '<p>bb</p>',
+                'type'                   => 'OpenQuestion',
+                'score'                  => 5,
+                'order'                  => 0,
+                'subtype'                => 'short',
+                'maintain_position'      => 0,
+                'discuss'                => 1,
+                'decimal_score'          => 0,
+                'add_to_database'        => 1,
+                'attainments'            => [],
+                'note_type'              => 'NONE',
+                'is_open_source_content' => 1,
+                'tags'                   => [],
+                'rtti'                   => 'R',
+                'test_id'                => $test['id'],
+                'closeable'              => 0,
+                'subject_id'             => $this->aardrijskundeSubjectId,
+            ])
+        );
+        $response->assertStatus(200);
+        $testQuestion = TestQuestion::find($response->decodeResponseJson()['id']);
+        return $testQuestion->question->getKey();
+    }
+
+    private function createNewTest($overrides = [])
+    {
+        $attributes = array_merge([
+            'name'                   => 'Test Title 1abc',
+            'abbreviation'           => 'TT',
+            'test_kind_id'           => '3',
+            'subject_id'             =>  $this->aardrijskundeSubjectId,
+            'education_level_id'     => '1',
+            'education_level_year'   => '1',
+            'period_id'              => '1',
+            'shuffle'                => '0',
+            'is_open_source_content' => '1',
+            'introduction'           => 'Hello this is the intro txt',
+        ], $overrides);
+
+        $response = $this->post(
+            'api-c/test',
+            static::getTeacherOneAuthRequestData($attributes)
+        );
+
+        return $response->decodeResponseJson();
+    }
+
+    private function addAttainmentsToQuestion($questionId,$attainmentIds):void
+    {
+        $question = Question::find($questionId);
+        foreach ($attainmentIds as $attainmentId){
+            $attainment = Attainment::find($attainmentId);
+            $question->getQuestionInstance()->attainments()->attach($attainment);
+        }
+    }
 }
 
 

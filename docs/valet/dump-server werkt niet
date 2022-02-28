@@ -40,7 +40,7 @@ public function dump(Data $data)
     }
 
 
-    voeg in vendor/symfony/var-dumper/Dumper/Server/Connection@write:
+    voeg in vendor/symfony/var-dumper/Server/Connection@write:
         $attempts = 0;
         while(-1 == stream_socket_sendto($this->socket, $encodedPayload)){
             if (-1 !== stream_socket_sendto($this->socket, $encodedPayload)) {
