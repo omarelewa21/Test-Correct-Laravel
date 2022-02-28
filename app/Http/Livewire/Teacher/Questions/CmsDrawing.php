@@ -73,6 +73,11 @@ class CmsDrawing
         $this->instance->question['zoom_group'] = json_encode($this->instance->question['zoom_group']);
     }
 
+    public function UnprepareForSave()
+    {
+        $this->instance->question['zoom_group'] = json_decode($this->instance->question['zoom_group']);
+    }
+
     private function setViewbox($data)
     {
         $this->instance->cmsPropertyBag['viewBox'] = sprintf('%s %s %s %s',

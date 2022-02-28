@@ -8440,6 +8440,11 @@ window.calculatePreviewBounds = function (parent) {
   var height = parent.clientHeight,
       width = parent.clientWidth;
   var scale = parent.viewBox.baseVal.width / width;
+
+  if (parent.viewBox.baseVal.width > width) {
+    scale = width / parent.viewBox.baseVal.width;
+  }
+
   return {
     top: -(matrix.f + height) / scale,
     bottom: (height - matrix.f) / scale,

@@ -1791,7 +1791,10 @@ window.calculatePreviewBounds = function (parent) {
     const matrix = new DOMMatrix();
     const height = parent.clientHeight,
         width = parent.clientWidth;
-    const scale = parent.viewBox.baseVal.width / width;
+    let scale = parent.viewBox.baseVal.width / width;
+    if (parent.viewBox.baseVal.width > width) {
+        scale = width / parent.viewBox.baseVal.width
+    }
     return {
         top: -(matrix.f + (height)) / scale,
         bottom: (height - matrix.f) / scale,
