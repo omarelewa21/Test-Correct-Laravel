@@ -28,9 +28,7 @@
             class="--B
                 @if($attachment->disableAudioTimeline()) --T @endif"
         >
-            <source src="{{ route('teacher.preview.question-attachment-show', ['attachment' => $attachment->uuid, 'question' => $questionId], false) }}"
-                type="audio/mp3"
-            />
+            <source src="{{ route('teacher.preview.question-attachment-show', ['attachment' => $attachment->uuid, 'question' => $questionId], false) }}"/>
         </audio>
         <div class="flex justify-center mt-3">
             <button class="button primary-button"
@@ -51,5 +49,5 @@
 </div>
 
 <script>
-    elementMutationActionPrompt($('audio')[0], ['class','style'], 'd-none');
+    elementMutationActionPrompt(document.querySelector("audio"), ['class','style'], 'd-none');
 </script>
