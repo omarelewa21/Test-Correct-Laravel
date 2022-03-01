@@ -41,7 +41,8 @@ window.initDrawingQuestion = function (rootElement, isTeacher) {
             gridSize: 1,
             spacebarPressed: false,
             root: rootElement,
-            isTeacher: isTeacher
+            isTeacher: isTeacher,
+            hiddenLayersCount: 0
         },
         firstInit: true,
         warnings: {},
@@ -71,7 +72,6 @@ window.initDrawingQuestion = function (rootElement, isTeacher) {
                     drawingApp.firstInit = false;
                     clearInterval(pollingFunction);
                 }
-                console.log("loop");
             });
 
             setCorrectZIndex();
@@ -619,7 +619,11 @@ window.initDrawingQuestion = function (rootElement, isTeacher) {
             element: UI.submitBtn,
             events: {
                 "click": {
-                    callback: submitDrawingData,
+                    callback() {
+                        if (handleHiddenLayers()) {
+                            submitDrawingData()
+                        }
+                    },
                 }
             }
         },
@@ -627,7 +631,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher) {
             element: UI.exitBtn,
             events: {
                 "click": {
-                    callback: () => {},
+                    callback: handleCloseByExit,
                 }
             }
         },
@@ -877,6 +881,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher) {
     }
 
     function submitDrawingData() {
+
         // parent.skip = true;
         const b64Strings = encodeSvgLayersAsBase64Strings();
         const grid = (Canvas.layers.grid.params.hidden) ? "0.00" : drawingApp.params.gridSize.toString();
@@ -891,6 +896,78 @@ window.initDrawingQuestion = function (rootElement, isTeacher) {
             svg_zoom_group: panGroupSize
         });
     }
+
+    function getExplainer() {
+        const layerTemplate =rootElement.querySelector("#layer-group-template");
+        const templateCopy = layerTemplate.content.cloneNode(true);
+        return templateCopy.querySelector(".explainer")
+    }
+
+    function handleHiddenLayers() {
+        const hasHiddenLayers = answerLayerIsHidden() || questionLayerIsHidden() || hasAnswerHiddenLayers() || hasQuestionHiddenLayers()
+
+        if(hasHiddenLayers) {
+
+            if (!confirm(getExplainer().dataset['textHiddenlayersconfirmation'])) {
+                return false;
+            }
+            if(Object.keys(Canvas.layers.question.shapes).length) {
+                Object.values(Canvas.layers.question.shapes).forEach((shape) => {
+                    if(shape.sidebar.svgShape.isHidden()){
+                        shape.sidebar.handleToggleHide();
+                    }
+
+                });
+            }
+            if(Object.keys(Canvas.layers.answer.shapes).length) {
+                Object.values(Canvas.layers.answer.shapes).forEach((shape) => {
+                    if(shape.sidebar.svgShape.isHidden()){
+                        shape.sidebar.handleToggleHide();
+                    }
+                });
+            }
+        }
+
+        rootElement.dispatchEvent(new CustomEvent('close-drawing-tool'));
+        return true;
+    }
+
+    function handleCloseByExit() {
+        if (!confirm(getExplainer().dataset['textCloseconfirmation'])) {
+            return false;
+        }
+
+        rootElement.dispatchEvent(new CustomEvent('close-drawing-tool'));
+        return true;
+    }
+
+    function answerLayerIsHidden() {
+        return Canvas.layers.answer.params.hidden && !! Object.keys(Canvas.layers.answer.shapes).length;
+    }
+
+    function questionLayerIsHidden() {
+        return Canvas.layers.question.params.hidden && !! Object.keys(Canvas.layers.question.shapes).length;
+    }
+
+    function hasQuestionHiddenLayers() {
+        if(Object.keys(Canvas.layers.question.shapes).length) {
+            return !! Object.values(Canvas.layers.question.shapes).filter((shape) => {
+                return shape.sidebar.svgShape.isHidden()
+            }).length;
+        }
+        return false;
+    }
+
+    function hasAnswerHiddenLayers() {
+        if(Object.keys(Canvas.layers.answer.shapes).length) {
+            return !! Object.values(Canvas.layers.answer.shapes).filter((shape) => {
+                return shape.sidebar.svgShape.isHidden()
+            }).length;
+        }
+        return false;
+    }
+
+
 
     /**
      * Event handler for down events of the cursor.

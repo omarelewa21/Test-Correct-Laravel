@@ -37,5 +37,8 @@ return [
     'Explainer answer teacher'   => 'Onder deze tab teken je de objecten die horen bij het antwoordmodel. Het antwoordmodel is niet te zien voor de student bij het maken van de tekenvraag, maar allen zichtbaar bij het bespreken en nakijken van de vraag.',
     'Explainer question teacher' => 'Onder deze tab teken je de objecten die horen bij het vraagmodel. Het vraagmodel ziet de student bij het maken van de tekenvraag.',
     'Explainer answer student'   => '',
+    'Hidden Layers confirmation teacher' => 'De verborgen layers zijn zichtbaar voor de student, wil je ze behouden?',
+    'Hidden Layers confirmation student' => 'De verborgen layers zijn zichtbaar voor de docent, wil je ze behouden?',
+    'Close confirmation' => 'Weet je het zeker dat je wil sluiten? Eventuele wijzigingen worden niet opgeslagen',
 ];
 ?>
