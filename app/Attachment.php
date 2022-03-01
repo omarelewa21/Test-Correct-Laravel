@@ -287,6 +287,13 @@ class Attachment extends BaseModel
         return false;
     }
 
+    public function disableAudioTimeline(){
+        return
+            $this->audioOnlyPlayOnce() ||
+            $this->hasAudioTimeout() ||
+            !$this->audioIsPausable();
+    }
+
     public function getJsonPropertyValueBool($propertyName){
         return is_null($this->getJsonPropertyValue($propertyName))?false:$this->getJsonPropertyValue($propertyName);
     }
