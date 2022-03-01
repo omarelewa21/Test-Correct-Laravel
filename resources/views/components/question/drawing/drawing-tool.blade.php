@@ -150,7 +150,7 @@
                 </div>
             </div>
         </section>
-        <button id="exit-btn" title="{{ __('drawing-modal.Sluiten') }}" @click="show = false">
+        <button id="exit-btn" title="{{ __('drawing-modal.Sluiten') }}">
             <x-icon.close/>
         </button>
     </div>
@@ -205,7 +205,7 @@
                     <div id="layers-heading"></div>
                 </div>
                 <div id="submit">
-                    <button class="CTA" id="submit-btn" @click="show = false">
+                    <button class="CTA" id="submit-btn">
                         {{ __('drawing-modal.Opslaan') }}
                     </button>
                 </div>
@@ -269,12 +269,16 @@
         <div class="shapes-group">
             <span class="explainer note text-sm text-center"
                   style="padding: 1.5rem"
+                  data-text-closeConfirmation="{{ __('drawing-modal.Close confirmation') }}"
                   @if(Auth::user()->isA('teacher'))
                   data-text-answer="{{ __('drawing-modal.Explainer answer teacher') }}"
                   data-text-question="{{ __('drawing-modal.Explainer question teacher') }}"
+                  data-text-hiddenLayersConfirmation="{{ __('drawing-modal.Hidden Layers confirmation teacher') }}"
+
                   @else
                   data-text-answer="{{ __('drawing-modal.Explainer answer student') }}"
                   data-text-question=""
+                  data-text-hiddenLayersConfirmation="{{ __('drawing-modal.Hidden Layers confirmation student') }}"
                   @endif
             >
             </span>

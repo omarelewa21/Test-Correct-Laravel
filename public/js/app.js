@@ -6603,10 +6603,12 @@ window.initDrawingQuestion = function (rootElement, isTeacher) {
       gridSize: 1,
       spacebarPressed: false,
       root: rootElement,
-      isTeacher: isTeacher
+      isTeacher: isTeacher,
+      hiddenLayersCount: 0
     },
     firstInit: true,
     warnings: {},
+    explainer: null,
     init: function init() {
       if (this.firstInit) {
         this.bindEventListeners(eventListenerSettings);
@@ -6631,8 +6633,6 @@ window.initDrawingQuestion = function (rootElement, isTeacher) {
           drawingApp.firstInit = false;
           clearInterval(pollingFunction);
         }
-
-        console.log("loop");
       });
       setCorrectZIndex();
       setCursorTypeAccordingToCurrentType();
@@ -6646,6 +6646,12 @@ window.initDrawingQuestion = function (rootElement, isTeacher) {
       this.warnings = {
         whenAnyToolButDragSelected: new _uiElements_js__WEBPACK_IMPORTED_MODULE_2__.warningBox("Stel de opmaak in voordat je het object tekent", 5000, rootElement)
       };
+
+      if (!this.explainer) {
+        var layerTemplate = rootElement.querySelector("#layer-group-template");
+        var templateCopy = layerTemplate.content.cloneNode(true);
+        this.explainer = templateCopy.querySelector(".explainer");
+      }
     },
     convertCanvas2DomCoordinates: function convertCanvas2DomCoordinates(coordinates) {
       var matrix = Canvas.params.domMatrix;
@@ -7202,14 +7208,18 @@ window.initDrawingQuestion = function (rootElement, isTeacher) {
     element: UI.submitBtn,
     events: {
       "click": {
-        callback: submitDrawingData
+        callback: function callback() {
+          if (handleHiddenLayers()) {
+            submitDrawingData();
+          }
+        }
       }
     }
   }, {
     element: UI.exitBtn,
     events: {
       "click": {
-        callback: function callback() {}
+        callback: handleCloseByExit
       }
     }
   }, {
@@ -7478,6 +7488,72 @@ window.initDrawingQuestion = function (rootElement, isTeacher) {
       svg_grid: grid,
       svg_zoom_group: panGroupSize
     });
+  }
+
+  function handleHiddenLayers() {
+    var hasHiddenLayers = answerLayerIsHidden() || questionLayerIsHidden() || hasAnswerHiddenLayers() || hasQuestionHiddenLayers();
+
+    if (hasHiddenLayers) {
+      if (!confirm(drawingApp.explainer.dataset['textHiddenlayersconfirmation'])) {
+        return false;
+      }
+
+      if (Object.keys(Canvas.layers.question.shapes).length) {
+        Object.values(Canvas.layers.question.shapes).forEach(function (shape) {
+          if (shape.sidebar.svgShape.isHidden()) {
+            shape.sidebar.handleToggleHide();
+          }
+        });
+      }
+
+      if (Object.keys(Canvas.layers.answer.shapes).length) {
+        Object.values(Canvas.layers.answer.shapes).forEach(function (shape) {
+          if (shape.sidebar.svgShape.isHidden()) {
+            shape.sidebar.handleToggleHide();
+          }
+        });
+      }
+    }
+
+    rootElement.dispatchEvent(new CustomEvent('close-drawing-tool'));
+    return true;
+  }
+
+  function handleCloseByExit() {
+    if (!confirm(drawingApp.explainer.dataset['textCloseconfirmation'])) {
+      return false;
+    }
+
+    rootElement.dispatchEvent(new CustomEvent('close-drawing-tool'));
+    return true;
+  }
+
+  function answerLayerIsHidden() {
+    return Canvas.layers.answer.params.hidden && !!Object.keys(Canvas.layers.answer.shapes).length;
+  }
+
+  function questionLayerIsHidden() {
+    return Canvas.layers.question.params.hidden && !!Object.keys(Canvas.layers.question.shapes).length;
+  }
+
+  function hasQuestionHiddenLayers() {
+    if (Object.keys(Canvas.layers.question.shapes).length) {
+      return !!Object.values(Canvas.layers.question.shapes).filter(function (shape) {
+        return shape.sidebar.svgShape.isHidden();
+      }).length;
+    }
+
+    return false;
+  }
+
+  function hasAnswerHiddenLayers() {
+    if (Object.keys(Canvas.layers.answer.shapes).length) {
+      return !!Object.values(Canvas.layers.answer.shapes).filter(function (shape) {
+        return shape.sidebar.svgShape.isHidden();
+      }).length;
+    }
+
+    return false;
   }
   /**
    * Event handler for down events of the cursor.
@@ -8735,13 +8811,17 @@ var Entry = /*#__PURE__*/function (_sidebarComponent) {
         events: {
           "click": {
             callback: function callback() {
-              _this2.svgShape.toggleHide();
-
-              _this2.updateHideState();
+              _this2.handleToggleHide();
             }
           }
         }
       }];
+    }
+  }, {
+    key: "handleToggleHide",
+    value: function handleToggleHide() {
+      this.svgShape.toggleHide();
+      this.updateHideState();
     }
   }, {
     key: "updateDraggedElementPosition",

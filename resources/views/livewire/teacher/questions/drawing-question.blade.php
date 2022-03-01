@@ -17,6 +17,7 @@
                  },
                  true
              )"
+         @close-drawing-tool="show = false"
     >
         <div>
             <span>{{ __('cms.Teken in de tekentool het antwoordmodel voor de vraag.') }}</span>

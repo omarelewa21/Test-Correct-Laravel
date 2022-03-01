@@ -37,5 +37,8 @@ return [
     'Explainer answer teacher'   => 'In this tab you draw the objects for the answer model. The answer model is not show to the students when they\'re making the test. It will be visible when discussing and grading the test.',
     'Explainer question teacher' => 'In this tab you draw the objects for the question. This is what the student sees when making a test',
     'Explainer answer student'   => '',
+    'Hidden Layers confirmation teacher' => 'The hidden layers will be visible for the student, are you sure you want to keep them?',
+    'Hidden Layers confirmation student' => 'The hidden layers will be visible for the teacher, are you sure you want to keep them?',
+    'Close confirmation' => 'Are you sure you want to close? Any changes won\'t be saved',
 ];
 ?>

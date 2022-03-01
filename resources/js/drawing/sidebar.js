@@ -102,13 +102,17 @@ export class Entry extends sidebarComponent {
                 events: {
                     "click": {
                         callback: () => {
-                            this.svgShape.toggleHide();
-                            this.updateHideState();
+                            this.handleToggleHide();
                         },
                     },
                 },
             },
         ];
+    }
+
+    handleToggleHide() {
+        this.svgShape.toggleHide();
+        this.updateHideState();
     }
 
     updateDraggedElementPosition(evt) {
