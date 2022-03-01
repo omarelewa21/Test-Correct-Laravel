@@ -6606,6 +6606,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher) {
     },
     firstInit: true,
     warnings: {},
+    explainer: null,
     init: function init() {
       if (this.firstInit) {
         this.bindEventListeners(eventListenerSettings);
@@ -6643,6 +6644,12 @@ window.initDrawingQuestion = function (rootElement, isTeacher) {
       this.warnings = {
         whenAnyToolButDragSelected: new _uiElements_js__WEBPACK_IMPORTED_MODULE_2__.warningBox("Stel de opmaak in voordat je het object tekent", 5000, rootElement)
       };
+
+      if (!this.explainer) {
+        var layerTemplate = rootElement.querySelector("#layer-group-template");
+        var templateCopy = layerTemplate.content.cloneNode(true);
+        this.explainer = templateCopy.querySelector(".explainer");
+      }
     },
     convertCanvas2DomCoordinates: function convertCanvas2DomCoordinates(coordinates) {
       var matrix = Canvas.params.domMatrix;
@@ -7481,17 +7488,11 @@ window.initDrawingQuestion = function (rootElement, isTeacher) {
     });
   }
 
-  function getExplainer() {
-    var layerTemplate = rootElement.querySelector("#layer-group-template");
-    var templateCopy = layerTemplate.content.cloneNode(true);
-    return templateCopy.querySelector(".explainer");
-  }
-
   function handleHiddenLayers() {
     var hasHiddenLayers = answerLayerIsHidden() || questionLayerIsHidden() || hasAnswerHiddenLayers() || hasQuestionHiddenLayers();
 
     if (hasHiddenLayers) {
-      if (!confirm(getExplainer().dataset['textHiddenlayersconfirmation'])) {
+      if (!confirm(drawingApp.explainer.dataset['textHiddenlayersconfirmation'])) {
         return false;
       }
 
@@ -7517,7 +7518,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher) {
   }
 
   function handleCloseByExit() {
-    if (!confirm(getExplainer().dataset['textCloseconfirmation'])) {
+    if (!confirm(drawingApp.explainer.dataset['textCloseconfirmation'])) {
       return false;
     }
 

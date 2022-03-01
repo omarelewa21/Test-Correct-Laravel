@@ -46,6 +46,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher) {
         },
         firstInit: true,
         warnings: {},
+        explainer: null,
         init() {
             if (this.firstInit) {
                 this.bindEventListeners(eventListenerSettings);
@@ -90,6 +91,11 @@ window.initDrawingQuestion = function (rootElement, isTeacher) {
                     rootElement
                 ),
             };
+            if(!this.explainer) {
+                const layerTemplate = rootElement.querySelector("#layer-group-template");
+                const templateCopy = layerTemplate.content.cloneNode(true);
+                this.explainer = templateCopy.querySelector(".explainer");
+            }
         },
         convertCanvas2DomCoordinates(coordinates) {
             const matrix = Canvas.params.domMatrix;
@@ -897,18 +903,12 @@ window.initDrawingQuestion = function (rootElement, isTeacher) {
         });
     }
 
-    function getExplainer() {
-        const layerTemplate =rootElement.querySelector("#layer-group-template");
-        const templateCopy = layerTemplate.content.cloneNode(true);
-        return templateCopy.querySelector(".explainer")
-    }
-
     function handleHiddenLayers() {
         const hasHiddenLayers = answerLayerIsHidden() || questionLayerIsHidden() || hasAnswerHiddenLayers() || hasQuestionHiddenLayers()
 
         if(hasHiddenLayers) {
 
-            if (!confirm(getExplainer().dataset['textHiddenlayersconfirmation'])) {
+            if (!confirm(drawingApp.explainer.dataset['textHiddenlayersconfirmation'])) {
                 return false;
             }
             if(Object.keys(Canvas.layers.question.shapes).length) {
@@ -933,7 +933,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher) {
     }
 
     function handleCloseByExit() {
-        if (!confirm(getExplainer().dataset['textCloseconfirmation'])) {
+        if (!confirm(drawingApp.explainer.dataset['textCloseconfirmation'])) {
             return false;
         }
 
