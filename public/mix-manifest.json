@@ -4,5 +4,6 @@
     "/ckeditor/plugins/ckeditor_wiris/plugin.js": "/ckeditor/plugins/ckeditor_wiris/plugin.js",
     "/ckeditor/plugins/ckeditor_wiris/icons/cas.png": "/ckeditor/plugins/ckeditor_wiris/icons/cas.png",
     "/ckeditor/plugins/ckeditor_wiris/icons/chem.png": "/ckeditor/plugins/ckeditor_wiris/icons/chem.png",
-    "/ckeditor/plugins/ckeditor_wiris/icons/formula.png": "/ckeditor/plugins/ckeditor_wiris/icons/formula.png"
+    "/ckeditor/plugins/ckeditor_wiris/icons/formula.png": "/ckeditor/plugins/ckeditor_wiris/icons/formula.png",
+    "/js/ckeditor.js": "/js/ckeditor.js"
 }

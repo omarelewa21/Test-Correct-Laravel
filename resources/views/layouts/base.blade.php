@@ -9,6 +9,7 @@
     <link rel="icon" href="{{ asset('img/icons/Logo-Test-Correct-recolored-icon-only.svg') }}"/>
     {{--    <link href="https://unpkg.com/tailwindcss@^2/dist/tailwind.min.css" rel="stylesheet">--}}
     <script src="/ckeditor/ckeditor.js" type="text/javascript"></script>
+    <script src="/js/ckeditor.js" type="text/javascript"></script>
 
     @livewireStyles
     <link rel="stylesheet" href="{{ mix('/css/app.css') }}">
@@ -20,7 +21,7 @@
 
         <link rel="stylesheet" type="text/css" href="/css/rs_tlc.css" />
 </head>
-<body id="body" class="flex flex-col min-h-screen" onload="addIdsToQuestionHtml()">
+<body id="body" class="flex flex-col min-h-screen"  onload="addIdsToQuestionHtml()">
 {{ $slot }}
 
 @livewireScripts

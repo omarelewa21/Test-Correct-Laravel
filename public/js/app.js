@@ -5870,6 +5870,8 @@ __webpack_require__(/*! ./rich-text-editor */ "./resources/js/rich-text-editor.j
 
 __webpack_require__(/*! ./drawing/drawing-question */ "./resources/js/drawing/drawing-question.js");
 
+window.ClassicEditors = [];
+
 addIdsToQuestionHtml = function addIdsToQuestionHtml() {
   var id = 1;
   var questionContainers = document.querySelectorAll('[questionHtml]');
