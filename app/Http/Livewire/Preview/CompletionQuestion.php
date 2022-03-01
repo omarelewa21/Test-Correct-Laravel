@@ -16,7 +16,7 @@ class CompletionQuestion extends Component
     public $question;
     public $testId;
     public $answer;
-    public array $answers;
+    public $answers;
     public $number;
 
 
