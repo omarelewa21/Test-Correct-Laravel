@@ -1,4 +1,9 @@
-<div id="cms" class="flex flex-1">
+<div id="cms" class="flex flex-1"
+     x-data="{loading: false}"
+     x-init="$watch('loading', () => { setTimeout(() => { loading = false }, 500)} )"
+     x-cloak
+     x-on:question-change.window="loading = true"
+>
     <div class="question-editor-header z-50">
         <div class="question-title">
             <div class="icon-arrow">
@@ -11,11 +16,19 @@
             <span class="bold">{{ $testName }}</span>
         </div>
     </div>
-    <div class="question-editor-content w-full max-w-7xl mx-auto"
-         x-data=""
-         x-on:question-change.window="console.log($event.detail)"
+    <div class="question-editor-content w-full max-w-7xl mx-auto relative"
+
          wire:key="container-{{ $this->testQuestionId }}"
     >
+        <div x-show="loading"
+             x-transition:enter="transform ease-out duration-150 transition"
+             x-transition:enter-start="translate-y-2 opacity-0 sm:translate-y-0 sm:translate-x-2"
+             x-transition:enter-end="translate-y-0 opacity-100 sm:translate-x-0"
+             x-transition:leave="transition ease-in duration-100"
+             x-transition:leave-start="opacity-100"
+             x-transition:leave-end="opacity-0"
+             class="absolute inset-0 bg-light-grey z-[2]"
+        ></div>
         <div class="flex w-full flex-col">
             <div class="flex w-full border-b border-secondary mt-2.5 py-2.5">
                 <div class="flex w-full items-center px-4 sm:px-6 lg:px-8 justify-between">

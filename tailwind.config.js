@@ -24,6 +24,9 @@ module.exports = {
                 orange: '#eca000',
                 note: '#6b7789',
             },
+            borderWidth: {
+                '3': '3px'
+            }
         },
     },
     variants: {

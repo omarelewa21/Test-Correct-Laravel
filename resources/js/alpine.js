@@ -310,17 +310,19 @@ document.addEventListener('alpine:init', () => {
     }));
     Alpine.data('questionEditorSidebar', () => ({
         slideWidth: 300,
+        drawer: null,
         init() {
             this.slideWidth = this.$root.offsetWidth;
+            this.drawer = this.$root.closest('.drawer');
+            this.handleVerticalScroll(this.$root.querySelector('[x-ref="container1"]'))
         },
         next(currentEl) {
-            const left = currentEl.scrollLeft + this.slideWidth;
+            const left = this.$root.scrollLeft + this.slideWidth;
             this.scroll(left);
-
             this.handleVerticalScroll(currentEl.nextElementSibling);
         },
         prev(currentEl) {
-            const left = currentEl.scrollLeft - this.slideWidth;
+            const left = this.$root.scrollLeft - this.slideWidth;
             this.scroll(left);
             this.handleVerticalScroll(currentEl.previousElementSibling);
         },
@@ -328,17 +330,22 @@ document.addEventListener('alpine:init', () => {
             this.scroll(0);
         },
         scroll(position) {
+            this.drawer.scrollTo({top: 0, behavior: 'smooth'});
             this.$root.scrollTo({
-                left: position >= 0 ? position : 0, behavior: 'smooth'
+                left: position >= 0 ? position : 0,
+                behavior: 'smooth'
             });
         },
         handleVerticalScroll(el) {
-            const drawer = document.querySelector('.drawer');
-            if (el.offsetHeight > drawer.offsetHeight) {
-                drawer.classList.add('overflow-auto');
+            if (el.offsetHeight > this.drawer.offsetHeight) {
+                this.drawer.classList.add('overflow-auto');
+                this.drawer.classList.remove('overflow-hidden');
             } else {
-                drawer.classList.remove('overflow-auto');
+                this.drawer.classList.add('overflow-hidden');
+                this.drawer.classList.remove('overflow-auto');
             }
+            this.$root.style.height = 'auto';
+            // this.$root.style.height = el.offsetHeight + 'px';
         }
     }));
 

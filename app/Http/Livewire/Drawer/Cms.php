@@ -2,8 +2,11 @@
 
 namespace tcCore\Http\Livewire\Drawer;
 
+use Illuminate\Support\Str;
 use Livewire\Component;
+use tcCore\Question;
 use tcCore\Test;
+use tcCore\TestQuestion;
 
 class Cms extends Component
 {
@@ -42,17 +45,39 @@ class Cms extends Component
 
         $testQuestions = $testQuestions->sortBy('order');
 
-        return $testQuestions->map(function ($tq) {
-            return [$tq->uuid => [
-                'uuid'        => $tq->uuid,
-                'question'    => $tq->question->getQuestionHtml(),
-                'type'        => $tq->question->type,
-                'subtype'     => $tq->question->subtype,
-                'score'       => $tq->question->score,
-                'attachments' => $tq->question->attachments()->count(),
-                'order'       => $tq->order,
-            ]];
-        })->collapse();
+        return $testQuestions->flatMap(function ($testQuestion) {
+            $testQuestion->question->loadRelated();
+            if ($testQuestion->question->type === 'GroupQuestion') {
+                $groupQuestion = $testQuestion->question;
+                $groupQuestion->subQuestions = $groupQuestion->groupQuestionQuestions->map(function ($item) use($groupQuestion){
+                    $item->question->belongs_to_groupquestion_id = $groupQuestion->getKey();
+                    return $item->question;
+                });
+            }
+            return collect([$testQuestion->question]);
+        });
+
+//        return $testQuestions->map(function ($tq) {
+//            return [$tq->uuid => [
+//                'uuid'        => $tq->uuid,
+//                'question'    => $tq->question->getQuestionHtml(),
+//                'type'        => $tq->question->type,
+//                'subtype'     => $tq->question->subtype,
+//                'score'       => $tq->question->score,
+//                'attachments' => $tq->question->attachments()->count(),
+//                'order'       => $tq->order,
+//                'displayName' => __($this->getQuestionNameForDisplay($tq->question))
+//            ]];
+//        })->collapse();
+    }
+
+    public function getGroupQuestionQuestions($groupQuestionUuid)
+    {
+        $questions =  TestQuestion::whereUuid($groupQuestionUuid)->first()->question->groupQuestionQuestions->map(function ($item) {
+            return $item->question;
+        });
+
+        return $questions;
     }
 
     public function newQuestionInfo()
@@ -120,5 +145,16 @@ class Cms extends Component
                 ]
             ]
         ];
+    }
+
+    public function getQuestionNameForDisplay($question)
+    {
+        if ($question->type === "MultipleChoiceQuestion") {
+            return 'question.' . Str::kebab($question->subtype);
+        }
+        if ($question->type === "OpenQuestion") {
+            return 'question.open-long-short';
+        }
+        return 'question.' . Str::kebab(Str::replaceFirst('Question', '', $question->type));
     }
 }

@@ -205,6 +205,15 @@
 .add-question-card:hover .content button {
     color: var(--primary);
 }
+#sidebar-carousel-container .group-question-questions .question-button:not(:last-child)::after {
+    content: '';
+    position: absolute;
+    height: 50px;
+    width: 3px;
+    background: var(--system-base);
+    top: 0;
+    left: 15px;
+}
 
 /* Kleiner dan 840*/
 @media only screen and (max-width: 840px) {
