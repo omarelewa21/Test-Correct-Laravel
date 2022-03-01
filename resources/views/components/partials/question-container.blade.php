@@ -52,7 +52,8 @@
          "
      x-on:mark-infoscreen-as-seen.window="if('{{ $this->question->uuid }}' == $event.detail){ $wire.markAsSeen($event.detail) }"
      x-on:force-taken-away-blur.window="$el.style.opacity = $event.detail.shouldBlur ? 0 : 1 ;"
-     class="rs_readable"
+     :class="{ 'rs_readable': showMe }"
+
 >
     <div class="flex justify-end space-x-4 mt-6">
         @if(!$this->closed )
