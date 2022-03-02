@@ -5835,6 +5835,7 @@ document.addEventListener('alpine:init', function () {
         this.slideWidth = this.$root.offsetWidth;
         this.drawer = this.$root.closest('.drawer');
         this.handleVerticalScroll(this.$root.querySelector('[x-ref="container1"]'));
+        this.setQuestionNumbers();
       },
       next: function next(currentEl) {
         var left = this.$root.scrollLeft + this.slideWidth;
@@ -5868,7 +5869,13 @@ document.addEventListener('alpine:init', function () {
           this.drawer.classList.remove('overflow-auto');
         }
 
-        this.$root.style.height = 'auto'; // this.$root.style.height = el.offsetHeight + 'px';
+        this.$root.style.height = 'auto';
+      },
+      setQuestionNumbers: function setQuestionNumbers() {
+        var items = this.$root.querySelectorAll('.question-number');
+        items.forEach(function (item, key) {
+          item.innerHTML = key + 1;
+        });
       }
     };
   });

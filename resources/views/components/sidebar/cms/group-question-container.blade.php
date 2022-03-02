@@ -16,5 +16,10 @@
          :style="expand ? 'max-height: ' + $el.scrollHeight + 'px' : ''"
     >
         {{ $slot }}
+
+        <div class="group-add-new relative flex space-x-2.5 py-2 hover:text-primary cursor-pointer items-center">
+            <x-icon.plus-in-circle/>
+            <span class="flex bold">Vraaggroep toevoegen</span>
+        </div>
     </div>
 </div>

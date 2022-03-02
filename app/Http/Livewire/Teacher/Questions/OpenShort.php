@@ -855,7 +855,7 @@ class OpenShort extends Component
 
     public function showQuestion($newQuestionUuid)
     {
-        $this->save(false);
+//        $this->save(false);
 
         $testQuestion = TestQuestion::whereUuid($newQuestionUuid)->with('question')->first();
 

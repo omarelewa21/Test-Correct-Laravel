@@ -2,11 +2,10 @@
 
 namespace tcCore\Http\Livewire\Drawer;
 
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Str;
 use Livewire\Component;
-use tcCore\Question;
 use tcCore\Test;
-use tcCore\TestQuestion;
 
 class Cms extends Component
 {
@@ -17,7 +16,7 @@ class Cms extends Component
     public string $testQuestionId = '';
     public string $action = '';
 
-    public $currentTestQuestions = [];
+    public $currentTestQuestions;
 
     public $newQuestions = [];
 
@@ -32,11 +31,16 @@ class Cms extends Component
         return view('livewire.drawer.cms');
     }
 
-    public function showQuestion($questionUuid)
+    public function showQuestion($questionUuid, $subQuestion)
     {
-        $this->emitTo('teacher.questions.open-short', 'showQuestion', $questionUuid);
+        $this->emitTo('teacher.questions.open-short', 'showQuestion', ['uuid' => $questionUuid, 'subQuestion' =>$subQuestion]);
 
         $this->testQuestionId = $questionUuid;
+    }
+
+    public function hydrateCurrentTestQuestions()
+    {
+        $this->currentTestQuestions = $this->getCurrentTestQuestions();
     }
 
     public function getCurrentTestQuestions()
@@ -54,31 +58,10 @@ class Cms extends Component
                     return $item->question;
                 });
             }
-            return collect([$testQuestion->question]);
+            return [$testQuestion->question];
         });
-
-//        return $testQuestions->map(function ($tq) {
-//            return [$tq->uuid => [
-//                'uuid'        => $tq->uuid,
-//                'question'    => $tq->question->getQuestionHtml(),
-//                'type'        => $tq->question->type,
-//                'subtype'     => $tq->question->subtype,
-//                'score'       => $tq->question->score,
-//                'attachments' => $tq->question->attachments()->count(),
-//                'order'       => $tq->order,
-//                'displayName' => __($this->getQuestionNameForDisplay($tq->question))
-//            ]];
-//        })->collapse();
     }
 
-    public function getGroupQuestionQuestions($groupQuestionUuid)
-    {
-        $questions =  TestQuestion::whereUuid($groupQuestionUuid)->first()->question->groupQuestionQuestions->map(function ($item) {
-            return $item->question;
-        });
-
-        return $questions;
-    }
 
     public function newQuestionInfo()
     {

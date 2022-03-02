@@ -863,8 +863,9 @@ input[type=number] {
     background: linear-gradient(to right, var(--cta-primary-mid-dark) 0%, var(--cta-primary) 98%), linear-gradient(to bottom, var(--light-grey), #c8d0e2 80%);
 }
 #container.question-editor {
-    margin-top: 70px!important;
+    margin-top: 70px !important;
 }
+
 .question-editor-header {
     padding: 0 20px;
     height: 70px;
@@ -949,6 +950,7 @@ input[type=number] {
     bottom: -2px;
     border-radius: 2px;
 }
+
 .pvalue-indicator:before {
     content: '';
     background: var(--system-base);
@@ -968,9 +970,11 @@ input[type=number] {
     margin: -1px;
     height: calc(100% - 2px);
 }
+
 .selection-toggle-label:hover {
     border-color: var(--blue-grey);
 }
+
 .selection-toggle-label.active {
     border-color: var(--primary);
     color: var(--primary);
@@ -981,8 +985,9 @@ input[type=number] {
     top: var(--header-height);
     margin-bottom: var(--header-height);
 }
-.question-editor-content [id^="cke_"]{
-    width: auto!important;
+
+.question-editor-content [id^="cke_"] {
+    width: auto !important;
 }
 
 #cms-container {
@@ -1012,7 +1017,8 @@ input[type=number] {
 .drawer.collapsed {
     width: var(--collapsed-sidebar-width);
 }
-.drawer.collapsed #sidebar-carousel-container{
+
+.drawer.collapsed #sidebar-carousel-container {
     visibility: hidden;
 }
 
@@ -1035,10 +1041,12 @@ input[type=number] {
     width: 40px;
     height: 30px;
 }
+
 .drawer .collapse-toggle.vertical {
     width: 30px;
     height: 40px;
 }
+
 .drawer .collapse-toggle.white {
     color: var(--system-base);
     background-color: white;
@@ -1063,6 +1071,7 @@ input[type=number] {
     overflow: hidden;
     visibility: visible
 }
+
 #sidebar-carousel-container > div {
     flex: 1 0 100%;
 }
@@ -1071,14 +1080,24 @@ input[type=number] {
 .add-question-card:hover .content button {
     color: var(--primary);
 }
-#sidebar-carousel-container .group-question-questions .question-button:not(:last-child)::after {
+
+#sidebar-carousel-container .group-question-questions .question-button:not(:last-child, :first-child) > div > span::before {
     content: '';
     position: absolute;
-    height: 50px;
+    height: 30px;
     width: 3px;
     background: var(--system-base);
-    top: 0;
-    left: 15px;
+    top: -33px;
+}
+
+#sidebar-carousel-container .group-question-questions .group-add-new::before {
+    content: '';
+    position: absolute;
+    height: 30px;
+    width: 1px;
+    border-left: dashed 3px var(--system-base);
+    left: 14px;
+    top: -50%;
 }
 
 /* Kleiner dan 840*/
@@ -2571,9 +2590,6 @@ video {
 .pointer-events-auto{
 	pointer-events: auto;
 }
-.visible{
-	visibility: visible;
-}
 .invisible{
 	visibility: hidden;
 }
@@ -2912,6 +2928,9 @@ video {
 .-ml-px{
 	margin-left: -1px;
 }
+.mt-px{
+	margin-top: 1px;
+}
 .mr-0\.5{
 	margin-right: 0.125rem;
 }
@@ -2923,15 +2942,6 @@ video {
 }
 .ml-10{
 	margin-left: 2.5rem;
-}
-.mt-px{
-	margin-top: 1px;
-}
-.ml-px{
-	margin-left: 1px;
-}
-.ml-1{
-	margin-left: 0.25rem;
 }
 .block{
 	display: block;
@@ -3157,12 +3167,6 @@ video {
 .w-80{
 	width: 20rem;
 }
-.w-40{
-	width: 10rem;
-}
-.w-44{
-	width: 11rem;
-}
 .min-w-full{
 	min-width: 100%;
 }
@@ -3173,12 +3177,6 @@ video {
 }
 .min-w-\[40px\]{
 	min-width: 40px;
-}
-.min-w-\[30px\]{
-	min-width: 30px;
-}
-.min-w-\[32px\]{
-	min-width: 32px;
 }
 .max-w-2xl{
 	max-width: 42rem;
@@ -3604,7 +3602,7 @@ video {
 .border-2{
 	border-width: 2px;
 }
-.border-\[3px\]{
+.border-3{
 	border-width: 3px;
 }
 .border-0{
@@ -3612,9 +3610,6 @@ video {
 }
 .border-4{
 	border-width: 4px;
-}
-.border-3{
-	border-width: 3px;
 }
 .border-b{
 	border-bottom-width: 1px;
@@ -3684,13 +3679,13 @@ video {
 	--tw-border-opacity: 1;
 	border-color: rgba(206, 218, 243, var(--tw-border-opacity));
 }
-.border-sysbase{
-	--tw-border-opacity: 1;
-	border-color: rgba(4, 31, 116, var(--tw-border-opacity));
-}
 .border-indigo-200{
 	--tw-border-opacity: 1;
 	border-color: rgba(199, 210, 254, var(--tw-border-opacity));
+}
+.border-sysbase{
+	--tw-border-opacity: 1;
+	border-color: rgba(4, 31, 116, var(--tw-border-opacity));
 }
 .border-b-gray-200{
 	--tw-border-opacity: 1;

@@ -315,6 +315,7 @@ document.addEventListener('alpine:init', () => {
             this.slideWidth = this.$root.offsetWidth;
             this.drawer = this.$root.closest('.drawer');
             this.handleVerticalScroll(this.$root.querySelector('[x-ref="container1"]'))
+            this.setQuestionNumbers();
         },
         next(currentEl) {
             const left = this.$root.scrollLeft + this.slideWidth;
@@ -345,7 +346,12 @@ document.addEventListener('alpine:init', () => {
                 this.drawer.classList.remove('overflow-auto');
             }
             this.$root.style.height = 'auto';
-            // this.$root.style.height = el.offsetHeight + 'px';
+        },
+        setQuestionNumbers() {
+            const items = this.$root.querySelectorAll('.question-number');
+            items.forEach((item, key) => {
+                item.innerHTML = key+1
+            });
         }
     }));
 
