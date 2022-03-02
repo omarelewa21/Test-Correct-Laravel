@@ -111,6 +111,11 @@
                     <span class="title">{{ $message }}</span>
                 </div>
                 @enderror
+                @error('question.answer_svg')
+                <div class="notification error stretched mt-4">
+                    <span class="title">{{ __('cms.drawing-question-required-answer') }}</span>
+                </div>
+                @enderror
 
             </div>
             <div class="flex justify-end px-4 sm:px-6 lg:px-8 py-5">
@@ -123,7 +128,7 @@
         <div class="flex flex-col flex-1 px-4 sm:px-6 lg:px-8"
              x-data="{openTab: 1}"
              x-init="$watch('openTab', value => { value === 1 ? $dispatch('tabchange') : '';})"
-             @opentab.window="openTab = $event.detail"
+             @opentab.window="openTab = $event.detail; window.scrollTo({top: 0, behavior: 'smooth'})"
              selid="tabcontainer"
         >
             <div class="flex w-full space-x-6 mb-5 border-b border-secondary max-h-[50px]" selid="tabs">

@@ -348,7 +348,7 @@ export class Line extends svgShape {
      */
     constructor(shapeId, props, parent, drawingApp, Canvas, withHelperElements, withHighlightEvents) {
         super(shapeId, "line", props, parent, drawingApp, Canvas, withHelperElements, withHighlightEvents);
-
+        this.svgCanvas = drawingApp.params.root.querySelector('#svg-canvas');
         this.makeOwnMarkerForThisShape();
     }
 
@@ -357,7 +357,8 @@ export class Line extends svgShape {
         if (markerType === "no-endmarker") return;
 
         const newMarker = this.cloneGenericMarker(markerType);
-        UI.svgCanvas.firstElementChild.appendChild(newMarker);
+
+        this.svgCanvas.firstElementChild.appendChild(newMarker);
 
         const newMarkerId = `${newMarker.id}-line-${this.shapeId}`;
         newMarker.id = newMarkerId;
