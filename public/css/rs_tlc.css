@@ -2077,3 +2077,47 @@ body.rs_highcontrast #rslightbox_contentcontainer #rslightbox_toolbar .rslightbo
 .rslightbox-tool {
     font-family: 'hl-icons';
 }
+.rspopup {
+    background: #f6f9fc;
+    border: 1px solid #677077;
+    border-radius: 2px;
+    display: inline-block;
+    box-shadow: 0 0 5px #777;
+    box-sizing: inherit;
+    color: #000;
+    display: block;
+    left: 300px;
+    position: absolute;
+    top: 100px;
+    border-top: none;
+}
+.rspopup .rspopup_btn {
+    font-family: hl-icons!important;
+    speak: none;
+    font-style: normal;
+    font-weight: 400;
+    font-variant: normal;
+    text-transform: none;
+    line-height: 1;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    border-top: 1px solid #677077;
+    cursor: pointer;
+    padding: 5px 16px;
+    padding-left: 10px;
+}
+
+.rspopup .rspopup_btn span {
+    font-family: 'Open Sans webReader',Helvetica,Arial,sans-serif;
+    font-size: 12px;
+    line-height: 1;
+}
+
+.rspopup .rspopup_btn.rspopup_play:before {
+    content: "\e902";
+}
+
+.rspopup .rspopup_btn::before {
+    margin-right: 10px;
+    vertical-align: middle;
+}

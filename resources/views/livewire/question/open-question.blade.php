@@ -8,7 +8,8 @@
             <div questionHtml wire:ignore>{!!   $question->converted_question_html !!}</div>
 
             <div class="flex-col relative mt-4">
-                <x-input.group for="me" label="{!! __('test_take.instruction_open_question') !!}"
+                <label for="me" class="transition ease-in-out duration-150">{!! __('test_take.instruction_open_question') !!}</label>
+                <x-input.group for="me"
                                class="w-full">
                     <div id="hidden_span_{{ $question->id }}"  class="hidden">{!! $this->answer !!}</div>
                     <x-input.textarea
@@ -17,6 +18,8 @@
                             wire:model.lazy="answer"
                             x-ref="countme"
                             x-on:keyup="count = $refs.countme.value.length"
+                            x-on:focus="handleFocusForReadspeaker"
+                            x-on:blur="handleBlurForReadspeaker"
                             style="min-height:80px "
                             name="name"
                             maxlength="140"
@@ -48,6 +51,17 @@
                 function calculateProgress(count, total) {
                     return 'height: 10px; width:' + count / total * 100 + '%';
                 }
+                document.addEventListener('readspeaker_opened', () => {
+                    var oldEl = document.getElementById('there_can_only_be_one');
+                    var possibleTextarea = false;
+                    var hidden_div;
+                    if(oldEl){
+                        possibleTextarea = oldEl.nextElementSibling;
+                    }
+                    if(possibleTextarea.id!='textarea_{{ $question->id }}') {
+                        createHiddenDivTextArea({{ $question->id }});
+                    }
+                })
             </script>
         @endpush
     </div>

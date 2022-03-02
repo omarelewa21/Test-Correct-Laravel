@@ -41,14 +41,29 @@ window.rsConf = {
                     window.getSelection().removeAllRanges();
                 }
                 hideRsPlayer();
+                window.document.dispatchEvent(new Event("readspeaker_closed", {
+                    bubbles: true,
+                    cancelable: true
+                }));
             },
             stop: function() {
                 console.log('Player stopped and callback fired!');
                 rspkr.ui.getActivePlayer().close();
             },
+            open: function() {
+                console.log('Open callback fired!');
+                window.document.dispatchEvent(new Event("readspeaker_opened", {
+                    bubbles: true,
+                    cancelable: true
+                }));
+            },
             play: function() {
-                console.log('Play callback fired!');
                 rspkr.cke_play_started = true;
+                showRsPlayer();
+                window.document.dispatchEvent(new Event("readspeaker_started", {
+                    bubbles: true,
+                    cancelable: true
+                }));
             }
         }
     }
@@ -190,10 +205,19 @@ function setSelectedElement(node,editor)
 
 function readTextArea(questionId)
 {
+    if(rspkr.cke_play_started){
+        return;
+    }
+    rspkr.ui.Tools.ClickListen.activate();
     rspkr.cke_play_started = false;
-    removeOldElement();
+    var hidden_div = createHiddenDivTextArea(questionId)
+    hidden_div.click();
+}
+
+function createHiddenDivTextArea(questionId){
+
+    var hidden_div = getHiddenDivForTextarea(questionId);
     var textarea = document.getElementById('textarea_'+questionId);
-    var hidden_div = document.createElement('div');
     hidden_div.id = 'there_can_only_be_one';
     hidden_div.innerHTML = textarea.value;
     hidden_div.style.height = textarea.offsetHeight+'px';
@@ -206,7 +230,24 @@ function readTextArea(questionId)
     textarea.parentNode.insertBefore(hidden_div,textarea);
     textarea.classList.add('hidden');
     textarea.classList.add('readspeaker_hidden_element');
-    hidden_div.click();
+    return hidden_div;
+}
+
+function getHiddenDivForTextarea(questionId)
+{
+    var oldEl = document.getElementById('there_can_only_be_one');
+    var possibleTextarea = false;
+    var hidden_div;
+    if(oldEl){
+        possibleTextarea = oldEl.nextElementSibling;
+    }
+    if(possibleTextarea.id=='textarea_'+questionId){
+        hidden_div = oldEl;
+    }else{
+        removeOldElement();
+        hidden_div = document.createElement('div');
+    }
+    return hidden_div;
 }
 
 function showRsPlayer()
@@ -219,6 +260,7 @@ function hideRsPlayer()
 {
     showByClassName('rs_starter_button');
     hideById('readspeaker_button1');
+    rspkr.cke_play_started = false;
 }
 
 function showById(id)
@@ -253,6 +295,17 @@ function hideByClassName(class_name)
     if(elements){
         [].forEach.call(elements, function (el) {
             el.classList.add('hidden');
+        });
+    }
+}
+
+function disableContextMenuOnCkeditor()
+{
+    var element = document.getElementsByClassName('ck-editor__editable_inline')[0];
+    if(element) {
+        element.addEventListener("contextmenu", (evt, name, val) => {
+            evt.preventDefault();
+            return false;
         });
     }
 }
