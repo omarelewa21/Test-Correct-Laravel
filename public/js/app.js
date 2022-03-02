@@ -10798,7 +10798,7 @@ RichTextEditor = {
     }
 
     CKEDITOR.replace(editorId, {
-      extraPlugins: 'selection,quicktable,ckeditor_wiris,autogrow,wordcount,notification',
+      extraPlugins: 'selection,simpleuploads,quicktable,ckeditor_wiris,autogrow,wordcount,notification',
       toolbar: [{
         name: 'basicstyles',
         items: ['Bold', 'Italic', 'Underline', 'Strike', 'Subscript', 'Superscript']
@@ -10807,7 +10807,7 @@ RichTextEditor = {
         items: ['NumberedList', 'BulletedList']
       }, {
         name: 'insert',
-        items: ['Table']
+        items: ['addImage', 'Table']
       }, {
         name: 'styles',
         items: ['Font', 'FontSize']
@@ -10831,7 +10831,7 @@ RichTextEditor = {
     }
 
     CKEDITOR.replace(editorId, {
-      extraPlugins: 'completion,quicktable,ckeditor_wiris,autogrow,wordcount,notification',
+      extraPlugins: 'completion,simpleuploads,quicktable,ckeditor_wiris,autogrow,wordcount,notification',
       toolbar: [{
         name: 'clipboard',
         items: ['Undo', 'Redo']
