@@ -321,7 +321,7 @@ document.addEventListener('alpine:init', () => {
                 toolName.Canvas.layers.grid.params.hidden = false;
 
                 if(!this.isTeacher) {
-                    this.$root.querySelector('#grid-background').remove();
+                    this.$root.querySelector('#grid-background')?.remove();
                 }
             }
         },

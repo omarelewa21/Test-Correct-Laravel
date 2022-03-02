@@ -5817,7 +5817,9 @@ document.addEventListener('alpine:init', function () {
           toolName.Canvas.layers.grid.params.hidden = false;
 
           if (!this.isTeacher) {
-            this.$root.querySelector('#grid-background').remove();
+            var _this$$root$querySele;
+
+            (_this$$root$querySele = this.$root.querySelector('#grid-background')) === null || _this$$root$querySele === void 0 ? void 0 : _this$$root$querySele.remove();
           }
         }
       },
