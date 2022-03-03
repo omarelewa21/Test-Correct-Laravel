@@ -7209,8 +7209,11 @@ window.initDrawingQuestion = function (rootElement, isTeacher) {
     events: {
       "click": {
         callback: function callback() {
-          if (handleHiddenLayers()) {
+          if (hasHiddenLayers()) {
+            showHiddenLayersConfirm();
+          } else {
             submitDrawingData();
+            closeDrawingTool();
           }
         }
       }
@@ -7252,6 +7255,26 @@ window.initDrawingQuestion = function (rootElement, isTeacher) {
         callback: function callback() {
           drawingApp.params.deleteSubject.remove();
           UI.deleteConfirm.classList.toggle('open');
+        }
+      }
+    }
+  }, {
+    element: UI.saveCancelBtn,
+    events: {
+      "click": {
+        callback: function callback() {
+          UI.saveConfirm.classList.toggle('open');
+        }
+      }
+    }
+  }, {
+    element: UI.saveConfirmBtn,
+    events: {
+      "click": {
+        callback: function callback() {
+          handleHiddenLayers();
+          submitDrawingData();
+          closeDrawingTool();
         }
       }
     }
@@ -7523,33 +7546,34 @@ window.initDrawingQuestion = function (rootElement, isTeacher) {
     });
   }
 
+  function showHiddenLayersConfirm() {
+    UI.saveConfirm.classList.toggle('open');
+  }
+
+  function hasHiddenLayers() {
+    return answerLayerIsHidden() || questionLayerIsHidden() || hasAnswerHiddenLayers() || hasQuestionHiddenLayers();
+  }
+
   function handleHiddenLayers() {
-    var hasHiddenLayers = answerLayerIsHidden() || questionLayerIsHidden() || hasAnswerHiddenLayers() || hasQuestionHiddenLayers();
-
-    if (hasHiddenLayers) {
-      if (!confirm(drawingApp.explainer.dataset['textHiddenlayersconfirmation'])) {
-        return false;
-      }
-
-      if (Object.keys(Canvas.layers.question.shapes).length) {
-        Object.values(Canvas.layers.question.shapes).forEach(function (shape) {
-          if (shape.sidebar.svgShape.isHidden()) {
-            shape.sidebar.handleToggleHide();
-          }
-        });
-      }
-
-      if (Object.keys(Canvas.layers.answer.shapes).length) {
-        Object.values(Canvas.layers.answer.shapes).forEach(function (shape) {
-          if (shape.sidebar.svgShape.isHidden()) {
-            shape.sidebar.handleToggleHide();
-          }
-        });
-      }
+    if (Object.keys(Canvas.layers.question.shapes).length) {
+      Object.values(Canvas.layers.question.shapes).forEach(function (shape) {
+        if (shape.sidebar.svgShape.isHidden()) {
+          shape.sidebar.handleToggleHide();
+        }
+      });
     }
 
+    if (Object.keys(Canvas.layers.answer.shapes).length) {
+      Object.values(Canvas.layers.answer.shapes).forEach(function (shape) {
+        if (shape.sidebar.svgShape.isHidden()) {
+          shape.sidebar.handleToggleHide();
+        }
+      });
+    }
+  }
+
+  function closeDrawingTool() {
     rootElement.dispatchEvent(new CustomEvent('close-drawing-tool'));
-    return true;
   }
 
   function handleCloseByExit() {

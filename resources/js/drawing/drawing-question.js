@@ -91,7 +91,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher) {
                     rootElement
                 ),
             };
-            if(!this.explainer) {
+            if (!this.explainer) {
                 const layerTemplate = rootElement.querySelector("#layer-group-template");
                 const templateCopy = layerTemplate.content.cloneNode(true);
                 this.explainer = templateCopy.querySelector(".explainer");
@@ -148,7 +148,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher) {
     /**
      * Global Object containing all parameters, Shapes and corresponding sidebarEntries.
      */
-    let Canvas = (function() {
+    let Canvas = (function () {
         let Obj = {
             params: {
                 cursorPosition: {x: 0, y: 0},
@@ -190,7 +190,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher) {
             drawing() {
                 return this.params.draw.newShape
             },
-            getLayerDomElementsByLayerId: function(layerId) {
+            getLayerDomElementsByLayerId: function (layerId) {
                 const layer = rootElement.querySelector(`#${layerId}`);
                 const layerHeader = rootElement.querySelector(`[data-layer="${layerId}"]`).closest('.header');
                 return {layer, layerHeader}
@@ -626,8 +626,11 @@ window.initDrawingQuestion = function (rootElement, isTeacher) {
             events: {
                 "click": {
                     callback() {
-                        if (handleHiddenLayers()) {
-                            submitDrawingData()
+                        if (hasHiddenLayers()) {
+                            showHiddenLayersConfirm();
+                        } else {
+                            submitDrawingData();
+                            closeDrawingTool();
                         }
                     },
                 }
@@ -663,7 +666,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher) {
                 "click": {
                     callback() {
                         UI.deleteConfirm.classList.toggle('open');
-                    } ,
+                    },
                 }
             }
         },
@@ -674,6 +677,28 @@ window.initDrawingQuestion = function (rootElement, isTeacher) {
                     callback() {
                         drawingApp.params.deleteSubject.remove();
                         UI.deleteConfirm.classList.toggle('open');
+                    },
+                }
+            }
+        },
+        {
+            element: UI.saveCancelBtn,
+            events: {
+                "click": {
+                    callback() {
+                        UI.saveConfirm.classList.toggle('open');
+                    },
+                }
+            }
+        },
+        {
+            element: UI.saveConfirmBtn,
+            events: {
+                "click": {
+                    callback() {
+                        handleHiddenLayers();
+                        submitDrawingData();
+                        closeDrawingTool();
                     },
                 }
             }
@@ -940,33 +965,34 @@ window.initDrawingQuestion = function (rootElement, isTeacher) {
         });
     }
 
+    function showHiddenLayersConfirm() {
+        UI.saveConfirm.classList.toggle('open');
+    }
+
+    function hasHiddenLayers() {
+        return answerLayerIsHidden() || questionLayerIsHidden() || hasAnswerHiddenLayers() || hasQuestionHiddenLayers()
+    }
+
     function handleHiddenLayers() {
-        const hasHiddenLayers = answerLayerIsHidden() || questionLayerIsHidden() || hasAnswerHiddenLayers() || hasQuestionHiddenLayers()
+        if (Object.keys(Canvas.layers.question.shapes).length) {
+            Object.values(Canvas.layers.question.shapes).forEach((shape) => {
+                if (shape.sidebar.svgShape.isHidden()) {
+                    shape.sidebar.handleToggleHide();
+                }
 
-        if(hasHiddenLayers) {
-
-            if (!confirm(drawingApp.explainer.dataset['textHiddenlayersconfirmation'])) {
-                return false;
-            }
-            if(Object.keys(Canvas.layers.question.shapes).length) {
-                Object.values(Canvas.layers.question.shapes).forEach((shape) => {
-                    if(shape.sidebar.svgShape.isHidden()){
-                        shape.sidebar.handleToggleHide();
-                    }
-
-                });
-            }
-            if(Object.keys(Canvas.layers.answer.shapes).length) {
-                Object.values(Canvas.layers.answer.shapes).forEach((shape) => {
-                    if(shape.sidebar.svgShape.isHidden()){
-                        shape.sidebar.handleToggleHide();
-                    }
-                });
-            }
+            });
         }
+        if (Object.keys(Canvas.layers.answer.shapes).length) {
+            Object.values(Canvas.layers.answer.shapes).forEach((shape) => {
+                if (shape.sidebar.svgShape.isHidden()) {
+                    shape.sidebar.handleToggleHide();
+                }
+            });
+        }
+    }
 
+    function closeDrawingTool() {
         rootElement.dispatchEvent(new CustomEvent('close-drawing-tool'));
-        return true;
     }
 
     function handleCloseByExit() {
@@ -980,16 +1006,16 @@ window.initDrawingQuestion = function (rootElement, isTeacher) {
     }
 
     function answerLayerIsHidden() {
-        return Canvas.layers.answer.params.hidden && !! Object.keys(Canvas.layers.answer.shapes).length;
+        return Canvas.layers.answer.params.hidden && !!Object.keys(Canvas.layers.answer.shapes).length;
     }
 
     function questionLayerIsHidden() {
-        return Canvas.layers.question.params.hidden && !! Object.keys(Canvas.layers.question.shapes).length;
+        return Canvas.layers.question.params.hidden && !!Object.keys(Canvas.layers.question.shapes).length;
     }
 
     function hasQuestionHiddenLayers() {
-        if(Object.keys(Canvas.layers.question.shapes).length) {
-            return !! Object.values(Canvas.layers.question.shapes).filter((shape) => {
+        if (Object.keys(Canvas.layers.question.shapes).length) {
+            return !!Object.values(Canvas.layers.question.shapes).filter((shape) => {
                 return shape.sidebar.svgShape.isHidden()
             }).length;
         }
@@ -997,14 +1023,13 @@ window.initDrawingQuestion = function (rootElement, isTeacher) {
     }
 
     function hasAnswerHiddenLayers() {
-        if(Object.keys(Canvas.layers.answer.shapes).length) {
-            return !! Object.values(Canvas.layers.answer.shapes).filter((shape) => {
+        if (Object.keys(Canvas.layers.answer.shapes).length) {
+            return !!Object.values(Canvas.layers.answer.shapes).filter((shape) => {
                 return shape.sidebar.svgShape.isHidden()
             }).length;
         }
         return false;
     }
-
 
 
     /**
@@ -1178,7 +1203,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher) {
                     "stroke-width": 0,
                     "value": 'abc',
                     "opacity": parseFloat(UI.elemOpacityNumber.value / 100),
-                    "style": `${ drawingApp.params.boldText ? "font-weight: bold;" : "" } font-size: ${UI.textSize.value/16}rem`,
+                    "style": `${drawingApp.params.boldText ? "font-weight: bold;" : ""} font-size: ${UI.textSize.value / 16}rem`,
                 };
             default:
         }
@@ -1464,6 +1489,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher) {
             drawingApp.warnings.whenAnyToolButDragSelected.show();
         }
     }
+
     function manualToolChange(tool) {
         let currentTool = drawingApp.params.currentTool;
         const newTool = tool;
@@ -1835,19 +1861,19 @@ window.initDrawingQuestion = function (rootElement, isTeacher) {
         const min = parseFloat(element.min);
         const max = parseFloat(element.max);
 
-        return { currentValue, min, max };
+        return {currentValue, min, max};
     }
 
     function getButtonsForElement(element) {
         const decrButton = UI[`decr${element.capitalize()}`];
         const incrButton = UI[`incr${element.capitalize()}`];
 
-        return { decrButton, incrButton };
+        return {decrButton, incrButton};
     }
 
     function disableButtonsWhenNecessary(UIElementString) {
-        const { decrButton, incrButton } = getButtonsForElement(UIElementString);
-        const { currentValue, min, max } = getBoundsForInputElement(UI[UIElementString]);
+        const {decrButton, incrButton} = getButtonsForElement(UIElementString);
+        const {currentValue, min, max} = getBoundsForInputElement(UI[UIElementString]);
 
         decrButton.disabled = currentValue === min;
         incrButton.disabled = currentValue === max;
@@ -1862,13 +1888,13 @@ window.initDrawingQuestion = function (rootElement, isTeacher) {
     }
 
     function handleStrokeButtonStates() {
-        const { currentValue, min, max } = getBoundsForInputElement(UI.strokeWidth);
+        const {currentValue, min, max} = getBoundsForInputElement(UI.strokeWidth);
 
         UI.decrStroke.disabled = currentValue === min;
         UI.incrStroke.disabled = currentValue === max;
     }
 
-    return { UI, Canvas, drawingApp }
+    return {UI, Canvas, drawingApp}
 
 
 }
@@ -1876,7 +1902,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher) {
 function clearPreviewGrid(rootElement) {
     const gridContainer = rootElement.querySelector('#grid-preview-svg')
 
-    if(gridContainer !== null && gridContainer.firstChild !== null) {
+    if (gridContainer !== null && gridContainer.firstChild !== null) {
         gridContainer.firstChild.remove();
     }
 }

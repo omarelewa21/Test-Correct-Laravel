@@ -102,7 +102,7 @@
                     <input type="number" name="opacity" id="elem-opacity-number" min="0" max="100" value="100" step="1"
                            autocomplete="off">
                     <input class="drawing-toolbar-slider" type="range" name="opacity" id="elem-opacity-range" min="0"
-                           max="100" value="100" step="1" autocomplete="off">
+                           max="100" value="100" step="1" autocomplete="off" style="cursor: grab">
                 </div>
 
                 <div class="property-group" id="edge">
@@ -128,7 +128,7 @@
                            title="{{ __('drawing-modal.Opvulkleur') }}">
                     <input type="number" name="fill-opacity" id="fill-opacity-number" min="0" max="100" value="100"
                            step="1" autocomplete="off" title="{{ __('drawing-modal.Doorzichtigheid opvulkleur') }}">
-                    <input class="drawing-toolbar-slider" type="range" name="fill-opacity" id="fill-opacity-range"
+                    <input class="drawing-toolbar-slider" type="range" name="fill-opacity" id="fill-opacity-range" style="cursor: grab"
                            min="0" max="100" value="100" step="1" autocomplete="off" title="{{ __('drawing-modal.Doorzichtigheid opvulkleur') }}">
                 </div>
 
@@ -235,6 +235,21 @@
             </div>
         </div>
     </div>
+    <div id="save-confirm" class="confirm-modal absolute inset-0 flex flex-1 items-center justify-center">
+        <div class="modal-body">
+            <h4 class="title">{{ __('general.save') }}</h4>
+            <div class="divider"></div>
+            @if(Auth::user()->isA('teacher'))
+            <span class="body">{{ __('drawing-modal.Hidden Layers confirmation teacher') }}</span>
+            @else
+            <span class="body">{{ __('drawing-modal.Hidden Layers confirmation student') }}</span>
+            @endif
+            <div class="modal-buttons flex items-center justify-end">
+                <button id="save-cancel-btn" class="cancel flex bold hover:text-primary cursor-pointer transition">{{ __('auth.cancel') }}</button>
+                <button id="save-confirm-btn" @click="show = false" class="confirm bold">{{ __('general.save') }}</button>
+            </div>
+        </div>
+    </div>
 </div>
 <template id="shape-group-template">
     <div class="shape-container" id="shape-n" draggable="true">
@@ -255,7 +270,7 @@
                     <x-icon.preview-off/>
                 </button>
                 <button class="shape-btn drag-btn" title="{{ __('drawing-modal.Versleep volgorde') }}">
-                    <x-icon.grab/>
+                    <x-icon.reorder/>
                 </button>
             </div>
         </div>
