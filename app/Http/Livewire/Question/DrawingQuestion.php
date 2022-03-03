@@ -66,7 +66,7 @@ class DrawingQuestion extends Component
         $this->grid_svg = $this->question->grid_svg;
         $this->backgroundImage = $this->question->getBackgroundImage();
 
-        $this->usesNewDrawingTool = Auth::user()->schoolLocation()->value('allow_new_drawing_question');
+        $this->usesNewDrawingTool = Auth::user()->schoolLocation()->value('allow_new_drawing_question') && filled($this->question->zoom_group);
     }
 
     public function questionUpdated($uuid)
