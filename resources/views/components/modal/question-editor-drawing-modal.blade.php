@@ -2,7 +2,6 @@
      class="fixed inset-0 overflow-y-auto p-2.5 z-[101]"
      x-show="show"
      x-cloak
-     @delete-modal.window="[item, identifier] = $event.detail;show = true;"
      x-transition:enter="ease-out duration-100"
      x-transition:enter-start="opacity-0 scale-90"
      x-transition:enter-end="opacity-100 scale-100"
