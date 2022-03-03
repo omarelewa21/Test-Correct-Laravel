@@ -627,7 +627,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher) {
                 "click": {
                     callback() {
                         if (hasHiddenLayers()) {
-                            showHiddenLayersConfirm();
+                            toggleSaveConfirm();
                         } else {
                             submitDrawingData();
                             closeDrawingTool();
@@ -699,6 +699,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher) {
                         handleHiddenLayers();
                         submitDrawingData();
                         closeDrawingTool();
+                        toggleSaveConfirm();
                     },
                 }
             }
@@ -965,7 +966,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher) {
         });
     }
 
-    function showHiddenLayersConfirm() {
+    function toggleSaveConfirm() {
         UI.saveConfirm.classList.toggle('open');
     }
 
