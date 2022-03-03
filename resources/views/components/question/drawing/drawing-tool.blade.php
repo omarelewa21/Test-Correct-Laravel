@@ -154,7 +154,7 @@
             <x-icon.close/>
         </button>
     </div>
-    <div id="canvas-sidebar-container" class="overflow-auto">
+    <div id="canvas-sidebar-container" class="overflow-hidden">
         <article id="canvas" class="overflow-hidden">
             <svg id="svg-canvas" xmlns="http://www.w3.org/2000/svg" class="overflow-hidden">
                 <defs>
@@ -211,6 +211,29 @@
                 </div>
             </div>
         </aside>
+    </div>
+    <div id="delete-confirm" class="confirm-modal absolute inset-0 flex flex-1 items-center justify-center">
+        <div class="modal-body">
+            <h4 class="title">{{ __('cms.delete') }}</h4>
+            <div class="divider"></div>
+            <span class="body">{{ __('cms.drawing-question-delete-entry') }}</span>
+            <div class="modal-buttons flex items-center justify-end">
+                <button id="delete-cancel-btn" class="cancel flex bold hover:text-primary cursor-pointer transition">{{ __('auth.cancel') }}</button>
+                <button id="delete-confirm-btn" class="confirm bold">{{ __('cms.delete') }}</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="close-confirm" class="confirm-modal absolute inset-0 flex flex-1 items-center justify-center">
+        <div class="modal-body">
+            <h4 class="title">{{ __('general.close') }}</h4>
+            <div class="divider"></div>
+            <span class="body">{{ __('cms.drawing-question-close-without-save') }}</span>
+            <div class="modal-buttons flex items-center justify-end">
+                <button id="close-cancel-btn" class="cancel flex bold hover:text-primary cursor-pointer transition">{{ __('auth.cancel') }}</button>
+                <button id="close-confirm-btn" @click="show = false" class="confirm bold">{{ __('general.close') }}</button>
+            </div>
+        </div>
     </div>
 </div>
 <template id="shape-group-template">
@@ -293,6 +316,3 @@
     </div>
 </template>
 <template id="svg-layer-to-render"></template>
-<div id="delete-confirm" style="display: none">
-    <div class="title">hoi</div>
-</div>

@@ -642,6 +642,43 @@ window.initDrawingQuestion = function (rootElement, isTeacher) {
             }
         },
         {
+            element: UI.closeCancelBtn,
+            events: {
+                "click": {
+                    callback: handleCloseByExit,
+                }
+            }
+        },
+        {
+            element: UI.closeConfirmBtn,
+            events: {
+                "click": {
+                    callback: handleCloseByExit,
+                }
+            }
+        },
+        {
+            element: UI.deleteCancelBtn,
+            events: {
+                "click": {
+                    callback() {
+                        UI.deleteConfirm.classList.toggle('open');
+                    } ,
+                }
+            }
+        },
+        {
+            element: UI.deleteConfirmBtn,
+            events: {
+                "click": {
+                    callback() {
+                        drawingApp.params.deleteSubject.remove();
+                        UI.deleteConfirm.classList.toggle('open');
+                    },
+                }
+            }
+        },
+        {
             element: UI.gridToggle,
             events: {
                 "change": {
@@ -933,12 +970,13 @@ window.initDrawingQuestion = function (rootElement, isTeacher) {
     }
 
     function handleCloseByExit() {
-        if (!confirm(drawingApp.explainer.dataset['textCloseconfirmation'])) {
-            return false;
-        }
+        UI.closeConfirm.classList.toggle('open');
+        // if (!confirm(drawingApp.explainer.dataset['textCloseconfirmation'])) {
+        //     return false;
+        // }
 
-        rootElement.dispatchEvent(new CustomEvent('close-drawing-tool'));
-        return true;
+        // rootElement.dispatchEvent(new CustomEvent('close-drawing-tool'));
+        // return true;
     }
 
     function answerLayerIsHidden() {

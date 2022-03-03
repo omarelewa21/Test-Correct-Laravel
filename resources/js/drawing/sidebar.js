@@ -45,6 +45,8 @@ export class Entry extends sidebarComponent {
         this.drawingApp.bindEventListeners(this.eventListenerSettings, this);
         this.updateLockState();
         this.updateHideState();
+
+        this.deleteModal = this.root.querySelector('#delete-confirm');
     }
 
     get eventListenerSettings() {
@@ -184,9 +186,8 @@ export class Entry extends sidebarComponent {
     }
 
     showConfirmDelete() {
-        if (confirm('Weet je zeker dat je dit element wilt verwijderen?')) {
-            this.remove();
-        }
+        this.drawingApp.params.deleteSubject = this;
+        this.deleteModal.classList.toggle('open');
     }
 }
 

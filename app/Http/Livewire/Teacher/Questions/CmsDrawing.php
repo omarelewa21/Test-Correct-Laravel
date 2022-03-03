@@ -26,15 +26,15 @@ class CmsDrawing
 
     public function isOldDrawingQuestion()
     {
-        return false;
+        return filled($this->instance->question['answer']) && blank($this->instance->question['zoom_group']);
     }
 
     public function mergeRules(&$rules)
     {
         $rules += [
             'question.answer_svg'   => 'sometimes|required',
-            'question.question_svg' => 'sometimes|required',
-            'question.grid_svg'     => 'sometimes|required',
+            'question.question_svg' => 'sometimes',
+            'question.grid_svg'     => 'sometimes',
         ];
     }
 

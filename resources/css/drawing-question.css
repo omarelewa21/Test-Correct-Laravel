@@ -929,3 +929,51 @@
 #drawing-tool .input-with-button-group input {
     margin-right: 0 !important;
 }
+
+#drawing-tool .confirm-modal {
+    z-index: -1;
+    opacity: 0;
+    transition: opacity 150ms ease-in-out;
+    background: rgba(199, 199, 199, 0.5);
+}
+
+#drawing-tool .confirm-modal.open {
+    z-index: 150;
+    opacity: 1;
+}
+#drawing-tool .confirm-modal .modal-body {
+    background: white;
+    padding: 2rem;
+    border-radius: 10px;
+    max-width: 500px;
+    box-shadow: var(--main-shadow);
+}
+#drawing-tool .confirm-modal .modal-body .divider {
+    margin: 1rem 0;
+}
+#drawing-tool .confirm-modal .modal-body .modal-buttons {
+    margin-top: 1rem;
+}
+#drawing-tool .confirm-modal .modal-body .modal-buttons .confirm {
+    margin-left: 1rem;
+    color: white;
+    background-color: rgba(0,77,245,1);
+    background-image: radial-gradient(ellipse farthest-side at 10% 10%,rgba(0,77,245,.5) 0,rgba(0,77,245,0) 100%);
+    background-size: 0px 0px;
+    background-repeat: no-repeat;
+    box-shadow: 0 1px 2px 1px rgba(0,0,0,.15);
+    transition: color 0.3s cubic-bezier(.215,.61,.355,1);
+    padding: .5rem 1.5rem;
+    border: none;
+}
+#drawing-tool .confirm-modal .modal-body .modal-buttons .confirm:hover {
+    background-color: rgba(71,129,255,1);
+    background-size: 100% 100%;
+    box-shadow: 0 4px 10px 0 rgba(0,0,0,0.1);
+    transition: all 0.3s cubic-bezier(.215,.61,.355,1);
+}
+
+#drawing-tool .confirm-modal .modal-body .modal-buttons .cancel{
+    background: none;
+    border: none
+}

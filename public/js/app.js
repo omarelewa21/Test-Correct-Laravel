@@ -7223,6 +7223,39 @@ window.initDrawingQuestion = function (rootElement, isTeacher) {
       }
     }
   }, {
+    element: UI.closeCancelBtn,
+    events: {
+      "click": {
+        callback: handleCloseByExit
+      }
+    }
+  }, {
+    element: UI.closeConfirmBtn,
+    events: {
+      "click": {
+        callback: handleCloseByExit
+      }
+    }
+  }, {
+    element: UI.deleteCancelBtn,
+    events: {
+      "click": {
+        callback: function callback() {
+          UI.deleteConfirm.classList.toggle('open');
+        }
+      }
+    }
+  }, {
+    element: UI.deleteConfirmBtn,
+    events: {
+      "click": {
+        callback: function callback() {
+          drawingApp.params.deleteSubject.remove();
+          UI.deleteConfirm.classList.toggle('open');
+        }
+      }
+    }
+  }, {
     element: UI.gridToggle,
     events: {
       "change": {
@@ -7520,12 +7553,11 @@ window.initDrawingQuestion = function (rootElement, isTeacher) {
   }
 
   function handleCloseByExit() {
-    if (!confirm(drawingApp.explainer.dataset['textCloseconfirmation'])) {
-      return false;
-    }
-
-    rootElement.dispatchEvent(new CustomEvent('close-drawing-tool'));
-    return true;
+    UI.closeConfirm.classList.toggle('open'); // if (!confirm(drawingApp.explainer.dataset['textCloseconfirmation'])) {
+    //     return false;
+    // }
+    // rootElement.dispatchEvent(new CustomEvent('close-drawing-tool'));
+    // return true;
   }
 
   function answerLayerIsHidden() {
@@ -8750,6 +8782,7 @@ var Entry = /*#__PURE__*/function (_sidebarComponent) {
 
     _this.updateHideState();
 
+    _this.deleteModal = _this.root.querySelector('#delete-confirm');
     return _this;
   }
 
@@ -8907,9 +8940,8 @@ var Entry = /*#__PURE__*/function (_sidebarComponent) {
   }, {
     key: "showConfirmDelete",
     value: function showConfirmDelete() {
-      if (confirm('Weet je zeker dat je dit element wilt verwijderen?')) {
-        this.remove();
-      }
+      this.drawingApp.params.deleteSubject = this;
+      this.deleteModal.classList.toggle('open');
     }
   }]);
 
@@ -10578,6 +10610,7 @@ var Line = /*#__PURE__*/function (_svgShape3) {
     _classCallCheck(this, Line);
 
     _this3 = _super3.call(this, shapeId, "line", props, parent, drawingApp, Canvas, withHelperElements, withHighlightEvents);
+    _this3.svgCanvas = drawingApp.params.root.querySelector('#svg-canvas');
 
     _this3.makeOwnMarkerForThisShape();
 
@@ -10590,7 +10623,7 @@ var Line = /*#__PURE__*/function (_svgShape3) {
       var markerType = this.getMarkerType();
       if (markerType === "no-endmarker") return;
       var newMarker = this.cloneGenericMarker(markerType);
-      UI.svgCanvas.firstElementChild.appendChild(newMarker);
+      this.svgCanvas.firstElementChild.appendChild(newMarker);
       var newMarkerId = "".concat(newMarker.id, "-line-").concat(this.shapeId);
       newMarker.id = newMarkerId;
       this.props.main["marker-end"] = "url(#".concat(newMarkerId, ")");
