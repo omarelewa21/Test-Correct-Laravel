@@ -370,7 +370,7 @@ export class Line extends svgShape {
 
         const propertyToChange = this.getPropertyToChange(markerType);
         newMarker.style[propertyToChange] = this.props.main.stroke;
-
+        this.parent.appendChild(newMarker);
         this.marker = newMarker;
     }
 

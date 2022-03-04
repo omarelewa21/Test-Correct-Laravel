@@ -158,11 +158,11 @@
         <article id="canvas" class="overflow-hidden">
             <svg id="svg-canvas" xmlns="http://www.w3.org/2000/svg" class="overflow-hidden">
                 <defs>
-                    <marker id="svg-filled-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6"
+                    <marker id="svg-filled-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6"
                             orient="auto-start-reverse">
                         <polyline points="0,0 10,5 0,10" stroke="none"/>
                     </marker>
-                    <marker id="svg-two-lines-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6"
+                    <marker id="svg-two-lines-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6"
                             markerHeight="6" orient="auto-start-reverse">
                         <polyline points="1,1 9,5 1,9" fill="none"/>
                     </marker>

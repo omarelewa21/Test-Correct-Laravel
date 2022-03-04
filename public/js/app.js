@@ -10655,6 +10655,7 @@ var Line = /*#__PURE__*/function (_svgShape3) {
       this.mainElement.setAttributeOnElementWithValidation("marker-end", "url(#".concat(newMarkerId, ")"));
       var propertyToChange = this.getPropertyToChange(markerType);
       newMarker.style[propertyToChange] = this.props.main.stroke;
+      this.parent.appendChild(newMarker);
       this.marker = newMarker;
     }
   }, {
