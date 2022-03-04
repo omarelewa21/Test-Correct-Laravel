@@ -417,7 +417,7 @@ export class Text extends svgShape {
 
         let canvasContainer = document.getElementById("svg-canvas").parentElement;
         const fontSize = parseFloat(this.mainElement.element.style.fontSize);
-
+        const topOffset = fontSize * parseFloat(getComputedStyle(document.documentElement).fontSize)
         let textInput = new htmlElement("input", canvasContainer, {
             id: "add-text-input",
             type: "text",
@@ -425,7 +425,7 @@ export class Text extends svgShape {
             style:
                 `width: ${canvasContainer.getBoundingClientRect().right - windowCursor.x}px;\
                 position: absolute;\
-                top: ${windowCursor.y - fontSize}px;\
+                top: ${windowCursor.y - topOffset}px;\
                 left: ${windowCursor.x - 2}px;\
                 font-size: ${fontSize}rem;\
                 color: ${this.mainElement.getAttribute("fill")};\

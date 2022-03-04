@@ -227,4 +227,9 @@ class DrawingQuestion extends Question implements QuestionInterface {
     public function question() {
         return $this->belongsTo('tcCore\Question', $this->getKeyName());
     }
+
+    public static function getSvgImage()
+    {
+
+    }
 }
