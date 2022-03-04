@@ -7210,7 +7210,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher) {
       "click": {
         callback: function callback() {
           if (hasHiddenLayers()) {
-            showHiddenLayersConfirm();
+            toggleSaveConfirm();
           } else {
             submitDrawingData();
             closeDrawingTool();
@@ -7275,6 +7275,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher) {
           handleHiddenLayers();
           submitDrawingData();
           closeDrawingTool();
+          toggleSaveConfirm();
         }
       }
     }
@@ -7546,7 +7547,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher) {
     });
   }
 
-  function showHiddenLayersConfirm() {
+  function toggleSaveConfirm() {
     UI.saveConfirm.classList.toggle('open');
   }
 
@@ -10720,11 +10721,12 @@ var Text = /*#__PURE__*/function (_svgShape4) {
       var windowCursor = this.drawingApp.convertCanvas2DomCoordinates(cursor);
       var canvasContainer = document.getElementById("svg-canvas").parentElement;
       var fontSize = parseFloat(this.mainElement.element.style.fontSize);
+      var topOffset = fontSize * parseFloat(getComputedStyle(document.documentElement).fontSize);
       var textInput = new _htmlElement_js__WEBPACK_IMPORTED_MODULE_2__.htmlElement("input", canvasContainer, {
         id: "add-text-input",
         type: "text",
         placeholder: "Type here...",
-        style: "width: ".concat(canvasContainer.getBoundingClientRect().right - windowCursor.x, "px;                position: absolute;                top: ").concat(windowCursor.y - fontSize, "px;                left: ").concat(windowCursor.x - 2, "px;                font-size: ").concat(fontSize, "rem;                color: ").concat(this.mainElement.getAttribute("fill"), ";                font-weight: ").concat(this.mainElement.element.style.fontWeight || "normal", ";                transform-origin: bottom left;                transform: scale(").concat(this.Canvas.params.zoomFactor, ")"),
+        style: "width: ".concat(canvasContainer.getBoundingClientRect().right - windowCursor.x, "px;                position: absolute;                top: ").concat(windowCursor.y - topOffset, "px;                left: ").concat(windowCursor.x - 2, "px;                font-size: ").concat(fontSize, "rem;                color: ").concat(this.mainElement.getAttribute("fill"), ";                font-weight: ").concat(this.mainElement.element.style.fontWeight || "normal", ";                transform-origin: bottom left;                transform: scale(").concat(this.Canvas.params.zoomFactor, ")"),
         autocomplete: "off",
         spellcheck: "false"
       });
