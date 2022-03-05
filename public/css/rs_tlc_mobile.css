@@ -404,15 +404,15 @@
 }
 
 .rs_addtools a, .rs_addtools span, .rsbtn a, .rsbtn span {
-    color: #333;
-    font-size: 12px;
-    font-family: 'Open Sans webReader', Helvetica, Arial, sans-serif;
-    font-weight: 400;
-    line-height: 1;
-    text-decoration: none;
-    text-transform: none;
-    display: block;
-    outline:0
+    /*color: #333;*/
+    /*font-size: 12px;*/
+    /*font-family: 'Open Sans webReader', Helvetica, Arial, sans-serif;*/
+    /*font-weight: 400;*/
+    /*line-height: 1;*/
+    /*text-decoration: none;*/
+    /*text-transform: none;*/
+    /*display: block;*/
+    /*outline:0*/
 }
 
 .rs_addtools button, .rs_addtools input[type=button], .rsbtn button, .rsbtn input[type=button] {
@@ -442,15 +442,15 @@
 }
 
 .rs_addtools .rsbtn_play, .rsbtn .rsbtn_play {
-    background: #f6f9fc;
-    border: 1px solid #677077;
-    border-radius: 2px;
-    display: inline-block;
-    box-sizing: inherit;
-    float: left;
-    height: 2.17em;
-    position: relative;
-    z-index:0
+    /*background: #f6f9fc;*/
+    /*border: 1px solid #677077;*/
+    /*border-radius: 2px;*/
+    /*display: inline-block;*/
+    /*box-sizing: inherit;*/
+    /*float: left;*/
+    /*height: 2.17em;*/
+    /*position: relative;*/
+    /*z-index:0*/
 }
 
 .rs_addtools .rsbtn_play:after, .rs_addtools .rsbtn_play:before, .rsbtn .rsbtn_play:after, .rsbtn .rsbtn_play:before {
@@ -586,7 +586,7 @@
     line-height: 1;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    border-left: 1px solid #677077;
+    /*border-left: 1px solid #677077;*/
     color: #288144;
     float: left;
     font-size: 16.8px;
@@ -2594,4 +2594,76 @@
 
 .rsbtn_right .rsimg .rsplay .rspart{
     display: none;
+}
+
+.Rectangle {
+    width: 140px;
+    height: 40px;
+    margin: auto;
+    padding: 5px 16px 5px 11px;
+    border-radius: 20px;
+    color: var(--system-base);
+    cursor: pointer;
+}
+.Rectangle:active,.Rectangle:hover {
+    color: var(--teacher-primary);
+    background-color: #f2f6fe;
+}
+.Lees-voor {
+    width: 81px;
+    height: 24px;
+    margin: 0 0 6px 8px;
+    font-family: Nunito Bold;
+    font-size: 18px;
+    font-weight: bold;
+    font-stretch: normal;
+    font-style: normal;
+    line-height: normal;
+    letter-spacing: normal;
+    display: inline-flex;
+    position: relative;
+    top: 3px
+}
+
+#readspeaker_button1{
+    width: 150px;
+    height: 40px;
+    margin: auto;
+    padding: 5px 16px 5px 11px;
+    border-radius: 20px;
+    color: #ffffff;
+    cursor: pointer;
+    background-color: #f0f2f5;
+}
+#readspeaker_button1.rs_tlc_paused{
+    background-color: var(--teacher-primary);
+}
+svg.rs_svg_read{
+    display: none !important;
+}
+.rsbtn .rsbtn_play .rsbtn_left:before {
+    display: inline-block;
+    content: '';
+    background-image: url("/svg/icons/icons-lees-voor-white.svg");
+    background-position-x: 0px;
+    background-position-y: 6px;
+    background-size: 25px;
+    height: 40px;
+    width: 25px;
+    background-repeat: no-repeat;
+}
+.rsbtn .rsbtn_play .rsbtn_right:before {
+    content: "Lees voor";
+    font-family: Nunito Bold !important;
+    font-size: 18px;
+    font-weight: bold;
+    font-stretch: normal;
+    font-style: normal;
+    line-height: normal;
+    letter-spacing: normal;
+    color: #ffffff;
+}
+
+.rs_addtools .rsbtn_play .rsbtn_right.rsimg, .rsbtn .rsbtn_play .rsbtn_right.rsimg {
+    padding: 5px 0 0 10px;
 }

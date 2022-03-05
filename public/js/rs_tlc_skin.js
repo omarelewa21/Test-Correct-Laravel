@@ -1,9 +1,12 @@
 ReadSpeaker.q(function() {
     console.log('rs_tlc_skin initialized!');
     rspkr.rs_tlc_play_started = false;
-    rspkr.tlc_clicklisten_active = rspkr.ui.Tools.ClickListen.active();
+    if(!rspkr.mobile()){
+        rspkr.tlc_clicklisten_active = rspkr.ui.Tools.ClickListen.active();
+    }
     rspkr.rs_tlc_prevent_close = false;
     rspkr.rs_tlc_container = false;
+
 });
 window.rsConf = {
     general: {
@@ -17,7 +20,8 @@ window.rsConf = {
         },
         toolbar: {
             inverted : false
-        }
+        },
+        mobileVertPos: 'bottom=100'
     },
     cb: {
         ui: {
@@ -44,6 +48,7 @@ window.rsConf = {
                 }));
             },
             stop: function() {
+                setMobileClasses('stop');
                 console.log('Player stopped and callback fired!');
                 if(typeof rspkr.tlc_clicklisten_active=='undefined'){
                     rspkr.ui.getActivePlayer().close();
@@ -63,6 +68,7 @@ window.rsConf = {
             },
             play: function() {
                 console.log('Play callback fired!');
+                setMobileClasses('play');
                 rspkr.rs_tlc_play_started = true;
                 rspkr.rs_tlc_prevent_close = false;
                 showRsPlayer();
@@ -73,6 +79,7 @@ window.rsConf = {
             },
             pause: function() {
                 console.log('Pause callback fired!');
+                setMobileClasses('pause');
                 rspkr.rs_tlc_play_started = false;
             }
         }
@@ -679,4 +686,30 @@ function getReadableDivForSelect(select)
     readable_div.classList.add('overflow-ellipsis');
     readable_div.classList.add('rs-click-listen');
     return readable_div;
+}
+
+function setMobileClasses(eventType)
+{
+    if(!rspkr.mobile()){
+        return;
+    }
+    var rs_button = document.querySelector('#readspeaker_button1');
+    if(eventType=='pause'){
+        if(rs_button==null){
+            return;
+        }
+        if(rs_button.classList.contains('rs_tlc_paused')){
+            return;
+        }
+        rs_button.classList.add('rs_tlc_paused');
+    }
+    if(eventType=='play'||eventType=='stop'){
+        if(rs_button==null){
+            return;
+        }
+        if(!rs_button.classList.contains('rs_tlc_paused')){
+            return;
+        }
+        rs_button.classList.remove('rs_tlc_paused');
+    }
 }

@@ -49,7 +49,7 @@
         if (screen.width>=1024) {
             document.write('<link rel="stylesheet" type="text/css" href="/css/rs_tlc.css" />');
         }else{
-            document.write('<link rel="stylesheet" type="text/css" href="/css/rs_tlc_button.css" />');
+            // document.write('<link rel="stylesheet" type="text/css" href="/css/rs_tlc_button.css" />');
             document.write('<link rel="stylesheet" type="text/css" href="/css/rs_tlc_mobile.css" />" />');
         }
     </script>
