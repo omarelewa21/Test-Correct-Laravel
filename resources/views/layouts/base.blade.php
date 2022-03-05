@@ -19,7 +19,9 @@
     @endif
     @stack('styling')
 
-        <link rel="stylesheet" type="text/css" href="/css/rs_tlc.css" />
+
+
+
 </head>
 <body id="body" class="flex flex-col min-h-screen"  onload="addIdsToQuestionHtml()">
 {{ $slot }}
@@ -43,6 +45,14 @@
 <script src="{{ mix('/js/app.js') }}"></script>
 <script src="https://www.wiris.net/client/plugins/app/WIRISplugins.js?viewer=image"></script>
 @if(!is_null(Auth::user())&&Auth::user()->text2speech)
+    <script>
+        if (screen.width>=1024) {
+            document.write('<link rel="stylesheet" type="text/css" href="/css/rs_tlc.css" />');
+        }else{
+            document.write('<link rel="stylesheet" type="text/css" href="/css/rs_tlc_button.css" />');
+            document.write('<link rel="stylesheet" type="text/css" href="/css/rs_tlc_mobile.css" />" />');
+        }
+    </script>
 <script src="//cdn-eu.readspeaker.com/script/12749/webReader/webReader.js?pids=wr&amp;noDefaultSkin=1" type="text/javascript" id="rs_req_Init"></script>
 <script src="/js/rs_tlc_skin.js"></script>
 @endif
@@ -50,6 +60,8 @@
 <script>
     Alpine.start();
     Core.init();
+
+</script>
 </script>
 </body>
 </html>

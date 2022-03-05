@@ -92,8 +92,8 @@ class CompletionQuestion extends Component
 
         $question_text = preg_replace_callback(
             '/\[([0-9]+)\]/i',
-            function ($matches) use ($tags, $isCitoQuestion) {
-
+            function ($matches) use ($tags, $isCitoQuestion,$question) {
+                $tag_id = $matches[1] - 1;
                 $answers = $tags[$matches[1]];
                 $keys = array_keys($answers);
                 if (!$isCitoQuestion) {
@@ -107,9 +107,14 @@ class CompletionQuestion extends Component
                 }
 
                 $answers = $random;
-
-                return sprintf('<select wire:model="answer.%s" class="form-input text-base max-w-full overflow-ellipsis overflow-hidden rs_clicklistenexclude"  @change="$event.target.setAttribute(\'title\', $event.target.value);" selid="testtake-select">%s</select>',
+                $events = '@change="$event.target.setAttribute(\'title\', $event.target.value);"';
+                if(Auth::user()->text2speech){
+                    $events = sprintf('@change="$event.target.setAttribute(\'title\', $event.target.value);" @mouseenter="mouseenterSelect(event,\'%s\',\'%s\')"','comp_answer_' . $tag_id,$question->getKey());
+                }
+                return sprintf('<select wire:model="answer.%s" class="form-input text-base max-w-full overflow-ellipsis overflow-hidden rs_clicklistenexclude"  %s selid="testtake-select" x-ref="%s">%s</select>',
                     $matches[1],
+                    $events,
+                    'select_answer_' . $tag_id,
                     $this->getOptions($answers));
 
 //                return $this->Form->input('Answer.'.$tag_id ,['id' => 'answer_' . $tag_id, 'class' => 'multi_selection_answer', 'onchange' => 'Answer.answerChanged = true', 'value' => $value, 'options' => $answers, 'label' => false, 'div' => false, 'style' => 'display:inline-block; width:150px']);

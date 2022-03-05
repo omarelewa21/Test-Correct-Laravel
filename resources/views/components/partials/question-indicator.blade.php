@@ -148,9 +148,6 @@
                             rspkr.ui.getActivePlayer().close();
                     }
                 });
-                if (typeof rspkr != 'undefined' && typeof rspkr.ui != 'undefined') {
-                    rspkr.ui.Tools.ClickListen.activate();
-                }
             </script>
         @endpush
     @endif

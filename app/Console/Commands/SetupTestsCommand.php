@@ -78,6 +78,8 @@ class SetupTestsCommand extends Command
             $this->createQuestion($attributes);
             $attributes = $this->getCompletionQuestionAttributes(['test_id' => $this->testId]);
             $this->createQuestion($attributes);
+            $attributes = $this->getCompletionQuestionSelectionAttributes(['test_id' => $this->testId]);
+            $this->createQuestion($attributes);
             $attributes = $this->getAttributesForDrawingQuestion($this->testId);
             $this->createQuestion($attributes);
             $attributes = $this->getAttributesForMatchingQuestion($this->testId);

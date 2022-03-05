@@ -3,7 +3,7 @@
         <div
                 x-data="{count:0, closed: @entangle('closed') }"
                 x-init="count = $refs.countme.value.length;"
-                class="relative"
+                class="relative open-question-container"
         >
             <div questionHtml wire:ignore>{!!   $question->converted_question_html !!}</div>
 
@@ -52,16 +52,12 @@
                     return 'height: 10px; width:' + count / total * 100 + '%';
                 }
                 document.addEventListener('readspeaker_opened', () => {
-                    var oldEl = document.getElementById('there_can_only_be_one');
-                    var possibleTextarea = false;
-                    var hidden_div;
-                    if(oldEl){
-                        possibleTextarea = oldEl.nextElementSibling;
+                    if(shouldNotCreateHiddenTextarea({{ $question->id }})){
+                        return;
                     }
-                    if(possibleTextarea.id!='textarea_{{ $question->id }}') {
-                        createHiddenDivTextArea({{ $question->id }});
-                    }
+                    createHiddenDivTextArea({{ $question->id }});
                 })
+
             </script>
         @endpush
     </div>

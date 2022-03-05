@@ -2228,6 +2228,9 @@ button) {
 /*    z-index: 21;*/
 /*    position: relative !important;*/
 /*}*/
+.ck-content ol{
+    list-style-type: decimal;
+}
 
 /*! tailwindcss v2.2.19 | MIT License | https://tailwindcss.com */
 

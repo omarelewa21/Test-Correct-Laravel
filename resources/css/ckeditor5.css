@@ -422,3 +422,6 @@
 /*    z-index: 21;*/
 /*    position: relative !important;*/
 /*}*/
+.ck-content ol{
+    list-style-type: decimal;
+}

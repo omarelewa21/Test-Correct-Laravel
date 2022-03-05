@@ -39,6 +39,9 @@
                     } );
             });
             document.addEventListener('readspeaker_closed', () => {
+                if(shouldNotReinitCkeditor(document.querySelector( '#{{ $editorId }}' ))){
+                    return;
+                }
                 if(window.classicEditorReplaced){
                     return;
                 }

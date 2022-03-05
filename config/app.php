@@ -1,5 +1,8 @@
 <?php
-    if(array_key_exists('HTTP_ACCEPT_LANGUAGE', $_SERVER)){
+
+use tcCore\Http\Helpers\BaseHelper;
+
+if(array_key_exists('HTTP_ACCEPT_LANGUAGE', $_SERVER)){
         $language = substr($_SERVER['HTTP_ACCEPT_LANGUAGE'], 0, 2);
         if($language !=	 'nl'){
             $lang = 'en';
@@ -13,6 +16,7 @@
     }
 
     $lang = 'nl'; // just to see if it works in dutch
+    //app('url')->forceRootUrl('http://557c-95-97-95-106.ngrok.io');
 
 return [
 
