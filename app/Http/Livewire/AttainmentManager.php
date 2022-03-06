@@ -13,6 +13,8 @@ class AttainmentManager extends Component
 
     public $subdomains = [];
 
+    public $subsubdomains = [];
+
     public $domainId;
 
     public $value;
@@ -40,24 +42,28 @@ class AttainmentManager extends Component
             Attainment::whereIn('id',$this->value)->each(function($attainment){
                 if ($attainment->attainment_id == null) {
                     $this->domainId = $attainment->id;
-                } else {
+                } elseif(!is_null($attainment->subcode)&&is_null($attainment->subsubcode)) {
                     $this->subdomainId = $attainment->id;
+                } elseif(!is_null($attainment->subcode)&&!is_null($attainment->subsubcode)) {
+                    $this->subsubdomainId = $attainment->id;
                 }
             });
             $this->reloadSubdomainsListForAttainmentId($this->domainId);
+            $this->reloadSubsubdomainsListForAttainmentId($this->subdomainId);
         } else {
             $this->updatedDomainId($this->domainId);
+            $this->updatedSubDomainId($this->subdomainId);
         }
     }
 
-    public function updatedSubdomainId($value)
-    {
-        $this->emitUpdatedValuesEvent();
-    }
+//    public function updatedSubdomainId($value)
+//    {
+//        $this->emitUpdatedValuesEvent();
+//    }
 
     private function emitUpdatedValuesEvent()
     {
-            $this->emitUp('updated-attainment', array_filter([$this->domainId, $this->subdomainId]));
+            $this->emitUp('updated-attainment', array_filter([$this->domainId, $this->subdomainId, $this->subsubdomainId]));
     }
 
     public function updatedDomainId($value)
@@ -68,14 +74,32 @@ class AttainmentManager extends Component
         $this->emitUpdatedValuesEvent();
     }
 
+    public function updatedSubDomainId($value)
+    {
+        $this->subsubdomainId = '';
+        $this->subsubdomains = [];
+        $this->reloadSubsubdomainsListForAttainmentId($value);
+        $this->emitUpdatedValuesEvent();
+    }
+
     private function reloadSubdomainsListForAttainmentId($attainmentId)
+    {
+        $this->reloadDescendantForAttainmentId($attainmentId,'subdomains');
+    }
+
+    private function reloadSubsubdomainsListForAttainmentId($attainmentId)
+    {
+        $this->reloadDescendantForAttainmentId($attainmentId,'subsubdomains');
+    }
+
+    private function reloadDescendantForAttainmentId($attainmentId,$level)
     {
         if (!empty($attainmentId)) {
             Attainment::where('attainment_id', $attainmentId)
                 ->where('status', 'ACTIVE')
                 ->get()
-                ->each(function ($subDomain) {
-                    $this->subdomains[$subDomain->id] = $subDomain->description;
+                ->each(function ($child) use ($level){
+                    $this->$level[$child->id] = $child->description;
                 });;
         }
     }
