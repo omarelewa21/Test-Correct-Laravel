@@ -1,9 +1,7 @@
 ReadSpeaker.q(function() {
     console.log('rs_tlc_skin initialized!');
     rspkr.rs_tlc_play_started = false;
-    if(!rspkr.mobile()){
-        rspkr.tlc_clicklisten_active = rspkr.ui.Tools.ClickListen.active();
-    }
+    registerTlcClickListenActive();
     rspkr.rs_tlc_prevent_close = false;
     rspkr.rs_tlc_container = false;
 
@@ -54,9 +52,9 @@ window.rsConf = {
                     rspkr.ui.getActivePlayer().close();
                 }
                 if(rspkr.tlc_clicklisten_active){
-                    return rspkr.ui.Tools.ClickListen.activate();
+                    return activateClickTap();
                 }
-                rspkr.ui.Tools.ClickListen.deactivate();
+                deactivateClickTap();
                 rspkr.ui.getActivePlayer().close();
             },
             open: function() {
@@ -102,8 +100,8 @@ function startRsPlayer()
 function handleFocusForReadspeaker()
 {
     //if clickListen is activated you cannot type an L in a textfield
-    rspkr.tlc_clicklisten_active = rspkr.ui.Tools.ClickListen.active();
-    rspkr.ui.Tools.ClickListen.deactivate();
+    registerTlcClickListenActive();
+    deactivateClickTap();
 }
 function handleBlurForReadspeaker()
 {
@@ -112,7 +110,7 @@ function handleBlurForReadspeaker()
     }
     if(rspkr.tlc_clicklisten_active){
         rspkr.rs_tlc_play_started = false;
-        rspkr.ui.Tools.ClickListen.activate();
+        activateClickTap();
     }
 }
 function handleClickListenToggle()
@@ -120,14 +118,14 @@ function handleClickListenToggle()
     if(typeof rspkr.tlc_clicklisten_active == "undefined"){
         return;
     }
-    if(rspkr.tlc_clicklisten_active==rspkr.ui.Tools.ClickListen.active()){
+    if(tlcClickListenActiveIsInSync()){
         return;
     }
     if(rspkr.tlc_clicklisten_active){
-        rspkr.ui.Tools.ClickListen.activate();
+        activateClickTap();
         return;
     }
-    rspkr.ui.Tools.ClickListen.deactivate();
+    deactivateClickTap();
 }
 
 
@@ -152,7 +150,7 @@ function handleMouseupForReadspeaker(e,obj)
     hidden_div.classList.add('overflow-ellipsis');
     matchingElement.classList.add('hidden');
     matchingElement.classList.add('readspeaker_hidden_element');
-    rspkr.ui.Tools.ClickListen.activate();
+    activateClickTap();
     hidden_div.click();
 }
 
@@ -205,7 +203,6 @@ function readCkEditorOnSelect(editor)
         return;
     }
     rspkr.rs_tlc_play_started = false;
-    //rspkr.ui.Tools.ClickListen.activate();
     removeOldElement();
     var node = cloneHiddenSpan(editor);
     setSelectedElement(node,editor);
@@ -265,7 +262,7 @@ function readTextArea(questionId)
     if(rspkr.rs_tlc_play_started){
         return;
     }
-    rspkr.ui.Tools.ClickListen.activate();
+    activateClickTap();
     rspkr.rs_tlc_play_started = false;
     rspkr.rs_tlc_prevent_close = true;
     var hidden_div = createHiddenDivTextArea(questionId)
@@ -628,7 +625,7 @@ function createHiddenDivForElementAndHideElement(element)
 
 function mouseenterSelect(event,selectId,questionId)
 {
-    rspkr.tlc_clicklisten_active = rspkr.ui.Tools.ClickListen.active();
+    registerTlcClickListenActive();
     var popup = document.querySelector('.rsbtn_popup_select_'+questionId);
     if(popup == null){
         return;
@@ -656,9 +653,7 @@ function hideRsTlcPopup(popup)
 function showReadableSelect()
 {
     rspkr.rs_tlc_prevent_close = true;
-    if(!rspkr.ui.Tools.ClickListen.active()){
-        rspkr.ui.Tools.ClickListen.activate();
-    }
+    activateClickTap();
     var rect = this.linkedElement.getBoundingClientRect();
     var readable_div = getReadableDivForSelect(this.linkedElement);
     this.parentNode.insertBefore(readable_div,this);
@@ -688,6 +683,64 @@ function getReadableDivForSelect(select)
     return readable_div;
 }
 
+function activateClickTap()
+{
+    if(rspkr.mobile()){
+        return activateMouseTracker();
+    }
+    activateClickListen();
+}
+function activateClickListen()
+{
+    if(!rspkr.ui.Tools.ClickListen.active()){
+        rspkr.ui.Tools.ClickListen.activate();
+    }
+}
+function activateMouseTracker()
+{
+    if(!rspkr.ui.Tools.MouseTracker.isActive()){
+        window.ReadSpeaker.Mobile.ui.Player().tapRead.activate();
+        //document.querySelector('.rsmpl-tapread>button').click();
+        //rspkr.ui.Tools.MouseTracker.activate();
+    }
+}
+function deactivateClickTap()
+{
+    if(rspkr.mobile()){
+        return deactivateMouseTracker();
+    }
+    deactivateClickListen();
+}
+function deactivateClickListen()
+{
+    if(rspkr.ui.Tools.ClickListen.active()){
+        rspkr.ui.Tools.ClickListen.deactivate();
+    }
+}
+function deactivateMouseTracker()
+{
+    if(rspkr.ui.Tools.MouseTracker.isActive()){
+        window.ReadSpeaker.Mobile.ui.Player().tapRead.activate();
+        //document.querySelector('.rsmpl-tapread>button').click();
+        //rspkr.ui.Tools.MouseTracker.inactivate();
+    }
+}
+function registerTlcClickListenActive()
+{
+    if(rspkr.mobile()){
+        rspkr.tlc_clicklisten_active = rspkr.ui.Tools.MouseTracker.isActive();
+    }else{
+        rspkr.tlc_clicklisten_active = rspkr.ui.Tools.ClickListen.active();
+    }
+}
+function tlcClickListenActiveIsInSync()
+{
+    if(rspkr.mobile()){
+        return (rspkr.tlc_clicklisten_active == rspkr.ui.Tools.MouseTracker.isActive());
+    }else{
+        return (rspkr.tlc_clicklisten_active == rspkr.ui.Tools.ClickListen.active());
+    }
+}
 function setMobileClasses(eventType)
 {
     if(!rspkr.mobile()){
@@ -713,3 +766,4 @@ function setMobileClasses(eventType)
         rs_button.classList.remove('rs_tlc_paused');
     }
 }
+

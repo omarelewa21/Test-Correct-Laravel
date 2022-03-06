@@ -2493,7 +2493,8 @@
 }
 
 #rsmpl_container .rsmpl-tools .rsmpl-player .rsmpl-player-tool {
-    float:left
+    float:left;
+    height: 54px;
 }
 
 #rsmpl_container.rs_visible {
@@ -2666,4 +2667,149 @@ svg.rs_svg_read{
 
 .rs_addtools .rsbtn_play .rsbtn_right.rsimg, .rsbtn .rsbtn_play .rsbtn_right.rsimg {
     padding: 5px 0 0 10px;
+}
+
+#rsmpl_container {
+    background: #ffffff;
+    border: 1px solid #ffffff;
+    border-radius: 20px;
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+    border-right: none;
+    bottom: 40px;
+    box-sizing: content-box;
+    box-shadow: 0 0 5px #777;
+    display: block;
+    right: -100%;
+    position: fixed;
+    transition: right .3s;
+}
+
+#rsmpl_container .rsmpl-tools .rsmpl-tool.rsmpl-collapse {
+    border-right: 1px solid #ffffff;
+}
+
+.rsbtn .rs-player-loadindicator,#rsmpl_container .rsmpl-progress {
+    display: block;
+    position: absolute;
+    left: 0 !important;
+    right: -1px;
+    top: -1px;
+    height: 6px;
+    margin: 0 0 9px;
+    padding: 0 308px 0 0;
+    border-radius: 4.5px;
+    background-color: var(--primary-light);
+    margin-left: 37px;
+}
+
+.rsbtn .rs-player-loadindicator .rsbtn-progress, #rsmpl_container .rsmpl-progress .rsmpl-progress-inner {
+    background: var(--teacher-primary);
+    display: none;
+    height: 100%;
+    position: absolute;
+    transition: width .5s ease;
+    width: 50%;
+    max-width: 100%;
+    opacity: 1;
+    border-radius: 4.5px;
+}
+
+.rsbtn .rs-player-loadindicator .rsbtn-loading, #rsmpl_container .rsmpl-progress .rsmpl-loading {
+    animation-duration: 2s;
+    animation-iteration-count: infinite;
+    animation-name: loading;
+    background: var(--teacher-primary);
+    display: none;
+    height: 100%;
+    left: 0;
+    position: absolute;
+    width: 20%;
+    opacity: 1;
+}
+
+#rsmpl_container .rsmpl-tools .rsmpl-tool button:focus {
+    background: #ffffff;
+    color: var(--teacher-primary);
+    border-radius: 20px;
+}
+
+#rsmpl_container .rsmpl-tools .rsmpl-tool button {
+    margin: 0;
+    outline: 0;
+    padding: 0;
+    background: 0 0;
+    border: none;
+    box-sizing: inherit;
+    color: var(--all-Base);
+    padding: 8px;
+    padding-top: 13px;
+}
+
+
+
+.rsbtn_pause, #rsmpl_container .rsmpl-tools .rsmpl-player .rsmpl-playpause>button {
+    width: 40px;
+    height: 40px;
+    margin: 9px 8px 0 0;
+    display: inline-block;
+    background-color: var(--teacher-primary);
+    line-height: 40px;
+    -moz-border-radius: 20px;
+    border-radius: 20px;
+    color: white;
+    text-align: center;
+    font-size: 2em;
+}
+
+#rsmpl_container .rsmpl-tools .rsmpl-player .rsmpl-playpause>button>span {
+    position: relative;
+    top: -14px;
+}
+
+#rsmpl_container.rsidle .rsmpl-tools .rsmpl-player .rsmpl-playpause .rsicn:before {
+    display: inline-block;
+    content: '';
+    background-image: url(/svg/icons/icons-play-white.svg);
+    background-position-x: 5px;
+    background-position-y: 12px;
+    background-size: auto;
+    height: 40px;
+    width: 40px;
+    background-repeat: no-repeat;
+}
+
+#rsmpl_container.rsplaying .rsmpl-tools .rsmpl-player .rsmpl-playpause .rsicn:before {
+    display: inline-block;
+    content: '';
+    background-image: url(/svg/icons/icons-pause-white.svg);
+    background-position-x: 5px;
+    background-position-y: 12px;
+    background-size: auto;
+    height: 40px;
+    width: 40px;
+    background-repeat: no-repeat;
+}
+
+#rsmpl_container .rsmpl-tools .rsmpl-tool .rsmpl-playpause .rsicn {
+    color: #ffffff;
+}
+
+#rsmpl_container .rsmpl-tools .rsmpl-tool.active:before {
+    background: #288144;
+    border-radius: 50%;
+    content: ' ';
+    height: 10px;
+    left: 2px;
+    position: absolute;
+    top: 10px;
+    width: 10px;
+}
+
+#rsmpl_container .rsmpl-tools .rsmpl-tool button .rsbtn_btnlabel{
+    display: none;
+}
+
+.rsbtn.rs_mobile .rsbtn_play .rsbtn_left {
+    margin-left: 0px;
 }
