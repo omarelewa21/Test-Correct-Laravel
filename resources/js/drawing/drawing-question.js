@@ -868,6 +868,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher) {
         const content = UI.svgLayerToRender.content;
         for (const groupElement of content.children) {
             const mainElement = groupElement.querySelector(".main");
+            if (mainElement === null) continue;
             const props = {
                 group: copyAllAttributesFromElementToObject(groupElement),
                 main: copyAllAttributesFromElementToObject(mainElement),
