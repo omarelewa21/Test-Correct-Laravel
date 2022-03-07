@@ -9,6 +9,8 @@ class AttainmentManager extends Component
 {
     public $subdomainId;
 
+    public $subsubdomainId;
+
     public $domains = [];
 
     public $subdomains = [];
@@ -56,10 +58,10 @@ class AttainmentManager extends Component
         }
     }
 
-//    public function updatedSubdomainId($value)
-//    {
-//        $this->emitUpdatedValuesEvent();
-//    }
+    public function updatedSubsubdomainId($value)
+    {
+        $this->emitUpdatedValuesEvent();
+    }
 
     private function emitUpdatedValuesEvent()
     {
@@ -70,11 +72,13 @@ class AttainmentManager extends Component
     {
         $this->subdomainId = '';
         $this->subdomains = [];
+        $this->subsubdomainId = '';
+        $this->subsubdomains = [];
         $this->reloadSubdomainsListForAttainmentId($value);
         $this->emitUpdatedValuesEvent();
     }
 
-    public function updatedSubDomainId($value)
+    public function updatedSubdomainId($value)
     {
         $this->subsubdomainId = '';
         $this->subsubdomains = [];
