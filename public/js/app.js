@@ -5857,12 +5857,6 @@ function getTitleForVideoUrl(videoUrl) {
   \*****************************/
 /***/ ((__unused_webpack_module, __unused_webpack_exports, __webpack_require__) => {
 
-function _createForOfIteratorHelper(o, allowArrayLike) { var it = typeof Symbol !== "undefined" && o[Symbol.iterator] || o["@@iterator"]; if (!it) { if (Array.isArray(o) || (it = _unsupportedIterableToArray(o)) || allowArrayLike && o && typeof o.length === "number") { if (it) o = it; var i = 0; var F = function F() {}; return { s: F, n: function n() { if (i >= o.length) return { done: true }; return { done: false, value: o[i++] }; }, e: function e(_e) { throw _e; }, f: F }; } throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); } var normalCompletion = true, didErr = false, err; return { s: function s() { it = it.call(o); }, n: function n() { var step = it.next(); normalCompletion = step.done; return step; }, e: function e(_e2) { didErr = true; err = _e2; }, f: function f() { try { if (!normalCompletion && it["return"] != null) it["return"](); } finally { if (didErr) throw err; } } }; }
-
-function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen); }
-
-function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) { arr2[i] = arr[i]; } return arr2; }
-
 __webpack_require__(/*! ./bootstrap */ "./resources/js/bootstrap.js");
 
 __webpack_require__(/*! livewire-sortable */ "./node_modules/livewire-sortable/dist/livewire-sortable.js");
@@ -5878,8 +5872,6 @@ __webpack_require__(/*! ./alpine */ "./resources/js/alpine.js");
 __webpack_require__(/*! ./rich-text-editor */ "./resources/js/rich-text-editor.js");
 
 __webpack_require__(/*! ./drawing/drawing-question */ "./resources/js/drawing/drawing-question.js");
-
-window.ClassicEditors = [];
 
 addIdsToQuestionHtml = function addIdsToQuestionHtml() {
   var id = 1;
@@ -6100,38 +6092,6 @@ countPresentStudents = function countPresentStudents(members) {
     }
   });
   return activeStudents;
-};
-
-elementMutationActionPrompt = function elementMutationActionPrompt(element) {
-  var mutationTypes = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : [];
-  var action = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : "";
-  var observer = new MutationObserver(function (mutations) {
-    var _iterator = _createForOfIteratorHelper(mutations),
-        _step;
-
-    try {
-      for (_iterator.s(); !(_step = _iterator.n()).done;) {
-        var mutation = _step.value;
-
-        if (mutationTypes.includes(mutation.attributeName)) {
-          switch (action) {
-            case "d-none":
-              element.style.display = "none";
-              break;
-
-            default:
-          }
-        }
-      }
-    } catch (err) {
-      _iterator.e(err);
-    } finally {
-      _iterator.f();
-    }
-  });
-  observer.observe(element, {
-    attributes: true
-  });
 };
 
 String.prototype.contains = function (text) {
@@ -7486,6 +7446,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher) {
       for (_iterator.s(); !(_step = _iterator.n()).done;) {
         var groupElement = _step.value;
         var mainElement = groupElement.querySelector(".main");
+        if (mainElement === null) continue;
         var props = {
           group: copyAllAttributesFromElementToObject(groupElement),
           main: copyAllAttributesFromElementToObject(mainElement)
