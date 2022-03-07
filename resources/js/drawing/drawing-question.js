@@ -768,6 +768,16 @@ window.initDrawingQuestion = function (rootElement, isTeacher) {
                     },
                 },
             }
+        },
+        {
+            element: UI.centerBtn,
+            events: {
+                "click": {
+                    callback: () => {
+                        panDrawingCenterToScreenCenter();
+                    },
+                },
+            }
         }
     ];
 
@@ -848,11 +858,11 @@ window.initDrawingQuestion = function (rootElement, isTeacher) {
 
     function panDrawingCenterToScreenCenter() {
         const bbox = UI.svgPanZoomGroup.getBBox({fill: true, stroke: true, markers: true});
-        const centerDrawingToOrigin = {
-            dx: -(bbox.x + (bbox.width / 2)),
-            dy: -(bbox.y + (bbox.height / 2)),
-        };
 
+        const centerDrawingToOrigin = {
+            dx: (bbox.x + (bbox.width / 2)),
+            dy: (bbox.y + (bbox.height / 2)),
+        };
         pan(centerDrawingToOrigin);
     }
 
