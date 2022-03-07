@@ -4,7 +4,7 @@
 'answer'
 ])
 
-<div class="flex flex-col p-8 sm:p-10 content-section" >
+<div class="flex flex-col p-8 sm:p-10 content-section rs_readable" >
     <div class="question-title flex flex-wrap items-center question-indicator border-bottom mb-6">
         <div class="inline-flex question-number rounded-full text-center justify-center items-center {!! $this->answered ? 'complete': 'incomplete' !!}">
             <span class="align-middle cursor-default">{{ $number }}</span>

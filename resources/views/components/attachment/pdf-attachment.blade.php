@@ -49,18 +49,12 @@ See https://github.com/adobe-type-tools/cmap-resources
     <script src="/pdf/pdf.js"></script>
     <script src="/pdf/viewer.js"></script>
     <script src="/pdf/tcViewer.js"></script>
-    <link rel="stylesheet" type="text/css" href="/css/rs_tlc_skin.css" />
-    <script src="//cdn-eu.readspeaker.com/script/12749/webReader/webReader.js?pids=wr&amp;skin=rs_tlc_skin" type="text/javascript" id="rs_req_Init"></script>
+    <link rel="stylesheet" type="text/css" href="/css/rs_tlc.css" />
+    <link rel="stylesheet" type="text/css" href="/css/rs_tlc_pdf.css" />
+
+    <script src="//cdn-eu.readspeaker.com/script/12749/webReader/webReader.js?pids=wr&amp;noDefaultSkin=1" type="text/javascript" id="rs_req_Init"></script>
     <script src="/js/rs_tlc_skin.js"></script>
-    <style>
-        .rs_textnode{
-            position: relative;
-            /*top: 5px;*/
-        }
-        #readspeaker_button1{
-            margin-left: 20px;
-        }
-    </style>
+
 </head>
 
 <body tabindex="1" class="loadingInProgress">
@@ -253,9 +247,15 @@ See https://github.com/adobe-type-tools/cmap-resources
                         </span>
                         <div class="splitToolbarButtonSeparator"></div>
                         @if(Auth::user()->text2speech)
-                            <div id="readspeaker_button1" wire:ignore class="rs_skip rsbtn rs_preserve ">
-                                <a rel="nofollow" class="rsbtn_play" accesskey="L" title="{{ __('test_take.speak') }}" href="//app-eu.readspeaker.com/cgi-bin/rsent?customerid=12749&amp;lang=nl_nl&amp;readclass=rs_readable">
-                                    <span class="rsbtn_left rsimg rspart"><x-icon.audio/><span class="rsbtn_text"><span class="rsbtn_label">{{ __('test_take.speak') }}</span></span></span>
+                            <div class="Rectangle rs_clicklistenexclude rs_starter_button" onclick="startRsPlayer()">
+                                <x-icon.rs-audio/>
+                                <div class="Lees-voor">
+                                    {{ __('test_take.speak') }}
+                                </div>
+                            </div>
+                            <div id="readspeaker_button1" wire:ignore class="rs_skip rsbtn rs_preserve hidden" >
+                                <a rel="nofollow" class="rsbtn_play"  title="{{ __('test_take.speak') }}" href="//app-eu.readspeaker.com/cgi-bin/rsent?customerid=12749&amp;lang=nl_nl&amp;readclass=rs_readable">
+                                    <span class="rsbtn_left rsimg rspart oval"><x-icon.rs-audio-inverse/></span>
                                     <span class="rsbtn_right rsimg rsplay rspart"></span>
                                 </a>
                             </div>
