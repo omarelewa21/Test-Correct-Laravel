@@ -96,3 +96,11 @@
         <div x-show="showPopup" x-cloak style="height: 70px;"></div>
     </div>
 </div>
+
+@push('scripts')
+    <script>
+        document.querySelector('.save_button').addEventListener('click', function(){
+            @this.set("{!!  $attributes->wire('model') !!}", CKEDITOR.instances['{{$editorId}}'].getData())
+        });
+    </script>
+@endpush
