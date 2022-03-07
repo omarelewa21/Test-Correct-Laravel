@@ -15,6 +15,7 @@ use tcCore\Http\Requests;
 use tcCore\Lib\Repositories\AverageRatingRepository;
 use tcCore\Lib\Repositories\SchoolClassRepository;
 use tcCore\Lib\User\Factory;
+use tcCore\QuestionAttainment;
 use tcCore\SchoolClass;
 use tcCore\Http\Controllers\Controller;
 use tcCore\Http\Requests\SchoolClassesStudentImportRequest;
@@ -140,10 +141,11 @@ class AttainmentImportController extends Controller
 
     public function setAttainmentsInactiveNotPresentInImport(Request $request)
     {
-        $this->checkInactivateRoutineHasNotYetBeenExecuted();
+
         $updated = 0;
         $attainments = [];
         try{
+            $this->checkInactivateRoutineHasNotYetBeenExecuted();
             $attainmentsDbIds = Attainment::withTrashed()->get()->pluck('id')->toArray();
             $excelFile = $request->attainments;
             $attainmentManifest = new ExcelAttainmentUpdateOrCreateManifest($excelFile);
@@ -173,6 +175,29 @@ class AttainmentImportController extends Controller
         return response()->json(['data' => $updated.' soft deleted'], 200);
     }
 
+    public function removeSoftDeletedQuestionAttainments()
+    {
+        $removed = 0;
+        try{
+            $questionAttainments = QuestionAttainment::onlyTrashed()->get();
+            foreach ($questionAttainments as $questionAttainment){
+                DB::enableQueryLog();
+
+                DB::table('question_attainments')->where('attainment_id', $questionAttainment->getKey())
+                                                        ->where('question_id', $questionAttainment->question_id)
+                                                        ->whereNotNull('deleted_at')
+                                                        ->delete();
+                $removed++;
+            }
+        } catch (\Exception $e) {
+            DB::rollback();
+            logger($e);
+            logger($e->getMessage());
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
+        return response()->json(['data' => $removed.' hard deleted'], 200);
+    }
+
     public function importForUpdateOrCreate(Request $request)
     {
         $this->checkInactivateRoutineHasAlreadyBeenExecuted();
@@ -180,6 +205,7 @@ class AttainmentImportController extends Controller
         $attainmentManifest = new ExcelAttainmentUpdateOrCreateManifest($excelFile);
         $added = 0;
         $updated = 0;
+        $updatedIds = [];
         DB::beginTransaction();
         try {
             $this->checkSheetsIntegrity($attainmentManifest);
@@ -190,16 +216,19 @@ class AttainmentImportController extends Controller
             $this->checkCodeIntegrity();
             $this->checkLevelCodeSubcodeSubsubcodeCombination();
             $this->fillInParents();
-            $this->attainmentsCollection->each(function ($resource) use (&$added,&$updated) {
+            $this->attainmentsCollection->each(function ($resource) use (&$added,&$updated,&$updatedIds) {
+                $parentId = $this->findParent($resource);
+                $resource->attainment_id = $parentId;
                 if(is_null($resource->id)){
-                    $parentId = $this->findParent($resource);
-                    $this->createAttainment($resource,$parentId);
+                    $this->createAttainment($resource);
                     $added++;
                     return true;
                 }
                 $this->updateAttainment($resource);
+                $updatedIds[] = $resource->id;
                 $updated++;
             });
+            $this->repairQuestionAttainments($updatedIds);
         } catch (\Exception $e) {
             DB::rollback();
             logger($e);
@@ -292,15 +321,13 @@ class AttainmentImportController extends Controller
         }
     }
 
-    protected function createAttainment(&$resource,$parentId)
+    protected function createAttainment(&$resource)
     {
         $data = collect($resource)->toArray();
-        $data['attainment_id'] = $parentId;
         $attainment = new Attainment();
         $attainment->fill($data);
         $attainment->save();
         $resource->id = $attainment->getKey();
-        $resource->attainment_id = $parentId;
     }
 
     protected function updateAttainment($resource)
@@ -327,9 +354,9 @@ class AttainmentImportController extends Controller
     protected function findParent($resource)
     {
 
-        if(!is_null($resource->id)){
-            return $resource->attainment_id;
-        }
+//        if(!is_null($resource->id)){
+//            return $resource->attainment_id;
+//        }
         if(!is_null($resource->attainment_id)){
             return $resource->attainment_id;
         }
@@ -439,6 +466,91 @@ class AttainmentImportController extends Controller
             'description',
             'status',
         ];
+    }
+
+    protected function repairQuestionAttainments($updatedIds)
+    {
+        $handled = [];
+        foreach ($updatedIds as $attainmentId){
+            $attainment = Attainment::findOrFail($attainmentId);
+            $questions = $attainment->questions;
+            foreach ($questions as $question){
+                if(in_array($question->getKey(),$handled)){
+                    continue;
+                }
+                $this->repairAttainmentsForQuestion($question,$handled);
+            }
+        }
+    }
+
+    protected function repairAttainmentsForQuestion($question,&$handled)
+    {
+        $currentAttainments = $question->getQuestionInstance()->attainments;
+        $deepestAttainment = $this->getDeepestAttainment($currentAttainments);
+        $taxonomyArray = $this->fillTaxonomyArray($deepestAttainment);
+        $this->removeRogueAttainmentsFromQuestion($taxonomyArray,$currentAttainments,$question);
+        $this->addAttainmentsToQuestion($taxonomyArray,$currentAttainments,$question);
+        $handled[] = $question->getKey();
+    }
+
+    protected function getDeepestAttainment($currentAttainments)
+    {
+        foreach ($currentAttainments as $attainment){
+            if(!is_null($attainment->subsubcode)&&!empty($attainment->subsubcode)){
+                return $attainment;
+            }
+        }
+        foreach ($currentAttainments as $attainment){
+            if(!is_null($attainment->subcode)&&!empty($attainment->subcode)){
+                return $attainment;
+            }
+        }
+        foreach ($currentAttainments as $attainment){
+            if(!is_null($attainment->code)&&!empty($attainment->code)){
+                return $attainment;
+            }
+        }
+        throw new \Exception('error in finding attainment taxonomy while searching for deepest');
+    }
+
+    protected function fillTaxonomyArray($deepestAttainment):array
+    {
+         try {
+            if (is_null($deepestAttainment->attainment_id)) {
+                return [$deepestAttainment->getKey()];
+            }
+            $taxonomyArray = [];
+            $attainment = $deepestAttainment;
+            while (!is_null($attainment->attainment_id)) {
+                $taxonomyArray[] = $attainment->getKey();
+                $attainment = Attainment::findOrFail($attainment->attainment_id);
+            }
+            $taxonomyArray[] = $attainment->getKey();
+            return $taxonomyArray;
+        }catch (\Exception $e){
+            throw new \Exception('error in finding attainment taxonomy while filling TaxonomyArray. msg:'.$e->getMessage());
+        }
+    }
+
+    protected function removeRogueAttainmentsFromQuestion($taxonomyArray,$currentAttainments,$question)
+    {
+        foreach ($currentAttainments as $attainment){
+            if(!in_array($attainment->getKey(),$taxonomyArray)){
+                $question->getQuestionInstance()->attainments()->detach($attainment);
+            }
+        }
+    }
+
+    protected function addAttainmentsToQuestion($taxonomyArray,$currentAttainments,$question)
+    {
+        foreach ($taxonomyArray as $attainmentId){
+            $inCurrentAttainments = $currentAttainments->contains(function ($model, $key) use($attainmentId) {
+                return $model->getKey()==$attainmentId;
+            });
+            if(!$inCurrentAttainments){
+                $question->getQuestionInstance()->attainments()->attach(Attainment::find($attainmentId));
+            }
+        }
     }
 
 }
