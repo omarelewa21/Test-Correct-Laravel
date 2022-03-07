@@ -7340,6 +7340,15 @@ window.initDrawingQuestion = function (rootElement, isTeacher) {
         }
       }
     }
+  }, {
+    element: UI.centerBtn,
+    events: {
+      "click": {
+        callback: function callback() {
+          panDrawingCenterToScreenCenter();
+        }
+      }
+    }
   }];
 
   if (drawingApp.isTeacher()) {
@@ -7420,8 +7429,8 @@ window.initDrawingQuestion = function (rootElement, isTeacher) {
       markers: true
     });
     var centerDrawingToOrigin = {
-      dx: -(bbox.x + bbox.width / 2),
-      dy: -(bbox.y + bbox.height / 2)
+      dx: bbox.x + bbox.width / 2,
+      dy: bbox.y + bbox.height / 2
     };
     pan(centerDrawingToOrigin);
   }
