@@ -72,6 +72,13 @@
                         </button>
                     </div>
                 </div>
+                <div>
+                    <button id="center-btn" class="Secondary" Title="{{ __('drawing-modal.Centreren') }}">
+                        <label for="center-btn" id="center-btn-label">
+                            <x-icon.target/>
+                        </label>
+                    </button>
+                </div>
             </div>
             <div id="properties">
                 <div class="property-group" id="text-style">
