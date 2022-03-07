@@ -774,7 +774,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher) {
             events: {
                 "click": {
                     callback: () => {
-                        panDrawingCenterToScreenCenter();
+                        // panDrawingCenterToScreenCenter();
                     },
                 },
             }
@@ -857,13 +857,45 @@ window.initDrawingQuestion = function (rootElement, isTeacher) {
     }
 
     function panDrawingCenterToScreenCenter() {
+        // let systemGridToggle = false;
+        // if (!UI.gridToggle.checked) {
+        //     UI.gridToggle.checked = true
+        //     processGridToggleChange()
+        //     systemGridToggle = true;
+        // }
+
         const bbox = UI.svgPanZoomGroup.getBBox({fill: true, stroke: true, markers: true});
 
+        console.table({
+            x: bbox.x,
+            y: bbox.y,
+            width: bbox.width,
+            width2: bbox.width /2,
+            height: bbox.height,
+            height2: bbox.height /2,
+        })
+
         const centerDrawingToOrigin = {
-            dx: (bbox.x + (bbox.width / 2)),
-            dy: (bbox.y + (bbox.height / 2)),
+            dx: parseInt(bbox.x + (bbox.width / 2)),
+            dy: parseInt(bbox.y + (bbox.height / 2)),
         };
+
         pan(centerDrawingToOrigin);
+
+        console.log(centerDrawingToOrigin);
+
+
+        if(centerDrawingToOrigin.dy !== 0 || centerDrawingToOrigin.dx !== 0) {
+            if(UI.gridToggle.checked) {
+                panDrawingCenterToScreenCenter();
+            }
+        }
+
+        // if (systemGridToggle) {
+        //     UI.gridToggle.checked = false
+        //     processGridToggleChange()
+        //     systemGridToggle = false;
+        // }
     }
 
     function drawingFitsScreen() {
