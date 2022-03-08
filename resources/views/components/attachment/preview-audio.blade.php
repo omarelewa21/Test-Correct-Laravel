@@ -20,19 +20,14 @@
             <h5>{{ __('test_take.time_left_to_answer_after_closing_attachment', ['timeout' => $this->timeout]) }}</h5>
         @endif
     </div>
-    <div style="width:80%;">
-        <audio id="player" controls controlsList="nodownload noplaybackrate noplaybutton" x-ref="player" style="width:100%;"
-            @if($attachment->audioOnlyPlayOnce())
+    <div>
+        <audio id="player" src="{{ route('teacher.preview.question-attachment-show', ['attachment' => $attachment->uuid, 'question' => $questionId], false) }}"
+               x-ref="player"
+               @if($attachment->audioOnlyPlayOnce())
                     x-on:ended="@this.audioIsPlayedOnce(attachment);"
-            @endif
-            class="--B
-                @if($attachment->disableAudioTimeline()) --T @endif"
-        >
-            <source src="{{ route('teacher.preview.question-attachment-show', ['attachment' => $attachment->uuid, 'question' => $questionId], false) }}"
-                type="audio/mp3"
-            />
-        </audio>
-        <div class="flex justify-center mt-3">
+               @endif
+        ></audio>
+        <div class="flex justify-center">
             <button class="button primary-button"
                     x-on:click.prevent="$refs.player.play(), $wire.set('pressedPlay', true)"
             >
@@ -49,7 +44,3 @@
         </div>
     </div>
 </div>
-
-<script>
-    elementMutationActionPrompt($('audio')[0], ['class','style'], 'd-none');
-</script>
