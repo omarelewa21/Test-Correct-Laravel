@@ -232,14 +232,5 @@
                 </script>
             @endpush
     @endif
-    @push('scripts')
-        <script>
-            function toOverview(q){
-                        setTimeout(function(){
-                                livewire.find(document.querySelector('[test-take-player]').getAttribute('wire:id')).call('toOverview', q)
-                            }, 300)
-                    }
-        </script> 
-    @endpush
     
 </div>
