@@ -130,11 +130,7 @@
                 </x-button.text-button>
             @endif
             @if(!$isOverview)
-                <x-button.text-button
-                onclick="setTimeout(function(){ 
-                                livewire.find(document.querySelector('[test-take-player]').getAttribute('wire:id')).call('toOverview', {{ $this->q }})
-                            }, 300)"
-                @click="$dispatch('show-loader')">
+                <x-button.text-button onclick="toOverview({{$this->q}})" @click="$dispatch('show-loader')">
                     <x-icon.preview/>
                     <span>{{ __('test_take.overview') }}</span>
                 </x-button.text-button>
@@ -232,7 +228,18 @@
                             hideBrowseAloudButtons();
                         }, 1000);
                     }
+
                 </script>
             @endpush
     @endif
+    @push('scripts')
+        <script>
+            function toOverview(q){
+                        setTimeout(function(){
+                                livewire.find(document.querySelector('[test-take-player]').getAttribute('wire:id')).call('toOverview', q)
+                            }, 300)
+                    }
+        </script> 
+    @endpush
+    
 </div>
