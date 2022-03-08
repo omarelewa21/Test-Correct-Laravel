@@ -7344,7 +7344,8 @@ window.initDrawingQuestion = function (rootElement, isTeacher) {
     element: UI.centerBtn,
     events: {
       "click": {
-        callback: function callback() {// panDrawingCenterToScreenCenter();
+        callback: function callback() {
+          panDrawingCenterToScreenCenter();
         }
       }
     }
@@ -7422,42 +7423,57 @@ window.initDrawingQuestion = function (rootElement, isTeacher) {
   }
 
   function panDrawingCenterToScreenCenter() {
-    // let systemGridToggle = false;
-    // if (!UI.gridToggle.checked) {
-    //     UI.gridToggle.checked = true
-    //     processGridToggleChange()
-    //     systemGridToggle = true;
-    // }
+    var systemGridToggle = false;
+
+    if (!UI.gridToggle.checked) {
+      UI.gridToggle.checked = true;
+      processGridToggleChange();
+      systemGridToggle = true;
+    }
+
+    var systemQuestionHide = false;
+
+    if (!Canvas.layers.question.isHidden()) {
+      Canvas.layers.question.hide();
+      systemQuestionHide = true;
+    }
+
+    var systemAnswerHide = false;
+
+    if (!Canvas.layers.answer.isHidden()) {
+      Canvas.layers.answer.hide();
+      systemAnswerHide = true;
+    }
+
     var bbox = UI.svgPanZoomGroup.getBBox({
       fill: true,
       stroke: true,
       markers: true
-    });
-    console.table({
-      x: bbox.x,
-      y: bbox.y,
-      width: bbox.width,
-      width2: bbox.width / 2,
-      height: bbox.height,
-      height2: bbox.height / 2
     });
     var centerDrawingToOrigin = {
       dx: parseInt(bbox.x + bbox.width / 2),
       dy: parseInt(bbox.y + bbox.height / 2)
     };
     pan(centerDrawingToOrigin);
-    console.log(centerDrawingToOrigin);
 
     if (centerDrawingToOrigin.dy !== 0 || centerDrawingToOrigin.dx !== 0) {
       if (UI.gridToggle.checked) {
         panDrawingCenterToScreenCenter();
       }
-    } // if (systemGridToggle) {
-    //     UI.gridToggle.checked = false
-    //     processGridToggleChange()
-    //     systemGridToggle = false;
-    // }
+    }
 
+    if (systemGridToggle) {
+      UI.gridToggle.checked = false;
+      processGridToggleChange();
+    }
+
+    if (systemQuestionHide) {
+      Canvas.layers.question.unhide();
+    }
+
+    if (systemAnswerHide) {
+      Canvas.layers.answer.unhide();
+    }
   }
 
   function drawingFitsScreen() {
