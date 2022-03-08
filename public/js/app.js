@@ -5775,6 +5775,7 @@ document.addEventListener('alpine:init', function () {
     };
   });
   alpinejs__WEBPACK_IMPORTED_MODULE_1__["default"].data('drawingTool', function (questionId, entanglements, isTeacher) {
+    var isPreview = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : false;
     return {
       show: false,
       questionId: questionId,
@@ -5783,11 +5784,12 @@ document.addEventListener('alpine:init', function () {
       gridSvg: entanglements.gridSvg,
       isTeacher: isTeacher,
       toolName: null,
+      isPreview: isPreview,
       init: function init() {
         var _this7 = this;
 
         this.toolName = "drawingTool_".concat(questionId);
-        var toolName = window[this.toolName] = initDrawingQuestion(this.$root, this.isTeacher);
+        var toolName = window[this.toolName] = initDrawingQuestion(this.$root, this.isTeacher, this.isPreview);
 
         if (this.isTeacher) {
           this.makeGridIfNecessary(toolName);
@@ -5802,7 +5804,8 @@ document.addEventListener('alpine:init', function () {
 
             toolName.drawingApp.init();
           } else {
-            Livewire.emit('refresh');
+            var component = getClosestLivewireComponentByAttribute(_this7.$root, 'questionComponent');
+            component.call('render');
           }
         });
         toolName.Canvas.layers.answer.enable();
@@ -5816,10 +5819,7 @@ document.addEventListener('alpine:init', function () {
           toolName.drawingApp.params.gridSize = parsedGrid;
           toolName.Canvas.layers.grid.params.hidden = false;
 
-          if (!this.isTeacher) {
-            var _this$$root$querySele;
-
-            (_this$$root$querySele = this.$root.querySelector('#grid-background')) === null || _this$$root$querySele === void 0 ? void 0 : _this$$root$querySele.remove();
+          if (!this.isTeacher) {// this.$root.querySelector('#grid-background')?.remove();
           }
         }
       },
@@ -6564,7 +6564,7 @@ function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
 
 
 
-window.initDrawingQuestion = function (rootElement, isTeacher) {
+window.initDrawingQuestion = function (rootElement, isTeacher, isPreview) {
   var _this2 = this;
 
   /**
@@ -6604,6 +6604,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher) {
       spacebarPressed: false,
       root: rootElement,
       isTeacher: isTeacher,
+      isPreview: isPreview,
       hiddenLayersCount: 0
     },
     firstInit: true,
@@ -7283,7 +7284,9 @@ window.initDrawingQuestion = function (rootElement, isTeacher) {
     element: UI.gridToggle,
     events: {
       "change": {
-        callback: processGridToggleChange
+        callback: function callback() {
+          processGridToggleChange();
+        }
       }
     }
   }, {
@@ -7585,7 +7588,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher) {
   }
 
   function submitDrawingData() {
-    // parent.skip = true;
+    if (drawingApp.params.isPreview) return;
     var b64Strings = encodeSvgLayersAsBase64Strings();
     var grid = Canvas.layers.grid.params.hidden ? "0.00" : drawingApp.params.gridSize.toString();
     var panGroupSize = getPanGroupSize();
@@ -8307,10 +8310,10 @@ window.initDrawingQuestion = function (rootElement, isTeacher) {
   }
 
   function updateGridVisibility() {
-    var grid = Canvas.layers.grid,
-        shape = grid.shape;
+    var grid = Canvas.layers.grid;
+    var shape = grid.shape;
 
-    if (!grid.params.hidden && (drawingApp.isTeacher() ? valueWithinBounds(UI.gridSize) : true)) {
+    if (!grid.params.hidden && valueWithinBounds(UI.gridSize)) {
       shape.show();
       return;
     }
@@ -8319,12 +8322,8 @@ window.initDrawingQuestion = function (rootElement, isTeacher) {
   }
 
   function updateGrid() {
-    if (drawingApp.isTeacher()) {
-      if (valueWithinBounds(UI.gridSize)) {
-        drawingApp.params.gridSize = UI.gridSize.value;
-        Canvas.layers.grid.shape.update();
-      }
-    } else {
+    if (valueWithinBounds(UI.gridSize)) {
+      drawingApp.params.gridSize = UI.gridSize.value;
       Canvas.layers.grid.shape.update();
     }
   }
@@ -10314,6 +10313,7 @@ var svgShape = /*#__PURE__*/function () {
     };
     this.Canvas = Canvas;
     this.drawingApp = drawingApp;
+    this.root = drawingApp.params.root;
     if (!this.props.main) this.props.main = {};
     if (!this.props.group) this.props.group = {};
     this.offset = parseInt(this.props.main["stroke-width"]) / 2 + 3 || 5;
@@ -10718,7 +10718,7 @@ var Line = /*#__PURE__*/function (_svgShape3) {
   }, {
     key: "cloneGenericMarker",
     value: function cloneGenericMarker(type) {
-      var markerToClone = document.querySelector("marker#svg-".concat(type));
+      var markerToClone = this.root.querySelector("marker#svg-".concat(type));
       return markerToClone.cloneNode(true);
     }
   }, {
@@ -10771,7 +10771,7 @@ var Text = /*#__PURE__*/function (_svgShape4) {
       var _this5 = this;
 
       var windowCursor = this.drawingApp.convertCanvas2DomCoordinates(cursor);
-      var canvasContainer = document.getElementById("svg-canvas").parentElement;
+      var canvasContainer = this.root.querySelector("#svg-canvas").parentElement;
       var fontSize = parseFloat(this.mainElement.element.style.fontSize);
       var topOffset = fontSize * parseFloat(getComputedStyle(document.documentElement).fontSize);
       var textInput = new _htmlElement_js__WEBPACK_IMPORTED_MODULE_2__.htmlElement("input", canvasContainer, {

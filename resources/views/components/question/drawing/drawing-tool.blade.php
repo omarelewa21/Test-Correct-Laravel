@@ -47,10 +47,10 @@
                     @endif
                 </div>
                 <div id="grid-background" class="tools-group">
-                    <input type="checkbox" id="grid-toggle" style="display: none;" autocomplete="off">
+                    <input type="checkbox" id="grid-toggle" style="display: none;" autocomplete="off" x-ref="gridinput">
                     <button title="{{ __('drawing-modal.Zet grid aan/uit') }}"
-                            @click="$refs.gridsizegroup.classList.toggle('disabled')">
-                        <label id="grid-toggle-btn" for="grid-toggle">
+                            @click="$refs.gridsizegroup.classList.toggle('disabled'); $refs.gridinput.checked = !$refs.gridinput.checked; $refs.gridinput.dispatchEvent(new Event('change'))">
+                        <label id="grid-toggle-btn">
                             <x-icon.grid/>
                         </label>
                     </button>
@@ -106,7 +106,7 @@
                 </div>
 
                 <div class="property-group" id="edge">
-                    <input type="color" name="stroke-color" id="stroke-color" autocomplete="off" title="{{ __('drawing-modal.Randkleur') }}">
+                    <input type="color" name="stroke-color" id="stroke-color" autocomplete="off" title="{{ __('drawing-modal.Randkleur') }}" class="cursor-pointer">
                     <div class="input-with-button-group">
                         <button id="decr-stroke" class="Secondary" title="{{ __('drawing-modal.Vergroot randdikte') }}">
                             <div>
@@ -125,7 +125,7 @@
 
                 <div class="property-group" id="fill">
                     <input type="color" name="fill-color" id="fill-color" value="#ffffff" autocomplete="off"
-                           title="{{ __('drawing-modal.Opvulkleur') }}">
+                           title="{{ __('drawing-modal.Opvulkleur') }}" class="cursor-pointer">
                     <input type="number" name="fill-opacity" id="fill-opacity-number" min="0" max="100" value="100"
                            step="1" autocomplete="off" title="{{ __('drawing-modal.Doorzichtigheid opvulkleur') }}">
                     <input class="drawing-toolbar-slider" type="range" name="fill-opacity" id="fill-opacity-range" style="cursor: grab"
@@ -187,9 +187,9 @@
                 </button>
             </div>
             <div id="cursor-pos-container" class="coord-box flex items-end">
-                <button id="center-btn" class="w-10 h-10" Title="{{ __('drawing-modal.Centreren') }}" style="margin-right: .5rem">
-                    <label for="center-btn" id="center-btn-label">
-                        <x-icon.target/>
+                <button id="center-btn" class="w-10 h-10 Secondary" Title="{{ __('drawing-modal.Centreren') }}" style="margin-right: .5rem">
+                    <label for="center-btn" id="center-btn-label" class="base">
+                        <x-icon.center-screen/>
                     </label>
                 </button>
                 <div>

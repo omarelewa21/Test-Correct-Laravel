@@ -279,7 +279,7 @@ document.addEventListener('alpine:init', () => {
         }
     }));
 
-    Alpine.data('drawingTool', (questionId, entanglements, isTeacher) => ({
+    Alpine.data('drawingTool', (questionId, entanglements, isTeacher, isPreview = false) => ({
         show: false,
         questionId: questionId,
         answerSvg: entanglements.answerSvg,
@@ -287,10 +287,10 @@ document.addEventListener('alpine:init', () => {
         gridSvg: entanglements.gridSvg,
         isTeacher: isTeacher,
         toolName: null,
-
+        isPreview: isPreview,
         init() {
             this.toolName = `drawingTool_${questionId}`;
-            const toolName = window[this.toolName] = initDrawingQuestion(this.$root, this.isTeacher);
+            const toolName = window[this.toolName] = initDrawingQuestion(this.$root, this.isTeacher, this.isPreview);
 
             if(this.isTeacher) {
                 this.makeGridIfNecessary(toolName);
@@ -305,7 +305,8 @@ document.addEventListener('alpine:init', () => {
 
                     toolName.drawingApp.init();
                 } else {
-                    Livewire.emit('refresh');
+                    const component = getClosestLivewireComponentByAttribute(this.$root, 'questionComponent');
+                    component.call('render');
                 }
             })
 
@@ -321,7 +322,7 @@ document.addEventListener('alpine:init', () => {
                 toolName.Canvas.layers.grid.params.hidden = false;
 
                 if(!this.isTeacher) {
-                    this.$root.querySelector('#grid-background')?.remove();
+                    // this.$root.querySelector('#grid-background')?.remove();
                 }
             }
         },
