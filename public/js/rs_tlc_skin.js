@@ -126,9 +126,10 @@ function handleTextBoxFocusForReadspeaker(event,questionId)
     popup.addEventListener("click", showReadableSelect, false);
     setTimeout(hideRsTlcPopup.bind(null, popup),10000);
 }
-function handleTextBoxBlurForReadspeaker()
+function handleTextBoxBlurForReadspeaker(event,questionId)
 {
     handleBlurForReadspeaker();
+    rsRemovRsbtnPopupTlcForQuestion(questionId);
 }
 function handleClickListenToggle()
 {
@@ -660,7 +661,7 @@ function rsFocusSelect(event,selectId,questionId)
         return;
     }
     popup.addEventListener("click", showReadableSelect, false);
-    setTimeout(hideRsTlcPopup.bind(null, popup),10000);
+    //setTimeout(hideRsTlcPopup.bind(null, popup),10000);
 }
 
 function getRsbtnPopupTlc(questionId,event)
@@ -674,15 +675,20 @@ function getRsbtnPopupTlc(questionId,event)
     }
     var element = event.currentTarget;
     var rect = element.getBoundingClientRect();
-    popup.style.left = rect.left+35+'px';
-    popup.style.top = rect.top-230+'px';
+    popup.style.left = rect.left+17+'px';
+    popup.style.top = rect.top-247+'px';
     popup.linkedElement = element;
     return popup;
 }
 
 function rsBlurSelect(questionId)
 {
-    var popup = document.querySelector('.rsbtn_popup_select_'+questionId);
+    rsRemovRsbtnPopupTlcForQuestion(questionId);
+}
+
+function rsRemovRsbtnPopupTlcForQuestion(questionId)
+{
+    var popup = document.querySelector('.rsbtn_popup_tlc_'+questionId);
     if(popup == null){
         return;
     }

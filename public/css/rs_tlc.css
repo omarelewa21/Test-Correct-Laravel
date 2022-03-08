@@ -2133,8 +2133,16 @@ body.rs_highcontrast #rslightbox_contentcontainer #rslightbox_toolbar .rslightbo
     line-height: 1;
 }
 
-.rspopup .rspopup_btn.rspopup_play:before, .rspopup_tlc .rspopup_btn.rspopup_play:before {
-    content: "\e902";
+.rspopup .rspopup_btn.rspopup_play:before {
+    display: inline-block;
+    content: '';
+    background-image: url("/svg/icons/icons-lees-voor.svg");
+    background-position-x: 12px;
+    background-position-y: 12px;
+    background-size: auto;
+    height: 40px;
+    width: 40px;
+    background-repeat: no-repeat;
 }
 
 .rspopup .rspopup_btn::before, .rspopup_tlc .rspopup_btn::before {
@@ -2142,12 +2150,41 @@ body.rs_highcontrast #rslightbox_contentcontainer #rslightbox_toolbar .rslightbo
     vertical-align: middle;
 }
 .rspopup_tlc {
-    background: #f6f9fc;
-    border: 1px solid #677077;
-    border-radius: 2px;
-    box-shadow: 0 0 5px #777;
+    background: #ffffff;
+    border-radius: 20px;
+    box-shadow:  0 3px 18px 0 rgb(77 87 143 / 10%);
     box-sizing: inherit;
     color: #000;
     position: absolute;
-    border-top: none;
 }
+
+.rspopup_tlc .rspopup_btn{
+    border: none;
+    padding: 0;
+}
+.rspopup_tlc .rspopup_btn::before{
+    margin:0;
+}
+.rspopup_tlc .rspopup_btn.rspopup_play:before {
+    display: inline-block;
+    content: '';
+    background-image: url('/svg/icons/icons-lees-voor.svg');
+    background-position-x: -5px;
+    background-position-y: -5px;
+    background-size: auto;
+    height: 32px;
+    width: 32px;
+    background-repeat: no-repeat;
+}
+.rspopup_tlc:hover .rspopup_btn.rspopup_play:before {
+    display: inline-block;
+    content: '';
+    background-image: url('/svg/icons/icons-lees-voor-hover.svg');
+    background-position-x: 1px;
+    background-position-y: 1px;
+    background-size: auto;
+    height: 32px;
+    width: 32px;
+    background-repeat: no-repeat;
+}
+

@@ -59,7 +59,7 @@ class CompletionQuestion extends Component
             $tag_id = $matches[1] - 1; // the completion_question_answers list is 1 based but the inputs need to be 0 based
             $events = sprintf('@blur="$refs.%s.scrollLeft = 0" @input="$event.target.setAttribute(\'title\', $event.target.value);"','comp_answer_' . $tag_id);
             if(Auth::user()->text2speech){
-                $events = sprintf('@mouseup="handleMouseupForReadspeaker(event,this)" @focus="handleTextBoxFocusForReadspeaker(\'%s\')" @blur="$refs.%s.scrollLeft = 0;handleTextBoxBlurForReadspeaker(\'%s\')" @input="$event.target.setAttribute(\'title\', $event.target.value);"',$question->getKey(),'comp_answer_' . $tag_id,$question->getKey());
+                $events = sprintf('@mouseup="handleMouseupForReadspeaker(event,this)" @focus="handleTextBoxFocusForReadspeaker(event,\'%s\')" @blur="$refs.%s.scrollLeft = 0;handleTextBoxBlurForReadspeaker(event,\'%s\')" @input="$event.target.setAttribute(\'title\', $event.target.value);"',$question->getKey(),'comp_answer_' . $tag_id,$question->getKey());
             }
             return sprintf(
                 '<input spellcheck="false"    wire:model.lazy="answer.%d" class="form-input mb-2 truncate text-center overflow-ellipsis" type="text" id="%s" style="width: 120px" x-ref="%s" %s wire:key="%s"/>',
