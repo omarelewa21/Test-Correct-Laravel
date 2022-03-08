@@ -32,9 +32,7 @@
                 CKEDITOR.instances['{{ $editorId }}']
                     .on('change', function (e) {
                         var textarea = document.getElementById('{{ $editorId }}');
-                        setTimeout(function () {
-                            textarea.value = e.editor.getData();
-                        }, 300);
+                        textarea.value = e.editor.getData();
                         textarea.dispatchEvent(new Event('input'))
                     });
                 CKEDITOR.instances['{{ $editorId }}']

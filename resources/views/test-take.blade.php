@@ -90,7 +90,9 @@
                 </x-button.text-button>
                 <x-button.cta x-show="display.turnin"
                         size="sm"
-                        onclick="livewire.find(document.querySelector('[test-take-player]').getAttribute('wire:id')).call('toOverview', {{ $nav->count() }})"
+                        onclick="setTimeout(function(){ 
+                            livewire.find(document.querySelector('[test-take-player]').getAttribute('wire:id')).call('toOverview', {{ $nav->count() }})
+                        }, 300)"
                         @click="$dispatch('show-loader')"
                 >
                     <span>{{ __('test_take.overview') }}</span>
