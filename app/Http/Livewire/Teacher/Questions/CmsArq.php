@@ -64,7 +64,7 @@ class CmsArq
             ];
         })->toArray());
         unset($this->instance->question['answer']);
-        $this->instance->question['score'] = collect($this->instance->cmsPropertyBag['answerStruct'])->sum('score');
+        $this->instance->question['score'] = collect($this->instance->cmsPropertyBag['answerStruct'])->max('score');
     }
 
     public function createAnswerStruct()
