@@ -20,11 +20,10 @@ class PreviewLaravelController extends Controller
         $current = $request->get('q') ?: '1';
         $uuid = $test->uuid;
         $testId = $test->getKey();
-        $answers = $data;
         $nav = $this->getNavigationData($data);
         $styling = $this->getCustomStylingFromQuestions($data);
 
-        return view('test-preview', compact(['data', 'nav', 'uuid', 'answers', 'current', 'testId', 'styling']));
+        return view('test-preview', compact(['data', 'nav', 'uuid', 'current', 'testId', 'styling']));
     }
 
     public static function getData(Test $test)

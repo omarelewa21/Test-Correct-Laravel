@@ -27,11 +27,6 @@ class MatrixQuestion extends Component
     {
         $this->subQuestions = $this->question->matrixQuestionSubQuestions;
         $this->questionAnswers = $this->question->matrixQuestionAnswers;
-
-        if (!empty(json_decode($this->answers[$this->question->uuid]['answer']))) {
-            $this->answerStruct = json_decode($this->answers[$this->question->uuid]['answer'], true);
-        }
-
     }
 
     public function render()
