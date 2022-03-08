@@ -109,7 +109,7 @@ class CompletionQuestion extends Component
                 $answers = $random;
                 $events = '@change="$event.target.setAttribute(\'title\', $event.target.value);"';
                 if(Auth::user()->text2speech){
-                    $events = sprintf('@change="$event.target.setAttribute(\'title\', $event.target.value);" @focus="rsFocusSelect(event,\'%s\',\'%s\')" @blur="rsBlurSelect(\'%s\')"','comp_answer_' . $tag_id,$question->getKey(),$question->getKey());
+                    $events = sprintf('@change="$event.target.setAttribute(\'title\', $event.target.value);" @focus="rsFocusSelect(event,\'%s\',\'%s\')" @blur="rsBlurSelect(event,\'%s\')"','comp_answer_' . $tag_id,$question->getKey(),$question->getKey());
                 }
                 return sprintf('<select wire:model="answer.%s" class="form-input text-base max-w-full overflow-ellipsis overflow-hidden rs_clicklistenexclude"  %s selid="testtake-select" x-ref="%s">%s</select>',
                     $matches[1],

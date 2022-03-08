@@ -128,8 +128,8 @@ function handleTextBoxFocusForReadspeaker(event,questionId)
 }
 function handleTextBoxBlurForReadspeaker(event,questionId)
 {
-    handleBlurForReadspeaker();
-    rsRemovRsbtnPopupTlcForQuestion(questionId);
+        handleBlurForReadspeaker();
+        rsRemovRsbtnPopupTlcForQuestion(event,questionId);
 }
 function handleClickListenToggle()
 {
@@ -681,30 +681,36 @@ function getRsbtnPopupTlc(questionId,event,correction)
     return popup;
 }
 
-function rsBlurSelect(questionId)
+function rsBlurSelect(event,questionId)
 {
-    rsRemovRsbtnPopupTlcForQuestion(questionId);
+    rsRemovRsbtnPopupTlcForQuestion(event,questionId);
 }
 
-function rsRemovRsbtnPopupTlcForQuestion(questionId)
+function rsRemovRsbtnPopupTlcForQuestion(event,questionId)
 {
     var popup = document.querySelector('.rsbtn_popup_tlc_'+questionId);
     if(popup == null){
         return;
     }
-    setTimeout(hideRsTlcPopup.bind(null, popup),500);
+    if(event.target!=popup.linkedElement){
+        return;
+    }
+    setTimeout(hideRsTlcPopup.bind(null, popup,event),500);
 }
 
 
-function hideRsTlcPopup(popup)
+function hideRsTlcPopup(popup,event)
 {
+    if(event.target!=popup.linkedElement){
+        return;
+    }
     if(!popup.classList.contains('hidden')){
         popup.classList.add('hidden');
     }
     popup.removeEventListener('click',showReadableSelect);
 }
 
-function showReadableSelect()
+function showReadableSelect(event)
 {
     rspkr.rs_tlc_prevent_close = true;
     activateClickTap();
@@ -714,7 +720,7 @@ function showReadableSelect()
     readable_div.style.position = 'absolute';
     readable_div.style.top = rect.top-230+'px';
     readable_div.style.left = rect.left+35+'px';
-    hideRsTlcPopup(this);
+    hideRsTlcPopup(this,event);
     readable_div.click();
 }
 
