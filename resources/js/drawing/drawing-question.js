@@ -857,13 +857,46 @@ window.initDrawingQuestion = function (rootElement, isTeacher) {
     }
 
     function panDrawingCenterToScreenCenter() {
-        const bbox = UI.svgPanZoomGroup.getBBox({fill: true, stroke: true, markers: true});
+        let systemGridToggle = false;
+        if (!UI.gridToggle.checked) {
+            UI.gridToggle.checked = true
+            processGridToggleChange()
+            systemGridToggle = true;
+        }
+        let systemQuestionHide = false
+        if (!Canvas.layers.question.isHidden()) {
+            Canvas.layers.question.hide()
+            systemQuestionHide = true;
+        }
+        let systemAnswerHide = false
+        if (!Canvas.layers.answer.isHidden()) {
+            Canvas.layers.answer.hide()
+            systemAnswerHide = true;
+        }
 
+        const bbox = UI.svgPanZoomGroup.getBBox({fill: true, stroke: true, markers: true});
         const centerDrawingToOrigin = {
-            dx: (bbox.x + (bbox.width / 2)),
-            dy: (bbox.y + (bbox.height / 2)),
+            dx: parseInt(bbox.x + (bbox.width / 2)),
+            dy: parseInt(bbox.y + (bbox.height / 2)),
         };
+
         pan(centerDrawingToOrigin);
+        if(centerDrawingToOrigin.dy !== 0 || centerDrawingToOrigin.dx !== 0) {
+            if(UI.gridToggle.checked) {
+                panDrawingCenterToScreenCenter();
+            }
+        }
+
+        if (systemGridToggle) {
+            UI.gridToggle.checked = false
+            processGridToggleChange()
+        }
+        if (systemQuestionHide) {
+            Canvas.layers.question.unhide()
+        }
+        if (systemAnswerHide) {
+            Canvas.layers.answer.unhide()
+        }
     }
 
     function drawingFitsScreen() {

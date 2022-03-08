@@ -72,13 +72,6 @@
                         </button>
                     </div>
                 </div>
-                <div>
-                    <button id="center-btn" class="Secondary" Title="{{ __('drawing-modal.Centreren') }}">
-                        <label for="center-btn" id="center-btn-label">
-                            <x-icon.target/>
-                        </label>
-                    </button>
-                </div>
             </div>
             <div id="properties">
                 <div class="property-group" id="text-style">
@@ -193,12 +186,19 @@
                     <x-icon.plus-2/>
                 </button>
             </div>
-            <div id="cursor-pos-container" class="coord-box">
-                <div id="cursor-pos-title">
-                    {{ __('cms.coordinaten')}}
-                </div>
-                <div id="cursor-pos">
-                    X 0, Y 0
+            <div id="cursor-pos-container" class="coord-box flex items-end">
+                <button id="center-btn" class="w-10 h-10" Title="{{ __('drawing-modal.Centreren') }}" style="margin-right: .5rem">
+                    <label for="center-btn" id="center-btn-label">
+                        <x-icon.target/>
+                    </label>
+                </button>
+                <div>
+                    <div id="cursor-pos-title">
+                        {{ __('cms.coordinaten')}}
+                    </div>
+                    <div id="cursor-pos">
+                        X 0, Y 0
+                    </div>
                 </div>
             </div>
         </article>
