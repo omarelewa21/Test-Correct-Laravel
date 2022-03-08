@@ -1917,7 +1917,7 @@ input[type=number] {
 }
 
 #drawing-tool .input-with-button-group.disabled {
-    background-color: var(--off-white);
+    background-color: var(--all-LightGrey);
 }
 
 #drawing-tool .input-with-button-group button,
