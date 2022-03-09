@@ -1334,6 +1334,8 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview) {
         let CTM = UI.svgPanZoomGroup.getScreenCTM();
         evt = evt.touches?.[0] || evt;
 
+        if (evt.type === 'touchend') return Canvas.params.cursorPosition;
+
         return {
             x: (evt.clientX - CTM.e) / CTM.a,
             y: (evt.clientY - CTM.f) / CTM.d,
