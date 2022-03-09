@@ -2,6 +2,7 @@ import {panParams, shapePropertiesAvailableToUser, zoomParams} from "./constants
 import * as svgShape from "./svgShape.js";
 import {UIElements, warningBox} from "./uiElements.js";
 import * as sidebar from "./sidebar.js";
+import * as DDT from "./DragDropTouch";
 
 window.initDrawingQuestion = function (rootElement, isTeacher, isPreview) {
 
@@ -1334,8 +1335,8 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview) {
         evt = evt.touches?.[0] || evt;
 
         return {
-            x: (evt.clientX || evt.pageX - CTM.e) / CTM.a,
-            y: (evt.clientY || evt.pageY - CTM.f) / CTM.d,
+            x: (evt.clientX - CTM.e) / CTM.a,
+            y: (evt.clientY - CTM.f) / CTM.d,
         };
     }
 
