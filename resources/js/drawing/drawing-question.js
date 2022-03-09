@@ -1150,7 +1150,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview) {
     }
 
     function getFirstTransform(transforms) {
-        return transforms.getItem(0);
+        if(transforms.numberOfItems > 0) return transforms.getItem(0);
     }
 
     function calculateCursorToMidPointOffset(translate) {
