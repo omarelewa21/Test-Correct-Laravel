@@ -2,6 +2,7 @@
 
 namespace tcCore\Jobs;
 
+use Carbon\Carbon;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
@@ -56,6 +57,8 @@ class ProcessUwlrSoapResultJob extends Job implements ShouldQueue
             return true;
         }
 
+        $resultSet->addToLog('jobFromQueue',Carbon::now(),true);
+
         $accountManager = User::leftJoin('user_roles','user_roles.user_id','users.id')->where('user_roles.role_id',5)->first();
         Auth::loginUsingId($accountManager->getKey());
 
@@ -68,6 +71,7 @@ class ProcessUwlrSoapResultJob extends Job implements ShouldQueue
 
         $result = $helper->process();
         $resultSet->status = 'DONE';
+        $resultSet->addToLog('jobFinished',Carbon::now());
         $resultSet->save();
 
     }
