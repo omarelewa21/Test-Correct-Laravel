@@ -123,8 +123,8 @@ export class Entry extends sidebarComponent {
 
         let newLayerId = entry.closest(".layer-group").id;
         let newSvgLayer = this.root.querySelector(`#svg-${newLayerId}`);
-        let shape = this.root.querySelector(`#${entry.id.substring(6)}`);
-        let shapeToInsertBefore = this.root.querySelector(
+        let shape = newSvgLayer.querySelector(`#${entry.id.substring(6)}`);
+        let shapeToInsertBefore = newSvgLayer.querySelector(
             `#${evt.currentTarget.previousElementSibling?.id.substring(6)}`
         );
         if (shapeToInsertBefore) {
