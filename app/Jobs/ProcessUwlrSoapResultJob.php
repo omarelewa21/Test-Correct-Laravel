@@ -53,7 +53,7 @@ class ProcessUwlrSoapResultJob extends Job implements ShouldQueue
         }
         if($resultSet->status !== 'READYTOPROCESS'){
             // should be a logger notice but let's do an exception for the moment so that we can see what happens in bugsnag
-            throw new \Exception('trying to process the resultset with the wrong status '.$resultSet->status.', resultset  with id '.$this->uwlrSoapResultId);
+            logger('trying to process the resultset with the wrong status '.$resultSet->status.', resultset  with id '.$this->uwlrSoapResultId);
             return true;
         }
 
