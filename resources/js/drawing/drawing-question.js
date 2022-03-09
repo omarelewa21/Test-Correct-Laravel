@@ -1334,8 +1334,8 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview) {
         evt = evt.touches?.[0] || evt;
 
         return {
-            x: (evt.clientX - CTM.e) / CTM.a,
-            y: (evt.clientY - CTM.f) / CTM.d,
+            x: (evt.clientX || evt.pageX - CTM.e) / CTM.a,
+            y: (evt.clientY || evt.pageY - CTM.f) / CTM.d,
         };
     }
 
