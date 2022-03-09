@@ -57,7 +57,8 @@ class ProcessUwlrSoapResultJob extends Job implements ShouldQueue
             return true;
         }
 
-        $resultSet->addToLog('jobFromQueue',Carbon::now(),true);
+        $resultSet->addToLog('jobFromQueue',Carbon::now())->addQueueDataToLog('jobsAtFromQueue',true);
+
 
         $accountManager = User::leftJoin('user_roles','user_roles.user_id','users.id')->where('user_roles.role_id',5)->first();
         Auth::loginUsingId($accountManager->getKey());
