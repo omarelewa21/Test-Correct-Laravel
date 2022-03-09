@@ -16,13 +16,13 @@ class Cms extends Component
     public string $testQuestionId = '';
     public string $action = '';
 
-    public $currentTestQuestions;
+    public $testQuestions;
 
     public $newQuestions = [];
 
     public function mount()
     {
-        $this->currentTestQuestions = $this->getCurrentTestQuestions();
+        $this->testQuestions = Test::whereUuid($this->testId)->first()->testQuestions->sortBy('order');
         $this->newQuestions = $this->newQuestionInfo();
     }
 
@@ -31,34 +31,32 @@ class Cms extends Component
         return view('livewire.drawer.cms');
     }
 
-    public function showQuestion($questionUuid, $subQuestion)
+    public function showQuestion($testQuestionUuid, $questionUuid, $subQuestion)
     {
-        $this->emitTo('teacher.questions.open-short', 'showQuestion', ['uuid' => $questionUuid, 'subQuestion' =>$subQuestion]);
+        $this->emitTo(
+            'teacher.questions.open-short',
+            'showQuestion',
+            $testQuestionUuid
+        );
 
         $this->testQuestionId = $questionUuid;
     }
 
-    public function hydrateCurrentTestQuestions()
+
+    public function getQuestionsInTestProperty()
     {
-        $this->currentTestQuestions = $this->getCurrentTestQuestions();
-    }
-
-    public function getCurrentTestQuestions()
-    {
-        $testQuestions = Test::whereUuid($this->testId)->first()->testQuestions;
-
-        $testQuestions = $testQuestions->sortBy('order');
-
-        return $testQuestions->flatMap(function ($testQuestion) {
+        return $this->testQuestions->flatMap(function ($testQuestion) {
             $testQuestion->question->loadRelated();
             if ($testQuestion->question->type === 'GroupQuestion') {
                 $groupQuestion = $testQuestion->question;
-                $groupQuestion->subQuestions = $groupQuestion->groupQuestionQuestions->map(function ($item) use($groupQuestion){
+                $groupQuestion->subQuestions = $groupQuestion->groupQuestionQuestions->map(function ($item) use (
+                    $groupQuestion
+                ) {
                     $item->question->belongs_to_groupquestion_id = $groupQuestion->getKey();
                     return $item->question;
                 });
             }
-            return [$testQuestion->question];
+            return [$testQuestion];
         });
     }
 
@@ -133,11 +131,11 @@ class Cms extends Component
     public function getQuestionNameForDisplay($question)
     {
         if ($question->type === "MultipleChoiceQuestion") {
-            return 'question.' . Str::kebab($question->subtype);
+            return 'question.'.Str::kebab($question->subtype);
         }
         if ($question->type === "OpenQuestion") {
             return 'question.open-long-short';
         }
-        return 'question.' . Str::kebab(Str::replaceFirst('Question', '', $question->type));
+        return 'question.'.Str::kebab(Str::replaceFirst('Question', '', $question->type));
     }
 }

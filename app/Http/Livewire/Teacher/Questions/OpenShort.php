@@ -853,15 +853,16 @@ class OpenShort extends Component
         $this->question[$property] = $value;
     }
 
-    public function showQuestion($newQuestionUuid)
+    public function showQuestion($testQuestionUuid)
     {
+
 //        $this->save(false);
 
-        $testQuestion = TestQuestion::whereUuid($newQuestionUuid)->with('question')->first();
+        $testQuestion = TestQuestion::whereUuid($testQuestionUuid)->with('question')->first();
 
         $this->type = $testQuestion->question->type;
         $this->subtype = $testQuestion->question->subtype;
-        $this->testQuestionId = $newQuestionUuid;
+        $this->testQuestionId = $testQuestionUuid;
 
 
         $this->mount();

@@ -1,10 +1,11 @@
 @props([
     'question',
     'loop',
-    'subQuestion' => false
+    'subQuestion' => 'false',
+    'testQuestion' => null,
 ])
 <div class="question-button flex items-center cursor-pointer bold py-2 @if(!$subQuestion) px-6 @endif @if($this->testQuestionId === $question->uuid) primary @endif"
-     wire:click="showQuestion('{{ $question->uuid }}', {{ $subQuestion }})"
+     wire:click="showQuestion({{ $testQuestion ? "'".$testQuestion->uuid."'" :'null'}}, '{{ $question->uuid }}', {{ $subQuestion }})"
      @click="$dispatch('question-change', {old: '{{ $this->testQuestionId }}', new: '{{ $question->uuid }}' })"
      style="max-width: 300px"
 >
