@@ -2,8 +2,9 @@ import {panParams, shapePropertiesAvailableToUser, zoomParams} from "./constants
 import * as svgShape from "./svgShape.js";
 import {UIElements, warningBox} from "./uiElements.js";
 import * as sidebar from "./sidebar.js";
+import * as DDT from "./DragDropTouch";
 
-window.initDrawingQuestion = function (rootElement, isTeacher) {
+window.initDrawingQuestion = function (rootElement, isTeacher, isPreview) {
 
     /**
      * @typedef Cursor
@@ -42,6 +43,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher) {
             spacebarPressed: false,
             root: rootElement,
             isTeacher: isTeacher,
+            isPreview: isPreview,
             hiddenLayersCount: 0
         },
         firstInit: true,
@@ -708,7 +710,9 @@ window.initDrawingQuestion = function (rootElement, isTeacher) {
             element: UI.gridToggle,
             events: {
                 "change": {
-                    callback: processGridToggleChange,
+                    callback() {
+                        processGridToggleChange()
+                    },
                 }
             }
         },
@@ -994,8 +998,8 @@ window.initDrawingQuestion = function (rootElement, isTeacher) {
     }
 
     function submitDrawingData() {
+        if (drawingApp.params.isPreview) return;
 
-        // parent.skip = true;
         const b64Strings = encodeSvgLayersAsBase64Strings();
         const grid = (Canvas.layers.grid.params.hidden) ? "0.00" : drawingApp.params.gridSize.toString();
 
@@ -1143,11 +1147,11 @@ window.initDrawingQuestion = function (rootElement, isTeacher) {
     }
 
     function firstTransformIsOfTypeTranslate(transforms) {
-        return getFirstTransform(transforms).type === SVGTransform.SVG_TRANSFORM_TRANSLATE;
+        return getFirstTransform(transforms)?.type === SVGTransform.SVG_TRANSFORM_TRANSLATE;
     }
 
     function getFirstTransform(transforms) {
-        return transforms.getItem(0);
+        if(transforms.numberOfItems > 0) return transforms.getItem(0);
     }
 
     function calculateCursorToMidPointOffset(translate) {
@@ -1686,9 +1690,9 @@ window.initDrawingQuestion = function (rootElement, isTeacher) {
     }
 
     function updateGridVisibility() {
-        const grid = Canvas.layers.grid,
-            shape = grid.shape;
-        if (!grid.params.hidden && (drawingApp.isTeacher() ? valueWithinBounds(UI.gridSize) : true)) {
+        const grid = Canvas.layers.grid;
+        const shape = grid.shape;
+        if (!grid.params.hidden && valueWithinBounds(UI.gridSize)) {
             shape.show();
             return;
         }
@@ -1696,12 +1700,8 @@ window.initDrawingQuestion = function (rootElement, isTeacher) {
     }
 
     function updateGrid() {
-        if (drawingApp.isTeacher()) {
-            if (valueWithinBounds(UI.gridSize)) {
-                drawingApp.params.gridSize = UI.gridSize.value;
-                Canvas.layers.grid.shape.update();
-            }
-        } else {
+        if (valueWithinBounds(UI.gridSize)) {
+            drawingApp.params.gridSize = UI.gridSize.value;
             Canvas.layers.grid.shape.update();
         }
     }

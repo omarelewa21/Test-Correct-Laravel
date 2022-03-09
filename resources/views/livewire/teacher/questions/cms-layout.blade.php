@@ -433,7 +433,7 @@
             @endif
         </div>
 
-        <div class="question-editor-footer">
+        <div class="question-editor-footer" x-data>
             <div class="question-editor-footer-button-container">
 
                 <button
@@ -449,6 +449,7 @@
 
                 <button
                         wire:loading.attr="disabled"
+                        @beforeunload.window="$el.disabled = true"
                         type="button"
                         wire:click="save"
                         class="button cta-button button-sm save_button"

@@ -30,6 +30,7 @@ class svgShape {
         };
         this.Canvas = Canvas;
         this.drawingApp = drawingApp;
+        this.root = drawingApp.params.root;
         if (!this.props.main) this.props.main = {};
         if (!this.props.group) this.props.group = {};
         this.offset = parseInt(this.props.main["stroke-width"]) / 2 + 3 || 5;
@@ -273,7 +274,7 @@ class svgShape {
                             this.getSidebarEntry().highlight();
                         }
                     },
-                    "mouseleave": {
+                    "mouseleave touchend": {
                         callback: () => {
                             this.unhighlight();
                             this.getSidebarEntry().unhighlight();
@@ -380,7 +381,7 @@ export class Line extends svgShape {
     }
 
     cloneGenericMarker(type) {
-        const markerToClone = document.querySelector(`marker#svg-${type}`);
+        const markerToClone = this.root.querySelector(`marker#svg-${type}`);
         return markerToClone.cloneNode(true);
     }
 
@@ -415,7 +416,7 @@ export class Text extends svgShape {
     onDrawEndShapeSpecific(evt, cursor) {
         const windowCursor = this.drawingApp.convertCanvas2DomCoordinates(cursor);
 
-        let canvasContainer = document.getElementById("svg-canvas").parentElement;
+        let canvasContainer = this.root.querySelector("#svg-canvas").parentElement;
         const fontSize = parseFloat(this.mainElement.element.style.fontSize);
         const topOffset = fontSize * parseFloat(getComputedStyle(document.documentElement).fontSize)
         let textInput = new htmlElement("input", canvasContainer, {
