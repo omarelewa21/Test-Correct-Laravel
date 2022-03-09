@@ -1146,7 +1146,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview) {
     }
 
     function firstTransformIsOfTypeTranslate(transforms) {
-        return getFirstTransform(transforms).type === SVGTransform.SVG_TRANSFORM_TRANSLATE;
+        return getFirstTransform(transforms)?.type === SVGTransform.SVG_TRANSFORM_TRANSLATE;
     }
 
     function getFirstTransform(transforms) {
