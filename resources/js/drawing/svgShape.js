@@ -274,7 +274,7 @@ class svgShape {
                             this.getSidebarEntry().highlight();
                         }
                     },
-                    "mouseleave": {
+                    "mouseleave touchend": {
                         callback: () => {
                             this.unhighlight();
                             this.getSidebarEntry().unhighlight();
