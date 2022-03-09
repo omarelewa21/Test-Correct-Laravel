@@ -4,6 +4,7 @@ namespace tcCore;
 
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Maatwebsite\Excel\Facades\Excel;
 use tcCore\Exports\TestTakesExport;
@@ -63,6 +64,16 @@ class UwlrSoapResult extends Model
         if($save){
             $this->save();
         }
+        return $this;
+    }
+
+    public function addQueueDataToLog($key, $save = false)
+    {
+        $jobs = (object) [];
+        collect(DB::select(DB::raw('Select queue, count(*) as amount from jobs group by queue')))->each(function($q) use ($jobs){
+            $jobs->{$q->queue} = $q->amount;
+        });
+        $this->addToLog($key,$jobs, $save);
         return $this;
     }
 

@@ -127,11 +127,7 @@ class UwlrGrid extends Component
         if(BaseHelper::notOnLocal()) {
             dispatch(new ProcessUwlrSoapResultJob($this->processingResultId));
             // for logging
-            $jobs = (object) [];
-            collect(DB::select(DB::raw('Select queue, count(*) as amount from jobs group by queue')))->each(function($q) use ($jobs){
-                $jobs->{$q->queue} = $q->amount;
-            });
-            $result->addToLog('jobInQueue',Carbon::now())->addToLog('jobsAtInQueue',$jobs,true);
+            $result->addToLog('jobInQueue',Carbon::now())->addQueueDataToLog('jobsAtInQueue',true);
         } else {
             set_time_limit(0);
             $helper = ImportHelper::initWithUwlrSoapResult(
