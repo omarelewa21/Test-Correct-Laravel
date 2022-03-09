@@ -2,6 +2,7 @@
 
 namespace tcCore\Jobs;
 
+use Carbon\Carbon;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
@@ -52,9 +53,11 @@ class ProcessUwlrSoapResultJob extends Job implements ShouldQueue
         }
         if($resultSet->status !== 'READYTOPROCESS'){
             // should be a logger notice but let's do an exception for the moment so that we can see what happens in bugsnag
-            throw new \Exception('trying to process the resultset with the wrong status '.$resultSet->status.', resultset  with id '.$this->uwlrSoapResultId);
+            logger('trying to process the resultset with the wrong status '.$resultSet->status.', resultset  with id '.$this->uwlrSoapResultId);
             return true;
         }
+
+        $resultSet->addToLog('jobFromQueue',Carbon::now(),true);
 
         $accountManager = User::leftJoin('user_roles','user_roles.user_id','users.id')->where('user_roles.role_id',5)->first();
         Auth::loginUsingId($accountManager->getKey());
@@ -68,6 +71,7 @@ class ProcessUwlrSoapResultJob extends Job implements ShouldQueue
 
         $result = $helper->process();
         $resultSet->status = 'DONE';
+        $resultSet->addToLog('jobFinished',Carbon::now());
         $resultSet->save();
 
     }
