@@ -1973,6 +1973,13 @@ input[type=number] {
     border: none
 }
 
+@media not all and (-webkit-min-device-pixel-ratio: 0), not all and (min-resolution: .001dpcm) {
+    @supports (-webkit-appearance:none) and (stroke-color:transparent) {
+        #drawing-tool #sidebar .shapes-group {
+            display: inline-block;
+        }
+    }
+}
 /*! tailwindcss v2.2.19 | MIT License | https://tailwindcss.com */
 
 /*! modern-normalize v1.1.0 | MIT License | https://github.com/sindresorhus/modern-normalize */
