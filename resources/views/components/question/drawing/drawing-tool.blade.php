@@ -49,12 +49,12 @@
                 <div id="grid-background" class="tools-group">
                     <input type="checkbox" id="grid-toggle" style="display: none;" autocomplete="off" x-ref="gridinput">
                     <button title="{{ __('drawing-modal.Zet grid aan/uit') }}"
-                            @click="$refs.gridsizegroup.classList.toggle('disabled'); $refs.gridinput.checked = !$refs.gridinput.checked; $refs.gridinput.dispatchEvent(new Event('change'))">
+                            @click="$refs.gridinput.checked = !$refs.gridinput.checked; $refs.gridinput.dispatchEvent(new Event('change'))">
                         <label id="grid-toggle-btn">
                             <x-icon.grid/>
                         </label>
                     </button>
-                    <div class="input-with-button-group disabled" x-ref="gridsizegroup">
+                    <div class="input-with-button-group"  x-ref="gridsizegroup">
                         <button x-ref="groupbtn" id="decr-grid-size" class="Secondary decrement"
                                 title="{{ __('drawing-modal.Verklein grid') }}" disabled>
                             <div>

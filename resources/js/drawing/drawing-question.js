@@ -802,6 +802,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview) {
         return {
             question: btoa(Canvas.layers.question.svg.innerHTML),
             answer: btoa(Canvas.layers.answer.svg.innerHTML),
+            grid: btoa(Canvas.layers.grid.svg.innerHTML)
         };
     }
 
@@ -1006,10 +1007,12 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview) {
         const panGroupSize = getPanGroupSize();
 
         const livewireComponent = getClosestLivewireComponentByAttribute(rootElement, 'questionComponent');
+
         livewireComponent.handleUpdateDrawingData({
             svg_answer: b64Strings.answer,
             svg_question: b64Strings.question,
-            svg_grid: grid,
+            svg_grid: b64Strings.grid,
+            grid_size: grid,
             svg_zoom_group: panGroupSize
         });
     }
@@ -1046,12 +1049,6 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview) {
 
     function handleCloseByExit() {
         UI.closeConfirm.classList.toggle('open');
-        // if (!confirm(drawingApp.explainer.dataset['textCloseconfirmation'])) {
-        //     return false;
-        // }
-
-        // rootElement.dispatchEvent(new CustomEvent('close-drawing-tool'));
-        // return true;
     }
 
     function answerLayerIsHidden() {
@@ -1668,6 +1665,9 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview) {
         UI.decrGridSize.disabled = UI.gridSize.value <= UI.gridSize.min ? true : disabled;
         UI.incrGridSize.disabled = UI.gridSize.value >= UI.gridSize.max ? true : disabled;
         Canvas.layers.grid.params.hidden = disabled;
+
+        const gridSizeContainerClassList = UI.gridSize.parentElement.classList;
+        disabled ? gridSizeContainerClassList.add('disabled') : gridSizeContainerClassList.remove('disabled');
     }
 
     function processGridToggleChange() {
@@ -1860,8 +1860,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview) {
     }
 
     function getPanGroupSize() {
-        Canvas.layers.grid.shape.hide();
-
+        const gridLayerHidden = !Canvas.layers.grid.shape.isHidden();
         const questionLayerHidden = Canvas.layers.question.isHidden();
         const answerLayerHidden = Canvas.layers.answer.isHidden();
 
@@ -1871,6 +1870,9 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview) {
         if (answerLayerHidden) {
             Canvas.layers.answer.unhide()
         }
+        if (gridLayerHidden) {
+            Canvas.layers.grid.shape.hide()
+        }
 
         const panGroupSize = UI.svgPanZoomGroup.getBBox();
 
@@ -1879,6 +1881,9 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview) {
         }
         if (answerLayerHidden) {
             Canvas.layers.answer.hide()
+        }
+        if (gridLayerHidden) {
+            Canvas.layers.grid.shape.show()
         }
 
         return {
