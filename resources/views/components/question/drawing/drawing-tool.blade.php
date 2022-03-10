@@ -276,7 +276,7 @@
                     <x-icon.preview/>
                     <x-icon.preview-off/>
                 </button>
-                @if(!session()->get('TLCIsIos12',false))
+                @if(session()->get('TLCIsIos12',false))
                 <div class="grid grid-rows-2 gap-0">
                     <button class="shape-btn up-btn" title="{{ __('drawing-modal.Versleep volgorde') }}">
                         <x-icon.arrow-small class="-rotate-90"/>

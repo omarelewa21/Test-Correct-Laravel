@@ -260,7 +260,7 @@ class AppVersionDetector
         }
 
         if(array_key_exists('user-agent',$headers)) {
-            return Str::contains('CPU OS 12', $headers['user-agent']);
+            return Str::contains( $headers['user-agent'],'CPU OS 12');
         }
         return false;
     }
@@ -441,6 +441,7 @@ class AppVersionDetector
             'TLCOs' => $version['os'],
             'TLCIsIos12' => (Str::lower($version['os']) === 'ios') ? AppVersionDetector::isIos12($headers) : false,
         ]);
+
 //        $this->Session->write('headers', $headers);
 //        $this->Session->write('TLCVersion', $version['app_version']);
 //        $this->Session->write('TLCOs', $version['os']);
