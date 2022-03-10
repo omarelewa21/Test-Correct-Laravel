@@ -7941,7 +7941,8 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview) {
   function encodeSvgLayersAsBase64Strings() {
     return {
       question: btoa(Canvas.layers.question.svg.innerHTML),
-      answer: btoa(Canvas.layers.answer.svg.innerHTML)
+      answer: btoa(Canvas.layers.answer.svg.innerHTML),
+      grid: btoa(Canvas.layers.grid.svg.innerHTML)
     };
   }
 
@@ -8169,7 +8170,8 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview) {
     livewireComponent.handleUpdateDrawingData({
       svg_answer: b64Strings.answer,
       svg_question: b64Strings.question,
-      svg_grid: grid,
+      svg_grid: b64Strings.grid,
+      grid_size: grid,
       svg_zoom_group: panGroupSize
     });
   }
@@ -8862,6 +8864,8 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview) {
     UI.decrGridSize.disabled = UI.gridSize.value <= UI.gridSize.min ? true : disabled;
     UI.incrGridSize.disabled = UI.gridSize.value >= UI.gridSize.max ? true : disabled;
     Canvas.layers.grid.params.hidden = disabled;
+    var gridSizeContainerClassList = UI.gridSize.parentElement.classList;
+    disabled ? gridSizeContainerClassList.add('disabled') : gridSizeContainerClassList.remove('disabled');
   }
 
   function processGridToggleChange() {
@@ -9066,7 +9070,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview) {
   }
 
   function getPanGroupSize() {
-    Canvas.layers.grid.shape.hide();
+    var gridLayerHidden = !Canvas.layers.grid.shape.isHidden();
     var questionLayerHidden = Canvas.layers.question.isHidden();
     var answerLayerHidden = Canvas.layers.answer.isHidden();
 
@@ -9078,6 +9082,10 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview) {
       Canvas.layers.answer.unhide();
     }
 
+    if (gridLayerHidden) {
+      Canvas.layers.grid.shape.hide();
+    }
+
     var panGroupSize = UI.svgPanZoomGroup.getBBox();
 
     if (questionLayerHidden) {
@@ -9086,6 +9094,10 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview) {
 
     if (answerLayerHidden) {
       Canvas.layers.answer.hide();
+    }
+
+    if (gridLayerHidden) {
+      Canvas.layers.grid.shape.show();
     }
 
     return {
