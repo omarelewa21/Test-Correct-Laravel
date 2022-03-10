@@ -78,7 +78,7 @@
 
 }
 .rs-shadow-input{
-    padding-top: 7px;
+    padding-top: 7px !important;
     text-align: center;
     justify-content: center;
 }

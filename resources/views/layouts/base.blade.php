@@ -10,7 +10,9 @@
     {{--    <link href="https://unpkg.com/tailwindcss@^2/dist/tailwind.min.css" rel="stylesheet">--}}
     <script src="/ckeditor/ckeditor.js" type="text/javascript"></script>
     <script src="/js/ckeditor.js" type="text/javascript"></script>
-
+    @if(!is_null(Auth::user())&&Auth::user()->text2speech)
+        <link rel="stylesheet" type="text/css" href="/css/rs_tlc.css" />
+    @endif
     @livewireStyles
     <link rel="stylesheet" href="{{ mix('/css/app.css') }}">
     @if(config('bugsnag.browser_key') != '')
@@ -45,16 +47,9 @@
 <script src="{{ mix('/js/app.js') }}"></script>
 <script src="https://www.wiris.net/client/plugins/app/WIRISplugins.js?viewer=image"></script>
 @if(!is_null(Auth::user())&&Auth::user()->text2speech)
-    <script>
-        if (screen.width>=1024) {
-            document.write('<link rel="stylesheet" type="text/css" href="/css/rs_tlc.css" />');
-        }else{
-            // document.write('<link rel="stylesheet" type="text/css" href="/css/rs_tlc_button.css" />');
-            document.write('<link rel="stylesheet" type="text/css" href="/css/rs_tlc_mobile.css" />" />');
-        }
-    </script>
-<script src="//cdn-eu.readspeaker.com/script/12749/webReader/webReader.js?pids=wr&amp;noDefaultSkin=1" type="text/javascript" id="rs_req_Init"></script>
+<script src="//cdn-eu.readspeaker.com/script/12749/webReader/webReader.js?pids=wr&amp;noDefaultSkin=1&amp;&mobile=0" type="text/javascript" id="rs_req_Init"></script>
 <script src="/js/rs_tlc_skin.js"></script>
+<script src="/js/readspeaker_tlc.js"></script>
 @endif
 @stack('scripts')
 <script>

@@ -1,95 +1,97 @@
-ReadSpeaker.q(function() {
-    console.log('rs_tlc_skin initialized!');
-    rspkr.rs_tlc_play_started = false;
-    registerTlcClickListenActive();
-    rspkr.rs_tlc_prevent_close = false;
-    rspkr.rs_tlc_container = false;
-
-});
-window.rsConf = {
-    general: {
-        usePost: true,
-        skipHiddenContent:true
-    },
-    ui: {
-        scrollcontrols: {
-            vertical : 'top',
-            horizontal: 'left'
-        },
-        toolbar: {
-            inverted : false
-        },
-        tools: {
-            textmode : false
-        },
-        mobileVertPos: 'bottom=100'
-    },
-    cb: {
-        ui: {
-            beforeclose: function(){
-                var focusedElements = document.getElementsByClassName('rs-cl-tabbable');
-                if(typeof focusedElements.length == "undefined" || focusedElements.length==0){
-                    return;
-                }
-                focusedElements[0].classList.remove('rs-cl-tabbable');
-            },
-            close: function() {
-                console.log('Player closed and callback fired!');
-                // var oldEl = document.getElementById('there_can_only_be_one');
-                // var playerStarted = (typeof rspkr.rs_tlc_play_started != "undefined")?rspkr.rs_tlc_play_started:false;
-                // if(oldEl && playerStarted){
-                //     oldEl.remove();
-                //     displayHiddenElements();
-                //     window.getSelection().removeAllRanges();
-                // }
-                hideRsPlayer();
-                window.document.dispatchEvent(new Event("readspeaker_closed", {
-                    bubbles: true,
-                    cancelable: true
-                }));
-            },
-            stop: function() {
-                setMobileClasses('stop');
-                console.log('Player stopped and callback fired!');
-                if(typeof rspkr.tlc_clicklisten_active=='undefined'){
-                    rspkr.ui.getActivePlayer().close();
-                }
-                if(rspkr.tlc_clicklisten_active){
-                    return activateClickTap();
-                }
-                deactivateClickTap();
-                rspkr.ui.getActivePlayer().close();
-            },
-            open: function() {
-                console.log('Open callback fired!');
-                window.document.dispatchEvent(new Event("readspeaker_opened", {
-                    bubbles: true,
-                    cancelable: true
-                }));
-            },
-            play: function() {
-                console.log('Play callback fired!');
-                setMobileClasses('play');
-                rspkr.rs_tlc_play_started = true;
-                rspkr.rs_tlc_prevent_close = false;
-                showRsPlayer();
-                window.document.dispatchEvent(new Event("readspeaker_started", {
-                    bubbles: true,
-                    cancelable: true
-                }));
-            },
-            pause: function() {
-                console.log('Pause callback fired!');
-                setMobileClasses('pause');
-                rspkr.rs_tlc_play_started = false;
-            }
-        }
-    }
-};
+// ReadSpeaker.q(function() {
+//     console.log('rs_tlc_skin initialized!');
+//     rspkr.rs_tlc_play_started = false;
+//     registerTlcClickListenActive();
+//     rspkr.rs_tlc_prevent_close = false;
+//     rspkr.rs_tlc_container = false;
+//
+// });
+// window.rsConf = {
+//     general: {
+//         usePost: true,
+//         skipHiddenContent:true
+//     },
+//     ui: {
+//         scrollcontrols: {
+//             vertical : 'top',
+//             horizontal: 'left'
+//         },
+//         toolbar: {
+//             inverted : false
+//         },
+//         tools: {
+//             textmode : false
+//         },
+//         mobileVertPos: 'bottom=100'
+//     },
+//     cb: {
+//         ui: {
+//             beforeclose: function(){
+//                 var focusedElements = document.getElementsByClassName('rs-cl-tabbable');
+//                 if(typeof focusedElements.length == "undefined" || focusedElements.length==0){
+//                     return;
+//                 }
+//                 focusedElements[0].classList.remove('rs-cl-tabbable');
+//             },
+//             close: function() {
+//                 console.log('Player closed and callback fired!');
+//                 // var oldEl = document.getElementById('there_can_only_be_one');
+//                 // var playerStarted = (typeof rspkr.rs_tlc_play_started != "undefined")?rspkr.rs_tlc_play_started:false;
+//                 // if(oldEl && playerStarted){
+//                 //     oldEl.remove();
+//                 //     displayHiddenElements();
+//                 //     window.getSelection().removeAllRanges();
+//                 // }
+//                 hideRsPlayer();
+//                 window.document.dispatchEvent(new Event("readspeaker_closed", {
+//                     bubbles: true,
+//                     cancelable: true
+//                 }));
+//             },
+//             stop: function() {
+//                 setMobileClasses('stop');
+//                 console.log('Player stopped and callback fired!');
+//                 if(typeof rspkr.tlc_clicklisten_active=='undefined'){
+//                     rspkr.ui.getActivePlayer().close();
+//                 }
+//                 if(rspkr.tlc_clicklisten_active){
+//                     return activateClickTap();
+//                 }
+//                 deactivateClickTap();
+//                 rspkr.ui.getActivePlayer().close();
+//             },
+//             open: function() {
+//                 console.log('Open callback fired!');
+//                 window.document.dispatchEvent(new Event("readspeaker_opened", {
+//                     bubbles: true,
+//                     cancelable: true
+//                 }));
+//             },
+//             play: function() {
+//                 console.log('Play callback fired!');
+//                 setMobileClasses('play');
+//                 rspkr.rs_tlc_play_started = true;
+//                 rspkr.rs_tlc_prevent_close = false;
+//                 showRsPlayer();
+//                 window.document.dispatchEvent(new Event("readspeaker_started", {
+//                     bubbles: true,
+//                     cancelable: true
+//                 }));
+//             },
+//             pause: function() {
+//                 console.log('Pause callback fired!');
+//                 setMobileClasses('pause');
+//                 rspkr.rs_tlc_play_started = false;
+//             }
+//         }
+//     }
+// };
 
 
 function startRsPlayer()
 {
+    ReadspeakerTlc.player.startRsPlayer();
+    return;
     showRsPlayer();
     var els = document.getElementsByClassName('rsplay');
     if(els){
@@ -116,18 +118,23 @@ function handleBlurForReadspeaker()
         activateClickTap();
     }
 }
-function handleTextBoxFocusForReadspeaker(event,questionId)
+function handleTextBoxFocusForReadspeaker(focusEvent,questionId)
 {
+    ReadspeakerTlc.rsTlcEvents.handleTextBoxFocusForReadspeaker(focusEvent,questionId);
+    return;
     handleFocusForReadspeaker();
     var correction = {x:-10,y:-247};
-    var popup = getRsbtnPopupTlc(questionId,event,correction);
+    var popup = getRsbtnPopupTlc(questionId,focusEvent,correction);
     if(popup == null){
         return;
     }
-    popup.addEventListener("click", showReadableSelect, false);
+    var obj = focusEvent.target;
+    popup.addEventListener("click", function(){readTextbox(event,obj);}, false);
 }
 function handleTextBoxBlurForReadspeaker(event,questionId)
 {
+        ReadspeakerTlc.rsTlcEvents.handleTextBoxBlurForReadspeaker(event,questionId);
+        return;
         handleBlurForReadspeaker();
         rsRemovRsbtnPopupTlcForQuestion(event,questionId);
 }
@@ -172,46 +179,44 @@ function handleMouseupForReadspeaker(e,obj)
     hidden_div.click();
 }
 
-function getValueOfInput(e,obj)
+function getValueOfInput(obj)
 {
-    if(obj.getSelection().toString()!=''){
-        return obj.getSelection().toString();
-    }
-    if(e.toElement == ''  || e.toElement == null){
+    if(obj == ''  || obj == null){
         return '';
     }
-    return e.toElement.title;
+    return obj.title;
 }
 
-function doNotReadInput(e,obj)
+function doNotReadInput(element)
 {
-    if(e.toElement == ''  || e.toElement == null){
+    if(element == ''  || element == null){
         return true;
     }
     try {
-        if (e.toElement.matches(':-internal-autofill-selected') && e.toElement.title != '') {
+        if (element.matches(':-internal-autofill-selected') && element.title != '') {
             return false;
         }
     }catch(error){
         //silentfail
     }
     try {
-        if(e.toElement.matches(':-webkit-autofill')&&e.toElement.title !=''){
+        if(element.matches(':-webkit-autofill')&&element.title !=''){
             return false;
         }
     }catch(error){
         //silentfail
     }
     try {
-        if(e.toElement.matches(':autofill')&&e.toElement.title !=''){
+        if(element.matches(':autofill')&&element.title !=''){
             return false;
         }
     }catch(error){
         //silentfail
     }
-    if(obj.getSelection().toString()==''){
+    if(element.title ==''&&element.value ==''){
         return true;
     }
+
     return false;
 }
 
@@ -401,6 +406,8 @@ function hideByClassName(class_name)
 
 function disableContextMenuOnCkeditor()
 {
+    ReadspeakerTlc.ckeditor.disableContextMenuOnCkeditor();
+    return;
     var element = document.getElementsByClassName('ck-editor__editable_inline')[0];
     if(element) {
         element.addEventListener("contextmenu", (evt, name, val) => {
@@ -411,6 +418,8 @@ function disableContextMenuOnCkeditor()
 }
 function shouldNotReinitCkeditor(el)
 {
+    ReadspeakerTlc.guard.shouldNotReinitCkeditor(el);
+    return ;
     if(!checkElementInActiveQuestion(el)){
         return true;
     }
@@ -419,6 +428,8 @@ function shouldNotReinitCkeditor(el)
 
 function shouldNotCreateHiddenTextarea(id)
 {
+    ReadspeakerTlc.guard.shouldNotCreateHiddenTextarea(id);
+    return ;
     var oldEl = document.getElementById('there_can_only_be_one');
     var possibleTextarea = false;
     var textareaId = 'textarea_'+id;
@@ -469,6 +480,8 @@ function checkElementInActiveQuestion(el)
 
 function shouldNotCreateHiddenDivsForTextboxesCompletion(containerId)
 {
+    ReadspeakerTlc.guard.shouldNotCreateHiddenDivsForTextboxesCompletion(containerId);
+    return;
     return shouldNotCreateHiddenDivs(containerId);
 }
 
@@ -491,6 +504,8 @@ function createHiddenDivsForTextboxesCompletion(containerId)
 
 function shouldNotCreateHiddenDivsForSelects(containerId)
 {
+    ReadspeakerTlc.guard.shouldNotCreateHiddenDivsForSelects(containerId);
+    return;
     return shouldNotCreateHiddenDivs(containerId);
 }
 
@@ -643,6 +658,8 @@ function createHiddenDivForElementAndHideElement(element)
 
 function rsFocusSelect(event,selectId,questionId)
 {
+    ReadspeakerTlc.rsTlcEvents.rsFocusSelect(event,selectId,questionId);
+    return;
     registerTlcClickListenActive();
     // var popup = document.querySelector('.rsbtn_popup_tlc_'+questionId);
     // if(popup == null){
@@ -683,6 +700,8 @@ function getRsbtnPopupTlc(questionId,event,correction)
 
 function rsBlurSelect(event,questionId)
 {
+    ReadspeakerTlc.rsTlcEvents.rsBlurSelect(event,questionId);
+    return;
     rsRemovRsbtnPopupTlcForQuestion(event,questionId);
 }
 
@@ -741,6 +760,34 @@ function getReadableDivForSelect(select)
     readable_div.classList.add('overflow-ellipsis');
     readable_div.classList.add('rs-click-listen');
     return readable_div;
+}
+
+function readTextbox(event,obj)
+{
+    removeOldElement();
+    rspkr.rs_tlc_play_started = false;
+    if(doNotReadInput(obj)){
+        return;
+    }
+    var hidden_div = document.createElement('div');
+    obj.parentNode.insertBefore(hidden_div,obj);
+    hidden_div.id = 'there_can_only_be_one';
+    hidden_div.innerHTML = getValueOfInput(obj);
+    hidden_div.style.height = obj.offsetHeight+'px';
+    hidden_div.style.width = obj.offsetWidth+'px';
+    hidden_div.style.display = 'inline-flex';
+    hidden_div.classList.add('rs-click-listen');
+    hidden_div.classList.add('rs-shadow-input');
+    hidden_div.classList.add('form-input');
+    hidden_div.classList.add('overflow-ellipsis');
+    obj.classList.add('hidden');
+    obj.classList.add('readspeaker_hidden_element');
+    var container = obj.closest('.completion-question-container');
+    if(container){
+        rspkr.rs_tlc_container = container;
+    }
+    activateClickTap();
+    hidden_div.click();
 }
 
 function activateClickTap()
