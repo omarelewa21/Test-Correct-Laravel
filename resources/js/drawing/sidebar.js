@@ -54,12 +54,12 @@ export class Entry extends sidebarComponent {
             {
                 element: this.entryContainer,
                 events: {
-                    "dragstart": {
+                    "dragstart touchstart": {
                         callback: (evt) => {
                             evt.currentTarget.classList.add("dragging");
                         },
                     },
-                    "dragend": {
+                    "dragend touchend": {
                         callback: (evt) => {
                             this.updateDraggedElementPosition(evt);
                         },
