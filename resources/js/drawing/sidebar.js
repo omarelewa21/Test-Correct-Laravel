@@ -32,7 +32,8 @@ export class Entry extends sidebarComponent {
             delete: templateCopy.querySelector(".remove-btn"),
             lock: templateCopy.querySelector(".lock-btn"),
             hide: templateCopy.querySelector(".hide-btn"),
-            drag: templateCopy.querySelector(".drag-btn")
+            drag: templateCopy.querySelector(".drag-btn"),
+            up: templateCopy.querySelector(".up-btn")
         };
 
         this.type = this.svgShape.type === "path" ? "freehand" : this.svgShape.type;
@@ -109,6 +110,26 @@ export class Entry extends sidebarComponent {
                     },
                 },
             },
+            {
+                element: this.btns.drag,
+                events: {
+                    "click": {
+                        callback: (evt) => {
+                            this.updateClickedElementPositionDown(evt.currentTarget.closest('.shape-container'));
+                        },
+                    },
+                },
+            },
+            {
+                element: this.btns.up,
+                events: {
+                    "click": {
+                        callback: (evt) => {
+                            this.updateClickedElementPositionUp(evt.currentTarget.closest('.shape-container'));
+                        },
+                    },
+                },
+            },
         ];
     }
 
@@ -117,15 +138,54 @@ export class Entry extends sidebarComponent {
         this.updateHideState();
     }
 
+    updateClickedElementPositionDown(entry) {
+
+        if(entry.nextElementSibling) {
+            this.insertAfter(entry, entry.nextElementSibling);
+
+            let newLayerId = entry.closest(".layer-group").id;
+            let newSvgLayer = this.root.querySelector(`#svg-${newLayerId}`);
+            let shape = newSvgLayer.querySelector(`#${entry.id.substring(6)}`);
+            let shapeToInsertBefore = shape.previousElementSibling
+            if (shapeToInsertBefore) {
+                newSvgLayer.insertBefore(shape, shapeToInsertBefore);
+                return;
+            }
+            newSvgLayer.appendChild(shape);
+        }
+    }
+
+    updateClickedElementPositionUp(entry) {
+
+        if(entry.previousElementSibling) {
+            entry.parentElement.insertBefore(entry, entry.previousElementSibling);
+
+            let newLayerId = entry.closest(".layer-group").id;
+            let newSvgLayer = this.root.querySelector(`#svg-${newLayerId}`);
+            let shape = newSvgLayer.querySelector(`#${entry.id.substring(6)}`);
+            let shapeToInsertBefore = shape.nextElementSibling
+            if (shapeToInsertBefore) {
+                this.insertAfter(shape, shapeToInsertBefore);
+                return;
+            }
+            newSvgLayer.appendChild(shape);
+        }
+    }
+
+    insertAfter(newNode, existingNode) {
+        existingNode.parentNode.insertBefore(newNode, existingNode.nextSibling);
+    }
+
     updateDraggedElementPosition(evt) {
+
         let entry = evt.currentTarget;
-        entry.classList.remove("dragging");
+            entry.classList.remove("dragging");
 
         let newLayerId = entry.closest(".layer-group").id;
         let newSvgLayer = this.root.querySelector(`#svg-${newLayerId}`);
         let shape = newSvgLayer.querySelector(`#${entry.id.substring(6)}`);
         let shapeToInsertBefore = newSvgLayer.querySelector(
-            `#${evt.currentTarget.previousElementSibling?.id.substring(6)}`
+            `#${entry.previousElementSibling?.id.substring(6)}`
         );
         if (shapeToInsertBefore) {
             newSvgLayer.insertBefore(shape, shapeToInsertBefore);

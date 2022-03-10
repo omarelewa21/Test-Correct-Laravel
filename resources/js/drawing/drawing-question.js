@@ -135,9 +135,11 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview) {
             });
         },
         bindToElement(elem, type, func, options) {
-            elem.addEventListener(type, (evt) => {
-                func(evt);
-            }, options);
+            if(elem) {
+                elem.addEventListener(type, (evt) => {
+                    func(evt);
+                }, options);
+            }
         },
         currentToolIs(toolname) {
             return this.params.currentTool === toolname;

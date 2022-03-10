@@ -2,6 +2,7 @@
 namespace tcCore\Http\Helpers;
 
 use Carbon\Carbon;
+use Illuminate\Support\Str;
 
 abstract class AllowedAppType
 {
@@ -262,6 +263,22 @@ class AppVersionDetector
         ]
     ];
 
+    public static function isIos12($headers = false)
+    {
+
+        if (!$headers) {
+            $headers = self::getAllHeaders();
+        }
+        if(is_object($headers)){
+            $headers = (array) $headers;
+        }
+
+        if(array_key_exists('user-agent',$headers)) {
+            return Str::contains('CPU OS 12', $headers['user-agent']);
+        }
+        return false;
+    }
+
     public static function detect($headers = false)
     {
         if (!$headers) {
@@ -270,6 +287,7 @@ class AppVersionDetector
         if(is_object($headers)){
             $headers = (array) $headers;
         }
+
 
         /**
          * Format of TLCTestCorrectVersion header:
@@ -434,7 +452,8 @@ class AppVersionDetector
         session([
             'headers' => $headers,
             'TLCVersion' => $version['app_version'],
-            'TLCOs' => $version['os']
+            'TLCOs' => $version['os'],
+            'TLCIsIos12' => (Str::lower($version['os']) === 'ios') ? AppVersionDetector::isIos12($headers) : false,
         ]);
 //        $this->Session->write('headers', $headers);
 //        $this->Session->write('TLCVersion', $version['app_version']);

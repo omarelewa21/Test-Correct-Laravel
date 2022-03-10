@@ -6139,7 +6139,7 @@ window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
 window.Pusher = __webpack_require__(/*! pusher-js */ "./node_modules/pusher-js/dist/web/pusher.js");
 window.Echo = new laravel_echo__WEBPACK_IMPORTED_MODULE_0__["default"]({
   broadcaster: 'pusher',
-  key: "fc18ed69b446aeb8c8a5",
+  key: "51d7221bf733999d7138",
   cluster: "eu",
   forceTLS: true
 });
@@ -7270,9 +7270,11 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview) {
       });
     },
     bindToElement: function bindToElement(elem, type, func, options) {
-      elem.addEventListener(type, function (evt) {
-        func(evt);
-      }, options);
+      if (elem) {
+        elem.addEventListener(type, function (evt) {
+          func(evt);
+        }, options);
+      }
     },
     currentToolIs: function currentToolIs(toolname) {
       return this.params.currentTool === toolname;
@@ -8207,11 +8209,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview) {
   }
 
   function handleCloseByExit() {
-    UI.closeConfirm.classList.toggle('open'); // if (!confirm(drawingApp.explainer.dataset['textCloseconfirmation'])) {
-    //     return false;
-    // }
-    // rootElement.dispatchEvent(new CustomEvent('close-drawing-tool'));
-    // return true;
+    UI.closeConfirm.classList.toggle('open');
   }
 
   function answerLayerIsHidden() {
@@ -9432,7 +9430,8 @@ var Entry = /*#__PURE__*/function (_sidebarComponent) {
       "delete": templateCopy.querySelector(".remove-btn"),
       lock: templateCopy.querySelector(".lock-btn"),
       hide: templateCopy.querySelector(".hide-btn"),
-      drag: templateCopy.querySelector(".drag-btn")
+      drag: templateCopy.querySelector(".drag-btn"),
+      up: templateCopy.querySelector(".up-btn")
     };
     _this.type = _this.svgShape.type === "path" ? "freehand" : _this.svgShape.type;
     _this.id = "".concat(_this.type, "-").concat(_this.svgShape.shapeId);
@@ -9457,12 +9456,12 @@ var Entry = /*#__PURE__*/function (_sidebarComponent) {
       return [{
         element: this.entryContainer,
         events: {
-          "dragstart": {
+          "dragstart touchstart": {
             callback: function callback(evt) {
               evt.currentTarget.classList.add("dragging");
             }
           },
-          "dragend": {
+          "dragend touchend": {
             callback: function callback(evt) {
               _this2.updateDraggedElementPosition(evt);
             }
@@ -9511,6 +9510,24 @@ var Entry = /*#__PURE__*/function (_sidebarComponent) {
             }
           }
         }
+      }, {
+        element: this.btns.drag,
+        events: {
+          "click": {
+            callback: function callback(evt) {
+              _this2.updateClickedElementPositionDown(evt.currentTarget.closest('.shape-container'));
+            }
+          }
+        }
+      }, {
+        element: this.btns.up,
+        events: {
+          "click": {
+            callback: function callback(evt) {
+              _this2.updateClickedElementPositionUp(evt.currentTarget.closest('.shape-container'));
+            }
+          }
+        }
       }];
     }
   }, {
@@ -9520,16 +9537,57 @@ var Entry = /*#__PURE__*/function (_sidebarComponent) {
       this.updateHideState();
     }
   }, {
+    key: "updateClickedElementPositionDown",
+    value: function updateClickedElementPositionDown(entry) {
+      if (entry.nextElementSibling) {
+        this.insertAfter(entry, entry.nextElementSibling);
+        var newLayerId = entry.closest(".layer-group").id;
+        var newSvgLayer = this.root.querySelector("#svg-".concat(newLayerId));
+        var shape = newSvgLayer.querySelector("#".concat(entry.id.substring(6)));
+        var shapeToInsertBefore = shape.previousElementSibling;
+
+        if (shapeToInsertBefore) {
+          newSvgLayer.insertBefore(shape, shapeToInsertBefore);
+          return;
+        }
+
+        newSvgLayer.appendChild(shape);
+      }
+    }
+  }, {
+    key: "updateClickedElementPositionUp",
+    value: function updateClickedElementPositionUp(entry) {
+      if (entry.previousElementSibling) {
+        entry.parentElement.insertBefore(entry, entry.previousElementSibling);
+        var newLayerId = entry.closest(".layer-group").id;
+        var newSvgLayer = this.root.querySelector("#svg-".concat(newLayerId));
+        var shape = newSvgLayer.querySelector("#".concat(entry.id.substring(6)));
+        var shapeToInsertBefore = shape.nextElementSibling;
+
+        if (shapeToInsertBefore) {
+          this.insertAfter(shape, shapeToInsertBefore);
+          return;
+        }
+
+        newSvgLayer.appendChild(shape);
+      }
+    }
+  }, {
+    key: "insertAfter",
+    value: function insertAfter(newNode, existingNode) {
+      existingNode.parentNode.insertBefore(newNode, existingNode.nextSibling);
+    }
+  }, {
     key: "updateDraggedElementPosition",
     value: function updateDraggedElementPosition(evt) {
-      var _evt$currentTarget$pr;
+      var _entry$previousElemen;
 
       var entry = evt.currentTarget;
       entry.classList.remove("dragging");
       var newLayerId = entry.closest(".layer-group").id;
       var newSvgLayer = this.root.querySelector("#svg-".concat(newLayerId));
       var shape = newSvgLayer.querySelector("#".concat(entry.id.substring(6)));
-      var shapeToInsertBefore = newSvgLayer.querySelector("#".concat((_evt$currentTarget$pr = evt.currentTarget.previousElementSibling) === null || _evt$currentTarget$pr === void 0 ? void 0 : _evt$currentTarget$pr.id.substring(6)));
+      var shapeToInsertBefore = newSvgLayer.querySelector("#".concat((_entry$previousElemen = entry.previousElementSibling) === null || _entry$previousElemen === void 0 ? void 0 : _entry$previousElemen.id.substring(6)));
 
       if (shapeToInsertBefore) {
         newSvgLayer.insertBefore(shape, shapeToInsertBefore);
@@ -59015,7 +59073,7 @@ try {
 /***/ ((module) => {
 
 "use strict";
-module.exports = JSON.parse('{"name":"axios","version":"0.21.4","description":"Promise based HTTP client for the browser and node.js","main":"index.js","scripts":{"test":"grunt test","start":"node ./sandbox/server.js","build":"NODE_ENV=production grunt build","preversion":"npm test","version":"npm run build && grunt version && git add -A dist && git add CHANGELOG.md bower.json package.json","postversion":"git push && git push --tags","examples":"node ./examples/server.js","coveralls":"cat coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js","fix":"eslint --fix lib/**/*.js"},"repository":{"type":"git","url":"https://github.com/axios/axios.git"},"keywords":["xhr","http","ajax","promise","node"],"author":"Matt Zabriskie","license":"MIT","bugs":{"url":"https://github.com/axios/axios/issues"},"homepage":"https://axios-http.com","devDependencies":{"coveralls":"^3.0.0","es6-promise":"^4.2.4","grunt":"^1.3.0","grunt-banner":"^0.6.0","grunt-cli":"^1.2.0","grunt-contrib-clean":"^1.1.0","grunt-contrib-watch":"^1.0.0","grunt-eslint":"^23.0.0","grunt-karma":"^4.0.0","grunt-mocha-test":"^0.13.3","grunt-ts":"^6.0.0-beta.19","grunt-webpack":"^4.0.2","istanbul-instrumenter-loader":"^1.0.0","jasmine-core":"^2.4.1","karma":"^6.3.2","karma-chrome-launcher":"^3.1.0","karma-firefox-launcher":"^2.1.0","karma-jasmine":"^1.1.1","karma-jasmine-ajax":"^0.1.13","karma-safari-launcher":"^1.0.0","karma-sauce-launcher":"^4.3.6","karma-sinon":"^1.0.5","karma-sourcemap-loader":"^0.3.8","karma-webpack":"^4.0.2","load-grunt-tasks":"^3.5.2","minimist":"^1.2.0","mocha":"^8.2.1","sinon":"^4.5.0","terser-webpack-plugin":"^4.2.3","typescript":"^4.0.5","url-search-params":"^0.10.0","webpack":"^4.44.2","webpack-dev-server":"^3.11.0"},"browser":{"./lib/adapters/http.js":"./lib/adapters/xhr.js"},"jsdelivr":"dist/axios.min.js","unpkg":"dist/axios.min.js","typings":"./index.d.ts","dependencies":{"follow-redirects":"^1.14.0"},"bundlesize":[{"path":"./dist/axios.min.js","threshold":"5kB"}]}');
+module.exports = JSON.parse('{"_args":[["axios@0.21.4","/Volumes/SSD/tlc/test-correct"]],"_development":true,"_from":"axios@0.21.4","_id":"axios@0.21.4","_inBundle":false,"_integrity":"sha512-ut5vewkiu8jjGBdqpM44XxjuCjq9LAKeHVmoVfHVzy8eHgxxq8SbAVQNovDA8mVi05kP0Ea/n/UzcSHcTJQfNg==","_location":"/axios","_phantomChildren":{},"_requested":{"type":"version","registry":true,"raw":"axios@0.21.4","name":"axios","escapedName":"axios","rawSpec":"0.21.4","saveSpec":null,"fetchSpec":"0.21.4"},"_requiredBy":["#DEV:/"],"_resolved":"https://registry.npmjs.org/axios/-/axios-0.21.4.tgz","_spec":"0.21.4","_where":"/Volumes/SSD/tlc/test-correct","author":{"name":"Matt Zabriskie"},"browser":{"./lib/adapters/http.js":"./lib/adapters/xhr.js"},"bugs":{"url":"https://github.com/axios/axios/issues"},"bundlesize":[{"path":"./dist/axios.min.js","threshold":"5kB"}],"dependencies":{"follow-redirects":"^1.14.0"},"description":"Promise based HTTP client for the browser and node.js","devDependencies":{"coveralls":"^3.0.0","es6-promise":"^4.2.4","grunt":"^1.3.0","grunt-banner":"^0.6.0","grunt-cli":"^1.2.0","grunt-contrib-clean":"^1.1.0","grunt-contrib-watch":"^1.0.0","grunt-eslint":"^23.0.0","grunt-karma":"^4.0.0","grunt-mocha-test":"^0.13.3","grunt-ts":"^6.0.0-beta.19","grunt-webpack":"^4.0.2","istanbul-instrumenter-loader":"^1.0.0","jasmine-core":"^2.4.1","karma":"^6.3.2","karma-chrome-launcher":"^3.1.0","karma-firefox-launcher":"^2.1.0","karma-jasmine":"^1.1.1","karma-jasmine-ajax":"^0.1.13","karma-safari-launcher":"^1.0.0","karma-sauce-launcher":"^4.3.6","karma-sinon":"^1.0.5","karma-sourcemap-loader":"^0.3.8","karma-webpack":"^4.0.2","load-grunt-tasks":"^3.5.2","minimist":"^1.2.0","mocha":"^8.2.1","sinon":"^4.5.0","terser-webpack-plugin":"^4.2.3","typescript":"^4.0.5","url-search-params":"^0.10.0","webpack":"^4.44.2","webpack-dev-server":"^3.11.0"},"homepage":"https://axios-http.com","jsdelivr":"dist/axios.min.js","keywords":["xhr","http","ajax","promise","node"],"license":"MIT","main":"index.js","name":"axios","repository":{"type":"git","url":"git+https://github.com/axios/axios.git"},"scripts":{"build":"NODE_ENV=production grunt build","coveralls":"cat coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js","examples":"node ./examples/server.js","fix":"eslint --fix lib/**/*.js","postversion":"git push && git push --tags","preversion":"npm test","start":"node ./sandbox/server.js","test":"grunt test","version":"npm run build && grunt version && git add -A dist && git add CHANGELOG.md bower.json package.json"},"typings":"./index.d.ts","unpkg":"dist/axios.min.js","version":"0.21.4"}');
 
 /***/ })
 
