@@ -73,7 +73,7 @@ class CmsDrawing
         $this->instance->question['zoom_group'] = json_encode($this->instance->question['zoom_group']);
     }
 
-    public function UnprepareForSave()
+    public function unprepareForSave()
     {
         $this->instance->question['zoom_group'] = json_decode($this->instance->question['zoom_group']);
     }

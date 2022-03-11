@@ -69,7 +69,7 @@ class DrawingQuestion extends Component
             }
         }
 
-        $this->usesNewDrawingTool = Auth::user()->schoolLocation()->value('allow_new_drawing_question') && (blank($this->question->bg_name) && blank($this->question->grid));
+        $this->usesNewDrawingTool = Auth::user()->schoolLocation()->value('allow_new_drawing_question') && (blank($this->question->bg_name) && empty($this->question->grid));
     }
 
     public function questionUpdated($uuid)
