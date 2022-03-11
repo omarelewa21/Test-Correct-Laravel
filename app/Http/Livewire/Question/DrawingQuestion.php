@@ -12,6 +12,7 @@ use tcCore\Http\Traits\WithCloseable;
 use tcCore\Http\Traits\WithGroups;
 use tcCore\Http\Traits\WithNotepad;
 use tcCore\Http\Traits\WithUpdatingHandling;
+use tcCore\DrawingQuestion as DrawingQuestionModel;
 
 class DrawingQuestion extends Component
 {
@@ -119,6 +120,7 @@ class DrawingQuestion extends Component
     public function handleUpdateDrawingData($data)
     {
         $svg = sprintf('<svg viewBox="%s %s %s %s" class="w-full h-full" id="" xmlns="http://www.w3.org/2000/svg">
+                    <defs><style>%s</style></defs>
                     <g id="grid-preview-svg" stroke="#c3d0ed" stroke-width="1">%s</g>
                     <g class="question-svg">%s</g>
                     <g class="answer-svg">%s</g>
@@ -127,6 +129,7 @@ class DrawingQuestion extends Component
                     $data['svg_zoom_group']['y'],
                     $data['svg_zoom_group']['width'],
                     $data['svg_zoom_group']['height'],
+                    DrawingQuestionModel::getEmbeddedFontForSVG(),
                     base64_decode($data['svg_grid']),
                     base64_decode($data['svg_question']),
                     base64_decode($data['svg_answer'])

@@ -446,6 +446,7 @@ export class Text extends svgShape {
                 return;
             }
             this.mainElement.setTextContent(text);
+            this.mainElement.setFontFamily('Nunito');
             this.updateBorderElement();
             this.updateCornerElements();
         });
