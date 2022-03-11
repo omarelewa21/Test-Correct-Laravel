@@ -20,19 +20,28 @@
         >
             <x-sidebar.slide-container class="divide-y divide-bluegrey" x-ref="container1">
                 <div class="divide-y divide-bluegrey">
+                    @php
+                        $loopi = 0;
+                    @endphp
                     @foreach($this->questionsInTest as $testQuestion)
+
                         @if($testQuestion->question->type === 'GroupQuestion')
                             <x-sidebar.cms.group-question-container :question="$testQuestion->question">
-
-                                    @foreach($testQuestion->question->subQuestions as $question)
-                                        <x-sidebar.cms.question-button :testQuestion="$testQuestion" :question="$question" :loop="$loop" :subQuestion="true"/>
-                                    @endforeach
+                                @foreach($testQuestion->question->subQuestions as $question)
+                                    @php
+                                        $loopi ++;
+                                    @endphp
+                                    <x-sidebar.cms.question-button :testQuestion="$testQuestion" :question="$question"
+                                                                   :loop="$loopi" :subQuestion="true"/>
+                                @endforeach
 
                             </x-sidebar.cms.group-question-container>
                         @else
-
-                            <x-sidebar.cms.question-button :testQuestion="$testQuestion" :question="$testQuestion->question" :loop="$loop"/>
-
+                            @php
+                                $loopi ++;
+                            @endphp
+                            <x-sidebar.cms.question-button :testQuestion="$testQuestion"
+                                                           :question="$testQuestion->question" :loop="$loopi "/>
                         @endif
                     @endforeach
                 </div>

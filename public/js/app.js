@@ -5834,8 +5834,7 @@ document.addEventListener('alpine:init', function () {
       init: function init() {
         this.slideWidth = this.$root.offsetWidth;
         this.drawer = this.$root.closest('.drawer');
-        this.handleVerticalScroll(this.$root.querySelector('[x-ref="container1"]'));
-        this.setQuestionNumbers();
+        this.handleVerticalScroll(this.$root.querySelector('[x-ref="container1"]')); // this.setQuestionNumbers();
       },
       next: function next(currentEl) {
         var left = this.$root.scrollLeft + this.slideWidth;
@@ -6180,7 +6179,7 @@ window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
 window.Pusher = __webpack_require__(/*! pusher-js */ "./node_modules/pusher-js/dist/web/pusher.js");
 window.Echo = new laravel_echo__WEBPACK_IMPORTED_MODULE_0__["default"]({
   broadcaster: 'pusher',
-  key: "fc18ed69b446aeb8c8a5",
+  key: "2149988ad52a600a2309",
   cluster: "eu",
   forceTLS: true
 });

@@ -315,7 +315,7 @@ document.addEventListener('alpine:init', () => {
             this.slideWidth = this.$root.offsetWidth;
             this.drawer = this.$root.closest('.drawer');
             this.handleVerticalScroll(this.$root.querySelector('[x-ref="container1"]'))
-            this.setQuestionNumbers();
+            // this.setQuestionNumbers();
         },
         next(currentEl) {
             const left = this.$root.scrollLeft + this.slideWidth;

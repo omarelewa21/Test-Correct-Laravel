@@ -36,7 +36,11 @@ class Cms extends Component
         $this->emitTo(
             'teacher.questions.open-short',
             'showQuestion',
-            $testQuestionUuid
+            [
+                'testQuestionUuid' => $testQuestionUuid,
+                'questionUuid'     => $questionUuid,
+                'isSubQuestion'      => $subQuestion,
+            ]
         );
 
         $this->testQuestionId = $questionUuid;

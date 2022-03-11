@@ -22,6 +22,7 @@ use tcCore\Http\Requests\CreateGroupQuestionQuestionRequest;
 use tcCore\Http\Requests\CreateTestQuestionRequest;
 use tcCore\Http\Requests\Request;
 use tcCore\Lib\GroupQuestionQuestion\GroupQuestionQuestionManager;
+use tcCore\Question;
 use tcCore\TemporaryLogin;
 use tcCore\Test;
 use tcCore\TestQuestion;
@@ -680,7 +681,8 @@ class OpenShort extends Component
 
     private function setIsPartOfGroupQuestion()
     {
-        $this->isPartOfGroupQuestion = (request('owner') == 'group');
+
+        $this->isPartOfGroupQuestion = ($this->owner == 'group');
     }
 
     private function editModeForExistingQuestion()
@@ -853,17 +855,30 @@ class OpenShort extends Component
         $this->question[$property] = $value;
     }
 
-    public function showQuestion($testQuestionUuid)
+    public function showQuestion($args)
     {
 
 //        $this->save(false);
 
-        $testQuestion = TestQuestion::whereUuid($testQuestionUuid)->with('question')->first();
+        $testQuestion = TestQuestion::whereUuid($args['testQuestionUuid'])->with('question')->first();
 
-        $this->type = $testQuestion->question->type;
-        $this->subtype = $testQuestion->question->subtype;
-        $this->testQuestionId = $testQuestionUuid;
+        $this->action = 'edit';
 
+        if ($args['isSubQuestion']) {
+            $groupQuestion = $testQuestion->question;
+            $question = Question::whereUuid($args['questionUuid'])->first();
+            $this->type = $question->type;
+            $this->subtype = $question->subtype;
+            $this->owner = 'group';
+            $this->groupQuestionQuestionId = $groupQuestion->groupQuestionQuestions()->firstWhere('question_id', $question->getKey())->uuid;
+            $this->testQuestionId = $args['testQuestionUuid'];
+        } else {
+            $this->type = $testQuestion->question->type;
+            $this->subtype = $testQuestion->question->subtype;
+            $this->owner = 'test';
+            $this->groupQuestionQuestionId = '';
+            $this->testQuestionId = $args['testQuestionUuid'];
+        }
 
         $this->mount();
 

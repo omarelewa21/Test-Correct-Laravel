@@ -1,6 +1,6 @@
 <div id="cms" class="flex flex-1"
      x-data="{loading: false}"
-     x-init="$watch('loading', () => { setTimeout(() => { loading = false }, 500)} )"
+     x-init="$watch('loading', () => { setTimeout(() => { loading = false }, 1500)} )"
      x-cloak
      x-on:question-change.window="loading = true"
 >
@@ -18,7 +18,7 @@
     </div>
     <div class="question-editor-content w-full max-w-7xl mx-auto relative"
 
-         wire:key="container-{{ $this->testQuestionId }}"
+         wire:key="container-{{ $this->testQuestionId.$this->groupQuestionQuestionId }}"
     >
         <div x-show="loading"
              x-transition:enter="transform ease-out duration-150 transition"

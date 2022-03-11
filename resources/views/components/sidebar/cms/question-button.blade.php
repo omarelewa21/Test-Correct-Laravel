@@ -5,7 +5,7 @@
     'testQuestion' => null,
 ])
 <div class="question-button flex items-center cursor-pointer bold py-2 @if(!$subQuestion) px-6 @endif @if($this->testQuestionId === $question->uuid) primary @endif"
-     wire:click="showQuestion({{ $testQuestion ? "'".$testQuestion->uuid."'" :'null'}}, '{{ $question->uuid }}', {{ $subQuestion }})"
+     wire:click="showQuestion('{{ $testQuestion ? $testQuestion->uuid :null}}', '{{ $question->uuid }}', {{ $subQuestion }})"
      @click="$dispatch('question-change', {old: '{{ $this->testQuestionId }}', new: '{{ $question->uuid }}' })"
      style="max-width: 300px"
 >
@@ -14,7 +14,7 @@
         @if($this->testQuestionId === $question->uuid) text-white bg-primary border-primary @else bg-white border-sysbase text-sysbase @endif"
               style="min-width: 30px; height: 30px"
         >
-            <span class="mt-px question-number"></span>
+            <span class="mt-px question-number">{{ $loop  }}</span>
         </span>
         <div class="flex mt-.5 flex-1">
             <div class="flex flex-col flex-1 pl-2 pr-4">
