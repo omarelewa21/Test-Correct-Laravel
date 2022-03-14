@@ -627,7 +627,7 @@ class OpenShort extends Component
 
     private function removeQuestion()
     {
-        if (!$this->questionId) {
+        if (!$this->editModeForExistingQuestion()) {
             $this->returnToTestOverview();
         }
 
