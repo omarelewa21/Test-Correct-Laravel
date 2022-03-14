@@ -411,6 +411,7 @@ export class Text extends svgShape {
     constructor(shapeId, props, parent, drawingApp, Canvas, withHelperElements, withHighlightEvents) {
         super(shapeId, "text", props, parent, drawingApp, Canvas, withHelperElements, withHighlightEvents);
         this.mainElement.setTextContent(this.props.main["data-textcontent"]);
+        this.mainElement.setFontFamily('Nunito');
     }
 
     onDrawEndShapeSpecific(evt, cursor) {
