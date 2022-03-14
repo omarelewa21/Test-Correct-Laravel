@@ -104,12 +104,14 @@ function startRsPlayer()
 
 function handleFocusForReadspeaker()
 {
+    console.dir('rs_tlc_skin');
     //if clickListen is activated you cannot type an L in a textfield
     registerTlcClickListenActive();
     deactivateClickTap();
 }
 function handleBlurForReadspeaker()
 {
+    console.dir('rs_tlc_skin');
     if(typeof rspkr.tlc_clicklisten_active == 'undefined'){
         return;
     }
@@ -140,6 +142,7 @@ function handleTextBoxBlurForReadspeaker(event,questionId)
 }
 function handleClickListenToggle()
 {
+    console.dir('rs_tlc_skin');
     if(typeof rspkr.tlc_clicklisten_active == "undefined"){
         return;
     }
@@ -156,6 +159,7 @@ function handleClickListenToggle()
 
 function handleMouseupForReadspeaker(e,obj)
 {
+    console.dir('rs_tlc_skin');
     removeOldElement();
     rspkr.rs_tlc_play_started = false;
     if(doNotReadInput(e,obj)){
@@ -181,6 +185,7 @@ function handleMouseupForReadspeaker(e,obj)
 
 function getValueOfInput(obj)
 {
+    console.dir('rs_tlc_skin');
     if(obj == ''  || obj == null){
         return '';
     }
@@ -189,6 +194,7 @@ function getValueOfInput(obj)
 
 function doNotReadInput(element)
 {
+    console.dir('rs_tlc_skin');
     if(element == ''  || element == null){
         return true;
     }
@@ -222,6 +228,7 @@ function doNotReadInput(element)
 
 function readCkEditorOnSelect(editor)
 {
+    console.dir('rs_tlc_skin');
     if(typeof rspkr == "undefined"){
         return;
     }
@@ -236,6 +243,7 @@ function readCkEditorOnSelect(editor)
 }
 
 function removeSelectionFromEditor(editor) {
+    console.dir('rs_tlc_skin');
     var range = new CKEDITOR.dom.range(editor.document);
     var body = editor.document.getBody();
     range.setStart(body, 0);
@@ -245,6 +253,7 @@ function removeSelectionFromEditor(editor) {
 
 function removeOldElement()
 {
+    console.dir('rs_tlc_skin');
     var oldEl = document.getElementById('there_can_only_be_one');
     if(oldEl){
         oldEl.remove();
@@ -252,6 +261,7 @@ function removeOldElement()
 }
 function removeReadableElements()
 {
+    console.dir('rs_tlc_skin');
     var elements = document.getElementsByClassName('readspeaker_readable_element');
     for (var i=0; i < elements.length; i++) {
         elements[i].remove();
@@ -260,6 +270,7 @@ function removeReadableElements()
 
 function cloneHiddenSpan(editor)
 {
+    console.dir('rs_tlc_skin');
     var element = document.getElementById('hidden_span_'+editor.name);
     var clone = element.cloneNode(true);
     clone.id = "there_can_only_be_one";
@@ -271,6 +282,7 @@ function cloneHiddenSpan(editor)
 
 function setSelectedElement(node,editor)
 {
+    console.dir('rs_tlc_skin');
     var xpath = './/*[contains(text(),"'+editor.document.getSelection().getSelectedText()+'")]';
     var matchingElement = document.evaluate(xpath, node, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
     if(matchingElement != null){
@@ -282,6 +294,7 @@ function setSelectedElement(node,editor)
 
 function readTextArea(questionId)
 {
+    console.dir('rs_tlc_skin');
     if(rspkr.rs_tlc_play_started){
         return;
     }
@@ -293,7 +306,7 @@ function readTextArea(questionId)
 }
 
 function createHiddenDivTextArea(questionId){
-
+    console.dir('rs_tlc_skin');
     var hidden_div = getHiddenDivForTextarea(questionId);
     var textarea = document.getElementById('textarea_'+questionId);
     var container = textarea.closest('.open-question-container');
@@ -317,6 +330,7 @@ function createHiddenDivTextArea(questionId){
 
 function getHiddenDivForTextarea(questionId)
 {
+    console.dir('rs_tlc_skin');
     var oldEl = document.getElementById('there_can_only_be_one');
     var possibleTextarea = false;
     var hidden_div;
@@ -334,12 +348,14 @@ function getHiddenDivForTextarea(questionId)
 
 function showRsPlayer()
 {
+    console.dir('rs_tlc_skin');
     hideByClassName('rs_starter_button');
     showById('readspeaker_button1');
 }
 
 function hideRsPlayer()
 {
+    console.dir('rs_tlc_skin');
     if(rspkr.rs_tlc_prevent_close){
         return;
     }
@@ -351,11 +367,13 @@ function hideRsPlayer()
 }
 function displayHiddenElementsAndRemoveTheRest()
 {
+    console.dir('rs_tlc_skin');
     removeOldElement();
     removeReadableElementsAndDisplayHiddenElements();
 }
 function removeReadableElementsAndDisplayHiddenElements()
 {
+    console.dir('rs_tlc_skin');
     if(document.getElementById('there_can_only_be_one')){
         return;
     }
@@ -370,6 +388,7 @@ function removeReadableElementsAndDisplayHiddenElements()
 
 function showById(id)
 {
+    console.dir('rs_tlc_skin');
     var element = document.getElementById(id);
     if(element){
         element.classList.remove('hidden');
@@ -378,6 +397,7 @@ function showById(id)
 
 function hideById(id)
 {
+    console.dir('rs_tlc_skin');
     var element = document.getElementById(id);
     if(element){
         element.classList.add('hidden');
@@ -386,6 +406,7 @@ function hideById(id)
 
 function showByClassName(class_name)
 {
+    console.dir('rs_tlc_skin');
     var elements = document.getElementsByClassName(class_name);
     if(elements){
         [].forEach.call(elements, function (el) {
@@ -396,6 +417,7 @@ function showByClassName(class_name)
 
 function hideByClassName(class_name)
 {
+    console.dir('rs_tlc_skin');
     var elements = document.getElementsByClassName(class_name);
     if(elements){
         [].forEach.call(elements, function (el) {
@@ -418,8 +440,7 @@ function disableContextMenuOnCkeditor()
 }
 function shouldNotReinitCkeditor(el)
 {
-    ReadspeakerTlc.guard.shouldNotReinitCkeditor(el);
-    return ;
+    return ReadspeakerTlc.guard.shouldNotReinitCkeditor(el);
     if(!checkElementInActiveQuestion(el)){
         return true;
     }
@@ -428,7 +449,7 @@ function shouldNotReinitCkeditor(el)
 
 function shouldNotCreateHiddenTextarea(id)
 {
-    ReadspeakerTlc.guard.shouldNotCreateHiddenTextarea(id);
+    return ReadspeakerTlc.guard.shouldNotCreateHiddenTextarea(id);
     return ;
     var oldEl = document.getElementById('there_can_only_be_one');
     var possibleTextarea = false;
@@ -454,6 +475,7 @@ function shouldNotCreateHiddenTextarea(id)
 
 function checkPossibleTextAreaValid(possibleTextarea)
 {
+    console.dir('rs_tlc_skin');
     if(possibleTextarea == null){
         return false;
     }
@@ -464,6 +486,7 @@ function checkPossibleTextAreaValid(possibleTextarea)
 }
 function checkPossibleTextAreaAlreadyExists(possibleTextarea,id)
 {
+    console.dir('rs_tlc_skin');
     if(possibleTextarea.id==id) {
         return true;
     }
@@ -471,6 +494,7 @@ function checkPossibleTextAreaAlreadyExists(possibleTextarea,id)
 }
 function checkElementInActiveQuestion(el)
 {
+    return ReadspeakerTlc.util.checkElementInActiveQuestion();
     var container = el.closest('.rs_readable');
     if(container){
         return true;
@@ -480,13 +504,13 @@ function checkElementInActiveQuestion(el)
 
 function shouldNotCreateHiddenDivsForTextboxesCompletion(containerId)
 {
-    ReadspeakerTlc.guard.shouldNotCreateHiddenDivsForTextboxesCompletion(containerId);
-    return;
+    return ReadspeakerTlc.guard.shouldNotCreateHiddenDivsForTextboxesCompletion(containerId);
     return shouldNotCreateHiddenDivs(containerId);
 }
 
 function createHiddenDivsForTextboxesCompletion(containerId)
 {
+    console.dir('rs_tlc_skin');
     var container = document.querySelector('#'+containerId);
     if(!container){
         return;
@@ -504,13 +528,13 @@ function createHiddenDivsForTextboxesCompletion(containerId)
 
 function shouldNotCreateHiddenDivsForSelects(containerId)
 {
-    ReadspeakerTlc.guard.shouldNotCreateHiddenDivsForSelects(containerId);
-    return;
+    return ReadspeakerTlc.guard.shouldNotCreateHiddenDivsForSelects(containerId);
     return shouldNotCreateHiddenDivs(containerId);
 }
 
 function shouldNotCreateHiddenDivs(containerId)
 {
+    console.dir('rs_tlc_skin');
     if(document.getElementById('there_can_only_be_one')){
         return true;
     }
@@ -523,6 +547,8 @@ function shouldNotCreateHiddenDivs(containerId)
 
 function createHiddenDivsForSelects(containerId)
 {
+    ReadspeakerTlc.hiddenElement.createHiddenDivsForSelects(containerId);
+    return;
     var container = document.querySelector('#'+containerId);
     if(!container){
         return;
@@ -540,6 +566,7 @@ function createHiddenDivsForSelects(containerId)
 
 function removeHiddenDivsForTextboxesCompletion(containerId)
 {
+    console.dir('rs_tlc_skin');
     var container = document.querySelector('#'+containerId);
     if(!container){
         return;
@@ -555,6 +582,7 @@ function removeHiddenDivsForTextboxesCompletion(containerId)
 }
 function removeHiddenDivsForSelect(containerId)
 {
+    console.dir('rs_tlc_skin');
     var container = document.querySelector('#'+containerId);
     if(!container){
         return;
@@ -570,6 +598,7 @@ function removeHiddenDivsForSelect(containerId)
 }
 function removeHiddenDivsForContainer()
 {
+    console.dir('rs_tlc_skin');
     if(!rspkr.rs_tlc_container){
         return;
     }
@@ -585,26 +614,31 @@ function removeHiddenDivsForContainer()
 
 function createHiddenDivForTextboxAndHideTextbox(textbox)
 {
+    console.dir('rs_tlc_skin');
     createHiddenDivForElementAndHideElement(textbox);
 }
 
 function removeHiddenDivForTextboxAndShowTextbox(textbox)
 {
+    console.dir('rs_tlc_skin');
     removeHiddenDivForElement(textbox);
 }
 
 function createHiddenDivForSelectAndHideSelect(select)
 {
+    console.dir('rs_tlc_skin');
     createHiddenDivForElementAndHideElement(select);
 }
 
 function removeHiddenDivForSelectAndShowSelect(select)
 {
+    console.dir('rs_tlc_skin');
     removeHiddenDivForElement(select);
 }
 
 function removeHiddenDivForElement(element)
 {
+    console.dir('rs_tlc_skin');
     if(document.getElementById('there_can_only_be_one')){
         return;
     }
@@ -626,6 +660,7 @@ function removeHiddenDivForElement(element)
 
 function createHiddenDivForElementAndHideElement(element)
 {
+    console.dir('rs_tlc_skin');
     if(!element){
         return;
     }
@@ -683,6 +718,7 @@ function rsFocusSelect(event,selectId,questionId)
 
 function getRsbtnPopupTlc(questionId,event,correction)
 {
+    console.dir('rs_tlc_skin');
     var popup = document.querySelector('.rsbtn_popup_tlc_'+questionId);
     if(popup == null){
         return popup;
@@ -707,6 +743,7 @@ function rsBlurSelect(event,questionId)
 
 function rsRemovRsbtnPopupTlcForQuestion(event,questionId)
 {
+    console.dir('rs_tlc_skin');
     var popup = document.querySelector('.rsbtn_popup_tlc_'+questionId);
     if(popup == null){
         return;
@@ -720,6 +757,7 @@ function rsRemovRsbtnPopupTlcForQuestion(event,questionId)
 
 function hideRsTlcPopup(popup,event)
 {
+    console.dir('rs_tlc_skin');
     if(event.target!=popup.linkedElement){
         return;
     }
@@ -731,6 +769,7 @@ function hideRsTlcPopup(popup,event)
 
 function showReadableSelect(event)
 {
+    console.dir('rs_tlc_skin');
     rspkr.rs_tlc_prevent_close = true;
     activateClickTap();
     var rect = this.linkedElement.getBoundingClientRect();
@@ -746,6 +785,7 @@ function showReadableSelect(event)
 
 function getReadableDivForSelect(select)
 {
+    console.dir('rs_tlc_skin');
     removeOldElement();
     var readable_div = document.createElement('div');
     readable_div.id = 'there_can_only_be_one';
@@ -764,6 +804,7 @@ function getReadableDivForSelect(select)
 
 function readTextbox(event,obj)
 {
+    console.dir('rs_tlc_skin');
     removeOldElement();
     rspkr.rs_tlc_play_started = false;
     if(doNotReadInput(obj)){
@@ -792,6 +833,7 @@ function readTextbox(event,obj)
 
 function activateClickTap()
 {
+    console.dir('rs_tlc_skin');
     if(rspkr.mobile()){
         return activateMouseTracker();
     }
@@ -799,12 +841,14 @@ function activateClickTap()
 }
 function activateClickListen()
 {
+    console.dir('rs_tlc_skin');
     if(!rspkr.ui.Tools.ClickListen.active()){
         rspkr.ui.Tools.ClickListen.activate();
     }
 }
 function activateMouseTracker()
 {
+    console.dir('rs_tlc_skin');
     if(!rspkr.ui.Tools.MouseTracker.isActive()){
         window.ReadSpeaker.Mobile.ui.Player().tapRead.activate();
         //document.querySelector('.rsmpl-tapread>button').click();
@@ -813,6 +857,7 @@ function activateMouseTracker()
 }
 function deactivateClickTap()
 {
+    console.dir('rs_tlc_skin');
     if(rspkr.mobile()){
         return deactivateMouseTracker();
     }
@@ -820,12 +865,14 @@ function deactivateClickTap()
 }
 function deactivateClickListen()
 {
+    console.dir('rs_tlc_skin');
     if(rspkr.ui.Tools.ClickListen.active()){
         rspkr.ui.Tools.ClickListen.deactivate();
     }
 }
 function deactivateMouseTracker()
 {
+    console.dir('rs_tlc_skin');
     if(rspkr.ui.Tools.MouseTracker.isActive()){
         window.ReadSpeaker.Mobile.ui.Player().tapRead.activate();
         //document.querySelector('.rsmpl-tapread>button').click();
@@ -834,6 +881,8 @@ function deactivateMouseTracker()
 }
 function registerTlcClickListenActive()
 {
+    ReadspeakerTlc.register.registerTlcClickListenActive();
+    return;
     if(rspkr.mobile()){
         rspkr.tlc_clicklisten_active = rspkr.ui.Tools.MouseTracker.isActive();
     }else{
@@ -842,6 +891,7 @@ function registerTlcClickListenActive()
 }
 function tlcClickListenActiveIsInSync()
 {
+    console.dir('rs_tlc_skin');
     if(rspkr.mobile()){
         return (rspkr.tlc_clicklisten_active == rspkr.ui.Tools.MouseTracker.isActive());
     }else{
@@ -850,6 +900,7 @@ function tlcClickListenActiveIsInSync()
 }
 function setMobileClasses(eventType)
 {
+    console.dir('rs_tlc_skin');
     if(!rspkr.mobile()){
         return;
     }

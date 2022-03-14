@@ -7,6 +7,9 @@
             <span>{!! __('test_take.instruction_open_question') !!}</span>
             <x-input.group class="w-full" label="">
                 <textarea id="{{ $editorId }}" name="{{ $editorId }}" wire:model.debounce.1000ms="answer">{!! $this->answer !!}</textarea>
+                @if(Auth::user()->text2speech)
+                    <div wire:ignore class="rspopup_tlc hidden rsbtn_popup_tlc_{{$question->id}}"  ><div class="rspopup_play rspopup_btn " role="button" tabindex="0" aria-label="Lees voor" data-rslang="title/arialabel:listen" data-rsevent-id="rs_340375" title="Lees voor"></div></div>
+                @endif
             </x-input.group>
         </div>
         <div id="word-count-{{ $editorId }}" wire:ignore></div>
@@ -32,6 +35,22 @@
                         const wordCountPlugin = editor.plugins.get( 'WordCount' );
                         const wordCountWrapper = document.getElementById( 'word-count-{{ $editorId }}' );
                         wordCountWrapper.appendChild( wordCountPlugin.wordCountContainer );
+                        const config = { attributes: true, childList: false, subtree: false };
+                        const element = document.getElementsByClassName('ck-editor__editable_inline')[0];
+                        const callback = function(mutationsList, observer){
+                            for(const mutation of mutationsList) {
+                                if (mutation.type === 'attributes') {
+                                    console.log('The ' + mutation.attributeName + ' attribute was modified.');
+                                    if(mutation.attributeName=='class'&&mutation.target.classList.contains('ck-focused')){
+                                        ReadspeakerTlc.rsTlcEvents.handleCkeditorFocusForReadspeaker(mutation.target,{{$question->getKey()}});
+                                    }else if(mutation.attributeName=='class'&&mutation.target.classList.contains('ck-blurred')){
+                                        ReadspeakerTlc.rsTlcEvents.handleCkeditorBlurForReadspeaker(mutation.target,{{$question->getKey()}});
+                                    }
+                                }
+                            }
+                        }
+                        const observer = new MutationObserver(callback);
+                        observer.observe(element, config);
                         disableContextMenuOnCkeditor();
                     } )
                     .catch( error => {

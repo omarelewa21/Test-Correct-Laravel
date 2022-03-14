@@ -16,7 +16,7 @@ if(array_key_exists('HTTP_ACCEPT_LANGUAGE', $_SERVER)){
     }
 
     $lang = 'nl'; // just to see if it works in dutch
-    //app('url')->forceRootUrl('http://557c-95-97-95-106.ngrok.io');
+
 
 return [
 

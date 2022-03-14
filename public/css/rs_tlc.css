@@ -83,12 +83,12 @@
     justify-content: center;
 }
 .rs-shadow-select{
-    padding-top: 7px;
+    padding-top: 7px !important;
     text-align: center;
     font-size: 16px;
 }
 .rs-shadow-textarea {
-    padding-top: 10px;
+    padding-top: 10px !important;
 }
 .rs-shadow-select-popup{
     padding: 10px;
