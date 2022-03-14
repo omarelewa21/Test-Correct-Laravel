@@ -6122,6 +6122,57 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var plyr__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! plyr */ "./node_modules/plyr/dist/plyr.min.js");
 /* harmony import */ var plyr__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(plyr__WEBPACK_IMPORTED_MODULE_0__);
 
+window.plyrPlayer = {
+  disableElem: function disableElem(elem) {
+    var replace = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : true;
+
+    // Takes elem and disable it by css and byChoice replacing it to remove all event listeners
+    if (replace) {
+      var elClone = elem.cloneNode(true);
+      elem.parentNode.replaceChild(elClone, elem);
+      elClone.setAttribute("style", "pointer-events: none;");
+    } else {
+      elem.setAttribute("style", "pointer-events: none;");
+    }
+  },
+  noPause: function noPause(playElem) {
+    // Takes play button elem and Disable it after clicked play first time
+    playElem.addEventListener('click', function () {
+      var _this = this;
+
+      setTimeout(function () {
+        plyrPlayer.disableElem(_this);
+      }, 100);
+    });
+  },
+  render: function render(elem) {
+    var constraints = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+    var controls = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : ['play', 'progress', 'current-time', 'mute', 'volume'];
+    var disableProgressElem = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : false;
+    var player = new (plyr__WEBPACK_IMPORTED_MODULE_0___default())(elem, {
+      controls: controls
+    }); // let controlsElem = player.elements.controls;            // Get the play button
+
+    var progressElem = player.elements.progress; // Get the progress bar element
+    // controlsElem.setAttribute("wire:ignore", "");
+
+    if (disableProgressElem) {
+      this.disableElem(progressElem, false);
+    } // Todo display the play-pause button and apply the constraints on it 
+    // let playElem     = player.elements.controls;            // get The controlls element
+    // let controlsElem = player.elements.buttons.play[0];     // Get the play button
+    // let progressElem = player.elements.progress;            // Get the progress bar element
+    // if(! constraints.pausable){
+    //     this.noPause(playElem);
+    // }
+    // if(! constraints.pausable || constraints.playableOnce || constraints.withTimeout){
+    //     this.disableElem(progressElem, false);
+    // }
+
+
+    return player;
+  }
+};
 
 /***/ }),
 
