@@ -3,6 +3,7 @@
 namespace tcCore;
 
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
 use tcCore\Http\Requests\UpdateTestQuestionRequest;
 use tcCore\Lib\Question\QuestionInterface;
 use Dyrynda\Database\Casts\EfficientUuid;
@@ -151,11 +152,14 @@ class MultipleChoiceQuestion extends Question implements QuestionInterface {
 
 
         if($this->allOrNothingQuestion()){
-            if($score == $maxScore && $countCorrectAnswers === $givenAnswers){
-                return $this->score;
-            } else {
-                return 0;
+            if(Str::lower($this->subtype) == 'arq'){
+                if($score == $this->score) {
+                    return $score;
+                }
+            } else if($score == $maxScore && $countCorrectAnswers === $givenAnswers){
+                    return $this->score;
             }
+            return 0;
         }
 
         if ($score > $this->getAttribute('score')) {
