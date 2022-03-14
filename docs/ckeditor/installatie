@@ -1,0 +1,20 @@
+goto https://ckeditor.com/ckeditor-5/online-builder/
+choose Classic Editor
+select plugins (see plugins.txt)
+configure toolbar
+build and download
+unzip and rename to ckeditor5
+copy folder to resources folder
+Add required plugins to package.json (or do that later)
+navigate terminal to ckeditor5 folder
+execute npm install
+modify /src/ckeditor.js to suit your requirements (adding plugins, toolbar sequence)
+execute yarn run build (or npm run build)
+/build/ckeditor.js is now updated
+if the publishing of ckeditor is handled in webpack.mix.js => navigate to root and execute npm run dev
+
+Example adding plugin (autosave)
+npm install --save @ckeditor/ckeditor5-autosave
+add import AutoSave from '@ckeditor/ckeditor5-autosave/src/autosave.js'; to src/editor.js
+add AutoSave to Editor.builtinPlugins array.
+yarn run build

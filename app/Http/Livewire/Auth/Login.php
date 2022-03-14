@@ -143,7 +143,7 @@ class Login extends Component
         if (!auth()->attempt($credentials)) {
             if ($this->requireCaptcha) {
                 $this->reset('captcha');
-                $this->emit('refresh-captcha');
+                $this->dispatchBrowserEvent('refresh-captcha');
                 return;
             }
             $this->createFailedLogin();
@@ -235,7 +235,7 @@ class Login extends Component
         if ($validateCaptcha->fails()) {
             $this->reset('captcha');
             $this->addError('captcha', __('auth.incorrect_captcha'));
-            $this->emit('refresh-captcha');
+            $this->dispatchBrowserEvent('refresh-captcha');
             return false;
         }
 
@@ -424,7 +424,7 @@ class Login extends Component
         if (!auth()->attempt($credentials)) {
             if ($this->requireCaptcha) {
                 $this->reset('captcha');
-                $this->emit('refresh-captcha');
+                $this->dispatchBrowserEvent('refresh-captcha');
                 return;
             }
             $this->createFailedLogin();

@@ -52,6 +52,7 @@
          "
      x-on:mark-infoscreen-as-seen.window="if('{{ $this->question->uuid }}' == $event.detail){ $wire.markAsSeen($event.detail) }"
      x-on:force-taken-away-blur.window="$el.style.opacity = $event.detail.shouldBlur ? 0 : 1 ;"
+     questionComponent
 >
     <div class="flex justify-end space-x-4 mt-6">
         @if(!$this->closed )
@@ -99,7 +100,7 @@
         <x-slot name="title">{{ __('test_take.close_question') }}</x-slot>
         <x-slot name="body">{{ __('test_take.close_question_modal_text') }}</x-slot>
         <x-slot name="actionButton">
-            <x-button.primary size="sm" wire:click="closeQuestion({{$this->nextQuestion}})" @click="show = false">
+            <x-button.primary size="sm" wire:click="closeQuestion('{{$this->nextQuestion}}')" @click="show = false">
                 <span>{{__('test_take.continue')}}</span>
                 <x-icon.chevron/>
             </x-button.primary>
@@ -110,7 +111,7 @@
         <x-slot name="title">{{ __('test_take.close_group') }}</x-slot>
         <x-slot name="body">{{ __('test_take.close_group_modal_text') }}</x-slot>
         <x-slot name="actionButton">
-            <x-button.primary size="sm" wire:click="closeGroup({{$this->nextQuestion}})" @click="show = false">
+            <x-button.primary size="sm" wire:click="closeGroup('{{$this->nextQuestion}}')" @click="show = false">
                 <span>{{__('test_take.continue')}}</span>
                 <x-icon.chevron/>
             </x-button.primary>

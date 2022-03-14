@@ -32,6 +32,7 @@ use Dyrynda\Database\Support\GeneratesUuid;
 use tcCore\Scopes\ArchivedScope;
 use tcCore\Traits\Archivable;
 use tcCore\Traits\UuidTrait;
+use Illuminate\Support\Str;
 
 class TestTake extends BaseModel
 {
@@ -538,6 +539,9 @@ class TestTake extends BaseModel
             switch ($key) {
                 case 'type_not_assessment':
                     $query->typeNotAssessment();
+                    break;
+                case 'takeUuid':
+                    $query->where('test_takes.id', Self::whereUuid($value)->value('id'));
                     break;
                 case 'type_assessment':
                     $query->typeAssessment();

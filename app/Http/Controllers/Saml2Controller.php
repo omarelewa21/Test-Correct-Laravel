@@ -3,6 +3,7 @@ namespace tcCore\Http\Controllers;
 
 use Aacotroneo\Saml2\Events\Saml2LoginEvent;
 use Aacotroneo\Saml2\Saml2Auth;
+use Bugsnag\BugsnagLaravel\Facades\Bugsnag;
 use Illuminate\Routing\Controller;
 use Illuminate\Http\Request;
 
@@ -34,10 +35,16 @@ class Saml2Controller extends Controller
         $errors = $saml2Auth->acs();
 
         if (!empty($errors)) {
-            logger()->error('Saml2 error_detail', ['error' => $saml2Auth->getLastErrorReason()]);
+            $message = 'New Saml2 Errors'.PHP_EOL .
+                'Last error: '.PHP_EOL.
+                $saml2Auth->getLastErrorReason().PHP_EOL.
+                'All errors: '. PHP_EOL .
+                json_encode($errors['error']);
+            Bugsnag::notifyException(new \Exception($message));
+//            logger()->error('Saml2 error_detail', ['error' => $saml2Auth->getLastErrorReason()]);
             session()->flash('saml2_error_detail', [$saml2Auth->getLastErrorReason()]);
 
-            logger()->error('Saml2 error', $errors);
+//            logger()->error('Saml2 error', ['error' => $errors['error']]);
             session()->flash('saml2_error', $errors);
             return redirect(config('saml2_settings.errorRoute'));
         }

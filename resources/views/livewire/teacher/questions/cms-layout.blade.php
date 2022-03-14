@@ -1,4 +1,4 @@
-<div id="cms">
+<div id="cms" questionComponent>
     <div class="question-editor-header z-50">
         <div class="question-title">
             <div class="icon-arrow">
@@ -19,7 +19,6 @@
                         <div class="flex w-full items-center px-4 sm:px-6 lg:px-8 justify-between">--}}
             <div class="flex w-full mt-2.5 px-4 sm:px-6 lg:px-8">
                 <div class="flex w-full border-b border-secondary items-center justify-between py-2.5">
-                    {{--                    --}}
                     <div class="flex items-center">
                         <span class="w-8 h-8 rounded-full bg-sysbase text-white text-sm flex items-center justify-center">
                             <span>{{ $this->question['order'] == 0 ? '1' : $this->question['order']}}</span>
@@ -112,6 +111,11 @@
                     <span class="title">{{ $message }}</span>
                 </div>
                 @enderror
+                @error('question.answer_svg')
+                <div class="notification error stretched mt-4">
+                    <span class="title">{{ __('cms.drawing-question-required-answer') }}</span>
+                </div>
+                @enderror
 
             </div>
             <div class="flex justify-end px-4 sm:px-6 lg:px-8 py-5">
@@ -124,7 +128,7 @@
         <div class="flex flex-col flex-1 px-4 sm:px-6 lg:px-8"
              x-data="{openTab: 1}"
              x-init="$watch('openTab', value => { value === 1 ? $dispatch('tabchange') : '';})"
-             @opentab.window="openTab = $event.detail"
+             @opentab.window="openTab = $event.detail; window.scrollTo({top: 0, behavior: 'smooth'})"
              selid="tabcontainer"
         >
             <div class="flex w-full space-x-6 mb-5 border-b border-secondary max-h-[50px]" selid="tabs">
@@ -429,7 +433,7 @@
             @endif
         </div>
 
-        <div class="question-editor-footer">
+        <div class="question-editor-footer" x-data>
             <div class="question-editor-footer-button-container">
 
                 <button
@@ -445,9 +449,10 @@
 
                 <button
                         wire:loading.attr="disabled"
+                        @beforeunload.window="$el.disabled = true"
                         type="button"
                         wire:click="save"
-                        class="button cta-button button-sm"
+                        class="button cta-button button-sm save_button"
                         selid="save-btn"
                 >
                     <span>{{ __("Vraag opslaan") }}</span>

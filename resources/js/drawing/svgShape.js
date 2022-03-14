@@ -30,6 +30,7 @@ class svgShape {
         };
         this.Canvas = Canvas;
         this.drawingApp = drawingApp;
+        this.root = drawingApp.params.root;
         if (!this.props.main) this.props.main = {};
         if (!this.props.group) this.props.group = {};
         this.offset = parseInt(this.props.main["stroke-width"]) / 2 + 3 || 5;
@@ -118,18 +119,23 @@ class svgShape {
 
     makeBorderElement() {
         let bbox = this.mainElement.getBoundingBox();
+        const borderColor = this.isAnswerLayer() ? '--cta-primary-mid-dark' : '--primary';
         return new svgElement.Rectangle({
             "class": "border",
             "x": bbox.x - this.offset,
             "y": bbox.y - this.offset,
             "width": bbox.width + this.offset * 2,
             "height": bbox.height + this.offset * 2,
-            "stroke": "var(--teacher-Primary)",
+            "stroke": `var(${borderColor})`,
             "stroke-width": "3",
             "stroke-dasharray": "10",
             "fill": "red",
             "fill-opacity": "0",
         });
+    }
+
+    isAnswerLayer() {
+        return this.Canvas.layerID2Key(this.parent.id) === 'answer';
     }
 
     updateCornerElements() {
@@ -166,7 +172,9 @@ class svgShape {
     }
 
     showBorderElement() {
-        this.borderElement.setAttribute("stroke", this.borderElement.props.stroke);
+        if (this.parent.id.includes(this.Canvas.params.currentLayer) && this.drawingApp.currentToolIs('drag')) {
+            this.borderElement.setAttribute("stroke", this.borderElement.props.stroke);
+        }
     }
 
     showCornerElements() {
@@ -266,7 +274,7 @@ class svgShape {
                             this.getSidebarEntry().highlight();
                         }
                     },
-                    "mouseleave": {
+                    "mouseleave touchend": {
                         callback: () => {
                             this.unhighlight();
                             this.getSidebarEntry().unhighlight();
@@ -341,7 +349,7 @@ export class Line extends svgShape {
      */
     constructor(shapeId, props, parent, drawingApp, Canvas, withHelperElements, withHighlightEvents) {
         super(shapeId, "line", props, parent, drawingApp, Canvas, withHelperElements, withHighlightEvents);
-
+        this.svgCanvas = drawingApp.params.root.querySelector('#svg-canvas');
         this.makeOwnMarkerForThisShape();
     }
 
@@ -350,7 +358,8 @@ export class Line extends svgShape {
         if (markerType === "no-endmarker") return;
 
         const newMarker = this.cloneGenericMarker(markerType);
-        UI.svgCanvas.firstElementChild.appendChild(newMarker);
+
+        this.svgCanvas.firstElementChild.appendChild(newMarker);
 
         const newMarkerId = `${newMarker.id}-line-${this.shapeId}`;
         newMarker.id = newMarkerId;
@@ -362,7 +371,7 @@ export class Line extends svgShape {
 
         const propertyToChange = this.getPropertyToChange(markerType);
         newMarker.style[propertyToChange] = this.props.main.stroke;
-
+        this.parent.appendChild(newMarker);
         this.marker = newMarker;
     }
 
@@ -372,7 +381,7 @@ export class Line extends svgShape {
     }
 
     cloneGenericMarker(type) {
-        const markerToClone = document.querySelector(`marker#svg-${type}`);
+        const markerToClone = this.root.querySelector(`marker#svg-${type}`);
         return markerToClone.cloneNode(true);
     }
 
@@ -407,9 +416,9 @@ export class Text extends svgShape {
     onDrawEndShapeSpecific(evt, cursor) {
         const windowCursor = this.drawingApp.convertCanvas2DomCoordinates(cursor);
 
-        let canvasContainer = document.getElementById("svg-canvas").parentElement;
+        let canvasContainer = this.root.querySelector("#svg-canvas").parentElement;
         const fontSize = parseFloat(this.mainElement.element.style.fontSize);
-
+        const topOffset = fontSize * parseFloat(getComputedStyle(document.documentElement).fontSize)
         let textInput = new htmlElement("input", canvasContainer, {
             id: "add-text-input",
             type: "text",
@@ -417,9 +426,9 @@ export class Text extends svgShape {
             style:
                 `width: ${canvasContainer.getBoundingClientRect().right - windowCursor.x}px;\
                 position: absolute;\
-                top: ${windowCursor.y - fontSize}px;\
+                top: ${windowCursor.y - topOffset}px;\
                 left: ${windowCursor.x - 2}px;\
-                font-size: ${fontSize}px;\
+                font-size: ${fontSize}rem;\
                 color: ${this.mainElement.getAttribute("fill")};\
                 font-weight: ${this.mainElement.element.style.fontWeight || "normal"};\
                 transform-origin: bottom left;\
@@ -526,17 +535,20 @@ export class Grid extends Path {
             bounds = this.Canvas.params.bounds;
         }
         if (Object.keys(bounds).length === 0) {
-            bounds = calculatePreviewBounds();
+            bounds = calculatePreviewBounds(this.parent.parentElement);
         }
         const interval = size * pixelsPerCentimeter,
             lineAmount = this.calculateAmountOfGridLines(interval, bounds);
         let strOfPoints = ``;
+        //Verticaal
         for (var i = -lineAmount.left; i <= lineAmount.right; i++) {
             strOfPoints += `M${interval * i},${bounds.top}v${bounds.height} `;
         }
+        //Horizontaal
         for (var j = -lineAmount.top; j <= lineAmount.bottom; j++) {
             strOfPoints += `M${bounds.left},${interval * j}h${bounds.width} `;
         }
+
         return strOfPoints;
     }
 

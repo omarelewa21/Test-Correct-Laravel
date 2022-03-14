@@ -47,6 +47,10 @@ class PrepareImportAttainments extends Command
             $this->error('No file on the server!');
             exit;
         }
+        $msg = 'Did you backup attainments table and question_attainments table?';
+        if(!$this->confirm($msg)){
+            exit;
+        }
         $msg = 'file was created:'.date ("F d Y H:i:s.", filemtime($pathToFile)).'. Continue?';
         if(!$this->confirm($msg)){
             exit;
@@ -60,6 +64,12 @@ class PrepareImportAttainments extends Command
         ];
         $request->merge($params);
         $response = (new AttainmentImportController())->setAttainmentsInactiveNotPresentInImport($request);
+        if($response->getStatusCode()!=200){
+            $this->error('something went wrong. msg:'.$response->getContent());
+            exit;
+        }
+        $this->info($response->getContent());
+        $response = (new AttainmentImportController())->removeSoftDeletedQuestionAttainments();
         if($response->getStatusCode()!=200){
             $this->error('something went wrong. msg:'.$response->getContent());
             exit;

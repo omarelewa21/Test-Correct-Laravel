@@ -37,7 +37,7 @@ class DrawingQuestion extends Question implements QuestionInterface {
      *
      * @var array
      */
-    protected $fillable = ['answer', 'grid', 'answer_svg', 'question_svg', 'grid_svg'];
+    protected $fillable = ['answer', 'grid', 'answer_svg', 'question_svg', 'grid_svg', 'zoom_group'];
 
     /**
      * The attributes excluded from the model's JSON form.
@@ -226,5 +226,10 @@ class DrawingQuestion extends Question implements QuestionInterface {
 
     public function question() {
         return $this->belongsTo('tcCore\Question', $this->getKeyName());
+    }
+
+    public static function getSvgImage()
+    {
+
     }
 }
