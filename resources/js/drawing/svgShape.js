@@ -438,7 +438,7 @@ export class Text extends svgShape {
         });
         textInput.focus();
 
-        textInput.addEventListener("blur", () => {
+        textInput.addEventListener("focusout", () => {
             const text = textInput.element.value;
             textInput.deleteElement();
             if (text.length === 0) {
