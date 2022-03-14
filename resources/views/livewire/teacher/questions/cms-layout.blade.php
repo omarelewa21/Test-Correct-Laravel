@@ -427,7 +427,7 @@
                                 @endforeach
 
                             @endif
-                        </div>Openbaar maken
+                        </div>
                     </x-content-section>
                 </div>
             @endif
