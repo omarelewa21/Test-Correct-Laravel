@@ -1,5 +1,5 @@
 <div id="drawing-tool"
-     class="rounded-10"
+     class="rounded-10 @student student @else teacher @endstudent"
      wire:ignore
 >
     <div class="section-container">
@@ -281,7 +281,7 @@
                     <button class="shape-btn up-btn" title="{{ __('drawing-modal.Versleep volgorde') }}">
                         <x-icon.arrow-small class="-rotate-90"/>
                     </button>
-                    <button class="shape-btn drag-btn" title="{{ __('drawing-modal.Versleep volgorde') }}">
+                    <button class="shape-btn down-btn" title="{{ __('drawing-modal.Versleep volgorde') }}">
                         <x-icon.arrow-small class="rotate-90"/>
                     </button>
                 </div>
