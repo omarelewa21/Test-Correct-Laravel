@@ -1,7 +1,7 @@
 @props([
     'options',
-    'placeholder' => __('Kies een waarde'),
-    'emptyOptionsMessage' => __('Geen resultaat gevonden'),
+    'placeholder' => __('cms.Kies een waarde'),
+    'emptyOptionsMessage' => __('cms.Geen resultaat gevonden'),
     'name'
 ])
 

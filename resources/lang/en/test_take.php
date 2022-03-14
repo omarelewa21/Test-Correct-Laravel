@@ -29,7 +29,7 @@ return [
     'incorrect'                                    => 'Incorrect',
     'correct_reason'                               => 'Correct reason',
     'incorrect_reason'                             => 'Incorrect reason',
-    'not_applicable'                               => 'not applicable',
+    'not_applicable'                               => 'Not applicable',
     'next'                                         => 'Next &raquo;',
     'previous_question'                            => 'Previous question',
     'next_question'                                => 'Next question',
