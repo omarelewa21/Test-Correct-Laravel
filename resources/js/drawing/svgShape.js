@@ -119,7 +119,7 @@ class svgShape {
 
     makeBorderElement() {
         let bbox = this.mainElement.getBoundingBox();
-        const borderColor = this.isAnswerLayer() ? '--cta-primary-mid-dark' : '--primary';
+        const borderColor = (this.isAnswerLayer() && this.drawingApp.isTeacher()) ? '--cta-primary-mid-dark' : '--primary';
         return new svgElement.Rectangle({
             "class": "border",
             "x": bbox.x - this.offset,

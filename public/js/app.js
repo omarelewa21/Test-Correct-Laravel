@@ -9431,7 +9431,8 @@ var Entry = /*#__PURE__*/function (_sidebarComponent) {
       lock: templateCopy.querySelector(".lock-btn"),
       hide: templateCopy.querySelector(".hide-btn"),
       drag: templateCopy.querySelector(".drag-btn"),
-      up: templateCopy.querySelector(".up-btn")
+      up: templateCopy.querySelector(".up-btn"),
+      down: templateCopy.querySelector(".down-btn")
     };
     _this.type = _this.svgShape.type === "path" ? "freehand" : _this.svgShape.type;
     _this.id = "".concat(_this.type, "-").concat(_this.svgShape.shapeId);
@@ -9456,12 +9457,12 @@ var Entry = /*#__PURE__*/function (_sidebarComponent) {
       return [{
         element: this.entryContainer,
         events: {
-          "dragstart touchstart": {
+          "dragstart": {
             callback: function callback(evt) {
               evt.currentTarget.classList.add("dragging");
             }
           },
-          "dragend touchend": {
+          "dragend": {
             callback: function callback(evt) {
               _this2.updateDraggedElementPosition(evt);
             }
@@ -9511,11 +9512,15 @@ var Entry = /*#__PURE__*/function (_sidebarComponent) {
           }
         }
       }, {
-        element: this.btns.drag,
+        element: this.btns.down,
         events: {
           "click": {
             callback: function callback(evt) {
-              _this2.updateClickedElementPositionDown(evt.currentTarget.closest('.shape-container'));
+              var entry = evt.currentTarget.closest('.shape-container');
+
+              _this2.updateClickedElementPositionDown(entry);
+
+              _this2.reorderHighlight(entry);
             }
           }
         }
@@ -9524,7 +9529,11 @@ var Entry = /*#__PURE__*/function (_sidebarComponent) {
         events: {
           "click": {
             callback: function callback(evt) {
-              _this2.updateClickedElementPositionUp(evt.currentTarget.closest('.shape-container'));
+              var entry = evt.currentTarget.closest('.shape-container');
+
+              _this2.updateClickedElementPositionUp(entry);
+
+              _this2.reorderHighlight(entry);
             }
           }
         }
@@ -9595,6 +9604,15 @@ var Entry = /*#__PURE__*/function (_sidebarComponent) {
       }
 
       newSvgLayer.appendChild(shape);
+    }
+  }, {
+    key: "reorderHighlight",
+    value: function reorderHighlight(element) {
+      element.classList.add("reorder-highlight");
+      var timeout = setTimeout(function () {
+        element.classList.remove('reorder-highlight');
+        clearTimeout(timeout);
+      }, 1000);
     }
   }, {
     key: "highlight",
@@ -11059,7 +11077,7 @@ var svgShape = /*#__PURE__*/function () {
     key: "makeBorderElement",
     value: function makeBorderElement() {
       var bbox = this.mainElement.getBoundingBox();
-      var borderColor = this.isAnswerLayer() ? '--cta-primary-mid-dark' : '--primary';
+      var borderColor = this.isAnswerLayer() && this.drawingApp.isTeacher() ? '--cta-primary-mid-dark' : '--primary';
       return new _svgElement_js__WEBPACK_IMPORTED_MODULE_1__.Rectangle({
         "class": "border",
         "x": bbox.x - this.offset,
@@ -11413,6 +11431,8 @@ var Text = /*#__PURE__*/function (_svgShape4) {
 
     _this4.mainElement.setTextContent(_this4.props.main["data-textcontent"]);
 
+    _this4.mainElement.setFontFamily('Nunito');
+
     return _this4;
   }
 
@@ -11434,7 +11454,7 @@ var Text = /*#__PURE__*/function (_svgShape4) {
         spellcheck: "false"
       });
       textInput.focus();
-      textInput.addEventListener("blur", function () {
+      textInput.addEventListener("focusout", function () {
         var text = textInput.element.value;
         textInput.deleteElement();
 
