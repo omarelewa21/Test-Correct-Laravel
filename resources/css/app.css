@@ -21,6 +21,7 @@
     --cta-primary-dark: #006314;
     --cta-secondary: #004DF5;
     --primary: #004df5;
+    --primary-rgb: 0, 77, 245;
     --primary-opacity-10: rgba(0, 77, 245, 0.1);
     --primary-opacity-05: rgba(0, 77, 245, 0.05);
     --primary-light: #e6edfa;

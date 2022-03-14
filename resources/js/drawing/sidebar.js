@@ -6,6 +6,7 @@ class sidebarComponent {
         this.Canvas = Canvas;
         this.root = drawingApp.params.root;
     }
+
     showFirstIcon(element) {
         element.querySelectorAll("svg")[0].style.display = "block";
         element.querySelectorAll("svg")[1].style.display = "none";
@@ -33,7 +34,8 @@ export class Entry extends sidebarComponent {
             lock: templateCopy.querySelector(".lock-btn"),
             hide: templateCopy.querySelector(".hide-btn"),
             drag: templateCopy.querySelector(".drag-btn"),
-            up: templateCopy.querySelector(".up-btn")
+            up: templateCopy.querySelector(".up-btn"),
+            down: templateCopy.querySelector(".down-btn")
         };
 
         this.type = this.svgShape.type === "path" ? "freehand" : this.svgShape.type;
@@ -55,12 +57,12 @@ export class Entry extends sidebarComponent {
             {
                 element: this.entryContainer,
                 events: {
-                    "dragstart touchstart": {
+                    "dragstart": {
                         callback: (evt) => {
                             evt.currentTarget.classList.add("dragging");
                         },
                     },
-                    "dragend touchend": {
+                    "dragend": {
                         callback: (evt) => {
                             this.updateDraggedElementPosition(evt);
                         },
@@ -111,11 +113,13 @@ export class Entry extends sidebarComponent {
                 },
             },
             {
-                element: this.btns.drag,
+                element: this.btns.down,
                 events: {
                     "click": {
                         callback: (evt) => {
-                            this.updateClickedElementPositionDown(evt.currentTarget.closest('.shape-container'));
+                            const entry = evt.currentTarget.closest('.shape-container');
+                            this.updateClickedElementPositionDown(entry);
+                            this.reorderHighlight(entry);
                         },
                     },
                 },
@@ -125,7 +129,9 @@ export class Entry extends sidebarComponent {
                 events: {
                     "click": {
                         callback: (evt) => {
-                            this.updateClickedElementPositionUp(evt.currentTarget.closest('.shape-container'));
+                            const entry = evt.currentTarget.closest('.shape-container')
+                            this.updateClickedElementPositionUp(entry);
+                            this.reorderHighlight(entry);
                         },
                     },
                 },
@@ -140,7 +146,7 @@ export class Entry extends sidebarComponent {
 
     updateClickedElementPositionDown(entry) {
 
-        if(entry.nextElementSibling) {
+        if (entry.nextElementSibling) {
             this.insertAfter(entry, entry.nextElementSibling);
 
             let newLayerId = entry.closest(".layer-group").id;
@@ -157,7 +163,7 @@ export class Entry extends sidebarComponent {
 
     updateClickedElementPositionUp(entry) {
 
-        if(entry.previousElementSibling) {
+        if (entry.previousElementSibling) {
             entry.parentElement.insertBefore(entry, entry.previousElementSibling);
 
             let newLayerId = entry.closest(".layer-group").id;
@@ -179,7 +185,7 @@ export class Entry extends sidebarComponent {
     updateDraggedElementPosition(evt) {
 
         let entry = evt.currentTarget;
-            entry.classList.remove("dragging");
+        entry.classList.remove("dragging");
 
         let newLayerId = entry.closest(".layer-group").id;
         let newSvgLayer = this.root.querySelector(`#svg-${newLayerId}`);
@@ -192,6 +198,14 @@ export class Entry extends sidebarComponent {
             return;
         }
         newSvgLayer.appendChild(shape);
+    }
+
+    reorderHighlight(element) {
+        element.classList.add("reorder-highlight");
+        let timeout = setTimeout(() => {
+            element.classList.remove('reorder-highlight');
+            clearTimeout(timeout);
+        }, 1000)
     }
 
     highlight() {
@@ -516,7 +530,7 @@ export class Layer extends sidebarComponent {
     }
 
     unhideIfHidden() {
-        if(this.isHidden()) {
+        if (this.isHidden()) {
             this.unhide();
         }
     }
@@ -530,9 +544,10 @@ export class Layer extends sidebarComponent {
             shape.sidebar.remove();
         });
     }
+
     getLayerDataFromTarget(element) {
         if (element.dataset.layer) return element.dataset.layer;
-        if(element.querySelector('[data-layer]')) return element.querySelector('[data-layer]').dataset.layer
+        if (element.querySelector('[data-layer]')) return element.querySelector('[data-layer]').dataset.layer
         return false;
     }
 
