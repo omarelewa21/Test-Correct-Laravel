@@ -22,7 +22,7 @@
         @endif
     </div>
     <div>
-        <audio id="player" src="{{ route('student.question-attachment-show', ['attachment' => $attachment, 'answer' => $this->answerId], false) }}"
+        <audio id="player-{{ $attachment->uuid }}" src="{{ route('student.question-attachment-show', ['attachment' => $attachment, 'answer' => $this->answerId], false) }}"
                x-ref="player"
                x-on:play="@this.registerPlayStart()"
                @if($attachment->audioOnlyPlayOnce())
