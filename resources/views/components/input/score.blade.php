@@ -2,7 +2,7 @@
      x-data="{score: @entangle($attributes->wire('model'))}"
      x-init="$watch('score', value =>  {if(value < 0) { score = 0 }})"
 >
-    <label>{{ __('Punten') }}</label>
+    <label>{{ __('cms.Punten') }}</label>
     <button @click.prevent="score = parseInt(score) - 1"
             class="h-10 flex items-center bg-blue-grey base rounded-10 relative -right-4 pl-2 pr-6">
         <x-icon.min></x-icon.min>

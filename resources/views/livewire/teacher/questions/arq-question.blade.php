@@ -8,103 +8,41 @@
 @endsection
 
 @section('question-cms-answer')
-
-
     <div class="flex flex-col space-y-2 w-full mt-4"
     >
-        <div class="flex px-0 py-0 border-0 bg-system-white justify-between relative">
-            <table class="min-w-full devide-y devide-gray-200">
-                <thead class="border-b-gray-200">
-                <tr>
-                    <th></th>
-                    <th class="whitespace-nowrap px-4 border-b-1">St. 1</th>
-                    <th class="whitespace-nowrap px-4">St. 2</th>
-                    <th class="text-left w-full px-4">{{ __('Reden') }}</th>
-                    <th class="text-center">{{ __('Score') }}</th>
-                </tr>
-                </thead>
-                <tbody>
-                <tr>
-                    <td>A</td>
-                    <td class="px-4 text-center">{{ __('J') }}</td>
-                    <td class="px-4 text-center">{{ __('J') }}</td>
-                    <td class="px-4">{{ __('Juiste reden') }}</td>
-                    <td class="text-center">
-                        <x-input.text class="w-12 text-center"
-                                      wire:model="cmsPropertyBag.answerStruct.0.score"
-                                      title="{{ $this->cmsPropertyBag['answerStruct'][0]['score'] }}"
-                                      type="number"
-                                      :onlyInteger="true"
-                                      selid="score-field"
-                        />
-                    </td>
-                </tr>
-                <tr>
-                    <!-- row B -->
-                    <td>B</td>
-                    <td class="px-4 text-center">{{ __('J') }}</td>
-                    <td class="px-4 text-center">{{ __('J') }}</td>
-                    <td class="px-4">{{ __('Onjuiste reden') }}</td>
-                    <td class="text-center">
-                        <x-input.text class="w-12 text-center"
-                                      wire:model="cmsPropertyBag.answerStruct.1.score"
-                                      title="{{ $this->cmsPropertyBag['answerStruct'][1]['score'] }}"
-                                      type="number"
-                                      :onlyInteger="true"
-                                      selid="score-field"
-                        />
-                    </td>
-                </tr>
+        <div class="flex px-0 py-0 border-0 bg-system-white justify-between relative flex-col">
 
-                <tr>
-                    <td>C</td>
-                    <td class="px-4 text-center">{{ __('J') }}</td>
-                    <td class="px-4 text-center">{{ __('O') }}</td>
-                    <td class="px-4">-</td>
-                    <td class="text-center">
-                        <x-input.text class="w-12 text-center"
-                                      wire:model="cmsPropertyBag.answerStruct.2.score"
-                                      title="{{ $this->cmsPropertyBag['answerStruct'][2]['score'] }}"
-                                      type="number"
-                                      :onlyInteger="true"
-                                      selid="score-field"
-                        />
-                    </td>
-                </tr>
+            <div class="flex flex-col w-full space-y-2">
+                <div class="flex w-full border-b border-system-base pb-2 bold">
+                    <div class="w-10"></div>
+                    <div class="w-28 ml-1">{{ __('test_take.thesis') }} 1</div>
+                    <div class="w-28">{{ __('test_take.thesis') }} 2</div>
+                    <div class="flex flex-1">{{ __('cms.Reden') }}</div>
+                    <div class="w-14 mr-4">{{ __('cms.Punten') }}</div>
+                </div>
 
-                <tr>
-                    <td>D</td>
-                    <td class="px-4 text-center">{{ __('O') }}</td>
-                    <td class="px-4 text-center">{{ __('J') }}</td>
-                    <td class="px-4">-</td>
-                    <td class="text-center">
-                        <x-input.text class="w-12 text-center"
-                                      wire:model="cmsPropertyBag.answerStruct.3.score"
-                                      title="{{ $this->cmsPropertyBag['answerStruct'][3]['score'] }}"
-                                      type="number"
-                                      :onlyInteger="true"
-                                      selid="score-field"
-                        />
-                    </td>
-                </tr>
-
-                <tr>
-                    <td>E</td>
-                    <td class="px-4 text-center">{{ __('O') }}</td>
-                    <td class="px-4 text-center">{{ __('O') }}</td>
-                    <td class="px-4">-</td>
-                    <td class="text-center">
-                        <x-input.text class="w-12 text-center"
-                                      wire:model="cmsPropertyBag.answerStruct.4.score"
-                                      title="{{ $this->cmsPropertyBag['answerStruct'][4]['score'] }}"
-                                      type="number"
-                                      :onlyInteger="true"
-                                      selid="score-field"
-                        />
-                    </td>
-                </tr>
-                </tbody>
-            </table>
+                @foreach($this->cmsPropertyBag['arqStructure'] as $key => $arq)
+                    <div class="flex w-full items-center transition border-2 border-secondary rounded-10 p-3"
+                         @focusin="$el.classList.add('border-primary')"
+                         @focusout="$el.classList.remove('border-primary')"
+                         wire:ignore.self
+                    >
+                        <div class="w-8">{{ __($arq[0]) }}</div>
+                        <div class="w-28">{{ __($arq[1]) }}</div>
+                        <div class="w-28">{{ __($arq[2]) }}</div>
+                        <div class="flex flex-1">{{ __($arq[3]) }}</div>
+                        <div class="w-14" >
+                            <x-input.text class="w-12 text-center"
+                                          wire:model="cmsPropertyBag.answerStruct.{{ $key }}.score"
+                                          title="{{ $this->cmsPropertyBag['answerStruct'][$key]['score'] }}"
+                                          type="number"
+                                          :onlyInteger="true"
+                                          selid="score-field"
+                            />
+                        </div>
+                    </div>
+                @endforeach
+            </div>
         </div>
     </div>
 

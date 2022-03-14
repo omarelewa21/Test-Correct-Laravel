@@ -36,7 +36,7 @@
                     <div class="z-0 flex flex-col items-center justify-center">
                         <x-button.primary @click="showWarning = !showWarning">
                             <x-icon.edit/>
-                            <span>Antwoordmodel tekenen</span>
+                            <span>{{ __('cms.Antwoordmodel tekenen') }}</span>
                         </x-button.primary>
                         <p class="text-note text-sm text-center mt-4">{{ __('cms.waarschuwing_aanpassen_oude_tekenvraag') }} </p>
                     </div>
@@ -65,7 +65,7 @@
                     <div class="z-0 flex flex-col items-center justify-center">
                         <x-button.primary @click="show = !show">
                             <x-icon.edit/>
-                            <span>Antwoordmodel tekenen</span>
+                            <span>{{ __('cms.Antwoordmodel tekenen') }}</span>
                         </x-button.primary>
                     </div>
                 </div>
