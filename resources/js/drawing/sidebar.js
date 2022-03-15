@@ -70,7 +70,7 @@ export class Entry extends sidebarComponent {
                     "mouseenter touchstart": {
                         callback: () => {
                             this.svgShape.highlight();
-                            this.highlight();
+                            // this.highlight();
                         },
                     },
                     "mouseleave touchend touchcancel": {
