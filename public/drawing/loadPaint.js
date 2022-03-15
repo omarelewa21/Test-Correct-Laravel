@@ -451,6 +451,11 @@ var App = function (prefix, width, backgroundImage) {
         }
     });
 
+    this.drawGrid = function(grid) {
+        grid = parseInt(grid);
+        canvas.showGrid(new Paint.Point(grid, grid), 'rgba(0, 0, 0, 0.2)');
+    }
+
     canvas.add(background);
 
     holder.appendChild(canvas.getCanvas());
