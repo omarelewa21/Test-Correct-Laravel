@@ -11247,6 +11247,8 @@ var svgShape = /*#__PURE__*/function () {
         events: {
           "mouseenter touchstart": {
             callback: function callback() {
+              console.log('svgshape start');
+
               _this2.highlight();
 
               _this2.getSidebarEntry().highlight();
@@ -11254,18 +11256,20 @@ var svgShape = /*#__PURE__*/function () {
           },
           "mouseleave touchend": {
             callback: function callback() {
+              console.log('svgshape emd');
+
               _this2.unhighlight();
 
               _this2.getSidebarEntry().unhighlight();
             }
-          },
-          "click": {
-            callback: function callback() {
-              _this2.highlight();
+          } // This caused an issue on touch devices, not sure if it can be off. // 15-03-2022 - RR
+          // "click": {
+          //     callback: (evt) => {
+          //         this.highlight();
+          //         this.Canvas.setFocusedShape(this);
+          //     }
+          // }
 
-              _this2.Canvas.setFocusedShape(_this2);
-            }
-          }
         }
       }];
       this.drawingApp.bindEventListeners(settings, this);
@@ -11864,7 +11868,7 @@ RichTextEditor = {
     }
 
     CKEDITOR.replace(editorId, {
-      extraPlugins: 'selection,blockimagepaste,quicktable,ckeditor_wiris,autogrow,wordcount,notification',
+      extraPlugins: 'selection,simpleuploads,quicktable,ckeditor_wiris,autogrow,wordcount,notification',
       toolbar: [{
         name: 'basicstyles',
         items: ['Bold', 'Italic', 'Underline', 'Strike', 'Subscript', 'Superscript']
@@ -11873,7 +11877,7 @@ RichTextEditor = {
         items: ['NumberedList', 'BulletedList']
       }, {
         name: 'insert',
-        items: ['Table']
+        items: ['addImage', 'Table']
       }, {
         name: 'styles',
         items: ['Font', 'FontSize']
@@ -11897,7 +11901,7 @@ RichTextEditor = {
     }
 
     CKEDITOR.replace(editorId, {
-      extraPlugins: 'completion,blockimagepaste,quicktable,ckeditor_wiris,autogrow,wordcount,notification',
+      extraPlugins: 'completion,simpleuploads,quicktable,ckeditor_wiris,autogrow,wordcount,notification',
       toolbar: [{
         name: 'clipboard',
         items: ['Undo', 'Redo']
