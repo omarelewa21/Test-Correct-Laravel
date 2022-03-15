@@ -48,7 +48,7 @@ class EntreeHelper
 
     public function handleIfRegister()
     {
-        if(!session()->get('entreeReason',false) == 'register'){
+        if(session()->get('entreeReason',false) !== 'register'){
             return false;
         }
         dd($this);
