@@ -33,23 +33,28 @@ ReadspeakerTlc = function(){
             var obj = focusEvent.target;
             p.addEventListener("click", read.readTextArea, { once: true });
         }
-        function handleTextareaBlurForReadspeaker()
+        function handleTextareaBlurForReadspeaker(event,questionId)
         {
+            popup.rsRemovRsbtnPopupTlcForQuestion(event,questionId);
             handleBlurForReadspeaker();
         }
         function handleCkeditorFocusForReadspeaker(ckeditorNode,questionId)
         {
             handleFocusForReadspeaker();
-            var correction = {x:-15,y:6};
+            if(popup.alreadyThere(questionId)){
+                return;
+            }
+            var correction = {x:-15,y:-16};
             var p = popup.getRsbtnPopupTlcElement(questionId,ckeditorNode,correction);
             if(p == null){
                 return;
             }
-            p.addEventListener("click", read.readTextArea, { once: true });
+            p.addEventListener("click", read.readCkeditor, { once: true });
         }
-        function handleCkeditorBlurForReadspeaker(ckeditorNode)
+        function handleCkeditorBlurForReadspeaker(ckeditorNode,questionId)
         {
-
+            popup.rsRemovRsbtnPopupTlcForElement(ckeditorNode,questionId);
+            handleBlurForReadspeaker();
         }
         function handleBlurForReadspeaker()
         {
@@ -75,7 +80,33 @@ ReadspeakerTlc = function(){
         {
             popup.rsRemovRsbtnPopupTlcForQuestion(event,questionId);
         }
+        function handleCkeditorSelectionChangeDoneForReadspeaker(editor)
+        {
+            editor.editing.view.document.on( 'selectionChangeDone', () => {
+                var range = editor.model.document.selection.getFirstRange();
+                if(range.end.isEqual(range.start)) {
+                    clearTimeout(RichTextEditor.timer);
+                    editor.isReadOnly = false;
+                    return;
+                }
+                var element = editor.ui.view.editable.element;
+                element.addEventListener('click',ckeditorClickEvent);
+            });
+        }
+        function handleCkeditorSelectionChangeForReadspeaker(editor)
+        {
 
+            editor.editing.view.document.on( 'selectionChange', () => {
+                RichTextEditor.timer = setTimeout(RichTextEditor.setReadOnly.bind(null, editor),50);
+            } );
+        }
+        function ckeditorClickEvent(event)
+        {
+            var editor = this.ckeditorInstance;
+            if(editor.isReadOnly){
+                editor.isReadOnly = false;
+            }
+        }
 
         return{
             handleTextBoxFocusForReadspeaker:handleTextBoxFocusForReadspeaker,
@@ -85,7 +116,9 @@ ReadspeakerTlc = function(){
             handleTextareaFocusForReadspeaker:handleTextareaFocusForReadspeaker,
             handleTextareaBlurForReadspeaker:handleTextareaBlurForReadspeaker,
             handleCkeditorFocusForReadspeaker:handleCkeditorFocusForReadspeaker,
-            handleCkeditorBlurForReadspeaker:handleCkeditorBlurForReadspeaker
+            handleCkeditorBlurForReadspeaker:handleCkeditorBlurForReadspeaker,
+            handleCkeditorSelectionChangeDoneForReadspeaker:handleCkeditorSelectionChangeDoneForReadspeaker,
+            handleCkeditorSelectionChangeForReadspeaker:handleCkeditorSelectionChangeForReadspeaker
         }
     }();
     clickListen = function(){
@@ -376,6 +409,25 @@ ReadspeakerTlc = function(){
             popup.hideRsTlcPopup(this);
             readable_div.click();
         }
+        function readCkeditor(event)
+        {
+            popup.hideRsTlcPopup(this);
+            if(rspkr.rs_tlc_play_started){
+                return;
+            }
+            clickListen.activateClickTap();
+            rspkr.rs_tlc_play_started = false;
+            rspkr.rs_tlc_prevent_close = true;
+            var element = this.linkedElement;
+            if(element==null) {
+                return;
+            }
+            // var elementClone = element.cloneNode(true);
+            // element.replaceWith(elementClone);
+            // window.classicEditorReplaced = false;
+            // element.classList.add('rs_click_listen');
+            element.click();
+        }
         function doNotReadInput(element)
         {
             if(element == ''  || element == null){
@@ -417,8 +469,9 @@ ReadspeakerTlc = function(){
         }
         return {
             readTextbox: readTextbox,
-            doNotReadInput:doNotReadInput,
-            readTextArea: readTextArea
+            doNotReadInput: doNotReadInput,
+            readTextArea: readTextArea,
+            readCkeditor: readCkeditor
         }
     }();
     popup = function(){
@@ -448,6 +501,17 @@ ReadspeakerTlc = function(){
             // p.linkedElement = element;
             // return p;
         }
+        function alreadyThere(questionId)
+        {
+            var p = document.querySelector('.rsbtn_popup_tlc_'+questionId);
+            if(p == null){
+                return false;
+            }
+            if(p.classList.contains('hidden')){
+                return false;
+            }
+            return true;
+        }
         function getRsbtnPopupTlcElement(questionId,element,correction)
         {
             var p = document.querySelector('.rsbtn_popup_tlc_'+questionId);
@@ -464,6 +528,7 @@ ReadspeakerTlc = function(){
                     p.style.left = rect.left+correction.x+'px';
                     p.style.top = rect.top+correction.y+'px';
                     break;
+                case 'DIV':
                 case 'TEXTAREA':
                     p.style.left = rect.width+correction.x+'px';
                     p.style.top = correction.y+'px';
@@ -481,6 +546,14 @@ ReadspeakerTlc = function(){
                 return;
             }
             setTimeout(hideRsTlcPopupWithEvent.bind(null, p,event),500);
+        }
+        function rsRemovRsbtnPopupTlcForElement(ckeditorNode,questionId)
+        {
+            var p = document.querySelector('.rsbtn_popup_tlc_'+questionId);
+            if(p == null){
+                return;
+            }
+            setTimeout(hideRsTlcPopup.bind(null, p),500);
         }
 
         function hideRsTlcPopupWithEvent(p,event)
@@ -507,6 +580,9 @@ ReadspeakerTlc = function(){
                 case 'SELECT':
                     p.removeEventListener('click',read.readSelect);
                     break;
+                case 'DIV':
+                    p.removeEventListener('click',read.readCkeditor);
+                    break;
                 default:
                     p.removeEventListener('click');
             }
@@ -516,7 +592,9 @@ ReadspeakerTlc = function(){
             getRsbtnPopupTlc:getRsbtnPopupTlc,
             rsRemovRsbtnPopupTlcForQuestion:rsRemovRsbtnPopupTlcForQuestion,
             hideRsTlcPopup:hideRsTlcPopup,
-            getRsbtnPopupTlcElement:getRsbtnPopupTlcElement
+            getRsbtnPopupTlcElement:getRsbtnPopupTlcElement,
+            rsRemovRsbtnPopupTlcForElement:rsRemovRsbtnPopupTlcForElement,
+            alreadyThere:alreadyThere
         }
     }();
     player = function(){
@@ -653,9 +731,60 @@ ReadspeakerTlc = function(){
             }
             return false;
         }
+        function detachReadableAreaFromCkeditor(editorId)
+        {
+            var editor = ClassicEditors[editorId];
+            editor.currentElement  = editor.ui.view.editable.element;
+            var element = editor.ui.view.editable.element;
+            if(element) {
+                var elementClone = element.cloneNode(true);
+                elementClone.classList.add('ck-editor__editable_inline_replaced');
+                element.replaceWith(elementClone);
+            }
+            window.classicEditorReplaced = false;
+        }
+        function reattachReadableAreaAndDestroy(editorId)
+        {
+            window.classicEditorReplaced = true;
+            var editor = ClassicEditors[editorId];
+            if (editor) {
+                var element = document.getElementsByClassName('ck-editor__editable_inline_replaced')[0];
+                if(element){
+                    element.replaceWith(editor.currentElement);
+                    editor.destroy(true);
+                }
+            }
+        }
+        function addListenersForReadspeaker(editor,questionId)
+        {
+            var config = { attributes: true, childList: false, subtree: false };
+            var element = editor.ui.view.editable.element;
+            var callback = function(mutationsList, observer){
+                for(var mutation of mutationsList) {
+                    if (mutation.type === 'attributes') {
+                        if(mutation.attributeName=='class'&&mutation.target.classList.contains('ck-focused')){
+                            console.dir('focus');
+                            rsTlcEvents.handleCkeditorFocusForReadspeaker(mutation.target,questionId);
+                        }else if(mutation.attributeName=='class'&&mutation.target.classList.contains('ck-blurred')){
+                            if(mutation.target.ckeditorInstance&&mutation.target.ckeditorInstance.isReadOnly){
+                                return;
+                            }
+                            rsTlcEvents.handleCkeditorBlurForReadspeaker(mutation.target,questionId);
+                        }
+                    }
+                }
+            }
+            var observer = new MutationObserver(callback);
+            observer.observe(element, config);
+            rsTlcEvents.handleCkeditorSelectionChangeDoneForReadspeaker(editor);
+            rsTlcEvents.handleCkeditorSelectionChangeForReadspeaker(editor);
+        }
         return{
             disableContextMenuOnCkeditor:disableContextMenuOnCkeditor,
-            shouldNotReinitCkeditor:shouldNotReinitCkeditor
+            shouldNotReinitCkeditor:shouldNotReinitCkeditor,
+            detachReadableAreaFromCkeditor:detachReadableAreaFromCkeditor,
+            addListenersForReadspeaker:addListenersForReadspeaker,
+            reattachReadableAreaAndDestroy:reattachReadableAreaAndDestroy
         }
     }();
     guard = function(){

@@ -10886,6 +10886,29 @@ RichTextEditor = {
       textarea.value = e.editor.getData();
     }, 300);
     textarea.dispatchEvent(new Event('input'));
+  },
+  initClassicEditorForStudentplayer: function initClassicEditorForStudentplayer(editorId, questionId) {
+    ClassicEditor.create(document.querySelector('#' + editorId), {
+      autosave: {
+        waitingTime: 300,
+        save: function save(editor) {
+          editor.updateSourceElement();
+          editor.sourceElement.dispatchEvent(new Event('input'));
+        }
+      }
+    }).then(function (editor) {
+      ClassicEditors[editorId] = editor;
+      var wordCountPlugin = editor.plugins.get('WordCount');
+      var wordCountWrapper = document.getElementById('word-count-' + editorId);
+      wordCountWrapper.appendChild(wordCountPlugin.wordCountContainer);
+      ReadspeakerTlc.ckeditor.addListenersForReadspeaker(editor, questionId);
+      ReadspeakerTlc.ckeditor.disableContextMenuOnCkeditor();
+    })["catch"](function (error) {
+      console.error(error);
+    });
+  },
+  setReadOnly: function setReadOnly(editor) {
+    editor.isReadOnly = true;
   }
 };
 

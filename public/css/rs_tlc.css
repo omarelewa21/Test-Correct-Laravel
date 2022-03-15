@@ -2097,59 +2097,59 @@ body.rs_highcontrast #rslightbox_contentcontainer #rslightbox_toolbar .rslightbo
 .rslightbox-tool {
     font-family: 'hl-icons';
 }
-.rspopup {
-    background: #f6f9fc;
-    border: 1px solid #677077;
-    border-radius: 2px;
-    display: inline-block;
-    box-shadow: 0 0 5px #777;
-    box-sizing: inherit;
-    color: #000;
-    display: block;
-    left: 300px;
-    position: absolute;
-    top: 100px;
-    border-top: none;
-}
-.rspopup .rspopup_btn, .rspopup_tlc .rspopup_btn {
-    font-family: hl-icons!important;
-    speak: none;
-    font-style: normal;
-    font-weight: 400;
-    font-variant: normal;
-    text-transform: none;
-    line-height: 1;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-    border-top: 1px solid #677077;
-    cursor: pointer;
-    padding: 5px 16px;
-    padding-left: 10px;
-}
+/*.rspopup {*/
+/*    background: #f6f9fc;*/
+/*    border: 1px solid #677077;*/
+/*    border-radius: 2px;*/
+/*    display: inline-block;*/
+/*    box-shadow: 0 0 5px #777;*/
+/*    box-sizing: inherit;*/
+/*    color: #000;*/
+/*    display: block;*/
+/*    left: 300px;*/
+/*    position: absolute;*/
+/*    top: 100px;*/
+/*    border-top: none;*/
+/*}*/
+/*.rspopup .rspopup_btn, .rspopup_tlc .rspopup_btn {*/
+/*    font-family: hl-icons!important;*/
+/*    speak: none;*/
+/*    font-style: normal;*/
+/*    font-weight: 400;*/
+/*    font-variant: normal;*/
+/*    text-transform: none;*/
+/*    line-height: 1;*/
+/*    -webkit-font-smoothing: antialiased;*/
+/*    -moz-osx-font-smoothing: grayscale;*/
+/*    border-top: 1px solid #677077;*/
+/*    cursor: pointer;*/
+/*    padding: 5px 16px;*/
+/*    padding-left: 10px;*/
+/*}*/
 
-.rspopup .rspopup_btn span, .rspopup_tlc .rspopup_btn span {
-    font-family: 'Open Sans webReader',Helvetica,Arial,sans-serif;
-    font-size: 12px;
-    line-height: 1;
-}
+/*.rspopup .rspopup_btn span, .rspopup_tlc .rspopup_btn span {*/
+/*    font-family: 'Open Sans webReader',Helvetica,Arial,sans-serif;*/
+/*    font-size: 12px;*/
+/*    line-height: 1;*/
+/*}*/
 
-.rspopup .rspopup_btn.rspopup_play:before {
-    display: inline-block;
-    content: '';
-    background-image: url("/svg/icons/icons-lees-voor.svg");
-    background-position-x: 12px;
-    background-position-y: 12px;
-    background-size: auto;
-    height: 40px;
-    width: 40px;
-    background-repeat: no-repeat;
-}
+/*.rspopup .rspopup_btn.rspopup_play:before {*/
+/*    display: inline-block;*/
+/*    content: '';*/
+/*    background-image: url("/svg/icons/icons-lees-voor.svg");*/
+/*    background-position-x: 12px;*/
+/*    background-position-y: 12px;*/
+/*    background-size: auto;*/
+/*    height: 40px;*/
+/*    width: 40px;*/
+/*    background-repeat: no-repeat;*/
+/*}*/
 
-.rspopup .rspopup_btn::before, .rspopup_tlc .rspopup_btn::before {
-    margin-right: 10px;
-    vertical-align: middle;
-}
-.rspopup_tlc {
+/*.rspopup .rspopup_btn::before, .rspopup_tlc .rspopup_btn::before {*/
+/*    margin-right: 10px;*/
+/*    vertical-align: middle;*/
+/*}*/
+.rspopup_tlc, .rspopup {
     background: #ffffff;
     border-radius: 20px;
     box-shadow:  0 3px 18px 0 rgb(77 87 143 / 10%);
@@ -2158,14 +2158,17 @@ body.rs_highcontrast #rslightbox_contentcontainer #rslightbox_toolbar .rslightbo
     position: absolute;
 }
 
-.rspopup_tlc .rspopup_btn{
+.rspopup_tlc .rspopup_btn,.rspopup_tlc .rspopup_btn{
     border: none;
     padding: 0;
 }
-.rspopup_tlc .rspopup_btn::before{
+.rspopup_tlc .rspopup_btn{
+    height: 32px;
+}
+.rspopup_tlc .rspopup_btn::before, .rspopup .rspopup_btn::before{
     margin:0;
 }
-.rspopup_tlc .rspopup_btn.rspopup_play:before {
+.rspopup_tlc .rspopup_btn.rspopup_play:before, .rspopup .rspopup_btn.rspopup_play:before {
     display: inline-block;
     content: '';
     background-image: url('/svg/icons/icons-lees-voor.svg');
@@ -2176,7 +2179,7 @@ body.rs_highcontrast #rslightbox_contentcontainer #rslightbox_toolbar .rslightbo
     width: 32px;
     background-repeat: no-repeat;
 }
-.rspopup_tlc:hover .rspopup_btn.rspopup_play:before {
+.rspopup_tlc:hover .rspopup_btn.rspopup_play:before, .rspopup:hover .rspopup_btn.rspopup_play:before {
     display: inline-block;
     content: '';
     background-image: url('/svg/icons/icons-lees-voor-hover.svg');
@@ -2186,5 +2189,28 @@ body.rs_highcontrast #rslightbox_contentcontainer #rslightbox_toolbar .rslightbo
     height: 32px;
     width: 32px;
     background-repeat: no-repeat;
+}
+.rspopup {
+    width: 130px;
+}
+.rspopup:hover {
+    background-color: #f3f7ff;
+}
+.rspopup .rspopup_btn.rspopup_play:before {
+    background-position-x: 0;
+    background-position-y: 0;
+}
+.rspopup:hover .rspopup_btn.rspopup_play:before {
+    background-position-x: 6px;
+    background-position-y: 6px;
+}
+.rspopup .rspopup_btn.rspopup_play span{
+    font-family: Nunito Bold, sans-serif;
+    color: var(--all-Base);
+    vertical-align: super;
+    margin-left: 10px;
+}
+.rspopup:hover .rspopup_btn.rspopup_play span{
+    color: var(--teacher-primary);
 }
 
