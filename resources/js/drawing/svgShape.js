@@ -280,8 +280,9 @@ class svgShape {
                             this.getSidebarEntry().unhighlight();
                         }
                     },
-                    "click": {
-                        callback: () => {
+                    "click touchstart": {
+                        callback: (evt) => {
+                            if (evt.isTrusted === false) return;
                             this.highlight();
                             this.Canvas.setFocusedShape(this);
                         }

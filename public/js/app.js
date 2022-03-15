@@ -9469,9 +9469,8 @@ var Entry = /*#__PURE__*/function (_sidebarComponent) {
           },
           "mouseenter touchstart": {
             callback: function callback() {
-              _this2.svgShape.highlight();
+              _this2.svgShape.highlight(); // this.highlight();
 
-              _this2.highlight();
             }
           },
           "mouseleave touchend touchcancel": {
@@ -11259,8 +11258,10 @@ var svgShape = /*#__PURE__*/function () {
               _this2.getSidebarEntry().unhighlight();
             }
           },
-          "click": {
-            callback: function callback() {
+          "click touchstart": {
+            callback: function callback(evt) {
+              if (evt.isTrusted === false) return;
+
               _this2.highlight();
 
               _this2.Canvas.setFocusedShape(_this2);
@@ -11864,7 +11865,7 @@ RichTextEditor = {
     }
 
     CKEDITOR.replace(editorId, {
-      extraPlugins: 'selection,blockimagepaste,quicktable,ckeditor_wiris,autogrow,wordcount,notification',
+      extraPlugins: 'selection,simpleuploads,quicktable,ckeditor_wiris,autogrow,wordcount,notification',
       toolbar: [{
         name: 'basicstyles',
         items: ['Bold', 'Italic', 'Underline', 'Strike', 'Subscript', 'Superscript']
@@ -11873,7 +11874,7 @@ RichTextEditor = {
         items: ['NumberedList', 'BulletedList']
       }, {
         name: 'insert',
-        items: ['Table']
+        items: ['addImage', 'Table']
       }, {
         name: 'styles',
         items: ['Font', 'FontSize']
@@ -11897,7 +11898,7 @@ RichTextEditor = {
     }
 
     CKEDITOR.replace(editorId, {
-      extraPlugins: 'completion,blockimagepaste,quicktable,ckeditor_wiris,autogrow,wordcount,notification',
+      extraPlugins: 'completion,simpleuploads,quicktable,ckeditor_wiris,autogrow,wordcount,notification',
       toolbar: [{
         name: 'clipboard',
         items: ['Undo', 'Redo']

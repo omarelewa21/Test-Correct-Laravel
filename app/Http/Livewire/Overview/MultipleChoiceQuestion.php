@@ -27,18 +27,14 @@ class MultipleChoiceQuestion extends Component
 
     public $number;
 
-    public $arqStructure = [
-        ['A', 'test_take.correct', 'test_take.correct', 'test_take.correct_reason'],
-        ['B', 'test_take.correct', 'test_take.correct', 'test_take.incorrect_reason'],
-        ['C', 'test_take.correct', 'test_take.incorrect', 'test_take.not_applicable'],
-        ['D', 'test_take.incorrect', 'test_take.correct', 'test_take.not_applicable'],
-        ['E', 'test_take.incorrect', 'test_take.incorrect', 'test_take.not_applicable'],
-    ];
+    public $arqStructure = [];
 
     public $answerText;
 
     public function mount()
     {
+        $this->arqStructure = \tcCore\MultipleChoiceQuestion::getArqStructure();
+
         if (!empty(json_decode($this->answers[$this->question->uuid]['answer']))) {
             $this->answerStruct = json_decode($this->answers[$this->question->uuid]['answer'], true);
             $this->answer = array_keys($this->answerStruct, 1)[0];
