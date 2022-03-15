@@ -342,7 +342,7 @@
                                     <span class="bold">BLOOM {{ __('cms.methode') }}</span>
                                 </x-input.toggle-row-with-title>
                                 <div x-show="bloom" class="flex flex-col">
-                                    @foreach(['Onthouden', 'Begrijpen', 'Toepassen', 'Analyseren', 'Evalueren', 'Creëren'] as $value)
+                                    @foreach([ __('cms.Onthouden'), __('cms.Begrijpen'), __('cms.Toepassen'), __('cms.Analyseren'), __('cms.Evalueren'), __('cms.Creëren')] as $value)
                                         <label class="flex space-x-2.5 items-center">
                                             <input wire:key="{{ $value }}"
                                                    name="bloom" type="radio"
@@ -361,7 +361,7 @@
                                     <span class="bold">Miller {{ __('cms.methode') }}</span>
                                 </x-input.toggle-row-with-title>
                                 <div x-show="miller" class="flex flex-col">
-                                    @foreach(['Weten', 'Weten hoe', 'Laten zien', 'Doen',] as $value)
+                                    @foreach([ __('cms.Weten'), __('cms.Weten hoe'), __('cms.Laten zien'), __('cms.Doen'),] as $value)
                                         <label class="flex space-x-2.5 items-center">
                                             <input wire:key="{{ $value }}"
                                                    name="miller" type="radio"
