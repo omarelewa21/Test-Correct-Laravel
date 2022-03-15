@@ -628,7 +628,7 @@ class OpenShort extends Component
     private function removeQuestion()
     {
         if (!$this->editModeForExistingQuestion()) {
-            $this->returnToTestOverview();
+            return $this->returnToTestOverview();
         }
 
         $testQuestion = TestQuestion::whereUuid($this->testQuestionId)->firstOrFail();
@@ -636,7 +636,7 @@ class OpenShort extends Component
         $response = (new TestQuestionsController)->destroy($testQuestion);
 
         if ($response->getStatusCode() == 200) {
-            $this->returnToTestOverview();
+            return $this->returnToTestOverview();
         }
     }
 
