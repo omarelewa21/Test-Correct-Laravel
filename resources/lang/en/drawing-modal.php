@@ -2,7 +2,7 @@
 return [
     'Opslaan'                            => 'Save',
     'Sluiten'                            => 'Close',
-    'Verplaatsen'                        => 'Move>',
+    'Verplaatsen'                        => 'Move',
     'Rechthoek'                          => 'Square',
     'Cirkel'                             => 'Circle',
     'Rechte lijn'                        => 'Straight line',
@@ -41,5 +41,6 @@ return [
     'Hidden Layers confirmation student' => 'The hidden layers will be visible for the teacher, are you sure you want to keep them?',
     'Close confirmation'                 => 'Are you sure you want to close? Any changes won\'t be saved',
     'Centreren'                          => 'Center',
+    'Vraag'                              => 'Question',
 ];
 ?>

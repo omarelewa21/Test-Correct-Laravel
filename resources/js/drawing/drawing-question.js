@@ -88,7 +88,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview) {
 
             this.warnings = {
                 whenAnyToolButDragSelected: new warningBox(
-                    "Stel de opmaak in voordat je het object tekent",
+                    UI.warningboxTemplate.dataset.text,
                     5000,
                     rootElement
                 ),
@@ -238,12 +238,12 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview) {
             makeLayers() {
                 this.layers = {
                     "question": new sidebar.Layer({
-                        name: "Vraag",
+                        name: UI.translationTemplate.dataset.question,
                         id: "question-group",
                         enabled: true,
                     }, drawingApp, this),
                     "answer": new sidebar.Layer({
-                        name: "Antwoord",
+                        name: UI.translationTemplate.dataset.answer,
                         id: "answer-group",
                         enabled: false,
                     }, drawingApp, this),

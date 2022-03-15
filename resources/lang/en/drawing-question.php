@@ -10,6 +10,8 @@
 
 			'Open het notitieblok om aantekeningen te noteren' => 'Open the notebook to take notes',
 
-			'Antwoord tekenen' => 'Answer signs'
+			'Antwoord tekenen' => 'Answer signs',
+
+            'Stel de opmaak in voordat je het object tekent' => 'Set up your object before starting to draw',
 ];
 
