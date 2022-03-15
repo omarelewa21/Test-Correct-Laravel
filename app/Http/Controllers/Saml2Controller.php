@@ -52,13 +52,15 @@ class Saml2Controller extends Controller
         }
         $user = $saml2Auth->getSaml2User();
 
+        $redirectUrl = $user->getIntendedUrl();
+
         if(Str::contains($user->getIntendedUrl(),'entreeRegister')){
-            dd('register');
+            session(['entreeReason' => 'register']);
         }
 
-        event(new Saml2LoginEvent($idpName, $user, $saml2Auth));
+        $redirectUrl = config('saml2_settings.loginRoute');
 
-        $redirectUrl = $user->getIntendedUrl();
+        event(new Saml2LoginEvent($idpName, $user, $saml2Auth));
 
         if ($redirectUrl !== null) {
             return redirect($redirectUrl);
