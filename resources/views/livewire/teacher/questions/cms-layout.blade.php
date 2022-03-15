@@ -452,7 +452,7 @@
                         @beforeunload.window="$el.disabled = true"
                         type="button"
                         wire:click="save"
-                        class="button cta-button button-sm"
+                        class="button cta-button button-sm save_button"
                         selid="save-btn"
                 >
                     <span>{{ __("Vraag opslaan") }}</span>

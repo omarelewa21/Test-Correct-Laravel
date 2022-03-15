@@ -7,6 +7,7 @@ require('./alpine');
 require('./rich-text-editor');
 require('./drawing/drawing-question');
 
+
 addIdsToQuestionHtml = function () {
     let id = 1;
     let questionContainers = document.querySelectorAll('[questionHtml]');

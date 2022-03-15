@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Queue;
+use Ramsey\Uuid\Uuid;
 use tcCore\BaseSubject;
 use tcCore\EducationLevel;
 use tcCore\Jobs\CountSchoolLocationActiveTeachers;
@@ -317,11 +318,11 @@ class ImportHelper
                     }
 
 
-                    $student_email = $this->generateEmailAddress($student_external_code, $student_eckid);
+                    $student_email = $this->generateEmailAddress($student_external_code, Uuid::uuid4()->toString());
 
 ////                    $student_email = 'rtti_' . $student_external_code . '_' . $external_main_code . '_' . $external_sub_code . '@' . $this->email_domain;
                     $teacher_email = $this->generateEmailAddress('rtti_'.$teacher_external_code.'_'.$external_main_code.'_'.$external_sub_code,
-                        $teacher_eckid);
+                        Uuid::uuid4()->toString());
 
 
                     if (!in_array($study_year, range((now()->year - 10), (now()->year + 10)))) {
@@ -1675,10 +1676,10 @@ class ImportHelper
         return $returnArray;
     }
 
-    private function generateEmailAddress($pattern, $eckId = null)
+    private function generateEmailAddress($pattern, $uniqueString = null)
     {
-        if (!empty($eckId)) {
-            $pattern = $eckId;
+        if (!empty($uniqueString)) {
+            $pattern = $uniqueString;
         }
 
         return sprintf('%s@%s', $pattern, $this->email_domain);

@@ -2,7 +2,9 @@
 
 namespace tcCore;
 
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Maatwebsite\Excel\Facades\Excel;
 use tcCore\Exports\TestTakesExport;
@@ -22,7 +24,7 @@ class UwlrSoapResult extends Model
      * @var array
      */
     protected $fillable = [
-        'source', 'client_code', 'client_name', 'school_year', 'brin_code', 'dependance_code', 'username_who_imported',
+        'source', 'client_code', 'client_name', 'school_year', 'brin_code', 'dependance_code', 'username_who_imported', 'log',
     ];
 
 
@@ -42,6 +44,45 @@ class UwlrSoapResult extends Model
         return $this->entries->groupBy('key')->map(function ($group) {
             return $group->count();
         });
+    }
+
+    public function setLogAttribute($data)
+    {
+        $this->attributes['log'] = json_encode($data);
+    }
+
+    public function addToLog($key, $value, $save = false)
+    {
+        $log = $this->log;
+        if($value instanceof Carbon){
+            $value = $value->format('Y-m-d H:i:s');
+        }
+        $log->$key = $value;
+
+        $this->log = $log;
+
+        if($save){
+            $this->save();
+        }
+        return $this;
+    }
+
+    public function addQueueDataToLog($key, $save = false)
+    {
+        $jobs = (object) [];
+        collect(DB::select(DB::raw('Select queue, count(*) as amount from jobs group by queue')))->each(function($q) use ($jobs){
+            $jobs->{$q->queue} = $q->amount;
+        });
+        $this->addToLog($key,$jobs, $save);
+        return $this;
+    }
+
+    public function getLogAttribute()
+    {
+        if(!array_key_exists('log',$this->attributes) || null === $this->attributes['log']){
+            $this->attributes['log'] = json_encode((object) []);
+        }
+        return json_decode($this->attributes['log']);
     }
 
     public function getSchoolNameAttribute()
