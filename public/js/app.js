@@ -9469,9 +9469,8 @@ var Entry = /*#__PURE__*/function (_sidebarComponent) {
           },
           "mouseenter touchstart": {
             callback: function callback() {
-              _this2.svgShape.highlight();
+              _this2.svgShape.highlight(); // this.highlight();
 
-              _this2.highlight();
             }
           },
           "mouseleave touchend touchcancel": {
@@ -11247,8 +11246,6 @@ var svgShape = /*#__PURE__*/function () {
         events: {
           "mouseenter touchstart": {
             callback: function callback() {
-              console.log('svgshape start');
-
               _this2.highlight();
 
               _this2.getSidebarEntry().highlight();
@@ -11256,20 +11253,20 @@ var svgShape = /*#__PURE__*/function () {
           },
           "mouseleave touchend": {
             callback: function callback() {
-              console.log('svgshape emd');
-
               _this2.unhighlight();
 
               _this2.getSidebarEntry().unhighlight();
             }
-          } // This caused an issue on touch devices, not sure if it can be off. // 15-03-2022 - RR
-          // "click": {
-          //     callback: (evt) => {
-          //         this.highlight();
-          //         this.Canvas.setFocusedShape(this);
-          //     }
-          // }
+          },
+          "click touchstart": {
+            callback: function callback(evt) {
+              if (evt.isTrusted === false) return;
 
+              _this2.highlight();
+
+              _this2.Canvas.setFocusedShape(_this2);
+            }
+          }
         }
       }];
       this.drawingApp.bindEventListeners(settings, this);

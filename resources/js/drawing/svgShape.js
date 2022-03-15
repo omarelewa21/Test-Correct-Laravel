@@ -270,25 +270,23 @@ class svgShape {
                 events: {
                     "mouseenter touchstart": {
                         callback: () => {
-                            console.log('svgshape start')
                             this.highlight();
                             this.getSidebarEntry().highlight();
                         }
                     },
                     "mouseleave touchend": {
                         callback: () => {
-                            console.log('svgshape emd')
                             this.unhighlight();
                             this.getSidebarEntry().unhighlight();
                         }
                     },
-                    // This caused an issue on touch devices, not sure if it can be off. // 15-03-2022 - RR
-                    // "click": {
-                    //     callback: (evt) => {
-                    //         this.highlight();
-                    //         this.Canvas.setFocusedShape(this);
-                    //     }
-                    // }
+                    "click touchstart": {
+                        callback: (evt) => {
+                            if (evt.isTrusted === false) return;
+                            this.highlight();
+                            this.Canvas.setFocusedShape(this);
+                        }
+                    }
                 }
             }
         ];
