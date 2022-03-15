@@ -106,6 +106,13 @@ class Saml2Controller extends Controller
      */
     public function login(Saml2Auth $saml2Auth)
     {
+        if(request()->get('register')) {
+            // our idp => entree
+            config(['saml2.entree_idp_settings.sp.assertionConsumerService.url' => config('saml2.entree_idp_settings.sp.assertionConsumerService.url') . '?register=true']);
+
+            $auth = Saml2Auth::loadOneLoginAuthFromIpdConfig('entree');
+            dd($auth);
+        }
         // todo set forceAuthn to dynamic in App op true;
         $saml2Auth->login(config('saml2_settings.loginRoute'), [], true);
     }
