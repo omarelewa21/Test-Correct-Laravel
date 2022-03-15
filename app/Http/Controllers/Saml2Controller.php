@@ -6,6 +6,7 @@ use Aacotroneo\Saml2\Saml2Auth;
 use Bugsnag\BugsnagLaravel\Facades\Bugsnag;
 use Illuminate\Routing\Controller;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Session;
 
 class Saml2Controller extends Controller
 {
@@ -107,5 +108,11 @@ class Saml2Controller extends Controller
     {
         // todo set forceAuthn to dynamic in App op true;
         $saml2Auth->login(config('saml2_settings.loginRoute'), [], true);
+    }
+
+    public function register()
+    {
+        Session::put('entreeReason','register');
+        return redirect('/saml2/entree/login');
     }
 }

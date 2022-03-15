@@ -46,6 +46,14 @@ class EntreeHelper
         $this->messageId = $messageId;
     }
 
+    public function handleIfRegister()
+    {
+        if(!session()->get('entreeReason',false) == 'register'){
+            return false;
+        }
+        dd($this);
+    }
+
     public static function initWithMessage(SamlMessage $message)
     {
         $instance = new self([], '');
