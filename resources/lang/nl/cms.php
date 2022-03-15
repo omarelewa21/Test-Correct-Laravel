@@ -104,5 +104,14 @@ return [
     'Subsubdomein'                                                                           => 'Subsubdomein',
     'Selecteer het domein en het subdomein waaraan deze vraag bijdraagt.'                    => 'Selecteer het domein en het subdomein waaraan deze vraag bijdraagt.',
     'Antwoordmodel tekenen'                                                                  => 'Antwoordmodel tekenen',
-
+    'Onthouden'                                                                              => 'Onthouden',
+    'Begrijpen'                                                                              => 'Begrijpen',
+    'Toepassen'                                                                              => 'Toepassen',
+    'Analyseren'                                                                             => 'Analyseren',
+    'Evalueren'                                                                              => 'Evalueren',
+    'Creëren'                                                                                => 'Creëren',
+    'Weten'                                                                                  => 'Weten',
+    'Weten hoe'                                                                              => 'Weten hoe',
+    'Laten zien'                                                                             => 'Laten zien',
+    'Doen'                                                                                   => 'Doen',
 ];
