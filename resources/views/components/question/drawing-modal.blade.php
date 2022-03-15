@@ -99,6 +99,10 @@
         }
 
         {{ $this->playerInstance }}.rerender();
+        @if(isset($this->question->grid) && $this->question->grid > 0) {
+            {{ $this->playerInstance }}.drawGrid({{ $this->question->grid }});
+        }
+        @endif
     </script>
     @endif
     @endpush
