@@ -41,6 +41,8 @@ class EventServiceProvider extends ServiceProvider {
 
             $entreeHelper->blockIfEckIdAttributeIsNotPresent();
 
+            $entreeHelper->handleIfRegister();
+
             $entreeHelper->redirectIfBrinUnknown();
 
             $entreeHelper->redirectIfBrinNotSso();
