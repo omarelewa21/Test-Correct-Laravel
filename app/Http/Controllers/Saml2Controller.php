@@ -50,7 +50,10 @@ class Saml2Controller extends Controller
             return redirect(config('saml2_settings.errorRoute'));
         }
         $user = $saml2Auth->getSaml2User();
-
+        if(request()->get('register')){
+            session(['entreeRegister' => true]);
+            dd('register');
+        }
         event(new Saml2LoginEvent($idpName, $user, $saml2Auth));
 
         $redirectUrl = $user->getIntendedUrl();
@@ -111,10 +114,12 @@ class Saml2Controller extends Controller
             config(['saml2.entree_idp_settings.sp.assertionConsumerService.url' => config('saml2.entree_idp_settings.sp.assertionConsumerService.url') . '?register=true']);
 
             $auth = Saml2Auth::loadOneLoginAuthFromIpdConfig('entree');
-            dd($auth);
+            $saml2Auth = new Saml2Auth($auth);
+            $saml2Auth->login(config('saml2_settings.loginRoute'), [], true);
+        } else {
+            // todo set forceAuthn to dynamic in App op true;
+            $saml2Auth->login(config('saml2_settings.loginRoute'), [], true);
         }
-        // todo set forceAuthn to dynamic in App op true;
-        $saml2Auth->login(config('saml2_settings.loginRoute'), [], true);
     }
 
     public function register()
