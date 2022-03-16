@@ -85,7 +85,7 @@
                             </div>
                             <div class="error-section">
                                 @if($this->entree_message)
-                                    <div class="notification error stretched mt-4">
+                                    <div class="notification error stretched mb-4">
                                         <div class="flex items-center space-x-3">
                                             <x-icon.exclamation/>
                                             <span class="title">{{ __('auth.entree_error') }}</span>

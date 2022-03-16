@@ -151,7 +151,7 @@ logger((array) $data);
 
     protected function handleIfRegisteringAndNoEckId($data)
     {
-        if(!$data->eckId){
+        if(!$data->eckId || strlen($data->eckId) < 5){
             return $this->redirectToUrlAndExit($this->getOnboardingUrlWithOptionalMessage(__('onboarding-welcome.Je kunt geen Test-Correct account aanmaken via Entree. Vul dit formulier in om een account aan te maken')));
         }
     }
