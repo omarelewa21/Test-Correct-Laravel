@@ -18,12 +18,9 @@ class Cms extends Component
 
     public $testQuestions;
 
-    public $newQuestions = [];
-
     public function mount()
     {
         $this->testQuestions = Test::whereUuid($this->testId)->first()->testQuestions->sortBy('order');
-        $this->newQuestions = $this->newQuestionInfo();
     }
 
     public function render()
@@ -39,11 +36,20 @@ class Cms extends Component
             [
                 'testQuestionUuid' => $testQuestionUuid,
                 'questionUuid'     => $questionUuid,
-                'isSubQuestion'      => $subQuestion,
+                'isSubQuestion'    => $subQuestion,
             ]
         );
 
         $this->testQuestionId = $questionUuid;
+    }
+
+    public function addQuestion($type, $subtype)
+    {
+        $this->emitTo(
+            'teacher.questions.open-short',
+            'addQuestion',
+            ['type' => $type, 'subtype' => $subtype]
+        );
     }
 
 
@@ -64,73 +70,6 @@ class Cms extends Component
         });
     }
 
-
-    public function newQuestionInfo()
-    {
-        return [
-            'open'   => [
-                [
-                    'sticker'     => 'question-open',
-                    'name'        => __('question.open-long-short'),
-                    'description' => __('question.open-long-short_description'),
-                ],
-                [
-                    'sticker'     => 'question-completion',
-                    'name'        => __('question.completion'),
-                    'description' => __('question.completion_description'),
-                ],
-                [
-                    'sticker'     => 'question-drawing',
-                    'name'        => __('question.drawing'),
-                    'description' => __('question.drawing_description'),
-                ],
-            ],
-            'closed' => [
-                [
-                    'sticker'     => 'question-multiple-choice',
-                    'name'        => __('question.multiple-choice'),
-                    'description' => __('question.multiple-choice_description'),
-                ],
-                [
-                    'sticker'     => 'question-matching',
-                    'name'        => __('question.matching'),
-                    'description' => __('question.matching_description'),
-                ],
-                [
-                    'sticker'     => 'question-classify',
-                    'name'        => __('question.classify'),
-                    'description' => __('question.classify_description'),
-                ],
-                [
-                    'sticker'     => 'question-ranking',
-                    'name'        => __('question.ranking'),
-                    'description' => __('question.ranking_description'),
-                ],
-                [
-                    'sticker'     => 'question-true-false',
-                    'name'        => __('question.true-false'),
-                    'description' => __('question.true-false_description'),
-                ],
-                [
-                    'sticker'     => 'question-selection',
-                    'name'        => __('question.selection'),
-                    'description' => __('question.selection_description'),
-                ],
-                [
-                    'sticker'     => 'question-arq',
-                    'name'        => __('question.arq'),
-                    'description' => __('question.arq_description'),
-                ],
-            ],
-            'extra'  => [
-                [
-                    'sticker'     => 'question-infoscreen',
-                    'name'        => __('question.infoscreen'),
-                    'description' => __('question.infoscreen_description'),
-                ]
-            ]
-        ];
-    }
 
     public function getQuestionNameForDisplay($question)
     {

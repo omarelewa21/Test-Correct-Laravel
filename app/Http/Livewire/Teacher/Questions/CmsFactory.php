@@ -51,4 +51,94 @@ class CmsFactory
             ]
         ];
     }
+    public static function questionTypes()
+    {
+        return [
+            'open'   => [
+                [
+                    'sticker'     => 'question-open',
+                    'name'        => __('question.open-long-short'),
+                    'description' => __('question.open-long-short_description'),
+                    'type'        => 'OpenQuestion',
+                    'subtype'     => 'medium',
+                ],
+                [
+                    'sticker'     => 'question-completion',
+                    'name'        => __('question.completion'),
+                    'description' => __('question.completion_description'),
+                    'type'        => 'CompletionQuestion',
+                    'subtype'     => 'completion',
+                ],
+                [
+                    'sticker'     => 'question-drawing',
+                    'name'        => __('question.drawing'),
+                    'description' => __('question.drawing_description'),
+                    'type'        => 'DrawingQuestion',
+                    'subtype'     => 'drawing',
+                ],
+            ],
+            'closed' => [
+                [
+                    'sticker'     => 'question-multiple-choice',
+                    'name'        => __('question.multiple-choice'),
+                    'description' => __('question.multiple-choice_description'),
+                    'type'        => 'MultipleChoiceQuestion',
+                    'subtype'     => 'MultipleChoice',
+                ],
+                [
+                    'sticker'     => 'question-matching',
+                    'name'        => __('question.matching'),
+                    'description' => __('question.matching_description'),
+                    'type'        => 'MatchingQuestion',
+                    'subtype'     => 'Matching',
+                ],
+                [
+                    'sticker'     => 'question-classify',
+                    'name'        => __('question.classify'),
+                    'description' => __('question.classify_description'),
+                    'type'        => 'MatchingQuestion',
+                    'subtype'     => 'Classify',
+                ],
+                [
+                    'sticker'     => 'question-ranking',
+                    'name'        => __('question.ranking'),
+                    'description' => __('question.ranking_description'),
+                    'type'        => 'RankingQuestion',
+                    'subtype'     => 'ranking',
+                ],
+                [
+                    'sticker'     => 'question-true-false',
+                    'name'        => __('question.true-false'),
+                    'description' => __('question.true-false_description'),
+                    'type'        => 'MultipleChoiceQuestion',
+                    'subtype'     => 'TrueFalse',
+                ],
+                [
+                    'sticker'     => 'question-selection',
+                    'name'        => __('question.selection'),
+                    'description' => __('question.selection_description'),
+                    'type'        => 'CompletionQuestion',
+                    'subtype'     => 'Selection',
+                ],
+                [
+                    'sticker'     => 'question-arq',
+                    'name'        => __('question.arq'),
+                    'description' => __('question.arq_description'),
+                    'type'        => 'MultipleChoiceQuestion',
+                    'subtype'     => 'Arq',
+                ],
+            ],
+            'extra'  => [
+                [
+                    'sticker'     => 'question-infoscreen',
+                    'name'        => __('question.infoscreen'),
+                    'description' => __('question.infoscreen_description'),
+                    'type'        => 'InfoScreen',
+                    'subtype'     => 'infoScreen',
+                ]
+            ]
+        ];
+    }
+
+
 }

@@ -21,7 +21,7 @@
             <x-sidebar.slide-container class="divide-y divide-bluegrey" x-ref="container1">
                 <div class="divide-y divide-bluegrey">
                     @php
-                        $loopi = 0;
+                        $loopIndex = 0;
                     @endphp
                     @foreach($this->questionsInTest as $testQuestion)
 
@@ -29,19 +29,19 @@
                             <x-sidebar.cms.group-question-container :question="$testQuestion->question">
                                 @foreach($testQuestion->question->subQuestions as $question)
                                     @php
-                                        $loopi ++;
+                                        $loopIndex ++;
                                     @endphp
                                     <x-sidebar.cms.question-button :testQuestion="$testQuestion" :question="$question"
-                                                                   :loop="$loopi" :subQuestion="true"/>
+                                                                   :loop="$loopIndex" :subQuestion="true"/>
                                 @endforeach
 
                             </x-sidebar.cms.group-question-container>
                         @else
                             @php
-                                $loopi ++;
+                                $loopIndex ++;
                             @endphp
                             <x-sidebar.cms.question-button :testQuestion="$testQuestion"
-                                                           :question="$testQuestion->question" :loop="$loopi "/>
+                                                           :question="$testQuestion->question" :loop="$loopIndex "/>
                         @endif
                     @endforeach
                 </div>
@@ -70,7 +70,7 @@
 
                     <x-button.text-button class="rotate-svg-180"
                                           @click="next($refs.container2)">
-                        <span>Volgende</span>
+                        <span>{{ __('cms.Volgende') }}</span>
                         <x-icon.arrow/>
                     </x-button.text-button>
                 </div>

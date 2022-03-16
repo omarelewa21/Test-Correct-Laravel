@@ -63,7 +63,9 @@ class OpenShort extends Component
 
     public $isCloneRequest = false;
 
-    protected $queryString = ['action', 'type', 'subtype', 'testId', 'testQuestionId', 'groupQuestionQuestionId', 'owner', 'isCloneRequest'];
+    protected $queryString = [
+        'action', 'type', 'subtype', 'testId', 'testQuestionId', 'groupQuestionQuestionId', 'owner', 'isCloneRequest'
+    ];
 
     protected $settingsGeneralPropertiesVisibility = [
         'autoCheckAnswer'              => false,
@@ -101,28 +103,7 @@ class OpenShort extends Component
     public $bloomWarningShown = false;
     public $millerWarningShown = false;
 
-    public $question = [
-        'add_to_database'        => 1,
-        'answer'                 => '',
-        'bloom'                  => '',
-        'closeable'              => 0,
-        'decimal_score'          => 0,
-        'discuss'                => 1,
-        'maintain_position'      => 0,
-        'miller'                 => '',
-        'is_open_source_content' => 0,
-        'tags'                   => [],
-        'note_type'              => 'NONE',
-        'order'                  => 0,
-        'question'               => '',
-        'rtti'                   => '',
-        'score'                  => 5,
-        'subtype'                => '',
-        'type'                   => '',
-        'attainments'            => [],
-        'test_id'                => '',
-        'all_or_nothing'         => false,
-    ];
+
     /**
      * @var CmsInfoScreen|CmsMultipleChoice|CmsOpen|CmsRanking|CmsTrueFalse|null
      */
@@ -152,7 +133,7 @@ class OpenShort extends Component
             'question.question' => __('cms.Vraagstelling'),
             'question.answer'   => __('cms.Antwoordmodel')
         ];
-        if($this->obj instanceof CmsInfoScreen){
+        if ($this->obj instanceof CmsInfoScreen) {
             $return['question.question'] = __('cms.Informatietekst');
         }
 
@@ -166,6 +147,32 @@ class OpenShort extends Component
             'question.bloom.required'  => __('cms.bloom warning'),
             'question.miller.required' => __('cms.miller warning'),
         ];
+    }
+
+    private function resetQuestionProperties() {
+         $this->question = [
+            'add_to_database'        => 1,
+            'answer'                 => '',
+            'bloom'                  => '',
+            'closeable'              => 0,
+            'decimal_score'          => 0,
+            'discuss'                => 1,
+            'maintain_position'      => 0,
+            'miller'                 => '',
+            'is_open_source_content' => 0,
+            'tags'                   => [],
+            'note_type'              => 'NONE',
+            'order'                  => 0,
+            'question'               => '',
+            'rtti'                   => '',
+            'score'                  => 5,
+            'subtype'                => '',
+            'type'                   => '',
+            'attainments'            => [],
+            'test_id'                => '',
+            'all_or_nothing'         => false,
+        ];
+         $this->cmsPropertyBag = [];
     }
 
 
@@ -185,7 +192,8 @@ class OpenShort extends Component
             'new-video-attachment'  => 'handleNewVideoAttachment',
             'drawing_data_updated'  => 'handleUpdateDrawingData',
             'refresh'               => 'render',
-            'showQuestion'          => 'showQuestion'
+            'showQuestion'          => 'showQuestion',
+            'addQuestion'           => 'addQuestion',
         ];
     }
 
@@ -229,6 +237,7 @@ class OpenShort extends Component
     // @TODO is deze test uberhaupt onderdeel van deze test?
     public function mount()
     {
+        $this->resetQuestionProperties();
         $activeTest = Test::whereUuid($this->testId)->with('testAuthors', 'testAuthors.user')->first();
         $this->initializeContext($this->action, $this->type, $this->subtype, $activeTest);
         $this->obj = CmsFactory::create($this);
@@ -248,7 +257,7 @@ class OpenShort extends Component
             return $this->obj->$method();
         }
 
-        $newName = '_' . $method;
+        $newName = '_'.$method;
         if (method_exists($this, $newName)) {
             return $this->$newName($arguments);
         }
@@ -294,7 +303,7 @@ class OpenShort extends Component
 
     public function updated($name, $value)
     {
-        $method = 'updated' . ucfirst($name);
+        $method = 'updated'.ucfirst($name);
         if ($this->obj && method_exists($this->obj, $method)) {
             $this->obj->$method($value);
         }
@@ -332,7 +341,6 @@ class OpenShort extends Component
     }
 
 
-
     public function hasAllOrNothing()
     {
         return $this->obj instanceof CmsMultipleChoice;
@@ -341,7 +349,7 @@ class OpenShort extends Component
     public function showQuestionScore()
     {
         $method = 'showQuestionScore';
-        if(method_exists($this->obj,$method)){
+        if (method_exists($this->obj, $method)) {
             return $this->obj->$method();
         }
         return true;
@@ -375,7 +383,7 @@ class OpenShort extends Component
     public function render()
     {
         if ($this->obj && method_exists($this->obj, 'getTemplate')) {
-            return view('livewire.teacher.questions.' . $this->obj->getTemplate())->layout('layouts.cms');
+            return view('livewire.teacher.questions.'.$this->obj->getTemplate())->layout('layouts.cms');
         }
         throw new \Exception('No template found for this question type.');
     }
@@ -463,12 +471,14 @@ class OpenShort extends Component
 
     public function isSettingsGeneralPropertyVisible($property)
     {
-        if ($this->obj && property_exists($this->obj, 'settingsGeneralPropertiesVisibility') && is_array($this->obj->settingsGeneralPropertiesVisibility)) {
-            $this->settingsGeneralPropertiesVisibility = array_merge($this->settingsGeneralPropertiesVisibility, $this->obj->settingsGeneralPropertiesVisibility);
+        if ($this->obj && property_exists($this->obj,
+                'settingsGeneralPropertiesVisibility') && is_array($this->obj->settingsGeneralPropertiesVisibility)) {
+            $this->settingsGeneralPropertiesVisibility = array_merge($this->settingsGeneralPropertiesVisibility,
+                $this->obj->settingsGeneralPropertiesVisibility);
         }
 
         if (array_key_exists($property, $this->settingsGeneralPropertiesVisibility)) {
-            return (bool)$this->settingsGeneralPropertiesVisibility[$property];
+            return (bool) $this->settingsGeneralPropertiesVisibility[$property];
         }
 
         return true;
@@ -480,7 +490,9 @@ class OpenShort extends Component
             return $this->obj->isSettingsGeneralPropertyDisabled($property, $asText);
         }
 
-        if ($this->obj && property_exists($this->obj, 'settingsGeneralDisabledProperties') && is_array($this->obj->settingsGeneralDisabledProperties) && in_array($property, $this->obj->settingsGeneralDisabledProperties)) {
+        if ($this->obj && property_exists($this->obj,
+                'settingsGeneralDisabledProperties') && is_array($this->obj->settingsGeneralDisabledProperties) && in_array($property,
+                $this->obj->settingsGeneralDisabledProperties)) {
             if ($asText) {
                 return 'true';
             }
@@ -625,7 +637,7 @@ class OpenShort extends Component
 
     public function removeItem($item, $id)
     {
-        $method = 'remove' . Str::ucfirst($item);
+        $method = 'remove'.Str::ucfirst($item);
         if (method_exists($this, $method)) {
             $this->$method($id);
         }
@@ -807,8 +819,8 @@ class OpenShort extends Component
     {
         $rulesToValidate = null;
         collect(['rtti', 'bloom', 'miller'])->each(function ($taxonomy) use (&$rulesToValidate) {
-            $toggle = $taxonomy . 'Toggle';
-            $warningShow = $taxonomy . 'WarningShown';
+            $toggle = $taxonomy.'Toggle';
+            $warningShow = $taxonomy.'WarningShown';
             if ($this->$toggle && blank($this->question[$taxonomy]) && !$this->$warningShow) {
                 $this->$warningShow = true;
                 $rulesToValidate["question.$taxonomy"] = 'required';
@@ -870,7 +882,8 @@ class OpenShort extends Component
             $this->type = $question->type;
             $this->subtype = $question->subtype;
             $this->owner = 'group';
-            $this->groupQuestionQuestionId = $groupQuestion->groupQuestionQuestions()->firstWhere('question_id', $question->getKey())->uuid;
+            $this->groupQuestionQuestionId = $groupQuestion->groupQuestionQuestions()->firstWhere('question_id',
+                $question->getKey())->uuid;
             $this->testQuestionId = $args['testQuestionUuid'];
         } else {
             $this->type = $testQuestion->question->type;
@@ -882,6 +895,22 @@ class OpenShort extends Component
 
         $this->mount();
 
+        $this->render();
+    }
+
+    public function addQuestion($args)
+    {
+//        $this->save(false);
+//        $testQuestion = TestQuestion::whereUuid($args['testQuestionUuid'])->with('question')->first();
+
+        $this->action = 'add';
+        $this->type = $args['type'];
+        $this->subtype = $args['subtype'];
+        $this->owner = 'test';
+        $this->groupQuestionQuestionId = '';
+        $this->testQuestionId = null;
+
+        $this->mount();
         $this->render();
     }
 }

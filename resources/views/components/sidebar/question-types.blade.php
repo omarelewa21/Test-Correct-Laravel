@@ -1,8 +1,11 @@
 <div class="flex flex-col divide-y-2">
     <span></span>
     <span class="note text-sm uppercase text-center py-1">{{ __('cms.open-questions') }}</span>
-    @foreach($this->newQuestions['open'] as $question)
-        <div class="add-question-card cursor-pointer py-4 px-6 flex space-x-4 items-center text-sm">
+    @foreach(\tcCore\Http\Livewire\Teacher\Questions\CmsFactory::questionTypes()['open'] as $question)
+        <div
+            wire:click="addQuestion('{{ $question['type'] }}', '{{ $question['subtype'] }}')"
+            class="add-question-card cursor-pointer py-4 px-6 flex space-x-4 items-center text-sm"
+        >
             <div>
                 @if($question['sticker'] === 'question-open')
                     <x-stickers.question-open/>
@@ -23,8 +26,11 @@
     @endforeach
 
     <span class="note text-sm uppercase text-center py-1">{{ __('cms.closed-questions') }}</span>
-    @foreach($this->newQuestions['closed'] as $question)
-        <div class="add-question-card cursor-pointer py-4 px-6 flex space-x-4 items-center text-sm">
+    @foreach(\tcCore\Http\Livewire\Teacher\Questions\CmsFactory::questionTypes()['closed'] as $question)
+        <div
+            wire:click="addQuestion('{{ $question['type']}}', '{{ $question['subtype'] }}')"
+            class="add-question-card cursor-pointer py-4 px-6 flex space-x-4 items-center text-sm"
+        >
             <div>
                 @if($question['sticker'] === 'question-multiple-choice')
                     <x-stickers.question-multiple-choice/>
@@ -53,7 +59,7 @@
     @endforeach
 
     <span class="note text-sm uppercase text-center py-1">{{ __('cms.extra') }}</span>
-    @foreach($this->newQuestions['extra'] as $question)
+    @foreach(\tcCore\Http\Livewire\Teacher\Questions\CmsFactory::questionTypes()['extra'] as $question)
         <div class="add-question-card cursor-pointer py-4 px-6 flex space-x-4 items-center text-sm">
             <div>
                 <x-stickers.question-infoscreen/>
