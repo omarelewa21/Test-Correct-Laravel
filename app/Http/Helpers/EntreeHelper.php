@@ -65,7 +65,7 @@ class EntreeHelper
             'brin4ErrorDetected' => $this->brinFourErrorDetected,
         ];
 logger('entreeData for registering');
-logger($data);
+logger((array) $data);
 
         $this->handleIfRegisteringAndNotATeacher($data);
 
@@ -73,7 +73,7 @@ logger($data);
 
         $this->handleIfRegisteringAndNoBrincode($data->brin);
 
-        $data->user = $this->handleifRegisteringAndUserBasedOnEckId($data);
+        $data->user = $this->handleIfRegisteringAndUserBasedOnEckId($data);
 
         $data->eckId = Crypt::encryptString($data->eckId);
         session(['entreeData' => $data]);
@@ -88,7 +88,7 @@ logger($data);
         }
         $queryAr = [];
         if($message){
-            $queryAr['message'] = sprintf('?message=%s',$message);
+            $queryAr['entree_message'] = $message;
         }
         return route($route,$queryAr);
     }
@@ -97,13 +97,13 @@ logger($data);
     {
         $queryAr = [];
         if($message){
-            $type = ($isError) ? 'error' : 'message';
-            $queryAr[$type] = sprintf('?message='.$message);
+            $type = ($isError) ? 'entree_error_message' : 'message';
+            $queryAr[$type] = $message;
         }
         return route('auth.login',$queryAr);
     }
 
-    protected function handleifRegisteringAndUserBasedOnEckId($data)
+    protected function handleIfRegisteringAndUserBasedOnEckId($data)
     {
         if($user = User::filterByEckid($data->eckId)->first()){
             if(!$user->hasImportMailAddress()){ // regular user
