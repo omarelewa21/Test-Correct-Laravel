@@ -103,7 +103,7 @@ class EntreeHelper
 
     protected function handleifRegisteringAndUserBasedOnEckId($data)
     {
-        if($user = User::filterByEckid($data->eckId)){
+        if($user = User::filterByEckid($data->eckId)->first()){
             if(!$user->hasImportMailAddress()){ // regular user
                 if($user->isAllowedToSwitchToSchoolLocation($this->location)){
                     // account already correct
