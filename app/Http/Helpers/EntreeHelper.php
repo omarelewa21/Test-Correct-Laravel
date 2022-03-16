@@ -40,6 +40,10 @@ class EntreeHelper
 
     protected $messageUuid = null;
 
+    private $location_based_on_brin_six = false;
+
+    protected $origAttr;
+
     public function __construct($attr, $messageId)
     {
         $this->attr = $this->transformAttributesIfNeededAndReturn($attr);
@@ -60,7 +64,101 @@ class EntreeHelper
            'location' => $this->location,
             'brin4ErrorDetected' => $this->brinFourErrorDetected,
         ]);
+
+        $this->handleIfRegisteringAndNotATeacher($data);
+
+        $this->handleIfRegisteringAndNoEckId($data);
+
+        $this->handleIfRegisteringAndNoBrincode($data->brin);
+
+        $data->user = $this->handleifRegisteringAndUserBasedOnEckId($data);
+
+        $data->eckId = Crypt::encryptString($data->eckId);
         session(['entreeData' => $data]);
+        return $this->redirectToUrlAndExit(route('onboarding.welcome.entree'));
+    }
+
+    protected function getOnboardingUrlWithOptionalMessage($message = null, $entree = false)
+    {
+        $route = 'onboarding.welcome';
+        if($entree){
+            $route = 'onboarding.welcome.entree';
+        }
+        $queryAr = [];
+        if($message){
+            $queryAr['message'] = sprintf('?message=%s',$message);
+        }
+        return route($route,$queryAr);
+    }
+
+    protected function getLoginUrlWithOptionalMessage($message = null, $isError = false)
+    {
+        $queryAr = [];
+        if($message){
+            $type = ($isError) ? 'error' : 'message';
+            $queryAr[$type] = sprintf('?message='.$message);
+        }
+        return route('auth.login',$queryAr);
+    }
+
+    protected function handleifRegisteringAndUserBasedOnEckId($data)
+    {
+        if($user = User::filterByEckid($data->eckId)){
+            if(!$user->hasImportMailAddress()){ // regular user
+                if($user->isAllowedToSwitchToSchoolLocation($this->location)){
+                    // account already correct
+                    $url = $this->getLoginUrlWithOptionalMessage(__('onboarding-welcome.Je bestaande Test-Correct account is al gekoppeld aan je Entree account. Je kunt vanaf nu ook inloggen met Entree.'));
+                    return $this->redirectToUrlAndExit($url);
+                } else {
+                    // if in same school, add school location
+                    $schoolFromSchoolLocation = $this->location->school;
+                    if($schoolFromSchoolLocation){
+                        if($user->schoolLocations->first(function(SchoolLocation $sl) use ($schoolFromSchoolLocation){
+                            return $sl->school === $schoolFromSchoolLocation;
+                        })){
+                            $user->addSchoolLocation($this->location);
+                            $url = $this->getLoginUrlWithOptionalMessage(__('onboarding-welcome.Je bestaande Test-Correct account is geupdate met de schoollocaties die we vanuit Entree hebben meegekregen. We hebben je in de schoollocatie :name gezet. Je kunt vanaf nu ook inloggen met Entree.',['name' => $this->location->name]));
+                            return $this->redirectToUrlAndExit($url);
+                        }
+                    }
+                    // if not contact support
+                    $url = $this->getLoginUrlWithOptionalMessage(__('onboarding-welcome.Je bestaande Test-Correct account kan niet geupdate worden. Neem contact op met support.'),true);
+                    return $this->redirectToUrlAndExit($url);
+                }
+            }
+            // import user
+            return $user;
+        }
+        return null;
+    }
+
+    protected function handleIfRegisteringAndNoBrincode($brinCode)
+    {
+        if ($this->setLocationBasedOnBrinSixIfTheCase($brinCode)){
+            if($this->location){
+                return true;
+            }
+        } else if(strlen($brinCode) === 4){
+            if(School::where('external_main_code', $brinCode)->count() === 1){
+                return true;
+            }
+        }
+        // no brincode found
+        return $this->redirectToUrlAndExit($this->getOnboardingUrlWithOptionalMessage(__('onboarding-welcome.Je school is helaas nog niet bekend in Test-Correct. Vul dit formulier in om een account aan te maken')));
+    }
+
+    protected function handleIfRegisteringAndNoEckId($data)
+    {
+        if(!$data->eckId){
+            return $this->redirectToUrlAndExit($this->getOnboardingUrlWithOptionalMessage(__('onboarding-welcome.Je kunt geen Test-Correct account aanmaken via Entree. Vul dit formulier in om een account aan te maken')));
+        }
+    }
+
+    protected function handleIfRegisteringAndNotATeacher($data)
+    {
+        if($data->role !== 'teacher'){
+            return $this->redirectToUrlAndExit('https://www.test-correct.nl/student-aanmelden-error');
+        }
     }
 
     public static function initWithMessage(SamlMessage $message)
@@ -122,6 +220,20 @@ class EntreeHelper
         return $this->location;
     }
 
+    private function setLocationBasedOnBrinSixIfTheCase($brinZesCode)
+    {
+        $external_main_code = substr($brinZesCode, 0, 4);
+        if (strlen($brinZesCode) === 6) {
+            $external_sub_code = substr($brinZesCode, 4, 2);
+            $this->location = SchoolLocation::where('external_main_code', $external_main_code)
+                ->where('external_sub_code', $external_sub_code)
+                ->first();
+            $this->location_based_on_brin_six = true;
+            return true;
+        }
+        return false;
+    }
+
     private function setLocationWithSamlAttributes()
     {
         if (null !== $this->location) {
@@ -130,15 +242,12 @@ class EntreeHelper
         }
 
         $brinZesCode = $this->getBrinFromAttributes();
-
-        $external_main_code = substr($brinZesCode, 0, 4);
-        if (strlen($brinZesCode) === 6) {
-            $external_sub_code = substr($brinZesCode, 4, 2);
-            $this->location = SchoolLocation::where('external_main_code', $external_main_code)
-                ->where('external_sub_code', $external_sub_code)
-                ->first();
+        if($this->setLocationBasedOnBrinSixIfTheCase($brinZesCode)){
             return true;
         }
+
+        $external_main_code = substr($brinZesCode, 0, 4);
+
         if (strlen($brinZesCode) === 4) {
             // 1. zoeken binnen de scholengemeenschap (is school)
             // 2. schoollocaties zoeken binnen deze scholengemeenschap die voldoen omdat ze ook een entree koppeling hebben
