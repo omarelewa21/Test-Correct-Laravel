@@ -119,7 +119,7 @@ class EntreeOnboarding extends Component
     {
         $this->entreeData = session('entreeData',false);
         if(!$this->entreeData){
-            $this->redirectTo(route('onboarding.welcome'));
+            Redirect::to(route('onboarding.welcome'));
             return true;
         }
 
