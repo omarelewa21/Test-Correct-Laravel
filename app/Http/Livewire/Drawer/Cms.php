@@ -89,4 +89,9 @@ class Cms extends Component
         }
         return 'question.'.Str::kebab(Str::replaceFirst('Question', '', $question->type));
     }
+
+    public function addGroup()
+    {
+        $this->addQuestion('GroupQuestion', 'group');
+    }
 }

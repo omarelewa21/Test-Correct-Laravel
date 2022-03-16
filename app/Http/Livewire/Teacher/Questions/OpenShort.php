@@ -149,8 +149,9 @@ class OpenShort extends Component
         ];
     }
 
-    private function resetQuestionProperties() {
-         $this->question = [
+    private function resetQuestionProperties()
+    {
+        $this->question = [
             'add_to_database'        => 1,
             'answer'                 => '',
             'bloom'                  => '',
@@ -172,7 +173,7 @@ class OpenShort extends Component
             'test_id'                => '',
             'all_or_nothing'         => false,
         ];
-         $this->cmsPropertyBag = [];
+        $this->cmsPropertyBag = [];
     }
 
 
@@ -918,4 +919,10 @@ class OpenShort extends Component
         $this->mount();
         $this->render();
     }
+
+    public function isGroupQuestion()
+    {
+        return !! $this->type = 'GroupQuestion';
+    }
+
 }

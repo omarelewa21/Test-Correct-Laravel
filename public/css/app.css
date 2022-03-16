@@ -225,7 +225,7 @@
     padding: 16px;
 }
 
-.select-button:hover, .select-button:focus {
+.select-button:hover, .select-button:focus, .btn-active {
     border: 1px solid var(--primary);
     color: var(--primary);
     outline: none;
@@ -2943,6 +2943,9 @@ video {
 .ml-10{
 	margin-left: 2.5rem;
 }
+.mr-8{
+	margin-right: 2rem;
+}
 .block{
 	display: block;
 }
@@ -3044,6 +3047,9 @@ video {
 }
 .h-28{
 	height: 7rem;
+}
+.h-\[88\]{
+	height: 88;
 }
 .max-h-60{
 	max-height: 15rem;
@@ -3163,6 +3169,21 @@ video {
 }
 .w-80{
 	width: 20rem;
+}
+.w-1\/5{
+	width: 20%;
+}
+.w-4\/5{
+	width: 80%;
+}
+.w-\[400px\]{
+	width: 400px;
+}
+.w-\[400\]{
+	width: 400;
+}
+.w-\[308\]{
+	width: 308;
 }
 .min-w-full{
 	min-width: 100%;
@@ -3684,6 +3705,10 @@ video {
 	--tw-border-opacity: 1;
 	border-color: rgba(4, 31, 116, var(--tw-border-opacity));
 }
+.border-\[\#004df5\]{
+	--tw-border-opacity: 1;
+	border-color: rgba(0, 77, 245, var(--tw-border-opacity));
+}
 .border-b-gray-200{
 	--tw-border-opacity: 1;
 	border-bottom-color: rgba(229, 231, 235, var(--tw-border-opacity));
@@ -4055,6 +4080,9 @@ video {
 }
 .pr-2\.5{
 	padding-right: 0.625rem;
+}
+.pb-1{
+	padding-bottom: 0.25rem;
 }
 .text-left{
 	text-align: left;

@@ -174,7 +174,9 @@
                  x-transition:enter-start="opacity-0 delay-200"
                  x-transition:enter-end="opacity-100"
             >
-                @if($this->isPartOfGroupQuestion())
+                @if($this->isGroupQuestion())
+                    <x-partials.group-question-basic-section/>
+                @elseif($this->isPartOfGroupQuestion())
                     <x-partials.group-question-question-section/>
                 @else
                     <x-partials.question-question-section/>
@@ -199,6 +201,8 @@
                     </x-content-section>
                 @endif
             </div>
+
+            @yield('upload-section-for-group-question');
 
             <div class="flex flex-col flex-1 pb-20 space-y-4" x-show="openTab === 2"
                  x-transition:enter="transition duration-200"

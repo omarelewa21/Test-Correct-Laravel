@@ -36,6 +36,7 @@ class CmsFactory
             'RankingQuestion'        => CmsRanking::class,
             'OpenQuestion'           => CmsOpen::class,
             'DrawingQuestion'        => CmsDrawing::class,
+            'GroupQuestion'          => CmsGroup::class,
             'MultipleChoiceQuestion' => [
                 'truefalse'      => CmsTrueFalse::class,
                 'multiplechoice' => CmsMultipleChoice::class,
@@ -45,12 +46,13 @@ class CmsFactory
                 'multi'      => CmsSelection::class,
                 'completion' => CmsCompletion::class,
             ],
-            'MatchingQuestion'      => [
-                'matching'  => CmsMatching::class,
-                'classify'  => CmsClassify::class,
+            'MatchingQuestion'       => [
+                'matching' => CmsMatching::class,
+                'classify' => CmsClassify::class,
             ]
         ];
     }
+
     public static function questionTypes()
     {
         return [

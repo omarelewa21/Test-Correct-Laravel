@@ -49,7 +49,7 @@
 
                 <div class="flex px-6 py-2.5 space-x-2.5 hover:text-primary">
                     <x-icon.plus-in-circle/>
-                    <button class="bold">{{__('cms.Vraaggroep toevoegen')}}</button>
+                    <button class="bold" wire:click="addGroup">{{ __( 'cms.Vraaggroep_toevoegen' ) }}</button>
                 </div>
 
                 <div class="flex px-6 py-2.5 space-x-2.5 hover:text-primary"

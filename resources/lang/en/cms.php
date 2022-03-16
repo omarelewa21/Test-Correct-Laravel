@@ -79,5 +79,13 @@ return [
     'Volgende'                                               => 'Next',
     'Vraag toevoegen'                                        => 'Add question',
     'Vraaggroep toevoegen'                                   => 'Add question group',
-
+    'Vraaggroep_toevoegen'                                   => 'Add group',
+    'group-question'                                         => 'Group question',
+    'Basis'                                                  => 'Basic',
+    'naam vraaggroep'                                        => 'Name group question',
+    'type vraaggroep'                                        => 'Type group question',
+    'carrousel'                                              => 'Carrousel',
+    'carrousel_omschrijving'                                 => 'A sample set from this group is part of the test.',
+    'klassiek'                                               => 'Classic',
+    'klassiek_omschrijving'                                  => 'All questions in this group are part of the test.',
 ];
