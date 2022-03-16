@@ -631,9 +631,20 @@ class OpenShort extends Component
             return $this->returnToTestOverview();
         }
 
-        $testQuestion = TestQuestion::whereUuid($this->testQuestionId)->firstOrFail();
+        if ($this->isPartOfGroupQuestion()) {
+            $groupQuestionQuestion = GroupQuestionQuestion::whereUuid($this->groupQuestionQuestionId)->first();
+            $groupQuestionQuestionManager = GroupQuestionQuestionManager::getInstanceWithUuid($this->testQuestionId);
 
-        $response = (new TestQuestionsController)->destroy($testQuestion);
+            $response = (new GroupQuestionQuestionsController)->destroy(
+                $groupQuestionQuestionManager,
+                $groupQuestionQuestion
+            );
+        } else {
+            $testQuestion = TestQuestion::whereUuid($this->testQuestionId)->firstOrFail();
+
+            $response = (new TestQuestionsController)->destroy($testQuestion);
+        }
+
 
         if ($response->getStatusCode() == 200) {
             return $this->returnToTestOverview();
