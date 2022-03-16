@@ -43,7 +43,7 @@ class Onboarding extends Component
     public $selectedSubjectsString = '';
 
 
-    protected $queryString = ['step', 'email', 'confirmed', 'ref'];
+    protected $queryString = ['step', 'email', 'confirmed', 'ref','entree_message'];
 
     protected function messages(){
         return [
