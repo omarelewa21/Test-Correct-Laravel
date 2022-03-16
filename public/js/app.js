@@ -7218,7 +7218,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview) {
       }
 
       this.warnings = {
-        whenAnyToolButDragSelected: new _uiElements_js__WEBPACK_IMPORTED_MODULE_2__.warningBox("Stel de opmaak in voordat je het object tekent", 5000, rootElement)
+        whenAnyToolButDragSelected: new _uiElements_js__WEBPACK_IMPORTED_MODULE_2__.warningBox(UI.warningboxTemplate.dataset.text, 5000, rootElement)
       };
 
       if (!this.explainer) {
@@ -7385,12 +7385,12 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview) {
       makeLayers: function makeLayers() {
         this.layers = {
           "question": new _sidebar_js__WEBPACK_IMPORTED_MODULE_3__.Layer({
-            name: "Vraag",
+            name: UI.translationTemplate.dataset.question,
             id: "question-group",
             enabled: true
           }, drawingApp, this),
           "answer": new _sidebar_js__WEBPACK_IMPORTED_MODULE_3__.Layer({
-            name: "Antwoord",
+            name: UI.translationTemplate.dataset.answer,
             id: "answer-group",
             enabled: false
           }, drawingApp, this),
@@ -9437,7 +9437,7 @@ var Entry = /*#__PURE__*/function (_sidebarComponent) {
     _this.type = _this.svgShape.type === "path" ? "freehand" : _this.svgShape.type;
     _this.id = "".concat(_this.type, "-").concat(_this.svgShape.shapeId);
     _this.entryContainer.id = "shape-".concat(_this.id);
-    _this.entryTitle.innerText = "".concat(_constants_js__WEBPACK_IMPORTED_MODULE_0__.nameInSidebarEntryForShape[_this.svgShape.type], " ").concat(_this.svgShape.shapeId);
+    _this.entryTitle.innerText = "".concat(_this.root.querySelector('#translation-template').dataset[_this.svgShape.type], " ").concat(_this.svgShape.shapeId);
 
     _this.drawingApp.bindEventListeners(_this.eventListenerSettings, _assertThisInitialized(_this));
 

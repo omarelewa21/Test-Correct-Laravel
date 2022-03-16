@@ -341,7 +341,7 @@
         </div>
     </div>
 </template>
-<template id="warningbox-template">
+<template id="warningbox-template" data-text="{{ __('drawing-question.Stel de opmaak in voordat je het object tekent') }}">
     <div class="warning">
         <div class="warning-text">
             <x-icon.exclamation/>
@@ -349,3 +349,13 @@
     </div>
 </template>
 <template id="svg-layer-to-render"></template>
+<template id="translation-template"
+          data-answer="{{ __('cms.Antwoord') }}"
+          data-question="{{ __('drawing-modal.Vraag') }}"
+          data-rect="{{ __("drawing-modal.Rechthoek") }}"
+          data-circle="{{ __("drawing-modal.Cirkel") }}"
+          data-line="{{ __("drawing-modal.Rechte lijn") }}"
+          data-text="{{ __("drawing-modal.Tekst") }}"
+          data-image="{{ __("drawing-modal.Afbeelding") }}"
+          data-path="{{ __("drawing-modal.Penlijn") }}"
+></template>

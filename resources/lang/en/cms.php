@@ -72,6 +72,7 @@ return [
     'Teken in de tekentool het antwoordmodel voor de vraag.'                                 => 'Draw the answer model for the question using the drawing tool.',
     'waarschuwing_aanpassen_oude_tekenvraag'                                                 => 'You can edit the questions created with the new drawing tool. Drawings created with the old tool cannot be edited.',
     'drawing-question-required-answer'                                                       => 'It is required to draw an answer in the drawing tool.',
+    'drawing-question-close-without-save'                    => 'Are you sure you want to close without saving? All progress will be lost.',
     'drawing-question-delete-entry'                                                          => 'Are you sure you want to delete this entry? You cannot undo this action.',
     'drawing-question-override-old-drawing'                                                  => 'This drawing question has been made in the old drawing editor. If you continue, the current drawing will be lost and has to be redrawn in the new drawing editor',
     'Opstellen'                                                                              => 'Set up',

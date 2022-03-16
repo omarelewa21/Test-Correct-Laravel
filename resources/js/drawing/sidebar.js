@@ -42,7 +42,7 @@ export class Entry extends sidebarComponent {
         this.id = `${this.type}-${this.svgShape.shapeId}`;
         this.entryContainer.id = `shape-${this.id}`;
         this.entryTitle.innerText = `${
-            nameInSidebarEntryForShape[this.svgShape.type]
+            this.root.querySelector('#translation-template').dataset[this.svgShape.type]
         } ${this.svgShape.shapeId}`;
 
         this.drawingApp.bindEventListeners(this.eventListenerSettings, this);
