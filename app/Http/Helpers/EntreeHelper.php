@@ -56,14 +56,14 @@ class EntreeHelper
             return false;
         }
         $this->setLocationWithSamlAttributes();
-        $data = collect([
+        $data = (object)[
            'email' => $this->getEmailFromAttributes(),
            'role' => $this->getRoleFromAttributes(),
            'eckId' => $this->getEckIdFromAttributes(),
            'brin' => $this->getBrinFromAttributes(),
            'location' => $this->location,
             'brin4ErrorDetected' => $this->brinFourErrorDetected,
-        ]);
+        ];
 
         $this->handleIfRegisteringAndNotATeacher($data);
 

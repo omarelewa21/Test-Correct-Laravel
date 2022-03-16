@@ -120,10 +120,4 @@ class Saml2Controller extends Controller
         }
         $saml2Auth->login($redirectTo, [], true);
     }
-
-    public function register()
-    {
-        Session::put('entreeReason','register');
-        return redirect('/saml2/entree/login');
-    }
 }
