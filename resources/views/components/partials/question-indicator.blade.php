@@ -130,7 +130,12 @@
                 </x-button.text-button>
             @endif
             @if(!$isOverview)
-                <x-button.text-button wire:click="toOverview({{ $this->q }})">
+                <x-button.text-button
+                    onclick="typeof toOverview === 'function' ? toOverview({{$this->q}}) :
+                        livewire.find(document.querySelector('[test-take-player]').getAttribute('wire:id')).call('toOverview', {{$this->q}})
+                        "
+                    @click="$dispatch('show-loader')"
+                    >
                     <x-icon.preview/>
                     <span>{{ __('test_take.overview') }}</span>
                 </x-button.text-button>
