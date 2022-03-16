@@ -44,6 +44,8 @@ class EntreeHelper
 
     protected $origAttr;
 
+    public $entree_message = '';
+
     public function __construct($attr, $messageId)
     {
         $this->attr = $this->transformAttributesIfNeededAndReturn($attr);
