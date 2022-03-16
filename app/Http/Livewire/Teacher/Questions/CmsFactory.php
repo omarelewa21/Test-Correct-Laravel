@@ -133,8 +133,8 @@ class CmsFactory
                     'sticker'     => 'question-infoscreen',
                     'name'        => __('question.infoscreen'),
                     'description' => __('question.infoscreen_description'),
-                    'type'        => 'InfoScreen',
-                    'subtype'     => 'infoScreen',
+                    'type'        => 'InfoscreenQuestion',
+                    'subtype'     => 'Infoscreen',
                 ]
             ]
         ];

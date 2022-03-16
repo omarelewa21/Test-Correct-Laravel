@@ -902,13 +902,18 @@ class OpenShort extends Component
     {
 //        $this->save(false);
 //        $testQuestion = TestQuestion::whereUuid($args['testQuestionUuid'])->with('question')->first();
-
         $this->action = 'add';
         $this->type = $args['type'];
         $this->subtype = $args['subtype'];
-        $this->owner = 'test';
         $this->groupQuestionQuestionId = '';
-        $this->testQuestionId = null;
+
+        if (filled($args['groupId'])) {
+            $this->owner = 'group';
+            $this->testQuestionId = $args['groupId'];
+        } else {
+            $this->owner = 'test';
+            $this->testQuestionId = null;
+        }
 
         $this->mount();
         $this->render();

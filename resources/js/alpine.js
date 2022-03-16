@@ -314,16 +314,17 @@ document.addEventListener('alpine:init', () => {
         init() {
             this.slideWidth = this.$root.offsetWidth;
             this.drawer = this.$root.closest('.drawer');
-            this.handleVerticalScroll(this.$root.querySelector('[x-ref="container1"]'))
-            // this.setQuestionNumbers();
+            setTimeout(() => {
+                this.handleVerticalScroll(this.$root.querySelector('[x-ref="container1"]'))
+            }, 200);
         },
         next(currentEl) {
-            const left = this.$root.scrollLeft + this.slideWidth;
+            const left = this.$refs.questionEditorSidebar.scrollLeft + this.slideWidth;
             this.scroll(left);
             this.handleVerticalScroll(currentEl.nextElementSibling);
         },
         prev(currentEl) {
-            const left = this.$root.scrollLeft - this.slideWidth;
+            const left = this.$refs.questionEditorSidebar.scrollLeft - this.slideWidth;
             this.scroll(left);
             this.handleVerticalScroll(currentEl.previousElementSibling);
         },
@@ -332,12 +333,15 @@ document.addEventListener('alpine:init', () => {
         },
         scroll(position) {
             this.drawer.scrollTo({top: 0, behavior: 'smooth'});
-            this.$root.scrollTo({
+            this.$refs.questionEditorSidebar.scrollTo({
                 left: position >= 0 ? position : 0,
                 behavior: 'smooth'
             });
         },
         handleVerticalScroll(el) {
+            this.$refs.questionEditorSidebar.style.minHeight = 'auto';
+            this.$refs.questionEditorSidebar.style.height = 'auto';
+
             if (el.offsetHeight > this.drawer.offsetHeight) {
                 this.drawer.classList.add('overflow-auto');
                 this.drawer.classList.remove('overflow-hidden');
@@ -345,14 +349,13 @@ document.addEventListener('alpine:init', () => {
                 this.drawer.classList.add('overflow-hidden');
                 this.drawer.classList.remove('overflow-auto');
             }
-            this.$root.style.height = 'auto';
+
+
+            this.$nextTick(() => {
+                this.$refs.questionEditorSidebar.style.minHeight = this.drawer.offsetHeight+'px';
+                this.$refs.questionEditorSidebar.style.height = el.offsetHeight+'px';
+            })
         },
-        setQuestionNumbers() {
-            const items = this.$root.querySelectorAll('.question-number');
-            items.forEach((item, key) => {
-                item.innerHTML = key+1
-            });
-        }
     }));
 
     Alpine.directive('global', function (el, {expression}) {

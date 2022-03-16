@@ -77,4 +77,7 @@ return [
     'closed-questions'                                       => 'Closed questions',
     'extra'                                                  => 'Extra',
     'Volgende'                                               => 'Next',
+    'Vraag toevoegen'                                        => 'Add question',
+    'Vraaggroep toevoegen'                                   => 'Add question group',
+
 ];

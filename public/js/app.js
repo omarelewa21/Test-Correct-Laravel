@@ -5832,17 +5832,21 @@ document.addEventListener('alpine:init', function () {
       slideWidth: 300,
       drawer: null,
       init: function init() {
+        var _this8 = this;
+
         this.slideWidth = this.$root.offsetWidth;
         this.drawer = this.$root.closest('.drawer');
-        this.handleVerticalScroll(this.$root.querySelector('[x-ref="container1"]')); // this.setQuestionNumbers();
+        setTimeout(function () {
+          _this8.handleVerticalScroll(_this8.$root.querySelector('[x-ref="container1"]'));
+        }, 200);
       },
       next: function next(currentEl) {
-        var left = this.$root.scrollLeft + this.slideWidth;
+        var left = this.$refs.questionEditorSidebar.scrollLeft + this.slideWidth;
         this.scroll(left);
         this.handleVerticalScroll(currentEl.nextElementSibling);
       },
       prev: function prev(currentEl) {
-        var left = this.$root.scrollLeft - this.slideWidth;
+        var left = this.$refs.questionEditorSidebar.scrollLeft - this.slideWidth;
         this.scroll(left);
         this.handleVerticalScroll(currentEl.previousElementSibling);
       },
@@ -5854,12 +5858,17 @@ document.addEventListener('alpine:init', function () {
           top: 0,
           behavior: 'smooth'
         });
-        this.$root.scrollTo({
+        this.$refs.questionEditorSidebar.scrollTo({
           left: position >= 0 ? position : 0,
           behavior: 'smooth'
         });
       },
       handleVerticalScroll: function handleVerticalScroll(el) {
+        var _this9 = this;
+
+        this.$refs.questionEditorSidebar.style.minHeight = 'auto';
+        this.$refs.questionEditorSidebar.style.height = 'auto';
+
         if (el.offsetHeight > this.drawer.offsetHeight) {
           this.drawer.classList.add('overflow-auto');
           this.drawer.classList.remove('overflow-hidden');
@@ -5868,12 +5877,9 @@ document.addEventListener('alpine:init', function () {
           this.drawer.classList.remove('overflow-auto');
         }
 
-        this.$root.style.height = 'auto';
-      },
-      setQuestionNumbers: function setQuestionNumbers() {
-        var items = this.$root.querySelectorAll('.question-number');
-        items.forEach(function (item, key) {
-          item.innerHTML = key + 1;
+        this.$nextTick(function () {
+          _this9.$refs.questionEditorSidebar.style.minHeight = _this9.drawer.offsetHeight + 'px';
+          _this9.$refs.questionEditorSidebar.style.height = el.offsetHeight + 'px';
         });
       }
     };
@@ -6179,7 +6185,7 @@ window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
 window.Pusher = __webpack_require__(/*! pusher-js */ "./node_modules/pusher-js/dist/web/pusher.js");
 window.Echo = new laravel_echo__WEBPACK_IMPORTED_MODULE_0__["default"]({
   broadcaster: 'pusher',
-  key: "2149988ad52a600a2309",
+  key: "fc18ed69b446aeb8c8a5",
   cluster: "eu",
   forceTLS: true
 });

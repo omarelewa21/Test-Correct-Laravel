@@ -5,27 +5,38 @@ namespace tcCore\Http\Livewire\Drawer;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Str;
 use Livewire\Component;
+use tcCore\GroupQuestionQuestion;
 use tcCore\Test;
 
 class Cms extends Component
 {
-    protected $queryString = ['testId', 'testQuestionId', 'action'];
+    protected $queryString = ['testId', 'testQuestionId', 'groupQuestionQuestionId', 'action', 'owner'];
 
     /* Querystring parameters*/
     public string $testId = '';
     public string $testQuestionId = '';
+    public string $groupQuestionQuestionId = '';
     public string $action = '';
+    public string $owner = '';
 
     public $testQuestions;
+    public $groupId;
+    public $activeQuestionId;
 
     public function mount()
     {
         $this->testQuestions = Test::whereUuid($this->testId)->first()->testQuestions->sortBy('order');
+        $this->setActiveQuestionId();
     }
 
     public function render()
     {
         return view('livewire.drawer.cms');
+    }
+
+    public function updated($name, $value)
+    {
+
     }
 
     public function showQuestion($testQuestionUuid, $questionUuid, $subQuestion)
@@ -40,7 +51,7 @@ class Cms extends Component
             ]
         );
 
-        $this->testQuestionId = $questionUuid;
+        $this->testQuestionId = $testQuestionUuid;
     }
 
     public function addQuestion($type, $subtype)
@@ -48,7 +59,7 @@ class Cms extends Component
         $this->emitTo(
             'teacher.questions.open-short',
             'addQuestion',
-            ['type' => $type, 'subtype' => $subtype]
+            ['type' => $type, 'subtype' => $subtype, 'groupId' => $this->groupId]
         );
     }
 
@@ -74,11 +85,29 @@ class Cms extends Component
     public function getQuestionNameForDisplay($question)
     {
         if ($question->type === "MultipleChoiceQuestion") {
+            if ($question->subtype === "ARQ") {
+                return 'question.arq';
+            }
+
             return 'question.'.Str::kebab($question->subtype);
         }
         if ($question->type === "OpenQuestion") {
             return 'question.open-long-short';
         }
         return 'question.'.Str::kebab(Str::replaceFirst('Question', '', $question->type));
+    }
+
+    public function getActiveQuestionId()
+    {
+        return $this->activeQuestionId;
+    }
+
+    public function setActiveQuestionId()
+    {
+        if ($this->owner === 'test') {
+            $this->activeQuestionId = $this->questionsInTest->where('uuid', $this->testQuestionId)->question->uuid;
+        } else {
+            $this->activeQuestionId = GroupQuestionQuestion::whereUuid($this->groupQuestionQuestionId)->with('question')->first()->question()->value('uuid');
+        }
     }
 }
