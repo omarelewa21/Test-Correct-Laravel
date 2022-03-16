@@ -54,7 +54,7 @@ class Saml2Controller extends Controller
 
         $redirectUrl = $user->getIntendedUrl();
 
-        if(Str::contains($user->getIntendedUrl(),'entreeRegister')){
+        if(Str::contains($redirectUrl,'entreeRegister')){
             session(['entreeReason' => 'register']);
         }
 

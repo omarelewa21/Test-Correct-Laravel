@@ -46,12 +46,21 @@ class EntreeHelper
         $this->messageId = $messageId;
     }
 
-    public function handleIfRegister()
+    public function handleIfRegistering()
     {
         if(session()->get('entreeReason',false) !== 'register'){
             return false;
         }
-        dd($this);
+        $this->setLocationWithSamlAttributes();
+        $data = collect([
+           'email' => $this->getEmailFromAttributes(),
+           'role' => $this->getRoleFromAttributes(),
+           'eckId' => $this->getEckIdFromAttributes(),
+           'brin' => $this->getBrinFromAttributes(),
+           'location' => $this->location,
+            'brin4ErrorDetected' => $this->brinFourErrorDetected,
+        ]);
+        session(['entreeData' => $data]);
     }
 
     public static function initWithMessage(SamlMessage $message)
