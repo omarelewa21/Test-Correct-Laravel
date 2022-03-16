@@ -88,7 +88,7 @@ logger((array) $data);
         }
         $queryAr = [];
         if($message){
-            $queryAr['entree_message'] = $message)
+            $queryAr['entree_message'] = $message;
         }
         return route($route,$queryAr);
     }
