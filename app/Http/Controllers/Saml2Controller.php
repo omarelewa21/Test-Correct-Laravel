@@ -120,4 +120,9 @@ class Saml2Controller extends Controller
         }
         $saml2Auth->login($redirectTo, [], true);
     }
+
+    public function register()
+    {
+        return redirect('/saml2/entree/login?entreeRegister=true');
+    }
 }
