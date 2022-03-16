@@ -64,6 +64,8 @@ class EntreeHelper
            'location' => $this->location,
             'brin4ErrorDetected' => $this->brinFourErrorDetected,
         ];
+logger('entreeData for registering');
+logger($data);
 
         $this->handleIfRegisteringAndNotATeacher($data);
 
