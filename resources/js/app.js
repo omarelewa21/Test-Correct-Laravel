@@ -226,6 +226,19 @@ countPresentStudents = function (members)
     return activeStudents;
 }
 
+addTitleToImages = function(selector,title)
+{
+    var container = document.querySelector(selector);
+    if(container != null){
+        var images = container.querySelectorAll('img');
+        images.forEach(function(image) {
+            if(image.title==null||image.title==''){
+                image.title = title;
+            }
+        });
+    }
+}
+
 String.prototype.contains = function (text)
 {
     if (text === '') return false;
