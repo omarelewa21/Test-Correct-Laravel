@@ -2420,6 +2420,9 @@ input[type=number] {
 /*    z-index: 21;*/
 /*    position: relative !important;*/
 /*}*/
+.ck-content ol{
+    list-style-type: decimal;
+}
 
 /*! tailwindcss v2.2.19 | MIT License | https://tailwindcss.com */
 
@@ -4037,6 +4040,11 @@ video {
 	margin-right: calc(1.5rem * var(--tw-space-x-reverse));
 	margin-left: calc(1.5rem * calc(1 - var(--tw-space-x-reverse)));
 }
+.space-x-4 > :not([hidden]) ~ :not([hidden]){
+	--tw-space-x-reverse: 0;
+	margin-right: calc(1rem * var(--tw-space-x-reverse));
+	margin-left: calc(1rem * calc(1 - var(--tw-space-x-reverse)));
+}
 .space-y-2\.5 > :not([hidden]) ~ :not([hidden]){
 	--tw-space-y-reverse: 0;
 	margin-top: calc(0.625rem * calc(1 - var(--tw-space-y-reverse)));
@@ -4046,11 +4054,6 @@ video {
 	--tw-space-y-reverse: 0;
 	margin-top: calc(0.5rem * calc(1 - var(--tw-space-y-reverse)));
 	margin-bottom: calc(0.5rem * var(--tw-space-y-reverse));
-}
-.space-x-4 > :not([hidden]) ~ :not([hidden]){
-	--tw-space-x-reverse: 0;
-	margin-right: calc(1rem * var(--tw-space-x-reverse));
-	margin-left: calc(1rem * calc(1 - var(--tw-space-x-reverse)));
 }
 .space-x-0 > :not([hidden]) ~ :not([hidden]){
 	--tw-space-x-reverse: 0;

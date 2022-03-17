@@ -4,7 +4,7 @@
             <livewire:student.intense-observer :deviceId="$testParticipant->user_id" :sessionId="$testParticipant->id"></livewire:student.intense-observer>
         @endif
         <livewire:question.navigation  :nav="$nav" :testTakeUuid="$uuid"/>
-        <div >
+        <div class="test-take-questions">
             @push('styling')
                 <style>
                     {!! $styling !!}
@@ -153,6 +153,11 @@
                 }
             }
     </script>
+        <script>
+            document.addEventListener("DOMContentLoaded", () => {
+                addTitleToImages('.test-take-questions',"{{__('Beschrijving afbeelding niet beschikbaar')}}");
+            });
+        </script>
     @endpush
 </x-layouts.app>
 

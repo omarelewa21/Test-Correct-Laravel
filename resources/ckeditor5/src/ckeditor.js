@@ -22,6 +22,11 @@ import Underline from '@ckeditor/ckeditor5-basic-styles/src/underline.js';
 import WordCount from '@ckeditor/ckeditor5-word-count/src/wordcount.js';
 import MathType from '@wiris/mathtype-ckeditor5/src/plugin';
 import AutoSave from '@ckeditor/ckeditor5-autosave/src/autosave.js';
+import SpecialCharacters from '@ckeditor/ckeditor5-special-characters/src/specialcharacters';
+import SpecialCharactersEssentials from '@ckeditor/ckeditor5-special-characters/src/specialcharactersessentials';
+
+
+
 
 class Editor extends ClassicEditor {}
 
@@ -45,7 +50,9 @@ Editor.builtinPlugins = [
 	Underline,
 	WordCount,
 	MathType,
-	AutoSave
+	AutoSave,
+	SpecialCharacters,
+	SpecialCharactersEssentials
 ];
 
 // Editor configuration.
@@ -67,7 +74,8 @@ Editor.defaultConfig = {
 			'undo',
 			'redo',
 			'MathType',
-			'ChemType'
+			'ChemType',
+			'specialCharacters'
 		]
 	},
 	language: 'nl',
