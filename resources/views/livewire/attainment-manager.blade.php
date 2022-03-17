@@ -11,7 +11,7 @@
 
             </x-input.select-search>
         </x-input.group>
-        <x-input.group label="{{ __('Subsubdomein') }}" class="text-base hidden">
+        <x-input.group label="{{ __('Subsubdomein') }}" class="text-base">
             <x-input.select-search name="subsubdomains"  wire:model="subsubdomainId"  placeholder="{{ __('Selecteer een waarde') }}">
 
             </x-input.select-search>

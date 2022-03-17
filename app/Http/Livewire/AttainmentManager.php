@@ -103,6 +103,10 @@ class AttainmentManager extends Component
                 ->where('status', 'ACTIVE')
                 ->get()
                 ->each(function ($child) use ($level){
+                    $description = $child->description;
+                    if($level == 'subdomains' && $child->description == ''){
+                        $description = __('Dit niveau is niet beschikbaar, klik voor het volgende niveau');
+                    }
                     $this->$level[$child->id] = $child->description;
                 });;
         }
