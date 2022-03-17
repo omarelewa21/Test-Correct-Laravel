@@ -3,28 +3,31 @@
     <div class="w-full"
          x-data="{ }"
          x-init="
-                      (function() {
-                            var editor = CKEDITOR.instances['{{ $editorId }}']
+                    (function() {
+                            var editor = ClassicEditors['{{ $editorId }}'];
                             if (editor) {
-                                editor.destroy(true)
+                                editor.destroy(true);
                             }
-                            CKEDITOR.replace( '{{ $editorId }}', {
-                                removePlugins : 'pastefromword,advanced,simpleuploads,dropoff,copyformatting,image,pastetext,uploadwidget,uploadimage',
-                                extraPlugins : 'blockimagepaste,quicktable,ckeditor_wiris,autogrow,wordcount,notification,readspeaker',
-                                toolbar: [
-                                    { name: 'basicstyles', items: [ 'Bold', 'Italic', 'Underline', 'Strike', 'Subscript', 'Superscript' ] },
-                                    { name: 'paragraph', items: [ 'NumberedList', 'BulletedList' ] },
-                                    { name: 'insert', items: [ 'Table' ] },
-                                    { name: 'styles', items: ['Font', 'FontSize' ] },
-                                    { name: 'wirisplugins', items: ['ckeditor_wiris_formulaEditor', 'ckeditor_wiris_formulaEditorChemistry']}
-                                ],
-                                contentsCss : '/ckeditor/student.css'
-                            })
-                            CKEDITOR.config.readOnly = true
-                            CKEDITOR.instances['{{ $editorId }}']
-                            .on('change',function(e){
-                                $dispatch('input', e.editor.getData())
-                            })
+                            ClassicEditor
+                                .create( document.querySelector( '#{{ $editorId }}' ),{
+                                    autosave: {
+                                        waitingTime: 300,
+                                        save( editor ) {
+                                            editor.updateSourceElement();
+                                            editor.sourceElement.dispatchEvent(new Event('input'));
+                                        }
+                                    }
+                                } )
+                                .then( editor => {
+                                    ClassicEditors['{{ $editorId }}'] = editor;
+                                    editor.isReadOnly = true;
+                                    const wordCountPlugin = editor.plugins.get( 'WordCount' );
+                                    const wordCountWrapper = document.getElementById( 'word-count-{{ $editorId }}' );
+                                    wordCountWrapper.appendChild( wordCountPlugin.wordCountContainer );
+                                } )
+                                .catch( error => {
+                                    console.error( error );
+                                } );
                       })()
                       ">
 
@@ -39,6 +42,7 @@
                 </x-input.textarea>
             </x-input.group>
         </div>
+        <div id="word-count-{{ $editorId }}" wire:ignore></div>
     </div>
 </x-partials.overview-question-container>
 
