@@ -21,22 +21,15 @@ class Cms extends Component
 
     public $testQuestions;
     public $groupId;
-    public $activeQuestionId;
 
     public function mount()
     {
         $this->testQuestions = Test::whereUuid($this->testId)->first()->testQuestions->sortBy('order');
-        $this->setActiveQuestionId();
     }
 
     public function render()
     {
         return view('livewire.drawer.cms');
-    }
-
-    public function updated($name, $value)
-    {
-
     }
 
     public function showQuestion($testQuestionUuid, $questionUuid, $subQuestion)
@@ -95,19 +88,5 @@ class Cms extends Component
             return 'question.open-long-short';
         }
         return 'question.'.Str::kebab(Str::replaceFirst('Question', '', $question->type));
-    }
-
-    public function getActiveQuestionId()
-    {
-        return $this->activeQuestionId;
-    }
-
-    public function setActiveQuestionId()
-    {
-        if ($this->owner === 'test') {
-            $this->activeQuestionId = $this->questionsInTest->where('uuid', $this->testQuestionId)->question->uuid;
-        } else {
-            $this->activeQuestionId = GroupQuestionQuestion::whereUuid($this->groupQuestionQuestionId)->with('question')->first()->question()->value('uuid');
-        }
     }
 }
