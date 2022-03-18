@@ -89,9 +89,9 @@
                                     @if($this->shouldDisplayEmail)
                                         <div class="email-section mb-4 w-full md:w-1/2">
                                             <div class="mb-4">
-                                                <div class="input-group">
-                                                    <input id="username" wire:model.lazy="registration.username"
-                                                           class="form-input @error('registration.username') border-red @enderror"
+                                                <div class="input-group">{{ $this->registration->username }}
+                                                    <input id="username" wire:model.lazy="registration.username" @if($this->hasValidTUser) disabled @endif
+                                                           class="form-input @if($this->hasValidTUser) disabled @endif @error('registration.username') border-red @enderror"
                                                            autofocus>
                                                     <label for="username"
                                                            class="transition ease-in-out duration-150">{{ __("onboarding.your_school_email") }}</label>
@@ -180,51 +180,26 @@
                                     <div class="input-section">
                                         <div class="name mb-4">
                                             <div class="input-group mr-4 mb-4 sm:mb-0">
-                                                <input id="name_first" wire:model.lazy="registration.name_first"
-                                                       class="form-input @error('registration.name_first') border-red @enderror">
+                                                <input id="name_first" wire:model.lazy="registration.name_first" @if($this->hasValidTUser) disabled @endif
+                                                       class="form-input @if($this->hasValidTUser) disabled @endif @error('registration.name_first') border-red @enderror">
                                                 <label for="name_first"
                                                        class="transition ease-in-out duration-150">{{ __("onboarding.Voornaam") }}</label>
                                             </div>
                                             <div class="input-group mr-4 mb-4 sm:mb-0">
-                                                <input id="name_suffix" wire:model.lazy="registration.name_suffix"
-                                                       class="form-input @error('registration.name_suffix') border-red @enderror">
+                                                <input id="name_suffix" wire:model.lazy="registration.name_suffix" @if($this->hasValidTUser) disabled @endif
+                                                       class="form-input @if($this->hasValidTUser) disabled @endif @error('registration.name_suffix') border-red @enderror">
                                                 <label for="name_suffix"
                                                        class="transition ease-in-out duration-150">{{ __("onboarding.Tussenvoegsel") }}</label>
                                             </div>
                                             <div class="input-group lastname">
-                                                <input id="name" wire:model.lazy="registration.name"
-                                                       class="form-input md:w-full inline-block @error('registration.name') border-red @enderror">
+                                                <input id="name" wire:model.lazy="registration.name" @if($this->hasValidTUser) disabled @endif
+                                                       class="form-input md:w-full inline-block @if($this->hasValidTUser) disabled @endif @error('registration.name') border-red @enderror">
                                                 <label for="name"
                                                        class="transition ease-in-out duration-150">{{ __("onboarding.Achternaam") }}</label>
                                             </div>
                                         </div>
-                                        <div class="password mb-4 ">
 
-                                            <div class="input-group w-1/2 md:w-auto order-1 pr-2 mb-4 md:mb-0">
-                                                <input id="password" wire:model="password" type="password"
-                                                       class="form-input @error('password') border-red @enderror">
-                                                <label for="password"
-                                                       class="transition ease-in-out duration-150">{{ __("onboarding.Creeër wachtwoord") }}</label>
-                                            </div>
-
-                                            <div class="input-group w-1/2 md:w-auto order-3 md:order-2 pr-2 md:pl-2 mb-4 md:mb-0">
-                                                <input id="password_confirm" wire:model="password_confirmation"
-                                                       type="password"
-                                                       class="form-input @error('password') border-red @enderror">
-                                                <label for="password_confirm"
-                                                       class="transition ease-in-out duration-150">
-                                                       {{ __("onboarding.Herhaal wachtwoord") }}</label>
-                                            </div>
-
-                                            <div class="flex items-end mid-grey w-1/2 md:w-auto h-16 md:h-auto order-2 md:order-3 pl-2 overflow-visible md:overflow-auto requirement-font-size">
-                                                <div class="inline-flex space-x-2 items-center text-{{$this->minCharRule}}">
-                                                    @if($this->minCharRule)<x-icon.checkmark-small></x-icon.checkmark-small>
-                                                    @elseif($this->minCharRule === 'red')<x-icon.close-small></x-icon.close-small>
-                                                    @else <x-icon.dot></x-icon.dot> @endif
-                                                    <span>Min. 8 {{ __("onboarding.tekens") }}</span>
-                                                </div>
-                                            </div>
-                                        </div>
+                                        @if($this->showSubjects)
                                         <div x-data  data-subjects='{!! $selectedSubjectsString !!}' class="subjects mb-4 ">
                                             <div x-data="subjectSelect()" x-init="init('parentEl')" @click.away="clearSearch()" @keydown.escape="clearSearch()" @keydown="navigate" class="mr-4 mb-4 sm:mb-0 ">
                                                 <div >
@@ -300,6 +275,7 @@
                                             </div>
 
                                         </div>
+                                        @endif
 
 
                                     </div>

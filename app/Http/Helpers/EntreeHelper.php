@@ -59,7 +59,7 @@ class EntreeHelper
         $data = (object)[
            'email' => $this->getEmailFromAttributes(),
            'role' => $this->getRoleFromAttributes(),
-           'eckId' => $this->getEckIdFromAttributes(),
+           'encryptedEckId' => Crypt::encryptString($this->getEckIdFromAttributes()),
            'brin' => $this->getBrinFromAttributes(),
            'location' => $this->location,
             'brin4ErrorDetected' => $this->brinFourErrorDetected,
@@ -71,11 +71,10 @@ logger((array) $data);
 
         $this->handleIfRegisteringAndNoEckId($data);
 
-        $this->handleIfRegisteringAndNoBrincode($data->brin);
+        $this->handleIfRegisteringAndNoBrincode($data);
 
         $data->user = $this->handleIfRegisteringAndUserBasedOnEckId($data);
 
-        $data->eckId = Crypt::encryptString($data->eckId);
         session(['entreeData' => $data]);
         return $this->redirectToUrlAndExit(route('onboarding.welcome.entree'));
     }
@@ -134,8 +133,9 @@ logger((array) $data);
         return null;
     }
 
-    protected function handleIfRegisteringAndNoBrincode($brinCode)
+    protected function handleIfRegisteringAndNoBrincode($data)
     {
+        $brinCode = $data->brin;
         if ($this->setLocationBasedOnBrinSixIfTheCase($brinCode)){
             if($this->location){
                 return true;
@@ -149,9 +149,13 @@ logger((array) $data);
         return $this->redirectToUrlAndExit($this->getOnboardingUrlWithOptionalMessage(__('onboarding-welcome.Je school is helaas nog niet bekend in Test-Correct. Vul dit formulier in om een account aan te maken')));
     }
 
-    protected function handleIfRegisteringAndNoEckId($data)
+    protected function handleIfRegisteringAndNoEckId($data, $isEncrypted = true)
     {
-        if(!$data->eckId || strlen($data->eckId) < 5){
+        $eckId = $data->eckId;
+        if($isEncrypted){
+            $eckId = Crypt::decryptString($eckId);
+        }
+        if(!$eckId || strlen(eckId) < 5){
             return $this->redirectToUrlAndExit($this->getOnboardingUrlWithOptionalMessage(__('onboarding-welcome.Je kunt geen Test-Correct account aanmaken via Entree. Vul dit formulier in om een account aan te maken')));
         }
     }

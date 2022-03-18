@@ -19,7 +19,7 @@ use tcCore\User;
 
 class EntreeOnboarding extends Component
 {
-    public $entreeData;
+    protected $entreeData;
     public $registration;
     public $email;
     public $password;
@@ -43,6 +43,8 @@ class EntreeOnboarding extends Component
     public $selectedSubjects = [];
     public $selectedSubjectsString = '';
 
+    public $showSubjects = true;
+    public $hasValidTUser = false;
 
     protected $queryString = ['step', 'email', 'confirmed', 'ref'];
 
@@ -90,7 +92,7 @@ class EntreeOnboarding extends Component
         ];
 
         if ($this->step === 1) {
-            return array_merge($default, [
+            $rules = array_merge($default, [
                 'registration.gender'           => 'required|in:male,female,different',
                 'registration.gender_different' => 'sometimes',
                 'registration.name_first'       => 'required|string',
@@ -98,6 +100,12 @@ class EntreeOnboarding extends Component
                 'registration.name_suffix'      => 'sometimes',
                 'password'                      => 'required|same:password_confirmation|'. User::getPasswordLengthRule(),
             ]);
+            if($this->hasValidTUser){
+                foreach(['password','registration.password','registration.username'] as $key){
+                    unset($rules[$key]);
+                }
+            }
+            return $rules;
         }
 
         return $default;
@@ -123,34 +131,38 @@ class EntreeOnboarding extends Component
             return true;
         }
 
-        dd($this->entreeData);
+        $this->registration = new DemoTeacherRegistration;
 
+        if(property_exists($this->entreeData,'user')){
+            if($this->entreeData->user->hasImportMailAddress()){
+                $this->hasValidTUser = true;
+                collect(['name_first','name_suffix','name','gender'])->each(function($key) {
+                    $this->registration->$key = $this->entreeData->user->$key;
+                });
+                $this->registration->username = $this->email = $this->entreeData->email;
+                $this->registration->school_location = $this->entreeData->location->name;
+                $this->showSubjects = false;
+            }
+        }
 
-        
-//        $this->registration = new DemoTeacherRegistration;
 //        $this->registration->username = $this->email;
 //        $this->registration->gender = 'male';
-//
-//        if (!$this->step != 1 || $this->step >= '4') {
-//            $this->step = 1;
-//        }
-//        if (!$this->email) {
-//            $this->email = '';
-//        }
-//        if ($this->isUserConfirmedWithEmail()) {
-//            $this->confirmed = 0;
-//            $this->shouldDisplayEmail = true;
-//        }
-//        if ($this->ref && Uuid::isValid($this->ref)) {
-//            $shortcodeId = ShortcodeClick::whereUuid($this->ref)->first();
-//            if (null !== $shortcodeId) {
-//                $invited_by = Shortcode::where('id', $shortcodeId->shortcode_id)->first();
-//                $this->registration->invitee = $invited_by->user_id;
-//            }
-//        }
-//
-//        $this->registration->registration_email_confirmed = $this->confirmed;
-//        $this->setSubjectOptions();
+
+        if (!$this->step != 1 || $this->step >= '4') {
+            $this->step = 1;
+        }
+        if (!$this->email) {
+            $this->email = '';
+        }
+        if ($this->isUserConfirmedWithEmail()) {
+            $this->confirmed = 0;
+            $this->shouldDisplayEmail = true;
+        }
+
+        $this->registration->registration_email_confirmed = $this->confirmed || $this->hasValidTUser;
+        if(!$this->hasValidTUser) {
+            $this->setSubjectOptions();
+        }
     }
 
     private function isUserConfirmedWithEmail()
@@ -186,11 +198,6 @@ class EntreeOnboarding extends Component
         if (!$this->checkInputForLength() && !$this->warningStepOneConfirmed) {
             $this->warningStepOneConfirmed = true;
             return;
-        }
-        if ($this->ref != null && $this->isInvitedBySameDomain($this->registration->username)) {
-            $this->fillSchoolData($this->registration->invitee);
-        } else {
-            $this->clearSchoolData();
         }
         $this->step = 2;
 //        $this->btnStepTwoDisabledCheck();
@@ -299,18 +306,8 @@ class EntreeOnboarding extends Component
         }
     }
 
-    public function isInvitedBySameDomain($username)
+    public function fillSchoolData(SchoolLocation $schoolInfo)
     {
-        $inviter = User::find($this->registration->invitee);
-        $inviterDomain = explode('@', $inviter->username)[1];
-
-        return $inviterDomain === explode('@', $username)[1];
-    }
-
-    public function fillSchoolData($inviter)
-    {
-        $inviter = User::find($inviter);
-        $schoolInfo = SchoolLocation::find($inviter->school_location_id);
         $this->registration->school_location = $schoolInfo->name;
         $this->registration->address = $schoolInfo->visit_address;
         $this->registration->postcode = $schoolInfo->visit_postal;
