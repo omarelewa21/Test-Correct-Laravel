@@ -10,7 +10,7 @@
             </feMerge>
         </filter>
     </defs>
-    <g filter="url(#a)" transform="translate(-916 -395)" stroke="currentColor" fill="none" fill-rule="evenodd" stroke-linecap="round">
+    <g filter="" transform="translate(-916 -395)" stroke="currentColor" fill="none" fill-rule="evenodd" stroke-linecap="round">
         <path stroke-width="2" d="M917 401h14M917 405h14"/>
         <path d="m926 408.5-2 2-2-2M926 397.5l-2-2-2 2"/>
     </g>

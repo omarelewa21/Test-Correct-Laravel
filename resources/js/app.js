@@ -7,6 +7,7 @@ require('./alpine');
 require('./rich-text-editor');
 require('./drawing/drawing-question');
 
+
 addIdsToQuestionHtml = function () {
     let id = 1;
     let questionContainers = document.querySelectorAll('[questionHtml]');
@@ -212,7 +213,8 @@ dragElement = function (element) {
     }
 }
 
-countPresentStudents = function (members) {
+countPresentStudents = function (members)
+{
     var activeStudents = 0;
     members.each((member) => {
         if (member.info.student) {
@@ -227,4 +229,13 @@ String.prototype.contains = function (text)
 {
     if (text === '') return false;
     return this.includes(text);
+}
+
+getClosestLivewireComponentByAttribute = function (element, attributeName) {
+    return livewire.find(element.closest(`[${attributeName}]`).getAttribute('wire:id'));
+}
+
+String.prototype.capitalize = function ()
+{
+    return this.charAt(0).toUpperCase() + this.slice(1);
 }

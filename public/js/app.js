@@ -5775,6 +5775,7 @@ document.addEventListener('alpine:init', function () {
     };
   });
   alpinejs__WEBPACK_IMPORTED_MODULE_1__["default"].data('drawingTool', function (questionId, entanglements, isTeacher) {
+    var isPreview = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : false;
     return {
       show: false,
       questionId: questionId,
@@ -5782,47 +5783,49 @@ document.addEventListener('alpine:init', function () {
       questionSvg: entanglements.questionSvg,
       gridSvg: entanglements.gridSvg,
       isTeacher: isTeacher,
+      toolName: null,
+      isPreview: isPreview,
       init: function init() {
-        var _this5 = this;
+        var _this7 = this;
 
-        window['drawingTool_' + questionId] = initDrawingQuestion(this.$root);
-        var toolName = window['drawingTool_' + questionId];
+        this.toolName = "drawingTool_".concat(questionId);
+        var toolName = window[this.toolName] = initDrawingQuestion(this.$root, this.isTeacher, this.isPreview);
 
         if (this.isTeacher) {
-          this.makeGridIfNecessary();
+          this.makeGridIfNecessary(toolName);
         }
 
         this.$watch('show', function (show) {
           if (show) {
-            toolName.Canvas.data.answer = _this5.answerSvg;
-            toolName.Canvas.data.question = _this5.questionSvg;
+            toolName.Canvas.data.answer = _this7.answerSvg;
+            toolName.Canvas.data.question = _this7.questionSvg;
 
-            _this5.handleGrid(toolName);
+            _this7.handleGrid(toolName);
 
             toolName.drawingApp.init();
           } else {
-            Livewire.emit('refresh');
+            var component = getClosestLivewireComponentByAttribute(_this7.$root, 'questionComponent');
+            component.call('render');
           }
         });
         toolName.Canvas.layers.answer.enable();
         toolName.Canvas.setCurrentLayer("answer");
       },
       handleGrid: function handleGrid(toolName) {
-        if (this.gridSvg !== '0.00') {
+        if (this.gridSvg !== '0.00' && this.gridSvg !== '') {
           var parsedGrid = parseFloat(this.gridSvg);
+          toolName.UI.gridSize.value = parsedGrid;
+          toolName.UI.gridToggle.checked = true;
+          toolName.drawingApp.params.gridSize = parsedGrid;
+          toolName.Canvas.layers.grid.params.hidden = false;
 
-          if (toolName.drawingApp.isTeacher()) {
-            toolName.UI.gridSize.value = parsedGrid;
-            toolName.UI.gridToggle.checked = true;
-          } else {
-            toolName.drawingApp.params.gridSize = parsedGrid;
-            toolName.Canvas.layers.grid.params.hidden = false;
+          if (!this.isTeacher) {// this.$root.querySelector('#grid-background')?.remove();
           }
         }
       },
-      makeGridIfNecessary: function makeGridIfNecessary() {
-        if (this.gridSvg !== '') {
-          makePreviewGrid(this.gridSvg);
+      makeGridIfNecessary: function makeGridIfNecessary(toolName) {
+        if (this.gridSvg !== '' && this.gridSvg !== '0.00') {
+          makePreviewGrid(toolName.drawingApp, this.gridSvg);
         }
       }
     };
@@ -6094,6 +6097,14 @@ countPresentStudents = function countPresentStudents(members) {
 String.prototype.contains = function (text) {
   if (text === '') return false;
   return this.includes(text);
+};
+
+getClosestLivewireComponentByAttribute = function getClosestLivewireComponentByAttribute(element, attributeName) {
+  return livewire.find(element.closest("[".concat(attributeName, "]")).getAttribute('wire:id'));
+};
+
+String.prototype.capitalize = function () {
+  return this.charAt(0).toUpperCase() + this.slice(1);
 };
 
 /***/ }),
@@ -6452,6 +6463,576 @@ function catchscreenshotchromeOS() {
 
 /***/ }),
 
+/***/ "./resources/js/drawing/DragDropTouch.js":
+/*!***********************************************!*\
+  !*** ./resources/js/drawing/DragDropTouch.js ***!
+  \***********************************************/
+/***/ (() => {
+
+var DragDropTouch;
+
+(function (DragDropTouch_1) {
+  'use strict';
+  /**
+   * Object used to hold the data that is being dragged during drag and drop operations.
+   *
+   * It may hold one or more data items of different types. For more information about
+   * drag and drop operations and data transfer objects, see
+   * <a href="https://developer.mozilla.org/en-US/docs/Web/API/DataTransfer">HTML Drag and Drop API</a>.
+   *
+   * This object is created automatically by the @see:DragDropTouch singleton and is
+   * accessible through the @see:dataTransfer property of all drag events.
+   */
+
+  var DataTransfer = function () {
+    function DataTransfer() {
+      this._dropEffect = 'move';
+      this._effectAllowed = 'all';
+      this._data = {};
+    }
+
+    Object.defineProperty(DataTransfer.prototype, "dropEffect", {
+      /**
+       * Gets or sets the type of drag-and-drop operation currently selected.
+       * The value must be 'none',  'copy',  'link', or 'move'.
+       */
+      get: function get() {
+        return this._dropEffect;
+      },
+      set: function set(value) {
+        this._dropEffect = value;
+      },
+      enumerable: true,
+      configurable: true
+    });
+    Object.defineProperty(DataTransfer.prototype, "effectAllowed", {
+      /**
+       * Gets or sets the types of operations that are possible.
+       * Must be one of 'none', 'copy', 'copyLink', 'copyMove', 'link',
+       * 'linkMove', 'move', 'all' or 'uninitialized'.
+       */
+      get: function get() {
+        return this._effectAllowed;
+      },
+      set: function set(value) {
+        this._effectAllowed = value;
+      },
+      enumerable: true,
+      configurable: true
+    });
+    Object.defineProperty(DataTransfer.prototype, "types", {
+      /**
+       * Gets an array of strings giving the formats that were set in the @see:dragstart event.
+       */
+      get: function get() {
+        return Object.keys(this._data);
+      },
+      enumerable: true,
+      configurable: true
+    });
+    /**
+     * Removes the data associated with a given type.
+     *
+     * The type argument is optional. If the type is empty or not specified, the data
+     * associated with all types is removed. If data for the specified type does not exist,
+     * or the data transfer contains no data, this method will have no effect.
+     *
+     * @param type Type of data to remove.
+     */
+
+    DataTransfer.prototype.clearData = function (type) {
+      if (type != null) {
+        delete this._data[type];
+      } else {
+        this._data = null;
+      }
+    };
+    /**
+     * Retrieves the data for a given type, or an empty string if data for that type does
+     * not exist or the data transfer contains no data.
+     *
+     * @param type Type of data to retrieve.
+     */
+
+
+    DataTransfer.prototype.getData = function (type) {
+      return this._data[type] || '';
+    };
+    /**
+     * Set the data for a given type.
+     *
+     * For a list of recommended drag types, please see
+     * https://developer.mozilla.org/en-US/docs/Web/Guide/HTML/Recommended_Drag_Types.
+     *
+     * @param type Type of data to add.
+     * @param value Data to add.
+     */
+
+
+    DataTransfer.prototype.setData = function (type, value) {
+      this._data[type] = value;
+    };
+    /**
+     * Set the image to be used for dragging if a custom one is desired.
+     *
+     * @param img An image element to use as the drag feedback image.
+     * @param offsetX The horizontal offset within the image.
+     * @param offsetY The vertical offset within the image.
+     */
+
+
+    DataTransfer.prototype.setDragImage = function (img, offsetX, offsetY) {
+      var ddt = DragDropTouch._instance;
+      ddt._imgCustom = img;
+      ddt._imgOffset = {
+        x: offsetX,
+        y: offsetY
+      };
+    };
+
+    return DataTransfer;
+  }();
+
+  DragDropTouch_1.DataTransfer = DataTransfer;
+  /**
+   * Defines a class that adds support for touch-based HTML5 drag/drop operations.
+   *
+   * The @see:DragDropTouch class listens to touch events and raises the
+   * appropriate HTML5 drag/drop events as if the events had been caused
+   * by mouse actions.
+   *
+   * The purpose of this class is to enable using existing, standard HTML5
+   * drag/drop code on mobile devices running IOS or Android.
+   *
+   * To use, include the DragDropTouch.js file on the page. The class will
+   * automatically start monitoring touch events and will raise the HTML5
+   * drag drop events (dragstart, dragenter, dragleave, drop, dragend) which
+   * should be handled by the application.
+   *
+   * For details and examples on HTML drag and drop, see
+   * https://developer.mozilla.org/en-US/docs/Web/Guide/HTML/Drag_operations.
+   */
+
+  var DragDropTouch = function () {
+    /**
+     * Initializes the single instance of the @see:DragDropTouch class.
+     */
+    function DragDropTouch() {
+      this._lastClick = 0; // enforce singleton pattern
+
+      if (DragDropTouch._instance) {
+        throw 'DragDropTouch instance already created.';
+      } // detect passive event support
+      // https://github.com/Modernizr/Modernizr/issues/1894
+
+
+      var supportsPassive = false;
+      document.addEventListener('test', function () {}, {
+        get passive() {
+          supportsPassive = true;
+          return true;
+        }
+
+      }); // listen to touch events
+
+      if (navigator.maxTouchPoints) {
+        var d = document,
+            ts = this._touchstart.bind(this),
+            tm = this._touchmove.bind(this),
+            te = this._touchend.bind(this),
+            opt = supportsPassive ? {
+          passive: false,
+          capture: false
+        } : false;
+
+        d.addEventListener('touchstart', ts, opt);
+        d.addEventListener('touchmove', tm, opt);
+        d.addEventListener('touchend', te);
+        d.addEventListener('touchcancel', te);
+      }
+    }
+    /**
+     * Gets a reference to the @see:DragDropTouch singleton.
+     */
+
+
+    DragDropTouch.getInstance = function () {
+      return DragDropTouch._instance;
+    }; // ** event handlers
+
+
+    DragDropTouch.prototype._touchstart = function (e) {
+      var _this = this;
+
+      if (this._shouldHandle(e)) {
+        // raise double-click and prevent zooming
+        if (Date.now() - this._lastClick < DragDropTouch._DBLCLICK) {
+          if (this._dispatchEvent(e, 'dblclick', e.target)) {
+            e.preventDefault();
+
+            this._reset();
+
+            return;
+          }
+        } // clear all variables
+
+
+        this._reset(); // get nearest draggable element
+
+
+        var src = this._closestDraggable(e.target);
+
+        if (src) {
+          // give caller a chance to handle the hover/move events
+          if (!this._dispatchEvent(e, 'mousemove', e.target) && !this._dispatchEvent(e, 'mousedown', e.target)) {
+            // get ready to start dragging
+            this._dragSource = src;
+            this._ptDown = this._getPoint(e);
+            this._lastTouch = e;
+            e.preventDefault(); // show context menu if the user hasn't started dragging after a while
+
+            setTimeout(function () {
+              if (_this._dragSource == src && _this._img == null) {
+                if (_this._dispatchEvent(e, 'contextmenu', src)) {
+                  _this._reset();
+                }
+              }
+            }, DragDropTouch._CTXMENU);
+
+            if (DragDropTouch._ISPRESSHOLDMODE) {
+              this._pressHoldInterval = setTimeout(function () {
+                _this._isDragEnabled = true;
+
+                _this._touchmove(e);
+              }, DragDropTouch._PRESSHOLDAWAIT);
+            }
+          }
+        }
+      }
+    };
+
+    DragDropTouch.prototype._touchmove = function (e) {
+      if (this._shouldCancelPressHoldMove(e)) {
+        this._reset();
+
+        return;
+      }
+
+      if (this._shouldHandleMove(e) || this._shouldHandlePressHoldMove(e)) {
+        // see if target wants to handle move
+        var target = this._getTarget(e);
+
+        if (this._dispatchEvent(e, 'mousemove', target)) {
+          this._lastTouch = e;
+          e.preventDefault();
+          return;
+        } // start dragging
+
+
+        if (this._dragSource && !this._img && this._shouldStartDragging(e)) {
+          this._dispatchEvent(e, 'dragstart', this._dragSource);
+
+          this._createImage(e);
+
+          this._dispatchEvent(e, 'dragenter', target);
+        } // continue dragging
+
+
+        if (this._img) {
+          this._lastTouch = e;
+          e.preventDefault(); // prevent scrolling
+
+          if (target != this._lastTarget) {
+            this._dispatchEvent(this._lastTouch, 'dragleave', this._lastTarget);
+
+            this._dispatchEvent(e, 'dragenter', target);
+
+            this._lastTarget = target;
+          }
+
+          this._moveImage(e);
+
+          this._isDropZone = this._dispatchEvent(e, 'dragover', target);
+        }
+      }
+    };
+
+    DragDropTouch.prototype._touchend = function (e) {
+      if (this._shouldHandle(e)) {
+        // see if target wants to handle up
+        if (this._dispatchEvent(this._lastTouch, 'mouseup', e.target)) {
+          e.preventDefault();
+          return;
+        } // user clicked the element but didn't drag, so clear the source and simulate a click
+
+
+        if (!this._img) {
+          this._dragSource = null;
+
+          this._dispatchEvent(this._lastTouch, 'click', e.target);
+
+          this._lastClick = Date.now();
+        } // finish dragging
+
+
+        this._destroyImage();
+
+        if (this._dragSource) {
+          if (e.type.indexOf('cancel') < 0 && this._isDropZone) {
+            this._dispatchEvent(this._lastTouch, 'drop', this._lastTarget);
+          }
+
+          this._dispatchEvent(this._lastTouch, 'dragend', this._dragSource);
+
+          this._reset();
+        }
+      }
+    }; // ** utilities
+    // ignore events that have been handled or that involve more than one touch
+
+
+    DragDropTouch.prototype._shouldHandle = function (e) {
+      return e && !e.defaultPrevented && e.touches && e.touches.length < 2;
+    }; // use regular condition outside of press & hold mode
+
+
+    DragDropTouch.prototype._shouldHandleMove = function (e) {
+      return !DragDropTouch._ISPRESSHOLDMODE && this._shouldHandle(e);
+    }; // allow to handle moves that involve many touches for press & hold
+
+
+    DragDropTouch.prototype._shouldHandlePressHoldMove = function (e) {
+      return DragDropTouch._ISPRESSHOLDMODE && this._isDragEnabled && e && e.touches && e.touches.length;
+    }; // reset data if user drags without pressing & holding
+
+
+    DragDropTouch.prototype._shouldCancelPressHoldMove = function (e) {
+      return DragDropTouch._ISPRESSHOLDMODE && !this._isDragEnabled && this._getDelta(e) > DragDropTouch._PRESSHOLDMARGIN;
+    }; // start dragging when specified delta is detected
+
+
+    DragDropTouch.prototype._shouldStartDragging = function (e) {
+      var delta = this._getDelta(e);
+
+      return delta > DragDropTouch._THRESHOLD || DragDropTouch._ISPRESSHOLDMODE && delta >= DragDropTouch._PRESSHOLDTHRESHOLD;
+    }; // clear all members
+
+
+    DragDropTouch.prototype._reset = function () {
+      this._destroyImage();
+
+      this._dragSource = null;
+      this._lastTouch = null;
+      this._lastTarget = null;
+      this._ptDown = null;
+      this._isDragEnabled = false;
+      this._isDropZone = false;
+      this._dataTransfer = new DataTransfer();
+      clearInterval(this._pressHoldInterval);
+    }; // get point for a touch event
+
+
+    DragDropTouch.prototype._getPoint = function (e, page) {
+      if (e && e.touches) {
+        e = e.touches[0];
+      }
+
+      return {
+        x: page ? e.pageX : e.clientX,
+        y: page ? e.pageY : e.clientY
+      };
+    }; // get distance between the current touch event and the first one
+
+
+    DragDropTouch.prototype._getDelta = function (e) {
+      if (DragDropTouch._ISPRESSHOLDMODE && !this._ptDown) {
+        return 0;
+      }
+
+      var p = this._getPoint(e);
+
+      return Math.abs(p.x - this._ptDown.x) + Math.abs(p.y - this._ptDown.y);
+    }; // get the element at a given touch event
+
+
+    DragDropTouch.prototype._getTarget = function (e) {
+      var pt = this._getPoint(e),
+          el = document.elementFromPoint(pt.x, pt.y);
+
+      while (el && getComputedStyle(el).pointerEvents == 'none') {
+        el = el.parentElement;
+      }
+
+      return el;
+    }; // create drag image from source element
+
+
+    DragDropTouch.prototype._createImage = function (e) {
+      // just in case...
+      if (this._img) {
+        this._destroyImage();
+      } // create drag image from custom element or drag source
+
+
+      var src = this._imgCustom || this._dragSource;
+      this._img = src.cloneNode(true);
+
+      this._copyStyle(src, this._img);
+
+      this._img.style.top = this._img.style.left = '-9999px'; // if creating from drag source, apply offset and opacity
+
+      if (!this._imgCustom) {
+        var rc = src.getBoundingClientRect(),
+            pt = this._getPoint(e);
+
+        this._imgOffset = {
+          x: pt.x - rc.left,
+          y: pt.y - rc.top
+        };
+        this._img.style.opacity = DragDropTouch._OPACITY.toString();
+      } // add image to document
+
+
+      this._moveImage(e);
+
+      document.body.appendChild(this._img);
+    }; // dispose of drag image element
+
+
+    DragDropTouch.prototype._destroyImage = function () {
+      if (this._img && this._img.parentElement) {
+        this._img.parentElement.removeChild(this._img);
+      }
+
+      this._img = null;
+      this._imgCustom = null;
+    }; // move the drag image element
+
+
+    DragDropTouch.prototype._moveImage = function (e) {
+      var _this = this;
+
+      requestAnimationFrame(function () {
+        if (_this._img) {
+          var pt = _this._getPoint(e, true),
+              s = _this._img.style;
+
+          s.position = 'absolute';
+          s.pointerEvents = 'none';
+          s.zIndex = '999999';
+          s.left = Math.round(pt.x - _this._imgOffset.x) + 'px';
+          s.top = Math.round(pt.y - _this._imgOffset.y) + 'px';
+        }
+      });
+    }; // copy properties from an object to another
+
+
+    DragDropTouch.prototype._copyProps = function (dst, src, props) {
+      for (var i = 0; i < props.length; i++) {
+        var p = props[i];
+        dst[p] = src[p];
+      }
+    };
+
+    DragDropTouch.prototype._copyStyle = function (src, dst) {
+      // remove potentially troublesome attributes
+      DragDropTouch._rmvAtts.forEach(function (att) {
+        dst.removeAttribute(att);
+      }); // copy canvas content
+
+
+      if (src instanceof HTMLCanvasElement) {
+        var cSrc = src,
+            cDst = dst;
+        cDst.width = cSrc.width;
+        cDst.height = cSrc.height;
+        cDst.getContext('2d').drawImage(cSrc, 0, 0);
+      } // copy style (without transitions)
+
+
+      var cs = getComputedStyle(src);
+
+      for (var i = 0; i < cs.length; i++) {
+        var key = cs[i];
+
+        if (key.indexOf('transition') < 0) {
+          dst.style[key] = cs[key];
+        }
+      }
+
+      dst.style.pointerEvents = 'none'; // and repeat for all children
+
+      for (var i = 0; i < src.children.length; i++) {
+        this._copyStyle(src.children[i], dst.children[i]);
+      }
+    };
+
+    DragDropTouch.prototype._dispatchEvent = function (e, type, target) {
+      if (e && target) {
+        var evt = document.createEvent('Event'),
+            t = e.touches ? e.touches[0] : e;
+        evt.initEvent(type, true, true);
+        evt.button = 0;
+        evt.which = evt.buttons = 1;
+
+        this._copyProps(evt, e, DragDropTouch._kbdProps);
+
+        this._copyProps(evt, t, DragDropTouch._ptProps);
+
+        evt.dataTransfer = this._dataTransfer;
+        target.dispatchEvent(evt);
+        return evt.defaultPrevented;
+      }
+
+      return false;
+    }; // gets an element's closest draggable ancestor
+
+
+    DragDropTouch.prototype._closestDraggable = function (e) {
+      for (; e; e = e.parentElement) {
+        if (e.hasAttribute('draggable') && e.draggable) {
+          return e;
+        }
+      }
+
+      return null;
+    };
+
+    return DragDropTouch;
+  }();
+  /*private*/
+
+
+  DragDropTouch._instance = new DragDropTouch(); // singleton
+  // constants
+
+  DragDropTouch._THRESHOLD = 5; // pixels to move before drag starts
+
+  DragDropTouch._OPACITY = 0.5; // drag image opacity
+
+  DragDropTouch._DBLCLICK = 500; // max ms between clicks in a double click
+
+  DragDropTouch._CTXMENU = 900; // ms to hold before raising 'contextmenu' event
+
+  DragDropTouch._ISPRESSHOLDMODE = false; // decides of press & hold mode presence
+
+  DragDropTouch._PRESSHOLDAWAIT = 400; // ms to wait before press & hold is detected
+
+  DragDropTouch._PRESSHOLDMARGIN = 25; // pixels that finger might shiver while pressing
+
+  DragDropTouch._PRESSHOLDTHRESHOLD = 0; // pixels to move before drag starts
+  // copy styles/attributes from drag source to drag image element
+
+  DragDropTouch._rmvAtts = 'id,class,style,draggable'.split(','); // synthesize and dispatch an event
+  // returns true if the event has been handled (e.preventDefault == true)
+
+  DragDropTouch._kbdProps = 'altKey,ctrlKey,metaKey,shiftKey'.split(',');
+  DragDropTouch._ptProps = 'pageX,pageY,clientX,clientY,screenX,screenY,offsetX,offsetY'.split(',');
+  DragDropTouch_1.DragDropTouch = DragDropTouch;
+})(DragDropTouch || (DragDropTouch = {}));
+
+/***/ }),
+
 /***/ "./resources/js/drawing/constants.js":
 /*!*******************************************!*\
   !*** ./resources/js/drawing/constants.js ***!
@@ -6526,6 +7107,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _svgShape_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./svgShape.js */ "./resources/js/drawing/svgShape.js");
 /* harmony import */ var _uiElements_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./uiElements.js */ "./resources/js/drawing/uiElements.js");
 /* harmony import */ var _sidebar_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./sidebar.js */ "./resources/js/drawing/sidebar.js");
+/* harmony import */ var _DragDropTouch__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./DragDropTouch */ "./resources/js/drawing/DragDropTouch.js");
+/* harmony import */ var _DragDropTouch__WEBPACK_IMPORTED_MODULE_4___default = /*#__PURE__*/__webpack_require__.n(_DragDropTouch__WEBPACK_IMPORTED_MODULE_4__);
 function _createForOfIteratorHelper(o, allowArrayLike) { var it = typeof Symbol !== "undefined" && o[Symbol.iterator] || o["@@iterator"]; if (!it) { if (Array.isArray(o) || (it = _unsupportedIterableToArray(o)) || allowArrayLike && o && typeof o.length === "number") { if (it) o = it; var i = 0; var F = function F() {}; return { s: F, n: function n() { if (i >= o.length) return { done: true }; return { done: false, value: o[i++] }; }, e: function e(_e2) { throw _e2; }, f: F }; } throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); } var normalCompletion = true, didErr = false, err; return { s: function s() { it = it.call(o); }, n: function n() { var step = it.next(); normalCompletion = step.done; return step; }, e: function e(_e3) { didErr = true; err = _e3; }, f: function f() { try { if (!normalCompletion && it["return"] != null) it["return"](); } finally { if (didErr) throw err; } } }; }
 
 function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _unsupportedIterableToArray(arr) || _nonIterableSpread(); }
@@ -6553,7 +7136,8 @@ function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
 
 
 
-window.initDrawingQuestion = function (rootElement) {
+
+window.initDrawingQuestion = function (rootElement, isTeacher, isPreview) {
   var _this2 = this;
 
   /**
@@ -6590,10 +7174,15 @@ window.initDrawingQuestion = function (rootElement) {
       boldText: false,
       endmarkerType: "no-endmarker",
       gridSize: 1,
-      spacebarPressed: false
+      spacebarPressed: false,
+      root: rootElement,
+      isTeacher: isTeacher,
+      isPreview: isPreview,
+      hiddenLayersCount: 0
     },
     firstInit: true,
     warnings: {},
+    explainer: null,
     init: function init() {
       if (this.firstInit) {
         this.bindEventListeners(eventListenerSettings);
@@ -6604,10 +7193,11 @@ window.initDrawingQuestion = function (rootElement) {
         if (UI.svgCanvas.getBoundingClientRect().width !== 0) {
           setCorrectPopupHeight();
           calculateCanvasBounds();
-          updateClosedSidebarWidth(); // updateMidPoint();
+          updateClosedSidebarWidth();
 
           if (drawingApp.firstInit) {
             makeGrid();
+            updateMidPoint();
           }
 
           processGridToggleChange();
@@ -6617,8 +7207,6 @@ window.initDrawingQuestion = function (rootElement) {
           drawingApp.firstInit = false;
           clearInterval(pollingFunction);
         }
-
-        console.log("loop");
       });
       setCorrectZIndex();
       setCursorTypeAccordingToCurrentType();
@@ -6630,8 +7218,14 @@ window.initDrawingQuestion = function (rootElement) {
       }
 
       this.warnings = {
-        whenAnyToolButDragSelected: new _uiElements_js__WEBPACK_IMPORTED_MODULE_2__.warningBox("Stel de opmaak in voordat je het object tekent", 2000, rootElement)
+        whenAnyToolButDragSelected: new _uiElements_js__WEBPACK_IMPORTED_MODULE_2__.warningBox("Stel de opmaak in voordat je het object tekent", 5000, rootElement)
       };
+
+      if (!this.explainer) {
+        var layerTemplate = rootElement.querySelector("#layer-group-template");
+        var templateCopy = layerTemplate.content.cloneNode(true);
+        this.explainer = templateCopy.querySelector(".explainer");
+      }
     },
     convertCanvas2DomCoordinates: function convertCanvas2DomCoordinates(coordinates) {
       var matrix = Canvas.params.domMatrix;
@@ -6676,15 +7270,17 @@ window.initDrawingQuestion = function (rootElement) {
       });
     },
     bindToElement: function bindToElement(elem, type, func, options) {
-      elem.addEventListener(type, function (evt) {
-        func(evt);
-      }, options);
+      if (elem) {
+        elem.addEventListener(type, function (evt) {
+          func(evt);
+        }, options);
+      }
     },
     currentToolIs: function currentToolIs(toolname) {
       return this.params.currentTool === toolname;
     },
     isTeacher: function isTeacher() {
-      return !(UI.gridSize === undefined);
+      return this.params.isTeacher;
     }
   };
   /**
@@ -6739,16 +7335,33 @@ window.initDrawingQuestion = function (rootElement) {
       drawing: function drawing() {
         return this.params.draw.newShape;
       },
+      getLayerDomElementsByLayerId: function getLayerDomElementsByLayerId(layerId) {
+        var layer = rootElement.querySelector("#".concat(layerId));
+        var layerHeader = rootElement.querySelector("[data-layer=\"".concat(layerId, "\"]")).closest('.header');
+        return {
+          layer: layer,
+          layerHeader: layerHeader
+        };
+      },
+      removeHighlightFromLayer: function removeHighlightFromLayer(layerId) {
+        var _this$getLayerDomElem = this.getLayerDomElementsByLayerId(layerId),
+            layer = _this$getLayerDomElem.layer,
+            layerHeader = _this$getLayerDomElem.layerHeader;
+
+        layer.classList.remove("highlight");
+        layerHeader.classList.remove("highlight");
+      },
+      addHighlightToLayer: function addHighlightToLayer(layerId) {
+        var _this$getLayerDomElem2 = this.getLayerDomElementsByLayerId(layerId),
+            layer = _this$getLayerDomElem2.layer,
+            layerHeader = _this$getLayerDomElem2.layerHeader;
+
+        layer.classList.add("highlight");
+        layerHeader.classList.add("highlight");
+      },
       setCurrentLayer: function setCurrentLayer(newCurrentLayerID) {
-        var oldCurrentLayer = rootElement.querySelector("#".concat(this.layerKey2ID(this.params.currentLayer)));
-
-        if (oldCurrentLayer === null) {
-          debugger;
-        }
-
-        oldCurrentLayer.classList.remove("highlight");
-        var newCurrentLayer = rootElement.querySelector("#".concat(this.layerKey2ID(newCurrentLayerID)));
-        newCurrentLayer.classList.add("highlight");
+        this.removeHighlightFromLayer(this.layerKey2ID(this.params.currentLayer));
+        this.addHighlightToLayer(this.layerKey2ID(newCurrentLayerID));
         Canvas.params.currentLayer = newCurrentLayerID;
       },
       getEnabledLayers: function getEnabledLayers() {
@@ -6997,6 +7610,11 @@ window.initDrawingQuestion = function (rootElement) {
         callback: function callback() {
           valueWithinBounds(UI.strokeWidth);
         }
+      },
+      "blur": {
+        callback: function callback() {
+          handleStrokeButtonStates();
+        }
       }
     }
   }, {
@@ -7005,6 +7623,7 @@ window.initDrawingQuestion = function (rootElement) {
       "click": {
         callback: function callback() {
           UI.strokeWidth.stepDown();
+          handleStrokeButtonStates();
         }
       },
       "focus": {
@@ -7024,6 +7643,7 @@ window.initDrawingQuestion = function (rootElement) {
       "click": {
         callback: function callback() {
           UI.strokeWidth.stepUp();
+          handleStrokeButtonStates();
         }
       },
       "focus": {
@@ -7044,6 +7664,11 @@ window.initDrawingQuestion = function (rootElement) {
         callback: function callback() {
           valueWithinBounds(UI.textSize);
         }
+      },
+      "blur": {
+        callback: function callback() {
+          handleTextSizeButtonStates();
+        }
       }
     }
   }, {
@@ -7052,6 +7677,7 @@ window.initDrawingQuestion = function (rootElement) {
       "click": {
         callback: function callback() {
           UI.textSize.stepDown();
+          handleTextSizeButtonStates();
         }
       },
       "focus": {
@@ -7071,6 +7697,7 @@ window.initDrawingQuestion = function (rootElement) {
       "click": {
         callback: function callback() {
           UI.textSize.stepUp();
+          handleTextSizeButtonStates();
         }
       },
       "focus": {
@@ -7147,7 +7774,7 @@ window.initDrawingQuestion = function (rootElement) {
       "mousedown touchstart": {
         callback: function callback(evt) {
           var targetHeader = evt.target;
-          var newCurrentLayerID = targetHeader.closest(".layer-group").id;
+          var newCurrentLayerID = targetHeader.querySelector('.header-title').dataset.layer;
 
           _this2.Canvas.setCurrentLayer(_this2.Canvas.layerID2Key(newCurrentLayerID));
         }
@@ -7157,14 +7784,147 @@ window.initDrawingQuestion = function (rootElement) {
     element: UI.submitBtn,
     events: {
       "click": {
-        callback: submitDrawingData
+        callback: function callback() {
+          if (hasHiddenLayers()) {
+            toggleSaveConfirm();
+          } else {
+            submitDrawingData();
+            closeDrawingTool();
+          }
+        }
       }
     }
   }, {
     element: UI.exitBtn,
     events: {
       "click": {
-        callback: function callback() {}
+        callback: handleCloseByExit
+      }
+    }
+  }, {
+    element: UI.closeCancelBtn,
+    events: {
+      "click": {
+        callback: handleCloseByExit
+      }
+    }
+  }, {
+    element: UI.closeConfirmBtn,
+    events: {
+      "click": {
+        callback: handleCloseByExit
+      }
+    }
+  }, {
+    element: UI.deleteCancelBtn,
+    events: {
+      "click": {
+        callback: function callback() {
+          UI.deleteConfirm.classList.toggle('open');
+        }
+      }
+    }
+  }, {
+    element: UI.deleteConfirmBtn,
+    events: {
+      "click": {
+        callback: function callback() {
+          drawingApp.params.deleteSubject.remove();
+          UI.deleteConfirm.classList.toggle('open');
+        }
+      }
+    }
+  }, {
+    element: UI.saveCancelBtn,
+    events: {
+      "click": {
+        callback: function callback() {
+          UI.saveConfirm.classList.toggle('open');
+        }
+      }
+    }
+  }, {
+    element: UI.saveConfirmBtn,
+    events: {
+      "click": {
+        callback: function callback() {
+          handleHiddenLayers();
+          submitDrawingData();
+          closeDrawingTool();
+          toggleSaveConfirm();
+        }
+      }
+    }
+  }, {
+    element: UI.gridToggle,
+    events: {
+      "change": {
+        callback: function callback() {
+          processGridToggleChange();
+        }
+      }
+    }
+  }, {
+    element: UI.gridSize,
+    events: {
+      "input": {
+        callback: updateGrid
+      },
+      "blur": {
+        callback: function callback() {
+          handleGridSizeButtonStates();
+        }
+      }
+    }
+  }, {
+    element: UI.decrGridSize,
+    events: {
+      "click": {
+        callback: function callback() {
+          UI.gridSize.stepDown();
+          handleGridSizeButtonStates();
+          updateGrid();
+        }
+      },
+      "focus": {
+        callback: function callback() {
+          UI.gridSize.classList.add("active");
+        }
+      },
+      "blur": {
+        callback: function callback() {
+          UI.gridSize.classList.remove("active");
+        }
+      }
+    }
+  }, {
+    element: UI.incrGridSize,
+    events: {
+      "click": {
+        callback: function callback() {
+          UI.gridSize.stepUp();
+          handleGridSizeButtonStates();
+          updateGrid();
+        }
+      },
+      "focus": {
+        callback: function callback() {
+          UI.gridSize.classList.add("active");
+        }
+      },
+      "blur": {
+        callback: function callback() {
+          UI.gridSize.classList.remove("active");
+        }
+      }
+    }
+  }, {
+    element: UI.centerBtn,
+    events: {
+      "click": {
+        callback: function callback() {
+          panDrawingCenterToScreenCenter();
+        }
       }
     }
   }];
@@ -7177,67 +7937,14 @@ window.initDrawingQuestion = function (rootElement) {
           callback: processUploadedImages
         }
       }
-    }, {
-      element: UI.gridToggle,
-      events: {
-        "change": {
-          callback: processGridToggleChange
-        }
-      }
-    }, {
-      element: UI.gridSize,
-      events: {
-        "input": {
-          callback: updateGrid
-        }
-      }
-    }, {
-      element: UI.decrGridSize,
-      events: {
-        "click": {
-          callback: function callback() {
-            UI.gridSize.stepDown();
-            updateGrid();
-          }
-        },
-        "focus": {
-          callback: function callback() {
-            UI.gridSize.classList.add("active");
-          }
-        },
-        "blur": {
-          callback: function callback() {
-            UI.gridSize.classList.remove("active");
-          }
-        }
-      }
-    }, {
-      element: UI.incrGridSize,
-      events: {
-        "click": {
-          callback: function callback() {
-            UI.gridSize.stepUp();
-            updateGrid();
-          }
-        },
-        "focus": {
-          callback: function callback() {
-            UI.gridSize.classList.add("active");
-          }
-        },
-        "blur": {
-          callback: function callback() {
-            UI.gridSize.classList.remove("active");
-          }
-        }
-      }
     });
   }
 
   function encodeSvgLayersAsBase64Strings() {
     return {
       question: btoa(Canvas.layers.question.svg.innerHTML),
-      answer: btoa(Canvas.layers.answer.svg.innerHTML)
+      answer: btoa(Canvas.layers.answer.svg.innerHTML),
+      grid: btoa(Canvas.layers.grid.svg.innerHTML)
     };
   }
 
@@ -7259,8 +7966,9 @@ window.initDrawingQuestion = function (rootElement) {
       Canvas.layers.answer.enable();
     }
 
-    if (data.question || data.answer) {//Disabled as it causes unnecessary zooming
-      // fitDrawingToScreen();
+    if (data.question || data.answer) {
+      //Disabled as it causes unnecessary zooming
+      fitDrawingToScreen();
     }
   }
 
@@ -7287,24 +7995,64 @@ window.initDrawingQuestion = function (rootElement) {
   }
 
   function fitDrawingToScreen() {
-    panDrawingCenterToScreenCenter();
-
+    // panDrawingCenterToScreenCenter();
     while (!drawingFitsScreen()) {
       zoomOutOneStep();
     }
   }
 
   function panDrawingCenterToScreenCenter() {
+    var systemGridToggle = false;
+
+    if (!UI.gridToggle.checked) {
+      UI.gridToggle.checked = true;
+      processGridToggleChange();
+      systemGridToggle = true;
+    }
+
+    var systemQuestionHide = false;
+
+    if (!Canvas.layers.question.isHidden()) {
+      Canvas.layers.question.hide();
+      systemQuestionHide = true;
+    }
+
+    var systemAnswerHide = false;
+
+    if (!Canvas.layers.answer.isHidden()) {
+      Canvas.layers.answer.hide();
+      systemAnswerHide = true;
+    }
+
     var bbox = UI.svgPanZoomGroup.getBBox({
       fill: true,
       stroke: true,
       markers: true
     });
     var centerDrawingToOrigin = {
-      dx: -(bbox.x + bbox.width / 2),
-      dy: -(bbox.y + bbox.height / 2)
+      dx: parseInt(bbox.x + bbox.width / 2),
+      dy: parseInt(bbox.y + bbox.height / 2)
     };
     pan(centerDrawingToOrigin);
+
+    if (centerDrawingToOrigin.dy !== 0 || centerDrawingToOrigin.dx !== 0) {
+      if (UI.gridToggle.checked) {
+        panDrawingCenterToScreenCenter();
+      }
+    }
+
+    if (systemGridToggle) {
+      UI.gridToggle.checked = false;
+      processGridToggleChange();
+    }
+
+    if (systemQuestionHide) {
+      Canvas.layers.question.unhide();
+    }
+
+    if (systemAnswerHide) {
+      Canvas.layers.answer.unhide();
+    }
   }
 
   function drawingFitsScreen() {
@@ -7327,6 +8075,7 @@ window.initDrawingQuestion = function (rootElement) {
       for (_iterator.s(); !(_step = _iterator.n()).done;) {
         var groupElement = _step.value;
         var mainElement = groupElement.querySelector(".main");
+        if (mainElement === null) continue;
         var props = {
           group: copyAllAttributesFromElementToObject(groupElement),
           main: copyAllAttributesFromElementToObject(mainElement)
@@ -7415,17 +8164,80 @@ window.initDrawingQuestion = function (rootElement) {
   }
 
   function submitDrawingData() {
-    // parent.skip = true;
+    if (drawingApp.params.isPreview) return;
     var b64Strings = encodeSvgLayersAsBase64Strings();
     var grid = Canvas.layers.grid.params.hidden ? "0.00" : drawingApp.params.gridSize.toString();
     var panGroupSize = getPanGroupSize();
-    Livewire.emit("drawing_data_updated", {
+    var livewireComponent = getClosestLivewireComponentByAttribute(rootElement, 'questionComponent');
+    livewireComponent.handleUpdateDrawingData({
       svg_answer: b64Strings.answer,
       svg_question: b64Strings.question,
-      svg_grid: grid,
+      svg_grid: b64Strings.grid,
+      grid_size: grid,
       svg_zoom_group: panGroupSize
     });
-    makePreviewGrid(grid);
+  }
+
+  function toggleSaveConfirm() {
+    UI.saveConfirm.classList.toggle('open');
+  }
+
+  function hasHiddenLayers() {
+    return answerLayerIsHidden() || questionLayerIsHidden() || hasAnswerHiddenLayers() || hasQuestionHiddenLayers();
+  }
+
+  function handleHiddenLayers() {
+    if (Object.keys(Canvas.layers.question.shapes).length) {
+      Object.values(Canvas.layers.question.shapes).forEach(function (shape) {
+        if (shape.sidebar.svgShape.isHidden()) {
+          shape.sidebar.handleToggleHide();
+        }
+      });
+    }
+
+    if (Object.keys(Canvas.layers.answer.shapes).length) {
+      Object.values(Canvas.layers.answer.shapes).forEach(function (shape) {
+        if (shape.sidebar.svgShape.isHidden()) {
+          shape.sidebar.handleToggleHide();
+        }
+      });
+    }
+  }
+
+  function closeDrawingTool() {
+    rootElement.dispatchEvent(new CustomEvent('close-drawing-tool'));
+  }
+
+  function handleCloseByExit() {
+    UI.closeConfirm.classList.toggle('open');
+  }
+
+  function answerLayerIsHidden() {
+    return Canvas.layers.answer.params.hidden && !!Object.keys(Canvas.layers.answer.shapes).length;
+  }
+
+  function questionLayerIsHidden() {
+    return Canvas.layers.question.params.hidden && !!Object.keys(Canvas.layers.question.shapes).length;
+  }
+
+  function hasQuestionHiddenLayers() {
+    if (Object.keys(Canvas.layers.question.shapes).length) {
+      return !!Object.values(Canvas.layers.question.shapes).filter(function (shape) {
+        return shape.sidebar.svgShape.isHidden();
+      }).length;
+    }
+
+    return false;
+  }
+
+  function hasAnswerHiddenLayers() {
+    if (Object.keys(Canvas.layers.answer.shapes).length) {
+      return !!Object.values(Canvas.layers.answer.shapes).filter(function (shape) {
+        return shape.sidebar.svgShape.isHidden();
+      }).length;
+    }
+
+    return false;
   }
   /**
    * Event handler for down events of the cursor.
@@ -7480,7 +8292,7 @@ window.initDrawingQuestion = function (rootElement) {
   }
 
   function shapeMayBeDragged(shapeGroup, layerObject) {
-    return shapeGroup.classList.contains("draggable") && !layerObject.params.locked;
+    return shapeGroup.classList.contains("draggable") && !layerObject.params.locked && layerObject.props.id.includes(layerObject.Canvas.params.currentLayer);
   }
 
   function elementHasTransforms(transforms) {
@@ -7494,11 +8306,13 @@ window.initDrawingQuestion = function (rootElement) {
   }
 
   function firstTransformIsOfTypeTranslate(transforms) {
-    return getFirstTransform(transforms).type === SVGTransform.SVG_TRANSFORM_TRANSLATE;
+    var _getFirstTransform;
+
+    return ((_getFirstTransform = getFirstTransform(transforms)) === null || _getFirstTransform === void 0 ? void 0 : _getFirstTransform.type) === SVGTransform.SVG_TRANSFORM_TRANSLATE;
   }
 
   function getFirstTransform(transforms) {
-    return transforms.getItem(0);
+    if (transforms.numberOfItems > 0) return transforms.getItem(0);
   }
 
   function calculateCursorToMidPointOffset(translate) {
@@ -7596,8 +8410,9 @@ window.initDrawingQuestion = function (rootElement) {
           "y": cursorPosition.y,
           "fill": UI.textColor.value,
           "stroke-width": 0,
+          "value": 'abc',
           "opacity": parseFloat(UI.elemOpacityNumber.value / 100),
-          "style": "".concat(drawingApp.params.boldText ? "font-weight: bold;" : "", " font-size: ").concat(parseInt(UI.textSize.value), "px")
+          "style": "".concat(drawingApp.params.boldText ? "font-weight: bold;" : "", " font-size: ").concat(UI.textSize.value / 16, "rem")
         };
 
       default:
@@ -7695,6 +8510,7 @@ window.initDrawingQuestion = function (rootElement) {
 
     var CTM = UI.svgPanZoomGroup.getScreenCTM();
     evt = ((_evt$touches2 = evt.touches) === null || _evt$touches2 === void 0 ? void 0 : _evt$touches2[0]) || evt;
+    if (evt.type === 'touchend') return Canvas.params.cursorPosition;
     return {
       x: (evt.clientX - CTM.e) / CTM.a,
       y: (evt.clientY - CTM.f) / CTM.d
@@ -7861,6 +8677,7 @@ window.initDrawingQuestion = function (rootElement) {
 
   function updateZoomInputValue() {
     var value = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 1;
+    handleDisabledZoomButtonStates(value);
     UI.zoomLevel.value = value * 100 + "%";
   }
 
@@ -7907,6 +8724,21 @@ window.initDrawingQuestion = function (rootElement) {
     if (currentTool == newTool) return;
     drawingApp.params.currentTool = newTool;
     makeSelectedBtnActive(evt.currentTarget);
+    enableSpecificPropSelectInputs();
+    setCursorTypeAccordingToCurrentType();
+
+    if (!drawingApp.currentToolIs("drag")) {
+      drawingApp.warnings.whenAnyToolButDragSelected.show();
+    }
+  }
+
+  function manualToolChange(tool) {
+    var currentTool = drawingApp.params.currentTool;
+    var newTool = tool;
+    if (currentTool === newTool) return;
+    drawingApp.params.currentTool = newTool;
+    var btnElement = rootElement.querySelector("[id*=\"".concat(newTool, "-btn\"]"));
+    makeSelectedBtnActive(btnElement);
     enableSpecificPropSelectInputs();
     setCursorTypeAccordingToCurrentType();
 
@@ -7966,6 +8798,7 @@ window.initDrawingQuestion = function (rootElement) {
       _iterator3.f();
     }
 
+    manualToolChange('drag');
     UI.imgUpload.value = null;
   }
 
@@ -8024,15 +8857,18 @@ window.initDrawingQuestion = function (rootElement) {
     return scaleFactor * 0.99;
   }
 
-  function processGridToggleChange() {
-    if (drawingApp.isTeacher()) {
-      var gridState = !UI.gridToggle.checked;
-      UI.gridSize.disabled = gridState;
-      UI.decrGridSize.disabled = gridState;
-      UI.incrGridSize.disabled = gridState;
-      Canvas.layers.grid.params.hidden = gridState;
-    }
+  function updateGridButtonStates(disabled) {
+    UI.gridSize.disabled = disabled;
+    UI.decrGridSize.disabled = UI.gridSize.value <= UI.gridSize.min ? true : disabled;
+    UI.incrGridSize.disabled = UI.gridSize.value >= UI.gridSize.max ? true : disabled;
+    Canvas.layers.grid.params.hidden = disabled;
+    var gridSizeContainerClassList = UI.gridSize.parentElement.classList;
+    disabled ? gridSizeContainerClassList.add('disabled') : gridSizeContainerClassList.remove('disabled');
+  }
 
+  function processGridToggleChange() {
+    var gridState = !UI.gridToggle.checked;
+    updateGridButtonStates(gridState);
     updateGridVisibility();
   }
 
@@ -8043,7 +8879,7 @@ window.initDrawingQuestion = function (rootElement) {
       },
       main: {},
       origin: {
-        stroke: "var(--all-BlueGrey)",
+        stroke: "var(--teacher-Primary)",
         id: "grid-origin"
       },
       size: drawingApp.isTeacher() ? UI.gridSize.value : drawingApp.params.gridSize
@@ -8052,10 +8888,10 @@ window.initDrawingQuestion = function (rootElement) {
   }
 
   function updateGridVisibility() {
-    var grid = Canvas.layers.grid,
-        shape = grid.shape;
+    var grid = Canvas.layers.grid;
+    var shape = grid.shape;
 
-    if (!grid.params.hidden && (drawingApp.isTeacher() ? valueWithinBounds(UI.gridSize) : true)) {
+    if (!grid.params.hidden && valueWithinBounds(UI.gridSize)) {
       shape.show();
       return;
     }
@@ -8064,12 +8900,8 @@ window.initDrawingQuestion = function (rootElement) {
   }
 
   function updateGrid() {
-    if (drawingApp.isTeacher()) {
-      if (valueWithinBounds(UI.gridSize)) {
-        drawingApp.params.gridSize = UI.gridSize.value;
-        Canvas.layers.grid.shape.update();
-      }
-    } else {
+    if (valueWithinBounds(UI.gridSize)) {
+      drawingApp.params.gridSize = UI.gridSize.value;
       Canvas.layers.grid.shape.update();
     }
   }
@@ -8236,7 +9068,7 @@ window.initDrawingQuestion = function (rootElement) {
   }
 
   function getPanGroupSize() {
-    Canvas.layers.grid.shape.hide();
+    var gridLayerHidden = !Canvas.layers.grid.shape.isHidden();
     var questionLayerHidden = Canvas.layers.question.isHidden();
     var answerLayerHidden = Canvas.layers.answer.isHidden();
 
@@ -8246,6 +9078,10 @@ window.initDrawingQuestion = function (rootElement) {
 
     if (answerLayerHidden) {
       Canvas.layers.answer.unhide();
+    }
+
+    if (gridLayerHidden) {
+      Canvas.layers.grid.shape.hide();
     }
 
     var panGroupSize = UI.svgPanZoomGroup.getBBox();
@@ -8258,12 +9094,83 @@ window.initDrawingQuestion = function (rootElement) {
       Canvas.layers.answer.hide();
     }
 
+    if (gridLayerHidden) {
+      Canvas.layers.grid.shape.show();
+    }
+
     return {
       x: panGroupSize.x,
       y: panGroupSize.y,
       width: panGroupSize.width,
       height: panGroupSize.height
     };
+  }
+
+  function handleDisabledZoomButtonStates(newFactor) {
+    if (newFactor === _constants_js__WEBPACK_IMPORTED_MODULE_0__.zoomParams.MAX) {
+      UI.incrZoom.disabled = true;
+      return;
+    }
+
+    if (newFactor === _constants_js__WEBPACK_IMPORTED_MODULE_0__.zoomParams.MIN) {
+      UI.decrZoom.disabled = true;
+      return;
+    }
+
+    UI.incrZoom.disabled = false;
+    UI.decrZoom.disabled = false;
+  }
+
+  function getBoundsForInputElement(element) {
+    var currentValue = parseFloat(element.value);
+    var min = parseFloat(element.min);
+    var max = parseFloat(element.max);
+    return {
+      currentValue: currentValue,
+      min: min,
+      max: max
+    };
+  }
+
+  function getButtonsForElement(element) {
+    var decrButton = UI["decr".concat(element.capitalize())];
+    var incrButton = UI["incr".concat(element.capitalize())];
+    return {
+      decrButton: decrButton,
+      incrButton: incrButton
+    };
+  }
+
+  function disableButtonsWhenNecessary(UIElementString) {
+    var _getButtonsForElement = getButtonsForElement(UIElementString),
+        decrButton = _getButtonsForElement.decrButton,
+        incrButton = _getButtonsForElement.incrButton;
+
+    var _getBoundsForInputEle = getBoundsForInputElement(UI[UIElementString]),
+        currentValue = _getBoundsForInputEle.currentValue,
+        min = _getBoundsForInputEle.min,
+        max = _getBoundsForInputEle.max;
+
+    decrButton.disabled = currentValue === min;
+    incrButton.disabled = currentValue === max;
+  }
+
+  function handleTextSizeButtonStates() {
+    disableButtonsWhenNecessary('textSize');
+  }
+
+  function handleGridSizeButtonStates() {
+    disableButtonsWhenNecessary('gridSize');
+  }
+
+  function handleStrokeButtonStates() {
+    var _getBoundsForInputEle2 = getBoundsForInputElement(UI.strokeWidth),
+        currentValue = _getBoundsForInputEle2.currentValue,
+        min = _getBoundsForInputEle2.min,
+        max = _getBoundsForInputEle2.max;
+
+    UI.decrStroke.disabled = currentValue === min;
+    UI.incrStroke.disabled = currentValue === max;
   }
 
   return {
@@ -8273,43 +9180,49 @@ window.initDrawingQuestion = function (rootElement) {
   };
 };
 
-function clearPreviewGrid() {
+function clearPreviewGrid(rootElement) {
   var gridContainer = rootElement.querySelector('#grid-preview-svg');
 
-  if (gridContainer.firstChild !== null) {
+  if (gridContainer !== null && gridContainer.firstChild !== null) {
     gridContainer.firstChild.remove();
   }
 }
 
-window.makePreviewGrid = function (gridSvg) {
-  clearPreviewGrid();
+window.makePreviewGrid = function (drawingApp, gridSvg) {
+  var rootElement = drawingApp.params.root;
+  clearPreviewGrid(rootElement);
   var props = {
     group: {
       style: ""
     },
     main: {},
     origin: {
-      stroke: "var(--teacher-Primary)",
+      stroke: "var(--teacher-blueGrey)",
       id: "grid-origin"
     },
     size: gridSvg
   };
   var parent = rootElement.querySelector('#grid-preview-svg');
-  return new _svgShape_js__WEBPACK_IMPORTED_MODULE_1__.Grid(0, props, parent, null, null);
+  return new _svgShape_js__WEBPACK_IMPORTED_MODULE_1__.Grid(0, props, parent, drawingApp, null);
 };
 
-window.calculatePreviewBounds = function () {
-  var parent = rootElement.querySelector('#preview-svg');
+window.calculatePreviewBounds = function (parent) {
   var matrix = new DOMMatrix();
   var height = parent.clientHeight,
       width = parent.clientWidth;
+  var scale = parent.viewBox.baseVal.width / width;
+
+  if (parent.viewBox.baseVal.width > width) {
+    scale = width / parent.viewBox.baseVal.width;
+  }
+
   return {
-    top: -matrix.f,
-    bottom: height - matrix.f,
-    height: height,
-    left: -matrix.e,
-    right: width - matrix.e,
-    width: width,
+    top: -(matrix.f + height) / scale,
+    bottom: (height - matrix.f) / scale,
+    height: height * 2 / scale,
+    left: -(matrix.e + width) / scale,
+    right: (width - matrix.e) / scale,
+    width: width * 2 / scale,
     cx: -matrix.e + width / 2,
     cy: -matrix.f + height / 2
   };
@@ -8475,6 +9388,7 @@ var sidebarComponent = /*#__PURE__*/function () {
 
     this.drawingApp = drawingApp;
     this.Canvas = Canvas;
+    this.root = drawingApp.params.root;
   }
 
   _createClass(sidebarComponent, [{
@@ -8506,7 +9420,9 @@ var Entry = /*#__PURE__*/function (_sidebarComponent) {
 
     _this = _super.call(this, drawingApp, Canvas);
     _this.svgShape = shape;
-    var entryTemplate = document.getElementById("shape-group-template");
+
+    var entryTemplate = _this.root.querySelector("#shape-group-template");
+
     var templateCopy = entryTemplate.content.cloneNode(true);
     _this.entryContainer = templateCopy.querySelector(".shape-container");
     _this.entryTitle = templateCopy.querySelector(".shape-title");
@@ -8514,7 +9430,8 @@ var Entry = /*#__PURE__*/function (_sidebarComponent) {
       "delete": templateCopy.querySelector(".remove-btn"),
       lock: templateCopy.querySelector(".lock-btn"),
       hide: templateCopy.querySelector(".hide-btn"),
-      drag: templateCopy.querySelector(".drag-btn")
+      drag: templateCopy.querySelector(".drag-btn"),
+      up: templateCopy.querySelector(".up-btn")
     };
     _this.type = _this.svgShape.type === "path" ? "freehand" : _this.svgShape.type;
     _this.id = "".concat(_this.type, "-").concat(_this.svgShape.shapeId);
@@ -8527,6 +9444,7 @@ var Entry = /*#__PURE__*/function (_sidebarComponent) {
 
     _this.updateHideState();
 
+    _this.deleteModal = _this.root.querySelector('#delete-confirm');
     return _this;
   }
 
@@ -8538,12 +9456,12 @@ var Entry = /*#__PURE__*/function (_sidebarComponent) {
       return [{
         element: this.entryContainer,
         events: {
-          "dragstart": {
+          "dragstart touchstart": {
             callback: function callback(evt) {
               evt.currentTarget.classList.add("dragging");
             }
           },
-          "dragend": {
+          "dragend touchend": {
             callback: function callback(evt) {
               _this2.updateDraggedElementPosition(evt);
             }
@@ -8568,8 +9486,7 @@ var Entry = /*#__PURE__*/function (_sidebarComponent) {
         events: {
           "click": {
             callback: function callback() {
-              _this2.remove(); // delete this;
-
+              _this2.showConfirmDelete();
             }
           }
         }
@@ -8589,25 +9506,88 @@ var Entry = /*#__PURE__*/function (_sidebarComponent) {
         events: {
           "click": {
             callback: function callback() {
-              _this2.svgShape.toggleHide();
-
-              _this2.updateHideState();
+              _this2.handleToggleHide();
+            }
+          }
+        }
+      }, {
+        element: this.btns.drag,
+        events: {
+          "click": {
+            callback: function callback(evt) {
+              _this2.updateClickedElementPositionDown(evt.currentTarget.closest('.shape-container'));
+            }
+          }
+        }
+      }, {
+        element: this.btns.up,
+        events: {
+          "click": {
+            callback: function callback(evt) {
+              _this2.updateClickedElementPositionUp(evt.currentTarget.closest('.shape-container'));
             }
           }
         }
       }];
     }
   }, {
+    key: "handleToggleHide",
+    value: function handleToggleHide() {
+      this.svgShape.toggleHide();
+      this.updateHideState();
+    }
+  }, {
+    key: "updateClickedElementPositionDown",
+    value: function updateClickedElementPositionDown(entry) {
+      if (entry.nextElementSibling) {
+        this.insertAfter(entry, entry.nextElementSibling);
+        var newLayerId = entry.closest(".layer-group").id;
+        var newSvgLayer = this.root.querySelector("#svg-".concat(newLayerId));
+        var shape = newSvgLayer.querySelector("#".concat(entry.id.substring(6)));
+        var shapeToInsertBefore = shape.previousElementSibling;
+
+        if (shapeToInsertBefore) {
+          newSvgLayer.insertBefore(shape, shapeToInsertBefore);
+          return;
+        }
+
+        newSvgLayer.appendChild(shape);
+      }
+    }
+  }, {
+    key: "updateClickedElementPositionUp",
+    value: function updateClickedElementPositionUp(entry) {
+      if (entry.previousElementSibling) {
+        entry.parentElement.insertBefore(entry, entry.previousElementSibling);
+        var newLayerId = entry.closest(".layer-group").id;
+        var newSvgLayer = this.root.querySelector("#svg-".concat(newLayerId));
+        var shape = newSvgLayer.querySelector("#".concat(entry.id.substring(6)));
+        var shapeToInsertBefore = shape.nextElementSibling;
+
+        if (shapeToInsertBefore) {
+          this.insertAfter(shape, shapeToInsertBefore);
+          return;
+        }
+
+        newSvgLayer.appendChild(shape);
+      }
+    }
+  }, {
+    key: "insertAfter",
+    value: function insertAfter(newNode, existingNode) {
+      existingNode.parentNode.insertBefore(newNode, existingNode.nextSibling);
+    }
+  }, {
     key: "updateDraggedElementPosition",
     value: function updateDraggedElementPosition(evt) {
-      var _evt$currentTarget$pr;
+      var _entry$previousElemen;
 
       var entry = evt.currentTarget;
       entry.classList.remove("dragging");
       var newLayerId = entry.closest(".layer-group").id;
-      var newSvgLayer = document.getElementById("svg-".concat(newLayerId));
-      var shape = document.getElementById(entry.id.substring(6));
-      var shapeToInsertBefore = document.getElementById((_evt$currentTarget$pr = evt.currentTarget.previousElementSibling) === null || _evt$currentTarget$pr === void 0 ? void 0 : _evt$currentTarget$pr.id.substring(6));
+      var newSvgLayer = this.root.querySelector("#svg-".concat(newLayerId));
+      var shape = newSvgLayer.querySelector("#".concat(entry.id.substring(6)));
+      var shapeToInsertBefore = newSvgLayer.querySelector("#".concat((_entry$previousElemen = entry.previousElementSibling) === null || _entry$previousElemen === void 0 ? void 0 : _entry$previousElemen.id.substring(6)));
 
       if (shapeToInsertBefore) {
         newSvgLayer.insertBefore(shape, shapeToInsertBefore);
@@ -8644,10 +9624,12 @@ var Entry = /*#__PURE__*/function (_sidebarComponent) {
         this.showSecondIcon(this.btns.hide);
         this.btns.hide.style.color = "#929DAF";
         this.btns.hide.title = this.btns.hide.getAttribute("data-title-hidden");
+        this.entryContainer.classList.add('hide');
       } else {
         this.showFirstIcon(this.btns.hide);
         this.btns.hide.style.color = "";
         this.btns.hide.title = this.btns.hide.getAttribute("data-title-unhidden");
+        this.entryContainer.classList.remove('hide');
       }
     }
   }, {
@@ -8675,6 +9657,12 @@ var Entry = /*#__PURE__*/function (_sidebarComponent) {
       }
 
       this.entryContainer.draggable = true;
+    }
+  }, {
+    key: "showConfirmDelete",
+    value: function showConfirmDelete() {
+      this.drawingApp.params.deleteSubject = this;
+      this.deleteModal.classList.toggle('open');
     }
   }]);
 
@@ -8709,7 +9697,7 @@ var Layer = /*#__PURE__*/function (_sidebarComponent2) {
       locked: false
     };
     _this3.props = props;
-    _this3.svg = document.getElementById("svg-".concat(props.id));
+    _this3.svg = _this3.root.querySelector("#svg-".concat(props.id));
     _this3.sidebar = _this3.makeLayerElement();
     drawingApp.bindEventListeners(_this3.eventListenerSettings, _assertThisInitialized(_this3));
 
@@ -8724,13 +9712,16 @@ var Layer = /*#__PURE__*/function (_sidebarComponent2) {
   _createClass(Layer, [{
     key: "makeLayerElement",
     value: function makeLayerElement() {
-      var layerTemplate = document.getElementById("layer-group-template"),
-          layersContainer = document.getElementById("layers-container");
+      var layerTemplate = this.root.querySelector("#layer-group-template");
+      var layersContainer = this.root.querySelector("#layers-container");
+      var layersHeaderContainer = this.root.querySelector("#layers-heading");
       var templateCopy = layerTemplate.content.cloneNode(true);
       var layerGroup = templateCopy.querySelector(".layer-group");
       layerGroup.id = this.props.id;
       var headerTitle = templateCopy.querySelector(".header-title");
       headerTitle.innerText = this.props.name;
+      headerTitle.setAttribute('data-layer', this.props.id);
+      headerTitle.closest('.header-container').setAttribute('data-layer', this.props.id);
       this.header = templateCopy.querySelector(".header");
       this.shapesGroup = templateCopy.querySelector(".shapes-group");
       this.btns = {
@@ -8739,6 +9730,13 @@ var Layer = /*#__PURE__*/function (_sidebarComponent2) {
         hide: templateCopy.querySelector(".hide-btn"),
         addLayer: templateCopy.querySelector(".add-layer-btn")
       };
+      this.explainer = templateCopy.querySelector(".explainer");
+      this.setCorrectExplainerText();
+
+      if (this.shouldAddLayerHeader()) {
+        layersHeaderContainer.append(this.header);
+      }
+
       layersContainer.append(templateCopy);
       return layerGroup;
     }
@@ -8799,7 +9797,8 @@ var Layer = /*#__PURE__*/function (_sidebarComponent2) {
             callback: function callback(evt) {
               evt.preventDefault();
               if (!_this4.props.enabled) return;
-              var draggedEntry = document.querySelector(".dragging");
+
+              var draggedEntry = _this4.root.querySelector(".dragging");
 
               if (draggedEntry == null) {
                 return;
@@ -8835,6 +9834,7 @@ var Layer = /*#__PURE__*/function (_sidebarComponent2) {
   }, {
     key: "addEntry",
     value: function addEntry(entry) {
+      this.hideExplainer();
       this.shapesGroup.insertBefore(entry.entryContainer, this.getTopShape());
     }
   }, {
@@ -8881,9 +9881,12 @@ var Layer = /*#__PURE__*/function (_sidebarComponent2) {
           "mousedown touchstart": {
             callback: function callback(evt) {
               var targetHeader = evt.target;
-              var newCurrentLayerID = targetHeader.closest(".layer-group").id;
 
-              _this5.Canvas.setCurrentLayer(_this5.Canvas.layerID2Key(newCurrentLayerID));
+              var newCurrentLayerID = _this5.getLayerDataFromTarget(targetHeader);
+
+              if (newCurrentLayerID) {
+                _this5.Canvas.setCurrentLayer(_this5.Canvas.layerID2Key(newCurrentLayerID));
+              }
             }
           }
         }
@@ -8991,6 +9994,29 @@ var Layer = /*#__PURE__*/function (_sidebarComponent2) {
       Object.values(this.shapes).forEach(function (shape) {
         shape.sidebar.remove();
       });
+    }
+  }, {
+    key: "getLayerDataFromTarget",
+    value: function getLayerDataFromTarget(element) {
+      if (element.dataset.layer) return element.dataset.layer;
+      if (element.querySelector('[data-layer]')) return element.querySelector('[data-layer]').dataset.layer;
+      return false;
+    }
+  }, {
+    key: "hideExplainer",
+    value: function hideExplainer() {
+      this.explainer.remove();
+    }
+  }, {
+    key: "setCorrectExplainerText",
+    value: function setCorrectExplainerText() {
+      var group = this.props.id.replace('-group', '');
+      this.explainer.innerText = this.explainer.dataset["text".concat(group.capitalize())];
+    }
+  }, {
+    key: "shouldAddLayerHeader",
+    value: function shouldAddLayerHeader() {
+      return !(this.props.id.contains('question') && !this.drawingApp.isTeacher());
     }
   }]);
 
@@ -9933,6 +10959,7 @@ var svgShape = /*#__PURE__*/function () {
     };
     this.Canvas = Canvas;
     this.drawingApp = drawingApp;
+    this.root = drawingApp.params.root;
     if (!this.props.main) this.props.main = {};
     if (!this.props.group) this.props.group = {};
     this.offset = parseInt(this.props.main["stroke-width"]) / 2 + 3 || 5;
@@ -10027,18 +11054,24 @@ var svgShape = /*#__PURE__*/function () {
     key: "makeBorderElement",
     value: function makeBorderElement() {
       var bbox = this.mainElement.getBoundingBox();
+      var borderColor = this.isAnswerLayer() ? '--cta-primary-mid-dark' : '--primary';
       return new _svgElement_js__WEBPACK_IMPORTED_MODULE_1__.Rectangle({
         "class": "border",
         "x": bbox.x - this.offset,
         "y": bbox.y - this.offset,
         "width": bbox.width + this.offset * 2,
         "height": bbox.height + this.offset * 2,
-        "stroke": "var(--teacher-Primary)",
+        "stroke": "var(".concat(borderColor, ")"),
         "stroke-width": "3",
         "stroke-dasharray": "10",
         "fill": "red",
         "fill-opacity": "0"
       });
+    }
+  }, {
+    key: "isAnswerLayer",
+    value: function isAnswerLayer() {
+      return this.Canvas.layerID2Key(this.parent.id) === 'answer';
     }
   }, {
     key: "updateCornerElements",
@@ -10071,7 +11104,9 @@ var svgShape = /*#__PURE__*/function () {
   }, {
     key: "showBorderElement",
     value: function showBorderElement() {
-      this.borderElement.setAttribute("stroke", this.borderElement.props.stroke);
+      if (this.parent.id.includes(this.Canvas.params.currentLayer) && this.drawingApp.currentToolIs('drag')) {
+        this.borderElement.setAttribute("stroke", this.borderElement.props.stroke);
+      }
     }
   }, {
     key: "showCornerElements",
@@ -10194,7 +11229,7 @@ var svgShape = /*#__PURE__*/function () {
               _this2.getSidebarEntry().highlight();
             }
           },
-          "mouseleave": {
+          "mouseleave touchend": {
             callback: function callback() {
               _this2.unhighlight();
 
@@ -10297,6 +11332,7 @@ var Line = /*#__PURE__*/function (_svgShape3) {
     _classCallCheck(this, Line);
 
     _this3 = _super3.call(this, shapeId, "line", props, parent, drawingApp, Canvas, withHelperElements, withHighlightEvents);
+    _this3.svgCanvas = drawingApp.params.root.querySelector('#svg-canvas');
 
     _this3.makeOwnMarkerForThisShape();
 
@@ -10309,13 +11345,14 @@ var Line = /*#__PURE__*/function (_svgShape3) {
       var markerType = this.getMarkerType();
       if (markerType === "no-endmarker") return;
       var newMarker = this.cloneGenericMarker(markerType);
-      UI.svgCanvas.firstElementChild.appendChild(newMarker);
+      this.svgCanvas.firstElementChild.appendChild(newMarker);
       var newMarkerId = "".concat(newMarker.id, "-line-").concat(this.shapeId);
       newMarker.id = newMarkerId;
       this.props.main["marker-end"] = "url(#".concat(newMarkerId, ")");
       this.mainElement.setAttributeOnElementWithValidation("marker-end", "url(#".concat(newMarkerId, ")"));
       var propertyToChange = this.getPropertyToChange(markerType);
       newMarker.style[propertyToChange] = this.props.main.stroke;
+      this.parent.appendChild(newMarker);
       this.marker = newMarker;
     }
   }, {
@@ -10327,7 +11364,7 @@ var Line = /*#__PURE__*/function (_svgShape3) {
   }, {
     key: "cloneGenericMarker",
     value: function cloneGenericMarker(type) {
-      var markerToClone = document.querySelector("marker#svg-".concat(type));
+      var markerToClone = this.root.querySelector("marker#svg-".concat(type));
       return markerToClone.cloneNode(true);
     }
   }, {
@@ -10380,13 +11417,14 @@ var Text = /*#__PURE__*/function (_svgShape4) {
       var _this5 = this;
 
       var windowCursor = this.drawingApp.convertCanvas2DomCoordinates(cursor);
-      var canvasContainer = document.getElementById("svg-canvas").parentElement;
+      var canvasContainer = this.root.querySelector("#svg-canvas").parentElement;
       var fontSize = parseFloat(this.mainElement.element.style.fontSize);
+      var topOffset = fontSize * parseFloat(getComputedStyle(document.documentElement).fontSize);
       var textInput = new _htmlElement_js__WEBPACK_IMPORTED_MODULE_2__.htmlElement("input", canvasContainer, {
         id: "add-text-input",
         type: "text",
         placeholder: "Type here...",
-        style: "width: ".concat(canvasContainer.getBoundingClientRect().right - windowCursor.x, "px;                position: absolute;                top: ").concat(windowCursor.y - fontSize, "px;                left: ").concat(windowCursor.x - 2, "px;                font-size: ").concat(fontSize, "px;                color: ").concat(this.mainElement.getAttribute("fill"), ";                font-weight: ").concat(this.mainElement.element.style.fontWeight || "normal", ";                transform-origin: bottom left;                transform: scale(").concat(this.Canvas.params.zoomFactor, ")"),
+        style: "width: ".concat(canvasContainer.getBoundingClientRect().right - windowCursor.x, "px;                position: absolute;                top: ").concat(windowCursor.y - topOffset, "px;                left: ").concat(windowCursor.x - 2, "px;                font-size: ").concat(fontSize, "rem;                color: ").concat(this.mainElement.getAttribute("fill"), ";                font-weight: ").concat(this.mainElement.element.style.fontWeight || "normal", ";                transform-origin: bottom left;                transform: scale(").concat(this.Canvas.params.zoomFactor, ")"),
         autocomplete: "off",
         spellcheck: "false"
       });
@@ -10525,16 +11563,17 @@ var Grid = /*#__PURE__*/function (_Path) {
       }
 
       if (Object.keys(bounds).length === 0) {
-        bounds = calculatePreviewBounds();
+        bounds = calculatePreviewBounds(this.parent.parentElement);
       }
 
       var interval = size * _constants_js__WEBPACK_IMPORTED_MODULE_0__.pixelsPerCentimeter,
           lineAmount = this.calculateAmountOfGridLines(interval, bounds);
-      var strOfPoints = "";
+      var strOfPoints = ""; //Verticaal
 
       for (var i = -lineAmount.left; i <= lineAmount.right; i++) {
         strOfPoints += "M".concat(interval * i, ",").concat(bounds.top, "v").concat(bounds.height, " ");
-      }
+      } //Horizontaal
+
 
       for (var j = -lineAmount.top; j <= lineAmount.bottom; j++) {
         strOfPoints += "M".concat(bounds.left, ",").concat(interval * j, "h").concat(bounds.width, " ");
@@ -10747,7 +11786,7 @@ RichTextEditor = {
 
     CKEDITOR.replace(editorId, {
       removePlugins: 'pastefromword,pastefromgdocs,advanced,simpleuploads,dropoff,copyformatting,image,pastetext,uploadwidget,uploadimage',
-      extraPlugins: 'blockimagepaste,quicktable,ckeditor_wiris,autogrow,wordcount,notification,readspeaker',
+      extraPlugins: 'blockimagepaste,quicktable,ckeditor_wiris,autogrow,wordcount,notification',
       toolbar: [{
         name: 'basicstyles',
         items: ['Bold', 'Italic', 'Underline', 'Strike', 'Subscript', 'Superscript']
@@ -58034,7 +59073,7 @@ try {
 /***/ ((module) => {
 
 "use strict";
-module.exports = JSON.parse('{"name":"axios","version":"0.21.4","description":"Promise based HTTP client for the browser and node.js","main":"index.js","scripts":{"test":"grunt test","start":"node ./sandbox/server.js","build":"NODE_ENV=production grunt build","preversion":"npm test","version":"npm run build && grunt version && git add -A dist && git add CHANGELOG.md bower.json package.json","postversion":"git push && git push --tags","examples":"node ./examples/server.js","coveralls":"cat coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js","fix":"eslint --fix lib/**/*.js"},"repository":{"type":"git","url":"https://github.com/axios/axios.git"},"keywords":["xhr","http","ajax","promise","node"],"author":"Matt Zabriskie","license":"MIT","bugs":{"url":"https://github.com/axios/axios/issues"},"homepage":"https://axios-http.com","devDependencies":{"coveralls":"^3.0.0","es6-promise":"^4.2.4","grunt":"^1.3.0","grunt-banner":"^0.6.0","grunt-cli":"^1.2.0","grunt-contrib-clean":"^1.1.0","grunt-contrib-watch":"^1.0.0","grunt-eslint":"^23.0.0","grunt-karma":"^4.0.0","grunt-mocha-test":"^0.13.3","grunt-ts":"^6.0.0-beta.19","grunt-webpack":"^4.0.2","istanbul-instrumenter-loader":"^1.0.0","jasmine-core":"^2.4.1","karma":"^6.3.2","karma-chrome-launcher":"^3.1.0","karma-firefox-launcher":"^2.1.0","karma-jasmine":"^1.1.1","karma-jasmine-ajax":"^0.1.13","karma-safari-launcher":"^1.0.0","karma-sauce-launcher":"^4.3.6","karma-sinon":"^1.0.5","karma-sourcemap-loader":"^0.3.8","karma-webpack":"^4.0.2","load-grunt-tasks":"^3.5.2","minimist":"^1.2.0","mocha":"^8.2.1","sinon":"^4.5.0","terser-webpack-plugin":"^4.2.3","typescript":"^4.0.5","url-search-params":"^0.10.0","webpack":"^4.44.2","webpack-dev-server":"^3.11.0"},"browser":{"./lib/adapters/http.js":"./lib/adapters/xhr.js"},"jsdelivr":"dist/axios.min.js","unpkg":"dist/axios.min.js","typings":"./index.d.ts","dependencies":{"follow-redirects":"^1.14.0"},"bundlesize":[{"path":"./dist/axios.min.js","threshold":"5kB"}]}');
+module.exports = JSON.parse('{"_args":[["axios@0.21.4","/Volumes/SSD/tlc/test-correct"]],"_development":true,"_from":"axios@0.21.4","_id":"axios@0.21.4","_inBundle":false,"_integrity":"sha512-ut5vewkiu8jjGBdqpM44XxjuCjq9LAKeHVmoVfHVzy8eHgxxq8SbAVQNovDA8mVi05kP0Ea/n/UzcSHcTJQfNg==","_location":"/axios","_phantomChildren":{},"_requested":{"type":"version","registry":true,"raw":"axios@0.21.4","name":"axios","escapedName":"axios","rawSpec":"0.21.4","saveSpec":null,"fetchSpec":"0.21.4"},"_requiredBy":["#DEV:/"],"_resolved":"https://registry.npmjs.org/axios/-/axios-0.21.4.tgz","_spec":"0.21.4","_where":"/Volumes/SSD/tlc/test-correct","author":{"name":"Matt Zabriskie"},"browser":{"./lib/adapters/http.js":"./lib/adapters/xhr.js"},"bugs":{"url":"https://github.com/axios/axios/issues"},"bundlesize":[{"path":"./dist/axios.min.js","threshold":"5kB"}],"dependencies":{"follow-redirects":"^1.14.0"},"description":"Promise based HTTP client for the browser and node.js","devDependencies":{"coveralls":"^3.0.0","es6-promise":"^4.2.4","grunt":"^1.3.0","grunt-banner":"^0.6.0","grunt-cli":"^1.2.0","grunt-contrib-clean":"^1.1.0","grunt-contrib-watch":"^1.0.0","grunt-eslint":"^23.0.0","grunt-karma":"^4.0.0","grunt-mocha-test":"^0.13.3","grunt-ts":"^6.0.0-beta.19","grunt-webpack":"^4.0.2","istanbul-instrumenter-loader":"^1.0.0","jasmine-core":"^2.4.1","karma":"^6.3.2","karma-chrome-launcher":"^3.1.0","karma-firefox-launcher":"^2.1.0","karma-jasmine":"^1.1.1","karma-jasmine-ajax":"^0.1.13","karma-safari-launcher":"^1.0.0","karma-sauce-launcher":"^4.3.6","karma-sinon":"^1.0.5","karma-sourcemap-loader":"^0.3.8","karma-webpack":"^4.0.2","load-grunt-tasks":"^3.5.2","minimist":"^1.2.0","mocha":"^8.2.1","sinon":"^4.5.0","terser-webpack-plugin":"^4.2.3","typescript":"^4.0.5","url-search-params":"^0.10.0","webpack":"^4.44.2","webpack-dev-server":"^3.11.0"},"homepage":"https://axios-http.com","jsdelivr":"dist/axios.min.js","keywords":["xhr","http","ajax","promise","node"],"license":"MIT","main":"index.js","name":"axios","repository":{"type":"git","url":"git+https://github.com/axios/axios.git"},"scripts":{"build":"NODE_ENV=production grunt build","coveralls":"cat coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js","examples":"node ./examples/server.js","fix":"eslint --fix lib/**/*.js","postversion":"git push && git push --tags","preversion":"npm test","start":"node ./sandbox/server.js","test":"grunt test","version":"npm run build && grunt version && git add -A dist && git add CHANGELOG.md bower.json package.json"},"typings":"./index.d.ts","unpkg":"dist/axios.min.js","version":"0.21.4"}');
 
 /***/ })
 

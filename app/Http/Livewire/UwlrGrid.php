@@ -2,7 +2,9 @@
 
 namespace tcCore\Http\Livewire;
 
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Livewire\Component;
 use tcCore\Http\Helpers\BaseHelper;
 use tcCore\Http\Helpers\ImportHelper;
@@ -124,6 +126,8 @@ class UwlrGrid extends Component
         $result->save();
         if(BaseHelper::notOnLocal()) {
             dispatch(new ProcessUwlrSoapResultJob($this->processingResultId));
+            // for logging
+            $result->addToLog('jobInQueue',Carbon::now())->addQueueDataToLog('jobsAtInQueue',true);
         } else {
             set_time_limit(0);
             $helper = ImportHelper::initWithUwlrSoapResult(

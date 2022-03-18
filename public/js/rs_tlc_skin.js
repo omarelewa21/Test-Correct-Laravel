@@ -40,7 +40,11 @@ window.rsConf = {
                     }
                     window.getSelection().removeAllRanges();
                 }
-                //hideRsPlayer();
+                hideRsPlayer();
+            },
+            stop: function() {
+                console.log('Player stopped and callback fired!');
+                rspkr.ui.getActivePlayer().close();
             },
             play: function() {
                 console.log('Play callback fired!');
@@ -77,20 +81,15 @@ function handleMouseupForReadspeaker(e,obj)
 {
     removeOldElement();
     rspkr.cke_play_started = false;
-    console.dir(e);
-    if(obj.getSelection().toString()==''){
-        return;
-    }
-    if(e.toElement == ''  || e.toElement == null){
+    if(doNotReadInput(e,obj)){
         return;
     }
     var matchingElement = e.toElement;
-    console.dir(matchingElement);
     //rspkr.popup.showPopup(e);
     var hidden_div = document.createElement('div');
     matchingElement.parentNode.insertBefore(hidden_div,matchingElement);
     hidden_div.id = 'there_can_only_be_one';
-    hidden_div.innerHTML = obj.getSelection().toString();
+    hidden_div.innerHTML = getValueOfInput(e,obj);
     hidden_div.style.height = matchingElement.offsetHeight+'px';
     hidden_div.style.width = matchingElement.offsetWidth+'px';
     hidden_div.style.display = 'inline-flex';
@@ -102,6 +101,37 @@ function handleMouseupForReadspeaker(e,obj)
     matchingElement.classList.add('readspeaker_hidden_element');
     rspkr.ui.Tools.ClickListen.activate();
     hidden_div.click();
+}
+
+function getValueOfInput(e,obj)
+{
+    if(obj.getSelection().toString()!=''){
+        return obj.getSelection().toString();
+    }
+    if(e.toElement == ''  || e.toElement == null){
+        return '';
+    }
+    return e.toElement.title;
+}
+
+function doNotReadInput(e,obj)
+{
+    if(e.toElement == ''  || e.toElement == null){
+        return true;
+    }
+    if(e.toElement.matches(':-internal-autofill-selected')&&e.toElement.title !=''){
+        return false;
+    }
+    if(e.toElement.matches(':-webkit-autofill')&&e.toElement.title !=''){
+        return false;
+    }
+    if(e.toElement.matches(':autofill')&&e.toElement.title !=''){
+        return false;
+    }
+    if(obj.getSelection().toString()==''){
+        return true;
+    }
+    return false;
 }
 
 function readCkEditorOnSelect(editor)
@@ -167,6 +197,11 @@ function readTextArea(questionId)
     hidden_div.id = 'there_can_only_be_one';
     hidden_div.innerHTML = textarea.value;
     hidden_div.style.height = textarea.offsetHeight+'px';
+    hidden_div.style.width = textarea.offsetWidth+'px';
+    hidden_div.classList.add('rs-shadow-textarea');
+    hidden_div.classList.add('form-input');
+    hidden_div.classList.add('overflow-ellipsis');
+
     hidden_div.classList.add('rs-click-listen');
     textarea.parentNode.insertBefore(hidden_div,textarea);
     textarea.classList.add('hidden');

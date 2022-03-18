@@ -31,6 +31,9 @@ class LocalValetDriver extends LaravelValetDriver
         if(stristr($uri,'/ckeditor/plugins/')){
             return $sitePath.'/public/'.$uri;
         }
+        if(stristr($uri,'/integration/configurationjs.php')){
+            return $sitePath.'/public/'.$uri;
+        }
         return $sitePath.'/public/index.php';
     }
 }

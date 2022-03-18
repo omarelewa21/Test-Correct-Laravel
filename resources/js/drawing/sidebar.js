@@ -4,6 +4,7 @@ class sidebarComponent {
     constructor(drawingApp, Canvas) {
         this.drawingApp = drawingApp;
         this.Canvas = Canvas;
+        this.root = drawingApp.params.root;
     }
     showFirstIcon(element) {
         element.querySelectorAll("svg")[0].style.display = "block";
@@ -21,7 +22,7 @@ export class Entry extends sidebarComponent {
     constructor(shape, drawingApp, Canvas) {
         super(drawingApp, Canvas);
         this.svgShape = shape;
-        let entryTemplate = document.getElementById("shape-group-template");
+        let entryTemplate = this.root.querySelector("#shape-group-template");
         const templateCopy = entryTemplate.content.cloneNode(true);
 
         this.entryContainer = templateCopy.querySelector(".shape-container");
@@ -31,7 +32,8 @@ export class Entry extends sidebarComponent {
             delete: templateCopy.querySelector(".remove-btn"),
             lock: templateCopy.querySelector(".lock-btn"),
             hide: templateCopy.querySelector(".hide-btn"),
-            drag: templateCopy.querySelector(".drag-btn")
+            drag: templateCopy.querySelector(".drag-btn"),
+            up: templateCopy.querySelector(".up-btn")
         };
 
         this.type = this.svgShape.type === "path" ? "freehand" : this.svgShape.type;
@@ -44,6 +46,8 @@ export class Entry extends sidebarComponent {
         this.drawingApp.bindEventListeners(this.eventListenerSettings, this);
         this.updateLockState();
         this.updateHideState();
+
+        this.deleteModal = this.root.querySelector('#delete-confirm');
     }
 
     get eventListenerSettings() {
@@ -80,8 +84,7 @@ export class Entry extends sidebarComponent {
                 events: {
                     "click": {
                         callback: () => {
-                            this.remove();
-                            // delete this;
+                            this.showConfirmDelete()
                         },
                     },
                 },
@@ -102,8 +105,27 @@ export class Entry extends sidebarComponent {
                 events: {
                     "click": {
                         callback: () => {
-                            this.svgShape.toggleHide();
-                            this.updateHideState();
+                            this.handleToggleHide();
+                        },
+                    },
+                },
+            },
+            {
+                element: this.btns.drag,
+                events: {
+                    "click": {
+                        callback: (evt) => {
+                            this.updateClickedElementPositionDown(evt.currentTarget.closest('.shape-container'));
+                        },
+                    },
+                },
+            },
+            {
+                element: this.btns.up,
+                events: {
+                    "click": {
+                        callback: (evt) => {
+                            this.updateClickedElementPositionUp(evt.currentTarget.closest('.shape-container'));
                         },
                     },
                 },
@@ -111,15 +133,59 @@ export class Entry extends sidebarComponent {
         ];
     }
 
+    handleToggleHide() {
+        this.svgShape.toggleHide();
+        this.updateHideState();
+    }
+
+    updateClickedElementPositionDown(entry) {
+
+        if(entry.nextElementSibling) {
+            this.insertAfter(entry, entry.nextElementSibling);
+
+            let newLayerId = entry.closest(".layer-group").id;
+            let newSvgLayer = this.root.querySelector(`#svg-${newLayerId}`);
+            let shape = newSvgLayer.querySelector(`#${entry.id.substring(6)}`);
+            let shapeToInsertBefore = shape.previousElementSibling
+            if (shapeToInsertBefore) {
+                newSvgLayer.insertBefore(shape, shapeToInsertBefore);
+                return;
+            }
+            newSvgLayer.appendChild(shape);
+        }
+    }
+
+    updateClickedElementPositionUp(entry) {
+
+        if(entry.previousElementSibling) {
+            entry.parentElement.insertBefore(entry, entry.previousElementSibling);
+
+            let newLayerId = entry.closest(".layer-group").id;
+            let newSvgLayer = this.root.querySelector(`#svg-${newLayerId}`);
+            let shape = newSvgLayer.querySelector(`#${entry.id.substring(6)}`);
+            let shapeToInsertBefore = shape.nextElementSibling
+            if (shapeToInsertBefore) {
+                this.insertAfter(shape, shapeToInsertBefore);
+                return;
+            }
+            newSvgLayer.appendChild(shape);
+        }
+    }
+
+    insertAfter(newNode, existingNode) {
+        existingNode.parentNode.insertBefore(newNode, existingNode.nextSibling);
+    }
+
     updateDraggedElementPosition(evt) {
+
         let entry = evt.currentTarget;
-        entry.classList.remove("dragging");
+            entry.classList.remove("dragging");
 
         let newLayerId = entry.closest(".layer-group").id;
-        let newSvgLayer = document.getElementById(`svg-${newLayerId}`);
-        let shape = document.getElementById(entry.id.substring(6));
-        let shapeToInsertBefore = document.getElementById(
-            evt.currentTarget.previousElementSibling?.id.substring(6)
+        let newSvgLayer = this.root.querySelector(`#svg-${newLayerId}`);
+        let shape = newSvgLayer.querySelector(`#${entry.id.substring(6)}`);
+        let shapeToInsertBefore = newSvgLayer.querySelector(
+            `#${entry.previousElementSibling?.id.substring(6)}`
         );
         if (shapeToInsertBefore) {
             newSvgLayer.insertBefore(shape, shapeToInsertBefore);
@@ -151,17 +217,18 @@ export class Entry extends sidebarComponent {
             this.showSecondIcon(this.btns.hide);
             this.btns.hide.style.color = "#929DAF";
             this.btns.hide.title = this.btns.hide.getAttribute("data-title-hidden");
+            this.entryContainer.classList.add('hide');
         } else {
             this.showFirstIcon(this.btns.hide);
             this.btns.hide.style.color = "";
             this.btns.hide.title = this.btns.hide.getAttribute("data-title-unhidden");
+            this.entryContainer.classList.remove('hide');
         }
     }
 
     remove() {
         this.svgShape.remove();
         this.entryContainer.remove();
-
     }
 
     disable() {
@@ -176,6 +243,11 @@ export class Entry extends sidebarComponent {
             btn.disabled = false;
         }
         this.entryContainer.draggable = true;
+    }
+
+    showConfirmDelete() {
+        this.drawingApp.params.deleteSubject = this;
+        this.deleteModal.classList.toggle('open');
     }
 }
 
@@ -196,7 +268,7 @@ export class Layer extends sidebarComponent {
             locked: false,
         }
         this.props = props;
-        this.svg = document.getElementById(`svg-${props.id}`);
+        this.svg = this.root.querySelector(`#svg-${props.id}`);
         this.sidebar = this.makeLayerElement();
         drawingApp.bindEventListeners(this.eventListenerSettings, this);
         if (this.props.enabled) {
@@ -206,13 +278,19 @@ export class Layer extends sidebarComponent {
     }
 
     makeLayerElement() {
-        const layerTemplate = document.getElementById("layer-group-template"),
-            layersContainer = document.getElementById("layers-container");
+        const layerTemplate = this.root.querySelector("#layer-group-template");
+        const layersContainer = this.root.querySelector("#layers-container");
+        const layersHeaderContainer = this.root.querySelector("#layers-heading");
+
         const templateCopy = layerTemplate.content.cloneNode(true);
         const layerGroup = templateCopy.querySelector(".layer-group");
+
         layerGroup.id = this.props.id;
+
         const headerTitle = templateCopy.querySelector(".header-title");
         headerTitle.innerText = this.props.name;
+        headerTitle.setAttribute('data-layer', this.props.id);
+        headerTitle.closest('.header-container').setAttribute('data-layer', this.props.id);
 
         this.header = templateCopy.querySelector(".header");
         this.shapesGroup = templateCopy.querySelector(".shapes-group");
@@ -224,7 +302,14 @@ export class Layer extends sidebarComponent {
             addLayer: templateCopy.querySelector(".add-layer-btn")
         };
 
+        this.explainer = templateCopy.querySelector(".explainer")
+        this.setCorrectExplainerText();
+
+        if (this.shouldAddLayerHeader()) {
+            layersHeaderContainer.append(this.header);
+        }
         layersContainer.append(templateCopy);
+
         return layerGroup;
     }
 
@@ -284,7 +369,7 @@ export class Layer extends sidebarComponent {
                         callback: (evt) => {
                             evt.preventDefault();
                             if (!this.props.enabled) return;
-                            const draggedEntry = document.querySelector(".dragging");
+                            const draggedEntry = this.root.querySelector(".dragging");
                             if (draggedEntry == null) {
                                 return;
                             }
@@ -313,6 +398,7 @@ export class Layer extends sidebarComponent {
     }
 
     addEntry(entry) {
+        this.hideExplainer();
         this.shapesGroup.insertBefore(entry.entryContainer, this.getTopShape());
     }
 
@@ -352,8 +438,10 @@ export class Layer extends sidebarComponent {
                     "mousedown touchstart": {
                         callback: (evt) => {
                             const targetHeader = evt.target;
-                            const newCurrentLayerID = targetHeader.closest(".layer-group").id;
-                            this.Canvas.setCurrentLayer(this.Canvas.layerID2Key(newCurrentLayerID));
+                            const newCurrentLayerID = this.getLayerDataFromTarget(targetHeader);
+                            if (newCurrentLayerID) {
+                                this.Canvas.setCurrentLayer(this.Canvas.layerID2Key(newCurrentLayerID));
+                            }
                         }
                     },
                 }
@@ -441,5 +529,24 @@ export class Layer extends sidebarComponent {
         Object.values(this.shapes).forEach((shape) => {
             shape.sidebar.remove();
         });
+    }
+    getLayerDataFromTarget(element) {
+        if (element.dataset.layer) return element.dataset.layer;
+        if(element.querySelector('[data-layer]')) return element.querySelector('[data-layer]').dataset.layer
+        return false;
+    }
+
+    hideExplainer() {
+        this.explainer.remove();
+    }
+
+    setCorrectExplainerText() {
+        let group = this.props.id.replace('-group', '');
+
+        this.explainer.innerText = this.explainer.dataset[`text${group.capitalize()}`];
+    }
+
+    shouldAddLayerHeader() {
+        return !(this.props.id.contains('question') && !this.drawingApp.isTeacher())
     }
 }

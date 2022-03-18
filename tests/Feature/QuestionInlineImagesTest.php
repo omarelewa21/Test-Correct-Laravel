@@ -76,7 +76,6 @@ class QuestionInlineImagesTest extends TestCase
     {
         $html = '<p><img height="142" src="https://testportal.test-correct.nl/custom/imageload.php?filename=f2x9TseUoNmdXZo9BfDw" width="354" alt="imageload.php?filename=f2x9TseUoNmdXZo9BfDw"></p>';
 
-
         $questionHtmlConverter= new QuestionHtmlConverter($html);
         $convertedHtml = $questionHtmlConverter->convertImageSourcesWithPatternToNamedRoute('inline-image', Question::INLINE_IMAGE_PATTERN );
         dd($convertedHtml);

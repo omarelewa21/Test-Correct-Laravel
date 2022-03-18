@@ -60,9 +60,10 @@ class CmsArq
         ) {
             return [
                 'answer' => '',
-                'score'  => (string) $answer['score'],
+                'score'  => (string) $answer['score'], // needs to be a string in order to validate and be saved
             ];
         })->toArray());
+
         unset($this->instance->question['answer']);
         $this->instance->question['score'] = collect($this->instance->cmsPropertyBag['answerStruct'])->sum('score');
     }
