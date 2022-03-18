@@ -289,8 +289,16 @@ class Question extends MtiBaseModel {
         return $this->hasMany('tcCore\QuestionAttainment', 'question_id');
     }
 
+    public function questionLearningGoals() {
+        return $this->hasMany('tcCore\QuestionLearningGoal', 'question_id');
+    }
+
     public function attainments() {
         return $this->belongsToMany('tcCore\Attainment', 'question_attainments')->withPivot([$this->getCreatedAtColumn(), $this->getUpdatedAtColumn(), $this->getDeletedAtColumn()])->wherePivot($this->getDeletedAtColumn(), null);
+    }
+
+    public function learningGoals() {
+        return $this->belongsToMany('tcCore\LearningGoal', 'question_attainments')->withPivot([$this->getCreatedAtColumn(), $this->getUpdatedAtColumn(), $this->getDeletedAtColumn()])->wherePivot($this->getDeletedAtColumn(), null);
     }
 
     public function testTakes() {
@@ -1367,6 +1375,13 @@ class Question extends MtiBaseModel {
     public function getQuestionAttainmentsAsArray()
     {
         return $this->questionAttainments->map(function($relation) {
+            return $relation->attainment_id;
+        })->toArray();
+    }
+
+    public function getQuestionLearningGoalsAsArray()
+    {
+        return $this->questionLearningGoals->map(function($relation) {
             return $relation->attainment_id;
         })->toArray();
     }

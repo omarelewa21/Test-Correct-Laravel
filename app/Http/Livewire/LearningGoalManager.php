@@ -4,26 +4,10 @@ namespace tcCore\Http\Livewire;
 
 use Livewire\Component;
 use tcCore\Attainment;
+use tcCore\LearningGoal;
 
-class AttainmentManager extends Component
+class LearningGoalManager extends AttainmentManager
 {
-    public $subdomainId;
-
-    public $subsubdomainId;
-
-    public $domains = [];
-
-    public $subdomains = [];
-
-    public $subsubdomains = [];
-
-    public $domainId;
-
-    public $value;
-
-    public $subjectId;
-
-    public $eductionLevelId;
 
     public function mount()
     {
@@ -34,14 +18,14 @@ class AttainmentManager extends Component
         ];
         $this->domains = [];
 
-        Attainment::filtered($filter)
+        LearningGoal::filtered($filter)
             ->whereNull('attainment_id')
             ->get()
             ->each(function ($domain) {
                     $this->domains[$domain->id] = sprintf("[%s] %s", $domain->code, $domain->description);
             });
         if ($this->value){
-            Attainment::whereIn('id',$this->value)->each(function($attainment){
+            LearningGoal::whereIn('id',$this->value)->each(function($attainment){
                 if ($attainment->attainment_id == null) {
                     $this->domainId = $attainment->id;
                 } elseif(!is_null($attainment->subcode)&&is_null($attainment->subsubcode)) {
@@ -58,48 +42,10 @@ class AttainmentManager extends Component
         }
     }
 
-    public function updatedSubsubdomainId($value)
-    {
-        $this->emitUpdatedValuesEvent();
-    }
-
-    protected function emitUpdatedValuesEvent()
-    {
-            $this->emitUp('updated-attainment', array_filter([$this->domainId, $this->subdomainId, $this->subsubdomainId]));
-    }
-
-    public function updatedDomainId($value)
-    {
-        $this->subdomainId = '';
-        $this->subdomains = [];
-        $this->subsubdomainId = '';
-        $this->subsubdomains = [];
-        $this->reloadSubdomainsListForAttainmentId($value);
-        $this->emitUpdatedValuesEvent();
-    }
-
-    public function updatedSubdomainId($value)
-    {
-        $this->subsubdomainId = '';
-        $this->subsubdomains = [];
-        $this->reloadSubsubdomainsListForAttainmentId($value);
-        $this->emitUpdatedValuesEvent();
-    }
-
-    protected function reloadSubdomainsListForAttainmentId($attainmentId)
-    {
-        $this->reloadDescendantForAttainmentId($attainmentId,'subdomains');
-    }
-
-    protected function reloadSubsubdomainsListForAttainmentId($attainmentId)
-    {
-        $this->reloadDescendantForAttainmentId($attainmentId,'subsubdomains');
-    }
-
     protected function reloadDescendantForAttainmentId($attainmentId,$level)
     {
         if (!empty($attainmentId)) {
-            Attainment::where('attainment_id', $attainmentId)
+            LearningGoal::where('attainment_id', $attainmentId)
                 ->where('status', 'ACTIVE')
                 ->get()
                 ->each(function ($child) use ($level){
@@ -112,8 +58,8 @@ class AttainmentManager extends Component
         }
     }
 
-    public function render()
+    protected function emitUpdatedValuesEvent()
     {
-        return view('livewire.attainment-manager')->layout('layouts.base');
+        $this->emitUp('updated-learning-goal', array_filter([$this->domainId, $this->subdomainId, $this->subsubdomainId]));
     }
 }
