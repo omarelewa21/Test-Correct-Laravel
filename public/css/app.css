@@ -992,17 +992,6 @@ input[type=number] {
     border: dashed 3px var(--primary);
     background: var(--off-white);
 }
-/* @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;700&display=swap');
-* {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
-    outline: none;
-    user-select: none;
-    font-family: 'Nunito', 'Arial';
-    font-size: 16px;
-} */
-
 :root {
     --pop-up-z-index: 128;
 
@@ -1026,6 +1015,8 @@ input[type=number] {
     --teacher-highlight-dark: #857b01;
     --teacher-highlight-light: #fffcd7;
     --note: #6b7789;
+    --purple-mid-dark: #5700cd;
+    --purple-mid-dark-rgb: 87, 0, 205;
 
     /* Cursor types */
     --cursor-default: default;
@@ -1730,16 +1721,28 @@ input[type=number] {
     background: var(--all-OffWhite);
 }
 
-#drawing-tool.teacher #sidebar .layer-group#answer-group .shape-container:hover {
-    background-color: rgba(var(--cta-primary-mid-dark-rgb), 0.05);
+#drawing-tool #sidebar .layer-group .shape-container.selected {
+    font-family: "Nunito Bold", sans-serif;
+}
+
+#drawing-tool.teacher #sidebar .layer-group#question-group .shape-container:hover,
+#drawing-tool.teacher #sidebar .layer-group#question-group .shape-container.selected {
+    background-color: rgba(var(--purple-mid-dark-rgb), 0.05);
+}
+.preview #drawing-tool.teacher #sidebar .layer-group#answer-group .shape-container:hover,
+.preview #drawing-tool.teacher #sidebar .layer-group#answer-group .shape-container.selected {
+    background-color: rgba(var(--primary-rgb), 0.05);
 }
 
 #drawing-tool #sidebar .shape-container:hover .shape-title {
     color: var(--teacher-Primary);
 }
 
-#drawing-tool.teacher #sidebar .layer-group#answer-group .shape-container:hover .shape-title {
-    color: var(--cta-primary-mid-dark);
+#drawing-tool.teacher #sidebar .layer-group#question-group .shape-container:hover .shape-title {
+    color: var(--purple-mid-dark);
+}
+.preview #drawing-tool.teacher #sidebar .layer-group#answer-group .shape-container:hover .shape-title {
+    color: var(--teacher-Primary);
 }
 
 #drawing-tool #sidebar .header {
@@ -1903,13 +1906,21 @@ input[type=number] {
     background: var(--primary);
 }
 
-#drawing-tool.teacher #layers-heading .header.highlight .header-title[data-layer="answer-group"],
-#drawing-tool.teacher #layers-heading .header .header-title[data-layer="answer-group"]:hover {
-    color: var(--cta-primary-mid-dark);
+#drawing-tool.teacher #layers-heading .header.highlight .header-title[data-layer="question-group"],
+#drawing-tool.teacher #layers-heading .header .header-title[data-layer="question-group"]:hover {
+    color: var(--purple-mid-dark);
 }
 
-#drawing-tool.teacher #layers-heading .header.highlight .header-title[data-layer="answer-group"] + .indicator {
-    background: var(--cta-primary-mid-dark);
+#drawing-tool.teacher #layers-heading .header.highlight .header-title[data-layer="question-group"] + .indicator {
+    background: var(--purple-mid-dark);
+}
+.preview #drawing-tool.teacher #layers-heading .header.highlight .header-title[data-layer="answer-group"],
+.preview #drawing-tool.teacher #layers-heading .header .header-title[data-layer="answer-group"]:hover {
+    color: var(--teacher-Primary);
+}
+
+.preview #drawing-tool.teacher #layers-heading .header.highlight .header-title[data-layer="answer-group"] + .indicator {
+    background: var(--teacher-Primary);
 }
 
 #drawing-tool .input-with-button-group {
@@ -1981,11 +1992,57 @@ input[type=number] {
     font-family: "Nunito Bold", sans-serif;
     color: var(--primary);
 }
-#drawing-tool.teacher #sidebar .layer-group#answer-group .shape-container.reorder-highlight {
-    background-color: rgba(var(--cta-primary-mid-dark-rgb), 0.10);
+#drawing-tool.teacher #sidebar .layer-group#question-group .shape-container.reorder-highlight {
+    background-color: rgba(var(--purple-mid-dark-rgb), 0.10);
     font-family: "Nunito Bold", sans-serif;
-    color: var(--cta-primary-mid-dark);
+    color: var(--purple-mid-dark);
 }
+.preview #drawing-tool #img-upload-btn {
+    display: none;
+}
+
+#drawing-tool .child-dragging .draggable:not(.dragging) {
+    pointer-events:none;
+}
+
+#drawing-tool .shape.selected .border {
+    stroke-dasharray: 10, 5;
+}
+
+#drawing-tool .shape.selected .border,
+.preview #drawing-tool.teacher .shape.selected .border {
+    stroke: var(--teacher-Primary);
+}
+
+#drawing-tool.teacher #svg-question-group .shape.selected .border {
+    stroke: var(--purple-mid-dark);
+}
+
+#drawing-tool.teacher #question-group .shape-container.highlight {
+    background-color: rgba(var(--purple-mid-dark-rgb), 0.10);
+    color: var(--purple-mid-dark);
+}
+
+.preview #drawing-tool.teacher #answer-group .shape-container.highlight,
+#drawing-tool .shape-container.highlight {
+    background-color: rgba(var(--primary-rgb), 0.10);
+    color: var(--primary);
+}
+
+#drawing-tool .shape-container.selected .shape-title,
+#drawing-tool .shape-container.highlight .shape-title.highlight {
+    color: var(--primary);
+}
+
+#drawing-tool.teacher #question-group .shape-container.selected .shape-title,
+#drawing-tool.teacher #question-group .shape-container.highlight .shape-title.highlight {
+    color: var(--purple-mid-dark);
+}
+
+#drawing-tool .shape-container.selected {
+    font-family: "Nunito Bold", sans-serif;
+}
+
 
 @media not all and (-webkit-min-device-pixel-ratio: 0), not all and (min-resolution: .001dpcm) {
     @supports (-webkit-appearance:none) and (stroke-color:transparent) {

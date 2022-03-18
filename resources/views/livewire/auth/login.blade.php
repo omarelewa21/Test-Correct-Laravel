@@ -61,13 +61,13 @@
                                     <x-input.text wire:model.lazy="username" autofocus></x-input.text>
                                 </x-input.group>
                                 <x-input.group label="{{ __('auth.password')}}" class="flex-1 relative">
+                                    <x-icon.preview class="absolute bottom-3 right-3.5 primary-hover cursor-pointer"
+                                                    @click="showPassword = !showPassword"/>
                                     <x-input.text wire:model.lazy="password"
                                                   x-bind:type="showPassword ? 'text' : 'password'"
                                                   class="pr-12 overflow-ellipsis"
                                     >
                                     </x-input.text>
-                                    <x-icon.preview class="absolute bottom-3 right-3.5 primary-hover cursor-pointer"
-                                                    @click="showPassword = !showPassword"/>
                                 </x-input.group>
                             </div>
 

@@ -119,7 +119,7 @@ class svgShape {
 
     makeBorderElement() {
         let bbox = this.mainElement.getBoundingBox();
-        const borderColor = (this.isAnswerLayer() && this.drawingApp.isTeacher()) ? '--cta-primary-mid-dark' : '--primary';
+        const borderColor = (this.isQuestionLayer() && this.drawingApp.isTeacher()) ? '--purple-mid-dark' : '--primary';
         return new svgElement.Rectangle({
             "class": "border",
             "x": bbox.x - this.offset,
@@ -134,8 +134,8 @@ class svgShape {
         });
     }
 
-    isAnswerLayer() {
-        return this.Canvas.layerID2Key(this.parent.id) === 'answer';
+    isQuestionLayer() {
+        return this.Canvas.layerID2Key(this.parent.id) === 'question';
     }
 
     updateCornerElements() {
@@ -174,6 +174,7 @@ class svgShape {
     showBorderElement() {
         if (this.parent.id.includes(this.Canvas.params.currentLayer) && this.drawingApp.currentToolIs('drag')) {
             this.borderElement.setAttribute("stroke", this.borderElement.props.stroke);
+            this.borderElement.setAttribute("stroke-dasharray", '4,5');
         }
     }
 
@@ -222,6 +223,7 @@ class svgShape {
     remove() {
         this.shapeGroup.remove();
         this.marker?.remove();
+        if (this.parent.childElementCount === 0) this.showExplainerForLayer();
         delete this;
     }
 
@@ -299,6 +301,10 @@ class svgShape {
 
     unhighlight() {
         this.hideBorderElement();
+    }
+
+    showExplainerForLayer() {
+        this.sidebarEntry.entryContainer.parentElement.querySelector('.explainer').style.display = 'inline-block';
     }
 }
 
@@ -469,6 +475,12 @@ export class Image extends svgShape {
      */
     constructor(shapeId, props, parent, drawingApp, Canvas, withHelperElements, withHighlightEvents) {
         super(shapeId, "image", props, parent, drawingApp, Canvas, withHelperElements, withHighlightEvents);
+    }
+
+    moveToCenter() {
+        const bbox = this.mainElement.getBoundingBox();
+        this.mainElement.setXAttribute(-bbox.width/2)
+        this.mainElement.setYAttribute(-bbox.height/2)
     }
 }
 

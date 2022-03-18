@@ -156,6 +156,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview) {
         let Obj = {
             params: {
                 cursorPosition: {x: 0, y: 0},
+                cursorPositionMousedown: {x: 0, y: 0},
                 currentLayer: "question",
                 focusedShape: null,
                 bounds: {},
@@ -197,12 +198,15 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview) {
             getLayerDomElementsByLayerId: function (layerId) {
                 const layer = rootElement.querySelector(`#${layerId}`);
                 const layerHeader = rootElement.querySelector(`[data-layer="${layerId}"]`).closest('.header');
-                return {layer, layerHeader}
+                const layerSvg = rootElement.querySelector(`#svg-${layerId}`);
+                return {layer, layerHeader, layerSvg}
             },
             removeHighlightFromLayer: function (layerId) {
-                const {layer, layerHeader} = this.getLayerDomElementsByLayerId(layerId);
+                const {layer, layerHeader, layerSvg} = this.getLayerDomElementsByLayerId(layerId);
 
                 layer.classList.remove("highlight");
+                layer.querySelectorAll('.selected').forEach((item) => item.classList.remove('selected'));
+                layerSvg.querySelectorAll('.selected').forEach((item) => item.classList.remove('selected'));
                 layerHeader.classList.remove("highlight");
             },
             addHighlightToLayer: function (layerId) {
@@ -388,6 +392,14 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview) {
                         }
                     },
                     options: {passive: false},
+                },
+                "click": {
+                    callback: (evt) => {
+                        if(!movedDuringClick(evt)) {
+
+                            click(evt)
+                        }
+                    }
                 },
             }
         },
@@ -1079,6 +1091,52 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview) {
         return false;
     }
 
+    function click(evt) {
+        const shapeGroup = evt.target.closest(".shape");
+        if (!shapeGroup) return;
+
+        const layerID = shapeGroup.parentElement.id;
+        const layerObject = Canvas.layers[Canvas.layerID2Key(layerID)];
+        if(!layerObject.props.id.includes(layerObject.Canvas.params.currentLayer)) return;
+
+        const selectedEl = rootElement.querySelector('.selected');
+        const selectedSvgShape = evt.target.closest("g.shape");
+
+        if (selectedEl) removeSelectState(selectedEl);
+        if (selectedEl === selectedSvgShape) return;
+
+        addSelectState(selectedSvgShape);
+    }
+
+    function removeSelectState(element) {
+        element.classList.remove('selected')
+        rootElement.querySelector('#shape-'+element.id).classList.remove('selected')
+    }
+
+    function addSelectState(element) {
+        element.classList.add('selected')
+        rootElement.querySelector('#shape-'+element.id).classList.add('selected')
+    }
+
+    function movedDuringClick(evt) {
+        const delta = 6;
+        const startX = Canvas.params.cursorPositionMousedown.x;
+        const startY = Canvas.params.cursorPositionMousedown.y;
+
+        const diffX = Math.abs(evt.clientX - startX);
+        const diffY = Math.abs(evt.clientY - startY);
+
+        if (diffX < delta && diffY < delta) {
+            return false;
+        }
+
+        return true;
+    }
+
+    function setMousedownPosition(evt) {
+        Canvas.params.cursorPositionMousedown.x = evt.clientX;
+        Canvas.params.cursorPositionMousedown.y = evt.clientY;
+    }
 
     /**
      * Event handler for down events of the cursor.
@@ -1088,6 +1146,9 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview) {
     function cursorStart(evt) {
         evt.preventDefault();
         updateCursorPosition(evt);
+
+        setMousedownPosition(evt)
+
         if (Canvas.params.focusedShape)
             Canvas.params.focusedShape = null;
         if (Canvas.params.highlightedShape) {
@@ -1129,6 +1190,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview) {
         };
 
         selectedSvgShape.classList.add("dragging");
+        selectedSvgShape.parentElement.classList.add("child-dragging");
     }
 
     function shapeMayBeDragged(shapeGroup, layerObject) {
@@ -1520,6 +1582,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview) {
 
     function stopDrag() {
         UI.svgCanvas.querySelector("g.dragging").classList.remove("dragging");
+        UI.svgCanvas.querySelector(".child-dragging").classList.remove("child-dragging");
         Canvas.params.drag.enabled = false;
     }
 
@@ -1639,6 +1702,8 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview) {
             },
             Canvas.params.currentLayer
         );
+
+        shape.svg.moveToCenter();
         shape.svg.addHighlightEvents();
     }
 

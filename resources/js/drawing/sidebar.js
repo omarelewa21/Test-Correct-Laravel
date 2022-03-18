@@ -79,6 +79,11 @@ export class Entry extends sidebarComponent {
                             this.unhighlight();
                         },
                     },
+                    "click": {
+                        callback: (evt) => {
+                            this.handleClick(evt);
+                        },
+                    },
                 },
             },
             {
@@ -210,10 +215,33 @@ export class Entry extends sidebarComponent {
 
     highlight() {
         this.entryTitle.classList.add("highlight");
+        this.entryContainer.classList.add("highlight");
     }
 
     unhighlight() {
         this.entryTitle.classList.remove("highlight");
+        this.entryContainer.classList.remove("highlight");
+    }
+
+    handleClick(evt) {
+        const selectedEl = this.entryContainer.parentElement.querySelector('.selected');
+        if (selectedEl) this.unselect(selectedEl);
+        if (selectedEl === this.entryContainer) return;
+        this.select();
+    }
+
+    select() {
+        this.entryContainer.classList.add('selected');
+        this.svgShape.shapeGroup.element.classList.add('selected');
+    }
+    unselect(element) {
+        const shapeId = element.id.substring(6);
+        element.classList.remove('selected');
+        element.closest('#canvas-sidebar-container').querySelector(`#${shapeId}`).classList.remove('selected');
+    }
+    toggleSelect() {
+        this.entryContainer.classList.toggle('selected');
+        this.svgShape.shapeGroup.element.classList.toggle('selected');
     }
 
     updateLockState() {
@@ -454,6 +482,7 @@ export class Layer extends sidebarComponent {
                             const targetHeader = evt.target;
                             const newCurrentLayerID = this.getLayerDataFromTarget(targetHeader);
                             if (newCurrentLayerID) {
+                                newCurrentLayerID.contains('question') ? this.Canvas.layers.answer.hide() : this.Canvas.layers.answer.unhideIfHidden();
                                 this.Canvas.setCurrentLayer(this.Canvas.layerID2Key(newCurrentLayerID));
                             }
                         }
@@ -552,7 +581,7 @@ export class Layer extends sidebarComponent {
     }
 
     hideExplainer() {
-        this.explainer.remove();
+        this.explainer.style.display = 'none';
     }
 
     setCorrectExplainerText() {

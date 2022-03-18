@@ -7064,10 +7064,10 @@ var validSvgElementKeys = {
 };
 var shapePropertiesAvailableToUser = {
   drag: [],
-  freehand: ["edge", "opacity"],
-  rect: ["edge", "opacity", "fill"],
-  circle: ["edge", "opacity", "fill"],
-  line: ["edge", "opacity", "endmarker-type"],
+  freehand: ["edge"],
+  rect: ["edge", "fill"],
+  circle: ["edge", "fill"],
+  line: ["edge", "endmarker-type"],
   text: ["opacity", "text-style"]
 };
 var validHtmlElementKeys = {
@@ -7090,7 +7090,7 @@ var zoomParams = {
   MIN: 0.25
 };
 var panParams = {
-  STEP: 20
+  STEP: 5
 };
 
 /***/ }),
@@ -7294,6 +7294,10 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview) {
           x: 0,
           y: 0
         },
+        cursorPositionMousedown: {
+          x: 0,
+          y: 0
+        },
         currentLayer: "question",
         focusedShape: null,
         bounds: {},
@@ -7338,17 +7342,26 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview) {
       getLayerDomElementsByLayerId: function getLayerDomElementsByLayerId(layerId) {
         var layer = rootElement.querySelector("#".concat(layerId));
         var layerHeader = rootElement.querySelector("[data-layer=\"".concat(layerId, "\"]")).closest('.header');
+        var layerSvg = rootElement.querySelector("#svg-".concat(layerId));
         return {
           layer: layer,
-          layerHeader: layerHeader
+          layerHeader: layerHeader,
+          layerSvg: layerSvg
         };
       },
       removeHighlightFromLayer: function removeHighlightFromLayer(layerId) {
         var _this$getLayerDomElem = this.getLayerDomElementsByLayerId(layerId),
             layer = _this$getLayerDomElem.layer,
-            layerHeader = _this$getLayerDomElem.layerHeader;
+            layerHeader = _this$getLayerDomElem.layerHeader,
+            layerSvg = _this$getLayerDomElem.layerSvg;
 
         layer.classList.remove("highlight");
+        layer.querySelectorAll('.selected').forEach(function (item) {
+          return item.classList.remove('selected');
+        });
+        layerSvg.querySelectorAll('.selected').forEach(function (item) {
+          return item.classList.remove('selected');
+        });
         layerHeader.classList.remove("highlight");
       },
       addHighlightToLayer: function addHighlightToLayer(layerId) {
@@ -7553,6 +7566,13 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview) {
         },
         options: {
           passive: false
+        }
+      },
+      "click": {
+        callback: function callback(evt) {
+          if (!movedDuringClick(evt)) {
+            click(evt);
+          }
         }
       }
     }
@@ -8239,6 +8259,48 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview) {
 
     return false;
   }
+
+  function click(evt) {
+    var shapeGroup = evt.target.closest(".shape");
+    if (!shapeGroup) return;
+    var layerID = shapeGroup.parentElement.id;
+    var layerObject = Canvas.layers[Canvas.layerID2Key(layerID)];
+    if (!layerObject.props.id.includes(layerObject.Canvas.params.currentLayer)) return;
+    var selectedEl = rootElement.querySelector('.selected');
+    var selectedSvgShape = evt.target.closest("g.shape");
+    if (selectedEl) removeSelectState(selectedEl);
+    if (selectedEl === selectedSvgShape) return;
+    addSelectState(selectedSvgShape);
+  }
+
+  function removeSelectState(element) {
+    element.classList.remove('selected');
+    rootElement.querySelector('#shape-' + element.id).classList.remove('selected');
+  }
+
+  function addSelectState(element) {
+    element.classList.add('selected');
+    rootElement.querySelector('#shape-' + element.id).classList.add('selected');
+  }
+
+  function movedDuringClick(evt) {
+    var delta = 6;
+    var startX = Canvas.params.cursorPositionMousedown.x;
+    var startY = Canvas.params.cursorPositionMousedown.y;
+    var diffX = Math.abs(evt.clientX - startX);
+    var diffY = Math.abs(evt.clientY - startY);
+
+    if (diffX < delta && diffY < delta) {
+      return false;
+    }
+
+    return true;
+  }
+
+  function setMousedownPosition(evt) {
+    Canvas.params.cursorPositionMousedown.x = evt.clientX;
+    Canvas.params.cursorPositionMousedown.y = evt.clientY;
+  }
   /**
    * Event handler for down events of the cursor.
    * Calls either startDrag() or startDraw() based on currentType.
@@ -8251,6 +8313,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview) {
 
     evt.preventDefault();
     updateCursorPosition(evt);
+    setMousedownPosition(evt);
     if (Canvas.params.focusedShape) Canvas.params.focusedShape = null;
 
     if (Canvas.params.highlightedShape) {
@@ -8289,6 +8352,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview) {
       translateOfSvgShape: translateOfSvgShape
     };
     selectedSvgShape.classList.add("dragging");
+    selectedSvgShape.parentElement.classList.add("child-dragging");
   }
 
   function shapeMayBeDragged(shapeGroup, layerObject) {
@@ -8711,6 +8775,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview) {
 
   function stopDrag() {
     UI.svgCanvas.querySelector("g.dragging").classList.remove("dragging");
+    UI.svgCanvas.querySelector(".child-dragging").classList.remove("child-dragging");
     Canvas.params.drag.enabled = false;
   }
 
@@ -8832,6 +8897,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview) {
         height: dummyImage.height * scaleFactor
       }
     }, Canvas.params.currentLayer);
+    shape.svg.moveToCenter();
     shape.svg.addHighlightEvents();
   }
 
@@ -9479,6 +9545,11 @@ var Entry = /*#__PURE__*/function (_sidebarComponent) {
 
               _this2.unhighlight();
             }
+          },
+          "click": {
+            callback: function callback(evt) {
+              _this2.handleClick(evt);
+            }
           }
         }
       }, {
@@ -9617,11 +9688,40 @@ var Entry = /*#__PURE__*/function (_sidebarComponent) {
     key: "highlight",
     value: function highlight() {
       this.entryTitle.classList.add("highlight");
+      this.entryContainer.classList.add("highlight");
     }
   }, {
     key: "unhighlight",
     value: function unhighlight() {
       this.entryTitle.classList.remove("highlight");
+      this.entryContainer.classList.remove("highlight");
+    }
+  }, {
+    key: "handleClick",
+    value: function handleClick(evt) {
+      var selectedEl = this.entryContainer.parentElement.querySelector('.selected');
+      if (selectedEl) this.unselect(selectedEl);
+      if (selectedEl === this.entryContainer) return;
+      this.select();
+    }
+  }, {
+    key: "select",
+    value: function select() {
+      this.entryContainer.classList.add('selected');
+      this.svgShape.shapeGroup.element.classList.add('selected');
+    }
+  }, {
+    key: "unselect",
+    value: function unselect(element) {
+      var shapeId = element.id.substring(6);
+      element.classList.remove('selected');
+      element.closest('#canvas-sidebar-container').querySelector("#".concat(shapeId)).classList.remove('selected');
+    }
+  }, {
+    key: "toggleSelect",
+    value: function toggleSelect() {
+      this.entryContainer.classList.toggle('selected');
+      this.svgShape.shapeGroup.element.classList.toggle('selected');
     }
   }, {
     key: "updateLockState",
@@ -9902,6 +10002,8 @@ var Layer = /*#__PURE__*/function (_sidebarComponent2) {
               var newCurrentLayerID = _this5.getLayerDataFromTarget(targetHeader);
 
               if (newCurrentLayerID) {
+                newCurrentLayerID.contains('question') ? _this5.Canvas.layers.answer.hide() : _this5.Canvas.layers.answer.unhideIfHidden();
+
                 _this5.Canvas.setCurrentLayer(_this5.Canvas.layerID2Key(newCurrentLayerID));
               }
             }
@@ -10022,7 +10124,7 @@ var Layer = /*#__PURE__*/function (_sidebarComponent2) {
   }, {
     key: "hideExplainer",
     value: function hideExplainer() {
-      this.explainer.remove();
+      this.explainer.style.display = 'none';
     }
   }, {
     key: "setCorrectExplainerText",
@@ -11076,7 +11178,7 @@ var svgShape = /*#__PURE__*/function () {
     key: "makeBorderElement",
     value: function makeBorderElement() {
       var bbox = this.mainElement.getBoundingBox();
-      var borderColor = this.isAnswerLayer() && this.drawingApp.isTeacher() ? '--cta-primary-mid-dark' : '--primary';
+      var borderColor = this.isQuestionLayer() && this.drawingApp.isTeacher() ? '--purple-mid-dark' : '--primary';
       return new _svgElement_js__WEBPACK_IMPORTED_MODULE_1__.Rectangle({
         "class": "border",
         "x": bbox.x - this.offset,
@@ -11091,9 +11193,9 @@ var svgShape = /*#__PURE__*/function () {
       });
     }
   }, {
-    key: "isAnswerLayer",
-    value: function isAnswerLayer() {
-      return this.Canvas.layerID2Key(this.parent.id) === 'answer';
+    key: "isQuestionLayer",
+    value: function isQuestionLayer() {
+      return this.Canvas.layerID2Key(this.parent.id) === 'question';
     }
   }, {
     key: "updateCornerElements",
@@ -11128,6 +11230,7 @@ var svgShape = /*#__PURE__*/function () {
     value: function showBorderElement() {
       if (this.parent.id.includes(this.Canvas.params.currentLayer) && this.drawingApp.currentToolIs('drag')) {
         this.borderElement.setAttribute("stroke", this.borderElement.props.stroke);
+        this.borderElement.setAttribute("stroke-dasharray", '4,5');
       }
     }
   }, {
@@ -11187,6 +11290,7 @@ var svgShape = /*#__PURE__*/function () {
 
       this.shapeGroup.remove();
       (_this$marker = this.marker) === null || _this$marker === void 0 ? void 0 : _this$marker.remove();
+      if (this.parent.childElementCount === 0) this.showExplainerForLayer();
       delete this;
     }
   }, {
@@ -11280,6 +11384,11 @@ var svgShape = /*#__PURE__*/function () {
     key: "unhighlight",
     value: function unhighlight() {
       this.hideBorderElement();
+    }
+  }, {
+    key: "showExplainerForLayer",
+    value: function showExplainerForLayer() {
+      this.sidebarEntry.entryContainer.parentElement.querySelector('.explainer').style.display = 'inline-block';
     }
   }]);
 
@@ -11500,7 +11609,16 @@ var Image = /*#__PURE__*/function (_svgShape5) {
     return _super5.call(this, shapeId, "image", props, parent, drawingApp, Canvas, withHelperElements, withHighlightEvents);
   }
 
-  return _createClass(Image);
+  _createClass(Image, [{
+    key: "moveToCenter",
+    value: function moveToCenter() {
+      var bbox = this.mainElement.getBoundingBox();
+      this.mainElement.setXAttribute(-bbox.width / 2);
+      this.mainElement.setYAttribute(-bbox.height / 2);
+    }
+  }]);
+
+  return Image;
 }(svgShape);
 var Path = /*#__PURE__*/function (_svgShape6) {
   _inherits(Path, _svgShape6);
