@@ -245,4 +245,8 @@ class Answer extends BaseModel
     {
         DB::table('answers')->whereId($answerId)->increment('time', $timeToRegister);
     }
+
+    public function feedback(){
+        return $this->hasOne(AnswerFeedback::class);
+    }
 }

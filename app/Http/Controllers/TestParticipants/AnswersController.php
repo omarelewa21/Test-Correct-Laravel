@@ -11,6 +11,8 @@ use tcCore\Http\Requests\CreateAnswerRequest;
 use tcCore\Http\Requests\UpdateAnswerRequest;
 use tcCore\Lib\Question\QuestionInterface;
 use tcCore\TestParticipant;
+use tcCore\AnswerFeedback;
+use Exception;
 
 class AnswersController extends Controller {
 
@@ -26,7 +28,7 @@ class AnswersController extends Controller {
 		(new Answer())->scopeFiltered($answers, $request->get('filter', []), $request->get('order', []));
 
 		if (is_array($request->get('with')) && in_array('answer_ratings', $request->get('with'))) {
-			$answers->with('answerRatings', 'answerRatings.user', 'Question', 'answerParentQuestions', 'answerParentQuestions.groupQuestion', 'answerParentQuestions.groupQuestion.attachments');
+			$answers->with('answerRatings', 'answerRatings.user', 'Question', 'answerParentQuestions', 'answerParentQuestions.groupQuestion', 'answerParentQuestions.groupQuestion.attachments', 'feedback');
 		} elseif (is_array($request->get('with')) && in_array('question', $request->get('with'))) {
 			$answers->with('Question', 'answerParentQuestions', 'answerParentQuestions.groupQuestion', 'answerParentQuestions.groupQuestion.attachments');
 		}
@@ -141,5 +143,47 @@ class AnswersController extends Controller {
         }
         return Response::make($url, 200);
 	}
+
+	/****************************** feedback ************************************/
+    public function loadFeedback(Answer $answer){
+        try{
+            return $answer->load('feedback', 'testParticipant', 'question');
+        }catch (Exception $e){
+            return response($e->getMessage(), 500);
+        }
+    }
+
+    public function saveFeedback(Answer $answer, Request $request){
+        try{
+			$request->validate([
+				'message' => 'required|max:240',
+			]);
+
+            if(is_null($answer->feedback)){
+                AnswerFeedback::create([
+                    'answer_id'     => $answer->id,
+                    'sender_id'     => auth()->id(),
+                    'message'       => $request->message
+                ]);
+            }else{
+				$feedback = $answer->feedback;
+                $feedback->message = $request->message;
+                $feedback->save();
+            }
+
+            return response(200);
+        }catch (Exception $e){
+            return response($e->getMessage(), 500);
+        }
+    }
+
+    public function deleteFeedback($feedback_id){
+        try{
+            $feedback = AnswerFeedback::whereUuid($feedback_id)->delete();
+            return response(200);
+        }catch (Exception $e){
+            return response($e->getMessage(), 500);
+        }
+    }
 
 }

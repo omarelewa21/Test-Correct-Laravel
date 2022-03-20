@@ -179,8 +179,7 @@ Route::group(['middleware' => ['api', 'dl', 'authorize', 'authorizeBinds', 'bind
 	Route::resource('test_take_event_type', 'TestTakeEventTypesController', ['except' => ['create', 'store', 'edit', 'update', 'destroy']]);
 
 	Route::get('test_take_max_score/{test_take}','TestTakesController@maxScoreResponse')->name('test_take.max_score');
-
-	;
+    
 
     Route::get('test_take/{test_take}/attainment/analysis','TestTakes\TestTakeAttainmentAnalysisController@index')->name('test_take_attainment_analysis.index');
     Route::get('test_take/{test_take}/attainment/{attainment}/analysis','TestTakes\TestTakeAttainmentAnalysisController@show')->name('test_take_attainment_analysis.show');
@@ -190,6 +189,12 @@ Route::group(['middleware' => ['api', 'dl', 'authorize', 'authorizeBinds', 'bind
     Route::get('test_participant/{test_participant}/answers_and_status2019',['uses' => 'TestParticipants\Answers2019Controller@getAnswersAndStatus']);
 
     Route::get('test_participant/drawing_answer_url/{answer}',['uses' => 'TestParticipants\AnswersController@getDrawingAnswerUrl']);
+
+    // feedback
+    Route::get('test_participant/feedback/{answer}', 'TestParticipants\AnswersController@loadFeedback');
+    Route::post('test_participant/feedback/{answer}', 'TestParticipants\AnswersController@saveFeedback');
+    Route::delete('test_participant/feedback/{feedback_id}', 'TestParticipants\AnswersController@deleteFeedback')
+	;
 
     Route::get('answers/drawing_answer/{answer}',['uses' => 'AnswersController@showDrawing']);
 
@@ -383,5 +388,5 @@ Route::group(['middleware' => ['api', 'dl', 'authorize', 'authorizeBinds', 'bind
     Route::put('support/register_take_over/{user}','SupportTakeOverLogController@store')->name('support_take_over_log.store');
     Route::get('support/show/{user}','SupportTakeOverLogController@show')->name('support_take_over_log.show');
     Route::get('support/index','SupportTakeOverLogController@index')->name('support_take_over_log.index');
-
+    
 });

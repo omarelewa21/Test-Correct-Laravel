@@ -211,6 +211,7 @@ class TestTakesController extends Controller {
             'testParticipants',
             'testTakeCode'
         ]);
+        $testTake->allowedForFeedback = auth()->user()->allowedForFeedback();
 
         $isInvigilator = false;
         $roles = $this->getUserRoles();

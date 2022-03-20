@@ -44,6 +44,7 @@ use tcCore\Lib\Repositories\StatisticsRepository;
 use tcCore\Lib\Repositories\SchoolYearRepository;
 use tcCore\Lib\User\Factory;
 use tcCore\Lib\User\Roles;
+use tcCore\allowedForFeedback;
 use Dyrynda\Database\Casts\EfficientUuid;
 use Dyrynda\Database\Support\GeneratesUuid;
 use tcCore\Traits\UuidTrait;
@@ -2450,5 +2451,14 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
     public function hasMultipleSchoolLocationsSharedSections()
     {
         return ($this->allowedSchoolLocations()->count() > 1  && $this->isPartOfSharedSection());
+    }
+
+    public function allowedForFeedback(){
+        foreach($this->roles()->pluck('id') as $role_id){
+            if(allowedForFeedback::where('role_id', $role_id)->exists()){
+                return allowedForFeedback::where('role_id', $role_id)->value('is_allowed');
+            }
+        }
+        return 0;
     }
 }
