@@ -21,12 +21,10 @@
     >
         <div class="flex justify-between">
             <span class="flex">{{ __('cms.Teken in de tekentool het antwoordmodel voor de vraag.') }}</span>
-            @if($this->isEmptyCanvas() === false)
-                <x-button.primary @click="show = !show">
-                    <x-icon.edit/>
-                    <span>{{ __('cms.Antwoordmodel aanpassen') }}</span>
-                </x-button.primary>
-            @endif
+            <x-button.primary x-cloak x-show="answerSvg !== ''" @click="show = !show">
+                <x-icon.edit/>
+                <span>{{ __('cms.Tekening aanpassen') }}</span>
+            </x-button.primary>
         </div>
 
         <div class="flex flex-1 min-h-[500px] w-full border border-bluegrey rounded-10 mt-4 items-center justify-center relative overflow-auto drawing-tool-preview">
@@ -66,17 +64,16 @@
                     {{-- extra div overlay so the svg is not hoverable--}}
                     <div class="w-full h-full absolute top-0"></div>
                 </div>
-                @if($this->isEmptyCanvas())
-                    <div class="max-w-2xl z-0  p-8 flex flex-col items-center justify-center relative rounded-10 overflow-auto">
+
+                    <div x-cloak x-show="answerSvg === ''" class="max-w-2xl z-0  p-8 flex flex-col items-center justify-center relative rounded-10 overflow-auto">
                         <div class="absolute bg-white opacity-80 w-full h-full"></div>
                         <div class="z-0 flex flex-col items-center justify-center">
                             <x-button.primary @click="show = !show">
                                 <x-icon.edit/>
-                                <span>Antwoordmodel tekenen</span>
+                                <span>{{ __('cms.Tekening maken') }}</span>
                             </x-button.primary>
                         </div>
                     </div>
-                @endif
             @endif
 
         </div>

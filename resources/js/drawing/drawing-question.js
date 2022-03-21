@@ -259,6 +259,13 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview) {
                         },
                     },
                 }
+            },
+            deleteObject(object) {
+                const objectId = object.id
+                const layer = object.svgShape.isQuestionLayer() ? 'question' : 'answer';
+                object.remove();
+
+                delete this.layers[layer].shapes[objectId];
             }
         }
 
@@ -393,11 +400,10 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview) {
                     },
                     options: {passive: false},
                 },
-                "click": {
+                "click touchstart": {
                     callback: (evt) => {
-                        if(!movedDuringClick(evt)) {
-
-                            click(evt)
+                        if (!movedDuringClick(evt)) {
+                            click(evt);
                         }
                     }
                 },
@@ -691,7 +697,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview) {
             events: {
                 "click": {
                     callback() {
-                        drawingApp.params.deleteSubject.remove();
+                        Canvas.deleteObject(drawingApp.params.deleteSubject);
                         UI.deleteConfirm.classList.toggle('open');
                     },
                 }
@@ -1119,12 +1125,24 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview) {
     }
 
     function movedDuringClick(evt) {
+        if (drawingApp.params.currentTool !== "drag") {
+            return true;
+        }
+
         const delta = 6;
         const startX = Canvas.params.cursorPositionMousedown.x;
         const startY = Canvas.params.cursorPositionMousedown.y;
 
-        const diffX = Math.abs(evt.clientX - startX);
-        const diffY = Math.abs(evt.clientY - startY);
+        let evtClientX = evt.clientX;
+        let evtClientY = evt.clientY;
+
+        if (evt.touches?.length > 0) {
+            evtClientX = evt.touches[0].clientX;
+            evtClientY = evt.touches[0].clientY;
+        }
+
+        const diffX = Math.abs(evtClientX - startX);
+        const diffY = Math.abs(evtClientY - startY);
 
         if (diffX < delta && diffY < delta) {
             return false;
@@ -1136,6 +1154,10 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview) {
     function setMousedownPosition(evt) {
         Canvas.params.cursorPositionMousedown.x = evt.clientX;
         Canvas.params.cursorPositionMousedown.y = evt.clientY;
+        if (evt.touches?.length > 0) {
+            Canvas.params.cursorPositionMousedown.x = evt.touches[0].clientX;
+            Canvas.params.cursorPositionMousedown.y = evt.touches[0].clientY;
+        }
     }
 
     /**
@@ -1750,7 +1772,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview) {
             },
             main: {},
             origin: {
-                stroke: "var(--teacher-Primary)",
+                // stroke: "var(--teacher-Primary)",
                 id: "grid-origin",
             },
             size: (drawingApp.isTeacher() ? UI.gridSize.value : drawingApp.params.gridSize),

@@ -7415,6 +7415,12 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview) {
             }
           }
         };
+      },
+      deleteObject: function deleteObject(object) {
+        var objectId = object.id;
+        var layer = object.svgShape.isQuestionLayer() ? 'question' : 'answer';
+        object.remove();
+        delete this.layers[layer].shapes[objectId];
       }
     };
     Obj.makeLayers();
@@ -7568,7 +7574,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview) {
           passive: false
         }
       },
-      "click": {
+      "click touchstart": {
         callback: function callback(evt) {
           if (!movedDuringClick(evt)) {
             click(evt);
@@ -7849,7 +7855,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview) {
     events: {
       "click": {
         callback: function callback() {
-          drawingApp.params.deleteSubject.remove();
+          Canvas.deleteObject(drawingApp.params.deleteSubject);
           UI.deleteConfirm.classList.toggle('open');
         }
       }
@@ -8284,11 +8290,25 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview) {
   }
 
   function movedDuringClick(evt) {
+    var _evt$touches;
+
+    if (drawingApp.params.currentTool !== "drag") {
+      return true;
+    }
+
     var delta = 6;
     var startX = Canvas.params.cursorPositionMousedown.x;
     var startY = Canvas.params.cursorPositionMousedown.y;
-    var diffX = Math.abs(evt.clientX - startX);
-    var diffY = Math.abs(evt.clientY - startY);
+    var evtClientX = evt.clientX;
+    var evtClientY = evt.clientY;
+
+    if (((_evt$touches = evt.touches) === null || _evt$touches === void 0 ? void 0 : _evt$touches.length) > 0) {
+      evtClientX = evt.touches[0].clientX;
+      evtClientY = evt.touches[0].clientY;
+    }
+
+    var diffX = Math.abs(evtClientX - startX);
+    var diffY = Math.abs(evtClientY - startY);
 
     if (diffX < delta && diffY < delta) {
       return false;
@@ -8298,8 +8318,15 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview) {
   }
 
   function setMousedownPosition(evt) {
+    var _evt$touches2;
+
     Canvas.params.cursorPositionMousedown.x = evt.clientX;
     Canvas.params.cursorPositionMousedown.y = evt.clientY;
+
+    if (((_evt$touches2 = evt.touches) === null || _evt$touches2 === void 0 ? void 0 : _evt$touches2.length) > 0) {
+      Canvas.params.cursorPositionMousedown.x = evt.touches[0].clientX;
+      Canvas.params.cursorPositionMousedown.y = evt.touches[0].clientY;
+    }
   }
   /**
    * Event handler for down events of the cursor.
@@ -8309,7 +8336,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview) {
 
 
   function cursorStart(evt) {
-    var _evt$touches;
+    var _evt$touches3;
 
     evt.preventDefault();
     updateCursorPosition(evt);
@@ -8321,7 +8348,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview) {
       Canvas.params.highlightedShape = null;
     }
 
-    if (((_evt$touches = evt.touches) === null || _evt$touches === void 0 ? void 0 : _evt$touches.length) == 2) {
+    if (((_evt$touches3 = evt.touches) === null || _evt$touches3 === void 0 ? void 0 : _evt$touches3.length) == 2) {
       startPan(evt);
     } else if (drawingApp.params.currentTool == "drag") {
       startDrag(evt);
@@ -8570,10 +8597,10 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview) {
 
 
   function getCursorPosition(evt) {
-    var _evt$touches2;
+    var _evt$touches4;
 
     var CTM = UI.svgPanZoomGroup.getScreenCTM();
-    evt = ((_evt$touches2 = evt.touches) === null || _evt$touches2 === void 0 ? void 0 : _evt$touches2[0]) || evt;
+    evt = ((_evt$touches4 = evt.touches) === null || _evt$touches4 === void 0 ? void 0 : _evt$touches4[0]) || evt;
     if (evt.type === 'touchend') return Canvas.params.cursorPosition;
     return {
       x: (evt.clientX - CTM.e) / CTM.a,
@@ -8945,7 +8972,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview) {
       },
       main: {},
       origin: {
-        stroke: "var(--teacher-Primary)",
+        // stroke: "var(--teacher-Primary)",
         id: "grid-origin"
       },
       size: drawingApp.isTeacher() ? UI.gridSize.value : drawingApp.params.gridSize
@@ -9553,6 +9580,20 @@ var Entry = /*#__PURE__*/function (_sidebarComponent) {
           }
         }
       }, {
+        element: this.btns.drag,
+        events: {
+          "mouseenter touchstart": {
+            callback: function callback(evt) {
+              evt.currentTarget.closest('.shape-container').draggable = true;
+            }
+          },
+          'mouseleave touchend': {
+            callback: function callback(evt) {
+              evt.currentTarget.closest('.shape-container').draggable = false;
+            }
+          }
+        }
+      }, {
         element: this.btns["delete"],
         events: {
           "click": {
@@ -9666,14 +9707,14 @@ var Entry = /*#__PURE__*/function (_sidebarComponent) {
       var newLayerId = entry.closest(".layer-group").id;
       var newSvgLayer = this.root.querySelector("#svg-".concat(newLayerId));
       var shape = newSvgLayer.querySelector("#".concat(entry.id.substring(6)));
-      var shapeToInsertBefore = newSvgLayer.querySelector("#".concat((_entry$previousElemen = entry.previousElementSibling) === null || _entry$previousElemen === void 0 ? void 0 : _entry$previousElemen.id.substring(6)));
+      var shapeToInsertBefore = newSvgLayer.querySelector("#".concat((_entry$previousElemen = entry.previousElementSibling) === null || _entry$previousElemen === void 0 ? void 0 : _entry$previousElemen.id.substring(6), ".shape"));
 
       if (shapeToInsertBefore) {
         newSvgLayer.insertBefore(shape, shapeToInsertBefore);
         return;
       }
 
-      newSvgLayer.appendChild(shape);
+      newSvgLayer.prepend(shape);
     }
   }, {
     key: "reorderHighlight",
@@ -11231,6 +11272,7 @@ var svgShape = /*#__PURE__*/function () {
       if (this.parent.id.includes(this.Canvas.params.currentLayer) && this.drawingApp.currentToolIs('drag')) {
         this.borderElement.setAttribute("stroke", this.borderElement.props.stroke);
         this.borderElement.setAttribute("stroke-dasharray", '4,5');
+        this.borderElement.setAttribute("opacity", '.5');
       }
     }
   }, {
@@ -11250,6 +11292,7 @@ var svgShape = /*#__PURE__*/function () {
     key: "hideBorderElement",
     value: function hideBorderElement() {
       this.borderElement.setAttribute("stroke", "none");
+      this.borderElement.setAttribute("opacity", '');
     }
   }, {
     key: "hideCornerElements",

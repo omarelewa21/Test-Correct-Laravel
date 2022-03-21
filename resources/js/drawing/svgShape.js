@@ -175,6 +175,7 @@ class svgShape {
         if (this.parent.id.includes(this.Canvas.params.currentLayer) && this.drawingApp.currentToolIs('drag')) {
             this.borderElement.setAttribute("stroke", this.borderElement.props.stroke);
             this.borderElement.setAttribute("stroke-dasharray", '4,5');
+            this.borderElement.setAttribute("opacity", '.5');
         }
     }
 
@@ -191,6 +192,7 @@ class svgShape {
 
     hideBorderElement() {
         this.borderElement.setAttribute("stroke", "none");
+        this.borderElement.setAttribute("opacity", '');
     }
 
     hideCornerElements() {

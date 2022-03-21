@@ -259,7 +259,7 @@
     </div>
 </div>
 <template id="shape-group-template">
-    <div class="shape-container" id="shape-n" draggable="true">
+    <div class="shape-container" id="shape-n" draggable="false">
         <div class="flex items-center w-full justify-between">
             <span class="shape-title">If you read this, report a bug</span>
             <div class="btn-group">

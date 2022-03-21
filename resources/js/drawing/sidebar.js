@@ -87,6 +87,21 @@ export class Entry extends sidebarComponent {
                 },
             },
             {
+                element: this.btns.drag,
+                events: {
+                    "mouseenter touchstart": {
+                        callback: (evt) => {
+                            evt.currentTarget.closest('.shape-container').draggable = true;
+                        },
+                    },
+                    'mouseleave touchend': {
+                        callback: (evt) => {
+                            evt.currentTarget.closest('.shape-container').draggable = false;
+                        },
+                    }
+                },
+            },
+            {
                 element: this.btns.delete,
                 events: {
                     "click": {
@@ -196,13 +211,13 @@ export class Entry extends sidebarComponent {
         let newSvgLayer = this.root.querySelector(`#svg-${newLayerId}`);
         let shape = newSvgLayer.querySelector(`#${entry.id.substring(6)}`);
         let shapeToInsertBefore = newSvgLayer.querySelector(
-            `#${entry.previousElementSibling?.id.substring(6)}`
+            `#${entry.previousElementSibling?.id.substring(6)}.shape`
         );
         if (shapeToInsertBefore) {
             newSvgLayer.insertBefore(shape, shapeToInsertBefore);
             return;
         }
-        newSvgLayer.appendChild(shape);
+        newSvgLayer.prepend(shape);
     }
 
     reorderHighlight(element) {

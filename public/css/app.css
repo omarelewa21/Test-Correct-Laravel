@@ -1765,6 +1765,11 @@ input[type=number] {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    cursor: default;
+    -webkit-user-select: none;
+       -moz-user-select: none;
+        -ms-user-select: none;
+            user-select: none;
 }
 
 #drawing-tool #sidebar .shape-title:hover {
@@ -2009,21 +2014,29 @@ input[type=number] {
     stroke-dasharray: 10, 5;
 }
 
+#drawing-tool .shape.dragging .border {
+    stroke-dasharray: 10, 5;
+    opacity: 1;
+}
+
 #drawing-tool .shape.selected .border,
 .preview #drawing-tool.teacher .shape.selected .border {
     stroke: var(--teacher-Primary);
+    opacity: 1;
 }
 
 #drawing-tool.teacher #svg-question-group .shape.selected .border {
     stroke: var(--purple-mid-dark);
 }
 
+#drawing-tool.teacher #question-group .shape-container.selected,
 #drawing-tool.teacher #question-group .shape-container.highlight {
     background-color: rgba(var(--purple-mid-dark-rgb), 0.10);
     color: var(--purple-mid-dark);
 }
 
 .preview #drawing-tool.teacher #answer-group .shape-container.highlight,
+#drawing-tool .shape-container.selected,
 #drawing-tool .shape-container.highlight {
     background-color: rgba(var(--primary-rgb), 0.10);
     color: var(--primary);
