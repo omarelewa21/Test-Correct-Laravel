@@ -19,6 +19,12 @@ class CreateFeedbackAllowedTable extends Migration
             $table->boolean('is_allowed')->default(true);
             $table->timestamps();
         });
+
+        DB::table('feedback_allowed')->insert(
+            array(
+                ['role_id' => 1]
+            )
+        );
     }
 
     /**
