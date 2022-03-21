@@ -212,7 +212,7 @@
                     <div id="layers-heading"></div>
                 </div>
                 <div id="submit">
-                    <button class="CTA" id="submit-btn">
+                    <button class="CTA" id="submit-btn" selid="save-drawing-btn">
                         {{ __('drawing-modal.Opslaan') }}
                     </button>
                 </div>
