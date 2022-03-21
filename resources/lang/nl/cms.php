@@ -114,4 +114,6 @@ return [
     'Weten hoe'                                                                              => 'Weten hoe',
     'Laten zien'                                                                             => 'Laten zien',
     'Doen'                                                                                   => 'Doen',
+    'Tekening maken'                                         => 'Tekening maken',
+    'Tekening aanpassen'                                     => 'Tekening aanpassen',
 ];
