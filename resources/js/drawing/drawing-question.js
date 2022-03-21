@@ -157,6 +157,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview) {
             params: {
                 cursorPosition: {x: 0, y: 0},
                 cursorPositionMousedown: {x: 0, y: 0},
+                touchmoving: false,
                 currentLayer: "question",
                 focusedShape: null,
                 bounds: {},
@@ -400,13 +401,19 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview) {
                     },
                     options: {passive: false},
                 },
-                "click touchstart": {
+                "click": {
                     callback: (evt) => {
                         if (!movedDuringClick(evt)) {
-                            click(evt);
+                            handleShapeSelection(evt);
                         }
                     }
                 },
+                "touchend touchcancel": {
+                    callback: (evt) => {
+                        if (!Canvas.params.touchmoving) handleShapeSelection(evt);
+                        Canvas.params.touchmoving = false;
+                    }
+                }
             }
         },
         {
@@ -1097,7 +1104,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview) {
         return false;
     }
 
-    function click(evt) {
+    function handleShapeSelection(evt) {
         const shapeGroup = evt.target.closest(".shape");
         if (!shapeGroup) return;
 
@@ -1402,6 +1409,10 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview) {
         }
 
         Canvas.params.cursorPosition = cursorPosition;
+
+        if(evt.type === 'touchmove') {
+            Canvas.params.touchmoving = true;
+        }
     }
 
     function updateCursorPosition(evt) {
