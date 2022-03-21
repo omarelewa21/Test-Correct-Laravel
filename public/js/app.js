@@ -9456,12 +9456,12 @@ var Entry = /*#__PURE__*/function (_sidebarComponent) {
       return [{
         element: this.entryContainer,
         events: {
-          "dragstart touchstart": {
+          "dragstart": {
             callback: function callback(evt) {
               evt.currentTarget.classList.add("dragging");
             }
           },
-          "dragend touchend": {
+          "dragend": {
             callback: function callback(evt) {
               _this2.updateDraggedElementPosition(evt);
             }
@@ -11837,7 +11837,7 @@ RichTextEditor = {
     }
 
     CKEDITOR.replace(editorId, {
-      extraPlugins: 'selection,blockimagepaste,quicktable,ckeditor_wiris,autogrow,wordcount,notification',
+      extraPlugins: 'selection,simpleuploads,quicktable,ckeditor_wiris,autogrow,wordcount,notification',
       toolbar: [{
         name: 'basicstyles',
         items: ['Bold', 'Italic', 'Underline', 'Strike', 'Subscript', 'Superscript']
@@ -11846,7 +11846,7 @@ RichTextEditor = {
         items: ['NumberedList', 'BulletedList']
       }, {
         name: 'insert',
-        items: ['Table']
+        items: ['addImage', 'Table']
       }, {
         name: 'styles',
         items: ['Font', 'FontSize']
@@ -11870,7 +11870,7 @@ RichTextEditor = {
     }
 
     CKEDITOR.replace(editorId, {
-      extraPlugins: 'completion,blockimagepaste,quicktable,ckeditor_wiris,autogrow,wordcount,notification',
+      extraPlugins: 'completion,simpleuploads,quicktable,ckeditor_wiris,autogrow,wordcount,notification',
       toolbar: [{
         name: 'clipboard',
         items: ['Undo', 'Redo']

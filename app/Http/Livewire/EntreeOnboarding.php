@@ -21,16 +21,9 @@ class EntreeOnboarding extends Component
 {
     protected $entreeData;
     public $registration;
-    public $email;
-    public $password;
-    public $password_confirmation;
-    public $ref;
-    public $invited_by;
     public $step = 1;
 
     public $btnDisabled = true;
-    public $confirmed;
-    public $shouldDisplayEmail = false;
     public $resendVerificationMail = false;
     public $newRegistration = false;
 
@@ -46,16 +39,13 @@ class EntreeOnboarding extends Component
     public $showSubjects = true;
     public $hasValidTUser = false;
 
-    protected $queryString = ['step', 'email', 'confirmed', 'ref'];
+    protected $queryString = ['step'];
 
     protected function messages(){
         return [
             'registration.name_first.required'      => __('registration.name_first_required'),
             'registration.name.required'            => __('registration.name_last_required'),
             'registration.gender.required'          => __('registration.gender_required'),
-            'password.required'                     => __('registration.password_required'),
-            'password.min'                          => __('registration.password_min'),
-            'password.same'                         => __('registration.password_same'),
             'registration.school_location.required' => __('registration.school_location_required'),
             'registration.website_url.required'     => __('registration.website_url_required'),
             'registration.address.required'         => __('registration.address_required'),
@@ -86,8 +76,6 @@ class EntreeOnboarding extends Component
             'registration.name'                         => 'sometimes',
             'registration.name_suffix'                  => 'sometimes',
             'registration.registration_email_confirmed' => 'sometimes',
-            'registration.invitee'                      => 'sometimes',
-            'password'                                  => 'sometimes',
             'registration.subjects'                     => 'sometimes',
         ];
 
@@ -101,7 +89,7 @@ class EntreeOnboarding extends Component
                 'password'                      => 'required|same:password_confirmation|'. User::getPasswordLengthRule(),
             ]);
             if($this->hasValidTUser){
-                foreach(['password','registration.password','registration.username'] as $key){
+                foreach(['password','registration.password'] as $key){
                     unset($rules[$key]);
                 }
             }
@@ -113,14 +101,18 @@ class EntreeOnboarding extends Component
 
     public function rulesStep2()
     {
-        return [
-            'registration.school_location' => 'required',
-            'registration.website_url'     => 'required',
-            'registration.address'         => 'required',
-            'registration.house_number'    => 'required|regex:/\d/',
-            'registration.postcode'        => 'required|min:6|regex:/^[1-9][0-9]{3}\s?[a-zA-Z]{2}$/',
-            'registration.city'            => 'required',
-        ];
+        if(!$this->hasValidTUser) {
+            return [
+                'registration.school_location' => 'required',
+                'registration.website_url' => 'required',
+                'registration.address' => 'required',
+                'registration.house_number' => 'required|regex:/\d/',
+                'registration.postcode' => 'required|min:6|regex:/^[1-9][0-9]{3}\s?[a-zA-Z]{2}$/',
+                'registration.city' => 'required',
+            ];
+        } else {
+            return [];
+        }
     }
 
     public function mount()
@@ -139,9 +131,10 @@ class EntreeOnboarding extends Component
                 collect(['name_first','name_suffix','name','gender'])->each(function($key) {
                     $this->registration->$key = $this->entreeData->user->$key;
                 });
-                $this->registration->username = $this->email = $this->entreeData->email;
+                $this->registration->username = $this->entreeData->emailAddress;
                 $this->registration->school_location = $this->entreeData->location->name;
                 $this->showSubjects = false;
+                $this->btnStepOneDisabledCheck();
             }
         }
 
@@ -151,23 +144,11 @@ class EntreeOnboarding extends Component
         if (!$this->step != 1 || $this->step >= '4') {
             $this->step = 1;
         }
-        if (!$this->email) {
-            $this->email = '';
-        }
-        if ($this->isUserConfirmedWithEmail()) {
-            $this->confirmed = 0;
-            $this->shouldDisplayEmail = true;
-        }
 
-        $this->registration->registration_email_confirmed = $this->confirmed || $this->hasValidTUser;
+        $this->registration->registration_email_confirmed = $this->hasValidTUser;
         if(!$this->hasValidTUser) {
             $this->setSubjectOptions();
         }
-    }
-
-    private function isUserConfirmedWithEmail()
-    {
-        return (!$this->confirmed) || ($this->confirmed === 1 && !$this->email);
     }
 
     public function backToStepOne()
@@ -207,18 +188,25 @@ class EntreeOnboarding extends Component
     public function step2()
     {
         $this->validate();
+
         if (!$this->checkInputForLength() && !$this->warningStepTwoConfirmed) {
             $this->warningStepTwoConfirmed = true;
             return;
         }
-        $this->validate($this->rulesStep2());
-        $this->registration->save();
-        try {
-            $this->newRegistration = $this->registration->addUserToRegistration($this->password, $this->registration->invitee, $this->ref);
-            $this->step = 3;
-        } catch (\Throwable $e) {
-            $this->step = 'error';
-            Bugsnag::notifyException($e);
+        if($this->hasValidTUser) {
+            // we need to merge the data with the t user account
+
+        } else {
+            $this->validate($this->rulesStep2());
+
+            $this->registration->save();
+            try {
+                $this->newRegistration = $this->registration->addUserToRegistration($this->password, $this->registration->invitee, $this->ref);
+                $this->step = 3;
+            } catch (\Throwable $e) {
+                $this->step = 'error';
+                Bugsnag::notifyException($e);
+            }
         }
     }
 
@@ -259,7 +247,7 @@ class EntreeOnboarding extends Component
                 || empty($this->password)
                 || empty($this->registration->username)
             );
-            if ($this->confirmed != 1 && !$this->btnDisabled) {
+            if (!$this->btnDisabled) {
                 $this->btnDisabled = empty($this->registration->username);
             }
         }

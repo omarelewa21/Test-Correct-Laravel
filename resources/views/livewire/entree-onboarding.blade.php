@@ -86,19 +86,18 @@
                             {{--content form--}}
                             <div class="flex-grow">
                                 <form class="h-full relative" wire:submit.prevent="step1" action="#" method="POST">
-                                    @if($this->shouldDisplayEmail)
-                                        <div class="email-section mb-4 w-full md:w-1/2">
-                                            <div class="mb-4">
-                                                <div class="input-group">{{ $this->registration->username }}
-                                                    <input id="username" wire:model.lazy="registration.username" @if($this->hasValidTUser) disabled @endif
-                                                           class="form-input @if($this->hasValidTUser) disabled @endif @error('registration.username') border-red @enderror"
-                                                           autofocus>
-                                                    <label for="username"
-                                                           class="transition ease-in-out duration-150">{{ __("onboarding.your_school_email") }}</label>
-                                                </div>
+                                    <div class="email-section mb-4 w-full md:w-1/2">
+                                        <div class="mb-4">
+                                            <div class="input-group">
+                                                <input id="username" wire:model.lazy="registration.username" @if($this->hasValidTUser) disabled @endif
+                                                       class="form-input @if($this->hasValidTUser) disabled @endif @error('registration.username') border-red @enderror"
+                                                       autofocus>
+                                                <label for="username"
+                                                       class="transition ease-in-out duration-150">{{ __("onboarding.your_school_email") }}</label>
                                             </div>
                                         </div>
-                                    @endif
+                                    </div>
+
                                     <div class="gender-section mb-4">
                                         <div class="inline-block male mr-4">
                                             <label for="gender_male"
@@ -333,7 +332,7 @@
                     @elseif($this->step === 2)
                         <div class="content-form">
                             {{--content header--}}
-                            <div class="mb-6 relative">
+                            <div class="mb-6 relative w-full">
                                 <img class="card-header-img float-left mr-4" src="/svg/stickers/school.svg" alt="">
                                 <h1 class="md:mt-2 top-4 card-header-text">{{ __("onboarding.Wat zijn jouw schoolgegevens") }}?</h1>
                             </div>
@@ -341,52 +340,66 @@
                             <div class="flex-grow">
                                 <form class="h-full relative" wire:submit.prevent="step2" action="#" method="POST">
                                     <div class="input-section mb-4">
-                                        <div class="school-info">
-                                            <div class="input-group w-full sm:w-1/2 sm:pr-2">
+                                        @if($this->hasValidTUser)
+                                            <div class="input-group w-full  sm:w-1/2 sm:pr-2">
                                                 <input id="school_location"
-                                                       wire:model.lazy="registration.school_location"
-                                                       class="form-input @error('registration.school_location') border-red @enderror">
+                                                       wire:model.lazy="registration.school_location" @if($this->hasValidTUser) disabled @endif
+                                                       class="form-input @if($this->hasValidTUser) disabled @endif @error('registration.school_location') border-red @enderror">
                                                 <label for="school_location"
                                                        class="">{{ __("onboarding.Schoolnaam") }}</label>
                                             </div>
+                                        @else
+                                            <div class="school-info">
+                                                <div class="input-group w-full  sm:w-1/2 sm:pr-2">
+                                                    <input id="school_location"
+                                                           wire:model.lazy="registration.school_location" @if($this->hasValidTUser) disabled @endif
+                                                           class="form-input @if($this->hasValidTUser) disabled @endif @error('registration.school_location') border-red @enderror">
+                                                    <label for="school_location"
+                                                           class="">{{ __("onboarding.Schoolnaam") }}</label>
+                                                </div>
 
-                                            <div class="input-group w-full sm:w-1/2 sm:pl-2">
-                                                <input id="website_url" wire:model.lazy="registration.website_url"
-                                                       class="form-input @error('registration.website_url') border-red @enderror">
-                                                <label for="website_url"
-                                                       class="">{{ __("onboarding.Website") }}</label>
+                                                <div class="input-group w-full sm:w-1/2 sm:pl-2">
+                                                    <input id="website_url" wire:model.lazy="registration.website_url"
+                                                           class="form-input @error('registration.website_url') border-red @enderror">
+                                                    <label for="website_url"
+                                                           class="">{{ __("onboarding.Website") }}</label>
+                                                </div>
+
+                                                <div class="input-group w-9/12 sm:w-3/5 pr-2">
+                                                    <input id="address" wire:model.lazy="registration.address"
+                                                           class="form-input @error('registration.address') border-red @enderror">
+                                                    <label for="address"
+                                                           class="">{{ __("onboarding.Bezoekadres") }}</label>
+                                                </div>
+                                                <div class="input-group w-3/12 sm:w-32 pl-2 md:mr-16">
+                                                    <input id="house_number" wire:model.lazy="registration.house_number"
+                                                           class="form-input @error('registration.house_number') border-red @enderror">
+                                                    <label for="house_number"
+                                                           class="">{{ __("onboarding.Huisnummer") }}</label>
+                                                </div>
+
+                                                <div class="input-group  w-3/12 sm:w-32 pr-2">
+                                                    <input id="postcode" wire:model.lazy="registration.postcode"
+                                                           class="form-input  @error('registration.postcode') border-red @enderror">
+                                                    <label for="postcode"
+                                                           class="">{{ __("onboarding.Postcode") }}</label>
+                                                </div>
+                                                <div class="input-group w-9/12 sm:w-3/5 pl-2">
+                                                    <input id="city" wire:model="registration.city"
+                                                           class="form-input @error('registration.city') border-red @enderror">
+                                                    <label for="city"
+                                                           class="">{{ __("onboarding.Plaatsnaam") }}</label>
+                                                </div>
                                             </div>
-                                            <div class="input-group w-9/12 sm:w-3/5 pr-2">
-                                                <input id="address" wire:model.lazy="registration.address"
-                                                       class="form-input @error('registration.address') border-red @enderror">
-                                                <label for="address"
-                                                       class="">{{ __("onboarding.Bezoekadres") }}</label>
-                                            </div>
-                                            <div class="input-group w-3/12 sm:w-32 pl-2 md:mr-16">
-                                                <input id="house_number" wire:model.lazy="registration.house_number"
-                                                       class="form-input @error('registration.house_number') border-red @enderror">
-                                                <label for="house_number"
-                                                       class="">{{ __("onboarding.Huisnummer") }}</label>
-                                            </div>
-                                            <div class="input-group  w-3/12 sm:w-32 pr-2">
-                                                <input id="postcode" wire:model.lazy="registration.postcode"
-                                                       class="form-input  @error('registration.postcode') border-red @enderror">
-                                                <label for="postcode"
-                                                       class="">{{ __("onboarding.Postcode") }}</label>
-                                            </div>
-                                            <div class="input-group w-9/12 sm:w-3/5 pl-2">
-                                                <input id="city" wire:model="registration.city"
-                                                       class="form-input @error('registration.city') border-red @enderror">
-                                                <label for="city"
-                                                       class="">{{ __("onboarding.Plaatsnaam") }}</label>
-                                            </div>
+                                        @endif
+                                    </div>
+                                    @if(!$this->hasValidTUser)
+                                        <div>
+                                            <p class="text-note">
+                                                {{ __('onboarding.general_terms_text_pt_1') }} <a class="underline primary-hover" href="https://www.test-correct.nl/algemene-voorwaarden" target="_blank">{{ __('onboarding.general_terms') }}</a> {{ __('onboarding.general_terms_text_pt_2') }}
+                                            </p>
                                         </div>
-                                    </div>
-                                    <div>
-                                        <p class="text-note">
-                                            {{ __('onboarding.general_terms_text_pt_1') }} <a class="underline primary-hover" href="https://www.test-correct.nl/algemene-voorwaarden" target="_blank">{{ __('onboarding.general_terms') }}</a> {{ __('onboarding.general_terms_text_pt_2') }}
-                                        </p>
-                                    </div>
+                                    @endif
                                     <div class="mb-16">
                                         @if($this->warningStepTwo)
                                             <div class="notification warning mt-4">
@@ -438,7 +451,7 @@
                                                 <x-icon.chevron></x-icon.chevron>
                                             </button>
                                         @else
-                                            <button
+                                            <button wire:click="step2"
                                                     class="flex items-center button button-md primary-button md:float-right">
                                                 <span class="mr-2">{{ __("onboarding.Maak mijn Test-Correct account") }}</span>
                                                 <x-icon.chevron></x-icon.chevron>

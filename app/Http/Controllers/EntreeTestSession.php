@@ -11,7 +11,7 @@ class EntreeTestSession extends Controller {
     public function __invoke()
     {
         $data = (object)[
-            'email' => 'erik@sobit.nl',
+            'emailAddress' => 'erik@sobit.nl',
             'role' => 'teacher',
             'encryptedEckId' => Crypt::encryptString('xxxx12'),
             'brin' => 'K99900',
@@ -19,7 +19,7 @@ class EntreeTestSession extends Controller {
             'brin4ErrorDetected' => false,
         ];
         if(request()->has('withT')){
-            $data->email = 'erik@sobit.nl';
+            $data->emailAddress = 'erik@sobit.nl';
             if(request()->has('userId')){
                 $data->user = User::find(request()->get('userId'));
             }
