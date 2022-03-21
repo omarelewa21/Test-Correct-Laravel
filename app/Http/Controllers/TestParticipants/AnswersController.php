@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Storage;
 use tcCore\Http\Requests;
 use tcCore\Http\Controllers\Controller;
 use tcCore\Answer;
+use tcCore\Question;
 use tcCore\Http\Requests\CreateAnswerRequest;
 use tcCore\Http\Requests\UpdateAnswerRequest;
 use tcCore\Lib\Question\QuestionInterface;
@@ -145,8 +146,17 @@ class AnswersController extends Controller {
 	}
 
 	/****************************** feedback ************************************/
-    public function loadFeedback(Answer $answer){
-        try{
+    public function loadFeedback(TestParticipant $testParticipant, Question $question){
+		try{
+			$answer = Answer::where('test_participant_id', $testParticipant->id)->where('question_id', $question->id)->first();
+            return $answer->load('feedback', 'testParticipant', 'question');
+        }catch (Exception $e){
+            return response($e->getMessage(), 500);
+        }
+    }
+
+	public function loadFeedbackByAnswer(Answer $answer){
+		try{
             return $answer->load('feedback', 'testParticipant', 'question');
         }catch (Exception $e){
             return response($e->getMessage(), 500);

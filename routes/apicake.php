@@ -191,7 +191,8 @@ Route::group(['middleware' => ['api', 'dl', 'authorize', 'authorizeBinds', 'bind
     Route::get('test_participant/drawing_answer_url/{answer}',['uses' => 'TestParticipants\AnswersController@getDrawingAnswerUrl']);
 
     // feedback
-    Route::get('test_participant/feedback/{answer}', 'TestParticipants\AnswersController@loadFeedback');
+    Route::get('test_participant/feedback/{test_participant}/{question}', 'TestParticipants\AnswersController@loadFeedback');
+    Route::get('test_participant/feedback-by-answer/{answer}', 'TestParticipants\AnswersController@loadFeedbackByAnswer');
     Route::post('test_participant/feedback/{answer}', 'TestParticipants\AnswersController@saveFeedback');
     Route::delete('test_participant/feedback/{feedback_id}', 'TestParticipants\AnswersController@deleteFeedback')
 	;
