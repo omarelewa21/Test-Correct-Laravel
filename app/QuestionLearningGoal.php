@@ -70,4 +70,9 @@ class QuestionLearningGoal extends CompositePrimaryKeyModel {
 
         return $questionLearningGoal;
     }
+
+    public function scopeStrict($query)
+    {
+        $query->select('question_attainments.attainment_id as attainment_id','question_attainments.question_id','question_attainments.deleted_at')->join('attainments','question_attainments.attainment_id','attainments.id')->where('is_learning_goal', '=',true);
+    }
 }

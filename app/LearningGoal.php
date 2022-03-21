@@ -1,6 +1,6 @@
 <?php namespace tcCore;
 
-
+use tcCore\Lib\Models\BaseModel;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Dyrynda\Database\Casts\EfficientUuid;
 use tcCore\Scopes\LearningGoalScope;
@@ -15,7 +15,7 @@ class LearningGoal extends Attainment {
 
     public static function boot()
     {
-        parent::boot();
+        parent::bootWithoutGlobalScope();
         static::addGlobalScope(new LearningGoalScope);
     }
 

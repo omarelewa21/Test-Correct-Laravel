@@ -9,6 +9,8 @@ use tcCore\LearningGoal;
 class LearningGoalManager extends AttainmentManager
 {
 
+    public $type = 'learning_goals';
+
     public function mount()
     {
         $filter = [
@@ -61,5 +63,10 @@ class LearningGoalManager extends AttainmentManager
     protected function emitUpdatedValuesEvent()
     {
         $this->emitUp('updated-learning-goal', array_filter([$this->domainId, $this->subdomainId, $this->subsubdomainId]));
+    }
+
+    public function title()
+    {
+        return __('Leerdoelen');
     }
 }

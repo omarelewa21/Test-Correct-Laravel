@@ -50,6 +50,11 @@ class Attainment extends BaseModel {
         static::addGlobalScope(new AttainmentScope);
     }
 
+    public static function bootWithoutGlobalScope()
+    {
+        parent::boot();
+    }
+
     /**
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */

@@ -380,7 +380,7 @@
 
                 @if($this->showSettingsAttainments())
                     <x-content-section>
-                        <x-slot name="title">{{ __('Eindtermen') }}</x-slot>
+                        <x-slot name="title">{{ __('Eindtermen & Leerdoelen') }}</x-slot>
                         <div class="flex flex-col flex-2">
                             <p class="text-base">{{ __('Selecteer het domein en het subdomein waaraan deze vraag bijdraagt.') }}</p>
                             <div class="grid grid-cols-2 gap-x-6 mt-4">

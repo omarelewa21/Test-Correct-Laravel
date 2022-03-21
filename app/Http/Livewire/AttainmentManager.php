@@ -25,6 +25,8 @@ class AttainmentManager extends Component
 
     public $eductionLevelId;
 
+    public $type = 'attainments';
+
     public function mount()
     {
         $filter = [
@@ -115,5 +117,10 @@ class AttainmentManager extends Component
     public function render()
     {
         return view('livewire.attainment-manager')->layout('layouts.base');
+    }
+
+    public function title()
+    {
+        return __('Eindtermen');
     }
 }
