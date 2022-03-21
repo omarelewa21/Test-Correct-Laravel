@@ -17,6 +17,10 @@ class LearningGoal extends Attainment {
     {
         parent::bootWithoutGlobalScope();
         static::addGlobalScope(new LearningGoalScope);
+
+        static::saving(function (LearningGoal $learningGoal) {
+            $learningGoal->is_learning_goal = true;
+        });
     }
 
 

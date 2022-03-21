@@ -5,17 +5,17 @@ namespace tcCore\Console\Commands;
 use Illuminate\Console\Command;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use tcCore\Http\Controllers\AttainmentImportController;
+use tcCore\Http\Controllers\LearningGoalImportController;
 use tcCore\User;
 
-class ImportAttainments extends Command
+class ImportLearningGoals extends Command
 {
     /**
      * The name and signature of the console command.
      *
      * @var string
      */
-    protected $signature = 'import:attainments';
+    protected $signature = 'import:learning_goals';
 
     /**
      * The console command description.
@@ -41,7 +41,7 @@ class ImportAttainments extends Command
      */
     public function handle()
     {
-        $pathToFile = storage_path('app/attainments_upload/attainments.xlsx');
+        $pathToFile = storage_path('app/learning_goals_upload/attainments.xlsx');
         $exists = file_exists($pathToFile);
         if(!$exists){
             $this->error('No file on the server!');
@@ -51,7 +51,7 @@ class ImportAttainments extends Command
         if(!$this->confirm($msg)){
             exit;
         }
-        $msg = 'Are you sure you are importing attainments and not learning goals?';
+        $msg = 'Are you sure you are importing learning goals and not attainments?';
         if(!$this->confirm($msg)){
             exit;
         }
@@ -67,7 +67,7 @@ class ImportAttainments extends Command
             'attainments' => $pathToFile,
         ];
         $request->merge($params);
-        $response = (new AttainmentImportController())->importForUpdateOrCreate($request);
+        $response = (new LearningGoalImportController())->importForUpdateOrCreate($request);
         if($response->getStatusCode()!=200){
             $this->error('something went wrong. msg:'.$response->getContent());
             exit;

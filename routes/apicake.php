@@ -287,6 +287,8 @@ Route::group(['middleware' => ['api', 'dl', 'authorize', 'authorizeBinds', 'bind
     Route::get('attainments/data','AttainmentCitoImportController@data')->name('attainment_cito.data');
     Route::post('/attainments/upload','AttainmentImportController@upload')->name('attainment.upload');
     Route::get('/attainments/export','AttainmentExportController@export')->name('attainment.export');
+    Route::post('/learning_goals/upload','LearningGoalImportController@upload')->name('learning_goal.upload');
+    Route::get('/learning_goals/export','LearningGoalExportController@export')->name('learning_goal.export');
 
     Route::get('demo_account/{user}', 'DemoAccountController@show')->name('demo_account.show');
     Route::put('demo_account/{user}', 'DemoAccountController@update')->name('demo_account.update');
