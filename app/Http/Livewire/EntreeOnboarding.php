@@ -4,12 +4,14 @@ namespace tcCore\Http\Livewire;
 
 use Bugsnag\BugsnagLaravel\Facades\Bugsnag;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Session;
 use Livewire\Component;
 use Ramsey\Uuid\Uuid;
 use tcCore\BaseSubject;
 use tcCore\DemoTeacherRegistration;
+use tcCore\Http\Helpers\EntreeHelper;
 use tcCore\Http\Requests\Request;
 use tcCore\SchoolLocation;
 use tcCore\Shortcode;
@@ -117,9 +119,7 @@ class EntreeOnboarding extends Component
 
     public function mount()
     {
-        $this->entreeData = session('entreeData',false);
-        if(!$this->entreeData){
-            Redirect::to(route('onboarding.welcome'));
+        if(!$this->setEntreeDataFromSessionIfAvailable()){
             return true;
         }
 
@@ -149,6 +149,16 @@ class EntreeOnboarding extends Component
         if(!$this->hasValidTUser) {
             $this->setSubjectOptions();
         }
+    }
+
+    protected function setEntreeDataFromSessionIfAvailable()
+    {
+        $this->entreeData = session('entreeData',false);
+        if(!$this->entreeData){
+            Redirect::to(route('onboarding.welcome'));
+            return false;
+        }
+        return true;
     }
 
     public function backToStepOne()
@@ -195,7 +205,12 @@ class EntreeOnboarding extends Component
         }
         if($this->hasValidTUser) {
             // we need to merge the data with the t user account
-
+            $this->setEntreeDataFromSessionIfAvailable();
+            $attr = [
+              'mail' => [$this->entreeData->emailAddress],
+              'eckId' => [Crypt::decryptString($this->entreeData->encryptedEckId)]
+            ];
+            return EntreeHelper::initAndHandleFromRegisterWithEntreeAndTUser($this->entreeData->user,$attr);
         } else {
             $this->validate($this->rulesStep2());
 

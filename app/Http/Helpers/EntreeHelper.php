@@ -50,6 +50,16 @@ class EntreeHelper
         $this->messageId = $messageId;
     }
 
+    public static function initAndHandleFromRegisterWithEntreeAndTUser(User $user, $attr)
+    {
+
+        $instance = new self($attr,'');
+        $instance->laravelUser = $user;
+        $instance->emailMaybeEmpty = optional($user->location)->lvs_active_no_mail_allowed;
+        $instance->handleScenario1();
+        return true;
+    }
+
     public function handleIfRegistering()
     {
         if(session()->get('entreeReason',false) !== 'register'){
@@ -57,7 +67,7 @@ class EntreeHelper
         }
         $this->setLocationWithSamlAttributes();
         $data = (object)[
-           'email' => $this->getEmailFromAttributes(),
+           'emailAddress' => $this->getEmailFromAttributes(),
            'role' => $this->getRoleFromAttributes(),
            'encryptedEckId' => Crypt::encryptString($this->getEckIdFromAttributes()),
            'brin' => $this->getBrinFromAttributes(),
