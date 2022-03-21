@@ -85,6 +85,7 @@ return [
     'carrousel_omschrijving'                                 => 'Aantal vragen uit deze vraaggroep worden willekeurig gesteld',
     'klassiek'                                               => 'Classic',
     'klassiek_omschrijving'                                  => 'Alle vragen uit deze vraaggroep worden gesteld',
+    'bijlagen'                                               => 'Bijlagen',
     'Vraag toevoegen'                                        => 'Vraag toevoegen',
     'Vraaggroep toevoegen'                                   => 'Vraaggroep toevoegen',
 ];

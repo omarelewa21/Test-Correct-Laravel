@@ -47,50 +47,27 @@ class OpenShort extends Component
 
     public $groupQuestionQuestionId;
 
-    public $uploads = [];
-
-    public $audioUploadOptions = [];
-
     public $answerEditorId;
 
     public $questionEditorId;
+
+    public $audioUploadOptions = [];
+
+    public $uploads = [];
 
     public $attachments = [];
 
     public $initWithTags = [];
 
+    public $videos = [];
+
     public $isPartOfGroupQuestion = false;
 
     public $isCloneRequest = false;
 
-    protected $queryString = [
-        'action', 'type', 'subtype', 'testId', 'testQuestionId', 'groupQuestionQuestionId', 'owner', 'isCloneRequest'
-    ];
-
-    protected $settingsGeneralPropertiesVisibility = [
-        'autoCheckAnswer'              => false,
-        'autoCheckAnswerCaseSensitive' => false
-    ];
-
-    public $videos = [];
-
-    public $testName = 'test_name';
-
     public $testAuthors = '';
 
-    public $subjectId;
-
-    public $educationLevelId;
-
-    public $action;
-
-    protected $tags = [];
-
-    public $questionId;
-
     public $pValues = [];
-
-    public $questionIndex;
 
     public $attachmentsCount = 0;
 
@@ -102,6 +79,29 @@ class OpenShort extends Component
     public $rttiWarningShown = false;
     public $bloomWarningShown = false;
     public $millerWarningShown = false;
+
+    protected $tags = [];
+
+    protected $queryString = [
+        'action', 'type', 'subtype', 'testId', 'testQuestionId', 'groupQuestionQuestionId', 'owner', 'isCloneRequest'
+    ];
+
+    protected $settingsGeneralPropertiesVisibility = [
+        'autoCheckAnswer'              => false,
+        'autoCheckAnswerCaseSensitive' => false
+    ];
+
+    public $testName = 'test_name';
+
+    public $subjectId;
+
+    public $educationLevelId;
+
+    public $action;
+
+    public $questionId;
+
+    public $questionIndex;
 
 
     /**
@@ -174,6 +174,36 @@ class OpenShort extends Component
             'all_or_nothing'         => false,
         ];
         $this->cmsPropertyBag = [];
+        $this->audioUploadOptions = [];
+
+        $this->uploads = [];
+
+        $this->attachments = [];
+
+        $this->initWithTags = [];
+
+        $this->videos = [];
+
+        $this->isPartOfGroupQuestion = false;
+
+        $this->isCloneRequest = false;
+
+        $this->testAuthors = '';
+
+        $this->pValues = [];
+
+        $this->attachmentsCount = 0;
+
+        $this->cmsPropertyBag = [];
+
+        $this->rttiToggle = false;
+        $this->bloomToggle = false;
+        $this->millerToggle = false;
+        $this->rttiWarningShown = false;
+        $this->bloomWarningShown = false;
+        $this->millerWarningShown = false;
+
+        $this->tags = [];
     }
 
 

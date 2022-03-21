@@ -3,5 +3,5 @@
             {{ __('cms.Basis') }}
     </x-slot>
 
-    @yield('question-cms-question')
+    @yield('question-cms-group-question')
 </x-content-section>

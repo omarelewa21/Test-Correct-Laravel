@@ -1,5 +1,5 @@
 @extends('livewire.teacher.questions.cms-layout')
-@section('question-cms-question')
+@section('question-cms-group-question')
     <x-input.group label="{{ __('cms.naam vraaggroep') }}">
         <x-input.text class="w-full text-left "/>
     </x-input.group>
@@ -169,8 +169,5 @@
 @endsection
 
 @section('upload-section-for-group-question')
-    <x-upload.section></x-upload.section>
-
-
-
+    <x-partials.question-question-section></x-partials.question-question-section>
 @endsection
