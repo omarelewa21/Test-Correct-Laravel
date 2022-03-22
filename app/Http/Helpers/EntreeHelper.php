@@ -116,7 +116,7 @@ class EntreeHelper
 
     protected function handleIfRegisteringAndUserBasedOnEckId($data)
     {
-        if($user = User::filterByEckid(Crypt::decryptString($data->encrtypedEckId))->first()){
+        if($user = User::filterByEckid(Crypt::decryptString($data->encryptedEckId))->first()){
             if(!$user->hasImportMailAddress()){ // regular user
                 $this->laravelUser = $user;
                 if($user->isAllowedToSwitchToSchoolLocation($this->location)){
