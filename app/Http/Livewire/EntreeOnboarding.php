@@ -88,13 +88,7 @@ class EntreeOnboarding extends Component
                 'registration.name_first'       => 'required|string',
                 'registration.name'             => 'required|string',
                 'registration.name_suffix'      => 'sometimes',
-                'password'                      => 'required|same:password_confirmation|'. User::getPasswordLengthRule(),
             ]);
-            if($this->hasValidTUser){
-                foreach(['password','registration.password'] as $key){
-                    unset($rules[$key]);
-                }
-            }
             return $rules;
         }
 
@@ -125,14 +119,18 @@ class EntreeOnboarding extends Component
 
         $this->registration = new DemoTeacherRegistration;
 
+        $this->registration->username = $this->entreeData->emailAddress;
+        if($this->entreeData->location){
+            $this->registration->school_location = $this->entreeData->location->name;
+        }
+        $this->registration->name = $this->entreeData->lastName;
+
         if(property_exists($this->entreeData,'user')){
             if($this->entreeData->user->hasImportMailAddress()){
-                $this->hasValidTUser = true;
                 collect(['name_first','name_suffix','name','gender'])->each(function($key) {
                     $this->registration->$key = $this->entreeData->user->$key;
                 });
-                $this->registration->username = $this->entreeData->emailAddress;
-                $this->registration->school_location = ($this->entreeData->location) ? $this->entreeData->location->name : $this->entreeData->user->schoolLocation->name;
+                $this->hasValidTUser = true;
                 $this->showSubjects = false;
                 $this->btnStepOneDisabledCheck();
             }
@@ -174,15 +172,6 @@ class EntreeOnboarding extends Component
         return view('livewire.entree-onboarding')->layout('layouts.onboarding');
     }
 
-    public function getMinCharRuleProperty()
-    {
-        if (empty($this->password)) {
-            return 0;
-        } else {
-            return mb_strlen($this->password) < 8 ? false : true;
-        }
-    }
-
     public function step1()
     {
         $this->validate();
@@ -216,7 +205,7 @@ class EntreeOnboarding extends Component
 
             $this->registration->save();
             try {
-                $this->newRegistration = $this->registration->addUserToRegistration($this->password, $this->registration->invitee, $this->ref);
+//                $this->newRegistration = $this->registration->addUserToRegistration($this->password, $this->registration->invitee, $this->ref);
                 $this->step = 3;
             } catch (\Throwable $e) {
                 $this->step = 'error';
@@ -258,8 +247,6 @@ class EntreeOnboarding extends Component
                 empty($this->registration->name_first)
                 || empty($this->registration->gender)
                 || empty($this->registration->name)
-                || empty($this->password_confirmation)
-                || empty($this->password)
                 || empty($this->registration->username)
             );
             if (!$this->btnDisabled) {
@@ -339,17 +326,11 @@ class EntreeOnboarding extends Component
 //        $this->btnStepOneDisabledCheck();
 //        $this->btnStepTwoDisabledCheck();
 
-        if ($propertyName === 'password_confirmation') {
-            $propertyName = 'password';
-        }
-
         if ($this->registration->gender != 'different') {
             $this->registration->gender_different = '';
         }
 
-        if ($propertyName != 'password') {
-            $this->validateOnly($propertyName);
-        }
+        $this->validateOnly($propertyName);
     }
 
     public function syncSelectedSubjects($subjects)

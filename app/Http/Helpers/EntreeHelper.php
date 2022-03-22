@@ -76,6 +76,8 @@ class EntreeHelper
            'location' => $this->location,
            'school' => $this->school,
            'brin4ErrorDetected' => $this->brinFourErrorDetected,
+            'lastName' => $this->getLastNameFromAttributes(),
+
         ];
         if(BaseHelper::notProduction()) {
             logger('entreeData for registering');
@@ -412,6 +414,15 @@ class EntreeHelper
         if (array_key_exists('mail',
                 $this->attr) && $this->attr['mail'][0]) {
             return $this->attr['mail'][0];
+        }
+        return null;
+    }
+
+    private function getLastNameFromAttributes()
+    {
+        if (array_key_exists('givenName',
+                $this->attr) && $this->attr['givenName'][0]) {
+            return $this->attr['givenName'][0];
         }
         return null;
     }

@@ -89,8 +89,8 @@
                                     <div class="email-section mb-4 w-full md:w-1/2">
                                         <div class="mb-4">
                                             <div class="input-group">
-                                                <input id="username" wire:model.lazy="registration.username" @if($this->hasValidTUser) disabled @endif
-                                                       class="form-input @if($this->hasValidTUser) disabled @endif @error('registration.username') border-red @enderror"
+                                                <input id="username" wire:model.lazy="registration.username" disabled
+                                                       class="form-input disabled @error('registration.username') border-red @enderror"
                                                        autofocus>
                                                 <label for="username"
                                                        class="transition ease-in-out duration-150">{{ __("onboarding.your_school_email") }}</label>
@@ -210,14 +210,14 @@
                                                     <button class="secondary-button selected-subject align-top text-sm mt-2 mr-1 tooltip" data-text="{{__('onboarding.Verwijder')}}"  @click.prevent="removeSubject(index)">
                                                         <span class="ml-2 mr-1 leading-relaxed truncate max-w-xs" x-text="subject"></span>
                                                         <span  class=" inline-block align-middle" style="margin:auto">
-                                                            <img class="icon-close-small" src="img/icons/icons-close-small.svg" >
+                                                            <img class="icon-close-small" src="/img/icons/icons-close-small.svg" >
                                                         </span>
                                                     </button>
                                                 </template>
 
                                                 <button x-show="!showInput" class="secondary-button add-button-div align-top text-sm mt-2 mr-1 tooltip" data-text="{{__('onboarding.Voeg toe')}}" @click.prevent="showSubjectInput()">
                                                     <span  class=" inline-block align-middle" style="margin:auto">
-                                                        <img class="icon-close-small" src="img/icons/icons-plus.svg" >
+                                                        <img class="icon-close-small" src="/img/icons/icons-plus.svg" >
                                                     </span>
                                                 </button>
 
@@ -232,11 +232,11 @@
 
                                                     <div class="select-search-header" x-on:click="toggleSubjects()">{{ __('onboarding.Selecteer vak....') }}
                                                         <img x-show="!show"
-                                                             src="img/icons/icons-chevron-down-small.svg"
+                                                             src="/img/icons/icons-chevron-down-small.svg"
                                                              class="iconschevron-down-small icons-chevron float-right"
                                                              x-on:click="displaySubjects()"
                                                         >
-                                                        <img x-show="show" src="img/icons/icons-chevron-up-small-blue.svg"
+                                                        <img x-show="show" src="/img/icons/icons-chevron-up-small-blue.svg"
                                                              class="iconschevron-down-small icons-chevron float-right"
                                                              x-on:click="hideSubjects()"
                                                         >
@@ -244,10 +244,10 @@
                                                     <div class="search-wrapper">
                                                         <input id="input-text-select" x-show="show" x-model="textInput" x-ref="textInput" @input="search($event.target.value)" x-on:keyup="filter()" x-on:focus="focusSearch()" x-on:focusout="loseFocusSearch()"  class="form-input input-text-select">
                                                         <img x-show="show"
-                                                             src="img/icons/icons-search-blue.svg"
+                                                             src="/img/icons/icons-search-blue.svg"
                                                              class="icons-search-small icons-search-active float-right hide-search"
                                                         >
-                                                        <img x-show="show" src="img/icons/icons-search-blue-inactive.svg"
+                                                        <img x-show="show" src="/img/icons/icons-search-blue-inactive.svg"
                                                              class="icons-search-small icons-search-inactive float-right"
                                                         >
                                                     </div>
@@ -256,13 +256,13 @@
                                                         <div class="subject_select_div_inner">
                                                             <div x-show="show_new_item"  x-on:click="addSubject(new_subject_item)" id="new_subject_item" class="subject_item new_subject_item">
                                                                 <span x-text="new_subject_item"></span>
-                                                                <img class="icon-close-small-subjects " src="img/icons/icons-plus-blue.svg">
+                                                                <img class="icon-close-small-subjects " src="/img/icons/icons-plus-blue.svg">
                                                                 <hr class="subject_hr">
                                                             </div>
                                                             <template x-for="(subject_option, index) in available_subject_options">
                                                                 <div x-show="show" :class="{subject_item_active: subject_option==active_subject_option}" x-on:click="addSubject(subject_option)" class="subject_item existing_subject_item">
                                                                     <span x-text="subject_option"></span>
-                                                                    <img class="icon-close-small-subjects " src="img/icons/icons-plus-blue.svg">
+                                                                    <img class="icon-close-small-subjects " src="/img/icons/icons-plus-blue.svg">
                                                                     <hr class="subject_hr">
                                                                 </div>
                                                             </template>
