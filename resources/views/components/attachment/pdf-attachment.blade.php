@@ -49,12 +49,12 @@ See https://github.com/adobe-type-tools/cmap-resources
     <script src="/pdf/pdf.js"></script>
     <script src="/pdf/viewer.js"></script>
     <script src="/pdf/tcViewer.js"></script>
+    @if(!is_null(Auth::user())&&Auth::user()->text2speech)
     <link rel="stylesheet" type="text/css" href="/css/rs_tlc.css" />
     <link rel="stylesheet" type="text/css" href="/css/rs_tlc_pdf.css" />
-
     <script src="//cdn-eu.readspeaker.com/script/12749/webReader/webReader.js?pids=wr&amp;noDefaultSkin=1" type="text/javascript" id="rs_req_Init"></script>
     <script src="/js/rs_tlc_skin.js"></script>
-
+    @endif
 </head>
 
 <body tabindex="1" class="loadingInProgress">
@@ -246,7 +246,7 @@ See https://github.com/adobe-type-tools/cmap-resources
                           </select>
                         </span>
                         <div class="splitToolbarButtonSeparator"></div>
-                        @if(Auth::user()->text2speech)
+                        @if(!is_null(Auth::user())&&Auth::user()->text2speech)
                             <div class="Rectangle rs_clicklistenexclude rs_starter_button" onclick="startRsPlayer()">
                                 <x-icon.rs-audio/>
                                 <div class="Lees-voor">

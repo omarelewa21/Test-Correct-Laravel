@@ -5870,6 +5870,8 @@ __webpack_require__(/*! ./rich-text-editor */ "./resources/js/rich-text-editor.j
 
 __webpack_require__(/*! ./drawing/drawing-question */ "./resources/js/drawing/drawing-question.js");
 
+__webpack_require__(/*! ./readspeaker_app */ "./resources/js/readspeaker_app.js");
+
 window.ClassicEditors = [];
 
 addIdsToQuestionHtml = function addIdsToQuestionHtml() {
@@ -10742,6 +10744,30 @@ Notify = {
       }
     }));
   }
+};
+
+/***/ }),
+
+/***/ "./resources/js/readspeaker_app.js":
+/*!*****************************************!*\
+  !*** ./resources/js/readspeaker_app.js ***!
+  \*****************************************/
+/***/ (() => {
+
+handleFocusTextareaField = function handleFocusTextareaField(event, questionId) {
+  if (typeof ReadspeakerTlc == "undefined") {
+    return;
+  }
+
+  return ReadspeakerTlc.rsTlcEvents.handleTextareaFocusForReadspeaker(event, questionId);
+};
+
+handleBlurTextareaField = function handleBlurTextareaField() {
+  if (typeof ReadspeakerTlc == "undefined") {
+    return;
+  }
+
+  ReadspeakerTlc.rsTlcEvents.handleTextareaBlurForReadspeaker();
 };
 
 /***/ }),

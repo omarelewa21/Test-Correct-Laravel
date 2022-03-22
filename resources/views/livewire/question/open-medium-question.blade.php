@@ -22,20 +22,21 @@
                 }
                 RichTextEditor.initClassicEditorForStudentplayer('{{$editorId}}','{{ $question->getKey() }}');
             });
-            document.addEventListener('readspeaker_closed', () => {
-                if(shouldNotReinitCkeditor(document.querySelector( '#{{ $editorId }}' ))){
-                    return;
-                }
-                if(window.classicEditorReplaced){
-                    return;
-                }
-                ReadspeakerTlc.ckeditor.reattachReadableAreaAndDestroy('{{ $editorId }}');
-                RichTextEditor.initClassicEditorForStudentplayer('{{$editorId}}','{{ $question->getKey() }}');
-            })
-            document.addEventListener('readspeaker_started', () => {
-                ReadspeakerTlc.ckeditor.detachReadableAreaFromCkeditor('{{ $editorId }}');
-            })
-
+            @if(!is_null(Auth::user())&&Auth::user()->text2speech)
+                document.addEventListener('readspeaker_closed', () => {
+                    if(shouldNotReinitCkeditor(document.querySelector( '#{{ $editorId }}' ))){
+                        return;
+                    }
+                    if(window.classicEditorReplaced){
+                        return;
+                    }
+                    ReadspeakerTlc.ckeditor.reattachReadableAreaAndDestroy('{{ $editorId }}');
+                    RichTextEditor.initClassicEditorForStudentplayer('{{$editorId}}','{{ $question->getKey() }}');
+                })
+                document.addEventListener('readspeaker_started', () => {
+                    ReadspeakerTlc.ckeditor.detachReadableAreaFromCkeditor('{{ $editorId }}');
+                })
+            @endif
         </script>
     </div>
     <x-attachment.attachment-modal :attachment="$attachment" :answerId="$answerId"/>
