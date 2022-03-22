@@ -74,8 +74,10 @@ class EntreeHelper
            'location' => $this->location,
             'brin4ErrorDetected' => $this->brinFourErrorDetected,
         ];
-logger('entreeData for registering');
-logger((array) $data);
+        if(BaseHelper::notProduction()) {
+            logger('entreeData for registering');
+            logger((array)$data);
+        }
 
         $this->handleIfRegisteringAndNotATeacher($data);
 
