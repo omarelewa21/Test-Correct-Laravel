@@ -16,7 +16,7 @@ class CreateAnswerFeedbackTable extends Migration
         Schema::create('answer_feedback', function (Blueprint $table) {
             $table->id();
             $table->integer('answer_id')->references('id')->on('answers');
-            $table->integer('sender_id')->references('id')->on('users');
+            $table->integer('user_id')->references('id')->on('users');
             $table->string('message', 240);
             $table->efficientUuid('uuid')->index()->unique()->nullable();
             $table->softDeletes();

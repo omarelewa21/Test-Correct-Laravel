@@ -172,7 +172,7 @@ class AnswersController extends Controller {
             if(is_null($answer->feedback)){
                 AnswerFeedback::create([
                     'answer_id'     => $answer->id,
-                    'sender_id'     => auth()->id(),
+                    'user_id'     => auth()->id(),
                     'message'       => $request->message
                 ]);
             }else{

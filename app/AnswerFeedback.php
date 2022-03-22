@@ -18,7 +18,7 @@ class AnswerFeedback extends Model
 
     protected $fillable = [
         'answer_id',
-        'sender_id',
+        'user_id',
         'message'
     ];
 
@@ -26,7 +26,7 @@ class AnswerFeedback extends Model
         return $this->belongsTo(Answer::class);
     }
 
-    public function sender(){
-        return $this->belongsTo(User::class, 'sender_id');
+    public function user(){
+        return $this->belongsTo(User::class);
     }
 }
