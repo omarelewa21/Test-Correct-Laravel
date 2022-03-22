@@ -127,7 +127,7 @@ class EntreeHelper
                 // if in same school, add school location
                 $schoolFromSchoolLocation = $this->location->school;
                 if($schoolFromSchoolLocation){
-                    if($user->schoolLocations->first(function(SchoolLocation $sl) use ($schoolFromSchoolLocation){
+                    if($user->allowedSchoolLocations->first(function(SchoolLocation $sl) use ($schoolFromSchoolLocation){
                         return $sl->school === $schoolFromSchoolLocation;
                     })){
                         $user->addSchoolLocation($this->location);
