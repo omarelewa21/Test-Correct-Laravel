@@ -1952,6 +1952,13 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
         return $query->where(sprintf('%s.demo', $tableAlias), 0);
     }
 
+    public function isAllowedSchool(School $school)
+    {
+        return !! $this->allowedSchoolLocations->first(function (SchoolLocation $sl) use ($school) {
+            return $sl->school == $school;
+        });
+    }
+
     public function allowedSchoolLocations()
     {
         return $this->belongsToMany(SchoolLocation::class)->withPivot(['external_id'])->withTimestamps();
