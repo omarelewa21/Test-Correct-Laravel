@@ -116,9 +116,10 @@ logger((array) $data);
     {
         if($user = User::filterByEckid($data->eckId)->first()){
             if(!$user->hasImportMailAddress()){ // regular user
+                $this->laravelUser = $user;
                 if($user->isAllowedToSwitchToSchoolLocation($this->location)){
                     // account already correct
-                    $url = $this->getLoginUrlWithOptionalMessage(__('onboarding-welcome.Je bestaande Test-Correct account is al gekoppeld aan je Entree account. Je kunt vanaf nu ook inloggen met Entree.'));
+                    $url = $this->laravelUser->getRedirectUrlSplashOrStartAndLoginIfNeeded(['afterLoginMessage' => __('onboarding-welcome.Je bestaande Test-Correct account is al gekoppeld aan je Entree account. Je kunt vanaf nu ook inloggen met Entree.')]);
                     return $this->redirectToUrlAndExit($url);
                 } else {
                     // if in same school, add school location
@@ -128,7 +129,7 @@ logger((array) $data);
                             return $sl->school === $schoolFromSchoolLocation;
                         })){
                             $user->addSchoolLocation($this->location);
-                            $url = $this->getLoginUrlWithOptionalMessage(__('onboarding-welcome.Je bestaande Test-Correct account is geupdate met de schoollocaties die we vanuit Entree hebben meegekregen. We hebben je in de schoollocatie :name gezet. Je kunt vanaf nu ook inloggen met Entree.',['name' => $this->location->name]));
+                            $url = $this->laravelUser->getRedirectUrlSplashOrStartAndLoginIfNeeded([__('onboarding-welcome.Je bestaande Test-Correct account is geupdate met de schoollocaties die we vanuit Entree hebben meegekregen. We hebben je in de schoollocatie :name gezet. Je kunt vanaf nu ook inloggen met Entree.',['name' => $this->location->name])]);
                             return $this->redirectToUrlAndExit($url);
                         }
                     }
