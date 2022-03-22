@@ -56,7 +56,7 @@ class EntreeHelper
         $instance = new self($attr,'');
         $instance->laravelUser = $user;
         $instance->emailMaybeEmpty = optional($user->location)->lvs_active_no_mail_allowed;
-        $instance->handleScenario1();
+        $instance->handleScenario1(['afterLoginMessage' => ____("onboarding.Welkom bij Test-Correct, je kunt nu aan de slag.")]);
         return true;
     }
 
@@ -602,7 +602,7 @@ logger((array) $data);
         logger($this->attr);
     }
 
-    public function handleScenario1()
+    public function handleScenario1($options = null)
     {
         $this->validateAttributes();
 
@@ -618,7 +618,7 @@ logger((array) $data);
 
         $this->handleUpdateUserWithSamlAttributes();
         // if student redirect to splash screen
-        $url = $this->laravelUser->getRedirectUrlSplashOrStartAndLoginIfNeeded();
+        $url = $this->laravelUser->getRedirectUrlSplashOrStartAndLoginIfNeeded($options);
         return $this->redirectToUrlAndExit($url);
 
     }

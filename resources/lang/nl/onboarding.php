@@ -58,7 +58,7 @@ return [
     'general_terms_text_pt_1'                                                                                                                          => 'Op de dienst Test-Correct zijn de',
     'general_terms'                                                                                                                                    => 'algemene voorwaarden',
     'general_terms_text_pt_2'                                                                                                                          => 'van The Teach & Learn Company B.V./Test-Correct van toepassing. Door middel van doorklikken naar de volgende stap bevestigt u dat u de algemene voorwaarden heeft ontvangen, gelezen en begrepen.',
-    'your_school_email'                                                                                                                                => 'Jouw school e-mailadres'
-
+    'your_school_email'                                                                                                                                => 'Jouw school e-mailadres',
+    'Welkom bij Test-Correct, je kunt nu aan de slag.'                                                                                                  => 'Welkom bij Test-Correct, je kunt nu aan de slag.',
 ];
 ?>
