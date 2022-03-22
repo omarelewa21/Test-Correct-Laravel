@@ -161,12 +161,9 @@ class EntreeHelper
         return $this->redirectToUrlAndExit($this->getOnboardingUrlWithOptionalMessage(__('onboarding-welcome.Je school is helaas nog niet bekend in Test-Correct. Vul dit formulier in om een account aan te maken')));
     }
 
-    protected function handleIfRegisteringAndNoEckId($data, $isEncrypted = true)
+    protected function handleIfRegisteringAndNoEckId($data)
     {
-        $eckId = $data->eckId;
-        if($isEncrypted){
-            $eckId = Crypt::decryptString($eckId);
-        }
+        $eckId = Crypt::decryptString($data->encryptedEckId);
         if(!$eckId || strlen(eckId) < 5){
             return $this->redirectToUrlAndExit($this->getOnboardingUrlWithOptionalMessage(__('onboarding-welcome.Je kunt geen Test-Correct account aanmaken via Entree. Vul dit formulier in om een account aan te maken')));
         }
