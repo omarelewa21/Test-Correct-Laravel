@@ -132,7 +132,7 @@ class EntreeOnboarding extends Component
                     $this->registration->$key = $this->entreeData->user->$key;
                 });
                 $this->registration->username = $this->entreeData->emailAddress;
-                $this->registration->school_location = $this->entreeData->location->name;
+                $this->registration->school_location = ($this->entreeData->location) ? $this->entreeData->location->name : $this->entreeData->user->schoolLocation->name;
                 $this->showSubjects = false;
                 $this->btnStepOneDisabledCheck();
             }
