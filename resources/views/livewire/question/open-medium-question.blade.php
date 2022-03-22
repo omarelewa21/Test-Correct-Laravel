@@ -24,7 +24,7 @@
             });
             @if(!is_null(Auth::user())&&Auth::user()->text2speech)
                 document.addEventListener('readspeaker_closed', () => {
-                    if(shouldNotReinitCkeditor(document.querySelector( '#{{ $editorId }}' ))){
+                    if(ReadspeakerTlc.guard.shouldNotReinitCkeditor(document.querySelector( '#{{ $editorId }}' ))){
                         return;
                     }
                     if(window.classicEditorReplaced){

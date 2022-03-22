@@ -918,7 +918,7 @@ input[type="range"]::-ms-fill-upper {
 }
 .rsbtn_tools{
     width: 289px !important;
-    height: 260px;
+    height: 220px;
     padding: 1px 0 0;
     border-radius: 8px;
     box-shadow: 0 1px 13px 2px rgba(4, 31, 116, 0.2);
@@ -926,6 +926,9 @@ input[type="range"]::-ms-fill-upper {
 }
 .rsbtn_toollist{
     list-style-type: none !important;
+}
+.rsbtn_tool_click_listen{
+    display: none;
 }
 
 .rs_addtools .rsbtn_toolpanel.vertical .rsbtn_tools .rsbtn_tools_inner .rsbtn_toolcontainer ul.rsbtn_toollist li button.rsbtn_tool .rs_minitoggler, .rsbtn .rsbtn_toolpanel.vertical .rsbtn_tools .rsbtn_tools_inner .rsbtn_toolcontainer ul.rsbtn_toollist li button.rsbtn_tool .rs_minitoggler {

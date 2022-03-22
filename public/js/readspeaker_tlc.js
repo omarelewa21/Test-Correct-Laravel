@@ -3,7 +3,7 @@ ReadspeakerTlc = function(){
         function handleTextBoxFocusForReadspeaker(focusEvent,questionId)
         {
             handleFocusForReadspeaker();
-            var correction = {x:-10,y:-247};
+            var correction = {x:-10,y:-327};
             var p = popup.getRsbtnPopupTlc(questionId,focusEvent,correction);
             if(p == null){
                 return;
@@ -69,7 +69,7 @@ ReadspeakerTlc = function(){
         function rsFocusSelect(event,selectId,questionId)
         {
             register.registerTlcClickListenActive();
-            var correction = {x:17,y:-247};
+            var correction = {x:-130,y:-327};
             var p = popup.getRsbtnPopupTlc(questionId,event,correction);
             if(p == null){
                 return;
@@ -103,6 +103,9 @@ ReadspeakerTlc = function(){
         function ckeditorClickEvent(event)
         {
             var editor = this.ckeditorInstance;
+            if(editor === null){
+                return;
+            }
             if(editor.isReadOnly){
                 editor.isReadOnly = false;
             }
@@ -522,11 +525,15 @@ ReadspeakerTlc = function(){
                 p.classList.remove('hidden');
             }
             var rect = element.getBoundingClientRect();
+            var scrollCorrectionY = document.body.offsetHeight-window.innerHeight;
             switch (element.nodeName){
                 case 'INPUT':
-                case 'SELECT':
                     p.style.left = rect.left+correction.x+'px';
-                    p.style.top = rect.top+correction.y+'px';
+                    p.style.top = rect.top+correction.y+scrollCorrectionY+'px';
+                    break;
+                case 'SELECT':
+                    p.style.left = rect.left+rect.width+correction.x+'px';
+                    p.style.top = rect.top+correction.y+scrollCorrectionY+'px';
                     break;
                 case 'DIV':
                 case 'TEXTAREA':

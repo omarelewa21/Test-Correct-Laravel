@@ -51,10 +51,10 @@
                 }
                 @if(!is_null(Auth::user())&&Auth::user()->text2speech)
                     document.addEventListener('readspeaker_opened', () => {
-                        if(shouldNotCreateHiddenTextarea({{ $question->id }})){
+                        if(ReadspeakerTlc.guard.shouldNotCreateHiddenTextarea({{ $question->id }})){
                             return;
                         }
-                        createHiddenDivTextArea({{ $question->id }});
+                        ReadspeakerTlc.hiddenElement.createHiddenDivTextArea({{ $question->id }});
                     })
                 @endif
             </script>

@@ -10770,6 +10770,38 @@ handleBlurTextareaField = function handleBlurTextareaField() {
   ReadspeakerTlc.rsTlcEvents.handleTextareaBlurForReadspeaker();
 };
 
+handleTextBoxFocusForReadspeaker = function handleTextBoxFocusForReadspeaker(focusEvent, questionId) {
+  if (typeof ReadspeakerTlc == "undefined") {
+    return;
+  }
+
+  ReadspeakerTlc.rsTlcEvents.handleTextBoxFocusForReadspeaker(focusEvent, questionId);
+};
+
+handleTextBoxBlurForReadspeaker = function handleTextBoxBlurForReadspeaker(event, questionId) {
+  if (typeof ReadspeakerTlc == "undefined") {
+    return;
+  }
+
+  ReadspeakerTlc.rsTlcEvents.handleTextBoxBlurForReadspeaker(event, questionId);
+};
+
+rsFocusSelect = function rsFocusSelect(event, selectId, questionId) {
+  if (typeof ReadspeakerTlc == "undefined") {
+    return;
+  }
+
+  ReadspeakerTlc.rsTlcEvents.rsFocusSelect(event, selectId, questionId);
+};
+
+rsBlurSelect = function rsBlurSelect(event, questionId) {
+  if (typeof ReadspeakerTlc == "undefined") {
+    return;
+  }
+
+  ReadspeakerTlc.rsTlcEvents.rsBlurSelect(event, questionId);
+};
+
 /***/ }),
 
 /***/ "./resources/js/rich-text-editor.js":

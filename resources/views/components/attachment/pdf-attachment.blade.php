@@ -53,7 +53,7 @@ See https://github.com/adobe-type-tools/cmap-resources
     <link rel="stylesheet" type="text/css" href="/css/rs_tlc.css" />
     <link rel="stylesheet" type="text/css" href="/css/rs_tlc_pdf.css" />
     <script src="//cdn-eu.readspeaker.com/script/12749/webReader/webReader.js?pids=wr&amp;noDefaultSkin=1" type="text/javascript" id="rs_req_Init"></script>
-    <script src="/js/rs_tlc_skin.js"></script>
+        <script src="/js/readspeaker_tlc.js"></script>
     @endif
 </head>
 
@@ -247,7 +247,7 @@ See https://github.com/adobe-type-tools/cmap-resources
                         </span>
                         <div class="splitToolbarButtonSeparator"></div>
                         @if(!is_null(Auth::user())&&Auth::user()->text2speech)
-                            <div class="Rectangle rs_clicklistenexclude rs_starter_button" onclick="startRsPlayer()">
+                            <div class="Rectangle rs_clicklistenexclude rs_starter_button" onclick="ReadspeakerTlc.player.startRsPlayer();">
                                 <x-icon.rs-audio/>
                                 <div class="Lees-voor">
                                     {{ __('test_take.speak') }}
