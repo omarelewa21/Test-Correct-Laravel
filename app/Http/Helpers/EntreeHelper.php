@@ -121,22 +121,21 @@ logger((array) $data);
                     // account already correct
                     $url = $this->laravelUser->getRedirectUrlSplashOrStartAndLoginIfNeeded(['afterLoginMessage' => __('onboarding-welcome.Je bestaande Test-Correct account is al gekoppeld aan je Entree account. Je kunt vanaf nu ook inloggen met Entree.')]);
                     return $this->redirectToUrlAndExit($url);
-                } else {
-                    // if in same school, add school location
-                    $schoolFromSchoolLocation = $this->location->school;
-                    if($schoolFromSchoolLocation){
-                        if($user->schoolLocations->first(function(SchoolLocation $sl) use ($schoolFromSchoolLocation){
-                            return $sl->school === $schoolFromSchoolLocation;
-                        })){
-                            $user->addSchoolLocation($this->location);
-                            $url = $this->laravelUser->getRedirectUrlSplashOrStartAndLoginIfNeeded([__('onboarding-welcome.Je bestaande Test-Correct account is geupdate met de schoollocaties die we vanuit Entree hebben meegekregen. We hebben je in de schoollocatie :name gezet. Je kunt vanaf nu ook inloggen met Entree.',['name' => $this->location->name])]);
-                            return $this->redirectToUrlAndExit($url);
-                        }
-                    }
-                    // if not contact support
-                    $url = $this->getLoginUrlWithOptionalMessage(__('onboarding-welcome.Je bestaande Test-Correct account kan niet geupdate worden. Neem contact op met support.'),true);
-                    return $this->redirectToUrlAndExit($url);
                 }
+                // if in same school, add school location
+                $schoolFromSchoolLocation = $this->location->school;
+                if($schoolFromSchoolLocation){
+                    if($user->schoolLocations->first(function(SchoolLocation $sl) use ($schoolFromSchoolLocation){
+                        return $sl->school === $schoolFromSchoolLocation;
+                    })){
+                        $user->addSchoolLocation($this->location);
+                        $url = $this->laravelUser->getRedirectUrlSplashOrStartAndLoginIfNeeded([__('onboarding-welcome.Je bestaande Test-Correct account is geupdate met de schoollocaties die we vanuit Entree hebben meegekregen. We hebben je in de schoollocatie :name gezet. Je kunt vanaf nu ook inloggen met Entree.',['name' => $this->location->name])]);
+                        return $this->redirectToUrlAndExit($url);
+                    }
+                }
+                // if not contact support
+                $url = $this->getLoginUrlWithOptionalMessage(__('onboarding-welcome.Je bestaande Test-Correct account kan niet geupdate worden. Neem contact op met support.'),true);
+                return $this->redirectToUrlAndExit($url);
             }
             // import user
             return $user;
