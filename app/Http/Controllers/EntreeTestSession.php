@@ -4,6 +4,7 @@ namespace tcCore\Http\Controllers;
 
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Response;
+use Illuminate\Support\Str;
 use tcCore\SchoolLocation;
 use tcCore\User;
 
@@ -17,9 +18,10 @@ class EntreeTestSession extends Controller {
             'brin' => 'K99900',
             'location' => SchoolLocation::where('customer_code','k999')->first(),
             'brin4ErrorDetected' => false,
+            'lastName' => 'Dohmen',
         ];
         if(request()->has('withT')){
-            $data->emailAddress = 'erik@sobit.nl';
+            $data->emailAddress =  Str::random(6).'@sobit.nl';
             if(request()->has('userId')){
                 $data->user = User::find(request()->get('userId'));
             }
