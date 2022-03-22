@@ -50,6 +50,16 @@ class EntreeHelper
         $this->messageId = $messageId;
     }
 
+    public static function initAndHandleFromRegisterWithEntreeAndTUser(User $user, $attr)
+    {
+
+        $instance = new self($attr,'');
+        $instance->laravelUser = $user;
+        $instance->emailMaybeEmpty = optional($user->location)->lvs_active_no_mail_allowed;
+        $instance->handleScenario1(['afterLoginMessage' => ____("onboarding.Welkom bij Test-Correct, je kunt nu aan de slag.")]);
+        return true;
+    }
+
     public function handleIfRegistering()
     {
         if(session()->get('entreeReason',false) !== 'register'){
@@ -57,25 +67,26 @@ class EntreeHelper
         }
         $this->setLocationWithSamlAttributes();
         $data = (object)[
-           'email' => $this->getEmailFromAttributes(),
+           'emailAddress' => $this->getEmailFromAttributes(),
            'role' => $this->getRoleFromAttributes(),
-           'eckId' => $this->getEckIdFromAttributes(),
+           'encryptedEckId' => Crypt::encryptString($this->getEckIdFromAttributes()),
            'brin' => $this->getBrinFromAttributes(),
            'location' => $this->location,
             'brin4ErrorDetected' => $this->brinFourErrorDetected,
         ];
-logger('entreeData for registering');
-logger((array) $data);
+        if(BaseHelper::notProduction()) {
+            logger('entreeData for registering');
+            logger((array)$data);
+        }
 
         $this->handleIfRegisteringAndNotATeacher($data);
 
         $this->handleIfRegisteringAndNoEckId($data);
 
-        $this->handleIfRegisteringAndNoBrincode($data->brin);
+        $this->handleIfRegisteringAndNoBrincode($data);
 
         $data->user = $this->handleIfRegisteringAndUserBasedOnEckId($data);
 
-        $data->eckId = Crypt::encryptString($data->eckId);
         session(['entreeData' => $data]);
         return $this->redirectToUrlAndExit(route('onboarding.welcome.entree'));
     }
@@ -107,26 +118,26 @@ logger((array) $data);
     {
         if($user = User::filterByEckid($data->eckId)->first()){
             if(!$user->hasImportMailAddress()){ // regular user
+                $this->laravelUser = $user;
                 if($user->isAllowedToSwitchToSchoolLocation($this->location)){
                     // account already correct
-                    $url = $this->getLoginUrlWithOptionalMessage(__('onboarding-welcome.Je bestaande Test-Correct account is al gekoppeld aan je Entree account. Je kunt vanaf nu ook inloggen met Entree.'));
-                    return $this->redirectToUrlAndExit($url);
-                } else {
-                    // if in same school, add school location
-                    $schoolFromSchoolLocation = $this->location->school;
-                    if($schoolFromSchoolLocation){
-                        if($user->schoolLocations->first(function(SchoolLocation $sl) use ($schoolFromSchoolLocation){
-                            return $sl->school === $schoolFromSchoolLocation;
-                        })){
-                            $user->addSchoolLocation($this->location);
-                            $url = $this->getLoginUrlWithOptionalMessage(__('onboarding-welcome.Je bestaande Test-Correct account is geupdate met de schoollocaties die we vanuit Entree hebben meegekregen. We hebben je in de schoollocatie :name gezet. Je kunt vanaf nu ook inloggen met Entree.',['name' => $this->location->name]));
-                            return $this->redirectToUrlAndExit($url);
-                        }
-                    }
-                    // if not contact support
-                    $url = $this->getLoginUrlWithOptionalMessage(__('onboarding-welcome.Je bestaande Test-Correct account kan niet geupdate worden. Neem contact op met support.'),true);
+                    $url = $this->laravelUser->getRedirectUrlSplashOrStartAndLoginIfNeeded(['afterLoginMessage' => __('onboarding-welcome.Je bestaande Test-Correct account is al gekoppeld aan je Entree account. Je kunt vanaf nu ook inloggen met Entree.')]);
                     return $this->redirectToUrlAndExit($url);
                 }
+                // if in same school, add school location
+                $schoolFromSchoolLocation = $this->location->school;
+                if($schoolFromSchoolLocation){
+                    if($user->schoolLocations->first(function(SchoolLocation $sl) use ($schoolFromSchoolLocation){
+                        return $sl->school === $schoolFromSchoolLocation;
+                    })){
+                        $user->addSchoolLocation($this->location);
+                        $url = $this->laravelUser->getRedirectUrlSplashOrStartAndLoginIfNeeded([__('onboarding-welcome.Je bestaande Test-Correct account is geupdate met de schoollocaties die we vanuit Entree hebben meegekregen. We hebben je in de schoollocatie :name gezet. Je kunt vanaf nu ook inloggen met Entree.',['name' => $this->location->name])]);
+                        return $this->redirectToUrlAndExit($url);
+                    }
+                }
+                // if not contact support
+                $url = $this->getLoginUrlWithOptionalMessage(__('onboarding-welcome.Je bestaande Test-Correct account kan niet geupdate worden. Neem contact op met support.'),true);
+                return $this->redirectToUrlAndExit($url);
             }
             // import user
             return $user;
@@ -134,8 +145,9 @@ logger((array) $data);
         return null;
     }
 
-    protected function handleIfRegisteringAndNoBrincode($brinCode)
+    protected function handleIfRegisteringAndNoBrincode($data)
     {
+        $brinCode = $data->brin;
         if ($this->setLocationBasedOnBrinSixIfTheCase($brinCode)){
             if($this->location){
                 return true;
@@ -149,9 +161,13 @@ logger((array) $data);
         return $this->redirectToUrlAndExit($this->getOnboardingUrlWithOptionalMessage(__('onboarding-welcome.Je school is helaas nog niet bekend in Test-Correct. Vul dit formulier in om een account aan te maken')));
     }
 
-    protected function handleIfRegisteringAndNoEckId($data)
+    protected function handleIfRegisteringAndNoEckId($data, $isEncrypted = true)
     {
-        if(!$data->eckId || strlen($data->eckId) < 5){
+        $eckId = $data->eckId;
+        if($isEncrypted){
+            $eckId = Crypt::decryptString($eckId);
+        }
+        if(!$eckId || strlen(eckId) < 5){
             return $this->redirectToUrlAndExit($this->getOnboardingUrlWithOptionalMessage(__('onboarding-welcome.Je kunt geen Test-Correct account aanmaken via Entree. Vul dit formulier in om een account aan te maken')));
         }
     }
@@ -588,7 +604,7 @@ logger((array) $data);
         logger($this->attr);
     }
 
-    public function handleScenario1()
+    public function handleScenario1($options = null)
     {
         $this->validateAttributes();
 
@@ -604,7 +620,7 @@ logger((array) $data);
 
         $this->handleUpdateUserWithSamlAttributes();
         // if student redirect to splash screen
-        $url = $this->laravelUser->getRedirectUrlSplashOrStartAndLoginIfNeeded();
+        $url = $this->laravelUser->getRedirectUrlSplashOrStartAndLoginIfNeeded($options);
         return $this->redirectToUrlAndExit($url);
 
     }

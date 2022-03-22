@@ -2490,6 +2490,9 @@ input[type=number] {
 /*    z-index: 21;*/
 /*    position: relative !important;*/
 /*}*/
+.ck-content ol{
+    list-style-type: decimal;
+}
 
 /*! tailwindcss v2.2.19 | MIT License | https://tailwindcss.com */
 
@@ -3523,6 +3526,9 @@ video {
 .-ml-px{
 	margin-left: -1px;
 }
+.ml-1{
+	margin-left: 0.25rem;
+}
 .mr-0\.5{
 	margin-right: 0.125rem;
 }
@@ -3785,6 +3791,9 @@ video {
 }
 .w-80{
 	width: 20rem;
+}
+.w-14{
+	width: 3.5rem;
 }
 .min-w-full{
 	min-width: 100%;
@@ -4101,6 +4110,11 @@ video {
 	margin-right: calc(1.5rem * var(--tw-space-x-reverse));
 	margin-left: calc(1.5rem * calc(1 - var(--tw-space-x-reverse)));
 }
+.space-x-4 > :not([hidden]) ~ :not([hidden]){
+	--tw-space-x-reverse: 0;
+	margin-right: calc(1rem * var(--tw-space-x-reverse));
+	margin-left: calc(1rem * calc(1 - var(--tw-space-x-reverse)));
+}
 .space-y-2\.5 > :not([hidden]) ~ :not([hidden]){
 	--tw-space-y-reverse: 0;
 	margin-top: calc(0.625rem * calc(1 - var(--tw-space-y-reverse)));
@@ -4110,11 +4124,6 @@ video {
 	--tw-space-y-reverse: 0;
 	margin-top: calc(0.5rem * calc(1 - var(--tw-space-y-reverse)));
 	margin-bottom: calc(0.5rem * var(--tw-space-y-reverse));
-}
-.space-x-4 > :not([hidden]) ~ :not([hidden]){
-	--tw-space-x-reverse: 0;
-	margin-right: calc(1rem * var(--tw-space-x-reverse));
-	margin-left: calc(1rem * calc(1 - var(--tw-space-x-reverse)));
 }
 .space-x-0 > :not([hidden]) ~ :not([hidden]){
 	--tw-space-x-reverse: 0;
@@ -4321,10 +4330,6 @@ video {
 .border-indigo-200{
 	--tw-border-opacity: 1;
 	border-color: rgba(199, 210, 254, var(--tw-border-opacity));
-}
-.border-b-gray-200{
-	--tw-border-opacity: 1;
-	border-bottom-color: rgba(229, 231, 235, var(--tw-border-opacity));
 }
 .bg-white{
 	--tw-bg-opacity: 1;
@@ -5961,10 +5966,6 @@ ul ul ul {
 		float: right;
 	}
 
-	.md\:mb-0{
-		margin-bottom: 0px;
-	}
-
 	.md\:mb-20{
 		margin-bottom: 5rem;
 	}
@@ -5983,6 +5984,10 @@ ul ul ul {
 
 	.md\:mb-16{
 		margin-bottom: 4rem;
+	}
+
+	.md\:mb-0{
+		margin-bottom: 0px;
 	}
 
 	.md\:flex{
