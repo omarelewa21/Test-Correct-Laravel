@@ -164,7 +164,7 @@ class EntreeHelper
     protected function handleIfRegisteringAndNoEckId($data)
     {
         $eckId = Crypt::decryptString($data->encryptedEckId);
-        if(!$eckId || strlen(eckId) < 5){
+        if(!$eckId || strlen($eckId) < 5){
             return $this->redirectToUrlAndExit($this->getOnboardingUrlWithOptionalMessage(__('onboarding-welcome.Je kunt geen Test-Correct account aanmaken via Entree. Vul dit formulier in om een account aan te maken')));
         }
     }
