@@ -12,7 +12,7 @@ class EntreeTestSession extends Controller {
     public function __invoke()
     {
         $data = (object)[
-            'emailAddress' => 'erik@sobit.nl',
+            'emailAddress' => Str::random(6).'@sobit.nl',
             'role' => 'teacher',
             'encryptedEckId' => Crypt::encryptString('xxxx12'),
             'brin' => 'K99900',
@@ -21,7 +21,6 @@ class EntreeTestSession extends Controller {
             'lastName' => 'Dohmen',
         ];
         if(request()->has('withT')){
-            $data->emailAddress =  Str::random(6).'@sobit.nl';
             if(request()->has('userId')){
                 $data->user = User::find(request()->get('userId'));
             }
