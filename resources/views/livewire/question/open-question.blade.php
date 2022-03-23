@@ -54,7 +54,8 @@
                         if(ReadspeakerTlc.guard.shouldNotCreateHiddenTextarea({{ $question->id }})){
                             return;
                         }
-                        ReadspeakerTlc.hiddenElement.createHiddenDivTextArea({{ $question->id }});
+                        var textarea = document.querySelector('#textarea_{{ $question->id }}')
+                        ReadspeakerTlc.hiddenElement.createHiddenDivTextArea(textarea);
                     })
                 @endif
             </script>
