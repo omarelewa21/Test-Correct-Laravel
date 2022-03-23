@@ -23,8 +23,20 @@ import WordCount from '@ckeditor/ckeditor5-word-count/src/wordcount.js';
 import MathType from '@wiris/mathtype-ckeditor5/src/plugin';
 import AutoSave from '@ckeditor/ckeditor5-autosave/src/autosave.js';
 import SpecialCharacters from '@ckeditor/ckeditor5-special-characters/src/specialcharacters';
-import SpecialCharactersEssentials from '@ckeditor/ckeditor5-special-characters/src/specialcharactersessentials';
 
+function SpecialCharactersTLC( editor ) {
+	editor.plugins.get( 'SpecialCharacters' ).addItems( 'Vreemde tekens', [
+		{ title: 'Ringel S', character: 'ß' },
+		{ title: 'O umlaut', character: 'ö' },
+		{ title: 'U umlaut', character: 'ü' },
+		{ title: 'A umlaut', character: 'ä' },
+		{ title: 'O accent circonflexe', character: 'ô️' },
+		{ title: 'U accent circonflexe', character: 'û' },
+		{ title: 'E accent circonflexe', character: 'ê️' },
+		{ title: 'A accent circonflexe', character: 'â' },
+		{ title: 'I accent circonflexe', character: 'î️' }
+	] );
+}
 
 
 
@@ -52,7 +64,7 @@ Editor.builtinPlugins = [
 	MathType,
 	AutoSave,
 	SpecialCharacters,
-	SpecialCharactersEssentials
+	SpecialCharactersTLC
 ];
 
 // Editor configuration.
