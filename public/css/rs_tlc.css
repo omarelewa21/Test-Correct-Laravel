@@ -2193,6 +2193,9 @@ body.rs_highcontrast #rslightbox_contentcontainer #rslightbox_toolbar .rslightbo
     width: 32px;
     background-repeat: no-repeat;
 }
+.rspopup_tlc:hover {
+    background-color: #d9e5fe;
+}
 .rspopup {
     width: 130px;
 }
@@ -2216,4 +2219,32 @@ body.rs_highcontrast #rslightbox_contentcontainer #rslightbox_toolbar .rslightbo
 .rspopup:hover .rspopup_btn.rspopup_play span{
     color: var(--teacher-primary);
 }
-
+span.rs_placeholder{
+    position: absolute;
+}
+span.completion-response-object-container{
+    position: relative;
+    white-space: nowrap;
+}
+@media only screen and (max-width: 750px) {
+    footer button.text-button span,footer button.primary-button span{
+        display: none;
+    }
+    footer button.text-button{
+        border-radius: 10px;
+        font-size: 18px;
+        font-family: Nunito Bold;
+        padding-top: 0px;
+        padding-right: 20px;
+        padding-bottom: 0px;
+        padding-left: 20px;
+        align-items: center;
+        min-height: 40px;
+        border: solid 1px transparent;
+        transition: 100ms ease-in-out;
+        border-color: var(--teacher-primary-light);
+    }
+    footer button.primary-button{
+        padding-left: 10px;
+    }
+}

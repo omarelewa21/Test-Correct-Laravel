@@ -34,6 +34,10 @@
                     RichTextEditor.initClassicEditorForStudentplayer('{{$editorId}}','{{ $question->getKey() }}');
                 })
                 document.addEventListener('readspeaker_started', () => {
+                    if(ReadspeakerTlc.guard.shouldNotDetachCkEditor(document.querySelector( '#{{ $editorId }}' ))){
+                        return;
+                    }
+                    RichTextEditor.writeContentToTexarea('{{ $editorId }}');
                     ReadspeakerTlc.ckeditor.detachReadableAreaFromCkeditor('{{ $editorId }}');
                 })
             @endif

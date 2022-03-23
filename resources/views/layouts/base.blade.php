@@ -49,12 +49,14 @@
 @if(!is_null(Auth::user())&&Auth::user()->text2speech)
 <script src="//cdn-eu.readspeaker.com/script/12749/webReader/webReader.js?pids=wr&amp;noDefaultSkin=1&amp;&mobile=0" type="text/javascript" id="rs_req_Init"></script>
 <script src="/js/readspeaker_tlc.js"></script>
+<script>
+    readspeakerLoadCore();
+</script>
 @endif
 @stack('scripts')
 <script>
     Alpine.start();
     Core.init();
-
 </script>
 </script>
 </body>

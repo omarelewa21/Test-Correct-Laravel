@@ -10802,6 +10802,29 @@ rsBlurSelect = function rsBlurSelect(event, questionId) {
   ReadspeakerTlc.rsTlcEvents.rsBlurSelect(event, questionId);
 };
 
+readspeakerLoadCore = function (_readspeakerLoadCore) {
+  function readspeakerLoadCore() {
+    return _readspeakerLoadCore.apply(this, arguments);
+  }
+
+  readspeakerLoadCore.toString = function () {
+    return _readspeakerLoadCore.toString();
+  };
+
+  return readspeakerLoadCore;
+}(function () {
+  if (rspkr == null) {
+    setTimeout(readspeakerLoadCore, '1000');
+    return;
+  }
+
+  if (rspkr.getLoadedMods().length > 0) {
+    return;
+  }
+
+  rspkr.loadCore();
+});
+
 /***/ }),
 
 /***/ "./resources/js/rich-text-editor.js":
@@ -10967,6 +10990,14 @@ RichTextEditor = {
   },
   setReadOnly: function setReadOnly(editor) {
     editor.isReadOnly = true;
+  },
+  writeContentToTexarea: function writeContentToTexarea(editorId) {
+    var editor = ClassicEditors[editorId];
+
+    if (editor) {
+      editor.updateSourceElement();
+      editor.sourceElement.dispatchEvent(new Event('input'));
+    }
   }
 };
 

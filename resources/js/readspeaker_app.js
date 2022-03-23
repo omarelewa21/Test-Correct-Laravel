@@ -45,3 +45,14 @@ rsBlurSelect = function (event,questionId)
     }
     ReadspeakerTlc.rsTlcEvents.rsBlurSelect(event,questionId);
 }
+
+readspeakerLoadCore = function(){
+    if(rspkr==null){
+        setTimeout(readspeakerLoadCore,'1000');
+        return;
+    }
+    if(rspkr.getLoadedMods().length>0){
+        return;
+    }
+    rspkr.loadCore();
+}
