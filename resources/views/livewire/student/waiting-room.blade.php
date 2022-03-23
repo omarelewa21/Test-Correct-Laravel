@@ -203,7 +203,9 @@
                     data.countdownNumber -= 1;
                     if (data.countdownNumber === 0) {
                         Core.setAppTestConfigIfNecessary('{{ $testParticipant->uuid }}');
-                        Livewire.emitTo('student.waiting-room', 'start-test-take')
+                        clearClipboard().then(()=>{
+                            Livewire.emitTo('student.waiting-room', 'start-test-take');
+                        });
                         clearInterval(countdownTimer);
                     }
                 }, 1000);
