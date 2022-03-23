@@ -3,7 +3,7 @@ ReadspeakerTlc = function(){
         function handleTextBoxFocusForReadspeaker(focusEvent,questionId)
         {
             handleFocusForReadspeaker();
-            var correction = {x:-10,y:-247};
+            var correction = {x:-16,y:-16};
             var p = popup.getRsbtnPopupTlc(questionId,focusEvent,correction);
             if(p == null){
                 return;
@@ -69,7 +69,7 @@ ReadspeakerTlc = function(){
         function rsFocusSelect(event,selectId,questionId)
         {
             register.registerTlcClickListenActive();
-            var correction = {x:17,y:-247};
+            var correction = {x:-16,y:-16};
             var p = popup.getRsbtnPopupTlc(questionId,event,correction);
             if(p == null){
                 return;
@@ -103,6 +103,9 @@ ReadspeakerTlc = function(){
         function ckeditorClickEvent(event)
         {
             var editor = this.ckeditorInstance;
+            if(editor === null){
+                return;
+            }
             if(editor.isReadOnly){
                 editor.isReadOnly = false;
             }
@@ -223,8 +226,23 @@ ReadspeakerTlc = function(){
             textarea.classList.add('readspeaker_hidden_element');
             return hidden_div;
         }
+        function createHiddenDivsForTextboxesCompletion(containerId) {
+            var container = document.querySelector('#' + containerId);
+            if (!container) {
+                return;
+            }
+            var inputs = container._x_refs;
+            if (!inputs) {
+                return;
+            }
+            rspkr.rs_tlc_container = container;
+            var inputsArray = Object.entries(inputs);
+            for (var i = 0; i < inputsArray.length; i++) {
+                createHiddenDivForElementAndHideElement(inputsArray[i][1]);
+            }
+        }
 
-        function getHiddenDivForTextarea(textarea)
+            function getHiddenDivForTextarea(textarea)
         {
             var oldEl = document.getElementById('there_can_only_be_one');
             var possibleTextarea = false;
@@ -276,6 +294,38 @@ ReadspeakerTlc = function(){
         function createHiddenDivForSelectAndHideSelect(select)
         {
             createHiddenDivForElementAndHideElement(select);
+        }
+        function createHiddenDivForElementAndHideElement(element)
+        {
+            console.dir('rs_tlc_skin');
+            if(!element){
+                return;
+            }
+            if(element.nodeName=='INPUT'&&element.value==''){
+                return;
+            }
+            var hidden_div = document.createElement('div');
+            element.parentNode.insertBefore(hidden_div,element);
+            hidden_div.id = 'there_can_be_more_than_one_'+element.id;
+            if(element.nodeName=='INPUT'){
+                hidden_div.innerHTML = element.value;
+                hidden_div.classList.add('rs-shadow-input');
+            }
+            if(element.nodeName=='SELECT'){
+                hidden_div.innerHTML = element.title;
+                if(element.title==''){
+                    hidden_div.innerHTML = element.firstChild.innerHTML;
+                }
+                hidden_div.classList.add('rs-shadow-select');
+            }
+            hidden_div.style.height = element.offsetHeight+'px';
+            hidden_div.style.width = element.offsetWidth+'px';
+            hidden_div.style.display = 'inline-flex';
+            hidden_div.classList.add('form-input');
+            hidden_div.classList.add('overflow-ellipsis');
+            hidden_div.classList.add('readspeaker_readable_element');
+            element.classList.add('hidden');
+            element.classList.add('readspeaker_hidden_element');
         }
         function displayHiddenElementsAndRemoveTheRest()
         {
@@ -336,7 +386,8 @@ ReadspeakerTlc = function(){
             displayHiddenElementsAndRemoveTheRest:displayHiddenElementsAndRemoveTheRest,
             getReadableDivForSelect:getReadableDivForSelect,
             createHiddenDivsForSelects:createHiddenDivsForSelects,
-            createHiddenDivTextArea:createHiddenDivTextArea
+            createHiddenDivTextArea:createHiddenDivTextArea,
+            createHiddenDivsForTextboxesCompletion
         }
     }();
     register = function(){
@@ -522,11 +573,17 @@ ReadspeakerTlc = function(){
                 p.classList.remove('hidden');
             }
             var rect = element.getBoundingClientRect();
+            var scrollCorrectionY = document.body.offsetHeight-window.innerHeight;
             switch (element.nodeName){
                 case 'INPUT':
                 case 'SELECT':
-                    p.style.left = rect.left+correction.x+'px';
-                    p.style.top = rect.top+correction.y+'px';
+                    var span = element.nextElementSibling;
+                    if(span.nodeName!='SPAN'){
+                        return;
+                    }
+                    span.append(p);
+                    p.style.left = correction.x+'px';
+                    p.style.top = correction.y+'px';
                     break;
                 case 'DIV':
                 case 'TEXTAREA':
@@ -693,12 +750,12 @@ ReadspeakerTlc = function(){
         {
             rspkr.rs_tlc_prevent_close = true;
             clickListen.activateClickTap();
-            var rect = this.linkedElement.getBoundingClientRect();
+            // var rect = this.linkedElement.getBoundingClientRect();
             var readable_div = hiddenElement.getReadableDivForSelect(this.linkedElement);
             this.parentNode.insertBefore(readable_div,this);
             readable_div.style.position = 'absolute';
-            readable_div.style.top = rect.top-230+'px';
-            readable_div.style.left = rect.left+35+'px';
+            // readable_div.style.top = '16px';
+            // readable_div.style.left = '16px';
             popup.hideRsTlcPopup(this);
             readable_div.click();
         }
@@ -826,6 +883,13 @@ ReadspeakerTlc = function(){
             }
             return false;
         }
+        function shouldNotDetachCkEditor(el)
+        {
+            if(!util.checkElementInActiveQuestion(el)){
+                return true;
+            }
+            return false;
+        }
         function shouldNotCreateHiddenDivs(containerId)
         {
             if(document.getElementById('there_can_only_be_one')){
@@ -841,7 +905,8 @@ ReadspeakerTlc = function(){
             shouldNotCreateHiddenTextarea:shouldNotCreateHiddenTextarea,
             shouldNotCreateHiddenDivsForSelects:shouldNotCreateHiddenDivsForSelects,
             shouldNotCreateHiddenDivsForTextboxesCompletion:shouldNotCreateHiddenDivsForTextboxesCompletion,
-            shouldNotReinitCkeditor:shouldNotReinitCkeditor
+            shouldNotReinitCkeditor:shouldNotReinitCkeditor,
+            shouldNotDetachCkEditor
         }
     }();
     return{

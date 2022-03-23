@@ -124,5 +124,13 @@ RichTextEditor = {
     setReadOnly: function(editor)
     {
         editor.isReadOnly = true;
+    },
+    writeContentToTexarea: function(editorId)
+    {
+        var editor = ClassicEditors[editorId];
+        if (editor) {
+            editor.updateSourceElement();
+            editor.sourceElement.dispatchEvent(new Event('input'));
+        }
     }
 }

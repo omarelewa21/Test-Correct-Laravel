@@ -5873,6 +5873,8 @@ __webpack_require__(/*! ./rich-text-editor */ "./resources/js/rich-text-editor.j
 
 __webpack_require__(/*! ./drawing/drawing-question */ "./resources/js/drawing/drawing-question.js");
 
+__webpack_require__(/*! ./readspeaker_app */ "./resources/js/readspeaker_app.js");
+
 window.ClassicEditors = [];
 
 addIdsToQuestionHtml = function addIdsToQuestionHtml() {
@@ -12014,6 +12016,85 @@ Notify = {
 
 /***/ }),
 
+/***/ "./resources/js/readspeaker_app.js":
+/*!*****************************************!*\
+  !*** ./resources/js/readspeaker_app.js ***!
+  \*****************************************/
+/***/ (() => {
+
+handleFocusTextareaField = function handleFocusTextareaField(event, questionId) {
+  if (typeof ReadspeakerTlc == "undefined") {
+    return;
+  }
+
+  return ReadspeakerTlc.rsTlcEvents.handleTextareaFocusForReadspeaker(event, questionId);
+};
+
+handleBlurTextareaField = function handleBlurTextareaField() {
+  if (typeof ReadspeakerTlc == "undefined") {
+    return;
+  }
+
+  ReadspeakerTlc.rsTlcEvents.handleTextareaBlurForReadspeaker();
+};
+
+handleTextBoxFocusForReadspeaker = function handleTextBoxFocusForReadspeaker(focusEvent, questionId) {
+  if (typeof ReadspeakerTlc == "undefined") {
+    return;
+  }
+
+  ReadspeakerTlc.rsTlcEvents.handleTextBoxFocusForReadspeaker(focusEvent, questionId);
+};
+
+handleTextBoxBlurForReadspeaker = function handleTextBoxBlurForReadspeaker(event, questionId) {
+  if (typeof ReadspeakerTlc == "undefined") {
+    return;
+  }
+
+  ReadspeakerTlc.rsTlcEvents.handleTextBoxBlurForReadspeaker(event, questionId);
+};
+
+rsFocusSelect = function rsFocusSelect(event, selectId, questionId) {
+  if (typeof ReadspeakerTlc == "undefined") {
+    return;
+  }
+
+  ReadspeakerTlc.rsTlcEvents.rsFocusSelect(event, selectId, questionId);
+};
+
+rsBlurSelect = function rsBlurSelect(event, questionId) {
+  if (typeof ReadspeakerTlc == "undefined") {
+    return;
+  }
+
+  ReadspeakerTlc.rsTlcEvents.rsBlurSelect(event, questionId);
+};
+
+readspeakerLoadCore = function (_readspeakerLoadCore) {
+  function readspeakerLoadCore() {
+    return _readspeakerLoadCore.apply(this, arguments);
+  }
+
+  readspeakerLoadCore.toString = function () {
+    return _readspeakerLoadCore.toString();
+  };
+
+  return readspeakerLoadCore;
+}(function () {
+  if (rspkr == null) {
+    setTimeout(readspeakerLoadCore, '1000');
+    return;
+  }
+
+  if (rspkr.getLoadedMods().length > 0) {
+    return;
+  }
+
+  rspkr.loadCore();
+});
+
+/***/ }),
+
 /***/ "./resources/js/rich-text-editor.js":
 /*!******************************************!*\
   !*** ./resources/js/rich-text-editor.js ***!
@@ -12177,6 +12258,14 @@ RichTextEditor = {
   },
   setReadOnly: function setReadOnly(editor) {
     editor.isReadOnly = true;
+  },
+  writeContentToTexarea: function writeContentToTexarea(editorId) {
+    var editor = ClassicEditors[editorId];
+
+    if (editor) {
+      editor.updateSourceElement();
+      editor.sourceElement.dispatchEvent(new Event('input'));
+    }
   }
 };
 

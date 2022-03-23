@@ -6,6 +6,8 @@ require('./notify');
 require('./alpine');
 require('./rich-text-editor');
 require('./drawing/drawing-question');
+require('./readspeaker_app');
+
 
 window.ClassicEditors = [];
 
