@@ -100,7 +100,7 @@ class EntreeHelper
 
     protected function handleIfRegisteringAndRolesNotTheSame($data)
     {
-        if($this->user && !$this->user->isA('teacher')){
+        if($data->user && !$data->user->isA('teacher')){
             $this->redirectToUrlAndExit('https://www.test-correct.nl/student-aanmelden-error');
         }
     }
