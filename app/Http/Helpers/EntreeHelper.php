@@ -68,7 +68,7 @@ class EntreeHelper
             return false;
         }
         $this->setLocationWithSamlAttributes();
-        $data = (object)[
+        $data = [
            'emailAddress' => $this->getEmailFromAttributes(),
            'role' => $this->getRoleFromAttributes(),
            'encryptedEckId' => Crypt::encryptString($this->getEckIdFromAttributes()),
@@ -81,8 +81,17 @@ class EntreeHelper
         ];
         if(BaseHelper::notProduction()) {
             logger('entreeData for registering');
-            logger((array)$data);
+            $dataClone = $data;
+            if($dataClone['location']){
+                $dataClone['location'] = $dataClone['location']->getKey();
+            }
+            if($dataClone['school']){
+                $dataClone['school'] = $dataClone['school']->getKey();
+            }
+            logger($dataClone);
         }
+
+        $data = (object) $data;
 
         $this->handleIfRegisteringAndNotATeacher($data);
 
@@ -92,17 +101,8 @@ class EntreeHelper
 
         $data->user = $this->handleIfRegisteringAndUserBasedOnEckId($data);
 
-        $this->handleIfRegisteringAndRolesNotTheSame($data);
-
         session(['entreeData' => $data]);
         return $this->redirectToUrlAndExit(route('onboarding.welcome.entree'));
-    }
-
-    protected function handleIfRegisteringAndRolesNotTheSame($data)
-    {
-        if($data->user && !$data->user->isA('teacher')){
-            $this->redirectToUrlAndExit('https://www.test-correct.nl/student-aanmelden-error');
-        }
     }
 
     protected function getOnboardingUrlWithOptionalMessage($message = null, $entree = false)
@@ -131,6 +131,9 @@ class EntreeHelper
     protected function handleIfRegisteringAndUserBasedOnEckId($data)
     {
         if($user = User::filterByEckid(Crypt::decryptString($data->encryptedEckId))->first()){
+            if(!$user->isA('teacher')){
+                return $this->redirectToUrlAndExit('https://www.test-correct.nl/student-aanmelden-error');
+            }
             if(!$user->hasImportMailAddress()){ // regular user
                 $this->laravelUser = $user;
                 if($this->location) {

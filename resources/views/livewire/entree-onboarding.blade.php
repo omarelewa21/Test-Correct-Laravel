@@ -334,21 +334,40 @@
                             {{--content header--}}
                             <div class="mb-6 relative w-full">
                                 <img class="card-header-img float-left mr-4" src="/svg/stickers/school.svg" alt="">
-                                <h1 class="md:mt-2 top-4 card-header-text">{{ __("onboarding.Wat zijn jouw schoolgegevens") }}?</h1>
+                                <h1 class="md:mt-2 top-4 card-header-text">@if($this->hasValidTUser) {{ __("onboarding.Jouw schoollocatie") }} @else {{ __('onboarding.Kies locatie(s)') }} @endif</h1>
+                                @if(!$this->hasValidTUser)
+                                <p class="">{{ __('onboarding.We hebben meerdere locaties gevonden. Op welke locatie geef jij les?') }}</p>
+                                @endif
                             </div>
 
                             <div class="flex-grow">
                                 <form class="h-full relative" wire:submit.prevent="step2" action="#" method="POST">
                                     <div class="input-section mb-4">
                                         @if($this->hasValidTUser)
-                                            <div class="input-group w-full  sm:w-1/2 sm:pr-2">
-                                                <input id="school_location"
-                                                       wire:model.lazy="registration.school_location" @if($this->hasValidTUser) disabled @endif
-                                                       class="form-input @if($this->hasValidTUser) disabled @endif @error('registration.school_location') border-red @enderror">
-                                                <label for="school_location"
-                                                       class="">{{ __("onboarding.Schoolnaam") }}</label>
+                                            <div class="flex flex-col space-y-2 w-full mt-4">
+                                                    <x-drag-item id="mc-"
+                                                                 class="flex px-0 py-0 border-0 bg-system-white relative regular"
+                                                                 slotClasses="w-full mr-0 "
+                                                    >
+                                                        <p>{{ $this->registration->school_location }}</p>
+                                                        <x-slot name="after">
+                                                            <x-icon.checkmark class="mx-2 w-4"  wire:click="__call('delete','')"></x-icon.checkmark>
+                                                        </x-slot>
+                                                    </x-drag-item>
                                             </div>
                                         @else
+                                            <div class="flex flex-col space-y-2 w-full mt-4">
+                                                <x-drag-item id="mc-"
+                                                             class="flex px-0 py-0 border-0 bg-system-white relative regular"
+                                                             slotClasses="w-full mr-0 "
+                                                >
+                                                    <p>{{ $this->registration->school_location }}</p>
+                                                    <x-slot name="after">
+                                                        <x-icon.checkmark class="mx-2 w-4 " wire:click="__call('delete','')"></x-icon.checkmark>
+                                                    </x-slot>
+                                                </x-drag-item>
+                                            </div>
+
                                             <div class="school-info">
                                                 <div class="input-group w-full  sm:w-1/2 sm:pr-2">
                                                     <input id="school_location"
