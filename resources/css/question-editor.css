@@ -110,3 +110,9 @@
     border-color: var(--primary);
     color: var(--primary);
 }
+.sub-select label{
+    margin-left: 0.75rem;
+}
+.subsub-select label{
+    margin-left: 1.50rem;
+}
