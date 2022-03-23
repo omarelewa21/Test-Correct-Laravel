@@ -20,6 +20,6 @@ return [
     'Je bestaande Test-Correct account is al gekoppeld aan je Entree account. Je kunt vanaf nu ook inloggen met Entree.' => 'Je bestaande Test-Correct account is al gekoppeld aan je Entree account. Je kunt vanaf nu ook inloggen met Entree.',
     'Je bestaande Test-Correct account is geupdate met de schoollocaties die we vanuit Entree hebben meegekregen. We hebben je in de schoollocatie gezet. Je kunt vanaf nu ook inloggen met Entree.' => 'Je bestaande Test-Correct account is geupdate met de schoollocaties die we vanuit Entree hebben meegekregen. We hebben je in de schoollocatie :name gezet. Je kunt vanaf nu ook inloggen met Entree.',
     'Je bestaande Test-Correct account kan niet geupdate worden. Neem contact op met support.' => 'Je bestaande Test-Correct account kan niet geupdate worden. Neem contact op met support.',
-
+    'De gekozen school locatie kon niet gevonden worden. Neem contact op met support.' => 'De gekozen school locatie kon niet gevonden worden. Neem contact op met support.',
 ];
 ?>

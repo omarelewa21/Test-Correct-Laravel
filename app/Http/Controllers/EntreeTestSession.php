@@ -5,6 +5,7 @@ namespace tcCore\Http\Controllers;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Str;
+use tcCore\School;
 use tcCore\SchoolLocation;
 use tcCore\User;
 
@@ -20,6 +21,10 @@ class EntreeTestSession extends Controller {
             'brin4ErrorDetected' => false,
             'lastName' => 'Dohmen',
         ];
+        if(request()->has('schoolId')){
+            $data->location = null;
+            $data->school = School::find(request()->get('schoolId'));
+        }
         if(request()->has('withT')){
             if(request()->has('userId')){
                 $data->user = User::find(request()->get('userId'));

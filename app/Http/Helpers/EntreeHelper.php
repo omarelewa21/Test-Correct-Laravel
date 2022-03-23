@@ -118,16 +118,6 @@ class EntreeHelper
         return route($route,$queryAr);
     }
 
-    protected function getLoginUrlWithOptionalMessage($message = null, $isError = false)
-    {
-        $queryAr = [];
-        if($message){
-            $type = ($isError) ? 'entree_error_message' : 'message';
-            $queryAr[$type] = $message;
-        }
-        return route('auth.login',$queryAr);
-    }
-
     protected function handleIfRegisteringAndUserBasedOnEckId($data)
     {
         if($user = User::filterByEckid(Crypt::decryptString($data->encryptedEckId))->first()){
@@ -151,13 +141,13 @@ class EntreeHelper
                     $this->handleIfRegisteringAndSchoolIsAllowed($user,$this->school);
                 }
                 // if not contact support
-                $url = $this->getLoginUrlWithOptionalMessage(__('onboarding-welcome.Je bestaande Test-Correct account kan niet geupdate worden. Neem contact op met support.'), true);
+                $url = BaseHelper::getLoginUrlWithOptionalMessage(__('onboarding-welcome.Je bestaande Test-Correct account kan niet geupdate worden. Neem contact op met support.'), true);
                 return $this->redirectToUrlAndExit($url);
             }
 
             if(!$this->location && $this->school){
                 if (! $user->isAllowedSchool($this->school)) {
-                    $url = $this->getLoginUrlWithOptionalMessage(__('onboarding-welcome.Je bestaande Test-Correct account kan niet geupdate worden. Neem contact op met support.'), true);
+                    $url = BaseHelper::getLoginUrlWithOptionalMessage(__('onboarding-welcome.Je bestaande Test-Correct account kan niet geupdate worden. Neem contact op met support.'), true);
                     return $this->redirectToUrlAndExit($url);
                 }
             }
