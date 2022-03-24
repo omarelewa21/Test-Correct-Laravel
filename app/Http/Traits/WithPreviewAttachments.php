@@ -33,7 +33,7 @@ trait WithPreviewAttachments
 
     public function closeAttachmentModal()
     {
-        $this->attachment = null;
+      //  $this->attachment = null;
         if (optional($this->attachment)->file_mime_type == 'audio/mpeg') {
             if ($this->audioIsPlayedAndCanBePlayedAgain() && !$this->audioCloseWarning) {
                 if (!$this->attachment->audioIsPausable()) {
