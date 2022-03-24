@@ -12,6 +12,8 @@ class AnswerFeedback extends Model
     use SoftDeletes;
     use UuidTrait;
 
+    protected $table = 'answers_feedback';
+
     protected $casts = [
         'uuid' => EfficientUuid::class,
     ];

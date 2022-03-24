@@ -10,6 +10,7 @@ use tcCore\Answer;
 use tcCore\Question;
 use tcCore\Http\Requests\CreateAnswerRequest;
 use tcCore\Http\Requests\UpdateAnswerRequest;
+use tcCore\Http\Requests\SaveFeedbackRequest;
 use tcCore\Lib\Question\QuestionInterface;
 use tcCore\TestParticipant;
 use tcCore\AnswerFeedback;
@@ -163,12 +164,8 @@ class AnswersController extends Controller {
         }
     }
 
-    public function saveFeedback(Answer $answer, Request $request){
+    public function saveFeedback(Answer $answer, SaveFeedbackRequest $request){
         try{
-			$request->validate([
-				'message' => 'required|max:240',
-			]);
-
             if(is_null($answer->feedback)){
                 AnswerFeedback::create([
                     'answer_id'     => $answer->id,
@@ -180,8 +177,8 @@ class AnswersController extends Controller {
                 $feedback->message = $request->message;
                 $feedback->save();
             }
-
             return response(200);
+
         }catch (Exception $e){
             return response($e->getMessage(), 500);
         }
@@ -189,8 +186,14 @@ class AnswersController extends Controller {
 
     public function deleteFeedback($feedback_id){
         try{
-            $feedback = AnswerFeedback::whereUuid($feedback_id)->delete();
-            return response(200);
+            $feedback = AnswerFeedback::whereUuid($feedback_id)->first();
+			if($feedback->user->id === auth()->id()){
+				$feedback->delete();
+				return response(200);
+			}else{
+				return response(401);
+			}
+            
         }catch (Exception $e){
             return response($e->getMessage(), 500);
         }
