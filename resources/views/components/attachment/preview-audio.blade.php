@@ -29,7 +29,7 @@
     </div>
 
     <div class="w-3/4">
-        <div>
+        <div wire:key='{{$attachment->uuid}}' wire:ignore>
             <audio id="player" src="{{ route('teacher.preview.question-attachment-show', ['attachment' => $attachment->uuid, 'question' => $questionId], false) }}"
                 x-ref="player"
                 @if($attachment->audioOnlyPlayOnce())
