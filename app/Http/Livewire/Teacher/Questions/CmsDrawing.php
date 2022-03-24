@@ -46,6 +46,8 @@ class CmsDrawing
         $this->instance->question['question_svg'] = $q['question_svg'];
         $this->instance->question['grid_svg'] = $q['grid_svg'];
         $this->instance->question['zoom_group'] = json_decode($q['zoom_group'], true);
+        $this->instance->question['question_preview'] = $q['question_preview'];
+        $this->instance->question['question_correction_model'] = $q['question_correction_model'];
 
         if (filled($this->instance->question['zoom_group'])) {
             $this->setViewbox($this->instance->question['zoom_group']);
@@ -59,6 +61,8 @@ class CmsDrawing
         $this->instance->question['question_svg'] = '';
         $this->instance->question['grid_svg'] = '0.00';
         $this->instance->question['zoom_group'] = '';
+        $this->instance->question['question_preview'] = '';
+        $this->instance->question['question_correction_model'] = '';
         $this->emptyCanvas = true;
     }
 
@@ -68,6 +72,8 @@ class CmsDrawing
         $this->instance->question['question_svg'] = $data['svg_question'];
         $this->instance->question['grid_svg'] = $data['grid_size'];
         $this->instance->question['zoom_group'] = $data['svg_zoom_group'];
+        $this->instance->question['question_preview'] = $data['png_question_preview_string'];
+        $this->instance->question['question_correction_model'] = $data['png_correction_model_string'];
 
         $this->setViewbox($data['svg_zoom_group']);
         $this->emptyCanvas = false;

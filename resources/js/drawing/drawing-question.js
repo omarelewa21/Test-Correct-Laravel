@@ -2,7 +2,6 @@ import {panParams, shapePropertiesAvailableToUser, zoomParams} from "./constants
 import * as svgShape from "./svgShape.js";
 import {UIElements, warningBox} from "./uiElements.js";
 import * as sidebar from "./sidebar.js";
-import * as DDT from "./DragDropTouch";
 
 window.initDrawingQuestion = function (rootElement, isTeacher, isPreview) {
 
@@ -157,6 +156,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview) {
             params: {
                 cursorPosition: {x: 0, y: 0},
                 cursorPositionMousedown: {x: 0, y: 0},
+                touchmoving: false,
                 currentLayer: "question",
                 focusedShape: null,
                 bounds: {},
@@ -169,7 +169,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview) {
                         text: 0,
                         image: 0,
                         path: 0,
-                        freehand: 0,
+                        freehand: 0
                     },
                 },
                 drag: {
@@ -266,10 +266,25 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview) {
                 object.remove();
 
                 delete this.layers[layer].shapes[objectId];
+            },
+            cleanShapeCount() {
+                this.params.draw.shapeCountForEachType = {
+                    rect: 0,
+                    circle: 0,
+                    line: 0,
+                    text: 0,
+                    image: 0,
+                    path: 0,
+                    freehand: 0
+                }
+            },
+            initCanvas() {
+                this.cleanShapeCount();
+                this.makeLayers();
             }
         }
 
-        Obj.makeLayers();
+        Obj.initCanvas();
         return Obj;
     })();
 
@@ -277,6 +292,8 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview) {
     function clearLayers() {
         Canvas.layers.question.clearSidebar(false);
         Canvas.layers.answer.clearSidebar(false);
+        Canvas.cleanShapeCount();
+
         updateGrid();
     }
 
@@ -400,13 +417,19 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview) {
                     },
                     options: {passive: false},
                 },
-                "click touchstart": {
+                "click": {
                     callback: (evt) => {
                         if (!movedDuringClick(evt)) {
-                            click(evt);
+                            handleShapeSelection(evt);
                         }
                     }
                 },
+                "touchend touchcancel": {
+                    callback: (evt) => {
+                        if (!Canvas.params.touchmoving) handleShapeSelection(evt);
+                        Canvas.params.touchmoving = false;
+                    }
+                }
             }
         },
         {
@@ -1018,7 +1041,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview) {
         // UI.drawingTool.style.height = Math.round(window.innerHeight * 0.95) + "px";
     }
 
-    function submitDrawingData() {
+    async function submitDrawingData() {
         if (drawingApp.params.isPreview) return;
 
         const b64Strings = encodeSvgLayersAsBase64Strings();
@@ -1033,8 +1056,55 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview) {
             svg_question: b64Strings.question,
             svg_grid: b64Strings.grid,
             grid_size: grid,
-            svg_zoom_group: panGroupSize
+            svg_zoom_group: panGroupSize,
+            png_question_preview_string: await getPNGQuestionPreviewStringFromSVG(panGroupSize),
+            png_correction_model_string: await getPNGCorrectionModelStringFromSVG(panGroupSize)
         });
+    }
+
+    async function getPNGCorrectionModelStringFromSVG(panGroupSize) {
+        const svg = UI.svgCanvas.cloneNode(true);
+        svg.querySelector('#svg-answer-group').setAttribute('style', '');
+        svg.querySelector('#svg-question-group').setAttribute('style', '');
+
+        return getPNGStringFromSVG(svg, panGroupSize);
+    }
+
+    async function getPNGQuestionPreviewStringFromSVG(panGroupSize) {
+        const svg = UI.svgCanvas.cloneNode(true);
+        svg.querySelector('#svg-answer-group').remove();
+        return getPNGStringFromSVG(svg, panGroupSize);
+    }
+
+    async function getPNGStringFromSVG(svg, panGroupSize) {
+        prepareSvgForConversion(svg, panGroupSize);
+
+        const newImage = new Image();
+        newImage.setAttribute('src', 'data:image/svg+xml;base64,' + btoa(new XMLSerializer().serializeToString(svg)));
+        newImage.setAttribute('width', panGroupSize.width);
+        newImage.setAttribute('height', panGroupSize.height);
+
+        const canvas = document.createElement("canvas");
+        canvas.setAttribute('width', panGroupSize.width);
+        canvas.setAttribute('height', panGroupSize.height);
+
+        return new Promise((resolve, reject) => {
+            setTimeout(() => {
+                var ctx = canvas.getContext("2d");
+                ctx.drawImage(newImage, 0, 0, panGroupSize.width, panGroupSize.height);
+
+                resolve(canvas.toDataURL());
+            }, 1);
+        });
+    }
+
+    function prepareSvgForConversion(svg, panGroupSize) {
+        svg.setAttribute('viewBox', `${panGroupSize.x} ${panGroupSize.y} ${panGroupSize.width} ${panGroupSize.height}`);
+        svg.setAttribute('width', `${panGroupSize.width}`);
+        svg.setAttribute('height', `${panGroupSize.height}`);
+        svg.querySelector('#svg-pan-zoom-group').setAttribute('transform', '');
+        svg.querySelector('#svg-grid-group').setAttribute('stroke', '#c3d0ed');
+        return svg;
     }
 
     function toggleSaveConfirm() {
@@ -1097,7 +1167,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview) {
         return false;
     }
 
-    function click(evt) {
+    function handleShapeSelection(evt) {
         const shapeGroup = evt.target.closest(".shape");
         if (!shapeGroup) return;
 
@@ -1402,6 +1472,10 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview) {
         }
 
         Canvas.params.cursorPosition = cursorPosition;
+
+        if(evt.type === 'touchmove') {
+            Canvas.params.touchmoving = true;
+        }
     }
 
     function updateCursorPosition(evt) {
@@ -1666,6 +1740,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview) {
         for (const fileURL of evt.target.files) {
             const reader = new FileReader();
             reader.readAsDataURL(fileURL);
+
             drawingApp.bindEventListeners([
                 {
                     element: reader,
@@ -1709,15 +1784,16 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview) {
         ]);
     }
 
-    function dummyImageLoaded(evt) {
+    async function dummyImageLoaded(evt) {
         const dummyImage = evt.target,
             scaleFactor = correctImageSize(dummyImage),
-            imageURL = dummyImage.src;
+            // imageURL = dummyImage.src;
+            base65PNGString = await compressedImageUrl(dummyImage, scaleFactor);
         const shape = makeNewSvgShapeWithSidebarEntry(
             "image",
             {
                 main: {
-                    href: imageURL,
+                    href: base65PNGString,
                     width: dummyImage.width * scaleFactor,
                     height: dummyImage.height * scaleFactor,
                 },
@@ -1727,6 +1803,25 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview) {
 
         shape.svg.moveToCenter();
         shape.svg.addHighlightEvents();
+    }
+
+    function compressedImageUrl(image, scaleFactor) {
+        const newImage = document.createElement('img')
+        newImage.src = image.src;
+        newImage.width = image.width * scaleFactor;
+        newImage.height = image.height * scaleFactor;
+
+        return new Promise((resolve, reject) => {
+            const canvas = document.createElement("canvas");
+            canvas.width = newImage.width;
+            canvas.height = newImage.height;
+
+            const ctx = canvas.getContext("2d");
+
+            ctx.drawImage(newImage, 0, 0, canvas.width, canvas.height);
+
+            resolve(canvas.toDataURL());
+        })
     }
 
     function correctImageSize(image) {

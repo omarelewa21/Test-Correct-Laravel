@@ -464,7 +464,7 @@ export class Layer extends sidebarComponent {
     }
 
     isEmpty() {
-        return Object.keys(this.shapes).length === 0;
+        return Object.keys(this.shapes).length === 0 && this.svg.childElementCount === 0;
     }
 
     enable() {
@@ -587,6 +587,8 @@ export class Layer extends sidebarComponent {
         Object.values(this.shapes).forEach((shape) => {
             shape.sidebar.remove();
         });
+        this.shapes = {};
+        this.svg.innerHTML = '';
     }
 
     getLayerDataFromTarget(element) {
