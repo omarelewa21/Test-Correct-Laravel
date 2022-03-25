@@ -19,7 +19,6 @@ trait WithPreviewAttachments
 
     public function showAttachment($attachmentUuid)
     {
-        $this->closeAttachmentModal();       // Not Working as Expected - Not closing model
         $this->attachment = Attachment::whereUuid($attachmentUuid)->first();
         $attachment = $this->attachment;
         $type = $this->attachmentBelongsToTypeQuestion($attachment);
@@ -33,7 +32,6 @@ trait WithPreviewAttachments
 
     public function closeAttachmentModal()
     {
-        $this->attachment = null;
         if (optional($this->attachment)->file_mime_type == 'audio/mpeg') {
             if ($this->audioIsPlayedAndCanBePlayedAgain() && !$this->audioCloseWarning) {
                 if (!$this->attachment->audioIsPausable()) {

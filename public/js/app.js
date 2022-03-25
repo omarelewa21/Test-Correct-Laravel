@@ -6124,19 +6124,14 @@ __webpack_require__.r(__webpack_exports__);
 
 window.plyrPlayer = {
   disableElem: function disableElem(elem) {
-    var replace = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : true;
-
-    // Takes elem and disable it by css and byChoice replacing it to remove all event listeners
-    if (replace) {
-      var elClone = elem.cloneNode(true);
-      elem.parentNode.replaceChild(elClone, elem);
-      elClone.setAttribute("style", "pointer-events: none;");
-    } else {
+    // disable element if not null
+    try {
       elem.setAttribute("style", "pointer-events: none;");
-    }
+    } catch (e) {}
   },
-  noPause: function noPause(playElem) {
-    // Takes play button elem and Disable it after clicked play first time
+  noPause: function noPause(player) {
+    // Takes player and disable play button after clicking first time
+    var playElem = player.elements.buttons.play[0];
     playElem.addEventListener('click', function () {
       var _this = this;
 
@@ -6145,30 +6140,90 @@ window.plyrPlayer = {
       }, 100);
     });
   },
-  render: function render(elem) {
-    var constraints = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
-    var controls = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : ['play', 'progress', 'current-time', 'mute', 'volume'];
-    var disableProgressElem = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : false;
+  disableTimeline: function disableTimeline(player) {
+    // Takes player and disable timeline
+    var timeline = player.elements.progress;
+    this.disableElem(timeline);
+  },
+  Onplaying: function Onplaying(player, mode, wire) {
+    // Send requests playing and pause based on mode
+    if (mode === "notPreview") {
+      player.on('playing', function () {
+        wire.registerPlayStart();
+      });
+      player.on('pause', function () {
+        wire.audioStoreCurrentTime(player.currentTime);
+      });
+    } else {
+      player.on('playing', function () {
+        wire.set('pressedPlay', true);
+      });
+      player.on('pause', function () {
+        wire.audioStoreCurrentTime(player.currentTime);
+      });
+    }
+  },
+  parseConstraints: function parseConstraints(constraints) {
+    var data = JSON.parse(constraints);
+    return {
+      pausable: data.pausable !== 'undefined' && data.pausable === "1",
+      play_once: data.play_once !== 'undefined' && data.play_once === "1",
+      hasTimeout: data.timeout !== 'undefined' && data.timeout !== ""
+    };
+  },
+  applyConstraints: function applyConstraints(player, constraints, wire, mode) {
+    if (!constraints.pausable) {
+      this.noPause(player);
+    }
+
+    if (constraints.hasTimeout || constraints.play_once) {
+      if (mode === "notPreview") {
+        player.on('ended', function () {
+          wire.registerEndOfAudio(player.currentTime, player.duration);
+
+          if (constraints.play_once) {
+            wire.audioIsPlayedOnce();
+          }
+
+          wire.audioStoreCurrentTime(0);
+          wire.closeAttachmentModal(true);
+        });
+      } else {
+        player.on('ended', function () {
+          wire.audioStoreCurrentTime(0);
+          wire.closeAttachmentModal(true);
+        });
+      }
+    } else {
+      player.on('ended', function () {
+        wire.audioStoreCurrentTime(0);
+        wire.closeAttachmentModal(true);
+      });
+    }
+
+    if (!constraints.pausable || constraints.hasTimeout || constraints.play_once) {
+      this.disableTimeline(player);
+    }
+  },
+  render: function render(elem, wire, constraints) {
+    var audioCanBePlayedAgain = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : true;
+    var mode = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : "notPreview";
+    var controls = arguments.length > 5 && arguments[5] !== undefined ? arguments[5] : ['play', 'progress', 'current-time', 'mute', 'volume'];
     var player = new (plyr__WEBPACK_IMPORTED_MODULE_0___default())(elem, {
       controls: controls
-    }); // let controlsElem = player.elements.controls;            // Get the play button
+    });
+    this.Onplaying(player, mode, wire);
 
-    var progressElem = player.elements.progress; // Get the progress bar element
-    // controlsElem.setAttribute("wire:ignore", "");
+    if (constraints.length !== 0) {
+      this.applyConstraints(player, this.parseConstraints(constraints), wire, mode);
+    } else {
+      this.noPause(player);
+      this.disableTimeline(player);
+    }
 
-    if (disableProgressElem) {
-      this.disableElem(progressElem, false);
-    } // Todo display the play-pause button and apply the constraints on it 
-    // let playElem     = player.elements.controls;            // get The controlls element
-    // let controlsElem = player.elements.buttons.play[0];     // Get the play button
-    // let progressElem = player.elements.progress;            // Get the progress bar element
-    // if(! constraints.pausable){
-    //     this.noPause(playElem);
-    // }
-    // if(! constraints.pausable || constraints.playableOnce || constraints.withTimeout){
-    //     this.disableElem(progressElem, false);
-    // }
-
+    if (!audioCanBePlayedAgain) {
+      this.disableElem(player.elements.buttons.play[0]);
+    }
 
     return player;
   }

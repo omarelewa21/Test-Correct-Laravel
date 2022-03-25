@@ -2,19 +2,17 @@ import Plyr from 'plyr';
 
 
 window.plyrPlayer = {
-    disableElem(elem, replace=true){
-        // Takes elem and disable it by css and byChoice replacing it to remove all event listeners
-        if(replace){
-            let elClone = elem.cloneNode(true);
-            elem.parentNode.replaceChild(elClone, elem);
-            elClone.setAttribute("style", "pointer-events: none;");
-        }else{
+    disableElem(elem){
+        // disable element if not null
+        try{
             elem.setAttribute("style", "pointer-events: none;");
         }
+        catch(e){}
     },
 
-    noPause(playElem){
-        // Takes play button elem and Disable it after clicked play first time
+    noPause(player){
+        // Takes player and disable play button after clicking first time
+        let playElem = player.elements.buttons.play[0];
         playElem.addEventListener('click', function(){
             setTimeout(()=>{
                 plyrPlayer.disableElem(this);
@@ -22,38 +20,94 @@ window.plyrPlayer = {
         });
     },
 
-    render(elem,
-        constraints={},
-        controls=['play', 'progress', 'current-time', 'mute', 'volume'],
-        disableProgressElem=false
-        )
+    disableTimeline(player){
+        // Takes player and disable timeline
+        let timeline = player.elements.progress;
+        this.disableElem(timeline);
+    },
+
+    Onplaying(player, mode, wire){
+        // Send requests playing and pause based on mode
+        if(mode === "notPreview"){
+            player.on('playing', () => {
+                wire.registerPlayStart();
+            });
+    
+            player.on('pause', () => {
+                wire.audioStoreCurrentTime(player.currentTime);
+            });
+        }else{
+            player.on('playing', () => {
+                wire.set('pressedPlay', true);
+            });
+    
+            player.on('pause', () => {
+                wire.audioStoreCurrentTime(player.currentTime);
+            });
+        }
+    },
+
+    parseConstraints(constraints){
+        let data = JSON.parse(constraints);
+        return {
+            pausable:   data.pausable  !== 'undefined' && data.pausable === "1",
+            play_once:  data.play_once !== 'undefined' && data.play_once === "1",
+            hasTimeout: data.timeout   !== 'undefined' && data.timeout  !== ""
+        }
+    },
+
+    applyConstraints(player, constraints, wire, mode){
+        if(!constraints.pausable){
+            this.noPause(player);
+        }
+
+        if(constraints.hasTimeout || constraints.play_once){
+            if(mode === "notPreview"){
+                player.on('ended', () => {
+                    wire.registerEndOfAudio(player.currentTime, player.duration);
+                    if(constraints.play_once){
+                        wire.audioIsPlayedOnce();
+                    }
+                    wire.audioStoreCurrentTime(0);
+                    wire.closeAttachmentModal(true);
+                });
+            }else{
+                player.on('ended', () => {
+                    wire.audioStoreCurrentTime(0);
+                    wire.closeAttachmentModal(true);
+                })
+            }
+        }else{
+            player.on('ended', () => {
+                wire.audioStoreCurrentTime(0);
+                wire.closeAttachmentModal(true);
+            })
+        }
+
+        if(!constraints.pausable || constraints.hasTimeout || constraints.play_once){
+            this.disableTimeline(player);
+        }
+    },
+
+    render(elem, wire, constraints, audioCanBePlayedAgain=true, mode="notPreview", controls=['play', 'progress', 'current-time', 'mute', 'volume'])
     {
-        var player = new Plyr(elem, {
+        let player = new Plyr(elem, {
             controls: controls
         });
 
-        // let controlsElem = player.elements.controls;            // Get the play button
-        let progressElem = player.elements.progress;            // Get the progress bar element
+        this.Onplaying(player, mode, wire);
 
-        // controlsElem.setAttribute("wire:ignore", "");
-
-        if(disableProgressElem){
-            this.disableElem(progressElem, false);
+        if(constraints.length !== 0){
+            this.applyConstraints(player, this.parseConstraints(constraints), wire, mode);
+        }else{
+            this.noPause(player);
+            this.disableTimeline(player);
         }
 
-        // Todo display the play-pause button and apply the constraints on it 
+        if(!audioCanBePlayedAgain){
+            this.disableElem(player.elements.buttons.play[0]);
+        }
 
-        // let playElem     = player.elements.controls;            // get The controlls element
-        // let controlsElem = player.elements.buttons.play[0];     // Get the play button
-        // let progressElem = player.elements.progress;            // Get the progress bar element
-
-        // if(! constraints.pausable){
-        //     this.noPause(playElem);
-        // }
-
-        // if(! constraints.pausable || constraints.playableOnce || constraints.withTimeout){
-        //     this.disableElem(progressElem, false);
-        // }
         return player
-    },
+    }
 }

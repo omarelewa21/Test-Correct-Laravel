@@ -1,17 +1,6 @@
-<div class="flex flex-col w-full justify-center items-center bg-white space-y-3 rounded-10"
-    x-data="{attachment: null}"
-    x-init="attachment = '{{ $attachment->uuid }}';
-            plyrPlayer.render(
-                $refs.player,
-                {},
-                ['progress', 'current-time', 'mute', 'volume'],
-                {{$attachment->disableAudioTimeline()}}
-                );
-            player.currentTime = {{ $attachment->audioHasCurrentTime() }};
-            "
->
+<div class="flex flex-col w-full justify-center items-center bg-white space-y-3 rounded-10">
 
-    <div class="text-center">
+    <div class="text-center w-3/4">
         @if(!$attachment->audioCanBePlayedAgain())
             <h5>{{__('test_take.sound_clip_played')}}</h5>
         @elseif($attachment->audioOnlyPlayOnce() && !$attachment->audioIsPausable())
@@ -29,16 +18,16 @@
     </div>
 
     <div class="w-3/4">
-        <div wire:key='{{$attachment->uuid}}' wire:ignore>
+        <div class="mt-4" wire:ignore>
             <audio id="player" src="{{ route('teacher.preview.question-attachment-show', ['attachment' => $attachment->uuid, 'question' => $questionId], false) }}"
                 x-ref="player"
-                @if($attachment->audioOnlyPlayOnce())
+                {{-- @if($attachment->audioOnlyPlayOnce())
                     x-on:ended="@this.audioIsPlayedOnce(attachment);"
-                @endif
+                @endif --}}
             ></audio>
         </div>
 
-        <div class="flex justify-center">
+        {{-- <div class="flex justify-center">
             <button class="button primary-button"
                     x-on:click.prevent="player.play(), $wire.set('pressedPlay', true)"
             >
@@ -52,6 +41,20 @@
                     {{__('test_take.pause')}}
                 </button>
             @endif
-        </div>
+        </div> --}}
     </div>
 </div>
+
+<script>
+    let player = plyrPlayer.render(
+        document.querySelector('#player'),
+        @this,
+        '{!! $attachment->json !!}',
+        '{{$attachment->audioCanBePlayedAgain() ? true : false}}',
+        'preview'
+    );
+
+    player.on('loadeddata', ()=> {
+        player.currentTime = parseFloat('{{ $this->getCurrentTime() }}');
+    })
+</script>
