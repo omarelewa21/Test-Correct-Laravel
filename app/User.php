@@ -60,7 +60,7 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
     const MIN_PASSWORD_LENGTH = 8;
 
     protected $casts = [
-        'uuid'    => EfficientUuid::class,
+        'uuid' => EfficientUuid::class,
         'intense' => 'boolean',
     ];
 
@@ -304,7 +304,7 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
 
     public function hasText2Speech()
     {
-        return (bool) $this->text2speech;
+        return (bool)$this->text2speech;
     }
 
     public function hasActiveText2Speech()
@@ -312,7 +312,7 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
         if (!$this->hasText2Speech()) {
             return false;
         }
-        return (bool) $this->text2SpeechDetails->active;
+        return (bool)$this->text2SpeechDetails->active;
     }
 
     public function getHasText2speechAttribute()
@@ -379,24 +379,24 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
         $this->eckidFromRelation()->save($eckIdUser);
     }
 
-    public function updateExternalIdWithSchoolLocation($externalId,$schoolLocationId)
+    public function updateExternalIdWithSchoolLocation($externalId, $schoolLocationId)
     {
         $handled = false;
 
-        foreach ($this->allowedSchoolLocations as $schoolLocation){
-            if($schoolLocation->id != $schoolLocationId){
+        foreach ($this->allowedSchoolLocations as $schoolLocation) {
+            if ($schoolLocation->id != $schoolLocationId) {
                 continue;
             }
-            if($schoolLocation->pivot->external_id == $externalId){
+            if ($schoolLocation->pivot->external_id == $externalId) {
                 $handled = true;
                 break;
             }
-            $this->allowedSchoolLocations()->updateExistingPivot($schoolLocation->id,['external_id'=>$externalId]);
+            $this->allowedSchoolLocations()->updateExistingPivot($schoolLocation->id, ['external_id' => $externalId]);
             $handled = true;
             break;
         }
-        if(!$handled){
-            $this->allowedSchoolLocations()->attach([$schoolLocation->id =>['external_id'=>$externalId]]);
+        if (!$handled) {
+            $this->allowedSchoolLocations()->attach([$schoolLocation->id => ['external_id' => $externalId]]);
         }
     }
 
@@ -434,8 +434,8 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
             if (Crypt::decryptString($record->eckid) === $eckid) {
                 // user should be part of this school_location
                 $user = User::find($record->user_id);
-                if(null === $user){
-                    $message = (sprintf('THIS SHOULD NOT HAPPEN (did found eckid but no user): Can not find user for id %d',$record->user_id));
+                if (null === $user) {
+                    $message = (sprintf('THIS SHOULD NOT HAPPEN (did found eckid but no user): Can not find user for id %d', $record->user_id));
                     logger($message);
                     Bugsnag::notifyException(new \Exception($message));
                     return false;
@@ -612,13 +612,13 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
         });
 
         static::deleting(function (User $user) {
-            if(School::where('user_id',$user->id)->count()>0){
+            if (School::where('user_id', $user->id)->count() > 0) {
                 throw new \Exception(__('Kan gebruiker niet verwijderen omdat deze gekoppeld is aan een scholengemeenschap'));
             }
-            if(SchoolLocation::where('user_id',$user->id)->count()>0){
+            if (SchoolLocation::where('user_id', $user->id)->count() > 0) {
                 throw new \Exception(__('Kan gebruiker niet verwijderen omdat deze gekoppeld is aan een schoollocatie'));
             }
-            if(UmbrellaOrganization::where('user_id',$user->id)->count()>0){
+            if (UmbrellaOrganization::where('user_id', $user->id)->count() > 0) {
                 throw new \Exception(__('Kan gebruiker niet verwijderen omdat deze gekoppeld is aan een koepel'));
             }
             if ($user->getOriginal('demo') == true) {
@@ -636,34 +636,34 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
 
         // Progress additional answers
         static::saved(function (User $user) {
-            $oldText2Speech = (bool) $user->getOriginal('text2speech');
-            if (!$oldText2Speech && (bool) request()->input('text2speech')) {
+            $oldText2Speech = (bool)$user->getOriginal('text2speech');
+            if (!$oldText2Speech && (bool)request()->input('text2speech')) {
                 // we've got a new user with time dispensation
                 Text2Speech::create([
-                    'user_id'    => $user->getKey(),
-                    'active'     => true,
+                    'user_id' => $user->getKey(),
+                    'active' => true,
                     'acceptedby' => Auth::user()->getKey(),
-                    'price'      => config('custom.text2speech.price')
+                    'price' => config('custom.text2speech.price')
                 ]);
                 Text2SpeechLog::create([
                     'user_id' => $user->getKey(),
-                    'action'  => 'ACCEPTED',
-                    'who'     => Auth::user()->getKey()
+                    'action' => 'ACCEPTED',
+                    'who' => Auth::user()->getKey()
                 ]);
             } else {
                 if ($oldText2Speech && request()->has('active_text2speech')) {
                     // we've got a student with time dispensation and there might be a change in the active status
                     // we only change these settings if there is a active_time_dispensation value, otherwise it would be changed on password update as well for instance
-                    $newActiveText2Speech = (bool) request()->input('active_text2speech');
-                    $oldActiveText2Speech = (bool) $user->hasActiveText2Speech();
+                    $newActiveText2Speech = (bool)request()->input('active_text2speech');
+                    $oldActiveText2Speech = (bool)$user->hasActiveText2Speech();
                     if ($newActiveText2Speech !== $oldActiveText2Speech) {
                         $user->text2SpeechDetails->active = $newActiveText2Speech;
                         $user->text2SpeechDetails->save();
 
                         Text2SpeechLog::create([
                             'user_id' => $user->getKey(),
-                            'action'  => ($newActiveText2Speech) ? 'ENABLED' : 'DISABLED',
-                            'who'     => Auth::user()->getKey()
+                            'action' => ($newActiveText2Speech) ? 'ENABLED' : 'DISABLED',
+                            'who' => Auth::user()->getKey()
                         ]);
                     }
                 }
@@ -697,7 +697,7 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
                 }
 
                 $user->profileImage->move(storage_path('user_profile_images'),
-                    $user->getKey().' - '.$user->getAttribute('profile_image_name'));
+                    $user->getKey() . ' - ' . $user->getAttribute('profile_image_name'));
             }
 
             // Reload roles of this user!
@@ -822,13 +822,13 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
     public function getOriginalProfileImagePath()
     {
         return ((substr(storage_path('user_profile_images'),
-                    -1) === DIRECTORY_SEPARATOR) ? storage_path('user_profile_images') : storage_path('user_profile_images').DIRECTORY_SEPARATOR).$this->getOriginal($this->getKeyName()).' - '.$this->getOriginal('profile_image_name');
+                    -1) === DIRECTORY_SEPARATOR) ? storage_path('user_profile_images') : storage_path('user_profile_images') . DIRECTORY_SEPARATOR) . $this->getOriginal($this->getKeyName()) . ' - ' . $this->getOriginal('profile_image_name');
     }
 
     public function getCurrentProfileImagePath()
     {
         return ((substr(storage_path('user_profile_images'),
-                    -1) === DIRECTORY_SEPARATOR) ? storage_path('user_profile_images') : storage_path('user_profile_images').DIRECTORY_SEPARATOR).$this->getKey().' - '.$this->getAttribute('profile_image_name');
+                    -1) === DIRECTORY_SEPARATOR) ? storage_path('user_profile_images') : storage_path('user_profile_images') . DIRECTORY_SEPARATOR) . $this->getKey() . ' - ' . $this->getAttribute('profile_image_name');
     }
 
     public function fillFileProfileImage(UploadedFile $file)
@@ -1058,8 +1058,8 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
 
     public function otherSchoolLocationsSharedSectionsWithMe()
     {
-        $schoolLocationSharedSections = SchoolLocationSharedSection::where('school_location_id',$this->schoolLocation->getKey());
-        if($schoolLocationSharedSections->count()===0){
+        $schoolLocationSharedSections = SchoolLocationSharedSection::where('school_location_id', $this->schoolLocation->getKey());
+        if ($schoolLocationSharedSections->count() === 0) {
             return false;
         }
         return true;
@@ -1245,8 +1245,8 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
             $wizard = OnboardingWizard::whereIn('role_id', $roleIds)->where('active',
                 true)->orderBy('role_id')->first();
             OnboardingWizardUserState::create([
-                'id'                   => Str::uuid(),
-                'user_id'              => $this->getKey(),
+                'id' => Str::uuid(),
+                'user_id' => $this->getKey(),
                 'onboarding_wizard_id' => $wizard->getKey()
             ]);
         }
@@ -1288,7 +1288,7 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
 
     public function isToetsenbakker()
     {
-        return (bool) FileManagement::where('handledby', $this->getKey())->where('type', 'testupload')->count();
+        return (bool)FileManagement::where('handledby', $this->getKey())->where('type', 'testupload')->count();
     }
 
     public function isTestCorrectUser()
@@ -1301,12 +1301,12 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
 
     public function hasCitoToetsen()
     {
-        return (bool) $this->subjects()->where('name', 'like', 'cito%')->count() > 0;
+        return (bool)$this->subjects()->where('name', 'like', 'cito%')->count() > 0;
     }
 
     public function isInExamSchool(): bool
     {
-        if($this->schoolLocation->customer_code==config('custom.examschool_customercode')){
+        if ($this->schoolLocation->customer_code == config('custom.examschool_customercode')) {
             return true;
         }
         return false;
@@ -1321,28 +1321,28 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
         if (array_key_exists('name_first',
                 $this->attributes) && !empty($this->attributes['name_first']) && array_key_exists('name_suffix',
                 $this->attributes) && !empty($this->attributes['name_suffix'])) {
-            $result .= ' '.$this->attributes['name_suffix'];
+            $result .= ' ' . $this->attributes['name_suffix'];
         }
         if ((array_key_exists('name_first',
                     $this->attributes) && !empty($this->attributes['name_first']) || (array_key_exists('name_suffix',
                         $this->attributes) && !empty($this->attributes['name_suffix']))) && array_key_exists('name',
                 $this->attributes) && !empty($this->attributes['name'])) {
-            $result .= ' '.$this->attributes['name'];
+            $result .= ' ' . $this->attributes['name'];
         }
         return $result;
     }
 
     public function hasSharedSections()
     {
-        return (bool) (null !== $this->schoolLocation && $this->schoolLocation->sharedSections()->count());
+        return (bool)(null !== $this->schoolLocation && $this->schoolLocation->sharedSections()->count());
     }
 
     public function isPartOfSharedSection()
     {
-        if(!$this->otherSchoolLocationsSharedSectionsWithMe()){
+        if (!$this->otherSchoolLocationsSharedSectionsWithMe()) {
             return false;
         }
-        if($this->subjectsOnlyShared()->count()===0){
+        if ($this->subjectsOnlyShared()->count() === 0) {
             return false;
         }
         return true;
@@ -1376,7 +1376,7 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
         foreach ($filters as $key => $value) {
             switch ($key) {
                 case 'name':
-                    $query->where('name', 'LIKE', '%'.$value.'%');
+                    $query->where('name', 'LIKE', '%' . $value . '%');
                     break;
                 case 'school_class_id':
                     $query->whereIn('users.id', function ($query) use ($value) {
@@ -1623,16 +1623,16 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
                     }
                     break;
                 case 'username':
-                    $query->where('username', 'LIKE', '%'.$value.'%');
+                    $query->where('username', 'LIKE', '%' . $value . '%');
                     break;
                 case 'name_full':
-                    $query->where(DB::raw('CONCAT_WS(\' \', name_first, name_suffix, name)'), 'LIKE', '%'.$value.'%');
+                    $query->where(DB::raw('CONCAT_WS(\' \', name_first, name_suffix, name)'), 'LIKE', '%' . $value . '%');
                     break;
                 case 'name':
-                    $query->where('name', 'LIKE', '%'.$value.'%');
+                    $query->where('name', 'LIKE', '%' . $value . '%');
                     break;
                 case 'name_first':
-                    $query->where('name_first', 'LIKE', '%'.$value.'%');
+                    $query->where('name_first', 'LIKE', '%' . $value . '%');
                     break;
                 case 'send_welcome_email':
                     $query->where('send_welcome_email', '=', $value);
@@ -1753,7 +1753,7 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
 
     /**
      * @param $roleName
-     * @param  null  $user  if no user is given, the auth::user is taken
+     * @param null $user if no user is given, the auth::user is taken
      * @return bool
      */
     public function hasRole($roleName, $user = null)
@@ -1914,8 +1914,8 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
                 $this->onboardingWizardUserState()->save(
                     OnboardingWizardUserState::make(
                         [
-                            'id'                   => Str::uuid(),
-                            'show'                 => true,
+                            'id' => Str::uuid(),
+                            'show' => true,
                             'onboarding_wizard_id' => $wizard->getKey()
                         ]
                     )
@@ -2052,7 +2052,7 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
     public function getFullNameWithAbbreviatedFirstName(): string
     {
         $letter = Str::substr($this->name_first, 0, 1);
-        filled($this->name_suffix) ? $suffix = $this->name_suffix.' ' : $suffix = '';
+        filled($this->name_suffix) ? $suffix = $this->name_suffix . ' ' : $suffix = '';
 
         return sprintf('%s. %s%s', $letter, $suffix, $this->name);
     }
@@ -2150,6 +2150,7 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
             return sprintf(self::TEACHER_IMPORT_EMAIL_PATTERN, $this->getKey());
         }
     }
+
     public function hasImportMailAddress()
     {
         return ($this->generateMissingEmailAddress() === $this->username);
@@ -2167,15 +2168,15 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
         // added conditional for Thijs to test the new app with fallback if we forget to remove the conditional
         // should be removed before deployment to live
 //        if(Carbon::now() > Carbon::createFromFormat('Y-m-d','2022-01-22')) {
-            if ($this->isA('student')) {
-                if ($this->schoolLocation->allow_new_student_environment) {
-                    $this->loginThisUser();
-                    $options = [
-                        'internal_page' => '/users/student_splash',
-                    ];
-                    return $this->getTemporaryCakeLoginUrl($options);
-                }
+        if ($this->isA('student')) {
+            if ($this->schoolLocation->allow_new_student_environment) {
+                $this->loginThisUser();
+                $options = [
+                    'internal_page' => '/users/student_splash',
+                ];
+                return $this->getTemporaryCakeLoginUrl($options);
             }
+        }
 //        }
 
         return $this->getTemporaryCakeLoginUrl($options);
@@ -2193,7 +2194,7 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
     public function getTemporaryCakeLoginUrl($options = null)
     {
         $temporaryLogin = TemporaryLogin::createForUser($this);
-        if($options) {
+        if ($options) {
             $temporaryLogin->setAttribute('options', $options)->save();
         }
 
@@ -2301,8 +2302,8 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
                                         }
                                     } else {
                                         Teacher::create([
-                                            'class_id'   => $tRecord->class_id,
-                                            'user_id'    => $this->getKey(),
+                                            'class_id' => $tRecord->class_id,
+                                            'user_id' => $this->getKey(),
                                             'subject_id' => $tRecord->subject_id
                                         ]);
                                     }
@@ -2341,7 +2342,7 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
                     $this->students()->save(
                         Student::create([
                             'class_id' => $student->class_id,
-                            'user_id'  => $this->id,
+                            'user_id' => $this->id,
                         ])
                     );
                 }
@@ -2402,7 +2403,7 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
 
     public function scopeAvailableGuestAccountsForTake($query, $testTake)
     {
-        return $query->select('users.uuid','users.name','users.name_first','users.name_suffix', 'test_participants.rating')
+        return $query->select('users.uuid', 'users.name', 'users.name_first', 'users.name_suffix', 'test_participants.rating')
             ->guests()
             ->leftJoin('test_participants', 'test_participants.user_id', '=', 'users.id')
             ->where('test_participants.test_take_id', $testTake->getKey());
@@ -2419,7 +2420,7 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
 
     public function getActiveLanguage()
     {
-        return session()->has('locale') ? session()->get('locale') : optional($this->schoolLocation)->school_language ??  config('app.locale');
+        return session()->has('locale') ? session()->get('locale') : optional($this->schoolLocation)->school_language ?? config('app.locale');
     }
 
     public function hasSingleSchoolLocation()
@@ -2439,7 +2440,7 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
 
     public function hasMultipleSchoolLocationsNoSharedSections()
     {
-        return ($this->allowedSchoolLocations()->count() > 1  && !$this->isPartOfSharedSection());
+        return ($this->allowedSchoolLocations()->count() > 1 && !$this->isPartOfSharedSection());
     }
 
     public function hasSingleSchoolLocationSharedSections()
@@ -2449,6 +2450,20 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
 
     public function hasMultipleSchoolLocationsSharedSections()
     {
-        return ($this->allowedSchoolLocations()->count() > 1  && $this->isPartOfSharedSection());
+        return ($this->allowedSchoolLocations()->count() > 1 && $this->isPartOfSharedSection());
     }
+
+    public function getLanguageReadspeaker()
+    {
+        $locale = app()->getLocale();
+        switch ($locale){
+            case 'nl':
+                return 'nl_nl';
+            case 'en':
+                return 'en_uk';
+            default:
+                return 'nl_nl';
+        }
+    }
+
 }
