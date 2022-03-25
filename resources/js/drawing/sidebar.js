@@ -203,7 +203,6 @@ export class Entry extends sidebarComponent {
     }
 
     updateDraggedElementPosition(evt) {
-
         let entry = evt.currentTarget;
         entry.classList.remove("dragging");
 
@@ -211,11 +210,10 @@ export class Entry extends sidebarComponent {
         let newSvgLayer = this.root.querySelector(`#svg-${newLayerId}`);
         let shape = newSvgLayer.querySelector(`#${entry.id.substring(6)}`);
         let shapeToInsertBefore = newSvgLayer.querySelector(
-            `#${entry.previousElementSibling?.id.substring(6)}.shape`
+            `#${entry.nextElementSibling?.id.substring(6)}.shape`
         );
         if (shapeToInsertBefore) {
-            newSvgLayer.insertBefore(shape, shapeToInsertBefore);
-            return;
+            return this.insertAfter(shape, shapeToInsertBefore);
         }
         newSvgLayer.prepend(shape);
     }

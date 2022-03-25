@@ -9363,18 +9363,17 @@ var Entry = /*#__PURE__*/function (_sidebarComponent) {
   }, {
     key: "updateDraggedElementPosition",
     value: function updateDraggedElementPosition(evt) {
-      var _entry$previousElemen;
+      var _entry$nextElementSib;
 
       var entry = evt.currentTarget;
       entry.classList.remove("dragging");
       var newLayerId = entry.closest(".layer-group").id;
       var newSvgLayer = this.root.querySelector("#svg-".concat(newLayerId));
       var shape = newSvgLayer.querySelector("#".concat(entry.id.substring(6)));
-      var shapeToInsertBefore = newSvgLayer.querySelector("#".concat((_entry$previousElemen = entry.previousElementSibling) === null || _entry$previousElemen === void 0 ? void 0 : _entry$previousElemen.id.substring(6), ".shape"));
+      var shapeToInsertBefore = newSvgLayer.querySelector("#".concat((_entry$nextElementSib = entry.nextElementSibling) === null || _entry$nextElementSib === void 0 ? void 0 : _entry$nextElementSib.id.substring(6), ".shape"));
 
       if (shapeToInsertBefore) {
-        newSvgLayer.insertBefore(shape, shapeToInsertBefore);
-        return;
+        return this.insertAfter(shape, shapeToInsertBefore);
       }
 
       newSvgLayer.prepend(shape);
