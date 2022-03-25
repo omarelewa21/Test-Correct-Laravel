@@ -16,8 +16,9 @@ if(array_key_exists('HTTP_ACCEPT_LANGUAGE', $_SERVER)){
     }
 
     $lang = 'nl'; // just to see if it works in dutch
-
-
+    if(!app()->runningInConsole()) {
+        //ngrok_placeholder
+    }
 return [
 
     'url_login' => env('URL_LOGIN'),

@@ -34,7 +34,17 @@ function SpecialCharactersTLC( editor ) {
 		{ title: 'U accent circonflexe', character: 'û' },
 		{ title: 'E accent circonflexe', character: 'ê️' },
 		{ title: 'A accent circonflexe', character: 'â' },
-		{ title: 'I accent circonflexe', character: 'î️' }
+		{ title: 'I accent circonflexe', character: 'î️' },
+		{ title: 'O accent aigu', character: 'ó' },
+		{ title: 'U accent aigu', character: 'ú' },
+		{ title: 'E accent aigu', character: 'é️' },
+		{ title: 'A accent aigu', character: 'á' },
+		{ title: 'I accent aigu', character: 'í️' },
+		{ title: 'O accent grave', character: 'ò' },
+		{ title: 'U accent grave', character: 'ù' },
+		{ title: 'E accent grave', character: 'è️' },
+		{ title: 'A accent grave', character: 'à' },
+		{ title: 'I accent grave', character: 'ì️' }
 	] );
 }
 

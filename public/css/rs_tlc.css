@@ -2226,7 +2226,10 @@ span.completion-response-object-container{
     position: relative;
     white-space: nowrap;
 }
-@media only screen and (max-width: 750px) {
+#rs-controlpanel{
+    display: none;
+}
+@media only screen and (max-width: 770px) {
     footer button.text-button span,footer button.primary-button span{
         display: none;
     }

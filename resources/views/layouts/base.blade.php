@@ -11,7 +11,7 @@
     <script src="/ckeditor/ckeditor.js" type="text/javascript"></script>
     <script src={{ mix('/js/ckeditor.js') }} type="text/javascript"></script>
     @if(!is_null(Auth::user())&&Auth::user()->text2speech)
-        <link rel="stylesheet" type="text/css" href="/css/rs_tlc.css" />
+        <link rel="stylesheet" type="text/css" href="/css/rs_tlc.css?ikke1" />
     @endif
     @livewireStyles
     <link rel="stylesheet" href="{{ mix('/css/app.css') }}">
