@@ -7759,13 +7759,27 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview) {
     return _getPNGQuestionPreviewStringFromSVG.apply(this, arguments);
   }
 
+  function getDataUrlFromCanvasByImage(image) {
+    var canvas = document.createElement("canvas");
+    canvas.setAttribute('width', image.width);
+    canvas.setAttribute('height', image.height);
+    return new Promise(function (resolve, reject) {
+      setTimeout(function () {
+        var ctx = canvas.getContext("2d");
+        ctx.drawImage(image, 0, 0, image.width, image.height);
+        body.append(canvas);
+        resolve(canvas.toDataURL());
+      }, 100);
+    });
+  }
+
   function getPNGStringFromSVG(_x3, _x4) {
     return _getPNGStringFromSVG.apply(this, arguments);
   }
 
   function _getPNGStringFromSVG() {
     _getPNGStringFromSVG = _asyncToGenerator( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default().mark(function _callee4(svg, panGroupSize) {
-      var newImage, canvas;
+      var newImage;
       return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default().wrap(function _callee4$(_context4) {
         while (1) {
           switch (_context4.prev = _context4.next) {
@@ -7775,18 +7789,13 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview) {
               newImage.setAttribute('src', 'data:image/svg+xml;base64,' + btoa(new XMLSerializer().serializeToString(svg)));
               newImage.setAttribute('width', panGroupSize.width);
               newImage.setAttribute('height', panGroupSize.height);
-              canvas = document.createElement("canvas");
-              canvas.setAttribute('width', panGroupSize.width);
-              canvas.setAttribute('height', panGroupSize.height);
-              return _context4.abrupt("return", new Promise(function (resolve, reject) {
-                setTimeout(function () {
-                  var ctx = canvas.getContext("2d");
-                  ctx.drawImage(newImage, 0, 0, panGroupSize.width, panGroupSize.height);
-                  resolve(canvas.toDataURL());
-                }, 1);
-              }));
+              _context4.next = 7;
+              return getDataUrlFromCanvasByImage(newImage);
 
-            case 9:
+            case 7:
+              return _context4.abrupt("return", _context4.sent);
+
+            case 8:
             case "end":
               return _context4.stop();
           }
@@ -7794,6 +7803,37 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview) {
       }, _callee4);
     }));
     return _getPNGStringFromSVG.apply(this, arguments);
+  }
+
+  function compressedImageUrl(_x5, _x6) {
+    return _compressedImageUrl.apply(this, arguments);
+  }
+
+  function _compressedImageUrl() {
+    _compressedImageUrl = _asyncToGenerator( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default().mark(function _callee5(image, scaleFactor) {
+      var newImage;
+      return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default().wrap(function _callee5$(_context5) {
+        while (1) {
+          switch (_context5.prev = _context5.next) {
+            case 0:
+              newImage = document.createElement('img');
+              newImage.src = image.src;
+              newImage.width = image.width * scaleFactor;
+              newImage.height = image.height * scaleFactor;
+              _context5.next = 6;
+              return getDataUrlFromCanvasByImage(newImage);
+
+            case 6:
+              return _context5.abrupt("return", _context5.sent);
+
+            case 7:
+            case "end":
+              return _context5.stop();
+          }
+        }
+      }, _callee5);
+    }));
+    return _compressedImageUrl.apply(this, arguments);
   }
 
   function prepareSvgForConversion(svg, panGroupSize) {
@@ -8518,24 +8558,24 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview) {
     }]);
   }
 
-  function dummyImageLoaded(_x5) {
+  function dummyImageLoaded(_x7) {
     return _dummyImageLoaded.apply(this, arguments);
   }
 
   function _dummyImageLoaded() {
-    _dummyImageLoaded = _asyncToGenerator( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default().mark(function _callee5(evt) {
+    _dummyImageLoaded = _asyncToGenerator( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default().mark(function _callee6(evt) {
       var dummyImage, scaleFactor, base65PNGString, shape;
-      return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default().wrap(function _callee5$(_context5) {
+      return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default().wrap(function _callee6$(_context6) {
         while (1) {
-          switch (_context5.prev = _context5.next) {
+          switch (_context6.prev = _context6.next) {
             case 0:
               dummyImage = evt.target;
               scaleFactor = correctImageSize(dummyImage);
-              _context5.next = 4;
+              _context6.next = 4;
               return compressedImageUrl(dummyImage, scaleFactor);
 
             case 4:
-              base65PNGString = _context5.sent;
+              base65PNGString = _context6.sent;
               shape = makeNewSvgShapeWithSidebarEntry("image", {
                 main: {
                   href: base65PNGString,
@@ -8548,27 +8588,12 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview) {
 
             case 8:
             case "end":
-              return _context5.stop();
+              return _context6.stop();
           }
         }
-      }, _callee5);
+      }, _callee6);
     }));
     return _dummyImageLoaded.apply(this, arguments);
-  }
-
-  function compressedImageUrl(image, scaleFactor) {
-    var newImage = document.createElement('img');
-    newImage.src = image.src;
-    newImage.width = image.width * scaleFactor;
-    newImage.height = image.height * scaleFactor;
-    return new Promise(function (resolve, reject) {
-      var canvas = document.createElement("canvas");
-      canvas.width = newImage.width;
-      canvas.height = newImage.height;
-      var ctx = canvas.getContext("2d");
-      ctx.drawImage(newImage, 0, 0, canvas.width, canvas.height);
-      resolve(canvas.toDataURL());
-    });
   }
 
   function correctImageSize(image) {

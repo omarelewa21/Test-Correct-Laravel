@@ -1076,6 +1076,21 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview) {
         return getPNGStringFromSVG(svg, panGroupSize);
     }
 
+    function getDataUrlFromCanvasByImage(image) {
+        const canvas = document.createElement("canvas");
+        canvas.setAttribute('width', image.width);
+        canvas.setAttribute('height', image.height);
+
+        return new Promise((resolve, reject) => {
+            setTimeout(() => {
+                const ctx = canvas.getContext("2d");
+                ctx.drawImage(image, 0, 0, image.width, image.height);
+                body.append(canvas);
+                resolve(canvas.toDataURL());
+            }, 100);
+        });
+    }
+
     async function getPNGStringFromSVG(svg, panGroupSize) {
         prepareSvgForConversion(svg, panGroupSize);
 
@@ -1084,18 +1099,16 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview) {
         newImage.setAttribute('width', panGroupSize.width);
         newImage.setAttribute('height', panGroupSize.height);
 
-        const canvas = document.createElement("canvas");
-        canvas.setAttribute('width', panGroupSize.width);
-        canvas.setAttribute('height', panGroupSize.height);
+        return await getDataUrlFromCanvasByImage(newImage);
+    }
 
-        return new Promise((resolve, reject) => {
-            setTimeout(() => {
-                var ctx = canvas.getContext("2d");
-                ctx.drawImage(newImage, 0, 0, panGroupSize.width, panGroupSize.height);
+    async function compressedImageUrl(image, scaleFactor) {
+        const newImage = document.createElement('img')
+        newImage.src = image.src;
+        newImage.width = image.width * scaleFactor;
+        newImage.height = image.height * scaleFactor;
 
-                resolve(canvas.toDataURL());
-            }, 1);
-        });
+        return await getDataUrlFromCanvasByImage(newImage);
     }
 
     function prepareSvgForConversion(svg, panGroupSize) {
@@ -1803,25 +1816,6 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview) {
 
         shape.svg.moveToCenter();
         shape.svg.addHighlightEvents();
-    }
-
-    function compressedImageUrl(image, scaleFactor) {
-        const newImage = document.createElement('img')
-        newImage.src = image.src;
-        newImage.width = image.width * scaleFactor;
-        newImage.height = image.height * scaleFactor;
-
-        return new Promise((resolve, reject) => {
-            const canvas = document.createElement("canvas");
-            canvas.width = newImage.width;
-            canvas.height = newImage.height;
-
-            const ctx = canvas.getContext("2d");
-
-            ctx.drawImage(newImage, 0, 0, canvas.width, canvas.height);
-
-            resolve(canvas.toDataURL());
-        })
     }
 
     function correctImageSize(image) {
