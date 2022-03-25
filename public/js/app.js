@@ -6611,7 +6611,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview) {
       gridSize: 1,
       spacebarPressed: false,
       root: rootElement,
-      isTeacher: isTeacher,
+      isTeacher: isTeacher && !isPreview,
       isPreview: isPreview,
       hiddenLayersCount: 0
     },
