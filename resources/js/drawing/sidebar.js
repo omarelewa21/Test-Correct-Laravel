@@ -589,6 +589,7 @@ export class Layer extends sidebarComponent {
         });
         this.shapes = {};
         this.svg.innerHTML = '';
+        this.shapesGroup.querySelectorAll('.shape-container').forEach((shape) => shape.remove());
     }
 
     getLayerDataFromTarget(element) {
