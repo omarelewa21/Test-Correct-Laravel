@@ -7764,12 +7764,11 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview) {
     canvas.setAttribute('width', image.width);
     canvas.setAttribute('height', image.height);
     return new Promise(function (resolve, reject) {
-      setTimeout(function () {
+      image.onload = function () {
         var ctx = canvas.getContext("2d");
         ctx.drawImage(image, 0, 0, image.width, image.height);
-        body.append(canvas);
         resolve(canvas.toDataURL());
-      }, 100);
+      };
     });
   }
 
@@ -7785,17 +7784,15 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview) {
           switch (_context4.prev = _context4.next) {
             case 0:
               prepareSvgForConversion(svg, panGroupSize);
-              newImage = new Image();
+              newImage = new Image(panGroupSize.width, panGroupSize.height);
               newImage.setAttribute('src', 'data:image/svg+xml;base64,' + btoa(new XMLSerializer().serializeToString(svg)));
-              newImage.setAttribute('width', panGroupSize.width);
-              newImage.setAttribute('height', panGroupSize.height);
-              _context4.next = 7;
+              _context4.next = 5;
               return getDataUrlFromCanvasByImage(newImage);
 
-            case 7:
+            case 5:
               return _context4.abrupt("return", _context4.sent);
 
-            case 8:
+            case 6:
             case "end":
               return _context4.stop();
           }
@@ -7816,17 +7813,15 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview) {
         while (1) {
           switch (_context5.prev = _context5.next) {
             case 0:
-              newImage = document.createElement('img');
+              newImage = new Image(image.width * scaleFactor, image.height * scaleFactor);
               newImage.src = image.src;
-              newImage.width = image.width * scaleFactor;
-              newImage.height = image.height * scaleFactor;
-              _context5.next = 6;
+              _context5.next = 4;
               return getDataUrlFromCanvasByImage(newImage);
 
-            case 6:
+            case 4:
               return _context5.abrupt("return", _context5.sent);
 
-            case 7:
+            case 5:
             case "end":
               return _context5.stop();
           }

@@ -1082,31 +1082,26 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview) {
         canvas.setAttribute('height', image.height);
 
         return new Promise((resolve, reject) => {
-            setTimeout(() => {
+            image.onload = () => {
                 const ctx = canvas.getContext("2d");
                 ctx.drawImage(image, 0, 0, image.width, image.height);
-                body.append(canvas);
                 resolve(canvas.toDataURL());
-            }, 100);
+            };
         });
     }
 
     async function getPNGStringFromSVG(svg, panGroupSize) {
         prepareSvgForConversion(svg, panGroupSize);
 
-        const newImage = new Image();
+        const newImage = new Image(panGroupSize.width, panGroupSize.height);
         newImage.setAttribute('src', 'data:image/svg+xml;base64,' + btoa(new XMLSerializer().serializeToString(svg)));
-        newImage.setAttribute('width', panGroupSize.width);
-        newImage.setAttribute('height', panGroupSize.height);
 
         return await getDataUrlFromCanvasByImage(newImage);
     }
 
     async function compressedImageUrl(image, scaleFactor) {
-        const newImage = document.createElement('img')
+        const newImage = new Image(image.width * scaleFactor, image.height * scaleFactor)
         newImage.src = image.src;
-        newImage.width = image.width * scaleFactor;
-        newImage.height = image.height * scaleFactor;
 
         return await getDataUrlFromCanvasByImage(newImage);
     }
