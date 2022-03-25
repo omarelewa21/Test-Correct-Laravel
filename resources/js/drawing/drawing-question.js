@@ -293,7 +293,6 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview) {
         Canvas.layers.question.clearSidebar(false);
         Canvas.layers.answer.clearSidebar(false);
         Canvas.cleanShapeCount();
-
         updateGrid();
     }
 

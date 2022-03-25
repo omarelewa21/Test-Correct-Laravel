@@ -9819,6 +9819,9 @@ var Layer = /*#__PURE__*/function (_sidebarComponent2) {
       });
       this.shapes = {};
       this.svg.innerHTML = '';
+      this.shapesGroup.querySelectorAll('.shape-container').forEach(function (shape) {
+        return shape.remove();
+      });
     }
   }, {
     key: "getLayerDataFromTarget",
