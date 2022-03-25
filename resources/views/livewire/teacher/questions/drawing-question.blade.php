@@ -65,15 +65,15 @@
                     <div class="w-full h-full absolute top-0"></div>
                 </div>
 
-                    <div x-cloak x-show="answerSvg === ''" class="max-w-2xl z-0  p-8 flex flex-col items-center justify-center relative rounded-10 overflow-auto">
-                        <div class="absolute bg-white opacity-80 w-full h-full"></div>
-                        <div class="z-0 flex flex-col items-center justify-center">
-                            <x-button.primary @click="show = !show" wire:loading.attr="disabled" wire:target="handleUpdateDrawingData">
-                                <x-icon.edit/>
-                                <span>{{ __('cms.Tekening maken') }}</span>
-                            </x-button.primary>
-                        </div>
+                <div x-cloak x-show="answerSvg === ''" class="max-w-2xl z-0  p-8 flex flex-col items-center justify-center relative rounded-10 overflow-auto">
+                    <div class="absolute bg-white opacity-80 w-full h-full"></div>
+                    <div class="z-0 flex flex-col items-center justify-center">
+                        <x-button.primary @click="show = !show" wire:loading.attr="disabled" wire:target="handleUpdateDrawingData">
+                            <x-icon.edit/>
+                            <span>{{ __('cms.Tekening maken') }}</span>
+                        </x-button.primary>
                     </div>
+                </div>
             @endif
 
         </div>
