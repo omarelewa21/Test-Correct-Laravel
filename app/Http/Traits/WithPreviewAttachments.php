@@ -61,9 +61,9 @@ trait WithPreviewAttachments
 
     }
 
-    public function audioStoreCurrentTime($currentTime)
+    public function audioStoreCurrentTime($attachmentUuid, $currentTime)
     {
-        $this->currentTimes[$this->attachment->uuid] = $currentTime;
+        $this->currentTimes[$attachmentUuid] = $currentTime;
     }
 
     public function getCurrentTime()

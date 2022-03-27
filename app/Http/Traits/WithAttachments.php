@@ -72,11 +72,11 @@ trait WithAttachments
         $this->attachment->audioIsPlayedOnce();
     }
 
-    public function audioStoreCurrentTime($currentTime)
+    public function audioStoreCurrentTime($attachmentUuid, $currentTime)
     {
-        $sessionValue = 'attachment_' . $this->attachment->uuid . '_currentTime';
+        $sessionValue = 'attachment_' . $attachmentUuid . '_currentTime';
         session()->put($sessionValue, $currentTime);
-        $this->currentTimes[$this->question->uuid][$this->attachment->uuid] = $currentTime;
+        $this->currentTimes[$this->question->uuid][$attachmentUuid] = $currentTime;
     }
 
     public function registerPlayStart()

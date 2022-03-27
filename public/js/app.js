@@ -6145,25 +6145,26 @@ window.plyrPlayer = {
     var timeline = player.elements.progress;
     this.disableElem(timeline);
   },
-  Onplaying: function Onplaying(player, mode, wire) {
-    // Send requests playing and pause based on mode
+  Onplaying: function Onplaying(player, mode, wire, attachmentUuid) {
+    // Send requests for playing and pause based on mode
     if (mode === "notPreview") {
       player.on('playing', function () {
         wire.registerPlayStart();
       });
       player.on('pause', function () {
-        wire.audioStoreCurrentTime(player.currentTime);
+        wire.audioStoreCurrentTime(attachmentUuid, player.currentTime);
       });
     } else {
       player.on('playing', function () {
         wire.set('pressedPlay', true);
       });
       player.on('pause', function () {
-        wire.audioStoreCurrentTime(player.currentTime);
+        wire.audioStoreCurrentTime(attachmentUuid, player.currentTime);
       });
     }
   },
   parseConstraints: function parseConstraints(constraints) {
+    // Parsing constraints json variable and returns an object
     var data = JSON.parse(constraints);
     return {
       pausable: data.pausable !== 'undefined' && data.pausable === "1",
@@ -6171,7 +6172,7 @@ window.plyrPlayer = {
       hasTimeout: data.timeout !== 'undefined' && data.timeout !== ""
     };
   },
-  applyConstraints: function applyConstraints(player, constraints, wire, mode) {
+  applyConstraints: function applyConstraints(player, constraints, wire, mode, attachmentUuid) {
     if (!constraints.pausable) {
       this.noPause(player);
     }
@@ -6185,18 +6186,18 @@ window.plyrPlayer = {
             wire.audioIsPlayedOnce();
           }
 
-          wire.audioStoreCurrentTime(0);
+          wire.audioStoreCurrentTime(attachmentUuid, 0);
           wire.closeAttachmentModal(true);
         });
       } else {
         player.on('ended', function () {
-          wire.audioStoreCurrentTime(0);
+          wire.audioStoreCurrentTime(attachmentUuid, 0);
           wire.closeAttachmentModal(true);
         });
       }
     } else {
       player.on('ended', function () {
-        wire.audioStoreCurrentTime(0);
+        wire.audioStoreCurrentTime(attachmentUuid, 0);
         wire.closeAttachmentModal(true);
       });
     }
@@ -6205,17 +6206,17 @@ window.plyrPlayer = {
       this.disableTimeline(player);
     }
   },
-  render: function render(elem, wire, constraints) {
-    var audioCanBePlayedAgain = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : true;
-    var mode = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : "notPreview";
-    var controls = arguments.length > 5 && arguments[5] !== undefined ? arguments[5] : ['play', 'progress', 'current-time', 'mute', 'volume'];
+  render: function render(elem, wire, attachmentUuid, constraints) {
+    var audioCanBePlayedAgain = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : true;
+    var mode = arguments.length > 5 && arguments[5] !== undefined ? arguments[5] : "notPreview";
+    var controls = arguments.length > 6 && arguments[6] !== undefined ? arguments[6] : ['play', 'progress', 'current-time', 'mute', 'volume'];
     var player = new (plyr__WEBPACK_IMPORTED_MODULE_0___default())(elem, {
       controls: controls
     });
-    this.Onplaying(player, mode, wire);
+    this.Onplaying(player, mode, wire, attachmentUuid);
 
     if (constraints.length !== 0) {
-      this.applyConstraints(player, this.parseConstraints(constraints), wire, mode);
+      this.applyConstraints(player, this.parseConstraints(constraints), wire, mode, attachmentUuid);
     } else {
       this.noPause(player);
       this.disableTimeline(player);

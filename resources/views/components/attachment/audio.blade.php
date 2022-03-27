@@ -54,6 +54,7 @@
     let player = plyrPlayer.render(
         document.querySelector('#player-{{ $attachment->uuid }}'),
         @this,
+        '{{$attachment->uuid}}',
         '{!! $attachment->json !!}',
         '{{$attachment->audioCanBePlayedAgain() ? true : false}}'
     );

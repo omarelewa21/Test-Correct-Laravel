@@ -51,9 +51,7 @@
                 for (let item of pauseButtons) {
                     item.click();
                 }
-                setTimeout(() => {
-                    @this.call('closeAttachmentModal');
-                }, 500);
+                @this.call('closeAttachmentModal');
             });
         });
     </script>

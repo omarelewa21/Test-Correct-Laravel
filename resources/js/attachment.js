@@ -26,15 +26,15 @@ window.plyrPlayer = {
         this.disableElem(timeline);
     },
 
-    Onplaying(player, mode, wire){
-        // Send requests playing and pause based on mode
+    Onplaying(player, mode, wire, attachmentUuid){
+        // Send requests for playing and pause based on mode
         if(mode === "notPreview"){
             player.on('playing', () => {
                 wire.registerPlayStart();
             });
     
             player.on('pause', () => {
-                wire.audioStoreCurrentTime(player.currentTime);
+                wire.audioStoreCurrentTime(attachmentUuid, player.currentTime);
             });
         }else{
             player.on('playing', () => {
@@ -42,12 +42,13 @@ window.plyrPlayer = {
             });
     
             player.on('pause', () => {
-                wire.audioStoreCurrentTime(player.currentTime);
+                wire.audioStoreCurrentTime(attachmentUuid, player.currentTime);
             });
         }
     },
 
     parseConstraints(constraints){
+        // Parsing constraints json variable and returns an object
         let data = JSON.parse(constraints);
         return {
             pausable:   data.pausable  !== 'undefined' && data.pausable === "1",
@@ -56,7 +57,7 @@ window.plyrPlayer = {
         }
     },
 
-    applyConstraints(player, constraints, wire, mode){
+    applyConstraints(player, constraints, wire, mode, attachmentUuid){
         if(!constraints.pausable){
             this.noPause(player);
         }
@@ -68,18 +69,18 @@ window.plyrPlayer = {
                     if(constraints.play_once){
                         wire.audioIsPlayedOnce();
                     }
-                    wire.audioStoreCurrentTime(0);
+                    wire.audioStoreCurrentTime(attachmentUuid, 0);
                     wire.closeAttachmentModal(true);
                 });
             }else{
                 player.on('ended', () => {
-                    wire.audioStoreCurrentTime(0);
+                    wire.audioStoreCurrentTime(attachmentUuid, 0);
                     wire.closeAttachmentModal(true);
                 })
             }
         }else{
             player.on('ended', () => {
-                wire.audioStoreCurrentTime(0);
+                wire.audioStoreCurrentTime(attachmentUuid, 0);
                 wire.closeAttachmentModal(true);
             })
         }
@@ -89,16 +90,16 @@ window.plyrPlayer = {
         }
     },
 
-    render(elem, wire, constraints, audioCanBePlayedAgain=true, mode="notPreview", controls=['play', 'progress', 'current-time', 'mute', 'volume'])
+    render(elem, wire, attachmentUuid, constraints, audioCanBePlayedAgain=true, mode="notPreview", controls=['play', 'progress', 'current-time', 'mute', 'volume'])
     {
         let player = new Plyr(elem, {
             controls: controls
         });
 
-        this.Onplaying(player, mode, wire);
+        this.Onplaying(player, mode, wire, attachmentUuid);
 
         if(constraints.length !== 0){
-            this.applyConstraints(player, this.parseConstraints(constraints), wire, mode);
+            this.applyConstraints(player, this.parseConstraints(constraints), wire, mode, attachmentUuid);
         }else{
             this.noPause(player);
             this.disableTimeline(player);
