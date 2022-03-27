@@ -32,6 +32,9 @@ trait WithAttachments
 
     public function showAttachment($attachment)
     {
+        if($this->audioCloseWarning){
+            return;
+        }
         $this->attachment = Attachment::whereUuid($attachment)->first();
         $this->timeout = $this->attachment->audioTimeoutTime();
         $this->attachmentType = $this->getAttachmentType($this->attachment);
