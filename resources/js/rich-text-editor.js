@@ -113,7 +113,7 @@ RichTextEditor = {
                 const wordCountPlugin = editor.plugins.get( 'WordCount' );
                 const wordCountWrapper = document.getElementById( 'word-count-'+editorId );
                 wordCountWrapper.appendChild( wordCountPlugin.wordCountContainer );
-                ReadspeakerTlc.ckeditor.addListenersForReadspeaker(editor,questionId);
+                ReadspeakerTlc.ckeditor.addListenersForReadspeaker(editor,questionId,editorId);
                 ReadspeakerTlc.ckeditor.disableContextMenuOnCkeditor();
 
             } )
