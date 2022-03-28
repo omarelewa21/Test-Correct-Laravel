@@ -247,6 +247,6 @@ class Answer extends BaseModel
     }
 
     public function feedback(){
-        return $this->hasOne(AnswerFeedback::class);
+        return $this->hasOne(AnswerFeedback::class)->where('user_id', auth()->id());
     }
 }
