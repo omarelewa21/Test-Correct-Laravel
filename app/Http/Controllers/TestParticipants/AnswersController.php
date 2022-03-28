@@ -30,7 +30,7 @@ class AnswersController extends Controller {
 		(new Answer())->scopeFiltered($answers, $request->get('filter', []), $request->get('order', []));
 
 		if (is_array($request->get('with')) && in_array('answer_ratings', $request->get('with'))) {
-			$answers->with('answerRatings', 'answerRatings.user', 'Question', 'answerParentQuestions', 'answerParentQuestions.groupQuestion', 'answerParentQuestions.groupQuestion.attachments', 'feedback');
+			$answers->with('answerRatings', 'answerRatings.user', 'Question', 'answerParentQuestions', 'answerParentQuestions.groupQuestion', 'answerParentQuestions.groupQuestion.attachments');
 		} elseif (is_array($request->get('with')) && in_array('question', $request->get('with'))) {
 			$answers->with('Question', 'answerParentQuestions', 'answerParentQuestions.groupQuestion', 'answerParentQuestions.groupQuestion.attachments');
 		}
@@ -42,6 +42,8 @@ class AnswersController extends Controller {
 					foreach ($answers as $answer) {
 						if ($answer->question instanceof QuestionInterface) {
 							$answer->question->loadRelated();
+							$answer->has_feedback = sizeof($answer->feedback) > 0;
+							$answer->has_feedback_by_this_user = $answer->feedback()->where('user_id', auth()->id())->exists();
 						}
 					}
 				}
@@ -147,18 +149,34 @@ class AnswersController extends Controller {
 	}
 
 	/****************************** feedback ************************************/
-    public function loadFeedback(TestParticipant $testParticipant, Question $question){
+    public function loadFeedback(TestParticipant $testParticipant, Question $question, Request $request){
 		try{
-			$answer = Answer::where('test_participant_id', $testParticipant->id)->where('question_id', $question->id)->first();
-            return $answer->load('feedback', 'testParticipant', 'question');
+			$answer = Answer::where('test_participant_id', $testParticipant->id)->where('question_id', $question->id)->with('testParticipant', 'question')->first();
+			if($request->mode === 'write'){
+				$answer->load(['feedback' => function($q){
+					return $q->where('user_id', auth()->id())->limit(1);
+				}]);
+			}else{
+				$answer->load(['feedback' => function($q){
+					return $q->where('user_id', auth()->id())->inRandomOrder()->take(3);
+				}]);
+			}
+			return response($answer, 200);
         }catch (Exception $e){
             return response($e->getMessage(), 500);
         }
     }
 
-	public function loadFeedbackByAnswer(Answer $answer){
+	public function loadFeedbackByAnswer(Answer $answer, Request $request){
 		try{
-            return $answer->load('feedback', 'testParticipant', 'question');
+			if($request->mode === 'write'){
+				$answer->load(['feedback' => function($q){
+					return $q->where('user_id', auth()->id());
+				}]);
+			}else{
+				$answer->load('feedback');
+			}
+			return response($answer->load('testParticipant', 'question'), 200);
         }catch (Exception $e){
             return response($e->getMessage(), 500);
         }
@@ -166,16 +184,16 @@ class AnswersController extends Controller {
 
     public function saveFeedback(Answer $answer, SaveFeedbackRequest $request){
         try{
-            if(is_null($answer->feedback)){
-                AnswerFeedback::create([
-                    'answer_id'     => $answer->id,
-                    'user_id'     => auth()->id(),
-                    'message'       => $request->message
-                ]);
-            }else{
-				$feedback = $answer->feedback;
+            if($answer->feedback()->where('user_id', auth()->id())->exists()){
+                $feedback = $answer->feedback()->where('user_id', auth()->id())->first();
                 $feedback->message = $request->message;
                 $feedback->save();
+            }else{
+				AnswerFeedback::create([
+                    'answer_id'     => $answer->id,
+                    'user_id'     	=> auth()->id(),
+                    'message'       => $request->message
+                ]);
             }
             return response(200);
 

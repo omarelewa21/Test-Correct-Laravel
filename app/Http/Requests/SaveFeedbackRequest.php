@@ -32,7 +32,7 @@ class SaveFeedbackRequest extends FormRequest
      */
     public function authorize()
     {
-        $feedback = $this->answer->feedback;
+        $feedback = $this->answer->feedback()->where('user_id', auth()->id())->first();
         if(!is_null($feedback)){
             return $feedback->user->id === auth()->id();
         }
