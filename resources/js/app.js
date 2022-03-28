@@ -7,6 +7,7 @@ require('./alpine');
 require('./rich-text-editor');
 require('./drawing/drawing-question');
 require('./readspeaker_app');
+require('./attachment');
 
 
 window.ClassicEditors = [];

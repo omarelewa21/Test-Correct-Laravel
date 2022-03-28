@@ -65,13 +65,13 @@
     <script>
         document.addEventListener('livewire:load', function () {
             @this.on('clickPauseButtonAndCloseModal', event => {
-                var pauseButtons = document.getElementsByClassName('pause_button');
+                // var pauseButtons = document.getElementsByClassName('pause_button');
+                var pauseButtons = document.querySelectorAll('.plyr__control--pressed');
                 for (let item of pauseButtons) {
                     item.click();
                 }
                 @this.call('closeAttachmentModal');
             });
-
         });
     </script>
 
