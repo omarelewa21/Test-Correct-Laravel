@@ -58,13 +58,13 @@ ReadspeakerTlc = function(){
         }
         function handleBlurForReadspeaker()
         {
-            if(typeof rspkr.tlc_clicklisten_active == 'undefined'){
-                return;
-            }
-            if(rspkr.tlc_clicklisten_active){
-                rspkr.rs_tlc_play_started = false;
-                clickListen.activateClickTap();
-            }
+            // if(typeof rspkr.tlc_clicklisten_active == 'undefined'){
+            //     return;
+            // }
+            // if(rspkr.tlc_clicklisten_active){
+            //     rspkr.rs_tlc_play_started = false;
+            //     clickListen.activateClickTap();
+            // }
         }
         function rsFocusSelect(event,selectId,questionId)
         {
@@ -127,9 +127,6 @@ ReadspeakerTlc = function(){
     clickListen = function(){
         function activateClickTap()
         {
-            if(rspkr.mobile()){
-                return activateMouseTracker();
-            }
             activateClickListen();
         }
         function activateClickListen()
@@ -138,19 +135,9 @@ ReadspeakerTlc = function(){
                 rspkr.ui.Tools.ClickListen.activate();
             }
         }
-        function activateMouseTracker()
-        {
-            if(!rspkr.ui.Tools.MouseTracker.isActive()){
-                window.ReadSpeaker.Mobile.ui.Player().tapRead.activate();
-                //document.querySelector('.rsmpl-tapread>button').click();
-                //rspkr.ui.Tools.MouseTracker.activate();
-            }
-        }
+
         function deactivateClickTap()
         {
-            if(rspkr.mobile()){
-                return deactivateMouseTracker();
-            }
             deactivateClickListen();
         }
         function deactivateClickListen()
@@ -159,23 +146,7 @@ ReadspeakerTlc = function(){
                 rspkr.ui.Tools.ClickListen.deactivate();
             }
         }
-        function deactivateMouseTracker()
-        {
-            if(rspkr.ui.Tools.MouseTracker.isActive()){
-                window.ReadSpeaker.Mobile.ui.Player().tapRead.activate();
-                //document.querySelector('.rsmpl-tapread>button').click();
-                //rspkr.ui.Tools.MouseTracker.inactivate();
-            }
-        }
 
-        function tlcClickListenActiveIsInSync()
-        {
-            if(rspkr.mobile()){
-                return (rspkr.tlc_clicklisten_active == rspkr.ui.Tools.MouseTracker.isActive());
-            }else{
-                return (rspkr.tlc_clicklisten_active == rspkr.ui.Tools.ClickListen.active());
-            }
-        }
         return{
             activateClickTap:activateClickTap,
             deactivateClickTap:deactivateClickTap
@@ -393,16 +364,12 @@ ReadspeakerTlc = function(){
     register = function(){
         function registerTlcClickListenActive()
         {
-            if(rspkr.mobile()){
-                rspkr.tlc_clicklisten_active = rspkr.ui.Tools.MouseTracker.isActive();
-            }else{
-                rspkr.tlc_clicklisten_active = rspkr.ui.Tools.ClickListen.active();
-            }
+            rspkr.tlc_clicklisten_active = rspkr.ui.Tools.ClickListen.active();
         }
         return{
             registerTlcClickListenActive:registerTlcClickListenActive
         }
-    }()
+    }();
     read = function(){
         function readTextbox(event)
         {
@@ -530,27 +497,7 @@ ReadspeakerTlc = function(){
         {
             var element = event.currentTarget;
             return getRsbtnPopupTlcElement(questionId,element,correction);
-            // var p = document.querySelector('.rsbtn_popup_tlc_'+questionId);
-            // if(p == null){
-            //     return p;
-            // }
-            // if(p.classList.contains('hidden')){
-            //     p.classList.remove('hidden');
-            // }
-            // var element = event.currentTarget;
-            // var rect = element.getBoundingClientRect();
-            // switch (element.nodeName){
-            //     case 'INPUT':
-            //     case 'SELECT':
-            //         p.style.left = rect.left+correction.x+'px';
-            //         p.style.top = rect.top+correction.y+'px';
-            //         break;
-            //     case 'TEXTAREA':
-            //         p.style.left = rect.width+correction.x+'px';
-            //         p.style.top = correction.y+'px';
-            // }
-            // p.linkedElement = element;
-            // return p;
+
         }
         function alreadyThere(questionId)
         {
@@ -750,12 +697,9 @@ ReadspeakerTlc = function(){
         {
             rspkr.rs_tlc_prevent_close = true;
             clickListen.activateClickTap();
-            // var rect = this.linkedElement.getBoundingClientRect();
             var readable_div = hiddenElement.getReadableDivForSelect(this.linkedElement);
             this.parentNode.insertBefore(readable_div,this);
             readable_div.style.position = 'absolute';
-            // readable_div.style.top = '16px';
-            // readable_div.style.left = '16px';
             popup.hideRsTlcPopup(this);
             readable_div.click();
         }
@@ -798,11 +742,11 @@ ReadspeakerTlc = function(){
                 elementClone.classList.add('ck-editor__editable_inline_replaced');
                 element.replaceWith(elementClone);
             }
-            window.classicEditorReplaced = false;
+            window.classicEditorDetached = true;
         }
         function reattachReadableAreaAndDestroy(editorId)
         {
-            window.classicEditorReplaced = true;
+            window.classicEditorDetached = false;
             var editor = ClassicEditors[editorId];
             if (editor) {
                 var element = document.getElementsByClassName('ck-editor__editable_inline_replaced')[0];
@@ -878,6 +822,9 @@ ReadspeakerTlc = function(){
         }
         function shouldNotReinitCkeditor(el)
         {
+            if(!window.classicEditorDetached){
+                return true;
+            }
             if(!util.checkElementInActiveQuestion(el)){
                 return true;
             }
@@ -964,12 +911,6 @@ window.rsConf = {
             },
             stop: function() {
                 console.log('Player stopped and callback fired!');
-                if(typeof rspkr.tlc_clicklisten_active=='undefined'){
-                    rspkr.ui.getActivePlayer().close();
-                }
-                if(rspkr.tlc_clicklisten_active){
-                    return ReadspeakerTlc.clickListen.activateClickTap();
-                }
                 ReadspeakerTlc.clickListen.deactivateClickTap();
                 rspkr.ui.getActivePlayer().close();
             },
@@ -997,3 +938,4 @@ window.rsConf = {
         }
     }
 };
+window.classicEditorDetached = false;

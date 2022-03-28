@@ -47,7 +47,7 @@
 <script src="{{ mix('/js/app.js') }}"></script>
 <script src="https://www.wiris.net/client/plugins/app/WIRISplugins.js?viewer=image"></script>
 @if(!is_null(Auth::user())&&Auth::user()->text2speech)
-<script src="//cdn-eu.readspeaker.com/script/12749/webReader/webReader.js?pids=wr&amp;noDefaultSkin=1&amp;&mobile=0" type="text/javascript" id="rs_req_Init"></script>
+<script src="//cdn-eu.readspeaker.com/script/12749/webReader/webReader.js?pids=wr&amp;noDefaultSkin=1&amp;&mobile=0&amp;language={{Auth::user()->getLanguageReadspeaker()}}" type="text/javascript" id="rs_req_Init"></script>
 <script src="/js/readspeaker_tlc.js"></script>
 <script>
     readspeakerLoadCore();

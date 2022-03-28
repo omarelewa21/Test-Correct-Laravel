@@ -27,9 +27,6 @@
                     if(ReadspeakerTlc.guard.shouldNotReinitCkeditor(document.querySelector( '#{{ $editorId }}' ))){
                         return;
                     }
-                    if(window.classicEditorReplaced){
-                        return;
-                    }
                     ReadspeakerTlc.ckeditor.reattachReadableAreaAndDestroy('{{ $editorId }}');
                     RichTextEditor.initClassicEditorForStudentplayer('{{$editorId}}','{{ $question->getKey() }}');
                 })
