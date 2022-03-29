@@ -23,9 +23,9 @@
     <div>
         <audio id="player" src="{{ route('teacher.preview.question-attachment-show', ['attachment' => $attachment->uuid, 'question' => $questionId], false) }}"
                x-ref="player"
-               @if($attachment->audioOnlyPlayOnce())
-                    x-on:ended="@this.audioIsPlayedOnce(attachment);"
-               @endif
+               {{-- @if($attachment->audioOnlyPlayOnce())
+                    x-on:ended="@this.audioIsPlayedOnce();"
+               @endif --}}
         ></audio>
         <div class="flex justify-center">
             <button class="button primary-button"
