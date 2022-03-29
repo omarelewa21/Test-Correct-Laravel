@@ -6167,9 +6167,9 @@ window.plyrPlayer = {
     // Parsing constraints json variable and returns an object
     var data = JSON.parse(constraints);
     return {
-      pausable: data.pausable !== 'undefined' && data.pausable === "1",
-      play_once: data.play_once !== 'undefined' && data.play_once === "1",
-      hasTimeout: data.timeout !== 'undefined' && data.timeout !== ""
+      pausable: typeof data.pausable !== 'undefined' && data.pausable === "1",
+      play_once: typeof data.play_once !== 'undefined' && data.play_once === "1",
+      hasTimeout: typeof data.timeout !== 'undefined' && data.timeout !== ""
     };
   },
   applyConstraints: function applyConstraints(player, constraints, wire, mode, attachmentUuid) {
