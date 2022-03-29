@@ -24,9 +24,6 @@
                 }, 500);"
             wire:key="key-attachment-{{$attachment->uuid}}" :disabled="$blockAttachments"
         >
-                wire:key="key-attachment-{{$attachment->uuid}}"
-                :disabled="$blockAttachments"
-            >
             <x-icon.attachment/>
             <span>{{ __('test_take.attachment') }} {{$loop->iteration}}</span>
         </x-button.text-button>
