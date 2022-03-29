@@ -89,8 +89,8 @@
                                     <div class="email-section mb-4 w-full md:w-1/2">
                                         <div class="mb-4">
                                             <div class="input-group">
-                                                <input id="username" wire:model.lazy="registration.username" @if($this->hasValidTUser) disabled @endif
-                                                       class="form-input @if($this->hasValidTUser) disabled @endif @error('registration.username') border-red @enderror"
+                                                <input id="username" wire:model.lazy="registration.username" disabled
+                                                       class="form-input disabled @error('registration.username') border-red @enderror"
                                                        autofocus>
                                                 <label for="username"
                                                        class="transition ease-in-out duration-150">{{ __("onboarding.your_school_email") }}</label>

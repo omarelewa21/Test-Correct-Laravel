@@ -70,15 +70,14 @@ class EntreeHelper
         $this->setLocationWithSamlAttributes();
 
         $data = [
-           'emailAddress' => $this->getEmailFromAttributes(),
-           'role' => $this->getRoleFromAttributes(),
-           'encryptedEckId' => Crypt::encryptString($this->getEckIdFromAttributes()),
-           'brin' => $this->getBrinFromAttributes(),
-           'location' => $this->location,
+            'emailAddress' => $this->getEmailFromAttributes(),
+            'role' => $this->getRoleFromAttributes(),
+            'encryptedEckId' => Crypt::encryptString($this->getEckIdFromAttributes()),
+            'brin' => $this->getBrinFromAttributes(),
+            'location' => $this->location,
            'school' => $this->school,
            'brin4ErrorDetected' => $this->brinFourErrorDetected,
             'lastName' => $this->getLastNameFromAttributes(),
-
         ];
         if(BaseHelper::notProduction()) {
             logger('entreeData for registering');
