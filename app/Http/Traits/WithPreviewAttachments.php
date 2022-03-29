@@ -19,6 +19,9 @@ trait WithPreviewAttachments
 
     public function showAttachment($attachmentUuid)
     {
+        if($this->audioCloseWarning){
+            return;
+        }
         $this->attachment = Attachment::whereUuid($attachmentUuid)->first();
         $attachment = $this->attachment;
         $type = $this->attachmentBelongsToTypeQuestion($attachment);
