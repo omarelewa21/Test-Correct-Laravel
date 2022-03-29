@@ -154,11 +154,11 @@ class AnswersController extends Controller {
 			$answer = Answer::where('test_participant_id', $testParticipant->id)->where('question_id', $question->id)->with('testParticipant', 'question')->first();
 			if($request->mode === 'write'){
 				$answer->load(['feedback' => function($q){
-					return $q->where('user_id', auth()->id())->limit(1);
+					return $q->where('user_id', auth()->id())->limit(1);		// Getting feedback that has written by this user
 				}]);
 			}else{
 				$answer->load(['feedback' => function($q){
-					return $q->where('user_id', auth()->id())->inRandomOrder()->take(3);
+					return $q->inRandomOrder()->take(3);						// Getting all feedback to show for reading (limit 3)
 				}]);
 			}
 			return response($answer, 200);
