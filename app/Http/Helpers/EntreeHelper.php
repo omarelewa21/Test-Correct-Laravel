@@ -68,6 +68,7 @@ class EntreeHelper
             return false;
         }
         $this->setLocationWithSamlAttributes();
+
         $data = [
            'emailAddress' => $this->getEmailFromAttributes(),
            'role' => $this->getRoleFromAttributes(),
@@ -93,11 +94,17 @@ class EntreeHelper
 
         $data = (object) $data;
 
-        $this->handleIfRegisteringAndNotATeacher($data);
+        if($url = $this->handleIfRegisteringAndNotATeacher($data)){
+            return $url;
+        }
 
-        $this->handleIfRegisteringAndNoEckId($data);
+        if($url = $this->handleIfRegisteringAndNoEckId($data)){
+            return $url;
+        }
 
-        $this->handleIfRegisteringAndNoBrincode($data);
+        if($url = $this->handleIfRegisteringAndNoBrincode($data)){
+            return $url;
+        }
 
         $data->user = $this->handleIfRegisteringAndUserBasedOnEckId($data);
 
@@ -172,17 +179,21 @@ class EntreeHelper
     protected function handleIfRegisteringAndNoBrincode($data)
     {
         $brinCode = $data->brin;
+        $exit = true;
         if ($this->setLocationBasedOnBrinSixIfTheCase($brinCode)){
             if($this->location){
-                return true;
+                $exit = false;
             }
         } else if(strlen($brinCode) === 4){
             if(School::where('external_main_code', $brinCode)->count() === 1){
-                return true;
+                $exit = false;
             }
         }
         // no brincode found
-        return $this->redirectToUrlAndExit($this->getOnboardingUrlWithOptionalMessage(__('onboarding-welcome.Je school is helaas nog niet bekend in Test-Correct. Vul dit formulier in om een account aan te maken')));
+        if($exit) {
+            return $this->redirectToUrlAndExit($this->getOnboardingUrlWithOptionalMessage(__('onboarding-welcome.Je school is helaas nog niet bekend in Test-Correct. Vul dit formulier in om een account aan te maken')));
+        }
+        return false;
     }
 
     protected function handleIfRegisteringAndNoEckId($data)
@@ -191,6 +202,7 @@ class EntreeHelper
         if(!$eckId || strlen($eckId) < 5){
             return $this->redirectToUrlAndExit($this->getOnboardingUrlWithOptionalMessage(__('onboarding-welcome.Je kunt geen Test-Correct account aanmaken via Entree. Vul dit formulier in om een account aan te maken')));
         }
+        return false;
     }
 
     protected function handleIfRegisteringAndNotATeacher($data)
@@ -198,6 +210,7 @@ class EntreeHelper
         if($data->role !== 'teacher'){
             return $this->redirectToUrlAndExit('https://www.test-correct.nl/student-aanmelden-error');
         }
+        return false;
     }
 
     public static function initWithMessage(SamlMessage $message)
@@ -295,7 +308,7 @@ class EntreeHelper
             // 5. indien geen gevonden dan brinFourErrorDetected
             $school = School::where('external_main_code', $external_main_code)->get();
             if ($school->count() === 1) {
-                $this->school = $school;
+                $this->school = $school->first();
                 $locations = SchoolLocation::where('school_id', $school->first()->getKey())
                     ->where('sso_type', SchoolLocation::SSO_ENTREE)
                     ->where('sso_active', 1)
@@ -385,7 +398,10 @@ class EntreeHelper
 
     private function getEckIdFromAttributes()
     {
-        return $this->attr['eckId'][0];
+        if(isset($this->attr['eckId']) && isset($this->attr['eckId'][0])) {
+            return $this->attr['eckId'][0];
+        }
+        return null;
     }
 
     private function getBrinFromAttributes()
