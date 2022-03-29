@@ -38,12 +38,16 @@ ReadspeakerTlc = function(){
             popup.rsRemovRsbtnPopupTlcForQuestion(event,questionId);
             handleBlurForReadspeaker();
         }
-        function handleCkeditorFocusForReadspeaker(ckeditorNode,questionId)
+        function handleCkeditorFocusForReadspeaker(ckeditorNode,questionId,editorId)
         {
-            handleFocusForReadspeaker();
             if(popup.alreadyThere(questionId)){
                 return;
             }
+            if(rspkr.rs_tlc_prevent_ckeditor_focus){
+                return;
+            }
+            handleFocusForReadspeaker();
+            ckeditorNode.editorId = editorId;
             var correction = {x:-15,y:-16};
             var p = popup.getRsbtnPopupTlcElement(questionId,ckeditorNode,correction);
             if(p == null){
@@ -51,7 +55,7 @@ ReadspeakerTlc = function(){
             }
             p.addEventListener("click", read.readCkeditor, { once: true });
         }
-        function handleCkeditorBlurForReadspeaker(ckeditorNode,questionId)
+        function handleCkeditorBlurForReadspeaker(ckeditorNode,questionId,editorId)
         {
             popup.rsRemovRsbtnPopupTlcForElement(ckeditorNode,questionId);
             handleBlurForReadspeaker();
@@ -436,6 +440,7 @@ ReadspeakerTlc = function(){
             clickListen.activateClickTap();
             rspkr.rs_tlc_play_started = false;
             rspkr.rs_tlc_prevent_close = true;
+            rspkr.rs_tlc_prevent_ckeditor_focus = true;
             var element = this.linkedElement;
             if(element==null) {
                 return;
@@ -443,7 +448,9 @@ ReadspeakerTlc = function(){
             // var elementClone = element.cloneNode(true);
             // element.replaceWith(elementClone);
             // window.classicEditorReplaced = false;
-            // element.classList.add('rs_click_listen');
+            //element.classList.add('rs_click_listen');
+            //element = ckeditor.detachReadableAreaFromCkeditor(element.editorId);
+            //element.contentEditable = false;
             element.click();
         }
         function doNotReadInput(element)
@@ -512,6 +519,7 @@ ReadspeakerTlc = function(){
         }
         function getRsbtnPopupTlcElement(questionId,element,correction)
         {
+            console.dir('getRsbtnPopupTlcElement');
             var p = document.querySelector('.rsbtn_popup_tlc_'+questionId);
             if(p == null){
                 return p;
@@ -562,6 +570,7 @@ ReadspeakerTlc = function(){
 
         function hideRsTlcPopupWithEvent(p,event)
         {
+            console.dir('hideRsTlcPopupWithEvent');
             if(event.target!=p.linkedElement){
                 return;
             }
@@ -570,7 +579,7 @@ ReadspeakerTlc = function(){
 
         function hideRsTlcPopup(p)
         {
-
+            console.dir('hideRsTlcPopup');
             if(!p.classList.contains('hidden')){
                 p.classList.add('hidden');
             }
@@ -604,6 +613,7 @@ ReadspeakerTlc = function(){
     player = function(){
         function hideRsPlayer()
         {
+            console.dir('hideRsPlayer');
             if(rspkr.rs_tlc_prevent_close){
                 return;
             }
@@ -615,6 +625,7 @@ ReadspeakerTlc = function(){
         }
         function showRsPlayer()
         {
+            console.dir('showRsPlayer');
             util.hideByClassName('rs_starter_button');
             util.showById('readspeaker_button1');
         }
@@ -743,6 +754,7 @@ ReadspeakerTlc = function(){
                 element.replaceWith(elementClone);
             }
             window.classicEditorDetached = true;
+            return element;
         }
         function reattachReadableAreaAndDestroy(editorId)
         {
@@ -756,7 +768,7 @@ ReadspeakerTlc = function(){
                 }
             }
         }
-        function addListenersForReadspeaker(editor,questionId)
+        function addListenersForReadspeaker(editor,questionId,editorId)
         {
             var config = { attributes: true, childList: false, subtree: false };
             var element = editor.ui.view.editable.element;
@@ -764,13 +776,14 @@ ReadspeakerTlc = function(){
                 for(var mutation of mutationsList) {
                     if (mutation.type === 'attributes') {
                         if(mutation.attributeName=='class'&&mutation.target.classList.contains('ck-focused')){
-                            console.dir('focus');
-                            rsTlcEvents.handleCkeditorFocusForReadspeaker(mutation.target,questionId);
+                            console.dir('ckeditor focus');
+                            rsTlcEvents.handleCkeditorFocusForReadspeaker(mutation.target,questionId,editorId);
                         }else if(mutation.attributeName=='class'&&mutation.target.classList.contains('ck-blurred')){
                             if(mutation.target.ckeditorInstance&&mutation.target.ckeditorInstance.isReadOnly){
                                 return;
                             }
-                            rsTlcEvents.handleCkeditorBlurForReadspeaker(mutation.target,questionId);
+                            console.dir('ckeditor blur');
+                            rsTlcEvents.handleCkeditorBlurForReadspeaker(mutation.target,questionId,editorId);
                         }
                     }
                 }
@@ -872,6 +885,7 @@ ReadSpeaker.q(function() {
     ReadspeakerTlc.register.registerTlcClickListenActive();
     rspkr.rs_tlc_prevent_close = false;
     rspkr.rs_tlc_container = false;
+    rspkr.rs_tlc_prevent_ckeditor_focus = false;
 
 });
 window.rsConf = {
@@ -903,7 +917,9 @@ window.rsConf = {
             },
             close: function() {
                 console.log('Player closed and callback fired!');
+                ReadspeakerTlc.clickListen.deactivateClickTap();
                 ReadspeakerTlc.player.hideRsPlayer();
+                rspkr.rs_tlc_prevent_ckeditor_focus = false;
                 window.document.dispatchEvent(new Event("readspeaker_closed", {
                     bubbles: true,
                     cancelable: true
