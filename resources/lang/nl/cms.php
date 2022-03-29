@@ -75,4 +75,8 @@ return [
     'drawing-question-close-without-save'                    => 'Weet je zeker dat je wilt afsluiten zonder op te slaan? Alle niet opgeslagen wijzigingen gaan verloren.',
     'drawing-question-delete-entry'                          => 'Weet je zeker dat je dit object wilt verwijderen? Je kunt deze actie niet ongedaan maken.',
     'drawing-question-override-old-drawing'                  => 'De tekenvraag is in de oude tekeneditor gemaakt. Als je verder gaat, gaan die wijzigingen verloren en dient de tekenvraag opnieuw gemaakt te worden in de nieuwe editor.',
+    'Eindtermen & Leerdoelen'                                => 'Eindtermen & Leerdoelen',
+    'Selecteer het domein en het subdomein waaraan deze vraag bijdraagt.' => 'Selecteer het domein en het subdomein waaraan deze vraag bijdraagt.',
+    'Eindtermen'                                             => 'Eindtermen',
+    'Leerdoelen'                                             => 'Leerdoelen',
 ];

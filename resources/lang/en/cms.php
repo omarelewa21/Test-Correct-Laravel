@@ -74,4 +74,8 @@ return [
     'drawing-question-required-answer'                       => 'It is required to draw an answer in the drawing tool.',
     'drawing-question-delete-entry'                          => 'Are you sure you want to delete this entry? You cannot undo this action.',
     'drawing-question-override-old-drawing'                  => 'This drawing question has been made in the old drawing editor. If you continue, the current drawing will be lost and has to be redrawn in the new drawing editor',
+    'Eindtermen & Leerdoelen'                                => 'Attainments & Learning goals',
+    'Selecteer het domein en het subdomein waaraan deze vraag bijdraagt.' => 'Select the domain and subdomain for this question',
+    'Eindtermen'                                             => 'Attainments',
+    'Leerdoelen'                                             => 'Learning goals',
 ];

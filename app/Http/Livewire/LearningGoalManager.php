@@ -67,6 +67,6 @@ class LearningGoalManager extends AttainmentManager
 
     public function title()
     {
-        return __('Leerdoelen');
+        return __('cms.Leerdoelen');
     }
 }
