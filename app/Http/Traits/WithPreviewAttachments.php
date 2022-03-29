@@ -56,7 +56,7 @@ trait WithPreviewAttachments
         $this->attachment = null;
     }
 
-    public function audioIsPlayedOnce(Attachment $attachment)
+    public function audioIsPlayedOnce()
     {
 
     }
