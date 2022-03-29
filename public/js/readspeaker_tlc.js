@@ -114,7 +114,37 @@ ReadspeakerTlc = function(){
                 editor.isReadOnly = false;
             }
         }
-
+        function handleIPadSelectionChange()
+        {
+            if(!util.isIpadOS()){
+                return;
+            }
+            document.addEventListener("touchend", function (event) {
+                setTimeout(function()
+                {
+                    var selectedText = window.getSelection().toString();
+                    if (selectedText == '') {
+                        return;
+                    }
+                    rspkr.ui.setPointerPos(event);
+                    rspkr.c.data.setSelectedText(event);
+                    rspkr.popup.lastSelectedText = selectedText;
+                    var rsEvent = new rspkr.lib.Facade.RSEvent();
+                    rsEvent.clientX = event.layerX;
+                    rsEvent.clientY = event.layerY;
+                    rsEvent.keyCode = undefined;
+                    rsEvent.originalEvent = event;
+                    rsEvent.pageX = event.pageX;
+                    rsEvent.pageY = event.pageY;
+                    rsEvent.screenX = event.layerX;
+                    rsEvent.screenY = event.layerY;
+                    rsEvent.target = document;
+                    rsEvent.targetTouches = undefined;
+                    rsEvent.type = "touchend";
+                    rspkr.popup.showPopup(rsEvent);
+                },100);
+            });
+        }
         return{
             handleTextBoxFocusForReadspeaker:handleTextBoxFocusForReadspeaker,
             handleTextBoxBlurForReadspeaker:handleTextBoxBlurForReadspeaker,
@@ -125,7 +155,8 @@ ReadspeakerTlc = function(){
             handleCkeditorFocusForReadspeaker:handleCkeditorFocusForReadspeaker,
             handleCkeditorBlurForReadspeaker:handleCkeditorBlurForReadspeaker,
             handleCkeditorSelectionChangeDoneForReadspeaker:handleCkeditorSelectionChangeDoneForReadspeaker,
-            handleCkeditorSelectionChangeForReadspeaker:handleCkeditorSelectionChangeForReadspeaker
+            handleCkeditorSelectionChangeForReadspeaker:handleCkeditorSelectionChangeForReadspeaker,
+            handleIPadSelectionChange
         }
     }();
     clickListen = function(){
@@ -272,7 +303,6 @@ ReadspeakerTlc = function(){
         }
         function createHiddenDivForElementAndHideElement(element)
         {
-            console.dir('rs_tlc_skin');
             if(!element){
                 return;
             }
@@ -519,7 +549,6 @@ ReadspeakerTlc = function(){
         }
         function getRsbtnPopupTlcElement(questionId,element,correction)
         {
-            console.dir('getRsbtnPopupTlcElement');
             var p = document.querySelector('.rsbtn_popup_tlc_'+questionId);
             if(p == null){
                 return p;
@@ -570,7 +599,6 @@ ReadspeakerTlc = function(){
 
         function hideRsTlcPopupWithEvent(p,event)
         {
-            console.dir('hideRsTlcPopupWithEvent');
             if(event.target!=p.linkedElement){
                 return;
             }
@@ -579,7 +607,6 @@ ReadspeakerTlc = function(){
 
         function hideRsTlcPopup(p)
         {
-            console.dir('hideRsTlcPopup');
             if(!p.classList.contains('hidden')){
                 p.classList.add('hidden');
             }
@@ -613,7 +640,6 @@ ReadspeakerTlc = function(){
     player = function(){
         function hideRsPlayer()
         {
-            console.dir('hideRsPlayer');
             if(rspkr.rs_tlc_prevent_close){
                 return;
             }
@@ -625,7 +651,6 @@ ReadspeakerTlc = function(){
         }
         function showRsPlayer()
         {
-            console.dir('showRsPlayer');
             util.hideByClassName('rs_starter_button');
             util.showById('readspeaker_button1');
         }
@@ -714,6 +739,11 @@ ReadspeakerTlc = function(){
             popup.hideRsTlcPopup(this);
             readable_div.click();
         }
+        function isIpadOS() {
+            return navigator.maxTouchPoints &&
+                navigator.maxTouchPoints > 2 &&
+                /MacIntel/.test(navigator.platform);
+        }
         return{
             showById:showById,
             hideById:hideById,
@@ -722,7 +752,8 @@ ReadspeakerTlc = function(){
             checkPossibleTextAreaValid:checkPossibleTextAreaValid,
             checkPossibleTextAreaAlreadyExists:checkPossibleTextAreaAlreadyExists,
             checkElementInActiveQuestion:checkElementInActiveQuestion,
-            showReadableSelect:showReadableSelect
+            showReadableSelect:showReadableSelect,
+            isIpadOS
         }
     }();
     ckeditor = function(){
@@ -776,13 +807,11 @@ ReadspeakerTlc = function(){
                 for(var mutation of mutationsList) {
                     if (mutation.type === 'attributes') {
                         if(mutation.attributeName=='class'&&mutation.target.classList.contains('ck-focused')){
-                            console.dir('ckeditor focus');
                             rsTlcEvents.handleCkeditorFocusForReadspeaker(mutation.target,questionId,editorId);
                         }else if(mutation.attributeName=='class'&&mutation.target.classList.contains('ck-blurred')){
                             if(mutation.target.ckeditorInstance&&mutation.target.ckeditorInstance.isReadOnly){
                                 return;
                             }
-                            console.dir('ckeditor blur');
                             rsTlcEvents.handleCkeditorBlurForReadspeaker(mutation.target,questionId,editorId);
                         }
                     }
@@ -880,12 +909,13 @@ ReadspeakerTlc = function(){
     }
 }();
 ReadSpeaker.q(function() {
-    console.log('rs_tlc_skin initialized!');
+    console.log('rs_tlc initialized!');
     rspkr.rs_tlc_play_started = false;
     ReadspeakerTlc.register.registerTlcClickListenActive();
     rspkr.rs_tlc_prevent_close = false;
     rspkr.rs_tlc_container = false;
     rspkr.rs_tlc_prevent_ckeditor_focus = false;
+    ReadspeakerTlc.rsTlcEvents.handleIPadSelectionChange();
 
 });
 window.rsConf = {
@@ -955,3 +985,6 @@ window.rsConf = {
     }
 };
 window.classicEditorDetached = false;
+
+
+
