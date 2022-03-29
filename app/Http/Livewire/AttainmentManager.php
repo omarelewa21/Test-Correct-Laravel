@@ -121,6 +121,6 @@ class AttainmentManager extends Component
 
     public function title()
     {
-        return __('Eindtermen');
+        return __('cms.Eindtermen');
     }
 }
