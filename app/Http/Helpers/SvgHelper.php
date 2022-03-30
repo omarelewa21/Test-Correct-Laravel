@@ -3,12 +3,16 @@
 namespace tcCore\Http\Helpers;
 
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class SvgHelper
 {
 
     const DISK = 'svg-for-drawing-question';
     const SVG_FILENAME = 'template.svg';
+    const CORRECTION_MODEL_PNG_FILENAME = 'corretion_model.png';
+    const QUESTION_PNG_FILENAME = 'question.png';
+    const TRANSPARANT_PIXEL = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+P+/HgAFhAJ/wlseKgAAAABJRU5ErkJggg==';
     private $uuid;
     private $disk;
 
@@ -52,20 +56,77 @@ class SvgHelper
         $this->disk->makeDirectory($this->getQuestionFolder());
         $this->disk->makeDirectory($this->getAnswerFolder());
         $this->initSVG();
+        $this->initCorrectionModelPNG();
+        $this->initQuestionPNG();
     }
 
     public function updateAnswerLayer($value)
     {
+        $this->updateLayer($value, 'answer-svg');
+    }
+
+    public function updateQuestionLayer($value)
+    {
+        $this->updateLayer($value, 'question-svg');
+    }
+
+    private function initCorrectionModelPNG()
+    {
+        $this->disk->put(
+            sprintf('%s/%s', $this->uuid, self::CORRECTION_MODEL_PNG_FILENAME),
+            base64_decode(self::TRANSPARANT_PIXEL)
+        );
+    }
+
+    public function getCorrectionModelPNG()
+    {
+        return $this->disk->get(
+            sprintf('%s/%s', $this->uuid, self::CORRECTION_MODEL_PNG_FILENAME)
+        );
+    }
+
+    public function getQuestionModelPNG()
+    {
+        return $this->disk->get(
+            sprintf('%s/%s', $this->uuid, self::QUESTION_PNG_FILENAME)
+        );
+    }
+
+
+    public function updateQuestionPNG($base64EncodedPNG)
+    {
+        $this->disk->put(
+            sprintf('%s/%s', $this->uuid, self::QUESTION_PNG_FILENAME),
+            base64_decode($base64EncodedPNG)
+        );
+    }
+
+    public function updateCorrectionModelPNG($base64EncodedPNG)
+    {
+        $this->disk->put(
+            sprintf('%s/%s', $this->uuid, self::CORRECTION_MODEL_PNG_FILENAME),
+            base64_decode($base64EncodedPNG)
+        );
+    }
+
+    private function updateLayer($value, $layerName)
+    {
         $doc = new \DOMDocument;
         $doc->loadXML($this->getSvg());
-        $fragment = $doc->createDocumentFragment();
-        $fragment->appendXML($value);
 
-        foreach ($doc->getElementsByTagName('g') as $node) {
-            if ($node->getAttribute('class') === 'answer-svg') {
-                $node->appendChild($fragment);
-            }
-        }
+        $fragment = $doc->createDocumentFragment();
+        $fragment->appendXML(
+            $this->replaceIdentifiersInImages($value, $layerName)
+        );
+
+        $node = collect($doc->getElementsByTagName('g'))->first(function ($node) use ($layerName) {
+            return $node->getAttribute('class') === $layerName;
+        });
+        collect($node->childNodes)->each(function ($node) {
+            $node->parentNode->removeChild($node);
+        });
+
+        $node->appendChild($fragment);
         $this->saveSVG($doc->saveXML());
     }
 
@@ -91,5 +152,52 @@ XML
         $this->disk->put(
             sprintf('%s/%s', $this->uuid, self::SVG_FILENAME), $xml
         );
+    }
+
+    private function initQuestionPNG()
+    {
+        $this->disk->put(
+            sprintf('%s/%s', $this->uuid, self::QUESTION_PNG_FILENAME),
+            base64_decode(self::TRANSPARANT_PIXEL)
+        );
+    }
+
+    public function addQuestionImage($contents)
+    {
+
+        return $this->addImageToLayer('question', $contents);
+    }
+
+    public function addAnswerImage($contents)
+    {
+        return $this->addImageToLayer('answer', $contents);
+    }
+
+    private function addImageToLayer($layer, $contents)
+    {
+        $folder = $layer == 'answer' ? 'answer' : 'question';
+
+        $identifier = (string)Str::uuid();
+        $path = sprintf('%s/%s/%s', $this->uuid, $folder ,$identifier);
+        $this->disk->put($path, $contents);
+
+        return $identifier;
+    }
+
+    private function replaceIdentifiersInImages($value, $layerName)
+    {
+        $folder = $layerName == 'answer-svg' ? 'answer' : 'question';
+        $doc = new \DOMDocument();
+        $doc->loadXML(sprintf('<wrap>%s</wrap>', $value));
+        collect($doc->getElementsByTagName('image'))->each(function ($node) use ($folder) {
+            $path = sprintf('%s/%s/%s', $this->uuid, $folder, $node->getAttribute('identifier'));
+            if (!$this->disk->exists($path)) {
+                throw new Exception(sprintf('File not found [%s].', $path));
+            }
+            $image = $this->disk->get($path);
+            $node->setAttribute('src','data: '. mime_content_type($this->disk->path($path)).';base64,'.base64_encode($image));
+        });
+
+        return substr(substr($doc->saveXML(), 28), 0, -8);
     }
 }

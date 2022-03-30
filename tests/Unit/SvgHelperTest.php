@@ -31,7 +31,16 @@ use Illuminate\Support\Facades\Storage;
 
 class SvgHelperTest extends TestCase
 {
+    const BLACK_PIXEL = 'data: image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=';
     private $disk;
+
+    /**
+     * @return false|string
+     */
+    private function getBlackPixelAsBinary()
+    {
+        return base64_decode(explode(',', self::BLACK_PIXEL)[1]);
+    }
 
     protected function setUp(): void
     {
@@ -79,17 +88,174 @@ XML,
     }
 
     /** @test */
-    public function it_can_update_the_answer_layer()
+    public function it_can_update_insert_the_answer_layer()
     {
-        $uuid = '01fab6eb-ad9d-4faf-9831-d6ff25e593b2';
-        $newAnswerLayer ='<circle cx="50" cy="50" r="40" stroke="black" stroke-width="3" fill="red"/>';
-        $svgHelper = new SvgHelper('9227e13e-a495-45cf-b324-ac825ccea771');
+        $answerLayer = '<circle cx="50" cy="50" r="40" stroke="black" stroke-width="3" fill="red"/>';
+        $newAnswerLayer = '<circle cx="50" cy="50" r="40" stroke="black" stroke-width="3" fill="blue"/>';
+        $svgHelper = new SvgHelper('5eaf249f-a08a-42bc-9c7c-6267d9c329a0');
 
-        $this->assertStringNotContainsString($newAnswerLayer, $svgHelper->getSvg());
+        $svgHelper->updateAnswerLayer($answerLayer);
+        $this->assertStringContainsString($answerLayer, $svgHelper->getSvg());
+
         $svgHelper->updateAnswerLayer($newAnswerLayer);
         $this->assertStringContainsString($newAnswerLayer, $svgHelper->getSvg());
-
+        $this->assertStringNotContainsString($answerLayer, $svgHelper->getSvg());
     }
 
+    /** @test */
+    public function it_can_update_insert_the_question_layer()
+    {
+        $answerLayer = '<circle cx="50" cy="50" r="40" stroke="black" stroke-width="3" fill="red"/>';
+        $newAnswerLayer = '<circle cx="50" cy="50" r="40" stroke="black" stroke-width="3" fill="blue"/>';
+        $svgHelper = new SvgHelper('5eaf249f-a08a-42bc-9c7c-6267d9c329a0');
+
+        $svgHelper->updateQuestionLayer($answerLayer);
+        $this->assertStringContainsString($answerLayer, $svgHelper->getSvg());
+
+        $svgHelper->updateQuestionLayer($newAnswerLayer);
+        $this->assertStringContainsString($newAnswerLayer, $svgHelper->getSvg());
+        $this->assertStringNotContainsString($answerLayer, $svgHelper->getSvg());
+    }
+
+    /** @test */
+    public function when_initiated_the_correction_model_png_should_be_an_empty_pixel()
+    {
+        $uuid = '02664bae-3be2-463d-bb28-a1fbf4611038';
+        $svgHelper = new SvgHelper($uuid);
+        $this->disk->exists(sprintf('%s/%s', $uuid, SvgHelper::CORRECTION_MODEL_PNG_FILENAME));
+        $this->assertEquals(
+            base64_decode(SvgHelper::TRANSPARANT_PIXEL),
+            $svgHelper->getCorrectionModelPNG()
+        );
+    }
+
+    /** @test */
+    public function when_initiated_the_question_png_should_be_an_empty_pixel()
+    {
+        $uuid = '02664bae-3be2-463d-bb28-a1fbf4611038';
+        $svgHelper = new SvgHelper($uuid);
+        $this->disk->exists(sprintf('%s/%s', $uuid, SvgHelper::QUESTION_PNG_FILENAME));
+        $this->assertEquals(
+            base64_decode(SvgHelper::TRANSPARANT_PIXEL),
+            $svgHelper->getQuestionModelPNG()
+        );
+    }
+
+    /** @test */
+    public function it_can_update_the_correction_model_png()
+    {
+        $svgHelper = (new SvgHelper('1d5906a8-0eee-4078-8d78-44d402bb66a4'));
+        $this->assertNotEquals(
+            base64_decode(self::BLACK_PIXEL),
+            $svgHelper->getCorrectionModelPNG()
+        );
+
+        $svgHelper->updateCorrectionModelPNG(self::BLACK_PIXEL);
+        $this->assertEquals(
+            base64_decode(self::BLACK_PIXEL),
+            $svgHelper->getCorrectionModelPNG()
+        );
+    }
+
+    /** @test */
+    public function it_can_update_the_question_png()
+    {
+        $svgHelper = (new SvgHelper('9825cdd0-f5a9-4dee-8143-f549603631ec'));
+        $this->assertNotEquals(
+            base64_decode(self::BLACK_PIXEL),
+            $svgHelper->getQuestionModelPNG()
+        );
+
+        $svgHelper->updateQuestionPNG(self::BLACK_PIXEL);
+        $this->assertEquals(
+            base64_decode(self::BLACK_PIXEL),
+            $svgHelper->getQuestionModelPNG()
+        );
+    }
+
+    /** @test */
+    public function it_can_add_an_image_to_the_question_layer_and_render_the_svg_with_data_url()
+    {
+        $uuid = 'e25397bb-e8c2-4835-969b-fa6bd88ff78c';
+        $svgHelper = new SvgHelper($uuid);
+
+        $identifier = $svgHelper->addQuestionImage($this->getBlackPixelAsBinary());
+        $this->assertNotEmpty($identifier);
+        $this->assertEquals(
+            $this->getBlackPixelAsBinary(),
+            $this->disk->get(
+                sprintf('%s/question/%s', $uuid, $identifier)
+            )
+        );
+
+        $svgHelper->updateQuestionLayer(
+            sprintf(
+                '<image identifier="%s"/>',
+                $identifier
+            )
+        );
+        $doc = new \DOMDocument();
+        $doc->loadXML($svgHelper->getSvg());
+
+        $imageNode = collect($doc->getElementsByTagName('image'))->first(function ($node) use ($identifier) {
+            return $node->getAttribute('identifier') == $identifier;
+        });
+
+        $this->assertStringContainsString(
+            $imageNode->getAttribute('src'),
+            self::BLACK_PIXEL
+        );
+    }
+
+    /** @test */
+    public function it_can_add_an_image_to_the_answer_layer_and_render_the_svg_with_data_url()
+    {
+        $uuid = '3684d068-5215-4fd8-a030-b7c66aa58e81';
+        $svgHelper = new SvgHelper($uuid);
+
+        $identifier = $svgHelper->addAnswerImage($this->getBlackPixelAsBinary());
+        $this->assertNotEmpty($identifier);
+        $this->assertEquals(
+            $this->getBlackPixelAsBinary(),
+            $this->disk->get(
+                sprintf('%s/answer/%s', $uuid, $identifier)
+            )
+        );
+
+        $svgHelper->updateAnswerLayer(
+            sprintf(
+                '<image identifier="%s"/>',
+                $identifier
+            )
+        );
+        $doc = new \DOMDocument();
+        $doc->loadXML($svgHelper->getSvg());
+
+        $imageNode = collect($doc->getElementsByTagName('image'))->first(function ($node) use ($identifier) {
+            return $node->getAttribute('identifier') == $identifier;
+        });
+
+        $this->assertStringContainsString(
+            $imageNode->getAttribute('src'),
+            self::BLACK_PIXEL
+        );
+    }
+
+    /** @test */
+    public function it_can_update_the_view_box_attribute_on_the_svg()
+    {
+        $svgHelper = new SvgHelper('9dbd6346-f9b3-479b-ae25-758f3e1711ee');
+        $doc = new \DOMDocument();
+        $doc->loadXML($svgHelper->getSvg());
+        $this->assertEquals(
+            "0 0 0 0",
+            $doc->getElementsByTagName('svg')->item(0)->getAttribute('viewBox')
+        );
+
+
+//        $svgHelper->updateViewBox('100 20 10 10');
+
+
+    }
 
 }
