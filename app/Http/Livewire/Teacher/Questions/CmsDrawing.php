@@ -9,7 +9,7 @@ class CmsDrawing
     private $instance;
     public $requiresAnswer = true;
 
-    public $emptyCanvas = true;
+    private $cleanedSvg = [];
 
     public function __construct(OpenShort $instance)
     {
@@ -51,7 +51,6 @@ class CmsDrawing
 
         if (filled($this->instance->question['zoom_group'])) {
             $this->setViewbox($this->instance->question['zoom_group']);
-            $this->emptyCanvas = false;
         }
     }
 
@@ -63,7 +62,6 @@ class CmsDrawing
         $this->instance->question['zoom_group'] = '';
         $this->instance->question['question_preview'] = '';
         $this->instance->question['question_correction_model'] = '';
-        $this->emptyCanvas = true;
     }
 
     public function handleUpdateDrawingData($data)
@@ -75,8 +73,10 @@ class CmsDrawing
         $this->instance->question['question_preview'] = $data['png_question_preview_string'];
         $this->instance->question['question_correction_model'] = $data['png_correction_model_string'];
 
+        $this->cleanedSvg['question'] = $data['cleaned_question_svg'];
+        $this->cleanedSvg['answer'] = $data['cleaned_answer_svg'];
+
         $this->setViewbox($data['svg_zoom_group']);
-        $this->emptyCanvas = false;
     }
 
     public function prepareForSave()
@@ -97,10 +97,5 @@ class CmsDrawing
             $data['width'],
             $data['height']
         );
-    }
-
-    public function isEmptyCanvas()
-    {
-        return $this->emptyCanvas;
     }
 }

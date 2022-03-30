@@ -6488,7 +6488,7 @@ var validSvgElementKeys = {
   circle: ["cx", "cy", "r", "pathLength"],
   line: ["x1", "y1", "x2", "y2", "pathLength"],
   path: ["d"],
-  image: ["x", "y", "width", "height", "href", "preserveAspectRatio"],
+  image: ["x", "y", "width", "height", "href", "preserveAspectRatio", "identifier"],
   text: ["x", "y", "dx", "dy", "rotate", "lengthAdjust", "data-textcontent"],
   g: ["transform"]
 };
@@ -6539,6 +6539,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _svgShape_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./svgShape.js */ "./resources/js/drawing/svgShape.js");
 /* harmony import */ var _uiElements_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./uiElements.js */ "./resources/js/drawing/uiElements.js");
 /* harmony import */ var _sidebar_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./sidebar.js */ "./resources/js/drawing/sidebar.js");
+/* harmony import */ var uuid__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! uuid */ "./node_modules/uuid/dist/esm-browser/v4.js");
 
 
 function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { Promise.resolve(value).then(_next, _throw); } }
@@ -6566,6 +6567,7 @@ function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len 
 function _iterableToArrayLimit(arr, i) { var _i = arr == null ? null : typeof Symbol !== "undefined" && arr[Symbol.iterator] || arr["@@iterator"]; if (_i == null) return; var _arr = []; var _n = true; var _d = false; var _s, _e; try { for (_i = _i.call(arr); !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"] != null) _i["return"](); } finally { if (_d) throw _e; } } return _arr; }
 
 function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
+
 
 
 
@@ -6733,6 +6735,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview) {
           x: 0,
           y: 0
         },
+        imageTracker: [],
         touchmoving: false,
         currentLayer: "question",
         focusedShape: null,
@@ -7647,13 +7650,34 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview) {
   function setCorrectPopupHeight() {// UI.drawingTool.style.height = Math.round(window.innerHeight * 0.95) + "px";
   }
 
+  function cleanedBase64EncodedStrings() {
+    return {
+      question: btoa(clearImageSources(Canvas.layers.question.svg)),
+      answer: btoa(clearImageSources(Canvas.layers.answer.svg))
+    };
+  }
+
+  function clearImageSources(layer) {
+    var _layer$querySelectorA;
+
+    var hrefsToReplace = [];
+    (_layer$querySelectorA = layer.querySelectorAll('image')) === null || _layer$querySelectorA === void 0 ? void 0 : _layer$querySelectorA.forEach(function (image) {
+      hrefsToReplace.push(image.getAttribute('href'));
+    });
+    layer = layer.innerHTML;
+    hrefsToReplace.forEach(function (href) {
+      return layer = layer.replace(href, '');
+    });
+    return layer;
+  }
+
   function submitDrawingData() {
     return _submitDrawingData.apply(this, arguments);
   }
 
   function _submitDrawingData() {
     _submitDrawingData = _asyncToGenerator( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default().mark(function _callee() {
-      var b64Strings, grid, panGroupSize, livewireComponent;
+      var b64Strings, grid, panGroupSize, livewireComponent, cleanedSvg;
       return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default().wrap(function _callee$(_context) {
         while (1) {
           switch (_context.prev = _context.next) {
@@ -7670,35 +7694,40 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview) {
               grid = Canvas.layers.grid.params.hidden ? "0.00" : drawingApp.params.gridSize.toString();
               panGroupSize = getPanGroupSize();
               livewireComponent = getClosestLivewireComponentByAttribute(rootElement, 'questionComponent');
+              cleanedSvg = cleanedBase64EncodedStrings();
               _context.t0 = livewireComponent;
               _context.t1 = b64Strings.answer;
               _context.t2 = b64Strings.question;
               _context.t3 = b64Strings.grid;
               _context.t4 = grid;
               _context.t5 = panGroupSize;
-              _context.next = 14;
+              _context.next = 15;
               return getPNGQuestionPreviewStringFromSVG(panGroupSize);
 
-            case 14:
+            case 15:
               _context.t6 = _context.sent;
-              _context.next = 17;
+              _context.next = 18;
               return getPNGCorrectionModelStringFromSVG(panGroupSize);
 
-            case 17:
+            case 18:
               _context.t7 = _context.sent;
-              _context.t8 = {
+              _context.t8 = cleanedSvg.question;
+              _context.t9 = cleanedSvg.answer;
+              _context.t10 = {
                 svg_answer: _context.t1,
                 svg_question: _context.t2,
                 svg_grid: _context.t3,
                 grid_size: _context.t4,
                 svg_zoom_group: _context.t5,
                 png_question_preview_string: _context.t6,
-                png_correction_model_string: _context.t7
+                png_correction_model_string: _context.t7,
+                cleaned_question_svg: _context.t8,
+                cleaned_answer_svg: _context.t9
               };
 
-              _context.t0.handleUpdateDrawingData.call(_context.t0, _context.t8);
+              _context.t0.handleUpdateDrawingData.call(_context.t0, _context.t10);
 
-            case 20:
+            case 23:
             case "end":
               return _context.stop();
           }
@@ -8502,19 +8531,28 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview) {
   }
 
   function processUploadedImages(evt) {
+    var livewireComponent = getClosestLivewireComponentByAttribute(drawingApp.params.root, 'questionComponent');
+
     var _iterator3 = _createForOfIteratorHelper(evt.target.files),
         _step3;
 
     try {
-      for (_iterator3.s(); !(_step3 = _iterator3.n()).done;) {
+      var _loop2 = function _loop2() {
         var fileURL = _step3.value;
         var reader = new FileReader();
+        var identifier = (0,uuid__WEBPACK_IMPORTED_MODULE_5__["default"])();
+        livewireComponent.upload("cmsPropertyBag.images.".concat(Canvas.params.currentLayer, ".").concat(identifier), fileURL, function (fileName) {// Success callback.
+        }, function () {// Error callback.
+        }, function (event) {// Progress callback.
+        });
         reader.readAsDataURL(fileURL);
         drawingApp.bindEventListeners([{
           element: reader,
           events: {
             loadend: {
-              callback: fileLoadedIntoReader
+              callback: function callback(evt) {
+                fileLoadedIntoReader(evt, identifier);
+              }
             },
             error: {
               callback: function callback() {
@@ -8523,6 +8561,10 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview) {
             }
           }
         }]);
+      };
+
+      for (_iterator3.s(); !(_step3 = _iterator3.n()).done;) {
+        _loop2();
       }
     } catch (err) {
       _iterator3.e(err);
@@ -8534,7 +8576,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview) {
     UI.imgUpload.value = null;
   }
 
-  function fileLoadedIntoReader(evt) {
+  function fileLoadedIntoReader(evt, identifier) {
     var imageURL = evt.target.result;
     var dummyImage = new Image();
     dummyImage.src = imageURL;
@@ -8542,7 +8584,9 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview) {
       element: dummyImage,
       events: {
         load: {
-          callback: dummyImageLoaded
+          callback: function callback(evt) {
+            dummyImageLoaded(evt, identifier);
+          }
         },
         error: {
           callback: function callback() {
@@ -8553,12 +8597,12 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview) {
     }]);
   }
 
-  function dummyImageLoaded(_x7) {
+  function dummyImageLoaded(_x7, _x8) {
     return _dummyImageLoaded.apply(this, arguments);
   }
 
   function _dummyImageLoaded() {
-    _dummyImageLoaded = _asyncToGenerator( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default().mark(function _callee6(evt) {
+    _dummyImageLoaded = _asyncToGenerator( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default().mark(function _callee6(evt, identifier) {
       var dummyImage, scaleFactor, base65PNGString, shape;
       return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default().wrap(function _callee6$(_context6) {
         while (1) {
@@ -8575,7 +8619,8 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview) {
                 main: {
                   href: base65PNGString,
                   width: dummyImage.width * scaleFactor,
-                  height: dummyImage.height * scaleFactor
+                  height: dummyImage.height * scaleFactor,
+                  identifier: identifier
                 }
               }, Canvas.params.currentLayer);
               shape.svg.moveToCenter();
@@ -58919,6 +58964,161 @@ try {
   }
 }
 
+
+/***/ }),
+
+/***/ "./node_modules/uuid/dist/esm-browser/regex.js":
+/*!*****************************************************!*\
+  !*** ./node_modules/uuid/dist/esm-browser/regex.js ***!
+  \*****************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (/^(?:[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}|00000000-0000-0000-0000-000000000000)$/i);
+
+/***/ }),
+
+/***/ "./node_modules/uuid/dist/esm-browser/rng.js":
+/*!***************************************************!*\
+  !*** ./node_modules/uuid/dist/esm-browser/rng.js ***!
+  \***************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (/* binding */ rng)
+/* harmony export */ });
+// Unique ID creation requires a high quality random # generator. In the browser we therefore
+// require the crypto API and do not support built-in fallback to lower quality random number
+// generators (like Math.random()).
+var getRandomValues;
+var rnds8 = new Uint8Array(16);
+function rng() {
+  // lazy load so that environments that need to polyfill have a chance to do so
+  if (!getRandomValues) {
+    // getRandomValues needs to be invoked in a context where "this" is a Crypto implementation. Also,
+    // find the complete implementation of crypto (msCrypto) on IE11.
+    getRandomValues = typeof crypto !== 'undefined' && crypto.getRandomValues && crypto.getRandomValues.bind(crypto) || typeof msCrypto !== 'undefined' && typeof msCrypto.getRandomValues === 'function' && msCrypto.getRandomValues.bind(msCrypto);
+
+    if (!getRandomValues) {
+      throw new Error('crypto.getRandomValues() not supported. See https://github.com/uuidjs/uuid#getrandomvalues-not-supported');
+    }
+  }
+
+  return getRandomValues(rnds8);
+}
+
+/***/ }),
+
+/***/ "./node_modules/uuid/dist/esm-browser/stringify.js":
+/*!*********************************************************!*\
+  !*** ./node_modules/uuid/dist/esm-browser/stringify.js ***!
+  \*********************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+/* harmony import */ var _validate_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./validate.js */ "./node_modules/uuid/dist/esm-browser/validate.js");
+
+/**
+ * Convert array of 16 byte values to UUID string format of the form:
+ * XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX
+ */
+
+var byteToHex = [];
+
+for (var i = 0; i < 256; ++i) {
+  byteToHex.push((i + 0x100).toString(16).substr(1));
+}
+
+function stringify(arr) {
+  var offset = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 0;
+  // Note: Be careful editing this code!  It's been tuned for performance
+  // and works in ways you may not expect. See https://github.com/uuidjs/uuid/pull/434
+  var uuid = (byteToHex[arr[offset + 0]] + byteToHex[arr[offset + 1]] + byteToHex[arr[offset + 2]] + byteToHex[arr[offset + 3]] + '-' + byteToHex[arr[offset + 4]] + byteToHex[arr[offset + 5]] + '-' + byteToHex[arr[offset + 6]] + byteToHex[arr[offset + 7]] + '-' + byteToHex[arr[offset + 8]] + byteToHex[arr[offset + 9]] + '-' + byteToHex[arr[offset + 10]] + byteToHex[arr[offset + 11]] + byteToHex[arr[offset + 12]] + byteToHex[arr[offset + 13]] + byteToHex[arr[offset + 14]] + byteToHex[arr[offset + 15]]).toLowerCase(); // Consistency check for valid UUID.  If this throws, it's likely due to one
+  // of the following:
+  // - One or more input array values don't map to a hex octet (leading to
+  // "undefined" in the uuid)
+  // - Invalid input values for the RFC `version` or `variant` fields
+
+  if (!(0,_validate_js__WEBPACK_IMPORTED_MODULE_0__["default"])(uuid)) {
+    throw TypeError('Stringified UUID is invalid');
+  }
+
+  return uuid;
+}
+
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (stringify);
+
+/***/ }),
+
+/***/ "./node_modules/uuid/dist/esm-browser/v4.js":
+/*!**************************************************!*\
+  !*** ./node_modules/uuid/dist/esm-browser/v4.js ***!
+  \**************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+/* harmony import */ var _rng_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./rng.js */ "./node_modules/uuid/dist/esm-browser/rng.js");
+/* harmony import */ var _stringify_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./stringify.js */ "./node_modules/uuid/dist/esm-browser/stringify.js");
+
+
+
+function v4(options, buf, offset) {
+  options = options || {};
+  var rnds = options.random || (options.rng || _rng_js__WEBPACK_IMPORTED_MODULE_0__["default"])(); // Per 4.4, set bits for version and `clock_seq_hi_and_reserved`
+
+  rnds[6] = rnds[6] & 0x0f | 0x40;
+  rnds[8] = rnds[8] & 0x3f | 0x80; // Copy bytes to buffer, if provided
+
+  if (buf) {
+    offset = offset || 0;
+
+    for (var i = 0; i < 16; ++i) {
+      buf[offset + i] = rnds[i];
+    }
+
+    return buf;
+  }
+
+  return (0,_stringify_js__WEBPACK_IMPORTED_MODULE_1__["default"])(rnds);
+}
+
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (v4);
+
+/***/ }),
+
+/***/ "./node_modules/uuid/dist/esm-browser/validate.js":
+/*!********************************************************!*\
+  !*** ./node_modules/uuid/dist/esm-browser/validate.js ***!
+  \********************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+/* harmony import */ var _regex_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./regex.js */ "./node_modules/uuid/dist/esm-browser/regex.js");
+
+
+function validate(uuid) {
+  return typeof uuid === 'string' && _regex_js__WEBPACK_IMPORTED_MODULE_0__["default"].test(uuid);
+}
+
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (validate);
 
 /***/ }),
 

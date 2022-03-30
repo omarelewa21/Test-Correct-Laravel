@@ -2,6 +2,7 @@ import {panParams, shapePropertiesAvailableToUser, zoomParams} from "./constants
 import * as svgShape from "./svgShape.js";
 import {UIElements, warningBox} from "./uiElements.js";
 import * as sidebar from "./sidebar.js";
+import { v4 as uuidv4 } from 'uuid';
 
 window.initDrawingQuestion = function (rootElement, isTeacher, isPreview) {
 
@@ -156,6 +157,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview) {
             params: {
                 cursorPosition: {x: 0, y: 0},
                 cursorPositionMousedown: {x: 0, y: 0},
+                imageTracker: [],
                 touchmoving: false,
                 currentLayer: "question",
                 focusedShape: null,
@@ -1040,6 +1042,23 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview) {
         // UI.drawingTool.style.height = Math.round(window.innerHeight * 0.95) + "px";
     }
 
+    function cleanedBase64EncodedStrings() {
+        return {
+            question: btoa(clearImageSources(Canvas.layers.question.svg)),
+            answer: btoa(clearImageSources(Canvas.layers.answer.svg))
+        };
+    }
+    function clearImageSources(layer) {
+        const hrefsToReplace = [];
+        layer.querySelectorAll('image')?.forEach((image) => {
+            hrefsToReplace.push(image.getAttribute('href'));
+        });
+        layer = layer.innerHTML;
+        hrefsToReplace.forEach((href) => layer = layer.replace(href, ''));
+
+        return layer;
+    }
+
     async function submitDrawingData() {
         if (drawingApp.params.isPreview) return;
 
@@ -1050,6 +1069,8 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview) {
 
         const livewireComponent = getClosestLivewireComponentByAttribute(rootElement, 'questionComponent');
 
+        const cleanedSvg = cleanedBase64EncodedStrings();
+
         livewireComponent.handleUpdateDrawingData({
             svg_answer: b64Strings.answer,
             svg_question: b64Strings.question,
@@ -1057,7 +1078,9 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview) {
             grid_size: grid,
             svg_zoom_group: panGroupSize,
             png_question_preview_string: await getPNGQuestionPreviewStringFromSVG(panGroupSize),
-            png_correction_model_string: await getPNGCorrectionModelStringFromSVG(panGroupSize)
+            png_correction_model_string: await getPNGCorrectionModelStringFromSVG(panGroupSize),
+            cleaned_question_svg: cleanedSvg.question,
+            cleaned_answer_svg: cleanedSvg.answer
         });
     }
 
@@ -1744,8 +1767,21 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview) {
 
 
     function processUploadedImages(evt) {
+        const livewireComponent = getClosestLivewireComponentByAttribute(drawingApp.params.root, 'questionComponent')
+
         for (const fileURL of evt.target.files) {
             const reader = new FileReader();
+
+            const identifier = uuidv4();
+
+            livewireComponent.upload(`cmsPropertyBag.images.${Canvas.params.currentLayer}.${identifier}`, fileURL, (fileName) => {
+                // Success callback.
+            }, () => {
+                // Error callback.
+            }, (event) => {
+                // Progress callback.
+            })
+
             reader.readAsDataURL(fileURL);
 
             drawingApp.bindEventListeners([
@@ -1753,7 +1789,9 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview) {
                     element: reader,
                     events: {
                         loadend: {
-                            callback: fileLoadedIntoReader,
+                            callback: (evt) => {
+                                fileLoadedIntoReader(evt, identifier);
+                            },
                         },
                         error: {
                             callback: () => {
@@ -1770,7 +1808,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview) {
         UI.imgUpload.value = null;
     }
 
-    function fileLoadedIntoReader(evt) {
+    function fileLoadedIntoReader(evt, identifier) {
         const imageURL = evt.target.result;
         const dummyImage = new Image();
         dummyImage.src = imageURL;
@@ -1779,7 +1817,9 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview) {
                 element: dummyImage,
                 events: {
                     load: {
-                        callback: dummyImageLoaded,
+                        callback: (evt) => {
+                            dummyImageLoaded(evt, identifier);
+                        },
                     },
                     error: {
                         callback: () => {
@@ -1791,7 +1831,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview) {
         ]);
     }
 
-    async function dummyImageLoaded(evt) {
+    async function dummyImageLoaded(evt, identifier) {
         const dummyImage = evt.target,
             scaleFactor = correctImageSize(dummyImage),
             // imageURL = dummyImage.src;
@@ -1803,6 +1843,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview) {
                     href: base65PNGString,
                     width: dummyImage.width * scaleFactor,
                     height: dummyImage.height * scaleFactor,
+                    identifier: identifier
                 },
             },
             Canvas.params.currentLayer
