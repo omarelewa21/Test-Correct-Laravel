@@ -647,7 +647,6 @@ ReadspeakerTlc = function(){
             util.hideById('readspeaker_button1');
             rspkr.rs_tlc_play_started = false;
             hiddenElement.displayHiddenElementsAndRemoveTheRest();
-            window.getSelection().removeAllRanges();
         }
         function showRsPlayer()
         {
