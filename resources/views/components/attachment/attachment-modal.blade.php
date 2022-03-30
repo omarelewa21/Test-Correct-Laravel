@@ -21,15 +21,9 @@
                               d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"></path>
                     </svg>
                 </x-button.secondary>
-                @if($this->attachmentType == 'audio')
-                    <x-button.primary wire:click="$emit('clickPauseButtonAndCloseModal')">
-                        <x-icon.close class="text-white"/>
-                    </x-button.primary>
-                @else
-                    <x-button.primary wire:click="closeAttachmentModal">
-                        <x-icon.close class="text-white"/>
-                    </x-button.primary>
-                @endif
+                <x-button.primary wire:click="closeAttachmentModal">
+                    <x-icon.close class="text-white"/>
+                </x-button.primary>
             </div>
             <div class="flex w-full h-full rounded-10 attachment-iframe-wrapper @if($this->attachmentType == 'image') max-h-[80vh] @endif">
                 @if($this->attachmentType == 'video')
@@ -61,7 +55,8 @@
     </script>
     </div>
 @endif
-@push('scripts')
+
+{{-- @push('scripts')
     <script>
         document.addEventListener('livewire:load', function () {
             @this.on('clickPauseButtonAndCloseModal', event => {
@@ -75,4 +70,4 @@
         });
     </script>
 
-@endpush
+@endpush --}}

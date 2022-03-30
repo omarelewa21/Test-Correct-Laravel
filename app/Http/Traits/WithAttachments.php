@@ -58,6 +58,7 @@ trait WithAttachments
                 $this->audioIsPlayedOnce();
             }
             $this->audioCloseWarning = false;
+            $this->dispatchBrowserEvent('pause-audio-player');
             if ($this->timeout != null && $this->playStarted()) {
                 $data = ['timeout' => $this->timeout, 'attachment' => $this->attachment->getKey()];
                 $this->dispatchBrowserEvent('start-timeout', $data);

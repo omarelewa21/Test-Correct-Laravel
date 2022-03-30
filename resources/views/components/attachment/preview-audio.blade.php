@@ -21,27 +21,8 @@
         <div class="mt-4" wire:ignore>
             <audio id="player" src="{{ route('teacher.preview.question-attachment-show', ['attachment' => $attachment->uuid, 'question' => $questionId], false) }}"
                 x-ref="player"
-                {{-- @if($attachment->audioOnlyPlayOnce())
-                    x-on:ended="@this.audioIsPlayedOnce(attachment);"
-                @endif --}}
             ></audio>
         </div>
-
-        {{-- <div class="flex justify-center">
-            <button class="button primary-button"
-                    x-on:click.prevent="player.play(), $wire.set('pressedPlay', true)"
-            >
-                {{__('test_take.play')}}
-            </button>
-            @if($attachment->audioIsPausable())
-                <button class="button secondary-button ml-2"
-                        x-on:click.prevent="player.pause(); $wire.audioStoreCurrentTime(attachment, player.currentTime)"
-                        @if(!$attachment->audioCanBePlayedAgain()) disabled @endif
-                >
-                    {{__('test_take.pause')}}
-                </button>
-            @endif
-        </div> --}}
     </div>
 </div>
 
@@ -51,11 +32,15 @@
         @this,
         '{{$attachment->uuid}}',
         '{!! $attachment->json !!}',
-        '{{$attachment->audioCanBePlayedAgain() ? true : false}}',
+        true,
         'preview'
     );
 
     player.on('loadeddata', ()=> {
         player.currentTime = parseFloat('{{ $this->getCurrentTime() }}');
-    })
+    });
+
+    document.addEventListener('pause-audio-player', ()=>{
+        player.pause();
+    });
 </script>

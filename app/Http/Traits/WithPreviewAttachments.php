@@ -40,10 +40,10 @@ trait WithPreviewAttachments
                 if (!$this->attachment->audioIsPausable()) {
                     $this->audioCloseWarning = true;
                     return;
-                } else {
-                    $this->dispatchBrowserEvent('pause-audio-player');
                 }
             }
+
+            $this->dispatchBrowserEvent('pause-audio-player');
 
             if ($this->audioCloseWarning) {
                 $this->attachment->audioIsPlayedOnce();
@@ -54,7 +54,6 @@ trait WithPreviewAttachments
                 $this->dispatchBrowserEvent('start-timeout', $data);
             }
         }
-
 
         $this->attachment = null;
     }
@@ -130,4 +129,5 @@ trait WithPreviewAttachments
         }
         return 'question';
     }
+
 }
