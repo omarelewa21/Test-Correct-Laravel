@@ -48,7 +48,7 @@ return [
     'cannot_pause_sound_clip'                      => 'This sound clip cannot be paused',
     'play'                                         => 'Play',
     'pause'                                        => 'Pause',
-    'only_playable_once'                           => 'This sound clip cannot be paused and only be played once',
+    'only_playable_once'                           => 'This sound clip can only be played once',
     'ready'                                        => 'Ready',
     'instruction_open_question'                    => 'Type your answer below',
     'instruction_matching_question'                => 'Grab and drag the items to the right box',
@@ -67,6 +67,8 @@ return [
     'time_left_to_answer_after_closing_attachment' => 'You have :timeout seconds to answer the question after closing this attachment.',
     'matrix_question'                              => 'Matrix question',
     'attachment'                                   => 'Attachment',
-    'Read_out_loud'                                    => 'Read out loud',
+    'Read_out_loud'                                => 'Read out loud',
+    'sound_clip_played'                            => 'This sound fragment was only playable once and has already been played.',
+    'only_playable_once_not_pausable'              => 'This sound clip cannot be paused and can only be played once.'
 
 ];

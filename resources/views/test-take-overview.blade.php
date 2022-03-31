@@ -105,7 +105,7 @@
 
         <x-slot name="readspeaker">
             @if(Auth::user()->text2speech)
-                <div class="Rectangle rs_clicklistenexclude rs_starter_button" onclick="startRsPlayer()">
+                <div class="Rectangle rs_clicklistenexclude rs_starter_button" onclick="ReadspeakerTlc.player.startRsPlayer()">
                     <x-icon.rs-audio/>
                     <div class="Lees-voor">
                         {{ __('test_take.speak') }}

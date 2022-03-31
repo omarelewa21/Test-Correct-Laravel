@@ -1,5 +1,5 @@
 <x-partials.question-container :number="$number" :question="$question">
-    <div class="w-full">
+    <div class="w-full" >
         <div class="mb-4" questionHtml wire:ignore>
             {!! $question->converted_question_html  !!}
         </div>
@@ -12,30 +12,32 @@
                 @endif
             </x-input.group>
         </div>
-
+        <div id="word-count-{{ $editorId }}" wire:ignore></div>
 
         <script>
-            (function() {
-                var editor = CKEDITOR.instances['{{ $editorId }}']
+            document.addEventListener("DOMContentLoaded", () => {
+                var editor = ClassicEditors['{{ $editorId }}'];
                 if (editor) {
-                    editor.destroy(true)
+                    editor.destroy(true);
                 }
                 RichTextEditor.initClassicEditorForStudentplayer('{{$editorId}}','{{ $question->getKey() }}');
             });
-            document.addEventListener('readspeaker_closed', () => {
-                if(shouldNotReinitCkeditor(document.querySelector( '#{{ $editorId }}' ))){
-                    return;
-                }
-                if(window.classicEditorReplaced){
-                    return;
-                }
-                ReadspeakerTlc.ckeditor.reattachReadableAreaAndDestroy('{{ $editorId }}');
-                RichTextEditor.initClassicEditorForStudentplayer('{{$editorId}}','{{ $question->getKey() }}');
-            })
-            document.addEventListener('readspeaker_started', () => {
-                ReadspeakerTlc.ckeditor.detachReadableAreaFromCkeditor('{{ $editorId }}');
-            })
-
+            @if(!is_null(Auth::user())&&Auth::user()->text2speech)
+                document.addEventListener('readspeaker_closed', () => {
+                    if(ReadspeakerTlc.guard.shouldNotReinitCkeditor(document.querySelector( '#{{ $editorId }}' ))){
+                        return;
+                    }
+                    ReadspeakerTlc.ckeditor.reattachReadableAreaAndDestroy('{{ $editorId }}');
+                    RichTextEditor.initClassicEditorForStudentplayer('{{$editorId}}','{{ $question->getKey() }}');
+                })
+                document.addEventListener('readspeaker_started', () => {
+                    if(ReadspeakerTlc.guard.shouldNotDetachCkEditor(document.querySelector( '#{{ $editorId }}' ))){
+                        return;
+                    }
+                    RichTextEditor.writeContentToTexarea('{{ $editorId }}');
+                    ReadspeakerTlc.ckeditor.detachReadableAreaFromCkeditor('{{ $editorId }}');
+                })
+            @endif
         </script>
     </div>
     <x-attachment.attachment-modal :attachment="$attachment" :answerId="$answerId"/>

@@ -23,3 +23,4 @@ sudo systemctl daemon-reload
 sudo chmod 664 /data/www/tc-*/current/storage/logs/loki.log
 sudo service promtail start
 sudo service promtail status
+sudo systemctl enable promtail

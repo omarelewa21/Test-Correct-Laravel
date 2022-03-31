@@ -11,14 +11,15 @@
                 <label for="me" class="transition ease-in-out duration-150">{!! __('test_take.instruction_open_question') !!}</label>
                 <x-input.group for="me"
                                class="w-full">
+                    <div id="hidden_span_{{ $question->id }}"  class="hidden">{!! $this->answer !!}</div>
                     <x-input.textarea
                             id="textarea_{{ $question->id }}"
                             wire:key="textarea_{{ $question->id }}"
                             wire:model.lazy="answer"
                             x-ref="countme"
                             x-on:keyup="count = $refs.countme.value.length"
-                            x-on:focus="ReadspeakerTlc.rsTlcEvents.handleTextareaFocusForReadspeaker(event,{{ $question->id }})"
-                            x-on:blur="ReadspeakerTlc.rsTlcEvents.handleTextareaBlurForReadspeaker"
+                            x-on:focus="handleFocusTextareaField(event,{{ $question->id }})"
+                            x-on:blur="handleBlurTextareaField"
                             style="min-height:80px "
                             name="name"
                             maxlength="140"
@@ -48,13 +49,15 @@
                 function calculateProgress(count, total) {
                     return 'height: 10px; width:' + count / total * 100 + '%';
                 }
-                document.addEventListener('readspeaker_opened', () => {
-                    if(shouldNotCreateHiddenTextarea({{ $question->id }})){
-                        return;
-                    }
-                    createHiddenDivTextArea({{ $question->id }});
-                })
-
+                @if(!is_null(Auth::user())&&Auth::user()->text2speech)
+                    document.addEventListener('readspeaker_opened', () => {
+                        if(ReadspeakerTlc.guard.shouldNotCreateHiddenTextarea({{ $question->id }})){
+                            return;
+                        }
+                        var textarea = document.querySelector('#textarea_{{ $question->id }}')
+                        ReadspeakerTlc.hiddenElement.createHiddenDivTextArea(textarea);
+                    })
+                @endif
             </script>
         @endpush
     </div>

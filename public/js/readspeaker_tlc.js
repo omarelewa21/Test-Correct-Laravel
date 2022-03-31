@@ -3,7 +3,7 @@ ReadspeakerTlc = function(){
         function handleTextBoxFocusForReadspeaker(focusEvent,questionId)
         {
             handleFocusForReadspeaker();
-            var correction = {x:-10,y:-247};
+            var correction = {x:-16,y:-16};
             var p = popup.getRsbtnPopupTlc(questionId,focusEvent,correction);
             if(p == null){
                 return;
@@ -38,12 +38,16 @@ ReadspeakerTlc = function(){
             popup.rsRemovRsbtnPopupTlcForQuestion(event,questionId);
             handleBlurForReadspeaker();
         }
-        function handleCkeditorFocusForReadspeaker(ckeditorNode,questionId)
+        function handleCkeditorFocusForReadspeaker(ckeditorNode,questionId,editorId)
         {
-            handleFocusForReadspeaker();
             if(popup.alreadyThere(questionId)){
                 return;
             }
+            if(rspkr.rs_tlc_prevent_ckeditor_focus){
+                return;
+            }
+            handleFocusForReadspeaker();
+            ckeditorNode.editorId = editorId;
             var correction = {x:-15,y:-16};
             var p = popup.getRsbtnPopupTlcElement(questionId,ckeditorNode,correction);
             if(p == null){
@@ -51,25 +55,25 @@ ReadspeakerTlc = function(){
             }
             p.addEventListener("click", read.readCkeditor, { once: true });
         }
-        function handleCkeditorBlurForReadspeaker(ckeditorNode,questionId)
+        function handleCkeditorBlurForReadspeaker(ckeditorNode,questionId,editorId)
         {
             popup.rsRemovRsbtnPopupTlcForElement(ckeditorNode,questionId);
             handleBlurForReadspeaker();
         }
         function handleBlurForReadspeaker()
         {
-            if(typeof rspkr.tlc_clicklisten_active == 'undefined'){
-                return;
-            }
-            if(rspkr.tlc_clicklisten_active){
-                rspkr.rs_tlc_play_started = false;
-                clickListen.activateClickTap();
-            }
+            // if(typeof rspkr.tlc_clicklisten_active == 'undefined'){
+            //     return;
+            // }
+            // if(rspkr.tlc_clicklisten_active){
+            //     rspkr.rs_tlc_play_started = false;
+            //     clickListen.activateClickTap();
+            // }
         }
         function rsFocusSelect(event,selectId,questionId)
         {
             register.registerTlcClickListenActive();
-            var correction = {x:17,y:-247};
+            var correction = {x:-16,y:-16};
             var p = popup.getRsbtnPopupTlc(questionId,event,correction);
             if(p == null){
                 return;
@@ -103,11 +107,44 @@ ReadspeakerTlc = function(){
         function ckeditorClickEvent(event)
         {
             var editor = this.ckeditorInstance;
+            if(editor === null){
+                return;
+            }
             if(editor.isReadOnly){
                 editor.isReadOnly = false;
             }
         }
-
+        function handleIPadSelectionChange()
+        {
+            if(!util.isIpadOS()){
+                return;
+            }
+            document.addEventListener("touchend", function (event) {
+                setTimeout(function()
+                {
+                    var selectedText = window.getSelection().toString();
+                    if (selectedText == '') {
+                        return;
+                    }
+                    rspkr.ui.setPointerPos(event);
+                    rspkr.c.data.setSelectedText(event);
+                    rspkr.popup.lastSelectedText = selectedText;
+                    var rsEvent = new rspkr.lib.Facade.RSEvent();
+                    rsEvent.clientX = event.layerX;
+                    rsEvent.clientY = event.layerY;
+                    rsEvent.keyCode = undefined;
+                    rsEvent.originalEvent = event;
+                    rsEvent.pageX = event.pageX;
+                    rsEvent.pageY = event.pageY;
+                    rsEvent.screenX = event.layerX;
+                    rsEvent.screenY = event.layerY;
+                    rsEvent.target = document;
+                    rsEvent.targetTouches = undefined;
+                    rsEvent.type = "touchend";
+                    rspkr.popup.showPopup(rsEvent);
+                },100);
+            });
+        }
         return{
             handleTextBoxFocusForReadspeaker:handleTextBoxFocusForReadspeaker,
             handleTextBoxBlurForReadspeaker:handleTextBoxBlurForReadspeaker,
@@ -118,15 +155,13 @@ ReadspeakerTlc = function(){
             handleCkeditorFocusForReadspeaker:handleCkeditorFocusForReadspeaker,
             handleCkeditorBlurForReadspeaker:handleCkeditorBlurForReadspeaker,
             handleCkeditorSelectionChangeDoneForReadspeaker:handleCkeditorSelectionChangeDoneForReadspeaker,
-            handleCkeditorSelectionChangeForReadspeaker:handleCkeditorSelectionChangeForReadspeaker
+            handleCkeditorSelectionChangeForReadspeaker:handleCkeditorSelectionChangeForReadspeaker,
+            handleIPadSelectionChange
         }
     }();
     clickListen = function(){
         function activateClickTap()
         {
-            if(rspkr.mobile()){
-                return activateMouseTracker();
-            }
             activateClickListen();
         }
         function activateClickListen()
@@ -135,19 +170,9 @@ ReadspeakerTlc = function(){
                 rspkr.ui.Tools.ClickListen.activate();
             }
         }
-        function activateMouseTracker()
-        {
-            if(!rspkr.ui.Tools.MouseTracker.isActive()){
-                window.ReadSpeaker.Mobile.ui.Player().tapRead.activate();
-                //document.querySelector('.rsmpl-tapread>button').click();
-                //rspkr.ui.Tools.MouseTracker.activate();
-            }
-        }
+
         function deactivateClickTap()
         {
-            if(rspkr.mobile()){
-                return deactivateMouseTracker();
-            }
             deactivateClickListen();
         }
         function deactivateClickListen()
@@ -156,23 +181,7 @@ ReadspeakerTlc = function(){
                 rspkr.ui.Tools.ClickListen.deactivate();
             }
         }
-        function deactivateMouseTracker()
-        {
-            if(rspkr.ui.Tools.MouseTracker.isActive()){
-                window.ReadSpeaker.Mobile.ui.Player().tapRead.activate();
-                //document.querySelector('.rsmpl-tapread>button').click();
-                //rspkr.ui.Tools.MouseTracker.inactivate();
-            }
-        }
 
-        function tlcClickListenActiveIsInSync()
-        {
-            if(rspkr.mobile()){
-                return (rspkr.tlc_clicklisten_active == rspkr.ui.Tools.MouseTracker.isActive());
-            }else{
-                return (rspkr.tlc_clicklisten_active == rspkr.ui.Tools.ClickListen.active());
-            }
-        }
         return{
             activateClickTap:activateClickTap,
             deactivateClickTap:deactivateClickTap
@@ -223,8 +232,23 @@ ReadspeakerTlc = function(){
             textarea.classList.add('readspeaker_hidden_element');
             return hidden_div;
         }
+        function createHiddenDivsForTextboxesCompletion(containerId) {
+            var container = document.querySelector('#' + containerId);
+            if (!container) {
+                return;
+            }
+            var inputs = container._x_refs;
+            if (!inputs) {
+                return;
+            }
+            rspkr.rs_tlc_container = container;
+            var inputsArray = Object.entries(inputs);
+            for (var i = 0; i < inputsArray.length; i++) {
+                createHiddenDivForElementAndHideElement(inputsArray[i][1]);
+            }
+        }
 
-        function getHiddenDivForTextarea(textarea)
+            function getHiddenDivForTextarea(textarea)
         {
             var oldEl = document.getElementById('there_can_only_be_one');
             var possibleTextarea = false;
@@ -276,6 +300,37 @@ ReadspeakerTlc = function(){
         function createHiddenDivForSelectAndHideSelect(select)
         {
             createHiddenDivForElementAndHideElement(select);
+        }
+        function createHiddenDivForElementAndHideElement(element)
+        {
+            if(!element){
+                return;
+            }
+            if(element.nodeName=='INPUT'&&element.value==''){
+                return;
+            }
+            var hidden_div = document.createElement('div');
+            element.parentNode.insertBefore(hidden_div,element);
+            hidden_div.id = 'there_can_be_more_than_one_'+element.id;
+            if(element.nodeName=='INPUT'){
+                hidden_div.innerHTML = element.value;
+                hidden_div.classList.add('rs-shadow-input');
+            }
+            if(element.nodeName=='SELECT'){
+                hidden_div.innerHTML = element.title;
+                if(element.title==''){
+                    hidden_div.innerHTML = element.firstChild.innerHTML;
+                }
+                hidden_div.classList.add('rs-shadow-select');
+            }
+            hidden_div.style.height = element.offsetHeight+'px';
+            hidden_div.style.width = element.offsetWidth+'px';
+            hidden_div.style.display = 'inline-flex';
+            hidden_div.classList.add('form-input');
+            hidden_div.classList.add('overflow-ellipsis');
+            hidden_div.classList.add('readspeaker_readable_element');
+            element.classList.add('hidden');
+            element.classList.add('readspeaker_hidden_element');
         }
         function displayHiddenElementsAndRemoveTheRest()
         {
@@ -336,22 +391,19 @@ ReadspeakerTlc = function(){
             displayHiddenElementsAndRemoveTheRest:displayHiddenElementsAndRemoveTheRest,
             getReadableDivForSelect:getReadableDivForSelect,
             createHiddenDivsForSelects:createHiddenDivsForSelects,
-            createHiddenDivTextArea:createHiddenDivTextArea
+            createHiddenDivTextArea:createHiddenDivTextArea,
+            createHiddenDivsForTextboxesCompletion
         }
     }();
     register = function(){
         function registerTlcClickListenActive()
         {
-            if(rspkr.mobile()){
-                rspkr.tlc_clicklisten_active = rspkr.ui.Tools.MouseTracker.isActive();
-            }else{
-                rspkr.tlc_clicklisten_active = rspkr.ui.Tools.ClickListen.active();
-            }
+            rspkr.tlc_clicklisten_active = rspkr.ui.Tools.ClickListen.active();
         }
         return{
             registerTlcClickListenActive:registerTlcClickListenActive
         }
-    }()
+    }();
     read = function(){
         function readTextbox(event)
         {
@@ -418,6 +470,7 @@ ReadspeakerTlc = function(){
             clickListen.activateClickTap();
             rspkr.rs_tlc_play_started = false;
             rspkr.rs_tlc_prevent_close = true;
+            rspkr.rs_tlc_prevent_ckeditor_focus = true;
             var element = this.linkedElement;
             if(element==null) {
                 return;
@@ -425,7 +478,9 @@ ReadspeakerTlc = function(){
             // var elementClone = element.cloneNode(true);
             // element.replaceWith(elementClone);
             // window.classicEditorReplaced = false;
-            // element.classList.add('rs_click_listen');
+            //element.classList.add('rs_click_listen');
+            //element = ckeditor.detachReadableAreaFromCkeditor(element.editorId);
+            //element.contentEditable = false;
             element.click();
         }
         function doNotReadInput(element)
@@ -479,27 +534,7 @@ ReadspeakerTlc = function(){
         {
             var element = event.currentTarget;
             return getRsbtnPopupTlcElement(questionId,element,correction);
-            // var p = document.querySelector('.rsbtn_popup_tlc_'+questionId);
-            // if(p == null){
-            //     return p;
-            // }
-            // if(p.classList.contains('hidden')){
-            //     p.classList.remove('hidden');
-            // }
-            // var element = event.currentTarget;
-            // var rect = element.getBoundingClientRect();
-            // switch (element.nodeName){
-            //     case 'INPUT':
-            //     case 'SELECT':
-            //         p.style.left = rect.left+correction.x+'px';
-            //         p.style.top = rect.top+correction.y+'px';
-            //         break;
-            //     case 'TEXTAREA':
-            //         p.style.left = rect.width+correction.x+'px';
-            //         p.style.top = correction.y+'px';
-            // }
-            // p.linkedElement = element;
-            // return p;
+
         }
         function alreadyThere(questionId)
         {
@@ -522,11 +557,17 @@ ReadspeakerTlc = function(){
                 p.classList.remove('hidden');
             }
             var rect = element.getBoundingClientRect();
+            var scrollCorrectionY = document.body.offsetHeight-window.innerHeight;
             switch (element.nodeName){
                 case 'INPUT':
                 case 'SELECT':
-                    p.style.left = rect.left+correction.x+'px';
-                    p.style.top = rect.top+correction.y+'px';
+                    var span = element.nextElementSibling;
+                    if(span.nodeName!='SPAN'){
+                        return;
+                    }
+                    span.append(p);
+                    p.style.left = correction.x+'px';
+                    p.style.top = correction.y+'px';
                     break;
                 case 'DIV':
                 case 'TEXTAREA':
@@ -566,7 +607,6 @@ ReadspeakerTlc = function(){
 
         function hideRsTlcPopup(p)
         {
-
             if(!p.classList.contains('hidden')){
                 p.classList.add('hidden');
             }
@@ -607,7 +647,6 @@ ReadspeakerTlc = function(){
             util.hideById('readspeaker_button1');
             rspkr.rs_tlc_play_started = false;
             hiddenElement.displayHiddenElementsAndRemoveTheRest();
-            window.getSelection().removeAllRanges();
         }
         function showRsPlayer()
         {
@@ -693,14 +732,16 @@ ReadspeakerTlc = function(){
         {
             rspkr.rs_tlc_prevent_close = true;
             clickListen.activateClickTap();
-            var rect = this.linkedElement.getBoundingClientRect();
             var readable_div = hiddenElement.getReadableDivForSelect(this.linkedElement);
             this.parentNode.insertBefore(readable_div,this);
             readable_div.style.position = 'absolute';
-            readable_div.style.top = rect.top-230+'px';
-            readable_div.style.left = rect.left+35+'px';
             popup.hideRsTlcPopup(this);
             readable_div.click();
+        }
+        function isIpadOS() {
+            return navigator.maxTouchPoints &&
+                navigator.maxTouchPoints > 2 &&
+                /MacIntel/.test(navigator.platform);
         }
         return{
             showById:showById,
@@ -710,7 +751,8 @@ ReadspeakerTlc = function(){
             checkPossibleTextAreaValid:checkPossibleTextAreaValid,
             checkPossibleTextAreaAlreadyExists:checkPossibleTextAreaAlreadyExists,
             checkElementInActiveQuestion:checkElementInActiveQuestion,
-            showReadableSelect:showReadableSelect
+            showReadableSelect:showReadableSelect,
+            isIpadOS
         }
     }();
     ckeditor = function(){
@@ -741,11 +783,12 @@ ReadspeakerTlc = function(){
                 elementClone.classList.add('ck-editor__editable_inline_replaced');
                 element.replaceWith(elementClone);
             }
-            window.classicEditorReplaced = false;
+            window.classicEditorDetached = true;
+            return element;
         }
         function reattachReadableAreaAndDestroy(editorId)
         {
-            window.classicEditorReplaced = true;
+            window.classicEditorDetached = false;
             var editor = ClassicEditors[editorId];
             if (editor) {
                 var element = document.getElementsByClassName('ck-editor__editable_inline_replaced')[0];
@@ -755,7 +798,7 @@ ReadspeakerTlc = function(){
                 }
             }
         }
-        function addListenersForReadspeaker(editor,questionId)
+        function addListenersForReadspeaker(editor,questionId,editorId)
         {
             var config = { attributes: true, childList: false, subtree: false };
             var element = editor.ui.view.editable.element;
@@ -763,13 +806,12 @@ ReadspeakerTlc = function(){
                 for(var mutation of mutationsList) {
                     if (mutation.type === 'attributes') {
                         if(mutation.attributeName=='class'&&mutation.target.classList.contains('ck-focused')){
-                            console.dir('focus');
-                            rsTlcEvents.handleCkeditorFocusForReadspeaker(mutation.target,questionId);
+                            rsTlcEvents.handleCkeditorFocusForReadspeaker(mutation.target,questionId,editorId);
                         }else if(mutation.attributeName=='class'&&mutation.target.classList.contains('ck-blurred')){
                             if(mutation.target.ckeditorInstance&&mutation.target.ckeditorInstance.isReadOnly){
                                 return;
                             }
-                            rsTlcEvents.handleCkeditorBlurForReadspeaker(mutation.target,questionId);
+                            rsTlcEvents.handleCkeditorBlurForReadspeaker(mutation.target,questionId,editorId);
                         }
                     }
                 }
@@ -821,6 +863,16 @@ ReadspeakerTlc = function(){
         }
         function shouldNotReinitCkeditor(el)
         {
+            if(!window.classicEditorDetached){
+                return true;
+            }
+            if(!util.checkElementInActiveQuestion(el)){
+                return true;
+            }
+            return false;
+        }
+        function shouldNotDetachCkEditor(el)
+        {
             if(!util.checkElementInActiveQuestion(el)){
                 return true;
             }
@@ -841,7 +893,8 @@ ReadspeakerTlc = function(){
             shouldNotCreateHiddenTextarea:shouldNotCreateHiddenTextarea,
             shouldNotCreateHiddenDivsForSelects:shouldNotCreateHiddenDivsForSelects,
             shouldNotCreateHiddenDivsForTextboxesCompletion:shouldNotCreateHiddenDivsForTextboxesCompletion,
-            shouldNotReinitCkeditor:shouldNotReinitCkeditor
+            shouldNotReinitCkeditor:shouldNotReinitCkeditor,
+            shouldNotDetachCkEditor
         }
     }();
     return{
@@ -855,11 +908,13 @@ ReadspeakerTlc = function(){
     }
 }();
 ReadSpeaker.q(function() {
-    console.log('rs_tlc_skin initialized!');
+    console.log('rs_tlc initialized!');
     rspkr.rs_tlc_play_started = false;
     ReadspeakerTlc.register.registerTlcClickListenActive();
     rspkr.rs_tlc_prevent_close = false;
     rspkr.rs_tlc_container = false;
+    rspkr.rs_tlc_prevent_ckeditor_focus = false;
+    ReadspeakerTlc.rsTlcEvents.handleIPadSelectionChange();
 
 });
 window.rsConf = {
@@ -891,7 +946,9 @@ window.rsConf = {
             },
             close: function() {
                 console.log('Player closed and callback fired!');
+                ReadspeakerTlc.clickListen.deactivateClickTap();
                 ReadspeakerTlc.player.hideRsPlayer();
+                rspkr.rs_tlc_prevent_ckeditor_focus = false;
                 window.document.dispatchEvent(new Event("readspeaker_closed", {
                     bubbles: true,
                     cancelable: true
@@ -899,12 +956,6 @@ window.rsConf = {
             },
             stop: function() {
                 console.log('Player stopped and callback fired!');
-                if(typeof rspkr.tlc_clicklisten_active=='undefined'){
-                    rspkr.ui.getActivePlayer().close();
-                }
-                if(rspkr.tlc_clicklisten_active){
-                    return ReadspeakerTlc.clickListen.activateClickTap();
-                }
                 ReadspeakerTlc.clickListen.deactivateClickTap();
                 rspkr.ui.getActivePlayer().close();
             },
@@ -932,3 +983,7 @@ window.rsConf = {
         }
     }
 };
+window.classicEditorDetached = false;
+
+
+

@@ -4,12 +4,14 @@ namespace tcCore\Http\Livewire;
 
 use Bugsnag\BugsnagLaravel\Facades\Bugsnag;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Session;
 use Livewire\Component;
 use Ramsey\Uuid\Uuid;
 use tcCore\BaseSubject;
 use tcCore\DemoTeacherRegistration;
+use tcCore\Http\Helpers\EntreeHelper;
 use tcCore\Http\Requests\Request;
 use tcCore\SchoolLocation;
 use tcCore\Shortcode;
@@ -19,18 +21,11 @@ use tcCore\User;
 
 class EntreeOnboarding extends Component
 {
-    public $entreeData;
+    protected $entreeData;
     public $registration;
-    public $email;
-    public $password;
-    public $password_confirmation;
-    public $ref;
-    public $invited_by;
     public $step = 1;
 
     public $btnDisabled = true;
-    public $confirmed;
-    public $shouldDisplayEmail = false;
     public $resendVerificationMail = false;
     public $newRegistration = false;
 
@@ -43,17 +38,16 @@ class EntreeOnboarding extends Component
     public $selectedSubjects = [];
     public $selectedSubjectsString = '';
 
+    public $showSubjects = true;
+    public $hasValidTUser = false;
 
-    protected $queryString = ['step', 'email', 'confirmed', 'ref'];
+    protected $queryString = ['step'];
 
     protected function messages(){
         return [
             'registration.name_first.required'      => __('registration.name_first_required'),
             'registration.name.required'            => __('registration.name_last_required'),
             'registration.gender.required'          => __('registration.gender_required'),
-            'password.required'                     => __('registration.password_required'),
-            'password.min'                          => __('registration.password_min'),
-            'password.same'                         => __('registration.password_same'),
             'registration.school_location.required' => __('registration.school_location_required'),
             'registration.website_url.required'     => __('registration.website_url_required'),
             'registration.address.required'         => __('registration.address_required'),
@@ -84,20 +78,18 @@ class EntreeOnboarding extends Component
             'registration.name'                         => 'sometimes',
             'registration.name_suffix'                  => 'sometimes',
             'registration.registration_email_confirmed' => 'sometimes',
-            'registration.invitee'                      => 'sometimes',
-            'password'                                  => 'sometimes',
             'registration.subjects'                     => 'sometimes',
         ];
 
         if ($this->step === 1) {
-            return array_merge($default, [
+            $rules = array_merge($default, [
                 'registration.gender'           => 'required|in:male,female,different',
                 'registration.gender_different' => 'sometimes',
                 'registration.name_first'       => 'required|string',
                 'registration.name'             => 'required|string',
                 'registration.name_suffix'      => 'sometimes',
-                'password'                      => 'required|same:password_confirmation|'. User::getPasswordLengthRule(),
             ]);
+            return $rules;
         }
 
         return $default;
@@ -105,57 +97,66 @@ class EntreeOnboarding extends Component
 
     public function rulesStep2()
     {
-        return [
-            'registration.school_location' => 'required',
-            'registration.website_url'     => 'required',
-            'registration.address'         => 'required',
-            'registration.house_number'    => 'required|regex:/\d/',
-            'registration.postcode'        => 'required|min:6|regex:/^[1-9][0-9]{3}\s?[a-zA-Z]{2}$/',
-            'registration.city'            => 'required',
-        ];
+        if(!$this->hasValidTUser) {
+            return [
+                'registration.school_location' => 'required',
+                'registration.website_url' => 'required',
+                'registration.address' => 'required',
+                'registration.house_number' => 'required|regex:/\d/',
+                'registration.postcode' => 'required|min:6|regex:/^[1-9][0-9]{3}\s?[a-zA-Z]{2}$/',
+                'registration.city' => 'required',
+            ];
+        } else {
+            return [];
+        }
     }
 
     public function mount()
     {
-        $this->entreeData = session('entreeData',false);
-        if(!$this->entreeData){
-            Redirect::to(route('onboarding.welcome'));
+        if(!$this->setEntreeDataFromSessionIfAvailable()){
             return true;
         }
 
-        dd($this->entreeData);
+        $this->registration = new DemoTeacherRegistration;
 
+        $this->registration->username = $this->entreeData->emailAddress;
+        if($this->entreeData->location){
+            $this->registration->school_location = $this->entreeData->location->name;
+        }
+        $this->registration->name = $this->entreeData->lastName;
 
-        
-//        $this->registration = new DemoTeacherRegistration;
+        if(property_exists($this->entreeData,'user')){
+            if($this->entreeData->user->hasImportMailAddress()){
+                collect(['name_first','name_suffix','name','gender'])->each(function($key) {
+                    $this->registration->$key = $this->entreeData->user->$key;
+                });
+                $this->hasValidTUser = true;
+                $this->showSubjects = false;
+                $this->btnStepOneDisabledCheck();
+            }
+        }
+
 //        $this->registration->username = $this->email;
 //        $this->registration->gender = 'male';
-//
-//        if (!$this->step != 1 || $this->step >= '4') {
-//            $this->step = 1;
-//        }
-//        if (!$this->email) {
-//            $this->email = '';
-//        }
-//        if ($this->isUserConfirmedWithEmail()) {
-//            $this->confirmed = 0;
-//            $this->shouldDisplayEmail = true;
-//        }
-//        if ($this->ref && Uuid::isValid($this->ref)) {
-//            $shortcodeId = ShortcodeClick::whereUuid($this->ref)->first();
-//            if (null !== $shortcodeId) {
-//                $invited_by = Shortcode::where('id', $shortcodeId->shortcode_id)->first();
-//                $this->registration->invitee = $invited_by->user_id;
-//            }
-//        }
-//
-//        $this->registration->registration_email_confirmed = $this->confirmed;
-//        $this->setSubjectOptions();
+
+        if (!$this->step != 1 || $this->step >= '4') {
+            $this->step = 1;
+        }
+
+        $this->registration->registration_email_confirmed = $this->hasValidTUser;
+        if(!$this->hasValidTUser) {
+            $this->setSubjectOptions();
+        }
     }
 
-    private function isUserConfirmedWithEmail()
+    protected function setEntreeDataFromSessionIfAvailable()
     {
-        return (!$this->confirmed) || ($this->confirmed === 1 && !$this->email);
+        $this->entreeData = session('entreeData',false);
+        if(!$this->entreeData){
+            Redirect::to(route('onboarding.welcome'));
+            return false;
+        }
+        return true;
     }
 
     public function backToStepOne()
@@ -171,26 +172,12 @@ class EntreeOnboarding extends Component
         return view('livewire.entree-onboarding')->layout('layouts.onboarding');
     }
 
-    public function getMinCharRuleProperty()
-    {
-        if (empty($this->password)) {
-            return 0;
-        } else {
-            return mb_strlen($this->password) < 8 ? false : true;
-        }
-    }
-
     public function step1()
     {
         $this->validate();
         if (!$this->checkInputForLength() && !$this->warningStepOneConfirmed) {
             $this->warningStepOneConfirmed = true;
             return;
-        }
-        if ($this->ref != null && $this->isInvitedBySameDomain($this->registration->username)) {
-            $this->fillSchoolData($this->registration->invitee);
-        } else {
-            $this->clearSchoolData();
         }
         $this->step = 2;
 //        $this->btnStepTwoDisabledCheck();
@@ -200,18 +187,30 @@ class EntreeOnboarding extends Component
     public function step2()
     {
         $this->validate();
+
         if (!$this->checkInputForLength() && !$this->warningStepTwoConfirmed) {
             $this->warningStepTwoConfirmed = true;
             return;
         }
-        $this->validate($this->rulesStep2());
-        $this->registration->save();
-        try {
-            $this->newRegistration = $this->registration->addUserToRegistration($this->password, $this->registration->invitee, $this->ref);
-            $this->step = 3;
-        } catch (\Throwable $e) {
-            $this->step = 'error';
-            Bugsnag::notifyException($e);
+        if($this->hasValidTUser) {
+            // we need to merge the data with the t user account
+            $this->setEntreeDataFromSessionIfAvailable();
+            $attr = [
+              'mail' => [$this->entreeData->emailAddress],
+              'eckId' => [Crypt::decryptString($this->entreeData->encryptedEckId)]
+            ];
+            return EntreeHelper::initAndHandleFromRegisterWithEntreeAndTUser($this->entreeData->user,$attr);
+        } else {
+            $this->validate($this->rulesStep2());
+
+            $this->registration->save();
+            try {
+//                $this->newRegistration = $this->registration->addUserToRegistration($this->password, $this->registration->invitee, $this->ref);
+                $this->step = 3;
+            } catch (\Throwable $e) {
+                $this->step = 'error';
+                Bugsnag::notifyException($e);
+            }
         }
     }
 
@@ -248,11 +247,9 @@ class EntreeOnboarding extends Component
                 empty($this->registration->name_first)
                 || empty($this->registration->gender)
                 || empty($this->registration->name)
-                || empty($this->password_confirmation)
-                || empty($this->password)
                 || empty($this->registration->username)
             );
-            if ($this->confirmed != 1 && !$this->btnDisabled) {
+            if (!$this->btnDisabled) {
                 $this->btnDisabled = empty($this->registration->username);
             }
         }
@@ -299,18 +296,8 @@ class EntreeOnboarding extends Component
         }
     }
 
-    public function isInvitedBySameDomain($username)
+    public function fillSchoolData(SchoolLocation $schoolInfo)
     {
-        $inviter = User::find($this->registration->invitee);
-        $inviterDomain = explode('@', $inviter->username)[1];
-
-        return $inviterDomain === explode('@', $username)[1];
-    }
-
-    public function fillSchoolData($inviter)
-    {
-        $inviter = User::find($inviter);
-        $schoolInfo = SchoolLocation::find($inviter->school_location_id);
         $this->registration->school_location = $schoolInfo->name;
         $this->registration->address = $schoolInfo->visit_address;
         $this->registration->postcode = $schoolInfo->visit_postal;
@@ -339,17 +326,11 @@ class EntreeOnboarding extends Component
 //        $this->btnStepOneDisabledCheck();
 //        $this->btnStepTwoDisabledCheck();
 
-        if ($propertyName === 'password_confirmation') {
-            $propertyName = 'password';
-        }
-
         if ($this->registration->gender != 'different') {
             $this->registration->gender_different = '';
         }
 
-        if ($propertyName != 'password') {
-            $this->validateOnly($propertyName);
-        }
+        $this->validateOnly($propertyName);
     }
 
     public function syncSelectedSubjects($subjects)

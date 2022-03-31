@@ -13,27 +13,29 @@
         </div>
         @push('scripts')
             <script>
-                @if($question->subtype=='completion')
-                document.addEventListener('readspeaker_opened', () => {
-                    if(shouldNotCreateHiddenDivsForTextboxesCompletion('completion_{{ $question->id }}')){
-                        return;
-                    }
-                    createHiddenDivsForTextboxesCompletion('completion_{{ $question->id }}');
-                })
-                document.addEventListener('readspeaker_closed', () => {
-                    //removeHiddenDivsForTextboxesCompletion('completion_{{ $question->id }}');
-                })
-                @endif
-                @if($question->subtype=='multi')
-                document.addEventListener('readspeaker_opened', () => {
-                    if(shouldNotCreateHiddenDivsForSelects('completion_{{ $question->id }}')){
-                        return;
-                    }
-                    createHiddenDivsForSelects('completion_{{ $question->id }}');
-                })
-                document.addEventListener('readspeaker_closed', () => {
-                    //removeHiddenDivsForSelect('completion_{{ $question->id }}');
-                })
+                @if(!is_null(Auth::user())&&Auth::user()->text2speech)
+                    @if($question->subtype=='completion')
+                    document.addEventListener('readspeaker_opened', () => {
+                        if(ReadspeakerTlc.guard.shouldNotCreateHiddenDivsForTextboxesCompletion('completion_{{ $question->id }}')){
+                            return;
+                        }
+                        ReadspeakerTlc.hiddenElement.createHiddenDivsForTextboxesCompletion('completion_{{ $question->id }}');
+                    })
+                    document.addEventListener('readspeaker_closed', () => {
+                        //removeHiddenDivsForTextboxesCompletion('completion_{{ $question->id }}');
+                    })
+                    @endif
+                    @if($question->subtype=='multi')
+                    document.addEventListener('readspeaker_opened', () => {
+                        if(ReadspeakerTlc.guard.shouldNotCreateHiddenDivsForSelects('completion_{{ $question->id }}')){
+                            return;
+                        }
+                        ReadspeakerTlc.hiddenElement.createHiddenDivsForSelects('completion_{{ $question->id }}');
+                    })
+                    document.addEventListener('readspeaker_closed', () => {
+                        //removeHiddenDivsForSelect('completion_{{ $question->id }}');
+                    })
+                    @endif
                 @endif
             </script>
         @endpush

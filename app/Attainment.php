@@ -4,6 +4,7 @@ use tcCore\Lib\Models\BaseModel;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Dyrynda\Database\Casts\EfficientUuid;
 use Dyrynda\Database\Support\GeneratesUuid;
+use tcCore\Scopes\AttainmentScope;
 use tcCore\Traits\UuidTrait;
 
 class Attainment extends BaseModel {
@@ -42,6 +43,17 @@ class Attainment extends BaseModel {
      * @var array
      */
     protected $hidden = [];
+
+    public static function boot()
+    {
+        parent::boot();
+        static::addGlobalScope(new AttainmentScope);
+    }
+
+    public static function bootWithoutGlobalScope()
+    {
+        parent::boot();
+    }
 
     /**
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo

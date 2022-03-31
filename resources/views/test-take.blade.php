@@ -79,7 +79,22 @@
                 </div>
             @endforeach
         </div>
-
+        <x-slot name="readspeaker">
+            @if(Auth::user()->text2speech)
+                <div class="Rectangle rs_clicklistenexclude rs_starter_button" onclick="ReadspeakerTlc.player.startRsPlayer()">
+                    <x-icon.rs-audio/>
+                    <div class="Lees-voor">
+                        {{ __('test_take.speak') }}
+                    </div>
+                </div>
+                <div id="readspeaker_button1" wire:ignore class="rs_skip rsbtn rs_preserve hidden" >
+                    <a rel="nofollow" class="rsbtn_play"  title="{{ __('test_take.speak') }}" href="//app-eu.readspeaker.com/cgi-bin/rsent?customerid=12749&amp;lang=nl_nl&amp;readclass=rs_readable">
+                        <span class="rsbtn_left rsimg rspart oval"><x-icon.rs-audio-inverse/></span>
+                        <span class="rsbtn_right rsimg rsplay rspart"></span>
+                    </a>
+                </div>
+            @endif
+        </x-slot>
         <x-slot name="footerbuttons">
             <div x-cloak x-data="{display :footerButtonData({{ $current }}, {{$nav->count()}})}" @update-footer-navigation.window="display= $event.detail.data" class="space-x-3">
                 <x-button.text-button x-show="display.prev"
@@ -91,7 +106,7 @@
                 <x-button.cta x-show="display.turnin"
                         size="sm"
                         onclick="toOverview({{ $nav->count() }})"
-                        @click="$dispatch('show-loader')"
+                        {{-- @click="$dispatch('show-loader')" --}}
                 >
                     <span>{{ __('test_take.overview') }}</span>
                 </x-button.cta>

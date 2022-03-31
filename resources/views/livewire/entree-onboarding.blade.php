@@ -86,19 +86,18 @@
                             {{--content form--}}
                             <div class="flex-grow">
                                 <form class="h-full relative" wire:submit.prevent="step1" action="#" method="POST">
-                                    @if($this->shouldDisplayEmail)
-                                        <div class="email-section mb-4 w-full md:w-1/2">
-                                            <div class="mb-4">
-                                                <div class="input-group">
-                                                    <input id="username" wire:model.lazy="registration.username"
-                                                           class="form-input @error('registration.username') border-red @enderror"
-                                                           autofocus>
-                                                    <label for="username"
-                                                           class="transition ease-in-out duration-150">{{ __("onboarding.your_school_email") }}</label>
-                                                </div>
+                                    <div class="email-section mb-4 w-full md:w-1/2">
+                                        <div class="mb-4">
+                                            <div class="input-group">
+                                                <input id="username" wire:model.lazy="registration.username" disabled
+                                                       class="form-input disabled @error('registration.username') border-red @enderror"
+                                                       autofocus>
+                                                <label for="username"
+                                                       class="transition ease-in-out duration-150">{{ __("onboarding.your_school_email") }}</label>
                                             </div>
                                         </div>
-                                    @endif
+                                    </div>
+
                                     <div class="gender-section mb-4">
                                         <div class="inline-block male mr-4">
                                             <label for="gender_male"
@@ -180,51 +179,26 @@
                                     <div class="input-section">
                                         <div class="name mb-4">
                                             <div class="input-group mr-4 mb-4 sm:mb-0">
-                                                <input id="name_first" wire:model.lazy="registration.name_first"
-                                                       class="form-input @error('registration.name_first') border-red @enderror">
+                                                <input id="name_first" wire:model.lazy="registration.name_first" @if($this->hasValidTUser) disabled @endif
+                                                       class="form-input @if($this->hasValidTUser) disabled @endif @error('registration.name_first') border-red @enderror">
                                                 <label for="name_first"
                                                        class="transition ease-in-out duration-150">{{ __("onboarding.Voornaam") }}</label>
                                             </div>
                                             <div class="input-group mr-4 mb-4 sm:mb-0">
-                                                <input id="name_suffix" wire:model.lazy="registration.name_suffix"
-                                                       class="form-input @error('registration.name_suffix') border-red @enderror">
+                                                <input id="name_suffix" wire:model.lazy="registration.name_suffix" @if($this->hasValidTUser) disabled @endif
+                                                       class="form-input @if($this->hasValidTUser) disabled @endif @error('registration.name_suffix') border-red @enderror">
                                                 <label for="name_suffix"
                                                        class="transition ease-in-out duration-150">{{ __("onboarding.Tussenvoegsel") }}</label>
                                             </div>
                                             <div class="input-group lastname">
-                                                <input id="name" wire:model.lazy="registration.name"
-                                                       class="form-input md:w-full inline-block @error('registration.name') border-red @enderror">
+                                                <input id="name" wire:model.lazy="registration.name" @if($this->hasValidTUser) disabled @endif
+                                                       class="form-input md:w-full inline-block @if($this->hasValidTUser) disabled @endif @error('registration.name') border-red @enderror">
                                                 <label for="name"
                                                        class="transition ease-in-out duration-150">{{ __("onboarding.Achternaam") }}</label>
                                             </div>
                                         </div>
-                                        <div class="password mb-4 ">
 
-                                            <div class="input-group w-1/2 md:w-auto order-1 pr-2 mb-4 md:mb-0">
-                                                <input id="password" wire:model="password" type="password"
-                                                       class="form-input @error('password') border-red @enderror">
-                                                <label for="password"
-                                                       class="transition ease-in-out duration-150">{{ __("onboarding.Creeër wachtwoord") }}</label>
-                                            </div>
-
-                                            <div class="input-group w-1/2 md:w-auto order-3 md:order-2 pr-2 md:pl-2 mb-4 md:mb-0">
-                                                <input id="password_confirm" wire:model="password_confirmation"
-                                                       type="password"
-                                                       class="form-input @error('password') border-red @enderror">
-                                                <label for="password_confirm"
-                                                       class="transition ease-in-out duration-150">
-                                                       {{ __("onboarding.Herhaal wachtwoord") }}</label>
-                                            </div>
-
-                                            <div class="flex items-end mid-grey w-1/2 md:w-auto h-16 md:h-auto order-2 md:order-3 pl-2 overflow-visible md:overflow-auto requirement-font-size">
-                                                <div class="inline-flex space-x-2 items-center text-{{$this->minCharRule}}">
-                                                    @if($this->minCharRule)<x-icon.checkmark-small></x-icon.checkmark-small>
-                                                    @elseif($this->minCharRule === 'red')<x-icon.close-small></x-icon.close-small>
-                                                    @else <x-icon.dot></x-icon.dot> @endif
-                                                    <span>Min. 8 {{ __("onboarding.tekens") }}</span>
-                                                </div>
-                                            </div>
-                                        </div>
+                                        @if($this->showSubjects)
                                         <div x-data  data-subjects='{!! $selectedSubjectsString !!}' class="subjects mb-4 ">
                                             <div x-data="subjectSelect()" x-init="init('parentEl')" @click.away="clearSearch()" @keydown.escape="clearSearch()" @keydown="navigate" class="mr-4 mb-4 sm:mb-0 ">
                                                 <div >
@@ -236,14 +210,14 @@
                                                     <button class="secondary-button selected-subject align-top text-sm mt-2 mr-1 tooltip" data-text="{{__('onboarding.Verwijder')}}"  @click.prevent="removeSubject(index)">
                                                         <span class="ml-2 mr-1 leading-relaxed truncate max-w-xs" x-text="subject"></span>
                                                         <span  class=" inline-block align-middle" style="margin:auto">
-                                                            <img class="icon-close-small" src="img/icons/icons-close-small.svg" >
+                                                            <img class="icon-close-small" src="/img/icons/icons-close-small.svg" >
                                                         </span>
                                                     </button>
                                                 </template>
 
                                                 <button x-show="!showInput" class="secondary-button add-button-div align-top text-sm mt-2 mr-1 tooltip" data-text="{{__('onboarding.Voeg toe')}}" @click.prevent="showSubjectInput()">
                                                     <span  class=" inline-block align-middle" style="margin:auto">
-                                                        <img class="icon-close-small" src="img/icons/icons-plus.svg" >
+                                                        <img class="icon-close-small" src="/img/icons/icons-plus.svg" >
                                                     </span>
                                                 </button>
 
@@ -258,11 +232,11 @@
 
                                                     <div class="select-search-header" x-on:click="toggleSubjects()">{{ __('onboarding.Selecteer vak....') }}
                                                         <img x-show="!show"
-                                                             src="img/icons/icons-chevron-down-small.svg"
+                                                             src="/img/icons/icons-chevron-down-small.svg"
                                                              class="iconschevron-down-small icons-chevron float-right"
                                                              x-on:click="displaySubjects()"
                                                         >
-                                                        <img x-show="show" src="img/icons/icons-chevron-up-small-blue.svg"
+                                                        <img x-show="show" src="/img/icons/icons-chevron-up-small-blue.svg"
                                                              class="iconschevron-down-small icons-chevron float-right"
                                                              x-on:click="hideSubjects()"
                                                         >
@@ -270,10 +244,10 @@
                                                     <div class="search-wrapper">
                                                         <input id="input-text-select" x-show="show" x-model="textInput" x-ref="textInput" @input="search($event.target.value)" x-on:keyup="filter()" x-on:focus="focusSearch()" x-on:focusout="loseFocusSearch()"  class="form-input input-text-select">
                                                         <img x-show="show"
-                                                             src="img/icons/icons-search-blue.svg"
+                                                             src="/img/icons/icons-search-blue.svg"
                                                              class="icons-search-small icons-search-active float-right hide-search"
                                                         >
-                                                        <img x-show="show" src="img/icons/icons-search-blue-inactive.svg"
+                                                        <img x-show="show" src="/img/icons/icons-search-blue-inactive.svg"
                                                              class="icons-search-small icons-search-inactive float-right"
                                                         >
                                                     </div>
@@ -282,13 +256,13 @@
                                                         <div class="subject_select_div_inner">
                                                             <div x-show="show_new_item"  x-on:click="addSubject(new_subject_item)" id="new_subject_item" class="subject_item new_subject_item">
                                                                 <span x-text="new_subject_item"></span>
-                                                                <img class="icon-close-small-subjects " src="img/icons/icons-plus-blue.svg">
+                                                                <img class="icon-close-small-subjects " src="/img/icons/icons-plus-blue.svg">
                                                                 <hr class="subject_hr">
                                                             </div>
                                                             <template x-for="(subject_option, index) in available_subject_options">
                                                                 <div x-show="show" :class="{subject_item_active: subject_option==active_subject_option}" x-on:click="addSubject(subject_option)" class="subject_item existing_subject_item">
                                                                     <span x-text="subject_option"></span>
-                                                                    <img class="icon-close-small-subjects " src="img/icons/icons-plus-blue.svg">
+                                                                    <img class="icon-close-small-subjects " src="/img/icons/icons-plus-blue.svg">
                                                                     <hr class="subject_hr">
                                                                 </div>
                                                             </template>
@@ -300,6 +274,7 @@
                                             </div>
 
                                         </div>
+                                        @endif
 
 
                                     </div>
@@ -357,60 +332,93 @@
                     @elseif($this->step === 2)
                         <div class="content-form">
                             {{--content header--}}
-                            <div class="mb-6 relative">
+                            <div class="mb-6 relative w-full">
                                 <img class="card-header-img float-left mr-4" src="/svg/stickers/school.svg" alt="">
-                                <h1 class="md:mt-2 top-4 card-header-text">{{ __("onboarding.Wat zijn jouw schoolgegevens") }}?</h1>
+                                <h1 class="md:mt-2 top-4 card-header-text">@if($this->hasValidTUser) {{ __("onboarding.Jouw schoollocatie") }} @else {{ __('onboarding.Kies locatie(s)') }} @endif</h1>
+                                @if(!$this->hasValidTUser)
+                                <p class="">{{ __('onboarding.We hebben meerdere locaties gevonden. Op welke locatie geef jij les?') }}</p>
+                                @endif
                             </div>
 
                             <div class="flex-grow">
                                 <form class="h-full relative" wire:submit.prevent="step2" action="#" method="POST">
                                     <div class="input-section mb-4">
-                                        <div class="school-info">
-                                            <div class="input-group w-full sm:w-1/2 sm:pr-2">
-                                                <input id="school_location"
-                                                       wire:model.lazy="registration.school_location"
-                                                       class="form-input @error('registration.school_location') border-red @enderror">
-                                                <label for="school_location"
-                                                       class="">{{ __("onboarding.Schoolnaam") }}</label>
+                                        @if($this->hasValidTUser)
+                                            <div class="flex flex-col space-y-2 w-full mt-4">
+                                                    <x-drag-item id="mc-"
+                                                                 class="flex px-0 py-0 border-0 bg-system-white relative regular"
+                                                                 slotClasses="w-full mr-0 "
+                                                    >
+                                                        <p>{{ $this->registration->school_location }}</p>
+                                                        <x-slot name="after">
+                                                            <x-icon.checkmark class="mx-2 w-4"  wire:click="__call('delete','')"></x-icon.checkmark>
+                                                        </x-slot>
+                                                    </x-drag-item>
+                                            </div>
+                                        @else
+                                            <div class="flex flex-col space-y-2 w-full mt-4">
+                                                <x-drag-item id="mc-"
+                                                             class="flex px-0 py-0 border-0 bg-system-white relative regular"
+                                                             slotClasses="w-full mr-0 "
+                                                >
+                                                    <p>{{ $this->registration->school_location }}</p>
+                                                    <x-slot name="after">
+                                                        <x-icon.checkmark class="mx-2 w-4 " wire:click="__call('delete','')"></x-icon.checkmark>
+                                                    </x-slot>
+                                                </x-drag-item>
                                             </div>
 
-                                            <div class="input-group w-full sm:w-1/2 sm:pl-2">
-                                                <input id="website_url" wire:model.lazy="registration.website_url"
-                                                       class="form-input @error('registration.website_url') border-red @enderror">
-                                                <label for="website_url"
-                                                       class="">{{ __("onboarding.Website") }}</label>
+                                            <div class="school-info">
+                                                <div class="input-group w-full  sm:w-1/2 sm:pr-2">
+                                                    <input id="school_location"
+                                                           wire:model.lazy="registration.school_location" @if($this->hasValidTUser) disabled @endif
+                                                           class="form-input @if($this->hasValidTUser) disabled @endif @error('registration.school_location') border-red @enderror">
+                                                    <label for="school_location"
+                                                           class="">{{ __("onboarding.Schoolnaam") }}</label>
+                                                </div>
+
+                                                <div class="input-group w-full sm:w-1/2 sm:pl-2">
+                                                    <input id="website_url" wire:model.lazy="registration.website_url"
+                                                           class="form-input @error('registration.website_url') border-red @enderror">
+                                                    <label for="website_url"
+                                                           class="">{{ __("onboarding.Website") }}</label>
+                                                </div>
+
+                                                <div class="input-group w-9/12 sm:w-3/5 pr-2">
+                                                    <input id="address" wire:model.lazy="registration.address"
+                                                           class="form-input @error('registration.address') border-red @enderror">
+                                                    <label for="address"
+                                                           class="">{{ __("onboarding.Bezoekadres") }}</label>
+                                                </div>
+                                                <div class="input-group w-3/12 sm:w-32 pl-2 md:mr-16">
+                                                    <input id="house_number" wire:model.lazy="registration.house_number"
+                                                           class="form-input @error('registration.house_number') border-red @enderror">
+                                                    <label for="house_number"
+                                                           class="">{{ __("onboarding.Huisnummer") }}</label>
+                                                </div>
+
+                                                <div class="input-group  w-3/12 sm:w-32 pr-2">
+                                                    <input id="postcode" wire:model.lazy="registration.postcode"
+                                                           class="form-input  @error('registration.postcode') border-red @enderror">
+                                                    <label for="postcode"
+                                                           class="">{{ __("onboarding.Postcode") }}</label>
+                                                </div>
+                                                <div class="input-group w-9/12 sm:w-3/5 pl-2">
+                                                    <input id="city" wire:model="registration.city"
+                                                           class="form-input @error('registration.city') border-red @enderror">
+                                                    <label for="city"
+                                                           class="">{{ __("onboarding.Plaatsnaam") }}</label>
+                                                </div>
                                             </div>
-                                            <div class="input-group w-9/12 sm:w-3/5 pr-2">
-                                                <input id="address" wire:model.lazy="registration.address"
-                                                       class="form-input @error('registration.address') border-red @enderror">
-                                                <label for="address"
-                                                       class="">{{ __("onboarding.Bezoekadres") }}</label>
-                                            </div>
-                                            <div class="input-group w-3/12 sm:w-32 pl-2 md:mr-16">
-                                                <input id="house_number" wire:model.lazy="registration.house_number"
-                                                       class="form-input @error('registration.house_number') border-red @enderror">
-                                                <label for="house_number"
-                                                       class="">{{ __("onboarding.Huisnummer") }}</label>
-                                            </div>
-                                            <div class="input-group  w-3/12 sm:w-32 pr-2">
-                                                <input id="postcode" wire:model.lazy="registration.postcode"
-                                                       class="form-input  @error('registration.postcode') border-red @enderror">
-                                                <label for="postcode"
-                                                       class="">{{ __("onboarding.Postcode") }}</label>
-                                            </div>
-                                            <div class="input-group w-9/12 sm:w-3/5 pl-2">
-                                                <input id="city" wire:model="registration.city"
-                                                       class="form-input @error('registration.city') border-red @enderror">
-                                                <label for="city"
-                                                       class="">{{ __("onboarding.Plaatsnaam") }}</label>
-                                            </div>
+                                        @endif
+                                    </div>
+                                    @if(!$this->hasValidTUser)
+                                        <div>
+                                            <p class="text-note">
+                                                {{ __('onboarding.general_terms_text_pt_1') }} <a class="underline primary-hover" href="https://www.test-correct.nl/algemene-voorwaarden" target="_blank">{{ __('onboarding.general_terms') }}</a> {{ __('onboarding.general_terms_text_pt_2') }}
+                                            </p>
                                         </div>
-                                    </div>
-                                    <div>
-                                        <p class="text-note">
-                                            {{ __('onboarding.general_terms_text_pt_1') }} <a class="underline primary-hover" href="https://www.test-correct.nl/algemene-voorwaarden" target="_blank">{{ __('onboarding.general_terms') }}</a> {{ __('onboarding.general_terms_text_pt_2') }}
-                                        </p>
-                                    </div>
+                                    @endif
                                     <div class="mb-16">
                                         @if($this->warningStepTwo)
                                             <div class="notification warning mt-4">
@@ -462,7 +470,7 @@
                                                 <x-icon.chevron></x-icon.chevron>
                                             </button>
                                         @else
-                                            <button
+                                            <button wire:click="step2"
                                                     class="flex items-center button button-md primary-button md:float-right">
                                                 <span class="mr-2">{{ __("onboarding.Maak mijn Test-Correct account") }}</span>
                                                 <x-icon.chevron></x-icon.chevron>

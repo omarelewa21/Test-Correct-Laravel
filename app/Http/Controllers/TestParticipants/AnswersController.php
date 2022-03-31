@@ -7,10 +7,14 @@ use Illuminate\Support\Facades\Storage;
 use tcCore\Http\Requests;
 use tcCore\Http\Controllers\Controller;
 use tcCore\Answer;
+use tcCore\Question;
 use tcCore\Http\Requests\CreateAnswerRequest;
 use tcCore\Http\Requests\UpdateAnswerRequest;
+use tcCore\Http\Requests\SaveFeedbackRequest;
 use tcCore\Lib\Question\QuestionInterface;
 use tcCore\TestParticipant;
+use tcCore\AnswerFeedback;
+use Exception;
 
 class AnswersController extends Controller {
 
@@ -38,6 +42,8 @@ class AnswersController extends Controller {
 					foreach ($answers as $answer) {
 						if ($answer->question instanceof QuestionInterface) {
 							$answer->question->loadRelated();
+							$answer->has_feedback = sizeof($answer->feedback) > 0;
+							$answer->has_feedback_by_this_user = $answer->feedback()->where('user_id', auth()->id())->exists();
 						}
 					}
 				}
@@ -141,5 +147,74 @@ class AnswersController extends Controller {
         }
         return Response::make($url, 200);
 	}
+
+	/****************************** feedback ************************************/
+    public function loadFeedback(TestParticipant $testParticipant, Question $question, Request $request){
+		try{
+			$answer = Answer::where('test_participant_id', $testParticipant->id)->where('question_id', $question->id)->with('testParticipant', 'question')->first();
+			if($request->mode === 'write'){
+				$answer->load(['feedback' => function($q){
+					return $q->where('user_id', auth()->id())->limit(1);		// Getting feedback that has written by this user
+				}]);
+			}else{
+				$answer->load(['feedback' => function($q){
+					return $q->inRandomOrder()->take(3);						// Getting all feedback to show for reading (limit 3)
+				}]);
+			}
+			return response($answer, 200);
+        }catch (Exception $e){
+            return response($e->getMessage(), 500);
+        }
+    }
+
+	public function loadFeedbackByAnswer(Answer $answer, Request $request){
+		try{
+			if($request->mode === 'write'){
+				$answer->load(['feedback' => function($q){
+					return $q->where('user_id', auth()->id());
+				}]);
+			}else{
+				$answer->load('feedback');
+			}
+			return response($answer->load('testParticipant', 'question'), 200);
+        }catch (Exception $e){
+            return response($e->getMessage(), 500);
+        }
+    }
+
+    public function saveFeedback(Answer $answer, SaveFeedbackRequest $request){
+        try{
+            if($answer->feedback()->where('user_id', auth()->id())->exists()){
+                $feedback = $answer->feedback()->where('user_id', auth()->id())->first();
+                $feedback->message = $request->message;
+                $feedback->save();
+            }else{
+				AnswerFeedback::create([
+                    'answer_id'     => $answer->id,
+                    'user_id'     	=> auth()->id(),
+                    'message'       => $request->message
+                ]);
+            }
+            return response(200);
+
+        }catch (Exception $e){
+            return response($e->getMessage(), 500);
+        }
+    }
+
+    public function deleteFeedback($feedback_id){
+        try{
+            $feedback = AnswerFeedback::whereUuid($feedback_id)->first();
+			if($feedback->user->id === auth()->id()){
+				$feedback->delete();
+				return response(200);
+			}else{
+				return response(401);
+			}
+            
+        }catch (Exception $e){
+            return response($e->getMessage(), 500);
+        }
+    }
 
 }

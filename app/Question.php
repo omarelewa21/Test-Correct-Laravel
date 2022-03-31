@@ -13,6 +13,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Dyrynda\Database\Casts\EfficientUuid;
 use Dyrynda\Database\Support\GeneratesUuid;
 use Ramsey\Uuid\Uuid;
+use tcCore\Scopes\QuestionAttainmentScope;
 use tcCore\Services\QuestionHtmlConverter;
 use tcCore\Traits\ExamSchoolQuestionTrait;
 use tcCore\Traits\UuidTrait;
@@ -91,6 +92,8 @@ class Question extends MtiBaseModel {
      */
     protected $attainments = null;
 
+    protected $learning_goals = null;
+
     protected $tags = null;
 
     protected $onlyAddToDatabaseFieldIsModified = false;
@@ -156,6 +159,27 @@ class Question extends MtiBaseModel {
                 }
             }
 
+            if(array_key_exists('learning_goals', $attributes)) {
+                if ($attributes['learning_goals'] == '') {
+                    $attributes['learning_goals'] = [];
+                }
+
+                //TC-106
+                //convert learning_goals to an array if it is not an array
+                //because it is expected to be an array
+                if (!is_array($attributes['learning_goals'])) {
+                    $attributes['learning_goals'] = [$attributes['learning_goals']];
+                }
+
+                foreach ($attributes['learning_goals'] as $key => $value) {
+                    if (Uuid::isValid($value)) {
+                        $attributes['learning_goals'][$key] = LearningGoal::whereUuid($value)->first()->getKey();
+                    }
+                }
+
+                $this->learning_goals = $attributes['learning_goals'];
+            }
+
             if (array_key_exists('tags', $attributes)) {
                 if ($attributes['tags'] == '') {
                     $attributes['tags'] = [];
@@ -211,6 +235,10 @@ class Question extends MtiBaseModel {
 
                 if ($question->attainments !== null) {
                     $question->saveAttainments();
+                }
+
+                if ($question->learning_goals !== null) {
+                    $question->saveLearningGoals();
                 }
 
                 if ($question->tags !== null) {
@@ -286,11 +314,19 @@ class Question extends MtiBaseModel {
     }
 
     public function questionAttainments() {
-        return $this->hasMany('tcCore\QuestionAttainment', 'question_id');
+        return $this->hasMany('tcCore\QuestionAttainment', 'question_id')->strict();
+    }
+
+    public function questionLearningGoals() {
+        return $this->hasMany('tcCore\QuestionLearningGoal', 'question_id')->strict();
     }
 
     public function attainments() {
         return $this->belongsToMany('tcCore\Attainment', 'question_attainments')->withPivot([$this->getCreatedAtColumn(), $this->getUpdatedAtColumn(), $this->getDeletedAtColumn()])->wherePivot($this->getDeletedAtColumn(), null);
+    }
+
+    public function learningGoals() {
+        return $this->belongsToMany('tcCore\LearningGoal', 'question_attainments')->withPivot([$this->getCreatedAtColumn(), $this->getUpdatedAtColumn(), $this->getDeletedAtColumn()])->wherePivot($this->getDeletedAtColumn(), null);
     }
 
     public function testTakes() {
@@ -401,6 +437,7 @@ class Question extends MtiBaseModel {
     }
 
     public function isDirtyAttainments() {
+        return $this->isDirtyAttainmentsGeneric('attainments','questionAttainments');
         if ($this->attainments === null) {
             return false;
         }
@@ -427,6 +464,37 @@ class Question extends MtiBaseModel {
         }
     }
 
+    public function isDirtyLearningGoals() {
+        return $this->isDirtyAttainmentsGeneric('learning_goals','questionLearningGoals');
+    }
+
+    public function isDirtyAttainmentsGeneric($globalName,$questionRelation) {
+        if ($this->$globalName === null) {
+            return false;
+        }
+
+        $attainments = $this->$questionRelation()->pluck('attainment_id')->all();
+
+        /////////////////
+        //fix for TC-106
+        //also fixed in the fill() method, but somehow that doesn't work
+        //so we also fix it here, because this is where the error will start
+        if (!is_array($this->$globalName)) {
+            $this->$globalName = [$this->$globalName];
+        }
+
+        if (!is_array($attainments)) {
+            $attainments = [$attainments];
+        }
+        /////////////////
+
+        if (count($this->$globalName) != count($attainments) || array_diff($this->$globalName, $attainments)) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
     protected function saveAttainments() {
         $questionAttainments = $this->questionAttainments()->withTrashed()->get();
         $this->syncTcRelation($questionAttainments, $this->attainments, 'attainment_id', function($question, $attainmentId) {
@@ -434,6 +502,15 @@ class Question extends MtiBaseModel {
         });
 
         $this->attainments = null;
+    }
+
+    protected function saveLearningGoals() {
+        $questionLearningGoals = $this->questionLearningGoals()->withTrashed()->get();
+        $this->syncTcRelation($questionLearningGoals, $this->learning_goals, 'attainment_id', function($question, $attainmentId) {
+            QuestionLearningGoal::create(['question_id' => $question->getKey(), 'attainment_id' => $attainmentId]);
+        });
+
+        $this->learning_goals = null;
     }
 
     public function isDirtyTags() {
@@ -1305,6 +1382,9 @@ class Question extends MtiBaseModel {
         if($baseModel->isDirtyAttainments()){
             return true;
         }
+        if($baseModel->isDirtyLearningGoals()){
+            return true;
+        }
         if($baseModel->isDirtyTags()){
             return true;
         }
@@ -1370,4 +1450,12 @@ class Question extends MtiBaseModel {
             return $relation->attainment_id;
         })->toArray();
     }
+
+    public function getQuestionLearningGoalsAsArray()
+    {
+        return $this->questionLearningGoals->map(function($relation) {
+            return $relation->attainment_id;
+        })->toArray();
+    }
+
 }
