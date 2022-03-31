@@ -5,15 +5,9 @@
         <div class="hidden h-[45vw] w-3/4 h-1/2 w-5/6 lg:w-4/6 h-[80vh] w-[80vw] h-[45vw]"></div>
         <div class="flex-col relative h-full rounded-10">
             <div class="flex absolute top-0 right-0 justify-end space-x-2">
-                @if($this->attachmentType == 'audio')
-                    <x-button.primary wire:click="$emit('clickPauseButtonAndCloseModal')">
-                        <x-icon.close class="text-white"/>
-                    </x-button.primary>
-                @else
-                    <x-button.primary wire:click="closeAttachmentModal">
-                        <x-icon.close class="text-white"/>
-                    </x-button.primary>
-                @endif
+                <x-button.primary wire:click="closeAttachmentModal">
+                    <x-icon.close class="text-white"/>
+                </x-button.primary>
             </div>
             <div class="flex w-full h-full rounded-10 attachment-iframe-wrapper @if($this->attachmentType == 'image') max-h-[80vh] @endif">
                 @if($this->attachmentType == 'video')
@@ -41,19 +35,3 @@
         @endif
     </div>
 @endif
-
-@push('scripts')
-    <script>
-        document.addEventListener('livewire:load', function () {
-            @this.on('clickPauseButtonAndCloseModal', event => {
-                // var pauseButtons = document.getElementsByClassName('pause_button');
-                var pauseButtons = document.querySelectorAll('.plyr__control--pressed');
-                for (let item of pauseButtons) {
-                    item.click();
-                }
-                @this.call('closeAttachmentModal');
-            });
-        });
-    </script>
-
-@endpush
