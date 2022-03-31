@@ -128,7 +128,7 @@
                     onclick="typeof toOverview === 'function' ? toOverview({{$this->q}}) :
                         livewire.find(document.querySelector('[test-take-player]').getAttribute('wire:id')).call('toOverview', {{$this->q}})
                         "
-                    @click="$dispatch('show-loader')"
+                    {{-- @click="$dispatch('show-loader')" --}}
                     >
                     <x-icon.preview/>
                     <span>{{ __('test_take.overview') }}</span>

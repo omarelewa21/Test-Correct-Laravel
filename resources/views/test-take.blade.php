@@ -106,7 +106,7 @@
                 <x-button.cta x-show="display.turnin"
                         size="sm"
                         onclick="toOverview({{ $nav->count() }})"
-                        @click="$dispatch('show-loader')"
+                        {{-- @click="$dispatch('show-loader')" --}}
                 >
                     <span>{{ __('test_take.overview') }}</span>
                 </x-button.cta>
