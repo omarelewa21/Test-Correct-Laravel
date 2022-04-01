@@ -77,6 +77,319 @@ class EntreeHelperTest extends TestCase
     /**
      * @test
      */
+    public function it_should_redirect_to_login_if_registering_through_entree_and_existing_eckid_with_brin6_and_no_t_user() //4a
+    {
+        $location = $this->setSchoolLocation84ReadyForTestingRegistration();
+        session(['entreeReason' => 'register']);
+        $data = $this->getDefaultAttributesForRegistering();
+        $user = $this->getTeacherInSchoolLocation($location);
+
+        $user->eckid = $data['eckId'][0];
+        $user->save();
+        $helper = new EntreeHelper($data,null);
+        $this->assertStringContainsString(
+            '/users/temporary_login/',
+            $helper->handleIfRegistering()
+        );
+    }
+
+    /**
+     * @test
+     */
+    public function it_should_redirect_to_login_if_registering_through_entree_and_existing_eckid_brin6_no_t_user_and_same_school() //4b
+    {
+        // school location should have been added and go to login with message
+        $location = $this->setSchoolLocation84ReadyForTestingRegistration();
+        session(['entreeReason' => 'register']);
+        $data = $this->getDefaultAttributesForRegistering();
+        $user = $this->getTeacherInSchoolLocation($location);
+
+        $otherSchoolLocation = SchoolLocation::where('school_id',$location->school_id)->where('id','<>',$location->getKey())->first();
+
+        $user->eckid = $data['eckId'][0];
+        $user->school_location_id = $otherSchoolLocation->getKey();
+        $user->addSchoolLocation($otherSchoolLocation);
+        $user->save();
+        $user->removeSchoolLocation($location);
+        $user->refresh();
+        $helper = new EntreeHelper($data,null);
+        $this->assertStringContainsString(
+            '/users/temporary_login/',
+            $helper->handleIfRegistering()
+        );
+        $user->refresh();
+        $this->assertTrue($user->isAllowedToSwitchToSchoolLocation($location));
+
+    }
+
+    /**
+     * @test
+     */
+    public function it_should_redirect_to_login_and_get_in_contact_if_registering_through_entree_and_existing_eckid_brin6_no_t_user_and_other_school() //4c
+    {
+        // school location should have been added and go to login with message
+        $location = $this->setSchoolLocation84ReadyForTestingRegistration();
+        session(['entreeReason' => 'register']);
+        $data = $this->getDefaultAttributesForRegistering();
+        $user = $this->getTeacherInSchoolLocation($location);
+        $otherSchoolLocation = SchoolLocation::where('school_id','<>',$location->school_id)->first();
+
+        $user->eckid = $data['eckId'][0];
+        $user->school_location_id = $otherSchoolLocation->getKey();
+        $user->addSchoolLocation($otherSchoolLocation);
+        $user->save();
+        $user->removeSchoolLocation($location);
+        $user->refresh();
+        $helper = new EntreeHelper($data,null);
+        $this->assertStringContainsString(
+            'entree_error_message=',
+            $helper->handleIfRegistering()
+        );
+    }
+
+    /**
+     * @test
+     */
+    public function it_should_redirect_to_entree_registration_with_user_registering_through_entree_and_existing_eckid_brin6_with_t_user() //5
+    {
+        $location = $this->setSchoolLocation84ReadyForTestingRegistration();
+        session(['entreeReason' => 'register']);
+        $data = $this->getDefaultAttributesForRegistering();
+        $user = $this->getTeacherInSchoolLocation($location);
+        $user->eckid = $data['eckId'][0];
+        $user->username = $user->generateMissingEmailAddress();
+        $user->save();
+        $user->refresh();
+        $helper = new EntreeHelper($data,null);
+        $this->assertStringContainsString(
+            route('onboarding.welcome.entree'),
+            $helper->handleIfRegistering()
+        );
+
+        $this->assertObjectHasAttribute(
+            'user',
+            session('entreeData')
+        );
+    }
+
+    /**
+     * @test
+     */
+    public function it_should_redirect_to_login_with_allready_registered_if_registering_through_entree_and_existing_eckid_brin4_no_t_user_within_school() //6a
+    {
+        $location = $this->setSchoolLocation84ReadyForTestingRegistration();
+        $school = $location->school;
+        $school->external_main_code = 'K999';
+        $school->save();
+        session(['entreeReason' => 'register']);
+        $data = $this->getDefaultAttributesForRegistering();
+        $data['nlEduPersonHomeOrganizationBranchId'] = ['K999']; // brincode 4
+        $user = $this->getTeacherInSchoolLocation($location);
+        $user->eckid = $data['eckId'][0];
+        $user->save();
+        $user->refresh();
+        $helper = new EntreeHelper($data,null);
+        $this->assertStringContainsString(
+            ('/users/temporary_login/'),
+            $helper->handleIfRegistering()
+        );
+
+    }
+
+    /**
+     * @test
+     */
+    public function it_should_redirect_to_login_with_get_in_contact_if_registering_through_entree_and_existing_eckid_brin4_no_t_user_other_school() //6b
+    {
+        $location = $this->setSchoolLocation84ReadyForTestingRegistration();
+        $school = $location->school;
+        $school->external_main_code = 'K999';
+        $school->save();
+        session(['entreeReason' => 'register']);
+        $data = $this->getDefaultAttributesForRegistering();
+        $data['nlEduPersonHomeOrganizationBranchId'] = ['K999']; // brincode 4
+        $user = $this->getTeacherInSchoolLocation($location);
+
+        $otherSchoolLocation = SchoolLocation::where('school_id','<>',$location->school_id)->first();
+
+        $user->school_location_id = $otherSchoolLocation->getKey();
+        $user->addSchoolLocation($otherSchoolLocation);
+        $user->removeSchoolLocation($location);
+        $user->eckid = $data['eckId'][0];
+        $user->save();
+        $user->refresh();
+        $helper = new EntreeHelper($data,null);
+        $url = $helper->handleIfRegistering();
+        $this->assertStringContainsString(
+            route('auth.login'),
+            $url
+        );
+        $this->assertStringContainsString(
+            'entree_error_message',
+            $url
+        );
+    }
+
+    /**
+     * @test
+     */
+    public function it_should_redirect_to_login_with_get_in_contact_if_registering_through_entree_and_existing_eckid_with_t_user_and_brin4() //7a
+    {
+        $location = $this->setSchoolLocation84ReadyForTestingRegistration();
+        $school = $location->school;
+        $school->external_main_code = 'K999';
+        $school->save();
+        session(['entreeReason' => 'register']);
+        $data = $this->getDefaultAttributesForRegistering();
+        $data['nlEduPersonHomeOrganizationBranchId'] = ['K999']; // brincode 4
+        $user = $this->getTeacherInSchoolLocation($location);
+        $user->eckid = $data['eckId'][0];
+        $user->username = $user->generateMissingEmailAddress();
+        $user->save();
+        $user->refresh();
+        $helper = new EntreeHelper($data,null);
+        $this->assertStringContainsString(
+            route('onboarding.welcome.entree'),
+            $helper->handleIfRegistering()
+        );
+        $this->assertObjectHasAttribute(
+            'user',
+            session('entreeData')
+        );
+    }
+
+    /**
+     * @test
+     */
+    public function it_should_redirect_to_login_with_get_in_contact_if_registering_through_entree_and_existing_eckid_brin4_with_t_user_other_school() //7b
+    {
+        $location = $this->setSchoolLocation84ReadyForTestingRegistration();
+        $school = $location->school;
+        $school->external_main_code = 'K999';
+        $school->save();
+        session(['entreeReason' => 'register']);
+        $data = $this->getDefaultAttributesForRegistering();
+        $data['nlEduPersonHomeOrganizationBranchId'] = ['K999']; // brincode 4
+        $user = $this->getTeacherInSchoolLocation($location);
+
+        $otherSchoolLocation = SchoolLocation::where('school_id','<>',$location->school_id)->first();
+
+        $user->school_location_id = $otherSchoolLocation->getKey();
+        $user->addSchoolLocation($otherSchoolLocation);
+        $user->removeSchoolLocation($location);
+        $user->eckid = $data['eckId'][0];
+        $user->save();
+        $user->refresh();
+        $helper = new EntreeHelper($data,null);
+        $url = $helper->handleIfRegistering();
+        $this->assertStringContainsString(
+            route('auth.login'),
+            $url
+        );
+        $this->assertStringContainsString(
+            'entree_error_message',
+            $url
+        );
+    }
+
+    /**
+     * @test
+     */
+    public function it_should_redirect_to_no_student_error_if_registering_through_entree_and_existing_eckid_but_as_a_student() //8
+    {
+        $location = $this->setSchoolLocation84ReadyForTestingRegistration();
+        session(['entreeReason' => 'register']);
+        $data = $this->getDefaultAttributesForRegistering();
+        $user = $this->getStudentInSchoolLocation($location);
+        $user->eckid = $data['eckId'][0];
+        $user->save();
+        $user->refresh();
+        $helper = new EntreeHelper($data,null);
+        $url = $helper->handleIfRegistering();
+        $this->assertStringContainsString(
+            'https://www.test-correct.nl/student-aanmelden-error',
+            $url
+        );
+    }
+
+    /**
+     * @test
+     */
+    public function it_should_redirect_with_error_if_registering_through_entree_and_nonexisting_eckid_but_existing_email_address() //10
+    {
+        $location = $this->setSchoolLocation84ReadyForTestingRegistration();
+        session(['entreeReason' => 'register']);
+        $data = $this->getDefaultAttributesForRegistering();
+        $user = $this->getTeacherInSchoolLocation($location);
+        $data['eckId'] = [Str::random(10)];
+        $data['mail'] = [$user->username];
+        $helper = new EntreeHelper($data,null);
+        $url = $helper->handleIfRegistering();
+        $this->assertStringContainsString(
+            route('onboarding.welcome'),
+            $url
+        );
+        $this->assertStringContainsString(
+            rawurlencode(__('onboarding-welcome.Je entree account kan niet gebruikt worden om een account aan te maken in Test-Correct. Neem contact op met support.')),
+            $url
+        );
+    }
+
+    /**
+     * @test
+     */
+    public function it_should_redirect_with_error_if_registering_through_entree_and_existing_eckid_and_existing_email_address_for_other_account() //11
+    {
+        $location = $this->setSchoolLocation84ReadyForTestingRegistration();
+        session(['entreeReason' => 'register']);
+        $data = $this->getDefaultAttributesForRegistering();
+        $user = $this->getTeacherInSchoolLocation($location);
+        $user2 = $this->getTeacherInSchoolLocation($location,true);
+        $user->eckid = $data['eckId'][0];
+        $user->save();
+        $data['mail'] = [$user2->username];
+        $helper = new EntreeHelper($data,null);
+        $url = $helper->handleIfRegistering();
+        $this->assertStringContainsString(
+            route('onboarding.welcome'),
+            $url
+        );
+        $this->assertStringContainsString(
+            rawurlencode(__('onboarding-welcome.Je entree account kan niet gebruikt worden om een account aan te maken in Test-Correct. Neem contact op met support.')),
+            $url
+        );
+    }
+
+    /**
+     * @test
+     */
+    public function it_should_redirect_with_error_if_registering_through_entree_and_existing_eckid_and_no_email_from_entree() //12
+    {
+        $location = $this->setSchoolLocation84ReadyForTestingRegistration();
+        session(['entreeReason' => 'register']);
+        $data = $this->getDefaultAttributesForRegistering();
+        $user = $this->getTeacherInSchoolLocation($location);
+        $user->eckid = $data['eckId'][0];
+        $user->username = $user->generateMissingEmailAddress();
+        $user->save();
+        $user->refresh();
+        $data['mail'] = [''];
+        $helper = new EntreeHelper($data,null);
+        $url = $helper->handleIfRegistering();
+        $this->assertStringContainsString(
+            route('onboarding.welcome'),
+            $url
+        );
+        $this->assertStringContainsString(
+            rawurlencode(__('onboarding-welcome.Je entree account kan niet gebruikt worden om een account aan te maken in Test-Correct. Neem contact op met support.')),
+            $url
+        );
+    }
+
+
+    /**
+     * @test
+     */
     public function it_should_redirect_to_onboarding_entree_if_registering_through_entree_and_has_valid_brin6()
     {
         $this->setSchoolLocation84ReadyForTestingRegistration();
@@ -140,7 +453,30 @@ class EntreeHelperTest extends TestCase
         );
     }
 
+    protected function getTeacherInSchoolLocation(SchoolLocation $sl, $secondTeacher = false)
+    {
+        $userIds = collect(DB::select(DB::raw('Select user_id from school_location_user where school_location_id = '.$sl->getKey())))->map(function ($a) {
+            return $a->user_id;
+        });
+        $userIds = collect(DB::select(DB::raw('select user_id from user_roles where role_id=1 AND user_id IN ('.implode(',',$userIds->toArray()).')')))->map(function($a){
+            return $a->user_id;
+        });
+        if($secondTeacher){
+            return User::whereIn('id', $userIds)->orderBy('created_at', 'desc')->get()[1];
+        }
+        return User::whereIn('id', $userIds)->orderBy('created_at', 'desc')->first();
+    }
 
+    protected function getStudentInSchoolLocation(SchoolLocation $sl)
+    {
+        $userIds = collect(DB::select(DB::raw('Select user_id from school_location_user where school_location_id = '.$sl->getKey())))->map(function ($a) {
+            return $a->user_id;
+        });
+        $userIds = collect(DB::select(DB::raw('select user_id from user_roles where role_id=3 AND user_id IN ('.implode(',',$userIds->toArray()).')')))->map(function($a){
+            return $a->user_id;
+        });
+        return User::whereIn('id', $userIds)->orderBy('created_at', 'desc')->first();
+    }
 
     protected function setSchoolLocation84ReadyForTestingRegistration()
     {
@@ -148,6 +484,7 @@ class EntreeHelperTest extends TestCase
         $location->external_main_code = 'K999';
         $location->external_sub_code = '00';
         $location->save();
+        return $location;
     }
 
     protected function getDefaultAttributesForRegistering()
@@ -256,6 +593,8 @@ class EntreeHelperTest extends TestCase
         $helper->redirectIfBrinUnknown();
         $helper->redirectIfNoUserWasFoundForEckId();
     }
+
+
 
     /** @test */
     public function laravel_user_should_be_in_the_same_school_as_brin_provided()

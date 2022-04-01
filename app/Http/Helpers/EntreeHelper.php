@@ -17,6 +17,7 @@ use tcCore\Exceptions\RedirectAndExitException;
 use tcCore\SamlMessage;
 use tcCore\School;
 use tcCore\SchoolLocation;
+use tcCore\TemporaryLogin;
 use tcCore\TestParticipant;
 use tcCore\User;
 
@@ -104,8 +105,15 @@ class EntreeHelper
         if($url = $this->handleIfRegisteringAndNoBrincode($data)){
             return $url;
         }
+        if($data->user = $this->handleIfRegisteringAndUserBasedOnEckId($data)){
+            if(!$data->user instanceof User AND is_string($data->user)){
+                return $data->user;
+            }
+        }
 
-        $data->user = $this->handleIfRegisteringAndUserBasedOnEckId($data);
+        if($url = $this->handleIfNonExistingEckIdButExistingEmail($data)){
+            return $url;
+        }
 
         session(['entreeData' => $data]);
         return $this->redirectToUrlAndExit(route('onboarding.welcome.entree'));
@@ -127,28 +135,47 @@ class EntreeHelper
     protected function handleIfRegisteringAndUserBasedOnEckId($data)
     {
         if($user = User::filterByEckid(Crypt::decryptString($data->encryptedEckId))->first()){
+
             if(!$user->isA('teacher')){
                 return $this->redirectToUrlAndExit('https://www.test-correct.nl/student-aanmelden-error');
             }
+
             if(!$user->hasImportMailAddress()){ // regular user
+                if($data->emailAddress){
+                    if($user2 = User::where('username',$data->emailAddress)){
+                        if($user != $user2){
+                            return $this->redirectToUrlAndExit($this->getOnboardingUrlWithOptionalMessage(__('onboarding-welcome.Je entree account kan niet gebruikt worden om een account aan te maken in Test-Correct. Neem contact op met support.')));
+                        }
+                    }
+                }
+
                 $this->laravelUser = $user;
                 if($this->location) {
                     if ($user->isAllowedToSwitchToSchoolLocation($this->location)) {
                         // account already correct
+                        Auth::login($user);
                         $url = $this->laravelUser->getRedirectUrlSplashOrStartAndLoginIfNeeded(['afterLoginMessage' => __('onboarding-welcome.Je bestaande Test-Correct account is al gekoppeld aan je Entree account. Je kunt vanaf nu ook inloggen met Entree.')]);
                         return $this->redirectToUrlAndExit($url);
                     }
                     // if in same school, add school location
                     $schoolFromSchoolLocation = $this->location->school;
                     if ($schoolFromSchoolLocation) {
-                        $this->handleIfRegisteringAndSchoolIsAllowed($user, $schoolFromSchoolLocation);
+                        if($url = $this->handleIfRegisteringAndSchoolIsAllowed($user, $schoolFromSchoolLocation)){
+                            return $url;
+                        }
                     }
                 } else if ($this->school){
-                    $this->handleIfRegisteringAndSchoolIsAllowed($user,$this->school);
+                    if($url = $this->handleIfRegisteringAndSchoolIsAllowed($user,$this->school)){
+                        return $url;
+                    }
                 }
                 // if not contact support
                 $url = BaseHelper::getLoginUrlWithOptionalMessage(__('onboarding-welcome.Je bestaande Test-Correct account kan niet geupdate worden. Neem contact op met support.'), true);
                 return $this->redirectToUrlAndExit($url);
+            }
+
+            if(!$data->emailAddress || substr_count('@',$data->emailAddress) < 1){
+                return $this->redirectToUrlAndExit($this->getOnboardingUrlWithOptionalMessage(__('onboarding-welcome.Je entree account kan niet gebruikt worden om een account aan te maken in Test-Correct. Neem contact op met support.')));
             }
 
             if(!$this->location && $this->school){
@@ -201,6 +228,21 @@ class EntreeHelper
         if(!$eckId || strlen($eckId) < 5){
             return $this->redirectToUrlAndExit($this->getOnboardingUrlWithOptionalMessage(__('onboarding-welcome.Je kunt geen Test-Correct account aanmaken via Entree. Vul dit formulier in om een account aan te maken')));
         }
+        return false;
+    }
+
+    protected function handleIfNonExistingEckIdButExistingEmail($data)
+    {
+        $eckId = Crypt::decryptString($data->encryptedEckId);
+
+        if(!$user = User::findByEckId($eckId)->first()){
+            if($data->emailAddress){
+                if($user = User::where('username',$data->emailAddress)){
+                    return $this->redirectToUrlAndExit($this->getOnboardingUrlWithOptionalMessage(__('onboarding-welcome.Je entree account kan niet gebruikt worden om een account aan te maken in Test-Correct. Neem contact op met support.')));
+                }
+            }
+        }
+
         return false;
     }
 
