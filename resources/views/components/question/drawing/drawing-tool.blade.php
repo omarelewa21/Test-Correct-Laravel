@@ -1,5 +1,5 @@
 <div id="drawing-tool"
-     class="rounded-10"
+     class="rounded-10 @student student @else teacher @endstudent"
      wire:ignore
 >
     <div class="section-container">
@@ -37,7 +37,7 @@
                         </div>
                     </button>
                     @if(Auth::user()->isA('teacher'))
-                        <button title="{{ __('drawing-modal.Afbeelding') }}">
+                        <button id="img-upload-btn" title="{{ __('drawing-modal.Afbeelding') }}">
                             <label for="img-upload" id="img-upload-label">
                                 <x-icon.image-upload/>
                             </label>
@@ -98,7 +98,7 @@
                     </button>
                 </div>
 
-                <div class="property-group" id="opacity" title="{{ __('drawing-modal.Doorzichtigheid') }}">
+                <div class="property-group" id="opacity" title="{{ __('drawing-modal.Doorzichtigheid') }}" style="display: none">
                     <input type="number" name="opacity" id="elem-opacity-number" min="0" max="100" value="100" step="1"
                            autocomplete="off">
                     <input class="drawing-toolbar-slider" type="range" name="opacity" id="elem-opacity-range" min="0"
@@ -124,12 +124,12 @@
                 </div>
 
                 <div class="property-group" id="fill">
-                    <input type="color" name="fill-color" id="fill-color" value="#ffffff" autocomplete="off"
+                    <input type="color" name="fill-color" id="fill-color" value="#000000" autocomplete="off"
                            title="{{ __('drawing-modal.Opvulkleur') }}" class="cursor-pointer">
-                    <input type="number" name="fill-opacity" id="fill-opacity-number" min="0" max="100" value="100"
+                    <input type="number" name="fill-opacity" id="fill-opacity-number" min="0" max="100" value="25"
                            step="1" autocomplete="off" title="{{ __('drawing-modal.Doorzichtigheid opvulkleur') }}">
                     <input class="drawing-toolbar-slider" type="range" name="fill-opacity" id="fill-opacity-range" style="cursor: grab"
-                           min="0" max="100" value="100" step="1" autocomplete="off" title="{{ __('drawing-modal.Doorzichtigheid opvulkleur') }}">
+                           min="0" max="100" value="25" step="1" autocomplete="off" title="{{ __('drawing-modal.Doorzichtigheid opvulkleur') }}">
                 </div>
 
                 <div class="property-group" id="endmarker-type" title="{{ __('drawing-modal.Type lijneinde') }}">
@@ -259,7 +259,7 @@
     </div>
 </div>
 <template id="shape-group-template">
-    <div class="shape-container" id="shape-n" draggable="true">
+    <div class="shape-container" id="shape-n" draggable="false">
         <div class="flex items-center w-full justify-between">
             <span class="shape-title">If you read this, report a bug</span>
             <div class="btn-group">
@@ -281,7 +281,7 @@
                     <button class="shape-btn up-btn" title="{{ __('drawing-modal.Versleep volgorde') }}">
                         <x-icon.arrow-small class="-rotate-90"/>
                     </button>
-                    <button class="shape-btn drag-btn" title="{{ __('drawing-modal.Versleep volgorde') }}">
+                    <button class="shape-btn down-btn" title="{{ __('drawing-modal.Versleep volgorde') }}">
                         <x-icon.arrow-small class="rotate-90"/>
                     </button>
                 </div>
@@ -323,7 +323,7 @@
             </div>
         </div>
         <div class="shapes-group">
-            <span class="explainer note text-sm text-center"
+            <span id="explainer" class="explainer note text-sm text-center inline-block"
                   style="padding: 1.5rem"
                   data-text-closeConfirmation="{{ __('drawing-modal.Close confirmation') }}"
                   @if(Auth::user()->isA('teacher'))
@@ -341,7 +341,7 @@
         </div>
     </div>
 </template>
-<template id="warningbox-template">
+<template id="warningbox-template" data-text="{{ __('drawing-question.Stel de opmaak in voordat je het object tekent') }}">
     <div class="warning">
         <div class="warning-text">
             <x-icon.exclamation/>
@@ -349,3 +349,13 @@
     </div>
 </template>
 <template id="svg-layer-to-render"></template>
+<template id="translation-template"
+          data-answer="{{ __('cms.Antwoord') }}"
+          data-question="{{ __('drawing-modal.Vraag') }}"
+          data-rect="{{ __("drawing-modal.Rechthoek") }}"
+          data-circle="{{ __("drawing-modal.Cirkel") }}"
+          data-line="{{ __("drawing-modal.Rechte lijn") }}"
+          data-text="{{ __("drawing-modal.Tekst") }}"
+          data-image="{{ __("drawing-modal.Afbeelding") }}"
+          data-path="{{ __("drawing-modal.Penlijn") }}"
+></template>

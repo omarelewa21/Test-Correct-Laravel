@@ -73,16 +73,35 @@
 /*#rsbtn_scrollcontrols{*/
 /*    margin-left: 30%;*/
 /*}*/
+
 .rsicn-pause{
 
 }
 .rs-shadow-input{
-    padding-top: 7px;
+    padding-top: 7px !important;
     text-align: center;
     justify-content: center;
 }
+.rs-shadow-select{
+    padding-top: 7px !important;
+    text-align: center;
+    font-size: 16px;
+}
 .rs-shadow-textarea {
-    padding-top: 10px;
+    padding-top: 10px !important;
+}
+.rs-shadow-select-popup{
+    padding: 10px;
+    border-radius: 8px;
+    background: var(--off-white);
+    border: 1px solid var(--blue-grey);
+}
+.rs-shadow-select-popup>ul{
+    list-style-type: none !important;
+    padding-left: 0px !important;
+}
+.rs-shadow-select-popup>ul>li{
+    margin: 5px;
 }
 .Rectangle {
     width: 140px;
@@ -548,7 +567,8 @@
 
 #readspeaker_button1{
     position: relative;
-    height: 30px;
+    /*height: 30px;*/
+    top: -3px;
 }
 
 .rsbtn .rs-player-loadindicator {
@@ -886,7 +906,7 @@ input[type="range"]::-ms-fill-upper {
 .rs_addtools .rsbtn_toolpanel.vertical, .rsbtn .rsbtn_toolpanel.vertical {
     clear: left;
     position: absolute;
-    top: -19em;
+    top: -16em;
     z-index: 1;
     left: 17em;
 }
@@ -898,7 +918,7 @@ input[type="range"]::-ms-fill-upper {
 }
 .rsbtn_tools{
     width: 289px !important;
-    height: 305px;
+    height: 220px;
     padding: 1px 0 0;
     border-radius: 8px;
     box-shadow: 0 1px 13px 2px rgba(4, 31, 116, 0.2);
@@ -906,6 +926,9 @@ input[type="range"]::-ms-fill-upper {
 }
 .rsbtn_toollist{
     list-style-type: none !important;
+}
+.rsbtn_tool_click_listen{
+    display: none;
 }
 
 .rs_addtools .rsbtn_toolpanel.vertical .rsbtn_tools .rsbtn_tools_inner .rsbtn_toolcontainer ul.rsbtn_toollist li button.rsbtn_tool .rs_minitoggler, .rsbtn .rsbtn_toolpanel.vertical .rsbtn_tools .rsbtn_tools_inner .rsbtn_toolcontainer ul.rsbtn_toollist li button.rsbtn_tool .rs_minitoggler {
@@ -2077,3 +2100,155 @@ body.rs_highcontrast #rslightbox_contentcontainer #rslightbox_toolbar .rslightbo
 .rslightbox-tool {
     font-family: 'hl-icons';
 }
+/*.rspopup {*/
+/*    background: #f6f9fc;*/
+/*    border: 1px solid #677077;*/
+/*    border-radius: 2px;*/
+/*    display: inline-block;*/
+/*    box-shadow: 0 0 5px #777;*/
+/*    box-sizing: inherit;*/
+/*    color: #000;*/
+/*    display: block;*/
+/*    left: 300px;*/
+/*    position: absolute;*/
+/*    top: 100px;*/
+/*    border-top: none;*/
+/*}*/
+/*.rspopup .rspopup_btn, .rspopup_tlc .rspopup_btn {*/
+/*    font-family: hl-icons!important;*/
+/*    speak: none;*/
+/*    font-style: normal;*/
+/*    font-weight: 400;*/
+/*    font-variant: normal;*/
+/*    text-transform: none;*/
+/*    line-height: 1;*/
+/*    -webkit-font-smoothing: antialiased;*/
+/*    -moz-osx-font-smoothing: grayscale;*/
+/*    border-top: 1px solid #677077;*/
+/*    cursor: pointer;*/
+/*    padding: 5px 16px;*/
+/*    padding-left: 10px;*/
+/*}*/
+
+/*.rspopup .rspopup_btn span, .rspopup_tlc .rspopup_btn span {*/
+/*    font-family: 'Open Sans webReader',Helvetica,Arial,sans-serif;*/
+/*    font-size: 12px;*/
+/*    line-height: 1;*/
+/*}*/
+
+/*.rspopup .rspopup_btn.rspopup_play:before {*/
+/*    display: inline-block;*/
+/*    content: '';*/
+/*    background-image: url("/svg/icons/icons-lees-voor.svg");*/
+/*    background-position-x: 12px;*/
+/*    background-position-y: 12px;*/
+/*    background-size: auto;*/
+/*    height: 40px;*/
+/*    width: 40px;*/
+/*    background-repeat: no-repeat;*/
+/*}*/
+
+/*.rspopup .rspopup_btn::before, .rspopup_tlc .rspopup_btn::before {*/
+/*    margin-right: 10px;*/
+/*    vertical-align: middle;*/
+/*}*/
+.rspopup_tlc, .rspopup {
+    background: #ffffff;
+    border-radius: 20px;
+    box-shadow:  0 3px 18px 0 rgb(77 87 143 / 10%);
+    box-sizing: inherit;
+    color: #000;
+    position: absolute;
+}
+
+.rspopup_tlc .rspopup_btn,.rspopup_tlc .rspopup_btn{
+    border: none;
+    padding: 0;
+}
+.rspopup_tlc .rspopup_btn{
+    height: 32px;
+}
+.rspopup_tlc .rspopup_btn::before, .rspopup .rspopup_btn::before{
+    margin:0;
+}
+.rspopup_tlc .rspopup_btn.rspopup_play:before, .rspopup .rspopup_btn.rspopup_play:before {
+    display: inline-block;
+    content: '';
+    background-image: url('/svg/icons/icons-lees-voor.svg');
+    background-position-x: -5px;
+    background-position-y: -5px;
+    background-size: auto;
+    height: 32px;
+    width: 32px;
+    background-repeat: no-repeat;
+}
+.rspopup_tlc:hover .rspopup_btn.rspopup_play:before, .rspopup:hover .rspopup_btn.rspopup_play:before {
+    display: inline-block;
+    content: '';
+    background-image: url('/svg/icons/icons-lees-voor-hover.svg');
+    background-position-x: 1px;
+    background-position-y: 1px;
+    background-size: auto;
+    height: 32px;
+    width: 32px;
+    background-repeat: no-repeat;
+}
+.rspopup_tlc:hover {
+    background-color: #d9e5fe;
+}
+.rspopup {
+    width: 130px;
+}
+.rspopup:hover {
+    background-color: #f3f7ff;
+}
+.rspopup .rspopup_btn.rspopup_play:before {
+    background-position-x: 0;
+    background-position-y: 0;
+}
+.rspopup:hover .rspopup_btn.rspopup_play:before {
+    background-position-x: 6px;
+    background-position-y: 6px;
+}
+.rspopup .rspopup_btn.rspopup_play span{
+    font-family: Nunito Bold, sans-serif;
+    color: var(--all-Base);
+    vertical-align: super;
+    margin-left: 10px;
+}
+.rspopup:hover .rspopup_btn.rspopup_play span{
+    color: var(--teacher-primary);
+}
+span.rs_placeholder{
+    position: absolute;
+}
+span.completion-response-object-container{
+    position: relative;
+    white-space: nowrap;
+}
+#rs-controlpanel{
+    display: none;
+}
+@media only screen and (max-width: 770px) {
+    footer button.text-button span,footer button.primary-button span{
+        display: none;
+    }
+    footer button.text-button{
+        border-radius: 10px;
+        font-size: 18px;
+        font-family: Nunito Bold;
+        padding-top: 0px;
+        padding-right: 20px;
+        padding-bottom: 0px;
+        padding-left: 20px;
+        align-items: center;
+        min-height: 40px;
+        border: solid 1px transparent;
+        transition: 100ms ease-in-out;
+        border-color: var(--teacher-primary-light);
+    }
+    footer button.primary-button{
+        padding-left: 10px;
+    }
+}
+

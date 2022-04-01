@@ -41,5 +41,6 @@ return [
     'Hidden Layers confirmation student' => 'De verborgen layers zijn zichtbaar voor de docent, wil je ze behouden?',
     'Close confirmation'                 => 'Weet je het zeker dat je wil sluiten? Eventuele wijzigingen worden niet opgeslagen',
     'Centreren'                          => 'Centreren',
+    'Vraag'                              => 'Vraag',
 ];
 ?>

@@ -230,7 +230,7 @@ class CmsClassify extends CmsBase
                 } else {
                     $corresponding['rights'][] = [
                         'id' => Uuid::uuid4()->toString(),
-                        'order' => count($corresponding['rights']) + 1,
+                        'order' => $corresponding ? count($corresponding['rights']) + 1 : 1,
                         'answer' => $answer->answer,
                     ];
                 }

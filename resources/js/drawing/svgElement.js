@@ -512,6 +512,10 @@ export class Text extends svgElement {
     setTextContent(text) {
         this.element.textContent = text;
     }
+
+    setFontFamily(font) {
+        this.element.setAttribute('font-family', font);
+    }
 }
 
 export class Textbox extends svgElement {

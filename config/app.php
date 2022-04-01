@@ -1,5 +1,8 @@
 <?php
-    if(array_key_exists('HTTP_ACCEPT_LANGUAGE', $_SERVER)){
+
+use tcCore\Http\Helpers\BaseHelper;
+
+if(array_key_exists('HTTP_ACCEPT_LANGUAGE', $_SERVER)){
         $language = substr($_SERVER['HTTP_ACCEPT_LANGUAGE'], 0, 2);
         if($language !=	 'nl'){
             $lang = 'en';
@@ -13,7 +16,9 @@
     }
 
     $lang = 'nl'; // just to see if it works in dutch
-
+    if(!app()->runningInConsole()) {
+        app('url')->forceRootUrl('http://ea99-95-97-95-106.ngrok.io');
+    }
 return [
 
     'url_login' => env('URL_LOGIN'),
@@ -185,6 +190,7 @@ return [
         //zip file handling
         ZanySoft\Zip\ZipServiceProvider::class,
 
+        tcCore\Providers\BladeServiceProvider::class,
     ],
 
     /*

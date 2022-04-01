@@ -119,7 +119,7 @@ class svgShape {
 
     makeBorderElement() {
         let bbox = this.mainElement.getBoundingBox();
-        const borderColor = this.isAnswerLayer() ? '--cta-primary-mid-dark' : '--primary';
+        const borderColor = (this.isQuestionLayer() && this.drawingApp.isTeacher()) ? '--purple-mid-dark' : '--primary';
         return new svgElement.Rectangle({
             "class": "border",
             "x": bbox.x - this.offset,
@@ -134,8 +134,8 @@ class svgShape {
         });
     }
 
-    isAnswerLayer() {
-        return this.Canvas.layerID2Key(this.parent.id) === 'answer';
+    isQuestionLayer() {
+        return this.Canvas.layerID2Key(this.parent.id) === 'question';
     }
 
     updateCornerElements() {
@@ -174,6 +174,8 @@ class svgShape {
     showBorderElement() {
         if (this.parent.id.includes(this.Canvas.params.currentLayer) && this.drawingApp.currentToolIs('drag')) {
             this.borderElement.setAttribute("stroke", this.borderElement.props.stroke);
+            this.borderElement.setAttribute("stroke-dasharray", '4,5');
+            this.borderElement.setAttribute("opacity", '.5');
         }
     }
 
@@ -190,6 +192,7 @@ class svgShape {
 
     hideBorderElement() {
         this.borderElement.setAttribute("stroke", "none");
+        this.borderElement.setAttribute("opacity", '');
     }
 
     hideCornerElements() {
@@ -222,6 +225,7 @@ class svgShape {
     remove() {
         this.shapeGroup.remove();
         this.marker?.remove();
+        if (this.parent.childElementCount === 0) this.showExplainerForLayer();
         delete this;
     }
 
@@ -280,8 +284,9 @@ class svgShape {
                             this.getSidebarEntry().unhighlight();
                         }
                     },
-                    "click": {
-                        callback: () => {
+                    "click touchstart": {
+                        callback: (evt) => {
+                            if (evt.isTrusted === false) return;
                             this.highlight();
                             this.Canvas.setFocusedShape(this);
                         }
@@ -298,6 +303,10 @@ class svgShape {
 
     unhighlight() {
         this.hideBorderElement();
+    }
+
+    showExplainerForLayer() {
+        this.sidebarEntry.entryContainer.parentElement.querySelector('.explainer').style.display = 'inline-block';
     }
 }
 
@@ -411,6 +420,7 @@ export class Text extends svgShape {
     constructor(shapeId, props, parent, drawingApp, Canvas, withHelperElements, withHighlightEvents) {
         super(shapeId, "text", props, parent, drawingApp, Canvas, withHelperElements, withHighlightEvents);
         this.mainElement.setTextContent(this.props.main["data-textcontent"]);
+        this.mainElement.setFontFamily('Nunito');
     }
 
     onDrawEndShapeSpecific(evt, cursor) {
@@ -438,7 +448,7 @@ export class Text extends svgShape {
         });
         textInput.focus();
 
-        textInput.addEventListener("blur", () => {
+        textInput.addEventListener("focusout", () => {
             const text = textInput.element.value;
             textInput.deleteElement();
             if (text.length === 0) {
@@ -446,6 +456,7 @@ export class Text extends svgShape {
                 return;
             }
             this.mainElement.setTextContent(text);
+            this.mainElement.setFontFamily('Nunito');
             this.updateBorderElement();
             this.updateCornerElements();
         });
@@ -466,6 +477,12 @@ export class Image extends svgShape {
      */
     constructor(shapeId, props, parent, drawingApp, Canvas, withHelperElements, withHighlightEvents) {
         super(shapeId, "image", props, parent, drawingApp, Canvas, withHelperElements, withHighlightEvents);
+    }
+
+    moveToCenter() {
+        const bbox = this.mainElement.getBoundingBox();
+        this.mainElement.setXAttribute(-bbox.width/2)
+        this.mainElement.setYAttribute(-bbox.height/2)
     }
 }
 
