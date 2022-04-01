@@ -83,6 +83,17 @@
                                 <img class="inline-block card-header-img mr-3" src="/svg/stickers/profile.svg" alt="">
                                 <h1 class="card-header-text top-4 mt-2"> {{ __('onboarding.Vul jouw docentprofiel in') }}</h1>
                             </div>
+                            <div class="error-section">
+                                @if($this->entree_message)
+                                    <div class="notification error stretched mb-4">
+                                        <div class="flex items-center space-x-3">
+                                            <x-icon.exclamation/>
+                                            <span class="title">{{ __('auth.entree_error') }}</span>
+                                        </div>
+                                        <span class="body">{{ __($this->entree_message) }}</span>
+                                    </div>
+                                @endif
+                            </div>
                             {{--content form--}}
                             <div class="flex-grow">
                                 <form class="h-full relative" wire:submit.prevent="step1" action="#" method="POST">

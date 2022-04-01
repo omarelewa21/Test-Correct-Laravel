@@ -1,53 +1,43 @@
 <x-partials.question-container :number="$number" :question="$question">
-    <div class="w-full">
+    <div class="w-full" >
         <div class="mb-4" questionHtml wire:ignore>
             {!! $question->converted_question_html  !!}
         </div>
         <div wire:ignore>
-            <x-input.group class="w-full" label="{!! __('test_take.instruction_open_question') !!}">
+            <span>{!! __('test_take.instruction_open_question') !!}</span>
+            <x-input.group class="w-full" label="" style="position: relative;">
                 <textarea id="{{ $editorId }}" name="{{ $editorId }}" wire:model.debounce.1000ms="answer">{!! $this->answer !!}</textarea>
+                @if(Auth::user()->text2speech)
+                    <div wire:ignore class="rspopup_tlc hidden rsbtn_popup_tlc_{{$question->id}}"  ><div class="rspopup_play rspopup_btn " role="button" tabindex="0" aria-label="Lees voor" data-rslang="title/arialabel:listen" data-rsevent-id="rs_340375" title="Lees voor"></div></div>
+                @endif
             </x-input.group>
         </div>
-
+        <div id="word-count-{{ $editorId }}" wire:ignore></div>
 
         <script>
-            (function() {
-                var editor = CKEDITOR.instances['{{ $editorId }}']
+            document.addEventListener("DOMContentLoaded", () => {
+                var editor = ClassicEditors['{{ $editorId }}'];
                 if (editor) {
-                    editor.destroy(true)
+                    editor.destroy(true);
                 }
-                CKEDITOR.replace( '{{ $editorId }}', {
-                    removePlugins : 'pastefromword,advanced,simpleuploads,dropoff,copyformatting,image,pastetext,uploadwidget,uploadimage',
-                    extraPlugins : 'blockimagepaste,quicktable,ckeditor_wiris,autogrow,wordcount,notification',
-                    toolbar: [
-                        { name: 'basicstyles', items: [ 'Bold', 'Italic', 'Underline', 'Strike', 'Subscript', 'Superscript' ] },
-                        { name: 'paragraph', items: [ 'NumberedList', 'BulletedList' ] },
-                        { name: 'insert', items: [ 'Table' ] },
-                        { name: 'styles', items: ['Font', 'FontSize' ] },
-                        { name: 'wirisplugins', items: ['ckeditor_wiris_formulaEditor', 'ckeditor_wiris_formulaEditorChemistry']}
-                    ],
-                    fontSize_sizes : '1/1.000em;2/1.1250em;3/1.250em;4/1.375em;5/1.4375em;6/1.5em;7/1.625em;8/1.750em;9/2.250em;10/3em;11/4.5em',
-                    contentsCss : '/ckeditor/student.css'
+                RichTextEditor.initClassicEditorForStudentplayer('{{$editorId}}','{{ $question->getKey() }}');
+            });
+            @if(!is_null(Auth::user())&&Auth::user()->text2speech)
+                document.addEventListener('readspeaker_closed', () => {
+                    if(ReadspeakerTlc.guard.shouldNotReinitCkeditor(document.querySelector( '#{{ $editorId }}' ))){
+                        return;
+                    }
+                    ReadspeakerTlc.ckeditor.reattachReadableAreaAndDestroy('{{ $editorId }}');
+                    RichTextEditor.initClassicEditorForStudentplayer('{{$editorId}}','{{ $question->getKey() }}');
                 })
-                CKEDITOR.instances['{{ $editorId }}']
-                    .on('change', function (e) {
-                        var textarea = document.getElementById('{{ $editorId }}');
-                        setTimeout(function () {
-                            textarea.value = e.editor.getData();
-                        }, 300);
-                        textarea.dispatchEvent(new Event('input'))
-                    });
-                CKEDITOR.instances['{{ $editorId }}']
-                    .on('contentDom', function () {
-                        var editor = CKEDITOR.instances['{{ $editorId }}'];
-                        editor.editable().attachListener(editor.document, 'touchstart', function () {
-                            if (Core.appType === 'ipad') {
-                                document.querySelector('header').classList.remove('fixed');
-                                document.querySelector('footer').classList.remove('fixed');
-                            }
-                        });
-                    });
-            })();
+                document.addEventListener('readspeaker_started', () => {
+                    if(ReadspeakerTlc.guard.shouldNotDetachCkEditor(document.querySelector( '#{{ $editorId }}' ))){
+                        return;
+                    }
+                    RichTextEditor.writeContentToTexarea('{{ $editorId }}');
+                    ReadspeakerTlc.ckeditor.detachReadableAreaFromCkeditor('{{ $editorId }}');
+                })
+            @endif
         </script>
     </div>
     <x-attachment.attachment-modal :attachment="$attachment" :answerId="$answerId"/>

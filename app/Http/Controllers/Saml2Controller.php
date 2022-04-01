@@ -6,6 +6,8 @@ use Aacotroneo\Saml2\Saml2Auth;
 use Bugsnag\BugsnagLaravel\Facades\Bugsnag;
 use Illuminate\Routing\Controller;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Str;
 
 class Saml2Controller extends Controller
 {
@@ -50,9 +52,15 @@ class Saml2Controller extends Controller
         }
         $user = $saml2Auth->getSaml2User();
 
-        event(new Saml2LoginEvent($idpName, $user, $saml2Auth));
-
         $redirectUrl = $user->getIntendedUrl();
+
+        if(Str::contains($redirectUrl,'entreeRegister')){
+            session(['entreeReason' => 'register']);
+        }
+
+        $redirectUrl = config('saml2_settings.loginRoute');
+
+        event(new Saml2LoginEvent($idpName, $user, $saml2Auth));
 
         if ($redirectUrl !== null) {
             return redirect($redirectUrl);
@@ -106,6 +114,15 @@ class Saml2Controller extends Controller
     public function login(Saml2Auth $saml2Auth)
     {
         // todo set forceAuthn to dynamic in App op true;
-        $saml2Auth->login(config('saml2_settings.loginRoute'), [], true);
+        $redirectTo = config('saml2_settings.loginRoute');
+        if(request()->get('entreeRegister')){
+            $redirectTo = '/entreeRegister';
+        }
+        $saml2Auth->login($redirectTo, [], true);
+    }
+
+    public function register()
+    {
+        return redirect('/saml2/entree/login?entreeRegister=true');
     }
 }

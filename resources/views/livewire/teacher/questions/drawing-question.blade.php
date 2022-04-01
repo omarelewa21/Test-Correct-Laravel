@@ -40,7 +40,7 @@
                         <div class="z-0 flex flex-col items-center justify-center">
                             <x-button.primary @click="showWarning = !showWarning">
                                 <x-icon.edit/>
-                                <span>Antwoordmodel tekenen</span>
+                                <span>{{ __('cms.Tekening maken') }}</span>
                             </x-button.primary>
                             <p class="text-note text-sm text-center mt-4">{{ __('cms.waarschuwing_aanpassen_oude_tekenvraag') }} </p>
                         </div>

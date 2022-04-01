@@ -51,6 +51,10 @@ class ImportAttainments extends Command
         if(!$this->confirm($msg)){
             exit;
         }
+        $msg = 'Are you sure you are importing attainments and not learning goals?';
+        if(!$this->confirm($msg)){
+            exit;
+        }
         $msg = 'file was created:'.date ("F d Y H:i:s.", filemtime($pathToFile)).'. Continue?';
         if(!$this->confirm($msg)){
             exit;

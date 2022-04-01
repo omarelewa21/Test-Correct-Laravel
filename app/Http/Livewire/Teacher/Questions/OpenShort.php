@@ -115,6 +115,7 @@ class OpenShort extends Component
         'subtype'                => '',
         'type'                   => '',
         'attainments'            => [],
+        'learning_goals'         => [],
         'test_id'                => '',
         'all_or_nothing'         => false,
     ];
@@ -177,6 +178,7 @@ class OpenShort extends Component
         return [
             'new-tags-for-question' => 'handleTags',
             'updated-attainment'    => 'handleAttainment',
+            'updated-learning-goal' => 'handleLearningGoal',
             'new-video-attachment'  => 'handleNewVideoAttachment',
             'drawing_data_updated'  => 'handleUpdateDrawingData',
             'refresh'               => 'render',
@@ -378,6 +380,11 @@ class OpenShort extends Component
     public function handleAttainment(array $attainments)
     {
         $this->question['attainments'] = $attainments;
+    }
+
+    public function handleLearningGoal(array $learningGoals)
+    {
+        $this->question['learning_goals'] = $learningGoals;
     }
 
     public function updatingUploads(&$value)
@@ -627,16 +634,27 @@ class OpenShort extends Component
 
     private function removeQuestion()
     {
-        if (!$this->questionId) {
-            $this->returnToTestOverview();
+        if (!$this->editModeForExistingQuestion()) {
+            return $this->returnToTestOverview();
         }
 
-        $testQuestion = TestQuestion::whereUuid($this->testQuestionId)->firstOrFail();
+        if ($this->isPartOfGroupQuestion()) {
+            $groupQuestionQuestion = GroupQuestionQuestion::whereUuid($this->groupQuestionQuestionId)->first();
+            $groupQuestionQuestionManager = GroupQuestionQuestionManager::getInstanceWithUuid($this->testQuestionId);
 
-        $response = (new TestQuestionsController)->destroy($testQuestion);
+            $response = (new GroupQuestionQuestionsController)->destroy(
+                $groupQuestionQuestionManager,
+                $groupQuestionQuestion
+            );
+        } else {
+            $testQuestion = TestQuestion::whereUuid($this->testQuestionId)->firstOrFail();
+
+            $response = (new TestQuestionsController)->destroy($testQuestion);
+        }
+
 
         if ($response->getStatusCode() == 200) {
-            $this->returnToTestOverview();
+            return $this->returnToTestOverview();
         }
     }
 
@@ -740,6 +758,7 @@ class OpenShort extends Component
             $this->question['score'] = $q->score;
             $this->question['note_type'] = $q->note_type;
             $this->question['attainments'] = $q->getQuestionAttainmentsAsArray();
+            $this->question['learning_goals'] = $q->getQuestionLearningGoalsAsArray();
             $this->question['order'] = $tq->order;
             $this->question['all_or_nothing'] = $q->all_or_nothing;
             $this->question['closeable'] = $q->closeable;

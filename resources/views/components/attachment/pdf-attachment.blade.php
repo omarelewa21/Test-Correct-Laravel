@@ -49,7 +49,12 @@ See https://github.com/adobe-type-tools/cmap-resources
     <script src="/pdf/pdf.js"></script>
     <script src="/pdf/viewer.js"></script>
     <script src="/pdf/tcViewer.js"></script>
-
+    @if(!is_null(Auth::user())&&Auth::user()->text2speech)
+    <link rel="stylesheet" type="text/css" href="/css/rs_tlc.css" />
+    <link rel="stylesheet" type="text/css" href="/css/rs_tlc_pdf.css" />
+    <script src="//cdn-eu.readspeaker.com/script/12749/webReader/webReader.js?pids=wr&amp;noDefaultSkin=1" type="text/javascript" id="rs_req_Init"></script>
+        <script src="/js/readspeaker_tlc.js"></script>
+    @endif
 </head>
 
 <body tabindex="1" class="loadingInProgress">
@@ -240,6 +245,21 @@ See https://github.com/adobe-type-tools/cmap-resources
                             <option title="" value="4" data-l10n-id="page_scale_percent" data-l10n-args='{ "scale": 400 }'>400%</option>
                           </select>
                         </span>
+                        <div class="splitToolbarButtonSeparator"></div>
+                        @if(!is_null(Auth::user())&&Auth::user()->text2speech)
+                            <div class="Rectangle rs_clicklistenexclude rs_starter_button" onclick="ReadspeakerTlc.player.startRsPlayer();">
+                                <x-icon.rs-audio/>
+                                <div class="Lees-voor">
+                                    {{ __('test_take.speak') }}
+                                </div>
+                            </div>
+                            <div id="readspeaker_button1" wire:ignore class="rs_skip rsbtn rs_preserve hidden" >
+                                <a rel="nofollow" class="rsbtn_play"  title="{{ __('test_take.speak') }}" href="//app-eu.readspeaker.com/cgi-bin/rsent?customerid=12749&amp;lang=nl_nl&amp;readclass=rs_readable">
+                                    <span class="rsbtn_left rsimg rspart oval"><x-icon.rs-audio-inverse/></span>
+                                    <span class="rsbtn_right rsimg rsplay rspart"></span>
+                                </a>
+                            </div>
+                        @endif
                     </div>
                 </div>
                 <div id="loadingBar">
@@ -263,7 +283,7 @@ See https://github.com/adobe-type-tools/cmap-resources
         </menu>
 
         <div id="viewerContainer" tabindex="0">
-            <div id="viewer" class="pdfViewer "></div>
+            <div id="viewer" class="pdfViewer rs_readable"></div>
         </div>
 
         <div id="errorWrapper" hidden='true'>

@@ -533,7 +533,7 @@ class QtiImportController extends Controller
                 'errors'   => $helper->getErrors()
             ];
         } else {
-            throw new Exception(sprintf('A helper for %s does not exist', $question['type']));
+            throw new \Exception(sprintf('A helper for %s does not exist', $question['type']));
 
             $parsedResult = (object) [
                 'question' => $question,

@@ -84,5 +84,13 @@ trait CompletionQuestionTrait
         ], $overrides);
     }
 
+    private function getCompletionQuestionSelectionAttributes(array $overrides = []): array
+    {
+        return $this->getCompletionQuestionAttributes(array_merge([
+            'question'               => '<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis consequat pharetra augue dapibus ultricies. In hac habitasse platea dictumst. Quisque lacinia efficitur velit, fermentum [convallis|asdfasf|asdfsaf]sapien consequat eu. Maecenas vitae massa purus. Praesent in dolor in quam rutrum accumsan. Donec orci enim, maximus a tortor ut, porttitor sodales tortor. Sed pellentesque leo mi, nec hendrerit metus tempus non. In consequat, metus sed ornare sollicitudin, nisl nulla luctus arcu, eu dictum justo mi nec nisl. Maecenas convallis mauris eget aliquet scelerisque. Vestibulum faucibus tortor elit, sed lacinia est condimentum in. </p>',
+            'subtype'                => 'multi',
+            ], $overrides));
+    }
+
 
 }

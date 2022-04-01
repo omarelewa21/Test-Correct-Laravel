@@ -1,7 +1,10 @@
 <?php namespace tcCore;
 
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 use tcCore\Lib\Models\CompositePrimaryKeyModel;
 use tcCore\Lib\Models\CompositePrimaryKeyModelSoftDeletes;
+use tcCore\Scopes\QuestionAttainmentScope;
 
 class QuestionAttainment extends CompositePrimaryKeyModel {
 
@@ -69,5 +72,10 @@ class QuestionAttainment extends CompositePrimaryKeyModel {
         }
 
         return $questionAttainment;
+    }
+
+    public function scopeStrict($query)
+    {
+        $query->select('question_attainments.attainment_id as attainment_id','question_attainments.question_id','question_attainments.deleted_at')->join('attainments','question_attainments.attainment_id','attainments.id')->where('is_learning_goal', '=',false);
     }
 }

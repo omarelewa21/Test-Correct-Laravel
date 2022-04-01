@@ -103,7 +103,22 @@
             @endforeach
         </div>
 
-
+        <x-slot name="readspeaker">
+            @if(Auth::user()->text2speech)
+                <div class="Rectangle rs_clicklistenexclude rs_starter_button" onclick="ReadspeakerTlc.player.startRsPlayer()">
+                    <x-icon.rs-audio/>
+                    <div class="Lees-voor">
+                        {{ __('test_take.speak') }}
+                    </div>
+                </div>
+                <div id="readspeaker_button1" wire:ignore class="rs_skip rsbtn rs_preserve hidden" >
+                    <a rel="nofollow" class="rsbtn_play"  title="{{ __('test_take.speak') }}" href="//app-eu.readspeaker.com/cgi-bin/rsent?customerid=12749&amp;lang=nl_nl&amp;readclass=rs_readable">
+                        <span class="rsbtn_left rsimg rspart oval"><x-icon.rs-audio-inverse/></span>
+                        <span class="rsbtn_right rsimg rsplay rspart"></span>
+                    </a>
+                </div>
+            @endif
+        </x-slot>
         <x-slot name="footerbuttons">
             <x-button.text-button type="link"
                                   href="{{ $playerUrl }}?q=1"

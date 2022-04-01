@@ -2,14 +2,17 @@
     'options',
     'placeholder' => __('Kies een waarde'),
     'emptyOptionsMessage' => __('Geen resultaat gevonden'),
-    'name'
+    'name',
+    'level' => 'top'
 ])
 
-<div class="" wire:key="select_{{ $name }}">
+<div :class="{'mt-1' : '{{$level}}'!='top'}" wire:key="select_{{ $name }}">
     <div
         x-data="selectSearch({value:@entangle($attributes->wire('model')), data: @entangle($name), emptyOptionsMessage: '{{ $emptyOptionsMessage }}', name: '{{ $name }}', placeholder: '{{ $placeholder }}' })"
         @click.away="closeListbox()"
         @keydown.escape="closeListbox()"
+        :class="{'sub-item-with-connecting-line ml-3' : '{{$level}}'==='sub','sub-item-with-connecting-line ml-6' : '{{$level}}'==='subsub'}"
+
         class="relative h-10"
         x-effect="()=> options = data; "
     >
