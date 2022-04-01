@@ -5,6 +5,7 @@ namespace Tests\Unit;
 use Carbon\Carbon;
 use Carbon\CarbonInterval;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Str;
 use tcCore\EducationLevel;
 use tcCore\Http\Helpers\DemoHelper;
@@ -47,7 +48,8 @@ class SvgHelperTest extends TestCase
      */
     private function getBlackPixelAsBinary()
     {
-        return base64_decode(explode(',', self::BLACK_PIXEL)[1]);
+//        return base64_decode(explode(',', self::BLACK_PIXEL)[1]);
+        return UploadedFile::fake()->image('black_pixel.png');
     }
 
     protected function setUp(): void
@@ -90,7 +92,8 @@ class SvgHelperTest extends TestCase
     <g class="question-svg" ></g>
     <g class="answer-svg" ></g>
 </svg>
-XML,
+XML
+            ,
             (new SvgHelper('adcac1fb-57e3-40a0-ba4a-f895e23c84ea'))->getSvg()
         );
     }
@@ -187,13 +190,12 @@ XML,
         $uuid = 'e25397bb-e8c2-4835-969b-fa6bd88ff78c';
         $svgHelper = new SvgHelper($uuid);
 
-        $identifier = $svgHelper->addQuestionImage($this->getBlackPixelAsBinary());
+        $identifier = (string)Str::uuid();
+        $svgHelper->addQuestionImage($identifier, $this->getBlackPixelAsBinary());
         $this->assertNotEmpty($identifier);
-        $this->assertEquals(
-            $this->getBlackPixelAsBinary(),
-            $this->disk->get(
-                sprintf('%s/question/%s', $uuid, $identifier)
-            )
+
+        $this->disk->exists(
+            sprintf('%s/question/%s', $uuid, $identifier)
         );
 
         $svgHelper->updateQuestionLayer(
@@ -210,8 +212,8 @@ XML,
         });
 
         $this->assertStringContainsString(
-            $imageNode->getAttribute('src'),
-            self::BLACK_PIXEL
+            'base64',
+            $imageNode->getAttribute('src')
         );
     }
 
@@ -221,14 +223,14 @@ XML,
         $uuid = '3684d068-5215-4fd8-a030-b7c66aa58e81';
         $svgHelper = new SvgHelper($uuid);
 
-        $identifier = $svgHelper->addAnswerImage($this->getBlackPixelAsBinary());
+        $identifier = (string)Str::uuid();
+        $svgHelper->addAnswerImage($identifier, $this->getBlackPixelAsBinary());
         $this->assertNotEmpty($identifier);
-        $this->assertEquals(
-            $this->getBlackPixelAsBinary(),
-            $this->disk->get(
-                sprintf('%s/answer/%s', $uuid, $identifier)
-            )
+
+        $this->disk->exists(
+            sprintf('%s/answer/%s', $uuid, $identifier)
         );
+
 
         $svgHelper->updateAnswerLayer(
             sprintf(
@@ -244,8 +246,42 @@ XML,
         });
 
         $this->assertStringContainsString(
-            $imageNode->getAttribute('src'),
-            self::BLACK_PIXEL
+            'base64',
+            $imageNode->getAttribute('src')
+        );
+    }
+
+    /** @test */
+    public function it_can_add_an_image_to_the_answer_layer_in_base_64_encoded_format_and_render_the_svg_with_data_url()
+    {
+        $uuid = '3684d068-5215-4fd8-a030-b7c66aa58e81';
+        $svgHelper = new SvgHelper($uuid);
+
+        $identifier = (string)Str::uuid();
+        $svgHelper->addAnswerImage($identifier, $this->getBlackPixelAsBinary());
+        $this->assertNotEmpty($identifier);
+        $this->disk->exists(
+            sprintf('%s/answer/%s', $uuid, $identifier)
+        );
+
+        $svgHelper->updateAnswerLayer(
+            base64_encode(
+                sprintf(
+                    '<image identifier="%s"/>',
+                    $identifier
+                )
+            )
+        );
+        $doc = new \DOMDocument();
+        $doc->loadXML($svgHelper->getSvg());
+
+        $imageNode = collect($doc->getElementsByTagName('image'))->first(function ($node) use ($identifier) {
+            return $node->getAttribute('identifier') == $identifier;
+        });
+
+        $this->assertStringContainsString(
+            'base64',
+            $imageNode->getAttribute('src')
         );
     }
 
@@ -266,4 +302,54 @@ XML,
 
     }
 
+    /** @test */
+    public function it_can_rename_a_directory_to_a_different_uuid()
+    {
+        $currentUuid = '9dbd6346-f9b3-479b-ae25-758f3e1711ee';
+        $svgHelper = new SvgHelper($currentUuid);
+
+        $this->disk->assertExists($currentUuid);
+
+        $newUuid = (string)Str::uuid();
+        $svgHelper->rename($newUuid);
+
+        $this->disk->assertExists($newUuid);
+        $this->disk->assertMissing($currentUuid);
+    }
+
+    /** @test */
+    public function it_can_add_an_image_to_the_answer_layer_in_base_64_encoded_format_to_a_renamed_directory()
+    {
+        $uuid = '3684d068-5215-4fd8-a030-b7c66aa58e81';
+        $newUuid = (string)Str::uuid();
+
+        $svgHelper = new SvgHelper($uuid);
+
+        $svgHelper->rename($newUuid);
+
+        $identifier = (string)Str::uuid();
+        $svgHelper->addAnswerImage($identifier, $this->getBlackPixelAsBinary());
+        $this->assertNotEmpty($identifier);
+
+        $this->disk->exists(
+            sprintf('%s/answer/%s', $newUuid, $identifier)
+        );
+
+    }
+
+    /**
+     * @test
+     * @expect \Exception
+     */
+    public function when_renaming_a_svg_without_valid_new_uuid_it_should_throw_an_exception()
+    {
+        $this->expectException(\Exception::class);
+
+        $uuid = '3684d068-5215-4fd8-a030-b7c66aa58e81';
+        $newUuid = '';
+
+        $svgHelper = new SvgHelper($uuid);
+
+        $svgHelper->rename($newUuid);
+    }
 }

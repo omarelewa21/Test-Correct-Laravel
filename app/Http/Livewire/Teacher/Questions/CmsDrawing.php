@@ -3,6 +3,8 @@
 namespace tcCore\Http\Livewire\Teacher\Questions;
 
 use Illuminate\Support\Str;
+use tcCore\Http\Helpers\SvgHelper;
+use tcCore\Question;
 
 class CmsDrawing
 {
@@ -10,10 +12,13 @@ class CmsDrawing
     public $requiresAnswer = true;
 
     private $cleanedSvg = [];
+    private $correctionModelPNGString = '';
+    private $questionModelPNGString = '';
 
     public function __construct(OpenShort $instance)
     {
         $this->instance = $instance;
+        logger('goi');
     }
 
     public function getTranslationKey()
@@ -48,6 +53,7 @@ class CmsDrawing
         $this->instance->question['zoom_group'] = json_decode($q['zoom_group'], true);
         $this->instance->question['question_preview'] = $q['question_preview'];
         $this->instance->question['question_correction_model'] = $q['question_correction_model'];
+        $this->instance->question['uuid'] = $q['uuid'];
 
         if (filled($this->instance->question['zoom_group'])) {
             $this->setViewbox($this->instance->question['zoom_group']);
@@ -62,6 +68,7 @@ class CmsDrawing
         $this->instance->question['zoom_group'] = '';
         $this->instance->question['question_preview'] = '';
         $this->instance->question['question_correction_model'] = '';
+        $this->instance->question['uuid'] = (string)Str::uuid();
     }
 
     public function handleUpdateDrawingData($data)
@@ -70,13 +77,10 @@ class CmsDrawing
         $this->instance->question['question_svg'] = $data['svg_question'];
         $this->instance->question['grid_svg'] = $data['grid_size'];
         $this->instance->question['zoom_group'] = $data['svg_zoom_group'];
-        $this->instance->question['question_preview'] = $data['png_question_preview_string'];
-        $this->instance->question['question_correction_model'] = $data['png_correction_model_string'];
-
-        $this->cleanedSvg['question'] = $data['cleaned_question_svg'];
-        $this->cleanedSvg['answer'] = $data['cleaned_answer_svg'];
 
         $this->setViewbox($data['svg_zoom_group']);
+
+        $this->updateFilesystemData($data);
     }
 
     public function prepareForSave()
@@ -97,5 +101,35 @@ class CmsDrawing
             $data['width'],
             $data['height']
         );
+    }
+
+    public function performAfterSaveActions($response)
+    {
+        $svgHelper = new SvgHelper($this->instance->question['uuid']);
+
+        if (array_key_exists('image', $this->instance->cmsPropertyBag)) {
+
+        }
+
+        if ($this->instance->question['uuid'] === $response->original->question->uuid) {
+            return;
+        }
+
+        $svgHelper->rename($response->original->question->uuid);
+    }
+
+    /**
+     * @param $data
+     * @return void
+     */
+    private function updateFilesystemData($data): void
+    {
+        $svgHelper = new SvgHelper($this->instance->question['uuid']);
+
+        $svgHelper->updateAnswerLayer($data['cleaned_answer_svg']);
+        $svgHelper->updateQuestionLayer($data['cleaned_question_svg']);
+
+        $svgHelper->updateQuestionPNG($data['png_question_preview_string']);
+        $svgHelper->updateCorrectionModelPNG($data['png_correction_model_string']);
     }
 }

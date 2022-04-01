@@ -111,6 +111,7 @@ class SvgHelper
 
     private function updateLayer($value, $layerName)
     {
+        $value = $this->base64DecodeIfNecessary($value);
         $doc = new \DOMDocument;
         $doc->loadXML($this->getSvg());
 
@@ -162,22 +163,22 @@ XML
         );
     }
 
-    public function addQuestionImage($contents)
+    public function addQuestionImage($identifier, $contents)
     {
 
-        return $this->addImageToLayer('question', $contents);
+        return $this->addImageToLayer('question', $identifier, $contents);
     }
 
-    public function addAnswerImage($contents)
+    public function addAnswerImage($identifier, $contents)
     {
-        return $this->addImageToLayer('answer', $contents);
+        return $this->addImageToLayer('answer', $identifier, $contents);
     }
 
-    private function addImageToLayer($layer, $contents)
+    public function addImageToLayer($layer, $identifier, $contents)
     {
         $folder = $layer == 'answer' ? 'answer' : 'question';
 
-        $identifier = (string)Str::uuid();
+//        $identifier = (string)Str::uuid();
         $path = sprintf('%s/%s/%s', $this->uuid, $folder ,$identifier);
         $this->disk->put($path, $contents);
 
@@ -199,5 +200,22 @@ XML
         });
 
         return substr(substr($doc->saveXML(), 28), 0, -8);
+    }
+
+    private function base64DecodeIfNecessary($value)
+    {
+        if (Str::startsWith($value, '<') && Str::endsWith($value, '>') ) {
+            return $value;
+        }
+        return base64_decode($value);
+    }
+
+    public function rename($newUuid)
+    {
+        if (!$newUuid) {
+            throw new \Exception('No uuid provided');
+        }
+        $this->disk->move($this->uuid, $newUuid);
+        $this->uuid = $newUuid;
     }
 }
