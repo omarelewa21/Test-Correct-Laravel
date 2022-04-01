@@ -35,6 +35,14 @@ class SvgHelperTest extends TestCase
     private $disk;
 
     /**
+     * @TODO
+     * Viewbox read/write
+     * question layer read
+     * answer layer read
+     *
+     */
+
+    /**
      * @return false|string
      */
     private function getBlackPixelAsBinary()
