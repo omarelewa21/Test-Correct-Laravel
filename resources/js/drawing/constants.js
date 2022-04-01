@@ -8,17 +8,17 @@ export const validSvgElementKeys = {
     circle: ["cx", "cy", "r", "pathLength"],
     line: ["x1", "y1", "x2", "y2", "pathLength"],
     path: ["d"],
-    image: ["x", "y", "width", "height", "href", "preserveAspectRatio"],
+    image: ["x", "y", "width", "height", "href", "preserveAspectRatio", "identifier"],
     text: ["x", "y", "dx", "dy", "rotate", "lengthAdjust", "data-textcontent"],
     g: ["transform"],
 };
 
 export const shapePropertiesAvailableToUser = {
     drag: [],
-    freehand: ["edge", "opacity"],
-    rect: ["edge", "opacity", "fill"],
-    circle: ["edge", "opacity", "fill"],
-    line: ["edge", "opacity", "endmarker-type"],
+    freehand: ["edge"],
+    rect: ["edge", "fill"],
+    circle: ["edge", "fill"],
+    line: ["edge", "endmarker-type"],
     text: ["opacity", "text-style"],
 };
 
@@ -46,5 +46,5 @@ export const zoomParams = {
 };
 
 export const panParams = {
-    STEP: 20,
+    STEP: 5,
 };

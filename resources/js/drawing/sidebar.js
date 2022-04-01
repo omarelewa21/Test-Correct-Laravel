@@ -6,6 +6,7 @@ class sidebarComponent {
         this.Canvas = Canvas;
         this.root = drawingApp.params.root;
     }
+
     showFirstIcon(element) {
         element.querySelectorAll("svg")[0].style.display = "block";
         element.querySelectorAll("svg")[1].style.display = "none";
@@ -33,14 +34,15 @@ export class Entry extends sidebarComponent {
             lock: templateCopy.querySelector(".lock-btn"),
             hide: templateCopy.querySelector(".hide-btn"),
             drag: templateCopy.querySelector(".drag-btn"),
-            up: templateCopy.querySelector(".up-btn")
+            up: templateCopy.querySelector(".up-btn"),
+            down: templateCopy.querySelector(".down-btn")
         };
 
         this.type = this.svgShape.type === "path" ? "freehand" : this.svgShape.type;
         this.id = `${this.type}-${this.svgShape.shapeId}`;
         this.entryContainer.id = `shape-${this.id}`;
         this.entryTitle.innerText = `${
-            nameInSidebarEntryForShape[this.svgShape.type]
+            this.root.querySelector('#translation-template').dataset[this.svgShape.type]
         } ${this.svgShape.shapeId}`;
 
         this.drawingApp.bindEventListeners(this.eventListenerSettings, this);
@@ -68,7 +70,7 @@ export class Entry extends sidebarComponent {
                     "mouseenter touchstart": {
                         callback: () => {
                             this.svgShape.highlight();
-                            this.highlight();
+                            // this.highlight();
                         },
                     },
                     "mouseleave touchend touchcancel": {
@@ -77,6 +79,26 @@ export class Entry extends sidebarComponent {
                             this.unhighlight();
                         },
                     },
+                    "click": {
+                        callback: (evt) => {
+                            this.handleClick(evt);
+                        },
+                    },
+                },
+            },
+            {
+                element: this.btns.drag,
+                events: {
+                    "mouseenter touchstart": {
+                        callback: (evt) => {
+                            evt.currentTarget.closest('.shape-container').draggable = true;
+                        },
+                    },
+                    'mouseleave touchend': {
+                        callback: (evt) => {
+                            evt.currentTarget.closest('.shape-container').draggable = false;
+                        },
+                    }
                 },
             },
             {
@@ -111,11 +133,13 @@ export class Entry extends sidebarComponent {
                 },
             },
             {
-                element: this.btns.drag,
+                element: this.btns.down,
                 events: {
                     "click": {
                         callback: (evt) => {
-                            this.updateClickedElementPositionDown(evt.currentTarget.closest('.shape-container'));
+                            const entry = evt.currentTarget.closest('.shape-container');
+                            this.updateClickedElementPositionDown(entry);
+                            this.reorderHighlight(entry);
                         },
                     },
                 },
@@ -125,7 +149,9 @@ export class Entry extends sidebarComponent {
                 events: {
                     "click": {
                         callback: (evt) => {
-                            this.updateClickedElementPositionUp(evt.currentTarget.closest('.shape-container'));
+                            const entry = evt.currentTarget.closest('.shape-container')
+                            this.updateClickedElementPositionUp(entry);
+                            this.reorderHighlight(entry);
                         },
                     },
                 },
@@ -140,7 +166,7 @@ export class Entry extends sidebarComponent {
 
     updateClickedElementPositionDown(entry) {
 
-        if(entry.nextElementSibling) {
+        if (entry.nextElementSibling) {
             this.insertAfter(entry, entry.nextElementSibling);
 
             let newLayerId = entry.closest(".layer-group").id;
@@ -157,7 +183,7 @@ export class Entry extends sidebarComponent {
 
     updateClickedElementPositionUp(entry) {
 
-        if(entry.previousElementSibling) {
+        if (entry.previousElementSibling) {
             entry.parentElement.insertBefore(entry, entry.previousElementSibling);
 
             let newLayerId = entry.closest(".layer-group").id;
@@ -177,29 +203,58 @@ export class Entry extends sidebarComponent {
     }
 
     updateDraggedElementPosition(evt) {
-
         let entry = evt.currentTarget;
-            entry.classList.remove("dragging");
+        entry.classList.remove("dragging");
 
         let newLayerId = entry.closest(".layer-group").id;
         let newSvgLayer = this.root.querySelector(`#svg-${newLayerId}`);
         let shape = newSvgLayer.querySelector(`#${entry.id.substring(6)}`);
         let shapeToInsertBefore = newSvgLayer.querySelector(
-            `#${entry.previousElementSibling?.id.substring(6)}`
+            `#${entry.nextElementSibling?.id.substring(6)}.shape`
         );
         if (shapeToInsertBefore) {
-            newSvgLayer.insertBefore(shape, shapeToInsertBefore);
-            return;
+            return this.insertAfter(shape, shapeToInsertBefore);
         }
-        newSvgLayer.appendChild(shape);
+        newSvgLayer.prepend(shape);
+    }
+
+    reorderHighlight(element) {
+        element.classList.add("reorder-highlight");
+        let timeout = setTimeout(() => {
+            element.classList.remove('reorder-highlight');
+            clearTimeout(timeout);
+        }, 1000)
     }
 
     highlight() {
         this.entryTitle.classList.add("highlight");
+        this.entryContainer.classList.add("highlight");
     }
 
     unhighlight() {
         this.entryTitle.classList.remove("highlight");
+        this.entryContainer.classList.remove("highlight");
+    }
+
+    handleClick(evt) {
+        const selectedEl = this.entryContainer.parentElement.querySelector('.selected');
+        if (selectedEl) this.unselect(selectedEl);
+        if (selectedEl === this.entryContainer) return;
+        this.select();
+    }
+
+    select() {
+        this.entryContainer.classList.add('selected');
+        this.svgShape.shapeGroup.element.classList.add('selected');
+    }
+    unselect(element) {
+        const shapeId = element.id.substring(6);
+        element.classList.remove('selected');
+        element.closest('#canvas-sidebar-container').querySelector(`#${shapeId}`).classList.remove('selected');
+    }
+    toggleSelect() {
+        this.entryContainer.classList.toggle('selected');
+        this.svgShape.shapeGroup.element.classList.toggle('selected');
     }
 
     updateLockState() {
@@ -407,7 +462,7 @@ export class Layer extends sidebarComponent {
     }
 
     isEmpty() {
-        return Object.keys(this.shapes).length === 0;
+        return Object.keys(this.shapes).length === 0 && this.svg.childElementCount === 0;
     }
 
     enable() {
@@ -440,6 +495,7 @@ export class Layer extends sidebarComponent {
                             const targetHeader = evt.target;
                             const newCurrentLayerID = this.getLayerDataFromTarget(targetHeader);
                             if (newCurrentLayerID) {
+                                newCurrentLayerID.contains('question') ? this.Canvas.layers.answer.hide() : this.Canvas.layers.answer.unhideIfHidden();
                                 this.Canvas.setCurrentLayer(this.Canvas.layerID2Key(newCurrentLayerID));
                             }
                         }
@@ -516,7 +572,7 @@ export class Layer extends sidebarComponent {
     }
 
     unhideIfHidden() {
-        if(this.isHidden()) {
+        if (this.isHidden()) {
             this.unhide();
         }
     }
@@ -529,15 +585,19 @@ export class Layer extends sidebarComponent {
         Object.values(this.shapes).forEach((shape) => {
             shape.sidebar.remove();
         });
+        this.shapes = {};
+        this.svg.innerHTML = '';
+        this.shapesGroup.querySelectorAll('.shape-container').forEach((shape) => shape.remove());
     }
+
     getLayerDataFromTarget(element) {
         if (element.dataset.layer) return element.dataset.layer;
-        if(element.querySelector('[data-layer]')) return element.querySelector('[data-layer]').dataset.layer
+        if (element.querySelector('[data-layer]')) return element.querySelector('[data-layer]').dataset.layer
         return false;
     }
 
     hideExplainer() {
-        this.explainer.remove();
+        this.explainer.style.display = 'none';
     }
 
     setCorrectExplainerText() {

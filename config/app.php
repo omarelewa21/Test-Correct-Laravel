@@ -185,6 +185,7 @@ return [
         //zip file handling
         ZanySoft\Zip\ZipServiceProvider::class,
 
+        tcCore\Providers\BladeServiceProvider::class,
     ],
 
     /*

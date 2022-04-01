@@ -420,8 +420,8 @@ class OpenShort extends Component
             $this->checkTaxonomyValues();
 
         } catch (ValidationException $e) {
-            if ($this->obj && method_exists($this->obj, 'UnprepareForSave')) {
-                $this->obj->UnprepareForSave();
+            if ($this->obj && method_exists($this->obj, 'unprepareForSave')) {
+                $this->obj->unprepareForSave();
             }
             $this->dispatchBrowserEvent('opentab', 1);
             throw ($e);
