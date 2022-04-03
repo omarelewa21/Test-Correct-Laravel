@@ -113,7 +113,7 @@ RichTextEditor = {
                 const wordCountPlugin = editor.plugins.get( 'WordCount' );
                 const wordCountWrapper = document.getElementById( 'word-count-'+editorId );
                 wordCountWrapper.appendChild( wordCountPlugin.wordCountContainer );
-                ReadspeakerTlc.ckeditor.addListenersForReadspeaker(editor,questionId);
+                ReadspeakerTlc.ckeditor.addListenersForReadspeaker(editor,questionId,editorId);
                 ReadspeakerTlc.ckeditor.disableContextMenuOnCkeditor();
 
             } )
@@ -124,5 +124,13 @@ RichTextEditor = {
     setReadOnly: function(editor)
     {
         editor.isReadOnly = true;
+    },
+    writeContentToTexarea: function(editorId)
+    {
+        var editor = ClassicEditors[editorId];
+        if (editor) {
+            editor.updateSourceElement();
+            editor.sourceElement.dispatchEvent(new Event('input'));
+        }
     }
 }

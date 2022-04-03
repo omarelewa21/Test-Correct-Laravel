@@ -32,6 +32,9 @@ trait WithAttachments
 
     public function showAttachment($attachment)
     {
+        if($this->audioCloseWarning){
+            return;
+        }
         $this->attachment = Attachment::whereUuid($attachment)->first();
         $this->timeout = $this->attachment->audioTimeoutTime();
         $this->attachmentType = $this->getAttachmentType($this->attachment);
@@ -55,6 +58,7 @@ trait WithAttachments
                 $this->audioIsPlayedOnce();
             }
             $this->audioCloseWarning = false;
+            $this->dispatchBrowserEvent('pause-audio-player');
             if ($this->timeout != null && $this->playStarted()) {
                 $data = ['timeout' => $this->timeout, 'attachment' => $this->attachment->getKey()];
                 $this->dispatchBrowserEvent('start-timeout', $data);
@@ -72,11 +76,11 @@ trait WithAttachments
         $this->attachment->audioIsPlayedOnce();
     }
 
-    public function audioStoreCurrentTime($currentTime)
+    public function audioStoreCurrentTime($attachmentUuid, $currentTime)
     {
-        $sessionValue = 'attachment_' . $this->attachment->uuid . '_currentTime';
+        $sessionValue = 'attachment_' . $attachmentUuid . '_currentTime';
         session()->put($sessionValue, $currentTime);
-        $this->currentTimes[$this->question->uuid][$this->attachment->uuid] = $currentTime;
+        $this->currentTimes[$this->question->uuid][$attachmentUuid] = $currentTime;
     }
 
     public function registerPlayStart()

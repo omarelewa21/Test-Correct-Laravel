@@ -82,7 +82,7 @@
                             <div id="dropdiv{{$question->getKey()}}-{{$group->id}}" class="flex space-x-2">
                                 <div class="w-1/3">
                                     <span class="flex w-full py-2.5 px-4 border-2 border-blue-grey rounded-10
-                                                 bg-primary-light font-size-18 bold base leading-5 select-none">
+                                                 bg-primary-light font-size-18 bold base leading-5 ">
                                                 {{ $group->answer }}
                                     </span>
                                 </div>

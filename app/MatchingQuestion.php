@@ -55,7 +55,7 @@ class MatchingQuestion extends Question implements QuestionInterface {
     }
 
     public function matchingQuestionAnswers() {
-        return $this->belongsToMany('tcCore\MatchingQuestionAnswer', 'matching_question_answer_links', 'matching_question_id', 'matching_question_answer_id')->withPivot([$this->getCreatedAtColumn(), $this->getUpdatedAtColumn(), $this->getDeletedAtColumn(), 'order'])->wherePivot($this->getDeletedAtColumn(), null)->orderBy('matching_question_answer_links.order');
+        return $this->belongsToMany('tcCore\MatchingQuestionAnswer', 'matching_question_answer_links', 'matching_question_id', 'matching_question_answer_id')->withPivot([$this->getCreatedAtColumn(), $this->getUpdatedAtColumn(), $this->getDeletedAtColumn(), 'order'])->wherePivot($this->getDeletedAtColumn(), null)->orderBy('matching_question_answer_links.order','asc')->orderBy('matching_question_answer_links.matching_question_answer_id','asc');
     }
 
     public function reorder(MatchingQuestionAnswerLink $movedAnswer) {

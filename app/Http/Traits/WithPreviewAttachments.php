@@ -19,6 +19,9 @@ trait WithPreviewAttachments
 
     public function showAttachment($attachmentUuid)
     {
+        if($this->audioCloseWarning){
+            return;
+        }
         $this->attachment = Attachment::whereUuid($attachmentUuid)->first();
         $attachment = $this->attachment;
         $type = $this->attachmentBelongsToTypeQuestion($attachment);
@@ -37,10 +40,10 @@ trait WithPreviewAttachments
                 if (!$this->attachment->audioIsPausable()) {
                     $this->audioCloseWarning = true;
                     return;
-                } else {
-                    $this->dispatchBrowserEvent('pause-audio-player');
                 }
             }
+
+            $this->dispatchBrowserEvent('pause-audio-player');
 
             if ($this->audioCloseWarning) {
                 $this->attachment->audioIsPlayedOnce();
@@ -52,18 +55,17 @@ trait WithPreviewAttachments
             }
         }
 
-
         $this->attachment = null;
     }
 
-    public function audioIsPlayedOnce(Attachment $attachment)
+    public function audioIsPlayedOnce()
     {
 
     }
 
-    public function audioStoreCurrentTime($currentTime)
+    public function audioStoreCurrentTime($attachmentUuid, $currentTime)
     {
-        $this->currentTimes[$this->attachment->uuid] = $currentTime;
+        $this->currentTimes[$attachmentUuid] = $currentTime;
     }
 
     public function getCurrentTime()
@@ -127,4 +129,5 @@ trait WithPreviewAttachments
         }
         return 'question';
     }
+
 }

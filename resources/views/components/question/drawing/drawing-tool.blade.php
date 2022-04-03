@@ -37,7 +37,7 @@
                         </div>
                     </button>
                     @if(Auth::user()->isA('teacher'))
-                        <button title="{{ __('drawing-modal.Afbeelding') }}">
+                        <button id="img-upload-btn" title="{{ __('drawing-modal.Afbeelding') }}">
                             <label for="img-upload" id="img-upload-label">
                                 <x-icon.image-upload/>
                             </label>
@@ -98,7 +98,7 @@
                     </button>
                 </div>
 
-                <div class="property-group" id="opacity" title="{{ __('drawing-modal.Doorzichtigheid') }}">
+                <div class="property-group" id="opacity" title="{{ __('drawing-modal.Doorzichtigheid') }}" style="display: none">
                     <input type="number" name="opacity" id="elem-opacity-number" min="0" max="100" value="100" step="1"
                            autocomplete="off">
                     <input class="drawing-toolbar-slider" type="range" name="opacity" id="elem-opacity-range" min="0"
@@ -124,12 +124,12 @@
                 </div>
 
                 <div class="property-group" id="fill">
-                    <input type="color" name="fill-color" id="fill-color" value="#ffffff" autocomplete="off"
+                    <input type="color" name="fill-color" id="fill-color" value="#000000" autocomplete="off"
                            title="{{ __('drawing-modal.Opvulkleur') }}" class="cursor-pointer">
-                    <input type="number" name="fill-opacity" id="fill-opacity-number" min="0" max="100" value="100"
+                    <input type="number" name="fill-opacity" id="fill-opacity-number" min="0" max="100" value="25"
                            step="1" autocomplete="off" title="{{ __('drawing-modal.Doorzichtigheid opvulkleur') }}">
                     <input class="drawing-toolbar-slider" type="range" name="fill-opacity" id="fill-opacity-range" style="cursor: grab"
-                           min="0" max="100" value="100" step="1" autocomplete="off" title="{{ __('drawing-modal.Doorzichtigheid opvulkleur') }}">
+                           min="0" max="100" value="25" step="1" autocomplete="off" title="{{ __('drawing-modal.Doorzichtigheid opvulkleur') }}">
                 </div>
 
                 <div class="property-group" id="endmarker-type" title="{{ __('drawing-modal.Type lijneinde') }}">
@@ -259,7 +259,7 @@
     </div>
 </div>
 <template id="shape-group-template">
-    <div class="shape-container" id="shape-n" draggable="true">
+    <div class="shape-container" id="shape-n" draggable="false">
         <div class="flex items-center w-full justify-between">
             <span class="shape-title">If you read this, report a bug</span>
             <div class="btn-group">
@@ -323,7 +323,7 @@
             </div>
         </div>
         <div class="shapes-group">
-            <span class="explainer note text-sm text-center"
+            <span id="explainer" class="explainer note text-sm text-center inline-block"
                   style="padding: 1.5rem"
                   data-text-closeConfirmation="{{ __('drawing-modal.Close confirmation') }}"
                   @if(Auth::user()->isA('teacher'))

@@ -29,7 +29,7 @@
                 $errorMainClass = 'border-allred';
             @endphp
             @enderror
-                <div>
+                <div >
                     <div class="flex items-center space-x-2.5">
                         <x-input.text class="w-full mr-1 text-center relative z-10 {{ $errorMainClass }}" wire:key="left-{{$key}}" wire:model.lazy="cmsPropertyBag.answerStruct.{{$key}}.left" selid="left-answer"/>
                         <x-icon.remove class="mx-2 w-4 cursor-pointer  {{ $disabledMainClass }}" wire:key="remove-{{$key}}" id="remove_{{ $key }}" wire:click="__call('delete','{{ $key }}')"></x-icon.remove>

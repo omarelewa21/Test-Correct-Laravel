@@ -25,6 +25,8 @@ class AttainmentManager extends Component
 
     public $eductionLevelId;
 
+    public $type = 'attainments';
+
     public function mount()
     {
         $filter = [
@@ -63,7 +65,7 @@ class AttainmentManager extends Component
         $this->emitUpdatedValuesEvent();
     }
 
-    private function emitUpdatedValuesEvent()
+    protected function emitUpdatedValuesEvent()
     {
             $this->emitUp('updated-attainment', array_filter([$this->domainId, $this->subdomainId, $this->subsubdomainId]));
     }
@@ -86,24 +88,28 @@ class AttainmentManager extends Component
         $this->emitUpdatedValuesEvent();
     }
 
-    private function reloadSubdomainsListForAttainmentId($attainmentId)
+    protected function reloadSubdomainsListForAttainmentId($attainmentId)
     {
         $this->reloadDescendantForAttainmentId($attainmentId,'subdomains');
     }
 
-    private function reloadSubsubdomainsListForAttainmentId($attainmentId)
+    protected function reloadSubsubdomainsListForAttainmentId($attainmentId)
     {
         $this->reloadDescendantForAttainmentId($attainmentId,'subsubdomains');
     }
 
-    private function reloadDescendantForAttainmentId($attainmentId,$level)
+    protected function reloadDescendantForAttainmentId($attainmentId,$level)
     {
         if (!empty($attainmentId)) {
             Attainment::where('attainment_id', $attainmentId)
                 ->where('status', 'ACTIVE')
                 ->get()
                 ->each(function ($child) use ($level){
-                    $this->$level[$child->id] = $child->description;
+                    $description = $child->description;
+                    if($level == 'subdomains' && $child->description == ''){
+                        $description = __('Dit niveau is niet beschikbaar, klik voor het volgende niveau');
+                    }
+                    $this->$level[$child->id] = $description;
                 });;
         }
     }
@@ -111,5 +117,10 @@ class AttainmentManager extends Component
     public function render()
     {
         return view('livewire.attainment-manager')->layout('layouts.base');
+    }
+
+    public function title()
+    {
+        return __('cms.Eindtermen');
     }
 }
