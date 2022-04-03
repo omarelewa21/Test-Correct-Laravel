@@ -44,9 +44,13 @@ trait WithAttachments
     {
         if (optional($this->attachment)->file_mime_type == 'audio/mpeg') {
             if ($this->audioHasTimerAndIsStartedAndNotFinished()&& !$this->audioCloseWarning){
+                if ($this->attachment->audioIsPausable()) {
+                    $this->dispatchBrowserEvent('pause-audio-player');
+                }
                 $this->audioCloseWarning = true;
                 return;
             }
+
             if ($this->audioOnlyPlayOnceAndIsStartedAndNotFinished() && !$this->audioCloseWarning) {
                 if (!$this->attachment->audioIsPausable()) {
                     $this->audioCloseWarning = true;
@@ -57,8 +61,10 @@ trait WithAttachments
             if ($this->audioCloseWarning&&$this->attachment->audioOnlyPlayOnce()) {
                 $this->audioIsPlayedOnce();
             }
+
             $this->audioCloseWarning = false;
             $this->dispatchBrowserEvent('pause-audio-player');
+
             if ($this->timeout != null && $this->playStarted()) {
                 $data = ['timeout' => $this->timeout, 'attachment' => $this->attachment->getKey()];
                 $this->dispatchBrowserEvent('start-timeout', $data);
