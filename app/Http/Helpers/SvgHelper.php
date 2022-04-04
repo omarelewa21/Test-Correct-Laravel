@@ -24,8 +24,9 @@ class SvgHelper
         $this->disk = Storage::disk(self::DISK);
         $this->uuid = $uuid;
 
-        $this->scaffoldFolderStructure();
-
+        if ($this->disk->missing($uuid)) {
+            $this->scaffoldFolderStructure();
+        }
     }
 
     private function getQuestionFolder()
@@ -230,9 +231,8 @@ XML
     {
         $doc = new \DOMDocument;
         $doc->loadXML($this->getSvg());
-        $viewBoxString = $this->makeViewBoxString($viewBox);
         $svgNode = collect($doc->getElementsByTagName('svg'))->first();
-        $svgNode->setAttribute('viewBox', $viewBoxString);
+        $svgNode->setAttribute('viewBox', $this->makeViewBoxString($viewBox));
 
         $this->saveSVG($doc->saveXML());
     }
@@ -272,5 +272,32 @@ XML
         $doc->loadXML($this->getSvg());
         $svgNode = collect($doc->getElementsByTagName('svg'))->first();
         return $svgNode->getAttribute('viewBox');
+    }
+
+    public function getAnswerLayerFromSVG($base64 = false)
+    {
+        return $this->getLayerFromSVG('svg-answer-group', $base64);
+    }
+
+    public function getQuestionLayerFromSVG($base64 = false)
+    {
+        return $this->getLayerFromSVG('svg-question-group', $base64);
+    }
+
+    private function getLayerFromSVG($layerName, $base64 = false)
+    {
+        $doc = new \DOMDocument;
+        $doc->loadXML($this->getSvg());
+        $layer = collect($doc->getElementsByTagName('g'))->first(function ($node) use ($layerName) {
+            return $node->getAttribute('id') === $layerName;
+        });
+        $layerHtml = $this->trimParentTagFromLayer($doc->saveHTML($layer));
+
+        return $base64 ? base64_encode($layerHtml) : $layerHtml;
+    }
+
+    private function trimParentTagFromLayer($layer)
+    {
+        return substr(strstr(ltrim($layer, '<'), '<'), 0, -4);
     }
 }

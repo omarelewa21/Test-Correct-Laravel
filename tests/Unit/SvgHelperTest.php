@@ -387,11 +387,87 @@ XML
         ];
 
         $svgHelper->setViewBox($viewBox);
-        $this->assertStringContainsString('viewBox="2 3 307 307"', $svgHelper->getSvg());
-
         $retrievedViewBox = $svgHelper->getViewBox();
 
+
+        $this->assertStringContainsString('viewBox="2 3 307 307"', $svgHelper->getSvg());
         $this->assertEquals($retrievedViewBox, $svgHelper->makeViewBoxString($viewBox));
         $this->assertEquals($svgHelper->makeViewBoxArray($retrievedViewBox), $viewBox);
+    }
+
+    /**
+     * @test
+     */
+    public function it_can_retrieve_the_answer_layer_from_the_svg()
+    {
+        $svgHelper = new SvgHelper('5eaf249f-a08a-42bc-9c7c-6267d9c329a0');
+        $answerLayer = '<circle cx="50" cy="50" r="40" stroke="black" stroke-width="3" fill="blue"></circle>';
+        $questionLayer = '<circle cx="50" cy="50" r="40" stroke="black" stroke-width="3" fill="red"></circle>';
+
+        $svgHelper->updateAnswerLayer($answerLayer);
+        $svgHelper->updateQuestionLayer($questionLayer);
+
+        $this->assertEquals($answerLayer, $svgHelper->getAnswerLayerFromSVG());
+        $this->assertNotEquals($questionLayer, $svgHelper->getAnswerLayerFromSVG());
+    }
+
+    /**
+     * @test
+     */
+    public function it_can_retrieve_the_question_layer_from_the_svg()
+    {
+        $svgHelper = new SvgHelper('5eaf249f-a08a-42bc-9c7c-6267d9c329a0');
+        $answerLayer = '<circle cx="50" cy="50" r="40" stroke="black" stroke-width="3" fill="blue"></circle>';
+        $questionLayer = '<circle cx="50" cy="50" r="40" stroke="black" stroke-width="3" fill="red"></circle>';
+
+        $svgHelper->updateAnswerLayer($answerLayer);
+        $svgHelper->updateQuestionLayer($questionLayer);
+
+        $this->assertEquals($questionLayer, $svgHelper->getQuestionLayerFromSVG());
+        $this->assertNotEquals($answerLayer, $svgHelper->getQuestionLayerFromSVG());
+    }
+
+    /**
+     * @test
+     */
+    public function it_can_retrieve_the_answer_layer_from_the_svg_as_base64_string()
+    {
+        $svgHelper = new SvgHelper('5eaf249f-a08a-42bc-9c7c-6267d9c329a0');
+        $answerLayer = '<circle cx="50" cy="50" r="40" stroke="black" stroke-width="3" fill="red"></circle>';
+
+        $svgHelper->updateAnswerLayer($answerLayer);
+
+        $this->assertEquals(
+            $answerLayer,
+            base64_decode($svgHelper->getAnswerLayerFromSVG(true))
+        );
+    }
+
+    /**
+     * @test
+     */
+    public function it_can_retrieve_the_question_layer_from_the_svg_as_base64_string()
+    {
+        $svgHelper = new SvgHelper('5eaf249f-a08a-42bc-9c7c-6267d9c329a0');
+        $questionLayer = '<circle cx="50" cy="50" r="40" stroke="black" stroke-width="3" fill="red"></circle>';
+
+        $svgHelper->updateQuestionLayer($questionLayer);
+
+        $this->assertEquals(
+            $questionLayer,
+            base64_decode($svgHelper->getQuestionLayerFromSVG(true))
+        );
+    }
+
+    /**
+     * @test
+     */
+    public function it_can_retrieve_an_empty_layer_from_the_svg_as_base64_string_without_breaking()
+    {
+        $svgHelper = new SvgHelper('5eaf249f-a08a-42bc-9c7c-6267d9c329a0');
+        $emptyBase64String = base64_encode('');
+
+        $this->assertEquals($emptyBase64String, $svgHelper->getQuestionLayerFromSVG());
+        $this->assertEmpty($svgHelper->getQuestionLayerFromSVG(true));
     }
 }

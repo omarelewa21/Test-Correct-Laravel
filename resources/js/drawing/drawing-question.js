@@ -2200,8 +2200,9 @@ window.calculatePreviewBounds = function (parent) {
     const height = parent.clientHeight,
         width = parent.clientWidth;
     let scale = parent.viewBox.baseVal.width / width;
-    if (parent.viewBox.baseVal.width > width) {
-        scale = width / parent.viewBox.baseVal.width
+
+    if ((parent.viewBox.baseVal.width * parent.viewBox.baseVal.height) > (width * height)) {
+        scale = (width*height) / (parent.viewBox.baseVal.width * parent.viewBox.baseVal.height)
     }
     return {
         top: -(matrix.f + (height)) / scale,
