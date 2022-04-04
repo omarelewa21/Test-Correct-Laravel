@@ -396,7 +396,7 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
             break;
         }
         if (!$handled) {
-            $this->allowedSchoolLocations()->attach([$schoolLocation->id => ['external_id' => $externalId]]);
+            $this->allowedSchoolLocations()->attach([$schoolLocationId => ['external_id' => $externalId]]);
         }
     }
 

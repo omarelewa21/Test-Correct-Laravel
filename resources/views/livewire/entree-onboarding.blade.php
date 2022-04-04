@@ -269,10 +269,7 @@
                                                         </div>
                                                     </div>
                                                 </div>
-
-
                                             </div>
-
                                         </div>
                                         @endif
 
@@ -343,72 +340,30 @@
                             <div class="flex-grow">
                                 <form class="h-full relative" wire:submit.prevent="step2" action="#" method="POST">
                                     <div class="input-section mb-4">
-                                        @if($this->hasValidTUser)
+                                        @if($this->hasFixedLocation)
                                             <div class="flex flex-col space-y-2 w-full mt-4">
-                                                    <x-drag-item id="mc-"
+                                                    <div
                                                                  class="flex px-0 py-0 border-0 bg-system-white relative regular"
-                                                                 slotClasses="w-full mr-0 "
                                                     >
-                                                        <p>{{ $this->registration->school_location }}</p>
-                                                        <x-slot name="after">
-                                                            <x-icon.checkmark class="mx-2 w-4"  wire:click="__call('delete','')"></x-icon.checkmark>
-                                                        </x-slot>
-                                                    </x-drag-item>
+                                                        {{ $this->schoolLocation->name }}
+
+                                                            <x-icon.checkmark class="mx-2 w-4" ></x-icon.checkmark>
+
+                                                    </div>
                                             </div>
-                                        @else
+                                        @elseif($this->school)
                                             <div class="flex flex-col space-y-2 w-full mt-4">
-                                                <x-drag-item id="mc-"
-                                                             class="flex px-0 py-0 border-0 bg-system-white relative regular"
-                                                             slotClasses="w-full mr-0 "
+
+                                            @foreach($this->school->schoolLocations as $location)
+                                                <div wire:click="toggleSchoolLocation('{{ $location->uuid }}',@if($this->isSelectedSchoolLocation($location->uuid)) false @else true @endif )"
+                                                        class="flex px-0 py-0 border-0 bg-system-white relative regular"
                                                 >
-                                                    <p>{{ $this->registration->school_location }}</p>
-                                                    <x-slot name="after">
-                                                        <x-icon.checkmark class="mx-2 w-4 " wire:click="__call('delete','')"></x-icon.checkmark>
-                                                    </x-slot>
-                                                </x-drag-item>
-                                            </div>
-
-                                            <div class="school-info">
-                                                <div class="input-group w-full  sm:w-1/2 sm:pr-2">
-                                                    <input id="school_location"
-                                                           wire:model.lazy="registration.school_location" @if($this->hasValidTUser) disabled @endif
-                                                           class="form-input @if($this->hasValidTUser) disabled @endif @error('registration.school_location') border-red @enderror">
-                                                    <label for="school_location"
-                                                           class="">{{ __("onboarding.Schoolnaam") }}</label>
+                                                    {{ $location->name }}
+                                                    @if($this->isSelectedSchoolLocation($location->uuid))
+                                                        <x-icon.checkmark class="mx-2 w-4"  wire:click="deleteSchoolLocation('{{ $location->uuid }}')"></x-icon.checkmark>
+                                                    @endif
                                                 </div>
-
-                                                <div class="input-group w-full sm:w-1/2 sm:pl-2">
-                                                    <input id="website_url" wire:model.lazy="registration.website_url"
-                                                           class="form-input @error('registration.website_url') border-red @enderror">
-                                                    <label for="website_url"
-                                                           class="">{{ __("onboarding.Website") }}</label>
-                                                </div>
-
-                                                <div class="input-group w-9/12 sm:w-3/5 pr-2">
-                                                    <input id="address" wire:model.lazy="registration.address"
-                                                           class="form-input @error('registration.address') border-red @enderror">
-                                                    <label for="address"
-                                                           class="">{{ __("onboarding.Bezoekadres") }}</label>
-                                                </div>
-                                                <div class="input-group w-3/12 sm:w-32 pl-2 md:mr-16">
-                                                    <input id="house_number" wire:model.lazy="registration.house_number"
-                                                           class="form-input @error('registration.house_number') border-red @enderror">
-                                                    <label for="house_number"
-                                                           class="">{{ __("onboarding.Huisnummer") }}</label>
-                                                </div>
-
-                                                <div class="input-group  w-3/12 sm:w-32 pr-2">
-                                                    <input id="postcode" wire:model.lazy="registration.postcode"
-                                                           class="form-input  @error('registration.postcode') border-red @enderror">
-                                                    <label for="postcode"
-                                                           class="">{{ __("onboarding.Postcode") }}</label>
-                                                </div>
-                                                <div class="input-group w-9/12 sm:w-3/5 pl-2">
-                                                    <input id="city" wire:model="registration.city"
-                                                           class="form-input @error('registration.city') border-red @enderror">
-                                                    <label for="city"
-                                                           class="">{{ __("onboarding.Plaatsnaam") }}</label>
-                                                </div>
+                                            @endforeach
                                             </div>
                                         @endif
                                     </div>

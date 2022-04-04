@@ -136,4 +136,14 @@ class BaseHelper
         $answer = str_replace('&gt;','>',$answer);
         return $answer;
     }
+
+    public static function getLoginUrlWithOptionalMessage($message = null, $isError = false)
+    {
+        $queryAr = [];
+        if($message){
+            $type = ($isError) ? 'entree_error_message' : 'message';
+            $queryAr[$type] = $message;
+        }
+        return route('auth.login',$queryAr);
+    }
 }

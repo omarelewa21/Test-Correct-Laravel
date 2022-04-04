@@ -19,6 +19,8 @@ return [
     'Je school is helaas nog niet bekend in Test-Correct. Vul dit formulier in om een account aan te maken' => 'Your school is not yet know withing Test-Corecct, please fill out this form to create an account',
     'Je bestaande Test-Correct account is al gekoppeld aan je Entree account. Je kunt vanaf nu ook inloggen met Entree.' => 'Your existing Test-Correct account is already connected to Entree. You can use Entree to login',
     'Je bestaande Test-Correct account is geupdate met de schoollocaties die we vanuit Entree hebben meegekregen. We hebben je in de schoollocatie gezet. Je kunt vanaf nu ook inloggen met Entree.' => 'Your existing Test-Correct account has been updated with the new school location, which we got from Entree. We have added you to the school location :name. You can now login through Entree.',
-    'Je bestaande Test-Correct account kan niet geupdate worden. Neem contact op met support.' => 'Your existing Test-Correct account could not be updated. Please contact support.'
+    'Je bestaande Test-Correct account kan niet geupdate worden. Neem contact op met support.' => 'Your existing Test-Correct account could not be updated. Please contact support.',
+    'De gekozen school locatie kon niet gevonden worden. Neem contact op met support.' => 'The chosen location could not be found, please contact support.',
+    'Je entree account kan niet gebruikt worden om een account aan te maken in Test-Correct. Neem contact op met support.' => 'Your Entree account can not be used to create an account with Test-Correct, please contact support.',
 
 ];
