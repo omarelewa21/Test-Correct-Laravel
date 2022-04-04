@@ -17,6 +17,7 @@ class SchoolLocationReport extends Model
     protected $casts = [
         'created_at' => 'datetime:Y-m-d H:i:s',
         'updated_at' => 'datetime:Y-m-d H:i:s',
+        'keep_out_of_school_location_report' => 'boolean',
     ];
 
     protected $guarded = [];
@@ -28,7 +29,7 @@ class SchoolLocationReport extends Model
             SchoolLocationReport::truncate();
         }
 
-        SchoolLocation::all()->each(function (SchoolLocation $l) {
+        SchoolLocation::where('keep_out_of_school_location_report',false)->get()->each(function (SchoolLocation $l) {
             dispatch((new UpdateSchoolLocationReportRecord($l)));
             // self::updateLocationStats($l);
         });

@@ -105,8 +105,8 @@
                 </x-button.text-button>
                 <x-button.cta x-show="display.turnin"
                         size="sm"
-                        onclick="livewire.find(document.querySelector('[test-take-player]').getAttribute('wire:id')).call('toOverview', {{ $nav->count() }})"
-                        @click="$dispatch('show-loader')"
+                        onclick="toOverview({{ $nav->count() }})"
+                        {{-- @click="$dispatch('show-loader')" --}}
                 >
                     <span>{{ __('test_take.overview') }}</span>
                 </x-button.cta>
@@ -157,6 +157,16 @@
             }
             return data;
         }
+        function toOverview(q){
+                $question = @js($data)[q-1];
+                if($question['type'].toLowerCase() == 'openquestion' && $question['subtype'].toLowerCase() != 'short'){
+                    setTimeout(function(){
+                            livewire.find(document.querySelector('[test-take-player]').getAttribute('wire:id')).call('toOverview', q)
+                        }, 500)
+                }else{
+                    livewire.find(document.querySelector('[test-take-player]').getAttribute('wire:id')).call('toOverview', q)
+                }
+            }
     </script>
         <script>
             document.addEventListener("DOMContentLoaded", () => {

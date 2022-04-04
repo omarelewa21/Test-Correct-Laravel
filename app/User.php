@@ -60,7 +60,7 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
     const MIN_PASSWORD_LENGTH = 8;
 
     protected $casts = [
-        'uuid' => EfficientUuid::class,
+        'uuid'    => EfficientUuid::class,
         'intense' => 'boolean',
     ];
 
@@ -304,7 +304,7 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
 
     public function hasText2Speech()
     {
-        return (bool)$this->text2speech;
+        return (bool) $this->text2speech;
     }
 
     public function hasActiveText2Speech()
@@ -312,7 +312,7 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
         if (!$this->hasText2Speech()) {
             return false;
         }
-        return (bool)$this->text2SpeechDetails->active;
+        return (bool) $this->text2SpeechDetails->active;
     }
 
     public function getHasText2speechAttribute()
@@ -1306,7 +1306,7 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
 
     public function isInExamSchool(): bool
     {
-        if ($this->schoolLocation->customer_code == config('custom.examschool_customercode')) {
+        if (optional($this->schoolLocation)->customer_code == config('custom.examschool_customercode')) {
             return true;
         }
         return false;
@@ -1950,6 +1950,13 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
         }
 
         return $query->where(sprintf('%s.demo', $tableAlias), 0);
+    }
+
+    public function isAllowedSchool(School $school)
+    {
+        return !! $this->allowedSchoolLocations->first(function (SchoolLocation $sl) use ($school) {
+            return $sl->school == $school;
+        });
     }
 
     public function allowedSchoolLocations()

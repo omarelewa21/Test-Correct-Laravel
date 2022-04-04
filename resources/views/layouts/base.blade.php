@@ -25,7 +25,7 @@
 
 
 </head>
-<body id="body" class="flex flex-col min-h-screen"  onload="addIdsToQuestionHtml()">
+<body id="body" class="flex flex-col min-h-screen" onload="addIdsToQuestionHtml()">
 {{ $slot }}
 
 @livewireScripts
@@ -57,7 +57,6 @@
 <script>
     Alpine.start();
     Core.init();
-</script>
 </script>
 </body>
 </html>

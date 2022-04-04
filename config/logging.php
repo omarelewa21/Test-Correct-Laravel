@@ -87,7 +87,8 @@ return [
             'formatter' => tcCore\Logging\LokiJson::class,
             'formatter_with' => [
                 'batchMode' => 2
-            ]
+            ],
+            'permission' => 0664
         ]
     ],
 

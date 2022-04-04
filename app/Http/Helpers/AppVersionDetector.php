@@ -2,6 +2,7 @@
 namespace tcCore\Http\Helpers;
 
 use Carbon\Carbon;
+use Illuminate\Support\Str;
 
 abstract class AllowedAppType
 {
@@ -184,12 +185,6 @@ class AppVersionDetector
                 "3.3.0-beta.5",
             ],
             "needsUpdate" => [
-                "3.1.3",
-                "3.1.3-beta.1",
-                "3.1.3-beta.2",
-                "3.1.3-beta.3",
-                "3.1.3-beta.4",
-                "3.1.3-beta.5",
                 "3.2.0",
                 "3.2.0-beta.1",
                 "3.2.0-beta.2",
@@ -198,8 +193,7 @@ class AppVersionDetector
                 "3.2.0-beta.5",
             ],
             "needsUpdateDeadline" => [
-                "3.1.3" => "6 maart 2022",
-                "3.2.0" => "3 april 2022",
+                    "3.2.0" => "3 april 2022",
             ],
         ],
         "macosElectron" => [
@@ -242,12 +236,6 @@ class AppVersionDetector
                 "3.3.0-beta.5",
             ],
             "needsUpdate" => [
-                "3.1.1",
-                "3.1.1-beta.1",
-                "3.1.1-beta.2",
-                "3.1.1-beta.3",
-                "3.1.1-beta.4",
-                "3.1.1-beta.5",
                 "3.2.0",
                 "3.2.0-beta.1",
                 "3.2.0-beta.2",
@@ -256,11 +244,26 @@ class AppVersionDetector
                 "3.2.0-beta.5",
             ],
             "needsUpdateDeadline" => [
-                "3.1.1" => "6 maart 2022",
                 "3.2.0" => "3 april 2022",
             ],
         ]
     ];
+
+    public static function isIos12($headers = false)
+    {
+
+        if (!$headers) {
+            $headers = self::getAllHeaders();
+        }
+        if(is_object($headers)){
+            $headers = (array) $headers;
+        }
+
+        if(array_key_exists('user-agent',$headers)) {
+            return Str::contains( $headers['user-agent'],'CPU OS 12');
+        }
+        return false;
+    }
 
     public static function detect($headers = false)
     {
@@ -270,6 +273,7 @@ class AppVersionDetector
         if(is_object($headers)){
             $headers = (array) $headers;
         }
+
 
         /**
          * Format of TLCTestCorrectVersion header:
@@ -434,8 +438,10 @@ class AppVersionDetector
         session([
             'headers' => $headers,
             'TLCVersion' => $version['app_version'],
-            'TLCOs' => $version['os']
+            'TLCOs' => $version['os'],
+            'TLCIsIos12' => (Str::lower($version['os']) === 'ios') ? AppVersionDetector::isIos12($headers) : false,
         ]);
+
 //        $this->Session->write('headers', $headers);
 //        $this->Session->write('TLCVersion', $version['app_version']);
 //        $this->Session->write('TLCOs', $version['os']);

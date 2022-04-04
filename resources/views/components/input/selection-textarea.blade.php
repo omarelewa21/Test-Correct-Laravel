@@ -22,17 +22,17 @@
             <div class="flex items-center justify-between py-2 px-4 border-b border-secondary">
                 <div class="flex items-center space-x-2.5">
                     <x-icon.plus/>
-                    <span class="bold text-base">Selectievak toevoegen</span>
+                    <span class="bold text-base">{{ __('cms.Selectievak toevoegen') }}</span>
                 </div>
-                <div class="flex">
-                    <x-tooltip>
-                        Dit is een selectie vraag!
-                    </x-tooltip>
-                </div>
+{{--                <div class="flex">--}}
+{{--                    <x-tooltip>--}}
+{{--                        Dit is een selectie vraag!--}}
+{{--                    </x-tooltip>--}}
+{{--                </div>--}}
             </div>
             <div class="flex flex-col px-6 py-4">
                 <div>
-                    <span class="text-base">Antwoordopties</span>
+                    <span class="text-base">{{ __('cms.Antwoordopties') }}</span>
                 </div>
                 <template x-for="(element, key) in data.elements" :key="element.id">
                     <div class="flex flex-1 space-x-2 mb-2" :id="`element${key}`">
@@ -78,17 +78,17 @@
                 </template>
                 <x-button.primary x-bind:disabled="disabled()" @click="addRow()" class="justify-center">
                     <x-icon.plus/>
-                    <span>{{ __('Optie toevoegen') }}</span>
+                    <span>{{ __('cms.Optie toevoegen') }}</span>
                 </x-button.primary>
             </div>
 
             <div class="flex items-center px-6 pb-6">
                 <div class="ml-auto space-x-2">
                     <x-button.text-button @click="closePopup()" size="sm">
-                        {{ __('Annuleer') }}
+                        {{ __('auth.cancel') }}
                     </x-button.text-button>
                     <x-button.cta @click="save()" size="sm">
-                        {{ __('Toevoegen') }}
+                        {{ __('cms.Toevoegen') }}
                     </x-button.cta>
                 </div>
             </div>
@@ -96,3 +96,11 @@
         <div x-show="showPopup" x-cloak style="height: 70px;"></div>
     </div>
 </div>
+
+@push('scripts')
+    <script>
+        document.querySelector('.save_button').addEventListener('click', function(){
+            @this.set("{!!  $attributes->wire('model') !!}", CKEDITOR.instances['{{$editorId}}'].getData())
+        });
+    </script>
+@endpush

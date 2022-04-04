@@ -2,6 +2,7 @@
 
 namespace tcCore\Http\Livewire\Question;
 
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Livewire\Component;
@@ -11,6 +12,7 @@ use tcCore\Http\Traits\WithCloseable;
 use tcCore\Http\Traits\WithGroups;
 use tcCore\Http\Traits\WithNotepad;
 use tcCore\Http\Traits\WithUpdatingHandling;
+use tcCore\DrawingQuestion as DrawingQuestionModel;
 
 class DrawingQuestion extends Component
 {
@@ -49,6 +51,10 @@ class DrawingQuestion extends Component
     {
         $this->initPlayerInstance();
 
+        $this->question_svg = $this->question->question_svg;
+        $this->grid_svg = $this->question->grid_svg;
+        $this->backgroundImage = $this->question->getBackgroundImage();
+
         $answer = Answer::where('id', $this->answers[$this->question->uuid]['id'])
             ->where('question_id', $this->question->id)
             ->first();
@@ -59,10 +65,12 @@ class DrawingQuestion extends Component
             if (property_exists($answerJson, 'answer_svg') && $answerJson->answer_svg) {
                 $this->answer_svg = $answerJson->answer_svg;
             }
+            if (property_exists($answerJson, 'grid_size') && $answerJson->grid_size) {
+                $this->grid_svg = $answerJson->grid_size;
+            }
         }
 
-        $this->question_svg = $this->question->question_svg;
-        $this->backgroundImage = $this->question->getBackgroundImage();
+        $this->usesNewDrawingTool = Auth::user()->schoolLocation()->value('allow_new_drawing_question') && (blank($this->question->bg_name) && empty($this->question->grid));
     }
 
     public function questionUpdated($uuid)
@@ -79,6 +87,7 @@ class DrawingQuestion extends Component
             'answer'          => $this->answer,
             'additional_text' => $this->additionalText,
             'answer_svg'      => $this->answer_svg,
+            'grid_size'      => $this->grid_svg,
         ]);
 
         Answer::updateJson($this->answers[$this->question->uuid]['id'], $json);
@@ -110,26 +119,24 @@ class DrawingQuestion extends Component
 
     public function handleUpdateDrawingData($data)
     {
-        $svg = sprintf('<svg viewBox="%s %s %s %s" class="w-full h-full" id="" xmlns="http://www.w3.org/2000/svg" style="--cursor-type-locked:var(--cursor-crosshair); --cursor-type-draggable:var(--cursor-crosshair);">
+        $svg = sprintf('<svg viewBox="%s %s %s %s" class="w-full h-full" id="" xmlns="http://www.w3.org/2000/svg">
+                    <defs><style>%s</style></defs>
+                    <g id="grid-preview-svg" stroke="#c3d0ed" stroke-width="1">%s</g>
                     <g class="question-svg">%s</g>
                     <g class="answer-svg">%s</g>
-                    <g id="grid-preview-svg" stroke="var(--all-BlueGrey)" stroke-width="1"></g>
                 </svg>',
                     $data['svg_zoom_group']['x'],
                     $data['svg_zoom_group']['y'],
                     $data['svg_zoom_group']['width'],
                     $data['svg_zoom_group']['height'],
+                    DrawingQuestionModel::getEmbeddedFontForSVG(),
+                    base64_decode($data['svg_grid']),
                     base64_decode($data['svg_question']),
                     base64_decode($data['svg_answer'])
                 );
 
-         $base64 = base64_encode($svg );
-
-
-
+        $this->grid_svg = $data['grid_size'];
         $this->answer_svg = $data['svg_answer'];
-
-
 
         $this->updatedAnswer($svg);
     }

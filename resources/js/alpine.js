@@ -279,19 +279,21 @@ document.addEventListener('alpine:init', () => {
         }
     }));
 
-    Alpine.data('drawingTool', (questionId, entanglements, isTeacher) => ({
+    Alpine.data('drawingTool', (questionId, entanglements, isTeacher, isPreview = false) => ({
         show: false,
         questionId: questionId,
         answerSvg: entanglements.answerSvg,
         questionSvg: entanglements.questionSvg,
         gridSvg: entanglements.gridSvg,
         isTeacher: isTeacher,
+        toolName: null,
+        isPreview: isPreview,
         init() {
-            window['drawingTool_' + questionId] = initDrawingQuestion(this.$root);
-            const toolName = window['drawingTool_' + questionId];
+            this.toolName = `drawingTool_${questionId}`;
+            const toolName = window[this.toolName] = initDrawingQuestion(this.$root, this.isTeacher, this.isPreview);
 
             if(this.isTeacher) {
-                this.makeGridIfNecessary();
+                this.makeGridIfNecessary(toolName);
             }
 
             this.$watch('show', show => {
@@ -303,7 +305,8 @@ document.addEventListener('alpine:init', () => {
 
                     toolName.drawingApp.init();
                 } else {
-                    Livewire.emit('refresh');
+                    const component = getClosestLivewireComponentByAttribute(this.$root, 'questionComponent');
+                    component.call('render');
                 }
             })
 
@@ -311,20 +314,21 @@ document.addEventListener('alpine:init', () => {
             toolName.Canvas.setCurrentLayer("answer");
         },
         handleGrid(toolName) {
-            if (this.gridSvg !== '0.00') {
+            if (this.gridSvg !== '0.00' && this.gridSvg !== '') {
                 let parsedGrid = parseFloat(this.gridSvg);
-                if (toolName.drawingApp.isTeacher()) {
-                    toolName.UI.gridSize.value = parsedGrid;
-                    toolName.UI.gridToggle.checked = true;
-                } else {
-                    toolName.drawingApp.params.gridSize = parsedGrid;
-                    toolName.Canvas.layers.grid.params.hidden = false;
+                toolName.UI.gridSize.value = parsedGrid;
+                toolName.UI.gridToggle.checked = true;
+                toolName.drawingApp.params.gridSize = parsedGrid;
+                toolName.Canvas.layers.grid.params.hidden = false;
+
+                if(!this.isTeacher) {
+                    // this.$root.querySelector('#grid-background')?.remove();
                 }
             }
         },
-        makeGridIfNecessary() {
-            if (this.gridSvg !== '') {
-                makePreviewGrid(this.gridSvg);
+        makeGridIfNecessary(toolName) {
+            if (this.gridSvg !== '' && this.gridSvg !== '0.00') {
+                makePreviewGrid(toolName.drawingApp, this.gridSvg);
             }
         }
     }));

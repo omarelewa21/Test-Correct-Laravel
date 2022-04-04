@@ -15,10 +15,10 @@ export const validSvgElementKeys = {
 
 export const shapePropertiesAvailableToUser = {
     drag: [],
-    freehand: ["edge", "opacity"],
-    rect: ["edge", "opacity", "fill"],
-    circle: ["edge", "opacity", "fill"],
-    line: ["edge", "opacity", "endmarker-type"],
+    freehand: ["edge"],
+    rect: ["edge", "fill"],
+    circle: ["edge", "fill"],
+    line: ["edge", "endmarker-type"],
     text: ["opacity", "text-style"],
 };
 
@@ -46,5 +46,5 @@ export const zoomParams = {
 };
 
 export const panParams = {
-    STEP: 20,
+    STEP: 5,
 };

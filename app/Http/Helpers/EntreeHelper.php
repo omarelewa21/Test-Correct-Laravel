@@ -28,6 +28,8 @@ class EntreeHelper
 
     private $location = null;
 
+    private $school = null;
+
     public $laravelUser = null;
 
     public $shouldThrowAnErrorDuringTransaction = false;
@@ -40,10 +42,172 @@ class EntreeHelper
 
     protected $messageUuid = null;
 
+    private $location_based_on_brin_six = false;
+
+    protected $origAttr;
+
     public function __construct($attr, $messageId)
     {
         $this->attr = $this->transformAttributesIfNeededAndReturn($attr);
         $this->messageId = $messageId;
+    }
+
+    public static function initAndHandleFromRegisterWithEntreeAndTUser(User $user, $attr)
+    {
+
+        $instance = new self($attr,'');
+        $instance->laravelUser = $user;
+        $instance->emailMaybeEmpty = optional($user->location)->lvs_active_no_mail_allowed;
+        $instance->handleScenario1(['afterLoginMessage' => __("onboarding.Welkom bij Test-Correct, je kunt nu aan de slag.")]);
+        return true;
+    }
+
+    public function handleIfRegistering()
+    {
+        if(session()->get('entreeReason',false) !== 'register'){
+            return false;
+        }
+        $this->setLocationWithSamlAttributes();
+        $data = [
+           'emailAddress' => $this->getEmailFromAttributes(),
+           'role' => $this->getRoleFromAttributes(),
+           'encryptedEckId' => Crypt::encryptString($this->getEckIdFromAttributes()),
+           'brin' => $this->getBrinFromAttributes(),
+           'location' => $this->location,
+           'school' => $this->school,
+           'brin4ErrorDetected' => $this->brinFourErrorDetected,
+            'lastName' => $this->getLastNameFromAttributes(),
+
+        ];
+        if(BaseHelper::notProduction()) {
+            logger('entreeData for registering');
+            $dataClone = $data;
+            if($dataClone['location']){
+                $dataClone['location'] = $dataClone['location']->getKey();
+            }
+            if($dataClone['school']){
+                $dataClone['school'] = $dataClone['school']->getKey();
+            }
+            logger($dataClone);
+        }
+
+        $data = (object) $data;
+
+        $this->handleIfRegisteringAndNotATeacher($data);
+
+        $this->handleIfRegisteringAndNoEckId($data);
+
+        $this->handleIfRegisteringAndNoBrincode($data);
+
+        $data->user = $this->handleIfRegisteringAndUserBasedOnEckId($data);
+
+        session(['entreeData' => $data]);
+        return $this->redirectToUrlAndExit(route('onboarding.welcome.entree'));
+    }
+
+    protected function getOnboardingUrlWithOptionalMessage($message = null, $entree = false)
+    {
+        $route = 'onboarding.welcome';
+        if($entree){
+            $route = 'onboarding.welcome.entree';
+        }
+        $queryAr = [];
+        if($message){
+            $queryAr['entree_message'] = $message;
+        }
+        return route($route,$queryAr);
+    }
+
+    protected function getLoginUrlWithOptionalMessage($message = null, $isError = false)
+    {
+        $queryAr = [];
+        if($message){
+            $type = ($isError) ? 'entree_error_message' : 'message';
+            $queryAr[$type] = $message;
+        }
+        return route('auth.login',$queryAr);
+    }
+
+    protected function handleIfRegisteringAndUserBasedOnEckId($data)
+    {
+        if($user = User::filterByEckid(Crypt::decryptString($data->encryptedEckId))->first()){
+            if(!$user->isA('teacher')){
+                return $this->redirectToUrlAndExit('https://www.test-correct.nl/student-aanmelden-error');
+            }
+            if(!$user->hasImportMailAddress()){ // regular user
+                $this->laravelUser = $user;
+                if($this->location) {
+                    if ($user->isAllowedToSwitchToSchoolLocation($this->location)) {
+                        // account already correct
+                        $url = $this->laravelUser->getRedirectUrlSplashOrStartAndLoginIfNeeded(['afterLoginMessage' => __('onboarding-welcome.Je bestaande Test-Correct account is al gekoppeld aan je Entree account. Je kunt vanaf nu ook inloggen met Entree.')]);
+                        return $this->redirectToUrlAndExit($url);
+                    }
+                    // if in same school, add school location
+                    $schoolFromSchoolLocation = $this->location->school;
+                    if ($schoolFromSchoolLocation) {
+                        $this->handleIfRegisteringAndSchoolIsAllowed($user, $schoolFromSchoolLocation);
+                    }
+                } else if ($this->school){
+                    $this->handleIfRegisteringAndSchoolIsAllowed($user,$this->school);
+                }
+                // if not contact support
+                $url = $this->getLoginUrlWithOptionalMessage(__('onboarding-welcome.Je bestaande Test-Correct account kan niet geupdate worden. Neem contact op met support.'), true);
+                return $this->redirectToUrlAndExit($url);
+            }
+
+            if(!$this->location && $this->school){
+                if (! $user->isAllowedSchool($this->school)) {
+                    $url = $this->getLoginUrlWithOptionalMessage(__('onboarding-welcome.Je bestaande Test-Correct account kan niet geupdate worden. Neem contact op met support.'), true);
+                    return $this->redirectToUrlAndExit($url);
+                }
+            }
+            // import user
+            return $user;
+        }
+        return null;
+    }
+
+
+
+    protected function handleIfRegisteringAndSchoolIsAllowed(User $user, School $school)
+    {
+        if($user->isAllowedSchool($school)){
+            $user->addSchoolLocation($this->location);
+            $url = $this->laravelUser->getRedirectUrlSplashOrStartAndLoginIfNeeded([__('onboarding-welcome.Je bestaande Test-Correct account is geupdate met de schoollocaties die we vanuit Entree hebben meegekregen. We hebben je in de schoollocatie :name gezet. Je kunt vanaf nu ook inloggen met Entree.', ['name' => $this->location->name])]);
+            return $this->redirectToUrlAndExit($url);
+        }
+        return false;
+    }
+
+    protected function handleIfRegisteringAndNoBrincode($data)
+    {
+        $brinCode = $data->brin;
+        if ($this->setLocationBasedOnBrinSixIfTheCase($brinCode)){
+            if($this->location){
+                return true;
+            }
+        } else if(strlen($brinCode) === 4){
+            if(School::where('external_main_code', $brinCode)->count() === 1){
+                return true;
+            }
+        }
+        // no brincode found
+        return $this->redirectToUrlAndExit($this->getOnboardingUrlWithOptionalMessage(__('onboarding-welcome.Je school is helaas nog niet bekend in Test-Correct. Vul dit formulier in om een account aan te maken')));
+    }
+
+    protected function handleIfRegisteringAndNoEckId($data)
+    {
+        $eckId = Crypt::decryptString($data->encryptedEckId);
+        if(!$eckId || strlen($eckId) < 5){
+            return $this->redirectToUrlAndExit($this->getOnboardingUrlWithOptionalMessage(__('onboarding-welcome.Je kunt geen Test-Correct account aanmaken via Entree. Vul dit formulier in om een account aan te maken')));
+        }
+    }
+
+    protected function handleIfRegisteringAndNotATeacher($data)
+    {
+        if($data->role !== 'teacher'){
+            return $this->redirectToUrlAndExit('https://www.test-correct.nl/student-aanmelden-error');
+        }
     }
 
     public static function initWithMessage(SamlMessage $message)
@@ -105,6 +269,20 @@ class EntreeHelper
         return $this->location;
     }
 
+    private function setLocationBasedOnBrinSixIfTheCase($brinZesCode)
+    {
+        $external_main_code = substr($brinZesCode, 0, 4);
+        if (strlen($brinZesCode) === 6) {
+            $external_sub_code = substr($brinZesCode, 4, 2);
+            $this->location = SchoolLocation::where('external_main_code', $external_main_code)
+                ->where('external_sub_code', $external_sub_code)
+                ->first();
+            $this->location_based_on_brin_six = true;
+            return true;
+        }
+        return false;
+    }
+
     private function setLocationWithSamlAttributes()
     {
         if (null !== $this->location) {
@@ -113,15 +291,12 @@ class EntreeHelper
         }
 
         $brinZesCode = $this->getBrinFromAttributes();
-
-        $external_main_code = substr($brinZesCode, 0, 4);
-        if (strlen($brinZesCode) === 6) {
-            $external_sub_code = substr($brinZesCode, 4, 2);
-            $this->location = SchoolLocation::where('external_main_code', $external_main_code)
-                ->where('external_sub_code', $external_sub_code)
-                ->first();
+        if($this->setLocationBasedOnBrinSixIfTheCase($brinZesCode)){
             return true;
         }
+
+        $external_main_code = substr($brinZesCode, 0, 4);
+
         if (strlen($brinZesCode) === 4) {
             // 1. zoeken binnen de scholengemeenschap (is school)
             // 2. schoollocaties zoeken binnen deze scholengemeenschap die voldoen omdat ze ook een entree koppeling hebben
@@ -130,6 +305,7 @@ class EntreeHelper
             // 5. indien geen gevonden dan brinFourErrorDetected
             $school = School::where('external_main_code', $external_main_code)->get();
             if ($school->count() === 1) {
+                $this->school = $school;
                 $locations = SchoolLocation::where('school_id', $school->first()->getKey())
                     ->where('sso_type', SchoolLocation::SSO_ENTREE)
                     ->where('sso_active', 1)
@@ -241,6 +417,15 @@ class EntreeHelper
         if (array_key_exists('mail',
                 $this->attr) && $this->attr['mail'][0]) {
             return $this->attr['mail'][0];
+        }
+        return null;
+    }
+
+    private function getLastNameFromAttributes()
+    {
+        if (array_key_exists('givenName',
+                $this->attr) && $this->attr['givenName'][0]) {
+            return $this->attr['givenName'][0];
         }
         return null;
     }
@@ -460,7 +645,7 @@ class EntreeHelper
         logger($this->attr);
     }
 
-    public function handleScenario1()
+    public function handleScenario1($options = null)
     {
         $this->validateAttributes();
 
@@ -476,7 +661,7 @@ class EntreeHelper
 
         $this->handleUpdateUserWithSamlAttributes();
         // if student redirect to splash screen
-        $url = $this->laravelUser->getRedirectUrlSplashOrStartAndLoginIfNeeded();
+        $url = $this->laravelUser->getRedirectUrlSplashOrStartAndLoginIfNeeded($options);
         return $this->redirectToUrlAndExit($url);
 
     }

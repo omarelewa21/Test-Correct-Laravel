@@ -4,6 +4,7 @@ namespace tcCore\Http\Livewire\Teacher\Questions;
 
 use Ramsey\Uuid\Uuid;
 use tcCore\GroupQuestionQuestion;
+use tcCore\MultipleChoiceQuestion;
 use tcCore\TestQuestion;
 
 class CmsArq
@@ -43,9 +44,8 @@ class CmsArq
 
     public function preparePropertyBag()
     {
+        $this->instance->cmsPropertyBag['arqStructure'] = MultipleChoiceQuestion::getArqStructure();
         $this->createAnswerStruct();
-
-
     }
 
     public function initializePropertyBag($q)
@@ -60,11 +60,12 @@ class CmsArq
         ) {
             return [
                 'answer' => '',
-                'score'  => (string) $answer['score'],
+                'score'  => (string) $answer['score'], // needs to be a string in order to validate and be saved
             ];
         })->toArray());
+
         unset($this->instance->question['answer']);
-        $this->instance->question['score'] = collect($this->instance->cmsPropertyBag['answerStruct'])->sum('score');
+        $this->instance->question['score'] = collect($this->instance->cmsPropertyBag['answerStruct'])->max('score');
     }
 
     public function createAnswerStruct()

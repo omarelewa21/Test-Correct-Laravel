@@ -48,11 +48,11 @@ RichTextEditor = {
         }
 
         CKEDITOR.replace(editorId, {
-            extraPlugins: 'selection,blockimagepaste,quicktable,ckeditor_wiris,autogrow,wordcount,notification',
+            extraPlugins: 'selection,simpleuploads,quicktable,ckeditor_wiris,autogrow,wordcount,notification',
             toolbar: [
                 {name: 'basicstyles', items: ['Bold', 'Italic', 'Underline', 'Strike', 'Subscript', 'Superscript']},
                 {name: 'paragraph', items: ['NumberedList', 'BulletedList']},
-                {name: 'insert', items: ['Table']},
+                {name: 'insert', items: ['addImage','Table']},
                 {name: 'styles', items: ['Font', 'FontSize']},
                 {name: 'wirisplugins', items: ['ckeditor_wiris_formulaEditor', 'ckeditor_wiris_formulaEditorChemistry']},
                 {name: 'extra', items: ['selection']}
@@ -70,7 +70,7 @@ RichTextEditor = {
             editor.destroy(true)
         }
         CKEDITOR.replace(editorId, {
-            extraPlugins: 'completion,blockimagepaste,quicktable,ckeditor_wiris,autogrow,wordcount,notification',
+            extraPlugins: 'completion,simpleuploads,quicktable,ckeditor_wiris,autogrow,wordcount,notification',
             toolbar : [
                 { name: 'clipboard', items: [ 'Undo', 'Redo' ] },
                 { name: 'basicstyles', items: [ 'Bold', 'Italic', 'Underline', 'Strike', 'RemoveFormat', 'Subscript', 'Superscript' ] },

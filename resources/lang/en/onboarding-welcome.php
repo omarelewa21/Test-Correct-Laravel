@@ -1,20 +1,24 @@
 <?php
-    return [
-            'Welkom bij Test-Correct' => 'Welcome to Test-Correct',
+return [
+    'Welkom bij Test-Correct' => 'Welcome to Test-Correct',
 
-			'Je hebt je aangemeld met het e-mailadres' => 'You signed up with the email address',
+    'Je hebt je aangemeld met het e-mailadres' => 'You signed up with the email address',
 
-			'Verifieer je e-mailadres' => 'Please verify your email address',
+    'Verifieer je e-mailadres' => 'Please verify your email address',
 
-			'Werk volledig digitaal' => 'Work completely digitally',
+    'Werk volledig digitaal' => 'Work completely digitally',
 
-			'Toetsen aanmaken en bestaande toetsen omzetten' => 'Create tests and convert existing tests',
+    'Toetsen aanmaken en bestaande toetsen omzetten' => 'Create tests and convert existing tests',
 
-			'Toetsen beoordelen en samen de CO-Learning doorlopen' => 'Assess tests and do the CO-Learning together',
+    'Toetsen beoordelen en samen de CO-Learning doorlopen' => 'Assess tests and do the CO-Learning together',
 
-			'Klassen maken en uitnodigen om een toets af te nemen' => 'Create classes and invite them to take a test',
+    'Klassen maken en uitnodigen om een toets af te nemen' => 'Create classes and invite them to take a test',
 
-			'Toetsresultaten delen en analystische feedback inzien' => 'Share test results and view analytical feedback',
+    'Toetsresultaten delen en analystische feedback inzien' => 'Share test results and view analytical feedback',
+    'Je kunt geen Test-Correct account aanmaken via Entree. Vul dit formulier in om een account aan te maken' => 'You can not create a Test-Correct account through Entree. Fill in this form to create your account.',
+    'Je school is helaas nog niet bekend in Test-Correct. Vul dit formulier in om een account aan te maken' => 'Your school is not yet know withing Test-Corecct, please fill out this form to create an account',
+    'Je bestaande Test-Correct account is al gekoppeld aan je Entree account. Je kunt vanaf nu ook inloggen met Entree.' => 'Your existing Test-Correct account is already connected to Entree. You can use Entree to login',
+    'Je bestaande Test-Correct account is geupdate met de schoollocaties die we vanuit Entree hebben meegekregen. We hebben je in de schoollocatie gezet. Je kunt vanaf nu ook inloggen met Entree.' => 'Your existing Test-Correct account has been updated with the new school location, which we got from Entree. We have added you to the school location :name. You can now login through Entree.',
+    'Je bestaande Test-Correct account kan niet geupdate worden. Neem contact op met support.' => 'Your existing Test-Correct account could not be updated. Please contact support.'
 
-			'Verifieer je e-mailadres' => 'Please verify your email address'
-		];
+];

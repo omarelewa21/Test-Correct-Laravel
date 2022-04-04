@@ -1,4 +1,4 @@
-<div id="cms">
+<div id="cms" questionComponent>
     <div class="question-editor-header z-50">
         <div class="question-title">
             <div class="icon-arrow">
@@ -19,7 +19,6 @@
                         <div class="flex w-full items-center px-4 sm:px-6 lg:px-8 justify-between">--}}
             <div class="flex w-full mt-2.5 px-4 sm:px-6 lg:px-8">
                 <div class="flex w-full border-b border-secondary items-center justify-between py-2.5">
-                    {{--                    --}}
                     <div class="flex items-center">
                         <span class="w-8 h-8 rounded-full bg-sysbase text-white text-sm flex items-center justify-center">
                             <span>{{ $this->question['order'] == 0 ? '1' : $this->question['order']}}</span>
@@ -112,6 +111,11 @@
                     <span class="title">{{ $message }}</span>
                 </div>
                 @enderror
+                @error('question.answer_svg')
+                <div class="notification error stretched mt-4">
+                    <span class="title">{{ __('cms.drawing-question-required-answer') }}</span>
+                </div>
+                @enderror
 
             </div>
             <div class="flex justify-end px-4 sm:px-6 lg:px-8 py-5">
@@ -124,7 +128,7 @@
         <div class="flex flex-col flex-1 px-4 sm:px-6 lg:px-8"
              x-data="{openTab: 1}"
              x-init="$watch('openTab', value => { value === 1 ? $dispatch('tabchange') : '';})"
-             @opentab.window="openTab = $event.detail"
+             @opentab.window="openTab = $event.detail; window.scrollTo({top: 0, behavior: 'smooth'})"
              selid="tabcontainer"
         >
             <div class="flex w-full space-x-6 mb-5 border-b border-secondary max-h-[50px]" selid="tabs">
@@ -133,7 +137,7 @@
                             style="color:inherit"
                             @click="openTab = 1"
                     >
-                        {{ __('Opstellen') }}
+                        {{ __('cms.Opstellen') }}
                     </x-button.text-button>
                 </div>
                 <div class="" :class="{'border-b-2 border-primary -mb-px primary' : openTab === 2}" selid="tab-settings">
@@ -141,7 +145,7 @@
                             style="color:inherit"
                             @click="openTab = 2;"
                     >
-                        {{ __('Instellingen') }}
+                        {{ __('cms.Instellingen') }}
                     </x-button.text-button>
                 </div>
                 @if($this->testQuestionId && $this->showStatistics())
@@ -195,7 +199,7 @@
                  x-cloak
             >
                 <x-content-section>
-                    <x-slot name="title">{{ __('Algemeen') }}</x-slot>
+                    <x-slot name="title">{{ __('cms.Algemeen') }}</x-slot>
 
                     <div class="grid grid-cols-2 gap-x-4">
                         @if($action == 'edit' && !$isCloneRequest)
@@ -220,7 +224,7 @@
                                                            :disabled="$this->isSettingsGeneralPropertyDisabled('closeable')"
                             >
                                 <x-icon.locked></x-icon.locked>
-                                <span class="bold">{{ __('Sluiten na beantwoorden') }}</span>
+                                <span class="bold">{{ __('cms.Sluiten na beantwoorden') }}</span>
                             </x-input.toggle-row-with-title>
                         @endif
 
@@ -232,7 +236,7 @@
                                                            selid="open-source-switch"
                             >
                                 <x-icon.preview class="flex "></x-icon.preview>
-                                <span class="bold"> {{ __('Openbaar maken') }}</span>
+                                <span class="bold"> {{ __('cms.Openbaar maken') }}</span>
                             </x-input.toggle-row-with-title>
                         @endif
 
@@ -242,7 +246,7 @@
                                                            :disabled="$this->isSettingsGeneralPropertyDisabled('maintainPosition')"
                             >
                                 <x-icon.shuffle-off/>
-                                <span class="bold"> {{ __('Deze vraag niet shuffelen') }}</span>
+                                <span class="bold"> {{ __('cms.Deze vraag niet shuffelen') }}</span>
                             </x-input.toggle-row-with-title>
                         @endif
 
@@ -252,7 +256,7 @@
                                                            :disabled="$this->isSettingsGeneralPropertyDisabled('discuss')"
                             >
                                 <x-icon.discuss class="flex "></x-icon.discuss>
-                                <span class="bold"> {{ __('Bespreken in de klas') }}</span>
+                                <span class="bold"> {{ __('cms.Bespreken in de klas') }}</span>
                             </x-input.toggle-row-with-title>
                         @endif
 
@@ -263,7 +267,7 @@
                                                                  :disabled="$this->isSettingsGeneralPropertyDisabled('allowNotes')"
                             >
                                 <x-icon.notepad/>
-                                <span class="bold"> {{ __('Notities toestaan') }}</span>
+                                <span class="bold"> {{ __('cms.Notities toestaan') }}</span>
                             </x-input.toggle-radio-row-with-title>
                         @endif
 
@@ -273,7 +277,7 @@
                                                            :disabled="$this->isSettingsGeneralPropertyDisabled('decimalOption')"
                             >
                                 <x-icon.half-points/>
-                                <span class="bold @if($this->isSettingsGeneralPropertyDisabled('decimalOption')) disabled @endif"> {{ __('Halve puntenbeoordeling mogelijk') }}</span>
+                                <span class="bold @if($this->isSettingsGeneralPropertyDisabled('decimalOption')) disabled @endif"> {{ __('cms.Halve puntenbeoordeling mogelijk') }}</span>
                             </x-input.toggle-row-with-title>
                         @endif
 
@@ -283,7 +287,7 @@
                                                            :disabled="$this->isSettingsGeneralPropertyDisabled('autoCheckAnswer')"
                             >
                                 <x-icon.autocheck/>
-                                <span class="bold @if($this->isSettingsGeneralPropertyDisabled('autoCheckAnswer')) disabled @endif"> {{ __('Automatisch nakijken') }}</span>
+                                <span class="bold @if($this->isSettingsGeneralPropertyDisabled('autoCheckAnswer')) disabled @endif"> {{ __('cms.Automatisch nakijken') }}</span>
                             </x-input.toggle-row-with-title>
                         @endif
 
@@ -293,7 +297,7 @@
                                                            :disabled="$this->isSettingsGeneralPropertyDisabled('autoCheckAnswerCaseSensitive')"
                             >
                                 <x-icon.case-sensitive/>
-                                <span class="bold @if($this->isSettingsGeneralPropertyDisabled('autoCheckAnswerCaseSensitive')) disabled @endif"> {{ __('Hoofdletter gevoelig nakijken') }}</span>
+                                <span class="bold @if($this->isSettingsGeneralPropertyDisabled('autoCheckAnswerCaseSensitive')) disabled @endif"> {{ __('cms.Hoofdletter gevoelig nakijken') }}</span>
                             </x-input.toggle-row-with-title>
                         @endif
 
@@ -308,15 +312,15 @@
                                         miller: $wire.entangle('millerToggle')
                                         }"
                     >
-                        <x-slot name="title">{{ __('Taxonomie') }}</x-slot>
-                        <p class="text-base">{{ __('Deel de vraag taxonomisch in per methode. Je kunt meerder methodes tegelijk gebruiken.') }}</p>
+                        <x-slot name="title">{{ __('cms.Taxonomie') }}</x-slot>
+                        <p class="text-base">{{ __('cms.Deel de vraag taxonomisch in per methode. Je kunt meerder methodes tegelijk gebruiken.') }}</p>
                         <div class="grid grid-cols-3 gap-4">
                             <div>
                                 <x-input.toggle-row-with-title x-model="rtti">
                                     @error('question.rtti')
                                     <x-icon.exclamation class="text-allred"/>
                                     @enderror
-                                    <span class="bold"> {{ __('RTTI methode') }}</span>
+                                    <span class="bold">RTTI {{ __('cms.methode') }}</span>
                                 </x-input.toggle-row-with-title>
                                 <div x-show="rtti" class="flex flex-col">
                                     @foreach(['R'  , 'T1' , 'T2' , 'I'] as $value)
@@ -335,10 +339,10 @@
                                     @error('question.bloom')
                                     <x-icon.exclamation class="text-allred"/>
                                     @enderror
-                                    <span class="bold"> {{ __('BLOOM methode') }}</span>
+                                    <span class="bold">BLOOM {{ __('cms.methode') }}</span>
                                 </x-input.toggle-row-with-title>
                                 <div x-show="bloom" class="flex flex-col">
-                                    @foreach(['Onthouden', 'Begrijpen', 'Toepassen', 'Analyseren', 'Evalueren', 'Creëren'] as $value)
+                                    @foreach([ __('cms.Onthouden'), __('cms.Begrijpen'), __('cms.Toepassen'), __('cms.Analyseren'), __('cms.Evalueren'), __('cms.Creëren')] as $value)
                                         <label class="flex space-x-2.5 items-center">
                                             <input wire:key="{{ $value }}"
                                                    name="bloom" type="radio"
@@ -354,10 +358,10 @@
                                     @error('question.miller')
                                     <x-icon.exclamation class="text-allred"/>
                                     @enderror
-                                    <span class="bold"> {{ __('Miller methode') }}</span>
+                                    <span class="bold">Miller {{ __('cms.methode') }}</span>
                                 </x-input.toggle-row-with-title>
                                 <div x-show="miller" class="flex flex-col">
-                                    @foreach(['Weten', 'Weten hoe', 'Laten zien', 'Doen',] as $value)
+                                    @foreach([ __('cms.Weten'), __('cms.Weten hoe'), __('cms.Laten zien'), __('cms.Doen'),] as $value)
                                         <label class="flex space-x-2.5 items-center">
                                             <input wire:key="{{ $value }}"
                                                    name="miller" type="radio"
@@ -376,9 +380,16 @@
 
                 @if($this->showSettingsAttainments())
                     <x-content-section>
-                        <x-slot name="title">{{ __('Eindtermen') }}</x-slot>
-                        <livewire:attainment-manager :value="$question['attainments']" :subject-id="$subjectId"
+                        <x-slot name="title">{{ __('cms.Eindtermen & Leerdoelen') }}</x-slot>
+                        <div class="flex flex-col flex-2">
+                            <p class="text-base">{{ __('cms.Selecteer het domein en het subdomein waaraan deze vraag bijdraagt.') }}</p>
+                            <div class="grid grid-cols-2 gap-x-6 mt-4">
+                                <livewire:attainment-manager :value="$question['attainments']" :subject-id="$subjectId"
                                                      :eduction-level-id="$educationLevelId"/>
+{{--                                <livewire:learning-goal-manager :value="$question['learning_goals']" :subject-id="$subjectId"--}}
+{{--                                                             :eduction-level-id="$educationLevelId"/>--}}
+                            </div>
+                        </div>
                     </x-content-section>
                 @endif
 
@@ -423,13 +434,13 @@
                                 @endforeach
 
                             @endif
-                        </div>Openbaar maken
+                        </div>
                     </x-content-section>
                 </div>
             @endif
         </div>
 
-        <div class="question-editor-footer">
+        <div class="question-editor-footer" x-data>
             <div class="question-editor-footer-button-container">
 
                 <button
@@ -439,18 +450,19 @@
                         class="button text-button button-md pr-4"
                         selid="cancel-btn"
                 >
-                    <span> {{ __("Annuleer") }}</span>
+                    <span> {{ __("auth.cancel") }}</span>
                 </button>
 
 
                 <button
                         wire:loading.attr="disabled"
+                        @beforeunload.window="$el.disabled = true"
                         type="button"
                         wire:click="save"
-                        class="button cta-button button-sm"
+                        class="button cta-button button-sm save_button"
                         selid="save-btn"
                 >
-                    <span>{{ __("Vraag opslaan") }}</span>
+                    <span>{{ __("cms.Vraag opslaan") }}</span>
                 </button>
             </div>
         </div>

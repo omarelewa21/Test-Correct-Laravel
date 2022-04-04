@@ -3,7 +3,7 @@ import * as svgShape from "./svgShape.js";
 import {UIElements, warningBox} from "./uiElements.js";
 import * as sidebar from "./sidebar.js";
 
-window.initDrawingQuestion = function (rootElement) {
+window.initDrawingQuestion = function (rootElement, isTeacher, isPreview) {
 
     /**
      * @typedef Cursor
@@ -40,9 +40,14 @@ window.initDrawingQuestion = function (rootElement) {
             endmarkerType: "no-endmarker",
             gridSize: 1,
             spacebarPressed: false,
+            root: rootElement,
+            isTeacher: isTeacher,
+            isPreview: isPreview,
+            hiddenLayersCount: 0
         },
         firstInit: true,
         warnings: {},
+        explainer: null,
         init() {
             if (this.firstInit) {
                 this.bindEventListeners(eventListenerSettings);
@@ -55,9 +60,9 @@ window.initDrawingQuestion = function (rootElement) {
                     calculateCanvasBounds();
                     updateClosedSidebarWidth();
 
-                    // updateMidPoint();
                     if (drawingApp.firstInit) {
                         makeGrid();
+                        updateMidPoint();
                     }
 
                     processGridToggleChange();
@@ -69,7 +74,6 @@ window.initDrawingQuestion = function (rootElement) {
                     drawingApp.firstInit = false;
                     clearInterval(pollingFunction);
                 }
-                console.log("loop");
             });
 
             setCorrectZIndex();
@@ -83,11 +87,16 @@ window.initDrawingQuestion = function (rootElement) {
 
             this.warnings = {
                 whenAnyToolButDragSelected: new warningBox(
-                    "Stel de opmaak in voordat je het object tekent",
-                    2000,
+                    UI.warningboxTemplate.dataset.text,
+                    5000,
                     rootElement
                 ),
             };
+            if (!this.explainer) {
+                const layerTemplate = rootElement.querySelector("#layer-group-template");
+                const templateCopy = layerTemplate.content.cloneNode(true);
+                this.explainer = templateCopy.querySelector(".explainer");
+            }
         },
         convertCanvas2DomCoordinates(coordinates) {
             const matrix = Canvas.params.domMatrix;
@@ -125,25 +134,29 @@ window.initDrawingQuestion = function (rootElement) {
             });
         },
         bindToElement(elem, type, func, options) {
-            elem.addEventListener(type, (evt) => {
-                func(evt);
-            }, options);
+            if(elem) {
+                elem.addEventListener(type, (evt) => {
+                    func(evt);
+                }, options);
+            }
         },
         currentToolIs(toolname) {
             return this.params.currentTool === toolname;
         },
         isTeacher() {
-            return !(UI.gridSize === undefined);
+            return this.params.isTeacher;
         }
     };
 
     /**
      * Global Object containing all parameters, Shapes and corresponding sidebarEntries.
      */
-    let Canvas = (function() {
+    let Canvas = (function () {
         let Obj = {
             params: {
                 cursorPosition: {x: 0, y: 0},
+                cursorPositionMousedown: {x: 0, y: 0},
+                touchmoving: false,
                 currentLayer: "question",
                 focusedShape: null,
                 bounds: {},
@@ -156,7 +169,7 @@ window.initDrawingQuestion = function (rootElement) {
                         text: 0,
                         image: 0,
                         path: 0,
-                        freehand: 0,
+                        freehand: 0
                     },
                 },
                 drag: {
@@ -182,15 +195,30 @@ window.initDrawingQuestion = function (rootElement) {
             drawing() {
                 return this.params.draw.newShape
             },
-            setCurrentLayer(newCurrentLayerID) {
-                const oldCurrentLayer = rootElement.querySelector(`#${this.layerKey2ID(this.params.currentLayer)}`);
-                if (oldCurrentLayer === null) {
-                    debugger;
-                }
-                oldCurrentLayer.classList.remove("highlight");
+            getLayerDomElementsByLayerId: function (layerId) {
+                const layer = rootElement.querySelector(`#${layerId}`);
+                const layerHeader = rootElement.querySelector(`[data-layer="${layerId}"]`).closest('.header');
+                const layerSvg = rootElement.querySelector(`#svg-${layerId}`);
+                return {layer, layerHeader, layerSvg}
+            },
+            removeHighlightFromLayer: function (layerId) {
+                const {layer, layerHeader, layerSvg} = this.getLayerDomElementsByLayerId(layerId);
 
-                const newCurrentLayer = rootElement.querySelector(`#${this.layerKey2ID(newCurrentLayerID)}`);
-                newCurrentLayer.classList.add("highlight");
+                layer.classList.remove("highlight");
+                layer.querySelectorAll('.selected').forEach((item) => item.classList.remove('selected'));
+                layerSvg.querySelectorAll('.selected').forEach((item) => item.classList.remove('selected'));
+                layerHeader.classList.remove("highlight");
+            },
+            addHighlightToLayer: function (layerId) {
+                const {layer, layerHeader} = this.getLayerDomElementsByLayerId(layerId);
+
+                layer.classList.add("highlight");
+                layerHeader.classList.add("highlight");
+            },
+            setCurrentLayer(newCurrentLayerID) {
+                this.removeHighlightFromLayer(this.layerKey2ID(this.params.currentLayer));
+                this.addHighlightToLayer(this.layerKey2ID(newCurrentLayerID));
+
                 Canvas.params.currentLayer = newCurrentLayerID;
             },
             getEnabledLayers() {
@@ -214,12 +242,12 @@ window.initDrawingQuestion = function (rootElement) {
             makeLayers() {
                 this.layers = {
                     "question": new sidebar.Layer({
-                        name: "Vraag",
+                        name: UI.translationTemplate.dataset.question,
                         id: "question-group",
                         enabled: true,
                     }, drawingApp, this),
                     "answer": new sidebar.Layer({
-                        name: "Antwoord",
+                        name: UI.translationTemplate.dataset.answer,
                         id: "answer-group",
                         enabled: false,
                     }, drawingApp, this),
@@ -231,10 +259,32 @@ window.initDrawingQuestion = function (rootElement) {
                         },
                     },
                 }
+            },
+            deleteObject(object) {
+                const objectId = object.id
+                const layer = object.svgShape.isQuestionLayer() ? 'question' : 'answer';
+                object.remove();
+
+                delete this.layers[layer].shapes[objectId];
+            },
+            cleanShapeCount() {
+                this.params.draw.shapeCountForEachType = {
+                    rect: 0,
+                    circle: 0,
+                    line: 0,
+                    text: 0,
+                    image: 0,
+                    path: 0,
+                    freehand: 0
+                }
+            },
+            initCanvas() {
+                this.cleanShapeCount();
+                this.makeLayers();
             }
         }
 
-        Obj.makeLayers();
+        Obj.initCanvas();
         return Obj;
     })();
 
@@ -242,6 +292,7 @@ window.initDrawingQuestion = function (rootElement) {
     function clearLayers() {
         Canvas.layers.question.clearSidebar(false);
         Canvas.layers.answer.clearSidebar(false);
+        Canvas.cleanShapeCount();
         updateGrid();
     }
 
@@ -365,6 +416,19 @@ window.initDrawingQuestion = function (rootElement) {
                     },
                     options: {passive: false},
                 },
+                "click": {
+                    callback: (evt) => {
+                        if (!movedDuringClick(evt)) {
+                            handleShapeSelection(evt);
+                        }
+                    }
+                },
+                "touchend touchcancel": {
+                    callback: (evt) => {
+                        if (!Canvas.params.touchmoving) handleShapeSelection(evt);
+                        Canvas.params.touchmoving = false;
+                    }
+                }
             }
         },
         {
@@ -422,6 +486,11 @@ window.initDrawingQuestion = function (rootElement) {
                     callback: () => {
                         valueWithinBounds(UI.strokeWidth);
                     }
+                },
+                "blur": {
+                    callback: () => {
+                        handleStrokeButtonStates()
+                    }
                 }
             }
         },
@@ -431,6 +500,7 @@ window.initDrawingQuestion = function (rootElement) {
                 "click": {
                     callback: () => {
                         UI.strokeWidth.stepDown();
+                        handleStrokeButtonStates()
                     },
                 },
                 "focus": {
@@ -451,6 +521,7 @@ window.initDrawingQuestion = function (rootElement) {
                 "click": {
                     callback: () => {
                         UI.strokeWidth.stepUp();
+                        handleStrokeButtonStates()
                     },
                 },
                 "focus": {
@@ -472,7 +543,12 @@ window.initDrawingQuestion = function (rootElement) {
                     callback: () => {
                         valueWithinBounds(UI.textSize);
                     }
-                }
+                },
+                "blur": {
+                    callback: () => {
+                        handleTextSizeButtonStates()
+                    },
+                },
             }
         },
         {
@@ -481,6 +557,7 @@ window.initDrawingQuestion = function (rootElement) {
                 "click": {
                     callback: () => {
                         UI.textSize.stepDown();
+                        handleTextSizeButtonStates()
                     },
                 },
                 "focus": {
@@ -501,6 +578,7 @@ window.initDrawingQuestion = function (rootElement) {
                 "click": {
                     callback: () => {
                         UI.textSize.stepUp();
+                        handleTextSizeButtonStates()
                     },
                 },
                 "focus": {
@@ -581,7 +659,7 @@ window.initDrawingQuestion = function (rootElement) {
                 "mousedown touchstart": {
                     callback: (evt) => {
                         const targetHeader = evt.target;
-                        const newCurrentLayerID = targetHeader.closest(".layer-group").id;
+                        const newCurrentLayerID = targetHeader.querySelector('.header-title').dataset.layer;
                         this.Canvas.setCurrentLayer(this.Canvas.layerID2Key(newCurrentLayerID));
                     }
                 },
@@ -591,7 +669,14 @@ window.initDrawingQuestion = function (rootElement) {
             element: UI.submitBtn,
             events: {
                 "click": {
-                    callback: submitDrawingData,
+                    callback() {
+                        if (hasHiddenLayers()) {
+                            toggleSaveConfirm();
+                        } else {
+                            submitDrawingData();
+                            closeDrawingTool();
+                        }
+                    },
                 }
             }
         },
@@ -599,8 +684,145 @@ window.initDrawingQuestion = function (rootElement) {
             element: UI.exitBtn,
             events: {
                 "click": {
-                    callback: () => {},
+                    callback: handleCloseByExit,
                 }
+            }
+        },
+        {
+            element: UI.closeCancelBtn,
+            events: {
+                "click": {
+                    callback: handleCloseByExit,
+                }
+            }
+        },
+        {
+            element: UI.closeConfirmBtn,
+            events: {
+                "click": {
+                    callback: handleCloseByExit,
+                }
+            }
+        },
+        {
+            element: UI.deleteCancelBtn,
+            events: {
+                "click": {
+                    callback() {
+                        UI.deleteConfirm.classList.toggle('open');
+                    },
+                }
+            }
+        },
+        {
+            element: UI.deleteConfirmBtn,
+            events: {
+                "click": {
+                    callback() {
+                        Canvas.deleteObject(drawingApp.params.deleteSubject);
+                        UI.deleteConfirm.classList.toggle('open');
+                    },
+                }
+            }
+        },
+        {
+            element: UI.saveCancelBtn,
+            events: {
+                "click": {
+                    callback() {
+                        UI.saveConfirm.classList.toggle('open');
+                    },
+                }
+            }
+        },
+        {
+            element: UI.saveConfirmBtn,
+            events: {
+                "click": {
+                    callback() {
+                        handleHiddenLayers();
+                        submitDrawingData();
+                        closeDrawingTool();
+                        toggleSaveConfirm();
+                    },
+                }
+            }
+        },
+        {
+            element: UI.gridToggle,
+            events: {
+                "change": {
+                    callback() {
+                        processGridToggleChange()
+                    },
+                }
+            }
+        },
+        {
+            element: UI.gridSize,
+            events: {
+                "input": {
+                    callback: updateGrid,
+                },
+                "blur": {
+                    callback: () => {
+                        handleGridSizeButtonStates();
+                    }
+                }
+            }
+        },
+        {
+            element: UI.decrGridSize,
+            events: {
+                "click": {
+                    callback: () => {
+                        UI.gridSize.stepDown();
+                        handleGridSizeButtonStates();
+                        updateGrid();
+                    },
+                },
+                "focus": {
+                    callback: () => {
+                        UI.gridSize.classList.add("active");
+                    },
+                },
+                "blur": {
+                    callback: () => {
+                        UI.gridSize.classList.remove("active");
+                    },
+                },
+            }
+        },
+        {
+            element: UI.incrGridSize,
+            events: {
+                "click": {
+                    callback: () => {
+                        UI.gridSize.stepUp();
+                        handleGridSizeButtonStates();
+                        updateGrid();
+                    },
+                },
+                "focus": {
+                    callback: () => {
+                        UI.gridSize.classList.add("active");
+                    },
+                },
+                "blur": {
+                    callback: () => {
+                        UI.gridSize.classList.remove("active");
+                    },
+                },
+            }
+        },
+        {
+            element: UI.centerBtn,
+            events: {
+                "click": {
+                    callback: () => {
+                        panDrawingCenterToScreenCenter();
+                    },
+                },
             }
         }
     ];
@@ -614,64 +836,6 @@ window.initDrawingQuestion = function (rootElement) {
                         callback: processUploadedImages,
                     }
                 }
-            },
-            {
-                element: UI.gridToggle,
-                events: {
-                    "change": {
-                        callback: processGridToggleChange,
-                    }
-                }
-            },
-            {
-                element: UI.gridSize,
-                events: {
-                    "input": {
-                        callback: updateGrid,
-                    }
-                }
-            },
-            {
-                element: UI.decrGridSize,
-                events: {
-                    "click": {
-                        callback: () => {
-                            UI.gridSize.stepDown();
-                            updateGrid();
-                        },
-                    },
-                    "focus": {
-                        callback: () => {
-                            UI.gridSize.classList.add("active");
-                        },
-                    },
-                    "blur": {
-                        callback: () => {
-                            UI.gridSize.classList.remove("active");
-                        },
-                    },
-                }
-            },
-            {
-                element: UI.incrGridSize,
-                events: {
-                    "click": {
-                        callback: () => {
-                            UI.gridSize.stepUp();
-                            updateGrid();
-                        },
-                    },
-                    "focus": {
-                        callback: () => {
-                            UI.gridSize.classList.add("active");
-                        },
-                    },
-                    "blur": {
-                        callback: () => {
-                            UI.gridSize.classList.remove("active");
-                        },
-                    },
-                }
             }
         );
     }
@@ -680,6 +844,7 @@ window.initDrawingQuestion = function (rootElement) {
         return {
             question: btoa(Canvas.layers.question.svg.innerHTML),
             answer: btoa(Canvas.layers.answer.svg.innerHTML),
+            grid: btoa(Canvas.layers.grid.svg.innerHTML)
         };
     }
 
@@ -700,7 +865,7 @@ window.initDrawingQuestion = function (rootElement) {
         }
         if (data.question || data.answer) {
             //Disabled as it causes unnecessary zooming
-            // fitDrawingToScreen();
+            fitDrawingToScreen();
         }
     }
 
@@ -731,7 +896,7 @@ window.initDrawingQuestion = function (rootElement) {
     }
 
     function fitDrawingToScreen() {
-        panDrawingCenterToScreenCenter();
+        // panDrawingCenterToScreenCenter();
 
         while (!drawingFitsScreen()) {
             zoomOutOneStep();
@@ -739,12 +904,46 @@ window.initDrawingQuestion = function (rootElement) {
     }
 
     function panDrawingCenterToScreenCenter() {
+        let systemGridToggle = false;
+        if (!UI.gridToggle.checked) {
+            UI.gridToggle.checked = true
+            processGridToggleChange()
+            systemGridToggle = true;
+        }
+        let systemQuestionHide = false
+        if (!Canvas.layers.question.isHidden()) {
+            Canvas.layers.question.hide()
+            systemQuestionHide = true;
+        }
+        let systemAnswerHide = false
+        if (!Canvas.layers.answer.isHidden()) {
+            Canvas.layers.answer.hide()
+            systemAnswerHide = true;
+        }
+
         const bbox = UI.svgPanZoomGroup.getBBox({fill: true, stroke: true, markers: true});
         const centerDrawingToOrigin = {
-            dx: -(bbox.x + (bbox.width / 2)),
-            dy: -(bbox.y + (bbox.height / 2)),
+            dx: parseInt(bbox.x + (bbox.width / 2)),
+            dy: parseInt(bbox.y + (bbox.height / 2)),
         };
+
         pan(centerDrawingToOrigin);
+        if(centerDrawingToOrigin.dy !== 0 || centerDrawingToOrigin.dx !== 0) {
+            if(UI.gridToggle.checked) {
+                panDrawingCenterToScreenCenter();
+            }
+        }
+
+        if (systemGridToggle) {
+            UI.gridToggle.checked = false
+            processGridToggleChange()
+        }
+        if (systemQuestionHide) {
+            Canvas.layers.question.unhide()
+        }
+        if (systemAnswerHide) {
+            Canvas.layers.answer.unhide()
+        }
     }
 
     function drawingFitsScreen() {
@@ -759,6 +958,7 @@ window.initDrawingQuestion = function (rootElement) {
         const content = UI.svgLayerToRender.content;
         for (const groupElement of content.children) {
             const mainElement = groupElement.querySelector(".main");
+            if (mainElement === null) continue;
             const props = {
                 group: copyAllAttributesFromElementToObject(groupElement),
                 main: copyAllAttributesFromElementToObject(mainElement),
@@ -840,21 +1040,201 @@ window.initDrawingQuestion = function (rootElement) {
         // UI.drawingTool.style.height = Math.round(window.innerHeight * 0.95) + "px";
     }
 
-    function submitDrawingData() {
-        // parent.skip = true;
+    async function submitDrawingData() {
+        if (drawingApp.params.isPreview) return;
+
         const b64Strings = encodeSvgLayersAsBase64Strings();
         const grid = (Canvas.layers.grid.params.hidden) ? "0.00" : drawingApp.params.gridSize.toString();
 
         const panGroupSize = getPanGroupSize();
 
-        Livewire.emit("drawing_data_updated", {
+        const livewireComponent = getClosestLivewireComponentByAttribute(rootElement, 'questionComponent');
+
+        livewireComponent.handleUpdateDrawingData({
             svg_answer: b64Strings.answer,
             svg_question: b64Strings.question,
-            svg_grid: grid,
-            svg_zoom_group: panGroupSize
+            svg_grid: b64Strings.grid,
+            grid_size: grid,
+            svg_zoom_group: panGroupSize,
+            png_question_preview_string: await getPNGQuestionPreviewStringFromSVG(panGroupSize),
+            png_correction_model_string: await getPNGCorrectionModelStringFromSVG(panGroupSize)
         });
+    }
 
-        makePreviewGrid(grid);
+    async function getPNGCorrectionModelStringFromSVG(panGroupSize) {
+        const svg = UI.svgCanvas.cloneNode(true);
+        svg.querySelector('#svg-answer-group').setAttribute('style', '');
+        svg.querySelector('#svg-question-group').setAttribute('style', '');
+
+        return getPNGStringFromSVG(svg, panGroupSize);
+    }
+
+    async function getPNGQuestionPreviewStringFromSVG(panGroupSize) {
+        const svg = UI.svgCanvas.cloneNode(true);
+        svg.querySelector('#svg-answer-group').remove();
+        return getPNGStringFromSVG(svg, panGroupSize);
+    }
+
+    function getDataUrlFromCanvasByImage(image) {
+        const canvas = document.createElement("canvas");
+        canvas.setAttribute('width', image.width);
+        canvas.setAttribute('height', image.height);
+
+        return new Promise((resolve, reject) => {
+            image.onload = () => {
+                const ctx = canvas.getContext("2d");
+                ctx.drawImage(image, 0, 0, image.width, image.height);
+                resolve(canvas.toDataURL());
+            };
+        });
+    }
+
+    async function getPNGStringFromSVG(svg, panGroupSize) {
+        prepareSvgForConversion(svg, panGroupSize);
+
+        const newImage = new Image(panGroupSize.width, panGroupSize.height);
+        newImage.setAttribute('src', 'data:image/svg+xml;base64,' + btoa(new XMLSerializer().serializeToString(svg)));
+
+        return await getDataUrlFromCanvasByImage(newImage);
+    }
+
+    async function compressedImageUrl(image, scaleFactor) {
+        const newImage = new Image(image.width * scaleFactor, image.height * scaleFactor)
+        newImage.src = image.src;
+
+        return await getDataUrlFromCanvasByImage(newImage);
+    }
+
+    function prepareSvgForConversion(svg, panGroupSize) {
+        svg.setAttribute('viewBox', `${panGroupSize.x} ${panGroupSize.y} ${panGroupSize.width} ${panGroupSize.height}`);
+        svg.setAttribute('width', `${panGroupSize.width}`);
+        svg.setAttribute('height', `${panGroupSize.height}`);
+        svg.querySelector('#svg-pan-zoom-group').setAttribute('transform', '');
+        svg.querySelector('#svg-grid-group').setAttribute('stroke', '#c3d0ed');
+        return svg;
+    }
+
+    function toggleSaveConfirm() {
+        UI.saveConfirm.classList.toggle('open');
+    }
+
+    function hasHiddenLayers() {
+        return answerLayerIsHidden() || questionLayerIsHidden() || hasAnswerHiddenLayers() || hasQuestionHiddenLayers()
+    }
+
+    function handleHiddenLayers() {
+        if (Object.keys(Canvas.layers.question.shapes).length) {
+            Object.values(Canvas.layers.question.shapes).forEach((shape) => {
+                if (shape.sidebar.svgShape.isHidden()) {
+                    shape.sidebar.handleToggleHide();
+                }
+
+            });
+        }
+        if (Object.keys(Canvas.layers.answer.shapes).length) {
+            Object.values(Canvas.layers.answer.shapes).forEach((shape) => {
+                if (shape.sidebar.svgShape.isHidden()) {
+                    shape.sidebar.handleToggleHide();
+                }
+            });
+        }
+    }
+
+    function closeDrawingTool() {
+        rootElement.dispatchEvent(new CustomEvent('close-drawing-tool'));
+    }
+
+    function handleCloseByExit() {
+        UI.closeConfirm.classList.toggle('open');
+    }
+
+    function answerLayerIsHidden() {
+        return Canvas.layers.answer.params.hidden && !!Object.keys(Canvas.layers.answer.shapes).length;
+    }
+
+    function questionLayerIsHidden() {
+        return Canvas.layers.question.params.hidden && !!Object.keys(Canvas.layers.question.shapes).length;
+    }
+
+    function hasQuestionHiddenLayers() {
+        if (Object.keys(Canvas.layers.question.shapes).length) {
+            return !!Object.values(Canvas.layers.question.shapes).filter((shape) => {
+                return shape.sidebar.svgShape.isHidden()
+            }).length;
+        }
+        return false;
+    }
+
+    function hasAnswerHiddenLayers() {
+        if (Object.keys(Canvas.layers.answer.shapes).length) {
+            return !!Object.values(Canvas.layers.answer.shapes).filter((shape) => {
+                return shape.sidebar.svgShape.isHidden()
+            }).length;
+        }
+        return false;
+    }
+
+    function handleShapeSelection(evt) {
+        const shapeGroup = evt.target.closest(".shape");
+        if (!shapeGroup) return;
+
+        const layerID = shapeGroup.parentElement.id;
+        const layerObject = Canvas.layers[Canvas.layerID2Key(layerID)];
+        if(!layerObject.props.id.includes(layerObject.Canvas.params.currentLayer)) return;
+
+        const selectedEl = rootElement.querySelector('.selected');
+        const selectedSvgShape = evt.target.closest("g.shape");
+
+        if (selectedEl) removeSelectState(selectedEl);
+        if (selectedEl === selectedSvgShape) return;
+
+        addSelectState(selectedSvgShape);
+    }
+
+    function removeSelectState(element) {
+        element.classList.remove('selected')
+        rootElement.querySelector('#shape-'+element.id).classList.remove('selected')
+    }
+
+    function addSelectState(element) {
+        element.classList.add('selected')
+        rootElement.querySelector('#shape-'+element.id).classList.add('selected')
+    }
+
+    function movedDuringClick(evt) {
+        if (drawingApp.params.currentTool !== "drag") {
+            return true;
+        }
+
+        const delta = 6;
+        const startX = Canvas.params.cursorPositionMousedown.x;
+        const startY = Canvas.params.cursorPositionMousedown.y;
+
+        let evtClientX = evt.clientX;
+        let evtClientY = evt.clientY;
+
+        if (evt.touches?.length > 0) {
+            evtClientX = evt.touches[0].clientX;
+            evtClientY = evt.touches[0].clientY;
+        }
+
+        const diffX = Math.abs(evtClientX - startX);
+        const diffY = Math.abs(evtClientY - startY);
+
+        if (diffX < delta && diffY < delta) {
+            return false;
+        }
+
+        return true;
+    }
+
+    function setMousedownPosition(evt) {
+        Canvas.params.cursorPositionMousedown.x = evt.clientX;
+        Canvas.params.cursorPositionMousedown.y = evt.clientY;
+        if (evt.touches?.length > 0) {
+            Canvas.params.cursorPositionMousedown.x = evt.touches[0].clientX;
+            Canvas.params.cursorPositionMousedown.y = evt.touches[0].clientY;
+        }
     }
 
     /**
@@ -865,6 +1245,9 @@ window.initDrawingQuestion = function (rootElement) {
     function cursorStart(evt) {
         evt.preventDefault();
         updateCursorPosition(evt);
+
+        setMousedownPosition(evt)
+
         if (Canvas.params.focusedShape)
             Canvas.params.focusedShape = null;
         if (Canvas.params.highlightedShape) {
@@ -906,10 +1289,11 @@ window.initDrawingQuestion = function (rootElement) {
         };
 
         selectedSvgShape.classList.add("dragging");
+        selectedSvgShape.parentElement.classList.add("child-dragging");
     }
 
     function shapeMayBeDragged(shapeGroup, layerObject) {
-        return shapeGroup.classList.contains("draggable") && !layerObject.params.locked;
+        return shapeGroup.classList.contains("draggable") && !layerObject.params.locked && layerObject.props.id.includes(layerObject.Canvas.params.currentLayer);
     }
 
     function elementHasTransforms(transforms) {
@@ -923,11 +1307,11 @@ window.initDrawingQuestion = function (rootElement) {
     }
 
     function firstTransformIsOfTypeTranslate(transforms) {
-        return getFirstTransform(transforms).type === SVGTransform.SVG_TRANSFORM_TRANSLATE;
+        return getFirstTransform(transforms)?.type === SVGTransform.SVG_TRANSFORM_TRANSLATE;
     }
 
     function getFirstTransform(transforms) {
-        return transforms.getItem(0);
+        if(transforms.numberOfItems > 0) return transforms.getItem(0);
     }
 
     function calculateCursorToMidPointOffset(translate) {
@@ -1026,10 +1410,9 @@ window.initDrawingQuestion = function (rootElement) {
                     "y": cursorPosition.y,
                     "fill": UI.textColor.value,
                     "stroke-width": 0,
+                    "value": 'abc',
                     "opacity": parseFloat(UI.elemOpacityNumber.value / 100),
-                    "style": `${
-                        drawingApp.params.boldText ? "font-weight: bold;" : ""
-                    } font-size: ${parseInt(UI.textSize.value)}px`,
+                    "style": `${drawingApp.params.boldText ? "font-weight: bold;" : ""} font-size: ${UI.textSize.value / 16}rem`,
                 };
             default:
         }
@@ -1096,6 +1479,10 @@ window.initDrawingQuestion = function (rootElement) {
         }
 
         Canvas.params.cursorPosition = cursorPosition;
+
+        if(evt.type === 'touchmove') {
+            Canvas.params.touchmoving = true;
+        }
     }
 
     function updateCursorPosition(evt) {
@@ -1110,6 +1497,8 @@ window.initDrawingQuestion = function (rootElement) {
     function getCursorPosition(evt) {
         let CTM = UI.svgPanZoomGroup.getScreenCTM();
         evt = evt.touches?.[0] || evt;
+
+        if (evt.type === 'touchend') return Canvas.params.cursorPosition;
 
         return {
             x: (evt.clientX - CTM.e) / CTM.a,
@@ -1262,6 +1651,7 @@ window.initDrawingQuestion = function (rootElement) {
     }
 
     function updateZoomInputValue(value = 1) {
+        handleDisabledZoomButtonStates(value);
         UI.zoomLevel.value = (value * 100) + "%";
     }
 
@@ -1295,6 +1685,7 @@ window.initDrawingQuestion = function (rootElement) {
 
     function stopDrag() {
         UI.svgCanvas.querySelector("g.dragging").classList.remove("dragging");
+        UI.svgCanvas.querySelector(".child-dragging").classList.remove("child-dragging");
         Canvas.params.drag.enabled = false;
     }
 
@@ -1308,6 +1699,22 @@ window.initDrawingQuestion = function (rootElement) {
         if (currentTool == newTool) return;
         drawingApp.params.currentTool = newTool;
         makeSelectedBtnActive(evt.currentTarget);
+        enableSpecificPropSelectInputs();
+        setCursorTypeAccordingToCurrentType();
+        if (!drawingApp.currentToolIs("drag")) {
+            drawingApp.warnings.whenAnyToolButDragSelected.show();
+        }
+    }
+
+    function manualToolChange(tool) {
+        let currentTool = drawingApp.params.currentTool;
+        const newTool = tool;
+        if (currentTool === newTool) return;
+
+        drawingApp.params.currentTool = newTool;
+
+        const btnElement = rootElement.querySelector(`[id*="${newTool}-btn"]`)
+        makeSelectedBtnActive(btnElement);
         enableSpecificPropSelectInputs();
         setCursorTypeAccordingToCurrentType();
         if (!drawingApp.currentToolIs("drag")) {
@@ -1340,6 +1747,7 @@ window.initDrawingQuestion = function (rootElement) {
         for (const fileURL of evt.target.files) {
             const reader = new FileReader();
             reader.readAsDataURL(fileURL);
+
             drawingApp.bindEventListeners([
                 {
                     element: reader,
@@ -1358,6 +1766,7 @@ window.initDrawingQuestion = function (rootElement) {
                 }
             ]);
         }
+        manualToolChange('drag');
         UI.imgUpload.value = null;
     }
 
@@ -1382,21 +1791,24 @@ window.initDrawingQuestion = function (rootElement) {
         ]);
     }
 
-    function dummyImageLoaded(evt) {
+    async function dummyImageLoaded(evt) {
         const dummyImage = evt.target,
             scaleFactor = correctImageSize(dummyImage),
-            imageURL = dummyImage.src;
+            // imageURL = dummyImage.src;
+            base65PNGString = await compressedImageUrl(dummyImage, scaleFactor);
         const shape = makeNewSvgShapeWithSidebarEntry(
             "image",
             {
                 main: {
-                    href: imageURL,
+                    href: base65PNGString,
                     width: dummyImage.width * scaleFactor,
                     height: dummyImage.height * scaleFactor,
                 },
             },
             Canvas.params.currentLayer
         );
+
+        shape.svg.moveToCenter();
         shape.svg.addHighlightEvents();
     }
 
@@ -1420,14 +1832,19 @@ window.initDrawingQuestion = function (rootElement) {
     }
 
 
+    function updateGridButtonStates(disabled) {
+        UI.gridSize.disabled = disabled;
+        UI.decrGridSize.disabled = UI.gridSize.value <= UI.gridSize.min ? true : disabled;
+        UI.incrGridSize.disabled = UI.gridSize.value >= UI.gridSize.max ? true : disabled;
+        Canvas.layers.grid.params.hidden = disabled;
+
+        const gridSizeContainerClassList = UI.gridSize.parentElement.classList;
+        disabled ? gridSizeContainerClassList.add('disabled') : gridSizeContainerClassList.remove('disabled');
+    }
+
     function processGridToggleChange() {
-        if (drawingApp.isTeacher()) {
-            const gridState = !UI.gridToggle.checked;
-            UI.gridSize.disabled = gridState;
-            UI.decrGridSize.disabled = gridState;
-            UI.incrGridSize.disabled = gridState;
-            Canvas.layers.grid.params.hidden = gridState;
-        }
+        const gridState = !UI.gridToggle.checked;
+        updateGridButtonStates(gridState);
         updateGridVisibility();
     }
 
@@ -1438,7 +1855,7 @@ window.initDrawingQuestion = function (rootElement) {
             },
             main: {},
             origin: {
-                stroke: "var(--all-BlueGrey)",
+                // stroke: "var(--teacher-Primary)",
                 id: "grid-origin",
             },
             size: (drawingApp.isTeacher() ? UI.gridSize.value : drawingApp.params.gridSize),
@@ -1447,9 +1864,9 @@ window.initDrawingQuestion = function (rootElement) {
     }
 
     function updateGridVisibility() {
-        const grid = Canvas.layers.grid,
-            shape = grid.shape;
-        if (!grid.params.hidden && (drawingApp.isTeacher() ? valueWithinBounds(UI.gridSize) : true)) {
+        const grid = Canvas.layers.grid;
+        const shape = grid.shape;
+        if (!grid.params.hidden && valueWithinBounds(UI.gridSize)) {
             shape.show();
             return;
         }
@@ -1457,12 +1874,8 @@ window.initDrawingQuestion = function (rootElement) {
     }
 
     function updateGrid() {
-        if (drawingApp.isTeacher()) {
-            if (valueWithinBounds(UI.gridSize)) {
-                drawingApp.params.gridSize = UI.gridSize.value;
-                Canvas.layers.grid.shape.update();
-            }
-        } else {
+        if (valueWithinBounds(UI.gridSize)) {
+            drawingApp.params.gridSize = UI.gridSize.value;
             Canvas.layers.grid.shape.update();
         }
     }
@@ -1619,8 +2032,7 @@ window.initDrawingQuestion = function (rootElement) {
     }
 
     function getPanGroupSize() {
-        Canvas.layers.grid.shape.hide();
-
+        const gridLayerHidden = !Canvas.layers.grid.shape.isHidden();
         const questionLayerHidden = Canvas.layers.question.isHidden();
         const answerLayerHidden = Canvas.layers.answer.isHidden();
 
@@ -1629,6 +2041,9 @@ window.initDrawingQuestion = function (rootElement) {
         }
         if (answerLayerHidden) {
             Canvas.layers.answer.unhide()
+        }
+        if (gridLayerHidden) {
+            Canvas.layers.grid.shape.hide()
         }
 
         const panGroupSize = UI.svgPanZoomGroup.getBBox();
@@ -1639,6 +2054,9 @@ window.initDrawingQuestion = function (rootElement) {
         if (answerLayerHidden) {
             Canvas.layers.answer.hide()
         }
+        if (gridLayerHidden) {
+            Canvas.layers.grid.shape.show()
+        }
 
         return {
             x: panGroupSize.x,
@@ -1648,19 +2066,76 @@ window.initDrawingQuestion = function (rootElement) {
         }
     }
 
-    return { UI, Canvas, drawingApp }
+    function handleDisabledZoomButtonStates(newFactor) {
+        if (newFactor === zoomParams.MAX) {
+            UI.incrZoom.disabled = true;
+            return;
+        }
+        if (newFactor === zoomParams.MIN) {
+            UI.decrZoom.disabled = true;
+            return;
+        }
+
+        UI.incrZoom.disabled = false;
+        UI.decrZoom.disabled = false;
+    }
+
+    function getBoundsForInputElement(element) {
+        const currentValue = parseFloat(element.value);
+        const min = parseFloat(element.min);
+        const max = parseFloat(element.max);
+
+        return {currentValue, min, max};
+    }
+
+    function getButtonsForElement(element) {
+        const decrButton = UI[`decr${element.capitalize()}`];
+        const incrButton = UI[`incr${element.capitalize()}`];
+
+        return {decrButton, incrButton};
+    }
+
+    function disableButtonsWhenNecessary(UIElementString) {
+        const {decrButton, incrButton} = getButtonsForElement(UIElementString);
+        const {currentValue, min, max} = getBoundsForInputElement(UI[UIElementString]);
+
+        decrButton.disabled = currentValue === min;
+        incrButton.disabled = currentValue === max;
+    }
+
+    function handleTextSizeButtonStates() {
+        disableButtonsWhenNecessary('textSize');
+    }
+
+    function handleGridSizeButtonStates() {
+        disableButtonsWhenNecessary('gridSize');
+    }
+
+    function handleStrokeButtonStates() {
+        const {currentValue, min, max} = getBoundsForInputElement(UI.strokeWidth);
+
+        UI.decrStroke.disabled = currentValue === min;
+        UI.incrStroke.disabled = currentValue === max;
+    }
+
+    return {UI, Canvas, drawingApp}
+
 
 }
 
-function clearPreviewGrid() {
+function clearPreviewGrid(rootElement) {
     const gridContainer = rootElement.querySelector('#grid-preview-svg')
-    if(gridContainer.firstChild !== null) {
+
+    if (gridContainer !== null && gridContainer.firstChild !== null) {
         gridContainer.firstChild.remove();
     }
 }
 
-window.makePreviewGrid = function (gridSvg) {
-    clearPreviewGrid();
+window.makePreviewGrid = function (drawingApp, gridSvg) {
+
+    const rootElement = drawingApp.params.root
+
+    clearPreviewGrid(rootElement);
 
     const props = {
         group: {
@@ -1668,27 +2143,30 @@ window.makePreviewGrid = function (gridSvg) {
         },
         main: {},
         origin: {
-            stroke: "var(--teacher-Primary)",
+            stroke: "var(--teacher-blueGrey)",
             id: "grid-origin",
         },
         size: gridSvg,
     }
     let parent = rootElement.querySelector('#grid-preview-svg')
-    return new svgShape.Grid(0, props, parent, null, null);
+    return new svgShape.Grid(0, props, parent, drawingApp, null);
 }
 
-window.calculatePreviewBounds = function () {
-    let parent = rootElement.querySelector('#preview-svg')
+window.calculatePreviewBounds = function (parent) {
     const matrix = new DOMMatrix();
     const height = parent.clientHeight,
         width = parent.clientWidth;
+    let scale = parent.viewBox.baseVal.width / width;
+    if (parent.viewBox.baseVal.width > width) {
+        scale = width / parent.viewBox.baseVal.width
+    }
     return {
-        top: -(matrix.f),
-        bottom: height - matrix.f,
-        height: height,
-        left: -(matrix.e),
-        right: width - matrix.e,
-        width: width,
+        top: -(matrix.f + (height)) / scale,
+        bottom: (height - matrix.f) / scale,
+        height: (height * 2) / scale,
+        left: -(matrix.e + (width)) / scale,
+        right: (width - matrix.e) / scale,
+        width: (width * 2) / scale,
         cx: -matrix.e + (width / 2),
         cy: -matrix.f + (height / 2),
     };

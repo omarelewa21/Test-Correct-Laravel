@@ -124,7 +124,12 @@
         <div class="flex space-x-6 ml-auto min-w-max justify-end items-center">
 
             @if(!$isOverview)
-                <x-button.text-button wire:click="toOverview({{ $this->q }})" @click="$dispatch('show-loader')">
+                <x-button.text-button
+                    onclick="typeof toOverview === 'function' ? toOverview({{$this->q}}) :
+                        livewire.find(document.querySelector('[test-take-player]').getAttribute('wire:id')).call('toOverview', {{$this->q}})
+                        "
+                    {{-- @click="$dispatch('show-loader')" --}}
+                    >
                     <x-icon.preview/>
                     <span>{{ __('test_take.overview') }}</span>
                 </x-button.text-button>
@@ -148,6 +153,9 @@
                             rspkr.ui.getActivePlayer().close();
                     }
                 });
+                if (typeof rspkr != 'undefined' && typeof rspkr.ui != 'undefined') {
+                    rspkr.ui.Tools.ClickListen.activate();
+                }
             </script>
         @endpush
     @endif

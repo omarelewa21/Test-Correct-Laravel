@@ -27,5 +27,6 @@ return [
     'close'          => 'Sluiten',
     'name'           => 'Naam',
     'grade'          => 'Cijfer',
-    'attention'        => 'Let op',
+    'attention'      => 'Let op',
+    'save'           => 'Opslaan',
 ];
