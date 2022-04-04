@@ -47,6 +47,8 @@ class EntreeHelper
 
     protected $origAttr;
 
+    protected $emailMaybeEmpty = false;
+
     public function __construct($attr, $messageId)
     {
         $this->attr = $this->transformAttributesIfNeededAndReturn($attr);
@@ -105,6 +107,7 @@ class EntreeHelper
         if($url = $this->handleIfRegisteringAndNoBrincode($data)){
             return $url;
         }
+
         if($data->user = $this->handleIfRegisteringAndUserBasedOnEckId($data)){
             if(!$data->user instanceof User AND is_string($data->user)){
                 return $data->user;
@@ -142,8 +145,8 @@ class EntreeHelper
 
             if(!$user->hasImportMailAddress()){ // regular user
                 if($data->emailAddress){
-                    if($user2 = User::where('username',$data->emailAddress)){
-                        if($user != $user2){
+                    if($user2 = User::where('username',$data->emailAddress)->first()){
+                        if($user->getKey() != $user2->getKey()){
                             return $this->redirectToUrlAndExit($this->getOnboardingUrlWithOptionalMessage(__('onboarding-welcome.Je entree account kan niet gebruikt worden om een account aan te maken in Test-Correct. Neem contact op met support.')));
                         }
                     }
@@ -174,7 +177,7 @@ class EntreeHelper
                 return $this->redirectToUrlAndExit($url);
             }
 
-            if(!$data->emailAddress || substr_count('@',$data->emailAddress) < 1){
+            if(!$data->emailAddress || substr_count($data->emailAddress,'@') < 1){
                 return $this->redirectToUrlAndExit($this->getOnboardingUrlWithOptionalMessage(__('onboarding-welcome.Je entree account kan niet gebruikt worden om een account aan te maken in Test-Correct. Neem contact op met support.')));
             }
 
@@ -184,6 +187,7 @@ class EntreeHelper
                     return $this->redirectToUrlAndExit($url);
                 }
             }
+
             // import user
             return $user;
         }
@@ -237,7 +241,7 @@ class EntreeHelper
 
         if(!$user = User::findByEckId($eckId)->first()){
             if($data->emailAddress){
-                if($user = User::where('username',$data->emailAddress)){
+                if($user = User::where('username',$data->emailAddress)->first()){
                     return $this->redirectToUrlAndExit($this->getOnboardingUrlWithOptionalMessage(__('onboarding-welcome.Je entree account kan niet gebruikt worden om een account aan te maken in Test-Correct. Neem contact op met support.')));
                 }
             }
@@ -624,6 +628,7 @@ class EntreeHelper
     public function redirectIfNoUserWasFoundForEckId()
     {
         $this->validateAttributes();
+        $this->setLocationWithSamlAttributes();
         $this->setLaravelUser();
 
         if ($this->laravelUser) {
@@ -641,19 +646,21 @@ class EntreeHelper
         if (null == $this->location) {
             $this->setLocationWithSamlAttributes();
         }
-        if (null == $this->laravelUser) {
-            $this->setLaravelUser();
-        }
-        if (null != $this->laravelUser) {
-            if ($this->isTeacherBasedOnAttributes()) {
-                if ($this->laravelUser->allowedSchoolLocations->contains($this->location->getKey())) {
-                    $this->laravelUser->school_location_id = $this->location->getKey();
-                    $this->laravelUser->save();
-                    return true;
-                }
-            } else {
-                if ($this->location && $this->location->is($this->laravelUser->schoolLocation)) {
-                    return true;
+        if(null != $this->location) {
+            if (null == $this->laravelUser) {
+                $this->setLaravelUser();
+            }
+            if (null != $this->laravelUser) {
+                if ($this->isTeacherBasedOnAttributes()) {
+                    if ($this->laravelUser->allowedSchoolLocations->contains($this->location->getKey())) {
+                        $this->laravelUser->school_location_id = $this->location->getKey();
+                        $this->laravelUser->save();
+                        return true;
+                    }
+                } else {
+                    if ($this->location && $this->location->is($this->laravelUser->schoolLocation)) {
+                        return true;
+                    }
                 }
             }
         }
@@ -667,13 +674,17 @@ class EntreeHelper
     {
         $this->validateAttributes();
 
+        if (null == $this->location) {
+            $this->setLocationWithSamlAttributes();
+        }
+
         if (null == $this->laravelUser) {
             $this->setLaravelUser();
         }
 
-        if (null == $this->laravelUser) {
-            return true;//$this->redirectIfNoUserWasFoundForEckId(); // removed otherwise never gona get a scenario5 and no user is catched later on as well
-        }
+//        if (null == $this->laravelUser) {
+//            return true;//$this->redirectIfNoUserWasFoundForEckId(); // removed otherwise never gona get a scenario5 and no user is catched later on as well
+//        }
 
         if (optional($this->laravelUser)->isA($this->getRoleFromAttributes())) {
             return true;
@@ -696,6 +707,10 @@ class EntreeHelper
     {
         $this->validateAttributes();
 
+        if (null == $this->location) {
+            $this->setLocationWithSamlAttributes();
+        }
+
         if (null == $this->laravelUser) {
             $this->setLaravelUser();
         }
@@ -716,6 +731,10 @@ class EntreeHelper
     public function handleScenario2IfAddressIsKnownInOtherAccount()
     {
         $this->validateAttributes();
+
+        if (null == $this->location) {
+            $this->setLocationWithSamlAttributes();
+        }
 
         if (null == $this->laravelUser) {
             $this->setLaravelUser();
