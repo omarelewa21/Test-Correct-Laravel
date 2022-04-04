@@ -119,7 +119,7 @@ class EntreeHelper
         }
 
         $samlId = SamlMessage::create([
-            'data' => json_encode($data),
+            'data' => serialize($data),
             'eck_id' => 'not needed',
             'message_id' => 'not needed',
         ]);

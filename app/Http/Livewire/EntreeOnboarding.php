@@ -146,7 +146,7 @@ class EntreeOnboarding extends Component
             redirect::to(route('onboarding.welcome'));
             return false;
         }
-        $this->entreeData = json_decode($message->data);
+        $this->entreeData = unserialize($message->data);
         if (!$this->entreeData) {
             Redirect::to(route('onboarding.welcome'));
             return false;
