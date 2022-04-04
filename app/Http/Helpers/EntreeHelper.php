@@ -123,7 +123,7 @@ class EntreeHelper
             'eck_id' => 'not needed',
             'message_id' => 'not needed',
         ]);
-        return $this->redirectToUrlAndExit(route('onboarding.welcome.entree',['samlId' => $samlId]));
+        return $this->redirectToUrlAndExit(route('onboarding.welcome.entree',['samlId' => $samlId->uuid]));
     }
 
     protected function getOnboardingUrlWithOptionalMessage($message = null, $entree = false)
