@@ -141,7 +141,12 @@ class EntreeOnboarding extends Component
     protected function setEntreeDataFromSessionIfAvailable()
     {
         $samlId = request()->get('samlId');
-        $this->entreeData = SamlMessage::getSamlMessageIfValid($samlId);
+        $message = SamlMessage::getSamlMessageIfValid($samlId);
+        if(!$message) {
+            redirect::to(route('onboarding.welcome'));
+            return false;
+        }
+        $this->entreeData = json_decode($message->data);
         if (!$this->entreeData) {
             Redirect::to(route('onboarding.welcome'));
             return false;
