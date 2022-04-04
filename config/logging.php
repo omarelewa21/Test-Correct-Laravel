@@ -82,7 +82,7 @@ return [
         ],
         'loki' => [
             'driver' => 'single',
-            'path' => storage_path('logs/loki.log'),
+            'path' => storage_path('logs/monitoring/loki.log'),
             'level' => 'info',
             'formatter' => tcCore\Logging\LokiJson::class,
             'formatter_with' => [
