@@ -18,6 +18,7 @@ use tcCore\Http\Helpers\EntreeHelper;
 use tcCore\Http\Requests\Request;
 use tcCore\Lib\Repositories\SchoolYearRepository;
 use tcCore\Lib\User\Factory;
+use tcCore\SamlMessage;
 use tcCore\SchoolClass;
 use tcCore\SchoolLocation;
 use tcCore\Shortcode;
@@ -52,8 +53,9 @@ class EntreeOnboarding extends Component
     public $selectedLocationsString = null;
     public $schoolLocation;
     public $school;
+    public $samlId;
 
-    protected $queryString = ['step'];
+    protected $queryString = ['step','samlId'];
 
     protected function messages()
     {
@@ -138,7 +140,8 @@ class EntreeOnboarding extends Component
 
     protected function setEntreeDataFromSessionIfAvailable()
     {
-        $this->entreeData = session('entreeData', false);
+        $samlId = request()->get('samlId');
+        $this->entreeData = SamlMessage::getSamlMessageIfValid($samlId);
         if (!$this->entreeData) {
             Redirect::to(route('onboarding.welcome'));
             return false;

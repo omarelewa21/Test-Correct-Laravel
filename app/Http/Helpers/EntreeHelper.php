@@ -118,8 +118,12 @@ class EntreeHelper
             return $url;
         }
 
-        session(['entreeData' => $data]);
-        return $this->redirectToUrlAndExit(route('onboarding.welcome.entree'));
+        $samlId = SamlMessage::create([
+            'data' => json_encode($data),
+            'eck_id' => 'not needed',
+            'message_id' => 'not needed',
+        ]);
+        return $this->redirectToUrlAndExit(route('onboarding.welcome.entree',['samlId' => $samlId]));
     }
 
     protected function getOnboardingUrlWithOptionalMessage($message = null, $entree = false)
