@@ -26,6 +26,8 @@ class SvgBackGroundImageTest extends TestCase
     /** @test */
     public function if_i_create_an_svg_i_can_download_the_image_i_uploaded()
     {
+        $this->withoutExceptionHandling();
+        $this->actingAs(User::whereUsername('d1@test-correct.nl')->first());
         Storage::fake(SvgHelper::DISK);
         $uuid = 'f0edd769-7363-4cc8-ab56-fa0067798f33';
         $svgHelper = new SvgHelper($uuid);
@@ -55,7 +57,6 @@ class SvgBackGroundImageTest extends TestCase
     public function as_the_author_i_can_access_the_svg()
     {
         $this->actingAs(User::whereUsername('d1@test-correct.nl')->first());
-        $this->withoutExceptionHandling();
         Storage::fake(SvgHelper::DISK);
         $uuid = 'a0edd769-7363-4cc8-ab56-fa0067798f33';
         $svgHelper = new SvgHelper($uuid);

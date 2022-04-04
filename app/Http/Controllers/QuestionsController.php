@@ -113,9 +113,10 @@ class QuestionsController extends Controller
     {
         $path = sprintf('%s/question/%s', $drawingQuestion, $identifier);
         if (Storage::disk(SvgHelper::DISK)->exists($path)) {
-            return Response::file(
-                Storage::disk($path)
+            $response = Response::make(
+                Storage::disk(SvgHelper::DISK)->get($path)
             );
+            return $response;
         }
         abort(404);
     }
