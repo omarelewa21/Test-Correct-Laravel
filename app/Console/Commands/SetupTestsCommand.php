@@ -9,13 +9,13 @@ use Symfony\Component\Console\Output\ConsoleOutput;
 use tcCore\Http\Helpers\ActingAsHelper;
 use tcCore\Http\Helpers\BaseHelper;
 use tcCore\User;
-use Tests\Traits\CompletionQuestionTrait;
-use Tests\Traits\DrawingQuestionTrait;
-use Tests\Traits\MatchingQuestionTrait;
-use Tests\Traits\MultipleChoiceQuestionTrait;
-use Tests\Traits\OpenQuestionTrait;
-use Tests\Traits\RankingQuestionTrait;
-use Tests\Traits\TestTrait;
+use tcCore\Traits\Dev\CompletionQuestionTrait;
+use tcCore\Traits\Dev\DrawingQuestionTrait;
+use tcCore\Traits\Dev\MatchingQuestionTrait;
+use tcCore\Traits\Dev\MultipleChoiceQuestionTrait;
+use tcCore\Traits\Dev\OpenQuestionTrait;
+use tcCore\Traits\Dev\RankingQuestionTrait;
+use tcCore\Traits\Dev\TestTrait;
 use Illuminate\Support\Facades\Http;
 
 

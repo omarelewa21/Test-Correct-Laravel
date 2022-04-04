@@ -7,8 +7,8 @@ use tcCore\User;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
-use Tests\Traits\TestTrait;
-use Tests\Traits\MultipleChoiceQuestionTrait;
+use tcCore\Traits\Dev\TestTrait;
+use tcCore\Traits\Dev\MultipleChoiceQuestionTrait;
 
 class TestingControllerTest extends TestCase
 {

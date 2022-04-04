@@ -7,9 +7,9 @@ use tcCore\TestQuestion;
 use tcCore\Test;
 use tcCore\MulipleChoiceQuestion;
 use Tests\TestCase;
-use Tests\Traits\TestTrait;
-use Tests\Traits\MultipleChoiceQuestionTrait;
-use Tests\Traits\GroupQuestionTrait;
+use tcCore\Traits\Dev\TestTrait;
+use tcCore\Traits\Dev\MultipleChoiceQuestionTrait;
+use tcCore\Traits\Dev\GroupQuestionTrait;
 
 
 class ARQQuestionTest extends TestCase

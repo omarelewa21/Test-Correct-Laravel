@@ -19,8 +19,8 @@ use tcCore\User;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
-use Tests\Traits\OpenQuestionTrait;
-use Tests\Traits\TestTrait;
+use tcCore\Traits\Dev\OpenQuestionTrait;
+use tcCore\Traits\Dev\TestTrait;
 use tcCore\Http\Helpers\SchoolHelper;
 
 class QuaynImportTest extends TestCase

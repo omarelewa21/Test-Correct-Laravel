@@ -10,9 +10,9 @@ use tcCore\User;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
-use Tests\Traits\TestTrait;
-use Tests\Traits\GroupQuestionTrait;
-use Tests\Traits\OpenQuestionTrait;
+use tcCore\Traits\Dev\TestTrait;
+use tcCore\Traits\Dev\GroupQuestionTrait;
+use tcCore\Traits\Dev\OpenQuestionTrait;
 
 class OpenQuestionTest extends TestCase
 {
