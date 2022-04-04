@@ -145,6 +145,60 @@ ReadspeakerTlc = function(){
                 },100);
             });
         }
+        function handlePopupChange()
+        {
+            var config = { attributes: true, childList: false, subtree: false };
+            var element = document.querySelector('#rsbtn_popup');
+            var callback = function(mutationsList, observer){
+                for(var mutation of mutationsList) {
+                    if (mutation.type === 'attributes'&&mutation.attributeName=='style') {
+                        for (const editorId in ClassicEditors) {
+                            try {
+                                if (!util.checkElementInActiveQuestion(ClassicEditors[editorId].ui.view.editable.element)) {
+                                    return true;
+                                }
+                                ClassicEditors[editorId].isReadOnly = false;
+                                if(ClassicEditors[editorId].ui.view.editable.element.classList.contains('ck-blurred')){
+                                    ClassicEditors[editorId].ui.view.editable.element.focus();
+                                }
+                            } catch (error) {
+                                console.dir(error);
+                                return true;
+                            }
+                        }
+                    }
+                }
+            }
+            var observer = new MutationObserver(callback);
+            observer.observe(element, config);
+        }
+        function addListenersToPopup()
+        {
+            if(document.querySelector('#rsbtn_popup')){
+                ReadspeakerTlc.rsTlcEvents.handlePopupChange();
+            }
+            var config = { attributes: true, childList: true, subtree: false };
+            var element = document.querySelector('body');
+            var callback = function(mutationsList, observer){
+                for(var mutation of mutationsList) {
+                    if (mutation.type != 'childList') {
+                        continue;
+                    }
+                    if(typeof mutation.addedNodes=='undefined'){
+                        continue;
+                    }
+                    if (typeof mutation.addedNodes[0]=='undefined'){
+                        continue;
+                    }
+                    if(mutation.addedNodes[0].id!='rsbtn_popup'){
+                        continue;
+                    }
+                    ReadspeakerTlc.rsTlcEvents.handlePopupChange();
+                }
+            }
+            var observer = new MutationObserver(callback);
+            observer.observe(element, config);
+        }
         return{
             handleTextBoxFocusForReadspeaker:handleTextBoxFocusForReadspeaker,
             handleTextBoxBlurForReadspeaker:handleTextBoxBlurForReadspeaker,
@@ -156,7 +210,9 @@ ReadspeakerTlc = function(){
             handleCkeditorBlurForReadspeaker:handleCkeditorBlurForReadspeaker,
             handleCkeditorSelectionChangeDoneForReadspeaker:handleCkeditorSelectionChangeDoneForReadspeaker,
             handleCkeditorSelectionChangeForReadspeaker:handleCkeditorSelectionChangeForReadspeaker,
-            handleIPadSelectionChange
+            handleIPadSelectionChange,
+            handlePopupChange,
+            addListenersToPopup
         }
     }();
     clickListen = function(){
@@ -330,6 +386,7 @@ ReadspeakerTlc = function(){
             hidden_div.classList.add('overflow-ellipsis');
             hidden_div.classList.add('readspeaker_readable_element');
             element.classList.add('hidden');
+            element.classList.add('rs_skip');
             element.classList.add('readspeaker_hidden_element');
         }
         function displayHiddenElementsAndRemoveTheRest()
@@ -382,6 +439,9 @@ ReadspeakerTlc = function(){
             }
             if(element.classList.contains('readspeaker_hidden_element')){
                 element.classList.remove('readspeaker_hidden_element');
+            }
+            if(element.classList.contains('rs_skip')){
+                element.classList.remove('rs_skip');
             }
         }
         return{
@@ -739,9 +799,16 @@ ReadspeakerTlc = function(){
             readable_div.click();
         }
         function isIpadOS() {
-            return navigator.maxTouchPoints &&
+            return [
+                'iPad Simulator',
+                'iPhone Simulator',
+                'iPod Simulator',
+                'iPad',
+                'iPhone',
+                'iPod'
+            ].includes(navigator.platform) || (navigator.maxTouchPoints &&
                 navigator.maxTouchPoints > 2 &&
-                /MacIntel/.test(navigator.platform);
+                /MacIntel/.test(navigator.platform));
         }
         return{
             showById:showById,
@@ -915,7 +982,7 @@ ReadSpeaker.q(function() {
     rspkr.rs_tlc_container = false;
     rspkr.rs_tlc_prevent_ckeditor_focus = false;
     ReadspeakerTlc.rsTlcEvents.handleIPadSelectionChange();
-
+    ReadspeakerTlc.rsTlcEvents.addListenersToPopup();
 });
 window.rsConf = {
     general: {
