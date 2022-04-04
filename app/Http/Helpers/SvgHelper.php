@@ -212,7 +212,7 @@ XML
 
     private function base64DecodeIfNecessary($value)
     {
-        if (Str::startsWith($value, '<') && Str::endsWith($value, '>') ) {
+        if (Str::startsWith($value, '<') && Str::endsWith($value, '>')) {
             return $value;
         }
         return base64_decode($value);
@@ -299,5 +299,30 @@ XML
     private function trimParentTagFromLayer($layer)
     {
         return substr(strstr(ltrim($layer, '<'), '<'), 0, -4);
+    }
+
+    public function getSvgWithUrls()
+    {
+        $doc = new \DOMDocument();
+        $doc->loadXML($this->getSvg());
+        $images = $doc->getElementsByTagName('image');
+        collect($images)->each(function ($node) {
+            $routeName = '';
+            if ($node->parentNode->getAttribute('class') === 'answer-svg') {
+                $routeName = 'drawing-question.background-answer-svg';
+            } else if ($node->parentNode->getAttribute('class') === 'question-svg') {
+                $routeName = 'drawing-question.background-question-svg';
+            }
+
+            if ($routeName) {
+                $url = route(
+                    $routeName,
+                    ['drawingQuestion' => $this->uuid, 'identifier' => $node->getAttribute('identifier')]
+                );
+
+                $node->setAttribute('src', $url);
+            }
+        });
+        return $doc->saveXML();
     }
 }

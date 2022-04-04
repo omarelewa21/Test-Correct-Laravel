@@ -25,6 +25,7 @@
 		"mews/purifier": "^3.2",
 		"pusher/pusher-php-server": "^4.1",
 		"ramsey/uuid": "^4.1",
+		"spatie/laravel-glide": "^3.6",
 		"zanysoft/laravel-zip": "^1.0"
 	},
 	"require-dev": {

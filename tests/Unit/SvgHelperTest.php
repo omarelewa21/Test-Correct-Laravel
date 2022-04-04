@@ -285,6 +285,67 @@ XML
         );
     }
 
+
+    /** @test */
+    public function it_can_add_an_image_to_the_answer_layer_and_render_the_svg_with_normal_url()
+    {
+        $uuid = '3684d068-5215-4fd8-a030-b7c66aa58e81';
+        $svgHelper = new SvgHelper($uuid);
+
+        $identifier = (string)Str::uuid();
+        $svgHelper->addAnswerImage($identifier, $this->getBlackPixelAsBinary());
+
+        $svgHelper->updateAnswerLayer(
+            base64_encode(
+                sprintf(
+                    '<image identifier="%s"/>',
+                    $identifier
+                )
+            )
+        );
+        $doc = new \DOMDocument();
+        $doc->loadXML($svgHelper->getSvgWithUrls());
+
+        $imageNode = collect($doc->getElementsByTagName('image'))->first(function ($node) use ($identifier) {
+            return $node->getAttribute('identifier') == $identifier;
+        });
+
+        $this->assertEquals(
+            route('drawing-question.background-answer-svg', ['drawingQuestion' => $uuid, 'identifier' => $identifier]),
+            $imageNode->getAttribute('src')
+        );
+    }
+
+    /** @test */
+    public function it_can_add_an_image_to_the_question_layer_and_render_the_svg_with_normal_url()
+    {
+        $uuid = 'ec1980fd-5f01-4425-b505-50b293d56dc3';
+        $svgHelper = new SvgHelper($uuid);
+
+        $identifier = (string)Str::uuid();
+        $svgHelper->addQuestionImage($identifier, $this->getBlackPixelAsBinary());
+
+        $svgHelper->updateQuestionLayer(
+            base64_encode(
+                sprintf(
+                    '<image identifier="%s"/>',
+                    $identifier
+                )
+            )
+        );
+        $doc = new \DOMDocument();
+        $doc->loadXML($svgHelper->getSvgWithUrls());
+
+        $imageNode = collect($doc->getElementsByTagName('image'))->first(function ($node) use ($identifier) {
+            return $node->getAttribute('identifier') == $identifier;
+        });
+
+        $this->assertEquals(
+            route('drawing-question.background-question-svg', ['drawingQuestion' => $uuid, 'identifier' => $identifier]),
+            $imageNode->getAttribute('src')
+        );
+    }
+
     /** @test */
     public function it_can_update_the_view_box_attribute_on_the_svg()
     {

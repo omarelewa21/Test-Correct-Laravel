@@ -7,38 +7,42 @@ use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Facades\Storage;
 use tcCore\DrawingQuestion;
 use tcCore\Http\Helpers\QuestionHelper;
+use tcCore\Http\Helpers\SvgHelper;
 use tcCore\Http\Requests;
 use tcCore\Http\Requests\IndexQuestionsRequest;
 use tcCore\Lib\Question\QuestionInterface;
 use tcCore\Question;
 
-class QuestionsController extends Controller {
+class QuestionsController extends Controller
+{
 
-    public function inlineimage(Request $request, $image){
+    public function inlineimage(Request $request, $image)
+    {
 
-        $path = storage_path(sprintf('inlineimages/%s',$image));
-        if(file_exists($path)){
-            echo base64_encode(file_get_contents($path));exit;
-        }
-        else{
+        $path = storage_path(sprintf('inlineimages/%s', $image));
+        if (file_exists($path)) {
+            echo base64_encode(file_get_contents($path));
+            exit;
+        } else {
             abort(404);
         }
     }
 
-    public function index(IndexQuestionsRequest $request) {
+    public function index(IndexQuestionsRequest $request)
+    {
 
-        $filters = $request->input('filter',[]);
+        $filters = $request->input('filter', []);
         $questions = Question::filtered($filters, $request->get('order', []))
             // don't show questions from the cito import
-            ->where(function($query) {
+            ->where(function ($query) {
                 $query->where('scope', '!=', 'cito') // should be in filtered, but can't be due to the way it is build starting with an or
                 ->orWhereNull('scope');
-                })
-            ->with(['questionAttainments', 'questionAttainments.attainment', 'tags','authors']);
+            })
+            ->with(['questionAttainments', 'questionAttainments.attainment', 'tags', 'authors']);
 
         // Log::debug($questions);
 
-        switch(strtolower($request->get('mode', 'paginate'))) {
+        switch (strtolower($request->get('mode', 'paginate'))) {
             case 'all':
                 return Response::make($questions->get(['questions.*']), 200);
                 break;
@@ -55,7 +59,7 @@ class QuestionsController extends Controller {
     /**
      * Display the specified question.
      *
-     * @param  Question  $question
+     * @param Question $question
      * @return Response
      */
     public function show($question)
@@ -100,6 +104,19 @@ class QuestionsController extends Controller {
             return Response::file($path);
         }
 
+        abort(404);
+    }
+
+    public function drawingQuestionQuestionBackgroundImage($drawingQuestion, $identifier)
+    {
+
+
+        $path = sprintf('%s/question/%s', $drawingQuestion, $identifier);
+        if (Storage::disk(SvgHelper::DISK)->exists($path)) {
+            return Response::file(
+                Storage::disk($path)
+            );
+        }
         abort(404);
     }
 }

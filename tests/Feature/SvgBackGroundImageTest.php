@@ -1,0 +1,53 @@
+<?php
+
+namespace Tests\Feature;
+
+use Illuminate\Foundation\Testing\DatabaseTransactions;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
+use tcCore\Http\Helpers\SvgHelper;
+use tcCore\User;
+use tcCore\Test;
+use tcCore\TestQuestion;
+use tcCore\Question;
+use tcCore\GroupQuestion;
+use tcCore\DrawingQuestion;
+use Illuminate\Foundation\Testing\WithFaker;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\TestCase;
+use Tests\Traits\TestTrait;
+use Tests\Traits\DrawingQuestionTrait;
+use Tests\Traits\MultipleChoiceQuestionTrait;
+use Tests\Traits\GroupQuestionTrait;
+use Illuminate\Support\Facades\DB;
+
+class SvgBackGroundImageTest extends TestCase
+{
+    /** @test */
+    public function if_i_create_an_svg_i_can_download_the_image_i_uploaded()
+    {
+        Storage::fake(SvgHelper::DISK);
+        $uuid = 'f0edd769-7363-4cc8-ab56-fa0067798f33';
+        $svgHelper = new SvgHelper($uuid);
+        $imageIdentifier = 'b6652000-236c-4f5a-bbf9-ff9cc1342e91';
+        $svgHelper->addQuestionImage($imageIdentifier, UploadedFile::fake()->image('black_pixel.png'));
+        $svgHelper->updateQuestionLayer(
+            sprintf(
+                '<image identifier="%s"/>',
+
+                $imageIdentifier
+            )
+        );
+        $href = route('drawing-question.background-question-svg', [
+            'drawingQuestion' => $uuid,
+            'identifier' => $imageIdentifier,
+        ]);
+
+
+
+        $response = $this->get($href);
+
+        $response->assertStatus(200);
+
+    }
+}
