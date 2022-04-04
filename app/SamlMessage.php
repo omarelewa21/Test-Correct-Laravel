@@ -33,6 +33,6 @@ class SamlMessage extends Model
             return null;
         }
 
-        return true;
+        return $message;
     }
 }
