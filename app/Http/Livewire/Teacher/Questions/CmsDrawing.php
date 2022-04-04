@@ -107,10 +107,6 @@ class CmsDrawing
     {
         $svgHelper = new SvgHelper($this->instance->question['uuid']);
 
-        if (array_key_exists('image', $this->instance->cmsPropertyBag)) {
-
-        }
-
         if ($this->instance->question['uuid'] === $response->original->question->uuid) {
             return;
         }
@@ -126,10 +122,25 @@ class CmsDrawing
     {
         $svgHelper = new SvgHelper($this->instance->question['uuid']);
 
+        if (array_key_exists('images', $this->instance->cmsPropertyBag)) {
+            if (array_key_exists('answer', $this->instance->cmsPropertyBag['images'])) {
+                collect($this->instance->cmsPropertyBag['images']['answer'])->each(function ($content, $identifier) use ($svgHelper) {
+                    $svgHelper->addAnswerImage($identifier, $content);
+                });
+            }
+            if (array_key_exists('question', $this->instance->cmsPropertyBag['images'])) {
+                collect($this->instance->cmsPropertyBag['images']['question'])->each(function ($content, $identifier) use ($svgHelper) {
+                    $svgHelper->addQuestionImage($identifier, $content);
+                });
+            }
+        }
+
         $svgHelper->updateAnswerLayer($data['cleaned_answer_svg']);
         $svgHelper->updateQuestionLayer($data['cleaned_question_svg']);
 
         $svgHelper->updateQuestionPNG($data['png_question_preview_string']);
         $svgHelper->updateCorrectionModelPNG($data['png_correction_model_string']);
+
+        $svgHelper->setViewBox($data['svg_zoom_group']);
     }
 }

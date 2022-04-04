@@ -10,7 +10,7 @@ class SvgHelper
 
     const DISK = 'svg-for-drawing-question';
     const SVG_FILENAME = 'template.svg';
-    const CORRECTION_MODEL_PNG_FILENAME = 'corretion_model.png';
+    const CORRECTION_MODEL_PNG_FILENAME = 'correction_model.png';
     const QUESTION_PNG_FILENAME = 'question.png';
     const TRANSPARANT_PIXEL = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+P+/HgAFhAJ/wlseKgAAAABJRU5ErkJggg==';
     private $uuid;
@@ -62,12 +62,12 @@ class SvgHelper
 
     public function updateAnswerLayer($value)
     {
-        $this->updateLayer($value, 'answer-svg');
+        $this->updateLayer($value, 'svg-answer-group');
     }
 
     public function updateQuestionLayer($value)
     {
-        $this->updateLayer($value, 'question-svg');
+        $this->updateLayer($value, 'svg-question-group');
     }
 
     private function initCorrectionModelPNG()
@@ -121,13 +121,16 @@ class SvgHelper
         );
 
         $node = collect($doc->getElementsByTagName('g'))->first(function ($node) use ($layerName) {
-            return $node->getAttribute('class') === $layerName;
+            return $node->getAttribute('id') === $layerName;
         });
         collect($node->childNodes)->each(function ($node) {
             $node->parentNode->removeChild($node);
         });
 
-        $node->appendChild($fragment);
+        collect($fragment->childNodes)->each(function ($fragnode) use ($node) {
+            $node->appendChild($fragnode);
+        });
+
         $this->saveSVG($doc->saveXML());
     }
 
@@ -140,9 +143,9 @@ class SvgHelper
      xmlns="http://www.w3.org/2000/svg"
      style="--cursor-type-locked:var(--cursor-crosshair); --cursor-type-draggable:var(--cursor-crosshair);"
 >
-    <g  id="grid-preview-svg" stroke="var(--all-BlueGrey)" stroke-width="1"></g>
-    <g class="question-svg" ></g>
-    <g class="answer-svg" ></g>
+    <g  id="svg-preview-group" stroke="var(--all-BlueGrey)" stroke-width="1"></g>
+    <g id="svg-question-group" ></g>
+    <g id="svg-answer-group" ></g>
 </svg>
 XML
         );
@@ -179,15 +182,20 @@ XML
         $folder = $layer == 'answer' ? 'answer' : 'question';
 
 //        $identifier = (string)Str::uuid();
-        $path = sprintf('%s/%s/%s', $this->uuid, $folder ,$identifier);
-        $this->disk->put($path, $contents);
+        $path = sprintf('%s/%s', $this->uuid, $folder);
+
+        if($this->disk->exists("$path/$identifier")) {
+            return $identifier;
+        }
+
+        $this->disk->putFileAs($path, $contents, $identifier);
 
         return $identifier;
     }
 
     private function replaceIdentifiersInImages($value, $layerName)
     {
-        $folder = $layerName == 'answer-svg' ? 'answer' : 'question';
+        $folder = $layerName == 'svg-answer-group' ? 'answer' : 'question';
         $doc = new \DOMDocument();
         $doc->loadXML(sprintf('<wrap>%s</wrap>', $value));
         collect($doc->getElementsByTagName('image'))->each(function ($node) use ($folder) {
@@ -196,9 +204,8 @@ XML
                 throw new Exception(sprintf('File not found [%s].', $path));
             }
             $image = $this->disk->get($path);
-            $node->setAttribute('src','data: '. mime_content_type($this->disk->path($path)).';base64,'.base64_encode($image));
+            $node->setAttribute('href','data:'. mime_content_type($this->disk->path($path)).';base64,'.base64_encode($image));
         });
-
         return substr(substr($doc->saveXML(), 28), 0, -8);
     }
 
@@ -217,5 +224,53 @@ XML
         }
         $this->disk->move($this->uuid, $newUuid);
         $this->uuid = $newUuid;
+    }
+
+    public function setViewBox(array $viewBox)
+    {
+        $doc = new \DOMDocument;
+        $doc->loadXML($this->getSvg());
+        $viewBoxString = $this->makeViewBoxString($viewBox);
+        $svgNode = collect($doc->getElementsByTagName('svg'))->first();
+        $svgNode->setAttribute('viewBox', $viewBoxString);
+
+        $this->saveSVG($doc->saveXML());
+    }
+
+    /**
+     * @param array $viewBox
+     * @return string
+     */
+    public function makeViewBoxString(array $viewBox): string
+    {
+        return sprintf('%s %s %s %s',
+            $viewBox['x'],
+            $viewBox['y'],
+            $viewBox['width'],
+            $viewBox['height']
+        );
+    }
+
+    /**
+     * @param string $viewBox
+     * @return array
+     */
+    public function makeViewBoxArray(string $viewBox): array
+    {
+        $values = Str::of($viewBox)->explode(' ');
+        return [
+            'x'      => $values[0],
+            'y'      => $values[1],
+            'width'  => $values[2],
+            'height' => $values[3],
+        ];
+    }
+
+    public function getViewBox()
+    {
+        $doc = new \DOMDocument;
+        $doc->loadXML($this->getSvg());
+        $svgNode = collect($doc->getElementsByTagName('svg'))->first();
+        return $svgNode->getAttribute('viewBox');
     }
 }

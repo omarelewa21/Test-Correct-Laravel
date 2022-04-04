@@ -88,9 +88,9 @@ class SvgHelperTest extends TestCase
      xmlns="http://www.w3.org/2000/svg"
      style="--cursor-type-locked:var(--cursor-crosshair); --cursor-type-draggable:var(--cursor-crosshair);"
 >
-    <g  id="grid-preview-svg" stroke="var(--all-BlueGrey)" stroke-width="1"></g>
-    <g class="question-svg" ></g>
-    <g class="answer-svg" ></g>
+    <g  id="svg-preview-group" stroke="var(--all-BlueGrey)" stroke-width="1"></g>
+    <g id="svg-question-group" ></g>
+    <g id="svg-answer-group" ></g>
 </svg>
 XML
             ,
@@ -213,7 +213,7 @@ XML
 
         $this->assertStringContainsString(
             'base64',
-            $imageNode->getAttribute('src')
+            $imageNode->getAttribute('href')
         );
     }
 
@@ -247,7 +247,7 @@ XML
 
         $this->assertStringContainsString(
             'base64',
-            $imageNode->getAttribute('src')
+            $imageNode->getAttribute('href')
         );
     }
 
@@ -281,7 +281,7 @@ XML
 
         $this->assertStringContainsString(
             'base64',
-            $imageNode->getAttribute('src')
+            $imageNode->getAttribute('href')
         );
     }
 
@@ -351,5 +351,47 @@ XML
         $svgHelper = new SvgHelper($uuid);
 
         $svgHelper->rename($newUuid);
+    }
+
+    /**
+     * @test
+     */
+    public function it_can_set_the_viewbox_attribute_on_svg()
+    {
+        $uuid = '3684d068-5215-4fd8-a030-b7c66aa58e81';
+        $svgHelper = new SvgHelper($uuid);
+        $viewBox = [
+            "x"      => 2,
+            "y"      => 3,
+            "width"  => 307,
+            "height" => 307,
+        ];
+
+        $svgHelper->setViewBox($viewBox);
+
+        $this->assertStringContainsString('viewBox="2 3 307 307"', $svgHelper->getSvg());
+    }
+
+    /**
+     * @test
+     */
+    public function it_can_get_the_viewbox_attribute_on_svg()
+    {
+        $uuid = '3684d068-5215-4fd8-a030-b7c66aa58e81';
+        $svgHelper = new SvgHelper($uuid);
+        $viewBox = [
+            "x"      => 2,
+            "y"      => 3,
+            "width"  => 307,
+            "height" => 307,
+        ];
+
+        $svgHelper->setViewBox($viewBox);
+        $this->assertStringContainsString('viewBox="2 3 307 307"', $svgHelper->getSvg());
+
+        $retrievedViewBox = $svgHelper->getViewBox();
+
+        $this->assertEquals($retrievedViewBox, $svgHelper->makeViewBoxString($viewBox));
+        $this->assertEquals($svgHelper->makeViewBoxArray($retrievedViewBox), $viewBox);
     }
 }

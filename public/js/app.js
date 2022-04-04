@@ -8721,8 +8721,13 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview) {
         var fileURL = _step3.value;
         var reader = new FileReader();
         var identifier = (0,uuid__WEBPACK_IMPORTED_MODULE_5__["default"])();
-        livewireComponent.upload("cmsPropertyBag.images.".concat(Canvas.params.currentLayer, ".").concat(identifier), fileURL, function (fileName) {// Success callback.
-        }, function () {// Error callback.
+        UI.submitBtn.disabled = true;
+        livewireComponent.upload("cmsPropertyBag.images.".concat(Canvas.params.currentLayer, ".").concat(identifier), fileURL, function (fileName) {
+          // Success callback.
+          UI.submitBtn.disabled = false;
+        }, function () {
+          // Error callback.
+          UI.submitBtn.disabled = false;
         }, function (event) {// Progress callback.
         });
         reader.readAsDataURL(fileURL);

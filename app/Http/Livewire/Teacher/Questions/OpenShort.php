@@ -275,7 +275,6 @@ class OpenShort extends Component
             }
         }
 
-        dd('redirect');
         $this->returnToTestOverview();
     }
 

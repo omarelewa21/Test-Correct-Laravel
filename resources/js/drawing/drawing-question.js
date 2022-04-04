@@ -1773,11 +1773,13 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview) {
             const reader = new FileReader();
 
             const identifier = uuidv4();
-
+            UI.submitBtn.disabled = true
             livewireComponent.upload(`cmsPropertyBag.images.${Canvas.params.currentLayer}.${identifier}`, fileURL, (fileName) => {
                 // Success callback.
+                UI.submitBtn.disabled = false
             }, () => {
                 // Error callback.
+                UI.submitBtn.disabled = false
             }, (event) => {
                 // Progress callback.
             })
