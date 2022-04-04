@@ -53,8 +53,9 @@ class EntreeOnboarding extends Component
     public $selectedLocationsString = null;
     public $schoolLocation;
     public $school;
+    public $samlId;
 
-    protected $queryString = ['step'];
+    protected $queryString = ['step','samlId'];
 
     protected function messages()
     {
