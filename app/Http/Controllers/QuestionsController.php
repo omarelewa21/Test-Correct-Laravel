@@ -35,7 +35,8 @@ class QuestionsController extends Controller
         $questions = Question::filtered($filters, $request->get('order', []))
             // don't show questions from the cito import
             ->where(function ($query) {
-                $query->where('scope', '!=', 'cito') // should be in filtered, but can't be due to the way it is build starting with an or
+                $query->where('scope', '!=',
+                    'cito') // should be in filtered, but can't be due to the way it is build starting with an or
                 ->orWhereNull('scope');
             })
             ->with(['questionAttainments', 'questionAttainments.attainment', 'tags', 'authors']);
@@ -59,7 +60,7 @@ class QuestionsController extends Controller
     /**
      * Display the specified question.
      *
-     * @param Question $question
+     * @param  Question  $question
      * @return Response
      */
     public function show($question)
@@ -80,13 +81,14 @@ class QuestionsController extends Controller
     /**
      * Offers a download to the specified drawing question from storage.
      *
-     * @param DrawingQuestion $drawingQuestion
+     * @param  DrawingQuestion  $drawingQuestion
      * @return Response
      */
     public function bg(DrawingQuestion $drawingQuestion)
     {
         if (File::exists($drawingQuestion->getCurrentBgPath())) {
-            return Response::download($drawingQuestion->getCurrentBgPath(), $drawingQuestion->getAttribute('bg_name', null));
+            return Response::download($drawingQuestion->getCurrentBgPath(),
+                $drawingQuestion->getAttribute('bg_name', null));
         } else {
             return Response::make('Drawing question background not found', 404);
         }
@@ -109,8 +111,6 @@ class QuestionsController extends Controller
 
     public function drawingQuestionQuestionBackgroundImage($drawingQuestion, $identifier)
     {
-
-
         $path = sprintf('%s/question/%s', $drawingQuestion, $identifier);
         if (Storage::disk(SvgHelper::DISK)->exists($path)) {
             return Response::file(
@@ -118,5 +118,20 @@ class QuestionsController extends Controller
             );
         }
         abort(404);
+    }
+
+    public function drawingQuestionSvg($drawingQuestion)
+    {
+        $path = sprintf('%s/%s', $drawingQuestion, SvgHelper::SVG_FILENAME);
+        if (Storage::disk(SvgHelper::DISK)->exists($path)) {
+            $response = Response::make(
+                Storage::disk(SvgHelper::DISK)->get($path)
+            );
+
+            $response->header('Content-Type', 'image/svg+xml');
+            return $response;
+        }
+        abort(404);
+
     }
 }

@@ -50,4 +50,27 @@ class SvgBackGroundImageTest extends TestCase
         $response->assertStatus(200);
 
     }
+
+    /** @test */
+    public function as_the_author_i_can_access_the_svg()
+    {
+        $this->actingAs(User::whereUsername('d1@test-correct.nl')->first());
+        $this->withoutExceptionHandling();
+        Storage::fake(SvgHelper::DISK);
+        $uuid = 'a0edd769-7363-4cc8-ab56-fa0067798f33';
+        $svgHelper = new SvgHelper($uuid);
+
+        $href = route('drawing-question.svg', [
+            'drawingQuestion' => $uuid,
+        ]);
+
+        $response = $this->get($href);
+        $this->assertXmlStringEqualsXmlString(
+            $svgHelper->getSvgWithUrls(),
+            $response->getContent()
+        );
+
+        $response->assertHeader('content-type', 'image/svg+xml');
+        $response->assertStatus(200);
+    }
 }
