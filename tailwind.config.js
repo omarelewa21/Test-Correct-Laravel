@@ -23,6 +23,7 @@ module.exports = {
                 lightgreen: '#95cd3e',
                 orange: '#eca000',
                 note: '#6b7789',
+                lightGrey: '#F0F2F5',
             },
             borderWidth: {
                 '3': '3px'

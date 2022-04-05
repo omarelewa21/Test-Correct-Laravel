@@ -318,3 +318,8 @@ input[type=number] {
     width: 20px;
     height:20px;
 }
+
+.text-toggle .active-border {
+    height: calc(100% + 2px);
+    width: calc(50% + 1px);
+}

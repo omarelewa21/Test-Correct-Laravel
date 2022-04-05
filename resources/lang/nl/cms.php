@@ -134,5 +134,8 @@ return [
     'klassiek_omschrijving'                                                                  => 'Alle vragen uit deze vraaggroep worden gesteld',
     'bijlagen'                                                                               => 'Bijlagen',
     'Vraag toevoegen'                                                                        => 'Vraag toevoegen',
-    'Vraaggroep toevoegen'
+    'Vraaggroep toevoegen'                                                                   => 'Vraaggroep toevoegen',
+    'Vragenbank'                                                                             => 'Vragenbank',
+    'Toetsenbank'                                                                            => 'Toetsenbank',
+    'Bestaande vraag toevoegen'                                                              => 'Bestaande vraag toevoegen'
 ];

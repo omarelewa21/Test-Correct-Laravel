@@ -136,4 +136,7 @@ return [
     'klassiek'                                                                               => 'Classic',
     'klassiek_omschrijving'                                                                  => 'All questions in this group are part of the test.',
     'bijlagen'                                                                               => 'Attachments',
+    'Vragenbank'                                                                             => 'Questionbank',
+    'Toetsenbank'                                                                            => 'Testbank',
+    'Bestaande vraag toevoegen'                                                              => 'Add existing question'
 ];

@@ -22,6 +22,7 @@ use tcCore\Http\Requests\CreateGroupQuestionQuestionRequest;
 use tcCore\Http\Requests\CreateTestQuestionRequest;
 use tcCore\Http\Requests\Request;
 use tcCore\Lib\GroupQuestionQuestion\GroupQuestionQuestionManager;
+use tcCore\Question;
 use tcCore\TemporaryLogin;
 use tcCore\Test;
 use tcCore\TestQuestion;

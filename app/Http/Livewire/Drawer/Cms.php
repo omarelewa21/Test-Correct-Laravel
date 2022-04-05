@@ -21,6 +21,7 @@ class Cms extends Component
 
     public $testQuestions;
     public $groupId;
+    public $questionBankActive = false;
 
     public function mount()
     {
@@ -93,5 +94,15 @@ class Cms extends Component
     public function addGroup()
     {
         $this->addQuestion('GroupQuestion', 'group');
+    }
+
+    public function showQuestionBank()
+    {
+        $this->questionBankActive = true;
+    }
+
+    public function hideQuestionBank()
+    {
+        $this->questionBankActive = false;
     }
 }

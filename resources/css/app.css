@@ -46,6 +46,7 @@
     --note: #6b7789;
     --orange: #eca000;
     --main-shadow: 0 3px 8px 0 rgba(4, 31, 116, 0.3);
+    --card-shadow: 0 3px 16px 0 rgba(4, 31, 116, 0.1);;
     --white: #ffffff;
     --maintenance-header-bg: #ff6666;
     --deployment-testing-color: darkorange;
@@ -552,6 +553,9 @@ ul ul ul {
 }
 .main-shadow {
     box-shadow: var(--main-shadow);
+}
+.card-shadow {
+    box-shadow: var(--card-shadow);
 }
 
 .validate-red {

@@ -339,8 +339,8 @@ document.addEventListener('alpine:init', () => {
             this.slideWidth = this.$root.offsetWidth;
             this.drawer = this.$root.closest('.drawer');
             setTimeout(() => {
-                this.handleVerticalScroll(this.$root.querySelector('[x-ref="container1"]'))
-            }, 200);
+                this.handleVerticalScroll(this.$root.firstElementChild)
+            }, 400);
         },
         next(currentEl) {
             const left = this.$refs.questionEditorSidebar.scrollLeft + this.slideWidth;
@@ -380,6 +380,20 @@ document.addEventListener('alpine:init', () => {
                 this.$refs.questionEditorSidebar.style.height = el.offsetHeight+'px';
             })
         },
+        showNewQuestion(container) {
+            this.next(container);
+        },
+        showQuestionBank() {
+            this.drawer.classList.add('fullscreen');
+            const boundingRect = this.$refs.questionbank.getBoundingClientRect();
+            this.scroll(boundingRect.x + boundingRect.width);
+            this.$wire.showQuestionBank();
+        },
+        hideQuestionBank(container) {
+            this.drawer.classList.remove('fullscreen');
+            this.scroll(container.parentElement.firstElementChild.offsetWidth);
+            this.$wire.hideQuestionBank();
+        }
     }));
 
     Alpine.directive('global', function (el, {expression}) {

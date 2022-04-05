@@ -5,7 +5,7 @@
      x-cloak
      wire:ignore.self
 >
-    <div id="sidebar-content" class="flex flex-col">
+    <div id="sidebar-content" class="flex flex-col bg-white">
         <div class="collapse-toggle vertical white z-10 cursor-pointer"
              @click="collapse = !collapse"
         >
@@ -53,7 +53,7 @@
                 </div>
 
                 <div class="flex px-6 py-2.5 space-x-2.5 hover:text-primary"
-                     @click="next($refs.container1)"
+                     @click="next($refs.container1);"
                 >
                     <x-icon.plus-in-circle/>
                     <button class="bold">{{__('cms.Vraag toevoegen')}}</button>
@@ -62,9 +62,37 @@
             </x-sidebar.slide-container>
 
             <x-sidebar.slide-container x-ref="container2">
+                <div class="py-1 px-6 flex">
+                    <x-button.text-button class="rotate-svg-180"
+                                          @click="prev($refs.container2);"
+                                          wire:click="$set('groupId', null)"
+                    >
+                        <x-icon.arrow/>
+                        <span>{{ __('cms.Vraag toevoegen') }}</span>
+                    </x-button.text-button>
+                </div>
+
+                <div class="flex px-6 py-2.5 space-x-2.5 hover:text-primary"
+                     @click="showNewQuestion($refs.container2)"
+
+                >
+                    <x-icon.plus-in-circle/>
+                    <button class="bold" >{{ __( 'cms.Nieuwe vraag creeren' ) }}</button>
+                </div>
+
+                <div class="flex px-6 py-2.5 space-x-2.5 hover:text-primary"
+                     @click="showQuestionBank()"
+
+                >
+                    <x-icon.plus-in-circle/>
+                    <button class="bold" >{{ __( 'cms.Bestaande vraag toevoegen' ) }}</button>
+                </div>
+
+            </x-sidebar.slide-container>
+            <x-sidebar.slide-container x-ref="newquestion">
                 <div class="py-1 px-6">
                     <x-button.text-button class="rotate-svg-180"
-                                          @click="prev($refs.container2)"
+                                          @click="prev($refs.newquestion)"
                                           wire:click="$set('groupId', null)"
                     >
                         <x-icon.arrow/>
@@ -75,6 +103,38 @@
                 <x-sidebar.question-types/>
 
             </x-sidebar.slide-container>
+
+            <x-sidebar.slide-container x-ref="questionbank">
+                <div class="py-1 px-6 flex">
+                    <x-button.text-button class="rotate-svg-180"
+                                          @click="prev($refs.container2);hideQuestionBank($refs.container2)"
+                                          wire:click="$set('groupId', null)"
+                    >
+                        <x-icon.arrow/>
+                        <span>{{ __('cms.Bestaande vraag toevoegen') }}</span>
+                    </x-button.text-button>
+
+                    <div class="flex ml-auto items-center">
+                        <div x-data="{active: 2}"
+                             class="text-toggle inline-flex border border-secondary bg-offwhite relative rounded-lg h-10 ">
+                            <span class="px-4 py-2 bold note cursor-default"
+                                  :class="{'primary': active === 1}">{{ __('cms.Toetsenbank') }}</span>
+                            <span @click="active = 2" class="px-4 py-2 bold"
+                                  :class="{'primary': active === 2}">{{ __('cms.Vragenbank') }}</span>
+
+                            <span class="active-border absolute -inset-px border-2 border-primary rounded-lg transition-all"
+                                  :style="active === 1 ? 'left:0' : 'left:'+ $el.offsetWidth +'px' "
+                            ></span>
+                        </div>
+                    </div>
+
+                </div>
+
+                <livewire:teacher.question-bank/>
+
+            </x-sidebar.slide-container>
+
         </div>
+        <span class="invisible"></span>
     </div>
 </div>
