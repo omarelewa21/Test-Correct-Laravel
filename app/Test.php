@@ -20,6 +20,7 @@ use Dyrynda\Database\Casts\EfficientUuid;
 use Ramsey\Uuid\Uuid;
 use tcCore\Traits\ExamSchoolTestTrait;
 use tcCore\Traits\UuidTrait;
+use tcCore\Traits\UserContentAccessTrait;
 
 
 class Test extends BaseModel
@@ -28,6 +29,7 @@ class Test extends BaseModel
     use SoftDeletes;
     use UuidTrait;
     use ExamSchoolTestTrait;
+    use UserContentAccessTrait;
 
 
     protected $casts = [
@@ -447,59 +449,12 @@ class Test extends BaseModel
 
         $query->select();
 
-        if ($schoolLocation->is_allowed_to_view_open_source_content == 1) {
-            // @TODO WHY IS THIS ONLY ON THE FIRST BASE SUBJECT????????
-            $baseSubjectId = $user->subjects()->select('base_subject_id')->first();
-            $subjectIds = BaseSubject::find($baseSubjectId['base_subject_id'])->subjects()->select('id')->get();
-
-            $query->whereIn('subject_id', $subjectIds);
-
-            if (isset($filters['is_open_sourced_content']) && $filters['is_open_sourced_content'] == 1) {
-                $query->where('is_open_source_content', '=', 1);
-            } else {
-
-                if (!isset($filters['is_open_sourced_content'])) {
-                    $opensource = 1;
-                } else {
-                    $opensource = 0;
-                }
-
-                $query->where('is_open_source_content', '=', $opensource)->orWhereIn('author_id', function ($query) use ($user) {
-                    $query->select('user_id')
-                        ->from(with(new Teacher())->getTable())
-                        ->whereIn('subject_id', function ($query) use ($user) {
-                            $query->select('id')
-                                ->from(with(new Subject())->getTable())
-                                ->whereIn('section_id', function ($query) use ($user) {
-                                    $user->sections($query)->select('id');
-                                });
-                        });
-
-                    $query->join($user->getTable(), with(new Teacher())->getTable() . '.user_id', '=', $user->getTable() . '.' . $user->getKeyName());
-
-                    $schoolId = $user->getAttribute('school_id');
-                    $schoolLocationId = $user->getAttribute('school_location_id');
-                    if ($schoolId && $schoolLocationId) {
-                        $query->where(function ($query) use ($schoolId, $schoolLocationId) {
-                            $query->where('school_id', $schoolId)
-                                ->orWhere('school_location_id', $schoolLocationId);
-                        });
-                    } elseif ($schoolId !== null) {
-                        $query->where('school_id', $schoolId);
-                    } elseif ($schoolLocationId !== null) {
-                        $query->where('school_location_id', $schoolLocationId);
-                    }
-                });
-            }
-
-        } elseif (in_array('Teacher', $roles)) {
-            $query->join($this->switchScopeFilteredSubQueryForDifferentScenarios($user), function ($join) {
+        if (in_array('Teacher', $roles)) {
+            $subject = (new DemoHelper())->getDemoSectionForSchoolLocation($user->getAttribute('school_location_id'));
+            $query->join($this->switchScopeFilteredSubQueryForDifferentScenarios($user,$subject), function ($join) {
                 $join->on('tests.id', '=', 't1.t2_id');
             });
 
-
-
-            $subject = (new DemoHelper())->getDemoSectionForSchoolLocation($user->getAttribute('school_location_id'));
             if(!is_null($subject)){
                 $query->where(function ($q) use ($user,$subject) {
                     $q->where(function ($query) use ($user, $subject) {
@@ -530,25 +485,6 @@ class Test extends BaseModel
 
         return $query;
     }
-
-    private function switchScopeFilteredSubQueryForDifferentScenarios($user)
-    {
-        if ($user->hasSingleSchoolLocation()) {
-            return $this->getSubQueryForScopeFilteredSingleSchoolLocation($user);
-        }
-        return $this->getSubQueryForScopeFilteredMultipleSchoolLocations($user);
-
-//        if ($user->hasSingleSchoolLocationNoSharedSections()) {
-//            return $this->getSubQueryForScopeFilteredSingleSchoolLocationNoSharedSections($user);
-//        } elseif ($user->hasMultipleSchoolLocationsNoSharedSections()) {
-//            return $this->getSubQueryForScopeFilteredMultipleSchoolLocationsNoSharedSections($user);
-//        }elseif (   $user->hasSingleSchoolLocationSharedSections()){
-//            return $this->getSubQueryForScopeFilteredSingleSchoolLocationSharedSections($user);
-//        }
-//        return $this->getSubQueryForScopeFilteredMultipleSchoolLocationsSharedSections($user);
-    }
-
-
 
 
     public function allowChange()
@@ -832,78 +768,13 @@ class Test extends BaseModel
         }
     }
 
-    private function getSubQueryForScopeFilteredSingleSchoolLocation($user)
-    {
-        return DB::raw('('.$this->getQueryGetTestsFromSchoolLocationAuthoredByUser($user).
-            ' union '.
-            $this->getQueryGetTestsFromSectionWithinSchoolLocation($user).
-            ') as t1'
-        );
-    }
-
-    private function getSubQueryForScopeFilteredMultipleSchoolLocations($user)
-    {
-        return DB::raw('('.$this->getQueryGetTestsFromSchoolLocationAuthoredByUser($user).
-            ' union '.
-            $this->getQueryGetTestsFromAllSchoolLocationsAuthoredByUserCurrentlyTaughtByUserInActiveSchoolLocation($user).
-            ' union '.
-            $this->getQueryGetTestsFromSectionWithinSchoolLocation($user).
-            ' ) as t1'
-        );
-    }
-
-//    private function getSubQueryForScopeFilteredSingleSchoolLocationNoSharedSections($user)
-//    {
-//        return DB::raw('('.$this->getQueryGetTestsFromSchoolLocationAuthoredByUser($user).
-//                                 ' union '.
-//                                 $this->getQueryGetTestsFromSectionWithinSchoolLocation($user).
-//                                ') as t1'
-//        );
-//    }
-//
-//    private function getSubQueryForScopeFilteredMultipleSchoolLocationsNoSharedSections($user)
-//    {
-//        return DB::raw('('.$this->getQueryGetTestsFromSchoolLocationAuthoredByUser($user).
-//                                 ' union '.
-//                                $this->getQueryGetTestsFromAllSchoolLocationsAuthoredByUserCurrentlyTaughtByUserInActiveSchoolLocation($user).
-//                                 ' union '.
-//                                $this->getQueryGetTestsFromSectionWithinSchoolLocation($user).
-//                                ' ) as t1'
-//        );
-//    }
-//
-//    private function getSubQueryForScopeFilteredSingleSchoolLocationSharedSections($user)
-//    {
-//        return DB::raw('('.$this->getQueryGetTestsFromSchoolLocationAuthoredByUser($user).
-//                                ' union  '.
-//                                $this->getQueryGetTestsFromSectionWithinSchoolLocation($user).
-//                                ' union '.
-//                                 $this->getQueryGetTestsFromSharedSectionsWhereUserHasAccess($user).
-//                                ' ) as t1'
-//        );
-//    }
-//
-//    private function getSubQueryForScopeFilteredMultipleSchoolLocationsSharedSections($user)
-//    {
-//        return DB::raw('('.$this->getQueryGetTestsFromSchoolLocationAuthoredByUser($user).
-//            ' union '.
-//            $this->getQueryGetTestsFromAllSchoolLocationsAuthoredByUserCurrentlyTaughtByUserInActiveSchoolLocation($user).
-//            ' union '.
-//            $this->getQueryGetTestsFromSectionWithinSchoolLocation($user).
-//            ' union '.
-//            $this->getQueryGetTestsFromSharedSectionsWhereUserHasAccess($user).
-//            ' ) as t1'
-//        );
-//
-//    }
-
     public function hasOpenQuestion(){
         return !! collect(QuestionGatherer::getQuestionsOfTest($this->getKey(), true))->search(function(Question $question){
             return !$question->canCheckAnswer();
         });
     }
 
-    private function getQueryGetTestsFromSchoolLocationAuthoredByUser($user)
+    private function getQueryGetItemsFromSchoolLocationAuthoredByUser($user)
     {
         return sprintf('select distinct t2.id as t2_id  /* select all tests from schoollocation authored by user */
                                 from
@@ -928,7 +799,7 @@ class Test extends BaseModel
                                             $user->id);
     }
 
-    private function getQueryGetTestsFromSectionWithinSchoolLocation($user)
+    private function getQueryGetItemsFromSectionWithinSchoolLocation($user,$demoSubject)
     {
         return sprintf('select distinct t2.id as t2_id /* select tests from active schoollocation with subjects that fall under the section the user is member of */
                                             from
@@ -962,7 +833,7 @@ class Test extends BaseModel
 
 
 
-    private function getQueryGetTestsFromAllSchoolLocationsAuthoredByUserCurrentlyTaughtByUserInActiveSchoolLocation($user)
+    private function getQueryGetItemsFromAllSchoolLocationsAuthoredByUserCurrentlyTaughtByUserInActiveSchoolLocation($user,$demoSubject)
     {
         return sprintf('select distinct t2.id as t2_id  /* select tests from all schoollocations authored by user and currently taught in active schoollocation */
                                             from
@@ -997,41 +868,7 @@ class Test extends BaseModel
         );
     }
 
-    private function getQueryGetTestsFromSharedSectionsWhereUserHasAccess($user)
-    {
-        return sprintf('select distinct t2.id as t2_id  /* select tests from other schoollocations that fall under a shared section the user has access to  */
-                                            from
-                                               `tests` as t2
-                                               inner join (
-                                                        select distinct t11.id as subject_id
-                                                            from school_location_shared_sections
-                                                                inner join sections
-                                                                    on school_location_shared_sections.section_id = sections.id
-                                                                left join subjects as t11
-                                                                    on sections.id = t11.section_id
-                                                                inner join (
-                                                                    select base_subject_id
-                                                                        from teachers
-                                                                            left join subjects
-                                                                                on teachers.subject_id = subjects.id
-                                                                            left join sections
-                                                                                on subjects.section_id = sections.id
-                                                                            left join school_location_sections
-                                                                                on sections.id = school_location_sections.section_id
-                                                                        where teachers.user_id = %d
-                                                                                and
-                                                                           teachers.deleted_at is null
-                                                                                and
-                                                                           school_location_sections.school_location_id = %d
-                                                                ) as s3
-                                                                    on t11.base_subject_id = s3.base_subject_id
-                                                            ) as s2
-                                                    on t2.subject_id = s2.subject_id
-                                            where t2.demo = false',
-                                                    $user->id,
-                                                    $user->school_location_id
-        );
-    }
+
 
     public function isAssignment() {
         return $this->test_kind_id == TestKind::ASSESSMENT_TYPE;
