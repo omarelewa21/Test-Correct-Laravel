@@ -115,20 +115,6 @@ class EntreeOnboarding extends Component
 
         $this->registration->name = $this->entreeData->lastName;
 
-        if (property_exists($this->entreeData, 'user')) {
-            if ($this->entreeData->user->hasImportMailAddress()) {
-                collect(['name_first', 'name_suffix', 'name', 'gender'])->each(function ($key) {
-                    $this->registration->$key = $this->entreeData->user->$key;
-                });
-                $this->hasValidTUser = true;
-                $this->showSubjects = false;
-                $this->btnStepOneDisabledCheck();
-            }
-        }
-
-//        $this->registration->username = $this->email;
-//        $this->registration->gender = 'male';
-
         if (!$this->step != 1 || $this->step >= '4') {
             $this->step = 1;
         }
@@ -154,15 +140,26 @@ class EntreeOnboarding extends Component
 
         $this->samlId = false;
 
-        $this->entreeData->data->user = $this->entreeData->data->user ? User::find($this->entreeData->data->user) : null;
-
-        if ($this->entreeData->data->location) {
-            $this->schoolLocation = SchoolLocation::find($this->entreeData->data->location);
+        if ($this->entreeData->data->locationId) {
+            $this->schoolLocation = SchoolLocation::find($this->entreeData->data->locationId);
             $this->hasFixedLocation = true;
-            $this->selectedLocationsString = $this->entreeData->data->location;
-        } else if ($this->entreeData->data->school) {
-            $this->school = School::find($this->entreeData->data->school);
+            $this->selectedLocationsString = $this->entreeData->data->locationId;
+        } else if ($this->entreeData->data->schoolId) {
+            $this->school = School::find($this->entreeData->data->schoolId);
         }
+
+        if (property_exists($this->entreeData->data, 'userId')) {
+            $user = User::find($this->entreeData->data->userId);
+            if ($user && $user->hasImportMailAddress()) {
+                collect(['name_first', 'name_suffix', 'name', 'gender'])->each(function ($key) use ($user){
+                    $this->registration->$key = $user->$key;
+                });
+                $this->hasValidTUser = true;
+                $this->showSubjects = false;
+                $this->btnStepOneDisabledCheck();
+            }
+        }
+
         return true;
     }
 
@@ -213,7 +210,7 @@ class EntreeOnboarding extends Component
                 'mail' => [$this->entreeData->data->emailAddress],
                 'eckId' => [Crypt::decryptString($this->entreeData->data->encryptedEckId)]
             ];
-            return EntreeHelper::initAndHandleFromRegisterWithEntreeAndTUser($this->entreeData->data->user, $attr);
+            return EntreeHelper::initAndHandleFromRegisterWithEntreeAndTUser(User::find($this->entreeData->data->userId), $attr);
         } else {
             $this->validate($this->rulesStep2());
             $schoolLocationsUuids = $this->getSelectedSchoolLocationCollection();
