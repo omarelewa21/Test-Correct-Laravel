@@ -13,6 +13,8 @@ class SvgHelper
     const CORRECTION_MODEL_PNG_FILENAME = 'correction_model.png';
     const QUESTION_PNG_FILENAME = 'question.png';
     const TRANSPARANT_PIXEL = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+P+/HgAFhAJ/wlseKgAAAABJRU5ErkJggg==';
+    const SVG_ANSWER_GROUP_ID = 'svg-answer-group';
+    const SVG_QUESTION_GROUP_ID = 'svg-question-group';
     private $uuid;
     private $disk;
 
@@ -63,12 +65,12 @@ class SvgHelper
 
     public function updateAnswerLayer($value)
     {
-        $this->updateLayer($value, 'svg-answer-group');
+        $this->updateLayer($value, self::SVG_ANSWER_GROUP_ID);
     }
 
     public function updateQuestionLayer($value)
     {
-        $this->updateLayer($value, 'svg-question-group');
+        $this->updateLayer($value, self::SVG_QUESTION_GROUP_ID);
     }
 
     private function initCorrectionModelPNG()
@@ -138,17 +140,15 @@ class SvgHelper
     private function initSVG()
     {
         $this->saveSVG(
-            <<<XML
-<svg viewBox="0 0 0 0"
-     class="w-full h-full"
-     xmlns="http://www.w3.org/2000/svg"
-     style="--cursor-type-locked:var(--cursor-crosshair); --cursor-type-draggable:var(--cursor-crosshair);"
->
-    <g  id="svg-preview-group" stroke="var(--all-BlueGrey)" stroke-width="1"></g>
-    <g id="svg-question-group" ></g>
-    <g id="svg-answer-group" ></g>
-</svg>
-XML
+            "<svg viewBox=\"0 0 0 0\"
+                 class=\"w-full h-full\"
+                 xmlns=\"http://www.w3.org/2000/svg\"
+                 style=\"--cursor-type-locked:var(--cursor-crosshair); --cursor-type-draggable:var(--cursor-crosshair);\"
+            >
+                <g  id=\"svg-preview-group\" stroke=\"var(--all-BlueGrey)\" stroke-width=\"1\"></g>
+                <g id=\"" . self::SVG_QUESTION_GROUP_ID . "\" ></g>
+                <g id=\"" . self::SVG_ANSWER_GROUP_ID . "\" ></g>
+            </svg>"
         );
     }
 
@@ -196,7 +196,7 @@ XML
 
     private function replaceIdentifiersInImages($value, $layerName)
     {
-        $folder = $layerName == 'svg-answer-group' ? 'answer' : 'question';
+        $folder = $layerName == self::SVG_ANSWER_GROUP_ID ? 'answer' : 'question';
         $doc = new \DOMDocument();
         $doc->loadXML(sprintf('<wrap>%s</wrap>', $value));
         collect($doc->getElementsByTagName('image'))->each(function ($node) use ($folder) {
@@ -276,12 +276,12 @@ XML
 
     public function getAnswerLayerFromSVG($base64 = false)
     {
-        return $this->getLayerFromSVG('svg-answer-group', $base64);
+        return $this->getLayerFromSVG(self::SVG_ANSWER_GROUP_ID, $base64);
     }
 
     public function getQuestionLayerFromSVG($base64 = false)
     {
-        return $this->getLayerFromSVG('svg-question-group', $base64);
+        return $this->getLayerFromSVG(self::SVG_QUESTION_GROUP_ID, $base64);
     }
 
     private function getLayerFromSVG($layerName, $base64 = false)
