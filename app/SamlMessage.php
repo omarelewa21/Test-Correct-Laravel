@@ -24,7 +24,7 @@ class SamlMessage extends Model
 
     public function getDataAttribute()
     {
-        return json_decode($this->data);
+        return json_decode($this->attributes['data']);
     }
 
     public function setDataAttribute($data)
