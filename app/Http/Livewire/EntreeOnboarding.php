@@ -154,16 +154,13 @@ class EntreeOnboarding extends Component
         }
 
         $this->entreeData->user = $this->entreeData->user ? User::find($this->entreeData->user) : null;
-        $this->entreeData->location = $this->entreeData->location ? SchoolLocation::find($this->entreeData->location) : null;
-        $this->entreeData->school = $this->entreeData->school ? School::find($this->entreeData->school) : null;
-
 
         if ($this->entreeData->location) {
-            $this->schoolLocation = $this->entreeData->location;
+            $this->schoolLocation = SchoolLocation::find($this->entreeData->location);
             $this->hasFixedLocation = true;
-            $this->selectedLocationsString = $this->entreeData->location->getKey();
+            $this->selectedLocationsString = $this->entreeData->location;
         } else if ($this->entreeData->school) {
-            $this->school = $this->entreeData->school;
+            $this->school = School::find($this->entreeData->school);
         }
         return true;
     }
@@ -211,7 +208,6 @@ class EntreeOnboarding extends Component
         }
         if ($this->hasValidTUser) {
             // we need to merge the data with the t user account
-            $this->setEntreeDataFromSessionIfAvailable();
             $attr = [
                 'mail' => [$this->entreeData->emailAddress],
                 'eckId' => [Crypt::decryptString($this->entreeData->encryptedEckId)]
