@@ -182,7 +182,7 @@ class EntreeOnboarding extends Component
                 $this->setSubjectOptions();
                 break;
             case 2:
-                $this->setEntreeDataFromSessionIfAvailable();
+//                $this->setEntreeDataFromSessionIfAvailable();
                 break;
         }
 
