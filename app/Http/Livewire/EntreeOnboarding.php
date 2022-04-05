@@ -105,15 +105,15 @@ class EntreeOnboarding extends Component
 
     public function mount()
     {
+        $this->registration = new DemoTeacherRegistration;
+
         if (!$this->setEntreeDataFromRequestIfAvailable()) {
             return true;
         }
 
-        $this->registration = new DemoTeacherRegistration;
+        $this->registration->username = $this->entreeData->data->emailAddress;
 
-        $this->registration->username = $this->entreeData->emailAddress;
-
-        $this->registration->name = $this->entreeData->lastName;
+        $this->registration->name = $this->entreeData->data->lastName;
 
         if (!$this->step != 1 || $this->step >= '4') {
             $this->step = 1;
