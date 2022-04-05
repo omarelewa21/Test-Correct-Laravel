@@ -109,14 +109,26 @@ class QuestionsController extends Controller
         abort(404);
     }
 
+    public function drawingQuestionAnswerBackgroundImage($drawingQuestion, $identifier)
+    {
+        return $this->getDrawingQuestionBackgroundImage('answer', $drawingQuestion, $identifier);
+    }
+
     public function drawingQuestionQuestionBackgroundImage($drawingQuestion, $identifier)
     {
-        $path = sprintf('%s/question/%s', $drawingQuestion, $identifier);
+        return $this->getDrawingQuestionBackgroundImage('question', $drawingQuestion, $identifier);
+    }
+
+    private function getDrawingQuestionBackgroundImage($type, $drawingQuestion, $identifier)
+    {
+        $path = sprintf('%s/%s/%s', $drawingQuestion, $type, $identifier);
         if (Storage::disk(SvgHelper::DISK)->exists($path)) {
-            $response = Response::make(
-                Storage::disk(SvgHelper::DISK)->get($path)
-            );
-            return $response;
+            $server = \League\Glide\ServerFactory::create([
+                'source' => Storage::disk(SvgHelper::DISK)->path(sprintf('%s/%s', $drawingQuestion, $type)),
+                'cache' => Storage::disk(SvgHelper::DISK)->path(sprintf('%s/%s/cache', $drawingQuestion, $type))
+            ]);
+
+            return $server->outputImage($identifier, (new SvgHelper($drawingQuestion))->getArrayWidthAndHeight());
         }
         abort(404);
     }
@@ -126,7 +138,7 @@ class QuestionsController extends Controller
         $path = sprintf('%s/%s', $drawingQuestion, SvgHelper::SVG_FILENAME);
         if (Storage::disk(SvgHelper::DISK)->exists($path)) {
             $response = Response::make(
-                Storage::disk(SvgHelper::DISK)->get($path)
+                (new SvgHelper($drawingQuestion))->getSvgWithUrls()
             );
 
             $response->header('Content-Type', 'image/svg+xml');

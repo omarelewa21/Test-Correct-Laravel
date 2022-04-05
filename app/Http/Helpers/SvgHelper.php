@@ -185,7 +185,7 @@ class SvgHelper
 //        $identifier = (string)Str::uuid();
         $path = sprintf('%s/%s', $this->uuid, $folder);
 
-        if($this->disk->exists("$path/$identifier")) {
+        if ($this->disk->exists("$path/$identifier")) {
             return $identifier;
         }
 
@@ -205,7 +205,7 @@ class SvgHelper
                 throw new Exception(sprintf('File not found [%s].', $path));
             }
             $image = $this->disk->get($path);
-            $node->setAttribute('href','data:'. mime_content_type($this->disk->path($path)).';base64,'.base64_encode($image));
+            $node->setAttribute('href', 'data:' . mime_content_type($this->disk->path($path)) . ';base64,' . base64_encode($image));
         });
         return substr(substr($doc->saveXML(), 28), 0, -8);
     }
@@ -259,9 +259,9 @@ class SvgHelper
     {
         $values = Str::of($viewBox)->explode(' ');
         return [
-            'x'      => $values[0],
-            'y'      => $values[1],
-            'width'  => $values[2],
+            'x' => $values[0],
+            'y' => $values[1],
+            'width' => $values[2],
             'height' => $values[3],
         ];
     }
@@ -304,25 +304,46 @@ class SvgHelper
     public function getSvgWithUrls()
     {
         $doc = new \DOMDocument();
+        $doc->validateOnParse = true;
         $doc->loadXML($this->getSvg());
-        $images = $doc->getElementsByTagName('image');
-        collect($images)->each(function ($node) {
-            $routeName = '';
-            if ($node->parentNode->getAttribute('class') === 'answer-svg') {
-                $routeName = 'drawing-question.background-answer-svg';
-            } else if ($node->parentNode->getAttribute('class') === 'question-svg') {
-                $routeName = 'drawing-question.background-question-svg';
-            }
 
-            if ($routeName) {
-                $url = route(
-                    $routeName,
-                    ['drawingQuestion' => $this->uuid, 'identifier' => $node->getAttribute('identifier')]
-                );
 
-                $node->setAttribute('src', $url);
+
+        collect([self::SVG_ANSWER_GROUP_ID, self::SVG_QUESTION_GROUP_ID])->each(function ($layer) use ($doc) {
+            $parentNode = collect($doc->getElementsByTagName('g'))->first(function($node) use ($layer){
+                return $node->getAttribute('id') == $layer;
+            });
+
+            if ($parentNode) {
+                $images = $parentNode->getElementsByTagName('image');
+              ;
+                collect($images)->each(function ($node) use ($doc, $layer) {
+                    $routeName = '';
+                    if ($layer === self::SVG_ANSWER_GROUP_ID) {
+
+                        $routeName = 'drawing-question.background-answer-svg';
+                    } else if ($layer === self::SVG_QUESTION_GROUP_ID) {
+
+                        $routeName = 'drawing-question.background-question-svg';
+                    }
+
+                    if ($routeName) {
+                        $url = route(
+                            $routeName,
+                            ['drawingQuestion' => $this->uuid, 'identifier' => $node->getAttribute('identifier')]
+                        );
+                        $node->setAttribute('href', $url);
+                    }
+                });
             }
         });
         return $doc->saveXML();
+    }
+
+    public function getArrayWidthAndHeight()
+    {
+         list($x, $y, $width, $height) = sscanf($this->getViewBox(),'%s %s %s %s');
+
+         return ['w' => $width, 'h' => $height];
     }
 }

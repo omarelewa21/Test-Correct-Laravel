@@ -23,7 +23,11 @@ use Illuminate\Support\Facades\DB;
 
 class SvgBackGroundImageTest extends TestCase
 {
-    /** @test */
+    /**
+     * @test
+     * @runInSeparateProcess
+     * run in separateProcess needed because glide is sending headers and I dont have time to stub it;
+     */
     public function if_i_create_an_svg_i_can_download_the_image_i_uploaded()
     {
         $this->withoutExceptionHandling();
@@ -45,12 +49,38 @@ class SvgBackGroundImageTest extends TestCase
             'identifier' => $imageIdentifier,
         ]);
 
+        $response = $this->get($href);
+        $response->assertStatus(200);
+    }
 
+    /**
+     * @test
+     * @runInSeparateProcess
+     * run in separateProcess needed because glide is sending headers and I dont have time to stub it;
+     */
+    public function if_i_create_an_svg_i_can_download_a_background_image_in_the_correction_model_layer()
+    {
+        $this->withoutExceptionHandling();
+        $this->actingAs(User::whereUsername('d1@test-correct.nl')->first());
+        Storage::fake(SvgHelper::DISK);
+        $uuid = 'f0edd769-7363-4cc8-ab56-fa0067798f33';
+        $svgHelper = new SvgHelper($uuid);
+        $imageIdentifier = 'b6652000-236c-4f5a-bbf9-ff9cc1342e91';
+        $svgHelper->addAnswerImage($imageIdentifier, UploadedFile::fake()->image('black_pixel.png'));
+        $svgHelper->updateAnswerLayer(
+            sprintf(
+                '<image identifier="%s"/>',
+
+                $imageIdentifier
+            )
+        );
+        $href = route('drawing-question.background-answer-svg', [
+            'drawingQuestion' => $uuid,
+            'identifier' => $imageIdentifier,
+        ]);
 
         $response = $this->get($href);
-
         $response->assertStatus(200);
-
     }
 
     /** @test */

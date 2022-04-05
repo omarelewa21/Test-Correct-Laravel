@@ -82,7 +82,7 @@ class SvgHelperTest extends TestCase
     /** @test */
     public function it_can_return_the_contents_of_the_svg()
     {
-        $this->assertEquals(<<<XML
+        $this->assertXmlStringEqualsXmlString(<<<XML
 <svg viewBox="0 0 0 0"
      class="w-full h-full"
      xmlns="http://www.w3.org/2000/svg"
@@ -312,7 +312,7 @@ XML
 
         $this->assertEquals(
             route('drawing-question.background-answer-svg', ['drawingQuestion' => $uuid, 'identifier' => $identifier]),
-            $imageNode->getAttribute('src')
+            $imageNode->getAttribute('href')
         );
     }
 
@@ -342,7 +342,7 @@ XML
 
         $this->assertEquals(
             route('drawing-question.background-question-svg', ['drawingQuestion' => $uuid, 'identifier' => $identifier]),
-            $imageNode->getAttribute('src')
+            $imageNode->getAttribute('href')
         );
     }
 
@@ -454,6 +454,22 @@ XML
         $this->assertStringContainsString('viewBox="2 3 307 307"', $svgHelper->getSvg());
         $this->assertEquals($retrievedViewBox, $svgHelper->makeViewBoxString($viewBox));
         $this->assertEquals($svgHelper->makeViewBoxArray($retrievedViewBox), $viewBox);
+    }
+
+    /** @test */
+    public function it_can_return_an_array_with_height_and_width()
+    {
+        $uuid = '2fc81d55-2fc6-4885-97d2-da4d6002c4ef';
+        $svgHelper = new SvgHelper($uuid);
+        $viewBox = [
+            "x"      => 2,
+            "y"      => 3,
+            "width"  => 307,
+            "height" => 207,
+        ];
+
+        $svgHelper->setViewBox($viewBox);
+        $this->assertEquals(['w' => 307, 'h' => 207], $svgHelper->getArrayWidthAndHeight());
     }
 
     /**

@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "f471b113ef280789a52fb6d6775e8c91",
+    "content-hash": "4e2928c5ba19997d3ec42cfac239eef0",
     "packages": [
         {
             "name": "aacotroneo/laravel-saml2",
@@ -2803,6 +2803,99 @@
             "time": "2020-11-05T17:34:03+00:00"
         },
         {
+            "name": "league/glide-laravel",
+            "version": "1.0.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/thephpleague/glide-laravel.git",
+                "reference": "b525e33e32940f3b047d6ca357131aba0e973e72"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/thephpleague/glide-laravel/zipball/b525e33e32940f3b047d6ca357131aba0e973e72",
+                "reference": "b525e33e32940f3b047d6ca357131aba0e973e72",
+                "shasum": ""
+            },
+            "require": {
+                "league/glide-symfony": "^1.0"
+            },
+            "require-dev": {
+                "mockery/mockery": "^0.9",
+                "phpunit/phpunit": "^4.0"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "League\\Glide\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Jonathan Reinink",
+                    "email": "jonathan@reinink.ca",
+                    "homepage": "http://reinink.ca"
+                }
+            ],
+            "description": "Glide adapter for Laravel",
+            "homepage": "http://glide.thephpleague.com",
+            "support": {
+                "issues": "https://github.com/thephpleague/glide-laravel/issues",
+                "source": "https://github.com/thephpleague/glide-laravel/tree/master"
+            },
+            "time": "2015-12-26T15:40:35+00:00"
+        },
+        {
+            "name": "league/glide-symfony",
+            "version": "1.1.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/thephpleague/glide-symfony.git",
+                "reference": "8162ec0e0b070e53e88a840a67208ec4baec9291"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/thephpleague/glide-symfony/zipball/8162ec0e0b070e53e88a840a67208ec4baec9291",
+                "reference": "8162ec0e0b070e53e88a840a67208ec4baec9291",
+                "shasum": ""
+            },
+            "require": {
+                "league/glide": "^1.0",
+                "symfony/http-foundation": "^2.3|^3.0|^4.0|^5.0"
+            },
+            "require-dev": {
+                "mockery/mockery": "^0.9",
+                "phpunit/phpunit": "^4.0"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "League\\Glide\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Jonathan Reinink",
+                    "email": "jonathan@reinink.ca",
+                    "homepage": "http://reinink.ca"
+                }
+            ],
+            "description": "Glide adapter for Symfony",
+            "homepage": "http://glide.thephpleague.com",
+            "support": {
+                "issues": "https://github.com/thephpleague/glide-symfony/issues",
+                "source": "https://github.com/thephpleague/glide-symfony/tree/1.0.4"
+            },
+            "time": "2020-03-05T12:38:10+00:00"
+        },
+        {
             "name": "league/mime-type-detection",
             "version": "1.9.0",
             "source": {
@@ -5281,68 +5374,6 @@
                 }
             ],
             "time": "2021-12-03T06:45:28+00:00"
-        },
-        {
-            "name": "spatie/laravel-glide",
-            "version": "3.6.2",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/spatie/laravel-glide.git",
-                "reference": "c16647b4ba467b51db84d80aec276323f637b1d4"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/spatie/laravel-glide/zipball/c16647b4ba467b51db84d80aec276323f637b1d4",
-                "reference": "c16647b4ba467b51db84d80aec276323f637b1d4",
-                "shasum": ""
-            },
-            "require": {
-                "laravel/framework": "~5.8.0|^6.0|^7.0|^8.0|^9.0",
-                "league/glide": "^1.5|^1.6|^2.0",
-                "php": "^7.4|^8.0"
-            },
-            "require-dev": {
-                "orchestra/testbench": "^5.20|^6.13|^7.0"
-            },
-            "type": "library",
-            "extra": {
-                "laravel": {
-                    "providers": [
-                        "Spatie\\Glide\\GlideServiceProvider"
-                    ],
-                    "aliases": {
-                        "GlideImage": "Spatie\\Glide\\GlideImageFacade"
-                    }
-                }
-            },
-            "autoload": {
-                "psr-4": {
-                    "Spatie\\Glide\\": "src/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Freek Van der Herten",
-                    "email": "freek@spatie.be"
-                }
-            ],
-            "description": "Easily convert images with Glide",
-            "homepage": "https://github.com/spatie/laravel-glide",
-            "support": {
-                "issues": "https://github.com/spatie/laravel-glide/issues",
-                "source": "https://github.com/spatie/laravel-glide/tree/3.6.2"
-            },
-            "funding": [
-                {
-                    "url": "https://spatie.be/open-source/support-us",
-                    "type": "custom"
-                }
-            ],
-            "time": "2022-02-01T14:22:10+00:00"
         },
         {
             "name": "swiftmailer/swiftmailer",

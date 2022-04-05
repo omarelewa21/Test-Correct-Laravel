@@ -65,7 +65,7 @@ return [
 
         \tcCore\Http\Helpers\SvgHelper::DISK => [
             'driver' => 'local',
-            'root'   => storage_path().'/drawing-question-svg',
+            'root'   => storage_path('drawing-question-svg'),
         ],
 
 		's3' => [
