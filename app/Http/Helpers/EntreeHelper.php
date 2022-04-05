@@ -118,8 +118,11 @@ class EntreeHelper
             return $url;
         }
 
+        $data->school = ($data->school) ? $data->school->getKey() : null;
+        $data->location = ($data->location) ? $data->location->getKey() : null;
+        $data->user = ($data->user) ? $data->user->getKey() : null;
         $samlId = SamlMessage::create([
-            'data' => serialize($data),
+            'data' => json_encode($data),
             'eck_id' => 'not needed',
             'message_id' => 'not needed',
         ]);
