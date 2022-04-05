@@ -31,7 +31,7 @@ use tcCore\User;
 
 class EntreeOnboarding extends Component
 {
-    protected $entreeData;
+    public $saml_id;
     public $registration;
     public $step = 1;
 
@@ -55,8 +55,6 @@ class EntreeOnboarding extends Component
     public $schoolLocation;
     public $school;
     public $samlId;
-    public $myId; // eckId encrypted
-    public $uuid; // of the user;
 
     protected $queryString = ['step','samlId'];
 
@@ -77,8 +75,19 @@ class EntreeOnboarding extends Component
         $default = [
             'registration.username' => 'required|email:rfc,dns',
             'registration.registration_email_confirmed' => 'sometimes',
-            'registration.subjects' => 'sometimes',
-        ];
+            'registration.school_location'              => 'sometimes',
+            'registration.website_url'                  => 'sometimes',
+            'registration.address'                      => 'sometimes',
+            'registration.house_number'                 => 'sometimes',
+            'registration.postcode'                     => 'sometimes',
+            'registration.city'                         => 'sometimes',
+            'registration.gender'                       => 'sometimes',
+            'registration.gender_different'             => 'sometimes',
+            'registration.name_first'                   => 'sometimes',
+            'registration.name'                         => 'sometimes',
+            'registration.name_suffix'                  => 'sometimes',
+            'registration.subjects'                     => 'sometimes',
+            ];
 
         if ($this->step === 1) {
             $rules = array_merge($default, [
@@ -113,9 +122,13 @@ class EntreeOnboarding extends Component
             return true;
         }
 
+        $this->saml_id = $this->entreeData->uuid;
+
         $this->registration->username = $this->entreeData->data->emailAddress;
 
-        $this->registration->name = $this->entreeData->data->lastName;
+        if(!$this->hasValidTUser = true) {
+            $this->registration->name = $this->entreeData->data->lastName;
+        }
 
         if (!$this->step != 1 || $this->step >= '4') {
             $this->step = 1;
@@ -125,6 +138,11 @@ class EntreeOnboarding extends Component
         if (!$this->hasValidTUser) {
             $this->setSubjectOptions();
         }
+    }
+
+    public function getEntreeDataProperty()
+    {
+        return SamlMessage::find($this->saml_id);
     }
 
     protected function setEntreeDataFromRequestIfAvailable()
@@ -140,9 +158,6 @@ class EntreeOnboarding extends Component
             return false;
         }
 
-        $this->samlId = false;
-        $this->myId = $message->data->encryptedEckId;
-
         if ($this->entreeData->data->locationId) {
             $this->schoolLocation = SchoolLocation::find($this->entreeData->data->locationId);
             $this->hasFixedLocation = true;
@@ -152,15 +167,16 @@ class EntreeOnboarding extends Component
         }
 
         if (property_exists($this->entreeData->data, 'userId')) {
+
             $user = User::find($this->entreeData->data->userId);
             if ($user && $user->hasImportMailAddress()) {
                 collect(['name_first', 'name_suffix', 'name', 'gender'])->each(function ($key) use ($user){
                     $this->registration->$key = $user->$key;
                 });
+
                 $this->hasValidTUser = true;
                 $this->showSubjects = false;
                 $this->btnStepOneDisabledCheck();
-                $this->uuid = $user->uuid;
             }
         }
 
@@ -181,7 +197,8 @@ class EntreeOnboarding extends Component
                 $this->setSubjectOptions();
                 break;
             case 2:
-//                $this->setEntreeDataFromSessionIfAvailable();
+
+
                 break;
         }
 
@@ -212,9 +229,9 @@ class EntreeOnboarding extends Component
             // we need to merge the data with the t user account
             $attr = [
                 'mail' => [$this->registration->username],
-                'eckId' => [Crypt::decryptString($this->myId)]
+                'eckId' => [Crypt::decryptString($this->entreeData->data->encryptedEckId)]
             ];
-            return EntreeHelper::initAndHandleFromRegisterWithEntreeAndTUser(User::whereUuid($this->uuid)->first(), $attr);
+            return EntreeHelper::initAndHandleFromRegisterWithEntreeAndTUser(User::find($this->entreeData->data->userId), $attr);
         } else {
             $this->validate($this->rulesStep2());
             $schoolLocationsUuids = $this->getSelectedSchoolLocationCollection();

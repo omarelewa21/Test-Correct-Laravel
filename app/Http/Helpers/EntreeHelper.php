@@ -59,9 +59,10 @@ class EntreeHelper
     {
 
         $instance = new self($attr,'');
+        $instance->setContext('livewire');
         $instance->laravelUser = $user;
         $instance->emailMaybeEmpty = optional($user->location)->lvs_active_no_mail_allowed;
-        $instance->handleScenario1(['afterLoginMessage' => __("onboarding.Welkom bij Test-Correct, je kunt nu aan de slag.")]);
+        $instance->handleScenario1(['afterLoginMessage' => __("onboarding.Welkom bij Test-Correct, je kunt nu aan de slag."), 'internal_page' => '/users/welcome']);
         return true;
     }
 
