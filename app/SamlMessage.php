@@ -5,6 +5,7 @@ namespace tcCore;
 use Carbon\Carbon;
 use Dyrynda\Database\Casts\EfficientUuid;
 use Illuminate\Database\Eloquent\Model;
+use tcCore\Casts\Json;
 use tcCore\Traits\UuidTrait;
 
 class SamlMessage extends Model
@@ -13,6 +14,7 @@ class SamlMessage extends Model
 
     protected $casts = [
         'uuid'    => EfficientUuid::class,
+        'data'    => Json::class,
     ];
 
     protected $fillable = [
@@ -21,17 +23,6 @@ class SamlMessage extends Model
         'eck_id',
         'data',
     ];
-
-    public function getDataAttribute($data)
-    {
-        return json_decode($data);
-    }
-
-    public function setDataAttribute($data)
-    {
-        $this->attributes['data'] = json_encode($data);
-        return $this;
-    }
 
     public static function getSamlMessageIfValid($uuid)
     {
