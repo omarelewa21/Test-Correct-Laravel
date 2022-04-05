@@ -141,26 +141,27 @@ class EntreeOnboarding extends Component
 
     protected function setEntreeDataFromRequestIfAvailable()
     {
-        $samlId = request()->get('samlId');
-        $message = SamlMessage::getSamlMessageIfValid($samlId);
-        if(!$message) {console.log('no message found');
+        $message = SamlMessage::getSamlMessageIfValid($this->samlId);
+        if(!$message) {
             redirect::to(route('onboarding.welcome'));
             return false;
         }
-        $this->entreeData = json_decode($message->data);
-        if (!$this->entreeData) { console.log('no entree data');
+        $this->entreeData = $message;
+        if (!$this->entreeData->data) {
             Redirect::to(route('onboarding.welcome'));
             return false;
         }
 
-        $this->entreeData->user = $this->entreeData->user ? User::find($this->entreeData->user) : null;
+        $this->samlId = false;
 
-        if ($this->entreeData->location) {
-            $this->schoolLocation = SchoolLocation::find($this->entreeData->location);
+        $this->entreeData->data->user = $this->entreeData->data->user ? User::find($this->entreeData->data->user) : null;
+
+        if ($this->entreeData->data->location) {
+            $this->schoolLocation = SchoolLocation::find($this->entreeData->data->location);
             $this->hasFixedLocation = true;
-            $this->selectedLocationsString = $this->entreeData->location;
-        } else if ($this->entreeData->school) {
-            $this->school = School::find($this->entreeData->school);
+            $this->selectedLocationsString = $this->entreeData->data->location;
+        } else if ($this->entreeData->data->school) {
+            $this->school = School::find($this->entreeData->data->school);
         }
         return true;
     }
