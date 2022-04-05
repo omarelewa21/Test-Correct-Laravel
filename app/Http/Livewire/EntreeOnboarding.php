@@ -210,10 +210,10 @@ class EntreeOnboarding extends Component
         if ($this->hasValidTUser) {
             // we need to merge the data with the t user account
             $attr = [
-                'mail' => [$this->entreeData->emailAddress],
-                'eckId' => [Crypt::decryptString($this->entreeData->encryptedEckId)]
+                'mail' => [$this->entreeData->data->emailAddress],
+                'eckId' => [Crypt::decryptString($this->entreeData->data->encryptedEckId)]
             ];
-            return EntreeHelper::initAndHandleFromRegisterWithEntreeAndTUser($this->entreeData->user, $attr);
+            return EntreeHelper::initAndHandleFromRegisterWithEntreeAndTUser($this->entreeData->data->user, $attr);
         } else {
             $this->validate($this->rulesStep2());
             $schoolLocationsUuids = $this->getSelectedSchoolLocationCollection();
