@@ -52,6 +52,11 @@ class BaseHelper
         return str_contains(config('app.url_login'),'testportal') && str_contains(config('app.url_login'),'.test');
     }
 
+    public static function inNgrokEnvironment()
+    {
+        return str_contains(env('URL_LOGIN'),'ngrok.io');
+    }
+
     public static function notOnLocal()
     {
         return !(str_contains(config('app.url_login'),'testportal') && (str_ends_with(config('app.url_login'),'.test') || str_ends_with(config('app.url_login'),'.test/')));

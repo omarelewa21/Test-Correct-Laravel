@@ -6166,10 +6166,6 @@ clearClipboard = function clearClipboard() {
   return copyTextToClipboard(' ');
 };
 
-preventNavigationByKeydown = function preventNavigationByKeydown(event) {
-  return event.stopPropagation();
-};
-
 /***/ }),
 
 /***/ "./resources/js/attachment.js":
@@ -12045,11 +12041,8 @@ RichTextEditor = {
       var wordCountPlugin = editor.plugins.get('WordCount');
       var wordCountWrapper = document.getElementById('word-count-' + editorId);
       wordCountWrapper.appendChild(wordCountPlugin.wordCountContainer);
-
-      if (typeof ReadspeakerTlc != 'undefined') {
-        ReadspeakerTlc.ckeditor.addListenersForReadspeaker(editor, questionId, editorId);
-        ReadspeakerTlc.ckeditor.disableContextMenuOnCkeditor();
-      }
+      ReadspeakerTlc.ckeditor.addListenersForReadspeaker(editor, questionId, editorId);
+      ReadspeakerTlc.ckeditor.disableContextMenuOnCkeditor();
     })["catch"](function (error) {
       console.error(error);
     });
