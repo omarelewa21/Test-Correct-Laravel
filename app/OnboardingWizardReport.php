@@ -21,6 +21,10 @@ class OnboardingWizardReport extends Model
 
     public static function updateForUser(User $user)
     {
+        if(!$user->schoolLocation || $user->schoolLocation->keep_out_of_school_location_report){
+            return;
+        }
+
         $helper = new ReportHelper($user);
 
         $wizardData = self::getStepsCollection($user);
@@ -226,8 +230,6 @@ ORDER BY t2.displayorder,
 
         User::whereIn('id', Teacher::pluck('user_id'))
             ->where('demo', 0)
-            ->where('username', 'not like', '%@teachandlearncompany.com')
-            ->where('username', 'not like', '%@test-correct.nl')
             ->each(function ($teacher) {
                 
                 if ($teacher->isA('teacher')) {

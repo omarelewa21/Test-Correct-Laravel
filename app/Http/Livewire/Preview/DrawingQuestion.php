@@ -2,6 +2,7 @@
 
 namespace tcCore\Http\Livewire\Preview;
 
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Livewire\Component;
@@ -32,9 +33,18 @@ class DrawingQuestion extends Component
 
     public $backgroundImage;
 
+    public $answer_svg = null;
+    public $question_svg = null;
+    public $grid_svg = '0.00';
+    public $usesNewDrawingTool = false;
+
     public function mount()
     {
         $this->initPlayerInstance();
+
+        $this->question_svg = $this->question->question_svg;
+        $this->grid_svg = $this->question->grid_svg;
+        $this->usesNewDrawingTool = Auth::user()->schoolLocation()->value('allow_new_drawing_question') && (blank($this->question->bg_name) && empty($this->question->grid));
 
         $this->backgroundImage = $this->question->getBackgroundImage();
     }
@@ -55,5 +65,10 @@ class DrawingQuestion extends Component
     private function initPlayerInstance()
     {
         $this->playerInstance = 'eppi_' . rand(1000, 9999999);
+    }
+
+    public function handleUpdateDrawingData()
+    {
+
     }
 }

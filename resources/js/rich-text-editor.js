@@ -48,11 +48,11 @@ RichTextEditor = {
         }
 
         CKEDITOR.replace(editorId, {
-            extraPlugins: 'selection,blockimagepaste,quicktable,ckeditor_wiris,autogrow,wordcount,notification',
+            extraPlugins: 'selection,simpleuploads,quicktable,ckeditor_wiris,autogrow,wordcount,notification',
             toolbar: [
                 {name: 'basicstyles', items: ['Bold', 'Italic', 'Underline', 'Strike', 'Subscript', 'Superscript']},
                 {name: 'paragraph', items: ['NumberedList', 'BulletedList']},
-                {name: 'insert', items: ['Table']},
+                {name: 'insert', items: ['addImage','Table']},
                 {name: 'styles', items: ['Font', 'FontSize']},
                 {name: 'wirisplugins', items: ['ckeditor_wiris_formulaEditor', 'ckeditor_wiris_formulaEditorChemistry']},
                 {name: 'extra', items: ['selection']}
@@ -70,7 +70,7 @@ RichTextEditor = {
             editor.destroy(true)
         }
         CKEDITOR.replace(editorId, {
-            extraPlugins: 'completion,blockimagepaste,quicktable,ckeditor_wiris,autogrow,wordcount,notification',
+            extraPlugins: 'completion,simpleuploads,quicktable,ckeditor_wiris,autogrow,wordcount,notification',
             toolbar : [
                 { name: 'clipboard', items: [ 'Undo', 'Redo' ] },
                 { name: 'basicstyles', items: [ 'Bold', 'Italic', 'Underline', 'Strike', 'RemoveFormat', 'Subscript', 'Superscript' ] },
@@ -96,4 +96,41 @@ RichTextEditor = {
         }, 300);
         textarea.dispatchEvent(new Event('input'))
     },
+
+    initClassicEditorForStudentplayer: function (editorId,questionId) {
+        ClassicEditor
+            .create( document.querySelector( '#'+editorId ),{
+                autosave: {
+                    waitingTime: 300,
+                    save( editor ) {
+                        editor.updateSourceElement();
+                        editor.sourceElement.dispatchEvent(new Event('input'));
+                    }
+                }
+            } )
+            .then( editor => {
+                ClassicEditors[editorId] = editor;
+                const wordCountPlugin = editor.plugins.get( 'WordCount' );
+                const wordCountWrapper = document.getElementById( 'word-count-'+editorId );
+                wordCountWrapper.appendChild( wordCountPlugin.wordCountContainer );
+                ReadspeakerTlc.ckeditor.addListenersForReadspeaker(editor,questionId,editorId);
+                ReadspeakerTlc.ckeditor.disableContextMenuOnCkeditor();
+
+            } )
+            .catch( error => {
+                console.error( error );
+            } );
+    },
+    setReadOnly: function(editor)
+    {
+        editor.isReadOnly = true;
+    },
+    writeContentToTexarea: function(editorId)
+    {
+        var editor = ClassicEditors[editorId];
+        if (editor) {
+            editor.updateSourceElement();
+            editor.sourceElement.dispatchEvent(new Event('input'));
+        }
+    }
 }

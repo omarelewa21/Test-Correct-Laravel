@@ -35,15 +35,43 @@ trait RankingQuestionTrait
         $response->assertStatus(200);
     }
 
-    private function getRestOfAnswerArray($start,$end){
-        $return = [];
-        for ($i=$start; $i <= $end ; $i++) { 
-            $return[] = [
-                            "order"=> $i,
-                            "answer"=> "",
-                        ];
-        }
-        return $return;
+    private function getAttributesForRankingQuestion($testId){
+        return [
+            "type"=> "RankingQuestion",
+            "score"=> "5",
+            "question"=> "<p>GM7</p> ",
+            "order"=> 0,
+            "maintain_position"=> "0",
+            "discuss"=> "1",
+            "subtype"=> "Classify",
+            "decimal_score"=> "0",
+            "add_to_database"=> 1,
+            "attainments"=> [
+            ],
+            "note_type"=> "NONE",
+            "is_open_source_content"=> 1,
+            "answers"=> array_merge([
+                [
+                    "order"=> "1",
+                    "answer"=> "a"
+                ],
+                [
+                    "order"=> "2",
+                    "answer"=> "b"
+                ],
+                [
+                    "order"=> "3",
+                    "answer"=> "c"
+                ]
+            ],$this->getRestOfAnswerArray(3,10)),
+            "tags"=> [
+            ],
+            "rtti"=> "R",
+            "bloom"=> "Onthouden",
+            "miller"=> "Weten",
+            "test_id"=> $testId,
+            'closeable'=> 0,
+        ];
     }
 
 }

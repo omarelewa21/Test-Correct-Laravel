@@ -73,6 +73,7 @@ class CmsMultipleChoice extends CmsBase
                 ->toArray();
         unset($this->instance->question['answer']);
         $this->instance->question['score'] = collect($this->instance->cmsPropertyBag['answerStruct'])->sum('score');
+        $this->instance->question['selectable_answers'] = collect($this->instance->cmsPropertyBag['answerStruct'])->where('score','>',0)->count();
 
     }
 

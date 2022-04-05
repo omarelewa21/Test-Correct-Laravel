@@ -14,9 +14,8 @@ class ArqQuestion extends Component
     use WithPreviewAttachments, WithNotepad, withCloseable, WithPreviewGroups;
 
     public $uuid;
-
     public $question;
-public $testId;
+    public $testId;
 
     public function questionUpdated($uuid)
     {

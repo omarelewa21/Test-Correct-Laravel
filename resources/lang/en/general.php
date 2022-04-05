@@ -28,4 +28,5 @@ return [
     'name'           => 'Name',
     'grade'          => 'Grade',
     'attention'      => 'Attention',
+    'save'           => 'Save',
 ];

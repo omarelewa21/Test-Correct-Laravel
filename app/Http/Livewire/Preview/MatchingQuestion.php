@@ -10,6 +10,7 @@ use tcCore\Http\Traits\WithPreviewGroups;
 use tcCore\Http\Traits\WithNotepad;
 use tcCore\Http\Traits\WithQuestionTimer;
 use tcCore\Question;
+use Illuminate\Support\Str;
 
 class MatchingQuestion extends Component
 {
@@ -37,15 +38,57 @@ class MatchingQuestion extends Component
         $this->shuffledAnswers = $this->question->matchingQuestionAnswers->shuffle();
     }
 
-    public function updateOrder($value)
-    {
-        $dbstring = [];
+    private function matchingUpdateValueOrder($dbstring, $value){
         foreach ($value as $key => $value) {
             if ($value['value'] == 'startGroep') {
                 $value['value'] = '';
             }
+
             foreach ($value['items'] as $items) {
-                $dbstring[$items['value']] = $value['value'];
+                if(in_array($value['value'], $dbstring) && !is_null($this->answerStruct)){
+                    // value stored before in dbstring =>
+                    $prevStoredKeyInDbstring = array_search($value['value'], $dbstring);        // Get previous key from dbstring
+                    $prevStoredKeyInAnswerStruct = array_search($value['value'], $this->answerStruct);  // Get previous key from AnswerStruct
+
+                    if($prevStoredKeyInAnswerStruct == -1){
+                        // value doesn't exist in AnswerStruct =>
+                        $dbstring[$prevStoredKeyInDbstring] = '';        // set previous key in dbstring to empty string
+                        $dbstring[$items['value']] = $value['value'];    // set new key to value
+                    }else{
+                        // value exists in AnswerStruct
+                        if($prevStoredKeyInAnswerStruct == $prevStoredKeyInDbstring){
+                            // stored key in dbstring == stored key in AnswerStruct =>
+                            $dbstring[$prevStoredKeyInDbstring] = '';                 // set previous key in dbstring to empty string
+                            $dbstring[$items['value']] = $value['value'];             // set new key to value 
+                        }else{
+                            $dbstring[$prevStoredKeyInDbstring] = $value['value']; // set previous key in dbstring to value 
+                            $dbstring[$items['value']] = '';                       // set new key to empty string
+                        }
+                    }
+                }else{
+                    // value is not previously stored in dbstring
+                    $dbstring[$items['value']] = $value['value'];
+                }
+            }
+        }
+        return $dbstring;
+    }
+
+
+    public function updateOrder($value)
+    {
+        $dbstring = [];
+        if(Str::lower($this->question->subtype) == "matching"){
+            $dbstring = $this->matchingUpdateValueOrder($dbstring, $value);
+        }
+        else{
+            foreach ($value as $key => $value) {
+                if ($value['value'] == 'startGroep') {
+                    $value['value'] = '';
+                }
+                foreach ($value['items'] as $items) {
+                    $dbstring[$items['value']] = $value['value'];
+                }
             }
         }
 

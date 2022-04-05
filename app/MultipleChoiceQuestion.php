@@ -3,6 +3,7 @@
 namespace tcCore;
 
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
 use tcCore\Http\Requests\UpdateTestQuestionRequest;
 use tcCore\Lib\Question\QuestionInterface;
 use Dyrynda\Database\Casts\EfficientUuid;
@@ -151,11 +152,14 @@ class MultipleChoiceQuestion extends Question implements QuestionInterface {
 
 
         if($this->allOrNothingQuestion()){
-            if($score == $maxScore && $countCorrectAnswers === $givenAnswers){
-                return $this->score;
-            } else {
-                return 0;
+            if(Str::lower($this->subtype) == 'arq'){
+                if($score == $this->score) {
+                    return $score;
+                }
+            } else if($score == $maxScore && $countCorrectAnswers === $givenAnswers){
+                    return $this->score;
             }
+            return 0;
         }
 
         if ($score > $this->getAttribute('score')) {
@@ -263,5 +267,15 @@ class MultipleChoiceQuestion extends Question implements QuestionInterface {
             return true;
         }
         return parent::needsToBeUpdated($request);
+    }
+
+    public static function getArqStructure() {
+        return [
+            ['A', 'test_take.correct', 'test_take.correct', 'test_take.correct_reason'],
+            ['B', 'test_take.correct', 'test_take.correct', 'test_take.incorrect_reason'],
+            ['C', 'test_take.correct', 'test_take.incorrect', 'test_take.not_applicable'],
+            ['D', 'test_take.incorrect', 'test_take.correct', 'test_take.not_applicable'],
+            ['E', 'test_take.incorrect', 'test_take.incorrect', 'test_take.not_applicable'],
+        ];
     }
 }

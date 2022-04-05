@@ -6,6 +6,11 @@ require('./notify');
 require('./alpine');
 require('./rich-text-editor');
 require('./drawing/drawing-question');
+require('./readspeaker_app');
+require('./attachment');
+
+
+window.ClassicEditors = [];
 
 addIdsToQuestionHtml = function () {
     let id = 1;
@@ -212,7 +217,8 @@ dragElement = function (element) {
     }
 }
 
-countPresentStudents = function (members) {
+countPresentStudents = function (members)
+{
     var activeStudents = 0;
     members.each((member) => {
         if (member.info.student) {
@@ -223,8 +229,68 @@ countPresentStudents = function (members) {
     return activeStudents;
 }
 
+addTitleToImages = function(selector,title)
+{
+    var container = document.querySelector(selector);
+    if(container != null){
+        var images = container.querySelectorAll('img');
+        images.forEach(function(image) {
+            if(image.title==null||image.title==''){
+                image.title = title;
+            }
+        });
+    }
+}
+
 String.prototype.contains = function (text)
 {
     if (text === '') return false;
     return this.includes(text);
+}
+
+getClosestLivewireComponentByAttribute = function (element, attributeName) {
+    return livewire.find(element.closest(`[${attributeName}]`).getAttribute('wire:id'));
+}
+
+String.prototype.capitalize = function ()
+{
+    return this.charAt(0).toUpperCase() + this.slice(1);
+}
+
+clearClipboard = function () {
+    //source: https://stackoverflow.com/a/30810322
+    function fallbackCopyTextToClipboard(text) {
+        var textArea = document.createElement("textarea");
+        textArea.value = text;
+
+        // Avoid scrolling to bottom
+        textArea.style.top = "0";
+        textArea.style.left = "0";
+        textArea.style.position = "fixed";
+
+        document.body.appendChild(textArea);
+        textArea.focus();
+        textArea.select();
+
+        try {
+            var successful = document.execCommand("copy");
+            var msg = successful ? "successful" : "unsuccessful";
+        } catch (err) {
+        }
+
+        document.body.removeChild(textArea);
+    }
+    function copyTextToClipboard(text) {
+        return new Promise((resolve, reject) => {
+            if (!navigator.clipboard) {
+                fallbackCopyTextToClipboard(text);
+                resolve();
+            }
+            navigator.clipboard.writeText(text).then(() => {
+                resolve();
+            }).catch(() => { fallbackCopyTextToClipboard(text); resolve(); });
+        });
+    }
+
+    return copyTextToClipboard(' ');
 }

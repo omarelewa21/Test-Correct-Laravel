@@ -10,9 +10,11 @@ document.addEventListener('alpine:init', () => {
         activeQuestion: window.Livewire.find(document.querySelector('[test-take-player]').getAttribute('wire:id')).entangle('q')
     }));
     Alpine.data('tagManager', () => ({
-        tags: [], remove: function (index) {
+        tags: [],
+        remove: function (index) {
             this.tags.splice(index, 1)
-        }, add: function (inputElement) {
+        },
+        add: function (inputElement) {
             if (inputElement.value) {
                 this.tags.push(inputElement.value);
                 inputElement.value = '';
@@ -117,10 +119,15 @@ document.addEventListener('alpine:init', () => {
         },
     }));
     Alpine.data('selectionOptions', (entangle) => ({
-        showPopup: entangle.value, editorId: entangle.editorId, hasError: {empty: [], false: []}, data: {
+        showPopup: entangle.value,
+        editorId: entangle.editorId,
+        hasError: {empty: [], false: []},
+        data: {
             elements: [],
 
-        }, maxOptions: 10, minOptions: 2,
+        },
+        maxOptions: 10,
+        minOptions: 2,
 
         init() {
             for (let i = 0; i < this.minOptions; i++) {
@@ -158,7 +165,9 @@ document.addEventListener('alpine:init', () => {
 
         addRow(value = '', checked = 'false') {
             let component = {
-                id: this.data.elements.length, checked: checked, value: value,
+                id: this.data.elements.length,
+                checked: checked,
+                value: value,
             };
             this.data.elements.push(component);
         },
@@ -194,7 +203,8 @@ document.addEventListener('alpine:init', () => {
             setTimeout(() => {
                 this.$wire.setQuestionProperty('question', window.editor.getData());
             }, 300);
-        }, validateInput: function () {
+        },
+        validateInput: function () {
             const emptyFields = this.data.elements.filter(element => element.value === '')
             const falseValues = this.data.elements.filter(element => element.checked === 'false')
 
@@ -210,7 +220,8 @@ document.addEventListener('alpine:init', () => {
             }
 
             return true;
-        }, save() {
+        },
+        save() {
             if (!this.validateInput()) {
                 return;
             }
@@ -218,24 +229,32 @@ document.addEventListener('alpine:init', () => {
             this.insertDataInEditor();
 
             this.closePopup();
-        }, disabled() {
+        },
+        disabled() {
             if (this.data.elements.length >= this.maxOptions) {
                 return true
             }
             return !!this.data.elements.find(element => element.value === '');
-        }, closePopup() {
+        },
+        closePopup() {
             this.showPopup = false;
             this.data.elements = [];
             this.init();
-        }, canDelete() {
+        },
+        canDelete() {
             return this.data.elements.length <= 2
-        }, resetHasError() {
+        },
+        resetHasError() {
             this.hasError.empty = [];
             this.hasError.false = [];
         }
     }));
     Alpine.data('badge', (videoUrl = null) => ({
-        options: false, videoTitle: videoUrl, resolvingTitle: true, index: 1, async init() {
+        options: false,
+        videoTitle: videoUrl,
+        resolvingTitle: true,
+        index: 1,
+        async init() {
             this.setIndex();
 
             this.$watch('options', value => {
@@ -253,25 +272,28 @@ document.addEventListener('alpine:init', () => {
                 this.resolvingTitle = false;
                 this.$wire.setVideoTitle(videoUrl, this.videoTitle);
             }
-        }, setIndex() {
+        },
+        setIndex() {
             const parent = document.getElementById('attachment-badges')
             this.index = Array.prototype.indexOf.call(parent.children, this.$el) + 1;
         }
     }));
 
-    Alpine.data('drawingTool', (questionId, entanglements, isTeacher) => ({
+    Alpine.data('drawingTool', (questionId, entanglements, isTeacher, isPreview = false) => ({
         show: false,
         questionId: questionId,
         answerSvg: entanglements.answerSvg,
         questionSvg: entanglements.questionSvg,
         gridSvg: entanglements.gridSvg,
         isTeacher: isTeacher,
+        toolName: null,
+        isPreview: isPreview,
         init() {
-            window['drawingTool_' + questionId] = initDrawingQuestion(this.$root);
-            const toolName = window['drawingTool_' + questionId];
+            this.toolName = `drawingTool_${questionId}`;
+            const toolName = window[this.toolName] = initDrawingQuestion(this.$root, this.isTeacher, this.isPreview);
 
-            if (this.isTeacher) {
-                this.makeGridIfNecessary();
+            if(this.isTeacher) {
+                this.makeGridIfNecessary(toolName);
             }
 
             this.$watch('show', show => {
@@ -283,7 +305,8 @@ document.addEventListener('alpine:init', () => {
 
                     toolName.drawingApp.init();
                 } else {
-                    Livewire.emit('refresh');
+                    const component = getClosestLivewireComponentByAttribute(this.$root, 'questionComponent');
+                    component.call('render');
                 }
             })
 
@@ -291,20 +314,21 @@ document.addEventListener('alpine:init', () => {
             toolName.Canvas.setCurrentLayer("answer");
         },
         handleGrid(toolName) {
-            if (this.gridSvg !== '0.00') {
+            if (this.gridSvg !== '0.00' && this.gridSvg !== '') {
                 let parsedGrid = parseFloat(this.gridSvg);
-                if (toolName.drawingApp.isTeacher()) {
-                    toolName.UI.gridSize.value = parsedGrid;
-                    toolName.UI.gridToggle.checked = true;
-                } else {
-                    toolName.drawingApp.params.gridSize = parsedGrid;
-                    toolName.Canvas.layers.grid.params.hidden = false;
+                toolName.UI.gridSize.value = parsedGrid;
+                toolName.UI.gridToggle.checked = true;
+                toolName.drawingApp.params.gridSize = parsedGrid;
+                toolName.Canvas.layers.grid.params.hidden = false;
+
+                if(!this.isTeacher) {
+                    // this.$root.querySelector('#grid-background')?.remove();
                 }
             }
         },
-        makeGridIfNecessary() {
-            if (this.gridSvg !== '') {
-                makePreviewGrid(this.gridSvg);
+        makeGridIfNecessary(toolName) {
+            if (this.gridSvg !== '' && this.gridSvg !== '0.00') {
+                makePreviewGrid(toolName.drawingApp, this.gridSvg);
             }
         }
     }));
