@@ -139,7 +139,7 @@ class EntreeOnboarding extends Component
         }
 
         $this->samlId = false;
-
+dd($this->entreeData->data);
         if ($this->entreeData->data->locationId) {
             $this->schoolLocation = SchoolLocation::find($this->entreeData->data->locationId);
             $this->hasFixedLocation = true;
