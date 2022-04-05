@@ -125,7 +125,7 @@ class EntreeHelper
         $data->userId = ($data->user) ? $data->user->getKey() : null;
         $data->user = null;
         $samlId = SamlMessage::create([
-            'data' => json_encode($data),
+            'data' => $data,
             'eck_id' => 'not needed',
             'message_id' => 'not needed',
         ]);
