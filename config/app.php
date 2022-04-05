@@ -21,7 +21,7 @@ return [
     'url_login' => env('URL_LOGIN'),
     'url_logout' => sprintf('%susers/logout_from_laravel', env('URL_LOGIN')),
 
-    'base_url' => env('BASE_URL',''),
+    'base_url' => env('BASE_URL', ''),
 
     /*
     |--------------------------------------------------------------------------
@@ -44,7 +44,7 @@ return [
     | services your application utilizes. Set this in your ".env" file.
     |
     */
-    'env'  => env('APP_ENV', 'production'),
+    'env' => env('APP_ENV', 'production'),
 
     /*
     |--------------------------------------------------------------------------

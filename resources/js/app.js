@@ -294,3 +294,8 @@ clearClipboard = function () {
 
     return copyTextToClipboard(' ');
 }
+
+preventNavigationByKeydown = function(event)
+{
+    return event.stopPropagation();
+}
