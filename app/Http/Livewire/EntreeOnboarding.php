@@ -55,6 +55,8 @@ class EntreeOnboarding extends Component
     public $schoolLocation;
     public $school;
     public $samlId;
+    public $myId; // eckId encrypted
+    public $uuid; // of the user;
 
     protected $queryString = ['step','samlId'];
 
@@ -139,6 +141,7 @@ class EntreeOnboarding extends Component
         }
 
         $this->samlId = false;
+        $this->myId = $message->data->encryptedEckId;
 
         if ($this->entreeData->data->locationId) {
             $this->schoolLocation = SchoolLocation::find($this->entreeData->data->locationId);
@@ -157,6 +160,7 @@ class EntreeOnboarding extends Component
                 $this->hasValidTUser = true;
                 $this->showSubjects = false;
                 $this->btnStepOneDisabledCheck();
+                $this->uuid = $user->uuid;
             }
         }
 
@@ -207,10 +211,10 @@ class EntreeOnboarding extends Component
         if ($this->hasValidTUser) {
             // we need to merge the data with the t user account
             $attr = [
-                'mail' => [$this->entreeData->data->emailAddress],
-                'eckId' => [Crypt::decryptString($this->entreeData->data->encryptedEckId)]
+                'mail' => [$this->registration->username],
+                'eckId' => [Crypt::decryptString($this->myId)]
             ];
-            return EntreeHelper::initAndHandleFromRegisterWithEntreeAndTUser(User::find($this->entreeData->data->userId), $attr);
+            return EntreeHelper::initAndHandleFromRegisterWithEntreeAndTUser(User::whereUuid($this->uuid)->first(), $attr);
         } else {
             $this->validate($this->rulesStep2());
             $schoolLocationsUuids = $this->getSelectedSchoolLocationCollection();
