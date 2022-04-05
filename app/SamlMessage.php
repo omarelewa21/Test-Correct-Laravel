@@ -22,6 +22,17 @@ class SamlMessage extends Model
         'data',
     ];
 
+    public function getDataAttribute()
+    {
+        return json_decode($this->data);
+    }
+
+    public function setDataAttribute($data)
+    {
+        $this->attributes['data'] = json_encode($data);
+        return $this;
+    }
+
     public static function getSamlMessageIfValid($uuid)
     {
         $message = SamlMessage::whereUuid($uuid)->first();
