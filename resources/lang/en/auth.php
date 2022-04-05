@@ -118,4 +118,5 @@ return [
     'newPassword.min'                                         => 'New password does not meet required length',
     'newPassword.regex'                                       => 'New password does not meet required pattern',
     'passwords_dont_match'                                    => 'The current password entered is incorrect',
+    'no_mail_attribute_found_in_saml_request_school_location_does_not_support_login_without_email'   => 'We have no available ARP-form for your school, please log in with your username and password.',
 ];
