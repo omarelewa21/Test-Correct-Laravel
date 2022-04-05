@@ -105,7 +105,7 @@ class EntreeOnboarding extends Component
 
     public function mount()
     {
-        if (!$this->setEntreeDataFromSessionIfAvailable()) {
+        if (!$this->setEntreeDataFromRequestIfAvailable()) {
             return true;
         }
 
@@ -139,16 +139,16 @@ class EntreeOnboarding extends Component
         }
     }
 
-    protected function setEntreeDataFromSessionIfAvailable()
+    protected function setEntreeDataFromRequestIfAvailable()
     {
         $samlId = request()->get('samlId');
         $message = SamlMessage::getSamlMessageIfValid($samlId);
-        if(!$message) {
+        if(!$message) {console.log('no message found');
             redirect::to(route('onboarding.welcome'));
             return false;
         }
         $this->entreeData = json_decode($message->data);
-        if (!$this->entreeData) {
+        if (!$this->entreeData) { console.log('no entree data');
             Redirect::to(route('onboarding.welcome'));
             return false;
         }
