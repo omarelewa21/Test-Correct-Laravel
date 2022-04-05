@@ -19,6 +19,7 @@ use tcCore\Http\Requests\Request;
 use tcCore\Lib\Repositories\SchoolYearRepository;
 use tcCore\Lib\User\Factory;
 use tcCore\SamlMessage;
+use tcCore\School;
 use tcCore\SchoolClass;
 use tcCore\SchoolLocation;
 use tcCore\Shortcode;
@@ -146,11 +147,17 @@ class EntreeOnboarding extends Component
             redirect::to(route('onboarding.welcome'));
             return false;
         }
-        $this->entreeData = unserialize($message->data);
+        $this->entreeData = json_decode($message->data);
         if (!$this->entreeData) {
             Redirect::to(route('onboarding.welcome'));
             return false;
         }
+
+        $this->entreeData->user = $this->entreeData->user ? User::find($this->entreeData->user) : null;
+        $this->entreeData->location = $this->entreeData->location ? SchoolLocation::find($this->entreeData->location) : null;
+        $this->entreeData->school = $this->entreeData->school ? School::find($this->entreeData->school) : null;
+
+
         if ($this->entreeData->location) {
             $this->schoolLocation = $this->entreeData->location;
             $this->hasFixedLocation = true;
