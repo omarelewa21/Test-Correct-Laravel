@@ -435,38 +435,22 @@
                                 </form>
                             </div>
                         </div>
-                    @elseif($this->step === 3)
+                    @elseif($this->step === 3 || $this->step === 4)
                         <div class="content-form">
                             {{--content header--}}
                             <div class="mb-6 relative">
                                 <img class="inline-block card-header-img mr-3" src="/svg/stickers/completed.svg" alt="">
-                                <h1 class="sm:mt-2 top-2.5 card-header-text">{{ __("onboarding.Je bent nu klaar! Met Test-Correct kun je") }}</h1>
+                                <h2 class="sm:mt-2 top-2.5 card-header-text">{{ __("onboarding.Je bent nu klaar! Met Test-Correct kun je") }}</h2>
+                                @if($this->step === 3)
+                                    <h3 x-data="{}" x-init="setTimeout(() => {$wire.finish() },2000);">{{ __("onboarding.Je gegevens worden nu verwerkt...") }}</h3>
+                                @else
+                                    <h3><img src="/svg/icons/checkmark.svg" alt=""
+                                             class="mr-4 float-left">
+                                        <span class="klaar-text">{{ __("onboarding.Je gegevens zijn verwerkt") }}.</span></h3>
+                                @endif
                             </div>
                             <div class="flex-grow">
                                 <div class="body1 h-full relative">
-                                    <div class="flex flex-wrap">
-                                        <div class="w-full sm:w-1/2 sm:pr-2 mb-4 relative">
-                                            <img src="/svg/stickers/toetsen-maken-afnemen.svg" alt=""
-                                                 class="mr-4 float-left">
-                                            <span class="klaar-text">{{ __("onboarding.Toetsen aanmaken en bestaande toetsen omzetten") }}.</span>
-                                        </div>
-                                        <div class="w-full sm:w-1/2 sm:pl-2 mb-4 relative">
-                                            <img src="/svg/stickers/toetsen-beoordelen-bespreken.svg" alt=""
-                                                 class="mr-4 float-left">
-                                            <span class="klaar-text">{{ __("onboarding.Toetsen beoordelen en samen de CO-Learning doorlopen") }}.</span>
-                                        </div>
-                                    </div>
-                                    <div class="flex flex-wrap mb-4">
-                                        <div class="w-full sm:w-1/2 sm:pr-2 mb-4 relative">
-                                            <img src="/svg/stickers/klassen.svg" alt="" class="mr-4 float-left">
-                                            <span class="klaar-text">{{ __("onboarding.Klassen maken en uitnodigen om een toets af te nemen") }}.</span>
-                                        </div>
-                                        <div class="w-full sm:w-1/2 sm:pl-2 mb-4 relative">
-                                            <img src="/svg/stickers/toetsresultaten-analyse.svg" alt=""
-                                                 class="mr-4 float-left">
-                                            <span class="klaar-text">{{ __("onboarding.Toetsresultaten delen en analystische feedback inzien") }}.</span>
-                                        </div>
-                                    </div>
                                     <div class="flex flex-wrap mb-4">
                                         <span class="w-full mb-3">{{ __("onboarding.Deel op social media dat je een Test-Correct docent account hebt aangemaakt") }}.</span>
                                         <a class="float-left mr-2 button button-sm secondary-button transition"
@@ -486,18 +470,6 @@
                                                  alt=""></a>
                                     </div>
 
-                                    @if($resendVerificationMail)
-                                        <div class="notification info mb-4">
-                                            <span class="title">{{ __("onboarding.De verificatie e-mail is opnieuw naar je verzonden") }}.</span>
-                                        </div>
-                                    @endif
-                                    <div class="notification warning stretched mb-4 md:mb-16">
-                                        <span class="title">{{ __("onboarding.Verifieer je e-mailadres") }}</span>
-                                        <span class="body">{{ __("onboarding.Open de verificatie mail en klik op 'Verifieer e-mailadres'. Het ontvangen van de e-mail kan enkele minuten duren. Heb je geen mail ontvangen?") }}
-                                            <a wire:click="resendEmailVerificationMail" class="bold cursor-pointer">{{ __("onboarding.Stuur de verificatiemail opnieuw") }} <x-icon.arrow-small></x-icon.arrow-small></a> {{ __("onboarding.of") }}
-                                            <a href="https://support.test-correct.nl/knowledge" class="bold"
-                                               target="_blank">{{ __("onboarding.zoek ondersteuning") }} <x-icon.arrow-small></x-icon.arrow-small></a></span>
-                                    </div>
                                     <div class="md:absolute bottom-0 sm:right-0">
                                         <button class=" button button-md cta-button" wire:click="loginUser">
                                             <span class="mr-3">{{ __("onboarding.Inloggen op Test-Correct") }}</span>

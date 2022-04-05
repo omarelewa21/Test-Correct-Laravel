@@ -37,7 +37,7 @@ class EntreeOnboarding extends Component
 
     public $btnDisabled = true;
     public $resendVerificationMail = false;
-    public $newRegistration = false;
+    public $userUuid = false;
 
     public $warningStepOne = false;
     public $warningStepTwo = false;
@@ -134,6 +134,7 @@ class EntreeOnboarding extends Component
             $this->step = 1;
         }
 
+
         $this->registration->registration_email_confirmed = $this->hasValidTUser;
         if (!$this->hasValidTUser) {
             $this->setSubjectOptions();
@@ -217,6 +218,11 @@ class EntreeOnboarding extends Component
         $this->warningStepOneConfirmed = false;
     }
 
+    public function finish()
+    {
+        $this->step = 4;
+    }
+
     public function step2()
     {
         $this->validate();
@@ -256,6 +262,7 @@ class EntreeOnboarding extends Component
                         'send_welcome_email' => true,
                     ]
                 );
+                $this->userUuid = $user->uuid;
 
                 if ($schoolLocations->count() > 1) {
                     $schoolLocations->each(function (SchoolLocation $schoolLocation) use ($user) {
@@ -308,8 +315,8 @@ class EntreeOnboarding extends Component
     public function loginUser()
     {
         $redirectUrl = config('app.url_login');
-        if ($this->newRegistration) {
-            $user = User::where('username', $this->registration->username)->first();
+        if ($this->userUuid) {
+            $user = User::whereUuid($this->userUuid)->first();
             if ($user) {
                 $temporaryLogin = TemporaryLogin::create(
                     ['user_id' => $user->getKey()]
@@ -318,17 +325,6 @@ class EntreeOnboarding extends Component
             }
         }
         Redirect::to($redirectUrl);
-    }
-
-    public function resendEmailVerificationMail()
-    {
-        $user = User::where('username', $this->registration->username)->first();
-        if ($user) {
-            if ($user->account_verified === null) {
-                $user->resendEmailVerificationMail();
-                $this->resendVerificationMail = true;
-            }
-        }
     }
 
     private function btnStepOneDisabledCheck()
