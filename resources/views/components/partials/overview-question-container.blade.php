@@ -29,7 +29,7 @@
         @endif
     </div>
     <div class="flex flex-1 overview">
-        @if($question->closeable)
+        @if($question->closeable || ( !is_null($question->groupQuestion) && $question->groupQuestion->closeable) )
             @if($this->closed)
                 <span>{{__('test_take.question_closed_text')}}</span>
             @else
