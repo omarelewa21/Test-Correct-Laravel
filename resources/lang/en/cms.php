@@ -138,5 +138,6 @@ return [
     'bijlagen'                                                                               => 'Attachments',
     'Vragenbank'                                                                             => 'Questionbank',
     'Toetsenbank'                                                                            => 'Testbank',
-    'Bestaande vraag toevoegen'                                                              => 'Add existing question'
+    'Bestaande vraag toevoegen'                                                              => 'Add existing question',
+    'Nieuwe vraag creeren'                                                                   => 'Create question',
 ];

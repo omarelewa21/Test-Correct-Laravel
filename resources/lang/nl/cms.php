@@ -137,5 +137,6 @@ return [
     'Vraaggroep toevoegen'                                                                   => 'Vraaggroep toevoegen',
     'Vragenbank'                                                                             => 'Vragenbank',
     'Toetsenbank'                                                                            => 'Toetsenbank',
-    'Bestaande vraag toevoegen'                                                              => 'Bestaande vraag toevoegen'
+    'Bestaande vraag toevoegen'                                                              => 'Bestaande vraag toevoegen',
+    'Nieuwe vraag creeren'                                                                   => 'Nieuwe vraag creëeren',
 ];
