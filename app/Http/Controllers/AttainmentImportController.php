@@ -347,6 +347,7 @@ class AttainmentImportController extends Controller
         })->toArray();
         if(count($checkArr)!=count(array_unique($checkArr))){
             $diff = array_unique( array_diff_assoc($checkArr,array_unique($checkArr)));
+            dump($diff);
             throw new \Exception('duplicate education_level_id/code/subcode/subsubcode' . json_encode($diff));
         }
     }

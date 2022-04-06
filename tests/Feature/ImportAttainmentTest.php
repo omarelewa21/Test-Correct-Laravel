@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\DB;
 use tcCore\Attainment;
 use tcCore\BaseSubject;
 use tcCore\Http\Controllers\AttainmentImportController;
+use tcCore\Http\Controllers\LearningGoalImportController;
 use tcCore\Http\Controllers\TestQuestionsController;
 use tcCore\Question;
 use tcCore\TestQuestion;
@@ -227,6 +228,27 @@ class ImportAttainmentTest extends TestCase
         ];
         $request->merge($params);
         $response = (new AttainmentImportController())->importForUpdateOrCreate($request);
+        dump($response->getContent());
+        $this->assertEquals(200,$response->getStatusCode());
+
+        $this->logoutAdmin();
+    }
+
+    /** @test */
+    public function new_learning_goals_file_06_04_22_integrity_test()
+    {
+        $this->loginAdmin();
+        $this->inactivateAttainmentToMakeImportPossible();
+        $testXslx = __DIR__.'/../files/import_new_learning_goals_06_04_22.xlsx';
+        $this->assertFileExists($testXslx);
+        $request  = new Request();
+        $params = [
+            'session_hash' => Auth::user()->session_hash,
+            'user'         => Auth::user()->username,
+            'attainments' => $testXslx,
+        ];
+        $request->merge($params);
+        $response = (new LearningGoalImportController())->importForUpdateOrCreate($request);
         dump($response->getContent());
         $this->assertEquals(200,$response->getStatusCode());
 
