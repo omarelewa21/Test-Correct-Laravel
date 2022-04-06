@@ -126,8 +126,9 @@ class EntreeOnboarding extends Component
 
         $this->registration->username = $this->entreeData->data->emailAddress;
 
-        if(!$this->hasValidTUser == true) {
+        if(!$this->hasValidTUser) {
             $this->registration->name = $this->entreeData->data->lastName;
+            $this->registration->name_suffix = $this->entreeData->data->nameSuffix;
         }
 
         if (!$this->step != 1 || $this->step >= '4') {
