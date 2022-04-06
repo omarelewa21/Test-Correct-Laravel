@@ -380,19 +380,34 @@ document.addEventListener('alpine:init', () => {
                 this.$refs.questionEditorSidebar.style.height = el.offsetHeight+'px';
             })
         },
+        setNextSlide(toInsert) {
+            this.$root.insertBefore(toInsert, this.$root.querySelector('.slide-container[x-ref="container2"]').nextElementSibling);
+        },
         showNewQuestion(container) {
+            this.setNextSlide(this.$refs.newquestion);
             this.next(container);
         },
         showQuestionBank() {
+            this.setNextSlide(this.$refs.questionbank);
             this.drawer.classList.add('fullscreen');
             const boundingRect = this.$refs.questionbank.getBoundingClientRect();
             this.scroll(boundingRect.x + boundingRect.width);
-            this.$wire.showQuestionBank();
         },
         hideQuestionBank(container) {
-            this.drawer.classList.remove('fullscreen');
-            this.scroll(container.parentElement.firstElementChild.offsetWidth);
-            this.$wire.hideQuestionBank();
+            this.$root.querySelectorAll('.slide-container').forEach((slide) => {
+                slide.classList.add('opacity-0')
+            })
+
+            this.$nextTick(() => {
+                this.drawer.classList.remove('fullscreen');
+                this.scroll(container.parentElement.firstElementChild.offsetWidth);
+
+                setTimeout(() => {
+                    this.$root.querySelectorAll('.slide-container').forEach((slide) => {
+                        slide.classList.remove('opacity-0')
+                    })
+                }, 400)
+            })
         }
     }));
 

@@ -1,10 +1,22 @@
 <div class="drawer flex z-[3]"
-     x-data="{collapse: false}"
+     x-data="{collapse: false, backdrop: false}"
      x-init="collapse = window.innerWidth < 1000"
      :class="{'collapsed': collapse}"
      x-cloak
      wire:ignore.self
+     @backdrop="backdrop = !backdrop"
 >
+    <div id="sidebar-backdrop"
+         class="fixed inset-0 transform transition-all"
+         x-show="backdrop"
+         x-transition:enter="ease-out duration-300"
+         x-transition:enter-start="opacity-0"
+         x-transition:enter-end="opacity-100"
+         x-transition:leave="ease-in duration-200"
+         x-transition:leave-start="opacity-100"
+         x-transition:leave-end="opacity-0">
+        <div class="absolute inset-0 bg-gray-500 opacity-75"></div>
+    </div>
     <div id="sidebar-content" class="flex flex-col bg-white">
         <div class="collapse-toggle vertical white z-10 cursor-pointer"
              @click="collapse = !collapse"
@@ -53,7 +65,7 @@
                 </div>
 
                 <div class="flex px-6 py-2.5 space-x-2.5 hover:text-primary"
-                     @click="next($refs.container1);"
+                     @click="next($refs.container1);$dispatch('backdrop')"
                 >
                     <x-icon.plus-in-circle/>
                     <button class="bold">{{__('cms.Vraag toevoegen')}}</button>
@@ -64,7 +76,7 @@
             <x-sidebar.slide-container x-ref="container2">
                 <div class="py-1 px-6 flex">
                     <x-button.text-button class="rotate-svg-180"
-                                          @click="prev($refs.container2);"
+                                          @click="prev($refs.container2); $dispatch('backdrop')"
                                           wire:click="$set('groupId', null)"
                     >
                         <x-icon.arrow/>

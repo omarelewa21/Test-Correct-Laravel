@@ -180,12 +180,11 @@
                  x-transition:enter-start="opacity-0 delay-200"
                  x-transition:enter-end="opacity-100"
             >
-{{--                @if($this->isGroupQuestion())--}}
-{{--                    <x-partials.group-question-basic-section/>--}}
+                @if($this->isGroupQuestion())
+                    <x-partials.group-question-basic-section/>
 
-{{--                    @yield('upload-section-for-group-question')--}}
-{{--                @elseif($this->isPartOfGroupQuestion())--}}
-                @if($this->isPartOfGroupQuestion())
+                    @yield('upload-section-for-group-question')
+                @elseif($this->isPartOfGroupQuestion())
                     <x-partials.group-question-question-section/>
                 @else
                     <x-partials.question-question-section/>

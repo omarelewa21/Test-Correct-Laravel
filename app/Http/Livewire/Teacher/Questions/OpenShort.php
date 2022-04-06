@@ -972,7 +972,7 @@ class OpenShort extends Component
 
     public function isGroupQuestion()
     {
-        return !! $this->type = 'GroupQuestion';
+        return !! ($this->type === 'GroupQuestion');
     }
 
 }

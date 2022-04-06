@@ -5885,19 +5885,36 @@ document.addEventListener('alpine:init', function () {
           _this9.$refs.questionEditorSidebar.style.height = el.offsetHeight + 'px';
         });
       },
+      setNextSlide: function setNextSlide(toInsert) {
+        this.$root.insertBefore(toInsert, this.$root.querySelector('.slide-container[x-ref="container2"]').nextElementSibling);
+      },
       showNewQuestion: function showNewQuestion(container) {
+        this.setNextSlide(this.$refs.newquestion);
         this.next(container);
       },
       showQuestionBank: function showQuestionBank() {
+        this.setNextSlide(this.$refs.questionbank);
         this.drawer.classList.add('fullscreen');
         var boundingRect = this.$refs.questionbank.getBoundingClientRect();
         this.scroll(boundingRect.x + boundingRect.width);
-        this.$wire.showQuestionBank();
       },
       hideQuestionBank: function hideQuestionBank(container) {
-        this.drawer.classList.remove('fullscreen');
-        this.scroll(container.parentElement.firstElementChild.offsetWidth);
-        this.$wire.hideQuestionBank();
+        var _this10 = this;
+
+        this.$root.querySelectorAll('.slide-container').forEach(function (slide) {
+          slide.classList.add('opacity-0');
+        });
+        this.$nextTick(function () {
+          _this10.drawer.classList.remove('fullscreen');
+
+          _this10.scroll(container.parentElement.firstElementChild.offsetWidth);
+
+          setTimeout(function () {
+            _this10.$root.querySelectorAll('.slide-container').forEach(function (slide) {
+              slide.classList.remove('opacity-0');
+            });
+          }, 400);
+        });
       }
     };
   });
