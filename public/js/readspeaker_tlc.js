@@ -594,7 +594,7 @@ ReadspeakerTlc = function(){
             if(p == null){
                 return;
             }
-            setTimeout(hideRsTlcPopup.bind(null, p),500);
+            setTimeout(hideRsTlcPopup.bind(null, p),1000);
         }
 
         function hideRsTlcPopupWithEvent(p,event)

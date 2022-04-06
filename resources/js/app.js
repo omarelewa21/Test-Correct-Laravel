@@ -36,7 +36,16 @@ makeHeaderMenuActive = function (elementId) {
 }
 
 isInputElement = function(target) {
-    return /^(?:input|textarea|select|button)$/i.test(target.tagName.toLowerCase());
+    if(/^(?:input|textarea|select|button)$/i.test(target.tagName.toLowerCase())){
+        return true;
+    }
+    if(typeof target.ckeditorInstance != "undefined"){
+        return true;
+    }
+    if((target.tagName.toLowerCase()=='body')&&!document.querySelector('.rspopup_tlc').classList.contains('hidden')){
+        return true;
+    }
+    return false;
 }
 
 handleScrollNavigation = function (evt) {
