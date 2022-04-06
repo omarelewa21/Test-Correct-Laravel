@@ -86,7 +86,10 @@ class QuestionsController extends Controller
      */
     public function bg(DrawingQuestion $drawingQuestion)
     {
-        if (File::exists($drawingQuestion->getCurrentBgPath())) {
+
+        if ($drawingQuestion->zoom_group) {
+            return $this->drawingQuestionQuestionPng($drawingQuestion->uuid);
+        } elseif (File::exists($drawingQuestion->getCurrentBgPath())) {
             return Response::download($drawingQuestion->getCurrentBgPath(),
                 $drawingQuestion->getAttribute('bg_name', null));
         } else {
@@ -131,6 +134,37 @@ class QuestionsController extends Controller
             return $server->outputImage($identifier, (new SvgHelper($drawingQuestion))->getArrayWidthAndHeight());
         }
         abort(404);
+    }
+
+    private function getPng($drawingQuestion, $fileName) {
+        $path = sprintf('%s/%s', $drawingQuestion,  $fileName);
+        if (Storage::disk(SvgHelper::DISK)->exists($path)) {
+            $server = \League\Glide\ServerFactory::create([
+                'source' => Storage::disk(SvgHelper::DISK)->path($drawingQuestion),
+                'cache' => Storage::disk(SvgHelper::DISK)->path(sprintf('%s/cache', $drawingQuestion))
+            ]);
+
+            return $server->outputImage($fileName, (new SvgHelper($drawingQuestion))->getArrayWidthAndHeight());
+        }
+        abort(404);
+    }
+
+    public function getDrawingQuestionGivenAnswerPng($answerUuid) {
+        $path = sprintf('drawing_question_answers/%s.png',$answerUuid);
+        if (Storage::exists($path)) {
+            return Storage::get($path);
+        }
+        abort(404);
+    }
+
+
+    public function drawingQuestionCorrectionModelPng($drawingQuestion)
+    {
+        return $this->getPng($drawingQuestion, SvgHelper::CORRECTION_MODEL_PNG_FILENAME);
+    }
+    public function drawingQuestionQuestionPng($drawingQuestion)
+    {
+        return $this->getPng($drawingQuestion, SvgHelper::QUESTION_PNG_FILENAME);
     }
 
     public function drawingQuestionSvg($drawingQuestion)

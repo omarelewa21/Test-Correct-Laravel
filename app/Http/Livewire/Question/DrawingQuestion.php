@@ -84,10 +84,10 @@ class DrawingQuestion extends Component
         $this->answer = $this->saveImageAndReturnUrl($value);
 
         $json = json_encode([
-            'answer'          => $this->answer,
+            'answer' => $this->answer,
             'additional_text' => $this->additionalText,
-            'answer_svg'      => $this->answer_svg,
-            'grid_size'      => $this->grid_svg,
+            'answer_svg' => $this->answer_svg,
+            'grid_size' => $this->grid_svg,
         ]);
 
         Answer::updateJson($this->answers[$this->question->uuid]['id'], $json);
@@ -114,7 +114,7 @@ class DrawingQuestion extends Component
 
     private function initPlayerInstance()
     {
-        $this->playerInstance = 'eppi_'.rand(1000, 9999999);
+        $this->playerInstance = 'eppi_' . rand(1000, 9999999);
     }
 
     public function handleUpdateDrawingData($data)
@@ -125,15 +125,20 @@ class DrawingQuestion extends Component
                     <g class="question-svg">%s</g>
                     <g class="answer-svg">%s</g>
                 </svg>',
-                    $data['svg_zoom_group']['x'],
-                    $data['svg_zoom_group']['y'],
-                    $data['svg_zoom_group']['width'],
-                    $data['svg_zoom_group']['height'],
-                    DrawingQuestionModel::getEmbeddedFontForSVG(),
-                    base64_decode($data['svg_grid']),
-                    base64_decode($data['svg_question']),
-                    base64_decode($data['svg_answer'])
-                );
+            $data['svg_zoom_group']['x'],
+            $data['svg_zoom_group']['y'],
+            $data['svg_zoom_group']['width'],
+            $data['svg_zoom_group']['height'],
+            DrawingQuestionModel::getEmbeddedFontForSVG(),
+            base64_decode($data['svg_grid']),
+            base64_decode($data['svg_question']),
+            base64_decode($data['svg_answer'])
+        );
+        Storage::putFileAs(
+            'drawing_question_answers',
+            $data['png_correction_model_string'],
+            sprintf('%s.png', $this->answers[$this->question->uuid]['uuid'])
+        );
 
         $this->grid_svg = $data['grid_size'];
         $this->answer_svg = $data['svg_answer'];

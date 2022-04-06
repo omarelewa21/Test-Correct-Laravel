@@ -104,4 +104,23 @@ class SvgBackGroundImageTest extends TestCase
         $response->assertHeader('content-type', 'image/svg+xml');
         $response->assertStatus(200);
     }
+
+    /**
+     * @test
+     * @runInSeparateProcess
+     */
+    public function it_can_serve_correction_model_png()
+    {
+        $this->actingAs(User::whereUsername('d1@test-correct.nl')->first());
+        Storage::fake(SvgHelper::DISK);
+        $uuid = 'a0edd769-7363-4cc8-ab56-fa0067798f33';
+        $svgHelper = new SvgHelper($uuid);
+
+        $href = route('drawing-question.correction_model', [
+            'drawingQuestion' => $uuid,
+        ]);
+
+        $response = $this->get($href);
+        $response->assertStatus(200);
+    }
 }

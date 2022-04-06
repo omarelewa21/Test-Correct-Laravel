@@ -14,7 +14,6 @@ class CmsDrawing
     public function __construct(OpenShort $instance)
     {
         $this->instance = $instance;
-        logger('goi');
     }
 
     public function getTranslationKey()

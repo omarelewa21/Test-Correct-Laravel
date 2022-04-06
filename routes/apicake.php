@@ -253,7 +253,7 @@ Route::group(['middleware' => ['api', 'dl', 'authorize', 'authorizeBinds', 'bind
     Route::resource('attachment', 'AttachmentsController', ['only' => ['index', 'show']]);
 
     Route::get('question/inlineimage/{image}',['uses' => 'QuestionsController@inlineimage']);
-
+    Route::get('/drawing-question/{answerUuid}/given-answer-png', [tcCore\Http\Controllers\QuestionsController::class, 'getDrawingQuestionGivenAnswerPng'])->name('api-c.drawing-question.givenanswerpng');
 	Route::resource('attainment', 'AttainmentsController', ['only' => ['index', 'show']]);
 
 	// Phase B

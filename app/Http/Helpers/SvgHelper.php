@@ -98,17 +98,22 @@ class SvgHelper
 
     public function updateQuestionPNG($base64EncodedPNG)
     {
+        $base64EncodedPngWithoutHeader = preg_replace('#^data:image/[^;]+;base64,#', '', $base64EncodedPNG);
+
+
         $this->disk->put(
             sprintf('%s/%s', $this->uuid, self::QUESTION_PNG_FILENAME),
-            base64_decode($base64EncodedPNG)
+            base64_decode($base64EncodedPngWithoutHeader)
         );
     }
 
     public function updateCorrectionModelPNG($base64EncodedPNG)
     {
+        $base64EncodedPngWithoutHeader = preg_replace('#^data:image/[^;]+;base64,#', '', $base64EncodedPNG);
+
         $this->disk->put(
             sprintf('%s/%s', $this->uuid, self::CORRECTION_MODEL_PNG_FILENAME),
-            base64_decode($base64EncodedPNG)
+            base64_decode($base64EncodedPngWithoutHeader)
         );
     }
 
