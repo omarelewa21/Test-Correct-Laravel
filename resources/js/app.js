@@ -42,7 +42,22 @@ isInputElement = function(target) {
     if(typeof target.ckeditorInstance != "undefined"){
         return true;
     }
-    if((target.tagName.toLowerCase()=='body')&&!document.querySelector('.rspopup_tlc').classList.contains('hidden')){
+    if((typeof ReadspeakerTlc != 'undefined')&&rsPageContainsCkeditor()){
+        return true;
+    }
+    return false;
+}
+
+rsPageContainsCkeditor = function() {
+    if(typeof ReadspeakerTlc == 'undefined'){
+        return false;
+    }
+    var questionContainer = document.querySelector('.rs_readable');
+    if(questionContainer == null){
+        return false;
+    }
+    var ckeditorNode = questionContainer.querySelector('.ck-editor__editable');
+    if(ckeditorNode != null){
         return true;
     }
     return false;
