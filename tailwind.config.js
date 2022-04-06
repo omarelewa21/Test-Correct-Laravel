@@ -29,9 +29,21 @@ module.exports = {
                 '3': '3px'
             }
         },
+        keyframes: {
+            knightrider: {
+                '0%': {left: '0'},
+                '50%': {left: '85%'},
+                '100%': {left: '0'}
+            }
+        },
+        animation: {
+            'knightrider': 'knightrider 2s ease infinite'
+        }
     },
     variants: {
         extend: {},
     },
-    plugins: [],
+    plugins: [
+        require('@tailwindcss/line-clamp')
+    ],
 }

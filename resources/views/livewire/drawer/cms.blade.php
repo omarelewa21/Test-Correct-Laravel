@@ -1,6 +1,18 @@
 <div class="drawer flex z-[3]"
      x-data="{collapse: false, backdrop: false}"
-     x-init="collapse = window.innerWidth < 1000"
+     x-init="
+        collapse = window.innerWidth < 1000;
+        handleBackdrop = () => {
+            if(backdrop) {
+                $el.dataset.closedWithBackdrop = 'true';
+                backdrop = !backdrop
+            } else {
+                if ($el.dataset.closedWithBackdrop === 'true') {
+                backdrop = true;
+                }
+            }
+        }
+"
      :class="{'collapsed': collapse}"
      x-cloak
      wire:ignore.self
@@ -9,6 +21,7 @@
     <div id="sidebar-backdrop"
          class="fixed inset-0 transform transition-all"
          x-show="backdrop"
+         x-cloak
          x-transition:enter="ease-out duration-300"
          x-transition:enter-start="opacity-0"
          x-transition:enter-end="opacity-100"
@@ -19,7 +32,7 @@
     </div>
     <div id="sidebar-content" class="flex flex-col bg-white">
         <div class="collapse-toggle vertical white z-10 cursor-pointer"
-             @click="collapse = !collapse"
+             @click="collapse = !collapse; handleBackdrop()"
         >
             <button class="relative"
                     :class="{'rotate-svg-180 -left-px': !collapse}"
@@ -135,7 +148,7 @@
                                   :class="{'primary': active === 2}">{{ __('cms.Vragenbank') }}</span>
 
                             <span class="active-border absolute -inset-px border-2 border-primary rounded-lg transition-all"
-                                  :style="active === 1 ? 'left:0' : 'left:'+ $el.offsetWidth +'px' "
+                                  :style="active === 1 ? 'left:0' : 'left:'+ $root.offsetWidth/2 +'px' "
                             ></span>
                         </div>
                     </div>

@@ -408,7 +408,8 @@ document.addEventListener('alpine:init', () => {
                     })
                 }, 400)
             })
-        }
+        },
+
     }));
 
     Alpine.directive('global', function (el, {expression}) {
