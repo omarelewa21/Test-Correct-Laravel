@@ -117,10 +117,27 @@ Core = {
         }
     },
     enableAppFeatures(appType) {
-        let appElements = document.querySelectorAll('[' + appType + ']');
-        appElements.forEach((element) => {
-            element.style.display = 'flex';
-        });
+        let alterDisplay = function(){
+            let appElements = document.querySelectorAll('[' + appType + ']');
+            appElements.forEach((element) => {
+                element.style.display = 'flex';
+            });
+        };
+
+        if(appType === 'chromebook'){
+            try {
+                chrome.runtime.sendMessage(
+                    document.getElementById("chromeos-extension-id").name,
+                    {isKiosk: true},
+                    function(response){
+                        if (response.isKiosk){
+                            alterDisplay();
+                        }
+                    })
+                } catch (error) {}
+        }else{
+            alterDisplay();
+        }
     },
     checkForElectron() {
         try {
@@ -171,7 +188,7 @@ Core = {
     {
         Core.appType = 'ios'
         Core.disableDeviceSpecificFeature();
-    }
+    },
 }
 
 runCheckFocus = function () {
