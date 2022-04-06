@@ -82,6 +82,7 @@ class EntreeHelper
            'school' => $this->school,
            'brin4ErrorDetected' => $this->brinFourErrorDetected,
             'lastName' => $this->getLastNameFromAttributes(),
+            'nameSuffix' => $this->getSuffixFromAttributes(),
         ];
         if(BaseHelper::notProduction()) {
             logger('entreeData for registering');
@@ -488,6 +489,15 @@ class EntreeHelper
         if (array_key_exists('givenName',
                 $this->attr) && $this->attr['givenName'][0]) {
             return $this->attr['givenName'][0];
+        }
+        return null;
+    }
+
+    private function getSuffixFromAttributes()
+    {
+        if (array_key_exists('nlEduPersonTussenvoegsels',
+                $this->attr) && $this->attr['nlEduPersonTussenvoegsels'][0]) {
+            return $this->attr['nlEduPersonTussenvoegsels'][0];
         }
         return null;
     }
