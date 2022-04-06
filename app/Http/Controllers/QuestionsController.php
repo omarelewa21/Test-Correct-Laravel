@@ -7,38 +7,43 @@ use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Facades\Storage;
 use tcCore\DrawingQuestion;
 use tcCore\Http\Helpers\QuestionHelper;
+use tcCore\Http\Helpers\SvgHelper;
 use tcCore\Http\Requests;
 use tcCore\Http\Requests\IndexQuestionsRequest;
 use tcCore\Lib\Question\QuestionInterface;
 use tcCore\Question;
 
-class QuestionsController extends Controller {
+class QuestionsController extends Controller
+{
 
-    public function inlineimage(Request $request, $image){
+    public function inlineimage(Request $request, $image)
+    {
 
-        $path = storage_path(sprintf('inlineimages/%s',$image));
-        if(file_exists($path)){
-            echo base64_encode(file_get_contents($path));exit;
-        }
-        else{
+        $path = storage_path(sprintf('inlineimages/%s', $image));
+        if (file_exists($path)) {
+            echo base64_encode(file_get_contents($path));
+            exit;
+        } else {
             abort(404);
         }
     }
 
-    public function index(IndexQuestionsRequest $request) {
+    public function index(IndexQuestionsRequest $request)
+    {
 
-        $filters = $request->input('filter',[]);
+        $filters = $request->input('filter', []);
         $questions = Question::filtered($filters, $request->get('order', []))
             // don't show questions from the cito import
-            ->where(function($query) {
-                $query->where('scope', '!=', 'cito') // should be in filtered, but can't be due to the way it is build starting with an or
+            ->where(function ($query) {
+                $query->where('scope', '!=',
+                    'cito') // should be in filtered, but can't be due to the way it is build starting with an or
                 ->orWhereNull('scope');
-                })
-            ->with(['questionAttainments', 'questionAttainments.attainment', 'tags','authors']);
+            })
+            ->with(['questionAttainments', 'questionAttainments.attainment', 'tags', 'authors']);
 
         // Log::debug($questions);
 
-        switch(strtolower($request->get('mode', 'paginate'))) {
+        switch (strtolower($request->get('mode', 'paginate'))) {
             case 'all':
                 return Response::make($questions->get(['questions.*']), 200);
                 break;
@@ -76,13 +81,17 @@ class QuestionsController extends Controller {
     /**
      * Offers a download to the specified drawing question from storage.
      *
-     * @param DrawingQuestion $drawingQuestion
+     * @param  DrawingQuestion  $drawingQuestion
      * @return Response
      */
     public function bg(DrawingQuestion $drawingQuestion)
     {
-        if (File::exists($drawingQuestion->getCurrentBgPath())) {
-            return Response::download($drawingQuestion->getCurrentBgPath(), $drawingQuestion->getAttribute('bg_name', null));
+
+        if ($drawingQuestion->zoom_group) {
+            return $this->drawingQuestionQuestionPng($drawingQuestion->uuid);
+        } elseif (File::exists($drawingQuestion->getCurrentBgPath())) {
+            return Response::download($drawingQuestion->getCurrentBgPath(),
+                $drawingQuestion->getAttribute('bg_name', null));
         } else {
             return Response::make('Drawing question background not found', 404);
         }
@@ -101,5 +110,75 @@ class QuestionsController extends Controller {
         }
 
         abort(404);
+    }
+
+    public function drawingQuestionAnswerBackgroundImage($drawingQuestion, $identifier)
+    {
+        return $this->getDrawingQuestionBackgroundImage('answer', $drawingQuestion, $identifier);
+    }
+
+    public function drawingQuestionQuestionBackgroundImage($drawingQuestion, $identifier)
+    {
+        return $this->getDrawingQuestionBackgroundImage('question', $drawingQuestion, $identifier);
+    }
+
+    private function getDrawingQuestionBackgroundImage($type, $drawingQuestion, $identifier)
+    {
+        $path = sprintf('%s/%s/%s', $drawingQuestion, $type, $identifier);
+        if (Storage::disk(SvgHelper::DISK)->exists($path)) {
+            $server = \League\Glide\ServerFactory::create([
+                'source' => Storage::disk(SvgHelper::DISK)->path(sprintf('%s/%s', $drawingQuestion, $type)),
+                'cache' => Storage::disk(SvgHelper::DISK)->path(sprintf('%s/%s/cache', $drawingQuestion, $type))
+            ]);
+
+            return $server->outputImage($identifier, (new SvgHelper($drawingQuestion))->getArrayWidthAndHeight());
+        }
+        abort(404);
+    }
+
+    private function getPng($drawingQuestion, $fileName) {
+        $path = sprintf('%s/%s', $drawingQuestion,  $fileName);
+        if (Storage::disk(SvgHelper::DISK)->exists($path)) {
+            $server = \League\Glide\ServerFactory::create([
+                'source' => Storage::disk(SvgHelper::DISK)->path($drawingQuestion),
+                'cache' => Storage::disk(SvgHelper::DISK)->path(sprintf('%s/cache', $drawingQuestion))
+            ]);
+
+            return $server->outputImage($fileName, (new SvgHelper($drawingQuestion))->getArrayWidthAndHeight());
+        }
+        abort(404);
+    }
+
+    public function getDrawingQuestionGivenAnswerPng($answerUuid) {
+        $path = sprintf('drawing_question_answers/%s.png',$answerUuid);
+        if (Storage::exists($path)) {
+            return Storage::get($path);
+        }
+        abort(404);
+    }
+
+
+    public function drawingQuestionCorrectionModelPng($drawingQuestion)
+    {
+        return $this->getPng($drawingQuestion, SvgHelper::CORRECTION_MODEL_PNG_FILENAME);
+    }
+    public function drawingQuestionQuestionPng($drawingQuestion)
+    {
+        return $this->getPng($drawingQuestion, SvgHelper::QUESTION_PNG_FILENAME);
+    }
+
+    public function drawingQuestionSvg($drawingQuestion)
+    {
+        $path = sprintf('%s/%s', $drawingQuestion, SvgHelper::SVG_FILENAME);
+        if (Storage::disk(SvgHelper::DISK)->exists($path)) {
+            $response = Response::make(
+                (new SvgHelper($drawingQuestion))->getSvgWithUrls()
+            );
+
+            $response->header('Content-Type', 'image/svg+xml');
+            return $response;
+        }
+        abort(404);
+
     }
 }

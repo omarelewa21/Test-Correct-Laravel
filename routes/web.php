@@ -50,7 +50,10 @@ Route::middleware('auth')->group(function () {
     Route::get('/temporary-login-to-cake',[tcCore\Http\Controllers\TemporaryLoginController::class,'toCake'])->name('auth.temporary-login.to-cake');
 
     Route::get('/questions/inlineimage/{image}', [tcCore\Http\Controllers\QuestionsController::class, 'inlineImageLaravel'])->name('inline-image');
-
+    Route::get('/drawing-question/{drawingQuestion}/{identifier}/answer', [tcCore\Http\Controllers\QuestionsController::class, 'drawingQuestionAnswerBackgroundImage'])->name('drawing-question.background-answer-svg');
+    Route::get('/drawing-question/{drawingQuestion}/{identifier}/question', [tcCore\Http\Controllers\QuestionsController::class, 'drawingQuestionQuestionBackgroundImage'])->name('drawing-question.background-question-svg');
+    Route::get('/drawing-question/{drawingQuestion}/correction-model', [tcCore\Http\Controllers\QuestionsController::class, 'drawingQuestionCorrectionModelPng'])->name('drawing-question.correction-model');
+    Route::get('/drawing-question/{drawingQuestion}/svg', [tcCore\Http\Controllers\QuestionsController::class, 'drawingQuestionSvg'])->name('drawing-question.svg');
     Route::middleware(['dll', 'student'])->prefix('student')->name('student.')->group(function () {
         Route::get('/test-take-overview/{test_take}', [tcCore\Http\Controllers\TestTakeLaravelController::class, 'overview'])->name('test-take-overview');
         Route::get('/test-take-laravel/{test_take}', [tcCore\Http\Controllers\TestTakeLaravelController::class, 'show'])->name('test-take-laravel');

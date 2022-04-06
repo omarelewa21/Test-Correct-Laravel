@@ -269,6 +269,10 @@ class OpenShort extends Component
 
         if ($response->getStatusCode() == 200) {
             $this->handleAttachments($response);
+
+            if ($this->obj && method_exists($this->obj, 'performAfterSaveActions')) {
+                $this->obj->performAfterSaveActions($response);
+            }
         }
 
         $this->returnToTestOverview();
