@@ -1458,4 +1458,9 @@ class Question extends MtiBaseModel {
         })->toArray();
     }
 
+    public function getTitleAttribute()
+    {
+        return strip_tags(html_entity_decode($this->getQuestionHtml()));
+    }
+
 }

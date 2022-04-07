@@ -1,8 +1,8 @@
 <div id="question-bank"
      class="flex flex-col relative w-full min-h-full bg-lightGrey border-t border-secondary overflow-auto"
-     x-data="{openTab: 1, checkedCount: 0}"
+     x-data="{openTab: 1, checkedCount: 0, loading: false}"
      @checked="$event.detail ? checkedCount += 1 : checkedCount -= 1"
-     wire:loading.class="loading"
+
 >
     <div class="flex w-full border-b border-secondary">
         <div class="w-full max-w-5xl mx-auto">
@@ -50,7 +50,7 @@
                     <div class="relative w-full">
                         <x-input.text class="w-full"
                                       placeholder="Zoek..."
-                                      wire:model="search"
+                                      wire:model="filters.search"
                         />
                         <x-icon.search class="absolute right-0 -top-2"/>
                     </div>
@@ -69,23 +69,21 @@
             </div>
 
             {{-- Content --}}
-            <div class="flex flex-col py-4">
+            <div class="flex flex-col py-4" style="min-height: 500px">
                 <div class="flex">
                     <span class="note text-sm">167 resultaten</span>
                 </div>
-                <x-grid class="mt-4">
+                <x-grid x-show="loading" class="mt-4">
                     <x-grid.loading-card/>
-                    @foreach([1,2,3,4,5] as $key)
+                    <x-grid.loading-card/>
+                    <x-grid.loading-card/>
+                    <x-grid.loading-card/>
+                    <x-grid.loading-card/>
+                </x-grid>
+                <x-grid class="mt-4" x-show="!loading">
 
-                        <x-grid.card>
-                            <x-slot name="title">Chuck brisket flank salami turducken shank bacon drumstick. Bacon doner
-                                shankle cow, ribeye prosciutto andouille tri-tip biltong. Porch<
-                            </x-slot>
-                            <x-slot name="baseSubject">Basesubject</x-slot>
-                            <x-slot name="subject">Subject</x-slot>
-                            <x-slot name="updatedAt">{{ Carbon\Carbon::now()->format('d/m/\'y') }}</x-slot>
-                            <x-slot name="author">Auteur 1 Auteur 1 Auteur 1</x-slot>
-                        </x-grid.card>
+                    @foreach($this->questions as $question)
+                        <x-grid.question-card :question="$question"/>
                     @endforeach
                 </x-grid>
             </div>
@@ -100,9 +98,9 @@
                 <span class="inline-flex -ml-px mt-px" x-text="checkedCount">0</span>
             </span>
         </div>
-        <x-button.cta class="main-shadow">
+        <x-button.cta class="main-shadow" @click="loading = !loading; $root.classList.toggle('loading')">
             <x-icon.checkmark/>
-            <span>{{ __('cms.Toevoegen') }}</span>
+            <span>{{ __('cms.Toevoegen') }} toggle loading state voor testing</span>
         </x-button.cta>
     </div>
 </div>

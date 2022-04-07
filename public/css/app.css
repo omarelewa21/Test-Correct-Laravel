@@ -1224,12 +1224,12 @@ input[type=number] {
     color: var(--primary);
 }
 
-#question-bank.loading .grid .grid-card h3,
-#question-bank.loading .grid .grid-card span {
-    border-radius: 10px;
-    background-color: var(--light-grey);
-    color: var(--light-grey);
-}
+/*#question-bank.loading .grid .grid-card h3,*/
+/*#question-bank.loading .grid .grid-card span {*/
+/*    border-radius: 10px;*/
+/*    background-color: var(--light-grey);*/
+/*    color: var(--light-grey);*/
+/*}*/
 /*!
  * FilePond 4.30.3
  * Licensed under MIT, https://opensource.org/licenses/MIT/
@@ -4042,9 +4042,6 @@ video {
 .h-8{
 	height: 2rem;
 }
-.h-4{
-	height: 1rem;
-}
 .h-10{
 	height: 2.5rem;
 }
@@ -4059,6 +4056,9 @@ video {
 }
 .h-3{
 	height: 0.75rem;
+}
+.h-4{
+	height: 1rem;
 }
 .h-screen{
 	height: 100vh;
@@ -4098,6 +4098,9 @@ video {
 }
 .min-h-\[500px\]{
 	min-height: 500px;
+}
+.min-h-\[64px\]{
+	min-height: 64px;
 }
 .w-1\/2{
 	width: 50%;
@@ -4164,6 +4167,9 @@ video {
 .w-1\/6{
 	width: 16.666667%;
 }
+.w-1\/4{
+	width: 25%;
+}
 .w-10{
 	width: 2.5rem;
 }
@@ -4208,15 +4214,6 @@ video {
 }
 .w-1\/5{
 	width: 20%;
-}
-.w-1\/4{
-	width: 25%;
-}
-.w-1{
-	width: 0.25rem;
-}
-.w-2\/12{
-	width: 16.666667%;
 }
 .min-w-full{
 	min-width: 100%;

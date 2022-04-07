@@ -22,5 +22,5 @@ return [
     'arq_description'             => 'Passend combinatie antwoord op stellingen',
     'infoscreen'                  => 'Infoscreen',
     'infoscreen_description'      => 'Geef extra informatie voor een vraag of set vragen',
-
+    'no_question_text'            => 'No question text'
 ];
