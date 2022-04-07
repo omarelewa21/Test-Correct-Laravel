@@ -1,4 +1,5 @@
 import Alpine from 'alpinejs';
+import Choices from "choices.js";
 
 window.Alpine = Alpine;
 
@@ -409,6 +410,39 @@ document.addEventListener('alpine:init', () => {
                 }, 400)
             })
         },
+
+    }));
+    Alpine.data('choices', (multiple, options) => ({
+        multiple: multiple,
+        value: [1, 2],
+        options: [],
+        init() {
+            this.options = [{ ...options }]
+            console.log(this.options);
+            this.$nextTick(() => {
+                let choices = new Choices(this.$refs.select, {allowHTML: true});
+
+                let refreshChoices = () => {
+                    let selection = this.multiple ? this.value : [this.value]
+
+                    choices.clearStore()
+                    choices.setChoices(this.options.map(({value, label}) => ({
+                        value,
+                        label,
+                        selected: selection.includes(value),
+                    })))
+                }
+
+                refreshChoices()
+
+                this.$refs.select.addEventListener('change', () => {
+                    this.value = choices.getValue(true)
+                })
+
+                this.$watch('value', () => refreshChoices())
+                this.$watch('options', () => refreshChoices())
+            })
+        }
 
     }));
 

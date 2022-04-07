@@ -35,4 +35,14 @@ class QuestionBank extends Component
            return blank($filter);
         })->toArray();
     }
+
+    public function getNameFilterProperty()
+    {
+        return [
+            ['value'=> 1, 'label'=> 'Caleb Porzio'],
+            ['value'=> 2, 'label'=> 'Jason Beggs'],
+            ['value'=> 3, 'label'=> 'Tweedle Dee'],
+            ['value'=> 4, 'label'=> 'Tweedle Dum'],
+        ];
+    }
 }

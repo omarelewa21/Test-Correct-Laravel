@@ -22,6 +22,7 @@
     "dependencies": {
         "@wiris/mathtype-ckeditor4": "^7.26.1",
         "alpinejs": "^3.2.4",
+        "choices.js": "^10.1.0",
         "filepond": "^4.30.3",
         "filepond-plugin-file-validate-size": "^2.2.5",
         "jquery": "^2.1.1",

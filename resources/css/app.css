@@ -11,6 +11,7 @@
 @import url("filepond.css");
 @import url("drawing-question.css");
 @import url("ckeditor5.css");
+@import url("~choices.js/public/assets/styles/choices.css");
 
 
 @tailwind base;

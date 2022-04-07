@@ -56,14 +56,7 @@
                     </div>
                 </div>
                 <div class="flex w-full space-x-2">
-                    <span class="flex flex-1 p-2 rounded-lg bg-offwhite border border-secondary">Filter</span>
-                    <span class="flex flex-1 p-2 rounded-lg bg-offwhite border border-secondary">Filter</span>
-                    <span class="flex flex-1 p-2 rounded-lg bg-offwhite border border-secondary">Filter</span>
-                    <span class="flex flex-1 p-2 rounded-lg bg-offwhite border border-secondary">Filter</span>
-                    <span class="flex flex-1 p-2 rounded-lg bg-offwhite border border-secondary">Filter</span>
-                    <span class="flex flex-1 p-2 rounded-lg bg-offwhite border border-secondary">Filter</span>
-                    <span class="flex flex-1 p-2 rounded-lg bg-offwhite border border-secondary">Filter</span>
-                    <span class="flex flex-1 p-2 rounded-lg bg-offwhite border border-secondary">Filter</span>
+                    <x-input.choices-select :multiple="false" :options="$this->nameFilter"/>
                 </div>
 
             </div>
