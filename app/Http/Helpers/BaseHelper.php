@@ -10,11 +10,28 @@ namespace tcCore\Http\Helpers;
 
 
 use Illuminate\Support\Str;
+use tcCore\AppVersionInfo;
+use tcCore\FailedLogin;
+use tcCore\LoginLog;
 use tcCore\TemporaryLogin;
 
 class BaseHelper
 {
     protected $errors = [];
+
+    public static function doLoginProcedure()
+    {
+        $user = auth()->user();
+        if(!session('TLCHeader')){
+            AppVersionDetector::handleHeaderCheck();
+        }
+
+        $sessionHash = $user->generateSessionHash();
+        $user->setSessionHash($sessionHash);
+        LoginLog::create(['user_id' => $user->getKey()]);
+        AppVersionInfo::createFromSession();
+        FailedLogin::solveForUsernameAndIp($user->username, request()->ip());
+    }
 
     public static function getCurrentVersion(): string
     {

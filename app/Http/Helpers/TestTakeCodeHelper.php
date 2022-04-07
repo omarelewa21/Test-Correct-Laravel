@@ -113,6 +113,7 @@ class TestTakeCodeHelper extends BaseHelper
         $guestParticipant = $this->createTestParticipantForGuestUserByTestTakeCode($guestUser, $testTakeCode);
         if ($guestUser && $guestParticipant) {
             Auth::login($guestUser);
+            BaseHelper::doLoginProcedure();
             return redirect()->intended(route('student.waiting-room', ['take' => $testTakeCode->testTake->uuid]));
         }
         return false;
