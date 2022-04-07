@@ -1142,6 +1142,11 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview) {
     }
 
     function hasHiddenLayers() {
+        if(drawingApp.isTeacher()){
+            if(Canvas.params.currentLayer == 'question'){
+                return questionLayerIsHidden() || hasQuestionHiddenLayers()
+            }
+        }
         return answerLayerIsHidden() || questionLayerIsHidden() || hasAnswerHiddenLayers() || hasQuestionHiddenLayers()
     }
 
