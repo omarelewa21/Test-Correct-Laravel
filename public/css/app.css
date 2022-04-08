@@ -3140,12 +3140,21 @@ input[type=number] {
     color: var(--primary);
 }
 
+.custom-choices .choices__inner .choices__input {
+    margin-bottom: 1px;
+}
 .custom-choices .choices__list .choices__input {
     border: 1px solid var(--system-secondary);
     border-radius: 8px;
     background: var( --off-white);
     width: 95%;
     margin: 4px auto;
+}
+
+.custom-choices .choices__list.choices__list--multiple .choices__item.choices__item--selectable {
+    background-color: var(--primary);
+    border-color: var(--primary);
+    margin-bottom: 0;
 }
 /*! tailwindcss v2.2.19 | MIT License | https://tailwindcss.com */
 

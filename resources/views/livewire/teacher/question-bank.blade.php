@@ -55,8 +55,26 @@
                         <x-icon.search class="absolute right-0 -top-2"/>
                     </div>
                 </div>
-                <div class="flex w-full space-x-2">
-                    <x-input.choices-select :multiple="false"
+                <div class="flex flex-wrap w-full space-x-2">
+                    <x-input.choices-select :multiple="true"
+                                            :options="$this->subjects"
+                                            :withSearch="true"
+                                            placeholderText="Vak"
+                                            wire:model="filters.subject_id"
+                    />
+                    <x-input.choices-select :multiple="true"
+                                            :options="$this->subjects"
+                                            :withSearch="true"
+                                            placeholderText="Vak"
+                                            wire:model="filters.subject_id"
+                    />
+                    <x-input.choices-select :multiple="true"
+                                            :options="$this->subjects"
+                                            :withSearch="true"
+                                            placeholderText="Vak"
+                                            wire:model="filters.subject_id"
+                    />
+                    <x-input.choices-select :multiple="true"
                                             :options="$this->subjects"
                                             :withSearch="true"
                                             placeholderText="Vak"
