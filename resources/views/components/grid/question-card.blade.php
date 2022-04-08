@@ -16,7 +16,7 @@
     </div>
     <div class="flex w-full justify-between text-base">
         <div>
-            <span>{{ $question->authors->first()->name_first }} {{ $question->authors->first()->name }}({{ $question->authors->first()->abbreviation }})</span>
+            <span>Author</span>
         </div>
 
         <div class="relative" x-data="{checked:false}" @click="checked = !checked; $dispatch('checked', checked)">

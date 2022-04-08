@@ -412,15 +412,15 @@ document.addEventListener('alpine:init', () => {
         },
 
     }));
-    Alpine.data('choices', (multiple, options) => ({
+    Alpine.data('choices', (multiple, options, config) => ({
         multiple: multiple,
-        value: [1, 2],
-        options: [],
+        value: [],
+        options: options,
+        config: config,
         init() {
-            this.options = [{ ...options }]
-            console.log(this.options);
+            this.multiple = multiple === 1;
             this.$nextTick(() => {
-                let choices = new Choices(this.$refs.select, {allowHTML: true});
+                let choices = new Choices(this.$refs.select, this.config);
 
                 let refreshChoices = () => {
                     let selection = this.multiple ? this.value : [this.value]
@@ -441,7 +441,7 @@ document.addEventListener('alpine:init', () => {
 
                 this.$watch('value', () => refreshChoices())
                 this.$watch('options', () => refreshChoices())
-            })
+            });
         }
 
     }));

@@ -4,11 +4,13 @@ namespace tcCore\Http\Livewire\Teacher;
 
 use Livewire\Component;
 use tcCore\Question;
+use tcCore\Subject;
 
 class QuestionBank extends Component
 {
     public $filters = [
-        'search' => ''
+        'search' => '',
+        'subject_id' => ''
     ];
 
     public function mount()
@@ -26,7 +28,8 @@ class QuestionBank extends Component
         return Question::filtered($this->getFilters())
             ->with('authors', 'subject:id,base_subject_id,name', 'subject.baseSubject:id,name')
             ->limit(6)
-            ->get()->unique();
+            ->get()
+            ->unique();
     }
 
     private function getFilters()
@@ -44,5 +47,29 @@ class QuestionBank extends Component
             ['value'=> 3, 'label'=> 'Tweedle Dee'],
             ['value'=> 4, 'label'=> 'Tweedle Dum'],
         ];
+    }
+
+    public function getSubjectsProperty()
+    {
+        return Subject::filtered([], ['name' => 'asc'])
+            ->with('baseSubject')
+            ->get()
+            ->map(function ($subject) {
+                return [
+                    'value' => $subject->getKey(),
+                    'label' => $subject->name
+                ];
+            })->toArray();
+
+    }
+
+    public function updatedFilters($value, $name)
+    {
+        $this->filters[$name] = $this->extractValue($value);
+    }
+
+    private function extractValue($value)
+    {
+        return is_array($value) ? $value['value'] : $value;
     }
 }

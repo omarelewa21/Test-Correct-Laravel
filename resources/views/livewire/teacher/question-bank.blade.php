@@ -56,7 +56,12 @@
                     </div>
                 </div>
                 <div class="flex w-full space-x-2">
-                    <x-input.choices-select :multiple="false" :options="$this->nameFilter"/>
+                    <x-input.choices-select :multiple="false"
+                                            :options="$this->subjects"
+                                            :withSearch="true"
+                                            placeholderText="Vak"
+                                            wire:model="filters.subject_id"
+                    />
                 </div>
 
             </div>

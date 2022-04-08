@@ -3094,6 +3094,59 @@ input[type=number] {
 
 /* =====  End of Choices  ====== */
 
+.custom-choices .choices {
+    padding-right: 1px;
+}
+.custom-choices .choices .choices__inner {
+    border-color: var(--blue-grey);
+    border-radius: 10px;
+    padding: 4px 8px;
+    display: flex;
+    align-items: center;
+    margin-left: 1px;
+    margin-right: 1px;
+}
+
+.custom-choices .choices__inner,
+.custom-choices .choices__input {
+    background-color: var(--off-white);
+}
+
+.custom-choices .choices__list.choices__list--single{
+    background-color: transparent;
+    box-shadow: none;
+}
+
+.custom-choices .choices__list.choices__list--dropdown {
+    display: flex;
+    flex-direction: column;
+    margin-top: 8px;
+    background-color: white;
+    border-radius: 10px;
+    border-color: transparent;
+    box-shadow: var(--main-shadow);
+}
+
+.custom-choices .choices__list .choices__item.choices__item--choice.choices__item--selectable {
+    padding-right: 10px;
+}
+.custom-choices .choices__list .choices__item.choices__item--choice.is-selected.choices__item--selectable {
+    background-color: var(--off-white);
+    color: var(--primary);
+    font-weight: bold;
+}
+.custom-choices .choices__list .choices__item.choices__item--choice.choices__item--selectable.is-highlighted {
+    background-color: white;
+    color: var(--primary);
+}
+
+.custom-choices .choices__list .choices__input {
+    border: 1px solid var(--system-secondary);
+    border-radius: 8px;
+    background: var( --off-white);
+    width: 95%;
+    margin: 4px auto;
+}
 /*! tailwindcss v2.2.19 | MIT License | https://tailwindcss.com */
 
 
@@ -5180,13 +5233,13 @@ video {
 	--tw-bg-opacity: 1;
 	background-color: rgba(0, 0, 0, var(--tw-bg-opacity));
 }
-.bg-gray-50{
-	--tw-bg-opacity: 1;
-	background-color: rgba(249, 250, 251, var(--tw-bg-opacity));
-}
 .bg-offwhite{
 	--tw-bg-opacity: 1;
 	background-color: rgba(249, 250, 255, var(--tw-bg-opacity));
+}
+.bg-gray-50{
+	--tw-bg-opacity: 1;
+	background-color: rgba(249, 250, 251, var(--tw-bg-opacity));
 }
 .bg-red-100{
 	--tw-bg-opacity: 1;
