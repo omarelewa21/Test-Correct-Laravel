@@ -1,7 +1,10 @@
 @push('styling')
     <style>
         table, th, td {
-            border: 1px solid grey;
+            border: 2px solid rgb(100, 99, 99);
+        }
+        th, td {
+            padding: 0.5rem 1rem;
         }
     </style>
 @endpush
