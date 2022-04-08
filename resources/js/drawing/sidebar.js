@@ -601,6 +601,10 @@ export class Layer extends sidebarComponent {
     }
 
     setCorrectExplainerText() {
+        if(this.drawingApp.params.isPreview) {
+            this.hideExplainer();
+            return;
+        }
         let group = this.props.id.replace('-group', '');
 
         this.explainer.innerText = this.explainer.dataset[`text${group.capitalize()}`];
