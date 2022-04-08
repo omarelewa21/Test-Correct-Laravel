@@ -120,21 +120,11 @@ class EntreeHelper
             return $url;
         }
 
-        $data->schoolId = ($data->school) ? $data->school->getKey() : null;
-        $data->locationId = ($data->location) ? $data->location->getKey() : null;
-        $data->school = null;
-        $data->location = null;
-        $data->userId = ($data->user) ? $data->user->getKey() : null;
-        $data->user = null;
-        $samlId = SamlMessage::create([
-            'data' => $data,
-            'eck_id' => 'not needed',
-            'message_id' => 'not needed',
-        ]);
-        return $this->redirectToUrlAndExit(route('onboarding.welcome.entree',['samlId' => $samlId->uuid]));
+        $samlMessage = $this->createSamlMessageFromRegisterData($data);
+        return $this->redirectToUrlAndExit(route('onboarding.welcome.entree',['samlId' => $samlMessage->uuid]));
     }
 
-    protected function getOnboardingUrlWithOptionalMessage($message = null, $entree = false)
+    protected function getOnboardingUrlWithOptionalMessage($message = null, $entree = false, $params = [])
     {
         $route = 'onboarding.welcome';
         if($entree){
@@ -143,6 +133,9 @@ class EntreeHelper
         $queryAr = [];
         if($message){
             $queryAr['entree_message'] = $message;
+        }
+        if(count($params)){
+            $queryAr = array_merge($params,$queryAr);
         }
         return route($route,$queryAr);
     }
@@ -242,7 +235,8 @@ class EntreeHelper
     {
         $eckId = Crypt::decryptString($data->encryptedEckId);
         if(!$eckId || strlen($eckId) < 5){
-            return $this->redirectToUrlAndExit($this->getOnboardingUrlWithOptionalMessage(__('onboarding-welcome.Je kunt geen Test-Correct account aanmaken via Entree. Vul dit formulier in om een account aan te maken')));
+            $samlMessage = $this->createSamlMessageFromRegisterData($data);
+            return $this->redirectToUrlAndExit($this->getOnboardingUrlWithOptionalMessage(__('onboarding-welcome.Je kunt geen Test-Correct account aanmaken via Entree. Vul dit formulier in om een account aan te maken'),false,['registerId' => $samlMessage->uuid]));
         }
         return false;
     }
@@ -509,6 +503,21 @@ class EntreeHelper
             return $this->attr['eduPersonAffiliation'][0];
         }
         return null;
+    }
+
+    private function createSamlMessageFromRegisterData($data)
+    {
+        $data->schoolId = ($data->school) ? $data->school->getKey() : null;
+        $data->locationId = ($data->location) ? $data->location->getKey() : null;
+        $data->school = null;
+        $data->location = null;
+        $data->userId = ($data->user) ? $data->user->getKey() : null;
+        $data->user = null;
+        return SamlMessage::create([
+            'data' => $data,
+            'eck_id' => 'not needed',
+            'message_id' => 'not needed',
+        ]);
     }
 
     private function createSamlMessage()
