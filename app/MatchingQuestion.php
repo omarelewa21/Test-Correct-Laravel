@@ -194,7 +194,7 @@ class MatchingQuestion extends Question implements QuestionInterface {
 
         foreach($answers as $order => $answerDetails) {
             $answerDetails = (object) $answerDetails;
-            if(!$answerDetails->left || !$answerDetails->right) continue;
+            if(is_null($answerDetails->left) || is_null($answerDetails->right)) continue;
 
             $details = [
                 'left' => [
@@ -224,7 +224,7 @@ class MatchingQuestion extends Question implements QuestionInterface {
                 else { // should always be the case
                     $originalDetail = $detail;
                     foreach($this->getClassifyAnswersFromAnswer($originalDetail['answer']) as $answer){
-                         $detail['answer'] = $answer;
+                        $detail['answer'] = $answer;
                          $this->addAnswer($detail, $question);
                     }
                 }

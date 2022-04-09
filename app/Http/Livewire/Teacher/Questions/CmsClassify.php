@@ -44,8 +44,8 @@ class CmsClassify extends CmsBase
     {
         $rules += [
             'question.answers' => 'required|array|min:2',
-            'question.answers.*.left' => 'required',
-            'question.answers.*.right' => 'required',
+            // 'question.answers.*.left' => 'required',
+            // 'question.answers.*.right' => 'required',
             'question.answers.*.order' => 'required',
         ];
     }
