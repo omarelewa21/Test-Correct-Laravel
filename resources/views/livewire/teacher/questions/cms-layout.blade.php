@@ -1,4 +1,10 @@
-<div id="cms" questionComponent>
+<div id="cms" class="flex flex-1"
+     x-data="{loading: false}"
+     x-init="$watch('loading', () => { setTimeout(() => { loading = false }, 1500)} )"
+     x-cloak
+     x-on:question-change.window="loading = true"
+     questionComponent
+>
     <div class="question-editor-header z-50">
         <div class="question-title">
             <div class="icon-arrow">
@@ -7,18 +13,26 @@
             <h5 class=" text-white">{{ $this->questionType }}</h5>
         </div>
         <div class="question-test-name">
-            <span><?= __('cms.Toets') ?>:</span>
+            <span>{{ __('cms.Toets') }}:</span>
             <span class="bold">{{ $testName }}</span>
         </div>
     </div>
-    <div class="max-w-7xl mx-auto mt-[70px]">
-        <div class="flex w-full flex-col">
+    <div class="question-editor-content w-full max-w-7xl mx-auto relative"
 
-            {{--    Switch these divs to make the line stretch when the drawer is implemented
-                    <div class="flex w-full border-b border-secondary mt-2.5 py-2.5">
-                        <div class="flex w-full items-center px-4 sm:px-6 lg:px-8 justify-between">--}}
-            <div class="flex w-full mt-2.5 px-4 sm:px-6 lg:px-8">
-                <div class="flex w-full border-b border-secondary items-center justify-between py-2.5">
+         wire:key="container-{{ $this->testQuestionId.$this->groupQuestionQuestionId }}"
+    >
+        <div x-show="loading"
+             x-transition:enter="transform ease-out duration-150 transition"
+             x-transition:enter-start="translate-y-2 opacity-0 sm:translate-y-0 sm:translate-x-2"
+             x-transition:enter-end="translate-y-0 opacity-100 sm:translate-x-0"
+             x-transition:leave="transition ease-in duration-100"
+             x-transition:leave-start="opacity-100"
+             x-transition:leave-end="opacity-0"
+             class="absolute inset-0 bg-light-grey z-[2]"
+        ></div>
+        <div class="flex w-full flex-col">
+            <div class="flex w-full border-b border-secondary mt-2.5 py-2.5">
+                <div class="flex w-full items-center px-4 sm:px-6 lg:px-8 justify-between">
                     <div class="flex items-center">
                         <span class="w-8 h-8 rounded-full bg-sysbase text-white text-sm flex items-center justify-center">
                             <span>{{ $this->question['order'] == 0 ? '1' : $this->question['order']}}</span>
@@ -69,6 +83,11 @@
                 </div>
             </div>
             <div class="px-4 sm:px-6 lg:px-8 ">
+                @error('question.name')
+                <div class="notification error stretched mt-4">
+                    <span class="title">{{ $message }}</span>
+                </div>
+                @enderror
                 @error('question.question')
                 <div class="notification error stretched mt-4">
                     <span class="title">{{ $message }}</span>
@@ -161,12 +180,16 @@
             </div>
 
 
-            <div class="flex flex-col flex-1 pb-20 space-y-4" x-show="openTab === 1"
+            <div class="flex flex-col flex-1 pb-20 space-y-4 relative" x-show="openTab === 1"
                  x-transition:enter="transition duration-200"
                  x-transition:enter-start="opacity-0 delay-200"
                  x-transition:enter-end="opacity-100"
             >
-                @if($this->isPartOfGroupQuestion())
+                @if($this->isGroupQuestion())
+                    <x-partials.group-question-basic-section/>
+
+                    @yield('upload-section-for-group-question')
+                @elseif($this->isPartOfGroupQuestion())
                     <x-partials.group-question-question-section/>
                 @else
                     <x-partials.question-question-section/>
@@ -190,7 +213,10 @@
                         @yield('question-cms-answer')
                     </x-content-section>
                 @endif
+
             </div>
+
+
 
             <div class="flex flex-col flex-1 pb-20 space-y-4" x-show="openTab === 2"
                  x-transition:enter="transition duration-200"
@@ -201,7 +227,7 @@
                 <x-content-section>
                     <x-slot name="title">{{ __('cms.Algemeen') }}</x-slot>
 
-                    <div class="grid grid-cols-2 gap-x-4">
+                    <div class="general-settings-grid">
                         @if($action == 'edit' && !$isCloneRequest)
                             <div class="border-b flex w-full justify-between items-center py-2">
                                 <div class="flex items-center space-x-2.5">

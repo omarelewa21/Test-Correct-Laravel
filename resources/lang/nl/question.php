@@ -1,0 +1,26 @@
+<?php
+return [
+    'open-long-short'             => 'Open lang & kort',
+    'open-long-short_description' => 'Open antwoord door tekst typen, lang of kort',
+    'completion'                  => 'Gatentekst',
+    'completion_description'      => 'Gaten in tekst invullen als antwoord',
+    'drawing'                     => 'Teken',
+    'drawing_description'         => 'Antwoord tekenen, met of zonder basistekening',
+    'multiple-choice'             => 'Meerkeuze',
+    'multiple-choice_description' => 'Meerdere antwoorden mogelijk',
+    'matching'                    => 'Combineer',
+    'matching_description'        => 'Antwoorden combineren met de opgeven termen',
+    'classify'                    => 'Rubriceer',
+    'classify_description'        => 'Antwoorden in juiste categoriën slepen',
+    'ranking'                     => 'Rangschik',
+    'ranking_description'         => 'Rangschikken van termen te slepen in juiste volgorde',
+    'true-false'                  => 'Juist / onjuist',
+    'true-false_description'      => 'Juist of onjuist aanklikken om te antwoorden',
+    'selection'                   => 'Selectie',
+    'selection_description'       => 'Gaten in tekst selecteren als antwoord',
+    'arq'                         => 'ARQ',
+    'arq_description'             => 'Passend combinatie antwoord op stellingen',
+    'infoscreen'                  => 'Infoscherm',
+    'infoscreen_description'      => 'Geef extra informatie voor een vraag of set vragen',
+    'no_question_text'            => 'Geen vraagtekst'
+];

@@ -1,0 +1,64 @@
+@import url("~choices.js/public/assets/styles/choices.css");
+
+.custom-choices .choices {
+    padding-right: 1px;
+}
+.custom-choices .choices .choices__inner {
+    border-color: var(--blue-grey);
+    border-radius: 10px;
+    padding: 4px 8px;
+    display: flex;
+    align-items: center;
+    margin-left: 1px;
+    margin-right: 1px;
+}
+
+.custom-choices .choices__inner,
+.custom-choices .choices__input {
+    background-color: var(--off-white);
+}
+
+.custom-choices .choices__list.choices__list--single{
+    background-color: transparent;
+    box-shadow: none;
+}
+
+.custom-choices .choices__list.choices__list--dropdown {
+    display: flex;
+    flex-direction: column;
+    margin-top: 8px;
+    background-color: white;
+    border-radius: 10px;
+    border-color: transparent;
+    box-shadow: var(--main-shadow);
+}
+
+.custom-choices .choices__list .choices__item.choices__item--choice.choices__item--selectable {
+    padding-right: 10px;
+}
+.custom-choices .choices__list .choices__item.choices__item--choice.is-selected.choices__item--selectable {
+    background-color: var(--off-white) !important;
+    color: var(--primary) !important;
+    font-weight: bold !important;
+}
+.custom-choices .choices__list .choices__item.choices__item--choice.choices__item--selectable.is-highlighted {
+    background-color: white;
+    color: var(--primary);
+}
+
+.custom-choices .choices__inner .choices__input {
+    margin-bottom: 1px;
+}
+.custom-choices .choices__list .choices__input {
+    border: 1px solid var(--system-secondary);
+    border-radius: 8px;
+    background: var( --off-white);
+    width: 95%;
+    margin: 4px auto;
+}
+
+.custom-choices .choices__list.choices__list--multiple .choices__item.choices__item--selectable {
+    background-color: var(--primary);
+    border-color: var(--primary);
+    margin-bottom: 0;
+}

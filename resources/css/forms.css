@@ -318,3 +318,86 @@ input[type=number] {
     width: 20px;
     height:20px;
 }
+
+.text-toggle .active-border {
+    height: calc(100% + 2px);
+    width: calc(50% + 1px);
+}
+
+.checkbox-custom {
+    opacity: 0;
+    position: absolute;
+}
+
+.checkbox-custom, .checkbox-custom-label {
+    display: inline-block;
+    vertical-align: middle;
+    margin: 4px;
+    cursor: pointer;
+    line-height: 18px;
+    width: 24px;
+    height: 24px;
+}
+
+.checkbox-custom-label {
+    position: relative;
+}
+
+.checkbox-custom + .checkbox-custom-label:before {
+    content: '';
+    background-color: var(--off-white);
+    border: 1px solid var(--blue-grey);
+    display: inline-block;
+    vertical-align: middle;
+    width: 24px;
+    height: 24px;
+    padding: 2px;
+    text-align: center;
+    transition: background-color, border-color 150ms ease-in-out;
+}
+
+.checkbox-custom + .checkbox-custom-label:before {
+    border-radius: 8px;
+}
+
+.checkbox-custom:checked + .checkbox-custom-label:before {
+    content: '';
+    background-color: var(--primary);
+    border-color: var(--primary);
+}
+
+.checkbox-custom:hover + .checkbox-custom-label:before {
+    border-color: var(--primary);
+}
+.checkbox-custom:checked:hover + .checkbox-custom-label.checkbox-green:before, .checkbox-custom:checked:hover + .checkbox-custom-label:before {
+    border-color: var(--primary);
+    opacity: .6;
+}
+
+.checkbox-custom:checked:disabled + .checkbox-custom-label:before {
+    content: '';
+    /*background: var(--primary);*/
+    /*border-color: var(--primary);*/
+    opacity: .6;
+}
+
+.checkbox-custom:checked + .checkbox-custom-label.green:before {
+    background-color: var(--cta-primary);
+    border-color: var(--cta-primary);
+}
+.checkbox-custom:checked:disabled + .checkbox-custom-label.green:before {
+    background-color: var(--cta-primary);
+    border-color: var(--cta-primary);
+    opacity: .6;
+}
+
+.checkbox-custom-label svg {
+    color: var(--off-white);
+    position: absolute;
+    left: 6px;
+    top: 7px;
+}
+
+.checkbox-custom:checked + .checkbox-custom-label svg {
+    color: white;
+}
