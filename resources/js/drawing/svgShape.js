@@ -298,7 +298,6 @@ class svgShape {
     }
 
     highlight() {
-        this.Canvas.unhighLightShapes();
         this.showBorderElement();
     }
 
