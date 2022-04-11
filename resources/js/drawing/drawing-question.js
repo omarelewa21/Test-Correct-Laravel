@@ -283,6 +283,16 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview) {
             initCanvas() {
                 this.cleanShapeCount();
                 this.makeLayers();
+            },
+            unhighLightShapes() {
+                ['answer', 'question'].forEach(function (layer) {
+                    let layerObject = Canvas.layers[layer];
+                    Object.keys(layerObject).forEach(function (shape) {
+                        if(shape.hasOwnProperty('svg')) {
+                            shape.svg.unhighlight();
+                        }
+                    })
+                })
             }
         }
 
@@ -382,7 +392,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview) {
                 },
                 "mousedown touchstart": {
                     callback: () => {
-                        unHighlight();
+                        unhighlight();
                         // if (Canvas.params.highlightedShape) {
                         //     Canvas.params.highlightedShape.svg.unhighlight();
                         //     Canvas.params.highlightedShape = null;
@@ -1316,7 +1326,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview) {
 
         if (Canvas.params.focusedShape)
             Canvas.params.focusedShape = null;
-        unHighlight();
+        unhighlight();
         if (evt.touches?.length == 2) {
             startPan(evt);
         } else if (drawingApp.params.currentTool == "drag") {
@@ -1326,15 +1336,8 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview) {
         }
     }
 
-    function unHighlight() {
-        ['answer', 'question'].forEach(function (layer) {
-            let layerObject = Canvas.layers[layer];
-            Object.keys(layerObject).forEach(function (shape) {
-                if(shape.hasOwnProperty('svg')) {
-                    shape.svg.unhighlight();
-                }
-            })
-        })
+    function unhighlight() {
+        Canvas.unhighLightShapes();
         // Canvas.layers.forEach(function(LayerObject){
         //     layerObject.shapes.forEach(function(shape){
         //       shape.svg.unhighlight();
