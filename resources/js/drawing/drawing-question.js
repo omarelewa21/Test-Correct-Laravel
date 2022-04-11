@@ -283,6 +283,21 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview) {
             initCanvas() {
                 this.cleanShapeCount();
                 this.makeLayers();
+            },
+            unhighlightShapes() {
+                ['answer','question'].forEach(function(layer){
+                    let objectLayer = Canvas.layers[layer];
+                    Object.keys(objectLayer).forEach(function(elem){
+                       if(elem.hasOwnProperty('svg')){
+                           elem.svg.unhighlight();
+                       }
+                    });
+                })
+                //
+                // if (Canvas.params.highlightedShape) {
+                //     Canvas.params.highlightedShape.svg.unhighlight();
+                //     Canvas.params.highlightedShape = null;
+                // }
             }
         }
 
@@ -382,7 +397,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview) {
                 },
                 "mousedown touchstart": {
                     callback: () => {
-                        unhighlightShapes()
+                        Canvas.unhighlightShapes()
                         // if (Canvas.params.highlightedShape) {
                         //     Canvas.params.highlightedShape.svg.unhighlight();
                         //     Canvas.params.highlightedShape = null;
@@ -1315,20 +1330,15 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview) {
 
         if (Canvas.params.focusedShape)
             Canvas.params.focusedShape = null;
-        unhighlightShapes();
+
+        Canvas.unhighlightShapes();
+
         if (evt.touches?.length == 2) {
             startPan(evt);
         } else if (drawingApp.params.currentTool == "drag") {
             startDrag(evt);
         } else {
             startDraw(evt);
-        }
-    }
-
-    function unhighlightShapes() {
-        if (Canvas.params.highlightedShape) {
-            Canvas.params.highlightedShape.svg.unhighlight();
-            Canvas.params.highlightedShape = null;
         }
     }
 
