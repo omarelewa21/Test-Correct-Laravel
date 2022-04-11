@@ -120,30 +120,45 @@ ReadspeakerTlc = function(){
                 return;
             }
             document.addEventListener("touchend", function (event) {
-                setTimeout(function()
-                {
-                    var selectedText = window.getSelection().toString();
-                    if (selectedText == '') {
+                setTimeout(callRsPopup(event,"touchend"),100);
+            });
+            if(util.isIOS12()) {
+                document.addEventListener("selectionchange", function (event) {
+                    if(document.querySelector('#rsbtn_popup')==null){
                         return;
                     }
-                    rspkr.ui.setPointerPos(event);
-                    rspkr.c.data.setSelectedText(event);
-                    rspkr.popup.lastSelectedText = selectedText;
-                    var rsEvent = new rspkr.lib.Facade.RSEvent();
-                    rsEvent.clientX = event.layerX;
-                    rsEvent.clientY = event.layerY;
-                    rsEvent.keyCode = undefined;
-                    rsEvent.originalEvent = event;
-                    rsEvent.pageX = event.pageX;
-                    rsEvent.pageY = event.pageY;
-                    rsEvent.screenX = event.layerX;
-                    rsEvent.screenY = event.layerY;
-                    rsEvent.target = document;
-                    rsEvent.targetTouches = undefined;
-                    rsEvent.type = "touchend";
-                    rspkr.popup.showPopup(rsEvent);
-                },100);
-            });
+                    if(document.querySelector('#rsbtn_popup').classList.contains('hidden')){
+                        return;
+                    }
+                    rspkr.popup.lastSelectedText = null;
+                    rspkr.popup.closePopup(void 0, !0);
+                    setTimeout(callRsPopup(event, "selectionchange"), 100);
+                }, false);
+            }
+
+        }
+        function callRsPopup(event,eventType)
+        {
+            var selectedText = window.getSelection().toString();
+            if (selectedText == '') {
+                return;
+            }
+            rspkr.ui.setPointerPos(event);
+            rspkr.c.data.setSelectedText(event);
+            rspkr.popup.lastSelectedText = selectedText;
+            var rsEvent = new rspkr.lib.Facade.RSEvent();
+            rsEvent.clientX = event.layerX;
+            rsEvent.clientY = event.layerY;
+            rsEvent.keyCode = undefined;
+            rsEvent.originalEvent = event;
+            rsEvent.pageX = event.pageX;
+            rsEvent.pageY = event.pageY;
+            rsEvent.screenX = event.layerX;
+            rsEvent.screenY = event.layerY;
+            rsEvent.target = document;
+            rsEvent.targetTouches = undefined;
+            rsEvent.type = eventType;
+            rspkr.popup.showPopup(rsEvent);
         }
         function handlePopupChange()
         {
@@ -810,6 +825,11 @@ ReadspeakerTlc = function(){
                 navigator.maxTouchPoints > 2 &&
                 /MacIntel/.test(navigator.platform));
         }
+        function isIOS12() {
+            return(isIpadOS()&&!(navigator.maxTouchPoints &&
+                navigator.maxTouchPoints > 2 &&
+                /MacIntel/.test(navigator.platform)));
+        }
         return{
             showById:showById,
             hideById:hideById,
@@ -819,7 +839,8 @@ ReadspeakerTlc = function(){
             checkPossibleTextAreaAlreadyExists:checkPossibleTextAreaAlreadyExists,
             checkElementInActiveQuestion:checkElementInActiveQuestion,
             showReadableSelect:showReadableSelect,
-            isIpadOS
+            isIpadOS,
+            isIOS12
         }
     }();
     ckeditor = function(){
