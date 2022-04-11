@@ -6171,6 +6171,10 @@ clearClipboard = function clearClipboard() {
   return copyTextToClipboard(' ');
 };
 
+preventNavigationByKeydown = function preventNavigationByKeydown(event) {
+  return event.stopPropagation();
+};
+
 /***/ }),
 
 /***/ "./resources/js/attachment.js":
@@ -7060,6 +7064,16 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview) {
       initCanvas: function initCanvas() {
         this.cleanShapeCount();
         this.makeLayers();
+      },
+      unhighLightShapes: function unhighLightShapes() {
+        ['answer', 'question'].forEach(function (layer) {
+          var layerObject = Canvas.layers[layer];
+          Object.keys(layerObject).forEach(function (shape) {
+            if (shape.hasOwnProperty('svg')) {
+              shape.svg.unhighlight();
+            }
+          });
+        });
       }
     };
     Obj.initCanvas();
@@ -7172,7 +7186,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview) {
       },
       "mousedown touchstart": {
         callback: function callback() {
-          unHighlight(); // if (Canvas.params.highlightedShape) {
+          unhighlight(); // if (Canvas.params.highlightedShape) {
           //     Canvas.params.highlightedShape.svg.unhighlight();
           //     Canvas.params.highlightedShape = null;
           // }
@@ -8233,7 +8247,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview) {
     updateCursorPosition(evt);
     setMousedownPosition(evt);
     if (Canvas.params.focusedShape) Canvas.params.focusedShape = null;
-    unHighlight();
+    unhighlight();
 
     if (((_evt$touches3 = evt.touches) === null || _evt$touches3 === void 0 ? void 0 : _evt$touches3.length) == 2) {
       startPan(evt);
@@ -8244,15 +8258,8 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview) {
     }
   }
 
-  function unHighlight() {
-    ['answer', 'question'].forEach(function (layer) {
-      var layerObject = Canvas.layers[layer];
-      Object.keys(layerObject).forEach(function (shape) {
-        if (shape.hasOwnProperty('svg')) {
-          shape.svg.unhighlight();
-        }
-      });
-    }); // Canvas.layers.forEach(function(LayerObject){
+  function unhighlight() {
+    Canvas.unhighLightShapes(); // Canvas.layers.forEach(function(LayerObject){
     //     layerObject.shapes.forEach(function(shape){
     //       shape.svg.unhighlight();
     //     })
@@ -11386,6 +11393,7 @@ var svgShape = /*#__PURE__*/function () {
   }, {
     key: "highlight",
     value: function highlight() {
+      this.Canvas.unhighLightShapes();
       this.showBorderElement();
     }
   }, {
@@ -12158,8 +12166,11 @@ RichTextEditor = {
       var wordCountPlugin = editor.plugins.get('WordCount');
       var wordCountWrapper = document.getElementById('word-count-' + editorId);
       wordCountWrapper.appendChild(wordCountPlugin.wordCountContainer);
-      ReadspeakerTlc.ckeditor.addListenersForReadspeaker(editor, questionId, editorId);
-      ReadspeakerTlc.ckeditor.disableContextMenuOnCkeditor();
+
+      if (typeof ReadspeakerTlc != 'undefined') {
+        ReadspeakerTlc.ckeditor.addListenersForReadspeaker(editor, questionId, editorId);
+        ReadspeakerTlc.ckeditor.disableContextMenuOnCkeditor();
+      }
     })["catch"](function (error) {
       console.error(error);
     });
