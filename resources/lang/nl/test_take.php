@@ -60,6 +60,7 @@ return [
     'ready'                                        => 'Klaar',
     'instruction_ranking_question'                 => 'Grijp en sleep de items in de juiste volgorde.',
     'question_closed_text'                         => 'Vraag kan niet meer geopend worden, omdat deze afgeschermd is. De vraag wordt daarom ook niet getoond.',
+    'question_closeable_text'                      => 'Vraag is beveiligd en kan niet worden bekeken voordat deze is beantwoord. De vraag wordt daarom niet weergegeven.',
     'question_closed_text_short'                   => 'Vraag kan niet meer geopend worden, omdat deze afgeschermd is.',
     'close_question'                               => 'Vraag sluiten',
     'close_question_modal_text'                    => 'Je verlaat nu deze vraag, hierdoor wordt deze gesloten. Gesloten vragen kun je niet meer bekijken of beantwoorden.',

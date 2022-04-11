@@ -3,6 +3,7 @@
 namespace tcCore\Http\Livewire\Overview;
 
 use Livewire\Component;
+use tcCore\Question;
 use tcCore\Http\Helpers\BaseHelper;
 use tcCore\Http\Traits\WithCloseable;
 
@@ -28,6 +29,10 @@ class CompletionQuestion extends Component
             $this->answer[$key] = BaseHelper::transformHtmlCharsReverse($val);
         }
         $this->answered = $this->answers[$this->question->uuid]['answered'];
+
+        if(!is_null($this->question->belongs_to_groupquestion_id)){
+            $this->question->groupQuestion = Question::find($this->question->belongs_to_groupquestion_id);
+        }
     }
 
     private function completionHelper($question)

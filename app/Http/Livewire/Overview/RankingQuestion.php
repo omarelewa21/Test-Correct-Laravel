@@ -4,6 +4,7 @@ namespace tcCore\Http\Livewire\Overview;
 
 use Livewire\Component;
 use tcCore\Answer;
+use tcCore\Question;
 use tcCore\Http\Traits\WithAttachments;
 use tcCore\Http\Traits\WithCloseable;
 use tcCore\Http\Traits\WithNotepad;
@@ -44,6 +45,10 @@ class RankingQuestion extends Component
         }));
 
         $this->answered = $this->answers[$this->question->uuid]['answered'];
+
+        if(!is_null($this->question->belongs_to_groupquestion_id)){
+            $this->question->groupQuestion = Question::find($this->question->belongs_to_groupquestion_id);
+        }
     }
 
     public function render()
