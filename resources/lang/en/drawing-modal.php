@@ -42,5 +42,5 @@ return [
     'Close confirmation'                 => 'Are you sure you want to close? Any changes won\'t be saved',
     'Centreren'                          => 'Center',
     'Vraag'                              => 'Question',
+    'Save no answers yet confirm text'   => 'You did not add any answer objects, are you sure you want to close?',
 ];
-?>

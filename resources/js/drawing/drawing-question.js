@@ -674,6 +674,8 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview) {
                     callback() {
                         if (hasHiddenLayers()) {
                             toggleSaveConfirm();
+                        } else if(hasNoAnswerObjects()) {
+                            toggleSaveNoAnswersConfirm();
                         } else {
                             submitDrawingData();
                             closeDrawingTool();
@@ -732,7 +734,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview) {
             events: {
                 "click": {
                     callback() {
-                        UI.saveConfirm.classList.toggle('open');
+                        toggleSaveConfirm();
                     },
                 }
             }
@@ -743,9 +745,35 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview) {
                 "click": {
                     callback() {
                         handleHiddenLayers();
+                        toggleSaveConfirm();
+                        if(hasNoAnswerObjects()){
+                            toggleSaveNoAnswersConfirm();
+                        } else {
+                            submitDrawingData();
+                            closeDrawingTool();
+                        }
+                    },
+                }
+            }
+        },
+        {
+            element: UI.saveNoAnswersCancelBtn,
+            events: {
+                "click": {
+                    callback() {
+                        toggleSaveNoAnswersConfirm();
+                    },
+                }
+            }
+        },
+        {
+            element: UI.saveNoAnswersConfirmBtn,
+            events: {
+                "click": {
+                    callback() {
                         submitDrawingData();
                         closeDrawingTool();
-                        toggleSaveConfirm();
+                        toggleSaveNoAnswersConfirm();
                     },
                 }
             }
@@ -1135,6 +1163,14 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview) {
         svg.querySelector('#svg-pan-zoom-group').setAttribute('transform', '');
         svg.querySelector('#svg-grid-group').setAttribute('stroke', '#c3d0ed');
         return svg;
+    }
+
+    function hasNoAnswerObjects() {
+        return ! Object.keys(Canvas.layers.answer.shapes).length;
+    }
+
+    function toggleSaveNoAnswersConfirm() {
+        UI.saveNoAnswersConfirm.classList.toggle('open');
     }
 
     function toggleSaveConfirm() {
