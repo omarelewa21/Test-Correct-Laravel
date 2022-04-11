@@ -11,12 +11,12 @@ use tcCore\User;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
-use Tests\Traits\MultipleChoiceQuestionTrait;
-use Tests\Traits\OpenQuestionTrait;
-use Tests\Traits\TestTrait;
-use Tests\Traits\CompletionQuestionTrait;
-use Tests\Traits\GroupQuestionTrait;
-use Tests\Traits\TestTakeTrait;
+use tcCore\Traits\Dev\MultipleChoiceQuestionTrait;
+use tcCore\Traits\Dev\OpenQuestionTrait;
+use tcCore\Traits\Dev\TestTrait;
+use tcCore\Traits\Dev\CompletionQuestionTrait;
+use tcCore\Traits\Dev\GroupQuestionTrait;
+use tcCore\Traits\Dev\TestTakeTrait;
 
 class TestsControllerTest extends TestCase
 {

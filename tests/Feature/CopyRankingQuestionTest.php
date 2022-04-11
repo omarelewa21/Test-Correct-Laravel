@@ -10,9 +10,9 @@ use tcCore\RankingQuestion;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
-use Tests\Traits\MultipleChoiceQuestionTrait;
-use Tests\Traits\TestTrait;
-use Tests\Traits\RankingQuestionTrait;
+use tcCore\Traits\Dev\MultipleChoiceQuestionTrait;
+use tcCore\Traits\Dev\TestTrait;
+use tcCore\Traits\Dev\RankingQuestionTrait;
 use Illuminate\Support\Facades\DB;
 
 class CopyRankingQuestionTest extends TestCase
