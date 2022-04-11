@@ -7172,10 +7172,10 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview) {
       },
       "mousedown touchstart": {
         callback: function callback() {
-          if (Canvas.params.highlightedShape) {
-            Canvas.params.highlightedShape.svg.unhighlight();
-            Canvas.params.highlightedShape = null;
-          }
+          unHighlight(); // if (Canvas.params.highlightedShape) {
+          //     Canvas.params.highlightedShape.svg.unhighlight();
+          //     Canvas.params.highlightedShape = null;
+          // }
         }
       }
     }
@@ -8233,11 +8233,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview) {
     updateCursorPosition(evt);
     setMousedownPosition(evt);
     if (Canvas.params.focusedShape) Canvas.params.focusedShape = null;
-
-    if (Canvas.params.highlightedShape) {
-      Canvas.params.highlightedShape.svg.unhighlight();
-      Canvas.params.highlightedShape = null;
-    }
+    unHighlight();
 
     if (((_evt$touches3 = evt.touches) === null || _evt$touches3 === void 0 ? void 0 : _evt$touches3.length) == 2) {
       startPan(evt);
@@ -8246,6 +8242,27 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview) {
     } else {
       startDraw(evt);
     }
+  }
+
+  function unHighlight() {
+    ['answer', 'question'].forEach(function (layer) {
+      var layerObject = Canvas.layers[layer];
+      Object.keys(layerObject).forEach(function (shape) {
+        if (shape.hasOwnProperty('svg')) {
+          shape.svg.unhighlight();
+        }
+      });
+    }); // Canvas.layers.forEach(function(LayerObject){
+    //     layerObject.shapes.forEach(function(shape){
+    //       shape.svg.unhighlight();
+    //     })
+    // });
+    //
+    //
+    // if (Canvas.params.highlightedShape) {
+    //     Canvas.params.highlightedShape.svg.unhighlight();
+    //     Canvas.params.highlightedShape = null;
+    // }
   }
 
   function startDrag(evt) {
