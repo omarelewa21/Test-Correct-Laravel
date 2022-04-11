@@ -168,7 +168,7 @@ class OpenShort extends Component
             'is_open_source_content' => 0,
             'tags'                   => [],
             'note_type'              => 'NONE',
-            'order'                  => 0,
+            'order'                  => $this->resolveOrderNumber(),
             'question'               => '',
             'rtti'                   => '',
             'score'                  => 5,
@@ -322,9 +322,18 @@ class OpenShort extends Component
             $this->handleAttachments($response);
         }
 
+        if (!Auth::user()->schoolLocation->canUseCmsWithDrawer()) {
+            $this->returnToTestOverview();
+            return true;
+        }
+
         if ($withRedirect) {
             $this->returnToTestOverview();
+            return true;
         }
+
+        $this->dispatchBrowserEvent('question-saved');
+        $this->emitTo('drawer.cms', 'refreshDrawer');
     }
 
     protected function prepareForClone()
@@ -926,7 +935,7 @@ class OpenShort extends Component
     public function showQuestion($args)
     {
 
-//        $this->save(false);
+        $this->save(false);
 
         $testQuestion = TestQuestion::whereUuid($args['testQuestionUuid'])->with('question')->first();
 
@@ -956,7 +965,7 @@ class OpenShort extends Component
 
     public function addQuestion($args)
     {
-//        $this->save(false);
+        $this->save(false);
 //        $testQuestion = TestQuestion::whereUuid($args['testQuestionUuid'])->with('question')->first();
         $this->action = 'add';
         $this->type = $args['type'];
@@ -978,6 +987,11 @@ class OpenShort extends Component
     public function isGroupQuestion()
     {
         return !! ($this->type === 'GroupQuestion');
+    }
+
+    private function resolveOrderNumber()
+    {
+        return Test::whereUuid($this->testId)->first()->getQuestionCount() + 1;
     }
 
 }
