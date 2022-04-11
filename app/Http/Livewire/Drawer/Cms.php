@@ -19,13 +19,20 @@ class Cms extends Component
     public  $action = '';
     public  $owner = '';
 
-    public $testQuestions;
+//    public $testQuestions;
     public $groupId;
     public $questionBankActive = false;
 
+    protected function getListeners()
+    {
+        return [
+            'refreshDrawer' => '$refresh',
+        ];
+    }
+
     public function mount()
     {
-        $this->testQuestions = Test::whereUuid($this->testId)->first()->testQuestions->sortBy('order');
+
     }
 
     public function render()
@@ -96,13 +103,11 @@ class Cms extends Component
         $this->addQuestion('GroupQuestion', 'group');
     }
 
-    public function showQuestionBank()
+    public function getTestQuestionsProperty()
     {
-        $this->questionBankActive = true;
-    }
-
-    public function hideQuestionBank()
-    {
-        $this->questionBankActive = false;
+        return Test::whereUuid($this->testId)
+            ->first()
+            ->testQuestions
+            ->sortBy('order');
     }
 }

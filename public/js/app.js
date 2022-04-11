@@ -5916,17 +5916,20 @@ document.addEventListener('alpine:init', function () {
             _this10.$root.querySelectorAll('.slide-container').forEach(function (slide) {
               slide.classList.remove('opacity-0');
             });
+
+            _this10.$wire.emitTo('drawer.cms', 'refreshDrawer');
           }, 400);
         });
       }
     };
   });
-  alpinejs__WEBPACK_IMPORTED_MODULE_1__["default"].data('choices', function (multiple, options, config) {
+  alpinejs__WEBPACK_IMPORTED_MODULE_1__["default"].data('choices', function (wireModel, multiple, options, config) {
     return {
       multiple: multiple,
       value: [],
       options: options,
       config: config,
+      wireModel: wireModel,
       init: function init() {
         var _this11 = this;
 
@@ -5952,6 +5955,7 @@ document.addEventListener('alpine:init', function () {
 
           _this11.$refs.select.addEventListener('change', function () {
             _this11.value = choices.getValue(true);
+            _this11.wireModel = _this11.value;
           });
 
           _this11.$watch('value', function () {

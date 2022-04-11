@@ -3131,9 +3131,9 @@ input[type=number] {
     padding-right: 10px;
 }
 .custom-choices .choices__list .choices__item.choices__item--choice.is-selected.choices__item--selectable {
-    background-color: var(--off-white);
-    color: var(--primary);
-    font-weight: bold;
+    background-color: var(--off-white) !important;
+    color: var(--primary) !important;
+    font-weight: bold !important;
 }
 .custom-choices .choices__list .choices__item.choices__item--choice.choices__item--selectable.is-highlighted {
     background-color: white;

@@ -7,7 +7,8 @@
 
         <span class="flex-1 truncate text-lg bold"
               :class="($root.querySelectorAll('.question-button.active').length > 0 && !expand) ? 'primary' : ''"
-        >{{ $question->getQuestionHtml() }}</span>
+              title="{{ $question->title }}"
+        >{{ $question->title }}</span>
 
         <div class="flex space-x-2.5 text-sysbase"
              x-data="{

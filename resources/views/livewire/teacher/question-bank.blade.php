@@ -2,7 +2,8 @@
      class="flex flex-col relative w-full min-h-full bg-lightGrey border-t border-secondary overflow-auto"
      x-data="{openTab: 1, checkedCount: 0, loading: false}"
      @checked="$event.detail ? checkedCount += 1 : checkedCount -= 1"
-
+     @question-added.window="Notify.notify('Vraag toegevoegd!')"
+     @question-removed.window="Notify.notify('Vraag verwijderd!')"
 >
     <div class="flex w-full border-b border-secondary">
         <div class="w-full max-w-5xl mx-auto">
@@ -16,7 +17,8 @@
                 </div>
 
                 <div>
-                    <div class="flex relative hover:text-primary cursor-pointer" @click="openTab = 2">
+                    <div class="flex relative text-midgrey cursor-default">
+{{--                    <div class="flex relative hover:text-primary cursor-pointer" @click="openTab = 2">--}}
                         <span class="bold pt-[0.9375rem] pb-[0.8125rem]" :class="openTab === 2 ? 'primary' : '' ">Menu knopje</span>
                         <span class="absolute w-full bottom-0" style="height: 3px"
                               :class="openTab === 2 ? 'bg-primary' : 'bg-transparent' "></span>
@@ -24,7 +26,8 @@
                 </div>
 
                 <div>
-                    <div class="flex relative hover:text-primary cursor-pointer" @click="openTab = 3">
+                    <div class="flex relative text-midgrey cursor-default">
+{{--                    <div class="flex relative hover:text-primary cursor-pointer" @click="openTab = 3">--}}
                         <span class="bold pt-[0.9375rem] pb-[0.8125rem]" :class="openTab === 3 ? 'primary' : '' ">Menu knopje</span>
                         <span class="absolute w-full bottom-0" style="height: 3px"
                               :class="openTab === 3 ? 'bg-primary' : 'bg-transparent' "></span>
@@ -32,7 +35,8 @@
                 </div>
 
                 <div>
-                    <div class="flex relative hover:text-primary cursor-pointer" @click="openTab = 4">
+                    <div class="flex relative text-midgrey cursor-default">
+{{--                    <div class="flex relative hover:text-primary cursor-pointer" @click="openTab = 4">--}}
                         <span class="bold pt-[0.9375rem] pb-[0.8125rem]" :class="openTab === 4 ? 'primary' : '' ">Menu knopje</span>
                         <span class="absolute w-full bottom-0" style="height: 3px"
                               :class="openTab === 4 ? 'bg-primary' : 'bg-transparent' "></span>
@@ -63,22 +67,16 @@
                                             wire:model="filters.subject_id"
                     />
                     <x-input.choices-select :multiple="true"
-                                            :options="$this->subjects"
+                                            :options="$this->educationLevelYear"
                                             :withSearch="true"
-                                            placeholderText="Vak"
-                                            wire:model="filters.subject_id"
+                                            placeholderText="Leerjaar"
+                                            wire:model="filters.education_level_year"
                     />
                     <x-input.choices-select :multiple="true"
-                                            :options="$this->subjects"
+                                            :options="$this->educationLevel"
                                             :withSearch="true"
-                                            placeholderText="Vak"
-                                            wire:model="filters.subject_id"
-                    />
-                    <x-input.choices-select :multiple="true"
-                                            :options="$this->subjects"
-                                            :withSearch="true"
-                                            placeholderText="Vak"
-                                            wire:model="filters.subject_id"
+                                            placeholderText="Niveau"
+                                            wire:model="filters.education_level_id"
                     />
                 </div>
 
@@ -105,7 +103,7 @@
             </div>
         </div>
     </div>
-    <div class="sticky h-0 bottom-20 ml-auto mr-4">
+    <div class="hidden sticky h-0 bottom-20 ml-auto mr-4">
         <div class="flex justify-end mb-2">
             <span class="relative text-sm text-white rounded-full flex items-center justify-center main-shadow"
                   :class="checkedCount > 0 ? 'bg-primary' : 'bg-midgrey'"
@@ -116,7 +114,7 @@
         </div>
         <x-button.cta class="main-shadow" @click="loading = !loading; $root.classList.toggle('loading')">
             <x-icon.checkmark/>
-            <span>{{ __('cms.Toevoegen') }} toggle loading state voor testing</span>
+            <span>{{ __('cms.Toevoegen') }}</span>
         </x-button.cta>
     </div>
 </div>

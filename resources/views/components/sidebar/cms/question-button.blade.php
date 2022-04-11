@@ -18,7 +18,7 @@
         </span>
         <div class="flex mt-.5 flex-1">
             <div class="flex flex-col flex-1 pl-2 pr-4">
-                <span class="max-w-[167px] truncate">{{ $question->getQuestionHtml() }}</span>
+                <span class="max-w-[167px] truncate" title="{{ $question->title }}">{{ $question->title }}</span>
 
                 <div class="flex note text-sm regular justify-between">
                     <span>{{ __($this->getQuestionNameForDisplay($question)) }}</span>

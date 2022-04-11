@@ -407,16 +407,18 @@ document.addEventListener('alpine:init', () => {
                     this.$root.querySelectorAll('.slide-container').forEach((slide) => {
                         slide.classList.remove('opacity-0')
                     })
+                    this.$wire.emitTo('drawer.cms', 'refreshDrawer');
                 }, 400)
             })
         },
 
     }));
-    Alpine.data('choices', (multiple, options, config) => ({
+    Alpine.data('choices', (wireModel, multiple, options, config) => ({
         multiple: multiple,
         value: [],
         options: options,
         config: config,
+        wireModel: wireModel,
         init() {
             this.multiple = multiple === 1;
             this.$nextTick(() => {
@@ -437,6 +439,7 @@ document.addEventListener('alpine:init', () => {
 
                 this.$refs.select.addEventListener('change', () => {
                     this.value = choices.getValue(true)
+                    this.wireModel = this.value;
                 })
 
                 this.$watch('value', () => refreshChoices())
