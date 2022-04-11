@@ -4,6 +4,7 @@ namespace tcCore\Http\Helpers;
 
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use tcCore\DrawingQuestion;
 
 class SvgHelper
 {
@@ -53,6 +54,9 @@ class SvgHelper
     {
         if ($this->getQuestionLayerFromSVG()) {
             return $this->getQuestionLayerFromSVG(true);
+        }
+        if($q instanceof DrawingQuestion){
+            return $q->question_svg;
         }
         return $q['question_svg'];
     }

@@ -54,7 +54,7 @@ class DrawingQuestion extends Component
 
         $svgHelper = new SvgHelper($this->question->uuid);
 
-        $this->question_svg = $svgHelper->getQuestionSvg((array) $this->question);
+        $this->question_svg = $svgHelper->getQuestionSvg($this->question);
 
         $this->grid_svg = $this->question->grid_svg;
         $this->backgroundImage = $this->question->getBackgroundImage();
