@@ -10,7 +10,7 @@
             <div class="flex w-full space-x-4">
                 <div>
                     <div class="flex relative hover:text-primary cursor-pointer" @click="openTab = 1">
-                        <span class="bold pt-[0.9375rem] pb-[0.8125rem]" :class="openTab === 1 ? 'primary' : '' ">Menu knopje</span>
+                        <span class="bold pt-[0.9375rem] pb-[0.8125rem]" :class="openTab === 1 ? 'primary' : '' ">Persoonlijk</span>
                         <span class="absolute w-full bottom-0" style="height: 3px"
                               :class="openTab === 1 ? 'bg-primary' : 'bg-transparent' "></span>
                     </div>
@@ -19,7 +19,7 @@
                 <div>
                     <div class="flex relative text-midgrey cursor-default">
 {{--                    <div class="flex relative hover:text-primary cursor-pointer" @click="openTab = 2">--}}
-                        <span class="bold pt-[0.9375rem] pb-[0.8125rem]" :class="openTab === 2 ? 'primary' : '' ">Menu knopje</span>
+                        <span class="bold pt-[0.9375rem] pb-[0.8125rem]" :class="openTab === 2 ? 'primary' : '' ">School</span>
                         <span class="absolute w-full bottom-0" style="height: 3px"
                               :class="openTab === 2 ? 'bg-primary' : 'bg-transparent' "></span>
                     </div>
@@ -28,7 +28,7 @@
                 <div>
                     <div class="flex relative text-midgrey cursor-default">
 {{--                    <div class="flex relative hover:text-primary cursor-pointer" @click="openTab = 3">--}}
-                        <span class="bold pt-[0.9375rem] pb-[0.8125rem]" :class="openTab === 3 ? 'primary' : '' ">Menu knopje</span>
+                        <span class="bold pt-[0.9375rem] pb-[0.8125rem]" :class="openTab === 3 ? 'primary' : '' ">Nationaal</span>
                         <span class="absolute w-full bottom-0" style="height: 3px"
                               :class="openTab === 3 ? 'bg-primary' : 'bg-transparent' "></span>
                     </div>
@@ -37,7 +37,7 @@
                 <div>
                     <div class="flex relative text-midgrey cursor-default">
 {{--                    <div class="flex relative hover:text-primary cursor-pointer" @click="openTab = 4">--}}
-                        <span class="bold pt-[0.9375rem] pb-[0.8125rem]" :class="openTab === 4 ? 'primary' : '' ">Menu knopje</span>
+                        <span class="bold pt-[0.9375rem] pb-[0.8125rem]" :class="openTab === 4 ? 'primary' : '' ">Examens</span>
                         <span class="absolute w-full bottom-0" style="height: 3px"
                               :class="openTab === 4 ? 'bg-primary' : 'bg-transparent' "></span>
                     </div>
@@ -50,7 +50,7 @@
         <div class="w-full max-w-5xl mx-auto divide-y divide-secondary">
             {{-- Filters--}}
             <div class="flex flex-col py-4">
-                <div class="flex w-full">
+                <div class="flex w-full mt-2">
                     <div class="relative w-full">
                         <x-input.text class="w-full"
                                       placeholder="Zoek..."

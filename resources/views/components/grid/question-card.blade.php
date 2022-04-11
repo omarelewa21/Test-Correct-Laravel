@@ -8,7 +8,7 @@
     </div>
     <div class="flex w-full justify-between text-base mb-1">
         <div>
-            <span class="bold">{{ $question->subject->baseSubject->name }}</span>
+            <span class="bold">{{ \Illuminate\Support\Str::replaceFirst('Question', '', $question->type) }} ({{ $question->subtype }})</span>
             <span>{{ $question->subject->name }}</span>
         </div>
         <div class="text-sm">
@@ -22,8 +22,6 @@
         </div>
 
         <x-input.custom-checkbox wire:click="handleCheckboxClick({{ $question->getKey() }})"
-                                 wire:loading.attr="disabled"
-                                 wire:loading.class="pointer-events-none"
                                  wire:key="checkbox-for-question{{ $question->uuid }}"
                                  :checked="$this->isQuestionInTest($question->getKey())"
         />

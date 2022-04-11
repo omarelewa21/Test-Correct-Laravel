@@ -1463,4 +1463,8 @@ class Question extends MtiBaseModel {
         return strip_tags(html_entity_decode($this->getQuestionHtml()));
     }
 
+    public function getTranslatedTypeName()
+    {
+        return ''; //@Todo
+    }
 }

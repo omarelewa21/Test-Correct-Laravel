@@ -1,15 +1,11 @@
 <div {{ $attributes->merge(['class' => 'relative']) }}
      x-data="{checked: {{ $checked ? 'true' : 'false'}} }"
-        {{ $attributes->wire('key') }}
+     @click="checked = !checked;"
      >
     <input class="checkbox-custom"
            name="checkbox"
            type="checkbox"
            :checked="checked"
-           disabled
-           @click="checked = !checked;"
-           {{ $attributes->wire('click') }}
-           {{ $attributes->wire('loading') }}
     />
     <label for="checkbox"
            class="checkbox-custom-label">
