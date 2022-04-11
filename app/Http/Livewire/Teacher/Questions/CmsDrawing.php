@@ -45,7 +45,7 @@ class CmsDrawing
         $svgHelper = new SvgHelper($q['uuid']);
 
         $this->instance->question['answer_svg'] = $this->getAnswerSvg($svgHelper, $q);
-        $this->instance->question['question_svg'] = $this->getQuestionSvg($svgHelper, $q);
+        $this->instance->question['question_svg'] = $svgHelper->getQuestionSvg($q);
         $this->instance->question['grid_svg'] = $q['grid_svg'];
         $this->instance->question['zoom_group'] = $this->getViewBox($svgHelper, $q);
 
@@ -146,14 +146,6 @@ class CmsDrawing
             return $svgHelper->getAnswerLayerFromSVG(true);
         }
         return $q['answer_svg'];
-    }
-
-    private function getQuestionSvg(SvgHelper $svgHelper, $q)
-    {
-        if ($svgHelper->getQuestionLayerFromSVG()) {
-            return $svgHelper->getQuestionLayerFromSVG(true);
-        }
-        return $q['question_svg'];
     }
 
     private function getViewBox(SvgHelper $svgHelper, $q)
