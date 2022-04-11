@@ -45,7 +45,7 @@ class DrawingQuestion extends Component
 
         $svgHelper = new SvgHelper($this->question->uuid);
 
-        $this->question_svg = $svgHelper->getQuestionSvg((array) $this->question);
+        $this->question_svg = $svgHelper->getQuestionSvg($this->question);
 
         $this->grid_svg = $this->question->grid_svg;
         $this->usesNewDrawingTool = Auth::user()->schoolLocation()->value('allow_new_drawing_question') && (blank($this->question->bg_name) && empty($this->question->grid));
