@@ -1,23 +1,23 @@
 @extends('livewire.teacher.questions.cms-layout')
 @section('question-cms-group-question')
     <x-input.group label="{{ __('cms.naam vraaggroep') }}">
-        <x-input.text class="w-full text-left "/>
+
+        <input type="text" wire:model="question.name" class="form-input w-full text-left @error('question.name') border border-allred @enderror"/>
     </x-input.group>
+
 
     <x-input.group
         label="{{ __('cms.type vraaggroep') }}"
         x-data="{
-            value:'standard',
+            value: window.Livewire.find(document.getElementById('cms').getAttribute('wire:id')).entangle('question.groupquestion_type'),
             select: function(option) {
                 this.value = option;
             },
             selected: function(option){
-                console.log(option);
                 return option == this.value;
             },
         }"
     >
-        <input type="hidden" wire:model="question.groupquestion_type" :value="value">
         <div class="flex">
             <button
                 class="flex flex w-[308] h-[88] relative inline-flex items-center p-4 select-button mr-8 mb-8"
@@ -93,8 +93,8 @@
             </button>
             <button
                 class="flex w-[308] h-[88]  relative inline-flex items-center p-4 select-button mb-8"
-                :class="value=='carrousel'?'btn-active':'note'"
-                @click="select('carrousel')"
+                :class="value=='carousel'?'btn-active':'note'"
+                @click="select('carousel')"
             >
 
                 <svg class="w-1/5" width="47" height="46" viewBox="0 0 47 46" xmlns="http://www.w3.org/2000/svg">
@@ -148,7 +148,7 @@
                               d="m416.472 246.053-3.674 2.121-2.122-3.674M391.883 263.832l-1.793-3.845 3.846-1.793M398.544 222.285l2.433 3.475-3.475 2.434"/>
                     </g>
                 </svg>
-                <div x-show="selected('carrousel')">
+                <div x-show="selected('carousel')">
                     <x-icon.checkmark-circle></x-icon.checkmark-circle>
                 </div>
                 <div class="ml-4 w-4/5 text-left">

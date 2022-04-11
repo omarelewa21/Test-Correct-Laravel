@@ -13,11 +13,11 @@ class Cms extends Component
     protected $queryString = ['testId', 'testQuestionId', 'groupQuestionQuestionId', 'action', 'owner'];
 
     /* Querystring parameters*/
-    public string $testId = '';
-    public string $testQuestionId = '';
-    public string $groupQuestionQuestionId = '';
-    public string $action = '';
-    public string $owner = '';
+    public  $testId = '';
+    public  $testQuestionId = '';
+    public  $groupQuestionQuestionId = '';
+    public  $action = '';
+    public  $owner = '';
 
     public $testQuestions;
     public $groupId;

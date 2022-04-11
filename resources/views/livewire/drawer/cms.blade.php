@@ -51,7 +51,11 @@
                     @php $loopIndex = 0; @endphp
                     @foreach($this->questionsInTest as $testQuestion)
                         @if($testQuestion->question->type === 'GroupQuestion')
-                            <x-sidebar.cms.group-question-container :testQuestion="$testQuestion" :question="$testQuestion->question">
+                            <x-sidebar.cms.group-question-container
+                                    :testQuestion="$testQuestion"
+                                    :question="$testQuestion->question"
+
+                            >
                                 @foreach($testQuestion->question->subQuestions as $question)
                                     @php $loopIndex ++; @endphp
                                     <x-sidebar.cms.question-button :testQuestion="$testQuestion"

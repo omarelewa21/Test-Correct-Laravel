@@ -9,10 +9,55 @@
               :class="($root.querySelectorAll('.question-button.active').length > 0 && !expand) ? 'primary' : ''"
         >{{ $question->getQuestionHtml() }}</span>
 
-        <div class="flex space-x-2.5 text-sysbase">
-            <x-icon.locked/>
-            <x-icon.options/>
+        <div class="flex space-x-2.5 text-sysbase"
+             x-data="{
+             options:false,
+             toggleOptions(e){
+             e.stopPropagation();
+             this.options=true;
+             },
+             hideOptions(e){
+                e.stopImmediatePropagation();
+                e.preventDefault();
+                e.stopPropagation();
+                this.options = false;
+                return false;
+             }
+             }">
+            <div class="py-3 flex items-center h-full rounded-md">
+            <x-icon.locked />
         </div>
+            <button class="py-3 px-1 flex items-center h-full rounded-md hover:bg-primary hover:text-white transition relative"
+                    @click.stop="toggleOptions($event)"
+            >
+            <x-icon.options/>
+                <div x-cloak
+                     x-show="options"
+                     x-ref="optionscontainer"
+                     class="absolute -right-5 top-10 bg-white text-sysbase py-2 main-shadow rounded-10 w-72 z-10"
+                     @click.outside="hideOptions($event)"
+
+                     x-transition:enter="transition ease-out origin-top-right duration-200"
+                     x-transition:enter-start="opacity-0 transform scale-90"
+                     x-transition:enter-end="opacity-100 transform scale-100"
+                     x-transition:leave="transition origin-top-right ease-in duration-100"
+                     x-transition:leave-start="opacity-100 transform scale-100"
+                     x-transition:leave-end="opacity-0 transform scale-90"
+                >
+               <div class="p-2  text-base max-w-[200px] truncate" title="{{ __('Verwijderen') }}">
+              <x-icon.trash/> {{ __('Verwijderen') }}
+        </div>
+        <div
+            class="p-2  text-base max-w-[200px] truncate"
+            title="{{ __('Wijzigen') }}"
+            wire:click="showQuestion('{{ $testQuestion ? $testQuestion->uuid : null }}', '{{ $question->uuid }}', false)"
+            @click="$dispatch('question-change', {old: '{{ $this->testQuestionId }}', new: '{{ $question->uuid }}' })"
+        >
+              <x-icon.edit/> {{ __('Wijzigen') }}
+        </div>
+      </div>
+        </button>
+      </div>
     </div>
     <div class="w-full relative overflow-hidden transition-all max-h-0 duration-200 group-question-questions"
          :style="expand ? 'max-height:' + $el.scrollHeight + 'px' : ''"

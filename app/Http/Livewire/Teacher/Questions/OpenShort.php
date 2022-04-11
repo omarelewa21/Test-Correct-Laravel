@@ -133,8 +133,13 @@ class OpenShort extends Component
             'question.question' => __('cms.Vraagstelling'),
             'question.answer'   => __('cms.Antwoordmodel')
         ];
+
         if ($this->obj instanceof CmsInfoScreen) {
             $return['question.question'] = __('cms.Informatietekst');
+        }
+
+        if ($this->obj instanceof CmsGroup) {
+            $return['question.name'] = __('cms.naam vraaggroep');
         }
 
         return $return;

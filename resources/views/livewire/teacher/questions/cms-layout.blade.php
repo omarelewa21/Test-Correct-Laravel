@@ -83,6 +83,11 @@
                 </div>
             </div>
             <div class="px-4 sm:px-6 lg:px-8 ">
+                @error('question.name')
+                <div class="notification error stretched mt-4">
+                    <span class="title">{{ $message }}</span>
+                </div>
+                @enderror
                 @error('question.question')
                 <div class="notification error stretched mt-4">
                     <span class="title">{{ $message }}</span>
