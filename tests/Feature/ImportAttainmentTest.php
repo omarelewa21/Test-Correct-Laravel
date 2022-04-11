@@ -256,6 +256,27 @@ class ImportAttainmentTest extends TestCase
     }
 
     /** @test */
+    public function new_learning_goals_file_09_04_22_integrity_test()
+    {
+        $this->loginAdmin();
+        $this->inactivateAttainmentToMakeImportPossible();
+        $testXslx = __DIR__.'/../files/import_new_learning_goals_09_04_22.xlsx';
+        $this->assertFileExists($testXslx);
+        $request  = new Request();
+        $params = [
+            'session_hash' => Auth::user()->session_hash,
+            'user'         => Auth::user()->username,
+            'attainments' => $testXslx,
+        ];
+        $request->merge($params);
+        $response = (new LearningGoalImportController())->importForUpdateOrCreate($request);
+        dump($response->getContent());
+        $this->assertEquals(200,$response->getStatusCode());
+
+        $this->logoutAdmin();
+    }
+
+    /** @test */
     public function new_attainments_file_08_11_21_integrity_test()
     {
         $this->loginAdmin();
