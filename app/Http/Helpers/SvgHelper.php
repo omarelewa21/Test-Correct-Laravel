@@ -49,6 +49,14 @@ class SvgHelper
 
     }
 
+    public function getQuestionSvg($q)
+    {
+        if ($this->getQuestionLayerFromSVG()) {
+            return $this->getQuestionLayerFromSVG(true);
+        }
+        return $q['question_svg'];
+    }
+
     /**
      * @param string $uuid
      * @return void
