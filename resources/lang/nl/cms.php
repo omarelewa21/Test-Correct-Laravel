@@ -71,7 +71,7 @@ return [
     'coordinaten'                                                                            => 'Coördinaten',
     'Teken in de tekentool het antwoordmodel voor de vraag.'                                 => 'Teken in de tekentool het antwoordmodel voor de vraag.',
     'waarschuwing_aanpassen_oude_tekenvraag'                                                 => 'Je kan met de nieuwe tekentool de tekening later aanpassen. Tekeningen die gemaakt zijn met de oude tekentool kunnen helaas alleen als plaatje ingeladen worden, maar kunnen niet aangepast worden.',
-    'drawing-question-required-answer'                                                       => 'Het is verplicht een antwoord te tekenen in de tekentool.',
+    'drawing-question-required-answer'                                                       => 'Je hebt nog geen antwoordmodel getekend. Een antwoordmodel is verplicht.',
     'drawing-question-close-without-save'                                                    => 'Weet je zeker dat je wilt afsluiten zonder op te slaan? Alle niet opgeslagen wijzigingen gaan verloren.',
     'drawing-question-delete-entry'                                                          => 'Weet je zeker dat je dit object wilt verwijderen? Je kunt deze actie niet ongedaan maken.',
     'drawing-question-override-old-drawing'                                                  => 'De tekenvraag is in de oude tekeneditor gemaakt. Als je verder gaat, gaan die wijzigingen verloren en dient de tekenvraag opnieuw gemaakt te worden in de nieuwe editor.',
