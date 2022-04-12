@@ -2,10 +2,8 @@
 
 namespace tcCore\Http\Livewire\Drawer;
 
-use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Str;
 use Livewire\Component;
-use tcCore\GroupQuestionQuestion;
 use tcCore\Http\Controllers\TestQuestionsController;
 use tcCore\Test;
 
@@ -20,7 +18,6 @@ class Cms extends Component
     public $action = '';
     public $owner = '';
 
-//    public $testQuestions;
     public $groupId;
     public $questionBankActive = false;
 
@@ -30,11 +27,6 @@ class Cms extends Component
             'refreshDrawer'  => 'refreshDrawer',
             'deleteQuestion' => 'deleteQuestion',
         ];
-    }
-
-    public function mount()
-    {
-
     }
 
     public function render()
@@ -60,6 +52,7 @@ class Cms extends Component
 
     public function addQuestion($type, $subtype)
     {
+        $this->action = 'add';
         $this->emitTo(
             'teacher.questions.open-short',
             'addQuestion',
@@ -118,7 +111,6 @@ class Cms extends Component
         $this->findOutHowToRedirectButFirstExecuteCallback($testQuestionUuid, function () use ($testQuestionUuid) {
             $response = (new TestQuestionsController)->destroy($this->questionsInTest->firstWhere('uuid', $testQuestionUuid));
         });
-
     }
 
     public function findOutHowToRedirectButFirstExecuteCallback($testQuestionUuid, $callback = null)
@@ -174,14 +166,12 @@ class Cms extends Component
         return $this->showQuestion($question->uuid, $question->question->uuid, false, false);
     }
 
-    public function refreshDrawer($args = [])
+    public function refreshDrawer($arguments = [])
     {
-        if(array_key_exists('testQuestionId', $args)) {
-            $this->testQuestionId = $args['testQuestionId'];
-            logger($this->testQuestionId .' nieuw');
-        }
-        if(array_key_exists('action', $args)) {
-            $this->action = $args['action'];
-        }
+        collect($arguments)->each(function ($item, $key) {
+            if (property_exists($this, $key)) {
+                $this->$key = $item;
+            }
+        });
     }
 }
