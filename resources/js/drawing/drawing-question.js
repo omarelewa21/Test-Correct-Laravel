@@ -237,6 +237,9 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview) {
             setFocusedShape(shape) {
                 this.params.focusedShape = shape;
             },
+            getFocusedShape() {
+              return this.params.focusedShape;
+            },
             data: {
                 question: "",
                 answer: "",
@@ -285,19 +288,10 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview) {
                 this.makeLayers();
             },
             unhighlightShapes() {
-                ['answer','question'].forEach(function(layer){
-                    let objectLayer = Canvas.layers[layer];
-                    Object.keys(objectLayer).forEach(function(elem){
-                       if(elem.hasOwnProperty('svg')){
-                           elem.svg.unhighlight();
-                       }
-                    });
-                })
-                //
-                // if (Canvas.params.highlightedShape) {
-                //     Canvas.params.highlightedShape.svg.unhighlight();
-                //     Canvas.params.highlightedShape = null;
-                // }
+                if (Canvas.params.highlightedShape) {
+                    Canvas.params.highlightedShape.svg.unhighlight();
+                    Canvas.params.highlightedShape = null;
+                }
             }
         }
 
