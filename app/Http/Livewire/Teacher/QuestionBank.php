@@ -49,6 +49,7 @@ class QuestionBank extends Component
                 'subject.baseSubject:id,name'
             ])
             ->distinct()
+            ->limit(10)
             ->get();
     }
 

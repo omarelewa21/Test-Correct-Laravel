@@ -939,7 +939,7 @@ class OpenShort extends Component
     public function showQuestion($args)
     {
 
-        $this->save(false);
+//        $this->save(false);
 
         $testQuestion = TestQuestion::whereUuid($args['testQuestionUuid'])->with('question')->first();
 
@@ -969,7 +969,7 @@ class OpenShort extends Component
 
     public function addQuestion($args)
     {
-        $this->save(false);
+//        $this->save(false);
 //        $testQuestion = TestQuestion::whereUuid($args['testQuestionUuid'])->with('question')->first();
         $this->action = 'add';
         $this->type = $args['type'];
