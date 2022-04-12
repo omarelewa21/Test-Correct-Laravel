@@ -2020,8 +2020,8 @@ input[type=number] {
 }
 
 #drawing-tool .shape.dragging .border {
-    stroke-dasharray: 10, 5;
-    opacity: 1;
+    /*stroke-dasharray: 10, 5;*/
+    opacity: 0;
 }
 
 #drawing-tool .shape.selected .border,
