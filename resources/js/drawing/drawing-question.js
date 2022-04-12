@@ -237,6 +237,9 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview) {
             setFocusedShape(shape) {
                 this.params.focusedShape = shape;
             },
+            getFocusedShape() {
+              return this.params.focusedShape;
+            },
             data: {
                 question: "",
                 answer: "",

@@ -290,7 +290,15 @@ class svgShape {
                             this.highlight();
                             this.Canvas.setFocusedShape(this);
                         }
-                    }
+                    },
+                    "mousemove touchmove": {
+                        callback: (evt) => {
+                            if (evt.isTrusted === false) return;
+                            if (this.Canvas.getFocusedShape() !== this){
+                                this.unhighlight();
+                            }
+                        }
+                    },
                 }
             }
         ];

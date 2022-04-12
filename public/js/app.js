@@ -7015,6 +7015,9 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview) {
       setFocusedShape: function setFocusedShape(shape) {
         this.params.focusedShape = shape;
       },
+      getFocusedShape: function getFocusedShape() {
+        return this.params.focusedShape;
+      },
       data: {
         question: "",
         answer: ""
@@ -7062,18 +7065,10 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview) {
         this.makeLayers();
       },
       unhighlightShapes: function unhighlightShapes() {
-        ['answer', 'question'].forEach(function (layer) {
-          var objectLayer = Canvas.layers[layer];
-          Object.keys(objectLayer).forEach(function (elem) {
-            if (elem.hasOwnProperty('svg')) {
-              elem.svg.unhighlight();
-            }
-          });
-        }); //
-        // if (Canvas.params.highlightedShape) {
-        //     Canvas.params.highlightedShape.svg.unhighlight();
-        //     Canvas.params.highlightedShape = null;
-        // }
+        if (Canvas.params.highlightedShape) {
+          Canvas.params.highlightedShape.svg.unhighlight();
+          Canvas.params.highlightedShape = null;
+        }
       }
     };
     Obj.initCanvas();
@@ -11370,6 +11365,15 @@ var svgShape = /*#__PURE__*/function () {
               _this2.highlight();
 
               _this2.Canvas.setFocusedShape(_this2);
+            }
+          },
+          "mousemove touchmove": {
+            callback: function callback(evt) {
+              if (evt.isTrusted === false) return;
+
+              if (_this2.Canvas.getFocusedShape() !== _this2) {
+                _this2.unhighlight();
+              }
             }
           }
         }
