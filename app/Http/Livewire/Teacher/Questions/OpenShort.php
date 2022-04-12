@@ -337,7 +337,6 @@ class OpenShort extends Component
         }
 
         $this->dispatchBrowserEvent('question-saved');
-        $this->emitTo('drawer.cms', 'refreshDrawer');
     }
 
     protected function prepareForClone()
@@ -938,8 +937,9 @@ class OpenShort extends Component
 
     public function showQuestion($args)
     {
-
-//        $this->save(false);
+        if ($args['shouldSave']) {
+            $this->save(false);
+        }
 
         $testQuestion = TestQuestion::whereUuid($args['testQuestionUuid'])->with('question')->first();
 
@@ -969,7 +969,7 @@ class OpenShort extends Component
 
     public function addQuestion($args)
     {
-//        $this->save(false);
+        $this->save(false);
 //        $testQuestion = TestQuestion::whereUuid($args['testQuestionUuid'])->with('question')->first();
         $this->action = 'add';
         $this->type = $args['type'];
@@ -981,11 +981,12 @@ class OpenShort extends Component
             $this->testQuestionId = $args['groupId'];
         } else {
             $this->owner = 'test';
-            $this->testQuestionId = null;
+            $this->testQuestionId = '';
         }
 
         $this->mount();
         $this->render();
+        $this->emitTo('drawer.cms', 'refreshDrawer', ['testQuestionId' => $this->testQuestionId, 'action' => $this->action]);
     }
 
     public function isGroupQuestion()
@@ -996,6 +997,12 @@ class OpenShort extends Component
     private function resolveOrderNumber()
     {
         return Test::whereUuid($this->testId)->first()->getQuestionCount() + 1;
+    }
+
+    public function saveAndRefreshDrawer()
+    {
+        $this->save(false);
+        $this->emitTo('drawer.cms', 'refreshDrawer');
     }
 
 }

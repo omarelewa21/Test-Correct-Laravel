@@ -3,6 +3,7 @@
     <span class="note text-sm uppercase text-center py-1">{{ __('cms.open-questions') }}</span>
     @foreach(\tcCore\Http\Livewire\Teacher\Questions\CmsFactory::questionTypes()['open'] as $question)
         <div wire:click="addQuestion('{{ $question['type'] }}', '{{ $question['subtype'] }}')"
+             @click="home"
              class="add-question-card cursor-pointer py-4 px-6 flex space-x-4 items-center text-sm"
         >
             <div>
@@ -27,6 +28,7 @@
     <span class="note text-sm uppercase text-center py-1">{{ __('cms.closed-questions') }}</span>
     @foreach(\tcCore\Http\Livewire\Teacher\Questions\CmsFactory::questionTypes()['closed'] as $question)
         <div wire:click="addQuestion('{{ $question['type']}}', '{{ $question['subtype'] }}')"
+             @click="home"
              class="add-question-card cursor-pointer py-4 px-6 flex space-x-4 items-center text-sm"
         >
             <div>
@@ -59,6 +61,7 @@
     <span class="note text-sm uppercase text-center py-1">{{ __('cms.extra') }}</span>
     @foreach(\tcCore\Http\Livewire\Teacher\Questions\CmsFactory::questionTypes()['extra'] as $question)
         <div wire:click="addQuestion('{{ $question['type']}}', '{{ $question['subtype'] }}')"
+             @click="home"
              class="add-question-card cursor-pointer py-4 px-6 flex space-x-4 items-center text-sm"
         >
             <div>
