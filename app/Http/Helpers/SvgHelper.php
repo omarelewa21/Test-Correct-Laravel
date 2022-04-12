@@ -55,7 +55,7 @@ class SvgHelper
         if ($this->getQuestionLayerFromSVG()) {
             return $this->getQuestionLayerFromSVG(true);
         }
-        if($q instanceof DrawingQuestion){
+        if ($q instanceof DrawingQuestion) {
             return $q->question_svg;
         }
         return $q['question_svg'];
@@ -240,8 +240,17 @@ class SvgHelper
         if (!$newUuid) {
             throw new \Exception('No uuid provided');
         }
-        $this->disk->move($this->uuid, $newUuid);
+        if ($this->disk->missing($newUuid)) {
+            $this->disk->makeDirectory($newUuid);
+            foreach ($this->disk->allFiles($this->uuid) as $fileOrDirectory) {
+                $destination = str_replace($this->uuid, $newUuid, $fileOrDirectory);
+                $this->disk->copy($fileOrDirectory, $destination);
+            }
+        }
+
+//        $this->disk->copyDirectory($this->uuid, $newUuid);
         $this->uuid = $newUuid;
+
     }
 
     public function setViewBox(array $viewBox)
@@ -276,10 +285,10 @@ class SvgHelper
     {
         $values = Str::of($viewBox)->explode(' ');
         return [
-            'x' => $values[0],
-            'y' => $values[1],
-            'width' => $values[2],
-            'height' => $values[3],
+            'x'      => (float) $values[0],
+            'y'      => (float) $values[1],
+            'width'  => (float) $values[2],
+            'height' => (float)  $values[3],
         ];
     }
 
@@ -325,15 +334,13 @@ class SvgHelper
         $doc->loadXML($this->getSvg());
 
 
-
         collect([self::SVG_ANSWER_GROUP_ID, self::SVG_QUESTION_GROUP_ID])->each(function ($layer) use ($doc) {
-            $parentNode = collect($doc->getElementsByTagName('g'))->first(function($node) use ($layer){
+            $parentNode = collect($doc->getElementsByTagName('g'))->first(function ($node) use ($layer) {
                 return $node->getAttribute('id') == $layer;
             });
 
             if ($parentNode) {
-                $images = $parentNode->getElementsByTagName('image');
-              ;
+                $images = $parentNode->getElementsByTagName('image');;
                 collect($images)->each(function ($node) use ($doc, $layer) {
                     $routeName = '';
                     if ($layer === self::SVG_ANSWER_GROUP_ID) {
@@ -359,8 +366,8 @@ class SvgHelper
 
     public function getArrayWidthAndHeight()
     {
-         list($x, $y, $width, $height) = sscanf($this->getViewBox(),'%s %s %s %s');
+        list($x, $y, $width, $height) = sscanf($this->getViewBox(), '%s %s %s %s');
 
-         return ['w' => $width, 'h' => $height];
+        return ['w' => $width, 'h' => $height];
     }
 }
