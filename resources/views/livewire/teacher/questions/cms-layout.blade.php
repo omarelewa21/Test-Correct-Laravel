@@ -19,8 +19,7 @@
         </div>
     </div>
     <div class="question-editor-content w-full max-w-7xl mx-auto relative"
-
-         wire:key="container-{{ $this->testQuestionId.$this->groupQuestionQuestionId }}"
+         wire:key="container-{{ $this->testQuestionId.$this->groupQuestionQuestionId.$this->action }}"
     >
         <div x-show="loading"
              x-transition:enter="transform ease-out duration-150 transition"
