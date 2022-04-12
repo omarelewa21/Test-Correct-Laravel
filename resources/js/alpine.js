@@ -355,6 +355,7 @@ document.addEventListener('alpine:init', () => {
         },
         home() {
             this.scroll(0);
+            this.$dispatch('backdrop');
         },
         scroll(position) {
             this.drawer.scrollTo({top: 0, behavior: 'smooth'});

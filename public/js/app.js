@@ -5858,6 +5858,7 @@ document.addEventListener('alpine:init', function () {
       },
       home: function home() {
         this.scroll(0);
+        this.$dispatch('backdrop');
       },
       scroll: function scroll(position) {
         this.drawer.scrollTo({

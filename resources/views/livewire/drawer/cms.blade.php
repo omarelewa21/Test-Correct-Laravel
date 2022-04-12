@@ -4,11 +4,11 @@
         collapse = window.innerWidth < 1000;
         handleBackdrop = () => {
             if(backdrop) {
-                $el.dataset.closedWithBackdrop = 'true';
+                $root.dataset.closedWithBackdrop = 'true';
                 backdrop = !backdrop
             } else {
-                if ($el.dataset.closedWithBackdrop === 'true') {
-                backdrop = true;
+                if ($root.dataset.closedWithBackdrop === 'true') {
+                    backdrop = true;
                 }
             }
         }
