@@ -123,20 +123,28 @@ ReadspeakerTlc = function(){
                 setTimeout(callRsPopup(event,"touchend"),100);
             });
             if(util.isIOS12()) {
-                document.addEventListener("selectionchange", function (event) {
-                    if(document.querySelector('#rsbtn_popup')==null){
-                        return;
-                    }
-                    if(document.querySelector('#rsbtn_popup').classList.contains('hidden')){
-                        return;
-                    }
-                    rspkr.popup.lastSelectedText = null;
-                    rspkr.popup.closePopup(void 0, !0);
-                    setTimeout(callRsPopup(event, "selectionchange"), 100);
-                }, false);
+                console.dir('ios12');
+                document.addEventListener('selectionchange',userSelectionChanged);
+                document.addEventListener('selectionEnd', function (event) {
+                    var selectionEndTimeout = null;
+                    setTimeout(callRsPopup(event,"touchend"),100);
+                });
             }
 
         }
+        function userSelectionChanged() {
+
+            // wait 500 ms after the last selection change event
+            if (selectionEndTimeout) {
+                clearTimeout(selectionEndTimeout);
+            }
+
+            var selectionEndTimeout = setTimeout(function () {
+                var event = new Event('selectionEnd');
+                document.dispatchEvent(event);
+            }, 500);
+        }
+
         function callRsPopup(event,eventType)
         {
             var selectedText = window.getSelection().toString();
