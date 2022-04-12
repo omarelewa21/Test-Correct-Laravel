@@ -11366,15 +11366,6 @@ var svgShape = /*#__PURE__*/function () {
 
               _this2.Canvas.setFocusedShape(_this2);
             }
-          },
-          "mousemove touchmove": {
-            callback: function callback(evt) {
-              if (evt.isTrusted === false) return;
-
-              if (_this2.Canvas.getFocusedShape() !== _this2) {
-                _this2.unhighlight();
-              }
-            }
           }
         }
       }];
