@@ -4860,6 +4860,9 @@ video {
 .content-center{
 	align-content: center;
 }
+.items-start{
+	align-items: flex-start;
+}
 .items-end{
 	align-items: flex-end;
 }
