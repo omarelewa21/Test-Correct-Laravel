@@ -3,6 +3,7 @@
      x-init="$watch('loading', () => { setTimeout(() => { loading = false }, 1500)} )"
      x-cloak
      x-on:question-change.window="loading = true"
+     x-on:question-saved.window="Notify.notify('Vraag opgeslagen')"
      questionComponent
 >
     <div class="question-editor-header z-50">
@@ -484,7 +485,7 @@
                         wire:loading.attr="disabled"
                         @beforeunload.window="$el.disabled = true"
                         type="button"
-                        wire:click="save"
+                        wire:click="save(false)"
                         class="button cta-button button-sm save_button"
                         selid="save-btn"
                 >

@@ -26,12 +26,12 @@
              }
              }">
             <div class="py-3 flex items-center h-full rounded-md">
-            <x-icon.locked />
-        </div>
+                <x-icon.locked/>
+            </div>
             <button class="py-3 px-1 flex items-center h-full rounded-md hover:bg-primary hover:text-white transition relative"
                     @click.stop="toggleOptions($event)"
             >
-            <x-icon.options/>
+                <x-icon.options/>
                 <div x-cloak
                      x-show="options"
                      x-ref="optionscontainer"
@@ -45,20 +45,20 @@
                      x-transition:leave-start="opacity-100 transform scale-100"
                      x-transition:leave-end="opacity-0 transform scale-90"
                 >
-               <div class="p-2  text-base max-w-[200px] truncate" title="{{ __('Verwijderen') }}">
-              <x-icon.trash/> {{ __('Verwijderen') }}
+                    <div class="p-2  text-base max-w-[200px] truncate" title="{{ __('Verwijderen') }}">
+                        <x-icon.trash/> {{ __('Verwijderen') }}
+                    </div>
+                    <div
+                            class="p-2  text-base max-w-[200px] truncate"
+                            title="{{ __('Wijzigen') }}"
+                            wire:click="showQuestion('{{ $testQuestion ? $testQuestion->uuid : null }}', '{{ $question->uuid }}', false)"
+                            @click="$dispatch('question-change', {old: '{{ $this->testQuestionId }}', new: '{{ $question->uuid }}' })"
+                    >
+                        <x-icon.edit/> {{ __('Wijzigen') }}
+                    </div>
+                </div>
+            </button>
         </div>
-        <div
-            class="p-2  text-base max-w-[200px] truncate"
-            title="{{ __('Wijzigen') }}"
-            wire:click="showQuestion('{{ $testQuestion ? $testQuestion->uuid : null }}', '{{ $question->uuid }}', false)"
-            @click="$dispatch('question-change', {old: '{{ $this->testQuestionId }}', new: '{{ $question->uuid }}' })"
-        >
-              <x-icon.edit/> {{ __('Wijzigen') }}
-        </div>
-      </div>
-        </button>
-      </div>
     </div>
     <div class="w-full relative overflow-hidden transition-all max-h-0 duration-200 group-question-questions"
          :style="expand ? 'max-height:' + $el.scrollHeight + 'px' : ''"

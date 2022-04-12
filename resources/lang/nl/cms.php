@@ -139,4 +139,5 @@ return [
     'Toetsenbank'                                                                            => 'Toetsenbank',
     'Bestaande vraag toevoegen'                                                              => 'Bestaande vraag toevoegen',
     'Nieuwe vraag creeren'                                                                   => 'Nieuwe vraag creëeren',
+    'Wijzigen'                                                                               => 'Wijzigen',
 ];

@@ -46,7 +46,7 @@
              x-ref="questionEditorSidebar"
              wire:ignore.self
         >
-            <x-sidebar.slide-container class="divide-y divide-bluegrey" x-ref="container1">
+            <x-sidebar.slide-container class="pt-4 divide-y divide-bluegrey" x-ref="container1">
                 <div class="divide-y divide-bluegrey">
                     @php $loopIndex = 0; @endphp
                     @foreach($this->questionsInTest as $testQuestion)

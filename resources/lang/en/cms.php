@@ -140,4 +140,5 @@ return [
     'Toetsenbank'                                                                            => 'Testbank',
     'Bestaande vraag toevoegen'                                                              => 'Add existing question',
     'Nieuwe vraag creeren'                                                                   => 'Create question',
+    'Wijzigen'                                                                               => 'Change',
 ];

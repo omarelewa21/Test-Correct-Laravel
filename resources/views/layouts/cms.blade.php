@@ -1,6 +1,6 @@
 <x-layouts.base>
     <div id="cms-container" class="min-h-screen">
-        @if(Auth::user()->schoolLocation->allow_cms_drawer && Auth::user()->schoolLocation->allow_new_drawing_question)
+        @if(Auth::user()->schoolLocation->canUseCmsWithDrawer())
             <livewire:drawer.cms/>
         @endif
         {{ $slot }}
