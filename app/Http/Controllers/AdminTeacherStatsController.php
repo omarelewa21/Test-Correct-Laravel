@@ -24,7 +24,7 @@ class AdminTeacherStatsController extends Controller {
 
 	    // nonTeachers => nog geen toets gemaakt
         $nonTeacherUsers = $teacherUsers->filter(function($t){
-            return $t->tests->count() == 0;
+            return null == $t->tests || $t->tests->count() == 0;
         });
 
         //smallTeachers => laatste 6 maanden toets afgenomen en laatste 2 maanden niet
