@@ -81,6 +81,11 @@ class CmsDrawing
 
     public function prepareForSave()
     {
+        logger([
+            'value' => $this->instance->question['zoom_group'],
+            'json' => json_encode($this->instance->question['zoom_group']),
+            ]
+        );
         $this->instance->question['zoom_group'] = json_encode($this->instance->question['zoom_group']);
     }
 

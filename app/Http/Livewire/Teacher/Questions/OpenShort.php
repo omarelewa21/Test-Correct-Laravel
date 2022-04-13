@@ -503,6 +503,8 @@ class OpenShort extends Component
 
     private function updateQuestion()
     {
+        logger([__CLASS__ => $this->question]);
+
         $request = new CmsRequest();
         $request->merge($this->question);
         $request->filterInput();
