@@ -91,7 +91,9 @@
                 @if($this->group)
                     <div class="mb-5" questionHtml wire:ignore>{!! $this->group->question->converted_question_html !!}</div>
                 @endif
-                {{ $slot }}
+                <div class="questionContainer">
+                    {{ $slot }}
+                </div>
             @else
                 <span>{{ __('test_take.question_closed_text') }}</span>
             @endif

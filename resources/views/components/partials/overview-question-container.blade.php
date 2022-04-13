@@ -30,7 +30,9 @@
     </div>
     <div class="flex flex-1 overview">
         @if(!$this->closed)
-            {{ $slot }}
+            <div class="questionContainer">
+                {{ $slot }}
+            </div>
         @else
             <span>{{__('test_take.question_closed_text')}}</span>
         @endif
