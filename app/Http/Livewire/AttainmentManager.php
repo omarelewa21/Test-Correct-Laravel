@@ -2,6 +2,7 @@
 
 namespace tcCore\Http\Livewire;
 
+use Illuminate\Support\Facades\DB;
 use Livewire\Component;
 use tcCore\Attainment;
 
@@ -35,13 +36,14 @@ class AttainmentManager extends Component
             'status'             => 'ACTIVE',
         ];
         $this->domains = [];
-
+        DB::enableQueryLog();
         Attainment::filtered($filter)
             ->whereNull('attainment_id')
             ->get()
             ->each(function ($domain) {
                     $this->domains[$domain->id] = sprintf("[%s] %s", $domain->code, $domain->description);
             });
+        dump(DB::getQueryLog());
         if ($this->value){
             Attainment::whereIn('id',$this->value)->each(function($attainment){
                 if ($attainment->attainment_id == null) {

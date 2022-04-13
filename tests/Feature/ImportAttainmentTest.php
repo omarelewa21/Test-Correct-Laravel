@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use tcCore\Attainment;
 use tcCore\BaseSubject;
+use tcCore\ExcelAttainmentUpdateOrCreateManifest;
 use tcCore\Http\Controllers\AttainmentImportController;
 use tcCore\Http\Controllers\LearningGoalImportController;
 use tcCore\Http\Controllers\TestQuestionsController;
@@ -323,6 +324,102 @@ class ImportAttainmentTest extends TestCase
         }
         $this->logoutAdmin();
     }
+
+    /** @test */
+    public function existing_attainments_file_08_11_21_vmbo_tl_bio_integrity_test()
+    {
+        $this->loginAdmin();
+        $this->inactivateAttainmentToMakeImportPossible();
+        $testXslx = __DIR__.'/../files/import_existing_attainments_08nov21.xlsx';
+        $this->assertFileExists($testXslx);
+        $request  = new Request();
+        $params = [
+            'session_hash' => Auth::user()->session_hash,
+            'user'         => Auth::user()->username,
+            'attainments' => $testXslx,
+        ];
+        $request->merge($params);
+        $response = (new AttainmentImportController())->importForUpdateOrCreate($request);
+        $this->assertEquals(200,$response->getStatusCode());
+        $attainments = Attainment::all();
+        $faultArr = [];
+        foreach ($attainments as $attainment){
+            $parent = $attainment->attainment;
+            if(is_null($parent)){
+                continue;
+            }
+            if($attainment->education_level_id!=$parent->education_level_id){
+                $faultArr[] = [ 'id'=>$attainment->getKey(),
+                                'base_subject_id'=>$attainment->base_subject_id,
+                                'attainment'=>$attainment->attainment_id,
+                                'education_level_id'=>$attainment->education_level_id,
+                                'code'=>$attainment->code,
+                                'subcode'=>$attainment->subcode,
+                                'subsubcode'=>$attainment->subsubcode];
+            }
+            //$this->assertEquals($attainment->education_level_id,$parent->education_level_id);
+
+        }
+        dump($faultArr);
+        dump(count($faultArr));
+        $this->logoutAdmin();
+    }
+
+    /** @test */
+    public function database_attainments_integrity_test()
+    {
+        $this->loginAdmin();
+        $attainments = Attainment::all();
+        $faultArr = [];
+        foreach ($attainments as $attainment){
+            $parent = $attainment->attainment;
+            if(is_null($parent)){
+                continue;
+            }
+            if($attainment->education_level_id!=$parent->education_level_id||$attainment->base_subject_id!=$parent->base_subject_id){
+                $faultArr[] = [ 'id'=>$attainment->getKey(),
+                    'base_subject_id'=>$attainment->base_subject_id,
+                    'attainment'=>$attainment->attainment_id,
+                    'education_level_id'=>$attainment->education_level_id,
+                    'code'=>$attainment->code,
+                    'subcode'=>$attainment->subcode,
+                    'subsubcode'=>$attainment->subsubcode];
+            }
+            //$this->assertEquals($attainment->education_level_id,$parent->education_level_id);
+
+        }
+        dump($faultArr);
+        dump(count($faultArr));
+        $this->assertCount(0,$faultArr);
+        $this->logoutAdmin();
+    }
+
+    /** @test */
+    public function existing_attainments_file_08_11_21_double_ids_integrity_test()
+    {
+        $this->loginAdmin();
+        $this->inactivateAttainmentToMakeImportPossible();
+        $testXslx = __DIR__.'/../files/import_existing_attainments_08nov21.xlsx';
+        $this->assertFileExists($testXslx);
+        $attainmentManifest = new ExcelAttainmentUpdateOrCreateManifest($testXslx);
+        $this->attainmentsCollection = collect($attainmentManifest->getAttainmentResources());
+        $duplicateIds = [];
+        $ids = [];
+        foreach ($this->attainmentsCollection as $attainmentResource) {
+            if(is_null($attainmentResource->id)){
+                continue;
+            }
+            if(in_array($attainmentResource->id,$ids)){
+                $duplicateIds[] = $attainmentResource->id;
+            }
+            $ids[] = $attainmentResource->id;
+        }
+        dump($duplicateIds);
+        $this->assertCount(0,$duplicateIds);
+        $this->logoutAdmin();
+    }
+
+
 
     /** @test */
     public function it_should_import_attainments_and_store_them_in_db()
