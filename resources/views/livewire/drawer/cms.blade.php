@@ -75,7 +75,7 @@
                         @endif
                     @endforeach
                 </div>
-
+                <div wire:loading class="fixed inset-0" style="width: var(--sidebar-width)"></div>
                 <div class="flex px-6 py-2.5 space-x-2.5 hover:text-primary">
                     <x-icon.plus-in-circle/>
                     <button class="bold" wire:click="addGroup">{{ __( 'cms.Vraaggroep_toevoegen' ) }}</button>
@@ -130,7 +130,6 @@
                 </div>
 
                 <x-sidebar.question-types/>
-
             </x-sidebar.slide-container>
 
             <x-sidebar.slide-container x-ref="questionbank">
