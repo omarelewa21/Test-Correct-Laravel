@@ -101,12 +101,12 @@ class CmsDrawing
 
     public function performAfterSaveActions($response)
     {
+        $this->unprepareForSave();
         $svgHelper = new SvgHelper($this->instance->question['uuid']);
 
         if ($this->instance->question['uuid'] === $response->original->question->uuid) {
             return;
         }
-
         $svgHelper->rename($response->original->question->uuid);
     }
 
@@ -153,6 +153,6 @@ class CmsDrawing
         if($svgHelper->getViewBox() !== '0 0 0 0') {
             return $svgHelper->makeViewBoxArray($svgHelper->getViewBox());
         }
-        return json_decode($q['zoom_group'], true);
+        return  json_decode($q['zoom_group'], true);
     }
 }

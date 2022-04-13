@@ -19,8 +19,7 @@
         </div>
     </div>
     <div class="question-editor-content w-full max-w-7xl mx-auto relative"
-
-         wire:key="container-{{ $this->testQuestionId.$this->groupQuestionQuestionId }}"
+         wire:key="container-{{ $this->testQuestionId.$this->groupQuestionQuestionId.$this->action }}"
     >
         <div x-show="loading"
              x-transition:enter="transform ease-out duration-150 transition"
@@ -73,7 +72,8 @@
                                  x-transition:leave-end="opacity-0 transform scale-90"
                             >
                                 <button class="flex items-center space-x-2 py-1 px-4 base hover:text-primary hover:bg-offwhite transition w-full"
-                                        @click="$dispatch('delete-modal', ['question'])"
+{{--                                        @click="$dispatch('delete-modal', ['question'])"--}}
+                                        wire:click="$emit('deleteQuestion', '{{ $this->testQuestionId }}')"
                                 >
                                     <x-icon.remove/>
                                     <span class="text-base bold inherit">{{ __('cms.Verwijderen') }}</span>
@@ -485,7 +485,7 @@
                         wire:loading.attr="disabled"
                         @beforeunload.window="$el.disabled = true"
                         type="button"
-                        wire:click="save(false)"
+                        wire:click="saveAndRefreshDrawer()"
                         class="button cta-button button-sm save_button"
                         selid="save-btn"
                 >
@@ -495,6 +495,6 @@
         </div>
 
         <x-modal.question-editor-delete-modal/>
-        <x-notification/>
-    </div>
+        </div>
+    <x-notification/>
 </div>

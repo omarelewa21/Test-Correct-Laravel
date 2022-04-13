@@ -2,10 +2,9 @@
 
 namespace tcCore\Http\Livewire\Drawer;
 
-use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Str;
 use Livewire\Component;
-use tcCore\GroupQuestionQuestion;
+use tcCore\Http\Controllers\TestQuestionsController;
 use tcCore\Test;
 
 class Cms extends Component
@@ -13,26 +12,21 @@ class Cms extends Component
     protected $queryString = ['testId', 'testQuestionId', 'groupQuestionQuestionId', 'action', 'owner'];
 
     /* Querystring parameters*/
-    public  $testId = '';
-    public  $testQuestionId = '';
-    public  $groupQuestionQuestionId = '';
-    public  $action = '';
-    public  $owner = '';
+    public $testId = '';
+    public $testQuestionId = '';
+    public $groupQuestionQuestionId = '';
+    public $action = '';
+    public $owner = '';
 
-//    public $testQuestions;
     public $groupId;
     public $questionBankActive = false;
 
     protected function getListeners()
     {
         return [
-            'refreshDrawer' => '$refresh',
+            'refreshDrawer'  => 'refreshDrawer',
+            'deleteQuestion' => 'deleteQuestion',
         ];
-    }
-
-    public function mount()
-    {
-
     }
 
     public function render()
@@ -40,7 +34,7 @@ class Cms extends Component
         return view('livewire.drawer.cms');
     }
 
-    public function showQuestion($testQuestionUuid, $questionUuid, $subQuestion)
+    public function showQuestion($testQuestionUuid, $questionUuid, $subQuestion, $shouldSave = true)
     {
         $this->emitTo(
             'teacher.questions.open-short',
@@ -49,6 +43,7 @@ class Cms extends Component
                 'testQuestionUuid' => $testQuestionUuid,
                 'questionUuid'     => $questionUuid,
                 'isSubQuestion'    => $subQuestion,
+                'shouldSave'       => $shouldSave,
             ]
         );
 
@@ -57,6 +52,7 @@ class Cms extends Component
 
     public function addQuestion($type, $subtype)
     {
+        $this->action = 'add';
         $this->emitTo(
             'teacher.questions.open-short',
             'addQuestion',
@@ -82,7 +78,6 @@ class Cms extends Component
         });
     }
 
-
     public function getQuestionNameForDisplay($question)
     {
         if ($question->type === "MultipleChoiceQuestion") {
@@ -90,12 +85,12 @@ class Cms extends Component
                 return 'question.arq';
             }
 
-            return 'question.'.Str::kebab($question->subtype);
+            return 'question.' . Str::kebab($question->subtype);
         }
         if ($question->type === "OpenQuestion") {
             return 'question.open-long-short';
         }
-        return 'question.'.Str::kebab(Str::replaceFirst('Question', '', $question->type));
+        return 'question.' . Str::kebab(Str::replaceFirst('Question', '', $question->type));
     }
 
     public function addGroup()
@@ -109,5 +104,74 @@ class Cms extends Component
             ->first()
             ->testQuestions
             ->sortBy('order');
+    }
+
+    public function deleteQuestion($testQuestionUuid)
+    {
+        $this->findOutHowToRedirectButFirstExecuteCallback($testQuestionUuid, function () use ($testQuestionUuid) {
+            $response = (new TestQuestionsController)->destroy($this->questionsInTest->firstWhere('uuid', $testQuestionUuid));
+        });
+    }
+
+    public function findOutHowToRedirectButFirstExecuteCallback($testQuestionUuid, $callback = null)
+    {
+        $redirectAfter = !!($testQuestionUuid == $this->testQuestionId);
+        $questionToNavigateTo = null;
+
+        if ($redirectAfter) {
+            $previousQuestion = null;
+            $returnInNextIteration = false;
+            foreach ($this->questionsInTest as $question) {
+                if ($questionToNavigateTo) {
+                    continue;
+                }
+
+                if ($returnInNextIteration) {
+                    $questionToNavigateTo = $question;
+                }
+
+                if ($previousQuestion == null) {
+                    $previousQuestion = $question;
+                }
+
+                if ($question->uuid == $testQuestionUuid) {
+                    if ($question != $previousQuestion) {
+                        $questionToNavigateTo = $previousQuestion;
+                    }
+                    $returnInNextIteration = true;
+                    continue;
+                }
+                $previousQuestion = $question;
+            }
+
+        }
+
+        if (is_callable($callback)) {
+            $callback();
+        }
+
+        $this->navigateToQuestion($questionToNavigateTo);
+        $this->emitSelf('refreshDrawer');
+    }
+
+    private function navigateToQuestion($question = null)
+    {
+        if ($question == null) {
+            if ($this->questionsInTest->isEmpty()) {
+                return $this->dispatchBrowserEvent('show-empty');
+            }
+            return true;
+        }
+
+        return $this->showQuestion($question->uuid, $question->question->uuid, false, false);
+    }
+
+    public function refreshDrawer($arguments = [])
+    {
+        collect($arguments)->each(function ($item, $key) {
+            if (property_exists($this, $key)) {
+                $this->$key = $item;
+            }
+        });
     }
 }

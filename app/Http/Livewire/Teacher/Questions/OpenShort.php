@@ -293,7 +293,7 @@ class OpenShort extends Component
             return $this->obj->$method();
         }
 
-        $newName = '_'.$method;
+        $newName = '_' . $method;
         if (method_exists($this, $newName)) {
             return $this->$newName($arguments);
         }
@@ -316,6 +316,8 @@ class OpenShort extends Component
                 $this->prepareForClone();
             }
             $response = $this->saveNewQuestion();
+
+            $this->setQueryStringProperties($response);
         }
 
         if ($response->getStatusCode() == 200) {
@@ -337,7 +339,6 @@ class OpenShort extends Component
         }
 
         $this->dispatchBrowserEvent('question-saved');
-        $this->emitTo('drawer.cms', 'refreshDrawer');
     }
 
     protected function prepareForClone()
@@ -352,7 +353,7 @@ class OpenShort extends Component
 
     public function updated($name, $value)
     {
-        $method = 'updated'.ucfirst($name);
+        $method = 'updated' . ucfirst($name);
         if ($this->obj && method_exists($this->obj, $method)) {
             $this->obj->$method($value);
         }
@@ -432,7 +433,7 @@ class OpenShort extends Component
     public function render()
     {
         if ($this->obj && method_exists($this->obj, 'getTemplate')) {
-            return view('livewire.teacher.questions.'.$this->obj->getTemplate())->layout('layouts.cms');
+            return view('livewire.teacher.questions.' . $this->obj->getTemplate())->layout('layouts.cms');
         }
         throw new \Exception('No template found for this question type.');
     }
@@ -535,7 +536,7 @@ class OpenShort extends Component
         }
 
         if (array_key_exists($property, $this->settingsGeneralPropertiesVisibility)) {
-            return (bool) $this->settingsGeneralPropertiesVisibility[$property];
+            return (bool)$this->settingsGeneralPropertiesVisibility[$property];
         }
 
         return true;
@@ -694,7 +695,7 @@ class OpenShort extends Component
 
     public function removeItem($item, $id)
     {
-        $method = 'remove'.Str::ucfirst($item);
+        $method = 'remove' . Str::ucfirst($item);
         if (method_exists($this, $method)) {
             $this->$method($id);
         }
@@ -888,8 +889,8 @@ class OpenShort extends Component
     {
         $rulesToValidate = null;
         collect(['rtti', 'bloom', 'miller'])->each(function ($taxonomy) use (&$rulesToValidate) {
-            $toggle = $taxonomy.'Toggle';
-            $warningShow = $taxonomy.'WarningShown';
+            $toggle = $taxonomy . 'Toggle';
+            $warningShow = $taxonomy . 'WarningShown';
             if ($this->$toggle && blank($this->question[$taxonomy]) && !$this->$warningShow) {
                 $this->$warningShow = true;
                 $rulesToValidate["question.$taxonomy"] = 'required';
@@ -938,8 +939,9 @@ class OpenShort extends Component
 
     public function showQuestion($args)
     {
-
-//        $this->save(false);
+        if ($args['shouldSave']) {
+            $this->save(false);
+        }
 
         $testQuestion = TestQuestion::whereUuid($args['testQuestionUuid'])->with('question')->first();
 
@@ -969,7 +971,7 @@ class OpenShort extends Component
 
     public function addQuestion($args)
     {
-//        $this->save(false);
+        $this->save(false);
 //        $testQuestion = TestQuestion::whereUuid($args['testQuestionUuid'])->with('question')->first();
         $this->action = 'add';
         $this->type = $args['type'];
@@ -981,16 +983,24 @@ class OpenShort extends Component
             $this->testQuestionId = $args['groupId'];
         } else {
             $this->owner = 'test';
-            $this->testQuestionId = null;
+            $this->testQuestionId = '';
         }
 
         $this->mount();
         $this->render();
+
+        $this->emitTo('drawer.cms', 'refreshDrawer', [
+            'testQuestionId'          => $this->testQuestionId,
+            'action'                  => $this->action,
+            'owner'                   => $this->owner,
+            'testId'                  => $this->testId,
+            'groupQuestionQuestionId' => $this->groupQuestionQuestionId,
+        ]);
     }
 
     public function isGroupQuestion()
     {
-        return !! ($this->type === 'GroupQuestion');
+        return !!($this->type === 'GroupQuestion');
     }
 
     private function resolveOrderNumber()
@@ -998,4 +1008,34 @@ class OpenShort extends Component
         return Test::whereUuid($this->testId)->first()->getQuestionCount() + 1;
     }
 
+    public function saveAndRefreshDrawer()
+    {
+        $this->save(false);
+
+        $this->emitTo('drawer.cms', 'refreshDrawer', [
+            'testQuestionId'          => $this->testQuestionId,
+            'action'                  => $this->action,
+            'owner'                   => $this->owner,
+            'testId'                  => $this->testId,
+            'groupQuestionQuestionId' => $this->groupQuestionQuestionId,
+        ]);
+    }
+
+    private function setQueryStringProperties($response)
+    {
+        $this->action = 'edit';
+
+        if ($testQuestion = TestQuestion::whereUuid(json_decode($response->getContent())->uuid)->first()) {
+            $this->testQuestionId = $testQuestion->uuid;
+            $this->groupQuestionQuestionId = '';
+        } else {
+            $this->groupQuestionQuestionId = json_decode($response->getContent())->uuid;
+        }
+
+        /**
+         * Update the CKEditor ids to trigger reinit of the editor after DOM change
+         */
+        $this->answerEditorId = Str::uuid()->__toString();
+        $this->questionEditorId = Str::uuid()->__toString();
+    }
 }
