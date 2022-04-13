@@ -221,10 +221,23 @@ class SvgHelper
             if (!$this->disk->exists($path)) {
                 throw new Exception(sprintf('File not found [%s].', $path));
             }
-            $image = $this->disk->get($path);
-            $node->setAttribute('href', 'data:' . mime_content_type($this->disk->path($path)) . ';base64,' . base64_encode($image));
+            $image = $this->getCompressedImage(storage_path('drawing-question-svg/'.$path));
+            $node->setAttribute('href',  $image);//'data:' . mime_content_type($image) . ';base64,' . base64_encode($image));
         });
         return substr(substr($doc->saveXML(), 28), 0, -8);
+    }
+
+    private function getCompressedImage($path) {
+        logger( $path);
+        $server = \League\Glide\ServerFactory::create([
+            'source' => $this->disk->get($path),
+            'cache' => sprintf('%s/cache', $this->disk->get($path))
+        ]);
+
+
+        return $server->getImageAsBase64($path, $this->getArrayWidthAndHeight());
+
+        return  $this->disk->get($path);
     }
 
     private function base64DecodeIfNecessary($value)
