@@ -56,6 +56,7 @@ class CheckRepairAttainments extends Command
             }
 
         }
+        $this->info('checking wrong taxonomy:');
         $this->table([  "id",
                         "base_subject_id",
                         "attainment",
@@ -64,5 +65,117 @@ class CheckRepairAttainments extends Command
                         "subcode",
                         "subsubcode"], $faultArr);
         $this->info(count($faultArr));
+        $this->checkEconomie();
+        $this->check499();
+        $this->check799();
+        $this->check665();
+        $this->check748();
+        $this->check392();
+        $this->check393();
+        $this->check307();
+        $this->check1242();
+        $this->check182();
+        $this->check223();
+    }
+
+    protected function checkEconomie()
+    {
+        $this->info('checking economie');
+        $this->checkEconomieById(2003,2002);
+        $this->checkEconomieById(2005,2004);
+    }
+
+    protected function checkEconomieById($id,$expected)
+    {
+        $attainment = Attainment::find($id);
+        $check = $attainment->attainment_id==$expected?true:false;
+        if($check){
+            $this->info($id.' has '.$expected.' as attainment_id');
+        }else{
+            $this->error($id.' has '.$attainment->attainment_id.' as attainment_id');
+        }
+    }
+
+    protected function check499()
+    {
+        $attainment = Attainment::find(499);
+        $check = $attainment->base_subject_id==9?true:false;
+        if($check){
+            $this->info('499 has 9 as base_subject_id');
+        }else{
+            $this->error('499 has '.$attainment->base_subject_id.' as base_subject_id');
+        }
+    }
+
+    protected function check799()
+    {
+        $attainment = Attainment::find(799);
+        if($attainment){
+            $this->info('799 not trashed');
+        }else{
+            $this->error('799 trashed');
+        }
+    }
+
+    protected function check665()
+    {
+        $check = $this->attainmentExist([     'base_subject_id'=>14,
+            'education_level_id'=>1,
+            'code'=>'A',
+            'subcode'=>3,
+            'subsubcode'=>6]);
+        if($check){
+            $this->info('14/1/A/3/6 exists');
+        }else{
+            $this->error('14/1/A/3/6 does not exist');
+        }
+    }
+
+    protected function check748()
+    {
+        $check = $this->attainmentExist([     'base_subject_id'=>19,
+        'education_level_id'=>1,
+        'code'=>'A',
+        'subcode'=>1,
+        'subsubcode'=>2]);
+        if($check){
+            $this->info('19/1/A/1/2 exists');
+        }else{
+            $this->error('19/1/A/1/2 does not exist');
+        }
+    }
+
+    protected function check392()
+    {
+        $attainment = Attainment::find(392);
+        $check = $attainment->subcode===1?true:false;
+        if($check){
+            $this->info('392 has 1 as subcode');
+        }else{
+            $this->error('392 has '.$attainment->subcode.' as subcode');
+        }
+    }
+
+    protected function check393()
+    {
+        $attainment = Attainment::find(393);
+        if($attainment){
+            $this->info('393 not trashed');
+        }else{
+            $this->error('393 trashed');
+        }
+    }
+
+    protected function attainmentExist($props)
+    {
+        $attainment = Attainment::where('base_subject_id', $props['base_subject_id'])
+            ->where('education_level_id', $props['education_level_id'])
+            ->where('code', $props['code'])
+            ->where('subcode', $props['subcode'])
+            ->where('subsubcode', $props['subsubcode'])->first();
+        if(is_null($attainment)){
+            return false;
+        }
+        return true;
     }
 }

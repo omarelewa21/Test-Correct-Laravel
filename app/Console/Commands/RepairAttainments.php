@@ -215,7 +215,7 @@ class RepairAttainments extends Command
 
     protected function handle665()
     {
-        //666 zit er twee keer in 1 niveau vwo 1 havo. Havo in db
+        //665 zit er twee keer in 1 niveau vwo 1 havo. Havo in db
         $parentAttainment = Attainment::where('base_subject_id', 14)
             ->where('education_level_id', 1)
             ->where('code', 'A')
@@ -225,7 +225,7 @@ class RepairAttainments extends Command
             $this->error('parent attainment 14/1/A/3 not found');
             exit();
         }
-        if($this->AttainmentExist([     'base_subject_id'=>14,
+        if($this->attainmentExist([     'base_subject_id'=>14,
                                         'education_level_id'=>1,
                                         'code'=>'A',
                                         'subcode'=>3,
@@ -252,7 +252,7 @@ class RepairAttainments extends Command
     protected function handle748()
     {
         //748 zit er twee keer in. De eerste keer is wrsch vergissing. Die attainment is in de import eruit gevallen en moet opnieuw worden toegevoegd
-        if($this->AttainmentExist([     'base_subject_id'=>19,
+        if($this->attainmentExist([     'base_subject_id'=>19,
             'education_level_id'=>1,
             'code'=>'A',
             'subcode'=>1,
@@ -328,7 +328,7 @@ class RepairAttainments extends Command
             $this->error('parent attainment 2/4/K not found');
             exit();
         }
-        if($this->AttainmentExist([     'base_subject_id'=>2,
+        if($this->attainmentExist([     'base_subject_id'=>2,
             'education_level_id'=>4,
             'code'=>'FR/K',
             'subcode'=>1,
@@ -358,7 +358,7 @@ class RepairAttainments extends Command
     protected function handle1242()
     {
         //1242 staat zowel in Duits als in Spaans, Spaans in db, geen childeren
-        if($this->AttainmentExist([     'base_subject_id'=>24,
+        if($this->attainmentExist([     'base_subject_id'=>24,
             'education_level_id'=>4,
             'code'=>'MVT/V',
             'subcode'=>3,
@@ -403,7 +403,7 @@ class RepairAttainments extends Command
     }
 
 
-    protected function AttainmentExist($props)
+    protected function attainmentExist($props)
     {
         $attainment = Attainment::where('base_subject_id', $props['base_subject_id'])
             ->where('education_level_id', $props['education_level_id'])
