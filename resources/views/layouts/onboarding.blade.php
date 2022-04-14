@@ -7,7 +7,7 @@
     <title>Test-Correct</title>
 
     <!-- Alpine -->
-{{--    <script src="https://cdn.jsdelivr.net/gh/alpinejs/alpine@v2.x.x/dist/alpine.min.js" defer></script>--}}
+    <script src="https://cdn.jsdelivr.net/gh/alpinejs/alpine@v2.x.x/dist/alpine.min.js" defer></script>
 
 
     <script src="/ckeditor/ckeditor.js" type="text/javascript"></script>
@@ -21,7 +21,7 @@
     <link rel="stylesheet" href="/css/onboarding.css">
     @stack('page_styles')
 </head>
-<body id="body" class="antialiased font-sans bg-light-grey">
+<body class="antialiased font-sans bg-light-grey">
 <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-592V9J3" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
 {{ $slot }}
@@ -29,8 +29,5 @@
 @livewireScripts
 <script src="{{ mix('/js/app.js') }}"></script>
 @stack('page_scripts')
-<script>
-    Alpine.start();
-</script>
 </body>
 </html>
