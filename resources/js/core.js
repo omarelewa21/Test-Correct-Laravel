@@ -117,32 +117,10 @@ Core = {
         }
     },
     enableAppFeatures(appType) {
-        let alterDisplay = function(hide=false){
-            let appElements = document.querySelectorAll('[' + appType + ']');
-            appElements.forEach((element) => {
-                if(hide){
-                    element.style.display = 'none';
-                }else{
-                    element.style.display = 'flex';
-                }
-            });
-        };
-
-        if(appType === 'chromebook'){
-            try {
-                alterDisplay();
-                chrome.runtime.sendMessage(
-                    document.getElementById("chromeos-extension-id").name,
-                    {isKiosk: true},
-                    function(response){
-                        if (!response.isKiosk){
-                            alterDisplay(true);
-                        }
-                    })
-                } catch (error) {}
-        }else{
-            alterDisplay();
-        }
+        let appElements = document.querySelectorAll('[' + appType + ']');
+        appElements.forEach((element) => {
+            element.style.display = 'flex';
+        });
     },
     checkForElectron() {
         try {
@@ -194,6 +172,12 @@ Core = {
         Core.appType = 'ios'
         Core.disableDeviceSpecificFeature();
     },
+    ChromeBookhideCloseBtn(){
+        let appElements = document.querySelectorAll('[chromebook]');
+        appElements.forEach((element) => {
+            element.style.display = 'none';
+        });
+    }
 }
 
 runCheckFocus = function () {
