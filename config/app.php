@@ -14,9 +14,6 @@ if (array_key_exists('HTTP_ACCEPT_LANGUAGE', $_SERVER)) {
 }
 
 $lang = 'nl'; // just to see if it works in dutch
-if (!app()->runningInConsole()) {
-//        app('url')->forceRootUrl('http://ea99-95-97-95-106.ngrok.io');
-}
 return [
 
     'url_login' => env('URL_LOGIN'),
@@ -204,40 +201,40 @@ return [
 
     'aliases' => [
 
-        'App' => 'Illuminate\Support\Facades\App',
-        'Artisan' => 'Illuminate\Support\Facades\Artisan',
-        'Auth' => 'Illuminate\Support\Facades\Auth',
-        'Blade' => 'Illuminate\Support\Facades\Blade',
-        'Cache' => 'Illuminate\Support\Facades\Cache',
-        'Config' => 'Illuminate\Support\Facades\Config',
-        'Cookie' => 'Illuminate\Support\Facades\Cookie',
-        'Crypt' => 'Illuminate\Support\Facades\Crypt',
-        'DB' => 'Illuminate\Support\Facades\DB',
-        'Event' => 'Illuminate\Support\Facades\Event',
-        'File' => 'Illuminate\Support\Facades\File',
-        'Hash' => 'Illuminate\Support\Facades\Hash',
-        'Input' => 'Illuminate\Support\Facades\Input',
-        'Inspiring' => 'Illuminate\Foundation\Inspiring',
-        'Lang' => 'Illuminate\Support\Facades\Lang',
-        'Log' => 'Illuminate\Support\Facades\Log',
-        'Mail' => 'Illuminate\Support\Facades\Mail',
+        'App'          => 'Illuminate\Support\Facades\App',
+        'Artisan'      => 'Illuminate\Support\Facades\Artisan',
+        'Auth'         => 'Illuminate\Support\Facades\Auth',
+        'Blade'        => 'Illuminate\Support\Facades\Blade',
+        'Cache'        => 'Illuminate\Support\Facades\Cache',
+        'Config'       => 'Illuminate\Support\Facades\Config',
+        'Cookie'       => 'Illuminate\Support\Facades\Cookie',
+        'Crypt'        => 'Illuminate\Support\Facades\Crypt',
+        'DB'           => 'Illuminate\Support\Facades\DB',
+        'Event'        => 'Illuminate\Support\Facades\Event',
+        'File'         => 'Illuminate\Support\Facades\File',
+        'Hash'         => 'Illuminate\Support\Facades\Hash',
+        'Input'        => 'Illuminate\Support\Facades\Input',
+        'Inspiring'    => 'Illuminate\Foundation\Inspiring',
+        'Lang'         => 'Illuminate\Support\Facades\Lang',
+        'Log'          => 'Illuminate\Support\Facades\Log',
+        'Mail'         => 'Illuminate\Support\Facades\Mail',
         'Notification' => Illuminate\Support\Facades\Notification::class,
-        'Paginator' => 'Illuminate\Support\Facades\Paginator',
-        'Password' => 'Illuminate\Support\Facades\Password',
-        'Queue' => 'Illuminate\Support\Facades\Queue',
-        'Redirect' => 'Illuminate\Support\Facades\Redirect',
-        'Redis' => 'Illuminate\Support\Facades\Redis',
-        'Request' => 'Illuminate\Support\Facades\Request',
-        'Response' => 'Illuminate\Support\Facades\Response',
-        'Route' => 'Illuminate\Support\Facades\Route',
-        'Schema' => 'Illuminate\Support\Facades\Schema',
-        'Session' => 'Illuminate\Support\Facades\Session',
-        'URL' => 'Illuminate\Support\Facades\URL',
-        'Validator' => 'Illuminate\Support\Facades\Validator',
-        'View' => 'Illuminate\Support\Facades\View',
+        'Paginator'    => 'Illuminate\Support\Facades\Paginator',
+        'Password'     => 'Illuminate\Support\Facades\Password',
+        'Queue'        => 'Illuminate\Support\Facades\Queue',
+        'Redirect'     => 'Illuminate\Support\Facades\Redirect',
+        'Redis'        => 'Illuminate\Support\Facades\Redis',
+        'Request'      => 'Illuminate\Support\Facades\Request',
+        'Response'     => 'Illuminate\Support\Facades\Response',
+        'Route'        => 'Illuminate\Support\Facades\Route',
+        'Schema'       => 'Illuminate\Support\Facades\Schema',
+        'Session'      => 'Illuminate\Support\Facades\Session',
+        'URL'          => 'Illuminate\Support\Facades\URL',
+        'Validator'    => 'Illuminate\Support\Facades\Validator',
+        'View'         => 'Illuminate\Support\Facades\View',
 
         // Excel generator
-        'Excel' => Maatwebsite\Excel\Facades\Excel::class,
+        'Excel'        => Maatwebsite\Excel\Facades\Excel::class,
 
         'Bugsnag' => Bugsnag\BugsnagLaravel\Facades\Bugsnag::class,
 

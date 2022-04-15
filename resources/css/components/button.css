@@ -174,7 +174,7 @@
     padding: 16px;
 }
 
-.select-button:hover, .select-button:focus {
+.select-button:hover, .select-button:focus, .btn-active {
     border: 1px solid var(--primary);
     color: var(--primary);
     outline: none;

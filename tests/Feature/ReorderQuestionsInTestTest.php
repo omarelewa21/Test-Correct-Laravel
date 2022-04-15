@@ -10,10 +10,10 @@ use tcCore\GroupQuestionQuestion;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
-use Tests\Traits\OpenQuestionTrait;
-use Tests\Traits\TestTrait;
-use Tests\Traits\GroupQuestionTrait;
-use Tests\Traits\MultipleChoiceQuestionTrait;
+use tcCore\Traits\Dev\OpenQuestionTrait;
+use tcCore\Traits\Dev\TestTrait;
+use tcCore\Traits\Dev\GroupQuestionTrait;
+use tcCore\Traits\Dev\MultipleChoiceQuestionTrait;
 
 class ReorderQuestionsInTestTest extends TestCase
 {

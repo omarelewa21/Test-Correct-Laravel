@@ -22,7 +22,7 @@
             <div x-show="answered" class="mt-3">
                 @if($answer != '')
                     <img id="drawnImage" class="border border-blue-grey rounded-10" width="400"
-                         src="{{ route('student.drawing-question-answer',$answer, false) }}?{!! date('Ymdsi') !!}"
+                         src="{{ route('student.drawing-question-answer',$answer, false) }}?{!! microtime(true) !!}"
                          alt="">
                 @endif
 

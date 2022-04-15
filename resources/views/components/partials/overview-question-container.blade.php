@@ -29,12 +29,16 @@
         @endif
     </div>
     <div class="flex flex-1 overview">
-        @if(!$this->closed)
+        @if($question->closeable || ( !is_null($question->groupQuestion) && $question->groupQuestion->closeable) )
+            @if($this->closed)
+                <span>{{__('test_take.question_closed_text')}}</span>
+            @else
+                <span>{{__('test_take.question_closeable_text')}}</span>
+            @endif
+        @else
             <div class="questionContainer">
                 {{ $slot }}
             </div>
-        @else
-            <span>{{__('test_take.question_closed_text')}}</span>
         @endif
     </div>
 </div>

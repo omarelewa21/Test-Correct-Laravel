@@ -4,26 +4,48 @@ namespace tcCore\Http\Middleware;
 
 use Closure;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
 
 class Logging
 {
     static $URL_PATH_LOGGING = [
         # method = ALL will log every type of method
-
-        # School beheerder
+        # Every role can have either a blacklist or whitelist, but not both
         'School manager' => [
-            ["path" => "livewire/message/auth.login", "method" => "ALL"],
-            ["path" => "api-c/school_year*", "method" => "ALL"],
-            ["path" => "api-c/school_class*", "method" => "ALL"],
-            ["path" => "api-c/period*", "method" => "ALL"],
-            ["path" => "api-c/section*", "method" => "ALL"],
-            ["path" => "api-c/shared_sections*", "method" => "ALL"],
-            ["path" => "api-c/subject*", "method" => "ALL"],
-            ["path" => "api-c/school_location*", "method" => "ALL"],
-            ["path" => "api-c/user*", "method" => "ALL"],
-            ["path" => "api-c/*import*", "method" => "ALL"],
+            'blacklist' => [
+                ["path" => "api-c/message", "method" => "GET"],
+            ]
+        ],
+        'Teacher' => [
+            'whitelist' => [
+                ["message" => "authenticated", "path" => "livewire/message/auth.login", "method" => "ALL"],
+                ["message" => "planned test take", "path" => "api-c/test_take", "cakepath" => "/test_takes/add", "method" => "POST"],
+                ["message" => "started test take immediately", "path" => "api-c/test_take", "cakepath" => "/test_takes/start_direct/*", "method" => "POST"],
+                ["message" => "started test take", "path" => "api-c/test_take/*", "cakepath" => "/test_takes/start_test/*", "method" => "PUT"]
+            ]
+        ],
+        'Student' => [
+            'whitelist' => [
+                ["message" => "authenticated", "path" => "livewire/message/auth.login", "method" => "ALL"],
+            ]
         ]
     ];
+
+    private function log($response, $role, $message = "")
+    {
+        $extraContext = [];
+        if (request()->isMethod('POST')) {
+            try {
+                $extraContext['created_object_id'] = json_decode($response->getContent(), true)['id'];
+            } catch (\Throwable $th) {
+            }
+        }
+        if ($message != "" && !is_null($message)) {
+            $message = ": " . $message;
+        }
+
+        Log::stack(['loki'])->info("Middleware logging for $role" . $message, $extraContext);
+    }
 
     /**
      * Check if the request should be logged for Loki
@@ -37,22 +59,43 @@ class Logging
         /** @var Illuminate\Http\Response $response */
         $response = $next($request);
 
+        // Usefull for determining paths to log:
+        // Log::debug([request()->path(), request()->method(), request()->header('cakeUrlPath', null)]);
+
         if (request()->user() != null) {
-            foreach (Logging::$URL_PATH_LOGGING as $role => $routes) {
+            foreach (Logging::$URL_PATH_LOGGING as $role => $_) {
 
                 if (request()->user()->hasRole($role)) {
-                    if(
-                        collect($routes)->first(function($endpoint){
-                            return request()->is($endpoint['path']) && ($endpoint['method'] == "ALL" || request()->isMethod($endpoint['method']));
-                        })){
-                        $extraContext = [];
-                        if (request()->isMethod('POST')) {    
-                            try {
-                                $extraContext['created_object_id'] = json_decode($response->getContent(), true)['id'];
-                            } catch (\Throwable $th) {}
-                        }
-                        Log::stack(['loki'])->info("Middleware logging for $role", $extraContext);
+                    $this->role = $role;
+
+                    // inline function determining which routes matches given the routes
+                    // the cakepath is optional and may be ignored. It will be ignored if it is not a Cake request
+                    $routeMatchesFunc = function ($routes) {
+                        return collect($routes)->filter(function ($endpoint) {
+                            $result =  (request()->is($endpoint['path']) && ($endpoint['method'] == "ALL" || request()->isMethod($endpoint['method'])));
+                            if (request()->ip() == config('cake_laravel_filter.remote_addr') && !is_null(request()->header('cakeUrlPath', null)) && array_key_exists('cakepath', $endpoint) && $result) {
+                                $cakeUrlPath = request()->header('cakeUrlPath', null);
+                                return (Str::is($endpoint['cakepath'], $cakeUrlPath));
+                            }
+                            return $result;
+                        });
                     };
+
+                    // log with message if there is a match in the whitelist
+                    if (array_key_exists('whitelist', Logging::$URL_PATH_LOGGING[$role])) {
+                        $result = $routeMatchesFunc(Logging::$URL_PATH_LOGGING[$role]['whitelist']);
+                        if ($result->isNotEmpty()) {
+                            $endpoint = $result->first();
+                            $this->log($response, $role, $endpoint['message']);
+                        }
+
+                        // log a message if there is no match (blacklist)
+                    } else if (array_key_exists('blacklist', Logging::$URL_PATH_LOGGING[$role])) {
+                        $result = $routeMatchesFunc(Logging::$URL_PATH_LOGGING[$role]['blacklist']);
+                        if ($result->isEmpty()) {
+                            $this->log($response, $role);
+                        }
+                    }
                 }
             }
         }

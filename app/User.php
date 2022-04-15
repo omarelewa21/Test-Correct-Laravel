@@ -396,7 +396,7 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
             break;
         }
         if (!$handled) {
-            $this->allowedSchoolLocations()->attach([$schoolLocation->id => ['external_id' => $externalId]]);
+            $this->allowedSchoolLocations()->attach([$schoolLocationId => ['external_id' => $externalId]]);
         }
     }
 
@@ -2175,9 +2175,10 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
         // added conditional for Thijs to test the new app with fallback if we forget to remove the conditional
         // should be removed before deployment to live
 //        if(Carbon::now() > Carbon::createFromFormat('Y-m-d','2022-01-22')) {
+        $this->loginThisUser();
+        BaseHelper::doLoginProcedure();
         if ($this->isA('student')) {
             if ($this->schoolLocation->allow_new_student_environment) {
-                $this->loginThisUser();
                 $options = [
                     'internal_page' => '/users/student_splash',
                 ];

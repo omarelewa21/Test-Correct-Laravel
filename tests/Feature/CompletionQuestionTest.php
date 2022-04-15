@@ -7,9 +7,9 @@ use tcCore\TestQuestion;
 use tcCore\Test;
 use tcCore\MulipleChoiceQuestion;
 use Tests\TestCase;
-use Tests\Traits\CompletionQuestionTrait;
-use Tests\Traits\TestTrait;
-use Tests\Traits\GroupQuestionTrait;
+use tcCore\Traits\Dev\CompletionQuestionTrait;
+use tcCore\Traits\Dev\TestTrait;
+use tcCore\Traits\Dev\GroupQuestionTrait;
 
 
 class CompletionQuestionTest extends TestCase

@@ -8,7 +8,7 @@ export const validSvgElementKeys = {
     circle: ["cx", "cy", "r", "pathLength"],
     line: ["x1", "y1", "x2", "y2", "pathLength"],
     path: ["d"],
-    image: ["x", "y", "width", "height", "href", "preserveAspectRatio"],
+    image: ["x", "y", "width", "height", "href", "preserveAspectRatio", "identifier"],
     text: ["x", "y", "dx", "dy", "rotate", "lengthAdjust", "data-textcontent"],
     g: ["transform"],
 };

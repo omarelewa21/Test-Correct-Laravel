@@ -14,8 +14,8 @@ use tcCore\Question;
 use tcCore\TestQuestion;
 use tcCore\User;
 use Tests\TestCase;
-use Tests\Traits\OpenQuestionTrait;
-use Tests\Traits\TestTrait;
+use tcCore\Traits\Dev\OpenQuestionTrait;
+use tcCore\Traits\Dev\TestTrait;
 
 
 class ImportAttainmentTest extends TestCase
