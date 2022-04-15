@@ -278,9 +278,10 @@
     color: var(--primary);
 }
 
-/*#question-bank.loading .grid .grid-card h3,*/
-/*#question-bank.loading .grid .grid-card span {*/
-/*    border-radius: 10px;*/
-/*    background-color: var(--light-grey);*/
-/*    color: var(--light-grey);*/
-/*}*/
+#sidebar-carousel-container .group-active .group-question-title-container{
+    color: var(--primary);
+}
+
+#sidebar-carousel-container .question-active {
+    color: var(--primary);
+}

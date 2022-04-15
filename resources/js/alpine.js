@@ -1,7 +1,9 @@
 import Alpine from 'alpinejs';
 import Choices from "choices.js";
+import Intersect from '@alpinejs/intersect';
 
 window.Alpine = Alpine;
+Alpine.plugin(Intersect);
 
 document.addEventListener('alpine:init', () => {
     Alpine.data('questionIndicator', () => ({
@@ -356,6 +358,7 @@ document.addEventListener('alpine:init', () => {
         home() {
             this.scroll(0);
             this.$dispatch('backdrop');
+            this.handleVerticalScroll(this.$refs.container1);
         },
         scroll(position) {
             this.drawer.scrollTo({top: 0, behavior: 'smooth'});

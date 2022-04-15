@@ -27,7 +27,7 @@
         <div class="flex items-center space-x-2 py-1 px-4 base hover:text-primary hover:bg-offwhite transition w-full"
              title="{{ __('cms.Wijzigen') }}"
              wire:click="showQuestion('{{ $testQuestion ? $testQuestion->uuid : null }}', '{{ $question->uuid }}', false)"
-             @click="$dispatch('question-change', {old: '{{ $this->testQuestionId }}', new: '{{ $question->uuid }}' }); options = false"
+             @click.stop="$dispatch('question-change', {old: '{{ $this->testQuestionId }}', new: '{{ $question->uuid }}' }); options = false"
         >
             <x-icon.edit/>
             <span class="text-base bold inherit">{{ __('cms.Wijzigen') }}</span>

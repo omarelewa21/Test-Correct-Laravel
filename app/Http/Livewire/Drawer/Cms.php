@@ -26,6 +26,7 @@ class Cms extends Component
         return [
             'refreshDrawer'  => 'refreshDrawer',
             'deleteQuestion' => 'deleteQuestion',
+            'deleteQuestionByQuestionId' => 'deleteQuestionByQuestionId',
         ];
     }
 
@@ -173,5 +174,14 @@ class Cms extends Component
                 $this->$key = $item;
             }
         });
+    }
+
+    public function deleteQuestionByQuestionId($questionId)
+    {
+        $testQuestionUuid = $this->questionsInTest->filter(function($question) use ($questionId) {
+            return $question->question_id == $questionId;
+        })->first()->uuid;
+
+        $this->deleteQuestion($testQuestionUuid);
     }
 }

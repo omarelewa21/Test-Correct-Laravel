@@ -100,6 +100,8 @@
                         <x-grid.question-card :question="$question"/>
                     @endforeach
                 </x-grid>
+
+                <div x-intersect="$wire.showMore()"></div>
             </div>
         </div>
     </div>
