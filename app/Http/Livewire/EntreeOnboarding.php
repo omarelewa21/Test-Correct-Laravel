@@ -280,7 +280,7 @@ class EntreeOnboarding extends Component
                 $user->account_verified = Carbon::now();
                 $user->save();
 
-                $locationsAdded = collect[$user->school_location_id];
+                $locationsAdded = collect([$user->school_location_id]);
                 if ($schoolLocations->count() > 0) {
                     $schoolLocations->each(function (SchoolLocation $schoolLocation) use ($user, $locationsAdded) {
                         // do not add first school location as it is set at registration
