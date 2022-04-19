@@ -16,6 +16,7 @@ use tcCore\DemoTeacherRegistration;
 use tcCore\Http\Helpers\ActingAsHelper;
 use tcCore\Http\Helpers\BaseHelper;
 use tcCore\Http\Helpers\EntreeHelper;
+use tcCore\Http\Helpers\UserHelper;
 use tcCore\Http\Requests\Request;
 use tcCore\Lib\Repositories\SchoolYearRepository;
 use tcCore\Lib\User\Factory;
@@ -261,8 +262,7 @@ class EntreeOnboarding extends Component
                 $actingAsUser = $schoolLocations->first()->users()->first();
                 ActingAsHelper::getInstance()->setUser($actingAsUser);
 
-                $userFactory = new Factory(new User());
-                $user = $userFactory->generate([
+                $user = (new UserHelper())->createUserFromData([
                         'school_id' => null,
                         'school_location_id' => $schoolLocations->first()->getKey(),
                         'username' => $this->registration->username,
@@ -280,14 +280,15 @@ class EntreeOnboarding extends Component
                 $user->account_verified = Carbon::now();
                 $user->save();
 
+                $locationsAdded = collect[$user->school_location_id];
                 if ($schoolLocations->count() > 0) {
-                    $schoolLocations->each(function (SchoolLocation $schoolLocation) use ($user) {
+                    $schoolLocations->each(function (SchoolLocation $schoolLocation) use ($user, $locationsAdded) {
                         // do not add first school location as it is set at registration
-                        $user->refresh();
-                        if($user->addSchoolLocation($schoolLocation)) {
+                        if(!$locationsAdded->contains($schoolLocation->getKey())) {
                             $user->school_location_id = $schoolLocation->getKey();
                             $user->save();
                             $user->refresh();
+                            $locationsAdded->push($schoolLocation->getKey());
                         }
                         ActingAsHelper::getInstance()->setUser($user);
                         $class = new SchoolClass();
