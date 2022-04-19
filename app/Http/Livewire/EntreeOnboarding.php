@@ -257,6 +257,10 @@ class EntreeOnboarding extends Component
 
             DB::beginTransaction();
             try {
+
+                $actingAsUser = $schoolLocations->first()->users()->first();
+                ActingAsHelper::getInstance()->setUser($actingAsUser);
+
                 $userFactory = new Factory(new User());
                 $user = $userFactory->generate([
                         'school_id' => null,
