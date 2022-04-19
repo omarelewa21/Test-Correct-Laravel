@@ -3,6 +3,7 @@
 namespace tcCore\Http\Livewire;
 
 use Bugsnag\BugsnagLaravel\Facades\Bugsnag;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\DB;
@@ -266,11 +267,14 @@ class EntreeOnboarding extends Component
                         'name_first' => $this->registration->name_first,
                         'name_suffix' => $this->registration->name_suffix,
                         'name' => $this->registration->name,
-                        'send_welcome_email' => true,
-                    ]
+                        'send_welcome_email' => false,
+                        'user_roles' => [1],
+                    ],
+                    true
                 );
                 $this->userUuid = $user->uuid;
                 $user->eckid = Crypt::decryptString($this->entreeData->data->encryptedEckId);
+                $user->account_verified = Carbon::now();
                 $user->save();
 
                 if ($schoolLocations->count() > 0) {
