@@ -282,10 +282,13 @@ class EntreeOnboarding extends Component
 
                 if ($schoolLocations->count() > 0) {
                     $schoolLocations->each(function (SchoolLocation $schoolLocation) use ($user) {
-                        $user->addSchoolLocation($schoolLocation);
-                        $user->school_location_id = $schoolLocation->getKey();
-                        $user->save();
+                        // do not add first school location as it is set at registration
                         $user->refresh();
+                        if($user->addSchoolLocation($schoolLocation)) {
+                            $user->school_location_id = $schoolLocation->getKey();
+                            $user->save();
+                            $user->refresh();
+                        }
                         ActingAsHelper::getInstance()->setUser($user);
                         $class = new SchoolClass();
                         $class->fill([

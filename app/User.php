@@ -1976,7 +1976,9 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
             $this->allowedSchoolLocations()
 //            ->syncWithoutDetaching([$schoolLocation->id,  ['external_id' =>  $this->external_id]]);
                 ->attach($schoolLocation->id, ['external_id' => $this->user_table_external_id]);
+            return true;
         }
+        return null;
     }
 
     public function removeSchoolLocation(SchoolLocation $schoolLocation)
