@@ -269,8 +269,7 @@ class EntreeOnboarding extends Component
                         'name' => $this->registration->name,
                         'send_welcome_email' => false,
                         'user_roles' => [1],
-                    ],
-                    true
+                    ]
                 );
                 $this->userUuid = $user->uuid;
                 $user->eckid = Crypt::decryptString($this->entreeData->data->encryptedEckId);
