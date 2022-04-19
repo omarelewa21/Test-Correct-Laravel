@@ -521,7 +521,7 @@ class EntreeHelper
         $data->locationId = ($data->location) ? $data->location->getKey() : null;
         $data->school = null;
         $data->location = null;
-        $data->userId = ($data->user) ? $data->user->getKey() : null;
+        $data->userId = (property_exists($data,'user') && $data->user) ? $data->user->getKey() : null;
         $data->user = null;
         return SamlMessage::create([
             'data' => $data,
