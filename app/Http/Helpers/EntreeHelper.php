@@ -83,6 +83,7 @@ class EntreeHelper
            'brin4ErrorDetected' => $this->brinFourErrorDetected,
             'lastName' => $this->getLastNameFromAttributes(),
             'nameSuffix' => $this->getSuffixFromAttributes(),
+            'firstName' => $this->getFirstNameFromAttributes(),
         ];
         if(BaseHelper::notProduction()) {
             logger('entreeData for registering');
@@ -478,11 +479,20 @@ class EntreeHelper
         return null;
     }
 
-    private function getLastNameFromAttributes()
+    private function getFirstNameFromAttributes()
     {
         if (array_key_exists('givenName',
                 $this->attr) && $this->attr['givenName'][0]) {
             return $this->attr['givenName'][0];
+        }
+        return null;
+    }
+
+    private function getLastNameFromAttributes()
+    {
+        if (array_key_exists('sn',
+                $this->attr) && $this->attr['sn'][0]) {
+            return $this->attr['sn'][0];
         }
         return null;
     }

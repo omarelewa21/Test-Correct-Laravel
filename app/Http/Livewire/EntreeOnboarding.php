@@ -129,6 +129,7 @@ class EntreeOnboarding extends Component
         if(!$this->hasValidTUser) {
             $this->registration->name = $this->entreeData->data->lastName;
             $this->registration->name_suffix = $this->entreeData->data->nameSuffix;
+            $this->registration->name_first = $this->entreeData->data->firstName;
         }
 
         if (!$this->step != 1 || $this->step >= '4') {
@@ -161,9 +162,9 @@ class EntreeOnboarding extends Component
         }
 
         if ($this->entreeData->data->locationId) {
-            $this->schoolLocation = SchoolLocation::find($this->entreeData->data->locationId);
+            $this->schoolLocation = SchoolLocation::findOrFail($this->entreeData->data->locationId);
             $this->hasFixedLocation = true;
-            $this->selectedLocationsString = $this->entreeData->data->locationId;
+            $this->saveSelectedSchoolLocationsToString([$this->schoolLocation->uuid]);
         } else if ($this->entreeData->data->schoolId) {
             $this->school = School::find($this->entreeData->data->schoolId);
         }
@@ -242,6 +243,10 @@ class EntreeOnboarding extends Component
         } else {
             $this->validate($this->rulesStep2());
             $schoolLocationsUuids = $this->getSelectedSchoolLocationCollection();
+            if($schoolLocationsUuids->count() < 1){
+                $url = BaseHelper::getLoginUrlWithOptionalMessage(__('onboarding-welcome.De gekozen school locatie kon niet gevonden worden. Neem contact op met support.'), true);
+                return $this->redirectToUrlAndExit($url);
+            }
             $schoolLocations = SchoolLocation::whereUuid($schoolLocationsUuids->toArray())->get();
 
             if($schoolLocations->count() < 1){
@@ -439,8 +444,11 @@ class EntreeOnboarding extends Component
         return $this->deleteSchoolLocation($uuid);
     }
 
-    protected function saveSelectedSchoolLocationsToString($coll)
+    protected function saveSelectedSchoolLocationsToString($coll = null)
     {
+        if(null === $coll || count($coll) < 1){
+            $this->selectedLocationsString = null;
+        }
         $this->selectedLocationsString = json_encode($coll,JSON_HEX_APOS);
     }
 
