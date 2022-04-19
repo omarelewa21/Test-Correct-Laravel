@@ -44,8 +44,6 @@ class RepairAttainments extends Command
      */
     public function handle()
     {
-//        $this->bar = $this->output->createProgressBar(count($this->modifyArr)+9);
-//        $this->bar->start();
         $this->handleMissingToplevelAttainments();
         $this->handleEconomie();
         $this->handle499();
@@ -58,26 +56,26 @@ class RepairAttainments extends Command
         $this->handle1242();
         $this->handle182();
         $this->handle223();
-//        $this->bar->finish();
+        $this->handle302_306();
     }
 
 
     protected function setModifyArr()
     {
         $this->modifyArr = [
-            'wiskunde-4-K' => ['base_subject_id'=>26,'education_level_id'=>4,'code'=>'K','description'=>'toplevel eindterm'],
-            'wiskunde-4-V' => ['base_subject_id'=>26,'education_level_id'=>4,'code'=>'V','description'=>'toplevel eindterm'],
-            'wiskunde-5-K' => ['base_subject_id'=>26,'education_level_id'=>5,'code'=>'K','description'=>'toplevel eindterm'],
-            'wiskunde-5-V' => ['base_subject_id'=>26,'education_level_id'=>5,'code'=>'V','description'=>'toplevel eindterm'],
-            'wiskunde-6-K' => ['base_subject_id'=>26,'education_level_id'=>6,'code'=>'K','description'=>'toplevel eindterm'],
-            'wiskunde-7-K' => ['base_subject_id'=>26,'education_level_id'=>7,'code'=>'K','description'=>'toplevel eindterm'],
-            'Biologie-4-K' => ['base_subject_id'=>11,'education_level_id'=>4,'code'=>'K','description'=>'toplevel eindterm'],
-            'Biologie-4-V' => ['base_subject_id'=>11,'education_level_id'=>4,'code'=>'V','description'=>'toplevel eindterm'],
-            'Biologie-5-K' => ['base_subject_id'=>11,'education_level_id'=>5,'code'=>'K','description'=>'toplevel eindterm'],
-            'Biologie-5-V' => ['base_subject_id'=>11,'education_level_id'=>5,'code'=>'V','description'=>'toplevel eindterm'],
-            'Biologie-6-K' => ['base_subject_id'=>11,'education_level_id'=>6,'code'=>'K','description'=>'toplevel eindterm'],
-            'Biologie-7-K' => ['base_subject_id'=>11,'education_level_id'=>7,'code'=>'K','description'=>'toplevel eindterm'],
-            'Maatschappijleer-7-K' => ['base_subject_id'=>19,'education_level_id'=>7,'code'=>'ML1/K','description'=>'toplevel eindterm'],
+            'wiskunde-4-K' => ['base_subject_id'=>26,'education_level_id'=>4,'code'=>'K','description'=>'Kennis'],
+            'wiskunde-4-V' => ['base_subject_id'=>26,'education_level_id'=>4,'code'=>'V','description'=>'Vaardigheden'],
+            'wiskunde-5-K' => ['base_subject_id'=>26,'education_level_id'=>5,'code'=>'K','description'=>'Kennis'],
+            'wiskunde-5-V' => ['base_subject_id'=>26,'education_level_id'=>5,'code'=>'V','description'=>'Vaardigheden'],
+            'wiskunde-6-K' => ['base_subject_id'=>26,'education_level_id'=>6,'code'=>'K','description'=>'Kennis'],
+            'wiskunde-7-K' => ['base_subject_id'=>26,'education_level_id'=>7,'code'=>'K','description'=>'Kennis'],
+            'Biologie-4-K' => ['base_subject_id'=>11,'education_level_id'=>4,'code'=>'K','description'=>'Kennis'],
+            'Biologie-4-V' => ['base_subject_id'=>11,'education_level_id'=>4,'code'=>'V','description'=>'Vaardigheden'],
+            'Biologie-5-K' => ['base_subject_id'=>11,'education_level_id'=>5,'code'=>'K','description'=>'Kennis'],
+            'Biologie-5-V' => ['base_subject_id'=>11,'education_level_id'=>5,'code'=>'V','description'=>'Vaardigheden'],
+            'Biologie-6-K' => ['base_subject_id'=>11,'education_level_id'=>6,'code'=>'K','description'=>'Kennis'],
+            'Biologie-7-K' => ['base_subject_id'=>11,'education_level_id'=>7,'code'=>'K','description'=>'Kennis'],
+            'Maatschappijleer-7-K' => ['base_subject_id'=>19,'education_level_id'=>7,'code'=>'ML1/K','description'=>'Kennis'],
         ];
     }
 
@@ -303,7 +301,7 @@ class RepairAttainments extends Command
         //$this->bar->advance();
     }
 
-    protected function handle392()
+    protected function  handle392()
     {
         //392 is op de plek van 393 terecht gekomen
         $attainment = Attainment::find(392);
@@ -402,17 +400,157 @@ class RepairAttainments extends Command
         $this->info('handled: 223');
     }
 
+    protected function handle302_306()
+    {
+        $this->handle302();
+        $this->handle303();
+        $this->handle304AndNewline();
+        $this->handle305();
+        $this->handle306();
+    }
+
+    protected function handle302()
+    {
+        $props = [
+                            'base_subject_id'=>1,
+                            'education_level_id'=>4,
+                            'code'=>'NE/K',
+                            'description'=>'Schrijfvaardigheid',
+                            'subcode'=>7,
+                            'subsubcode'=>null,
+                            'status'=>'ACTIVE'
+                        ];
+        $attainment = $this->getAttainment($props);
+        if($attainment->getKey()==302){
+            $this->info('1/4/NE/K/7 -- 302 already handled');
+            return;
+        }
+        $attainment = Attainment::find(302);
+        $attainment->fill($props);
+        $attainment->save();
+        $this->info('handled: 302');
+    }
+
+    protected function handle303()
+    {
+        $props = [
+            'base_subject_id'=>1,
+            'education_level_id'=>4,
+            'code'=>'NE/K',
+            'description'=>'Fictie',
+            'subcode'=>8,
+            'subsubcode'=>null,
+            'status'=>'ACTIVE'
+        ];
+        $attainment = $this->getAttainment($props);
+        if($attainment->getKey()==303){
+            $this->info('1/4/NE/K/8 -- 303 already handled');
+            return;
+        }
+        $attainment = Attainment::find(303);
+        $attainment->fill($props);
+        $attainment->save();
+        $this->info('handled: 303');
+    }
+
+    protected function handle304AndNewline()
+    {
+        $props = [
+            'base_subject_id'=>1,
+            'education_level_id'=>4,
+            'code'=>'NE/V',
+            'description'=>'Vaardigheden',
+            'subcode'=>null,
+            'subsubcode'=>null,
+            'status'=>'ACTIVE'
+        ];
+        $newLineProps = [
+            'base_subject_id'=>1,
+            'education_level_id'=>4,
+            'code'=>'NE/V',
+            'description'=>'Verwerven, verwerken en verstrekken van informatie',
+            'subcode'=>1,
+            'subsubcode'=>null,
+            'status'=>'ACTIVE',
+            'attainment_id'=>304
+        ];
+        $attainment = $this->getAttainment($props);
+        if($attainment->getKey()==304){
+            $this->info('1/4/NE/V -- 304 already handled');
+            return;
+        }
+        $attainment->fill($newLineProps);
+        $attainment->save();
+        $this->info('handled: new line');
+        $attainment = Attainment::find(304);
+        $attainment->fill($props);
+        $attainment->save();
+        $this->info('handled: 304');
+    }
+
+    protected function handle305()
+    {
+        $props = [
+            'base_subject_id'=>1,
+            'education_level_id'=>4,
+            'code'=>'NE/V',
+            'description'=>'Schrijven op basis van documentatie',
+            'subcode'=>2,
+            'subsubcode'=>null,
+            'status'=>'ACTIVE',
+            'attainment_id'=>304
+        ];
+        $attainment = $this->getAttainment($props);
+        if($attainment->getKey()==305){
+            $this->info('1/4/NE/V/2 -- 305 already handled');
+            return;
+        }
+        $attainment = Attainment::find(305);
+        $attainment->fill($props);
+        $attainment->save();
+        $this->info('handled: 305');
+    }
+
+    protected function handle306()
+    {
+        $props = [
+            'base_subject_id'=>1,
+            'education_level_id'=>4,
+            'code'=>'NE/V',
+            'description'=>'Vaardigheden in samenhang',
+            'subcode'=>3,
+            'subsubcode'=>null,
+            'status'=>'ACTIVE',
+            'attainment_id'=>304
+        ];
+        $attainment = $this->getAttainment($props);
+        if($attainment->getKey()==306){
+            $this->info('1/4/NE/V/3 -- 306 already handled');
+            return;
+        }$attainment->delete();
+        $attainment = Attainment::find(306);
+        $attainment->fill($props);
+        $attainment->save();
+        $this->info('handled: 306');
+    }
+
 
     protected function attainmentExist($props)
+    {
+        $attainment = $this->getAttainment($props);
+        if(is_null($attainment)){
+            return false;
+        }
+        return true;
+    }
+
+    protected function getAttainment($props)
     {
         $attainment = Attainment::where('base_subject_id', $props['base_subject_id'])
             ->where('education_level_id', $props['education_level_id'])
             ->where('code', $props['code'])
             ->where('subcode', $props['subcode'])
             ->where('subsubcode', $props['subsubcode'])->first();
-        if(is_null($attainment)){
-            return false;
-        }
-        return true;
+        return $attainment;
     }
 }
