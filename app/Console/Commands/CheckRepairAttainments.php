@@ -76,6 +76,7 @@ class CheckRepairAttainments extends Command
         $this->check1242();
         $this->check182();
         $this->check223();
+        $this->check302_306();
     }
 
     protected function checkEconomie()
@@ -163,6 +164,149 @@ class CheckRepairAttainments extends Command
             $this->info('393 not trashed');
         }else{
             $this->error('393 trashed');
+        }
+    }
+
+    protected function check307()
+    {
+        $check = $this->attainmentExist([  'base_subject_id'=>2,
+            'education_level_id'=>4,
+            'code'=>'FR/K',
+            'description'=>'Oriëntatie op leren en werken',
+            'subcode'=>1,
+            'subsubcode'=>null,
+            'status'=>'ACTIVE'
+        ]);
+        if($check){
+            $this->info('2/4/FR/K1 exists');
+        }else{
+            $this->error('2/4/FR/K1 does not exist');
+        }
+    }
+
+    protected function check1242()
+    {
+        $check = $this->attainmentExist([  'base_subject_id'=>24,
+            'education_level_id'=>4,
+            'code'=>'MVT/V',
+            'description'=>'De kandidaat kan kennis van land en samenleving rond bepaalde onderwerpen toepassen bij het herkennen en interpreteren van cultuuruitingen die specifiek zijn voor het taalgebied of daarmee in directe relatie staan.',
+            'subcode'=>3,
+            'subsubcode'=>1,
+            'status'=>'ACTIVE',
+            'attainment_id'=>349
+        ]);
+        if($check){
+            $this->info('24/4/MVT/V/3/2 exists');
+        }else{
+            $this->error('24/4/MVT/V/3/2 does not exist');
+        }
+    }
+
+    protected function check182()
+    {
+        $attainment = Attainment::find(818);
+        if($attainment->attainment_id==158){
+            $this->info('818 has 158 as attainment_id');
+        }else{
+            $this->error('818 has '.$attainment->attainment_id.' as attainment_id');
+        }
+        $attainment = Attainment::find(819);
+        if($attainment->attainment_id==158){
+            $this->info('819 has 158 as attainment_id');
+        }else{
+            $this->error('819 has '.$attainment->attainment_id.' as attainment_id');
+        }
+    }
+
+    protected function check223()
+    {
+        $attainment = Attainment::find(932);
+        if($attainment->attainment_id==222){
+            $this->info('932 has 222 as attainment_id');
+        }else{
+            $this->error('932 has '.$attainment->attainment_id.' as attainment_id');
+        }
+        $attainment = Attainment::find(933);
+        if($attainment->attainment_id==222){
+            $this->info('933 has 222 as attainment_id');
+        }else{
+            $this->error('933 has '.$attainment->attainment_id.' as attainment_id');
+        }
+        $attainment = Attainment::find(934);
+        if($attainment->attainment_id==222){
+            $this->info('934 has 222 as attainment_id');
+        }else{
+            $this->error('934 has '.$attainment->attainment_id.' as attainment_id');
+        }
+    }
+
+    protected function check302_306()
+    {
+        $this->check302();
+        $this->check303();
+        $this->check304AndNewline();
+        $this->check305();
+        $this->check306();
+    }
+
+    protected function check302()
+    {
+        $attainment = Attainment::find(302);
+        if($attainment->description==''){
+            $this->info('302 has correct description');
+        }else{
+            $this->error('302 has description:'.$attainment->description);
+        }
+    }
+    protected function check303()
+    {
+        $attainment = Attainment::find(303);
+        if($attainment->description==''){
+            $this->info('303 has correct description');
+        }else{
+            $this->error('303 has description:'.$attainment->description);
+        }
+    }
+    protected function check304AndNewline()
+    {
+        $attainment = Attainment::find(304);
+        if($attainment->description==''){
+            $this->info('304 has correct description');
+        }else{
+            $this->error('304 has description:'.$attainment->description);
+        }
+        $check = $this->attainmentExist([
+            'base_subject_id'=>1,
+            'education_level_id'=>4,
+            'code'=>'NE/V',
+            'description'=>'Verwerven, verwerken en verstrekken van informatie',
+            'subcode'=>1,
+            'subsubcode'=>null,
+            'status'=>'ACTIVE',
+            'attainment_id'=>304
+        ]);
+        if($check){
+            $this->info('1/4/NE/V/1 exists');
+        }else{
+            $this->error('1/4/NE/V/1 does not exist');
+        }
+    }
+    protected function check305()
+    {
+        $attainment = Attainment::find(305);
+        if($attainment->description==''){
+            $this->info('305 has correct description');
+        }else{
+            $this->error('305 has description:'.$attainment->description);
+        }
+    }
+    protected function check306()
+    {
+        $attainment = Attainment::find(306);
+        if($attainment->description==''){
+            $this->info('306 has correct description');
+        }else{
+            $this->error('306 has description:'.$attainment->description);
         }
     }
 

@@ -394,6 +394,37 @@ class ImportAttainmentTest extends TestCase
         $this->logoutAdmin();
     }
 
+//    /** @test */
+//    public function database_vs_excel_test()
+//    {
+//        $this->loginAdmin();
+//        $this->inactivateAttainmentToMakeImportPossible();
+//        $testXslx = __DIR__.'/../files/import_existing_attainments_08nov21.xlsx';
+//        $this->assertFileExists($testXslx);
+//        $attainmentManifest = new ExcelAttainmentUpdateOrCreateManifest($testXslx);
+//        $this->attainmentsCollection = collect($attainmentManifest->getAttainmentResources());
+//        $ids = [];
+//        foreach ($this->attainmentsCollection as $attainmentResource) {
+//            if(is_null($attainmentResource->id)){
+//                continue;
+//            }
+//            $attainment = Attainment::where('base_subject_id', $attainmentResource->base_subject_id)
+//                ->where('education_level_id', $attainmentResource->education_level_id)
+//                ->where('code', $attainmentResource->code)
+//                ->where('description', $attainmentResource->description)->first();
+//            if(is_null($attainment)){
+//                continue;
+//            }
+//            if($attainment->getKey()==$attainmentResource->id){
+//                continue;
+//            }
+//            $ids[] = $attainmentResource->id;
+//        }
+//        dump($ids);
+//        $this->assertCount(0,$ids);
+//        $this->logoutAdmin();
+//    }
+
     /** @test */
     public function existing_attainments_file_08_11_21_double_ids_integrity_test()
     {
