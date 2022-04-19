@@ -262,6 +262,7 @@ class EntreeOnboarding extends Component
                         'school_location_id' => $schoolLocations->first()->getKey(),
                         'username' => $this->registration->username,
                         'password' => '',
+                        'gender' => $this->registration->gender,
                         'name_first' => $this->registration->name_first,
                         'name_suffix' => $this->registration->name_suffix,
                         'name' => $this->registration->name,
@@ -269,8 +270,10 @@ class EntreeOnboarding extends Component
                     ]
                 );
                 $this->userUuid = $user->uuid;
+                $user->eckid = Crypt::decryptString($this->entreeData->data->encryptedEckId);
+                $user->save();
 
-                if ($schoolLocations->count() > 1) {
+                if ($schoolLocations->count() > 0) {
                     $schoolLocations->each(function (SchoolLocation $schoolLocation) use ($user) {
                         $user->addSchoolLocation($schoolLocation);
                         $user->school_location_id = $schoolLocation->getKey();
