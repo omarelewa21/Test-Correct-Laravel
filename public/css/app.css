@@ -960,35 +960,8 @@ input[type=number] {
     width: 100%;
     left: 0;
     display: flex;
-    justify-content: end;
+    justify-content: space-between;
     z-index: 10;
-}
-
-.question-editor-header .question-title {
-    display: flex;
-    align-items: center;
-    height: 70px;
-    padding: 0;
-    border: none;
-}
-
-.question-editor-header .question-title .icon-arrow {
-    -webkit-clip-path: polygon(0% 0%, 75% 0%, 100% 50%, 75% 100%, 0% 100%);
-            clip-path: polygon(0% 0%, 75% 0%, 100% 50%, 75% 100%, 0% 100%);
-    width: 70px;
-    height: 70px;
-    position: relative;
-    left: -20px;
-    background: linear-gradient(90deg, rgba(0, 77, 245, 1) 0%, rgba(71, 129, 255, 1) 100%);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-
-}
-
-.question-editor-header .question-test-name {
-    margin-left: auto;
-    font-size: 14px;
 }
 
 .question-editor-footer {
@@ -4094,9 +4067,6 @@ video {
 .bottom-20{
 	bottom: 5rem;
 }
-.-right-5{
-	right: -1.25rem;
-}
 .right-14{
 	right: 3.5rem;
 }
@@ -4675,9 +4645,6 @@ video {
 }
 .max-w-5xl{
 	max-width: 64rem;
-}
-.max-w-\[167px\]{
-	max-width: 167px;
 }
 .flex-1{
 	flex: 1 1 0%;

@@ -4,7 +4,10 @@ namespace tcCore\Http\Livewire\Drawer;
 
 use Illuminate\Support\Str;
 use Livewire\Component;
+use tcCore\GroupQuestionQuestion;
+use tcCore\Http\Controllers\GroupQuestionQuestionsController;
 use tcCore\Http\Controllers\TestQuestionsController;
+use tcCore\Lib\GroupQuestionQuestion\GroupQuestionQuestionManager;
 use tcCore\Test;
 
 class Cms extends Component
@@ -24,8 +27,9 @@ class Cms extends Component
     protected function getListeners()
     {
         return [
-            'refreshDrawer'  => 'refreshDrawer',
-            'deleteQuestion' => 'deleteQuestion',
+            'refreshDrawer'              => 'refreshDrawer',
+            'refreshSelf'                    => '$refresh',
+            'deleteQuestion'             => 'deleteQuestion',
             'deleteQuestionByQuestionId' => 'deleteQuestionByQuestionId',
         ];
     }
@@ -68,10 +72,9 @@ class Cms extends Component
             $testQuestion->question->loadRelated();
             if ($testQuestion->question->type === 'GroupQuestion') {
                 $groupQuestion = $testQuestion->question;
-                $groupQuestion->subQuestions = $groupQuestion->groupQuestionQuestions->map(function ($item) use (
-                    $groupQuestion
-                ) {
+                $groupQuestion->subQuestions = $groupQuestion->groupQuestionQuestions->map(function ($item) use ($groupQuestion) {
                     $item->question->belongs_to_groupquestion_id = $groupQuestion->getKey();
+                    $item->question->groupQuestionQuestionUuid = $item->uuid;
                     return $item->question;
                 });
             }
@@ -174,14 +177,28 @@ class Cms extends Component
                 $this->$key = $item;
             }
         });
+        $this->emitSelf('refreshSelf');
     }
 
     public function deleteQuestionByQuestionId($questionId)
     {
-        $testQuestionUuid = $this->questionsInTest->filter(function($question) use ($questionId) {
+        $testQuestionUuid = $this->questionsInTest->filter(function ($question) use ($questionId) {
             return $question->question_id == $questionId;
         })->first()->uuid;
 
         $this->deleteQuestion($testQuestionUuid);
+    }
+
+    public function deleteSubQuestion($groupQuestionQuestionId, $testQuestionId)
+    {
+        $this->findOutHowToRedirectButFirstExecuteCallback('abc', function() use ($testQuestionId, $groupQuestionQuestionId) {
+            $groupQuestionQuestion = GroupQuestionQuestion::whereUuid($groupQuestionQuestionId)->first();
+            $groupQuestionQuestionManager = GroupQuestionQuestionManager::getInstanceWithUuid($testQuestionId);
+
+            $response = (new GroupQuestionQuestionsController)->destroy(
+                $groupQuestionQuestionManager,
+                $groupQuestionQuestion
+            );
+        });
     }
 }

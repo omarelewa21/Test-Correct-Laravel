@@ -6,18 +6,7 @@
      x-on:question-saved.window="Notify.notify('Vraag opgeslagen')"
      questionComponent
 >
-    <div class="question-editor-header z-50">
-        <div class="question-title">
-            <div class="icon-arrow">
-                <x-icon.edit></x-icon.edit>
-            </div>
-            <h5 class=" text-white">{{ $this->questionType }}</h5>
-        </div>
-        <div class="question-test-name">
-            <span>{{ __('cms.Toets') }}:</span>
-            <span class="bold">{{ $testName }}</span>
-        </div>
-    </div>
+    <x-partials.header.cms-editor :testName="$testName"/>
     <div class="question-editor-content w-full max-w-7xl mx-auto relative"
          wire:key="container-{{ $this->testQuestionId.$this->groupQuestionQuestionId.$this->action }}"
     >
@@ -73,7 +62,7 @@
                             >
                                 <button class="flex items-center space-x-2 py-1 px-4 base hover:text-primary hover:bg-offwhite transition w-full"
 {{--                                        @click="$dispatch('delete-modal', ['question'])"--}}
-                                        wire:click="$emit('deleteQuestion', '{{ $this->testQuestionId }}')"
+                                        wire:click="removeItem('question', 1)"
                                 >
                                     <x-icon.remove/>
                                     <span class="text-base bold inherit">{{ __('cms.Verwijderen') }}</span>

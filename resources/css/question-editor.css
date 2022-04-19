@@ -16,34 +16,8 @@
     width: 100%;
     left: 0;
     display: flex;
-    justify-content: end;
+    justify-content: space-between;
     z-index: 10;
-}
-
-.question-editor-header .question-title {
-    display: flex;
-    align-items: center;
-    height: 70px;
-    padding: 0;
-    border: none;
-}
-
-.question-editor-header .question-title .icon-arrow {
-    clip-path: polygon(0% 0%, 75% 0%, 100% 50%, 75% 100%, 0% 100%);
-    width: 70px;
-    height: 70px;
-    position: relative;
-    left: -20px;
-    background: linear-gradient(90deg, rgba(0, 77, 245, 1) 0%, rgba(71, 129, 255, 1) 100%);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-
-}
-
-.question-editor-header .question-test-name {
-    margin-left: auto;
-    font-size: 14px;
 }
 
 .question-editor-footer {

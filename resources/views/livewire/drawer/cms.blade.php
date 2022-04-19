@@ -64,7 +64,7 @@
                                                                    :subQuestion="true"
                                     />
                                 @endforeach
-
+                                <x-sidebar.cms.dummy-question-button :testQuestion="$testQuestion" :loop="$loopIndex"/>
                             </x-sidebar.cms.group-question-container>
                         @else
                             @php $loopIndex ++; @endphp
@@ -74,14 +74,14 @@
                             />
                         @endif
                     @endforeach
+                    <x-sidebar.cms.dummy-question-button :loop="$loopIndex"/>
                 </div>
                 <div wire:loading class="fixed inset-0" style="width: var(--sidebar-width)"></div>
                 <x-button.plus-circle wire:click="addGroup">
                     {{ __('cms.Vraaggroep toevoegen') }}
                 </x-button.plus-circle>
 
-                <x-button.plus-circle wire:click="addGroup"
-                                      @click="next($refs.container1);$dispatch('backdrop')"
+                <x-button.plus-circle @click="next($refs.container1);$dispatch('backdrop')"
                 >
                     {{__('cms.Vraag toevoegen')}}
                 </x-button.plus-circle>

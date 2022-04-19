@@ -124,7 +124,7 @@ return [
     'extra'                                                                                  => 'Overig',
     'Volgende'                                                                               => 'Volgende',
     'Vraaggroep_toevoegen'                                                                   => 'Vraaggroep toevoegen',
-    'group-question'                                                                         => 'Groepsvraag',
+    'group-question'                                                                         => 'Vraaggroep',
     'Basis'                                                                                  => 'Basis',
     'naam vraaggroep'                                                                        => 'Naam vraaggroep',
     'type vraaggroep'                                                                        => 'Type vraaggroep',
@@ -140,4 +140,5 @@ return [
     'Bestaande vraag toevoegen'                                                              => 'Bestaande vraag toevoegen',
     'Nieuwe vraag creeren'                                                                   => 'Nieuwe vraag creëeren',
     'Wijzigen'                                                                               => 'Wijzigen',
+    'vraag'                                                                                  => ':count vraag|:count vragen',
 ];

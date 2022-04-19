@@ -141,4 +141,5 @@ return [
     'Bestaande vraag toevoegen'                                                              => 'Add existing question',
     'Nieuwe vraag creeren'                                                                   => 'Create question',
     'Wijzigen'                                                                               => 'Change',
+    'question'                                                                               => ':count question|:count questions',
 ];

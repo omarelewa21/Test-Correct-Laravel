@@ -1,4 +1,6 @@
-<div x-data="{expand: true}" class="flex flex-col py-1.5 pl-6 pr-4 {{ ($this->testQuestionId == $testQuestion->uuid) ? 'group-active' : '' }}" style="max-width: 300px">
+<div x-data="{expand: true}"
+     class="flex flex-col py-1.5 pl-6 pr-4 {{ ($this->testQuestionId == $testQuestion->uuid) ? 'group-active' : '' }}"
+     style="max-width: 300px">
     <div class="flex space-x-2 py-1.5 cursor-pointer group-question-title-container"
          :class="expand ? 'rotate-svg-270' : 'rotate-svg-90'"
          @click="expand = !expand; setTimeout(() => {handleVerticalScroll($refs.container1)}, 210); "
@@ -9,7 +11,7 @@
               title="{{ $question->name }}"
         >
             <span>{{ $question->name }}</span>
-            <span class="note text-sm regular">Hoi</span>
+            <span class="note text-sm regular">{{ trans_choice('cms.vraag', $question->subQuestions->count()) }}</span>
         </span>
 
         <div class="flex items-start space-x-2.5 mt-2 text-sysbase">
@@ -21,7 +23,7 @@
                 @endif
             </div>
             <div class="flex">
-                <x-sidebar.cms.question-options :testQuestion="$testQuestion" :question="$question"/>
+                <x-sidebar.cms.question-options :testQuestion="$testQuestion" :question="$question" :subQuestion="false"/>
             </div>
         </div>
     </div>
