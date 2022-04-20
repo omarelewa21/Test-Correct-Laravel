@@ -257,11 +257,11 @@ class ImportAttainmentTest extends TestCase
     }
 
     /** @test */
-    public function new_learning_goals_file_09_04_22_integrity_test()
+    public function new_learning_goals_file_20_04_22_integrity_test()
     {
         $this->loginAdmin();
         $this->inactivateAttainmentToMakeImportPossible();
-        $testXslx = __DIR__.'/../files/import_new_learning_goals_09_04_22.xlsx';
+        $testXslx = __DIR__.'/../files/import_new_learning_goals_20_04_22.xlsx';
         $this->assertFileExists($testXslx);
         $request  = new Request();
         $params = [
@@ -362,6 +362,87 @@ class ImportAttainmentTest extends TestCase
         }
         dump($faultArr);
         dump(count($faultArr));
+        $this->logoutAdmin();
+    }
+
+    /** @test */
+    public function new_attainments_file_08_11_21_vmbo_tl_bio_integrity_test()
+    {
+        $this->loginAdmin();
+        $this->inactivateAttainmentToMakeImportPossible();
+        $testXslx = __DIR__.'/../files/import_new_attainments_08nov21_v2.xlsx';
+        $this->assertFileExists($testXslx);
+        $request  = new Request();
+        $params = [
+            'session_hash' => Auth::user()->session_hash,
+            'user'         => Auth::user()->username,
+            'attainments' => $testXslx,
+        ];
+        $request->merge($params);
+        $response = (new AttainmentImportController())->importForUpdateOrCreate($request);
+        $this->assertEquals(200,$response->getStatusCode());
+        $attainments = Attainment::all();
+        $faultArr = [];
+        foreach ($attainments as $attainment){
+            $parent = $attainment->attainment;
+            if(is_null($parent)){
+                continue;
+            }
+            if($attainment->education_level_id!=$parent->education_level_id||$attainment->base_subject_id!=$parent->base_subject_id){
+                $faultArr[] = [ 'id'=>$attainment->getKey(),
+                    'base_subject_id'=>$attainment->base_subject_id,
+                    'attainment'=>$attainment->attainment_id,
+                    'education_level_id'=>$attainment->education_level_id,
+                    'code'=>$attainment->code,
+                    'subcode'=>$attainment->subcode,
+                    'subsubcode'=>$attainment->subsubcode];
+            }
+            //$this->assertEquals($attainment->education_level_id,$parent->education_level_id);
+
+        }
+        dump($faultArr);
+        dump(count($faultArr));
+        $this->assertCount(0,$faultArr);
+        $this->logoutAdmin();
+    }
+
+    /** @test */
+    public function missingActiveFieldTest()
+    {
+        $this->loginAdmin();
+        $missingActives = [];
+        $testXslx = __DIR__.'/../files/import_existing_attainments_08nov21.xlsx';
+        $this->assertFileExists($testXslx);
+        $attainmentManifest = new ExcelAttainmentUpdateOrCreateManifest($testXslx);
+        $this->attainmentsCollection = collect($attainmentManifest->getAttainmentResources());
+
+        foreach ($this->attainmentsCollection as $attainmentResource) {
+            if(strtoupper($attainmentResource->status)!='ACTIVE'){
+                $missingActives[] = [
+                    'base_subject_id'=>$attainmentResource->base_subject_id,
+                    'education_level_id'=>$attainmentResource->education_level_id,
+                    'code'=>$attainmentResource->code,
+                    'subcode'=>$attainmentResource->subcode,
+                    'subsubcode'=>$attainmentResource->subsubcode];
+            }
+        }
+        $testXslx = __DIR__.'/../files/import_new_attainments_08nov21_v2.xlsx';
+        $this->assertFileExists($testXslx);
+        $attainmentManifest = new ExcelAttainmentUpdateOrCreateManifest($testXslx);
+        $this->attainmentsCollection = collect($attainmentManifest->getAttainmentResources());
+
+        foreach ($this->attainmentsCollection as $attainmentResource) {
+            if(strtoupper($attainmentResource->status)!='ACTIVE'){
+                $missingActives[] = [
+                    'base_subject_id'=>$attainmentResource->base_subject_id,
+                    'education_level_id'=>$attainmentResource->education_level_id,
+                    'code'=>$attainmentResource->code,
+                    'subcode'=>$attainmentResource->subcode,
+                    'subsubcode'=>$attainmentResource->subsubcode];
+            }
+        }
+        dump($missingActives);
+        $this->assertCount(0,$missingActives);
         $this->logoutAdmin();
     }
 

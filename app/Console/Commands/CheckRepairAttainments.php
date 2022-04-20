@@ -77,6 +77,8 @@ class CheckRepairAttainments extends Command
         $this->check182();
         $this->check223();
         $this->check302_306();
+        $this->checkWiskundeC();
+        $this->checkAttainmentsEmptyStatus();
     }
 
     protected function checkEconomie()
@@ -330,6 +332,161 @@ class CheckRepairAttainments extends Command
             $this->error('306 has description:'.$attainment->description);
         }
     }
+
+    protected function checkWiskundeC()
+    {
+        $this->checkWiskundeC1();
+        $this->checkWiskundeC2();
+    }
+
+    protected function checkWiskundeC1()
+    {
+        $attainment = $this->getAttainment([
+            'base_subject_id'=>7,
+            'education_level_id'=>1,
+            'code'=>'F',
+            'subcode'=>1,
+            'subsubcode'=>null
+        ]);
+        if(is_null($attainment)){
+            $this->error('7/1/F/1 does not exist');
+            return;
+        }
+        if(is_null($attainment->description)){
+            $this->info('7/1/F/1 has description null');
+        }else{
+            $this->error('7/1/F/1 has description:'.$attainment->description);
+        }
+    }
+
+    protected function checkWiskundeC2()
+    {
+        $attainment = $this->getAttainment([
+            'base_subject_id'=>7,
+            'education_level_id'=>1,
+            'code'=>'G',
+            'subcode'=>1,
+            'subsubcode'=>null
+        ]);
+        if(is_null($attainment)){
+            $this->error('7/1/G/1 does not exist');
+            return;
+        }
+        if(is_null($attainment->description)){
+            $this->info('7/1/G/1 has description null');
+        }else{
+            $this->error('7/1/G/1 has description:'.$attainment->description);
+        }
+    }
+
+    protected function checkAttainmentsEmptyStatus()
+    {
+        $attainment = $this->getAttainment([
+            'base_subject_id'=>68,
+            'education_level_id'=>1,
+            'code'=>'G',
+            'subcode'=>1,
+            'subsubcode'=>null
+        ]);
+        if(is_null($attainment)){
+            $this->error('68/1/G/1 does not exist');
+        }else{
+            $this->info('68/1/G/1 exists');
+        }
+
+        $attainment = $this->getAttainment([
+            'base_subject_id'=>68,
+            'education_level_id'=>3,
+            'code'=>'G',
+            'subcode'=>1,
+            'subsubcode'=>null
+        ]);
+        if(is_null($attainment)){
+            $this->error('68/3/G/1 does not exist');
+        }else{
+            $this->info('68/3/G/1 exists');
+        }
+
+        $attainment = $this->getAttainment([
+            'base_subject_id'=>70,
+            'education_level_id'=>1,
+            'code'=>'A',
+            'subcode'=>1,
+            'subsubcode'=>null
+        ]);
+        if(is_null($attainment)){
+            $this->error('70/1/A/1 does not exist');
+        }else{
+            $this->info('70/1/A/1 exists');
+        }
+
+        $attainment = $this->getAttainment([
+            'base_subject_id'=>70,
+            'education_level_id'=>3,
+            'code'=>'A',
+            'subcode'=>1,
+            'subsubcode'=>null
+        ]);
+        if(is_null($attainment)){
+            $this->error('70/3/A/1 does not exist');
+        }else{
+            $this->info('70/3/A/1 exists');
+        }
+
+        $attainment = $this->getAttainment([
+            'base_subject_id'=>76,
+            'education_level_id'=>3,
+            'code'=>'A',
+            'subcode'=>1,
+            'subsubcode'=>null
+        ]);
+        if(is_null($attainment)){
+            $this->error('76/3/A/1 does not exist');
+        }else{
+            $this->info('76/3/A/1 exists');
+        }
+
+        $attainment = $this->getAttainment([
+            'base_subject_id'=>87,
+            'education_level_id'=>6,
+            'code'=>'B',
+            'subcode'=>1,
+            'subsubcode'=>8
+        ]);
+        if(is_null($attainment)){
+            $this->error('87/6/B/1/8 does not exist');
+        }else{
+            $this->info('87/6/B/1/8 exists');
+        }
+
+        $attainment = $this->getAttainment([
+            'base_subject_id'=>88,
+            'education_level_id'=>6,
+            'code'=>'A',
+            'subcode'=>null,
+            'subsubcode'=>null
+        ]);
+        if(is_null($attainment)){
+            $this->error('88/6/A does not exist');
+            return;
+        }else{
+            $this->info('88/6/A exists');
+        }
+        $attainmentId = $attainment->getKey();
+        $attainments = Attainment::where('base_subject_id', 88)
+        ->where('education_level_id', 6)
+        ->where('code', 'A')
+        ->whereNotNull('subcode')
+        ->whereNull('subsubcode');
+        $attainments->each(function($attainment) use ($attainmentId){
+            if($attainment->attainment_id!=$attainmentId){
+                $this->error($attainment->base_subject_id.'/'.$attainment->education_level_id.'/'.$attainment->code.'/'.$attainment->subcode.'/'.$attainment->subsubcode.'has the wrong attainment_id');
+                return true;
+            }
+            $this->info($attainment->base_subject_id.'/'.$attainment->education_level_id.'/'.$attainment->code.'/'.$attainment->subcode.'/'.$attainment->subsubcode.'has the right attainment_id');
+        });
+    }
+
 
     protected function attainmentExist($props)
     {

@@ -57,6 +57,8 @@ class RepairAttainments extends Command
         $this->handle182();
         $this->handle223();
         $this->handle302_306();
+        $this->handleWiskundeC();
+        $this->handleAttainmentsEmptyStatus();
     }
 
 
@@ -552,6 +554,212 @@ class RepairAttainments extends Command
         $this->info('handled: 306');
     }
 
+    protected function handleWiskundeC()
+    {
+        $this->handleWiskundeC1();
+        $this->handleWiskundeC2();
+    }
+
+    protected function handleWiskundeC1()
+    {
+        $attainment = $this->getAttainment([
+            'base_subject_id'=>7,
+            'education_level_id'=>1,
+            'code'=>'F',
+            'subcode'=>1,
+            'subsubcode'=>null
+        ]);
+        if(is_null($attainment)){
+            throw new \Exception('7/1/F/1 does not exist');
+        }
+        $attainment->description = null;
+        $attainment->save();
+        $this->info('handled: 7/1/F/1 wiskunde C');
+    }
+
+    protected function handleWiskundeC2()
+    {
+        $attainment = $this->getAttainment([
+            'base_subject_id'=>7,
+            'education_level_id'=>1,
+            'code'=>'G',
+            'subcode'=>1,
+            'subsubcode'=>null
+        ]);
+        if(is_null($attainment)){
+            throw new \Exception('7/1/G/1 does not exist');
+        }
+        $attainment->description = null;
+        $attainment->save();
+        $this->info('handled: 7/1/G/1 wiskunde C');
+    }
+
+    protected function handleAttainmentsEmptyStatus()
+    {
+        /**--- 68/1/G/1 -----*/
+        $parentProps = ['base_subject_id'=>68,
+            'education_level_id'=>1,
+            'code'=>'G',
+            'subcode'=>null,
+            'subsubcode'=>null];
+        $parentAttainment = $this->getAttainment($parentProps);
+        if(is_null($parentAttainment)){
+            $this->error('parent 68/1/G not found');
+            return;
+        }
+        $props = [
+            'base_subject_id'=>68,
+            'education_level_id'=>1,
+            'code'=>'G',
+            'subcode'=>1,
+            'subsubcode'=>null,
+            'description'=>'Basisverslaglegging',
+            'attainment_id'=>$parentAttainment->getKey()
+        ];
+        $attainment = new Attainment();
+        $attainment->fill($props);
+        $attainment->save();
+        $this->info('68/1/G/1 handled');
+        /**---  68/1/G/3 -----*/
+        $parentProps = ['base_subject_id'=>68,
+            'education_level_id'=>1,
+            'code'=>'G',
+            'subcode'=>null,
+            'subsubcode'=>null];
+        $parentAttainment = $this->getAttainment($parentProps);
+        if(is_null($parentAttainment)){
+            $this->error('parent 68/1/G not found');
+            return;
+        }
+        $props = [
+            'base_subject_id'=>68,
+            'education_level_id'=>3,
+            'code'=>'G',
+            'subcode'=>1,
+            'subsubcode'=>null,
+            'description'=>'Basisverslaglegging',
+            'attainment_id'=>$parentAttainment->getKey()
+        ];
+        $attainment = new Attainment();
+        $attainment->fill($props);
+        $attainment->save();
+        $this->info('68/1/G/3 handled');
+        /**---  70/1/A/1 -----*/
+        $parentProps = ['base_subject_id'=>70,
+            'education_level_id'=>1,
+            'code'=>'A',
+            'subcode'=>null,
+            'subsubcode'=>null];
+        $parentAttainment = $this->getAttainment($parentProps);
+        if(is_null($parentAttainment)){
+            $this->error('parent 68/1/G not found');
+            return;
+        }
+        $props = [
+            'base_subject_id'=>70,
+            'education_level_id'=>1,
+            'code'=>'A',
+            'subcode'=>1,
+            'subsubcode'=>null,
+            'description'=>'Basisverslaglegging',
+            'attainment_id'=>$parentAttainment->getKey()
+        ];
+        $attainment = new Attainment();
+        $attainment->fill($props);
+        $attainment->save();
+        $this->info('70/1/A/1 handled');
+        /**---  70/3/A/1 -----*/
+        $parentProps = ['base_subject_id'=>70,
+            'education_level_id'=>3,
+            'code'=>'A',
+            'subcode'=>null,
+            'subsubcode'=>null];
+        $parentAttainment = $this->getAttainment($parentProps);
+        if(is_null($parentAttainment)){
+            $this->error('parent 70/3/A not found');
+            return;
+        }
+        $props = [
+            'base_subject_id'=>70,
+            'education_level_id'=>3,
+            'code'=>'A',
+            'subcode'=>1,
+            'subsubcode'=>null,
+            'description'=>'Basisverslaglegging',
+            'attainment_id'=>$parentAttainment->getKey()
+        ];
+        $attainment = new Attainment();
+        $attainment->fill($props);
+        $attainment->save();
+        $this->info('70/3/A/1 handled');
+        /**---  76/3/A/1 -----*/
+        $parentProps = ['base_subject_id'=>76,
+            'education_level_id'=>3,
+            'code'=>'A',
+            'subcode'=>null,
+            'subsubcode'=>null];
+        $parentAttainment = $this->getAttainment($parentProps);
+        if(is_null($parentAttainment)){
+            $this->error('parent 76/3/A not found');
+            return;
+        }
+        $props = [
+            'base_subject_id'=>76,
+            'education_level_id'=>3,
+            'code'=>'A',
+            'subcode'=>1,
+            'subsubcode'=>null,
+            'description'=>null,
+            'attainment_id'=>$parentAttainment->getKey()
+        ];
+        $attainment = new Attainment();
+        $attainment->fill($props);
+        $attainment->save();
+        $this->info('76/3/A/1 handled');
+        /**---  87/6/B/1/8 -----*/
+        $parentProps = ['base_subject_id'=>87,
+            'education_level_id'=>6,
+            'code'=>'B',
+            'subcode'=>1,
+            'subsubcode'=>null];
+        $parentAttainment = $this->getAttainment($parentProps);
+        if(is_null($parentAttainment)){
+            $this->error('parent 87/6/B/1 not found');
+            return;
+        }
+        $props = [
+            'base_subject_id'=>87,
+            'education_level_id'=>6,
+            'code'=>'B',
+            'subcode'=>1,
+            'subsubcode'=>8,
+            'description'=>'Een kandidaat kan ICT-vaardigheden toepassen, met name: tekstverwerkingsprogramma en presentatieprogramma.',
+            'attainment_id'=>$parentAttainment->getKey()
+        ];
+        $attainment = new Attainment();
+        $attainment->fill($props);
+        $attainment->save();
+        $this->info('87/6/B/1/8 handled');
+        /**---  88/6/A -----*/
+        $props = [
+            'base_subject_id'=>88,
+            'education_level_id'=>6,
+            'code'=>'A',
+            'subcode'=>null,
+            'subsubcode'=>null
+        ];
+        $attainment = new Attainment();
+        $attainment->fill($props);
+        $attainment->save();
+        DB::table('attainments')
+            ->where('base_subject_id', $props['base_subject_id'])
+            ->where('education_level_id', $props['education_level_id'])
+            ->where('code', $props['code'])
+            ->whereNotNull('subcode')
+            ->whereNull('subsubcode')
+            ->update(['attainment_id' => $attainment->getKey()]);
+        $this->info('88/6/A handled');
+    }
 
     protected function attainmentExist($props)
     {
