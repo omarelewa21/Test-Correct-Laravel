@@ -1,5 +1,5 @@
 <div class="drawer flex z-[3]"
-     x-data="{collapse: false, backdrop: false}"
+     x-data="{collapse: false, backdrop: false, emptyStateActive: @entangle('emptyStateActive')}"
      x-init="
         collapse = window.innerWidth < 1000;
         handleBackdrop = () => {
@@ -12,6 +12,10 @@
                 }
             }
         }
+        dispatchBackdrop = () => {
+            if(!emptyStateActive) $dispatch('backdrop');
+        }
+        $watch('emptyStateActive', (value) => backdrop = value)
 "
      :class="{'collapsed': collapse}"
      x-cloak
@@ -28,7 +32,14 @@
          x-transition:leave="ease-in duration-200"
          x-transition:leave-start="opacity-100"
          x-transition:leave-end="opacity-0">
-        <div class="absolute inset-0 bg-gray-500 opacity-75"></div>
+        <div class="absolute inset-0">
+            <div x-show="emptyStateActive" class="empty-state-popover py-4 px-6">
+{{--                <div class="absolute right-2 top-1 cursor-pointer" >--}}
+{{--                    <x-icon.close-small/>--}}
+{{--                </div>--}}
+                <span class="regular text-base">Begin met het maken van een vraaggroep of een losse vraag.</span>
+            </div>
+        </div>
     </div>
     <div id="sidebar-content" class="flex flex-col bg-white">
         <div class="collapse-toggle vertical white z-10 cursor-pointer"
@@ -47,7 +58,7 @@
              wire:ignore.self
         >
             <x-sidebar.slide-container class="pt-4 divide-y divide-bluegrey" x-ref="container1">
-                <div class="divide-y divide-bluegrey pb-6">
+                <div class="divide-y divide-bluegrey pb-6" {{ $emptyStateActive ? 'hidden' : '' }}>
                     @php $loopIndex = 0; @endphp
                     @foreach($this->questionsInTest as $testQuestion)
                         @if($testQuestion->question->type === 'GroupQuestion')
@@ -76,12 +87,12 @@
                     @endforeach
                     <x-sidebar.cms.dummy-question-button :loop="$loopIndex"/>
                 </div>
-                <div wire:loading class="fixed inset-0" style="width: var(--sidebar-width)"></div>
+                <div wire:loading wire:loading.class.remove="hidden" wire:loading.attr.remove="hidden" hidden class="fixed hidden inset-0" style="width: var(--sidebar-width)"></div>
                 <x-button.plus-circle wire:click="addGroup">
                     {{ __('cms.Vraaggroep toevoegen') }}
                 </x-button.plus-circle>
 
-                <x-button.plus-circle @click="next($refs.container1);$dispatch('backdrop')"
+                <x-button.plus-circle @click="next($refs.container1); dispatchBackdrop()"
                 >
                     {{__('cms.Vraag toevoegen')}}
                 </x-button.plus-circle>
@@ -92,7 +103,7 @@
             <x-sidebar.slide-container x-ref="container2">
                 <div class="py-1 px-6 flex">
                     <x-button.text-button class="rotate-svg-180"
-                                          @click="prev($refs.container2); $dispatch('backdrop')"
+                                          @click="prev($refs.container2); dispatchBackdrop()"
                                           wire:click="$set('groupId', null)"
                     >
                         <x-icon.arrow/>

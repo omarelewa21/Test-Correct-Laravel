@@ -38,6 +38,7 @@
     --system-base: #041f74;
     --system-secondary: #CEDAF3;
     --mid-grey: #929DAF;
+    --mid-grey-rgb: 146, 157, 175;
     --light-grey: #F0F2F5;
     --blue-grey: #c3d0ed;
     --shadow-blue: #4D578F;
@@ -47,7 +48,7 @@
     --note: #6b7789;
     --orange: #eca000;
     --main-shadow: 0 3px 8px 0 rgba(4, 31, 116, 0.3);
-    --card-shadow: 0 3px 16px 0 rgba(4, 31, 116, 0.1);;
+    --card-shadow: 0 3px 16px 0 rgba(4, 31, 116, 0.1);
     --white: #ffffff;
     --maintenance-header-bg: #ff6666;
     --deployment-testing-color: darkorange;

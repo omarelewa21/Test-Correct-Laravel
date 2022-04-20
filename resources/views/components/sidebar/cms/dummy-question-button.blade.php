@@ -3,23 +3,10 @@
     $groupDummy = $testQuestion != null
 @endphp
 <div class=""
-     x-data="{showQuestionDummy: false, groupId: '{{ $testQuestion->uuid ?? null}}',name: '',
-            fillSubQuestionFromEvent(evt) {
-                if(evt.groupId === this.groupId) {
-                    this.name = evt.name
-                    this.showQuestionDummy = true;
-                    }
-                },
-                fillQuestionFromEvent(evt) {
-                    this.name = evt.name
-                    this.showQuestionDummy = true;
-                }
-     }"
-     x-show="showQuestionDummy"
+     x-data="{mode: @entangle('action'), owner: @entangle('owner'), name: @entangle('newQuestionTypeName')}"
+     x-init=""
+     x-show="mode === 'add'"
      x-cloak
-     x-on:new-sub-question.window="fillSubQuestionFromEvent($event.detail);"
-     x-on:new-question.window="console.log($event);fillQuestionFromEvent($event.detail);"
-     x-on:hide-question-dummies.window="showQuestionDummy = false"
 >
     <div class="question-button flex items-center cursor-pointer bold py-2 hover:text-primary @if(!$groupDummy) pl-6 pr-4 @endif question-active"
          style="max-width: 300px"
@@ -37,9 +24,7 @@
 
                     <div class="flex note text-sm regular justify-between">
                         <span x-text="name"></span>
-                        <div class="flex items-center space-x-2">
-
-                        </div>
+                        <div class="flex items-center space-x-2"></div>
                     </div>
                 </div>
                 <div class="flex items-start space-x-2.5 mt-1">
@@ -48,4 +33,8 @@
             </div>
         </div>
     </div>
+
+    <div x-ref="translate" class="hidden invisible"
+         data-
+    ></div>
 </div>

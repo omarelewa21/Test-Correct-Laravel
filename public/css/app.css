@@ -1254,6 +1254,34 @@ input[type=number] {
 #sidebar-carousel-container .question-active {
     color: var(--primary);
 }
+
+#sidebar-backdrop {
+    background-color: rgba(var(--mid-grey-rgb), .5);
+}
+#sidebar-backdrop > div > * {
+    filter: drop-shadow(0 0 8px rgba(4, 31, 116, 0.3));
+}
+
+#sidebar-backdrop .empty-state-popover {
+    position: relative;
+    top: calc(var(--header-height) + 20px);
+    left: calc(var(--sidebar-width) + 35px);
+    width: 360px;
+    background-color: var(--off-white);
+    border-radius: 10px;
+}
+
+#sidebar-backdrop .empty-state-popover::before {
+    content: '';
+    position: absolute;
+    width: 1rem;
+    height: 1rem;
+    background-color: var(--off-white);
+    left: 0;
+    top: 50%;
+    transform: translate(-50%, -50%) rotate(45deg);
+}
+
 /*!
  * FilePond 4.30.3
  * Licensed under MIT, https://opensource.org/licenses/MIT/
@@ -4120,6 +4148,9 @@ video {
 .right-14{
 	right: 3.5rem;
 }
+.top-1{
+	top: 0.25rem;
+}
 .z-10{
 	z-index: 10;
 }
@@ -5938,6 +5969,7 @@ video {
     --system-base: #041f74;
     --system-secondary: #CEDAF3;
     --mid-grey: #929DAF;
+    --mid-grey-rgb: 146, 157, 175;
     --light-grey: #F0F2F5;
     --blue-grey: #c3d0ed;
     --shadow-blue: #4D578F;
@@ -5947,7 +5979,7 @@ video {
     --note: #6b7789;
     --orange: #eca000;
     --main-shadow: 0 3px 8px 0 rgba(4, 31, 116, 0.3);
-    --card-shadow: 0 3px 16px 0 rgba(4, 31, 116, 0.1);;
+    --card-shadow: 0 3px 16px 0 rgba(4, 31, 116, 0.1);
     --white: #ffffff;
     --maintenance-header-bg: #ff6666;
     --deployment-testing-color: darkorange;

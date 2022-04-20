@@ -706,8 +706,11 @@ class OpenShort extends Component
     private function removeQuestion()
     {
         if (!$this->editModeForExistingQuestion()) {
+            if (empty($this->amountOfQuestions['regular']) && empty($this->amountOfQuestions['group'])) {
+                $this->emitTo('drawer.cms', 'show-empty');
+                return true;
+            }
             return $this->openLastQuestion();
-
 //            return $this->returnToTestOverview();
         }
 
@@ -985,18 +988,9 @@ class OpenShort extends Component
         if (filled($args['groupId'])) {
             $this->owner = 'group';
             $this->testQuestionId = $args['groupId'];
-            $this->dispatchBrowserEvent('new-sub-question', [
-                'groupId' => $args['groupId'],
-                'name'    => CmsFactory::findQuestionNameByTypes($args['type'], $args['subtype'])
-            ]);
-            logger('new sub q');
         } else {
             $this->owner = 'test';
             $this->testQuestionId = '';
-            $this->dispatchBrowserEvent('new-question', [
-                'name' => CmsFactory::findQuestionNameByTypes($args['type'], $args['subtype'])
-            ]);
-            logger('new q');
         }
 
         $this->mount();
@@ -1072,6 +1066,8 @@ class OpenShort extends Component
             'owner'                   => $this->owner,
             'testId'                  => $this->testId,
             'groupQuestionQuestionId' => $this->groupQuestionQuestionId,
+            'type'                    => $this->type,
+            'subtype'                 => $this->subtype,
         ]);
     }
 
@@ -1079,7 +1075,7 @@ class OpenShort extends Component
     {
         $groupQ = 0;
         $test = Test::whereUuid($this->testId)->first();
-        $test->testQuestions->map(function($tq) use (&$groupQ) {
+        $test->testQuestions->map(function ($tq) use (&$groupQ) {
             if ($tq->question->type === 'GroupQuestion') {
                 $groupQ++;
             }
