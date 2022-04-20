@@ -6,7 +6,7 @@
      x-on:question-saved.window="Notify.notify('Vraag opgeslagen')"
      questionComponent
 >
-    <x-partials.header.cms-editor :testName="$testName"/>
+    <x-partials.header.cms-editor :testName="$testName" :questionCount="$this->amountOfQuestions"/>
     <div class="question-editor-content w-full max-w-7xl mx-auto relative"
          wire:key="container-{{ $this->testQuestionId.$this->groupQuestionQuestionId.$this->action }}"
     >

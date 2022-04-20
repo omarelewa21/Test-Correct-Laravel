@@ -141,4 +141,5 @@ return [
     'Nieuwe vraag creeren'                                                                   => 'Nieuwe vraag creëeren',
     'Wijzigen'                                                                               => 'Wijzigen',
     'vraag'                                                                                  => ':count vraag|:count vragen',
+    'group-question-count'                                                                   => ':count vraaggroep|:count vraaggroepen',
 ];

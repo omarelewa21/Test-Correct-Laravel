@@ -58,7 +58,9 @@
     --sidebar-transition: .5s ease;
     --collapsed-sidebar-width: 24px;
 
-    --primary-gradient: linear-gradient(to right, var(--teacher-primary) 0%,var(--teacher-primary-light) 100%)
+    --primary-gradient: linear-gradient(to right, var(--teacher-primary) 0%,var(--teacher-primary-light) 100%);
+    --button-gradient: linear-gradient(to right, #002096 0%, var(--teacher-primary-light) 100%),
+                       linear-gradient(to bottom, var(--teacher-primary), var(--teacher-primary));
 }
 
 @font-face {

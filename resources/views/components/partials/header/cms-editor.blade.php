@@ -1,38 +1,36 @@
-<div class="question-editor-header z-50">
-    <div class="flex ">
-        <div class="flex items-center justify-center rounded-full"
-             style="background-color: rgba(var(--primary-rgb), 0.20); width: 40px; height: 40px"
+<div class="question-editor-header disabled z-50">
+    <div class="flex items-center space-x-4">
+        <button class="flex items-center justify-center rounded-full bg-white/20 w-10 h-10 rotate-svg-180 hover:scale-105 transition-transform"
+                wire:click="save"
         >
-            <span class="rotate-svg-180">
-                <x-icon.arrow />
-            </span>
-        </div>
+            <x-icon.arrow />
+        </button>
         <div>
-            <h4 class="text-white">Biologie</h4>
+            <h4 class="text-white">{{ $testName }}</h4>
         </div>
     </div>
 
-    <div class="flex space-x-6">
+    <div class="flex space-x-6 items-center">
         <div>
-            <span>1 vraaggroep, 1 vraag</span>
+            <span class="text-sm">{{ trans_choice('cms.vraag', $questionCount['regular']) }}, {{ trans_choice('cms.group-question-count', $questionCount['group']) }}</span>
         </div>
-        <div class="flex space-x-2">
-            <button>
+        <div class="flex space-x-2 hidden">
+            <button class="new-button button-primary">
                 <x-icon.edit/>
             </button>
-            <button>
+            <button class="new-button button-primary">
                 <x-icon.edit/>
             </button>
-            <button>
+            <button class="new-button button-primary">
                 <x-icon.edit/>
             </button>
-            <button>
+            <button class="new-button button-primary">
                 <x-icon.edit/>
             </button>
-            <button>
+            <button class="new-button button-primary">
                 <x-icon.edit/>
             </button>
-            <button>
+            <button class="new-button button-primary">
                 <x-icon.edit/>
             </button>
 

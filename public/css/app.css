@@ -267,6 +267,56 @@
     background: var(--primary);
 }
 
+.new-button {
+    --button-background-color: var(--primary);
+    --button-background-image: var(--button-gradient);
+    --button-text: var(--white);
+    --button-box-shadow: none;
+    --button-transition-time-effect: 0.3s cubic-bezier(.215,.61,.355,1);
+    --button-padding: 0 12px;
+    width: auto;
+    height: 40px;
+    padding: var(--button-padding);
+    border-radius: 10px;
+    background-color: var(--button-background-color);
+    color: var(--button-text);
+    box-shadow: var(--button-box-shadow);
+    transition: color var(--button-transition-time-effect),
+                box-shadow var(--button-transition-time-effect);
+    position: relative;
+    z-index: 1;
+}
+.new-button::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    transition: opacity var(--button-transition-time-effect);
+    background-image: var(--button-background-image);
+    opacity: 0;
+    border-radius: 10px;
+}
+
+.new-button:hover::after,
+.new-button:active::after,
+.new-button:focus::after {
+    opacity: 1;
+}
+
+.new-button:hover {
+    --button-box-shadow: 0 3px 6px 0 rgba(4, 31, 116, 0.3);
+}
+.new-button:active {
+    --button-box-shadow: 0 1px 3px 0 rgba(4, 31, 116, 0.4);
+}
+.new-button:focus {
+    --button-box-shadow: 0 3px 6px 0 rgba(4, 31, 116, 0.3);;
+    border: 2px solid #002096;
+    --button-padding: 0 10px
+}
+.new-button > * {
+    position: relative;
+    z-index: 2;
+}
 .footer {
     background-color: white;
     height: 70px;
@@ -5243,6 +5293,9 @@ video {
 .bg-transparent{
 	background-color: transparent;
 }
+.bg-white\/20{
+	background-color: rgba(255, 255, 255, 0.2);
+}
 .bg-sysbase{
 	--tw-bg-opacity: 1;
 	background-color: rgba(4, 31, 116, var(--tw-bg-opacity));
@@ -5823,6 +5876,11 @@ video {
 .transition-none{
 	transition-property: none;
 }
+.transition-transform{
+	transition-property: transform;
+	transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+	transition-duration: 150ms;
+}
 .delay-200{
 	transition-delay: 200ms;
 }
@@ -5900,7 +5958,9 @@ video {
     --sidebar-transition: .5s ease;
     --collapsed-sidebar-width: 24px;
 
-    --primary-gradient: linear-gradient(to right, var(--teacher-primary) 0%,var(--teacher-primary-light) 100%)
+    --primary-gradient: linear-gradient(to right, var(--teacher-primary) 0%,var(--teacher-primary-light) 100%);
+    --button-gradient: linear-gradient(to right, #002096 0%, var(--teacher-primary-light) 100%),
+                       linear-gradient(to bottom, var(--teacher-primary), var(--teacher-primary));
 }
 
 @font-face {
@@ -6482,6 +6542,11 @@ ul ul ul {
 .hover\:scale-110:hover{
 	--tw-scale-x: 1.1;
 	--tw-scale-y: 1.1;
+	transform: var(--tw-transform);
+}
+.hover\:scale-105:hover{
+	--tw-scale-x: 1.05;
+	--tw-scale-y: 1.05;
 	transform: var(--tw-transform);
 }
 .hover\:border-gray-300:hover{
