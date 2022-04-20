@@ -85,17 +85,6 @@ class EntreeHelper
             'nameSuffix' => $this->getSuffixFromAttributes(),
             'firstName' => $this->getFirstNameFromAttributes(),
         ];
-        if(BaseHelper::notProduction()) {
-            logger('entreeData for registering');
-            $dataClone = $data;
-            if($dataClone['location']){
-                $dataClone['location'] = $dataClone['location']->getKey();
-            }
-            if($dataClone['school']){
-                $dataClone['school'] = $dataClone['school']->getKey();
-            }
-            logger($dataClone);
-        }
 
         $data = (object) $data;
 
