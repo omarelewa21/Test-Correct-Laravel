@@ -217,27 +217,25 @@ class SvgHelper
         $doc = new \DOMDocument();
         $doc->loadXML(sprintf('<wrap>%s</wrap>', $value));
         collect($doc->getElementsByTagName('image'))->each(function ($node) use ($folder) {
-            $path = sprintf('%s/%s/%s', $this->uuid, $folder, $node->getAttribute('identifier'));
+            $path = sprintf('%s/%s', $this->uuid, $folder);
             if (!$this->disk->exists($path)) {
                 throw new Exception(sprintf('File not found [%s].', $path));
             }
-            $image = $this->getCompressedImage(storage_path('drawing-question-svg/'.$path));
+            $image = $this->getCompressedImage($path, $node->getAttribute('identifier'));
             $node->setAttribute('href',  $image);//'data:' . mime_content_type($image) . ';base64,' . base64_encode($image));
         });
         return substr(substr($doc->saveXML(), 28), 0, -8);
     }
 
-    private function getCompressedImage($path) {
-        logger( $path);
+    private function getCompressedImage($path, $file) {
+
         $server = \League\Glide\ServerFactory::create([
-            'source' => $this->disk->get($path),
-            'cache' => sprintf('%s/cache', $this->disk->get($path))
+            'source' => Storage::disk(self::DISK)->path($path),
+            'cache' => Storage::disk(self::DISK)->path(sprintf('%s/cache', $path)),
+
         ]);
 
-
-        return $server->getImageAsBase64($path, $this->getArrayWidthAndHeight());
-
-        return  $this->disk->get($path);
+        return $server->getImageAsBase64($file, $this->getArrayWidthAndHeight() +[  'fm' => 'jpg', 'q' => '25',]);
     }
 
     private function base64DecodeIfNecessary($value)
