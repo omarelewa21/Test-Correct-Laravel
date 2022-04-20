@@ -149,7 +149,7 @@ class CheckRepairAttainments extends Command
     protected function check392()
     {
         $attainment = Attainment::find(392);
-        $check = $attainment->subcode===1?true:false;
+        $check = $attainment->subcode==1?true:false;
         if($check){
             $this->info('392 has 1 as subcode');
         }else{
@@ -242,6 +242,7 @@ class CheckRepairAttainments extends Command
 
     protected function check302_306()
     {
+        $this->checkNewlineInsteadOf302();
         $this->check302();
         $this->check303();
         $this->check304AndNewline();
@@ -249,10 +250,30 @@ class CheckRepairAttainments extends Command
         $this->check306();
     }
 
+    protected function checkNewlineInsteadOf302()
+    {
+        $attainment = $this->getAttainment([  'base_subject_id'=>1,
+            'education_level_id'=>4,
+            'code'=>'NE/K',
+            'description'=>'Leesvaardigheid',
+            'subcode'=>6,
+            'subsubcode'=>null
+        ]);
+        if(is_null($attainment)){
+            $this->error('1/4/NE/K/6 does not exist');
+            return;
+        }
+        if($attainment->getKey()!=302){
+            $this->info('1/4/NE/K/6 has '.$attainment->getKey().' as id');
+        }else{
+            $this->error('1/4/NE/K/6 has 302 as id');
+        }
+    }
+
     protected function check302()
     {
         $attainment = Attainment::find(302);
-        if($attainment->description==''){
+        if($attainment->description=='Schrijfvaardigheid'){
             $this->info('302 has correct description');
         }else{
             $this->error('302 has description:'.$attainment->description);
@@ -261,7 +282,7 @@ class CheckRepairAttainments extends Command
     protected function check303()
     {
         $attainment = Attainment::find(303);
-        if($attainment->description==''){
+        if($attainment->description=='Fictie'){
             $this->info('303 has correct description');
         }else{
             $this->error('303 has description:'.$attainment->description);
@@ -270,31 +291,31 @@ class CheckRepairAttainments extends Command
     protected function check304AndNewline()
     {
         $attainment = Attainment::find(304);
-        if($attainment->description==''){
+        if($attainment->description=='Vaardigheden'){
             $this->info('304 has correct description');
         }else{
             $this->error('304 has description:'.$attainment->description);
         }
-        $check = $this->attainmentExist([
+        $newLineAttainment = $this->getAttainment([
             'base_subject_id'=>1,
             'education_level_id'=>4,
             'code'=>'NE/V',
             'description'=>'Verwerven, verwerken en verstrekken van informatie',
-            'subcode'=>1,
+            'subcode'=>null,
             'subsubcode'=>null,
             'status'=>'ACTIVE',
             'attainment_id'=>304
         ]);
-        if($check){
-            $this->info('1/4/NE/V/1 exists');
+        if($newLineAttainment->getKey()==304){
+            $this->info('1/4/NE/V/1 has 304 as id');
         }else{
-            $this->error('1/4/NE/V/1 does not exist');
+            $this->error('1/4/NE/V/1 has '.$newLineAttainment->getKey().'as id');
         }
     }
     protected function check305()
     {
         $attainment = Attainment::find(305);
-        if($attainment->description==''){
+        if($attainment->description=='Schrijven op basis van documentatie'){
             $this->info('305 has correct description');
         }else{
             $this->error('305 has description:'.$attainment->description);
@@ -303,7 +324,7 @@ class CheckRepairAttainments extends Command
     protected function check306()
     {
         $attainment = Attainment::find(306);
-        if($attainment->description==''){
+        if($attainment->description=='Vaardigheden in samenhang'){
             $this->info('306 has correct description');
         }else{
             $this->error('306 has description:'.$attainment->description);
@@ -312,14 +333,20 @@ class CheckRepairAttainments extends Command
 
     protected function attainmentExist($props)
     {
+        $attainment = $this->getAttainment($props);
+        if(is_null($attainment)){
+            return false;
+        }
+        return true;
+    }
+
+    protected function getAttainment($props)
+    {
         $attainment = Attainment::where('base_subject_id', $props['base_subject_id'])
             ->where('education_level_id', $props['education_level_id'])
             ->where('code', $props['code'])
             ->where('subcode', $props['subcode'])
             ->where('subsubcode', $props['subsubcode'])->first();
-        if(is_null($attainment)){
-            return false;
-        }
-        return true;
+        return $attainment;
     }
 }

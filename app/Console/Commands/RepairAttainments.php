@@ -429,6 +429,24 @@ class RepairAttainments extends Command
         $attainment->fill($props);
         $attainment->save();
         $this->info('handled: 302');
+        $newLineProps = [
+            'base_subject_id'=>1,
+            'education_level_id'=>4,
+            'code'=>'NE/K',
+            'description'=>'Leesvaardigheid',
+            'subcode'=>6,
+            'subsubcode'=>null,
+            'status'=>'ACTIVE',
+            'attainment_id'=>$attainment->attainment_id,
+        ];
+        $attainment = $this->getAttainment($newLineProps);
+        if(!is_null($attainment)){
+            $this->info('1/4/NE/K/6 -- already handled');
+            return;
+        }
+        $attainment = new Attainment();
+        $attainment->fill($newLineProps);
+        $attainment->save();
     }
 
     protected function handle303()
