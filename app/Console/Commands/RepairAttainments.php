@@ -616,19 +616,21 @@ class RepairAttainments extends Command
             'description'=>'Basisverslaglegging',
             'attainment_id'=>$parentAttainment->getKey()
         ];
-        $attainment = new Attainment();
-        $attainment->fill($props);
-        $attainment->save();
+        if(!$this->attainmentExist($props)) {
+            $attainment = new Attainment();
+            $attainment->fill($props);
+            $attainment->save();
+        }
         $this->info('68/1/G/1 handled');
-        /**---  68/1/G/3 -----*/
+        /**---  68/3/G/1 -----*/
         $parentProps = ['base_subject_id'=>68,
-            'education_level_id'=>1,
+            'education_level_id'=>3,
             'code'=>'G',
             'subcode'=>null,
             'subsubcode'=>null];
         $parentAttainment = $this->getAttainment($parentProps);
         if(is_null($parentAttainment)){
-            $this->error('parent 68/1/G not found');
+            $this->error('parent 68/3/G not found');
             return;
         }
         $props = [
@@ -640,10 +642,12 @@ class RepairAttainments extends Command
             'description'=>'Basisverslaglegging',
             'attainment_id'=>$parentAttainment->getKey()
         ];
-        $attainment = new Attainment();
-        $attainment->fill($props);
-        $attainment->save();
-        $this->info('68/1/G/3 handled');
+        if(!$this->attainmentExist($props)) {
+            $attainment = new Attainment();
+            $attainment->fill($props);
+            $attainment->save();
+        }
+        $this->info('68/3/G/1 handled');
         /**---  70/1/A/1 -----*/
         $parentProps = ['base_subject_id'=>70,
             'education_level_id'=>1,
@@ -652,7 +656,7 @@ class RepairAttainments extends Command
             'subsubcode'=>null];
         $parentAttainment = $this->getAttainment($parentProps);
         if(is_null($parentAttainment)){
-            $this->error('parent 68/1/G not found');
+            $this->error('parent 70/1/A not found');
             return;
         }
         $props = [
@@ -664,9 +668,11 @@ class RepairAttainments extends Command
             'description'=>'Basisverslaglegging',
             'attainment_id'=>$parentAttainment->getKey()
         ];
-        $attainment = new Attainment();
-        $attainment->fill($props);
-        $attainment->save();
+        if(!$this->attainmentExist($props)) {
+            $attainment = new Attainment();
+            $attainment->fill($props);
+            $attainment->save();
+        }
         $this->info('70/1/A/1 handled');
         /**---  70/3/A/1 -----*/
         $parentProps = ['base_subject_id'=>70,
@@ -688,9 +694,11 @@ class RepairAttainments extends Command
             'description'=>'Basisverslaglegging',
             'attainment_id'=>$parentAttainment->getKey()
         ];
-        $attainment = new Attainment();
-        $attainment->fill($props);
-        $attainment->save();
+        if(!$this->attainmentExist($props)) {
+            $attainment = new Attainment();
+            $attainment->fill($props);
+            $attainment->save();
+        }
         $this->info('70/3/A/1 handled');
         /**---  76/3/A/1 -----*/
         $parentProps = ['base_subject_id'=>76,
@@ -712,9 +720,11 @@ class RepairAttainments extends Command
             'description'=>null,
             'attainment_id'=>$parentAttainment->getKey()
         ];
-        $attainment = new Attainment();
-        $attainment->fill($props);
-        $attainment->save();
+        if(!$this->attainmentExist($props)) {
+            $attainment = new Attainment();
+            $attainment->fill($props);
+            $attainment->save();
+        }
         $this->info('76/3/A/1 handled');
         /**---  87/6/B/1/8 -----*/
         $parentProps = ['base_subject_id'=>87,
@@ -736,9 +746,11 @@ class RepairAttainments extends Command
             'description'=>'Een kandidaat kan ICT-vaardigheden toepassen, met name: tekstverwerkingsprogramma en presentatieprogramma.',
             'attainment_id'=>$parentAttainment->getKey()
         ];
-        $attainment = new Attainment();
-        $attainment->fill($props);
-        $attainment->save();
+        if(!$this->attainmentExist($props)) {
+            $attainment = new Attainment();
+            $attainment->fill($props);
+            $attainment->save();
+        }
         $this->info('87/6/B/1/8 handled');
         /**---  88/6/A -----*/
         $props = [
@@ -748,17 +760,20 @@ class RepairAttainments extends Command
             'subcode'=>null,
             'subsubcode'=>null
         ];
-        $attainment = new Attainment();
-        $attainment->fill($props);
-        $attainment->save();
-        DB::table('attainments')
-            ->where('base_subject_id', $props['base_subject_id'])
-            ->where('education_level_id', $props['education_level_id'])
-            ->where('code', $props['code'])
-            ->whereNotNull('subcode')
-            ->whereNull('subsubcode')
-            ->update(['attainment_id' => $attainment->getKey()]);
-        $this->info('88/6/A handled');
+        if(!$this->attainmentExist($props)) {
+            $attainment = new Attainment();
+            $attainment->fill($props);
+            $attainment->save();
+
+            DB::table('attainments')
+                ->where('base_subject_id', $props['base_subject_id'])
+                ->where('education_level_id', $props['education_level_id'])
+                ->where('code', $props['code'])
+                ->whereNotNull('subcode')
+                ->whereNull('subsubcode')
+                ->update(['attainment_id' => $attainment->getKey()]);
+            $this->info('88/6/A handled');
+        }
     }
 
     protected function attainmentExist($props)
