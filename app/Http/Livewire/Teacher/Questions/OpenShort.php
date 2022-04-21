@@ -171,7 +171,7 @@ class OpenShort extends Component
             'order'                  => $this->resolveOrderNumber(),
             'question'               => '',
             'rtti'                   => '',
-            'score'                  => 5,
+            'score'                  => 2,
             'subtype'                => '',
             'type'                   => '',
             'attainments'            => [],
