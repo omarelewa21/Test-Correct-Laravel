@@ -146,7 +146,7 @@ class Onboarding extends Component
             if($samlMessage){
                 $data = $samlMessage->data;
                 if($data) {
-                    collect(['username' => 'emailAddress', 'name' => 'lastName', 'name_suffix' => 'nameSuffix'])->eachSpread(function ($registrationKey, $entreeKey) use ($data) {
+                    collect([['username', 'emailAddress'], ['name', 'lastName'], ['name_suffix', 'nameSuffix']])->eachSpread(function ($registrationKey, $entreeKey) use ($data) {
                         if (property_exists($data, $entreeKey)) {
                             $this->registration->$registrationKey = $data->$entreeKey;
                         }
