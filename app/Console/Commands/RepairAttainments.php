@@ -620,9 +620,9 @@ class RepairAttainments extends Command
         $attainment->fill($props);
         $attainment->save();
         $this->info('68/1/G/1 handled');
-        /**---  68/1/G/3 -----*/
+        /**---  68/3/G/1 -----*/
         $parentProps = ['base_subject_id'=>68,
-            'education_level_id'=>1,
+            'education_level_id'=>3,
             'code'=>'G',
             'subcode'=>null,
             'subsubcode'=>null];
@@ -643,7 +643,7 @@ class RepairAttainments extends Command
         $attainment = new Attainment();
         $attainment->fill($props);
         $attainment->save();
-        $this->info('68/1/G/3 handled');
+        $this->info('68/3/G/1 handled');
         /**---  70/1/A/1 -----*/
         $parentProps = ['base_subject_id'=>70,
             'education_level_id'=>1,

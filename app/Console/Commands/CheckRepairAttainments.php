@@ -381,6 +381,7 @@ class CheckRepairAttainments extends Command
 
     protected function checkAttainmentsEmptyStatus()
     {
+        $faultArr = [];
         $attainment = $this->getAttainment([
             'base_subject_id'=>68,
             'education_level_id'=>1,
@@ -391,6 +392,7 @@ class CheckRepairAttainments extends Command
         if(is_null($attainment)){
             $this->error('68/1/G/1 does not exist');
         }else{
+            $this->checkAttainmentHasProperParent($attainment,$faultArr);
             $this->info('68/1/G/1 exists');
         }
 
@@ -404,6 +406,7 @@ class CheckRepairAttainments extends Command
         if(is_null($attainment)){
             $this->error('68/3/G/1 does not exist');
         }else{
+            $this->checkAttainmentHasProperParent($attainment,$faultArr);
             $this->info('68/3/G/1 exists');
         }
 
@@ -417,6 +420,7 @@ class CheckRepairAttainments extends Command
         if(is_null($attainment)){
             $this->error('70/1/A/1 does not exist');
         }else{
+            $this->checkAttainmentHasProperParent($attainment,$faultArr);
             $this->info('70/1/A/1 exists');
         }
 
@@ -430,6 +434,7 @@ class CheckRepairAttainments extends Command
         if(is_null($attainment)){
             $this->error('70/3/A/1 does not exist');
         }else{
+            $this->checkAttainmentHasProperParent($attainment,$faultArr);
             $this->info('70/3/A/1 exists');
         }
 
@@ -443,6 +448,7 @@ class CheckRepairAttainments extends Command
         if(is_null($attainment)){
             $this->error('76/3/A/1 does not exist');
         }else{
+            $this->checkAttainmentHasProperParent($attainment,$faultArr);
             $this->info('76/3/A/1 exists');
         }
 
@@ -456,6 +462,7 @@ class CheckRepairAttainments extends Command
         if(is_null($attainment)){
             $this->error('87/6/B/1/8 does not exist');
         }else{
+            $this->checkAttainmentHasProperParent($attainment,$faultArr);
             $this->info('87/6/B/1/8 exists');
         }
 
@@ -470,6 +477,7 @@ class CheckRepairAttainments extends Command
             $this->error('88/6/A does not exist');
             return;
         }else{
+            $this->checkAttainmentHasProperParent($attainment,$faultArr);
             $this->info('88/6/A exists');
         }
         $attainmentId = $attainment->getKey();
@@ -485,6 +493,31 @@ class CheckRepairAttainments extends Command
             }
             $this->info($attainment->base_subject_id.'/'.$attainment->education_level_id.'/'.$attainment->code.'/'.$attainment->subcode.'/'.$attainment->subsubcode.'has the right attainment_id');
         });
+        $this->table([  "id",
+            "base_subject_id",
+            "attainment",
+            "education_level_id",
+            "code",
+            "subcode",
+            "subsubcode"], $faultArr);
+    }
+
+    protected function checkAttainmentHasProperParent($attainment,&$faultArr)
+    {
+        $parent = $attainment->attainment;
+        if(is_null($parent)){
+            return;
+        }
+        if($attainment->education_level_id!=$parent->education_level_id||$attainment->base_subject_id!=$parent->base_subject_id){
+            $faultArr[] = [ 'id'=>$attainment->getKey(),
+                'base_subject_id'=>$attainment->base_subject_id,
+                'attainment'=>$attainment->attainment_id,
+                'education_level_id'=>$attainment->education_level_id,
+                'code'=>$attainment->code,
+                'subcode'=>$attainment->subcode,
+                'subsubcode'=>$attainment->subsubcode];
+        }
+
     }
 
 
