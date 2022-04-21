@@ -185,15 +185,8 @@ class AppVersionDetector
                 "3.3.0-beta.5",
             ],
             "needsUpdate" => [
-                "3.2.0",
-                "3.2.0-beta.1",
-                "3.2.0-beta.2",
-                "3.2.0-beta.3",
-                "3.2.0-beta.4",
-                "3.2.0-beta.5",
             ],
             "needsUpdateDeadline" => [
-                    "3.2.0" => "3 april 2022",
             ],
         ],
         "macosElectron" => [
@@ -236,15 +229,8 @@ class AppVersionDetector
                 "3.3.0-beta.5",
             ],
             "needsUpdate" => [
-                "3.2.0",
-                "3.2.0-beta.1",
-                "3.2.0-beta.2",
-                "3.2.0-beta.3",
-                "3.2.0-beta.4",
-                "3.2.0-beta.5",
             ],
             "needsUpdateDeadline" => [
-                "3.2.0" => "3 april 2022",
             ],
         ]
     ];

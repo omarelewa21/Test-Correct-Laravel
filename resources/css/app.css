@@ -11,6 +11,7 @@
 @import url("filepond.css");
 @import url("drawing-question.css");
 @import url("ckeditor5.css");
+@import url("choices.css");
 
 
 @tailwind base;
@@ -46,9 +47,18 @@
     --note: #6b7789;
     --orange: #eca000;
     --main-shadow: 0 3px 8px 0 rgba(4, 31, 116, 0.3);
+    --card-shadow: 0 3px 16px 0 rgba(4, 31, 116, 0.1);;
     --white: #ffffff;
     --maintenance-header-bg: #ff6666;
     --deployment-testing-color: darkorange;
+
+    --header-height: 70px;
+
+    --sidebar-width: 300px;
+    --sidebar-transition: .5s ease;
+    --collapsed-sidebar-width: 24px;
+
+    --primary-gradient: linear-gradient(to right, var(--teacher-primary) 0%,var(--teacher-primary-light) 100%)
 }
 
 @font-face {
@@ -544,6 +554,9 @@ ul ul ul {
 }
 .main-shadow {
     box-shadow: var(--main-shadow);
+}
+.card-shadow {
+    box-shadow: var(--card-shadow);
 }
 
 .validate-red {

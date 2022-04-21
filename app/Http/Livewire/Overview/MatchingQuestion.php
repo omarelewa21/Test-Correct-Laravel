@@ -43,6 +43,10 @@ class MatchingQuestion extends Component
         }
 
         $this->shuffledAnswers = $this->question->matchingQuestionAnswers->shuffle();
+
+        if(!is_null($this->question->belongs_to_groupquestion_id)){
+            $this->question->groupQuestion = Question::find($this->question->belongs_to_groupquestion_id);
+        }
     }
 
     public function render()

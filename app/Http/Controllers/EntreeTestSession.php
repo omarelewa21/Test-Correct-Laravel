@@ -5,6 +5,8 @@ namespace tcCore\Http\Controllers;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Str;
+use tcCore\SamlMessage;
+use tcCore\School;
 use tcCore\SchoolLocation;
 use tcCore\User;
 
@@ -20,12 +22,23 @@ class EntreeTestSession extends Controller {
             'brin4ErrorDetected' => false,
             'lastName' => 'Dohmen',
         ];
-        if(request()->has('withT')){
-            if(request()->has('userId')){
-                $data->user = User::find(request()->get('userId'));
-            }
+        if(request()->has('schoolId')){
+            $data->location = null;
+            $data->school = School::find(request()->get('schoolId'));
         }
-        session(['entreeData' => $data]);
-        return Response::redirectTo(route('onboarding.welcome.entree'));
+
+        $data->schoolId = (property_exists($data,'school') && $data->school) ? $data->school->getKey() : null;
+        $data->locationId = property_exists($data,'location') && $data->location ? $data->location->getKey() : null;
+        $data->school = null;
+        $data->location = null;
+        $data->userId = request()->get('userId',null);
+        $data->user = null;
+
+        $samlId = SamlMessage::create([
+            'data' => $data,
+            'eck_id' => 'not needed',
+            'message_id' => 'not needed',
+        ]);
+        return Response::redirectTo(route('onboarding.welcome.entree',['samlId' => $samlId->uuid]));
     }
 }

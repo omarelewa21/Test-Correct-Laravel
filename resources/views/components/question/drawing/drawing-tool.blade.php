@@ -253,7 +253,18 @@
             @endif
             <div class="modal-buttons flex items-center justify-end">
                 <button id="save-cancel-btn" class="cancel flex bold hover:text-primary cursor-pointer transition">{{ __('auth.cancel') }}</button>
-                <button id="save-confirm-btn" @click="show = false" class="confirm bold">{{ __('general.save') }}</button>
+                <button id="save-confirm-btn" class="confirm bold">{{ __('general.save') }}</button>
+            </div>
+        </div>
+    </div>
+    <div id="save-no-answers-confirm" class="confirm-modal absolute inset-0 flex flex-1 items-center justify-center">
+        <div class="modal-body">
+            <h4 class="title">{{ __('general.save') }}</h4>
+            <div class="divider"></div>
+             <span class="body">{{ __('drawing-modal.Save no answers yet confirm text') }}</span>
+            <div class="modal-buttons flex items-center justify-end">
+                <button id="save-no-answers-cancel-btn" class="cancel flex bold hover:text-primary cursor-pointer transition">{{ __('auth.cancel') }}</button>
+                <button id="save-no-answers-confirm-btn" class="confirm bold">{{ __('general.save') }}</button>
             </div>
         </div>
     </div>
@@ -276,7 +287,7 @@
                     <x-icon.preview/>
                     <x-icon.preview-off/>
                 </button>
-                @if(session()->get('TLCIsIos12',false))
+                @if(strtolower(session()->get('TLCOs',false)) === 'ios')
                 <div class="grid grid-rows-2 gap-0">
                     <button class="shape-btn up-btn" title="{{ __('drawing-modal.Versleep volgorde') }}">
                         <x-icon.arrow-small class="-rotate-90"/>

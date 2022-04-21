@@ -44,6 +44,7 @@ CKEDITOR.editorConfig = function( config ) {
     'Times New Roman/Times New Roman, Times, serif;' +
     'Verdana';
 
+    config.width = 'auto';
     config.toolbar = [
         { name: 'clipboard', items: [ 'Undo', 'Redo' ] },
         // { name: 'clipboard', items: [ 'PasteFromWord', '-', 'Undo', 'Redo' ] },

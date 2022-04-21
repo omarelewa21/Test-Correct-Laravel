@@ -1,4 +1,5 @@
 import Alpine from 'alpinejs';
+import Choices from "choices.js";
 
 window.Alpine = Alpine;
 
@@ -201,7 +202,7 @@ document.addEventListener('alpine:init', () => {
             window.editor.insertText(result);
 
             setTimeout(() => {
-                this.$wire.setQuestionProperty('question',window.editor.getData());
+                this.$wire.setQuestionProperty('question', window.editor.getData());
             }, 300);
         },
         validateInput: function () {
@@ -311,7 +312,12 @@ document.addEventListener('alpine:init', () => {
             })
 
             toolName.Canvas.layers.answer.enable();
-            toolName.Canvas.setCurrentLayer("answer");
+            if(this.isTeacher){
+                toolName.Canvas.setCurrentLayer("question");
+            } else {
+                toolName.Canvas.setCurrentLayer("answer");
+            }
+
         },
         handleGrid(toolName) {
             if (this.gridSvg !== '0.00' && this.gridSvg !== '') {
@@ -331,6 +337,122 @@ document.addEventListener('alpine:init', () => {
                 makePreviewGrid(toolName.drawingApp, this.gridSvg);
             }
         }
+    }));
+    Alpine.data('questionEditorSidebar', () => ({
+        slideWidth: 300,
+        drawer: null,
+        init() {
+            this.slideWidth = this.$root.offsetWidth;
+            this.drawer = this.$root.closest('.drawer');
+            setTimeout(() => {
+                this.handleVerticalScroll(this.$root.firstElementChild)
+            }, 400);
+        },
+        next(currentEl) {
+            const left = this.$refs.questionEditorSidebar.scrollLeft + this.slideWidth;
+            this.scroll(left);
+            this.handleVerticalScroll(currentEl.nextElementSibling);
+        },
+        prev(currentEl) {
+            const left = this.$refs.questionEditorSidebar.scrollLeft - this.slideWidth;
+            this.scroll(left);
+            this.handleVerticalScroll(currentEl.previousElementSibling);
+        },
+        home() {
+            this.scroll(0);
+            this.$dispatch('backdrop');
+        },
+        scroll(position) {
+            this.drawer.scrollTo({top: 0, behavior: 'smooth'});
+            this.$refs.questionEditorSidebar.scrollTo({
+                left: position >= 0 ? position : 0,
+                behavior: 'smooth'
+            });
+        },
+        handleVerticalScroll(el) {
+            this.$refs.questionEditorSidebar.style.minHeight = 'auto';
+            this.$refs.questionEditorSidebar.style.height = 'auto';
+
+            if (el.offsetHeight > this.drawer.offsetHeight) {
+                this.drawer.classList.add('overflow-auto');
+                this.drawer.classList.remove('overflow-hidden');
+            } else {
+                this.drawer.classList.add('overflow-hidden');
+                this.drawer.classList.remove('overflow-auto');
+            }
+
+
+            this.$nextTick(() => {
+                this.$refs.questionEditorSidebar.style.minHeight = this.drawer.offsetHeight+'px';
+                this.$refs.questionEditorSidebar.style.height = el.offsetHeight+'px';
+            })
+        },
+        setNextSlide(toInsert) {
+            this.$root.insertBefore(toInsert, this.$root.querySelector('.slide-container[x-ref="container2"]').nextElementSibling);
+        },
+        showNewQuestion(container) {
+            this.setNextSlide(this.$refs.newquestion);
+            this.next(container);
+        },
+        showQuestionBank() {
+            this.setNextSlide(this.$refs.questionbank);
+            this.drawer.classList.add('fullscreen');
+            const boundingRect = this.$refs.questionbank.getBoundingClientRect();
+            this.scroll(boundingRect.x + boundingRect.width);
+        },
+        hideQuestionBank(container) {
+            this.$root.querySelectorAll('.slide-container').forEach((slide) => {
+                slide.classList.add('opacity-0')
+            })
+
+            this.$nextTick(() => {
+                this.drawer.classList.remove('fullscreen');
+                this.scroll(container.parentElement.firstElementChild.offsetWidth);
+
+                setTimeout(() => {
+                    this.$root.querySelectorAll('.slide-container').forEach((slide) => {
+                        slide.classList.remove('opacity-0')
+                    })
+                    this.$wire.emitTo('drawer.cms', 'refreshDrawer');
+                }, 400)
+            })
+        },
+
+    }));
+    Alpine.data('choices', (wireModel, multiple, options, config) => ({
+        multiple: multiple,
+        value: [],
+        options: options,
+        config: config,
+        wireModel: wireModel,
+        init() {
+            this.multiple = multiple === 1;
+            this.$nextTick(() => {
+                let choices = new Choices(this.$refs.select, this.config);
+
+                let refreshChoices = () => {
+                    let selection = this.multiple ? this.value : [this.value]
+
+                    choices.clearStore()
+                    choices.setChoices(this.options.map(({value, label}) => ({
+                        value,
+                        label,
+                        selected: selection.includes(value),
+                    })))
+                }
+
+                refreshChoices()
+
+                this.$refs.select.addEventListener('change', () => {
+                    this.value = choices.getValue(true)
+                    this.wireModel = this.value;
+                })
+
+                this.$watch('value', () => refreshChoices())
+                this.$watch('options', () => refreshChoices())
+            });
+        }
+
     }));
 
     Alpine.directive('global', function (el, {expression}) {

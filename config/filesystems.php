@@ -63,6 +63,11 @@ return [
             'root' => env('CAKE_STORAGE_PATH', base_path().'/../testportal.test-correct/app/tmp/')
         ],
 
+        \tcCore\Http\Helpers\SvgHelper::DISK => [
+            'driver' => 'local',
+            'root'   => storage_path('drawing-question-svg'),
+        ],
+
 		's3' => [
 			'driver' => 's3',
 			'key'    => 'your-key',

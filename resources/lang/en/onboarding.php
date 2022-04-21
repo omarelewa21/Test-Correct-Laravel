@@ -62,6 +62,8 @@ return [
     'Jouw schoollocatie'                                                                                                                               => 'Your school location',
     'Kies locatie(s)'                                                                                                                                  => 'Choose location(s)',
     'We hebben meerdere locaties gevonden. Op welke locatie geef jij les?'                                                                             => 'We have found multiple locations. At which do you teach?',
+    'Je gegevens worden nu verwerkt...'                                                                                                                => 'Processing your data...',
+    'Je gegevens zijn verwerkt'                                                                                                                        => 'Done, your account has been created',
 
 ];
 ?>

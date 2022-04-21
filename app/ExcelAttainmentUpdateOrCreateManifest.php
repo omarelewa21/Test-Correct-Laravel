@@ -38,7 +38,7 @@ class ExcelAttainmentUpdateOrCreateManifest extends ExcelAttainmentManifest
                 if (!array_key_exists('id', $row)) {
                     continue;
                 }
-                if (!array_key_exists('status', $row) || empty($row['status'])) {
+                if (!array_key_exists('status', $row) || empty($row['base_subject_id'])) {
                     continue;
                 }
                 $result[] = (object)array_merge($row, [

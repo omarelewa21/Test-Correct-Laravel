@@ -68,7 +68,7 @@
     <div class="flex flex-col p-8 sm:p-10 content-section relative">
         <div class="question-title flex flex-wrap items-center question-indicator border-bottom mb-6">
             <div class="inline-flex question-number rounded-full text-center justify-center items-center complete">
-                <span class="align-middle">{{ $number }}</span>
+                <span class="align-middle" wire:ignore >{{ $number }}</span>
             </div>
 
             @if($question->closeable && !$this->closed)
@@ -77,13 +77,13 @@
                 <x-icon.locked class="ml-2"/>
             @endif
 
-            <h1 class="inline-block ml-2 mr-6" selid="questiontitle">{!! __($question->caption) !!}</h1>
+            <h1 wire:ignore class="inline-block ml-2 mr-6" selid="questiontitle">{!! __($question->caption) !!}</h1>
 
             @if ($question->score > 0)
-                <h4 class="inline-block">{{ $question->score }} pt</h4>
+                <h4 wire:ignore class="inline-block">{{ $question->score }} pt</h4>
             @endif
             @if($this->group)
-                <h6 class="inline-flex ml-auto">{{ $this->group->name }}</h6>
+                <h6 wire:ignore class="inline-flex ml-auto">{{ $this->group->name }}</h6>
             @endif
         </div>
         <div class="flex flex-1 flex-col">

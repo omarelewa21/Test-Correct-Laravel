@@ -11,6 +11,7 @@ use Ramsey\Uuid\Uuid;
 use tcCore\BaseSubject;
 use tcCore\DemoTeacherRegistration;
 use tcCore\Http\Requests\Request;
+use tcCore\SamlMessage;
 use tcCore\SchoolLocation;
 use tcCore\Shortcode;
 use tcCore\ShortcodeClick;
@@ -137,6 +138,20 @@ class Onboarding extends Component
             if (null !== $shortcodeId) {
                 $invited_by = Shortcode::where('id', $shortcodeId->shortcode_id)->first();
                 $this->registration->invitee = $invited_by->user_id;
+            }
+        }
+
+        if(request()->has('registerId')){
+            $samlMessage = SamlMessage::getSamlMessageIfValid(request()->get('registerId'));
+            if($samlMessage){
+                $data = $samlMessage->data;
+                if($data) {
+                    collect(['username' => 'emailAddress', 'name' => 'lastName', 'name_suffix' => 'nameSuffix'])->eachSpread(function ($registrationKey, $entreeKey) use ($data) {
+                        if (property_exists($data, $entreeKey)) {
+                            $this->registration->$registrationKey = $data->$entreeKey;
+                        }
+                    });
+                }
             }
         }
 

@@ -22,6 +22,7 @@ use tcCore\Http\Requests\CreateGroupQuestionQuestionRequest;
 use tcCore\Http\Requests\CreateTestQuestionRequest;
 use tcCore\Http\Requests\Request;
 use tcCore\Lib\GroupQuestionQuestion\GroupQuestionQuestionManager;
+use tcCore\Question;
 use tcCore\TemporaryLogin;
 use tcCore\Test;
 use tcCore\TestQuestion;
@@ -38,52 +39,35 @@ class OpenShort extends Component
 
     public $testId;
 
+    public $type;
+
+    public $subtype;
+
     public $owner;
 
     public $groupQuestionQuestionId;
-
-    public $uploads = [];
-
-    public $audioUploadOptions = [];
 
     public $answerEditorId;
 
     public $questionEditorId;
 
+    public $audioUploadOptions = [];
+
+    public $uploads = [];
+
     public $attachments = [];
 
     public $initWithTags = [];
+
+    public $videos = [];
 
     public $isPartOfGroupQuestion = false;
 
     public $isCloneRequest = false;
 
-    protected $queryString = ['testId', 'testQuestionId', 'groupQuestionQuestionId', 'owner', 'isCloneRequest'];
-
-    protected $settingsGeneralPropertiesVisibility = [
-        'autoCheckAnswer'              => false,
-        'autoCheckAnswerCaseSensitive' => false
-    ];
-
-    public $videos = [];
-
-    public $testName = 'test_name';
-
     public $testAuthors = '';
 
-    public $subjectId;
-
-    public $educationLevelId;
-
-    public $action;
-
-    protected $tags = [];
-
-    public $questionId;
-
     public $pValues = [];
-
-    public $questionIndex;
 
     public $attachmentsCount = 0;
 
@@ -96,29 +80,30 @@ class OpenShort extends Component
     public $bloomWarningShown = false;
     public $millerWarningShown = false;
 
-    public $question = [
-        'add_to_database'        => 1,
-        'answer'                 => '',
-        'bloom'                  => '',
-        'closeable'              => 0,
-        'decimal_score'          => 0,
-        'discuss'                => 1,
-        'maintain_position'      => 0,
-        'miller'                 => '',
-        'is_open_source_content' => 0,
-        'tags'                   => [],
-        'note_type'              => 'NONE',
-        'order'                  => 0,
-        'question'               => '',
-        'rtti'                   => '',
-        'score'                  => 5,
-        'subtype'                => '',
-        'type'                   => '',
-        'attainments'            => [],
-        'learning_goals'         => [],
-        'test_id'                => '',
-        'all_or_nothing'         => false,
+    protected $tags = [];
+
+    protected $queryString = [
+        'action', 'type', 'subtype', 'testId', 'testQuestionId', 'groupQuestionQuestionId', 'owner', 'isCloneRequest'
     ];
+
+    protected $settingsGeneralPropertiesVisibility = [
+        'autoCheckAnswer'              => false,
+        'autoCheckAnswerCaseSensitive' => false
+    ];
+
+    public $testName = 'test_name';
+
+    public $subjectId;
+
+    public $educationLevelId;
+
+    public $action;
+
+    public $questionId;
+
+    public $questionIndex;
+
+
     /**
      * @var CmsInfoScreen|CmsMultipleChoice|CmsOpen|CmsRanking|CmsTrueFalse|null
      */
@@ -148,8 +133,13 @@ class OpenShort extends Component
             'question.question' => __('cms.Vraagstelling'),
             'question.answer'   => __('cms.Antwoordmodel')
         ];
-        if($this->obj instanceof CmsInfoScreen){
+
+        if ($this->obj instanceof CmsInfoScreen) {
             $return['question.question'] = __('cms.Informatietekst');
+        }
+
+        if ($this->obj instanceof CmsGroup) {
+            $return['question.name'] = __('cms.naam vraaggroep');
         }
 
         return $return;
@@ -162,6 +152,64 @@ class OpenShort extends Component
             'question.bloom.required'  => __('cms.bloom warning'),
             'question.miller.required' => __('cms.miller warning'),
         ];
+    }
+
+    private function resetQuestionProperties()
+    {
+        $this->question = [
+            'add_to_database'        => 1,
+            'answer'                 => '',
+            'bloom'                  => '',
+            'closeable'              => 0,
+            'decimal_score'          => 0,
+            'discuss'                => 1,
+            'maintain_position'      => 0,
+            'miller'                 => '',
+            'is_open_source_content' => 0,
+            'tags'                   => [],
+            'note_type'              => 'NONE',
+            'order'                  => $this->resolveOrderNumber(),
+            'question'               => '',
+            'rtti'                   => '',
+            'score'                  => 5,
+            'subtype'                => '',
+            'type'                   => '',
+            'attainments'            => [],
+            'learning_goals'         => [],
+            'test_id'                => '',
+            'all_or_nothing'         => false,
+        ];
+        $this->cmsPropertyBag = [];
+        $this->audioUploadOptions = [];
+
+        $this->uploads = [];
+
+        $this->attachments = [];
+
+        $this->initWithTags = [];
+
+        $this->videos = [];
+
+        $this->isPartOfGroupQuestion = false;
+
+        $this->isCloneRequest = false;
+
+        $this->testAuthors = '';
+
+        $this->pValues = [];
+
+        $this->attachmentsCount = 0;
+
+        $this->cmsPropertyBag = [];
+
+        $this->rttiToggle = false;
+        $this->bloomToggle = false;
+        $this->millerToggle = false;
+        $this->rttiWarningShown = false;
+        $this->bloomWarningShown = false;
+        $this->millerWarningShown = false;
+
+        $this->tags = [];
     }
 
 
@@ -182,6 +230,8 @@ class OpenShort extends Component
             'new-video-attachment'  => 'handleNewVideoAttachment',
             'drawing_data_updated'  => 'handleUpdateDrawingData',
             'refresh'               => 'render',
+            'showQuestion'          => 'showQuestion',
+            'addQuestion'           => 'addQuestion',
         ];
     }
 
@@ -221,10 +271,11 @@ class OpenShort extends Component
     // @TODO mag ik deze test zien;
     // @TODO mag ik deze testQuestion editen?
     // @TODO is deze test uberhaupt onderdeel van deze test?
-    public function mount($action, $type, $subType)
+    public function mount()
     {
+        $this->resetQuestionProperties();
         $activeTest = Test::whereUuid($this->testId)->with('testAuthors', 'testAuthors.user')->first();
-        $this->initializeContext($action, $type, $subType, $activeTest);
+        $this->initializeContext($this->action, $this->type, $this->subtype, $activeTest);
         $this->obj = CmsFactory::create($this);
         $this->initializePropertyBag($activeTest);
     }
@@ -250,7 +301,7 @@ class OpenShort extends Component
         return parent::__call($method, $arguments);
     }
 
-    public function save()
+    public function save($withRedirect = true)
     {
         if ($this->obj && method_exists($this->obj, 'prepareForSave')) {
             $this->obj->prepareForSave();
@@ -265,13 +316,29 @@ class OpenShort extends Component
                 $this->prepareForClone();
             }
             $response = $this->saveNewQuestion();
+
+            $this->setQueryStringProperties($response);
         }
 
         if ($response->getStatusCode() == 200) {
             $this->handleAttachments($response);
+
+            if ($this->obj && method_exists($this->obj, 'performAfterSaveActions')) {
+                $this->obj->performAfterSaveActions($response);
+            }
         }
 
-        $this->returnToTestOverview();
+        if (!Auth::user()->schoolLocation->canUseCmsWithDrawer()) {
+            $this->returnToTestOverview();
+            return true;
+        }
+
+        if ($withRedirect) {
+            $this->returnToTestOverview();
+            return true;
+        }
+
+        $this->dispatchBrowserEvent('question-saved');
     }
 
     protected function prepareForClone()
@@ -324,7 +391,6 @@ class OpenShort extends Component
     }
 
 
-
     public function hasAllOrNothing()
     {
         return $this->obj instanceof CmsMultipleChoice;
@@ -333,7 +399,7 @@ class OpenShort extends Component
     public function showQuestionScore()
     {
         $method = 'showQuestionScore';
-        if(method_exists($this->obj,$method)){
+        if (method_exists($this->obj, $method)) {
             return $this->obj->$method();
         }
         return true;
@@ -367,7 +433,7 @@ class OpenShort extends Component
     public function render()
     {
         if ($this->obj && method_exists($this->obj, 'getTemplate')) {
-            return view('livewire.teacher.questions.' . $this->obj->getTemplate())->layout('layouts.base');
+            return view('livewire.teacher.questions.' . $this->obj->getTemplate())->layout('layouts.cms');
         }
         throw new \Exception('No template found for this question type.');
     }
@@ -437,6 +503,8 @@ class OpenShort extends Component
 
     private function updateQuestion()
     {
+        logger([__CLASS__ => $this->question]);
+
         $request = new CmsRequest();
         $request->merge($this->question);
         $request->filterInput();
@@ -463,8 +531,10 @@ class OpenShort extends Component
 
     public function isSettingsGeneralPropertyVisible($property)
     {
-        if ($this->obj && property_exists($this->obj, 'settingsGeneralPropertiesVisibility') && is_array($this->obj->settingsGeneralPropertiesVisibility)) {
-            $this->settingsGeneralPropertiesVisibility = array_merge($this->settingsGeneralPropertiesVisibility, $this->obj->settingsGeneralPropertiesVisibility);
+        if ($this->obj && property_exists($this->obj,
+                'settingsGeneralPropertiesVisibility') && is_array($this->obj->settingsGeneralPropertiesVisibility)) {
+            $this->settingsGeneralPropertiesVisibility = array_merge($this->settingsGeneralPropertiesVisibility,
+                $this->obj->settingsGeneralPropertiesVisibility);
         }
 
         if (array_key_exists($property, $this->settingsGeneralPropertiesVisibility)) {
@@ -480,7 +550,9 @@ class OpenShort extends Component
             return $this->obj->isSettingsGeneralPropertyDisabled($property, $asText);
         }
 
-        if ($this->obj && property_exists($this->obj, 'settingsGeneralDisabledProperties') && is_array($this->obj->settingsGeneralDisabledProperties) && in_array($property, $this->obj->settingsGeneralDisabledProperties)) {
+        if ($this->obj && property_exists($this->obj,
+                'settingsGeneralDisabledProperties') && is_array($this->obj->settingsGeneralDisabledProperties) && in_array($property,
+                $this->obj->settingsGeneralDisabledProperties)) {
             if ($asText) {
                 return 'true';
             }
@@ -692,7 +764,8 @@ class OpenShort extends Component
 
     private function setIsPartOfGroupQuestion()
     {
-        $this->isPartOfGroupQuestion = (request('owner') == 'group');
+
+        $this->isPartOfGroupQuestion = ($this->owner == 'group');
     }
 
     private function editModeForExistingQuestion()
@@ -864,5 +937,107 @@ class OpenShort extends Component
     public function setQuestionProperty($property, $value)
     {
         $this->question[$property] = $value;
+    }
+
+    public function showQuestion($args)
+    {
+        if ($args['shouldSave']) {
+            $this->save(false);
+        }
+
+        $testQuestion = TestQuestion::whereUuid($args['testQuestionUuid'])->with('question')->first();
+
+        $this->action = 'edit';
+
+        if ($args['isSubQuestion']) {
+            $groupQuestion = $testQuestion->question;
+            $question = Question::whereUuid($args['questionUuid'])->first();
+            $this->type = $question->type;
+            $this->subtype = $question->subtype;
+            $this->owner = 'group';
+            $this->groupQuestionQuestionId = $groupQuestion->groupQuestionQuestions()->firstWhere('question_id',
+                $question->getKey())->uuid;
+            $this->testQuestionId = $args['testQuestionUuid'];
+        } else {
+            $this->type = $testQuestion->question->type;
+            $this->subtype = $testQuestion->question->subtype;
+            $this->owner = 'test';
+            $this->groupQuestionQuestionId = '';
+            $this->testQuestionId = $args['testQuestionUuid'];
+        }
+
+        $this->mount();
+
+        $this->render();
+    }
+
+    public function addQuestion($args)
+    {
+        $this->save(false);
+//        $testQuestion = TestQuestion::whereUuid($args['testQuestionUuid'])->with('question')->first();
+        $this->action = 'add';
+        $this->type = $args['type'];
+        $this->subtype = $args['subtype'];
+        $this->groupQuestionQuestionId = '';
+
+        if (filled($args['groupId'])) {
+            $this->owner = 'group';
+            $this->testQuestionId = $args['groupId'];
+        } else {
+            $this->owner = 'test';
+            $this->testQuestionId = '';
+        }
+
+        $this->mount();
+        $this->render();
+
+        $this->emitTo('drawer.cms', 'refreshDrawer', [
+            'testQuestionId'          => $this->testQuestionId,
+            'action'                  => $this->action,
+            'owner'                   => $this->owner,
+            'testId'                  => $this->testId,
+            'groupQuestionQuestionId' => $this->groupQuestionQuestionId,
+        ]);
+    }
+
+    public function isGroupQuestion()
+    {
+        return !!($this->type === 'GroupQuestion');
+    }
+
+    private function resolveOrderNumber()
+    {
+        return Test::whereUuid($this->testId)->first()->getQuestionCount() + 1;
+    }
+
+    public function saveAndRefreshDrawer()
+    {
+        $this->save(false);
+
+        $this->emitTo('drawer.cms', 'refreshDrawer', [
+            'testQuestionId'          => $this->testQuestionId,
+            'action'                  => $this->action,
+            'owner'                   => $this->owner,
+            'testId'                  => $this->testId,
+            'groupQuestionQuestionId' => $this->groupQuestionQuestionId,
+        ]);
+    }
+
+    private function setQueryStringProperties($response)
+    {
+        $this->action = 'edit';
+
+        if ($testQuestion = TestQuestion::whereUuid(json_decode($response->getContent())->uuid)->first()) {
+            $this->testQuestionId = $testQuestion->uuid;
+            $this->groupQuestionQuestionId = '';
+        } else {
+            $this->groupQuestionQuestionId = json_decode($response->getContent())->uuid;
+        }
+
+        /**
+         * Update the CKEditor ids to trigger reinit of the editor after DOM change
+         */
+        $this->answerEditorId = Str::uuid()->__toString();
+        $this->questionEditorId = Str::uuid()->__toString();
     }
 }
