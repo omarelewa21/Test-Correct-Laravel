@@ -6,6 +6,7 @@ use Bugsnag\BugsnagLaravel\Facades\Bugsnag;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Str;
 use Livewire\Component;
 use Ramsey\Uuid\Uuid;
 use tcCore\BaseSubject;
@@ -27,6 +28,7 @@ class Onboarding extends Component
     public $ref;
     public $invited_by;
     public $step = 1;
+    public $level;
 
     public $btnDisabled = true;
     public $confirmed;
@@ -42,11 +44,12 @@ class Onboarding extends Component
     public $subjectOptions = '';
     public $selectedSubjects = [];
     public $selectedSubjectsString = '';
+    public $domain = '';
 
     public $entree_message = '';
 
 
-    protected $queryString = ['step', 'email', 'confirmed', 'ref','entree_message'];
+    protected $queryString = ['step', 'email', 'confirmed', 'ref','entree_message', 'level'];
 
     protected function messages(){
         return [
@@ -67,6 +70,7 @@ class Onboarding extends Component
             'registration.city.required'            => __('registration.city_required'),
             'registration.username.required'        => __('registration.username_required'),
             'registration.username.email'           => __('registration.username_email'),
+            'domain.required'                       => __('registration.domain_required'),
         ];
     }
 
@@ -89,9 +93,14 @@ class Onboarding extends Component
             'registration.invitee'                      => 'sometimes',
             'password'                                  => 'sometimes',
             'registration.subjects'                     => 'sometimes',
+            'domain'                                    => 'sometimes',
         ];
 
         if ($this->step === 1) {
+            $extra1 = [];
+            if($this->useDomainInsteadOfSubjects()){
+                $extra1 = ['domain' => 'required'];
+            }
             return array_merge($default, [
                 'registration.gender'           => 'required|in:male,female,different',
                 'registration.gender_different' => 'sometimes',
@@ -99,7 +108,7 @@ class Onboarding extends Component
                 'registration.name'             => 'required|string',
                 'registration.name_suffix'      => 'sometimes',
                 'password'                      => 'required|same:password_confirmation|'. User::getPasswordLengthRule(),
-            ]);
+            ], $extra1);
         }
 
         return $default;
@@ -117,6 +126,11 @@ class Onboarding extends Component
         ];
     }
 
+    public function useDomainInsteadOfSubjects()
+    {
+        return $this->level === "MBO" || $this->level === "HBO";
+    }
+
     public function mount()
     {
         $this->registration = new DemoTeacherRegistration;
@@ -129,6 +143,11 @@ class Onboarding extends Component
         if (!$this->email) {
             $this->email = '';
         }
+
+        if($this->level){
+            $this->level = Str::upper($this->level);
+        }
+
         if ($this->isUserConfirmedWithEmail()) {
             $this->confirmed = 0;
             $this->shouldDisplayEmail = true;
@@ -172,8 +191,10 @@ class Onboarding extends Component
 
     public function render()
     {
-        $this->setSelectedSubjectsString();
-        $this->setSubjectOptions();
+        if(!$this->useDomainInsteadOfSubjects()) {
+            $this->setSelectedSubjectsString();
+            $this->setSubjectOptions();
+        }
         return view('livewire.onboarding')->layout('layouts.onboarding');
     }
 
@@ -211,6 +232,10 @@ class Onboarding extends Component
             return;
         }
         $this->validate($this->rulesStep2());
+        if($this->useDomainInsteadOfSubjects()){
+            $this->registration->subjects = sprintf("%s:%s",$this->level,$this->domain);
+        }
+        $this->setCorrectLevelToRegistration();
         $this->registration->save();
         try {
             $this->newRegistration = $this->registration->addUserToRegistration($this->password, $this->registration->invitee, $this->ref);
@@ -219,6 +244,11 @@ class Onboarding extends Component
             $this->step = 'error';
             Bugsnag::notifyException($e);
         }
+    }
+
+    protected function setCorrectLevelToRegistration()
+    {
+        $this->registration->level = $this->level ?: "VO";
     }
 
     public function loginUser()
