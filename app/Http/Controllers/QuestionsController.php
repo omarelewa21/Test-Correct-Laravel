@@ -119,6 +119,18 @@ class QuestionsController extends Controller
 
     public function drawingQuestionQuestionBackgroundImage($drawingQuestion, $identifier)
     {
+//        $pass = false;
+//
+////        if(collect($this->getUserRoles())->contains('Student')) {
+////            $pass = true;
+////        }
+//
+//        if (!$pass) {
+//            return redirect()->route('auth.login');
+//
+//        }
+
+
         return $this->getDrawingQuestionBackgroundImage('question', $drawingQuestion, $identifier);
     }
 
