@@ -236,82 +236,93 @@
                                                 </div>
                                             </div>
                                         </div>
-                                        <div x-data  data-subjects='{!! $selectedSubjectsString !!}' class="subjects mb-4 ">
-                                            <div x-data="subjectSelect()" x-init="init('parentEl')" @click.away="clearSearch()" @keydown.escape="clearSearch()" @keydown="navigate" class="mr-4 mb-4 sm:mb-0 ">
-                                                <div >
-                                                <label for="subjects" id="subjects_label"
-                                                       class="transition ease-in-out duration-150">{{__('onboarding.Jouw vak(ken)')}}</label>
-                                                </div>
-                                                <template x-for="(subject, index) in subjects">
 
-                                                    <button class="secondary-button selected-subject align-top text-sm mt-2 mr-1 tooltip" data-text="{{__('onboarding.Verwijder')}}"  @click.prevent="removeSubject(index)">
-                                                        <span class="ml-2 mr-1 leading-relaxed truncate max-w-xs" x-text="subject"></span>
+                                        @if($this->useDomainInsteadOfSubjects())
+                                            <div class="mb-4">
+                                                <div class="input-group w-1/2 md:w-auto order-1 pr-2 mb-4 md:mb-0">
+                                                    <input id="domain" wire:model="domain" type="text"
+                                                           class="form-input @error('domain') border-red @enderror">
+                                                    <label for="domain"
+                                                           class="transition ease-in-out duration-150">{{ __("onboarding.Jouw domein(en)") }}</label>
+                                                </div>
+                                            </div>
+                                        @else
+                                            <div x-data  data-subjects='{!! $selectedSubjectsString !!}' class="subjects mb-4 ">
+                                                <div x-data="subjectSelect()" x-init="init('parentEl')" @click.away="clearSearch()" @keydown.escape="clearSearch()" @keydown="navigate" class="mr-4 mb-4 sm:mb-0 ">
+                                                    <div >
+                                                    <label for="subjects" id="subjects_label"
+                                                           class="transition ease-in-out duration-150">{{__('onboarding.Jouw vak(ken)')}}</label>
+                                                    </div>
+                                                    <template x-for="(subject, index) in subjects">
+
+                                                        <button class="secondary-button selected-subject align-top text-sm mt-2 mr-1 tooltip" data-text="{{__('onboarding.Verwijder')}}"  @click.prevent="removeSubject(index)">
+                                                            <span class="ml-2 mr-1 leading-relaxed truncate max-w-xs" x-text="subject"></span>
+                                                            <span  class=" inline-block align-middle" style="margin:auto">
+                                                                <img class="icon-close-small" src="img/icons/icons-close-small.svg" >
+                                                            </span>
+                                                        </button>
+                                                    </template>
+
+                                                    <button x-show="!showInput" class="secondary-button add-button-div align-top text-sm mt-2 mr-1 tooltip" data-text="{{__('onboarding.Voeg toe')}}" @click.prevent="showSubjectInput()">
                                                         <span  class=" inline-block align-middle" style="margin:auto">
-                                                            <img class="icon-close-small" src="img/icons/icons-close-small.svg" >
+                                                            <img class="icon-close-small" src="img/icons/icons-plus.svg" >
                                                         </span>
                                                     </button>
-                                                </template>
 
-                                                <button x-show="!showInput" class="secondary-button add-button-div align-top text-sm mt-2 mr-1 tooltip" data-text="{{__('onboarding.Voeg toe')}}" @click.prevent="showSubjectInput()">
-                                                    <span  class=" inline-block align-middle" style="margin:auto">
-                                                        <img class="icon-close-small" src="img/icons/icons-plus.svg" >
-                                                    </span>
-                                                </button>
+                                                    <div x-show="showInput" style="
+                                                                width: 12em;
+                                                                height: 40px;
+                                                                border-radius: 8px;
+                                                                overflow: hidden;
+                                                                "
+                                                                class="responsive subject_select_div" @keydown.enter.prevent="addSubject(textInput)"
+                                                    >
 
-                                                <div x-show="showInput" style="
-                                                            width: 12em;
-                                                            height: 40px;
-                                                            border-radius: 8px;
-                                                            overflow: hidden;
-                                                            "
-                                                            class="responsive subject_select_div" @keydown.enter.prevent="addSubject(textInput)"
-                                                >
-
-                                                    <div class="select-search-header" x-on:click="toggleSubjects()">{{ __('onboarding.Selecteer vak....') }}
-                                                        <img x-show="!show"
-                                                             src="img/icons/icons-chevron-down-small.svg"
-                                                             class="iconschevron-down-small icons-chevron float-right"
-                                                             x-on:click="displaySubjects()"
-                                                        >
-                                                        <img x-show="show" src="img/icons/icons-chevron-up-small-blue.svg"
-                                                             class="iconschevron-down-small icons-chevron float-right"
-                                                             x-on:click="hideSubjects()"
-                                                        >
-                                                    </div>
-                                                    <div class="search-wrapper">
-                                                        <input id="input-text-select" x-show="show" x-model="textInput" x-ref="textInput" @input="search($event.target.value)" x-on:keyup="filter()" x-on:focus="focusSearch()" x-on:focusout="loseFocusSearch()"  class="form-input input-text-select">
-                                                        <img x-show="show"
-                                                             src="img/icons/icons-search-blue.svg"
-                                                             class="icons-search-small icons-search-active float-right hide-search"
-                                                        >
-                                                        <img x-show="show" src="img/icons/icons-search-blue-inactive.svg"
-                                                             class="icons-search-small icons-search-inactive float-right"
-                                                        >
-                                                    </div>
-                                                    <hr x-show="show">
-                                                    <div class="subject_select_div_padding">
-                                                        <div class="subject_select_div_inner">
-                                                            <div x-show="show_new_item"  x-on:click="addSubject(new_subject_item)" id="new_subject_item" class="subject_item new_subject_item">
-                                                                <span x-text="new_subject_item"></span>
-                                                                <img class="icon-close-small-subjects " src="img/icons/icons-plus-blue.svg">
-                                                                <hr class="subject_hr">
-                                                            </div>
-                                                            <template x-for="(subject_option, index) in available_subject_options">
-                                                                <div x-show="show" :class="{subject_item_active: subject_option==active_subject_option}" x-on:click="addSubject(subject_option)" class="subject_item existing_subject_item">
-                                                                    <span x-text="subject_option"></span>
+                                                        <div class="select-search-header" x-on:click="toggleSubjects()">{{ __('onboarding.Selecteer vak....') }}
+                                                            <img x-show="!show"
+                                                                 src="img/icons/icons-chevron-down-small.svg"
+                                                                 class="iconschevron-down-small icons-chevron float-right"
+                                                                 x-on:click="displaySubjects()"
+                                                            >
+                                                            <img x-show="show" src="img/icons/icons-chevron-up-small-blue.svg"
+                                                                 class="iconschevron-down-small icons-chevron float-right"
+                                                                 x-on:click="hideSubjects()"
+                                                            >
+                                                        </div>
+                                                        <div class="search-wrapper">
+                                                            <input id="input-text-select" x-show="show" x-model="textInput" x-ref="textInput" @input="search($event.target.value)" x-on:keyup="filter()" x-on:focus="focusSearch()" x-on:focusout="loseFocusSearch()"  class="form-input input-text-select">
+                                                            <img x-show="show"
+                                                                 src="img/icons/icons-search-blue.svg"
+                                                                 class="icons-search-small icons-search-active float-right hide-search"
+                                                            >
+                                                            <img x-show="show" src="img/icons/icons-search-blue-inactive.svg"
+                                                                 class="icons-search-small icons-search-inactive float-right"
+                                                            >
+                                                        </div>
+                                                        <hr x-show="show">
+                                                        <div class="subject_select_div_padding">
+                                                            <div class="subject_select_div_inner">
+                                                                <div x-show="show_new_item"  x-on:click="addSubject(new_subject_item)" id="new_subject_item" class="subject_item new_subject_item">
+                                                                    <span x-text="new_subject_item"></span>
                                                                     <img class="icon-close-small-subjects " src="img/icons/icons-plus-blue.svg">
                                                                     <hr class="subject_hr">
                                                                 </div>
-                                                            </template>
+                                                                <template x-for="(subject_option, index) in available_subject_options">
+                                                                    <div x-show="show" :class="{subject_item_active: subject_option==active_subject_option}" x-on:click="addSubject(subject_option)" class="subject_item existing_subject_item">
+                                                                        <span x-text="subject_option"></span>
+                                                                        <img class="icon-close-small-subjects " src="img/icons/icons-plus-blue.svg">
+                                                                        <hr class="subject_hr">
+                                                                    </div>
+                                                                </template>
+                                                            </div>
                                                         </div>
                                                     </div>
+
+
                                                 </div>
 
-
                                             </div>
-
-                                        </div>
-
+                                        @endif
 
                                     </div>
                                     <div class="error-section md:mb-20">
@@ -345,6 +356,11 @@
                                             <span class="title">{{ $message }}</span>
                                         </div>
                                         @enderror
+                                            @error('domain')
+                                            <div class="notification error mt-4">
+                                                <span class="title">{{ $message }}</span>
+                                            </div>
+                                            @enderror
                                     </div>
                                     <div class="mt-4 md:mt-0 md:absolute md:bottom-0 md:right-0">
                                         @if ($btnDisabled)
