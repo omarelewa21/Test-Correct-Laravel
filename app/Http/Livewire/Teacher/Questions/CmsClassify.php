@@ -6,6 +6,8 @@ use Ramsey\Uuid\Uuid;
 use tcCore\GroupQuestionQuestion;
 use tcCore\Http\Helpers\BaseHelper;
 use tcCore\TestQuestion;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\ValidationException;
 
 class CmsClassify extends CmsBase
 {
@@ -248,5 +250,32 @@ class CmsClassify extends CmsBase
     public function getTemplate()
     {
         return 'classify-question';
+    }
+
+    public function customValidation()
+    {
+        $validator = Validator::make([], []);
+        $answers = $this->instance->question['answers'];
+
+        $emptyCount = 0;
+        $haveOneNonEmptyContainer = false;
+        foreach($answers as $answer){
+            if(strlen($answer['left']) === 0 || strlen($answer['right']) === 0){
+                $emptyCount += 1;
+            }else{
+                $haveOneNonEmptyContainer = true;
+            }
+        }
+
+        if(!$haveOneNonEmptyContainer){
+            $validator->errors()->add('question.answers', 'Answers should have one container with items');
+        }
+        if($emptyCount > 1){
+            $validator->errors()->add('question.answers', 'No more than one empty container is allowed');
+        }
+
+        if ($validator->errors()->count()) {
+            throw new ValidationException($validator);
+        }
     }
 }
