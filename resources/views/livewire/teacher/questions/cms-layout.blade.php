@@ -11,10 +11,12 @@
                 if ($store.cmsLoading === true) {
                     const loadingTimeout = setTimeout(() => {
                         $store.cmsLoading = false;
+                        empty = false;
                         clearTimeout(loadingTimeout);
                     }, 1500)
                 }
            }
+            $nextTick(() => $root.querySelector('.question-editor-content')?.classList.remove('opacity-0'));
            "
      x-cloak
      x-on:question-change.window="handleQuestionChange()"
@@ -24,7 +26,7 @@
      x-effect="loadingTimeout()"
 >
     <x-partials.header.cms-editor :testName="$testName" :questionCount="$this->amountOfQuestions"/>
-    <div class="question-editor-content w-full max-w-7xl mx-auto relative"
+    <div class="question-editor-content w-full max-w-7xl mx-auto relative opacity-0"
          wire:key="container-{{ $this->testQuestionId.$this->groupQuestionQuestionId.$this->action }}"
          :class="{'opacity-0': $store.cmsLoading || empty}"
          style="transition: opacity .3s ease-in"

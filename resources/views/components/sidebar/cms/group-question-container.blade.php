@@ -1,6 +1,8 @@
 <div x-data="{expand: true}"
      class="flex flex-col py-1.5 pl-6 pr-4 {{ ($this->testQuestionId == $testQuestion->uuid) ? 'group-active' : '' }}"
-     style="max-width: 300px">
+     style="max-width: 300px"
+     wire:key="group-{{ $testQuestion->uuid }}"
+>
     <div class="flex space-x-2 py-1.5 cursor-pointer group-question-title-container"
          :class="expand ? 'rotate-svg-270' : 'rotate-svg-90'"
          @click="expand = !expand; setTimeout(() => {handleVerticalScroll($refs.container1)}, 210); "

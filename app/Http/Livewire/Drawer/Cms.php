@@ -85,6 +85,8 @@ class Cms extends Component
             $this->emptyStateActive = false;
             $this->dispatchBrowserEvent('question-change');
         }
+
+        $this->groupId = null;
     }
 
 
