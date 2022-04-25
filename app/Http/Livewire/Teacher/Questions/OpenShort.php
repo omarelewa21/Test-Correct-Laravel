@@ -161,7 +161,7 @@ class OpenShort extends Component
             'answer'                 => '',
             'bloom'                  => '',
             'closeable'              => 0,
-            'decimal_score'          => 0,
+            'decimal_score'          => 1,
             'discuss'                => 1,
             'maintain_position'      => 0,
             'miller'                 => '',
