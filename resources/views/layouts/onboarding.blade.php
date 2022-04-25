@@ -7,7 +7,7 @@
     <title>Test-Correct</title>
 
     <!-- Alpine -->
-{{--    <script src="https://cdn.jsdelivr.net/gh/alpinejs/alpine@v2.x.x/dist/alpine.min.js" defer></script>--}}
+    <script src="https://cdn.jsdelivr.net/gh/alpinejs/alpine@v2.x.x/dist/alpine.min.js" defer></script>
 
 
     <script src="/ckeditor/ckeditor.js" type="text/javascript"></script>
@@ -27,10 +27,10 @@
 {{ $slot }}
 
 @livewireScripts
-<script src="{{ mix('/js/app.js') }}"></script>
+{{--<script src="{{ mix('/js/app.js') }}"></script>--}}
 @stack('page_scripts')
-<script>
-    Alpine.start();
-</script>
+{{--<script>--}}
+{{--    Alpine.start();--}}
+{{--</script>--}}
 </body>
 </html>
