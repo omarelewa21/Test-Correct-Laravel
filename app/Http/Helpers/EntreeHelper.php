@@ -23,6 +23,8 @@ use tcCore\User;
 
 class EntreeHelper
 {
+    CONST ENTREESTUDENTREDIRECT = 'https://www.test-correct.nl/welcome-student';
+
     private $attr;
 
     private $messageId;
@@ -135,7 +137,7 @@ class EntreeHelper
         if($user = User::filterByEckid(Crypt::decryptString($data->encryptedEckId))->first()){
 
             if(!$user->isA('teacher')){
-                return $this->redirectToUrlAndExit('https://www.test-correct.nl/student-aanmelden-error');
+                return $this->redirectToUrlAndExit(self::ENTREESTUDENTREDIRECT);
             }
 
             if(!$user->hasImportMailAddress()){ // regular user
@@ -249,7 +251,7 @@ class EntreeHelper
     protected function handleIfRegisteringAndNotATeacher($data)
     {
         if($data->role !== 'teacher'){
-            return $this->redirectToUrlAndExit('https://www.test-correct.nl/student-aanmelden-error');
+            return $this->redirectToUrlAndExit(self::ENTREESTUDENTREDIRECT);
         }
         return false;
     }

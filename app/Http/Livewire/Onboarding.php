@@ -22,7 +22,7 @@ use tcCore\User;
 class Onboarding extends Component
 {
 
-    protected $allowedLevels = ['MBO','VMBO','HBO','WO','PO','VO'];
+    protected $allowedLevels = ['MBO','HO','PO','VO'];
     public $registration;
     public $email;
     public $password;
@@ -135,7 +135,7 @@ class Onboarding extends Component
 
     public function useDomainInsteadOfSubjects()
     {
-        return $this->level === "MBO" || $this->level === "HBO";
+        return $this->level === "MBO" || $this->level === "HO";
     }
 
     public function mount()
