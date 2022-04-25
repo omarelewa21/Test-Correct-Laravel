@@ -1,6 +1,7 @@
 <div id="drawing-tool"
      class="rounded-10 @student student @else teacher @endstudent"
      wire:ignore
+
 >
     <div class="section-container">
         <section>

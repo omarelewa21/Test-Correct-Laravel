@@ -4346,6 +4346,9 @@ video {
 .-mb-px{
 	margin-bottom: -1px;
 }
+.mt-px{
+	margin-top: 1px;
+}
 .ml-5{
 	margin-left: 1.25rem;
 }
@@ -4378,9 +4381,6 @@ video {
 }
 .-ml-px{
 	margin-left: -1px;
-}
-.mt-px{
-	margin-top: 1px;
 }
 .ml-1{
 	margin-left: 0.25rem;
@@ -5827,6 +5827,9 @@ video {
 }
 .opacity-80{
 	opacity: 0.8;
+}
+.opacity-20{
+	opacity: 0.2;
 }
 .shadow{
 	--tw-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);

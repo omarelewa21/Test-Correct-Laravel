@@ -1,5 +1,5 @@
 <div class="drawer flex z-[3]"
-     x-data="{collapse: false, backdrop: false, emptyStateActive: @entangle('emptyStateActive')}"
+     x-data="{loadingOverlay: false, collapse: false, backdrop: false, emptyStateActive: @entangle('emptyStateActive')}"
      x-init="
         collapse = window.innerWidth < 1000;
         handleBackdrop = () => {
@@ -16,11 +16,15 @@
             if(!emptyStateActive) $dispatch('backdrop');
         }
         $watch('emptyStateActive', (value) => backdrop = value)
-"
+        handleLoading = () => {
+            loadingOverlay = $store.cmsLoading;
+        }
+    "
      :class="{'collapsed': collapse}"
      x-cloak
      wire:ignore.self
      @backdrop="backdrop = !backdrop"
+     x-effect="handleLoading()"
 >
     <div id="sidebar-backdrop"
          class="fixed inset-0 transform transition-all"
@@ -34,9 +38,9 @@
          x-transition:leave-end="opacity-0">
         <div class="absolute inset-0">
             <div x-show="emptyStateActive" class="empty-state-popover py-4 px-6">
-{{--                <div class="absolute right-2 top-1 cursor-pointer" >--}}
-{{--                    <x-icon.close-small/>--}}
-{{--                </div>--}}
+                {{--                <div class="absolute right-2 top-1 cursor-pointer" >--}}
+                {{--                    <x-icon.close-small/>--}}
+                {{--                </div>--}}
                 <span class="regular text-base">Begin met het maken van een vraaggroep of een losse vraag.</span>
             </div>
         </div>
@@ -87,7 +91,16 @@
                     @endforeach
                     <x-sidebar.cms.dummy-question-button :loop="$loopIndex"/>
                 </div>
-                <div wire:loading wire:loading.class.remove="hidden" wire:loading.attr.remove="hidden" hidden class="fixed hidden inset-0" style="width: var(--sidebar-width)"></div>
+                
+                <div wire:loading
+                     wire:loading.class.remove="hidden"
+                     wire:loading.attr.remove="hidden"
+                     hidden
+                     class="fixed hidden inset-0" style="width: var(--sidebar-width)"></div>
+                <div x-show="loadingOverlay"
+                     class="fixed inset-0 bg-white opacity-20"
+                     style="width: var(--sidebar-width)"></div>
+
                 <x-button.plus-circle wire:click="addGroup">
                     {{ __('cms.Vraaggroep toevoegen') }}
                 </x-button.plus-circle>

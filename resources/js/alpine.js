@@ -293,6 +293,9 @@ document.addEventListener('alpine:init', () => {
         isPreview: isPreview,
         init() {
             this.toolName = `drawingTool_${questionId}`;
+            if (Object.getOwnPropertyNames(window).includes(this.toolName)) {
+                delete window[this.toolName];
+            }
             const toolName = window[this.toolName] = initDrawingQuestion(this.$root, this.isTeacher, this.isPreview);
 
             if(this.isTeacher) {
@@ -457,6 +460,8 @@ document.addEventListener('alpine:init', () => {
         let f = new Function('_', '$data', '_.' + expression + ' = $data;return;');
         f(window, el._x_dataStack[0]);
     });
+
+    Alpine.store('cmsLoading', false);
 });
 
 function getTitleForVideoUrl(videoUrl) {

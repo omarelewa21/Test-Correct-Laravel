@@ -5867,6 +5867,11 @@ document.addEventListener('alpine:init', function () {
         var _this7 = this;
 
         this.toolName = "drawingTool_".concat(questionId);
+
+        if (Object.getOwnPropertyNames(window).includes(this.toolName)) {
+          delete window[this.toolName];
+        }
+
         var toolName = window[this.toolName] = initDrawingQuestion(this.$root, this.isTeacher, this.isPreview);
 
         if (this.isTeacher) {
@@ -6051,6 +6056,7 @@ document.addEventListener('alpine:init', function () {
     var f = new Function('_', '$data', '_.' + expression + ' = $data;return;');
     f(window, el._x_dataStack[0]);
   });
+  alpinejs__WEBPACK_IMPORTED_MODULE_1__["default"].store('cmsLoading', false);
 });
 
 function getTitleForVideoUrl(videoUrl) {
