@@ -138,13 +138,14 @@ class EntreeOnboarding extends Onboarding
             $this->step = 1;
         }
 
-        $this->registration->level = "PO";
+        $this->registration->level = "VO";
 
 
         $this->registration->registration_email_confirmed = $this->hasValidTUser;
         if (!$this->hasValidTUser) {
             $this->setSubjectOptions();
         }
+
     }
 
     public function getEntreeDataProperty()

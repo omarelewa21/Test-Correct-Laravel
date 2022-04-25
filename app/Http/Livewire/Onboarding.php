@@ -224,7 +224,9 @@ class Onboarding extends Component
             return;
         }
         if ($this->ref != null && $this->isInvitedBySameDomain($this->registration->username)) {
-            $this->fillSchoolData($this->registration->invitee);
+            $inviter = User::find($this->registration->invitee);
+            $schoolInfo = SchoolLocation::find($inviter->school_location_id);
+            $this->fillSchoolData($schoolInfo);
         } else {
             $this->clearSchoolData();
         }
@@ -355,10 +357,9 @@ class Onboarding extends Component
         return $inviterDomain === explode('@', $username)[1];
     }
 
-    public function fillSchoolData($inviter)
+    public function fillSchoolData(SchoolLocation $schoolInfo)
     {
-        $inviter = User::find($inviter);
-        $schoolInfo = SchoolLocation::find($inviter->school_location_id);
+
         $this->registration->school_location = $schoolInfo->name;
         $this->registration->address = $schoolInfo->visit_address;
         $this->registration->postcode = $schoolInfo->visit_postal;
