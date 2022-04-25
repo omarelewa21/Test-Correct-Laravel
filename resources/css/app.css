@@ -594,7 +594,15 @@ ul ul ul {
 .draggable-source--is-dragging.sub-item-with-connecting-line::before{
     left:-7px;
 }
-
+.questionContainer table{
+    border-spacing: 0px;
+}
+.questionContainer table, .questionContainer th, .questionContainer td {
+    border: 2px solid rgb(100, 99, 99);
+}
+.questionContainer th, .questionContainer td {
+    padding: 0.1rem 0.2rem;
+}
 /* latin */
 @font-face {
     font-family: 'Nunito';

@@ -5964,7 +5964,7 @@ video {
     src: url(/fonts/dotsfont.eot?fbcd82304f706cfcbcc8e9e0822bfdec?#iefix) format('embedded-opentype'),
     url(/fonts/dotsfont.woff?8b72ac3171077e4007dd9cbcf5c4f8dd) format('woff'),
     url(/fonts/dotsfont.ttf?745f3928d9854822d08a6181cc5c7e8d) format('truetype'),
-    url(/fonts/dotsfont.svg?1f984f71e171a7400d67648c49d78d14#dotsfontregular) format('svg');
+    url(/fonts/dotsfont.svg?ad54ff6b85c7d833b617d2599a8de14c#dotsfontregular) format('svg');
 }
 
 .dotsfont {
@@ -6500,7 +6500,15 @@ ul ul ul {
 .draggable-source--is-dragging.sub-item-with-connecting-line::before{
     left:-7px;
 }
-
+.questionContainer table{
+    border-spacing: 0px;
+}
+.questionContainer table, .questionContainer th, .questionContainer td {
+    border: 2px solid rgb(100, 99, 99);
+}
+.questionContainer th, .questionContainer td {
+    padding: 0.1rem 0.2rem;
+}
 /* latin */
 @font-face {
     font-family: 'Nunito';
