@@ -1,27 +1,35 @@
 <div id="cms" class="flex flex-1"
-     x-data="{loading: false, empty: false}"
-     x-init="$watch('loading', () => { setTimeout(() => { loading = false }, 2000)} )"
+     x-data="{empty: false}"
+     x-init="
+           handleQuestionChange = () => {
+                $store.cmsLoading = true;
+                empty = false;
+                $root.querySelector('#drawing-question-tool-container')?.remove();
+           }
+
+           loadingTimeout = () => {
+                if ($store.cmsLoading === true) {
+                    const loadingTimeout = setTimeout(() => {
+                        $store.cmsLoading = false;
+                        clearTimeout(loadingTimeout);
+                    }, 1500)
+                }
+           }
+           "
      x-cloak
-     x-on:question-change.window="loading = true, empty = false"
+     x-on:question-change.window="handleQuestionChange()"
      x-on:question-saved.window="Notify.notify('Vraag opgeslagen')"
      x-on:show-empty.window="empty = !empty"
      questionComponent
+     x-effect="loadingTimeout()"
 >
     <x-partials.header.cms-editor :testName="$testName" :questionCount="$this->amountOfQuestions"/>
     <div class="question-editor-content w-full max-w-7xl mx-auto relative"
          wire:key="container-{{ $this->testQuestionId.$this->groupQuestionQuestionId.$this->action }}"
-         :class="{'opacity-0': loading || empty}"
+         :class="{'opacity-0': $store.cmsLoading || empty}"
          style="transition: opacity .3s ease-in"
     >
-{{--        <div x-show="loading"--}}
-{{--             x-transition:enter="transform ease-out duration-150 transition"--}}
-{{--             x-transition:enter-start="translate-y-2 opacity-0 sm:translate-y-0 sm:translate-x-2"--}}
-{{--             x-transition:enter-end="translate-y-0 opacity-100 sm:translate-x-0"--}}
-{{--             x-transition:leave="transition ease-in duration-100"--}}
-{{--             x-transition:leave-start="opacity-100"--}}
-{{--             x-transition:leave-end="opacity-0"--}}
-{{--             class="absolute inset-0 bg-light-grey z-[2]"--}}
-{{--        ></div>--}}
+
         <div class="flex w-full flex-col">
             <div class="flex w-full border-b border-secondary mt-2.5 py-2.5">
                 <div class="flex w-full items-center px-4 sm:px-6 lg:px-8 justify-between">

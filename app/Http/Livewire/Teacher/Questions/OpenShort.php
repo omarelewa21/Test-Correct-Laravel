@@ -113,6 +113,9 @@ class OpenShort extends Component
 
     public $dirty = false;
 
+    public $withRedirect = true;
+    public $emptyState = false;
+
 
     protected function rules()
     {
@@ -306,13 +309,6 @@ class OpenShort extends Component
 
     public function save($withRedirect = true)
     {
-        if ($this->testHasNoQuestions()) {
-            if ($withRedirect) {
-                $this->returnToTestOverview();
-            }
-            return true;
-        }
-
         if ($this->obj && method_exists($this->obj, 'prepareForSave')) {
             $this->obj->prepareForSave();
         }
@@ -719,8 +715,10 @@ class OpenShort extends Component
     private function removeQuestion()
     {
         if (!$this->editModeForExistingQuestion()) {
-            return $this->openLastQuestion();
-//            return $this->returnToTestOverview();
+            if (Auth::user()->schoolLocation->canUseCmsWithDrawer()) {
+                return $this->openLastQuestion();
+            }
+            return $this->returnToTestOverview();
         }
 
         if ($this->isPartOfGroupQuestion()) {
@@ -739,8 +737,10 @@ class OpenShort extends Component
 
 
         if ($response->getStatusCode() == 200) {
-            return $this->openLastQuestion();
-//            return $this->returnToTestOverview();
+            if (Auth::user()->schoolLocation->canUseCmsWithDrawer()) {
+                return $this->openLastQuestion();
+            }
+            return $this->returnToTestOverview();
         }
     }
 
@@ -810,6 +810,7 @@ class OpenShort extends Component
         $this->testAuthors = $activeTest->AuthorsAsString;
         $this->subjectId = $activeTest->subject_id;
         $this->educationLevelId = $activeTest->education_level_id;
+        $this->withRedirect = !Auth::user()->schoolLocation->canUseCmsWithDrawer();
     }
 
     private function initializePropertyBag($activeTest): void
@@ -1020,7 +1021,7 @@ class OpenShort extends Component
 
     public function saveAndRefreshDrawer()
     {
-        $this->save(false);
+        $this->save($this->withRedirect);
 
         $this->refreshDrawer();
     }
@@ -1052,6 +1053,7 @@ class OpenShort extends Component
             ->value('uuid');
 
         if (!$testQuestionUuid) {
+            $this->emptyState = true;
             $this->emitTo('drawer.cms', 'show-empty');
             return true;
         }
@@ -1102,5 +1104,18 @@ class OpenShort extends Component
     {
         $questionAmount = $this->getAmountOfQuestionsProperty();
         return !!($questionAmount['regular'] === 0 && $questionAmount['group'] === 0);
+    }
+    private function testHasQuestions()
+    {
+        $questionAmount = $this->getAmountOfQuestionsProperty();
+        return !!($questionAmount['regular'] === 0 && $questionAmount['group'] === 0);
+    }
+
+    public function saveAndRedirect()
+    {
+        if ($this->testHasQuestions()) {
+            return $this->save();
+        }
+        return $this->returnToTestOverview();
     }
 }
