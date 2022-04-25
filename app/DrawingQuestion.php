@@ -37,7 +37,16 @@ class DrawingQuestion extends Question implements QuestionInterface {
      *
      * @var array
      */
-    protected $fillable = ['answer', 'grid', 'answer_svg', 'question_svg', 'grid_svg', 'zoom_group', 'question_preview', 'question_correction_model'];
+    protected $fillable = [
+        'answer',
+        'grid',
+//        'answer_svg',
+//        'question_svg',
+        'grid_svg',
+        'zoom_group',
+//        'question_preview',
+//        'question_correction_model'
+    ];
 
     /**
      * The attributes excluded from the model's JSON form.

@@ -307,14 +307,14 @@ class AverageRatingRepository {
             if(!array_key_exists($userId, $schoolYearAverages[$schoolYearId]['individualClassStudentAverages'])) {
                 $schoolYearAverages[$schoolYearId]['individualClassStudentAverages'][$userId] = 0;
             }
-            $schoolYearAverages[$schoolYearId]['individualClassStudentAverages'][$userId] = $schoolYearAverages[$schoolYearId]['classRatingSum'][$userId] /  $schoolYearAverages[$schoolYearId]['classWeightSum'][$userId];
+            $schoolYearAverages[$schoolYearId]['individualClassStudentAverages'][$userId] = (! $schoolYearAverages[$schoolYearId]['classWeightSum'][$userId]) ? 0 : $schoolYearAverages[$schoolYearId]['classRatingSum'][$userId] /  $schoolYearAverages[$schoolYearId]['classWeightSum'][$userId];
 
-            $schoolYearAverages[$schoolYearId]['classAverages'][$date] = (array_sum($schoolYearAverages[$schoolYearId]['individualClassStudentAverages']) / count($schoolYearAverages[$schoolYearId]['individualClassStudentAverages']));
+            $schoolYearAverages[$schoolYearId]['classAverages'][$date] = (! count($schoolYearAverages[$schoolYearId]['individualClassStudentAverages'])) ? 0 : (array_sum($schoolYearAverages[$schoolYearId]['individualClassStudentAverages']) / count($schoolYearAverages[$schoolYearId]['individualClassStudentAverages']));
 
             if ($student->getKey() == $rating->getAttribute('user_id')) {
                 $schoolYearAverages[$schoolYearId]['studentRatingSum'] += $result * $weight;
                 $schoolYearAverages[$schoolYearId]['studentWeightSum'] += $weight;
-                $schoolYearAverages[$schoolYearId]['studentAverages'][$date] = ($schoolYearAverages[$schoolYearId]['studentRatingSum'] / $schoolYearAverages[$schoolYearId]['studentWeightSum']);
+                $schoolYearAverages[$schoolYearId]['studentAverages'][$date] = (! $schoolYearAverages[$schoolYearId]['studentWeightSum']) ? 0 : ($schoolYearAverages[$schoolYearId]['studentRatingSum'] / $schoolYearAverages[$schoolYearId]['studentWeightSum']);
             }
         }
 

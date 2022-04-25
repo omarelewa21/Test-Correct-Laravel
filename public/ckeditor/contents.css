@@ -205,3 +205,12 @@ a > img {
 	max-height: 1080px;
 	margin:0 auto;
 }
+.cke_editable table{
+	border-spacing: 0px !important;
+}
+.cke_editable table, .cke_editable th, .cke_editable td {
+    border: 1px solid rgb(100, 99, 99) !important;
+}
+.cke_editable th, .cke_editable td {
+    padding: 0.1rem 0.2rem !important;
+}

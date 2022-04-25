@@ -16,6 +16,7 @@ use Livewire\Component;
 use tcCore\AppVersionInfo;
 use tcCore\FailedLogin;
 use tcCore\Http\Helpers\AppVersionDetector;
+use tcCore\Http\Helpers\BaseHelper;
 use tcCore\Http\Helpers\EntreeHelper;
 use tcCore\Http\Helpers\TestTakeCodeHelper;
 use tcCore\Http\Requests\Request;
@@ -211,13 +212,7 @@ class Login extends Component
 
     private function doLoginProcedure()
     {
-        $user = auth()->user();
-
-        $sessionHash = $user->generateSessionHash();
-        $user->setSessionHash($sessionHash);
-        LoginLog::create(['user_id' => $user->getKey()]);
-        AppVersionInfo::createFromSession();
-        FailedLogin::solveForUsernameAndIp($this->username, request()->ip());
+        BaseHelper::doLoginProcedure();
     }
 
     private function createFailedLogin()

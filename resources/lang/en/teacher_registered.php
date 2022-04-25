@@ -22,5 +22,6 @@ return [
     'Opmerkingen'                                                                         => 'Comments',
     'Tijdstip van aanmaken'                                                               => 'Time of creation',
     'Met vriendelijke groet'                                                              => 'Sincerely',
-    'Test-Correct supportteam'                                                            => 'Test-Correct support team'
+    'Test-Correct supportteam'                                                            => 'Test-Correct support team',
+    'Level'                                                                               => 'Level',
 ];

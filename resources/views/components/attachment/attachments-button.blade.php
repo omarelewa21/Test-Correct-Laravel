@@ -12,7 +12,7 @@
             wire:key="key-attachment-{{$attachment->uuid}}" :disabled="$blockAttachments"
         >
             <x-icon.attachment/>
-            <span>{{ __('test_take.attachment') }} {{$loop->iteration}}</span>
+            <span wire:ignore>{{ __('test_take.attachment') }} {{$loop->iteration}}</span>
         </x-button.text-button>
     @endforeach
 @elseif($this->group && !$this->group->attachments->isEmpty())
@@ -25,7 +25,7 @@
             wire:key="key-attachment-{{$attachment->uuid}}" :disabled="$blockAttachments"
         >
             <x-icon.attachment/>
-            <span>{{ __('test_take.attachment') }} {{$loop->iteration}}</span>
+            <span wire:ignore>{{ __('test_take.attachment') }} {{$loop->iteration}}</span>
         </x-button.text-button>
     @endforeach
 @endif

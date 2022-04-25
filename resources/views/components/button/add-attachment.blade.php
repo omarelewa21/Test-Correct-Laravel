@@ -13,13 +13,13 @@
         }"
      class="flex rounded-10 items-center transition ease-out duration-500"
      :class="open || url ? 'border-bluegrey border' : '' "
-     style="max-width: 600px;max-height: 42px;"
+     style="max-width: 600px;"
      @click.outside="base = true; open = false; url = false;"
 >
     <div>
         <div x-show="base"
              x-cloak
-             class="flex py-px transition duration-500 items-center">
+             class="flex py-px transition duration-500 items-center flex-wrap">
             <x-button.secondary @click="base = false; open = true" class="max-h-10 min-w-max">
                 {{ $text }}
             </x-button.secondary>

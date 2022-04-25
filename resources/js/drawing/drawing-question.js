@@ -2,6 +2,7 @@ import {panParams, shapePropertiesAvailableToUser, zoomParams} from "./constants
 import * as svgShape from "./svgShape.js";
 import {UIElements, warningBox} from "./uiElements.js";
 import * as sidebar from "./sidebar.js";
+import { v4 as uuidv4 } from 'uuid';
 
 window.initDrawingQuestion = function (rootElement, isTeacher, isPreview) {
 
@@ -41,7 +42,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview) {
             gridSize: 1,
             spacebarPressed: false,
             root: rootElement,
-            isTeacher: isTeacher,
+            isTeacher: isTeacher && !isPreview,
             isPreview: isPreview,
             hiddenLayersCount: 0
         },
@@ -156,6 +157,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview) {
             params: {
                 cursorPosition: {x: 0, y: 0},
                 cursorPositionMousedown: {x: 0, y: 0},
+                imageTracker: [],
                 touchmoving: false,
                 currentLayer: "question",
                 focusedShape: null,
@@ -235,6 +237,9 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview) {
             setFocusedShape(shape) {
                 this.params.focusedShape = shape;
             },
+            getFocusedShape() {
+              return this.params.focusedShape;
+            },
             data: {
                 question: "",
                 answer: "",
@@ -281,6 +286,12 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview) {
             initCanvas() {
                 this.cleanShapeCount();
                 this.makeLayers();
+            },
+            unhighlightShapes() {
+                if (Canvas.params.highlightedShape) {
+                    Canvas.params.highlightedShape.svg.unhighlight();
+                    Canvas.params.highlightedShape = null;
+                }
             }
         }
 
@@ -380,10 +391,11 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview) {
                 },
                 "mousedown touchstart": {
                     callback: () => {
-                        if (Canvas.params.highlightedShape) {
-                            Canvas.params.highlightedShape.svg.unhighlight();
-                            Canvas.params.highlightedShape = null;
-                        }
+                        Canvas.unhighlightShapes()
+                        // if (Canvas.params.highlightedShape) {
+                        //     Canvas.params.highlightedShape.svg.unhighlight();
+                        //     Canvas.params.highlightedShape = null;
+                        // }
                     }
                 }
             }
@@ -672,6 +684,8 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview) {
                     callback() {
                         if (hasHiddenLayers()) {
                             toggleSaveConfirm();
+                        } else if(hasNoAnswerObjects()) {
+                            toggleSaveNoAnswersConfirm();
                         } else {
                             submitDrawingData();
                             closeDrawingTool();
@@ -730,7 +744,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview) {
             events: {
                 "click": {
                     callback() {
-                        UI.saveConfirm.classList.toggle('open');
+                        toggleSaveConfirm();
                     },
                 }
             }
@@ -741,9 +755,35 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview) {
                 "click": {
                     callback() {
                         handleHiddenLayers();
+                        toggleSaveConfirm();
+                        if(hasNoAnswerObjects()){
+                            toggleSaveNoAnswersConfirm();
+                        } else {
+                            submitDrawingData();
+                            closeDrawingTool();
+                        }
+                    },
+                }
+            }
+        },
+        {
+            element: UI.saveNoAnswersCancelBtn,
+            events: {
+                "click": {
+                    callback() {
+                        toggleSaveNoAnswersConfirm();
+                    },
+                }
+            }
+        },
+        {
+            element: UI.saveNoAnswersConfirmBtn,
+            events: {
+                "click": {
+                    callback() {
                         submitDrawingData();
                         closeDrawingTool();
-                        toggleSaveConfirm();
+                        toggleSaveNoAnswersConfirm();
                     },
                 }
             }
@@ -1040,6 +1080,23 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview) {
         // UI.drawingTool.style.height = Math.round(window.innerHeight * 0.95) + "px";
     }
 
+    function cleanedBase64EncodedStrings() {
+        return {
+            question: btoa(clearImageSources(Canvas.layers.question.svg)),
+            answer: btoa(clearImageSources(Canvas.layers.answer.svg))
+        };
+    }
+    function clearImageSources(layer) {
+        const hrefsToReplace = [];
+        layer.querySelectorAll('image')?.forEach((image) => {
+            hrefsToReplace.push(image.getAttribute('href'));
+        });
+        layer = layer.innerHTML;
+        hrefsToReplace.forEach((href) => layer = layer.replace(href, ''));
+
+        return layer;
+    }
+
     async function submitDrawingData() {
         if (drawingApp.params.isPreview) return;
 
@@ -1050,6 +1107,8 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview) {
 
         const livewireComponent = getClosestLivewireComponentByAttribute(rootElement, 'questionComponent');
 
+        const cleanedSvg = cleanedBase64EncodedStrings();
+
         livewireComponent.handleUpdateDrawingData({
             svg_answer: b64Strings.answer,
             svg_question: b64Strings.question,
@@ -1057,7 +1116,9 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview) {
             grid_size: grid,
             svg_zoom_group: panGroupSize,
             png_question_preview_string: await getPNGQuestionPreviewStringFromSVG(panGroupSize),
-            png_correction_model_string: await getPNGCorrectionModelStringFromSVG(panGroupSize)
+            png_correction_model_string: await getPNGCorrectionModelStringFromSVG(panGroupSize),
+            cleaned_question_svg: cleanedSvg.question,
+            cleaned_answer_svg: cleanedSvg.answer
         });
     }
 
@@ -1114,11 +1175,24 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview) {
         return svg;
     }
 
+    function hasNoAnswerObjects() {
+        return ! Object.keys(Canvas.layers.answer.shapes).length;
+    }
+
+    function toggleSaveNoAnswersConfirm() {
+        UI.saveNoAnswersConfirm.classList.toggle('open');
+    }
+
     function toggleSaveConfirm() {
         UI.saveConfirm.classList.toggle('open');
     }
 
     function hasHiddenLayers() {
+        if(drawingApp.isTeacher()){
+            if(Canvas.params.currentLayer == 'question'){
+                return questionLayerIsHidden() || hasQuestionHiddenLayers()
+            }
+        }
         return answerLayerIsHidden() || questionLayerIsHidden() || hasAnswerHiddenLayers() || hasQuestionHiddenLayers()
     }
 
@@ -1250,10 +1324,9 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview) {
 
         if (Canvas.params.focusedShape)
             Canvas.params.focusedShape = null;
-        if (Canvas.params.highlightedShape) {
-            Canvas.params.highlightedShape.svg.unhighlight();
-            Canvas.params.highlightedShape = null;
-        }
+
+        Canvas.unhighlightShapes();
+
         if (evt.touches?.length == 2) {
             startPan(evt);
         } else if (drawingApp.params.currentTool == "drag") {
@@ -1744,8 +1817,23 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview) {
 
 
     function processUploadedImages(evt) {
+        const livewireComponent = getClosestLivewireComponentByAttribute(drawingApp.params.root, 'questionComponent')
+
         for (const fileURL of evt.target.files) {
             const reader = new FileReader();
+
+            const identifier = uuidv4();
+            UI.submitBtn.disabled = true
+            livewireComponent.upload(`cmsPropertyBag.images.${Canvas.params.currentLayer}.${identifier}`, fileURL, (fileName) => {
+                // Success callback.
+                UI.submitBtn.disabled = false
+            }, () => {
+                // Error callback.
+                UI.submitBtn.disabled = false
+            }, (event) => {
+                // Progress callback.
+            })
+
             reader.readAsDataURL(fileURL);
 
             drawingApp.bindEventListeners([
@@ -1753,7 +1841,9 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview) {
                     element: reader,
                     events: {
                         loadend: {
-                            callback: fileLoadedIntoReader,
+                            callback: (evt) => {
+                                fileLoadedIntoReader(evt, identifier);
+                            },
                         },
                         error: {
                             callback: () => {
@@ -1770,7 +1860,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview) {
         UI.imgUpload.value = null;
     }
 
-    function fileLoadedIntoReader(evt) {
+    function fileLoadedIntoReader(evt, identifier) {
         const imageURL = evt.target.result;
         const dummyImage = new Image();
         dummyImage.src = imageURL;
@@ -1779,7 +1869,9 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview) {
                 element: dummyImage,
                 events: {
                     load: {
-                        callback: dummyImageLoaded,
+                        callback: (evt) => {
+                            dummyImageLoaded(evt, identifier);
+                        },
                     },
                     error: {
                         callback: () => {
@@ -1791,7 +1883,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview) {
         ]);
     }
 
-    async function dummyImageLoaded(evt) {
+    async function dummyImageLoaded(evt, identifier) {
         const dummyImage = evt.target,
             scaleFactor = correctImageSize(dummyImage),
             // imageURL = dummyImage.src;
@@ -1803,6 +1895,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview) {
                     href: base65PNGString,
                     width: dummyImage.width * scaleFactor,
                     height: dummyImage.height * scaleFactor,
+                    identifier: identifier
                 },
             },
             Canvas.params.currentLayer
@@ -2157,8 +2250,9 @@ window.calculatePreviewBounds = function (parent) {
     const height = parent.clientHeight,
         width = parent.clientWidth;
     let scale = parent.viewBox.baseVal.width / width;
-    if (parent.viewBox.baseVal.width > width) {
-        scale = width / parent.viewBox.baseVal.width
+
+    if ((parent.viewBox.baseVal.width * parent.viewBox.baseVal.height) > (width * height)) {
+        scale = (width*height) / (parent.viewBox.baseVal.width * parent.viewBox.baseVal.height)
     }
     return {
         top: -(matrix.f + (height)) / scale,

@@ -174,7 +174,7 @@
     padding: 16px;
 }
 
-.select-button:hover, .select-button:focus {
+.select-button:hover, .select-button:focus, .btn-active {
     border: 1px solid var(--primary);
     color: var(--primary);
     outline: none;
@@ -214,4 +214,55 @@
 .action-icon-button.active {
     color: white;
     background: var(--primary);
+}
+
+.new-button {
+    --button-background-color: var(--primary);
+    --button-background-image: var(--button-gradient);
+    --button-text: var(--white);
+    --button-box-shadow: none;
+    --button-transition-time-effect: 0.3s cubic-bezier(.215,.61,.355,1);
+    --button-padding: 0 12px;
+    width: auto;
+    height: 40px;
+    padding: var(--button-padding);
+    border-radius: 10px;
+    background-color: var(--button-background-color);
+    color: var(--button-text);
+    box-shadow: var(--button-box-shadow);
+    transition: color var(--button-transition-time-effect),
+                box-shadow var(--button-transition-time-effect);
+    position: relative;
+    z-index: 1;
+}
+.new-button::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    transition: opacity var(--button-transition-time-effect);
+    background-image: var(--button-background-image);
+    opacity: 0;
+    border-radius: 10px;
+}
+
+.new-button:hover::after,
+.new-button:active::after,
+.new-button:focus::after {
+    opacity: 1;
+}
+
+.new-button:hover {
+    --button-box-shadow: 0 3px 6px 0 rgba(4, 31, 116, 0.3);
+}
+.new-button:active {
+    --button-box-shadow: 0 1px 3px 0 rgba(4, 31, 116, 0.4);
+}
+.new-button:focus {
+    --button-box-shadow: 0 3px 6px 0 rgba(4, 31, 116, 0.3);;
+    border: 2px solid #002096;
+    --button-padding: 0 10px
+}
+.new-button > * {
+    position: relative;
+    z-index: 2;
 }

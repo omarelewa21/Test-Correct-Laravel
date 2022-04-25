@@ -36,7 +36,31 @@ makeHeaderMenuActive = function (elementId) {
 }
 
 isInputElement = function(target) {
-    return /^(?:input|textarea|select|button)$/i.test(target.tagName.toLowerCase());
+    if(/^(?:input|textarea|select|button)$/i.test(target.tagName.toLowerCase())){
+        return true;
+    }
+    if(typeof target.ckeditorInstance != "undefined"){
+        return true;
+    }
+    if((typeof ReadspeakerTlc != 'undefined')&&rsPageContainsCkeditor()){
+        return true;
+    }
+    return false;
+}
+
+rsPageContainsCkeditor = function() {
+    if(typeof ReadspeakerTlc == 'undefined'){
+        return false;
+    }
+    var questionContainer = document.querySelector('.rs_readable');
+    if(questionContainer == null){
+        return false;
+    }
+    var ckeditorNode = questionContainer.querySelector('.ck-editor__editable');
+    if(ckeditorNode != null){
+        return true;
+    }
+    return false;
 }
 
 handleScrollNavigation = function (evt) {
@@ -293,4 +317,9 @@ clearClipboard = function () {
     }
 
     return copyTextToClipboard(' ');
+}
+
+preventNavigationByKeydown = function(event)
+{
+    return event.stopPropagation();
 }

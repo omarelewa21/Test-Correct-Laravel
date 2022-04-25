@@ -90,7 +90,7 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
     protected $fillable = [
         'sales_organization_id', 'school_id', 'school_location_id', 'username', 'name_first', 'name_suffix', 'name',
         'password', 'external_id', 'gender', 'time_dispensation', 'text2speech', 'abbreviation', 'note', 'demo',
-        'invited_by', 'account_verified', 'test_take_code_id', 'guest'
+        'invited_by', 'account_verified', 'test_take_code_id', 'guest','send_welcome_email',
     ];
 
 
@@ -396,7 +396,7 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
             break;
         }
         if (!$handled) {
-            $this->allowedSchoolLocations()->attach([$schoolLocation->id => ['external_id' => $externalId]]);
+            $this->allowedSchoolLocations()->attach([$schoolLocationId => ['external_id' => $externalId]]);
         }
     }
 
@@ -1976,7 +1976,9 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
             $this->allowedSchoolLocations()
 //            ->syncWithoutDetaching([$schoolLocation->id,  ['external_id' =>  $this->external_id]]);
                 ->attach($schoolLocation->id, ['external_id' => $this->user_table_external_id]);
+            return true;
         }
+        return null;
     }
 
     public function removeSchoolLocation(SchoolLocation $schoolLocation)
@@ -2175,9 +2177,10 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
         // added conditional for Thijs to test the new app with fallback if we forget to remove the conditional
         // should be removed before deployment to live
 //        if(Carbon::now() > Carbon::createFromFormat('Y-m-d','2022-01-22')) {
+        $this->loginThisUser();
+        BaseHelper::doLoginProcedure();
         if ($this->isA('student')) {
             if ($this->schoolLocation->allow_new_student_environment) {
-                $this->loginThisUser();
                 $options = [
                     'internal_page' => '/users/student_splash',
                 ];

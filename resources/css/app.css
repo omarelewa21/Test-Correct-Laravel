@@ -11,6 +11,7 @@
 @import url("filepond.css");
 @import url("drawing-question.css");
 @import url("ckeditor5.css");
+@import url("choices.css");
 
 
 @tailwind base;
@@ -37,6 +38,7 @@
     --system-base: #041f74;
     --system-secondary: #CEDAF3;
     --mid-grey: #929DAF;
+    --mid-grey-rgb: 146, 157, 175;
     --light-grey: #F0F2F5;
     --blue-grey: #c3d0ed;
     --shadow-blue: #4D578F;
@@ -46,9 +48,20 @@
     --note: #6b7789;
     --orange: #eca000;
     --main-shadow: 0 3px 8px 0 rgba(4, 31, 116, 0.3);
+    --card-shadow: 0 3px 16px 0 rgba(4, 31, 116, 0.1);
     --white: #ffffff;
     --maintenance-header-bg: #ff6666;
     --deployment-testing-color: darkorange;
+
+    --header-height: 70px;
+
+    --sidebar-width: 300px;
+    --sidebar-transition: .5s ease;
+    --collapsed-sidebar-width: 24px;
+
+    --primary-gradient: linear-gradient(to right, var(--teacher-primary) 0%,var(--teacher-primary-light) 100%);
+    --button-gradient: linear-gradient(to right, #002096 0%, var(--teacher-primary-light) 100%),
+                       linear-gradient(to bottom, var(--teacher-primary), var(--teacher-primary));
 }
 
 @font-face {
@@ -545,6 +558,9 @@ ul ul ul {
 .main-shadow {
     box-shadow: var(--main-shadow);
 }
+.card-shadow {
+    box-shadow: var(--card-shadow);
+}
 
 .validate-red {
     color: var(--all-red);
@@ -581,7 +597,15 @@ ul ul ul {
 .draggable-source--is-dragging.sub-item-with-connecting-line::before{
     left:-7px;
 }
-
+.questionContainer table{
+    border-spacing: 0px;
+}
+.questionContainer table, .questionContainer th, .questionContainer td {
+    border: 2px solid rgb(100, 99, 99);
+}
+.questionContainer th, .questionContainer td {
+    padding: 0.1rem 0.2rem;
+}
 /* latin */
 @font-face {
     font-family: 'Nunito';

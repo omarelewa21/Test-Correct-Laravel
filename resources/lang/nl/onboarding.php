@@ -63,5 +63,8 @@ return [
     'Jouw schoollocatie'                                                                                                                               => 'Jouw schoollocatie',
     'Kies locatie(s)'                                                                                                                                  => 'Kies locatie(s)',
     'We hebben meerdere locaties gevonden. Op welke locatie geef jij les?'                                                                             => 'We hebben meerdere locaties gevonden. Op welke locatie geef jij les?',
+    'Je gegevens worden nu verwerkt...'                                                                                                                => 'Je gegevens worden nu verwerkt...',
+    'Je gegevens zijn verwerkt'                                                                                                                        => 'Je gegevens zijn verwerkt',
+    'Jouw domein(en)'                                                                                                                                  => 'Jouw domein(en)',
 ];
 ?>
