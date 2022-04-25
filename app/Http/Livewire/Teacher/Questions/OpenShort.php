@@ -306,6 +306,13 @@ class OpenShort extends Component
 
     public function save($withRedirect = true)
     {
+        if ($this->testHasNoQuestions()) {
+            if ($withRedirect) {
+                $this->returnToTestOverview();
+            }
+            return true;
+        }
+
         if ($this->obj && method_exists($this->obj, 'prepareForSave')) {
             $this->obj->prepareForSave();
         }
@@ -1083,5 +1090,11 @@ class OpenShort extends Component
         });
 
         return ['regular' => $test->getQuestionCount(), 'group' => $groupQ];
+    }
+
+    private function testHasNoQuestions()
+    {
+        $questionAmount = $this->getAmountOfQuestionsProperty();
+        return !!($questionAmount['regular'] === 0 && $questionAmount['group'] === 0);
     }
 }
