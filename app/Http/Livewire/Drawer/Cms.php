@@ -4,12 +4,16 @@ namespace tcCore\Http\Livewire\Drawer;
 
 use Illuminate\Support\Str;
 use Livewire\Component;
+use tcCore\GroupQuestionQuestion;
+use tcCore\Http\Controllers\GroupQuestionQuestionsController;
 use tcCore\Http\Controllers\TestQuestionsController;
+use tcCore\Http\Livewire\Teacher\Questions\CmsFactory;
+use tcCore\Lib\GroupQuestionQuestion\GroupQuestionQuestionManager;
 use tcCore\Test;
 
 class Cms extends Component
 {
-    protected $queryString = ['testId', 'testQuestionId', 'groupQuestionQuestionId', 'action', 'owner'];
+    protected $queryString = ['testId', 'testQuestionId', 'groupQuestionQuestionId', 'action', 'owner', 'type', 'subtype'];
 
     /* Querystring parameters*/
     public $testId = '';
@@ -17,16 +21,31 @@ class Cms extends Component
     public $groupQuestionQuestionId = '';
     public $action = '';
     public $owner = '';
+    public $type = '';
+    public $subtype = '';
 
     public $groupId;
     public $questionBankActive = false;
+    public $emptyStateActive = false;
+
+    public $newQuestionTypeName = '';
 
     protected function getListeners()
     {
         return [
-            'refreshDrawer'  => 'refreshDrawer',
-            'deleteQuestion' => 'deleteQuestion',
+            'refreshDrawer'              => 'refreshDrawer',
+            'refreshSelf'                => '$refresh',
+            'deleteQuestion'             => 'deleteQuestion',
+            'deleteQuestionByQuestionId' => 'deleteQuestionByQuestionId',
+            'show-empty'                 => 'showEmpty',
         ];
+    }
+
+    public function mount()
+    {
+        if ($this->action === 'add') {
+            $this->newQuestionTypeName = CmsFactory::findQuestionNameByTypes($this->type, $this->subtype);
+        }
     }
 
     public function render()
@@ -36,6 +55,7 @@ class Cms extends Component
 
     public function showQuestion($testQuestionUuid, $questionUuid, $subQuestion, $shouldSave = true)
     {
+        $this->action = 'edit';
         $this->emitTo(
             'teacher.questions.open-short',
             'showQuestion',
@@ -58,6 +78,13 @@ class Cms extends Component
             'addQuestion',
             ['type' => $type, 'subtype' => $subtype, 'groupId' => $this->groupId]
         );
+
+        $this->newQuestionTypeName = $subtype == 'group' ? __('cms.group-question') : CmsFactory::findQuestionNameByTypes($type, $subtype);
+
+        if ($this->emptyStateActive) {
+            $this->emptyStateActive = false;
+            $this->dispatchBrowserEvent('question-change');
+        }
     }
 
 
@@ -67,10 +94,9 @@ class Cms extends Component
             $testQuestion->question->loadRelated();
             if ($testQuestion->question->type === 'GroupQuestion') {
                 $groupQuestion = $testQuestion->question;
-                $groupQuestion->subQuestions = $groupQuestion->groupQuestionQuestions->map(function ($item) use (
-                    $groupQuestion
-                ) {
+                $groupQuestion->subQuestions = $groupQuestion->groupQuestionQuestions->map(function ($item) use ($groupQuestion) {
                     $item->question->belongs_to_groupquestion_id = $groupQuestion->getKey();
+                    $item->question->groupQuestionQuestionUuid = $item->uuid;
                     return $item->question;
                 });
             }
@@ -158,11 +184,11 @@ class Cms extends Component
     {
         if ($question == null) {
             if ($this->questionsInTest->isEmpty()) {
-                return $this->dispatchBrowserEvent('show-empty');
+                $this->showEmpty();
             }
             return true;
         }
-
+        $this->dispatchBrowserEvent('question-change', ['new' => $question->uuid, 'old' => $this->testQuestionId]);
         return $this->showQuestion($question->uuid, $question->question->uuid, false, false);
     }
 
@@ -173,5 +199,34 @@ class Cms extends Component
                 $this->$key = $item;
             }
         });
+        $this->emitSelf('refreshSelf');
+    }
+
+    public function deleteQuestionByQuestionId($questionId)
+    {
+        $testQuestionUuid = $this->questionsInTest->filter(function ($question) use ($questionId) {
+            return $question->question_id == $questionId;
+        })->first()->uuid;
+
+        $this->deleteQuestion($testQuestionUuid);
+    }
+
+    public function deleteSubQuestion($groupQuestionQuestionId, $testQuestionId)
+    {
+        $this->findOutHowToRedirectButFirstExecuteCallback('abc', function () use ($testQuestionId, $groupQuestionQuestionId) {
+            $groupQuestionQuestion = GroupQuestionQuestion::whereUuid($groupQuestionQuestionId)->first();
+            $groupQuestionQuestionManager = GroupQuestionQuestionManager::getInstanceWithUuid($testQuestionId);
+
+            $response = (new GroupQuestionQuestionsController)->destroy(
+                $groupQuestionQuestionManager,
+                $groupQuestionQuestion
+            );
+        });
+    }
+
+    public function showEmpty()
+    {
+        $this->emptyStateActive = true;
+        $this->dispatchBrowserEvent('show-empty');
     }
 }

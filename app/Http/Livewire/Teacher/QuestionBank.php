@@ -13,6 +13,8 @@ use tcCore\Test;
 
 class QuestionBank extends Component
 {
+    const ITEM_INCREMENT = 15;
+
     protected $queryString = ['testId'];
 
     public $testId;
@@ -24,10 +26,17 @@ class QuestionBank extends Component
     ];
 
     public $addedQuestionIds = [];
+    public $itemsPerPage;
 
     public function mount()
     {
+        $this->itemsPerPage = QuestionBank::ITEM_INCREMENT;
         $this->addedQuestionIds = $this->getQuestionIdsThatAreAlreadyInTest();
+    }
+
+    public function render()
+    {
+        return view('livewire.teacher.question-bank');
     }
 
     public function getQuestionsProperty()
@@ -49,7 +58,7 @@ class QuestionBank extends Component
                 'subject.baseSubject:id,name'
             ])
             ->distinct()
-            ->limit(10)
+            ->take($this->itemsPerPage)
             ->get();
     }
 
@@ -100,6 +109,7 @@ class QuestionBank extends Component
     public function handleCheckboxClick($questionId)
     {
         if ($this->isQuestionInTest($questionId)) {
+            $this->emitTo('drawer.cms', 'deleteQuestionByQuestionId', $questionId);
             return $this->removeQuestionFromTest($questionId);
         }
 
@@ -143,19 +153,28 @@ class QuestionBank extends Component
 
     private function removeQuestionFromTest($questionId)
     {
-        $testQuestion = $this->test->testQuestions->where('question_id', $questionId)->first();
-        $response = (new TestQuestionsController)->destroy($testQuestion);
-
-        if ($response->getStatusCode() == 200) {
-            $this->dispatchBrowserEvent('question-removed');
-            collect($this->addedQuestionIds)->reject(function($id) use ($questionId) {
-                return $id === $questionId;
-            });
-        }
+        collect($this->addedQuestionIds)->reject(function ($id) use ($questionId) {
+            return $id === $questionId;
+        });
     }
 
     public function isQuestionInTest($questionId)
     {
         return collect($this->addedQuestionIds)->contains($questionId);
+    }
+
+    public function showMore()
+    {
+        $this->itemsPerPage += QuestionBank::ITEM_INCREMENT;
+    }
+
+    public function updatedFilters($name, $value)
+    {
+        $this->resetItemsPerPage();
+    }
+
+    private function resetItemsPerPage()
+    {
+        $this->itemsPerPage = QuestionBank::ITEM_INCREMENT;
     }
 }
