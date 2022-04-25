@@ -6,6 +6,8 @@ use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Facades\Storage;
 use tcCore\DrawingQuestion;
+use tcCore\Gates\StudentGate;
+use tcCore\Gates\TeacherGate;
 use tcCore\Http\Helpers\QuestionHelper;
 use tcCore\Http\Helpers\SvgHelper;
 use tcCore\Http\Requests;
@@ -119,17 +121,22 @@ class QuestionsController extends Controller
 
     public function drawingQuestionQuestionBackgroundImage($drawingQuestion, $identifier)
     {
-//        $pass = false;
-//
-////        if(collect($this->getUserRoles())->contains('Student')) {
-////            $pass = true;
-////        }
-//
-//        if (!$pass) {
-//            return redirect()->route('auth.login');
-//
-//        }
+        $pass = false;
 
+        if(collect($this->getUserRoles())->contains('Student')) {
+            $gate = app()->make(StudentGate::class);
+            $pass = $gate->canAccessDrawingQuestionBackgroundImage(auth()->user());
+        }
+
+        if(collect($this->getUserRoles())->contains('Teacher')) {
+            $gate = app()->make(TeacherGate::class);
+            $pass = $gate->canAccessDrawingQuestionBackgroundImage(auth()->user());
+        }
+
+        if (!$pass) {
+            return redirect()->route('auth.login');
+
+        }
 
         return $this->getDrawingQuestionBackgroundImage('question', $drawingQuestion, $identifier);
     }
