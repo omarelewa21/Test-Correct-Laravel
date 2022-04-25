@@ -111,6 +111,8 @@ class OpenShort extends Component
 
     public $sortOrderAttachments = [];
 
+    public $dirty = false;
+
 
     protected function rules()
     {
@@ -210,6 +212,7 @@ class OpenShort extends Component
         $this->millerWarningShown = false;
 
         $this->tags = [];
+        $this->dirty = false;
     }
 
 
@@ -303,6 +306,13 @@ class OpenShort extends Component
 
     public function save($withRedirect = true)
     {
+        if ($this->testHasNoQuestions()) {
+            if ($withRedirect) {
+                $this->returnToTestOverview();
+            }
+            return true;
+        }
+
         if ($this->obj && method_exists($this->obj, 'prepareForSave')) {
             $this->obj->prepareForSave();
         }
@@ -360,6 +370,8 @@ class OpenShort extends Component
         if ($this->obj && method_exists($this->obj, 'updated')) {
             $this->obj->updated($name, $value);
         }
+
+        $this->dirty = true;
     }
 
     public function showStatistics()
@@ -707,7 +719,8 @@ class OpenShort extends Component
     private function removeQuestion()
     {
         if (!$this->editModeForExistingQuestion()) {
-            return $this->returnToTestOverview();
+            return $this->openLastQuestion();
+//            return $this->returnToTestOverview();
         }
 
         if ($this->isPartOfGroupQuestion()) {
@@ -726,7 +739,8 @@ class OpenShort extends Component
 
 
         if ($response->getStatusCode() == 200) {
-            return $this->returnToTestOverview();
+            return $this->openLastQuestion();
+//            return $this->returnToTestOverview();
         }
     }
 
@@ -764,7 +778,6 @@ class OpenShort extends Component
 
     private function setIsPartOfGroupQuestion()
     {
-
         $this->isPartOfGroupQuestion = ($this->owner == 'group');
     }
 
@@ -941,7 +954,7 @@ class OpenShort extends Component
 
     public function showQuestion($args)
     {
-        if ($args['shouldSave']) {
+        if ($args['shouldSave'] && $this->isDirty()) {
             $this->save(false);
         }
 
@@ -955,8 +968,7 @@ class OpenShort extends Component
             $this->type = $question->type;
             $this->subtype = $question->subtype;
             $this->owner = 'group';
-            $this->groupQuestionQuestionId = $groupQuestion->groupQuestionQuestions()->firstWhere('question_id',
-                $question->getKey())->uuid;
+            $this->groupQuestionQuestionId = $groupQuestion->groupQuestionQuestions()->firstWhere('question_id', $question->getKey())->uuid;
             $this->testQuestionId = $args['testQuestionUuid'];
         } else {
             $this->type = $testQuestion->question->type;
@@ -973,7 +985,9 @@ class OpenShort extends Component
 
     public function addQuestion($args)
     {
-        $this->save(false);
+        if ($this->isDirty()) {
+            $this->save(false);
+        }
 //        $testQuestion = TestQuestion::whereUuid($args['testQuestionUuid'])->with('question')->first();
         $this->action = 'add';
         $this->type = $args['type'];
@@ -991,13 +1005,7 @@ class OpenShort extends Component
         $this->mount();
         $this->render();
 
-        $this->emitTo('drawer.cms', 'refreshDrawer', [
-            'testQuestionId'          => $this->testQuestionId,
-            'action'                  => $this->action,
-            'owner'                   => $this->owner,
-            'testId'                  => $this->testId,
-            'groupQuestionQuestionId' => $this->groupQuestionQuestionId,
-        ]);
+        $this->refreshDrawer();
     }
 
     public function isGroupQuestion()
@@ -1014,13 +1022,7 @@ class OpenShort extends Component
     {
         $this->save(false);
 
-        $this->emitTo('drawer.cms', 'refreshDrawer', [
-            'testQuestionId'          => $this->testQuestionId,
-            'action'                  => $this->action,
-            'owner'                   => $this->owner,
-            'testId'                  => $this->testId,
-            'groupQuestionQuestionId' => $this->groupQuestionQuestionId,
-        ]);
+        $this->refreshDrawer();
     }
 
     private function setQueryStringProperties($response)
@@ -1039,5 +1041,66 @@ class OpenShort extends Component
          */
         $this->answerEditorId = Str::uuid()->__toString();
         $this->questionEditorId = Str::uuid()->__toString();
+    }
+
+    private function openLastQuestion()
+    {
+        $testQuestionUuid = Test::whereUuid($this->testId)
+            ->first()
+            ->testQuestions()
+            ->latest()
+            ->value('uuid');
+
+        if (!$testQuestionUuid) {
+            $this->emitTo('drawer.cms', 'show-empty');
+            return true;
+        }
+
+        $params = [
+            'testQuestionUuid' => $testQuestionUuid,
+            'questionUuid'     => null,
+            'isSubQuestion'    => false,
+            'shouldSave'       => false,
+        ];
+
+        $this->showQuestion($params);
+        $this->refreshDrawer();
+    }
+
+    private function isDirty()
+    {
+        return $this->dirty;
+    }
+
+    private function refreshDrawer()
+    {
+        $this->emitTo('drawer.cms', 'refreshDrawer', [
+            'testQuestionId'          => $this->testQuestionId,
+            'action'                  => $this->action,
+            'owner'                   => $this->owner,
+            'testId'                  => $this->testId,
+            'groupQuestionQuestionId' => $this->groupQuestionQuestionId,
+            'type'                    => $this->type,
+            'subtype'                 => $this->subtype,
+        ]);
+    }
+
+    public function getAmountOfQuestionsProperty()
+    {
+        $groupQ = 0;
+        $test = Test::whereUuid($this->testId)->first();
+        $test->testQuestions->map(function ($tq) use (&$groupQ) {
+            if ($tq->question->type === 'GroupQuestion') {
+                $groupQ++;
+            }
+        });
+
+        return ['regular' => $test->getQuestionCount(), 'group' => $groupQ];
+    }
+
+    private function testHasNoQuestions()
+    {
+        $questionAmount = $this->getAmountOfQuestionsProperty();
+        return !!($questionAmount['regular'] === 0 && $questionAmount['group'] === 0);
     }
 }

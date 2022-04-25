@@ -1,21 +1,29 @@
-<div x-data="{expand: true}" class="flex flex-col px-6 py-1.5" style="max-width: 300px">
-    <div class="flex space-x-2 items-center py-1.5 cursor-pointer"
+<div x-data="{expand: true}"
+     class="flex flex-col py-1.5 pl-6 pr-4 {{ ($this->testQuestionId == $testQuestion->uuid) ? 'group-active' : '' }}"
+     style="max-width: 300px">
+    <div class="flex space-x-2 py-1.5 cursor-pointer group-question-title-container"
          :class="expand ? 'rotate-svg-270' : 'rotate-svg-90'"
          @click="expand = !expand; setTimeout(() => {handleVerticalScroll($refs.container1)}, 210); "
     >
-        <x-icon.chevron/>
-
-        <span class="flex-1 truncate text-lg bold"
+        <x-icon.chevron class="mt-2"/>
+        <span class="flex flex-1 flex-col truncate text-lg bold"
               :class="($root.querySelectorAll('.question-button.active').length > 0 && !expand) ? 'primary' : ''"
-              title="{{ $question->title }}"
-        >{{ $question->title }}</span>
+              title="{{ $question->name }}"
+        >
+            <span>{{ $question->name }}</span>
+            <span class="note text-sm regular">{{ trans_choice('cms.vraag', $question->subQuestions->count()) }}</span>
+        </span>
 
-        <div class="flex items-start space-x-2.5 mt-1 text-sysbase">
+        <div class="flex items-start space-x-2.5 mt-2 text-sysbase">
             <div class="flex h-full rounded-md">
-                <x-icon.locked/>
+                @if($question->closeable)
+                    <x-icon.locked/>
+                @else
+                    <x-icon.unlocked class="note"/>
+                @endif
             </div>
             <div class="flex">
-                <x-sidebar.cms.question-options :testQuestion="$testQuestion" :question="$question"/>
+                <x-sidebar.cms.question-options :testQuestion="$testQuestion" :question="$question" :subQuestion="false"/>
             </div>
         </div>
     </div>

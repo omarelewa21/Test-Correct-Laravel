@@ -17,7 +17,7 @@ class CmsGroup
 
     public function mergeRules(&$rules)
     {
-        $rules += [
+        $rules = [
             'question.name'   => 'required',
         ];
     }
