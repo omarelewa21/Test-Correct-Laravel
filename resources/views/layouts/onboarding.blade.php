@@ -21,13 +21,16 @@
     <link rel="stylesheet" href="/css/onboarding.css">
     @stack('page_styles')
 </head>
-<body class="antialiased font-sans bg-light-grey">
+<body id="body" class="antialiased font-sans bg-light-grey">
 <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-592V9J3" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
 {{ $slot }}
 
 @livewireScripts
-<script src="{{ mix('/js/app.js') }}"></script>
+{{--<script src="{{ mix('/js/app.js') }}"></script>--}}
 @stack('page_scripts')
+{{--<script>--}}
+{{--    Alpine.start();--}}
+{{--</script>--}}
 </body>
 </html>

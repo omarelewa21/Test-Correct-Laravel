@@ -21,6 +21,8 @@ use tcCore\User;
 
 class Onboarding extends Component
 {
+
+    protected $allowedLevels = ['MBO','VMBO','HBO','WO','PO','VO'];
     public $registration;
     public $email;
     public $password;
@@ -126,6 +128,11 @@ class Onboarding extends Component
         ];
     }
 
+    public function hasNoSubjects()
+    {
+        return $this->level === "PO";
+    }
+
     public function useDomainInsteadOfSubjects()
     {
         return $this->level === "MBO" || $this->level === "HBO";
@@ -147,6 +154,8 @@ class Onboarding extends Component
         if($this->level){
             $this->level = Str::upper($this->level);
         }
+
+        $this->setCorrectLevelToRegistration();
 
         if ($this->isUserConfirmedWithEmail()) {
             $this->confirmed = 0;
@@ -215,7 +224,9 @@ class Onboarding extends Component
             return;
         }
         if ($this->ref != null && $this->isInvitedBySameDomain($this->registration->username)) {
-            $this->fillSchoolData($this->registration->invitee);
+            $inviter = User::find($this->registration->invitee);
+            $schoolInfo = SchoolLocation::find($inviter->school_location_id);
+            $this->fillSchoolData($schoolInfo);
         } else {
             $this->clearSchoolData();
         }
@@ -232,10 +243,13 @@ class Onboarding extends Component
             return;
         }
         $this->validate($this->rulesStep2());
-        if($this->useDomainInsteadOfSubjects()){
+        if($this->hasNoSubjects()){
+            $this->registration->subjects = sprintf("%s: so no subjects",$this->level);
+        }
+        else if($this->useDomainInsteadOfSubjects()){
             $this->registration->subjects = sprintf("%s:%s",$this->level,$this->domain);
         }
-        $this->setCorrectLevelToRegistration();
+
         $this->registration->save();
         try {
             $this->newRegistration = $this->registration->addUserToRegistration($this->password, $this->registration->invitee, $this->ref);
@@ -248,7 +262,7 @@ class Onboarding extends Component
 
     protected function setCorrectLevelToRegistration()
     {
-        $this->registration->level = $this->level ?: "VO";
+        $this->registration->level = ($this->level && in_array($this->level,$this->allowedLevels)) ? $this->level : "VO";
     }
 
     public function loginUser()
@@ -343,10 +357,9 @@ class Onboarding extends Component
         return $inviterDomain === explode('@', $username)[1];
     }
 
-    public function fillSchoolData($inviter)
+    public function fillSchoolData(SchoolLocation $schoolInfo)
     {
-        $inviter = User::find($inviter);
-        $schoolInfo = SchoolLocation::find($inviter->school_location_id);
+
         $this->registration->school_location = $schoolInfo->name;
         $this->registration->address = $schoolInfo->visit_address;
         $this->registration->postcode = $schoolInfo->visit_postal;
@@ -396,7 +409,7 @@ class Onboarding extends Component
 
     protected function setSubjectOptions()
     {
-        $subjects = BaseSubject::where('show_in_onboarding',true)->get()->pluck('name')->toArray();
+        $subjects = BaseSubject::where('show_in_onboarding',true)->where('level','like','%'.$this->registration->level.'%')->get()->pluck('name')->toArray();
         $subjects = array_unique($subjects);
         sort($subjects);
 //        $subjects = $this->translateSubjects($subjects);

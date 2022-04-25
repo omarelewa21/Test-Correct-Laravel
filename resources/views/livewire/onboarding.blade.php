@@ -237,7 +237,9 @@
                                             </div>
                                         </div>
 
-                                        @if($this->useDomainInsteadOfSubjects())
+                                        @if($this->hasNoSubjects())
+
+                                        @elseif($this->useDomainInsteadOfSubjects())
                                             <div class="mb-4">
                                                 <div class="input-group w-1/2 md:w-auto order-1 pr-2 mb-4 md:mb-0">
                                                     <input id="domain" wire:model="domain" type="text"
