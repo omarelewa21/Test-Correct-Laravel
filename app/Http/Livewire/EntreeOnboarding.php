@@ -31,7 +31,7 @@ use tcCore\Teacher;
 use tcCore\TemporaryLogin;
 use tcCore\User;
 
-class EntreeOnboarding extends Component
+class EntreeOnboarding extends Onboarding
 {
     public $saml_id;
     public $registration;
@@ -138,6 +138,8 @@ class EntreeOnboarding extends Component
             $this->step = 1;
         }
 
+        $this->registration->level = "PO";
+
 
         $this->registration->registration_email_confirmed = $this->hasValidTUser;
         if (!$this->hasValidTUser) {
@@ -188,13 +190,7 @@ class EntreeOnboarding extends Component
         return true;
     }
 
-    public function backToStepOne()
-    {
-        $this->step = 1;
-//        $this->btnStepOneDisabledCheck();
-    }
-
-    public function render()
+     public function render()
     {
         switch ($this->step) {
             case 1:
@@ -332,22 +328,7 @@ class EntreeOnboarding extends Component
         return Subject::whereIn('section_id',$sections->toArray())->whereIn('base_subject_id',$baseSubjectIds->toArray())->pluck('id');
     }
 
-    public function loginUser()
-    {
-        $redirectUrl = config('app.url_login');
-        if ($this->userUuid) {
-            $user = User::whereUuid($this->userUuid)->first();
-            if ($user) {
-                $temporaryLogin = TemporaryLogin::create(
-                    ['user_id' => $user->getKey()]
-                );
-                $redirectUrl = $temporaryLogin->createCakeUrl();
-            }
-        }
-        Redirect::to($redirectUrl);
-    }
-
-    private function btnStepOneDisabledCheck()
+  private function btnStepOneDisabledCheck()
     {
         if ($this->step == 1) {
             $this->btnDisabled = (
@@ -363,45 +344,6 @@ class EntreeOnboarding extends Component
 
     }
 
-    private function btnStepTwoDisabledCheck()
-    {
-        if ($this->step == 2) {
-            $this->btnDisabled = (
-                empty($this->registration->city)
-                || empty($this->registration->school_location)
-                || empty($this->registration->website_url)
-                || empty($this->registration->address)
-                || empty($this->registration->postcode)
-                || empty($this->registration->house_number)
-            );
-        }
-    }
-
-    public function checkInputForLength()
-    {
-        if ($this->step == 1) {
-            if (strlen($this->registration->name_first) <= 1
-                || strlen($this->registration->name) <= 1) {
-                $this->warningStepOne = true;
-                return false;
-            }
-
-            $this->warningStepOne = false;
-            return true;
-
-        }
-        if ($this->step == 2) {
-            if (strlen($this->registration->city) <= 1
-                || strlen($this->registration->school_location) <= 1
-                || strlen($this->registration->website_url) <= 1
-                || strlen($this->registration->address) <= 1) {
-                $this->warningStepTwo = true;
-                return false;
-            }
-            $this->warningStepTwo = false;
-            return true;
-        }
-    }
 
     public function fillSchoolData(SchoolLocation $schoolInfo)
     {
@@ -410,20 +352,6 @@ class EntreeOnboarding extends Component
         $this->registration->postcode = $schoolInfo->visit_postal;
         $this->registration->house_number = filter_var($schoolInfo->visit_address, FILTER_SANITIZE_NUMBER_INT);
         $this->registration->city = $schoolInfo->visit_city;
-    }
-
-    public function clearSchoolData()
-    {
-        $this->registration->school_location = null;
-        $this->registration->address = null;
-        $this->registration->postcode = null;
-        $this->registration->house_number = null;
-        $this->registration->city = null;
-    }
-
-    public function updating(&$name, &$value)
-    {
-        Request::filter($value);
     }
 
     public function updated($propertyName)
@@ -487,31 +415,4 @@ class EntreeOnboarding extends Component
         return BaseSubject::whereIn('name',$names)->where('show_in_onboarding',1)->pluck('id');
     }
 
-    public function syncSelectedSubjects($subjects)
-    {
-        $this->registration->subjects = implode(';', $subjects);
-        $this->selectedSubjects = $subjects;
-    }
-
-    protected function setSubjectOptions()
-    {
-        $subjects = BaseSubject::where('show_in_onboarding', true)->get()->pluck('name')->toArray();
-        $subjects = array_unique($subjects);
-        sort($subjects);
-//        $subjects = $this->translateSubjects($subjects);
-        $subjects = array_diff($subjects, $this->selectedSubjects);
-        $this->subjectOptions = json_encode($subjects, JSON_HEX_APOS);
-    }
-
-    protected function setSelectedSubjectsString()
-    {
-        $this->selectedSubjectsString = json_encode($this->selectedSubjects, JSON_HEX_APOS);
-    }
-
-    private function translateSubjects($subjects)
-    {
-        return collect($subjects)->map(function ($subject) {
-            return __('subject.' . $subject);
-        })->toArray();
-    }
 }
