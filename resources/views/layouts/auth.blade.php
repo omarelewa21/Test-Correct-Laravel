@@ -30,7 +30,7 @@
             </div>
             <div class="flex sm:ml-auto items-center space-x-3" x-data="{}">
             @guest
-                <x-button.cta size="sm" @click="Livewire.emit('open-auth-modal')" browser>{{ __('auth.Maak account') }}</x-button.cta>
+                <x-button.cta size="sm" type="link" href="https://www.test-correct.nl/welcome" browser>{{ __('auth.Maak account') }}</x-button.cta>
                 <x-button.primary size="sm" type="link" href="{{ route('auth.login') }}" browser>{{  __('auth.login') }}</x-button.primary>
             @endguest
                 <x-button.primary @click="Core.closeElectronApp()" size="sm" electron>
