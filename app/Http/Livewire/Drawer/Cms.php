@@ -79,7 +79,7 @@ class Cms extends Component
             ['type' => $type, 'subtype' => $subtype, 'groupId' => $this->groupId]
         );
 
-        $this->newQuestionTypeName = CmsFactory::findQuestionNameByTypes($type, $subtype);
+        $this->newQuestionTypeName = $subtype == 'group' ? __('cms.group-question') : CmsFactory::findQuestionNameByTypes($type, $subtype);
 
         if ($this->emptyStateActive) {
             $this->emptyStateActive = false;

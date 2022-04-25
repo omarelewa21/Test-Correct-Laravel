@@ -706,10 +706,6 @@ class OpenShort extends Component
     private function removeQuestion()
     {
         if (!$this->editModeForExistingQuestion()) {
-            if (empty($this->amountOfQuestions['regular']) && empty($this->amountOfQuestions['group'])) {
-                $this->emitTo('drawer.cms', 'show-empty');
-                return true;
-            }
             return $this->openLastQuestion();
 //            return $this->returnToTestOverview();
         }
@@ -1041,6 +1037,11 @@ class OpenShort extends Component
             ->testQuestions()
             ->latest()
             ->value('uuid');
+
+        if (!$testQuestionUuid) {
+            $this->emitTo('drawer.cms', 'show-empty');
+            return true;
+        }
 
         $params = [
             'testQuestionUuid' => $testQuestionUuid,

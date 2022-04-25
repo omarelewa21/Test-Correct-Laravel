@@ -1,6 +1,6 @@
 <div id="cms" class="flex flex-1"
      x-data="{loading: false, empty: false}"
-     x-init="$watch('loading', () => { setTimeout(() => { loading = false }, 1500)} )"
+     x-init="$watch('loading', () => { setTimeout(() => { loading = false }, 2000)} )"
      x-cloak
      x-on:question-change.window="loading = true, empty = false"
      x-on:question-saved.window="Notify.notify('Vraag opgeslagen')"
@@ -11,7 +11,7 @@
     <div class="question-editor-content w-full max-w-7xl mx-auto relative"
          wire:key="container-{{ $this->testQuestionId.$this->groupQuestionQuestionId.$this->action }}"
          :class="{'opacity-0': loading || empty}"
-         style="transition: opacity .75s ease-in"
+         style="transition: opacity .3s ease-in"
     >
 {{--        <div x-show="loading"--}}
 {{--             x-transition:enter="transform ease-out duration-150 transition"--}}

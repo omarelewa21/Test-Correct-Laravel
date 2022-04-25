@@ -139,8 +139,12 @@ return [
     'Vragenbank'                                                                             => 'Questionbank',
     'Toetsenbank'                                                                            => 'Testbank',
     'Bestaande vraag toevoegen'                                                              => 'Add existing question',
+    'Bestaande toevoegen'                                                                    => 'Add existing',
     'Nieuwe vraag creeren'                                                                   => 'Create question',
+    'Nieuwe creeren'                                                                         => 'Create new',
     'Wijzigen'                                                                               => 'Change',
     'vraag'                                                                                  => ':count question|:count questions',
     'group-question-count'                                                                   => ':count group question|:count group questions',
+    'Stel een nieuwe vraag op'                                                               => 'Create a new question',
+    'Verken en kies uit vragenbank'                                                          => 'Explore and choose from the question bank',
 ];

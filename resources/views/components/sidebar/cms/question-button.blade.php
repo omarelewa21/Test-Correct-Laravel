@@ -32,7 +32,8 @@
         <div class="flex mt-.5 flex-1">
             <div class="flex flex-col flex-1 pl-2 pr-4">
                 <span class="truncate" style="max-width: 160px; width: 160px"
-                      title="{{ $question->title }}">({{ $question->getKey() }}){{ $question->title }}</span>
+                      title="{{ $question->title }}">{{ $question->title }}</span>
+{{--                      title="{{ $question->title }}">({{ $question->getKey() }}){{ $question->title }}</span>--}}
 
                 <div class="flex note text-sm regular justify-between">
                     <span>{{ __($this->getQuestionNameForDisplay($question)) }}</span>

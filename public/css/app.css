@@ -4133,6 +4133,9 @@ video {
 .right-3{
 	right: 0.75rem;
 }
+.top-1{
+	top: 0.25rem;
+}
 .-left-px{
 	left: -1px;
 }
@@ -4147,9 +4150,6 @@ video {
 }
 .right-14{
 	right: 3.5rem;
-}
-.top-1{
-	top: 0.25rem;
 }
 .z-10{
 	z-index: 10;

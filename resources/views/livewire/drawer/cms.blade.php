@@ -100,7 +100,7 @@
                 <span></span>
             </x-sidebar.slide-container>
 
-            <x-sidebar.slide-container x-ref="container2">
+            <x-sidebar.slide-container x-ref="container2" class="divide-y divide-bluegrey">
                 <div class="py-1 px-6 flex">
                     <x-button.text-button class="rotate-svg-180"
                                           @click="prev($refs.container2); dispatchBackdrop()"
@@ -111,13 +111,15 @@
                     </x-button.text-button>
                 </div>
 
-                <x-button.plus-circle @click="showNewQuestion($refs.container2)">
-                    {{ __( 'cms.Nieuwe vraag creeren' ) }}
+                <x-button.plus-circle class="py-4" @click="showNewQuestion($refs.container2)">
+                    {{ __( 'cms.Nieuwe creeren' ) }}
+                    <x-slot name="subtext">{{ __('cms.Stel een nieuwe vraag op') }}</x-slot>
                 </x-button.plus-circle>
-                <x-button.plus-circle @click="showQuestionBank()">
-                    {{ __( 'cms.Bestaande vraag toevoegen' ) }}
+                <x-button.plus-circle class="py-4" @click="showQuestionBank()">
+                    {{ __( 'cms.Bestaande toevoegen' ) }}
+                    <x-slot name="subtext">{{ __('cms.Verken en kies uit vragenbank') }}</x-slot>
                 </x-button.plus-circle>
-
+                <span></span>
             </x-sidebar.slide-container>
             <x-sidebar.slide-container x-ref="questionbank">
                 <div class="py-1 px-6 flex">

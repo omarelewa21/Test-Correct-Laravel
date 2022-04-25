@@ -1,4 +1,11 @@
-<div {{ $attributes->merge(['class' => 'flex px-6 py-2.5 space-x-2.5 cursor-pointer transition hover:text-primary hover:bg-offwhite text-lg']) }}>
+<div {{ $attributes->merge(['class' => 'flex px-6 py-2.5 space-x-2.5 cursor-pointer transition hover:text-primary hover:bg-offwhite']) }}>
     <x-icon.plus-in-circle/>
-    <button class="bold">{{ $slot }}</button>
+    @isset($subtext)
+        <div class="flex flex-col ">
+            <button class="bold mt-px text-left">{{ $slot }}</button>
+            <span class="text-sm note regular">{{ $subtext }}</span>
+        </div>
+    @else
+        <button class="bold mt-px">{{ $slot }}</button>
+    @endisset
 </div>

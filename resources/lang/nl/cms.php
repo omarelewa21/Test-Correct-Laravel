@@ -138,8 +138,12 @@ return [
     'Vragenbank'                                                                             => 'Vragenbank',
     'Toetsenbank'                                                                            => 'Toetsenbank',
     'Bestaande vraag toevoegen'                                                              => 'Bestaande vraag toevoegen',
+    'Bestaande toevoegen'                                                                    => 'Bestaande toevoegen',
     'Nieuwe vraag creeren'                                                                   => 'Nieuwe vraag creëeren',
+    'Nieuwe creeren'                                                                         => 'Nieuwe creëeren',
     'Wijzigen'                                                                               => 'Wijzigen',
     'vraag'                                                                                  => ':count vraag|:count vragen',
     'group-question-count'                                                                   => ':count vraaggroep|:count vraaggroepen',
+    'Stel een nieuwe vraag op'                                                               => 'Stel een nieuwe vraag op',
+    'Verken en kies uit vragenbank'                                                          => 'Verken en kies uit vragenbank',
 ];
