@@ -193,6 +193,7 @@ ReadspeakerTlc = function(){
             rsEvent.target = document;
             rsEvent.targetTouches = undefined;
             rsEvent.type = eventType;
+            rspkr.rs_popup_modified = false;
             rspkr.popup.showPopup(rsEvent);
         }
         function handlePopupChange()
@@ -221,6 +222,18 @@ ReadspeakerTlc = function(){
             }
             var observer = new MutationObserver(callback);
             observer.observe(element, config);
+            var callback2 = function(mutationsList2, observer){
+                if(rspkr.rs_popup_modified){
+                    return true;
+                }
+                for(var mutation of mutationsList2) {
+                    if (mutation.type === 'attributes'&&mutation.attributeName=='style'&&util.isIpadOS()) {
+                        popup.positionBySelection();
+                    }
+                }
+            }
+            var observer2 = new MutationObserver(callback2);
+            observer2.observe(element, config);
         }
         function addListenersToPopup()
         {
@@ -244,6 +257,10 @@ ReadspeakerTlc = function(){
                         continue;
                     }
                     ReadspeakerTlc.rsTlcEvents.handlePopupChange();
+                    if(rspkr.rs_popup_modified||!util.isIpadOS()){
+                        continue;
+                    }
+                    popup.positionBySelection();
                 }
             }
             var observer = new MutationObserver(callback);
@@ -260,7 +277,7 @@ ReadspeakerTlc = function(){
                 }
             }
             catch (e) {
-                alert( 'Error: Document tree modified during iteration ' + e );
+                console.dir( 'Error: Document tree modified during iteration ' + e );
             }
         }
         return{
@@ -312,6 +329,9 @@ ReadspeakerTlc = function(){
     hiddenElement = function(){
         function removeOldElement()
         {
+            if(rspkr.rs_tlc_play_started){
+                return;
+            }
             var oldEl = document.getElementById('there_can_only_be_one');
             if(oldEl){
                 oldEl.remove();
@@ -754,13 +774,25 @@ ReadspeakerTlc = function(){
             }
 
         }
+        function positionBySelection()
+        {
+            s = window.getSelection();
+            if(s.toString()==''){
+                return;
+            }
+            oRange = s.getRangeAt(0); //get the text range
+            oRect = oRange.getBoundingClientRect();
+            document.querySelector('#rsbtn_popup').style.top = (oRect.y+60)+'px';
+            rspkr.rs_popup_modified = true;
+        }
         return{
             getRsbtnPopupTlc:getRsbtnPopupTlc,
             rsRemovRsbtnPopupTlcForQuestion:rsRemovRsbtnPopupTlcForQuestion,
             hideRsTlcPopup:hideRsTlcPopup,
             getRsbtnPopupTlcElement:getRsbtnPopupTlcElement,
             rsRemovRsbtnPopupTlcForElement:rsRemovRsbtnPopupTlcForElement,
-            alreadyThere:alreadyThere
+            alreadyThere:alreadyThere,
+            positionBySelection
         }
     }();
     player = function(){
@@ -1078,6 +1110,7 @@ ReadSpeaker.q(function() {
     rspkr.rs_tlc_container = false;
     rspkr.rs_tlc_prevent_ckeditor_focus = false;
     rspkr.rs_tlc_ckeditor_selecting = false;
+    rspkr.rs_popup_modified = false;
     ReadspeakerTlc.rsTlcEvents.handleIPadSelectionChange();
     ReadspeakerTlc.rsTlcEvents.addListenersToPopup();
 });
