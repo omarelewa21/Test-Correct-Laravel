@@ -195,26 +195,6 @@ ReadspeakerTlc = function(){
             }
             var observer = new MutationObserver(callback);
             observer.observe(element, config);
-
-        }
-        function handlePopupFirstOnPage()
-        {
-            var config = { attributes: false, childList: true, subtree: true };
-            var callback = function(mutationsList, observer){
-                if(rspkr.rs_popup_modified||!util.isIpadOS()){
-                    return true;
-                }
-                for(var mutation of mutationsList) {
-                    if(mutation.addedNodes[0].id = 'rsbtn_popup'){
-                        popup.positionBySelection();
-                    }
-                    return true;
-                }
-            }
-            var observer = new MutationObserver(callback);
-            var element = document.querySelector('#body');
-            observer.observe(element, config);
-            var element2 = document.querySelector('#rsbtn_popup');
             var callback2 = function(mutationsList2, observer){
                 if(rspkr.rs_popup_modified){
                     return true;
@@ -226,8 +206,9 @@ ReadspeakerTlc = function(){
                 }
             }
             var observer2 = new MutationObserver(callback2);
-            observer2.observe(element2, config);
+            observer2.observe(element, config);
         }
+
 
         function addListenersToPopup()
         {
@@ -251,6 +232,10 @@ ReadspeakerTlc = function(){
                         continue;
                     }
                     ReadspeakerTlc.rsTlcEvents.handlePopupChange();
+                    if(rspkr.rs_popup_modified||!util.isIpadOS()){
+                        continue;
+                    }
+                    popup.positionBySelection();
                 }
             }
             var observer = new MutationObserver(callback);
@@ -757,7 +742,7 @@ ReadspeakerTlc = function(){
             }
             oRange = s.getRangeAt(0); //get the text range
             oRect = oRange.getBoundingClientRect();
-            document.querySelector('#rsbtn_popup').style.top = oRect.y+'px';
+            document.querySelector('#rsbtn_popup').style.top = (oRect.y+60)+'px';
             rspkr.rs_popup_modified = true;
         }
         return{
@@ -1063,7 +1048,6 @@ ReadSpeaker.q(function() {
     rspkr.rs_popup_modified = false;
     ReadspeakerTlc.rsTlcEvents.handleIPadSelectionChange();
     ReadspeakerTlc.rsTlcEvents.addListenersToPopup();
-    ReadspeakerTlc.rsTlcEvents.handlePopupFirstOnPage();
 });
 window.rsConf = {
     general: {
