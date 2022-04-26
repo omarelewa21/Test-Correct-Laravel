@@ -12333,6 +12333,10 @@ RichTextEditor = {
   },
   setReadOnly: function setReadOnly(editor) {
     editor.isReadOnly = true;
+    var editables = editor.ui.view.editable.element.querySelectorAll("[contenteditable=true]");
+    editables.forEach(function (element) {
+      element.setAttribute('contenteditable', false);
+    });
   },
   writeContentToTexarea: function writeContentToTexarea(editorId) {
     var editor = ClassicEditors[editorId];

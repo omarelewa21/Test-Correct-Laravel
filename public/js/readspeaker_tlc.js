@@ -60,6 +60,30 @@ ReadspeakerTlc = function(){
             popup.rsRemovRsbtnPopupTlcForElement(ckeditorNode,questionId);
             handleBlurForReadspeaker();
         }
+        function handleCkeditorTableCellFocusForReadspeaker(element)
+        {
+            var config = { attributes: true, childList: false, subtree: false };
+            var callback = function(mutationsList, observer){
+                for(var mutation of mutationsList) {
+                    if (mutation.type === 'attributes'&&mutation.attributeName=='class'&&mutation.target.classList.contains('ck-editor__nested-editable_focused')&&!mutation.target.isContentEditable ) {
+                        mutation.target.setAttribute('contenteditable',true);
+                    }else if(mutation.type === 'attributes'&&mutation.attributeName=='class'&&mutation.target.classList.contains('ck-editor__nested-editable_focused')){
+                        delayContenteditableTrue(mutation);
+                    }
+                }
+            }
+            var observer = new MutationObserver(callback);
+            observer.observe(element, config);
+        }
+        function delayContenteditableTrue(mutation)
+        {
+            var timeout = setTimeout(function(){
+                if(mutation.target.isContentEditable){
+                    return true;
+                }
+                mutation.target.setAttribute('contenteditable',true);
+            },50);
+        }
         function handleBlurForReadspeaker()
         {
             // if(typeof rspkr.tlc_clicklisten_active == 'undefined'){
@@ -90,10 +114,12 @@ ReadspeakerTlc = function(){
                 var range = editor.model.document.selection.getFirstRange();
                 if(range.end.isEqual(range.start)) {
                     clearTimeout(RichTextEditor.timer);
+                    rspkr.rs_tlc_ckeditor_selecting = false;
                     editor.isReadOnly = false;
                     return;
                 }
                 var element = editor.ui.view.editable.element;
+                rspkr.rs_tlc_ckeditor_selecting = false;
                 element.addEventListener('click',ckeditorClickEvent);
             });
         }
@@ -101,6 +127,7 @@ ReadspeakerTlc = function(){
         {
 
             editor.editing.view.document.on( 'selectionChange', () => {
+                rspkr.rs_tlc_ckeditor_selecting = true;
                 RichTextEditor.timer = setTimeout(RichTextEditor.setReadOnly.bind(null, editor),50);
             } );
         }
@@ -222,6 +249,20 @@ ReadspeakerTlc = function(){
             var observer = new MutationObserver(callback);
             observer.observe(element, config);
         }
+        function addListenerCkeditorTableCellFocusForReadspeaker(element)
+        {
+            var iterator = document.evaluate('.//td[contains(@class, \'ck-editor__nested-editable\')]', element, null, XPathResult.ANY_TYPE, null );
+            try {
+                var thisNode = iterator.iterateNext();
+                while (thisNode) {
+                    handleCkeditorTableCellFocusForReadspeaker(thisNode);
+                    thisNode = iterator.iterateNext();
+                }
+            }
+            catch (e) {
+                alert( 'Error: Document tree modified during iteration ' + e );
+            }
+        }
         return{
             handleTextBoxFocusForReadspeaker:handleTextBoxFocusForReadspeaker,
             handleTextBoxBlurForReadspeaker:handleTextBoxBlurForReadspeaker,
@@ -235,7 +276,9 @@ ReadspeakerTlc = function(){
             handleCkeditorSelectionChangeForReadspeaker:handleCkeditorSelectionChangeForReadspeaker,
             handleIPadSelectionChange,
             handlePopupChange,
-            addListenersToPopup
+            addListenersToPopup,
+            handleCkeditorTableCellFocusForReadspeaker,
+            addListenerCkeditorTableCellFocusForReadspeaker
         }
     }();
     clickListen = function(){
@@ -916,6 +959,30 @@ ReadspeakerTlc = function(){
             observer.observe(element, config);
             rsTlcEvents.handleCkeditorSelectionChangeDoneForReadspeaker(editor);
             rsTlcEvents.handleCkeditorSelectionChangeForReadspeaker(editor);
+            if(element.querySelector('figure')){
+                rsTlcEvents.addListenerCkeditorTableCellFocusForReadspeaker(element.querySelector('figure'));
+            }
+            var config2 = { attributes: false, childList: true, subtree: false };
+            var element2 = editor.ui.view.editable.element;
+            var callback2 = function(mutationsList, observer2){
+                for(var mutation of mutationsList) {
+                    if (mutation.type != 'childList') {
+                        continue;
+                    }
+                    if(typeof mutation.addedNodes=='undefined'){
+                        continue;
+                    }
+                    if (typeof mutation.addedNodes[0]=='undefined'){
+                        continue;
+                    }
+                    if(mutation.addedNodes[0].nodeName!='figure'){
+                        continue;
+                    }
+                    rsTlcEvents.addListenerCkeditorTableCellFocusForReadspeaker(mutation.addedNodes[0]);
+                }
+            }
+            var observer2 = new MutationObserver(callback2);
+            observer2.observe(element2, config2);
         }
         return{
             disableContextMenuOnCkeditor:disableContextMenuOnCkeditor,
@@ -1010,6 +1077,7 @@ ReadSpeaker.q(function() {
     rspkr.rs_tlc_prevent_close = false;
     rspkr.rs_tlc_container = false;
     rspkr.rs_tlc_prevent_ckeditor_focus = false;
+    rspkr.rs_tlc_ckeditor_selecting = false;
     ReadspeakerTlc.rsTlcEvents.handleIPadSelectionChange();
     ReadspeakerTlc.rsTlcEvents.addListenersToPopup();
 });
