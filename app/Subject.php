@@ -213,14 +213,6 @@ class Subject extends BaseModel implements AccessCheckable
         return $query;
     }
 
-    public function scopeForLevel($query, $level = null)
-    {
-        if ($level) {
-            return $query->where('level', 'like', '%' . $level . '%');
-        }
-        return $query;
-    }
-
     public function scopeExamFiltered($query, $filters = [], $sorting = [])
     {
         $user = Auth::user();
