@@ -116,17 +116,7 @@ class QuestionsController extends Controller
 
     public function drawingQuestionAnswerBackgroundImage($drawingQuestion, $identifier)
     {
-        return $this->getDrawingQuestionBackgroundImage('answer', $drawingQuestion, $identifier);
-    }
-
-    public function drawingQuestionQuestionBackgroundImage($drawingQuestion, $identifier)
-    {
         $pass = false;
-
-        if(collect($this->getUserRoles())->contains('Student')) {
-            $gate = app()->make(StudentGate::class);
-            $pass = $gate->canAccessDrawingQuestionBackgroundImage(auth()->user());
-        }
 
         if(collect($this->getUserRoles())->contains('Teacher')) {
             $gate = app()->make(TeacherGate::class);
@@ -135,7 +125,27 @@ class QuestionsController extends Controller
 
         if (!$pass) {
             return redirect()->route('auth.login');
+        }
+        return $this->getDrawingQuestionBackgroundImage('answer', $drawingQuestion, $identifier);
+    }
 
+    public function drawingQuestionQuestionBackgroundImage($drawingQuestion, $identifier)
+    {
+        $drawingQuestion = DrawingQuestion::whereUuid($drawingQuestion)->firstOrFail();
+
+        if(collect($this->getUserRoles())->contains('Student')) {
+            $gate = app()->make(StudentGate::class);
+            $gate->setStudent(auth()->user());
+            $pass = $gate->canAccessDrawingQuestionQuestionBackgroundImage($drawingQuestion);
+        }
+        if(collect($this->getUserRoles())->contains('Teacher')) {
+            $gate = app()->make(TeacherGate::class);
+            $gate->setTeacher(auth()->user());
+            $pass = $gate->canAccessDrawingQuestionBackgroundImage($drawingQuestion);
+        }
+
+        if (!$pass) {
+            return redirect()->route('auth.login');
         }
 
         return $this->getDrawingQuestionBackgroundImage('question', $drawingQuestion, $identifier);
