@@ -6056,7 +6056,10 @@ document.addEventListener('alpine:init', function () {
     var f = new Function('_', '$data', '_.' + expression + ' = $data;return;');
     f(window, el._x_dataStack[0]);
   });
-  alpinejs__WEBPACK_IMPORTED_MODULE_1__["default"].store('cmsLoading', false);
+  alpinejs__WEBPACK_IMPORTED_MODULE_1__["default"].store('cms', {
+    loading: false,
+    processing: false
+  });
 });
 
 function getTitleForVideoUrl(videoUrl) {

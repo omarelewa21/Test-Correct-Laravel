@@ -34,8 +34,9 @@
         </div>
         <div class="flex items-center space-x-2 py-1 px-4 base hover:text-primary hover:bg-offwhite transition w-full"
              title="{{ __('cms.Wijzigen') }}"
-             wire:click="showQuestion('{{ $testQuestion }}', '{{ $question->uuid }}', {{ $subQuestion }})"
-             @click.stop="$dispatch('question-change', {old: '{{ $this->testQuestionId }}', new: '{{ $question->uuid }}' }); options = false"
+             wire:click="showQuestion('{{ $testQuestion->uuid }}', '{{ $question->uuid }}', {{ $subQuestion ? 1 : 0 }})"
+{{--             @click.stop="$dispatch('question-change', {old: '{{ $this->testQuestionId }}', new: '{{ $question->uuid }}' }); options = false"--}}
+             @click.stop="options = false"
         >
             <x-icon.edit/>
             <span class="text-base bold inherit">{{ __('cms.Wijzigen') }}</span>

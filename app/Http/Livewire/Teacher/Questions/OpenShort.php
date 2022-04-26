@@ -115,6 +115,9 @@ class OpenShort extends Component
 
     public $withRedirect = true;
     public $emptyState = false;
+    public $loading = false;
+    public $showDirtyQuestionModal = false;
+    public $nextQuestionToShow = [];
 
 
     protected function rules()
@@ -325,7 +328,7 @@ class OpenShort extends Component
 
             $this->setQueryStringProperties($response);
         }
-
+        $this->dispatchBrowserEvent('notify', ['message' => __('cms.Wijzigingen opgeslagen')]);
         if ($response->getStatusCode() == 200) {
             $this->handleAttachments($response);
         }
@@ -340,7 +343,7 @@ class OpenShort extends Component
             return true;
         }
 
-        $this->dispatchBrowserEvent('question-saved');
+        $this->dirty = false;
     }
 
     protected function prepareForClone()
@@ -363,7 +366,9 @@ class OpenShort extends Component
             $this->obj->updated($name, $value);
         }
 
-        $this->dirty = true;
+        if ($name != 'loading') {
+            $this->dirty = true;
+        }
     }
 
     public function showStatistics()
@@ -741,6 +746,7 @@ class OpenShort extends Component
     public function updatedUploads($value)
     {
         $this->attachmentsCount++;
+        $this->dirty = true;
     }
 
     public function decodeCompletionTags($question)
@@ -951,10 +957,13 @@ class OpenShort extends Component
     {
         if ($args['shouldSave'] && $this->isDirty()) {
             if ($this->action === 'add') {
-                return $this->leavingNewDirtyQuestion();
+                return $this->leavingNewDirtyQuestion($args);
             }
+            $this->loading = true;
             $this->save(false);
         }
+        $this->loading = true;
+        $this->dispatchBrowserEvent('question-change', ['new' => $args['questionUuid'], 'old' => $this->testQuestionId]);
 
         $this->handleQueryStringForExistingQuestion($args);
 
@@ -974,6 +983,9 @@ class OpenShort extends Component
         $this->rebootComponent();
 
         $this->refreshDrawer();
+
+        $message = __('cms.item added', ['item' => $this->owner === 'group' ? __('cms.group-question') : __('drawing-modal.Vraag')]);
+        $this->dispatchBrowserEvent('notify', ['message' => $message]);
     }
 
     public function isGroupQuestion()
@@ -1138,8 +1150,15 @@ class OpenShort extends Component
         $this->render();
     }
 
-    private function leavingNewDirtyQuestion()
+    private function leavingNewDirtyQuestion($args)
     {
-        dd('Weet je zeker dat je weg wilt gaan zonder op te slaan?');
+        $this->showDirtyQuestionModal = true;
+        $this->nextQuestionToShow = $args;
+    }
+
+    public function continueToNextQuestion()
+    {
+        $this->nextQuestionToShow['shouldSave'] = false;
+        $this->showQuestion($this->nextQuestionToShow);
     }
 }

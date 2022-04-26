@@ -17,7 +17,7 @@
         }
         $watch('emptyStateActive', (value) => backdrop = value)
         handleLoading = () => {
-            loadingOverlay = $store.cmsLoading;
+            loadingOverlay = $store.cms.loading;
         }
     "
      :class="{'collapsed': collapse}"
