@@ -956,32 +956,17 @@ class OpenShort extends Component
     public function showQuestion($args)
     {
         if ($args['shouldSave'] && $this->isDirty()) {
+            if ($this->action === 'add') {
+                return $this->leavingNewDirtyQuestion();
+            }
             $this->save(false);
         }
 
-        $testQuestion = TestQuestion::whereUuid($args['testQuestionUuid'])->with('question')->first();
+        $this->handleQueryStringForExistingQuestion($args);
 
-        $this->action = 'edit';
+        $this->rebootComponent();
 
-        if ($args['isSubQuestion']) {
-            $groupQuestion = $testQuestion->question;
-            $question = Question::whereUuid($args['questionUuid'])->first();
-            $this->type = $question->type;
-            $this->subtype = $question->subtype;
-            $this->owner = 'group';
-            $this->groupQuestionQuestionId = $groupQuestion->groupQuestionQuestions()->firstWhere('question_id', $question->getKey())->uuid;
-            $this->testQuestionId = $args['testQuestionUuid'];
-        } else {
-            $this->type = $testQuestion->question->type;
-            $this->subtype = $testQuestion->question->subtype;
-            $this->owner = 'test';
-            $this->groupQuestionQuestionId = '';
-            $this->testQuestionId = $args['testQuestionUuid'];
-        }
-
-        $this->mount();
-
-        $this->render();
+        $this->refreshDrawer();
     }
 
     public function addQuestion($args)
@@ -989,22 +974,10 @@ class OpenShort extends Component
         if ($this->isDirty()) {
             $this->save(false);
         }
-//        $testQuestion = TestQuestion::whereUuid($args['testQuestionUuid'])->with('question')->first();
-        $this->action = 'add';
-        $this->type = $args['type'];
-        $this->subtype = $args['subtype'];
-        $this->groupQuestionQuestionId = '';
 
-        if (filled($args['groupId'])) {
-            $this->owner = 'group';
-            $this->testQuestionId = $args['groupId'];
-        } else {
-            $this->owner = 'test';
-            $this->testQuestionId = '';
-        }
+        $this->handleQueryStringForCreatingNewQuestion($args);
 
-        $this->mount();
-        $this->render();
+        $this->rebootComponent();
 
         $this->refreshDrawer();
     }
@@ -1117,5 +1090,62 @@ class OpenShort extends Component
             return $this->save();
         }
         return $this->returnToTestOverview();
+    }
+
+    /**
+     * @param $args
+     * @return void
+     */
+    private function handleQueryStringForExistingQuestion($args): void
+    {
+        $this->action = 'edit';
+        $testQuestion = TestQuestion::whereUuid($args['testQuestionUuid'])->with('question')->first();
+        if ($args['isSubQuestion']) {
+            $groupQuestion = $testQuestion->question;
+            $question = Question::whereUuid($args['questionUuid'])->first();
+            $this->type = $question->type;
+            $this->subtype = $question->subtype;
+            $this->owner = 'group';
+            $this->groupQuestionQuestionId = $groupQuestion->groupQuestionQuestions()->firstWhere('question_id', $question->getKey())->uuid;
+            $this->testQuestionId = $args['testQuestionUuid'];
+        } else {
+            $this->type = $testQuestion->question->type;
+            $this->subtype = $testQuestion->question->subtype;
+            $this->owner = 'test';
+            $this->groupQuestionQuestionId = '';
+            $this->testQuestionId = $args['testQuestionUuid'];
+        }
+    }
+
+    /**
+     * @param $args
+     * @return void
+     */
+    private function handleQueryStringForCreatingNewQuestion($args): void
+    {
+        $this->action = 'add';
+        $this->type = $args['type'];
+        $this->subtype = $args['subtype'];
+        $this->groupQuestionQuestionId = '';
+
+        if (filled($args['groupId'])) {
+            $this->owner = 'group';
+            $this->testQuestionId = $args['groupId'];
+        } else {
+            $this->owner = 'test';
+            $this->testQuestionId = '';
+        }
+    }
+
+    private function rebootComponent(): void
+    {
+        $this->mount();
+        $this->resetErrorBag();
+        $this->render();
+    }
+
+    private function leavingNewDirtyQuestion()
+    {
+        dd('Weet je zeker dat je weg wilt gaan zonder op te slaan?');
     }
 }

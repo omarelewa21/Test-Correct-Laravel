@@ -2,11 +2,12 @@
 @php
     $groupDummy = $testQuestion != null
 @endphp
-<div class=""
-     x-data="{mode: @entangle('action'), owner: @entangle('owner'), name: @entangle('newQuestionTypeName')}"
+<div class="question-button"
+     x-data="{mode: @entangle('action'), owner: @entangle('owner'), name: @entangle('newQuestionTypeName'), group: {{ $groupDummy ? 1 : 0 }} }"
      x-init=""
-     x-show="mode === 'add'"
+     x-show="mode === 'add' && (group === 1 ? owner === 'group' : owner === 'test')"
      x-cloak
+     wire:key="dummy-{{ $groupDummy }}"
 >
     <div class="question-button flex items-center cursor-pointer bold py-2 hover:text-primary @if(!$groupDummy) pl-6 pr-4 @endif question-active"
          style="max-width: 300px"
@@ -33,8 +34,4 @@
             </div>
         </div>
     </div>
-
-    <div x-ref="translate" class="hidden invisible"
-         data-
-    ></div>
 </div>
