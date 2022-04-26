@@ -93,24 +93,24 @@ class Subject extends BaseModel implements AccessCheckable
         $roles = Roles::getUserRoles();
         $user = Auth::user();
 
-        if (!in_array('Administrator', $roles)&&!$user->isPartOfSharedSection()) {
+        if (!in_array('Administrator', $roles) && !$user->isPartOfSharedSection()) {
             $query->whereIn('section_id', function ($query) {
                 $query->select('id')
                     ->from(with(new Section())->getTable())
                     ->whereNull('deleted_at');
                 with(new Section())->scopeFiltered($query);
             });
-        }elseif(!in_array('Administrator', $roles)&&$user->isPartOfSharedSection()){
+        } elseif (!in_array('Administrator', $roles) && $user->isPartOfSharedSection()) {
             $query->whereIn('section_id',
-                    $user->sections()
-                ->union(
-                    $user->sectionsOnlyShared()
-                )->pluck('id')
+                $user->sections()
+                    ->union(
+                        $user->sectionsOnlyShared()
+                    )->pluck('id')
             );
         }
 
         $subject = (new DemoHelper())->getDemoSectionForSchoolLocation($user->getAttribute('school_location_id'));
-        if(!is_null($subject)){
+        if (!is_null($subject)) {
             $query->where(function ($q) use ($subject) {
                 $q->where(function ($query) use ($subject) {
                     $query->where('demo', false);
@@ -156,7 +156,7 @@ class Subject extends BaseModel implements AccessCheckable
                     });
                     break;
                 case 'show_in_onboarding' :
-                    $query->whereNotIn('base_subject_id',function($query) use ($value) {
+                    $query->whereNotIn('base_subject_id', function ($query) use ($value) {
                         $query->select('id')
                             ->from(with(new BaseSubject())->getTable())
                             ->where('show_in_onboarding', $value);
@@ -213,6 +213,14 @@ class Subject extends BaseModel implements AccessCheckable
         return $query;
     }
 
+    public function scopeForLevel($query, $level = null)
+    {
+        if ($level) {
+            return $query->where('level', 'like', '%' . $level . '%');
+        }
+        return $query;
+    }
+
     public function scopeExamFiltered($query, $filters = [], $sorting = [])
     {
         $user = Auth::user();
@@ -252,14 +260,14 @@ class Subject extends BaseModel implements AccessCheckable
         throw new AccessDeniedHttpException('Access to subject denied');
     }
 
-    public static function getSubjectsOfCustomSchoolForUser($customerCode,$user): array
+    public static function getSubjectsOfCustomSchoolForUser($customerCode, $user): array
     {
         $school = SchoolLocation::where('customer_code', $customerCode)->first();
         $baseSubjectIds = $user->subjects()->pluck('base_subject_id')->unique();
 
         if ($school) {
             $subjects = collect([]);
-            foreach ($school->schoolLocationSections as $schoolLocationSection){
+            foreach ($school->schoolLocationSections as $schoolLocationSection) {
                 $subjects = $subjects->merge($schoolLocationSection->subjects);
             }
             return $subjects->whereIn('base_subject_id', $baseSubjectIds)->pluck('id')->unique()->toArray();

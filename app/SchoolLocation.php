@@ -978,6 +978,11 @@ class SchoolLocation extends BaseModel implements AccessCheckable
         $periodLocation->save();
     }
 
+    public function addDefaultSectionsAndSubjects($level = "VO")
+    {
+        $subjects = Subject::forLevel($level)->get();
+    }
+
     public function scopeNoActivePeriodAtDate($query, $date)
     {
         if (is_string($date)) {
