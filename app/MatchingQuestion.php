@@ -303,8 +303,11 @@ class MatchingQuestion extends Question implements QuestionInterface {
         return parent::needsToBeUpdated($request);
     }
 
-    public static function validateWithValidator($validator, $answers)
+    public static function validateWithValidator($validator, $answers, $prepareForValidation=false)
     {
+        if($prepareForValidation){
+            $answers = self::prepareForValidation($answers);
+        }
         $emptyCount = 0;
         $haveOneNonEmptyContainer = false;
         foreach($answers as $answer){
@@ -316,10 +319,41 @@ class MatchingQuestion extends Question implements QuestionInterface {
         }
 
         if(!$haveOneNonEmptyContainer){
-            $validator->errors()->add('question.answers', 'Answers should have one container with items');
+            $validator->errors()->add('question.answers', 'Antwoorden moeten ten minste één container met items bevatten');
         }
         if($emptyCount > 1){
-            $validator->errors()->add('question.answers', 'No more than one empty container is allowed');
+            $validator->errors()->add('question.answers', 'Niet meer dan één lege container is toegestaan');
         }
+    }
+
+
+    /**
+     * collect relevant answer fields together.
+     * 
+     * @param array $answers
+     * 
+     * @return array $preparedAnswer
+     */
+    private static function prepareForValidation($answers){
+        $preparedAnswer = [];
+
+        for($i = 0; $i < sizeof($answers); $i++){
+            for($j = 1; $j <= 3; $j++){
+                switch($j){
+                    case 1:
+                        $preparedAnswer[$i]['order'] =   $answers[$i]['order'];
+                        break;
+                    case 2:
+                        $preparedAnswer[$i]['left'] =   $answers[$i+1]['left'];    
+                        break;
+                    case 3:
+                        $preparedAnswer[$i]['right'] =   $answers[$i+2]['right'];
+                        $i += 2;
+                        break;
+                    default:
+                }
+            }
+        }
+        return $preparedAnswer;
     }
 }
