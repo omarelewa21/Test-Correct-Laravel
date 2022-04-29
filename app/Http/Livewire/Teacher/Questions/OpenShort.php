@@ -65,6 +65,8 @@ class OpenShort extends Component
 
     public $isCloneRequest = false;
 
+    public $withDrawer = false;
+
     public $testAuthors = '';
 
     public $pValues = [];
@@ -83,7 +85,7 @@ class OpenShort extends Component
     protected $tags = [];
 
     protected $queryString = [
-        'action', 'type', 'subtype', 'testId', 'testQuestionId', 'groupQuestionQuestionId', 'owner', 'isCloneRequest'
+        'action', 'type', 'subtype', 'testId', 'testQuestionId', 'groupQuestionQuestionId', 'owner', 'isCloneRequest', 'withDrawer' => ['except' => false]
     ];
 
     protected $settingsGeneralPropertiesVisibility = [
@@ -118,6 +120,7 @@ class OpenShort extends Component
     public $loading = false;
     public $showDirtyQuestionModal = false;
     public $nextQuestionToShow = [];
+    public $uniqueQuestionKey = '';
 
 
     protected function rules()
@@ -219,6 +222,7 @@ class OpenShort extends Component
 
         $this->tags = [];
         $this->dirty = false;
+        $this->uniqueQuestionKey = $this->testQuestionId.$this->groupQuestionQuestionId.$this->action.$this->questionEditorId;
     }
 
 
@@ -241,6 +245,7 @@ class OpenShort extends Component
             'refresh'               => 'render',
             'showQuestion'          => 'showQuestion',
             'addQuestion'           => 'addQuestion',
+            'showEmpty'             => 'showEmpty'
         ];
     }
 
@@ -274,7 +279,9 @@ class OpenShort extends Component
 
     public function booted()
     {
-        $this->obj = CmsFactory::create($this);
+        if (!$this->emptyState) {
+            $this->obj = CmsFactory::create($this);
+        }
     }
 
     // @TODO mag ik deze test zien;
@@ -284,6 +291,9 @@ class OpenShort extends Component
     {
         $this->resetQuestionProperties();
         $activeTest = Test::whereUuid($this->testId)->with('testAuthors', 'testAuthors.user')->first();
+        if (blank($this->type) && blank($this->subtype)) {
+            return $this->emptyState = true;
+        }
         $this->initializeContext($this->action, $this->type, $this->subtype, $activeTest);
         $this->obj = CmsFactory::create($this);
         $this->initializePropertyBag($activeTest);
@@ -447,6 +457,9 @@ class OpenShort extends Component
     {
         if ($this->obj && method_exists($this->obj, 'getTemplate')) {
             return view('livewire.teacher.questions.' . $this->obj->getTemplate())->layout('layouts.cms');
+        }
+        if ($this->emptyState) {
+            return view('livewire.teacher.questions.cms-layout')->layout('layouts.cms');
         }
         throw new \Exception('No template found for this question type.');
     }
@@ -816,7 +829,7 @@ class OpenShort extends Component
         $this->testAuthors = $activeTest->AuthorsAsString;
         $this->subjectId = $activeTest->subject_id;
         $this->educationLevelId = $activeTest->education_level_id;
-        $this->withRedirect = !Auth::user()->schoolLocation->canUseCmsWithDrawer();
+        $this->withRedirect = !(Auth::user()->schoolLocation->canUseCmsWithDrawer() && $this->withDrawer);
     }
 
     private function initializePropertyBag($activeTest): void
@@ -980,7 +993,7 @@ class OpenShort extends Component
 
     public function addQuestion($args)
     {
-        if ($this->isDirty()) {
+        if ($this->isDirty() && !$this->emptyState) {
             $this->save(false);
         }
 
@@ -1039,6 +1052,7 @@ class OpenShort extends Component
 
         if (!$testQuestionUuid) {
             $this->emptyState = true;
+            $this->reset(['type', 'subtype', 'testQuestionId']);
             $this->emitTo('drawer.cms', 'show-empty');
             return true;
         }
@@ -1090,15 +1104,15 @@ class OpenShort extends Component
         $questionAmount = $this->getAmountOfQuestionsProperty();
         return !!($questionAmount['regular'] === 0 && $questionAmount['group'] === 0);
     }
+
     private function testHasQuestions()
     {
-        $questionAmount = $this->getAmountOfQuestionsProperty();
-        return !!($questionAmount['regular'] === 0 && $questionAmount['group'] === 0);
+        return !$this->testHasNoQuestions();
     }
 
     public function saveAndRedirect()
     {
-        if ($this->isDirty()) {
+        if ($this->testHasQuestions()) {
             return $this->save();
         }
         return $this->returnToTestOverview();
@@ -1111,6 +1125,7 @@ class OpenShort extends Component
     private function handleQueryStringForExistingQuestion($args): void
     {
         $this->action = 'edit';
+        $this->emptyState = false;
         $testQuestion = TestQuestion::whereUuid($args['testQuestionUuid'])->with('question')->first();
         if ($args['isSubQuestion']) {
             $groupQuestion = $testQuestion->question;
@@ -1139,7 +1154,7 @@ class OpenShort extends Component
         $this->type = $args['type'];
         $this->subtype = $args['subtype'];
         $this->groupQuestionQuestionId = '';
-
+        $this->emptyState = false;
         if (filled($args['groupId'])) {
             $this->owner = 'group';
             $this->testQuestionId = $args['groupId'];
@@ -1166,5 +1181,10 @@ class OpenShort extends Component
     {
         $this->nextQuestionToShow['shouldSave'] = false;
         $this->showQuestion($this->nextQuestionToShow);
+    }
+
+    public function showEmpty()
+    {
+        $this->emptyState = true;
     }
 }

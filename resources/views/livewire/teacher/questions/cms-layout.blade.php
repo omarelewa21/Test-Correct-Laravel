@@ -1,10 +1,10 @@
 <div id="cms" class="flex flex-1"
-     x-data="{loading: @entangle('loading'),empty: false}"
+     x-data="{loading: @entangle('loading'),empty: {{ $this->emptyState ? 1 : 0 }} }"
      x-init="
-           handleQuestionChange = () => {
+           handleQuestionChange = (evt) => {
                 $store.cms.loading = true;
                 loading = true;
-                empty = false;
+                if(typeof evt !== 'undefined') empty = false;
                 $root.querySelector('#drawing-question-tool-container')?.remove();
            }
 
@@ -13,7 +13,6 @@
                     const loadingTimeout = setTimeout(() => {
                         $store.cms.loading = false;
                         $store.cms.processing = false;
-                        empty = false;
                         loading = false;
                         clearTimeout(loadingTimeout);
                     }, 1500)
@@ -22,15 +21,17 @@
 
            $watch('$store.cms.loading', (value) => loadingTimeout(value));
            $watch('loading', (value) => loadingTimeout(value));
+
+
            "
      x-cloak
-     x-on:question-change.window="handleQuestionChange()"
+     x-on:question-change.window="handleQuestionChange($event.detail)"
      x-on:show-empty.window="empty = !empty"
      questionComponent
 >
     <x-partials.header.cms-editor :testName="$testName" :questionCount="$this->amountOfQuestions"/>
     <div class="question-editor-content w-full max-w-7xl mx-auto relative"
-         wire:key="container-{{ $this->testQuestionId.$this->groupQuestionQuestionId.$this->action }}"
+         wire:key="container-{{ $this->uniqueQuestionKey }}"
          {{--         :class="{'opacity-0': $store.cms.loading || empty, 'opacity-50': $store.cms.processing && !loading}"--}}
          style="opacity: 0; transition: opacity .3s ease-in"
          :style="{'opacity': ($store.cms.loading || empty) ? 0 : ($store.cms.processing) ? .5 : 1}"
@@ -148,7 +149,7 @@
             <div class="flex justify-end px-4 sm:px-6 lg:px-8 py-5">
                 @if($this->showQuestionScore())
                     <x-input.score wire:model.defer="question.score"
-                                   wire:key="score-component-{{ $this->testQuestionId.$this->groupQuestionQuestionId.$this->action }}"
+                                   wire:key="score-component-{{ $this->uniqueQuestionKey }}"
                     />
                 @endif
             </div>
@@ -339,10 +340,10 @@
                         @endif
 
                         @if($this->isGroupQuestion())
-                                <x-input.toggle-row-with-title wire:model="question.shuffle">
-                                    <x-icon.shuffle/>
-                                    <span class="bold">{{ __('cms.Vragen in deze group shuffelen')}}</span>
-                                </x-input.toggle-row-with-title>
+                            <x-input.toggle-row-with-title wire:model="question.shuffle">
+                                <x-icon.shuffle/>
+                                <span class="bold">{{ __('cms.Vragen in deze group shuffelen')}}</span>
+                            </x-input.toggle-row-with-title>
                         @endif
                     </div>
 
