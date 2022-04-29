@@ -154,4 +154,5 @@ return [
     'Vragen in deze group shuffelen'                                                         => 'Vragen in deze group shuffelen',
     'Omschrijving'                                                                           => 'Omschrijving',
     'Deze vraaggroep afsluiten'                                                              => 'Deze vraaggroep afsluiten',
+    'carousel_not_enough_questions'                                                          => 'Er zijn te weinig vragen in de vraagcarrousel om deze toets te gebruiken. Vul het aantal vragen aan of pas het aantal te vragen toetsvragen aan.',
 ];

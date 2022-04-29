@@ -17,6 +17,14 @@
         </span>
 
         <div class="flex items-start space-x-2.5 mt-2 text-sysbase">
+            @if($question->isCarouselQuestion())
+                @if(!$question->hasEnoughSubQuestionsAsCarousel())
+                    <div class="flex h-full rounded-md" title="{{ __('cms.carousel_not_enough_questions') }}">
+                        <x-icon.exclamation class="all-red"/>
+                    </div>
+                @elseif(!$question->)
+                @endif
+            @endif
             <div class="flex h-full rounded-md">
                 @if($question->closeable)
                     <x-icon.locked/>

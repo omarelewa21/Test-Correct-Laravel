@@ -155,4 +155,5 @@ return [
     'Vragen in deze group shuffelen'                                                         => 'Shuffle questions in this group',
     'Omschrijving'                                                                           => 'Description',
     'Deze vraaggroep afsluiten'                                                              => 'Close this question group',
+    'carousel_not_enough_questions'                                                          => 'There are too few questions in the question carousel to use this test. Add more questions or adjust the amount of questions to ask on the test',
 ];

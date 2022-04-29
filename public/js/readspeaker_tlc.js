@@ -120,6 +120,138 @@ ReadspeakerTlc = function(){
                 return;
             }
             document.addEventListener("touchend", function (event) {
+                setTimeout(callRsPopup(event,"touchend"),100);
+            });
+            if(util.isIOS12()) {
+                console.dir('ios12');
+                document.addEventListener('selectionchange',userSelectionChanged);
+                document.addEventListener('selectionEnd', function (event) {
+                    var selectionEndTimeout = null;
+                    setTimeout(callRsPopup(event,"touchend"),100);
+                });
+            }
+
+        }
+        function userSelectionChanged() {
+
+            // wait 500 ms after the last selection change event
+            if (selectionEndTimeout) {
+                clearTimeout(selectionEndTimeout);
+            }
+
+            var selectionEndTimeout = setTimeout(function () {
+                var event = new Event('selectionEnd');
+                document.dispatchEvent(event);
+            }, 500);
+        }
+
+        function callRsPopup(event,eventType)
+        {
+            var selectedText = window.getSelection().toString();
+            if (selectedText == '') {
+                return;
+            }
+            rspkr.ui.setPointerPos(event);
+            rspkr.c.data.setSelectedText(event);
+            rspkr.popup.lastSelectedText = selectedText;
+            var rsEvent = new rspkr.lib.Facade.RSEvent();
+            rsEvent.clientX = event.layerX;
+            rsEvent.clientY = event.layerY;
+            rsEvent.keyCode = undefined;
+            rsEvent.originalEvent = event;
+            rsEvent.pageX = event.pageX;
+            rsEvent.pageY = event.pageY;
+            rsEvent.screenX = event.layerX;
+            rsEvent.screenY = event.layerY;
+            rsEvent.target = document;
+            rsEvent.targetTouches = undefined;
+            rsEvent.type = eventType;
+            rspkr.rs_popup_modified = false;
+            rspkr.popup.showPopup(rsEvent);
+        }
+        function handlePopupChange()
+        {
+            var config = { attributes: true, childList: false, subtree: false };
+            var element = document.querySelector('#rsbtn_popup');
+            var callback = function(mutationsList, observer){
+                for(var mutation of mutationsList) {
+                    if (mutation.type === 'attributes'&&mutation.attributeName=='style') {
+                        for (const editorId in ClassicEditors) {
+                            try {
+                                if (!util.checkElementInActiveQuestion(ClassicEditors[editorId].ui.view.editable.element)) {
+                                    return true;
+                                }
+                                ClassicEditors[editorId].isReadOnly = false;
+                                if(ClassicEditors[editorId].ui.view.editable.element.classList.contains('ck-blurred')){
+                                    ClassicEditors[editorId].ui.view.editable.element.focus();
+                                }
+                            } catch (error) {
+                                console.dir(error);
+                                return true;
+                            }
+                        }
+                    }
+                }
+            }
+            var observer = new MutationObserver(callback);
+            observer.observe(element, config);
+            var callback2 = function(mutationsList2, observer){
+                if(rspkr.rs_popup_modified){
+                    return true;
+                }
+                for(var mutation of mutationsList2) {
+                    if (mutation.type === 'attributes'&&mutation.attributeName=='style'&&util.isIpadOS()) {
+                        popup.positionBySelection();
+                    }
+                }
+            }
+            var observer2 = new MutationObserver(callback2);
+            observer2.observe(element, config);
+        }
+        function addListenersToPopup()
+        {
+            if(document.querySelector('#rsbtn_popup')){
+                ReadspeakerTlc.rsTlcEvents.handlePopupChange();
+            }
+            var config = { attributes: true, childList: true, subtree: false };
+            var element = document.querySelector('body');
+            var callback = function(mutationsList, observer){
+                for(var mutation of mutationsList) {
+                    if (mutation.type != 'childList') {
+                        continue;
+                    }
+                    if(typeof mutation.addedNodes=='undefined'){
+                        continue;
+                    }
+                    if (typeof mutation.addedNodes[0]=='undefined'){
+                        continue;
+                    }
+                    if(mutation.addedNodes[0].id!='rsbtn_popup'){
+                        continue;
+                    }
+                    ReadspeakerTlc.rsTlcEvents.handlePopupChange();
+                    if(rspkr.rs_popup_modified||!util.isIpadOS()){
+                        continue;
+                    }
+                    popup.positionBySelection();
+                }
+            }
+            var observer = new MutationObserver(callback);
+            observer.observe(element, config);
+        }
+        function addListenerCkeditorTableCellFocusForReadspeaker(element)
+        {
+            var iterator = document.evaluate('.//td[contains(@class, \'ck-editor__nested-editable\')]', element, null, XPathResult.ANY_TYPE, null );
+            try {
+                var thisNode = iterator.iterateNext();
+                while (thisNode) {
+                    handleCkeditorTableCellFocusForReadspeaker(thisNode);
+                    thisNode = iterator.iterateNext();
+                }
+            }
+            catch (e) {
+                console.dir( 'Error: Document tree modified during iteration ' + e );
+            }
                 setTimeout(function()
                 {
                     var selectedText = window.getSelection().toString();
@@ -190,6 +322,9 @@ ReadspeakerTlc = function(){
     hiddenElement = function(){
         function removeOldElement()
         {
+            if(rspkr.rs_tlc_play_started){
+                return;
+            }
             var oldEl = document.getElementById('there_can_only_be_one');
             if(oldEl){
                 oldEl.remove();
@@ -628,13 +763,25 @@ ReadspeakerTlc = function(){
             }
 
         }
+        function positionBySelection()
+        {
+            s = window.getSelection();
+            if(s.toString()==''){
+                return;
+            }
+            oRange = s.getRangeAt(0); //get the text range
+            oRect = oRange.getBoundingClientRect();
+            document.querySelector('#rsbtn_popup').style.top = (oRect.y+60)+'px';
+            rspkr.rs_popup_modified = true;
+        }
         return{
             getRsbtnPopupTlc:getRsbtnPopupTlc,
             rsRemovRsbtnPopupTlcForQuestion:rsRemovRsbtnPopupTlcForQuestion,
             hideRsTlcPopup:hideRsTlcPopup,
             getRsbtnPopupTlcElement:getRsbtnPopupTlcElement,
             rsRemovRsbtnPopupTlcForElement:rsRemovRsbtnPopupTlcForElement,
-            alreadyThere:alreadyThere
+            alreadyThere:alreadyThere,
+            positionBySelection
         }
     }();
     player = function(){
@@ -914,6 +1061,8 @@ ReadSpeaker.q(function() {
     rspkr.rs_tlc_prevent_close = false;
     rspkr.rs_tlc_container = false;
     rspkr.rs_tlc_prevent_ckeditor_focus = false;
+    rspkr.rs_tlc_ckeditor_selecting = false;
+    rspkr.rs_popup_modified = false;
     ReadspeakerTlc.rsTlcEvents.handleIPadSelectionChange();
 
 });
