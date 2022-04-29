@@ -2,6 +2,7 @@
      x-data="{loadingOverlay: false, collapse: false, backdrop: false, emptyStateActive: @entangle('emptyStateActive')}"
      x-init="
         collapse = window.innerWidth < 1000;
+        if (emptyStateActive) backdrop = true;
         handleBackdrop = () => {
             if(backdrop) {
                 $root.dataset.closedWithBackdrop = 'true';
@@ -25,6 +26,7 @@
      wire:ignore.self
      @backdrop="backdrop = !backdrop"
      x-effect="handleLoading()"
+     wire:init="showFirstQuestion()"
 >
     <div id="sidebar-backdrop"
          class="fixed inset-0 transform transition-all"

@@ -27,6 +27,7 @@ class Cms extends Component
     public $groupId;
     public $questionBankActive = false;
     public $emptyStateActive = false;
+    public $emitShowOnInit = false;
 
     public $newQuestionTypeName = '';
 
@@ -45,6 +46,13 @@ class Cms extends Component
     {
         if ($this->action === 'add') {
             $this->newQuestionTypeName = CmsFactory::findQuestionNameByTypes($this->type, $this->subtype);
+        }
+        if (blank($this->type) && blank($this->subtype)) {
+            if ($this->testQuestions->count() === 0) {
+                $this->emptyStateActive = true;
+            } else {
+                $this->emitShowOnInit = true;
+            }
         }
     }
 
@@ -186,6 +194,7 @@ class Cms extends Component
     {
         if ($question == null) {
             if ($this->questionsInTest->isEmpty()) {
+//                $this->reset(['type', 'subtype', 'testQuestionId', 'groupQuestionQuestionId']);
                 $this->showEmpty();
             }
             return true;
@@ -230,5 +239,15 @@ class Cms extends Component
     {
         $this->emptyStateActive = true;
         $this->dispatchBrowserEvent('show-empty');
+    }
+
+    public function showFirstQuestion()
+    {
+        if (!$this->emitShowOnInit) {
+            return;
+        }
+
+        $testQuestion = $this->questionsInTest->first();
+        $this->showQuestion($testQuestion->uuid, $testQuestion->question->uuid, $testQuestion->type === 'GroupQuestion', false);
     }
 }

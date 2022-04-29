@@ -16,6 +16,7 @@
            autocomplete="off"
            :style="'width:' + (30 + 10*score.toString().length) +'px'"
            @keypress="[',','.'].includes($event.key) ? $event.preventDefault() : ''"
+           {{ $attributes->wire('key') }}
     >
 
     <button @click.prevent="score = parseInt(score) +1 " class="h-10 flex items-center bg-blue-grey base rounded-10 relative -left-4 pr-2 pl-6">
