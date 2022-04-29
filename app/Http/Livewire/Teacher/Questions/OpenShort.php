@@ -1092,7 +1092,7 @@ class OpenShort extends Component
 
     public function saveAndRedirect()
     {
-        if ($this->testHasQuestions()) {
+        if ($this->isDirty()) {
             return $this->save();
         }
         return $this->returnToTestOverview();
