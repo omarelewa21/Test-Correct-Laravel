@@ -1084,15 +1084,15 @@ class OpenShort extends Component
         $questionAmount = $this->getAmountOfQuestionsProperty();
         return !!($questionAmount['regular'] === 0 && $questionAmount['group'] === 0);
     }
+
     private function testHasQuestions()
     {
-        $questionAmount = $this->getAmountOfQuestionsProperty();
-        return !!($questionAmount['regular'] === 0 && $questionAmount['group'] === 0);
+        return !$this->testHasNoQuestions();
     }
 
     public function saveAndRedirect()
     {
-        if ($this->isDirty()) {
+        if ($this->testHasQuestions()) {
             return $this->save();
         }
         return $this->returnToTestOverview();
