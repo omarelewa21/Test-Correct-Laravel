@@ -208,6 +208,10 @@ ReadspeakerTlc = function(){
                                 if (!util.checkElementInActiveQuestion(ClassicEditors[editorId].ui.view.editable.element)) {
                                     return true;
                                 }
+                                var range = ClassicEditors[editorId].model.document.selection.getFirstRange();
+                                if(range.end.isEqual(range.start)) {
+                                    return true;
+                                }
                                 ClassicEditors[editorId].isReadOnly = false;
                                 if(ClassicEditors[editorId].ui.view.editable.element.classList.contains('ck-blurred')){
                                     ClassicEditors[editorId].ui.view.editable.element.focus();
