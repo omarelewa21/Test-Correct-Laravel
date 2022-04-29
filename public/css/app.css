@@ -5252,6 +5252,10 @@ video {
 	--tw-border-opacity: 1;
 	border-color: rgba(199, 210, 254, var(--tw-border-opacity));
 }
+.border-midgrey{
+	--tw-border-opacity: 1;
+	border-color: rgba(146, 157, 175, var(--tw-border-opacity));
+}
 .border-sysbase{
 	--tw-border-opacity: 1;
 	border-color: rgba(4, 31, 116, var(--tw-border-opacity));

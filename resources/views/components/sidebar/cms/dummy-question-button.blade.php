@@ -13,7 +13,7 @@
          style="max-width: 300px"
     >
         <div class="flex w-full">
-        <span class="rounded-full text-sm flex items-center justify-center border-3 relative px-1.5 text-white bg-primary border-primary"
+        <span class="rounded-full text-sm flex items-center justify-center border-3 relative px-1.5 text-white bg-midgrey border-mid-grey"
               style="min-width: 30px; height: 30px"
         >
             <span class="mt-px question-number">{{ $loop+1  }}</span>
@@ -28,8 +28,9 @@
                         <div class="flex items-center space-x-2"></div>
                     </div>
                 </div>
-                <div class="flex items-start space-x-2.5 mt-1">
-                    <span class="note italic text-sm regular">Concept</span>
+                <div class="flex items-start space-x-2.5 mt-1 text-sysbase hover:text-primary" wire:click="removeDummy">
+                    <x-icon.trash/>
+{{--                    <span class="note italic text-sm regular">Concept</span>--}}
                 </div>
             </div>
         </div>

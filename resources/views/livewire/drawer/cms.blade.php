@@ -26,7 +26,7 @@
      wire:ignore.self
      @backdrop="backdrop = !backdrop"
      x-effect="handleLoading()"
-     wire:init="showFirstQuestion()"
+     wire:init="handleCmsInit()"
 >
     <div id="sidebar-backdrop"
          class="fixed inset-0 transform transition-all"

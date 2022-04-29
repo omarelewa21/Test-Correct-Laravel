@@ -245,6 +245,7 @@ class OpenShort extends Component
             'refresh'               => 'render',
             'showQuestion'          => 'showQuestion',
             'addQuestion'           => 'addQuestion',
+            'showEmpty'             => 'showEmpty'
         ];
     }
 
@@ -986,7 +987,7 @@ class OpenShort extends Component
 
     public function addQuestion($args)
     {
-        if ($this->isDirty()) {
+        if ($this->isDirty() && !$this->emptyState) {
             $this->save(false);
         }
 
@@ -1174,5 +1175,10 @@ class OpenShort extends Component
     {
         $this->nextQuestionToShow['shouldSave'] = false;
         $this->showQuestion($this->nextQuestionToShow);
+    }
+
+    public function showEmpty()
+    {
+        $this->emptyState = true;
     }
 }

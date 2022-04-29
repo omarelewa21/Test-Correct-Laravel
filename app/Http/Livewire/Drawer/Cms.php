@@ -193,12 +193,12 @@ class Cms extends Component
     private function navigateToQuestion($question = null)
     {
         if ($question == null) {
-            if ($this->questionsInTest->isEmpty()) {
-//                $this->reset(['type', 'subtype', 'testQuestionId', 'groupQuestionQuestionId']);
+            if (Test::whereUuid($this->testId)->first()->testQuestions()->count() == 0) {
                 $this->showEmpty();
             }
             return true;
         }
+
         $this->dispatchBrowserEvent('question-change', ['new' => $question->uuid, 'old' => $this->testQuestionId]);
         return $this->showQuestion($question->uuid, $question->question->uuid, false, false);
     }
@@ -239,15 +239,23 @@ class Cms extends Component
     {
         $this->emptyStateActive = true;
         $this->dispatchBrowserEvent('show-empty');
+        $this->emitTo('teacher.questions.open-short','showEmpty');
     }
 
-    public function showFirstQuestion()
+    public function handleCmsInit()
     {
-        if (!$this->emitShowOnInit) {
-            return;
+        if ($this->emitShowOnInit) {
+            $this->showQuestionFromCollection($this->questionsInTest->first());
         }
+    }
 
-        $testQuestion = $this->questionsInTest->first();
+    private function showQuestionFromCollection($testQuestion)
+    {
         $this->showQuestion($testQuestion->uuid, $testQuestion->question->uuid, $testQuestion->type === 'GroupQuestion', false);
+    }
+
+    public function removeDummy()
+    {
+        $this->showQuestionFromCollection($this->questionsInTest->reverse()->first());
     }
 }
