@@ -266,3 +266,21 @@
     position: relative;
     z-index: 2;
 }
+
+.group-type {
+    display:flex;
+    position: relative;
+    padding: 20px 16px 10px 16px;
+    border-radius: 10px;
+    border: 1px solid var(--blue-grey);
+    width: 308px;
+    max-width: 308px;
+    transition: color .2s ease-in-out, background-color .2s ease-in-out;
+}
+.group-type.active {
+    padding: 19px 15px 9px 15px;
+    border-width: 2px;
+    border-color: var(--primary);
+    color: var(--primary);
+    background-color: var(--off-white);
+}

@@ -19,7 +19,8 @@
 @endphp
 <div class="question-button flex items-center cursor-pointer bold py-2 hover:text-primary @if($subQuestion === false) pl-6 pr-4 @endif {{ $active ? 'question-active' : '' }}"
      wire:click="showQuestion('{{ $testQuestion ? $testQuestion->uuid : null }}', '{{ $question->uuid }}', {{ $subQuestion ? 1 : 0 }})"
-     @click="$dispatch('question-change', {old: '{{ $this->testQuestionId }}', new: '{{ $question->uuid }}' })"
+{{--     @click="$dispatch('question-change', {old: '{{ $this->testQuestionId }}', new: '{{ $question->uuid }}' })"--}}
+     @click="$store.cms.processing = true"
      style="max-width: 300px"
 >
     <div class="flex w-full">
@@ -40,7 +41,7 @@
                     <div class="flex items-center space-x-2">
                         <span class="flex">{{ $question->score }}pt</span>
                         @if($subQuestion === false)
-                            <div class="flex items-center space-x-1">
+                            <div class="flex items-center space-x-1 @if($question->attachments()->count() === 0) invisible @endif">
                                 <x-icon.attachment class="flex"/>
                                 <span class="flex">{{ $question->attachments()->count() }}</span>
                             </div>

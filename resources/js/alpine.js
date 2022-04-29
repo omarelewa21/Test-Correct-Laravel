@@ -466,7 +466,10 @@ document.addEventListener('alpine:init', () => {
         f(window, el._x_dataStack[0]);
     });
 
-    Alpine.store('cmsLoading', false);
+    Alpine.store('cms', {
+        loading: false,
+        processing: false
+    });
 });
 
 function getTitleForVideoUrl(videoUrl) {

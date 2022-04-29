@@ -146,4 +146,12 @@ return [
     'group-question-count'                                                                   => ':count vraaggroep|:count vraaggroepen',
     'Stel een nieuwe vraag op'                                                               => 'Stel een nieuwe vraag op',
     'Verken en kies uit vragenbank'                                                          => 'Verken en kies uit vragenbank',
+    'Nieuwe item incompleet'                                                                 => 'Nieuwe :item incompleet',
+    'question_incomplete_text'                                                               => 'De nieuw aangemaakte :item is incompleet. Vul de gegevens aan indien je wilt opslaan. Wat wil je doen',
+    'Aanvullen'                                                                              => 'Aanvullen',
+    'Wijzigingen opgeslagen'                                                                 => 'Wijzigingen opgeslagen',
+    'item added'                                                                             => ':item toegevoegd',
+    'Vragen in deze group shuffelen'                                                         => 'Vragen in deze group shuffelen',
+    'Omschrijving'                                                                           => 'Omschrijving',
+    'Deze vraaggroep afsluiten'                                                              => 'Deze vraaggroep afsluiten',
 ];

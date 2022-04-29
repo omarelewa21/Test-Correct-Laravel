@@ -55,7 +55,7 @@ class Cms extends Component
 
     public function showQuestion($testQuestionUuid, $questionUuid, $subQuestion, $shouldSave = true)
     {
-        $this->action = 'edit';
+//        $this->action = 'edit';
         $this->emitTo(
             'teacher.questions.open-short',
             'showQuestion',
@@ -67,7 +67,7 @@ class Cms extends Component
             ]
         );
 
-        $this->testQuestionId = $testQuestionUuid;
+//        $this->testQuestionId = $testQuestionUuid;
     }
 
     public function addQuestion($type, $subtype)

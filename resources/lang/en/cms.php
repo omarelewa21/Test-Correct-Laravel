@@ -147,4 +147,12 @@ return [
     'group-question-count'                                                                   => ':count group question|:count group questions',
     'Stel een nieuwe vraag op'                                                               => 'Create a new question',
     'Verken en kies uit vragenbank'                                                          => 'Explore and choose from the question bank',
+    'Nieuwe item incompleet'                                                                 => 'New :item incomplete',
+    'question_incomplete_text'                                                               => 'The new :item is incomplete. Complete the :item if you would like to save. What would you like to do?',
+    'Aanvullen'                                                                              => 'Complete',
+    'Wijzigingen opgeslagen'                                                                 => 'Wijzigingen opgeslagen',
+    'item added'                                                                             => ':item added',
+    'Vragen in deze group shuffelen'                                                         => 'Shuffle questions in this group',
+    'Omschrijving'                                                                           => 'Description',
+    'Deze vraaggroep afsluiten'                                                              => 'Close this question group',
 ];
