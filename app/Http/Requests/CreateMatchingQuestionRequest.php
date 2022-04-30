@@ -51,7 +51,7 @@ class CreateMatchingQuestionRequest extends CreateQuestionRequest {
 		$validator->after(function ($validator) {
 			if(Str::lower(request()->input('subtype')) === 'classify'){
 				$answers = request()->input('answers');
-				MatchingQuestion::validateWithValidator($validator, $answers, true);
+				MatchingQuestion::validateWithValidator($validator, $answers);
 			}
         });
 	}

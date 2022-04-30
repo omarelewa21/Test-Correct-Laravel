@@ -141,4 +141,6 @@ return [
     'Bestaande vraag toevoegen'                                                              => 'Add existing question',
     'Nieuwe vraag creeren'                                                                   => 'Create question',
     'Wijzigen'                                                                               => 'Change',
+    'Niet meer dan één lege container is toegestaan'                                         => 'No more than one empty container is allowed',
+    'Antwoorden moeten ten minste één container met items bevatten'                          => 'Answers must contain at least one container with items' 
 ];
