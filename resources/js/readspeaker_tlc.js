@@ -826,10 +826,22 @@ ReadspeakerTlc = function(){
                 return;
             }
         }
+        function sliderForIpad()
+        {
+            if(!util.isIpadOS()){
+                return;
+            }
+            var slider = document.querySelector('.rsbtn_speed_slider');
+            if(slider.classList.contains('mouse-controlled')){
+                return;
+            }
+            slider.classList.add('mouse-controlled');
+        }
         return{
             hideRsPlayer:hideRsPlayer,
             showRsPlayer:showRsPlayer,
-            startRsPlayer:startRsPlayer
+            startRsPlayer:startRsPlayer,
+            sliderForIpad
         }
     }();
     util = function(){
@@ -1176,6 +1188,7 @@ window.rsConf = {
                     bubbles: true,
                     cancelable: true
                 }));
+                ReadspeakerTlc.player.sliderForIpad();
             },
             pause: function() {
                 console.log('Pause callback fired!');
