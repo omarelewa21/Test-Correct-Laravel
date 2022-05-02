@@ -66,6 +66,11 @@ class PdfController extends Controller
             $baseName = parse_url($baseName)['path'];
         }
         try {
+            if (Storage::disk('cake')->exists('questionanswers/'.$baseName)) {
+                $diskName = 'cake';
+                $prefix = 'questionanswers/';
+                return $this->getBase64ImgPath($imgNode,$baseName,$diskName,$prefix);
+            }
             $diskName = 'inline_images';
             $this->getBase64ImgPath($imgNode,$baseName,$diskName);
         }catch (\Throwable $th) {
@@ -101,4 +106,6 @@ class PdfController extends Controller
         $srcAttr = sprintf('data:%s;base64,%s', $mimtype, $base64);
         $imgNode->setAttribute('src', $srcAttr);
     }
+
+
 }
