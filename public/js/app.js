@@ -5924,6 +5924,8 @@ document.addEventListener('alpine:init', function () {
         this.drawer = this.$root.closest('.drawer');
         setTimeout(function () {
           _this8.handleVerticalScroll(_this8.$root.firstElementChild);
+
+          _this8.$dispatch('groupFoldingUpdate');
         }, 400);
       },
       next: function next(currentEl) {

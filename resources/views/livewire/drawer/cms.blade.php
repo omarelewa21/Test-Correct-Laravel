@@ -81,7 +81,7 @@
                                                                    :subQuestion="true"
                                     />
                                 @endforeach
-                                <x-sidebar.cms.dummy-question-button :testQuestion="$testQuestion" :loop="$loopIndex"/>
+                                <x-sidebar.cms.dummy-group-question-button :testQuestionUuid="$testQuestion->uuid" :loop="$loopIndex"/>
                             </x-sidebar.cms.group-question-container>
                         @else
                             @php $loopIndex ++; @endphp
