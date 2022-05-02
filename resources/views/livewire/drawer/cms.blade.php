@@ -1,5 +1,5 @@
 <div class="drawer flex z-[3]"
-     x-data="{loadingOverlay: false, collapse: false, backdrop: false, emptyStateActive: @entangle('emptyStateActive')}"
+     x-data="{loadingOverlay: false, collapse: false, backdrop: false, emptyStateActive: @entangle('emptyStateActive'), slide: 1}"
      x-init="
         collapse = window.innerWidth < 1000;
         if (emptyStateActive) backdrop = true;
@@ -20,6 +20,7 @@
         handleLoading = () => {
             loadingOverlay = $store.cms.loading;
         }
+        $watch('slide', (value) => console.log('slide:' +value));
     "
      :class="{'collapsed': collapse}"
      x-cloak
@@ -40,7 +41,9 @@
          x-transition:leave-start="opacity-100"
          x-transition:leave-end="opacity-0">
         <div class="absolute inset-0">
-            <div x-show="emptyStateActive" class="empty-state-popover py-4 px-6">
+            <div x-show="emptyStateActive && [1,2].includes(slide)"
+                 x-cloak
+                 class="empty-state-popover py-4 px-6">
                 {{--                <div class="absolute right-2 top-1 cursor-pointer" >--}}
                 {{--                    <x-icon.close-small/>--}}
                 {{--                </div>--}}
@@ -64,8 +67,8 @@
              x-ref="questionEditorSidebar"
              wire:ignore.self
         >
-            <x-sidebar.slide-container class="pt-4 divide-y divide-bluegrey" x-ref="container1">
-                <div class="divide-y divide-bluegrey pb-6" {{ $emptyStateActive ? 'hidden' : '' }}>
+            <x-sidebar.slide-container class="pt-4 divide-y divide-bluegrey" x-ref="container1" x-intersect.full="slide = 1">
+                <div class="divide-y divide-bluegrey pb-6" {{ $emptyStateActive ? 'hidden' : '' }} >
                     @php $loopIndex = 0; @endphp
                     @foreach($this->questionsInTest as $testQuestion)
                         @if($testQuestion->question->type === 'GroupQuestion')
@@ -116,7 +119,7 @@
                 <span></span>
             </x-sidebar.slide-container>
 
-            <x-sidebar.slide-container x-ref="container2" class="divide-y divide-bluegrey">
+            <x-sidebar.slide-container class="divide-y divide-bluegrey" x-ref="container2" x-intersect.full="slide = 2">
                 <div class="py-1 px-6 flex">
                     <x-button.text-button class="rotate-svg-180"
                                           @click="prev($refs.container2); dispatchBackdrop()"
@@ -137,7 +140,7 @@
                 </x-button.plus-circle>
                 <span></span>
             </x-sidebar.slide-container>
-            <x-sidebar.slide-container x-ref="questionbank">
+            <x-sidebar.slide-container x-ref="questionbank" x-intersect.full="slide = 4">
                 <div class="py-1 px-6 flex">
                     <x-button.text-button class="rotate-svg-180"
                                           @click="prev($refs.container2);hideQuestionBank($refs.container2)"
@@ -164,9 +167,8 @@
                 </div>
 
                 <livewire:teacher.question-bank/>
-
             </x-sidebar.slide-container>
-            <x-sidebar.slide-container x-ref="newquestion">
+            <x-sidebar.slide-container x-ref="newquestion" x-intersect.full="slide = 3">
                 <div class="py-1 px-6">
                     <x-button.text-button class="rotate-svg-180"
                                           @click="prev($refs.newquestion)"
