@@ -1023,7 +1023,7 @@ ReadspeakerTlc = function(){
                     if (typeof mutation.addedNodes[0]=='undefined'){
                         continue;
                     }
-                    if(mutation.addedNodes[0].nodeName!='figure'){
+                    if(mutation.addedNodes[0].nodeName.toLowerCase()!='figure'){
                         continue;
                     }
                     rsTlcEvents.addListenerCkeditorTableCellFocusForReadspeaker(mutation.addedNodes[0]);
