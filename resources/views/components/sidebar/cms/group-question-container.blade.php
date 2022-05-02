@@ -22,7 +22,10 @@
                     <div class="flex h-full rounded-md" title="{{ __('cms.carousel_not_enough_questions') }}">
                         <x-icon.exclamation class="all-red"/>
                     </div>
-                @elseif(!$question->)
+                @elseif(!$question->hasEqualScoresForSubQuestions())
+                    <div class="flex h-full rounded-md" title="{{ __('cms.carousel_subquestions_scores_differ') }}">
+                        <x-icon.exclamation class="all-red"/>
+                    </div>
                 @endif
             @endif
             <div class="flex h-full rounded-md">

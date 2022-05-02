@@ -145,6 +145,19 @@
                 </div>
                 @enderror
 
+                @if($this->isGroupQuestion() && $this->isCarouselGroup())
+                    @if(!$this->hasEnoughSubQuestionsAsCarousel())
+                        <div class="notification error stretched mt-4">
+                            <span class="title">{{ __('cms.carousel_not_enough_questions') }}</span>
+                        </div>
+                    @endif
+                    @if(!$this->hasEqualScoresForSubQuestions())
+                            <div class="notification error stretched mt-4">
+                                <span class="title">{{ __('cms.carousel_subquestions_scores_differ') }}</span>
+                            </div>
+                    @endif
+                @endif
+
             </div>
             <div class="flex justify-end px-4 sm:px-6 lg:px-8 py-5">
                 @if($this->showQuestionScore())

@@ -397,10 +397,10 @@ class GroupQuestion extends Question implements QuestionInterface {
 
     public function hasEqualScoresForSubQuestions()
     {
-        if (!$this->isCarouselQuestion()) {
-            return true;
-        }
+        $scores = $this->groupQuestionQuestions->map(function ($groupQuestionQuestion) {
+            return $groupQuestionQuestion->question->score;
+        })->unique()->count();
 
-        return $this->groupQuestionQuestions()->count() >= $this->number_of_subquestions;
+        return $scores <= 1;
     }
 }
