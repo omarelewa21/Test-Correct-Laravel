@@ -5,7 +5,7 @@
                 $store.cms.loading = true;
                 loading = true;
                 if(typeof evt !== 'undefined') empty = false;
-                $root.querySelector('#drawing-question-tool-container')?.remove();
+                removeDrawingLegacy();
            }
 
            loadingTimeout = (value) => {
@@ -22,11 +22,14 @@
            $watch('$store.cms.loading', (value) => loadingTimeout(value));
            $watch('loading', (value) => loadingTimeout(value));
 
-
+           removeDrawingLegacy = () => {
+                $root.querySelector('#drawing-question-tool-container')?.remove();
+           }
            "
      x-cloak
      x-on:question-change.window="handleQuestionChange($event.detail)"
      x-on:show-empty.window="empty = !empty"
+     x-on:new-question-added.window="removeDrawingLegacy()"
      questionComponent
 >
     <x-partials.header.cms-editor :testName="$testName" :questionCount="$this->amountOfQuestions"/>

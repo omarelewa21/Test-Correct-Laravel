@@ -77,6 +77,8 @@ class CmsDrawing
 
         $this->setViewbox($data['svg_zoom_group']);
         $this->emptyCanvas = false;
+
+        $this->instance->dirty = true;
     }
 
     public function prepareForSave()
@@ -102,5 +104,13 @@ class CmsDrawing
     public function isEmptyCanvas()
     {
         return $this->emptyCanvas;
+    }
+
+    public function drawingToolName()
+    {
+        if ($this->instance->action == 'edit') {
+            return $this->instance->groupQuestionQuestionId === '' ? $this->instance->testQuestionId : $this->instance->groupQuestionQuestionId;
+        }
+        return $this->instance->questionEditorId;
     }
 }

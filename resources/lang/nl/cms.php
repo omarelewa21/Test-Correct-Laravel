@@ -147,7 +147,7 @@ return [
     'Stel een nieuwe vraag op'                                                               => 'Stel een nieuwe vraag op',
     'Verken en kies uit vragenbank'                                                          => 'Verken en kies uit vragenbank',
     'Nieuwe item incompleet'                                                                 => 'Nieuwe :item incompleet',
-    'question_incomplete_text'                                                               => 'De nieuw aangemaakte :item is incompleet. Vul de gegevens aan indien je wilt opslaan. Wat wil je doen',
+    'question_incomplete_text'                                                               => 'De nieuw aangemaakte :item is incompleet. Vul de gegevens aan indien je wilt opslaan. Wat wil je doen?',
     'Aanvullen'                                                                              => 'Aanvullen',
     'Wijzigingen opgeslagen'                                                                 => 'Wijzigingen opgeslagen',
     'item added'                                                                             => ':item toegevoegd',

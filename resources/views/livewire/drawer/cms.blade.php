@@ -27,6 +27,7 @@
      @backdrop="backdrop = !backdrop"
      x-effect="handleLoading()"
      wire:init="handleCmsInit()"
+     @scroll.throttle.200ms="$dispatch('groupFoldingUpdate')"
 >
     <div id="sidebar-backdrop"
          class="fixed inset-0 transform transition-all"
