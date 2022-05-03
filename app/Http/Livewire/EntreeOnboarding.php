@@ -56,6 +56,7 @@ class EntreeOnboarding extends Onboarding
     public $hasFixedLocation = false;
     public $selectedLocationsString = null;
     public $schoolLocation;
+    public $schoolLocations = [];
     public $school;
     public $samlId;
 
@@ -179,10 +180,13 @@ class EntreeOnboarding extends Onboarding
 
             $user = User::find($this->entreeData->data->userId);
             if ($user && $user->hasImportMailAddress()) {
+                $this->hasFixedLocation = true;
                 collect(['name_first', 'name_suffix', 'name', 'gender'])->each(function ($key) use ($user){
                     $this->registration->$key = $user->$key;
                 });
-
+                if($this->school){
+                    $this->schoolLocations = $user->allowedSchoolLocations()->pluck('name')->toArray();
+                }
                 $this->hasValidTUser = true;
                 $this->showSubjects = false;
                 $this->btnStepOneDisabledCheck();
