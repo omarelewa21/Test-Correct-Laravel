@@ -89,7 +89,8 @@ class SchoolLocation extends BaseModel implements AccessCheckable
         'is_allowed_to_view_open_source_content', 'allow_inbrowser_testing', 'allow_new_player_access', 'lvs_active',
         'lvs_type',
         'sso', 'sso_type', 'sso_active', 'lvs_authorization_key', 'school_language', 'company_id', 'allow_guest_accounts',
-        'allow_new_student_environment', 'allow_new_question_editor'
+        'allow_new_student_environment', 'allow_new_question_editor',
+        'main_phonenumber','internetaddress',
     ];
 
     /**
@@ -980,7 +981,28 @@ class SchoolLocation extends BaseModel implements AccessCheckable
 
     public function addDefaultSectionsAndSubjects($level = "VO")
     {
-        $subjects = Subject::forLevel($level)->get();
+        // get base subjects for this level
+        $baseSubjects = BaseSubject::forLevel($level)->get();
+        // find the default section ids for these base subjects and make them unique
+        $defaultSectionIds = $baseSubjects->map(function(BaseSubject $bs) {
+            return $bs->default_section_id;
+        })->unique();
+        // get default sections based on the ids
+        $defaultSections = DefaultSection::find($defaultSectionIds->toArray());
+        $sectionIds = [];
+        // create sections based on the default sections
+        $defaultSections->each(function(DefaultSection $ds) use (&$sectionIds){
+            $section = Section::create($ds->toArray());
+            // default section id belongs to the new section id
+            $sectionIds[$ds->getKey()] = $section->getKey();
+        });
+        // create the sections based on the base subjects
+        $baseSubjects->each(function(BaseSubject $bs) use ($sectionIds){
+            // set some extra fields based on the settings passed along
+            Subject::create(
+                  array_merge($bs->toArray(),['section_id' => $sectionIds[$bs->default_section_id], 'base_subject_id' => $bs->getKey()])
+            );
+        });
     }
 
     public function scopeNoActivePeriodAtDate($query, $date)
