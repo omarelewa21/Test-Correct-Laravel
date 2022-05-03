@@ -210,17 +210,17 @@ class EntreeHelper
     {
         $brinCode = $data->brin;
         $exit = true;
-        if(!$data->brin4ErrorDetected) {
-            if ($this->setLocationBasedOnBrinSixIfTheCase($brinCode)) {
-                if ($this->location) {
-                    $exit = false;
-                }
-            } else if (strlen($brinCode) === 4) {
-                if (School::where('external_main_code', $brinCode)->count() === 1) {
-                    $exit = false;
-                }
+
+        if ($this->setLocationBasedOnBrinSixIfTheCase($brinCode)) {
+            if ($this->location) {
+                $exit = false;
+            }
+        } else if (strlen($brinCode) === 4) {
+            if (School::where('external_main_code', $brinCode)->count() === 1) {
+                $exit = false;
             }
         }
+
         // no brincode found
         if($exit) {
             return $this->redirectToUrlAndExit($this->getOnboardingUrlWithOptionalMessage(__('onboarding-welcome.Je school is helaas nog niet bekend in Test-Correct. Vul dit formulier in om een account aan te maken')));
