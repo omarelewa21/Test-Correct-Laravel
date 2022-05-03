@@ -289,7 +289,7 @@ class EntreeOnboarding extends Onboarding
                         if(!$locationsAdded->contains($schoolLocation->getKey())) {
                             $user->school_location_id = $schoolLocation->getKey();
                             $user->save();
-                            $this->addSchoolLocationAndCreateDemoEnvironment($schoolLocation);
+                            $user->addSchoolLocationAndCreateDemoEnvironment($schoolLocation);
                             $user->refresh();
                             $locationsAdded->push($schoolLocation->getKey());
                         }
