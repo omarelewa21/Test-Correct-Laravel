@@ -190,7 +190,7 @@ class OpenShort extends Component
             'test_id'                => '',
             'all_or_nothing'         => false,
         ];
-        $this->cmsPropertyBag = [];
+
         $this->audioUploadOptions = [];
 
         $this->uploads = [];
@@ -202,8 +202,6 @@ class OpenShort extends Component
         $this->videos = [];
 
         $this->isPartOfGroupQuestion = false;
-
-        $this->isCloneRequest = false;
 
         $this->testAuthors = '';
 
