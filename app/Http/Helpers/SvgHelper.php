@@ -117,16 +117,33 @@ class SvgHelper
             sprintf('%s/%s', $this->uuid, self::QUESTION_PNG_FILENAME),
             base64_decode($base64EncodedPngWithoutHeader)
         );
+
+        $server = \League\Glide\ServerFactory::create([
+            'source' => Storage::disk(SvgHelper::DISK)->path(sprintf('%s', $this->uuid)),
+            'cache' => Storage::disk(SvgHelper::DISK)->path(sprintf('%s/cache',$this->uuid))
+        ]);
+
+
+        $server->deleteCache(self::QUESTION_PNG_FILENAME);
     }
 
     public function updateCorrectionModelPNG($base64EncodedPNG)
     {
         $base64EncodedPngWithoutHeader = preg_replace('#^data:image/[^;]+;base64,#', '', $base64EncodedPNG);
 
+        $path = sprintf('%s/%s', $this->uuid, self::CORRECTION_MODEL_PNG_FILENAME);
         $this->disk->put(
-            sprintf('%s/%s', $this->uuid, self::CORRECTION_MODEL_PNG_FILENAME),
+            $path,
             base64_decode($base64EncodedPngWithoutHeader)
         );
+
+        $server = \League\Glide\ServerFactory::create([
+            'source' => Storage::disk(SvgHelper::DISK)->path(sprintf('%s', $this->uuid)),
+            'cache' => Storage::disk(SvgHelper::DISK)->path(sprintf('%s/cache',$this->uuid))
+        ]);
+
+
+        $server->deleteCache(self::CORRECTION_MODEL_PNG_FILENAME);
     }
 
     private function updateLayer($value, $layerName)
