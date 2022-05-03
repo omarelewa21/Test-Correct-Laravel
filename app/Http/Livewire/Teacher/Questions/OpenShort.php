@@ -182,7 +182,7 @@ class OpenShort extends Component
             'order'                  => $this->resolveOrderNumber(),
             'question'               => '',
             'rtti'                   => '',
-            'score'                  => 2,
+            'score'                  => 1,
             'subtype'                => '',
             'type'                   => '',
             'attainments'            => [],
@@ -527,8 +527,6 @@ class OpenShort extends Component
 
     private function updateQuestion()
     {
-        logger([__CLASS__ => $this->question]);
-
         $request = new CmsRequest();
         $request->merge($this->question);
         $request->filterInput();
