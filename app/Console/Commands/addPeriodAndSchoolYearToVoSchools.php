@@ -41,13 +41,15 @@ class addPeriodAndSchoolYearToVoSchools extends Command
      */
     public function handle()
     {
-         SchoolLocation::NoActivePeriodAtDate('2021-08-01')->activeOnly()->get()->each(function ($location) {
+        $year = Date("Y");
+        $nextYear = $year++;
+         SchoolLocation::NoActivePeriodAtDate($year.'-08-01')->activeOnly()->get()->each(function ($location) use($year, $nextYear){
             $user = $location->users()->first();
             if ($user == null) {
                 $this->locationWithoutUser[] = $location->getKey();
             } else {
                 Auth::login($user);
-                $location->addSchoolYearAndPeriod('2021', '01-08-2021', '31-07-2022');
+                $location->addSchoolYearAndPeriod($year, '01-08-'.$year, '31-07-'.$nextYear);
             }
         });
         if ($this->locationWithoutUser) {
