@@ -1820,6 +1820,10 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview) {
         const livewireComponent = getClosestLivewireComponentByAttribute(drawingApp.params.root, 'questionComponent')
 
         for (const fileURL of evt.target.files) {
+            if (fileURL.size/ (1024 * 1024) > 4 ) {
+                Notify.notify ('max 4 mb please');
+                return false;
+            }
             const reader = new FileReader();
 
             const identifier = uuidv4();
