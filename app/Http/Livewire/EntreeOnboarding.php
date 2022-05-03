@@ -15,6 +15,7 @@ use tcCore\BaseSubject;
 use tcCore\DemoTeacherRegistration;
 use tcCore\Http\Helpers\ActingAsHelper;
 use tcCore\Http\Helpers\BaseHelper;
+use tcCore\Http\Helpers\DemoHelper;
 use tcCore\Http\Helpers\EntreeHelper;
 use tcCore\Http\Helpers\UserHelper;
 use tcCore\Http\Requests\Request;
@@ -289,12 +290,18 @@ class EntreeOnboarding extends Onboarding
                             $locationsAdded->push($schoolLocation->getKey());
                         }
                         ActingAsHelper::getInstance()->setUser($user);
+                        DemoTeacherRegistration::registerIfApplicable($user);
+
+                        $schoolYear = SchoolYearRepository::getCurrentSchoolYear();
+                        $helper = new DemoHelper();
+                        $helper->prepareDemoForNewTeacher($schoolLocation, $schoolYear, $user);
+
                         $class = new SchoolClass();
                         $class->fill([
                             'visible' => false,
                             'school_location_id' => $schoolLocation->getKey(),
                             'education_level_id' => $schoolLocation->schoolLocationEducationLevels->first()->value('education_level_id'),
-                            'school_year_id' => SchoolYearRepository::getCurrentOrPreviousSchoolYear()->getKey(),
+                            'school_year_id' => $schoolYear->getKey(),
                             'name' => sprintf('entree_registration_class_%s', $user->getKey()),
                             'education_level_year' => 1,
                             'is_main_school_class' => 0,
