@@ -172,7 +172,8 @@ class EntreeOnboarding extends Onboarding
             $this->schoolLocation = SchoolLocation::findOrFail($this->entreeData->data->locationId);
             $this->hasFixedLocation = true;
             $this->saveSelectedSchoolLocationsToString([$this->schoolLocation->uuid]);
-        } else if ($this->entreeData->data->schoolId) {
+        }
+        if ($this->entreeData->data->schoolId) {
             $this->school = School::find($this->entreeData->data->schoolId);
         }
 
@@ -184,7 +185,7 @@ class EntreeOnboarding extends Onboarding
                 collect(['name_first', 'name_suffix', 'name', 'gender'])->each(function ($key) use ($user){
                     $this->registration->$key = $user->$key;
                 });
-                if($this->school && !$this->schoolLocation){
+                if($this->school){
                     $this->schoolLocations = $user->allowedSchoolLocations()->pluck('name')->toArray();
                 }
                 $this->hasValidTUser = true;
