@@ -6641,10 +6641,14 @@ Core = {
     }
   },
   enableAppFeatures: function enableAppFeatures(appType) {
-    var appElements = document.querySelectorAll('[' + appType + ']');
-    appElements.forEach(function (element) {
-      element.style.display = 'flex';
-    });
+    if (appType !== 'chromebook') {
+      var appElements = document.querySelectorAll('[' + appType + ']');
+      appElements.forEach(function (element) {
+        element.style.display = 'flex';
+      });
+    } else {
+      Core.showCloseButtonChromeOS();
+    }
   },
   checkForElectron: function checkForElectron() {
     try {
@@ -6698,11 +6702,20 @@ Core = {
     Core.appType = 'ios';
     Core.disableDeviceSpecificFeature();
   },
-  ChromeBookhideCloseBtn: function ChromeBookhideCloseBtn() {
-    var appElements = document.querySelectorAll('[chromebook]');
-    appElements.forEach(function (element) {
-      element.style.display = 'none';
-    });
+  showCloseButtonChromeOS: function showCloseButtonChromeOS() {
+    var xhttp = new XMLHttpRequest();
+
+    xhttp.onload = function () {
+      if (this.app_type.toLowerCase() === 'chromeos' && this.responseText.app_version.charAt(0) === '2') {
+        var appElements = document.querySelectorAll('[chromebook]');
+        appElements.forEach(function (element) {
+          element.style.display = 'flex';
+        });
+      }
+    };
+
+    xhttp.open("GET", "/appVersion", true);
+    xhttp.send();
   }
 };
 
