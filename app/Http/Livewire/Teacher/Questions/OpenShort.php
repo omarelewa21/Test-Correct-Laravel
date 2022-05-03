@@ -192,8 +192,6 @@ class OpenShort extends Component
 
         $this->isPartOfGroupQuestion = false;
 
-        $this->isCloneRequest = false;
-
         $this->testAuthors = '';
 
         $this->pValues = [];
