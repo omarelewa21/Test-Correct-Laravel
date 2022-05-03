@@ -210,13 +210,15 @@ class EntreeHelper
     {
         $brinCode = $data->brin;
         $exit = true;
-        if ($this->setLocationBasedOnBrinSixIfTheCase($brinCode)){
-            if($this->location){
-                $exit = false;
-            }
-        } else if(strlen($brinCode) === 4){
-            if(School::where('external_main_code', $brinCode)->count() === 1){
-                $exit = false;
+        if(!$data->brin4ErrorDetected) {
+            if ($this->setLocationBasedOnBrinSixIfTheCase($brinCode)) {
+                if ($this->location) {
+                    $exit = false;
+                }
+            } else if (strlen($brinCode) === 4) {
+                if (School::where('external_main_code', $brinCode)->count() === 1) {
+                    $exit = false;
+                }
             }
         }
         // no brincode found
@@ -340,6 +342,11 @@ class EntreeHelper
         }
 
         $brinZesCode = $this->getBrinFromAttributes();
+        if(null === $brinZesCode){
+            $this->brinFourErrorDetected = true;
+            return false;
+        }
+
         if($this->setLocationBasedOnBrinSixIfTheCase($brinZesCode)){
             return true;
         }
