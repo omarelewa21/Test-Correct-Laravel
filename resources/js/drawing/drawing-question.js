@@ -1833,7 +1833,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview) {
 
         for (const fileURL of evt.target.files) {
             if (fileURL.size/ (1024 * 1024) > 4 ) {
-                Notify.notify ('max 4 mb please');
+                Notify.notify ('U kunt afbeeldingen van maximaal 4 mb uploaden');
                 return false;
             }
             const reader = new FileReader();
