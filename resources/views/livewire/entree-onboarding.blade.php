@@ -331,7 +331,7 @@
                             {{--content header--}}
                             <div class="mb-6 relative w-full">
                                 <img class="card-header-img float-left mr-4" src="/svg/stickers/school.svg" alt="">
-                                <h1 class="md:mt-2 top-4 card-header-text">@if($this->hasValidTUser || $this->schoolLocation) @if(count($this->schoolLocations) > 0) {{ __("onboarding.Jouw schoollocaties") }} @else {{ __("onboarding.Jouw schoollocatie") }} @endif @else {{ __('onboarding.Kies locatie(s)') }} @endif</h1>
+                                <h1 class="md:mt-2 top-4 card-header-text">@if($this->hasValidTUser || $this->schoolLocation) @if($this->schoolLocations && count($this->schoolLocations) > 0) {{ __("onboarding.Jouw schoollocaties") }} @else {{ __("onboarding.Jouw schoollocatie") }} @endif @else {{ __('onboarding.Kies locatie(s)') }} @endif</h1>
                                 @if(!$this->hasValidTUser && !$this->schoolLocation)
                                 <p class="">{{ __('onboarding.We hebben meerdere locaties gevonden. Op welke locatie geef jij les?') }}</p>
                                 @endif
