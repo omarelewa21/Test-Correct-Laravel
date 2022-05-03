@@ -184,7 +184,7 @@ class EntreeOnboarding extends Onboarding
                 collect(['name_first', 'name_suffix', 'name', 'gender'])->each(function ($key) use ($user){
                     $this->registration->$key = $user->$key;
                 });
-                if($this->school){
+                if($this->school && !$this->schoolLocation){
                     $this->schoolLocations = $user->allowedSchoolLocations()->pluck('name')->toArray();
                 }
                 $this->hasValidTUser = true;
