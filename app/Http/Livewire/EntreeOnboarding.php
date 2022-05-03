@@ -283,25 +283,21 @@ class EntreeOnboarding extends Onboarding
                     $schoolLocations->each(function (SchoolLocation $schoolLocation) use ($user, $locationsAdded) {
                         // do not add first school location as it is set at registration
                         if(!$locationsAdded->contains($schoolLocation->getKey())) {
-                            $user->addSchoolLocation($schoolLocation);
                             $user->school_location_id = $schoolLocation->getKey();
                             $user->save();
+                            $this->addSchoolLocationAndCreateDemoEnvironment($schoolLocation);
                             $user->refresh();
                             $locationsAdded->push($schoolLocation->getKey());
                         }
                         ActingAsHelper::getInstance()->setUser($user);
                         DemoTeacherRegistration::registerIfApplicable($user);
 
-                        $schoolYear = SchoolYearRepository::getCurrentSchoolYear();
-                        $helper = new DemoHelper();
-                        $helper->prepareDemoForNewTeacher($schoolLocation, $schoolYear, $user);
-
                         $class = new SchoolClass();
                         $class->fill([
                             'visible' => false,
                             'school_location_id' => $schoolLocation->getKey(),
                             'education_level_id' => $schoolLocation->schoolLocationEducationLevels->first()->value('education_level_id'),
-                            'school_year_id' => $schoolYear->getKey(),
+                            'school_year_id' => SchoolYearRepository::getCurrentSchoolYear()->getKey(),
                             'name' => sprintf('entree_registration_class_%s', $user->getKey()),
                             'education_level_year' => 1,
                             'is_main_school_class' => 0,

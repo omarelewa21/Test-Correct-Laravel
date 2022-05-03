@@ -1981,6 +1981,15 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
         return null;
     }
 
+    public function addSchoolLocationAndCreateDemoEnvironment(SchoolLocation $schoolLocation)
+    {
+        if($this->addSchoolLocation($schoolLocation)){
+            $schoolYear = SchoolYearRepository::getCurrentSchoolYear();
+            $helper = new DemoHelper();
+            $helper->prepareDemoForNewTeacher($schoolLocation, $schoolYear, $this);
+        }
+    }
+
     public function removeSchoolLocation(SchoolLocation $schoolLocation)
     {
         if ($this->schoolLocation->is($schoolLocation)) {

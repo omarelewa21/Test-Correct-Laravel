@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\DB;
 use tcCore\Exceptions\RedirectAndExitException;
+use tcCore\Lib\Repositories\SchoolYearRepository;
 use tcCore\SamlMessage;
 use tcCore\School;
 use tcCore\SchoolLocation;
@@ -196,8 +197,10 @@ class EntreeHelper
     protected function handleIfRegisteringAndSchoolIsAllowed(User $user, School $school)
     {
         if($user->isAllowedSchool($school)){
-            $user->addSchoolLocation($this->location);
-            $url = $this->laravelUser->getRedirectUrlSplashOrStartAndLoginIfNeeded([__('onboarding-welcome.Je bestaande Test-Correct account is geupdate met de schoollocaties die we vanuit Entree hebben meegekregen. We hebben je in de schoollocatie :name gezet. Je kunt vanaf nu ook inloggen met Entree.', ['name' => $this->location->name]),'internal_page' => '/users/welcome']);
+            $user->school_location_id = $this->location->getKey();
+            $user->save();
+            $user->addSchoolLocationAndCreateDemoEnvironment($this->location);
+            $url = $this->laravelUser->getRedirectUrlSplashOrStartAndLoginIfNeeded(['afterLoginMessage' => __('onboarding-welcome.Je bestaande Test-Correct account is geupdate met de schoollocaties die we vanuit Entree hebben meegekregen. We hebben je in de schoollocatie :name gezet. Je kunt vanaf nu ook inloggen met Entree.', ['name' => $this->location->name]),'internal_page' => '/users/welcome']);
             return $this->redirectToUrlAndExit($url);
         }
         return false;
