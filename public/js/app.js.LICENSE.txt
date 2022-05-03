@@ -43,6 +43,8 @@
  * Date: 2016-05-20T17:23Z
  */
 
+/*! choices.js v10.1.0 | © 2022 Josh Johnson | https://github.com/jshjohnson/Choices#readme */
+
 /**
  * @license
  * Lodash <https://lodash.com/>

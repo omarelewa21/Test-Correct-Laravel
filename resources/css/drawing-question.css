@@ -730,12 +730,10 @@
     font-family: "Nunito Bold", sans-serif;
 }
 
-#drawing-tool.teacher #sidebar .layer-group#question-group .shape-container:hover,
-#drawing-tool.teacher #sidebar .layer-group#question-group .shape-container.selected {
+#drawing-tool.teacher #sidebar .layer-group#question-group .shape-container:hover {
     background-color: rgba(var(--purple-mid-dark-rgb), 0.05);
 }
-.preview #drawing-tool.teacher #sidebar .layer-group#answer-group .shape-container:hover,
-.preview #drawing-tool.teacher #sidebar .layer-group#answer-group .shape-container.selected {
+.preview #drawing-tool.teacher #sidebar .layer-group#answer-group .shape-container:hover {
     background-color: rgba(var(--primary-rgb), 0.05);
 }
 
@@ -1017,8 +1015,8 @@
 }
 
 #drawing-tool .shape.dragging .border {
-    stroke-dasharray: 10, 5;
-    opacity: 1;
+    /*stroke-dasharray: 10, 5;*/
+    opacity: 0;
 }
 
 #drawing-tool .shape.selected .border,
@@ -1033,16 +1031,24 @@
 
 #drawing-tool.teacher #question-group .shape-container.selected,
 #drawing-tool.teacher #question-group .shape-container.highlight {
-    background-color: rgba(var(--purple-mid-dark-rgb), 0.10);
     color: var(--purple-mid-dark);
+}
+
+#drawing-tool.teacher #question-group .shape-container.highlight {
+    background-color: rgba(var(--purple-mid-dark-rgb), 0.10);
+}
+
+.preview #drawing-tool.teacher #answer-group .shape-container.highlight,
+#drawing-tool .shape-container.highlight {
+    background-color: rgba(var(--primary-rgb), 0.10);
 }
 
 .preview #drawing-tool.teacher #answer-group .shape-container.highlight,
 #drawing-tool .shape-container.selected,
 #drawing-tool .shape-container.highlight {
-    background-color: rgba(var(--primary-rgb), 0.10);
     color: var(--primary);
 }
+
 
 #drawing-tool .shape-container.selected .shape-title,
 #drawing-tool .shape-container.highlight .shape-title.highlight {

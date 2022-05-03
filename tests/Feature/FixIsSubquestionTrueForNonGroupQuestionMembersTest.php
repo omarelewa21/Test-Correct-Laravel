@@ -14,7 +14,7 @@ use tcCore\User;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
-use Tests\Traits\TestTakeTrait;
+use tcCore\Traits\Dev\TestTakeTrait;
 
 class FixIsSubquestionTrueForNonGroupQuestionMembersTest extends TestCase
 {

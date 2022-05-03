@@ -10,7 +10,7 @@
 
     <input :title="score"
            type="number"
-           class="form-input z-10 w-10 min-w-[40px] text-center"
+           class="form-input z-[1] w-10 min-w-[40px] text-center"
            x-model="score"
            autocomplete="off"
            :style="'width:' + (30 + 10*score.toString().length) +'px'"

@@ -10,11 +10,28 @@ namespace tcCore\Http\Helpers;
 
 
 use Illuminate\Support\Str;
+use tcCore\AppVersionInfo;
+use tcCore\FailedLogin;
+use tcCore\LoginLog;
 use tcCore\TemporaryLogin;
 
 class BaseHelper
 {
     protected $errors = [];
+
+    public static function doLoginProcedure()
+    {
+        $user = auth()->user();
+        if(!session('TLCHeader')){
+            AppVersionDetector::handleHeaderCheck();
+        }
+
+        $sessionHash = $user->generateSessionHash();
+        $user->setSessionHash($sessionHash);
+        LoginLog::create(['user_id' => $user->getKey()]);
+        AppVersionInfo::createFromSession();
+        FailedLogin::solveForUsernameAndIp($user->username, request()->ip());
+    }
 
     public static function getCurrentVersion(): string
     {
@@ -50,6 +67,11 @@ class BaseHelper
     public static function notProduction()
     {
         return str_contains(config('app.url_login'),'testportal') && str_contains(config('app.url_login'),'.test');
+    }
+
+    public static function inNgrokEnvironment()
+    {
+        return str_contains(env('URL_LOGIN'),'ngrok.io');
     }
 
     public static function notOnLocal()
@@ -135,5 +157,15 @@ class BaseHelper
         $answer = str_replace('&lt;','<',$answer);
         $answer = str_replace('&gt;','>',$answer);
         return $answer;
+    }
+
+    public static function getLoginUrlWithOptionalMessage($message = null, $isError = false)
+    {
+        $queryAr = [];
+        if($message){
+            $type = ($isError) ? 'entree_error_message' : 'message';
+            $queryAr[$type] = $message;
+        }
+        return route('auth.login',$queryAr);
     }
 }

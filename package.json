@@ -10,6 +10,7 @@
         "production": "mix --production"
     },
     "devDependencies": {
+        "@tailwindcss/line-clamp": "^0.3.1",
         "autoprefixer": "^10.3.7",
         "axios": "^0.21",
         "laravel-mix": "^6.0.6",
@@ -21,12 +22,14 @@
     "dependencies": {
         "@wiris/mathtype-ckeditor4": "^7.26.1",
         "alpinejs": "^3.2.4",
+        "choices.js": "^10.1.0",
         "filepond": "^4.30.3",
         "filepond-plugin-file-validate-size": "^2.2.5",
         "jquery": "^2.1.1",
         "laravel-echo": "^1.11.0",
         "plyr": "^3.6.12",
         "pusher-js": "^7.0.3",
-        "strip-ansi": "^6.0.0"
+        "strip-ansi": "^6.0.0",
+        "uuid": "^8.3.2"
     }
 }

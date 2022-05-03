@@ -3,7 +3,7 @@
         <div class="mb-4" questionHtml wire:ignore>
             {!! $question->converted_question_html  !!}
         </div>
-        <div wire:ignore>
+        <div wire:ignore >
             <span>{!! __('test_take.instruction_open_question') !!}</span>
             <x-input.group class="w-full" label="" style="position: relative;">
                 <textarea id="{{ $editorId }}" name="{{ $editorId }}" wire:model.debounce.1000ms="answer">{!! $this->answer !!}</textarea>

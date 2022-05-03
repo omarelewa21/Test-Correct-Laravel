@@ -1020,4 +1020,9 @@ class SchoolLocation extends BaseModel implements AccessCheckable
             $this->save();
         }
     }
+
+    public function canUseCmsWithDrawer()
+    {
+        return $this->allow_cms_drawer && $this->allow_new_drawing_question;
+    }
 }
