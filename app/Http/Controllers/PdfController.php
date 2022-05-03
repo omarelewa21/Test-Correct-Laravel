@@ -12,6 +12,8 @@ use tcCore\Http\Requests\HtmlToPdfRequest;
 
 class PdfController extends Controller
 {
+    const DISK = 'pdf_images';
+
     /**
      * Converts HTML to a raw PDF
      *
@@ -47,7 +49,6 @@ class PdfController extends Controller
         $doc->loadHTML($html);
         libxml_use_internal_errors($internalErrors);
         $imgList = $doc->getElementsByTagName('img');
-
         foreach ($imgList as $imgNode){
             $this->getInlineImageBase64ImgPath($imgNode);
             $this->getImageLoadBase64ImgPath($imgNode);
@@ -98,14 +99,16 @@ class PdfController extends Controller
 
     private function getBase64ImgPath($imgNode,$baseName,$diskName,$prefix='')
     {
-        if (Storage::disk($diskName)->exists($prefix.$baseName)) {
-            $img = file_get_contents(Storage::disk($diskName)->path($prefix.$baseName));
-        }
-        $base64 = base64_encode($img);
-        $mimtype = mime_content_type(Storage::disk($diskName)->path($prefix.$baseName));
-        $srcAttr = sprintf('data:%s;base64,%s', $mimtype, $base64);
-        $imgNode->setAttribute('src', $srcAttr);
+        $base64 = $this->getCompressedImage($diskName,$prefix, $baseName);
+        $imgNode->setAttribute('src', $base64);
     }
 
+    private function getCompressedImage($diskName,$path, $file) {
+        $server = \League\Glide\ServerFactory::create([
+            'source' => Storage::disk($diskName)->path($path),
+            'cache' => Storage::disk(self::DISK)->path(sprintf('%s/cache', $path)),
+        ]);
+        return $server->getImageAsBase64($file, ['w' => '1040',  'fm' => 'jpg', 'q' => '25',]);
+    }
 
 }
