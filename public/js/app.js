@@ -6988,6 +6988,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var uuid__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! uuid */ "./node_modules/uuid/dist/esm-browser/v4.js");
 
 
+function _typeof(obj) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (obj) { return typeof obj; } : function (obj) { return obj && "function" == typeof Symbol && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }, _typeof(obj); }
+
 function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { Promise.resolve(value).then(_next, _throw); } }
 
 function _asyncToGenerator(fn) { return function () { var self = this, args = arguments; return new Promise(function (resolve, reject) { var gen = fn.apply(self, args); function _next(value) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "next", value); } function _throw(err) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "throw", err); } _next(undefined); }); }; }
@@ -9031,6 +9033,14 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview) {
     try {
       var _loop2 = function _loop2() {
         var fileURL = _step3.value;
+
+        if (fileURL.size / (1024 * 1024) > 4) {
+          Notify.notify('max 4 mb please');
+          return {
+            v: false
+          };
+        }
+
         var reader = new FileReader();
         var identifier = (0,uuid__WEBPACK_IMPORTED_MODULE_5__["default"])();
         UI.submitBtn.disabled = true;
@@ -9061,7 +9071,9 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview) {
       };
 
       for (_iterator3.s(); !(_step3 = _iterator3.n()).done;) {
-        _loop2();
+        var _ret = _loop2();
+
+        if (_typeof(_ret) === "object") return _ret.v;
       }
     } catch (err) {
       _iterator3.e(err);
