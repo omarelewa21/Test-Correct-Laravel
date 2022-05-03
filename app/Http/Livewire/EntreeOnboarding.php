@@ -282,6 +282,7 @@ class EntreeOnboarding extends Onboarding
                     $schoolLocations->each(function (SchoolLocation $schoolLocation) use ($user, $locationsAdded) {
                         // do not add first school location as it is set at registration
                         if(!$locationsAdded->contains($schoolLocation->getKey())) {
+                            $user->addSchoolLocation($schoolLocation);
                             $user->school_location_id = $schoolLocation->getKey();
                             $user->save();
                             $user->refresh();
