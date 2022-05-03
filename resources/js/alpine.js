@@ -419,6 +419,11 @@ document.addEventListener('alpine:init', () => {
                 }, 400)
             })
         },
+        addQuestionToGroup() {
+            this.next(this.$refs.container1);
+            this.$dispatch('backdrop');
+            this.$store.questionBank.inGroup = true;
+        }
 
     }));
     Alpine.data('choices', (wireModel, multiple, options, config) => ({
@@ -465,6 +470,9 @@ document.addEventListener('alpine:init', () => {
     Alpine.store('cms', {
         loading: false,
         processing: false
+    });
+    Alpine.store('questionBank', {
+        inGroup: false
     });
 });
 

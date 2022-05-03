@@ -15,6 +15,9 @@ class QuestionBank extends Component
 {
     const ITEM_INCREMENT = 15;
 
+    const CONTEXT_PERSONAL = 'me';
+    const CONTEXT_SCHOOL = '';
+
     protected $queryString = ['testId'];
 
     public $testId;
@@ -23,10 +26,14 @@ class QuestionBank extends Component
         'subject_id'           => [],
         'education_level_year' => [],
         'education_level_id'   => [],
+        'source'               => self::CONTEXT_PERSONAL,
+        'without_groups'       => ''
     ];
 
     public $addedQuestionIds = [];
     public $itemsPerPage;
+
+    public $inGroup = false;
 
     public function mount()
     {
@@ -176,5 +183,14 @@ class QuestionBank extends Component
     private function resetItemsPerPage()
     {
         $this->itemsPerPage = QuestionBank::ITEM_INCREMENT;
+    }
+
+    public function setSource($source)
+    {
+        if ($source === 'personal') {
+            return $this->filters['source'] = self::CONTEXT_PERSONAL;
+        }
+
+        return $this->filters['source'] = self::CONTEXT_SCHOOL;
     }
 }

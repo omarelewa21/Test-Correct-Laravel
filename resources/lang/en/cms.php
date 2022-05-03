@@ -157,4 +157,5 @@ return [
     'Deze vraaggroep afsluiten'                                                              => 'Close this question group',
     'carousel_not_enough_questions'                                                          => 'There are too few questions in the question carousel to use this test. Add more questions or adjust the amount of questions to ask on the test',
     'carousel_subquestions_scores_differ'                                                    => 'The questions in this group have different scores. No score can be calculated after taking the test. Adjust the points for each question in this group and make them equal.',
+    'begin_with_making_a_question'                                                           => 'Start with making a group or regular question.',
 ];

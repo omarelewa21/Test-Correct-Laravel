@@ -6004,6 +6004,11 @@ document.addEventListener('alpine:init', function () {
             _this10.$wire.emitTo('drawer.cms', 'refreshDrawer');
           }, 400);
         });
+      },
+      addQuestionToGroup: function addQuestionToGroup() {
+        this.next(this.$refs.container1);
+        this.$dispatch('backdrop');
+        this.$store.questionBank.inGroup = true;
       }
     };
   });
@@ -6061,6 +6066,9 @@ document.addEventListener('alpine:init', function () {
   alpinejs__WEBPACK_IMPORTED_MODULE_1__["default"].store('cms', {
     loading: false,
     processing: false
+  });
+  alpinejs__WEBPACK_IMPORTED_MODULE_1__["default"].store('questionBank', {
+    inGroup: false
   });
 });
 

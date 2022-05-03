@@ -156,4 +156,5 @@ return [
     'Deze vraaggroep afsluiten'                                                              => 'Deze vraaggroep afsluiten',
     'carousel_not_enough_questions'                                                          => 'Er zijn te weinig vragen in de vraagcarrousel om deze toets te gebruiken. Vul het aantal vragen aan of pas het aantal te vragen toetsvragen aan.',
     'carousel_subquestions_scores_differ'                                                    => 'De vragen in de groep hebben verschillende punten. Na de toetsafname kan hierdoor geen score/cijfer berekend worden. Pas de punten voor elke vraag in deze vraaggroep aan, zodat ze hetzelfde zijn.',
+    'begin_with_making_a_question'                                                    => 'Begin met het maken van een vraaggroep of een losse vraag.',
 ];

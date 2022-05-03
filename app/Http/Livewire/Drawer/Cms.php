@@ -256,6 +256,9 @@ class Cms extends Component
 
     public function removeDummy()
     {
-        $this->showQuestionFromCollection($this->questionsInTest->reverse()->first());
+        if ($this->questionsInTest->count() > 0) {
+            return $this->showQuestionFromCollection($this->questionsInTest->reverse()->first());
+        }
+        return $this->showEmpty();
     }
 }

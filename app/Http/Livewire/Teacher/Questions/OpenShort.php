@@ -292,6 +292,7 @@ class OpenShort extends Component
         $this->resetQuestionProperties();
         $activeTest = Test::whereUuid($this->testId)->with('testAuthors', 'testAuthors.user')->first();
         if (blank($this->type) && blank($this->subtype)) {
+            $this->testName = $activeTest->name;
             return $this->emptyState = true;
         }
         $this->initializeContext($this->action, $this->type, $this->subtype, $activeTest);
