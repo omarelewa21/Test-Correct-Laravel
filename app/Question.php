@@ -773,7 +773,7 @@ class Question extends MtiBaseModel {
                                 $subjectIds = $subjectIds->pluck('id');
                                 $query->whereIn('subject_id',$subjectIds);
                                 break;
-                            case 'school': // including shared sections
+                            case 'school': //  shared sections
                                 if(is_array($value)) {
                                     $subjectIds = $user->subjectsOnlyShared()->whereIn('base_subject_id', $value);
                                 } else {
@@ -815,7 +815,7 @@ class Question extends MtiBaseModel {
                             case 'schoolLocation': // only my colleages and me
                                 $query->whereIn('subject_id',$user->subjects()->pluck('id'));
                                 break;
-                            case 'school': // including shared sections
+                            case 'school': //  shared sections
                                 $query->whereIn('subject_id',$user->subjectsOnlyShared()->pluck('id'));
                                 break;
                             default:
