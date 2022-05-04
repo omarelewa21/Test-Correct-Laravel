@@ -122,4 +122,16 @@ class PdfController extends Controller
         return $server->getImageAsBase64($file, $widthHeight+['fit'=>'contain',  'fm' => 'jpg', 'q' => '25',]);
     }
 
+    private function getTestWiris()
+    {
+        $mathNode = '<math xmlns="http://www.w3.org/1998/Math/MathML"><mroot><mfrac><mi>t</mi><mi>v</mi></mfrac><mi>e</mi></mroot></math>';
+        $getVars = [    'lang'=> 'en-gb',
+                        'metrics'=> true,
+                        'centerbaseline'=> false,
+                        'formula'=> '9665e8028b4a8da68296630d6b3d2235',
+                        'version'=> '7.26.0.1439'
+                    ];
+        
+    }
+
 }
