@@ -44,15 +44,16 @@ class Cms extends Component
 
     public function mount()
     {
-        if ($this->action === 'add') {
-            $this->newQuestionTypeName = CmsFactory::findQuestionNameByTypes($this->type, $this->subtype);
-        }
         if (blank($this->type) && blank($this->subtype)) {
             if ($this->testQuestions->count() === 0) {
                 $this->emptyStateActive = true;
             } else {
                 $this->emitShowOnInit = true;
             }
+            return true;
+        }
+        if ($this->action === 'add') {
+            $this->newQuestionTypeName = CmsFactory::findQuestionNameByTypes($this->type, $this->subtype);
         }
     }
 
