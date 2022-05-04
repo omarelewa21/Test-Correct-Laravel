@@ -15,8 +15,8 @@ class QuestionBank extends Component
 {
     const ITEM_INCREMENT = 15;
 
-    const CONTEXT_PERSONAL = 'me';
-    const CONTEXT_SCHOOL = '';
+    const SOURCE_PERSONAL = 'me';
+    const SOURCE_SCHOOL = '';
 
     protected $queryString = ['testId'];
 
@@ -26,7 +26,7 @@ class QuestionBank extends Component
         'subject_id'           => [],
         'education_level_year' => [],
         'education_level_id'   => [],
-        'source'               => self::CONTEXT_PERSONAL,
+        'source'               => self::SOURCE_PERSONAL,
         'without_groups'       => ''
     ];
 
@@ -48,23 +48,7 @@ class QuestionBank extends Component
 
     public function getQuestionsProperty()
     {
-        return Question::filtered($this->getFilters())
-            ->where(function ($query) {
-                $query->where('scope', '!=', 'cito')
-                    ->orWhereNull('scope');
-            })
-//            ->where(function ($query) {
-//                $query->whereNotIn('id', $this->getQuestionIdsThatAreAlreadyInTest());
-//            })
-            ->with([
-                'questionAttainments',
-                'questionAttainments.attainment',
-                'tags',
-                'authors',
-                'subject:id,base_subject_id,name',
-                'subject.baseSubject:id,name'
-            ])
-            ->distinct()
+        return $this->getQuestionsQuery()
             ->take($this->itemsPerPage)
             ->get();
     }
@@ -86,7 +70,8 @@ class QuestionBank extends Component
                     'value' => $subject->getKey(),
                     'label' => $subject->name
                 ];
-            })->toArray();
+            })
+            ->toArray();
     }
 
     public function getEducationLevelProperty()
@@ -98,7 +83,8 @@ class QuestionBank extends Component
                     'value' => $edLevel->getKey(),
                     'label' => $edLevel->name
                 ];
-            })->toArray();
+            })
+            ->toArray();
     }
 
     public function getEducationLevelYearProperty()
@@ -113,6 +99,11 @@ class QuestionBank extends Component
         ];
     }
 
+    public function getTestProperty()
+    {
+        return Test::whereUuid($this->testId)->first();
+    }
+
     public function handleCheckboxClick($questionId)
     {
         if ($this->isQuestionInTest($questionId)) {
@@ -125,7 +116,6 @@ class QuestionBank extends Component
 
     public function addQuestionToTest($questionId)
     {
-
         $this->addedQuestionIds[] = $questionId;
 
         $requestParams = [
@@ -153,11 +143,6 @@ class QuestionBank extends Component
             ->toArray();
     }
 
-    public function getTestProperty()
-    {
-        return Test::whereUuid($this->testId)->first();
-    }
-
     private function removeQuestionFromTest($questionId)
     {
         collect($this->addedQuestionIds)->reject(function ($id) use ($questionId) {
@@ -180,6 +165,11 @@ class QuestionBank extends Component
         $this->resetItemsPerPage();
     }
 
+    public function updatedInGroup($value)
+    {
+        $this->filters['without_groups'] = $value;
+    }
+
     private function resetItemsPerPage()
     {
         $this->itemsPerPage = QuestionBank::ITEM_INCREMENT;
@@ -188,14 +178,38 @@ class QuestionBank extends Component
     public function setSource($source)
     {
         if ($source === 'personal') {
-            return $this->filters['source'] = self::CONTEXT_PERSONAL;
+            return $this->filters['source'] = self::SOURCE_PERSONAL;
         }
 
-        return $this->filters['source'] = self::CONTEXT_SCHOOL;
+        return $this->filters['source'] = self::SOURCE_SCHOOL;
     }
 
-    public function updatedInGroup($value)
+    /**
+     * @return mixed
+     */
+    private function getQuestionsQuery()
     {
-        $this->filters['without_groups'] = $value;
+        return Question::filtered($this->getFilters())
+            ->where(function ($query) {
+                $query->where('scope', '!=', 'cito')
+                    ->orWhereNull('scope');
+            })
+//            ->where(function ($query) {
+//                $query->whereNotIn('id', $this->getQuestionIdsThatAreAlreadyInTest());
+//            })
+            ->with([
+                'questionAttainments',
+                'questionAttainments.attainment',
+                'tags',
+                'authors',
+                'subject:id,base_subject_id,name',
+                'subject.baseSubject:id,name'
+            ])
+            ->distinct();
+    }
+
+    public function getResultCountProperty()
+    {
+        return $this->getQuestionsQuery()->count();
     }
 }

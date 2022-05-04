@@ -3166,22 +3166,34 @@ input[type=number] {
 
 /* =====  End of Choices  ====== */
 
+.custom-choices {
+    --choices-background: var(--off-white);
+    --choices-border-color: var(--blue-grey);
+}
 .custom-choices .choices {
     padding-right: 1px;
 }
+
 .custom-choices .choices .choices__inner {
-    border-color: var(--blue-grey);
+    border-color: var(--choices-border-color);
     border-radius: 10px;
     padding: 4px 8px;
     display: flex;
     align-items: center;
     margin-left: 1px;
     margin-right: 1px;
+    transition: border 150ms ease, background-color 150ms ease;
+}
+.custom-choices.has-item {
+    --choices-border-color: var(--primary);
+    --choices-background: var(--primary-opacity-05);
 }
 
-.custom-choices .choices__inner,
 .custom-choices .choices__input {
-    background-color: var(--off-white);
+    background-color: transparent;
+}
+.custom-choices .choices__inner {
+    background-color: var(--choices-background);
 }
 
 .custom-choices .choices__list.choices__list--single{
@@ -3224,10 +3236,47 @@ input[type=number] {
 }
 
 .custom-choices .choices__list.choices__list--multiple .choices__item.choices__item--selectable {
-    background-color: var(--primary);
-    border-color: var(--primary);
-    margin-bottom: 0;
+    display: none;
 }
+.custom-choices .choices__list--dropdown .choices__item--selectable.is-selected::before,
+.custom-choices .choices__list[aria-expanded] .choices__item--selectable.is-selected::before {
+    content: 'X';
+    color: red;
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+
+}
+
+.filter-pill {
+    --filter-pill-padding: .5rem .75rem;
+    --filter-pill-background-color: rgba(255 255 255 / .3);
+    --filter-pill-border-color: var(--system-secondary);
+    --filter-pill-text-opacity: 1;
+    --filter-pill-text-color: rgba(var(--system-base-rgb) / var(--filter-pill-text-opacity));
+    --filter-pill-font-weight: bold;
+    --filter-pill-font-style: normal;
+
+    display: inline-flex;
+    position: relative;
+    background-color: var(--filter-pill-background-color);
+    padding: var(--filter-pill-padding);
+    color: var(--filter-pill-text-color);
+    font-weight: var(--filter-pill-font-weight);
+    font-style: var(--filter-pill-font-style);
+    border: solid 1px var(--filter-pill-border-color);
+    border-radius: 10px;
+    cursor: default;
+    align-items: center;
+}
+
+.filter-pill > svg {
+    display: flex;
+    color: var(--mid-grey);
+    cursor: pointer;
+}
+
 /*! tailwindcss v2.2.19 | MIT License | https://tailwindcss.com */
 
 
@@ -6021,6 +6070,7 @@ video {
     --highlight-primary-mid-dark: #dec802;
     --highlight-primary-light: #fffcd7;
     --system-base: #041f74;
+    --system-base-rgb: 4, 31, 116;
     --system-secondary: #CEDAF3;
     --mid-grey: #929DAF;
     --mid-grey-rgb: 146, 157, 175;

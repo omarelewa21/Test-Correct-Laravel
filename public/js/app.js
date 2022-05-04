@@ -6012,16 +6012,19 @@ document.addEventListener('alpine:init', function () {
       }
     };
   });
-  alpinejs__WEBPACK_IMPORTED_MODULE_1__["default"].data('choices', function (wireModel, multiple, options, config) {
+  alpinejs__WEBPACK_IMPORTED_MODULE_1__["default"].data('choices', function (wireModel, multiple, options, config, filterContainer) {
     return {
       multiple: multiple,
       value: [],
       options: options,
       config: config,
       wireModel: wireModel,
+      activeFiltersContainer: null,
+      choices: null,
       init: function init() {
         var _this11 = this;
 
+        this.activeFiltersContainer = document.getElementById(filterContainer);
         this.multiple = multiple === 1;
         this.$nextTick(function () {
           var choices = new (choices_js__WEBPACK_IMPORTED_MODULE_2___default())(_this11.$refs.select, _this11.config);
@@ -6038,9 +6041,22 @@ document.addEventListener('alpine:init', function () {
                 selected: selection.includes(value)
               };
             }));
+
+            _this11.handleActiveFilters(choices.getValue());
           };
 
-          refreshChoices();
+          refreshChoices(); // this.$refs.select.addEventListener('addItem', (event) => {
+          //     console.log('additem');
+          //
+          // })
+
+          _this11.$refs.select.addEventListener('choice', function (event) {
+            if (_this11.value.includes(parseInt(event.detail.choice.value))) {
+              _this11.removeFilterItem(choices.getValue().find(function (value) {
+                return value.value === event.detail.choice.value;
+              }));
+            }
+          });
 
           _this11.$refs.select.addEventListener('change', function () {
             _this11.value = choices.getValue(true);
@@ -6055,6 +6071,46 @@ document.addEventListener('alpine:init', function () {
             return refreshChoices();
           });
         });
+      },
+      removeFilterItem: function removeFilterItem(item) {
+        this.value = this.wireModel = this.value.filter(function (itemValue) {
+          return itemValue !== item.value;
+        });
+        this.clearFilterPill(item.value);
+      },
+      getDataSelector: function getDataSelector(item) {
+        return "[data-filter=\"".concat(this.$root.dataset.modelName, "\"][data-filter-value=\"").concat(item, "\"]");
+      },
+      handleActiveFilters: function handleActiveFilters(choicesValues) {
+        var _this12 = this;
+
+        this.value.forEach(function (item) {
+          if (_this12.needsFilterPill(item)) {
+            var cItem = choicesValues.find(function (value) {
+              return value.value === item;
+            });
+
+            _this12.createFilterPill(cItem);
+          }
+        });
+      },
+      createFilterPill: function createFilterPill(item) {
+        var element = document.getElementById('filter-pill-template').content.firstElementChild.cloneNode(true); // const element = document.createElement('span')
+
+        element.id = "filter-".concat(this.$root.dataset.modelName, "-").concat(item.value);
+        element.classList.add('filter-pill');
+        element.dataset.filter = this.$root.dataset.modelName;
+        element.dataset.filterValue = item.value;
+        element.firstElementChild.innerHTML = item.label;
+        return this.activeFiltersContainer.appendChild(element);
+      },
+      needsFilterPill: function needsFilterPill(item) {
+        return this.activeFiltersContainer.querySelector(this.getDataSelector(item)) === null;
+      },
+      clearFilterPill: function clearFilterPill(item) {
+        var _this$activeFiltersCo;
+
+        return (_this$activeFiltersCo = this.activeFiltersContainer.querySelector(this.getDataSelector(item))) === null || _this$activeFiltersCo === void 0 ? void 0 : _this$activeFiltersCo.remove();
       }
     };
   });
@@ -6399,6 +6455,17 @@ clearClipboard = function clearClipboard() {
   }
 
   return copyTextToClipboard(' ');
+};
+
+removeFilterItem = function removeFilterItem(el) {
+  console.log(el);
+  document.querySelector("[data-model-name=\"".concat(el.parentElement.dataset.filter, "\"")).querySelector('select').dispatchEvent(new CustomEvent('choice', {
+    'detail': {
+      'choice': {
+        'value': el.parentElement.dataset.filterValue
+      }
+    }
+  }));
 };
 
 /***/ }),
