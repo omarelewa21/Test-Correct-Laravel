@@ -6,6 +6,8 @@ use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Facades\Storage;
 use tcCore\DrawingQuestion;
+use tcCore\Gates\StudentGate;
+use tcCore\Gates\TeacherGate;
 use tcCore\Http\Helpers\QuestionHelper;
 use tcCore\Http\Helpers\SvgHelper;
 use tcCore\Http\Requests;
@@ -114,11 +116,38 @@ class QuestionsController extends Controller
 
     public function drawingQuestionAnswerBackgroundImage($drawingQuestion, $identifier)
     {
+        $pass = false;
+
+//        if(collect($this->getUserRoles())->contains('Teacher')) {
+//            $gate = app()->make(TeacherGate::class);
+//            $pass = $gate->canAccessDrawingQuestionBackgroundImage(auth()->user());
+//        }
+//
+//        if (!$pass) {
+//            return redirect()->route('auth.login');
+//        }
         return $this->getDrawingQuestionBackgroundImage('answer', $drawingQuestion, $identifier);
     }
 
     public function drawingQuestionQuestionBackgroundImage($drawingQuestion, $identifier)
     {
+        $drawingQuestion = DrawingQuestion::whereUuid($drawingQuestion)->firstOrFail();
+
+//        if(collect($this->getUserRoles())->contains('Student')) {
+//            $gate = app()->make(StudentGate::class);
+//            $gate->setStudent(auth()->user());
+//            $pass = $gate->canAccessDrawingQuestionQuestionBackgroundImage($drawingQuestion);
+//        }
+//        if(collect($this->getUserRoles())->contains('Teacher')) {
+//            $gate = app()->make(TeacherGate::class);
+//            $gate->setTeacher(auth()->user());
+//            $pass = $gate->canAccessDrawingQuestionBackgroundImage($drawingQuestion);
+//        }
+//
+//        if (!$pass) {
+//            return redirect()->route('auth.login');
+//        }
+
         return $this->getDrawingQuestionBackgroundImage('question', $drawingQuestion, $identifier);
     }
 
@@ -137,6 +166,7 @@ class QuestionsController extends Controller
     }
 
     private function getPng($drawingQuestion, $fileName) {
+        logger('me');
         $path = sprintf('%s/%s', $drawingQuestion,  $fileName);
         if (Storage::disk(SvgHelper::DISK)->exists($path)) {
             $server = \League\Glide\ServerFactory::create([

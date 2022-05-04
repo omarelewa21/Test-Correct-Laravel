@@ -331,8 +331,8 @@
                             {{--content header--}}
                             <div class="mb-6 relative w-full">
                                 <img class="card-header-img float-left mr-4" src="/svg/stickers/school.svg" alt="">
-                                <h1 class="md:mt-2 top-4 card-header-text">@if($this->hasValidTUser) {{ __("onboarding.Jouw schoollocatie") }} @else {{ __('onboarding.Kies locatie(s)') }} @endif</h1>
-                                @if(!$this->hasValidTUser)
+                                <h1 class="md:mt-2 top-4 card-header-text">@if($this->hasValidTUser || $this->schoolLocation) @if(count($this->schoolLocations) > 0) {{ __("onboarding.Jouw schoollocaties") }}  @else {{ __("onboarding.Jouw schoollocatie") }} @endif @else {{ __('onboarding.Kies locatie(s)') }} @endif</h1>
+                                @if(!$this->hasValidTUser && !$this->schoolLocation)
                                 <p class="">{{ __('onboarding.We hebben meerdere locaties gevonden. Op welke locatie geef jij les?') }}</p>
                                 @endif
                             </div>
@@ -342,14 +342,27 @@
                                     <div class="input-section mb-4">
                                         @if($this->hasFixedLocation)
                                             <div class="flex flex-col space-y-2 w-full mt-4">
+                                                @if(count($this->schoolLocations) > 0)
+                                                    @foreach($this->schoolLocations as $locationName)
                                                     <div
                                                                  class="flex px-0 py-0 border-0 bg-system-white relative regular"
                                                     >
-                                                        {{ $this->schoolLocation->name }}
+                                                        {{ $locationName }}
 
                                                             <x-icon.checkmark class="mx-2 w-4" ></x-icon.checkmark>
 
                                                     </div>
+                                                    @endforeach
+                                               @else
+                                                    <div
+                                                            class="flex px-0 py-0 border-0 bg-system-white relative regular"
+                                                    >
+                                                        {{ $this->schoolLocation->name }}
+
+                                                        <x-icon.checkmark class="mx-2 w-4" ></x-icon.checkmark>
+
+                                                    </div>
+                                               @endif
                                             </div>
                                         @elseif($this->school)
                                             <div class="flex flex-col space-y-2 w-full mt-4">

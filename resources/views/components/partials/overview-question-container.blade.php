@@ -36,7 +36,7 @@
                 <span>{{__('test_take.question_closeable_text')}}</span>
             @endif
         @else
-            <div class="questionContainer">
+            <div class="questionContainer w-full">
                 {{ $slot }}
             </div>
         @endif

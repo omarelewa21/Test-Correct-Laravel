@@ -10,7 +10,7 @@
 @section('question-cms-answer')
     <div id="drawing-question-tool-container"
             x-data="drawingTool(
-                '{{ $this->groupQuestionQuestionId === '' ? $this->testQuestionId : $this->groupQuestionQuestionId}}',
+                '{{ $this->drawingToolName() }}',
                  {
                      answerSvg: @entangle('question.answer_svg'),
                      questionSvg: @entangle('question.question_svg'),

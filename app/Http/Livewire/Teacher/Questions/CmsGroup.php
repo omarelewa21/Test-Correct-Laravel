@@ -3,6 +3,7 @@
 namespace tcCore\Http\Livewire\Teacher\Questions;
 
 use Illuminate\Support\Str;
+use tcCore\GroupQuestion;
 
 class CmsGroup
 {
@@ -10,24 +11,40 @@ class CmsGroup
 
     public $requiresAnswer = false;
 
-    private $questionOptions = [
-        'name' => '',
-        'groupquestion_type' => 'standard',
+    private $questionProperties = [
+        'name'                   => '',
+        'groupquestion_type'     => 'standard',
+        'number_of_subquestions' => 1,
+        'uuid'                   => ''
+    ];
+
+    public $settingsGeneralPropertiesVisibility = [
+        'autoCheckAnswer'              => false,
+        'autoCheckAnswerCaseSensitive' => false,
+        'closeable'                    => true,
+        'shuffle'                      => true,
+        'addToDatabase'                => true,
+        'maintainPosition'             => true,
+        'discuss'                      => false,
+        'allowNotes'                   => false,
+        'decimalScore'                 => false,
     ];
 
     public function mergeRules(&$rules)
     {
         $rules = [
-            'question.name'   => 'required',
+            'question.name' => 'required',
         ];
     }
 
 
-    public function __construct(OpenShort $instance) {
+    public function __construct(OpenShort $instance)
+    {
         $this->instance = $instance;
     }
 
-    public function getTranslationKey() {
+    public function getTranslationKey()
+    {
         return __('cms.group-question');
     }
 
@@ -38,15 +55,38 @@ class CmsGroup
 
     public function preparePropertyBag()
     {
-        foreach($this->questionOptions as $key => $value){
+        foreach ($this->questionProperties as $key => $value) {
             $this->instance->question[$key] = $value;
         }
     }
 
     public function initializePropertyBag($q)
     {
-        foreach ($this->questionOptions as $key => $val) {
+        foreach ($this->questionProperties as $key => $val) {
             $this->instance->question[$key] = $q[$key];
         }
+
+        if ($this->instance->question['number_of_subquestions'] == null) {
+            $this->instance->question['number_of_subquestions'] = 0;
+        }
+    }
+
+    public function isCarouselGroup()
+    {
+        return $this->instance->question['groupquestion_type'] === 'carousel';
+    }
+
+    public function hasEqualScoresForSubQuestions()
+    {
+        return GroupQuestion::whereUuid($this->instance->question['uuid'])->first()->hasEqualScoresForSubQuestions();
+    }
+    public function hasEnoughSubQuestionsAsCarousel()
+    {
+        return GroupQuestion::whereUuid($this->instance->question['uuid'])->first()->hasEnoughSubQuestionsAsCarousel();
+    }
+
+    public function showQuestionScore()
+    {
+        return false;
     }
 }

@@ -200,7 +200,7 @@
     color: var(--primary);
 }
 
-#sidebar-carousel-container .group-question-questions .question-button:not(:last-child, :first-child) > div > span::before {
+#sidebar-carousel-container .group-question-questions .question-button:not(:last-child, :first-child) span.rounded-full::before {
     content: '';
     position: absolute;
     height: 30px;
@@ -274,6 +274,7 @@
     width: 360px;
     background-color: var(--off-white);
     border-radius: 10px;
+    transition: left var(--sidebar-transition), left var(--sidebar-transition);
 }
 
 #sidebar-backdrop .empty-state-popover::before {

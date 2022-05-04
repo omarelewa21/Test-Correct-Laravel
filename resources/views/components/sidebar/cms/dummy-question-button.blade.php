@@ -1,18 +1,16 @@
-@props(['testQuestion' => null, 'loop' => 1])
-@php
-    $groupDummy = $testQuestion != null
-@endphp
-<div class=""
+@props(['loop' => 1])
+<div class="question-button"
      x-data="{mode: @entangle('action'), owner: @entangle('owner'), name: @entangle('newQuestionTypeName')}"
      x-init=""
-     x-show="mode === 'add'"
+     x-show="mode === 'add' && owner === 'test'"
      x-cloak
+     wire:key="dummy-{{ $loop }}"
 >
-    <div class="question-button flex items-center cursor-pointer bold py-2 hover:text-primary @if(!$groupDummy) pl-6 pr-4 @endif question-active"
+    <div class="question-button flex items-center cursor-pointer bold py-2 hover:text-primary pl-6 pr-4 question-active"
          style="max-width: 300px"
     >
         <div class="flex w-full">
-        <span class="rounded-full text-sm flex items-center justify-center border-3 relative px-1.5 text-white bg-primary border-primary"
+        <span class="rounded-full text-sm flex items-center justify-center border-3 relative px-1.5 text-white bg-midgrey border-mid-grey"
               style="min-width: 30px; height: 30px"
         >
             <span class="mt-px question-number">{{ $loop+1  }}</span>
@@ -27,14 +25,11 @@
                         <div class="flex items-center space-x-2"></div>
                     </div>
                 </div>
-                <div class="flex items-start space-x-2.5 mt-1">
-                    <span class="note italic text-sm regular">Concept</span>
+                <div class="flex items-start space-x-2.5 mt-1 text-sysbase hover:text-primary" wire:click="removeDummy">
+                    <x-icon.trash/>
+{{--                    <span class="note italic text-sm regular">Concept</span>--}}
                 </div>
             </div>
         </div>
     </div>
-
-    <div x-ref="translate" class="hidden invisible"
-         data-
-    ></div>
 </div>

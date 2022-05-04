@@ -166,6 +166,7 @@ ReadspeakerTlc = function(){
             rsEvent.target = document;
             rsEvent.targetTouches = undefined;
             rsEvent.type = eventType;
+            rspkr.rs_popup_modified = false;
             rspkr.popup.showPopup(rsEvent);
         }
         function handlePopupChange()
@@ -194,6 +195,18 @@ ReadspeakerTlc = function(){
             }
             var observer = new MutationObserver(callback);
             observer.observe(element, config);
+            var callback2 = function(mutationsList2, observer){
+                if(rspkr.rs_popup_modified){
+                    return true;
+                }
+                for(var mutation of mutationsList2) {
+                    if (mutation.type === 'attributes'&&mutation.attributeName=='style'&&util.isIpadOS()) {
+                        popup.positionBySelection();
+                    }
+                }
+            }
+            var observer2 = new MutationObserver(callback2);
+            observer2.observe(element, config);
         }
         function addListenersToPopup()
         {
@@ -217,10 +230,52 @@ ReadspeakerTlc = function(){
                         continue;
                     }
                     ReadspeakerTlc.rsTlcEvents.handlePopupChange();
+                    if(rspkr.rs_popup_modified||!util.isIpadOS()){
+                        continue;
+                    }
+                    popup.positionBySelection();
                 }
             }
             var observer = new MutationObserver(callback);
             observer.observe(element, config);
+        }
+        function addListenerCkeditorTableCellFocusForReadspeaker(element)
+        {
+            var iterator = document.evaluate('.//td[contains(@class, \'ck-editor__nested-editable\')]', element, null, XPathResult.ANY_TYPE, null );
+            try {
+                var thisNode = iterator.iterateNext();
+                while (thisNode) {
+                    handleCkeditorTableCellFocusForReadspeaker(thisNode);
+                    thisNode = iterator.iterateNext();
+                }
+            }
+            catch (e) {
+                console.dir( 'Error: Document tree modified during iteration ' + e );
+            }
+                setTimeout(function()
+                {
+                    var selectedText = window.getSelection().toString();
+                    if (selectedText == '') {
+                        return;
+                    }
+                    rspkr.ui.setPointerPos(event);
+                    rspkr.c.data.setSelectedText(event);
+                    rspkr.popup.lastSelectedText = selectedText;
+                    var rsEvent = new rspkr.lib.Facade.RSEvent();
+                    rsEvent.clientX = event.layerX;
+                    rsEvent.clientY = event.layerY;
+                    rsEvent.keyCode = undefined;
+                    rsEvent.originalEvent = event;
+                    rsEvent.pageX = event.pageX;
+                    rsEvent.pageY = event.pageY;
+                    rsEvent.screenX = event.layerX;
+                    rsEvent.screenY = event.layerY;
+                    rsEvent.target = document;
+                    rsEvent.targetTouches = undefined;
+                    rsEvent.type = "touchend";
+                    rspkr.popup.showPopup(rsEvent);
+                },100);
+            });
         }
         return{
             handleTextBoxFocusForReadspeaker:handleTextBoxFocusForReadspeaker,
@@ -233,9 +288,7 @@ ReadspeakerTlc = function(){
             handleCkeditorBlurForReadspeaker:handleCkeditorBlurForReadspeaker,
             handleCkeditorSelectionChangeDoneForReadspeaker:handleCkeditorSelectionChangeDoneForReadspeaker,
             handleCkeditorSelectionChangeForReadspeaker:handleCkeditorSelectionChangeForReadspeaker,
-            handleIPadSelectionChange,
-            handlePopupChange,
-            addListenersToPopup
+            handleIPadSelectionChange
         }
     }();
     clickListen = function(){
@@ -269,6 +322,9 @@ ReadspeakerTlc = function(){
     hiddenElement = function(){
         function removeOldElement()
         {
+            if(rspkr.rs_tlc_play_started){
+                return;
+            }
             var oldEl = document.getElementById('there_can_only_be_one');
             if(oldEl){
                 oldEl.remove();
@@ -409,7 +465,6 @@ ReadspeakerTlc = function(){
             hidden_div.classList.add('overflow-ellipsis');
             hidden_div.classList.add('readspeaker_readable_element');
             element.classList.add('hidden');
-            element.classList.add('rs_skip');
             element.classList.add('readspeaker_hidden_element');
         }
         function displayHiddenElementsAndRemoveTheRest()
@@ -462,9 +517,6 @@ ReadspeakerTlc = function(){
             }
             if(element.classList.contains('readspeaker_hidden_element')){
                 element.classList.remove('readspeaker_hidden_element');
-            }
-            if(element.classList.contains('rs_skip')){
-                element.classList.remove('rs_skip');
             }
         }
         return{
@@ -711,13 +763,25 @@ ReadspeakerTlc = function(){
             }
 
         }
+        function positionBySelection()
+        {
+            s = window.getSelection();
+            if(s.toString()==''){
+                return;
+            }
+            oRange = s.getRangeAt(0); //get the text range
+            oRect = oRange.getBoundingClientRect();
+            document.querySelector('#rsbtn_popup').style.top = (oRect.y+60)+'px';
+            rspkr.rs_popup_modified = true;
+        }
         return{
             getRsbtnPopupTlc:getRsbtnPopupTlc,
             rsRemovRsbtnPopupTlcForQuestion:rsRemovRsbtnPopupTlcForQuestion,
             hideRsTlcPopup:hideRsTlcPopup,
             getRsbtnPopupTlcElement:getRsbtnPopupTlcElement,
             rsRemovRsbtnPopupTlcForElement:rsRemovRsbtnPopupTlcForElement,
-            alreadyThere:alreadyThere
+            alreadyThere:alreadyThere,
+            positionBySelection
         }
     }();
     player = function(){
@@ -822,21 +886,9 @@ ReadspeakerTlc = function(){
             readable_div.click();
         }
         function isIpadOS() {
-            return [
-                'iPad Simulator',
-                'iPhone Simulator',
-                'iPod Simulator',
-                'iPad',
-                'iPhone',
-                'iPod'
-            ].includes(navigator.platform) || (navigator.maxTouchPoints &&
+            return navigator.maxTouchPoints &&
                 navigator.maxTouchPoints > 2 &&
-                /MacIntel/.test(navigator.platform));
-        }
-        function isIOS12() {
-            return(isIpadOS()&&!(navigator.maxTouchPoints &&
-                navigator.maxTouchPoints > 2 &&
-                /MacIntel/.test(navigator.platform)));
+                /MacIntel/.test(navigator.platform);
         }
         return{
             showById:showById,
@@ -847,8 +899,7 @@ ReadspeakerTlc = function(){
             checkPossibleTextAreaAlreadyExists:checkPossibleTextAreaAlreadyExists,
             checkElementInActiveQuestion:checkElementInActiveQuestion,
             showReadableSelect:showReadableSelect,
-            isIpadOS,
-            isIOS12
+            isIpadOS
         }
     }();
     ckeditor = function(){
@@ -1010,8 +1061,10 @@ ReadSpeaker.q(function() {
     rspkr.rs_tlc_prevent_close = false;
     rspkr.rs_tlc_container = false;
     rspkr.rs_tlc_prevent_ckeditor_focus = false;
+    rspkr.rs_tlc_ckeditor_selecting = false;
+    rspkr.rs_popup_modified = false;
     ReadspeakerTlc.rsTlcEvents.handleIPadSelectionChange();
-    ReadspeakerTlc.rsTlcEvents.addListenersToPopup();
+
 });
 window.rsConf = {
     general: {

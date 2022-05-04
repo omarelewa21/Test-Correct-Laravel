@@ -409,7 +409,7 @@ class Onboarding extends Component
 
     protected function setSubjectOptions()
     {
-        $subjects = BaseSubject::where('show_in_onboarding',true)->where('level','like','%'.$this->registration->level.'%')->get()->pluck('name')->toArray();
+        $subjects = BaseSubject::where('show_in_onboarding',true)->forLevel($this->registration->level)->get()->pluck('name')->toArray();
         $subjects = array_unique($subjects);
         sort($subjects);
 //        $subjects = $this->translateSubjects($subjects);

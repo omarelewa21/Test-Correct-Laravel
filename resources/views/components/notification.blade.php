@@ -7,7 +7,7 @@
         },
     }"
         @notify.window="let message = $event.detail; messages.push(message); setTimeout(() => { remove(message) }, {{ $notificationTimeout }})"
-        class="fixed z-50 inset-0 flex flex-col items-end justify-center px-4 py-6 pointer-events-none sm:p-6 sm:justify-start space-y-4"
+        class="fixed z-[500] inset-0 flex flex-col items-end justify-center px-4 py-6 pointer-events-none sm:p-6 sm:justify-start space-y-4"
 >
     <template x-for="message in messages" :key="messages.indexOf(message)">
         <div

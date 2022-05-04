@@ -10,6 +10,7 @@
                     $wire.showAttachment('{{ $attachment->uuid }}');
                 }, 500);"
             wire:key="key-attachment-{{$attachment->uuid}}" :disabled="$blockAttachments"
+                                selid="open-attachment-btn"
         >
             <x-icon.attachment/>
             <span wire:ignore>{{ __('test_take.attachment') }} {{$loop->iteration}}</span>
@@ -23,6 +24,7 @@
                     $wire.showAttachment('{{ $attachment->uuid }}');
                 }, 500);"
             wire:key="key-attachment-{{$attachment->uuid}}" :disabled="$blockAttachments"
+                              selid="open-attachment-btn"
         >
             <x-icon.attachment/>
             <span wire:ignore>{{ __('test_take.attachment') }} {{$loop->iteration}}</span>

@@ -61,6 +61,25 @@
     border-radius: 20px;
     box-shadow: 0 3px 18px 0 rgb(77 87 143 / 10%);
 }
+@media only screen and (max-width: 1024px) {
+    .rsexpanded, .rs_mobile {
+        position: absolute !important;
+        left: 0px;
+        width: max-content;
+    }
+
+}
+@media only screen and (max-width: 768px) {
+    .rsexpanded, .rs_mobile {
+        left: 100px;
+    }
+    .Rectangle{
+        width: 40px;
+    }
+    .Lees-voor{
+        display: none;
+    }
+}
 
 .rs_addtools .rsbtn_toolpanel.vertical, .rsbtn .rsbtn_toolpanel.vertical {
     clear: left;

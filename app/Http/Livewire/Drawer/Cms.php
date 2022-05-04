@@ -27,6 +27,7 @@ class Cms extends Component
     public $groupId;
     public $questionBankActive = false;
     public $emptyStateActive = false;
+    public $emitShowOnInit = false;
 
     public $newQuestionTypeName = '';
 
@@ -43,6 +44,14 @@ class Cms extends Component
 
     public function mount()
     {
+        if (blank($this->type) && blank($this->subtype)) {
+            if ($this->testQuestions->count() === 0) {
+                $this->emptyStateActive = true;
+            } else {
+                $this->emitShowOnInit = true;
+            }
+            return true;
+        }
         if ($this->action === 'add') {
             $this->newQuestionTypeName = CmsFactory::findQuestionNameByTypes($this->type, $this->subtype);
         }
@@ -55,7 +64,6 @@ class Cms extends Component
 
     public function showQuestion($testQuestionUuid, $questionUuid, $subQuestion, $shouldSave = true)
     {
-        $this->action = 'edit';
         $this->emitTo(
             'teacher.questions.open-short',
             'showQuestion',
@@ -66,8 +74,6 @@ class Cms extends Component
                 'shouldSave'       => $shouldSave,
             ]
         );
-
-        $this->testQuestionId = $testQuestionUuid;
     }
 
     public function addQuestion($type, $subtype)
@@ -85,6 +91,8 @@ class Cms extends Component
             $this->emptyStateActive = false;
             $this->dispatchBrowserEvent('question-change');
         }
+
+        $this->groupId = null;
     }
 
 
@@ -183,11 +191,12 @@ class Cms extends Component
     private function navigateToQuestion($question = null)
     {
         if ($question == null) {
-            if ($this->questionsInTest->isEmpty()) {
+            if (Test::whereUuid($this->testId)->first()->testQuestions()->count() == 0) {
                 $this->showEmpty();
             }
             return true;
         }
+
         $this->dispatchBrowserEvent('question-change', ['new' => $question->uuid, 'old' => $this->testQuestionId]);
         return $this->showQuestion($question->uuid, $question->question->uuid, false, false);
     }
@@ -228,5 +237,26 @@ class Cms extends Component
     {
         $this->emptyStateActive = true;
         $this->dispatchBrowserEvent('show-empty');
+        $this->emitTo('teacher.questions.open-short','showEmpty');
+    }
+
+    public function handleCmsInit()
+    {
+        if ($this->emitShowOnInit) {
+            $this->showQuestionByTestQuestion($this->questionsInTest->first());
+        }
+    }
+
+    private function showQuestionByTestQuestion($testQuestion)
+    {
+        $this->showQuestion($testQuestion->uuid, $testQuestion->question->uuid, $testQuestion->type === 'GroupQuestion', false);
+    }
+
+    public function removeDummy()
+    {
+        if ($this->questionsInTest->count() > 0) {
+            return $this->showQuestionByTestQuestion($this->questionsInTest->reverse()->first());
+        }
+        return $this->showEmpty();
     }
 }

@@ -45,6 +45,10 @@
     height: 40px;
 }
 
+#toolbarContainer{
+    height: 55px;
+}
+
 .Rectangle{
     background-color: #ffffff;
 }
@@ -60,6 +64,27 @@
     padding-left: 20px;
     border-radius: 20px;
     box-shadow: 0 3px 18px 0 rgb(77 87 143 / 10%);
+}
+@media only screen and (max-width: 1024px) {
+    .rsexpanded {
+        position: absolute !important;
+        left: 0px;
+        width: max-content;
+    }
+
+}
+@media only screen and (max-width: 768px) {
+    .rsexpanded {
+        left: 100px;
+        position: absolute !important;
+        width: max-content;
+    }
+    .Rectangle{
+        width: 40px;
+    }
+    .Lees-voor{
+        display: none;
+    }
 }
 
 .rs_addtools .rsbtn_toolpanel.vertical, .rsbtn .rsbtn_toolpanel.vertical {
@@ -99,6 +124,11 @@ button, input, optgroup, select, textarea {
 svg {
     display: inline-block;
     vertical-align: middle;
+}
+@media only screen and (max-width: 768px) {
+    .Rectangle>svg {
+        margin-top: 5px;
+    }
 }
 .stroke-current {
     stroke: currentColor;
@@ -154,7 +184,7 @@ svg {
 *, ::before, ::after {
     box-sizing: border-box;
 }
-user agent stylesheet
+/*user agent stylesheet**/
 div {
     display: block;
 }
@@ -164,4 +194,8 @@ body {
     color: var(--system-base);
     touch-action: manipulation;
     -ms-touch-action: manipulation;
+}
+.rsbtn_pause{
+    position: relative;
+    top: 2px;
 }

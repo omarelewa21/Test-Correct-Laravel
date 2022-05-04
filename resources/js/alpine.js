@@ -350,7 +350,8 @@ document.addEventListener('alpine:init', () => {
             this.slideWidth = this.$root.offsetWidth;
             this.drawer = this.$root.closest('.drawer');
             setTimeout(() => {
-                this.handleVerticalScroll(this.$root.firstElementChild)
+                this.handleVerticalScroll(this.$root.firstElementChild);
+                this.$dispatch('groupFoldingUpdate');
             }, 400);
         },
         next(currentEl) {
@@ -423,6 +424,11 @@ document.addEventListener('alpine:init', () => {
                 }, 400)
             })
         },
+        addQuestionToGroup() {
+            this.next(this.$refs.container1);
+            this.$dispatch('backdrop');
+            this.$store.questionBank.inGroup = true;
+        }
 
     }));
     Alpine.data('choices', (wireModel, multiple, options, config) => ({
@@ -466,7 +472,13 @@ document.addEventListener('alpine:init', () => {
         f(window, el._x_dataStack[0]);
     });
 
-    Alpine.store('cmsLoading', false);
+    Alpine.store('cms', {
+        loading: false,
+        processing: false
+    });
+    Alpine.store('questionBank', {
+        inGroup: false
+    });
 });
 
 function getTitleForVideoUrl(videoUrl) {

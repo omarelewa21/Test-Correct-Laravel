@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use tcCore\Exceptions\QuestionException;
 use tcCore\Http\Helpers\DemoHelper;
+use tcCore\Http\Livewire\Teacher\Questions\CmsFactory;
 use tcCore\Http\Requests\UpdateTestQuestionRequest;
 use tcCore\Lib\Models\MtiBaseModel;
 use Illuminate\Database\Eloquent\Model;
@@ -773,7 +774,7 @@ class Question extends MtiBaseModel {
                                 $subjectIds = $subjectIds->pluck('id');
                                 $query->whereIn('subject_id',$subjectIds);
                                 break;
-                            case 'school': // including shared sections
+                            case 'school': //  shared sections
                                 if(is_array($value)) {
                                     $subjectIds = $user->subjectsOnlyShared()->whereIn('base_subject_id', $value);
                                 } else {
@@ -815,7 +816,7 @@ class Question extends MtiBaseModel {
                             case 'schoolLocation': // only my colleages and me
                                 $query->whereIn('subject_id',$user->subjects()->pluck('id'));
                                 break;
-                            case 'school': // including shared sections
+                            case 'school': //  shared sections
                                 $query->whereIn('subject_id',$user->subjectsOnlyShared()->pluck('id'));
                                 break;
                             default:
@@ -898,6 +899,9 @@ class Question extends MtiBaseModel {
                     break;
                 case 'is_subquestion':
                     $query->where('is_subquestion', '=', $value);
+                    break;
+                case 'without_groups':
+                    $query->where('type', '!=', 'GroupQuestion');
                     break;
                 case 'author_id':
                    if (is_array($value)) {
@@ -1541,8 +1545,15 @@ class Question extends MtiBaseModel {
         return strip_tags(html_entity_decode($this->getQuestionHtml()));
     }
 
-    public function getTranslatedTypeName()
+    public function getTypeNameAttribute()
     {
-        return ''; //@Todo
+        return __('question.'.Str::lower($this->type.($this->subtype ?? '')));
+    }
+
+    public function getAuthorNamesString(): string
+    {
+        return $this->authors()->get(['id', 'name', 'name_first', 'name_suffix'])->map(function($author) {
+            return $author->getFullNameWithAbbreviatedFirstName();
+        })->implode(', ');
     }
 }

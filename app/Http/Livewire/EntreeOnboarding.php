@@ -15,6 +15,7 @@ use tcCore\BaseSubject;
 use tcCore\DemoTeacherRegistration;
 use tcCore\Http\Helpers\ActingAsHelper;
 use tcCore\Http\Helpers\BaseHelper;
+use tcCore\Http\Helpers\DemoHelper;
 use tcCore\Http\Helpers\EntreeHelper;
 use tcCore\Http\Helpers\UserHelper;
 use tcCore\Http\Requests\Request;
@@ -55,6 +56,7 @@ class EntreeOnboarding extends Onboarding
     public $hasFixedLocation = false;
     public $selectedLocationsString = null;
     public $schoolLocation;
+    public $schoolLocations = [];
     public $school;
     public $samlId;
 
@@ -170,7 +172,8 @@ class EntreeOnboarding extends Onboarding
             $this->schoolLocation = SchoolLocation::findOrFail($this->entreeData->data->locationId);
             $this->hasFixedLocation = true;
             $this->saveSelectedSchoolLocationsToString([$this->schoolLocation->uuid]);
-        } else if ($this->entreeData->data->schoolId) {
+        }
+        if ($this->entreeData->data->schoolId) {
             $this->school = School::find($this->entreeData->data->schoolId);
         }
 
@@ -178,10 +181,13 @@ class EntreeOnboarding extends Onboarding
 
             $user = User::find($this->entreeData->data->userId);
             if ($user && $user->hasImportMailAddress()) {
+                $this->hasFixedLocation = true;
                 collect(['name_first', 'name_suffix', 'name', 'gender'])->each(function ($key) use ($user){
                     $this->registration->$key = $user->$key;
                 });
-
+                if($this->school){
+                    $this->schoolLocations = $user->allowedSchoolLocations()->pluck('name')->toArray();
+                }
                 $this->hasValidTUser = true;
                 $this->showSubjects = false;
                 $this->btnStepOneDisabledCheck();
@@ -284,16 +290,19 @@ class EntreeOnboarding extends Onboarding
                         if(!$locationsAdded->contains($schoolLocation->getKey())) {
                             $user->school_location_id = $schoolLocation->getKey();
                             $user->save();
+                            $user->addSchoolLocationAndCreateDemoEnvironment($schoolLocation);
                             $user->refresh();
                             $locationsAdded->push($schoolLocation->getKey());
                         }
                         ActingAsHelper::getInstance()->setUser($user);
+                        DemoTeacherRegistration::registerIfApplicable($user);
+
                         $class = new SchoolClass();
                         $class->fill([
                             'visible' => false,
                             'school_location_id' => $schoolLocation->getKey(),
                             'education_level_id' => $schoolLocation->schoolLocationEducationLevels->first()->value('education_level_id'),
-                            'school_year_id' => SchoolYearRepository::getCurrentOrPreviousSchoolYear()->getKey(),
+                            'school_year_id' => SchoolYearRepository::getCurrentSchoolYear()->getKey(),
                             'name' => sprintf('entree_registration_class_%s', $user->getKey()),
                             'education_level_year' => 1,
                             'is_main_school_class' => 0,

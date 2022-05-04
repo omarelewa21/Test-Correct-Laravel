@@ -14,27 +14,27 @@
         <div class="hidden h-[45vw] w-3/4 h-1/2 w-5/6 lg:w-4/6 h-[80vh] w-[80vw] h-[45vw]"></div>
         <div class="flex-col relative h-full rounded-10">
             <div class="flex absolute top-0 right-0 justify-end space-x-2 z-10" style="-webkit-transform: translateZ(10px);">
-                <x-button.secondary id="attachment-{{$attachment->uuid}}drag" class="rotate-svg-45">
+                <x-button.secondary id="attachment-{{$attachment->uuid}}drag" class="rotate-svg-45" selid="drag-attachment-btn">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"
                          xmlns="http://www.w3.org/2000/svg">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                               d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"></path>
                     </svg>
                 </x-button.secondary>
-                <x-button.primary wire:click="closeAttachmentModal">
+                <x-button.primary wire:click="closeAttachmentModal" selid="close-attachment-btn">
                     <x-icon.close class="text-white"/>
                 </x-button.primary>
             </div>
             <div class="flex w-full h-full rounded-10 attachment-iframe-wrapper @if($this->attachmentType == 'image') max-h-[80vh] @endif">
                 @if($this->attachmentType == 'video')
-                    <iframe class="w-full h-full" src="{{ $attachment->getVideoLink() }}"></iframe>
+                    <iframe class="w-full h-full" src="{{ $attachment->getVideoLink() }}" selid="youtube-attachment"></iframe>
                 @elseif($this->attachmentType == 'pdf')
-                    <iframe class="w-full h-full"
+                    <iframe class="w-full h-full" selid="document-attachment"
                             src="{{ route('student.question-pdf-attachment-show', ['attachment' => $attachment, 'answer' => $answerId], false) }}"></iframe>
                 @elseif($this->attachmentType == 'audio')
                     <x-attachment.audio :attachment="$attachment" />
                 @else
-                        <img class="w-full h-full block"
+                        <img class="w-full h-full block" selid="image-attachment"
                             src="{{ route('student.question-attachment-show', ['attachment' => $attachment, 'answer' => $answerId], false) }}" alt=""/>
                 @endif
             </div>
