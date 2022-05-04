@@ -148,7 +148,7 @@
                 </div>
                 @enderror
 
-                @if($this->isGroupQuestion() && $this->isCarouselGroup())
+                @if($this->isGroupQuestion() && $this->isCarouselGroup() && $this->editModeForExistingQuestion())
                     @if(!$this->hasEnoughSubQuestionsAsCarousel())
                         <div class="notification error stretched mt-4">
                             <span class="title">{{ __('cms.carousel_not_enough_questions') }}</span>

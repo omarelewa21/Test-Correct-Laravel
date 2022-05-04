@@ -64,7 +64,6 @@ class Cms extends Component
 
     public function showQuestion($testQuestionUuid, $questionUuid, $subQuestion, $shouldSave = true)
     {
-//        $this->action = 'edit';
         $this->emitTo(
             'teacher.questions.open-short',
             'showQuestion',
@@ -75,8 +74,6 @@ class Cms extends Component
                 'shouldSave'       => $shouldSave,
             ]
         );
-
-//        $this->testQuestionId = $testQuestionUuid;
     }
 
     public function addQuestion($type, $subtype)
@@ -246,11 +243,11 @@ class Cms extends Component
     public function handleCmsInit()
     {
         if ($this->emitShowOnInit) {
-            $this->showQuestionFromCollection($this->questionsInTest->first());
+            $this->showQuestionByTestQuestion($this->questionsInTest->first());
         }
     }
 
-    private function showQuestionFromCollection($testQuestion)
+    private function showQuestionByTestQuestion($testQuestion)
     {
         $this->showQuestion($testQuestion->uuid, $testQuestion->question->uuid, $testQuestion->type === 'GroupQuestion', false);
     }
@@ -258,7 +255,7 @@ class Cms extends Component
     public function removeDummy()
     {
         if ($this->questionsInTest->count() > 0) {
-            return $this->showQuestionFromCollection($this->questionsInTest->reverse()->first());
+            return $this->showQuestionByTestQuestion($this->questionsInTest->reverse()->first());
         }
         return $this->showEmpty();
     }
