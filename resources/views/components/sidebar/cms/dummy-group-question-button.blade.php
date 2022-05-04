@@ -1,12 +1,12 @@
-@props(['loop' => 1])
+@props(['loop' => 1, 'testQuestionUuid' => ''])
 <div class="question-button"
-     x-data="{mode: @entangle('action'), owner: @entangle('owner'), name: @entangle('newQuestionTypeName')}"
+     x-data="{mode: @entangle('action'), owner: @entangle('owner'), name: @entangle('newQuestionTypeName'), groupId: '{{ $testQuestionUuid}}' }"
      x-init=""
-     x-show="mode === 'add' && owner === 'test'"
+     x-show="mode === 'add' && owner === 'group' && groupId === '{{ $this->testQuestionId}}'"
      x-cloak
-     wire:key="dummy-{{ $loop }}"
+     wire:key="dummy-{{ $loop.$testQuestionUuid.$this->testQuestionId }}"
 >
-    <div class="question-button flex items-center cursor-pointer bold py-2 hover:text-primary pl-6 pr-4 question-active"
+    <div class="question-button flex items-center cursor-pointer bold py-2 hover:text-primary question-active"
          style="max-width: 300px"
     >
         <div class="flex w-full">
@@ -27,7 +27,7 @@
                 </div>
                 <div class="flex items-start space-x-2.5 mt-1 text-sysbase hover:text-primary" wire:click="removeDummy">
                     <x-icon.trash/>
-{{--                    <span class="note italic text-sm regular">Concept</span>--}}
+                    {{--                    <span class="note italic text-sm regular">Concept</span>--}}
                 </div>
             </div>
         </div>

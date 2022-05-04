@@ -5,7 +5,7 @@
                 $store.cms.loading = true;
                 loading = true;
                 if(typeof evt !== 'undefined') empty = false;
-                $root.querySelector('#drawing-question-tool-container')?.remove();
+                removeDrawingLegacy();
            }
 
            loadingTimeout = (value) => {
@@ -22,11 +22,14 @@
            $watch('$store.cms.loading', (value) => loadingTimeout(value));
            $watch('loading', (value) => loadingTimeout(value));
 
-
+           removeDrawingLegacy = () => {
+                $root.querySelector('#drawing-question-tool-container')?.remove();
+           }
            "
      x-cloak
      x-on:question-change.window="handleQuestionChange($event.detail)"
      x-on:show-empty.window="empty = !empty"
+     x-on:new-question-added.window="removeDrawingLegacy()"
      questionComponent
 >
     <x-partials.header.cms-editor :testName="$testName" :questionCount="$this->amountOfQuestions"/>
@@ -144,6 +147,19 @@
                     <span class="title">{{ __('cms.drawing-question-required-answer') }}</span>
                 </div>
                 @enderror
+
+                @if($this->isGroupQuestion() && $this->isCarouselGroup())
+                    @if(!$this->hasEnoughSubQuestionsAsCarousel())
+                        <div class="notification error stretched mt-4">
+                            <span class="title">{{ __('cms.carousel_not_enough_questions') }}</span>
+                        </div>
+                    @endif
+                    @if(!$this->hasEqualScoresForSubQuestions())
+                            <div class="notification error stretched mt-4">
+                                <span class="title">{{ __('cms.carousel_subquestions_scores_differ') }}</span>
+                            </div>
+                    @endif
+                @endif
 
             </div>
             <div class="flex justify-end px-4 sm:px-6 lg:px-8 py-5">

@@ -77,15 +77,12 @@ class CmsDrawing
         $this->setViewBox($data['svg_zoom_group']);
 
         $this->updateFilesystemData($data);
+
+        $this->instance->dirty = true;
     }
 
     public function prepareForSave()
     {
-        logger([
-            'value' => $this->instance->question['zoom_group'],
-            'json' => json_encode($this->instance->question['zoom_group']),
-            ]
-        );
         $this->instance->question['zoom_group'] = json_encode($this->instance->question['zoom_group']);
     }
 
@@ -159,5 +156,13 @@ class CmsDrawing
             return $svgHelper->makeViewBoxArray($svgHelper->getViewBox());
         }
         return  json_decode($q['zoom_group'], true);
+    }
+
+    public function drawingToolName()
+    {
+        if ($this->instance->action == 'edit') {
+            return $this->instance->groupQuestionQuestionId === '' ? $this->instance->testQuestionId : $this->instance->groupQuestionQuestionId;
+        }
+        return $this->instance->questionEditorId;
     }
 }

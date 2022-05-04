@@ -5,7 +5,7 @@
 >
     <div class="flex space-x-2 py-1.5 cursor-pointer group-question-title-container"
          :class="expand ? 'rotate-svg-270' : 'rotate-svg-90'"
-         @click="expand = !expand; setTimeout(() => {handleVerticalScroll($refs.container1)}, 210); "
+         @click="expand = !expand; setTimeout(() => {handleVerticalScroll($refs.container1); $dispatch('groupFoldingUpdate')}, 210);"
     >
         <x-icon.chevron class="mt-2"/>
         <span class="flex flex-1 flex-col truncate text-lg bold"
@@ -17,6 +17,17 @@
         </span>
 
         <div class="flex items-start space-x-2.5 mt-2 text-sysbase">
+            @if($question->isCarouselQuestion())
+                @if(!$question->hasEnoughSubQuestionsAsCarousel())
+                    <div class="flex h-full rounded-md" title="{{ __('cms.carousel_not_enough_questions') }}">
+                        <x-icon.exclamation class="all-red"/>
+                    </div>
+                @elseif(!$question->hasEqualScoresForSubQuestions())
+                    <div class="flex h-full rounded-md" title="{{ __('cms.carousel_subquestions_scores_differ') }}">
+                        <x-icon.exclamation class="all-red"/>
+                    </div>
+                @endif
+            @endif
             <div class="flex h-full rounded-md">
                 @if($question->closeable)
                     <x-icon.locked/>
@@ -35,7 +46,7 @@
         {{ $slot }}
 
         <div class="group-add-new relative flex space-x-2.5 py-2 hover:text-primary cursor-pointer items-center"
-             @click="next($refs.container1);$dispatch('backdrop')"
+             @click="addQuestionToGroup()"
              wire:click="$set('groupId', '{{ $testQuestion->uuid }}')"
         >
             <x-icon.plus-in-circle/>

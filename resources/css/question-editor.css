@@ -274,6 +274,7 @@
     width: 360px;
     background-color: var(--off-white);
     border-radius: 10px;
+    transition: left var(--sidebar-transition), left var(--sidebar-transition);
 }
 
 #sidebar-backdrop .empty-state-popover::before {
