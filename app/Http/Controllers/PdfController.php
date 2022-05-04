@@ -50,12 +50,10 @@ class PdfController extends Controller
         libxml_use_internal_errors($internalErrors);
         $imgList = $doc->getElementsByTagName('img');
         foreach ($imgList as $imgNode){
-            dump($doc->saveHTML($imgNode));
             $this->getInlineImageBase64ImgPath($imgNode);
             $this->getImageLoadBase64ImgPath($imgNode);
         }
         $html = $doc->saveHTML($doc->documentElement);
-        file_put_contents(Storage::disk('local')->path('files/test_html_gm.html'),$html);
         return $html;
     }
 
