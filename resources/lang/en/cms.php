@@ -141,4 +141,9 @@ return [
     'Bestaande vraag toevoegen'                                                              => 'Add existing question',
     'Nieuwe vraag creeren'                                                                   => 'Create question',
     'Wijzigen'                                                                               => 'Change',
+    'Inplannen'                                                                              => 'Schedule',
+    'Kopie maken'                                                                            => 'Copy',
+    'PDF maken'                                                                              => 'PDF',
+    'voorbeeld'                                                                              => 'Preview',
+
 ];

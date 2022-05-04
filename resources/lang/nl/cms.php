@@ -140,4 +140,8 @@ return [
     'Bestaande vraag toevoegen'                                                              => 'Bestaande vraag toevoegen',
     'Nieuwe vraag creeren'                                                                   => 'Nieuwe vraag creëeren',
     'Wijzigen'                                                                               => 'Wijzigen',
+    'Inplannen'                                                                              => 'Inplannen',
+    'Kopie maken'                                                                            => 'Kopie maken',
+    'PDF maken'                                                                              => 'PDF maken',
+    'voorbeeld'                                                                              => 'Voorbeeld',
 ];
