@@ -13,7 +13,9 @@
               title="{{ $question->name }}"
         >
             <span>{{ $question->name }}</span>
-            <span class="note text-sm regular">{{ trans_choice('cms.vraag', $question->subQuestions->count()) }}</span>
+            <div>
+                <span class="note text-sm regular">{{ trans_choice('cms.vraag', $question->subQuestions->count()) }}</span>
+            </div>
         </span>
 
         <div class="flex items-start space-x-2.5 mt-2 text-sysbase">
