@@ -22,7 +22,7 @@
     >
         <div class="flex justify-between">
             <span class="flex">{{ __('cms.Teken in de tekentool het antwoordmodel voor de vraag.') }}</span>
-            <x-button.primary wire:loading.attr="disabled" wire:target="handleUpdateDrawingData" x-cloak x-show="answerSvg !== ''" @click="show = !show">
+            <x-button.primary wire:loading.attr="disabled" wire:target="handleUpdateDrawingData" x-cloak x-show="answerSvg !== ''" @click="show = !show" selid="draw-answer">
                 <x-icon.edit/>
                 <span>{{ __('cms.Tekening aanpassen') }}</span>
             </x-button.primary>
