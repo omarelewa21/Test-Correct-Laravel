@@ -74,7 +74,6 @@
                             <x-sidebar.cms.group-question-container
                                     :testQuestion="$testQuestion"
                                     :question="$testQuestion->question"
-
                             >
                                 @foreach($testQuestion->question->subQuestions as $question)
                                     @php $loopIndex ++; @endphp
@@ -121,7 +120,7 @@
             <x-sidebar.slide-container class="divide-y divide-bluegrey" x-ref="container2">
                 <div class="py-1 px-6 flex">
                     <x-button.text-button class="rotate-svg-180"
-                                          @click="prev($refs.container2); dispatchBackdrop()"
+                                          @click="prev($refs.container2); dispatchBackdrop(); $store.questionBank.inGroup = false;"
                                           wire:click="$set('groupId', null)"
                     >
                         <x-icon.arrow/>
@@ -142,7 +141,7 @@
             <x-sidebar.slide-container x-ref="questionbank">
                 <div class="py-1 px-6 flex">
                     <x-button.text-button class="rotate-svg-180"
-                                          @click="prev($refs.container2);hideQuestionBank($refs.container2)"
+                                          @click="prev($refs.container2);hideQuestionBank($refs.container2); $store.questionBank.inGroup = false;"
                                           wire:click="$set('groupId', null)"
                     >
                         <x-icon.arrow/>
@@ -170,7 +169,7 @@
             <x-sidebar.slide-container x-ref="newquestion">
                 <div class="py-1 px-6">
                     <x-button.text-button class="rotate-svg-180"
-                                          @click="prev($refs.newquestion)"
+                                          @click="prev($refs.newquestion); $store.questionBank.inGroup = false;"
                                           wire:click="$set('groupId', null)"
                     >
                         <x-icon.arrow/>

@@ -72,7 +72,7 @@ class QuestionBank extends Component
     private function getFilters()
     {
         return collect($this->filters)->reject(function ($filter) {
-            return blank($filter);
+            return empty($filter);
         })->toArray();
     }
 
@@ -192,5 +192,10 @@ class QuestionBank extends Component
         }
 
         return $this->filters['source'] = self::CONTEXT_SCHOOL;
+    }
+
+    public function updatedInGroup($value)
+    {
+        $this->filters['without_groups'] = $value;
     }
 }

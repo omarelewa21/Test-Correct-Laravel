@@ -1,6 +1,7 @@
 <div id="question-bank"
      class="flex flex-col relative w-full min-h-full bg-lightGrey border-t border-secondary overflow-auto"
      x-data="{openTab: 1, checkedCount: 0, loading: false, inGroup: @entangle('inGroup')}"
+     x-init="$watch('$store.questionBank.inGroup', value => inGroup = value);"
      @checked="$event.detail ? checkedCount += 1 : checkedCount -= 1"
      @question-added.window="Notify.notify('Vraag toegevoegd!')"
      @question-removed.window="Notify.notify('Vraag verwijderd!')"
