@@ -639,12 +639,28 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
             $oldText2Speech = (bool)$user->getOriginal('text2speech');
             if (!$oldText2Speech && (bool)request()->input('text2speech')) {
                 // we've got a new user with time dispensation
-                Text2Speech::create([
-                    'user_id' => $user->getKey(),
-                    'active' => true,
-                    'acceptedby' => Auth::user()->getKey(),
-                    'price' => config('custom.text2speech.price')
-                ]);
+                if( Text2Speech::where('user_id', $user->getKey())
+                    ->where('acceptedby', Auth::user()->getKey())->exists() ){
+                    
+                    $text2Speech = Text2Speech::where('user_id', $user->getKey())
+                                        ->where('acceptedby', Auth::user()->getKey())->first();
+                    
+                    $text2Speech->update([
+                        'user_id' => $user->getKey(),
+                        'active' => true,
+                        'acceptedby' => Auth::user()->getKey(),
+                        'price' => config('custom.text2speech.price')
+                    ]);    
+                }
+                else{
+                    Text2Speech::create([
+                        'user_id' => $user->getKey(),
+                        'active' => true,
+                        'acceptedby' => Auth::user()->getKey(),
+                        'price' => config('custom.text2speech.price')
+                    ]);
+                }
+                
                 Text2SpeechLog::create([
                     'user_id' => $user->getKey(),
                     'action' => 'ACCEPTED',
@@ -659,6 +675,9 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
                     if ($newActiveText2Speech !== $oldActiveText2Speech) {
                         $user->text2SpeechDetails->active = $newActiveText2Speech;
                         $user->text2SpeechDetails->save();
+
+                        $user->text2speech = $newActiveText2Speech;
+                        $user->save();
 
                         Text2SpeechLog::create([
                             'user_id' => $user->getKey(),
