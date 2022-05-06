@@ -9,6 +9,7 @@
         'lg' => 'sm:max-w-lg',
         'xl' => 'sm:max-w-xl',
         '2xl' => 'sm:max-w-2xl',
+        '4xl' => 'sm:max-w-4xl',
         '6xl' =>  'sm:max-w-6xl',
         '7xl' =>  'sm:max-w-7xl',
     ][$maxWidth ?? '2xl'];
@@ -41,7 +42,7 @@
             }
         });
         showCancelButton = {{ $showCancelButton }}
-        "
+                "
         x-on:close.stop="showCancelButton ? show = false : ''"
         x-on:keydown.escape.window="showCancelButton ? show = false : ''"
         x-on:keydown.tab.prevent="$event.shiftKey || nextFocusable().focus()"
@@ -79,10 +80,10 @@
         <div class="flex justify-end px-2.5">
             <div class="space-x-3">
                 @if ($showCancelButton)
-                <x-button.text-button @click="show = false" class="rotate-svg-180">
-                    <x-icon.chevron/>
-                    <span>{{ __("modal.Terug") }}</span>
-                </x-button.text-button>
+                    <x-button.text-button @click="show = false" class="rotate-svg-180">
+                        <x-icon.chevron/>
+                        <span>{{ __("modal.Terug") }}</span>
+                    </x-button.text-button>
                 @endif
                 {{ $actionButton }}
             </div>

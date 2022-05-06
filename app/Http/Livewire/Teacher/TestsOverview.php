@@ -13,12 +13,15 @@ class TestsOverview extends Component
     const PER_PAGE = 16;
 
     public $subjects = [];
-    public $educationLevelYear = '';
-    public $educationLevel = '';
+    public $educationLevelYear = [];
+    public $educationLevel = [];
     public $search = '';
 
     public $filters = [
         'name' => '',
+//        'education_level_year' => '',
+//        'education_level_id' =>'',
+//        'subject_id' => '',
     ];
     public $sorting = [];
 

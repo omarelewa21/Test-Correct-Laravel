@@ -28,7 +28,7 @@
                 <div>
                     <div class="flex relative text-midgrey cursor-default">
                         {{--                    <div class="flex relative hover:text-primary cursor-pointer" @click="openTab = 3">--}}
-                        <span class="bold pt-[0.9375rem] pb-[0.8125rem]" :class="openTab === 'national ? 'primary' : '' ">{{ __('general.Nationaal') }}</span>
+                        <span class="bold pt-[0.9375rem] pb-[0.8125rem]" :class="openTab === 'national' ? 'primary' : '' ">{{ __('general.Nationaal') }}</span>
                         <span class="absolute w-full bottom-0" style="height: 3px"
                               :class="openTab === 'national' ? 'bg-primary' : 'bg-transparent' "></span>
                     </div>
@@ -94,7 +94,7 @@
             {{-- Content --}}
             <div class="flex flex-col py-4" style="min-height: 500px">
                 <div class="flex">
-                    <span class="note text-sm">{{  trans_choice('general.number-of-results', $results->total(), ['count' => $results->total()]) }}</span>
+                    <span class="note text-sm">{{  trans_choice('general.number-of-tests', $results->total(), ['count' => $results->total()]) }}</span>
                 </div>
                 <x-grid x-show="loading" class="mt-4">
                     <x-grid.loading-card/>
@@ -128,4 +128,5 @@
             <span>{{ __('cms.Toevoegen') }}</span>
         </x-button.cta>
     </div>
+    <livewire:teacher.planning-modal></livewire:teacher.planning-modal>
 </div>

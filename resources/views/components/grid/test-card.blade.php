@@ -22,14 +22,14 @@
                  x-transition:leave-end="opacity-0 transform scale-90"
             >
                 <button class="flex items-center space-x-2 py-1 px-4 base hover:text-primary hover:bg-offwhite transition w-full"
-                        {{--                                        @click="$dispatch('delete-modal', ['question'])"--}}
+                        wire:click="$emitTo('teacher.planning-modal', 'displayModal', '{{ $test->uuid }}')"
 
                 >
                     <x-icon.schedule/>
                     <span class="text-base bold inherit">{{ __('cms.Inplannen') }}</span>
                 </button>
                 <button class="flex items-center space-x-2 py-1 px-4 base hover:text-primary hover:bg-offwhite transition w-full"
-                        {{--                                        @click="$dispatch('delete-modal', ['question'])"--}}
+
 
                 >
                     <x-icon.schedule/>
