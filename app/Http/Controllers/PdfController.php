@@ -99,16 +99,28 @@ class PdfController extends Controller
 
     private function getBase64ImgPath($imgNode,$baseName,$diskName,$prefix='')
     {
-        $base64 = $this->getCompressedImage($diskName,$prefix, $baseName);
+        $base64 = $this->getCompressedImage($diskName,$prefix, $baseName, $imgNode);
         $imgNode->setAttribute('src', $base64);
     }
 
-    private function getCompressedImage($diskName,$path, $file) {
+    private function getCompressedImage($diskName,$path, $file, $imgNode) {
         $server = \League\Glide\ServerFactory::create([
             'source' => Storage::disk($diskName)->path($path),
             'cache' => Storage::disk(self::DISK)->path(sprintf('%s/cache', $path)),
         ]);
-        return $server->getImageAsBase64($file, ['w' => '1040',  'fm' => 'jpg', 'q' => '25',]);
+        $width = 800;
+        if($imgNode->hasAttribute('width')&&($imgNode->getAttribute('width')<800)){
+            $width = (int) $imgNode->getAttribute('width');
+        }
+        $widthHeight = ['w' => $width];
+        if($imgNode->hasAttribute('width')&&$imgNode->hasAttribute('height')){
+            $height = round(800*($imgNode->getAttribute('height')/$imgNode->getAttribute('width')));
+            $widthHeight = ['w' => $width,'h' => (string) $height];
+            $imgNode->removeAttribute('width');
+            $imgNode->removeAttribute('height');
+        }
+        return $server->getImageAsBase64($file, $widthHeight+['fit'=>'contain',  'fm' => 'jpg', 'q' => '25',]);
     }
+    
 
 }
