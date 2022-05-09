@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 use tcCore\Exceptions\RedirectAndExitException;
 use tcCore\Lib\Repositories\SchoolYearRepository;
 use tcCore\SamlMessage;
@@ -473,8 +474,9 @@ class EntreeHelper
 
     private function getEmailFromAttributes()
     {
-        if (array_key_exists('mail',
-                $this->attr) && $this->attr['mail'][0]) {
+        if (array_key_exists('mail',$this->attr)
+            && $this->attr['mail'][0]
+            && Str::contains($this->attr['mail'][0],'@')) {
             return $this->attr['mail'][0];
         }
         return null;
