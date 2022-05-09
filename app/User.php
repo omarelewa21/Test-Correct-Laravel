@@ -17,6 +17,7 @@ use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Str;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
+use tcCore\Http\Helpers\ActingAsHelper;
 use tcCore\Http\Helpers\BaseHelper;
 use tcCore\Http\Helpers\DemoHelper;
 use tcCore\Http\Helpers\ImportHelper;
@@ -1984,6 +1985,7 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
     public function addSchoolLocationAndCreateDemoEnvironment(SchoolLocation $schoolLocation)
     {
         if($this->addSchoolLocation($schoolLocation)){
+            ActingAsHelper::getInstance()->setUser($this);
             $schoolYear = SchoolYearRepository::getCurrentSchoolYear();
             $helper = new DemoHelper();
             $helper->prepareDemoForNewTeacher($schoolLocation, $schoolYear, $this);
