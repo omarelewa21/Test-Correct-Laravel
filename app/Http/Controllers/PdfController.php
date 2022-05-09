@@ -113,13 +113,23 @@ class PdfController extends Controller
             $width = (int) $imgNode->getAttribute('width');
         }
         $widthHeight = ['w' => $width];
+        $filesize = filesize(Storage::disk($diskName)->path(sprintf('%s/%s', $path, $file)));
+        switch (true) {
+            case $filesize <= 500000:
+                $quality = '100';
+                break;
+            default:
+                $quality = '25';
+                break;
+        }
+
         if($imgNode->hasAttribute('width')&&$imgNode->hasAttribute('height')){
             $height = round(800*($imgNode->getAttribute('height')/$imgNode->getAttribute('width')));
-            $widthHeight = ['w' => $width,'h' => (string) $height];
+            $widthHeight = ['w' => $width,'h' => (int) $height];
             $imgNode->removeAttribute('width');
             $imgNode->removeAttribute('height');
         }
-        return $server->getImageAsBase64($file, $widthHeight+['fit'=>'contain',  'fm' => 'jpg', 'q' => '25',]);
+        return $server->getImageAsBase64($file, $widthHeight+['fit'=>'contain',  'fm' => 'jpg', 'q' => $quality,]);
     }
     
 
