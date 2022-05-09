@@ -941,6 +941,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview) {
         while (!drawingFitsScreen()) {
             zoomOutOneStep();
         }
+
     }
 
     function panDrawingCenterToScreenCenter() {
@@ -1108,7 +1109,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview) {
         const livewireComponent = getClosestLivewireComponentByAttribute(rootElement, 'questionComponent');
 
         const cleanedSvg = cleanedBase64EncodedStrings();
-
+        fitDrawingToScreen();
         livewireComponent.handleUpdateDrawingData({
             svg_answer: b64Strings.answer,
             svg_question: b64Strings.question,
@@ -1151,6 +1152,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview) {
     }
 
     async function getPNGStringFromSVG(svg, panGroupSize) {
+
         prepareSvgForConversion(svg, panGroupSize);
         const newImage = new Image(panGroupSize.width, panGroupSize.height);
         newImage.setAttribute('src', 'data:image/svg+xml;base64,' + btoa(new XMLSerializer().serializeToString(svg)));

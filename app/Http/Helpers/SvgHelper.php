@@ -120,7 +120,7 @@ class SvgHelper
 
         $server = \League\Glide\ServerFactory::create([
             'source' => Storage::disk(SvgHelper::DISK)->path(sprintf('%s', $this->uuid)),
-            'cache' => Storage::disk(SvgHelper::DISK)->path(sprintf('%s/cache',$this->uuid))
+            'cache'  => Storage::disk(SvgHelper::DISK)->path(sprintf('%s/cache', $this->uuid))
         ]);
 
 
@@ -139,7 +139,7 @@ class SvgHelper
 
         $server = \League\Glide\ServerFactory::create([
             'source' => Storage::disk(SvgHelper::DISK)->path(sprintf('%s', $this->uuid)),
-            'cache' => Storage::disk(SvgHelper::DISK)->path(sprintf('%s/cache',$this->uuid))
+            'cache'  => Storage::disk(SvgHelper::DISK)->path(sprintf('%s/cache', $this->uuid))
         ]);
 
 
@@ -239,20 +239,35 @@ class SvgHelper
                 throw new Exception(sprintf('File not found [%s].', $path));
             }
             $image = $this->getCompressedImage($path, $node->getAttribute('identifier'));
-            $node->setAttribute('href',  $image);//'data:' . mime_content_type($image) . ';base64,' . base64_encode($image));
+            $node->setAttribute('href', $image);//'data:' . mime_content_type($image) . ';base64,' . base64_encode($image));
         });
         return substr(substr($doc->saveXML(), 28), 0, -8);
     }
 
-    private function getCompressedImage($path, $file) {
+    private function getCompressedImage($path, $file)
+    {
 
         $server = \League\Glide\ServerFactory::create([
             'source' => Storage::disk(self::DISK)->path($path),
-            'cache' => Storage::disk(self::DISK)->path(sprintf('%s/cache', $path)),
+            'cache'  => Storage::disk(self::DISK)->path(sprintf('%s/cache', $path)),
 
         ]);
 
-        return $server->getImageAsBase64($file, $this->getArrayWidthAndHeight() +[  'fm' => 'jpg', 'q' => '25',]);
+        $widthAndHeight = $this->getArrayWidthAndHeight();
+
+        $height = (float) $widthAndHeight['h'];
+        $width = (float) $widthAndHeight['w'];
+
+        if ($width > 800) {
+            $width = 800;
+        }
+
+        $height = round(800 * $height / $widthAndHeight['w']);
+
+        $widthAndHeight['h'] = (string) $height;
+        $widthAndHeight['w'] =  (string) $width;
+
+        return $server->getImageAsBase64($file, $widthAndHeight + ['fm' => 'jpg', 'q' => '25',]);
     }
 
     private function base64DecodeIfNecessary($value)
@@ -313,10 +328,10 @@ class SvgHelper
     {
         $values = Str::of($viewBox)->explode(' ');
         return [
-            'x'      => (float) $values[0],
-            'y'      => (float) $values[1],
-            'width'  => (float) $values[2],
-            'height' => (float)  $values[3],
+            'x'      => (float)$values[0],
+            'y'      => (float)$values[1],
+            'width'  => (float)$values[2],
+            'height' => (float)$values[3],
         ];
     }
 
