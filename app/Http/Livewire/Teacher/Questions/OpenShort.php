@@ -335,6 +335,7 @@ class OpenShort extends Component
             if ($this->isCloneRequest) {
                 $this->prepareForClone();
             }
+            $this->question['order'] = 0;
             $response = $this->saveNewQuestion();
 
             $this->setQueryStringProperties($response);
@@ -988,9 +989,14 @@ class OpenShort extends Component
 
     public function addQuestion($args)
     {
-        if ($this->isDirty() && !$this->emptyState) {
+        if ($this->isDirty() && !$this->emptyState && (Arr::exists($args, 'shouldSave') && $args['shouldSave'] )) {
+            if ($this->action === 'add') {
+                return $this->leavingNewDirtyQuestion($args);
+            }
             $this->save(false);
         }
+
+        $this->emitTo('drawer.cms', 'addQuestionResponse', $args);
 
         $this->handleQueryStringForCreatingNewQuestion($args);
 
@@ -1175,11 +1181,18 @@ class OpenShort extends Component
     public function continueToNextQuestion()
     {
         $this->nextQuestionToShow['shouldSave'] = false;
-        $this->showQuestion($this->nextQuestionToShow);
+
+        if (Arr::exists($this->nextQuestionToShow, 'type')) {
+            return $this->addQuestion($this->nextQuestionToShow);
+        }
+        return $this->showQuestion($this->nextQuestionToShow);
     }
 
     public function showEmpty()
     {
+        $this->type = '';
+        $this->subtype = '';
         $this->emptyState = true;
+        $this->dispatchBrowserEvent('show-empty');
     }
 }

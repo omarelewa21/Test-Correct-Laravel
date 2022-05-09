@@ -39,6 +39,7 @@ class Cms extends Component
             'deleteQuestion'             => 'deleteQuestion',
             'deleteQuestionByQuestionId' => 'deleteQuestionByQuestionId',
             'show-empty'                 => 'showEmpty',
+            'addQuestionResponse'        => 'addQuestionResponse',
         ];
     }
 
@@ -78,14 +79,21 @@ class Cms extends Component
 
     public function addQuestion($type, $subtype)
     {
-        $this->action = 'add';
         $this->emitTo(
             'teacher.questions.open-short',
             'addQuestion',
-            ['type' => $type, 'subtype' => $subtype, 'groupId' => $this->groupId]
+            [
+                'type'       => $type,
+                'subtype'    => $subtype,
+                'groupId'    => $this->groupId,
+                'shouldSave' => true
+            ]
         );
+    }
 
-        $this->newQuestionTypeName = $subtype == 'group' ? __('cms.group-question') : CmsFactory::findQuestionNameByTypes($type, $subtype);
+    public function addQuestionResponse($args)
+    {
+        $this->newQuestionTypeName = $args['subtype'] == 'group' ? __('cms.group-question') : CmsFactory::findQuestionNameByTypes($args['type'], $args['subtype']);
 
         if ($this->emptyStateActive) {
             $this->emptyStateActive = false;
@@ -236,8 +244,8 @@ class Cms extends Component
     public function showEmpty()
     {
         $this->emptyStateActive = true;
-        $this->dispatchBrowserEvent('show-empty');
-        $this->emitTo('teacher.questions.open-short','showEmpty');
+//        $this->dispatchBrowserEvent('show-empty');
+        $this->emitTo('teacher.questions.open-short', 'showEmpty');
     }
 
     public function handleCmsInit()
@@ -255,7 +263,18 @@ class Cms extends Component
     public function removeDummy()
     {
         if ($this->questionsInTest->count() > 0) {
-            return $this->showQuestionByTestQuestion($this->questionsInTest->reverse()->first());
+            if ($this->owner === 'group') {
+                $testQuestion = $this->questionsInTest->where('uuid', $this->testQuestionId)->first();
+
+                if ($testQuestion->question->subQuestions->count()) {
+                    return $this->showQuestion($testQuestion->uuid, $testQuestion->question->subQuestions->reverse()->first()->uuid, true, false);
+                }
+
+                return $this->showQuestionByTestQuestion($testQuestion);
+
+            } else {
+                return $this->showQuestionByTestQuestion($this->questionsInTest->reverse()->first());
+            }
         }
         return $this->showEmpty();
     }

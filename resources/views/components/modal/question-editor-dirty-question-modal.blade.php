@@ -40,7 +40,7 @@
             <div class="flex flex-1 flex-col ">
                 <span>{{ __('cms.question_incomplete_text', ['item' => strtolower($owner === 'group' ? __('cms.group-question') : __('drawing-modal.Vraag'))]) }}</span>
                 <div class="flex w-full justify-end mt-4 space-x-4">
-                    <x-button.text-button @click="dirtyModal = false;$wire.continueToNextQuestion()">
+                    <x-button.text-button @click="dirtyModal = false; $wire.continueToNextQuestion()">
                         <x-icon.remove/>
                         <span>{{ __('cms.Verwijderen') }}</span>
                     </x-button.text-button>

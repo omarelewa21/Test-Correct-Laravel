@@ -78,10 +78,12 @@ class CmsGroup
 
     public function hasEqualScoresForSubQuestions()
     {
+        if (!$this->instance->question['uuid']) return true;
         return GroupQuestion::whereUuid($this->instance->question['uuid'])->first()->hasEqualScoresForSubQuestions();
     }
     public function hasEnoughSubQuestionsAsCarousel()
     {
+        if (!$this->instance->question['uuid']) return true;
         return GroupQuestion::whereUuid($this->instance->question['uuid'])->first()->hasEnoughSubQuestionsAsCarousel();
     }
 

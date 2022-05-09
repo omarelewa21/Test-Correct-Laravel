@@ -14,7 +14,7 @@
            class="form-input z-[1] w-10 min-w-[40px] text-center"
            x-model="score"
            autocomplete="off"
-           :style="'width:' + (30 + 10*score.toString().length) +'px'"
+           :style="'width:' + (30 + 10*score?.toString().length) +'px'"
            @keypress="[',','.'].includes($event.key) ? $event.preventDefault() : ''"
            {{ $attributes->wire('key') }}
     >

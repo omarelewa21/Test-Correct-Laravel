@@ -1,5 +1,5 @@
 <button class="px-2 flex rounded-md hover:text-primary transition relative"
-        x-data="{options:false, topOffset: $el.getBoundingClientRect().top}"
+        x-data="{options:false, topOffset: $el.getBoundingClientRect().top, updatetime: new Date() }"
         @click.stop="options = true"
         x-cloak
 >
