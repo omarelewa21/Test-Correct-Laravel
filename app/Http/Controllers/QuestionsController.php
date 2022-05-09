@@ -174,7 +174,21 @@ class QuestionsController extends Controller
                 'cache' => Storage::disk(SvgHelper::DISK)->path(sprintf('%s/cache', $drawingQuestion))
             ]);
 
-            return $server->outputImage($fileName, (new SvgHelper($drawingQuestion))->getArrayWidthAndHeight());
+            $widthAndHeight = (new SvgHelper($drawingQuestion))->getArrayWidthAndHeight();
+
+            $height = (float) $widthAndHeight['h'];
+            $width = (float) $widthAndHeight['w'];
+
+            if ($width > 800) {
+                $width = 800;
+            }
+
+            $height = round(800 * $height / $widthAndHeight['w']);
+
+            $widthAndHeight['h'] = (string) $height;
+            $widthAndHeight['w'] =  (string) $width;
+
+            return $server->outputImage($fileName, $widthAndHeight);
         }
         abort(404);
     }

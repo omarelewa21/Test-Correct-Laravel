@@ -1109,6 +1109,8 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview) {
 
         const cleanedSvg = cleanedBase64EncodedStrings();
 
+        fitDrawingToScreen();
+
         livewireComponent.handleUpdateDrawingData({
             svg_answer: b64Strings.answer,
             svg_question: b64Strings.question,
