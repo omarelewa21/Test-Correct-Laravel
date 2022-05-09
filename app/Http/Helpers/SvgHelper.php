@@ -254,6 +254,7 @@ class SvgHelper
         ]);
 
         $widthAndHeight = $this->getArrayWidthAndHeight();
+        logger($widthAndHeight);
 
         $height = (float) $widthAndHeight['h'];
         $width = (float) $widthAndHeight['w'];
@@ -262,7 +263,9 @@ class SvgHelper
             $width = 800;
         }
 
-        $height = round(800 * $height / $widthAndHeight['w']);
+        if ($height > 0 && $widthAndHeight['w'] > 0) {
+            $height = round(800 * $height / $widthAndHeight['w']);
+        }
 
         $widthAndHeight['h'] = (string) $height;
         $widthAndHeight['w'] =  (string) $width;
