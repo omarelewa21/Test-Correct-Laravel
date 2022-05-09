@@ -198,6 +198,36 @@
                                             </div>
                                         </div>
 
+                                        @if($this->needsPassword)
+                                            <div class="password mb-4 ">
+
+                                                <div class="input-group w-1/2 md:w-auto order-1 pr-2 mb-4 md:mb-0">
+                                                    <input id="password" wire:model="password" type="password"
+                                                           class="form-input @error('password') border-red @enderror">
+                                                    <label for="password"
+                                                           class="transition ease-in-out duration-150">{{ __("onboarding.Creeër wachtwoord") }}</label>
+                                                </div>
+
+                                                <div class="input-group w-1/2 md:w-auto order-3 md:order-2 pr-2 md:pl-2 mb-4 md:mb-0">
+                                                    <input id="password_confirm" wire:model="password_confirmation"
+                                                           type="password"
+                                                           class="form-input @error('password') border-red @enderror">
+                                                    <label for="password_confirm"
+                                                           class="transition ease-in-out duration-150">
+                                                        {{ __("onboarding.Herhaal wachtwoord") }}</label>
+                                                </div>
+
+                                                <div class="flex items-end mid-grey w-1/2 md:w-auto h-16 md:h-auto order-2 md:order-3 pl-2 overflow-visible md:overflow-auto requirement-font-size">
+                                                    <div class="inline-flex space-x-2 items-center text-{{$this->minCharRule}}">
+                                                        @if($this->minCharRule)<x-icon.checkmark-small></x-icon.checkmark-small>
+                                                        @elseif($this->minCharRule === 'red')<x-icon.close-small></x-icon.close-small>
+                                                        @else <x-icon.dot></x-icon.dot> @endif
+                                                        <span>Min. 8 {{ __("onboarding.tekens") }}</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        @endif
+
                                         @if($this->showSubjects)
                                         <div x-data  data-subjects='{!! $selectedSubjectsString !!}' class="subjects mb-4 ">
                                             <div x-data="subjectSelect()" x-init="init('parentEl')" @click.away="clearSearch()" @keydown.escape="clearSearch()" @keydown="navigate" class="mr-4 mb-4 sm:mb-0 ">
