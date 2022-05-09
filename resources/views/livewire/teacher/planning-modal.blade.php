@@ -30,7 +30,7 @@
         </x-input.group>
 
         <x-input.group label="{{ __('teacher.Weging') }}">
-            <x-input.text>
+            <x-input.text >
             </x-input.text>
         </x-input.group>
 

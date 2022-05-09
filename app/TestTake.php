@@ -111,7 +111,6 @@ class TestTake extends BaseModel
             if ($testTake->testTakeStatus->name === 'Discussing' && $testTake->getAttribute('discussing_question_id') != $testTake->getOriginal('discussing_question_id')) {
                 $testTake->setAttribute('is_discussed', true);
             }
-
             return true;
         });
 
@@ -330,6 +329,7 @@ class TestTake extends BaseModel
         });
 
         static::created(function (TestTake $testTake) {
+
             if ($testTake->schoolClasses !== null) {
                 $testTake->saveSchoolClassTestTakeParticipants();
             }
