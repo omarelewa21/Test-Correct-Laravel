@@ -254,7 +254,6 @@ class SvgHelper
         ]);
 
         $widthAndHeight = $this->getArrayWidthAndHeight();
-        logger($widthAndHeight);
 
         $height = (float) $widthAndHeight['h'];
         $width = (float) $widthAndHeight['w'];
@@ -267,8 +266,11 @@ class SvgHelper
             $height = round(800 * $height / $widthAndHeight['w']);
         }
 
+
+
         $widthAndHeight['h'] = (string) $height;
         $widthAndHeight['w'] =  (string) $width;
+
 
         return $server->getImageAsBase64($file, $widthAndHeight + ['fm' => 'jpg', 'q' => '25',]);
     }
@@ -343,6 +345,7 @@ class SvgHelper
         $doc = new \DOMDocument;
         $doc->loadXML($this->getSvg());
         $svgNode = collect($doc->getElementsByTagName('svg'))->first();
+        logger($svgNode->getAttribute('viewBox'));
         return $svgNode->getAttribute('viewBox');
     }
 

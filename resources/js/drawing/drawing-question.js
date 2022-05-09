@@ -990,7 +990,11 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview) {
         const bbox = UI.svgPanZoomGroup.getBBox({fill: true, stroke: true, markers: true});
         const screenBounds = Canvas.params.bounds;
         if (bbox.x < screenBounds.left
-            || bbox.y < screenBounds.top) return false;
+            || bbox.y < screenBounds.top
+            || bbox.width > screenBounds.width
+            || bbox.height > screenBounds.height
+
+        ) return false;
         else return true;
     }
 
@@ -1126,6 +1130,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview) {
 
     async function getPNGCorrectionModelStringFromSVG(panGroupSize) {
         const svg = UI.svgCanvas.cloneNode(true);
+
         svg.querySelector('#svg-answer-group').setAttribute('style', '');
         svg.querySelector('#svg-question-group').setAttribute('style', '');
 

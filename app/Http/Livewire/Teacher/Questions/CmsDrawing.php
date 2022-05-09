@@ -133,13 +133,13 @@ class CmsDrawing
             }
         }
 
+        $svgHelper->setViewBox($data['svg_zoom_group']);
         $svgHelper->updateAnswerLayer($data['cleaned_answer_svg']);
         $svgHelper->updateQuestionLayer($data['cleaned_question_svg']);
 
         $svgHelper->updateQuestionPNG($data['png_question_preview_string']);
         $svgHelper->updateCorrectionModelPNG($data['png_correction_model_string']);
 
-        $svgHelper->setViewBox($data['svg_zoom_group']);
     }
 
     private function getAnswerSvg(SvgHelper $svgHelper, $q)

@@ -184,6 +184,7 @@ class QuestionsController extends Controller
 
             $height = round(800 * $height / $widthAndHeight['w']);
 
+
             $widthAndHeight['h'] = (string) $height;
             $widthAndHeight['w'] =  (string) $width;
 
