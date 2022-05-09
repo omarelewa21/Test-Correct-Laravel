@@ -166,7 +166,6 @@ class QuestionsController extends Controller
     }
 
     private function getPng($drawingQuestion, $fileName) {
-        logger('me');
         $path = sprintf('%s/%s', $drawingQuestion,  $fileName);
         if (Storage::disk(SvgHelper::DISK)->exists($path)) {
             $server = \League\Glide\ServerFactory::create([
