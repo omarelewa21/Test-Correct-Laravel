@@ -38,6 +38,9 @@ class EntreeOnboarding extends Onboarding
     public $registration;
     public $step = 1;
 
+    public $password;
+    public $password_confirmation;
+
     public $btnDisabled = true;
     public $resendVerificationMail = false;
     public $userUuid = false;
@@ -60,6 +63,8 @@ class EntreeOnboarding extends Onboarding
     public $school;
     public $samlId;
 
+    public $needsPassword = true;
+
     protected $queryString = ['step','samlId'];
 
     protected function messages()
@@ -71,6 +76,9 @@ class EntreeOnboarding extends Onboarding
             'selectedLocationsString.required' => __('registration.school_location_required'),
             'registration.username.required' => __('registration.username_required'),
             'registration.username.email' => __('registration.username_email'),
+            'password.required'                     => __('registration.password_required'),
+            'password.min'                          => __('registration.password_min'),
+            'password.same'                         => __('registration.password_same'),
         ];
     }
 
@@ -91,6 +99,7 @@ class EntreeOnboarding extends Onboarding
             'registration.name'                         => 'sometimes',
             'registration.name_suffix'                  => 'sometimes',
             'registration.subjects'                     => 'sometimes',
+            'password'                                  => 'sometimes',
             ];
 
         if ($this->step === 1) {
@@ -101,6 +110,13 @@ class EntreeOnboarding extends Onboarding
                 'registration.name' => 'required|string',
                 'registration.name_suffix' => 'sometimes',
             ]);
+
+            if($this->needsPassword){
+                $rules = array_merge($rules,[
+                    'password'                      => 'required|same:password_confirmation|'. User::getPasswordLengthRule(),
+                ]);
+            }
+
             return $rules;
         }
 
@@ -134,6 +150,8 @@ class EntreeOnboarding extends Onboarding
             $this->registration->name = $this->entreeData->data->lastName;
             $this->registration->name_suffix = $this->entreeData->data->nameSuffix;
             $this->registration->name_first = $this->entreeData->data->firstName;
+        } else {
+            $this->needsPassword = false;
         }
 
         if (!$this->step != 1 || $this->step >= '4') {
@@ -230,6 +248,15 @@ class EntreeOnboarding extends Onboarding
         $this->step = 4;
     }
 
+    public function getMinCharRuleProperty()
+    {
+        if (empty($this->password)) {
+            return 0;
+        } else {
+            return mb_strlen($this->password) < 8 ? false : true;
+        }
+    }
+
     public function step2()
     {
         $this->validate();
@@ -269,7 +296,7 @@ class EntreeOnboarding extends Onboarding
                         'school_id' => null,
                         'school_location_id' => $schoolLocations->first()->getKey(),
                         'username' => $this->registration->username,
-                        'password' => '',
+                        'password' => $this->password,
                         'gender' => $this->registration->gender,
                         'name_first' => $this->registration->name_first,
                         'name_suffix' => $this->registration->name_suffix,
