@@ -991,7 +991,9 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview) {
         const bbox = UI.svgPanZoomGroup.getBBox({fill: true, stroke: true, markers: true});
         const screenBounds = Canvas.params.bounds;
         if (bbox.x < screenBounds.left
-            || bbox.y < screenBounds.top) return false;
+            || bbox.y < screenBounds.top
+            || bbox.width > screenBounds.width
+            || bbox.height > screenBounds.height) return false;
         else return true;
     }
 
