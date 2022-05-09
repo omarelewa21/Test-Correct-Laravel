@@ -64,6 +64,10 @@
     padding-left: 20px;
     border-radius: 20px;
     box-shadow: 0 3px 18px 0 rgb(77 87 143 / 10%);
+    position: absolute !important;
+    width: max-content;
+    float: none !important;
+    left: -5px;
 }
 @media only screen and (max-width: 1024px) {
     .rsexpanded {
@@ -198,4 +202,13 @@ body {
 .rsbtn_pause{
     position: relative;
     top: 2px;
+}
+.rsbtn_dropdown{
+    top: 10px !important;
+}
+.splitToolbarButtonSeparator{
+    display: none !important;
+}
+a.rsbtn_play{
+    text-decoration: none;
 }
