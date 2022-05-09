@@ -200,7 +200,7 @@ class EntreeHelper
             $user->school_location_id = $this->location->getKey();
             $user->save();
             $user->addSchoolLocationAndCreateDemoEnvironment($this->location);
-            $url = $this->laravelUser->getRedirectUrlSplashOrStartAndLoginIfNeeded(['afterLoginMessage' => __('onboarding-welcome.Je bestaande Test-Correct account is geupdate met de schoollocaties die we vanuit Entree hebben meegekregen. We hebben je in de schoollocatie :name gezet. Je kunt vanaf nu ook inloggen met Entree.', ['name' => $this->location->name]),'internal_page' => '/users/welcome']);
+            $url = $this->laravelUser->getRedirectUrlSplashOrStartAndLoginIfNeeded(['afterLoginMessage' => __('onboarding-welcome.Je bestaande Test-Correct account is geupdate met de schoollocaties die we vanuit Entree hebben meegekregen. We hebben je in de schoollocatie gezet. Je kunt vanaf nu ook inloggen met Entree.', ['name' => $this->location->name]),'internal_page' => '/users/welcome']);
             return $this->redirectToUrlAndExit($url);
         }
         return false;
