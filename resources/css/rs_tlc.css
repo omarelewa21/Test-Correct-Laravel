@@ -2252,3 +2252,7 @@ span.completion-response-object-container{
     }
 }
 
+.ck-editor__editable_inline{
+    -webkit-touch-callout: none;
+}
+

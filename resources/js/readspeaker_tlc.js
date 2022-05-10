@@ -786,7 +786,7 @@ ReadspeakerTlc = function(){
             }
             oRange = s.getRangeAt(0); //get the text range
             oRect = oRange.getBoundingClientRect();
-            document.querySelector('#rsbtn_popup').style.top = (oRect.y+60)+'px';
+            document.querySelector('#rsbtn_popup').style.top = (oRect.y+window.scrollY+60)+'px';
             rspkr.rs_popup_modified = true;
         }
         return{
