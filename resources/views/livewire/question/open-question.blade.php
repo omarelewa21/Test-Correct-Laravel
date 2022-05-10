@@ -15,7 +15,7 @@
                     <x-input.textarea
                             id="textarea_{{ $question->id }}"
                             wire:key="textarea_{{ $question->id }}"
-                            wire:model.lazy="answer"
+                            wire:model.defer="answer"
                             x-ref="countme"
                             x-on:keyup="count = $refs.countme.value.length"
                             x-on:focus="handleFocusTextareaField(event,{{ $question->id }})"
@@ -56,6 +56,9 @@
                         }
                         var textarea = document.querySelector('#textarea_{{ $question->id }}')
                         ReadspeakerTlc.hiddenElement.createHiddenDivTextArea(textarea);
+                    })
+                    document.addEventListener('trigger_livewire_rerender', () => {
+                        @this.render();
                     })
                 @endif
             </script>
