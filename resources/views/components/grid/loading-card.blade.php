@@ -1,4 +1,4 @@
-<div {{ $attributes->merge(['class' => 'grid-loading-card bg-white p-6 rounded-10 card-shadow']) }}>
+<div  wire:loading.class.remove="hidden" {{ $attributes->merge(['class' => 'hidden grid-loading-card bg-white p-6 rounded-10 card-shadow']) }}>
     <div class="h-16">
         <x-knightrider/>
     </div>

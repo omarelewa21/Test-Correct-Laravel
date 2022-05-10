@@ -97,12 +97,13 @@
                     <span class="note text-sm">{{  trans_choice('general.number-of-tests', $results->total(), ['count' => $results->total()]) }}</span>
                 </div>
                 <x-grid  class="mt-4">
-                    <x-grid.loading-card wire:loading.class.remove="hidden" class="hidden"/>
-                    <x-grid.loading-card wire:loading.class.remove="hidden" class="hidden"/>
-                    <x-grid.loading-card wire:loading.class.remove="hidden" class="hidden"/>
-                    <x-grid.loading-card wire:loading.class.remove="hidden" class="hidden"/>
-                    <x-grid.loading-card wire:loading.class.remove="hidden" class="hidden"/>
-
+                    <x-grid.loading-card/>
+                    <x-grid.loading-card/>
+                    <x-grid.loading-card/>
+                    <x-grid.loading-card/>
+                    <x-grid.loading-card/>
+                    <x-grid.loading-card/>
+                    <x-grid.loading-card/>
 
 
                     @foreach($results as $test)
