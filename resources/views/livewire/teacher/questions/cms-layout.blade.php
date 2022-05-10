@@ -158,9 +158,9 @@
                         </div>
                     @endif
                     @if(!$this->hasEqualScoresForSubQuestions())
-                            <div class="notification warning stretched mt-4">
-                                <span class="title">{{ __('cms.carousel_subquestions_scores_differ') }}</span>
-                            </div>
+                        <div class="notification warning stretched mt-4">
+                            <span class="title">{{ __('cms.carousel_subquestions_scores_differ') }}</span>
+                        </div>
                     @endif
                 @endif
 
@@ -503,8 +503,9 @@
             @endif
         </div>
         <x-modal.question-editor-delete-modal/>
-        <x-modal.question-editor-dirty-question-modal :item="strtolower($this->isGroupQuestion() ? __('cms.group-question') : __('drawing-modal.Vraag'))"
-                                                      :new="!$this->editModeForExistingQuestion()"/>
+        <x-modal.question-editor-dirty-question-modal
+                :item="strtolower($this->isGroupQuestion() ? __('cms.group-question') : __('drawing-modal.Vraag'))"
+                :new="!$this->editModeForExistingQuestion()"/>
     </div>
     <div class="question-editor-footer" x-data>
         <div class="question-editor-footer-button-container">

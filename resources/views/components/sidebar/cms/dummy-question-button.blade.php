@@ -1,5 +1,5 @@
 @props(['loop' => 1])
-<div class="question-button"
+<div class="question-button dummy"
      x-data="{mode: @entangle('action'), owner: @entangle('owner'), name: @entangle('newQuestionTypeName')}"
      x-init=""
      x-show="mode === 'add' && owner === 'test'"

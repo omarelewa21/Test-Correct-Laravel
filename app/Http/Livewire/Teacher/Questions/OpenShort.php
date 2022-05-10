@@ -330,6 +330,7 @@ class OpenShort extends Component
         }
 
         $this->validateAndReturnErrorsToTabOne();
+        unset($this->question['order']);
 
         if ($this->action == 'edit' && !$this->isCloneRequest) {
             $response = $this->updateQuestion();
@@ -337,7 +338,6 @@ class OpenShort extends Component
             if ($this->isCloneRequest) {
                 $this->prepareForClone();
             }
-            $this->question['order'] = 0;
             $response = $this->saveNewQuestion();
 
             $this->setQueryStringProperties($response);
@@ -863,7 +863,7 @@ class OpenShort extends Component
             $this->question['note_type'] = $q->note_type;
             $this->question['attainments'] = $q->getQuestionAttainmentsAsArray();
             $this->question['learning_goals'] = $q->getQuestionLearningGoalsAsArray();
-            $this->question['order'] = $tq->order;
+            $this->question['order'] = $this->resolveOrderNumber($q->uuid);
             $this->question['all_or_nothing'] = $q->all_or_nothing;
             $this->question['closeable'] = $q->closeable;
             $this->question['maintain_position'] = $tq->maintain_position;
@@ -1015,9 +1015,13 @@ class OpenShort extends Component
         return !!($this->type === 'GroupQuestion');
     }
 
-    private function resolveOrderNumber()
+    private function resolveOrderNumber($questionUuid = null)
     {
-        return Test::whereUuid($this->testId)->first()->getQuestionCount() + 1;
+        if ($this->owner === 'group') {
+//            Test::whereUuid($this->testId)->first()->getRelativeOrderNumberForSubQuestion($)
+        }
+
+        return Test::whereUuid($this->testId)->first()->getRelativeOrderNumberForQuestion($questionUuid);
     }
 
     public function saveAndRefreshDrawer()

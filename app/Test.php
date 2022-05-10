@@ -1045,5 +1045,23 @@ class Test extends BaseModel
 
     }
 
+    public function getRelativeOrderNumberForQuestion($questionUuid = null)
+    {
+        $questions = $this->testQuestions->flatMap(function ($testQuestion) {
+            if ($testQuestion->question->type === 'GroupQuestion') {
+                return $testQuestion->question->groupQuestionQuestions->map(function ($item) {
+                    return $item->question;
+                });
+            }
+            return collect([$testQuestion->question]);
+        });
 
+        if (!$questionUuid) {
+            return $questions->count() + 1;
+        }
+
+        return $questions->search(function($question) use ($questionUuid) {
+            return $question->uuid === $questionUuid;
+        }) + 1;
+    }
 }
