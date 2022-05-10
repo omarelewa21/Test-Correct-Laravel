@@ -372,7 +372,49 @@
                                     <div class="input-section mb-4">
                                         @if($this->hasFixedLocation)
                                             <div class="flex flex-col space-y-2 w-full mt-4">
-                                                @if(count($this->schoolLocations) > 0)
+                                                @if($this->schoolLocation && !$this->school)
+                                                    <div class="input-section mb-4">
+                                                        <div class="school-info">
+                                                            <div class="input-group w-full sm:w-1/2 sm:pr-2">
+                                                                <input id="school_location"
+                                                                       value="{{ $this->schoolLocation->name }}" disabled
+                                                                       class="form-input @error('registration.school_location') border-red @enderror">
+                                                                <label for="school_location"
+                                                                       class="">{{ __("onboarding.Schoolnaam") }}</label>
+                                                            </div>
+
+                                                            <div class="input-group w-full sm:w-1/2 sm:pl-2">
+                                                                <input id="website_url" disabled
+                                                                       value="{{ $this->schoolLocation->internetaddress }}"
+                                                                       class="form-input @error('registration.website_url') border-red @enderror">
+                                                                <label for="website_url"
+                                                                       class="">{{ __("onboarding.Website") }}</label>
+                                                            </div>
+                                                            <div class="input-group w-12/12 sm:w-5/5 pr-2">
+                                                                <input id="address" disabled
+                                                                       value="{{ $this->schoolLocation->visit_address }}"
+                                                                       class="form-input @error('registration.address') border-red @enderror">
+                                                                <label for="address"
+                                                                       class="">{{ __("onboarding.Bezoekadres") }}</label>
+                                                            </div>
+                                                            <div class="input-group  w-3/12 sm:w-32 pr-2">
+                                                                <input id="postcode" disabled
+                                                                       value="{{ $this->schoolLocation->visit_postal }}"
+                                                                       class="form-input  @error('registration.postcode') border-red @enderror">
+                                                                <label for="postcode"
+                                                                       class="">{{ __("onboarding.Postcode") }}</label>
+                                                            </div>
+                                                            <div class="input-group w-9/12 sm:w-3/5 pl-2">
+                                                                <input id="city" disabled
+                                                                       value="{{ $this->schoolLocation->visit_city }}"
+                                                                       class="form-input @error('registration.city') border-red @enderror">
+                                                                <label for="city"
+                                                                       class="">{{ __("onboarding.Plaatsnaam") }}</label>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                @elseif(count($this->schoolLocations) > 0)
+
                                                     @foreach($this->schoolLocations as $locationName)
                                                     <div
                                                                  class="flex px-0 py-0 border-0 bg-system-white relative regular"
