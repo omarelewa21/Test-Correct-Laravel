@@ -43,7 +43,6 @@ class AttainmentManager extends Component
             ->each(function ($domain) {
                     $this->domains[$domain->id] = sprintf("[%s] %s", $domain->code, $domain->description);
             });
-
         if ($this->value){
             Attainment::whereIn('id',$this->value)->each(function($attainment){
                 if ($attainment->attainment_id == null) {
