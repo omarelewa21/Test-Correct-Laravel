@@ -11,9 +11,9 @@ use Dyrynda\Database\Casts\EfficientUuid;
 use Dyrynda\Database\Support\GeneratesUuid;
 use tcCore\Traits\UuidTrait;
 
-class DefaultSection extends BaseModel {
+class DefaultSubject extends BaseModel
+{
 
-    use SoftDeletes;
     use UuidTrait;
 
     /**
@@ -21,21 +21,21 @@ class DefaultSection extends BaseModel {
      *
      * @var array
      */
-    protected $dates = ['deleted_at'];
+    protected $dates = [];
 
     /**
      * The database table used by the model.
      *
      * @var string
      */
-    protected $table = 'default_sections';
+    protected $table = 'default_subjects';
 
     /**
      * The attributes that are mass assignable.
      *
      * @var array
      */
-    protected $fillable = ['name','demo'];
+    protected $fillable = ['name', 'abbreviation', 'base_subject_id', 'default_section_id', 'education_levels','demo'];
 
     /**
      * The attributes excluded from the model's JSON form.
@@ -48,5 +48,15 @@ class DefaultSection extends BaseModel {
         'demo' => 'boolean',
         'uuid' => EfficientUuid::class,
     ];
+
+    public function baseSubject()
+    {
+        return $this->belongsTo(BaseSubject::class);
+    }
+
+    public function defaultSection()
+    {
+        return $this->belongsTo(DefaultSection::class);
+    }
 
 }

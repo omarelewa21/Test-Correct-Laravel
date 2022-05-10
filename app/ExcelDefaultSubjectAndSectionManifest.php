@@ -17,17 +17,23 @@ class ExcelDefaultSubjectAndSectionManifest
     public $data;
     protected $sections;
     protected $baseSubjects;
+    protected $hasErrors = false;
+    protected $failOnFirstMissingBaseSubject;
 
-    public function __construct($excelFile)
+    public function __construct($excelFile, $failOnFirstMissingBaseSubject = true)
     {
         $this->data = Excel::toArray(new ExcelDefaultSubjectAndSectionResourceImport(), $excelFile)[0];
+        $this->failOnFirstMissingBaseSubject = $failOnFirstMissingBaseSubject;
     }
 
     public function getSectionResources()
     {
         $result = [];
+
         foreach($this->data as $row){
-            $result[] = $row['Sectie'];
+            if($row['sectie']) {
+                $result[] = $row['sectie'];
+            }
         }
 
         return collect($result);
@@ -38,21 +44,21 @@ class ExcelDefaultSubjectAndSectionManifest
         $result = [];
 
         foreach ($this->data as $row) {
+            if($row['categorie']) {
+                $result[] = (object)array_merge($row, [
+                    'base_subject_id' => $this->getBaseSubjectId($row['categorie']),
+                    'default_section_id' => $this->getDefaultSectionId($row['sectie']),
+                    'education_levels' => $row['niveau'],
+                    'abbreviation' => $row['afkorting'],
+                    'name' => $row['vaknaam_test_correct'],
+                ]);
+            }
+        }
 
-            $result[] = (object) array_merge($row,[
-                'base_subject_id' => $this->getBaseSubjectId($row['Categorie']),
-                'default_section_id' => $this->getDefaultSectionId($row['Sectie']),
-                'education_levels' => $this->getEducationLevels($row['Niveau']),
-                'abbreviation' => $row['Afkorting'],
-                'name' => $row['Vaknaam Test-Correct'],
-            ]);
+        if($this->hasErrors){
+            exit;
         }
         return collect($result);
-    }
-
-    protected function getEducationLevels($string)
-    {
-        return collect(explode(';',$string));
     }
 
     protected function getDefaultSectionId($section)
@@ -63,8 +69,6 @@ class ExcelDefaultSubjectAndSectionManifest
 
         $id = $this->sections->first(function($value, $key) use ($section) {
             return $key == $section;
-        })->map(function($value,$key){
-            return $value;
         });
 
         if(!$id){
@@ -82,12 +86,15 @@ class ExcelDefaultSubjectAndSectionManifest
 
         $id = $this->baseSubjects->first(function($value, $key) use ($subject) {
            return $key == $subject;
-        })->map(function($value,$key){
-            return $value;
         });
 
         if(!$id){
-            throw new \Exception(sprintf('Base subject %s non existent',$subject));
+            $this->hasErrors = true;
+            if($this->failOnFirstMissingBaseSubject) {
+                throw new \Exception(sprintf('Base subject %s non existent', $subject));
+            } else {
+                logger('missing base subject '.$subject);
+            }
         }
 
         return $id;
