@@ -38,7 +38,7 @@
          wire:key="container-{{ $this->uniqueQuestionKey }}"
          {{--         :class="{'opacity-0': $store.cms.loading || empty, 'opacity-50': $store.cms.processing && !loading}"--}}
          style="opacity: 0; transition: opacity .3s ease-in"
-         :style="{'opacity': ($store.cms.loading || !!empty) ? 0 : ($store.cms.processing) ? .5 : 1}"
+         :style="{'opacity': ($store.cms.loading || !!empty) ? 0 : ($store.cms.processing) ? 0 : 1}"
          x-ref="editorcontainer"
          wire:ignore.self
     >
@@ -47,9 +47,11 @@
             <div class="flex w-full border-b border-secondary mt-2.5 py-2.5">
                 <div class="flex w-full items-center px-4 sm:px-6 lg:px-8 justify-between">
                     <div class="flex items-center">
+                        @if(!$this->isGroupQuestion())
                         <span class="w-8 h-8 rounded-full bg-sysbase text-white text-sm flex items-center justify-center">
                             <span>{{ $this->question['order'] == 0 ? '1' : $this->question['order']}}</span>
                         </span>
+                        @endif
                         <h2 class="ml-2.5" selid="question-type-title">{{ $this->questionType }}</h2>
                     </div>
                     <div class="flex items-center">
@@ -531,5 +533,4 @@
             </button>
         </div>
     </div>
-    <x-notification/>
 </div>

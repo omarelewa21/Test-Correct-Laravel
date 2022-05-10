@@ -5,4 +5,5 @@
         @endif
         {{ $slot }}
     </div>
+    <x-notification/>
 </x-layouts.base>
