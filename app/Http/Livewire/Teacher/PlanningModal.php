@@ -62,18 +62,21 @@ class PlanningModal extends Component
     }
 
     public function plan(){
-        $this->testTake->date = now()->format('Y-m-d');
-//        $this->testTake->invigilatorUsers()->save(auth()->user());
+        $this->testTake->date = now()->format('d-m-Y');
+        $this->testTake->invigilatorUsers()->save(auth()->user());
         $arr = ($this->testTake->toArray());
-        unset($arr['invigilator_users']);
-        unset($arr['exported_to_rtti_formated']);
-        unset($arr['invigilators_acceptable']);
-        unset($arr['invigilators_unacceptable_message']);
 
-//        dd($arr);
-
+        $t = new TestTake();
+        $t->fill($arr);
         $this->testTake->fill($arr);
-        $this->testTake->save();
+        dd([$t, $this->testTake]);
+
+        $t->setAttribute('user_id', auth()->id());
+        $t->save();
+//
+//        $this->testTake ->fill($arr);
+//
+//        $this->testTake->save();
     }
 
     public function render()

@@ -1,12 +1,12 @@
 {
-    "/js/app.js": "/js/app.js",
-    "/css/app.css": "/css/app.css",
-    "/ckeditor/plugins/ckeditor_wiris/plugin.js": "/ckeditor/plugins/ckeditor_wiris/plugin.js",
-    "/ckeditor/plugins/ckeditor_wiris/icons/cas.png": "/ckeditor/plugins/ckeditor_wiris/icons/cas.png",
-    "/ckeditor/plugins/ckeditor_wiris/icons/chem.png": "/ckeditor/plugins/ckeditor_wiris/icons/chem.png",
-    "/ckeditor/plugins/ckeditor_wiris/icons/formula.png": "/ckeditor/plugins/ckeditor_wiris/icons/formula.png",
-    "/js/ckeditor.js": "/js/ckeditor.js",
-    "/js/readspeaker_tlc.js": "/js/readspeaker_tlc.js",
-    "/css/rs_tlc.css": "/css/rs_tlc.css",
-    "/css/rs_tlc_pdf.css": "/css/rs_tlc_pdf.css"
+    "/js/app.js": "/js/app.js?id=c78f34e6c76f4ee71b77",
+    "/css/app.css": "/css/app.css?id=f4e66a5a33975a666113",
+    "/ckeditor/plugins/ckeditor_wiris/plugin.js": "/ckeditor/plugins/ckeditor_wiris/plugin.js?id=892e9880c7684d10e2fa",
+    "/ckeditor/plugins/ckeditor_wiris/icons/cas.png": "/ckeditor/plugins/ckeditor_wiris/icons/cas.png?id=e01e3ce6400951998bfd",
+    "/ckeditor/plugins/ckeditor_wiris/icons/chem.png": "/ckeditor/plugins/ckeditor_wiris/icons/chem.png?id=1979fc1931ffd6b65bfa",
+    "/ckeditor/plugins/ckeditor_wiris/icons/formula.png": "/ckeditor/plugins/ckeditor_wiris/icons/formula.png?id=628f5910e82d3e4a28b3",
+    "/js/ckeditor.js": "/js/ckeditor.js?id=a981480b5ff3cac09b1d",
+    "/js/readspeaker_tlc.js": "/js/readspeaker_tlc.js?id=bd9f0e04f3ccc17734ca",
+    "/css/rs_tlc.css": "/css/rs_tlc.css?id=8780533bdf0c70e4d4e5",
+    "/css/rs_tlc_pdf.css": "/css/rs_tlc_pdf.css?id=e5b9dea68cdd51e121ac"
 }
