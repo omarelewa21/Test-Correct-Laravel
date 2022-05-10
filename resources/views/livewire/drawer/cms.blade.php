@@ -25,7 +25,7 @@
      x-effect="handleLoading()"
      :class="{'collapsed': collapse}"
      @backdrop="backdrop = !backdrop"
-     @scroll.throttle.200ms="$dispatch('groupFoldingUpdate')"
+     @scroll.throttle.500ms="$dispatch('drawer-scroll')"
      wire:ignore.self
      wire:init="handleCmsInit()"
 >
@@ -66,7 +66,7 @@
              x-ref="questionEditorSidebar"
              wire:ignore.self
         >
-            <x-sidebar.slide-container class="pt-4 divide-y divide-bluegrey" x-ref="container1">
+            <x-sidebar.slide-container class="pt-4 divide-y divide-bluegrey" x-ref="container1" @drawer-scroll.window="handleVerticalScroll($el)">
                 <div class="divide-y divide-bluegrey pb-6" {{ $emptyStateActive ? 'hidden' : '' }} >
                     @php $loopIndex = 0; @endphp
                     @foreach($this->questionsInTest as $testQuestion)

@@ -5,7 +5,7 @@
 >
     <div class="flex space-x-2 py-1.5 cursor-pointer group-question-title-container"
          :class="expand ? 'rotate-svg-270' : 'rotate-svg-90'"
-         @click="expand = !expand; setTimeout(() => {handleVerticalScroll($refs.container1); $dispatch('groupFoldingUpdate')}, 210);"
+         @click="expand = !expand; setTimeout(() => {handleVerticalScroll($refs.container1);}, 210);"
     >
         <x-icon.chevron class="mt-2"/>
         <span class="flex flex-1 flex-col truncate text-lg bold"
