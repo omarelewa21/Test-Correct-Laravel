@@ -3,6 +3,8 @@
 use Illuminate\Routing\Route;
 use tcCore\Lib\Question\QuestionGatherer;
 use tcCore\TestTake;
+use Illuminate\Contracts\Validation\Validator;
+use Illuminate\Http\Exceptions\HttpResponseException;
 
 class NormalizeTestTakeRequest extends Request {
 
@@ -44,6 +46,12 @@ class NormalizeTestTakeRequest extends Request {
             'preview' => 'in:0,1'
         );
 
+        if( $this->has('ignore_questions') ){
+            $max = $this->testTake->maxScore($this->get('ignore_questions'));
+        }else{
+            $max = $this->testTake->maxScore();
+        }
+
         if ($this->has('n_term') && $this->has('pass_mark')) {
             $rules['n_term'] = 'required|between:-3.5,5.5';
             $rules['pass_mark'] = 'required|numeric|between:0,100';
@@ -52,9 +60,9 @@ class NormalizeTestTakeRequest extends Request {
         } elseif ($this->has('wanted_average')) {
             $rules['wanted_average'] = 'required|numeric|between:1,10';
         } elseif($this->has('epp')) {
-            $rules['epp'] = 'required|numeric|between:0.0001,99.9999';
+            $rules['epp'] = 'required|numeric|min:0.0001|max:' . $max;
         } elseif($this->has('ppp') || ($this->testTake->getAttribute('n_term') === null && ($this->testTake->getAttribute('n_term') === null || $this->testTake->getAttribute('pass_mark') === null) && $this->testTake->getAttribute('wanted_average') === null && $this->testTake->getAttribute('epp') === null && $this->testTake->getAttribute('ppp') === null)) {
-            $rules['ppp'] = 'required|numeric|between:0.0001,99.9999';
+            $rules['ppp'] = 'required|numeric|min:0.0001|max:' . $max;
         }
 
         return $rules;
@@ -68,6 +76,12 @@ class NormalizeTestTakeRequest extends Request {
     public function sanitize()
     {
         return $this->all();
+    }
+
+    protected function failedValidation(Validator $validator) {
+        throw new HttpResponseException(
+            response()->json(['status' => 0,'message' => $validator->errors()->all()], 422)
+        );
     }
 
 }

@@ -132,6 +132,14 @@ return [
         'attribute-name' => [
             'rule-name' => 'custom-message',
         ],
+        'epp'   => [
+            'max'   => 'Het totaal aantal punten voor deze toets is :max.
+                            Je kunt geen hoger getal invullen dan het totaal aantal punten voor deze toets.',
+        ],
+        'ppp'   => [
+            'max'   => 'Het totaal aantal punten voor deze toets is :max.
+                            Je kunt geen hoger getal invullen dan het totaal aantal punten voor deze toets.',
+        ]
     ],
 
     /*

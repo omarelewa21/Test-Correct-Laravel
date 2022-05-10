@@ -89,6 +89,14 @@ return [
 		'attribute-name' => [
 			'rule-name' => 'custom-message',
 		],
+		'epp'   => [
+            'max'   => 'The total amount of points for this test is :max.
+							You can’t fill out a amount greater than the total amount of points for this test.',
+        ],
+        'ppp'   => [
+            'max'   => 'The total amount of points for this test is :max.
+							You can’t fill out a amount greater than the total amount of points for this test.',
+        ]
 	],
 
 	/*

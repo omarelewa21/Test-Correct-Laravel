@@ -1149,4 +1149,16 @@ class TestTake extends BaseModel
                         ->where('user_id', $user->getKey());
                 }]);
     }
+
+    public function maxScore($ignoreQuestions = []){
+        foreach ($ignoreQuestions as $key=>$value){
+            if(!strstr($value,'.')){
+                continue;
+            }
+            $arr = explode('.',$value);
+            $ignoreQuestions[$key] = $arr[1];
+        }
+        return $this->test->maxScore($ignoreQuestions);
+    }
+
 }
