@@ -309,6 +309,7 @@ class EntreeOnboarding extends Onboarding
                 $user->eckid = Crypt::decryptString($this->entreeData->data->encryptedEckId);
                 $user->account_verified = Carbon::now();
                 $user->save();
+                $user->generalTermsLog()->create(['accepted_at' => Carbon::now()]);
 
                 $locationsAdded = collect([$user->school_location_id]);
                 if ($schoolLocations->count() > 0) {
