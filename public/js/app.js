@@ -7882,9 +7882,13 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview) {
 
   function fitDrawingToScreen() {
     // panDrawingCenterToScreenCenter();
-    while (!drawingFitsScreen()) {
+    while (!drawingFitsScreen() && canZoomOut()) {
       zoomOutOneStep();
     }
+  }
+
+  function canZoomOut() {
+    return Canvas.params.zoomFactor > _constants_js__WEBPACK_IMPORTED_MODULE_1__.zoomParams.MIN;
   }
 
   function panDrawingCenterToScreenCenter() {
@@ -7948,7 +7952,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview) {
       markers: true
     });
     var screenBounds = Canvas.params.bounds;
-    if (bbox.x < screenBounds.left || bbox.y < screenBounds.top) return false;else return true;
+    if (bbox.x < screenBounds.left || bbox.y < screenBounds.top || bbox.width > screenBounds.width || bbox.height > screenBounds.height) return false;else return true;
   }
 
   function renderShapesFromSvgLayerString(layerName) {
