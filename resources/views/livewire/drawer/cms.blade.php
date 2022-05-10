@@ -25,7 +25,6 @@
      x-effect="handleLoading()"
      :class="{'collapsed': collapse}"
      @backdrop="backdrop = !backdrop"
-     @scroll.throttle.200ms="$dispatch('groupFoldingUpdate')"
      wire:ignore.self
      wire:init="handleCmsInit()"
 >
@@ -133,10 +132,10 @@
                     <x-slot name="subtext">{{ __('cms.Stel een nieuwe vraag op') }}</x-slot>
                 </x-button.plus-circle>
 
-{{--                <x-button.plus-circle class="py-4" @click="showQuestionBank()">--}}
-{{--                    {{ __( 'cms.Bestaande toevoegen' ) }}--}}
-{{--                    <x-slot name="subtext">{{ __('cms.Verken en kies uit vragenbank') }}</x-slot>--}}
-{{--                </x-button.plus-circle>--}}
+                <x-button.plus-circle class="py-4" @click="showQuestionBank()">
+                    {{ __( 'cms.Bestaande toevoegen' ) }}
+                    <x-slot name="subtext">{{ __('cms.Verken en kies uit vragenbank') }}</x-slot>
+                </x-button.plus-circle>
 
                 <div class="flex px-6 py-2.5 space-x-2.5 note cursor-default">
                     <x-icon.plus-in-circle/>
