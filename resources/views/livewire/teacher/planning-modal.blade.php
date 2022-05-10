@@ -6,23 +6,24 @@
                  class="transition ease-in-out duration-150">{{ $test->name }}</div>
         </x-input.group>
         <x-input.group label="{{ __('teacher.Datum') }}">
-            <x-input.select>
+            <x-input.select wire:model="request.date">
                 @foreach(range(0, 10) as $day)
-                    <option value="{{ now()->addDay($day) }}">{{ now()->addDay($day)->format('d-m-Y') }}</option>
+                    <option value="{{ now()->addDay($day)->format('d-m-Y') }}">{{ now()->addDay($day)->format('d-m-Y') }}</option>
                 @endforeach
             </x-input.select>
         </x-input.group>
-
+@if ($this->isAssessmentType())
         <x-input.group label="{{ __('teacher.Datum tot') }}">
-            <x-input.select>
+            <x-input.select wire:model="request.date_till">
                 @foreach(range(0, 10) as $day)
-                    <option value="{{ now()->addDay($day) }}">{{ now()->addDay($day)->format('d-m-Y') }}</option>
+                    <option value="{{ now()->addDay($day)->format('d-m-Y') }}">{{ now()->addDay($day)->format('d-m-Y') }}</option>
                 @endforeach
             </x-input.select>
         </x-input.group>
+        @endif
 
         <x-input.group label="{{ __('teacher.Periode') }}">
-            <x-input.select>
+            <x-input.select wire:model="request.period_id">
                 @foreach($allowedPeriods as $period)
                     <option value="{{ $period->uuid }}">{{ $period->name }}</option>
                 @endforeach
@@ -30,7 +31,7 @@
         </x-input.group>
 
         <x-input.group label="{{ __('teacher.Weging') }}">
-            <x-input.text >
+            <x-input.text wire:model="request.weight">
             </x-input.text>
         </x-input.group>
 
@@ -41,27 +42,18 @@
         <x-input.group label="{{ __('teacher.Surveillanten') }}">
 
         </x-input.group>
-
-        <x-input.toggle/>
+        <label class="font-bold"><x-icon.preview/>{{ __('teacher.Test-Direct toestaan') }}</label>
+        <x-input.toggle wire:model="request.guest_accounts"/>
 
         <label class="font-bold"><x-icon.preview/>{{ __('teacher.Browsertoetsen toestaan') }}</label>
 
-        <x-input.toggle/>
-        <label class="font-bold"><x-icon.preview/>{{ __('teacher.Test-Direct toestaan') }}</label>
+        <x-input.toggle wire:model="request.allow_inbrowser_testing"/>
 
-        <x-input.group label="{{ __('teacher.Weging') }}">
-            <x-input.textarea>
+
+        <x-input.group label="{{ __('teacher.Notities voor Surveillant') }}">
+            <x-input.textarea wire:model="request.invigilator_note">
             </x-input.textarea>
         </x-input.group>
-
-
-
-
-
-
-
-
-
     </x-slot>
     <x-slot name="actionButton">
         <x-button.primary size="sm" wire:click="planNext">

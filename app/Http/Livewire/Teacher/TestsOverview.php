@@ -23,6 +23,12 @@ class TestsOverview extends Component
 //        'education_level_id' =>'',
 //        'subject_id' => '',
     ];
+    public $filters1 = [
+        'name' => '',
+        'education_level_year' => '',
+        'education_level_id' =>'',
+        'subject_id' => '',
+    ];
     public $sorting = [];
 
     protected $queryString = ['openTab'];

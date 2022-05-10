@@ -6,6 +6,7 @@ use Livewire\Component;
 use tcCore\Test;
 use tcCore\Period;
 use tcCore\TestTake;
+use tcCore\TestTakeStatus;
 
 class PlanningModal extends Component
 {
@@ -17,66 +18,60 @@ class PlanningModal extends Component
 
     public $allowedPeriods;
 
-    public $testTake;
+    public $request= [];
+
+    public function isAssessmentType() {
+        return $this->test->isAssignment();
+    }
 
     public function mount()
     {
         $this->test = new Test();
         $this->allowedPeriods = Period::filtered(['current_school_year' => true])->get();
-
-        $this->testTake = new TestTake();
-
-
     }
 
     protected $rules = [
-        'testTake.*' => 'sometimes',
+        'request.*' => 'sometimes',
     ];
 
     public function displayModal($testUuid)
     {
         $this->test = \tcCore\Test::whereUuid($testUuid)->first();
 
-        $this->testTake = new TestTake();
-
-        $this->testTake->visible = 1;
-        $this->testTake->date = now();
-        $this->testTake->period_id = $this->allowedPeriods->first()->getKey();
-        $this->testTake->invigilators = [auth()->id()];
-
-//        $this->testTake->class_id = 1;
-
-        $this->testTake->weight = 1;
-        $this->testTake->test_id = $this->test->getKey();
-        $this->testTake->allow_inbrowser_testing = 0;
-        $this->testTake->invigilator_note = '';
-        $this->testTake->test_kind_id = 3;
-        $this->testTake->test_take_status_id = 3;
-        $this->testTake->retake = 0;
-
-//        $this->testTake->school_classes = [1];
-
-        $this->testTake->user_id =  auth()->user()->id;
+        $this->resetModalRequest();
 
         $this->showModal = true;
     }
 
     public function plan(){
-        $this->testTake->date = now()->format('d-m-Y');
-        $this->testTake->invigilatorUsers()->save(auth()->user());
-        $arr = ($this->testTake->toArray());
 
         $t = new TestTake();
-        $t->fill($arr);
-        $this->testTake->fill($arr);
-        dd([$t, $this->testTake]);
+        $this->request['time_start'] = $this->request['date'];
+        $this->request['test_take_status_id'] = TestTakeStatus::STATUS_PLANNED;
 
+        $t->fill($this->request);
         $t->setAttribute('user_id', auth()->id());
         $t->save();
-//
-//        $this->testTake ->fill($arr);
-//
-//        $this->testTake->save();
+    }
+    
+    private function resetModalRequest(){
+        $this->request= [];
+
+        $this->request['visible'] = 1;
+        $this->request['date'] = now()->format('d-m-Y');
+        if ($this->isAssessmentType()) {
+            $this->request['date_till'] = now();
+        }
+        $this->request['period_id'] = $this->allowedPeriods->first()->getKey();
+        $this->request['invigilators'] = [auth()->id()];
+        $this->request['weight'] = 5;
+        $this->request['test_id'] = $this->test->getKey();
+        $this->request['allow_inbrowser_testing'] = 0;
+        $this->request['invigilator_note'] = '';
+        $this->request['test_kind_id'] = 3;
+
+        $this->request['retake'] = 0;
+        $this->request['guest_accounts'] = 0;
     }
 
     public function render()

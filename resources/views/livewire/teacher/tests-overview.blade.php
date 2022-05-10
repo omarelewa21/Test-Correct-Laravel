@@ -73,19 +73,19 @@
                                             :options="$this->subjects"
                                             :withSearch="true"
                                             placeholderText="Vak"
-                                            wire:model="filters.subject_id"
+                                            wire:model="filters1.subject_id"
                     />
                     <x-input.choices-select :multiple="true"
                                             :options="$this->educationLevelYear"
                                             :withSearch="true"
                                             placeholderText="Leerjaar"
-                                            wire:model="filters.education_level_year"
+                                            wire:model="filters1.education_level_year"
                     />
                     <x-input.choices-select :multiple="true"
                                             :options="$this->educationLevel"
                                             :withSearch="true"
                                             placeholderText="Niveau"
-                                            wire:model="filters.education_level_id"
+                                            wire:model="filters1.education_level_id"
                     />
                 </div>
 
@@ -96,17 +96,17 @@
                 <div class="flex">
                     <span class="note text-sm">{{  trans_choice('general.number-of-tests', $results->total(), ['count' => $results->total()]) }}</span>
                 </div>
-                <x-grid x-show="loading" class="mt-4">
-                    <x-grid.loading-card/>
-                    <x-grid.loading-card/>
-                    <x-grid.loading-card/>
-                    <x-grid.loading-card/>
-                    <x-grid.loading-card/>
-                </x-grid>
-                <x-grid class="mt-4" x-show="!loading">
+                <x-grid  class="mt-4">
+                    <x-grid.loading-card wire:loading.class.remove="hidden" class="hidden"/>
+                    <x-grid.loading-card wire:loading.class.remove="hidden" class="hidden"/>
+                    <x-grid.loading-card wire:loading.class.remove="hidden" class="hidden"/>
+                    <x-grid.loading-card wire:loading.class.remove="hidden" class="hidden"/>
+                    <x-grid.loading-card wire:loading.class.remove="hidden" class="hidden"/>
+
+
 
                     @foreach($results as $test)
-                        <x-grid.test-card :test="$test"/>
+                        <x-grid.test-card :test="$test" wire:loading.class="hidden" />
                     @endforeach
                 </x-grid>
                 {{ $results->links('components.partials.tc-paginator') }}
