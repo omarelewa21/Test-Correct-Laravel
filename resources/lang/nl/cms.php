@@ -147,7 +147,9 @@ return [
     'Stel een nieuwe vraag op'                                                               => 'Stel een nieuwe vraag op',
     'Verken en kies uit vragenbank'                                                          => 'Verken en kies uit vragenbank',
     'Nieuwe item incompleet'                                                                 => 'Nieuwe :item incompleet',
-    'question_incomplete_text'                                                               => 'De nieuw aangemaakte :item is incompleet. Vul de gegevens aan indien je wilt opslaan. Wat wil je doen?',
+    'item incompleet'                                                                        => ':Item incompleet',
+    'new_question_incomplete_text'                                                           => 'De nieuw aangemaakte :item is incompleet. Vul de gegevens aan indien je wilt opslaan. Wat wil je doen?',
+    'question_incomplete_text'                                                               => 'De aangemaakte :item is incompleet. Vul de gegevens aan indien je wilt opslaan. Wat wil je doen?',
     'Aanvullen'                                                                              => 'Aanvullen',
     'Wijzigingen opgeslagen'                                                                 => 'Wijzigingen opgeslagen',
     'item added'                                                                             => ':item toegevoegd',
@@ -156,5 +158,8 @@ return [
     'Deze vraaggroep afsluiten'                                                              => 'Deze vraaggroep afsluiten',
     'carousel_not_enough_questions'                                                          => 'Er zijn te weinig vragen in de vraagcarrousel om deze toets te gebruiken. Vul het aantal vragen aan of pas het aantal te vragen toetsvragen aan.',
     'carousel_subquestions_scores_differ'                                                    => 'De vragen in de groep hebben verschillende punten. Na de toetsafname kan hierdoor geen score/cijfer berekend worden. Pas de punten voor elke vraag in deze vraaggroep aan, zodat ze hetzelfde zijn.',
-    'begin_with_making_a_question'                                                    => 'Begin met het maken van een vraaggroep of een losse vraag.',
+    'begin_with_making_a_question'                                                           => 'Begin met het maken van een vraaggroep of een losse vraag.',
+    'nieuwe'                                                                                 => '{0} nieuw|{1}nieuwe',
+    'Wijzigingen niet opslaan'                                                               => 'Wijzigingen niet opslaan',
+
 ];

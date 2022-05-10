@@ -132,10 +132,20 @@
                     {{ __( 'cms.Nieuwe creeren' ) }}
                     <x-slot name="subtext">{{ __('cms.Stel een nieuwe vraag op') }}</x-slot>
                 </x-button.plus-circle>
-                <x-button.plus-circle class="py-4" @click="showQuestionBank()">
-                    {{ __( 'cms.Bestaande toevoegen' ) }}
-                    <x-slot name="subtext">{{ __('cms.Verken en kies uit vragenbank') }}</x-slot>
-                </x-button.plus-circle>
+
+{{--                <x-button.plus-circle class="py-4" @click="showQuestionBank()">--}}
+{{--                    {{ __( 'cms.Bestaande toevoegen' ) }}--}}
+{{--                    <x-slot name="subtext">{{ __('cms.Verken en kies uit vragenbank') }}</x-slot>--}}
+{{--                </x-button.plus-circle>--}}
+
+                <div class="flex px-6 py-2.5 space-x-2.5 note cursor-default">
+                    <x-icon.plus-in-circle/>
+                    <div class="flex flex-col ">
+                        <button class="bold mt-px text-left cursor-default">{{ __( 'cms.Bestaande toevoegen' ) }}</button>
+                        <span class="text-sm note regular">{{ __('cms.Verken en kies uit vragenbank') }}</span>
+                    </div>
+                </div>
+
                 <span></span>
             </x-sidebar.slide-container>
             <x-sidebar.slide-container x-ref="questionbank">

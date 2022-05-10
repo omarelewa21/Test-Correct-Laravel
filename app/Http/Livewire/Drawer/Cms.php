@@ -230,21 +230,37 @@ class Cms extends Component
 
     public function deleteSubQuestion($groupQuestionQuestionId, $testQuestionId)
     {
-        $this->findOutHowToRedirectButFirstExecuteCallback('abc', function () use ($testQuestionId, $groupQuestionQuestionId) {
-            $groupQuestionQuestion = GroupQuestionQuestion::whereUuid($groupQuestionQuestionId)->first();
-            $groupQuestionQuestionManager = GroupQuestionQuestionManager::getInstanceWithUuid($testQuestionId);
+        if ($this->shouldRedirectFromSubQuestion($groupQuestionQuestionId)) {
+            $parentTestQuestion = $this->questionsInTest->where('uuid', $testQuestionId)->first();
+            $subQuestions = $parentTestQuestion->question->subQuestions;
 
-            $response = (new GroupQuestionQuestionsController)->destroy(
-                $groupQuestionQuestionManager,
-                $groupQuestionQuestion
-            );
-        });
+            if ($subQuestions->count() > 1) {
+                $index = $subQuestions->search(function ($question) use ($groupQuestionQuestionId) {
+                    return $question->groupQuestionQuestionUuid === $groupQuestionQuestionId;
+                });
+
+                if ($index) {
+                    $this->showQuestion($testQuestionId, $subQuestions->get($index - 1)->uuid, true, false);
+                } else {
+                    $this->showQuestion($testQuestionId, $subQuestions->get($index + 1)->uuid, true, false);
+                }
+            } else {
+                $this->showQuestionByTestQuestion($parentTestQuestion);
+            }
+        }
+
+        $groupQuestionQuestion = GroupQuestionQuestion::whereUuid($groupQuestionQuestionId)->first();
+        $groupQuestionQuestionManager = GroupQuestionQuestionManager::getInstanceWithUuid($testQuestionId);
+
+        (new GroupQuestionQuestionsController)->destroy(
+            $groupQuestionQuestionManager,
+            $groupQuestionQuestion
+        );
     }
 
     public function showEmpty()
     {
         $this->emptyStateActive = true;
-//        $this->dispatchBrowserEvent('show-empty');
         $this->emitTo('teacher.questions.open-short', 'showEmpty');
     }
 
@@ -277,5 +293,10 @@ class Cms extends Component
             }
         }
         return $this->showEmpty();
+    }
+
+    private function shouldRedirectFromSubQuestion($groupQuestionQuestionId)
+    {
+        return $this->groupQuestionQuestionId === $groupQuestionQuestionId;
     }
 }

@@ -32,17 +32,24 @@
          x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100"
          x-transition:leave-end="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95">
         <div class="px-2.5 flex justify-between items-center mt-2">
-            <h2>{{ __('cms.Nieuwe item incompleet', ['item' => strtolower($owner === 'group' ? __('cms.group-question') : __('drawing-modal.Vraag'))]) }}</h2>
+            @if($new)
+                <h2 class="">{{ __('cms.Nieuwe item incompleet', ['item' => $item, 'new' => trans_choice('cms.nieuwe', 1)]) }}</h2>
+            @else
+                <h2 class="">{{ __('cms.item incompleet', ['item' => $item]) }}</h2>
+            @endif
             <x-icon.close class="cursor-pointer hover:text-primary" @click="dirtyModal = false"/>
         </div>
         <div class="divider mb-5 mt-2.5"></div>
         <div class="flex flex-1 h-full w-full px-2.5 body1 mb-5 space-x-2.5 ">
             <div class="flex flex-1 flex-col ">
-                <span>{{ __('cms.question_incomplete_text', ['item' => strtolower($owner === 'group' ? __('cms.group-question') : __('drawing-modal.Vraag'))]) }}</span>
+                @if($new)
+                    <span>{{ __('cms.new_question_incomplete_text', ['item' => $item, 'new' => $new ? __('cms.nieuwe') : '']) }}</span>
+                @else
+                    <span class="">{{ __('cms.question_incomplete_text', ['item' => $item]) }}</span>
+                @endif
                 <div class="flex w-full justify-end mt-4 space-x-4">
                     <x-button.text-button @click="dirtyModal = false; $wire.continueToNextQuestion()">
-                        <x-icon.remove/>
-                        <span>{{ __('cms.Verwijderen') }}</span>
+                        <span>{{ $new ? __('cms.Verwijderen') : __('cms.Wijzigingen niet opslaan')}}</span>
                     </x-button.text-button>
                     <x-button.primary @click="dirtyModal = false">
                         <span>{{ __('cms.Aanvullen') }}</span>

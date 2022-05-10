@@ -4,6 +4,7 @@ namespace tcCore\Http\Livewire\Teacher\Questions;
 
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 use Livewire\Component;
@@ -222,7 +223,7 @@ class OpenShort extends Component
 
         $this->tags = [];
         $this->dirty = false;
-        $this->uniqueQuestionKey = $this->testQuestionId.$this->groupQuestionQuestionId.$this->action.$this->questionEditorId;
+        $this->uniqueQuestionKey = $this->testQuestionId . $this->groupQuestionQuestionId . $this->action . $this->questionEditorId;
     }
 
 
@@ -245,7 +246,8 @@ class OpenShort extends Component
             'refresh'               => 'render',
             'showQuestion'          => 'showQuestion',
             'addQuestion'           => 'addQuestion',
-            'showEmpty'             => 'showEmpty'
+            'showEmpty'             => 'showEmpty',
+            'questionDeleted'       => '$refresh'
         ];
     }
 
@@ -495,7 +497,7 @@ class OpenShort extends Component
     public function returnToTestOverview(): void
     {
         $url = sprintf("tests/view/%s", $this->testId);
-        if ($this->isPartOfGroupQuestion()) {
+        if ($this->isPartOfGroupQuestion() && !$this->withDrawer) {
             $url = sprintf(
                 'questions/view_group/%s/%s',
                 $this->testId,
@@ -970,8 +972,8 @@ class OpenShort extends Component
 
     public function showQuestion($args)
     {
-        if ($args['shouldSave'] && $this->isDirty()) {
-            if ($this->action === 'add') {
+        if ($this->needsSavingBeforeShowingQuestion($args['shouldSave'])) {
+            if (!$this->completedMandatoryFields()) {
                 return $this->leavingNewDirtyQuestion($args);
             }
             $this->loading = true;
@@ -989,8 +991,8 @@ class OpenShort extends Component
 
     public function addQuestion($args)
     {
-        if ($this->isDirty() && !$this->emptyState && (Arr::exists($args, 'shouldSave') && $args['shouldSave'] )) {
-            if ($this->action === 'add') {
+        if ($this->needsSavingBeforeAddingNewQuestion($args)) {
+            if (!$this->completedMandatoryFields()) {
                 return $this->leavingNewDirtyQuestion($args);
             }
             $this->save(false);
@@ -1113,7 +1115,7 @@ class OpenShort extends Component
 
     public function saveAndRedirect()
     {
-        if ($this->testHasQuestions()) {
+        if ($this->testHasQuestions() && $this->isDirty()) {
             return $this->save();
         }
         return $this->returnToTestOverview();
@@ -1194,5 +1196,28 @@ class OpenShort extends Component
         $this->subtype = '';
         $this->emptyState = true;
         $this->dispatchBrowserEvent('show-empty');
+    }
+
+    private function completedMandatoryFields()
+    {
+        return !Validator::make((array)$this, $this->getRules())->fails();
+    }
+
+    /**
+     * @param $args
+     * @return bool
+     */
+    private function needsSavingBeforeAddingNewQuestion($args): bool
+    {
+        return $this->isDirty() && !$this->emptyState && (Arr::exists($args, 'shouldSave') && $args['shouldSave']);
+    }
+
+    /**
+     * @param $shouldSave
+     * @return bool
+     */
+    private function needsSavingBeforeShowingQuestion($shouldSave): bool
+    {
+        return $shouldSave && $this->isDirty();
     }
 }

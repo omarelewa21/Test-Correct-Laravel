@@ -501,16 +501,17 @@
             @endif
         </div>
         <x-modal.question-editor-delete-modal/>
-        <x-modal.question-editor-dirty-question-modal :owner="$this->owner"/>
+        <x-modal.question-editor-dirty-question-modal :item="strtolower($this->isGroupQuestion() ? __('cms.group-question') : __('drawing-modal.Vraag'))"
+                                                      :new="!$this->editModeForExistingQuestion()"/>
     </div>
     <div class="question-editor-footer" x-data>
         <div class="question-editor-footer-button-container">
 
             <button
-                    wire:loading.attr="disabled"
                     type="button"
-                    wire:click="returnToTestOverview();"
                     class="button text-button button-md pr-4"
+                    wire:loading.attr="disabled"
+                    wire:click="returnToTestOverview();"
                     selid="cancel-btn"
             >
                 <span> {{ __("auth.cancel") }}</span>
