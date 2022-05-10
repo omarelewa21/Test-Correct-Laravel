@@ -413,27 +413,17 @@
                                                             </div>
                                                         </div>
                                                     </div>
-                                                @elseif(count($this->schoolLocations) > 0)
-
+                                               @else
                                                     @foreach($this->schoolLocations as $locationName)
-                                                    <div
-                                                                 class="flex px-0 py-0 border-0 bg-system-white relative regular"
-                                                    >
-                                                        {{ $locationName }}
+                                                        <div
+                                                                class="flex px-0 py-0 border-0 bg-system-white relative regular"
+                                                        >
+                                                            {{ $locationName }}
 
                                                             <x-icon.checkmark class="mx-2 w-4" ></x-icon.checkmark>
 
-                                                    </div>
+                                                        </div>
                                                     @endforeach
-                                               @else
-                                                    <div
-                                                            class="flex px-0 py-0 border-0 bg-system-white relative regular"
-                                                    >
-                                                        {{ $this->schoolLocation->name }}
-
-                                                        <x-icon.checkmark class="mx-2 w-4" ></x-icon.checkmark>
-
-                                                    </div>
                                                @endif
                                             </div>
                                         @elseif($this->school)
