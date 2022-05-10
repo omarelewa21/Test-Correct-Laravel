@@ -25,6 +25,7 @@
      x-effect="handleLoading()"
      :class="{'collapsed': collapse}"
      @backdrop="backdrop = !backdrop"
+     @scroll.throttle.500ms="$dispatch('drawer-scroll')"
      wire:ignore.self
      wire:init="handleCmsInit()"
 >
@@ -65,7 +66,7 @@
              x-ref="questionEditorSidebar"
              wire:ignore.self
         >
-            <x-sidebar.slide-container class="pt-4 divide-y divide-bluegrey" x-ref="container1">
+            <x-sidebar.slide-container class="pt-4 divide-y divide-bluegrey" x-ref="container1" @drawer-scroll.window="handleVerticalScroll($el)">
                 <div class="divide-y divide-bluegrey pb-6" {{ $emptyStateActive ? 'hidden' : '' }} >
                     @php $loopIndex = 0; @endphp
                     @foreach($this->questionsInTest as $testQuestion)
@@ -132,10 +133,10 @@
                     <x-slot name="subtext">{{ __('cms.Stel een nieuwe vraag op') }}</x-slot>
                 </x-button.plus-circle>
 
-                <x-button.plus-circle class="py-4" @click="showQuestionBank()">
-                    {{ __( 'cms.Bestaande toevoegen' ) }}
-                    <x-slot name="subtext">{{ __('cms.Verken en kies uit vragenbank') }}</x-slot>
-                </x-button.plus-circle>
+{{--                <x-button.plus-circle class="py-4" @click="showQuestionBank()">--}}
+{{--                    {{ __( 'cms.Bestaande toevoegen' ) }}--}}
+{{--                    <x-slot name="subtext">{{ __('cms.Verken en kies uit vragenbank') }}</x-slot>--}}
+{{--                </x-button.plus-circle>--}}
 
                 <div class="flex px-6 py-2.5 space-x-2.5 note cursor-default">
                     <x-icon.plus-in-circle/>
