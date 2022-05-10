@@ -938,9 +938,13 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview) {
     function fitDrawingToScreen() {
         // panDrawingCenterToScreenCenter();
 
-        while (!drawingFitsScreen()) {
+        while (!drawingFitsScreen() && canZoomOut()) {
             zoomOutOneStep();
         }
+    }
+
+    function canZoomOut() {
+        return (Canvas.params.zoomFactor > zoomParams.MIN );
     }
 
     function panDrawingCenterToScreenCenter() {
