@@ -431,38 +431,87 @@ document.addEventListener('alpine:init', () => {
         }
 
     }));
-    Alpine.data('choices', (wireModel, multiple, options, config) => ({
+    Alpine.data('choices', (wireModel, multiple, options, config, filterContainer) => ({
         multiple: multiple,
         value: [],
         options: options,
         config: config,
         wireModel: wireModel,
+        activeFiltersContainer: null,
+        choices: null,
         init() {
+            this.activeFiltersContainer = document.getElementById(filterContainer);
             this.multiple = multiple === 1;
             this.$nextTick(() => {
                 let choices = new Choices(this.$refs.select, this.config);
 
                 let refreshChoices = () => {
                     let selection = this.multiple ? this.value : [this.value]
-
                     choices.clearStore()
                     choices.setChoices(this.options.map(({value, label}) => ({
                         value,
                         label,
                         selected: selection.includes(value),
                     })))
+                    this.handleActiveFilters(choices.getValue());
                 }
 
                 refreshChoices()
-
+                // this.$refs.select.addEventListener('addItem', (event) => {
+                //     console.log('additem');
+                //
+                // })
+                this.$refs.select.addEventListener('choice', (event) => {
+                    if (this.value.includes(parseInt(event.detail.choice.value))) {
+                        this.removeFilterItem(choices.getValue().find(value => value.value === event.detail.choice.value));
+                    }
+                })
                 this.$refs.select.addEventListener('change', () => {
                     this.value = choices.getValue(true)
                     this.wireModel = this.value;
                 })
 
-                this.$watch('value', () => refreshChoices())
-                this.$watch('options', () => refreshChoices())
+                this.$watch('value', () => refreshChoices());
+                this.$watch('options', () => refreshChoices());
             });
+        },
+
+        removeFilterItem(item) {
+            this.value = this.wireModel = this.value.filter(itemValue => itemValue !== item.value);
+            this.clearFilterPill(item.value);
+        },
+
+        getDataSelector(item) {
+            return `[data-filter="${this.$root.dataset.modelName}"][data-filter-value="${item}"]`
+        },
+
+        handleActiveFilters(choicesValues) {
+            this.value.forEach(item => {
+                if(this.needsFilterPill(item)) {
+                    const cItem = choicesValues.find(value => value.value === item);
+                    this.createFilterPill(cItem);
+                }
+            })
+        },
+
+        createFilterPill(item) {
+            const element = document.getElementById('filter-pill-template').content.firstElementChild.cloneNode(true);
+            // const element = document.createElement('span')
+            element.id = `filter-${this.$root.dataset.modelName}-${item.value}`;
+            element.classList.add('filter-pill');
+            element.dataset.filter = this.$root.dataset.modelName;
+            element.dataset.filterValue = item.value;
+            element.firstElementChild.innerHTML = item.label;
+
+            return this.activeFiltersContainer.appendChild(element);
+        },
+
+        needsFilterPill(item) {
+            return this.activeFiltersContainer.querySelector(this.getDataSelector(item)) === null
+        },
+
+        clearFilterPill(item) {
+            return this.activeFiltersContainer.querySelector(this.getDataSelector(item))?.remove();
         }
 
     }));

@@ -1,5 +1,5 @@
 <div id="cms" class="flex flex-1"
-     x-data="{loading: @entangle('loading'),empty: {{ $this->emptyState ? 1 : 0 }} }"
+     x-data="{loading: @entangle('loading'), empty: {{ $this->emptyState ? 1 : 0 }} }"
      x-init="
            handleQuestionChange = (evt) => {
                 $store.cms.loading = true;
@@ -30,6 +30,7 @@
      x-on:question-change.window="handleQuestionChange($event.detail)"
      x-on:show-empty.window="empty = !empty"
      x-on:new-question-added.window="removeDrawingLegacy()"
+     x-effect="if(!!empty) { $refs.editorcontainer.style.opacity = 0}"
      questionComponent
 >
     <x-partials.header.cms-editor :testName="$testName" :questionCount="$this->amountOfQuestions"/>
@@ -37,7 +38,7 @@
          wire:key="container-{{ $this->uniqueQuestionKey }}"
          {{--         :class="{'opacity-0': $store.cms.loading || empty, 'opacity-50': $store.cms.processing && !loading}"--}}
          style="opacity: 0; transition: opacity .3s ease-in"
-         :style="{'opacity': ($store.cms.loading || empty) ? 0 : ($store.cms.processing) ? .5 : 1}"
+         :style="{'opacity': ($store.cms.loading || !!empty) ? 0 : ($store.cms.processing) ? .5 : 1}"
          x-ref="editorcontainer"
          wire:ignore.self
     >
@@ -150,12 +151,12 @@
 
                 @if($this->isGroupQuestion() && $this->isCarouselGroup() && $this->editModeForExistingQuestion())
                     @if(!$this->hasEnoughSubQuestionsAsCarousel())
-                        <div class="notification error stretched mt-4">
+                        <div class="notification warning stretched mt-4">
                             <span class="title">{{ __('cms.carousel_not_enough_questions') }}</span>
                         </div>
                     @endif
                     @if(!$this->hasEqualScoresForSubQuestions())
-                            <div class="notification error stretched mt-4">
+                            <div class="notification warning stretched mt-4">
                                 <span class="title">{{ __('cms.carousel_subquestions_scores_differ') }}</span>
                             </div>
                     @endif
@@ -500,16 +501,17 @@
             @endif
         </div>
         <x-modal.question-editor-delete-modal/>
-        <x-modal.question-editor-dirty-question-modal :owner="$this->owner"/>
+        <x-modal.question-editor-dirty-question-modal :item="strtolower($this->isGroupQuestion() ? __('cms.group-question') : __('drawing-modal.Vraag'))"
+                                                      :new="!$this->editModeForExistingQuestion()"/>
     </div>
     <div class="question-editor-footer" x-data>
         <div class="question-editor-footer-button-container">
 
             <button
-                    wire:loading.attr="disabled"
                     type="button"
-                    wire:click="returnToTestOverview();"
                     class="button text-button button-md pr-4"
+                    wire:loading.attr="disabled"
+                    wire:click="returnToTestOverview();"
                     selid="cancel-btn"
             >
                 <span> {{ __("auth.cancel") }}</span>
@@ -517,11 +519,12 @@
 
 
             <button
-                    wire:loading.attr="disabled"
-                    @beforeunload.window="$el.disabled = true"
                     type="button"
-                    wire:click="saveAndRefreshDrawer()"
                     class="button cta-button button-sm save_button"
+                    wire:loading.attr="disabled"
+                    wire:click="saveAndRefreshDrawer()"
+                    @beforeunload.window="$el.disabled = true"
+                    :disabled="!!empty"
                     selid="save-btn"
             >
                 <span>{{ __("drawing-modal.Opslaan") }}</span>

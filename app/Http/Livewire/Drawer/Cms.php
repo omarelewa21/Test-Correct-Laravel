@@ -39,6 +39,7 @@ class Cms extends Component
             'deleteQuestion'             => 'deleteQuestion',
             'deleteQuestionByQuestionId' => 'deleteQuestionByQuestionId',
             'show-empty'                 => 'showEmpty',
+            'addQuestionResponse'        => 'addQuestionResponse',
         ];
     }
 
@@ -78,14 +79,21 @@ class Cms extends Component
 
     public function addQuestion($type, $subtype)
     {
-        $this->action = 'add';
         $this->emitTo(
             'teacher.questions.open-short',
             'addQuestion',
-            ['type' => $type, 'subtype' => $subtype, 'groupId' => $this->groupId]
+            [
+                'type'       => $type,
+                'subtype'    => $subtype,
+                'groupId'    => $this->groupId,
+                'shouldSave' => true
+            ]
         );
+    }
 
-        $this->newQuestionTypeName = $subtype == 'group' ? __('cms.group-question') : CmsFactory::findQuestionNameByTypes($type, $subtype);
+    public function addQuestionResponse($args)
+    {
+        $this->newQuestionTypeName = $args['subtype'] == 'group' ? __('cms.group-question') : CmsFactory::findQuestionNameByTypes($args['type'], $args['subtype']);
 
         if ($this->emptyStateActive) {
             $this->emptyStateActive = false;
@@ -222,22 +230,38 @@ class Cms extends Component
 
     public function deleteSubQuestion($groupQuestionQuestionId, $testQuestionId)
     {
-        $this->findOutHowToRedirectButFirstExecuteCallback('abc', function () use ($testQuestionId, $groupQuestionQuestionId) {
-            $groupQuestionQuestion = GroupQuestionQuestion::whereUuid($groupQuestionQuestionId)->first();
-            $groupQuestionQuestionManager = GroupQuestionQuestionManager::getInstanceWithUuid($testQuestionId);
+        if ($this->shouldRedirectFromSubQuestion($groupQuestionQuestionId)) {
+            $parentTestQuestion = $this->questionsInTest->where('uuid', $testQuestionId)->first();
+            $subQuestions = $parentTestQuestion->question->subQuestions;
 
-            $response = (new GroupQuestionQuestionsController)->destroy(
-                $groupQuestionQuestionManager,
-                $groupQuestionQuestion
-            );
-        });
+            if ($subQuestions->count() > 1) {
+                $index = $subQuestions->search(function ($question) use ($groupQuestionQuestionId) {
+                    return $question->groupQuestionQuestionUuid === $groupQuestionQuestionId;
+                });
+
+                if ($index) {
+                    $this->showQuestion($testQuestionId, $subQuestions->get($index - 1)->uuid, true, false);
+                } else {
+                    $this->showQuestion($testQuestionId, $subQuestions->get($index + 1)->uuid, true, false);
+                }
+            } else {
+                $this->showQuestionByTestQuestion($parentTestQuestion);
+            }
+        }
+
+        $groupQuestionQuestion = GroupQuestionQuestion::whereUuid($groupQuestionQuestionId)->first();
+        $groupQuestionQuestionManager = GroupQuestionQuestionManager::getInstanceWithUuid($testQuestionId);
+
+        (new GroupQuestionQuestionsController)->destroy(
+            $groupQuestionQuestionManager,
+            $groupQuestionQuestion
+        );
     }
 
     public function showEmpty()
     {
         $this->emptyStateActive = true;
-        $this->dispatchBrowserEvent('show-empty');
-        $this->emitTo('teacher.questions.open-short','showEmpty');
+        $this->emitTo('teacher.questions.open-short', 'showEmpty');
     }
 
     public function handleCmsInit()
@@ -255,8 +279,24 @@ class Cms extends Component
     public function removeDummy()
     {
         if ($this->questionsInTest->count() > 0) {
-            return $this->showQuestionByTestQuestion($this->questionsInTest->reverse()->first());
+            if ($this->owner === 'group') {
+                $testQuestion = $this->questionsInTest->where('uuid', $this->testQuestionId)->first();
+
+                if ($testQuestion->question->subQuestions->count()) {
+                    return $this->showQuestion($testQuestion->uuid, $testQuestion->question->subQuestions->reverse()->first()->uuid, true, false);
+                }
+
+                return $this->showQuestionByTestQuestion($testQuestion);
+
+            } else {
+                return $this->showQuestionByTestQuestion($this->questionsInTest->reverse()->first());
+            }
         }
         return $this->showEmpty();
+    }
+
+    private function shouldRedirectFromSubQuestion($groupQuestionQuestionId)
+    {
+        return $this->groupQuestionQuestionId === $groupQuestionQuestionId;
     }
 }

@@ -4,7 +4,7 @@
      x-init=""
      x-show="mode === 'add' && owner === 'test'"
      x-cloak
-     wire:key="dummy-{{ $loop }}"
+     wire:key="dummy-{{ $loop.$this->owner }}"
 >
     <div class="question-button flex items-center cursor-pointer bold py-2 hover:text-primary pl-6 pr-4 question-active"
          style="max-width: 300px"
@@ -13,7 +13,7 @@
         <span class="rounded-full text-sm flex items-center justify-center border-3 relative px-1.5 text-white bg-midgrey border-mid-grey"
               style="min-width: 30px; height: 30px"
         >
-            <span class="mt-px question-number">{{ $loop+1  }}</span>
+            <span class="mt-px question-number italic">{{ $loop+1  }}</span>
         </span>
             <div class="flex mt-.5 flex-1">
                 <div class="flex flex-col flex-1 pl-2 pr-4">

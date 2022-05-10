@@ -22,12 +22,13 @@
                 </div>
 
                 <div>
-{{--                    <div class="flex relative text-midgrey cursor-default">--}}
+                    {{--                    <div class="flex relative text-midgrey cursor-default">--}}
                     <div class="flex relative hover:text-primary cursor-pointer"
                          @click="openTab = 2"
                          wire:click="setSource('school')"
                     >
-                        <span class="bold pt-[0.9375rem] pb-[0.8125rem]" :class="openTab === 2 ? 'primary' : '' ">School</span>
+                        <span class="bold pt-[0.9375rem] pb-[0.8125rem]"
+                              :class="openTab === 2 ? 'primary' : '' ">School</span>
                         <span class="absolute w-full bottom-0" style="height: 3px"
                               :class="openTab === 2 ? 'bg-primary' : 'bg-transparent' "></span>
                     </div>
@@ -35,7 +36,7 @@
 
                 <div>
                     <div class="flex relative text-midgrey cursor-default">
-{{--                    <div class="flex relative hover:text-primary cursor-pointer" @click="openTab = 3">--}}
+                        {{--                    <div class="flex relative hover:text-primary cursor-pointer" @click="openTab = 3">--}}
                         <span class="bold pt-[0.9375rem] pb-[0.8125rem]" :class="openTab === 3 ? 'primary' : '' ">Nationaal</span>
                         <span class="absolute w-full bottom-0" style="height: 3px"
                               :class="openTab === 3 ? 'bg-primary' : 'bg-transparent' "></span>
@@ -44,7 +45,7 @@
 
                 <div>
                     <div class="flex relative text-midgrey cursor-default">
-{{--                    <div class="flex relative hover:text-primary cursor-pointer" @click="openTab = 4">--}}
+                        {{--                    <div class="flex relative hover:text-primary cursor-pointer" @click="openTab = 4">--}}
                         <span class="bold pt-[0.9375rem] pb-[0.8125rem]" :class="openTab === 4 ? 'primary' : '' ">Examens</span>
                         <span class="absolute w-full bottom-0" style="height: 3px"
                               :class="openTab === 4 ? 'bg-primary' : 'bg-transparent' "></span>
@@ -58,7 +59,7 @@
         <div class="w-full max-w-5xl mx-auto divide-y divide-secondary">
             {{-- Filters--}}
             <div class="flex flex-col py-4">
-                <div class="flex w-full mt-2">
+                <div class="flex w-full my-2">
                     <div class="relative w-full">
                         <x-input.text class="w-full"
                                       placeholder="Zoek..."
@@ -73,39 +74,64 @@
                                             :withSearch="true"
                                             placeholderText="Vak"
                                             wire:model="filters.subject_id"
+                                            filterContainer="questionbank-active-filters"
                     />
                     <x-input.choices-select :multiple="true"
                                             :options="$this->educationLevelYear"
                                             :withSearch="true"
                                             placeholderText="Leerjaar"
                                             wire:model="filters.education_level_year"
+                                            filterContainer="questionbank-active-filters"
                     />
                     <x-input.choices-select :multiple="true"
                                             :options="$this->educationLevel"
                                             :withSearch="true"
                                             placeholderText="Niveau"
                                             wire:model="filters.education_level_id"
+                                            filterContainer="questionbank-active-filters"
                     />
                 </div>
 
+                <div id="questionbank-active-filters"
+                     wire:ignore
+                     :class="($el.innerHTML !== '') ? 'mt-2' : ''"
+                >
+                    <template id="filter-pill-template" class="hidden">
+                        <div class="space-x-2">
+                            <span class="flex"></span>
+                            <x-icon.close-small @click="removeFilterItem($el)"/>
+                        </div>
+                    </template>
+
+                </div>
             </div>
 
             {{-- Content --}}
             <div class="flex flex-col py-4" style="min-height: 500px">
                 <div class="flex">
-                    <span class="note text-sm">167 resultaten</span>
+                    <span class="note text-sm">{{ $this->resultCount }} resultaten</span>
                 </div>
                 <x-grid class="mt-4" x-show="!loading">
                     @foreach($this->questions as $question)
                         <x-grid.question-card :question="$question"/>
                     @endforeach
-                    @foreach([1,2,3,4,5] as $loader)
-                        <x-grid.loading-card :delay="$loader">
-                            @if($loader === 3)
-                                <span x-intersect="$wire.showMore()"></span>
+                    @if($this->questions->count() && $this->questions->count() != $this->resultCount)
+                        @foreach([1,2,3,4,5] as $loader)
+                            <x-grid.loading-card :delay="$loader">
+                                @if($loader === 3)
+                                    <span x-intersect="$wire.showMore()"></span>
+                                @endif
+                            </x-grid.loading-card>
+                        @endforeach
+                    @else
+                        @if(!$this->questions->count())
+                            @if($this->filters['source'] === 'me')
+                                <span class="col-span-2 text-center">U heeft nog geen eigen gemaakte vragen.</span>
+                            @else
+                                <span class="col-span-2 text-center">Er is nog geen openbare content voor uw school.</span>
                             @endif
-                        </x-grid.loading-card>
-                    @endforeach
+                        @endif
+                    @endif
                 </x-grid>
             </div>
         </div>

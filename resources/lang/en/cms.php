@@ -148,7 +148,9 @@ return [
     'Stel een nieuwe vraag op'                                                               => 'Create a new question',
     'Verken en kies uit vragenbank'                                                          => 'Explore and choose from the question bank',
     'Nieuwe item incompleet'                                                                 => 'New :item incomplete',
-    'question_incomplete_text'                                                               => 'The new :item is incomplete. Complete the :item if you would like to save. What would you like to do?',
+    'item incompleet'                                                                        => ':Item incomplete',
+    'new_question_incomplete_text'                                                           => 'The new :item is incomplete. Complete the :item if you would like to save. What would you like to do?',
+    'question_incomplete_text'                                                               => 'The :item is incomplete. Complete the :item if you would like to save. What would you like to do?',
     'Aanvullen'                                                                              => 'Complete',
     'Wijzigingen opgeslagen'                                                                 => 'Wijzigingen opgeslagen',
     'item added'                                                                             => ':item added',
@@ -158,4 +160,6 @@ return [
     'carousel_not_enough_questions'                                                          => 'There are too few questions in the question carousel to use this test. Add more questions or adjust the amount of questions to ask on the test',
     'carousel_subquestions_scores_differ'                                                    => 'The questions in this group have different scores. No score can be calculated after taking the test. Adjust the points for each question in this group and make them equal.',
     'begin_with_making_a_question'                                                           => 'Start with making a group or regular question.',
+    'nieuwe'                                                                                 => 'new',
+    'Wijzigingen niet opslaan'                                                               => 'Discard changes',
 ];

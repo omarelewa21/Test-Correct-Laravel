@@ -144,6 +144,8 @@ class CmsFactory
 
     public static function findQuestionNameByTypes($type, $subtype)
     {
+        if ($type === 'GroupQuestion') return __('question.groupquestion');
+
         $question = collect(CmsFactory::questionTypes())->flatMap(function ($q) {
             return $q;
         })->filter(function($q) use ($type, $subtype) {
