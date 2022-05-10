@@ -136,7 +136,7 @@ return [
             ['mstyle', 'Block', 'Flow', 'Common', ['mathvariant' => 'CDATA', 'mathcolor' => 'CDATA', 'displaystyle' => 'CDATA']],
             ['mmultiscripts', 'Block', 'Flow', 'Common', ['mathvariant' => 'CDATA', 'mathcolor' => 'CDATA']],
             ['mprescripts', 'Block', 'Flow', 'Common', ['mathvariant' => 'CDATA', 'mathcolor' => 'CDATA']],
-            ['none', 'Block', 'Empty', 'Common', ['mathvariant' => 'CDATA', 'mathcolor' => 'CDATA']],
+            ['none', 'Block', 'Flow', 'Common', ['mathvariant' => 'CDATA', 'mathcolor' => 'CDATA']],
             ['msubsup', 'Block', 'Flow', 'Common', ['mathvariant' => 'CDATA', 'mathcolor' => 'CDATA']],
             ['menclose', 'Block', 'Flow', 'Common', ['mathvariant' => 'CDATA', 'mathcolor' => 'CDATA', 'notation' => 'CDATA']],
             ['mtext', 'Block', 'Flow', 'Common', ['mathvariant' => 'CDATA', 'mathcolor' => 'CDATA']],
