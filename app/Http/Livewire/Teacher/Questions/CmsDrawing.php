@@ -73,6 +73,7 @@ class CmsDrawing
         $this->instance->question['question_svg'] = $data['svg_question'];
         $this->instance->question['grid_svg'] = $data['grid_size'];
         $this->instance->question['zoom_group'] = $data['svg_zoom_group'];
+        $this->instance->question['svg_date_updated'] = now();
 
         $this->setViewBox($data['svg_zoom_group']);
 
@@ -81,11 +82,11 @@ class CmsDrawing
 
     public function prepareForSave()
     {
-        logger([
-            'value' => $this->instance->question['zoom_group'],
-            'json' => json_encode($this->instance->question['zoom_group']),
-            ]
-        );
+//        logger([
+//            'value' => $this->instance->question['zoom_group'],
+//            'json' => json_encode($this->instance->question['zoom_group']),
+//            ]
+//        );
         $this->instance->question['zoom_group'] = json_encode($this->instance->question['zoom_group']);
     }
 
