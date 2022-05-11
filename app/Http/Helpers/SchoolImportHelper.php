@@ -6,9 +6,11 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use tcCore\EducationLevel;
+use tcCore\ExcelSchoolImportManifest;
 use tcCore\School;
 use tcCore\SchoolLocation;
 use tcCore\UmbrellaOrganization;
+use tcCore\User;
 use Throwable;
 
 class SchoolImportHelper
@@ -17,47 +19,13 @@ class SchoolImportHelper
     protected $umbrellaOrganzationId;
     protected $schoolId;
     protected $schoolLocationId;
-    protected $schoolLocationTransformer = [
-        'BRIN NUMMER' => 'external_main_code',
-        'Locatie brin code (2 karakters max)' => 'external_sub_code',
-        'naam' => 'name',
-        'Klantcode' => 'customer_code',
-        'Vestiging - adres' => 'main_address',
-        'Vestiging - postcode' => 'main_postal',
-        'Vestiging - stad' => 'main_city',
-        'Vestiging - Land' => 'main_country',
-        'TELEFOONNUMMER' => 'main_phonenumber',
-        'INTERNETADRES' => 'internetaddress',
-        'ONDERWIJSSTRUCTUUR' => 'ONDERWIJSSTRUCTUUR',
-        'Factuuradres - adres' => 'invoice_address',
-        'Factuuradres - Postcode' => 'invoice_postal',
-        'Factuuradres - Stad' => 'invoice_city',
-        'Factuuradres - Land' => 'invoice_country',
-        'Bezoekadres - adres' => 'visit_address',
-        'Bezoekadres - Postcode' => 'visit_postal',
-        'Bezoekadres - Stad' => 'visit_city',
-        'Bezoekadres - Land' => 'visit_country',
-        'Hubspot ID' => 'company_id',
-    ];
 
-    protected $schoolTransformer = [
-        'Naam scholengemeenschap' => 'name',
-        'BRIN4' => 'external_main_code',
-        'Klantcode' => 'customer_code',
-        'Vestigingsadres - adres' => 'main_address',
-        'Vestigingsadres - postcode' => 'main_postal',
-        'Vestigingsadres - stad' => 'main_city',
-        'Vestigingsadres - land' => 'main_country',
-        'factuuradres - adres' => 'invoice_address',
-        'factuuradres - postcode' => 'invoice_postal',
-        'factuuradres -stad' => 'invoice_city',
-        'factuuradres - land' => 'invoice_country',
-    ];
     protected $educationLevels;
 
     protected $inConsole = false;
     protected $path;
     protected $manifest;
+    protected $user;
 
     public function __construct()
     {
@@ -75,8 +43,10 @@ class SchoolImportHelper
     {
         DB::beginTransaction();
         try {
-            $this->getDataFromFile();
-
+            $this->prepareDataFromFile();
+            $this->prepareUser();
+            $this->handleSchools();
+            $this->handleSchoolLocations();
             DB::commit();
         } catch(Throwable $e) {
             DB::rollback();
@@ -84,9 +54,35 @@ class SchoolImportHelper
         }
     }
 
-    protected function getDataFromFile()
+    protected function prepareUser()
     {
-        $this->manifest = new ExcelDefaultSubjectAndSectionManifest($this->path,false);
+        $this->user = User::where('username','info+ab@test-correct.nl')->orWhere('username','carloschoep+accountmanager@hotmail.com')->orWhere('username','info+testportalaccountmanager@test-correct.nl')->orderBy('created_at','asc')->first();
+        if(!$this->user){
+            throw new \Exception('Could not find a valid account manager, I`ve searched for info+ab@test-correct.nl, carloschoep+accountmanager@hotmail.com and info+testportalaccountmanager@test-correct.nl');
+        }
+    }
+
+    protected function handleSchools()
+    {
+        $data = $this->manifest->getSchools();
+        $data->each(function($row){
+           if(!School::where('external_main_code',$row['external_main_code'])->exists()){
+               $this->createSchool($row,$this->user);
+           }
+        });
+    }
+
+    protected function handleSchoolLocations()
+    {
+        $data = $this->manifest->getSchoolLocations();
+        $data->each(function($row){
+
+        });
+    }
+
+    protected function prepareDataFromFile()
+    {
+        $this->manifest = new ExcelSchoolImportManifest($this->path,false);
     }
 
     protected function cleanUmbrellaOrganization()
@@ -116,15 +112,12 @@ class SchoolImportHelper
         if($this->umbrellaOrganzationId){
             $data['umbrella_organization_id'] = $this->umbrellaOrganzationId;
         }
-        $data = $this->transformDataForSchool($data);
         return $this->createProperty(new School(),$data,$user);
     }
 
     public function createSchoolLocation($data, $user)
     {
-        if($this->schoolId){
-            $data['school_id'] = $this->schoolId;
-        }
+        $data['school_id'] = optional(School::where('external_main_code',$data['external_main_code'])->first())->getKey();
         $data = $this->transformDataForSchoolLocation($data);
         $schoolLocation = $this->createProperty(new SchoolLocation(),$data,$user);
         Auth::login($user);
@@ -133,7 +126,6 @@ class SchoolImportHelper
 
     protected function transformDataForSchoolLocation($data)
     {
-        $data = $this->transformDataForProperty($this->schoolLocationTransformer,$data);
         $data['education_levels'] = $this->getSchoolLocationLevelsFromData($data);
         return $data;
     }
@@ -162,26 +154,6 @@ class SchoolImportHelper
         return $this->educationLevels;
     }
 
-    protected function transformDataForSchool($data)
-    {
-        return $this->transformDataForProperty($this->schoolTransformer,$data);
-    }
-
-    protected function transformDataForProperty($transformer,$data)
-    {
-        $transformer = array_change_key_case($transformer, CASE_LOWER);
-        $data = array_change_key_case($data, CASE_LOWER);
-
-        foreach($transformer as $from => $to){
-            if(isset($data[$from]) && $data[$from]){
-                $data[$to] = $data[$from];
-                unset($data[$from]);
-            } else {
-                $data[$to] = '-';
-            }
-        }
-        return $data;
-    }
 
     protected function createProperty($class, $data, $user = null)
     {
@@ -190,8 +162,6 @@ class SchoolImportHelper
         if(!$class->save()){
             throw new \Exception("Could not add the ".get_class($class)." with name ".$data['name']);
         }
-        $propertyIdName = sprintf("%sId",Str::lcfirst(get_class($class)));
-        $this->$propertyIdName = $class->getKey();
         return $class;
     }
 

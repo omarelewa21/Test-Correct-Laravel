@@ -9,51 +9,98 @@
 namespace tcCore;
 
 
+use Illuminate\Support\Str;
 use Maatwebsite\Excel\Facades\Excel;
 
 
 class ExcelSchoolImportManifest
 {
     public $data;
+    protected $schoolLocationTransformer = [
+        'BRIN NUMMER' => 'external_main_code',
+        'Locatie brin code (2 karakters max)' => 'external_sub_code',
+        'naam' => 'name',
+        'Klantcode' => 'customer_code',
+        'Vestiging - adres' => 'main_address',
+        'Vestiging - postcode' => 'main_postal',
+        'Vestiging - stad' => 'main_city',
+        'Vestiging - Land' => 'main_country',
+        'TELEFOONNUMMER' => 'main_phonenumber',
+        'INTERNETADRES' => 'internetaddress',
+        'ONDERWIJSSTRUCTUUR' => 'ONDERWIJSSTRUCTUUR',
+        'Factuuradres - adres' => 'invoice_address',
+        'Factuuradres - Postcode' => 'invoice_postal',
+        'Factuuradres - Stad' => 'invoice_city',
+        'Factuuradres - Land' => 'invoice_country',
+        'Bezoekadres - adres' => 'visit_address',
+        'Bezoekadres - Postcode' => 'visit_postal',
+        'Bezoekadres - Stad' => 'visit_city',
+        'Bezoekadres - Land' => 'visit_country',
+        'Hubspot ID' => 'company_id',
+    ];
+
+    protected $schoolTransformer = [
+        'Naam scholengemeenschap' => 'name',
+        'BRIN4' => 'external_main_code',
+        'Klantcode' => 'customer_code',
+        'Vestigingsadres - adres' => 'main_address',
+        'Vestigingsadres - postcode' => 'main_postal',
+        'Vestigingsadres - stad' => 'main_city',
+        'Vestigingsadres - land' => 'main_country',
+        'factuuradres - adres' => 'invoice_address',
+        'factuuradres - postcode' => 'invoice_postal',
+        'factuuradres -stad' => 'invoice_city',
+        'factuuradres - land' => 'invoice_country',
+    ];
 
     public function __construct($excelFile)
     {
-        $this->data = Excel::toArray(new ExcelAttainmentResourceImport(), $excelFile)[0];
-        $this->failOnFirstMissingBaseSubject = $failOnFirstMissingBaseSubject;
+        $this->data = Excel::toArray(new ExcelSchoolResourceImport(), $excelFile);
     }
 
-    public function getSectionResources()
+    public function getSchoolLocations()
     {
         $result = [];
 
-        foreach($this->data as $row){
-            if($row['sectie']) {
-                $result[] = $row['sectie'];
+        foreach($this->data[0] as $row){
+            if($row['brin_nummer']) {
+                $result[] = (object) array_merge($row,
+                    $this->getTransformedAndCheckedData($row, $this->schoolLocationTransformer, 'school location (tab 1)')
+                );
             }
         }
 
         return collect($result);
     }
 
-    public function getSubjectResources()
+    protected function getTransformedAndCheckedData($row, $transformer, $type)
+    {
+        $return = [];
+        foreach($transformer as $key => $value){
+            $transformedKey = Str::snake(Str::lower($key),'_');
+            if(!array_key_exists($row[$transformedKey])){
+                throw new \Exception(sprintf('Not all data is available, column `%s` is missing for the %s',$key, $type));
+            }
+            $return[$value] = $row[$transformedKey];
+            if(!$return[$value] && $value !== 'customer_code'){
+                $return[$value] = '-';
+            }
+        }
+        return $return;
+    }
+
+    public function getSchools()
     {
         $result = [];
 
-        foreach ($this->data as $row) {
-            if($row['categorie']) {
-                $result[] = (object)array_merge($row, [
-                    'base_subject_id' => $this->getBaseSubjectId($row['categorie']),
-                    'default_section_id' => $this->getDefaultSectionId($row['sectie']),
-                    'education_levels' => $row['niveau'],
-                    'abbreviation' => $row['afkorting'],
-                    'name' => $row['vaknaam_test_correct'],
-                ]);
+        foreach($this->data[0] as $row){
+            if($row['naam_scholengemeenschap']) {
+                $result[] = (object) array_merge($row,
+                    $this->getTransformedAndCheckedData($row, $this->schoolTransformer, 'school (tab 2)')
+                );
             }
         }
 
-        if($this->hasErrors){
-            exit;
-        }
         return collect($result);
     }
 
