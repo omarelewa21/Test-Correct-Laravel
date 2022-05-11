@@ -5873,7 +5873,11 @@ __webpack_require__(/*! ./rich-text-editor */ "./resources/js/rich-text-editor.j
 
 __webpack_require__(/*! ./drawing/drawing-question */ "./resources/js/drawing/drawing-question.js");
 
+__webpack_require__(/*! ./readspeaker_app */ "./resources/js/readspeaker_app.js");
+
 __webpack_require__(/*! ./attachment */ "./resources/js/attachment.js");
+
+window.ClassicEditors = [];
 
 addIdsToQuestionHtml = function addIdsToQuestionHtml() {
   var id = 1;
@@ -6096,6 +6100,19 @@ countPresentStudents = function countPresentStudents(members) {
   return activeStudents;
 };
 
+addTitleToImages = function addTitleToImages(selector, title) {
+  var container = document.querySelector(selector);
+
+  if (container != null) {
+    var images = container.querySelectorAll('img');
+    images.forEach(function (image) {
+      if (image.title == null || image.title == '') {
+        image.title = title;
+      }
+    });
+  }
+};
+
 String.prototype.contains = function (text) {
   if (text === '') return false;
   return this.includes(text);
@@ -6107,6 +6124,46 @@ getClosestLivewireComponentByAttribute = function getClosestLivewireComponentByA
 
 String.prototype.capitalize = function () {
   return this.charAt(0).toUpperCase() + this.slice(1);
+};
+
+clearClipboard = function clearClipboard() {
+  //source: https://stackoverflow.com/a/30810322
+  function fallbackCopyTextToClipboard(text) {
+    var textArea = document.createElement("textarea");
+    textArea.value = text; // Avoid scrolling to bottom
+
+    textArea.style.top = "0";
+    textArea.style.left = "0";
+    textArea.style.position = "fixed";
+    document.body.appendChild(textArea);
+    textArea.focus();
+    textArea.select();
+
+    try {
+      var successful = document.execCommand("copy");
+      var msg = successful ? "successful" : "unsuccessful";
+    } catch (err) {}
+
+    document.body.removeChild(textArea);
+  }
+
+  function copyTextToClipboard(text) {
+    return new Promise(function (resolve, reject) {
+      if (!navigator.clipboard) {
+        fallbackCopyTextToClipboard(text);
+        resolve();
+      }
+
+      navigator.clipboard.writeText(text).then(function () {
+        resolve();
+      })["catch"](function () {
+        fallbackCopyTextToClipboard(text);
+        resolve();
+      });
+    });
+  }
+
+  return copyTextToClipboard(' ');
 };
 
 /***/ }),
@@ -6262,7 +6319,7 @@ window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
 window.Pusher = __webpack_require__(/*! pusher-js */ "./node_modules/pusher-js/dist/web/pusher.js");
 window.Echo = new laravel_echo__WEBPACK_IMPORTED_MODULE_0__["default"]({
   broadcaster: 'pusher',
-  key: "2149988ad52a600a2309",
+  key: "51d7221bf733999d7138",
   cluster: "eu",
   forceTLS: true
 });
@@ -6586,576 +6643,6 @@ function catchscreenshotchromeOS() {
 
 /***/ }),
 
-/***/ "./resources/js/drawing/DragDropTouch.js":
-/*!***********************************************!*\
-  !*** ./resources/js/drawing/DragDropTouch.js ***!
-  \***********************************************/
-/***/ (() => {
-
-var DragDropTouch;
-
-(function (DragDropTouch_1) {
-  'use strict';
-  /**
-   * Object used to hold the data that is being dragged during drag and drop operations.
-   *
-   * It may hold one or more data items of different types. For more information about
-   * drag and drop operations and data transfer objects, see
-   * <a href="https://developer.mozilla.org/en-US/docs/Web/API/DataTransfer">HTML Drag and Drop API</a>.
-   *
-   * This object is created automatically by the @see:DragDropTouch singleton and is
-   * accessible through the @see:dataTransfer property of all drag events.
-   */
-
-  var DataTransfer = function () {
-    function DataTransfer() {
-      this._dropEffect = 'move';
-      this._effectAllowed = 'all';
-      this._data = {};
-    }
-
-    Object.defineProperty(DataTransfer.prototype, "dropEffect", {
-      /**
-       * Gets or sets the type of drag-and-drop operation currently selected.
-       * The value must be 'none',  'copy',  'link', or 'move'.
-       */
-      get: function get() {
-        return this._dropEffect;
-      },
-      set: function set(value) {
-        this._dropEffect = value;
-      },
-      enumerable: true,
-      configurable: true
-    });
-    Object.defineProperty(DataTransfer.prototype, "effectAllowed", {
-      /**
-       * Gets or sets the types of operations that are possible.
-       * Must be one of 'none', 'copy', 'copyLink', 'copyMove', 'link',
-       * 'linkMove', 'move', 'all' or 'uninitialized'.
-       */
-      get: function get() {
-        return this._effectAllowed;
-      },
-      set: function set(value) {
-        this._effectAllowed = value;
-      },
-      enumerable: true,
-      configurable: true
-    });
-    Object.defineProperty(DataTransfer.prototype, "types", {
-      /**
-       * Gets an array of strings giving the formats that were set in the @see:dragstart event.
-       */
-      get: function get() {
-        return Object.keys(this._data);
-      },
-      enumerable: true,
-      configurable: true
-    });
-    /**
-     * Removes the data associated with a given type.
-     *
-     * The type argument is optional. If the type is empty or not specified, the data
-     * associated with all types is removed. If data for the specified type does not exist,
-     * or the data transfer contains no data, this method will have no effect.
-     *
-     * @param type Type of data to remove.
-     */
-
-    DataTransfer.prototype.clearData = function (type) {
-      if (type != null) {
-        delete this._data[type];
-      } else {
-        this._data = null;
-      }
-    };
-    /**
-     * Retrieves the data for a given type, or an empty string if data for that type does
-     * not exist or the data transfer contains no data.
-     *
-     * @param type Type of data to retrieve.
-     */
-
-
-    DataTransfer.prototype.getData = function (type) {
-      return this._data[type] || '';
-    };
-    /**
-     * Set the data for a given type.
-     *
-     * For a list of recommended drag types, please see
-     * https://developer.mozilla.org/en-US/docs/Web/Guide/HTML/Recommended_Drag_Types.
-     *
-     * @param type Type of data to add.
-     * @param value Data to add.
-     */
-
-
-    DataTransfer.prototype.setData = function (type, value) {
-      this._data[type] = value;
-    };
-    /**
-     * Set the image to be used for dragging if a custom one is desired.
-     *
-     * @param img An image element to use as the drag feedback image.
-     * @param offsetX The horizontal offset within the image.
-     * @param offsetY The vertical offset within the image.
-     */
-
-
-    DataTransfer.prototype.setDragImage = function (img, offsetX, offsetY) {
-      var ddt = DragDropTouch._instance;
-      ddt._imgCustom = img;
-      ddt._imgOffset = {
-        x: offsetX,
-        y: offsetY
-      };
-    };
-
-    return DataTransfer;
-  }();
-
-  DragDropTouch_1.DataTransfer = DataTransfer;
-  /**
-   * Defines a class that adds support for touch-based HTML5 drag/drop operations.
-   *
-   * The @see:DragDropTouch class listens to touch events and raises the
-   * appropriate HTML5 drag/drop events as if the events had been caused
-   * by mouse actions.
-   *
-   * The purpose of this class is to enable using existing, standard HTML5
-   * drag/drop code on mobile devices running IOS or Android.
-   *
-   * To use, include the DragDropTouch.js file on the page. The class will
-   * automatically start monitoring touch events and will raise the HTML5
-   * drag drop events (dragstart, dragenter, dragleave, drop, dragend) which
-   * should be handled by the application.
-   *
-   * For details and examples on HTML drag and drop, see
-   * https://developer.mozilla.org/en-US/docs/Web/Guide/HTML/Drag_operations.
-   */
-
-  var DragDropTouch = function () {
-    /**
-     * Initializes the single instance of the @see:DragDropTouch class.
-     */
-    function DragDropTouch() {
-      this._lastClick = 0; // enforce singleton pattern
-
-      if (DragDropTouch._instance) {
-        throw 'DragDropTouch instance already created.';
-      } // detect passive event support
-      // https://github.com/Modernizr/Modernizr/issues/1894
-
-
-      var supportsPassive = false;
-      document.addEventListener('test', function () {}, {
-        get passive() {
-          supportsPassive = true;
-          return true;
-        }
-
-      }); // listen to touch events
-
-      if (navigator.maxTouchPoints) {
-        var d = document,
-            ts = this._touchstart.bind(this),
-            tm = this._touchmove.bind(this),
-            te = this._touchend.bind(this),
-            opt = supportsPassive ? {
-          passive: false,
-          capture: false
-        } : false;
-
-        d.addEventListener('touchstart', ts, opt);
-        d.addEventListener('touchmove', tm, opt);
-        d.addEventListener('touchend', te);
-        d.addEventListener('touchcancel', te);
-      }
-    }
-    /**
-     * Gets a reference to the @see:DragDropTouch singleton.
-     */
-
-
-    DragDropTouch.getInstance = function () {
-      return DragDropTouch._instance;
-    }; // ** event handlers
-
-
-    DragDropTouch.prototype._touchstart = function (e) {
-      var _this = this;
-
-      if (this._shouldHandle(e)) {
-        // raise double-click and prevent zooming
-        if (Date.now() - this._lastClick < DragDropTouch._DBLCLICK) {
-          if (this._dispatchEvent(e, 'dblclick', e.target)) {
-            e.preventDefault();
-
-            this._reset();
-
-            return;
-          }
-        } // clear all variables
-
-
-        this._reset(); // get nearest draggable element
-
-
-        var src = this._closestDraggable(e.target);
-
-        if (src) {
-          // give caller a chance to handle the hover/move events
-          if (!this._dispatchEvent(e, 'mousemove', e.target) && !this._dispatchEvent(e, 'mousedown', e.target)) {
-            // get ready to start dragging
-            this._dragSource = src;
-            this._ptDown = this._getPoint(e);
-            this._lastTouch = e;
-            e.preventDefault(); // show context menu if the user hasn't started dragging after a while
-
-            setTimeout(function () {
-              if (_this._dragSource == src && _this._img == null) {
-                if (_this._dispatchEvent(e, 'contextmenu', src)) {
-                  _this._reset();
-                }
-              }
-            }, DragDropTouch._CTXMENU);
-
-            if (DragDropTouch._ISPRESSHOLDMODE) {
-              this._pressHoldInterval = setTimeout(function () {
-                _this._isDragEnabled = true;
-
-                _this._touchmove(e);
-              }, DragDropTouch._PRESSHOLDAWAIT);
-            }
-          }
-        }
-      }
-    };
-
-    DragDropTouch.prototype._touchmove = function (e) {
-      if (this._shouldCancelPressHoldMove(e)) {
-        this._reset();
-
-        return;
-      }
-
-      if (this._shouldHandleMove(e) || this._shouldHandlePressHoldMove(e)) {
-        // see if target wants to handle move
-        var target = this._getTarget(e);
-
-        if (this._dispatchEvent(e, 'mousemove', target)) {
-          this._lastTouch = e;
-          e.preventDefault();
-          return;
-        } // start dragging
-
-
-        if (this._dragSource && !this._img && this._shouldStartDragging(e)) {
-          this._dispatchEvent(e, 'dragstart', this._dragSource);
-
-          this._createImage(e);
-
-          this._dispatchEvent(e, 'dragenter', target);
-        } // continue dragging
-
-
-        if (this._img) {
-          this._lastTouch = e;
-          e.preventDefault(); // prevent scrolling
-
-          if (target != this._lastTarget) {
-            this._dispatchEvent(this._lastTouch, 'dragleave', this._lastTarget);
-
-            this._dispatchEvent(e, 'dragenter', target);
-
-            this._lastTarget = target;
-          }
-
-          this._moveImage(e);
-
-          this._isDropZone = this._dispatchEvent(e, 'dragover', target);
-        }
-      }
-    };
-
-    DragDropTouch.prototype._touchend = function (e) {
-      if (this._shouldHandle(e)) {
-        // see if target wants to handle up
-        if (this._dispatchEvent(this._lastTouch, 'mouseup', e.target)) {
-          e.preventDefault();
-          return;
-        } // user clicked the element but didn't drag, so clear the source and simulate a click
-
-
-        if (!this._img) {
-          this._dragSource = null;
-
-          this._dispatchEvent(this._lastTouch, 'click', e.target);
-
-          this._lastClick = Date.now();
-        } // finish dragging
-
-
-        this._destroyImage();
-
-        if (this._dragSource) {
-          if (e.type.indexOf('cancel') < 0 && this._isDropZone) {
-            this._dispatchEvent(this._lastTouch, 'drop', this._lastTarget);
-          }
-
-          this._dispatchEvent(this._lastTouch, 'dragend', this._dragSource);
-
-          this._reset();
-        }
-      }
-    }; // ** utilities
-    // ignore events that have been handled or that involve more than one touch
-
-
-    DragDropTouch.prototype._shouldHandle = function (e) {
-      return e && !e.defaultPrevented && e.touches && e.touches.length < 2;
-    }; // use regular condition outside of press & hold mode
-
-
-    DragDropTouch.prototype._shouldHandleMove = function (e) {
-      return !DragDropTouch._ISPRESSHOLDMODE && this._shouldHandle(e);
-    }; // allow to handle moves that involve many touches for press & hold
-
-
-    DragDropTouch.prototype._shouldHandlePressHoldMove = function (e) {
-      return DragDropTouch._ISPRESSHOLDMODE && this._isDragEnabled && e && e.touches && e.touches.length;
-    }; // reset data if user drags without pressing & holding
-
-
-    DragDropTouch.prototype._shouldCancelPressHoldMove = function (e) {
-      return DragDropTouch._ISPRESSHOLDMODE && !this._isDragEnabled && this._getDelta(e) > DragDropTouch._PRESSHOLDMARGIN;
-    }; // start dragging when specified delta is detected
-
-
-    DragDropTouch.prototype._shouldStartDragging = function (e) {
-      var delta = this._getDelta(e);
-
-      return delta > DragDropTouch._THRESHOLD || DragDropTouch._ISPRESSHOLDMODE && delta >= DragDropTouch._PRESSHOLDTHRESHOLD;
-    }; // clear all members
-
-
-    DragDropTouch.prototype._reset = function () {
-      this._destroyImage();
-
-      this._dragSource = null;
-      this._lastTouch = null;
-      this._lastTarget = null;
-      this._ptDown = null;
-      this._isDragEnabled = false;
-      this._isDropZone = false;
-      this._dataTransfer = new DataTransfer();
-      clearInterval(this._pressHoldInterval);
-    }; // get point for a touch event
-
-
-    DragDropTouch.prototype._getPoint = function (e, page) {
-      if (e && e.touches) {
-        e = e.touches[0];
-      }
-
-      return {
-        x: page ? e.pageX : e.clientX,
-        y: page ? e.pageY : e.clientY
-      };
-    }; // get distance between the current touch event and the first one
-
-
-    DragDropTouch.prototype._getDelta = function (e) {
-      if (DragDropTouch._ISPRESSHOLDMODE && !this._ptDown) {
-        return 0;
-      }
-
-      var p = this._getPoint(e);
-
-      return Math.abs(p.x - this._ptDown.x) + Math.abs(p.y - this._ptDown.y);
-    }; // get the element at a given touch event
-
-
-    DragDropTouch.prototype._getTarget = function (e) {
-      var pt = this._getPoint(e),
-          el = document.elementFromPoint(pt.x, pt.y);
-
-      while (el && getComputedStyle(el).pointerEvents == 'none') {
-        el = el.parentElement;
-      }
-
-      return el;
-    }; // create drag image from source element
-
-
-    DragDropTouch.prototype._createImage = function (e) {
-      // just in case...
-      if (this._img) {
-        this._destroyImage();
-      } // create drag image from custom element or drag source
-
-
-      var src = this._imgCustom || this._dragSource;
-      this._img = src.cloneNode(true);
-
-      this._copyStyle(src, this._img);
-
-      this._img.style.top = this._img.style.left = '-9999px'; // if creating from drag source, apply offset and opacity
-
-      if (!this._imgCustom) {
-        var rc = src.getBoundingClientRect(),
-            pt = this._getPoint(e);
-
-        this._imgOffset = {
-          x: pt.x - rc.left,
-          y: pt.y - rc.top
-        };
-        this._img.style.opacity = DragDropTouch._OPACITY.toString();
-      } // add image to document
-
-
-      this._moveImage(e);
-
-      document.body.appendChild(this._img);
-    }; // dispose of drag image element
-
-
-    DragDropTouch.prototype._destroyImage = function () {
-      if (this._img && this._img.parentElement) {
-        this._img.parentElement.removeChild(this._img);
-      }
-
-      this._img = null;
-      this._imgCustom = null;
-    }; // move the drag image element
-
-
-    DragDropTouch.prototype._moveImage = function (e) {
-      var _this = this;
-
-      requestAnimationFrame(function () {
-        if (_this._img) {
-          var pt = _this._getPoint(e, true),
-              s = _this._img.style;
-
-          s.position = 'absolute';
-          s.pointerEvents = 'none';
-          s.zIndex = '999999';
-          s.left = Math.round(pt.x - _this._imgOffset.x) + 'px';
-          s.top = Math.round(pt.y - _this._imgOffset.y) + 'px';
-        }
-      });
-    }; // copy properties from an object to another
-
-
-    DragDropTouch.prototype._copyProps = function (dst, src, props) {
-      for (var i = 0; i < props.length; i++) {
-        var p = props[i];
-        dst[p] = src[p];
-      }
-    };
-
-    DragDropTouch.prototype._copyStyle = function (src, dst) {
-      // remove potentially troublesome attributes
-      DragDropTouch._rmvAtts.forEach(function (att) {
-        dst.removeAttribute(att);
-      }); // copy canvas content
-
-
-      if (src instanceof HTMLCanvasElement) {
-        var cSrc = src,
-            cDst = dst;
-        cDst.width = cSrc.width;
-        cDst.height = cSrc.height;
-        cDst.getContext('2d').drawImage(cSrc, 0, 0);
-      } // copy style (without transitions)
-
-
-      var cs = getComputedStyle(src);
-
-      for (var i = 0; i < cs.length; i++) {
-        var key = cs[i];
-
-        if (key.indexOf('transition') < 0) {
-          dst.style[key] = cs[key];
-        }
-      }
-
-      dst.style.pointerEvents = 'none'; // and repeat for all children
-
-      for (var i = 0; i < src.children.length; i++) {
-        this._copyStyle(src.children[i], dst.children[i]);
-      }
-    };
-
-    DragDropTouch.prototype._dispatchEvent = function (e, type, target) {
-      if (e && target) {
-        var evt = document.createEvent('Event'),
-            t = e.touches ? e.touches[0] : e;
-        evt.initEvent(type, true, true);
-        evt.button = 0;
-        evt.which = evt.buttons = 1;
-
-        this._copyProps(evt, e, DragDropTouch._kbdProps);
-
-        this._copyProps(evt, t, DragDropTouch._ptProps);
-
-        evt.dataTransfer = this._dataTransfer;
-        target.dispatchEvent(evt);
-        return evt.defaultPrevented;
-      }
-
-      return false;
-    }; // gets an element's closest draggable ancestor
-
-
-    DragDropTouch.prototype._closestDraggable = function (e) {
-      for (; e; e = e.parentElement) {
-        if (e.hasAttribute('draggable') && e.draggable) {
-          return e;
-        }
-      }
-
-      return null;
-    };
-
-    return DragDropTouch;
-  }();
-  /*private*/
-
-
-  DragDropTouch._instance = new DragDropTouch(); // singleton
-  // constants
-
-  DragDropTouch._THRESHOLD = 5; // pixels to move before drag starts
-
-  DragDropTouch._OPACITY = 0.5; // drag image opacity
-
-  DragDropTouch._DBLCLICK = 500; // max ms between clicks in a double click
-
-  DragDropTouch._CTXMENU = 900; // ms to hold before raising 'contextmenu' event
-
-  DragDropTouch._ISPRESSHOLDMODE = false; // decides of press & hold mode presence
-
-  DragDropTouch._PRESSHOLDAWAIT = 400; // ms to wait before press & hold is detected
-
-  DragDropTouch._PRESSHOLDMARGIN = 25; // pixels that finger might shiver while pressing
-
-  DragDropTouch._PRESSHOLDTHRESHOLD = 0; // pixels to move before drag starts
-  // copy styles/attributes from drag source to drag image element
-
-  DragDropTouch._rmvAtts = 'id,class,style,draggable'.split(','); // synthesize and dispatch an event
-  // returns true if the event has been handled (e.preventDefault == true)
-
-  DragDropTouch._kbdProps = 'altKey,ctrlKey,metaKey,shiftKey'.split(',');
-  DragDropTouch._ptProps = 'pageX,pageY,clientX,clientY,screenX,screenY,offsetX,offsetY'.split(',');
-  DragDropTouch_1.DragDropTouch = DragDropTouch;
-})(DragDropTouch || (DragDropTouch = {}));
-
-/***/ }),
-
 /***/ "./resources/js/drawing/constants.js":
 /*!*******************************************!*\
   !*** ./resources/js/drawing/constants.js ***!
@@ -7187,10 +6674,10 @@ var validSvgElementKeys = {
 };
 var shapePropertiesAvailableToUser = {
   drag: [],
-  freehand: ["edge", "opacity"],
-  rect: ["edge", "opacity", "fill"],
-  circle: ["edge", "opacity", "fill"],
-  line: ["edge", "opacity", "endmarker-type"],
+  freehand: ["edge"],
+  rect: ["edge", "fill"],
+  circle: ["edge", "fill"],
+  line: ["edge", "endmarker-type"],
   text: ["opacity", "text-style"]
 };
 var validHtmlElementKeys = {
@@ -7213,7 +6700,7 @@ var zoomParams = {
   MIN: 0.25
 };
 var panParams = {
-  STEP: 20
+  STEP: 5
 };
 
 /***/ }),
@@ -7226,12 +6713,18 @@ var panParams = {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _constants_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./constants.js */ "./resources/js/drawing/constants.js");
-/* harmony import */ var _svgShape_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./svgShape.js */ "./resources/js/drawing/svgShape.js");
-/* harmony import */ var _uiElements_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./uiElements.js */ "./resources/js/drawing/uiElements.js");
-/* harmony import */ var _sidebar_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./sidebar.js */ "./resources/js/drawing/sidebar.js");
-/* harmony import */ var _DragDropTouch__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./DragDropTouch */ "./resources/js/drawing/DragDropTouch.js");
-/* harmony import */ var _DragDropTouch__WEBPACK_IMPORTED_MODULE_4___default = /*#__PURE__*/__webpack_require__.n(_DragDropTouch__WEBPACK_IMPORTED_MODULE_4__);
+/* harmony import */ var _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @babel/runtime/regenerator */ "./node_modules/@babel/runtime/regenerator/index.js");
+/* harmony import */ var _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var _constants_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./constants.js */ "./resources/js/drawing/constants.js");
+/* harmony import */ var _svgShape_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./svgShape.js */ "./resources/js/drawing/svgShape.js");
+/* harmony import */ var _uiElements_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./uiElements.js */ "./resources/js/drawing/uiElements.js");
+/* harmony import */ var _sidebar_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./sidebar.js */ "./resources/js/drawing/sidebar.js");
+
+
+function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { Promise.resolve(value).then(_next, _throw); } }
+
+function _asyncToGenerator(fn) { return function () { var self = this, args = arguments; return new Promise(function (resolve, reject) { var gen = fn.apply(self, args); function _next(value) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "next", value); } function _throw(err) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "throw", err); } _next(undefined); }); }; }
+
 function _createForOfIteratorHelper(o, allowArrayLike) { var it = typeof Symbol !== "undefined" && o[Symbol.iterator] || o["@@iterator"]; if (!it) { if (Array.isArray(o) || (it = _unsupportedIterableToArray(o)) || allowArrayLike && o && typeof o.length === "number") { if (it) o = it; var i = 0; var F = function F() {}; return { s: F, n: function n() { if (i >= o.length) return { done: true }; return { done: false, value: o[i++] }; }, e: function e(_e2) { throw _e2; }, f: F }; } throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); } var normalCompletion = true, didErr = false, err; return { s: function s() { it = it.call(o); }, n: function n() { var step = it.next(); normalCompletion = step.done; return step; }, e: function e(_e3) { didErr = true; err = _e3; }, f: function f() { try { if (!normalCompletion && it["return"] != null) it["return"](); } finally { if (didErr) throw err; } } }; }
 
 function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _unsupportedIterableToArray(arr) || _nonIterableSpread(); }
@@ -7253,7 +6746,6 @@ function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len 
 function _iterableToArrayLimit(arr, i) { var _i = arr == null ? null : typeof Symbol !== "undefined" && arr[Symbol.iterator] || arr["@@iterator"]; if (_i == null) return; var _arr = []; var _n = true; var _d = false; var _s, _e; try { for (_i = _i.call(arr); !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"] != null) _i["return"](); } finally { if (_d) throw _e; } } return _arr; }
 
 function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
-
 
 
 
@@ -7286,7 +6778,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview) {
    * Global Object containing all DOM Elements on the page that have an id attribute.
    * The key is the id value converted to camelCase, the value being the DOM Element itself.
    */
-  var UI = new _uiElements_js__WEBPACK_IMPORTED_MODULE_2__.UIElements(rootElement);
+  var UI = new _uiElements_js__WEBPACK_IMPORTED_MODULE_3__.UIElements(rootElement);
   /**
    * Global Object containing some parameters that don't belong in Canvas.
    */
@@ -7341,7 +6833,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview) {
       }
 
       this.warnings = {
-        whenAnyToolButDragSelected: new _uiElements_js__WEBPACK_IMPORTED_MODULE_2__.warningBox("Stel de opmaak in voordat je het object tekent", 5000, rootElement)
+        whenAnyToolButDragSelected: new _uiElements_js__WEBPACK_IMPORTED_MODULE_3__.warningBox(UI.warningboxTemplate.dataset.text, 5000, rootElement)
       };
 
       if (!this.explainer) {
@@ -7417,6 +6909,11 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview) {
           x: 0,
           y: 0
         },
+        cursorPositionMousedown: {
+          x: 0,
+          y: 0
+        },
+        touchmoving: false,
         currentLayer: "question",
         focusedShape: null,
         bounds: {},
@@ -7461,17 +6958,26 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview) {
       getLayerDomElementsByLayerId: function getLayerDomElementsByLayerId(layerId) {
         var layer = rootElement.querySelector("#".concat(layerId));
         var layerHeader = rootElement.querySelector("[data-layer=\"".concat(layerId, "\"]")).closest('.header');
+        var layerSvg = rootElement.querySelector("#svg-".concat(layerId));
         return {
           layer: layer,
-          layerHeader: layerHeader
+          layerHeader: layerHeader,
+          layerSvg: layerSvg
         };
       },
       removeHighlightFromLayer: function removeHighlightFromLayer(layerId) {
         var _this$getLayerDomElem = this.getLayerDomElementsByLayerId(layerId),
             layer = _this$getLayerDomElem.layer,
-            layerHeader = _this$getLayerDomElem.layerHeader;
+            layerHeader = _this$getLayerDomElem.layerHeader,
+            layerSvg = _this$getLayerDomElem.layerSvg;
 
         layer.classList.remove("highlight");
+        layer.querySelectorAll('.selected').forEach(function (item) {
+          return item.classList.remove('selected');
+        });
+        layerSvg.querySelectorAll('.selected').forEach(function (item) {
+          return item.classList.remove('selected');
+        });
         layerHeader.classList.remove("highlight");
       },
       addHighlightToLayer: function addHighlightToLayer(layerId) {
@@ -7507,13 +7013,13 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview) {
       },
       makeLayers: function makeLayers() {
         this.layers = {
-          "question": new _sidebar_js__WEBPACK_IMPORTED_MODULE_3__.Layer({
-            name: "Vraag",
+          "question": new _sidebar_js__WEBPACK_IMPORTED_MODULE_4__.Layer({
+            name: UI.translationTemplate.dataset.question,
             id: "question-group",
             enabled: true
           }, drawingApp, this),
-          "answer": new _sidebar_js__WEBPACK_IMPORTED_MODULE_3__.Layer({
-            name: "Antwoord",
+          "answer": new _sidebar_js__WEBPACK_IMPORTED_MODULE_4__.Layer({
+            name: UI.translationTemplate.dataset.answer,
             id: "answer-group",
             enabled: false
           }, drawingApp, this),
@@ -7525,15 +7031,37 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview) {
             }
           }
         };
+      },
+      deleteObject: function deleteObject(object) {
+        var objectId = object.id;
+        var layer = object.svgShape.isQuestionLayer() ? 'question' : 'answer';
+        object.remove();
+        delete this.layers[layer].shapes[objectId];
+      },
+      cleanShapeCount: function cleanShapeCount() {
+        this.params.draw.shapeCountForEachType = {
+          rect: 0,
+          circle: 0,
+          line: 0,
+          text: 0,
+          image: 0,
+          path: 0,
+          freehand: 0
+        };
+      },
+      initCanvas: function initCanvas() {
+        this.cleanShapeCount();
+        this.makeLayers();
       }
     };
-    Obj.makeLayers();
+    Obj.initCanvas();
     return Obj;
   }();
 
   function clearLayers() {
     Canvas.layers.question.clearSidebar(false);
     Canvas.layers.answer.clearSidebar(false);
+    Canvas.cleanShapeCount();
     updateGrid();
   }
   /******************************
@@ -7676,6 +7204,19 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview) {
         },
         options: {
           passive: false
+        }
+      },
+      "click": {
+        callback: function callback(evt) {
+          if (!movedDuringClick(evt)) {
+            handleShapeSelection(evt);
+          }
+        }
+      },
+      "touchend touchcancel": {
+        callback: function callback(evt) {
+          if (!Canvas.params.touchmoving) handleShapeSelection(evt);
+          Canvas.params.touchmoving = false;
         }
       }
     }
@@ -7871,7 +7412,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview) {
       "click": {
         callback: function callback() {
           var currentFactor = Canvas.params.zoomFactor,
-              newFactor = checkZoomFactorBounds(currentFactor - _constants_js__WEBPACK_IMPORTED_MODULE_0__.zoomParams.STEP);
+              newFactor = checkZoomFactorBounds(currentFactor - _constants_js__WEBPACK_IMPORTED_MODULE_1__.zoomParams.STEP);
           updateZoomInputValue(newFactor);
           zoom(newFactor);
         }
@@ -7883,7 +7424,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview) {
       "click": {
         callback: function callback() {
           var currentFactor = Canvas.params.zoomFactor,
-              newFactor = checkZoomFactorBounds(currentFactor + _constants_js__WEBPACK_IMPORTED_MODULE_0__.zoomParams.STEP);
+              newFactor = checkZoomFactorBounds(currentFactor + _constants_js__WEBPACK_IMPORTED_MODULE_1__.zoomParams.STEP);
           updateZoomInputValue(newFactor);
           zoom(newFactor);
         }
@@ -7952,7 +7493,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview) {
     events: {
       "click": {
         callback: function callback() {
-          drawingApp.params.deleteSubject.remove();
+          Canvas.deleteObject(drawingApp.params.deleteSubject);
           UI.deleteConfirm.classList.toggle('open');
         }
       }
@@ -8287,18 +7828,196 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview) {
   }
 
   function submitDrawingData() {
-    if (drawingApp.params.isPreview) return;
-    var b64Strings = encodeSvgLayersAsBase64Strings();
-    var grid = Canvas.layers.grid.params.hidden ? "0.00" : drawingApp.params.gridSize.toString();
-    var panGroupSize = getPanGroupSize();
-    var livewireComponent = getClosestLivewireComponentByAttribute(rootElement, 'questionComponent');
-    livewireComponent.handleUpdateDrawingData({
-      svg_answer: b64Strings.answer,
-      svg_question: b64Strings.question,
-      svg_grid: b64Strings.grid,
-      grid_size: grid,
-      svg_zoom_group: panGroupSize
+    return _submitDrawingData.apply(this, arguments);
+  }
+
+  function _submitDrawingData() {
+    _submitDrawingData = _asyncToGenerator( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default().mark(function _callee() {
+      var b64Strings, grid, panGroupSize, livewireComponent;
+      return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default().wrap(function _callee$(_context) {
+        while (1) {
+          switch (_context.prev = _context.next) {
+            case 0:
+              if (!drawingApp.params.isPreview) {
+                _context.next = 2;
+                break;
+              }
+
+              return _context.abrupt("return");
+
+            case 2:
+              b64Strings = encodeSvgLayersAsBase64Strings();
+              grid = Canvas.layers.grid.params.hidden ? "0.00" : drawingApp.params.gridSize.toString();
+              panGroupSize = getPanGroupSize();
+              livewireComponent = getClosestLivewireComponentByAttribute(rootElement, 'questionComponent');
+              _context.t0 = livewireComponent;
+              _context.t1 = b64Strings.answer;
+              _context.t2 = b64Strings.question;
+              _context.t3 = b64Strings.grid;
+              _context.t4 = grid;
+              _context.t5 = panGroupSize;
+              _context.next = 14;
+              return getPNGQuestionPreviewStringFromSVG(panGroupSize);
+
+            case 14:
+              _context.t6 = _context.sent;
+              _context.next = 17;
+              return getPNGCorrectionModelStringFromSVG(panGroupSize);
+
+            case 17:
+              _context.t7 = _context.sent;
+              _context.t8 = {
+                svg_answer: _context.t1,
+                svg_question: _context.t2,
+                svg_grid: _context.t3,
+                grid_size: _context.t4,
+                svg_zoom_group: _context.t5,
+                png_question_preview_string: _context.t6,
+                png_correction_model_string: _context.t7
+              };
+
+              _context.t0.handleUpdateDrawingData.call(_context.t0, _context.t8);
+
+            case 20:
+            case "end":
+              return _context.stop();
+          }
+        }
+      }, _callee);
+    }));
+    return _submitDrawingData.apply(this, arguments);
+  }
+
+  function getPNGCorrectionModelStringFromSVG(_x) {
+    return _getPNGCorrectionModelStringFromSVG.apply(this, arguments);
+  }
+
+  function _getPNGCorrectionModelStringFromSVG() {
+    _getPNGCorrectionModelStringFromSVG = _asyncToGenerator( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default().mark(function _callee2(panGroupSize) {
+      var svg;
+      return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default().wrap(function _callee2$(_context2) {
+        while (1) {
+          switch (_context2.prev = _context2.next) {
+            case 0:
+              svg = UI.svgCanvas.cloneNode(true);
+              svg.querySelector('#svg-answer-group').setAttribute('style', '');
+              svg.querySelector('#svg-question-group').setAttribute('style', '');
+              return _context2.abrupt("return", getPNGStringFromSVG(svg, panGroupSize));
+
+            case 4:
+            case "end":
+              return _context2.stop();
+          }
+        }
+      }, _callee2);
+    }));
+    return _getPNGCorrectionModelStringFromSVG.apply(this, arguments);
+  }
+
+  function getPNGQuestionPreviewStringFromSVG(_x2) {
+    return _getPNGQuestionPreviewStringFromSVG.apply(this, arguments);
+  }
+
+  function _getPNGQuestionPreviewStringFromSVG() {
+    _getPNGQuestionPreviewStringFromSVG = _asyncToGenerator( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default().mark(function _callee3(panGroupSize) {
+      var svg;
+      return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default().wrap(function _callee3$(_context3) {
+        while (1) {
+          switch (_context3.prev = _context3.next) {
+            case 0:
+              svg = UI.svgCanvas.cloneNode(true);
+              svg.querySelector('#svg-answer-group').remove();
+              return _context3.abrupt("return", getPNGStringFromSVG(svg, panGroupSize));
+
+            case 3:
+            case "end":
+              return _context3.stop();
+          }
+        }
+      }, _callee3);
+    }));
+    return _getPNGQuestionPreviewStringFromSVG.apply(this, arguments);
+  }
+
+  function getDataUrlFromCanvasByImage(image) {
+    var canvas = document.createElement("canvas");
+    canvas.setAttribute('width', image.width);
+    canvas.setAttribute('height', image.height);
+    return new Promise(function (resolve, reject) {
+      image.onload = function () {
+        var ctx = canvas.getContext("2d");
+        ctx.drawImage(image, 0, 0, image.width, image.height);
+        resolve(canvas.toDataURL());
+      };
     });
+  }
+
+  function getPNGStringFromSVG(_x3, _x4) {
+    return _getPNGStringFromSVG.apply(this, arguments);
+  }
+
+  function _getPNGStringFromSVG() {
+    _getPNGStringFromSVG = _asyncToGenerator( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default().mark(function _callee4(svg, panGroupSize) {
+      var newImage;
+      return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default().wrap(function _callee4$(_context4) {
+        while (1) {
+          switch (_context4.prev = _context4.next) {
+            case 0:
+              prepareSvgForConversion(svg, panGroupSize);
+              newImage = new Image(panGroupSize.width, panGroupSize.height);
+              newImage.setAttribute('src', 'data:image/svg+xml;base64,' + btoa(new XMLSerializer().serializeToString(svg)));
+              _context4.next = 5;
+              return getDataUrlFromCanvasByImage(newImage);
+
+            case 5:
+              return _context4.abrupt("return", _context4.sent);
+
+            case 6:
+            case "end":
+              return _context4.stop();
+          }
+        }
+      }, _callee4);
+    }));
+    return _getPNGStringFromSVG.apply(this, arguments);
+  }
+
+  function compressedImageUrl(_x5, _x6) {
+    return _compressedImageUrl.apply(this, arguments);
+  }
+
+  function _compressedImageUrl() {
+    _compressedImageUrl = _asyncToGenerator( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default().mark(function _callee5(image, scaleFactor) {
+      var newImage;
+      return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default().wrap(function _callee5$(_context5) {
+        while (1) {
+          switch (_context5.prev = _context5.next) {
+            case 0:
+              newImage = new Image(image.width * scaleFactor, image.height * scaleFactor);
+              newImage.src = image.src;
+              _context5.next = 4;
+              return getDataUrlFromCanvasByImage(newImage);
+
+            case 4:
+              return _context5.abrupt("return", _context5.sent);
+
+            case 5:
+            case "end":
+              return _context5.stop();
+          }
+        }
+      }, _callee5);
+    }));
+    return _compressedImageUrl.apply(this, arguments);
+  }
+
+  function prepareSvgForConversion(svg, panGroupSize) {
+    svg.setAttribute('viewBox', "".concat(panGroupSize.x, " ").concat(panGroupSize.y, " ").concat(panGroupSize.width, " ").concat(panGroupSize.height));
+    svg.setAttribute('width', "".concat(panGroupSize.width));
+    svg.setAttribute('height', "".concat(panGroupSize.height));
+    svg.querySelector('#svg-pan-zoom-group').setAttribute('transform', '');
+    svg.querySelector('#svg-grid-group').setAttribute('stroke', '#c3d0ed');
+    return svg;
   }
 
   function toggleSaveConfirm() {
@@ -8362,6 +8081,69 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview) {
 
     return false;
   }
+
+  function handleShapeSelection(evt) {
+    var shapeGroup = evt.target.closest(".shape");
+    if (!shapeGroup) return;
+    var layerID = shapeGroup.parentElement.id;
+    var layerObject = Canvas.layers[Canvas.layerID2Key(layerID)];
+    if (!layerObject.props.id.includes(layerObject.Canvas.params.currentLayer)) return;
+    var selectedEl = rootElement.querySelector('.selected');
+    var selectedSvgShape = evt.target.closest("g.shape");
+    if (selectedEl) removeSelectState(selectedEl);
+    if (selectedEl === selectedSvgShape) return;
+    addSelectState(selectedSvgShape);
+  }
+
+  function removeSelectState(element) {
+    element.classList.remove('selected');
+    rootElement.querySelector('#shape-' + element.id).classList.remove('selected');
+  }
+
+  function addSelectState(element) {
+    element.classList.add('selected');
+    rootElement.querySelector('#shape-' + element.id).classList.add('selected');
+  }
+
+  function movedDuringClick(evt) {
+    var _evt$touches;
+
+    if (drawingApp.params.currentTool !== "drag") {
+      return true;
+    }
+
+    var delta = 6;
+    var startX = Canvas.params.cursorPositionMousedown.x;
+    var startY = Canvas.params.cursorPositionMousedown.y;
+    var evtClientX = evt.clientX;
+    var evtClientY = evt.clientY;
+
+    if (((_evt$touches = evt.touches) === null || _evt$touches === void 0 ? void 0 : _evt$touches.length) > 0) {
+      evtClientX = evt.touches[0].clientX;
+      evtClientY = evt.touches[0].clientY;
+    }
+
+    var diffX = Math.abs(evtClientX - startX);
+    var diffY = Math.abs(evtClientY - startY);
+
+    if (diffX < delta && diffY < delta) {
+      return false;
+    }
+
+    return true;
+  }
+
+  function setMousedownPosition(evt) {
+    var _evt$touches2;
+
+    Canvas.params.cursorPositionMousedown.x = evt.clientX;
+    Canvas.params.cursorPositionMousedown.y = evt.clientY;
+
+    if (((_evt$touches2 = evt.touches) === null || _evt$touches2 === void 0 ? void 0 : _evt$touches2.length) > 0) {
+      Canvas.params.cursorPositionMousedown.x = evt.touches[0].clientX;
+      Canvas.params.cursorPositionMousedown.y = evt.touches[0].clientY;
+    }
+  }
   /**
    * Event handler for down events of the cursor.
    * Calls either startDrag() or startDraw() based on currentType.
@@ -8370,10 +8152,11 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview) {
 
 
   function cursorStart(evt) {
-    var _evt$touches;
+    var _evt$touches3;
 
     evt.preventDefault();
     updateCursorPosition(evt);
+    setMousedownPosition(evt);
     if (Canvas.params.focusedShape) Canvas.params.focusedShape = null;
 
     if (Canvas.params.highlightedShape) {
@@ -8381,7 +8164,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview) {
       Canvas.params.highlightedShape = null;
     }
 
-    if (((_evt$touches = evt.touches) === null || _evt$touches === void 0 ? void 0 : _evt$touches.length) == 2) {
+    if (((_evt$touches3 = evt.touches) === null || _evt$touches3 === void 0 ? void 0 : _evt$touches3.length) == 2) {
       startPan(evt);
     } else if (drawingApp.params.currentTool == "drag") {
       startDrag(evt);
@@ -8412,6 +8195,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview) {
       translateOfSvgShape: translateOfSvgShape
     };
     selectedSvgShape.classList.add("dragging");
+    selectedSvgShape.parentElement.classList.add("child-dragging");
   }
 
   function shapeMayBeDragged(shapeGroup, layerObject) {
@@ -8544,7 +8328,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview) {
 
   function makeNewSvgShapeWithSidebarEntry(type, props, parent, withHelperElements, withHighlightEvents) {
     var svgShape = makeNewSvgShape(type, props, Canvas.layers[parent].svg, withHelperElements, withHighlightEvents);
-    var newSidebarEntry = new _sidebar_js__WEBPACK_IMPORTED_MODULE_3__.Entry(svgShape, drawingApp);
+    var newSidebarEntry = new _sidebar_js__WEBPACK_IMPORTED_MODULE_4__.Entry(svgShape, drawingApp);
     Canvas.layers[parent].addEntry(newSidebarEntry);
     svgShape.setSidebarEntry(newSidebarEntry);
     return {
@@ -8569,25 +8353,25 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview) {
 
     switch (type) {
       case "rect":
-        return new _svgShape_js__WEBPACK_IMPORTED_MODULE_1__.Rectangle(shapeID, props, parent, drawingApp, Canvas, withHelperElements, withHighlightEvents);
+        return new _svgShape_js__WEBPACK_IMPORTED_MODULE_2__.Rectangle(shapeID, props, parent, drawingApp, Canvas, withHelperElements, withHighlightEvents);
 
       case "circle":
-        return new _svgShape_js__WEBPACK_IMPORTED_MODULE_1__.Circle(shapeID, props, parent, drawingApp, Canvas, withHelperElements, withHighlightEvents);
+        return new _svgShape_js__WEBPACK_IMPORTED_MODULE_2__.Circle(shapeID, props, parent, drawingApp, Canvas, withHelperElements, withHighlightEvents);
 
       case "line":
-        return new _svgShape_js__WEBPACK_IMPORTED_MODULE_1__.Line(shapeID, props, parent, drawingApp, Canvas, withHelperElements, withHighlightEvents);
+        return new _svgShape_js__WEBPACK_IMPORTED_MODULE_2__.Line(shapeID, props, parent, drawingApp, Canvas, withHelperElements, withHighlightEvents);
 
       case "text":
-        return new _svgShape_js__WEBPACK_IMPORTED_MODULE_1__.Text(shapeID, props, parent, drawingApp, Canvas, withHelperElements, withHighlightEvents);
+        return new _svgShape_js__WEBPACK_IMPORTED_MODULE_2__.Text(shapeID, props, parent, drawingApp, Canvas, withHelperElements, withHighlightEvents);
 
       case "image":
-        return new _svgShape_js__WEBPACK_IMPORTED_MODULE_1__.Image(shapeID, props, parent, drawingApp, Canvas, withHelperElements, withHighlightEvents);
+        return new _svgShape_js__WEBPACK_IMPORTED_MODULE_2__.Image(shapeID, props, parent, drawingApp, Canvas, withHelperElements, withHighlightEvents);
 
       case "path":
-        return new _svgShape_js__WEBPACK_IMPORTED_MODULE_1__.Path(shapeID, props, parent, drawingApp, Canvas, withHelperElements, withHighlightEvents);
+        return new _svgShape_js__WEBPACK_IMPORTED_MODULE_2__.Path(shapeID, props, parent, drawingApp, Canvas, withHelperElements, withHighlightEvents);
 
       case "freehand":
-        return new _svgShape_js__WEBPACK_IMPORTED_MODULE_1__.Freehand(shapeID, props, parent, drawingApp, Canvas, withHelperElements, withHighlightEvents);
+        return new _svgShape_js__WEBPACK_IMPORTED_MODULE_2__.Freehand(shapeID, props, parent, drawingApp, Canvas, withHelperElements, withHighlightEvents);
 
       default:
         console.error("makeShapeOfRightType(): type  (".concat(type, ") is not valid. No shape was created."));
@@ -8616,6 +8400,10 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview) {
     }
 
     Canvas.params.cursorPosition = cursorPosition;
+
+    if (evt.type === 'touchmove') {
+      Canvas.params.touchmoving = true;
+    }
   }
 
   function updateCursorPosition(evt) {
@@ -8629,10 +8417,10 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview) {
 
 
   function getCursorPosition(evt) {
-    var _evt$touches2;
+    var _evt$touches4;
 
     var CTM = UI.svgPanZoomGroup.getScreenCTM();
-    evt = ((_evt$touches2 = evt.touches) === null || _evt$touches2 === void 0 ? void 0 : _evt$touches2[0]) || evt;
+    evt = ((_evt$touches4 = evt.touches) === null || _evt$touches4 === void 0 ? void 0 : _evt$touches4[0]) || evt;
     if (evt.type === 'touchend') return Canvas.params.cursorPosition;
     return {
       x: (evt.clientX - CTM.e) / CTM.a,
@@ -8690,7 +8478,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview) {
   function panHorizontalOneStep() {
     var direction = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 0;
     pan({
-      dx: _constants_js__WEBPACK_IMPORTED_MODULE_0__.panParams.STEP * direction / Canvas.params.zoomFactor,
+      dx: _constants_js__WEBPACK_IMPORTED_MODULE_1__.panParams.STEP * direction / Canvas.params.zoomFactor,
       dy: 0
     });
   }
@@ -8704,7 +8492,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview) {
     var direction = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 0;
     pan({
       dx: 0,
-      dy: _constants_js__WEBPACK_IMPORTED_MODULE_0__.panParams.STEP * direction / Canvas.params.zoomFactor
+      dy: _constants_js__WEBPACK_IMPORTED_MODULE_1__.panParams.STEP * direction / Canvas.params.zoomFactor
     });
   }
   /**
@@ -8766,7 +8554,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview) {
   function zoomOneStep() {
     var direction = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 0;
     var origin = arguments.length > 1 ? arguments[1] : undefined;
-    var factor = Canvas.params.zoomFactor - _constants_js__WEBPACK_IMPORTED_MODULE_0__.zoomParams.STEP * direction;
+    var factor = Canvas.params.zoomFactor - _constants_js__WEBPACK_IMPORTED_MODULE_1__.zoomParams.STEP * direction;
     factor = checkZoomFactorBounds(factor);
     zoom(factor, origin);
     updateZoomInputValue(factor);
@@ -8805,8 +8593,8 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview) {
   }
 
   function checkZoomFactorBounds(value) {
-    if (value > _constants_js__WEBPACK_IMPORTED_MODULE_0__.zoomParams.MAX) value = _constants_js__WEBPACK_IMPORTED_MODULE_0__.zoomParams.MAX;
-    if (value < _constants_js__WEBPACK_IMPORTED_MODULE_0__.zoomParams.MIN) value = _constants_js__WEBPACK_IMPORTED_MODULE_0__.zoomParams.MIN;
+    if (value > _constants_js__WEBPACK_IMPORTED_MODULE_1__.zoomParams.MAX) value = _constants_js__WEBPACK_IMPORTED_MODULE_1__.zoomParams.MAX;
+    if (value < _constants_js__WEBPACK_IMPORTED_MODULE_1__.zoomParams.MIN) value = _constants_js__WEBPACK_IMPORTED_MODULE_1__.zoomParams.MIN;
     return value;
   }
 
@@ -8834,6 +8622,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview) {
 
   function stopDrag() {
     UI.svgCanvas.querySelector("g.dragging").classList.remove("dragging");
+    UI.svgCanvas.querySelector(".child-dragging").classList.remove("child-dragging");
     Canvas.params.drag.enabled = false;
   }
 
@@ -8944,18 +8733,42 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview) {
     }]);
   }
 
-  function dummyImageLoaded(evt) {
-    var dummyImage = evt.target,
-        scaleFactor = correctImageSize(dummyImage),
-        imageURL = dummyImage.src;
-    var shape = makeNewSvgShapeWithSidebarEntry("image", {
-      main: {
-        href: imageURL,
-        width: dummyImage.width * scaleFactor,
-        height: dummyImage.height * scaleFactor
-      }
-    }, Canvas.params.currentLayer);
-    shape.svg.addHighlightEvents();
+  function dummyImageLoaded(_x7) {
+    return _dummyImageLoaded.apply(this, arguments);
+  }
+
+  function _dummyImageLoaded() {
+    _dummyImageLoaded = _asyncToGenerator( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default().mark(function _callee6(evt) {
+      var dummyImage, scaleFactor, base65PNGString, shape;
+      return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default().wrap(function _callee6$(_context6) {
+        while (1) {
+          switch (_context6.prev = _context6.next) {
+            case 0:
+              dummyImage = evt.target;
+              scaleFactor = correctImageSize(dummyImage);
+              _context6.next = 4;
+              return compressedImageUrl(dummyImage, scaleFactor);
+
+            case 4:
+              base65PNGString = _context6.sent;
+              shape = makeNewSvgShapeWithSidebarEntry("image", {
+                main: {
+                  href: base65PNGString,
+                  width: dummyImage.width * scaleFactor,
+                  height: dummyImage.height * scaleFactor
+                }
+              }, Canvas.params.currentLayer);
+              shape.svg.moveToCenter();
+              shape.svg.addHighlightEvents();
+
+            case 8:
+            case "end":
+              return _context6.stop();
+          }
+        }
+      }, _callee6);
+    }));
+    return _dummyImageLoaded.apply(this, arguments);
   }
 
   function correctImageSize(image) {
@@ -9002,12 +8815,12 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview) {
       },
       main: {},
       origin: {
-        stroke: "var(--teacher-Primary)",
+        // stroke: "var(--teacher-Primary)",
         id: "grid-origin"
       },
       size: drawingApp.isTeacher() ? UI.gridSize.value : drawingApp.params.gridSize
     };
-    Canvas.layers.grid.shape = new _svgShape_js__WEBPACK_IMPORTED_MODULE_1__.Grid(0, props, UI.svgGridGroup, drawingApp, Canvas);
+    Canvas.layers.grid.shape = new _svgShape_js__WEBPACK_IMPORTED_MODULE_2__.Grid(0, props, UI.svgGridGroup, drawingApp, Canvas);
   }
 
   function updateGridVisibility() {
@@ -9173,7 +8986,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview) {
       _iterator4.f();
     }
 
-    _constants_js__WEBPACK_IMPORTED_MODULE_0__.shapePropertiesAvailableToUser[drawingApp.params.currentTool].forEach(function (prop) {
+    _constants_js__WEBPACK_IMPORTED_MODULE_1__.shapePropertiesAvailableToUser[drawingApp.params.currentTool].forEach(function (prop) {
       rootElement.querySelector("#".concat(prop)).style.display = "flex";
     });
   }
@@ -9230,12 +9043,12 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview) {
   }
 
   function handleDisabledZoomButtonStates(newFactor) {
-    if (newFactor === _constants_js__WEBPACK_IMPORTED_MODULE_0__.zoomParams.MAX) {
+    if (newFactor === _constants_js__WEBPACK_IMPORTED_MODULE_1__.zoomParams.MAX) {
       UI.incrZoom.disabled = true;
       return;
     }
 
-    if (newFactor === _constants_js__WEBPACK_IMPORTED_MODULE_0__.zoomParams.MIN) {
+    if (newFactor === _constants_js__WEBPACK_IMPORTED_MODULE_1__.zoomParams.MIN) {
       UI.decrZoom.disabled = true;
       return;
     }
@@ -9326,7 +9139,7 @@ window.makePreviewGrid = function (drawingApp, gridSvg) {
     size: gridSvg
   };
   var parent = rootElement.querySelector('#grid-preview-svg');
-  return new _svgShape_js__WEBPACK_IMPORTED_MODULE_1__.Grid(0, props, parent, drawingApp, null);
+  return new _svgShape_js__WEBPACK_IMPORTED_MODULE_2__.Grid(0, props, parent, drawingApp, null);
 };
 
 window.calculatePreviewBounds = function (parent) {
@@ -9554,12 +9367,13 @@ var Entry = /*#__PURE__*/function (_sidebarComponent) {
       lock: templateCopy.querySelector(".lock-btn"),
       hide: templateCopy.querySelector(".hide-btn"),
       drag: templateCopy.querySelector(".drag-btn"),
-      up: templateCopy.querySelector(".up-btn")
+      up: templateCopy.querySelector(".up-btn"),
+      down: templateCopy.querySelector(".down-btn")
     };
     _this.type = _this.svgShape.type === "path" ? "freehand" : _this.svgShape.type;
     _this.id = "".concat(_this.type, "-").concat(_this.svgShape.shapeId);
     _this.entryContainer.id = "shape-".concat(_this.id);
-    _this.entryTitle.innerText = "".concat(_constants_js__WEBPACK_IMPORTED_MODULE_0__.nameInSidebarEntryForShape[_this.svgShape.type], " ").concat(_this.svgShape.shapeId);
+    _this.entryTitle.innerText = "".concat(_this.root.querySelector('#translation-template').dataset[_this.svgShape.type], " ").concat(_this.svgShape.shapeId);
 
     _this.drawingApp.bindEventListeners(_this.eventListenerSettings, _assertThisInitialized(_this));
 
@@ -9591,9 +9405,8 @@ var Entry = /*#__PURE__*/function (_sidebarComponent) {
           },
           "mouseenter touchstart": {
             callback: function callback() {
-              _this2.svgShape.highlight();
+              _this2.svgShape.highlight(); // this.highlight();
 
-              _this2.highlight();
             }
           },
           "mouseleave touchend touchcancel": {
@@ -9601,6 +9414,25 @@ var Entry = /*#__PURE__*/function (_sidebarComponent) {
               _this2.svgShape.unhighlight();
 
               _this2.unhighlight();
+            }
+          },
+          "click": {
+            callback: function callback(evt) {
+              _this2.handleClick(evt);
+            }
+          }
+        }
+      }, {
+        element: this.btns.drag,
+        events: {
+          "mouseenter touchstart": {
+            callback: function callback(evt) {
+              evt.currentTarget.closest('.shape-container').draggable = true;
+            }
+          },
+          'mouseleave touchend': {
+            callback: function callback(evt) {
+              evt.currentTarget.closest('.shape-container').draggable = false;
             }
           }
         }
@@ -9634,11 +9466,15 @@ var Entry = /*#__PURE__*/function (_sidebarComponent) {
           }
         }
       }, {
-        element: this.btns.drag,
+        element: this.btns.down,
         events: {
           "click": {
             callback: function callback(evt) {
-              _this2.updateClickedElementPositionDown(evt.currentTarget.closest('.shape-container'));
+              var entry = evt.currentTarget.closest('.shape-container');
+
+              _this2.updateClickedElementPositionDown(entry);
+
+              _this2.reorderHighlight(entry);
             }
           }
         }
@@ -9647,7 +9483,11 @@ var Entry = /*#__PURE__*/function (_sidebarComponent) {
         events: {
           "click": {
             callback: function callback(evt) {
-              _this2.updateClickedElementPositionUp(evt.currentTarget.closest('.shape-container'));
+              var entry = evt.currentTarget.closest('.shape-container');
+
+              _this2.updateClickedElementPositionUp(entry);
+
+              _this2.reorderHighlight(entry);
             }
           }
         }
@@ -9710,24 +9550,62 @@ var Entry = /*#__PURE__*/function (_sidebarComponent) {
       var newLayerId = entry.closest(".layer-group").id;
       var newSvgLayer = this.root.querySelector("#svg-".concat(newLayerId));
       var shape = newSvgLayer.querySelector("#".concat(entry.id.substring(6)));
-      var shapeToInsertBefore = newSvgLayer.querySelector("#".concat((_entry$previousElemen = entry.previousElementSibling) === null || _entry$previousElemen === void 0 ? void 0 : _entry$previousElemen.id.substring(6)));
+      var shapeToInsertBefore = newSvgLayer.querySelector("#".concat((_entry$previousElemen = entry.previousElementSibling) === null || _entry$previousElemen === void 0 ? void 0 : _entry$previousElemen.id.substring(6), ".shape"));
 
       if (shapeToInsertBefore) {
         newSvgLayer.insertBefore(shape, shapeToInsertBefore);
         return;
       }
 
-      newSvgLayer.appendChild(shape);
+      newSvgLayer.prepend(shape);
+    }
+  }, {
+    key: "reorderHighlight",
+    value: function reorderHighlight(element) {
+      element.classList.add("reorder-highlight");
+      var timeout = setTimeout(function () {
+        element.classList.remove('reorder-highlight');
+        clearTimeout(timeout);
+      }, 1000);
     }
   }, {
     key: "highlight",
     value: function highlight() {
       this.entryTitle.classList.add("highlight");
+      this.entryContainer.classList.add("highlight");
     }
   }, {
     key: "unhighlight",
     value: function unhighlight() {
       this.entryTitle.classList.remove("highlight");
+      this.entryContainer.classList.remove("highlight");
+    }
+  }, {
+    key: "handleClick",
+    value: function handleClick(evt) {
+      var selectedEl = this.entryContainer.parentElement.querySelector('.selected');
+      if (selectedEl) this.unselect(selectedEl);
+      if (selectedEl === this.entryContainer) return;
+      this.select();
+    }
+  }, {
+    key: "select",
+    value: function select() {
+      this.entryContainer.classList.add('selected');
+      this.svgShape.shapeGroup.element.classList.add('selected');
+    }
+  }, {
+    key: "unselect",
+    value: function unselect(element) {
+      var shapeId = element.id.substring(6);
+      element.classList.remove('selected');
+      element.closest('#canvas-sidebar-container').querySelector("#".concat(shapeId)).classList.remove('selected');
+    }
+  }, {
+    key: "toggleSelect",
+    value: function toggleSelect() {
+      this.entryContainer.classList.toggle('selected');
+      this.svgShape.shapeGroup.element.classList.toggle('selected');
     }
   }, {
     key: "updateLockState",
@@ -9968,7 +9846,7 @@ var Layer = /*#__PURE__*/function (_sidebarComponent2) {
   }, {
     key: "isEmpty",
     value: function isEmpty() {
-      return Object.keys(this.shapes).length === 0;
+      return Object.keys(this.shapes).length === 0 && this.svg.childElementCount === 0;
     }
   }, {
     key: "enable",
@@ -10008,6 +9886,8 @@ var Layer = /*#__PURE__*/function (_sidebarComponent2) {
               var newCurrentLayerID = _this5.getLayerDataFromTarget(targetHeader);
 
               if (newCurrentLayerID) {
+                newCurrentLayerID.contains('question') ? _this5.Canvas.layers.answer.hide() : _this5.Canvas.layers.answer.unhideIfHidden();
+
                 _this5.Canvas.setCurrentLayer(_this5.Canvas.layerID2Key(newCurrentLayerID));
               }
             }
@@ -10117,6 +9997,11 @@ var Layer = /*#__PURE__*/function (_sidebarComponent2) {
       Object.values(this.shapes).forEach(function (shape) {
         shape.sidebar.remove();
       });
+      this.shapes = {};
+      this.svg.innerHTML = '';
+      this.shapesGroup.querySelectorAll('.shape-container').forEach(function (shape) {
+        return shape.remove();
+      });
     }
   }, {
     key: "getLayerDataFromTarget",
@@ -10128,7 +10013,7 @@ var Layer = /*#__PURE__*/function (_sidebarComponent2) {
   }, {
     key: "hideExplainer",
     value: function hideExplainer() {
-      this.explainer.remove();
+      this.explainer.style.display = 'none';
     }
   }, {
     key: "setCorrectExplainerText",
@@ -10959,6 +10844,11 @@ var Text = /*#__PURE__*/function (_svgElement6) {
     value: function setTextContent(text) {
       this.element.textContent = text;
     }
+  }, {
+    key: "setFontFamily",
+    value: function setFontFamily(font) {
+      this.element.setAttribute('font-family', font);
+    }
   }]);
 
   return Text;
@@ -11177,7 +11067,7 @@ var svgShape = /*#__PURE__*/function () {
     key: "makeBorderElement",
     value: function makeBorderElement() {
       var bbox = this.mainElement.getBoundingBox();
-      var borderColor = this.isAnswerLayer() ? '--cta-primary-mid-dark' : '--primary';
+      var borderColor = this.isQuestionLayer() && this.drawingApp.isTeacher() ? '--purple-mid-dark' : '--primary';
       return new _svgElement_js__WEBPACK_IMPORTED_MODULE_1__.Rectangle({
         "class": "border",
         "x": bbox.x - this.offset,
@@ -11192,9 +11082,9 @@ var svgShape = /*#__PURE__*/function () {
       });
     }
   }, {
-    key: "isAnswerLayer",
-    value: function isAnswerLayer() {
-      return this.Canvas.layerID2Key(this.parent.id) === 'answer';
+    key: "isQuestionLayer",
+    value: function isQuestionLayer() {
+      return this.Canvas.layerID2Key(this.parent.id) === 'question';
     }
   }, {
     key: "updateCornerElements",
@@ -11229,6 +11119,8 @@ var svgShape = /*#__PURE__*/function () {
     value: function showBorderElement() {
       if (this.parent.id.includes(this.Canvas.params.currentLayer) && this.drawingApp.currentToolIs('drag')) {
         this.borderElement.setAttribute("stroke", this.borderElement.props.stroke);
+        this.borderElement.setAttribute("stroke-dasharray", '4,5');
+        this.borderElement.setAttribute("opacity", '.5');
       }
     }
   }, {
@@ -11248,6 +11140,7 @@ var svgShape = /*#__PURE__*/function () {
     key: "hideBorderElement",
     value: function hideBorderElement() {
       this.borderElement.setAttribute("stroke", "none");
+      this.borderElement.setAttribute("opacity", '');
     }
   }, {
     key: "hideCornerElements",
@@ -11288,6 +11181,7 @@ var svgShape = /*#__PURE__*/function () {
 
       this.shapeGroup.remove();
       (_this$marker = this.marker) === null || _this$marker === void 0 ? void 0 : _this$marker.remove();
+      if (this.parent.childElementCount === 0) this.showExplainerForLayer();
       delete this;
     }
   }, {
@@ -11359,8 +11253,10 @@ var svgShape = /*#__PURE__*/function () {
               _this2.getSidebarEntry().unhighlight();
             }
           },
-          "click": {
-            callback: function callback() {
+          "click touchstart": {
+            callback: function callback(evt) {
+              if (evt.isTrusted === false) return;
+
               _this2.highlight();
 
               _this2.Canvas.setFocusedShape(_this2);
@@ -11379,6 +11275,11 @@ var svgShape = /*#__PURE__*/function () {
     key: "unhighlight",
     value: function unhighlight() {
       this.hideBorderElement();
+    }
+  }, {
+    key: "showExplainerForLayer",
+    value: function showExplainerForLayer() {
+      this.sidebarEntry.entryContainer.parentElement.querySelector('.explainer').style.display = 'inline-block';
     }
   }]);
 
@@ -11531,6 +11432,8 @@ var Text = /*#__PURE__*/function (_svgShape4) {
 
     _this4.mainElement.setTextContent(_this4.props.main["data-textcontent"]);
 
+    _this4.mainElement.setFontFamily('Nunito');
+
     return _this4;
   }
 
@@ -11552,7 +11455,7 @@ var Text = /*#__PURE__*/function (_svgShape4) {
         spellcheck: "false"
       });
       textInput.focus();
-      textInput.addEventListener("blur", function () {
+      textInput.addEventListener("focusout", function () {
         var text = textInput.element.value;
         textInput.deleteElement();
 
@@ -11563,6 +11466,8 @@ var Text = /*#__PURE__*/function (_svgShape4) {
         }
 
         _this5.mainElement.setTextContent(text);
+
+        _this5.mainElement.setFontFamily('Nunito');
 
         _this5.updateBorderElement();
 
@@ -11595,7 +11500,16 @@ var Image = /*#__PURE__*/function (_svgShape5) {
     return _super5.call(this, shapeId, "image", props, parent, drawingApp, Canvas, withHelperElements, withHighlightEvents);
   }
 
-  return _createClass(Image);
+  _createClass(Image, [{
+    key: "moveToCenter",
+    value: function moveToCenter() {
+      var bbox = this.mainElement.getBoundingBox();
+      this.mainElement.setXAttribute(-bbox.width / 2);
+      this.mainElement.setYAttribute(-bbox.height / 2);
+    }
+  }]);
+
+  return Image;
 }(svgShape);
 var Path = /*#__PURE__*/function (_svgShape6) {
   _inherits(Path, _svgShape6);
@@ -11893,6 +11807,85 @@ Notify = {
 
 /***/ }),
 
+/***/ "./resources/js/readspeaker_app.js":
+/*!*****************************************!*\
+  !*** ./resources/js/readspeaker_app.js ***!
+  \*****************************************/
+/***/ (() => {
+
+handleFocusTextareaField = function handleFocusTextareaField(event, questionId) {
+  if (typeof ReadspeakerTlc == "undefined") {
+    return;
+  }
+
+  return ReadspeakerTlc.rsTlcEvents.handleTextareaFocusForReadspeaker(event, questionId);
+};
+
+handleBlurTextareaField = function handleBlurTextareaField() {
+  if (typeof ReadspeakerTlc == "undefined") {
+    return;
+  }
+
+  ReadspeakerTlc.rsTlcEvents.handleTextareaBlurForReadspeaker();
+};
+
+handleTextBoxFocusForReadspeaker = function handleTextBoxFocusForReadspeaker(focusEvent, questionId) {
+  if (typeof ReadspeakerTlc == "undefined") {
+    return;
+  }
+
+  ReadspeakerTlc.rsTlcEvents.handleTextBoxFocusForReadspeaker(focusEvent, questionId);
+};
+
+handleTextBoxBlurForReadspeaker = function handleTextBoxBlurForReadspeaker(event, questionId) {
+  if (typeof ReadspeakerTlc == "undefined") {
+    return;
+  }
+
+  ReadspeakerTlc.rsTlcEvents.handleTextBoxBlurForReadspeaker(event, questionId);
+};
+
+rsFocusSelect = function rsFocusSelect(event, selectId, questionId) {
+  if (typeof ReadspeakerTlc == "undefined") {
+    return;
+  }
+
+  ReadspeakerTlc.rsTlcEvents.rsFocusSelect(event, selectId, questionId);
+};
+
+rsBlurSelect = function rsBlurSelect(event, questionId) {
+  if (typeof ReadspeakerTlc == "undefined") {
+    return;
+  }
+
+  ReadspeakerTlc.rsTlcEvents.rsBlurSelect(event, questionId);
+};
+
+readspeakerLoadCore = function (_readspeakerLoadCore) {
+  function readspeakerLoadCore() {
+    return _readspeakerLoadCore.apply(this, arguments);
+  }
+
+  readspeakerLoadCore.toString = function () {
+    return _readspeakerLoadCore.toString();
+  };
+
+  return readspeakerLoadCore;
+}(function () {
+  if (rspkr == null) {
+    setTimeout(readspeakerLoadCore, '1000');
+    return;
+  }
+
+  if (rspkr.getLoadedMods().length > 0) {
+    return;
+  }
+
+  rspkr.loadCore();
+});
+
+/***/ }),
+
 /***/ "./resources/js/rich-text-editor.js":
 /*!******************************************!*\
   !*** ./resources/js/rich-text-editor.js ***!
@@ -12033,6 +12026,37 @@ RichTextEditor = {
       textarea.value = e.editor.getData();
     }, 300);
     textarea.dispatchEvent(new Event('input'));
+  },
+  initClassicEditorForStudentplayer: function initClassicEditorForStudentplayer(editorId, questionId) {
+    ClassicEditor.create(document.querySelector('#' + editorId), {
+      autosave: {
+        waitingTime: 300,
+        save: function save(editor) {
+          editor.updateSourceElement();
+          editor.sourceElement.dispatchEvent(new Event('input'));
+        }
+      }
+    }).then(function (editor) {
+      ClassicEditors[editorId] = editor;
+      var wordCountPlugin = editor.plugins.get('WordCount');
+      var wordCountWrapper = document.getElementById('word-count-' + editorId);
+      wordCountWrapper.appendChild(wordCountPlugin.wordCountContainer);
+      ReadspeakerTlc.ckeditor.addListenersForReadspeaker(editor, questionId, editorId);
+      ReadspeakerTlc.ckeditor.disableContextMenuOnCkeditor();
+    })["catch"](function (error) {
+      console.error(error);
+    });
+  },
+  setReadOnly: function setReadOnly(editor) {
+    editor.isReadOnly = true;
+  },
+  writeContentToTexarea: function writeContentToTexarea(editorId) {
+    var editor = ClassicEditors[editorId];
+
+    if (editor) {
+      editor.updateSourceElement();
+      editor.sourceElement.dispatchEvent(new Event('input'));
+    }
   }
 };
 
@@ -59208,7 +59232,7 @@ try {
 /***/ ((module) => {
 
 "use strict";
-module.exports = JSON.parse('{"name":"axios","version":"0.21.4","description":"Promise based HTTP client for the browser and node.js","main":"index.js","scripts":{"test":"grunt test","start":"node ./sandbox/server.js","build":"NODE_ENV=production grunt build","preversion":"npm test","version":"npm run build && grunt version && git add -A dist && git add CHANGELOG.md bower.json package.json","postversion":"git push && git push --tags","examples":"node ./examples/server.js","coveralls":"cat coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js","fix":"eslint --fix lib/**/*.js"},"repository":{"type":"git","url":"https://github.com/axios/axios.git"},"keywords":["xhr","http","ajax","promise","node"],"author":"Matt Zabriskie","license":"MIT","bugs":{"url":"https://github.com/axios/axios/issues"},"homepage":"https://axios-http.com","devDependencies":{"coveralls":"^3.0.0","es6-promise":"^4.2.4","grunt":"^1.3.0","grunt-banner":"^0.6.0","grunt-cli":"^1.2.0","grunt-contrib-clean":"^1.1.0","grunt-contrib-watch":"^1.0.0","grunt-eslint":"^23.0.0","grunt-karma":"^4.0.0","grunt-mocha-test":"^0.13.3","grunt-ts":"^6.0.0-beta.19","grunt-webpack":"^4.0.2","istanbul-instrumenter-loader":"^1.0.0","jasmine-core":"^2.4.1","karma":"^6.3.2","karma-chrome-launcher":"^3.1.0","karma-firefox-launcher":"^2.1.0","karma-jasmine":"^1.1.1","karma-jasmine-ajax":"^0.1.13","karma-safari-launcher":"^1.0.0","karma-sauce-launcher":"^4.3.6","karma-sinon":"^1.0.5","karma-sourcemap-loader":"^0.3.8","karma-webpack":"^4.0.2","load-grunt-tasks":"^3.5.2","minimist":"^1.2.0","mocha":"^8.2.1","sinon":"^4.5.0","terser-webpack-plugin":"^4.2.3","typescript":"^4.0.5","url-search-params":"^0.10.0","webpack":"^4.44.2","webpack-dev-server":"^3.11.0"},"browser":{"./lib/adapters/http.js":"./lib/adapters/xhr.js"},"jsdelivr":"dist/axios.min.js","unpkg":"dist/axios.min.js","typings":"./index.d.ts","dependencies":{"follow-redirects":"^1.14.0"},"bundlesize":[{"path":"./dist/axios.min.js","threshold":"5kB"}]}');
+module.exports = JSON.parse('{"_args":[["axios@0.21.4","/Volumes/SSD/tlc/test-correct"]],"_development":true,"_from":"axios@0.21.4","_id":"axios@0.21.4","_inBundle":false,"_integrity":"sha512-ut5vewkiu8jjGBdqpM44XxjuCjq9LAKeHVmoVfHVzy8eHgxxq8SbAVQNovDA8mVi05kP0Ea/n/UzcSHcTJQfNg==","_location":"/axios","_phantomChildren":{},"_requested":{"type":"version","registry":true,"raw":"axios@0.21.4","name":"axios","escapedName":"axios","rawSpec":"0.21.4","saveSpec":null,"fetchSpec":"0.21.4"},"_requiredBy":["#DEV:/"],"_resolved":"https://registry.npmjs.org/axios/-/axios-0.21.4.tgz","_spec":"0.21.4","_where":"/Volumes/SSD/tlc/test-correct","author":{"name":"Matt Zabriskie"},"browser":{"./lib/adapters/http.js":"./lib/adapters/xhr.js"},"bugs":{"url":"https://github.com/axios/axios/issues"},"bundlesize":[{"path":"./dist/axios.min.js","threshold":"5kB"}],"dependencies":{"follow-redirects":"^1.14.0"},"description":"Promise based HTTP client for the browser and node.js","devDependencies":{"coveralls":"^3.0.0","es6-promise":"^4.2.4","grunt":"^1.3.0","grunt-banner":"^0.6.0","grunt-cli":"^1.2.0","grunt-contrib-clean":"^1.1.0","grunt-contrib-watch":"^1.0.0","grunt-eslint":"^23.0.0","grunt-karma":"^4.0.0","grunt-mocha-test":"^0.13.3","grunt-ts":"^6.0.0-beta.19","grunt-webpack":"^4.0.2","istanbul-instrumenter-loader":"^1.0.0","jasmine-core":"^2.4.1","karma":"^6.3.2","karma-chrome-launcher":"^3.1.0","karma-firefox-launcher":"^2.1.0","karma-jasmine":"^1.1.1","karma-jasmine-ajax":"^0.1.13","karma-safari-launcher":"^1.0.0","karma-sauce-launcher":"^4.3.6","karma-sinon":"^1.0.5","karma-sourcemap-loader":"^0.3.8","karma-webpack":"^4.0.2","load-grunt-tasks":"^3.5.2","minimist":"^1.2.0","mocha":"^8.2.1","sinon":"^4.5.0","terser-webpack-plugin":"^4.2.3","typescript":"^4.0.5","url-search-params":"^0.10.0","webpack":"^4.44.2","webpack-dev-server":"^3.11.0"},"homepage":"https://axios-http.com","jsdelivr":"dist/axios.min.js","keywords":["xhr","http","ajax","promise","node"],"license":"MIT","main":"index.js","name":"axios","repository":{"type":"git","url":"git+https://github.com/axios/axios.git"},"scripts":{"build":"NODE_ENV=production grunt build","coveralls":"cat coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js","examples":"node ./examples/server.js","fix":"eslint --fix lib/**/*.js","postversion":"git push && git push --tags","preversion":"npm test","start":"node ./sandbox/server.js","test":"grunt test","version":"npm run build && grunt version && git add -A dist && git add CHANGELOG.md bower.json package.json"},"typings":"./index.d.ts","unpkg":"dist/axios.min.js","version":"0.21.4"}');
 
 /***/ })
 

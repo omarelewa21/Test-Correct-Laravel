@@ -750,10 +750,10 @@
                     if(!this.available_subject_options.includes(this.active_subject_option)){
                         this.active_subject_option = null;
                      }
-                    if(this.available_subject_options.length==0){
-                        this.show_new_item = true;
-                        return;
-                    }
+                    // if(this.available_subject_options.length==0){
+                    //     this.show_new_item = true;
+                    //     return;
+                    // }
                     this.show_new_item = false;
                 },
                 navigate(e) {
