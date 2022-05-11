@@ -14,7 +14,7 @@ use tcCore\BaseSubject;
 use tcCore\EducationLevel;
 use tcCore\ExcelAttainmentManifest;
 use tcCore\ExcelAttainmentUpdateOrCreateManifest;
-use tcCore\Http\Helpers\ExcelDefaultSubjectsAndSectionsImportHelper;
+use tcCore\Http\Helpers\DefaultSubjectsAndSectionsImportHelper;
 use tcCore\Http\Requests;
 use tcCore\Lib\Repositories\AverageRatingRepository;
 use tcCore\Lib\Repositories\SchoolClassRepository;
@@ -45,7 +45,7 @@ class DefaultSubjectsAndSectionsController extends Controller
         $filename = sprintf('%s.%s',date("YmdHis"), $excelFile->extension());
         $excelFile->move($storagePath, $filename);
 
-        $helper = new ExcelDefaultSubjectsAndSectionsImportHelper();
+        $helper = new DefaultSubjectsAndSectionsImportHelper();
         try {
             $helper->setFilePath(sprintf('%s/%s', $basePath, $filename))->handleImport();
         } catch(\Exception $e){

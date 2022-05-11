@@ -7,7 +7,7 @@ use tcCore\DefaultSection;
 use tcCore\DefaultSubject;
 use tcCore\ExcelDefaultSubjectAndSectionManifest;
 
-class ExcelDefaultSubjectsAndSectionsImportHelper
+class DefaultSubjectsAndSectionsImportHelper
 {
 
     protected $inConsole = false;

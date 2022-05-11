@@ -55,16 +55,38 @@ class SchoolImportHelper
     ];
     protected $educationLevels;
 
-    public function handleImport($data)
+    protected $inConsole = false;
+    protected $path;
+    protected $manifest;
+
+    public function __construct()
+    {
+
+    }
+
+    public function setFilePath($path)
+    {
+        $this->path = storage_path($path);
+        return $this;
+    }
+
+
+    public function handleImport()
     {
         DB::beginTransaction();
         try {
+            $this->getDataFromFile();
 
             DB::commit();
         } catch(Throwable $e) {
             DB::rollback();
             dd($e->getMessage());
         }
+    }
+
+    protected function getDataFromFile()
+    {
+        $this->manifest = new ExcelDefaultSubjectAndSectionManifest($this->path,false);
     }
 
     protected function cleanUmbrellaOrganization()
