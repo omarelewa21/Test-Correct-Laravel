@@ -527,6 +527,9 @@
                     wire:loading.attr="disabled"
                     wire:click="saveAndRefreshDrawer()"
                     @beforeunload.window="$el.disabled = true"
+                    x-on:livewire-upload-start.window="$el.disabled = true"
+                    x-on:livewire-upload-finish.window="$el.disabled = false"
+                    x-on:livewire-upload-error.window="$el.disabled = false"
                     :disabled="!!empty"
                     selid="save-btn"
             >

@@ -1064,4 +1064,25 @@ class Test extends BaseModel
             return $question->uuid === $questionUuid;
         }) + 1;
     }
+
+    public function getRelativeOrderNumberForSubQuestion($gqq = null)
+    {
+        $groupQuestionId = TestQuestion::whereUuid($gqq)->value('question_id');
+        $questions = $this->testQuestions->flatMap(function ($testQuestion) {
+            if ($testQuestion->question->type === 'GroupQuestion') {
+                return $testQuestion->question->groupQuestionQuestions->map(function ($item) use ($testQuestion) {
+                    $item->question->groupQuestionId = $testQuestion->question->id;
+                    return $item->question;
+                });
+            }
+            return collect([$testQuestion->question]);
+        });
+
+        $index = $questions->search(function($question) use ($groupQuestionId) {
+            return $question->groupQuestionId === $groupQuestionId;
+        });
+        $counted = $questions->where('groupQuestionId', $groupQuestionId)->count();
+
+        return $index + $counted + 1;
+    }
 }

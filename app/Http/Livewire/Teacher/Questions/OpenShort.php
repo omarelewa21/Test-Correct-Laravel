@@ -330,7 +330,7 @@ class OpenShort extends Component
         }
 
         $this->validateAndReturnErrorsToTabOne();
-        unset($this->question['order']);
+        $this->question['order'] = 0;
 
         if ($this->action == 'edit' && !$this->isCloneRequest) {
             $response = $this->updateQuestion();
@@ -357,7 +357,7 @@ class OpenShort extends Component
             return true;
         }
 
-        $this->dirty = false;
+        $this->rebootComponent();
     }
 
     protected function prepareForClone()
@@ -1017,8 +1017,8 @@ class OpenShort extends Component
 
     private function resolveOrderNumber($questionUuid = null)
     {
-        if ($this->owner === 'group') {
-//            Test::whereUuid($this->testId)->first()->getRelativeOrderNumberForSubQuestion($)
+        if ($this->action === 'add' && $this->owner === 'group') {
+            return Test::whereUuid($this->testId)->first()->getRelativeOrderNumberForSubQuestion($this->testQuestionId);
         }
 
         return Test::whereUuid($this->testId)->first()->getRelativeOrderNumberForQuestion($questionUuid);
