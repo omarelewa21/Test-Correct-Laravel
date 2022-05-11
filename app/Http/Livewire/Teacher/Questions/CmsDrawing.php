@@ -50,6 +50,7 @@ class CmsDrawing
         $this->instance->question['zoom_group'] = $this->getViewBox($svgHelper, $q);
 
         $this->instance->question['uuid'] = $q['uuid'];
+        $this->instance->question['temp_uuid'] = 'temp-'.$q['uuid'];
 
         if (filled($this->instance->question['zoom_group'])) {
             $this->setViewBox($this->instance->question['zoom_group']);
@@ -65,6 +66,7 @@ class CmsDrawing
         $this->instance->question['question_preview'] = '';
         $this->instance->question['question_correction_model'] = '';
         $this->instance->question['uuid'] = (string)Str::uuid();
+        $this->instance->question['temp_uuid'] = 'temp-'.$this->instance->question['uuid'];
     }
 
     public function handleUpdateDrawingData($data)
@@ -105,12 +107,15 @@ class CmsDrawing
     public function performAfterSaveActions($response)
     {
         $this->unprepareForSave();
-        $svgHelper = new SvgHelper($this->instance->question['uuid']);
+        $svgHelper = new SvgHelper($this->instance->question['temp_uuid']);
 
         if ($this->instance->question['uuid'] === $response->original->question->uuid) {
-            return;
+            $svgHelper->rename($this->instance->question['uuid']);
+        } else {
+            $svgHelper->rename($response->original->question->uuid);
         }
-        $svgHelper->rename($response->original->question->uuid);
+
+        (new SvgHelper($this->instance->question['temp_uuid']))->delete();
     }
 
     /**
@@ -119,7 +124,7 @@ class CmsDrawing
      */
     private function updateFilesystemData($data): void
     {
-        $svgHelper = new SvgHelper($this->instance->question['uuid']);
+        $svgHelper = new SvgHelper($this->instance->question['temp_uuid']);
 
         if (array_key_exists('images', $this->instance->cmsPropertyBag)) {
             if (array_key_exists('answer', $this->instance->cmsPropertyBag['images'])) {

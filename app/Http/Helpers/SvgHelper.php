@@ -62,7 +62,6 @@ class SvgHelper
     }
 
     /**
-     * @param string $uuid
      * @return void
      */
     public function scaffoldFolderStructure(): void
@@ -73,6 +72,21 @@ class SvgHelper
         $this->initSVG();
         $this->initCorrectionModelPNG();
         $this->initQuestionPNG();
+
+        if (strstr($this->uuid, 'temp-')) {
+            $folderName = str_replace('temp-', '', $this->uuid);
+            if ($this->disk->exists($folderName)){
+
+                foreach ($this->disk->allFiles($folderName) as $fileOrDirectory) {
+                    $destination = str_replace($folderName, $this->uuid, $fileOrDirectory);
+                    if ($this->disk->exists($destination)) {
+                        $this->disk->delete($destination);
+                    }
+                    $this->disk->copy($fileOrDirectory, $destination);
+                }
+            }
+        }
+
     }
 
     public function updateAnswerLayer($value)
@@ -271,7 +285,6 @@ class SvgHelper
         $widthAndHeight['h'] = (string) $height;
         $widthAndHeight['w'] =  (string) $width;
 
-
         return $server->getImageAsBase64($file, $widthAndHeight + ['fm' => 'jpg', 'q' => '25',]);
     }
 
@@ -290,10 +303,23 @@ class SvgHelper
         }
         if ($this->disk->missing($newUuid)) {
             $this->disk->makeDirectory($newUuid);
-            foreach ($this->disk->allFiles($this->uuid) as $fileOrDirectory) {
-                $destination = str_replace($this->uuid, $newUuid, $fileOrDirectory);
-                $this->disk->copy($fileOrDirectory, $destination);
+        }
+
+        foreach ($this->disk->allDirectories($this->uuid) as $directory) {
+            $destination = str_replace($this->uuid, $newUuid, $directory);
+            if ($this->disk->exists($destination)) {
+                $this->disk->deleteDirectory($destination);
             }
+            $this->disk->makeDirectory($destination);
+        }
+
+        foreach ($this->disk->allFiles($this->uuid) as $fileOrDirectory) {
+            $destination = str_replace($this->uuid, $newUuid, $fileOrDirectory);
+
+            if ($this->disk->exists($destination)) {
+                $this->disk->delete($destination);
+            }
+            $this->disk->copy($fileOrDirectory, $destination);
         }
 
 //        $this->disk->copyDirectory($this->uuid, $newUuid);
@@ -345,7 +371,6 @@ class SvgHelper
         $doc = new \DOMDocument;
         $doc->loadXML($this->getSvg());
         $svgNode = collect($doc->getElementsByTagName('svg'))->first();
-        logger($svgNode->getAttribute('viewBox'));
         return $svgNode->getAttribute('viewBox');
     }
 
@@ -418,5 +443,10 @@ class SvgHelper
         list($x, $y, $width, $height) = sscanf($this->getViewBox(), '%s %s %s %s');
 
         return ['w' => $width, 'h' => $height];
+    }
+
+    public function delete()
+    {
+        $this->disk->deleteDirectory($this->uuid);
     }
 }
