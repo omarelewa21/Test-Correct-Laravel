@@ -73,6 +73,7 @@ class CmsDrawing
         $this->instance->question['question_svg'] = $data['svg_question'];
         $this->instance->question['grid_svg'] = $data['grid_size'];
         $this->instance->question['zoom_group'] = $data['svg_zoom_group'];
+        $this->instance->question['svg_date_updated'] = now();
 
         $this->setViewBox($data['svg_zoom_group']);
 
