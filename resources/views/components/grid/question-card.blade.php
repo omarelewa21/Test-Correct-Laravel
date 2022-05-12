@@ -8,8 +8,8 @@
     </div>
     <div class="flex w-full justify-between text-base mb-1">
         <div>
-            <span class="bold">{{ \Illuminate\Support\Str::replaceFirst('Question', '', $question->type) }} ({{ $question->subtype }})</span>
-            <span>{{ $question->subject->name }}</span>
+            <span class="bold">{{ $question->typeName }}</span>
+            <span>{{ optional($question->subject)->name ?? __('general.unavailable') }}</span>
         </div>
         <div class="text-sm">
             <span class="note">Laatst gewijzigd:</span>
@@ -18,7 +18,7 @@
     </div>
     <div class="flex w-full justify-between text-base">
         <div>
-            <span>Author</span>
+            <span>{{ $question->getAuthorNamesString() }}</span>
         </div>
 
         <x-input.custom-checkbox wire:click="handleCheckboxClick({{ $question->getKey() }})"

@@ -125,6 +125,8 @@
 
             @if(!$isOverview)
                 <x-button.text-button
+                        id="previewBtn"
+                        wire:loading.attr="disabled"
                     onclick="typeof toOverview === 'function' ? toOverview({{$this->q}}) :
                         livewire.find(document.querySelector('[test-take-player]').getAttribute('wire:id')).call('toOverview', {{$this->q}})
                         "

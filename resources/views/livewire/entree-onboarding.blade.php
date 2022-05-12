@@ -198,6 +198,36 @@
                                             </div>
                                         </div>
 
+                                        @if($this->needsPassword)
+                                            <div class="password mb-4 ">
+
+                                                <div class="input-group w-1/2 md:w-auto order-1 pr-2 mb-4 md:mb-0">
+                                                    <input id="password" wire:model="password" type="password"
+                                                           class="form-input @error('password') border-red @enderror">
+                                                    <label for="password"
+                                                           class="transition ease-in-out duration-150">{{ __("onboarding.Creeër wachtwoord") }}</label>
+                                                </div>
+
+                                                <div class="input-group w-1/2 md:w-auto order-3 md:order-2 pr-2 md:pl-2 mb-4 md:mb-0">
+                                                    <input id="password_confirm" wire:model="password_confirmation"
+                                                           type="password"
+                                                           class="form-input @error('password') border-red @enderror">
+                                                    <label for="password_confirm"
+                                                           class="transition ease-in-out duration-150">
+                                                        {{ __("onboarding.Herhaal wachtwoord") }}</label>
+                                                </div>
+
+                                                <div class="flex items-end mid-grey w-1/2 md:w-auto h-16 md:h-auto order-2 md:order-3 pl-2 overflow-visible md:overflow-auto requirement-font-size">
+                                                    <div class="inline-flex space-x-2 items-center text-{{$this->minCharRule}}">
+                                                        @if($this->minCharRule)<x-icon.checkmark-small></x-icon.checkmark-small>
+                                                        @elseif($this->minCharRule === 'red')<x-icon.close-small></x-icon.close-small>
+                                                        @else <x-icon.dot></x-icon.dot> @endif
+                                                        <span>Min. 8 {{ __("onboarding.tekens") }}</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        @endif
+
                                         @if($this->showSubjects)
                                         <div x-data  data-subjects='{!! $selectedSubjectsString !!}' class="subjects mb-4 ">
                                             <div x-data="subjectSelect()" x-init="init('parentEl')" @click.away="clearSearch()" @keydown.escape="clearSearch()" @keydown="navigate" class="mr-4 mb-4 sm:mb-0 ">
@@ -331,8 +361,8 @@
                             {{--content header--}}
                             <div class="mb-6 relative w-full">
                                 <img class="card-header-img float-left mr-4" src="/svg/stickers/school.svg" alt="">
-                                <h1 class="md:mt-2 top-4 card-header-text">@if($this->hasValidTUser) {{ __("onboarding.Jouw schoollocatie") }} @else {{ __('onboarding.Kies locatie(s)') }} @endif</h1>
-                                @if(!$this->hasValidTUser)
+                                <h1 class="md:mt-2 top-4 card-header-text">@if($this->hasValidTUser || $this->schoolLocation) @if(count($this->schoolLocations) > 0) {{ __("onboarding.Jouw schoollocaties") }}  @else {{ __("onboarding.Jouw schoollocatie") }} @endif @else {{ __('onboarding.Kies locatie(s)') }} @endif</h1>
+                                @if(!$this->hasValidTUser && !$this->schoolLocation)
                                 <p class="">{{ __('onboarding.We hebben meerdere locaties gevonden. Op welke locatie geef jij les?') }}</p>
                                 @endif
                             </div>
@@ -342,14 +372,59 @@
                                     <div class="input-section mb-4">
                                         @if($this->hasFixedLocation)
                                             <div class="flex flex-col space-y-2 w-full mt-4">
-                                                    <div
-                                                                 class="flex px-0 py-0 border-0 bg-system-white relative regular"
-                                                    >
-                                                        {{ $this->schoolLocation->name }}
+                                                @if($this->schoolLocation && !$this->school)
+                                                    <div class="input-section mb-4">
+                                                        <div class="school-info">
+                                                            <div class="input-group w-full sm:w-1/2 sm:pr-2">
+                                                                <input id="school_location"
+                                                                       value="{{ $this->schoolLocation->name }}" disabled
+                                                                       class="form-input disabled @error('registration.school_location') border-red @enderror">
+                                                                <label for="school_location"
+                                                                       class="">{{ __("onboarding.Schoolnaam") }}</label>
+                                                            </div>
+
+                                                            <div class="input-group w-full sm:w-1/2 sm:pl-2">
+                                                                <input id="website_url" disabled
+                                                                       value="{{ $this->schoolLocation->internetaddress }}"
+                                                                       class="form-input disabled @error('registration.website_url') border-red @enderror">
+                                                                <label for="website_url"
+                                                                       class="">{{ __("onboarding.Website") }}</label>
+                                                            </div>
+                                                            <div class="input-group w-12/12 sm:w-5/5 pr-2">
+                                                                <input id="address" disabled
+                                                                       value="{{ $this->schoolLocation->visit_address }}"
+                                                                       class="form-input disabled @error('registration.address') border-red @enderror">
+                                                                <label for="address"
+                                                                       class="">{{ __("onboarding.Bezoekadres") }}</label>
+                                                            </div>
+                                                            <div class="input-group  w-3/12 sm:w-32 pr-2">
+                                                                <input id="postcode" disabled
+                                                                       value="{{ $this->schoolLocation->visit_postal }}"
+                                                                       class="form-input disabled  @error('registration.postcode') border-red @enderror">
+                                                                <label for="postcode"
+                                                                       class="">{{ __("onboarding.Postcode") }}</label>
+                                                            </div>
+                                                            <div class="input-group w-9/12 sm:w-3/5 pl-2">
+                                                                <input id="city" disabled
+                                                                       value="{{ $this->schoolLocation->visit_city }}"
+                                                                       class="form-input disabled @error('registration.city') border-red @enderror">
+                                                                <label for="city"
+                                                                       class="">{{ __("onboarding.Plaatsnaam") }}</label>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                               @else
+                                                    @foreach($this->schoolLocations as $locationName)
+                                                        <div
+                                                                class="flex px-0 py-0 border-0 bg-system-white relative regular"
+                                                        >
+                                                            {{ $locationName }}
 
                                                             <x-icon.checkmark class="mx-2 w-4" ></x-icon.checkmark>
 
-                                                    </div>
+                                                        </div>
+                                                    @endforeach
+                                               @endif
                                             </div>
                                         @elseif($this->school)
                                             <div class="flex flex-col space-y-2 w-full mt-4">
@@ -675,10 +750,10 @@
                     if(!this.available_subject_options.includes(this.active_subject_option)){
                         this.active_subject_option = null;
                      }
-                    if(this.available_subject_options.length==0){
-                        this.show_new_item = true;
-                        return;
-                    }
+                    // if(this.available_subject_options.length==0){
+                    //     this.show_new_item = true;
+                    //     return;
+                    // }
                     this.show_new_item = false;
                 },
                 navigate(e) {

@@ -1,7 +1,8 @@
 <div class="drawer flex z-[3]"
-     x-data="{collapse: false, backdrop: false}"
+     x-data="{loadingOverlay: false, collapse: false, backdrop: false, emptyStateActive: @entangle('emptyStateActive')}"
      x-init="
         collapse = window.innerWidth < 1000;
+        if (emptyStateActive) backdrop = true;
         handleBackdrop = () => {
             if(backdrop) {
                 $root.dataset.closedWithBackdrop = 'true';
@@ -12,11 +13,21 @@
                 }
             }
         }
-"
-     :class="{'collapsed': collapse}"
+        dispatchBackdrop = () => {
+            if(!emptyStateActive) $dispatch('backdrop');
+        }
+        $watch('emptyStateActive', (value) => backdrop = value)
+        handleLoading = () => {
+            loadingOverlay = $store.cms.loading;
+        }
+    "
      x-cloak
-     wire:ignore.self
+     x-effect="handleLoading()"
+     :class="{'collapsed': collapse}"
      @backdrop="backdrop = !backdrop"
+     @scroll.throttle.500ms="$dispatch('drawer-scroll')"
+     wire:ignore.self
+     wire:init="handleCmsInit()"
 >
     <div id="sidebar-backdrop"
          class="fixed inset-0 transform transition-all"
@@ -28,7 +39,16 @@
          x-transition:leave="ease-in duration-200"
          x-transition:leave-start="opacity-100"
          x-transition:leave-end="opacity-0">
-        <div class="absolute inset-0 bg-gray-500 opacity-75"></div>
+        <div class="absolute inset-0">
+            <div x-show="emptyStateActive"
+                 x-cloak
+                 class="empty-state-popover py-4 px-6">
+                {{--                <div class="absolute right-2 top-1 cursor-pointer" >--}}
+                {{--                    <x-icon.close-small/>--}}
+                {{--                </div>--}}
+                <span class="regular text-base">{{ __('cms.begin_with_making_a_question') }}</span>
+            </div>
+        </div>
     </div>
     <div id="sidebar-content" class="flex flex-col bg-white">
         <div class="collapse-toggle vertical white z-10 cursor-pointer"
@@ -46,15 +66,14 @@
              x-ref="questionEditorSidebar"
              wire:ignore.self
         >
-            <x-sidebar.slide-container class="pt-4 divide-y divide-bluegrey" x-ref="container1">
-                <div class="divide-y divide-bluegrey">
+            <x-sidebar.slide-container class="pt-4 divide-y divide-bluegrey" x-ref="container1" @drawer-scroll.window="handleVerticalScroll($el)">
+                <div class="divide-y divide-bluegrey pb-6" {{ $emptyStateActive ? 'hidden' : '' }} >
                     @php $loopIndex = 0; @endphp
                     @foreach($this->questionsInTest as $testQuestion)
                         @if($testQuestion->question->type === 'GroupQuestion')
                             <x-sidebar.cms.group-question-container
                                     :testQuestion="$testQuestion"
                                     :question="$testQuestion->question"
-
                             >
                                 @foreach($testQuestion->question->subQuestions as $question)
                                     @php $loopIndex ++; @endphp
@@ -64,7 +83,7 @@
                                                                    :subQuestion="true"
                                     />
                                 @endforeach
-
+                                <x-sidebar.cms.dummy-group-question-button :testQuestionUuid="$testQuestion->uuid" :loop="$loopIndex"/>
                             </x-sidebar.cms.group-question-container>
                         @else
                             @php $loopIndex ++; @endphp
@@ -74,26 +93,34 @@
                             />
                         @endif
                     @endforeach
+                    <x-sidebar.cms.dummy-question-button :loop="$loopIndex"/>
                 </div>
-                <div wire:loading class="fixed inset-0" style="width: var(--sidebar-width)"></div>
-                <div class="flex px-6 py-2.5 space-x-2.5 hover:text-primary">
-                    <x-icon.plus-in-circle/>
-                    <button class="bold" wire:click="addGroup">{{ __( 'cms.Vraaggroep_toevoegen' ) }}</button>
-                </div>
+                
+                <div wire:loading
+                     wire:loading.class.remove="hidden"
+                     wire:loading.attr.remove="hidden"
+                     hidden
+                     class="fixed hidden inset-0" style="width: var(--sidebar-width)"></div>
+                <div x-show="loadingOverlay"
+                     class="fixed inset-0 bg-white opacity-20"
+                     style="width: var(--sidebar-width)"></div>
 
-                <div class="flex px-6 py-2.5 space-x-2.5 hover:text-primary"
-                     @click="next($refs.container1);$dispatch('backdrop')"
+                <x-button.plus-circle wire:click="addGroup">
+                    {{ __('cms.Vraaggroep toevoegen') }}
+                </x-button.plus-circle>
+
+                <x-button.plus-circle @click="next($refs.container1); dispatchBackdrop()"
                 >
-                    <x-icon.plus-in-circle/>
-                    <button class="bold">{{__('cms.Vraag toevoegen')}}</button>
-                </div>
+                    {{__('cms.Vraag toevoegen')}}
+                </x-button.plus-circle>
+
                 <span></span>
             </x-sidebar.slide-container>
 
-            <x-sidebar.slide-container x-ref="container2">
+            <x-sidebar.slide-container class="divide-y divide-bluegrey" x-ref="container2">
                 <div class="py-1 px-6 flex">
                     <x-button.text-button class="rotate-svg-180"
-                                          @click="prev($refs.container2); $dispatch('backdrop')"
+                                          @click="prev($refs.container2); dispatchBackdrop(); $store.questionBank.inGroup = false;"
                                           wire:click="$set('groupId', null)"
                     >
                         <x-icon.arrow/>
@@ -101,41 +128,30 @@
                     </x-button.text-button>
                 </div>
 
-                <div class="flex px-6 py-2.5 space-x-2.5 hover:text-primary"
-                     @click="showNewQuestion($refs.container2)"
+                <x-button.plus-circle class="py-4" @click="showNewQuestion($refs.container2)">
+                    {{ __( 'cms.Nieuwe creeren' ) }}
+                    <x-slot name="subtext">{{ __('cms.Stel een nieuwe vraag op') }}</x-slot>
+                </x-button.plus-circle>
 
-                >
+{{--                <x-button.plus-circle class="py-4" @click="showQuestionBank()">--}}
+{{--                    {{ __( 'cms.Bestaande toevoegen' ) }}--}}
+{{--                    <x-slot name="subtext">{{ __('cms.Verken en kies uit vragenbank') }}</x-slot>--}}
+{{--                </x-button.plus-circle>--}}
+
+                <div class="flex px-6 py-2.5 space-x-2.5 note cursor-default">
                     <x-icon.plus-in-circle/>
-                    <button class="bold" >{{ __( 'cms.Nieuwe vraag creeren' ) }}</button>
+                    <div class="flex flex-col ">
+                        <button class="bold mt-px text-left cursor-default">{{ __( 'cms.Bestaande toevoegen' ) }}</button>
+                        <span class="text-sm note regular">{{ __('cms.Verken en kies uit vragenbank') }}</span>
+                    </div>
                 </div>
 
-                <div class="flex px-6 py-2.5 space-x-2.5 hover:text-primary"
-                     @click="showQuestionBank()"
-
-                >
-                    <x-icon.plus-in-circle/>
-                    <button class="bold" >{{ __( 'cms.Bestaande vraag toevoegen' ) }}</button>
-                </div>
-
+                <span></span>
             </x-sidebar.slide-container>
-            <x-sidebar.slide-container x-ref="newquestion">
-                <div class="py-1 px-6">
-                    <x-button.text-button class="rotate-svg-180"
-                                          @click="prev($refs.newquestion)"
-                                          wire:click="$set('groupId', null)"
-                    >
-                        <x-icon.arrow/>
-                        <span>{{ __('cms.choose-question-type') }}</span>
-                    </x-button.text-button>
-                </div>
-
-                <x-sidebar.question-types/>
-            </x-sidebar.slide-container>
-
             <x-sidebar.slide-container x-ref="questionbank">
                 <div class="py-1 px-6 flex">
                     <x-button.text-button class="rotate-svg-180"
-                                          @click="prev($refs.container2);hideQuestionBank($refs.container2)"
+                                          @click="prev($refs.container2);hideQuestionBank($refs.container2); $store.questionBank.inGroup = false;"
                                           wire:click="$set('groupId', null)"
                     >
                         <x-icon.arrow/>
@@ -159,7 +175,19 @@
                 </div>
 
                 <livewire:teacher.question-bank/>
+            </x-sidebar.slide-container>
+            <x-sidebar.slide-container x-ref="newquestion">
+                <div class="py-1 px-6">
+                    <x-button.text-button class="rotate-svg-180"
+                                          @click="prev($refs.newquestion); $store.questionBank.inGroup = false;"
+                                          wire:click="$set('groupId', null)"
+                    >
+                        <x-icon.arrow/>
+                        <span>{{ __('cms.choose-question-type') }}</span>
+                    </x-button.text-button>
+                </div>
 
+                <x-sidebar.question-types/>
             </x-sidebar.slide-container>
 
         </div>
