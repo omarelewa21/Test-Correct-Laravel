@@ -53,10 +53,10 @@ class NormalizeTestTakeRequest extends Request {
         }
 
         if ($this->has('n_term') && $this->has('pass_mark')) {
-            $rules['n_term'] = 'required|numeric|between:1,10';
+            $rules['n_term'] = 'required|between:-3.5,5.5';
             $rules['pass_mark'] = 'required|numeric|between:0,100';
         } elseif ($this->has('n_term')) {
-            $rules['n_term'] = 'required|numeric|between:1,10';
+            $rules['n_term'] = 'required|between:-3.5,5.5';
         } elseif ($this->has('wanted_average')) {
             $rules['wanted_average'] = 'required|numeric|between:1,10';
         } elseif($this->has('epp')) {
