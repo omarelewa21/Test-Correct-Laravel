@@ -1008,7 +1008,7 @@ class OpenShort extends Component
 
         $this->refreshDrawer();
 
-        $message = __('cms.item added', ['item' => $this->owner === 'group' ? __('cms.group-question') : __('drawing-modal.Vraag')]);
+        $message = __('cms.item added', ['item' => $args['subtype'] === 'group' ? __('cms.group-question') : __('drawing-modal.Vraag')]);
         $this->dispatchBrowserEvent('notify', ['message' => $message]);
     }
 
