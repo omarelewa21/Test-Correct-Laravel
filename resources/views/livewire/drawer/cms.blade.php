@@ -66,7 +66,11 @@
              x-ref="questionEditorSidebar"
              wire:ignore.self
         >
-            <x-sidebar.slide-container class="pt-4 divide-y divide-bluegrey" x-ref="container1" @drawer-scroll.window="handleVerticalScroll($el)">
+            <x-sidebar.slide-container class="pt-4 divide-y divide-bluegrey"
+                                       x-ref="container1"
+{{--                                       @drawer-scroll.window="handleVerticalScroll($el)"--}}
+                                       @mouseenter="handleVerticalScroll($el);"
+            >
                 <div class="divide-y divide-bluegrey pb-6" {{ $emptyStateActive ? 'hidden' : '' }} >
                     @php $loopIndex = 0; @endphp
                     @foreach($this->questionsInTest as $testQuestion)
@@ -113,11 +117,10 @@
                 >
                     {{__('cms.Vraag toevoegen')}}
                 </x-button.plus-circle>
-
                 <span></span>
             </x-sidebar.slide-container>
 
-            <x-sidebar.slide-container class="divide-y divide-bluegrey" x-ref="container2">
+            <x-sidebar.slide-container class="divide-y divide-bluegrey" x-ref="container2" @mouseenter="handleVerticalScroll($el);">
                 <div class="py-1 px-6 flex">
                     <x-button.text-button class="rotate-svg-180"
                                           @click="prev($refs.container2); dispatchBackdrop(); $store.questionBank.inGroup = false;"
@@ -148,7 +151,7 @@
 
                 <span></span>
             </x-sidebar.slide-container>
-            <x-sidebar.slide-container x-ref="questionbank">
+            <x-sidebar.slide-container x-ref="questionbank" @mouseenter="handleVerticalScroll($el);">
                 <div class="py-1 px-6 flex">
                     <x-button.text-button class="rotate-svg-180"
                                           @click="prev($refs.container2);hideQuestionBank($refs.container2); $store.questionBank.inGroup = false;"
@@ -176,7 +179,7 @@
 
                 <livewire:teacher.question-bank/>
             </x-sidebar.slide-container>
-            <x-sidebar.slide-container x-ref="newquestion">
+            <x-sidebar.slide-container x-ref="newquestion" @mouseenter="handleVerticalScroll($el);">
                 <div class="py-1 px-6">
                     <x-button.text-button class="rotate-svg-180"
                                           @click="prev($refs.newquestion); $store.questionBank.inGroup = false;"

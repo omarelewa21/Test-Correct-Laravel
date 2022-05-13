@@ -1,5 +1,5 @@
 @props(['loop' => 1, 'testQuestionUuid' => ''])
-<div class="question-button"
+<div class="question-button group-dummy"
      x-data="{mode: @entangle('action'), owner: @entangle('owner'), name: @entangle('newQuestionTypeName'), groupId: '{{ $testQuestionUuid}}' }"
      x-init=""
      x-show="mode === 'add' && owner === 'group' && groupId === '{{ $this->testQuestionId}}'"

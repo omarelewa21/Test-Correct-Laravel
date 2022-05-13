@@ -328,6 +328,7 @@ class OpenShort extends Component
         }
 
         $this->validateAndReturnErrorsToTabOne();
+        $this->question['order'] = 0;
 
         if ($this->action == 'edit' && !$this->isCloneRequest) {
             $response = $this->updateQuestion();
@@ -335,7 +336,6 @@ class OpenShort extends Component
             if ($this->isCloneRequest) {
                 $this->prepareForClone();
             }
-            $this->question['order'] = 0;
             $response = $this->saveNewQuestion();
 
             $this->setQueryStringProperties($response);
@@ -359,7 +359,7 @@ class OpenShort extends Component
             return true;
         }
 
-        $this->dirty = false;
+        $this->rebootComponent();
     }
 
     protected function prepareForClone()
@@ -865,7 +865,7 @@ class OpenShort extends Component
             $this->question['note_type'] = $q->note_type;
             $this->question['attainments'] = $q->getQuestionAttainmentsAsArray();
             $this->question['learning_goals'] = $q->getQuestionLearningGoalsAsArray();
-            $this->question['order'] = $tq->order;
+            $this->question['order'] = $this->resolveOrderNumber($q->uuid);
             $this->question['all_or_nothing'] = $q->all_or_nothing;
             $this->question['closeable'] = $q->closeable;
             $this->question['maintain_position'] = $tq->maintain_position;
@@ -1008,7 +1008,7 @@ class OpenShort extends Component
 
         $this->refreshDrawer();
 
-        $message = __('cms.item added', ['item' => $this->owner === 'group' ? __('cms.group-question') : __('drawing-modal.Vraag')]);
+        $message = __('cms.item added', ['item' => $args['subtype'] === 'group' ? __('cms.group-question') : __('drawing-modal.Vraag')]);
         $this->dispatchBrowserEvent('notify', ['message' => $message]);
     }
 
@@ -1017,9 +1017,13 @@ class OpenShort extends Component
         return !!($this->type === 'GroupQuestion');
     }
 
-    private function resolveOrderNumber()
+    private function resolveOrderNumber($questionUuid = null)
     {
-        return Test::whereUuid($this->testId)->first()->getQuestionCount() + 1;
+        if ($this->action === 'add' && $this->owner === 'group') {
+            return Test::whereUuid($this->testId)->first()->getRelativeOrderNumberForSubQuestion($this->testQuestionId);
+        }
+
+        return Test::whereUuid($this->testId)->first()->getRelativeOrderNumberForQuestion($questionUuid);
     }
 
     public function saveAndRefreshDrawer()
