@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Livewire\Component;
 use tcCore\Answer;
+use tcCore\Http\Helpers\SvgHelper;
 use tcCore\Http\Traits\WithPreviewAttachments;
 use tcCore\Http\Traits\WithCloseable;
 use tcCore\Http\Traits\WithPreviewGroups;
@@ -42,7 +43,10 @@ class DrawingQuestion extends Component
     {
         $this->initPlayerInstance();
 
-        $this->question_svg = $this->question->question_svg;
+        $svgHelper = new SvgHelper($this->question->uuid);
+
+        $this->question_svg = $svgHelper->getQuestionSvg($this->question);
+
         $this->grid_svg = $this->question->grid_svg;
         $this->usesNewDrawingTool = Auth::user()->schoolLocation()->value('allow_new_drawing_question') && (blank($this->question->bg_name) && empty($this->question->grid));
 

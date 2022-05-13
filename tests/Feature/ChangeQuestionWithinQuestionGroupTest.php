@@ -8,7 +8,7 @@ use tcCore\User;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
-use Tests\Traits\OpenQuestionTrait;
+use tcCore\Traits\Dev\OpenQuestionTrait;
 
 class ChangeQuestionWithinQuestionGroupTest extends TestCase
 {

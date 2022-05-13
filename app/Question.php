@@ -18,12 +18,14 @@ use tcCore\Scopes\QuestionAttainmentScope;
 use tcCore\Services\QuestionHtmlConverter;
 use tcCore\Traits\ExamSchoolQuestionTrait;
 use tcCore\Traits\UuidTrait;
+use tcCore\Traits\UserContentAccessTrait;
 use \Exception;
 
 class Question extends MtiBaseModel {
     use SoftDeletes;
     use UuidTrait;
     use ExamSchoolQuestionTrait;
+    use UserContentAccessTrait;
 
     protected $casts = [
         'uuid' => EfficientUuid::class,
@@ -643,60 +645,43 @@ class Question extends MtiBaseModel {
         return false;
     }
 
-    public function scopeOpensourceAndDemo($query, $filters = []){
+    public function scopeDifferentScenariosAndDemo($query, $filters = []){
         $roles = $this->getUserRoles();
-
         $user = Auth::user();
         $schoolLocation = SchoolLocation::find($user->getAttribute('school_location_id'));
-
-        if($schoolLocation->is_allowed_to_view_open_source_content == 1) {
-
-            $baseSubjectId = $user->subjects()->select('base_subject_id')->first();
-            $subjectIds = BaseSubject::find($baseSubjectId['base_subject_id'])->subjects()->select('id')->get();
-
-         //    $query->whereIn('subject_id',$subjectIds);
-
-
-            if(!isset($filters['is_open_source_content']) || $filters['is_open_source_content'] == 0) {
-                $query->whereIn('subject_id', function ($query) use ($user) {
-                    $user->subjects($query)->select('id');
-                });
-
-                $query->orWhere('is_open_source_content','=',1);
-
-            }elseif( $filters['is_open_source_content'] == 1 ) {
-                $query->whereIn('subject_id', function ($query) use ($user) {
-                    $user->subjects($query)->select('id');
-                });
-            }else{
-                $query->whereIn('subject_id',$subjectIds);
-                $query->where('is_open_source_content','=',1);
-            }
-
-        } else {
-            if ($user->isA('Teacher')) {
-                $subject = (new DemoHelper())->getDemoSubjectForTeacher($user);
-                $query->orWhere(function($q) use ($user, $subject){
-                    // subject id = $subject->getKey() together with being an owner through the question_authors table
-                    $q->where('subject_id',$subject->getKey());
-                    $q->whereIn('questions.id',$user->questionAuthors()->pluck('question_id'));
-                });
-                // or subect_id in list AND subject not $subject->getKey()
-                $query->orWhere(function($q) use ($user,$subject){
-                    $q->where('subject_id','<>',$subject->getKey());
-                    $q->whereIn('subject_id', function ($query) use ($user) {
-                        $user->subjectsIncludingShared($query)->select('id');
-                    });
+        if ($user->isA('Teacher')) {
+            $subject = (new DemoHelper())->getDemoSubjectForTeacher($user);
+            $query->join($this->switchScopeFilteredSubQueryForDifferentScenarios($user,$subject), function ($join) {
+                $join->on('questions.id', '=', 't1.t2_id');
+            });
+            if(!is_null($subject)){
+                $query->where(function ($q) use ($user,$subject) {
+                    $q->where(function ($query) use ($user, $subject) {
+                        $query->where('questions.subject_id', $subject->getKey())->whereIn('questions.id',$user->questionAuthors()->pluck('question_id'));
+                    })->orWhere('questions.subject_id', '<>', $subject->getKey());
                 });
             }
+//            $query->orWhere(function($q) use ($user, $subject){
+//                // subject id = $subject->getKey() together with being an owner through the question_authors table
+//                $q->where('subject_id',$subject->getKey());
+//                $q->whereIn('questions.id',$user->questionAuthors()->pluck('question_id'));
+//            });
+//            // or subject_id in list AND subject not $subject->getKey()
+//            $query->orWhere(function($q) use ($user,$subject){
+//                $q->where('subject_id','<>',$subject->getKey());
+//                $q->whereIn('subject_id', function ($query) use ($user) {
+//                    $user->subjectsIncludingShared($query)->select('id');
+//                });
+//            });
         }
+
         return $query;
     }
 
     public function scopeFiltered($query, $filters = [], $sorting = [])
     {
         $user = Auth::user();
-        $query = $this->opensourceAndDemo($query,$filters);
+        $query = $this->differentScenariosAndDemo($query,$filters);
         $joins = [];
 
         // Have to apply search filter first due to subquery left join with parameters
@@ -789,7 +774,7 @@ class Question extends MtiBaseModel {
                                 $subjectIds = $subjectIds->pluck('id');
                                 $query->whereIn('subject_id',$subjectIds);
                                 break;
-                            case 'school': // including shared sections
+                            case 'school': //  shared sections
                                 if(is_array($value)) {
                                     $subjectIds = $user->subjectsOnlyShared()->whereIn('base_subject_id', $value);
                                 } else {
@@ -831,7 +816,7 @@ class Question extends MtiBaseModel {
                             case 'schoolLocation': // only my colleages and me
                                 $query->whereIn('subject_id',$user->subjects()->pluck('id'));
                                 break;
-                            case 'school': // including shared sections
+                            case 'school': //  shared sections
                                 $query->whereIn('subject_id',$user->subjectsOnlyShared()->pluck('id'));
                                 break;
                             default:
@@ -1460,6 +1445,99 @@ class Question extends MtiBaseModel {
         return $this->questionLearningGoals->map(function($relation) {
             return $relation->attainment_id;
         })->toArray();
+    }
+
+    private function getQueryGetItemsFromSchoolLocationAuthoredByUser($user)
+    {
+        return sprintf('select distinct t2.id as t2_id  /* select all questions from schoollocation authored by user */
+                                from
+                                   `questions` as t2
+                                        left join question_authors
+                                            on t2.id = question_authors.question_id
+                                        inner join (
+                                            select distinct subjects.id as subject_id
+                                            from subjects
+                                                left join sections
+                                                    on subjects.section_id = sections.id
+                                                left join school_location_sections as t9
+                                                    on t9.section_id = sections.id
+                                            where
+                                                subjects.deleted_at is null
+                                                and
+                                                t9.school_location_id = %d
+                                                        ) as s2
+                                                    on t2.subject_id = s2.subject_id
+                                            where question_authors.user_id = %d',
+            $user->school_location_id,
+            $user->id);
+    }
+
+    private function getQueryGetItemsFromSectionWithinSchoolLocation($user,$demoSubject)
+    {
+        return sprintf('select distinct t2.id as t2_id /* select tests from active schoollocation with subjects that fall under the section the user is member of */
+                                            from
+                                               `questions` as t2
+                                               inner join (
+                                                        select distinct t8.id as subject_id
+                                                        from subjects
+                                                            left join sections
+                                                                on subjects.section_id = sections.id
+                                                            left join subjects as t8
+                                                                on sections.id = t8.section_id
+                                                            left join school_location_sections as t9
+                                                                on t9.section_id = sections.id
+                                                            left join teachers
+                                                                on subjects.id = teachers.subject_id
+                                                        where
+                                                            subjects.deleted_at is null
+                                                                and
+                                                            teachers.user_id = %d
+                                                                and
+                                                            teachers.deleted_at is null
+                                                                and
+                                                            t9.school_location_id = %d
+                                                            ) as s2
+                                                    on t2.subject_id = s2.subject_id',
+            $user->id,
+            $user->school_location_id
+        );
+    }
+
+
+
+    private function getQueryGetItemsFromAllSchoolLocationsAuthoredByUserCurrentlyTaughtByUserInActiveSchoolLocation($user,$demoSubject)
+    {
+        return sprintf('select distinct t2.id as t2_id  /* select questions from all schoollocations authored by user and currently taught in active schoollocation */
+                                            from
+                                               `questions` as t2
+                                                    left join question_authors
+                                                        on t2.id = question_authors.question_id
+                                                    inner join (
+                                                         select distinct t3.id as subject_id
+                                                        from subjects
+                                                            left join sections
+                                                                on subjects.section_id = sections.id
+                                                            inner join subjects as t3
+                                                                on subjects.base_subject_id = t3.base_subject_id
+                                                            left join school_location_sections as t10
+                                                                on sections.id = t10.section_id
+                                                            left join teachers
+                                                                on subjects.id = teachers.subject_id
+                                                        where
+                                                            subjects.deleted_at is null
+                                                                and
+                                                            teachers.user_id = %d
+                                                                and
+                                                            teachers.deleted_at is null
+                                                                and
+                                                            t10.school_location_id = %d
+                                                        ) as s2
+                                                    on t2.subject_id = s2.subject_id
+                                            where question_authors.user_id = %d ',
+            $user->id,
+            $user->school_location_id,
+            $user->id
+        );
     }
 
     public function getTitleAttribute()

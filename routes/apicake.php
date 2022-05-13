@@ -253,8 +253,10 @@ Route::group(['middleware' => ['api', 'dl', 'authorize', 'authorizeBinds', 'bind
     Route::resource('attachment', 'AttachmentsController', ['only' => ['index', 'show']]);
 
     Route::get('question/inlineimage/{image}',['uses' => 'QuestionsController@inlineimage']);
+    Route::get('/drawing-question/{answerUuid}/given-answer-png', [tcCore\Http\Controllers\QuestionsController::class, 'getDrawingQuestionGivenAnswerPng'])->name('api-c.drawing-question.givenanswerpng');
+    Route::get('/drawing-question/{drawingQuestion}/correction-model', [tcCore\Http\Controllers\QuestionsController::class, 'drawingQuestionCorrectionModelPng'])->name('api-c.drawing-question.correction-model');
 
-	Route::resource('attainment', 'AttainmentsController', ['only' => ['index', 'show']]);
+    Route::resource('attainment', 'AttainmentsController', ['only' => ['index', 'show']]);
 
 	// Phase B
 	Route::resource('answer_rating', 'AnswerRatingsController', ['except' => ['create', 'edit']]);
@@ -387,6 +389,7 @@ Route::group(['middleware' => ['api', 'dl', 'authorize', 'authorizeBinds', 'bind
     Route::put('test_take/{test_take}/toggle_inbrowser_testing_for_all_participants','TestTakesController@toggleInbrowserTestingForAllParticipants')->name('test_takes.toggle_inbrowser_testing_for_all_participants');
 
     Route::post('/convert/html/pdf','PdfController@HtmlToPdf')->name('convert.htmltopdf');
+    Route::get('/convert/settings/{setting}','PdfController@getSetting')->name('convert.getSetting');
 
     Route::put('support/register_take_over/{user}','SupportTakeOverLogController@store')->name('support_take_over_log.store');
     Route::get('support/show/{user}','SupportTakeOverLogController@show')->name('support_take_over_log.show');

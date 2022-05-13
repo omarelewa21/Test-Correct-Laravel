@@ -317,7 +317,12 @@ document.addEventListener('alpine:init', () => {
             })
 
             toolName.Canvas.layers.answer.enable();
-            toolName.Canvas.setCurrentLayer("answer");
+            if(this.isTeacher){
+                toolName.Canvas.setCurrentLayer("question");
+            } else {
+                toolName.Canvas.setCurrentLayer("answer");
+            }
+
         },
         handleGrid(toolName) {
             if (this.gridSvg !== '0.00' && this.gridSvg !== '') {

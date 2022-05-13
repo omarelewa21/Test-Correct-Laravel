@@ -198,6 +198,36 @@
                                             </div>
                                         </div>
 
+                                        @if($this->needsPassword)
+                                            <div class="password mb-4 ">
+
+                                                <div class="input-group w-1/2 md:w-auto order-1 pr-2 mb-4 md:mb-0">
+                                                    <input id="password" wire:model="password" type="password"
+                                                           class="form-input @error('password') border-red @enderror">
+                                                    <label for="password"
+                                                           class="transition ease-in-out duration-150">{{ __("onboarding.Creeër wachtwoord") }}</label>
+                                                </div>
+
+                                                <div class="input-group w-1/2 md:w-auto order-3 md:order-2 pr-2 md:pl-2 mb-4 md:mb-0">
+                                                    <input id="password_confirm" wire:model="password_confirmation"
+                                                           type="password"
+                                                           class="form-input @error('password') border-red @enderror">
+                                                    <label for="password_confirm"
+                                                           class="transition ease-in-out duration-150">
+                                                        {{ __("onboarding.Herhaal wachtwoord") }}</label>
+                                                </div>
+
+                                                <div class="flex items-end mid-grey w-1/2 md:w-auto h-16 md:h-auto order-2 md:order-3 pl-2 overflow-visible md:overflow-auto requirement-font-size">
+                                                    <div class="inline-flex space-x-2 items-center text-{{$this->minCharRule}}">
+                                                        @if($this->minCharRule)<x-icon.checkmark-small></x-icon.checkmark-small>
+                                                        @elseif($this->minCharRule === 'red')<x-icon.close-small></x-icon.close-small>
+                                                        @else <x-icon.dot></x-icon.dot> @endif
+                                                        <span>Min. 8 {{ __("onboarding.tekens") }}</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        @endif
+
                                         @if($this->showSubjects)
                                         <div x-data  data-subjects='{!! $selectedSubjectsString !!}' class="subjects mb-4 ">
                                             <div x-data="subjectSelect()" x-init="init('parentEl')" @click.away="clearSearch()" @keydown.escape="clearSearch()" @keydown="navigate" class="mr-4 mb-4 sm:mb-0 ">
@@ -269,10 +299,7 @@
                                                         </div>
                                                     </div>
                                                 </div>
-
-
                                             </div>
-
                                         </div>
                                         @endif
 
@@ -334,8 +361,8 @@
                             {{--content header--}}
                             <div class="mb-6 relative w-full">
                                 <img class="card-header-img float-left mr-4" src="/svg/stickers/school.svg" alt="">
-                                <h1 class="md:mt-2 top-4 card-header-text">@if($this->hasValidTUser) {{ __("onboarding.Jouw schoollocatie") }} @else {{ __('onboarding.Kies locatie(s)') }} @endif</h1>
-                                @if(!$this->hasValidTUser)
+                                <h1 class="md:mt-2 top-4 card-header-text">@if($this->hasValidTUser || $this->schoolLocation) @if(count($this->schoolLocations) > 0) {{ __("onboarding.Jouw schoollocaties") }}  @else {{ __("onboarding.Jouw schoollocatie") }} @endif @else {{ __('onboarding.Kies locatie(s)') }} @endif</h1>
+                                @if(!$this->hasValidTUser && !$this->schoolLocation)
                                 <p class="">{{ __('onboarding.We hebben meerdere locaties gevonden. Op welke locatie geef jij les?') }}</p>
                                 @endif
                             </div>
@@ -343,72 +370,75 @@
                             <div class="flex-grow">
                                 <form class="h-full relative" wire:submit.prevent="step2" action="#" method="POST">
                                     <div class="input-section mb-4">
-                                        @if($this->hasValidTUser)
+                                        @if($this->hasFixedLocation)
                                             <div class="flex flex-col space-y-2 w-full mt-4">
-                                                    <x-drag-item id="mc-"
-                                                                 class="flex px-0 py-0 border-0 bg-system-white relative regular"
-                                                                 slotClasses="w-full mr-0 "
-                                                    >
-                                                        <p>{{ $this->registration->school_location }}</p>
-                                                        <x-slot name="after">
-                                                            <x-icon.checkmark class="mx-2 w-4"  wire:click="__call('delete','')"></x-icon.checkmark>
-                                                        </x-slot>
-                                                    </x-drag-item>
+                                                @if($this->schoolLocation && !$this->school)
+                                                    <div class="input-section mb-4">
+                                                        <div class="school-info">
+                                                            <div class="input-group w-full sm:w-1/2 sm:pr-2">
+                                                                <input id="school_location"
+                                                                       value="{{ $this->schoolLocation->name }}" disabled
+                                                                       class="form-input disabled @error('registration.school_location') border-red @enderror">
+                                                                <label for="school_location"
+                                                                       class="">{{ __("onboarding.Schoolnaam") }}</label>
+                                                            </div>
+
+                                                            <div class="input-group w-full sm:w-1/2 sm:pl-2">
+                                                                <input id="website_url" disabled
+                                                                       value="{{ $this->schoolLocation->internetaddress }}"
+                                                                       class="form-input disabled @error('registration.website_url') border-red @enderror">
+                                                                <label for="website_url"
+                                                                       class="">{{ __("onboarding.Website") }}</label>
+                                                            </div>
+                                                            <div class="input-group w-12/12 sm:w-5/5 pr-2">
+                                                                <input id="address" disabled
+                                                                       value="{{ $this->schoolLocation->visit_address }}"
+                                                                       class="form-input disabled @error('registration.address') border-red @enderror">
+                                                                <label for="address"
+                                                                       class="">{{ __("onboarding.Bezoekadres") }}</label>
+                                                            </div>
+                                                            <div class="input-group  w-3/12 sm:w-32 pr-2">
+                                                                <input id="postcode" disabled
+                                                                       value="{{ $this->schoolLocation->visit_postal }}"
+                                                                       class="form-input disabled  @error('registration.postcode') border-red @enderror">
+                                                                <label for="postcode"
+                                                                       class="">{{ __("onboarding.Postcode") }}</label>
+                                                            </div>
+                                                            <div class="input-group w-9/12 sm:w-3/5 pl-2">
+                                                                <input id="city" disabled
+                                                                       value="{{ $this->schoolLocation->visit_city }}"
+                                                                       class="form-input disabled @error('registration.city') border-red @enderror">
+                                                                <label for="city"
+                                                                       class="">{{ __("onboarding.Plaatsnaam") }}</label>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                               @else
+                                                    @foreach($this->schoolLocations as $locationName)
+                                                        <div
+                                                                class="flex px-0 py-0 border-0 bg-system-white relative regular"
+                                                        >
+                                                            {{ $locationName }}
+
+                                                            <x-icon.checkmark class="mx-2 w-4" ></x-icon.checkmark>
+
+                                                        </div>
+                                                    @endforeach
+                                               @endif
                                             </div>
-                                        @else
+                                        @elseif($this->school)
                                             <div class="flex flex-col space-y-2 w-full mt-4">
-                                                <x-drag-item id="mc-"
-                                                             class="flex px-0 py-0 border-0 bg-system-white relative regular"
-                                                             slotClasses="w-full mr-0 "
+
+                                            @foreach($this->school->schoolLocations as $location)
+                                                <div wire:click="toggleSchoolLocation('{{ $location->uuid }}',@if($this->isSelectedSchoolLocation($location->uuid)) false @else true @endif )"
+                                                        class="flex px-0 py-0 border-0 bg-system-white relative regular"
                                                 >
-                                                    <p>{{ $this->registration->school_location }}</p>
-                                                    <x-slot name="after">
-                                                        <x-icon.checkmark class="mx-2 w-4 " wire:click="__call('delete','')"></x-icon.checkmark>
-                                                    </x-slot>
-                                                </x-drag-item>
-                                            </div>
-
-                                            <div class="school-info">
-                                                <div class="input-group w-full  sm:w-1/2 sm:pr-2">
-                                                    <input id="school_location"
-                                                           wire:model.lazy="registration.school_location" @if($this->hasValidTUser) disabled @endif
-                                                           class="form-input @if($this->hasValidTUser) disabled @endif @error('registration.school_location') border-red @enderror">
-                                                    <label for="school_location"
-                                                           class="">{{ __("onboarding.Schoolnaam") }}</label>
+                                                    {{ $location->name }}
+                                                    @if($this->isSelectedSchoolLocation($location->uuid))
+                                                        <x-icon.checkmark class="mx-2 w-4"  wire:click="deleteSchoolLocation('{{ $location->uuid }}')"></x-icon.checkmark>
+                                                    @endif
                                                 </div>
-
-                                                <div class="input-group w-full sm:w-1/2 sm:pl-2">
-                                                    <input id="website_url" wire:model.lazy="registration.website_url"
-                                                           class="form-input @error('registration.website_url') border-red @enderror">
-                                                    <label for="website_url"
-                                                           class="">{{ __("onboarding.Website") }}</label>
-                                                </div>
-
-                                                <div class="input-group w-9/12 sm:w-3/5 pr-2">
-                                                    <input id="address" wire:model.lazy="registration.address"
-                                                           class="form-input @error('registration.address') border-red @enderror">
-                                                    <label for="address"
-                                                           class="">{{ __("onboarding.Bezoekadres") }}</label>
-                                                </div>
-                                                <div class="input-group w-3/12 sm:w-32 pl-2 md:mr-16">
-                                                    <input id="house_number" wire:model.lazy="registration.house_number"
-                                                           class="form-input @error('registration.house_number') border-red @enderror">
-                                                    <label for="house_number"
-                                                           class="">{{ __("onboarding.Huisnummer") }}</label>
-                                                </div>
-
-                                                <div class="input-group  w-3/12 sm:w-32 pr-2">
-                                                    <input id="postcode" wire:model.lazy="registration.postcode"
-                                                           class="form-input  @error('registration.postcode') border-red @enderror">
-                                                    <label for="postcode"
-                                                           class="">{{ __("onboarding.Postcode") }}</label>
-                                                </div>
-                                                <div class="input-group w-9/12 sm:w-3/5 pl-2">
-                                                    <input id="city" wire:model="registration.city"
-                                                           class="form-input @error('registration.city') border-red @enderror">
-                                                    <label for="city"
-                                                           class="">{{ __("onboarding.Plaatsnaam") }}</label>
-                                                </div>
+                                            @endforeach
                                             </div>
                                         @endif
                                     </div>
@@ -480,38 +510,22 @@
                                 </form>
                             </div>
                         </div>
-                    @elseif($this->step === 3)
+                    @elseif($this->step === 3 || $this->step === 4)
                         <div class="content-form">
                             {{--content header--}}
                             <div class="mb-6 relative">
                                 <img class="inline-block card-header-img mr-3" src="/svg/stickers/completed.svg" alt="">
-                                <h1 class="sm:mt-2 top-2.5 card-header-text">{{ __("onboarding.Je bent nu klaar! Met Test-Correct kun je") }}</h1>
+                                <h2 class="sm:mt-2 top-2.5 card-header-text">{{ __("onboarding.Je bent nu klaar! Met Test-Correct kun je") }}</h2>
+                                @if($this->step === 3)
+                                    <h3 x-data="{}" x-init="setTimeout(() => {$wire.finish() },2000);">{{ __("onboarding.Je gegevens worden nu verwerkt...") }}</h3>
+                                @else
+                                    <h3><img src="/svg/icons/checkmark.svg" alt=""
+                                             class="mr-4 float-left">
+                                        <span class="klaar-text">{{ __("onboarding.Je gegevens zijn verwerkt") }}.</span></h3>
+                                @endif
                             </div>
                             <div class="flex-grow">
                                 <div class="body1 h-full relative">
-                                    <div class="flex flex-wrap">
-                                        <div class="w-full sm:w-1/2 sm:pr-2 mb-4 relative">
-                                            <img src="/svg/stickers/toetsen-maken-afnemen.svg" alt=""
-                                                 class="mr-4 float-left">
-                                            <span class="klaar-text">{{ __("onboarding.Toetsen aanmaken en bestaande toetsen omzetten") }}.</span>
-                                        </div>
-                                        <div class="w-full sm:w-1/2 sm:pl-2 mb-4 relative">
-                                            <img src="/svg/stickers/toetsen-beoordelen-bespreken.svg" alt=""
-                                                 class="mr-4 float-left">
-                                            <span class="klaar-text">{{ __("onboarding.Toetsen beoordelen en samen de CO-Learning doorlopen") }}.</span>
-                                        </div>
-                                    </div>
-                                    <div class="flex flex-wrap mb-4">
-                                        <div class="w-full sm:w-1/2 sm:pr-2 mb-4 relative">
-                                            <img src="/svg/stickers/klassen.svg" alt="" class="mr-4 float-left">
-                                            <span class="klaar-text">{{ __("onboarding.Klassen maken en uitnodigen om een toets af te nemen") }}.</span>
-                                        </div>
-                                        <div class="w-full sm:w-1/2 sm:pl-2 mb-4 relative">
-                                            <img src="/svg/stickers/toetsresultaten-analyse.svg" alt=""
-                                                 class="mr-4 float-left">
-                                            <span class="klaar-text">{{ __("onboarding.Toetsresultaten delen en analystische feedback inzien") }}.</span>
-                                        </div>
-                                    </div>
                                     <div class="flex flex-wrap mb-4">
                                         <span class="w-full mb-3">{{ __("onboarding.Deel op social media dat je een Test-Correct docent account hebt aangemaakt") }}.</span>
                                         <a class="float-left mr-2 button button-sm secondary-button transition"
@@ -530,19 +544,20 @@
                                                  src="/svg/logos/Logo-Facebook.svg"
                                                  alt=""></a>
                                     </div>
-
-                                    @if($resendVerificationMail)
-                                        <div class="notification info mb-4">
-                                            <span class="title">{{ __("onboarding.De verificatie e-mail is opnieuw naar je verzonden") }}.</span>
+                                    @if(!$this->hasValidTUser)
+                                        @if($resendVerificationMail)
+                                            <div class="notification info mb-4">
+                                                <span class="title">{{ __("onboarding.De verificatie e-mail is opnieuw naar je verzonden") }}.</span>
+                                            </div>
+                                        @endif
+                                        <div class="notification warning stretched mb-4 md:mb-16">
+                                            <span class="title">{{ __("onboarding.Verifieer je e-mailadres") }}</span>
+                                            <span class="body">{{ __("onboarding.Open de verificatie mail en klik op 'Verifieer e-mailadres'. Het ontvangen van de e-mail kan enkele minuten duren. Heb je geen mail ontvangen?") }}
+                                                <a wire:click="resendEmailVerificationMail" class="bold cursor-pointer">{{ __("onboarding.Stuur de verificatiemail opnieuw") }} <x-icon.arrow-small></x-icon.arrow-small></a> {{ __("onboarding.of") }}
+                                                <a href="https://support.test-correct.nl/knowledge" class="bold"
+                                                   target="_blank">{{ __("onboarding.zoek ondersteuning") }} <x-icon.arrow-small></x-icon.arrow-small></a></span>
                                         </div>
                                     @endif
-                                    <div class="notification warning stretched mb-4 md:mb-16">
-                                        <span class="title">{{ __("onboarding.Verifieer je e-mailadres") }}</span>
-                                        <span class="body">{{ __("onboarding.Open de verificatie mail en klik op 'Verifieer e-mailadres'. Het ontvangen van de e-mail kan enkele minuten duren. Heb je geen mail ontvangen?") }}
-                                            <a wire:click="resendEmailVerificationMail" class="bold cursor-pointer">{{ __("onboarding.Stuur de verificatiemail opnieuw") }} <x-icon.arrow-small></x-icon.arrow-small></a> {{ __("onboarding.of") }}
-                                            <a href="https://support.test-correct.nl/knowledge" class="bold"
-                                               target="_blank">{{ __("onboarding.zoek ondersteuning") }} <x-icon.arrow-small></x-icon.arrow-small></a></span>
-                                    </div>
                                     <div class="md:absolute bottom-0 sm:right-0">
                                         <button class=" button button-md cta-button" wire:click="loginUser">
                                             <span class="mr-3">{{ __("onboarding.Inloggen op Test-Correct") }}</span>
@@ -735,10 +750,10 @@
                     if(!this.available_subject_options.includes(this.active_subject_option)){
                         this.active_subject_option = null;
                      }
-                    if(this.available_subject_options.length==0){
-                        this.show_new_item = true;
-                        return;
-                    }
+                    // if(this.available_subject_options.length==0){
+                    //     this.show_new_item = true;
+                    //     return;
+                    // }
                     this.show_new_item = false;
                 },
                 navigate(e) {

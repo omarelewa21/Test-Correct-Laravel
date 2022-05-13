@@ -5,6 +5,7 @@ namespace tcCore\Http\Livewire\Student;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 use Ramsey\Uuid\Uuid;
+use tcCore\Http\Helpers\BaseHelper;
 use tcCore\Http\Traits\WithStudentTestTakes;
 use tcCore\TestParticipant;
 use tcCore\TestTake;
@@ -58,8 +59,7 @@ class GuestUserChoosingPage extends Component
 
         Auth::login($user);
 
-        $sessionHash = $user->generateSessionHash();
-        $user->setSessionHash($sessionHash);
+        BaseHelper::doLoginProcedure();
 
         redirect(route('student.waiting-room', ['take' => $this->take]));
     }

@@ -3,12 +3,12 @@
         <div class="mb-4" questionHtml wire:ignore>
             {!! $question->converted_question_html  !!}
         </div>
-        <div wire:ignore>
+        <div wire:ignore >
             <span>{!! __('test_take.instruction_open_question') !!}</span>
             <x-input.group class="w-full" label="" style="position: relative;">
                 <textarea id="{{ $editorId }}" name="{{ $editorId }}" wire:model.debounce.1000ms="answer">{!! $this->answer !!}</textarea>
                 @if(Auth::user()->text2speech)
-                    <div wire:ignore class="rspopup_tlc hidden rsbtn_popup_tlc_{{$question->id}}"  ><div class="rspopup_play rspopup_btn " role="button" tabindex="0" aria-label="Lees voor" data-rslang="title/arialabel:listen" data-rsevent-id="rs_340375" title="Lees voor"></div></div>
+                    <div wire:ignore class="rspopup_tlc hidden rsbtn_popup_tlc_{{$question->id}}"  ><div class="rspopup_play rspopup_btn rs_skip" role="button" tabindex="0" aria-label="Lees voor" data-rslang="title/arialabel:listen" data-rsevent-id="rs_340375" title="Lees voor"></div></div>
                 @endif
             </x-input.group>
         </div>

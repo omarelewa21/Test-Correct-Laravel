@@ -173,7 +173,7 @@ class OpenShort extends Component
             'answer'                 => '',
             'bloom'                  => '',
             'closeable'              => 0,
-            'decimal_score'          => 0,
+            'decimal_score'          => 1,
             'discuss'                => 1,
             'maintain_position'      => 0,
             'miller'                 => '',
@@ -183,7 +183,7 @@ class OpenShort extends Component
             'order'                  => $this->resolveOrderNumber(),
             'question'               => '',
             'rtti'                   => '',
-            'score'                  => 5,
+            'score'                  => 1,
             'subtype'                => '',
             'type'                   => '',
             'attainments'            => [],
@@ -191,7 +191,7 @@ class OpenShort extends Component
             'test_id'                => '',
             'all_or_nothing'         => false,
         ];
-        $this->cmsPropertyBag = [];
+
         $this->audioUploadOptions = [];
 
         $this->uploads = [];
@@ -203,8 +203,6 @@ class OpenShort extends Component
         $this->videos = [];
 
         $this->isPartOfGroupQuestion = false;
-
-        $this->isCloneRequest = false;
 
         $this->testAuthors = '';
 
@@ -345,6 +343,10 @@ class OpenShort extends Component
         $this->dispatchBrowserEvent('notify', ['message' => __('cms.Wijzigingen opgeslagen')]);
         if ($response->getStatusCode() == 200) {
             $this->handleAttachments($response);
+
+            if ($this->obj && method_exists($this->obj, 'performAfterSaveActions')) {
+                $this->obj->performAfterSaveActions($response);
+            }
         }
 
         if (!Auth::user()->schoolLocation->canUseCmsWithDrawer()) {

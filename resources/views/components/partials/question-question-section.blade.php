@@ -36,7 +36,7 @@
         <x-button.add-attachment>
             <x-slot name="text">
                 <x-icon.attachment/>
-                <span>{!! __('cms.Bijlage toevoegen')  !!}</span>
+                <span selid="add-attachment-btn">{!! __('cms.Bijlage toevoegen')  !!}</span>
             </x-slot>
         </x-button.add-attachment>
     </x-slot>

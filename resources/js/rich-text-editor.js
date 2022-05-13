@@ -113,9 +113,10 @@ RichTextEditor = {
                 const wordCountPlugin = editor.plugins.get( 'WordCount' );
                 const wordCountWrapper = document.getElementById( 'word-count-'+editorId );
                 wordCountWrapper.appendChild( wordCountPlugin.wordCountContainer );
-                ReadspeakerTlc.ckeditor.addListenersForReadspeaker(editor,questionId,editorId);
-                ReadspeakerTlc.ckeditor.disableContextMenuOnCkeditor();
-
+                if(typeof ReadspeakerTlc != 'undefined') {
+                    ReadspeakerTlc.ckeditor.addListenersForReadspeaker(editor, questionId, editorId);
+                    ReadspeakerTlc.ckeditor.disableContextMenuOnCkeditor();
+                }
             } )
             .catch( error => {
                 console.error( error );
@@ -124,6 +125,10 @@ RichTextEditor = {
     setReadOnly: function(editor)
     {
         editor.isReadOnly = true;
+        var editables = editor.ui.view.editable.element.querySelectorAll("[contenteditable=true]");
+        editables.forEach(function(element) {
+            element.setAttribute('contenteditable',false);
+        });
     },
     writeContentToTexarea: function(editorId)
     {

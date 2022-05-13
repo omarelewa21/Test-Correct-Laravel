@@ -4,6 +4,7 @@
 namespace tcCore\Http\Traits;
 
 
+use Illuminate\Support\Facades\Auth;
 use tcCore\Answer;
 use tcCore\Attachment;
 
@@ -44,9 +45,13 @@ trait WithAttachments
     {
         if (optional($this->attachment)->file_mime_type == 'audio/mpeg') {
             if ($this->audioHasTimerAndIsStartedAndNotFinished()&& !$this->audioCloseWarning){
+                if ($this->attachment->audioIsPausable()) {
+                    $this->dispatchBrowserEvent('pause-audio-player');
+                }
                 $this->audioCloseWarning = true;
                 return;
             }
+
             if ($this->audioOnlyPlayOnceAndIsStartedAndNotFinished() && !$this->audioCloseWarning) {
                 if (!$this->attachment->audioIsPausable()) {
                     $this->audioCloseWarning = true;
@@ -57,8 +62,10 @@ trait WithAttachments
             if ($this->audioCloseWarning&&$this->attachment->audioOnlyPlayOnce()) {
                 $this->audioIsPlayedOnce();
             }
+
             $this->audioCloseWarning = false;
             $this->dispatchBrowserEvent('pause-audio-player');
+
             if ($this->timeout != null && $this->playStarted()) {
                 $data = ['timeout' => $this->timeout, 'attachment' => $this->attachment->getKey()];
                 $this->dispatchBrowserEvent('start-timeout', $data);
@@ -168,6 +175,9 @@ trait WithAttachments
 
         if ($this->attachmentType == 'audio') {
             return 'w-3/4 h-1/2';
+        }
+        if ($this->attachmentType == 'pdf'&&(!is_null(Auth::user())&&Auth::user()->text2speech)) {
+            return 'w-5/6 lg:w-5/6 h-[80vh]';
         }
         if ($this->attachmentType == 'pdf') {
             return 'w-5/6 lg:w-4/6 h-[80vh]';

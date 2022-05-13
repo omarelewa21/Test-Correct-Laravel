@@ -50,10 +50,10 @@ See https://github.com/adobe-type-tools/cmap-resources
     <script src="/pdf/viewer.js"></script>
     <script src="/pdf/tcViewer.js"></script>
     @if(!is_null(Auth::user())&&Auth::user()->text2speech)
-    <link rel="stylesheet" type="text/css" href="/css/rs_tlc.css" />
-    <link rel="stylesheet" type="text/css" href="/css/rs_tlc_pdf.css" />
-    <script src="//cdn-eu.readspeaker.com/script/12749/webReader/webReader.js?pids=wr&amp;noDefaultSkin=1" type="text/javascript" id="rs_req_Init"></script>
-        <script src="/js/readspeaker_tlc.js"></script>
+    <link rel="stylesheet" type="text/css" href="{{ mix('/css/rs_tlc.css') }}" />
+    <link rel="stylesheet" type="text/css" href="{{ mix('/css/rs_tlc_pdf.css') }}" />
+    <script src="//cdn-eu.readspeaker.com/script/12749/webReader/webReader.js?pids=wr&amp;noDefaultSkin=1&mobile=0&amp;language={{Auth::user()->getLanguageReadspeaker()}}" type="text/javascript" id="rs_req_Init"></script>
+    <script src="{{ mix('/js/readspeaker_tlc.js') }}"></script>
     @endif
 </head>
 

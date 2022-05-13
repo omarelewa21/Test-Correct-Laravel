@@ -42,5 +42,5 @@ return [
     'Close confirmation'                 => 'Weet je het zeker dat je wil sluiten? Eventuele wijzigingen worden niet opgeslagen',
     'Centreren'                          => 'Centreren',
     'Vraag'                              => 'Vraag',
+    'Save no answers yet confirm text'   => 'Je hebt nog geen antwoordmodel getekend. Weet je zeker dat je wilt afsluiten?',
 ];
-?>
