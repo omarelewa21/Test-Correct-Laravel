@@ -179,7 +179,7 @@
 
                 <livewire:teacher.question-bank/>
             </x-sidebar.slide-container>
-            <x-sidebar.slide-container x-ref="newquestion">
+            <x-sidebar.slide-container x-ref="newquestion" @mouseenter="handleVerticalScroll($el);">
                 <div class="py-1 px-6">
                     <x-button.text-button class="rotate-svg-180"
                                           @click="prev($refs.newquestion); $store.questionBank.inGroup = false;"
