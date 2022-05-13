@@ -323,3 +323,17 @@ preventNavigationByKeydown = function(event)
 {
     return event.stopPropagation();
 }
+removeFilterItem = (el) => {
+    console.log(el);
+    document.querySelector(`[data-model-name="${el.parentElement.dataset.filter}"`)
+        .querySelector('select')
+        .dispatchEvent(
+            new CustomEvent('choice',
+                {'detail':
+                        {'choice':
+                                {'value': el.parentElement.dataset.filterValue }
+                        }
+                }
+            )
+        )
+}

@@ -127,7 +127,7 @@ class CmsFactory
                     'name'        => __('question.arq'),
                     'description' => __('question.arq_description'),
                     'type'        => 'MultipleChoiceQuestion',
-                    'subtype'     => 'Arq',
+                    'subtype'     => 'ARQ',
                 ],
             ],
             'extra'  => [
@@ -140,6 +140,19 @@ class CmsFactory
                 ]
             ]
         ];
+    }
+
+    public static function findQuestionNameByTypes($type, $subtype)
+    {
+        if ($type === 'GroupQuestion') return __('question.groupquestion');
+
+        $question = collect(CmsFactory::questionTypes())->flatMap(function ($q) {
+            return $q;
+        })->filter(function($q) use ($type, $subtype) {
+            return $q['type'] == $type && $q['subtype'] === $subtype;
+        })->first();
+
+        return $question['name'];
     }
 
 

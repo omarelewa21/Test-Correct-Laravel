@@ -13,6 +13,11 @@ use tcCore\Test;
 
 class QuestionBank extends Component
 {
+    const ITEM_INCREMENT = 15;
+
+    const SOURCE_PERSONAL = 'me';
+    const SOURCE_SCHOOL = '';
+
     protected $queryString = ['testId'];
 
     public $testId;
@@ -21,42 +26,37 @@ class QuestionBank extends Component
         'subject_id'           => [],
         'education_level_year' => [],
         'education_level_id'   => [],
+        'source'               => self::SOURCE_PERSONAL,
+        'without_groups'       => ''
     ];
 
     public $addedQuestionIds = [];
+    public $itemsPerPage;
+
+    public $inGroup = false;
 
     public function mount()
     {
+        $this->itemsPerPage = QuestionBank::ITEM_INCREMENT;
         $this->addedQuestionIds = $this->getQuestionIdsThatAreAlreadyInTest();
+    }
+
+    public function render()
+    {
+        return view('livewire.teacher.question-bank');
     }
 
     public function getQuestionsProperty()
     {
-        return Question::filtered($this->getFilters())
-            ->where(function ($query) {
-                $query->where('scope', '!=', 'cito')
-                    ->orWhereNull('scope');
-            })
-//            ->where(function ($query) {
-//                $query->whereNotIn('id', $this->getQuestionIdsThatAreAlreadyInTest());
-//            })
-            ->with([
-                'questionAttainments',
-                'questionAttainments.attainment',
-                'tags',
-                'authors',
-                'subject:id,base_subject_id,name',
-                'subject.baseSubject:id,name'
-            ])
-            ->distinct()
-            ->limit(10)
+        return $this->getQuestionsQuery()
+            ->take($this->itemsPerPage)
             ->get();
     }
 
     private function getFilters()
     {
         return collect($this->filters)->reject(function ($filter) {
-            return blank($filter);
+            return empty($filter);
         })->toArray();
     }
 
@@ -70,7 +70,8 @@ class QuestionBank extends Component
                     'value' => $subject->getKey(),
                     'label' => $subject->name
                 ];
-            })->toArray();
+            })
+            ->toArray();
     }
 
     public function getEducationLevelProperty()
@@ -82,7 +83,8 @@ class QuestionBank extends Component
                     'value' => $edLevel->getKey(),
                     'label' => $edLevel->name
                 ];
-            })->toArray();
+            })
+            ->toArray();
     }
 
     public function getEducationLevelYearProperty()
@@ -97,9 +99,15 @@ class QuestionBank extends Component
         ];
     }
 
+    public function getTestProperty()
+    {
+        return Test::whereUuid($this->testId)->first();
+    }
+
     public function handleCheckboxClick($questionId)
     {
         if ($this->isQuestionInTest($questionId)) {
+            $this->emitTo('drawer.cms', 'deleteQuestionByQuestionId', $questionId);
             return $this->removeQuestionFromTest($questionId);
         }
 
@@ -108,7 +116,6 @@ class QuestionBank extends Component
 
     public function addQuestionToTest($questionId)
     {
-
         $this->addedQuestionIds[] = $questionId;
 
         $requestParams = [
@@ -136,26 +143,73 @@ class QuestionBank extends Component
             ->toArray();
     }
 
-    public function getTestProperty()
-    {
-        return Test::whereUuid($this->testId)->first();
-    }
-
     private function removeQuestionFromTest($questionId)
     {
-        $testQuestion = $this->test->testQuestions->where('question_id', $questionId)->first();
-        $response = (new TestQuestionsController)->destroy($testQuestion);
-
-        if ($response->getStatusCode() == 200) {
-            $this->dispatchBrowserEvent('question-removed');
-            collect($this->addedQuestionIds)->reject(function($id) use ($questionId) {
-                return $id === $questionId;
-            });
-        }
+        collect($this->addedQuestionIds)->reject(function ($id) use ($questionId) {
+            return $id === $questionId;
+        });
     }
 
     public function isQuestionInTest($questionId)
     {
         return collect($this->addedQuestionIds)->contains($questionId);
+    }
+
+    public function showMore()
+    {
+        $this->itemsPerPage += QuestionBank::ITEM_INCREMENT;
+    }
+
+    public function updatedFilters($name, $value)
+    {
+        $this->resetItemsPerPage();
+    }
+
+    public function updatedInGroup($value)
+    {
+        $this->filters['without_groups'] = $value;
+    }
+
+    private function resetItemsPerPage()
+    {
+        $this->itemsPerPage = QuestionBank::ITEM_INCREMENT;
+    }
+
+    public function setSource($source)
+    {
+        if ($source === 'personal') {
+            return $this->filters['source'] = self::SOURCE_PERSONAL;
+        }
+
+        return $this->filters['source'] = self::SOURCE_SCHOOL;
+    }
+
+    /**
+     * @return mixed
+     */
+    private function getQuestionsQuery()
+    {
+        return Question::filtered($this->getFilters())
+            ->where(function ($query) {
+                $query->where('scope', '!=', 'cito')
+                    ->orWhereNull('scope');
+            })
+//            ->where(function ($query) {
+//                $query->whereNotIn('id', $this->getQuestionIdsThatAreAlreadyInTest());
+//            })
+            ->with([
+                'questionAttainments',
+                'questionAttainments.attainment',
+                'tags',
+                'authors',
+                'subject:id,base_subject_id,name',
+                'subject.baseSubject:id,name'
+            ])
+            ->distinct();
+    }
+
+    public function getResultCountProperty()
+    {
+        return $this->getQuestionsQuery()->count();
     }
 }
