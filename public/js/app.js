@@ -6381,7 +6381,9 @@ dragElement = function dragElement(element) {
   }
 
   function elementDrag(e) {
-    e = e || window.event; // calculate the new cursor position:
+    e = e || window.event;
+    var rect = document.getElementById('body').getBoundingClientRect();
+    console.log(Math.abs(rect.top), rect.bottom, rect.left, rect.right); // calculate the new cursor position:
 
     if (e.type === 'touchmove') {
       pos1 = pos3 - e.touches[0].clientX;
@@ -6398,8 +6400,9 @@ dragElement = function dragElement(element) {
 
     newTop = element.offsetTop - pos2;
     newLeft = element.offsetLeft - pos1;
-    element.style.top = newTop + "px";
-    element.style.left = newLeft + "px";
+    console.log(Math.abs(newTop), newLeft);
+    element.style.top = (Math.abs(newTop) > Math.abs(rect.top) - 40 ? rect.top + 40 : newTop) + "px";
+    element.style.left = (newLeft > rect.right ? rect.right : newLeft) + "px";
   }
 
   function closeDragElement(e) {
@@ -6662,7 +6665,7 @@ window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
 window.Pusher = __webpack_require__(/*! pusher-js */ "./node_modules/pusher-js/dist/web/pusher.js");
 window.Echo = new laravel_echo__WEBPACK_IMPORTED_MODULE_0__["default"]({
   broadcaster: 'pusher',
-  key: "fc18ed69b446aeb8c8a5",
+  key: "2149988ad52a600a2309",
   cluster: "eu",
   forceTLS: true
 });

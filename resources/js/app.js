@@ -203,6 +203,10 @@ dragElement = function (element) {
     function elementDrag(e) {
         e = e || window.event;
 
+        const rect = document.getElementById('body').getBoundingClientRect();
+
+        console.log(Math.abs(rect.top), rect.bottom, rect.left, rect.right);
+
         // calculate the new cursor position:
         if (e.type === 'touchmove') {
             pos1 = pos3 - e.touches[0].clientX;
@@ -219,8 +223,10 @@ dragElement = function (element) {
         newTop = (element.offsetTop - pos2);
         newLeft = (element.offsetLeft - pos1);
 
-        element.style.top = newTop + "px";
-        element.style.left = newLeft + "px";
+        console.log(Math.abs(newTop), newLeft);
+
+        element.style.top = ( Math.abs(newTop) > Math.abs(rect.top) - 40 ? rect.top + 40 : newTop) + "px";
+        element.style.left = (newLeft > rect.right ? rect.right : newLeft) + "px";
 
     }
 
