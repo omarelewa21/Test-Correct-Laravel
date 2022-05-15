@@ -118,6 +118,7 @@ Core = {
     },
     enableAppFeatures(appType) {
         if(appType !== 'chromebook'){
+            console.log(chrome.runtime.getManifest().version);
             let appElements = document.querySelectorAll('[' + appType + ']');
             appElements.forEach((element) => {
                 element.style.display = 'flex';
@@ -178,18 +179,23 @@ Core = {
     },
     showCloseButtonChromeOS()
     {
-        const xhttp = new XMLHttpRequest();
-        xhttp.onload = function() {
-            if( this.app_type.toLowerCase() === 'chromeos' && this.responseText.app_version.charAt(0) === '2' )
-            {
-                let appElements = document.querySelectorAll('[chromebook]');
-                appElements.forEach((element) => {
-                    element.style.display = 'flex';
-                });
-            }
+        // const xhttp = new XMLHttpRequest();
+        // xhttp.onload = function() {
+        //     if( this.app_type.toLowerCase() === 'chromeos' && this.responseText.app_version.charAt(0) === '2' )
+        //     {
+        //         let appElements = document.querySelectorAll('[chromebook]');
+        //         appElements.forEach((element) => {
+        //             element.style.display = 'flex';
+        //         });
+        //     }
+        // }
+        // xhttp.open("GET", "/appVersion", true);
+        // xhttp.send();
+        try {
+            console.log(chrome.runtime.getManifest().version);
+        } catch (error) {
+            
         }
-        xhttp.open("GET", "/appVersion", true);
-        xhttp.send();
     }
 }
 
