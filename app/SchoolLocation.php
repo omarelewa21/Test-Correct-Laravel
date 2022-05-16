@@ -12,6 +12,7 @@ use Illuminate\Support\Str;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use tcCore\Http\Helpers\ActingAsHelper;
 use tcCore\Http\Helpers\DemoHelper;
+use tcCore\Http\Helpers\GlobalStateHelper;
 use tcCore\Jobs\CountAccountManagerAccounts;
 use tcCore\Jobs\CountAccountManagerActiveLicenses;
 use tcCore\Jobs\CountAccountManagerExpiredLicenses;
@@ -30,6 +31,7 @@ use tcCore\Jobs\CountSchoolTestsTaken;
 use tcCore\Lib\Models\AccessCheckable;
 use tcCore\Lib\Models\BaseModel;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use tcCore\Lib\User\Factory;
 use tcCore\Lib\User\Roles;
 use Dyrynda\Database\Casts\EfficientUuid;
 use Dyrynda\Database\Support\GeneratesUuid;
@@ -340,11 +342,12 @@ class SchoolLocation extends BaseModel implements AccessCheckable
         });
 
         static::created(function (SchoolLocation $schoolLocation) {
-            (new DemoHelper())->createDemoPartsForSchool($schoolLocation);
+            $schoolLocation->created = true;
         });
 
         // Progress additional answers
         static::saved(function (SchoolLocation $schoolLocation) {
+
             if ($schoolLocation->sections !== null) {
                 $schoolLocation->saveSections();
             }
@@ -387,6 +390,23 @@ class SchoolLocation extends BaseModel implements AccessCheckable
 
             if ($schoolLocation->otherContacts !== null) {
                 $schoolLocation->saveOtherContacts();
+            }
+
+            if(isset($schoolLocation->created) && $schoolLocation->created){
+                $origAuthUser = Auth::user();
+                if(SchoolLocationSection::where('school_location_id',$schoolLocation->getKey())->count() <= 1) { // demo could be there
+                    $user = $schoolLocation->addDefaultSchoolManagerIfNeeded();
+                    if($user){
+                        Auth::login($user);
+                    }
+                    $schoolLocation->addDefaultSectionsAndSubjects();
+                }
+                if(GlobalStateHelper::getInstance()->hasPreventDemoEnvironmentCreationForSchoolLocation() === false) {
+                    (new DemoHelper())->createDemoPartsForSchool($schoolLocation);
+                }
+                if($origAuthUser){
+                    Auth::login($origAuthUser);
+                }
             }
 
             $schoolLocation->dispatchJobs();
@@ -977,32 +997,114 @@ class SchoolLocation extends BaseModel implements AccessCheckable
             'end_date'           => Carbon::parse($endDate),
         ]);
         $periodLocation->save();
+
+        return $this;
     }
 
-    public function addDefaultSectionsAndSubjects($level = "VO")
+    public function addDefaultSchoolManagerIfNeeded()
     {
-        // get base subjects for this level
-        $baseSubjects = BaseSubject::forLevel($level)->get();
-        // find the default section ids for these base subjects and make them unique
-        $defaultSectionIds = $baseSubjects->map(function(BaseSubject $bs) {
-            return $bs->default_section_id;
-        })->unique();
-        // get default sections based on the ids
-        $defaultSections = DefaultSection::find($defaultSectionIds->toArray());
-        $sectionIds = [];
-        // create sections based on the default sections
-        $defaultSections->each(function(DefaultSection $ds) use (&$sectionIds){
-            $section = Section::create($ds->toArray());
-            // default section id belongs to the new section id
-            $sectionIds[$ds->getKey()] = $section->getKey();
+        // for the time being always needed
+        $userFactory = new Factory(new User());
+        $user = $userFactory->generate(
+            [
+                'account_verified' => Carbon::now(),
+                'name' => 'Schoolbeheerder',
+                'name_first' => 'default',
+                'username' => sprintf('info+%sSchoolbeheerder@test-correct.nl',Str::kebab($this->name)),
+                'send_welcome_email' => 1,
+                'user_roles' => [6],
+                'school_location_id' => $this->getKey(),
+            ]
+        );
+        $user->save();
+        return $user;
+    }
+
+    public function addDefaultSectionsAndSubjects()
+    {
+        $this->refresh();
+        // get default subjects
+        if ($this->educationLevels()->count() > 0) {
+            $this->addDefaultSubjectsAndSectionsBasedOnEducationLevels($this->educationLevels()->get());
+        }
+    }
+
+    public function addDefaultSubjectsAndSectionsBasedOnEducationLevels($educationLevels)
+    {
+        // get default subjects
+        $defaultSubjects = DefaultSubject::where(function($query) use ($educationLevels){
+           $this->buildEducationLevelQueryLikeStatement($query, $educationLevels);
+        })->get();
+
+        $defaultSectionIds = $defaultSubjects->map(function(DefaultSubject $ds){
+           return $ds->default_section_id;
         });
-        // create the sections based on the base subjects
-        $baseSubjects->each(function(BaseSubject $bs) use ($sectionIds){
-            // set some extra fields based on the settings passed along
-            Subject::create(
-                  array_merge($bs->toArray(),['section_id' => $sectionIds[$bs->default_section_id], 'base_subject_id' => $bs->getKey()])
-            );
+        // get default sections
+        $defaultSections = DefaultSection::whereIn('id',$defaultSectionIds)->get();
+        // add sections
+        $list = [];
+        $defaultSections->each(function(DefaultSection $ds) use (&$list){
+           $section = Section::create([
+              'name' => $ds->name,
+              'demo' => $ds->demo,
+           ]);
+           $list[$ds->getKey()] = $section->getKey();
         });
+
+        // add sections to schoollocation
+        $this->sections = array_values($list);
+        $this->saveSections();
+        // add subjects
+        $defaultSubjects->each(function(DefaultSubject $ds) use ($list){
+           Subject::create([
+                'section_id' => $list[$ds->default_section_id],
+               'base_subject_id' => $ds->base_subject_id,
+               'name' => $ds->name,
+               'abbreviation' => $ds->abbreviation,
+               'demo' => $ds->demo,
+           ]);
+        });
+    }
+
+    protected function buildEducationLevelQueryLikeStatement($query,$educationLevels)
+    {
+        $first = true;
+        $educationLevels->each(function(EducationLevel $el) use ($query, &$first){
+           if($first){
+               $query->where('education_levels','like','%'.$el->name.'%');
+               $first = false;
+           } else {
+               $query->orwhere('education_levels','like','%'.$el->name.'%');
+           }
+        });
+    }
+
+    public function addDefaultSubjectsAndSectionsBasedOnLevel($level)
+    {
+//        // get default sections
+//        $defaultSections = DefaultSection::where('level',$level)->get();
+//        // get base subjects for this level
+//        $baseSubjects = BaseSubject::forLevel($level)->get();
+//        // find the default section ids for these base subjects and make them unique
+//        $defaultSectionIds = $baseSubjects->map(function(BaseSubject $bs) {
+//            return $bs->default_section_id;
+//        })->unique();
+//        // get default sections based on the ids
+//        $defaultSections = DefaultSection::find($defaultSectionIds->toArray());
+//        $sectionIds = [];
+//        // create sections based on the default sections
+//        $defaultSections->each(function(DefaultSection $ds) use (&$sectionIds){
+//            $section = Section::create($ds->toArray());
+//            // default section id belongs to the new section id
+//            $sectionIds[$ds->getKey()] = $section->getKey();
+//        });
+//        // create the sections based on the base subjects
+//        $baseSubjects->each(function(BaseSubject $bs) use ($sectionIds){
+//            // set some extra fields based on the settings passed along
+//            Subject::create(
+//                  array_merge($bs->toArray(),['section_id' => $sectionIds[$bs->default_section_id], 'base_subject_id' => $bs->getKey()])
+//            );
+//        });
     }
 
     public function scopeNoActivePeriodAtDate($query, $date)

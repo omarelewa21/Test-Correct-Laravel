@@ -161,8 +161,10 @@ class DemoHelper
 
     public function createDemoForSchoolLocationIfNeeded(SchoolLocation $schoolLocation)
     {
-        if (!$this->hasSchoolDemoSetup($schoolLocation)) {
-            $this->createDemoPartsForSchool($schoolLocation);
+        if(GlobalStateHelper::getInstance()->hasPreventDemoEnvironmentCreationForSchoolLocation() === false) {
+            if (!$this->hasSchoolDemoSetup($schoolLocation)) {
+                $this->createDemoPartsForSchool($schoolLocation);
+            }
         }
     }
 

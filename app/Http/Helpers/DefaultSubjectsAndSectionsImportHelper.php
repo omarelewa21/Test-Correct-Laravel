@@ -39,6 +39,8 @@ class DefaultSubjectsAndSectionsImportHelper
             logger($e);
             logger($e->getMessage());
             if($this->inConsole){
+                echo $e->getMessage();
+            } else if(app()->runningInConsole()){
                 $this->output->error($e->getMessage());
             }
         }
@@ -84,5 +86,4 @@ class DefaultSubjectsAndSectionsImportHelper
             $this->info(PHP_EOL.'A total of '.$this->rawSubjects->count().' default subjects have been created or updated');
         }
     }
-
 }
