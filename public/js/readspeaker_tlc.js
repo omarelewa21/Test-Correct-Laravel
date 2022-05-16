@@ -208,6 +208,9 @@ ReadspeakerTlc = function(){
                                 if (!util.checkElementInActiveQuestion(ClassicEditors[editorId].ui.view.editable.element)) {
                                     return true;
                                 }
+                                if(ClassicEditors[editorId].ui.view.editable.element.classList.contains('ck-read-only')){
+                                    return true;
+                                }
                                 var range = ClassicEditors[editorId].model.document.selection.getFirstRange();
                                 if(range.end.isEqual(range.start)) {
                                     return true;
