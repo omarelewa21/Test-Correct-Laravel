@@ -333,17 +333,19 @@ class OpenShort extends Component
         }
 
         $this->validateAndReturnErrorsToTabOne();
-        $this->question['order'] = 0;
 
         if ($this->action == 'edit' && !$this->isCloneRequest) {
             $response = $this->updateQuestion();
         } else {
+            $this->question['order'] = 0;
             if ($this->isCloneRequest) {
                 $this->prepareForClone();
             }
             $response = $this->saveNewQuestion();
 
-            $this->setQueryStringProperties($response);
+            if ($this->withDrawer) {
+                $this->setQueryStringProperties($response);
+            }
         }
         $this->dispatchBrowserEvent('notify', ['message' => __('cms.Wijzigingen opgeslagen')]);
         if ($response->getStatusCode() == 200) {
@@ -969,12 +971,10 @@ class OpenShort extends Component
 
         $upload = collect($this->uploads)->first(function ($upload) use ($sortHash) {
             return $upload->getFileName() === $sortHash;
-//            return $upload->id == $sortHash;
         });
 
         $video = collect($this->videos)->first(function ($video) use ($sortHash) {
             return $video['id'] == $sortHash;
-//            return $video == $sortHash;
         });
 
         return [$upload, $video];

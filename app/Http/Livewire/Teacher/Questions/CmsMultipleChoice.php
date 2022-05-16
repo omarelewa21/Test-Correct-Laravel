@@ -2,14 +2,16 @@
 
 namespace tcCore\Http\Livewire\Teacher\Questions;
 
-use Illuminate\Support\Facades\Validator;
 use Ramsey\Uuid\Uuid;
 use tcCore\GroupQuestionQuestion;
 use tcCore\Http\Helpers\BaseHelper;
+use tcCore\Http\Traits\WithCmsMultipleChoiceType;
 use tcCore\TestQuestion;
 
 class CmsMultipleChoice extends CmsBase
 {
+    use WithCmsMultipleChoiceType;
+
     const MIN_ANSWER_COUNT = 2;
 
     private $instance;
@@ -192,22 +194,5 @@ class CmsMultipleChoice extends CmsBase
     public function getTemplate()
     {
         return 'multiple-choice-question';
-    }
-
-    /**
-     * @return bool
-     * The instance data first needs to be restructured/'prepared for save'd before it can be validated correctly.
-     * After it fails/passes it should be restructured back to be useable by the CMS.
-     *
-     * This is used to see if it passes the validation without actually validating it (dirty confirmation)
-     * -RR
-     */
-    public function passesCustomMandatoryRules(): bool
-    {
-        $this->prepareForSave();
-        $passedValidation = !(Validator::make((array)$this->instance, $this->instance->getRulesFromProvider())->fails());
-        $this->createAnswerStruct();
-
-        return $passedValidation;
     }
 }
