@@ -1,5 +1,5 @@
 
-<div class="flex flex-col w-full justify-center items-center bg-white space-y-3 rounded-10">
+<div class="flex flex-col w-full justify-center items-center bg-white space-y-3 rounded-10" selid="audio-attachment">
     <div class="text-center w-3/4">
         @if(!$attachment->audioCanBePlayedAgain())
             <h5>{{__('test_take.sound_clip_played')}}</h5>

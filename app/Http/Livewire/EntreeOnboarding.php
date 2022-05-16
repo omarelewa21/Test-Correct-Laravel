@@ -3,6 +3,7 @@
 namespace tcCore\Http\Livewire;
 
 use Bugsnag\BugsnagLaravel\Facades\Bugsnag;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\DB;
@@ -14,7 +15,9 @@ use tcCore\BaseSubject;
 use tcCore\DemoTeacherRegistration;
 use tcCore\Http\Helpers\ActingAsHelper;
 use tcCore\Http\Helpers\BaseHelper;
+use tcCore\Http\Helpers\DemoHelper;
 use tcCore\Http\Helpers\EntreeHelper;
+use tcCore\Http\Helpers\UserHelper;
 use tcCore\Http\Requests\Request;
 use tcCore\Lib\Repositories\SchoolYearRepository;
 use tcCore\Lib\User\Factory;
@@ -29,11 +32,14 @@ use tcCore\Teacher;
 use tcCore\TemporaryLogin;
 use tcCore\User;
 
-class EntreeOnboarding extends Component
+class EntreeOnboarding extends Onboarding
 {
     public $saml_id;
     public $registration;
     public $step = 1;
+
+    public $password;
+    public $password_confirmation;
 
     public $btnDisabled = true;
     public $resendVerificationMail = false;
@@ -53,8 +59,11 @@ class EntreeOnboarding extends Component
     public $hasFixedLocation = false;
     public $selectedLocationsString = null;
     public $schoolLocation;
+    public $schoolLocations = [];
     public $school;
     public $samlId;
+
+    public $needsPassword = true;
 
     protected $queryString = ['step','samlId'];
 
@@ -67,6 +76,9 @@ class EntreeOnboarding extends Component
             'selectedLocationsString.required' => __('registration.school_location_required'),
             'registration.username.required' => __('registration.username_required'),
             'registration.username.email' => __('registration.username_email'),
+            'password.required'                     => __('registration.password_required'),
+            'password.min'                          => __('registration.password_min'),
+            'password.same'                         => __('registration.password_same'),
         ];
     }
 
@@ -87,6 +99,7 @@ class EntreeOnboarding extends Component
             'registration.name'                         => 'sometimes',
             'registration.name_suffix'                  => 'sometimes',
             'registration.subjects'                     => 'sometimes',
+            'password'                                  => 'sometimes',
             ];
 
         if ($this->step === 1) {
@@ -97,6 +110,13 @@ class EntreeOnboarding extends Component
                 'registration.name' => 'required|string',
                 'registration.name_suffix' => 'sometimes',
             ]);
+
+            if($this->needsPassword){
+                $rules = array_merge($rules,[
+                    'password'                      => 'required|same:password_confirmation|'. User::getPasswordLengthRule(),
+                ]);
+            }
+
             return $rules;
         }
 
@@ -129,17 +149,23 @@ class EntreeOnboarding extends Component
         if(!$this->hasValidTUser) {
             $this->registration->name = $this->entreeData->data->lastName;
             $this->registration->name_suffix = $this->entreeData->data->nameSuffix;
+            $this->registration->name_first = $this->entreeData->data->firstName;
+        } else {
+            $this->needsPassword = false;
         }
 
         if (!$this->step != 1 || $this->step >= '4') {
             $this->step = 1;
         }
 
+        $this->registration->level = "VO";
+
 
         $this->registration->registration_email_confirmed = $this->hasValidTUser;
         if (!$this->hasValidTUser) {
             $this->setSubjectOptions();
         }
+
     }
 
     public function getEntreeDataProperty()
@@ -161,10 +187,11 @@ class EntreeOnboarding extends Component
         }
 
         if ($this->entreeData->data->locationId) {
-            $this->schoolLocation = SchoolLocation::find($this->entreeData->data->locationId);
+            $this->schoolLocation = SchoolLocation::findOrFail($this->entreeData->data->locationId);
             $this->hasFixedLocation = true;
-            $this->selectedLocationsString = $this->entreeData->data->locationId;
-        } else if ($this->entreeData->data->schoolId) {
+            $this->saveSelectedSchoolLocationsToString([$this->schoolLocation->uuid]);
+        }
+        if ($this->entreeData->data->schoolId) {
             $this->school = School::find($this->entreeData->data->schoolId);
         }
 
@@ -172,10 +199,13 @@ class EntreeOnboarding extends Component
 
             $user = User::find($this->entreeData->data->userId);
             if ($user && $user->hasImportMailAddress()) {
+                $this->hasFixedLocation = true;
                 collect(['name_first', 'name_suffix', 'name', 'gender'])->each(function ($key) use ($user){
                     $this->registration->$key = $user->$key;
                 });
-
+                if($this->school){
+                    $this->schoolLocations = $user->allowedSchoolLocations()->pluck('name')->toArray();
+                }
                 $this->hasValidTUser = true;
                 $this->showSubjects = false;
                 $this->btnStepOneDisabledCheck();
@@ -185,13 +215,7 @@ class EntreeOnboarding extends Component
         return true;
     }
 
-    public function backToStepOne()
-    {
-        $this->step = 1;
-//        $this->btnStepOneDisabledCheck();
-    }
-
-    public function render()
+     public function render()
     {
         switch ($this->step) {
             case 1:
@@ -224,6 +248,15 @@ class EntreeOnboarding extends Component
         $this->step = 4;
     }
 
+    public function getMinCharRuleProperty()
+    {
+        if (empty($this->password)) {
+            return 0;
+        } else {
+            return mb_strlen($this->password) < 8 ? false : true;
+        }
+    }
+
     public function step2()
     {
         $this->validate();
@@ -242,6 +275,10 @@ class EntreeOnboarding extends Component
         } else {
             $this->validate($this->rulesStep2());
             $schoolLocationsUuids = $this->getSelectedSchoolLocationCollection();
+            if($schoolLocationsUuids->count() < 1){
+                $url = BaseHelper::getLoginUrlWithOptionalMessage(__('onboarding-welcome.De gekozen school locatie kon niet gevonden worden. Neem contact op met support.'), true);
+                return $this->redirectToUrlAndExit($url);
+            }
             $schoolLocations = SchoolLocation::whereUuid($schoolLocationsUuids->toArray())->get();
 
             if($schoolLocations->count() < 1){
@@ -251,33 +288,49 @@ class EntreeOnboarding extends Component
 
             DB::beginTransaction();
             try {
-                $userFactory = new Factory(new User());
-                $user = $userFactory->generate([
+
+                $actingAsUser = $schoolLocations->first()->users()->first();
+                ActingAsHelper::getInstance()->setUser($actingAsUser);
+
+                $user = (new UserHelper())->createUserFromData([
                         'school_id' => null,
                         'school_location_id' => $schoolLocations->first()->getKey(),
                         'username' => $this->registration->username,
-                        'password' => '',
+                        'password' => $this->password,
+                        'gender' => $this->registration->gender,
                         'name_first' => $this->registration->name_first,
                         'name_suffix' => $this->registration->name_suffix,
                         'name' => $this->registration->name,
-                        'send_welcome_email' => true,
+                        'send_welcome_email' => false,
+                        'user_roles' => [1],
                     ]
                 );
                 $this->userUuid = $user->uuid;
+                $user->eckid = Crypt::decryptString($this->entreeData->data->encryptedEckId);
+                $user->account_verified = Carbon::now();
+                $user->save();
+                $user->generalTermsLog()->create(['accepted_at' => Carbon::now()]);
 
-                if ($schoolLocations->count() > 1) {
-                    $schoolLocations->each(function (SchoolLocation $schoolLocation) use ($user) {
-                        $user->addSchoolLocation($schoolLocation);
-                        $user->school_location_id = $schoolLocation->getKey();
-                        $user->save();
-                        $user->refresh();
+                $locationsAdded = collect([$user->school_location_id]);
+                if ($schoolLocations->count() > 0) {
+                    $schoolLocations->each(function (SchoolLocation $schoolLocation) use ($user, $locationsAdded) {
+                        // do not add first school location as it is set at registration
+                        if(!$locationsAdded->contains($schoolLocation->getKey())) {
+                            $user->school_location_id = $schoolLocation->getKey();
+                            $user->save();
+                            $user->addSchoolLocationAndCreateDemoEnvironment($schoolLocation);
+                            $user->refresh();
+                            $locationsAdded->push($schoolLocation->getKey());
+                        }
                         ActingAsHelper::getInstance()->setUser($user);
+                        DemoTeacherRegistration::registerIfApplicable($user);
+
                         $class = new SchoolClass();
                         $class->fill([
                             'visible' => false,
                             'school_location_id' => $schoolLocation->getKey(),
                             'education_level_id' => $schoolLocation->schoolLocationEducationLevels->first()->value('education_level_id'),
-                            'school_year_id' => SchoolYearRepository::getCurrentOrPreviousSchoolYear()->getKey(),
+                            'school_year_id' => SchoolYearRepository::getCurrentSchoolYear()->getKey(),
                             'name' => sprintf('entree_registration_class_%s', $user->getKey()),
                             'education_level_year' => 1,
                             'is_main_school_class' => 0,
@@ -313,22 +366,7 @@ class EntreeOnboarding extends Component
         return Subject::whereIn('section_id',$sections->toArray())->whereIn('base_subject_id',$baseSubjectIds->toArray())->pluck('id');
     }
 
-    public function loginUser()
-    {
-        $redirectUrl = config('app.url_login');
-        if ($this->userUuid) {
-            $user = User::whereUuid($this->userUuid)->first();
-            if ($user) {
-                $temporaryLogin = TemporaryLogin::create(
-                    ['user_id' => $user->getKey()]
-                );
-                $redirectUrl = $temporaryLogin->createCakeUrl();
-            }
-        }
-        Redirect::to($redirectUrl);
-    }
-
-    private function btnStepOneDisabledCheck()
+  private function btnStepOneDisabledCheck()
     {
         if ($this->step == 1) {
             $this->btnDisabled = (
@@ -344,45 +382,6 @@ class EntreeOnboarding extends Component
 
     }
 
-    private function btnStepTwoDisabledCheck()
-    {
-        if ($this->step == 2) {
-            $this->btnDisabled = (
-                empty($this->registration->city)
-                || empty($this->registration->school_location)
-                || empty($this->registration->website_url)
-                || empty($this->registration->address)
-                || empty($this->registration->postcode)
-                || empty($this->registration->house_number)
-            );
-        }
-    }
-
-    public function checkInputForLength()
-    {
-        if ($this->step == 1) {
-            if (strlen($this->registration->name_first) <= 1
-                || strlen($this->registration->name) <= 1) {
-                $this->warningStepOne = true;
-                return false;
-            }
-
-            $this->warningStepOne = false;
-            return true;
-
-        }
-        if ($this->step == 2) {
-            if (strlen($this->registration->city) <= 1
-                || strlen($this->registration->school_location) <= 1
-                || strlen($this->registration->website_url) <= 1
-                || strlen($this->registration->address) <= 1) {
-                $this->warningStepTwo = true;
-                return false;
-            }
-            $this->warningStepTwo = false;
-            return true;
-        }
-    }
 
     public function fillSchoolData(SchoolLocation $schoolInfo)
     {
@@ -391,20 +390,6 @@ class EntreeOnboarding extends Component
         $this->registration->postcode = $schoolInfo->visit_postal;
         $this->registration->house_number = filter_var($schoolInfo->visit_address, FILTER_SANITIZE_NUMBER_INT);
         $this->registration->city = $schoolInfo->visit_city;
-    }
-
-    public function clearSchoolData()
-    {
-        $this->registration->school_location = null;
-        $this->registration->address = null;
-        $this->registration->postcode = null;
-        $this->registration->house_number = null;
-        $this->registration->city = null;
-    }
-
-    public function updating(&$name, &$value)
-    {
-        Request::filter($value);
     }
 
     public function updated($propertyName)
@@ -439,8 +424,11 @@ class EntreeOnboarding extends Component
         return $this->deleteSchoolLocation($uuid);
     }
 
-    protected function saveSelectedSchoolLocationsToString($coll)
+    protected function saveSelectedSchoolLocationsToString($coll = null)
     {
+        if(null === $coll || count($coll) < 1){
+            $this->selectedLocationsString = null;
+        }
         $this->selectedLocationsString = json_encode($coll,JSON_HEX_APOS);
     }
 
@@ -465,31 +453,4 @@ class EntreeOnboarding extends Component
         return BaseSubject::whereIn('name',$names)->where('show_in_onboarding',1)->pluck('id');
     }
 
-    public function syncSelectedSubjects($subjects)
-    {
-        $this->registration->subjects = implode(';', $subjects);
-        $this->selectedSubjects = $subjects;
-    }
-
-    protected function setSubjectOptions()
-    {
-        $subjects = BaseSubject::where('show_in_onboarding', true)->get()->pluck('name')->toArray();
-        $subjects = array_unique($subjects);
-        sort($subjects);
-//        $subjects = $this->translateSubjects($subjects);
-        $subjects = array_diff($subjects, $this->selectedSubjects);
-        $this->subjectOptions = json_encode($subjects, JSON_HEX_APOS);
-    }
-
-    protected function setSelectedSubjectsString()
-    {
-        $this->selectedSubjectsString = json_encode($this->selectedSubjects, JSON_HEX_APOS);
-    }
-
-    private function translateSubjects($subjects)
-    {
-        return collect($subjects)->map(function ($subject) {
-            return __('subject.' . $subject);
-        })->toArray();
-    }
 }

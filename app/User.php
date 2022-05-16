@@ -17,6 +17,7 @@ use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Str;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
+use tcCore\Http\Helpers\ActingAsHelper;
 use tcCore\Http\Helpers\BaseHelper;
 use tcCore\Http\Helpers\DemoHelper;
 use tcCore\Http\Helpers\ImportHelper;
@@ -90,7 +91,7 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
     protected $fillable = [
         'sales_organization_id', 'school_id', 'school_location_id', 'username', 'name_first', 'name_suffix', 'name',
         'password', 'external_id', 'gender', 'time_dispensation', 'text2speech', 'abbreviation', 'note', 'demo',
-        'invited_by', 'account_verified', 'test_take_code_id', 'guest'
+        'invited_by', 'account_verified', 'test_take_code_id', 'guest','send_welcome_email',
     ];
 
 
@@ -639,12 +640,28 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
             $oldText2Speech = (bool)$user->getOriginal('text2speech');
             if (!$oldText2Speech && (bool)request()->input('text2speech')) {
                 // we've got a new user with time dispensation
-                Text2Speech::create([
-                    'user_id' => $user->getKey(),
-                    'active' => true,
-                    'acceptedby' => Auth::user()->getKey(),
-                    'price' => config('custom.text2speech.price')
-                ]);
+                if( Text2Speech::where('user_id', $user->getKey())
+                    ->where('acceptedby', Auth::user()->getKey())->exists() ){
+                    
+                    $text2Speech = Text2Speech::where('user_id', $user->getKey())
+                                        ->where('acceptedby', Auth::user()->getKey())->first();
+                    
+                    $text2Speech->update([
+                        'user_id' => $user->getKey(),
+                        'active' => true,
+                        'acceptedby' => Auth::user()->getKey(),
+                        'price' => config('custom.text2speech.price')
+                    ]);    
+                }
+                else{
+                    Text2Speech::create([
+                        'user_id' => $user->getKey(),
+                        'active' => true,
+                        'acceptedby' => Auth::user()->getKey(),
+                        'price' => config('custom.text2speech.price')
+                    ]);
+                }
+                
                 Text2SpeechLog::create([
                     'user_id' => $user->getKey(),
                     'action' => 'ACCEPTED',
@@ -659,6 +676,9 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
                     if ($newActiveText2Speech !== $oldActiveText2Speech) {
                         $user->text2SpeechDetails->active = $newActiveText2Speech;
                         $user->text2SpeechDetails->save();
+
+                        $user->text2speech = $newActiveText2Speech;
+                        $user->save();
 
                         Text2SpeechLog::create([
                             'user_id' => $user->getKey(),
@@ -1976,6 +1996,18 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
             $this->allowedSchoolLocations()
 //            ->syncWithoutDetaching([$schoolLocation->id,  ['external_id' =>  $this->external_id]]);
                 ->attach($schoolLocation->id, ['external_id' => $this->user_table_external_id]);
+            return true;
+        }
+        return null;
+    }
+
+    public function addSchoolLocationAndCreateDemoEnvironment(SchoolLocation $schoolLocation)
+    {
+        if($this->addSchoolLocation($schoolLocation)){
+            ActingAsHelper::getInstance()->setUser($this);
+            $schoolYear = SchoolYearRepository::getCurrentSchoolYear();
+            $helper = new DemoHelper();
+            $helper->prepareDemoForNewTeacher($schoolLocation, $schoolYear, $this);
         }
     }
 
