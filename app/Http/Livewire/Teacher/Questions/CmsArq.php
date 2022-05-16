@@ -4,13 +4,13 @@ namespace tcCore\Http\Livewire\Teacher\Questions;
 
 use Ramsey\Uuid\Uuid;
 use tcCore\GroupQuestionQuestion;
-use tcCore\Http\Traits\WithCmsMultipleChoiceType;
+use tcCore\Http\Traits\WithCmsCustomRulesHandling;
 use tcCore\MultipleChoiceQuestion;
 use tcCore\TestQuestion;
 
 class CmsArq
 {
-    use WithCmsMultipleChoiceType;
+    use WithCmsCustomRulesHandling;
 
     private $instance;
     public $requiresAnswer = true;

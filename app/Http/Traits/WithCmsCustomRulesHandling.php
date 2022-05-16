@@ -4,7 +4,7 @@ namespace tcCore\Http\Traits;
 
 use Illuminate\Support\Facades\Validator;
 
-trait WithCmsMultipleChoiceType
+trait WithCmsCustomRulesHandling
 {
     /**
      * @return bool

@@ -3,12 +3,12 @@
 namespace tcCore\Http\Livewire\Teacher\Questions;
 
 use Illuminate\Support\Str;
-use tcCore\Http\Traits\WithCmsMultipleChoiceType;
+use tcCore\Http\Traits\WithCmsCustomRulesHandling;
 use tcCore\Rules\TrueFalseRule;
 
 class CmsTrueFalse
 {
-    use WithCmsMultipleChoiceType;
+    use WithCmsCustomRulesHandling;
 
     private $instance;
     public $requiresAnswer = true;

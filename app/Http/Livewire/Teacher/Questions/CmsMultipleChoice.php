@@ -5,12 +5,12 @@ namespace tcCore\Http\Livewire\Teacher\Questions;
 use Ramsey\Uuid\Uuid;
 use tcCore\GroupQuestionQuestion;
 use tcCore\Http\Helpers\BaseHelper;
-use tcCore\Http\Traits\WithCmsMultipleChoiceType;
+use tcCore\Http\Traits\WithCmsCustomRulesHandling;
 use tcCore\TestQuestion;
 
 class CmsMultipleChoice extends CmsBase
 {
-    use WithCmsMultipleChoiceType;
+    use WithCmsCustomRulesHandling;
 
     const MIN_ANSWER_COUNT = 2;
 
