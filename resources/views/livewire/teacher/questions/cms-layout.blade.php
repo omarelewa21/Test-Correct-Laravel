@@ -1,5 +1,5 @@
 <div id="cms" class="flex flex-1"
-     x-data="{loading: @entangle('loading'), empty: {{ $this->emptyState ? 1 : 0 }} }"
+     x-data="{loading: @entangle('loading'), empty: {{ $this->emptyState ? 1 : 0 }}, dirty: @entangle('dirty') }"
      x-init="
            handleQuestionChange = (evt) => {
                 $store.cms.loading = true;
@@ -21,6 +21,7 @@
 
            $watch('$store.cms.loading', (value) => loadingTimeout(value));
            $watch('loading', (value) => loadingTimeout(value));
+           $watch('dirty', (value) => $store.cms.dirty = value);
 
            removeDrawingLegacy = () => {
                 $root.querySelector('#drawing-question-tool-container')?.remove();

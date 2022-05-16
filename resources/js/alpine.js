@@ -425,9 +425,30 @@ document.addEventListener('alpine:init', () => {
             })
         },
         addQuestionToGroup() {
-            this.next(this.$refs.container1);
-            this.$dispatch('backdrop');
+            this.showAddQuestionSlide()
             this.$store.questionBank.inGroup = true;
+        },
+        addGroup(shouldCheckDirty = true) {
+            if (shouldCheckDirty && this.$store.cms.dirty) {
+                this.$wire.emitTo('teacher.questions.open-short', 'addQuestionFromDirty', {'group': true})
+                return;
+            }
+            this.$wire.addGroup();
+        },
+        showAddQuestionSlide(shouldCheckDirty = true) {
+            if (shouldCheckDirty && this.$store.cms.dirty) {
+                this.$wire.emitTo('teacher.questions.open-short', 'addQuestionFromDirty', {'group': false})
+                return;
+            }
+
+            this.next(this.$refs.container1);
+            this.$dispatch('backdrop')
+        },
+        backToQuestionOverview(container) {
+            this.prev(container);
+            this.$dispatch('backdrop');
+            this.$store.questionBank.inGroup = false;
+            // this.$store.cms.processing = false;
         }
 
     }));
@@ -523,7 +544,8 @@ document.addEventListener('alpine:init', () => {
 
     Alpine.store('cms', {
         loading: false,
-        processing: false
+        processing: false,
+        dirty: false
     });
     Alpine.store('questionBank', {
         inGroup: false

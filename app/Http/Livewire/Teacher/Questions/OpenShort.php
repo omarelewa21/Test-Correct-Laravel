@@ -122,6 +122,7 @@ class OpenShort extends Component
     public $loading = false;
     public $showDirtyQuestionModal = false;
     public $nextQuestionToShow = [];
+    public $forceOpenNewQuestion = false;
     public $uniqueQuestionKey = '';
 
 
@@ -222,6 +223,8 @@ class OpenShort extends Component
 
         $this->tags = [];
         $this->dirty = false;
+        $this->flagAsDirty = true;
+        $this->forceOpenNewQuestion = false;
         $this->uniqueQuestionKey = $this->testQuestionId . $this->groupQuestionQuestionId . $this->action . $this->questionEditorId;
     }
 
@@ -246,7 +249,8 @@ class OpenShort extends Component
             'showQuestion'          => 'showQuestion',
             'addQuestion'           => 'addQuestion',
             'showEmpty'             => 'showEmpty',
-            'questionDeleted'       => '$refresh'
+            'questionDeleted'       => '$refresh',
+            'addQuestionFromDirty'  => 'addQuestionFromDirty'
         ];
     }
 
@@ -993,9 +997,9 @@ class OpenShort extends Component
 
     public function showQuestion($args)
     {
-        if ($this->needsSavingBeforeShowingQuestion($args['shouldSave'])) {
+        if (!$this->forceOpenNewQuestion && $this->needsSavingBeforeShowingQuestion($args['shouldSave'])) {
             if (!$this->completedMandatoryFields()) {
-                return $this->leavingNewDirtyQuestion($args);
+                return $this->leavingDirtyQuestion($args);
             }
             $this->loading = true;
             $this->save(false);
@@ -1012,10 +1016,7 @@ class OpenShort extends Component
 
     public function addQuestion($args)
     {
-        if ($this->needsSavingBeforeAddingNewQuestion($args)) {
-            if (!$this->completedMandatoryFields()) {
-                return $this->leavingNewDirtyQuestion($args);
-            }
+        if (!$this->forceOpenNewQuestion && $this->needsSavingBeforeAddingNewQuestion($args)) {
             $this->save(false);
         }
 
@@ -1199,9 +1200,9 @@ class OpenShort extends Component
         $this->render();
     }
 
-    private function leavingNewDirtyQuestion($args)
+    public function leavingDirtyQuestion($args = [])
     {
-        $this->showDirtyQuestionModal = true;
+        $this->dispatchBrowserEvent('show-dirty-question-modal', ['goingToExisting' => true]);
         $this->nextQuestionToShow = $args;
     }
 
@@ -1226,7 +1227,7 @@ class OpenShort extends Component
     private function completedMandatoryFields()
     {
         if ($this->obj && method_exists($this->obj, 'passesCustomMandatoryRules')) {
-            return !!$this->obj->passesCustomMandatoryRules();
+             return !!$this->obj->passesCustomMandatoryRules();
         }
 
         return !Validator::make((array)$this, $this->getRules())->fails();
@@ -1248,5 +1249,30 @@ class OpenShort extends Component
     private function needsSavingBeforeShowingQuestion($shouldSave): bool
     {
         return $shouldSave && $this->isDirty();
+    }
+
+    /**
+     * @throws \Exception
+     */
+    public function validateFromDirtyModal()
+    {
+            $this->validateAndReturnErrorsToTabOne();
+    }
+
+    public function addQuestionFromDirty($data)
+    {
+        if(!$this->completedMandatoryFields()) {
+            $this->dispatchBrowserEvent('show-dirty-question-modal', ['goingToExisting' => false, 'group' => $data['group']]);
+            return;
+        }
+
+        $this->save(false);
+
+        $data['group'] ? $this->dispatchBrowserEvent('continue-to-add-group') : $this->dispatchBrowserEvent('continue-to-new-slide');
+    }
+
+    public function getRulesFromProvider()
+    {
+        return $this->getRules();
     }
 }

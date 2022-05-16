@@ -99,7 +99,7 @@ class Cms extends Component
             $this->emptyStateActive = false;
             $this->dispatchBrowserEvent('question-change');
         }
-
+        $this->dispatchBrowserEvent('processing-end');
         $this->groupId = null;
     }
 
