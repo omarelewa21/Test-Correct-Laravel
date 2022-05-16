@@ -186,46 +186,52 @@ class DemoHelper
 
     public function prepareDemoForNewTeacher(SchoolLocation $schoolLocation, SchoolYear $schoolYear, User $user)
     {
-        $currentQueueState = GlobalStateHelper::getInstance()->isQueueAllowed();
-        GlobalStateHelper::getInstance()->setQueueAllowed(false);
-        $this->setSchoolLocation($schoolLocation);
-        $schoolClass = $this->createDemoClassForSchoolLocationAndPopulate($schoolLocation, $schoolYear);
-        $teacher = $this->addTeacherToDemoClassIfNeeded($user, $schoolClass);
-        $students = $this->createDemoStudentsIfNeeded();
-        $baseDemoTest = $this->getBaseDemoTest();
-        $returnData = $this->createDemoTestsForTeacher($teacher, $students, $baseDemoTest, $schoolClass);
-        $returnData['teacher'] = $teacher;
-        GlobalStateHelper::getInstance()->setQueueAllowed($currentQueueState);
-        return $returnData;
+        if(GlobalStateHelper::getInstance()->hasPreventDemoEnvironmentCreationForSchoolLocation() === false) {
+            $currentQueueState = GlobalStateHelper::getInstance()->isQueueAllowed();
+            GlobalStateHelper::getInstance()->setQueueAllowed(false);
+            $this->setSchoolLocation($schoolLocation);
+            $schoolClass = $this->createDemoClassForSchoolLocationAndPopulate($schoolLocation, $schoolYear);
+            $teacher = $this->addTeacherToDemoClassIfNeeded($user, $schoolClass);
+            $students = $this->createDemoStudentsIfNeeded();
+            $baseDemoTest = $this->getBaseDemoTest();
+            $returnData = $this->createDemoTestsForTeacher($teacher, $students, $baseDemoTest, $schoolClass);
+            $returnData['teacher'] = $teacher;
+            GlobalStateHelper::getInstance()->setQueueAllowed($currentQueueState);
+            return $returnData;
+        }
+        return null;
     }
 
     public function createDemoClassForSchoolLocationAndPopulate(SchoolLocation $schoolLocation, SchoolYear $schoolYear)
     {
-        $this->setSchoolLocation($schoolLocation);
-        $schoolClass = $this->getDemoClass();
-        if (!$schoolClass) {
-            $schoolClass = $this->createDemoClassIfNeeded($schoolYear);
-        } else if ($schoolClass->schoolYear !== $schoolYear) {
-            $schoolClass = $this->moveDemoClassToNewSchoolYear($schoolClass, $schoolYear);
-        }
-
-        $teacher = $this->createDemoTeacherIfNeeded();
-        $students = $this->createDemoStudentsIfNeeded();
-
-        $this->addTeacherToDemoClassIfNeeded($teacher, $schoolClass);
-
-        $students->each(function (User $s) use ($schoolClass) {
-            $attr = [
-                'user_id' => $s->getKey(),
-                'class_id' => $schoolClass->getKey()
-            ];
-            $student = Student::withTrashed()->firstOrCreate($attr);
-            if($student->trashed()) {
-                $student->restore();
+        if(GlobalStateHelper::getInstance()->hasPreventDemoEnvironmentCreationForSchoolLocation() === false) {
+            $this->setSchoolLocation($schoolLocation);
+            $schoolClass = $this->getDemoClass();
+            if (!$schoolClass) {
+                $schoolClass = $this->createDemoClassIfNeeded($schoolYear);
+            } else if ($schoolClass->schoolYear !== $schoolYear) {
+                $schoolClass = $this->moveDemoClassToNewSchoolYear($schoolClass, $schoolYear);
             }
 
-        });
-        return $schoolClass;
+            $teacher = $this->createDemoTeacherIfNeeded();
+            $students = $this->createDemoStudentsIfNeeded();
+
+            $this->addTeacherToDemoClassIfNeeded($teacher, $schoolClass);
+
+            $students->each(function (User $s) use ($schoolClass) {
+                $attr = [
+                    'user_id' => $s->getKey(),
+                    'class_id' => $schoolClass->getKey()
+                ];
+                $student = Student::withTrashed()->firstOrCreate($attr);
+                if ($student->trashed()) {
+                    $student->restore();
+                }
+
+            });
+            return $schoolClass;
+        }
+        return null;
     }
 
     public function changeDemoUsersAsSchoolLocationCustomerCodeChanged(SchoolLocation $schoolLocation, $oldCustomerCode)
@@ -444,6 +450,8 @@ class DemoHelper
     /** student data */
     protected function createDemoStudentsIfNeeded()
     {
+        debug_print_backtrace(0,2);
+        die();
         $users = collect([]);
         $userDetails = collect([
             ['nr' => '01', 'dyslexie' => true],
