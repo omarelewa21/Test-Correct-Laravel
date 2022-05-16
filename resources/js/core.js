@@ -109,6 +109,7 @@ Core = {
         });
     },
     enableBrowserFeatures() {
+        console.log('In enableBrowserFeatures');
         let browserElements = document.querySelectorAll('[browser]');
         if (browserElements.length > 0) {
             browserElements.forEach((element) => {
@@ -117,8 +118,8 @@ Core = {
         }
     },
     enableAppFeatures(appType) {
+        console.log('In enableAppFeatures');
         if(appType !== 'chromebook'){
-            console.log(chrome.runtime.getManifest().version);
             let appElements = document.querySelectorAll('[' + appType + ']');
             appElements.forEach((element) => {
                 element.style.display = 'flex';
@@ -191,11 +192,7 @@ Core = {
         // }
         // xhttp.open("GET", "/appVersion", true);
         // xhttp.send();
-        try {
-            console.log(chrome.runtime.getManifest().version);
-        } catch (error) {
-            
-        }
+        console.log(chrome.runtime.getManifest().version);
     }
 }
 
