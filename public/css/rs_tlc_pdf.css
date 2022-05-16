@@ -62,7 +62,7 @@
     border-radius: 20px;
     box-shadow: 0 3px 18px 0 rgb(77 87 143 / 10%);
     position: absolute !important;
-    width: max-content;
+    width: max-content !important;
     float: none !important;
     left: -5px;
     height: 43px;
