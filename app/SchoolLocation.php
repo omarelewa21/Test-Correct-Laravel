@@ -399,7 +399,7 @@ class SchoolLocation extends BaseModel implements AccessCheckable
                     if($user){
                         Auth::login($user);
                     }
-                    $schoolLocation->addDefaultSectionsAndSubjects();
+                    $schoolLocation = $schoolLocation->addSchoolLocationExtras();
                 }
                 if(GlobalStateHelper::getInstance()->hasPreventDemoEnvironmentCreationForSchoolLocation() === false) {
                     (new DemoHelper())->createDemoPartsForSchool($schoolLocation);
@@ -437,6 +437,30 @@ class SchoolLocation extends BaseModel implements AccessCheckable
                 return false;// the TC tijdelijke docentaccounts school location should not be changed
             }
         });
+    }
+
+    public function addSchoolLocationExtras()
+    {
+        $origAuthUser = Auth::user();
+        $year = Date("Y");
+        $nextYear = $year + 1;
+        if (Date("m") < 8) {
+            $nextYear = $year;
+            $year--;
+        }
+        $userId = User::where('school_location_id',$this->getKey())->value('id');
+        if($userId){
+            Auth::loginUsingId($userId);
+        }
+        $this
+            ->addSchoolYearAndPeriod($year, '01-08-' . $year, '31-07-' . $nextYear)
+            ->addDefaultSectionsAndSubjects("VO");
+        if($origAuthUser){
+            Auth::login($origAuthUser);
+        } else {
+            Auth::logout();
+        }
+        return $this;
     }
 
     public function school()

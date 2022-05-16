@@ -75,6 +75,7 @@ class ExcelSchoolImportManifest
 
     protected function getTransformedAndCheckedData($row, $transformer, $type, $isSchoolLocatie = false)
     {
+
         $return = [];
         foreach($transformer as $key => $value){
             $transformedKey = Str::slug($key,'_');
@@ -97,7 +98,6 @@ class ExcelSchoolImportManifest
                 throw new \Exception(sprintf('brin nummer (%s) icm locatie code (%s) komen niet overeen met de vestigingscode (%s) ##%s **%s', $return['external_main_code'], $return['external_sub_code'], $row['vestigingsnummer'], var_export($return, true), var_export($row, true)));
             }
         }
-
         return $return;
     }
 

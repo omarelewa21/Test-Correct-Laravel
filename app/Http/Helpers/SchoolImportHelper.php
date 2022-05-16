@@ -151,8 +151,7 @@ class SchoolImportHelper
         $data['grading_scale_id'] = 1;
         $data['activated'] = 1;
         if($data = $this->transformDataForSchoolLocation($data)) {
-            $schoolLocation = $this->createProperty(new SchoolLocation(), $data, $user);
-            return $this->addSchoolLocationExtras($schoolLocation);
+            return $this->createProperty(new SchoolLocation(), $data, $user);
         }
         return false;
     }
@@ -246,28 +245,6 @@ class SchoolImportHelper
         return $data;
     }
 
-    protected function addSchoolLocationExtras(SchoolLocation $schoolLocation)
-    {
-        $origAuthUser = Auth::user();
-        $year = Date("Y");
-        $nextYear = $year + 1;
-        if (Date("m") < 8) {
-            $nextYear = $year;
-            $year--;
-        }
-        $userId = User::where('school_location_id',$schoolLocation->getKey())->value('id');
-        if($userId){
-            Auth::loginUsingId($userId);
-        }
-        $schoolLocation
-            ->addSchoolYearAndPeriod($year, '01-08-' . $year, '31-07-' . $nextYear)
-            ->addDefaultSectionsAndSubjects("VO");
-        if($origAuthUser){
-            Auth::login($origAuthUser);
-        } else {
-            Auth::logout();
-        }
-        return $schoolLocation;
-    }
+
 
 }

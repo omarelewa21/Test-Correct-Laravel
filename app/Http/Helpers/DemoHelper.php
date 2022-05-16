@@ -450,8 +450,6 @@ class DemoHelper
     /** student data */
     protected function createDemoStudentsIfNeeded()
     {
-        debug_print_backtrace(0,2);
-        die();
         $users = collect([]);
         $userDetails = collect([
             ['nr' => '01', 'dyslexie' => true],
