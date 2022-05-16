@@ -12,7 +12,7 @@
               :class="($root.querySelectorAll('.question-button.active').length > 0 && !expand) ? 'primary' : ''"
               title="{{ $question->name }}"
         >
-            <span>{{ $question->name }}</span>
+            <span class="truncate">{{ $question->name }}</span>
             <div class="flex items-center justify-between">
                 <span class="note text-sm regular">{{ trans_choice('cms.vraag', $question->subQuestions->count()) }}</span>
                 @if($question->attachments()->count())

@@ -115,6 +115,7 @@ class OpenShort extends Component
     public $sortOrderAttachments = [];
 
     public $dirty = false;
+    public $flagAsDirty = true;
 
     public $withRedirect = true;
     public $emptyState = false;
@@ -382,9 +383,27 @@ class OpenShort extends Component
             $this->obj->updated($name, $value);
         }
 
-        if ($name != 'loading') {
-            $this->dirty = true;
+        $this->handleDirtyState($name);
+    }
+
+    public function updating($name, $value)
+    {
+        if ($name === 'question.question' && $value == $this->question['question']) {
+            $this->flagAsDirty = false;
         }
+        if ($name === 'question.answer' && $value == $this->question['answer']) {
+            $this->flagAsDirty = false;
+        }
+    }
+
+    private function handleDirtyState($updatedProperty)
+    {
+        if ($this->flagAsDirty) {
+            if ($updatedProperty != 'loading') {
+                $this->dirty = true;
+            }
+        }
+        $this->flagAsDirty = true;
     }
 
     public function showStatistics()
@@ -1020,9 +1039,9 @@ class OpenShort extends Component
     private function resolveOrderNumber($questionUuid = null)
     {
         if ($this->action === 'add' && $this->owner === 'group') {
+            // To figure out the true order of a subquestion, it causes 150 extra queries.. -RR
             return Test::whereUuid($this->testId)->first()->getRelativeOrderNumberForSubQuestion($this->testQuestionId);
         }
-
         return Test::whereUuid($this->testId)->first()->getRelativeOrderNumberForQuestion($questionUuid);
     }
 
@@ -1206,6 +1225,10 @@ class OpenShort extends Component
 
     private function completedMandatoryFields()
     {
+        if ($this->obj && method_exists($this->obj, 'passesCustomMandatoryRules')) {
+            return !!$this->obj->passesCustomMandatoryRules();
+        }
+
         return !Validator::make((array)$this, $this->getRules())->fails();
     }
 
