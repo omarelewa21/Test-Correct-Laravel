@@ -142,7 +142,11 @@ class PdfController extends Controller
         libxml_use_internal_errors($internalErrors);
         $mathList = $doc->getElementsByTagName('math');
          foreach ($mathList as $mathNode){
-            $this->replaceMathNodeWithSvg($mathNode,$doc);
+             try{
+                 $this->replaceMathNodeWithSvg($mathNode,$doc);
+             }catch (\Throwable $th) {
+                    Bugsnag::notifyException($th);
+             }
         }
         $html = $doc->saveHTML($doc->documentElement);
         return $html;
@@ -197,42 +201,5 @@ class PdfController extends Controller
         $img->setAttribute('src',$src);
         $img->setAttribute('style','max-width: none; vertical-align: -4px;');
         return $img;
-    }
-
-    private function getTestWiris()
-    {
-        $data = [
-            'mml'=> '<math xmlns="http://www.w3.org/1998/Math/MathML"><mroot><mfrac><mi>t</mi><mi>v</mi></mfrac><mi>e</mi></mroot></math>',
-            'lang'=> 'en-gb',
-            'metrics'=> true,
-            'centerbaseline'=> false,
-
-        ];
-        $createPath = config('app.base_url').'/ckeditor/plugins/ckeditor_wiris/integration/createimage.php';
-        $path = config('app.base_url').'ckeditor/plugins/ckeditor_wiris/integration/showimage.php';
-        $client = new Client();
-        $res = $client->request('POST',$createPath,[
-            'form_params' => $data]);
-        $formulaUrl = $res->getBody()->getContents();
-        $components = parse_url($formulaUrl);
-        parse_str($components['query'], $results);
-        $formula = $results['formula'];
-        $data1 = [
-            'lang'=> 'en-gb',
-            'metrics'=> true,
-            'centerbaseline'=> false,
-            'formula' => $formula,
-            'version' => '7.26.0.1439',
-        ];
-        $res = $client->request('GET',$path,['query' => $data1]);
-        $res = $client->request('POST',$path,[
-            'form_params' => $data]);
-        $json = json_decode($res->getBody()->getContents(),true);
-        dump($json);
-        dump($json['result']['content']);
-//        $clean = stripslashes($res->getBody()->getContents());
-//        $clean = substr($clean, 1, -1);
-//        dump(json_decode($clean));
-
     }
 }
