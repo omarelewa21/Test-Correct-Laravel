@@ -2,6 +2,7 @@
 
 namespace tcCore\Http\Livewire;
 
+use Illuminate\Support\Facades\DB;
 use Livewire\Component;
 use tcCore\Attainment;
 

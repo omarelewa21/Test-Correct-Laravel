@@ -1,5 +1,3 @@
-
-
 <x-layouts.base>
     <header class="header top-0 px-8 xl:px-28 flex flex-wrap content-center fixed w-full z-20 main-shadow @if(\tcCore\Http\Helpers\GlobalStateHelper::getInstance()->hasActiveMaintenance()) maintenance-header-bg @endif @if(\tcCore\Http\Helpers\GlobalStateHelper::getInstance()->isOnDeploymentTesting()) deployment-testing-marker @endif"
             x-data="{showToDashboard: false}"

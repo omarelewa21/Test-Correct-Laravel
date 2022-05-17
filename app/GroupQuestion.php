@@ -386,4 +386,21 @@ class GroupQuestion extends Question implements QuestionInterface {
         return $this->groupQuestionQuestions()->count();
     }
 
+    public function hasEnoughSubQuestionsAsCarousel()
+    {
+        if (!$this->isCarouselQuestion()) {
+            return true;
+        }
+
+        return $this->groupQuestionQuestions()->count() >= $this->number_of_subquestions;
+    }
+
+    public function hasEqualScoresForSubQuestions()
+    {
+        $scores = $this->groupQuestionQuestions->map(function ($groupQuestionQuestion) {
+            return $groupQuestionQuestion->question->score;
+        })->unique()->count();
+
+        return $scores <= 1;
+    }
 }

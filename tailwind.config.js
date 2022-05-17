@@ -26,7 +26,8 @@ module.exports = {
                 lightGrey: '#F0F2F5',
             },
             borderWidth: {
-                '3': '3px'
+                '3': '3px',
+                '6': '6px',
             }
         },
         keyframes: {
@@ -34,10 +35,16 @@ module.exports = {
                 '0%': {left: '0'},
                 '50%': {left: '85%'},
                 '100%': {left: '0'}
+            },
+            borderPulse: {
+                '0%': {'border-color': 'rgba(255,255,255, 1)'},
+                '50%': {'border-color': 'rgba(255,255,255, .2)'},
+                '100%': {'border-color': 'rgba(255,255,255, 1)'}
             }
         },
         animation: {
-            'knightrider': 'knightrider 2s ease infinite'
+            'knightrider': 'knightrider 2s ease infinite',
+            'borderpulse': 'borderPulse 3s ease infinite'
         }
     },
     variants: {

@@ -13,7 +13,9 @@ use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 use tcCore\Exceptions\RedirectAndExitException;
+use tcCore\Lib\Repositories\SchoolYearRepository;
 use tcCore\SamlMessage;
 use tcCore\School;
 use tcCore\SchoolLocation;
@@ -23,6 +25,8 @@ use tcCore\User;
 
 class EntreeHelper
 {
+    CONST ENTREESTUDENTREDIRECT = 'https://www.test-correct.nl/welcome-student';
+
     private $attr;
 
     private $messageId;
@@ -83,18 +87,8 @@ class EntreeHelper
            'brin4ErrorDetected' => $this->brinFourErrorDetected,
             'lastName' => $this->getLastNameFromAttributes(),
             'nameSuffix' => $this->getSuffixFromAttributes(),
+            'firstName' => $this->getFirstNameFromAttributes(),
         ];
-        if(BaseHelper::notProduction()) {
-            logger('entreeData for registering');
-            $dataClone = $data;
-            if($dataClone['location']){
-                $dataClone['location'] = $dataClone['location']->getKey();
-            }
-            if($dataClone['school']){
-                $dataClone['school'] = $dataClone['school']->getKey();
-            }
-            logger($dataClone);
-        }
 
         $data = (object) $data;
 
@@ -145,7 +139,7 @@ class EntreeHelper
         if($user = User::filterByEckid(Crypt::decryptString($data->encryptedEckId))->first()){
 
             if(!$user->isA('teacher')){
-                return $this->redirectToUrlAndExit('https://www.test-correct.nl/student-aanmelden-error');
+                return $this->redirectToUrlAndExit(self::ENTREESTUDENTREDIRECT);
             }
 
             if(!$user->hasImportMailAddress()){ // regular user
@@ -204,8 +198,10 @@ class EntreeHelper
     protected function handleIfRegisteringAndSchoolIsAllowed(User $user, School $school)
     {
         if($user->isAllowedSchool($school)){
-            $user->addSchoolLocation($this->location);
-            $url = $this->laravelUser->getRedirectUrlSplashOrStartAndLoginIfNeeded([__('onboarding-welcome.Je bestaande Test-Correct account is geupdate met de schoollocaties die we vanuit Entree hebben meegekregen. We hebben je in de schoollocatie :name gezet. Je kunt vanaf nu ook inloggen met Entree.', ['name' => $this->location->name]),'internal_page' => '/users/welcome']);
+            $user->school_location_id = $this->location->getKey();
+            $user->save();
+            $user->addSchoolLocationAndCreateDemoEnvironment($this->location);
+            $url = $this->laravelUser->getRedirectUrlSplashOrStartAndLoginIfNeeded(['afterLoginMessage' => __('onboarding-welcome.Je bestaande Test-Correct account is geupdate met de schoollocaties die we vanuit Entree hebben meegekregen. We hebben je in de schoollocatie gezet. Je kunt vanaf nu ook inloggen met Entree.', ['name' => $this->location->name]),'internal_page' => '/users/welcome']);
             return $this->redirectToUrlAndExit($url);
         }
         return false;
@@ -215,15 +211,17 @@ class EntreeHelper
     {
         $brinCode = $data->brin;
         $exit = true;
-        if ($this->setLocationBasedOnBrinSixIfTheCase($brinCode)){
-            if($this->location){
+
+        if ($this->setLocationBasedOnBrinSixIfTheCase($brinCode)) {
+            if ($this->location) {
                 $exit = false;
             }
-        } else if(strlen($brinCode) === 4){
-            if(School::where('external_main_code', $brinCode)->count() === 1){
+        } else if (strlen($brinCode) === 4) {
+            if (School::where('external_main_code', $brinCode)->count() === 1) {
                 $exit = false;
             }
         }
+
         // no brincode found
         if($exit) {
             return $this->redirectToUrlAndExit($this->getOnboardingUrlWithOptionalMessage(__('onboarding-welcome.Je school is helaas nog niet bekend in Test-Correct. Vul dit formulier in om een account aan te maken')));
@@ -259,7 +257,7 @@ class EntreeHelper
     protected function handleIfRegisteringAndNotATeacher($data)
     {
         if($data->role !== 'teacher'){
-            return $this->redirectToUrlAndExit('https://www.test-correct.nl/student-aanmelden-error');
+            return $this->redirectToUrlAndExit(self::ENTREESTUDENTREDIRECT);
         }
         return false;
     }
@@ -345,6 +343,11 @@ class EntreeHelper
         }
 
         $brinZesCode = $this->getBrinFromAttributes();
+        if(null === $brinZesCode){
+            $this->brinFourErrorDetected = true;
+            return false;
+        }
+
         if($this->setLocationBasedOnBrinSixIfTheCase($brinZesCode)){
             return true;
         }
@@ -471,18 +474,28 @@ class EntreeHelper
 
     private function getEmailFromAttributes()
     {
-        if (array_key_exists('mail',
-                $this->attr) && $this->attr['mail'][0]) {
+        if (array_key_exists('mail',$this->attr)
+            && $this->attr['mail'][0]
+            && Str::contains($this->attr['mail'][0],'@')) {
             return $this->attr['mail'][0];
+        }
+        return null;
+    }
+
+    private function getFirstNameFromAttributes()
+    {
+        if (array_key_exists('givenName',
+                $this->attr) && $this->attr['givenName'][0]) {
+            return $this->attr['givenName'][0];
         }
         return null;
     }
 
     private function getLastNameFromAttributes()
     {
-        if (array_key_exists('givenName',
-                $this->attr) && $this->attr['givenName'][0]) {
-            return $this->attr['givenName'][0];
+        if (array_key_exists('sn',
+                $this->attr) && $this->attr['sn'][0]) {
+            return $this->attr['sn'][0];
         }
         return null;
     }
@@ -511,7 +524,7 @@ class EntreeHelper
         $data->locationId = ($data->location) ? $data->location->getKey() : null;
         $data->school = null;
         $data->location = null;
-        $data->userId = ($data->user) ? $data->user->getKey() : null;
+        $data->userId = (property_exists($data,'user') && $data->user) ? $data->user->getKey() : null;
         $data->user = null;
         return SamlMessage::create([
             'data' => $data,

@@ -104,6 +104,7 @@
                     <span>{{ __('test_take.previous_question') }}</span>
                 </x-button.text-button>
                 <x-button.cta x-show="display.turnin"
+                        id="overviewBtnFooter"
                         size="sm"
                         onclick="toOverview({{ $nav->count() }})"
                         {{-- @click="$dispatch('show-loader')" --}}
