@@ -366,6 +366,27 @@ class ImportAttainmentTest extends TestCase
     }
 
     /** @test */
+    public function attainments_08_11_21_parent_integrity_test()
+    {
+        $this->loginAdmin();
+        $attainmenMissingParents = [];
+        $testXslx = __DIR__.'/../files/import_existing_attainments_08nov21.xlsx';
+        $this->findMissingParentsInFile($testXslx,$attainmenMissingParents);
+        $testXslx = __DIR__.'/../files/import_new_attainments_08nov21_v2.xlsx';
+        $this->findMissingParentsInFile($testXslx,$attainmenMissingParents);
+        //dump($attainmenMissingParents);
+        $missingParentsUnique = [];
+        foreach ($attainmenMissingParents as $attainmenMissingParent){
+                $missingParentsUnique[] = $this->getMissingParent($attainmenMissingParent);
+        }
+        $missingParentsUnique = array_map("unserialize", array_unique(array_map("serialize", $missingParentsUnique)));
+        dump($missingParentsUnique);
+
+        $this->assertCount(0,$attainmenMissingParents);
+        $this->logoutAdmin();
+    }
+
+    /** @test */
     public function new_attainments_file_08_11_21_vmbo_tl_bio_integrity_test()
     {
         $this->loginAdmin();
@@ -866,6 +887,81 @@ class ImportAttainmentTest extends TestCase
             $attainment = Attainment::find($attainmentId);
             $question->getQuestionInstance()->attainments()->attach($attainment);
         }
+    }
+
+    private function checkParentofSub(&$attainmentResource,$key)
+    {
+        $handled = false;
+
+        while(!$handled){
+            $prevAttainment = $this->attainmentsCollection[$key];
+            if(is_null($prevAttainment->subcode)&&($prevAttainment->base_subject_id==$attainmentResource->base_subject_id)&&($prevAttainment->education_level_id==$attainmentResource->education_level_id)&&(trim($prevAttainment->code)==trim($attainmentResource->code))){
+                $attainmentResource->parent_temp_id = $key;
+                $handled = true;
+                break;
+            }
+            $key--;
+            if($key<0){
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private function checkParentofSubsub(&$attainmentResource,$key)
+    {
+        $handled = false;
+        while(!$handled){
+            $prevAttainment = $this->attainmentsCollection[$key];
+            if(is_null($prevAttainment->subsubcode)&&($prevAttainment->base_subject_id==$attainmentResource->base_subject_id)&&($prevAttainment->education_level_id==$attainmentResource->education_level_id)&&(trim($prevAttainment->subcode)==trim($attainmentResource->subcode))){
+                $attainmentResource->parent_temp_id = $key;
+                $handled = true;
+            }
+            $key--;
+            if($key<0){
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private function findMissingParentsInFile($testXslx,&$missingParents)
+    {
+        $this->assertFileExists($testXslx);
+        $attainmentManifest = new ExcelAttainmentUpdateOrCreateManifest($testXslx);
+        $this->attainmentsCollection = collect($attainmentManifest->getAttainmentResources());
+
+        foreach ($this->attainmentsCollection as $key => $attainmentResource) {
+            $attainmentResource->temp_id = $key;
+        }
+        foreach ($this->attainmentsCollection as $key => $attainmentResource) {
+            if(!is_null($attainmentResource->attainment_id)){
+                continue;
+            }
+            if(!is_null($attainmentResource->subcode)&&is_null($attainmentResource->subsubcode)&&!$this->checkParentofSub($attainmentResource,$key)){
+                $missingParents[] = $attainmentResource;
+            }
+            if(!is_null($attainmentResource->subcode)&&!is_null($attainmentResource->subsubcode)&&!$this->checkParentofSubsub($attainmentResource,$key)){
+                $missingParents[] = $attainmentResource;
+            }
+        }
+    }
+
+    private function getMissingParent($attainmenMissingParent)
+    {
+        $subcode = null;
+        if(!is_null($attainmenMissingParent->subsubcode)) {
+            $subcode = $attainmenMissingParent->subcode;
+        }
+        $missingParent = [ 'base_subject_id'=>$attainmenMissingParent->base_subject_id,
+            'base_subject_name'=> $attainmenMissingParent->base_subject_name,
+            'education_level_id'=> $attainmenMissingParent->education_level_id,
+            'education_level_name'=> $attainmenMissingParent->education_level_name,
+            'code'=> $attainmenMissingParent->code,
+            'subcode'=> $subcode,
+            'subsubcode'=> null,
+        ];
+        return $missingParent;
     }
 }
 
