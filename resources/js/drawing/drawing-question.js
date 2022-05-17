@@ -938,9 +938,13 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview) {
     function fitDrawingToScreen() {
         // panDrawingCenterToScreenCenter();
 
-        while (!drawingFitsScreen()) {
+        while (!drawingFitsScreen() && canZoomOut()) {
             zoomOutOneStep();
         }
+    }
+
+    function canZoomOut() {
+        return (Canvas.params.zoomFactor > zoomParams.MIN );
     }
 
     function panDrawingCenterToScreenCenter() {
@@ -990,7 +994,11 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview) {
         const bbox = UI.svgPanZoomGroup.getBBox({fill: true, stroke: true, markers: true});
         const screenBounds = Canvas.params.bounds;
         if (bbox.x < screenBounds.left
-            || bbox.y < screenBounds.top) return false;
+            || bbox.y < screenBounds.top
+            || bbox.width > screenBounds.width
+            || bbox.height > screenBounds.height
+
+        ) return false;
         else return true;
     }
 
@@ -1109,6 +1117,8 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview) {
 
         const cleanedSvg = cleanedBase64EncodedStrings();
 
+        fitDrawingToScreen();
+
         livewireComponent.handleUpdateDrawingData({
             svg_answer: b64Strings.answer,
             svg_question: b64Strings.question,
@@ -1124,6 +1134,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview) {
 
     async function getPNGCorrectionModelStringFromSVG(panGroupSize) {
         const svg = UI.svgCanvas.cloneNode(true);
+
         svg.querySelector('#svg-answer-group').setAttribute('style', '');
         svg.querySelector('#svg-question-group').setAttribute('style', '');
 

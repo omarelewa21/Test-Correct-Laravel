@@ -6,7 +6,7 @@
      @question-removed.window="Notify.notify('Vraag verwijderd!')"
 >
     <div class="flex w-full border-b border-secondary">
-        <div class="w-full max-w-5xl mx-auto">
+        <div class="w-full max-w-5xl ">
             <div class="flex w-full space-x-4">
                 <div>
                     <div class="flex relative hover:text-primary cursor-pointer" @click="openTab = 'personal'">
@@ -56,7 +56,7 @@
         </div>
     </div>
     <div class="flex w-full">
-        <div class="w-full max-w-5xl mx-auto divide-y divide-secondary">
+        <div class="w-full mx-auto divide-y divide-secondary">
             {{-- Filters--}}
             <div class="flex flex-col py-4">
                 <div class="flex w-full mt-2">
@@ -97,7 +97,6 @@
                     <span class="note text-sm">{{  trans_choice('general.number-of-tests', $results->total(), ['count' => $results->total()]) }}</span>
                 </div>
                 <x-grid  class="mt-4">
-                    <x-grid.loading-card/>
                     <x-grid.loading-card/>
                     <x-grid.loading-card/>
                     <x-grid.loading-card/>

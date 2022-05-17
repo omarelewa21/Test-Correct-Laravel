@@ -18,4 +18,5 @@ return [
     'city_required'            => 'Plaatsnaam is verplicht',
     'username_required'        => 'E-mailadres is verplicht',
     'username_email'           => 'E-mailadres is niet geldig',
+    'domain_required'          => 'Domein is verplicht',
 ];

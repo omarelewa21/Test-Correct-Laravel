@@ -18,7 +18,7 @@
          x-transition:leave="ease-out duration-300"
          x-transition:leave-start="opacity-100"
          x-transition:leave-end="opacity-0">
-        <div class="absolute inset-0 bg-gray-500 opacity-75"></div>
+        <div class="absolute inset-0 bg-midgrey opacity-75"></div>
     </div>
     <div x-show="show"
          class="relative top-1/2 flex flex-col py-5 px-7 bg-white rounded-10 overflow-hidden shadow-xl transform -translate-y-1/2  max-w-max sm:mx-auto"

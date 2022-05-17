@@ -56,7 +56,8 @@ class School extends BaseModel implements AccessCheckable {
      *
      * @var array
      */
-    protected $fillable = ['umbrella_organization_id', 'user_id', 'customer_code', 'name', 'main_address', 'main_postal', 'main_city', 'main_country', 'invoice_address', 'invoice_postal', 'invoice_city', 'invoice_country', 'external_main_code'];
+    protected $fillable = ['umbrella_organization_id', 'user_id', 'customer_code', 'name', 'main_address', 'main_postal', 'main_city', 'main_country', 'invoice_address', 'invoice_postal', 'invoice_city', 'invoice_country', 'external_main_code',
+        'main_phonenumber','internetaddress'];
 
     /**
      * The attributes excluded from the model's JSON form.

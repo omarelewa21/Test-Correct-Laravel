@@ -62,7 +62,6 @@ class SvgHelper
     }
 
     /**
-     * @param string $uuid
      * @return void
      */
     public function scaffoldFolderStructure(): void
@@ -73,6 +72,21 @@ class SvgHelper
         $this->initSVG();
         $this->initCorrectionModelPNG();
         $this->initQuestionPNG();
+
+        if (strstr($this->uuid, 'temp-')) {
+            $folderName = str_replace('temp-', '', $this->uuid);
+            if ($this->disk->exists($folderName)){
+
+                foreach ($this->disk->allFiles($folderName) as $fileOrDirectory) {
+                    $destination = str_replace($folderName, $this->uuid, $fileOrDirectory);
+                    if ($this->disk->exists($destination)) {
+                        $this->disk->delete($destination);
+                    }
+                    $this->disk->copy($fileOrDirectory, $destination);
+                }
+            }
+        }
+
     }
 
     public function updateAnswerLayer($value)
@@ -120,7 +134,7 @@ class SvgHelper
 
         $server = \League\Glide\ServerFactory::create([
             'source' => Storage::disk(SvgHelper::DISK)->path(sprintf('%s', $this->uuid)),
-            'cache' => Storage::disk(SvgHelper::DISK)->path(sprintf('%s/cache',$this->uuid))
+            'cache'  => Storage::disk(SvgHelper::DISK)->path(sprintf('%s/cache', $this->uuid))
         ]);
 
 
@@ -139,7 +153,7 @@ class SvgHelper
 
         $server = \League\Glide\ServerFactory::create([
             'source' => Storage::disk(SvgHelper::DISK)->path(sprintf('%s', $this->uuid)),
-            'cache' => Storage::disk(SvgHelper::DISK)->path(sprintf('%s/cache',$this->uuid))
+            'cache'  => Storage::disk(SvgHelper::DISK)->path(sprintf('%s/cache', $this->uuid))
         ]);
 
 
@@ -239,20 +253,39 @@ class SvgHelper
                 throw new Exception(sprintf('File not found [%s].', $path));
             }
             $image = $this->getCompressedImage($path, $node->getAttribute('identifier'));
-            $node->setAttribute('href',  $image);//'data:' . mime_content_type($image) . ';base64,' . base64_encode($image));
+            $node->setAttribute('href', $image);//'data:' . mime_content_type($image) . ';base64,' . base64_encode($image));
         });
         return substr(substr($doc->saveXML(), 28), 0, -8);
     }
 
-    private function getCompressedImage($path, $file) {
+    private function getCompressedImage($path, $file)
+    {
 
         $server = \League\Glide\ServerFactory::create([
             'source' => Storage::disk(self::DISK)->path($path),
-            'cache' => Storage::disk(self::DISK)->path(sprintf('%s/cache', $path)),
+            'cache'  => Storage::disk(self::DISK)->path(sprintf('%s/cache', $path)),
 
         ]);
 
-        return $server->getImageAsBase64($file, $this->getArrayWidthAndHeight() +[  'fm' => 'jpg', 'q' => '25',]);
+        $widthAndHeight = $this->getArrayWidthAndHeight();
+
+        $height = (float) $widthAndHeight['h'];
+        $width = (float) $widthAndHeight['w'];
+
+        if ($width > 800) {
+            $width = 800;
+        }
+
+        if ($height > 0 && $widthAndHeight['w'] > 0) {
+            $height = round(800 * $height / $widthAndHeight['w']);
+        }
+
+
+
+        $widthAndHeight['h'] = (string) $height;
+        $widthAndHeight['w'] =  (string) $width;
+
+        return $server->getImageAsBase64($file, $widthAndHeight + ['fm' => 'jpg', 'q' => '25',]);
     }
 
     private function base64DecodeIfNecessary($value)
@@ -270,10 +303,23 @@ class SvgHelper
         }
         if ($this->disk->missing($newUuid)) {
             $this->disk->makeDirectory($newUuid);
-            foreach ($this->disk->allFiles($this->uuid) as $fileOrDirectory) {
-                $destination = str_replace($this->uuid, $newUuid, $fileOrDirectory);
-                $this->disk->copy($fileOrDirectory, $destination);
+        }
+
+        foreach ($this->disk->allDirectories($this->uuid) as $directory) {
+            $destination = str_replace($this->uuid, $newUuid, $directory);
+            if ($this->disk->exists($destination)) {
+                $this->disk->deleteDirectory($destination);
             }
+            $this->disk->makeDirectory($destination);
+        }
+
+        foreach ($this->disk->allFiles($this->uuid) as $fileOrDirectory) {
+            $destination = str_replace($this->uuid, $newUuid, $fileOrDirectory);
+
+            if ($this->disk->exists($destination)) {
+                $this->disk->delete($destination);
+            }
+            $this->disk->copy($fileOrDirectory, $destination);
         }
 
 //        $this->disk->copyDirectory($this->uuid, $newUuid);
@@ -313,10 +359,10 @@ class SvgHelper
     {
         $values = Str::of($viewBox)->explode(' ');
         return [
-            'x'      => (float) $values[0],
-            'y'      => (float) $values[1],
-            'width'  => (float) $values[2],
-            'height' => (float)  $values[3],
+            'x'      => (float)$values[0],
+            'y'      => (float)$values[1],
+            'width'  => (float)$values[2],
+            'height' => (float)$values[3],
         ];
     }
 
@@ -397,5 +443,10 @@ class SvgHelper
         list($x, $y, $width, $height) = sscanf($this->getViewBox(), '%s %s %s %s');
 
         return ['w' => $width, 'h' => $height];
+    }
+
+    public function delete()
+    {
+        $this->disk->deleteDirectory($this->uuid);
     }
 }

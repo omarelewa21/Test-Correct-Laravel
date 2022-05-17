@@ -63,6 +63,10 @@
                     <td>{{ $demo->mobile }}</td>
                 </tr>
                 <tr>
+                    <td>{{ __("teacher_registered.Level") }}</td>
+                    <td>{{ $demo->level }}</td>
+                </tr>
+                <tr>
                     <td>{{ __("teacher_registered.Vakken (niveau)") }}</td>
                     <td>{{ $demo->subjects }}</td>
                 </tr>

@@ -46,6 +46,7 @@ class DrawingQuestion extends Question implements QuestionInterface {
         'zoom_group',
 //        'question_preview',
 //        'question_correction_model'
+        'svg_date_updated', // this field was introduced to force a duplicate when the svg is updated;
     ];
 
     /**
