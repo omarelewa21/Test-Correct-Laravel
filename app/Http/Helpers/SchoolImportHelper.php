@@ -5,6 +5,8 @@ namespace tcCore\Http\Helpers;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
+use tcCore\DefaultSection;
+use tcCore\DefaultSubject;
 use tcCore\EducationLevel;
 use tcCore\ExcelSchoolImportManifest;
 use tcCore\Jobs\CreateSchoolLocationFromImport;
@@ -29,6 +31,7 @@ class SchoolImportHelper
     protected $user;
 
     protected $echoDetails = false;
+    protected $error;
 
     public function __construct($echoDetails = false)
     {
@@ -47,9 +50,12 @@ class SchoolImportHelper
     {
         DB::beginTransaction();
         try {
+            // check for available defauls sections and subjects
+            $this->inform('going to check for available (and required) default sections and subjects');
+            $this->checkForRequiredDefaultSectionsAndSubjects();
             GlobalStateHelper::getInstance()->setQueueAllowed(false);
             GlobalStateHelper::getInstance()->setPreventDemoEnvironmentCreationForSchoolLocation(true);
-            $this->inform('Going to start with the file prep');
+            $this->inform('Going to start with the file prep and validation of the data');
             $this->prepareDataFromFile();
             $this->inform('done with the file preparation, up to set the user');
             $this->prepareUser();
@@ -61,15 +67,28 @@ class SchoolImportHelper
             GlobalStateHelper::getInstance()->setPreventDemoEnvironmentCreationForSchoolLocation(false);
             GlobalStateHelper::getInstance()->setQueueAllowed(true);
             DB::commit();
-            echo 'done';
+            $this->inform('all done');
         } catch(Throwable $e) {
             DB::rollback();
             logger($e);
-            dd($e->getMessage());
+            if($this->echoDetails){
+                dd($e->getMessage());
+            }
+            throw $e;
         }
     }
 
-    protected function inform($info)
+    public function hasError()
+    {
+        return !! $this->error;
+    }
+
+    public function getError()
+    {
+        return $this->error;
+    }
+
+    public function inform($info)
     {
         if($this->echoDetails){
             echo $info.PHP_EOL;
@@ -84,9 +103,16 @@ class SchoolImportHelper
         }
     }
 
+    protected function checkForRequiredDefaultSectionsAndSubjects()
+    {
+        if(!DefaultSection::exists() || !DefaultSubject::exists()){
+            throw new \Exception('Default sections and subjects are required, did you forget to import them?');
+        }
+    }
+
     protected function handleSchools()
     {
-        $data = $this->manifest->getSchools();
+        $data = $this->manifest->getTransformedSchools();
 
         $data->each(function($row){
            if(!School::where('external_main_code',$row['external_main_code'])->exists()){
@@ -99,7 +125,7 @@ class SchoolImportHelper
 
     protected function  handleSchoolLocations()
     {
-        $data = $this->manifest->getSchoolLocations();
+        $data = $this->manifest->getTransformedSchoolLocations();
         $data->each(function($row){
             if(!SchoolLocation::where('external_main_code',$row['brin_nummer'])->where('external_sub_code',$row['locatie_brin_code_2_karakters_max'])->exists()) {
                 if($row['name'] !== '-') {
@@ -113,7 +139,7 @@ class SchoolImportHelper
 
     protected function prepareDataFromFile()
     {
-        $this->manifest = new ExcelSchoolImportManifest($this->path,false);
+        $this->manifest = new ExcelSchoolImportManifest($this->path,$this);
     }
 
     protected function cleanUmbrellaOrganization()

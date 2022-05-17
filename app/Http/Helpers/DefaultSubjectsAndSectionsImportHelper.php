@@ -43,6 +43,10 @@ class DefaultSubjectsAndSectionsImportHelper
             } else if(app()->runningInConsole()){
                 $this->output->error($e->getMessage());
             }
+            if($this->echoDetails){
+                dd($e->getMessage());
+            }
+            throw $e;
         }
     }
 
