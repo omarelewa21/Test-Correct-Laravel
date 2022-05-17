@@ -1,4 +1,4 @@
-<div class="drawer flex z-[3]"
+<div class="drawer flex z-[20]"
      x-data="{loadingOverlay: false, collapse: false, backdrop: false, emptyStateActive: @entangle('emptyStateActive')}"
      x-init="
         collapse = window.innerWidth < 1000;
