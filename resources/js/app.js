@@ -174,6 +174,10 @@ dragElement = function (element) {
     var uuid = element.id.replace('attachment-', '');
     let newTop, newLeft;
 
+    const elementRect  = element.getBoundingClientRect();
+    const windowHeight = window.innerHeight
+    const windowWidth  = window.innerWidth
+
     if (document.getElementById(element.id + "drag")) {
         // if present, the header is where you move the DIV from:
         document.getElementById(element.id + "drag").onmousedown = dragMouseDown;
@@ -202,11 +206,6 @@ dragElement = function (element) {
 
     function elementDrag(e) {
         e = e || window.event;
-
-        const elementRect = element.getBoundingClientRect();
-
-        const windowHeight = window.innerHeight
-        const windowWidth = window.innerWidth
         
         // calculate the new cursor position:
         if (e.type === 'touchmove') {
@@ -224,20 +223,20 @@ dragElement = function (element) {
         newTop  = (element.offsetTop - pos2);
         newLeft = (element.offsetLeft - pos1);
 
-        const rightEdge = newLeft + elementRect.width;
-
-        if(newTop  < 0){newTop  = 10}                                   // Check if the top edge is within body element height boundaries
-        else if(newTop  > windowHeight-50){newTop = windowHeight-50}
-        
-        if(rightEdge < 150){newLeft += 20}                              // Check if the right edge is within body element width boundaries
-        else if(rightEdge > windowWidth-10){newLeft -= 20}
-
-        element.style.top =  newTop  + "px";
+        element.style.top  = newTop  + "px";
         element.style.left = newLeft + "px";
 
     }
 
     function closeDragElement(e) {
+        const rightEdge = newLeft + elementRect.width;
+
+        if(newTop  < 0){newTop  = 10}                                   // Check if the top edge is within window height boundaries
+        else if(newTop  > windowHeight-50){newTop = windowHeight-50}
+
+        if(rightEdge < 150){newLeft = 0}                              // Check if the right edge is within window width boundaries
+        else if(rightEdge > windowWidth-10){newLeft = 0}
+
         // stop moving when mouse button is released:
         window.dispatchEvent(new CustomEvent('set-new-position', {
                 'detail': {

@@ -6352,6 +6352,9 @@ dragElement = function dragElement(element) {
       pos4 = 0;
   var uuid = element.id.replace('attachment-', '');
   var newTop, newLeft;
+  var elementRect = element.getBoundingClientRect();
+  var windowHeight = window.innerHeight;
+  var windowWidth = window.innerWidth;
 
   if (document.getElementById(element.id + "drag")) {
     // if present, the header is where you move the DIV from:
@@ -6381,10 +6384,7 @@ dragElement = function dragElement(element) {
   }
 
   function elementDrag(e) {
-    e = e || window.event;
-    var elementRect = element.getBoundingClientRect();
-    var windowHeight = window.innerHeight;
-    var windowWidth = window.innerWidth; // calculate the new cursor position:
+    e = e || window.event; // calculate the new cursor position:
 
     if (e.type === 'touchmove') {
       pos1 = pos3 - e.touches[0].clientX;
@@ -6401,28 +6401,28 @@ dragElement = function dragElement(element) {
 
     newTop = element.offsetTop - pos2;
     newLeft = element.offsetLeft - pos1;
-    var rightEdge = newLeft + elementRect.width;
-
-    if (newTop < 0) {
-      newTop = 10;
-    } // Check if the top edge is within body element height boundaries
-    else if (newTop > windowHeight - 50) {
-      newTop = windowHeight - 50;
-    }
-
-    if (rightEdge < 150) {
-      newLeft += 20;
-    } // Check if the right edge is within body element width boundaries
-    else if (rightEdge > windowWidth - 10) {
-      newLeft -= 20;
-    }
-
     element.style.top = newTop + "px";
     element.style.left = newLeft + "px";
   }
 
   function closeDragElement(e) {
-    // stop moving when mouse button is released:
+    var rightEdge = newLeft + elementRect.width;
+
+    if (newTop < 0) {
+      newTop = 10;
+    } // Check if the top edge is within window height boundaries
+    else if (newTop > windowHeight - 50) {
+      newTop = windowHeight - 50;
+    }
+
+    if (rightEdge < 150) {
+      newLeft = 0;
+    } // Check if the right edge is within window width boundaries
+    else if (rightEdge > windowWidth - 10) {
+      newLeft = 0;
+    } // stop moving when mouse button is released:
+
+
     window.dispatchEvent(new CustomEvent('set-new-position', {
       'detail': {
         'uuid': uuid,
