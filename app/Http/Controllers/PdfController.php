@@ -152,11 +152,8 @@ class PdfController extends Controller
     {
         try {
             $mathNodeString = $doc->saveHtml($mathNode);
-            $svg = $this->getWirisSvg($mathNodeString);
-            $svgFragment = $doc->createDocumentFragment();
-            $svgFragment->appendXML($svg);
-            $mathNode->parentNode->replaceChild($svgFragment,$mathNode);
-            dump($doc->saveHTML());
+            $img = $this->getWirisSvgImg($mathNodeString,$doc);
+            $mathNode->parentNode->replaceChild($img,$mathNode);
         }catch (\Throwable $th) {
             Bugsnag::notifyException($th);
             return;
@@ -164,7 +161,7 @@ class PdfController extends Controller
     }
 
 
-    private function getWirisSvg($mml)
+    private function getWirisSvgImg($mml,$doc)
     {
         $data = [
             'mml'=> $mml,
@@ -193,7 +190,13 @@ class PdfController extends Controller
         $res = $client->request('POST',$path,[
             'form_params' => $data]);
         $json = json_decode($res->getBody()->getContents(),true);
-        return $json['result']['content'];
+        $img  = $doc->createElement('img');
+        $img->setAttribute('width',$json['result']['width']);
+        $img->setAttribute('height',$json['result']['height']);
+        $src = sprintf('data:image/svg+xml;charset=utf8,%s',rawurlencode($json['result']['content']));
+        $img->setAttribute('src',$src);
+        $img->setAttribute('style','max-width: none; vertical-align: -4px;');
+        return $img;
     }
 
     private function getTestWiris()
