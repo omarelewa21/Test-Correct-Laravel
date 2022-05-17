@@ -28,9 +28,17 @@ RichTextEditor = {
         }
         CKEDITOR.replace(editorId, {});
         editor = CKEDITOR.instances[editorId];
-
+        editor.shouldDispatchChange = false
         editor.on('change', function (e) {
-            RichTextEditor.sendInputEventToEditor(editorId, e);
+            if(!e.editor.getData()?.includes('MathML')) {
+                RichTextEditor.sendInputEventToEditor(editorId, e);
+                return;
+            }
+
+            if (editor.shouldDispatchChange) {
+                RichTextEditor.sendInputEventToEditor(editorId, e);
+            }
+            editor.shouldDispatchChange = true
         });
         editor.on('simpleuploads.startUpload', function (e) {
             e.data.extraHeaders = {

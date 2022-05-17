@@ -115,7 +115,6 @@ class OpenShort extends Component
     public $sortOrderAttachments = [];
 
     public $dirty = false;
-    public $flagAsDirty = true;
 
     public $withRedirect = true;
     public $emptyState = false;
@@ -223,7 +222,6 @@ class OpenShort extends Component
 
         $this->tags = [];
         $this->dirty = false;
-        $this->flagAsDirty = true;
         $this->forceOpenNewQuestion = false;
         $this->uniqueQuestionKey = $this->testQuestionId . $this->groupQuestionQuestionId . $this->action . $this->questionEditorId;
     }
@@ -394,23 +392,14 @@ class OpenShort extends Component
 
     public function updating($name, $value)
     {
-        // WIRIS Plugin renders/updates CKEditor content after render, so it triggers a false update
-        if ($name === 'question.question' && $value == $this->question['question']) {
-            $this->flagAsDirty = false;
-        }
-        if ($name === 'question.answer' && $value == $this->question['answer']) {
-            $this->flagAsDirty = false;
-        }
+
     }
 
     private function handleDirtyState($updatedProperty)
     {
-        if ($this->flagAsDirty) {
-            if ($updatedProperty != 'loading') {
-                $this->dirty = true;
-            }
+        if ($updatedProperty != 'loading') {
+            $this->dirty = true;
         }
-        $this->flagAsDirty = true;
     }
 
     public function showStatistics()
