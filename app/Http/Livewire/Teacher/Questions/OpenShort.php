@@ -394,6 +394,7 @@ class OpenShort extends Component
 
     public function updating($name, $value)
     {
+        // WIRIS Plugin renders/updates CKEditor content after render, so it triggers a false update
         if ($name === 'question.question' && $value == $this->question['question']) {
             $this->flagAsDirty = false;
         }

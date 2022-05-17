@@ -3,9 +3,8 @@
      @attachments-updated.window="setIndex()"
      wire:key="{{ $attributes['wire:key'] }}"
 >
-    <div
-            class="flex p-2 border-r border-blue-grey h-full items-center"
-            wire:key="icon-{{ $attributes['wire:key'] }}"
+    <div class="flex p-2 border-r border-blue-grey h-full items-center"
+         wire:key="icon-{{ $attributes['wire:key'] }}"
     >
         @if($host === 'vimeo')
             <x-icon.vimeo/>
@@ -13,9 +12,8 @@
             <x-icon.youtube/>
         @endif
     </div>
-    <div
-            class="flex base items-center relative"
-            wire:key="title-{{ $attributes['wire:key'] }}"
+    <div class="flex base items-center relative"
+         wire:key="title-{{ $attributes['wire:key'] }}"
     >
         <div class="flex base items-center relative">
             <span class="pl-2" x-text="index + ':'"></span>

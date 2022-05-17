@@ -527,11 +527,11 @@
                     class="button cta-button button-sm save_button"
                     wire:loading.attr="disabled"
                     wire:click="saveAndRefreshDrawer()"
-                    @beforeunload.window="$el.disabled = true"
-                    x-on:livewire-upload-start.window="$el.disabled = true"
-                    x-on:livewire-upload-finish.window="$el.disabled = false"
-                    x-on:livewire-upload-error.window="$el.disabled = false"
-                    :disabled="!!empty"
+                    x-data="{disabled: false}"
+                    x-on:beforeunload.window="disabled = true"
+                    x-on:filepond-start.window="disabled = true"
+                    x-on:filepond-finished.window="disabled = false"
+                    :disabled="!!empty || disabled"
                     selid="save-btn"
             >
                 <span>{{ __("drawing-modal.Opslaan") }}</span>
