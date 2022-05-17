@@ -26,6 +26,7 @@
      :class="{'collapsed': collapse}"
      @backdrop="backdrop = !backdrop"
      @scroll.throttle.500ms="$dispatch('drawer-scroll')"
+     @processing-end.window="$store.cms.processing = false;"
      wire:ignore.self
      wire:init="handleCmsInit()"
 >
@@ -70,6 +71,8 @@
                                        x-ref="container1"
 {{--                                       @drawer-scroll.window="handleVerticalScroll($el)"--}}
                                        @mouseenter="handleVerticalScroll($el);"
+                                       @continue-to-new-slide.window="$store.cms.processing = true;$wire.removeDummy();showAddQuestionSlide(false)"
+                                       @continue-to-add-group.window="addGroup(false)"
             >
                 <div class="divide-y divide-bluegrey pb-6" {{ $emptyStateActive ? 'hidden' : '' }} >
                     @php $loopIndex = 0; @endphp
@@ -109,11 +112,11 @@
                      class="fixed inset-0 bg-white opacity-20"
                      style="width: var(--sidebar-width)"></div>
 
-                <x-button.plus-circle wire:click="addGroup">
+                <x-button.plus-circle @click="addGroup()">
                     {{ __('cms.Vraaggroep toevoegen') }}
                 </x-button.plus-circle>
 
-                <x-button.plus-circle @click="next($refs.container1); dispatchBackdrop()"
+                <x-button.plus-circle @click="showAddQuestionSlide()"
                 >
                     {{__('cms.Vraag toevoegen')}}
                 </x-button.plus-circle>
@@ -123,7 +126,7 @@
             <x-sidebar.slide-container class="divide-y divide-bluegrey" x-ref="container2" @mouseenter="handleVerticalScroll($el);">
                 <div class="py-1 px-6 flex">
                     <x-button.text-button class="rotate-svg-180"
-                                          @click="prev($refs.container2); dispatchBackdrop(); $store.questionBank.inGroup = false;"
+                                          @click="backToQuestionOverview($refs.container2)"
                                           wire:click="$set('groupId', null)"
                     >
                         <x-icon.arrow/>

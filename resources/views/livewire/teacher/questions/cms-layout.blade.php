@@ -1,5 +1,5 @@
 <div id="cms" class="flex flex-1"
-     x-data="{loading: @entangle('loading'), empty: {{ $this->emptyState ? 1 : 0 }} }"
+     x-data="{loading: @entangle('loading'), empty: {{ $this->emptyState ? 1 : 0 }}, dirty: @entangle('dirty') }"
      x-init="
            handleQuestionChange = (evt) => {
                 $store.cms.loading = true;
@@ -21,6 +21,7 @@
 
            $watch('$store.cms.loading', (value) => loadingTimeout(value));
            $watch('loading', (value) => loadingTimeout(value));
+           $watch('dirty', (value) => $store.cms.dirty = value);
 
            removeDrawingLegacy = () => {
                 $root.querySelector('#drawing-question-tool-container')?.remove();
@@ -526,11 +527,11 @@
                     class="button cta-button button-sm save_button"
                     wire:loading.attr="disabled"
                     wire:click="saveAndRefreshDrawer()"
-                    @beforeunload.window="$el.disabled = true"
-                    x-on:livewire-upload-start.window="$el.disabled = true"
-                    x-on:livewire-upload-finish.window="$el.disabled = false"
-                    x-on:livewire-upload-error.window="$el.disabled = false"
-                    :disabled="!!empty"
+                    x-data="{disabled: false}"
+                    x-on:beforeunload.window="disabled = true"
+                    x-on:filepond-start.window="disabled = true"
+                    x-on:filepond-finished.window="disabled = false"
+                    :disabled="!!empty || disabled"
                     selid="save-btn"
             >
                 <span>{{ __("drawing-modal.Opslaan") }}</span>

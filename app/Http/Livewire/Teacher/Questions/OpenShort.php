@@ -115,12 +115,14 @@ class OpenShort extends Component
     public $sortOrderAttachments = [];
 
     public $dirty = false;
+    public $flagAsDirty = true;
 
     public $withRedirect = true;
     public $emptyState = false;
     public $loading = false;
     public $showDirtyQuestionModal = false;
     public $nextQuestionToShow = [];
+    public $forceOpenNewQuestion = false;
     public $uniqueQuestionKey = '';
 
 
@@ -221,6 +223,8 @@ class OpenShort extends Component
 
         $this->tags = [];
         $this->dirty = false;
+        $this->flagAsDirty = true;
+        $this->forceOpenNewQuestion = false;
         $this->uniqueQuestionKey = $this->testQuestionId . $this->groupQuestionQuestionId . $this->action . $this->questionEditorId;
     }
 
@@ -245,7 +249,8 @@ class OpenShort extends Component
             'showQuestion'          => 'showQuestion',
             'addQuestion'           => 'addQuestion',
             'showEmpty'             => 'showEmpty',
-            'questionDeleted'       => '$refresh'
+            'questionDeleted'       => '$refresh',
+            'addQuestionFromDirty'  => 'addQuestionFromDirty'
         ];
     }
 
@@ -328,17 +333,19 @@ class OpenShort extends Component
         }
 
         $this->validateAndReturnErrorsToTabOne();
-        $this->question['order'] = 0;
 
         if ($this->action == 'edit' && !$this->isCloneRequest) {
             $response = $this->updateQuestion();
         } else {
+            $this->question['order'] = 0;
             if ($this->isCloneRequest) {
                 $this->prepareForClone();
             }
             $response = $this->saveNewQuestion();
 
-            $this->setQueryStringProperties($response);
+            if ($this->withDrawer) {
+                $this->setQueryStringProperties($response);
+            }
         }
         $this->dispatchBrowserEvent('notify', ['message' => __('cms.Wijzigingen opgeslagen')]);
         if ($response->getStatusCode() == 200) {
@@ -382,9 +389,28 @@ class OpenShort extends Component
             $this->obj->updated($name, $value);
         }
 
-        if ($name != 'loading') {
-            $this->dirty = true;
+        $this->handleDirtyState($name);
+    }
+
+    public function updating($name, $value)
+    {
+        // WIRIS Plugin renders/updates CKEditor content after render, so it triggers a false update
+        if ($name === 'question.question' && $value == $this->question['question']) {
+            $this->flagAsDirty = false;
         }
+        if ($name === 'question.answer' && $value == $this->question['answer']) {
+            $this->flagAsDirty = false;
+        }
+    }
+
+    private function handleDirtyState($updatedProperty)
+    {
+        if ($this->flagAsDirty) {
+            if ($updatedProperty != 'loading') {
+                $this->dirty = true;
+            }
+        }
+        $this->flagAsDirty = true;
     }
 
     public function showStatistics()
@@ -946,12 +972,10 @@ class OpenShort extends Component
 
         $upload = collect($this->uploads)->first(function ($upload) use ($sortHash) {
             return $upload->getFileName() === $sortHash;
-//            return $upload->id == $sortHash;
         });
 
         $video = collect($this->videos)->first(function ($video) use ($sortHash) {
             return $video['id'] == $sortHash;
-//            return $video == $sortHash;
         });
 
         return [$upload, $video];
@@ -974,9 +998,9 @@ class OpenShort extends Component
 
     public function showQuestion($args)
     {
-        if ($this->needsSavingBeforeShowingQuestion($args['shouldSave'])) {
+        if (!$this->forceOpenNewQuestion && $this->needsSavingBeforeShowingQuestion($args['shouldSave'])) {
             if (!$this->completedMandatoryFields()) {
-                return $this->leavingNewDirtyQuestion($args);
+                return $this->leavingDirtyQuestion($args);
             }
             $this->loading = true;
             $this->save(false);
@@ -993,10 +1017,7 @@ class OpenShort extends Component
 
     public function addQuestion($args)
     {
-        if ($this->needsSavingBeforeAddingNewQuestion($args)) {
-            if (!$this->completedMandatoryFields()) {
-                return $this->leavingNewDirtyQuestion($args);
-            }
+        if (!$this->forceOpenNewQuestion && $this->needsSavingBeforeAddingNewQuestion($args)) {
             $this->save(false);
         }
 
@@ -1020,9 +1041,9 @@ class OpenShort extends Component
     private function resolveOrderNumber($questionUuid = null)
     {
         if ($this->action === 'add' && $this->owner === 'group') {
+            // To figure out the true order of a subquestion, it causes 150 extra queries.. -RR
             return Test::whereUuid($this->testId)->first()->getRelativeOrderNumberForSubQuestion($this->testQuestionId);
         }
-
         return Test::whereUuid($this->testId)->first()->getRelativeOrderNumberForQuestion($questionUuid);
     }
 
@@ -1180,9 +1201,9 @@ class OpenShort extends Component
         $this->render();
     }
 
-    private function leavingNewDirtyQuestion($args)
+    public function leavingDirtyQuestion($args = [])
     {
-        $this->showDirtyQuestionModal = true;
+        $this->dispatchBrowserEvent('show-dirty-question-modal', ['goingToExisting' => true]);
         $this->nextQuestionToShow = $args;
     }
 
@@ -1206,6 +1227,10 @@ class OpenShort extends Component
 
     private function completedMandatoryFields()
     {
+        if ($this->obj && method_exists($this->obj, 'passesCustomMandatoryRules')) {
+             return !!$this->obj->passesCustomMandatoryRules();
+        }
+
         return !Validator::make((array)$this, $this->getRules())->fails();
     }
 
@@ -1225,5 +1250,30 @@ class OpenShort extends Component
     private function needsSavingBeforeShowingQuestion($shouldSave): bool
     {
         return $shouldSave && $this->isDirty();
+    }
+
+    /**
+     * @throws \Exception
+     */
+    public function validateFromDirtyModal()
+    {
+            $this->validateAndReturnErrorsToTabOne();
+    }
+
+    public function addQuestionFromDirty($data)
+    {
+        if(!$this->completedMandatoryFields()) {
+            $this->dispatchBrowserEvent('show-dirty-question-modal', ['goingToExisting' => false, 'group' => $data['group']]);
+            return;
+        }
+
+        $this->save(false);
+
+        $data['group'] ? $this->dispatchBrowserEvent('continue-to-add-group') : $this->dispatchBrowserEvent('continue-to-new-slide');
+    }
+
+    public function getRulesFromProvider()
+    {
+        return $this->getRules();
     }
 }

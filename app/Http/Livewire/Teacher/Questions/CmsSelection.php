@@ -2,12 +2,12 @@
 
 namespace tcCore\Http\Livewire\Teacher\Questions;
 
-use Illuminate\Support\Facades\Validator;
-use Illuminate\Validation\ValidationException;
-use tcCore\CompletionQuestion;
+use tcCore\Http\Traits\WithCmsCompletionType;
 
 class CmsSelection
 {
+    use WithCmsCompletionType;
+
     private $instance;
     public $requiresAnswer = false;
 
@@ -29,16 +29,5 @@ class CmsSelection
     public function initializePropertyBag($q)
     {
         $this->instance->question['question'] = $this->instance->decodeCompletionTags($q);
-    }
-
-    public function customValidation()
-    {
-        $validator = Validator::make([], []);
-        $questionString = $this->instance->question['question'];
-        $subType = $this->instance->question['subtype'];
-        CompletionQuestion::validateWithValidator($validator, $questionString, $subType, 'question.');
-        if ($validator->errors()->count()) {
-            throw new ValidationException($validator);
-        }
     }
 }

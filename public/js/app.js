@@ -6011,9 +6011,38 @@ document.addEventListener('alpine:init', function () {
         });
       },
       addQuestionToGroup: function addQuestionToGroup() {
+        this.showAddQuestionSlide();
+        this.$store.questionBank.inGroup = true;
+      },
+      addGroup: function addGroup() {
+        var shouldCheckDirty = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : true;
+
+        if (shouldCheckDirty && this.$store.cms.dirty) {
+          this.$wire.emitTo('teacher.questions.open-short', 'addQuestionFromDirty', {
+            'group': true
+          });
+          return;
+        }
+
+        this.$wire.addGroup();
+      },
+      showAddQuestionSlide: function showAddQuestionSlide() {
+        var shouldCheckDirty = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : true;
+
+        if (shouldCheckDirty && this.$store.cms.dirty) {
+          this.$wire.emitTo('teacher.questions.open-short', 'addQuestionFromDirty', {
+            'group': false
+          });
+          return;
+        }
+
         this.next(this.$refs.container1);
         this.$dispatch('backdrop');
-        this.$store.questionBank.inGroup = true;
+      },
+      backToQuestionOverview: function backToQuestionOverview(container) {
+        this.prev(container);
+        this.$dispatch('backdrop');
+        this.$store.questionBank.inGroup = false; // this.$store.cms.processing = false;
       }
     };
   });
@@ -6126,7 +6155,8 @@ document.addEventListener('alpine:init', function () {
   });
   alpinejs__WEBPACK_IMPORTED_MODULE_1__["default"].store('cms', {
     loading: false,
-    processing: false
+    processing: false,
+    dirty: false
   });
   alpinejs__WEBPACK_IMPORTED_MODULE_1__["default"].store('questionBank', {
     inGroup: false

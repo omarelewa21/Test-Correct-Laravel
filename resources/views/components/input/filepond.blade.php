@@ -1,12 +1,14 @@
 @props(['multiple' => false])
 <div {{ $attributes->except('wire:model') }}
-     id="filepond-upload"
+    id="filepond-upload"
     wire:ignore
     x-data="{
     post: null,
     allowedTypes: ['jpg', 'jpeg', 'JPG', 'PEG', 'GIF', 'gif', 'PNG', 'png', 'PDF', 'pdf', 'mpeg', 'mp3'],
     init: () => {
         this.post = FilePond.create($refs.input);
+        this.post.currentBatchLength = 0;
+        this.post.processedCount = 0;
             this.post.setOptions({
                 maxFileSize: '25MB',
                 allowMultiple: {{ $multiple }},
@@ -16,7 +18,13 @@
                         var fileType = file.type.split('/').pop();
                         if ($data.allowedTypes.includes(fileType)) {
                             @this.upload('{{ $attributes->whereStartsWith('wire:model')->first() }}', file, (uploadedFilename) => {
+                                this.post.processedCount++
 
+                                if(this.post.processedCount === this.post.currentBatchLength) {
+                                    $dispatch('filepond-finished')
+                                    this.post.processedCount = 0;
+                                    this.post.currentBatchLength = 0;
+                                }
                             }, () => {
 
                             }, (event) => {
@@ -30,6 +38,7 @@
                     revert: (filename, load) => {
                         @this.removeUpload('{{ $attributes->whereStartsWith('wire:model')->first() }}', filename, load)
                     },
+
                 },
                 onprocessfilestart: (file) => {
                     let dummy = document.querySelector('#attachment-badges > #dummy');
@@ -39,6 +48,8 @@
                     if (error.main === 'File is too large' ) {
                         Notify.notify('{{ __('cms.File too large, max file size') }}', 'error');
                     }
+                    console.log('filepond-finished error');
+                    this.$dispatch('filepond-finished')
                 }
             });
     },
@@ -47,7 +58,9 @@
                 for (var i = 0; i < event.detail.dataTransfer.items.length; i++) {
                    files.push(event.detail.dataTransfer.items[i].getAsFile());
                 }
-                this.post.addFiles(files)
+                this.post.currentBatchLength = files.length;
+                this.post.addFiles(files);
+                $dispatch('filepond-start');
         }
     }
 "
