@@ -25,7 +25,7 @@
                      @close-drawing-tool="show = false"
                      class="mt-4 preview"
                 >
-                    <x-button.primary @click="show = !show">
+                    <x-button.primary @click="show = !show" selid="draw-answer">
                         <x-icon.edit/>
                         @if($answer == '')
                             <span>{{ __('test_take.draw_answer') }}</span>
