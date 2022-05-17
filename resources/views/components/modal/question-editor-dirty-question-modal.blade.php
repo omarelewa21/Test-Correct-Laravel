@@ -1,6 +1,6 @@
 <div id="dirty-modal"
      class="fixed inset-0 overflow-y-auto px-4 py-6 sm:px-0 z-[101]"
-     x-data="{dirtyModal: false, toExisting: false}"
+     x-data="{dirtyModal: false, toExisting: false, isGroup: false, leavingTest: false}"
      x-init="$watch('dirtyModal', (value) => {
                 if(!value) return;
                 $store.cms.processing = false;
@@ -10,13 +10,21 @@
                 $wire.set('forceOpenNewQuestion', true);
                 if(toExisting) {
                     $wire.continueToNextQuestion()
-                } else {
-                    if(isGroup) {
-                        $dispatch('continue-to-add-group')
-                    } else {
-                        $dispatch('continue-to-new-slide')
-                    }
+                    return;
                 }
+                if(isGroup) {
+                    $dispatch('continue-to-add-group')
+                    return;
+                }
+
+                if (leavingTest) {
+                    $wire.returnToTestOverview();
+                    return;
+                }
+
+                $dispatch('continue-to-new-slide')
+
+
             }
             continueAction = () => {
                 dirtyModal = false;
@@ -31,7 +39,7 @@
      x-transition:leave="ease-in duration-100"
      x-transition:leave-start="opacity-100 scale-100"
      x-transition:leave-end="opacity-0 scale-90"
-     x-on:show-dirty-question-modal.window="dirtyModal = true; toExisting = $event.detail.goingToExisting; isGroup = $event.detail.group ?? false"
+     x-on:show-dirty-question-modal.window="dirtyModal = true; toExisting = $event.detail.goingToExisting ?? false; isGroup = $event.detail.group ?? false; leavingTest = $event.detail.leavingTest ?? false"
 >
     <div x-show="dirtyModal" class="fixed inset-0 transform " x-on:click="dirtyModal = false"
          x-transition:enter="ease-out duration-100"

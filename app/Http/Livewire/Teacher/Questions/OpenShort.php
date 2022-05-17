@@ -1131,8 +1131,11 @@ class OpenShort extends Component
 
     public function saveAndRedirect()
     {
-        if ($this->testHasQuestions() && $this->isDirty()) {
-            return $this->save();
+        if (!$this->editModeForExistingQuestion() && $this->isDirty()) {
+            if($this->completedMandatoryFields()) {
+                return $this->save();
+            }
+            return $this->dispatchBrowserEvent('show-dirty-question-modal', ['leavingTest' => true]);
         }
         return $this->returnToTestOverview();
     }
