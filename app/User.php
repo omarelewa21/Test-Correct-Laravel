@@ -1726,6 +1726,9 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
                         }
                     });
                     break;
+                case 'without_guests':
+                    $value == true ? $query->withoutGuests() : '';
+                    break;
                 default:
                     break;
             }
@@ -2427,6 +2430,11 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
     public function scopeGuests($query)
     {
         return $query->where('guest', 1);
+    }
+
+    public function scopeWithoutGuests($query)
+    {
+        return $query->where('guest', 0);
     }
 
     public function setSessionHash($hash)
