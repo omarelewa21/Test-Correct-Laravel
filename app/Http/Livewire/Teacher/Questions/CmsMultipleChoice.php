@@ -56,7 +56,7 @@ class CmsMultipleChoice extends CmsBase
 
     public function initializePropertyBag($q)
     {
-
+        $this->instance->question['fix_order'] = $q->fix_order;
     }
 
     public function prepareForSave()

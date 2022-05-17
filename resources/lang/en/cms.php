@@ -162,4 +162,6 @@ return [
     'begin_with_making_a_question'                                                           => 'Start with making a group or regular question.',
     'nieuwe'                                                                                 => 'new',
     'Wijzigingen niet opslaan'                                                               => 'Discard changes',
+    'fix_order'                                                                              => 'Fix order of answers',
+
 ];
