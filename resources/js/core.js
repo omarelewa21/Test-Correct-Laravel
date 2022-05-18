@@ -192,7 +192,16 @@ Core = {
         // }
         // xhttp.open("GET", "/appVersion", true);
         // xhttp.send();
-        console.log(chrome.runtime.getManifest().version);
+        try {
+            chrome.runtime.getManifest().version;
+            console.log('Success', chrome.runtime.getManifest().version);
+            let appElements = document.querySelectorAll('[chromebook]');
+            appElements.forEach((element) => {
+                element.style.display = 'flex';
+            });
+        } catch (error) {
+            console.log('Failed');
+        }
     }
 }
 
