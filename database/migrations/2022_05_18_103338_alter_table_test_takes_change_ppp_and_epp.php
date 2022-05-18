@@ -14,8 +14,8 @@ class AlterTableTestTakesChangePppAndEpp extends Migration
     public function up()
     {
         Schema::table('test_takes', function (Blueprint $table) {
-            $table->decimal('ppp',20,4)->change();
-            $table->decimal('epp',20,4)->change();
+            $table->decimal('ppp',8,4)->change();
+            $table->decimal('epp',8,4)->change();
         });
     }
 
