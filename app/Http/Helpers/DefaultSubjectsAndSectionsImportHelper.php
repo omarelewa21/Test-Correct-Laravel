@@ -39,12 +39,9 @@ class DefaultSubjectsAndSectionsImportHelper
             logger($e);
             logger($e->getMessage());
             if($this->inConsole){
-                echo $e->getMessage();
+                echo ($e->getMessage());
             } else if(app()->runningInConsole()){
                 $this->output->error($e->getMessage());
-            }
-            if($this->echoDetails){
-                dd($e->getMessage());
             }
             throw $e;
         }

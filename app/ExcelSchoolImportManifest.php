@@ -11,6 +11,7 @@ namespace tcCore;
 
 use Illuminate\Support\Str;
 use Maatwebsite\Excel\Facades\Excel;
+use tcCore\Exceptions\SchoolAndSchoolLocationsImportException;
 
 
 class ExcelSchoolImportManifest
@@ -81,14 +82,14 @@ class ExcelSchoolImportManifest
             if($row['customer_code']){
                 // do we have one with the same customer code in the import
                 if(in_array($row['customer_code'],$customerCodesInImport)){
-                    throw new \Exception(sprintf('We have two schools in the import with the same customer code %s',$row['customer_code']));
+                    throw new SchoolAndSchoolLocationsImportException(sprintf('We have two schools in the import with the same customer code %s',$row['customer_code']));
                 }
                 // do we have one with the same customer code in the database
                 $fromDB = $inDB->firstWhere('customer_code',$row['customer_code']);
                 if($fromDB){
                     // if so do they have different external main codes
                     if($fromDB->external_main_code != $row['external_main_code']){
-                        throw new \Exception(sprintf('We have different school brin fours (DB:%s => import:%s) for the same customer code %s %s',$fromDB->external_main_code,$row['external_main_code'],$fromDB->customer_code,$row['customer_code']));
+                        throw new SchoolAndSchoolLocationsImportException(sprintf('We have different school brin fours (DB:%s => import:%s) for the same customer code %s %s',$fromDB->external_main_code,$row['external_main_code'],$fromDB->customer_code,$row['customer_code']));
                     }
                 }
             }
@@ -96,18 +97,18 @@ class ExcelSchoolImportManifest
             if($row['external_main_code']){
                 // do we have one with the same extneral main code in the import
                 if(in_array($row['external_main_code'],$externalMainCodesInImport)){
-                    throw new \Exception(sprintf('We have two schools in the import with the same BRIN four %s',$row['external_main_code']));
+                    throw new SchoolAndSchoolLocationsImportException(sprintf('We have two schools in the import with the same BRIN four %s',$row['external_main_code']));
                 }
                 // do we have one in the database with the same external_main_code
                 $fromDB = $inDB->firstWhere('external_main_code',$row['external_main_code']);
                 if($fromDB){
                     // if so do they have different customer codes
                     if($fromDB->customer_code != $row['customer_code']){
-                        throw new \Exception(sprintf('We have different school customer_codes (db:%s => import:%s) with the BRIN four %s',$fromDB->customer_code,$row['customer_code'],$row['external_main_code']));
+                        throw new SchoolAndSchoolLocationsImportException(sprintf('We have different school customer_codes (db:%s => import:%s) with the BRIN four %s',$fromDB->customer_code,$row['customer_code'],$row['external_main_code']));
                     }
                     // or different names
                     if($fromDB->name != $row['name']){
-                        throw new \Exception(sprintf('We have different school names (db:%s => import:%s) with the BRIN four %s',$fromDB->name,$row['name'],$row['external_main_code']));
+                        throw new SchoolAndSchoolLocationsImportException(sprintf('We have different school names (db:%s => import:%s) with the BRIN four %s',$fromDB->name,$row['name'],$row['external_main_code']));
                     }
 
                     $this->transformedSchools = $this->transformedSchools->reject(function ($row) use ($fromDB) {
@@ -116,7 +117,7 @@ class ExcelSchoolImportManifest
                 }
             } else {
                 // no external main code available
-                throw new \Exception(sprintf('Missing brin four for %s',$row['name']));
+                throw new SchoolAndSchoolLocationsImportException(sprintf('Missing brin four for %s',$row['name']));
             }
             $customerCodesInImport[] = $row['customer_code'];
             $externalMainCodesInImport[] = $row['external_main_code'];
@@ -142,12 +143,12 @@ class ExcelSchoolImportManifest
             $fromDB = null;
             if($row['customer_code']){
                 if(in_array($row['customer_code'],$customerCodesInImport)){
-                    throw new \Exception(sprintf('We have two school locations in the import with the same customer code %s',$row['customer_code']));
+                    throw new SchoolAndSchoolLocationsImportException(sprintf('We have two school locations in the import with the same customer code %s',$row['customer_code']));
                 }
                 $fromDB = $inDB->firstWhere('customer_code',$row['customer_code']);
                 if($fromDB){
                     if($fromDB->external_main_code != $row['external_main_code'] || $fromDB->external_sub_code != $row['external_sub_code']){
-                        throw new \Exception(sprintf('We have different school location brins (DB:%s%S => import:%s%s) for the same customer code %s',$fromDB->external_main_code,$fromDB->external_sub_code,$row['external_main_code'],$row['external_sub_code'],$fromDB->customer_code));
+                        throw new SchoolAndSchoolLocationsImportException(sprintf('We have different school location brins (DB:%s%S => import:%s%s) for the same customer code %s',$fromDB->external_main_code,$fromDB->external_sub_code,$row['external_main_code'],$row['external_sub_code'],$fromDB->customer_code));
                     }
                 }
             }
@@ -155,18 +156,18 @@ class ExcelSchoolImportManifest
             if($row['external_main_code'] && $row['external_sub_code']){
                 // is there another one in the list with the same credentials
                 if(in_array(sprintf('%s%s',$row['external_main_code'],$row['external_sub_code']),$externalBRINInImport)){
-                    throw new \Exception(sprintf('We have school locations in the import with the same BRIN %s-%s',$row['external_main_code'],$row['external_sub_code']));
+                    throw new SchoolAndSchoolLocationsImportException(sprintf('We have school locations in the import with the same BRIN %s-%s',$row['external_main_code'],$row['external_sub_code']));
                 }
                 // do we have one in the database
                 $fromDB = $inDB->where('external_main_code',$row['external_main_code'])->where('external_sub_code',$row['external_sub_code'])->first();
                 if($fromDB){
                     // if so, do they have different customer codes
                     if($fromDB->customer_code != $row['customer_code']){
-                        throw new \Exception(sprintf('We have different school location customer_codes (db:%s => import:%s) with the BRIN %s-%s',$fromDB->customer_code,$row['customer_code'],$row['external_main_code'],$row['external_sub_code']));
+                        throw new SchoolAndSchoolLocationsImportException(sprintf('We have different school location customer_codes (db:%s => import:%s) with the BRIN %s-%s',$fromDB->customer_code,$row['customer_code'],$row['external_main_code'],$row['external_sub_code']));
                     }
                     // or different names
                     if($fromDB->name != $row['name']){
-                        throw new \Exception(sprintf('We have different school location names (db:%s => import:%s) with the BRIN %s-%s',$fromDB->name,$row['name'],$row['external_main_code'],$row['external_sub_code']));
+                        throw new SchoolAndSchoolLocationsImportException(sprintf('We have different school location names (db:%s => import:%s) with the BRIN %s-%s',$fromDB->name,$row['name'],$row['external_main_code'],$row['external_sub_code']));
                     }
 
                     $this->transformedSchoolLocations = $this->transformedSchoolLocations->reject(function ($row) use ($fromDB) {
@@ -175,7 +176,7 @@ class ExcelSchoolImportManifest
                 }
             } else {
                 // no brin data available
-                throw new \Exception(sprintf('Missing brin for %s',$row['name']));
+                throw new SchoolAndSchoolLocationsImportException(sprintf('Missing brin for %s',$row['name']));
             }
             $customerCodesInImport[] = $row['customer_code'];
             $externalMainCodesInImport[] = $row['external_main_code'];
@@ -213,7 +214,7 @@ class ExcelSchoolImportManifest
         foreach($transformer as $key => $value){
             $transformedKey = Str::slug($key,'_');
             if(!array_key_exists($transformedKey,$row)){
-                throw new \Exception(sprintf('Not all data is available, column `%s` is missing for the %s (%s => %s)',$key, $type, $transformedKey, var_export($row,true)));
+                throw new SchoolAndSchoolLocationsImportException(sprintf('Not all data is available, column `%s` is missing for the %s (%s => %s)',$key, $type, $transformedKey, var_export($row,true)));
             }
             $return[$value] = $row[$transformedKey];
 
@@ -228,7 +229,7 @@ class ExcelSchoolImportManifest
             $return['school_id'] = School::where('external_main_code',$row['brin_nummer'])->value('id');
 
             if($return['external_main_code'].$return['external_sub_code'] != $row['vestigingsnummer'] || $row['locatie_brin_code_2_karakters_max'] != $return['external_sub_code']) {
-                throw new \Exception(sprintf('brin nummer (%s) icm locatie code (%s) komen niet overeen met de vestigingscode (%s) ##%s **%s', $return['external_main_code'], $return['locatie_brin_code_2_karakters_max'], $row['vestigingsnummer'], var_export($return, true), var_export($row, true)));
+                throw new SchoolAndSchoolLocationsImportException(sprintf('brin nummer (%s) icm locatie code (%s) komen niet overeen met de vestigingscode (%s) ##%s **%s', $return['external_main_code'], $return['locatie_brin_code_2_karakters_max'], $row['vestigingsnummer'], var_export($return, true), var_export($row, true)));
             }
         }
         return $return;
@@ -267,7 +268,7 @@ class ExcelSchoolImportManifest
         });
 
         if(!$id){
-            throw new \Exception(sprintf('Default section %s non existent',$section));
+            throw new SchoolAndSchoolLocationsImportException(sprintf('Default section %s non existent',$section));
         }
 
         return $id;
@@ -286,7 +287,7 @@ class ExcelSchoolImportManifest
         if(!$id){
             $this->hasErrors = true;
             if($this->failOnFirstMissingBaseSubject) {
-                throw new \Exception(sprintf('Base subject %s non existent', $subject));
+                throw new SchoolAndSchoolLocationsImportException(sprintf('Base subject %s non existent', $subject));
             } else {
                 logger('missing base subject '.$subject);
             }

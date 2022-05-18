@@ -37,7 +37,7 @@ class SchoolAndSchoolLocationsImportController extends Controller
      * @param SchoolClassesStudentImportRequest $request
      * @return
      */
-    public function __invoke(Requests\DefaultSubjectsAndSectionsImportRequest $request)
+    public function import(Requests\DefaultSubjectsAndSectionsImportRequest $request)
     {
         $excelFile = $request->file('file');
         $basePath = 'app/school_location_import';
@@ -52,7 +52,7 @@ class SchoolAndSchoolLocationsImportController extends Controller
         } catch(\Exception $e){
             return response()->json(['error' => $e->getMessage()], 500);
         }
-        return response()->json(['data' => 'Scholen en school locaties zijn toegevoegd'], 200);
+        return response()->json(['data' => 'Scholen zijn toegevoegd en school locaties klaargezet in de queue om verwerkt te worden'], 200);
     }
 
 

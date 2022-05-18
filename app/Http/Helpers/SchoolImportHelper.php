@@ -9,6 +9,7 @@ use tcCore\DefaultSection;
 use tcCore\DefaultSubject;
 use tcCore\EducationLevel;
 use tcCore\ExcelSchoolImportManifest;
+use tcCore\Exceptions\SchoolAndSchoolLocationsImportException;
 use tcCore\Jobs\CreateSchoolLocationFromImport;
 use tcCore\School;
 use tcCore\SchoolLocation;
@@ -78,6 +79,13 @@ class SchoolImportHelper
         }
     }
 
+    public function checkForExistensInDatabaseAndThrowExceptionIfTheCase($row)
+    {
+        if(($row['customer_code'] && SchoolLocation::where('customer_code',$row['customer_code'])->exists()) || SchoolLocation::where('external_main_code',$row['external_main_code'])->where('external_sub_code',$row['external_sub_code'])->exists()){
+            throw new SchoolAndSchoolLocationsImportException(sprintf('School location with name %s already in the system based on (customer_code: %s, external_main_code:%s, external_sub_code:%s',$row['name'],$row['customer_code'],$row['external_main_code'],$row['external_sub_code']));
+        }
+    }
+
     public function hasError()
     {
         return !! $this->error;
@@ -99,14 +107,14 @@ class SchoolImportHelper
     {
         $this->user = User::where('username','info+ab@test-correct.nl')->orWhere('username','carloschoep+accountmanager@hotmail.com')->orWhere('username','info+testportalaccountmanager@test-correct.nl')->orWhere('username','c@teachandlearncompany.com')->orderBy('created_at','asc')->first();
         if(!$this->user){
-            throw new \Exception('Could not find a valid account manager, I`ve searched for info+ab@test-correct.nl, carloschoep+accountmanager@hotmail.com, info+testportalaccountmanager@test-correct.nl and c@teachandlearncompany.com');
+            throw new SchoolAndSchoolLocationsImportException('Could not find a valid account manager, I`ve searched for info+ab@test-correct.nl, carloschoep+accountmanager@hotmail.com, info+testportalaccountmanager@test-correct.nl and c@teachandlearncompany.com');
         }
     }
 
     protected function checkForRequiredDefaultSectionsAndSubjects()
     {
         if(!DefaultSection::exists() || !DefaultSubject::exists()){
-            throw new \Exception('Default sections and subjects are required, did you forget to import them?');
+            throw new SchoolAndSchoolLocationsImportException('Default sections and subjects are required, did you forget to import them?');
         }
     }
 
@@ -224,7 +232,7 @@ class SchoolImportHelper
                     }
                     continue;
                 }
-                throw new \Exception('Education level not found '.$niveau.' ('.var_export($data,true).')');
+                throw new SchoolAndSchoolLocationsImportException('Education level not found `'.$niveau.'` ('.var_export($data,true).')');
             }
         }
         return $schoolLocationEducationLevelIds;
@@ -247,7 +255,7 @@ class SchoolImportHelper
         $class->fill($data);
 
         if(!$class->save()){
-            throw new \Exception("Could not add the ".get_class($class)." with name ".$data['name']);
+            throw new SchoolAndSchoolLocationsImportException("Could not add the ".get_class($class)." with name ".$data['name']);
         }
 
         return $class;
@@ -264,7 +272,7 @@ class SchoolImportHelper
     {
         if (!isset($data['user_id'])) {
             if(!$user){
-                throw new \Exception("No user set to enhance the data");
+                throw new SchoolAndSchoolLocationsImportException("No user set to enhance the data");
             }
             $data['user_id'] = $user->getKey();
         }

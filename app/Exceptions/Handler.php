@@ -59,7 +59,7 @@ class Handler extends ExceptionHandler
             }
         } else if ($this->isHttpException($e)) {
             return $this->renderHttpException($e);
-        } else if ($e instanceof QuestionException) {
+        } else if ($e instanceof QuestionException || $e instanceof SchoolAndSchoolLocationsImportException) {
             dispatch(
                 new SendExceptionMail($e->getMessage(), $e->getFile(), $e->getLine(), $e->getDetails())
             );
