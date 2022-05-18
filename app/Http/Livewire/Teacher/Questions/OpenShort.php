@@ -326,6 +326,7 @@ class OpenShort extends Component
 
     public function save($withRedirect = true)
     {
+        if ($this->emptyState) return false;
         if ($this->obj && method_exists($this->obj, 'prepareForSave')) {
             $this->obj->prepareForSave();
         }
@@ -345,7 +346,9 @@ class OpenShort extends Component
                 $this->setQueryStringProperties($response);
             }
         }
+
         $this->dispatchBrowserEvent('notify', ['message' => __('cms.Wijzigingen opgeslagen')]);
+
         if ($response->getStatusCode() == 200) {
             $this->handleAttachments($response);
 
@@ -1132,7 +1135,7 @@ class OpenShort extends Component
     public function saveAndRedirect()
     {
         if (!$this->editModeForExistingQuestion() && $this->isDirty()) {
-            if($this->completedMandatoryFields()) {
+            if ($this->completedMandatoryFields()) {
                 return $this->save();
             }
             return $this->dispatchBrowserEvent('show-dirty-question-modal', ['leavingTest' => true]);
@@ -1213,6 +1216,7 @@ class OpenShort extends Component
     {
         $this->type = '';
         $this->subtype = '';
+        $this->action = 'add';
         $this->emptyState = true;
         $this->dispatchBrowserEvent('show-empty');
     }
@@ -1220,7 +1224,7 @@ class OpenShort extends Component
     private function completedMandatoryFields()
     {
         if ($this->obj && method_exists($this->obj, 'passesCustomMandatoryRules')) {
-             return !!$this->obj->passesCustomMandatoryRules();
+            return !!$this->obj->passesCustomMandatoryRules();
         }
 
         return !Validator::make((array)$this, $this->getRules())->fails();
@@ -1249,12 +1253,12 @@ class OpenShort extends Component
      */
     public function validateFromDirtyModal()
     {
-            $this->validateAndReturnErrorsToTabOne();
+        $this->validateAndReturnErrorsToTabOne();
     }
 
     public function addQuestionFromDirty($data)
     {
-        if(!$this->completedMandatoryFields()) {
+        if (!$this->completedMandatoryFields()) {
             $this->dispatchBrowserEvent('show-dirty-question-modal', ['goingToExisting' => false, 'group' => $data['group']]);
             return;
         }
@@ -1264,7 +1268,7 @@ class OpenShort extends Component
         $data['group'] ? $this->dispatchBrowserEvent('continue-to-add-group') : $this->dispatchBrowserEvent('continue-to-new-slide');
     }
 
-    public function getRulesFromProvider()
+    public function getRulesForProvider()
     {
         return $this->getRules();
     }
