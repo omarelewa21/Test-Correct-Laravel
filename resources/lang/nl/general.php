@@ -30,10 +30,11 @@ return [
     'attention'         => 'Let op',
     'save'              => 'Opslaan',
     'number-of-results' => '{0} Geen resultaten|{1} :count resultaat|[2,*] :count resultaten',
-    'number-of-tests' => '{0} Geen toetsen gevonden|{1} :count toets gevonden|[2,*] :count toetsen gevonden',
+    'number-of-tests'   => '{0} Geen toetsen gevonden|{1} :count toets gevonden|[2,*] :count toetsen gevonden',
     'cito-snelstart'    => 'Cito Snelstart',
     'Persoonlijk'       => 'Persoonlijk',
     'School'            => 'School',
     'Nationaal'         => 'Nationaal',
     'Examens'           => 'Examens',
+    'searching'         => 'Zoeken ...',
 ];

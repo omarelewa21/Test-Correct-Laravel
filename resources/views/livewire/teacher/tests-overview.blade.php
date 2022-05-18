@@ -6,7 +6,7 @@
      @question-removed.window="Notify.notify('Vraag verwijderd!')"
 >
     <div class="flex w-full border-b border-secondary">
-        <div class="w-full max-w-5xl ">
+        <div class="w-full max-w-5xl">
             <div class="flex w-full space-x-4">
                 <div>
                     <div class="flex relative hover:text-primary cursor-pointer" @click="openTab = 'personal'">
@@ -94,15 +94,15 @@
             {{-- Content --}}
             <div class="flex flex-col py-4" style="min-height: 500px">
                 <div class="flex">
-                    <span class="note text-sm">{{  trans_choice('general.number-of-tests', $results->total(), ['count' => $results->total()]) }}</span>
+                    <span class="note text-sm" wire:loading>{{  __('general.searching') }}</span>
+
+                    <span class="note text-sm" wire:loading.remove>{{  trans_choice('general.number-of-tests', $results->total(), ['count' => $results->total()]) }}</span>
                 </div>
                 <x-grid  class="mt-4">
-                    <x-grid.loading-card/>
-                    <x-grid.loading-card/>
-                    <x-grid.loading-card/>
-                    <x-grid.loading-card/>
-                    <x-grid.loading-card/>
-                    <x-grid.loading-card/>
+                    @foreach(range(1, 6) as $value)
+                    <x-grid.loading-card :delay="$value"/>
+                    @endforeach
+
 
 
                     @foreach($results as $test)
@@ -129,4 +129,5 @@
         </x-button.cta>
     </div>
     <livewire:teacher.planning-modal></livewire:teacher.planning-modal>
+    <livewire:teacher.test-delete-modal></livewire:teacher.test-delete-modal>
 </div>

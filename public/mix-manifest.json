@@ -1,12 +1,12 @@
 {
-    "/js/app.js": "/js/app.js?id=56bfe3d0bc23811f0e2b",
-    "/css/app.css": "/css/app.css?id=ab1ada6c948c5b10b5db",
-    "/ckeditor/plugins/ckeditor_wiris/plugin.js": "/ckeditor/plugins/ckeditor_wiris/plugin.js?id=892e9880c7684d10e2fa",
-    "/ckeditor/plugins/ckeditor_wiris/icons/cas.png": "/ckeditor/plugins/ckeditor_wiris/icons/cas.png?id=e01e3ce6400951998bfd",
-    "/ckeditor/plugins/ckeditor_wiris/icons/chem.png": "/ckeditor/plugins/ckeditor_wiris/icons/chem.png?id=1979fc1931ffd6b65bfa",
-    "/ckeditor/plugins/ckeditor_wiris/icons/formula.png": "/ckeditor/plugins/ckeditor_wiris/icons/formula.png?id=628f5910e82d3e4a28b3",
-    "/js/ckeditor.js": "/js/ckeditor.js?id=a981480b5ff3cac09b1d",
-    "/js/readspeaker_tlc.js": "/js/readspeaker_tlc.js?id=99cca01aca75f316c881",
-    "/css/rs_tlc.css": "/css/rs_tlc.css?id=b0790881ed60d337bfce",
-    "/css/rs_tlc_pdf.css": "/css/rs_tlc_pdf.css?id=855f4f628d40e4f7feb1"
+    "/js/app.js": "/js/app.js",
+    "/css/app.css": "/css/app.css",
+    "/ckeditor/plugins/ckeditor_wiris/plugin.js": "/ckeditor/plugins/ckeditor_wiris/plugin.js",
+    "/ckeditor/plugins/ckeditor_wiris/icons/cas.png": "/ckeditor/plugins/ckeditor_wiris/icons/cas.png",
+    "/ckeditor/plugins/ckeditor_wiris/icons/chem.png": "/ckeditor/plugins/ckeditor_wiris/icons/chem.png",
+    "/ckeditor/plugins/ckeditor_wiris/icons/formula.png": "/ckeditor/plugins/ckeditor_wiris/icons/formula.png",
+    "/js/ckeditor.js": "/js/ckeditor.js",
+    "/js/readspeaker_tlc.js": "/js/readspeaker_tlc.js",
+    "/css/rs_tlc.css": "/css/rs_tlc.css",
+    "/css/rs_tlc_pdf.css": "/css/rs_tlc_pdf.css"
 }

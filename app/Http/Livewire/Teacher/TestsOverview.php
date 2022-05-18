@@ -4,6 +4,7 @@ namespace tcCore\Http\Livewire\Teacher;
 
 use Livewire\Component;
 use Livewire\WithPagination;
+use tcCore\EducationLevel;
 use tcCore\Test;
 
 class TestsOverview extends Component
@@ -19,9 +20,9 @@ class TestsOverview extends Component
 
     public $filters = [
         'name' => '',
-//        'education_level_year' => '',
-//        'education_level_id' =>'',
-//        'subject_id' => '',
+        'education_level_year' => '',
+        'education_level_id' =>'',
+        'subject_id' => '',
     ];
     public $filters1 = [
         'name' => '',
@@ -41,6 +42,7 @@ class TestsOverview extends Component
     public function render()
     {
         $results = $this->getDatasource();
+        $this->setFilters();
         return view('livewire.teacher.tests-overview')->with(compact(['results']));
     }
 
@@ -125,6 +127,13 @@ class TestsOverview extends Component
 
 
         return $results;
+    }
+
+    private function setFilters()
+    {
+        $this->filters = array_merge($this->filters, auth()->user()->getSearchFilterDefaultsTeacher());
+
+
     }
 
 

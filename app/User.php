@@ -41,6 +41,7 @@ use tcCore\Lib\Models\BaseModel;
 use Illuminate\Auth\Passwords\CanResetPassword;
 use Illuminate\Contracts\Auth\Authenticatable as AuthenticatableContract;
 use Illuminate\Contracts\Auth\CanResetPassword as CanResetPasswordContract;
+use tcCore\Lib\Repositories\PeriodRepository;
 use tcCore\Lib\Repositories\StatisticsRepository;
 use tcCore\Lib\Repositories\SchoolYearRepository;
 use tcCore\Lib\User\Factory;
@@ -91,7 +92,7 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
     protected $fillable = [
         'sales_organization_id', 'school_id', 'school_location_id', 'username', 'name_first', 'name_suffix', 'name',
         'password', 'external_id', 'gender', 'time_dispensation', 'text2speech', 'abbreviation', 'note', 'demo',
-        'invited_by', 'account_verified', 'test_take_code_id', 'guest','send_welcome_email',
+        'invited_by', 'account_verified', 'test_take_code_id', 'guest', 'send_welcome_email',
     ];
 
 
@@ -305,7 +306,7 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
 
     public function hasText2Speech()
     {
-        return (bool) $this->text2speech;
+        return (bool)$this->text2speech;
     }
 
     public function hasActiveText2Speech()
@@ -313,7 +314,7 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
         if (!$this->hasText2Speech()) {
             return false;
         }
-        return (bool) $this->text2SpeechDetails->active;
+        return (bool)$this->text2SpeechDetails->active;
     }
 
     public function getHasText2speechAttribute()
@@ -640,32 +641,31 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
             $oldText2Speech = (bool)$user->getOriginal('text2speech');
             if (!$oldText2Speech && (bool)request()->input('text2speech')) {
                 // we've got a new user with time dispensation
-                if( Text2Speech::where('user_id', $user->getKey())
-                    ->where('acceptedby', Auth::user()->getKey())->exists() ){
-                    
+                if (Text2Speech::where('user_id', $user->getKey())
+                    ->where('acceptedby', Auth::user()->getKey())->exists()) {
+
                     $text2Speech = Text2Speech::where('user_id', $user->getKey())
-                                        ->where('acceptedby', Auth::user()->getKey())->first();
-                    
+                        ->where('acceptedby', Auth::user()->getKey())->first();
+
                     $text2Speech->update([
-                        'user_id' => $user->getKey(),
-                        'active' => true,
+                        'user_id'    => $user->getKey(),
+                        'active'     => true,
                         'acceptedby' => Auth::user()->getKey(),
-                        'price' => config('custom.text2speech.price')
-                    ]);    
-                }
-                else{
+                        'price'      => config('custom.text2speech.price')
+                    ]);
+                } else {
                     Text2Speech::create([
-                        'user_id' => $user->getKey(),
-                        'active' => true,
+                        'user_id'    => $user->getKey(),
+                        'active'     => true,
                         'acceptedby' => Auth::user()->getKey(),
-                        'price' => config('custom.text2speech.price')
+                        'price'      => config('custom.text2speech.price')
                     ]);
                 }
-                
+
                 Text2SpeechLog::create([
                     'user_id' => $user->getKey(),
-                    'action' => 'ACCEPTED',
-                    'who' => Auth::user()->getKey()
+                    'action'  => 'ACCEPTED',
+                    'who'     => Auth::user()->getKey()
                 ]);
             } else {
                 if ($oldText2Speech && request()->has('active_text2speech')) {
@@ -682,8 +682,8 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
 
                         Text2SpeechLog::create([
                             'user_id' => $user->getKey(),
-                            'action' => ($newActiveText2Speech) ? 'ENABLED' : 'DISABLED',
-                            'who' => Auth::user()->getKey()
+                            'action'  => ($newActiveText2Speech) ? 'ENABLED' : 'DISABLED',
+                            'who'     => Auth::user()->getKey()
                         ]);
                     }
                 }
@@ -1265,8 +1265,8 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
             $wizard = OnboardingWizard::whereIn('role_id', $roleIds)->where('active',
                 true)->orderBy('role_id')->first();
             OnboardingWizardUserState::create([
-                'id' => Str::uuid(),
-                'user_id' => $this->getKey(),
+                'id'                   => Str::uuid(),
+                'user_id'              => $this->getKey(),
                 'onboarding_wizard_id' => $wizard->getKey()
             ]);
         }
@@ -1934,8 +1934,8 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
                 $this->onboardingWizardUserState()->save(
                     OnboardingWizardUserState::make(
                         [
-                            'id' => Str::uuid(),
-                            'show' => true,
+                            'id'                   => Str::uuid(),
+                            'show'                 => true,
                             'onboarding_wizard_id' => $wizard->getKey()
                         ]
                     )
@@ -1974,7 +1974,7 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
 
     public function isAllowedSchool(School $school)
     {
-        return !! $this->allowedSchoolLocations->first(function (SchoolLocation $sl) use ($school) {
+        return !!$this->allowedSchoolLocations->first(function (SchoolLocation $sl) use ($school) {
             return $sl->school == $school;
         });
     }
@@ -2003,7 +2003,7 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
 
     public function addSchoolLocationAndCreateDemoEnvironment(SchoolLocation $schoolLocation)
     {
-        if($this->addSchoolLocation($schoolLocation)){
+        if ($this->addSchoolLocation($schoolLocation)) {
             ActingAsHelper::getInstance()->setUser($this);
             $schoolYear = SchoolYearRepository::getCurrentSchoolYear();
             $helper = new DemoHelper();
@@ -2342,8 +2342,8 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
                                         }
                                     } else {
                                         Teacher::create([
-                                            'class_id' => $tRecord->class_id,
-                                            'user_id' => $this->getKey(),
+                                            'class_id'   => $tRecord->class_id,
+                                            'user_id'    => $this->getKey(),
                                             'subject_id' => $tRecord->subject_id
                                         ]);
                                     }
@@ -2382,7 +2382,7 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
                     $this->students()->save(
                         Student::create([
                             'class_id' => $student->class_id,
-                            'user_id' => $this->id,
+                            'user_id'  => $this->id,
                         ])
                     );
                 }
@@ -2496,7 +2496,7 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
     public function getLanguageReadspeaker()
     {
         $locale = app()->getLocale();
-        switch ($locale){
+        switch ($locale) {
             case 'nl':
                 return 'nl_nl';
             case 'en':
@@ -2504,6 +2504,39 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
             default:
                 return 'nl_nl';
         }
+    }
+
+    public function getSearchFilterDefaultsTeacher()
+    {
+        if (!$this->isA('teacher')) {
+            return [];
+        }
+
+        $currentPeriod = PeriodRepository::getCurrentPeriod();
+        if ($currentPeriod == null) {
+            return [];
+        }
+
+        $results = DB::table('teachers')
+            ->where([
+                ['user_id', $this->getKey()],
+                ['school_classes.school_year_id', $currentPeriod->school_year_id],
+            ])
+            ->join('school_classes', 'class_id', 'school_classes.id')
+            ->select(['subject_id', 'education_level_id', 'education_level_year'])
+            ->get();
+
+        return [
+            'subject_id'           => $results->map(function ($result) {
+                return $result->subject_id;
+            })->unique()->values()->toArray(),
+            'education_level_id'   => $results->map(function ($result) {
+                return $result->education_level_id;
+            })->unique()->values()->toArray(),
+            'education_level_year' => $results->map(function ($result) {
+                return $result->education_level_year;
+            })->unique()->values()->toArray(),
+        ];
     }
 
 }
