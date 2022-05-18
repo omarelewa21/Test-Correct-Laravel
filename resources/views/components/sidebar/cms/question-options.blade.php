@@ -35,9 +35,13 @@
         </div>
         <div class="flex items-center space-x-2 py-1 px-4 base hover:text-primary hover:bg-offwhite transition w-full"
              title="{{ __('cms.Wijzigen') }}"
-             wire:click="showQuestion('{{ $testQuestion->uuid }}', '{{ $question->uuid }}', {{ $subQuestion ? 1 : 0 }})"
-{{--             @click.stop="$dispatch('question-change', {old: '{{ $this->testQuestionId }}', new: '{{ $question->uuid }}' }); options = false"--}}
-             @click.stop="options = false"
+             @click.stop="options = false;$wire.emitTo('teacher.questions.open-short','showQuestion',
+                {
+                    'testQuestionUuid':'{{ $testQuestion ? $testQuestion->uuid : null }}',
+                    'questionUuid': '{{ $question->uuid }}',
+                    'isSubQuestion': {{ $subQuestion ? 1 : 0 }},
+                    'shouldSave': true
+                })"
         >
             <x-icon.edit/>
             <span class="text-base bold inherit">{{ __('cms.Wijzigen') }}</span>

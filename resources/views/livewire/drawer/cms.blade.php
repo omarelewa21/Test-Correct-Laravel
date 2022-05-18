@@ -79,8 +79,8 @@
                     @foreach($this->questionsInTest as $testQuestion)
                         @if($testQuestion->question->type === 'GroupQuestion')
                             <x-sidebar.cms.group-question-container
-                                    :testQuestion="$testQuestion"
                                     :question="$testQuestion->question"
+                                    :testQuestion="$testQuestion"
                             >
                                 @foreach($testQuestion->question->subQuestions as $question)
                                     @php $loopIndex ++; @endphp
@@ -88,6 +88,8 @@
                                                                    :question="$question"
                                                                    :loop="$loopIndex"
                                                                    :subQuestion="true"
+                                                                   :activeTestQuestion="$this->testQuestionId"
+                                                                   :activeGQQ="$this->groupQuestionQuestionId"
                                     />
                                 @endforeach
                                 <x-sidebar.cms.dummy-group-question-button :testQuestionUuid="$testQuestion->uuid" :loop="$loopIndex"/>
@@ -96,7 +98,10 @@
                             @php $loopIndex ++; @endphp
                             <x-sidebar.cms.question-button :testQuestion="$testQuestion"
                                                            :question="$testQuestion->question"
-                                                           :loop="$loopIndex "
+                                                           :loop="$loopIndex"
+                                                           :subQuestion="false"
+                                                           :activeTestQuestion="$this->testQuestionId"
+                                                           :activeGQQ="$this->groupQuestionQuestionId"
                             />
                         @endif
                     @endforeach
@@ -193,7 +198,7 @@
                     </x-button.text-button>
                 </div>
 
-                <x-sidebar.question-types/>
+                <x-sidebar.cms.question-types/>
             </x-sidebar.slide-container>
 
         </div>

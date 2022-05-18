@@ -15,8 +15,8 @@
             <span class="truncate">{{ $question->name }}</span>
             <div class="flex items-center justify-between">
                 <span class="note text-sm regular">{{ trans_choice('cms.vraag', $question->subQuestions->count()) }}</span>
-                @if($question->attachments()->count())
-                    <span class="flex items-center note text-sm regular pr-2"><x-icon.attachment class="mr-1"/> {{ $question->attachments()->count() }}</span>
+                @if($question->attachmentCount)
+                    <span class="flex items-center note text-sm regular pr-2"><x-icon.attachment class="mr-1"/> {{ $question->attachmentCount }}</span>
                 @endif
             </div>
         </span>

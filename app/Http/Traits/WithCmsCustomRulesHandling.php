@@ -17,7 +17,7 @@ trait WithCmsCustomRulesHandling
     public function passesCustomMandatoryRules(): bool
     {
         $this->prepareForSave();
-        $passedValidation = !(Validator::make((array)$this->instance, $this->instance->getRulesFromProvider())->fails());
+        $passedValidation = !(Validator::make((array)$this->instance, $this->instance->getRulesForProvider())->fails());
         $this->createAnswerStruct();
 
         return $passedValidation;
