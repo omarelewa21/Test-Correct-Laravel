@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Queue;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
@@ -2209,6 +2210,7 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
 //        if(Carbon::now() > Carbon::createFromFormat('Y-m-d','2022-01-22')) {
         $this->loginThisUser();
         BaseHelper::doLoginProcedure();
+        Log::stack(['loki'])->info("authenticated via Entree", []);
         if ($this->isA('student')) {
             if ($this->schoolLocation->allow_new_student_environment) {
                 $options = [
