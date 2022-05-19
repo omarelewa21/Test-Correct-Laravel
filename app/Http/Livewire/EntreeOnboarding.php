@@ -315,7 +315,6 @@ class EntreeOnboarding extends Onboarding
                 $locationsAdded = collect([$user->school_location_id]);
                 if ($schoolLocations->count() > 0) {
                     $schoolLocations->each(function (SchoolLocation $schoolLocation) use ($user, $locationsAdded) {
-                        dd($this->getSubjectIdsForSchoolLocationAsCollection($schoolLocation));
                         // do not add first school location as it is set at registration
                         if(!$locationsAdded->contains($schoolLocation->getKey())) {
                             $user->school_location_id = $schoolLocation->getKey();
