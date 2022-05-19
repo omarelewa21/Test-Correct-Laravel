@@ -37,18 +37,20 @@ class SchoolAndSchoolLocationsImportController extends Controller
      * @param SchoolClassesStudentImportRequest $request
      * @return
      */
-    public function import(Requests\DefaultSubjectsAndSectionsImportRequest $request)
+    public function import(Requests\SchoolAndSchoolLocationsImportRequest $request)
     {
         $excelFile = $request->file('file');
         $basePath = 'app/school_location_import';
-        $storagePath = storage_path($basePath);
 
-        $filename = sprintf('%s.%s',date("YmdHis"), $excelFile->extension());
-        $excelFile->move($storagePath, $filename);
+        $filePath = storage_path(sprintf('%s/%s.%s',$basePath, date("YmdHis"),$excelFile->extension()));
+        copy($excelFile->path(),$filePath);
+
 
         $helper = new SchoolImportHelper();
         try {
-            $helper->setFilePath(sprintf('%s/%s', $basePath, $filename))->handleImport();
+            $helper->setFilePath($filePath);
+            $excelFile = null;
+            $helper->handleImport();
         } catch(\Exception $e){
             return response()->json(['error' => $e->getMessage()], 500);
         }
