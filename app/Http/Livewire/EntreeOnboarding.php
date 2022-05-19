@@ -25,6 +25,7 @@ use tcCore\SamlMessage;
 use tcCore\School;
 use tcCore\SchoolClass;
 use tcCore\SchoolLocation;
+use tcCore\SchoolLocationEducationLevel;
 use tcCore\Shortcode;
 use tcCore\ShortcodeClick;
 use tcCore\Subject;
@@ -314,6 +315,7 @@ class EntreeOnboarding extends Onboarding
                 $locationsAdded = collect([$user->school_location_id]);
                 if ($schoolLocations->count() > 0) {
                     $schoolLocations->each(function (SchoolLocation $schoolLocation) use ($user, $locationsAdded) {
+                        dd($this->getSubjectIdsForSchoolLocationAsCollection($schoolLocation));
                         // do not add first school location as it is set at registration
                         if(!$locationsAdded->contains($schoolLocation->getKey())) {
                             $user->school_location_id = $schoolLocation->getKey();
@@ -325,26 +327,30 @@ class EntreeOnboarding extends Onboarding
                         ActingAsHelper::getInstance()->setUser($user);
                         DemoTeacherRegistration::registerIfApplicable($user);
 
-                        $class = new SchoolClass();
-                        $class->fill([
-                            'visible' => false,
-                            'school_location_id' => $schoolLocation->getKey(),
-                            'education_level_id' => $schoolLocation->schoolLocationEducationLevels->first()->value('education_level_id'),
-                            'school_year_id' => SchoolYearRepository::getCurrentSchoolYear()->getKey(),
-                            'name' => sprintf('entree_registration_class_%s', $user->getKey()),
-                            'education_level_year' => 1,
-                            'is_main_school_class' => 0,
-                            'do_not_overwrite_from_interface' => 0,
-                            'demo' => 0,
-                        ]);
-                        $class->save();
+                        $currentSchoolYearId = SchoolYearRepository::getCurrentSchoolYear()->getKey();
+                        $schoolLocation->schoolLocationEducationLevels->each(function(SchoolLocationEducationLevel $slEl) use ($schoolLocation, $user, $currentSchoolYearId){
 
-                        $this->getSubjectIdsForSchoolLocationAsCollection($schoolLocation)->each(function ($subjectId) use ($user, $class) {
-                            Teacher::create([
-                                'subject_id' => $subjectId,
-                                'user_id' => $user->getKey(),
-                                'class_id' => $class->getKey(),
+                            $class = new SchoolClass();
+                            $class->fill([
+                                'visible' => false,
+                                'school_location_id' => $schoolLocation->getKey(),
+                                'education_level_id' => $slEl->education_level_id,
+                                'school_year_id' => $currentSchoolYearId,
+                                'name' => sprintf('entree_registration_class_userid_%s_elid_%s', $user->getKey(), $slEl->education_level_id),
+                                'education_level_year' => 1,
+                                'is_main_school_class' => 0,
+                                'do_not_overwrite_from_interface' => 0,
+                                'demo' => 0,
                             ]);
+                            $class->save();
+
+                            $this->getSubjectIdsForSchoolLocationAsCollection($schoolLocation)->each(function ($subjectId) use ($user, $class) {
+                                Teacher::create([
+                                    'subject_id' => $subjectId,
+                                    'user_id' => $user->getKey(),
+                                    'class_id' => $class->getKey(),
+                                ]);
+                            });
                         });
                     });
                 }
