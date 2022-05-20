@@ -883,7 +883,7 @@ class OpenShort extends Component
             $this->question['note_type'] = $q->note_type;
             $this->question['attainments'] = $q->getQuestionAttainmentsAsArray();
             $this->question['learning_goals'] = $q->getQuestionLearningGoalsAsArray();
-            $this->question['order'] = $this->resolveOrderNumber($q->uuid);
+            $this->question['order'] = $this->resolveOrderNumber();
             $this->question['all_or_nothing'] = $q->all_or_nothing;
             $this->question['closeable'] = $q->closeable;
             $this->question['maintain_position'] = $tq->maintain_position;
@@ -1030,13 +1030,25 @@ class OpenShort extends Component
         return !!($this->type === 'GroupQuestion');
     }
 
-    private function resolveOrderNumber($questionUuid = null)
+    private function resolveOrderNumber()
     {
-        if ($this->action === 'add' && $this->owner === 'group') {
-            // To figure out the true order of a subquestion, it causes 150 extra queries.. -RR
-            return Test::whereUuid($this->testId)->first()->getRelativeOrderNumberForSubQuestion($this->testQuestionId);
+        if ($this->isGroupQuestion()) {
+            return 1;
         }
-        return Test::whereUuid($this->testId)->first()->getRelativeOrderNumberForQuestion($questionUuid);
+
+        $questionList = Test::whereUuid($this->testId)->first()->getQuestionOrderList();
+
+        if ($this->editModeForExistingQuestion()) {
+            return $questionList[$this->questionId];
+        }
+
+        if ($this->owner === 'group') {
+            $groupQuestionId = TestQuestion::whereUuid($this->testQuestionId)->value('question_id');
+            $lastQuestionIdInGroup = GroupQuestionQuestion::where('group_question_id', $groupQuestionId)
+                ->orderBy('order', 'desc')->value('question_id');
+            return $questionList[$lastQuestionIdInGroup] + 1;
+        }
+        return count($questionList);
     }
 
     public function saveAndRefreshDrawer()
