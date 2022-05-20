@@ -24,10 +24,12 @@ class TestDeleteModal extends Component
         $this->showModal = true;
     }
 
-    public function removeTest()
+    public function deleteTest()
     {
-        $test = \tcCore\Test::whereUuid($this->uuid)->first();
+        // @TODO needs some rules if we can delete this test;
+        $test = \tcCore\Test::whereUuid($this->uuid)->delete();
 
         $this->showModal = false;
+        $this->emitUp('test-deleted');
     }
 }

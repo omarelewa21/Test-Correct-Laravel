@@ -2,9 +2,11 @@
 
 namespace tcCore\Http\Livewire\Teacher;
 
+use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 use Livewire\WithPagination;
 use tcCore\EducationLevel;
+use tcCore\Http\Requests\DuplicateTestRequest;
 use tcCore\Test;
 
 class TestsOverview extends Component
@@ -19,16 +21,16 @@ class TestsOverview extends Component
     public $search = '';
 
     public $filters = [
-        'name' => '',
+        'name'                 => '',
         'education_level_year' => '',
-        'education_level_id' =>'',
-        'subject_id' => '',
+        'education_level_id'   => '',
+        'subject_id'           => '',
     ];
     public $filters1 = [
-        'name' => '',
+        'name'                 => '',
         'education_level_year' => '',
-        'education_level_id' =>'',
-        'subject_id' => '',
+        'education_level_id'   => '',
+        'subject_id'           => '',
     ];
     public $sorting = [];
 
@@ -38,6 +40,8 @@ class TestsOverview extends Component
 
     public $selected = [];
 
+    protected $listeners = ['test-deleted' => '$refresh'];
+
 
     public function render()
     {
@@ -46,11 +50,13 @@ class TestsOverview extends Component
         return view('livewire.teacher.tests-overview')->with(compact(['results']));
     }
 
-    public function updatingFilters($value, $filter) {
+    public function updatingFilters($value, $filter)
+    {
         $this->resetPage();
     }
 
-    public function updatingOpenTab(){
+    public function updatingOpenTab()
+    {
         $this->resetPage();
     }
 
@@ -58,7 +64,8 @@ class TestsOverview extends Component
     {
         try { // added for compatibility with mariadb
             \DB::select(\DB::raw("set session optimizer_switch='condition_fanout_filter=off';"));
-        } catch (\Exception $e){}
+        } catch (\Exception $e) {
+        }
 
         switch ($this->openTab) {
             case 'school':
@@ -132,9 +139,22 @@ class TestsOverview extends Component
     private function setFilters()
     {
         $this->filters = array_merge($this->filters, auth()->user()->getSearchFilterDefaultsTeacher());
-
-
     }
+
+    public function duplicateTest($testUuid)
+    {
+        // @TODO only duplicate when allowed?
+        $test = Test::whereUuid($testUuid)->first();
+
+        $test->userDuplicate([], Auth::id());
+    }
+
+    public function openEdit($testUuid)
+    {
+        $this->redirect(route('teacher.question-editor', ['testId'=>$testUuid]));
+    }
+
+
 
 
 }

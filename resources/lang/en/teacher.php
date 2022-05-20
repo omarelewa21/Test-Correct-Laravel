@@ -12,6 +12,9 @@ return [
     'Test-Direct toestaan'      => 'Allow Test-Direct',
     'Notities voor Surveillant' => 'Notes for invigilator',
     'Volgende Inplannen'        => 'Plan next',
-    'Annuleer'                  => 'Cancel',
+    'Verwijder'                                        => 'Delete',
+    'Annuleer'                                         => 'Annuleer',
+    'Verwijder test'                                   => 'Delete test',
+    'Weet je zeker dat je deze test wilt verwijderen?' => 'Are you sure you want to delete this test?',
 
 ];
