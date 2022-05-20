@@ -2,10 +2,12 @@
 
 namespace tcCore\Http\Livewire\Teacher;
 
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 use Livewire\WithPagination;
 use tcCore\EducationLevel;
+use tcCore\Http\Controllers\TemporaryLoginController;
 use tcCore\Http\Requests\DuplicateTestRequest;
 use tcCore\Test;
 
@@ -152,6 +154,20 @@ class TestsOverview extends Component
     public function openEdit($testUuid)
     {
         $this->redirect(route('teacher.question-editor', ['testId'=>$testUuid]));
+    }
+
+    public function getTemporaryLoginToPdfForTest()
+    {
+        $controller = new TemporaryLoginController();
+        $request = new Request();
+        $request->merge([
+            'options' => [],
+            'redirect' => '/tests/pdf_showPDFAttachment/608d93d7-07bd-4f7a-95ad-231c283ee452',
+        ]);
+
+        return $controller->toCakeUrl($request);
+
+
     }
 
 

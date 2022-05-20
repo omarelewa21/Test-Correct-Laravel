@@ -4,7 +4,13 @@
     <div class="flex w-full justify-between mb-2">
         <h3 class="line-clamp-2 min-h-[64px] @if(blank($test->name)) italic @endif"
             title="{{ $test->name }}">{{ $test->name ? $test->name : __('test.test_name') }}</h3>
-        <div class="relative" x-data="{testOptionMenu: false}">
+        <div class="relative" x-data="{
+                testOptionMenu: false,
+                makePDF: async function() {
+                    let response = await $wire.getTemporaryLoginToPdfForTest();
+                    window.open(response, '_blank');
+                }
+                }">
             <button class="px-4 py-1.5 -mr-4 rounded-full hover:bg-primary hover:text-white transition-all"
                     :class="{'bg-primary text-white' : testOptionMenu === true}"
                     @click="testOptionMenu = true">
@@ -38,13 +44,14 @@
                 </button>
                 <button class="flex items-center space-x-2 py-1 px-4 base hover:text-primary hover:bg-offwhite transition w-full"
                         {{--                                        @click="$dispatch('delete-modal', ['question'])"--}}
+                        @click="makePDF()"
 
                 >
                     <x-icon.pdf/>
                     <span class="text-base bold inherit">{{ __('cms.PDF maken') }}</span>
                 </button>
                 <button class="flex items-center space-x-2 py-1 px-4 base hover:text-primary hover:bg-offwhite transition w-full"
-                        {{--                                        @click="$dispatch('delete-modal', ['question'])"--}}
+                        @click="window.open('{{ route('teacher.test-preview', ['test'=> $test->uuid]) }}', '_blank')"
 
                 >
                     <x-icon.preview/>
