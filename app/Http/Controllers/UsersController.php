@@ -17,6 +17,7 @@ use PHPUnit\Util\Exception;
 use tcCore\BaseSubject;
 use tcCore\EmailConfirmation;
 use tcCore\Http\Helpers\ActingAsHelper;
+use tcCore\Http\Helpers\BaseHelper;
 use tcCore\Http\Helpers\DemoHelper;
 use tcCore\Http\Helpers\UserHelper;
 use tcCore\Http\Requests;
@@ -234,7 +235,7 @@ class UsersController extends Controller
     {
         // indien emailConfirmation === null => doorverwijzen naar login pagina
         if ($emailConfirmation === null) {
-            return Response::redirectTo(config('app.url_login'));
+            return Response::redirectTo(BaseHelper::getLoginUrl());
         }
 
         // indien wel oke, gebruiker erbij zoeken en account_verified op nu zetten, vervolgens pagina weergeven met bevestiging en knop naar login pagina

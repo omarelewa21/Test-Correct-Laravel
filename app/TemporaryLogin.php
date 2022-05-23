@@ -6,6 +6,7 @@ use Carbon\Carbon;
 use Dyrynda\Database\Casts\EfficientUuid;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
+use tcCore\Http\Helpers\BaseHelper;
 use tcCore\Traits\UuidTrait;
 
 class TemporaryLogin extends Model
@@ -116,10 +117,11 @@ class TemporaryLogin extends Model
 
     public function getCorrectCakeUrl()
     {
-        if (Str::contains(url('/'), 'welcome2.test')) {
-            return Str::replaceFirst('portal', 'portal2', config('app.url_login'));
-        }
-
-        return config('app.url_login');
+        return BaseHelper::getLoginUrl();
+//        if (Str::contains(url('/'), 'welcome2.test')) {
+//            return Str::replaceFirst('portal', 'portal2', config('app.url_login'));
+//        }
+//
+//        return config('app.url_login');
     }
 }

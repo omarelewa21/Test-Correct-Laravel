@@ -92,7 +92,7 @@
                 <div class="sm:flex text-center justify-center pt-4">
                     <div class="w-full sm:w-auto sm:pr-2">
                         <span class="regular">{{__("password-reset.Heb je al een account?")}}</span>
-                        <a class="text-button" href="{{ config('app.url_login') }}">
+                        <a class="text-button" href="{{ \tcCore\Http\Helpers\BaseHelper::getLoginUrl() }}">
                             <span class="bold">{{__("password-reset.Log in")}}</span>
                             <svg class="inline-block" width="14" height="13" xmlns="http://www.w3.org/2000/svg">
                                 <g class="stroke-current" fill="none" fill-rule="evenodd" stroke-linecap="round"

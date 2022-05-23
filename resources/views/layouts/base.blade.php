@@ -38,7 +38,7 @@
             return false;
         }
         if (statusCode === 440 || statusCode === 419 || statusCode === 401 || statusCode === 403) {
-            location.href = '{{ config('app.url_login') }}';
+            location.href = '{{ \tcCore\Http\Helpers\BaseHelper::getLoginUrl() }}';
 
             return false
         }

@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 use tcCore\GroupQuestionQuestion;
+use tcCore\Http\Helpers\BaseHelper;
 use tcCore\Http\Traits\TestTakeNavigationForController;
 use tcCore\TestParticipant;
 use tcCore\TestTake;
@@ -19,7 +20,7 @@ class TestTakeLaravelController extends Controller
     {
         $testParticipant = TestParticipant::whereUserId(Auth::id())->whereTestTakeId($testTake->id)->first();
         if (!$testParticipant->canTakeTestTakeInPlayer()) {
-            return redirect(config('app.url_login'));
+            return redirect(BaseHelper::getLoginUrl());
         }
 
         $current = $request->get('q') ?: '1';
@@ -43,7 +44,7 @@ class TestTakeLaravelController extends Controller
         $testParticipant = TestParticipant::whereUserId(Auth::id())->whereTestTakeId($testTake->id)->first();
 
         if (!$testParticipant->canTakeTestTakeInPlayer()) {
-            return redirect(config('app.url_login'));
+            return redirect(BaseHelper::getLoginUrl());
         }
 
         $data = self::getData($testParticipant, $testTake);

@@ -8,6 +8,7 @@ use Livewire\WithPagination;
 use tcCore\Events\NewTestTakeGraded;
 use tcCore\Events\NewTestTakePlanned;
 use tcCore\Http\Helpers\AppVersionDetector;
+use tcCore\Http\Helpers\BaseHelper;
 use tcCore\Http\Helpers\UserHelper;
 use tcCore\Http\Traits\WithStudentTestTakes;
 use tcCore\Info;
@@ -51,7 +52,7 @@ class Dashboard extends Component
         $device = session()->get('TLCOs') == 'iOS' ? 'ipad' : '';
         UserHelper::logout();
         return redirect(
-            config('app.url_logout')
+            BaseHelper::getLogoutUrl()
         );
         // @TODO MF 21-12-2021 remove redirect statement; this is still here because I don't know the function of the device parameter;
        // return redirect(route('auth.login', ['device' => $device]));
