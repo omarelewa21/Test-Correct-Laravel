@@ -238,9 +238,9 @@ class OpenShort extends Component
     protected function getListeners()
     {
         return [
-            'new-tags-for-question' => 'handleTags',
-            'updated-attainment'    => 'handleAttainment',
-            'updated-learning-goal' => 'handleLearningGoal',
+            'new-tags-for-question' => 'handleExternalUpdatedProperty',
+            'updated-attainment'    => 'handleExternalUpdatedProperty',
+            'updated-learning-goal' => 'handleExternalUpdatedProperty',
             'new-video-attachment'  => 'handleNewVideoAttachment',
             'drawing_data_updated'  => 'handleUpdateDrawingData',
             'refresh'               => 'render',
@@ -484,19 +484,13 @@ class OpenShort extends Component
         throw new \Exception('No template found for this question type.');
     }
 
-    public function handleTags($tags)
+    public function handleExternalUpdatedProperty(array $incomingData)
     {
-        $this->question['tags'] = array_values($tags);
-    }
-
-    public function handleAttainment(array $attainments)
-    {
-        $this->question['attainments'] = $attainments;
-    }
-
-    public function handleLearningGoal(array $learningGoals)
-    {
-        $this->question['learning_goals'] = $learningGoals;
+        $property = array_keys($incomingData)[0];
+        if ($this->shouldUpdatePropertyFromExternalSource($incomingData, $property) ) {
+            $this->question[$property] = array_values($incomingData[$property]);
+            $this->dirty = true;
+        }
     }
 
     public function updatingUploads(&$value)
@@ -529,7 +523,7 @@ class OpenShort extends Component
         Auth::user()->redirectToCakeWithTemporaryLogin($options);
     }
 
-    private function validateAndReturnErrorsToTabOne()
+    private function validateAndReturnErrorsToTabOne($useUnprepareForSave = true)
     {
         try {
             $this->validate();
@@ -539,7 +533,7 @@ class OpenShort extends Component
             $this->checkTaxonomyValues();
 
         } catch (ValidationException $e) {
-            if ($this->obj && method_exists($this->obj, 'unprepareForSave')) {
+            if ($useUnprepareForSave && $this->obj && method_exists($this->obj, 'unprepareForSave')) {
                 $this->obj->unprepareForSave();
             }
             $this->dispatchBrowserEvent('opentab', 1);
@@ -883,7 +877,7 @@ class OpenShort extends Component
             $this->question['note_type'] = $q->note_type;
             $this->question['attainments'] = $q->getQuestionAttainmentsAsArray();
             $this->question['learning_goals'] = $q->getQuestionLearningGoalsAsArray();
-            $this->question['order'] = $this->resolveOrderNumber($q->uuid);
+            $this->question['order'] = $this->resolveOrderNumber();
             $this->question['all_or_nothing'] = $q->all_or_nothing;
             $this->question['closeable'] = $q->closeable;
             $this->question['maintain_position'] = $tq->maintain_position;
@@ -1030,13 +1024,25 @@ class OpenShort extends Component
         return !!($this->type === 'GroupQuestion');
     }
 
-    private function resolveOrderNumber($questionUuid = null)
+    private function resolveOrderNumber()
     {
-        if ($this->action === 'add' && $this->owner === 'group') {
-            // To figure out the true order of a subquestion, it causes 150 extra queries.. -RR
-            return Test::whereUuid($this->testId)->first()->getRelativeOrderNumberForSubQuestion($this->testQuestionId);
+        if ($this->isGroupQuestion() || !$this->questionId) {
+            return 1;
         }
-        return Test::whereUuid($this->testId)->first()->getRelativeOrderNumberForQuestion($questionUuid);
+
+        $questionList = Test::whereUuid($this->testId)->first()->getQuestionOrderList();
+
+        if ($this->editModeForExistingQuestion()) {
+            return $questionList[$this->questionId];
+        }
+
+        if ($this->owner === 'group') {
+            $groupQuestionId = TestQuestion::whereUuid($this->testQuestionId)->value('question_id');
+            $lastQuestionIdInGroup = GroupQuestionQuestion::where('group_question_id', $groupQuestionId)
+                ->orderBy('order', 'desc')->value('question_id');
+            return $questionList[$lastQuestionIdInGroup] + 1;
+        }
+        return count($questionList);
     }
 
     public function saveAndRefreshDrawer()
@@ -1253,7 +1259,7 @@ class OpenShort extends Component
      */
     public function validateFromDirtyModal()
     {
-        $this->validateAndReturnErrorsToTabOne();
+        $this->validateAndReturnErrorsToTabOne(false);
     }
 
     public function addQuestionFromDirty($data)
@@ -1271,5 +1277,27 @@ class OpenShort extends Component
     public function getRulesForProvider()
     {
         return $this->getRules();
+    }
+
+    /**
+     * @param array $incomingData
+     * @param $property
+     * @return bool
+     */
+    private function shouldUpdatePropertyFromExternalSource(array $incomingData, $property): bool
+    {
+        if (empty($incomingData[$property])) {
+            return false;
+        }
+        if ($property === 'tags') {
+            $values = array_values($incomingData[$property]);
+            $existingValues = array_values($this->question[$property]);
+            sort($values);
+            sort($existingValues);
+            if ($values === $existingValues) {
+                return false;
+            }
+        }
+        return true;
     }
 }

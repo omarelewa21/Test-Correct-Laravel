@@ -882,45 +882,18 @@ class Test extends BaseModel
 
     }
 
-    public function getRelativeOrderNumberForQuestion($questionUuid = null)
+    public function getQuestionOrderList()
     {
-        $questions = $this->testQuestions->flatMap(function ($testQuestion) {
+        return $this->testQuestions->sortBy('order')->flatMap(function ($testQuestion) {
             if ($testQuestion->question->type === 'GroupQuestion') {
                 return $testQuestion->question->groupQuestionQuestions->map(function ($item) {
-                    return $item->question;
+                    return $item->question->getKey();
                 });
             }
-            return collect([$testQuestion->question]);
-        });
-
-        if (!$questionUuid) {
-            return $questions->count() + 1;
-        }
-
-        return $questions->search(function($question) use ($questionUuid) {
-            return $question->uuid === $questionUuid;
-        }) + 1;
-    }
-
-    public function getRelativeOrderNumberForSubQuestion($gqq = null)
-    {
-        $groupQuestionId = TestQuestion::whereUuid($gqq)->value('question_id');
-        $questions = $this->testQuestions->flatMap(function ($testQuestion) {
-            if ($testQuestion->question->type === 'GroupQuestion') {
-                return $testQuestion->question->groupQuestionQuestions->map(function ($item) use ($testQuestion) {
-                    $item->question->groupQuestionId = $testQuestion->question->id;
-                    return $item->question;
-                });
-            }
-            return collect([$testQuestion->question]);
-        });
-
-        $index = $questions->search(function($question) use ($groupQuestionId) {
-            return $question->groupQuestionId === $groupQuestionId;
-        });
-        $counted = $questions->where('groupQuestionId', $groupQuestionId)->count();
-
-        return $index + $counted + 1;
+            return [$testQuestion->question->getKey()];
+        })->flip()->map(function($orderNr) {
+            return $orderNr + 1;
+        })->toArray();
     }
 
     public function maxScore($ignoreQuestions = []){

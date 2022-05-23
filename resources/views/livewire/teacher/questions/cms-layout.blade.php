@@ -448,10 +448,15 @@
                         <div class="flex flex-col flex-2">
                             <p class="text-base">{{ __('cms.Selecteer het domein en het subdomein waaraan deze vraag bijdraagt.') }}</p>
                             <div class="grid grid-cols-2 gap-x-6 mt-4">
-                                <livewire:attainment-manager :value="$question['attainments']" :subject-id="$subjectId"
-                                                     :eduction-level-id="$educationLevelId"/>
-                                <livewire:learning-goal-manager :value="$question['learning_goals']" :subject-id="$subjectId"
-                                                             :eduction-level-id="$educationLevelId"/>
+                                <livewire:attainment-manager :value="$question['attainments']"
+                                                             :subject-id="$subjectId"
+                                                             :eduction-level-id="$educationLevelId"
+                                                             :key="'AT-'. $this->uniqueQuestionKey"/>
+                                <livewire:learning-goal-manager :value="$question['learning_goals']"
+                                                                :subject-id="$subjectId"
+                                                                :eduction-level-id="$educationLevelId"
+                                                                :key="'LG-'. $this->uniqueQuestionKey "/>
+
                             </div>
                         </div>
                     </x-content-section>
@@ -461,7 +466,8 @@
 
                     <x-content-section>
                         <x-slot name="title">{{ __('Tags') }}</x-slot>
-                        <livewire:tag-manager :init-with-tags="$initWithTags"/>
+                        <livewire:tag-manager :init-with-tags="$this->initWithTags"
+                                              :key="'TA-'. $this->uniqueQuestionKey"/>
                     </x-content-section>
                 @endif
 
