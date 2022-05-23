@@ -11,6 +11,7 @@ use Livewire\Component;
 use Ramsey\Uuid\Uuid;
 use tcCore\BaseSubject;
 use tcCore\DemoTeacherRegistration;
+use tcCore\Http\Helpers\BaseHelper;
 use tcCore\Http\Requests\Request;
 use tcCore\SamlMessage;
 use tcCore\SchoolLocation;
@@ -267,7 +268,7 @@ class Onboarding extends Component
 
     public function loginUser()
     {
-        $redirectUrl = config('app.url_login');
+        $redirectUrl = BaseHelper::getLoginUrl();
         if ($this->newRegistration) {
             $user = User::where('username', $this->registration->username)->first();
             if ($user) {

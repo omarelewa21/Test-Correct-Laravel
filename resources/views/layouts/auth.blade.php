@@ -40,7 +40,7 @@
                 <x-button.primary @click="Core.closeElectronApp()" size="sm" electron>
                     <span class="capitalize">{{__('general.close')}}</span>
                 </x-button.primary>
-                <x-button.primary @click="Core.closeChromebookApp('{{ config('app.url_login') }}')" size="sm" chromebook>
+                <x-button.primary @click="Core.closeChromebookApp('{{ \tcCore\Http\Helpers\BaseHelper::getLoginUrl() }}')" size="sm" chromebook>
                     <span class="capitalize">{{__('general.close')}}</span>
                 </x-button.primary>
             </div>

@@ -6,6 +6,7 @@ use Illuminate\Contracts\Auth\Guard;
 use Illuminate\Session\TokenMismatchException;
 use Illuminate\Validation\UnauthorizedException;
 use Livewire\Livewire;
+use tcCore\Http\Helpers\BaseHelper;
 
 class Authenticate {
 
@@ -43,7 +44,7 @@ class Authenticate {
             }
 
             if (! $request->expectsJson()) {
-                return redirect()->away(config('app.url_login'));
+                return redirect()->away(BaseHelper::getLoginUrl());
             }
 			return response('Unauthorized.', 401);
 		}

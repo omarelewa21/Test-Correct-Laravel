@@ -5,6 +5,7 @@ namespace tcCore\Http\Middleware;
 use Closure;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Livewire;
+use tcCore\Http\Helpers\BaseHelper;
 
 class AuthenticatedAsStudent
 {
@@ -24,6 +25,6 @@ class AuthenticatedAsStudent
         if (Livewire::isLivewireRequest()) {
             return abort(401,'Unauthorized');
         }
-        return redirect(config('app.url_login'));
+        return redirect(BaseHelper::getLoginUrl());
     }
 }

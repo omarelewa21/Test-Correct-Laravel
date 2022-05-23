@@ -596,7 +596,7 @@
                     <div class="w-full sm:w-auto sm:pr-2">
                         <span class="regular">{{ __("onboarding.Heb je al een account") }}?</span>
                         <a class="text-button"
-                           href="{{config('app.url_login')}}">
+                           href="{{\tcCore\Http\Helpers\BaseHelper::getLoginUrl()}}">
                             <span class="bold">{{ __("onboarding.Log in") }}</span>
                             <x-icon.arrow></x-icon.arrow>
                         </a>

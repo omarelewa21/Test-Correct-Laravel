@@ -7,6 +7,6 @@
         @else
             <p class="mb-4">{{ __("account_verified.Je account met e-mailadres") }} <span class="bold">{{$username}}</span> {{ __("account_verified.is nu geverifieerd") }}.</p>
         @endif
-        <button class="button primary-button button-sm"><a href="{{config('app.url_login') }}">{{ __("account_verified.Log in") }}</a></button>
+        <button class="button primary-button button-sm"><a href="{{\tcCore\Http\Helpers\BaseHelper::getLoginUrl() }}">{{ __("account_verified.Log in") }}</a></button>
     </div>
 @endsection
