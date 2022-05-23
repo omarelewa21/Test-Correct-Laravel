@@ -777,7 +777,7 @@ class TestTakesController extends Controller {
             //         $totalScore += $question->getAttribute('score');
             //     }
             // }
-            $totalScore = $this->maxScore($testTake,$ignoreQuestions);
+            $totalScore = $testTake->maxScore($ignoreQuestions);
         } else {
             $totalScore = null;
         }
@@ -1296,29 +1296,8 @@ class TestTakesController extends Controller {
         }
     }
 
-    public function maxScore(TestTake $testTake,$ignoreQuestions = []){
-        foreach ($ignoreQuestions as $key=>$value){
-            if(!strstr($value,'.')){
-                continue;
-            }
-            $arr = explode('.',$value);
-            $ignoreQuestions[$key] = $arr[1];
-        }
-        $test = $testTake->test;
-        return (new TestsController())->maxScore($test,$ignoreQuestions);
-    }
-
-    private function addToMaxScore(&$maxScore,$question,$ignoreQuestions):void
-    {
-        if(in_array($question->getKey(), $ignoreQuestions)){
-            return;
-        }
-        $maxScore += $question->score;
-    }
-
     public function maxScoreResponse(TestTake $testTake){
-        $maxScore = $this->maxScore($testTake);
-        return Response::make($maxScore, 200);
+        return Response::make($testTake->maxScore(), 200);
     }
 
     private function hydrateTestTakeWithHasNextQuestionAttribute(TestTake $testTake) {

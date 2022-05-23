@@ -144,52 +144,8 @@ class TestsController extends Controller {
 		}
 	}
 
-	public function maxScore(Test $test,$ignoreQuestions = []){
-        if(is_null($ignoreQuestions)){
-            $ignoreQuestions = [];
-        }
-        $testId = $test->id;
-        $maxScore = 0;
-        $questions = QuestionGatherer::getQuestionsOfTest($testId, true);
-        $carouselQuestions = QuestionGatherer::getCarouselQuestionsOfTest($testId);
-        $carouselQuestionIds = array_map(function($carouselQuestion){
-                                                return $carouselQuestion->getKey();
-                                                    }, $carouselQuestions);
-        $carouselQuestionChilds = [];
-        foreach ($questions as $key => $question) {
-            if(!stristr($key, '.')){
-                $this->addToMaxScore($maxScore,$question,$ignoreQuestions);
-                continue;
-            }
-            $arr = explode('.', $key);
-            if(!in_array($arr[0], $carouselQuestionIds)){
-                $this->addToMaxScore($maxScore,$question,$ignoreQuestions);
-                continue;
-            }
-            $carouselQuestionChilds[$arr[0]][$arr[1]] = $question;
-        }
-        foreach ($carouselQuestionChilds as $groupquestionId => $childArray) {
-            if(in_array($groupquestionId, $ignoreQuestions)){
-                continue;
-            }
-            $questionScore = current($childArray)->score;
-            $numberOfSubquestions = $carouselQuestions[$groupquestionId]->number_of_subquestions;
-            $maxScore += ($questionScore*$numberOfSubquestions);
-        }
-        return $maxScore;
-    }
-
-    private function addToMaxScore(&$maxScore,$question,$ignoreQuestions):void
-    {
-        if(in_array($question->getKey(), $ignoreQuestions)){
-            return;
-        }
-        $maxScore += $question->score;
-    }
-
     public function maxScoreResponse(Test $test){
-    	$maxScore = $this->maxScore($test);
-        return Response::make($maxScore, 200);
+        return Response::make($test->maxScore(), 200);
     }
 
     public function withTemporaryLogin(Test $test)
