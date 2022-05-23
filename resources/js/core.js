@@ -201,6 +201,7 @@ Core = {
             });
         } catch (error) {
             console.log('Failed');
+            chrome.runtime.getManifest().version;
         }
     }
 }
