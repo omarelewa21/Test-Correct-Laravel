@@ -181,7 +181,7 @@ class OpenShort extends Component
             'is_open_source_content' => 0,
             'tags'                   => [],
             'note_type'              => 'NONE',
-            'order'                  => $this->resolveOrderNumber(),
+            'order'                  => 0,
             'question'               => '',
             'rtti'                   => '',
             'score'                  => 1,
@@ -344,9 +344,9 @@ class OpenShort extends Component
 
             if ($this->withDrawer) {
                 $this->setQueryStringProperties($response);
+                $this->question['order'] = json_decode($response->getContent(), true)['order'];
             }
         }
-
         $this->dispatchBrowserEvent('notify', ['message' => __('cms.Wijzigingen opgeslagen')]);
 
         if ($response->getStatusCode() == 200) {
@@ -877,7 +877,7 @@ class OpenShort extends Component
             $this->question['note_type'] = $q->note_type;
             $this->question['attainments'] = $q->getQuestionAttainmentsAsArray();
             $this->question['learning_goals'] = $q->getQuestionLearningGoalsAsArray();
-            $this->question['order'] = $this->resolveOrderNumber();
+            $this->question['order'] = $tq->order;
             $this->question['all_or_nothing'] = $q->all_or_nothing;
             $this->question['closeable'] = $q->closeable;
             $this->question['maintain_position'] = $tq->maintain_position;
