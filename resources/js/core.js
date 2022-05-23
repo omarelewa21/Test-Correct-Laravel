@@ -109,7 +109,6 @@ Core = {
         });
     },
     enableBrowserFeatures() {
-        console.log('In enableBrowserFeatures');
         let browserElements = document.querySelectorAll('[browser]');
         if (browserElements.length > 0) {
             browserElements.forEach((element) => {
@@ -118,7 +117,6 @@ Core = {
         }
     },
     enableAppFeatures(appType) {
-        console.log('In enableAppFeatures');
         if(appType !== 'chromebook'){
             let appElements = document.querySelectorAll('[' + appType + ']');
             appElements.forEach((element) => {
@@ -180,29 +178,17 @@ Core = {
     },
     showCloseButtonChromeOS()
     {
-        // const xhttp = new XMLHttpRequest();
-        // xhttp.onload = function() {
-        //     if( this.app_type.toLowerCase() === 'chromeos' && this.responseText.app_version.charAt(0) === '2' )
-        //     {
-        //         let appElements = document.querySelectorAll('[chromebook]');
-        //         appElements.forEach((element) => {
-        //             element.style.display = 'flex';
-        //         });
-        //     }
-        // }
-        // xhttp.open("GET", "/appVersion", true);
-        // xhttp.send();
         try {
-            chrome.runtime.getManifest().version;
-            console.log('Success', chrome.runtime.getManifest().version);
-            let appElements = document.querySelectorAll('[chromebook]');
-            appElements.forEach((element) => {
-                element.style.display = 'flex';
-            });
-        } catch (error) {
-            console.log('Failed');
-            chrome.runtime.getManifest().version;
-        }
+            let version = chrome.runtime.getManifest().version;
+            if(version.charAt(0) == '3'){
+                return;
+            };
+        } catch (error) {}
+
+        let appElements = document.querySelectorAll('[chromebook]');
+        appElements.forEach((element) => {
+            element.style.display = 'flex';
+        });
     }
 }
 
