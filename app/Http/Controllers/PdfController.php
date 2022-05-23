@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use tcCore\Http\Helpers\PdfHelper;
 use tcCore\Http\Requests\HtmlToPdfRequest;
+use GuzzleHttp\Client;
 
 class PdfController extends Controller
 {
@@ -23,6 +24,7 @@ class PdfController extends Controller
     public function HtmlToPdf(HtmlToPdfRequest $request)
     {
         $html = $this->base64ImgPaths($request->get('html'));
+        $html = $this->svgWirisFormulas($html);
         $output = PdfHelper::HtmlToPdf($html);
         return response($output);
     }
@@ -131,6 +133,73 @@ class PdfController extends Controller
         }
         return $server->getImageAsBase64($file, $widthHeight+['fit'=>'contain',  'fm' => 'jpg', 'q' => $quality,]);
     }
-    
 
+    private function svgWirisFormulas($html)
+    {
+        $internalErrors = libxml_use_internal_errors(true);
+        $doc = new DOMDocument('1.0', 'UTF-8');
+        $doc->loadHTML($html);
+        libxml_use_internal_errors($internalErrors);
+        $mathList = $doc->getElementsByTagName('math');
+         foreach ($mathList as $mathNode){
+             try{
+                 $this->replaceMathNodeWithSvg($mathNode,$doc);
+             }catch (\Throwable $th) {
+                    Bugsnag::notifyException($th);
+             }
+        }
+        $html = $doc->saveHTML($doc->documentElement);
+        return $html;
+    }
+
+    private function replaceMathNodeWithSvg($mathNode,$doc)
+    {
+        try {
+            $mathNodeString = $doc->saveHtml($mathNode);
+            $img = $this->getWirisSvgImg($mathNodeString,$doc);
+            $mathNode->parentNode->replaceChild($img,$mathNode);
+        }catch (\Throwable $th) {
+            Bugsnag::notifyException($th);
+            return;
+        }
+    }
+
+
+    private function getWirisSvgImg($mml,$doc)
+    {
+        $data = [
+            'mml'=> $mml,
+            'lang'=> 'en-gb',
+            'metrics'=> true,
+            'centerbaseline'=> false,
+
+        ];
+        $createPath = config('app.base_url').'/ckeditor/plugins/ckeditor_wiris/integration/createimage.php';
+        $path = config('app.base_url').'ckeditor/plugins/ckeditor_wiris/integration/showimage.php';
+        $client = new Client();
+        $res = $client->request('POST',$createPath,[
+            'form_params' => $data]);
+        $formulaUrl = $res->getBody()->getContents();
+        $components = parse_url($formulaUrl);
+        parse_str($components['query'], $results);
+        $formula = $results['formula'];
+        $data1 = [
+            'lang'=> 'en-gb',
+            'metrics'=> true,
+            'centerbaseline'=> false,
+            'formula' => $formula,
+            'version' => '7.26.0.1439',
+        ];
+        $res = $client->request('GET',$path,['query' => $data1]);
+        $res = $client->request('POST',$path,[
+            'form_params' => $data]);
+        $json = json_decode($res->getBody()->getContents(),true);
+        $img  = $doc->createElement('img');
+        $img->setAttribute('width',$json['result']['width']);
+        $img->setAttribute('height',$json['result']['height']);
+        $src = sprintf('data:image/svg+xml;charset=utf8,%s',rawurlencode($json['result']['content']));
+        $img->setAttribute('src',$src);
+        $img->setAttribute('style','max-width: none; vertical-align: -4px;');
+        return $img;
+    }
 }
