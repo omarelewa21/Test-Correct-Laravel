@@ -238,9 +238,9 @@ class OpenShort extends Component
     protected function getListeners()
     {
         return [
-            'new-tags-for-question' => 'handleTags',
-            'updated-attainment'    => 'handleAttainment',
-            'updated-learning-goal' => 'handleLearningGoal',
+            'new-tags-for-question' => 'handleExternalUpdatedProperty',
+            'updated-attainment'    => 'handleExternalUpdatedProperty',
+            'updated-learning-goal' => 'handleExternalUpdatedProperty',
             'new-video-attachment'  => 'handleNewVideoAttachment',
             'drawing_data_updated'  => 'handleUpdateDrawingData',
             'refresh'               => 'render',
@@ -484,19 +484,13 @@ class OpenShort extends Component
         throw new \Exception('No template found for this question type.');
     }
 
-    public function handleTags($tags)
+    public function handleExternalUpdatedProperty(array $incomingData)
     {
-        $this->question['tags'] = array_values($tags);
-    }
-
-    public function handleAttainment(array $attainments)
-    {
-        $this->question['attainments'] = $attainments;
-    }
-
-    public function handleLearningGoal(array $learningGoals)
-    {
-        $this->question['learning_goals'] = $learningGoals;
+        $property = array_keys($incomingData)[0];
+        if ($this->shouldUpdatePropertyFromExternalSource($incomingData, $property) ) {
+            $this->question[$property] = array_values($incomingData[$property]);
+            $this->dirty = true;
+        }
     }
 
     public function updatingUploads(&$value)
@@ -529,7 +523,7 @@ class OpenShort extends Component
         Auth::user()->redirectToCakeWithTemporaryLogin($options);
     }
 
-    private function validateAndReturnErrorsToTabOne()
+    private function validateAndReturnErrorsToTabOne($useUnprepareForSave = true)
     {
         try {
             $this->validate();
@@ -539,7 +533,7 @@ class OpenShort extends Component
             $this->checkTaxonomyValues();
 
         } catch (ValidationException $e) {
-            if ($this->obj && method_exists($this->obj, 'unprepareForSave')) {
+            if ($useUnprepareForSave && $this->obj && method_exists($this->obj, 'unprepareForSave')) {
                 $this->obj->unprepareForSave();
             }
             $this->dispatchBrowserEvent('opentab', 1);
@@ -1032,7 +1026,7 @@ class OpenShort extends Component
 
     private function resolveOrderNumber()
     {
-        if ($this->isGroupQuestion()) {
+        if ($this->isGroupQuestion() || !$this->questionId) {
             return 1;
         }
 
@@ -1265,7 +1259,7 @@ class OpenShort extends Component
      */
     public function validateFromDirtyModal()
     {
-        $this->validateAndReturnErrorsToTabOne();
+        $this->validateAndReturnErrorsToTabOne(false);
     }
 
     public function addQuestionFromDirty($data)
@@ -1283,5 +1277,27 @@ class OpenShort extends Component
     public function getRulesForProvider()
     {
         return $this->getRules();
+    }
+
+    /**
+     * @param array $incomingData
+     * @param $property
+     * @return bool
+     */
+    private function shouldUpdatePropertyFromExternalSource(array $incomingData, $property): bool
+    {
+        if (empty($incomingData[$property])) {
+            return false;
+        }
+        if ($property === 'tags') {
+            $values = array_values($incomingData[$property]);
+            $existingValues = array_values($this->question[$property]);
+            sort($values);
+            sort($existingValues);
+            if ($values === $existingValues) {
+                return false;
+            }
+        }
+        return true;
     }
 }

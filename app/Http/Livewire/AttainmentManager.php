@@ -2,7 +2,6 @@
 
 namespace tcCore\Http\Livewire;
 
-use Illuminate\Support\Facades\DB;
 use Livewire\Component;
 use tcCore\Attainment;
 
@@ -68,7 +67,7 @@ class AttainmentManager extends Component
 
     protected function emitUpdatedValuesEvent()
     {
-            $this->emitUp('updated-attainment', array_filter([$this->domainId, $this->subdomainId, $this->subsubdomainId]));
+            $this->emitUp('updated-attainment',['attainments' => array_filter([$this->domainId, $this->subdomainId, $this->subsubdomainId]) ]);
     }
 
     public function updatedDomainId($value)
