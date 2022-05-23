@@ -51,6 +51,9 @@ class SchoolImportHelper
     {
         DB::beginTransaction();
         try {
+            if(!$this->path || !file_exists($this->path)){
+                return;
+            }
             // check for available defauls sections and subjects
             $this->inform('going to check for available (and required) default sections and subjects');
             $this->checkForRequiredDefaultSectionsAndSubjects();
