@@ -178,17 +178,20 @@ Core = {
     },
     showCloseButtonChromeOS()
     {
+        let show = () => {
+            let appElements = document.querySelectorAll('[chromebook]');
+            appElements.forEach((element) => {
+                element.style.display = 'flex';
+            });
+        }
         try {
             let version = chrome.runtime.getManifest().version;
-            if(version.charAt(0) == '3'){
-                return;
+            if(version.charAt(0) == '2'){
+                show();
             };
-        } catch (error) {}
-
-        let appElements = document.querySelectorAll('[chromebook]');
-        appElements.forEach((element) => {
-            element.style.display = 'flex';
-        });
+        } catch (error) {
+            show();
+        }
     }
 }
 

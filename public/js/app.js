@@ -6865,20 +6865,24 @@ Core = {
     Core.disableDeviceSpecificFeature();
   },
   showCloseButtonChromeOS: function showCloseButtonChromeOS() {
+    var show = function show() {
+      var appElements = document.querySelectorAll('[chromebook]');
+      appElements.forEach(function (element) {
+        element.style.display = 'flex';
+      });
+    };
+
     try {
       var version = chrome.runtime.getManifest().version;
 
-      if (version.charAt(0) == '3') {
-        return;
+      if (version.charAt(0) == '2') {
+        show();
       }
 
       ;
-    } catch (error) {}
-
-    var appElements = document.querySelectorAll('[chromebook]');
-    appElements.forEach(function (element) {
-      element.style.display = 'flex';
-    });
+    } catch (error) {
+      show();
+    }
   }
 };
 
