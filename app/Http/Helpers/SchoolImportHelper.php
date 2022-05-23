@@ -5,10 +5,16 @@ namespace tcCore\Http\Helpers;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
+use tcCore\DefaultSection;
+use tcCore\DefaultSubject;
 use tcCore\EducationLevel;
+use tcCore\ExcelSchoolImportManifest;
+use tcCore\Exceptions\SchoolAndSchoolLocationsImportException;
+use tcCore\Jobs\CreateSchoolLocationFromImport;
 use tcCore\School;
 use tcCore\SchoolLocation;
 use tcCore\UmbrellaOrganization;
+use tcCore\User;
 use Throwable;
 
 class SchoolImportHelper
@@ -17,54 +23,131 @@ class SchoolImportHelper
     protected $umbrellaOrganzationId;
     protected $schoolId;
     protected $schoolLocationId;
-    protected $schoolLocationTransformer = [
-        'BRIN NUMMER' => 'external_main_code',
-        'Locatie brin code (2 karakters max)' => 'external_sub_code',
-        'naam' => 'name',
-        'Klantcode' => 'customer_code',
-        'Vestiging - adres' => 'main_address',
-        'Vestiging - postcode' => 'main_postal',
-        'Vestiging - stad' => 'main_city',
-        'Vestiging - Land' => 'main_country',
-        'TELEFOONNUMMER' => 'main_phonenumber',
-        'INTERNETADRES' => 'internetaddress',
-        'ONDERWIJSSTRUCTUUR' => 'ONDERWIJSSTRUCTUUR',
-        'Factuuradres - adres' => 'invoice_address',
-        'Factuuradres - Postcode' => 'invoice_postal',
-        'Factuuradres - Stad' => 'invoice_city',
-        'Factuuradres - Land' => 'invoice_country',
-        'Bezoekadres - adres' => 'visit_address',
-        'Bezoekadres - Postcode' => 'visit_postal',
-        'Bezoekadres - Stad' => 'visit_city',
-        'Bezoekadres - Land' => 'visit_country',
-        'Hubspot ID' => 'company_id',
-    ];
 
-    protected $schoolTransformer = [
-        'Naam scholengemeenschap' => 'name',
-        'BRIN4' => 'external_main_code',
-        'Klantcode' => 'customer_code',
-        'Vestigingsadres - adres' => 'main_address',
-        'Vestigingsadres - postcode' => 'main_postal',
-        'Vestigingsadres - stad' => 'main_city',
-        'Vestigingsadres - land' => 'main_country',
-        'factuuradres - adres' => 'invoice_address',
-        'factuuradres - postcode' => 'invoice_postal',
-        'factuuradres -stad' => 'invoice_city',
-        'factuuradres - land' => 'invoice_country',
-    ];
     protected $educationLevels;
 
-    public function handleImport($data)
+    protected $inConsole = false;
+    protected $path;
+    protected $manifest;
+    protected $user;
+
+    protected $echoDetails = false;
+    protected $error;
+
+    public function __construct($echoDetails = false)
+    {
+        set_time_limit(300);
+        $this->echoDetails = $echoDetails;
+    }
+
+    public function setFilePath($path)
+    {
+        $this->path = $path;
+        return $this;
+    }
+
+
+    public function handleImport()
     {
         DB::beginTransaction();
         try {
-
+            // check for available defauls sections and subjects
+            $this->inform('going to check for available (and required) default sections and subjects');
+            $this->checkForRequiredDefaultSectionsAndSubjects();
+            GlobalStateHelper::getInstance()->setQueueAllowed(false);
+            GlobalStateHelper::getInstance()->setPreventDemoEnvironmentCreationForSchoolLocation(true);
+            $this->inform('Going to start with the file prep and validation of the data');
+            $this->prepareDataFromFile();
+            $this->inform('done with the file preparation, up to set the user');
+            $this->prepareUser();
+            $this->inform('done with the user, next handle schools');
+            $this->handleSchools();
+            $this->inform('done with the schools, next are the school locations');
+            $this->handleSchoolLocations();
+            $this->inform('all done');
+            GlobalStateHelper::getInstance()->setPreventDemoEnvironmentCreationForSchoolLocation(false);
+            GlobalStateHelper::getInstance()->setQueueAllowed(true);
             DB::commit();
+            $this->inform('all done');
         } catch(Throwable $e) {
             DB::rollback();
-            dd($e->getMessage());
+            logger($e);
+            if($this->echoDetails){
+                dd($e->getMessage());
+            }
+            throw $e;
         }
+    }
+
+    public function checkForExistensInDatabaseAndThrowExceptionIfTheCase($row)
+    {
+        if(($row['customer_code'] && SchoolLocation::where('customer_code',$row['customer_code'])->exists()) || SchoolLocation::where('external_main_code',$row['external_main_code'])->where('external_sub_code',$row['external_sub_code'])->exists()){
+            throw new SchoolAndSchoolLocationsImportException(sprintf('School location with name %s already in the system based on (customer_code: %s, external_main_code:%s, external_sub_code:%s',$row['name'],$row['customer_code'],$row['external_main_code'],$row['external_sub_code']));
+        }
+    }
+
+    public function hasError()
+    {
+        return !! $this->error;
+    }
+
+    public function getError()
+    {
+        return $this->error;
+    }
+
+    public function inform($info)
+    {
+        if($this->echoDetails){
+            echo $info.PHP_EOL;
+        }
+    }
+
+    protected function prepareUser()
+    {
+        $this->user = User::where('username','info+ab@test-correct.nl')->orWhere('username','carloschoep+accountmanager@hotmail.com')->orWhere('username','info+testportalaccountmanager@test-correct.nl')->orWhere('username','c@teachandlearncompany.com')->orderBy('created_at','asc')->first();
+        if(!$this->user){
+            throw new SchoolAndSchoolLocationsImportException('Could not find a valid account manager, I`ve searched for info+ab@test-correct.nl, carloschoep+accountmanager@hotmail.com, info+testportalaccountmanager@test-correct.nl and c@teachandlearncompany.com');
+        }
+    }
+
+    protected function checkForRequiredDefaultSectionsAndSubjects()
+    {
+        if(!DefaultSection::exists() || !DefaultSubject::exists()){
+            throw new SchoolAndSchoolLocationsImportException('Default sections and subjects are required, did you forget to import them?');
+        }
+    }
+
+    protected function handleSchools()
+    {
+        $data = $this->manifest->getTransformedSchools();
+
+        $data->each(function($row){
+           if(!School::where('external_main_code',$row['external_main_code'])->exists()){
+               if($row['name'] !== '-') {
+                   $this->createSchool((array)$row, $this->user);
+               }
+           }
+        });
+    }
+
+    protected function  handleSchoolLocations()
+    {
+        $data = $this->manifest->getTransformedSchoolLocations();
+        $data->each(function($row){
+            if(!SchoolLocation::where('external_main_code',$row['brin_nummer'])->where('external_sub_code',$row['locatie_brin_code_2_karakters_max'])->exists()) {
+                if($row['name'] !== '-') {
+                    $this->inform('dispatch school location '.$row['name'].' => memory '.$this->getMemorySize());
+                    dispatch(new CreateSchoolLocationFromImport($row,$this->user));
+//                    $location = $this->createSchoolLocation($row, $this->user);
+                }
+            }
+        });
+    }
+
+    protected function prepareDataFromFile()
+    {
+        $this->manifest = new ExcelSchoolImportManifest($this->path,$this);
     }
 
     protected function cleanUmbrellaOrganization()
@@ -94,39 +177,62 @@ class SchoolImportHelper
         if($this->umbrellaOrganzationId){
             $data['umbrella_organization_id'] = $this->umbrellaOrganzationId;
         }
-        $data = $this->transformDataForSchool($data);
         return $this->createProperty(new School(),$data,$user);
     }
 
     public function createSchoolLocation($data, $user)
     {
-        if($this->schoolId){
-            $data['school_id'] = $this->schoolId;
+        $data['grading_scale_id'] = 1;
+        $data['activated'] = 1;
+        if($data = $this->transformDataForSchoolLocation($data)) {
+            return $this->createProperty(new SchoolLocation(), $data, $user);
         }
-        $data = $this->transformDataForSchoolLocation($data);
-        $schoolLocation = $this->createProperty(new SchoolLocation(),$data,$user);
-        Auth::login($user);
-        return $this->addSchoolLocationExtras($schoolLocation);
+        return false;
     }
 
     protected function transformDataForSchoolLocation($data)
     {
-        $data = $this->transformDataForProperty($this->schoolLocationTransformer,$data);
         $data['education_levels'] = $this->getSchoolLocationLevelsFromData($data);
-        return $data;
+        if($data['education_levels']) {
+            return $data;
+        }
+        return false;
     }
 
     protected function getSchoolLocationLevelsFromData($data)
     {
         $niveauString = $data['onderwijsstructuur'];
-        $niveaus = array_map('strtolower',explode("/",$niveauString));
+        if(Str::endsWith($niveauString,';')){
+            $niveauString = substr($niveauString,0, -1);
+        }
+        $separator = substr_count($niveauString,';') ? ';' : '/';
+
+        $niveaus = array_map('strtolower',explode($separator,$niveauString));
+
         $schoolLocationEducationLevelIds =[];
         $levels = $this->getEducationLevels();
         foreach($niveaus as $niveau){
+            if($niveau === 'mavo'){
+                $niveau = 'mavo/havo';
+            }
+            else if($niveau === 'vbo'){
+                foreach(['vmbo-tl', 'vmbo-bb', 'vmbo-kb', 'lwoo'] as $niveau){
+                    if(isset($levels[$niveau])) {
+                        $schoolLocationEducationLevelIds[] = $levels[$niveau];
+                    }
+                }
+                continue;
+            }
             if(isset($levels[$niveau])){
                 $schoolLocationEducationLevelIds[] = $levels[$niveau];
             } else {
-                throw new \Exception('Education level not found '.$niveau);
+                if($niveau === 'pro') {
+                    if(count($niveaus) === 1) {
+                        return false; // we doen nu nog even niets met scholen die alleen pro hebben
+                    }
+                    continue;
+                }
+                throw new SchoolAndSchoolLocationsImportException('Education level not found `'.$niveau.'` ('.var_export($data,true).')');
             }
         }
         return $schoolLocationEducationLevelIds;
@@ -140,62 +246,39 @@ class SchoolImportHelper
         return $this->educationLevels;
     }
 
-    protected function transformDataForSchool($data)
-    {
-        return $this->transformDataForProperty($this->schoolTransformer,$data);
-    }
-
-    protected function transformDataForProperty($transformer,$data)
-    {
-        $transformer = array_change_key_case($transformer, CASE_LOWER);
-        $data = array_change_key_case($data, CASE_LOWER);
-
-        foreach($transformer as $from => $to){
-            if(isset($data[$from]) && $data[$from]){
-                $data[$to] = $data[$from];
-                unset($data[$from]);
-            } else {
-                $data[$to] = '-';
-            }
-        }
-        return $data;
-    }
 
     protected function createProperty($class, $data, $user = null)
     {
+        $this->inform('going to add '.get_class($class).' => '.$data['name'].' => memory '.$this->getMemorySize());
+
         $data = $this->enhanceDataWithUser($data, $user);
         $class->fill($data);
+
         if(!$class->save()){
-            throw new \Exception("Could not add the ".get_class($class)." with name ".$data['name']);
+            throw new SchoolAndSchoolLocationsImportException("Could not add the ".get_class($class)." with name ".$data['name']);
         }
-        $propertyIdName = sprintf("%sId",Str::lcfirst(get_class($class)));
-        $this->$propertyIdName = $class->getKey();
+
         return $class;
+    }
+
+    protected function getMemorySize()
+    {
+        $size = memory_get_usage(true);
+        $unit = array('b', 'kb', 'mb', 'gb', 'tb', 'pb');
+        return @round($size / pow(1024, ($i = floor(log($size, 1024)))), 2).' '.$unit[$i];
     }
 
     protected function enhanceDataWithUser($data, $user = null)
     {
         if (!isset($data['user_id'])) {
             if(!$user){
-                throw new \Exception("No user set to enhance the data");
+                throw new SchoolAndSchoolLocationsImportException("No user set to enhance the data");
             }
             $data['user_id'] = $user->getKey();
         }
         return $data;
     }
 
-    protected function addSchoolLocationExtras(SchoolLocation $schoolLocation)
-    {
-        $year = Date("Y");
-        $nextYear = $year + 1;
-        if (Date("m") < 8) {
-            $nextYear = $year;
-            $year--;
-        }
-        $schoolLocation
-            ->addSchoolYearAndPeriod($year, '01-08-' . $year, '31-07-' . $nextYear)
-            ->addDefaultSectionsAndSubjects("VO");
-        return $schoolLocation;
-    }
+
 
 }
