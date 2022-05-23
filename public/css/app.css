@@ -4163,6 +4163,9 @@ video {
 .top-2{
 	top: 0.5rem;
 }
+.-top-10{
+	top: -2.5rem;
+}
 .top-10{
 	top: 2.5rem;
 }
@@ -4195,9 +4198,6 @@ video {
 }
 .-top-px{
 	top: -1px;
-}
-.-top-10{
-	top: -2.5rem;
 }
 .bottom-3{
 	bottom: 0.75rem;
@@ -4684,6 +4684,9 @@ video {
 }
 .w-20{
 	width: 5rem;
+}
+.w-36{
+	width: 9rem;
 }
 .w-3\/4{
 	width: 75%;
@@ -5283,6 +5286,9 @@ video {
 .border-t{
 	border-top-width: 1px;
 }
+.border-b-3{
+	border-bottom-width: 3px;
+}
 .border-dashed{
 	border-style: dashed;
 }
@@ -5343,6 +5349,10 @@ video {
 .border-sysbase{
 	--tw-border-opacity: 1;
 	border-color: rgba(4, 31, 116, var(--tw-border-opacity));
+}
+.border-midgrey{
+	--tw-border-opacity: 1;
+	border-color: rgba(146, 157, 175, var(--tw-border-opacity));
 }
 .bg-white{
 	--tw-bg-opacity: 1;
@@ -5654,6 +5664,12 @@ video {
 .pr-2{
 	padding-right: 0.5rem;
 }
+.pt-7{
+	padding-top: 1.75rem;
+}
+.pt-12{
+	padding-top: 3rem;
+}
 .pl-3{
 	padding-left: 0.75rem;
 }
@@ -5738,6 +5754,12 @@ video {
 .pr-2\.5{
 	padding-right: 0.625rem;
 }
+.pt-px{
+	padding-top: 1px;
+}
+.pt-10{
+	padding-top: 2.5rem;
+}
 .text-left{
 	text-align: left;
 }
@@ -5770,6 +5792,10 @@ video {
 .text-xs{
 	font-size: 0.75rem;
 	line-height: 1rem;
+}
+.text-xl{
+	font-size: 1.25rem;
+	line-height: 1.75rem;
 }
 .text-lg{
 	font-size: 1.125rem;
@@ -6118,6 +6144,10 @@ video {
     font-family: Zilla Slab Regular;
     src: url(/fonts/ZillaSlab-Regular.ttf?77d29d36cb7664b0568e87376a1f1ed4);
 }
+@font-face {
+    font-family: Zilla Slab Bold;
+    src: url(/fonts/ZillaSlab-Bold.ttf?64d4137b162cb341a40dbd5140f9aeef);
+}
 
 @font-face {
     font-family: 'dotsfont';
@@ -6390,6 +6420,9 @@ h3 {
     line-height: 2rem;
     color: var(--system-base);
 }
+h3.bold {
+    font-family: Zilla Slab Bold, serif;
+}
 
 h4 {
     font-size: 1.5rem;
@@ -6454,6 +6487,10 @@ h6 {
 
 .text-disabled {
     color: var(--mid-grey);
+}
+
+.zilla-slab {
+    font-family: "Zilla Slab Regular", Serif;
 }
 
 

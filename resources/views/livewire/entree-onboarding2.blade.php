@@ -1,88 +1,116 @@
-<div>
-    <div class="py-5 bg-white onboarding-header">
-        <div class="max-w-2xl mx-auto grid grid-cols-3 gap-y-4 mid-grey">
-            <div class="col-span-3">
-                <a class="mx-auto tc-logo block" href="https://test-correct.nl">
-                    <img class="" src="/svg/logos/Logo-Test-Correct-2.svg"
-                         alt="Test-Correct">
-                </a>
-            </div>
-            <div class="col-span-3 step-indicator bold leading-30">
-                <div class="flex space-x-6">
-                    @if($this->step === 1)
-                        <div>
-                            <div class="inline-block rounded-full header-number mr-2 active">1</div>
-                            <span class="mt-1 active">{{ __("onboarding.Jouw docentprofiel") }}</span>
-                        </div>
-                        <div>
-                            <div class="inline-block rounded-full header-number mr-2">2</div>
-                            <span class="mt-1">{{ __("onboarding.Jouw schoolgegevens") }} 222 </span>
-                        </div>
-                        <div>
-                            <div class="inline-block rounded-full header-number mr-2">3</div>
-                            <span class="mt-1">{{ __("onboarding.Klaar") }}!</span>
-                        </div>
+<div id="entree">
+    {{--    <div class="py-5 bg-white onboarding-header">--}}
+    {{--        <div class="max-w-2xl mx-auto grid grid-cols-3 gap-y-4 mid-grey">--}}
+    {{--            <div class="col-span-3">--}}
+    {{--                <a class="mx-auto tc-logo block" href="https://test-correct.nl">--}}
+    {{--                    <img class="" src="/svg/logos/Logo-Test-Correct-2.svg"--}}
+    {{--                         alt="Test-Correct">--}}
+    {{--                </a>--}}
+    {{--            </div>--}}
+    {{--            <div class="col-span-3 step-indicator bold leading-30">--}}
+    {{--                <div class="flex space-x-6">--}}
+    {{--                    @if($this->step === 1)--}}
+    {{--                        <div>--}}
+    {{--                            <div class="inline-block rounded-full header-number mr-2 active">1</div>--}}
+    {{--                            <span class="mt-1 active">{{ __("onboarding.Jouw docentprofiel") }}</span>--}}
+    {{--                        </div>--}}
+    {{--                        <div>--}}
+    {{--                            <div class="inline-block rounded-full header-number mr-2">2</div>--}}
+    {{--                            <span class="mt-1">{{ __("onboarding.Jouw schoolgegevens") }} 222 </span>--}}
+    {{--                        </div>--}}
+    {{--                        <div>--}}
+    {{--                            <div class="inline-block rounded-full header-number mr-2">3</div>--}}
+    {{--                            <span class="mt-1">{{ __("onboarding.Klaar") }}!</span>--}}
+    {{--                        </div>--}}
 
-                    @endif
-                    @if($this->step === 2)
-                        <div class="flex items-center">
-                            <div class="bg-primary rounded-full header-check text-white flex items-center justify-center mr-3">
-                                <x-icon.checkmark/>
-                            </div>
-                            <span class="active">{{ __("onboarding.Jouw docentprofiel") }}</span>
-                        </div>
-                        <div class="flex items-center">
-                            <div class="inline-block rounded-full header-number mr-2 active">2</div>
-                            <span class="active">{{ __("onboarding.Jouw schoolgegevens") }}</span>
-                        </div>
-                        <div class="flex items-center">
-                            <div class="inline-block rounded-full header-number mr-2">3</div>
-                            <span>{{ __("onboarding.Klaar") }}!</span>
-                        </div>
+    {{--                    @endif--}}
+    {{--                    @if($this->step === 2)--}}
+    {{--                        <div class="flex items-center">--}}
+    {{--                            <div class="bg-primary rounded-full header-check text-white flex items-center justify-center mr-3">--}}
+    {{--                                <x-icon.checkmark/>--}}
+    {{--                            </div>--}}
+    {{--                            <span class="active">{{ __("onboarding.Jouw docentprofiel") }}</span>--}}
+    {{--                        </div>--}}
+    {{--                        <div class="flex items-center">--}}
+    {{--                            <div class="inline-block rounded-full header-number mr-2 active">2</div>--}}
+    {{--                            <span class="active">{{ __("onboarding.Jouw schoolgegevens") }}</span>--}}
+    {{--                        </div>--}}
+    {{--                        <div class="flex items-center">--}}
+    {{--                            <div class="inline-block rounded-full header-number mr-2">3</div>--}}
+    {{--                            <span>{{ __("onboarding.Klaar") }}!</span>--}}
+    {{--                        </div>--}}
 
-                    @endif
-                    @if($this->step === 3)
-                        <div class="flex items-center">
-                            <div class="bg-primary rounded-full header-check text-white flex items-center justify-center mr-3">
-                                <x-icon.checkmark/>
-                            </div>
-                            <span class="active ">{{ __("onboarding.Jouw docentprofiel") }}</span>
-                        </div>
-                        <div class="flex items-center">
-                            <div class="bg-primary rounded-full header-check text-white flex items-center justify-center mr-3">
-                                <x-icon.checkmark/>
-                            </div>
-                            <span class="active">{{ __("onboarding.Jouw schoolgegevens") }}</span>
-                        </div>
-                        <div class="flex items-center">
-                            <div class="bg-primary rounded-full header-check text-white flex items-center justify-center mr-3">
-                                <x-icon.checkmark/>
-                            </div>
-                            <span class="active">{{ __("onboarding.Klaar") }}!</span>
-                        </div>
+    {{--                    @endif--}}
+    {{--                    @if($this->step === 3)--}}
+    {{--                        <div class="flex items-center">--}}
+    {{--                            <div class="bg-primary rounded-full header-check text-white flex items-center justify-center mr-3">--}}
+    {{--                                <x-icon.checkmark/>--}}
+    {{--                            </div>--}}
+    {{--                            <span class="active ">{{ __("onboarding.Jouw docentprofiel") }}</span>--}}
+    {{--                        </div>--}}
+    {{--                        <div class="flex items-center">--}}
+    {{--                            <div class="bg-primary rounded-full header-check text-white flex items-center justify-center mr-3">--}}
+    {{--                                <x-icon.checkmark/>--}}
+    {{--                            </div>--}}
+    {{--                            <span class="active">{{ __("onboarding.Jouw schoolgegevens") }}</span>--}}
+    {{--                        </div>--}}
+    {{--                        <div class="flex items-center">--}}
+    {{--                            <div class="bg-primary rounded-full header-check text-white flex items-center justify-center mr-3">--}}
+    {{--                                <x-icon.checkmark/>--}}
+    {{--                            </div>--}}
+    {{--                            <span class="active">{{ __("onboarding.Klaar") }}!</span>--}}
+    {{--                        </div>--}}
 
-                    @endif
-                </div>
-            </div>
-        </div>
+    {{--                    @endif--}}
+    {{--                </div>--}}
+    {{--            </div>--}}
+    {{--        </div>--}}
+    {{--    </div>--}}
+
+    <div class="flex w-full items-center justify-center pt-7">
+        <a class="flex w-36 md:w-full" href="https://test-correct.nl">
+            <img class="" src="{{ asset('svg/logos/Logo-Test-Correct-2.svg') }}" alt="Test-Correct">
+        </a>
     </div>
-    <div class="onboarding-body">
-        <div class="max-w-4xl mx-auto">
-            <div class=" base px-4 py-5 sm:p-6">
-                <div class="pb-5 col-span-2">
-                    <div class="text-center">
-                        <h2>{{ __("onboarding.Maak een Test-Correct docent account") }}</h2>
-                        <h3>{{ __("onboarding.Digitaal toetsen dat wél werkt!") }}</h3>
-                    </div>
+
+    <div class="pt-12">
+        <div class="">
+            <div class="relative px-3">
+                <div class="flex justify-center w-full absolute -top-10">
+                    <x-stickers.entreefederatie/>
                 </div>
-                <div class="bg-white rounded-10 p-8 sm:p-10 content-section">
+                <div class="flex flex-col bg-white rounded-10  content-section">
+                    {{--content header--}}
+                    <div class="flex flex-col justify-center pt-10">
+                        <div class="flex justify-center relative px-5">
+                            <h3 class="bold text-xl"> {{ __('onboarding.Docent account maken met Entree') }}</h3>
+                        </div>
+
+                    <div class="entree-step-indicator flex justify-center items-center px-5 space-x-4 border-b border-midgrey">
+                        <div class="flex container space-x-2 pb-2 border-b-3 border-transparent @if($this->step == 1) border-primary active @endif items-center">
+                            @if($this->step == 1)
+                            <div class="flex rounded-full header-number text-white items-center justify-center bold active"><span>1</span></div>
+                            @else
+                                <div class="bg-primary rounded-full header-check text-white flex items-center justify-center mr-3">--}}
+                                    <x-icon.checkmark/>
+                                </div>
+                            @endif
+                            <span class="text-lg bold @if($this->step == 1) active @endif">{{ __("onboarding.Docentprofiel") }}</span>
+                        </div>
+
+                        <div class="flex container space-x-2 pb-2 border-b-3 border-transparent @if($this->step == 2) border-primary active @endif items-center">
+                            <div class="flex rounded-full header-number text-white items-center justify-center bold @if($this->step == 2) active @endif"><span>2</span></div>
+                            <span class="text-lg bold text-midgrey @if($this->step == 2) active @endif">{{ __("onboarding.Schoolgegevens") }}</span>
+                        </div>
+
+                        <div class="flex container space-x-2 pb-2 border-b-3 border-transparent @if($this->step == 3) border-primary active @endif items-center">
+                            <div class="flex rounded-full header-number text-white items-center justify-center bold @if($this->step == 3) active @endif"><span>3</span></div>
+                            <span class="text-lg bold text-midgrey @if($this->step == 3) active @endif">{{ __("onboarding.Klaar") }}!</span>
+                        </div>
+                    </div>
+                    </div>
                     @if($this->step === 1)
-                        <div class="content-form" wire:key="step1">
-                            {{--content header--}}
-                            <div class="mb-6 relative">
-                                <img class="inline-block card-header-img mr-3" src="/svg/stickers/profile.svg" alt="">
-                                <h1 class="card-header-text top-4 mt-2"> {{ __('onboarding.Vul jouw docentprofiel in') }}</h1>
-                            </div>
+                        <div class="content-form p-5" wire:key="step1">
                             {{--content form--}}
                             <div class="flex-grow">
                                 <form class="h-full relative" wire:submit.prevent="step1" action="#" method="POST">
@@ -179,19 +207,22 @@
                                     <div class="input-section">
                                         <div class="name mb-4">
                                             <div class="input-group mr-4 mb-4 sm:mb-0">
-                                                <input id="name_first" wire:model.lazy="registration.name_first" @if($this->hasValidTUser) disabled @endif
+                                                <input id="name_first" wire:model.lazy="registration.name_first"
+                                                       @if($this->hasValidTUser) disabled @endif
                                                        class="form-input @if($this->hasValidTUser) disabled @endif @error('registration.name_first') border-red @enderror">
                                                 <label for="name_first"
                                                        class="transition ease-in-out duration-150">{{ __("onboarding.Voornaam") }}</label>
                                             </div>
                                             <div class="input-group mr-4 mb-4 sm:mb-0">
-                                                <input id="name_suffix" wire:model.lazy="registration.name_suffix" @if($this->hasValidTUser) disabled @endif
+                                                <input id="name_suffix" wire:model.lazy="registration.name_suffix"
+                                                       @if($this->hasValidTUser) disabled @endif
                                                        class="form-input @if($this->hasValidTUser) disabled @endif @error('registration.name_suffix') border-red @enderror">
                                                 <label for="name_suffix"
                                                        class="transition ease-in-out duration-150">{{ __("onboarding.Tussenvoegsel") }}</label>
                                             </div>
                                             <div class="input-group lastname">
-                                                <input id="name" wire:model.lazy="registration.name" @if($this->hasValidTUser) disabled @endif
+                                                <input id="name" wire:model.lazy="registration.name"
+                                                       @if($this->hasValidTUser) disabled @endif
                                                        class="form-input md:w-full inline-block @if($this->hasValidTUser) disabled @endif @error('registration.name') border-red @enderror">
                                                 <label for="name"
                                                        class="transition ease-in-out duration-150">{{ __("onboarding.Achternaam") }}</label>
@@ -199,78 +230,107 @@
                                         </div>
 
                                         @if($this->showSubjects)
-                                        <div x-data  data-subjects='{!! $selectedSubjectsString !!}' class="subjects mb-4 ">
-                                            <div x-data="subjectSelect()" x-init="init('parentEl')" @click.away="clearSearch()" @keydown.escape="clearSearch()" @keydown="navigate" class="mr-4 mb-4 sm:mb-0 ">
-                                                <div >
-                                                <label for="subjects" id="subjects_label"
-                                                       class="transition ease-in-out duration-150">{{__('onboarding.Jouw vak(ken)')}}</label>
-                                                </div>
-                                                <template x-for="(subject, index) in subjects">
+                                            <div x-data data-subjects='{!! $selectedSubjectsString !!}'
+                                                 class="subjects mb-4 ">
+                                                <div x-data="subjectSelect()" x-init="init('parentEl')"
+                                                     @click.away="clearSearch()" @keydown.escape="clearSearch()"
+                                                     @keydown="navigate" class="mr-4 mb-4 sm:mb-0 ">
+                                                    <div>
+                                                        <label for="subjects" id="subjects_label"
+                                                               class="transition ease-in-out duration-150">{{__('onboarding.Jouw vak(ken)')}}</label>
+                                                    </div>
+                                                    <template x-for="(subject, index) in subjects">
 
-                                                    <button class="secondary-button selected-subject align-top text-sm mt-2 mr-1 tooltip" data-text="{{__('onboarding.Verwijder')}}"  @click.prevent="removeSubject(index)">
-                                                        <span class="ml-2 mr-1 leading-relaxed truncate max-w-xs" x-text="subject"></span>
-                                                        <span  class=" inline-block align-middle" style="margin:auto">
-                                                            <img class="icon-close-small" src="/img/icons/icons-close-small.svg" >
+                                                        <button class="secondary-button selected-subject align-top text-sm mt-2 mr-1 tooltip"
+                                                                data-text="{{__('onboarding.Verwijder')}}"
+                                                                @click.prevent="removeSubject(index)">
+                                                            <span class="ml-2 mr-1 leading-relaxed truncate max-w-xs"
+                                                                  x-text="subject"></span>
+                                                            <span class=" inline-block align-middle"
+                                                                  style="margin:auto">
+                                                            <img class="icon-close-small"
+                                                                 src="/img/icons/icons-close-small.svg">
                                                         </span>
-                                                    </button>
-                                                </template>
+                                                        </button>
+                                                    </template>
 
-                                                <button x-show="!showInput" class="secondary-button add-button-div align-top text-sm mt-2 mr-1 tooltip" data-text="{{__('onboarding.Voeg toe')}}" @click.prevent="showSubjectInput()">
-                                                    <span  class=" inline-block align-middle" style="margin:auto">
-                                                        <img class="icon-close-small" src="/img/icons/icons-plus.svg" >
+                                                    <button x-show="!showInput"
+                                                            class="secondary-button add-button-div align-top text-sm mt-2 mr-1 tooltip"
+                                                            data-text="{{__('onboarding.Voeg toe')}}"
+                                                            @click.prevent="showSubjectInput()">
+                                                    <span class=" inline-block align-middle" style="margin:auto">
+                                                        <img class="icon-close-small" src="/img/icons/icons-plus.svg">
                                                     </span>
-                                                </button>
+                                                    </button>
 
-                                                <div x-show="showInput" style="
+                                                    <div x-show="showInput" style="
                                                             width: 12em;
                                                             height: 40px;
                                                             border-radius: 8px;
                                                             overflow: hidden;
                                                             "
-                                                            class="responsive subject_select_div" @keydown.enter.prevent="addSubject(textInput)"
-                                                >
+                                                         class="responsive subject_select_div"
+                                                         @keydown.enter.prevent="addSubject(textInput)"
+                                                    >
 
-                                                    <div class="select-search-header" x-on:click="toggleSubjects()">{{ __('onboarding.Selecteer vak....') }}
-                                                        <img x-show="!show"
-                                                             src="/img/icons/icons-chevron-down-small.svg"
-                                                             class="iconschevron-down-small icons-chevron float-right"
-                                                             x-on:click="displaySubjects()"
-                                                        >
-                                                        <img x-show="show" src="/img/icons/icons-chevron-up-small-blue.svg"
-                                                             class="iconschevron-down-small icons-chevron float-right"
-                                                             x-on:click="hideSubjects()"
-                                                        >
-                                                    </div>
-                                                    <div class="search-wrapper">
-                                                        <input id="input-text-select" x-show="show" x-model="textInput" x-ref="textInput" @input="search($event.target.value)" x-on:keyup="filter()" x-on:focus="focusSearch()" x-on:focusout="loseFocusSearch()"  class="form-input input-text-select">
-                                                        <img x-show="show"
-                                                             src="/img/icons/icons-search-blue.svg"
-                                                             class="icons-search-small icons-search-active float-right hide-search"
-                                                        >
-                                                        <img x-show="show" src="/img/icons/icons-search-blue-inactive.svg"
-                                                             class="icons-search-small icons-search-inactive float-right"
-                                                        >
-                                                    </div>
-                                                    <hr x-show="show">
-                                                    <div class="subject_select_div_padding">
-                                                        <div class="subject_select_div_inner">
-                                                            <div x-show="show_new_item"  x-on:click="addSubject(new_subject_item)" id="new_subject_item" class="subject_item new_subject_item">
-                                                                <span x-text="new_subject_item"></span>
-                                                                <img class="icon-close-small-subjects " src="/img/icons/icons-plus-blue.svg">
-                                                                <hr class="subject_hr">
-                                                            </div>
-                                                            <template x-for="(subject_option, index) in available_subject_options">
-                                                                <div x-show="show" :class="{subject_item_active: subject_option==active_subject_option}" x-on:click="addSubject(subject_option)" class="subject_item existing_subject_item">
-                                                                    <span x-text="subject_option"></span>
-                                                                    <img class="icon-close-small-subjects " src="/img/icons/icons-plus-blue.svg">
+                                                        <div class="select-search-header"
+                                                             x-on:click="toggleSubjects()">{{ __('onboarding.Selecteer vak....') }}
+                                                            <img x-show="!show"
+                                                                 src="/img/icons/icons-chevron-down-small.svg"
+                                                                 class="iconschevron-down-small icons-chevron float-right"
+                                                                 x-on:click="displaySubjects()"
+                                                            >
+                                                            <img x-show="show"
+                                                                 src="/img/icons/icons-chevron-up-small-blue.svg"
+                                                                 class="iconschevron-down-small icons-chevron float-right"
+                                                                 x-on:click="hideSubjects()"
+                                                            >
+                                                        </div>
+                                                        <div class="search-wrapper">
+                                                            <input id="input-text-select" x-show="show"
+                                                                   x-model="textInput" x-ref="textInput"
+                                                                   @input="search($event.target.value)"
+                                                                   x-on:keyup="filter()" x-on:focus="focusSearch()"
+                                                                   x-on:focusout="loseFocusSearch()"
+                                                                   class="form-input input-text-select">
+                                                            <img x-show="show"
+                                                                 src="/img/icons/icons-search-blue.svg"
+                                                                 class="icons-search-small icons-search-active float-right hide-search"
+                                                            >
+                                                            <img x-show="show"
+                                                                 src="/img/icons/icons-search-blue-inactive.svg"
+                                                                 class="icons-search-small icons-search-inactive float-right"
+                                                            >
+                                                        </div>
+                                                        <hr x-show="show">
+                                                        <div class="subject_select_div_padding">
+                                                            <div class="subject_select_div_inner">
+                                                                <div x-show="show_new_item"
+                                                                     x-on:click="addSubject(new_subject_item)"
+                                                                     id="new_subject_item"
+                                                                     class="subject_item new_subject_item">
+                                                                    <span x-text="new_subject_item"></span>
+                                                                    <img class="icon-close-small-subjects "
+                                                                         src="/img/icons/icons-plus-blue.svg">
                                                                     <hr class="subject_hr">
                                                                 </div>
-                                                            </template>
+                                                                <template
+                                                                        x-for="(subject_option, index) in available_subject_options">
+                                                                    <div x-show="show"
+                                                                         :class="{subject_item_active: subject_option==active_subject_option}"
+                                                                         x-on:click="addSubject(subject_option)"
+                                                                         class="subject_item existing_subject_item">
+                                                                        <span x-text="subject_option"></span>
+                                                                        <img class="icon-close-small-subjects "
+                                                                             src="/img/icons/icons-plus-blue.svg">
+                                                                        <hr class="subject_hr">
+                                                                    </div>
+                                                                </template>
+                                                            </div>
                                                         </div>
                                                     </div>
                                                 </div>
                                             </div>
-                                        </div>
                                         @endif
 
 
@@ -331,9 +391,13 @@
                             {{--content header--}}
                             <div class="mb-6 relative w-full">
                                 <img class="card-header-img float-left mr-4" src="/svg/stickers/school.svg" alt="">
-                                <h1 class="md:mt-2 top-4 card-header-text">@if($this->hasValidTUser) {{ __("onboarding.Jouw schoollocatie") }} @else {{ __('onboarding.Kies locatie(s)') }} @endif</h1>
+                                <h1 class="md:mt-2 top-4 card-header-text">@if($this->hasValidTUser)
+                                        {{ __("onboarding.Jouw schoollocatie") }}
+                                    @else
+                                        {{ __('onboarding.Kies locatie(s)') }}
+                                    @endif</h1>
                                 @if(!$this->hasValidTUser)
-                                <p class="">{{ __('onboarding.We hebben meerdere locaties gevonden. Op welke locatie geef jij les?') }}</p>
+                                    <p class="">{{ __('onboarding.We hebben meerdere locaties gevonden. Op welke locatie geef jij les?') }}</p>
                                 @endif
                             </div>
 
@@ -342,35 +406,39 @@
                                     <div class="input-section mb-4">
                                         @if($this->hasFixedLocation)
                                             <div class="flex flex-col space-y-2 w-full mt-4">
-                                                    <div
-                                                                 class="flex px-0 py-0 border-0 bg-system-white relative regular"
-                                                    >
-                                                        {{ $this->schoolLocation->name }}
+                                                <div
+                                                        class="flex px-0 py-0 border-0 bg-system-white relative regular"
+                                                >
+                                                    {{ $this->schoolLocation->name }}
 
-                                                            <x-icon.checkmark class="mx-2 w-4" ></x-icon.checkmark>
+                                                    <x-icon.checkmark class="mx-2 w-4"></x-icon.checkmark>
 
-                                                    </div>
+                                                </div>
                                             </div>
                                         @elseif($this->school)
                                             <div class="flex flex-col space-y-2 w-full mt-4">
 
-                                            @foreach($this->school->schoolLocations as $location)
-                                                <div wire:click="toggleSchoolLocation('{{ $location->uuid }}',@if($this->isSelectedSchoolLocation($location->uuid)) false @else true @endif )"
-                                                        class="flex px-0 py-0 border-0 bg-system-white relative regular"
-                                                >
-                                                    {{ $location->name }}
-                                                    @if($this->isSelectedSchoolLocation($location->uuid))
-                                                        <x-icon.checkmark class="mx-2 w-4"  wire:click="deleteSchoolLocation('{{ $location->uuid }}')"></x-icon.checkmark>
-                                                    @endif
-                                                </div>
-                                            @endforeach
+                                                @foreach($this->school->schoolLocations as $location)
+                                                    <div wire:click="toggleSchoolLocation('{{ $location->uuid }}',@if($this->isSelectedSchoolLocation($location->uuid)) false @else true @endif )"
+                                                         class="flex px-0 py-0 border-0 bg-system-white relative regular"
+                                                    >
+                                                        {{ $location->name }}
+                                                        @if($this->isSelectedSchoolLocation($location->uuid))
+                                                            <x-icon.checkmark class="mx-2 w-4"
+                                                                              wire:click="deleteSchoolLocation('{{ $location->uuid }}')"></x-icon.checkmark>
+                                                        @endif
+                                                    </div>
+                                                @endforeach
                                             </div>
                                         @endif
                                     </div>
                                     @if(!$this->hasValidTUser)
                                         <div>
                                             <p class="text-note">
-                                                {{ __('onboarding.general_terms_text_pt_1') }} <a class="underline primary-hover" href="https://www.test-correct.nl/algemene-voorwaarden" target="_blank">{{ __('onboarding.general_terms') }}</a> {{ __('onboarding.general_terms_text_pt_2') }}
+                                                {{ __('onboarding.general_terms_text_pt_1') }} <a
+                                                        class="underline primary-hover"
+                                                        href="https://www.test-correct.nl/algemene-voorwaarden"
+                                                        target="_blank">{{ __('onboarding.general_terms') }}</a> {{ __('onboarding.general_terms_text_pt_2') }}
                                             </p>
                                         </div>
                                     @endif
@@ -442,11 +510,13 @@
                                 <img class="inline-block card-header-img mr-3" src="/svg/stickers/completed.svg" alt="">
                                 <h2 class="sm:mt-2 top-2.5 card-header-text">{{ __("onboarding.Je bent nu klaar! Met Test-Correct kun je") }}</h2>
                                 @if($this->step === 3)
-                                    <h3 x-data="{}" x-init="setTimeout(() => {$wire.finish() },2000);">{{ __("onboarding.Je gegevens worden nu verwerkt...") }}</h3>
+                                    <h3 x-data="{}"
+                                        x-init="setTimeout(() => {$wire.finish() },2000);">{{ __("onboarding.Je gegevens worden nu verwerkt...") }}</h3>
                                 @else
                                     <h3><img src="/svg/icons/checkmark.svg" alt=""
                                              class="mr-4 float-left">
-                                        <span class="klaar-text">{{ __("onboarding.Je gegevens zijn verwerkt") }}.</span></h3>
+                                        <span class="klaar-text">{{ __("onboarding.Je gegevens zijn verwerkt") }}.</span>
+                                    </h3>
                                 @endif
                             </div>
                             <div class="flex-grow">
@@ -537,6 +607,7 @@
         input[list="languages"] {
             width: 12em;
         }
+
         select {
             width: 12em;
             margin: 0;
@@ -564,32 +635,33 @@
                     this.subjects = JSON.parse(this.$el.parentNode.getAttribute('data-subjects'));
                     this.available_subject_options = this.subject_list_init;
                     this.filterAvailableSubjectOptions();
-                    if(this.subjects.length>0){
+                    if (this.subjects.length > 0) {
                         this.showInput = false;
                     }
                 },
                 addSubject(subject) {
                     subject = subject.trim();
-                    subject = subject.replace(/'/g,"\x27");
-                    subject = subject.replace(/"/g,"\x22");
-                    if(this.active_subject_option != null && this.active_subject_option != "" && !this.hasSubject(this.active_subject_option)){
-                        this.subjects.push( this.active_subject_option );
-                    }else if (subject != "" && !this.hasSubject(subject)) {
-                        this.subjects.push( subject )
+                    subject = subject.replace(/'/g, "\x27");
+                    subject = subject.replace(/"/g, "\x22");
+                    if (this.active_subject_option != null && this.active_subject_option != "" && !this.hasSubject(this.active_subject_option)) {
+                        this.subjects.push(this.active_subject_option);
+                    } else if (subject != "" && !this.hasSubject(subject)) {
+                        this.subjects.push(subject)
                     }
                     this.clearSearch();
                     this.$refs.textInput.focus();
-                    if(this.subjects.length>0){
+                    if (this.subjects.length > 0) {
                         this.showInput = false;
                     }
                     this.syncSubjects();
                 },
                 syncSubjects() {
-                    @this.call('syncSelectedSubjects',this.subjects);
+                    @this.
+                    call('syncSelectedSubjects', this.subjects);
                 },
                 toggleSubjects() {
                     var div = this.$el.getElementsByClassName('subject_select_div')[0];
-                    if(div.classList.contains('show_subjects')){
+                    if (div.classList.contains('show_subjects')) {
                         this.hideSubjects();
                         return;
                     }
@@ -608,7 +680,9 @@
                     div.classList.add('show_subjects');
                     label.classList.add('label_bold');
                     this.show = true;
-                    setTimeout(function(){document.getElementById('input-text-select').focus();},1000);
+                    setTimeout(function () {
+                        document.getElementById('input-text-select').focus();
+                    }, 1000);
                 },
                 hideSubjects() {
                     var label = document.getElementById('subjects_label');
@@ -630,7 +704,7 @@
                     this.subjects.splice(index, 1);
                     this.syncSubjects();
                     this.filter();
-                    if(this.subjects.length==0){
+                    if (this.subjects.length == 0) {
                         this.showInput = true;
                     }
                 },
@@ -654,7 +728,7 @@
                     this.open = this.textInput != ''
                 },
                 filter() {
-                    if(this.textInput == ''){
+                    if (this.textInput == '') {
                         this.available_subject_options = this.subject_list_init;
                         this.filterAvailableSubjectOptions();
                         return;
@@ -663,19 +737,19 @@
                     var arr = this.subject_list_init.map((x) => x);
                     var i = 0;
                     while (i < arr.length) {
-                        if(this.subjects.includes(arr[i])){
+                        if (this.subjects.includes(arr[i])) {
                             arr.splice(i, 1);
-                        }else if(!arr[i].toLowerCase().includes(this.textInput.toLowerCase())){
+                        } else if (!arr[i].toLowerCase().includes(this.textInput.toLowerCase())) {
                             arr.splice(i, 1);
                         } else {
                             ++i;
                         }
                     }
                     this.available_subject_options = arr;
-                    if(!this.available_subject_options.includes(this.active_subject_option)){
+                    if (!this.available_subject_options.includes(this.active_subject_option)) {
                         this.active_subject_option = null;
-                     }
-                    if(this.available_subject_options.length==0){
+                    }
+                    if (this.available_subject_options.length == 0) {
                         this.show_new_item = true;
                         return;
                     }
@@ -683,51 +757,50 @@
                 },
                 navigate(e) {
                     this.filterAvailableSubjectOptions();
-                    if(e.keyCode!=40&&e.keyCode!=38){
+                    if (e.keyCode != 40 && e.keyCode != 38) {
                         return;
                     }
                     e = e || window.event;
                     document.getElementById('new_subject_item').classList.remove('subject_item_active');
-                    if(this.available_subject_options.length==0){
+                    if (this.available_subject_options.length == 0) {
                         this.active_subject_option = this.textInput;
                         document.getElementById('new_subject_item').classList.add('subject_item_active');
                         return;
                     }
-                    if(this.active_subject_option==null){
+                    if (this.active_subject_option == null) {
                         this.active_subject_option = this.available_subject_options[0];
                         return this.scroll();
                     }
                     var temp = 0;
                     var active = this.active_subject_option;
-                    this.available_subject_options.forEach((element,key) => {
-                        if(element==active){
+                    this.available_subject_options.forEach((element, key) => {
+                        if (element == active) {
                             temp = key;
                         }
                     });
-                    if(e.keyCode==40){
-                        if(this.available_subject_options.length>temp){
-                            var next_key = temp+1;
+                    if (e.keyCode == 40) {
+                        if (this.available_subject_options.length > temp) {
+                            var next_key = temp + 1;
                             this.active_subject_option = this.available_subject_options[next_key];
                         }
                         return this.scroll();
                     }
-                    if(temp==0){
+                    if (temp == 0) {
                         this.active_subject_option = this.available_subject_options[0];
                         return this.scroll();
                     }
-                    var previous_key = temp-1;
+                    var previous_key = temp - 1;
                     this.active_subject_option = this.available_subject_options[previous_key];
                     this.scroll();
                 },
                 scroll() {
                     var div = this.$el.getElementsByClassName('subject_item_active')[0];
-                    if(div==undefined){
+                    if (div == undefined) {
                         return;
                     }
                     div.scrollIntoView({behavior: "smooth", block: "center", inline: "nearest"});
                 },
-                showSubjectInput()
-                {
+                showSubjectInput() {
                     this.showInput = true;
                 },
                 focusSearch() {
@@ -746,9 +819,9 @@
                     var arr = this.subject_list_init.map((x) => x);
                     var i = 0;
                     while (i < arr.length) {
-                        if(this.subjects.includes(arr[i])){
+                        if (this.subjects.includes(arr[i])) {
                             arr.splice(i, 1);
-                        }else if(!arr[i].toLowerCase().includes(this.textInput.toLowerCase())){
+                        } else if (!arr[i].toLowerCase().includes(this.textInput.toLowerCase())) {
                             arr.splice(i, 1);
                         } else {
                             ++i;

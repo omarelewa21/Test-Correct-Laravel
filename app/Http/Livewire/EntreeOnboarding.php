@@ -228,7 +228,7 @@ class EntreeOnboarding extends Onboarding
                 break;
         }
 
-        return view('livewire.entree-onboarding')->layout('layouts.onboarding');
+        return view('livewire.entree-onboarding2')->layout('layouts.onboarding');
     }
 
     public function step1()

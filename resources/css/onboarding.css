@@ -278,7 +278,7 @@ h6 {
 .header-number {
     color: white;
     background: var(--mid-grey);
-    width: 30px;
+    min-width: 30px;
     height: 30px;
     line-height: 30px;
     text-align: center;
@@ -636,4 +636,16 @@ input:focus + label {
     background: #FFEDEB;
     border-color: #EBCCC8;
     color: #CF1B04
+}
+
+@media only screen and (max-width: 510px){
+    .entree-step-indicator .container {
+        background-color: red;
+    }
+    .entree-step-indicator .container {
+        flex-shrink: 1;
+    }
+    .entree-step-indicator .container.active {
+        flex-shrink: 0;
+    }
 }
