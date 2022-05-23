@@ -50,7 +50,7 @@
                     <div class="flex items-center">
                         @if(!$this->isGroupQuestion())
                             <span class="w-8 h-8 rounded-full bg-sysbase text-white text-sm flex items-center justify-center">
-                            <span>{{ $this->question['order'] == 0 ? '1' : $this->question['order']}}</span>
+                            <span>{{ $this->resolveOrderNumber() }}</span>
                         </span>
                         @endif
                         <h2 class="ml-2.5" selid="question-type-title">{{ $this->questionType }}</h2>
