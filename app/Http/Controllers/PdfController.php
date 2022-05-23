@@ -22,6 +22,8 @@ class PdfController extends Controller
      */
     public function HtmlToPdf(HtmlToPdfRequest $request)
     {
+        return $this->wkhtmlToPdf($request);
+
         $html = $this->base64ImgPaths($request->get('html'));
         $output = PdfHelper::HtmlToPdf($html);
         return response($output);
@@ -131,6 +133,24 @@ class PdfController extends Controller
         }
         return $server->getImageAsBase64($file, $widthHeight+['fit'=>'contain',  'fm' => 'jpg', 'q' => $quality,]);
     }
-    
 
+    private function wkhtmlToPdf(HtmlToPdfRequest $request)
+    {
+        $html = $this->base64ImgPaths($request->get('html'));
+        file_put_contents(storage_path('temp/result1.html'),$html);
+        $options = [
+            'disable-javascript',
+            'header-html'=> storage_path('temp/header.html'),
+        ];
+        $pdf = new Pdf($options);
+        $pdf->addPage($html);
+        $outputPath = storage_path('temp/result1.pdf');
+        $pdf->saveAs($outputPath);
+        $output = $pdf->toString();
+
+        return response()->make($output, 200, [
+            'Content-Type' => 'application/pdf',
+            'Content-Disposition' => 'inline; filename="toets.pdf"'
+        ]);
+    }
 }
