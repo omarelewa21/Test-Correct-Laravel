@@ -24,6 +24,9 @@
                                     const wordCountPlugin = editor.plugins.get( 'WordCount' );
                                     const wordCountWrapper = document.getElementById( 'word-count-{{ $editorId }}' );
                                     wordCountWrapper.appendChild( wordCountPlugin.wordCountContainer );
+                                    @if(Auth::user()->text2speech)
+                                        ReadspeakerTlc.ckeditor.replaceReadableAreaByClone(editor);
+                                    @endif
                                 } )
                                 .catch( error => {
                                     console.error( error );
