@@ -69,5 +69,9 @@ return [
     'Docent account maken met Entree'                                                                                                                  => 'Create teacher account with Entree',
     'Docentprofiel'                                                                                                                                    => 'Teacher profile',
     'Schoolgegevens'                                                                                                                                   => 'School details',
+    'Bevestigen'                                                                                                                                       => 'Confirm',
+    'Gefeliciteerd met je Test-Correct account!'                                                                                                       => 'Congratulations with your Test-Correct account!',
+    'Deel dit op jouw social media'                                                                                                                    => 'Share this on your social media',
+
 ];
 ?>

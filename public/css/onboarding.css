@@ -294,7 +294,7 @@ h6 {
 }
 
 .header-check {
-    width: 30px;
+    min-width: 30px;
     height: 30px;
 }
 
@@ -481,44 +481,44 @@ span.active {
     padding: 15px;
 }
 
-svg, .hair {
-    stroke: var(--mid-grey);
-    fill: var(--mid-grey);
-}
+/*svg, .hair {*/
+/*    stroke: var(--mid-grey);*/
+/*    fill: var(--mid-grey);*/
+/*}*/
 
-.eye {
-    stroke: none !important;
-    fill: var(--mid-grey);
-}
+/*.eye {*/
+/*    stroke: none !important;*/
+/*    fill: var(--mid-grey);*/
+/*}*/
 
-.select-button:hover svg, .select-button:hover .hair, .select-button:focus svg, .select-button:focus .hair {
-    stroke: var(--primary);
-    fill: var(--primary);
-    transition: ease-in-out 150ms;
-}
+/*.select-button:hover svg, .select-button:hover .hair, .select-button:focus svg, .select-button:focus .hair {*/
+/*    stroke: var(--primary);*/
+/*    fill: var(--primary);*/
+/*    transition: ease-in-out 150ms;*/
+/*}*/
 
-.select-button:hover .eye, .select-button:focus .eye {
-    fill: var(--primary);
-    transition: ease-in-out 150ms;
-}
+/*.select-button:hover .eye, .select-button:focus .eye {*/
+/*    fill: var(--primary);*/
+/*    transition: ease-in-out 150ms;*/
+/*}*/
 
-.btn-active svg, .btn-active .hair {
-    stroke: var(--primary);
-    fill: var(--primary);
-}
+/*.btn-active svg, .btn-active .hair {*/
+/*    stroke: var(--primary);*/
+/*    fill: var(--primary);*/
+/*}*/
 
-.btn-active .eye {
-    fill: var(--primary);
-}
+/*.btn-active .eye {*/
+/*    fill: var(--primary);*/
+/*}*/
 
-.btn-active:hover svg, .btn-active:hover .hair {
-    stroke: var(--primary);
-    fill: var(--primary);
-}
+/*.btn-active:hover svg, .btn-active:hover .hair {*/
+/*    stroke: var(--primary);*/
+/*    fill: var(--primary);*/
+/*}*/
 
-.btn-active:hover .eye {
-    fill: var(--primary);
-}
+/*.btn-active:hover .eye {*/
+/*    fill: var(--primary);*/
+/*}*/
 
 .select-button:hover .other, .select-button:focus .other {
     background: url("../svg/icons/x.svg");
@@ -862,15 +862,19 @@ img.icon-close-small-subjects{
 }
 
 @media only screen and (max-width: 590px){
-    .entree-step-indicator .container {
+    .entree-step-indicator > div {
         flex-shrink: 1;
     }
-    .entree-step-indicator .container:not(.active) span{
+    .entree-step-indicator > div:not(.active) {
+        overflow: hidden;
+        min-width: 70px;
+    }
+    .entree-step-indicator > div:not(.active) span{
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
     }
-    .entree-step-indicator .container.active {
+    .entree-step-indicator > div.active {
         flex-shrink: 0;
         max-width: fit-content;
     }

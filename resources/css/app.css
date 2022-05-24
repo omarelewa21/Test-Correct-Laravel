@@ -382,6 +382,13 @@ h6 {
     color: var(--system-base);
 }
 
+h7 {
+    font-size: 1rem;
+    font-family: Nunito Bold;
+    line-height: 1.5rem;
+    color: var(--system-base);
+}
+
 .body1 {
     font-size: 1.125rem;
     line-height: 1.5rem;

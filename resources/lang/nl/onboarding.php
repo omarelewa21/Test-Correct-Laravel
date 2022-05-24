@@ -70,5 +70,8 @@ return [
     'Docent account maken met Entree'                                                                                                                  => 'Docent account maken met Entree',
     'Docentprofiel'                                                                                                                                    => 'Docentprofiel',
     'Schoolgegevens'                                                                                                                                   => 'Schoolgegevens',
+    'Bevestigen'                                                                                                                                       => 'Bevestigen',
+    'Gefeliciteerd met je Test-Correct account!'                                                                                                       => 'Gefeliciteerd met je Test-Correct account!',
+    'Deel dit op jouw social media'                                                                                                                    => 'Deel dit op jouw social media',
 ];
 ?>

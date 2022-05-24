@@ -25,6 +25,7 @@ class EntreeTestSession extends Controller {
             'nameSuffix' => null,
             'firstName' => 'Erikr',
         ];
+
         if(request()->has('schoolId')){
             $data->location = null;
             $data->school = School::find(request()->get('schoolId'));
