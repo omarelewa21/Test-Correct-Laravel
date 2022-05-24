@@ -26,6 +26,7 @@
         "choices.js": "^10.1.0",
         "filepond": "^4.30.3",
         "filepond-plugin-file-validate-size": "^2.2.5",
+        "flatpickr": "^4.6.13",
         "jquery": "^2.1.1",
         "laravel-echo": "^1.11.0",
         "plyr": "^3.6.12",

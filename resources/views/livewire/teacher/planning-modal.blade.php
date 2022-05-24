@@ -6,11 +6,9 @@
                  class="transition ease-in-out duration-150">{{ $test->name }}</div>
         </x-input.group>
         <x-input.group label="{{ __('teacher.Datum') }}">
-            <x-input.select wire:model="request.date">
-                @foreach(range(0, 10) as $day)
-                    <option value="{{ now()->addDay($day)->format('d-m-Y') }}">{{ now()->addDay($day)->format('d-m-Y') }}</option>
-                @endforeach
-            </x-input.select>
+            <x-input.text wire:model="request.date"/>
+            <x-input.datepicker wire:model="request.date" locale="nl"/>
+
         </x-input.group>
 @if ($this->isAssessmentType())
         <x-input.group label="{{ __('teacher.Datum tot') }}">

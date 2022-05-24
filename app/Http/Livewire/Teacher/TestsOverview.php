@@ -7,26 +7,28 @@ use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 use Livewire\WithPagination;
 use tcCore\EducationLevel;
+use tcCore\Http\Controllers\AuthorsController;
+use tcCore\Http\Controllers\SubjectsController;
 use tcCore\Http\Controllers\TemporaryLoginController;
 use tcCore\Http\Requests\DuplicateTestRequest;
+use tcCore\Subject;
 use tcCore\Test;
 
 class TestsOverview extends Component
 {
     use WithPagination;
 
-    const PER_PAGE = 16;
+    const PER_PAGE = 1;
 
-    public $subjects = [];
-    public $educationLevelYear = [];
-    public $educationLevel = [];
     public $search = '';
 
     public $filters = [
         'name'                 => '',
-        'education_level_year' => '',
-        'education_level_id'   => '',
-        'subject_id'           => '',
+        'education_level_year' => [],
+        'education_level_id'   => [],
+        'subject_id'           => [],
+        'authors_id'           => [],
+        'date' => '5-5-2005',
     ];
     public $filters1 = [
         'name'                 => '',
@@ -48,7 +50,7 @@ class TestsOverview extends Component
     public function render()
     {
         $results = $this->getDatasource();
-        $this->setFilters();
+
         return view('livewire.teacher.tests-overview')->with(compact(['results']));
     }
 
@@ -92,7 +94,7 @@ class TestsOverview extends Component
     private function getSchoolDatasource()
     {
         return Test::filtered(
-            $this->filters,
+            $this->cleanFilterForSearch($this->filters),
             $this->sorting
         )
             ->with('educationLevel', 'testKind', 'subject', 'author', 'author.school', 'author.schoolLocation')
@@ -103,7 +105,7 @@ class TestsOverview extends Component
     private function getExamsDatasource()
     {
         return Test::examFiltered(
-            $this->filters,
+            $this->cleanFilterForSearch($this->filters),
             $this->sorting
         )
             ->with('educationLevel', 'testKind', 'subject', 'author', 'author.school', 'author.schoolLocation')
@@ -114,7 +116,7 @@ class TestsOverview extends Component
     private function getPersonalDatasource()
     {
         $results = Test::filtered(
-            $this->filters,
+            $this->cleanFilterForSearch($this->filters),
             $this->sorting
         )
             ->with('educationLevel', 'testKind', 'subject', 'author', 'author.school', 'author.schoolLocation')
@@ -128,7 +130,7 @@ class TestsOverview extends Component
     private function getCitoDataSource()
     {
         $results = Test::citoFiltered(
-            $this->filters,
+            $this->cleanFilterForSearch($this->filters),
             $this->sorting
         )
             ->with('educationLevel', 'testKind', 'subject', 'author', 'author.school', 'author.schoolLocation')
@@ -153,7 +155,7 @@ class TestsOverview extends Component
 
     public function openEdit($testUuid)
     {
-        $this->redirect(route('teacher.question-editor', ['testId'=>$testUuid]));
+        $this->redirect(route('teacher.question-editor', ['testId' => $testUuid]));
     }
 
     public function getTemporaryLoginToPdfForTest()
@@ -161,16 +163,66 @@ class TestsOverview extends Component
         $controller = new TemporaryLoginController();
         $request = new Request();
         $request->merge([
-            'options' => [],
+            'options'  => [],
             'redirect' => '/tests/pdf_showPDFAttachment/608d93d7-07bd-4f7a-95ad-231c283ee452',
         ]);
 
         return $controller->toCakeUrl($request);
-
-
     }
 
 
+    public function getEducationLevelProperty()
+    {
+        return EducationLevel::filtered([], ['name' => 'desc'])
+            ->select(['id', 'name'])
+            ->get()
+            ->map(function ($educationLevel) {
+                return ['value' => (int) $educationLevel->id, 'label' => $educationLevel->name];
+            });
+    }
+
+    public function getSubjectsProperty()
+    {
+        return Subject::filtered([], ['name' => 'asc'])
+            ->select(['name', 'id'])
+            ->get()
+            ->map(function ($subject) {
+                return ['value' => (int) $subject->id, 'label' => $subject->name];
+            })->toArray();
+    }
+
+    public function getEducationLevelYearProperty()
+    {
+        return collect(range(1,6))->map(function($item) {
+            return ['value' => (int) $item, 'label' => (string) $item];
+        })->toArray();
+    }
+
+    public function getAuthorsProperty()
+    {
+        return (new AuthorsController())->getBuilderWithAuthors()
+            ->map(function ($author) {
+                return ['value' => $author->id, 'label' => trim($author->name_first . ' ' . $author->name)];
+            })->toArray();
+    }
+
+    public function mount(){
+        $this->setFilters();
+    }
+
+    private function cleanFilterForSearch(array $filters)
+    {
+        $searchFilter = [];
+        foreach(['name', 'education_level_year', 'education_level_id', 'subject_id', 'authors_id'] as $filter) {
+            if (!empty($filter)) {
+                $searchFilter[$filter] = $filters[$filter];
+            }
+        }
+        return $searchFilter;
+
+
+
+    }
 
 
 }

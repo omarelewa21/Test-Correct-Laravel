@@ -41,7 +41,7 @@
                 document.body.classList.remove('overflow-y-hidden');
             }
         });
-        showCancelButton = {{ $showCancelButton }}
+        showCancelButton = {{ $showCancelButton ? 1: 0 }}
                 "
         x-on:close.stop="showCancelButton ? show = false : ''"
         x-on:keydown.escape.window="showCancelButton ? show = false : ''"

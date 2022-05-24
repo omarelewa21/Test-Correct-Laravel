@@ -48,7 +48,7 @@
                     <div class="flex relative hover:text-primary cursor-pointer" @click="openTab = 'cito'">
                         <span class="bold pt-[0.9375rem] pb-[0.8125rem]" :class="openTab === 'cito' ? 'primary' : '' ">{{ __( 'general.cito-snelstart') }}</span>
                         <span class="absolute w-full bottom-0" style="height: 3px"
-                              :class="openTab === 'exams' ? 'bg-primary' : 'bg-transparent' "></span>
+                              :class="openTab === 'cito' ? 'bg-primary' : 'bg-transparent' "></span>
                     </div>
                 </div>
 
@@ -68,27 +68,51 @@
                         <x-icon.search class="absolute right-0 -top-2"/>
                     </div>
                 </div>
-                <div class="flex flex-wrap w-full space-x-2">
+                <div class="flex flex-wrap w-full gap-2 mt-2">
+                    <x-input.datepicker wire:model="filters.date"/>
                     <x-input.choices-select :multiple="true"
                                             :options="$this->subjects"
                                             :withSearch="true"
                                             placeholderText="Vak"
-                                            wire:model="filters1.subject_id"
+                                            wire:model="filters.subject_id"
+                                            filterContainer="questionbank-active-filters"
                     />
                     <x-input.choices-select :multiple="true"
                                             :options="$this->educationLevelYear"
                                             :withSearch="true"
                                             placeholderText="Leerjaar"
-                                            wire:model="filters1.education_level_year"
+                                            wire:model="filters.education_level_year"
+                                            filterContainer="questionbank-active-filters"
                     />
                     <x-input.choices-select :multiple="true"
                                             :options="$this->educationLevel"
                                             :withSearch="true"
-                                            placeholderText="Niveau"
-                                            wire:model="filters1.education_level_id"
+                                            placeholderText="{{ __('Niveau') }}"
+                                            wire:model="filters.education_level_id"
+                                            filterContainer="questionbank-active-filters"
+                    />
+                    <x-input.choices-select :multiple="true"
+                                            :options="$this->authors"
+                                            :withSearch="true"
+                                            placeholderText="{{ __('Auteurs') }}"
+                                            wire:model="filters.authors_id"
+                                            filterContainer="questionbank-active-filters"
                     />
                 </div>
+                <div id="questionbank-active-filters"
+                     wire:ignore
+                     x-data=""
+                     :class="($el.childElementCount !== 1) ? 'mt-2' : ''"
+                     class="flex flex-wrap gap-2"
+                >
+                    <template id="filter-pill-template" class="hidden">
+                        <div class="space-x-2" @click="$dispatch('removeFrom'+$el.dataset.filter, {value: parseInt($el.dataset.filterValue)})">
+                            <span class="flex"></span>
+                            <x-icon.close-small/>{{--removeFilterItem($el)--}}
+                        </div>
+                    </template>
 
+                </div>
             </div>
 
             {{-- Content --}}

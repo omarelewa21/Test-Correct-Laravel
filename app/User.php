@@ -2524,10 +2524,12 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
             ])
             ->join('school_classes', 'class_id', 'school_classes.id')
             ->select(['subject_id', 'education_level_id', 'education_level_year'])
+            ->where('school_classes.school_location_id', auth()->user()->school_location_id)
+            ->whereNull('school_classes.deleted_at')
             ->get();
 
         return [
-            'subject_id'           => $results->map(function ($result) {
+            'subject_id' =>  $results->map(function ($result) {
                 return $result->subject_id;
             })->unique()->values()->toArray(),
             'education_level_id'   => $results->map(function ($result) {

@@ -14,10 +14,13 @@
                         allowHTML: true,
                         searchEnabled: {{ $withSearch ? 1 : 0 }},
                         placeholderValue: '{{ $placeholderText }}',
-                        searchPlaceholderValue: 'Zoek...',
+                        searchPlaceholderValue: '{{ __('Zoek') }}...',
                         itemSelectText: '',
                         removeItemButton: true,
                         renderSelectedChoices: 'always',
+                        fuseOptions:{
+                            treshold:0.3
+                        }
                     },
                     '{{ $filterContainer }}'
              )"

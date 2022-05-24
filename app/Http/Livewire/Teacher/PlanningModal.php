@@ -18,7 +18,7 @@ class PlanningModal extends Component
 
     public $allowedPeriods;
 
-    public $request= [];
+    public $request= ['date'=> ''];
 
     public function isAssessmentType() {
         return $this->test->isAssignment();

@@ -433,7 +433,7 @@ document.addEventListener('alpine:init', () => {
     }));
     Alpine.data('choices', (wireModel, multiple, options, config, filterContainer) => ({
         multiple: multiple,
-        value: [],
+        value: wireModel,
         options: options,
         config: config,
         wireModel: wireModel,
@@ -451,7 +451,7 @@ document.addEventListener('alpine:init', () => {
                     choices.setChoices(this.options.map(({value, label}) => ({
                         value,
                         label,
-                        selected: selection.includes(value),
+                        selected: selection.includes(value)
                     })))
                     this.handleActiveFilters(choices.getValue());
                 }
@@ -469,6 +469,10 @@ document.addEventListener('alpine:init', () => {
                 this.$refs.select.addEventListener('change', () => {
                     this.value = choices.getValue(true)
                     this.wireModel = this.value;
+                })
+
+                window.addEventListener('removeFrom'+this.$root.dataset.modelName, (event) => {
+                    this.removeFilterItem(event.detail);
                 })
 
                 this.$watch('value', () => refreshChoices());
@@ -489,7 +493,9 @@ document.addEventListener('alpine:init', () => {
             this.value.forEach(item => {
                 if(this.needsFilterPill(item)) {
                     const cItem = choicesValues.find(value => value.value === item);
-                    this.createFilterPill(cItem);
+                    if(typeof cItem !== 'undefined'){
+                        this.createFilterPill(cItem);
+                    }
                 }
             })
         },
