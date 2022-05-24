@@ -6382,6 +6382,9 @@ dragElement = function dragElement(element) {
       pos4 = 0;
   var uuid = element.id.replace('attachment-', '');
   var newTop, newLeft;
+  var elementRect = element.getBoundingClientRect();
+  var windowHeight = window.innerHeight;
+  var windowWidth = window.innerWidth;
 
   if (document.getElementById(element.id + "drag")) {
     // if present, the header is where you move the DIV from:
@@ -6433,7 +6436,23 @@ dragElement = function dragElement(element) {
   }
 
   function closeDragElement(e) {
-    // stop moving when mouse button is released:
+    var rightEdge = newLeft + elementRect.width;
+
+    if (newTop < 0) {
+      newTop = 10;
+    } // Check if the top edge is within window height boundaries
+    else if (newTop > windowHeight - 50) {
+      newTop = windowHeight - 50;
+    }
+
+    if (rightEdge < 150) {
+      newLeft = 0;
+    } // Check if the right edge is within window width boundaries
+    else if (rightEdge > windowWidth - 10) {
+      newLeft = 0;
+    } // stop moving when mouse button is released:
+
+
     window.dispatchEvent(new CustomEvent('set-new-position', {
       'detail': {
         'uuid': uuid,
