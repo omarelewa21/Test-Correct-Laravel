@@ -637,15 +637,3 @@ input:focus + label {
     border-color: #EBCCC8;
     color: #CF1B04
 }
-
-@media only screen and (max-width: 510px){
-    .entree-step-indicator .container {
-        background-color: red;
-    }
-    .entree-step-indicator .container {
-        flex-shrink: 1;
-    }
-    .entree-step-indicator .container.active {
-        flex-shrink: 0;
-    }
-}

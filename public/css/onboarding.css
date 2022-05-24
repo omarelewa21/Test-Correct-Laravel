@@ -287,7 +287,7 @@ h6 {
 .header-number {
     color: white;
     background: var(--mid-grey);
-    width: 30px;
+    min-width: 30px;
     height: 30px;
     line-height: 30px;
     text-align: center;
@@ -859,4 +859,19 @@ img.icon-close-small-subjects{
 
 .primary-hover:hover {
     color: var(--primary);
+}
+
+@media only screen and (max-width: 590px){
+    .entree-step-indicator .container {
+        flex-shrink: 1;
+    }
+    .entree-step-indicator .container:not(.active) span{
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+    .entree-step-indicator .container.active {
+        flex-shrink: 0;
+        max-width: fit-content;
+    }
 }
