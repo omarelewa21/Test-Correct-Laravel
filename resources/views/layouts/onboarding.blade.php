@@ -18,7 +18,7 @@
     <!-- End Google Tag Manager -->
     @livewireStyles
     <link rel="stylesheet" href="{{ mix('/css/app.css') }}">
-    <link rel="stylesheet" href="/css/onboarding.css">
+    <link rel="stylesheet" href="/css/onboarding.css?v=25052022">
     @stack('page_styles')
 </head>
 <body id="body" class="antialiased font-sans bg-light-grey">
