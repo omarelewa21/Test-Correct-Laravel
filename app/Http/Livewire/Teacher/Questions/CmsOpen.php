@@ -24,4 +24,11 @@ class CmsOpen
     {
         return 'open-question';
     }
+
+    public function updated($name, $value)
+    {
+        if ($name === 'question.subtype') {
+            $this->instance->subtype = $value;
+        }
+    }
 }

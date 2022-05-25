@@ -12451,6 +12451,11 @@ RichTextEditor = {
 
       editor.shouldDispatchChange = true;
     });
+    editor.on('instanceReady', function () {
+      setTimeout(function () {
+        return editor.shouldDispatchChange = true;
+      }, 300);
+    });
     editor.on('simpleuploads.startUpload', function (e) {
       e.data.extraHeaders = {
         'X-CSRF-TOKEN': document.querySelector('meta[name="_token"]').content
