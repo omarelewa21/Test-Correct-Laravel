@@ -17,5 +17,12 @@ return [
     'Verwijder test'                                   => 'Verwijder test',
     'Weet je zeker dat je deze test wilt verwijderen?' => 'Weet je zeker dat je deze test wilt verwijderen?',
     'toets aanmaken'                                   => 'Toets aanmaken',
+    'naam toets'                                       => 'Naam toets',
+    'Afkorting (max 5)'                                => 'Afkorting (max 5)',
+    "niveau"                                           => 'Niveau',
+    'periode'                                          => 'Periode',
+    'niveau-jaar'                                      => 'Niveau-jaar',
+    'Shuffle vragen tijdens afname'                    => 'Shuffle vragen tijdens afname',
+    'introductie-tekst'                                => 'Introductie-tekst',
 
 ];

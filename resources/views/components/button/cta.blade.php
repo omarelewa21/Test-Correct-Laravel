@@ -12,7 +12,8 @@ $size = 'button-' . $size;
         {{ $slot }}
     </a>
 @else
-    <button {{ $attributes->merge(['class' => 'button cta-button space-x-2.5 focus:outline-none ' . $rotateClass . ' ' .$size]) }}>
+    <button
+            {{ $attributes->merge(['class' => 'button cta-button space-x-2.5 focus:outline-none ' . $rotateClass . ' ' .$size]) }}>
         {{ $slot }}
     </button>
 @endif

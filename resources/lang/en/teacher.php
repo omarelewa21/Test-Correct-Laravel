@@ -17,4 +17,12 @@ return [
     'Verwijder test'                                   => 'Delete test',
     'Weet je zeker dat je deze test wilt verwijderen?' => 'Are you sure you want to delete this test?',
     'toets aanmaken'                                   => 'Create test',
+    'naam toets'                                       => 'Test title',
+    'Afkorting (max 5)'                                => 'Abbreviation (max 5)',
+    "niveau"                                           => 'Level',
+    'education_level_year'                             => 'Education level year',
+    'periode'                                          => 'Period',
+    'niveau-jaar'                                      => 'Education level year',
+    'Shuffle vragen tijdens afname'                    => 'Shuffle during testing',
+   'introductie-tekst' => 'Introduction',
 ];
