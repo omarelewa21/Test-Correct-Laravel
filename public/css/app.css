@@ -5464,11 +5464,11 @@ video {
 .h-0{
 	height: 0px;
 }
-.h-\[78px\]{
-	height: 78px;
-}
 .h-\[14px\]{
 	height: 14px;
+}
+.h-\[78px\]{
+	height: 78px;
 }
 .max-h-60{
 	max-height: 15rem;
@@ -5620,6 +5620,9 @@ video {
 }
 .min-w-\[40px\]{
 	min-width: 40px;
+}
+.min-w-\[250px\]{
+	min-width: 250px;
 }
 .max-w-2xl{
 	max-width: 42rem;
@@ -8056,6 +8059,11 @@ ul ul ul {
 
 	.md\:w-full{
 		width: 100%;
+	}
+
+
+	.md\:w-2\/3{
+		width: 66.666667%;
 	}
 
 
