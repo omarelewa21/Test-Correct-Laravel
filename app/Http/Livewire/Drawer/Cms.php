@@ -4,6 +4,7 @@ namespace tcCore\Http\Livewire\Drawer;
 
 use Illuminate\Support\Str;
 use Livewire\Component;
+use tcCore\GroupQuestion;
 use tcCore\GroupQuestionQuestion;
 use tcCore\Http\Controllers\GroupQuestionQuestionsController;
 use tcCore\Http\Controllers\TestQuestionsController;
@@ -61,6 +62,25 @@ class Cms extends Component
     public function render()
     {
         return view('livewire.drawer.cms');
+    }
+
+    public function updateTestItemsOrder($data)
+    {
+        dd($data);
+    }
+
+    public function updateGroupItemsOrder($data)
+    {
+        $group = collect($data)->first();
+
+        $groupQuestion = GroupQuestion::whereUuid($group['value'])->first();
+        if(!$groupQuestion){
+            dd('could not find the group question');
+        }
+        collect($group['items'])->each(function($item){
+            dd($item);
+        });
+
     }
 
     public function showQuestion($testQuestionUuid, $questionUuid, $subQuestion, $shouldSave = true)

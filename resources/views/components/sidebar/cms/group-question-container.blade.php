@@ -2,12 +2,13 @@
      class="flex flex-col py-1.5 pl-6 pr-4 {{ ($this->testQuestionId == $testQuestion->uuid) ? 'group-active' : '' }}"
      style="max-width: 300px"
      wire:key="group-{{ $testQuestion->uuid }}"
+     wire:sortable.item="{{ $question->uuid }}"
 >
     <div class="flex space-x-2 py-1.5 cursor-pointer group-question-title-container"
          :class="expand ? 'rotate-svg-270' : 'rotate-svg-90'"
          @click="expand = !expand; setTimeout(() => {handleVerticalScroll($refs.container1);}, 210);"
     >
-        <x-icon.chevron class="mt-2"/>
+        <x-icon.chevron/>
         <span class="flex flex-1 flex-col truncate text-lg bold"
               :class="($root.querySelectorAll('.question-button.active').length > 0 && !expand) ? 'primary' : ''"
               title="{{ $question->name }}"
@@ -33,7 +34,7 @@
                     </div>
                 @endif
             @endif
-            <div class="flex h-full rounded-md">
+            <div class="flex h-full rounded-md" class="mt-2" wire:sortable.handle>
                 @if($question->closeable)
                     <x-icon.locked/>
                 @else
@@ -47,6 +48,7 @@
     </div>
     <div class="w-full relative overflow-hidden transition-all max-h-0 duration-200 group-question-questions"
          :style="expand ? 'max-height:' + $el.scrollHeight + 'px' : ''"
+         wire:sortable-group.item-group="{{ $question->uuid }}"
     >
         {{ $slot }}
 

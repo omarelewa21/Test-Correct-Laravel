@@ -7,6 +7,11 @@
                 'shouldSave': true
                 })"
      style="max-width: 300px"
+     @if($subQuestion)
+        wire:sortable-group.item="{{ $question->uuid }}"
+     @else
+        wire:sortable.item="{{ $question->uuid }}"
+     @endif
 >
     <div class="flex w-full">
         <span class="rounded-full text-sm flex items-center justify-center border-3 relative px-1.5
@@ -33,7 +38,7 @@
                 </div>
             </div>
             <div class="flex items-start space-x-2.5 mt-1 text-sysbase">
-                <div class="flex h-full rounded-md">
+                <div class="flex h-full rounded-md" @if($subQuestion) wire:sortable-group.handle @else wire:sortable.handle @endif>
                     @if($question->closeable)
                         <x-icon.locked/>
                     @else
