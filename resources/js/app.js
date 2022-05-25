@@ -8,6 +8,7 @@ require('./rich-text-editor');
 require('./drawing/drawing-question');
 require('./readspeaker_app');
 require('./attachment');
+require('./flatpickr');
 
 
 window.ClassicEditors = [];

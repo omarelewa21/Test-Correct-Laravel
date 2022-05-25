@@ -181,7 +181,6 @@ class TestTakesController extends Controller {
      */
     public function store(CreateTestTakeRequest $request) {
         $testTake = new TestTake();
-
         $testTake->fill($request->all());
         $testTake->setAttribute('user_id', Auth::id());
         if ($testTake->save() !== false) {

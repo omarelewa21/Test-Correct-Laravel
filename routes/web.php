@@ -73,6 +73,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/preview/attachment/{attachment}/{question}', [tcCore\Http\Controllers\AttachmentsLaravelController::class, 'showPreview'])->name('preview.question-attachment-show');
         Route::get('/preview/attachment/pdf/{attachment}/{question}', [tcCore\Http\Controllers\PdfAttachmentsLaravelController::class, 'showPreview'])->name('preview.question-pdf-attachment-show');
         Route::get('/question-editor', tcCore\Http\Livewire\Teacher\Questions\OpenShort::class)->name('question-editor');
+        Route::get('/tests', tcCore\Http\Livewire\Teacher\TestsOverview::class)->name('tests');
     });
 
     Route::middleware(['dll', 'student'])->prefix('appapi')->name('appapi')->group(function() {
