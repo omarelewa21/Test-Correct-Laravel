@@ -82,6 +82,10 @@
     font-family: Zilla Slab Regular;
     src: url("../fonts/Zilla_Slab/ZillaSlab-Regular.ttf");
 }
+@font-face {
+    font-family: Zilla Slab Bold;
+    src: url("../fonts/Zilla_Slab/ZillaSlab-Bold.ttf");
+}
 
 @font-face {
     font-family: 'dotsfont';
@@ -354,6 +358,9 @@ h3 {
     line-height: 2rem;
     color: var(--system-base);
 }
+h3.bold {
+    font-family: Zilla Slab Bold, serif;
+}
 
 h4 {
     font-size: 1.5rem;
@@ -373,6 +380,13 @@ h6 {
     font-size: 1.125rem;
     font-family: Nunito Bold;
     line-height: 1.125rem;
+    color: var(--system-base);
+}
+
+h7 {
+    font-size: 1rem;
+    font-family: Nunito Bold;
+    line-height: 1.5rem;
     color: var(--system-base);
 }
 
@@ -418,6 +432,10 @@ h6 {
 
 .text-disabled {
     color: var(--mid-grey);
+}
+
+.zilla-slab {
+    font-family: "Zilla Slab Regular", Serif;
 }
 
 

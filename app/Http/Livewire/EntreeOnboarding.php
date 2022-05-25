@@ -155,9 +155,9 @@ class EntreeOnboarding extends Onboarding
             $this->needsPassword = false;
         }
 
-        if (!$this->step != 1 || $this->step >= '4') {
-            $this->step = 1;
-        }
+//        if (!$this->step != 1 || $this->step >= '4') {
+//            $this->step = 1;
+//        }
 
         $this->registration->level = "VO";
 
@@ -229,7 +229,7 @@ class EntreeOnboarding extends Onboarding
                 break;
         }
 
-        return view('livewire.entree-onboarding')->layout('layouts.onboarding');
+        return view('livewire.entree-onboarding2')->layout('layouts.onboarding');
     }
 
     public function step1()
@@ -261,11 +261,10 @@ class EntreeOnboarding extends Onboarding
     public function step2()
     {
         $this->validate();
-
-        if (!$this->checkInputForLength() && !$this->warningStepTwoConfirmed) {
-            $this->warningStepTwoConfirmed = true;
-            return;
-        }
+//        if (!$this->checkInputForLength() && !$this->warningStepTwoConfirmed) {
+//            $this->warningStepTwoConfirmed = true;
+//            return;
+//        }
         if ($this->hasValidTUser) {
             // we need to merge the data with the t user account
             $attr = [
@@ -408,13 +407,13 @@ class EntreeOnboarding extends Onboarding
             $this->registration->gender_different = '';
         }
 
-        $this->validateOnly($propertyName);
+//        $this->validateOnly($propertyName);
     }
 
     protected function getSelectedSchoolLocationCollection()
     {
         if (strlen($this->selectedLocationsString) > 0) {
-            return collect(json_decode($this->selectedLocationsString));;
+            return collect(json_decode($this->selectedLocationsString));
         }
         return collect([]);
     }
@@ -433,8 +432,12 @@ class EntreeOnboarding extends Onboarding
     {
         if(null === $coll || count($coll) < 1){
             $this->selectedLocationsString = null;
+            return;
         }
-        $this->selectedLocationsString = json_encode($coll,JSON_HEX_APOS);
+//        if(!is_array($coll)){
+//            $coll = $coll->toArray();
+//        }
+        $this->selectedLocationsString = json_encode(array_values($coll),JSON_HEX_APOS);
     }
 
     public function isSelectedSchoolLocation($uuid)
@@ -445,11 +448,11 @@ class EntreeOnboarding extends Onboarding
 
     public function deleteSchoolLocation($uuid)
     {
-        $coll = $this->getSelectedSchoolLocationCollection();
-        $newColl = $coll->filter(function ($val, $key) use ($uuid) {
+        $newColl = $this->getSelectedSchoolLocationCollection()->filter(function ($val, $key) use ($uuid) {
             return $val !== $uuid;
         });
-        $this->saveSelectedSchoolLocationsToString($newColl->all());
+
+        $this->saveSelectedSchoolLocationsToString($newColl->isEmpty() ? null : $newColl->all());
     }
 
     protected function getSelectedBaseSubjectIds()
