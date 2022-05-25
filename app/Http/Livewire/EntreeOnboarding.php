@@ -155,9 +155,9 @@ class EntreeOnboarding extends Onboarding
             $this->needsPassword = false;
         }
 
-//        if (!$this->step != 1 || $this->step >= '4') {
-//            $this->step = 1;
-//        }
+        if (!$this->step != 1 || $this->step >= '4') {
+            $this->step = 1;
+        }
 
         $this->registration->level = "VO";
 
