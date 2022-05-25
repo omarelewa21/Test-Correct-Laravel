@@ -305,7 +305,7 @@
                                         </div>
                                         @enderror
                                     </div>
-                                    <div class="flex w-full">
+                                    <div class="flex w-full mt-4">
                                         @if ($btnDisabled)
                                             <button
                                                     class="flex ml-auto items-center button button-md primary-button btn-disabled"
