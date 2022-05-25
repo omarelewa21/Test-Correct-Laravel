@@ -257,7 +257,8 @@ h6 {
 }
 
 .input-group #name_suffix {
-    width: 120px;
+    min-width: 80px;
+    width: 80px;
 }
 .input-group.lastname {
     flex-grow: 1;
@@ -481,44 +482,44 @@ span.active {
     padding: 15px;
 }
 
-/*svg, .hair {*/
-/*    stroke: var(--mid-grey);*/
-/*    fill: var(--mid-grey);*/
-/*}*/
+.onboarding-body svg, .hair {
+    stroke: var(--mid-grey);
+    fill: var(--mid-grey);
+}
 
-/*.eye {*/
-/*    stroke: none !important;*/
-/*    fill: var(--mid-grey);*/
-/*}*/
+.onboarding-body .eye {
+    stroke: none !important;
+    fill: var(--mid-grey);
+}
 
-/*.select-button:hover svg, .select-button:hover .hair, .select-button:focus svg, .select-button:focus .hair {*/
-/*    stroke: var(--primary);*/
-/*    fill: var(--primary);*/
-/*    transition: ease-in-out 150ms;*/
-/*}*/
+.onboarding-body .select-button:hover svg, .select-button:hover .hair, .select-button:focus svg, .select-button:focus .hair {
+    stroke: var(--primary);
+    fill: var(--primary);
+    transition: ease-in-out 150ms;
+}
 
-/*.select-button:hover .eye, .select-button:focus .eye {*/
-/*    fill: var(--primary);*/
-/*    transition: ease-in-out 150ms;*/
-/*}*/
+.onboarding-body .select-button:hover .eye, .select-button:focus .eye {
+    fill: var(--primary);
+    transition: ease-in-out 150ms;
+}
 
-/*.btn-active svg, .btn-active .hair {*/
-/*    stroke: var(--primary);*/
-/*    fill: var(--primary);*/
-/*}*/
+.onboarding-body .btn-active svg, .btn-active .hair {
+    stroke: var(--primary);
+    fill: var(--primary);
+}
 
-/*.btn-active .eye {*/
-/*    fill: var(--primary);*/
-/*}*/
+.onboarding-body .btn-active .eye {
+    fill: var(--primary);
+}
 
-/*.btn-active:hover svg, .btn-active:hover .hair {*/
-/*    stroke: var(--primary);*/
-/*    fill: var(--primary);*/
-/*}*/
+.onboarding-body .btn-active:hover svg, .btn-active:hover .hair {
+    stroke: var(--primary);
+    fill: var(--primary);
+}
 
-/*.btn-active:hover .eye {*/
-/*    fill: var(--primary);*/
-/*}*/
+.onboarding-body .btn-active:hover .eye {
+    fill: var(--primary);
+}
 
 .select-button:hover .other, .select-button:focus .other {
     background: url("../svg/icons/x.svg");

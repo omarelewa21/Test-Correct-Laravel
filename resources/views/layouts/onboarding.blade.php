@@ -10,7 +10,7 @@
     <script src="https://cdn.jsdelivr.net/gh/alpinejs/alpine@v2.x.x/dist/alpine.min.js" defer></script>
 
 
-    <script src="/ckeditor/ckeditor.js" type="text/javascript"></script>
+{{--    <script src="/ckeditor/ckeditor.js" type="text/javascript"></script>--}}
 
 
     <!-- Google Tag Manager -->

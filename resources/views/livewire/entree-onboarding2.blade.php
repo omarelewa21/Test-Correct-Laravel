@@ -7,7 +7,7 @@
 
     <div class="pt-12" x-data="{step: @entangle('step')}" x-cloak>
         <div class="">
-            <div class="relative px-3">
+            <div class="relative px-3 sm:px-10">
                 <div class="absolute -top-10 left-1/2 -translate-x-1/2">
                     <x-stickers.aanmelden-met-entree/>
                 </div>
@@ -15,7 +15,7 @@
                     {{--content header--}}
                     <div class="flex flex-col justify-center pt-10">
                         <div class="flex justify-center relative px-5 mb-4">
-                            <h3 class="bold text-xl"> {{ __('onboarding.Docent account maken met Entree') }}</h3>
+                            <h3 class="bold text-xl md:text-[28px]"> {{ __('onboarding.Docent account maken met Entree') }}</h3>
                         </div>
 
                         <div class="entree-step-indicator flex justify-center items-center px-5 sm:px-10 space-x-4 sm:space-x-6 border-b border-secondary">
@@ -46,12 +46,12 @@
                             </div>
 
                             <div class="flex space-x-2 pb-2 border-b-3 border-transparent @if($this->step >= 3) border-primary active @endif items-center">
-                                @if($this->step >= 3)
+                                @if($this->step > 3)
                                     <div class="bg-primary rounded-full header-check text-white flex items-center justify-center">
                                         <x-icon.checkmark/>
                                     </div>
                                 @else
-                                    <div class="flex rounded-full header-number text-white items-center justify-center bold">
+                                    <div class="flex rounded-full header-number text-white items-center justify-center bold @if($this->step == 3) active @endif">
                                         <span>3</span>
                                     </div>
                                 @endif
@@ -66,7 +66,7 @@
                             {{--content form--}}
                             <div class="flex-grow">
                                 <form class="h-full relative" wire:submit.prevent="step1" action="#" method="POST">
-                                    <div class="email-section mb-4 w-full md:w-1/2">
+                                    <div class="email-section mb-4 w-full sm:w-1/2">
                                         <div class="mb-4">
                                             <div class="input-group">
                                                 <input id="username" wire:model.lazy="registration.username" disabled
@@ -80,32 +80,36 @@
 
                                     <div class="gender-section mb-1.5 flex-wrap"
                                          x-data="{gender: @entangle('registration.gender').defer}">
-                                        <div class="flex space-x-2 items-center flex-1 mb-2.5" @click="gender = 'male'"
+                                        <div class="flex space-x-2 items-center flex-1 mb-2.5 hover:text-primary transition cursor-pointer"
+                                             @click="gender = 'male'"
+                                             :class="gender === 'male' ? 'primary bold' : 'text-midgrey'"
                                              style="min-width: 100px;"
                                         >
-                                            <div class="flex" :class="gender === 'male' ? 'primary' : 'text-midgrey'">
+                                            <div class="flex">
                                                 <x-icon.man class="text-inherit"/>
                                             </div>
-                                            <span class="flex"
-                                                  :class="gender === 'male' ? 'primary bold' : ''">Dhr.</span>
+                                            <span class="flex">Dhr.</span>
+
                                         </div>
-                                        <div class="flex space-x-2 items-center flex-1 mb-2.5" @click="gender = 'female'"
+                                        <div class="flex space-x-2 items-center flex-1 mb-2.5 hover:text-primary transition cursor-pointer"
+                                             @click="gender = 'female'"
+                                             :class="gender === 'female' ? 'primary bold' : 'text-midgrey'"
                                              style="min-width: 100px;"
                                         >
-                                            <div class="flex" :class="gender === 'female' ? 'primary' : 'text-midgrey'">
+                                            <div class="flex">
                                                 <x-icon.woman class="text-inherit"/>
                                             </div>
-                                            <span class="flex"
-                                                  :class="gender === 'female' ? 'primary bold' : ''">Mevr.</span>
+                                            <span class="flex">Mevr.</span>
                                         </div>
-                                        <div class="flex space-x-2 items-center flex-1 basis-full mb-2.5"
-                                             @click="gender = 'other'; $nextTick(() => $el.querySelector('input').focus())">
-                                            <div class="flex" :class="gender === 'other' ? 'primary' : 'text-midgrey'">
+                                        <div class="flex space-x-2 items-center flex-1 mb-2.5 hover:text-primary transition cursor-pointer"
+                                             @click="gender = 'different'; $nextTick(() => $el.querySelector('input').focus())"
+                                             :class="gender === 'different' ? 'primary bold' : 'text-midgrey'"
+                                        >
+                                            <div class="flex">
                                                 <x-icon.other class="text-inherit"/>
                                             </div>
                                             <label for="gender_different"
                                                    class="flex"
-                                                   :class="gender === 'other' ? 'primary bold' : ''"
                                             >
                                                 Anders:
                                             </label>
@@ -113,15 +117,16 @@
                                                    wire:model.lazy="registration.gender_different"
                                                    class="form-input other-input flex flex-1 w-full"
                                                    style="min-width: 130px;"
-                                                   :disabled="gender !== 'other'"
+                                                   :disabled="gender !== 'different'"
+                                                   :class="gender !== 'different' ? 'disabled' : ''"
                                             >
                                         </div>
 
                                     </div>
 
                                     <div class="input-section">
-                                        <div class="name mb-4 space-y-4">
-                                            <div class="input-group flex w-full">
+                                        <div class="name mb-4 space-y-4 md:space-y-0">
+                                            <div class="input-group flex w-full md:w-auto mr-0 md:mr-4">
                                                 <input id="name_first" wire:model.lazy="registration.name_first"
                                                        @if($this->hasValidTUser) disabled @endif
                                                        class="form-input @if($this->hasValidTUser) disabled @endif @error('registration.name_first') border-red @enderror">
@@ -144,8 +149,8 @@
                                             </div>
                                         </div>
                                         @if($this->needsPassword)
-                                            <div class="password">
-                                                <div class="input-group w-full md:w-auto order-1 pr-2 mb-4 md:mb-0">
+                                            <div class="password md:space-x-4">
+                                                <div class="input-group md:flex-1 w-full mb-4 md:mb-0">
                                                     <span class="text-sm mt-1 text-midgrey">Min. 8 {{ __("onboarding.tekens") }}</span>
                                                     <input id="password" wire:model="password" type="password"
                                                            class="form-input @error('password') border-red @enderror">
@@ -153,7 +158,7 @@
                                                            class="transition ease-in-out duration-150">{{ __("onboarding.Creeër wachtwoord") }}</label>
                                                 </div>
 
-                                                <div class="input-group w-full md:w-auto order-3 md:order-2 pr-2 md:pl-2 mb-4 md:mb-0">
+                                                <div class="input-group md:flex-1 w-full mb-4 md:mb-0">
                                                     <input id="password_confirm" wire:model="password_confirmation"
                                                            type="password"
                                                            class="form-input @error('password') border-red @enderror">
@@ -166,7 +171,7 @@
 
                                         @if($this->showSubjects)
                                             <div x-data data-subjects='{!! $selectedSubjectsString !!}'
-                                                 class="subjects mb-4 ">
+                                                 class="subjects mt-4 ">
                                                 <div x-data="subjectSelect()" x-init="init('parentEl')"
                                                      @click.away="clearSearch()" @keydown.escape="clearSearch()"
                                                      @keydown="navigate" class="mr-4 mb-4 sm:mb-0 ">
@@ -205,7 +210,7 @@
                                                             overflow: hidden;
                                                             "
                                                          class="responsive subject_select_div"
-                                                         @keydown.enter.prevent="addSubject(textInput)"
+                                                            {{--@keydown.enter.prevent="addSubject(textInput)"--}}
                                                     >
 
                                                         <div class="select-search-header"
@@ -241,12 +246,10 @@
                                                         <div class="subject_select_div_padding">
                                                             <div class="subject_select_div_inner">
                                                                 <div x-show="show_new_item"
-                                                                     x-on:click="addSubject(new_subject_item)"
+
                                                                      id="new_subject_item"
                                                                      class="subject_item new_subject_item">
                                                                     <span x-text="new_subject_item"></span>
-                                                                    <img class="icon-close-small-subjects "
-                                                                         src="/img/icons/icons-plus-blue.svg">
                                                                     <hr class="subject_hr">
                                                                 </div>
                                                                 <template
@@ -324,11 +327,104 @@
                     @elseif($this->step === 2)
                         <div class="content-form relative" wire:key="step2">
                             {{--content header--}}
-                            <div class="flex w-full absolute z-10 h-full"
-                                 style="background-color: rgba(255, 255, 255, 0.7);">
-                                @if($this->school)
+                            @if($this->hasFixedLocation)
+                                <div class="flex flex-col p-5 md:p-10">
+                                    @if($this->schoolLocation && !$this->school)
+                                        <div class="input-section mb-4">
+                                            <div class="school-info">
+                                                <div class="input-group w-full">
+                                                    <input id="school_location"
+                                                           value="{{ $this->schoolLocation->name }}" disabled
+                                                           class="form-input disabled @error('registration.school_location') border-red @enderror">
+                                                    <label for="school_location"
+                                                           class="">{{ __("onboarding.Schoolnaam") }}</label>
+                                                </div>
 
-                                    <div class="flex flex-col w-full mx-5 mb-5 px-5 pb-5 pt-8 main-shadow rounded-b-10 bg-white"
+                                                <div class="input-group w-full">
+                                                    <input id="website_url" disabled
+                                                           value="{{ $this->schoolLocation->internetaddress }}"
+                                                           class="form-input disabled @error('registration.website_url') border-red @enderror">
+                                                    <label for="website_url"
+                                                           class="">{{ __("onboarding.Website") }}</label>
+                                                </div>
+                                                <div class="input-group flex-1 basis-full mr-4">
+                                                    <input id="address" disabled
+                                                           value="{{ $this->schoolLocation->visit_address }}"
+                                                           class="form-input disabled @error('registration.address') border-red @enderror">
+                                                    <label for="address"
+                                                           class="">{{ __("onboarding.Bezoekadres") }}</label>
+                                                </div>
+                                                <div class="input-group w-28">
+                                                    <input id="postcode" disabled
+                                                           value="{{ $this->schoolLocation->visit_postal }}"
+                                                           class="form-input disabled  @error('registration.postcode') border-red @enderror">
+                                                    <label for="postcode"
+                                                           class="">{{ __("onboarding.Postcode") }}</label>
+                                                </div>
+                                                <div class="input-group w-full">
+                                                    <input id="city" disabled
+                                                           value="{{ $this->schoolLocation->visit_city }}"
+                                                           class="form-input disabled @error('registration.city') border-red @enderror">
+                                                    <label for="city"
+                                                           class="">{{ __("onboarding.Plaatsnaam") }}</label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    @else
+                                        @foreach($this->schoolLocations as $locationName)
+                                            <div
+                                                    class="flex px-0 py-0 border-0 bg-system-white relative regular"
+                                            >
+                                                {{ $locationName }}
+
+                                                <x-icon.checkmark class="mx-2 w-4"></x-icon.checkmark>
+
+                                            </div>
+                                        @endforeach
+                                    @endif
+                                        <div class="">
+                                            @if($this->warningStepTwo)
+                                                <div class="notification warning mt-4">
+                                                    <span class="title">{{ __("onboarding.Zijn alle velden correct ingevuld") }}?</span>
+                                                </div>
+                                            @endif
+                                            @error('registration.school_location')
+                                            <div class="notification error mt-4">
+                                                <span class="title">{{ $message }}</span>
+                                            </div>
+                                            @enderror
+                                            @error('registration.website_url')
+                                            <div class="notification error mt-4">
+                                                <span class="title">{{ $message }}</span>
+                                            </div>
+                                            @enderror
+                                            @error('registration.address')
+                                            <div class="notification error mt-4">
+                                                <span class="title">{{ $message }}</span>
+                                            </div>
+                                            @enderror
+                                            @error('registration.house_number')
+                                            <div class="notification error mt-4">
+                                                <span class="title">{{ $message }}</span>
+                                            </div>
+                                            @enderror
+                                            @error('registration.postcode')
+                                            <div class="notification error mt-4">
+                                                <span class="title">{{ $message }}</span>
+                                            </div>
+                                            @enderror
+                                            @error('registration.city')
+                                            <div class="notification error mt-4">
+                                                <span class="title">{{ $message }}</span>
+                                            </div>
+                                            @enderror
+                                        </div>
+                                </div>
+                            @endif
+                            @if($this->school)
+                                <div class="flex w-full absolute z-10 h-full rounded-b-10"
+                                     style="background-color: rgba(255, 255, 255, 0.7);">
+                                    <div class="flex flex-col w-full mx-5 mb-5 px-5 pb-5 md:px-10 md:pb-10 pt-8 main-shadow rounded-b-10 bg-white"
                                          style="height:fit-content"
                                     >
                                         <div class="text-center pb-5 border-b border-bluegrey">
@@ -338,25 +434,32 @@
                                         <div class="flex flex-col border-b border-bluegrey mb-5">
                                             @foreach($this->school->schoolLocations as $location)
                                                 <div wire:click="toggleSchoolLocation('{{ $location->uuid }}',@if($this->isSelectedSchoolLocation($location->uuid)) false @else true @endif )"
-                                                     class="flex hover:bg-offwhite hover:text-primary transition"
+                                                     class="flex hover:bg-offwhite hover:text-primary transition cursor-pointer"
                                                 >
-                                            <span class="flex mx-4 py-2 items-center justify-between
-                                                    @if(!$loop->last) border-b border-bluegrey @endif w-full
-                                                    @if($this->isSelectedSchoolLocation($location->uuid)) text-primary bold @endif
-                                                    ">
-                                                <span class="flex">{{ $location->name }}</span>
-                                            @if($this->isSelectedSchoolLocation($location->uuid))
-                                                    <x-icon.checkmark class="mx-2 w-4"/>
-                                                @endif
-                                            </span>
+                                                    <span class="flex mx-4 py-2 items-center justify-between
+                                                            @if(!$loop->last) border-b border-bluegrey @endif w-full
+                                                            @if($this->isSelectedSchoolLocation($location->uuid)) text-primary bold @endif
+                                                            ">
+                                                        <span class="flex">{{ $location->name }}</span>
+                                                        @if($this->isSelectedSchoolLocation($location->uuid))
+                                                            <x-icon.checkmark class="mx-2 w-4"/>
+                                                        @endif
+                                                    </span>
                                                 </div>
                                             @endforeach
                                         </div>
 
-                                        <x-button.cta class="flex justify-center" wire:click="step2">
+                                        @empty($this->selectedLocationsString)
+                                        <x-button.cta class="flex justify-center disabled" disabled wire:click="step2()">
                                             <x-icon.checkmark/>
                                             <span>{{ __('onboarding.Bevestigen') }}</span>
                                         </x-button.cta>
+                                        @else
+                                            <x-button.cta class="flex justify-center" wire:click="step2()">
+                                                <x-icon.checkmark/>
+                                                <span>{{ __('onboarding.Bevestigen') }}</span>
+                                            </x-button.cta>
+                                        @endempty
 
                                         <div class="">
                                             @if($this->warningStepTwo)
@@ -396,9 +499,8 @@
                                             @enderror
                                         </div>
                                     </div>
-
-                                @endif
-                            </div>
+                                </div>
+                            @endif
                             <div class="flex flex-col w-full flex-1 p-5">
                                 <p class="text-note mt-auto">
                                     {{ __('onboarding.general_terms_text_pt_1') }} <a class="underline primary-hover"
@@ -407,55 +509,56 @@
                                 </p>
 
                                 <div class="mt-10 flex justify-between items-center">
-                                    <x-button.text-button>
-                                        <x-icon.chevron class="z-0" style="transform: rotate(180deg)"/>
+                                    <x-button.text-button wire:click="backToStepOne">
+                                        <x-icon.chevron class="z-0 rotate-180" />
                                         <span>{{ __('modal.Terug') }}</span>
                                     </x-button.text-button>
-                                    <x-button.primary size="md">
+                                    <x-button.cta size="md" wire:click="step2">
                                         <span>{{ __('auth.Maak account') }}</span>
                                         <x-icon.chevron/>
-                                    </x-button.primary>
+                                    </x-button.cta>
                                 </div>
                             </div>
                         </div>
                     @elseif($this->step === 3 || $this->step === 4)
-                        <div class="content-form p-5">
+                        <div class="content-form p-5 md:p-10">
                             {{--content header--}}
                             <div class="flex space-x-2.5">
                                 <div>
                                     <x-stickers.congratulations2 class="flex"/>
                                 </div>
                                 <div class="">
-                                    <h6>{{ __('onboarding.Gefeliciteerd met je Test-Correct account!') }}</h6>
+                                    <h6 class="text-lg md:text-xl">{{ __('onboarding.Gefeliciteerd met je Test-Correct account!') }}</h6>
                                     @if($this->step === 3)
-                                        <h7 x-data="{}"
+                                        <h7 class="text-base md:text-lg"
+                                            x-data="{}"
                                             x-init="setTimeout(() => {$wire.finish() },2000);">{{ __("onboarding.Je gegevens worden nu verwerkt...") }}</h7>
                                     @else
                                         <span class="flex space-x-2.5 items-center">
                                             <x-icon.checkmark/>
-                                            <h7>{{ __("onboarding.Je gegevens zijn verwerkt") }}.</h7>
+                                            <h7 class="text-base md:text-lg">{{ __("onboarding.Je gegevens zijn verwerkt") }}.</h7>
                                         </span>
                                     @endif
                                 </div>
                             </div>
 
-                            <div class="flex flex-col mt-5">
-                                <div class="flex text-center">
+                            <div class="flex flex-col mt-5 justify-center">
+                                <div class="mb-2 text-lg text-center">
                                     <span>{{ __('onboarding.Deel dit op jouw social media') }}:</span>
                                 </div>
 
-                                <div class="flex flex-wrap mb-4">
-                                    <a class="button button-sm primary-button"
+                                <div class="flex w-full mb-4 space-x-4">
+                                    <a class="button button-sm primary-button flex-1"
                                        target="_blank" href="https://www.linkedin.com/company/9225774">
-                                        <x-stickers.linkedin/>
+                                        LinkedIn
                                     </a>
-                                    <a class="button button-sm primary-button"
+                                    <a class="button button-sm primary-button flex-1"
                                        target="_blank" href="https://twitter.com/testcorrect">
-                                        <x-stickers.twitter/>
+                                        Twitter
                                     </a>
-                                    <a class="button button-sm primary-button"
+                                    <a class="button button-sm primary-button flex-1"
                                        target="_blank" href="https://www.facebook.com/TestCorrect/">
-                                        <x-stickers.facebook/>
+                                        Facebook
                                     </a>
                                 </div>
                             </div>
@@ -486,7 +589,7 @@
                             @endif
                             <div class="flex mt-auto w-full">
                                 <x-button.cta size="md" class="ml-auto" wire:click="loginUser">
-                                    <span class="mr-3">{{ __('auth.log_in_verb') }}</span>
+                                    <span class="">{{ __('auth.log_in_verb') }}</span>
                                     <x-icon.arrow></x-icon.arrow>
                                 </x-button.cta>
                             </div>
