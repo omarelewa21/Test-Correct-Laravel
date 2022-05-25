@@ -13,7 +13,6 @@ document.addEventListener('alpine:init', () => {
             // } else {
             //     this.value = this.wireModel;
             // }
-console.dir(this.$refs.datepickr);
             let picker = flatpickr(this.$refs.datepickr, {
                 locale: this.locale,
                 mode: this.mode,

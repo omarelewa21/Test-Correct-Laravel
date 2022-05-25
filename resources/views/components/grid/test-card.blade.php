@@ -6,10 +6,15 @@
             title="{{ $test->name }}">{{ $test->name ? $test->name : __('test.test_name') }}</h3>
         <div class="relative" x-data="{
                 testOptionMenu: false,
-                makePDF: async function() {
-                    let response = await $wire.getTemporaryLoginToPdfForTest();
+                makePDF: async function(uuid) {
+                    let response = await $wire.getTemporaryLoginToPdfForTest(uuid);
                     window.open(response, '_blank');
+                },
+                duplicateTest: async function(uuid) {
+                    let response = await $wire.duplicateTest(uuid);
+                    Notify.notify(response);
                 }
+
                 }">
             <button class="px-4 py-1.5 -mr-4 rounded-full hover:bg-primary hover:text-white transition-all"
                     :class="{'bg-primary text-white' : testOptionMenu === true}"
@@ -34,20 +39,22 @@
                     <x-icon.schedule/>
                     <span class="text-base bold inherit">{{ __('cms.Inplannen') }}</span>
                 </button>
+                @if( $test->canEdit(auth()->user()))
                 <button class="flex items-center space-x-2 py-1 px-4 base hover:text-primary hover:bg-offwhite transition w-full"
-                        wire:click="duplicateTest('{{ $test->uuid }}')"
+                        @click="duplicateTest('{{ $test->uuid }}')"
 
 
                 >
                     <x-icon.schedule/>
                     <span class="text-base bold inherit">{{ __('cms.Kopie maken') }}</span>
                 </button>
+                @endif
                 <button class="flex items-center space-x-2 py-1 px-4 base hover:text-primary hover:bg-offwhite transition w-full"
                         {{--                                        @click="$dispatch('delete-modal', ['question'])"--}}
-                        @click="makePDF()"
+                        @click="makePDF('{{ $test->uuid }}')"
 
                 >
-                    <x-icon.pdf/>
+                    <x-icon.pdf color="var(--system-base)"/>
                     <span class="text-base bold inherit">{{ __('cms.PDF maken') }}</span>
                 </button>
                 <button class="flex items-center space-x-2 py-1 px-4 base hover:text-primary hover:bg-offwhite transition w-full"
@@ -57,25 +64,29 @@
                     <x-icon.preview/>
                     <span class="text-base bold inherit">{{ __('cms.voorbeeld') }}</span>
                 </button>
-                <button class="flex items-center space-x-2 py-1 px-4 base hover:text-primary hover:bg-offwhite transition w-full"
-                                                                wire:click="openEdit('{{ $test->uuid }}')"
-
-                >
-                    <x-icon.edit/>
-                    <span class="text-base bold inherit">{{ __('cms.Wijzigen') }}</span>
-                </button>
-                <button class="flex items-center space-x-2 py-1 px-4 base hover:text-primary hover:bg-offwhite transition w-full"
-                                                                @click="$dispatch('delete-modal', ['question'])"--}}
-
-                >
+                @if( $test->canEdit(auth()->user()))
                     <button class="flex items-center space-x-2 py-1 px-4 base hover:text-primary hover:bg-offwhite transition w-full"
-                            wire:click="$emitTo('teacher.test-delete-modal', 'displayModal', '{{ $test->uuid }}')"
+                            wire:click="openEdit('{{ $test->uuid }}')"
 
                     >
-                    <x-icon.remove/>
-                    <span class="text-base bold inherit">{{ __('cms.Verwijderen') }}</span>
+                        <x-icon.edit/>
+                        <span class="text-base bold inherit">{{ __('cms.Wijzigen') }}</span>
                     </button>
-                </button>
+                @endif
+                @if( $test->canEdit(auth()->user()))
+                    <button class="flex items-center space-x-2 py-1 px-4 base hover:text-primary hover:bg-offwhite transition w-full"
+                            @click="$dispatch('delete-modal', ['question'])" --}}
+
+                    >
+                        <button class="flex items-center space-x-2 py-1 px-4 base hover:text-primary hover:bg-offwhite transition w-full"
+                                wire:click="$emitTo('teacher.test-delete-modal', 'displayModal', '{{ $test->uuid }}')"
+
+                        >
+                            <x-icon.remove/>
+                            <span class="text-base bold inherit">{{ __('cms.Verwijderen') }}</span>
+                        </button>
+                    </button>
+                @endif
             </div>
         </div>
     </div>

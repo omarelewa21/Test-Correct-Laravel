@@ -69,7 +69,6 @@
                     </div>
                 </div>
                 <div class="flex flex-wrap w-full gap-2 mt-2">
-                    <x-input.datepicker wire:model="filters.date"/>
                     <x-input.choices-select :multiple="true"
                                             :options="$this->subjects"
                                             :withSearch="true"
@@ -117,10 +116,14 @@
 
             {{-- Content --}}
             <div class="flex flex-col py-4" style="min-height: 500px">
-                <div class="flex">
+                <div class="flex justify-between">
                     <span class="note text-sm" wire:loading>{{  __('general.searching') }}</span>
 
                     <span class="note text-sm" wire:loading.remove>{{  trans_choice('general.number-of-tests', $results->total(), ['count' => $results->total()]) }}</span>
+                    <div>
+                        <x-button.primary ><x-icon.schedule/><span >{{ __('cms.Inplannen') }}</span></x-button.primary>
+                        <x-button.cta wire:click="$emitTo('teacher.test-start-create-modal', 'showModal')"><x-icon.plus/><span >{{ __('general.create test') }}</span></x-button.cta>
+                    </div>
                 </div>
                 <x-grid  class="mt-4">
                     @foreach(range(1, 6) as $value)
@@ -153,5 +156,8 @@
         </x-button.cta>
     </div>
     <livewire:teacher.planning-modal></livewire:teacher.planning-modal>
+    <livewire:teacher.test-start-create-modal></livewire:teacher.test-start-create-modal>
+    <livewire:teacher.test-create-modal></livewire:teacher.test-create-modal>
     <livewire:teacher.test-delete-modal></livewire:teacher.test-delete-modal>
+   <x-notification/>
 </div>

@@ -882,5 +882,17 @@ class Test extends BaseModel
 
     }
 
+    public function canDuplicate(){
+        return strtolower($this->scope) !== 'cito';
+    }
+
+    public function canEdit(User $user) {
+        return $this->author->is($user);
+    }
+
+    public function canDelete(User $user) {
+        return $this->author->is($user);
+    }
+
 
 }

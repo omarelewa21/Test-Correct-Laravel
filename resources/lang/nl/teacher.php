@@ -16,5 +16,6 @@ return [
     'Annuleer'                                         => 'Annuleer',
     'Verwijder test'                                   => 'Verwijder test',
     'Weet je zeker dat je deze test wilt verwijderen?' => 'Weet je zeker dat je deze test wilt verwijderen?',
+    'toets aanmaken'                                   => 'Toets aanmaken',
 
 ];

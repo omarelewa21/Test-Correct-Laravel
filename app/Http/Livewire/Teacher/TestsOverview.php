@@ -28,7 +28,6 @@ class TestsOverview extends Component
         'education_level_id'   => [],
         'subject_id'           => [],
         'authors_id'           => [],
-        'date' => '5-5-2005',
     ];
     public $filters1 = [
         'name'                 => '',
@@ -148,9 +147,25 @@ class TestsOverview extends Component
     public function duplicateTest($testUuid)
     {
         // @TODO only duplicate when allowed?
-        $test = Test::whereUuid($testUuid)->first();
 
-        $test->userDuplicate([], Auth::id());
+        $test = Test::whereUuid($testUuid)->first();
+        if ($test == null) {
+            return 'Error no test was found';
+        }
+
+        if (!$test->canDuplicate()) {
+            return 'Error duplication not allowed';
+        }
+
+        try {
+            $newTest = $test->userDuplicate([], Auth::id());
+        } catch (\Exception $e) {
+            return 'Error duplication failed';
+        }
+
+        return __('general.duplication successful');
+
+
     }
 
     public function openEdit($testUuid)
@@ -163,8 +178,10 @@ class TestsOverview extends Component
         $controller = new TemporaryLoginController();
         $request = new Request();
         $request->merge([
-            'options'  => [],
-            'redirect' => '/tests/pdf_showPDFAttachment/608d93d7-07bd-4f7a-95ad-231c283ee452',
+            'options'  => [
+                'page' => '/tests/view/608d93d7-07bd-4f7a-95ad-231c283ee452',
+                'page_action' => "Loading.show();Popup.load('/tests/pdf_showPDFAttachment/608d93d7-07bd-4f7a-95ad-231c283ee452', 1000);"
+            ],
         ]);
 
         return $controller->toCakeUrl($request);

@@ -12295,7 +12295,6 @@ document.addEventListener('alpine:init', function () {
         // } else {
         //     this.value = this.wireModel;
         // }
-        console.dir(this.$refs.datepickr);
         var picker = (0,flatpickr__WEBPACK_IMPORTED_MODULE_0__["default"])(this.$refs.datepickr, {
           locale: this.locale,
           mode: this.mode,
