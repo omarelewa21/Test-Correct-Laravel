@@ -41,7 +41,7 @@ class SamlMessage extends Model
             return null;
         }
 
-        if ($message->created_at < Carbon::now()->subMinutes(1000)->toDateTimeString()) {
+        if ($message->created_at < Carbon::now()->subMinutes(1)->toDateTimeString()) {
             return null;
         }
 
