@@ -32,6 +32,7 @@ RichTextEditor = {
         editor.on('change', function (e) {
             if(!e.editor.getData()?.includes('MathML')) {
                 RichTextEditor.sendInputEventToEditor(editorId, e);
+                editor.shouldDispatchChange = true;
                 return;
             }
 

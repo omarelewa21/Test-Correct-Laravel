@@ -1,7 +1,7 @@
 @extends('livewire.teacher.questions.cms-layout')
 @section('question-cms-question')
     <x-input.rich-textarea
-            wire:model.debounce.1000ms="question.question"
+            wire:model.debounce.300ms="question.question"
             editorId="{{ $questionEditorId }}"
             type="cms"
     />
@@ -9,7 +9,7 @@
 
 @section('question-cms-answer')
     @if($this->withDrawer)
-        <div class="flex w-full justify-end">
+        <div class="hidden flex w-full justify-end">
             <x-input.toggle-radio-row-with-title wire:model="question.subtype"
                                                  value-on="medium"
                                                  value-off="short"
@@ -19,7 +19,7 @@
         </div>
     @endif
     <x-input.rich-textarea
-            wire:model.debounce.1000ms="question.answer"
+            wire:model.debounce.300ms="question.answer"
             editorId="{{ $answerEditorId }}"
             type="cms"
     />

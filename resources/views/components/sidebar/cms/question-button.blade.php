@@ -20,7 +20,7 @@
                 <span class="truncate" style="max-width: 160px; width: 160px"
                       title="{{ $question->title }}">{{ $question->title }}</span>
                 <div class="flex note text-sm regular justify-between">
-                    <span>{{ __($this->getQuestionNameForDisplay($question)) }}</span>
+                    <span>{{ $question->typeName }}</span>
                     <div class="flex items-center space-x-2">
                         <span class="flex">{{ $question->score }}pt</span>
                         @if($subQuestion === false)

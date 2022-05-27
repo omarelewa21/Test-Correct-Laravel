@@ -534,6 +534,7 @@
                     wire:loading.attr="disabled"
                     wire:click="saveAndRefreshDrawer()"
                     x-data="{disabled: false}"
+                    x-init="$watch('$store.questionBank.active', value => disabled = value);"
                     x-on:beforeunload.window="disabled = true"
                     x-on:filepond-start.window="disabled = true"
                     x-on:filepond-finished.window="disabled = false"

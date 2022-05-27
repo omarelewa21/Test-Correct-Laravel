@@ -51,7 +51,7 @@
         {{ $slot }}
 
         <div class="group-add-new relative flex space-x-2.5 py-2 hover:text-primary cursor-pointer items-center"
-             @click="addQuestionToGroup()"
+             @click="addQuestionToGroup('{{ $testQuestion->uuid }}')"
              wire:click="$set('groupId', '{{ $testQuestion->uuid }}')"
         >
             <x-icon.plus-in-circle/>

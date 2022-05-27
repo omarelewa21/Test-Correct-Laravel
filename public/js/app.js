@@ -5989,6 +5989,7 @@ document.addEventListener('alpine:init', function () {
         this.drawer.classList.add('fullscreen');
         var boundingRect = this.$refs.questionbank.getBoundingClientRect();
         this.scroll(boundingRect.x + boundingRect.width);
+        this.$store.questionBank.active = true;
       },
       hideQuestionBank: function hideQuestionBank(container) {
         var _this10 = this;
@@ -5996,6 +5997,7 @@ document.addEventListener('alpine:init', function () {
         this.$root.querySelectorAll('.slide-container').forEach(function (slide) {
           slide.classList.add('opacity-0');
         });
+        this.$store.questionBank.active = false;
         this.$nextTick(function () {
           _this10.drawer.classList.remove('fullscreen');
 
@@ -6010,9 +6012,9 @@ document.addEventListener('alpine:init', function () {
           }, 400);
         });
       },
-      addQuestionToGroup: function addQuestionToGroup() {
+      addQuestionToGroup: function addQuestionToGroup(uuid) {
         this.showAddQuestionSlide();
-        this.$store.questionBank.inGroup = true;
+        this.$store.questionBank.inGroup = uuid;
       },
       addGroup: function addGroup() {
         var shouldCheckDirty = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : true;
@@ -6159,6 +6161,7 @@ document.addEventListener('alpine:init', function () {
     dirty: false
   });
   alpinejs__WEBPACK_IMPORTED_MODULE_1__["default"].store('questionBank', {
+    active: false,
     inGroup: false
   });
 });
@@ -12440,8 +12443,11 @@ RichTextEditor = {
     editor.on('change', function (e) {
       var _e$editor$getData;
 
+      console.log(editor.getData());
+
       if (!((_e$editor$getData = e.editor.getData()) !== null && _e$editor$getData !== void 0 && _e$editor$getData.includes('MathML'))) {
         RichTextEditor.sendInputEventToEditor(editorId, e);
+        editor.shouldDispatchChange = true;
         return;
       }
 

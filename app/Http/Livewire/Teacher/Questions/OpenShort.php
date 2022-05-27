@@ -1040,7 +1040,7 @@ class OpenShort extends Component
             $groupQuestionId = TestQuestion::whereUuid($this->testQuestionId)->value('question_id');
             $lastQuestionIdInGroup = GroupQuestionQuestion::where('group_question_id', $groupQuestionId)
                 ->orderBy('order', 'desc')->value('question_id');
-            return $questionList[$lastQuestionIdInGroup] + 1;
+            return isset($questionList[$lastQuestionIdInGroup]) ? $questionList[$lastQuestionIdInGroup] + 1 : 1;
         }
         return count($questionList);
     }
