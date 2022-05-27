@@ -17,13 +17,18 @@ class AuthorsController extends Controller
 {
     public function index(Request $request)
     {
+        return response()->json($this->getBuilderWithAuthors());
+    }
+
+    public function getBuilderWithAuthors()
+    {
         $user = Auth::user();
-        if($user->isPartOfSharedSection()){
+        if ($user->isPartOfSharedSection()) {
             $builder = $this->getBuilderForOwnSubjectsAndSharedSections($user);
-        }else {
+        } else {
             $builder = $this->getBuilderForOwnSubjects($user);
         }
-        return response()->json($builder->toBase()->get());
+        return $builder->toBase()->get();
     }
 
     public static function getCentraalExamenAuthor()

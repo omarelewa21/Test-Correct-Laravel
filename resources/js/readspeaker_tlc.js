@@ -966,6 +966,12 @@ ReadspeakerTlc = function(){
         function detachReadableAreaFromCkeditor(editorId)
         {
             var editor = ClassicEditors[editorId];
+            replaceReadableAreaByClone(editor);
+            window.classicEditorDetached = true;
+            return element;
+        }
+        function replaceReadableAreaByClone(editor)
+        {
             editor.currentElement  = editor.ui.view.editable.element;
             var element = editor.ui.view.editable.element;
             if(element) {
@@ -973,8 +979,6 @@ ReadspeakerTlc = function(){
                 elementClone.classList.add('ck-editor__editable_inline_replaced');
                 element.replaceWith(elementClone);
             }
-            window.classicEditorDetached = true;
-            return element;
         }
         function reattachReadableAreaAndDestroy(editorId)
         {
@@ -1040,7 +1044,8 @@ ReadspeakerTlc = function(){
             shouldNotReinitCkeditor:shouldNotReinitCkeditor,
             detachReadableAreaFromCkeditor:detachReadableAreaFromCkeditor,
             addListenersForReadspeaker:addListenersForReadspeaker,
-            reattachReadableAreaAndDestroy:reattachReadableAreaAndDestroy
+            reattachReadableAreaAndDestroy:reattachReadableAreaAndDestroy,
+            replaceReadableAreaByClone
         }
     }();
     guard = function(){

@@ -278,7 +278,7 @@ h6 {
 .header-number {
     color: white;
     background: var(--mid-grey);
-    width: 30px;
+    min-width: 30px;
     height: 30px;
     line-height: 30px;
     text-align: center;

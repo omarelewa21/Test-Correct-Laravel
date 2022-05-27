@@ -42,14 +42,14 @@
     <footer class="footer px-8 xl:px-28 flex content-center fixed w-full bottom-0 z-10">
 
         <div class="flex items-center">
-            {{ $fraudDetection }}
+            {{ $fraudDetection??'' }}
         </div>
         <div class="flex items-center ml-auto space-x-4" >
             {{ $readspeaker??'' }}
         </div>
         <div class="flex items-center ml-auto space-x-6">
-            {{ $footerbuttons }}
+            {{ $footerbuttons ?? '' }}
         </div>
     </footer>
-    {{ $testTakeManager }}
+    {{ $testTakeManager ?? '' }}
 </x-layouts.base>
