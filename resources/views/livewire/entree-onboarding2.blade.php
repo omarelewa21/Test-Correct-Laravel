@@ -150,21 +150,33 @@
                                         </div>
                                         @if($this->needsPassword)
                                             <div class="password md:space-x-4">
-                                                <div class="input-group md:flex-1 w-full mb-4 md:mb-0">
-                                                    <span class="text-sm mt-1 text-midgrey">Min. 8 {{ __("onboarding.tekens") }}</span>
-                                                    <input id="password" wire:model="password" type="password"
-                                                           class="form-input @error('password') border-red @enderror">
+                                                <div class="input-group relative md:flex-1 w-full mb-4 md:mb-0" x-data="{password: '', showPassword: false}">
+                                                    <div class="flex items-center" :class="password.length >= 8 ? 'text-cta' : 'text-midgrey'">
+                                                        <span class="mr-2" x-show="password.length >= 8" x-cloak><x-icon.checkmark-small/></span>
+                                                        <span class="text-sm mt-1">Min. 8 {{ __("onboarding.tekens") }}</span>
+                                                    </div>
+                                                    <input id="password"
+                                                           wire:model="password"
+                                                           class="form-input @error('password') border-red @enderror"
+                                                           :type="showPassword ? 'text' : 'password'"
+                                                           x-model="password">
                                                     <label for="password"
                                                            class="transition ease-in-out duration-150">{{ __("onboarding.Creeër wachtwoord") }}</label>
+                                                    <x-icon.preview class="absolute top-[37px] right-3.5 primary-hover cursor-pointer"
+                                                                    @click="showPassword = !showPassword"/>
                                                 </div>
 
-                                                <div class="input-group md:flex-1 w-full mb-4 md:mb-0">
-                                                    <input id="password_confirm" wire:model="password_confirmation"
-                                                           type="password"
-                                                           class="form-input @error('password') border-red @enderror">
+                                                <div class="input-group relative md:flex-1 w-full mb-4 md:mb-0" x-data="{showPassword: false}">
+                                                    <input id="password_confirm"
+                                                           wire:model="password_confirmation"
+                                                           :type="showPassword ? 'type' : 'password'"
+                                                           class="form-input @error('password') border-red @enderror"
+                                                    >
                                                     <label for="password_confirm"
                                                            class="transition ease-in-out duration-150">
                                                         {{ __("onboarding.Herhaal wachtwoord") }}</label>
+                                                    <x-icon.preview class="absolute top-[37px] right-3.5 primary-hover cursor-pointer"
+                                                                    @click="showPassword = !showPassword"/>
                                                 </div>
                                             </div>
                                         @endif
