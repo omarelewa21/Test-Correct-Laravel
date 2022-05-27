@@ -2,7 +2,7 @@
 return [
     'name_first_required'      => 'Voornaam is verplicht',
     'name_last_required'       => 'Achternaam is verplicht',
-    'gender_required'          => 'Geef uw geslacht op',
+    'gender_required'          => 'Geen aanhef gekozen',
     'password_required'        => 'Wachtwoord is verplicht',
     'password_min'             => 'Wachtwoord moet minimaal 8 karakters bevatten',
     'password_regex'           => 'Wachtwoord voldoet niet aan de eisen',
