@@ -32,13 +32,5 @@
             </div>
         @endif
     </div>
-    <div class="question-title flex flex-wrap items-center question-indicator border-bottom mb-6 mt-6">
-        <h1 class="inline-block ml-2 mr-6" > {!! __('Antwoordmodel') !!} </h1>
-    </div>
-    <div class="flex flex-1 overview">
-        <div class="questionContainer w-full">
-          {{ $answer_model }}
-        </div>
-    </div>
 </div>
 

@@ -1,7 +1,4 @@
 <x-partials.answer-model-question-container :number="$number" :question="$question" :answer="$answer">
-    <x-slot name="answer_model">
-        {!! $question->answer !!}
-    </x-slot>
     <div class="w-full"
          x-data="{ }"
          x-init="

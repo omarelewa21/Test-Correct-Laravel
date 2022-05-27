@@ -23,14 +23,48 @@
             @endpush
             @foreach($data as  $key => $testQuestion)
                 <div class="flex flex-col space-y-4">
-                    @if($testQuestion->type === 'OpenQuestion')
+                    @if($testQuestion->type === 'MultipleChoiceQuestion' && $testQuestion->selectable_answers > 1 && $testQuestion->subtype != 'ARQ')
+                        <livewire:answer-model.multiple-select-question
+                                :question="$testQuestion"
+                                :number="++$key"
+                                :answers="$answers"
+                                wire:key="'q-'.$testQuestion->uuid'"
+                        />
+                    @elseif($testQuestion->type === 'MultipleChoiceQuestion')
+                        <livewire:answer-model.multiple-choice-question
+                                :question="$testQuestion"
+                                :number="++$key"
+                                :answers="$answers"
+                                wire:key="'q-'.$testQuestion->uuid'"
+                        />
+                    @elseif($testQuestion->type === 'OpenQuestion')
                         <livewire:answer-model.open-question
                                 :question="$testQuestion"
                                 :number="++$key"
                                 :answers="$answers"
-                                wire:key="'q-'.$testQuestion->uuid'q-'"
+                                wire:key="'q-'.$testQuestion->uuid'"
                         />
-
+                    @elseif($testQuestion->type === 'MatchingQuestion')
+                        <livewire:answer-model.matching-question
+                                :question="$testQuestion"
+                                :number="++$key"
+                                :answers="$answers"
+                                wire:key="'q-'.$testQuestion->uuid'"
+                        />
+                    @elseif($testQuestion->type === 'CompletionQuestion')
+                        <livewire:answer-model.completion-question
+                                :question="$testQuestion"
+                                :number="++$key"
+                                :answers="$answers"
+                                wire:key="'q-'.$testQuestion->uuid'"
+                        />
+                    @elseif($testQuestion->type === 'RankingQuestion')
+                        <livewire:answer-model.ranking-question
+                                :question="$testQuestion"
+                                :number="++$key"
+                                :answers="$answers"
+                                wire:key="'q-'.$testQuestion->uuid'"
+                        />
                     @endif
                 </div>
             @endforeach

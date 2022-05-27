@@ -22,11 +22,8 @@ class OpenQuestion extends Component
     public function mount()
     {
         $this->editorId = 'editor_'.$this->question->id;
-
-
-
         $this->answered = [];
-
+        $this->answer = $this->question->answer;
         if(!is_null($this->question->belongs_to_groupquestion_id)){
             $this->question->groupQuestion = Question::find($this->question->belongs_to_groupquestion_id);
         }
