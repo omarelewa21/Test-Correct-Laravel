@@ -321,10 +321,10 @@ class MatchingQuestion extends Question implements QuestionInterface {
         }
 
         if(!$haveOneNonEmptyContainer){
-            $validator->errors()->add('question.answers', __('cms.one_empty_container_allowed') );
+            $validator->errors()->add('question.answers', __('cms.one_container_with_items') );
         }
         if($emptyCount > 1){
-            $validator->errors()->add('question.answers', __('cms.one_container_with_items') );
+            $validator->errors()->add('question.answers', __('cms.one_empty_container_allowed') );
         }
     }
 }
