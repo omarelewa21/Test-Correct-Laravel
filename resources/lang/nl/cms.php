@@ -161,5 +161,6 @@ return [
     'begin_with_making_a_question'                                                           => 'Begin met het maken van een vraaggroep of een losse vraag.',
     'nieuwe'                                                                                 => '{0} nieuw|{1}nieuwe',
     'Wijzigingen niet opslaan'                                                               => 'Wijzigingen niet opslaan',
-
+    'one_empty_container_allowed'                                                            => 'Niet meer dan één lege container is toegestaan',
+    'one_container_with_items'                                                               => 'Antwoorden moeten ten minste één container met items bevatten',
 ];

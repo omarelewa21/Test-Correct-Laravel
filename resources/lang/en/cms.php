@@ -143,8 +143,6 @@ return [
     'Nieuwe vraag creeren'                                                                   => 'Create question',
     'Nieuwe creeren'                                                                         => 'Create new',
     'Wijzigen'                                                                               => 'Change',
-    'Niet meer dan één lege container is toegestaan'                                         => 'No more than one empty container is allowed',
-    'Antwoorden moeten ten minste één container met items bevatten'                          => 'Answers must contain at least one container with items',
     'vraag'                                                                                  => ':count question|:count questions',
     'group-question-count'                                                                   => ':count group question|:count group questions',
     'Stel een nieuwe vraag op'                                                               => 'Create a new question',
@@ -164,4 +162,7 @@ return [
     'begin_with_making_a_question'                                                           => 'Start with making a group or regular question.',
     'nieuwe'                                                                                 => 'new',
     'Wijzigingen niet opslaan'                                                               => 'Discard changes',
+    'one_empty_container_allowed'                                                            => 'No more than one empty container is allowed',
+    'one_container_with_items'                                                               => 'Answers must contain at least one container with items',
+
 ];

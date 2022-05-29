@@ -321,10 +321,10 @@ class MatchingQuestion extends Question implements QuestionInterface {
         }
 
         if(!$haveOneNonEmptyContainer){
-            $validator->errors()->add('question.answers', 'Antwoorden moeten ten minste één container met items bevatten');
+            $validator->errors()->add('question.answers', __('cms.one_empty_container_allowed') );
         }
         if($emptyCount > 1){
-            $validator->errors()->add('question.answers', 'Niet meer dan één lege container is toegestaan');
+            $validator->errors()->add('question.answers', __('cms.one_container_with_items') );
         }
     }
 }
