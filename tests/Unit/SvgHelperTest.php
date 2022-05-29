@@ -364,7 +364,7 @@ XML
     }
 
     /** @test */
-    public function it_can_rename_a_directory_to_a_different_uuid()
+    public function it_can_copy_a_directory_to_a_different_uuid()
     {
         $currentUuid = '9dbd6346-f9b3-479b-ae25-758f3e1711ee';
         $svgHelper = new SvgHelper($currentUuid);
@@ -372,10 +372,10 @@ XML
         $this->disk->assertExists($currentUuid);
 
         $newUuid = (string)Str::uuid();
+        $this->disk->assertMissing($newUuid);
         $svgHelper->rename($newUuid);
 
         $this->disk->assertExists($newUuid);
-        $this->disk->assertMissing($currentUuid);
     }
 
     /** @test */

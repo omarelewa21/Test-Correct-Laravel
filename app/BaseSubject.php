@@ -101,5 +101,11 @@ class BaseSubject extends BaseModel {
         return $query;
     }
 
-
+    public function scopeForLevel($query, $level = null)
+    {
+        if ($level) {
+            return $query->where('level', 'like', '%' . $level . '%');
+        }
+        return $query;
+    }
 }

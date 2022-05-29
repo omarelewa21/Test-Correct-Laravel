@@ -4,6 +4,7 @@ namespace tcCore\Http\Livewire\Teacher\Questions;
 
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 use Livewire\Component;
@@ -65,6 +66,8 @@ class OpenShort extends Component
 
     public $isCloneRequest = false;
 
+    public $withDrawer = false;
+
     public $testAuthors = '';
 
     public $pValues = [];
@@ -83,7 +86,7 @@ class OpenShort extends Component
     protected $tags = [];
 
     protected $queryString = [
-        'action', 'type', 'subtype', 'testId', 'testQuestionId', 'groupQuestionQuestionId', 'owner', 'isCloneRequest'
+        'action', 'type', 'subtype', 'testId', 'testQuestionId', 'groupQuestionQuestionId', 'owner', 'isCloneRequest', 'withDrawer' => ['except' => false]
     ];
 
     protected $settingsGeneralPropertiesVisibility = [
@@ -110,6 +113,15 @@ class OpenShort extends Component
     private $obj;
 
     public $sortOrderAttachments = [];
+
+    public $dirty = false;
+
+    public $withRedirect = true;
+    public $emptyState = false;
+    public $loading = false;
+    public $showDirtyQuestionModal = false;
+    public $nextQuestionToShow = [];
+    public $uniqueQuestionKey = '';
 
 
     protected function rules()
@@ -161,7 +173,7 @@ class OpenShort extends Component
             'answer'                 => '',
             'bloom'                  => '',
             'closeable'              => 0,
-            'decimal_score'          => 0,
+            'decimal_score'          => 1,
             'discuss'                => 1,
             'maintain_position'      => 0,
             'miller'                 => '',
@@ -171,7 +183,7 @@ class OpenShort extends Component
             'order'                  => $this->resolveOrderNumber(),
             'question'               => '',
             'rtti'                   => '',
-            'score'                  => 5,
+            'score'                  => 1,
             'subtype'                => '',
             'type'                   => '',
             'attainments'            => [],
@@ -179,7 +191,7 @@ class OpenShort extends Component
             'test_id'                => '',
             'all_or_nothing'         => false,
         ];
-        $this->cmsPropertyBag = [];
+
         $this->audioUploadOptions = [];
 
         $this->uploads = [];
@@ -191,8 +203,6 @@ class OpenShort extends Component
         $this->videos = [];
 
         $this->isPartOfGroupQuestion = false;
-
-        $this->isCloneRequest = false;
 
         $this->testAuthors = '';
 
@@ -210,6 +220,8 @@ class OpenShort extends Component
         $this->millerWarningShown = false;
 
         $this->tags = [];
+        $this->dirty = false;
+        $this->uniqueQuestionKey = $this->testQuestionId . $this->groupQuestionQuestionId . $this->action . $this->questionEditorId;
     }
 
 
@@ -232,6 +244,8 @@ class OpenShort extends Component
             'refresh'               => 'render',
             'showQuestion'          => 'showQuestion',
             'addQuestion'           => 'addQuestion',
+            'showEmpty'             => 'showEmpty',
+            'questionDeleted'       => '$refresh'
         ];
     }
 
@@ -265,7 +279,9 @@ class OpenShort extends Component
 
     public function booted()
     {
-        $this->obj = CmsFactory::create($this);
+        if (!$this->emptyState) {
+            $this->obj = CmsFactory::create($this);
+        }
     }
 
     // @TODO mag ik deze test zien;
@@ -275,6 +291,10 @@ class OpenShort extends Component
     {
         $this->resetQuestionProperties();
         $activeTest = Test::whereUuid($this->testId)->with('testAuthors', 'testAuthors.user')->first();
+        if (blank($this->type) && blank($this->subtype)) {
+            $this->testName = $activeTest->name;
+            return $this->emptyState = true;
+        }
         $this->initializeContext($this->action, $this->type, $this->subtype, $activeTest);
         $this->obj = CmsFactory::create($this);
         $this->initializePropertyBag($activeTest);
@@ -315,11 +335,12 @@ class OpenShort extends Component
             if ($this->isCloneRequest) {
                 $this->prepareForClone();
             }
+            $this->question['order'] = 0;
             $response = $this->saveNewQuestion();
 
             $this->setQueryStringProperties($response);
         }
-
+        $this->dispatchBrowserEvent('notify', ['message' => __('cms.Wijzigingen opgeslagen')]);
         if ($response->getStatusCode() == 200) {
             $this->handleAttachments($response);
 
@@ -338,7 +359,7 @@ class OpenShort extends Component
             return true;
         }
 
-        $this->dispatchBrowserEvent('question-saved');
+        $this->dirty = false;
     }
 
     protected function prepareForClone()
@@ -359,6 +380,10 @@ class OpenShort extends Component
         }
         if ($this->obj && method_exists($this->obj, 'updated')) {
             $this->obj->updated($name, $value);
+        }
+
+        if ($name != 'loading') {
+            $this->dirty = true;
         }
     }
 
@@ -435,6 +460,9 @@ class OpenShort extends Component
         if ($this->obj && method_exists($this->obj, 'getTemplate')) {
             return view('livewire.teacher.questions.' . $this->obj->getTemplate())->layout('layouts.cms');
         }
+        if ($this->emptyState) {
+            return view('livewire.teacher.questions.cms-layout')->layout('layouts.cms');
+        }
         throw new \Exception('No template found for this question type.');
     }
 
@@ -471,7 +499,7 @@ class OpenShort extends Component
     public function returnToTestOverview(): void
     {
         $url = sprintf("tests/view/%s", $this->testId);
-        if ($this->isPartOfGroupQuestion()) {
+        if ($this->isPartOfGroupQuestion() && !$this->withDrawer) {
             $url = sprintf(
                 'questions/view_group/%s/%s',
                 $this->testId,
@@ -503,8 +531,6 @@ class OpenShort extends Component
 
     private function updateQuestion()
     {
-        logger([__CLASS__ => $this->question]);
-
         $request = new CmsRequest();
         $request->merge($this->question);
         $request->filterInput();
@@ -707,6 +733,9 @@ class OpenShort extends Component
     private function removeQuestion()
     {
         if (!$this->editModeForExistingQuestion()) {
+            if (Auth::user()->schoolLocation->canUseCmsWithDrawer()) {
+                return $this->openLastQuestion();
+            }
             return $this->returnToTestOverview();
         }
 
@@ -726,6 +755,9 @@ class OpenShort extends Component
 
 
         if ($response->getStatusCode() == 200) {
+            if (Auth::user()->schoolLocation->canUseCmsWithDrawer()) {
+                return $this->openLastQuestion();
+            }
             return $this->returnToTestOverview();
         }
     }
@@ -733,6 +765,7 @@ class OpenShort extends Component
     public function updatedUploads($value)
     {
         $this->attachmentsCount++;
+        $this->dirty = true;
     }
 
     public function decodeCompletionTags($question)
@@ -764,7 +797,6 @@ class OpenShort extends Component
 
     private function setIsPartOfGroupQuestion()
     {
-
         $this->isPartOfGroupQuestion = ($this->owner == 'group');
     }
 
@@ -797,6 +829,7 @@ class OpenShort extends Component
         $this->testAuthors = $activeTest->AuthorsAsString;
         $this->subjectId = $activeTest->subject_id;
         $this->educationLevelId = $activeTest->education_level_id;
+        $this->withRedirect = !(Auth::user()->schoolLocation->canUseCmsWithDrawer() && $this->withDrawer);
     }
 
     private function initializePropertyBag($activeTest): void
@@ -941,63 +974,42 @@ class OpenShort extends Component
 
     public function showQuestion($args)
     {
-        if ($args['shouldSave']) {
+        if ($this->needsSavingBeforeShowingQuestion($args['shouldSave'])) {
+            if (!$this->completedMandatoryFields()) {
+                return $this->leavingNewDirtyQuestion($args);
+            }
+            $this->loading = true;
             $this->save(false);
         }
+        $this->loading = true;
+        $this->dispatchBrowserEvent('question-change', ['new' => $args['questionUuid'], 'old' => $this->testQuestionId]);
 
-        $testQuestion = TestQuestion::whereUuid($args['testQuestionUuid'])->with('question')->first();
+        $this->handleQueryStringForExistingQuestion($args);
 
-        $this->action = 'edit';
+        $this->rebootComponent();
 
-        if ($args['isSubQuestion']) {
-            $groupQuestion = $testQuestion->question;
-            $question = Question::whereUuid($args['questionUuid'])->first();
-            $this->type = $question->type;
-            $this->subtype = $question->subtype;
-            $this->owner = 'group';
-            $this->groupQuestionQuestionId = $groupQuestion->groupQuestionQuestions()->firstWhere('question_id',
-                $question->getKey())->uuid;
-            $this->testQuestionId = $args['testQuestionUuid'];
-        } else {
-            $this->type = $testQuestion->question->type;
-            $this->subtype = $testQuestion->question->subtype;
-            $this->owner = 'test';
-            $this->groupQuestionQuestionId = '';
-            $this->testQuestionId = $args['testQuestionUuid'];
-        }
-
-        $this->mount();
-
-        $this->render();
+        $this->refreshDrawer();
     }
 
     public function addQuestion($args)
     {
-        $this->save(false);
-//        $testQuestion = TestQuestion::whereUuid($args['testQuestionUuid'])->with('question')->first();
-        $this->action = 'add';
-        $this->type = $args['type'];
-        $this->subtype = $args['subtype'];
-        $this->groupQuestionQuestionId = '';
-
-        if (filled($args['groupId'])) {
-            $this->owner = 'group';
-            $this->testQuestionId = $args['groupId'];
-        } else {
-            $this->owner = 'test';
-            $this->testQuestionId = '';
+        if ($this->needsSavingBeforeAddingNewQuestion($args)) {
+            if (!$this->completedMandatoryFields()) {
+                return $this->leavingNewDirtyQuestion($args);
+            }
+            $this->save(false);
         }
 
-        $this->mount();
-        $this->render();
+        $this->emitTo('drawer.cms', 'addQuestionResponse', $args);
 
-        $this->emitTo('drawer.cms', 'refreshDrawer', [
-            'testQuestionId'          => $this->testQuestionId,
-            'action'                  => $this->action,
-            'owner'                   => $this->owner,
-            'testId'                  => $this->testId,
-            'groupQuestionQuestionId' => $this->groupQuestionQuestionId,
-        ]);
+        $this->handleQueryStringForCreatingNewQuestion($args);
+
+        $this->rebootComponent();
+
+        $this->refreshDrawer();
+
+        $message = __('cms.item added', ['item' => $this->owner === 'group' ? __('cms.group-question') : __('drawing-modal.Vraag')]);
+        $this->dispatchBrowserEvent('notify', ['message' => $message]);
     }
 
     public function isGroupQuestion()
@@ -1012,15 +1024,9 @@ class OpenShort extends Component
 
     public function saveAndRefreshDrawer()
     {
-        $this->save(false);
+        $this->save($this->withRedirect);
 
-        $this->emitTo('drawer.cms', 'refreshDrawer', [
-            'testQuestionId'          => $this->testQuestionId,
-            'action'                  => $this->action,
-            'owner'                   => $this->owner,
-            'testId'                  => $this->testId,
-            'groupQuestionQuestionId' => $this->groupQuestionQuestionId,
-        ]);
+        $this->refreshDrawer();
     }
 
     private function setQueryStringProperties($response)
@@ -1039,5 +1045,181 @@ class OpenShort extends Component
          */
         $this->answerEditorId = Str::uuid()->__toString();
         $this->questionEditorId = Str::uuid()->__toString();
+    }
+
+    private function openLastQuestion()
+    {
+        $testQuestionUuid = Test::whereUuid($this->testId)
+            ->first()
+            ->testQuestions()
+            ->latest()
+            ->value('uuid');
+
+        if (!$testQuestionUuid) {
+            $this->emptyState = true;
+            $this->reset(['type', 'subtype', 'testQuestionId']);
+            $this->emitTo('drawer.cms', 'show-empty');
+            return true;
+        }
+
+        $params = [
+            'testQuestionUuid' => $testQuestionUuid,
+            'questionUuid'     => null,
+            'isSubQuestion'    => false,
+            'shouldSave'       => false,
+        ];
+
+        $this->showQuestion($params);
+        $this->refreshDrawer();
+    }
+
+    private function isDirty()
+    {
+        return $this->dirty;
+    }
+
+    private function refreshDrawer()
+    {
+        $this->emitTo('drawer.cms', 'refreshDrawer', [
+            'testQuestionId'          => $this->testQuestionId,
+            'action'                  => $this->action,
+            'owner'                   => $this->owner,
+            'testId'                  => $this->testId,
+            'groupQuestionQuestionId' => $this->groupQuestionQuestionId,
+            'type'                    => $this->type,
+            'subtype'                 => $this->subtype,
+        ]);
+    }
+
+    public function getAmountOfQuestionsProperty()
+    {
+        $groupQ = 0;
+        $test = Test::whereUuid($this->testId)->first();
+        $test->testQuestions->map(function ($tq) use (&$groupQ) {
+            if ($tq->question->type === 'GroupQuestion') {
+                $groupQ++;
+            }
+        });
+
+        return ['regular' => $test->getQuestionCount(), 'group' => $groupQ];
+    }
+
+    private function testHasNoQuestions()
+    {
+        $questionAmount = $this->getAmountOfQuestionsProperty();
+        return !!($questionAmount['regular'] === 0 && $questionAmount['group'] === 0);
+    }
+
+    private function testHasQuestions()
+    {
+        return !$this->testHasNoQuestions();
+    }
+
+    public function saveAndRedirect()
+    {
+        if ($this->testHasQuestions() && $this->isDirty()) {
+            return $this->save();
+        }
+        return $this->returnToTestOverview();
+    }
+
+    /**
+     * @param $args
+     * @return void
+     */
+    private function handleQueryStringForExistingQuestion($args): void
+    {
+        $this->action = 'edit';
+        $this->emptyState = false;
+        $testQuestion = TestQuestion::whereUuid($args['testQuestionUuid'])->with('question')->first();
+        if ($args['isSubQuestion']) {
+            $groupQuestion = $testQuestion->question;
+            $question = Question::whereUuid($args['questionUuid'])->first();
+            $this->type = $question->type;
+            $this->subtype = $question->subtype;
+            $this->owner = 'group';
+            $this->groupQuestionQuestionId = $groupQuestion->groupQuestionQuestions()->firstWhere('question_id', $question->getKey())->uuid;
+            $this->testQuestionId = $args['testQuestionUuid'];
+        } else {
+            $this->type = $testQuestion->question->type;
+            $this->subtype = $testQuestion->question->subtype;
+            $this->owner = 'test';
+            $this->groupQuestionQuestionId = '';
+            $this->testQuestionId = $args['testQuestionUuid'];
+        }
+    }
+
+    /**
+     * @param $args
+     * @return void
+     */
+    private function handleQueryStringForCreatingNewQuestion($args): void
+    {
+        $this->action = 'add';
+        $this->type = $args['type'];
+        $this->subtype = $args['subtype'];
+        $this->groupQuestionQuestionId = '';
+        $this->emptyState = false;
+        if (filled($args['groupId'])) {
+            $this->owner = 'group';
+            $this->testQuestionId = $args['groupId'];
+        } else {
+            $this->owner = 'test';
+            $this->testQuestionId = '';
+        }
+    }
+
+    private function rebootComponent(): void
+    {
+        $this->mount();
+        $this->resetErrorBag();
+        $this->render();
+    }
+
+    private function leavingNewDirtyQuestion($args)
+    {
+        $this->showDirtyQuestionModal = true;
+        $this->nextQuestionToShow = $args;
+    }
+
+    public function continueToNextQuestion()
+    {
+        $this->nextQuestionToShow['shouldSave'] = false;
+
+        if (Arr::exists($this->nextQuestionToShow, 'type')) {
+            return $this->addQuestion($this->nextQuestionToShow);
+        }
+        return $this->showQuestion($this->nextQuestionToShow);
+    }
+
+    public function showEmpty()
+    {
+        $this->type = '';
+        $this->subtype = '';
+        $this->emptyState = true;
+        $this->dispatchBrowserEvent('show-empty');
+    }
+
+    private function completedMandatoryFields()
+    {
+        return !Validator::make((array)$this, $this->getRules())->fails();
+    }
+
+    /**
+     * @param $args
+     * @return bool
+     */
+    private function needsSavingBeforeAddingNewQuestion($args): bool
+    {
+        return $this->isDirty() && !$this->emptyState && (Arr::exists($args, 'shouldSave') && $args['shouldSave']);
+    }
+
+    /**
+     * @param $shouldSave
+     * @return bool
+     */
+    private function needsSavingBeforeShowingQuestion($shouldSave): bool
+    {
+        return $shouldSave && $this->isDirty();
     }
 }

@@ -50,6 +50,7 @@ class CmsDrawing
         $this->instance->question['zoom_group'] = $this->getViewBox($svgHelper, $q);
 
         $this->instance->question['uuid'] = $q['uuid'];
+        $this->instance->question['temp_uuid'] = 'temp-'.$q['uuid'];
 
         if (filled($this->instance->question['zoom_group'])) {
             $this->setViewBox($this->instance->question['zoom_group']);
@@ -65,6 +66,7 @@ class CmsDrawing
         $this->instance->question['question_preview'] = '';
         $this->instance->question['question_correction_model'] = '';
         $this->instance->question['uuid'] = (string)Str::uuid();
+        $this->instance->question['temp_uuid'] = 'temp-'.$this->instance->question['uuid'];
     }
 
     public function handleUpdateDrawingData($data)
@@ -73,19 +75,17 @@ class CmsDrawing
         $this->instance->question['question_svg'] = $data['svg_question'];
         $this->instance->question['grid_svg'] = $data['grid_size'];
         $this->instance->question['zoom_group'] = $data['svg_zoom_group'];
+        $this->instance->question['svg_date_updated'] = now();
 
         $this->setViewBox($data['svg_zoom_group']);
 
         $this->updateFilesystemData($data);
+
+        $this->instance->dirty = true;
     }
 
     public function prepareForSave()
     {
-        logger([
-            'value' => $this->instance->question['zoom_group'],
-            'json' => json_encode($this->instance->question['zoom_group']),
-            ]
-        );
         $this->instance->question['zoom_group'] = json_encode($this->instance->question['zoom_group']);
     }
 
@@ -107,12 +107,15 @@ class CmsDrawing
     public function performAfterSaveActions($response)
     {
         $this->unprepareForSave();
-        $svgHelper = new SvgHelper($this->instance->question['uuid']);
+        $svgHelper = new SvgHelper($this->instance->question['temp_uuid']);
 
         if ($this->instance->question['uuid'] === $response->original->question->uuid) {
-            return;
+            $svgHelper->rename($this->instance->question['uuid']);
+        } else {
+            $svgHelper->rename($response->original->question->uuid);
         }
-        $svgHelper->rename($response->original->question->uuid);
+
+        (new SvgHelper($this->instance->question['temp_uuid']))->delete();
     }
 
     /**
@@ -121,7 +124,7 @@ class CmsDrawing
      */
     private function updateFilesystemData($data): void
     {
-        $svgHelper = new SvgHelper($this->instance->question['uuid']);
+        $svgHelper = new SvgHelper($this->instance->question['temp_uuid']);
 
         if (array_key_exists('images', $this->instance->cmsPropertyBag)) {
             if (array_key_exists('answer', $this->instance->cmsPropertyBag['images'])) {
@@ -136,13 +139,13 @@ class CmsDrawing
             }
         }
 
+        $svgHelper->setViewBox($data['svg_zoom_group']);
         $svgHelper->updateAnswerLayer($data['cleaned_answer_svg']);
         $svgHelper->updateQuestionLayer($data['cleaned_question_svg']);
 
         $svgHelper->updateQuestionPNG($data['png_question_preview_string']);
         $svgHelper->updateCorrectionModelPNG($data['png_correction_model_string']);
 
-        $svgHelper->setViewBox($data['svg_zoom_group']);
     }
 
     private function getAnswerSvg(SvgHelper $svgHelper, $q)
@@ -159,5 +162,13 @@ class CmsDrawing
             return $svgHelper->makeViewBoxArray($svgHelper->getViewBox());
         }
         return  json_decode($q['zoom_group'], true);
+    }
+
+    public function drawingToolName()
+    {
+        if ($this->instance->action == 'edit') {
+            return $this->instance->groupQuestionQuestionId === '' ? $this->instance->testQuestionId : $this->instance->groupQuestionQuestionId;
+        }
+        return $this->instance->questionEditorId;
     }
 }
