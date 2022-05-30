@@ -337,7 +337,7 @@
                             </div>
                         </div>
                     @elseif($this->step === 2)
-                        <div class="content-form relative" wire:key="step2">
+                        <div class="content-form relative" wire:key="step2" x-data="{showSchools: true}">
                             {{--content header--}}
                             @if($this->hasFixedLocation)
                                 <div class="flex flex-col p-5 md:p-10">
@@ -434,9 +434,10 @@
                                 </div>
                             @endif
                             @if($this->school)
-                                <div class="flex w-full absolute z-10 h-full rounded-b-10"
-                                     style="background-color: rgba(255, 255, 255, 0.7);">
-                                    <div class="flex flex-col w-full mx-5 mb-5 px-5 pb-5 md:px-10 md:pb-10 pt-8 main-shadow rounded-b-10 bg-white"
+                                <div class="flex w-full absolute z-10 h-full rounded-b-10 transition-max-height overflow-hidden bg-white-70"
+                                     :style="showSchools ? 'max-height: 100%' : 'max-height: 0'"
+                                >
+                                    <div class="flex flex-col w-full mx-5 mb-5 px-5 pb-5 md:px-10 md:pb-10 md:mx-10 pt-8 main-shadow rounded-b-10 bg-white"
                                          style="height:fit-content"
                                     >
                                         <div class="text-center pb-5 border-b border-bluegrey">
@@ -462,12 +463,12 @@
                                         </div>
 
                                         @empty($this->selectedLocationsString)
-                                        <x-button.cta class="flex justify-center disabled" disabled wire:click="step2()">
+                                        <x-button.cta class="flex justify-center disabled" disabled @click="showSchools = false">
                                             <x-icon.checkmark/>
                                             <span>{{ __('onboarding.Bevestigen') }}</span>
                                         </x-button.cta>
                                         @else
-                                            <x-button.cta class="flex justify-center" wire:click="step2()">
+                                            <x-button.cta class="flex justify-center" @click="showSchools = false">
                                                 <x-icon.checkmark/>
                                                 <span>{{ __('onboarding.Bevestigen') }}</span>
                                             </x-button.cta>
@@ -513,11 +514,35 @@
                                     </div>
                                 </div>
                             @endif
-                            <div class="flex flex-col w-full flex-1 p-5">
+                            <div class="flex flex-col w-full flex-1 p-5 sm:px-10">
+                                @if($this->school)
+                                    @foreach($this->selectedSchoolLocationList() as $location)
+                                        <div class="flex space-x-4 w-full mb-4" wire:key="chosen-{{ $location->uuid }}">
+                                            <div class="input-group flex-1">
+                                                <input id="name-{{ $location->uuid }}" disabled class="form-input disabled" value="{{ $location->name }}">
+                                                <label for="name-{{ $location->uuid }}" >{{ __('onboarding.Schoolnaam') }} {{ $loop->iteration }}</label>
+                                            </div>
+
+                                            <div class="input-group flex-1">
+                                                <input id="address-{{ $location->uuid }}" disabled class="form-input disabled" value="{{ $location->main_address }}">
+                                                <label for="address-{{ $location->uuid }}" >{{ __('teacher_registered.Adres') }} {{ $loop->iteration }}</label>
+                                            </div>
+
+                                        </div>
+                                    @endforeach
+
+                                <x-button.text-button class="mx-auto" @click="showSchools = true">
+                                    <x-icon.edit/>
+                                    <span>{{ __('onboarding.Wijzig locaties') }}</span>
+                                </x-button.text-button>
+                                @endif
                                 <p class="text-note mt-auto">
-                                    {{ __('onboarding.general_terms_text_pt_1') }} <a class="underline primary-hover"
-                                                                                      href="https://www.test-correct.nl/algemene-voorwaarden"
-                                                                                      target="_blank">{{ __('onboarding.general_terms') }}</a> {{ __('onboarding.general_terms_text_pt_2') }}
+                                    {{ __('onboarding.general_terms_text_pt_1') }}
+                                    <a class="underline primary-hover"
+                                       href="https://www.test-correct.nl/algemene-voorwaarden"
+                                       target="_blank">
+                                        {{ __('onboarding.general_terms') }}
+                                    </a> {{ __('onboarding.general_terms_text_pt_2') }}
                                 </p>
 
                                 <div class="mt-10 flex justify-between items-center">

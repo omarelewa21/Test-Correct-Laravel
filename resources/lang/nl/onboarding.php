@@ -73,5 +73,6 @@ return [
     'Bevestigen'                                                                                                                                       => 'Bevestigen',
     'Gefeliciteerd met je Test-Correct account!'                                                                                                       => 'Gefeliciteerd met je Test-Correct account!',
     'Deel dit op jouw social media'                                                                                                                    => 'Deel dit op jouw social media',
+    'Wijzig locaties'                                                                                                                                  => 'Wijzig locaties',
 ];
 ?>
