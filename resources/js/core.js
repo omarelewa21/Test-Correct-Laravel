@@ -16,15 +16,16 @@ Core = {
         let isAndroid = /Android/g.test(navigator.userAgent);
         let isChromebook = window.navigator.userAgent.indexOf('CrOS') > 0;
 
-        if (isIOS) {
-            Core.isIpad();
-        } else if (isAndroid) {
-            Core.isAndroid();
-        } else if (isChromebook) {
-            Core.isChromebook();
-        }
+        Core.isChromebook();
+        // if (isIOS) {
+        //     Core.isIpad();
+        // } else if (isAndroid) {
+        //     Core.isAndroid();
+        // } else if (isChromebook) {
+        //     Core.isChromebook();
+        // }
 
-        Core.checkForElectron();
+        // Core.checkForElectron();
 
         runCheckFocus();
         catchscreenshotchromeOS();
@@ -123,7 +124,12 @@ Core = {
                 element.style.display = 'flex';
             });
         }else{
-            Core.showCloseButtonChromeOS()
+            const xhttp = new XMLHttpRequest();
+            xhttp.onload = function() {
+                console.log(this.responseText);
+            }
+            xhttp.open("GET", "/getSession", true);
+            xhttp.send();
         }
     },
     checkForElectron() {
@@ -183,14 +189,6 @@ Core = {
             appElements.forEach((element) => {
                 element.style.display = 'flex';
             });
-        }
-        try {
-            let version = chrome.runtime.getManifest().version;
-            if(version.charAt(0) == '2'){
-                show();
-            };
-        } catch (error) {
-            show();
         }
     }
 }

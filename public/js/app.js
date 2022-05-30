@@ -6706,16 +6706,15 @@ Core = {
     var isIOS = Core.detectIOS();
     var isAndroid = /Android/g.test(navigator.userAgent);
     var isChromebook = window.navigator.userAgent.indexOf('CrOS') > 0;
+    Core.isChromebook(); // if (isIOS) {
+    //     Core.isIpad();
+    // } else if (isAndroid) {
+    //     Core.isAndroid();
+    // } else if (isChromebook) {
+    //     Core.isChromebook();
+    // }
+    // Core.checkForElectron();
 
-    if (isIOS) {
-      Core.isIpad();
-    } else if (isAndroid) {
-      Core.isAndroid();
-    } else if (isChromebook) {
-      Core.isChromebook();
-    }
-
-    Core.checkForElectron();
     runCheckFocus();
     catchscreenshotchromeOS();
     startStudentActivityCheck();
@@ -6809,7 +6808,14 @@ Core = {
         element.style.display = 'flex';
       });
     } else {
-      Core.showCloseButtonChromeOS();
+      var xhttp = new XMLHttpRequest();
+
+      xhttp.onload = function () {
+        console.log(this.responseText);
+      };
+
+      xhttp.open("GET", "/getSession", true);
+      xhttp.send();
     }
   },
   checkForElectron: function checkForElectron() {
@@ -6871,18 +6877,6 @@ Core = {
         element.style.display = 'flex';
       });
     };
-
-    try {
-      var version = chrome.runtime.getManifest().version;
-
-      if (version.charAt(0) == '2') {
-        show();
-      }
-
-      ;
-    } catch (error) {
-      show();
-    }
   }
 };
 
