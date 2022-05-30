@@ -1,8 +1,4 @@
 <x-layouts.base>
-    @if(Auth::user()->isA('teacher'))
-        @livewire('navigation-bar', ['main'=> 'Test', 'sub' => 'TestBank'])
-    @else
-
     <header class="header top-0 px-8 xl:px-28 flex flex-wrap content-center fixed w-full z-20 main-shadow @if(\tcCore\Http\Helpers\GlobalStateHelper::getInstance()->hasActiveMaintenance()) maintenance-header-bg @endif @if(\tcCore\Http\Helpers\GlobalStateHelper::getInstance()->isOnDeploymentTesting()) deployment-testing-marker @endif"
             x-data="{showToDashboard: false}"
             x-on:set-red-header-border.window="$el.classList.add('red-header-border')"
@@ -39,8 +35,8 @@
             @endif
         </div>
     </header>
-@endif
-    <main class="flex flex-1 items-stretch mx-8  xl:mx-28 {{ Auth::user()->isA('teacher') ? 'mt-[17.5rem]': 'm-foot-head' }}">
+
+    <main class="flex flex-1 items-stretch mx-8 xl:mx-28 m-foot-head">
         {{ $slot }}
     </main>
     <footer class="footer px-8 xl:px-28 flex content-center fixed w-full bottom-0 z-10">

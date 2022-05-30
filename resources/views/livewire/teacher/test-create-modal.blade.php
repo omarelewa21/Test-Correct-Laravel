@@ -23,8 +23,10 @@
                 <div class="input-section">
                     <div class="name flex mb-4 space-x-4">
                         <div class="input-group mb-4 sm:mb-0 flex-1">
-                            <x-input.select wire:model="request.test_kind_id">
-                                @foreach($allowedTypes as $type)
+                            <x-input.select
+                                    wire:model="request.test_kind_id"
+                            >
+                                @foreach($allowedTestKinds as $type)
                                     <option value="{{ $type->id }}">{{ $type->name }}</option>
                                 @endforeach
                             </x-input.select>
@@ -32,7 +34,11 @@
                                    class="transition ease-in-out duration-150">{{ __("Type") }}</label>
                         </div>
                         <div class="input-group  mb-4 sm:mb-0 flex-1 min-w-[250px]">
-                            <x-input.select wire:model="request.test_kind_id" id="test_kind">
+                            <x-input.select
+                                    wire:model="request.subject_id"
+                                    id="subject_id"
+
+                            >
                                 @foreach($allowedSubjects as $subject)
                                     <option value="{{ $subject->id }}">{{ $subject->name }}</option>
                                 @endforeach
@@ -41,16 +47,24 @@
                                    class="transition ease-in-out duration-150">{{ __("Vak") }}</label>
                         </div>
                         <div class="input-group mb-4 sm:mb-0 flex-1">
-                            <input id="name" wire:model.lazy="request.abbreviation"
-                                   class="form-input md:w-full inline-block @error('request.abbreviation') border-red @enderror">
+                            <input id="name"
+                                   wire:model.lazy="request.abbreviation"
+                                   class="form-input md:w-full inline-block @error('request.abbreviation') border-red @enderror"
+                            >
                             <label for="name"
-                                   class="transition ease-in-out duration-150">{{ __("teacher.Afkorting (max 5)") }}</label>
+                                   class="transition ease-in-out duration-150"
+                            >
+                                {{ __("teacher.Afkorting (max 5)") }}
+                            </label>
                         </div>
                     </div>
                     <div class="input-section">
                         <div class="name flex mb-4 space-x-4">
                             <div class="input-group mb-4 sm:mb-0 flex-1">
-                                <x-input.select id="period" wire:model="request.period_id">
+                                <x-input.select
+                                        id="period"
+                                        wire:model="request.period_id"
+                                >
                                     @foreach($allowedPeriods as $period)
                                         <option value="{{ $period->id }}">{{ $period->name }}</option>
                                     @endforeach
@@ -59,7 +73,11 @@
                                        class="transition ease-in-out duration-150">{{ __("teacher.periode") }}</label>
                             </div>
                             <div class="input-group  mb-4 sm:mb-0 flex-1">
-                                <x-input.select id="period" wire:model="request.period_id">
+                                <x-input.select
+                                        id="period"
+                                        wire:model="request.education_level_id"
+
+                                >
                                     @foreach($allowedEductionLevels as $educationLevel)
                                         <option value="{{ $educationLevel->id }}">{{ $educationLevel->name }}</option>
                                     @endforeach
@@ -68,8 +86,10 @@
                                        class="transition ease-in-out duration-150">{{ __("teacher.niveau") }}</label>
                             </div>
                             <div class="input-group mb-4 sm:mb-0 flex-1">
-
-                                <x-input.select id="period" wire:model="request.education_level_year">
+                                <x-input.select
+                                        id="education_level_year"
+                                        wire:model="request.education_level_year"
+                                >
                                     @foreach(range(1,6) as $levelYear)
                                         <option value="{{ $levelYear }}">{{ $levelYear }}</option>
                                     @endforeach
@@ -83,7 +103,9 @@
                     <div class="input-section">
                         <div class="name flex mb-4 space-x-4 items-center">
                             <x-input.toggle wire:model="request.shuffle"/>
-                            <div class="font-bold"><x-icon.shuffle/><span>{{ __('teacher.Shuffle vragen tijdens afname') }}</span></div>
+                            <div class="font-bold">
+                                <x-icon.shuffle/>
+                                <span>{{ __('teacher.Shuffle vragen tijdens afname') }}</span></div>
                         </div>
                     </div>
                     <div class="input-section">
