@@ -58,6 +58,7 @@ class EntreeOnboarding extends Onboarding
     public $showSubjects = true;
     public $hasValidTUser = false;
     public $hasFixedLocation = false;
+    public $hasFixedEmail = true;
     public $selectedLocationsString = null;
     public $schoolLocation;
     public $schoolLocations = [];
@@ -111,6 +112,10 @@ class EntreeOnboarding extends Onboarding
                 'registration.name'             => 'required|string',
                 'registration.name_suffix'      => 'sometimes',
             ]);
+
+            if(!$this->hasFixedEmail){
+
+            }
 
             if ($this->needsPassword) {
                 $rules = array_merge($rules, [
@@ -196,6 +201,7 @@ class EntreeOnboarding extends Onboarding
             $this->school = School::find($this->entreeData->data->schoolId);
         }
 
+        $user = null;
         if (property_exists($this->entreeData->data, 'userId')) {
 
             $user = User::find($this->entreeData->data->userId);
@@ -211,6 +217,9 @@ class EntreeOnboarding extends Onboarding
                 $this->showSubjects = false;
                 $this->btnStepOneDisabledCheck();
             }
+        }
+        if(null === $user){
+            $this->hasFixedEmail = (bool) $this->entreeData->data->emailAddress;
         }
 
         return true;
