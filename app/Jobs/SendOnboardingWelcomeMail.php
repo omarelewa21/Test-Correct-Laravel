@@ -55,13 +55,17 @@ class SendOnboardingWelcomeMail extends Mailable
     {
         $this->user->setAttribute('send_welcome_email', true);
         $this->user->save();
-        $emailConfirmation = EmailConfirmation::create(
-            ['user_id' => $this->user->getKey()]
-        );
+        if(!$this->skipVerificationPart) {
+            $emailConfirmation = EmailConfirmation::create(
+                ['user_id' => $this->user->getKey()]
+            );
+        }
         return $this->view('emails.welcome.onboarding-welcome')
             ->subject('Welkom bij Test-Correct')
             ->with([
-                'user' => $this->user, 'url' => $this->url, 'token' => $emailConfirmation->uuid
+                'user' => $this->user,
+                'url' => $this->url,
+                'token' => (!$this->skipVerificationPart) ? $emailConfirmation->uuid : null
             ]);
     }
 }
