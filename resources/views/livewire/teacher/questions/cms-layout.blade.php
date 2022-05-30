@@ -26,6 +26,14 @@
            removeDrawingLegacy = () => {
                 $root.querySelector('#drawing-question-tool-container')?.remove();
            }
+           forceSyncEditors = () => {
+                if (document.getElementById('{{ $this->questionEditorId }}')) {
+                    $wire.sync('question.question', CKEDITOR.instances['{{ $this->questionEditorId }}'].getData());
+                }
+                if (document.getElementById('{{ $this->answerEditorId }}')) {
+                    $wire.sync('question.answer', CKEDITOR.instances['{{ $this->answerEditorId }}'].getData());
+                }
+           }
            "
      x-cloak
      x-on:question-change.window="handleQuestionChange($event.detail)"
@@ -532,8 +540,10 @@
                     type="button"
                     class="button cta-button button-sm save_button"
                     wire:loading.attr="disabled"
-                    wire:click="saveAndRefreshDrawer()"
+{{--                    wire:click="saveAndRefreshDrawer()"--}}
+                    @click="forceSyncEditors();$wire.saveAndRefreshDrawer()"
                     x-data="{disabled: false}"
+                    x-init="$watch('$store.questionBank.active', value => disabled = value);"
                     x-on:beforeunload.window="disabled = true"
                     x-on:filepond-start.window="disabled = true"
                     x-on:filepond-finished.window="disabled = false"

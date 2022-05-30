@@ -222,6 +222,7 @@ class OpenShort extends Component
 
         $this->tags = [];
         $this->dirty = false;
+        $this->registerDirty = true;
         $this->forceOpenNewQuestion = false;
         $this->uniqueQuestionKey = $this->testQuestionId . $this->groupQuestionQuestionId . $this->action . $this->questionEditorId;
     }
@@ -395,14 +396,21 @@ class OpenShort extends Component
 
     public function updating($name, $value)
     {
-
+        $method = 'updating' . ucfirst($name);
+        if ($this->obj && method_exists($this->obj, $method)) {
+            $this->obj->$method($value);
+        }
+        if ($this->obj && method_exists($this->obj, 'updating')) {
+            $this->obj->updating($name, $value);
+        }
     }
 
     private function handleDirtyState($updatedProperty)
     {
-        if ($updatedProperty != 'loading') {
+        if ($updatedProperty != 'loading' && $this->registerDirty) {
             $this->dirty = true;
         }
+        $this->registerDirty = true;
     }
 
     public function showStatistics()
@@ -1040,7 +1048,7 @@ class OpenShort extends Component
             $groupQuestionId = TestQuestion::whereUuid($this->testQuestionId)->value('question_id');
             $lastQuestionIdInGroup = GroupQuestionQuestion::where('group_question_id', $groupQuestionId)
                 ->orderBy('order', 'desc')->value('question_id');
-            return $questionList[$lastQuestionIdInGroup] + 1;
+            return isset($questionList[$lastQuestionIdInGroup]) ? $questionList[$lastQuestionIdInGroup] + 1 : 1;
         }
         return count($questionList);
     }

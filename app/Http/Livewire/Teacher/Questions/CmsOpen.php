@@ -24,4 +24,20 @@ class CmsOpen
     {
         return 'open-question';
     }
+
+    public function updated($name, $value)
+    {
+        if ($name === 'question.subtype') {
+            $this->instance->subtype = $value;
+        }
+    }
+
+    public function updating($name, $value)
+    {
+        if (($name == 'question.question' && html_entity_decode($this->instance->question['question']) == html_entity_decode($value))
+            || ($name == 'question.answer' && html_entity_decode($this->instance->question['answer']) == html_entity_decode($value)))
+        {
+            $this->instance->registerDirty = false;
+        }
+    }
 }
