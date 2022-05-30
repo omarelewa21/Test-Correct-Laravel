@@ -26,6 +26,10 @@ class EntreeTestSession extends Controller {
             'firstName' => 'Erikr',
         ];
 
+        if(request()->has('noEmail')){
+            $data->emailAddress = null;
+        }
+
         if(request()->has('schoolId')){
             $data->location = null;
             $data->school = School::find(request()->get('schoolId'));
