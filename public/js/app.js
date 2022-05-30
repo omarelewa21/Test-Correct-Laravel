@@ -6706,15 +6706,16 @@ Core = {
     var isIOS = Core.detectIOS();
     var isAndroid = /Android/g.test(navigator.userAgent);
     var isChromebook = window.navigator.userAgent.indexOf('CrOS') > 0;
-    Core.isChromebook(); // if (isIOS) {
-    //     Core.isIpad();
-    // } else if (isAndroid) {
-    //     Core.isAndroid();
-    // } else if (isChromebook) {
-    //     Core.isChromebook();
-    // }
-    // Core.checkForElectron();
 
+    if (isIOS) {
+      Core.isIpad();
+    } else if (isAndroid) {
+      Core.isAndroid();
+    } else if (isChromebook) {
+      Core.isChromebook();
+    }
+
+    Core.checkForElectron();
     runCheckFocus();
     catchscreenshotchromeOS();
     startStudentActivityCheck();
@@ -6802,20 +6803,39 @@ Core = {
     }
   },
   enableAppFeatures: function enableAppFeatures(appType) {
-    if (appType !== 'chromebook') {
+    var show = function show() {
       var appElements = document.querySelectorAll('[' + appType + ']');
       appElements.forEach(function (element) {
         element.style.display = 'flex';
       });
-    } else {
-      var xhttp = new XMLHttpRequest();
+    };
 
-      xhttp.onload = function () {
-        console.log(this.responseText);
+    if (appType === 'chromebook') {
+      // show button if chrome app version starts with 2
+      window.onload = function () {
+        try {
+          var count = 1;
+          var buttonDisplay = setInterval(function () {
+            // send request to get the version 5 times then break the interval
+            var xhttp = new XMLHttpRequest();
+            xhttp.open("GET", "/get_app_version", true);
+            xhttp.send();
+
+            xhttp.onload = function () {
+              var response = JSON.parse(this.response).TLCVersion;
+
+              if (response != 'x') {
+                response.charAt(0) == '2' ? show() : '';
+                clearInterval(buttonDisplay);
+              } else {
+                count >= 5 ? clearInterval(buttonDisplay) : count++;
+              }
+            };
+          }, 2000);
+        } catch (error) {}
       };
-
-      xhttp.open("GET", "/getSession", true);
-      xhttp.send();
+    } else {
+      show();
     }
   },
   checkForElectron: function checkForElectron() {
@@ -6869,14 +6889,6 @@ Core = {
   changeAppTypeToIos: function changeAppTypeToIos() {
     Core.appType = 'ios';
     Core.disableDeviceSpecificFeature();
-  },
-  showCloseButtonChromeOS: function showCloseButtonChromeOS() {
-    var show = function show() {
-      var appElements = document.querySelectorAll('[chromebook]');
-      appElements.forEach(function (element) {
-        element.style.display = 'flex';
-      });
-    };
   }
 };
 

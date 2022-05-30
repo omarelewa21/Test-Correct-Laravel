@@ -16,16 +16,15 @@ Core = {
         let isAndroid = /Android/g.test(navigator.userAgent);
         let isChromebook = window.navigator.userAgent.indexOf('CrOS') > 0;
 
-        Core.isChromebook();
-        // if (isIOS) {
-        //     Core.isIpad();
-        // } else if (isAndroid) {
-        //     Core.isAndroid();
-        // } else if (isChromebook) {
-        //     Core.isChromebook();
-        // }
+        if (isIOS) {
+            Core.isIpad();
+        } else if (isAndroid) {
+            Core.isAndroid();
+        } else if (isChromebook) {
+            Core.isChromebook();
+        }
 
-        // Core.checkForElectron();
+        Core.checkForElectron();
 
         runCheckFocus();
         catchscreenshotchromeOS();
@@ -118,18 +117,35 @@ Core = {
         }
     },
     enableAppFeatures(appType) {
-        if(appType !== 'chromebook'){
+        let show = () => {
             let appElements = document.querySelectorAll('[' + appType + ']');
             appElements.forEach((element) => {
                 element.style.display = 'flex';
             });
-        }else{
-            const xhttp = new XMLHttpRequest();
-            xhttp.onload = function() {
-                console.log(this.responseText);
+        }
+        if(appType === 'chromebook'){
+            // show button if chrome app version starts with 2
+            window.onload = () => {
+                try {
+                    let count = 1;
+                    let buttonDisplay = setInterval( () => {            // send request to get the version 5 times then break the interval
+                        let xhttp = new XMLHttpRequest();
+                        xhttp.open("GET", "/get_app_version", true)
+                        xhttp.send();
+                        xhttp.onload = function() {
+                            let response = JSON.parse(this.response).TLCVersion;
+                            if(response != 'x'){
+                                response.charAt(0) == '2' ? show() : ''
+                                clearInterval(buttonDisplay);
+                            }else{
+                                count >= 5 ? clearInterval(buttonDisplay) : count++;
+                            }
+                        }
+                    }, 2000)
+                } catch (error) {}
             }
-            xhttp.open("GET", "/getSession", true);
-            xhttp.send();
+        }else{
+            show();
         }
     },
     checkForElectron() {
@@ -181,15 +197,6 @@ Core = {
     {
         Core.appType = 'ios'
         Core.disableDeviceSpecificFeature();
-    },
-    showCloseButtonChromeOS()
-    {
-        let show = () => {
-            let appElements = document.querySelectorAll('[chromebook]');
-            appElements.forEach((element) => {
-                element.style.display = 'flex';
-            });
-        }
     }
 }
 
