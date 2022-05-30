@@ -3,10 +3,12 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use tcCore\TestTakeEventType;
 
 class AddHidAndVmEvent extends Migration
 {
-    private static function createAndAdd($id, $name, $confirm, $reason) {
+    private static function createAndAdd($id, $name, $confirm, $reason)
+    {
         TestTakeEventType::create([
             'id' => $id,
             'name' => $name,
