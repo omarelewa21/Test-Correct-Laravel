@@ -862,6 +862,14 @@ img.icon-close-small-subjects{
     color: var(--primary);
 }
 
+.transition-max-height {
+    transition: max-height 250ms ease-in-out;
+}
+
+.bg-white-70 {
+    background-color: rgba(255, 255, 255, 0.7);
+}
+
 @media only screen and (max-width: 590px){
     .entree-step-indicator > div {
         flex-shrink: 1;

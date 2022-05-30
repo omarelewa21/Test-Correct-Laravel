@@ -481,4 +481,12 @@ class EntreeOnboarding extends Onboarding
         return BaseSubject::whereIn('name', $names)->where('show_in_onboarding', 1)->pluck('id');
     }
 
+    public function selectedSchoolLocationList()
+    {
+
+        return $this->school->schoolLocations->filter(function($location) {
+            return $this->isSelectedSchoolLocation($location->uuid);
+        });
+    }
+
 }
