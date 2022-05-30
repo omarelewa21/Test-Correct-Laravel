@@ -35,6 +35,7 @@ class AddHidAndVmEvent extends Migration
      */
     public function down()
     {
+        DB::table('test_take_event_types')->where('name', '=', 'Forbidden device')->delete();
         DB::table('test_take_event_types')->where('name', '=', 'VM detected')->delete();
     }
 }
