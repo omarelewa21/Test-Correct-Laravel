@@ -90,7 +90,7 @@
                                         id="education_level_year"
                                         wire:model="request.education_level_year"
                                 >
-                                    @foreach(range(1,6) as $levelYear)
+                                    @foreach(range(1,$this->maxEducationLevelYear) as $levelYear)
                                         <option value="{{ $levelYear }}">{{ $levelYear }}</option>
                                     @endforeach
                                 </x-input.select>

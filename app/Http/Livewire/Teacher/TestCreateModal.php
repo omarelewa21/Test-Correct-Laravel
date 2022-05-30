@@ -8,6 +8,7 @@ use Livewire\Component;
 use tcCore\EducationLevel;
 use tcCore\Http\Controllers\TemporaryLoginController;
 use tcCore\Period;
+use tcCore\Subject;
 use tcCore\Test;
 use tcCore\TestKind;
 
@@ -64,8 +65,9 @@ class TestCreateModal extends Component
 
     public function mount()
     {
-        $this->allowedSubjects = EducationLevel::filtered(['user_id' => auth()->id()], [])->select(['id', 'name', 'max_years', 'uuid'])->get()->keyBy('id');
-        $this->allowedTestKinds = TestKind::orderBy('name', 'asc')->get([ 'name', 'id' ]);
+        $this->allowedSubjects = Subject::filtered(['user_id' => auth()->id()], [])->get(['id', 'name'])->keyBy('id');
+
+        $this->allowedTestKinds = TestKind::orderBy('name', 'asc')->get(['name', 'id']);
         $this->allowedPeriods = Period::filtered(['current_school_year' => 1], [])->get(['id', 'name', 'start_date', 'end_date'])->keyBy('id');
         $this->allowedEductionLevels = EducationLevel::filtered(['user_id' => auth()->id()], [])->select(['id', 'name', 'max_years', 'uuid'])->get()->keyBy('id');
 
@@ -80,6 +82,19 @@ class TestCreateModal extends Component
             'shuffle'              => 0,
             'introduction'         => 'Intor text',
         ];
+    }
+
+    public function getMaxEducationLevelYearProperty(){
+        $maxYears = 6;
+        if ($this->request['education_level_id']) {
+             $level = $this->allowedEductionLevels->first(function($level) {
+                 $compareWith =  property_exists($level, 'id') ? $level->id: $level['id'];
+                 return $compareWith == $this->request['education_level_id'];
+             });
+
+             return  is_array($level) ? $level['id']: $level->id ;
+        }
+        return $maxYears;
     }
 
     public function showModal()
@@ -100,6 +115,21 @@ class TestCreateModal extends Component
         $test->setAttribute('owner_id', Auth::user()->school_location_id);
         $test->save();
         $this->showModal = false;
+
+        redirect(
+            route('teacher.question-editor',
+                [
+                    'action'         => 'add',
+                    'owner'          => 'test',
+                    'testId'         => $test->uuid,
+                    'testQuestionId' => '',
+                    'type'           => '',
+                    'isCloneRequest' => '',
+                    'withDrawer'     => 'true',
+                ]
+            )
+        );
+
 
         $this->dispatchBrowserEvent('notify', ['message' => __('teacher.test created')]);
     }
