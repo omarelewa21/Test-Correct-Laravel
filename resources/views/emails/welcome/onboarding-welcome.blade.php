@@ -4,7 +4,7 @@
     <tr>
         <td colspan="999" class="pl-40 pr-40 pb-40 border-l-r" style="color: #041F74;">
             <h5 class="mb-4">{{ __("onboarding-welcome.Welkom bij Test-Correct") }}</h5>
-            @if(!$this->skipVerificationPart)
+            @if(!$skipVerificationPart)
             <p>{{ __("onboarding-welcome.Je hebt je aangemeld met het e-mailadres") }} <span class="text-bold">{{$user->username}}</span></p>
             <p>{{ __("onboarding-welcome.Verifieer je e-mailadres") }}</p>
             <a href="{{ config('app.base_url'). 'user/confirm_email/'.$token}}"
