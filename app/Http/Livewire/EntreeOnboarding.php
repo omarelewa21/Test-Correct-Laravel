@@ -7,6 +7,7 @@ use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Session;
 use Livewire\Component;
@@ -19,6 +20,7 @@ use tcCore\Http\Helpers\DemoHelper;
 use tcCore\Http\Helpers\EntreeHelper;
 use tcCore\Http\Helpers\UserHelper;
 use tcCore\Http\Requests\Request;
+use tcCore\Jobs\SendOnboardingWelcomeMail;
 use tcCore\Lib\Repositories\SchoolYearRepository;
 use tcCore\Lib\User\Factory;
 use tcCore\SamlMessage;
@@ -316,7 +318,9 @@ class EntreeOnboarding extends Onboarding
                 );
                 $this->userUuid = $user->uuid;
                 $user->eckid = Crypt::decryptString($this->entreeData->data->encryptedEckId);
-                $user->account_verified = Carbon::now();
+                if($this->hasFixedEmail){
+                    $user->account_verified = Carbon::now();
+                }
                 $user->save();
                 $user->generalTermsLog()->create(['accepted_at' => Carbon::now()]);
 
@@ -361,6 +365,13 @@ class EntreeOnboarding extends Onboarding
                         });
                     });
                 }
+
+                try {
+                    Mail::to($this->registration->username)->queue(new SendOnboardingWelcomeMail($user,'',$this->hasFixedEmail));
+                } catch (\Throwable $th) {
+                    Bugsnag::notifyException($th);
+                }
+
                 $this->step = 3;
             } catch (\Throwable $e) {
                 DB::rollBack();
