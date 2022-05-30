@@ -4134,7 +4134,7 @@ input.datepicker {
 .navigation-bar {
     width: 100%;
     position: fixed;
-    z-index: 100;
+    z-index: 25;
 }
 
 .navigation-bar .logo svg {
@@ -5204,6 +5204,9 @@ video {
 .top-0{
 	top: 0px;
 }
+.top-1\/2{
+	top: 50%;
+}
 .left-1\/2{
 	left: 50%;
 }
@@ -5254,9 +5257,6 @@ video {
 }
 .left-0\.5{
 	left: 0.125rem;
-}
-.top-1\/2{
-	top: 50%;
 }
 .-top-px{
 	top: -1px;
@@ -5448,6 +5448,9 @@ video {
 .mr-40{
 	margin-right: 10rem;
 }
+.mt-\[9\.5rem\]{
+	margin-top: 9.5rem;
+}
 .mr-2{
 	margin-right: 0.5rem;
 }
@@ -5546,9 +5549,6 @@ video {
 }
 .-mt-1{
 	margin-top: -0.25rem;
-}
-.mt-\[17\.5rem\]{
-	margin-top: 17.5rem;
 }
 .block{
 	display: block;
@@ -5901,6 +5901,10 @@ video {
 .origin-top-right{
 	transform-origin: top right;
 }
+.-translate-y-1\/2{
+	--tw-translate-y: -50%;
+	transform: var(--tw-transform);
+}
 .translate-y-4{
 	--tw-translate-y: 1rem;
 	transform: var(--tw-transform);
@@ -5923,10 +5927,6 @@ video {
 }
 .translate-y-1\/2{
 	--tw-translate-y: 50%;
-	transform: var(--tw-transform);
-}
-.-translate-y-1\/2{
-	--tw-translate-y: -50%;
 	transform: var(--tw-transform);
 }
 .rotate-180{
@@ -6367,6 +6367,9 @@ video {
 .border-3{
 	border-width: 3px;
 }
+.\!border{
+	border-width: 1px !important;
+}
 .border-4{
 	border-width: 4px;
 }
@@ -6435,6 +6438,10 @@ video {
 .border-allred{
 	--tw-border-opacity: 1;
 	border-color: rgba(207, 27, 4, var(--tw-border-opacity));
+}
+.\!border-allred{
+	--tw-border-opacity: 1 !important;
+	border-color: rgba(207, 27, 4, var(--tw-border-opacity)) !important;
 }
 .border-offwhite{
 	--tw-border-opacity: 1;

@@ -1,5 +1,5 @@
 <x-layouts.base>
-    @if(Auth::user()->isA('teacher'))
+    @if(tcCore\Http\Helpers\NavigationBarHelper::shouldDisplayTeacherMenu()))
         @livewire('navigation-bar', ['main'=> 'Test', 'sub' => 'TestBank'])
     @else
 
@@ -40,7 +40,7 @@
         </div>
     </header>
 @endif
-    <main class="flex flex-1 items-stretch mx-8  xl:mx-28 {{ Auth::user()->isA('teacher') ? 'mt-[17.5rem]': 'm-foot-head' }}">
+    <main class="flex flex-1 items-stretch mx-8  xl:mx-28 {{ Auth::user()->isA('teacher') ? 'mt-[9.5rem]': 'm-foot-head' }}">
         {{ $slot }}
     </main>
     <footer class="footer px-8 xl:px-28 flex content-center fixed w-full bottom-0 z-10">

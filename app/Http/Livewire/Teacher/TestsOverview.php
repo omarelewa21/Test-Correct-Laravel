@@ -50,7 +50,7 @@ class TestsOverview extends Component
     {
         $results = $this->getDatasource();
 
-        return view('livewire.teacher.tests-overview')->with(compact(['results']));
+        return view('livewire.teacher.tests-overview')->layout('layouts.app-teacher')->with(compact(['results']));
     }
 
     public function updatingFilters($value, $filter)
