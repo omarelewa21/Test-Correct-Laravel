@@ -4,8 +4,10 @@ namespace tcCore\Http\Livewire\AnswerModel;
 
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 use Livewire\Component;
 use tcCore\Answer;
+use tcCore\Http\Helpers\SvgHelper;
 use tcCore\Http\Traits\WithAttachments;
 use tcCore\Http\Traits\WithCloseable;
 use tcCore\Http\Traits\WithNotepad;
@@ -13,7 +15,7 @@ use tcCore\Question;
 
 class DrawingQuestion extends Component
 {
-    use WithAttachments, WithNotepad, WithCloseable;
+    use WithNotepad, WithCloseable;
 
     public $question;
 
@@ -27,19 +29,12 @@ class DrawingQuestion extends Component
     public $answered;
 
     public $additionalText;
+    public $pngBase64;
 
     public function mount()
     {
-        $answer = Answer::where('id', $this->answers[$this->question->uuid]['id'])
-            ->where('question_id', $this->question->id)
-            ->first();
-        if ($answer->json) {
-            $this->answer = json_decode($answer->json)->answer;
-            $this->additionalText = json_decode($answer->json)->additional_text;
-        }
-
-        $this->answered = $this->answers[$this->question->uuid]['answered'];
-
+        $svgHelper = new SvgHelper($this->question['uuid']);
+        $this->pngBase64 = base64_encode($svgHelper->getCorrectionModelPNG());
         if(!is_null($this->question->belongs_to_groupquestion_id)){
             $this->question->groupQuestion = Question::find($this->question->belongs_to_groupquestion_id);
         }
@@ -50,8 +45,4 @@ class DrawingQuestion extends Component
         return view('livewire.answer_model.drawing-question');
     }
 
-    public function isQuestionFullyAnswered(): bool
-    {
-        return true;
-    }
 }

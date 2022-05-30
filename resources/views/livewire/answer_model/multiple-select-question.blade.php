@@ -17,9 +17,9 @@
                                     class="hidden"
                                     value="{{ $value }}"
                             >
-                            <div>{!! $this->answerText[$key] !!}</div>
-                            <div class="{!! ($value == 1) ? '' :'hidden' !!}">
-                                <x-icon.checkmark/>
+                            <div style="display: inline-flex;">{!! $this->answerText[$key] !!}</div>
+                            <div class="{!! ($value == 1) ? '' :'hidden' !!}" style="float:right;">
+                                <img class="icon_checkmark_pdf" src="{{public_path('img/icons/icons-checkmark-blue.png')}}">
                                 {!! $this->scoreStruct[$key] !!} pt
                             </div>
                         </label>

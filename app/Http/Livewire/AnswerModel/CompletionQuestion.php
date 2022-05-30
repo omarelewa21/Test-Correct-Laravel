@@ -79,8 +79,7 @@ class CompletionQuestion extends Component
             $this->searchPattern,
             function ($matches) use ($tags) {
                 $answers = $tags[$matches[1]];
-                return sprintf('<div class="overflow-ellipsis rounded-10" style="display: inline-flex;border: solid 2px #c3d0ed;"><ul style="list-style-type: none !important;">%s</ul></div>',
-                    $this->getOptions($answers,$this->answerStruct[$matches[1]]));
+                return $this->getOptions($answers,$this->answerStruct[$matches[1]]);
             },
             $question_text
         );
@@ -93,11 +92,9 @@ class CompletionQuestion extends Component
         return collect($answers)->map(function ($option, $key) use ($correct) {
             $check = '';
             if(trim($option)==trim($correct)){
-                $check = '<svg class="inline-block" width="16" height="16" xmlns="http://www.w3.org/2000/svg">
-                            <path class="stroke-current" stroke-width="3" d="M1.5 7.5l5 5 8-11" fill="none" fill-rule="evenodd" stroke-linecap="round"></path>
-                        </svg>';
+                $check = sprintf('<img class="icon_checkmark_pdf" src="%s">',public_path('img/icons/icons-checkmark-blue.png'));
             }
-            return sprintf('<li >%s %s</li>', $option,$check);
+            return sprintf('<span class="overflow-ellipsis rounded-10 pdf-answer-model-select" >%s %s</span>', $option,$check);
         })->join('');
     }
 

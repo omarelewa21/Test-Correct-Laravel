@@ -7,6 +7,7 @@ use DOMDocument;
 use Facade\FlareClient\Http\Response;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use mikehaertl\wkhtmlto\Pdf;
 use tcCore\Http\Helpers\PdfHelper;
 use tcCore\Http\Requests\HtmlToPdfRequest;
 
@@ -22,11 +23,17 @@ class PdfController extends Controller
      */
     public function HtmlToPdf(HtmlToPdfRequest $request)
     {
-        return $this->wkhtmlToPdf($request);
-
         $html = $this->base64ImgPaths($request->get('html'));
         $output = PdfHelper::HtmlToPdf($html);
         return response($output);
+    }
+
+    public function HtmlToPdfFromString($html)
+    {
+        $html = $this->base64ImgPaths($html);
+//        return $this->wkhtmlToPdfFromString($html);
+        file_put_contents(storage_path('temp/result1.html'),$html);
+        return PdfHelper::HtmlToPdf($html);
     }
 
     public function getSetting($setting)
@@ -152,5 +159,24 @@ class PdfController extends Controller
             'Content-Type' => 'application/pdf',
             'Content-Disposition' => 'inline; filename="toets.pdf"'
         ]);
+    }
+
+    private function wkhtmlToPdfFromString($html)
+    {
+        file_put_contents(storage_path('temp/result1.html'),$html);
+        $options = [
+            'disable-javascript',
+            'header-html'=> storage_path('temp/header.html'),
+            'load-error-handling'=>'ignore',
+            'enable-local-file-access'=> true,
+        ];
+        $pdf = new Pdf($options);
+        $pdf->addPage($html);
+        $outputPath = storage_path('temp/result1.pdf');
+        $pdf->saveAs($outputPath);
+        $output = $pdf->toString();
+        dump($pdf->getError());
+        return $output;
+
     }
 }

@@ -1,4 +1,4 @@
-<x-layouts.base>
+<x-layouts.pdf>
     <div class="w-full flex flex-col mb-5 overview"
          x-data="{marginTop: 0}"
          x-on:unload="(function () {window.scrollTo(0, 0);})"
@@ -65,6 +65,20 @@
                                 :answers="$answers"
                                 wire:key="'q-'.$testQuestion->uuid'"
                         />
+                    @elseif($testQuestion->type === 'InfoscreenQuestion')
+                        <livewire:answer-model.info-screen-question
+                                :question="$testQuestion"
+                                :number="++$key"
+                                :answers="$answers"
+                                wire:key="'q-'.$testQuestion->uuid"
+                        />
+                    @elseif($testQuestion->type === 'DrawingQuestion')
+                        <livewire:answer-model.drawing-question
+                                :question="$testQuestion"
+                                :number="++$key"
+                                :answers="$answers"
+                                wire:key="'q-'.$testQuestion->uuid"
+                        />
                     @endif
                 </div>
             @endforeach
@@ -80,5 +94,4 @@
         }
     </script>
     @endpush
-</x-layouts.base>
-
+</x-layouts.pdf>

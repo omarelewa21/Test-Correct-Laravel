@@ -10,6 +10,7 @@ use tcCore\Question;
 use tcCore\Test;
 use tcCore\TestParticipant;
 use tcCore\User;
+use Facades\tcCore\Http\Controllers\PdfController;
 
 class PreviewAnswerModelController extends Controller
 {
@@ -30,8 +31,12 @@ class PreviewAnswerModelController extends Controller
         $uuid = '';
         // todo add check or failure when $current out of bounds $data;
         $styling = $this->getCustomStylingFromQuestions($data);
-        return view('test-answer-model-overview', compact(['data', 'current', 'answers', 'playerUrl', 'nav', 'uuid', 'testParticipant', 'styling']));
-
+//        return view('test-answer-model-overview',compact(['data', 'current', 'answers', 'playerUrl', 'nav', 'uuid', 'testParticipant', 'styling']));
+        $html = view('test-answer-model-overview',compact(['data', 'current', 'answers', 'playerUrl', 'nav', 'uuid', 'testParticipant', 'styling']))->render();
+        return response()->make(PdfController::HtmlToPdfFromString($html), 200, [
+            'Content-Type' => 'application/pdf',
+            'Content-Disposition' => 'inline; filename="toets.pdf"'
+        ]);
     }
 
     public static function getData(Test $test)

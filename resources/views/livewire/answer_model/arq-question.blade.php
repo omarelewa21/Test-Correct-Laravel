@@ -35,8 +35,8 @@
                             <span class="w-20 mr-4">{{ __($this->arqStructure[$loopCount][1]) }}</span>
                             <span class="w-20 mr-4">{{ __($this->arqStructure[$loopCount][2]) }}</span>
                             <span class="max-w-max">{{ __($this->arqStructure[$loopCount][3]) }}</span>
-                            <div class="ml-auto   {!! ($link->score>0) ? '' :'hidden' !!}">
-                                <x-icon.checkmark/>
+                            <div class="ml-auto   {!! ($link->score>0) ? '' :'hidden' !!}" style="float:right;">
+                                <img class="icon_checkmark_pdf" src="{{public_path('img/icons/icons-checkmark-blue.png')}}">
                                 {!! $link->score !!} pt
                             </div>
                         </label>
