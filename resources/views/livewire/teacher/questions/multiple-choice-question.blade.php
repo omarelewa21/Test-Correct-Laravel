@@ -1,8 +1,7 @@
 @extends('livewire.teacher.questions.cms-layout')
 @section('question-cms-question')
-    <input type="text" wire:model.debounce.10000ms="question.question">
     <x-input.rich-textarea
-            wire:model.debounce.300ms="question.question"
+            wire:model.debounce.1000ms="question.question"
             editorId="{{ $questionEditorId }}"
             type="cms"
     />

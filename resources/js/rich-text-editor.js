@@ -30,19 +30,16 @@ RichTextEditor = {
         editor = CKEDITOR.instances[editorId];
         editor.shouldDispatchChange = false;
         editor.on('change', function (e) {
-            if(!e.editor.getData()?.includes('MathML')) {
                 RichTextEditor.sendInputEventToEditor(editorId, e);
-                editor.shouldDispatchChange = true;
-                return;
-            }
-
-            if (editor.shouldDispatchChange) {
-                RichTextEditor.sendInputEventToEditor(editorId, e);
-            }
-            editor.shouldDispatchChange = true
-        });
-        editor.on('instanceReady', function () {
-            setTimeout(() => editor.shouldDispatchChange = true, 300);
+            // if(!e.editor.getData()?.includes('MathML')) {
+            //     RichTextEditor.sendInputEventToEditor(editorId, e);
+            //     editor.shouldDispatchChange = true;
+            //     return;
+            // }
+            // if (editor.shouldDispatchChange) {
+            //     RichTextEditor.sendInputEventToEditor(editorId, e);
+            // }
+            // editor.shouldDispatchChange = true
         });
         editor.on('simpleuploads.startUpload', function (e) {
             e.data.extraHeaders = {

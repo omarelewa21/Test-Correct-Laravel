@@ -12441,26 +12441,15 @@ RichTextEditor = {
     editor = CKEDITOR.instances[editorId];
     editor.shouldDispatchChange = false;
     editor.on('change', function (e) {
-      var _e$editor$getData;
-
-      console.log(editor.getData());
-
-      if (!((_e$editor$getData = e.editor.getData()) !== null && _e$editor$getData !== void 0 && _e$editor$getData.includes('MathML'))) {
-        RichTextEditor.sendInputEventToEditor(editorId, e);
-        editor.shouldDispatchChange = true;
-        return;
-      }
-
-      if (editor.shouldDispatchChange) {
-        RichTextEditor.sendInputEventToEditor(editorId, e);
-      }
-
-      editor.shouldDispatchChange = true;
-    });
-    editor.on('instanceReady', function () {
-      setTimeout(function () {
-        return editor.shouldDispatchChange = true;
-      }, 300);
+      RichTextEditor.sendInputEventToEditor(editorId, e); // if(!e.editor.getData()?.includes('MathML')) {
+      //     RichTextEditor.sendInputEventToEditor(editorId, e);
+      //     editor.shouldDispatchChange = true;
+      //     return;
+      // }
+      // if (editor.shouldDispatchChange) {
+      //     RichTextEditor.sendInputEventToEditor(editorId, e);
+      // }
+      // editor.shouldDispatchChange = true
     });
     editor.on('simpleuploads.startUpload', function (e) {
       e.data.extraHeaders = {
