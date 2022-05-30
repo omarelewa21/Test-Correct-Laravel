@@ -403,6 +403,9 @@ class OpenShort extends Component
         if ($this->obj && method_exists($this->obj, 'updating')) {
             $this->obj->updating($name, $value);
         }
+        if ($name == 'question.question' && html_entity_decode($this->question['question']) == html_entity_decode($value)) {
+            $this->registerDirty = false;
+        }
     }
 
     private function handleDirtyState($updatedProperty)
