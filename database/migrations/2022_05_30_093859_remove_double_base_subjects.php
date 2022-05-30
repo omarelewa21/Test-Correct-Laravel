@@ -25,6 +25,13 @@ class RemoveDoubleBaseSubjects extends Migration
         BaseSubject::where('id',29)->update(['name' => 'Maatschappijleer 2']);
         // remove BaseSubjects with id 94, 95 & 96
         BaseSubject::whereIn('id',[94,95,96])->forceDelete();
+
+        // update default subjects with base_subject_id = 94 => 29
+        \tcCore\DefaultSubject::where('base_subject_id',94)->update(['base_subject_id' => 29]);
+        // update default subjects with base_subject_id = 95 => 27
+        \tcCore\DefaultSubject::where('base_subject_id',95)->update(['base_subject_id' => 27]);
+        // update default subjects with base_subject_id = 96 => 28
+        \tcCore\DefaultSubject::where('base_subject_id',96)->update(['base_subject_id' => 28]);
     }
 
     /**
