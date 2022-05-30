@@ -6181,6 +6181,8 @@ __webpack_require__(/*! ./attachment */ "./resources/js/attachment.js");
 
 __webpack_require__(/*! ./flatpickr */ "./resources/js/flatpickr.js");
 
+__webpack_require__(/*! ./navigation-bar */ "./resources/js/navigation-bar.js");
+
 window.ClassicEditors = [];
 
 addIdsToQuestionHtml = function addIdsToQuestionHtml() {
@@ -12303,6 +12305,146 @@ document.addEventListener('alpine:init', function () {
             console.log('change');
             _this.wireModel = _this.value = _this.mode == 'range' ? dateString.split(' t/m ') : dateString; //split t/m or to
           }
+        });
+      }
+    };
+  });
+});
+
+/***/ }),
+
+/***/ "./resources/js/navigation-bar.js":
+/*!****************************************!*\
+  !*** ./resources/js/navigation-bar.js ***!
+  \****************************************/
+/***/ (() => {
+
+document.addEventListener('alpine:init', function () {
+  Alpine.data('navigationBar', function () {
+    return {
+      hideTimeout: null,
+      bottom: null,
+      userMenuTimeout: null,
+      supportMenuTimeout: null,
+      userMenu: false,
+      supportMenu: false,
+      init: function init() {
+        var _this = this;
+
+        var navBar = this.$refs.nav_bar;
+        this.bottom = this.$refs.menu_bottom;
+        var tiles = this.$refs.tiles;
+        var scrollLeft = this.$refs.menu_scroll_left;
+        var scrollRight = this.$refs.menu_scroll_right;
+        var menuButtons = this.bottom.querySelectorAll('.has-items');
+        menuButtons.forEach(function (element) {
+          element.addEventListener('mouseover', function (event) {
+            menuButtons.forEach(function (element) {
+              tiles.querySelectorAll('.tile-group').forEach(function (tilegroup) {
+                tilegroup.style.display = 'none';
+              });
+            });
+
+            _this.tilesBarShow();
+
+            var tilesGroup = tiles.querySelector('.' + event.target.dataset.menu);
+            tilesGroup.style.display = 'flex';
+
+            _this.setPaddingForActiveTileGroupByMenuItem(event.target);
+          });
+        });
+        this.bottom.querySelectorAll('div:not(.has-items)').forEach(function (element) {
+          return element.addEventListener('mouseover', function (event) {
+            _this.tilesBarHide();
+          });
+        });
+        navBar.addEventListener('mouseleave', function (event) {
+          _this.tilesBarHide();
+        });
+        scrollLeft.addEventListener('click', function (event) {
+          _this.menuBottomScrollLeft();
+        });
+        scrollRight.addEventListener('click', function (event) {
+          _this.menuBottomScrollRight();
+        });
+        this.$refs.user_button.addEventListener('click', function (event) {
+          _this.userMenuShow();
+        });
+        this.$refs.support_button.addEventListener('click', function (event) {
+          _this.supportMenuShow();
+        });
+      },
+      tilesBarHide: function tilesBarHide() {
+        var _this2 = this;
+
+        this.hideTimeout = setTimeout(function () {
+          tiles.style.setProperty('--top', '0px');
+          tiles.style.paddingLeft = '0px';
+          clearTimeout(_this2.hideTimeout);
+        }, 500);
+      },
+      tilesBarShow: function tilesBarShow() {
+        clearTimeout(this.hideTimeout);
+        tiles.style.paddingLeft = '0px';
+        tiles.style.setProperty('--top', '98px');
+      },
+      userMenuShow: function userMenuShow() {
+        var _this3 = this;
+
+        clearTimeout(this.userMenuTimeout);
+
+        if (this.userMenu === false) {
+          this.userMenu = true;
+          this.userMenuTimeout = setTimeout(function () {
+            _this3.userMenu = false;
+          }, 5000);
+        } else {
+          this.userMenu = false;
+        }
+      },
+      supportMenuShow: function supportMenuShow() {
+        var _this4 = this;
+
+        clearTimeout(this.supportMenuTimeout);
+
+        if (this.supportMenu === false) {
+          this.supportMenu = true;
+          this.supportMenuTimeout = setTimeout(function () {
+            _this4.supportMenu = false;
+          }, 1000);
+        } else {
+          this.supportMenu = false;
+        }
+      },
+      setPaddingForActiveTileGroupByMenuItem: function setPaddingForActiveTileGroupByMenuItem(menuItem) {
+        var menuItem = menuItem;
+        var tileGroup = tiles.querySelector('.' + menuItem.dataset.menu);
+        var minimalPadding = this.bottom.querySelector('.menu-item:nth-child(2)').offsetLeft;
+        var maximalPadding = tiles.offsetWidth - tileGroup.offsetWidth;
+        var calculatedPadding = menuItem.getBoundingClientRect().right - menuItem.offsetWidth / 2 - tileGroup.offsetWidth / 2;
+
+        if (calculatedPadding < minimalPadding) {
+          return tiles.style.paddingLeft = minimalPadding + 'px';
+        }
+
+        if (calculatedPadding > maximalPadding) {
+          return tiles.style.paddingLeft = maximalPadding + 'px';
+        }
+
+        tiles.style.paddingLeft = calculatedPadding + 'px';
+      },
+      menuBottomScrollRight: function menuBottomScrollRight() {
+        this.bottom.scrollBy({
+          left: 150,
+          top: 0,
+          behavior: 'smooth'
+        });
+      },
+      menuBottomScrollLeft: function menuBottomScrollLeft() {
+        this.bottom.scrollBy({
+          left: -150,
+          top: 0,
+          behavior: 'smooth'
         });
       }
     };

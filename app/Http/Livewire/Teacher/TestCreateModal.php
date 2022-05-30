@@ -11,7 +11,7 @@ use tcCore\TestKind;
 
 class TestCreateModal extends Component
 {
-    public $showModal = true;
+    public $showModal = false;
     public $modalId = 'test-create-modal';
 
     public $allowedTypes= [];
@@ -42,10 +42,13 @@ class TestCreateModal extends Component
 
     public function mount()
     {
-    //    $this->allowedSubjects = EducationLevel::filtered(['user_id'=> auth()->id()], [])->select(['id', 'name', 'max_years', 'uuid'])->get()->keyBy('id');
-    //    $this->allowedTypes = TestKind::orderBy('name', 'asc')->pluck('name', 'id');
+        $this->allowedSubjects = EducationLevel::filtered(['user_id'=> auth()->id()], [])->select(['id', 'name', 'max_years', 'uuid'])->get()->keyBy('id');
+        $this->allowedTypes = TestKind::orderBy('name', 'asc')->get('name', 'id');
 
-      //  $this->allowedPeriods = Period::filtered( ['current_school_year' => 1],  [])->get(['id', 'name', 'start_date', 'end_date'])->keyBy('id');
+
+        $this->allowedPeriods = Period::filtered( ['current_school_year' => 1],  [])->get(['id', 'name', 'start_date', 'end_date'])->keyBy('id');
+        $this->allowedEductionLevels = 	EducationLevel::filtered(['user_id'=> auth()->id()],  [])->select(['id', 'name', 'max_years', 'uuid'])->get()->keyBy('id');
+
 
         $this->request = [
             'name'                 => 'titel',

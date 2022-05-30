@@ -9,6 +9,7 @@ require('./drawing/drawing-question');
 require('./readspeaker_app');
 require('./attachment');
 require('./flatpickr');
+require('./navigation-bar');
 
 
 window.ClassicEditors = [];

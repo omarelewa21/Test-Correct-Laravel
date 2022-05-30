@@ -13,6 +13,7 @@
 @import url("ckeditor5.css");
 @import url("choices.css");
 @import url("datepicker.css");
+@import url("navigation-bar.css");
 
 
 @tailwind base;
