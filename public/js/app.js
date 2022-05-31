@@ -12328,6 +12328,9 @@ document.addEventListener('alpine:init', function () {
       supportMenuTimeout: null,
       userMenu: false,
       supportMenu: false,
+      menuButtons: null,
+      menuButtonsWithoutItems: null,
+      activeMenuItem: null,
       init: function init() {
         var _this = this;
 
@@ -12336,14 +12339,27 @@ document.addEventListener('alpine:init', function () {
         var tiles = this.$refs.tiles;
         var scrollLeft = this.$refs.menu_scroll_left;
         var scrollRight = this.$refs.menu_scroll_right;
-        var menuButtons = this.bottom.querySelectorAll('.has-items');
-        menuButtons.forEach(function (element) {
+        this.menuButtonsWithItems = this.bottom.querySelectorAll('.has-items');
+        this.menuButtonsWithoutItems = this.bottom.querySelectorAll('div:not(.has-items)');
+
+        if (this.$wire.activeRoute.sub !== '') {
+          var activeTileItem = navBar.querySelector('.' + this.$wire.activeRoute.sub);
+          activeTileItem.classList.add('tile-active');
+        }
+
+        if (this.$wire.activeRoute.main !== '') {
+          this.activeMenuItem = this.bottom.querySelector('[data-menu="' + this.$wire.activeRoute.main + '"]');
+          this.activeMenuItem.classList.add('button-active');
+        }
+
+        this.resetActiveState();
+        this.menuButtonsWithItems.forEach(function (element) {
           element.addEventListener('mouseover', function (event) {
-            menuButtons.forEach(function (element) {
-              tiles.querySelectorAll('.tile-group').forEach(function (tilegroup) {
-                tilegroup.style.display = 'none';
-              });
-            });
+            if (_this.activeMenuItem) {
+              _this.activeMenuItem.classList.remove('button-active');
+            }
+
+            _this.tileItemsHide();
 
             _this.tilesBarShow();
 
@@ -12355,11 +12371,15 @@ document.addEventListener('alpine:init', function () {
         });
         this.bottom.querySelectorAll('div:not(.has-items)').forEach(function (element) {
           return element.addEventListener('mouseover', function (event) {
-            _this.tilesBarHide();
+            _this.tilesBarHide(0, false);
+
+            if (_this.activeMenuItem) {
+              _this.activeMenuItem.classList.remove('button-active');
+            }
           });
         });
         navBar.addEventListener('mouseleave', function (event) {
-          _this.tilesBarHide();
+          _this.tilesBarHide(500);
         });
         scrollLeft.addEventListener('click', function (event) {
           _this.menuBottomScrollLeft();
@@ -12374,14 +12394,42 @@ document.addEventListener('alpine:init', function () {
           _this.supportMenuShow();
         });
       },
+      tileItemsHide: function tileItemsHide() {
+        this.menuButtonsWithItems.forEach(function (element) {
+          tiles.querySelectorAll('.tile-group').forEach(function (tilegroup) {
+            tilegroup.style.display = 'none';
+          });
+        });
+      },
       tilesBarHide: function tilesBarHide() {
         var _this2 = this;
 
+        var timeout = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 1;
+        var reset = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : true;
         this.hideTimeout = setTimeout(function () {
+          _this2.tileItemsHide();
+
           tiles.style.setProperty('--top', '0px');
           tiles.style.paddingLeft = '0px';
           clearTimeout(_this2.hideTimeout);
-        }, 500);
+
+          if (reset) {
+            _this2.resetActiveState();
+          }
+        }, timeout); // alert(this.$wire.activeRoute.main == '');
+      },
+      resetActiveState: function resetActiveState() {
+        if (this.$wire.activeRoute.sub !== '') {
+          tiles.style.setProperty('--top', '98px');
+          var activeTile = tiles.querySelector('.' + this.$wire.activeRoute.main);
+          activeTile.style.display = "flex"; //menu item
+
+          this.setPaddingForActiveTileGroupByMenuItem(this.activeMenuItem);
+        }
+
+        if (this.activeMenuItem) {
+          this.activeMenuItem.classList.add('button-active');
+        }
       },
       tilesBarShow: function tilesBarShow() {
         clearTimeout(this.hideTimeout);
@@ -12411,7 +12459,7 @@ document.addEventListener('alpine:init', function () {
           this.supportMenu = true;
           this.supportMenuTimeout = setTimeout(function () {
             _this4.supportMenu = false;
-          }, 1000);
+          }, 5000);
         } else {
           this.supportMenu = false;
         }

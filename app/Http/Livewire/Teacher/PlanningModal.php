@@ -10,7 +10,7 @@ use tcCore\TestTakeStatus;
 
 class PlanningModal extends Component
 {
-    protected $listeners = ['displayModal'];
+    protected $listeners = ['showModal'];
 
     public $test;
 
@@ -34,7 +34,7 @@ class PlanningModal extends Component
         'request.*' => 'sometimes',
     ];
 
-    public function displayModal($testUuid)
+    public function showModal($testUuid)
     {
         $this->test = \tcCore\Test::whereUuid($testUuid)->first();
 

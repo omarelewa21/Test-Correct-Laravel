@@ -15,14 +15,14 @@
             <x-input.datepicker wire:model="request.date" locale="nl"/>
 
         </x-input.group>
-@if ($this->isAssessmentType())
-        <x-input.group label="{{ __('teacher.Datum tot') }}">
-            <x-input.select wire:model="request.date_till">
-                @foreach(range(0, 10) as $day)
-                    <option value="{{ now()->addDay($day)->format('d-m-Y') }}">{{ now()->addDay($day)->format('d-m-Y') }}</option>
-                @endforeach
-            </x-input.select>
-        </x-input.group>
+        @if ($this->isAssessmentType())
+            <x-input.group label="{{ __('teacher.Datum tot') }}">
+                <x-input.select wire:model="request.date_till">
+                    @foreach(range(0, 10) as $day)
+                        <option value="{{ now()->addDay($day)->format('d-m-Y') }}">{{ now()->addDay($day)->format('d-m-Y') }}</option>
+                    @endforeach
+                </x-input.select>
+            </x-input.group>
         @endif
 
         <x-input.group label="{{ __('teacher.Periode') }}">
@@ -45,10 +45,12 @@
         <x-input.group label="{{ __('teacher.Surveillanten') }}">
 
         </x-input.group>
-        <label class="font-bold"><x-icon.preview/>{{ __('teacher.Test-Direct toestaan') }}</label>
+        <label class="font-bold">
+            <x-icon.preview/>{{ __('teacher.Test-Direct toestaan') }}</label>
         <x-input.toggle wire:model="request.guest_accounts"/>
 
-        <label class="font-bold"><x-icon.preview/>{{ __('teacher.Browsertoetsen toestaan') }}</label>
+        <label class="font-bold">
+            <x-icon.preview/>{{ __('teacher.Browsertoetsen toestaan') }}</label>
 
         <x-input.toggle wire:model="request.allow_inbrowser_testing"/>
 
@@ -58,14 +60,21 @@
             </x-input.textarea>
         </x-input.group>
     </x-slot>
-    <x-slot name="actionButton">
-        <x-button.primary size="sm" wire:click="planNext">
-            <span>{{__('teacher.Volgende Inplannen')}}</span>
-            <x-icon.chevron/>
-        </x-button.primary>
-        <x-button.primary size="sm" wire:click="plan">
-            <span>{{__('teacher.Inplannen')}}</span>
-            <x-icon.chevron/>
-        </x-button.primary>
+    <x-slot name="footer">
+        <div class="flex justify-between w-full">
+            <x-button.text-button size="sm" wire:click="$set('showModal', false)">
+                <span>{{__('Annuleren')}}</span>
+            </x-button.text-button>
+            <div>
+                <x-button.primary size="sm" wire:click="planNext">
+                    <span>{{__('teacher.Volgende Inplannen')}}</span>
+                    <x-icon.chevron/>
+                </x-button.primary>
+                <x-button.cta size="sm" wire:click="plan">
+                    <x-icon.checkmark/>
+                    <span>{{__('teacher.Inplannen')}}</span>
+                </x-button.cta>
+            </div>
+        </div>
     </x-slot>
 </x-modal-with-footer>

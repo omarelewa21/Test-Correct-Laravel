@@ -33,7 +33,7 @@
                  x-transition:leave-end="opacity-0 transform scale-90"
             >
                 <button class="flex items-center space-x-2 py-1 px-4 base hover:text-primary hover:bg-offwhite transition w-full"
-                        wire:click="$emitTo('teacher.planning-modal', 'displayModal', '{{ $test->uuid }}')"
+                        wire:click="$emitTo('teacher.planning-modal', 'showModal', '{{ $test->uuid }}')"
 
                 >
                     <x-icon.schedule/>
