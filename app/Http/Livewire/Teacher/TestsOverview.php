@@ -173,14 +173,14 @@ class TestsOverview extends Component
         $this->redirect(route('teacher.question-editor', ['testId' => $testUuid]));
     }
 
-    public function getTemporaryLoginToPdfForTest()
+    public function getTemporaryLoginToPdfForTest($testUuid)
     {
         $controller = new TemporaryLoginController();
         $request = new Request();
         $request->merge([
             'options'  => [
-                'page' => '/tests/view/608d93d7-07bd-4f7a-95ad-231c283ee452',
-                'page_action' => "Loading.show();Popup.load('/tests/pdf_showPDFAttachment/608d93d7-07bd-4f7a-95ad-231c283ee452', 1000);"
+                'page' => sprintf('/tests/view/%s', $testUuid),
+                'page_action' => sprintf("Loading.show();Popup.load('/tests/pdf_showPDFAttachment/%s', 1000);", $testUuid),
             ],
         ]);
 
