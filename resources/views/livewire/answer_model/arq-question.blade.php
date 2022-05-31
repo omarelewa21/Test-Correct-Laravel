@@ -21,7 +21,7 @@
                 <div class="space-y-2">
                     @foreach( $question->multipleChoiceQuestionAnswers as $loopCount => $link)
                         <label
-                                class="flex p-5 border-2 border-blue-grey rounded-10 base multiple-choice-question transition ease-in-out duration-150 focus:outline-none
+                                class="flex p-5 border-2 border-blue-grey rounded-10 base multiple-choice-question transition ease-in-out duration-150 focus:outline-none arq-radio
                                         {!! ($link->score>0) ? 'active' : 'disabled' !!}"
                                 for="link{{ $link->id }}">
                             <input
@@ -36,7 +36,7 @@
                             <span class="w-20 mr-4">{{ __($this->arqStructure[$loopCount][2]) }}</span>
                             <span class="max-w-max">{{ __($this->arqStructure[$loopCount][3]) }}</span>
                             <div class="ml-auto   {!! ($link->score>0) ? '' :'hidden' !!}" style="float:right;">
-                                <img class="icon_checkmark_pdf" src="{{public_path('img/icons/icons-checkmark-blue.png')}}">
+                                <x-icon.checkmark-pdf ></x-icon.checkmark-pdf>
                                 {!! $link->score !!} pt
                             </div>
                         </label>

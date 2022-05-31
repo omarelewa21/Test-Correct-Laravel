@@ -110,7 +110,7 @@
             height: 3px;
             background: #041f74;
         }
-        .mc-radio{
+        .mc-radio,.arq-radio{
             margin-top: 8px;
         }
         .bg-primary-light {
@@ -203,6 +203,9 @@
             border: 0 !important;
             border-width: 0 !important;
             border-collapse: unset;
+        }
+        .pdf-texarea{
+            padding-top: 5px;
         }
         .questionContainer .prevent-pagebreak-table td{
             border: 0 !important;

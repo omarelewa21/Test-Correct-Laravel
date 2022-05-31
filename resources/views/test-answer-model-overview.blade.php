@@ -9,7 +9,7 @@
              x-show="showMe"
              x-on:force-taken-away-blur.window="showMe = !$event.detail.shouldBlur;"
              class="w-full space-y-8 mt-10" :style="calculateMarginTop()">
-            <h1 class="mb-7">{{ __('test.answer_model') }}</h1>
+            <h1 class="mb-7" style="padding-left:40px;">{{ __('test.answer_model') }}</h1>
             @push('styling')
                 <style>
                     {!! $styling !!}

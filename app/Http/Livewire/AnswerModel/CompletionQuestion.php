@@ -92,7 +92,7 @@ class CompletionQuestion extends Component
         return collect($answers)->map(function ($option, $key) use ($correct) {
             $check = '';
             if(trim($option)==trim($correct)){
-                $check = sprintf('<img class="icon_checkmark_pdf" src="%s">',public_path('img/icons/icons-checkmark-blue.png'));
+                $check = sprintf('<img class="icon_checkmark_pdf" src="data:image/svg+xml;charset=utf8,%s" >',$this->getEncodedCheckmarkSvg());
             }
             return sprintf('<span class="overflow-ellipsis rounded-10 pdf-answer-model-select" >%s %s</span>', $option,$check);
         })->join('');
@@ -118,5 +118,15 @@ class CompletionQuestion extends Component
             $tags[$answer->tag] = true;
         });
         return count($tags) === count(array_filter($this->answer));
+    }
+
+    private function getEncodedCheckmarkSvg()
+    {
+        return rawurlencode('<svg width="13px" height="16px" viewBox="0 0 13 16" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>icons/checkmark small blue</title>
+    <g id="icons/checkmark-small-blue" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd" stroke-linecap="round">
+        <polyline id="Path" stroke="#004DF5" stroke-width="3" points="1.5 7.5 5.5 11.5 11.5 3.5"></polyline>
+    </g>
+</svg>');
     }
 }
