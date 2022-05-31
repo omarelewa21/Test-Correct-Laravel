@@ -14,7 +14,7 @@ use tcCore\TestKind;
 
 class TestCreateModal extends Component
 {
-    public $showModal = true;
+    public $showModal = false;
     public $modalId = 'test-create-modal';
 
     public $allowedTestKinds = [];
@@ -72,15 +72,15 @@ class TestCreateModal extends Component
         $this->allowedEductionLevels = EducationLevel::filtered(['user_id' => auth()->id()], [])->select(['id', 'name', 'max_years', 'uuid'])->get()->keyBy('id');
 
         $this->request = [
-            'name'                 => 'titel',
-            'abbreviation'         => 'af',
-            'test_kind_id'         => '1',
-            'subject_id'           => '16',
-            'education_level_id'   => 1,
+            'name'                 => '',
+            'abbreviation'         => '',
+            'test_kind_id'         => 1,
+            'subject_id'           => $this->allowedSubjects->first()->id,
+            'education_level_id'   => $this->allowedEductionLevels->first()->id,
             'education_level_year' => 1,
-            'period_id'            => 1,
+            'period_id'            => $this->allowedPeriods->first()->id,
             'shuffle'              => 0,
-            'introduction'         => 'Intor text',
+            'introduction'         => '',
         ];
     }
 
@@ -105,6 +105,7 @@ class TestCreateModal extends Component
     public function hideModal()
     {
         $this->showModal = false;
+        $this->emitTo('teacher.test-start-create-modal', 'showModal');
     }
 
     public function submit()

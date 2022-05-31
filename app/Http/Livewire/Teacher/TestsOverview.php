@@ -18,7 +18,7 @@ class TestsOverview extends Component
 {
     use WithPagination;
 
-    const PER_PAGE = 1;
+    const PER_PAGE = 16;
 
     public $search = '';
 

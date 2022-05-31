@@ -127,7 +127,7 @@
         </x-slot>
         <x-slot name="footer">
             <div class="flex justify-between w-full">
-                <x-button.text-button @click="show = false">
+                <x-button.text-button wire:click="hideModal">
                     <x-icon.arrow-left/>
                     <span>{{ __("modal.Terug") }}</span>
                 </x-button.text-button>

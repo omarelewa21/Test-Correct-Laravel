@@ -121,7 +121,7 @@
 
                     <span class="note text-sm" wire:loading.remove>{{  trans_choice('general.number-of-tests', $results->total(), ['count' => $results->total()]) }}</span>
                     <div>
-                        <x-button.primary ><x-icon.schedule/><span >{{ __('cms.Inplannen') }}</span></x-button.primary>
+                        <x-button.primary wire:click="$emitTo('teacher.planning-modal', 'showModal')" ><x-icon.schedule/><span >{{ __('cms.Inplannen') }}</span></x-button.primary>
                         <x-button.cta wire:click="$emitTo('teacher.test-start-create-modal', 'showModal')"><x-icon.plus/><span >{{ __('general.create test') }}</span></x-button.cta>
                     </div>
                 </div>

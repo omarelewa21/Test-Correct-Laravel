@@ -1,5 +1,10 @@
-<x-modal wire:key="planningModal" maxWidth="4xl" wire:model="showModal" show-cancel-button="false">
-    <x-slot name="title">{{ __('teacher.Inplannen') }}</x-slot>
+<x-modal-with-footer wire:key="planningModal" maxWidth="4xl" wire:model="showModal" show-cancel-button="false">
+    <x-slot name="title">
+        <div class="flex justify-between">
+            <span>{{ __('teacher.Inplannen') }}</span>
+            <span wire:click="showModal()" class="cursor-pointer">x</span>
+        </div>
+    </x-slot>
     <x-slot name="body">
         <x-input.group label="{{ __('teacher.Naam toets of opdracht') }}">
             <div class="border-blue-100 border-2 w-full p-2"
@@ -63,4 +68,4 @@
             <x-icon.chevron/>
         </x-button.primary>
     </x-slot>
-</x-modal>
+</x-modal-with-footer>
