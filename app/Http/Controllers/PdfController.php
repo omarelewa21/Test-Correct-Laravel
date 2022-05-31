@@ -174,11 +174,12 @@ class PdfController extends Controller
             'centerbaseline'=> false,
 
         ];
-        $createPath = config('app.base_url').'/ckeditor/plugins/ckeditor_wiris/integration/createimage.php';
+        $createPath = config('app.base_url').'ckeditor/plugins/ckeditor_wiris/integration/createimage.php';
         $path = config('app.base_url').'ckeditor/plugins/ckeditor_wiris/integration/showimage.php';
         $client = new Client();
         $res = $client->request('POST',$createPath,[
-            'form_params' => $data]);
+            'form_params' => $data,
+            'verify' => false]);
         $formulaUrl = $res->getBody()->getContents();
         $components = parse_url($formulaUrl);
         parse_str($components['query'], $results);
