@@ -612,7 +612,7 @@
                                 </div>
                             </div>
 
-                            @if(!$this->hasValidTUser)
+                            @if(!$this->hasValidTUser && !$this->hasFixedEmail)
                                 @if($resendVerificationMail)
                                     <div class="notification info mb-4">
                                         <span class="title">{{ __("onboarding.De verificatie e-mail is opnieuw naar je verzonden") }}.</span>
