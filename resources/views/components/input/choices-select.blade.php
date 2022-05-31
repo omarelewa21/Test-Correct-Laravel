@@ -29,5 +29,5 @@
      style="min-width: 200px"
      data-model-name="{{ $attributes->wire('model')->value }}"
 >
-    <select x-ref="select" :multiple="multiple" placeholder="{{ $placeholderText }}"></select>
+    <select x-ref="select" :multiple="multiple" placeholder="{{ $placeholderText }}" id="{{$attributes['id']}}"></select>
 </div>

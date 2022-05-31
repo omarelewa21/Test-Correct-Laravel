@@ -49,6 +49,16 @@
                     <span class="text-base bold inherit">{{ __('cms.Kopie maken') }}</span>
                 </button>
                 @endif
+                @if( $test->canEdit(auth()->user()))
+                    <button class="flex items-center space-x-2 py-1 px-4 base hover:text-primary hover:bg-offwhite transition w-full"
+                            wire:click="$emitTo('teacher.copy-test-from-schoollocation-modal', 'showModal', '{{ $test->uuid }}')"
+
+
+                    >
+                        <x-icon.schedule/>
+                        <span class="text-base bold inherit">{{ __('cms.Kopie maken') }} !!!</span>
+                    </button>
+                @endif
                 <button class="flex items-center space-x-2 py-1 px-4 base hover:text-primary hover:bg-offwhite transition w-full"
                         {{--                                        @click="$dispatch('delete-modal', ['question'])"--}}
                         @click="makePDF('{{ $test->uuid }}')"

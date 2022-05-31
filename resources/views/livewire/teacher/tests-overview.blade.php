@@ -159,5 +159,6 @@
     <livewire:teacher.test-start-create-modal></livewire:teacher.test-start-create-modal>
     <livewire:teacher.test-create-modal></livewire:teacher.test-create-modal>
     <livewire:teacher.test-delete-modal></livewire:teacher.test-delete-modal>
+    <livewire:teacher.copy-test-from-schoollocation-modal></livewire:teacher.copy-test-from-schoollocation-modal>
    <x-notification/>
 </div>

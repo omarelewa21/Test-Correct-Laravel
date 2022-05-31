@@ -2,66 +2,146 @@
     <x-slot name="title">
         <div class="flex justify-between">
             <span>{{ __('teacher.Inplannen') }}</span>
-            <span wire:click="showModal()" class="cursor-pointer">x</span>
+            <span wire:click="$set('showModal', false)" class="cursor-pointer">x</span>
         </div>
     </x-slot>
     <x-slot name="body">
-        <x-input.group label="{{ __('teacher.Naam toets of opdracht') }}">
-            <div class="border-blue-100 border-2 w-full p-2"
-                 class="transition ease-in-out duration-150">{{ $test->name }}</div>
-        </x-input.group>
-        <x-input.group label="{{ __('teacher.Datum') }}">
-            <x-input.text wire:model="request.date"/>
-            <x-input.datepicker wire:model="request.date" locale="nl"/>
+        <div class="email-section mb-4 w-full">
+            <div class="mb-4">
+                <label>{{ __('teacher.Naam toets of opdracht') }}</label>
+                    <div class="border-blue-100 form-input w-full p-2 transition ease-in-out duration-150">{{ $test->name }}</div>
 
-        </x-input.group>
-        @if ($this->isAssessmentType())
-            <x-input.group label="{{ __('teacher.Datum tot') }}">
-                <x-input.select wire:model="request.date_till">
-                    @foreach(range(0, 10) as $day)
-                        <option value="{{ now()->addDay($day)->format('d-m-Y') }}">{{ now()->addDay($day)->format('d-m-Y') }}</option>
-                    @endforeach
-                </x-input.select>
-            </x-input.group>
-        @endif
+            </div>
+            <div class="input-section">
+                <div class="name flex mb-4 space-x-4">
+                    <div class="input-group mb-4 sm:mb-0 flex-1">
+                            <x-input.datepicker wire:model="request.date" locale="nl"/>
+                        <label>{{ __('teacher.Datum') }}</label>
+                    </div>
+                    @if ($this->isAssessmentType())
+                        <div class="input-group mb-4 sm:mb-0 flex-1">
+                            <x-input.group label="{{ __('teacher.Datum tot') }}">
+                                <x-input.select wire:model="request.date_till">
+                                    @foreach(range(0, 10) as $day)
+                                        <option value="{{ now()->addDay($day)->format('d-m-Y') }}">{{ now()->addDay($day)->format('d-m-Y') }}</option>
+                                    @endforeach
+                                </x-input.select>
+                            </x-input.group>
+                        </div>
+                    @endif
 
-        <x-input.group label="{{ __('teacher.Periode') }}">
-            <x-input.select wire:model="request.period_id">
-                @foreach($allowedPeriods as $period)
-                    <option value="{{ $period->uuid }}">{{ $period->name }}</option>
-                @endforeach
-            </x-input.select>
-        </x-input.group>
+                    <div class="input-group mb-4 sm:mb-0 flex-1">
+                        <x-input.group label="{{ __('teacher.Periode') }}">
+                            <x-input.select wire:model="request.period_id">
+                                @foreach($allowedPeriods as $period)
+                                    <option value="{{ $period->uuid }}">{{ $period->name }}</option>
+                                @endforeach
+                            </x-input.select>
+                        </x-input.group>
+                    </div>
+                    <div class="input-group mb-4 sm:mb-0 flex-1">
+                        <x-input.group label="{{ __('teacher.Weging') }}">
+                            <x-input.text wire:model="request.weight">
+                            </x-input.text>
+                        </x-input.group>
+                    </div>
+                </div>
+            </div>
+            <div class="input-section" x-data>
+                <div class="name flex">
+                    <label for="teachers_and_classes">{{ __('teacher.Klassen en studenten') }}</label>
+                </div>
+                <div class="name flex mb-4">
+                    <x-input.choices-select :multiple="true"
+                                            :options="$this->schoolClasses"
+                                            :withSearch="true"
+                                            placeholderText="{!!  __('teacher.Klassen en studenten') !!}"
+                                            wire:model="request.schoolClasses"
+                                            filterContainer="{{ $this->selectedClassesContainerId }}"
+                                            id="teachers_and_classes"
+                    />
 
-        <x-input.group label="{{ __('teacher.Weging') }}">
-            <x-input.text wire:model="request.weight">
-            </x-input.text>
-        </x-input.group>
+                    <div id="{{ $this->selectedClassesContainerId }}"
+                         wire:ignore
+                         :class="($el.innerHTML !== '') ? 'mt-2' : ''"
+                         class="space-x-4"
+                    >
+                        <template id="filter-pill-template" class="hidden">
+                            <div class="space-x-2">
+                                <span class="flex"></span>
+                                <x-icon.close-small @click="removeFilterItem($el)"/>
+                            </div>
+                        </template>
 
-        <x-input.group label="{{ __('teacher.Klassen en studenten') }}">
+                    </div>
 
-        </x-input.group>
+                </div>
+            </div>
+            <div class="input-section" x-data>
+                <div class="name flex">
+                    <label for="choices_invigilators">{{ __('Surveillanten') }}</label>
+                </div>
+                <div class="name flex mb-4">
+                    <x-input.choices-select :multiple="true"
+                                            :options="$this->allowedInvigilators"
+                                            :withSearch="true"
+                                            placeholderText="{{ __('Docenten') }}"
+                                            wire:model="request.invigilators"
+                                            filterContainer="{{ $this->selectedInvigilatorsContrainerId }}"
+                                            id="choices_invigilators"
+                    />
 
-        <x-input.group label="{{ __('teacher.Surveillanten') }}">
+                    <div id="{{ $this->selectedInvigilatorsContrainerId }}"
+                         wire:ignore
+                         :class="($el.innerHTML !== '') ? 'mt-2' : ''"
+                         class="space-x-4"
+                    >
+                        <template id="filter-pill-template" class="hidden">
+                            <div class="space-x-2">
+                                <span class="flex"></span>
+                                <x-icon.close-small @click="removeFilterItem($el)"/>
+                            </div>
+                        </template>
 
-        </x-input.group>
-        <label class="font-bold">
-            <x-icon.preview/>{{ __('teacher.Test-Direct toestaan') }}</label>
-        <x-input.toggle wire:model="request.guest_accounts"/>
+                    </div>
 
-        <label class="font-bold">
-            <x-icon.preview/>{{ __('teacher.Browsertoetsen toestaan') }}</label>
+                </div>
+            </div>
+            <div class="input-section">
+                <div class="name flex mb-4 space-x-4">
 
-        <x-input.toggle wire:model="request.allow_inbrowser_testing"/>
+                    <div class="input-group mb-4 sm:mb-0 flex-auto border-t ">
+                        <x-input.toggle-row-with-title wire:model="request.allow_inbrowser_testing"
+                                                       :toolTip="__('teacher.inbrowser_testing_tooltip')"
+                                                       class="flex-row-reverse"
 
+                        >
+                            <span class="bold"> <x-icon.preview/>{{ __('teacher.Browsertoetsen toestaan') }} </span>
+                        </x-input.toggle-row-with-title>
+                    </div>
+                    <div class="input-group mb-4 sm:mb-0 flex-auto border-t">
+                        <x-input.toggle-row-with-title wire:model="request.guest_accounts"
+                                                       :toolTip="__('teacher.guest_accounts_tooltip')"
 
-        <x-input.group label="{{ __('teacher.Notities voor Surveillant') }}">
-            <x-input.textarea wire:model="request.invigilator_note">
-            </x-input.textarea>
-        </x-input.group>
+                        >
+                            <span class="bold">  <x-icon.preview/>{{ __('teacher.Test-Direct toestaan') }} </span>
+                        </x-input.toggle-row-with-title>
+                    </div>
+                </div>
+
+            </div>
+            <div class="input-section">
+                <div class="name flex mb-4 space-x-4">
+                    <x-input.group class="w-full" label="{{ __('teacher.Notities voor Surveillant') }}">
+                        <x-input.textarea class="w-full" wire:model="request.invigilator_note">
+                        </x-input.textarea>
+                    </x-input.group>
+                </div>
+            </div>
+        </div>
     </x-slot>
     <x-slot name="footer">
-        <div class="flex justify-between w-full">
+        <div class="flex justify-between w-full px-2">
             <x-button.text-button size="sm" wire:click="$set('showModal', false)">
                 <span>{{__('Annuleren')}}</span>
             </x-button.text-button>
