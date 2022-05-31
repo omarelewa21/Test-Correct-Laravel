@@ -276,6 +276,7 @@ class EntreeOnboarding extends Onboarding
 //            $this->warningStepTwoConfirmed = true;
 //            return;
 //        }
+
         if ($this->hasValidTUser) {
             // we need to merge the data with the t user account
             $attr = [

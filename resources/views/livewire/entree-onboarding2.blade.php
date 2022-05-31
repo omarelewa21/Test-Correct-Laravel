@@ -383,6 +383,7 @@
                                             </div>
                                         </div>
                                     @else
+                                        <div class="flex max-h-[210px] flex-col overflow-auto w-full">
                                         @foreach($this->schoolLocations as $locationName)
                                             <div
                                                     class="flex px-0 py-0 border-0 bg-system-white relative regular"
@@ -393,6 +394,7 @@
 
                                             </div>
                                         @endforeach
+                                        </div>
                                     @endif
                                         <div class="">
                                             @if($this->warningStepTwo)
@@ -444,8 +446,10 @@
                                             <h6 class="">{{ __('onboarding.Kies locatie(s)') }}</h6>
                                             <p class="">{{ __('onboarding.We hebben meerdere locaties gevonden. Op welke locatie geef jij les?') }}</p>
                                         </div>
-                                        <div class="flex flex-col border-b border-bluegrey mb-5">
+                                        <div class="flex border-b border-bluegrey mb-5">
+                                            <div class="flex max-h-[210px] flex-col overflow-auto w-full">
                                             @foreach($this->school->schoolLocations as $location)
+
                                                 <div wire:click="toggleSchoolLocation('{{ $location->uuid }}',@if($this->isSelectedSchoolLocation($location->uuid)) false @else true @endif )"
                                                      class="flex hover:bg-offwhite hover:text-primary transition cursor-pointer"
                                                 >
@@ -453,13 +457,14 @@
                                                             @if(!$loop->last) border-b border-bluegrey @endif w-full
                                                             @if($this->isSelectedSchoolLocation($location->uuid)) text-primary bold @endif
                                                             ">
-                                                        <span class="flex">{{ $location->name }}</span>
+                                                        <span class=" max-w-xs">{{ $location->name }}</span>
                                                         @if($this->isSelectedSchoolLocation($location->uuid))
                                                             <x-icon.checkmark class="mx-2 w-4"/>
                                                         @endif
                                                     </span>
                                                 </div>
                                             @endforeach
+                                            </div>
                                         </div>
 
                                         @empty($this->selectedLocationsString)
@@ -550,10 +555,17 @@
                                         <x-icon.chevron class="z-0 rotate-180" />
                                         <span>{{ __('modal.Terug') }}</span>
                                     </x-button.text-button>
-                                    <x-button.cta size="md" wire:click="step2">
-                                        <span>{{ __('auth.Maak account') }}</span>
-                                        <x-icon.chevron/>
-                                    </x-button.cta>
+                                    @if ($btnDisabled)
+                                        <x-button.cta size="md" class="btn-disabled" disabled>
+                                            <span>{{ __('auth.Maak account') }}</span>
+                                            <x-icon.chevron/>
+                                        </x-button.cta>
+                                    @else
+                                        <x-button.cta size="md" wire:click="step2" onClick="this.setAttribute('disabled',true);">
+                                            <span>{{ __('auth.Maak account') }}</span>
+                                            <x-icon.chevron/>
+                                        </x-button.cta>
+                                    @endif
                                 </div>
                             </div>
                         </div>
