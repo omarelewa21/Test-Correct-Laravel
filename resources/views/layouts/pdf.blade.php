@@ -24,6 +24,9 @@
         [x-cloak] {
             visibility: visible !important;
         }
+        body{
+            background: #ffffff !important;
+        }
         .question-indicator .question-number.complete {
             border-color: #3ab753;
             background: #3ab753;
@@ -74,6 +77,9 @@
         .icon_checkmark_pdf{
             display: inline-flex;
             margin-left: 10px;
+            /*width: 16px;*/
+            /*height: 16px;*/
+            max-width: none !important;
         }
         .multiple-choice-question.disabled, .multiple-choice-question.disabled:hover {
             background: white;
@@ -115,6 +121,15 @@
         }
         .bg-light-grey {
             background: #F0F2F5;
+        }
+        .border-mid-grey {
+            border-color: #929DAF;
+        }
+        .border-system-secondary {
+            border-color: #CEDAF3;
+        }
+        .border-primary {
+            border-color: #004df5;
         }
         .base {
             color: #041f74;
@@ -165,6 +180,9 @@
         .pdf-80{
             width: 80%;
         }
+        .pdf-minh-40{
+            min-height: 40px;
+        }
         .pdf-align-center{
             vertical-align: sub;
         }
@@ -176,6 +194,19 @@
             border: solid 2px #c3d0ed;
             padding-left: 10px;
             padding-right: 10px;
+        }
+        .prevent-pagebreak{
+            page-break-before:auto;
+        }
+        .prevent-pagebreak-table{
+            width: 100%;
+            border: 0 !important;
+            border-width: 0 !important;
+            border-collapse: unset;
+        }
+        .questionContainer .prevent-pagebreak-table td{
+            border: 0 !important;
+            border-width: 0 !important;
         }
     </style>
 

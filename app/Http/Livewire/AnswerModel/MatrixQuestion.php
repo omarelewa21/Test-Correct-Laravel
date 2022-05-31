@@ -15,7 +15,7 @@ use tcCore\Http\Traits\WithNotepad;
 
 class MatrixQuestion extends Component
 {
-    use WithAttachments, WithNotepad, withCloseable, WithGroups;
+    use WithNotepad, withCloseable, WithGroups;
 
     public $question;
     public $number;
@@ -32,10 +32,10 @@ class MatrixQuestion extends Component
         $this->subQuestions = $this->question->matrixQuestionSubQuestions;
         $this->questionAnswers = $this->question->matrixQuestionAnswers;
 
-        if (!empty(json_decode($this->answers[$this->question->uuid]['answer']))) {
-            $this->answerStruct = json_decode($this->answers[$this->question->uuid]['answer'], true);
-            $this->answered = true;
-        }
+        $this->question->matrixQuestionAnswerSubQuestions->each(function($matrixQuestionAnswerSubQuestion){
+            $this->answerStruct[$matrixQuestionAnswerSubQuestion->matrix_question_sub_question_id] =$matrixQuestionAnswerSubQuestion->matrix_question_answer_id;
+        });
+
 
         if(!is_null($this->question->belongs_to_groupquestion_id)){
             $this->question->groupQuestion = Question::find($this->question->belongs_to_groupquestion_id);
@@ -45,12 +45,7 @@ class MatrixQuestion extends Component
 
     public function render()
     {
-        return view('livewire.overview.matrix-question');
+        return view('livewire.answer_model.matrix-question');
     }
 
-    public function isQuestionFullyAnswered(): bool
-    {
-        $selectedAnswers = count(array_filter($this->answerStruct));
-        return $this->subQuestions->count() === $selectedAnswers;
-    }
 }

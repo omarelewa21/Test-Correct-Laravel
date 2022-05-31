@@ -2,7 +2,7 @@
     <div class="w-full">
         <div wire:ignore>{!! $question->converted_question_html  !!}</div>
         <div class="mt-4 flex">
-            <table class="border-collapse">
+            <table class="border-collapse prevent-pagebreak">
                 <thead>
                 <tr>
                     <th class=""></th>
@@ -37,7 +37,7 @@
                                            value="{{ $subQuestion->getKey() }}:{{ $questionAnswer->getKey() }}"
                                            class="hidden"
                                     >
-                                    <x-question.matrix-radio :subQuestionId="$subQuestion->getKey()" :questionAnswerId="$questionAnswer->getKey()" disabled="true"/>
+                                    <x-question.matrix-radio-pdf :subQuestionId="$subQuestion->getKey()" :questionAnswerId="$questionAnswer->getKey()" disabled="true"/>
                                 </label>
                             </td>
                         @endforeach
@@ -47,6 +47,4 @@
             </table>
         </div>
     </div>
-    <x-attachment.attachment-modal :attachment="$attachment" :answerId="$answerId"/>
-    <x-question.notepad :showNotepad="$showNotepad"/>
 </x-partials.answer-model-question-container>

@@ -4,33 +4,40 @@
             {!!   $question->converted_question_html !!}
         </div>
         @if($question->subtype == 'Classify')
-            <div class="flex flex-col classify" style="margin-top: 40px;">
-                <div class="flex space-x-5 classified">
-                    @foreach ($question->matchingQuestionAnswers as $group)
-                        @if(  $group->correct_answer_id === null )
-                            <x-dropzone type="classify" title="{{ $group->answer }}" wire:key="group-{{ $group->id }}"
-                                        wire:sortable.item="{{ $group->id }}">
-                                <div class="flex flex-col w-full dropzone-height" selid="drag-block-input" >
-                                    @foreach($question->matchingQuestionAnswers as $option)
-                                        @if(  $option->correct_answer_id !== null )
-                                            @if($option->correct_answer_id == $group->id)
-                                                <x-drag-item-disabled wire:key="option-{{ $option->id }}"
-                                                                      sortableHandle="false"
-                                                                      wire:sortable-group.item="{{ $option->id }}">
-                                                    {{ $option->answer }}
-                                                </x-drag-item-disabled>
-                                            @endif
-                                        @endif
-                                    @endforeach
-                                </div>
-                            </x-dropzone>
-                        @endif
-                    @endforeach
-                </div>
-            </div>
+            <table class="prevent-pagebreak-table prevent-pagebreak">
+                <tr>
+                    <td>
+                        <div class="flex flex-col classify " style="margin-top: 40px;">
+                            <div class="flex space-x-5 classified">
+                                @foreach ($question->matchingQuestionAnswers as $group)
+                                    @if(  $group->correct_answer_id === null )
+                                        <x-dropzone type="classify" title="{{ $group->answer }}" wire:key="group-{{ $group->id }}"
+                                                    wire:sortable.item="{{ $group->id }}">
+                                            <div class="flex flex-col w-full dropzone-height" selid="drag-block-input" >
+                                                @foreach($question->matchingQuestionAnswers as $option)
+                                                    @if(  $option->correct_answer_id !== null )
+                                                        @if($option->correct_answer_id == $group->id)
+                                                            <x-drag-item-disabled wire:key="option-{{ $option->id }}"
+                                                                                  sortableHandle="false"
+                                                                                  wire:sortable-group.item="{{ $option->id }}">
+                                                                {{ $option->answer }}
+                                                            </x-drag-item-disabled>
+                                                        @endif
+                                                    @endif
+                                                @endforeach
+                                            </div>
+                                        </x-dropzone>
+                                    @endif
+                                @endforeach
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+            </table>
+
         @endif
         @if($question->subtype == 'Matching')
-            <div class="flex flex-col space-y-1 matching">
+            <div class="flex flex-col space-y-1 matching prevent-pagebreak">
                 <div class="flex flex-col space-y-3">
                     @foreach ($question->matchingQuestionAnswers as $group)
                         @if(  $group->correct_answer_id === null )
