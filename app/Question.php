@@ -79,6 +79,7 @@ class Question extends MtiBaseModel {
                             'html_specialchars_encoded',
                             'is_subquestion',
                             'all_or_nothing',
+                            'fix_order'
                             ];
 
     /**

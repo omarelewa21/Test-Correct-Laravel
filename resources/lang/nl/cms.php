@@ -165,5 +165,6 @@ return [
     'begin_with_making_a_question'                                                           => 'Begin met het maken van een vraaggroep of een losse vraag.',
     'nieuwe'                                                                                 => '{0} nieuw|{1}nieuwe',
     'Wijzigingen niet opslaan'                                                               => 'Wijzigingen niet opslaan',
+    'fix_order'                                                                              => 'Volgorde van antwoorden vastzetten',
 
 ];

@@ -40,7 +40,7 @@ class MultipleSelectQuestion extends Component
 
         $this->shuffledKeys = array_keys($this->answerStruct);
         if (!$this->question->isCitoQuestion()) {
-            if ($this->question->subtype != 'ARQ' && $this->question->subtype != 'TrueFalse') {
+            if ($this->question->subtype != 'ARQ' && $this->question->subtype != 'TrueFalse' && !$this->question->fix_order) {
                 shuffle($this->shuffledKeys);
             }
         }

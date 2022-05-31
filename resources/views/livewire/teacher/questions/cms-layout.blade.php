@@ -242,15 +242,6 @@
                             {{ __('cms.Antwoordmodel') }}
                         </x-slot>
 
-                        @if($this->hasAllOrNothing())
-                            <x-input.toggle-row-with-title wire:model="question.all_or_nothing"
-                                                           :toolTip="__('cms.all_or_nothing_tooltip_text')"
-                            >
-                                <span class="bold"> {{ __('cms.Alles of niets correct') }}</span>
-                            </x-input.toggle-row-with-title>
-
-                        @endif
-
                         @yield('question-cms-answer')
                     </x-content-section>
                 @endif
