@@ -65,7 +65,8 @@ class SendOnboardingWelcomeMail extends Mailable
             ->with([
                 'user' => $this->user,
                 'url' => $this->url,
-                'token' => (!$this->skipVerificationPart) ? $emailConfirmation->uuid : null
+                'token' => (!$this->skipVerificationPart) ? $emailConfirmation->uuid : null,
+                'skipVerificationPart' => $this->skipVerificationPart
             ]);
     }
 }
