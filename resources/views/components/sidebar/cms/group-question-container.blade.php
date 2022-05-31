@@ -1,5 +1,5 @@
 <div x-data="{expand: true}"
-     class="flex flex-col py-1.5 pl-6 pr-4 {{ ($this->testQuestionId == $testQuestion->uuid) ? 'group-active' : '' }}"
+     class="drag-item flex flex-col py-1.5 pl-6 pr-4 {{ ($this->testQuestionId == $testQuestion->uuid) ? 'group-active' : '' }}"
      style="max-width: 300px"
      wire:key="group-{{ $testQuestion->uuid }}"
      wire:sortable.item="{{ $question->uuid }}"

@@ -1,4 +1,4 @@
-<div class="question-button flex items-center cursor-pointer bold py-2 hover:text-primary @if(!$subQuestion) pl-6 pr-4 @endif {{ $active ? 'question-active' : '' }}"
+<div class="drag-item question-button flex items-center cursor-pointer bold py-2 hover:text-primary @if(!$subQuestion) pl-6 pr-4 @endif {{ $active ? 'question-active' : '' }}"
      @click="$store.cms.processing = true;$wire.emitTo('teacher.questions.open-short','showQuestion',
         {
                 'testQuestionUuid':'{{ $testQuestion ? $testQuestion->uuid : null }}',

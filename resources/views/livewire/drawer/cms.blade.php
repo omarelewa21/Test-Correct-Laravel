@@ -20,7 +20,7 @@
         handleLoading = () => {
             loadingOverlay = $store.cms.loading;
         }
-    "
+     "
      x-cloak
      x-effect="handleLoading()"
      :class="{'collapsed': collapse}"
@@ -206,3 +206,4 @@
         <span class="invisible"></span>
     </div>
 </div>
+
