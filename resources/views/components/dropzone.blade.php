@@ -3,13 +3,13 @@
     'startGroup' => false,
     'type'
 ])
-<div class="flex flex-col flex-1 space-y-3 leading-5" id="main-{{$attributes->get('id')}}">
+<div class="flex flex-col flex-1 space-y-3 leading-5 pdf-35 pdf-ml-9" id="main-{{$attributes->get('id')}}">
     @isset($title)
         <h6 id="heading_for_{{ $attributes->get('id') }}" class="text-center"> {{ $title }}</h6>
     @endif
 
     <div {{ $attributes }}
-         class="
+         class="pdf-dropzone
         @if(!$startGroup)  border-blue-grey bg-white w-full border-dashed border-2 rounded-2xl @else startGroup @endif
         @if(isset($type) && $type == 'classify') p-1 @endif
             "
