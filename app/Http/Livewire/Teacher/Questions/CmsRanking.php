@@ -114,7 +114,7 @@ class CmsRanking extends CmsBase
     public function prepareForSave()
     {
         $this->instance->question['answers'] = array_values(collect($this->instance->cmsPropertyBag['answerStruct'])->map(function($answer){
-            $answer = $answer InstanceOf \stdClass ? $answer : $answer;
+            $answer = $answer InstanceOf \stdClass ? (array) $answer : $answer;
             return [
                 'order' => $answer['order'],
                 'answer' => BaseHelper::transformHtmlChars($answer['answer']),
