@@ -384,7 +384,7 @@
                                         </div>
                                     @else
                                         <div class="flex border-b border-bluegrey mb-5">
-                                            <div class="flex max-h-[210px] flex-col overflow-y-auto w-full">
+                                            <div class="flex flex-col w-full" style="height:fit-content">
                                             @foreach($this->schoolLocations as $locationName)
                                                     <span class="flex mx-4 py-2 items-center justify-between
                                                                 @if(!$loop->last) border-b border-bluegrey @endif w-full
