@@ -54,7 +54,7 @@ class Cms extends Component
             return true;
         }
         if ($this->action === 'add') {
-            $this->newQuestionTypeName = CmsFactory::findQuestionNameByTypes($this->type, $this->subtype);
+            $this->setQuestionNameString($this->type, $this->subtype);
         }
     }
 
@@ -93,7 +93,7 @@ class Cms extends Component
 
     public function addQuestionResponse($args)
     {
-        $this->newQuestionTypeName = $args['subtype'] == 'group' ? __('cms.group-question') : CmsFactory::findQuestionNameByTypes($args['type'], $args['subtype']);
+        $this->setQuestionNameString($args['type'], $args['subtype']);
 
         if ($this->emptyStateActive) {
             $this->emptyStateActive = false;
@@ -300,5 +300,10 @@ class Cms extends Component
     private function shouldRedirectFromSubQuestion($groupQuestionQuestionId)
     {
         return $this->groupQuestionQuestionId === $groupQuestionQuestionId;
+    }
+
+    private function setQuestionNameString($type, $subtype)
+    {
+        $this->newQuestionTypeName = $subtype === 'group' ? __('cms.group-question') : CmsFactory::findQuestionNameByTypes($type, $subtype);
     }
 }

@@ -428,6 +428,7 @@ document.addEventListener('alpine:init', () => {
         addQuestionToGroup(uuid) {
             this.showAddQuestionSlide()
             this.$store.questionBank.inGroup = uuid;
+            this.$dispatch('backdrop');
         },
         addGroup(shouldCheckDirty = true) {
             if (shouldCheckDirty && this.$store.cms.dirty) {

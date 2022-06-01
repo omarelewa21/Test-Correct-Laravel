@@ -38,7 +38,7 @@
      x-cloak
      x-on:question-change.window="handleQuestionChange($event.detail)"
      x-on:show-empty.window="empty = !empty"
-     x-on:new-question-added.window="removeDrawingLegacy(); $nextTick(() => empty = false)"
+     x-on:new-question-added.window="console.log('event');removeDrawingLegacy(); $nextTick(() => empty = false)"
      x-on:store-current-question.window="forceSyncEditors();"
      x-effect="if(!!empty) { $refs.editorcontainer.style.opacity = 0}"
      questionComponent
