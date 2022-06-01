@@ -18,11 +18,16 @@ class CopyTestFromSchoollocationModal extends Component
 
     public $allowedSubjectsForExamnSubjects = [];
 
-    protected function rules(){
-        return ['test.name' => 'required'];
+    protected function rules()
+    {
+        return [
+            'request.name'       => 'required',
+            'request.subject_id' => 'ruquired',
+        ];
     }
 
-    public function mount(){
+    public function mount()
+    {
         $this->test = new Test;
 
     }
@@ -33,10 +38,42 @@ class CopyTestFromSchoollocationModal extends Component
 
         $this->base_subject = $this->test->subject->baseSubject->name;
 
-        $this->allowedSubjectsForExamnSubjects = Subject::allowedSubjectsByBaseSubjectForUser($this->test->subject->baseSubject, auth()->user())->pluck('name', 'id');
+        $this->allowedSubjectsForExamnSubjects = Subject::allowedSubjectsByBaseSubjectForUser($this->test->subject->baseSubject,
+            auth()->user())->pluck('name', 'id');
         $this->test->subject_id = $this->allowedSubjectsForExamnSubjects->keys()->first();
 
         $this->showModal = true;
+    }
+
+    public function duplicateTest($testUuid)
+    {
+        // @TODO only duplicate when allowed?
+        $this->validate();
+
+        $test = Test::whereUuid($testUuid)->first();
+        if ($test == null) {
+            return 'Error no test was found';
+        }
+
+        if (!$test->canDuplicate()) {
+            return 'Error duplication not allowed';
+        }
+
+        try {
+            $newTest = $test->userDuplicate(
+                [
+                    'school_location_id' => Auth::user()->school_location_id,
+                    'subject_id'         => $this->request['subject_id'],
+                    'name'               => $this->request['name'],
+                ], Auth::id()
+            );
+        } catch (\Exception $e) {
+            return 'Error duplication failed';
+        }
+
+        return __('general.duplication successful');
+
+
     }
 
 

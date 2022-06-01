@@ -236,10 +236,5 @@ class TestsOverview extends Component
             }
         }
         return $searchFilter;
-
-
-
     }
-
-
 }
