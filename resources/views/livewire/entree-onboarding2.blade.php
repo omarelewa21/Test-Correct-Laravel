@@ -337,7 +337,7 @@
                             </div>
                         </div>
                     @elseif($this->step === 2)
-                        <div class="content-form relative" wire:key="step2" x-data="{showSchools: true}">
+                        <div class="content-form relative" wire:key="step2" x-data="{showSchools: @if($this->hasValidTUser) false @else true @endif}">
                             {{--content header--}}
                             @if($this->hasFixedLocation)
                                 <div class="flex flex-col p-5 md:p-10">
@@ -386,7 +386,7 @@
                                         <div class="flex max-h-[210px] flex-col overflow-auto w-full">
                                         @foreach($this->schoolLocations as $locationName)
                                             <div
-                                                    class="flex px-0 py-0 border-0 bg-system-white relative regular"
+                                                    class="flex flex-1 px-0 py-0 border-0 bg-system-white relative regular"
                                             >
                                                 {{ $locationName }}
 
@@ -535,12 +535,14 @@
 
                                         </div>
                                     @endforeach
-
-                                <x-button.text-button class="mx-auto" @click="showSchools = true">
-                                    <x-icon.edit/>
-                                    <span>{{ __('onboarding.Wijzig locaties') }}</span>
-                                </x-button.text-button>
+                                    @if(!$this->hasValidTUser)
+                                    <x-button.text-button class="mx-auto" @click="showSchools = true">
+                                        <x-icon.edit/>
+                                        <span>{{ __('onboarding.Wijzig locaties') }}</span>
+                                    </x-button.text-button>
+                                    @endif
                                 @endif
+                                @if(!$this->hasValidTUser)
                                 <p class="text-note mt-auto">
                                     {{ __('onboarding.general_terms_text_pt_1') }}
                                     <a class="underline primary-hover"
@@ -549,7 +551,7 @@
                                         {{ __('onboarding.general_terms') }}
                                     </a> {{ __('onboarding.general_terms_text_pt_2') }}
                                 </p>
-
+                                @endif
                                 <div class="mt-10 flex justify-between items-center">
                                     <x-button.text-button wire:click="backToStepOne">
                                         <x-icon.chevron class="z-0 rotate-180" />
