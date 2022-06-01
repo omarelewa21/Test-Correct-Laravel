@@ -443,11 +443,9 @@ document.addEventListener('alpine:init', () => {
             }
 
             this.next(this.$refs.container1);
-            this.$dispatch('backdrop')
         },
         backToQuestionOverview(container) {
             this.prev(container);
-            this.$dispatch('backdrop');
             this.$store.questionBank.inGroup = false;
             // this.$store.cms.processing = false;
         }

@@ -69,7 +69,6 @@
         >
             <x-sidebar.slide-container class="pt-4 divide-y divide-bluegrey"
                                        x-ref="container1"
-{{--                                       @drawer-scroll.window="handleVerticalScroll($el)"--}}
                                        @mouseenter="handleVerticalScroll($el);"
                                        @continue-to-new-slide.window="$store.cms.processing = true;$wire.removeDummy();showAddQuestionSlide(false)"
                                        @continue-to-add-group.window="addGroup(false)"
@@ -121,7 +120,7 @@
                     {{ __('cms.Vraaggroep toevoegen') }}
                 </x-button.plus-circle>
 
-                <x-button.plus-circle @click="showAddQuestionSlide()"
+                <x-button.plus-circle @click="showAddQuestionSlide();dispatchBackdrop()"
                 >
                     {{__('cms.Vraag toevoegen')}}
                 </x-button.plus-circle>
@@ -131,7 +130,7 @@
             <x-sidebar.slide-container class="divide-y divide-bluegrey" x-ref="container2" @mouseenter="handleVerticalScroll($el);">
                 <div class="py-1 px-6 flex">
                     <x-button.text-button class="rotate-svg-180"
-                                          @click="backToQuestionOverview($refs.container2)"
+                                          @click="backToQuestionOverview($refs.container2);dispatchBackdrop()"
                                           wire:click="$set('groupId', null)"
                     >
                         <x-icon.arrow/>

@@ -98,6 +98,7 @@ class Cms extends Component
         if ($this->emptyStateActive) {
             $this->emptyStateActive = false;
             $this->dispatchBrowserEvent('question-change');
+            $this->dispatchBrowserEvent('new-question-added');
         }
         $this->dispatchBrowserEvent('processing-end');
         $this->groupId = null;

@@ -6039,11 +6039,9 @@ document.addEventListener('alpine:init', function () {
         }
 
         this.next(this.$refs.container1);
-        this.$dispatch('backdrop');
       },
       backToQuestionOverview: function backToQuestionOverview(container) {
         this.prev(container);
-        this.$dispatch('backdrop');
         this.$store.questionBank.inGroup = false; // this.$store.cms.processing = false;
       }
     };

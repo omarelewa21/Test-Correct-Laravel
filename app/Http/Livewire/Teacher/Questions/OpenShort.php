@@ -1037,7 +1037,7 @@ class OpenShort extends Component
 
     private function resolveOrderNumber()
     {
-        if ($this->isGroupQuestion() || !$this->questionId) {
+        if ($this->isGroupQuestion() || !$this->questionId || $this->emptyState) {
             return 1;
         }
 
