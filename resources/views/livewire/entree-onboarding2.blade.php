@@ -383,21 +383,21 @@
                                             </div>
                                         </div>
                                     @else
-                                        <div class="flex max-h-[210px] flex-col overflow-auto w-full">
-                                        @foreach($this->schoolLocations as $locationName)
-                                            <div
-                                                    class="flex flex-1 px-0 py-0 border-0 bg-system-white relative regular"
-                                            >
-                                                {{ $locationName }}
-
-                                                <x-icon.checkmark class="mx-2 w-4"></x-icon.checkmark>
-
+                                        <div class="flex border-b border-bluegrey mb-5">
+                                            <div class="flex max-h-[210px] flex-col overflow-auto w-full">
+                                            @foreach($this->schoolLocations as $locationName)
+                                                    <span class="flex mx-4 py-2 items-center justify-between
+                                                                @if(!$loop->last) border-b border-bluegrey @endif w-full
+                                                                text-primary bold
+                                                            ">
+                                                            <span class="flex flex-1">{{ $locationName }}</span>
+                                                        </span>
+                                            @endforeach
                                             </div>
-                                        @endforeach
                                         </div>
                                     @endif
                                         <div class="">
-                                            @if($this->warningStepTwo)
+                                            @if($this->warningStepTwo && !$this->hasFixedLocation)
                                                 <div class="notification warning mt-4">
                                                     <span class="title">{{ __("onboarding.Zijn alle velden correct ingevuld") }}?</span>
                                                 </div>
@@ -480,7 +480,7 @@
                                         @endempty
 
                                         <div class="">
-                                            @if($this->warningStepTwo)
+                                            @if($this->warningStepTwo && !$this->hasFixedLocation)
                                                 <div class="notification warning mt-4">
                                                     <span class="title">{{ __("onboarding.Zijn alle velden correct ingevuld") }}?</span>
                                                 </div>
@@ -521,25 +521,26 @@
                             @endif
                             <div class="flex flex-col w-full flex-1 p-5 sm:px-10">
                                 @if($this->school)
-                                    @foreach($this->selectedSchoolLocationList() as $location)
-                                        <div class="flex space-x-4 w-full mb-4" wire:key="chosen-{{ $location->uuid }}">
-                                            <div class="input-group flex-1">
-                                                <input id="name-{{ $location->uuid }}" disabled class="form-input disabled" value="{{ $location->name }}">
-                                                <label for="name-{{ $location->uuid }}" >{{ __('onboarding.Schoolnaam') }} {{ $loop->iteration }}</label>
-                                            </div>
-
-                                            <div class="input-group flex-1">
-                                                <input id="address-{{ $location->uuid }}" disabled class="form-input disabled" value="{{ $location->main_address }}">
-                                                <label for="address-{{ $location->uuid }}" >{{ __('teacher_registered.Adres') }} {{ $loop->iteration }}</label>
-                                            </div>
-
-                                        </div>
-                                    @endforeach
                                     @if(!$this->hasValidTUser)
-                                    <x-button.text-button class="mx-auto" @click="showSchools = true">
-                                        <x-icon.edit/>
-                                        <span>{{ __('onboarding.Wijzig locaties') }}</span>
-                                    </x-button.text-button>
+                                        @foreach($this->selectedSchoolLocationList() as $location)
+                                            <div class="flex space-x-4 w-full mb-4" wire:key="chosen-{{ $location->uuid }}">
+                                                <div class="input-group flex-1">
+                                                    <input id="name-{{ $location->uuid }}" disabled class="form-input disabled" value="{{ $location->name }}">
+                                                    <label for="name-{{ $location->uuid }}" >{{ __('onboarding.Schoolnaam') }} {{ $loop->iteration }}</label>
+                                                </div>
+
+                                                <div class="input-group flex-1">
+                                                    <input id="address-{{ $location->uuid }}" disabled class="form-input disabled" value="{{ $location->main_address }}">
+                                                    <label for="address-{{ $location->uuid }}" >{{ __('teacher_registered.Adres') }} {{ $loop->iteration }}</label>
+                                                </div>
+
+                                            </div>
+                                        @endforeach
+
+                                        <x-button.text-button class="mx-auto" @click="showSchools = true">
+                                            <x-icon.edit/>
+                                            <span>{{ __('onboarding.Wijzig locaties') }}</span>
+                                        </x-button.text-button>
                                     @endif
                                 @endif
                                 @if(!$this->hasValidTUser)
