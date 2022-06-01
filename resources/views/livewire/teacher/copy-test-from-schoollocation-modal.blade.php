@@ -1,4 +1,4 @@
-<x-modal-with-footer wire:key="planningModal" maxWidth="4xl" wire:model="showModal" show-cancel-button="false">
+<x-modal-with-footer wire:key="planningModal" maxWidth="2xl" wire:model="showModal" show-cancel-button="false">
     <x-slot name="title">
         <div class="flex justify-between">
             <span>{{ __('teacher.copy for schoollocation') }}</span>
@@ -6,14 +6,30 @@
         </div>
     </x-slot>
     <x-slot name="body">
-        <div class="email-section mb-4 w-full">
-            <div class="mb-4">
-                <label>{{ __('teacher.Naam toets of opdracht') }}</label>
-                <div class="border-blue-100 form-input w-full p-2 transition ease-in-out duration-150">{{ $test->name }}</div>
-
-            </div>
-
+        <div class="mb-4 w-full">
+            <x-input.group class="mb-4 input-group w-full" label="{{ __('teacher.Naam toets of opdracht') }}">
+                <x-input.text wire:model="test.name" class="w-full"/>
+            </x-input.group>
         </div>
+        <div class="mb-4 w-full flex space-x-2">
+            <div class="mb-4 flex-1">
+                <x-input.group class="mb-4 input-group w-full" label="{{ __('teacher.examenvak') }}">
+                    <x-input.select disabled class="w-full">
+                        <option>{{ $base_subject }}</option>
+                    </x-input.select>
+                </x-input.group>
+            </div>
+            <div class="mb-4 flex-1">
+                <x-input.group class="mb-4 input-group w-full" label="{{ __('teacher.kies een vak') }}">
+                    <x-input.select class="w-full" wire:model="test.subject_id">
+                        @foreach($this->allowedSubjectsForExamnSubjects as $key => $value)
+                            <option value="{{ $key }}">{{ $value }}</option>
+                        @endforeach
+                    </x-input.select>
+                </x-input.group>
+            </div>
+        </div>
+
     </x-slot>
     <x-slot name="footer">
         <div class="flex justify-between w-full px-2">

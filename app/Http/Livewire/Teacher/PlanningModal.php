@@ -111,8 +111,8 @@ class PlanningModal extends Component
 
     private function resetModalRequest()
     {
-        $this->selectedClassesContainerId = 'selected_classes';
-        $this->selectedInvigilatorsContrainerId = 'selected_invigilator';
+        $this->selectedClassesContainerId = 'selected_classes'.$this->test->getKey();
+        $this->selectedInvigilatorsContrainerId = 'selected_invigilator'.$this->test->getKey();
 
         $this->request = [];
 

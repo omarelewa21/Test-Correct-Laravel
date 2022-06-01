@@ -1,4 +1,4 @@
-<x-modal-with-footer wire:key="planningModal" maxWidth="4xl" wire:model="showModal" show-cancel-button="false">
+<x-modal-with-footer wire:key="planningModal{{ microtime() }}" maxWidth="4xl" wire:model="showModal" show-cancel-button="false">
     <x-slot name="title">
         <div class="flex justify-between">
             <span>{{ __('teacher.Inplannen') }}</span>
@@ -14,37 +14,36 @@
             </div>
             <div class="input-section">
                 <div class="name flex mb-4 space-x-4">
-                    <div class="input-group mb-4 sm:mb-0 flex-1">
+
+                        <x-input.group class=" mb-4 sm:mb-0 flex-1" label="{{ __('teacher.Datum') }}">
                             <x-input.datepicker wire:model="request.date" locale="nl"/>
-                        <label>{{ __('teacher.Datum') }}</label>
-                    </div>
+                        </x-input.group>
+
                     @if ($this->isAssessmentType())
-                        <div class="input-group mb-4 sm:mb-0 flex-1">
-                            <x-input.group label="{{ __('teacher.Datum tot') }}">
+                            <x-input.group class="mb-4 sm:mb-0 flex-1" label="{{ __('teacher.Datum tot') }}">
                                 <x-input.select wire:model="request.date_till">
                                     @foreach(range(0, 10) as $day)
                                         <option value="{{ now()->addDay($day)->format('d-m-Y') }}">{{ now()->addDay($day)->format('d-m-Y') }}</option>
                                     @endforeach
                                 </x-input.select>
                             </x-input.group>
-                        </div>
                     @endif
 
-                    <div class="input-group mb-4 sm:mb-0 flex-1">
-                        <x-input.group label="{{ __('teacher.Periode') }}">
+
+                        <x-input.group class="mb-4 sm:mb-0 flex-1" label="{{ __('teacher.Periode') }}">
                             <x-input.select wire:model="request.period_id">
                                 @foreach($allowedPeriods as $period)
                                     <option value="{{ $period->uuid }}">{{ $period->name }}</option>
                                 @endforeach
                             </x-input.select>
                         </x-input.group>
-                    </div>
-                    <div class="input-group mb-4 sm:mb-0 flex-1">
-                        <x-input.group label="{{ __('teacher.Weging') }}">
+
+
+                        <x-input.group class="mb-4 sm:mb-0 flex-1" label="{{ __('teacher.Weging') }}">
                             <x-input.text wire:model="request.weight">
                             </x-input.text>
                         </x-input.group>
-                    </div>
+
                 </div>
             </div>
             <div class="input-section" x-data>
@@ -57,13 +56,14 @@
                                             :withSearch="true"
                                             placeholderText="{!!  __('teacher.Klassen en studenten') !!}"
                                             wire:model="request.schoolClasses"
-                                            filterContainer="{{ $this->selectedClassesContainerId }}"
+                                            filterContainer="selected_classes"
                                             id="teachers_and_classes"
                     />
 
-                    <div id="{{ $this->selectedClassesContainerId }}"
-                         wire:ignore
-                         :class="($el.innerHTML !== '') ? 'mt-2' : ''"
+                    <div id="selected_classes"
+                         wire:key="filterkey-{{ $this->selectedClassesContainerId }}"
+{{--                         wire:ignore--}}
+
                          class="space-x-4"
                     >
                         <template id="filter-pill-template" class="hidden">
@@ -87,14 +87,14 @@
                                             :withSearch="true"
                                             placeholderText="{{ __('Docenten') }}"
                                             wire:model="request.invigilators"
-                                            filterContainer="{{ $this->selectedInvigilatorsContrainerId }}"
+                                            filterContainer="selected_invigilators"
                                             id="choices_invigilators"
                     />
 
-                    <div id="{{ $this->selectedInvigilatorsContrainerId }}"
-                         wire:ignore
-                         :class="($el.innerHTML !== '') ? 'mt-2' : ''"
+                    <div id="selected_invigilators"
                          class="space-x-4"
+{{--                         wire:key="{{ $this->selectedInvigilatorsContrainerId }}"--}}
+                         wire:ignore
                     >
                         <template id="filter-pill-template" class="hidden">
                             <div class="space-x-2">

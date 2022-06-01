@@ -162,6 +162,9 @@ class Subject extends BaseModel implements AccessCheckable
                             ->where('show_in_onboarding', $value);
                     });
                     break;
+                case 'base_subject_id' :
+                    $query->where('base_subject_id', $value);
+                    break;
             }
         }
 
@@ -283,6 +286,12 @@ class Subject extends BaseModel implements AccessCheckable
             }
         });
     }
+
+    public function scopeAllowedSubjectsByBaseSubjectForUser($query, BaseSubject $baseSubject, User $forUser) {
+        return $query->filtered(['base_subject_id' => $baseSubject->id, 'user_id' => $forUser->id], []);
+    }
+
+
 
 
 }
