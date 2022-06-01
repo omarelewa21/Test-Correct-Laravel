@@ -384,7 +384,7 @@
                                         </div>
                                     @else
                                         <div class="flex border-b border-bluegrey mb-5">
-                                            <div class="flex max-h-[210px] flex-col overflow-auto w-full">
+                                            <div class="flex flex-col w-full" style="height:fit-content">
                                             @foreach($this->schoolLocations as $locationName)
                                                     <span class="flex mx-4 py-2 items-center justify-between
                                                                 @if(!$loop->last) border-b border-bluegrey @endif w-full
@@ -447,7 +447,7 @@
                                             <p class="">{{ __('onboarding.We hebben meerdere locaties gevonden. Op welke locatie geef jij les?') }}</p>
                                         </div>
                                         <div class="flex border-b border-bluegrey mb-5">
-                                            <div class="flex max-h-[210px] flex-col overflow-auto w-full">
+                                            <div class="flex max-h-[210px] flex-col overflow-y-auto w-full">
                                             @foreach($this->school->schoolLocations as $location)
 
                                                 <div wire:click="toggleSchoolLocation('{{ $location->uuid }}',@if($this->isSelectedSchoolLocation($location->uuid)) false @else true @endif )"
