@@ -79,7 +79,7 @@
                                     </div>
 
                                     <div class="gender-section mb-1.5 flex-wrap"
-                                         x-data="{gender: @entangle('registration.gender').defer}">
+                                         x-data="{gender: @entangle('registration.gender')}">
                                         <div class="flex space-x-2 items-center flex-1 mb-2.5 hover:text-primary transition cursor-pointer"
                                              @click="gender = 'male'"
                                              :class="gender === 'male' ? 'primary bold' : 'text-midgrey'"
