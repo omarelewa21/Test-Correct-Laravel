@@ -457,7 +457,7 @@
                                                             @if(!$loop->last) border-b border-bluegrey @endif w-full
                                                             @if($this->isSelectedSchoolLocation($location->uuid)) text-primary bold @endif
                                                             ">
-                                                        <span class=" max-w-xs">{{ $location->name }}</span>
+                                                        <span class="flex flex-1">{{ $location->name }}</span>
                                                         @if($this->isSelectedSchoolLocation($location->uuid))
                                                             <x-icon.checkmark class="mx-2 w-4"/>
                                                         @endif
