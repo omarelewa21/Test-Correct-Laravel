@@ -8,7 +8,7 @@
     <x-slot name="body">
         <div class="mb-4 w-full">
             <x-input.group class="mb-4 input-group w-full" label="{{ __('teacher.Naam toets of opdracht') }}">
-                <x-input.text wire:model="test.name" class="w-full"/>
+                <x-input.text wire:model="request.name" class="w-full"/>
             </x-input.group>
         </div>
         <div class="mb-4 w-full flex space-x-2">
@@ -21,7 +21,7 @@
             </div>
             <div class="mb-4 flex-1">
                 <x-input.group class="mb-4 input-group w-full" label="{{ __('teacher.kies een vak') }}">
-                    <x-input.select class="w-full" wire:model="test.subject_id">
+                    <x-input.select class="w-full" wire:model="request.subject_id">
                         @foreach($this->allowedSubjectsForExamnSubjects as $key => $value)
                             <option value="{{ $key }}">{{ $value }}</option>
                         @endforeach
@@ -38,7 +38,7 @@
             </x-button.text-button>
 
 
-            <x-button.cta size="sm" wire:click="copy">
+            <x-button.cta size="sm" wire:click="copy('{{ $this->testUuid }}')">
                 <x-icon.checkmark/>
                 <span>{{__('teacher.make copy')}}</span>
             </x-button.cta>

@@ -43,7 +43,10 @@ class TestsOverview extends Component
 
     public $selected = [];
 
-    protected $listeners = ['test-deleted' => '$refresh'];
+    protected $listeners = [
+        'test-deleted' => '$refresh',
+        'test-added' => '$refresh',
+    ];
 
 
     public function render()
@@ -164,8 +167,6 @@ class TestsOverview extends Component
         }
 
         return __('general.duplication successful');
-
-
     }
 
     public function openEdit($testUuid)

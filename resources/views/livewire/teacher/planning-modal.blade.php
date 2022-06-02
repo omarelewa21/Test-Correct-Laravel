@@ -59,21 +59,7 @@
                                             filterContainer="selected_classes"
                                             id="teachers_and_classes"
                     />
-
-                    <div id="selected_classes"
-                         wire:key="filterkey-{{ $this->selectedClassesContainerId }}"
-{{--                         wire:ignore--}}
-
-                         class="space-x-4"
-                    >
-                        <template id="filter-pill-template" class="hidden">
-                            <div class="space-x-2">
-                                <span class="flex"></span>
-                                <x-icon.close-small @click="removeFilterItem($el)"/>
-                            </div>
-                        </template>
-
-                    </div>
+                    <div id="selected_classes" class="space-x-4 ml-4"></div>
 
                 </div>
             </div>
@@ -91,20 +77,7 @@
                                             id="choices_invigilators"
                     />
 
-                    <div id="selected_invigilators"
-                         class="space-x-4"
-{{--                         wire:key="{{ $this->selectedInvigilatorsContrainerId }}"--}}
-                         wire:ignore
-                    >
-                        <template id="filter-pill-template" class="hidden">
-                            <div class="space-x-2">
-                                <span class="flex"></span>
-                                <x-icon.close-small @click="removeFilterItem($el)"/>
-                            </div>
-                        </template>
-
-                    </div>
-
+                    <div id="selected_invigilators" class="space-x-4 ml-4"></div>
                 </div>
             </div>
             <div class="input-section">

@@ -2,6 +2,8 @@
 
 namespace tcCore\Http\Livewire\Teacher;
 
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\Rule;
 use Livewire\Component;
 use tcCore\Subject;
 use tcCore\Test;
@@ -10,7 +12,9 @@ class CopyTestFromSchoollocationModal extends Component
 {
     public $showModal = false;
 
-    public $test;
+    private $test;
+
+    public $testUuid;
 
     protected $listeners = ['showModal'];
 
@@ -18,34 +22,47 @@ class CopyTestFromSchoollocationModal extends Component
 
     public $allowedSubjectsForExamnSubjects = [];
 
+    public $request = [];
+
     protected function rules()
     {
-        return [
-            'request.name'       => 'required',
-            'request.subject_id' => 'ruquired',
+        $rules = [
+            'request.name'       => 'required|string|min:4',
+            'request.subject_id' => [
+                'required',
+                'int',
+            ]
         ];
-    }
 
-    public function mount()
-    {
-        $this->test = new Test;
+        if ($this->test) {
+            $rules['request.subject_id'][] = Rule::in(
+                Subject::allowedSubjectsByBaseSubjectForUser($this->test->subject->baseSubject, auth()->user())
+                    ->pluck('id')
+            );
+        }
 
+        return $rules;
     }
 
     public function showModal($testUuid)
     {
         $this->test = \tcCore\Test::whereUuid($testUuid)->first();
+        if ($this->test) {
+            $this->testUuid = $this->test->uuid;
+        }
+        $this->request['name'] = $this->test->name;
 
         $this->base_subject = $this->test->subject->baseSubject->name;
-
-        $this->allowedSubjectsForExamnSubjects = Subject::allowedSubjectsByBaseSubjectForUser($this->test->subject->baseSubject,
-            auth()->user())->pluck('name', 'id');
-        $this->test->subject_id = $this->allowedSubjectsForExamnSubjects->keys()->first();
+        $this->allowedSubjectsForExamnSubjects = Subject::allowedSubjectsByBaseSubjectForUser(
+            $this->test->subject->baseSubject,
+            auth()->user()
+        )->pluck('name', 'id');
+        $this->request['subject_id'] = $this->allowedSubjectsForExamnSubjects->keys()->first();
 
         $this->showModal = true;
     }
 
-    public function duplicateTest($testUuid)
+    public function copy($testUuid)
     {
         // @TODO only duplicate when allowed?
         $this->validate();
@@ -71,9 +88,9 @@ class CopyTestFromSchoollocationModal extends Component
             return 'Error duplication failed';
         }
 
-        return __('general.duplication successful');
-
-
+        $this->dispatchBrowserEvent('notify', ['message' => __('general.duplication successful')]);
+        $this->showModal = false;
+        $this->emitTo('teacher.tests-overview', 'test-added');
     }
 
 
