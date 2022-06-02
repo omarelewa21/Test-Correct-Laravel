@@ -39,11 +39,7 @@
             </div>
             <div class="flex items-start space-x-2.5 mt-1 text-sysbase">
                 <div class="flex h-full rounded-md" @if($subQuestion) wire:sortable-group.handle @else wire:sortable.handle @endif>
-                    @if($question->closeable)
-                        <x-icon.locked/>
-                    @else
-                        <x-icon.unlocked class="note"/>
-                    @endif
+                        <x-icon.reorder/>
                 </div>
                 <div class="flex">
                     <x-sidebar.cms.question-options :testQuestion="$testQuestion" :question="$question" :subQuestion="$subQuestion"/>

@@ -35,11 +35,7 @@
                 @endif
             @endif
             <div class="flex h-full rounded-md" class="mt-2" wire:sortable.handle>
-                @if($question->closeable)
-                    <x-icon.locked/>
-                @else
-                    <x-icon.unlocked class="note"/>
-                @endif
+                    <x-icon.reorder/>
             </div>
             <div class="flex">
                 <x-sidebar.cms.question-options :testQuestion="$testQuestion" :question="$question" :subQuestion="false"/>
