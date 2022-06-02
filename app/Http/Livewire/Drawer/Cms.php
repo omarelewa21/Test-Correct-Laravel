@@ -2,14 +2,18 @@
 
 namespace tcCore\Http\Livewire\Drawer;
 
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Livewire\Component;
+use tcCore\GroupQuestion;
 use tcCore\GroupQuestionQuestion;
 use tcCore\Http\Controllers\GroupQuestionQuestionsController;
 use tcCore\Http\Controllers\TestQuestionsController;
 use tcCore\Http\Livewire\Teacher\Questions\CmsFactory;
 use tcCore\Lib\GroupQuestionQuestion\GroupQuestionQuestionManager;
+use tcCore\Question;
 use tcCore\Test;
+use tcCore\TestQuestion;
 
 class Cms extends Component
 {
@@ -61,6 +65,55 @@ class Cms extends Component
     public function render()
     {
         return view('livewire.drawer.cms');
+    }
+
+    public function updateTestItemsOrder($data)
+    {
+        DB::beginTransaction();
+        try {
+            $test = Test::whereUuid($this->testId)->first();
+            if(!$test){
+                throw new \Exception('test could not be found');
+            }
+            collect($data)->each(function($item) use ($test){
+                $question = Question::whereUuid($item['value'])->first();
+                if(!$question){
+                    throw new \Exception('question could not be found');
+                }
+                TestQuestion::where('test_id',$test->getKey())->where('question_id',$question->getKey())->update(['order' => $item['order']]);
+            });
+            DB::commit();
+        } catch (\Throwable $e) {
+            logger($e->getMessage());
+            DB::rollBack();
+            $this->refreshDrawer();
+        }
+    }
+
+    public function updateGroupItemsOrder($data)
+    {
+        $group = collect($data)->first();
+
+        $groupQuestion = GroupQuestion::whereUuid($group['value'])->first();
+        if(!$groupQuestion){
+            $this->refreshDrawer();
+            dd('could not find the group question');
+        }
+        DB::beginTransaction();
+        try {
+            collect($group['items'])->each(function ($item) use ($groupQuestion) {
+                $question = Question::whereUuid($item['value'])->first();
+                if(!$question){
+                    throw new \Exception('question could not be found');
+                }
+                GroupQuestionQuestion::where('group_question_id',$groupQuestion->getKey())->where('question_id',$question->getKey())->update(['order' => $item['order']]);
+            });
+            DB::commit();
+        } catch (\Throwable $e) {
+            logger($e->getMessage());
+            DB::rollBack();
+            $this->refreshDrawer();
+        }
     }
 
     public function showQuestion($testQuestionUuid, $questionUuid, $subQuestion, $shouldSave = true)
