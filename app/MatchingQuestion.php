@@ -313,7 +313,11 @@ class MatchingQuestion extends Question implements QuestionInterface {
         $emptyCount = 0;
         $haveOneNonEmptyContainer = false;
         foreach($answers as $answer){
-            if(strlen($answer['right']) === 0 || $answer['right'] == ' '){
+            if(Str::of($answer['left'])->trim()->length() === 0){
+                $validator->errors()->add('question.answers', __('cms.container_label_missing') );
+            }
+
+            if(Str::of($answer['right'])->trim()->length() === 0){
                 $emptyCount += 1;
             }else{
                 $haveOneNonEmptyContainer = true;
