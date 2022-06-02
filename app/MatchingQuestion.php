@@ -313,7 +313,7 @@ class MatchingQuestion extends Question implements QuestionInterface {
         $emptyCount = 0;
         $haveOneNonEmptyContainer = false;
         foreach($answers as $answer){
-            if(strlen($answer['left']) === 0 || $answer['left'] == ' '){
+            if(strlen($answer['right']) === 0 || $answer['right'] == ' '){
                 $emptyCount += 1;
             }else{
                 $haveOneNonEmptyContainer = true;
