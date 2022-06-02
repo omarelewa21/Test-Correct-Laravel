@@ -17,7 +17,7 @@
     ]}"
     x-cloak
 >
-    <div class="max-w-sm mx-auto py-16">
+    <div class="max-w-sm">
         <div class="mb-5">
             <div class="flex items-center">
                 <div class="relative ml-3 mt-8">
@@ -46,10 +46,10 @@
                     x-transition:leave-end="opacity-0 scale-95"
                     class="fixed mt-2 colorPick"
                     >
-                        <div class="bg-white shadow-xs px-4 py-3">
-                            <div class="flex flex-wrap mx-auto overflow-auto" style="height: 200px;">
+                        <div class="bg-white shadow-xs">
+                            <div class="flex flex-wrap overflow-auto" style="height: 200px;">
                                 <template x-for="(color, index) in colors" :key="index">
-                                    <div class="px-2">
+                                    <div>
                                         <template x-if="colorSelected === color">
                                             <div
                                             class="w-7 h-7 inline-flex rounded border-4 colorPickButton"
