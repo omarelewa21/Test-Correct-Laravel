@@ -1078,13 +1078,10 @@
     -webkit-backdrop-filter: blur(15px);
     border-radius: 5px;
     box-shadow: 0px 3px 8px rgba(0, 0, 0, 0.2);
-    padding: 4px;
+    padding: 4px !important;
     font-family: "Open Sans", sans-serif;
-    width: 300px;
+    width: 372px;
     box-sizing: content-box;
-}
-.box{
-    width: 390px;
 }
 
 .colorPickButton {

@@ -2402,13 +2402,10 @@ input[type=number] {
     -webkit-backdrop-filter: blur(15px);
     border-radius: 5px;
     box-shadow: 0px 3px 8px rgba(0, 0, 0, 0.2);
-    padding: 4px;
+    padding: 4px !important;
     font-family: "Open Sans", sans-serif;
-    width: 300px;
+    width: 372px;
     box-sizing: content-box;
-}
-.box{
-    width: 390px;
 }
 
 .colorPickButton {
@@ -4610,14 +4607,14 @@ video {
 .h-8{
 	height: 2rem;
 }
+.h-7{
+	height: 1.75rem;
+}
 .h-10{
 	height: 2.5rem;
 }
 .h-\[90vh\]{
 	height: 90vh;
-}
-.h-7{
-	height: 1.75rem;
 }
 .h-80{
 	height: 20rem;
@@ -4732,6 +4729,9 @@ video {
 .w-8{
 	width: 2rem;
 }
+.w-7{
+	width: 1.75rem;
+}
 .w-10{
 	width: 2.5rem;
 }
@@ -4740,9 +4740,6 @@ video {
 }
 .w-px{
 	width: 1px;
-}
-.w-7{
-	width: 1.75rem;
 }
 .w-3\/5{
 	width: 60%;
@@ -5608,10 +5605,6 @@ video {
 .py-px{
 	padding-top: 1px;
 	padding-bottom: 1px;
-}
-.py-16{
-	padding-top: 4rem;
-	padding-bottom: 4rem;
 }
 .px-28{
 	padding-left: 7rem;
