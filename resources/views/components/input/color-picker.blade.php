@@ -44,9 +44,9 @@
                     x-transition:leave="transition ease-in duration-75 transform"
                     x-transition:leave-start="opacity-100 scale-100"
                     x-transition:leave-end="opacity-0 scale-95"
-                    class="fixed mt-2 colorPick"
+                    class="fixed mt-2 colorPick overflow-x-auto"
                     >
-                        <div class="bg-white shadow-xs">
+                        <div class="bg-white shadow-xs box">
                             <div class="flex flex-wrap overflow-auto" style="height: 200px;">
                                 <template x-for="(color, index) in colors" :key="index">
                                     <div>
