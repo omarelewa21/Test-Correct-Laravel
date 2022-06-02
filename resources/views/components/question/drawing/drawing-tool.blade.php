@@ -107,7 +107,6 @@
                 </div>
 
                 <div class="property-group" id="edge">
-                    <input type="color" name="stroke-color" id="stroke-color" autocomplete="off" title="{{ __('drawing-modal.Randkleur') }}" class="cursor-pointer">
                     <x-input.color-picker  
                         :name="'stroke-color'"
                         :id="'stroke-color'"

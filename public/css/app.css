@@ -2396,6 +2396,32 @@ input[type=number] {
         }
     }
 }
+
+.colorPick {
+    background: rgba(255, 255, 255, 0.85);
+    -webkit-backdrop-filter: blur(15px);
+    border-radius: 5px;
+    box-shadow: 0px 3px 8px rgba(0, 0, 0, 0.2);
+    padding: 15px;
+    font-family: "Open Sans", sans-serif;
+    width: 390px;
+    box-sizing: content-box;
+}
+
+.colorPickButton {
+    border-radius: 5px;
+    width: 25px;
+    height: 25px;
+    margin: 0px 1.5px !important;
+    cursor: pointer;
+    display: inline-block;
+    border: thin solid #eee;
+  }
+  
+  .colorPickButton:hover {
+    transform: scale(1.1);
+  }
+  
 .ck-editor__editable_inline {
     min-height: 300px;
     font-family: Arial;
@@ -5320,6 +5346,10 @@ video {
 .border-current{
 	border-color: currentColor;
 }
+.border-white{
+	--tw-border-opacity: 1;
+	border-color: rgba(255, 255, 255, var(--tw-border-opacity));
+}
 .border-blue-300{
 	--tw-border-opacity: 1;
 	border-color: rgba(147, 197, 253, var(--tw-border-opacity));
@@ -5579,6 +5609,10 @@ video {
 .py-px{
 	padding-top: 1px;
 	padding-bottom: 1px;
+}
+.py-16{
+	padding-top: 4rem;
+	padding-bottom: 4rem;
 }
 .px-28{
 	padding-left: 7rem;

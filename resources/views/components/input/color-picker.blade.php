@@ -44,16 +44,15 @@
                     x-transition:leave="transition ease-in duration-75 transform"
                     x-transition:leave-start="opacity-100 scale-100"
                     x-transition:leave-end="opacity-0 scale-95"
-                    class="fixed mt-2 rounded shadow-lg overflow-auto"
-                    style="width: 340px"
+                    class="fixed mt-2 colorPick"
                     >
                         <div class="bg-white shadow-xs px-4 py-3">
-                            <div class="flex flex-wrap mx-auto">
+                            <div class="flex flex-wrap mx-auto overflow-auto" style="height: 200px;">
                                 <template x-for="(color, index) in colors" :key="index">
                                     <div class="px-2">
                                         <template x-if="colorSelected === color">
                                             <div
-                                            class="w-8 h-8 inline-flex rounded cursor-pointer border-4 border-white"
+                                            class="w-7 h-7 inline-flex rounded border-4 colorPickButton"
                                             :style="`background: ${color}; box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.2);`"
                                             />
                                         </template>
@@ -64,7 +63,7 @@
                                             @keydown.enter="colorSelected = color"
                                             role="checkbox" tabindex="0"
                                             :aria-checked="colorSelected"
-                                            class="w-8 h-8 inline-flex rounded cursor-pointer border-4 border-white focus:outline-none focus:shadow-outline"
+                                            class="w-7 h-7 inline-flex rounded border-4 colorPickButton"
                                             :style="`background: ${color};`"
                                             />
                                         </template>
