@@ -122,21 +122,6 @@ class Cms extends Component
         });
     }
 
-    public function getQuestionNameForDisplay($question)
-    {
-        if ($question->type === "MultipleChoiceQuestion") {
-            if ($question->subtype === "ARQ") {
-                return 'question.arq';
-            }
-
-            return 'question.' . Str::kebab($question->subtype);
-        }
-        if ($question->type === "OpenQuestion") {
-            return 'question.open-long-short';
-        }
-        return 'question.' . Str::kebab(Str::replaceFirst('Question', '', $question->type));
-    }
-
     public function addGroup()
     {
         $this->addQuestion('GroupQuestion', 'group');

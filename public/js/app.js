@@ -5929,8 +5929,6 @@ document.addEventListener('alpine:init', function () {
         this.drawer = this.$root.closest('.drawer');
         setTimeout(function () {
           _this8.handleVerticalScroll(_this8.$root.firstElementChild);
-
-          _this8.$dispatch('groupFoldingUpdate');
         }, 400);
       },
       next: function next(currentEl) {
@@ -5957,6 +5955,7 @@ document.addEventListener('alpine:init', function () {
           left: position >= 0 ? position : 0,
           behavior: 'smooth'
         });
+        this.$store.cms.scrollPos = 0;
       },
       handleVerticalScroll: function handleVerticalScroll(el) {
         var _this9 = this;
@@ -6015,6 +6014,7 @@ document.addEventListener('alpine:init', function () {
       addQuestionToGroup: function addQuestionToGroup(uuid) {
         this.showAddQuestionSlide();
         this.$store.questionBank.inGroup = uuid;
+        this.$dispatch('backdrop');
       },
       addGroup: function addGroup() {
         var shouldCheckDirty = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : true;
@@ -6156,7 +6156,8 @@ document.addEventListener('alpine:init', function () {
   alpinejs__WEBPACK_IMPORTED_MODULE_1__["default"].store('cms', {
     loading: false,
     processing: false,
-    dirty: false
+    dirty: false,
+    scrollPos: 0
   });
   alpinejs__WEBPACK_IMPORTED_MODULE_1__["default"].store('questionBank', {
     active: false,

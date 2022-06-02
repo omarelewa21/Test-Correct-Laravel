@@ -22,10 +22,9 @@
         }
     "
      x-cloak
-     x-effect="handleLoading()"
+     x-effect="handleLoading(); $el.scrollTop = $store.cms.scrollPos"
      :class="{'collapsed': collapse}"
      @backdrop="backdrop = !backdrop"
-     @scroll.throttle.500ms="$dispatch('drawer-scroll')"
      @processing-end.window="$store.cms.processing = false;"
      wire:ignore.self
      wire:init="handleCmsInit()"
