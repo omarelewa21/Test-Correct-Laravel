@@ -241,19 +241,7 @@ class ImportAttainmentTest extends TestCase
         $this->loginAdmin();
         $this->inactivateAttainmentToMakeImportPossible();
         $testXslx = __DIR__.'/../files/import_new_learning_goals_06_04_22.xlsx';
-        $this->assertFileExists($testXslx);
-        $request  = new Request();
-        $params = [
-            'session_hash' => Auth::user()->session_hash,
-            'user'         => Auth::user()->username,
-            'attainments' => $testXslx,
-        ];
-        $request->merge($params);
-        $response = (new LearningGoalImportController())->importForUpdateOrCreate($request);
-        dump($response->getContent());
-        $this->assertEquals(200,$response->getStatusCode());
-
-        $this->logoutAdmin();
+        $this->learningGoalsXslxIntegrityTest($testXslx);
     }
 
     /** @test */
@@ -262,19 +250,16 @@ class ImportAttainmentTest extends TestCase
         $this->loginAdmin();
         $this->inactivateAttainmentToMakeImportPossible();
         $testXslx = __DIR__.'/../files/import_new_learning_goals_20_04_22.xlsx';
-        $this->assertFileExists($testXslx);
-        $request  = new Request();
-        $params = [
-            'session_hash' => Auth::user()->session_hash,
-            'user'         => Auth::user()->username,
-            'attainments' => $testXslx,
-        ];
-        $request->merge($params);
-        $response = (new LearningGoalImportController())->importForUpdateOrCreate($request);
-        dump($response->getContent());
-        $this->assertEquals(200,$response->getStatusCode());
+        $this->learningGoalsXslxIntegrityTest($testXslx);
+    }
 
-        $this->logoutAdmin();
+    /** @test */
+    public function new_learning_goals_file_03_06_22_integrity_test()
+    {
+        $this->loginAdmin();
+        $this->inactivateAttainmentToMakeImportPossible();
+        $testXslx = __DIR__.'/../files/import_new_learning_goals_03_06_22.xlsx';
+        $this->learningGoalsXslxIntegrityTest($testXslx);
     }
 
     /** @test */
@@ -283,22 +268,7 @@ class ImportAttainmentTest extends TestCase
         $this->loginAdmin();
         $this->inactivateAttainmentToMakeImportPossible();
         $testXslx = __DIR__.'/../files/import_new_attainments_08nov21_v2.xlsx';
-        $this->assertFileExists($testXslx);
-        $request  = new Request();
-        $params = [
-            'session_hash' => Auth::user()->session_hash,
-            'user'         => Auth::user()->username,
-            'attainments' => $testXslx,
-        ];
-        $request->merge($params);
-        $response = (new AttainmentImportController())->importForUpdateOrCreate($request);
-        dump($response->getContent());
-        $this->assertEquals(200,$response->getStatusCode());
-        $attainments = Attainment::whereNotNull('subsubcode')->get();
-        foreach ($attainments as $attainment){
-            $this->assertNotNull($attainment->attainment_id);
-        }
-        $this->logoutAdmin();
+        $this->importXslxIntegrityTest($testXslx);
     }
 
     /** @test */
@@ -307,22 +277,7 @@ class ImportAttainmentTest extends TestCase
         $this->loginAdmin();
         $this->inactivateAttainmentToMakeImportPossible();
         $testXslx = __DIR__.'/../files/import_existing_attainments_08nov21.xlsx';
-        $this->assertFileExists($testXslx);
-        $request  = new Request();
-        $params = [
-            'session_hash' => Auth::user()->session_hash,
-            'user'         => Auth::user()->username,
-            'attainments' => $testXslx,
-        ];
-        $request->merge($params);
-        $response = (new AttainmentImportController())->importForUpdateOrCreate($request);
-        dump($response->getContent());
-        $this->assertEquals(200,$response->getStatusCode());
-        $attainments = Attainment::whereNotNull('subsubcode')->get();
-        foreach ($attainments as $attainment){
-            $this->assertNotNull($attainment->attainment_id);
-        }
-        $this->logoutAdmin();
+        $this->importXslxIntegrityTest($testXslx);
     }
 
     /** @test */
@@ -962,6 +917,49 @@ class ImportAttainmentTest extends TestCase
             'subsubcode'=> null,
         ];
         return $missingParent;
+    }
+
+    /**
+     * @param string $testXslx
+     */
+    private function importXslxIntegrityTest(string $testXslx): void
+    {
+        $this->assertFileExists($testXslx);
+        $request = new Request();
+        $params = [
+            'session_hash' => Auth::user()->session_hash,
+            'user' => Auth::user()->username,
+            'attainments' => $testXslx,
+        ];
+        $request->merge($params);
+        $response = (new AttainmentImportController())->importForUpdateOrCreate($request);
+        dump($response->getContent());
+        $this->assertEquals(200, $response->getStatusCode());
+        $attainments = Attainment::whereNotNull('subsubcode')->get();
+        foreach ($attainments as $attainment) {
+            $this->assertNotNull($attainment->attainment_id);
+        }
+        $this->logoutAdmin();
+    }
+
+    /**
+     * @param string $testXslx
+     */
+    private function learningGoalsXslxIntegrityTest(string $testXslx): void
+    {
+        $this->assertFileExists($testXslx);
+        $request = new Request();
+        $params = [
+            'session_hash' => Auth::user()->session_hash,
+            'user' => Auth::user()->username,
+            'attainments' => $testXslx,
+        ];
+        $request->merge($params);
+        $response = (new LearningGoalImportController())->importForUpdateOrCreate($request);
+        dump($response->getContent());
+        $this->assertEquals(200, $response->getStatusCode());
+
+        $this->logoutAdmin();
     }
 }
 
