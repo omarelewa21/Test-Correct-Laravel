@@ -1,10 +1,36 @@
 <div id="dirty-modal"
      class="fixed inset-0 overflow-y-auto px-4 py-6 sm:px-0 z-[101]"
-     x-data="{dirtyModal: @entangle('showDirtyQuestionModal')}"
+     x-data="{dirtyModal: false, toExisting: false, isGroup: false, leavingTest: false}"
      x-init="$watch('dirtyModal', (value) => {
-        if(!value) return;
-        $store.cms.processing = false;
-     })"
+                if(!value) return;
+                $store.cms.processing = false;
+             });
+            deleteAction = () => {
+                dirtyModal = false;
+                $wire.set('forceOpenNewQuestion', true);
+                if(toExisting) {
+                    $wire.continueToNextQuestion()
+                    return;
+                }
+                if(isGroup) {
+                    $dispatch('continue-to-add-group')
+                    return;
+                }
+
+                if (leavingTest) {
+                    $wire.returnToTestOverview();
+                    return;
+                }
+
+                $dispatch('continue-to-new-slide')
+
+
+            }
+            continueAction = () => {
+                dirtyModal = false;
+                $wire.validateFromDirtyModal()
+            }
+     "
      x-show="dirtyModal"
      x-cloak
      x-transition:enter="ease-out duration-100"
@@ -13,6 +39,7 @@
      x-transition:leave="ease-in duration-100"
      x-transition:leave-start="opacity-100 scale-100"
      x-transition:leave-end="opacity-0 scale-90"
+     x-on:show-dirty-question-modal.window="dirtyModal = true; toExisting = $event.detail.goingToExisting ?? false; isGroup = $event.detail.group ?? false; leavingTest = $event.detail.leavingTest ?? false"
 >
     <div x-show="dirtyModal" class="fixed inset-0 transform " x-on:click="dirtyModal = false"
          x-transition:enter="ease-out duration-100"
@@ -48,10 +75,10 @@
                     <span class="">{{ __('cms.question_incomplete_text', ['item' => $item]) }}</span>
                 @endif
                 <div class="flex w-full justify-end mt-4 space-x-4">
-                    <x-button.text-button @click="dirtyModal = false; $wire.continueToNextQuestion()">
+                    <x-button.text-button @click="deleteAction()">
                         <span>{{ $new ? __('cms.Verwijderen') : __('cms.Wijzigingen niet opslaan')}}</span>
                     </x-button.text-button>
-                    <x-button.primary @click="dirtyModal = false">
+                    <x-button.primary @click="continueAction()">
                         <span>{{ __('cms.Aanvullen') }}</span>
                         <x-icon.chevron/>
                     </x-button.primary>
@@ -59,5 +86,4 @@
             </div>
         </div>
     </div>
-
 </div>

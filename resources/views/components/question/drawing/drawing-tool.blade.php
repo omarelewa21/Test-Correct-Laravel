@@ -213,7 +213,7 @@
                     <div id="layers-heading"></div>
                 </div>
                 <div id="submit">
-                    <button class="CTA" id="submit-btn">
+                    <button class="CTA" id="submit-btn" selid="save-drawing-btn">
                         {{ __('drawing-modal.Opslaan') }}
                     </button>
                 </div>
@@ -271,19 +271,19 @@
     </div>
 </div>
 <template id="shape-group-template">
-    <div class="shape-container" id="shape-n" draggable="false">
+    <div class="shape-container" id="shape-n" draggable="false" selid="shape">
         <div class="flex items-center w-full justify-between">
             <span class="shape-title">If you read this, report a bug</span>
             <div class="btn-group">
-                <button class="shape-btn remove-btn" title="{{ __('drawing-modal.Verwijderen') }}">
+                <button class="shape-btn remove-btn" selid="shape-remove-btn" title="{{ __('drawing-modal.Verwijderen') }}">
                     <x-icon.trash/>
                 </button>
-                <button class="shape-btn lock-btn" data-title-locked="{{ __('drawing-modal.Ontgrendelen') }}" data-title-unlocked="{{ __('drawing-modal.Vergrendelen') }}"
+                <button class="shape-btn lock-btn" selid="shape-lock-btn" data-title-locked="{{ __('drawing-modal.Ontgrendelen') }}" data-title-unlocked="{{ __('drawing-modal.Vergrendelen') }}"
                         title="{{ __('drawing-modal.Vergrendelen') }}">
                     <x-icon.unlocked/>
                     <x-icon.locked/>
                 </button>
-                <button class="shape-btn hide-btn" data-title-hidden="{{ __('drawing-modal.Tonen') }}" data-title-unhidden="{{ __('drawing-modal.Verbergen') }}"
+                <button class="shape-btn hide-btn" selid="shape-hide-btn" data-title-hidden="{{ __('drawing-modal.Tonen') }}" data-title-unhidden="{{ __('drawing-modal.Verbergen') }}"
                         title="{{ __('drawing-modal.Verbergen') }}">
                     <x-icon.preview/>
                     <x-icon.preview-off/>
@@ -298,7 +298,7 @@
                     </button>
                 </div>
                 @else
-                <button class="shape-btn drag-btn" title="{{ __('drawing-modal.Versleep volgorde') }}">
+                <button class="shape-btn drag-btn" selid="shape-drag-btn" title="{{ __('drawing-modal.Versleep volgorde') }}">
                     <x-icon.reorder/>
                 </button>
                 @endif
@@ -334,7 +334,7 @@
                 </div>
             </div>
         </div>
-        <div class="shapes-group">
+        <div class="shapes-group" selid="shapes-group">
             <span id="explainer" class="explainer note text-sm text-center inline-block"
                   style="padding: 1.5rem"
                   data-text-closeConfirmation="{{ __('drawing-modal.Close confirmation') }}"

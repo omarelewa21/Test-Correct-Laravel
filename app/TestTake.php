@@ -64,7 +64,7 @@ class TestTake extends BaseModel
      *
      * @var array
      */
-    protected $fillable = ['test_id', 'test_take_status_id', 'period_id', 'retake', 'retake_test_take_id', 'time_start', 'time_end', 'location', 'weight', 'note', 'invigilator_note', 'show_results', 'discussion_type', 'is_rtti_test_take', 'exported_to_rtti', 'allow_inbrowser_testing', 'guest_accounts'];
+    protected $fillable = ['test_id', 'test_take_status_id', 'period_id', 'retake', 'retake_test_take_id', 'time_start', 'time_end', 'location', 'weight', 'note', 'invigilator_note', 'show_results', 'discussion_type', 'is_rtti_test_take', 'exported_to_rtti', 'allow_inbrowser_testing', 'guest_accounts', 'skipped_discussion'];
 
     /**
      * The attributes excluded from the model's JSON form.
@@ -1149,4 +1149,16 @@ class TestTake extends BaseModel
                         ->where('user_id', $user->getKey());
                 }]);
     }
+
+    public function maxScore($ignoreQuestions = []){
+        foreach ($ignoreQuestions as $key=>$value){
+            if(!strstr($value,'.')){
+                continue;
+            }
+            $arr = explode('.',$value);
+            $ignoreQuestions[$key] = $arr[1];
+        }
+        return $this->test->maxScore($ignoreQuestions);
+    }
+
 }

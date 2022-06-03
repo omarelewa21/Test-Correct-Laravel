@@ -5,8 +5,11 @@ namespace tcCore\Http\Livewire\Teacher;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 use tcCore\EducationLevel;
+use tcCore\Http\Controllers\GroupQuestionQuestionsController;
 use tcCore\Http\Controllers\TestQuestionsController;
+use tcCore\Http\Requests\CreateGroupQuestionQuestionRequest;
 use tcCore\Http\Requests\CreateTestQuestionRequest;
+use tcCore\Lib\GroupQuestionQuestion\GroupQuestionQuestionManager;
 use tcCore\Question;
 use tcCore\Subject;
 use tcCore\Test;
@@ -18,9 +21,11 @@ class QuestionBank extends Component
     const SOURCE_PERSONAL = 'me';
     const SOURCE_SCHOOL = '';
 
-    protected $queryString = ['testId'];
+    protected $queryString = ['testId', 'testQuestionId'];
 
     public $testId;
+    public $testQuestionId;
+
     public $filters = [
         'search'               => '',
         'subject_id'           => [],
@@ -116,18 +121,11 @@ class QuestionBank extends Component
 
     public function addQuestionToTest($questionId)
     {
-        $this->addedQuestionIds[] = $questionId;
-
-        $requestParams = [
-            'test_id'           => $this->test->getKey(),
-            'order'             => 0,
-            'maintain_position' => 0,
-            'discuss'           => 1,
-            'closeable'         => 0,
-            'question_id'       => $questionId,
-        ];
-
-        $response = (new TestQuestionsController)->store(new CreateTestQuestionRequest($requestParams));
+        if ($this->inGroup) {
+            $response = $this->peformControllerActionForSubQuestion($questionId);
+        } else {
+            $response = $this->performControllerActionForQuestion($questionId);
+        }
 
         if ($response->getStatusCode() == 200) {
             $this->dispatchBrowserEvent('question-added');
@@ -137,10 +135,7 @@ class QuestionBank extends Component
 
     private function getQuestionIdsThatAreAlreadyInTest()
     {
-        return $this->test
-            ->testQuestions()
-            ->pluck('question_id')
-            ->toArray();
+        return $this->test->getQuestionOrderList();
     }
 
     private function removeQuestionFromTest($questionId)
@@ -152,7 +147,7 @@ class QuestionBank extends Component
 
     public function isQuestionInTest($questionId)
     {
-        return collect($this->addedQuestionIds)->contains($questionId);
+        return isset($this->addedQuestionIds[$questionId]);
     }
 
     public function showMore()
@@ -211,5 +206,39 @@ class QuestionBank extends Component
     public function getResultCountProperty()
     {
         return $this->getQuestionsQuery()->count();
+    }
+
+    private function peformControllerActionForSubQuestion($questionId)
+    {
+        $requestParams = [
+            "group_question_id" => $this->inGroup,
+            "order"             => 0,
+            "maintain_position" => 0,
+            "discuss"           => 0,
+            "closeable"         => 0,
+            "question_id"       => $questionId,
+            "owner_id"          => $this->inGroup
+        ];
+
+        $gqqm = GroupQuestionQuestionManager::getInstanceWithUuid($this->inGroup);
+        $cgqqr = new CreateGroupQuestionQuestionRequest($requestParams);
+
+        return (new GroupQuestionQuestionsController)->store($gqqm, $cgqqr);
+    }
+
+    private function performControllerActionForQuestion($questionId)
+    {
+        $this->addedQuestionIds[] = $questionId;
+
+        $requestParams = [
+            'test_id'           => $this->test->getKey(),
+            'order'             => 0,
+            'maintain_position' => 0,
+            'discuss'           => 1,
+            'closeable'         => 0,
+            'question_id'       => $questionId,
+        ];
+
+        return (new TestQuestionsController)->store(new CreateTestQuestionRequest($requestParams));
     }
 }

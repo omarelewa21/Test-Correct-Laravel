@@ -1,6 +1,6 @@
 <div class="relative flex flex-wrap items-center"
      x-data="{query: @entangle('query'), selectedTags: @entangle('selectedTags')}"
-     x-init="$watch('selectedTags', value => $wire.emitUp('new-tags-for-question', value));"
+     x-init="$watch('selectedTags', value => $wire.emitUp('new-tags-for-question', {'tags':value}));"
 >
     <div class="flex mb-2">
         @forelse($selectedTags as $id => $name)

@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Response;
 use Illuminate\Mail\Message;
 use Illuminate\Support\Facades\Password;
 use tcCore\Http\Controllers\Controller;
+use tcCore\Http\Helpers\BaseHelper;
 use tcCore\Http\Traits\UserNotificationForController;
 use tcCore\Mail\PasswordChanged;
 use tcCore\Mail\PasswordChangedSelf;
@@ -42,7 +43,7 @@ class PasswordController extends Controller {
 
 //            $url = $request->get('url', null);
             $url = sprintf('%spassword-reset/?token=%%s',config('app.base_url'));
-            $urlLogin = config('app.url_login');
+            $urlLogin = BaseHelper::getLoginUrl();
 
 			try {
 				$mailer->send('emails.password', compact('token', 'user', 'url', 'urlLogin'), function (Message $m) use ($user, $token) {

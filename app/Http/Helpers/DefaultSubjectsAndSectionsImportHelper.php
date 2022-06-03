@@ -7,7 +7,7 @@ use tcCore\DefaultSection;
 use tcCore\DefaultSubject;
 use tcCore\ExcelDefaultSubjectAndSectionManifest;
 
-class ExcelDefaultSubjectsAndSectionsImportHelper
+class DefaultSubjectsAndSectionsImportHelper
 {
 
     protected $inConsole = false;
@@ -39,8 +39,11 @@ class ExcelDefaultSubjectsAndSectionsImportHelper
             logger($e);
             logger($e->getMessage());
             if($this->inConsole){
+                echo ($e->getMessage());
+            } else if(app()->runningInConsole()){
                 $this->output->error($e->getMessage());
             }
+            throw $e;
         }
     }
 
@@ -84,5 +87,4 @@ class ExcelDefaultSubjectsAndSectionsImportHelper
             $this->info(PHP_EOL.'A total of '.$this->rawSubjects->count().' default subjects have been created or updated');
         }
     }
-
 }

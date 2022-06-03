@@ -28,7 +28,6 @@ RichTextEditor = {
         }
         CKEDITOR.replace(editorId, {});
         editor = CKEDITOR.instances[editorId];
-
         editor.on('change', function (e) {
             RichTextEditor.sendInputEventToEditor(editorId, e);
         });

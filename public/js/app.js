@@ -5989,6 +5989,7 @@ document.addEventListener('alpine:init', function () {
         this.drawer.classList.add('fullscreen');
         var boundingRect = this.$refs.questionbank.getBoundingClientRect();
         this.scroll(boundingRect.x + boundingRect.width);
+        this.$store.questionBank.active = true;
       },
       hideQuestionBank: function hideQuestionBank(container) {
         var _this10 = this;
@@ -5996,6 +5997,7 @@ document.addEventListener('alpine:init', function () {
         this.$root.querySelectorAll('.slide-container').forEach(function (slide) {
           slide.classList.add('opacity-0');
         });
+        this.$store.questionBank.active = false;
         this.$nextTick(function () {
           _this10.drawer.classList.remove('fullscreen');
 
@@ -6010,10 +6012,39 @@ document.addEventListener('alpine:init', function () {
           }, 400);
         });
       },
-      addQuestionToGroup: function addQuestionToGroup() {
+      addQuestionToGroup: function addQuestionToGroup(uuid) {
+        this.showAddQuestionSlide();
+        this.$store.questionBank.inGroup = uuid;
+      },
+      addGroup: function addGroup() {
+        var shouldCheckDirty = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : true;
+
+        if (shouldCheckDirty && this.$store.cms.dirty) {
+          this.$wire.emitTo('teacher.questions.open-short', 'addQuestionFromDirty', {
+            'group': true
+          });
+          return;
+        }
+
+        this.$wire.addGroup();
+      },
+      showAddQuestionSlide: function showAddQuestionSlide() {
+        var shouldCheckDirty = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : true;
+
+        if (shouldCheckDirty && this.$store.cms.dirty) {
+          this.$wire.emitTo('teacher.questions.open-short', 'addQuestionFromDirty', {
+            'group': false
+          });
+          return;
+        }
+
         this.next(this.$refs.container1);
         this.$dispatch('backdrop');
-        this.$store.questionBank.inGroup = true;
+      },
+      backToQuestionOverview: function backToQuestionOverview(container) {
+        this.prev(container);
+        this.$dispatch('backdrop');
+        this.$store.questionBank.inGroup = false; // this.$store.cms.processing = false;
       }
     };
   });
@@ -6132,9 +6163,11 @@ document.addEventListener('alpine:init', function () {
   });
   alpinejs__WEBPACK_IMPORTED_MODULE_1__["default"].store('cms', {
     loading: false,
-    processing: false
+    processing: false,
+    dirty: false
   });
   alpinejs__WEBPACK_IMPORTED_MODULE_1__["default"].store('questionBank', {
+    active: false,
     inGroup: false
   });
 });
@@ -6362,6 +6395,9 @@ dragElement = function dragElement(element) {
       pos4 = 0;
   var uuid = element.id.replace('attachment-', '');
   var newTop, newLeft;
+  var elementRect = element.getBoundingClientRect();
+  var windowHeight = window.innerHeight;
+  var windowWidth = window.innerWidth;
 
   if (document.getElementById(element.id + "drag")) {
     // if present, the header is where you move the DIV from:
@@ -6413,7 +6449,23 @@ dragElement = function dragElement(element) {
   }
 
   function closeDragElement(e) {
-    // stop moving when mouse button is released:
+    var rightEdge = newLeft + elementRect.width;
+
+    if (newTop < 0) {
+      newTop = 10;
+    } // Check if the top edge is within window height boundaries
+    else if (newTop > windowHeight - 50) {
+      newTop = windowHeight - 50;
+    }
+
+    if (rightEdge < 150) {
+      newLeft = 0;
+    } // Check if the right edge is within window width boundaries
+    else if (rightEdge > windowWidth - 10) {
+      newLeft = 0;
+    } // stop moving when mouse button is released:
+
+
     window.dispatchEvent(new CustomEvent('set-new-position', {
       'detail': {
         'uuid': uuid,
@@ -12647,8 +12699,17 @@ RichTextEditor = {
 
     CKEDITOR.replace(editorId, {});
     editor = CKEDITOR.instances[editorId];
+    editor.shouldDispatchChange = false;
     editor.on('change', function (e) {
-      RichTextEditor.sendInputEventToEditor(editorId, e);
+      RichTextEditor.sendInputEventToEditor(editorId, e); // if(!e.editor.getData()?.includes('MathML')) {
+      //     RichTextEditor.sendInputEventToEditor(editorId, e);
+      //     editor.shouldDispatchChange = true;
+      //     return;
+      // }
+      // if (editor.shouldDispatchChange) {
+      //     RichTextEditor.sendInputEventToEditor(editorId, e);
+      // }
+      // editor.shouldDispatchChange = true
     });
     editor.on('simpleuploads.startUpload', function (e) {
       e.data.extraHeaders = {

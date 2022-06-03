@@ -99,7 +99,7 @@ class Cms extends Component
             $this->emptyStateActive = false;
             $this->dispatchBrowserEvent('question-change');
         }
-
+        $this->dispatchBrowserEvent('processing-end');
         $this->groupId = null;
     }
 
@@ -108,6 +108,7 @@ class Cms extends Component
     {
         return $this->testQuestions->flatMap(function ($testQuestion) {
             $testQuestion->question->loadRelated();
+            $testQuestion->question->attachmentCount = $testQuestion->question->attachments()->count();
             if ($testQuestion->question->type === 'GroupQuestion') {
                 $groupQuestion = $testQuestion->question;
                 $groupQuestion->subQuestions = $groupQuestion->groupQuestionQuestions->map(function ($item) use ($groupQuestion) {

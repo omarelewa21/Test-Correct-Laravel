@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Queue;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
@@ -1726,6 +1727,9 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
                         }
                     });
                     break;
+                case 'without_guests':
+                    $value == true ? $query->withoutGuests() : '';
+                    break;
                 default:
                     break;
             }
@@ -2209,6 +2213,7 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
 //        if(Carbon::now() > Carbon::createFromFormat('Y-m-d','2022-01-22')) {
         $this->loginThisUser();
         BaseHelper::doLoginProcedure();
+        Log::stack(['loki'])->info("authenticated via Entree", []);
         if ($this->isA('student')) {
             if ($this->schoolLocation->allow_new_student_environment) {
                 $options = [
@@ -2427,6 +2432,11 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
     public function scopeGuests($query)
     {
         return $query->where('guest', 1);
+    }
+
+    public function scopeWithoutGuests($query)
+    {
+        return $query->where('guest', 0);
     }
 
     public function setSessionHash($hash)

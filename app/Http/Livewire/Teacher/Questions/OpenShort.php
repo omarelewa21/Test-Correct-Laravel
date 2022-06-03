@@ -121,6 +121,7 @@ class OpenShort extends Component
     public $loading = false;
     public $showDirtyQuestionModal = false;
     public $nextQuestionToShow = [];
+    public $forceOpenNewQuestion = false;
     public $uniqueQuestionKey = '';
 
 
@@ -180,7 +181,7 @@ class OpenShort extends Component
             'is_open_source_content' => 0,
             'tags'                   => [],
             'note_type'              => 'NONE',
-            'order'                  => $this->resolveOrderNumber(),
+            'order'                  => 0,
             'question'               => '',
             'rtti'                   => '',
             'score'                  => 1,
@@ -221,6 +222,8 @@ class OpenShort extends Component
 
         $this->tags = [];
         $this->dirty = false;
+        $this->registerDirty = true;
+        $this->forceOpenNewQuestion = false;
         $this->uniqueQuestionKey = $this->testQuestionId . $this->groupQuestionQuestionId . $this->action . $this->questionEditorId;
     }
 
@@ -236,16 +239,17 @@ class OpenShort extends Component
     protected function getListeners()
     {
         return [
-            'new-tags-for-question' => 'handleTags',
-            'updated-attainment'    => 'handleAttainment',
-            'updated-learning-goal' => 'handleLearningGoal',
+            'new-tags-for-question' => 'handleExternalUpdatedProperty',
+            'updated-attainment'    => 'handleExternalUpdatedProperty',
+            'updated-learning-goal' => 'handleExternalUpdatedProperty',
             'new-video-attachment'  => 'handleNewVideoAttachment',
             'drawing_data_updated'  => 'handleUpdateDrawingData',
             'refresh'               => 'render',
             'showQuestion'          => 'showQuestion',
             'addQuestion'           => 'addQuestion',
             'showEmpty'             => 'showEmpty',
-            'questionDeleted'       => '$refresh'
+            'questionDeleted'       => '$refresh',
+            'addQuestionFromDirty'  => 'addQuestionFromDirty'
         ];
     }
 
@@ -323,6 +327,7 @@ class OpenShort extends Component
 
     public function save($withRedirect = true)
     {
+        if ($this->emptyState) return false;
         if ($this->obj && method_exists($this->obj, 'prepareForSave')) {
             $this->obj->prepareForSave();
         }
@@ -332,15 +337,19 @@ class OpenShort extends Component
         if ($this->action == 'edit' && !$this->isCloneRequest) {
             $response = $this->updateQuestion();
         } else {
+            $this->question['order'] = 0;
             if ($this->isCloneRequest) {
                 $this->prepareForClone();
             }
-            $this->question['order'] = 0;
             $response = $this->saveNewQuestion();
 
-            $this->setQueryStringProperties($response);
+            if ($this->withDrawer) {
+                $this->setQueryStringProperties($response);
+                $this->question['order'] = json_decode($response->getContent(), true)['order'];
+            }
         }
         $this->dispatchBrowserEvent('notify', ['message' => __('cms.Wijzigingen opgeslagen')]);
+
         if ($response->getStatusCode() == 200) {
             $this->handleAttachments($response);
 
@@ -359,7 +368,7 @@ class OpenShort extends Component
             return true;
         }
 
-        $this->dirty = false;
+        $this->rebootComponent();
     }
 
     protected function prepareForClone()
@@ -382,9 +391,29 @@ class OpenShort extends Component
             $this->obj->updated($name, $value);
         }
 
-        if ($name != 'loading') {
+        $this->handleDirtyState($name);
+    }
+
+    public function updating($name, $value)
+    {
+        $method = 'updating' . ucfirst($name);
+        if ($this->obj && method_exists($this->obj, $method)) {
+            $this->obj->$method($value);
+        }
+        if ($this->obj && method_exists($this->obj, 'updating')) {
+            $this->obj->updating($name, $value);
+        }
+        if ($name == 'question.question' && html_entity_decode($this->question['question']) == html_entity_decode($value)) {
+            $this->registerDirty = false;
+        }
+    }
+
+    private function handleDirtyState($updatedProperty)
+    {
+        if ($updatedProperty != 'loading' && $this->registerDirty) {
             $this->dirty = true;
         }
+        $this->registerDirty = true;
     }
 
     public function showStatistics()
@@ -466,19 +495,13 @@ class OpenShort extends Component
         throw new \Exception('No template found for this question type.');
     }
 
-    public function handleTags($tags)
+    public function handleExternalUpdatedProperty(array $incomingData)
     {
-        $this->question['tags'] = array_values($tags);
-    }
-
-    public function handleAttainment(array $attainments)
-    {
-        $this->question['attainments'] = $attainments;
-    }
-
-    public function handleLearningGoal(array $learningGoals)
-    {
-        $this->question['learning_goals'] = $learningGoals;
+        $property = array_keys($incomingData)[0];
+        if ($this->shouldUpdatePropertyFromExternalSource($incomingData, $property) ) {
+            $this->question[$property] = array_values($incomingData[$property]);
+            $this->dirty = true;
+        }
     }
 
     public function updatingUploads(&$value)
@@ -511,7 +534,7 @@ class OpenShort extends Component
         Auth::user()->redirectToCakeWithTemporaryLogin($options);
     }
 
-    private function validateAndReturnErrorsToTabOne()
+    private function validateAndReturnErrorsToTabOne($useUnprepareForSave = true)
     {
         try {
             $this->validate();
@@ -521,7 +544,7 @@ class OpenShort extends Component
             $this->checkTaxonomyValues();
 
         } catch (ValidationException $e) {
-            if ($this->obj && method_exists($this->obj, 'unprepareForSave')) {
+            if ($useUnprepareForSave && $this->obj && method_exists($this->obj, 'unprepareForSave')) {
                 $this->obj->unprepareForSave();
             }
             $this->dispatchBrowserEvent('opentab', 1);
@@ -946,12 +969,10 @@ class OpenShort extends Component
 
         $upload = collect($this->uploads)->first(function ($upload) use ($sortHash) {
             return $upload->getFileName() === $sortHash;
-//            return $upload->id == $sortHash;
         });
 
         $video = collect($this->videos)->first(function ($video) use ($sortHash) {
             return $video['id'] == $sortHash;
-//            return $video == $sortHash;
         });
 
         return [$upload, $video];
@@ -974,9 +995,9 @@ class OpenShort extends Component
 
     public function showQuestion($args)
     {
-        if ($this->needsSavingBeforeShowingQuestion($args['shouldSave'])) {
+        if (!$this->forceOpenNewQuestion && $this->needsSavingBeforeShowingQuestion($args['shouldSave'])) {
             if (!$this->completedMandatoryFields()) {
-                return $this->leavingNewDirtyQuestion($args);
+                return $this->leavingDirtyQuestion($args);
             }
             $this->loading = true;
             $this->save(false);
@@ -993,10 +1014,7 @@ class OpenShort extends Component
 
     public function addQuestion($args)
     {
-        if ($this->needsSavingBeforeAddingNewQuestion($args)) {
-            if (!$this->completedMandatoryFields()) {
-                return $this->leavingNewDirtyQuestion($args);
-            }
+        if (!$this->forceOpenNewQuestion && $this->needsSavingBeforeAddingNewQuestion($args)) {
             $this->save(false);
         }
 
@@ -1008,7 +1026,7 @@ class OpenShort extends Component
 
         $this->refreshDrawer();
 
-        $message = __('cms.item added', ['item' => $this->owner === 'group' ? __('cms.group-question') : __('drawing-modal.Vraag')]);
+        $message = __('cms.item added', ['item' => $args['subtype'] === 'group' ? __('cms.group-question') : __('drawing-modal.Vraag')]);
         $this->dispatchBrowserEvent('notify', ['message' => $message]);
     }
 
@@ -1019,7 +1037,23 @@ class OpenShort extends Component
 
     private function resolveOrderNumber()
     {
-        return Test::whereUuid($this->testId)->first()->getQuestionCount() + 1;
+        if ($this->isGroupQuestion() || !$this->questionId) {
+            return 1;
+        }
+
+        $questionList = Test::whereUuid($this->testId)->first()->getQuestionOrderList();
+
+        if ($this->editModeForExistingQuestion()) {
+            return $questionList[$this->questionId];
+        }
+
+        if ($this->owner === 'group') {
+            $groupQuestionId = TestQuestion::whereUuid($this->testQuestionId)->value('question_id');
+            $lastQuestionIdInGroup = GroupQuestionQuestion::where('group_question_id', $groupQuestionId)
+                ->orderBy('order', 'desc')->value('question_id');
+            return isset($questionList[$lastQuestionIdInGroup]) ? $questionList[$lastQuestionIdInGroup] + 1 : 1;
+        }
+        return count($questionList);
     }
 
     public function saveAndRefreshDrawer()
@@ -1117,8 +1151,11 @@ class OpenShort extends Component
 
     public function saveAndRedirect()
     {
-        if ($this->testHasQuestions() && $this->isDirty()) {
-            return $this->save();
+        if (!$this->editModeForExistingQuestion() && $this->isDirty()) {
+            if ($this->completedMandatoryFields()) {
+                return $this->save();
+            }
+            return $this->dispatchBrowserEvent('show-dirty-question-modal', ['leavingTest' => true]);
         }
         return $this->returnToTestOverview();
     }
@@ -1176,9 +1213,9 @@ class OpenShort extends Component
         $this->render();
     }
 
-    private function leavingNewDirtyQuestion($args)
+    public function leavingDirtyQuestion($args = [])
     {
-        $this->showDirtyQuestionModal = true;
+        $this->dispatchBrowserEvent('show-dirty-question-modal', ['goingToExisting' => true]);
         $this->nextQuestionToShow = $args;
     }
 
@@ -1196,12 +1233,17 @@ class OpenShort extends Component
     {
         $this->type = '';
         $this->subtype = '';
+        $this->action = 'add';
         $this->emptyState = true;
         $this->dispatchBrowserEvent('show-empty');
     }
 
     private function completedMandatoryFields()
     {
+        if ($this->obj && method_exists($this->obj, 'passesCustomMandatoryRules')) {
+            return !!$this->obj->passesCustomMandatoryRules();
+        }
+
         return !Validator::make((array)$this, $this->getRules())->fails();
     }
 
@@ -1221,5 +1263,52 @@ class OpenShort extends Component
     private function needsSavingBeforeShowingQuestion($shouldSave): bool
     {
         return $shouldSave && $this->isDirty();
+    }
+
+    /**
+     * @throws \Exception
+     */
+    public function validateFromDirtyModal()
+    {
+        $this->validateAndReturnErrorsToTabOne(false);
+    }
+
+    public function addQuestionFromDirty($data)
+    {
+        if (!$this->completedMandatoryFields()) {
+            $this->dispatchBrowserEvent('show-dirty-question-modal', ['goingToExisting' => false, 'group' => $data['group']]);
+            return;
+        }
+
+        $this->save(false);
+
+        $data['group'] ? $this->dispatchBrowserEvent('continue-to-add-group') : $this->dispatchBrowserEvent('continue-to-new-slide');
+    }
+
+    public function getRulesForProvider()
+    {
+        return $this->getRules();
+    }
+
+    /**
+     * @param array $incomingData
+     * @param $property
+     * @return bool
+     */
+    private function shouldUpdatePropertyFromExternalSource(array $incomingData, $property): bool
+    {
+        if (empty($incomingData[$property])) {
+            return false;
+        }
+        if ($property === 'tags') {
+            $values = array_values($incomingData[$property]);
+            $existingValues = array_values($this->question[$property]);
+            sort($values);
+            sort($existingValues);
+            if ($values === $existingValues) {
+                return false;
+            }
+        }
+        return true;
     }
 }

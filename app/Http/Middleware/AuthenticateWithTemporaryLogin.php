@@ -5,6 +5,7 @@ namespace tcCore\Http\Middleware;
 use Closure;
 use Illuminate\Support\Facades\Auth;
 use tcCore\AppVersionInfo;
+use tcCore\Http\Helpers\BaseHelper;
 use tcCore\TemporaryLogin;
 
 class AuthenticateWithTemporaryLogin
@@ -26,7 +27,7 @@ class AuthenticateWithTemporaryLogin
             }
         }
 
-        return redirect(config('app.url_login'));
+        return redirect(BaseHelper::getLoginUrl());
     }
 
     private function handleTemporaryLoginOptions($options)

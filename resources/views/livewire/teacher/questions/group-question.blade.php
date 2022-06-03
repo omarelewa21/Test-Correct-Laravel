@@ -20,13 +20,13 @@
                 },
             }"
     >
-        <div x-show="selected('carousel')" x-transition class="mt-3">
+        <div x-show="selected('carousel')" x-transition class="mt-1">
             <div class="flex relative -left-4">
                 <x-input.score wire:model.defer="question.number_of_subquestions" label="Aantal vragen"/>
             </div>
         </div>
-        <div class="flex space-x-2 ">
-            <button class="group-type"
+        <div class="flex flex-wrap">
+            <button class="group-type mr-2 mb-2"
                     :class="selected('standard') ? 'active' : ''"
                     @click="select('standard')"
             >
@@ -42,7 +42,7 @@
                     <p class="note text-sm">{{ __('cms.klassiek_omschrijving') }}</p>
                 </div>
             </button>
-            <button class="group-type"
+            <button class="group-type mb-2"
                     :class="selected('carousel') ? 'active' : ''"
                     @click="select('carousel')"
             >

@@ -35,7 +35,7 @@
                      @close-drawing-tool="show = false"
                      class="mt-4"
                 >
-                    <x-button.primary @click="show = !show" class="edit-drawing-answer">
+                    <x-button.primary @click="show = !show" class="edit-drawing-answer" selid="draw-btn">
                         <x-icon.edit/>
                         @if($answer == '')
                             <span>{{ __('test_take.draw_answer') }}</span>

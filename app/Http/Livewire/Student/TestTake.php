@@ -5,6 +5,7 @@ namespace tcCore\Http\Livewire\Student;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
+use tcCore\Http\Helpers\BaseHelper;
 use tcCore\TemporaryLogin;
 use tcCore\TestParticipant;
 use tcCore\TestTakeEvent;
@@ -128,7 +129,7 @@ class TestTake extends Component
         session()->invalidate();
         session()->regenerateToken();
 
-        $this->redirect(config('app.url_login'));
+        $this->redirect(BaseHelper::getLoginUrl());
     }
 
     private function browserTestingIsDisabled()

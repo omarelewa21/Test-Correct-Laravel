@@ -2,8 +2,6 @@
 
 namespace tcCore\Http\Livewire;
 
-use Livewire\Component;
-use tcCore\Attainment;
 use tcCore\LearningGoal;
 
 class LearningGoalManager extends AttainmentManager
@@ -62,7 +60,7 @@ class LearningGoalManager extends AttainmentManager
 
     protected function emitUpdatedValuesEvent()
     {
-        $this->emitUp('updated-learning-goal', array_filter([$this->domainId, $this->subdomainId, $this->subsubdomainId]));
+        $this->emitUp('updated-learning-goal', ['learning_goals' => array_filter([$this->domainId, $this->subdomainId, $this->subsubdomainId])]);
     }
 
     public function title()
