@@ -63,53 +63,57 @@
                     <div class="relative w-full">
                         <x-input.text class="w-full"
                                       placeholder="Zoek..."
-                                      wire:model="filters.name"
+                                      wire:model="filters.{{ $this->openTab }}.name"
                         />
                         <x-icon.search class="absolute right-0 -top-2"/>
                     </div>
                 </div>
                 <div class="flex flex-wrap w-full gap-2 mt-2">
-                    <x-input.choices-select :multiple="true"
+
+                    <x-input.choices-select
+                            wire:key="subject_{{ $this->openTab }}"
+                            :multiple="true"
                                             :options="$this->subjects"
                                             :withSearch="true"
                                             placeholderText="Vak"
-                                            wire:model="filters.subject_id"
-                                            filterContainer="questionbank-active-filters"
+                                            wire:model="filters.{{ $this->openTab }}.subject_id"
+                                            filterContainer="questionbank-{{ $this->openTab }}-active-filters"
                     />
-                    <x-input.choices-select :multiple="true"
+                    <x-input.choices-select
+                            wire:key="education_level_year_{{ $this->openTab }}"
+                            :multiple="true"
                                             :options="$this->educationLevelYear"
                                             :withSearch="true"
                                             placeholderText="Leerjaar"
-                                            wire:model="filters.education_level_year"
-                                            filterContainer="questionbank-active-filters"
+                                            wire:model="filters.{{ $this->openTab }}.education_level_year"
+                                            filterContainer="questionbank-{{ $this->openTab }}-active-filters"
                     />
-                    <x-input.choices-select :multiple="true"
+                    <x-input.choices-select
+                            wire:key="educationLevel_{{ $this->openTab }}"
+                            :multiple="true"
                                             :options="$this->educationLevel"
                                             :withSearch="true"
                                             placeholderText="{{ __('Niveau') }}"
-                                            wire:model="filters.education_level_id"
-                                            filterContainer="questionbank-active-filters"
+                                            wire:model="filters.{{ $this->openTab }}.education_level_id"
+                                            filterContainer="questionbank-{{ $this->openTab }}-active-filters"
                     />
-                    <x-input.choices-select :multiple="true"
+                    <x-input.choices-select
+                            wire:key="authors_{{ $this->openTab }}"
+                            :multiple="true"
                                             :options="$this->authors"
                                             :withSearch="true"
                                             placeholderText="{{ __('Auteurs') }}"
-                                            wire:model="filters.authors_id"
-                                            filterContainer="questionbank-active-filters"
+                                            wire:model="filters.{{ $this->openTab }}.author_id"
+                                            filterContainer="questionbank-{{ $this->openTab }}-active-filters"
                     />
                 </div>
-                <div id="questionbank-active-filters"
-                     wire:ignore
+                <div id="questionbank-{{ $this->openTab }}-active-filters"
+
                      x-data=""
                      :class="($el.childElementCount !== 1) ? 'mt-2' : ''"
                      class="flex flex-wrap gap-2"
                 >
-                    <template id="filter-pill-template" class="hidden">
-                        <div class="space-x-2" @click="$dispatch('removeFrom'+$el.dataset.filter, {value: parseInt($el.dataset.filterValue)})">
-                            <span class="flex"></span>
-                            <x-icon.close-small/>{{--removeFilterItem($el)--}}
-                        </div>
-                    </template>
+
 
                 </div>
             </div>
@@ -121,7 +125,7 @@
 
                     <span class="note text-sm" wire:loading.remove>{{  trans_choice('general.number-of-tests', $results->total(), ['count' => $results->total()]) }}</span>
                     <div>
-                        <x-button.primary ><x-icon.schedule/><span >{{ __('cms.Inplannen') }}</span></x-button.primary>
+                        <x-button.primary wire:click="$emitTo('teacher.planning-modal', 'showModal')" ><x-icon.schedule/><span >{{ __('cms.Inplannen') }}</span></x-button.primary>
                         <x-button.cta wire:click="$emitTo('teacher.test-start-create-modal', 'showModal')"><x-icon.plus/><span >{{ __('general.create test') }}</span></x-button.cta>
                     </div>
                 </div>
@@ -159,5 +163,6 @@
     <livewire:teacher.test-start-create-modal></livewire:teacher.test-start-create-modal>
     <livewire:teacher.test-create-modal></livewire:teacher.test-create-modal>
     <livewire:teacher.test-delete-modal></livewire:teacher.test-delete-modal>
+    <livewire:teacher.copy-test-from-schoollocation-modal></livewire:teacher.copy-test-from-schoollocation-modal>
    <x-notification/>
 </div>
