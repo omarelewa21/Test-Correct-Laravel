@@ -15,7 +15,7 @@
                     <x-input.textarea
                             id="textarea_{{ $question->id }}"
                             wire:key="textarea_{{ $question->id }}"
-                            wire:model.defer="answer"
+                            wire:model.lazy="answer"
                             x-ref="countme"
                             x-on:keyup="count = $refs.countme.value.length"
                             x-on:focus="handleFocusTextareaField(event,{{ $question->id }})"
