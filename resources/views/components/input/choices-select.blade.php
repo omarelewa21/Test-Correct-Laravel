@@ -7,6 +7,7 @@
  ])
 <div>
     <div wire:ignore
+         {{ $attributes->wire('key') ? 'wire:key="'. $attributes->wire('key')->value. '"' : '' }}
          x-data="choices(@entangle($attributes->wire('model')),
                     {{ $multiple ? 1 : 0 }},
                     @js($options),
@@ -33,9 +34,9 @@
                 id="{{$attributes['id']}}"></select>
     </div>
     <template id="filter-pill-template" class="hidden">
-        <div class="space-x-2">
+        <div class="space-x-2" @click="$dispatch('removeFrom'+$el.dataset.filter, {value: parseInt($el.dataset.filterValue)})">
             <span class="flex"></span>
-            <x-icon.close-small @click="removeFilterItem($el)"/>
+            <x-icon.close-small/>{{--removeFilterItem($el)--}}
         </div>
     </template>
 </div>

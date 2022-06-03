@@ -20,22 +20,11 @@ class TestsOverview extends Component
 
     const PER_PAGE = 16;
 
-    public $search = '';
 
-    public $filters = [
-        'name'                 => '',
-        'education_level_year' => [],
-        'education_level_id'   => [],
-        'subject_id'           => [],
-        'authors_id'           => [],
-    ];
-    public $filters1 = [
-        'name'                 => '',
-        'education_level_year' => '',
-        'education_level_id'   => '',
-        'subject_id'           => '',
-    ];
-    public $sorting = [];
+    public $filters = [];
+
+
+    public $sorting = ['created_at', 'desc'];
 
     protected $queryString = ['openTab'];
 
@@ -45,7 +34,15 @@ class TestsOverview extends Component
 
     protected $listeners = [
         'test-deleted' => '$refresh',
-        'test-added' => '$refresh',
+        'test-added'   => '$refresh',
+    ];
+
+    private $allowedTabs = [
+        'school',
+        'exams',
+        'cito',
+        'national',
+        'personal',
     ];
 
 
@@ -61,7 +58,7 @@ class TestsOverview extends Component
         $this->resetPage();
     }
 
-    public function updatingOpenTab()
+    public function updatingOpenTab($value)
     {
         $this->resetPage();
     }
@@ -96,7 +93,7 @@ class TestsOverview extends Component
     private function getSchoolDatasource()
     {
         return Test::filtered(
-            $this->cleanFilterForSearch($this->filters),
+            $this->cleanFilterForSearch($this->filters['school']),
             $this->sorting
         )
             ->with('educationLevel', 'testKind', 'subject', 'author', 'author.school', 'author.schoolLocation')
@@ -107,7 +104,7 @@ class TestsOverview extends Component
     private function getExamsDatasource()
     {
         return Test::examFiltered(
-            $this->cleanFilterForSearch($this->filters),
+            $this->cleanFilterForSearch($this->filters['exams']),
             $this->sorting
         )
             ->with('educationLevel', 'testKind', 'subject', 'author', 'author.school', 'author.schoolLocation')
@@ -117,8 +114,10 @@ class TestsOverview extends Component
 
     private function getPersonalDatasource()
     {
+        $this->filters['personal']['author_id'] = auth()->id();
+
         $results = Test::filtered(
-            $this->cleanFilterForSearch($this->filters),
+            $this->cleanFilterForSearch($this->filters['personal']),
             $this->sorting
         )
             ->with('educationLevel', 'testKind', 'subject', 'author', 'author.school', 'author.schoolLocation')
@@ -132,19 +131,30 @@ class TestsOverview extends Component
     private function getCitoDataSource()
     {
         $results = Test::citoFiltered(
-            $this->cleanFilterForSearch($this->filters),
+            $this->cleanFilterForSearch($this->filters['cito']),
             $this->sorting
         )
             ->with('educationLevel', 'testKind', 'subject', 'author', 'author.school', 'author.schoolLocation')
             ->paginate(self::PER_PAGE);
-
 
         return $results;
     }
 
     private function setFilters()
     {
-        $this->filters = array_merge($this->filters, auth()->user()->getSearchFilterDefaultsTeacher());
+        collect($this->allowedTabs)->each(function ($tab) {
+            $this->filters[$tab] = [
+                'name'                 => '',
+                'education_level_year' => [],
+                'education_level_id'   => [],
+                'subject_id'           => [],
+                'author_id'           => [],
+            ];
+        });
+
+
+        /** @TODO default search filter for teacher (is dirty now) */
+//        $this->filters = array_merge($this->filters, auth()->user()->getSearchFilterDefaultsTeacher());
     }
 
     public function duplicateTest($testUuid)
@@ -179,8 +189,8 @@ class TestsOverview extends Component
         $controller = new TemporaryLoginController();
         $request = new Request();
         $request->merge([
-            'options'  => [
-                'page' => sprintf('/tests/view/%s', $testUuid),
+            'options' => [
+                'page'        => sprintf('/tests/view/%s', $testUuid),
                 'page_action' => sprintf("Loading.show();Popup.load('/tests/pdf_showPDFAttachment/%s', 1000);", $testUuid),
             ],
         ]);
@@ -195,24 +205,23 @@ class TestsOverview extends Component
             ->select(['id', 'name'])
             ->get()
             ->map(function ($educationLevel) {
-                return ['value' => (int) $educationLevel->id, 'label' => $educationLevel->name];
+                return ['value' => (int)$educationLevel->id, 'label' => $educationLevel->name];
             });
     }
 
     public function getSubjectsProperty()
     {
         return Subject::filtered([], ['name' => 'asc'])
-            ->select(['name', 'id'])
-            ->get()
+            ->get(['name', 'id'])
             ->map(function ($subject) {
-                return ['value' => (int) $subject->id, 'label' => $subject->name];
+                return ['value' => (int)$subject->id, 'label' => $subject->name];
             })->toArray();
     }
 
     public function getEducationLevelYearProperty()
     {
-        return collect(range(1,6))->map(function($item) {
-            return ['value' => (int) $item, 'label' => (string) $item];
+        return collect(range(1, 6))->map(function ($item) {
+            return ['value' => (int)$item, 'label' => (string)$item];
         })->toArray();
     }
 
@@ -224,15 +233,16 @@ class TestsOverview extends Component
             })->toArray();
     }
 
-    public function mount(){
+    public function mount()
+    {
         $this->setFilters();
     }
 
     private function cleanFilterForSearch(array $filters)
     {
         $searchFilter = [];
-        foreach(['name', 'education_level_year', 'education_level_id', 'subject_id', 'authors_id'] as $filter) {
-            if (!empty($filter)) {
+        foreach (['name', 'education_level_year', 'education_level_id', 'subject_id', 'author_id'] as $filter) {
+            if (!empty($filters[$filter])) {
                 $searchFilter[$filter] = $filters[$filter];
             }
         }

@@ -6058,8 +6058,12 @@ document.addEventListener('alpine:init', function () {
       activeFiltersContainer: null,
       choices: null,
       init: function init() {
-        var _this11 = this;
+        var _window,
+            _window$registeredEve,
+            _this11 = this;
 
+        // some new fancy way of setting a value when undefined
+        (_window$registeredEve = (_window = window).registeredEventHandlers) !== null && _window$registeredEve !== void 0 ? _window$registeredEve : _window.registeredEventHandlers = [];
         this.activeFiltersContainer = document.getElementById(filterContainer);
         this.multiple = multiple === 1;
         this.$nextTick(function () {
@@ -6099,9 +6103,14 @@ document.addEventListener('alpine:init', function () {
             _this11.wireModel = _this11.value;
           });
 
-          window.addEventListener('removeFrom' + _this11.$root.dataset.modelName, function (event) {
-            _this11.removeFilterItem(event.detail);
-          });
+          var eventName = 'removeFrom' + _this11.$root.dataset.modelName;
+
+          if (!window.registeredEventHandlers.includes(eventName)) {
+            window.registeredEventHandlers.push(eventName);
+            window.addEventListener(eventName, function (event) {
+              _this11.removeFilterItem(event.detail);
+            });
+          }
 
           _this11.$watch('value', function () {
             return refreshChoices();
@@ -6558,17 +6567,6 @@ clearClipboard = function clearClipboard() {
 
 preventNavigationByKeydown = function preventNavigationByKeydown(event) {
   return event.stopPropagation();
-};
-
-removeFilterItem = function removeFilterItem(el) {
-  console.log(el);
-  document.querySelector("[data-model-name=\"".concat(el.parentElement.dataset.filter, "\"")).querySelector('select').dispatchEvent(new CustomEvent('choice', {
-    'detail': {
-      'choice': {
-        'value': el.parentElement.dataset.filterValue
-      }
-    }
-  }));
 };
 
 /***/ }),
@@ -12699,17 +12697,8 @@ RichTextEditor = {
 
     CKEDITOR.replace(editorId, {});
     editor = CKEDITOR.instances[editorId];
-    editor.shouldDispatchChange = false;
     editor.on('change', function (e) {
-      RichTextEditor.sendInputEventToEditor(editorId, e); // if(!e.editor.getData()?.includes('MathML')) {
-      //     RichTextEditor.sendInputEventToEditor(editorId, e);
-      //     editor.shouldDispatchChange = true;
-      //     return;
-      // }
-      // if (editor.shouldDispatchChange) {
-      //     RichTextEditor.sendInputEventToEditor(editorId, e);
-      // }
-      // editor.shouldDispatchChange = true
+      RichTextEditor.sendInputEventToEditor(editorId, e);
     });
     editor.on('simpleuploads.startUpload', function (e) {
       e.data.extraHeaders = {

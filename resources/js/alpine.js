@@ -462,6 +462,11 @@ document.addEventListener('alpine:init', () => {
         activeFiltersContainer: null,
         choices: null,
         init() {
+            // some new fancy way of setting a value when undefined
+            window.registeredEventHandlers ??= []
+
+
+
             this.activeFiltersContainer = document.getElementById(filterContainer);
             this.multiple = multiple === 1;
             this.$nextTick(() => {
@@ -475,6 +480,7 @@ document.addEventListener('alpine:init', () => {
                         label,
                         selected: selection.includes(value)
                     })))
+
                     this.handleActiveFilters(choices.getValue());
                 }
 
@@ -493,9 +499,13 @@ document.addEventListener('alpine:init', () => {
                     this.wireModel = this.value;
                 })
 
-                window.addEventListener('removeFrom'+this.$root.dataset.modelName, (event) => {
-                    this.removeFilterItem(event.detail);
-                })
+                let eventName = 'removeFrom'+this.$root.dataset.modelName;
+                if (!window.registeredEventHandlers.includes(eventName)) {
+                    window.registeredEventHandlers.push(eventName)
+                    window.addEventListener(eventName,(event) => {
+                        this.removeFilterItem(event.detail);
+                    })
+                }
 
                 this.$watch('value', () => refreshChoices());
                 this.$watch('options', () => refreshChoices());
