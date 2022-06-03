@@ -10,6 +10,7 @@ use tcCore\Http\Controllers\TestQuestionsController;
 use tcCore\Http\Livewire\Teacher\Questions\CmsFactory;
 use tcCore\Lib\GroupQuestionQuestion\GroupQuestionQuestionManager;
 use tcCore\Test;
+use tcCore\TestQuestion;
 
 class Cms extends Component
 {
@@ -208,11 +209,44 @@ class Cms extends Component
 
     public function deleteQuestionByQuestionId($questionId)
     {
-        $testQuestionUuid = $this->questionsInTest->filter(function ($question) use ($questionId) {
+        $testQuestion = $this->questionsInTest->filter(function ($question) use ($questionId) {
             return $question->question_id == $questionId;
-        })->first()->uuid;
+        })->first();
 
-        $this->deleteQuestion($testQuestionUuid);
+        if (!$testQuestion) {
+            $testId = Test::whereUuid($this->testId)->value('id');
+            $groupQuestionsInTest = GroupQuestionQuestion::select('uuid', 'question_id', 'group_question_id')
+                ->whereIn(
+                    'group_question_id',
+                    TestQuestion::from('test_questions as tq')
+                        ->select('q.id')
+                        ->join('questions as q', 'tq.question_id', '=', 'q.id')
+                        ->where('tq.test_id', '=', $testId)
+                        ->where('q.type', '=', 'GroupQuestion')
+                        ->whereNotNull('q.deleted_at')
+                        ->withTrashed()
+                )
+                ->get()
+                ->mapWithKeys(function ($groupQuestionQuestion) {
+                    return [
+                        $groupQuestionQuestion->question_id => [
+                            'groupQuestionQuestionUuid' => $groupQuestionQuestion->uuid,
+                            'groupQuestionId'           => $groupQuestionQuestion->group_question_id
+                        ]
+                    ];
+                });
+
+            if ($groupQuestionQuestionData = $groupQuestionsInTest->get($questionId)) {
+                $testQuestion = TestQuestion::where('question_id', $groupQuestionQuestionData['groupQuestionId'])
+                                                ->where('test_id', $testId)
+                                                ->value('uuid');
+
+                return $this->deleteSubQuestion($groupQuestionQuestionData['groupQuestionQuestionUuid'], $testQuestion);
+            }
+            dd('er is iets mis gegaan');
+        }
+
+        $this->deleteQuestion($testQuestion->uuid);
     }
 
     public function deleteSubQuestion($groupQuestionQuestionId, $testQuestionId)

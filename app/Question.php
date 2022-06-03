@@ -646,9 +646,9 @@ class Question extends MtiBaseModel {
     }
 
     public function scopeDifferentScenariosAndDemo($query, $filters = []){
-        $roles = $this->getUserRoles();
+//        $roles = $this->getUserRoles();
         $user = Auth::user();
-        $schoolLocation = SchoolLocation::find($user->getAttribute('school_location_id'));
+//        $schoolLocation = SchoolLocation::find($user->getAttribute('school_location_id'));
         if ($user->isA('Teacher')) {
             $subject = (new DemoHelper())->getDemoSubjectForTeacher($user);
             $query->join($this->switchScopeFilteredSubQueryForDifferentScenarios($user,$subject), function ($join) {

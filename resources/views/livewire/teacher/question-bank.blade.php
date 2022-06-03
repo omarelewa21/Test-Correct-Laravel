@@ -63,7 +63,7 @@
                     <div class="relative w-full">
                         <x-input.text class="w-full"
                                       placeholder="Zoek..."
-                                      wire:model="filters.search"
+                                      wire:model.300ms="filters.search"
                         />
                         <x-icon.search class="absolute right-0 -top-2"/>
                     </div>
@@ -111,7 +111,7 @@
                 <div class="flex">
                     <span class="note text-sm">{{ $this->resultCount }} resultaten</span>
                 </div>
-                <x-grid class="mt-4" x-show="!loading">
+                <x-grid class="mt-4" x-show="!loading" wire:key="grid-{{ $this->resultCount }}">
                     @foreach($this->questions as $question)
                         <x-grid.question-card :question="$question"/>
                     @endforeach
@@ -125,11 +125,13 @@
                         @endforeach
                     @else
                         @if(!$this->questions->count())
-                            @if($this->filters['source'] === 'me')
-                                <span class="col-span-2 text-center">U heeft nog geen eigen gemaakte vragen.</span>
+                            @if($this->filters['source'] === $this::SOURCE_PERSONAL)
+                                <span class="col-span-2 text-center">U heeft nog geen eigen gemaakte vragen voor deze zoekfilters.</span>
                             @else
                                 <span class="col-span-2 text-center">Er is nog geen openbare content voor uw school.</span>
                             @endif
+                        @else
+                                <span class="col-span-2 text-center">Er zijn geen items meer voor deze zoekfilters</span>
                         @endif
                     @endif
                 </x-grid>

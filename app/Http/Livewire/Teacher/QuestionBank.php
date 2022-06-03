@@ -55,7 +55,7 @@ class QuestionBank extends Component
     {
         return $this->getQuestionsQuery()
             ->take($this->itemsPerPage)
-            ->get();
+            ->get(['questions.*']);
     }
 
     private function getFilters()
@@ -189,16 +189,8 @@ class QuestionBank extends Component
                 $query->where('scope', '!=', 'cito')
                     ->orWhereNull('scope');
             })
-//            ->where(function ($query) {
-//                $query->whereNotIn('id', $this->getQuestionIdsThatAreAlreadyInTest());
-//            })
             ->with([
-                'questionAttainments',
-                'questionAttainments.attainment',
-                'tags',
-                'authors',
-                'subject:id,base_subject_id,name',
-                'subject.baseSubject:id,name'
+                'subject:id,name',
             ])
             ->distinct();
     }
