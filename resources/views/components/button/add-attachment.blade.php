@@ -43,11 +43,11 @@
         <div class="flex space-x-2">
             <x-button.secondary class="px-3" @click="document.querySelector('.filepond--label-action').click();base = false; open = true">
                 <x-icon.upload/>
-                <span>{{ __('cms.Upload') }}</span>
+                <span selid="upload-btn">{{ __('cms.Upload') }}</span>
             </x-button.secondary>
             <x-button.secondary class="px-3" @click="open = false; url = true">
                 <x-icon.link/>
-                <span>{{ __('cms.Video URL') }}</span>
+                <span selid="video-link-btn">{{ __('cms.Video URL') }}</span>
             </x-button.secondary>
         </div>
     </div>
@@ -67,8 +67,8 @@
             <span class="bold">{{ __('cms.Video URL') }}</span>
         </button>
         <div class="flex relative" wire:ignore>
-            <x-input.text x-ref="videolink" class="w-60 pr-12 text-base" placeholder="link" @keyup.enter="addLink()"/>
-            <x-button.cta class="px-3 absolute -right-px" @click="addLink()">
+            <x-input.text x-ref="videolink" class="w-60 pr-12 text-base" placeholder="link" @keyup.enter="addLink()" selid="video-link-input"/>
+            <x-button.cta class="px-3 absolute -right-px" @click="addLink()" selid="video-link-input-confirm">
                 <x-icon.checkmark/>
             </x-button.cta>
         </div>

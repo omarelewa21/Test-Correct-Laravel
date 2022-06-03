@@ -1,42 +1,66 @@
 <div id="cms" class="flex flex-1"
-     x-data="{loading: false}"
-     x-init="$watch('loading', () => { setTimeout(() => { loading = false }, 1500)} )"
+     x-data="{loading: @entangle('loading'), empty: {{ $this->emptyState ? 1 : 0 }}, dirty: @entangle('dirty') }"
+     x-init="
+           handleQuestionChange = (evt) => {
+                $store.cms.loading = true;
+                loading = true;
+                if(typeof evt !== 'undefined') empty = false;
+                removeDrawingLegacy();
+           }
+
+           loadingTimeout = (value) => {
+                if (value === true) {
+                    const loadingTimeout = setTimeout(() => {
+                        $store.cms.loading = false;
+                        $store.cms.processing = false;
+                        loading = false;
+                        clearTimeout(loadingTimeout);
+                    }, 1500)
+                }
+           }
+
+           $watch('$store.cms.loading', (value) => loadingTimeout(value));
+           $watch('loading', (value) => loadingTimeout(value));
+           $watch('dirty', (value) => $store.cms.dirty = value);
+
+           removeDrawingLegacy = () => {
+                $root.querySelector('#drawing-question-tool-container')?.remove();
+           }
+           forceSyncEditors = () => {
+                if (document.getElementById('{{ $this->questionEditorId }}')) {
+                    $wire.sync('question.question', CKEDITOR.instances['{{ $this->questionEditorId }}'].getData());
+                }
+                if (document.getElementById('{{ $this->answerEditorId }}')) {
+                    $wire.sync('question.answer', CKEDITOR.instances['{{ $this->answerEditorId }}'].getData());
+                }
+           }
+           "
      x-cloak
-     x-on:question-change.window="loading = true"
-     x-on:question-saved.window="Notify.notify('Vraag opgeslagen')"
+     x-on:question-change.window="handleQuestionChange($event.detail)"
+     x-on:show-empty.window="empty = !empty"
+     x-on:new-question-added.window="removeDrawingLegacy()"
+     x-effect="if(!!empty) { $refs.editorcontainer.style.opacity = 0}"
      questionComponent
 >
-    <div class="question-editor-header z-50">
-        <div class="question-title">
-            <div class="icon-arrow">
-                <x-icon.edit></x-icon.edit>
-            </div>
-            <h5 class=" text-white">{{ $this->questionType }}</h5>
-        </div>
-        <div class="question-test-name">
-            <span>{{ __('cms.Toets') }}:</span>
-            <span class="bold">{{ $testName }}</span>
-        </div>
-    </div>
+    <x-partials.header.cms-editor :testName="$testName" :questionCount="$this->amountOfQuestions"/>
     <div class="question-editor-content w-full max-w-7xl mx-auto relative"
-         wire:key="container-{{ $this->testQuestionId.$this->groupQuestionQuestionId.$this->action }}"
+         wire:key="container-{{ $this->uniqueQuestionKey }}"
+         {{--         :class="{'opacity-0': $store.cms.loading || empty, 'opacity-50': $store.cms.processing && !loading}"--}}
+         style="opacity: 0; transition: opacity .3s ease-in"
+         :style="{'opacity': ($store.cms.loading || !!empty) ? 0 : ($store.cms.processing) ? 0 : 1}"
+         x-ref="editorcontainer"
+         wire:ignore.self
     >
-        <div x-show="loading"
-             x-transition:enter="transform ease-out duration-150 transition"
-             x-transition:enter-start="translate-y-2 opacity-0 sm:translate-y-0 sm:translate-x-2"
-             x-transition:enter-end="translate-y-0 opacity-100 sm:translate-x-0"
-             x-transition:leave="transition ease-in duration-100"
-             x-transition:leave-start="opacity-100"
-             x-transition:leave-end="opacity-0"
-             class="absolute inset-0 bg-light-grey z-[2]"
-        ></div>
+
         <div class="flex w-full flex-col">
             <div class="flex w-full border-b border-secondary mt-2.5 py-2.5">
                 <div class="flex w-full items-center px-4 sm:px-6 lg:px-8 justify-between">
                     <div class="flex items-center">
-                        <span class="w-8 h-8 rounded-full bg-sysbase text-white text-sm flex items-center justify-center">
-                            <span>{{ $this->question['order'] == 0 ? '1' : $this->question['order']}}</span>
+                        @if(!$this->isGroupQuestion())
+                            <span class="w-8 h-8 rounded-full bg-sysbase text-white text-sm flex items-center justify-center">
+                            <span>{{ $this->resolveOrderNumber() }}</span>
                         </span>
+                        @endif
                         <h2 class="ml-2.5" selid="question-type-title">{{ $this->questionType }}</h2>
                     </div>
                     <div class="flex items-center">
@@ -72,8 +96,7 @@
                                  x-transition:leave-end="opacity-0 transform scale-90"
                             >
                                 <button class="flex items-center space-x-2 py-1 px-4 base hover:text-primary hover:bg-offwhite transition w-full"
-{{--                                        @click="$dispatch('delete-modal', ['question'])"--}}
-                                        wire:click="$emit('deleteQuestion', '{{ $this->testQuestionId }}')"
+                                        wire:click="removeItem('question', 1)"
                                 >
                                     <x-icon.remove/>
                                     <span class="text-base bold inherit">{{ __('cms.Verwijderen') }}</span>
@@ -137,10 +160,25 @@
                 </div>
                 @enderror
 
+                @if($this->isGroupQuestion() && $this->isCarouselGroup() && $this->editModeForExistingQuestion())
+                    @if(!$this->hasEnoughSubQuestionsAsCarousel())
+                        <div class="notification warning stretched mt-4">
+                            <span class="title">{{ __('cms.carousel_not_enough_questions') }}</span>
+                        </div>
+                    @endif
+                    @if(!$this->hasEqualScoresForSubQuestions())
+                        <div class="notification warning stretched mt-4">
+                            <span class="title">{{ __('cms.carousel_subquestions_scores_differ') }}</span>
+                        </div>
+                    @endif
+                @endif
+
             </div>
             <div class="flex justify-end px-4 sm:px-6 lg:px-8 py-5">
                 @if($this->showQuestionScore())
-                    <x-input.score wire:model.defer="question.score"></x-input.score>
+                    <x-input.score wire:model.defer="question.score"
+                                   wire:key="score-component-{{ $this->uniqueQuestionKey }}"
+                    />
                 @endif
             </div>
 
@@ -160,7 +198,8 @@
                         {{ __('cms.Opstellen') }}
                     </x-button.text-button>
                 </div>
-                <div class="" :class="{'border-b-2 border-primary -mb-px primary' : openTab === 2}" selid="tab-settings">
+                <div class="" :class="{'border-b-2 border-primary -mb-px primary' : openTab === 2}"
+                     selid="tab-settings">
                     <x-button.text-button
                             style="color:inherit"
                             @click="openTab = 2;"
@@ -169,7 +208,8 @@
                     </x-button.text-button>
                 </div>
                 @if($this->testQuestionId && $this->showStatistics())
-                    <div class="" :class="{'border-b-2 border-primary -mb-px primary' : openTab === 3}" selid="tab-statistics">
+                    <div class="" :class="{'border-b-2 border-primary -mb-px primary' : openTab === 3}"
+                         selid="tab-statistics">
                         <x-button.text-button
                                 style="color:inherit"
                                 @click="openTab = 3;"
@@ -202,21 +242,11 @@
                             {{ __('cms.Antwoordmodel') }}
                         </x-slot>
 
-                        @if($this->hasAllOrNothing())
-                            <x-input.toggle-row-with-title wire:model="question.all_or_nothing"
-                                                           :toolTip="__('cms.all_or_nothing_tooltip_text')"
-                            >
-                                <span class="bold"> {{ __('cms.Alles of niets correct') }}</span>
-                            </x-input.toggle-row-with-title>
-
-                        @endif
-
                         @yield('question-cms-answer')
                     </x-content-section>
                 @endif
 
             </div>
-
 
 
             <div class="flex flex-col flex-1 pb-20 space-y-4" x-show="openTab === 2"
@@ -251,7 +281,7 @@
                                                            :disabled="$this->isSettingsGeneralPropertyDisabled('closeable')"
                             >
                                 <x-icon.locked></x-icon.locked>
-                                <span class="bold">{{ __('cms.Sluiten na beantwoorden') }}</span>
+                                <span class="bold">{{ $this->isGroupQuestion() ? __('cms.Deze vraaggroep afsluiten') : __('cms.Sluiten na beantwoorden') }}</span>
                             </x-input.toggle-row-with-title>
                         @endif
 
@@ -328,6 +358,12 @@
                             </x-input.toggle-row-with-title>
                         @endif
 
+                        @if($this->isGroupQuestion())
+                            <x-input.toggle-row-with-title wire:model="question.shuffle">
+                                <x-icon.shuffle/>
+                                <span class="bold">{{ __('cms.Vragen in deze group shuffelen')}}</span>
+                            </x-input.toggle-row-with-title>
+                        @endif
                     </div>
 
                 </x-content-section>
@@ -411,10 +447,15 @@
                         <div class="flex flex-col flex-2">
                             <p class="text-base">{{ __('cms.Selecteer het domein en het subdomein waaraan deze vraag bijdraagt.') }}</p>
                             <div class="grid grid-cols-2 gap-x-6 mt-4">
-                                <livewire:attainment-manager :value="$question['attainments']" :subject-id="$subjectId"
-                                                     :eduction-level-id="$educationLevelId"/>
-                                <livewire:learning-goal-manager :value="$question['learning_goals']" :subject-id="$subjectId"
-                                                             :eduction-level-id="$educationLevelId"/>
+                                <livewire:attainment-manager :value="$question['attainments']"
+                                                             :subject-id="$subjectId"
+                                                             :eduction-level-id="$educationLevelId"
+                                                             :key="'AT-'. $this->uniqueQuestionKey"/>
+                                <livewire:learning-goal-manager :value="$question['learning_goals']"
+                                                                :subject-id="$subjectId"
+                                                                :eduction-level-id="$educationLevelId"
+                                                                :key="'LG-'. $this->uniqueQuestionKey "/>
+
                             </div>
                         </div>
                     </x-content-section>
@@ -424,7 +465,8 @@
 
                     <x-content-section>
                         <x-slot name="title">{{ __('Tags') }}</x-slot>
-                        <livewire:tag-manager :init-with-tags="$initWithTags"/>
+                        <livewire:tag-manager :init-with-tags="$this->initWithTags"
+                                              :key="'TA-'. $this->uniqueQuestionKey"/>
                     </x-content-section>
                 @endif
 
@@ -466,35 +508,41 @@
                 </div>
             @endif
         </div>
-
-        <div class="question-editor-footer" x-data>
-            <div class="question-editor-footer-button-container">
-
-                <button
-                        wire:loading.attr="disabled"
-                        type="button"
-                        wire:click="returnToTestOverview();"
-                        class="button text-button button-md pr-4"
-                        selid="cancel-btn"
-                >
-                    <span> {{ __("auth.cancel") }}</span>
-                </button>
-
-
-                <button
-                        wire:loading.attr="disabled"
-                        @beforeunload.window="$el.disabled = true"
-                        type="button"
-                        wire:click="saveAndRefreshDrawer()"
-                        class="button cta-button button-sm save_button"
-                        selid="save-btn"
-                >
-                    <span>{{ __("cms.Vraag opslaan") }}</span>
-                </button>
-            </div>
-        </div>
-
         <x-modal.question-editor-delete-modal/>
+        <x-modal.question-editor-dirty-question-modal
+                :item="strtolower($this->isGroupQuestion() ? __('cms.group-question') : __('drawing-modal.Vraag'))"
+                :new="!$this->editModeForExistingQuestion()"/>
+    </div>
+    <div class="question-editor-footer" x-data>
+        <div class="question-editor-footer-button-container">
+
+            <button
+                    type="button"
+                    class="button text-button button-md pr-4"
+                    wire:loading.attr="disabled"
+                    wire:click="returnToTestOverview();"
+                    selid="cancel-btn"
+            >
+                <span> {{ __("auth.cancel") }}</span>
+            </button>
+
+
+            <button
+                    type="button"
+                    class="button cta-button button-sm save_button"
+                    wire:loading.attr="disabled"
+{{--                    wire:click="saveAndRefreshDrawer()"--}}
+                    @click="forceSyncEditors();$wire.saveAndRefreshDrawer()"
+                    x-data="{disabled: false}"
+                    x-init="$watch('$store.questionBank.active', value => disabled = value);"
+                    x-on:beforeunload.window="disabled = true"
+                    x-on:filepond-start.window="disabled = true"
+                    x-on:filepond-finished.window="disabled = false"
+                    :disabled="!!empty || disabled"
+                    selid="save-btn"
+            >
+                <span>{{ __("drawing-modal.Opslaan") }}</span>
+            </button>
         </div>
-    <x-notification/>
+    </div>
 </div>

@@ -13,15 +13,23 @@ use tcCore\User;
 class EntreeTestSession extends Controller {
     public function __invoke()
     {
+
         $data = (object)[
             'emailAddress' => Str::random(6).'@sobit.nl',
             'role' => 'teacher',
-            'encryptedEckId' => Crypt::encryptString('xxxx12'),
-            'brin' => 'K99900',
-            'location' => SchoolLocation::where('customer_code','k999')->first(),
+            'encryptedEckId' => Crypt::encryptString('xxxx123'),
+            'brin' => '00BD02',
+            'location' => SchoolLocation::where('customer_code','COEN23456')->first(),
             'brin4ErrorDetected' => false,
             'lastName' => 'Dohmen',
+            'nameSuffix' => null,
+            'firstName' => 'Erikr',
         ];
+
+        if(request()->has('noEmail')){
+            $data->emailAddress = null;
+        }
+
         if(request()->has('schoolId')){
             $data->location = null;
             $data->school = School::find(request()->get('schoolId'));

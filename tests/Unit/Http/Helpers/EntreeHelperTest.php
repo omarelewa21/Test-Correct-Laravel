@@ -170,15 +170,29 @@ class EntreeHelperTest extends TestCase
         $user->save();
         $user->refresh();
         $helper = new EntreeHelper($data,null);
+        $url = $helper->handleIfRegistering();
         $this->assertStringContainsString(
             route('onboarding.welcome.entree'),
-            $helper->handleIfRegistering()
+            $url
         );
+
+        $samlMessage = $this->getSamlMessageFromUrl($url);
 
         $this->assertObjectHasAttribute(
             'user',
-            session('entreeData')
+            $samlMessage->data
         );
+    }
+
+    protected function getSamlMessageFromUrl($url)
+    {
+        $parts = parse_url($url);
+        parse_str($parts['query'], $query);
+        $samlId = $query['samlId'] ?? null;
+        $this->assertTrue(!!$samlId);
+        $samlMessage = SamlMessage::whereUuid($samlId)->first();
+        $this->assertTrue(!!$samlMessage);
+        return $samlMessage;
     }
 
     /**
@@ -257,13 +271,17 @@ class EntreeHelperTest extends TestCase
         $user->save();
         $user->refresh();
         $helper = new EntreeHelper($data,null);
+        $url = $helper->handleIfRegistering();
         $this->assertStringContainsString(
             route('onboarding.welcome.entree'),
-            $helper->handleIfRegistering()
+            $url
         );
+
+        $samlMessage = $this->getSamlMessageFromUrl($url);
+
         $this->assertObjectHasAttribute(
             'user',
-            session('entreeData')
+            $samlMessage->data
         );
     }
 
@@ -452,7 +470,9 @@ class EntreeHelperTest extends TestCase
         return [
             'nlEduPersonHomeOrganizationBranchId' => ['K99900'], // brincode
             'mail' => [Str::random(6).'@sobit.nl'],
-            'givenName' => [Str::random(6)],
+            'givenName' => ['first_'.Str::random(6)],
+            'sn' => ['last_'.Str::random(6)],
+            'nlEduPersonTussenvoegsels' => ['suffix_'.Str::random(6)],
             'eduPersonAffiliation' => ['employee'],
             'eckId' => ['xxxxxrr'],
         ];

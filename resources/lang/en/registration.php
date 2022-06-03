@@ -2,7 +2,7 @@
 return [
     'name_first_required'      => 'First name is required',
     'name_last_required'       => 'Surname is required',
-    'gender_required'          => 'Please provide your gender',
+    'gender_required'          => 'Please fill out a salutation',
     'password_required'        => 'Password is required',
     'password_min'             => 'Password must contain at least 8 characters',
     'password_regex'           => 'Password does not meet the requirements',
@@ -18,4 +18,5 @@ return [
     'city_required'            => 'A name for a city is required for the address',
     'username_required'        => 'E-mail address is required',
     'username_email'           => 'E-mail address is not valid',
+    'domain_required'          => 'Workdomain is required',
 ];

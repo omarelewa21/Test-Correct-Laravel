@@ -45,6 +45,7 @@
     height: 40px;
 }
 
+
 .Rectangle{
     background-color: #ffffff;
 }
@@ -60,6 +61,32 @@
     padding-left: 20px;
     border-radius: 20px;
     box-shadow: 0 3px 18px 0 rgb(77 87 143 / 10%);
+    position: absolute !important;
+    width: max-content !important;
+    float: none !important;
+    left: -5px;
+    height: 43px;
+}
+@media only screen and (max-width: 1024px) {
+    .rsexpanded {
+        position: absolute !important;
+        left: 0px;
+        width: max-content;
+    }
+
+}
+@media only screen and (max-width: 768px) {
+    .rsexpanded {
+        left: 100px;
+        position: absolute !important;
+        width: max-content;
+    }
+    .Rectangle{
+        width: 40px;
+    }
+    .Lees-voor{
+        display: none;
+    }
 }
 
 .rs_addtools .rsbtn_toolpanel.vertical, .rsbtn .rsbtn_toolpanel.vertical {
@@ -93,12 +120,17 @@ button, input, optgroup, select, textarea {
     font-family: inherit;
     font-size: 100%;
     line-height: 1.15;
-    margin: 0;
+    margin: 0!important;
 }
 
 svg {
     display: inline-block;
     vertical-align: middle;
+}
+@media only screen and (max-width: 768px) {
+    .Rectangle>svg {
+        margin-top: 5px;
+    }
 }
 .stroke-current {
     stroke: currentColor;
@@ -154,7 +186,7 @@ svg {
 *, ::before, ::after {
     box-sizing: border-box;
 }
-user agent stylesheet
+/*user agent stylesheet**/
 div {
     display: block;
 }
@@ -164,4 +196,21 @@ body {
     color: var(--system-base);
     touch-action: manipulation;
     -ms-touch-action: manipulation;
+}
+.rsbtn_pause{
+    position: relative;
+    top: 2px;
+}
+.rsbtn_dropdown{
+    top: 10px !important;
+}
+.splitToolbarButtonSeparator{
+    display: none !important;
+}
+a.rsbtn_play{
+    text-decoration: none;
+}
+
+input[type="range"].vertical {
+    width: 22px !important;
 }

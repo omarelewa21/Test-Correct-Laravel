@@ -1,11 +1,11 @@
 <x-upload.section uploadModel="uploads" :defaultFilepond="false" :multiple="true" :disableUpload="$this->isPartOfGroupQuestion">
     <x-slot name="files">
-        <div id="attachment-badges" class="flex flex-wrap">
+        <div id="attachment-badges" class="flex flex-wrap" wire:key="attachment-section-{{$this->uniqueQuestionKey}}">
             @foreach($this->attachments as $attachment)
                 <x-attachment.badge :upload="false"
                                     :attachment="$attachment"
                                     :title="$attachment->title"
-                                    wire:key="a-badge-{{ $attachment->id }}"
+                                    wire:key="a-badge-{{ $attachment->id.$this->questionEditorId }}"
                 />
             @endforeach
 
@@ -36,7 +36,7 @@
         <x-button.add-attachment>
             <x-slot name="text">
                 <x-icon.attachment/>
-                <span>{!! __('cms.Bijlage toevoegen')  !!}</span>
+                <span selid="add-attachment-btn">{!! __('cms.Bijlage toevoegen')  !!}</span>
             </x-slot>
         </x-button.add-attachment>
     </x-slot>

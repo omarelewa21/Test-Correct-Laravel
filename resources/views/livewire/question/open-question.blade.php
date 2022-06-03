@@ -26,7 +26,7 @@
                             spellcheck="false"
                     ></x-input.textarea>
                     @if(Auth::user()->text2speech)
-                        <div wire:ignore class="rspopup_tlc hidden rsbtn_popup_tlc_{{$question->id}}"  ><div class="rspopup_play rspopup_btn " role="button" tabindex="0" aria-label="Lees voor" data-rslang="title/arialabel:listen" data-rsevent-id="rs_340375" title="Lees voor"></div></div>
+                        <div wire:ignore class="rspopup_tlc hidden rsbtn_popup_tlc_{{$question->id}}"  ><div class="rspopup_play rspopup_btn rs_skip" role="button" tabindex="0" aria-label="Lees voor" data-rslang="title/arialabel:listen" data-rsevent-id="rs_340375" title="Lees voor"></div></div>
                     @endif
                 </x-input.group>
                 <div class="absolute bg-blue-grey rounded-lg overflow-hidden "
@@ -56,6 +56,9 @@
                         }
                         var textarea = document.querySelector('#textarea_{{ $question->id }}')
                         ReadspeakerTlc.hiddenElement.createHiddenDivTextArea(textarea);
+                    })
+                    document.addEventListener('trigger_livewire_rerender', () => {
+                        @this.render();
                     })
                 @endif
             </script>

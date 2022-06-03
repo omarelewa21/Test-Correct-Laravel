@@ -257,7 +257,8 @@ h6 {
 }
 
 .input-group #name_suffix {
-    width: 120px;
+    min-width: 80px;
+    width: 80px;
 }
 .input-group.lastname {
     flex-grow: 1;
@@ -287,14 +288,14 @@ h6 {
 .header-number {
     color: white;
     background: var(--mid-grey);
-    width: 30px;
+    min-width: 30px;
     height: 30px;
     line-height: 30px;
     text-align: center;
 }
 
 .header-check {
-    width: 30px;
+    min-width: 30px;
     height: 30px;
 }
 
@@ -481,42 +482,42 @@ span.active {
     padding: 15px;
 }
 
-svg, .hair {
+.onboarding-body svg, .hair {
     stroke: var(--mid-grey);
     fill: var(--mid-grey);
 }
 
-.eye {
+.onboarding-body .eye {
     stroke: none !important;
     fill: var(--mid-grey);
 }
 
-.select-button:hover svg, .select-button:hover .hair, .select-button:focus svg, .select-button:focus .hair {
+.onboarding-body .select-button:hover svg, .select-button:hover .hair, .select-button:focus svg, .select-button:focus .hair {
     stroke: var(--primary);
     fill: var(--primary);
     transition: ease-in-out 150ms;
 }
 
-.select-button:hover .eye, .select-button:focus .eye {
+.onboarding-body .select-button:hover .eye, .select-button:focus .eye {
     fill: var(--primary);
     transition: ease-in-out 150ms;
 }
 
-.btn-active svg, .btn-active .hair {
+.onboarding-body .btn-active svg, .btn-active .hair {
     stroke: var(--primary);
     fill: var(--primary);
 }
 
-.btn-active .eye {
+.onboarding-body .btn-active .eye {
     fill: var(--primary);
 }
 
-.btn-active:hover svg, .btn-active:hover .hair {
+.onboarding-body .btn-active:hover svg, .btn-active:hover .hair {
     stroke: var(--primary);
     fill: var(--primary);
 }
 
-.btn-active:hover .eye {
+.onboarding-body .btn-active:hover .eye {
     fill: var(--primary);
 }
 
@@ -859,4 +860,31 @@ img.icon-close-small-subjects{
 
 .primary-hover:hover {
     color: var(--primary);
+}
+
+.transition-max-height {
+    transition: max-height 250ms ease-in-out;
+}
+
+.bg-white-70 {
+    background-color: rgba(255, 255, 255, 0.7);
+}
+
+@media only screen and (max-width: 590px){
+    .entree-step-indicator > div {
+        flex-shrink: 1;
+    }
+    .entree-step-indicator > div:not(.active) {
+        overflow: hidden;
+        min-width: 70px;
+    }
+    .entree-step-indicator > div:not(.active) span{
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+    .entree-step-indicator > div.active {
+        flex-shrink: 0;
+        max-width: fit-content;
+    }
 }

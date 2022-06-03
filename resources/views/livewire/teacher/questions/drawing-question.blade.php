@@ -8,8 +8,9 @@
 @endsection
 
 @section('question-cms-answer')
-    <div x-data="drawingTool(
-                1,
+    <div id="drawing-question-tool-container"
+            x-data="drawingTool(
+                '{{ $this->drawingToolName() }}',
                  {
                      answerSvg: @entangle('question.answer_svg'),
                      questionSvg: @entangle('question.question_svg'),
@@ -21,7 +22,7 @@
     >
         <div class="flex justify-between">
             <span class="flex">{{ __('cms.Teken in de tekentool het antwoordmodel voor de vraag.') }}</span>
-            <x-button.primary wire:loading.attr="disabled" wire:target="handleUpdateDrawingData" x-cloak x-show="answerSvg !== ''" @click="show = !show">
+            <x-button.primary wire:loading.attr="disabled" wire:target="handleUpdateDrawingData" x-cloak x-show="answerSvg !== ''" @click="show = !show" selid="draw-answer">
                 <x-icon.edit/>
                 <span>{{ __('cms.Tekening aanpassen') }}</span>
             </x-button.primary>
@@ -38,7 +39,7 @@
                     <div class="max-w-2xl z-0  p-8 flex flex-col items-center justify-center relative rounded-10 overflow-auto">
                         <div class="absolute bg-white opacity-80 w-full h-full"></div>
                         <div class="z-0 flex flex-col items-center justify-center">
-                            <x-button.primary @click="showWarning = !showWarning">
+                            <x-button.primary @click="showWarning = !showWarning" selid="draw-answer">
                                 <x-icon.edit/>
                                 <span>{{ __('cms.Tekening maken') }}</span>
                             </x-button.primary>
@@ -68,7 +69,7 @@
                 <div x-cloak x-show="answerSvg === ''" class="max-w-2xl z-0  p-8 flex flex-col items-center justify-center relative rounded-10 overflow-auto">
                     <div class="absolute bg-white opacity-80 w-full h-full"></div>
                     <div class="z-0 flex flex-col items-center justify-center">
-                        <x-button.primary @click="show = !show" wire:loading.attr="disabled" wire:target="handleUpdateDrawingData">
+                        <x-button.primary @click="show = !show" wire:loading.attr="disabled" wire:target="handleUpdateDrawingData" selid="draw-answer">
                             <x-icon.edit/>
                             <span>{{ __('cms.Tekening maken') }}</span>
                         </x-button.primary>

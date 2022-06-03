@@ -59,10 +59,17 @@ class CmsFactory
             'open'   => [
                 [
                     'sticker'     => 'question-open',
-                    'name'        => __('question.open-long-short'),
-                    'description' => __('question.open-long-short_description'),
+                    'name'        => __('question.openquestionlong'),
+                    'description' => __('question.open-long_description'),
                     'type'        => 'OpenQuestion',
                     'subtype'     => 'medium',
+                ],
+                [
+                    'sticker'     => 'question-open',
+                    'name'        => __('question.openquestionshort'),
+                    'description' => __('question.open-short_description'),
+                    'type'        => 'OpenQuestion',
+                    'subtype'     => 'short',
                 ],
                 [
                     'sticker'     => 'question-completion',
@@ -120,14 +127,14 @@ class CmsFactory
                     'name'        => __('question.selection'),
                     'description' => __('question.selection_description'),
                     'type'        => 'CompletionQuestion',
-                    'subtype'     => 'Selection',
+                    'subtype'     => 'multi',
                 ],
                 [
                     'sticker'     => 'question-arq',
                     'name'        => __('question.arq'),
                     'description' => __('question.arq_description'),
                     'type'        => 'MultipleChoiceQuestion',
-                    'subtype'     => 'Arq',
+                    'subtype'     => 'ARQ',
                 ],
             ],
             'extra'  => [
@@ -140,6 +147,21 @@ class CmsFactory
                 ]
             ]
         ];
+    }
+
+    public static function findQuestionNameByTypes($type, $subtype)
+    {
+        return __('question.' . Str::lower($type . ($subtype ?? '')));
+
+//        if ($type === 'GroupQuestion') return __('question.groupquestion');
+//
+//        $question = collect(CmsFactory::questionTypes())->flatMap(function ($q) {
+//            return $q;
+//        })->filter(function($q) use ($type, $subtype) {
+//            return $q['type'] == $type && $q['subtype'] === $subtype;
+//        })->first();
+//
+//        return $question['name'];
     }
 
 

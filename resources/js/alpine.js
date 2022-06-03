@@ -1,7 +1,9 @@
 import Alpine from 'alpinejs';
 import Choices from "choices.js";
+import Intersect from '@alpinejs/intersect';
 
 window.Alpine = Alpine;
+Alpine.plugin(Intersect);
 
 document.addEventListener('alpine:init', () => {
     Alpine.data('questionIndicator', () => ({
@@ -291,6 +293,9 @@ document.addEventListener('alpine:init', () => {
         isPreview: isPreview,
         init() {
             this.toolName = `drawingTool_${questionId}`;
+            if (Object.getOwnPropertyNames(window).includes(this.toolName)) {
+                delete window[this.toolName];
+            }
             const toolName = window[this.toolName] = initDrawingQuestion(this.$root, this.isTeacher, this.isPreview);
 
             if(this.isTeacher) {
@@ -345,7 +350,8 @@ document.addEventListener('alpine:init', () => {
             this.slideWidth = this.$root.offsetWidth;
             this.drawer = this.$root.closest('.drawer');
             setTimeout(() => {
-                this.handleVerticalScroll(this.$root.firstElementChild)
+                this.handleVerticalScroll(this.$root.firstElementChild);
+                this.$dispatch('groupFoldingUpdate');
             }, 400);
         },
         next(currentEl) {
@@ -361,6 +367,7 @@ document.addEventListener('alpine:init', () => {
         home() {
             this.scroll(0);
             this.$dispatch('backdrop');
+            this.handleVerticalScroll(this.$refs.container1);
         },
         scroll(position) {
             this.drawer.scrollTo({top: 0, behavior: 'smooth'});
@@ -399,12 +406,13 @@ document.addEventListener('alpine:init', () => {
             this.drawer.classList.add('fullscreen');
             const boundingRect = this.$refs.questionbank.getBoundingClientRect();
             this.scroll(boundingRect.x + boundingRect.width);
+            this.$store.questionBank.active = true;
         },
         hideQuestionBank(container) {
             this.$root.querySelectorAll('.slide-container').forEach((slide) => {
                 slide.classList.add('opacity-0')
             })
-
+            this.$store.questionBank.active = false;
             this.$nextTick(() => {
                 this.drawer.classList.remove('fullscreen');
                 this.scroll(container.parentElement.firstElementChild.offsetWidth);
@@ -417,40 +425,121 @@ document.addEventListener('alpine:init', () => {
                 }, 400)
             })
         },
+        addQuestionToGroup(uuid) {
+            this.showAddQuestionSlide()
+            this.$store.questionBank.inGroup = uuid;
+        },
+        addGroup(shouldCheckDirty = true) {
+            if (shouldCheckDirty && this.$store.cms.dirty) {
+                this.$wire.emitTo('teacher.questions.open-short', 'addQuestionFromDirty', {'group': true})
+                return;
+            }
+            this.$wire.addGroup();
+        },
+        showAddQuestionSlide(shouldCheckDirty = true) {
+            if (shouldCheckDirty && this.$store.cms.dirty) {
+                this.$wire.emitTo('teacher.questions.open-short', 'addQuestionFromDirty', {'group': false})
+                return;
+            }
+
+            this.next(this.$refs.container1);
+            this.$dispatch('backdrop')
+        },
+        backToQuestionOverview(container) {
+            this.prev(container);
+            this.$dispatch('backdrop');
+            this.$store.questionBank.inGroup = false;
+            // this.$store.cms.processing = false;
+        }
 
     }));
-    Alpine.data('choices', (wireModel, multiple, options, config) => ({
+    Alpine.data('choices', (wireModel, multiple, options, config, filterContainer) => ({
         multiple: multiple,
-        value: [],
+        value: wireModel,
         options: options,
         config: config,
         wireModel: wireModel,
+        activeFiltersContainer: null,
+        choices: null,
         init() {
+            this.activeFiltersContainer = document.getElementById(filterContainer);
             this.multiple = multiple === 1;
             this.$nextTick(() => {
                 let choices = new Choices(this.$refs.select, this.config);
 
                 let refreshChoices = () => {
                     let selection = this.multiple ? this.value : [this.value]
-
                     choices.clearStore()
                     choices.setChoices(this.options.map(({value, label}) => ({
                         value,
                         label,
-                        selected: selection.includes(value),
+                        selected: selection.includes(value)
                     })))
+                    this.handleActiveFilters(choices.getValue());
                 }
 
                 refreshChoices()
-
+                // this.$refs.select.addEventListener('addItem', (event) => {
+                //     console.log('additem');
+                //
+                // })
+                this.$refs.select.addEventListener('choice', (event) => {
+                    if (this.value.includes(parseInt(event.detail.choice.value))) {
+                        this.removeFilterItem(choices.getValue().find(value => value.value === event.detail.choice.value));
+                    }
+                })
                 this.$refs.select.addEventListener('change', () => {
                     this.value = choices.getValue(true)
                     this.wireModel = this.value;
                 })
 
-                this.$watch('value', () => refreshChoices())
-                this.$watch('options', () => refreshChoices())
+                window.addEventListener('removeFrom'+this.$root.dataset.modelName, (event) => {
+                    this.removeFilterItem(event.detail);
+                })
+
+                this.$watch('value', () => refreshChoices());
+                this.$watch('options', () => refreshChoices());
             });
+        },
+
+        removeFilterItem(item) {
+            this.value = this.wireModel = this.value.filter(itemValue => itemValue !== item.value);
+            this.clearFilterPill(item.value);
+        },
+
+        getDataSelector(item) {
+            return `[data-filter="${this.$root.dataset.modelName}"][data-filter-value="${item}"]`
+        },
+
+        handleActiveFilters(choicesValues) {
+            this.value.forEach(item => {
+                if(this.needsFilterPill(item)) {
+                    const cItem = choicesValues.find(value => value.value === item);
+                    if(typeof cItem !== 'undefined'){
+                        this.createFilterPill(cItem);
+                    }
+                }
+            })
+        },
+
+        createFilterPill(item) {
+            const element = document.getElementById('filter-pill-template').content.firstElementChild.cloneNode(true);
+            // const element = document.createElement('span')
+            element.id = `filter-${this.$root.dataset.modelName}-${item.value}`;
+            element.classList.add('filter-pill');
+            element.dataset.filter = this.$root.dataset.modelName;
+            element.dataset.filterValue = item.value;
+            element.firstElementChild.innerHTML = item.label;
+
+            return this.activeFiltersContainer.appendChild(element);
+        },
+
+        needsFilterPill(item) {
+            return this.activeFiltersContainer.querySelector(this.getDataSelector(item)) === null
+        },
+
+        clearFilterPill(item) {
+            return this.activeFiltersContainer.querySelector(this.getDataSelector(item))?.remove();
         }
 
     }));
@@ -458,6 +547,16 @@ document.addEventListener('alpine:init', () => {
     Alpine.directive('global', function (el, {expression}) {
         let f = new Function('_', '$data', '_.' + expression + ' = $data;return;');
         f(window, el._x_dataStack[0]);
+    });
+
+    Alpine.store('cms', {
+        loading: false,
+        processing: false,
+        dirty: false
+    });
+    Alpine.store('questionBank', {
+        active: false,
+        inGroup: false
     });
 });
 

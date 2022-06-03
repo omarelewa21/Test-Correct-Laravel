@@ -35,7 +35,7 @@
                      @close-drawing-tool="show = false"
                      class="mt-4"
                 >
-                    <x-button.primary @click="show = !show">
+                    <x-button.primary @click="show = !show" class="edit-drawing-answer" selid="draw-btn">
                         <x-icon.edit/>
                         @if($answer == '')
                             <span>{{ __('test_take.draw_answer') }}</span>
@@ -59,4 +59,44 @@
     </div>
     <x-attachment.attachment-modal :attachment="$attachment" :answerId="$answerId"/>
     <x-question.notepad :showNotepad="$showNotepad"/>
+    @once
+        @push('scripts')
+            <script>
+                Livewire.hook('message.sent', (message, component) => {
+                        let canBeDisabled = message.updateQueue.filter(event => {
+                            return event.method === "handleUpdateDrawingData"
+                        }).length;
+                        if (canBeDisabled) {
+                            ['overviewBtnFooter', 'previewBtn'].map(btnId => {
+                                return document.getElementById(btnId)
+                            })
+                                .concat(component.el.querySelector('.edit-drawing-answer'))
+                                .forEach(btn => {
+                                    btn.setAttribute('disabled', 'true');
+                                    // always release the button after 10 seconds?
+                                    setTimeout(
+                                        () => btn.removeAttribute('disabled'),
+                                        10000
+                                    )
+                                })
+                        }
+                    }
+                );
+
+                Livewire.hook('message.processed', (message, component) => {
+                    let canBeEnabled = message.updateQueue.filter(event => {
+                        return event.method === "handleUpdateDrawingData"
+                    }).length;
+                    if (canBeEnabled) {
+                        ['overviewBtnFooter', 'previewBtn'].map(btnId => {
+                            return document.getElementById(btnId)
+                        })
+                            .concat(component.el.querySelector('.edit-drawing-answer'))
+                            .forEach(btn => btn.removeAttribute('disabled'));
+
+                    }
+                })
+            </script>
+        @endpush
+        @endonce
 </x-partials.question-container>

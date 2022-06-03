@@ -1,5 +1,3 @@
-
-
 <x-layouts.base>
     <header class="header top-0 px-8 xl:px-28 flex flex-wrap content-center fixed w-full z-20 main-shadow @if(\tcCore\Http\Helpers\GlobalStateHelper::getInstance()->hasActiveMaintenance()) maintenance-header-bg @endif @if(\tcCore\Http\Helpers\GlobalStateHelper::getInstance()->isOnDeploymentTesting()) deployment-testing-marker @endif"
             x-data="{showToDashboard: false}"
@@ -44,14 +42,14 @@
     <footer class="footer px-8 xl:px-28 flex content-center fixed w-full bottom-0 z-10">
 
         <div class="flex items-center">
-            {{ $fraudDetection }}
+            {{ $fraudDetection??'' }}
         </div>
         <div class="flex items-center ml-auto space-x-4" >
             {{ $readspeaker??'' }}
         </div>
         <div class="flex items-center ml-auto space-x-6">
-            {{ $footerbuttons }}
+            {{ $footerbuttons ?? '' }}
         </div>
     </footer>
-    {{ $testTakeManager }}
+    {{ $testTakeManager ?? '' }}
 </x-layouts.base>

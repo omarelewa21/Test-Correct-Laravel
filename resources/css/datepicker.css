@@ -1,0 +1,25 @@
+@import url("~flatpickr/dist/flatpickr.css");
+.datepicker {
+    --datepicker-border-color: var(--blue-grey);
+    --datepicker-background-color: var(--off-white);
+}
+.flatpickr-month {
+    background-color: #FFFFFF !important;
+}
+
+input.datepicker {
+    background: inherit;
+    border: 1px solid var(--datepicker-border-color);
+    border-radius: 10px;
+    padding: 4px 8px;
+    display: flex;
+    align-items: center;
+    margin-left: 1px;
+    margin-right: 1px;
+    transition: border 150ms ease, background-color 150ms ease;
+}
+
+
+.datepicker.range {
+    width: 260px;
+}

@@ -12,6 +12,8 @@
 @import url("drawing-question.css");
 @import url("ckeditor5.css");
 @import url("choices.css");
+@import url("datepicker.css");
+@import url("navigation-bar.css");
 
 
 @tailwind base;
@@ -36,8 +38,10 @@
     --highlight-primary-mid-dark: #dec802;
     --highlight-primary-light: #fffcd7;
     --system-base: #041f74;
+    --system-base-rgb: 4, 31, 116;
     --system-secondary: #CEDAF3;
     --mid-grey: #929DAF;
+    --mid-grey-rgb: 146, 157, 175;
     --light-grey: #F0F2F5;
     --blue-grey: #c3d0ed;
     --shadow-blue: #4D578F;
@@ -47,7 +51,7 @@
     --note: #6b7789;
     --orange: #eca000;
     --main-shadow: 0 3px 8px 0 rgba(4, 31, 116, 0.3);
-    --card-shadow: 0 3px 16px 0 rgba(4, 31, 116, 0.1);;
+    --card-shadow: 0 3px 16px 0 rgba(4, 31, 116, 0.1);
     --white: #ffffff;
     --maintenance-header-bg: #ff6666;
     --deployment-testing-color: darkorange;
@@ -58,7 +62,9 @@
     --sidebar-transition: .5s ease;
     --collapsed-sidebar-width: 24px;
 
-    --primary-gradient: linear-gradient(to right, var(--teacher-primary) 0%,var(--teacher-primary-light) 100%)
+    --primary-gradient: linear-gradient(to right, var(--teacher-primary) 0%,var(--teacher-primary-light) 100%);
+    --button-gradient: linear-gradient(to right, #002096 0%, var(--teacher-primary-light) 100%),
+                       linear-gradient(to bottom, var(--teacher-primary), var(--teacher-primary));
 }
 
 @font-face {
@@ -76,6 +82,10 @@
 @font-face {
     font-family: Zilla Slab Regular;
     src: url("../fonts/Zilla_Slab/ZillaSlab-Regular.ttf");
+}
+@font-face {
+    font-family: Zilla Slab Bold;
+    src: url("../fonts/Zilla_Slab/ZillaSlab-Bold.ttf");
 }
 
 @font-face {
@@ -349,6 +359,9 @@ h3 {
     line-height: 2rem;
     color: var(--system-base);
 }
+h3.bold {
+    font-family: Zilla Slab Bold, serif;
+}
 
 h4 {
     font-size: 1.5rem;
@@ -368,6 +381,13 @@ h6 {
     font-size: 1.125rem;
     font-family: Nunito Bold;
     line-height: 1.125rem;
+    color: var(--system-base);
+}
+
+h7 {
+    font-size: 1rem;
+    font-family: Nunito Bold;
+    line-height: 1.5rem;
     color: var(--system-base);
 }
 
@@ -413,6 +433,10 @@ h6 {
 
 .text-disabled {
     color: var(--mid-grey);
+}
+
+.zilla-slab {
+    font-family: "Zilla Slab Regular", Serif;
 }
 
 
@@ -594,7 +618,15 @@ ul ul ul {
 .draggable-source--is-dragging.sub-item-with-connecting-line::before{
     left:-7px;
 }
-
+.questionContainer table{
+    border-spacing: 0px;
+}
+.questionContainer table, .questionContainer th, .questionContainer td {
+    border: 2px solid rgb(100, 99, 99);
+}
+.questionContainer th, .questionContainer td {
+    padding: 0.1rem 0.2rem;
+}
 /* latin */
 @font-face {
     font-family: 'Nunito';

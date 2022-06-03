@@ -1,6 +1,78 @@
 /******/ (() => { // webpackBootstrap
 /******/ 	var __webpack_modules__ = ({
 
+/***/ "./node_modules/@alpinejs/intersect/dist/module.esm.js":
+/*!*************************************************************!*\
+  !*** ./node_modules/@alpinejs/intersect/dist/module.esm.js ***!
+  \*************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (/* binding */ module_default)
+/* harmony export */ });
+// packages/intersect/src/index.js
+function src_default(Alpine) {
+  Alpine.directive("intersect", (el, {value, expression, modifiers}, {evaluateLater, cleanup}) => {
+    let evaluate = evaluateLater(expression);
+    let options = {
+      rootMargin: getRootMargin(modifiers),
+      threshold: getThreshhold(modifiers)
+    };
+    let observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting === (value === "leave"))
+          return;
+        evaluate();
+        modifiers.includes("once") && observer.disconnect();
+      });
+    }, options);
+    observer.observe(el);
+    cleanup(() => {
+      observer.disconnect();
+    });
+  });
+}
+function getThreshhold(modifiers) {
+  if (modifiers.includes("full"))
+    return 0.99;
+  if (modifiers.includes("half"))
+    return 0.5;
+  if (!modifiers.includes("threshold"))
+    return 0;
+  let threshold = modifiers[modifiers.indexOf("threshold") + 1];
+  if (threshold === "100")
+    return 1;
+  if (threshold === "0")
+    return 0;
+  return Number(`.${threshold}`);
+}
+function getLengthValue(rawValue) {
+  let match = rawValue.match(/^(-?[0-9]+)(px|%)?$/);
+  return match ? match[1] + (match[2] || "px") : void 0;
+}
+function getRootMargin(modifiers) {
+  const key = "margin";
+  const fallback = "0px 0px 0px 0px";
+  const index = modifiers.indexOf(key);
+  if (index === -1)
+    return fallback;
+  let values = [];
+  for (let i = 1; i < 5; i++) {
+    values.push(getLengthValue(modifiers[index + i] || ""));
+  }
+  values = values.filter((v) => v !== void 0);
+  return values.length ? values.join(" ").trim() : fallback;
+}
+
+// packages/intersect/builds/module.js
+var module_default = src_default;
+
+
+
+/***/ }),
+
 /***/ "./node_modules/@babel/runtime/regenerator/index.js":
 /*!**********************************************************!*\
   !*** ./node_modules/@babel/runtime/regenerator/index.js ***!
@@ -5461,6 +5533,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var alpinejs__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! alpinejs */ "./node_modules/alpinejs/dist/module.esm.js");
 /* harmony import */ var choices_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! choices.js */ "./node_modules/choices.js/public/assets/scripts/choices.js");
 /* harmony import */ var choices_js__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(choices_js__WEBPACK_IMPORTED_MODULE_2__);
+/* harmony import */ var _alpinejs_intersect__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! @alpinejs/intersect */ "./node_modules/@alpinejs/intersect/dist/module.esm.js");
 
 
 function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { Promise.resolve(value).then(_next, _throw); } }
@@ -5469,7 +5542,9 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
 
 
+
 window.Alpine = alpinejs__WEBPACK_IMPORTED_MODULE_1__["default"];
+alpinejs__WEBPACK_IMPORTED_MODULE_1__["default"].plugin(_alpinejs_intersect__WEBPACK_IMPORTED_MODULE_3__["default"]);
 document.addEventListener('alpine:init', function () {
   alpinejs__WEBPACK_IMPORTED_MODULE_1__["default"].data('questionIndicator', function () {
     return {
@@ -5792,6 +5867,11 @@ document.addEventListener('alpine:init', function () {
         var _this7 = this;
 
         this.toolName = "drawingTool_".concat(questionId);
+
+        if (Object.getOwnPropertyNames(window).includes(this.toolName)) {
+          delete window[this.toolName];
+        }
+
         var toolName = window[this.toolName] = initDrawingQuestion(this.$root, this.isTeacher, this.isPreview);
 
         if (this.isTeacher) {
@@ -5849,6 +5929,8 @@ document.addEventListener('alpine:init', function () {
         this.drawer = this.$root.closest('.drawer');
         setTimeout(function () {
           _this8.handleVerticalScroll(_this8.$root.firstElementChild);
+
+          _this8.$dispatch('groupFoldingUpdate');
         }, 400);
       },
       next: function next(currentEl) {
@@ -5864,6 +5946,7 @@ document.addEventListener('alpine:init', function () {
       home: function home() {
         this.scroll(0);
         this.$dispatch('backdrop');
+        this.handleVerticalScroll(this.$refs.container1);
       },
       scroll: function scroll(position) {
         this.drawer.scrollTo({
@@ -5906,6 +5989,7 @@ document.addEventListener('alpine:init', function () {
         this.drawer.classList.add('fullscreen');
         var boundingRect = this.$refs.questionbank.getBoundingClientRect();
         this.scroll(boundingRect.x + boundingRect.width);
+        this.$store.questionBank.active = true;
       },
       hideQuestionBank: function hideQuestionBank(container) {
         var _this10 = this;
@@ -5913,6 +5997,7 @@ document.addEventListener('alpine:init', function () {
         this.$root.querySelectorAll('.slide-container').forEach(function (slide) {
           slide.classList.add('opacity-0');
         });
+        this.$store.questionBank.active = false;
         this.$nextTick(function () {
           _this10.drawer.classList.remove('fullscreen');
 
@@ -5926,19 +6011,56 @@ document.addEventListener('alpine:init', function () {
             _this10.$wire.emitTo('drawer.cms', 'refreshDrawer');
           }, 400);
         });
+      },
+      addQuestionToGroup: function addQuestionToGroup(uuid) {
+        this.showAddQuestionSlide();
+        this.$store.questionBank.inGroup = uuid;
+      },
+      addGroup: function addGroup() {
+        var shouldCheckDirty = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : true;
+
+        if (shouldCheckDirty && this.$store.cms.dirty) {
+          this.$wire.emitTo('teacher.questions.open-short', 'addQuestionFromDirty', {
+            'group': true
+          });
+          return;
+        }
+
+        this.$wire.addGroup();
+      },
+      showAddQuestionSlide: function showAddQuestionSlide() {
+        var shouldCheckDirty = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : true;
+
+        if (shouldCheckDirty && this.$store.cms.dirty) {
+          this.$wire.emitTo('teacher.questions.open-short', 'addQuestionFromDirty', {
+            'group': false
+          });
+          return;
+        }
+
+        this.next(this.$refs.container1);
+        this.$dispatch('backdrop');
+      },
+      backToQuestionOverview: function backToQuestionOverview(container) {
+        this.prev(container);
+        this.$dispatch('backdrop');
+        this.$store.questionBank.inGroup = false; // this.$store.cms.processing = false;
       }
     };
   });
-  alpinejs__WEBPACK_IMPORTED_MODULE_1__["default"].data('choices', function (wireModel, multiple, options, config) {
+  alpinejs__WEBPACK_IMPORTED_MODULE_1__["default"].data('choices', function (wireModel, multiple, options, config, filterContainer) {
     return {
       multiple: multiple,
-      value: [],
+      value: wireModel,
       options: options,
       config: config,
       wireModel: wireModel,
+      activeFiltersContainer: null,
+      choices: null,
       init: function init() {
         var _this11 = this;
 
+        this.activeFiltersContainer = document.getElementById(filterContainer);
         this.multiple = multiple === 1;
         this.$nextTick(function () {
           var choices = new (choices_js__WEBPACK_IMPORTED_MODULE_2___default())(_this11.$refs.select, _this11.config);
@@ -5955,13 +6077,30 @@ document.addEventListener('alpine:init', function () {
                 selected: selection.includes(value)
               };
             }));
+
+            _this11.handleActiveFilters(choices.getValue());
           };
 
-          refreshChoices();
+          refreshChoices(); // this.$refs.select.addEventListener('addItem', (event) => {
+          //     console.log('additem');
+          //
+          // })
+
+          _this11.$refs.select.addEventListener('choice', function (event) {
+            if (_this11.value.includes(parseInt(event.detail.choice.value))) {
+              _this11.removeFilterItem(choices.getValue().find(function (value) {
+                return value.value === event.detail.choice.value;
+              }));
+            }
+          });
 
           _this11.$refs.select.addEventListener('change', function () {
             _this11.value = choices.getValue(true);
             _this11.wireModel = _this11.value;
+          });
+
+          window.addEventListener('removeFrom' + _this11.$root.dataset.modelName, function (event) {
+            _this11.removeFilterItem(event.detail);
           });
 
           _this11.$watch('value', function () {
@@ -5972,6 +6111,48 @@ document.addEventListener('alpine:init', function () {
             return refreshChoices();
           });
         });
+      },
+      removeFilterItem: function removeFilterItem(item) {
+        this.value = this.wireModel = this.value.filter(function (itemValue) {
+          return itemValue !== item.value;
+        });
+        this.clearFilterPill(item.value);
+      },
+      getDataSelector: function getDataSelector(item) {
+        return "[data-filter=\"".concat(this.$root.dataset.modelName, "\"][data-filter-value=\"").concat(item, "\"]");
+      },
+      handleActiveFilters: function handleActiveFilters(choicesValues) {
+        var _this12 = this;
+
+        this.value.forEach(function (item) {
+          if (_this12.needsFilterPill(item)) {
+            var cItem = choicesValues.find(function (value) {
+              return value.value === item;
+            });
+
+            if (typeof cItem !== 'undefined') {
+              _this12.createFilterPill(cItem);
+            }
+          }
+        });
+      },
+      createFilterPill: function createFilterPill(item) {
+        var element = document.getElementById('filter-pill-template').content.firstElementChild.cloneNode(true); // const element = document.createElement('span')
+
+        element.id = "filter-".concat(this.$root.dataset.modelName, "-").concat(item.value);
+        element.classList.add('filter-pill');
+        element.dataset.filter = this.$root.dataset.modelName;
+        element.dataset.filterValue = item.value;
+        element.firstElementChild.innerHTML = item.label;
+        return this.activeFiltersContainer.appendChild(element);
+      },
+      needsFilterPill: function needsFilterPill(item) {
+        return this.activeFiltersContainer.querySelector(this.getDataSelector(item)) === null;
+      },
+      clearFilterPill: function clearFilterPill(item) {
+        var _this$activeFiltersCo;
+
+        return (_this$activeFiltersCo = this.activeFiltersContainer.querySelector(this.getDataSelector(item))) === null || _this$activeFiltersCo === void 0 ? void 0 : _this$activeFiltersCo.remove();
       }
     };
   });
@@ -5979,6 +6160,15 @@ document.addEventListener('alpine:init', function () {
     var expression = _ref2.expression;
     var f = new Function('_', '$data', '_.' + expression + ' = $data;return;');
     f(window, el._x_dataStack[0]);
+  });
+  alpinejs__WEBPACK_IMPORTED_MODULE_1__["default"].store('cms', {
+    loading: false,
+    processing: false,
+    dirty: false
+  });
+  alpinejs__WEBPACK_IMPORTED_MODULE_1__["default"].store('questionBank', {
+    active: false,
+    inGroup: false
   });
 });
 
@@ -6021,6 +6211,10 @@ __webpack_require__(/*! ./drawing/drawing-question */ "./resources/js/drawing/dr
 __webpack_require__(/*! ./readspeaker_app */ "./resources/js/readspeaker_app.js");
 
 __webpack_require__(/*! ./attachment */ "./resources/js/attachment.js");
+
+__webpack_require__(/*! ./flatpickr */ "./resources/js/flatpickr.js");
+
+__webpack_require__(/*! ./navigation-bar */ "./resources/js/navigation-bar.js");
 
 window.ClassicEditors = [];
 
@@ -6201,6 +6395,9 @@ dragElement = function dragElement(element) {
       pos4 = 0;
   var uuid = element.id.replace('attachment-', '');
   var newTop, newLeft;
+  var elementRect = element.getBoundingClientRect();
+  var windowHeight = window.innerHeight;
+  var windowWidth = window.innerWidth;
 
   if (document.getElementById(element.id + "drag")) {
     // if present, the header is where you move the DIV from:
@@ -6252,7 +6449,23 @@ dragElement = function dragElement(element) {
   }
 
   function closeDragElement(e) {
-    // stop moving when mouse button is released:
+    var rightEdge = newLeft + elementRect.width;
+
+    if (newTop < 0) {
+      newTop = 10;
+    } // Check if the top edge is within window height boundaries
+    else if (newTop > windowHeight - 50) {
+      newTop = windowHeight - 50;
+    }
+
+    if (rightEdge < 150) {
+      newLeft = 0;
+    } // Check if the right edge is within window width boundaries
+    else if (rightEdge > windowWidth - 10) {
+      newLeft = 0;
+    } // stop moving when mouse button is released:
+
+
     window.dispatchEvent(new CustomEvent('set-new-position', {
       'detail': {
         'uuid': uuid,
@@ -6345,6 +6558,17 @@ clearClipboard = function clearClipboard() {
 
 preventNavigationByKeydown = function preventNavigationByKeydown(event) {
   return event.stopPropagation();
+};
+
+removeFilterItem = function removeFilterItem(el) {
+  console.log(el);
+  document.querySelector("[data-model-name=\"".concat(el.parentElement.dataset.filter, "\"")).querySelector('select').dispatchEvent(new CustomEvent('choice', {
+    'detail': {
+      'choice': {
+        'value': el.parentElement.dataset.filterValue
+      }
+    }
+  }));
 };
 
 /***/ }),
@@ -6902,6 +7126,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _sidebar_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./sidebar.js */ "./resources/js/drawing/sidebar.js");
 /* harmony import */ var uuid__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! uuid */ "./node_modules/uuid/dist/esm-browser/v4.js");
 
+
+function _typeof(obj) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (obj) { return typeof obj; } : function (obj) { return obj && "function" == typeof Symbol && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }, _typeof(obj); }
 
 function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { Promise.resolve(value).then(_next, _throw); } }
 
@@ -7880,9 +8106,13 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview) {
 
   function fitDrawingToScreen() {
     // panDrawingCenterToScreenCenter();
-    while (!drawingFitsScreen()) {
+    while (!drawingFitsScreen() && canZoomOut()) {
       zoomOutOneStep();
     }
+  }
+
+  function canZoomOut() {
+    return Canvas.params.zoomFactor > _constants_js__WEBPACK_IMPORTED_MODULE_1__.zoomParams.MIN;
   }
 
   function panDrawingCenterToScreenCenter() {
@@ -7946,7 +8176,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview) {
       markers: true
     });
     var screenBounds = Canvas.params.bounds;
-    if (bbox.x < screenBounds.left || bbox.y < screenBounds.top) return false;else return true;
+    if (bbox.x < screenBounds.left || bbox.y < screenBounds.top || bbox.width > screenBounds.width || bbox.height > screenBounds.height) return false;else return true;
   }
 
   function renderShapesFromSvgLayerString(layerName) {
@@ -8092,21 +8322,22 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview) {
               panGroupSize = getPanGroupSize();
               livewireComponent = getClosestLivewireComponentByAttribute(rootElement, 'questionComponent');
               cleanedSvg = cleanedBase64EncodedStrings();
+              fitDrawingToScreen();
               _context.t0 = livewireComponent;
               _context.t1 = b64Strings.answer;
               _context.t2 = b64Strings.question;
               _context.t3 = b64Strings.grid;
               _context.t4 = grid;
               _context.t5 = panGroupSize;
-              _context.next = 15;
+              _context.next = 16;
               return getPNGQuestionPreviewStringFromSVG(panGroupSize);
 
-            case 15:
+            case 16:
               _context.t6 = _context.sent;
-              _context.next = 18;
+              _context.next = 19;
               return getPNGCorrectionModelStringFromSVG(panGroupSize);
 
-            case 18:
+            case 19:
               _context.t7 = _context.sent;
               _context.t8 = cleanedSvg.question;
               _context.t9 = cleanedSvg.answer;
@@ -8124,7 +8355,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview) {
 
               _context.t0.handleUpdateDrawingData.call(_context.t0, _context.t10);
 
-            case 23:
+            case 24:
             case "end":
               return _context.stop();
           }
@@ -8258,12 +8489,25 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview) {
   }
 
   function prepareSvgForConversion(svg, panGroupSize) {
+    addNunitoFontToSVG(svg);
+    adjustViewboxProperties(svg, panGroupSize);
+    return svg;
+  }
+
+  function addNunitoFontToSVG(svg) {
+    var defsNode = svg.querySelector('defs', '');
+    var style = document.createElement('style');
+    defsNode.appendChild(style);
+    var textNode = document.createTextNode('@font-face{font-family:"Nunito";src:url(data:font/woff;base64,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) format("woff");font-weight:normal;font-style:normal;}');
+    style.appendChild(textNode);
+  }
+
+  function adjustViewboxProperties(svg, panGroupSize) {
     svg.setAttribute('viewBox', "".concat(panGroupSize.x, " ").concat(panGroupSize.y, " ").concat(panGroupSize.width, " ").concat(panGroupSize.height));
     svg.setAttribute('width', "".concat(panGroupSize.width));
     svg.setAttribute('height', "".concat(panGroupSize.height));
     svg.querySelector('#svg-pan-zoom-group').setAttribute('transform', '');
     svg.querySelector('#svg-grid-group').setAttribute('stroke', '#c3d0ed');
-    return svg;
   }
 
   function hasNoAnswerObjects() {
@@ -8946,6 +9190,14 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview) {
     try {
       var _loop2 = function _loop2() {
         var fileURL = _step3.value;
+
+        if (fileURL.size / (1024 * 1024) > 4) {
+          Notify.notify('U kunt afbeeldingen van maximaal 4 mb uploaden');
+          return {
+            v: false
+          };
+        }
+
         var reader = new FileReader();
         var identifier = (0,uuid__WEBPACK_IMPORTED_MODULE_5__["default"])();
         UI.submitBtn.disabled = true;
@@ -8976,7 +9228,9 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview) {
       };
 
       for (_iterator3.s(); !(_step3 = _iterator3.n()).done;) {
-        _loop2();
+        var _ret = _loop2();
+
+        if (_typeof(_ret) === "object") return _ret.v;
       }
     } catch (err) {
       _iterator3.e(err);
@@ -12068,6 +12322,189 @@ var warningBox = /*#__PURE__*/function () {
 
 /***/ }),
 
+/***/ "./resources/js/flatpickr.js":
+/*!***********************************!*\
+  !*** ./resources/js/flatpickr.js ***!
+  \***********************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var flatpickr__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! flatpickr */ "./node_modules/flatpickr/dist/esm/index.js");
+/* harmony import */ var flatpickr_dist_l10n_nl_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! flatpickr/dist/l10n/nl.js */ "./node_modules/flatpickr/dist/l10n/nl.js");
+/* harmony import */ var flatpickr_dist_l10n_nl_js__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(flatpickr_dist_l10n_nl_js__WEBPACK_IMPORTED_MODULE_1__);
+
+
+document.addEventListener('alpine:init', function () {
+  Alpine.data('flatpickr', function (wireModel, mode, locale) {
+    return {
+      wireModel: wireModel,
+      mode: mode,
+      locale: locale,
+      init: function init() {
+        var _this = this;
+
+        // if(this.mode == 'range'){
+        //     this.value = ['{{$defaultDate}}', '{{$defaultDateTo}}'];
+        // } else {
+        //     this.value = this.wireModel;
+        // }
+        var picker = (0,flatpickr__WEBPACK_IMPORTED_MODULE_0__["default"])(this.$refs.datepickr, {
+          locale: this.locale,
+          mode: this.mode,
+          defaultDate: this.wireModel,
+          onChange: function onChange(date, dateString) {
+            console.log('change');
+            _this.wireModel = _this.value = _this.mode == 'range' ? dateString.split(' t/m ') : dateString; //split t/m or to
+          }
+        });
+      }
+    };
+  });
+});
+
+/***/ }),
+
+/***/ "./resources/js/navigation-bar.js":
+/*!****************************************!*\
+  !*** ./resources/js/navigation-bar.js ***!
+  \****************************************/
+/***/ (() => {
+
+document.addEventListener('alpine:init', function () {
+  Alpine.data('navigationBar', function () {
+    return {
+      hideTimeout: null,
+      bottom: null,
+      userMenuTimeout: null,
+      supportMenuTimeout: null,
+      userMenu: false,
+      supportMenu: false,
+      init: function init() {
+        var _this = this;
+
+        var navBar = this.$refs.nav_bar;
+        this.bottom = this.$refs.menu_bottom;
+        var tiles = this.$refs.tiles;
+        var scrollLeft = this.$refs.menu_scroll_left;
+        var scrollRight = this.$refs.menu_scroll_right;
+        var menuButtons = this.bottom.querySelectorAll('.has-items');
+        menuButtons.forEach(function (element) {
+          element.addEventListener('mouseover', function (event) {
+            menuButtons.forEach(function (element) {
+              tiles.querySelectorAll('.tile-group').forEach(function (tilegroup) {
+                tilegroup.style.display = 'none';
+              });
+            });
+
+            _this.tilesBarShow();
+
+            var tilesGroup = tiles.querySelector('.' + event.target.dataset.menu);
+            tilesGroup.style.display = 'flex';
+
+            _this.setPaddingForActiveTileGroupByMenuItem(event.target);
+          });
+        });
+        this.bottom.querySelectorAll('div:not(.has-items)').forEach(function (element) {
+          return element.addEventListener('mouseover', function (event) {
+            _this.tilesBarHide();
+          });
+        });
+        navBar.addEventListener('mouseleave', function (event) {
+          _this.tilesBarHide();
+        });
+        scrollLeft.addEventListener('click', function (event) {
+          _this.menuBottomScrollLeft();
+        });
+        scrollRight.addEventListener('click', function (event) {
+          _this.menuBottomScrollRight();
+        });
+        this.$refs.user_button.addEventListener('click', function (event) {
+          _this.userMenuShow();
+        });
+        this.$refs.support_button.addEventListener('click', function (event) {
+          _this.supportMenuShow();
+        });
+      },
+      tilesBarHide: function tilesBarHide() {
+        var _this2 = this;
+
+        this.hideTimeout = setTimeout(function () {
+          tiles.style.setProperty('--top', '0px');
+          tiles.style.paddingLeft = '0px';
+          clearTimeout(_this2.hideTimeout);
+        }, 500);
+      },
+      tilesBarShow: function tilesBarShow() {
+        clearTimeout(this.hideTimeout);
+        tiles.style.paddingLeft = '0px';
+        tiles.style.setProperty('--top', '98px');
+      },
+      userMenuShow: function userMenuShow() {
+        var _this3 = this;
+
+        clearTimeout(this.userMenuTimeout);
+
+        if (this.userMenu === false) {
+          this.userMenu = true;
+          this.userMenuTimeout = setTimeout(function () {
+            _this3.userMenu = false;
+          }, 5000);
+        } else {
+          this.userMenu = false;
+        }
+      },
+      supportMenuShow: function supportMenuShow() {
+        var _this4 = this;
+
+        clearTimeout(this.supportMenuTimeout);
+
+        if (this.supportMenu === false) {
+          this.supportMenu = true;
+          this.supportMenuTimeout = setTimeout(function () {
+            _this4.supportMenu = false;
+          }, 1000);
+        } else {
+          this.supportMenu = false;
+        }
+      },
+      setPaddingForActiveTileGroupByMenuItem: function setPaddingForActiveTileGroupByMenuItem(menuItem) {
+        var menuItem = menuItem;
+        var tileGroup = tiles.querySelector('.' + menuItem.dataset.menu);
+        var minimalPadding = this.bottom.querySelector('.menu-item:nth-child(2)').offsetLeft;
+        var maximalPadding = tiles.offsetWidth - tileGroup.offsetWidth;
+        var calculatedPadding = menuItem.getBoundingClientRect().right - menuItem.offsetWidth / 2 - tileGroup.offsetWidth / 2;
+
+        if (calculatedPadding < minimalPadding) {
+          return tiles.style.paddingLeft = minimalPadding + 'px';
+        }
+
+        if (calculatedPadding > maximalPadding) {
+          return tiles.style.paddingLeft = maximalPadding + 'px';
+        }
+
+        tiles.style.paddingLeft = calculatedPadding + 'px';
+      },
+      menuBottomScrollRight: function menuBottomScrollRight() {
+        this.bottom.scrollBy({
+          left: 150,
+          top: 0,
+          behavior: 'smooth'
+        });
+      },
+      menuBottomScrollLeft: function menuBottomScrollLeft() {
+        this.bottom.scrollBy({
+          left: -150,
+          top: 0,
+          behavior: 'smooth'
+        });
+      }
+    };
+  });
+});
+
+/***/ }),
+
 /***/ "./resources/js/notify.js":
 /*!********************************!*\
   !*** ./resources/js/notify.js ***!
@@ -12214,8 +12651,17 @@ RichTextEditor = {
 
     CKEDITOR.replace(editorId, {});
     editor = CKEDITOR.instances[editorId];
+    editor.shouldDispatchChange = false;
     editor.on('change', function (e) {
-      RichTextEditor.sendInputEventToEditor(editorId, e);
+      RichTextEditor.sendInputEventToEditor(editorId, e); // if(!e.editor.getData()?.includes('MathML')) {
+      //     RichTextEditor.sendInputEventToEditor(editorId, e);
+      //     editor.shouldDispatchChange = true;
+      //     return;
+      // }
+      // if (editor.shouldDispatchChange) {
+      //     RichTextEditor.sendInputEventToEditor(editorId, e);
+      // }
+      // editor.shouldDispatchChange = true
     });
     editor.on('simpleuploads.startUpload', function (e) {
       e.data.extraHeaders = {
@@ -12333,6 +12779,10 @@ RichTextEditor = {
   },
   setReadOnly: function setReadOnly(editor) {
     editor.isReadOnly = true;
+    var editables = editor.ui.view.editable.element.querySelectorAll("[contenteditable=true]");
+    editables.forEach(function (element) {
+      element.setAttribute('contenteditable', false);
+    });
   },
   writeContentToTexarea: function writeContentToTexarea(editorId) {
     var editor = ClassicEditors[editorId];
@@ -32942,6 +33392,2810 @@ __webpack_exports__ = __webpack_exports__["default"];
 
     Object.defineProperty(exports, '__esModule', { value: true });
 });
+
+
+/***/ }),
+
+/***/ "./node_modules/flatpickr/dist/esm/index.js":
+/*!**************************************************!*\
+  !*** ./node_modules/flatpickr/dist/esm/index.js ***!
+  \**************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+/* harmony import */ var _types_options__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./types/options */ "./node_modules/flatpickr/dist/esm/types/options.js");
+/* harmony import */ var _l10n_default__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./l10n/default */ "./node_modules/flatpickr/dist/esm/l10n/default.js");
+/* harmony import */ var _utils__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./utils */ "./node_modules/flatpickr/dist/esm/utils/index.js");
+/* harmony import */ var _utils_dom__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./utils/dom */ "./node_modules/flatpickr/dist/esm/utils/dom.js");
+/* harmony import */ var _utils_dates__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./utils/dates */ "./node_modules/flatpickr/dist/esm/utils/dates.js");
+/* harmony import */ var _utils_formatting__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./utils/formatting */ "./node_modules/flatpickr/dist/esm/utils/formatting.js");
+/* harmony import */ var _utils_polyfills__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./utils/polyfills */ "./node_modules/flatpickr/dist/esm/utils/polyfills.js");
+/* harmony import */ var _utils_polyfills__WEBPACK_IMPORTED_MODULE_6___default = /*#__PURE__*/__webpack_require__.n(_utils_polyfills__WEBPACK_IMPORTED_MODULE_6__);
+var __assign = (undefined && undefined.__assign) || function () {
+    __assign = Object.assign || function(t) {
+        for (var s, i = 1, n = arguments.length; i < n; i++) {
+            s = arguments[i];
+            for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
+                t[p] = s[p];
+        }
+        return t;
+    };
+    return __assign.apply(this, arguments);
+};
+var __spreadArrays = (undefined && undefined.__spreadArrays) || function () {
+    for (var s = 0, i = 0, il = arguments.length; i < il; i++) s += arguments[i].length;
+    for (var r = Array(s), k = 0, i = 0; i < il; i++)
+        for (var a = arguments[i], j = 0, jl = a.length; j < jl; j++, k++)
+            r[k] = a[j];
+    return r;
+};
+
+
+
+
+
+
+
+var DEBOUNCED_CHANGE_MS = 300;
+function FlatpickrInstance(element, instanceConfig) {
+    var self = {
+        config: __assign(__assign({}, _types_options__WEBPACK_IMPORTED_MODULE_0__.defaults), flatpickr.defaultConfig),
+        l10n: _l10n_default__WEBPACK_IMPORTED_MODULE_1__["default"],
+    };
+    self.parseDate = (0,_utils_dates__WEBPACK_IMPORTED_MODULE_4__.createDateParser)({ config: self.config, l10n: self.l10n });
+    self._handlers = [];
+    self.pluginElements = [];
+    self.loadedPlugins = [];
+    self._bind = bind;
+    self._setHoursFromDate = setHoursFromDate;
+    self._positionCalendar = positionCalendar;
+    self.changeMonth = changeMonth;
+    self.changeYear = changeYear;
+    self.clear = clear;
+    self.close = close;
+    self.onMouseOver = onMouseOver;
+    self._createElement = _utils_dom__WEBPACK_IMPORTED_MODULE_3__.createElement;
+    self.createDay = createDay;
+    self.destroy = destroy;
+    self.isEnabled = isEnabled;
+    self.jumpToDate = jumpToDate;
+    self.updateValue = updateValue;
+    self.open = open;
+    self.redraw = redraw;
+    self.set = set;
+    self.setDate = setDate;
+    self.toggle = toggle;
+    function setupHelperFunctions() {
+        self.utils = {
+            getDaysInMonth: function (month, yr) {
+                if (month === void 0) { month = self.currentMonth; }
+                if (yr === void 0) { yr = self.currentYear; }
+                if (month === 1 && ((yr % 4 === 0 && yr % 100 !== 0) || yr % 400 === 0))
+                    return 29;
+                return self.l10n.daysInMonth[month];
+            },
+        };
+    }
+    function init() {
+        self.element = self.input = element;
+        self.isOpen = false;
+        parseConfig();
+        setupLocale();
+        setupInputs();
+        setupDates();
+        setupHelperFunctions();
+        if (!self.isMobile)
+            build();
+        bindEvents();
+        if (self.selectedDates.length || self.config.noCalendar) {
+            if (self.config.enableTime) {
+                setHoursFromDate(self.config.noCalendar ? self.latestSelectedDateObj : undefined);
+            }
+            updateValue(false);
+        }
+        setCalendarWidth();
+        var isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+        if (!self.isMobile && isSafari) {
+            positionCalendar();
+        }
+        triggerEvent("onReady");
+    }
+    function getClosestActiveElement() {
+        var _a;
+        return (((_a = self.calendarContainer) === null || _a === void 0 ? void 0 : _a.getRootNode())
+            .activeElement || document.activeElement);
+    }
+    function bindToInstance(fn) {
+        return fn.bind(self);
+    }
+    function setCalendarWidth() {
+        var config = self.config;
+        if (config.weekNumbers === false && config.showMonths === 1) {
+            return;
+        }
+        else if (config.noCalendar !== true) {
+            window.requestAnimationFrame(function () {
+                if (self.calendarContainer !== undefined) {
+                    self.calendarContainer.style.visibility = "hidden";
+                    self.calendarContainer.style.display = "block";
+                }
+                if (self.daysContainer !== undefined) {
+                    var daysWidth = (self.days.offsetWidth + 1) * config.showMonths;
+                    self.daysContainer.style.width = daysWidth + "px";
+                    self.calendarContainer.style.width =
+                        daysWidth +
+                            (self.weekWrapper !== undefined
+                                ? self.weekWrapper.offsetWidth
+                                : 0) +
+                            "px";
+                    self.calendarContainer.style.removeProperty("visibility");
+                    self.calendarContainer.style.removeProperty("display");
+                }
+            });
+        }
+    }
+    function updateTime(e) {
+        if (self.selectedDates.length === 0) {
+            var defaultDate = self.config.minDate === undefined ||
+                (0,_utils_dates__WEBPACK_IMPORTED_MODULE_4__.compareDates)(new Date(), self.config.minDate) >= 0
+                ? new Date()
+                : new Date(self.config.minDate.getTime());
+            var defaults = (0,_utils_dates__WEBPACK_IMPORTED_MODULE_4__.getDefaultHours)(self.config);
+            defaultDate.setHours(defaults.hours, defaults.minutes, defaults.seconds, defaultDate.getMilliseconds());
+            self.selectedDates = [defaultDate];
+            self.latestSelectedDateObj = defaultDate;
+        }
+        if (e !== undefined && e.type !== "blur") {
+            timeWrapper(e);
+        }
+        var prevValue = self._input.value;
+        setHoursFromInputs();
+        updateValue();
+        if (self._input.value !== prevValue) {
+            self._debouncedChange();
+        }
+    }
+    function ampm2military(hour, amPM) {
+        return (hour % 12) + 12 * (0,_utils__WEBPACK_IMPORTED_MODULE_2__.int)(amPM === self.l10n.amPM[1]);
+    }
+    function military2ampm(hour) {
+        switch (hour % 24) {
+            case 0:
+            case 12:
+                return 12;
+            default:
+                return hour % 12;
+        }
+    }
+    function setHoursFromInputs() {
+        if (self.hourElement === undefined || self.minuteElement === undefined)
+            return;
+        var hours = (parseInt(self.hourElement.value.slice(-2), 10) || 0) % 24, minutes = (parseInt(self.minuteElement.value, 10) || 0) % 60, seconds = self.secondElement !== undefined
+            ? (parseInt(self.secondElement.value, 10) || 0) % 60
+            : 0;
+        if (self.amPM !== undefined) {
+            hours = ampm2military(hours, self.amPM.textContent);
+        }
+        var limitMinHours = self.config.minTime !== undefined ||
+            (self.config.minDate &&
+                self.minDateHasTime &&
+                self.latestSelectedDateObj &&
+                (0,_utils_dates__WEBPACK_IMPORTED_MODULE_4__.compareDates)(self.latestSelectedDateObj, self.config.minDate, true) ===
+                    0);
+        var limitMaxHours = self.config.maxTime !== undefined ||
+            (self.config.maxDate &&
+                self.maxDateHasTime &&
+                self.latestSelectedDateObj &&
+                (0,_utils_dates__WEBPACK_IMPORTED_MODULE_4__.compareDates)(self.latestSelectedDateObj, self.config.maxDate, true) ===
+                    0);
+        if (self.config.maxTime !== undefined &&
+            self.config.minTime !== undefined &&
+            self.config.minTime > self.config.maxTime) {
+            var minBound = (0,_utils_dates__WEBPACK_IMPORTED_MODULE_4__.calculateSecondsSinceMidnight)(self.config.minTime.getHours(), self.config.minTime.getMinutes(), self.config.minTime.getSeconds());
+            var maxBound = (0,_utils_dates__WEBPACK_IMPORTED_MODULE_4__.calculateSecondsSinceMidnight)(self.config.maxTime.getHours(), self.config.maxTime.getMinutes(), self.config.maxTime.getSeconds());
+            var currentTime = (0,_utils_dates__WEBPACK_IMPORTED_MODULE_4__.calculateSecondsSinceMidnight)(hours, minutes, seconds);
+            if (currentTime > maxBound && currentTime < minBound) {
+                var result = (0,_utils_dates__WEBPACK_IMPORTED_MODULE_4__.parseSeconds)(minBound);
+                hours = result[0];
+                minutes = result[1];
+                seconds = result[2];
+            }
+        }
+        else {
+            if (limitMaxHours) {
+                var maxTime = self.config.maxTime !== undefined
+                    ? self.config.maxTime
+                    : self.config.maxDate;
+                hours = Math.min(hours, maxTime.getHours());
+                if (hours === maxTime.getHours())
+                    minutes = Math.min(minutes, maxTime.getMinutes());
+                if (minutes === maxTime.getMinutes())
+                    seconds = Math.min(seconds, maxTime.getSeconds());
+            }
+            if (limitMinHours) {
+                var minTime = self.config.minTime !== undefined
+                    ? self.config.minTime
+                    : self.config.minDate;
+                hours = Math.max(hours, minTime.getHours());
+                if (hours === minTime.getHours() && minutes < minTime.getMinutes())
+                    minutes = minTime.getMinutes();
+                if (minutes === minTime.getMinutes())
+                    seconds = Math.max(seconds, minTime.getSeconds());
+            }
+        }
+        setHours(hours, minutes, seconds);
+    }
+    function setHoursFromDate(dateObj) {
+        var date = dateObj || self.latestSelectedDateObj;
+        if (date && date instanceof Date) {
+            setHours(date.getHours(), date.getMinutes(), date.getSeconds());
+        }
+    }
+    function setHours(hours, minutes, seconds) {
+        if (self.latestSelectedDateObj !== undefined) {
+            self.latestSelectedDateObj.setHours(hours % 24, minutes, seconds || 0, 0);
+        }
+        if (!self.hourElement || !self.minuteElement || self.isMobile)
+            return;
+        self.hourElement.value = (0,_utils__WEBPACK_IMPORTED_MODULE_2__.pad)(!self.config.time_24hr
+            ? ((12 + hours) % 12) + 12 * (0,_utils__WEBPACK_IMPORTED_MODULE_2__.int)(hours % 12 === 0)
+            : hours);
+        self.minuteElement.value = (0,_utils__WEBPACK_IMPORTED_MODULE_2__.pad)(minutes);
+        if (self.amPM !== undefined)
+            self.amPM.textContent = self.l10n.amPM[(0,_utils__WEBPACK_IMPORTED_MODULE_2__.int)(hours >= 12)];
+        if (self.secondElement !== undefined)
+            self.secondElement.value = (0,_utils__WEBPACK_IMPORTED_MODULE_2__.pad)(seconds);
+    }
+    function onYearInput(event) {
+        var eventTarget = (0,_utils_dom__WEBPACK_IMPORTED_MODULE_3__.getEventTarget)(event);
+        var year = parseInt(eventTarget.value) + (event.delta || 0);
+        if (year / 1000 > 1 ||
+            (event.key === "Enter" && !/[^\d]/.test(year.toString()))) {
+            changeYear(year);
+        }
+    }
+    function bind(element, event, handler, options) {
+        if (event instanceof Array)
+            return event.forEach(function (ev) { return bind(element, ev, handler, options); });
+        if (element instanceof Array)
+            return element.forEach(function (el) { return bind(el, event, handler, options); });
+        element.addEventListener(event, handler, options);
+        self._handlers.push({
+            remove: function () { return element.removeEventListener(event, handler, options); },
+        });
+    }
+    function triggerChange() {
+        triggerEvent("onChange");
+    }
+    function bindEvents() {
+        if (self.config.wrap) {
+            ["open", "close", "toggle", "clear"].forEach(function (evt) {
+                Array.prototype.forEach.call(self.element.querySelectorAll("[data-" + evt + "]"), function (el) {
+                    return bind(el, "click", self[evt]);
+                });
+            });
+        }
+        if (self.isMobile) {
+            setupMobile();
+            return;
+        }
+        var debouncedResize = (0,_utils__WEBPACK_IMPORTED_MODULE_2__.debounce)(onResize, 50);
+        self._debouncedChange = (0,_utils__WEBPACK_IMPORTED_MODULE_2__.debounce)(triggerChange, DEBOUNCED_CHANGE_MS);
+        if (self.daysContainer && !/iPhone|iPad|iPod/i.test(navigator.userAgent))
+            bind(self.daysContainer, "mouseover", function (e) {
+                if (self.config.mode === "range")
+                    onMouseOver((0,_utils_dom__WEBPACK_IMPORTED_MODULE_3__.getEventTarget)(e));
+            });
+        bind(self._input, "keydown", onKeyDown);
+        if (self.calendarContainer !== undefined) {
+            bind(self.calendarContainer, "keydown", onKeyDown);
+        }
+        if (!self.config.inline && !self.config.static)
+            bind(window, "resize", debouncedResize);
+        if (window.ontouchstart !== undefined)
+            bind(window.document, "touchstart", documentClick);
+        else
+            bind(window.document, "mousedown", documentClick);
+        bind(window.document, "focus", documentClick, { capture: true });
+        if (self.config.clickOpens === true) {
+            bind(self._input, "focus", self.open);
+            bind(self._input, "click", self.open);
+        }
+        if (self.daysContainer !== undefined) {
+            bind(self.monthNav, "click", onMonthNavClick);
+            bind(self.monthNav, ["keyup", "increment"], onYearInput);
+            bind(self.daysContainer, "click", selectDate);
+        }
+        if (self.timeContainer !== undefined &&
+            self.minuteElement !== undefined &&
+            self.hourElement !== undefined) {
+            var selText = function (e) {
+                return (0,_utils_dom__WEBPACK_IMPORTED_MODULE_3__.getEventTarget)(e).select();
+            };
+            bind(self.timeContainer, ["increment"], updateTime);
+            bind(self.timeContainer, "blur", updateTime, { capture: true });
+            bind(self.timeContainer, "click", timeIncrement);
+            bind([self.hourElement, self.minuteElement], ["focus", "click"], selText);
+            if (self.secondElement !== undefined)
+                bind(self.secondElement, "focus", function () { return self.secondElement && self.secondElement.select(); });
+            if (self.amPM !== undefined) {
+                bind(self.amPM, "click", function (e) {
+                    updateTime(e);
+                });
+            }
+        }
+        if (self.config.allowInput) {
+            bind(self._input, "blur", onBlur);
+        }
+    }
+    function jumpToDate(jumpDate, triggerChange) {
+        var jumpTo = jumpDate !== undefined
+            ? self.parseDate(jumpDate)
+            : self.latestSelectedDateObj ||
+                (self.config.minDate && self.config.minDate > self.now
+                    ? self.config.minDate
+                    : self.config.maxDate && self.config.maxDate < self.now
+                        ? self.config.maxDate
+                        : self.now);
+        var oldYear = self.currentYear;
+        var oldMonth = self.currentMonth;
+        try {
+            if (jumpTo !== undefined) {
+                self.currentYear = jumpTo.getFullYear();
+                self.currentMonth = jumpTo.getMonth();
+            }
+        }
+        catch (e) {
+            e.message = "Invalid date supplied: " + jumpTo;
+            self.config.errorHandler(e);
+        }
+        if (triggerChange && self.currentYear !== oldYear) {
+            triggerEvent("onYearChange");
+            buildMonthSwitch();
+        }
+        if (triggerChange &&
+            (self.currentYear !== oldYear || self.currentMonth !== oldMonth)) {
+            triggerEvent("onMonthChange");
+        }
+        self.redraw();
+    }
+    function timeIncrement(e) {
+        var eventTarget = (0,_utils_dom__WEBPACK_IMPORTED_MODULE_3__.getEventTarget)(e);
+        if (~eventTarget.className.indexOf("arrow"))
+            incrementNumInput(e, eventTarget.classList.contains("arrowUp") ? 1 : -1);
+    }
+    function incrementNumInput(e, delta, inputElem) {
+        var target = e && (0,_utils_dom__WEBPACK_IMPORTED_MODULE_3__.getEventTarget)(e);
+        var input = inputElem ||
+            (target && target.parentNode && target.parentNode.firstChild);
+        var event = createEvent("increment");
+        event.delta = delta;
+        input && input.dispatchEvent(event);
+    }
+    function build() {
+        var fragment = window.document.createDocumentFragment();
+        self.calendarContainer = (0,_utils_dom__WEBPACK_IMPORTED_MODULE_3__.createElement)("div", "flatpickr-calendar");
+        self.calendarContainer.tabIndex = -1;
+        if (!self.config.noCalendar) {
+            fragment.appendChild(buildMonthNav());
+            self.innerContainer = (0,_utils_dom__WEBPACK_IMPORTED_MODULE_3__.createElement)("div", "flatpickr-innerContainer");
+            if (self.config.weekNumbers) {
+                var _a = buildWeeks(), weekWrapper = _a.weekWrapper, weekNumbers = _a.weekNumbers;
+                self.innerContainer.appendChild(weekWrapper);
+                self.weekNumbers = weekNumbers;
+                self.weekWrapper = weekWrapper;
+            }
+            self.rContainer = (0,_utils_dom__WEBPACK_IMPORTED_MODULE_3__.createElement)("div", "flatpickr-rContainer");
+            self.rContainer.appendChild(buildWeekdays());
+            if (!self.daysContainer) {
+                self.daysContainer = (0,_utils_dom__WEBPACK_IMPORTED_MODULE_3__.createElement)("div", "flatpickr-days");
+                self.daysContainer.tabIndex = -1;
+            }
+            buildDays();
+            self.rContainer.appendChild(self.daysContainer);
+            self.innerContainer.appendChild(self.rContainer);
+            fragment.appendChild(self.innerContainer);
+        }
+        if (self.config.enableTime) {
+            fragment.appendChild(buildTime());
+        }
+        (0,_utils_dom__WEBPACK_IMPORTED_MODULE_3__.toggleClass)(self.calendarContainer, "rangeMode", self.config.mode === "range");
+        (0,_utils_dom__WEBPACK_IMPORTED_MODULE_3__.toggleClass)(self.calendarContainer, "animate", self.config.animate === true);
+        (0,_utils_dom__WEBPACK_IMPORTED_MODULE_3__.toggleClass)(self.calendarContainer, "multiMonth", self.config.showMonths > 1);
+        self.calendarContainer.appendChild(fragment);
+        var customAppend = self.config.appendTo !== undefined &&
+            self.config.appendTo.nodeType !== undefined;
+        if (self.config.inline || self.config.static) {
+            self.calendarContainer.classList.add(self.config.inline ? "inline" : "static");
+            if (self.config.inline) {
+                if (!customAppend && self.element.parentNode)
+                    self.element.parentNode.insertBefore(self.calendarContainer, self._input.nextSibling);
+                else if (self.config.appendTo !== undefined)
+                    self.config.appendTo.appendChild(self.calendarContainer);
+            }
+            if (self.config.static) {
+                var wrapper = (0,_utils_dom__WEBPACK_IMPORTED_MODULE_3__.createElement)("div", "flatpickr-wrapper");
+                if (self.element.parentNode)
+                    self.element.parentNode.insertBefore(wrapper, self.element);
+                wrapper.appendChild(self.element);
+                if (self.altInput)
+                    wrapper.appendChild(self.altInput);
+                wrapper.appendChild(self.calendarContainer);
+            }
+        }
+        if (!self.config.static && !self.config.inline)
+            (self.config.appendTo !== undefined
+                ? self.config.appendTo
+                : window.document.body).appendChild(self.calendarContainer);
+    }
+    function createDay(className, date, _dayNumber, i) {
+        var dateIsEnabled = isEnabled(date, true), dayElement = (0,_utils_dom__WEBPACK_IMPORTED_MODULE_3__.createElement)("span", className, date.getDate().toString());
+        dayElement.dateObj = date;
+        dayElement.$i = i;
+        dayElement.setAttribute("aria-label", self.formatDate(date, self.config.ariaDateFormat));
+        if (className.indexOf("hidden") === -1 &&
+            (0,_utils_dates__WEBPACK_IMPORTED_MODULE_4__.compareDates)(date, self.now) === 0) {
+            self.todayDateElem = dayElement;
+            dayElement.classList.add("today");
+            dayElement.setAttribute("aria-current", "date");
+        }
+        if (dateIsEnabled) {
+            dayElement.tabIndex = -1;
+            if (isDateSelected(date)) {
+                dayElement.classList.add("selected");
+                self.selectedDateElem = dayElement;
+                if (self.config.mode === "range") {
+                    (0,_utils_dom__WEBPACK_IMPORTED_MODULE_3__.toggleClass)(dayElement, "startRange", self.selectedDates[0] &&
+                        (0,_utils_dates__WEBPACK_IMPORTED_MODULE_4__.compareDates)(date, self.selectedDates[0], true) === 0);
+                    (0,_utils_dom__WEBPACK_IMPORTED_MODULE_3__.toggleClass)(dayElement, "endRange", self.selectedDates[1] &&
+                        (0,_utils_dates__WEBPACK_IMPORTED_MODULE_4__.compareDates)(date, self.selectedDates[1], true) === 0);
+                    if (className === "nextMonthDay")
+                        dayElement.classList.add("inRange");
+                }
+            }
+        }
+        else {
+            dayElement.classList.add("flatpickr-disabled");
+        }
+        if (self.config.mode === "range") {
+            if (isDateInRange(date) && !isDateSelected(date))
+                dayElement.classList.add("inRange");
+        }
+        if (self.weekNumbers &&
+            self.config.showMonths === 1 &&
+            className !== "prevMonthDay" &&
+            i % 7 === 6) {
+            self.weekNumbers.insertAdjacentHTML("beforeend", "<span class='flatpickr-day'>" + self.config.getWeek(date) + "</span>");
+        }
+        triggerEvent("onDayCreate", dayElement);
+        return dayElement;
+    }
+    function focusOnDayElem(targetNode) {
+        targetNode.focus();
+        if (self.config.mode === "range")
+            onMouseOver(targetNode);
+    }
+    function getFirstAvailableDay(delta) {
+        var startMonth = delta > 0 ? 0 : self.config.showMonths - 1;
+        var endMonth = delta > 0 ? self.config.showMonths : -1;
+        for (var m = startMonth; m != endMonth; m += delta) {
+            var month = self.daysContainer.children[m];
+            var startIndex = delta > 0 ? 0 : month.children.length - 1;
+            var endIndex = delta > 0 ? month.children.length : -1;
+            for (var i = startIndex; i != endIndex; i += delta) {
+                var c = month.children[i];
+                if (c.className.indexOf("hidden") === -1 && isEnabled(c.dateObj))
+                    return c;
+            }
+        }
+        return undefined;
+    }
+    function getNextAvailableDay(current, delta) {
+        var givenMonth = current.className.indexOf("Month") === -1
+            ? current.dateObj.getMonth()
+            : self.currentMonth;
+        var endMonth = delta > 0 ? self.config.showMonths : -1;
+        var loopDelta = delta > 0 ? 1 : -1;
+        for (var m = givenMonth - self.currentMonth; m != endMonth; m += loopDelta) {
+            var month = self.daysContainer.children[m];
+            var startIndex = givenMonth - self.currentMonth === m
+                ? current.$i + delta
+                : delta < 0
+                    ? month.children.length - 1
+                    : 0;
+            var numMonthDays = month.children.length;
+            for (var i = startIndex; i >= 0 && i < numMonthDays && i != (delta > 0 ? numMonthDays : -1); i += loopDelta) {
+                var c = month.children[i];
+                if (c.className.indexOf("hidden") === -1 &&
+                    isEnabled(c.dateObj) &&
+                    Math.abs(current.$i - i) >= Math.abs(delta))
+                    return focusOnDayElem(c);
+            }
+        }
+        self.changeMonth(loopDelta);
+        focusOnDay(getFirstAvailableDay(loopDelta), 0);
+        return undefined;
+    }
+    function focusOnDay(current, offset) {
+        var activeElement = getClosestActiveElement();
+        var dayFocused = isInView(activeElement || document.body);
+        var startElem = current !== undefined
+            ? current
+            : dayFocused
+                ? activeElement
+                : self.selectedDateElem !== undefined && isInView(self.selectedDateElem)
+                    ? self.selectedDateElem
+                    : self.todayDateElem !== undefined && isInView(self.todayDateElem)
+                        ? self.todayDateElem
+                        : getFirstAvailableDay(offset > 0 ? 1 : -1);
+        if (startElem === undefined) {
+            self._input.focus();
+        }
+        else if (!dayFocused) {
+            focusOnDayElem(startElem);
+        }
+        else {
+            getNextAvailableDay(startElem, offset);
+        }
+    }
+    function buildMonthDays(year, month) {
+        var firstOfMonth = (new Date(year, month, 1).getDay() - self.l10n.firstDayOfWeek + 7) % 7;
+        var prevMonthDays = self.utils.getDaysInMonth((month - 1 + 12) % 12, year);
+        var daysInMonth = self.utils.getDaysInMonth(month, year), days = window.document.createDocumentFragment(), isMultiMonth = self.config.showMonths > 1, prevMonthDayClass = isMultiMonth ? "prevMonthDay hidden" : "prevMonthDay", nextMonthDayClass = isMultiMonth ? "nextMonthDay hidden" : "nextMonthDay";
+        var dayNumber = prevMonthDays + 1 - firstOfMonth, dayIndex = 0;
+        for (; dayNumber <= prevMonthDays; dayNumber++, dayIndex++) {
+            days.appendChild(createDay("flatpickr-day " + prevMonthDayClass, new Date(year, month - 1, dayNumber), dayNumber, dayIndex));
+        }
+        for (dayNumber = 1; dayNumber <= daysInMonth; dayNumber++, dayIndex++) {
+            days.appendChild(createDay("flatpickr-day", new Date(year, month, dayNumber), dayNumber, dayIndex));
+        }
+        for (var dayNum = daysInMonth + 1; dayNum <= 42 - firstOfMonth &&
+            (self.config.showMonths === 1 || dayIndex % 7 !== 0); dayNum++, dayIndex++) {
+            days.appendChild(createDay("flatpickr-day " + nextMonthDayClass, new Date(year, month + 1, dayNum % daysInMonth), dayNum, dayIndex));
+        }
+        var dayContainer = (0,_utils_dom__WEBPACK_IMPORTED_MODULE_3__.createElement)("div", "dayContainer");
+        dayContainer.appendChild(days);
+        return dayContainer;
+    }
+    function buildDays() {
+        if (self.daysContainer === undefined) {
+            return;
+        }
+        (0,_utils_dom__WEBPACK_IMPORTED_MODULE_3__.clearNode)(self.daysContainer);
+        if (self.weekNumbers)
+            (0,_utils_dom__WEBPACK_IMPORTED_MODULE_3__.clearNode)(self.weekNumbers);
+        var frag = document.createDocumentFragment();
+        for (var i = 0; i < self.config.showMonths; i++) {
+            var d = new Date(self.currentYear, self.currentMonth, 1);
+            d.setMonth(self.currentMonth + i);
+            frag.appendChild(buildMonthDays(d.getFullYear(), d.getMonth()));
+        }
+        self.daysContainer.appendChild(frag);
+        self.days = self.daysContainer.firstChild;
+        if (self.config.mode === "range" && self.selectedDates.length === 1) {
+            onMouseOver();
+        }
+    }
+    function buildMonthSwitch() {
+        if (self.config.showMonths > 1 ||
+            self.config.monthSelectorType !== "dropdown")
+            return;
+        var shouldBuildMonth = function (month) {
+            if (self.config.minDate !== undefined &&
+                self.currentYear === self.config.minDate.getFullYear() &&
+                month < self.config.minDate.getMonth()) {
+                return false;
+            }
+            return !(self.config.maxDate !== undefined &&
+                self.currentYear === self.config.maxDate.getFullYear() &&
+                month > self.config.maxDate.getMonth());
+        };
+        self.monthsDropdownContainer.tabIndex = -1;
+        self.monthsDropdownContainer.innerHTML = "";
+        for (var i = 0; i < 12; i++) {
+            if (!shouldBuildMonth(i))
+                continue;
+            var month = (0,_utils_dom__WEBPACK_IMPORTED_MODULE_3__.createElement)("option", "flatpickr-monthDropdown-month");
+            month.value = new Date(self.currentYear, i).getMonth().toString();
+            month.textContent = (0,_utils_formatting__WEBPACK_IMPORTED_MODULE_5__.monthToStr)(i, self.config.shorthandCurrentMonth, self.l10n);
+            month.tabIndex = -1;
+            if (self.currentMonth === i) {
+                month.selected = true;
+            }
+            self.monthsDropdownContainer.appendChild(month);
+        }
+    }
+    function buildMonth() {
+        var container = (0,_utils_dom__WEBPACK_IMPORTED_MODULE_3__.createElement)("div", "flatpickr-month");
+        var monthNavFragment = window.document.createDocumentFragment();
+        var monthElement;
+        if (self.config.showMonths > 1 ||
+            self.config.monthSelectorType === "static") {
+            monthElement = (0,_utils_dom__WEBPACK_IMPORTED_MODULE_3__.createElement)("span", "cur-month");
+        }
+        else {
+            self.monthsDropdownContainer = (0,_utils_dom__WEBPACK_IMPORTED_MODULE_3__.createElement)("select", "flatpickr-monthDropdown-months");
+            self.monthsDropdownContainer.setAttribute("aria-label", self.l10n.monthAriaLabel);
+            bind(self.monthsDropdownContainer, "change", function (e) {
+                var target = (0,_utils_dom__WEBPACK_IMPORTED_MODULE_3__.getEventTarget)(e);
+                var selectedMonth = parseInt(target.value, 10);
+                self.changeMonth(selectedMonth - self.currentMonth);
+                triggerEvent("onMonthChange");
+            });
+            buildMonthSwitch();
+            monthElement = self.monthsDropdownContainer;
+        }
+        var yearInput = (0,_utils_dom__WEBPACK_IMPORTED_MODULE_3__.createNumberInput)("cur-year", { tabindex: "-1" });
+        var yearElement = yearInput.getElementsByTagName("input")[0];
+        yearElement.setAttribute("aria-label", self.l10n.yearAriaLabel);
+        if (self.config.minDate) {
+            yearElement.setAttribute("min", self.config.minDate.getFullYear().toString());
+        }
+        if (self.config.maxDate) {
+            yearElement.setAttribute("max", self.config.maxDate.getFullYear().toString());
+            yearElement.disabled =
+                !!self.config.minDate &&
+                    self.config.minDate.getFullYear() === self.config.maxDate.getFullYear();
+        }
+        var currentMonth = (0,_utils_dom__WEBPACK_IMPORTED_MODULE_3__.createElement)("div", "flatpickr-current-month");
+        currentMonth.appendChild(monthElement);
+        currentMonth.appendChild(yearInput);
+        monthNavFragment.appendChild(currentMonth);
+        container.appendChild(monthNavFragment);
+        return {
+            container: container,
+            yearElement: yearElement,
+            monthElement: monthElement,
+        };
+    }
+    function buildMonths() {
+        (0,_utils_dom__WEBPACK_IMPORTED_MODULE_3__.clearNode)(self.monthNav);
+        self.monthNav.appendChild(self.prevMonthNav);
+        if (self.config.showMonths) {
+            self.yearElements = [];
+            self.monthElements = [];
+        }
+        for (var m = self.config.showMonths; m--;) {
+            var month = buildMonth();
+            self.yearElements.push(month.yearElement);
+            self.monthElements.push(month.monthElement);
+            self.monthNav.appendChild(month.container);
+        }
+        self.monthNav.appendChild(self.nextMonthNav);
+    }
+    function buildMonthNav() {
+        self.monthNav = (0,_utils_dom__WEBPACK_IMPORTED_MODULE_3__.createElement)("div", "flatpickr-months");
+        self.yearElements = [];
+        self.monthElements = [];
+        self.prevMonthNav = (0,_utils_dom__WEBPACK_IMPORTED_MODULE_3__.createElement)("span", "flatpickr-prev-month");
+        self.prevMonthNav.innerHTML = self.config.prevArrow;
+        self.nextMonthNav = (0,_utils_dom__WEBPACK_IMPORTED_MODULE_3__.createElement)("span", "flatpickr-next-month");
+        self.nextMonthNav.innerHTML = self.config.nextArrow;
+        buildMonths();
+        Object.defineProperty(self, "_hidePrevMonthArrow", {
+            get: function () { return self.__hidePrevMonthArrow; },
+            set: function (bool) {
+                if (self.__hidePrevMonthArrow !== bool) {
+                    (0,_utils_dom__WEBPACK_IMPORTED_MODULE_3__.toggleClass)(self.prevMonthNav, "flatpickr-disabled", bool);
+                    self.__hidePrevMonthArrow = bool;
+                }
+            },
+        });
+        Object.defineProperty(self, "_hideNextMonthArrow", {
+            get: function () { return self.__hideNextMonthArrow; },
+            set: function (bool) {
+                if (self.__hideNextMonthArrow !== bool) {
+                    (0,_utils_dom__WEBPACK_IMPORTED_MODULE_3__.toggleClass)(self.nextMonthNav, "flatpickr-disabled", bool);
+                    self.__hideNextMonthArrow = bool;
+                }
+            },
+        });
+        self.currentYearElement = self.yearElements[0];
+        updateNavigationCurrentMonth();
+        return self.monthNav;
+    }
+    function buildTime() {
+        self.calendarContainer.classList.add("hasTime");
+        if (self.config.noCalendar)
+            self.calendarContainer.classList.add("noCalendar");
+        var defaults = (0,_utils_dates__WEBPACK_IMPORTED_MODULE_4__.getDefaultHours)(self.config);
+        self.timeContainer = (0,_utils_dom__WEBPACK_IMPORTED_MODULE_3__.createElement)("div", "flatpickr-time");
+        self.timeContainer.tabIndex = -1;
+        var separator = (0,_utils_dom__WEBPACK_IMPORTED_MODULE_3__.createElement)("span", "flatpickr-time-separator", ":");
+        var hourInput = (0,_utils_dom__WEBPACK_IMPORTED_MODULE_3__.createNumberInput)("flatpickr-hour", {
+            "aria-label": self.l10n.hourAriaLabel,
+        });
+        self.hourElement = hourInput.getElementsByTagName("input")[0];
+        var minuteInput = (0,_utils_dom__WEBPACK_IMPORTED_MODULE_3__.createNumberInput)("flatpickr-minute", {
+            "aria-label": self.l10n.minuteAriaLabel,
+        });
+        self.minuteElement = minuteInput.getElementsByTagName("input")[0];
+        self.hourElement.tabIndex = self.minuteElement.tabIndex = -1;
+        self.hourElement.value = (0,_utils__WEBPACK_IMPORTED_MODULE_2__.pad)(self.latestSelectedDateObj
+            ? self.latestSelectedDateObj.getHours()
+            : self.config.time_24hr
+                ? defaults.hours
+                : military2ampm(defaults.hours));
+        self.minuteElement.value = (0,_utils__WEBPACK_IMPORTED_MODULE_2__.pad)(self.latestSelectedDateObj
+            ? self.latestSelectedDateObj.getMinutes()
+            : defaults.minutes);
+        self.hourElement.setAttribute("step", self.config.hourIncrement.toString());
+        self.minuteElement.setAttribute("step", self.config.minuteIncrement.toString());
+        self.hourElement.setAttribute("min", self.config.time_24hr ? "0" : "1");
+        self.hourElement.setAttribute("max", self.config.time_24hr ? "23" : "12");
+        self.hourElement.setAttribute("maxlength", "2");
+        self.minuteElement.setAttribute("min", "0");
+        self.minuteElement.setAttribute("max", "59");
+        self.minuteElement.setAttribute("maxlength", "2");
+        self.timeContainer.appendChild(hourInput);
+        self.timeContainer.appendChild(separator);
+        self.timeContainer.appendChild(minuteInput);
+        if (self.config.time_24hr)
+            self.timeContainer.classList.add("time24hr");
+        if (self.config.enableSeconds) {
+            self.timeContainer.classList.add("hasSeconds");
+            var secondInput = (0,_utils_dom__WEBPACK_IMPORTED_MODULE_3__.createNumberInput)("flatpickr-second");
+            self.secondElement = secondInput.getElementsByTagName("input")[0];
+            self.secondElement.value = (0,_utils__WEBPACK_IMPORTED_MODULE_2__.pad)(self.latestSelectedDateObj
+                ? self.latestSelectedDateObj.getSeconds()
+                : defaults.seconds);
+            self.secondElement.setAttribute("step", self.minuteElement.getAttribute("step"));
+            self.secondElement.setAttribute("min", "0");
+            self.secondElement.setAttribute("max", "59");
+            self.secondElement.setAttribute("maxlength", "2");
+            self.timeContainer.appendChild((0,_utils_dom__WEBPACK_IMPORTED_MODULE_3__.createElement)("span", "flatpickr-time-separator", ":"));
+            self.timeContainer.appendChild(secondInput);
+        }
+        if (!self.config.time_24hr) {
+            self.amPM = (0,_utils_dom__WEBPACK_IMPORTED_MODULE_3__.createElement)("span", "flatpickr-am-pm", self.l10n.amPM[(0,_utils__WEBPACK_IMPORTED_MODULE_2__.int)((self.latestSelectedDateObj
+                ? self.hourElement.value
+                : self.config.defaultHour) > 11)]);
+            self.amPM.title = self.l10n.toggleTitle;
+            self.amPM.tabIndex = -1;
+            self.timeContainer.appendChild(self.amPM);
+        }
+        return self.timeContainer;
+    }
+    function buildWeekdays() {
+        if (!self.weekdayContainer)
+            self.weekdayContainer = (0,_utils_dom__WEBPACK_IMPORTED_MODULE_3__.createElement)("div", "flatpickr-weekdays");
+        else
+            (0,_utils_dom__WEBPACK_IMPORTED_MODULE_3__.clearNode)(self.weekdayContainer);
+        for (var i = self.config.showMonths; i--;) {
+            var container = (0,_utils_dom__WEBPACK_IMPORTED_MODULE_3__.createElement)("div", "flatpickr-weekdaycontainer");
+            self.weekdayContainer.appendChild(container);
+        }
+        updateWeekdays();
+        return self.weekdayContainer;
+    }
+    function updateWeekdays() {
+        if (!self.weekdayContainer) {
+            return;
+        }
+        var firstDayOfWeek = self.l10n.firstDayOfWeek;
+        var weekdays = __spreadArrays(self.l10n.weekdays.shorthand);
+        if (firstDayOfWeek > 0 && firstDayOfWeek < weekdays.length) {
+            weekdays = __spreadArrays(weekdays.splice(firstDayOfWeek, weekdays.length), weekdays.splice(0, firstDayOfWeek));
+        }
+        for (var i = self.config.showMonths; i--;) {
+            self.weekdayContainer.children[i].innerHTML = "\n      <span class='flatpickr-weekday'>\n        " + weekdays.join("</span><span class='flatpickr-weekday'>") + "\n      </span>\n      ";
+        }
+    }
+    function buildWeeks() {
+        self.calendarContainer.classList.add("hasWeeks");
+        var weekWrapper = (0,_utils_dom__WEBPACK_IMPORTED_MODULE_3__.createElement)("div", "flatpickr-weekwrapper");
+        weekWrapper.appendChild((0,_utils_dom__WEBPACK_IMPORTED_MODULE_3__.createElement)("span", "flatpickr-weekday", self.l10n.weekAbbreviation));
+        var weekNumbers = (0,_utils_dom__WEBPACK_IMPORTED_MODULE_3__.createElement)("div", "flatpickr-weeks");
+        weekWrapper.appendChild(weekNumbers);
+        return {
+            weekWrapper: weekWrapper,
+            weekNumbers: weekNumbers,
+        };
+    }
+    function changeMonth(value, isOffset) {
+        if (isOffset === void 0) { isOffset = true; }
+        var delta = isOffset ? value : value - self.currentMonth;
+        if ((delta < 0 && self._hidePrevMonthArrow === true) ||
+            (delta > 0 && self._hideNextMonthArrow === true))
+            return;
+        self.currentMonth += delta;
+        if (self.currentMonth < 0 || self.currentMonth > 11) {
+            self.currentYear += self.currentMonth > 11 ? 1 : -1;
+            self.currentMonth = (self.currentMonth + 12) % 12;
+            triggerEvent("onYearChange");
+            buildMonthSwitch();
+        }
+        buildDays();
+        triggerEvent("onMonthChange");
+        updateNavigationCurrentMonth();
+    }
+    function clear(triggerChangeEvent, toInitial) {
+        if (triggerChangeEvent === void 0) { triggerChangeEvent = true; }
+        if (toInitial === void 0) { toInitial = true; }
+        self.input.value = "";
+        if (self.altInput !== undefined)
+            self.altInput.value = "";
+        if (self.mobileInput !== undefined)
+            self.mobileInput.value = "";
+        self.selectedDates = [];
+        self.latestSelectedDateObj = undefined;
+        if (toInitial === true) {
+            self.currentYear = self._initialDate.getFullYear();
+            self.currentMonth = self._initialDate.getMonth();
+        }
+        if (self.config.enableTime === true) {
+            var _a = (0,_utils_dates__WEBPACK_IMPORTED_MODULE_4__.getDefaultHours)(self.config), hours = _a.hours, minutes = _a.minutes, seconds = _a.seconds;
+            setHours(hours, minutes, seconds);
+        }
+        self.redraw();
+        if (triggerChangeEvent)
+            triggerEvent("onChange");
+    }
+    function close() {
+        self.isOpen = false;
+        if (!self.isMobile) {
+            if (self.calendarContainer !== undefined) {
+                self.calendarContainer.classList.remove("open");
+            }
+            if (self._input !== undefined) {
+                self._input.classList.remove("active");
+            }
+        }
+        triggerEvent("onClose");
+    }
+    function destroy() {
+        if (self.config !== undefined)
+            triggerEvent("onDestroy");
+        for (var i = self._handlers.length; i--;) {
+            self._handlers[i].remove();
+        }
+        self._handlers = [];
+        if (self.mobileInput) {
+            if (self.mobileInput.parentNode)
+                self.mobileInput.parentNode.removeChild(self.mobileInput);
+            self.mobileInput = undefined;
+        }
+        else if (self.calendarContainer && self.calendarContainer.parentNode) {
+            if (self.config.static && self.calendarContainer.parentNode) {
+                var wrapper = self.calendarContainer.parentNode;
+                wrapper.lastChild && wrapper.removeChild(wrapper.lastChild);
+                if (wrapper.parentNode) {
+                    while (wrapper.firstChild)
+                        wrapper.parentNode.insertBefore(wrapper.firstChild, wrapper);
+                    wrapper.parentNode.removeChild(wrapper);
+                }
+            }
+            else
+                self.calendarContainer.parentNode.removeChild(self.calendarContainer);
+        }
+        if (self.altInput) {
+            self.input.type = "text";
+            if (self.altInput.parentNode)
+                self.altInput.parentNode.removeChild(self.altInput);
+            delete self.altInput;
+        }
+        if (self.input) {
+            self.input.type = self.input._type;
+            self.input.classList.remove("flatpickr-input");
+            self.input.removeAttribute("readonly");
+        }
+        [
+            "_showTimeInput",
+            "latestSelectedDateObj",
+            "_hideNextMonthArrow",
+            "_hidePrevMonthArrow",
+            "__hideNextMonthArrow",
+            "__hidePrevMonthArrow",
+            "isMobile",
+            "isOpen",
+            "selectedDateElem",
+            "minDateHasTime",
+            "maxDateHasTime",
+            "days",
+            "daysContainer",
+            "_input",
+            "_positionElement",
+            "innerContainer",
+            "rContainer",
+            "monthNav",
+            "todayDateElem",
+            "calendarContainer",
+            "weekdayContainer",
+            "prevMonthNav",
+            "nextMonthNav",
+            "monthsDropdownContainer",
+            "currentMonthElement",
+            "currentYearElement",
+            "navigationCurrentMonth",
+            "selectedDateElem",
+            "config",
+        ].forEach(function (k) {
+            try {
+                delete self[k];
+            }
+            catch (_) { }
+        });
+    }
+    function isCalendarElem(elem) {
+        return self.calendarContainer.contains(elem);
+    }
+    function documentClick(e) {
+        if (self.isOpen && !self.config.inline) {
+            var eventTarget_1 = (0,_utils_dom__WEBPACK_IMPORTED_MODULE_3__.getEventTarget)(e);
+            var isCalendarElement = isCalendarElem(eventTarget_1);
+            var isInput = eventTarget_1 === self.input ||
+                eventTarget_1 === self.altInput ||
+                self.element.contains(eventTarget_1) ||
+                (e.path &&
+                    e.path.indexOf &&
+                    (~e.path.indexOf(self.input) ||
+                        ~e.path.indexOf(self.altInput)));
+            var lostFocus = !isInput &&
+                !isCalendarElement &&
+                !isCalendarElem(e.relatedTarget);
+            var isIgnored = !self.config.ignoredFocusElements.some(function (elem) {
+                return elem.contains(eventTarget_1);
+            });
+            if (lostFocus && isIgnored) {
+                if (self.config.allowInput) {
+                    self.setDate(self._input.value, false, self.config.altInput
+                        ? self.config.altFormat
+                        : self.config.dateFormat);
+                }
+                if (self.timeContainer !== undefined &&
+                    self.minuteElement !== undefined &&
+                    self.hourElement !== undefined &&
+                    self.input.value !== "" &&
+                    self.input.value !== undefined) {
+                    updateTime();
+                }
+                self.close();
+                if (self.config &&
+                    self.config.mode === "range" &&
+                    self.selectedDates.length === 1)
+                    self.clear(false);
+            }
+        }
+    }
+    function changeYear(newYear) {
+        if (!newYear ||
+            (self.config.minDate && newYear < self.config.minDate.getFullYear()) ||
+            (self.config.maxDate && newYear > self.config.maxDate.getFullYear()))
+            return;
+        var newYearNum = newYear, isNewYear = self.currentYear !== newYearNum;
+        self.currentYear = newYearNum || self.currentYear;
+        if (self.config.maxDate &&
+            self.currentYear === self.config.maxDate.getFullYear()) {
+            self.currentMonth = Math.min(self.config.maxDate.getMonth(), self.currentMonth);
+        }
+        else if (self.config.minDate &&
+            self.currentYear === self.config.minDate.getFullYear()) {
+            self.currentMonth = Math.max(self.config.minDate.getMonth(), self.currentMonth);
+        }
+        if (isNewYear) {
+            self.redraw();
+            triggerEvent("onYearChange");
+            buildMonthSwitch();
+        }
+    }
+    function isEnabled(date, timeless) {
+        var _a;
+        if (timeless === void 0) { timeless = true; }
+        var dateToCheck = self.parseDate(date, undefined, timeless);
+        if ((self.config.minDate &&
+            dateToCheck &&
+            (0,_utils_dates__WEBPACK_IMPORTED_MODULE_4__.compareDates)(dateToCheck, self.config.minDate, timeless !== undefined ? timeless : !self.minDateHasTime) < 0) ||
+            (self.config.maxDate &&
+                dateToCheck &&
+                (0,_utils_dates__WEBPACK_IMPORTED_MODULE_4__.compareDates)(dateToCheck, self.config.maxDate, timeless !== undefined ? timeless : !self.maxDateHasTime) > 0))
+            return false;
+        if (!self.config.enable && self.config.disable.length === 0)
+            return true;
+        if (dateToCheck === undefined)
+            return false;
+        var bool = !!self.config.enable, array = (_a = self.config.enable) !== null && _a !== void 0 ? _a : self.config.disable;
+        for (var i = 0, d = void 0; i < array.length; i++) {
+            d = array[i];
+            if (typeof d === "function" &&
+                d(dateToCheck))
+                return bool;
+            else if (d instanceof Date &&
+                dateToCheck !== undefined &&
+                d.getTime() === dateToCheck.getTime())
+                return bool;
+            else if (typeof d === "string") {
+                var parsed = self.parseDate(d, undefined, true);
+                return parsed && parsed.getTime() === dateToCheck.getTime()
+                    ? bool
+                    : !bool;
+            }
+            else if (typeof d === "object" &&
+                dateToCheck !== undefined &&
+                d.from &&
+                d.to &&
+                dateToCheck.getTime() >= d.from.getTime() &&
+                dateToCheck.getTime() <= d.to.getTime())
+                return bool;
+        }
+        return !bool;
+    }
+    function isInView(elem) {
+        if (self.daysContainer !== undefined)
+            return (elem.className.indexOf("hidden") === -1 &&
+                elem.className.indexOf("flatpickr-disabled") === -1 &&
+                self.daysContainer.contains(elem));
+        return false;
+    }
+    function onBlur(e) {
+        var isInput = e.target === self._input;
+        var valueChanged = self._input.value.trimEnd() !== getDateStr();
+        if (isInput &&
+            valueChanged &&
+            !(e.relatedTarget && isCalendarElem(e.relatedTarget))) {
+            self.setDate(self._input.value, true, e.target === self.altInput
+                ? self.config.altFormat
+                : self.config.dateFormat);
+        }
+    }
+    function onKeyDown(e) {
+        var eventTarget = (0,_utils_dom__WEBPACK_IMPORTED_MODULE_3__.getEventTarget)(e);
+        var isInput = self.config.wrap
+            ? element.contains(eventTarget)
+            : eventTarget === self._input;
+        var allowInput = self.config.allowInput;
+        var allowKeydown = self.isOpen && (!allowInput || !isInput);
+        var allowInlineKeydown = self.config.inline && isInput && !allowInput;
+        if (e.keyCode === 13 && isInput) {
+            if (allowInput) {
+                self.setDate(self._input.value, true, eventTarget === self.altInput
+                    ? self.config.altFormat
+                    : self.config.dateFormat);
+                self.close();
+                return eventTarget.blur();
+            }
+            else {
+                self.open();
+            }
+        }
+        else if (isCalendarElem(eventTarget) ||
+            allowKeydown ||
+            allowInlineKeydown) {
+            var isTimeObj = !!self.timeContainer &&
+                self.timeContainer.contains(eventTarget);
+            switch (e.keyCode) {
+                case 13:
+                    if (isTimeObj) {
+                        e.preventDefault();
+                        updateTime();
+                        focusAndClose();
+                    }
+                    else
+                        selectDate(e);
+                    break;
+                case 27:
+                    e.preventDefault();
+                    focusAndClose();
+                    break;
+                case 8:
+                case 46:
+                    if (isInput && !self.config.allowInput) {
+                        e.preventDefault();
+                        self.clear();
+                    }
+                    break;
+                case 37:
+                case 39:
+                    if (!isTimeObj && !isInput) {
+                        e.preventDefault();
+                        var activeElement = getClosestActiveElement();
+                        if (self.daysContainer !== undefined &&
+                            (allowInput === false ||
+                                (activeElement && isInView(activeElement)))) {
+                            var delta_1 = e.keyCode === 39 ? 1 : -1;
+                            if (!e.ctrlKey)
+                                focusOnDay(undefined, delta_1);
+                            else {
+                                e.stopPropagation();
+                                changeMonth(delta_1);
+                                focusOnDay(getFirstAvailableDay(1), 0);
+                            }
+                        }
+                    }
+                    else if (self.hourElement)
+                        self.hourElement.focus();
+                    break;
+                case 38:
+                case 40:
+                    e.preventDefault();
+                    var delta = e.keyCode === 40 ? 1 : -1;
+                    if ((self.daysContainer &&
+                        eventTarget.$i !== undefined) ||
+                        eventTarget === self.input ||
+                        eventTarget === self.altInput) {
+                        if (e.ctrlKey) {
+                            e.stopPropagation();
+                            changeYear(self.currentYear - delta);
+                            focusOnDay(getFirstAvailableDay(1), 0);
+                        }
+                        else if (!isTimeObj)
+                            focusOnDay(undefined, delta * 7);
+                    }
+                    else if (eventTarget === self.currentYearElement) {
+                        changeYear(self.currentYear - delta);
+                    }
+                    else if (self.config.enableTime) {
+                        if (!isTimeObj && self.hourElement)
+                            self.hourElement.focus();
+                        updateTime(e);
+                        self._debouncedChange();
+                    }
+                    break;
+                case 9:
+                    if (isTimeObj) {
+                        var elems = [
+                            self.hourElement,
+                            self.minuteElement,
+                            self.secondElement,
+                            self.amPM,
+                        ]
+                            .concat(self.pluginElements)
+                            .filter(function (x) { return x; });
+                        var i = elems.indexOf(eventTarget);
+                        if (i !== -1) {
+                            var target = elems[i + (e.shiftKey ? -1 : 1)];
+                            e.preventDefault();
+                            (target || self._input).focus();
+                        }
+                    }
+                    else if (!self.config.noCalendar &&
+                        self.daysContainer &&
+                        self.daysContainer.contains(eventTarget) &&
+                        e.shiftKey) {
+                        e.preventDefault();
+                        self._input.focus();
+                    }
+                    break;
+                default:
+                    break;
+            }
+        }
+        if (self.amPM !== undefined && eventTarget === self.amPM) {
+            switch (e.key) {
+                case self.l10n.amPM[0].charAt(0):
+                case self.l10n.amPM[0].charAt(0).toLowerCase():
+                    self.amPM.textContent = self.l10n.amPM[0];
+                    setHoursFromInputs();
+                    updateValue();
+                    break;
+                case self.l10n.amPM[1].charAt(0):
+                case self.l10n.amPM[1].charAt(0).toLowerCase():
+                    self.amPM.textContent = self.l10n.amPM[1];
+                    setHoursFromInputs();
+                    updateValue();
+                    break;
+            }
+        }
+        if (isInput || isCalendarElem(eventTarget)) {
+            triggerEvent("onKeyDown", e);
+        }
+    }
+    function onMouseOver(elem, cellClass) {
+        if (cellClass === void 0) { cellClass = "flatpickr-day"; }
+        if (self.selectedDates.length !== 1 ||
+            (elem &&
+                (!elem.classList.contains(cellClass) ||
+                    elem.classList.contains("flatpickr-disabled"))))
+            return;
+        var hoverDate = elem
+            ? elem.dateObj.getTime()
+            : self.days.firstElementChild.dateObj.getTime(), initialDate = self.parseDate(self.selectedDates[0], undefined, true).getTime(), rangeStartDate = Math.min(hoverDate, self.selectedDates[0].getTime()), rangeEndDate = Math.max(hoverDate, self.selectedDates[0].getTime());
+        var containsDisabled = false;
+        var minRange = 0, maxRange = 0;
+        for (var t = rangeStartDate; t < rangeEndDate; t += _utils_dates__WEBPACK_IMPORTED_MODULE_4__.duration.DAY) {
+            if (!isEnabled(new Date(t), true)) {
+                containsDisabled =
+                    containsDisabled || (t > rangeStartDate && t < rangeEndDate);
+                if (t < initialDate && (!minRange || t > minRange))
+                    minRange = t;
+                else if (t > initialDate && (!maxRange || t < maxRange))
+                    maxRange = t;
+            }
+        }
+        var hoverableCells = Array.from(self.rContainer.querySelectorAll("*:nth-child(-n+" + self.config.showMonths + ") > ." + cellClass));
+        hoverableCells.forEach(function (dayElem) {
+            var date = dayElem.dateObj;
+            var timestamp = date.getTime();
+            var outOfRange = (minRange > 0 && timestamp < minRange) ||
+                (maxRange > 0 && timestamp > maxRange);
+            if (outOfRange) {
+                dayElem.classList.add("notAllowed");
+                ["inRange", "startRange", "endRange"].forEach(function (c) {
+                    dayElem.classList.remove(c);
+                });
+                return;
+            }
+            else if (containsDisabled && !outOfRange)
+                return;
+            ["startRange", "inRange", "endRange", "notAllowed"].forEach(function (c) {
+                dayElem.classList.remove(c);
+            });
+            if (elem !== undefined) {
+                elem.classList.add(hoverDate <= self.selectedDates[0].getTime()
+                    ? "startRange"
+                    : "endRange");
+                if (initialDate < hoverDate && timestamp === initialDate)
+                    dayElem.classList.add("startRange");
+                else if (initialDate > hoverDate && timestamp === initialDate)
+                    dayElem.classList.add("endRange");
+                if (timestamp >= minRange &&
+                    (maxRange === 0 || timestamp <= maxRange) &&
+                    (0,_utils_dates__WEBPACK_IMPORTED_MODULE_4__.isBetween)(timestamp, initialDate, hoverDate))
+                    dayElem.classList.add("inRange");
+            }
+        });
+    }
+    function onResize() {
+        if (self.isOpen && !self.config.static && !self.config.inline)
+            positionCalendar();
+    }
+    function open(e, positionElement) {
+        if (positionElement === void 0) { positionElement = self._positionElement; }
+        if (self.isMobile === true) {
+            if (e) {
+                e.preventDefault();
+                var eventTarget = (0,_utils_dom__WEBPACK_IMPORTED_MODULE_3__.getEventTarget)(e);
+                if (eventTarget) {
+                    eventTarget.blur();
+                }
+            }
+            if (self.mobileInput !== undefined) {
+                self.mobileInput.focus();
+                self.mobileInput.click();
+            }
+            triggerEvent("onOpen");
+            return;
+        }
+        else if (self._input.disabled || self.config.inline) {
+            return;
+        }
+        var wasOpen = self.isOpen;
+        self.isOpen = true;
+        if (!wasOpen) {
+            self.calendarContainer.classList.add("open");
+            self._input.classList.add("active");
+            triggerEvent("onOpen");
+            positionCalendar(positionElement);
+        }
+        if (self.config.enableTime === true && self.config.noCalendar === true) {
+            if (self.config.allowInput === false &&
+                (e === undefined ||
+                    !self.timeContainer.contains(e.relatedTarget))) {
+                setTimeout(function () { return self.hourElement.select(); }, 50);
+            }
+        }
+    }
+    function minMaxDateSetter(type) {
+        return function (date) {
+            var dateObj = (self.config["_" + type + "Date"] = self.parseDate(date, self.config.dateFormat));
+            var inverseDateObj = self.config["_" + (type === "min" ? "max" : "min") + "Date"];
+            if (dateObj !== undefined) {
+                self[type === "min" ? "minDateHasTime" : "maxDateHasTime"] =
+                    dateObj.getHours() > 0 ||
+                        dateObj.getMinutes() > 0 ||
+                        dateObj.getSeconds() > 0;
+            }
+            if (self.selectedDates) {
+                self.selectedDates = self.selectedDates.filter(function (d) { return isEnabled(d); });
+                if (!self.selectedDates.length && type === "min")
+                    setHoursFromDate(dateObj);
+                updateValue();
+            }
+            if (self.daysContainer) {
+                redraw();
+                if (dateObj !== undefined)
+                    self.currentYearElement[type] = dateObj.getFullYear().toString();
+                else
+                    self.currentYearElement.removeAttribute(type);
+                self.currentYearElement.disabled =
+                    !!inverseDateObj &&
+                        dateObj !== undefined &&
+                        inverseDateObj.getFullYear() === dateObj.getFullYear();
+            }
+        };
+    }
+    function parseConfig() {
+        var boolOpts = [
+            "wrap",
+            "weekNumbers",
+            "allowInput",
+            "allowInvalidPreload",
+            "clickOpens",
+            "time_24hr",
+            "enableTime",
+            "noCalendar",
+            "altInput",
+            "shorthandCurrentMonth",
+            "inline",
+            "static",
+            "enableSeconds",
+            "disableMobile",
+        ];
+        var userConfig = __assign(__assign({}, JSON.parse(JSON.stringify(element.dataset || {}))), instanceConfig);
+        var formats = {};
+        self.config.parseDate = userConfig.parseDate;
+        self.config.formatDate = userConfig.formatDate;
+        Object.defineProperty(self.config, "enable", {
+            get: function () { return self.config._enable; },
+            set: function (dates) {
+                self.config._enable = parseDateRules(dates);
+            },
+        });
+        Object.defineProperty(self.config, "disable", {
+            get: function () { return self.config._disable; },
+            set: function (dates) {
+                self.config._disable = parseDateRules(dates);
+            },
+        });
+        var timeMode = userConfig.mode === "time";
+        if (!userConfig.dateFormat && (userConfig.enableTime || timeMode)) {
+            var defaultDateFormat = flatpickr.defaultConfig.dateFormat || _types_options__WEBPACK_IMPORTED_MODULE_0__.defaults.dateFormat;
+            formats.dateFormat =
+                userConfig.noCalendar || timeMode
+                    ? "H:i" + (userConfig.enableSeconds ? ":S" : "")
+                    : defaultDateFormat + " H:i" + (userConfig.enableSeconds ? ":S" : "");
+        }
+        if (userConfig.altInput &&
+            (userConfig.enableTime || timeMode) &&
+            !userConfig.altFormat) {
+            var defaultAltFormat = flatpickr.defaultConfig.altFormat || _types_options__WEBPACK_IMPORTED_MODULE_0__.defaults.altFormat;
+            formats.altFormat =
+                userConfig.noCalendar || timeMode
+                    ? "h:i" + (userConfig.enableSeconds ? ":S K" : " K")
+                    : defaultAltFormat + (" h:i" + (userConfig.enableSeconds ? ":S" : "") + " K");
+        }
+        Object.defineProperty(self.config, "minDate", {
+            get: function () { return self.config._minDate; },
+            set: minMaxDateSetter("min"),
+        });
+        Object.defineProperty(self.config, "maxDate", {
+            get: function () { return self.config._maxDate; },
+            set: minMaxDateSetter("max"),
+        });
+        var minMaxTimeSetter = function (type) { return function (val) {
+            self.config[type === "min" ? "_minTime" : "_maxTime"] = self.parseDate(val, "H:i:S");
+        }; };
+        Object.defineProperty(self.config, "minTime", {
+            get: function () { return self.config._minTime; },
+            set: minMaxTimeSetter("min"),
+        });
+        Object.defineProperty(self.config, "maxTime", {
+            get: function () { return self.config._maxTime; },
+            set: minMaxTimeSetter("max"),
+        });
+        if (userConfig.mode === "time") {
+            self.config.noCalendar = true;
+            self.config.enableTime = true;
+        }
+        Object.assign(self.config, formats, userConfig);
+        for (var i = 0; i < boolOpts.length; i++)
+            self.config[boolOpts[i]] =
+                self.config[boolOpts[i]] === true ||
+                    self.config[boolOpts[i]] === "true";
+        _types_options__WEBPACK_IMPORTED_MODULE_0__.HOOKS.filter(function (hook) { return self.config[hook] !== undefined; }).forEach(function (hook) {
+            self.config[hook] = (0,_utils__WEBPACK_IMPORTED_MODULE_2__.arrayify)(self.config[hook] || []).map(bindToInstance);
+        });
+        self.isMobile =
+            !self.config.disableMobile &&
+                !self.config.inline &&
+                self.config.mode === "single" &&
+                !self.config.disable.length &&
+                !self.config.enable &&
+                !self.config.weekNumbers &&
+                /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+        for (var i = 0; i < self.config.plugins.length; i++) {
+            var pluginConf = self.config.plugins[i](self) || {};
+            for (var key in pluginConf) {
+                if (_types_options__WEBPACK_IMPORTED_MODULE_0__.HOOKS.indexOf(key) > -1) {
+                    self.config[key] = (0,_utils__WEBPACK_IMPORTED_MODULE_2__.arrayify)(pluginConf[key])
+                        .map(bindToInstance)
+                        .concat(self.config[key]);
+                }
+                else if (typeof userConfig[key] === "undefined")
+                    self.config[key] = pluginConf[key];
+            }
+        }
+        if (!userConfig.altInputClass) {
+            self.config.altInputClass =
+                getInputElem().className + " " + self.config.altInputClass;
+        }
+        triggerEvent("onParseConfig");
+    }
+    function getInputElem() {
+        return self.config.wrap
+            ? element.querySelector("[data-input]")
+            : element;
+    }
+    function setupLocale() {
+        if (typeof self.config.locale !== "object" &&
+            typeof flatpickr.l10ns[self.config.locale] === "undefined")
+            self.config.errorHandler(new Error("flatpickr: invalid locale " + self.config.locale));
+        self.l10n = __assign(__assign({}, flatpickr.l10ns.default), (typeof self.config.locale === "object"
+            ? self.config.locale
+            : self.config.locale !== "default"
+                ? flatpickr.l10ns[self.config.locale]
+                : undefined));
+        _utils_formatting__WEBPACK_IMPORTED_MODULE_5__.tokenRegex.D = "(" + self.l10n.weekdays.shorthand.join("|") + ")";
+        _utils_formatting__WEBPACK_IMPORTED_MODULE_5__.tokenRegex.l = "(" + self.l10n.weekdays.longhand.join("|") + ")";
+        _utils_formatting__WEBPACK_IMPORTED_MODULE_5__.tokenRegex.M = "(" + self.l10n.months.shorthand.join("|") + ")";
+        _utils_formatting__WEBPACK_IMPORTED_MODULE_5__.tokenRegex.F = "(" + self.l10n.months.longhand.join("|") + ")";
+        _utils_formatting__WEBPACK_IMPORTED_MODULE_5__.tokenRegex.K = "(" + self.l10n.amPM[0] + "|" + self.l10n.amPM[1] + "|" + self.l10n.amPM[0].toLowerCase() + "|" + self.l10n.amPM[1].toLowerCase() + ")";
+        var userConfig = __assign(__assign({}, instanceConfig), JSON.parse(JSON.stringify(element.dataset || {})));
+        if (userConfig.time_24hr === undefined &&
+            flatpickr.defaultConfig.time_24hr === undefined) {
+            self.config.time_24hr = self.l10n.time_24hr;
+        }
+        self.formatDate = (0,_utils_dates__WEBPACK_IMPORTED_MODULE_4__.createDateFormatter)(self);
+        self.parseDate = (0,_utils_dates__WEBPACK_IMPORTED_MODULE_4__.createDateParser)({ config: self.config, l10n: self.l10n });
+    }
+    function positionCalendar(customPositionElement) {
+        if (typeof self.config.position === "function") {
+            return void self.config.position(self, customPositionElement);
+        }
+        if (self.calendarContainer === undefined)
+            return;
+        triggerEvent("onPreCalendarPosition");
+        var positionElement = customPositionElement || self._positionElement;
+        var calendarHeight = Array.prototype.reduce.call(self.calendarContainer.children, (function (acc, child) { return acc + child.offsetHeight; }), 0), calendarWidth = self.calendarContainer.offsetWidth, configPos = self.config.position.split(" "), configPosVertical = configPos[0], configPosHorizontal = configPos.length > 1 ? configPos[1] : null, inputBounds = positionElement.getBoundingClientRect(), distanceFromBottom = window.innerHeight - inputBounds.bottom, showOnTop = configPosVertical === "above" ||
+            (configPosVertical !== "below" &&
+                distanceFromBottom < calendarHeight &&
+                inputBounds.top > calendarHeight);
+        var top = window.pageYOffset +
+            inputBounds.top +
+            (!showOnTop ? positionElement.offsetHeight + 2 : -calendarHeight - 2);
+        (0,_utils_dom__WEBPACK_IMPORTED_MODULE_3__.toggleClass)(self.calendarContainer, "arrowTop", !showOnTop);
+        (0,_utils_dom__WEBPACK_IMPORTED_MODULE_3__.toggleClass)(self.calendarContainer, "arrowBottom", showOnTop);
+        if (self.config.inline)
+            return;
+        var left = window.pageXOffset + inputBounds.left;
+        var isCenter = false;
+        var isRight = false;
+        if (configPosHorizontal === "center") {
+            left -= (calendarWidth - inputBounds.width) / 2;
+            isCenter = true;
+        }
+        else if (configPosHorizontal === "right") {
+            left -= calendarWidth - inputBounds.width;
+            isRight = true;
+        }
+        (0,_utils_dom__WEBPACK_IMPORTED_MODULE_3__.toggleClass)(self.calendarContainer, "arrowLeft", !isCenter && !isRight);
+        (0,_utils_dom__WEBPACK_IMPORTED_MODULE_3__.toggleClass)(self.calendarContainer, "arrowCenter", isCenter);
+        (0,_utils_dom__WEBPACK_IMPORTED_MODULE_3__.toggleClass)(self.calendarContainer, "arrowRight", isRight);
+        var right = window.document.body.offsetWidth -
+            (window.pageXOffset + inputBounds.right);
+        var rightMost = left + calendarWidth > window.document.body.offsetWidth;
+        var centerMost = right + calendarWidth > window.document.body.offsetWidth;
+        (0,_utils_dom__WEBPACK_IMPORTED_MODULE_3__.toggleClass)(self.calendarContainer, "rightMost", rightMost);
+        if (self.config.static)
+            return;
+        self.calendarContainer.style.top = top + "px";
+        if (!rightMost) {
+            self.calendarContainer.style.left = left + "px";
+            self.calendarContainer.style.right = "auto";
+        }
+        else if (!centerMost) {
+            self.calendarContainer.style.left = "auto";
+            self.calendarContainer.style.right = right + "px";
+        }
+        else {
+            var doc = getDocumentStyleSheet();
+            if (doc === undefined)
+                return;
+            var bodyWidth = window.document.body.offsetWidth;
+            var centerLeft = Math.max(0, bodyWidth / 2 - calendarWidth / 2);
+            var centerBefore = ".flatpickr-calendar.centerMost:before";
+            var centerAfter = ".flatpickr-calendar.centerMost:after";
+            var centerIndex = doc.cssRules.length;
+            var centerStyle = "{left:" + inputBounds.left + "px;right:auto;}";
+            (0,_utils_dom__WEBPACK_IMPORTED_MODULE_3__.toggleClass)(self.calendarContainer, "rightMost", false);
+            (0,_utils_dom__WEBPACK_IMPORTED_MODULE_3__.toggleClass)(self.calendarContainer, "centerMost", true);
+            doc.insertRule(centerBefore + "," + centerAfter + centerStyle, centerIndex);
+            self.calendarContainer.style.left = centerLeft + "px";
+            self.calendarContainer.style.right = "auto";
+        }
+    }
+    function getDocumentStyleSheet() {
+        var editableSheet = null;
+        for (var i = 0; i < document.styleSheets.length; i++) {
+            var sheet = document.styleSheets[i];
+            if (!sheet.cssRules)
+                continue;
+            try {
+                sheet.cssRules;
+            }
+            catch (err) {
+                continue;
+            }
+            editableSheet = sheet;
+            break;
+        }
+        return editableSheet != null ? editableSheet : createStyleSheet();
+    }
+    function createStyleSheet() {
+        var style = document.createElement("style");
+        document.head.appendChild(style);
+        return style.sheet;
+    }
+    function redraw() {
+        if (self.config.noCalendar || self.isMobile)
+            return;
+        buildMonthSwitch();
+        updateNavigationCurrentMonth();
+        buildDays();
+    }
+    function focusAndClose() {
+        self._input.focus();
+        if (window.navigator.userAgent.indexOf("MSIE") !== -1 ||
+            navigator.msMaxTouchPoints !== undefined) {
+            setTimeout(self.close, 0);
+        }
+        else {
+            self.close();
+        }
+    }
+    function selectDate(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        var isSelectable = function (day) {
+            return day.classList &&
+                day.classList.contains("flatpickr-day") &&
+                !day.classList.contains("flatpickr-disabled") &&
+                !day.classList.contains("notAllowed");
+        };
+        var t = (0,_utils_dom__WEBPACK_IMPORTED_MODULE_3__.findParent)((0,_utils_dom__WEBPACK_IMPORTED_MODULE_3__.getEventTarget)(e), isSelectable);
+        if (t === undefined)
+            return;
+        var target = t;
+        var selectedDate = (self.latestSelectedDateObj = new Date(target.dateObj.getTime()));
+        var shouldChangeMonth = (selectedDate.getMonth() < self.currentMonth ||
+            selectedDate.getMonth() >
+                self.currentMonth + self.config.showMonths - 1) &&
+            self.config.mode !== "range";
+        self.selectedDateElem = target;
+        if (self.config.mode === "single")
+            self.selectedDates = [selectedDate];
+        else if (self.config.mode === "multiple") {
+            var selectedIndex = isDateSelected(selectedDate);
+            if (selectedIndex)
+                self.selectedDates.splice(parseInt(selectedIndex), 1);
+            else
+                self.selectedDates.push(selectedDate);
+        }
+        else if (self.config.mode === "range") {
+            if (self.selectedDates.length === 2) {
+                self.clear(false, false);
+            }
+            self.latestSelectedDateObj = selectedDate;
+            self.selectedDates.push(selectedDate);
+            if ((0,_utils_dates__WEBPACK_IMPORTED_MODULE_4__.compareDates)(selectedDate, self.selectedDates[0], true) !== 0)
+                self.selectedDates.sort(function (a, b) { return a.getTime() - b.getTime(); });
+        }
+        setHoursFromInputs();
+        if (shouldChangeMonth) {
+            var isNewYear = self.currentYear !== selectedDate.getFullYear();
+            self.currentYear = selectedDate.getFullYear();
+            self.currentMonth = selectedDate.getMonth();
+            if (isNewYear) {
+                triggerEvent("onYearChange");
+                buildMonthSwitch();
+            }
+            triggerEvent("onMonthChange");
+        }
+        updateNavigationCurrentMonth();
+        buildDays();
+        updateValue();
+        if (!shouldChangeMonth &&
+            self.config.mode !== "range" &&
+            self.config.showMonths === 1)
+            focusOnDayElem(target);
+        else if (self.selectedDateElem !== undefined &&
+            self.hourElement === undefined) {
+            self.selectedDateElem && self.selectedDateElem.focus();
+        }
+        if (self.hourElement !== undefined)
+            self.hourElement !== undefined && self.hourElement.focus();
+        if (self.config.closeOnSelect) {
+            var single = self.config.mode === "single" && !self.config.enableTime;
+            var range = self.config.mode === "range" &&
+                self.selectedDates.length === 2 &&
+                !self.config.enableTime;
+            if (single || range) {
+                focusAndClose();
+            }
+        }
+        triggerChange();
+    }
+    var CALLBACKS = {
+        locale: [setupLocale, updateWeekdays],
+        showMonths: [buildMonths, setCalendarWidth, buildWeekdays],
+        minDate: [jumpToDate],
+        maxDate: [jumpToDate],
+        positionElement: [updatePositionElement],
+        clickOpens: [
+            function () {
+                if (self.config.clickOpens === true) {
+                    bind(self._input, "focus", self.open);
+                    bind(self._input, "click", self.open);
+                }
+                else {
+                    self._input.removeEventListener("focus", self.open);
+                    self._input.removeEventListener("click", self.open);
+                }
+            },
+        ],
+    };
+    function set(option, value) {
+        if (option !== null && typeof option === "object") {
+            Object.assign(self.config, option);
+            for (var key in option) {
+                if (CALLBACKS[key] !== undefined)
+                    CALLBACKS[key].forEach(function (x) { return x(); });
+            }
+        }
+        else {
+            self.config[option] = value;
+            if (CALLBACKS[option] !== undefined)
+                CALLBACKS[option].forEach(function (x) { return x(); });
+            else if (_types_options__WEBPACK_IMPORTED_MODULE_0__.HOOKS.indexOf(option) > -1)
+                self.config[option] = (0,_utils__WEBPACK_IMPORTED_MODULE_2__.arrayify)(value);
+        }
+        self.redraw();
+        updateValue(true);
+    }
+    function setSelectedDate(inputDate, format) {
+        var dates = [];
+        if (inputDate instanceof Array)
+            dates = inputDate.map(function (d) { return self.parseDate(d, format); });
+        else if (inputDate instanceof Date || typeof inputDate === "number")
+            dates = [self.parseDate(inputDate, format)];
+        else if (typeof inputDate === "string") {
+            switch (self.config.mode) {
+                case "single":
+                case "time":
+                    dates = [self.parseDate(inputDate, format)];
+                    break;
+                case "multiple":
+                    dates = inputDate
+                        .split(self.config.conjunction)
+                        .map(function (date) { return self.parseDate(date, format); });
+                    break;
+                case "range":
+                    dates = inputDate
+                        .split(self.l10n.rangeSeparator)
+                        .map(function (date) { return self.parseDate(date, format); });
+                    break;
+                default:
+                    break;
+            }
+        }
+        else
+            self.config.errorHandler(new Error("Invalid date supplied: " + JSON.stringify(inputDate)));
+        self.selectedDates = (self.config.allowInvalidPreload
+            ? dates
+            : dates.filter(function (d) { return d instanceof Date && isEnabled(d, false); }));
+        if (self.config.mode === "range")
+            self.selectedDates.sort(function (a, b) { return a.getTime() - b.getTime(); });
+    }
+    function setDate(date, triggerChange, format) {
+        if (triggerChange === void 0) { triggerChange = false; }
+        if (format === void 0) { format = self.config.dateFormat; }
+        if ((date !== 0 && !date) || (date instanceof Array && date.length === 0))
+            return self.clear(triggerChange);
+        setSelectedDate(date, format);
+        self.latestSelectedDateObj =
+            self.selectedDates[self.selectedDates.length - 1];
+        self.redraw();
+        jumpToDate(undefined, triggerChange);
+        setHoursFromDate();
+        if (self.selectedDates.length === 0) {
+            self.clear(false);
+        }
+        updateValue(triggerChange);
+        if (triggerChange)
+            triggerEvent("onChange");
+    }
+    function parseDateRules(arr) {
+        return arr
+            .slice()
+            .map(function (rule) {
+            if (typeof rule === "string" ||
+                typeof rule === "number" ||
+                rule instanceof Date) {
+                return self.parseDate(rule, undefined, true);
+            }
+            else if (rule &&
+                typeof rule === "object" &&
+                rule.from &&
+                rule.to)
+                return {
+                    from: self.parseDate(rule.from, undefined),
+                    to: self.parseDate(rule.to, undefined),
+                };
+            return rule;
+        })
+            .filter(function (x) { return x; });
+    }
+    function setupDates() {
+        self.selectedDates = [];
+        self.now = self.parseDate(self.config.now) || new Date();
+        var preloadedDate = self.config.defaultDate ||
+            ((self.input.nodeName === "INPUT" ||
+                self.input.nodeName === "TEXTAREA") &&
+                self.input.placeholder &&
+                self.input.value === self.input.placeholder
+                ? null
+                : self.input.value);
+        if (preloadedDate)
+            setSelectedDate(preloadedDate, self.config.dateFormat);
+        self._initialDate =
+            self.selectedDates.length > 0
+                ? self.selectedDates[0]
+                : self.config.minDate &&
+                    self.config.minDate.getTime() > self.now.getTime()
+                    ? self.config.minDate
+                    : self.config.maxDate &&
+                        self.config.maxDate.getTime() < self.now.getTime()
+                        ? self.config.maxDate
+                        : self.now;
+        self.currentYear = self._initialDate.getFullYear();
+        self.currentMonth = self._initialDate.getMonth();
+        if (self.selectedDates.length > 0)
+            self.latestSelectedDateObj = self.selectedDates[0];
+        if (self.config.minTime !== undefined)
+            self.config.minTime = self.parseDate(self.config.minTime, "H:i");
+        if (self.config.maxTime !== undefined)
+            self.config.maxTime = self.parseDate(self.config.maxTime, "H:i");
+        self.minDateHasTime =
+            !!self.config.minDate &&
+                (self.config.minDate.getHours() > 0 ||
+                    self.config.minDate.getMinutes() > 0 ||
+                    self.config.minDate.getSeconds() > 0);
+        self.maxDateHasTime =
+            !!self.config.maxDate &&
+                (self.config.maxDate.getHours() > 0 ||
+                    self.config.maxDate.getMinutes() > 0 ||
+                    self.config.maxDate.getSeconds() > 0);
+    }
+    function setupInputs() {
+        self.input = getInputElem();
+        if (!self.input) {
+            self.config.errorHandler(new Error("Invalid input element specified"));
+            return;
+        }
+        self.input._type = self.input.type;
+        self.input.type = "text";
+        self.input.classList.add("flatpickr-input");
+        self._input = self.input;
+        if (self.config.altInput) {
+            self.altInput = (0,_utils_dom__WEBPACK_IMPORTED_MODULE_3__.createElement)(self.input.nodeName, self.config.altInputClass);
+            self._input = self.altInput;
+            self.altInput.placeholder = self.input.placeholder;
+            self.altInput.disabled = self.input.disabled;
+            self.altInput.required = self.input.required;
+            self.altInput.tabIndex = self.input.tabIndex;
+            self.altInput.type = "text";
+            self.input.setAttribute("type", "hidden");
+            if (!self.config.static && self.input.parentNode)
+                self.input.parentNode.insertBefore(self.altInput, self.input.nextSibling);
+        }
+        if (!self.config.allowInput)
+            self._input.setAttribute("readonly", "readonly");
+        updatePositionElement();
+    }
+    function updatePositionElement() {
+        self._positionElement = self.config.positionElement || self._input;
+    }
+    function setupMobile() {
+        var inputType = self.config.enableTime
+            ? self.config.noCalendar
+                ? "time"
+                : "datetime-local"
+            : "date";
+        self.mobileInput = (0,_utils_dom__WEBPACK_IMPORTED_MODULE_3__.createElement)("input", self.input.className + " flatpickr-mobile");
+        self.mobileInput.tabIndex = 1;
+        self.mobileInput.type = inputType;
+        self.mobileInput.disabled = self.input.disabled;
+        self.mobileInput.required = self.input.required;
+        self.mobileInput.placeholder = self.input.placeholder;
+        self.mobileFormatStr =
+            inputType === "datetime-local"
+                ? "Y-m-d\\TH:i:S"
+                : inputType === "date"
+                    ? "Y-m-d"
+                    : "H:i:S";
+        if (self.selectedDates.length > 0) {
+            self.mobileInput.defaultValue = self.mobileInput.value = self.formatDate(self.selectedDates[0], self.mobileFormatStr);
+        }
+        if (self.config.minDate)
+            self.mobileInput.min = self.formatDate(self.config.minDate, "Y-m-d");
+        if (self.config.maxDate)
+            self.mobileInput.max = self.formatDate(self.config.maxDate, "Y-m-d");
+        if (self.input.getAttribute("step"))
+            self.mobileInput.step = String(self.input.getAttribute("step"));
+        self.input.type = "hidden";
+        if (self.altInput !== undefined)
+            self.altInput.type = "hidden";
+        try {
+            if (self.input.parentNode)
+                self.input.parentNode.insertBefore(self.mobileInput, self.input.nextSibling);
+        }
+        catch (_a) { }
+        bind(self.mobileInput, "change", function (e) {
+            self.setDate((0,_utils_dom__WEBPACK_IMPORTED_MODULE_3__.getEventTarget)(e).value, false, self.mobileFormatStr);
+            triggerEvent("onChange");
+            triggerEvent("onClose");
+        });
+    }
+    function toggle(e) {
+        if (self.isOpen === true)
+            return self.close();
+        self.open(e);
+    }
+    function triggerEvent(event, data) {
+        if (self.config === undefined)
+            return;
+        var hooks = self.config[event];
+        if (hooks !== undefined && hooks.length > 0) {
+            for (var i = 0; hooks[i] && i < hooks.length; i++)
+                hooks[i](self.selectedDates, self.input.value, self, data);
+        }
+        if (event === "onChange") {
+            self.input.dispatchEvent(createEvent("change"));
+            self.input.dispatchEvent(createEvent("input"));
+        }
+    }
+    function createEvent(name) {
+        var e = document.createEvent("Event");
+        e.initEvent(name, true, true);
+        return e;
+    }
+    function isDateSelected(date) {
+        for (var i = 0; i < self.selectedDates.length; i++) {
+            var selectedDate = self.selectedDates[i];
+            if (selectedDate instanceof Date &&
+                (0,_utils_dates__WEBPACK_IMPORTED_MODULE_4__.compareDates)(selectedDate, date) === 0)
+                return "" + i;
+        }
+        return false;
+    }
+    function isDateInRange(date) {
+        if (self.config.mode !== "range" || self.selectedDates.length < 2)
+            return false;
+        return ((0,_utils_dates__WEBPACK_IMPORTED_MODULE_4__.compareDates)(date, self.selectedDates[0]) >= 0 &&
+            (0,_utils_dates__WEBPACK_IMPORTED_MODULE_4__.compareDates)(date, self.selectedDates[1]) <= 0);
+    }
+    function updateNavigationCurrentMonth() {
+        if (self.config.noCalendar || self.isMobile || !self.monthNav)
+            return;
+        self.yearElements.forEach(function (yearElement, i) {
+            var d = new Date(self.currentYear, self.currentMonth, 1);
+            d.setMonth(self.currentMonth + i);
+            if (self.config.showMonths > 1 ||
+                self.config.monthSelectorType === "static") {
+                self.monthElements[i].textContent =
+                    (0,_utils_formatting__WEBPACK_IMPORTED_MODULE_5__.monthToStr)(d.getMonth(), self.config.shorthandCurrentMonth, self.l10n) + " ";
+            }
+            else {
+                self.monthsDropdownContainer.value = d.getMonth().toString();
+            }
+            yearElement.value = d.getFullYear().toString();
+        });
+        self._hidePrevMonthArrow =
+            self.config.minDate !== undefined &&
+                (self.currentYear === self.config.minDate.getFullYear()
+                    ? self.currentMonth <= self.config.minDate.getMonth()
+                    : self.currentYear < self.config.minDate.getFullYear());
+        self._hideNextMonthArrow =
+            self.config.maxDate !== undefined &&
+                (self.currentYear === self.config.maxDate.getFullYear()
+                    ? self.currentMonth + 1 > self.config.maxDate.getMonth()
+                    : self.currentYear > self.config.maxDate.getFullYear());
+    }
+    function getDateStr(specificFormat) {
+        var format = specificFormat ||
+            (self.config.altInput ? self.config.altFormat : self.config.dateFormat);
+        return self.selectedDates
+            .map(function (dObj) { return self.formatDate(dObj, format); })
+            .filter(function (d, i, arr) {
+            return self.config.mode !== "range" ||
+                self.config.enableTime ||
+                arr.indexOf(d) === i;
+        })
+            .join(self.config.mode !== "range"
+            ? self.config.conjunction
+            : self.l10n.rangeSeparator);
+    }
+    function updateValue(triggerChange) {
+        if (triggerChange === void 0) { triggerChange = true; }
+        if (self.mobileInput !== undefined && self.mobileFormatStr) {
+            self.mobileInput.value =
+                self.latestSelectedDateObj !== undefined
+                    ? self.formatDate(self.latestSelectedDateObj, self.mobileFormatStr)
+                    : "";
+        }
+        self.input.value = getDateStr(self.config.dateFormat);
+        if (self.altInput !== undefined) {
+            self.altInput.value = getDateStr(self.config.altFormat);
+        }
+        if (triggerChange !== false)
+            triggerEvent("onValueUpdate");
+    }
+    function onMonthNavClick(e) {
+        var eventTarget = (0,_utils_dom__WEBPACK_IMPORTED_MODULE_3__.getEventTarget)(e);
+        var isPrevMonth = self.prevMonthNav.contains(eventTarget);
+        var isNextMonth = self.nextMonthNav.contains(eventTarget);
+        if (isPrevMonth || isNextMonth) {
+            changeMonth(isPrevMonth ? -1 : 1);
+        }
+        else if (self.yearElements.indexOf(eventTarget) >= 0) {
+            eventTarget.select();
+        }
+        else if (eventTarget.classList.contains("arrowUp")) {
+            self.changeYear(self.currentYear + 1);
+        }
+        else if (eventTarget.classList.contains("arrowDown")) {
+            self.changeYear(self.currentYear - 1);
+        }
+    }
+    function timeWrapper(e) {
+        e.preventDefault();
+        var isKeyDown = e.type === "keydown", eventTarget = (0,_utils_dom__WEBPACK_IMPORTED_MODULE_3__.getEventTarget)(e), input = eventTarget;
+        if (self.amPM !== undefined && eventTarget === self.amPM) {
+            self.amPM.textContent =
+                self.l10n.amPM[(0,_utils__WEBPACK_IMPORTED_MODULE_2__.int)(self.amPM.textContent === self.l10n.amPM[0])];
+        }
+        var min = parseFloat(input.getAttribute("min")), max = parseFloat(input.getAttribute("max")), step = parseFloat(input.getAttribute("step")), curValue = parseInt(input.value, 10), delta = e.delta ||
+            (isKeyDown ? (e.which === 38 ? 1 : -1) : 0);
+        var newValue = curValue + step * delta;
+        if (typeof input.value !== "undefined" && input.value.length === 2) {
+            var isHourElem = input === self.hourElement, isMinuteElem = input === self.minuteElement;
+            if (newValue < min) {
+                newValue =
+                    max +
+                        newValue +
+                        (0,_utils__WEBPACK_IMPORTED_MODULE_2__.int)(!isHourElem) +
+                        ((0,_utils__WEBPACK_IMPORTED_MODULE_2__.int)(isHourElem) && (0,_utils__WEBPACK_IMPORTED_MODULE_2__.int)(!self.amPM));
+                if (isMinuteElem)
+                    incrementNumInput(undefined, -1, self.hourElement);
+            }
+            else if (newValue > max) {
+                newValue =
+                    input === self.hourElement ? newValue - max - (0,_utils__WEBPACK_IMPORTED_MODULE_2__.int)(!self.amPM) : min;
+                if (isMinuteElem)
+                    incrementNumInput(undefined, 1, self.hourElement);
+            }
+            if (self.amPM &&
+                isHourElem &&
+                (step === 1
+                    ? newValue + curValue === 23
+                    : Math.abs(newValue - curValue) > step)) {
+                self.amPM.textContent =
+                    self.l10n.amPM[(0,_utils__WEBPACK_IMPORTED_MODULE_2__.int)(self.amPM.textContent === self.l10n.amPM[0])];
+            }
+            input.value = (0,_utils__WEBPACK_IMPORTED_MODULE_2__.pad)(newValue);
+        }
+    }
+    init();
+    return self;
+}
+function _flatpickr(nodeList, config) {
+    var nodes = Array.prototype.slice
+        .call(nodeList)
+        .filter(function (x) { return x instanceof HTMLElement; });
+    var instances = [];
+    for (var i = 0; i < nodes.length; i++) {
+        var node = nodes[i];
+        try {
+            if (node.getAttribute("data-fp-omit") !== null)
+                continue;
+            if (node._flatpickr !== undefined) {
+                node._flatpickr.destroy();
+                node._flatpickr = undefined;
+            }
+            node._flatpickr = FlatpickrInstance(node, config || {});
+            instances.push(node._flatpickr);
+        }
+        catch (e) {
+            console.error(e);
+        }
+    }
+    return instances.length === 1 ? instances[0] : instances;
+}
+if (typeof HTMLElement !== "undefined" &&
+    typeof HTMLCollection !== "undefined" &&
+    typeof NodeList !== "undefined") {
+    HTMLCollection.prototype.flatpickr = NodeList.prototype.flatpickr = function (config) {
+        return _flatpickr(this, config);
+    };
+    HTMLElement.prototype.flatpickr = function (config) {
+        return _flatpickr([this], config);
+    };
+}
+var flatpickr = function (selector, config) {
+    if (typeof selector === "string") {
+        return _flatpickr(window.document.querySelectorAll(selector), config);
+    }
+    else if (selector instanceof Node) {
+        return _flatpickr([selector], config);
+    }
+    else {
+        return _flatpickr(selector, config);
+    }
+};
+flatpickr.defaultConfig = {};
+flatpickr.l10ns = {
+    en: __assign({}, _l10n_default__WEBPACK_IMPORTED_MODULE_1__["default"]),
+    default: __assign({}, _l10n_default__WEBPACK_IMPORTED_MODULE_1__["default"]),
+};
+flatpickr.localize = function (l10n) {
+    flatpickr.l10ns.default = __assign(__assign({}, flatpickr.l10ns.default), l10n);
+};
+flatpickr.setDefaults = function (config) {
+    flatpickr.defaultConfig = __assign(__assign({}, flatpickr.defaultConfig), config);
+};
+flatpickr.parseDate = (0,_utils_dates__WEBPACK_IMPORTED_MODULE_4__.createDateParser)({});
+flatpickr.formatDate = (0,_utils_dates__WEBPACK_IMPORTED_MODULE_4__.createDateFormatter)({});
+flatpickr.compareDates = _utils_dates__WEBPACK_IMPORTED_MODULE_4__.compareDates;
+if (typeof jQuery !== "undefined" && typeof jQuery.fn !== "undefined") {
+    jQuery.fn.flatpickr = function (config) {
+        return _flatpickr(this, config);
+    };
+}
+Date.prototype.fp_incr = function (days) {
+    return new Date(this.getFullYear(), this.getMonth(), this.getDate() + (typeof days === "string" ? parseInt(days, 10) : days));
+};
+if (typeof window !== "undefined") {
+    window.flatpickr = flatpickr;
+}
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (flatpickr);
+
+
+/***/ }),
+
+/***/ "./node_modules/flatpickr/dist/esm/l10n/default.js":
+/*!*********************************************************!*\
+  !*** ./node_modules/flatpickr/dist/esm/l10n/default.js ***!
+  \*********************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "english": () => (/* binding */ english),
+/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+var english = {
+    weekdays: {
+        shorthand: ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
+        longhand: [
+            "Sunday",
+            "Monday",
+            "Tuesday",
+            "Wednesday",
+            "Thursday",
+            "Friday",
+            "Saturday",
+        ],
+    },
+    months: {
+        shorthand: [
+            "Jan",
+            "Feb",
+            "Mar",
+            "Apr",
+            "May",
+            "Jun",
+            "Jul",
+            "Aug",
+            "Sep",
+            "Oct",
+            "Nov",
+            "Dec",
+        ],
+        longhand: [
+            "January",
+            "February",
+            "March",
+            "April",
+            "May",
+            "June",
+            "July",
+            "August",
+            "September",
+            "October",
+            "November",
+            "December",
+        ],
+    },
+    daysInMonth: [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31],
+    firstDayOfWeek: 0,
+    ordinal: function (nth) {
+        var s = nth % 100;
+        if (s > 3 && s < 21)
+            return "th";
+        switch (s % 10) {
+            case 1:
+                return "st";
+            case 2:
+                return "nd";
+            case 3:
+                return "rd";
+            default:
+                return "th";
+        }
+    },
+    rangeSeparator: " to ",
+    weekAbbreviation: "Wk",
+    scrollTitle: "Scroll to increment",
+    toggleTitle: "Click to toggle",
+    amPM: ["AM", "PM"],
+    yearAriaLabel: "Year",
+    monthAriaLabel: "Month",
+    hourAriaLabel: "Hour",
+    minuteAriaLabel: "Minute",
+    time_24hr: false,
+};
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (english);
+
+
+/***/ }),
+
+/***/ "./node_modules/flatpickr/dist/esm/types/options.js":
+/*!**********************************************************!*\
+  !*** ./node_modules/flatpickr/dist/esm/types/options.js ***!
+  \**********************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "HOOKS": () => (/* binding */ HOOKS),
+/* harmony export */   "defaults": () => (/* binding */ defaults)
+/* harmony export */ });
+var HOOKS = [
+    "onChange",
+    "onClose",
+    "onDayCreate",
+    "onDestroy",
+    "onKeyDown",
+    "onMonthChange",
+    "onOpen",
+    "onParseConfig",
+    "onReady",
+    "onValueUpdate",
+    "onYearChange",
+    "onPreCalendarPosition",
+];
+var defaults = {
+    _disable: [],
+    allowInput: false,
+    allowInvalidPreload: false,
+    altFormat: "F j, Y",
+    altInput: false,
+    altInputClass: "form-control input",
+    animate: typeof window === "object" &&
+        window.navigator.userAgent.indexOf("MSIE") === -1,
+    ariaDateFormat: "F j, Y",
+    autoFillDefaultTime: true,
+    clickOpens: true,
+    closeOnSelect: true,
+    conjunction: ", ",
+    dateFormat: "Y-m-d",
+    defaultHour: 12,
+    defaultMinute: 0,
+    defaultSeconds: 0,
+    disable: [],
+    disableMobile: false,
+    enableSeconds: false,
+    enableTime: false,
+    errorHandler: function (err) {
+        return typeof console !== "undefined" && console.warn(err);
+    },
+    getWeek: function (givenDate) {
+        var date = new Date(givenDate.getTime());
+        date.setHours(0, 0, 0, 0);
+        date.setDate(date.getDate() + 3 - ((date.getDay() + 6) % 7));
+        var week1 = new Date(date.getFullYear(), 0, 4);
+        return (1 +
+            Math.round(((date.getTime() - week1.getTime()) / 86400000 -
+                3 +
+                ((week1.getDay() + 6) % 7)) /
+                7));
+    },
+    hourIncrement: 1,
+    ignoredFocusElements: [],
+    inline: false,
+    locale: "default",
+    minuteIncrement: 5,
+    mode: "single",
+    monthSelectorType: "dropdown",
+    nextArrow: "<svg version='1.1' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' viewBox='0 0 17 17'><g></g><path d='M13.207 8.472l-7.854 7.854-0.707-0.707 7.146-7.146-7.146-7.148 0.707-0.707 7.854 7.854z' /></svg>",
+    noCalendar: false,
+    now: new Date(),
+    onChange: [],
+    onClose: [],
+    onDayCreate: [],
+    onDestroy: [],
+    onKeyDown: [],
+    onMonthChange: [],
+    onOpen: [],
+    onParseConfig: [],
+    onReady: [],
+    onValueUpdate: [],
+    onYearChange: [],
+    onPreCalendarPosition: [],
+    plugins: [],
+    position: "auto",
+    positionElement: undefined,
+    prevArrow: "<svg version='1.1' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' viewBox='0 0 17 17'><g></g><path d='M5.207 8.471l7.146 7.147-0.707 0.707-7.853-7.854 7.854-7.853 0.707 0.707-7.147 7.146z' /></svg>",
+    shorthandCurrentMonth: false,
+    showMonths: 1,
+    static: false,
+    time_24hr: false,
+    weekNumbers: false,
+    wrap: false,
+};
+
+
+/***/ }),
+
+/***/ "./node_modules/flatpickr/dist/esm/utils/dates.js":
+/*!********************************************************!*\
+  !*** ./node_modules/flatpickr/dist/esm/utils/dates.js ***!
+  \********************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "createDateFormatter": () => (/* binding */ createDateFormatter),
+/* harmony export */   "createDateParser": () => (/* binding */ createDateParser),
+/* harmony export */   "compareDates": () => (/* binding */ compareDates),
+/* harmony export */   "compareTimes": () => (/* binding */ compareTimes),
+/* harmony export */   "isBetween": () => (/* binding */ isBetween),
+/* harmony export */   "calculateSecondsSinceMidnight": () => (/* binding */ calculateSecondsSinceMidnight),
+/* harmony export */   "parseSeconds": () => (/* binding */ parseSeconds),
+/* harmony export */   "duration": () => (/* binding */ duration),
+/* harmony export */   "getDefaultHours": () => (/* binding */ getDefaultHours)
+/* harmony export */ });
+/* harmony import */ var _formatting__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./formatting */ "./node_modules/flatpickr/dist/esm/utils/formatting.js");
+/* harmony import */ var _types_options__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../types/options */ "./node_modules/flatpickr/dist/esm/types/options.js");
+/* harmony import */ var _l10n_default__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../l10n/default */ "./node_modules/flatpickr/dist/esm/l10n/default.js");
+
+
+
+var createDateFormatter = function (_a) {
+    var _b = _a.config, config = _b === void 0 ? _types_options__WEBPACK_IMPORTED_MODULE_1__.defaults : _b, _c = _a.l10n, l10n = _c === void 0 ? _l10n_default__WEBPACK_IMPORTED_MODULE_2__.english : _c, _d = _a.isMobile, isMobile = _d === void 0 ? false : _d;
+    return function (dateObj, frmt, overrideLocale) {
+        var locale = overrideLocale || l10n;
+        if (config.formatDate !== undefined && !isMobile) {
+            return config.formatDate(dateObj, frmt, locale);
+        }
+        return frmt
+            .split("")
+            .map(function (c, i, arr) {
+            return _formatting__WEBPACK_IMPORTED_MODULE_0__.formats[c] && arr[i - 1] !== "\\"
+                ? _formatting__WEBPACK_IMPORTED_MODULE_0__.formats[c](dateObj, locale, config)
+                : c !== "\\"
+                    ? c
+                    : "";
+        })
+            .join("");
+    };
+};
+var createDateParser = function (_a) {
+    var _b = _a.config, config = _b === void 0 ? _types_options__WEBPACK_IMPORTED_MODULE_1__.defaults : _b, _c = _a.l10n, l10n = _c === void 0 ? _l10n_default__WEBPACK_IMPORTED_MODULE_2__.english : _c;
+    return function (date, givenFormat, timeless, customLocale) {
+        if (date !== 0 && !date)
+            return undefined;
+        var locale = customLocale || l10n;
+        var parsedDate;
+        var dateOrig = date;
+        if (date instanceof Date)
+            parsedDate = new Date(date.getTime());
+        else if (typeof date !== "string" &&
+            date.toFixed !== undefined)
+            parsedDate = new Date(date);
+        else if (typeof date === "string") {
+            var format = givenFormat || (config || _types_options__WEBPACK_IMPORTED_MODULE_1__.defaults).dateFormat;
+            var datestr = String(date).trim();
+            if (datestr === "today") {
+                parsedDate = new Date();
+                timeless = true;
+            }
+            else if (config && config.parseDate) {
+                parsedDate = config.parseDate(date, format);
+            }
+            else if (/Z$/.test(datestr) ||
+                /GMT$/.test(datestr)) {
+                parsedDate = new Date(date);
+            }
+            else {
+                var matched = void 0, ops = [];
+                for (var i = 0, matchIndex = 0, regexStr = ""; i < format.length; i++) {
+                    var token = format[i];
+                    var isBackSlash = token === "\\";
+                    var escaped = format[i - 1] === "\\" || isBackSlash;
+                    if (_formatting__WEBPACK_IMPORTED_MODULE_0__.tokenRegex[token] && !escaped) {
+                        regexStr += _formatting__WEBPACK_IMPORTED_MODULE_0__.tokenRegex[token];
+                        var match = new RegExp(regexStr).exec(date);
+                        if (match && (matched = true)) {
+                            ops[token !== "Y" ? "push" : "unshift"]({
+                                fn: _formatting__WEBPACK_IMPORTED_MODULE_0__.revFormat[token],
+                                val: match[++matchIndex],
+                            });
+                        }
+                    }
+                    else if (!isBackSlash)
+                        regexStr += ".";
+                }
+                parsedDate =
+                    !config || !config.noCalendar
+                        ? new Date(new Date().getFullYear(), 0, 1, 0, 0, 0, 0)
+                        : new Date(new Date().setHours(0, 0, 0, 0));
+                ops.forEach(function (_a) {
+                    var fn = _a.fn, val = _a.val;
+                    return (parsedDate = fn(parsedDate, val, locale) || parsedDate);
+                });
+                parsedDate = matched ? parsedDate : undefined;
+            }
+        }
+        if (!(parsedDate instanceof Date && !isNaN(parsedDate.getTime()))) {
+            config.errorHandler(new Error("Invalid date provided: " + dateOrig));
+            return undefined;
+        }
+        if (timeless === true)
+            parsedDate.setHours(0, 0, 0, 0);
+        return parsedDate;
+    };
+};
+function compareDates(date1, date2, timeless) {
+    if (timeless === void 0) { timeless = true; }
+    if (timeless !== false) {
+        return (new Date(date1.getTime()).setHours(0, 0, 0, 0) -
+            new Date(date2.getTime()).setHours(0, 0, 0, 0));
+    }
+    return date1.getTime() - date2.getTime();
+}
+function compareTimes(date1, date2) {
+    return (3600 * (date1.getHours() - date2.getHours()) +
+        60 * (date1.getMinutes() - date2.getMinutes()) +
+        date1.getSeconds() -
+        date2.getSeconds());
+}
+var isBetween = function (ts, ts1, ts2) {
+    return ts > Math.min(ts1, ts2) && ts < Math.max(ts1, ts2);
+};
+var calculateSecondsSinceMidnight = function (hours, minutes, seconds) {
+    return hours * 3600 + minutes * 60 + seconds;
+};
+var parseSeconds = function (secondsSinceMidnight) {
+    var hours = Math.floor(secondsSinceMidnight / 3600), minutes = (secondsSinceMidnight - hours * 3600) / 60;
+    return [hours, minutes, secondsSinceMidnight - hours * 3600 - minutes * 60];
+};
+var duration = {
+    DAY: 86400000,
+};
+function getDefaultHours(config) {
+    var hours = config.defaultHour;
+    var minutes = config.defaultMinute;
+    var seconds = config.defaultSeconds;
+    if (config.minDate !== undefined) {
+        var minHour = config.minDate.getHours();
+        var minMinutes = config.minDate.getMinutes();
+        var minSeconds = config.minDate.getSeconds();
+        if (hours < minHour) {
+            hours = minHour;
+        }
+        if (hours === minHour && minutes < minMinutes) {
+            minutes = minMinutes;
+        }
+        if (hours === minHour && minutes === minMinutes && seconds < minSeconds)
+            seconds = config.minDate.getSeconds();
+    }
+    if (config.maxDate !== undefined) {
+        var maxHr = config.maxDate.getHours();
+        var maxMinutes = config.maxDate.getMinutes();
+        hours = Math.min(hours, maxHr);
+        if (hours === maxHr)
+            minutes = Math.min(maxMinutes, minutes);
+        if (hours === maxHr && minutes === maxMinutes)
+            seconds = config.maxDate.getSeconds();
+    }
+    return { hours: hours, minutes: minutes, seconds: seconds };
+}
+
+
+/***/ }),
+
+/***/ "./node_modules/flatpickr/dist/esm/utils/dom.js":
+/*!******************************************************!*\
+  !*** ./node_modules/flatpickr/dist/esm/utils/dom.js ***!
+  \******************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "toggleClass": () => (/* binding */ toggleClass),
+/* harmony export */   "createElement": () => (/* binding */ createElement),
+/* harmony export */   "clearNode": () => (/* binding */ clearNode),
+/* harmony export */   "findParent": () => (/* binding */ findParent),
+/* harmony export */   "createNumberInput": () => (/* binding */ createNumberInput),
+/* harmony export */   "getEventTarget": () => (/* binding */ getEventTarget)
+/* harmony export */ });
+function toggleClass(elem, className, bool) {
+    if (bool === true)
+        return elem.classList.add(className);
+    elem.classList.remove(className);
+}
+function createElement(tag, className, content) {
+    var e = window.document.createElement(tag);
+    className = className || "";
+    content = content || "";
+    e.className = className;
+    if (content !== undefined)
+        e.textContent = content;
+    return e;
+}
+function clearNode(node) {
+    while (node.firstChild)
+        node.removeChild(node.firstChild);
+}
+function findParent(node, condition) {
+    if (condition(node))
+        return node;
+    else if (node.parentNode)
+        return findParent(node.parentNode, condition);
+    return undefined;
+}
+function createNumberInput(inputClassName, opts) {
+    var wrapper = createElement("div", "numInputWrapper"), numInput = createElement("input", "numInput " + inputClassName), arrowUp = createElement("span", "arrowUp"), arrowDown = createElement("span", "arrowDown");
+    if (navigator.userAgent.indexOf("MSIE 9.0") === -1) {
+        numInput.type = "number";
+    }
+    else {
+        numInput.type = "text";
+        numInput.pattern = "\\d*";
+    }
+    if (opts !== undefined)
+        for (var key in opts)
+            numInput.setAttribute(key, opts[key]);
+    wrapper.appendChild(numInput);
+    wrapper.appendChild(arrowUp);
+    wrapper.appendChild(arrowDown);
+    return wrapper;
+}
+function getEventTarget(event) {
+    try {
+        if (typeof event.composedPath === "function") {
+            var path = event.composedPath();
+            return path[0];
+        }
+        return event.target;
+    }
+    catch (error) {
+        return event.target;
+    }
+}
+
+
+/***/ }),
+
+/***/ "./node_modules/flatpickr/dist/esm/utils/formatting.js":
+/*!*************************************************************!*\
+  !*** ./node_modules/flatpickr/dist/esm/utils/formatting.js ***!
+  \*************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "monthToStr": () => (/* binding */ monthToStr),
+/* harmony export */   "revFormat": () => (/* binding */ revFormat),
+/* harmony export */   "tokenRegex": () => (/* binding */ tokenRegex),
+/* harmony export */   "formats": () => (/* binding */ formats)
+/* harmony export */ });
+/* harmony import */ var _utils__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../utils */ "./node_modules/flatpickr/dist/esm/utils/index.js");
+
+var doNothing = function () { return undefined; };
+var monthToStr = function (monthNumber, shorthand, locale) { return locale.months[shorthand ? "shorthand" : "longhand"][monthNumber]; };
+var revFormat = {
+    D: doNothing,
+    F: function (dateObj, monthName, locale) {
+        dateObj.setMonth(locale.months.longhand.indexOf(monthName));
+    },
+    G: function (dateObj, hour) {
+        dateObj.setHours((dateObj.getHours() >= 12 ? 12 : 0) + parseFloat(hour));
+    },
+    H: function (dateObj, hour) {
+        dateObj.setHours(parseFloat(hour));
+    },
+    J: function (dateObj, day) {
+        dateObj.setDate(parseFloat(day));
+    },
+    K: function (dateObj, amPM, locale) {
+        dateObj.setHours((dateObj.getHours() % 12) +
+            12 * (0,_utils__WEBPACK_IMPORTED_MODULE_0__.int)(new RegExp(locale.amPM[1], "i").test(amPM)));
+    },
+    M: function (dateObj, shortMonth, locale) {
+        dateObj.setMonth(locale.months.shorthand.indexOf(shortMonth));
+    },
+    S: function (dateObj, seconds) {
+        dateObj.setSeconds(parseFloat(seconds));
+    },
+    U: function (_, unixSeconds) { return new Date(parseFloat(unixSeconds) * 1000); },
+    W: function (dateObj, weekNum, locale) {
+        var weekNumber = parseInt(weekNum);
+        var date = new Date(dateObj.getFullYear(), 0, 2 + (weekNumber - 1) * 7, 0, 0, 0, 0);
+        date.setDate(date.getDate() - date.getDay() + locale.firstDayOfWeek);
+        return date;
+    },
+    Y: function (dateObj, year) {
+        dateObj.setFullYear(parseFloat(year));
+    },
+    Z: function (_, ISODate) { return new Date(ISODate); },
+    d: function (dateObj, day) {
+        dateObj.setDate(parseFloat(day));
+    },
+    h: function (dateObj, hour) {
+        dateObj.setHours((dateObj.getHours() >= 12 ? 12 : 0) + parseFloat(hour));
+    },
+    i: function (dateObj, minutes) {
+        dateObj.setMinutes(parseFloat(minutes));
+    },
+    j: function (dateObj, day) {
+        dateObj.setDate(parseFloat(day));
+    },
+    l: doNothing,
+    m: function (dateObj, month) {
+        dateObj.setMonth(parseFloat(month) - 1);
+    },
+    n: function (dateObj, month) {
+        dateObj.setMonth(parseFloat(month) - 1);
+    },
+    s: function (dateObj, seconds) {
+        dateObj.setSeconds(parseFloat(seconds));
+    },
+    u: function (_, unixMillSeconds) {
+        return new Date(parseFloat(unixMillSeconds));
+    },
+    w: doNothing,
+    y: function (dateObj, year) {
+        dateObj.setFullYear(2000 + parseFloat(year));
+    },
+};
+var tokenRegex = {
+    D: "",
+    F: "",
+    G: "(\\d\\d|\\d)",
+    H: "(\\d\\d|\\d)",
+    J: "(\\d\\d|\\d)\\w+",
+    K: "",
+    M: "",
+    S: "(\\d\\d|\\d)",
+    U: "(.+)",
+    W: "(\\d\\d|\\d)",
+    Y: "(\\d{4})",
+    Z: "(.+)",
+    d: "(\\d\\d|\\d)",
+    h: "(\\d\\d|\\d)",
+    i: "(\\d\\d|\\d)",
+    j: "(\\d\\d|\\d)",
+    l: "",
+    m: "(\\d\\d|\\d)",
+    n: "(\\d\\d|\\d)",
+    s: "(\\d\\d|\\d)",
+    u: "(.+)",
+    w: "(\\d\\d|\\d)",
+    y: "(\\d{2})",
+};
+var formats = {
+    Z: function (date) { return date.toISOString(); },
+    D: function (date, locale, options) {
+        return locale.weekdays.shorthand[formats.w(date, locale, options)];
+    },
+    F: function (date, locale, options) {
+        return monthToStr(formats.n(date, locale, options) - 1, false, locale);
+    },
+    G: function (date, locale, options) {
+        return (0,_utils__WEBPACK_IMPORTED_MODULE_0__.pad)(formats.h(date, locale, options));
+    },
+    H: function (date) { return (0,_utils__WEBPACK_IMPORTED_MODULE_0__.pad)(date.getHours()); },
+    J: function (date, locale) {
+        return locale.ordinal !== undefined
+            ? date.getDate() + locale.ordinal(date.getDate())
+            : date.getDate();
+    },
+    K: function (date, locale) { return locale.amPM[(0,_utils__WEBPACK_IMPORTED_MODULE_0__.int)(date.getHours() > 11)]; },
+    M: function (date, locale) {
+        return monthToStr(date.getMonth(), true, locale);
+    },
+    S: function (date) { return (0,_utils__WEBPACK_IMPORTED_MODULE_0__.pad)(date.getSeconds()); },
+    U: function (date) { return date.getTime() / 1000; },
+    W: function (date, _, options) {
+        return options.getWeek(date);
+    },
+    Y: function (date) { return (0,_utils__WEBPACK_IMPORTED_MODULE_0__.pad)(date.getFullYear(), 4); },
+    d: function (date) { return (0,_utils__WEBPACK_IMPORTED_MODULE_0__.pad)(date.getDate()); },
+    h: function (date) { return (date.getHours() % 12 ? date.getHours() % 12 : 12); },
+    i: function (date) { return (0,_utils__WEBPACK_IMPORTED_MODULE_0__.pad)(date.getMinutes()); },
+    j: function (date) { return date.getDate(); },
+    l: function (date, locale) {
+        return locale.weekdays.longhand[date.getDay()];
+    },
+    m: function (date) { return (0,_utils__WEBPACK_IMPORTED_MODULE_0__.pad)(date.getMonth() + 1); },
+    n: function (date) { return date.getMonth() + 1; },
+    s: function (date) { return date.getSeconds(); },
+    u: function (date) { return date.getTime(); },
+    w: function (date) { return date.getDay(); },
+    y: function (date) { return String(date.getFullYear()).substring(2); },
+};
+
+
+/***/ }),
+
+/***/ "./node_modules/flatpickr/dist/esm/utils/index.js":
+/*!********************************************************!*\
+  !*** ./node_modules/flatpickr/dist/esm/utils/index.js ***!
+  \********************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "pad": () => (/* binding */ pad),
+/* harmony export */   "int": () => (/* binding */ int),
+/* harmony export */   "debounce": () => (/* binding */ debounce),
+/* harmony export */   "arrayify": () => (/* binding */ arrayify)
+/* harmony export */ });
+var pad = function (number, length) {
+    if (length === void 0) { length = 2; }
+    return ("000" + number).slice(length * -1);
+};
+var int = function (bool) { return (bool === true ? 1 : 0); };
+function debounce(fn, wait) {
+    var t;
+    return function () {
+        var _this = this;
+        var args = arguments;
+        clearTimeout(t);
+        t = setTimeout(function () { return fn.apply(_this, args); }, wait);
+    };
+}
+var arrayify = function (obj) {
+    return obj instanceof Array ? obj : [obj];
+};
+
+
+/***/ }),
+
+/***/ "./node_modules/flatpickr/dist/esm/utils/polyfills.js":
+/*!************************************************************!*\
+  !*** ./node_modules/flatpickr/dist/esm/utils/polyfills.js ***!
+  \************************************************************/
+/***/ (() => {
+
+"use strict";
+
+if (typeof Object.assign !== "function") {
+    Object.assign = function (target) {
+        var args = [];
+        for (var _i = 1; _i < arguments.length; _i++) {
+            args[_i - 1] = arguments[_i];
+        }
+        if (!target) {
+            throw TypeError("Cannot convert undefined or null to object");
+        }
+        var _loop_1 = function (source) {
+            if (source) {
+                Object.keys(source).forEach(function (key) { return (target[key] = source[key]); });
+            }
+        };
+        for (var _a = 0, args_1 = args; _a < args_1.length; _a++) {
+            var source = args_1[_a];
+            _loop_1(source);
+        }
+        return target;
+    };
+}
+
+
+/***/ }),
+
+/***/ "./node_modules/flatpickr/dist/l10n/nl.js":
+/*!************************************************!*\
+  !*** ./node_modules/flatpickr/dist/l10n/nl.js ***!
+  \************************************************/
+/***/ (function(__unused_webpack_module, exports) {
+
+(function (global, factory) {
+   true ? factory(exports) :
+  0;
+}(this, (function (exports) { 'use strict';
+
+  var fp = typeof window !== "undefined" && window.flatpickr !== undefined
+      ? window.flatpickr
+      : {
+          l10ns: {},
+      };
+  var Dutch = {
+      weekdays: {
+          shorthand: ["zo", "ma", "di", "wo", "do", "vr", "za"],
+          longhand: [
+              "zondag",
+              "maandag",
+              "dinsdag",
+              "woensdag",
+              "donderdag",
+              "vrijdag",
+              "zaterdag",
+          ],
+      },
+      months: {
+          shorthand: [
+              "jan",
+              "feb",
+              "mrt",
+              "apr",
+              "mei",
+              "jun",
+              "jul",
+              "aug",
+              "sept",
+              "okt",
+              "nov",
+              "dec",
+          ],
+          longhand: [
+              "januari",
+              "februari",
+              "maart",
+              "april",
+              "mei",
+              "juni",
+              "juli",
+              "augustus",
+              "september",
+              "oktober",
+              "november",
+              "december",
+          ],
+      },
+      firstDayOfWeek: 1,
+      weekAbbreviation: "wk",
+      rangeSeparator: " t/m ",
+      scrollTitle: "Scroll voor volgende / vorige",
+      toggleTitle: "Klik om te wisselen",
+      time_24hr: true,
+      ordinal: function (nth) {
+          if (nth === 1 || nth === 8 || nth >= 20)
+              return "ste";
+          return "de";
+      },
+  };
+  fp.l10ns.nl = Dutch;
+  var nl = fp.l10ns;
+
+  exports.Dutch = Dutch;
+  exports.default = nl;
+
+  Object.defineProperty(exports, '__esModule', { value: true });
+
+})));
 
 
 /***/ }),

@@ -4,6 +4,7 @@
 namespace tcCore\Http\Traits;
 
 
+use Illuminate\Support\Facades\Auth;
 use tcCore\Answer;
 use tcCore\Attachment;
 
@@ -174,6 +175,9 @@ trait WithAttachments
 
         if ($this->attachmentType == 'audio') {
             return 'w-3/4 h-1/2';
+        }
+        if ($this->attachmentType == 'pdf'&&(!is_null(Auth::user())&&Auth::user()->text2speech)) {
+            return 'w-5/6 lg:w-5/6 h-[80vh]';
         }
         if ($this->attachmentType == 'pdf') {
             return 'w-5/6 lg:w-4/6 h-[80vh]';

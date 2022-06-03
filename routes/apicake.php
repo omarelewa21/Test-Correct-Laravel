@@ -53,6 +53,9 @@ Route::group(['middleware' => ['api', 'bindings']], function() {
 });
 
 Route::group(['middleware' => ['api', 'dl', 'authorize', 'authorizeBinds', 'bindings']], function(){
+    Route::post('/default_subjects_and_sections/import',[\tcCore\Http\Controllers\DefaultSubjectsAndSectionsController::class,'import'])->name('defaultSubjectsAndSections.import');
+    Route::post('/school_school_locations/import',[\tcCore\Http\Controllers\SchoolAndSchoolLocationsImportController::class,'import'])->name('schoolAndSchoolLocations.import');
+
     Route::post('/temporary-login',[tcCore\Http\Controllers\TemporaryLoginController::class,'create'])->name('auth.temporary-login.create');
 
     Route::get('info/{info}',[tcCore\Http\Controllers\InfoController::class,'show']);
@@ -169,6 +172,7 @@ Route::group(['middleware' => ['api', 'dl', 'authorize', 'authorizeBinds', 'bind
 	Route::put('test_take/{test_take}/un-archive','TestTakesController@unarchive')->name('test_take.un_archive');
 
 	Route::post('test/{test}/with_temporary_login',  'TestsController@withTemporaryLogin')->name('test.with_short_code');
+    Route::post('test/answer_model/{test}/with_temporary_login',  'TestsController@answerModelwithTemporaryLogin')->name('test_answer_model.with_short_code');
 	Route::post('test_take/{test_take}/with_temporary_login',  'TestTakesController@withTemporaryLogin')->name('test_take.with_short_code');
 
 	// Test take children
@@ -254,7 +258,7 @@ Route::group(['middleware' => ['api', 'dl', 'authorize', 'authorizeBinds', 'bind
 
     Route::get('question/inlineimage/{image}',['uses' => 'QuestionsController@inlineimage']);
     Route::get('/drawing-question/{answerUuid}/given-answer-png', [tcCore\Http\Controllers\QuestionsController::class, 'getDrawingQuestionGivenAnswerPng'])->name('api-c.drawing-question.givenanswerpng');
-    Route::get('/drawing-question/{drawingQuestion}/correction-model', [tcCore\Http\Controllers\QuestionsController::class, 'drawingQuestionSvg'])->name('api-c.drawing-question.correction-model');
+    Route::get('/drawing-question/{drawingQuestion}/correction-model', [tcCore\Http\Controllers\QuestionsController::class, 'drawingQuestionCorrectionModelPng'])->name('api-c.drawing-question.correction-model');
 
     Route::resource('attainment', 'AttainmentsController', ['only' => ['index', 'show']]);
 
@@ -389,6 +393,7 @@ Route::group(['middleware' => ['api', 'dl', 'authorize', 'authorizeBinds', 'bind
     Route::put('test_take/{test_take}/toggle_inbrowser_testing_for_all_participants','TestTakesController@toggleInbrowserTestingForAllParticipants')->name('test_takes.toggle_inbrowser_testing_for_all_participants');
 
     Route::post('/convert/html/pdf','PdfController@HtmlToPdf')->name('convert.htmltopdf');
+    Route::get('/convert/settings/{setting}','PdfController@getSetting')->name('convert.getSetting');
 
     Route::put('support/register_take_over/{user}','SupportTakeOverLogController@store')->name('support_take_over_log.store');
     Route::get('support/show/{user}','SupportTakeOverLogController@show')->name('support_take_over_log.show');

@@ -4,11 +4,13 @@ namespace tcCore\Http\Livewire\Teacher\Questions;
 
 use Ramsey\Uuid\Uuid;
 use tcCore\GroupQuestionQuestion;
+use tcCore\Http\Traits\WithCmsCustomRulesHandling;
 use tcCore\MultipleChoiceQuestion;
 use tcCore\TestQuestion;
 
 class CmsArq
 {
+    use WithCmsCustomRulesHandling;
 
     private $instance;
     public $requiresAnswer = true;
@@ -19,7 +21,7 @@ class CmsArq
 
         if ($this->instance->action == 'edit') {
             $this->setAnswerStruct();
-        } elseif(!array_key_exists('answerStruct', $this->instance->cmsPropertyBag)) {
+        } elseif (!array_key_exists('answerStruct', $this->instance->cmsPropertyBag)) {
             $this->instance->cmsPropertyBag['answerStruct'] = [];
         }
 
@@ -34,9 +36,9 @@ class CmsArq
     {
         $rules +=
             [
-                'question.answers'          => 'required|array|min:5|max:5',
-                'question.answers.*.score'  => 'required|integer',
-                'question.score'            => 'required|integer|min:1',
+                'question.answers'         => 'required|array|min:5|max:5',
+                'question.answers.*.score' => 'required|integer',
+                'question.score'           => 'required|integer|min:1',
 
             ];
 
@@ -55,12 +57,10 @@ class CmsArq
 
     public function prepareForSave()
     {
-        $this->instance->question['answers'] = array_values(collect($this->instance->cmsPropertyBag['answerStruct'])->map(function (
-            $answer
-        ) {
+        $this->instance->question['answers'] = array_values(collect($this->instance->cmsPropertyBag['answerStruct'])->map(function ($answer) {
             return [
                 'answer' => '',
-                'score'  => (string) $answer['score'], // needs to be a string in order to validate and be saved
+                'score'  => (string)$answer['score'], // needs to be a string in order to validate and be saved
             ];
         })->toArray());
 
@@ -72,22 +72,22 @@ class CmsArq
     {
         $result = [];
 
-        if(count($this->instance->cmsPropertyBag['answerStruct'])) {
+        if (count($this->instance->cmsPropertyBag['answerStruct'])) {
             collect($this->instance->cmsPropertyBag['answerStruct'])->each(function ($value, $key) use (&$result) {
                 $value = (array)$value;
 
                 $result[] = [
-                    'id' => $value['id'],
+                    'id'     => $value['id'],
                     'answer' => '',
-                    'score' => (int)$value['score']
+                    'score'  => (int)$value['score']
                 ];
             })->toArray();
         } else {
 
             for ($i = 0; $i < 5; $i++) {
                 $result[] = [
-                    'id' => Uuid::uuid4(),
-                    'score' => 0,
+                    'id'     => Uuid::uuid4(),
+                    'score'  => 0,
                     'answer' => ''
                 ];
             }
@@ -112,11 +112,10 @@ class CmsArq
         if (empty($this->instance->cmsPropertyBag['answerStruct'])) {
             if ($this->instance->isPartOfGroupQuestion()) {
                 $tq = GroupQuestionQuestion::whereUuid($this->instance->groupQuestionQuestionId)->first();
-                $q = $tq->question;
             } else {
                 $tq = TestQuestion::whereUuid($this->instance->testQuestionId)->first();
-                $q = $tq->question;
             }
+            $q = $tq->question;
 
             $this->instance->cmsPropertyBag['answerStruct'] = $q->multipleChoiceQuestionAnswers->map(function ($answer, $key) {
                 return [
