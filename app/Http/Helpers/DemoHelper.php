@@ -415,7 +415,7 @@ class DemoHelper
         return $return;
     }
 
-    protected function getTestNameForTeacher(Teacher $teacher = null, User $user = null)
+    public function getTestNameForTeacher(Teacher $teacher = null, User $user = null)
     {
         if ($teacher === null && $user === null) {
             throw new \Exception('There needs to be a teacher or user to get the name of the test');
