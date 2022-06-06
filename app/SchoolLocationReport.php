@@ -29,7 +29,7 @@ class SchoolLocationReport extends Model
             SchoolLocationReport::truncate();
         }
 
-        SchoolLocation::where('keep_out_of_school_location_report',true)->get()->each(function (SchoolLocation $l) {
+        SchoolLocation::where('keep_out_of_school_location_report',false)->get()->each(function (SchoolLocation $l) {
             dispatch((new UpdateSchoolLocationReportRecord($l)));
             // self::updateLocationStats($l);
         });
