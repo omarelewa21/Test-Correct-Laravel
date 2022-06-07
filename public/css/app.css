@@ -5685,6 +5685,9 @@ video {
 .h-16{
 	height: 4rem;
 }
+.h-4{
+	height: 1rem;
+}
 .h-\[45vw\]{
 	height: 45vw;
 }
@@ -5717,9 +5720,6 @@ video {
 }
 .h-3{
 	height: 0.75rem;
-}
-.h-4{
-	height: 1rem;
 }
 .h-screen{
 	height: 100vh;
@@ -6779,6 +6779,10 @@ video {
 .py-\[70px\]{
 	padding-top: 70px;
 	padding-bottom: 70px;
+}
+.\!px-2{
+	padding-left: 0.5rem !important;
+	padding-right: 0.5rem !important;
 }
 .pt-4{
 	padding-top: 1rem;
@@ -8268,6 +8272,12 @@ ul ul ul {
 	.sm\:px-10{
 		padding-left: 2.5rem;
 		padding-right: 2.5rem;
+	}
+
+
+	.sm\:px-5{
+		padding-left: 1.25rem;
+		padding-right: 1.25rem;
 	}
 
 
