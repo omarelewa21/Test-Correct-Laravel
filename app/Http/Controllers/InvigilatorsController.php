@@ -20,6 +20,16 @@ class InvigilatorsController extends Controller
      */
     public function lists()
     {
+        $result = self::getInvigilatorList();
+        if ($result === false) {
+            return Response::make('User not attached to school or school location', 403);
+        }
+
+        return Response::make($result);
+    }
+
+    public static function getInvigilatorList()
+    {
         $fields = ['id', 'name_first', 'name_suffix', 'name'];
 
         $query = User::withTrashed()->orderBy('name', 'asc')
@@ -46,7 +56,7 @@ class InvigilatorsController extends Controller
         } elseif (array_key_exists('school_location_id', $user) && $user['school_location_id'] !== null) {
             $query->where('school_location_id', $user['school_location_id']);
         } else {
-            return Response::make('User not attached to school or school location', 403);
+            return false;
         }
 
         $query->union(User::select($fields)->join(with(new UserRole())->getTable(), 'user_roles.user_id', '=',
@@ -55,7 +65,7 @@ class InvigilatorsController extends Controller
                 DB::table('school_location_user')->select('user_id')->where('school_location_id', $user['school_location_id']))
         );
 
-        return Response::make($query->get($fields)->keyBy('id'));
+        return $query->get($fields)->keyBy('id');
     }
 
 }

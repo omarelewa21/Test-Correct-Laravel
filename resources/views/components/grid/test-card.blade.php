@@ -33,7 +33,7 @@
                  x-transition:leave-end="opacity-0 transform scale-90"
             >
                 <button class="flex items-center space-x-2 py-1 px-4 base hover:text-primary hover:bg-offwhite transition w-full"
-                        wire:click="$emitTo('teacher.planning-modal', 'displayModal', '{{ $test->uuid }}')"
+                        wire:click="$emitTo('teacher.planning-modal', 'showModal', '{{ $test->uuid }}')"
 
                 >
                     <x-icon.schedule/>
@@ -49,17 +49,26 @@
                     <span class="text-base bold inherit">{{ __('cms.Kopie maken') }}</span>
                 </button>
                 @endif
-                <button class="flex items-center space-x-2 py-1 px-4 base hover:text-primary hover:bg-offwhite transition w-full"
+                @if( $test->canEdit(auth()->user()))
+                    <button
+                            class="flex items-center space-x-2 py-1 px-4 base hover:text-primary hover:bg-offwhite transition w-full"
+                            wire:click="$emitTo('teacher.copy-test-from-schoollocation-modal', 'showModal', '{{ $test->uuid }}')"
+                    >
+                        <x-icon.schedule/>
+                        <span class="text-base bold inherit">{{ __('cms.Kopie maken') }} !!!</span>
+                    </button>
+                @endif
+                <button
+                        class="flex items-center space-x-2 py-1 px-4 base hover:text-primary hover:bg-offwhite transition w-full"
                         {{--                                        @click="$dispatch('delete-modal', ['question'])"--}}
                         @click="makePDF('{{ $test->uuid }}')"
-
                 >
                     <x-icon.pdf color="var(--system-base)"/>
                     <span class="text-base bold inherit">{{ __('cms.PDF maken') }}</span>
                 </button>
-                <button class="flex items-center space-x-2 py-1 px-4 base hover:text-primary hover:bg-offwhite transition w-full"
+                <button
+                        class="flex items-center space-x-2 py-1 px-4 base hover:text-primary hover:bg-offwhite transition w-full"
                         @click="window.open('{{ route('teacher.test-preview', ['test'=> $test->uuid]) }}', '_blank')"
-
                 >
                     <x-icon.preview/>
                     <span class="text-base bold inherit">{{ __('cms.voorbeeld') }}</span>
@@ -67,7 +76,6 @@
                 @if( $test->canEdit(auth()->user()))
                     <button class="flex items-center space-x-2 py-1 px-4 base hover:text-primary hover:bg-offwhite transition w-full"
                             wire:click="openEdit('{{ $test->uuid }}')"
-
                     >
                         <x-icon.edit/>
                         <span class="text-base bold inherit">{{ __('cms.Wijzigen') }}</span>
