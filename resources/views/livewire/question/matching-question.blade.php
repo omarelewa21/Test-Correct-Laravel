@@ -19,7 +19,9 @@
                                     @if($answerStruct[$option->id] === '')
                                         <x-drag-item id="drag_item{{$question->getKey()}}-{{$option->id}}"
                                                      wire:key="option-{{ $option->id }}" sortableHandle="false"
-                                                     wire:sortable-group.item="{{ $option->id }}" selid="drag-block">
+                                                     wire:sortable-group.item="{{ $option->id }}" selid="drag-block"
+                                                     class="{{ empty($option->answer) || $option->answer == ' ' ? 'hidden' : '' }}"
+                                                     >
                                             {{ $option->answer }}
                                         </x-drag-item>
                                     @endif
