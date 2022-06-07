@@ -8,7 +8,17 @@
 @endsection
 
 @section('question-cms-answer')
+    <div class="flex flex-row justify-between gap-6">
+        <x-input.toggle-row-with-title wire:model="question.all_or_nothing"
+                                        :toolTip="__('cms.all_or_nothing_tooltip_text')"
+        >
+            <span class="bold"> {{ __('cms.Alles of niets correct') }}</span>
+        </x-input.toggle-row-with-title>
 
+        <x-input.toggle-row-with-title wire:model="question.fix_order" class="flex-1">
+            <span class="bold"> {{ __('cms.fix_order') }}</span>
+        </x-input.toggle-row-with-title>
+    </div>
     <div class="flex w-full mt-4">{{ __('cms.MultipleChoice Question Uitleg Text') }}</div>
     <div class="flex flex-col space-y-2 w-full mt-4"
          wire:sortable="__call('updateMCOrder')"

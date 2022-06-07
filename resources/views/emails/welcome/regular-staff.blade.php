@@ -15,7 +15,7 @@
     <a href="{{ sprintf($url, $token) }}">{{ sprintf($url, $token) }}</a><br/>
     <br/>
     {{__('regular-staff.Deze link verloopt vier uur nadat dit e-mailbericht werd verstuurd. U kunt een nieuwe link laten opsturen via de wachtwoord vergeten functionaliteit.')}}
-    <br /> <a href="{{ config('app.url_login') }}">{{__('regular-staff.Nieuwe verzoek opsturen')}}</a><br/>
+    <br /> <a href="{{ \tcCore\Http\Helpers\BaseHelper::getLoginUrl() }}">{{__('regular-staff.Nieuwe verzoek opsturen')}}</a><br/>
 <br/>
 {{ __("regular-staff.Lees deze tips voordat u aan de slag gaat") }}:<br/>
 <ul>

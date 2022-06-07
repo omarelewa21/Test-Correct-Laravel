@@ -21,7 +21,7 @@
             <a href="{{ $url }}">{{ $url }}</a><br/>
             <br/>
             {{__('student.Deze link verloopt vier uur nadat dit e-mailbericht werd verstuurd. Je kunt een nieuwe link laten opsturen via de wachtwoord vergeten functionaliteit.')}}
-            <BR/> <a href="{{ config('app.url_login') }}">{{__('student.Nieuwe verzoek opsturen')}}</a><br/>
+            <BR/> <a href="{{ \tcCore\Http\Helpers\BaseHelper::getLoginUrl() }}">{{__('student.Nieuwe verzoek opsturen')}}</a><br/>
             <br/>
             <br/>
             {{ __("student.Het team van Test-Correct wenst jou heel veel succes met je toetsen") }}! 😊<br/>

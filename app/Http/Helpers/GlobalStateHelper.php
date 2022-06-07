@@ -19,6 +19,7 @@ class GlobalStateHelper
     protected $queueAllowed = true;
     protected $hasMaintenanceMode = false;
     protected $onDeploymentTesting = false;
+    protected $preventDemoEnvironmentCreationForSchoolLocation = false;
 
     protected function __construct()
     {
@@ -68,5 +69,16 @@ class GlobalStateHelper
     public function isOnDeploymentTesting()
     {
         return Str::contains(request()->getHost(),'welcome2.test');
+    }
+
+    public function setPreventDemoEnvironmentCreationForSchoolLocation($val)
+    {
+        $this->preventDemoEnvironmentCreationForSchoolLocation = (bool) $val;
+        return $this;
+    }
+
+    public function hasPreventDemoEnvironmentCreationForSchoolLocation()
+    {
+        return $this->preventDemoEnvironmentCreationForSchoolLocation;
     }
 }

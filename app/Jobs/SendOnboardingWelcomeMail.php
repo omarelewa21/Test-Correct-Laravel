@@ -23,6 +23,7 @@ class SendOnboardingWelcomeMail extends Mailable
     protected $user;
     protected $url;
     protected $key;
+    protected $skipVerificationPart = false;
 
     /**
      * Create a new job instance.
@@ -31,13 +32,14 @@ class SendOnboardingWelcomeMail extends Mailable
      * @param $url
      * @return void
      */
-    public function __construct(User $user, $url = '')
+    public function __construct(User $user, $url = '', $skipVerificationPart = false)
     {
         $this->queue = 'mail';
         $this->key = Str::random(5);
         $this->user = $user;
         /** @TODO this var should be removed because it is not used MF 9-6-2020 */
         $this->url = $url;
+        $this->skipVerificationPart = $skipVerificationPart;
     }
 
     public function render()
@@ -53,13 +55,18 @@ class SendOnboardingWelcomeMail extends Mailable
     {
         $this->user->setAttribute('send_welcome_email', true);
         $this->user->save();
-        $emailConfirmation = EmailConfirmation::create(
-            ['user_id' => $this->user->getKey()]
-        );
+        if(!$this->skipVerificationPart) {
+            $emailConfirmation = EmailConfirmation::create(
+                ['user_id' => $this->user->getKey()]
+            );
+        }
         return $this->view('emails.welcome.onboarding-welcome')
             ->subject('Welkom bij Test-Correct')
             ->with([
-                'user' => $this->user, 'url' => $this->url, 'token' => $emailConfirmation->uuid
+                'user' => $this->user,
+                'url' => $this->url,
+                'token' => (!$this->skipVerificationPart) ? $emailConfirmation->uuid : null,
+                'skipVerificationPart' => $this->skipVerificationPart
             ]);
     }
 }

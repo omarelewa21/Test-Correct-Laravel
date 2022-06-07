@@ -9,6 +9,7 @@
 namespace tcCore;
 
 
+use Illuminate\Support\Str;
 use Maatwebsite\Excel\Facades\Excel;
 
 
@@ -68,7 +69,7 @@ class ExcelDefaultSubjectAndSectionManifest
         }
 
         $id = $this->sections->first(function($value, $key) use ($section) {
-            return $key == $section;
+            return Str::lower($key) == Str::lower($section);
         });
 
         if(!$id){
@@ -85,7 +86,7 @@ class ExcelDefaultSubjectAndSectionManifest
         }
 
         $id = $this->baseSubjects->first(function($value, $key) use ($subject) {
-           return $key == $subject;
+           return Str::lower($key) == Str::lower($subject);
         });
 
         if(!$id){

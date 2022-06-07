@@ -59,13 +59,19 @@ return [
     'general_terms_text_pt_2'                                                                                                                          => 'of The Teach & Learn Company B.V./Test-Correct apply to the Test-Correct SaaS-application. By going to the next step you confirm that you have received, read and understood the terms and conditions.',
     'your_school_email'                                                                                                                                => 'Your school e-mail address',
     'Welkom bij Test-Correct, je kunt nu aan de slag.'                                                                                                 => 'Welcome at Test-Correct, you are now ready to start',
-    'Jouw schoollocaties'                                                                                                                               => 'Your school locations',
+    'Jouw schoollocaties'                                                                                                                              => 'Your school locations',
     'Jouw schoollocatie'                                                                                                                               => 'Your school location',
     'Kies locatie(s)'                                                                                                                                  => 'Choose location(s)',
     'We hebben meerdere locaties gevonden. Op welke locatie geef jij les?'                                                                             => 'We have found multiple locations. At which do you teach?',
     'Je gegevens worden nu verwerkt...'                                                                                                                => 'Processing your data...',
     'Je gegevens zijn verwerkt'                                                                                                                        => 'Done, your account has been created',
     'Jouw domein(en)'                                                                                                                                  => 'Your workdomain(s)',
-
+    'Docent account maken met Entree'                                                                                                                  => 'Create teacher account with Entree',
+    'Docentprofiel'                                                                                                                                    => 'Teacher profile',
+    'Schoolgegevens'                                                                                                                                   => 'School details',
+    'Bevestigen'                                                                                                                                       => 'Confirm',
+    'Gefeliciteerd met je Test-Correct account!'                                                                                                       => 'Congratulations with your Test-Correct account!',
+    'Deel dit op jouw social media'                                                                                                                    => 'Share this on your social media',
+    'Wijzig locaties'                                                                                                                                  => 'Change locations',
 ];
 ?>

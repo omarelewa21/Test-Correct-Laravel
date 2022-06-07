@@ -895,4 +895,59 @@ class Test extends BaseModel
             return $orderNr + 1;
         })->toArray();
     }
+    public function canDuplicate(){
+        return strtolower($this->scope) !== 'cito';
+    }
+
+    public function canEdit(User $user) {
+        return $this->author->is($user);
+    }
+
+    public function canDelete(User $user) {
+        return $this->author->is($user);
+    }
+
+
+    public function maxScore($ignoreQuestions = []){
+        if(is_null($ignoreQuestions)){
+            $ignoreQuestions = [];
+        }
+        $testId = $this->id;
+        $maxScore = 0;
+        $questions = QuestionGatherer::getQuestionsOfTest($testId, true);
+        $carouselQuestions = QuestionGatherer::getCarouselQuestionsOfTest($testId);
+        $carouselQuestionIds = array_map(function($carouselQuestion){
+            return $carouselQuestion->getKey();
+        }, $carouselQuestions);
+        $carouselQuestionChilds = [];
+        foreach ($questions as $key => $question) {
+            if(!stristr($key, '.')){
+                $this->addToMaxScore($maxScore,$question,$ignoreQuestions);
+                continue;
+            }
+            $arr = explode('.', $key);
+            if(!in_array($arr[0], $carouselQuestionIds)){
+                $this->addToMaxScore($maxScore,$question,$ignoreQuestions);
+                continue;
+            }
+            $carouselQuestionChilds[$arr[0]][$arr[1]] = $question;
+        }
+        foreach ($carouselQuestionChilds as $groupquestionId => $childArray) {
+            if(in_array($groupquestionId, $ignoreQuestions)){
+                continue;
+            }
+            $questionScore = current($childArray)->score;
+            $numberOfSubquestions = $carouselQuestions[$groupquestionId]->number_of_subquestions;
+            $maxScore += ($questionScore*$numberOfSubquestions);
+        }
+        return $maxScore;
+    }
+
+    private function addToMaxScore(&$maxScore,$question,$ignoreQuestions):void
+    {
+        if(in_array($question->getKey(), $ignoreQuestions)){
+            return;
+        }
+        $maxScore += $question->score;
+    }
 }

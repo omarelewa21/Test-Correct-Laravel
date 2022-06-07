@@ -1,4 +1,4 @@
-<svg width="64" height="64" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<svg {{ $attributes }} width="64" height="64" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
     <defs>
         <path d="M20.764 44.424C32.254 21.084 38 8.609 38 7c0-3.866-8.507-7-19-7S0 3.134 0 7c0 2.451 5.729 14.934 17.187 37.447a2 2 0 0 0 3.577-.023z" id="a"/>
     </defs>

@@ -143,6 +143,11 @@ return [
     'Nieuwe vraag creeren'                                                                   => 'Create question',
     'Nieuwe creeren'                                                                         => 'Create new',
     'Wijzigen'                                                                               => 'Change',
+    'Inplannen'                                                                              => 'Schedule',
+    'Kopie maken'                                                                            => 'Copy',
+    'PDF maken'                                                                              => 'PDF',
+    'voorbeeld'                                                                              => 'Preview',
+
     'vraag'                                                                                  => ':count question|:count questions',
     'group-question-count'                                                                   => ':count group question|:count group questions',
     'Stel een nieuwe vraag op'                                                               => 'Create a new question',
@@ -162,4 +167,6 @@ return [
     'begin_with_making_a_question'                                                           => 'Start with making a group or regular question.',
     'nieuwe'                                                                                 => 'new',
     'Wijzigingen niet opslaan'                                                               => 'Discard changes',
+    'fix_order'                                                                              => 'Fix order of answers',
+
 ];

@@ -10,7 +10,7 @@
     <script src="https://cdn.jsdelivr.net/gh/alpinejs/alpine@v2.x.x/dist/alpine.min.js" defer></script>
 
 
-    <script src="/ckeditor/ckeditor.js" type="text/javascript"></script>
+{{--    <script src="/ckeditor/ckeditor.js" type="text/javascript"></script>--}}
 
 
     <!-- Google Tag Manager -->
@@ -18,7 +18,7 @@
     <!-- End Google Tag Manager -->
     @livewireStyles
     <link rel="stylesheet" href="{{ mix('/css/app.css') }}">
-    <link rel="stylesheet" href="/css/onboarding.css">
+    <link rel="stylesheet" href="/css/onboarding.css?v=25052022">
     @stack('page_styles')
 </head>
 <body id="body" class="antialiased font-sans bg-light-grey">

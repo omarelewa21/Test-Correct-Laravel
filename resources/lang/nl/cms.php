@@ -142,6 +142,10 @@ return [
     'Nieuwe vraag creeren'                                                                   => 'Nieuwe vraag creëeren',
     'Nieuwe creeren'                                                                         => 'Nieuwe creëeren',
     'Wijzigen'                                                                               => 'Wijzigen',
+    'Inplannen'                                                                              => 'Inplannen',
+    'Kopie maken'                                                                            => 'Kopie maken',
+    'PDF maken'                                                                              => 'PDF maken',
+    'voorbeeld'                                                                              => 'Voorbeeld',
     'vraag'                                                                                  => ':count vraag|:count vragen',
     'group-question-count'                                                                   => ':count vraaggroep|:count vraaggroepen',
     'Stel een nieuwe vraag op'                                                               => 'Stel een nieuwe vraag op',
@@ -161,5 +165,6 @@ return [
     'begin_with_making_a_question'                                                           => 'Begin met het maken van een vraaggroep of een losse vraag.',
     'nieuwe'                                                                                 => '{0} nieuw|{1}nieuwe',
     'Wijzigingen niet opslaan'                                                               => 'Wijzigingen niet opslaan',
+    'fix_order'                                                                              => 'Volgorde van antwoorden vastzetten',
 
 ];

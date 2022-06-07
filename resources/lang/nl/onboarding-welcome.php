@@ -22,5 +22,7 @@ return [
     'Je bestaande Test-Correct account kan niet geupdate worden. Neem contact op met support.' => 'Je bestaande Test-Correct account kan niet geupdate worden. Neem contact op met support.',
     'De gekozen school locatie kon niet gevonden worden. Neem contact op met support.' => 'De gekozen school locatie kon niet gevonden worden. Neem contact op met support.',
     'Je entree account kan niet gebruikt worden om een account aan te maken in Test-Correct. Neem contact op met support.' => 'Je entree account kan niet gebruikt worden om een account aan te maken in Test-Correct. Neem contact op met support.',
+    'Klik hier om in te loggen' => 'Klik hier om in te loggen',
+    'Je hebt je aangemeld via Entree' => 'Je hebt je aangemeld via Entree',
 ];
 ?>
