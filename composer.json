@@ -26,6 +26,7 @@
 		"mews/purifier": "^3.2",
 		"pusher/pusher-php-server": "^4.1",
 		"ramsey/uuid": "^4.1",
+		"wire-elements/modal": "^1.0",
 		"zanysoft/laravel-zip": "^1.0"
 	},
 	"require-dev": {

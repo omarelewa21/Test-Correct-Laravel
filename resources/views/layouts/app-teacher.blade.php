@@ -4,4 +4,5 @@
     <main class="flex flex-1 items-stretch mx-8  xl:mx-28 mt-[9.5rem] m-foot-head' }}">
         {{ $slot }}
     </main>
+    @livewire('livewire-ui-modal')
 </x-layouts.base>

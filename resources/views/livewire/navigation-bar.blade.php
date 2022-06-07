@@ -174,7 +174,7 @@
     </div>
     <div id="tiles" class="tiles" x-ref="tiles">
         <div class="tile-group tests">
-            <div class="tile-item create-test" wire:click="$emitTo('teacher.test-start-create-modal', 'showModal')">{{__('Toets creëren')}}</div>
+            <div class="tile-item create-test" wire:click="$emit('openModal', 'teacher.test-start-create-modal')">{{__('Toets creëren')}}</div>
             <div class="tile-item test-bank" wire:click="cakeRedirect('tests.test_bank')">{{__('Toetsenbank')}}</div>
             <div class="tile-item question-bank" wire:click="cakeRedirect('tests.question_bank')">{{__('Vragenbank')}}</div>
             <div class="tile-item my-uploads" wire:click="cakeRedirect('tests.my_uploads')">{{__('Mijn uploads')}}</div>

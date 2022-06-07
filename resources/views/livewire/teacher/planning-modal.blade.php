@@ -1,4 +1,4 @@
-<x-modal-with-footer wire:key="planningModal{{ microtime() }}" maxWidth="4xl" wire:model="showModal" show-cancel-button="false">
+<x-modal-new>
     <x-slot name="title">
         <div class="flex justify-between">
             <span>{{ __('teacher.Inplannen') }}</span>
@@ -130,4 +130,4 @@
             </div>
         </div>
     </x-slot>
-</x-modal-with-footer>
+</x-modal-new>>
