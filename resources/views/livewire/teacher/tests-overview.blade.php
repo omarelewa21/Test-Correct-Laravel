@@ -133,12 +133,14 @@
                     <span class="note text-sm"
                           wire:loading.remove>{{  trans_choice('general.number-of-tests', $results->total(), ['count' => $results->total()]) }}</span>
                     <div>
-                        <x-button.primary wire:click="$emitTo('teacher.planning-modal', 'showModal')">
-                            <x-icon.schedule/>
-                            <span>{{ __('cms.Inplannen') }}</span></x-button.primary>
-                        <x-button.cta wire:click="$emitTo('teacher.test-start-create-modal', 'showModal')">
+{{--                        <x-button.primary wire:click="$emitTo('teacher.planning-modal', 'showModal')">--}}
+{{--                            <x-icon.schedule/>--}}
+{{--                            <span>{{ __('cms.Inplannen') }}</span>--}}
+{{--                        </x-button.primary>--}}
+                        <x-button.cta wire:click="$emit('openModal', 'teacher.test-start-create-modal')">
                             <x-icon.plus/>
-                            <span>{{ __('general.create test') }}</span></x-button.cta>
+                            <span>{{ __('general.create test') }}</span>
+                        </x-button.cta>
                     </div>
                 </div>
                 <x-grid class="mt-4">
@@ -171,9 +173,6 @@
             <span>{{ __('cms.Toevoegen') }}</span>
         </x-button.cta>
     </div>
-    <livewire:teacher.planning-modal></livewire:teacher.planning-modal>
-    <livewire:teacher.test-start-create-modal></livewire:teacher.test-start-create-modal>
-    <livewire:teacher.test-create-modal></livewire:teacher.test-create-modal>
     <livewire:teacher.test-delete-modal></livewire:teacher.test-delete-modal>
     <livewire:teacher.copy-test-from-schoollocation-modal></livewire:teacher.copy-test-from-schoollocation-modal>
     <x-notification/>

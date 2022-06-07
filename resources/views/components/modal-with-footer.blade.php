@@ -75,9 +75,9 @@
             <h2>{{ $title }}</h2>
         </div>
         <div class="divider mb-5 mt-2.5"></div>
-        <div class="px-2.5 body1 mb-5">
+        <div class="px-2.5 body1 mb-5 w-[600px]">
             {{ $body }}
         </div>
-            {{ $footer }}
+        {{ $footer }}
     </div>
 </div>

@@ -3,8 +3,7 @@
 namespace tcCore\Http\Livewire\Teacher;
 
 use Illuminate\Http\Request;
-use Livewire\Component;
-use Ramsey\Uuid\Uuid;
+use LivewireUI\Modal\ModalComponent;
 use tcCore\Http\Controllers\InvigilatorsController;
 use tcCore\Http\Controllers\TemporaryLoginController;
 use tcCore\SchoolClass;
@@ -13,13 +12,11 @@ use tcCore\Period;
 use tcCore\TestTake;
 use tcCore\TestTakeStatus;
 
-class PlanningModal extends Component
+class PlanningModal extends ModalComponent
 {
     protected $listeners = ['showModal'];
 
     public $test;
-
-    public $showModal = false;
 
     public $allowedPeriods;
 
@@ -38,15 +35,17 @@ class PlanningModal extends Component
         return $this->test->isAssignment();
     }
 
-    public function mount()
+    public function mount($testUuid)
     {
-        $this->test = new Test();
+        $this->test = \tcCore\Test::whereUuid($testUuid)->first();
+
         $this->allowedPeriods = Period::filtered(['current_school_year' => true])->get();
         $this->schoolClasses = SchoolClass::filtered(['user_id' => auth()->id()], [])
             ->get(['id', 'name'])
             ->map(function ($item) {
                 return ['value' => (int)$item->id, 'label' => $item->name];
             })->toArray();
+        $this->resetModalRequest();
 
         $this->allowedInvigilators = InvigilatorsController::getInvigilatorList()->map(function ($invigilator) {
             return [
@@ -62,14 +61,6 @@ class PlanningModal extends Component
         'request.*' => 'sometimes',
     ];
 
-    public function showModal($testUuid)
-    {
-        $this->test = \tcCore\Test::whereUuid($testUuid)->first();
-
-        $this->resetModalRequest();
-
-        $this->showModal = true;
-    }
 
     public function plan()
     {
@@ -106,7 +97,8 @@ class PlanningModal extends Component
     public function planNext()
     {
         $this->planTest();
-        $this->showModal = false;
+
+        $this->closeModal();
     }
 
     private function resetModalRequest()

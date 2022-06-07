@@ -1,10 +1,6 @@
-<x-modal-with-footer id="{{$this->modalId}}" maxWidth="3xl" :showCancelButton="false" wire:model="showModal">
-    <form class="h-full relative" wire:submit.prevent="submit" action="#" method="POST">
+<x-modal-new force-close="true">
         <x-slot name="title">
-            <div class="flex justify-between">
-                <span>{{__("teacher.toets aanmaken")}}</span>
-                <span wire:click="showModal()" class="cursor-pointer">x</span>
-            </div>
+                {{__("teacher.toets aanmaken")}}
         </x-slot>
         <x-slot name="body">
             <div class="flex-grow">
@@ -127,7 +123,7 @@
         </x-slot>
         <x-slot name="footer">
             <div class="flex justify-between w-full">
-                <x-button.text-button wire:click="hideModal">
+                <x-button.text-button wire:click="$emit('closeModal')">
                     <x-icon.arrow-left/>
                     <span>{{ __("modal.Terug") }}</span>
                 </x-button.text-button>
@@ -143,6 +139,5 @@
                 </x-button.cta>
             </div>
         </x-slot>
-    </form>
-</x-modal-with-footer>
+</x-modal-new>
 

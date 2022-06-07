@@ -10,6 +10,7 @@ require('./readspeaker_app');
 require('./attachment');
 require('./flatpickr');
 require('./navigation-bar');
+require('../../vendor/wire-elements/modal/resources/js/modal');
 
 
 window.ClassicEditors = [];

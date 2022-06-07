@@ -33,7 +33,7 @@
                  x-transition:leave-end="opacity-0 transform scale-90"
             >
                 <button class="flex items-center space-x-2 py-1 px-4 base hover:text-primary hover:bg-offwhite transition w-full"
-                        wire:click="$emitTo('teacher.planning-modal', 'showModal', '{{ $test->uuid }}')"
+                        wire:click='$emit("openModal","teacher.planning-modal", {{ json_encode(["testUuid" => $test->uuid]) }})'
 
                 >
                     <x-icon.schedule/>
@@ -112,10 +112,5 @@
         <div>
             <span>{{ $test->authorsAsString }}</span>
         </div>
-
-        <x-input.custom-checkbox wire:click="handleCheckboxClick({{ $test->getKey() }})"
-                                 wire:key="checkbox-for-question{{ $test->uuid }}"
-                                 :checked="false"
-        />
     </div>
 </div>

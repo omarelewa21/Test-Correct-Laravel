@@ -4,21 +4,12 @@ namespace tcCore\Http\Livewire\Teacher;
 
 use Illuminate\Http\Request;
 use Livewire\Component;
+use LivewireUI\Modal\ModalComponent;
 use tcCore\Http\Controllers\TemporaryLoginController;
 
-class TestStartCreateModal extends Component
+class TestStartCreateModal extends ModalComponent
 {
-    public $showModal = false;
-    public $modalId = 'test-create-modal';
 
-    protected $listeners = [
-        'showModal'
-    ];
-
-    public function showModal()
-    {
-        $this->showModal = ! $this->showModal;
-    }
 
     public function goToCreateTest()
     {
@@ -39,6 +30,23 @@ class TestStartCreateModal extends Component
 
         redirect($controller->toCakeUrl($request));
     }
+
+    public static function modalMaxWidth(): string
+    {
+        // 'sm'
+        // 'md'
+        // 'lg'
+        // 'xl'
+        // '2xl'
+        // '3xl'
+        // '4xl'
+        // '5xl'
+        // '6xl'
+        // '7xl'
+        return '4xl';
+    }
+
+
 
     public function render()
     {
