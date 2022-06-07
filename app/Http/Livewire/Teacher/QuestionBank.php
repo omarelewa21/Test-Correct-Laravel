@@ -128,6 +128,7 @@ class QuestionBank extends Component
         }
 
         if ($response->getStatusCode() == 200) {
+            $this->addedQuestionIds[$questionId] = 0;
             $this->dispatchBrowserEvent('question-added');
         }
 

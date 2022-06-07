@@ -223,7 +223,7 @@ class Cms extends Component
                         ->join('questions as q', 'tq.question_id', '=', 'q.id')
                         ->where('tq.test_id', '=', $testId)
                         ->where('q.type', '=', 'GroupQuestion')
-                        ->whereNotNull('q.deleted_at')
+                        ->whereNull('q.deleted_at')
                         ->withTrashed()
                 )
                 ->get()
@@ -240,12 +240,14 @@ class Cms extends Component
                 $testQuestion = TestQuestion::where('question_id', $groupQuestionQuestionData['groupQuestionId'])
                                                 ->where('test_id', $testId)
                                                 ->value('uuid');
-
+                $this->dispatchBrowserEvent('question-removed');
                 return $this->deleteSubQuestion($groupQuestionQuestionData['groupQuestionQuestionUuid'], $testQuestion);
             }
-            dd('er is iets mis gegaan');
-        }
 
+            $this->dispatchBrowserEvent('notify', ['message' => 'Er is iets mis gegaan met verwijderen van de vraag.', 'error']);
+            return false;
+        }
+        $this->dispatchBrowserEvent('question-removed');
         $this->deleteQuestion($testQuestion->uuid);
     }
 

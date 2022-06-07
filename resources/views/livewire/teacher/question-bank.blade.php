@@ -63,7 +63,7 @@
                     <div class="relative w-full">
                         <x-input.text class="w-full"
                                       placeholder="Zoek..."
-                                      wire:model.300ms="filters.search"
+                                      wire:model.500ms="filters.search"
                         />
                         <x-icon.search class="absolute right-0 -top-2"/>
                     </div>
