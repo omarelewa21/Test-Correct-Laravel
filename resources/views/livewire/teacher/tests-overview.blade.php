@@ -10,16 +10,18 @@
             <div class="flex w-full space-x-4">
                 <div>
                     <div class="flex relative hover:text-primary cursor-pointer" @click="openTab = 'personal'">
-                        <span class="bold pt-[0.9375rem] pb-[0.8125rem]" :class="openTab === 'personal' ? 'primary' : '' ">{{ __('general.Persoonlijk') }}</span>
+                        <span class="bold pt-[0.9375rem] pb-[0.8125rem]"
+                              :class="openTab === 'personal' ? 'primary' : '' ">{{ __('general.Persoonlijk') }}</span>
                         <span class="absolute w-full bottom-0" style="height: 3px"
                               :class="openTab === 'personal' ? 'bg-primary' : 'bg-transparent' "></span>
                     </div>
                 </div>
 
                 <div>
-{{--                    <div class="flex relative text-midgrey cursor-default">--}}
-                                            <div class="flex relative hover:text-primary cursor-pointer" @click="openTab = 'school'">
-                        <span class="bold pt-[0.9375rem] pb-[0.8125rem]" :class="openTab === 'school' ? 'primary' : '' ">{{ __('general.School') }}</span>
+                    {{--                    <div class="flex relative text-midgrey cursor-default">--}}
+                    <div class="flex relative hover:text-primary cursor-pointer" @click="openTab = 'school'">
+                        <span class="bold pt-[0.9375rem] pb-[0.8125rem]"
+                              :class="openTab === 'school' ? 'primary' : '' ">{{ __('general.School') }}</span>
                         <span class="absolute w-full bottom-0" style="height: 3px"
                               :class="openTab === 'school' ? 'bg-primary' : 'bg-transparent' "></span>
                     </div>
@@ -28,16 +30,18 @@
                 <div>
                     <div class="flex relative text-midgrey cursor-default">
                         {{--                    <div class="flex relative hover:text-primary cursor-pointer" @click="openTab = 3">--}}
-                        <span class="bold pt-[0.9375rem] pb-[0.8125rem]" :class="openTab === 'national' ? 'primary' : '' ">{{ __('general.Nationaal') }}</span>
+                        <span class="bold pt-[0.9375rem] pb-[0.8125rem]"
+                              :class="openTab === 'national' ? 'primary' : '' ">{{ __('general.Nationaal') }}</span>
                         <span class="absolute w-full bottom-0" style="height: 3px"
                               :class="openTab === 'national' ? 'bg-primary' : 'bg-transparent' "></span>
                     </div>
                 </div>
 
                 <div>
-{{--                    <div class="flex relative text-midgrey cursor-default">--}}
-                                            <div class="flex relative hover:text-primary cursor-pointer" @click="openTab = 'exams'">
-                        <span class="bold pt-[0.9375rem] pb-[0.8125rem]" :class="openTab === 'exams' ? 'primary' : '' ">{{ __('general.Examens') }}</span>
+                    {{--                    <div class="flex relative text-midgrey cursor-default">--}}
+                    <div class="flex relative hover:text-primary cursor-pointer" @click="openTab = 'exams'">
+                        <span class="bold pt-[0.9375rem] pb-[0.8125rem]"
+                              :class="openTab === 'exams' ? 'primary' : '' ">{{ __('general.Examens') }}</span>
                         <span class="absolute w-full bottom-0" style="height: 3px"
                               :class="openTab === 'exams' ? 'bg-primary' : 'bg-transparent' "></span>
                     </div>
@@ -46,7 +50,8 @@
                 <div>
                     {{--                    <div class="flex relative text-midgrey cursor-default">--}}
                     <div class="flex relative hover:text-primary cursor-pointer" @click="openTab = 'cito'">
-                        <span class="bold pt-[0.9375rem] pb-[0.8125rem]" :class="openTab === 'cito' ? 'primary' : '' ">{{ __( 'general.cito-snelstart') }}</span>
+                        <span class="bold pt-[0.9375rem] pb-[0.8125rem]"
+                              :class="openTab === 'cito' ? 'primary' : '' ">{{ __( 'general.cito-snelstart') }}</span>
                         <span class="absolute w-full bottom-0" style="height: 3px"
                               :class="openTab === 'cito' ? 'bg-primary' : 'bg-transparent' "></span>
                     </div>
@@ -73,39 +78,41 @@
                     <x-input.choices-select
                             wire:key="subject_{{ $this->openTab }}"
                             :multiple="true"
-                                            :options="$this->subjects"
-                                            :withSearch="true"
-                                            placeholderText="Vak"
-                                            wire:model="filters.{{ $this->openTab }}.subject_id"
-                                            filterContainer="questionbank-{{ $this->openTab }}-active-filters"
+                            :options="$this->subjects"
+                            :withSearch="true"
+                            placeholderText="Vak"
+                            wire:model="filters.{{ $this->openTab }}.subject_id"
+                            filterContainer="questionbank-{{ $this->openTab }}-active-filters"
                     />
                     <x-input.choices-select
                             wire:key="education_level_year_{{ $this->openTab }}"
                             :multiple="true"
-                                            :options="$this->educationLevelYear"
-                                            :withSearch="true"
-                                            placeholderText="Leerjaar"
-                                            wire:model="filters.{{ $this->openTab }}.education_level_year"
-                                            filterContainer="questionbank-{{ $this->openTab }}-active-filters"
+                            :options="$this->educationLevelYear"
+                            :withSearch="true"
+                            placeholderText="Leerjaar"
+                            wire:model="filters.{{ $this->openTab }}.education_level_year"
+                            filterContainer="questionbank-{{ $this->openTab }}-active-filters"
                     />
                     <x-input.choices-select
                             wire:key="educationLevel_{{ $this->openTab }}"
                             :multiple="true"
-                                            :options="$this->educationLevel"
-                                            :withSearch="true"
-                                            placeholderText="{{ __('Niveau') }}"
-                                            wire:model="filters.{{ $this->openTab }}.education_level_id"
-                                            filterContainer="questionbank-{{ $this->openTab }}-active-filters"
+                            :options="$this->educationLevel"
+                            :withSearch="true"
+                            placeholderText="{{ __('Niveau') }}"
+                            wire:model="filters.{{ $this->openTab }}.education_level_id"
+                            filterContainer="questionbank-{{ $this->openTab }}-active-filters"
                     />
-                    <x-input.choices-select
-                            wire:key="authors_{{ $this->openTab }}"
-                            :multiple="true"
-                                            :options="$this->authors"
-                                            :withSearch="true"
-                                            placeholderText="{{ __('Auteurs') }}"
-                                            wire:model="filters.{{ $this->openTab }}.author_id"
-                                            filterContainer="questionbank-{{ $this->openTab }}-active-filters"
-                    />
+                    @if ($this->openTab !== 'personal')
+                        <x-input.choices-select
+                                wire:key="authors_{{ $this->openTab }}"
+                                :multiple="true"
+                                :options="$this->authors"
+                                :withSearch="true"
+                                placeholderText="{{ __('Auteurs') }}"
+                                wire:model="filters.{{ $this->openTab }}.author_id"
+                                filterContainer="questionbank-{{ $this->openTab }}-active-filters"
+                        />
+                    @endif
                 </div>
                 <div id="questionbank-{{ $this->openTab }}-active-filters"
 
@@ -123,21 +130,26 @@
                 <div class="flex justify-between">
                     <span class="note text-sm" wire:loading>{{  __('general.searching') }}</span>
 
-                    <span class="note text-sm" wire:loading.remove>{{  trans_choice('general.number-of-tests', $results->total(), ['count' => $results->total()]) }}</span>
+                    <span class="note text-sm"
+                          wire:loading.remove>{{  trans_choice('general.number-of-tests', $results->total(), ['count' => $results->total()]) }}</span>
                     <div>
-                        <x-button.primary wire:click="$emitTo('teacher.planning-modal', 'showModal')" ><x-icon.schedule/><span >{{ __('cms.Inplannen') }}</span></x-button.primary>
-                        <x-button.cta wire:click="$emitTo('teacher.test-start-create-modal', 'showModal')"><x-icon.plus/><span >{{ __('general.create test') }}</span></x-button.cta>
+                        <x-button.primary wire:click="$emitTo('teacher.planning-modal', 'showModal')">
+                            <x-icon.schedule/>
+                            <span>{{ __('cms.Inplannen') }}</span></x-button.primary>
+                        <x-button.cta wire:click="$emitTo('teacher.test-start-create-modal', 'showModal')">
+                            <x-icon.plus/>
+                            <span>{{ __('general.create test') }}</span></x-button.cta>
                     </div>
                 </div>
-                <x-grid  class="mt-4">
+                <x-grid class="mt-4">
                     @foreach(range(1, 6) as $value)
-                    <x-grid.loading-card :delay="$value"/>
+                        <x-grid.loading-card :delay="$value"/>
                     @endforeach
 
 
 
                     @foreach($results as $test)
-                        <x-grid.test-card :test="$test" wire:loading.class="hidden" />
+                        <x-grid.test-card :test="$test" wire:loading.class="hidden"/>
                     @endforeach
                 </x-grid>
                 {{ $results->links('components.partials.tc-paginator') }}
@@ -164,5 +176,5 @@
     <livewire:teacher.test-create-modal></livewire:teacher.test-create-modal>
     <livewire:teacher.test-delete-modal></livewire:teacher.test-delete-modal>
     <livewire:teacher.copy-test-from-schoollocation-modal></livewire:teacher.copy-test-from-schoollocation-modal>
-   <x-notification/>
+    <x-notification/>
 </div>
