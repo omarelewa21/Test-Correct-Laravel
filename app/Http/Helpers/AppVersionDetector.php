@@ -429,4 +429,9 @@ class AppVersionDetector
         session(['TLCVersioncheckResult' => $versionCheckResult]);
 //        $this->Session->write('TLCVersionCheckResult', $versionCheckResult);
     }
+
+    public function getAppVersion(){
+        AppVersionDetector::handleHeaderCheck();
+        return ['TLCVersion' => session('TLCVersion', null)];
+    }
 }
