@@ -90,7 +90,7 @@
                                         id="education_level_year"
                                         wire:model="request.education_level_year"
                                 >
-                                    @foreach(range(1,6) as $levelYear)
+                                    @foreach(range(1,$this->maxEducationLevelYear) as $levelYear)
                                         <option value="{{ $levelYear }}">{{ $levelYear }}</option>
                                     @endforeach
                                 </x-input.select>
@@ -127,7 +127,7 @@
         </x-slot>
         <x-slot name="footer">
             <div class="flex justify-between w-full">
-                <x-button.text-button @click="show = false">
+                <x-button.text-button wire:click="hideModal">
                     <x-icon.arrow-left/>
                     <span>{{ __("modal.Terug") }}</span>
                 </x-button.text-button>

@@ -8,6 +8,7 @@ use Dyrynda\Database\Casts\EfficientUuid;
 use Dyrynda\Database\Support\GeneratesUuid;
 use Ramsey\Uuid\Uuid;
 use tcCore\Traits\UuidTrait;
+use Illuminate\Support\Str;
 
 class MatchingQuestion extends Question implements QuestionInterface {
 
@@ -129,6 +130,10 @@ class MatchingQuestion extends Question implements QuestionInterface {
         $correctAnswers = [];
         foreach($matchingQuestionAnswers as $matchingQuestionAnswer) {
             if ($matchingQuestionAnswer->getAttribute('type') === 'RIGHT' && in_array($matchingQuestionAnswer->getAttribute('correct_answer_id'), $possibleAnswers)) {
+                if( Str::lower($this->subtype) === 'classify'
+                    && ( empty($matchingQuestionAnswer->getAttribute('answer')) || $matchingQuestionAnswer->getAttribute('answer') === ' ' ) ){
+                    continue;
+                }
                 $correctAnswers[$matchingQuestionAnswer->getKey()] = $matchingQuestionAnswer->getAttribute('correct_answer_id');
             }
         }
@@ -194,7 +199,7 @@ class MatchingQuestion extends Question implements QuestionInterface {
 
         foreach($answers as $order => $answerDetails) {
             $answerDetails = (object) $answerDetails;
-            if(!$answerDetails->left || !$answerDetails->right) continue;
+            if(is_null($answerDetails->left) || is_null($answerDetails->right)) continue;
 
             $details = [
                 'left' => [
@@ -224,7 +229,7 @@ class MatchingQuestion extends Question implements QuestionInterface {
                 else { // should always be the case
                     $originalDetail = $detail;
                     foreach($this->getClassifyAnswersFromAnswer($originalDetail['answer']) as $answer){
-                         $detail['answer'] = $answer;
+                        $detail['answer'] = $answer;
                          $this->addAnswer($detail, $question);
                     }
                 }
@@ -303,4 +308,27 @@ class MatchingQuestion extends Question implements QuestionInterface {
         return parent::needsToBeUpdated($request);
     }
 
+    public static function validateWithValidator($validator, $answers)
+    {
+        $emptyCount = 0;
+        $haveOneNonEmptyContainer = false;
+        foreach($answers as $answer){
+            if(Str::of($answer['left'])->trim()->length() === 0){
+                $validator->errors()->add('question.answers', __('cms.container_label_missing') );
+            }
+
+            if(Str::of($answer['right'])->trim()->length() === 0){
+                $emptyCount += 1;
+            }else{
+                $haveOneNonEmptyContainer = true;
+            }
+        }
+
+        if(!$haveOneNonEmptyContainer){
+            $validator->errors()->add('question.answers', __('cms.one_container_with_items') );
+        }
+        if($emptyCount > 1){
+            $validator->errors()->add('question.answers', __('cms.one_empty_container_allowed') );
+        }
+    }
 }

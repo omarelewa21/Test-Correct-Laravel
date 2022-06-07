@@ -6,7 +6,7 @@
     <div id="logo" class="logo">
         <svg class="logo-1" id="logo_1" width="64px" height="64px" viewBox="0 0 64 64" version="1.1"
              xmlns="http://www.w3.org/2000/svg"
-             xmlns:xlink="http://www.w3.org/1999/xlink" onclick="Menu.dashboardButtonAction('dashboard')">
+             xmlns:xlink="http://www.w3.org/1999/xlink" wire:click="cakeRedirect('dashboard')">
             <title>Test-Correct</title>
             <defs>
                 <linearGradient x1="49.2939717%" y1="99.2939717%" x2="49.2939717%" y2="0.706028294%"
@@ -27,7 +27,7 @@
         </svg>
         <svg class="logo-2" id="logo_2" width="191px" height="20px" viewBox="0 0 191 20" version="1.1"
              xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
-             onclick="Menu.dashboardButtonAction('dashboard')">
+             wire:click="cakeRedirect('dashboard')">
             <title>logos/Logo-Test-Correct recolored just text</title>
             <g id="logos/Logo-Test-Correct-recolored-just-text" stroke="none" stroke-width="1" fill="none"
                fill-rule="evenodd">
@@ -66,7 +66,7 @@
 
     <div id="menu-top" class="menu-top" x-ref="menu_top">
         <div class="action-icon-container">
-            <div class="action-icon menu-chat-icon">
+            <div class="action-icon menu-chat-icon" wire:click="cakeRedirect('chat')">
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
                     <g fill="none" fill-rule="evenodd" stroke-linejoin="round">
                         <g stroke="currentColor">
@@ -127,7 +127,7 @@
         </div>
         <div class="user-button-container" x-ref="user_button">
                 <span>
-                    {{__('User')}}
+                    {{ Auth::user()->nameFull }}
                 </span>
             <svg height="9" width="12">
                 <polygon points="6,9 1,0 11,0" stroke="rgba(71, 129, 255, 1)" fill="rgba(71, 129, 255, 1)"/>
@@ -135,17 +135,17 @@
         </div>
         <div class="user-menu" x-ref="user_menu" x-cloak="" x-show="userMenu" x-transition.origin.top @click.outside="userMenu = false">
             <div id="user_school_locations"></div> {{-- only visible when teacher has multiple school locations --}}
-            <a>{{__('Uitloggen')}}</a>
-            <a>{{__('Wachtwoord wijzigen')}}</a>
-            <a>{{__('Supportpagina')}}</a>
-            <a>{{__('Automatisch uitloggen uitstellen')}}</a>
-            <a>{{__('Uploaden toets')}}</a>
+            <a href="{{ route('auth.login') }}">{{__('Uitloggen')}}</a>
+            <a wire:click="cakeRedirect('update-password')">{{__('Wachtwoord wijzigen')}}</a>
+            <a href="https://support.test-correct.nl/knowledge" target="_blank">{{__('Supportpagina')}}</a>
+            <a wire:click="cakeRedirect('delay-auto-logout')">{{__('Automatisch uitloggen uitstellen')}}</a>
+            <a wire:click="cakeRedirect('tests.my_uploads')">{{__('Uploaden toets')}}</a>
         </div>
         <div class="support-menu" x-ref="support_menu" x-cloak="" x-show="supportMenu" x-transition="" @click.outside="supportmenu = false">
-            <a>{{__('kennisbank')}}</a>
-            <a>{{__('Webinar')}}</a>
-            <a>{{__('Email')}}</a>
-            <a>{{__('Updates & onderhoud')}}</a>
+            <a wire:click="cakeRedirect('knowledge_base')">{{__('kennisbank')}}</a>
+            <a wire:click="cakeRedirect('webinar')">{{__('Webinar')}}</a>
+            <a href="mailto:{{ config('mail.from.address') }}">{{__('Email')}}</a>
+            <a wire:click="cakeRedirect('support_updates')">{{__('Updates & onderhoud')}}</a>
         </div>
     </div>
 
@@ -157,11 +157,11 @@
                       stroke-linecap="round"></path>
             </svg>
         </div>
-        <div class="menu-item">{{__('Dashboard')}}</div>
+        <div class="menu-item" data-menu="dashboard" wire:click="cakeRedirect('dashboard')">{{__('Dashboard')}}</div>
         <div class="menu-item has-items" data-menu="tests">{{__('Toetsen')}}</div>
         <div class="menu-item has-items" data-menu="planned">{{__('Ingepland')}}</div>
         <div class="menu-item has-items" data-menu="taken">{{__('Afgenomen')}}</div>
-        <div class="menu-item">{{__('Resultaten')}}</div>
+        <div class="menu-item" data-menu="results" wire:click="cakeRedirect('results.rated')">{{__('Resultaten')}}</div>
         <div class="menu-item has-items" data-menu="analyses">{{__('Analyses')}}</div>
         <div class="menu-item has-items" data-menu="classes">{{__('Klassen')}}</div>
         <div class="menu-scroll menu-scroll-right" x-ref="menu_scroll_right">
@@ -171,35 +171,32 @@
             </svg>
         </div>
 
-        {{--        <svg xmlns="http://www.w3.org/2000/svg" height="9" width="12" xml:space="preserve">--}}
-        {{--    <polygon points="6,0 1,9 11,9" stroke="#ffffff" fill="#ffffff"/>--}}
-        {{--</svg>--}}
-
     </div>
     <div id="tiles" class="tiles" x-ref="tiles">
         <div class="tile-group tests">
-            <div class="tile-item tile-1">{{__('Toets creëren')}}</div>
-            <div class="tile-item tile-2">{{__('Toetsenbank')}}</div>
-            <div class="tile-item tile-3">{{__('Vragenbank')}}</div>
-            <div class="tile-item tile-4">{{__('Mijn uploads')}}</div>
+            <div class="tile-item create-test" wire:click="$emitTo('teacher.test-start-create-modal', 'showModal')">{{__('Toets creëren')}}</div>
+            <div class="tile-item test-bank" wire:click="cakeRedirect('tests.test_bank')">{{__('Toetsenbank')}}</div>
+            <div class="tile-item question-bank" wire:click="cakeRedirect('tests.question_bank')">{{__('Vragenbank')}}</div>
+            <div class="tile-item my-uploads" wire:click="cakeRedirect('tests.my_uploads')">{{__('Mijn uploads')}}</div>
         </div>
         <div class="tile-group planned">
-            <div class="tile-item tile-1">{{__('Mijn ingeplande toetsen')}}</div>
-            <div class="tile-item tile-2">{{__('Surveilleren')}}</div>
-            <div class="tile-item tile-3">{{__('Lopende opdrachten')}}</div>
+            <div class="tile-item planned-tests" wire:click="cakeRedirect('planned.my_tests')">{{__('Mijn ingeplande toetsen')}}</div>
+            <div class="tile-item invigilating" wire:click="cakeRedirect('planned.surveillance')"><span>{{__('Surveilleren')}}</span></div>
+            <div class="tile-item ongoing-assignments" wire:click="cakeRedirect('planned.assessment_open')">{{__('Lopende opdrachten')}}</div>
         </div>
         <div class="tile-group taken">
-            <div class="tile-item tile-1">{{__('Mijn afgenomen toetsen')}}</div>
-            <div class="tile-item tile-2">{{__('Nakijken & normeren')}}</div>
+            <div class="tile-item my-taken-tests" wire:click="cakeRedirect('taken.test_taken')">{{__('Mijn afgenomen toetsen')}}</div>
+            <div class="tile-item normalizing" wire:click="cakeRedirect('taken.normalize_test')">{{__('Nakijken & normeren')}}</div>
         </div>
         <div class="tile-group analyses">
-            <div class="tile-item tile-1">{{__('Mijn studenten')}}</div>
-            <div class="tile-item tile-2">{{__('Mijn klassen')}}</div>
+            <div class="tile-item my-students" wire:click="cakeRedirect('analyses.students')">{{__('Mijn studenten')}}</div>
+            <div class="tile-item my-classes-analyses" wire:click="cakeRedirect('analyses.classes')">{{__('Mijn klassen')}}</div>
         </div>
         <div class="tile-group classes">
-            <div class="tile-item tile-1">{{__('Mijn klassen')}}</div>
-            <div class="tile-item tile-2">{{__('Mijn schoollocatie')}}</div>
+            <div class="tile-item my-classes-classes" wire:click="cakeRedirect('classes.my_classes')">{{__('Mijn klassen')}}</div>
+            <div class="tile-item my-schoollocations" wire:click="cakeRedirect('classes.my_schoollocation')">{{__('Mijn schoollocatie')}}</div>
         </div>
 
     </div>
+
 </div>

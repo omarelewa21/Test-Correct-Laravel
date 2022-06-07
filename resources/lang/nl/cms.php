@@ -167,4 +167,7 @@ return [
     'Wijzigingen niet opslaan'                                                               => 'Wijzigingen niet opslaan',
     'fix_order'                                                                              => 'Volgorde van antwoorden vastzetten',
 
+    'one_empty_container_allowed'                                                            => 'Niet meer dan één lege container is toegestaan',
+    'one_container_with_items'                                                               => 'Antwoorden moeten ten minste één container met items bevatten',
+    'container_label_missing'                                                                => 'Containerlabel ontbreekt, elke container moet een label hebben',
 ];

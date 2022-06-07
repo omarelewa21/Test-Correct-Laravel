@@ -36,6 +36,7 @@ Route::get('/uwlr', tcCore\Http\Livewire\UwlrGrid::class)->name('uwlr.grid');
 
 Route::get('/ckeditor/plugins/ckeditor_wiris/integration/configurationjs', [\tcCore\Http\Controllers\WirisIntegrationController::class, 'configurationjs']);
 Route::post('integration/configurationjs', [\tcCore\Http\Controllers\WirisIntegrationController::class, 'configurationjs']);
+Route::get('/get_app_version', [\tcCore\Http\Helpers\AppVersionDetector::class, 'getAppVersion']);
 
 if(\tcCore\Http\Helpers\BaseHelper::notProduction()) {
     Route::get('entree/testSession',\tcCore\Http\Controllers\EntreeTestSession::class);

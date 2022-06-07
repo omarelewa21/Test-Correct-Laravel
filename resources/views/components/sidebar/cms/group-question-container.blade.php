@@ -1,7 +1,8 @@
 <div x-data="{expand: true}"
-     class="flex flex-col py-1.5 pl-6 pr-4 {{ ($this->testQuestionId == $testQuestion->uuid) ? 'group-active' : '' }}"
+     class="drag-item flex flex-col py-1.5 pl-6 pr-4 {{ ($this->testQuestionId == $testQuestion->uuid) ? 'group-active' : '' }}"
      style="max-width: 300px"
      wire:key="group-{{ $testQuestion->uuid }}"
+     wire:sortable.item="{{ $question->uuid }}"
 >
     <div class="flex space-x-2 py-1.5 cursor-pointer group-question-title-container"
          :class="expand ? 'rotate-svg-270' : 'rotate-svg-90'"
@@ -33,12 +34,8 @@
                     </div>
                 @endif
             @endif
-            <div class="flex h-full rounded-md">
-                @if($question->closeable)
-                    <x-icon.locked/>
-                @else
-                    <x-icon.unlocked class="note"/>
-                @endif
+            <div class="flex h-full rounded-md" class="mt-2" wire:sortable.handle>
+                    <x-icon.reorder/>
             </div>
             <div class="flex">
                 <x-sidebar.cms.question-options :testQuestion="$testQuestion" :question="$question" :subQuestion="false"/>
@@ -47,6 +44,7 @@
     </div>
     <div class="w-full relative overflow-hidden transition-all max-h-0 duration-200 group-question-questions"
          :style="expand ? 'max-height:' + $el.scrollHeight + 'px' : ''"
+         wire:sortable-group.item-group="{{ $question->uuid }}"
     >
         {{ $slot }}
 
