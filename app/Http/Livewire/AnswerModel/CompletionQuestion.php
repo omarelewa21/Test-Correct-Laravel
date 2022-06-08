@@ -50,11 +50,9 @@ class CompletionQuestion extends Component
         $replacementFunction = function ($matches) use ($question) {
             $tag_id = $matches[1]; // the completion_question_answers list is 1 based but the inputs need to be 0 based
 
-            return sprintf(
-                '<input value="%s" class="form-input mb-2 disabled truncate text-center overflow-ellipsis" type="text" id="%s" style="width: 100px" disabled/>',
-                $this->answerStruct[$tag_id],
-                'answer_' . $tag_id
-            );
+            return sprintf('<span class="form-input resize-none overflow-ellipsis rounded-10 pdf-answer-model-input" >%s </span>', $this->answerStruct[$tag_id]);
+
+
         };
 
         return preg_replace_callback($this->searchPattern, $replacementFunction, $question_text);

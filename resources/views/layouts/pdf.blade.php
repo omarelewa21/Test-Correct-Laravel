@@ -195,6 +195,14 @@
             padding-left: 10px;
             padding-right: 10px;
         }
+        .pdf-answer-model-input{
+            display: inline-flex;
+            border: solid 2px #c3d0ed;
+            padding-left: 10px;
+            padding-right: 10px;
+            border-radius: 10px;
+            height: 30px;
+        }
         .prevent-pagebreak{
             page-break-before:auto;
         }
