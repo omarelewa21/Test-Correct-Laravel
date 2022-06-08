@@ -1,109 +1,65 @@
 <?php
 
-namespace tcCore\Console\Commands;
+namespace Tests\Feature;
 
-use Illuminate\Console\Command;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\WithFaker;
+use Illuminate\Foundation\Testing\DatabaseTransactions;
+use Illuminate\Support\Facades\Artisan;
 use tcCore\Attainment;
+use Tests\TestCase;
 
-class RepairAttainmentParents extends Command
+class RepairAttainmentParentsTest extends TestCase
 {
-    /**
-     * The name and signature of the console command.
-     *
-     * @var string
-     */
-    protected $signature = 'repair:attainment_parents  {--no_check}';
+    use DatabaseTransactions;
 
-    /**
-     * The console command description.
-     *
-     * @var string
-     */
-    protected $description = 'repairs missing parents after attainment import';
-
-    /**
-     * Create a new command instance.
-     *
-     * @return void
-     */
-    public function __construct()
+    /** @test */
+    public function testRepairAttainmentParentsCommand()
     {
-        parent::__construct();
-    }
-
-    /**
-     * Execute the console command.
-     *
-     * @return int
-     */
-    public function handle()
-    {
-        $msg = 'Did you backup attainments table and question_attainments table?';
-        if(!$this->option('no_check')&&!$this->confirm($msg)){
-            exit;
-        }
+        Artisan::call('repair:attainment_parents', ['--no_check' => true]);
         $collection = $this->getInputData();
-        $collection->each(function($struct, $key) {
-            if(is_null($struct["subcode"])){
-                $attainment = Attainment::where("base_subject_id", $struct["base_subject_id"])
-                    ->where("education_level_id", $struct["education_level_id"])
-                    ->where("code", $struct["code"])
-                    ->whereNull('subcode')
-                    ->whereNull('subsubcode')->first();
-            }else {
-                $attainment = Attainment::where("base_subject_id", $struct["base_subject_id"])
-                    ->where("education_level_id", $struct["education_level_id"])
-                    ->where("code", $struct["code"])
-                    ->whereNotNull('subcode')
-                    ->whereNull('subsubcode')->first();
+        $collection->each(function ($struct, $key) {
+            if (is_null($struct["subcode"])) {
+                $this->checkAttainment($struct);
+            } else {
+                $this->checkAttainmentWithSub($struct);
             }
-            if(!is_null($attainment)){
-                $this->info(sprintf('parent already handled base_subject:%s, eductation_level:%s, code:%s',$struct["base_subject_name"],$struct["education_level_name"],$struct["code"]));
-                return true;
-            }
-            $this->makeParent($struct);
         });
+
     }
 
-    private function makeParent($struct)
+    private function checkAttainment($struct)
     {
-        $description = '';
-        switch ($struct['code']){
-            case 'K':
-                $description = 'Kennis';
-                break;
-            case 'V':
-                $description = 'Vaardigheden';
-                break;
+        $attainment = Attainment::where(["base_subject_id" => $struct["base_subject_id"],
+            "education_level_id" => $struct["education_level_id"],
+            "code" => $struct["code"]])->whereNotNull('subcode')->whereNull('subsubcode')->first();
+        $this->assertNotNull($attainment);
+        $parent = Attainment::find($attainment->attainment_id);
+        $this->assertNotNull($parent);
+        $this->assertEquals($parent->base_subject_id, $struct["base_subject_id"]);
+        $this->assertEquals($parent->education_level_id, $struct["education_level_id"]);
+        $this->assertEquals($parent->code, $struct["code"]);
+        if($struct["code"]=='K'){
+            $this->assertEquals($parent->description, "Kennis");
+        }elseif($struct["code"]=='V'){
+            $this->assertEquals($parent->description, "Vaardigheden");
         }
-        $fill = collect($struct)->merge(['description'=>$description,'status'=>'ACTIVE'])->toArray();
-        $attainment  = new Attainment();
-        $attainment->fill($fill);
-        $attainment->save();
-        $this->updateChildren($attainment,$struct);
+        $this->assertNull($parent->subcode);
     }
 
-    private function updateChildren($attainment,$struct)
+    private function checkAttainmentWithSub($struct)
     {
-        if(is_null($struct["subcode"])){
-            $children = Attainment::where("base_subject_id" , $struct["base_subject_id"])
-                ->where("education_level_id" , $struct["education_level_id"])
-                ->where("code" , $struct["code"])
-                ->whereNotNull('subcode')
-                ->whereNull('subsubcode')
-                ->get();
-        }else{
-            $children = Attainment::where("base_subject_id" , $struct["base_subject_id"])
-                ->where("education_level_id" , $struct["education_level_id"])
-                ->where("code" , $struct["code"])
-                ->whereNotNull('subcode')
-                ->whereNotNull('subsubcode')
-                ->get();
-        }
-        $children->each(function($childAttainment) use ($attainment){
-            $childAttainment->attainment_id = $attainment->getKey();
-            $childAttainment->save();
-        });
+        $attainment = Attainment::where(["base_subject_id" => $struct["base_subject_id"],
+            "education_level_id" => $struct["education_level_id"],
+            "code" => $struct["code"],
+            "subcode" => $struct["subcode"]])->whereNotNull('subsubcode')->first();
+        $this->assertNotNull($attainment);
+        $parent = Attainment::find($attainment->attainment_id);
+        $this->assertNotNull($parent);
+        $this->assertEquals($parent->base_subject_id, $struct["base_subject_id"]);
+        $this->assertEquals($parent->education_level_id, $struct["education_level_id"]);
+        $this->assertEquals($parent->code, $struct["code"]);
+        $this->assertNull($parent->subsubcode);
     }
 
     private function getInputData()
@@ -245,6 +201,5 @@ class RepairAttainmentParents extends Command
                 "subsubcode" => null,
             ]
         ]);
-
     }
 }
