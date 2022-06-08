@@ -116,15 +116,12 @@
             {{-- Content --}}
             <div class="flex flex-col py-4" style="min-height: 500px"
                  wire:loading.class="opacity-75"
-                 @filters-handling.window="loadingGrid = true"
             >
                 <div class="flex">
                     <span class="note text-sm">{{ $this->resultCount }} resultaten</span>
                 </div>
-                <x-grid class="mt-4" x-show="loadingGrid" wire:key="loadinggrid-{{ $this->resultCount }}">
-                </x-grid>
 
-                <x-grid class="mt-4" x-show="!loadingGrid" wire:key="grid-{{ $this->resultCount }}">
+                <x-grid class="mt-4" wire:key="grid-{{ $this->resultCount }}">
                     {{-- @TODO: Fix loading animation --}}
                     @foreach($this->questions as $question)
                         <x-grid.question-card :question="$question"/>
