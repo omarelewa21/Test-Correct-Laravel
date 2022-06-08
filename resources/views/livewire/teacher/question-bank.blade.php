@@ -69,7 +69,7 @@
                         <x-icon.search class="absolute right-0 -top-2"/>
                     </div>
                 </div>
-                <div class="flex flex-wrap w-full space-x-2">
+                <div class="flex flex-wrap w-full space-x-2" x-cloak>
                     <x-input.choices-select :multiple="true"
                                             :options="$this->subjects"
                                             :withSearch="true"
@@ -94,6 +94,7 @@
                                             wire:key="education_level_year_{{ $this->openTab }}"
                                             filterContainer="questionbank-{{ $this->openTab }}-active-filters"
                     />
+                    <span x-show="openTab !== 'personal'">
                     <x-input.choices-select :multiple="true"
                                             :options="$this->authors"
                                             :withSearch="true"
@@ -102,6 +103,7 @@
                                             wire:key="author_id_{{ $this->openTab }}"
                                             filterContainer="questionbank-{{ $this->openTab }}-active-filters"
                     />
+                        </span>
                 </div>
 
                 <div id="questionbank-{{ $this->openTab }}-active-filters"
@@ -121,17 +123,16 @@
                         if (component.el.id !== 'question-bank') {
                             return;
                         }
-                        if (!livewireMessageContainsModelName(message, 'filter')) {
+                        if (!livewireMessageContainsModelName(message, 'filter') && !livewireMessageContainsModelName(message, 'openTab')) {
                             return;
                         }
                         filterLoading = true;
-
                     })
                     Livewire.hook('message.processed', (message, component) => {
-                                                if (component.el.id !== 'question-bank') {
+                        if (component.el.id !== 'question-bank') {
                             return;
                         }
-                        if (!livewireMessageContainsModelName(message, 'filter')) {
+                        if (!livewireMessageContainsModelName(message, 'filter') && !livewireMessageContainsModelName(message, 'openTab')) {
                             return;
                         }
                         filterLoading = false;
