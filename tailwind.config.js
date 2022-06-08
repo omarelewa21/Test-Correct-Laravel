@@ -14,6 +14,7 @@ module.exports = {
             'lg:max-w-3xl',
             'xl:max-w-5xl',
             '2xl:max-w-6xl',
+            ''
         ]
     },
     darkMode: false, // or 'media' or 'class'

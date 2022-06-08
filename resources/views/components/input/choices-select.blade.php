@@ -19,6 +19,7 @@
                         itemSelectText: '',
                         removeItemButton: true,
                         renderSelectedChoices: 'always',
+                        resetScrollPosition: false,
                         fuseOptions:{
                             treshold:0.3
                         }
@@ -34,7 +35,7 @@
                 id="{{$attributes['id']}}"></select>
     </div>
     <template id="filter-pill-template" class="hidden">
-        <div class="space-x-2" @click="$dispatch('removeFrom'+$el.dataset.filter, {value: parseInt($el.dataset.filterValue)})">
+        <div class="space-x-2" @click="$dispatch('removeFrom'+$el.dataset.filter, {value: parseInt($el.dataset.filterValue)}); $el.remove()">
             <span class="flex"></span>
             <x-icon.close-small/>{{--removeFilterItem($el)--}}
         </div>
