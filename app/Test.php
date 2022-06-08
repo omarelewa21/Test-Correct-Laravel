@@ -950,4 +950,21 @@ class Test extends BaseModel
         }
         $maxScore += $question->score;
     }
+
+    public function listOfTestQuestionsWithQuestions()
+    {
+        return $this->testQuestions->sortBy('order')->flatMap(function ($testQuestion) {
+            $testQuestion->question->loadRelated();
+            $testQuestion->question->attachmentCount = $testQuestion->question->attachments()->count();
+            if ($testQuestion->question->type === 'GroupQuestion') {
+                $groupQuestion = $testQuestion->question;
+                $groupQuestion->subQuestions = $groupQuestion->groupQuestionQuestions->map(function ($item) use ($groupQuestion) {
+                    $item->question->belongs_to_groupquestion_id = $groupQuestion->getKey();
+                    $item->question->groupQuestionQuestionUuid = $item->uuid;
+                    return $item->question;
+                });
+            }
+            return [$testQuestion];
+        });
+    }
 }
