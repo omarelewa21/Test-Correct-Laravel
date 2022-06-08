@@ -950,4 +950,11 @@ class Test extends BaseModel
         }
         $maxScore += $question->score;
     }
+
+    public function isCopy(){
+        if (! $this->created_at) {
+            return false;
+        }
+        return $this->created_at->is($this->updated_at);
+    }
 }
