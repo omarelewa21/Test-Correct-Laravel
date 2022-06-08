@@ -403,7 +403,7 @@ class OpenShort extends Component
         if ($this->obj && method_exists($this->obj, 'updating')) {
             $this->obj->updating($name, $value);
         }
-        if ($name == 'question.question' && html_entity_decode($this->question['question']) == html_entity_decode($value)) {
+        if ($name == 'question.question' && clean($this->question['question']) == clean($value)) {
             $this->registerDirty = false;
         }
     }
@@ -1037,7 +1037,7 @@ class OpenShort extends Component
 
     private function resolveOrderNumber()
     {
-        if ($this->isGroupQuestion() || !$this->questionId) {
+        if ($this->isGroupQuestion() || !$this->questionId || $this->emptyState) {
             return 1;
         }
 

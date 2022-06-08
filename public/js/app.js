@@ -5929,8 +5929,6 @@ document.addEventListener('alpine:init', function () {
         this.drawer = this.$root.closest('.drawer');
         setTimeout(function () {
           _this8.handleVerticalScroll(_this8.$root.firstElementChild);
-
-          _this8.$dispatch('groupFoldingUpdate');
         }, 400);
       },
       next: function next(currentEl) {
@@ -5957,6 +5955,7 @@ document.addEventListener('alpine:init', function () {
           left: position >= 0 ? position : 0,
           behavior: 'smooth'
         });
+        this.$store.cms.scrollPos = 0;
       },
       handleVerticalScroll: function handleVerticalScroll(el) {
         var _this9 = this;
@@ -6015,6 +6014,7 @@ document.addEventListener('alpine:init', function () {
       addQuestionToGroup: function addQuestionToGroup(uuid) {
         this.showAddQuestionSlide();
         this.$store.questionBank.inGroup = uuid;
+        this.$dispatch('backdrop');
       },
       addGroup: function addGroup() {
         var shouldCheckDirty = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : true;
@@ -6039,11 +6039,9 @@ document.addEventListener('alpine:init', function () {
         }
 
         this.next(this.$refs.container1);
-        this.$dispatch('backdrop');
       },
       backToQuestionOverview: function backToQuestionOverview(container) {
         this.prev(container);
-        this.$dispatch('backdrop');
         this.$store.questionBank.inGroup = false; // this.$store.cms.processing = false;
       }
     };
@@ -6173,7 +6171,8 @@ document.addEventListener('alpine:init', function () {
   alpinejs__WEBPACK_IMPORTED_MODULE_1__["default"].store('cms', {
     loading: false,
     processing: false,
-    dirty: false
+    dirty: false,
+    scrollPos: 0
   });
   alpinejs__WEBPACK_IMPORTED_MODULE_1__["default"].store('questionBank', {
     active: false,
@@ -6224,8 +6223,6 @@ __webpack_require__(/*! ./attachment */ "./resources/js/attachment.js");
 __webpack_require__(/*! ./flatpickr */ "./resources/js/flatpickr.js");
 
 __webpack_require__(/*! ./navigation-bar */ "./resources/js/navigation-bar.js");
-
-__webpack_require__(/*! ../../vendor/wire-elements/modal/resources/js/modal */ "./vendor/wire-elements/modal/resources/js/modal.js");
 
 window.ClassicEditors = [];
 
@@ -6724,7 +6721,7 @@ window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
 window.Pusher = __webpack_require__(/*! pusher-js */ "./node_modules/pusher-js/dist/web/pusher.js");
 window.Echo = new laravel_echo__WEBPACK_IMPORTED_MODULE_0__["default"]({
   broadcaster: 'pusher',
-  key: "51d7221bf733999d7138",
+  key: "fc18ed69b446aeb8c8a5",
   cluster: "eu",
   forceTLS: true
 });
@@ -6865,10 +6862,53 @@ Core = {
     }
   },
   enableAppFeatures: function enableAppFeatures(appType) {
-    var appElements = document.querySelectorAll('[' + appType + ']');
-    appElements.forEach(function (element) {
-      element.style.display = 'flex';
-    });
+    var show = function show() {
+      var appElements = document.querySelectorAll('[' + appType + ']');
+      appElements.forEach(function (element) {
+        element.style.display = 'flex';
+      });
+    };
+
+    if (appType === 'chromebook') {
+      window.onload = function () {
+        try {
+          var count = 1;
+          var buttonDisplay = setInterval(function () {
+            // send request to get the version, max 5 times then break the interval
+            var xhttp = new XMLHttpRequest();
+            xhttp.open("GET", "/get_app_version", true);
+            xhttp.send();
+
+            xhttp.onload = function () {
+              var response = JSON.parse(this.response).TLCVersion; // get chrome version
+
+              if (response != 'x') {
+                // version is defined                              
+                if (response.charAt(0) == '2') {
+                  // version starts with 2.
+                  show();
+                } else if (response.charAt(0) == '3') {
+                  // version starts with 3.
+                  chrome.runtime.sendMessage( // see if it is a kiosk app\
+                  document.getElementById("chromeos-extension-id").name, {
+                    isKiosk: true
+                  }, function (response) {
+                    response.isKiosk ? show() : ''; // if koisk app, show button
+                  });
+                }
+
+                clearInterval(buttonDisplay);
+              } else {
+                count >= 5 ? clearInterval(buttonDisplay) : count++;
+              }
+            };
+          }, 2000);
+        } catch (error) {}
+      };
+    } else {
+      // version is not defined (headers is not recieved from the app yet)
+      show();
+    }
   },
   checkForElectron: function checkForElectron() {
     try {
@@ -12898,194 +12938,6 @@ function shouldSwipeDirectionBeReturned(target) {
   });
   return returnDirection;
 }
-
-/***/ }),
-
-/***/ "./vendor/wire-elements/modal/resources/js/modal.js":
-/*!**********************************************************!*\
-  !*** ./vendor/wire-elements/modal/resources/js/modal.js ***!
-  \**********************************************************/
-/***/ (() => {
-
-function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _unsupportedIterableToArray(arr) || _nonIterableSpread(); }
-
-function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
-
-function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen); }
-
-function _iterableToArray(iter) { if (typeof Symbol !== "undefined" && iter[Symbol.iterator] != null || iter["@@iterator"] != null) return Array.from(iter); }
-
-function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) return _arrayLikeToArray(arr); }
-
-function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) { arr2[i] = arr[i]; } return arr2; }
-
-window.LivewireUIModal = function () {
-  return {
-    show: false,
-    showActiveComponent: true,
-    activeComponent: false,
-    componentHistory: [],
-    modalWidth: null,
-    getActiveComponentModalAttribute: function getActiveComponentModalAttribute(key) {
-      if (this.$wire.get('components')[this.activeComponent] !== undefined) {
-        return this.$wire.get('components')[this.activeComponent]['modalAttributes'][key];
-      }
-    },
-    closeModalOnEscape: function closeModalOnEscape(trigger) {
-      if (this.getActiveComponentModalAttribute('closeOnEscape') === false) {
-        return;
-      }
-
-      var force = this.getActiveComponentModalAttribute('closeOnEscapeIsForceful') === true;
-      this.closeModal(force);
-    },
-    closeModalOnClickAway: function closeModalOnClickAway(trigger) {
-      if (this.getActiveComponentModalAttribute('closeOnClickAway') === false) {
-        return;
-      }
-
-      this.closeModal(true);
-    },
-    closeModal: function closeModal() {
-      var force = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : false;
-      var skipPreviousModals = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 0;
-      var destroySkipped = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
-
-      if (this.show === false) {
-        return;
-      }
-
-      if (this.getActiveComponentModalAttribute('dispatchCloseEvent') === true) {
-        var componentName = this.$wire.get('components')[this.activeComponent].name;
-        Livewire.emit('modalClosed', componentName);
-      }
-
-      if (this.getActiveComponentModalAttribute('destroyOnClose') === true) {
-        Livewire.emit('destroyComponent', this.activeComponent);
-      }
-
-      if (skipPreviousModals > 0) {
-        for (var i = 0; i < skipPreviousModals; i++) {
-          if (destroySkipped) {
-            var _id = this.componentHistory[this.componentHistory.length - 1];
-            Livewire.emit('destroyComponent', _id);
-          }
-
-          this.componentHistory.pop();
-        }
-      }
-
-      var id = this.componentHistory.pop();
-
-      if (id && force === false) {
-        if (id) {
-          this.setActiveModalComponent(id, true);
-        } else {
-          this.setShowPropertyTo(false);
-        }
-      } else {
-        this.setShowPropertyTo(false);
-      }
-    },
-    setActiveModalComponent: function setActiveModalComponent(id) {
-      var _this = this;
-
-      var skip = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
-      this.setShowPropertyTo(true);
-
-      if (this.activeComponent === id) {
-        return;
-      }
-
-      if (this.activeComponent !== false && skip === false) {
-        this.componentHistory.push(this.activeComponent);
-      }
-
-      var focusableTimeout = 50;
-
-      if (this.activeComponent === false) {
-        this.activeComponent = id;
-        this.showActiveComponent = true;
-        this.modalWidth = this.getActiveComponentModalAttribute('maxWidthClass');
-      } else {
-        this.showActiveComponent = false;
-        focusableTimeout = 400;
-        setTimeout(function () {
-          _this.activeComponent = id;
-          _this.showActiveComponent = true;
-          _this.modalWidth = _this.getActiveComponentModalAttribute('maxWidthClass');
-        }, 300);
-      }
-
-      this.$nextTick(function () {
-        var _this$$refs$id;
-
-        var focusable = (_this$$refs$id = _this.$refs[id]) === null || _this$$refs$id === void 0 ? void 0 : _this$$refs$id.querySelector('[autofocus]');
-
-        if (focusable) {
-          setTimeout(function () {
-            focusable.focus();
-          }, focusableTimeout);
-        }
-      });
-    },
-    focusables: function focusables() {
-      var selector = 'a, button, input, textarea, select, details, [tabindex]:not([tabindex=\'-1\'])';
-      return _toConsumableArray(this.$el.querySelectorAll(selector)).filter(function (el) {
-        return !el.hasAttribute('disabled');
-      });
-    },
-    firstFocusable: function firstFocusable() {
-      return this.focusables()[0];
-    },
-    lastFocusable: function lastFocusable() {
-      return this.focusables().slice(-1)[0];
-    },
-    nextFocusable: function nextFocusable() {
-      return this.focusables()[this.nextFocusableIndex()] || this.firstFocusable();
-    },
-    prevFocusable: function prevFocusable() {
-      return this.focusables()[this.prevFocusableIndex()] || this.lastFocusable();
-    },
-    nextFocusableIndex: function nextFocusableIndex() {
-      return (this.focusables().indexOf(document.activeElement) + 1) % (this.focusables().length + 1);
-    },
-    prevFocusableIndex: function prevFocusableIndex() {
-      return Math.max(0, this.focusables().indexOf(document.activeElement)) - 1;
-    },
-    setShowPropertyTo: function setShowPropertyTo(show) {
-      var _this2 = this;
-
-      this.show = show;
-
-      if (show) {
-        document.body.classList.add('overflow-y-hidden');
-      } else {
-        document.body.classList.remove('overflow-y-hidden');
-        setTimeout(function () {
-          _this2.activeComponent = false;
-
-          _this2.$wire.resetState();
-        }, 300);
-      }
-    },
-    init: function init() {
-      var _this3 = this;
-
-      this.modalWidth = this.getActiveComponentModalAttribute('maxWidthClass');
-      Livewire.on('closeModal', function () {
-        var force = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : false;
-        var skipPreviousModals = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 0;
-        var destroySkipped = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
-
-        _this3.closeModal(force, skipPreviousModals, destroySkipped);
-      });
-      Livewire.on('activeModalComponentChanged', function (id) {
-        _this3.setActiveModalComponent(id);
-      });
-    }
-  };
-};
 
 /***/ }),
 

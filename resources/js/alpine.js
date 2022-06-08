@@ -351,7 +351,6 @@ document.addEventListener('alpine:init', () => {
             this.drawer = this.$root.closest('.drawer');
             setTimeout(() => {
                 this.handleVerticalScroll(this.$root.firstElementChild);
-                this.$dispatch('groupFoldingUpdate');
             }, 400);
         },
         next(currentEl) {
@@ -375,6 +374,7 @@ document.addEventListener('alpine:init', () => {
                 left: position >= 0 ? position : 0,
                 behavior: 'smooth'
             });
+            this.$store.cms.scrollPos = 0
         },
         handleVerticalScroll(el) {
             this.$refs.questionEditorSidebar.style.minHeight = 'auto';
@@ -428,6 +428,7 @@ document.addEventListener('alpine:init', () => {
         addQuestionToGroup(uuid) {
             this.showAddQuestionSlide()
             this.$store.questionBank.inGroup = uuid;
+            this.$dispatch('backdrop');
         },
         addGroup(shouldCheckDirty = true) {
             if (shouldCheckDirty && this.$store.cms.dirty) {
@@ -443,11 +444,9 @@ document.addEventListener('alpine:init', () => {
             }
 
             this.next(this.$refs.container1);
-            this.$dispatch('backdrop')
         },
         backToQuestionOverview(container) {
             this.prev(container);
-            this.$dispatch('backdrop');
             this.$store.questionBank.inGroup = false;
             // this.$store.cms.processing = false;
         }
@@ -562,7 +561,8 @@ document.addEventListener('alpine:init', () => {
     Alpine.store('cms', {
         loading: false,
         processing: false,
-        dirty: false
+        dirty: false,
+        scrollPos: 0,
     });
     Alpine.store('questionBank', {
         active: false,

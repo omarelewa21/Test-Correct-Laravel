@@ -34,7 +34,7 @@ class CmsOpen
 
     public function updating($name, $value)
     {
-        if ($name == 'question.answer' && html_entity_decode($this->instance->question['answer']) == html_entity_decode($value)) {
+        if ($name == 'question.answer' && clean($this->instance->question['answer']) == clean($value)) {
             $this->instance->registerDirty = false;
         }
     }

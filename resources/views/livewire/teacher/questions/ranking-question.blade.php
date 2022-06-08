@@ -34,9 +34,11 @@
                 $errorAnswerClass = 'border-allred'
             @endphp
             @enderror
-            <x-drag-item id="mc-{{$answer->id}}" sortId="{{ $answer->order }}"
-                         wireKey="option-{{ $answer->id }}" selid="drag-box"
+            <x-drag-item id="mc-{{$answer->id}}"
                          class="flex px-0 py-0 border-0 bg-system-white relative"
+                         sortId="{{ $answer->order }}"
+                         wireKey="option-{{ $answer->id }}"
+                         selid="drag-box"
                          slotClasses="w-full mr-0 "
                          dragClasses="absolute right-14 hover:text-primary transition"
                          dragIconClasses=" cursor-move"
@@ -44,19 +46,22 @@
                          :keepWidth="true"
                          sortIcon="reorder"
             >
-                <x-input.text class="w-full mr-1 {{ $errorAnswerClass }} " wire:model.lazy="cmsPropertyBag.answerStruct.{{ $loop->index }}.answer" selid="answer-field"/>
+                <x-input.text class="w-full mr-1 {{ $errorAnswerClass }} "
+                              wire:model.lazy="cmsPropertyBag.answerStruct.{{ $loop->index }}.answer"
+                              selid="answer-field"/>
                 <x-slot name="after">
-                    <x-icon.remove class="mx-2 w-4 cursor-pointer  {{ $disabledClass }}" id="remove_{{ $answer->order }}" wire:click="__call('delete','{{$answer->id}}')"></x-icon.remove>
+                    <x-icon.remove class="mx-2 w-4 cursor-pointer  {{ $disabledClass }}"
+                                   id="remove_{{ $answer->order }}"
+                                   wire:click="__call('delete','{{$answer->id}}')"/>
                 </x-slot>
             </x-drag-item>
         @endforeach
     </div>
     <div class="flex flex-col space-y-2 w-full">
-        <x-button.primary class="mt-3 justify-center" wire:click="__call('addAnswerItem')" selid="add-answer-option-btn">
+        <x-button.primary class="mt-3 justify-center" wire:click="__call('addAnswerItem')"
+                          selid="add-answer-option-btn">
             <x-icon.plus/>
-            <span >
-                                    {{ __('cms.Item toevoegen') }}
-                                    </span>
+            <span>{{ __('cms.Item toevoegen') }}</span>
         </x-button.primary>
     </div>
 @endsection

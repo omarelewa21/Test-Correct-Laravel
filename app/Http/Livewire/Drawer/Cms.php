@@ -58,7 +58,7 @@ class Cms extends Component
             return true;
         }
         if ($this->action === 'add') {
-            $this->newQuestionTypeName = CmsFactory::findQuestionNameByTypes($this->type, $this->subtype);
+            $this->setQuestionNameString($this->type, $this->subtype);
         }
     }
 
@@ -146,11 +146,12 @@ class Cms extends Component
 
     public function addQuestionResponse($args)
     {
-        $this->newQuestionTypeName = $args['subtype'] == 'group' ? __('cms.group-question') : CmsFactory::findQuestionNameByTypes($args['type'], $args['subtype']);
+        $this->setQuestionNameString($args['type'], $args['subtype']);
 
         if ($this->emptyStateActive) {
             $this->emptyStateActive = false;
             $this->dispatchBrowserEvent('question-change');
+            $this->dispatchBrowserEvent('new-question-added');
         }
         $this->dispatchBrowserEvent('processing-end');
         $this->groupId = null;
@@ -172,21 +173,6 @@ class Cms extends Component
             }
             return [$testQuestion];
         });
-    }
-
-    public function getQuestionNameForDisplay($question)
-    {
-        if ($question->type === "MultipleChoiceQuestion") {
-            if ($question->subtype === "ARQ") {
-                return 'question.arq';
-            }
-
-            return 'question.' . Str::kebab($question->subtype);
-        }
-        if ($question->type === "OpenQuestion") {
-            return 'question.open-long-short';
-        }
-        return 'question.' . Str::kebab(Str::replaceFirst('Question', '', $question->type));
     }
 
     public function addGroup()
@@ -275,11 +261,46 @@ class Cms extends Component
 
     public function deleteQuestionByQuestionId($questionId)
     {
-        $testQuestionUuid = $this->questionsInTest->filter(function ($question) use ($questionId) {
+        $testQuestion = $this->questionsInTest->filter(function ($question) use ($questionId) {
             return $question->question_id == $questionId;
-        })->first()->uuid;
+        })->first();
 
-        $this->deleteQuestion($testQuestionUuid);
+        if (!$testQuestion) {
+            $testId = Test::whereUuid($this->testId)->value('id');
+            $groupQuestionsInTest = GroupQuestionQuestion::select('uuid', 'question_id', 'group_question_id')
+                ->whereIn(
+                    'group_question_id',
+                    TestQuestion::from('test_questions as tq')
+                        ->select('q.id')
+                        ->join('questions as q', 'tq.question_id', '=', 'q.id')
+                        ->where('tq.test_id', '=', $testId)
+                        ->where('q.type', '=', 'GroupQuestion')
+                        ->whereNull('q.deleted_at')
+                        ->withTrashed()
+                )
+                ->get()
+                ->mapWithKeys(function ($groupQuestionQuestion) {
+                    return [
+                        $groupQuestionQuestion->question_id => [
+                            'groupQuestionQuestionUuid' => $groupQuestionQuestion->uuid,
+                            'groupQuestionId'           => $groupQuestionQuestion->group_question_id
+                        ]
+                    ];
+                });
+
+            if ($groupQuestionQuestionData = $groupQuestionsInTest->get($questionId)) {
+                $testQuestion = TestQuestion::where('question_id', $groupQuestionQuestionData['groupQuestionId'])
+                                                ->where('test_id', $testId)
+                                                ->value('uuid');
+                $this->dispatchBrowserEvent('question-removed');
+                return $this->deleteSubQuestion($groupQuestionQuestionData['groupQuestionQuestionUuid'], $testQuestion);
+            }
+
+            $this->dispatchBrowserEvent('notify', ['message' => 'Er is iets mis gegaan met verwijderen van de vraag.', 'error']);
+            return false;
+        }
+        $this->dispatchBrowserEvent('question-removed');
+        $this->deleteQuestion($testQuestion->uuid);
     }
 
     public function deleteSubQuestion($groupQuestionQuestionId, $testQuestionId)
@@ -352,5 +373,10 @@ class Cms extends Component
     private function shouldRedirectFromSubQuestion($groupQuestionQuestionId)
     {
         return $this->groupQuestionQuestionId === $groupQuestionQuestionId;
+    }
+
+    private function setQuestionNameString($type, $subtype)
+    {
+        $this->newQuestionTypeName = $subtype === 'group' ? __('cms.group-question') : CmsFactory::findQuestionNameByTypes($type, $subtype);
     }
 }

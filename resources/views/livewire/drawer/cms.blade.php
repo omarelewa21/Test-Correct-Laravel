@@ -22,10 +22,9 @@
         }
      "
      x-cloak
-     x-effect="handleLoading()"
+     x-effect="handleLoading(); $el.scrollTop = $store.cms.scrollPos"
      :class="{'collapsed': collapse}"
      @backdrop="backdrop = !backdrop"
-     @scroll.throttle.500ms="$dispatch('drawer-scroll')"
      @processing-end.window="$store.cms.processing = false;"
      wire:ignore.self
      wire:init="handleCmsInit()"
@@ -69,7 +68,6 @@
         >
             <x-sidebar.slide-container class="pt-4 divide-y divide-bluegrey"
                                        x-ref="container1"
-{{--                                       @drawer-scroll.window="handleVerticalScroll($el)"--}}
                                        @mouseenter="handleVerticalScroll($el);"
                                        @continue-to-new-slide.window="$store.cms.processing = true;$wire.removeDummy();showAddQuestionSlide(false)"
                                        @continue-to-add-group.window="addGroup(false)"
@@ -122,7 +120,7 @@
                     {{ __('cms.Vraaggroep toevoegen') }}
                 </x-button.plus-circle>
 
-                <x-button.plus-circle @click="showAddQuestionSlide()"
+                <x-button.plus-circle @click="showAddQuestionSlide();dispatchBackdrop()"
                 >
                     {{__('cms.Vraag toevoegen')}}
                 </x-button.plus-circle>
@@ -132,7 +130,7 @@
             <x-sidebar.slide-container class="divide-y divide-bluegrey" x-ref="container2" @mouseenter="handleVerticalScroll($el);">
                 <div class="py-1 px-6 flex">
                     <x-button.text-button class="rotate-svg-180"
-                                          @click="backToQuestionOverview($refs.container2)"
+                                          @click="backToQuestionOverview($refs.container2);dispatchBackdrop()"
                                           wire:click="$set('groupId', null)"
                     >
                         <x-icon.arrow/>
@@ -145,18 +143,18 @@
                     <x-slot name="subtext">{{ __('cms.Stel een nieuwe vraag op') }}</x-slot>
                 </x-button.plus-circle>
 
-{{--                <x-button.plus-circle class="py-4" @click="showQuestionBank()">--}}
-{{--                    {{ __( 'cms.Bestaande toevoegen' ) }}--}}
-{{--                    <x-slot name="subtext">{{ __('cms.Verken en kies uit vragenbank') }}</x-slot>--}}
-{{--                </x-button.plus-circle>--}}
+                <x-button.plus-circle class="py-4" @click="showQuestionBank()">
+                    {{ __( 'cms.Bestaande toevoegen' ) }}
+                    <x-slot name="subtext">{{ __('cms.Verken en kies uit vragenbank') }}</x-slot>
+                </x-button.plus-circle>
 
-                <div class="flex px-6 py-2.5 space-x-2.5 note cursor-default">
-                    <x-icon.plus-in-circle/>
-                    <div class="flex flex-col ">
-                        <button class="bold mt-px text-left cursor-default">{{ __( 'cms.Bestaande toevoegen' ) }}</button>
-                        <span class="text-sm note regular">{{ __('cms.Verken en kies uit vragenbank') }}</span>
-                    </div>
-                </div>
+{{--                <div class="flex px-6 py-2.5 space-x-2.5 note cursor-default">--}}
+{{--                    <x-icon.plus-in-circle/>--}}
+{{--                    <div class="flex flex-col ">--}}
+{{--                        <button class="bold mt-px text-left cursor-default">{{ __( 'cms.Bestaande toevoegen' ) }}</button>--}}
+{{--                        <span class="text-sm note regular">{{ __('cms.Verken en kies uit vragenbank') }}</span>--}}
+{{--                    </div>--}}
+{{--                </div>--}}
 
                 <span></span>
             </x-sidebar.slide-container>

@@ -1,6 +1,6 @@
 <div id="question-bank"
      class="flex flex-col relative w-full min-h-full bg-lightGrey border-t border-secondary overflow-auto"
-     x-data="{openTab: 1, checkedCount: 0, loading: false, inGroup: @entangle('inGroup')}"
+     x-data="{openTab: @entangle('openTab'), checkedCount: 0, inGroup: @entangle('inGroup')}"
      x-init="$watch('$store.questionBank.inGroup', value => inGroup = value);"
      @checked="$event.detail ? checkedCount += 1 : checkedCount -= 1"
      @question-added.window="Notify.notify('Vraag toegevoegd!')"
@@ -12,25 +12,26 @@
             <div class="flex w-full space-x-4">
                 <div>
                     <div class="flex relative hover:text-primary cursor-pointer"
-                         @click="openTab = 1"
-                         wire:click="setSource('personal')"
+                         @click="openTab = 'personal'"
+                            {{--                         wire:click="setSource('personal')"--}}
                     >
-                        <span class="bold pt-[0.9375rem] pb-[0.8125rem]" :class="openTab === 1 ? 'primary' : '' ">Persoonlijk</span>
+                        <span class="bold pt-[0.9375rem] pb-[0.8125rem]"
+                              :class="openTab === 'personal' ? 'primary' : '' ">Persoonlijk</span>
                         <span class="absolute w-full bottom-0" style="height: 3px"
-                              :class="openTab === 1 ? 'bg-primary' : 'bg-transparent' "></span>
+                              :class="openTab === 'personal' ? 'bg-primary' : 'bg-transparent' "></span>
                     </div>
                 </div>
 
                 <div>
                     {{--                    <div class="flex relative text-midgrey cursor-default">--}}
                     <div class="flex relative hover:text-primary cursor-pointer"
-                         @click="openTab = 2"
-                         wire:click="setSource('school')"
+                         @click="openTab = 'school'"
+                            {{--                         wire:click="setSource('school')"--}}
                     >
                         <span class="bold pt-[0.9375rem] pb-[0.8125rem]"
-                              :class="openTab === 2 ? 'primary' : '' ">School</span>
+                              :class="openTab === 'school' ? 'primary' : '' ">School</span>
                         <span class="absolute w-full bottom-0" style="height: 3px"
-                              :class="openTab === 2 ? 'bg-primary' : 'bg-transparent' "></span>
+                              :class="openTab === 'school' ? 'bg-primary' : 'bg-transparent' "></span>
                     </div>
                 </div>
 
@@ -58,12 +59,12 @@
     <div class="flex w-full">
         <div class="w-full max-w-5xl mx-auto divide-y divide-secondary">
             {{-- Filters--}}
-            <div class="flex flex-col py-4">
+            <div class="flex flex-col pt-4 pb-2">
                 <div class="flex w-full my-2">
                     <div class="relative w-full">
                         <x-input.text class="w-full"
                                       placeholder="Zoek..."
-                                      wire:model="filters.search"
+                                      wire:model.300ms="filters.{{ $this->openTab }}.search"
                         />
                         <x-icon.search class="absolute right-0 -top-2"/>
                     </div>
@@ -73,64 +74,93 @@
                                             :options="$this->subjects"
                                             :withSearch="true"
                                             placeholderText="Vak"
-                                            wire:model="filters.subject_id"
-                                            filterContainer="questionbank-active-filters"
-                    />
-                    <x-input.choices-select :multiple="true"
-                                            :options="$this->educationLevelYear"
-                                            :withSearch="true"
-                                            placeholderText="Leerjaar"
-                                            wire:model="filters.education_level_year"
-                                            filterContainer="questionbank-active-filters"
+                                            wire:model="filters.{{ $this->openTab }}.subject_id"
+                                            wire:key="subject_id_{{ $this->openTab }}"
+                                            filterContainer="questionbank-{{ $this->openTab }}-active-filters"
                     />
                     <x-input.choices-select :multiple="true"
                                             :options="$this->educationLevel"
                                             :withSearch="true"
                                             placeholderText="Niveau"
-                                            wire:model="filters.education_level_id"
-                                            filterContainer="questionbank-active-filters"
+                                            wire:model="filters.{{ $this->openTab }}.education_level_id"
+                                            wire:key="education_level_id_{{ $this->openTab }}"
+                                            filterContainer="questionbank-{{ $this->openTab }}-active-filters"
+                    />
+                    <x-input.choices-select :multiple="true"
+                                            :options="$this->educationLevelYear"
+                                            :withSearch="true"
+                                            placeholderText="Leerjaar"
+                                            wire:model="filters.{{ $this->openTab }}.education_level_year"
+                                            wire:key="education_level_year_{{ $this->openTab }}"
+                                            filterContainer="questionbank-{{ $this->openTab }}-active-filters"
+                    />
+                    <x-input.choices-select :multiple="true"
+                                            :options="$this->authors"
+                                            :withSearch="true"
+                                            placeholderText="Auteur"
+                                            wire:model="filters.{{ $this->openTab }}.author_id"
+                                            wire:key="author_id_{{ $this->openTab }}"
+                                            filterContainer="questionbank-{{ $this->openTab }}-active-filters"
                     />
                 </div>
 
-                <div id="questionbank-active-filters"
+                <div id="questionbank-{{ $this->openTab }}-active-filters"
+                     x-data
+                     wire:key="filters-container-{{ $this->openTab }}"
                      wire:ignore
-                     :class="($el.innerHTML !== '') ? 'mt-2' : ''"
+                     class="flex flex-wrap gap-2 mt-2"
                 >
-                    <template id="filter-pill-template" class="hidden">
-                        <div class="space-x-2">
-                            <span class="flex"></span>
-                            <x-icon.close-small @click="removeFilterItem($el)"/>
-                        </div>
-                    </template>
-
                 </div>
             </div>
 
             {{-- Content --}}
-            <div class="flex flex-col py-4" style="min-height: 500px">
+            <div class="flex flex-col py-4" style="min-height: 500px"
+                 wire:loading.class="opacity-75"
+            >
                 <div class="flex">
                     <span class="note text-sm">{{ $this->resultCount }} resultaten</span>
                 </div>
-                <x-grid class="mt-4" x-show="!loading">
+
+                <x-grid class="mt-4" wire:key="grid-{{ $this->resultCount }}">
+                    {{-- @TODO: Fix loading animation --}}
                     @foreach($this->questions as $question)
                         <x-grid.question-card :question="$question"/>
                     @endforeach
+
                     @if($this->questions->count() && $this->questions->count() != $this->resultCount)
-                        @foreach([1,2,3,4,5] as $loader)
-                            <x-grid.loading-card :delay="$loader">
-                                @if($loader === 3)
-                                    <span x-intersect="$wire.showMore()"></span>
+                        @foreach(range(1, 6) as $delay)
+                            <div class="animate-borderpulse border-6 rounded-10"
+                                 style="min-height: 180px; height: 180px; animation-delay: calc({{ $delay }} * 200ms)">
+                                @if($delay === 4)
+                                    <span x-data="{shouldSend: true}"
+                                          x-init="$watch('shouldSend', value => {
+                                                setTimeout(() => {
+                                                    shouldSend = true
+                                                }, 500);
+                                          })"
+                                          x-intersect.once="
+                                            if (shouldSend) {
+                                                $wire.showMore();
+                                                shouldSend = false;
+                                            }
+                                          "
+                                    ></span>
                                 @endif
-                            </x-grid.loading-card>
+                            </div>
                         @endforeach
                     @else
-                        @if(!$this->questions->count())
-                            @if($this->filters['source'] === 'me')
-                                <span class="col-span-2 text-center">U heeft nog geen eigen gemaakte vragen.</span>
+                        <span class="col-span-1 xl:col-span-3 lg:col-span-2 text-center">
+                            {{-- @TODO: Add translations--}}
+                            @if(!$this->questions->count())
+                                @if($this->openTab === 'personal')
+                                    U heeft nog geen eigen gemaakte vragen voor deze zoekfilters.
+                                @else
+                                    Er is nog geen openbare content voor uw school.
+                                @endif
                             @else
-                                <span class="col-span-2 text-center">Er is nog geen openbare content voor uw school.</span>
+                                Er zijn geen items meer voor deze zoekfilters.
                             @endif
-                        @endif
+                        </span>
                     @endif
                 </x-grid>
             </div>
@@ -145,7 +175,7 @@
                 <span class="inline-flex -ml-px mt-px" x-text="checkedCount">0</span>
             </span>
         </div>
-        <x-button.cta class="main-shadow" @click="loading = !loading; $root.classList.toggle('loading')">
+        <x-button.cta class="main-shadow">
             <x-icon.checkmark/>
             <span>{{ __('cms.Toevoegen') }}</span>
         </x-button.cta>

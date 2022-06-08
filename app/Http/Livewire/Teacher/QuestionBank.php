@@ -2,9 +2,11 @@
 
 namespace tcCore\Http\Livewire\Teacher;
 
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 use tcCore\EducationLevel;
+use tcCore\Http\Controllers\AuthorsController;
 use tcCore\Http\Controllers\GroupQuestionQuestionsController;
 use tcCore\Http\Controllers\TestQuestionsController;
 use tcCore\Http\Requests\CreateGroupQuestionQuestionRequest;
@@ -23,27 +25,27 @@ class QuestionBank extends Component
 
     protected $queryString = ['testId', 'testQuestionId'];
 
+    public $openTab = 'personal';
     public $testId;
     public $testQuestionId;
 
-    public $filters = [
-        'search'               => '',
-        'subject_id'           => [],
-        'education_level_year' => [],
-        'education_level_id'   => [],
-        'source'               => self::SOURCE_PERSONAL,
-        'without_groups'       => ''
-    ];
+    public $filters = [];
 
     public $addedQuestionIds = [];
     public $itemsPerPage;
 
     public $inGroup = false;
 
+    private $allowedTabs = [
+        'school',
+        'personal',
+    ];
+
     public function mount()
     {
         $this->itemsPerPage = QuestionBank::ITEM_INCREMENT;
         $this->addedQuestionIds = $this->getQuestionIdsThatAreAlreadyInTest();
+        $this->setFilters();
     }
 
     public function render()
@@ -55,14 +57,18 @@ class QuestionBank extends Component
     {
         return $this->getQuestionsQuery()
             ->take($this->itemsPerPage)
-            ->get();
+            ->get(['questions.*']);
     }
 
     private function getFilters()
     {
-        return collect($this->filters)->reject(function ($filter) {
+        return collect($this->filters[$this->openTab])->reject(function ($filter) {
             return empty($filter);
-        })->toArray();
+        })
+            ->when($this->openTab === 'personal', function ($filters) {
+                return $filters->merge(['source' => 'me']);
+            })
+            ->toArray();
     }
 
     public function getSubjectsProperty()
@@ -104,6 +110,14 @@ class QuestionBank extends Component
         ];
     }
 
+    public function getAuthorsProperty()
+    {
+        return (new AuthorsController())->getBuilderWithAuthors()
+            ->map(function ($author) {
+                return ['value' => $author->id, 'label' => trim($author->name_first . ' ' . $author->name)];
+            })->toArray();
+    }
+
     public function getTestProperty()
     {
         return Test::whereUuid($this->testId)->first();
@@ -128,6 +142,7 @@ class QuestionBank extends Component
         }
 
         if ($response->getStatusCode() == 200) {
+            $this->addedQuestionIds[json_decode($response->getContent())->question_id] = 0;
             $this->dispatchBrowserEvent('question-added');
         }
 
@@ -155,6 +170,11 @@ class QuestionBank extends Component
         $this->itemsPerPage += QuestionBank::ITEM_INCREMENT;
     }
 
+    public function updatingFilters()
+    {
+        $this->dispatchBrowserEvent('filters-handling');
+    }
+
     public function updatedFilters($name, $value)
     {
         $this->resetItemsPerPage();
@@ -162,7 +182,9 @@ class QuestionBank extends Component
 
     public function updatedInGroup($value)
     {
-        $this->filters['without_groups'] = $value;
+        collect($this->allowedTabs)->each(function ($tab) use ($value) {
+            $this->filters[$tab]['without_groups'] = $value;
+        });
     }
 
     private function resetItemsPerPage()
@@ -170,14 +192,6 @@ class QuestionBank extends Component
         $this->itemsPerPage = QuestionBank::ITEM_INCREMENT;
     }
 
-    public function setSource($source)
-    {
-        if ($source === 'personal') {
-            return $this->filters['source'] = self::SOURCE_PERSONAL;
-        }
-
-        return $this->filters['source'] = self::SOURCE_SCHOOL;
-    }
 
     /**
      * @return mixed
@@ -189,16 +203,8 @@ class QuestionBank extends Component
                 $query->where('scope', '!=', 'cito')
                     ->orWhereNull('scope');
             })
-//            ->where(function ($query) {
-//                $query->whereNotIn('id', $this->getQuestionIdsThatAreAlreadyInTest());
-//            })
             ->with([
-                'questionAttainments',
-                'questionAttainments.attainment',
-                'tags',
-                'authors',
-                'subject:id,base_subject_id,name',
-                'subject.baseSubject:id,name'
+                'subject:id,name',
             ])
             ->distinct();
     }
@@ -240,5 +246,19 @@ class QuestionBank extends Component
         ];
 
         return (new TestQuestionsController)->store(new CreateTestQuestionRequest($requestParams));
+    }
+
+    private function setFilters()
+    {
+        collect($this->allowedTabs)->each(function ($tab) {
+            $this->filters[$tab] = [
+                'search'               => '',
+                'subject_id'           => [],
+                'education_level_year' => [],
+                'education_level_id'   => [],
+                'without_groups'       => '',
+                'author_id'            => []
+            ];
+        });
     }
 }
