@@ -951,7 +951,7 @@ class Test extends BaseModel
         $maxScore += $question->score;
     }
 
-    public function listOfTestQuestionsWithQuestions()
+    public function listOfTakeableTestQuestions()
     {
         return $this->testQuestions->sortBy('order')->flatMap(function ($testQuestion) {
             $testQuestion->question->loadRelated();
