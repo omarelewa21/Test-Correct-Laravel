@@ -148,7 +148,7 @@ class TestsOverview extends Component
                 'education_level_year' => [],
                 'education_level_id'   => [],
                 'subject_id'           => [],
-                'author_id'           => [],
+                'author_id'            => [],
             ];
         });
 
@@ -201,9 +201,8 @@ class TestsOverview extends Component
 
     public function getEducationLevelProperty()
     {
-        return EducationLevel::filtered([], ['name' => 'desc'])
-            ->select(['id', 'name'])
-            ->get()
+        return EducationLevel::filtered(['user_id' => auth()->id()], ['name' => 'desc'])
+            ->get(['id', 'name'])
             ->map(function ($educationLevel) {
                 return ['value' => (int)$educationLevel->id, 'label' => $educationLevel->name];
             });
@@ -211,7 +210,13 @@ class TestsOverview extends Component
 
     public function getSubjectsProperty()
     {
-        return Subject::filtered([], ['name' => 'asc'])
+        return Subject::when($this->openTab === 'cito', function ($query) {
+            $query->citoFiltered([], ['name' => 'asc']);
+        })->when($this->openTab === 'exams', function ($query) {
+            $query->examFiltered([], ['name' => 'asc']);
+        }, function ($query) {
+            $query->filtered([], ['name' => 'asc']);
+        })
             ->get(['name', 'id'])
             ->map(function ($subject) {
                 return ['value' => (int)$subject->id, 'label' => $subject->name];

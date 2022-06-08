@@ -7087,10 +7087,6 @@ video {
 	--tw-text-opacity: 1;
 	color: rgba(37, 99, 235, var(--tw-text-opacity));
 }
-.\!text-primary{
-	--tw-text-opacity: 1 !important;
-	color: rgba(0, 77, 245, var(--tw-text-opacity)) !important;
-}
 .text-allred{
 	--tw-text-opacity: 1;
 	color: rgba(207, 27, 4, var(--tw-text-opacity));
