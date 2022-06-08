@@ -18,7 +18,7 @@ use tcCore\Test;
 
 class QuestionBank extends Component
 {
-    const ITEM_INCREMENT = 15;
+    const ITEM_INCREMENT = 16;
 
     const SOURCE_PERSONAL = 'me';
     const SOURCE_SCHOOL = '';
@@ -170,11 +170,6 @@ class QuestionBank extends Component
         $this->itemsPerPage += QuestionBank::ITEM_INCREMENT;
     }
 
-    public function updatingFilters()
-    {
-        $this->dispatchBrowserEvent('filters-handling');
-    }
-
     public function updatedFilters($name, $value)
     {
         $this->resetItemsPerPage();
@@ -192,10 +187,6 @@ class QuestionBank extends Component
         $this->itemsPerPage = QuestionBank::ITEM_INCREMENT;
     }
 
-
-    /**
-     * @return mixed
-     */
     private function getQuestionsQuery()
     {
         return Question::filtered($this->getFilters())

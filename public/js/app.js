@@ -5929,6 +5929,14 @@ document.addEventListener('alpine:init', function () {
         this.drawer = this.$root.closest('.drawer');
         setTimeout(function () {
           _this8.handleVerticalScroll(_this8.$root.firstElementChild);
+
+          _this8.$nextTick(function () {
+            _this8.showQuestionBank();
+
+            setTimeout(function () {
+              _this8.$root.scrollLeft -= 300;
+            }, 1000);
+          });
         }, 400);
       },
       next: function next(currentEl) {
@@ -6083,10 +6091,7 @@ document.addEventListener('alpine:init', function () {
             _this11.handleActiveFilters(choices.getValue());
           };
 
-          refreshChoices(); // this.$refs.select.addEventListener('addItem', (event) => {
-          //     console.log('additem');
-          //
-          // })
+          refreshChoices();
 
           _this11.$refs.select.addEventListener('choice', function (event) {
             if (_this11.value.includes(parseInt(event.detail.choice.value))) {
@@ -6097,8 +6102,8 @@ document.addEventListener('alpine:init', function () {
           });
 
           _this11.$refs.select.addEventListener('change', function () {
-            _this11.value = choices.getValue(true);
-            _this11.wireModel = _this11.value;
+            _this11.value = choices.getValue(true); // This causes 2 update calls:
+            // this.wireModel = this.value;
           });
 
           var eventName = 'removeFrom' + _this11.$root.dataset.modelName;
@@ -6566,6 +6571,18 @@ clearClipboard = function clearClipboard() {
 
 preventNavigationByKeydown = function preventNavigationByKeydown(event) {
   return event.stopPropagation();
+};
+
+livewireMessageContainsModelName = function livewireMessageContainsModelName(message, modelName) {
+  return message.updateQueue.map(function (queue) {
+    var _queue$payload, _queue$payload2, _queue$payload2$param;
+
+    if (typeof ((_queue$payload = queue.payload) === null || _queue$payload === void 0 ? void 0 : _queue$payload.name) !== 'undefined') {
+      return queue.payload.name.includes(modelName);
+    }
+
+    return (_queue$payload2 = queue.payload) === null || _queue$payload2 === void 0 ? void 0 : (_queue$payload2$param = _queue$payload2.params[0]) === null || _queue$payload2$param === void 0 ? void 0 : _queue$payload2$param.includes(modelName);
+  })[0];
 };
 
 /***/ }),
