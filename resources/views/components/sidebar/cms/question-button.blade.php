@@ -1,4 +1,4 @@
-<div class="drag-item question-button flex items-center cursor-pointer bold py-2 hover:text-primary @if(!$subQuestion) pl-6 pr-4 @endif {{ $active ? 'question-active' : '' }}"
+<div class="relative drag-item question-button flex items-center cursor-pointer bold py-2 hover:text-primary @if(!$subQuestion) pl-6 pr-4 @endif {{ $active ? 'question-active' : '' }}"
      @click="$store.cms.processing = true;$wire.emitTo('teacher.questions.open-short','showQuestion',
         {
                 'testQuestionUuid':'{{ $testQuestion ? $testQuestion->uuid : null }}',
@@ -13,7 +13,7 @@
         wire:sortable.item="{{ $question->uuid }}"
      @endif
 >
-    <div class="flex w-full">
+    <div class="flex w-full ">
         <span class="rounded-full text-sm flex items-center justify-center border-3 relative px-1.5
               {{ $active ? 'text-white bg-primary border-primary ' : 'bg-white border-sysbase text-sysbase ' }}"
               style="min-width: 30px; height: 30px"
@@ -38,7 +38,7 @@
                 </div>
             </div>
             <div class="flex items-start space-x-2.5 mt-1 text-sysbase">
-                <div class="flex h-full rounded-md" @if($subQuestion) wire:sortable-group.handle @else wire:sortable.handle @endif>
+                <div class="flex h-full rounded-md reorder" @if($subQuestion) wire:sortable-group.handle @else wire:sortable.handle @endif>
                         <x-icon.reorder/>
                 </div>
                 <div class="flex">

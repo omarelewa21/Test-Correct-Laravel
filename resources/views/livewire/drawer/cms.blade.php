@@ -1,5 +1,4 @@
 <div class="drawer flex z-[20]"
-     x-data="{loadingOverlay: false, collapse: false, backdrop: false, emptyStateActive: @entangle('emptyStateActive')}"
      x-init="
         collapse = window.innerWidth < 1000;
         if (emptyStateActive) backdrop = true;
@@ -20,7 +19,24 @@
         handleLoading = () => {
             loadingOverlay = $store.cms.loading;
         }
+        $nextTick(() => {
+            if (document.querySelector('[wire\\:sortable]')) {
+                document.querySelector('[wire\\:sortable]').livewire_sortable.on('drag:over',(el) => {
+                    console.log('drag sortable over');
+                    console.dir(el);
+                });
+            }
+
+            if (document.querySelector('[wire\\:sortable-group]')) {
+                document.querySelector('[wire\\:sortable-group]').livewire_sortable.on('drag:over',(el) => {
+                    console.log('drag sortable group over');
+                    console.dir(el);
+                });
+            }
+       })
+
      "
+     x-data="{loadingOverlay: false, collapse: false, backdrop: false, emptyStateActive: @entangle('emptyStateActive')}"
      x-cloak
      x-effect="handleLoading()"
      :class="{'collapsed': collapse}"
@@ -207,3 +223,31 @@
     </div>
 </div>
 
+<style>
+
+    .reorder{
+        cursor:move;
+    }
+
+    .draggable-container--over  .draggable-mirror:before  {
+        content: none !important;
+    }
+
+    .draggable-mirror:before,
+    .draggable-container--over .draggable-group .draggable-mirror:before,
+    .draggable-not-droppable{
+        content: url('data:image/svg+xml,%3Csvg width="4" height="14" xmlns="http://www.w3.org/2000/svg"%3E %3Cg class="fill-current" fill-rule="evenodd"%3E %3Cpath d="M1.615 0h.77A1.5 1.5 0 013.88 1.61l-.45 6.06a1.436 1.436 0 01-2.863 0L.12 1.61A1.5 1.5 0 011.615 0z"/%3E %3Ccircle cx="2" cy="12" r="2"/%3E %3C/g%3E %3C/svg%3E') !important;
+        position: absolute;
+        top: -17px;
+        right: -17px;
+        background: rgb(247,225,223);
+        width: 25px;
+        height: 25px;
+        border-radius: 50%;
+        text-align: center;
+    }
+    .draggable-mirror {
+        z-index: 1000;
+    }
+
+</style>
