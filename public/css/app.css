@@ -5298,6 +5298,9 @@ video {
 .right-2{
 	right: 0.5rem;
 }
+.right-4{
+	right: 1rem;
+}
 .top-1{
 	top: 0.25rem;
 }
@@ -5336,12 +5339,6 @@ video {
 }
 .right-14{
 	right: 3.5rem;
-}
-.-right-2{
-	right: -0.5rem;
-}
-.right-4{
-	right: 1rem;
 }
 .z-10{
 	z-index: 10;
@@ -6007,12 +6004,12 @@ video {
 	--tw-rotate: 180deg;
 	transform: var(--tw-transform);
 }
-.-rotate-90{
-	--tw-rotate: -90deg;
-	transform: var(--tw-transform);
-}
 .rotate-90{
 	--tw-rotate: 90deg;
+	transform: var(--tw-transform);
+}
+.-rotate-90{
+	--tw-rotate: -90deg;
 	transform: var(--tw-transform);
 }
 .scale-95{

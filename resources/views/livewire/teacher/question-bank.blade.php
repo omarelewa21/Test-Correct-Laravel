@@ -115,13 +115,39 @@
 
             {{-- Content --}}
             <div class="flex flex-col py-4" style="min-height: 500px"
-                 wire:loading.class="opacity-75"
+                 x-data="{filterLoading: false}"
+                 x-init="
+                    Livewire.hook('message.sent', (message, component) => {
+                        if (component.el.id !== 'question-bank') {
+                            return;
+                        }
+                        if (!livewireMessageContainsModelName(message, 'filter')) {
+                            return;
+                        }
+                        filterLoading = true;
+
+                    })
+                    Livewire.hook('message.processed', (message, component) => {
+                                                if (component.el.id !== 'question-bank') {
+                            return;
+                        }
+                        if (!livewireMessageContainsModelName(message, 'filter')) {
+                            return;
+                        }
+                        filterLoading = false;
+                    })
+                 "
             >
                 <div class="flex">
                     <span class="note text-sm">{{ $this->resultCount }} resultaten</span>
                 </div>
 
-                <x-grid class="mt-4" wire:key="grid-{{ $this->resultCount }}">
+                <x-grid class="mt-4" x-show="filterLoading" wire:key="grid-{{ $this->resultCount }}">
+                    @foreach(range(1,6) as $value)
+                        <x-grid.loading-card :delay="$value"/>
+                    @endforeach
+                </x-grid>
+                <x-grid class="mt-4" x-show="!filterLoading" x-cloak wire:key="grid-{{ $this->resultCount }}">
                     {{-- @TODO: Fix loading animation --}}
                     @foreach($this->questions as $question)
                         <x-grid.question-card :question="$question"/>
