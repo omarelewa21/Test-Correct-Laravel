@@ -39,4 +39,5 @@ return [
     'searching'              => 'Zoeken ...',
     'duplication successful' => 'Kopieren gelukt',
     'create test'            => 'Toets creëren',
+    'Scholengemeenschap'     => 'Scholengemeenschap',
 ];

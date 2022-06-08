@@ -12,6 +12,8 @@ class NavigationBar extends Component
 {
     public $activeRoute;
 
+    protected $listeners = ['redirectToCake' => 'cakeRedirect'];
+
     public function mount()
     {
         $this->activeRoute = NavigationBarHelper::getActiveRoute();
@@ -38,6 +40,10 @@ class NavigationBar extends Component
             'tests.question_bank'       => '/questions/index',
             'tests.my_uploads'          => '/file_management/testuploads',
             'planned.my_tests'          => '/test_takes/planned_teacher',
+            'planned.my_tests.plan'     => [
+                'page'        => '/test_takes/planned_teacher',
+                'page_action' => "Popup.load('/test_takes/add',1000)",
+            ],
             'planned.surveillance'      => '/test_takes/surveillance',
             'planned.assessment_open'   => '/test_takes/assessment_open_teacher',
             'taken.test_taken'          => '/test_takes/taken_teacher',
@@ -67,8 +73,8 @@ class NavigationBar extends Component
                 'page'        => '/',
                 'page_action' => "Popup.showExternalPage('https://embed.webinargeek.com/ac16aaa56a08d79ca2535196591dd91b20b70807849b5879fe', 600, 350)",
             ],
-            'support_updates' => [
-                'page' => '/',
+            'support_updates'           => [
+                'page'        => '/',
                 'page_action' => "Popup.showExternalPage('https://support.test-correct.nl/knowledge/wat-zijn-de-laatste-updates', 1000)",
             ],
         ];
