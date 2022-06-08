@@ -37,7 +37,7 @@ class QuestionBank extends Component
     public $inGroup = false;
 
     private $allowedTabs = [
-        'school',
+        'school_location',
         'personal',
     ];
 
@@ -125,10 +125,11 @@ class QuestionBank extends Component
 
     public function handleCheckboxClick($questionId)
     {
-        if ($this->isQuestionInTest($questionId)) {
-            $this->emitTo('drawer.cms', 'deleteQuestionByQuestionId', $questionId);
-            return $this->removeQuestionFromTest($questionId);
-        }
+//        if ($this->isQuestionInTest($questionId)) {
+//            $this->emitTo('drawer.cms', 'deleteQuestionByQuestionId', $questionId);
+//            $this->removeQuestionFromTest($questionId);
+//            return;
+//        }
 
         $this->addQuestionToTest($questionId);
     }
@@ -145,7 +146,6 @@ class QuestionBank extends Component
             $this->addedQuestionIds[json_decode($response->getContent())->question_id] = 0;
             $this->dispatchBrowserEvent('question-added');
         }
-
     }
 
     private function getQuestionIdsThatAreAlreadyInTest()
@@ -225,8 +225,6 @@ class QuestionBank extends Component
 
     private function performControllerActionForQuestion($questionId)
     {
-        $this->addedQuestionIds[] = $questionId;
-
         $requestParams = [
             'test_id'           => $this->test->getKey(),
             'order'             => 0,
