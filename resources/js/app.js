@@ -342,8 +342,8 @@ livewireMessageContainsModelName = (message, modelName) => {
     return message.updateQueue.map(queue => {
 
         if(typeof queue.payload?.name !== 'undefined') {
-            return queue.payload.name.includes(modelName)
+            return queue.payload.name?.includes(modelName)
         }
-        return queue.payload?.params[0]?.includes(modelName)
+        return String(queue.payload?.params[0])?.includes(modelName)
     })[0];
 }
