@@ -56,9 +56,11 @@
         h1 {
             color: #041f74;
         }
-        .form-input {
+        .form-input,.form-input-pdf {
             background: #f9faff;
             border: 1px solid #c3d0ed;
+            padding: 0 10px 0 10px;
+            border-radius: 8px;
         }
         p{
             vertical-align: top;
