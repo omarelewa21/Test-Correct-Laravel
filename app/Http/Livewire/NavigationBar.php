@@ -63,7 +63,7 @@ class NavigationBar extends Component
             ],
             'chat'                      => [
                 'page'        => '/users/welcome',
-                'page_action' => "openHubspotWidget()",
+                'page_action' => "openHubspotWidget(); Loading.hide()",
             ],
             'knowledge_base'            => [
                 'page'        => '/',
