@@ -80,6 +80,7 @@
             /*width: 16px;*/
             /*height: 16px;*/
             max-width: none !important;
+            margin-top: 10px;
         }
         .multiple-choice-question.disabled, .multiple-choice-question.disabled:hover {
             background: white;

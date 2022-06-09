@@ -33,7 +33,6 @@ class DrawingQuestion extends Component
 
     public function mount()
     {
-        dump($this->question->answer);
         $svgHelper = new SvgHelper($this->question['uuid']);
         $this->pngBase64 = base64_encode($svgHelper->getCorrectionModelPNG());
         if(stristr($this->question->answer,'data:image/png;base64,')){

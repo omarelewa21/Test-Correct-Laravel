@@ -77,12 +77,23 @@ class CompletionQuestion extends Component
             $this->searchPattern,
             function ($matches) use ($tags) {
                 $answers = $tags[$matches[1]];
-                return $this->getOptions($answers,$this->answerStruct[$matches[1]]);
+                return $this->getOption($answers,$this->answerStruct[$matches[1]]);
             },
             $question_text
         );
 
         return $question_text;
+    }
+
+    private function getOption($answers,$correct)
+    {
+        return collect($answers)->map(function ($option, $key) use ($correct) {
+            if(trim($option)==trim($correct)){
+                $check = sprintf('<img class="icon_checkmark_pdf" src="data:image/svg+xml;charset=utf8,%s" >',$this->getEncodedCheckmarkSvg());
+                return sprintf('<span class="overflow-ellipsis rounded-10 pdf-answer-model-select" >%s %s</span>', $option,$check);
+            }
+            return '';
+        })->join('');
     }
 
     private function getOptions($answers,$correct)
