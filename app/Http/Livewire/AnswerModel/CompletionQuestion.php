@@ -96,16 +96,6 @@ class CompletionQuestion extends Component
         })->join('');
     }
 
-    private function getOptions($answers,$correct)
-    {
-        return collect($answers)->map(function ($option, $key) use ($correct) {
-            $check = '';
-            if(trim($option)==trim($correct)){
-                $check = sprintf('<img class="icon_checkmark_pdf" src="data:image/svg+xml;charset=utf8,%s" >',$this->getEncodedCheckmarkSvg());
-            }
-            return sprintf('<span class="overflow-ellipsis rounded-10 pdf-answer-model-select" >%s %s</span>', $option,$check);
-        })->join('');
-    }
 
     public function render()
     {

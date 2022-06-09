@@ -220,6 +220,9 @@
             border: 0 !important;
             border-width: 0 !important;
         }
+        div.input-group u, div.input-group strong, div.input-group span,p strong{
+            vertical-align: top;
+        }
     </style>
 
 

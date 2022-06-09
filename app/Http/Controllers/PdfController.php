@@ -31,6 +31,7 @@ class PdfController extends Controller
     public function HtmlToPdfFromString($html)
     {
         $html = $this->base64ImgPaths($html);
+        file_put_contents(storage_path('temp/test.html'),$html);
 //        return $this->wkhtmlToPdfFromString($html);
         return PdfHelper::HtmlToPdf($html);
     }
