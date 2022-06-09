@@ -23,8 +23,8 @@ class TestStartCreateModal extends ModalComponent
         $request = new Request();
         $request->merge([
             'options'  => [
-                'page' => '/',
-                'page_action' => "Loading.show();Popup.load('/file_management/upload_test',800);"
+                'page'        => '/file_management/testuploads',
+                'page_action' => "Popup.load('/file_management/upload_test',800);",
             ],
         ]);
 
