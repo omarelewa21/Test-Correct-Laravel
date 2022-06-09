@@ -136,16 +136,16 @@
         <div class="user-menu" x-ref="user_menu" x-cloak="" x-show="userMenu" x-transition.origin.top @click.outside="userMenu = false">
             <div id="user_school_locations"></div> {{-- only visible when teacher has multiple school locations --}}
             <a href="{{ route('auth.login') }}">{{__('Uitloggen')}}</a>
-            <a wire:click="cakeRedirect('update-password')">{{__('Wachtwoord wijzigen')}}</a>
+            <a class="cursor-pointer" wire:click="cakeRedirect('update-password')">{{__('Wachtwoord wijzigen')}}</a>
             <a href="https://support.test-correct.nl/knowledge" target="_blank">{{__('Supportpagina')}}</a>
-            <a wire:click="cakeRedirect('delay-auto-logout')">{{__('Automatisch uitloggen uitstellen')}}</a>
-            <a wire:click="cakeRedirect('tests.my_uploads')">{{__('Uploaden toets')}}</a>
+            <a class="cursor-pointer" wire:click="cakeRedirect('delay-auto-logout')">{{__('Automatisch uitloggen uitstellen')}}</a>
+            <a class="cursor-pointer" wire:click="cakeRedirect('tests.my_uploads')">{{__('Uploaden toets')}}</a>
         </div>
         <div class="support-menu" x-ref="support_menu" x-cloak="" x-show="supportMenu" x-transition="" @click.outside="supportmenu = false">
-            <a wire:click="cakeRedirect('knowledge_base')">{{__('kennisbank')}}</a>
-            <a wire:click="cakeRedirect('webinar')">{{__('Webinar')}}</a>
+            <a class="cursor-pointer" wire:click="cakeRedirect('knowledge_base')">{{__('kennisbank')}}</a>
+            <a class="cursor-pointer" wire:click="cakeRedirect('webinar')">{{__('Webinar')}}</a>
             <a href="mailto:{{ config('mail.from.address') }}">{{__('Email')}}</a>
-            <a wire:click="cakeRedirect('support_updates')">{{__('Updates & onderhoud')}}</a>
+            <a class="cursor-pointer" wire:click="cakeRedirect('support_updates')">{{__('Updates & onderhoud')}}</a>
         </div>
     </div>
 

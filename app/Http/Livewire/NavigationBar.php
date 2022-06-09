@@ -54,15 +54,15 @@ class NavigationBar extends Component
             'classes.my_classes'        => '/teacher_classes',
             'classes.my_schoollocation' => '/teacher_classes/school_location_classes',
             'update-password'           => [
-                'page'        => '/',
+                'page'        => '/users/welcome',
                 'page_action' => 'User.resetPassword();'
             ],
             'delay-auto-logout'         => [
-                'page'        => '/',
+                'page'        => '/users/welcome',
                 'page_action' => "Popup.load('/users/prevent_logout?opened_by_user=true')",
             ],
             'chat'                      => [
-                'page'        => '/',
+                'page'        => '/users/welcome',
                 'page_action' => "openHubspotWidget()",
             ],
             'knowledge_base'            => [
