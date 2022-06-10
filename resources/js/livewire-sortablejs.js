@@ -35,6 +35,24 @@ window.Livewire.directive('sortable', (el, directive, component) => {
                 component.call(directive.method, items);
             },
         },
+        onStart: (evt) => {
+            if(evt.target.closest('.drawer')){
+                const groups = evt.target.closest('.drawer').querySelectorAll('.draggable-group');
+
+                for (const group of groups) {
+                    group.classList.add('sortable-nogo');
+                }
+            }
+        },
+        onEnd: (evt) => {
+            if(evt.target.closest('.drawer')){
+                const groups = evt.target.closest('.drawer').querySelectorAll('.draggable-group');
+
+                for (const group of groups) {
+                    group.classList.remove('sortable-nogo');
+                }
+            }
+        }
     });
 });
 
@@ -73,5 +91,33 @@ window.Livewire.directive('sortable-group', (el, directive, component) => {
 
             component.call(masterEl.getAttribute('wire:sortable-group'), groups);
         },
+        onStart: (evt) => {
+            if(evt.target.closest('.drawer')){
+
+                const items = evt.target.closest('.drawer').querySelectorAll('.drag-item');
+
+                for (const item of items) {
+                    item.classList.add('sortable-nogo');
+                }
+
+                const okItems = evt.target.closest('.draggable-group').querySelectorAll('.drag-item');
+
+                evt.target.closest('.draggable-group').classList.remove('sortable-nogo');
+
+                for (const item of okItems) {console.log('remove');
+                    item.classList.remove('sortable-nogo');
+                }
+            }
+        },
+        onEnd: (evt) => {
+            if(evt.target.closest('.drawer')){
+                const items = evt.target.closest('.drawer').querySelectorAll('.drag-item');
+
+                for (const item of items) {
+                    item.classList.remove('sortable-nogo');
+                }
+
+            }
+        }
     });
 });
