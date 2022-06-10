@@ -5914,9 +5914,6 @@ video {
 .flex-grow{
 	flex-grow: 1;
 }
-.flex-grow-0{
-	flex-grow: 0;
-}
 .border-collapse{
 	border-collapse: collapse;
 }
@@ -6708,6 +6705,10 @@ video {
 	padding-top: 0px;
 	padding-bottom: 0px;
 }
+.\!px-2{
+	padding-left: 0.5rem !important;
+	padding-right: 0.5rem !important;
+}
 .py-4{
 	padding-top: 1rem;
 	padding-bottom: 1rem;
@@ -6747,10 +6748,6 @@ video {
 .py-\[70px\]{
 	padding-top: 70px;
 	padding-bottom: 70px;
-}
-.\!px-2{
-	padding-left: 0.5rem !important;
-	padding-right: 0.5rem !important;
 }
 .pt-4{
 	padding-top: 1rem;
@@ -8354,11 +8351,6 @@ ul ul ul {
 	}
 
 
-	.md\:mr-16{
-		margin-right: 4rem;
-	}
-
-
 	.md\:flex{
 		display: flex;
 	}
@@ -8381,6 +8373,11 @@ ul ul ul {
 
 	.md\:w-full{
 		width: 100%;
+	}
+
+
+	.md\:w-44{
+		width: 11rem;
 	}
 
 
