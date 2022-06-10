@@ -1,6 +1,6 @@
 <div id="entree">
     <div class="flex w-full items-center justify-center pt-7">
-        <a class="flex  w-36 md:w-auto" href="https://test-correct.nl">
+        <a class="flex  w-36 md:w-44" href="https://test-correct.nl">
             <img class="" src="{{ asset('svg/logos/Logo-Test-Correct-2.svg') }}" alt="Test-Correct">
         </a>
     </div>
