@@ -9,7 +9,7 @@
         <div class="">
             <div class="relative px-3 sm:px-10">
                 <div class="absolute -top-10 left-1/2 -translate-x-1/2">
-                    <x-stickers.aanmelden-met-entree/>
+                    <x-stickers.aanmelden-zonder-entree/>
                 </div>
                 <div class="flex flex-col bg-white rounded-10  content-section max-w-xl mx-auto">
                     {{--content header--}}
@@ -195,8 +195,8 @@
                                         @if($this->hasNoSubjects())
 
                                         @elseif($this->useDomainInsteadOfSubjects())
-                                            <div class="mb-4">
-                                                <div class="input-group w-1/2 md:w-auto order-1 pr-2 mb-4 md:mb-0">
+                                            <div class="mt-4">
+                                                <div class="input-group ">
                                                     <input id="domain" wire:model="domain" type="text"
                                                            class="form-input @error('domain') border-red @enderror">
                                                     <label for="domain"
@@ -205,7 +205,7 @@
                                             </div>
                                         @else
                                             <div x-data data-subjects='{!! $selectedSubjectsString !!}'
-                                                 class="subjects mb-4 ">
+                                                 class="subjects mt-4 ">
                                                 <div x-data="subjectSelect()" x-init="init('parentEl')"
                                                      @click.away="clearSearch()" @keydown.escape="clearSearch()"
                                                      @keydown="navigate" class="mr-4 mb-4 sm:mb-0 ">
@@ -476,16 +476,16 @@
                                         <span>{{ __('modal.Terug') }}</span>
                                     </x-button.text-button>
                                     @if ($btnDisabled)
-                                        <x-button.cta size="md" class="btn-disabled" disabled>
+                                        <x-button.primary size="md" class="btn-disabled" disabled>
                                             <span>{{ __('cms.Volgende') }}</span>
                                             <x-icon.chevron/>
-                                        </x-button.cta>
+                                        </x-button.primary>
                                     @else
-                                        <x-button.cta size="md" wire:click="step2"
+                                        <x-button.primary size="md" wire:click="step2"
                                                       onClick="this.setAttribute('disabled',true);">
                                             <span>{{ __('cms.Volgende') }}</span>
                                             <x-icon.chevron/>
-                                        </x-button.cta>
+                                        </x-button.primary>
                                     @endif
                                 </div>
                             </div>
@@ -497,7 +497,7 @@
                                 <div>
                                     <x-stickers.congratulations2 class="flex"/>
                                 </div>
-                                <div class="">
+                                <div class="mt-2">
                                     <h6 class="text-lg md:text-xl">{{ __('onboarding.Gefeliciteerd met je Test-Correct account!') }}</h6>
                                     @if($this->step === 3)
                                         <h7 class="text-base md:text-lg"
@@ -518,17 +518,19 @@
                                 </div>
 
                                 <div class="flex w-full mb-4 space-x-4">
-                                    <a class="button button-sm primary-button flex-1"
+                                    <a class="button button-sm primary-button flex-1 justify-center !px-2 sm:px-5"
                                        target="_blank" href="https://www.linkedin.com/company/9225774">
-                                        LinkedIn
+                                        <x-logos.linkedin/>
                                     </a>
-                                    <a class="button button-sm primary-button flex-1"
+                                    <a class="button button-sm primary-button flex-1 justify-center !px-2 sm:px-5"
                                        target="_blank" href="https://twitter.com/testcorrect">
-                                        Twitter
+                                        <span class="flex h-4">
+                                            <x-logos.twitter class="w-full h-auto"/>
+                                        </span>
                                     </a>
-                                    <a class="button button-sm primary-button flex-1"
+                                    <a class="button button-sm primary-button flex-1 justify-center !px-2 sm:px-5"
                                        target="_blank" href="https://www.facebook.com/TestCorrect/">
-                                        Facebook
+                                        <x-logos.facebook/>
                                     </a>
                                 </div>
                             </div>

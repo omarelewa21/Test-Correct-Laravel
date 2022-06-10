@@ -74,5 +74,6 @@ return [
     'Gefeliciteerd met je Test-Correct account!'                                                                                                       => 'Congratulations with your Test-Correct account!',
     'Deel dit op jouw social media'                                                                                                                    => 'Share this on your social media',
     'Locatie'                                                                                                                                          => 'Location',
+    'Docent account maken'                                                                                                                             => 'Create teacher account',
 ];
 ?>

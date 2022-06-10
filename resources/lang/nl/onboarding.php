@@ -76,5 +76,6 @@ return [
     'Deel dit op jouw social media'                                                                                                                    => 'Deel dit op jouw social media',
     'Wijzig locaties'                                                                                                                                  => 'Wijzig locaties',
     'Locatie'                                                                                                                                          => 'Locatie',
+    'Docent account maken'                                                                                                                             => 'Docent account maken',
 ];
 ?>
