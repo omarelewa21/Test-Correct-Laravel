@@ -19,21 +19,7 @@
         handleLoading = () => {
             loadingOverlay = $store.cms.loading;
         }
-        $nextTick(() => {
-            if (document.querySelector('[wire\\:sortable]')) {
-                document.querySelector('[wire\\:sortable]').livewire_sortable.on('drag:over',(el) => {
-                    console.log('drag sortable over');
-                    console.dir(el);
-                });
-            }
 
-            if (document.querySelector('[wire\\:sortable-group]')) {
-                document.querySelector('[wire\\:sortable-group]').livewire_sortable.on('drag:over',(el) => {
-                    console.log('drag sortable group over');
-                    console.dir(el);
-                });
-            }
-       })
 
      "
      x-data="{loadingOverlay: false, collapse: false, backdrop: false, emptyStateActive: @entangle('emptyStateActive')}"
@@ -90,7 +76,7 @@
                                        @continue-to-new-slide.window="$store.cms.processing = true;$wire.removeDummy();showAddQuestionSlide(false)"
                                        @continue-to-add-group.window="addGroup(false)"
             >
-                <div wire:sortable="updateTestItemsOrder" wire:sortable-group="updateGroupItemsOrder" class="divide-y divide-bluegrey pb-6" {{ $emptyStateActive ? 'hidden' : '' }} >
+                <div wire:sortable="updateTestItemsOrder" wire:sortable-group="updateGroupItemsOrder" class="sortable-drawer divide-y divide-bluegrey pb-6" {{ $emptyStateActive ? 'hidden' : '' }} >
                     @php $loopIndex = 0; @endphp
                     @foreach($this->questionsInTest as $testQuestion)
                         @if($testQuestion->question->type === 'GroupQuestion')

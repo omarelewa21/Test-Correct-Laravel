@@ -14,7 +14,6 @@
         "autoprefixer": "^10.3.7",
         "axios": "^0.21",
         "laravel-mix": "^6.0.6",
-        "livewire-sortable": "^0.2.2",
         "lodash": "^4.17.19",
         "postcss": "^8.3.9",
         "tailwindcss": "^2.2.16"
@@ -30,6 +29,7 @@
         "laravel-echo": "^1.11.0",
         "plyr": "^3.6.12",
         "pusher-js": "^7.0.3",
+        "sortablejs": "^1.15.0",
         "strip-ansi": "^6.0.0",
         "uuid": "^8.3.2"
     }
