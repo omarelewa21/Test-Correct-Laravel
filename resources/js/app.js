@@ -1,6 +1,6 @@
 require('./bootstrap');
-require('livewire-sortable');
 require('./swipe');
+require('./livewire-sortablejs');
 require('./core');
 require('./notify');
 require('./alpine');

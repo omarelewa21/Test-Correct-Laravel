@@ -5929,6 +5929,8 @@ document.addEventListener('alpine:init', function () {
         this.drawer = this.$root.closest('.drawer');
         setTimeout(function () {
           _this8.handleVerticalScroll(_this8.$root.firstElementChild);
+
+          _this8.$dispatch('groupFoldingUpdate');
         }, 400);
       },
       next: function next(currentEl) {
@@ -5955,7 +5957,6 @@ document.addEventListener('alpine:init', function () {
           left: position >= 0 ? position : 0,
           behavior: 'smooth'
         });
-        this.$store.cms.scrollPos = 0;
       },
       handleVerticalScroll: function handleVerticalScroll(el) {
         var _this9 = this;
@@ -5988,7 +5989,6 @@ document.addEventListener('alpine:init', function () {
         this.drawer.classList.add('fullscreen');
         var boundingRect = this.$refs.questionbank.getBoundingClientRect();
         this.scroll(boundingRect.x + boundingRect.width);
-        this.$store.questionBank.active = true;
       },
       hideQuestionBank: function hideQuestionBank(container) {
         var _this10 = this;
@@ -5996,7 +5996,6 @@ document.addEventListener('alpine:init', function () {
         this.$root.querySelectorAll('.slide-container').forEach(function (slide) {
           slide.classList.add('opacity-0');
         });
-        this.$store.questionBank.active = false;
         this.$nextTick(function () {
           _this10.drawer.classList.remove('fullscreen');
 
@@ -6011,10 +6010,9 @@ document.addEventListener('alpine:init', function () {
           }, 400);
         });
       },
-      addQuestionToGroup: function addQuestionToGroup(uuid) {
+      addQuestionToGroup: function addQuestionToGroup() {
         this.showAddQuestionSlide();
-        this.$store.questionBank.inGroup = uuid;
-        this.$dispatch('backdrop');
+        this.$store.questionBank.inGroup = true;
       },
       addGroup: function addGroup() {
         var shouldCheckDirty = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : true;
@@ -6039,9 +6037,11 @@ document.addEventListener('alpine:init', function () {
         }
 
         this.next(this.$refs.container1);
+        this.$dispatch('backdrop');
       },
       backToQuestionOverview: function backToQuestionOverview(container) {
         this.prev(container);
+        this.$dispatch('backdrop');
         this.$store.questionBank.inGroup = false; // this.$store.cms.processing = false;
       }
     };
@@ -6049,19 +6049,15 @@ document.addEventListener('alpine:init', function () {
   alpinejs__WEBPACK_IMPORTED_MODULE_1__["default"].data('choices', function (wireModel, multiple, options, config, filterContainer) {
     return {
       multiple: multiple,
-      value: wireModel,
+      value: [],
       options: options,
       config: config,
       wireModel: wireModel,
       activeFiltersContainer: null,
       choices: null,
       init: function init() {
-        var _window,
-            _window$registeredEve,
-            _this11 = this;
+        var _this11 = this;
 
-        // some new fancy way of setting a value when undefined
-        (_window$registeredEve = (_window = window).registeredEventHandlers) !== null && _window$registeredEve !== void 0 ? _window$registeredEve : _window.registeredEventHandlers = [];
         this.activeFiltersContainer = document.getElementById(filterContainer);
         this.multiple = multiple === 1;
         this.$nextTick(function () {
@@ -6101,15 +6097,6 @@ document.addEventListener('alpine:init', function () {
             _this11.wireModel = _this11.value;
           });
 
-          var eventName = 'removeFrom' + _this11.$root.dataset.modelName;
-
-          if (!window.registeredEventHandlers.includes(eventName)) {
-            window.registeredEventHandlers.push(eventName);
-            window.addEventListener(eventName, function (event) {
-              _this11.removeFilterItem(event.detail);
-            });
-          }
-
           _this11.$watch('value', function () {
             return refreshChoices();
           });
@@ -6137,9 +6124,7 @@ document.addEventListener('alpine:init', function () {
               return value.value === item;
             });
 
-            if (typeof cItem !== 'undefined') {
-              _this12.createFilterPill(cItem);
-            }
+            _this12.createFilterPill(cItem);
           }
         });
       },
@@ -6171,11 +6156,9 @@ document.addEventListener('alpine:init', function () {
   alpinejs__WEBPACK_IMPORTED_MODULE_1__["default"].store('cms', {
     loading: false,
     processing: false,
-    dirty: false,
-    scrollPos: 0
+    dirty: false
   });
   alpinejs__WEBPACK_IMPORTED_MODULE_1__["default"].store('questionBank', {
-    active: false,
     inGroup: false
   });
 });
@@ -6202,9 +6185,9 @@ function getTitleForVideoUrl(videoUrl) {
 
 __webpack_require__(/*! ./bootstrap */ "./resources/js/bootstrap.js");
 
-__webpack_require__(/*! livewire-sortable */ "./node_modules/livewire-sortable/dist/livewire-sortable.js");
-
 __webpack_require__(/*! ./swipe */ "./resources/js/swipe.js");
+
+__webpack_require__(/*! ./livewire-sortablejs */ "./resources/js/livewire-sortablejs.js");
 
 __webpack_require__(/*! ./core */ "./resources/js/core.js");
 
@@ -6219,10 +6202,6 @@ __webpack_require__(/*! ./drawing/drawing-question */ "./resources/js/drawing/dr
 __webpack_require__(/*! ./readspeaker_app */ "./resources/js/readspeaker_app.js");
 
 __webpack_require__(/*! ./attachment */ "./resources/js/attachment.js");
-
-__webpack_require__(/*! ./flatpickr */ "./resources/js/flatpickr.js");
-
-__webpack_require__(/*! ./navigation-bar */ "./resources/js/navigation-bar.js");
 
 window.ClassicEditors = [];
 
@@ -6568,6 +6547,17 @@ preventNavigationByKeydown = function preventNavigationByKeydown(event) {
   return event.stopPropagation();
 };
 
+removeFilterItem = function removeFilterItem(el) {
+  console.log(el);
+  document.querySelector("[data-model-name=\"".concat(el.parentElement.dataset.filter, "\"")).querySelector('select').dispatchEvent(new CustomEvent('choice', {
+    'detail': {
+      'choice': {
+        'value': el.parentElement.dataset.filterValue
+      }
+    }
+  }));
+};
+
 /***/ }),
 
 /***/ "./resources/js/attachment.js":
@@ -6721,7 +6711,7 @@ window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
 window.Pusher = __webpack_require__(/*! pusher-js */ "./node_modules/pusher-js/dist/web/pusher.js");
 window.Echo = new laravel_echo__WEBPACK_IMPORTED_MODULE_0__["default"]({
   broadcaster: 'pusher',
-  key: "fc18ed69b446aeb8c8a5",
+  key: "51d7221bf733999d7138",
   cluster: "eu",
   forceTLS: true
 });
@@ -6862,53 +6852,10 @@ Core = {
     }
   },
   enableAppFeatures: function enableAppFeatures(appType) {
-    var show = function show() {
-      var appElements = document.querySelectorAll('[' + appType + ']');
-      appElements.forEach(function (element) {
-        element.style.display = 'flex';
-      });
-    };
-
-    if (appType === 'chromebook') {
-      window.onload = function () {
-        try {
-          var count = 1;
-          var buttonDisplay = setInterval(function () {
-            // send request to get the version, max 5 times then break the interval
-            var xhttp = new XMLHttpRequest();
-            xhttp.open("GET", "/get_app_version", true);
-            xhttp.send();
-
-            xhttp.onload = function () {
-              var response = JSON.parse(this.response).TLCVersion; // get chrome version
-
-              if (response != 'x') {
-                // version is defined                              
-                if (response.charAt(0) == '2') {
-                  // version starts with 2.
-                  show();
-                } else if (response.charAt(0) == '3') {
-                  // version starts with 3.
-                  chrome.runtime.sendMessage( // see if it is a kiosk app\
-                  document.getElementById("chromeos-extension-id").name, {
-                    isKiosk: true
-                  }, function (response) {
-                    response.isKiosk ? show() : ''; // if koisk app, show button
-                  });
-                }
-
-                clearInterval(buttonDisplay);
-              } else {
-                count >= 5 ? clearInterval(buttonDisplay) : count++;
-              }
-            };
-          }, 2000);
-        } catch (error) {}
-      };
-    } else {
-      // version is not defined (headers is not recieved from the app yet)
-      show();
-    }
+    var appElements = document.querySelectorAll('[' + appType + ']');
+    appElements.forEach(function (element) {
+      element.style.display = 'flex';
+    });
   },
   checkForElectron: function checkForElectron() {
     try {
@@ -12362,232 +12309,83 @@ var warningBox = /*#__PURE__*/function () {
 
 /***/ }),
 
-/***/ "./resources/js/flatpickr.js":
-/*!***********************************!*\
-  !*** ./resources/js/flatpickr.js ***!
-  \***********************************/
+/***/ "./resources/js/livewire-sortablejs.js":
+/*!*********************************************!*\
+  !*** ./resources/js/livewire-sortablejs.js ***!
+  \*********************************************/
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony import */ var flatpickr__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! flatpickr */ "./node_modules/flatpickr/dist/esm/index.js");
-/* harmony import */ var flatpickr_dist_l10n_nl_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! flatpickr/dist/l10n/nl.js */ "./node_modules/flatpickr/dist/l10n/nl.js");
-/* harmony import */ var flatpickr_dist_l10n_nl_js__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(flatpickr_dist_l10n_nl_js__WEBPACK_IMPORTED_MODULE_1__);
+/* harmony import */ var sortablejs__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! sortablejs */ "./node_modules/sortablejs/modular/sortable.esm.js");
 
+window.sortable = sortablejs__WEBPACK_IMPORTED_MODULE_0__["default"];
 
-document.addEventListener('alpine:init', function () {
-  Alpine.data('flatpickr', function (wireModel, mode, locale) {
-    return {
-      wireModel: wireModel,
-      mode: mode,
-      locale: locale,
-      init: function init() {
-        var _this = this;
+if (typeof window.Livewire === 'undefined') {
+  throw 'Livewire Sortable.js Plugin: window.Livewire is undefined. Make sure @livewireScripts is placed above this script include';
+}
 
-        // if(this.mode == 'range'){
-        //     this.value = ['{{$defaultDate}}', '{{$defaultDateTo}}'];
-        // } else {
-        //     this.value = this.wireModel;
-        // }
-        var picker = (0,flatpickr__WEBPACK_IMPORTED_MODULE_0__["default"])(this.$refs.datepickr, {
-          locale: this.locale,
-          mode: this.mode,
-          defaultDate: this.wireModel,
-          onChange: function onChange(date, dateString) {
-            console.log('change');
-            _this.wireModel = _this.value = _this.mode == 'range' ? dateString.split(' t/m ') : dateString; //split t/m or to
-          }
+window.Livewire.directive('sortable', function (el, directive, component) {
+  // Only fire this handler on the "root" directive.
+  if (directive.modifiers.length > 0) {
+    return;
+  }
+
+  el.livewire_sortable = sortablejs__WEBPACK_IMPORTED_MODULE_0__["default"].create(el, {
+    draggable: '[wire\\:sortable\\.item]',
+    handle: el.querySelector('[wire\\:sortable\\.handle]') ? '[wire\\:sortable\\.handle]' : null,
+    sort: true,
+    dataIdAttr: 'wire:sortable.item',
+    group: {
+      name: el.getAttribute('wire:sortable'),
+      pull: false,
+      put: false
+    },
+    store: {
+      set: function set(sortable) {
+        var items = sortable.toArray().map(function (value, index) {
+          return {
+            order: index + 1,
+            value: value
+          };
         });
+        component.call(directive.method, items);
       }
-    };
+    }
   });
 });
+window.Livewire.directive('sortable-group', function (el, directive, component) {
+  // Only fire this handler on the "root" group directive.
+  if (!directive.modifiers.includes('item-group')) {
+    return;
+  }
 
-/***/ }),
-
-/***/ "./resources/js/navigation-bar.js":
-/*!****************************************!*\
-  !*** ./resources/js/navigation-bar.js ***!
-  \****************************************/
-/***/ (() => {
-
-document.addEventListener('alpine:init', function () {
-  Alpine.data('navigationBar', function () {
-    return {
-      hideTimeout: null,
-      bottom: null,
-      userMenuTimeout: null,
-      supportMenuTimeout: null,
-      userMenu: false,
-      supportMenu: false,
-      menuButtons: null,
-      menuButtonsWithoutItems: null,
-      activeMenuItem: null,
-      init: function init() {
-        var _this = this;
-
-        var navBar = this.$refs.nav_bar;
-        this.bottom = this.$refs.menu_bottom;
-        var tiles = this.$refs.tiles;
-        var scrollLeft = this.$refs.menu_scroll_left;
-        var scrollRight = this.$refs.menu_scroll_right;
-        this.menuButtonsWithItems = this.bottom.querySelectorAll('.has-items');
-        this.menuButtonsWithoutItems = this.bottom.querySelectorAll('div:not(.has-items)');
-
-        if (this.$wire.activeRoute.sub !== '') {
-          var activeTileItem = navBar.querySelector('.' + this.$wire.activeRoute.sub);
-          activeTileItem.classList.add('tile-active');
-        }
-
-        if (this.$wire.activeRoute.main !== '') {
-          this.activeMenuItem = this.bottom.querySelector('[data-menu="' + this.$wire.activeRoute.main + '"]');
-          this.activeMenuItem.classList.add('button-active');
-        }
-
-        this.resetActiveState();
-        this.menuButtonsWithItems.forEach(function (element) {
-          element.addEventListener('mouseover', function (event) {
-            if (_this.activeMenuItem) {
-              _this.activeMenuItem.classList.remove('button-active');
-            }
-
-            _this.tileItemsHide();
-
-            _this.tilesBarShow();
-
-            var tilesGroup = tiles.querySelector('.' + event.target.dataset.menu);
-            tilesGroup.style.display = 'flex';
-
-            _this.setPaddingForActiveTileGroupByMenuItem(event.target);
-          });
-        });
-        this.bottom.querySelectorAll('div:not(.has-items)').forEach(function (element) {
-          return element.addEventListener('mouseover', function (event) {
-            _this.tilesBarHide(0, false);
-
-            if (_this.activeMenuItem) {
-              _this.activeMenuItem.classList.remove('button-active');
-            }
-          });
-        });
-        navBar.addEventListener('mouseleave', function (event) {
-          _this.tilesBarHide(500);
-        });
-        scrollLeft.addEventListener('click', function (event) {
-          _this.menuBottomScrollLeft();
-        });
-        scrollRight.addEventListener('click', function (event) {
-          _this.menuBottomScrollRight();
-        });
-        this.$refs.user_button.addEventListener('click', function (event) {
-          _this.userMenuShow();
-        });
-        this.$refs.support_button.addEventListener('click', function (event) {
-          _this.supportMenuShow();
-        });
-      },
-      tileItemsHide: function tileItemsHide() {
-        this.menuButtonsWithItems.forEach(function (element) {
-          tiles.querySelectorAll('.tile-group').forEach(function (tilegroup) {
-            tilegroup.style.display = 'none';
-          });
-        });
-      },
-      tilesBarHide: function tilesBarHide() {
-        var _this2 = this;
-
-        var timeout = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 1;
-        var reset = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : true;
-        this.hideTimeout = setTimeout(function () {
-          _this2.tileItemsHide();
-
-          tiles.style.setProperty('--top', '0px');
-          tiles.style.paddingLeft = '0px';
-          clearTimeout(_this2.hideTimeout);
-
-          if (reset) {
-            _this2.resetActiveState();
-          }
-        }, timeout); // alert(this.$wire.activeRoute.main == '');
-      },
-      resetActiveState: function resetActiveState() {
-        if (this.$wire.activeRoute.sub !== '') {
-          tiles.style.setProperty('--top', '98px');
-          var activeTile = tiles.querySelector('.' + this.$wire.activeRoute.main);
-          activeTile.style.display = "flex"; //menu item
-
-          this.setPaddingForActiveTileGroupByMenuItem(this.activeMenuItem);
-        }
-
-        if (this.activeMenuItem) {
-          this.activeMenuItem.classList.add('button-active');
-        }
-      },
-      tilesBarShow: function tilesBarShow() {
-        clearTimeout(this.hideTimeout);
-        tiles.style.paddingLeft = '0px';
-        tiles.style.setProperty('--top', '98px');
-      },
-      userMenuShow: function userMenuShow() {
-        var _this3 = this;
-
-        clearTimeout(this.userMenuTimeout);
-
-        if (this.userMenu === false) {
-          this.userMenu = true;
-          this.userMenuTimeout = setTimeout(function () {
-            _this3.userMenu = false;
-          }, 5000);
-        } else {
-          this.userMenu = false;
-        }
-      },
-      supportMenuShow: function supportMenuShow() {
-        var _this4 = this;
-
-        clearTimeout(this.supportMenuTimeout);
-
-        if (this.supportMenu === false) {
-          this.supportMenu = true;
-          this.supportMenuTimeout = setTimeout(function () {
-            _this4.supportMenu = false;
-          }, 5000);
-        } else {
-          this.supportMenu = false;
-        }
-      },
-      setPaddingForActiveTileGroupByMenuItem: function setPaddingForActiveTileGroupByMenuItem(menuItem) {
-        var menuItem = menuItem;
-        var tileGroup = tiles.querySelector('.' + menuItem.dataset.menu);
-        var minimalPadding = this.bottom.querySelector('.menu-item:nth-child(2)').offsetLeft;
-        var maximalPadding = tiles.offsetWidth - tileGroup.offsetWidth;
-        var calculatedPadding = menuItem.getBoundingClientRect().right - menuItem.offsetWidth / 2 - tileGroup.offsetWidth / 2;
-
-        if (calculatedPadding < minimalPadding) {
-          return tiles.style.paddingLeft = minimalPadding + 'px';
-        }
-
-        if (calculatedPadding > maximalPadding) {
-          return tiles.style.paddingLeft = maximalPadding + 'px';
-        }
-
-        tiles.style.paddingLeft = calculatedPadding + 'px';
-      },
-      menuBottomScrollRight: function menuBottomScrollRight() {
-        this.bottom.scrollBy({
-          left: 150,
-          top: 0,
-          behavior: 'smooth'
-        });
-      },
-      menuBottomScrollLeft: function menuBottomScrollLeft() {
-        this.bottom.scrollBy({
-          left: -150,
-          top: 0,
-          behavior: 'smooth'
-        });
-      }
-    };
+  el.livewire_sortable = sortablejs__WEBPACK_IMPORTED_MODULE_0__["default"].create(el, {
+    draggable: '[wire\\:sortable-group\\.item]',
+    handle: el.querySelector('[wire\\:sortable-group\\.handle]') ? '[wire\\:sortable-group\\.handle]' : null,
+    sort: true,
+    dataIdAttr: 'wire:sortable-group.item',
+    group: {
+      name: el.closest('[wire\\:sortable-group]').getAttribute('wire:sortable-group'),
+      pull: true,
+      put: true
+    },
+    onSort: function onSort() {
+      var masterEl = el.closest('[wire\\:sortable-group]');
+      var groups = Array.from(masterEl.querySelectorAll('[wire\\:sortable-group\\.item-group]')).map(function (el, index) {
+        return {
+          order: index + 1,
+          value: el.getAttribute('wire:sortable-group.item-group'),
+          items: el.livewire_sortable.toArray().map(function (value, index) {
+            return {
+              order: index + 1,
+              value: value
+            };
+          })
+        };
+      });
+      component.call(masterEl.getAttribute('wire:sortable-group'), groups);
+    }
   });
 });
 
@@ -12739,8 +12537,20 @@ RichTextEditor = {
 
     CKEDITOR.replace(editorId, {});
     editor = CKEDITOR.instances[editorId];
+    editor.shouldDispatchChange = false;
     editor.on('change', function (e) {
-      RichTextEditor.sendInputEventToEditor(editorId, e);
+      var _e$editor$getData;
+
+      if (!((_e$editor$getData = e.editor.getData()) !== null && _e$editor$getData !== void 0 && _e$editor$getData.includes('MathML'))) {
+        RichTextEditor.sendInputEventToEditor(editorId, e);
+        return;
+      }
+
+      if (editor.shouldDispatchChange) {
+        RichTextEditor.sendInputEventToEditor(editorId, e);
+      }
+
+      editor.shouldDispatchChange = true;
     });
     editor.on('simpleuploads.startUpload', function (e) {
       e.data.extraHeaders = {
@@ -33475,2810 +33285,6 @@ __webpack_exports__ = __webpack_exports__["default"];
 
 /***/ }),
 
-/***/ "./node_modules/flatpickr/dist/esm/index.js":
-/*!**************************************************!*\
-  !*** ./node_modules/flatpickr/dist/esm/index.js ***!
-  \**************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
-/* harmony export */ });
-/* harmony import */ var _types_options__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./types/options */ "./node_modules/flatpickr/dist/esm/types/options.js");
-/* harmony import */ var _l10n_default__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./l10n/default */ "./node_modules/flatpickr/dist/esm/l10n/default.js");
-/* harmony import */ var _utils__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./utils */ "./node_modules/flatpickr/dist/esm/utils/index.js");
-/* harmony import */ var _utils_dom__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./utils/dom */ "./node_modules/flatpickr/dist/esm/utils/dom.js");
-/* harmony import */ var _utils_dates__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./utils/dates */ "./node_modules/flatpickr/dist/esm/utils/dates.js");
-/* harmony import */ var _utils_formatting__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./utils/formatting */ "./node_modules/flatpickr/dist/esm/utils/formatting.js");
-/* harmony import */ var _utils_polyfills__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./utils/polyfills */ "./node_modules/flatpickr/dist/esm/utils/polyfills.js");
-/* harmony import */ var _utils_polyfills__WEBPACK_IMPORTED_MODULE_6___default = /*#__PURE__*/__webpack_require__.n(_utils_polyfills__WEBPACK_IMPORTED_MODULE_6__);
-var __assign = (undefined && undefined.__assign) || function () {
-    __assign = Object.assign || function(t) {
-        for (var s, i = 1, n = arguments.length; i < n; i++) {
-            s = arguments[i];
-            for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
-                t[p] = s[p];
-        }
-        return t;
-    };
-    return __assign.apply(this, arguments);
-};
-var __spreadArrays = (undefined && undefined.__spreadArrays) || function () {
-    for (var s = 0, i = 0, il = arguments.length; i < il; i++) s += arguments[i].length;
-    for (var r = Array(s), k = 0, i = 0; i < il; i++)
-        for (var a = arguments[i], j = 0, jl = a.length; j < jl; j++, k++)
-            r[k] = a[j];
-    return r;
-};
-
-
-
-
-
-
-
-var DEBOUNCED_CHANGE_MS = 300;
-function FlatpickrInstance(element, instanceConfig) {
-    var self = {
-        config: __assign(__assign({}, _types_options__WEBPACK_IMPORTED_MODULE_0__.defaults), flatpickr.defaultConfig),
-        l10n: _l10n_default__WEBPACK_IMPORTED_MODULE_1__["default"],
-    };
-    self.parseDate = (0,_utils_dates__WEBPACK_IMPORTED_MODULE_4__.createDateParser)({ config: self.config, l10n: self.l10n });
-    self._handlers = [];
-    self.pluginElements = [];
-    self.loadedPlugins = [];
-    self._bind = bind;
-    self._setHoursFromDate = setHoursFromDate;
-    self._positionCalendar = positionCalendar;
-    self.changeMonth = changeMonth;
-    self.changeYear = changeYear;
-    self.clear = clear;
-    self.close = close;
-    self.onMouseOver = onMouseOver;
-    self._createElement = _utils_dom__WEBPACK_IMPORTED_MODULE_3__.createElement;
-    self.createDay = createDay;
-    self.destroy = destroy;
-    self.isEnabled = isEnabled;
-    self.jumpToDate = jumpToDate;
-    self.updateValue = updateValue;
-    self.open = open;
-    self.redraw = redraw;
-    self.set = set;
-    self.setDate = setDate;
-    self.toggle = toggle;
-    function setupHelperFunctions() {
-        self.utils = {
-            getDaysInMonth: function (month, yr) {
-                if (month === void 0) { month = self.currentMonth; }
-                if (yr === void 0) { yr = self.currentYear; }
-                if (month === 1 && ((yr % 4 === 0 && yr % 100 !== 0) || yr % 400 === 0))
-                    return 29;
-                return self.l10n.daysInMonth[month];
-            },
-        };
-    }
-    function init() {
-        self.element = self.input = element;
-        self.isOpen = false;
-        parseConfig();
-        setupLocale();
-        setupInputs();
-        setupDates();
-        setupHelperFunctions();
-        if (!self.isMobile)
-            build();
-        bindEvents();
-        if (self.selectedDates.length || self.config.noCalendar) {
-            if (self.config.enableTime) {
-                setHoursFromDate(self.config.noCalendar ? self.latestSelectedDateObj : undefined);
-            }
-            updateValue(false);
-        }
-        setCalendarWidth();
-        var isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
-        if (!self.isMobile && isSafari) {
-            positionCalendar();
-        }
-        triggerEvent("onReady");
-    }
-    function getClosestActiveElement() {
-        var _a;
-        return (((_a = self.calendarContainer) === null || _a === void 0 ? void 0 : _a.getRootNode())
-            .activeElement || document.activeElement);
-    }
-    function bindToInstance(fn) {
-        return fn.bind(self);
-    }
-    function setCalendarWidth() {
-        var config = self.config;
-        if (config.weekNumbers === false && config.showMonths === 1) {
-            return;
-        }
-        else if (config.noCalendar !== true) {
-            window.requestAnimationFrame(function () {
-                if (self.calendarContainer !== undefined) {
-                    self.calendarContainer.style.visibility = "hidden";
-                    self.calendarContainer.style.display = "block";
-                }
-                if (self.daysContainer !== undefined) {
-                    var daysWidth = (self.days.offsetWidth + 1) * config.showMonths;
-                    self.daysContainer.style.width = daysWidth + "px";
-                    self.calendarContainer.style.width =
-                        daysWidth +
-                            (self.weekWrapper !== undefined
-                                ? self.weekWrapper.offsetWidth
-                                : 0) +
-                            "px";
-                    self.calendarContainer.style.removeProperty("visibility");
-                    self.calendarContainer.style.removeProperty("display");
-                }
-            });
-        }
-    }
-    function updateTime(e) {
-        if (self.selectedDates.length === 0) {
-            var defaultDate = self.config.minDate === undefined ||
-                (0,_utils_dates__WEBPACK_IMPORTED_MODULE_4__.compareDates)(new Date(), self.config.minDate) >= 0
-                ? new Date()
-                : new Date(self.config.minDate.getTime());
-            var defaults = (0,_utils_dates__WEBPACK_IMPORTED_MODULE_4__.getDefaultHours)(self.config);
-            defaultDate.setHours(defaults.hours, defaults.minutes, defaults.seconds, defaultDate.getMilliseconds());
-            self.selectedDates = [defaultDate];
-            self.latestSelectedDateObj = defaultDate;
-        }
-        if (e !== undefined && e.type !== "blur") {
-            timeWrapper(e);
-        }
-        var prevValue = self._input.value;
-        setHoursFromInputs();
-        updateValue();
-        if (self._input.value !== prevValue) {
-            self._debouncedChange();
-        }
-    }
-    function ampm2military(hour, amPM) {
-        return (hour % 12) + 12 * (0,_utils__WEBPACK_IMPORTED_MODULE_2__.int)(amPM === self.l10n.amPM[1]);
-    }
-    function military2ampm(hour) {
-        switch (hour % 24) {
-            case 0:
-            case 12:
-                return 12;
-            default:
-                return hour % 12;
-        }
-    }
-    function setHoursFromInputs() {
-        if (self.hourElement === undefined || self.minuteElement === undefined)
-            return;
-        var hours = (parseInt(self.hourElement.value.slice(-2), 10) || 0) % 24, minutes = (parseInt(self.minuteElement.value, 10) || 0) % 60, seconds = self.secondElement !== undefined
-            ? (parseInt(self.secondElement.value, 10) || 0) % 60
-            : 0;
-        if (self.amPM !== undefined) {
-            hours = ampm2military(hours, self.amPM.textContent);
-        }
-        var limitMinHours = self.config.minTime !== undefined ||
-            (self.config.minDate &&
-                self.minDateHasTime &&
-                self.latestSelectedDateObj &&
-                (0,_utils_dates__WEBPACK_IMPORTED_MODULE_4__.compareDates)(self.latestSelectedDateObj, self.config.minDate, true) ===
-                    0);
-        var limitMaxHours = self.config.maxTime !== undefined ||
-            (self.config.maxDate &&
-                self.maxDateHasTime &&
-                self.latestSelectedDateObj &&
-                (0,_utils_dates__WEBPACK_IMPORTED_MODULE_4__.compareDates)(self.latestSelectedDateObj, self.config.maxDate, true) ===
-                    0);
-        if (self.config.maxTime !== undefined &&
-            self.config.minTime !== undefined &&
-            self.config.minTime > self.config.maxTime) {
-            var minBound = (0,_utils_dates__WEBPACK_IMPORTED_MODULE_4__.calculateSecondsSinceMidnight)(self.config.minTime.getHours(), self.config.minTime.getMinutes(), self.config.minTime.getSeconds());
-            var maxBound = (0,_utils_dates__WEBPACK_IMPORTED_MODULE_4__.calculateSecondsSinceMidnight)(self.config.maxTime.getHours(), self.config.maxTime.getMinutes(), self.config.maxTime.getSeconds());
-            var currentTime = (0,_utils_dates__WEBPACK_IMPORTED_MODULE_4__.calculateSecondsSinceMidnight)(hours, minutes, seconds);
-            if (currentTime > maxBound && currentTime < minBound) {
-                var result = (0,_utils_dates__WEBPACK_IMPORTED_MODULE_4__.parseSeconds)(minBound);
-                hours = result[0];
-                minutes = result[1];
-                seconds = result[2];
-            }
-        }
-        else {
-            if (limitMaxHours) {
-                var maxTime = self.config.maxTime !== undefined
-                    ? self.config.maxTime
-                    : self.config.maxDate;
-                hours = Math.min(hours, maxTime.getHours());
-                if (hours === maxTime.getHours())
-                    minutes = Math.min(minutes, maxTime.getMinutes());
-                if (minutes === maxTime.getMinutes())
-                    seconds = Math.min(seconds, maxTime.getSeconds());
-            }
-            if (limitMinHours) {
-                var minTime = self.config.minTime !== undefined
-                    ? self.config.minTime
-                    : self.config.minDate;
-                hours = Math.max(hours, minTime.getHours());
-                if (hours === minTime.getHours() && minutes < minTime.getMinutes())
-                    minutes = minTime.getMinutes();
-                if (minutes === minTime.getMinutes())
-                    seconds = Math.max(seconds, minTime.getSeconds());
-            }
-        }
-        setHours(hours, minutes, seconds);
-    }
-    function setHoursFromDate(dateObj) {
-        var date = dateObj || self.latestSelectedDateObj;
-        if (date && date instanceof Date) {
-            setHours(date.getHours(), date.getMinutes(), date.getSeconds());
-        }
-    }
-    function setHours(hours, minutes, seconds) {
-        if (self.latestSelectedDateObj !== undefined) {
-            self.latestSelectedDateObj.setHours(hours % 24, minutes, seconds || 0, 0);
-        }
-        if (!self.hourElement || !self.minuteElement || self.isMobile)
-            return;
-        self.hourElement.value = (0,_utils__WEBPACK_IMPORTED_MODULE_2__.pad)(!self.config.time_24hr
-            ? ((12 + hours) % 12) + 12 * (0,_utils__WEBPACK_IMPORTED_MODULE_2__.int)(hours % 12 === 0)
-            : hours);
-        self.minuteElement.value = (0,_utils__WEBPACK_IMPORTED_MODULE_2__.pad)(minutes);
-        if (self.amPM !== undefined)
-            self.amPM.textContent = self.l10n.amPM[(0,_utils__WEBPACK_IMPORTED_MODULE_2__.int)(hours >= 12)];
-        if (self.secondElement !== undefined)
-            self.secondElement.value = (0,_utils__WEBPACK_IMPORTED_MODULE_2__.pad)(seconds);
-    }
-    function onYearInput(event) {
-        var eventTarget = (0,_utils_dom__WEBPACK_IMPORTED_MODULE_3__.getEventTarget)(event);
-        var year = parseInt(eventTarget.value) + (event.delta || 0);
-        if (year / 1000 > 1 ||
-            (event.key === "Enter" && !/[^\d]/.test(year.toString()))) {
-            changeYear(year);
-        }
-    }
-    function bind(element, event, handler, options) {
-        if (event instanceof Array)
-            return event.forEach(function (ev) { return bind(element, ev, handler, options); });
-        if (element instanceof Array)
-            return element.forEach(function (el) { return bind(el, event, handler, options); });
-        element.addEventListener(event, handler, options);
-        self._handlers.push({
-            remove: function () { return element.removeEventListener(event, handler, options); },
-        });
-    }
-    function triggerChange() {
-        triggerEvent("onChange");
-    }
-    function bindEvents() {
-        if (self.config.wrap) {
-            ["open", "close", "toggle", "clear"].forEach(function (evt) {
-                Array.prototype.forEach.call(self.element.querySelectorAll("[data-" + evt + "]"), function (el) {
-                    return bind(el, "click", self[evt]);
-                });
-            });
-        }
-        if (self.isMobile) {
-            setupMobile();
-            return;
-        }
-        var debouncedResize = (0,_utils__WEBPACK_IMPORTED_MODULE_2__.debounce)(onResize, 50);
-        self._debouncedChange = (0,_utils__WEBPACK_IMPORTED_MODULE_2__.debounce)(triggerChange, DEBOUNCED_CHANGE_MS);
-        if (self.daysContainer && !/iPhone|iPad|iPod/i.test(navigator.userAgent))
-            bind(self.daysContainer, "mouseover", function (e) {
-                if (self.config.mode === "range")
-                    onMouseOver((0,_utils_dom__WEBPACK_IMPORTED_MODULE_3__.getEventTarget)(e));
-            });
-        bind(self._input, "keydown", onKeyDown);
-        if (self.calendarContainer !== undefined) {
-            bind(self.calendarContainer, "keydown", onKeyDown);
-        }
-        if (!self.config.inline && !self.config.static)
-            bind(window, "resize", debouncedResize);
-        if (window.ontouchstart !== undefined)
-            bind(window.document, "touchstart", documentClick);
-        else
-            bind(window.document, "mousedown", documentClick);
-        bind(window.document, "focus", documentClick, { capture: true });
-        if (self.config.clickOpens === true) {
-            bind(self._input, "focus", self.open);
-            bind(self._input, "click", self.open);
-        }
-        if (self.daysContainer !== undefined) {
-            bind(self.monthNav, "click", onMonthNavClick);
-            bind(self.monthNav, ["keyup", "increment"], onYearInput);
-            bind(self.daysContainer, "click", selectDate);
-        }
-        if (self.timeContainer !== undefined &&
-            self.minuteElement !== undefined &&
-            self.hourElement !== undefined) {
-            var selText = function (e) {
-                return (0,_utils_dom__WEBPACK_IMPORTED_MODULE_3__.getEventTarget)(e).select();
-            };
-            bind(self.timeContainer, ["increment"], updateTime);
-            bind(self.timeContainer, "blur", updateTime, { capture: true });
-            bind(self.timeContainer, "click", timeIncrement);
-            bind([self.hourElement, self.minuteElement], ["focus", "click"], selText);
-            if (self.secondElement !== undefined)
-                bind(self.secondElement, "focus", function () { return self.secondElement && self.secondElement.select(); });
-            if (self.amPM !== undefined) {
-                bind(self.amPM, "click", function (e) {
-                    updateTime(e);
-                });
-            }
-        }
-        if (self.config.allowInput) {
-            bind(self._input, "blur", onBlur);
-        }
-    }
-    function jumpToDate(jumpDate, triggerChange) {
-        var jumpTo = jumpDate !== undefined
-            ? self.parseDate(jumpDate)
-            : self.latestSelectedDateObj ||
-                (self.config.minDate && self.config.minDate > self.now
-                    ? self.config.minDate
-                    : self.config.maxDate && self.config.maxDate < self.now
-                        ? self.config.maxDate
-                        : self.now);
-        var oldYear = self.currentYear;
-        var oldMonth = self.currentMonth;
-        try {
-            if (jumpTo !== undefined) {
-                self.currentYear = jumpTo.getFullYear();
-                self.currentMonth = jumpTo.getMonth();
-            }
-        }
-        catch (e) {
-            e.message = "Invalid date supplied: " + jumpTo;
-            self.config.errorHandler(e);
-        }
-        if (triggerChange && self.currentYear !== oldYear) {
-            triggerEvent("onYearChange");
-            buildMonthSwitch();
-        }
-        if (triggerChange &&
-            (self.currentYear !== oldYear || self.currentMonth !== oldMonth)) {
-            triggerEvent("onMonthChange");
-        }
-        self.redraw();
-    }
-    function timeIncrement(e) {
-        var eventTarget = (0,_utils_dom__WEBPACK_IMPORTED_MODULE_3__.getEventTarget)(e);
-        if (~eventTarget.className.indexOf("arrow"))
-            incrementNumInput(e, eventTarget.classList.contains("arrowUp") ? 1 : -1);
-    }
-    function incrementNumInput(e, delta, inputElem) {
-        var target = e && (0,_utils_dom__WEBPACK_IMPORTED_MODULE_3__.getEventTarget)(e);
-        var input = inputElem ||
-            (target && target.parentNode && target.parentNode.firstChild);
-        var event = createEvent("increment");
-        event.delta = delta;
-        input && input.dispatchEvent(event);
-    }
-    function build() {
-        var fragment = window.document.createDocumentFragment();
-        self.calendarContainer = (0,_utils_dom__WEBPACK_IMPORTED_MODULE_3__.createElement)("div", "flatpickr-calendar");
-        self.calendarContainer.tabIndex = -1;
-        if (!self.config.noCalendar) {
-            fragment.appendChild(buildMonthNav());
-            self.innerContainer = (0,_utils_dom__WEBPACK_IMPORTED_MODULE_3__.createElement)("div", "flatpickr-innerContainer");
-            if (self.config.weekNumbers) {
-                var _a = buildWeeks(), weekWrapper = _a.weekWrapper, weekNumbers = _a.weekNumbers;
-                self.innerContainer.appendChild(weekWrapper);
-                self.weekNumbers = weekNumbers;
-                self.weekWrapper = weekWrapper;
-            }
-            self.rContainer = (0,_utils_dom__WEBPACK_IMPORTED_MODULE_3__.createElement)("div", "flatpickr-rContainer");
-            self.rContainer.appendChild(buildWeekdays());
-            if (!self.daysContainer) {
-                self.daysContainer = (0,_utils_dom__WEBPACK_IMPORTED_MODULE_3__.createElement)("div", "flatpickr-days");
-                self.daysContainer.tabIndex = -1;
-            }
-            buildDays();
-            self.rContainer.appendChild(self.daysContainer);
-            self.innerContainer.appendChild(self.rContainer);
-            fragment.appendChild(self.innerContainer);
-        }
-        if (self.config.enableTime) {
-            fragment.appendChild(buildTime());
-        }
-        (0,_utils_dom__WEBPACK_IMPORTED_MODULE_3__.toggleClass)(self.calendarContainer, "rangeMode", self.config.mode === "range");
-        (0,_utils_dom__WEBPACK_IMPORTED_MODULE_3__.toggleClass)(self.calendarContainer, "animate", self.config.animate === true);
-        (0,_utils_dom__WEBPACK_IMPORTED_MODULE_3__.toggleClass)(self.calendarContainer, "multiMonth", self.config.showMonths > 1);
-        self.calendarContainer.appendChild(fragment);
-        var customAppend = self.config.appendTo !== undefined &&
-            self.config.appendTo.nodeType !== undefined;
-        if (self.config.inline || self.config.static) {
-            self.calendarContainer.classList.add(self.config.inline ? "inline" : "static");
-            if (self.config.inline) {
-                if (!customAppend && self.element.parentNode)
-                    self.element.parentNode.insertBefore(self.calendarContainer, self._input.nextSibling);
-                else if (self.config.appendTo !== undefined)
-                    self.config.appendTo.appendChild(self.calendarContainer);
-            }
-            if (self.config.static) {
-                var wrapper = (0,_utils_dom__WEBPACK_IMPORTED_MODULE_3__.createElement)("div", "flatpickr-wrapper");
-                if (self.element.parentNode)
-                    self.element.parentNode.insertBefore(wrapper, self.element);
-                wrapper.appendChild(self.element);
-                if (self.altInput)
-                    wrapper.appendChild(self.altInput);
-                wrapper.appendChild(self.calendarContainer);
-            }
-        }
-        if (!self.config.static && !self.config.inline)
-            (self.config.appendTo !== undefined
-                ? self.config.appendTo
-                : window.document.body).appendChild(self.calendarContainer);
-    }
-    function createDay(className, date, _dayNumber, i) {
-        var dateIsEnabled = isEnabled(date, true), dayElement = (0,_utils_dom__WEBPACK_IMPORTED_MODULE_3__.createElement)("span", className, date.getDate().toString());
-        dayElement.dateObj = date;
-        dayElement.$i = i;
-        dayElement.setAttribute("aria-label", self.formatDate(date, self.config.ariaDateFormat));
-        if (className.indexOf("hidden") === -1 &&
-            (0,_utils_dates__WEBPACK_IMPORTED_MODULE_4__.compareDates)(date, self.now) === 0) {
-            self.todayDateElem = dayElement;
-            dayElement.classList.add("today");
-            dayElement.setAttribute("aria-current", "date");
-        }
-        if (dateIsEnabled) {
-            dayElement.tabIndex = -1;
-            if (isDateSelected(date)) {
-                dayElement.classList.add("selected");
-                self.selectedDateElem = dayElement;
-                if (self.config.mode === "range") {
-                    (0,_utils_dom__WEBPACK_IMPORTED_MODULE_3__.toggleClass)(dayElement, "startRange", self.selectedDates[0] &&
-                        (0,_utils_dates__WEBPACK_IMPORTED_MODULE_4__.compareDates)(date, self.selectedDates[0], true) === 0);
-                    (0,_utils_dom__WEBPACK_IMPORTED_MODULE_3__.toggleClass)(dayElement, "endRange", self.selectedDates[1] &&
-                        (0,_utils_dates__WEBPACK_IMPORTED_MODULE_4__.compareDates)(date, self.selectedDates[1], true) === 0);
-                    if (className === "nextMonthDay")
-                        dayElement.classList.add("inRange");
-                }
-            }
-        }
-        else {
-            dayElement.classList.add("flatpickr-disabled");
-        }
-        if (self.config.mode === "range") {
-            if (isDateInRange(date) && !isDateSelected(date))
-                dayElement.classList.add("inRange");
-        }
-        if (self.weekNumbers &&
-            self.config.showMonths === 1 &&
-            className !== "prevMonthDay" &&
-            i % 7 === 6) {
-            self.weekNumbers.insertAdjacentHTML("beforeend", "<span class='flatpickr-day'>" + self.config.getWeek(date) + "</span>");
-        }
-        triggerEvent("onDayCreate", dayElement);
-        return dayElement;
-    }
-    function focusOnDayElem(targetNode) {
-        targetNode.focus();
-        if (self.config.mode === "range")
-            onMouseOver(targetNode);
-    }
-    function getFirstAvailableDay(delta) {
-        var startMonth = delta > 0 ? 0 : self.config.showMonths - 1;
-        var endMonth = delta > 0 ? self.config.showMonths : -1;
-        for (var m = startMonth; m != endMonth; m += delta) {
-            var month = self.daysContainer.children[m];
-            var startIndex = delta > 0 ? 0 : month.children.length - 1;
-            var endIndex = delta > 0 ? month.children.length : -1;
-            for (var i = startIndex; i != endIndex; i += delta) {
-                var c = month.children[i];
-                if (c.className.indexOf("hidden") === -1 && isEnabled(c.dateObj))
-                    return c;
-            }
-        }
-        return undefined;
-    }
-    function getNextAvailableDay(current, delta) {
-        var givenMonth = current.className.indexOf("Month") === -1
-            ? current.dateObj.getMonth()
-            : self.currentMonth;
-        var endMonth = delta > 0 ? self.config.showMonths : -1;
-        var loopDelta = delta > 0 ? 1 : -1;
-        for (var m = givenMonth - self.currentMonth; m != endMonth; m += loopDelta) {
-            var month = self.daysContainer.children[m];
-            var startIndex = givenMonth - self.currentMonth === m
-                ? current.$i + delta
-                : delta < 0
-                    ? month.children.length - 1
-                    : 0;
-            var numMonthDays = month.children.length;
-            for (var i = startIndex; i >= 0 && i < numMonthDays && i != (delta > 0 ? numMonthDays : -1); i += loopDelta) {
-                var c = month.children[i];
-                if (c.className.indexOf("hidden") === -1 &&
-                    isEnabled(c.dateObj) &&
-                    Math.abs(current.$i - i) >= Math.abs(delta))
-                    return focusOnDayElem(c);
-            }
-        }
-        self.changeMonth(loopDelta);
-        focusOnDay(getFirstAvailableDay(loopDelta), 0);
-        return undefined;
-    }
-    function focusOnDay(current, offset) {
-        var activeElement = getClosestActiveElement();
-        var dayFocused = isInView(activeElement || document.body);
-        var startElem = current !== undefined
-            ? current
-            : dayFocused
-                ? activeElement
-                : self.selectedDateElem !== undefined && isInView(self.selectedDateElem)
-                    ? self.selectedDateElem
-                    : self.todayDateElem !== undefined && isInView(self.todayDateElem)
-                        ? self.todayDateElem
-                        : getFirstAvailableDay(offset > 0 ? 1 : -1);
-        if (startElem === undefined) {
-            self._input.focus();
-        }
-        else if (!dayFocused) {
-            focusOnDayElem(startElem);
-        }
-        else {
-            getNextAvailableDay(startElem, offset);
-        }
-    }
-    function buildMonthDays(year, month) {
-        var firstOfMonth = (new Date(year, month, 1).getDay() - self.l10n.firstDayOfWeek + 7) % 7;
-        var prevMonthDays = self.utils.getDaysInMonth((month - 1 + 12) % 12, year);
-        var daysInMonth = self.utils.getDaysInMonth(month, year), days = window.document.createDocumentFragment(), isMultiMonth = self.config.showMonths > 1, prevMonthDayClass = isMultiMonth ? "prevMonthDay hidden" : "prevMonthDay", nextMonthDayClass = isMultiMonth ? "nextMonthDay hidden" : "nextMonthDay";
-        var dayNumber = prevMonthDays + 1 - firstOfMonth, dayIndex = 0;
-        for (; dayNumber <= prevMonthDays; dayNumber++, dayIndex++) {
-            days.appendChild(createDay("flatpickr-day " + prevMonthDayClass, new Date(year, month - 1, dayNumber), dayNumber, dayIndex));
-        }
-        for (dayNumber = 1; dayNumber <= daysInMonth; dayNumber++, dayIndex++) {
-            days.appendChild(createDay("flatpickr-day", new Date(year, month, dayNumber), dayNumber, dayIndex));
-        }
-        for (var dayNum = daysInMonth + 1; dayNum <= 42 - firstOfMonth &&
-            (self.config.showMonths === 1 || dayIndex % 7 !== 0); dayNum++, dayIndex++) {
-            days.appendChild(createDay("flatpickr-day " + nextMonthDayClass, new Date(year, month + 1, dayNum % daysInMonth), dayNum, dayIndex));
-        }
-        var dayContainer = (0,_utils_dom__WEBPACK_IMPORTED_MODULE_3__.createElement)("div", "dayContainer");
-        dayContainer.appendChild(days);
-        return dayContainer;
-    }
-    function buildDays() {
-        if (self.daysContainer === undefined) {
-            return;
-        }
-        (0,_utils_dom__WEBPACK_IMPORTED_MODULE_3__.clearNode)(self.daysContainer);
-        if (self.weekNumbers)
-            (0,_utils_dom__WEBPACK_IMPORTED_MODULE_3__.clearNode)(self.weekNumbers);
-        var frag = document.createDocumentFragment();
-        for (var i = 0; i < self.config.showMonths; i++) {
-            var d = new Date(self.currentYear, self.currentMonth, 1);
-            d.setMonth(self.currentMonth + i);
-            frag.appendChild(buildMonthDays(d.getFullYear(), d.getMonth()));
-        }
-        self.daysContainer.appendChild(frag);
-        self.days = self.daysContainer.firstChild;
-        if (self.config.mode === "range" && self.selectedDates.length === 1) {
-            onMouseOver();
-        }
-    }
-    function buildMonthSwitch() {
-        if (self.config.showMonths > 1 ||
-            self.config.monthSelectorType !== "dropdown")
-            return;
-        var shouldBuildMonth = function (month) {
-            if (self.config.minDate !== undefined &&
-                self.currentYear === self.config.minDate.getFullYear() &&
-                month < self.config.minDate.getMonth()) {
-                return false;
-            }
-            return !(self.config.maxDate !== undefined &&
-                self.currentYear === self.config.maxDate.getFullYear() &&
-                month > self.config.maxDate.getMonth());
-        };
-        self.monthsDropdownContainer.tabIndex = -1;
-        self.monthsDropdownContainer.innerHTML = "";
-        for (var i = 0; i < 12; i++) {
-            if (!shouldBuildMonth(i))
-                continue;
-            var month = (0,_utils_dom__WEBPACK_IMPORTED_MODULE_3__.createElement)("option", "flatpickr-monthDropdown-month");
-            month.value = new Date(self.currentYear, i).getMonth().toString();
-            month.textContent = (0,_utils_formatting__WEBPACK_IMPORTED_MODULE_5__.monthToStr)(i, self.config.shorthandCurrentMonth, self.l10n);
-            month.tabIndex = -1;
-            if (self.currentMonth === i) {
-                month.selected = true;
-            }
-            self.monthsDropdownContainer.appendChild(month);
-        }
-    }
-    function buildMonth() {
-        var container = (0,_utils_dom__WEBPACK_IMPORTED_MODULE_3__.createElement)("div", "flatpickr-month");
-        var monthNavFragment = window.document.createDocumentFragment();
-        var monthElement;
-        if (self.config.showMonths > 1 ||
-            self.config.monthSelectorType === "static") {
-            monthElement = (0,_utils_dom__WEBPACK_IMPORTED_MODULE_3__.createElement)("span", "cur-month");
-        }
-        else {
-            self.monthsDropdownContainer = (0,_utils_dom__WEBPACK_IMPORTED_MODULE_3__.createElement)("select", "flatpickr-monthDropdown-months");
-            self.monthsDropdownContainer.setAttribute("aria-label", self.l10n.monthAriaLabel);
-            bind(self.monthsDropdownContainer, "change", function (e) {
-                var target = (0,_utils_dom__WEBPACK_IMPORTED_MODULE_3__.getEventTarget)(e);
-                var selectedMonth = parseInt(target.value, 10);
-                self.changeMonth(selectedMonth - self.currentMonth);
-                triggerEvent("onMonthChange");
-            });
-            buildMonthSwitch();
-            monthElement = self.monthsDropdownContainer;
-        }
-        var yearInput = (0,_utils_dom__WEBPACK_IMPORTED_MODULE_3__.createNumberInput)("cur-year", { tabindex: "-1" });
-        var yearElement = yearInput.getElementsByTagName("input")[0];
-        yearElement.setAttribute("aria-label", self.l10n.yearAriaLabel);
-        if (self.config.minDate) {
-            yearElement.setAttribute("min", self.config.minDate.getFullYear().toString());
-        }
-        if (self.config.maxDate) {
-            yearElement.setAttribute("max", self.config.maxDate.getFullYear().toString());
-            yearElement.disabled =
-                !!self.config.minDate &&
-                    self.config.minDate.getFullYear() === self.config.maxDate.getFullYear();
-        }
-        var currentMonth = (0,_utils_dom__WEBPACK_IMPORTED_MODULE_3__.createElement)("div", "flatpickr-current-month");
-        currentMonth.appendChild(monthElement);
-        currentMonth.appendChild(yearInput);
-        monthNavFragment.appendChild(currentMonth);
-        container.appendChild(monthNavFragment);
-        return {
-            container: container,
-            yearElement: yearElement,
-            monthElement: monthElement,
-        };
-    }
-    function buildMonths() {
-        (0,_utils_dom__WEBPACK_IMPORTED_MODULE_3__.clearNode)(self.monthNav);
-        self.monthNav.appendChild(self.prevMonthNav);
-        if (self.config.showMonths) {
-            self.yearElements = [];
-            self.monthElements = [];
-        }
-        for (var m = self.config.showMonths; m--;) {
-            var month = buildMonth();
-            self.yearElements.push(month.yearElement);
-            self.monthElements.push(month.monthElement);
-            self.monthNav.appendChild(month.container);
-        }
-        self.monthNav.appendChild(self.nextMonthNav);
-    }
-    function buildMonthNav() {
-        self.monthNav = (0,_utils_dom__WEBPACK_IMPORTED_MODULE_3__.createElement)("div", "flatpickr-months");
-        self.yearElements = [];
-        self.monthElements = [];
-        self.prevMonthNav = (0,_utils_dom__WEBPACK_IMPORTED_MODULE_3__.createElement)("span", "flatpickr-prev-month");
-        self.prevMonthNav.innerHTML = self.config.prevArrow;
-        self.nextMonthNav = (0,_utils_dom__WEBPACK_IMPORTED_MODULE_3__.createElement)("span", "flatpickr-next-month");
-        self.nextMonthNav.innerHTML = self.config.nextArrow;
-        buildMonths();
-        Object.defineProperty(self, "_hidePrevMonthArrow", {
-            get: function () { return self.__hidePrevMonthArrow; },
-            set: function (bool) {
-                if (self.__hidePrevMonthArrow !== bool) {
-                    (0,_utils_dom__WEBPACK_IMPORTED_MODULE_3__.toggleClass)(self.prevMonthNav, "flatpickr-disabled", bool);
-                    self.__hidePrevMonthArrow = bool;
-                }
-            },
-        });
-        Object.defineProperty(self, "_hideNextMonthArrow", {
-            get: function () { return self.__hideNextMonthArrow; },
-            set: function (bool) {
-                if (self.__hideNextMonthArrow !== bool) {
-                    (0,_utils_dom__WEBPACK_IMPORTED_MODULE_3__.toggleClass)(self.nextMonthNav, "flatpickr-disabled", bool);
-                    self.__hideNextMonthArrow = bool;
-                }
-            },
-        });
-        self.currentYearElement = self.yearElements[0];
-        updateNavigationCurrentMonth();
-        return self.monthNav;
-    }
-    function buildTime() {
-        self.calendarContainer.classList.add("hasTime");
-        if (self.config.noCalendar)
-            self.calendarContainer.classList.add("noCalendar");
-        var defaults = (0,_utils_dates__WEBPACK_IMPORTED_MODULE_4__.getDefaultHours)(self.config);
-        self.timeContainer = (0,_utils_dom__WEBPACK_IMPORTED_MODULE_3__.createElement)("div", "flatpickr-time");
-        self.timeContainer.tabIndex = -1;
-        var separator = (0,_utils_dom__WEBPACK_IMPORTED_MODULE_3__.createElement)("span", "flatpickr-time-separator", ":");
-        var hourInput = (0,_utils_dom__WEBPACK_IMPORTED_MODULE_3__.createNumberInput)("flatpickr-hour", {
-            "aria-label": self.l10n.hourAriaLabel,
-        });
-        self.hourElement = hourInput.getElementsByTagName("input")[0];
-        var minuteInput = (0,_utils_dom__WEBPACK_IMPORTED_MODULE_3__.createNumberInput)("flatpickr-minute", {
-            "aria-label": self.l10n.minuteAriaLabel,
-        });
-        self.minuteElement = minuteInput.getElementsByTagName("input")[0];
-        self.hourElement.tabIndex = self.minuteElement.tabIndex = -1;
-        self.hourElement.value = (0,_utils__WEBPACK_IMPORTED_MODULE_2__.pad)(self.latestSelectedDateObj
-            ? self.latestSelectedDateObj.getHours()
-            : self.config.time_24hr
-                ? defaults.hours
-                : military2ampm(defaults.hours));
-        self.minuteElement.value = (0,_utils__WEBPACK_IMPORTED_MODULE_2__.pad)(self.latestSelectedDateObj
-            ? self.latestSelectedDateObj.getMinutes()
-            : defaults.minutes);
-        self.hourElement.setAttribute("step", self.config.hourIncrement.toString());
-        self.minuteElement.setAttribute("step", self.config.minuteIncrement.toString());
-        self.hourElement.setAttribute("min", self.config.time_24hr ? "0" : "1");
-        self.hourElement.setAttribute("max", self.config.time_24hr ? "23" : "12");
-        self.hourElement.setAttribute("maxlength", "2");
-        self.minuteElement.setAttribute("min", "0");
-        self.minuteElement.setAttribute("max", "59");
-        self.minuteElement.setAttribute("maxlength", "2");
-        self.timeContainer.appendChild(hourInput);
-        self.timeContainer.appendChild(separator);
-        self.timeContainer.appendChild(minuteInput);
-        if (self.config.time_24hr)
-            self.timeContainer.classList.add("time24hr");
-        if (self.config.enableSeconds) {
-            self.timeContainer.classList.add("hasSeconds");
-            var secondInput = (0,_utils_dom__WEBPACK_IMPORTED_MODULE_3__.createNumberInput)("flatpickr-second");
-            self.secondElement = secondInput.getElementsByTagName("input")[0];
-            self.secondElement.value = (0,_utils__WEBPACK_IMPORTED_MODULE_2__.pad)(self.latestSelectedDateObj
-                ? self.latestSelectedDateObj.getSeconds()
-                : defaults.seconds);
-            self.secondElement.setAttribute("step", self.minuteElement.getAttribute("step"));
-            self.secondElement.setAttribute("min", "0");
-            self.secondElement.setAttribute("max", "59");
-            self.secondElement.setAttribute("maxlength", "2");
-            self.timeContainer.appendChild((0,_utils_dom__WEBPACK_IMPORTED_MODULE_3__.createElement)("span", "flatpickr-time-separator", ":"));
-            self.timeContainer.appendChild(secondInput);
-        }
-        if (!self.config.time_24hr) {
-            self.amPM = (0,_utils_dom__WEBPACK_IMPORTED_MODULE_3__.createElement)("span", "flatpickr-am-pm", self.l10n.amPM[(0,_utils__WEBPACK_IMPORTED_MODULE_2__.int)((self.latestSelectedDateObj
-                ? self.hourElement.value
-                : self.config.defaultHour) > 11)]);
-            self.amPM.title = self.l10n.toggleTitle;
-            self.amPM.tabIndex = -1;
-            self.timeContainer.appendChild(self.amPM);
-        }
-        return self.timeContainer;
-    }
-    function buildWeekdays() {
-        if (!self.weekdayContainer)
-            self.weekdayContainer = (0,_utils_dom__WEBPACK_IMPORTED_MODULE_3__.createElement)("div", "flatpickr-weekdays");
-        else
-            (0,_utils_dom__WEBPACK_IMPORTED_MODULE_3__.clearNode)(self.weekdayContainer);
-        for (var i = self.config.showMonths; i--;) {
-            var container = (0,_utils_dom__WEBPACK_IMPORTED_MODULE_3__.createElement)("div", "flatpickr-weekdaycontainer");
-            self.weekdayContainer.appendChild(container);
-        }
-        updateWeekdays();
-        return self.weekdayContainer;
-    }
-    function updateWeekdays() {
-        if (!self.weekdayContainer) {
-            return;
-        }
-        var firstDayOfWeek = self.l10n.firstDayOfWeek;
-        var weekdays = __spreadArrays(self.l10n.weekdays.shorthand);
-        if (firstDayOfWeek > 0 && firstDayOfWeek < weekdays.length) {
-            weekdays = __spreadArrays(weekdays.splice(firstDayOfWeek, weekdays.length), weekdays.splice(0, firstDayOfWeek));
-        }
-        for (var i = self.config.showMonths; i--;) {
-            self.weekdayContainer.children[i].innerHTML = "\n      <span class='flatpickr-weekday'>\n        " + weekdays.join("</span><span class='flatpickr-weekday'>") + "\n      </span>\n      ";
-        }
-    }
-    function buildWeeks() {
-        self.calendarContainer.classList.add("hasWeeks");
-        var weekWrapper = (0,_utils_dom__WEBPACK_IMPORTED_MODULE_3__.createElement)("div", "flatpickr-weekwrapper");
-        weekWrapper.appendChild((0,_utils_dom__WEBPACK_IMPORTED_MODULE_3__.createElement)("span", "flatpickr-weekday", self.l10n.weekAbbreviation));
-        var weekNumbers = (0,_utils_dom__WEBPACK_IMPORTED_MODULE_3__.createElement)("div", "flatpickr-weeks");
-        weekWrapper.appendChild(weekNumbers);
-        return {
-            weekWrapper: weekWrapper,
-            weekNumbers: weekNumbers,
-        };
-    }
-    function changeMonth(value, isOffset) {
-        if (isOffset === void 0) { isOffset = true; }
-        var delta = isOffset ? value : value - self.currentMonth;
-        if ((delta < 0 && self._hidePrevMonthArrow === true) ||
-            (delta > 0 && self._hideNextMonthArrow === true))
-            return;
-        self.currentMonth += delta;
-        if (self.currentMonth < 0 || self.currentMonth > 11) {
-            self.currentYear += self.currentMonth > 11 ? 1 : -1;
-            self.currentMonth = (self.currentMonth + 12) % 12;
-            triggerEvent("onYearChange");
-            buildMonthSwitch();
-        }
-        buildDays();
-        triggerEvent("onMonthChange");
-        updateNavigationCurrentMonth();
-    }
-    function clear(triggerChangeEvent, toInitial) {
-        if (triggerChangeEvent === void 0) { triggerChangeEvent = true; }
-        if (toInitial === void 0) { toInitial = true; }
-        self.input.value = "";
-        if (self.altInput !== undefined)
-            self.altInput.value = "";
-        if (self.mobileInput !== undefined)
-            self.mobileInput.value = "";
-        self.selectedDates = [];
-        self.latestSelectedDateObj = undefined;
-        if (toInitial === true) {
-            self.currentYear = self._initialDate.getFullYear();
-            self.currentMonth = self._initialDate.getMonth();
-        }
-        if (self.config.enableTime === true) {
-            var _a = (0,_utils_dates__WEBPACK_IMPORTED_MODULE_4__.getDefaultHours)(self.config), hours = _a.hours, minutes = _a.minutes, seconds = _a.seconds;
-            setHours(hours, minutes, seconds);
-        }
-        self.redraw();
-        if (triggerChangeEvent)
-            triggerEvent("onChange");
-    }
-    function close() {
-        self.isOpen = false;
-        if (!self.isMobile) {
-            if (self.calendarContainer !== undefined) {
-                self.calendarContainer.classList.remove("open");
-            }
-            if (self._input !== undefined) {
-                self._input.classList.remove("active");
-            }
-        }
-        triggerEvent("onClose");
-    }
-    function destroy() {
-        if (self.config !== undefined)
-            triggerEvent("onDestroy");
-        for (var i = self._handlers.length; i--;) {
-            self._handlers[i].remove();
-        }
-        self._handlers = [];
-        if (self.mobileInput) {
-            if (self.mobileInput.parentNode)
-                self.mobileInput.parentNode.removeChild(self.mobileInput);
-            self.mobileInput = undefined;
-        }
-        else if (self.calendarContainer && self.calendarContainer.parentNode) {
-            if (self.config.static && self.calendarContainer.parentNode) {
-                var wrapper = self.calendarContainer.parentNode;
-                wrapper.lastChild && wrapper.removeChild(wrapper.lastChild);
-                if (wrapper.parentNode) {
-                    while (wrapper.firstChild)
-                        wrapper.parentNode.insertBefore(wrapper.firstChild, wrapper);
-                    wrapper.parentNode.removeChild(wrapper);
-                }
-            }
-            else
-                self.calendarContainer.parentNode.removeChild(self.calendarContainer);
-        }
-        if (self.altInput) {
-            self.input.type = "text";
-            if (self.altInput.parentNode)
-                self.altInput.parentNode.removeChild(self.altInput);
-            delete self.altInput;
-        }
-        if (self.input) {
-            self.input.type = self.input._type;
-            self.input.classList.remove("flatpickr-input");
-            self.input.removeAttribute("readonly");
-        }
-        [
-            "_showTimeInput",
-            "latestSelectedDateObj",
-            "_hideNextMonthArrow",
-            "_hidePrevMonthArrow",
-            "__hideNextMonthArrow",
-            "__hidePrevMonthArrow",
-            "isMobile",
-            "isOpen",
-            "selectedDateElem",
-            "minDateHasTime",
-            "maxDateHasTime",
-            "days",
-            "daysContainer",
-            "_input",
-            "_positionElement",
-            "innerContainer",
-            "rContainer",
-            "monthNav",
-            "todayDateElem",
-            "calendarContainer",
-            "weekdayContainer",
-            "prevMonthNav",
-            "nextMonthNav",
-            "monthsDropdownContainer",
-            "currentMonthElement",
-            "currentYearElement",
-            "navigationCurrentMonth",
-            "selectedDateElem",
-            "config",
-        ].forEach(function (k) {
-            try {
-                delete self[k];
-            }
-            catch (_) { }
-        });
-    }
-    function isCalendarElem(elem) {
-        return self.calendarContainer.contains(elem);
-    }
-    function documentClick(e) {
-        if (self.isOpen && !self.config.inline) {
-            var eventTarget_1 = (0,_utils_dom__WEBPACK_IMPORTED_MODULE_3__.getEventTarget)(e);
-            var isCalendarElement = isCalendarElem(eventTarget_1);
-            var isInput = eventTarget_1 === self.input ||
-                eventTarget_1 === self.altInput ||
-                self.element.contains(eventTarget_1) ||
-                (e.path &&
-                    e.path.indexOf &&
-                    (~e.path.indexOf(self.input) ||
-                        ~e.path.indexOf(self.altInput)));
-            var lostFocus = !isInput &&
-                !isCalendarElement &&
-                !isCalendarElem(e.relatedTarget);
-            var isIgnored = !self.config.ignoredFocusElements.some(function (elem) {
-                return elem.contains(eventTarget_1);
-            });
-            if (lostFocus && isIgnored) {
-                if (self.config.allowInput) {
-                    self.setDate(self._input.value, false, self.config.altInput
-                        ? self.config.altFormat
-                        : self.config.dateFormat);
-                }
-                if (self.timeContainer !== undefined &&
-                    self.minuteElement !== undefined &&
-                    self.hourElement !== undefined &&
-                    self.input.value !== "" &&
-                    self.input.value !== undefined) {
-                    updateTime();
-                }
-                self.close();
-                if (self.config &&
-                    self.config.mode === "range" &&
-                    self.selectedDates.length === 1)
-                    self.clear(false);
-            }
-        }
-    }
-    function changeYear(newYear) {
-        if (!newYear ||
-            (self.config.minDate && newYear < self.config.minDate.getFullYear()) ||
-            (self.config.maxDate && newYear > self.config.maxDate.getFullYear()))
-            return;
-        var newYearNum = newYear, isNewYear = self.currentYear !== newYearNum;
-        self.currentYear = newYearNum || self.currentYear;
-        if (self.config.maxDate &&
-            self.currentYear === self.config.maxDate.getFullYear()) {
-            self.currentMonth = Math.min(self.config.maxDate.getMonth(), self.currentMonth);
-        }
-        else if (self.config.minDate &&
-            self.currentYear === self.config.minDate.getFullYear()) {
-            self.currentMonth = Math.max(self.config.minDate.getMonth(), self.currentMonth);
-        }
-        if (isNewYear) {
-            self.redraw();
-            triggerEvent("onYearChange");
-            buildMonthSwitch();
-        }
-    }
-    function isEnabled(date, timeless) {
-        var _a;
-        if (timeless === void 0) { timeless = true; }
-        var dateToCheck = self.parseDate(date, undefined, timeless);
-        if ((self.config.minDate &&
-            dateToCheck &&
-            (0,_utils_dates__WEBPACK_IMPORTED_MODULE_4__.compareDates)(dateToCheck, self.config.minDate, timeless !== undefined ? timeless : !self.minDateHasTime) < 0) ||
-            (self.config.maxDate &&
-                dateToCheck &&
-                (0,_utils_dates__WEBPACK_IMPORTED_MODULE_4__.compareDates)(dateToCheck, self.config.maxDate, timeless !== undefined ? timeless : !self.maxDateHasTime) > 0))
-            return false;
-        if (!self.config.enable && self.config.disable.length === 0)
-            return true;
-        if (dateToCheck === undefined)
-            return false;
-        var bool = !!self.config.enable, array = (_a = self.config.enable) !== null && _a !== void 0 ? _a : self.config.disable;
-        for (var i = 0, d = void 0; i < array.length; i++) {
-            d = array[i];
-            if (typeof d === "function" &&
-                d(dateToCheck))
-                return bool;
-            else if (d instanceof Date &&
-                dateToCheck !== undefined &&
-                d.getTime() === dateToCheck.getTime())
-                return bool;
-            else if (typeof d === "string") {
-                var parsed = self.parseDate(d, undefined, true);
-                return parsed && parsed.getTime() === dateToCheck.getTime()
-                    ? bool
-                    : !bool;
-            }
-            else if (typeof d === "object" &&
-                dateToCheck !== undefined &&
-                d.from &&
-                d.to &&
-                dateToCheck.getTime() >= d.from.getTime() &&
-                dateToCheck.getTime() <= d.to.getTime())
-                return bool;
-        }
-        return !bool;
-    }
-    function isInView(elem) {
-        if (self.daysContainer !== undefined)
-            return (elem.className.indexOf("hidden") === -1 &&
-                elem.className.indexOf("flatpickr-disabled") === -1 &&
-                self.daysContainer.contains(elem));
-        return false;
-    }
-    function onBlur(e) {
-        var isInput = e.target === self._input;
-        var valueChanged = self._input.value.trimEnd() !== getDateStr();
-        if (isInput &&
-            valueChanged &&
-            !(e.relatedTarget && isCalendarElem(e.relatedTarget))) {
-            self.setDate(self._input.value, true, e.target === self.altInput
-                ? self.config.altFormat
-                : self.config.dateFormat);
-        }
-    }
-    function onKeyDown(e) {
-        var eventTarget = (0,_utils_dom__WEBPACK_IMPORTED_MODULE_3__.getEventTarget)(e);
-        var isInput = self.config.wrap
-            ? element.contains(eventTarget)
-            : eventTarget === self._input;
-        var allowInput = self.config.allowInput;
-        var allowKeydown = self.isOpen && (!allowInput || !isInput);
-        var allowInlineKeydown = self.config.inline && isInput && !allowInput;
-        if (e.keyCode === 13 && isInput) {
-            if (allowInput) {
-                self.setDate(self._input.value, true, eventTarget === self.altInput
-                    ? self.config.altFormat
-                    : self.config.dateFormat);
-                self.close();
-                return eventTarget.blur();
-            }
-            else {
-                self.open();
-            }
-        }
-        else if (isCalendarElem(eventTarget) ||
-            allowKeydown ||
-            allowInlineKeydown) {
-            var isTimeObj = !!self.timeContainer &&
-                self.timeContainer.contains(eventTarget);
-            switch (e.keyCode) {
-                case 13:
-                    if (isTimeObj) {
-                        e.preventDefault();
-                        updateTime();
-                        focusAndClose();
-                    }
-                    else
-                        selectDate(e);
-                    break;
-                case 27:
-                    e.preventDefault();
-                    focusAndClose();
-                    break;
-                case 8:
-                case 46:
-                    if (isInput && !self.config.allowInput) {
-                        e.preventDefault();
-                        self.clear();
-                    }
-                    break;
-                case 37:
-                case 39:
-                    if (!isTimeObj && !isInput) {
-                        e.preventDefault();
-                        var activeElement = getClosestActiveElement();
-                        if (self.daysContainer !== undefined &&
-                            (allowInput === false ||
-                                (activeElement && isInView(activeElement)))) {
-                            var delta_1 = e.keyCode === 39 ? 1 : -1;
-                            if (!e.ctrlKey)
-                                focusOnDay(undefined, delta_1);
-                            else {
-                                e.stopPropagation();
-                                changeMonth(delta_1);
-                                focusOnDay(getFirstAvailableDay(1), 0);
-                            }
-                        }
-                    }
-                    else if (self.hourElement)
-                        self.hourElement.focus();
-                    break;
-                case 38:
-                case 40:
-                    e.preventDefault();
-                    var delta = e.keyCode === 40 ? 1 : -1;
-                    if ((self.daysContainer &&
-                        eventTarget.$i !== undefined) ||
-                        eventTarget === self.input ||
-                        eventTarget === self.altInput) {
-                        if (e.ctrlKey) {
-                            e.stopPropagation();
-                            changeYear(self.currentYear - delta);
-                            focusOnDay(getFirstAvailableDay(1), 0);
-                        }
-                        else if (!isTimeObj)
-                            focusOnDay(undefined, delta * 7);
-                    }
-                    else if (eventTarget === self.currentYearElement) {
-                        changeYear(self.currentYear - delta);
-                    }
-                    else if (self.config.enableTime) {
-                        if (!isTimeObj && self.hourElement)
-                            self.hourElement.focus();
-                        updateTime(e);
-                        self._debouncedChange();
-                    }
-                    break;
-                case 9:
-                    if (isTimeObj) {
-                        var elems = [
-                            self.hourElement,
-                            self.minuteElement,
-                            self.secondElement,
-                            self.amPM,
-                        ]
-                            .concat(self.pluginElements)
-                            .filter(function (x) { return x; });
-                        var i = elems.indexOf(eventTarget);
-                        if (i !== -1) {
-                            var target = elems[i + (e.shiftKey ? -1 : 1)];
-                            e.preventDefault();
-                            (target || self._input).focus();
-                        }
-                    }
-                    else if (!self.config.noCalendar &&
-                        self.daysContainer &&
-                        self.daysContainer.contains(eventTarget) &&
-                        e.shiftKey) {
-                        e.preventDefault();
-                        self._input.focus();
-                    }
-                    break;
-                default:
-                    break;
-            }
-        }
-        if (self.amPM !== undefined && eventTarget === self.amPM) {
-            switch (e.key) {
-                case self.l10n.amPM[0].charAt(0):
-                case self.l10n.amPM[0].charAt(0).toLowerCase():
-                    self.amPM.textContent = self.l10n.amPM[0];
-                    setHoursFromInputs();
-                    updateValue();
-                    break;
-                case self.l10n.amPM[1].charAt(0):
-                case self.l10n.amPM[1].charAt(0).toLowerCase():
-                    self.amPM.textContent = self.l10n.amPM[1];
-                    setHoursFromInputs();
-                    updateValue();
-                    break;
-            }
-        }
-        if (isInput || isCalendarElem(eventTarget)) {
-            triggerEvent("onKeyDown", e);
-        }
-    }
-    function onMouseOver(elem, cellClass) {
-        if (cellClass === void 0) { cellClass = "flatpickr-day"; }
-        if (self.selectedDates.length !== 1 ||
-            (elem &&
-                (!elem.classList.contains(cellClass) ||
-                    elem.classList.contains("flatpickr-disabled"))))
-            return;
-        var hoverDate = elem
-            ? elem.dateObj.getTime()
-            : self.days.firstElementChild.dateObj.getTime(), initialDate = self.parseDate(self.selectedDates[0], undefined, true).getTime(), rangeStartDate = Math.min(hoverDate, self.selectedDates[0].getTime()), rangeEndDate = Math.max(hoverDate, self.selectedDates[0].getTime());
-        var containsDisabled = false;
-        var minRange = 0, maxRange = 0;
-        for (var t = rangeStartDate; t < rangeEndDate; t += _utils_dates__WEBPACK_IMPORTED_MODULE_4__.duration.DAY) {
-            if (!isEnabled(new Date(t), true)) {
-                containsDisabled =
-                    containsDisabled || (t > rangeStartDate && t < rangeEndDate);
-                if (t < initialDate && (!minRange || t > minRange))
-                    minRange = t;
-                else if (t > initialDate && (!maxRange || t < maxRange))
-                    maxRange = t;
-            }
-        }
-        var hoverableCells = Array.from(self.rContainer.querySelectorAll("*:nth-child(-n+" + self.config.showMonths + ") > ." + cellClass));
-        hoverableCells.forEach(function (dayElem) {
-            var date = dayElem.dateObj;
-            var timestamp = date.getTime();
-            var outOfRange = (minRange > 0 && timestamp < minRange) ||
-                (maxRange > 0 && timestamp > maxRange);
-            if (outOfRange) {
-                dayElem.classList.add("notAllowed");
-                ["inRange", "startRange", "endRange"].forEach(function (c) {
-                    dayElem.classList.remove(c);
-                });
-                return;
-            }
-            else if (containsDisabled && !outOfRange)
-                return;
-            ["startRange", "inRange", "endRange", "notAllowed"].forEach(function (c) {
-                dayElem.classList.remove(c);
-            });
-            if (elem !== undefined) {
-                elem.classList.add(hoverDate <= self.selectedDates[0].getTime()
-                    ? "startRange"
-                    : "endRange");
-                if (initialDate < hoverDate && timestamp === initialDate)
-                    dayElem.classList.add("startRange");
-                else if (initialDate > hoverDate && timestamp === initialDate)
-                    dayElem.classList.add("endRange");
-                if (timestamp >= minRange &&
-                    (maxRange === 0 || timestamp <= maxRange) &&
-                    (0,_utils_dates__WEBPACK_IMPORTED_MODULE_4__.isBetween)(timestamp, initialDate, hoverDate))
-                    dayElem.classList.add("inRange");
-            }
-        });
-    }
-    function onResize() {
-        if (self.isOpen && !self.config.static && !self.config.inline)
-            positionCalendar();
-    }
-    function open(e, positionElement) {
-        if (positionElement === void 0) { positionElement = self._positionElement; }
-        if (self.isMobile === true) {
-            if (e) {
-                e.preventDefault();
-                var eventTarget = (0,_utils_dom__WEBPACK_IMPORTED_MODULE_3__.getEventTarget)(e);
-                if (eventTarget) {
-                    eventTarget.blur();
-                }
-            }
-            if (self.mobileInput !== undefined) {
-                self.mobileInput.focus();
-                self.mobileInput.click();
-            }
-            triggerEvent("onOpen");
-            return;
-        }
-        else if (self._input.disabled || self.config.inline) {
-            return;
-        }
-        var wasOpen = self.isOpen;
-        self.isOpen = true;
-        if (!wasOpen) {
-            self.calendarContainer.classList.add("open");
-            self._input.classList.add("active");
-            triggerEvent("onOpen");
-            positionCalendar(positionElement);
-        }
-        if (self.config.enableTime === true && self.config.noCalendar === true) {
-            if (self.config.allowInput === false &&
-                (e === undefined ||
-                    !self.timeContainer.contains(e.relatedTarget))) {
-                setTimeout(function () { return self.hourElement.select(); }, 50);
-            }
-        }
-    }
-    function minMaxDateSetter(type) {
-        return function (date) {
-            var dateObj = (self.config["_" + type + "Date"] = self.parseDate(date, self.config.dateFormat));
-            var inverseDateObj = self.config["_" + (type === "min" ? "max" : "min") + "Date"];
-            if (dateObj !== undefined) {
-                self[type === "min" ? "minDateHasTime" : "maxDateHasTime"] =
-                    dateObj.getHours() > 0 ||
-                        dateObj.getMinutes() > 0 ||
-                        dateObj.getSeconds() > 0;
-            }
-            if (self.selectedDates) {
-                self.selectedDates = self.selectedDates.filter(function (d) { return isEnabled(d); });
-                if (!self.selectedDates.length && type === "min")
-                    setHoursFromDate(dateObj);
-                updateValue();
-            }
-            if (self.daysContainer) {
-                redraw();
-                if (dateObj !== undefined)
-                    self.currentYearElement[type] = dateObj.getFullYear().toString();
-                else
-                    self.currentYearElement.removeAttribute(type);
-                self.currentYearElement.disabled =
-                    !!inverseDateObj &&
-                        dateObj !== undefined &&
-                        inverseDateObj.getFullYear() === dateObj.getFullYear();
-            }
-        };
-    }
-    function parseConfig() {
-        var boolOpts = [
-            "wrap",
-            "weekNumbers",
-            "allowInput",
-            "allowInvalidPreload",
-            "clickOpens",
-            "time_24hr",
-            "enableTime",
-            "noCalendar",
-            "altInput",
-            "shorthandCurrentMonth",
-            "inline",
-            "static",
-            "enableSeconds",
-            "disableMobile",
-        ];
-        var userConfig = __assign(__assign({}, JSON.parse(JSON.stringify(element.dataset || {}))), instanceConfig);
-        var formats = {};
-        self.config.parseDate = userConfig.parseDate;
-        self.config.formatDate = userConfig.formatDate;
-        Object.defineProperty(self.config, "enable", {
-            get: function () { return self.config._enable; },
-            set: function (dates) {
-                self.config._enable = parseDateRules(dates);
-            },
-        });
-        Object.defineProperty(self.config, "disable", {
-            get: function () { return self.config._disable; },
-            set: function (dates) {
-                self.config._disable = parseDateRules(dates);
-            },
-        });
-        var timeMode = userConfig.mode === "time";
-        if (!userConfig.dateFormat && (userConfig.enableTime || timeMode)) {
-            var defaultDateFormat = flatpickr.defaultConfig.dateFormat || _types_options__WEBPACK_IMPORTED_MODULE_0__.defaults.dateFormat;
-            formats.dateFormat =
-                userConfig.noCalendar || timeMode
-                    ? "H:i" + (userConfig.enableSeconds ? ":S" : "")
-                    : defaultDateFormat + " H:i" + (userConfig.enableSeconds ? ":S" : "");
-        }
-        if (userConfig.altInput &&
-            (userConfig.enableTime || timeMode) &&
-            !userConfig.altFormat) {
-            var defaultAltFormat = flatpickr.defaultConfig.altFormat || _types_options__WEBPACK_IMPORTED_MODULE_0__.defaults.altFormat;
-            formats.altFormat =
-                userConfig.noCalendar || timeMode
-                    ? "h:i" + (userConfig.enableSeconds ? ":S K" : " K")
-                    : defaultAltFormat + (" h:i" + (userConfig.enableSeconds ? ":S" : "") + " K");
-        }
-        Object.defineProperty(self.config, "minDate", {
-            get: function () { return self.config._minDate; },
-            set: minMaxDateSetter("min"),
-        });
-        Object.defineProperty(self.config, "maxDate", {
-            get: function () { return self.config._maxDate; },
-            set: minMaxDateSetter("max"),
-        });
-        var minMaxTimeSetter = function (type) { return function (val) {
-            self.config[type === "min" ? "_minTime" : "_maxTime"] = self.parseDate(val, "H:i:S");
-        }; };
-        Object.defineProperty(self.config, "minTime", {
-            get: function () { return self.config._minTime; },
-            set: minMaxTimeSetter("min"),
-        });
-        Object.defineProperty(self.config, "maxTime", {
-            get: function () { return self.config._maxTime; },
-            set: minMaxTimeSetter("max"),
-        });
-        if (userConfig.mode === "time") {
-            self.config.noCalendar = true;
-            self.config.enableTime = true;
-        }
-        Object.assign(self.config, formats, userConfig);
-        for (var i = 0; i < boolOpts.length; i++)
-            self.config[boolOpts[i]] =
-                self.config[boolOpts[i]] === true ||
-                    self.config[boolOpts[i]] === "true";
-        _types_options__WEBPACK_IMPORTED_MODULE_0__.HOOKS.filter(function (hook) { return self.config[hook] !== undefined; }).forEach(function (hook) {
-            self.config[hook] = (0,_utils__WEBPACK_IMPORTED_MODULE_2__.arrayify)(self.config[hook] || []).map(bindToInstance);
-        });
-        self.isMobile =
-            !self.config.disableMobile &&
-                !self.config.inline &&
-                self.config.mode === "single" &&
-                !self.config.disable.length &&
-                !self.config.enable &&
-                !self.config.weekNumbers &&
-                /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-        for (var i = 0; i < self.config.plugins.length; i++) {
-            var pluginConf = self.config.plugins[i](self) || {};
-            for (var key in pluginConf) {
-                if (_types_options__WEBPACK_IMPORTED_MODULE_0__.HOOKS.indexOf(key) > -1) {
-                    self.config[key] = (0,_utils__WEBPACK_IMPORTED_MODULE_2__.arrayify)(pluginConf[key])
-                        .map(bindToInstance)
-                        .concat(self.config[key]);
-                }
-                else if (typeof userConfig[key] === "undefined")
-                    self.config[key] = pluginConf[key];
-            }
-        }
-        if (!userConfig.altInputClass) {
-            self.config.altInputClass =
-                getInputElem().className + " " + self.config.altInputClass;
-        }
-        triggerEvent("onParseConfig");
-    }
-    function getInputElem() {
-        return self.config.wrap
-            ? element.querySelector("[data-input]")
-            : element;
-    }
-    function setupLocale() {
-        if (typeof self.config.locale !== "object" &&
-            typeof flatpickr.l10ns[self.config.locale] === "undefined")
-            self.config.errorHandler(new Error("flatpickr: invalid locale " + self.config.locale));
-        self.l10n = __assign(__assign({}, flatpickr.l10ns.default), (typeof self.config.locale === "object"
-            ? self.config.locale
-            : self.config.locale !== "default"
-                ? flatpickr.l10ns[self.config.locale]
-                : undefined));
-        _utils_formatting__WEBPACK_IMPORTED_MODULE_5__.tokenRegex.D = "(" + self.l10n.weekdays.shorthand.join("|") + ")";
-        _utils_formatting__WEBPACK_IMPORTED_MODULE_5__.tokenRegex.l = "(" + self.l10n.weekdays.longhand.join("|") + ")";
-        _utils_formatting__WEBPACK_IMPORTED_MODULE_5__.tokenRegex.M = "(" + self.l10n.months.shorthand.join("|") + ")";
-        _utils_formatting__WEBPACK_IMPORTED_MODULE_5__.tokenRegex.F = "(" + self.l10n.months.longhand.join("|") + ")";
-        _utils_formatting__WEBPACK_IMPORTED_MODULE_5__.tokenRegex.K = "(" + self.l10n.amPM[0] + "|" + self.l10n.amPM[1] + "|" + self.l10n.amPM[0].toLowerCase() + "|" + self.l10n.amPM[1].toLowerCase() + ")";
-        var userConfig = __assign(__assign({}, instanceConfig), JSON.parse(JSON.stringify(element.dataset || {})));
-        if (userConfig.time_24hr === undefined &&
-            flatpickr.defaultConfig.time_24hr === undefined) {
-            self.config.time_24hr = self.l10n.time_24hr;
-        }
-        self.formatDate = (0,_utils_dates__WEBPACK_IMPORTED_MODULE_4__.createDateFormatter)(self);
-        self.parseDate = (0,_utils_dates__WEBPACK_IMPORTED_MODULE_4__.createDateParser)({ config: self.config, l10n: self.l10n });
-    }
-    function positionCalendar(customPositionElement) {
-        if (typeof self.config.position === "function") {
-            return void self.config.position(self, customPositionElement);
-        }
-        if (self.calendarContainer === undefined)
-            return;
-        triggerEvent("onPreCalendarPosition");
-        var positionElement = customPositionElement || self._positionElement;
-        var calendarHeight = Array.prototype.reduce.call(self.calendarContainer.children, (function (acc, child) { return acc + child.offsetHeight; }), 0), calendarWidth = self.calendarContainer.offsetWidth, configPos = self.config.position.split(" "), configPosVertical = configPos[0], configPosHorizontal = configPos.length > 1 ? configPos[1] : null, inputBounds = positionElement.getBoundingClientRect(), distanceFromBottom = window.innerHeight - inputBounds.bottom, showOnTop = configPosVertical === "above" ||
-            (configPosVertical !== "below" &&
-                distanceFromBottom < calendarHeight &&
-                inputBounds.top > calendarHeight);
-        var top = window.pageYOffset +
-            inputBounds.top +
-            (!showOnTop ? positionElement.offsetHeight + 2 : -calendarHeight - 2);
-        (0,_utils_dom__WEBPACK_IMPORTED_MODULE_3__.toggleClass)(self.calendarContainer, "arrowTop", !showOnTop);
-        (0,_utils_dom__WEBPACK_IMPORTED_MODULE_3__.toggleClass)(self.calendarContainer, "arrowBottom", showOnTop);
-        if (self.config.inline)
-            return;
-        var left = window.pageXOffset + inputBounds.left;
-        var isCenter = false;
-        var isRight = false;
-        if (configPosHorizontal === "center") {
-            left -= (calendarWidth - inputBounds.width) / 2;
-            isCenter = true;
-        }
-        else if (configPosHorizontal === "right") {
-            left -= calendarWidth - inputBounds.width;
-            isRight = true;
-        }
-        (0,_utils_dom__WEBPACK_IMPORTED_MODULE_3__.toggleClass)(self.calendarContainer, "arrowLeft", !isCenter && !isRight);
-        (0,_utils_dom__WEBPACK_IMPORTED_MODULE_3__.toggleClass)(self.calendarContainer, "arrowCenter", isCenter);
-        (0,_utils_dom__WEBPACK_IMPORTED_MODULE_3__.toggleClass)(self.calendarContainer, "arrowRight", isRight);
-        var right = window.document.body.offsetWidth -
-            (window.pageXOffset + inputBounds.right);
-        var rightMost = left + calendarWidth > window.document.body.offsetWidth;
-        var centerMost = right + calendarWidth > window.document.body.offsetWidth;
-        (0,_utils_dom__WEBPACK_IMPORTED_MODULE_3__.toggleClass)(self.calendarContainer, "rightMost", rightMost);
-        if (self.config.static)
-            return;
-        self.calendarContainer.style.top = top + "px";
-        if (!rightMost) {
-            self.calendarContainer.style.left = left + "px";
-            self.calendarContainer.style.right = "auto";
-        }
-        else if (!centerMost) {
-            self.calendarContainer.style.left = "auto";
-            self.calendarContainer.style.right = right + "px";
-        }
-        else {
-            var doc = getDocumentStyleSheet();
-            if (doc === undefined)
-                return;
-            var bodyWidth = window.document.body.offsetWidth;
-            var centerLeft = Math.max(0, bodyWidth / 2 - calendarWidth / 2);
-            var centerBefore = ".flatpickr-calendar.centerMost:before";
-            var centerAfter = ".flatpickr-calendar.centerMost:after";
-            var centerIndex = doc.cssRules.length;
-            var centerStyle = "{left:" + inputBounds.left + "px;right:auto;}";
-            (0,_utils_dom__WEBPACK_IMPORTED_MODULE_3__.toggleClass)(self.calendarContainer, "rightMost", false);
-            (0,_utils_dom__WEBPACK_IMPORTED_MODULE_3__.toggleClass)(self.calendarContainer, "centerMost", true);
-            doc.insertRule(centerBefore + "," + centerAfter + centerStyle, centerIndex);
-            self.calendarContainer.style.left = centerLeft + "px";
-            self.calendarContainer.style.right = "auto";
-        }
-    }
-    function getDocumentStyleSheet() {
-        var editableSheet = null;
-        for (var i = 0; i < document.styleSheets.length; i++) {
-            var sheet = document.styleSheets[i];
-            if (!sheet.cssRules)
-                continue;
-            try {
-                sheet.cssRules;
-            }
-            catch (err) {
-                continue;
-            }
-            editableSheet = sheet;
-            break;
-        }
-        return editableSheet != null ? editableSheet : createStyleSheet();
-    }
-    function createStyleSheet() {
-        var style = document.createElement("style");
-        document.head.appendChild(style);
-        return style.sheet;
-    }
-    function redraw() {
-        if (self.config.noCalendar || self.isMobile)
-            return;
-        buildMonthSwitch();
-        updateNavigationCurrentMonth();
-        buildDays();
-    }
-    function focusAndClose() {
-        self._input.focus();
-        if (window.navigator.userAgent.indexOf("MSIE") !== -1 ||
-            navigator.msMaxTouchPoints !== undefined) {
-            setTimeout(self.close, 0);
-        }
-        else {
-            self.close();
-        }
-    }
-    function selectDate(e) {
-        e.preventDefault();
-        e.stopPropagation();
-        var isSelectable = function (day) {
-            return day.classList &&
-                day.classList.contains("flatpickr-day") &&
-                !day.classList.contains("flatpickr-disabled") &&
-                !day.classList.contains("notAllowed");
-        };
-        var t = (0,_utils_dom__WEBPACK_IMPORTED_MODULE_3__.findParent)((0,_utils_dom__WEBPACK_IMPORTED_MODULE_3__.getEventTarget)(e), isSelectable);
-        if (t === undefined)
-            return;
-        var target = t;
-        var selectedDate = (self.latestSelectedDateObj = new Date(target.dateObj.getTime()));
-        var shouldChangeMonth = (selectedDate.getMonth() < self.currentMonth ||
-            selectedDate.getMonth() >
-                self.currentMonth + self.config.showMonths - 1) &&
-            self.config.mode !== "range";
-        self.selectedDateElem = target;
-        if (self.config.mode === "single")
-            self.selectedDates = [selectedDate];
-        else if (self.config.mode === "multiple") {
-            var selectedIndex = isDateSelected(selectedDate);
-            if (selectedIndex)
-                self.selectedDates.splice(parseInt(selectedIndex), 1);
-            else
-                self.selectedDates.push(selectedDate);
-        }
-        else if (self.config.mode === "range") {
-            if (self.selectedDates.length === 2) {
-                self.clear(false, false);
-            }
-            self.latestSelectedDateObj = selectedDate;
-            self.selectedDates.push(selectedDate);
-            if ((0,_utils_dates__WEBPACK_IMPORTED_MODULE_4__.compareDates)(selectedDate, self.selectedDates[0], true) !== 0)
-                self.selectedDates.sort(function (a, b) { return a.getTime() - b.getTime(); });
-        }
-        setHoursFromInputs();
-        if (shouldChangeMonth) {
-            var isNewYear = self.currentYear !== selectedDate.getFullYear();
-            self.currentYear = selectedDate.getFullYear();
-            self.currentMonth = selectedDate.getMonth();
-            if (isNewYear) {
-                triggerEvent("onYearChange");
-                buildMonthSwitch();
-            }
-            triggerEvent("onMonthChange");
-        }
-        updateNavigationCurrentMonth();
-        buildDays();
-        updateValue();
-        if (!shouldChangeMonth &&
-            self.config.mode !== "range" &&
-            self.config.showMonths === 1)
-            focusOnDayElem(target);
-        else if (self.selectedDateElem !== undefined &&
-            self.hourElement === undefined) {
-            self.selectedDateElem && self.selectedDateElem.focus();
-        }
-        if (self.hourElement !== undefined)
-            self.hourElement !== undefined && self.hourElement.focus();
-        if (self.config.closeOnSelect) {
-            var single = self.config.mode === "single" && !self.config.enableTime;
-            var range = self.config.mode === "range" &&
-                self.selectedDates.length === 2 &&
-                !self.config.enableTime;
-            if (single || range) {
-                focusAndClose();
-            }
-        }
-        triggerChange();
-    }
-    var CALLBACKS = {
-        locale: [setupLocale, updateWeekdays],
-        showMonths: [buildMonths, setCalendarWidth, buildWeekdays],
-        minDate: [jumpToDate],
-        maxDate: [jumpToDate],
-        positionElement: [updatePositionElement],
-        clickOpens: [
-            function () {
-                if (self.config.clickOpens === true) {
-                    bind(self._input, "focus", self.open);
-                    bind(self._input, "click", self.open);
-                }
-                else {
-                    self._input.removeEventListener("focus", self.open);
-                    self._input.removeEventListener("click", self.open);
-                }
-            },
-        ],
-    };
-    function set(option, value) {
-        if (option !== null && typeof option === "object") {
-            Object.assign(self.config, option);
-            for (var key in option) {
-                if (CALLBACKS[key] !== undefined)
-                    CALLBACKS[key].forEach(function (x) { return x(); });
-            }
-        }
-        else {
-            self.config[option] = value;
-            if (CALLBACKS[option] !== undefined)
-                CALLBACKS[option].forEach(function (x) { return x(); });
-            else if (_types_options__WEBPACK_IMPORTED_MODULE_0__.HOOKS.indexOf(option) > -1)
-                self.config[option] = (0,_utils__WEBPACK_IMPORTED_MODULE_2__.arrayify)(value);
-        }
-        self.redraw();
-        updateValue(true);
-    }
-    function setSelectedDate(inputDate, format) {
-        var dates = [];
-        if (inputDate instanceof Array)
-            dates = inputDate.map(function (d) { return self.parseDate(d, format); });
-        else if (inputDate instanceof Date || typeof inputDate === "number")
-            dates = [self.parseDate(inputDate, format)];
-        else if (typeof inputDate === "string") {
-            switch (self.config.mode) {
-                case "single":
-                case "time":
-                    dates = [self.parseDate(inputDate, format)];
-                    break;
-                case "multiple":
-                    dates = inputDate
-                        .split(self.config.conjunction)
-                        .map(function (date) { return self.parseDate(date, format); });
-                    break;
-                case "range":
-                    dates = inputDate
-                        .split(self.l10n.rangeSeparator)
-                        .map(function (date) { return self.parseDate(date, format); });
-                    break;
-                default:
-                    break;
-            }
-        }
-        else
-            self.config.errorHandler(new Error("Invalid date supplied: " + JSON.stringify(inputDate)));
-        self.selectedDates = (self.config.allowInvalidPreload
-            ? dates
-            : dates.filter(function (d) { return d instanceof Date && isEnabled(d, false); }));
-        if (self.config.mode === "range")
-            self.selectedDates.sort(function (a, b) { return a.getTime() - b.getTime(); });
-    }
-    function setDate(date, triggerChange, format) {
-        if (triggerChange === void 0) { triggerChange = false; }
-        if (format === void 0) { format = self.config.dateFormat; }
-        if ((date !== 0 && !date) || (date instanceof Array && date.length === 0))
-            return self.clear(triggerChange);
-        setSelectedDate(date, format);
-        self.latestSelectedDateObj =
-            self.selectedDates[self.selectedDates.length - 1];
-        self.redraw();
-        jumpToDate(undefined, triggerChange);
-        setHoursFromDate();
-        if (self.selectedDates.length === 0) {
-            self.clear(false);
-        }
-        updateValue(triggerChange);
-        if (triggerChange)
-            triggerEvent("onChange");
-    }
-    function parseDateRules(arr) {
-        return arr
-            .slice()
-            .map(function (rule) {
-            if (typeof rule === "string" ||
-                typeof rule === "number" ||
-                rule instanceof Date) {
-                return self.parseDate(rule, undefined, true);
-            }
-            else if (rule &&
-                typeof rule === "object" &&
-                rule.from &&
-                rule.to)
-                return {
-                    from: self.parseDate(rule.from, undefined),
-                    to: self.parseDate(rule.to, undefined),
-                };
-            return rule;
-        })
-            .filter(function (x) { return x; });
-    }
-    function setupDates() {
-        self.selectedDates = [];
-        self.now = self.parseDate(self.config.now) || new Date();
-        var preloadedDate = self.config.defaultDate ||
-            ((self.input.nodeName === "INPUT" ||
-                self.input.nodeName === "TEXTAREA") &&
-                self.input.placeholder &&
-                self.input.value === self.input.placeholder
-                ? null
-                : self.input.value);
-        if (preloadedDate)
-            setSelectedDate(preloadedDate, self.config.dateFormat);
-        self._initialDate =
-            self.selectedDates.length > 0
-                ? self.selectedDates[0]
-                : self.config.minDate &&
-                    self.config.minDate.getTime() > self.now.getTime()
-                    ? self.config.minDate
-                    : self.config.maxDate &&
-                        self.config.maxDate.getTime() < self.now.getTime()
-                        ? self.config.maxDate
-                        : self.now;
-        self.currentYear = self._initialDate.getFullYear();
-        self.currentMonth = self._initialDate.getMonth();
-        if (self.selectedDates.length > 0)
-            self.latestSelectedDateObj = self.selectedDates[0];
-        if (self.config.minTime !== undefined)
-            self.config.minTime = self.parseDate(self.config.minTime, "H:i");
-        if (self.config.maxTime !== undefined)
-            self.config.maxTime = self.parseDate(self.config.maxTime, "H:i");
-        self.minDateHasTime =
-            !!self.config.minDate &&
-                (self.config.minDate.getHours() > 0 ||
-                    self.config.minDate.getMinutes() > 0 ||
-                    self.config.minDate.getSeconds() > 0);
-        self.maxDateHasTime =
-            !!self.config.maxDate &&
-                (self.config.maxDate.getHours() > 0 ||
-                    self.config.maxDate.getMinutes() > 0 ||
-                    self.config.maxDate.getSeconds() > 0);
-    }
-    function setupInputs() {
-        self.input = getInputElem();
-        if (!self.input) {
-            self.config.errorHandler(new Error("Invalid input element specified"));
-            return;
-        }
-        self.input._type = self.input.type;
-        self.input.type = "text";
-        self.input.classList.add("flatpickr-input");
-        self._input = self.input;
-        if (self.config.altInput) {
-            self.altInput = (0,_utils_dom__WEBPACK_IMPORTED_MODULE_3__.createElement)(self.input.nodeName, self.config.altInputClass);
-            self._input = self.altInput;
-            self.altInput.placeholder = self.input.placeholder;
-            self.altInput.disabled = self.input.disabled;
-            self.altInput.required = self.input.required;
-            self.altInput.tabIndex = self.input.tabIndex;
-            self.altInput.type = "text";
-            self.input.setAttribute("type", "hidden");
-            if (!self.config.static && self.input.parentNode)
-                self.input.parentNode.insertBefore(self.altInput, self.input.nextSibling);
-        }
-        if (!self.config.allowInput)
-            self._input.setAttribute("readonly", "readonly");
-        updatePositionElement();
-    }
-    function updatePositionElement() {
-        self._positionElement = self.config.positionElement || self._input;
-    }
-    function setupMobile() {
-        var inputType = self.config.enableTime
-            ? self.config.noCalendar
-                ? "time"
-                : "datetime-local"
-            : "date";
-        self.mobileInput = (0,_utils_dom__WEBPACK_IMPORTED_MODULE_3__.createElement)("input", self.input.className + " flatpickr-mobile");
-        self.mobileInput.tabIndex = 1;
-        self.mobileInput.type = inputType;
-        self.mobileInput.disabled = self.input.disabled;
-        self.mobileInput.required = self.input.required;
-        self.mobileInput.placeholder = self.input.placeholder;
-        self.mobileFormatStr =
-            inputType === "datetime-local"
-                ? "Y-m-d\\TH:i:S"
-                : inputType === "date"
-                    ? "Y-m-d"
-                    : "H:i:S";
-        if (self.selectedDates.length > 0) {
-            self.mobileInput.defaultValue = self.mobileInput.value = self.formatDate(self.selectedDates[0], self.mobileFormatStr);
-        }
-        if (self.config.minDate)
-            self.mobileInput.min = self.formatDate(self.config.minDate, "Y-m-d");
-        if (self.config.maxDate)
-            self.mobileInput.max = self.formatDate(self.config.maxDate, "Y-m-d");
-        if (self.input.getAttribute("step"))
-            self.mobileInput.step = String(self.input.getAttribute("step"));
-        self.input.type = "hidden";
-        if (self.altInput !== undefined)
-            self.altInput.type = "hidden";
-        try {
-            if (self.input.parentNode)
-                self.input.parentNode.insertBefore(self.mobileInput, self.input.nextSibling);
-        }
-        catch (_a) { }
-        bind(self.mobileInput, "change", function (e) {
-            self.setDate((0,_utils_dom__WEBPACK_IMPORTED_MODULE_3__.getEventTarget)(e).value, false, self.mobileFormatStr);
-            triggerEvent("onChange");
-            triggerEvent("onClose");
-        });
-    }
-    function toggle(e) {
-        if (self.isOpen === true)
-            return self.close();
-        self.open(e);
-    }
-    function triggerEvent(event, data) {
-        if (self.config === undefined)
-            return;
-        var hooks = self.config[event];
-        if (hooks !== undefined && hooks.length > 0) {
-            for (var i = 0; hooks[i] && i < hooks.length; i++)
-                hooks[i](self.selectedDates, self.input.value, self, data);
-        }
-        if (event === "onChange") {
-            self.input.dispatchEvent(createEvent("change"));
-            self.input.dispatchEvent(createEvent("input"));
-        }
-    }
-    function createEvent(name) {
-        var e = document.createEvent("Event");
-        e.initEvent(name, true, true);
-        return e;
-    }
-    function isDateSelected(date) {
-        for (var i = 0; i < self.selectedDates.length; i++) {
-            var selectedDate = self.selectedDates[i];
-            if (selectedDate instanceof Date &&
-                (0,_utils_dates__WEBPACK_IMPORTED_MODULE_4__.compareDates)(selectedDate, date) === 0)
-                return "" + i;
-        }
-        return false;
-    }
-    function isDateInRange(date) {
-        if (self.config.mode !== "range" || self.selectedDates.length < 2)
-            return false;
-        return ((0,_utils_dates__WEBPACK_IMPORTED_MODULE_4__.compareDates)(date, self.selectedDates[0]) >= 0 &&
-            (0,_utils_dates__WEBPACK_IMPORTED_MODULE_4__.compareDates)(date, self.selectedDates[1]) <= 0);
-    }
-    function updateNavigationCurrentMonth() {
-        if (self.config.noCalendar || self.isMobile || !self.monthNav)
-            return;
-        self.yearElements.forEach(function (yearElement, i) {
-            var d = new Date(self.currentYear, self.currentMonth, 1);
-            d.setMonth(self.currentMonth + i);
-            if (self.config.showMonths > 1 ||
-                self.config.monthSelectorType === "static") {
-                self.monthElements[i].textContent =
-                    (0,_utils_formatting__WEBPACK_IMPORTED_MODULE_5__.monthToStr)(d.getMonth(), self.config.shorthandCurrentMonth, self.l10n) + " ";
-            }
-            else {
-                self.monthsDropdownContainer.value = d.getMonth().toString();
-            }
-            yearElement.value = d.getFullYear().toString();
-        });
-        self._hidePrevMonthArrow =
-            self.config.minDate !== undefined &&
-                (self.currentYear === self.config.minDate.getFullYear()
-                    ? self.currentMonth <= self.config.minDate.getMonth()
-                    : self.currentYear < self.config.minDate.getFullYear());
-        self._hideNextMonthArrow =
-            self.config.maxDate !== undefined &&
-                (self.currentYear === self.config.maxDate.getFullYear()
-                    ? self.currentMonth + 1 > self.config.maxDate.getMonth()
-                    : self.currentYear > self.config.maxDate.getFullYear());
-    }
-    function getDateStr(specificFormat) {
-        var format = specificFormat ||
-            (self.config.altInput ? self.config.altFormat : self.config.dateFormat);
-        return self.selectedDates
-            .map(function (dObj) { return self.formatDate(dObj, format); })
-            .filter(function (d, i, arr) {
-            return self.config.mode !== "range" ||
-                self.config.enableTime ||
-                arr.indexOf(d) === i;
-        })
-            .join(self.config.mode !== "range"
-            ? self.config.conjunction
-            : self.l10n.rangeSeparator);
-    }
-    function updateValue(triggerChange) {
-        if (triggerChange === void 0) { triggerChange = true; }
-        if (self.mobileInput !== undefined && self.mobileFormatStr) {
-            self.mobileInput.value =
-                self.latestSelectedDateObj !== undefined
-                    ? self.formatDate(self.latestSelectedDateObj, self.mobileFormatStr)
-                    : "";
-        }
-        self.input.value = getDateStr(self.config.dateFormat);
-        if (self.altInput !== undefined) {
-            self.altInput.value = getDateStr(self.config.altFormat);
-        }
-        if (triggerChange !== false)
-            triggerEvent("onValueUpdate");
-    }
-    function onMonthNavClick(e) {
-        var eventTarget = (0,_utils_dom__WEBPACK_IMPORTED_MODULE_3__.getEventTarget)(e);
-        var isPrevMonth = self.prevMonthNav.contains(eventTarget);
-        var isNextMonth = self.nextMonthNav.contains(eventTarget);
-        if (isPrevMonth || isNextMonth) {
-            changeMonth(isPrevMonth ? -1 : 1);
-        }
-        else if (self.yearElements.indexOf(eventTarget) >= 0) {
-            eventTarget.select();
-        }
-        else if (eventTarget.classList.contains("arrowUp")) {
-            self.changeYear(self.currentYear + 1);
-        }
-        else if (eventTarget.classList.contains("arrowDown")) {
-            self.changeYear(self.currentYear - 1);
-        }
-    }
-    function timeWrapper(e) {
-        e.preventDefault();
-        var isKeyDown = e.type === "keydown", eventTarget = (0,_utils_dom__WEBPACK_IMPORTED_MODULE_3__.getEventTarget)(e), input = eventTarget;
-        if (self.amPM !== undefined && eventTarget === self.amPM) {
-            self.amPM.textContent =
-                self.l10n.amPM[(0,_utils__WEBPACK_IMPORTED_MODULE_2__.int)(self.amPM.textContent === self.l10n.amPM[0])];
-        }
-        var min = parseFloat(input.getAttribute("min")), max = parseFloat(input.getAttribute("max")), step = parseFloat(input.getAttribute("step")), curValue = parseInt(input.value, 10), delta = e.delta ||
-            (isKeyDown ? (e.which === 38 ? 1 : -1) : 0);
-        var newValue = curValue + step * delta;
-        if (typeof input.value !== "undefined" && input.value.length === 2) {
-            var isHourElem = input === self.hourElement, isMinuteElem = input === self.minuteElement;
-            if (newValue < min) {
-                newValue =
-                    max +
-                        newValue +
-                        (0,_utils__WEBPACK_IMPORTED_MODULE_2__.int)(!isHourElem) +
-                        ((0,_utils__WEBPACK_IMPORTED_MODULE_2__.int)(isHourElem) && (0,_utils__WEBPACK_IMPORTED_MODULE_2__.int)(!self.amPM));
-                if (isMinuteElem)
-                    incrementNumInput(undefined, -1, self.hourElement);
-            }
-            else if (newValue > max) {
-                newValue =
-                    input === self.hourElement ? newValue - max - (0,_utils__WEBPACK_IMPORTED_MODULE_2__.int)(!self.amPM) : min;
-                if (isMinuteElem)
-                    incrementNumInput(undefined, 1, self.hourElement);
-            }
-            if (self.amPM &&
-                isHourElem &&
-                (step === 1
-                    ? newValue + curValue === 23
-                    : Math.abs(newValue - curValue) > step)) {
-                self.amPM.textContent =
-                    self.l10n.amPM[(0,_utils__WEBPACK_IMPORTED_MODULE_2__.int)(self.amPM.textContent === self.l10n.amPM[0])];
-            }
-            input.value = (0,_utils__WEBPACK_IMPORTED_MODULE_2__.pad)(newValue);
-        }
-    }
-    init();
-    return self;
-}
-function _flatpickr(nodeList, config) {
-    var nodes = Array.prototype.slice
-        .call(nodeList)
-        .filter(function (x) { return x instanceof HTMLElement; });
-    var instances = [];
-    for (var i = 0; i < nodes.length; i++) {
-        var node = nodes[i];
-        try {
-            if (node.getAttribute("data-fp-omit") !== null)
-                continue;
-            if (node._flatpickr !== undefined) {
-                node._flatpickr.destroy();
-                node._flatpickr = undefined;
-            }
-            node._flatpickr = FlatpickrInstance(node, config || {});
-            instances.push(node._flatpickr);
-        }
-        catch (e) {
-            console.error(e);
-        }
-    }
-    return instances.length === 1 ? instances[0] : instances;
-}
-if (typeof HTMLElement !== "undefined" &&
-    typeof HTMLCollection !== "undefined" &&
-    typeof NodeList !== "undefined") {
-    HTMLCollection.prototype.flatpickr = NodeList.prototype.flatpickr = function (config) {
-        return _flatpickr(this, config);
-    };
-    HTMLElement.prototype.flatpickr = function (config) {
-        return _flatpickr([this], config);
-    };
-}
-var flatpickr = function (selector, config) {
-    if (typeof selector === "string") {
-        return _flatpickr(window.document.querySelectorAll(selector), config);
-    }
-    else if (selector instanceof Node) {
-        return _flatpickr([selector], config);
-    }
-    else {
-        return _flatpickr(selector, config);
-    }
-};
-flatpickr.defaultConfig = {};
-flatpickr.l10ns = {
-    en: __assign({}, _l10n_default__WEBPACK_IMPORTED_MODULE_1__["default"]),
-    default: __assign({}, _l10n_default__WEBPACK_IMPORTED_MODULE_1__["default"]),
-};
-flatpickr.localize = function (l10n) {
-    flatpickr.l10ns.default = __assign(__assign({}, flatpickr.l10ns.default), l10n);
-};
-flatpickr.setDefaults = function (config) {
-    flatpickr.defaultConfig = __assign(__assign({}, flatpickr.defaultConfig), config);
-};
-flatpickr.parseDate = (0,_utils_dates__WEBPACK_IMPORTED_MODULE_4__.createDateParser)({});
-flatpickr.formatDate = (0,_utils_dates__WEBPACK_IMPORTED_MODULE_4__.createDateFormatter)({});
-flatpickr.compareDates = _utils_dates__WEBPACK_IMPORTED_MODULE_4__.compareDates;
-if (typeof jQuery !== "undefined" && typeof jQuery.fn !== "undefined") {
-    jQuery.fn.flatpickr = function (config) {
-        return _flatpickr(this, config);
-    };
-}
-Date.prototype.fp_incr = function (days) {
-    return new Date(this.getFullYear(), this.getMonth(), this.getDate() + (typeof days === "string" ? parseInt(days, 10) : days));
-};
-if (typeof window !== "undefined") {
-    window.flatpickr = flatpickr;
-}
-/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (flatpickr);
-
-
-/***/ }),
-
-/***/ "./node_modules/flatpickr/dist/esm/l10n/default.js":
-/*!*********************************************************!*\
-  !*** ./node_modules/flatpickr/dist/esm/l10n/default.js ***!
-  \*********************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   "english": () => (/* binding */ english),
-/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
-/* harmony export */ });
-var english = {
-    weekdays: {
-        shorthand: ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
-        longhand: [
-            "Sunday",
-            "Monday",
-            "Tuesday",
-            "Wednesday",
-            "Thursday",
-            "Friday",
-            "Saturday",
-        ],
-    },
-    months: {
-        shorthand: [
-            "Jan",
-            "Feb",
-            "Mar",
-            "Apr",
-            "May",
-            "Jun",
-            "Jul",
-            "Aug",
-            "Sep",
-            "Oct",
-            "Nov",
-            "Dec",
-        ],
-        longhand: [
-            "January",
-            "February",
-            "March",
-            "April",
-            "May",
-            "June",
-            "July",
-            "August",
-            "September",
-            "October",
-            "November",
-            "December",
-        ],
-    },
-    daysInMonth: [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31],
-    firstDayOfWeek: 0,
-    ordinal: function (nth) {
-        var s = nth % 100;
-        if (s > 3 && s < 21)
-            return "th";
-        switch (s % 10) {
-            case 1:
-                return "st";
-            case 2:
-                return "nd";
-            case 3:
-                return "rd";
-            default:
-                return "th";
-        }
-    },
-    rangeSeparator: " to ",
-    weekAbbreviation: "Wk",
-    scrollTitle: "Scroll to increment",
-    toggleTitle: "Click to toggle",
-    amPM: ["AM", "PM"],
-    yearAriaLabel: "Year",
-    monthAriaLabel: "Month",
-    hourAriaLabel: "Hour",
-    minuteAriaLabel: "Minute",
-    time_24hr: false,
-};
-/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (english);
-
-
-/***/ }),
-
-/***/ "./node_modules/flatpickr/dist/esm/types/options.js":
-/*!**********************************************************!*\
-  !*** ./node_modules/flatpickr/dist/esm/types/options.js ***!
-  \**********************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   "HOOKS": () => (/* binding */ HOOKS),
-/* harmony export */   "defaults": () => (/* binding */ defaults)
-/* harmony export */ });
-var HOOKS = [
-    "onChange",
-    "onClose",
-    "onDayCreate",
-    "onDestroy",
-    "onKeyDown",
-    "onMonthChange",
-    "onOpen",
-    "onParseConfig",
-    "onReady",
-    "onValueUpdate",
-    "onYearChange",
-    "onPreCalendarPosition",
-];
-var defaults = {
-    _disable: [],
-    allowInput: false,
-    allowInvalidPreload: false,
-    altFormat: "F j, Y",
-    altInput: false,
-    altInputClass: "form-control input",
-    animate: typeof window === "object" &&
-        window.navigator.userAgent.indexOf("MSIE") === -1,
-    ariaDateFormat: "F j, Y",
-    autoFillDefaultTime: true,
-    clickOpens: true,
-    closeOnSelect: true,
-    conjunction: ", ",
-    dateFormat: "Y-m-d",
-    defaultHour: 12,
-    defaultMinute: 0,
-    defaultSeconds: 0,
-    disable: [],
-    disableMobile: false,
-    enableSeconds: false,
-    enableTime: false,
-    errorHandler: function (err) {
-        return typeof console !== "undefined" && console.warn(err);
-    },
-    getWeek: function (givenDate) {
-        var date = new Date(givenDate.getTime());
-        date.setHours(0, 0, 0, 0);
-        date.setDate(date.getDate() + 3 - ((date.getDay() + 6) % 7));
-        var week1 = new Date(date.getFullYear(), 0, 4);
-        return (1 +
-            Math.round(((date.getTime() - week1.getTime()) / 86400000 -
-                3 +
-                ((week1.getDay() + 6) % 7)) /
-                7));
-    },
-    hourIncrement: 1,
-    ignoredFocusElements: [],
-    inline: false,
-    locale: "default",
-    minuteIncrement: 5,
-    mode: "single",
-    monthSelectorType: "dropdown",
-    nextArrow: "<svg version='1.1' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' viewBox='0 0 17 17'><g></g><path d='M13.207 8.472l-7.854 7.854-0.707-0.707 7.146-7.146-7.146-7.148 0.707-0.707 7.854 7.854z' /></svg>",
-    noCalendar: false,
-    now: new Date(),
-    onChange: [],
-    onClose: [],
-    onDayCreate: [],
-    onDestroy: [],
-    onKeyDown: [],
-    onMonthChange: [],
-    onOpen: [],
-    onParseConfig: [],
-    onReady: [],
-    onValueUpdate: [],
-    onYearChange: [],
-    onPreCalendarPosition: [],
-    plugins: [],
-    position: "auto",
-    positionElement: undefined,
-    prevArrow: "<svg version='1.1' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' viewBox='0 0 17 17'><g></g><path d='M5.207 8.471l7.146 7.147-0.707 0.707-7.853-7.854 7.854-7.853 0.707 0.707-7.147 7.146z' /></svg>",
-    shorthandCurrentMonth: false,
-    showMonths: 1,
-    static: false,
-    time_24hr: false,
-    weekNumbers: false,
-    wrap: false,
-};
-
-
-/***/ }),
-
-/***/ "./node_modules/flatpickr/dist/esm/utils/dates.js":
-/*!********************************************************!*\
-  !*** ./node_modules/flatpickr/dist/esm/utils/dates.js ***!
-  \********************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   "createDateFormatter": () => (/* binding */ createDateFormatter),
-/* harmony export */   "createDateParser": () => (/* binding */ createDateParser),
-/* harmony export */   "compareDates": () => (/* binding */ compareDates),
-/* harmony export */   "compareTimes": () => (/* binding */ compareTimes),
-/* harmony export */   "isBetween": () => (/* binding */ isBetween),
-/* harmony export */   "calculateSecondsSinceMidnight": () => (/* binding */ calculateSecondsSinceMidnight),
-/* harmony export */   "parseSeconds": () => (/* binding */ parseSeconds),
-/* harmony export */   "duration": () => (/* binding */ duration),
-/* harmony export */   "getDefaultHours": () => (/* binding */ getDefaultHours)
-/* harmony export */ });
-/* harmony import */ var _formatting__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./formatting */ "./node_modules/flatpickr/dist/esm/utils/formatting.js");
-/* harmony import */ var _types_options__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../types/options */ "./node_modules/flatpickr/dist/esm/types/options.js");
-/* harmony import */ var _l10n_default__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../l10n/default */ "./node_modules/flatpickr/dist/esm/l10n/default.js");
-
-
-
-var createDateFormatter = function (_a) {
-    var _b = _a.config, config = _b === void 0 ? _types_options__WEBPACK_IMPORTED_MODULE_1__.defaults : _b, _c = _a.l10n, l10n = _c === void 0 ? _l10n_default__WEBPACK_IMPORTED_MODULE_2__.english : _c, _d = _a.isMobile, isMobile = _d === void 0 ? false : _d;
-    return function (dateObj, frmt, overrideLocale) {
-        var locale = overrideLocale || l10n;
-        if (config.formatDate !== undefined && !isMobile) {
-            return config.formatDate(dateObj, frmt, locale);
-        }
-        return frmt
-            .split("")
-            .map(function (c, i, arr) {
-            return _formatting__WEBPACK_IMPORTED_MODULE_0__.formats[c] && arr[i - 1] !== "\\"
-                ? _formatting__WEBPACK_IMPORTED_MODULE_0__.formats[c](dateObj, locale, config)
-                : c !== "\\"
-                    ? c
-                    : "";
-        })
-            .join("");
-    };
-};
-var createDateParser = function (_a) {
-    var _b = _a.config, config = _b === void 0 ? _types_options__WEBPACK_IMPORTED_MODULE_1__.defaults : _b, _c = _a.l10n, l10n = _c === void 0 ? _l10n_default__WEBPACK_IMPORTED_MODULE_2__.english : _c;
-    return function (date, givenFormat, timeless, customLocale) {
-        if (date !== 0 && !date)
-            return undefined;
-        var locale = customLocale || l10n;
-        var parsedDate;
-        var dateOrig = date;
-        if (date instanceof Date)
-            parsedDate = new Date(date.getTime());
-        else if (typeof date !== "string" &&
-            date.toFixed !== undefined)
-            parsedDate = new Date(date);
-        else if (typeof date === "string") {
-            var format = givenFormat || (config || _types_options__WEBPACK_IMPORTED_MODULE_1__.defaults).dateFormat;
-            var datestr = String(date).trim();
-            if (datestr === "today") {
-                parsedDate = new Date();
-                timeless = true;
-            }
-            else if (config && config.parseDate) {
-                parsedDate = config.parseDate(date, format);
-            }
-            else if (/Z$/.test(datestr) ||
-                /GMT$/.test(datestr)) {
-                parsedDate = new Date(date);
-            }
-            else {
-                var matched = void 0, ops = [];
-                for (var i = 0, matchIndex = 0, regexStr = ""; i < format.length; i++) {
-                    var token = format[i];
-                    var isBackSlash = token === "\\";
-                    var escaped = format[i - 1] === "\\" || isBackSlash;
-                    if (_formatting__WEBPACK_IMPORTED_MODULE_0__.tokenRegex[token] && !escaped) {
-                        regexStr += _formatting__WEBPACK_IMPORTED_MODULE_0__.tokenRegex[token];
-                        var match = new RegExp(regexStr).exec(date);
-                        if (match && (matched = true)) {
-                            ops[token !== "Y" ? "push" : "unshift"]({
-                                fn: _formatting__WEBPACK_IMPORTED_MODULE_0__.revFormat[token],
-                                val: match[++matchIndex],
-                            });
-                        }
-                    }
-                    else if (!isBackSlash)
-                        regexStr += ".";
-                }
-                parsedDate =
-                    !config || !config.noCalendar
-                        ? new Date(new Date().getFullYear(), 0, 1, 0, 0, 0, 0)
-                        : new Date(new Date().setHours(0, 0, 0, 0));
-                ops.forEach(function (_a) {
-                    var fn = _a.fn, val = _a.val;
-                    return (parsedDate = fn(parsedDate, val, locale) || parsedDate);
-                });
-                parsedDate = matched ? parsedDate : undefined;
-            }
-        }
-        if (!(parsedDate instanceof Date && !isNaN(parsedDate.getTime()))) {
-            config.errorHandler(new Error("Invalid date provided: " + dateOrig));
-            return undefined;
-        }
-        if (timeless === true)
-            parsedDate.setHours(0, 0, 0, 0);
-        return parsedDate;
-    };
-};
-function compareDates(date1, date2, timeless) {
-    if (timeless === void 0) { timeless = true; }
-    if (timeless !== false) {
-        return (new Date(date1.getTime()).setHours(0, 0, 0, 0) -
-            new Date(date2.getTime()).setHours(0, 0, 0, 0));
-    }
-    return date1.getTime() - date2.getTime();
-}
-function compareTimes(date1, date2) {
-    return (3600 * (date1.getHours() - date2.getHours()) +
-        60 * (date1.getMinutes() - date2.getMinutes()) +
-        date1.getSeconds() -
-        date2.getSeconds());
-}
-var isBetween = function (ts, ts1, ts2) {
-    return ts > Math.min(ts1, ts2) && ts < Math.max(ts1, ts2);
-};
-var calculateSecondsSinceMidnight = function (hours, minutes, seconds) {
-    return hours * 3600 + minutes * 60 + seconds;
-};
-var parseSeconds = function (secondsSinceMidnight) {
-    var hours = Math.floor(secondsSinceMidnight / 3600), minutes = (secondsSinceMidnight - hours * 3600) / 60;
-    return [hours, minutes, secondsSinceMidnight - hours * 3600 - minutes * 60];
-};
-var duration = {
-    DAY: 86400000,
-};
-function getDefaultHours(config) {
-    var hours = config.defaultHour;
-    var minutes = config.defaultMinute;
-    var seconds = config.defaultSeconds;
-    if (config.minDate !== undefined) {
-        var minHour = config.minDate.getHours();
-        var minMinutes = config.minDate.getMinutes();
-        var minSeconds = config.minDate.getSeconds();
-        if (hours < minHour) {
-            hours = minHour;
-        }
-        if (hours === minHour && minutes < minMinutes) {
-            minutes = minMinutes;
-        }
-        if (hours === minHour && minutes === minMinutes && seconds < minSeconds)
-            seconds = config.minDate.getSeconds();
-    }
-    if (config.maxDate !== undefined) {
-        var maxHr = config.maxDate.getHours();
-        var maxMinutes = config.maxDate.getMinutes();
-        hours = Math.min(hours, maxHr);
-        if (hours === maxHr)
-            minutes = Math.min(maxMinutes, minutes);
-        if (hours === maxHr && minutes === maxMinutes)
-            seconds = config.maxDate.getSeconds();
-    }
-    return { hours: hours, minutes: minutes, seconds: seconds };
-}
-
-
-/***/ }),
-
-/***/ "./node_modules/flatpickr/dist/esm/utils/dom.js":
-/*!******************************************************!*\
-  !*** ./node_modules/flatpickr/dist/esm/utils/dom.js ***!
-  \******************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   "toggleClass": () => (/* binding */ toggleClass),
-/* harmony export */   "createElement": () => (/* binding */ createElement),
-/* harmony export */   "clearNode": () => (/* binding */ clearNode),
-/* harmony export */   "findParent": () => (/* binding */ findParent),
-/* harmony export */   "createNumberInput": () => (/* binding */ createNumberInput),
-/* harmony export */   "getEventTarget": () => (/* binding */ getEventTarget)
-/* harmony export */ });
-function toggleClass(elem, className, bool) {
-    if (bool === true)
-        return elem.classList.add(className);
-    elem.classList.remove(className);
-}
-function createElement(tag, className, content) {
-    var e = window.document.createElement(tag);
-    className = className || "";
-    content = content || "";
-    e.className = className;
-    if (content !== undefined)
-        e.textContent = content;
-    return e;
-}
-function clearNode(node) {
-    while (node.firstChild)
-        node.removeChild(node.firstChild);
-}
-function findParent(node, condition) {
-    if (condition(node))
-        return node;
-    else if (node.parentNode)
-        return findParent(node.parentNode, condition);
-    return undefined;
-}
-function createNumberInput(inputClassName, opts) {
-    var wrapper = createElement("div", "numInputWrapper"), numInput = createElement("input", "numInput " + inputClassName), arrowUp = createElement("span", "arrowUp"), arrowDown = createElement("span", "arrowDown");
-    if (navigator.userAgent.indexOf("MSIE 9.0") === -1) {
-        numInput.type = "number";
-    }
-    else {
-        numInput.type = "text";
-        numInput.pattern = "\\d*";
-    }
-    if (opts !== undefined)
-        for (var key in opts)
-            numInput.setAttribute(key, opts[key]);
-    wrapper.appendChild(numInput);
-    wrapper.appendChild(arrowUp);
-    wrapper.appendChild(arrowDown);
-    return wrapper;
-}
-function getEventTarget(event) {
-    try {
-        if (typeof event.composedPath === "function") {
-            var path = event.composedPath();
-            return path[0];
-        }
-        return event.target;
-    }
-    catch (error) {
-        return event.target;
-    }
-}
-
-
-/***/ }),
-
-/***/ "./node_modules/flatpickr/dist/esm/utils/formatting.js":
-/*!*************************************************************!*\
-  !*** ./node_modules/flatpickr/dist/esm/utils/formatting.js ***!
-  \*************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   "monthToStr": () => (/* binding */ monthToStr),
-/* harmony export */   "revFormat": () => (/* binding */ revFormat),
-/* harmony export */   "tokenRegex": () => (/* binding */ tokenRegex),
-/* harmony export */   "formats": () => (/* binding */ formats)
-/* harmony export */ });
-/* harmony import */ var _utils__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../utils */ "./node_modules/flatpickr/dist/esm/utils/index.js");
-
-var doNothing = function () { return undefined; };
-var monthToStr = function (monthNumber, shorthand, locale) { return locale.months[shorthand ? "shorthand" : "longhand"][monthNumber]; };
-var revFormat = {
-    D: doNothing,
-    F: function (dateObj, monthName, locale) {
-        dateObj.setMonth(locale.months.longhand.indexOf(monthName));
-    },
-    G: function (dateObj, hour) {
-        dateObj.setHours((dateObj.getHours() >= 12 ? 12 : 0) + parseFloat(hour));
-    },
-    H: function (dateObj, hour) {
-        dateObj.setHours(parseFloat(hour));
-    },
-    J: function (dateObj, day) {
-        dateObj.setDate(parseFloat(day));
-    },
-    K: function (dateObj, amPM, locale) {
-        dateObj.setHours((dateObj.getHours() % 12) +
-            12 * (0,_utils__WEBPACK_IMPORTED_MODULE_0__.int)(new RegExp(locale.amPM[1], "i").test(amPM)));
-    },
-    M: function (dateObj, shortMonth, locale) {
-        dateObj.setMonth(locale.months.shorthand.indexOf(shortMonth));
-    },
-    S: function (dateObj, seconds) {
-        dateObj.setSeconds(parseFloat(seconds));
-    },
-    U: function (_, unixSeconds) { return new Date(parseFloat(unixSeconds) * 1000); },
-    W: function (dateObj, weekNum, locale) {
-        var weekNumber = parseInt(weekNum);
-        var date = new Date(dateObj.getFullYear(), 0, 2 + (weekNumber - 1) * 7, 0, 0, 0, 0);
-        date.setDate(date.getDate() - date.getDay() + locale.firstDayOfWeek);
-        return date;
-    },
-    Y: function (dateObj, year) {
-        dateObj.setFullYear(parseFloat(year));
-    },
-    Z: function (_, ISODate) { return new Date(ISODate); },
-    d: function (dateObj, day) {
-        dateObj.setDate(parseFloat(day));
-    },
-    h: function (dateObj, hour) {
-        dateObj.setHours((dateObj.getHours() >= 12 ? 12 : 0) + parseFloat(hour));
-    },
-    i: function (dateObj, minutes) {
-        dateObj.setMinutes(parseFloat(minutes));
-    },
-    j: function (dateObj, day) {
-        dateObj.setDate(parseFloat(day));
-    },
-    l: doNothing,
-    m: function (dateObj, month) {
-        dateObj.setMonth(parseFloat(month) - 1);
-    },
-    n: function (dateObj, month) {
-        dateObj.setMonth(parseFloat(month) - 1);
-    },
-    s: function (dateObj, seconds) {
-        dateObj.setSeconds(parseFloat(seconds));
-    },
-    u: function (_, unixMillSeconds) {
-        return new Date(parseFloat(unixMillSeconds));
-    },
-    w: doNothing,
-    y: function (dateObj, year) {
-        dateObj.setFullYear(2000 + parseFloat(year));
-    },
-};
-var tokenRegex = {
-    D: "",
-    F: "",
-    G: "(\\d\\d|\\d)",
-    H: "(\\d\\d|\\d)",
-    J: "(\\d\\d|\\d)\\w+",
-    K: "",
-    M: "",
-    S: "(\\d\\d|\\d)",
-    U: "(.+)",
-    W: "(\\d\\d|\\d)",
-    Y: "(\\d{4})",
-    Z: "(.+)",
-    d: "(\\d\\d|\\d)",
-    h: "(\\d\\d|\\d)",
-    i: "(\\d\\d|\\d)",
-    j: "(\\d\\d|\\d)",
-    l: "",
-    m: "(\\d\\d|\\d)",
-    n: "(\\d\\d|\\d)",
-    s: "(\\d\\d|\\d)",
-    u: "(.+)",
-    w: "(\\d\\d|\\d)",
-    y: "(\\d{2})",
-};
-var formats = {
-    Z: function (date) { return date.toISOString(); },
-    D: function (date, locale, options) {
-        return locale.weekdays.shorthand[formats.w(date, locale, options)];
-    },
-    F: function (date, locale, options) {
-        return monthToStr(formats.n(date, locale, options) - 1, false, locale);
-    },
-    G: function (date, locale, options) {
-        return (0,_utils__WEBPACK_IMPORTED_MODULE_0__.pad)(formats.h(date, locale, options));
-    },
-    H: function (date) { return (0,_utils__WEBPACK_IMPORTED_MODULE_0__.pad)(date.getHours()); },
-    J: function (date, locale) {
-        return locale.ordinal !== undefined
-            ? date.getDate() + locale.ordinal(date.getDate())
-            : date.getDate();
-    },
-    K: function (date, locale) { return locale.amPM[(0,_utils__WEBPACK_IMPORTED_MODULE_0__.int)(date.getHours() > 11)]; },
-    M: function (date, locale) {
-        return monthToStr(date.getMonth(), true, locale);
-    },
-    S: function (date) { return (0,_utils__WEBPACK_IMPORTED_MODULE_0__.pad)(date.getSeconds()); },
-    U: function (date) { return date.getTime() / 1000; },
-    W: function (date, _, options) {
-        return options.getWeek(date);
-    },
-    Y: function (date) { return (0,_utils__WEBPACK_IMPORTED_MODULE_0__.pad)(date.getFullYear(), 4); },
-    d: function (date) { return (0,_utils__WEBPACK_IMPORTED_MODULE_0__.pad)(date.getDate()); },
-    h: function (date) { return (date.getHours() % 12 ? date.getHours() % 12 : 12); },
-    i: function (date) { return (0,_utils__WEBPACK_IMPORTED_MODULE_0__.pad)(date.getMinutes()); },
-    j: function (date) { return date.getDate(); },
-    l: function (date, locale) {
-        return locale.weekdays.longhand[date.getDay()];
-    },
-    m: function (date) { return (0,_utils__WEBPACK_IMPORTED_MODULE_0__.pad)(date.getMonth() + 1); },
-    n: function (date) { return date.getMonth() + 1; },
-    s: function (date) { return date.getSeconds(); },
-    u: function (date) { return date.getTime(); },
-    w: function (date) { return date.getDay(); },
-    y: function (date) { return String(date.getFullYear()).substring(2); },
-};
-
-
-/***/ }),
-
-/***/ "./node_modules/flatpickr/dist/esm/utils/index.js":
-/*!********************************************************!*\
-  !*** ./node_modules/flatpickr/dist/esm/utils/index.js ***!
-  \********************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   "pad": () => (/* binding */ pad),
-/* harmony export */   "int": () => (/* binding */ int),
-/* harmony export */   "debounce": () => (/* binding */ debounce),
-/* harmony export */   "arrayify": () => (/* binding */ arrayify)
-/* harmony export */ });
-var pad = function (number, length) {
-    if (length === void 0) { length = 2; }
-    return ("000" + number).slice(length * -1);
-};
-var int = function (bool) { return (bool === true ? 1 : 0); };
-function debounce(fn, wait) {
-    var t;
-    return function () {
-        var _this = this;
-        var args = arguments;
-        clearTimeout(t);
-        t = setTimeout(function () { return fn.apply(_this, args); }, wait);
-    };
-}
-var arrayify = function (obj) {
-    return obj instanceof Array ? obj : [obj];
-};
-
-
-/***/ }),
-
-/***/ "./node_modules/flatpickr/dist/esm/utils/polyfills.js":
-/*!************************************************************!*\
-  !*** ./node_modules/flatpickr/dist/esm/utils/polyfills.js ***!
-  \************************************************************/
-/***/ (() => {
-
-"use strict";
-
-if (typeof Object.assign !== "function") {
-    Object.assign = function (target) {
-        var args = [];
-        for (var _i = 1; _i < arguments.length; _i++) {
-            args[_i - 1] = arguments[_i];
-        }
-        if (!target) {
-            throw TypeError("Cannot convert undefined or null to object");
-        }
-        var _loop_1 = function (source) {
-            if (source) {
-                Object.keys(source).forEach(function (key) { return (target[key] = source[key]); });
-            }
-        };
-        for (var _a = 0, args_1 = args; _a < args_1.length; _a++) {
-            var source = args_1[_a];
-            _loop_1(source);
-        }
-        return target;
-    };
-}
-
-
-/***/ }),
-
-/***/ "./node_modules/flatpickr/dist/l10n/nl.js":
-/*!************************************************!*\
-  !*** ./node_modules/flatpickr/dist/l10n/nl.js ***!
-  \************************************************/
-/***/ (function(__unused_webpack_module, exports) {
-
-(function (global, factory) {
-   true ? factory(exports) :
-  0;
-}(this, (function (exports) { 'use strict';
-
-  var fp = typeof window !== "undefined" && window.flatpickr !== undefined
-      ? window.flatpickr
-      : {
-          l10ns: {},
-      };
-  var Dutch = {
-      weekdays: {
-          shorthand: ["zo", "ma", "di", "wo", "do", "vr", "za"],
-          longhand: [
-              "zondag",
-              "maandag",
-              "dinsdag",
-              "woensdag",
-              "donderdag",
-              "vrijdag",
-              "zaterdag",
-          ],
-      },
-      months: {
-          shorthand: [
-              "jan",
-              "feb",
-              "mrt",
-              "apr",
-              "mei",
-              "jun",
-              "jul",
-              "aug",
-              "sept",
-              "okt",
-              "nov",
-              "dec",
-          ],
-          longhand: [
-              "januari",
-              "februari",
-              "maart",
-              "april",
-              "mei",
-              "juni",
-              "juli",
-              "augustus",
-              "september",
-              "oktober",
-              "november",
-              "december",
-          ],
-      },
-      firstDayOfWeek: 1,
-      weekAbbreviation: "wk",
-      rangeSeparator: " t/m ",
-      scrollTitle: "Scroll voor volgende / vorige",
-      toggleTitle: "Klik om te wisselen",
-      time_24hr: true,
-      ordinal: function (nth) {
-          if (nth === 1 || nth === 8 || nth >= 20)
-              return "ste";
-          return "de";
-      },
-  };
-  fp.l10ns.nl = Dutch;
-  var nl = fp.l10ns;
-
-  exports.Dutch = Dutch;
-  exports.default = nl;
-
-  Object.defineProperty(exports, '__esModule', { value: true });
-
-})));
-
-
-/***/ }),
-
 /***/ "./node_modules/jquery/dist/jquery.js":
 /*!********************************************!*\
   !*** ./node_modules/jquery/dist/jquery.js ***!
@@ -47684,22 +44690,6 @@ var Echo = /*#__PURE__*/function () {
 }();
 
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (Echo);
-
-
-/***/ }),
-
-/***/ "./node_modules/livewire-sortable/dist/livewire-sortable.js":
-/*!******************************************************************!*\
-  !*** ./node_modules/livewire-sortable/dist/livewire-sortable.js ***!
-  \******************************************************************/
-/***/ ((module, exports, __webpack_require__) => {
-
-var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_RESULT__;!function(e){ true?!(__WEBPACK_AMD_DEFINE_FACTORY__ = (e),
-		__WEBPACK_AMD_DEFINE_RESULT__ = (typeof __WEBPACK_AMD_DEFINE_FACTORY__ === 'function' ?
-		(__WEBPACK_AMD_DEFINE_FACTORY__.call(exports, __webpack_require__, exports, module)) :
-		__WEBPACK_AMD_DEFINE_FACTORY__),
-		__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__)):0}((function(){"use strict";var e,t=function(e,t){return e(t={exports:{}},t.exports),t.exports}((function(e,t){var r;window,r=function(){return function(e){var t={};function r(n){if(t[n])return t[n].exports;var o=t[n]={i:n,l:!1,exports:{}};return e[n].call(o.exports,o,o.exports,r),o.l=!0,o.exports}return r.m=e,r.c=t,r.d=function(e,t,n){r.o(e,t)||Object.defineProperty(e,t,{enumerable:!0,get:n})},r.r=function(e){"undefined"!=typeof Symbol&&Symbol.toStringTag&&Object.defineProperty(e,Symbol.toStringTag,{value:"Module"}),Object.defineProperty(e,"__esModule",{value:!0})},r.t=function(e,t){if(1&t&&(e=r(e)),8&t)return e;if(4&t&&"object"==typeof e&&e&&e.__esModule)return e;var n=Object.create(null);if(r.r(n),Object.defineProperty(n,"default",{enumerable:!0,value:e}),2&t&&"string"!=typeof e)for(var o in e)r.d(n,o,function(t){return e[t]}.bind(null,o));return n},r.n=function(e){var t=e&&e.__esModule?function(){return e.default}:function(){return e};return r.d(t,"a",t),t},r.o=function(e,t){return Object.prototype.hasOwnProperty.call(e,t)},r.p="",r(r.s=44)}([function(e,t,r){Object.defineProperty(t,"__esModule",{value:!0});var n=r(19);Object.keys(n).forEach((function(e){"default"!==e&&"__esModule"!==e&&Object.defineProperty(t,e,{enumerable:!0,get:function(){return n[e]}})}))},function(e,t,r){Object.defineProperty(t,"__esModule",{value:!0});var n,o=r(22),i=(n=o)&&n.__esModule?n:{default:n};t.default=i.default},function(e,t,r){Object.defineProperty(t,"__esModule",{value:!0});var n=r(26);Object.defineProperty(t,"closest",{enumerable:!0,get:function(){return i(n).default}});var o=r(24);function i(e){return e&&e.__esModule?e:{default:e}}Object.defineProperty(t,"requestNextAnimationFrame",{enumerable:!0,get:function(){return i(o).default}})},function(e,t,r){Object.defineProperty(t,"__esModule",{value:!0});var n,o=r(42),i=(n=o)&&n.__esModule?n:{default:n};t.default=i.default},function(e,t,r){Object.defineProperty(t,"__esModule",{value:!0});var n,o=r(35),i=(n=o)&&n.__esModule?n:{default:n};t.default=i.default},function(e,t,r){Object.defineProperty(t,"__esModule",{value:!0});var n=r(1);Object.defineProperty(t,"Sensor",{enumerable:!0,get:function(){return c(n).default}});var o=r(21);Object.defineProperty(t,"MouseSensor",{enumerable:!0,get:function(){return c(o).default}});var i=r(18);Object.defineProperty(t,"TouchSensor",{enumerable:!0,get:function(){return c(i).default}});var s=r(16);Object.defineProperty(t,"DragSensor",{enumerable:!0,get:function(){return c(s).default}});var a=r(14);Object.defineProperty(t,"ForceTouchSensor",{enumerable:!0,get:function(){return c(a).default}});var l=r(0);function c(e){return e&&e.__esModule?e:{default:e}}Object.keys(l).forEach((function(e){"default"!==e&&"__esModule"!==e&&Object.defineProperty(t,e,{enumerable:!0,get:function(){return l[e]}})}))},function(e,t,r){Object.defineProperty(t,"__esModule",{value:!0});var n=r(37);Object.defineProperty(t,"Announcement",{enumerable:!0,get:function(){return a(n).default}}),Object.defineProperty(t,"defaultAnnouncementOptions",{enumerable:!0,get:function(){return n.defaultOptions}});var o=r(34);Object.defineProperty(t,"Focusable",{enumerable:!0,get:function(){return a(o).default}});var i=r(32);Object.defineProperty(t,"Mirror",{enumerable:!0,get:function(){return a(i).default}}),Object.defineProperty(t,"defaultMirrorOptions",{enumerable:!0,get:function(){return i.defaultOptions}});var s=r(28);function a(e){return e&&e.__esModule?e:{default:e}}Object.defineProperty(t,"Scrollable",{enumerable:!0,get:function(){return a(s).default}}),Object.defineProperty(t,"defaultScrollableOptions",{enumerable:!0,get:function(){return s.defaultOptions}})},function(e,t,r){Object.defineProperty(t,"__esModule",{value:!0});var n=r(38);Object.keys(n).forEach((function(e){"default"!==e&&"__esModule"!==e&&Object.defineProperty(t,e,{enumerable:!0,get:function(){return n[e]}})}))},function(e,t,r){Object.defineProperty(t,"__esModule",{value:!0});var n=r(39);Object.keys(n).forEach((function(e){"default"!==e&&"__esModule"!==e&&Object.defineProperty(t,e,{enumerable:!0,get:function(){return n[e]}})}))},function(e,t,r){Object.defineProperty(t,"__esModule",{value:!0});var n=r(43);Object.keys(n).forEach((function(e){"default"!==e&&"__esModule"!==e&&Object.defineProperty(t,e,{enumerable:!0,get:function(){return n[e]}})}))},function(e,t,r){Object.defineProperty(t,"__esModule",{value:!0}),t.default=class{constructor(){this.callbacks={}}on(e,...t){return this.callbacks[e]||(this.callbacks[e]=[]),this.callbacks[e].push(...t),this}off(e,t){if(!this.callbacks[e])return null;const r=this.callbacks[e].slice(0);for(let n=0;n<r.length;n++)t===r[n]&&this.callbacks[e].splice(n,1);return this}trigger(e){if(!this.callbacks[e.type])return null;const t=[...this.callbacks[e.type]],r=[];for(let n=t.length-1;n>=0;n--){const o=t[n];try{o(e)}catch(e){r.push(e)}}return r.length&&console.error(`Draggable caught errors while triggering '${e.type}'`,r),this}}},function(e,t,r){Object.defineProperty(t,"__esModule",{value:!0});var n,o=r(10),i=(n=o)&&n.__esModule?n:{default:n};t.default=i.default},function(e,t,r){Object.defineProperty(t,"__esModule",{value:!0}),t.defaultOptions=void 0;var n,o=Object.assign||function(e){for(var t=1;t<arguments.length;t++){var r=arguments[t];for(var n in r)Object.prototype.hasOwnProperty.call(r,n)&&(e[n]=r[n])}return e},i=r(2),s=r(6),a=r(11),l=(n=a)&&n.__esModule?n:{default:n},c=r(5),u=r(7),d=r(8);const g=Symbol("onDragStart"),h=Symbol("onDragMove"),f=Symbol("onDragStop"),v=Symbol("onDragPressure"),m={"drag:start":e=>`Picked up ${e.source.textContent.trim()||e.source.id||"draggable element"}`,"drag:stop":e=>`Released ${e.source.textContent.trim()||e.source.id||"draggable element"}`},p={"container:dragging":"draggable-container--is-dragging","source:dragging":"draggable-source--is-dragging","source:placed":"draggable-source--placed","container:placed":"draggable-container--placed","body:dragging":"draggable--is-dragging","draggable:over":"draggable--over","container:over":"draggable-container--over","source:original":"draggable--original",mirror:"draggable-mirror"},b=t.defaultOptions={draggable:".draggable-source",handle:null,delay:100,placedTimeout:800,plugins:[],sensors:[]};class E{constructor(e=[document.body],t={}){if(e instanceof NodeList||e instanceof Array)this.containers=[...e];else{if(!(e instanceof HTMLElement))throw new Error("Draggable containers are expected to be of type `NodeList`, `HTMLElement[]` or `HTMLElement`");this.containers=[e]}this.options=o({},b,t,{classes:o({},p,t.classes||{}),announcements:o({},m,t.announcements||{})}),this.emitter=new l.default,this.dragging=!1,this.plugins=[],this.sensors=[],this[g]=this[g].bind(this),this[h]=this[h].bind(this),this[f]=this[f].bind(this),this[v]=this[v].bind(this),document.addEventListener("drag:start",this[g],!0),document.addEventListener("drag:move",this[h],!0),document.addEventListener("drag:stop",this[f],!0),document.addEventListener("drag:pressure",this[v],!0);const r=Object.values(E.Plugins).map(e=>e),n=[c.MouseSensor,c.TouchSensor];this.addPlugin(...r,...this.options.plugins),this.addSensor(...n,...this.options.sensors);const i=new u.DraggableInitializedEvent({draggable:this});this.on("mirror:created",({mirror:e})=>this.mirror=e),this.on("mirror:destroy",()=>this.mirror=null),this.trigger(i)}destroy(){document.removeEventListener("drag:start",this[g],!0),document.removeEventListener("drag:move",this[h],!0),document.removeEventListener("drag:stop",this[f],!0),document.removeEventListener("drag:pressure",this[v],!0);const e=new u.DraggableDestroyEvent({draggable:this});this.trigger(e),this.removePlugin(...this.plugins.map(e=>e.constructor)),this.removeSensor(...this.sensors.map(e=>e.constructor))}addPlugin(...e){const t=e.map(e=>new e(this));return t.forEach(e=>e.attach()),this.plugins=[...this.plugins,...t],this}removePlugin(...e){return this.plugins.filter(t=>e.includes(t.constructor)).forEach(e=>e.detach()),this.plugins=this.plugins.filter(t=>!e.includes(t.constructor)),this}addSensor(...e){const t=e.map(e=>new e(this.containers,this.options));return t.forEach(e=>e.attach()),this.sensors=[...this.sensors,...t],this}removeSensor(...e){return this.sensors.filter(t=>e.includes(t.constructor)).forEach(e=>e.detach()),this.sensors=this.sensors.filter(t=>!e.includes(t.constructor)),this}addContainer(...e){return this.containers=[...this.containers,...e],this.sensors.forEach(t=>t.addContainer(...e)),this}removeContainer(...e){return this.containers=this.containers.filter(t=>!e.includes(t)),this.sensors.forEach(t=>t.removeContainer(...e)),this}on(e,...t){return this.emitter.on(e,...t),this}off(e,t){return this.emitter.off(e,t),this}trigger(e){return this.emitter.trigger(e),this}getClassNameFor(e){return this.options.classes[e]}isDragging(){return Boolean(this.dragging)}getDraggableElements(){return this.containers.reduce((e,t)=>[...e,...this.getDraggableElementsForContainer(t)],[])}getDraggableElementsForContainer(e){return[...e.querySelectorAll(this.options.draggable)].filter(e=>e!==this.originalSource&&e!==this.mirror)}[g](e){const t=y(e),{target:r,container:n}=t;if(!this.containers.includes(n))return;if(this.options.handle&&r&&!(0,i.closest)(r,this.options.handle))return void t.cancel();if(this.originalSource=(0,i.closest)(r,this.options.draggable),this.sourceContainer=n,!this.originalSource)return void t.cancel();this.lastPlacedSource&&this.lastPlacedContainer&&(clearTimeout(this.placedTimeoutID),this.lastPlacedSource.classList.remove(this.getClassNameFor("source:placed")),this.lastPlacedContainer.classList.remove(this.getClassNameFor("container:placed"))),this.source=this.originalSource.cloneNode(!0),this.originalSource.parentNode.insertBefore(this.source,this.originalSource),this.originalSource.style.display="none";const s=new d.DragStartEvent({source:this.source,originalSource:this.originalSource,sourceContainer:n,sensorEvent:t});if(this.trigger(s),this.dragging=!s.canceled(),s.canceled())return this.source.parentNode.removeChild(this.source),void(this.originalSource.style.display=null);this.originalSource.classList.add(this.getClassNameFor("source:original")),this.source.classList.add(this.getClassNameFor("source:dragging")),this.sourceContainer.classList.add(this.getClassNameFor("container:dragging")),document.body.classList.add(this.getClassNameFor("body:dragging")),S(document.body,"none"),requestAnimationFrame(()=>{const t=y(e).clone({target:this.source});this[h](o({},e,{detail:t}))})}[h](e){if(!this.dragging)return;const t=y(e),{container:r}=t;let n=t.target;const o=new d.DragMoveEvent({source:this.source,originalSource:this.originalSource,sourceContainer:r,sensorEvent:t});this.trigger(o),o.canceled()&&t.cancel(),n=(0,i.closest)(n,this.options.draggable);const s=(0,i.closest)(t.target,this.containers),a=t.overContainer||s,l=this.currentOverContainer&&a!==this.currentOverContainer,c=this.currentOver&&n!==this.currentOver,u=a&&this.currentOverContainer!==a,g=s&&n&&this.currentOver!==n;if(c){const e=new d.DragOutEvent({source:this.source,originalSource:this.originalSource,sourceContainer:r,sensorEvent:t,over:this.currentOver});this.currentOver.classList.remove(this.getClassNameFor("draggable:over")),this.currentOver=null,this.trigger(e)}if(l){const e=new d.DragOutContainerEvent({source:this.source,originalSource:this.originalSource,sourceContainer:r,sensorEvent:t,overContainer:this.currentOverContainer});this.currentOverContainer.classList.remove(this.getClassNameFor("container:over")),this.currentOverContainer=null,this.trigger(e)}if(u){a.classList.add(this.getClassNameFor("container:over"));const e=new d.DragOverContainerEvent({source:this.source,originalSource:this.originalSource,sourceContainer:r,sensorEvent:t,overContainer:a});this.currentOverContainer=a,this.trigger(e)}if(g){n.classList.add(this.getClassNameFor("draggable:over"));const e=new d.DragOverEvent({source:this.source,originalSource:this.originalSource,sourceContainer:r,sensorEvent:t,overContainer:a,over:n});this.currentOver=n,this.trigger(e)}}[f](e){if(!this.dragging)return;this.dragging=!1;const t=new d.DragStopEvent({source:this.source,originalSource:this.originalSource,sensorEvent:e.sensorEvent,sourceContainer:this.sourceContainer});this.trigger(t),this.source.parentNode.insertBefore(this.originalSource,this.source),this.source.parentNode.removeChild(this.source),this.originalSource.style.display="",this.source.classList.remove(this.getClassNameFor("source:dragging")),this.originalSource.classList.remove(this.getClassNameFor("source:original")),this.originalSource.classList.add(this.getClassNameFor("source:placed")),this.sourceContainer.classList.add(this.getClassNameFor("container:placed")),this.sourceContainer.classList.remove(this.getClassNameFor("container:dragging")),document.body.classList.remove(this.getClassNameFor("body:dragging")),S(document.body,""),this.currentOver&&this.currentOver.classList.remove(this.getClassNameFor("draggable:over")),this.currentOverContainer&&this.currentOverContainer.classList.remove(this.getClassNameFor("container:over")),this.lastPlacedSource=this.originalSource,this.lastPlacedContainer=this.sourceContainer,this.placedTimeoutID=setTimeout(()=>{this.lastPlacedSource&&this.lastPlacedSource.classList.remove(this.getClassNameFor("source:placed")),this.lastPlacedContainer&&this.lastPlacedContainer.classList.remove(this.getClassNameFor("container:placed")),this.lastPlacedSource=null,this.lastPlacedContainer=null},this.options.placedTimeout),this.source=null,this.originalSource=null,this.currentOverContainer=null,this.currentOver=null,this.sourceContainer=null}[v](e){if(!this.dragging)return;const t=y(e),r=this.source||(0,i.closest)(t.originalEvent.target,this.options.draggable),n=new d.DragPressureEvent({sensorEvent:t,source:r,pressure:t.pressure});this.trigger(n)}}function y(e){return e.detail}function S(e,t){e.style.webkitUserSelect=t,e.style.mozUserSelect=t,e.style.msUserSelect=t,e.style.oUserSelect=t,e.style.userSelect=t}t.default=E,E.Plugins={Announcement:s.Announcement,Focusable:s.Focusable,Mirror:s.Mirror,Scrollable:s.Scrollable}},function(e,t,r){Object.defineProperty(t,"__esModule",{value:!0});var n,o=r(1),i=(n=o)&&n.__esModule?n:{default:n},s=r(0);const a=Symbol("onMouseForceWillBegin"),l=Symbol("onMouseForceDown"),c=Symbol("onMouseDown"),u=Symbol("onMouseForceChange"),d=Symbol("onMouseMove"),g=Symbol("onMouseUp"),h=Symbol("onMouseForceGlobalChange");class f extends i.default{constructor(e=[],t={}){super(e,t),this.mightDrag=!1,this[a]=this[a].bind(this),this[l]=this[l].bind(this),this[c]=this[c].bind(this),this[u]=this[u].bind(this),this[d]=this[d].bind(this),this[g]=this[g].bind(this)}attach(){for(const e of this.containers)e.addEventListener("webkitmouseforcewillbegin",this[a],!1),e.addEventListener("webkitmouseforcedown",this[l],!1),e.addEventListener("mousedown",this[c],!0),e.addEventListener("webkitmouseforcechanged",this[u],!1);document.addEventListener("mousemove",this[d]),document.addEventListener("mouseup",this[g])}detach(){for(const e of this.containers)e.removeEventListener("webkitmouseforcewillbegin",this[a],!1),e.removeEventListener("webkitmouseforcedown",this[l],!1),e.removeEventListener("mousedown",this[c],!0),e.removeEventListener("webkitmouseforcechanged",this[u],!1);document.removeEventListener("mousemove",this[d]),document.removeEventListener("mouseup",this[g])}[a](e){e.preventDefault(),this.mightDrag=!0}[l](e){if(this.dragging)return;const t=document.elementFromPoint(e.clientX,e.clientY),r=e.currentTarget,n=new s.DragStartSensorEvent({clientX:e.clientX,clientY:e.clientY,target:t,container:r,originalEvent:e});this.trigger(r,n),this.currentContainer=r,this.dragging=!n.canceled(),this.mightDrag=!1}[g](e){if(!this.dragging)return;const t=new s.DragStopSensorEvent({clientX:e.clientX,clientY:e.clientY,target:null,container:this.currentContainer,originalEvent:e});this.trigger(this.currentContainer,t),this.currentContainer=null,this.dragging=!1,this.mightDrag=!1}[c](e){this.mightDrag&&(e.stopPropagation(),e.stopImmediatePropagation(),e.preventDefault())}[d](e){if(!this.dragging)return;const t=document.elementFromPoint(e.clientX,e.clientY),r=new s.DragMoveSensorEvent({clientX:e.clientX,clientY:e.clientY,target:t,container:this.currentContainer,originalEvent:e});this.trigger(this.currentContainer,r)}[u](e){if(this.dragging)return;const t=e.target,r=e.currentTarget,n=new s.DragPressureSensorEvent({pressure:e.webkitForce,clientX:e.clientX,clientY:e.clientY,target:t,container:r,originalEvent:e});this.trigger(r,n)}[h](e){if(!this.dragging)return;const t=e.target,r=new s.DragPressureSensorEvent({pressure:e.webkitForce,clientX:e.clientX,clientY:e.clientY,target:t,container:this.currentContainer,originalEvent:e});this.trigger(this.currentContainer,r)}}t.default=f},function(e,t,r){Object.defineProperty(t,"__esModule",{value:!0});var n,o=r(13),i=(n=o)&&n.__esModule?n:{default:n};t.default=i.default},function(e,t,r){Object.defineProperty(t,"__esModule",{value:!0});var n,o=r(2),i=r(1),s=(n=i)&&n.__esModule?n:{default:n},a=r(0);const l=Symbol("onMouseDown"),c=Symbol("onMouseUp"),u=Symbol("onDragStart"),d=Symbol("onDragOver"),g=Symbol("onDragEnd"),h=Symbol("onDrop"),f=Symbol("reset");class v extends s.default{constructor(e=[],t={}){super(e,t),this.mouseDownTimeout=null,this.draggableElement=null,this.nativeDraggableElement=null,this[l]=this[l].bind(this),this[c]=this[c].bind(this),this[u]=this[u].bind(this),this[d]=this[d].bind(this),this[g]=this[g].bind(this),this[h]=this[h].bind(this)}attach(){document.addEventListener("mousedown",this[l],!0)}detach(){document.removeEventListener("mousedown",this[l],!0)}[u](e){e.dataTransfer.setData("text",""),e.dataTransfer.effectAllowed=this.options.type;const t=document.elementFromPoint(e.clientX,e.clientY);if(this.currentContainer=(0,o.closest)(e.target,this.containers),!this.currentContainer)return;const r=new a.DragStartSensorEvent({clientX:e.clientX,clientY:e.clientY,target:t,container:this.currentContainer,originalEvent:e});setTimeout(()=>{this.trigger(this.currentContainer,r),r.canceled()?this.dragging=!1:this.dragging=!0},0)}[d](e){if(!this.dragging)return;const t=document.elementFromPoint(e.clientX,e.clientY),r=this.currentContainer,n=new a.DragMoveSensorEvent({clientX:e.clientX,clientY:e.clientY,target:t,container:r,originalEvent:e});this.trigger(r,n),n.canceled()||(e.preventDefault(),e.dataTransfer.dropEffect=this.options.type)}[g](e){if(!this.dragging)return;document.removeEventListener("mouseup",this[c],!0);const t=document.elementFromPoint(e.clientX,e.clientY),r=this.currentContainer,n=new a.DragStopSensorEvent({clientX:e.clientX,clientY:e.clientY,target:t,container:r,originalEvent:e});this.trigger(r,n),this.dragging=!1,this[f]()}[h](e){e.preventDefault()}[l](e){if(e.target&&(e.target.form||e.target.contenteditable))return;const t=(0,o.closest)(e.target,e=>e.draggable);t&&(t.draggable=!1,this.nativeDraggableElement=t),document.addEventListener("mouseup",this[c],!0),document.addEventListener("dragstart",this[u],!1),document.addEventListener("dragover",this[d],!1),document.addEventListener("dragend",this[g],!1),document.addEventListener("drop",this[h],!1);const r=(0,o.closest)(e.target,this.options.draggable);r&&(this.mouseDownTimeout=setTimeout(()=>{r.draggable=!0,this.draggableElement=r},this.options.delay))}[c](){this[f]()}[f](){clearTimeout(this.mouseDownTimeout),document.removeEventListener("mouseup",this[c],!0),document.removeEventListener("dragstart",this[u],!1),document.removeEventListener("dragover",this[d],!1),document.removeEventListener("dragend",this[g],!1),document.removeEventListener("drop",this[h],!1),this.nativeDraggableElement&&(this.nativeDraggableElement.draggable=!0,this.nativeDraggableElement=null),this.draggableElement&&(this.draggableElement.draggable=!1,this.draggableElement=null)}}t.default=v},function(e,t,r){Object.defineProperty(t,"__esModule",{value:!0});var n,o=r(15),i=(n=o)&&n.__esModule?n:{default:n};t.default=i.default},function(e,t,r){Object.defineProperty(t,"__esModule",{value:!0});var n,o=r(2),i=r(1),s=(n=i)&&n.__esModule?n:{default:n},a=r(0);const l=Symbol("onTouchStart"),c=Symbol("onTouchHold"),u=Symbol("onTouchEnd"),d=Symbol("onTouchMove");let g=!1;window.addEventListener("touchmove",e=>{g&&e.preventDefault()},{passive:!1});class h extends s.default{constructor(e=[],t={}){super(e,t),this.currentScrollableParent=null,this.tapTimeout=null,this.touchMoved=!1,this[l]=this[l].bind(this),this[c]=this[c].bind(this),this[u]=this[u].bind(this),this[d]=this[d].bind(this)}attach(){document.addEventListener("touchstart",this[l])}detach(){document.removeEventListener("touchstart",this[l])}[l](e){const t=(0,o.closest)(e.target,this.containers);t&&(document.addEventListener("touchmove",this[d]),document.addEventListener("touchend",this[u]),document.addEventListener("touchcancel",this[u]),t.addEventListener("contextmenu",f),this.currentContainer=t,this.tapTimeout=setTimeout(this[c](e,t),this.options.delay))}[c](e,t){return()=>{if(this.touchMoved)return;const r=e.touches[0]||e.changedTouches[0],n=e.target,o=new a.DragStartSensorEvent({clientX:r.pageX,clientY:r.pageY,target:n,container:t,originalEvent:e});this.trigger(t,o),this.dragging=!o.canceled(),g=this.dragging}}[d](e){if(this.touchMoved=!0,!this.dragging)return;const t=e.touches[0]||e.changedTouches[0],r=document.elementFromPoint(t.pageX-window.scrollX,t.pageY-window.scrollY),n=new a.DragMoveSensorEvent({clientX:t.pageX,clientY:t.pageY,target:r,container:this.currentContainer,originalEvent:e});this.trigger(this.currentContainer,n)}[u](e){if(this.touchMoved=!1,g=!1,document.removeEventListener("touchend",this[u]),document.removeEventListener("touchcancel",this[u]),document.removeEventListener("touchmove",this[d]),this.currentContainer&&this.currentContainer.removeEventListener("contextmenu",f),clearTimeout(this.tapTimeout),!this.dragging)return;const t=e.touches[0]||e.changedTouches[0],r=document.elementFromPoint(t.pageX-window.scrollX,t.pageY-window.scrollY);e.preventDefault();const n=new a.DragStopSensorEvent({clientX:t.pageX,clientY:t.pageY,target:r,container:this.currentContainer,originalEvent:e});this.trigger(this.currentContainer,n),this.currentContainer=null,this.dragging=!1}}function f(e){e.preventDefault(),e.stopPropagation()}t.default=h},function(e,t,r){Object.defineProperty(t,"__esModule",{value:!0});var n,o=r(17),i=(n=o)&&n.__esModule?n:{default:n};t.default=i.default},function(e,t,r){Object.defineProperty(t,"__esModule",{value:!0}),t.DragPressureSensorEvent=t.DragStopSensorEvent=t.DragMoveSensorEvent=t.DragStartSensorEvent=t.SensorEvent=void 0;var n,o=r(3),i=(n=o)&&n.__esModule?n:{default:n};class s extends i.default{get originalEvent(){return this.data.originalEvent}get clientX(){return this.data.clientX}get clientY(){return this.data.clientY}get target(){return this.data.target}get container(){return this.data.container}get pressure(){return this.data.pressure}}t.SensorEvent=s;class a extends s{}t.DragStartSensorEvent=a,a.type="drag:start";class l extends s{}t.DragMoveSensorEvent=l,l.type="drag:move";class c extends s{}t.DragStopSensorEvent=c,c.type="drag:stop";class u extends s{}t.DragPressureSensorEvent=u,u.type="drag:pressure"},function(e,t,r){Object.defineProperty(t,"__esModule",{value:!0});var n,o=r(2),i=r(1),s=(n=i)&&n.__esModule?n:{default:n},a=r(0);const l=Symbol("onContextMenuWhileDragging"),c=Symbol("onMouseDown"),u=Symbol("onMouseMove"),d=Symbol("onMouseUp");class g extends s.default{constructor(e=[],t={}){super(e,t),this.mouseDown=!1,this.mouseDownTimeout=null,this.openedContextMenu=!1,this[l]=this[l].bind(this),this[c]=this[c].bind(this),this[u]=this[u].bind(this),this[d]=this[d].bind(this)}attach(){document.addEventListener("mousedown",this[c],!0)}detach(){document.removeEventListener("mousedown",this[c],!0)}[c](e){if(0!==e.button||e.ctrlKey||e.metaKey)return;document.addEventListener("mouseup",this[d]);const t=document.elementFromPoint(e.clientX,e.clientY),r=(0,o.closest)(t,this.containers);r&&(document.addEventListener("dragstart",h),this.mouseDown=!0,clearTimeout(this.mouseDownTimeout),this.mouseDownTimeout=setTimeout(()=>{if(!this.mouseDown)return;const n=new a.DragStartSensorEvent({clientX:e.clientX,clientY:e.clientY,target:t,container:r,originalEvent:e});this.trigger(r,n),this.currentContainer=r,this.dragging=!n.canceled(),this.dragging&&(document.addEventListener("contextmenu",this[l]),document.addEventListener("mousemove",this[u]))},this.options.delay))}[u](e){if(!this.dragging)return;const t=document.elementFromPoint(e.clientX,e.clientY),r=new a.DragMoveSensorEvent({clientX:e.clientX,clientY:e.clientY,target:t,container:this.currentContainer,originalEvent:e});this.trigger(this.currentContainer,r)}[d](e){if(this.mouseDown=Boolean(this.openedContextMenu),this.openedContextMenu)return void(this.openedContextMenu=!1);if(document.removeEventListener("mouseup",this[d]),document.removeEventListener("dragstart",h),!this.dragging)return;const t=document.elementFromPoint(e.clientX,e.clientY),r=new a.DragStopSensorEvent({clientX:e.clientX,clientY:e.clientY,target:t,container:this.currentContainer,originalEvent:e});this.trigger(this.currentContainer,r),document.removeEventListener("contextmenu",this[l]),document.removeEventListener("mousemove",this[u]),this.currentContainer=null,this.dragging=!1}[l](e){e.preventDefault(),this.openedContextMenu=!0}}function h(e){e.preventDefault()}t.default=g},function(e,t,r){Object.defineProperty(t,"__esModule",{value:!0});var n,o=r(20),i=(n=o)&&n.__esModule?n:{default:n};t.default=i.default},function(e,t,r){Object.defineProperty(t,"__esModule",{value:!0});var n=Object.assign||function(e){for(var t=1;t<arguments.length;t++){var r=arguments[t];for(var n in r)Object.prototype.hasOwnProperty.call(r,n)&&(e[n]=r[n])}return e};t.default=class{constructor(e=[],t={}){this.containers=[...e],this.options=n({},t),this.dragging=!1,this.currentContainer=null}attach(){return this}detach(){return this}addContainer(...e){this.containers=[...this.containers,...e]}removeContainer(...e){this.containers=this.containers.filter(t=>!e.includes(t))}trigger(e,t){const r=document.createEvent("Event");return r.detail=t,r.initEvent(t.type,!0,!0),e.dispatchEvent(r),this.lastEvent=t,t}}},function(e,t,r){Object.defineProperty(t,"__esModule",{value:!0}),t.default=function(e){return requestAnimationFrame(()=>{requestAnimationFrame(e)})}},function(e,t,r){Object.defineProperty(t,"__esModule",{value:!0});var n,o=r(23),i=(n=o)&&n.__esModule?n:{default:n};t.default=i.default},function(e,t,r){Object.defineProperty(t,"__esModule",{value:!0}),t.default=function(e,t){if(!e)return null;const r=t,o=t,i=t,s=t,a=Boolean("string"==typeof t),l=Boolean("function"==typeof t),c=Boolean(t instanceof NodeList||t instanceof Array),u=Boolean(t instanceof HTMLElement);let d=e;do{if(d=d.correspondingUseElement||d.correspondingElement||d,(g=d)?a?n.call(g,r):c?[...i].includes(g):u?s===g:l&&o(g):g)return d;d=d.parentNode}while(d&&d!==document.body&&d!==document);var g;return null};const n=Element.prototype.matches||Element.prototype.webkitMatchesSelector||Element.prototype.mozMatchesSelector||Element.prototype.msMatchesSelector},function(e,t,r){Object.defineProperty(t,"__esModule",{value:!0});var n,o=r(25),i=(n=o)&&n.__esModule?n:{default:n};t.default=i.default},function(e,t,r){Object.defineProperty(t,"__esModule",{value:!0}),t.defaultOptions=t.scroll=t.onDragStop=t.onDragMove=t.onDragStart=void 0;var n,o=Object.assign||function(e){for(var t=1;t<arguments.length;t++){var r=arguments[t];for(var n in r)Object.prototype.hasOwnProperty.call(r,n)&&(e[n]=r[n])}return e},i=r(4),s=(n=i)&&n.__esModule?n:{default:n},a=r(2);const l=t.onDragStart=Symbol("onDragStart"),c=t.onDragMove=Symbol("onDragMove"),u=t.onDragStop=Symbol("onDragStop"),d=t.scroll=Symbol("scroll"),g=t.defaultOptions={speed:6,sensitivity:50,scrollableElements:[]};class h extends s.default{constructor(e){super(e),this.options=o({},g,this.getOptions()),this.currentMousePosition=null,this.scrollAnimationFrame=null,this.scrollableElement=null,this.findScrollableElementFrame=null,this[l]=this[l].bind(this),this[c]=this[c].bind(this),this[u]=this[u].bind(this),this[d]=this[d].bind(this)}attach(){this.draggable.on("drag:start",this[l]).on("drag:move",this[c]).on("drag:stop",this[u])}detach(){this.draggable.off("drag:start",this[l]).off("drag:move",this[c]).off("drag:stop",this[u])}getOptions(){return this.draggable.options.scrollable||{}}getScrollableElement(e){return this.hasDefinedScrollableElements()?(0,a.closest)(e,this.options.scrollableElements)||document.documentElement:function(e){if(!e)return f();const t=getComputedStyle(e).getPropertyValue("position"),r="absolute"===t,n=(0,a.closest)(e,e=>(!r||!function(e){return"static"===getComputedStyle(e).getPropertyValue("position")}(e))&&function(e){const t=getComputedStyle(e,null),r=t.getPropertyValue("overflow")+t.getPropertyValue("overflow-y")+t.getPropertyValue("overflow-x");return/(auto|scroll)/.test(r)}(e));return"fixed"!==t&&n?n:f()}(e)}hasDefinedScrollableElements(){return Boolean(0!==this.options.scrollableElements.length)}[l](e){this.findScrollableElementFrame=requestAnimationFrame(()=>{this.scrollableElement=this.getScrollableElement(e.source)})}[c](e){if(this.findScrollableElementFrame=requestAnimationFrame(()=>{this.scrollableElement=this.getScrollableElement(e.sensorEvent.target)}),!this.scrollableElement)return;const t=e.sensorEvent,r={x:0,y:0};"ontouchstart"in window&&(r.y=window.pageYOffset||document.documentElement.scrollTop||document.body.scrollTop||0,r.x=window.pageXOffset||document.documentElement.scrollLeft||document.body.scrollLeft||0),this.currentMousePosition={clientX:t.clientX-r.x,clientY:t.clientY-r.y},this.scrollAnimationFrame=requestAnimationFrame(this[d])}[u](){cancelAnimationFrame(this.scrollAnimationFrame),cancelAnimationFrame(this.findScrollableElementFrame),this.scrollableElement=null,this.scrollAnimationFrame=null,this.findScrollableElementFrame=null,this.currentMousePosition=null}[d](){if(!this.scrollableElement||!this.currentMousePosition)return;cancelAnimationFrame(this.scrollAnimationFrame);const{speed:e,sensitivity:t}=this.options,r=this.scrollableElement.getBoundingClientRect(),n=r.bottom>window.innerHeight,o=r.top<0||n,i=f(),s=this.scrollableElement,a=this.currentMousePosition.clientX,l=this.currentMousePosition.clientY;if(s===document.body||s===document.documentElement||o){const{innerHeight:r,innerWidth:n}=window;l<t?i.scrollTop-=e:r-l<t&&(i.scrollTop+=e),a<t?i.scrollLeft-=e:n-a<t&&(i.scrollLeft+=e)}else{const{offsetHeight:n,offsetWidth:o}=s;r.top+n-l<t?s.scrollTop+=e:l-r.top<t&&(s.scrollTop-=e),r.left+o-a<t?s.scrollLeft+=e:a-r.left<t&&(s.scrollLeft-=e)}this.scrollAnimationFrame=requestAnimationFrame(this[d])}}function f(){return document.scrollingElement||document.documentElement}t.default=h},function(e,t,r){Object.defineProperty(t,"__esModule",{value:!0}),t.defaultOptions=void 0;var n,o=r(27),i=(n=o)&&n.__esModule?n:{default:n};t.default=i.default,t.defaultOptions=o.defaultOptions},function(e,t,r){Object.defineProperty(t,"__esModule",{value:!0}),t.MirrorDestroyEvent=t.MirrorMoveEvent=t.MirrorAttachedEvent=t.MirrorCreatedEvent=t.MirrorCreateEvent=t.MirrorEvent=void 0;var n,o=r(3),i=(n=o)&&n.__esModule?n:{default:n};class s extends i.default{get source(){return this.data.source}get originalSource(){return this.data.originalSource}get sourceContainer(){return this.data.sourceContainer}get sensorEvent(){return this.data.sensorEvent}get dragEvent(){return this.data.dragEvent}get originalEvent(){return this.sensorEvent?this.sensorEvent.originalEvent:null}}t.MirrorEvent=s;class a extends s{}t.MirrorCreateEvent=a,a.type="mirror:create";class l extends s{get mirror(){return this.data.mirror}}t.MirrorCreatedEvent=l,l.type="mirror:created";class c extends s{get mirror(){return this.data.mirror}}t.MirrorAttachedEvent=c,c.type="mirror:attached";class u extends s{get mirror(){return this.data.mirror}}t.MirrorMoveEvent=u,u.type="mirror:move",u.cancelable=!0;class d extends s{get mirror(){return this.data.mirror}}t.MirrorDestroyEvent=d,d.type="mirror:destroy",d.cancelable=!0},function(e,t,r){Object.defineProperty(t,"__esModule",{value:!0});var n=r(29);Object.keys(n).forEach((function(e){"default"!==e&&"__esModule"!==e&&Object.defineProperty(t,e,{enumerable:!0,get:function(){return n[e]}})}))},function(e,t,r){Object.defineProperty(t,"__esModule",{value:!0}),t.defaultOptions=t.getAppendableContainer=t.onScroll=t.onMirrorMove=t.onMirrorCreated=t.onDragStop=t.onDragMove=t.onDragStart=void 0;var n,o=Object.assign||function(e){for(var t=1;t<arguments.length;t++){var r=arguments[t];for(var n in r)Object.prototype.hasOwnProperty.call(r,n)&&(e[n]=r[n])}return e},i=r(4),s=(n=i)&&n.__esModule?n:{default:n},a=r(30);function l(e,t){var r={};for(var n in e)t.indexOf(n)>=0||Object.prototype.hasOwnProperty.call(e,n)&&(r[n]=e[n]);return r}const c=t.onDragStart=Symbol("onDragStart"),u=t.onDragMove=Symbol("onDragMove"),d=t.onDragStop=Symbol("onDragStop"),g=t.onMirrorCreated=Symbol("onMirrorCreated"),h=t.onMirrorMove=Symbol("onMirrorMove"),f=t.onScroll=Symbol("onScroll"),v=t.getAppendableContainer=Symbol("getAppendableContainer"),m=t.defaultOptions={constrainDimensions:!1,xAxis:!0,yAxis:!0,cursorOffsetX:null,cursorOffsetY:null};class p extends s.default{constructor(e){super(e),this.options=o({},m,this.getOptions()),this.scrollOffset={x:0,y:0},this.initialScrollOffset={x:window.scrollX,y:window.scrollY},this[c]=this[c].bind(this),this[u]=this[u].bind(this),this[d]=this[d].bind(this),this[g]=this[g].bind(this),this[h]=this[h].bind(this),this[f]=this[f].bind(this)}attach(){this.draggable.on("drag:start",this[c]).on("drag:move",this[u]).on("drag:stop",this[d]).on("mirror:created",this[g]).on("mirror:move",this[h])}detach(){this.draggable.off("drag:start",this[c]).off("drag:move",this[u]).off("drag:stop",this[d]).off("mirror:created",this[g]).off("mirror:move",this[h])}getOptions(){return this.draggable.options.mirror||{}}[c](e){if(e.canceled())return;"ontouchstart"in window&&document.addEventListener("scroll",this[f],!0),this.initialScrollOffset={x:window.scrollX,y:window.scrollY};const{source:t,originalSource:r,sourceContainer:n,sensorEvent:o}=e,i=new a.MirrorCreateEvent({source:t,originalSource:r,sourceContainer:n,sensorEvent:o,dragEvent:e});if(this.draggable.trigger(i),function(e){return/^drag/.test(e.originalEvent.type)}(o)||i.canceled())return;const s=this[v](t)||n;this.mirror=t.cloneNode(!0);const l=new a.MirrorCreatedEvent({source:t,originalSource:r,sourceContainer:n,sensorEvent:o,dragEvent:e,mirror:this.mirror}),c=new a.MirrorAttachedEvent({source:t,originalSource:r,sourceContainer:n,sensorEvent:o,dragEvent:e,mirror:this.mirror});this.draggable.trigger(l),s.appendChild(this.mirror),this.draggable.trigger(c)}[u](e){if(!this.mirror||e.canceled())return;const{source:t,originalSource:r,sourceContainer:n,sensorEvent:o}=e,i=new a.MirrorMoveEvent({source:t,originalSource:r,sourceContainer:n,sensorEvent:o,dragEvent:e,mirror:this.mirror});this.draggable.trigger(i)}[d](e){if("ontouchstart"in window&&document.removeEventListener("scroll",this[f],!0),this.initialScrollOffset={x:0,y:0},this.scrollOffset={x:0,y:0},!this.mirror)return;const{source:t,sourceContainer:r,sensorEvent:n}=e,o=new a.MirrorDestroyEvent({source:t,mirror:this.mirror,sourceContainer:r,sensorEvent:n,dragEvent:e});this.draggable.trigger(o),o.canceled()||this.mirror.parentNode.removeChild(this.mirror)}[f](){this.scrollOffset={x:window.scrollX-this.initialScrollOffset.x,y:window.scrollY-this.initialScrollOffset.y}}[g]({mirror:e,source:t,sensorEvent:r}){const n={mirror:e,source:t,sensorEvent:r,mirrorClass:this.draggable.getClassNameFor("mirror"),scrollOffset:this.scrollOffset,options:this.options};return Promise.resolve(n).then(b).then(E).then(y).then(S).then(C({initial:!0})).then(O).then(e=>{let{mirrorOffset:t,initialX:r,initialY:n}=e,i=l(e,["mirrorOffset","initialX","initialY"]);return this.mirrorOffset=t,this.initialX=r,this.initialY=n,o({mirrorOffset:t,initialX:r,initialY:n},i)})}[h](e){if(e.canceled())return null;const t={mirror:e.mirror,sensorEvent:e.sensorEvent,mirrorOffset:this.mirrorOffset,options:this.options,initialX:this.initialX,initialY:this.initialY,scrollOffset:this.scrollOffset};return Promise.resolve(t).then(C({raf:!0}))}[v](e){const t=this.options.appendTo;return"string"==typeof t?document.querySelector(t):t instanceof HTMLElement?t:"function"==typeof t?t(e):e.parentNode}}function b(e){let{source:t}=e,r=l(e,["source"]);return w(e=>{const n=t.getBoundingClientRect();e(o({source:t,sourceRect:n},r))})}function E(e){let{sensorEvent:t,sourceRect:r,options:n}=e,i=l(e,["sensorEvent","sourceRect","options"]);return w(e=>{const s=null===n.cursorOffsetY?t.clientY-r.top:n.cursorOffsetY,a=null===n.cursorOffsetX?t.clientX-r.left:n.cursorOffsetX;e(o({sensorEvent:t,sourceRect:r,mirrorOffset:{top:s,left:a},options:n},i))})}function y(e){let{mirror:t,source:r,options:n}=e,i=l(e,["mirror","source","options"]);return w(e=>{let s,a;if(n.constrainDimensions){const e=getComputedStyle(r);s=e.getPropertyValue("height"),a=e.getPropertyValue("width")}t.style.position="fixed",t.style.pointerEvents="none",t.style.top=0,t.style.left=0,t.style.margin=0,n.constrainDimensions&&(t.style.height=s,t.style.width=a),e(o({mirror:t,source:r,options:n},i))})}function S(e){let{mirror:t,mirrorClass:r}=e,n=l(e,["mirror","mirrorClass"]);return w(e=>{t.classList.add(r),e(o({mirror:t,mirrorClass:r},n))})}function O(e){let{mirror:t}=e,r=l(e,["mirror"]);return w(e=>{t.removeAttribute("id"),delete t.id,e(o({mirror:t},r))})}function C({withFrame:e=!1,initial:t=!1}={}){return r=>{let{mirror:n,sensorEvent:i,mirrorOffset:s,initialY:a,initialX:c,scrollOffset:u,options:d}=r,g=l(r,["mirror","sensorEvent","mirrorOffset","initialY","initialX","scrollOffset","options"]);return w(e=>{const r=o({mirror:n,sensorEvent:i,mirrorOffset:s,options:d},g);if(s){const e=i.clientX-s.left-u.x,o=i.clientY-s.top-u.y;d.xAxis&&d.yAxis||t?n.style.transform=`translate3d(${e}px, ${o}px, 0)`:d.xAxis&&!d.yAxis?n.style.transform=`translate3d(${e}px, ${a}px, 0)`:d.yAxis&&!d.xAxis&&(n.style.transform=`translate3d(${c}px, ${o}px, 0)`),t&&(r.initialX=e,r.initialY=o)}e(r)},{frame:e})}}function w(e,{raf:t=!1}={}){return new Promise((r,n)=>{t?requestAnimationFrame(()=>{e(r,n)}):e(r,n)})}t.default=p},function(e,t,r){Object.defineProperty(t,"__esModule",{value:!0}),t.defaultOptions=void 0;var n,o=r(31),i=(n=o)&&n.__esModule?n:{default:n};t.default=i.default,t.defaultOptions=o.defaultOptions},function(e,t,r){Object.defineProperty(t,"__esModule",{value:!0});var n,o=Object.assign||function(e){for(var t=1;t<arguments.length;t++){var r=arguments[t];for(var n in r)Object.prototype.hasOwnProperty.call(r,n)&&(e[n]=r[n])}return e},i=r(4),s=(n=i)&&n.__esModule?n:{default:n};const a=Symbol("onInitialize"),l=Symbol("onDestroy"),c={};class u extends s.default{constructor(e){super(e),this.options=o({},c,this.getOptions()),this[a]=this[a].bind(this),this[l]=this[l].bind(this)}attach(){this.draggable.on("draggable:initialize",this[a]).on("draggable:destroy",this[l])}detach(){this.draggable.off("draggable:initialize",this[a]).off("draggable:destroy",this[l])}getOptions(){return this.draggable.options.focusable||{}}getElements(){return[...this.draggable.containers,...this.draggable.getDraggableElements()]}[a](){requestAnimationFrame(()=>{this.getElements().forEach(e=>function(e){Boolean(!e.getAttribute("tabindex")&&-1===e.tabIndex)&&(d.push(e),e.tabIndex=0)}(e))})}[l](){requestAnimationFrame(()=>{this.getElements().forEach(e=>function(e){const t=d.indexOf(e);-1!==t&&(e.tabIndex=-1,d.splice(t,1))}(e))})}}t.default=u;const d=[]},function(e,t,r){Object.defineProperty(t,"__esModule",{value:!0});var n,o=r(33),i=(n=o)&&n.__esModule?n:{default:n};t.default=i.default},function(e,t,r){Object.defineProperty(t,"__esModule",{value:!0}),t.default=class{constructor(e){this.draggable=e}attach(){throw new Error("Not Implemented")}detach(){throw new Error("Not Implemented")}}},function(e,t,r){Object.defineProperty(t,"__esModule",{value:!0}),t.defaultOptions=void 0;var n,o=Object.assign||function(e){for(var t=1;t<arguments.length;t++){var r=arguments[t];for(var n in r)Object.prototype.hasOwnProperty.call(r,n)&&(e[n]=r[n])}return e},i=r(4),s=(n=i)&&n.__esModule?n:{default:n};const a=Symbol("onInitialize"),l=Symbol("onDestroy"),c=Symbol("announceEvent"),u=Symbol("announceMessage"),d=t.defaultOptions={expire:7e3};class g extends s.default{constructor(e){super(e),this.options=o({},d,this.getOptions()),this.originalTriggerMethod=this.draggable.trigger,this[a]=this[a].bind(this),this[l]=this[l].bind(this)}attach(){this.draggable.on("draggable:initialize",this[a])}detach(){this.draggable.off("draggable:destroy",this[l])}getOptions(){return this.draggable.options.announcements||{}}[c](e){const t=this.options[e.type];t&&"string"==typeof t&&this[u](t),t&&"function"==typeof t&&this[u](t(e))}[u](e){!function(e,{expire:t}){const r=document.createElement("div");r.textContent=e,h.appendChild(r),setTimeout(()=>{h.removeChild(r)},t)}(e,{expire:this.options.expire})}[a](){this.draggable.trigger=e=>{try{this[c](e)}finally{this.originalTriggerMethod.call(this.draggable,e)}}}[l](){this.draggable.trigger=this.originalTriggerMethod}}t.default=g;const h=function(){const e=document.createElement("div");return e.setAttribute("id","draggable-live-region"),e.setAttribute("aria-relevant","additions"),e.setAttribute("aria-atomic","true"),e.setAttribute("aria-live","assertive"),e.setAttribute("role","log"),e.style.position="fixed",e.style.width="1px",e.style.height="1px",e.style.top="-1px",e.style.overflow="hidden",e}();document.addEventListener("DOMContentLoaded",()=>{document.body.appendChild(h)})},function(e,t,r){Object.defineProperty(t,"__esModule",{value:!0}),t.defaultOptions=void 0;var n,o=r(36),i=(n=o)&&n.__esModule?n:{default:n};t.default=i.default,t.defaultOptions=o.defaultOptions},function(e,t,r){Object.defineProperty(t,"__esModule",{value:!0}),t.DraggableDestroyEvent=t.DraggableInitializedEvent=t.DraggableEvent=void 0;var n,o=r(3),i=(n=o)&&n.__esModule?n:{default:n};class s extends i.default{get draggable(){return this.data.draggable}}t.DraggableEvent=s,s.type="draggable";class a extends s{}t.DraggableInitializedEvent=a,a.type="draggable:initialize";class l extends s{}t.DraggableDestroyEvent=l,l.type="draggable:destroy"},function(e,t,r){Object.defineProperty(t,"__esModule",{value:!0}),t.DragStopEvent=t.DragPressureEvent=t.DragOutContainerEvent=t.DragOverContainerEvent=t.DragOutEvent=t.DragOverEvent=t.DragMoveEvent=t.DragStartEvent=t.DragEvent=void 0;var n,o=r(3),i=(n=o)&&n.__esModule?n:{default:n};class s extends i.default{get source(){return this.data.source}get originalSource(){return this.data.originalSource}get mirror(){return this.data.mirror}get sourceContainer(){return this.data.sourceContainer}get sensorEvent(){return this.data.sensorEvent}get originalEvent(){return this.sensorEvent?this.sensorEvent.originalEvent:null}}t.DragEvent=s,s.type="drag";class a extends s{}t.DragStartEvent=a,a.type="drag:start",a.cancelable=!0;class l extends s{}t.DragMoveEvent=l,l.type="drag:move";class c extends s{get overContainer(){return this.data.overContainer}get over(){return this.data.over}}t.DragOverEvent=c,c.type="drag:over",c.cancelable=!0;class u extends s{get overContainer(){return this.data.overContainer}get over(){return this.data.over}}t.DragOutEvent=u,u.type="drag:out";class d extends s{get overContainer(){return this.data.overContainer}}t.DragOverContainerEvent=d,d.type="drag:over:container";class g extends s{get overContainer(){return this.data.overContainer}}t.DragOutContainerEvent=g,g.type="drag:out:container";class h extends s{get pressure(){return this.data.pressure}}t.DragPressureEvent=h,h.type="drag:pressure";class f extends s{}t.DragStopEvent=f,f.type="drag:stop"},function(e,t,r){Object.defineProperty(t,"__esModule",{value:!0});var n=r(8);Object.keys(n).forEach((function(e){"default"!==e&&"__esModule"!==e&&Object.defineProperty(t,e,{enumerable:!0,get:function(){return n[e]}})}));var o=r(7);Object.keys(o).forEach((function(e){"default"!==e&&"__esModule"!==e&&Object.defineProperty(t,e,{enumerable:!0,get:function(){return o[e]}})}));var i=r(6);Object.keys(i).forEach((function(e){"default"!==e&&"__esModule"!==e&&Object.defineProperty(t,e,{enumerable:!0,get:function(){return i[e]}})}));var s=r(5);Object.keys(s).forEach((function(e){"default"!==e&&"__esModule"!==e&&Object.defineProperty(t,e,{enumerable:!0,get:function(){return s[e]}})}));var a,l=r(12),c=(a=l)&&a.__esModule?a:{default:a};t.default=c.default},function(e,t,r){Object.defineProperty(t,"__esModule",{value:!0});var n,o=Object.assign||function(e){for(var t=1;t<arguments.length;t++){var r=arguments[t];for(var n in r)Object.prototype.hasOwnProperty.call(r,n)&&(e[n]=r[n])}return e},i=r(40),s=(n=i)&&n.__esModule?n:{default:n},a=r(9);const l=Symbol("onDragStart"),c=Symbol("onDragOverContainer"),u=Symbol("onDragOver"),d=Symbol("onDragStop"),g={"sortable:sorted":function({dragEvent:e}){const t=e.source.textContent.trim()||e.source.id||"sortable element";if(e.over){const r=e.over.textContent.trim()||e.over.id||"sortable element";return e.source.compareDocumentPosition(e.over)&Node.DOCUMENT_POSITION_FOLLOWING?`Placed ${t} after ${r}`:`Placed ${t} before ${r}`}return`Placed ${t} into a different container`}};class h extends s.default{constructor(e=[],t={}){super(e,o({},t,{announcements:o({},g,t.announcements||{})})),this.startIndex=null,this.startContainer=null,this[l]=this[l].bind(this),this[c]=this[c].bind(this),this[u]=this[u].bind(this),this[d]=this[d].bind(this),this.on("drag:start",this[l]).on("drag:over:container",this[c]).on("drag:over",this[u]).on("drag:stop",this[d])}destroy(){super.destroy(),this.off("drag:start",this[l]).off("drag:over:container",this[c]).off("drag:over",this[u]).off("drag:stop",this[d])}index(e){return this.getDraggableElementsForContainer(e.parentNode).indexOf(e)}[l](e){this.startContainer=e.source.parentNode,this.startIndex=this.index(e.source);const t=new a.SortableStartEvent({dragEvent:e,startIndex:this.startIndex,startContainer:this.startContainer});this.trigger(t),t.canceled()&&e.cancel()}[c](e){if(e.canceled())return;const{source:t,over:r,overContainer:n}=e,o=this.index(t),i=new a.SortableSortEvent({dragEvent:e,currentIndex:o,source:t,over:r});if(this.trigger(i),i.canceled())return;const s=v({source:t,over:r,overContainer:n,children:this.getDraggableElementsForContainer(n)});if(!s)return;const{oldContainer:l,newContainer:c}=s,u=this.index(e.source),d=new a.SortableSortedEvent({dragEvent:e,oldIndex:o,newIndex:u,oldContainer:l,newContainer:c});this.trigger(d)}[u](e){if(e.over===e.originalSource||e.over===e.source)return;const{source:t,over:r,overContainer:n}=e,o=this.index(t),i=new a.SortableSortEvent({dragEvent:e,currentIndex:o,source:t,over:r});if(this.trigger(i),i.canceled())return;const s=v({source:t,over:r,overContainer:n,children:this.getDraggableElementsForContainer(n)});if(!s)return;const{oldContainer:l,newContainer:c}=s,u=this.index(t),d=new a.SortableSortedEvent({dragEvent:e,oldIndex:o,newIndex:u,oldContainer:l,newContainer:c});this.trigger(d)}[d](e){const t=new a.SortableStopEvent({dragEvent:e,oldIndex:this.startIndex,newIndex:this.index(e.source),oldContainer:this.startContainer,newContainer:e.source.parentNode});this.trigger(t),this.startIndex=null,this.startContainer=null}}function f(e){return Array.prototype.indexOf.call(e.parentNode.children,e)}function v({source:e,over:t,overContainer:r,children:n}){const o=!n.length,i=e.parentNode!==r,s=t&&!i;return o?function(e,t){const r=e.parentNode;return t.appendChild(e),{oldContainer:r,newContainer:t}}(e,r):s?function(e,t){const r=f(e),n=f(t);return r<n?e.parentNode.insertBefore(e,t.nextElementSibling):e.parentNode.insertBefore(e,t),{oldContainer:e.parentNode,newContainer:e.parentNode}}(e,t):i?function(e,t,r){const n=e.parentNode;return t?t.parentNode.insertBefore(e,t):r.appendChild(e),{oldContainer:n,newContainer:e.parentNode}}(e,t,r):null}t.default=h},function(e,t,r){Object.defineProperty(t,"__esModule",{value:!0});var n=Object.assign||function(e){for(var t=1;t<arguments.length;t++){var r=arguments[t];for(var n in r)Object.prototype.hasOwnProperty.call(r,n)&&(e[n]=r[n])}return e};const o=Symbol("canceled");class i{constructor(e){this[o]=!1,this.data=e}get type(){return this.constructor.type}get cancelable(){return this.constructor.cancelable}cancel(){this[o]=!0}canceled(){return Boolean(this[o])}clone(e){return new this.constructor(n({},this.data,e))}}t.default=i,i.type="event",i.cancelable=!1},function(e,t,r){Object.defineProperty(t,"__esModule",{value:!0}),t.SortableStopEvent=t.SortableSortedEvent=t.SortableSortEvent=t.SortableStartEvent=t.SortableEvent=void 0;var n,o=r(3),i=(n=o)&&n.__esModule?n:{default:n};class s extends i.default{get dragEvent(){return this.data.dragEvent}}t.SortableEvent=s,s.type="sortable";class a extends s{get startIndex(){return this.data.startIndex}get startContainer(){return this.data.startContainer}}t.SortableStartEvent=a,a.type="sortable:start",a.cancelable=!0;class l extends s{get currentIndex(){return this.data.currentIndex}get over(){return this.data.oldIndex}get overContainer(){return this.data.newIndex}}t.SortableSortEvent=l,l.type="sortable:sort",l.cancelable=!0;class c extends s{get oldIndex(){return this.data.oldIndex}get newIndex(){return this.data.newIndex}get oldContainer(){return this.data.oldContainer}get newContainer(){return this.data.newContainer}}t.SortableSortedEvent=c,c.type="sortable:sorted";class u extends s{get oldIndex(){return this.data.oldIndex}get newIndex(){return this.data.newIndex}get oldContainer(){return this.data.oldContainer}get newContainer(){return this.data.newContainer}}t.SortableStopEvent=u,u.type="sortable:stop"},function(e,t,r){Object.defineProperty(t,"__esModule",{value:!0});var n=r(9);Object.keys(n).forEach((function(e){"default"!==e&&"__esModule"!==e&&Object.defineProperty(t,e,{enumerable:!0,get:function(){return n[e]}})}));var o,i=r(41),s=(o=i)&&o.__esModule?o:{default:o};t.default=s.default}])},e.exports=r()})),r=(e=t)&&e.__esModule&&Object.prototype.hasOwnProperty.call(e,"default")?e.default:e;if(void 0===window.livewire)throw"Livewire Sortable Plugin: window.livewire is undefined. Make sure @livewireScripts is placed above this script include";window.livewire.directive("sortable-group",(e,t,n)=>{if(t.modifiers.includes("item-group")&&e.closest("[wire\\:sortable-group]").livewire_sortable.addContainer(e),t.modifiers.length>0)return;let o={draggable:"[wire\\:sortable-group\\.item]"};e.querySelector("[wire\\:sortable-group\\.handle]")&&(o.handle="[wire\\:sortable-group\\.handle]"),(e.livewire_sortable=new r([],o)).on("sortable:stop",()=>{setTimeout(()=>{let r=[];e.querySelectorAll("[wire\\:sortable-group\\.item-group]").forEach((e,t)=>{let n=[];e.querySelectorAll("[wire\\:sortable-group\\.item]").forEach((e,t)=>{n.push({order:t+1,value:e.getAttribute("wire:sortable-group.item")})}),r.push({order:t+1,value:e.getAttribute("wire:sortable-group.item-group"),items:n})}),n.call(t.method,r)},1)})}),window.livewire.directive("sortable",(e,t,n)=>{if(t.modifiers.length>0)return;let o={draggable:"[wire\\:sortable\\.item]"};e.querySelector("[wire\\:sortable\\.handle]")&&(o.handle="[wire\\:sortable\\.handle]"),new r(e,o).on("sortable:stop",()=>{setTimeout(()=>{let r=[];e.querySelectorAll("[wire\\:sortable\\.item]").forEach((e,t)=>{r.push({order:t+1,value:e.getAttribute("wire:sortable.item")})}),n.call(t.method,r)},1)})})}));
-//# sourceMappingURL=livewire-sortable.js.map
 
 
 /***/ }),
@@ -70465,6 +67455,3808 @@ try {
     Function("r", "regeneratorRuntime = r")(runtime);
   }
 }
+
+
+/***/ }),
+
+/***/ "./node_modules/sortablejs/modular/sortable.esm.js":
+/*!*********************************************************!*\
+  !*** ./node_modules/sortablejs/modular/sortable.esm.js ***!
+  \*********************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__),
+/* harmony export */   "MultiDrag": () => (/* binding */ MultiDragPlugin),
+/* harmony export */   "Sortable": () => (/* binding */ Sortable),
+/* harmony export */   "Swap": () => (/* binding */ SwapPlugin)
+/* harmony export */ });
+/**!
+ * Sortable 1.15.0
+ * @author	RubaXa   <trash@rubaxa.org>
+ * @author	owenm    <owen23355@gmail.com>
+ * @license MIT
+ */
+function ownKeys(object, enumerableOnly) {
+  var keys = Object.keys(object);
+
+  if (Object.getOwnPropertySymbols) {
+    var symbols = Object.getOwnPropertySymbols(object);
+
+    if (enumerableOnly) {
+      symbols = symbols.filter(function (sym) {
+        return Object.getOwnPropertyDescriptor(object, sym).enumerable;
+      });
+    }
+
+    keys.push.apply(keys, symbols);
+  }
+
+  return keys;
+}
+
+function _objectSpread2(target) {
+  for (var i = 1; i < arguments.length; i++) {
+    var source = arguments[i] != null ? arguments[i] : {};
+
+    if (i % 2) {
+      ownKeys(Object(source), true).forEach(function (key) {
+        _defineProperty(target, key, source[key]);
+      });
+    } else if (Object.getOwnPropertyDescriptors) {
+      Object.defineProperties(target, Object.getOwnPropertyDescriptors(source));
+    } else {
+      ownKeys(Object(source)).forEach(function (key) {
+        Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key));
+      });
+    }
+  }
+
+  return target;
+}
+
+function _typeof(obj) {
+  "@babel/helpers - typeof";
+
+  if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") {
+    _typeof = function (obj) {
+      return typeof obj;
+    };
+  } else {
+    _typeof = function (obj) {
+      return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj;
+    };
+  }
+
+  return _typeof(obj);
+}
+
+function _defineProperty(obj, key, value) {
+  if (key in obj) {
+    Object.defineProperty(obj, key, {
+      value: value,
+      enumerable: true,
+      configurable: true,
+      writable: true
+    });
+  } else {
+    obj[key] = value;
+  }
+
+  return obj;
+}
+
+function _extends() {
+  _extends = Object.assign || function (target) {
+    for (var i = 1; i < arguments.length; i++) {
+      var source = arguments[i];
+
+      for (var key in source) {
+        if (Object.prototype.hasOwnProperty.call(source, key)) {
+          target[key] = source[key];
+        }
+      }
+    }
+
+    return target;
+  };
+
+  return _extends.apply(this, arguments);
+}
+
+function _objectWithoutPropertiesLoose(source, excluded) {
+  if (source == null) return {};
+  var target = {};
+  var sourceKeys = Object.keys(source);
+  var key, i;
+
+  for (i = 0; i < sourceKeys.length; i++) {
+    key = sourceKeys[i];
+    if (excluded.indexOf(key) >= 0) continue;
+    target[key] = source[key];
+  }
+
+  return target;
+}
+
+function _objectWithoutProperties(source, excluded) {
+  if (source == null) return {};
+
+  var target = _objectWithoutPropertiesLoose(source, excluded);
+
+  var key, i;
+
+  if (Object.getOwnPropertySymbols) {
+    var sourceSymbolKeys = Object.getOwnPropertySymbols(source);
+
+    for (i = 0; i < sourceSymbolKeys.length; i++) {
+      key = sourceSymbolKeys[i];
+      if (excluded.indexOf(key) >= 0) continue;
+      if (!Object.prototype.propertyIsEnumerable.call(source, key)) continue;
+      target[key] = source[key];
+    }
+  }
+
+  return target;
+}
+
+function _toConsumableArray(arr) {
+  return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _unsupportedIterableToArray(arr) || _nonIterableSpread();
+}
+
+function _arrayWithoutHoles(arr) {
+  if (Array.isArray(arr)) return _arrayLikeToArray(arr);
+}
+
+function _iterableToArray(iter) {
+  if (typeof Symbol !== "undefined" && iter[Symbol.iterator] != null || iter["@@iterator"] != null) return Array.from(iter);
+}
+
+function _unsupportedIterableToArray(o, minLen) {
+  if (!o) return;
+  if (typeof o === "string") return _arrayLikeToArray(o, minLen);
+  var n = Object.prototype.toString.call(o).slice(8, -1);
+  if (n === "Object" && o.constructor) n = o.constructor.name;
+  if (n === "Map" || n === "Set") return Array.from(o);
+  if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen);
+}
+
+function _arrayLikeToArray(arr, len) {
+  if (len == null || len > arr.length) len = arr.length;
+
+  for (var i = 0, arr2 = new Array(len); i < len; i++) arr2[i] = arr[i];
+
+  return arr2;
+}
+
+function _nonIterableSpread() {
+  throw new TypeError("Invalid attempt to spread non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method.");
+}
+
+var version = "1.15.0";
+
+function userAgent(pattern) {
+  if (typeof window !== 'undefined' && window.navigator) {
+    return !! /*@__PURE__*/navigator.userAgent.match(pattern);
+  }
+}
+
+var IE11OrLess = userAgent(/(?:Trident.*rv[ :]?11\.|msie|iemobile|Windows Phone)/i);
+var Edge = userAgent(/Edge/i);
+var FireFox = userAgent(/firefox/i);
+var Safari = userAgent(/safari/i) && !userAgent(/chrome/i) && !userAgent(/android/i);
+var IOS = userAgent(/iP(ad|od|hone)/i);
+var ChromeForAndroid = userAgent(/chrome/i) && userAgent(/android/i);
+
+var captureMode = {
+  capture: false,
+  passive: false
+};
+
+function on(el, event, fn) {
+  el.addEventListener(event, fn, !IE11OrLess && captureMode);
+}
+
+function off(el, event, fn) {
+  el.removeEventListener(event, fn, !IE11OrLess && captureMode);
+}
+
+function matches(
+/**HTMLElement*/
+el,
+/**String*/
+selector) {
+  if (!selector) return;
+  selector[0] === '>' && (selector = selector.substring(1));
+
+  if (el) {
+    try {
+      if (el.matches) {
+        return el.matches(selector);
+      } else if (el.msMatchesSelector) {
+        return el.msMatchesSelector(selector);
+      } else if (el.webkitMatchesSelector) {
+        return el.webkitMatchesSelector(selector);
+      }
+    } catch (_) {
+      return false;
+    }
+  }
+
+  return false;
+}
+
+function getParentOrHost(el) {
+  return el.host && el !== document && el.host.nodeType ? el.host : el.parentNode;
+}
+
+function closest(
+/**HTMLElement*/
+el,
+/**String*/
+selector,
+/**HTMLElement*/
+ctx, includeCTX) {
+  if (el) {
+    ctx = ctx || document;
+
+    do {
+      if (selector != null && (selector[0] === '>' ? el.parentNode === ctx && matches(el, selector) : matches(el, selector)) || includeCTX && el === ctx) {
+        return el;
+      }
+
+      if (el === ctx) break;
+      /* jshint boss:true */
+    } while (el = getParentOrHost(el));
+  }
+
+  return null;
+}
+
+var R_SPACE = /\s+/g;
+
+function toggleClass(el, name, state) {
+  if (el && name) {
+    if (el.classList) {
+      el.classList[state ? 'add' : 'remove'](name);
+    } else {
+      var className = (' ' + el.className + ' ').replace(R_SPACE, ' ').replace(' ' + name + ' ', ' ');
+      el.className = (className + (state ? ' ' + name : '')).replace(R_SPACE, ' ');
+    }
+  }
+}
+
+function css(el, prop, val) {
+  var style = el && el.style;
+
+  if (style) {
+    if (val === void 0) {
+      if (document.defaultView && document.defaultView.getComputedStyle) {
+        val = document.defaultView.getComputedStyle(el, '');
+      } else if (el.currentStyle) {
+        val = el.currentStyle;
+      }
+
+      return prop === void 0 ? val : val[prop];
+    } else {
+      if (!(prop in style) && prop.indexOf('webkit') === -1) {
+        prop = '-webkit-' + prop;
+      }
+
+      style[prop] = val + (typeof val === 'string' ? '' : 'px');
+    }
+  }
+}
+
+function matrix(el, selfOnly) {
+  var appliedTransforms = '';
+
+  if (typeof el === 'string') {
+    appliedTransforms = el;
+  } else {
+    do {
+      var transform = css(el, 'transform');
+
+      if (transform && transform !== 'none') {
+        appliedTransforms = transform + ' ' + appliedTransforms;
+      }
+      /* jshint boss:true */
+
+    } while (!selfOnly && (el = el.parentNode));
+  }
+
+  var matrixFn = window.DOMMatrix || window.WebKitCSSMatrix || window.CSSMatrix || window.MSCSSMatrix;
+  /*jshint -W056 */
+
+  return matrixFn && new matrixFn(appliedTransforms);
+}
+
+function find(ctx, tagName, iterator) {
+  if (ctx) {
+    var list = ctx.getElementsByTagName(tagName),
+        i = 0,
+        n = list.length;
+
+    if (iterator) {
+      for (; i < n; i++) {
+        iterator(list[i], i);
+      }
+    }
+
+    return list;
+  }
+
+  return [];
+}
+
+function getWindowScrollingElement() {
+  var scrollingElement = document.scrollingElement;
+
+  if (scrollingElement) {
+    return scrollingElement;
+  } else {
+    return document.documentElement;
+  }
+}
+/**
+ * Returns the "bounding client rect" of given element
+ * @param  {HTMLElement} el                       The element whose boundingClientRect is wanted
+ * @param  {[Boolean]} relativeToContainingBlock  Whether the rect should be relative to the containing block of (including) the container
+ * @param  {[Boolean]} relativeToNonStaticParent  Whether the rect should be relative to the relative parent of (including) the contaienr
+ * @param  {[Boolean]} undoScale                  Whether the container's scale() should be undone
+ * @param  {[HTMLElement]} container              The parent the element will be placed in
+ * @return {Object}                               The boundingClientRect of el, with specified adjustments
+ */
+
+
+function getRect(el, relativeToContainingBlock, relativeToNonStaticParent, undoScale, container) {
+  if (!el.getBoundingClientRect && el !== window) return;
+  var elRect, top, left, bottom, right, height, width;
+
+  if (el !== window && el.parentNode && el !== getWindowScrollingElement()) {
+    elRect = el.getBoundingClientRect();
+    top = elRect.top;
+    left = elRect.left;
+    bottom = elRect.bottom;
+    right = elRect.right;
+    height = elRect.height;
+    width = elRect.width;
+  } else {
+    top = 0;
+    left = 0;
+    bottom = window.innerHeight;
+    right = window.innerWidth;
+    height = window.innerHeight;
+    width = window.innerWidth;
+  }
+
+  if ((relativeToContainingBlock || relativeToNonStaticParent) && el !== window) {
+    // Adjust for translate()
+    container = container || el.parentNode; // solves #1123 (see: https://stackoverflow.com/a/37953806/6088312)
+    // Not needed on <= IE11
+
+    if (!IE11OrLess) {
+      do {
+        if (container && container.getBoundingClientRect && (css(container, 'transform') !== 'none' || relativeToNonStaticParent && css(container, 'position') !== 'static')) {
+          var containerRect = container.getBoundingClientRect(); // Set relative to edges of padding box of container
+
+          top -= containerRect.top + parseInt(css(container, 'border-top-width'));
+          left -= containerRect.left + parseInt(css(container, 'border-left-width'));
+          bottom = top + elRect.height;
+          right = left + elRect.width;
+          break;
+        }
+        /* jshint boss:true */
+
+      } while (container = container.parentNode);
+    }
+  }
+
+  if (undoScale && el !== window) {
+    // Adjust for scale()
+    var elMatrix = matrix(container || el),
+        scaleX = elMatrix && elMatrix.a,
+        scaleY = elMatrix && elMatrix.d;
+
+    if (elMatrix) {
+      top /= scaleY;
+      left /= scaleX;
+      width /= scaleX;
+      height /= scaleY;
+      bottom = top + height;
+      right = left + width;
+    }
+  }
+
+  return {
+    top: top,
+    left: left,
+    bottom: bottom,
+    right: right,
+    width: width,
+    height: height
+  };
+}
+/**
+ * Checks if a side of an element is scrolled past a side of its parents
+ * @param  {HTMLElement}  el           The element who's side being scrolled out of view is in question
+ * @param  {String}       elSide       Side of the element in question ('top', 'left', 'right', 'bottom')
+ * @param  {String}       parentSide   Side of the parent in question ('top', 'left', 'right', 'bottom')
+ * @return {HTMLElement}               The parent scroll element that the el's side is scrolled past, or null if there is no such element
+ */
+
+
+function isScrolledPast(el, elSide, parentSide) {
+  var parent = getParentAutoScrollElement(el, true),
+      elSideVal = getRect(el)[elSide];
+  /* jshint boss:true */
+
+  while (parent) {
+    var parentSideVal = getRect(parent)[parentSide],
+        visible = void 0;
+
+    if (parentSide === 'top' || parentSide === 'left') {
+      visible = elSideVal >= parentSideVal;
+    } else {
+      visible = elSideVal <= parentSideVal;
+    }
+
+    if (!visible) return parent;
+    if (parent === getWindowScrollingElement()) break;
+    parent = getParentAutoScrollElement(parent, false);
+  }
+
+  return false;
+}
+/**
+ * Gets nth child of el, ignoring hidden children, sortable's elements (does not ignore clone if it's visible)
+ * and non-draggable elements
+ * @param  {HTMLElement} el       The parent element
+ * @param  {Number} childNum      The index of the child
+ * @param  {Object} options       Parent Sortable's options
+ * @return {HTMLElement}          The child at index childNum, or null if not found
+ */
+
+
+function getChild(el, childNum, options, includeDragEl) {
+  var currentChild = 0,
+      i = 0,
+      children = el.children;
+
+  while (i < children.length) {
+    if (children[i].style.display !== 'none' && children[i] !== Sortable.ghost && (includeDragEl || children[i] !== Sortable.dragged) && closest(children[i], options.draggable, el, false)) {
+      if (currentChild === childNum) {
+        return children[i];
+      }
+
+      currentChild++;
+    }
+
+    i++;
+  }
+
+  return null;
+}
+/**
+ * Gets the last child in the el, ignoring ghostEl or invisible elements (clones)
+ * @param  {HTMLElement} el       Parent element
+ * @param  {selector} selector    Any other elements that should be ignored
+ * @return {HTMLElement}          The last child, ignoring ghostEl
+ */
+
+
+function lastChild(el, selector) {
+  var last = el.lastElementChild;
+
+  while (last && (last === Sortable.ghost || css(last, 'display') === 'none' || selector && !matches(last, selector))) {
+    last = last.previousElementSibling;
+  }
+
+  return last || null;
+}
+/**
+ * Returns the index of an element within its parent for a selected set of
+ * elements
+ * @param  {HTMLElement} el
+ * @param  {selector} selector
+ * @return {number}
+ */
+
+
+function index(el, selector) {
+  var index = 0;
+
+  if (!el || !el.parentNode) {
+    return -1;
+  }
+  /* jshint boss:true */
+
+
+  while (el = el.previousElementSibling) {
+    if (el.nodeName.toUpperCase() !== 'TEMPLATE' && el !== Sortable.clone && (!selector || matches(el, selector))) {
+      index++;
+    }
+  }
+
+  return index;
+}
+/**
+ * Returns the scroll offset of the given element, added with all the scroll offsets of parent elements.
+ * The value is returned in real pixels.
+ * @param  {HTMLElement} el
+ * @return {Array}             Offsets in the format of [left, top]
+ */
+
+
+function getRelativeScrollOffset(el) {
+  var offsetLeft = 0,
+      offsetTop = 0,
+      winScroller = getWindowScrollingElement();
+
+  if (el) {
+    do {
+      var elMatrix = matrix(el),
+          scaleX = elMatrix.a,
+          scaleY = elMatrix.d;
+      offsetLeft += el.scrollLeft * scaleX;
+      offsetTop += el.scrollTop * scaleY;
+    } while (el !== winScroller && (el = el.parentNode));
+  }
+
+  return [offsetLeft, offsetTop];
+}
+/**
+ * Returns the index of the object within the given array
+ * @param  {Array} arr   Array that may or may not hold the object
+ * @param  {Object} obj  An object that has a key-value pair unique to and identical to a key-value pair in the object you want to find
+ * @return {Number}      The index of the object in the array, or -1
+ */
+
+
+function indexOfObject(arr, obj) {
+  for (var i in arr) {
+    if (!arr.hasOwnProperty(i)) continue;
+
+    for (var key in obj) {
+      if (obj.hasOwnProperty(key) && obj[key] === arr[i][key]) return Number(i);
+    }
+  }
+
+  return -1;
+}
+
+function getParentAutoScrollElement(el, includeSelf) {
+  // skip to window
+  if (!el || !el.getBoundingClientRect) return getWindowScrollingElement();
+  var elem = el;
+  var gotSelf = false;
+
+  do {
+    // we don't need to get elem css if it isn't even overflowing in the first place (performance)
+    if (elem.clientWidth < elem.scrollWidth || elem.clientHeight < elem.scrollHeight) {
+      var elemCSS = css(elem);
+
+      if (elem.clientWidth < elem.scrollWidth && (elemCSS.overflowX == 'auto' || elemCSS.overflowX == 'scroll') || elem.clientHeight < elem.scrollHeight && (elemCSS.overflowY == 'auto' || elemCSS.overflowY == 'scroll')) {
+        if (!elem.getBoundingClientRect || elem === document.body) return getWindowScrollingElement();
+        if (gotSelf || includeSelf) return elem;
+        gotSelf = true;
+      }
+    }
+    /* jshint boss:true */
+
+  } while (elem = elem.parentNode);
+
+  return getWindowScrollingElement();
+}
+
+function extend(dst, src) {
+  if (dst && src) {
+    for (var key in src) {
+      if (src.hasOwnProperty(key)) {
+        dst[key] = src[key];
+      }
+    }
+  }
+
+  return dst;
+}
+
+function isRectEqual(rect1, rect2) {
+  return Math.round(rect1.top) === Math.round(rect2.top) && Math.round(rect1.left) === Math.round(rect2.left) && Math.round(rect1.height) === Math.round(rect2.height) && Math.round(rect1.width) === Math.round(rect2.width);
+}
+
+var _throttleTimeout;
+
+function throttle(callback, ms) {
+  return function () {
+    if (!_throttleTimeout) {
+      var args = arguments,
+          _this = this;
+
+      if (args.length === 1) {
+        callback.call(_this, args[0]);
+      } else {
+        callback.apply(_this, args);
+      }
+
+      _throttleTimeout = setTimeout(function () {
+        _throttleTimeout = void 0;
+      }, ms);
+    }
+  };
+}
+
+function cancelThrottle() {
+  clearTimeout(_throttleTimeout);
+  _throttleTimeout = void 0;
+}
+
+function scrollBy(el, x, y) {
+  el.scrollLeft += x;
+  el.scrollTop += y;
+}
+
+function clone(el) {
+  var Polymer = window.Polymer;
+  var $ = window.jQuery || window.Zepto;
+
+  if (Polymer && Polymer.dom) {
+    return Polymer.dom(el).cloneNode(true);
+  } else if ($) {
+    return $(el).clone(true)[0];
+  } else {
+    return el.cloneNode(true);
+  }
+}
+
+function setRect(el, rect) {
+  css(el, 'position', 'absolute');
+  css(el, 'top', rect.top);
+  css(el, 'left', rect.left);
+  css(el, 'width', rect.width);
+  css(el, 'height', rect.height);
+}
+
+function unsetRect(el) {
+  css(el, 'position', '');
+  css(el, 'top', '');
+  css(el, 'left', '');
+  css(el, 'width', '');
+  css(el, 'height', '');
+}
+
+var expando = 'Sortable' + new Date().getTime();
+
+function AnimationStateManager() {
+  var animationStates = [],
+      animationCallbackId;
+  return {
+    captureAnimationState: function captureAnimationState() {
+      animationStates = [];
+      if (!this.options.animation) return;
+      var children = [].slice.call(this.el.children);
+      children.forEach(function (child) {
+        if (css(child, 'display') === 'none' || child === Sortable.ghost) return;
+        animationStates.push({
+          target: child,
+          rect: getRect(child)
+        });
+
+        var fromRect = _objectSpread2({}, animationStates[animationStates.length - 1].rect); // If animating: compensate for current animation
+
+
+        if (child.thisAnimationDuration) {
+          var childMatrix = matrix(child, true);
+
+          if (childMatrix) {
+            fromRect.top -= childMatrix.f;
+            fromRect.left -= childMatrix.e;
+          }
+        }
+
+        child.fromRect = fromRect;
+      });
+    },
+    addAnimationState: function addAnimationState(state) {
+      animationStates.push(state);
+    },
+    removeAnimationState: function removeAnimationState(target) {
+      animationStates.splice(indexOfObject(animationStates, {
+        target: target
+      }), 1);
+    },
+    animateAll: function animateAll(callback) {
+      var _this = this;
+
+      if (!this.options.animation) {
+        clearTimeout(animationCallbackId);
+        if (typeof callback === 'function') callback();
+        return;
+      }
+
+      var animating = false,
+          animationTime = 0;
+      animationStates.forEach(function (state) {
+        var time = 0,
+            target = state.target,
+            fromRect = target.fromRect,
+            toRect = getRect(target),
+            prevFromRect = target.prevFromRect,
+            prevToRect = target.prevToRect,
+            animatingRect = state.rect,
+            targetMatrix = matrix(target, true);
+
+        if (targetMatrix) {
+          // Compensate for current animation
+          toRect.top -= targetMatrix.f;
+          toRect.left -= targetMatrix.e;
+        }
+
+        target.toRect = toRect;
+
+        if (target.thisAnimationDuration) {
+          // Could also check if animatingRect is between fromRect and toRect
+          if (isRectEqual(prevFromRect, toRect) && !isRectEqual(fromRect, toRect) && // Make sure animatingRect is on line between toRect & fromRect
+          (animatingRect.top - toRect.top) / (animatingRect.left - toRect.left) === (fromRect.top - toRect.top) / (fromRect.left - toRect.left)) {
+            // If returning to same place as started from animation and on same axis
+            time = calculateRealTime(animatingRect, prevFromRect, prevToRect, _this.options);
+          }
+        } // if fromRect != toRect: animate
+
+
+        if (!isRectEqual(toRect, fromRect)) {
+          target.prevFromRect = fromRect;
+          target.prevToRect = toRect;
+
+          if (!time) {
+            time = _this.options.animation;
+          }
+
+          _this.animate(target, animatingRect, toRect, time);
+        }
+
+        if (time) {
+          animating = true;
+          animationTime = Math.max(animationTime, time);
+          clearTimeout(target.animationResetTimer);
+          target.animationResetTimer = setTimeout(function () {
+            target.animationTime = 0;
+            target.prevFromRect = null;
+            target.fromRect = null;
+            target.prevToRect = null;
+            target.thisAnimationDuration = null;
+          }, time);
+          target.thisAnimationDuration = time;
+        }
+      });
+      clearTimeout(animationCallbackId);
+
+      if (!animating) {
+        if (typeof callback === 'function') callback();
+      } else {
+        animationCallbackId = setTimeout(function () {
+          if (typeof callback === 'function') callback();
+        }, animationTime);
+      }
+
+      animationStates = [];
+    },
+    animate: function animate(target, currentRect, toRect, duration) {
+      if (duration) {
+        css(target, 'transition', '');
+        css(target, 'transform', '');
+        var elMatrix = matrix(this.el),
+            scaleX = elMatrix && elMatrix.a,
+            scaleY = elMatrix && elMatrix.d,
+            translateX = (currentRect.left - toRect.left) / (scaleX || 1),
+            translateY = (currentRect.top - toRect.top) / (scaleY || 1);
+        target.animatingX = !!translateX;
+        target.animatingY = !!translateY;
+        css(target, 'transform', 'translate3d(' + translateX + 'px,' + translateY + 'px,0)');
+        this.forRepaintDummy = repaint(target); // repaint
+
+        css(target, 'transition', 'transform ' + duration + 'ms' + (this.options.easing ? ' ' + this.options.easing : ''));
+        css(target, 'transform', 'translate3d(0,0,0)');
+        typeof target.animated === 'number' && clearTimeout(target.animated);
+        target.animated = setTimeout(function () {
+          css(target, 'transition', '');
+          css(target, 'transform', '');
+          target.animated = false;
+          target.animatingX = false;
+          target.animatingY = false;
+        }, duration);
+      }
+    }
+  };
+}
+
+function repaint(target) {
+  return target.offsetWidth;
+}
+
+function calculateRealTime(animatingRect, fromRect, toRect, options) {
+  return Math.sqrt(Math.pow(fromRect.top - animatingRect.top, 2) + Math.pow(fromRect.left - animatingRect.left, 2)) / Math.sqrt(Math.pow(fromRect.top - toRect.top, 2) + Math.pow(fromRect.left - toRect.left, 2)) * options.animation;
+}
+
+var plugins = [];
+var defaults = {
+  initializeByDefault: true
+};
+var PluginManager = {
+  mount: function mount(plugin) {
+    // Set default static properties
+    for (var option in defaults) {
+      if (defaults.hasOwnProperty(option) && !(option in plugin)) {
+        plugin[option] = defaults[option];
+      }
+    }
+
+    plugins.forEach(function (p) {
+      if (p.pluginName === plugin.pluginName) {
+        throw "Sortable: Cannot mount plugin ".concat(plugin.pluginName, " more than once");
+      }
+    });
+    plugins.push(plugin);
+  },
+  pluginEvent: function pluginEvent(eventName, sortable, evt) {
+    var _this = this;
+
+    this.eventCanceled = false;
+
+    evt.cancel = function () {
+      _this.eventCanceled = true;
+    };
+
+    var eventNameGlobal = eventName + 'Global';
+    plugins.forEach(function (plugin) {
+      if (!sortable[plugin.pluginName]) return; // Fire global events if it exists in this sortable
+
+      if (sortable[plugin.pluginName][eventNameGlobal]) {
+        sortable[plugin.pluginName][eventNameGlobal](_objectSpread2({
+          sortable: sortable
+        }, evt));
+      } // Only fire plugin event if plugin is enabled in this sortable,
+      // and plugin has event defined
+
+
+      if (sortable.options[plugin.pluginName] && sortable[plugin.pluginName][eventName]) {
+        sortable[plugin.pluginName][eventName](_objectSpread2({
+          sortable: sortable
+        }, evt));
+      }
+    });
+  },
+  initializePlugins: function initializePlugins(sortable, el, defaults, options) {
+    plugins.forEach(function (plugin) {
+      var pluginName = plugin.pluginName;
+      if (!sortable.options[pluginName] && !plugin.initializeByDefault) return;
+      var initialized = new plugin(sortable, el, sortable.options);
+      initialized.sortable = sortable;
+      initialized.options = sortable.options;
+      sortable[pluginName] = initialized; // Add default options from plugin
+
+      _extends(defaults, initialized.defaults);
+    });
+
+    for (var option in sortable.options) {
+      if (!sortable.options.hasOwnProperty(option)) continue;
+      var modified = this.modifyOption(sortable, option, sortable.options[option]);
+
+      if (typeof modified !== 'undefined') {
+        sortable.options[option] = modified;
+      }
+    }
+  },
+  getEventProperties: function getEventProperties(name, sortable) {
+    var eventProperties = {};
+    plugins.forEach(function (plugin) {
+      if (typeof plugin.eventProperties !== 'function') return;
+
+      _extends(eventProperties, plugin.eventProperties.call(sortable[plugin.pluginName], name));
+    });
+    return eventProperties;
+  },
+  modifyOption: function modifyOption(sortable, name, value) {
+    var modifiedValue;
+    plugins.forEach(function (plugin) {
+      // Plugin must exist on the Sortable
+      if (!sortable[plugin.pluginName]) return; // If static option listener exists for this option, call in the context of the Sortable's instance of this plugin
+
+      if (plugin.optionListeners && typeof plugin.optionListeners[name] === 'function') {
+        modifiedValue = plugin.optionListeners[name].call(sortable[plugin.pluginName], value);
+      }
+    });
+    return modifiedValue;
+  }
+};
+
+function dispatchEvent(_ref) {
+  var sortable = _ref.sortable,
+      rootEl = _ref.rootEl,
+      name = _ref.name,
+      targetEl = _ref.targetEl,
+      cloneEl = _ref.cloneEl,
+      toEl = _ref.toEl,
+      fromEl = _ref.fromEl,
+      oldIndex = _ref.oldIndex,
+      newIndex = _ref.newIndex,
+      oldDraggableIndex = _ref.oldDraggableIndex,
+      newDraggableIndex = _ref.newDraggableIndex,
+      originalEvent = _ref.originalEvent,
+      putSortable = _ref.putSortable,
+      extraEventProperties = _ref.extraEventProperties;
+  sortable = sortable || rootEl && rootEl[expando];
+  if (!sortable) return;
+  var evt,
+      options = sortable.options,
+      onName = 'on' + name.charAt(0).toUpperCase() + name.substr(1); // Support for new CustomEvent feature
+
+  if (window.CustomEvent && !IE11OrLess && !Edge) {
+    evt = new CustomEvent(name, {
+      bubbles: true,
+      cancelable: true
+    });
+  } else {
+    evt = document.createEvent('Event');
+    evt.initEvent(name, true, true);
+  }
+
+  evt.to = toEl || rootEl;
+  evt.from = fromEl || rootEl;
+  evt.item = targetEl || rootEl;
+  evt.clone = cloneEl;
+  evt.oldIndex = oldIndex;
+  evt.newIndex = newIndex;
+  evt.oldDraggableIndex = oldDraggableIndex;
+  evt.newDraggableIndex = newDraggableIndex;
+  evt.originalEvent = originalEvent;
+  evt.pullMode = putSortable ? putSortable.lastPutMode : undefined;
+
+  var allEventProperties = _objectSpread2(_objectSpread2({}, extraEventProperties), PluginManager.getEventProperties(name, sortable));
+
+  for (var option in allEventProperties) {
+    evt[option] = allEventProperties[option];
+  }
+
+  if (rootEl) {
+    rootEl.dispatchEvent(evt);
+  }
+
+  if (options[onName]) {
+    options[onName].call(sortable, evt);
+  }
+}
+
+var _excluded = ["evt"];
+
+var pluginEvent = function pluginEvent(eventName, sortable) {
+  var _ref = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {},
+      originalEvent = _ref.evt,
+      data = _objectWithoutProperties(_ref, _excluded);
+
+  PluginManager.pluginEvent.bind(Sortable)(eventName, sortable, _objectSpread2({
+    dragEl: dragEl,
+    parentEl: parentEl,
+    ghostEl: ghostEl,
+    rootEl: rootEl,
+    nextEl: nextEl,
+    lastDownEl: lastDownEl,
+    cloneEl: cloneEl,
+    cloneHidden: cloneHidden,
+    dragStarted: moved,
+    putSortable: putSortable,
+    activeSortable: Sortable.active,
+    originalEvent: originalEvent,
+    oldIndex: oldIndex,
+    oldDraggableIndex: oldDraggableIndex,
+    newIndex: newIndex,
+    newDraggableIndex: newDraggableIndex,
+    hideGhostForTarget: _hideGhostForTarget,
+    unhideGhostForTarget: _unhideGhostForTarget,
+    cloneNowHidden: function cloneNowHidden() {
+      cloneHidden = true;
+    },
+    cloneNowShown: function cloneNowShown() {
+      cloneHidden = false;
+    },
+    dispatchSortableEvent: function dispatchSortableEvent(name) {
+      _dispatchEvent({
+        sortable: sortable,
+        name: name,
+        originalEvent: originalEvent
+      });
+    }
+  }, data));
+};
+
+function _dispatchEvent(info) {
+  dispatchEvent(_objectSpread2({
+    putSortable: putSortable,
+    cloneEl: cloneEl,
+    targetEl: dragEl,
+    rootEl: rootEl,
+    oldIndex: oldIndex,
+    oldDraggableIndex: oldDraggableIndex,
+    newIndex: newIndex,
+    newDraggableIndex: newDraggableIndex
+  }, info));
+}
+
+var dragEl,
+    parentEl,
+    ghostEl,
+    rootEl,
+    nextEl,
+    lastDownEl,
+    cloneEl,
+    cloneHidden,
+    oldIndex,
+    newIndex,
+    oldDraggableIndex,
+    newDraggableIndex,
+    activeGroup,
+    putSortable,
+    awaitingDragStarted = false,
+    ignoreNextClick = false,
+    sortables = [],
+    tapEvt,
+    touchEvt,
+    lastDx,
+    lastDy,
+    tapDistanceLeft,
+    tapDistanceTop,
+    moved,
+    lastTarget,
+    lastDirection,
+    pastFirstInvertThresh = false,
+    isCircumstantialInvert = false,
+    targetMoveDistance,
+    // For positioning ghost absolutely
+ghostRelativeParent,
+    ghostRelativeParentInitialScroll = [],
+    // (left, top)
+_silent = false,
+    savedInputChecked = [];
+/** @const */
+
+var documentExists = typeof document !== 'undefined',
+    PositionGhostAbsolutely = IOS,
+    CSSFloatProperty = Edge || IE11OrLess ? 'cssFloat' : 'float',
+    // This will not pass for IE9, because IE9 DnD only works on anchors
+supportDraggable = documentExists && !ChromeForAndroid && !IOS && 'draggable' in document.createElement('div'),
+    supportCssPointerEvents = function () {
+  if (!documentExists) return; // false when <= IE11
+
+  if (IE11OrLess) {
+    return false;
+  }
+
+  var el = document.createElement('x');
+  el.style.cssText = 'pointer-events:auto';
+  return el.style.pointerEvents === 'auto';
+}(),
+    _detectDirection = function _detectDirection(el, options) {
+  var elCSS = css(el),
+      elWidth = parseInt(elCSS.width) - parseInt(elCSS.paddingLeft) - parseInt(elCSS.paddingRight) - parseInt(elCSS.borderLeftWidth) - parseInt(elCSS.borderRightWidth),
+      child1 = getChild(el, 0, options),
+      child2 = getChild(el, 1, options),
+      firstChildCSS = child1 && css(child1),
+      secondChildCSS = child2 && css(child2),
+      firstChildWidth = firstChildCSS && parseInt(firstChildCSS.marginLeft) + parseInt(firstChildCSS.marginRight) + getRect(child1).width,
+      secondChildWidth = secondChildCSS && parseInt(secondChildCSS.marginLeft) + parseInt(secondChildCSS.marginRight) + getRect(child2).width;
+
+  if (elCSS.display === 'flex') {
+    return elCSS.flexDirection === 'column' || elCSS.flexDirection === 'column-reverse' ? 'vertical' : 'horizontal';
+  }
+
+  if (elCSS.display === 'grid') {
+    return elCSS.gridTemplateColumns.split(' ').length <= 1 ? 'vertical' : 'horizontal';
+  }
+
+  if (child1 && firstChildCSS["float"] && firstChildCSS["float"] !== 'none') {
+    var touchingSideChild2 = firstChildCSS["float"] === 'left' ? 'left' : 'right';
+    return child2 && (secondChildCSS.clear === 'both' || secondChildCSS.clear === touchingSideChild2) ? 'vertical' : 'horizontal';
+  }
+
+  return child1 && (firstChildCSS.display === 'block' || firstChildCSS.display === 'flex' || firstChildCSS.display === 'table' || firstChildCSS.display === 'grid' || firstChildWidth >= elWidth && elCSS[CSSFloatProperty] === 'none' || child2 && elCSS[CSSFloatProperty] === 'none' && firstChildWidth + secondChildWidth > elWidth) ? 'vertical' : 'horizontal';
+},
+    _dragElInRowColumn = function _dragElInRowColumn(dragRect, targetRect, vertical) {
+  var dragElS1Opp = vertical ? dragRect.left : dragRect.top,
+      dragElS2Opp = vertical ? dragRect.right : dragRect.bottom,
+      dragElOppLength = vertical ? dragRect.width : dragRect.height,
+      targetS1Opp = vertical ? targetRect.left : targetRect.top,
+      targetS2Opp = vertical ? targetRect.right : targetRect.bottom,
+      targetOppLength = vertical ? targetRect.width : targetRect.height;
+  return dragElS1Opp === targetS1Opp || dragElS2Opp === targetS2Opp || dragElS1Opp + dragElOppLength / 2 === targetS1Opp + targetOppLength / 2;
+},
+
+/**
+ * Detects first nearest empty sortable to X and Y position using emptyInsertThreshold.
+ * @param  {Number} x      X position
+ * @param  {Number} y      Y position
+ * @return {HTMLElement}   Element of the first found nearest Sortable
+ */
+_detectNearestEmptySortable = function _detectNearestEmptySortable(x, y) {
+  var ret;
+  sortables.some(function (sortable) {
+    var threshold = sortable[expando].options.emptyInsertThreshold;
+    if (!threshold || lastChild(sortable)) return;
+    var rect = getRect(sortable),
+        insideHorizontally = x >= rect.left - threshold && x <= rect.right + threshold,
+        insideVertically = y >= rect.top - threshold && y <= rect.bottom + threshold;
+
+    if (insideHorizontally && insideVertically) {
+      return ret = sortable;
+    }
+  });
+  return ret;
+},
+    _prepareGroup = function _prepareGroup(options) {
+  function toFn(value, pull) {
+    return function (to, from, dragEl, evt) {
+      var sameGroup = to.options.group.name && from.options.group.name && to.options.group.name === from.options.group.name;
+
+      if (value == null && (pull || sameGroup)) {
+        // Default pull value
+        // Default pull and put value if same group
+        return true;
+      } else if (value == null || value === false) {
+        return false;
+      } else if (pull && value === 'clone') {
+        return value;
+      } else if (typeof value === 'function') {
+        return toFn(value(to, from, dragEl, evt), pull)(to, from, dragEl, evt);
+      } else {
+        var otherGroup = (pull ? to : from).options.group.name;
+        return value === true || typeof value === 'string' && value === otherGroup || value.join && value.indexOf(otherGroup) > -1;
+      }
+    };
+  }
+
+  var group = {};
+  var originalGroup = options.group;
+
+  if (!originalGroup || _typeof(originalGroup) != 'object') {
+    originalGroup = {
+      name: originalGroup
+    };
+  }
+
+  group.name = originalGroup.name;
+  group.checkPull = toFn(originalGroup.pull, true);
+  group.checkPut = toFn(originalGroup.put);
+  group.revertClone = originalGroup.revertClone;
+  options.group = group;
+},
+    _hideGhostForTarget = function _hideGhostForTarget() {
+  if (!supportCssPointerEvents && ghostEl) {
+    css(ghostEl, 'display', 'none');
+  }
+},
+    _unhideGhostForTarget = function _unhideGhostForTarget() {
+  if (!supportCssPointerEvents && ghostEl) {
+    css(ghostEl, 'display', '');
+  }
+}; // #1184 fix - Prevent click event on fallback if dragged but item not changed position
+
+
+if (documentExists && !ChromeForAndroid) {
+  document.addEventListener('click', function (evt) {
+    if (ignoreNextClick) {
+      evt.preventDefault();
+      evt.stopPropagation && evt.stopPropagation();
+      evt.stopImmediatePropagation && evt.stopImmediatePropagation();
+      ignoreNextClick = false;
+      return false;
+    }
+  }, true);
+}
+
+var nearestEmptyInsertDetectEvent = function nearestEmptyInsertDetectEvent(evt) {
+  if (dragEl) {
+    evt = evt.touches ? evt.touches[0] : evt;
+
+    var nearest = _detectNearestEmptySortable(evt.clientX, evt.clientY);
+
+    if (nearest) {
+      // Create imitation event
+      var event = {};
+
+      for (var i in evt) {
+        if (evt.hasOwnProperty(i)) {
+          event[i] = evt[i];
+        }
+      }
+
+      event.target = event.rootEl = nearest;
+      event.preventDefault = void 0;
+      event.stopPropagation = void 0;
+
+      nearest[expando]._onDragOver(event);
+    }
+  }
+};
+
+var _checkOutsideTargetEl = function _checkOutsideTargetEl(evt) {
+  if (dragEl) {
+    dragEl.parentNode[expando]._isOutsideThisEl(evt.target);
+  }
+};
+/**
+ * @class  Sortable
+ * @param  {HTMLElement}  el
+ * @param  {Object}       [options]
+ */
+
+
+function Sortable(el, options) {
+  if (!(el && el.nodeType && el.nodeType === 1)) {
+    throw "Sortable: `el` must be an HTMLElement, not ".concat({}.toString.call(el));
+  }
+
+  this.el = el; // root element
+
+  this.options = options = _extends({}, options); // Export instance
+
+  el[expando] = this;
+  var defaults = {
+    group: null,
+    sort: true,
+    disabled: false,
+    store: null,
+    handle: null,
+    draggable: /^[uo]l$/i.test(el.nodeName) ? '>li' : '>*',
+    swapThreshold: 1,
+    // percentage; 0 <= x <= 1
+    invertSwap: false,
+    // invert always
+    invertedSwapThreshold: null,
+    // will be set to same as swapThreshold if default
+    removeCloneOnHide: true,
+    direction: function direction() {
+      return _detectDirection(el, this.options);
+    },
+    ghostClass: 'sortable-ghost',
+    chosenClass: 'sortable-chosen',
+    dragClass: 'sortable-drag',
+    ignore: 'a, img',
+    filter: null,
+    preventOnFilter: true,
+    animation: 0,
+    easing: null,
+    setData: function setData(dataTransfer, dragEl) {
+      dataTransfer.setData('Text', dragEl.textContent);
+    },
+    dropBubble: false,
+    dragoverBubble: false,
+    dataIdAttr: 'data-id',
+    delay: 0,
+    delayOnTouchOnly: false,
+    touchStartThreshold: (Number.parseInt ? Number : window).parseInt(window.devicePixelRatio, 10) || 1,
+    forceFallback: false,
+    fallbackClass: 'sortable-fallback',
+    fallbackOnBody: false,
+    fallbackTolerance: 0,
+    fallbackOffset: {
+      x: 0,
+      y: 0
+    },
+    supportPointer: Sortable.supportPointer !== false && 'PointerEvent' in window && !Safari,
+    emptyInsertThreshold: 5
+  };
+  PluginManager.initializePlugins(this, el, defaults); // Set default options
+
+  for (var name in defaults) {
+    !(name in options) && (options[name] = defaults[name]);
+  }
+
+  _prepareGroup(options); // Bind all private methods
+
+
+  for (var fn in this) {
+    if (fn.charAt(0) === '_' && typeof this[fn] === 'function') {
+      this[fn] = this[fn].bind(this);
+    }
+  } // Setup drag mode
+
+
+  this.nativeDraggable = options.forceFallback ? false : supportDraggable;
+
+  if (this.nativeDraggable) {
+    // Touch start threshold cannot be greater than the native dragstart threshold
+    this.options.touchStartThreshold = 1;
+  } // Bind events
+
+
+  if (options.supportPointer) {
+    on(el, 'pointerdown', this._onTapStart);
+  } else {
+    on(el, 'mousedown', this._onTapStart);
+    on(el, 'touchstart', this._onTapStart);
+  }
+
+  if (this.nativeDraggable) {
+    on(el, 'dragover', this);
+    on(el, 'dragenter', this);
+  }
+
+  sortables.push(this.el); // Restore sorting
+
+  options.store && options.store.get && this.sort(options.store.get(this) || []); // Add animation state manager
+
+  _extends(this, AnimationStateManager());
+}
+
+Sortable.prototype =
+/** @lends Sortable.prototype */
+{
+  constructor: Sortable,
+  _isOutsideThisEl: function _isOutsideThisEl(target) {
+    if (!this.el.contains(target) && target !== this.el) {
+      lastTarget = null;
+    }
+  },
+  _getDirection: function _getDirection(evt, target) {
+    return typeof this.options.direction === 'function' ? this.options.direction.call(this, evt, target, dragEl) : this.options.direction;
+  },
+  _onTapStart: function _onTapStart(
+  /** Event|TouchEvent */
+  evt) {
+    if (!evt.cancelable) return;
+
+    var _this = this,
+        el = this.el,
+        options = this.options,
+        preventOnFilter = options.preventOnFilter,
+        type = evt.type,
+        touch = evt.touches && evt.touches[0] || evt.pointerType && evt.pointerType === 'touch' && evt,
+        target = (touch || evt).target,
+        originalTarget = evt.target.shadowRoot && (evt.path && evt.path[0] || evt.composedPath && evt.composedPath()[0]) || target,
+        filter = options.filter;
+
+    _saveInputCheckedState(el); // Don't trigger start event when an element is been dragged, otherwise the evt.oldindex always wrong when set option.group.
+
+
+    if (dragEl) {
+      return;
+    }
+
+    if (/mousedown|pointerdown/.test(type) && evt.button !== 0 || options.disabled) {
+      return; // only left button and enabled
+    } // cancel dnd if original target is content editable
+
+
+    if (originalTarget.isContentEditable) {
+      return;
+    } // Safari ignores further event handling after mousedown
+
+
+    if (!this.nativeDraggable && Safari && target && target.tagName.toUpperCase() === 'SELECT') {
+      return;
+    }
+
+    target = closest(target, options.draggable, el, false);
+
+    if (target && target.animated) {
+      return;
+    }
+
+    if (lastDownEl === target) {
+      // Ignoring duplicate `down`
+      return;
+    } // Get the index of the dragged element within its parent
+
+
+    oldIndex = index(target);
+    oldDraggableIndex = index(target, options.draggable); // Check filter
+
+    if (typeof filter === 'function') {
+      if (filter.call(this, evt, target, this)) {
+        _dispatchEvent({
+          sortable: _this,
+          rootEl: originalTarget,
+          name: 'filter',
+          targetEl: target,
+          toEl: el,
+          fromEl: el
+        });
+
+        pluginEvent('filter', _this, {
+          evt: evt
+        });
+        preventOnFilter && evt.cancelable && evt.preventDefault();
+        return; // cancel dnd
+      }
+    } else if (filter) {
+      filter = filter.split(',').some(function (criteria) {
+        criteria = closest(originalTarget, criteria.trim(), el, false);
+
+        if (criteria) {
+          _dispatchEvent({
+            sortable: _this,
+            rootEl: criteria,
+            name: 'filter',
+            targetEl: target,
+            fromEl: el,
+            toEl: el
+          });
+
+          pluginEvent('filter', _this, {
+            evt: evt
+          });
+          return true;
+        }
+      });
+
+      if (filter) {
+        preventOnFilter && evt.cancelable && evt.preventDefault();
+        return; // cancel dnd
+      }
+    }
+
+    if (options.handle && !closest(originalTarget, options.handle, el, false)) {
+      return;
+    } // Prepare `dragstart`
+
+
+    this._prepareDragStart(evt, touch, target);
+  },
+  _prepareDragStart: function _prepareDragStart(
+  /** Event */
+  evt,
+  /** Touch */
+  touch,
+  /** HTMLElement */
+  target) {
+    var _this = this,
+        el = _this.el,
+        options = _this.options,
+        ownerDocument = el.ownerDocument,
+        dragStartFn;
+
+    if (target && !dragEl && target.parentNode === el) {
+      var dragRect = getRect(target);
+      rootEl = el;
+      dragEl = target;
+      parentEl = dragEl.parentNode;
+      nextEl = dragEl.nextSibling;
+      lastDownEl = target;
+      activeGroup = options.group;
+      Sortable.dragged = dragEl;
+      tapEvt = {
+        target: dragEl,
+        clientX: (touch || evt).clientX,
+        clientY: (touch || evt).clientY
+      };
+      tapDistanceLeft = tapEvt.clientX - dragRect.left;
+      tapDistanceTop = tapEvt.clientY - dragRect.top;
+      this._lastX = (touch || evt).clientX;
+      this._lastY = (touch || evt).clientY;
+      dragEl.style['will-change'] = 'all';
+
+      dragStartFn = function dragStartFn() {
+        pluginEvent('delayEnded', _this, {
+          evt: evt
+        });
+
+        if (Sortable.eventCanceled) {
+          _this._onDrop();
+
+          return;
+        } // Delayed drag has been triggered
+        // we can re-enable the events: touchmove/mousemove
+
+
+        _this._disableDelayedDragEvents();
+
+        if (!FireFox && _this.nativeDraggable) {
+          dragEl.draggable = true;
+        } // Bind the events: dragstart/dragend
+
+
+        _this._triggerDragStart(evt, touch); // Drag start event
+
+
+        _dispatchEvent({
+          sortable: _this,
+          name: 'choose',
+          originalEvent: evt
+        }); // Chosen item
+
+
+        toggleClass(dragEl, options.chosenClass, true);
+      }; // Disable "draggable"
+
+
+      options.ignore.split(',').forEach(function (criteria) {
+        find(dragEl, criteria.trim(), _disableDraggable);
+      });
+      on(ownerDocument, 'dragover', nearestEmptyInsertDetectEvent);
+      on(ownerDocument, 'mousemove', nearestEmptyInsertDetectEvent);
+      on(ownerDocument, 'touchmove', nearestEmptyInsertDetectEvent);
+      on(ownerDocument, 'mouseup', _this._onDrop);
+      on(ownerDocument, 'touchend', _this._onDrop);
+      on(ownerDocument, 'touchcancel', _this._onDrop); // Make dragEl draggable (must be before delay for FireFox)
+
+      if (FireFox && this.nativeDraggable) {
+        this.options.touchStartThreshold = 4;
+        dragEl.draggable = true;
+      }
+
+      pluginEvent('delayStart', this, {
+        evt: evt
+      }); // Delay is impossible for native DnD in Edge or IE
+
+      if (options.delay && (!options.delayOnTouchOnly || touch) && (!this.nativeDraggable || !(Edge || IE11OrLess))) {
+        if (Sortable.eventCanceled) {
+          this._onDrop();
+
+          return;
+        } // If the user moves the pointer or let go the click or touch
+        // before the delay has been reached:
+        // disable the delayed drag
+
+
+        on(ownerDocument, 'mouseup', _this._disableDelayedDrag);
+        on(ownerDocument, 'touchend', _this._disableDelayedDrag);
+        on(ownerDocument, 'touchcancel', _this._disableDelayedDrag);
+        on(ownerDocument, 'mousemove', _this._delayedDragTouchMoveHandler);
+        on(ownerDocument, 'touchmove', _this._delayedDragTouchMoveHandler);
+        options.supportPointer && on(ownerDocument, 'pointermove', _this._delayedDragTouchMoveHandler);
+        _this._dragStartTimer = setTimeout(dragStartFn, options.delay);
+      } else {
+        dragStartFn();
+      }
+    }
+  },
+  _delayedDragTouchMoveHandler: function _delayedDragTouchMoveHandler(
+  /** TouchEvent|PointerEvent **/
+  e) {
+    var touch = e.touches ? e.touches[0] : e;
+
+    if (Math.max(Math.abs(touch.clientX - this._lastX), Math.abs(touch.clientY - this._lastY)) >= Math.floor(this.options.touchStartThreshold / (this.nativeDraggable && window.devicePixelRatio || 1))) {
+      this._disableDelayedDrag();
+    }
+  },
+  _disableDelayedDrag: function _disableDelayedDrag() {
+    dragEl && _disableDraggable(dragEl);
+    clearTimeout(this._dragStartTimer);
+
+    this._disableDelayedDragEvents();
+  },
+  _disableDelayedDragEvents: function _disableDelayedDragEvents() {
+    var ownerDocument = this.el.ownerDocument;
+    off(ownerDocument, 'mouseup', this._disableDelayedDrag);
+    off(ownerDocument, 'touchend', this._disableDelayedDrag);
+    off(ownerDocument, 'touchcancel', this._disableDelayedDrag);
+    off(ownerDocument, 'mousemove', this._delayedDragTouchMoveHandler);
+    off(ownerDocument, 'touchmove', this._delayedDragTouchMoveHandler);
+    off(ownerDocument, 'pointermove', this._delayedDragTouchMoveHandler);
+  },
+  _triggerDragStart: function _triggerDragStart(
+  /** Event */
+  evt,
+  /** Touch */
+  touch) {
+    touch = touch || evt.pointerType == 'touch' && evt;
+
+    if (!this.nativeDraggable || touch) {
+      if (this.options.supportPointer) {
+        on(document, 'pointermove', this._onTouchMove);
+      } else if (touch) {
+        on(document, 'touchmove', this._onTouchMove);
+      } else {
+        on(document, 'mousemove', this._onTouchMove);
+      }
+    } else {
+      on(dragEl, 'dragend', this);
+      on(rootEl, 'dragstart', this._onDragStart);
+    }
+
+    try {
+      if (document.selection) {
+        // Timeout neccessary for IE9
+        _nextTick(function () {
+          document.selection.empty();
+        });
+      } else {
+        window.getSelection().removeAllRanges();
+      }
+    } catch (err) {}
+  },
+  _dragStarted: function _dragStarted(fallback, evt) {
+
+    awaitingDragStarted = false;
+
+    if (rootEl && dragEl) {
+      pluginEvent('dragStarted', this, {
+        evt: evt
+      });
+
+      if (this.nativeDraggable) {
+        on(document, 'dragover', _checkOutsideTargetEl);
+      }
+
+      var options = this.options; // Apply effect
+
+      !fallback && toggleClass(dragEl, options.dragClass, false);
+      toggleClass(dragEl, options.ghostClass, true);
+      Sortable.active = this;
+      fallback && this._appendGhost(); // Drag start event
+
+      _dispatchEvent({
+        sortable: this,
+        name: 'start',
+        originalEvent: evt
+      });
+    } else {
+      this._nulling();
+    }
+  },
+  _emulateDragOver: function _emulateDragOver() {
+    if (touchEvt) {
+      this._lastX = touchEvt.clientX;
+      this._lastY = touchEvt.clientY;
+
+      _hideGhostForTarget();
+
+      var target = document.elementFromPoint(touchEvt.clientX, touchEvt.clientY);
+      var parent = target;
+
+      while (target && target.shadowRoot) {
+        target = target.shadowRoot.elementFromPoint(touchEvt.clientX, touchEvt.clientY);
+        if (target === parent) break;
+        parent = target;
+      }
+
+      dragEl.parentNode[expando]._isOutsideThisEl(target);
+
+      if (parent) {
+        do {
+          if (parent[expando]) {
+            var inserted = void 0;
+            inserted = parent[expando]._onDragOver({
+              clientX: touchEvt.clientX,
+              clientY: touchEvt.clientY,
+              target: target,
+              rootEl: parent
+            });
+
+            if (inserted && !this.options.dragoverBubble) {
+              break;
+            }
+          }
+
+          target = parent; // store last element
+        }
+        /* jshint boss:true */
+        while (parent = parent.parentNode);
+      }
+
+      _unhideGhostForTarget();
+    }
+  },
+  _onTouchMove: function _onTouchMove(
+  /**TouchEvent*/
+  evt) {
+    if (tapEvt) {
+      var options = this.options,
+          fallbackTolerance = options.fallbackTolerance,
+          fallbackOffset = options.fallbackOffset,
+          touch = evt.touches ? evt.touches[0] : evt,
+          ghostMatrix = ghostEl && matrix(ghostEl, true),
+          scaleX = ghostEl && ghostMatrix && ghostMatrix.a,
+          scaleY = ghostEl && ghostMatrix && ghostMatrix.d,
+          relativeScrollOffset = PositionGhostAbsolutely && ghostRelativeParent && getRelativeScrollOffset(ghostRelativeParent),
+          dx = (touch.clientX - tapEvt.clientX + fallbackOffset.x) / (scaleX || 1) + (relativeScrollOffset ? relativeScrollOffset[0] - ghostRelativeParentInitialScroll[0] : 0) / (scaleX || 1),
+          dy = (touch.clientY - tapEvt.clientY + fallbackOffset.y) / (scaleY || 1) + (relativeScrollOffset ? relativeScrollOffset[1] - ghostRelativeParentInitialScroll[1] : 0) / (scaleY || 1); // only set the status to dragging, when we are actually dragging
+
+      if (!Sortable.active && !awaitingDragStarted) {
+        if (fallbackTolerance && Math.max(Math.abs(touch.clientX - this._lastX), Math.abs(touch.clientY - this._lastY)) < fallbackTolerance) {
+          return;
+        }
+
+        this._onDragStart(evt, true);
+      }
+
+      if (ghostEl) {
+        if (ghostMatrix) {
+          ghostMatrix.e += dx - (lastDx || 0);
+          ghostMatrix.f += dy - (lastDy || 0);
+        } else {
+          ghostMatrix = {
+            a: 1,
+            b: 0,
+            c: 0,
+            d: 1,
+            e: dx,
+            f: dy
+          };
+        }
+
+        var cssMatrix = "matrix(".concat(ghostMatrix.a, ",").concat(ghostMatrix.b, ",").concat(ghostMatrix.c, ",").concat(ghostMatrix.d, ",").concat(ghostMatrix.e, ",").concat(ghostMatrix.f, ")");
+        css(ghostEl, 'webkitTransform', cssMatrix);
+        css(ghostEl, 'mozTransform', cssMatrix);
+        css(ghostEl, 'msTransform', cssMatrix);
+        css(ghostEl, 'transform', cssMatrix);
+        lastDx = dx;
+        lastDy = dy;
+        touchEvt = touch;
+      }
+
+      evt.cancelable && evt.preventDefault();
+    }
+  },
+  _appendGhost: function _appendGhost() {
+    // Bug if using scale(): https://stackoverflow.com/questions/2637058
+    // Not being adjusted for
+    if (!ghostEl) {
+      var container = this.options.fallbackOnBody ? document.body : rootEl,
+          rect = getRect(dragEl, true, PositionGhostAbsolutely, true, container),
+          options = this.options; // Position absolutely
+
+      if (PositionGhostAbsolutely) {
+        // Get relatively positioned parent
+        ghostRelativeParent = container;
+
+        while (css(ghostRelativeParent, 'position') === 'static' && css(ghostRelativeParent, 'transform') === 'none' && ghostRelativeParent !== document) {
+          ghostRelativeParent = ghostRelativeParent.parentNode;
+        }
+
+        if (ghostRelativeParent !== document.body && ghostRelativeParent !== document.documentElement) {
+          if (ghostRelativeParent === document) ghostRelativeParent = getWindowScrollingElement();
+          rect.top += ghostRelativeParent.scrollTop;
+          rect.left += ghostRelativeParent.scrollLeft;
+        } else {
+          ghostRelativeParent = getWindowScrollingElement();
+        }
+
+        ghostRelativeParentInitialScroll = getRelativeScrollOffset(ghostRelativeParent);
+      }
+
+      ghostEl = dragEl.cloneNode(true);
+      toggleClass(ghostEl, options.ghostClass, false);
+      toggleClass(ghostEl, options.fallbackClass, true);
+      toggleClass(ghostEl, options.dragClass, true);
+      css(ghostEl, 'transition', '');
+      css(ghostEl, 'transform', '');
+      css(ghostEl, 'box-sizing', 'border-box');
+      css(ghostEl, 'margin', 0);
+      css(ghostEl, 'top', rect.top);
+      css(ghostEl, 'left', rect.left);
+      css(ghostEl, 'width', rect.width);
+      css(ghostEl, 'height', rect.height);
+      css(ghostEl, 'opacity', '0.8');
+      css(ghostEl, 'position', PositionGhostAbsolutely ? 'absolute' : 'fixed');
+      css(ghostEl, 'zIndex', '100000');
+      css(ghostEl, 'pointerEvents', 'none');
+      Sortable.ghost = ghostEl;
+      container.appendChild(ghostEl); // Set transform-origin
+
+      css(ghostEl, 'transform-origin', tapDistanceLeft / parseInt(ghostEl.style.width) * 100 + '% ' + tapDistanceTop / parseInt(ghostEl.style.height) * 100 + '%');
+    }
+  },
+  _onDragStart: function _onDragStart(
+  /**Event*/
+  evt,
+  /**boolean*/
+  fallback) {
+    var _this = this;
+
+    var dataTransfer = evt.dataTransfer;
+    var options = _this.options;
+    pluginEvent('dragStart', this, {
+      evt: evt
+    });
+
+    if (Sortable.eventCanceled) {
+      this._onDrop();
+
+      return;
+    }
+
+    pluginEvent('setupClone', this);
+
+    if (!Sortable.eventCanceled) {
+      cloneEl = clone(dragEl);
+      cloneEl.removeAttribute("id");
+      cloneEl.draggable = false;
+      cloneEl.style['will-change'] = '';
+
+      this._hideClone();
+
+      toggleClass(cloneEl, this.options.chosenClass, false);
+      Sortable.clone = cloneEl;
+    } // #1143: IFrame support workaround
+
+
+    _this.cloneId = _nextTick(function () {
+      pluginEvent('clone', _this);
+      if (Sortable.eventCanceled) return;
+
+      if (!_this.options.removeCloneOnHide) {
+        rootEl.insertBefore(cloneEl, dragEl);
+      }
+
+      _this._hideClone();
+
+      _dispatchEvent({
+        sortable: _this,
+        name: 'clone'
+      });
+    });
+    !fallback && toggleClass(dragEl, options.dragClass, true); // Set proper drop events
+
+    if (fallback) {
+      ignoreNextClick = true;
+      _this._loopId = setInterval(_this._emulateDragOver, 50);
+    } else {
+      // Undo what was set in _prepareDragStart before drag started
+      off(document, 'mouseup', _this._onDrop);
+      off(document, 'touchend', _this._onDrop);
+      off(document, 'touchcancel', _this._onDrop);
+
+      if (dataTransfer) {
+        dataTransfer.effectAllowed = 'move';
+        options.setData && options.setData.call(_this, dataTransfer, dragEl);
+      }
+
+      on(document, 'drop', _this); // #1276 fix:
+
+      css(dragEl, 'transform', 'translateZ(0)');
+    }
+
+    awaitingDragStarted = true;
+    _this._dragStartId = _nextTick(_this._dragStarted.bind(_this, fallback, evt));
+    on(document, 'selectstart', _this);
+    moved = true;
+
+    if (Safari) {
+      css(document.body, 'user-select', 'none');
+    }
+  },
+  // Returns true - if no further action is needed (either inserted or another condition)
+  _onDragOver: function _onDragOver(
+  /**Event*/
+  evt) {
+    var el = this.el,
+        target = evt.target,
+        dragRect,
+        targetRect,
+        revert,
+        options = this.options,
+        group = options.group,
+        activeSortable = Sortable.active,
+        isOwner = activeGroup === group,
+        canSort = options.sort,
+        fromSortable = putSortable || activeSortable,
+        vertical,
+        _this = this,
+        completedFired = false;
+
+    if (_silent) return;
+
+    function dragOverEvent(name, extra) {
+      pluginEvent(name, _this, _objectSpread2({
+        evt: evt,
+        isOwner: isOwner,
+        axis: vertical ? 'vertical' : 'horizontal',
+        revert: revert,
+        dragRect: dragRect,
+        targetRect: targetRect,
+        canSort: canSort,
+        fromSortable: fromSortable,
+        target: target,
+        completed: completed,
+        onMove: function onMove(target, after) {
+          return _onMove(rootEl, el, dragEl, dragRect, target, getRect(target), evt, after);
+        },
+        changed: changed
+      }, extra));
+    } // Capture animation state
+
+
+    function capture() {
+      dragOverEvent('dragOverAnimationCapture');
+
+      _this.captureAnimationState();
+
+      if (_this !== fromSortable) {
+        fromSortable.captureAnimationState();
+      }
+    } // Return invocation when dragEl is inserted (or completed)
+
+
+    function completed(insertion) {
+      dragOverEvent('dragOverCompleted', {
+        insertion: insertion
+      });
+
+      if (insertion) {
+        // Clones must be hidden before folding animation to capture dragRectAbsolute properly
+        if (isOwner) {
+          activeSortable._hideClone();
+        } else {
+          activeSortable._showClone(_this);
+        }
+
+        if (_this !== fromSortable) {
+          // Set ghost class to new sortable's ghost class
+          toggleClass(dragEl, putSortable ? putSortable.options.ghostClass : activeSortable.options.ghostClass, false);
+          toggleClass(dragEl, options.ghostClass, true);
+        }
+
+        if (putSortable !== _this && _this !== Sortable.active) {
+          putSortable = _this;
+        } else if (_this === Sortable.active && putSortable) {
+          putSortable = null;
+        } // Animation
+
+
+        if (fromSortable === _this) {
+          _this._ignoreWhileAnimating = target;
+        }
+
+        _this.animateAll(function () {
+          dragOverEvent('dragOverAnimationComplete');
+          _this._ignoreWhileAnimating = null;
+        });
+
+        if (_this !== fromSortable) {
+          fromSortable.animateAll();
+          fromSortable._ignoreWhileAnimating = null;
+        }
+      } // Null lastTarget if it is not inside a previously swapped element
+
+
+      if (target === dragEl && !dragEl.animated || target === el && !target.animated) {
+        lastTarget = null;
+      } // no bubbling and not fallback
+
+
+      if (!options.dragoverBubble && !evt.rootEl && target !== document) {
+        dragEl.parentNode[expando]._isOutsideThisEl(evt.target); // Do not detect for empty insert if already inserted
+
+
+        !insertion && nearestEmptyInsertDetectEvent(evt);
+      }
+
+      !options.dragoverBubble && evt.stopPropagation && evt.stopPropagation();
+      return completedFired = true;
+    } // Call when dragEl has been inserted
+
+
+    function changed() {
+      newIndex = index(dragEl);
+      newDraggableIndex = index(dragEl, options.draggable);
+
+      _dispatchEvent({
+        sortable: _this,
+        name: 'change',
+        toEl: el,
+        newIndex: newIndex,
+        newDraggableIndex: newDraggableIndex,
+        originalEvent: evt
+      });
+    }
+
+    if (evt.preventDefault !== void 0) {
+      evt.cancelable && evt.preventDefault();
+    }
+
+    target = closest(target, options.draggable, el, true);
+    dragOverEvent('dragOver');
+    if (Sortable.eventCanceled) return completedFired;
+
+    if (dragEl.contains(evt.target) || target.animated && target.animatingX && target.animatingY || _this._ignoreWhileAnimating === target) {
+      return completed(false);
+    }
+
+    ignoreNextClick = false;
+
+    if (activeSortable && !options.disabled && (isOwner ? canSort || (revert = parentEl !== rootEl) // Reverting item into the original list
+    : putSortable === this || (this.lastPutMode = activeGroup.checkPull(this, activeSortable, dragEl, evt)) && group.checkPut(this, activeSortable, dragEl, evt))) {
+      vertical = this._getDirection(evt, target) === 'vertical';
+      dragRect = getRect(dragEl);
+      dragOverEvent('dragOverValid');
+      if (Sortable.eventCanceled) return completedFired;
+
+      if (revert) {
+        parentEl = rootEl; // actualization
+
+        capture();
+
+        this._hideClone();
+
+        dragOverEvent('revert');
+
+        if (!Sortable.eventCanceled) {
+          if (nextEl) {
+            rootEl.insertBefore(dragEl, nextEl);
+          } else {
+            rootEl.appendChild(dragEl);
+          }
+        }
+
+        return completed(true);
+      }
+
+      var elLastChild = lastChild(el, options.draggable);
+
+      if (!elLastChild || _ghostIsLast(evt, vertical, this) && !elLastChild.animated) {
+        // Insert to end of list
+        // If already at end of list: Do not insert
+        if (elLastChild === dragEl) {
+          return completed(false);
+        } // if there is a last element, it is the target
+
+
+        if (elLastChild && el === evt.target) {
+          target = elLastChild;
+        }
+
+        if (target) {
+          targetRect = getRect(target);
+        }
+
+        if (_onMove(rootEl, el, dragEl, dragRect, target, targetRect, evt, !!target) !== false) {
+          capture();
+
+          if (elLastChild && elLastChild.nextSibling) {
+            // the last draggable element is not the last node
+            el.insertBefore(dragEl, elLastChild.nextSibling);
+          } else {
+            el.appendChild(dragEl);
+          }
+
+          parentEl = el; // actualization
+
+          changed();
+          return completed(true);
+        }
+      } else if (elLastChild && _ghostIsFirst(evt, vertical, this)) {
+        // Insert to start of list
+        var firstChild = getChild(el, 0, options, true);
+
+        if (firstChild === dragEl) {
+          return completed(false);
+        }
+
+        target = firstChild;
+        targetRect = getRect(target);
+
+        if (_onMove(rootEl, el, dragEl, dragRect, target, targetRect, evt, false) !== false) {
+          capture();
+          el.insertBefore(dragEl, firstChild);
+          parentEl = el; // actualization
+
+          changed();
+          return completed(true);
+        }
+      } else if (target.parentNode === el) {
+        targetRect = getRect(target);
+        var direction = 0,
+            targetBeforeFirstSwap,
+            differentLevel = dragEl.parentNode !== el,
+            differentRowCol = !_dragElInRowColumn(dragEl.animated && dragEl.toRect || dragRect, target.animated && target.toRect || targetRect, vertical),
+            side1 = vertical ? 'top' : 'left',
+            scrolledPastTop = isScrolledPast(target, 'top', 'top') || isScrolledPast(dragEl, 'top', 'top'),
+            scrollBefore = scrolledPastTop ? scrolledPastTop.scrollTop : void 0;
+
+        if (lastTarget !== target) {
+          targetBeforeFirstSwap = targetRect[side1];
+          pastFirstInvertThresh = false;
+          isCircumstantialInvert = !differentRowCol && options.invertSwap || differentLevel;
+        }
+
+        direction = _getSwapDirection(evt, target, targetRect, vertical, differentRowCol ? 1 : options.swapThreshold, options.invertedSwapThreshold == null ? options.swapThreshold : options.invertedSwapThreshold, isCircumstantialInvert, lastTarget === target);
+        var sibling;
+
+        if (direction !== 0) {
+          // Check if target is beside dragEl in respective direction (ignoring hidden elements)
+          var dragIndex = index(dragEl);
+
+          do {
+            dragIndex -= direction;
+            sibling = parentEl.children[dragIndex];
+          } while (sibling && (css(sibling, 'display') === 'none' || sibling === ghostEl));
+        } // If dragEl is already beside target: Do not insert
+
+
+        if (direction === 0 || sibling === target) {
+          return completed(false);
+        }
+
+        lastTarget = target;
+        lastDirection = direction;
+        var nextSibling = target.nextElementSibling,
+            after = false;
+        after = direction === 1;
+
+        var moveVector = _onMove(rootEl, el, dragEl, dragRect, target, targetRect, evt, after);
+
+        if (moveVector !== false) {
+          if (moveVector === 1 || moveVector === -1) {
+            after = moveVector === 1;
+          }
+
+          _silent = true;
+          setTimeout(_unsilent, 30);
+          capture();
+
+          if (after && !nextSibling) {
+            el.appendChild(dragEl);
+          } else {
+            target.parentNode.insertBefore(dragEl, after ? nextSibling : target);
+          } // Undo chrome's scroll adjustment (has no effect on other browsers)
+
+
+          if (scrolledPastTop) {
+            scrollBy(scrolledPastTop, 0, scrollBefore - scrolledPastTop.scrollTop);
+          }
+
+          parentEl = dragEl.parentNode; // actualization
+          // must be done before animation
+
+          if (targetBeforeFirstSwap !== undefined && !isCircumstantialInvert) {
+            targetMoveDistance = Math.abs(targetBeforeFirstSwap - getRect(target)[side1]);
+          }
+
+          changed();
+          return completed(true);
+        }
+      }
+
+      if (el.contains(dragEl)) {
+        return completed(false);
+      }
+    }
+
+    return false;
+  },
+  _ignoreWhileAnimating: null,
+  _offMoveEvents: function _offMoveEvents() {
+    off(document, 'mousemove', this._onTouchMove);
+    off(document, 'touchmove', this._onTouchMove);
+    off(document, 'pointermove', this._onTouchMove);
+    off(document, 'dragover', nearestEmptyInsertDetectEvent);
+    off(document, 'mousemove', nearestEmptyInsertDetectEvent);
+    off(document, 'touchmove', nearestEmptyInsertDetectEvent);
+  },
+  _offUpEvents: function _offUpEvents() {
+    var ownerDocument = this.el.ownerDocument;
+    off(ownerDocument, 'mouseup', this._onDrop);
+    off(ownerDocument, 'touchend', this._onDrop);
+    off(ownerDocument, 'pointerup', this._onDrop);
+    off(ownerDocument, 'touchcancel', this._onDrop);
+    off(document, 'selectstart', this);
+  },
+  _onDrop: function _onDrop(
+  /**Event*/
+  evt) {
+    var el = this.el,
+        options = this.options; // Get the index of the dragged element within its parent
+
+    newIndex = index(dragEl);
+    newDraggableIndex = index(dragEl, options.draggable);
+    pluginEvent('drop', this, {
+      evt: evt
+    });
+    parentEl = dragEl && dragEl.parentNode; // Get again after plugin event
+
+    newIndex = index(dragEl);
+    newDraggableIndex = index(dragEl, options.draggable);
+
+    if (Sortable.eventCanceled) {
+      this._nulling();
+
+      return;
+    }
+
+    awaitingDragStarted = false;
+    isCircumstantialInvert = false;
+    pastFirstInvertThresh = false;
+    clearInterval(this._loopId);
+    clearTimeout(this._dragStartTimer);
+
+    _cancelNextTick(this.cloneId);
+
+    _cancelNextTick(this._dragStartId); // Unbind events
+
+
+    if (this.nativeDraggable) {
+      off(document, 'drop', this);
+      off(el, 'dragstart', this._onDragStart);
+    }
+
+    this._offMoveEvents();
+
+    this._offUpEvents();
+
+    if (Safari) {
+      css(document.body, 'user-select', '');
+    }
+
+    css(dragEl, 'transform', '');
+
+    if (evt) {
+      if (moved) {
+        evt.cancelable && evt.preventDefault();
+        !options.dropBubble && evt.stopPropagation();
+      }
+
+      ghostEl && ghostEl.parentNode && ghostEl.parentNode.removeChild(ghostEl);
+
+      if (rootEl === parentEl || putSortable && putSortable.lastPutMode !== 'clone') {
+        // Remove clone(s)
+        cloneEl && cloneEl.parentNode && cloneEl.parentNode.removeChild(cloneEl);
+      }
+
+      if (dragEl) {
+        if (this.nativeDraggable) {
+          off(dragEl, 'dragend', this);
+        }
+
+        _disableDraggable(dragEl);
+
+        dragEl.style['will-change'] = ''; // Remove classes
+        // ghostClass is added in dragStarted
+
+        if (moved && !awaitingDragStarted) {
+          toggleClass(dragEl, putSortable ? putSortable.options.ghostClass : this.options.ghostClass, false);
+        }
+
+        toggleClass(dragEl, this.options.chosenClass, false); // Drag stop event
+
+        _dispatchEvent({
+          sortable: this,
+          name: 'unchoose',
+          toEl: parentEl,
+          newIndex: null,
+          newDraggableIndex: null,
+          originalEvent: evt
+        });
+
+        if (rootEl !== parentEl) {
+          if (newIndex >= 0) {
+            // Add event
+            _dispatchEvent({
+              rootEl: parentEl,
+              name: 'add',
+              toEl: parentEl,
+              fromEl: rootEl,
+              originalEvent: evt
+            }); // Remove event
+
+
+            _dispatchEvent({
+              sortable: this,
+              name: 'remove',
+              toEl: parentEl,
+              originalEvent: evt
+            }); // drag from one list and drop into another
+
+
+            _dispatchEvent({
+              rootEl: parentEl,
+              name: 'sort',
+              toEl: parentEl,
+              fromEl: rootEl,
+              originalEvent: evt
+            });
+
+            _dispatchEvent({
+              sortable: this,
+              name: 'sort',
+              toEl: parentEl,
+              originalEvent: evt
+            });
+          }
+
+          putSortable && putSortable.save();
+        } else {
+          if (newIndex !== oldIndex) {
+            if (newIndex >= 0) {
+              // drag & drop within the same list
+              _dispatchEvent({
+                sortable: this,
+                name: 'update',
+                toEl: parentEl,
+                originalEvent: evt
+              });
+
+              _dispatchEvent({
+                sortable: this,
+                name: 'sort',
+                toEl: parentEl,
+                originalEvent: evt
+              });
+            }
+          }
+        }
+
+        if (Sortable.active) {
+          /* jshint eqnull:true */
+          if (newIndex == null || newIndex === -1) {
+            newIndex = oldIndex;
+            newDraggableIndex = oldDraggableIndex;
+          }
+
+          _dispatchEvent({
+            sortable: this,
+            name: 'end',
+            toEl: parentEl,
+            originalEvent: evt
+          }); // Save sorting
+
+
+          this.save();
+        }
+      }
+    }
+
+    this._nulling();
+  },
+  _nulling: function _nulling() {
+    pluginEvent('nulling', this);
+    rootEl = dragEl = parentEl = ghostEl = nextEl = cloneEl = lastDownEl = cloneHidden = tapEvt = touchEvt = moved = newIndex = newDraggableIndex = oldIndex = oldDraggableIndex = lastTarget = lastDirection = putSortable = activeGroup = Sortable.dragged = Sortable.ghost = Sortable.clone = Sortable.active = null;
+    savedInputChecked.forEach(function (el) {
+      el.checked = true;
+    });
+    savedInputChecked.length = lastDx = lastDy = 0;
+  },
+  handleEvent: function handleEvent(
+  /**Event*/
+  evt) {
+    switch (evt.type) {
+      case 'drop':
+      case 'dragend':
+        this._onDrop(evt);
+
+        break;
+
+      case 'dragenter':
+      case 'dragover':
+        if (dragEl) {
+          this._onDragOver(evt);
+
+          _globalDragOver(evt);
+        }
+
+        break;
+
+      case 'selectstart':
+        evt.preventDefault();
+        break;
+    }
+  },
+
+  /**
+   * Serializes the item into an array of string.
+   * @returns {String[]}
+   */
+  toArray: function toArray() {
+    var order = [],
+        el,
+        children = this.el.children,
+        i = 0,
+        n = children.length,
+        options = this.options;
+
+    for (; i < n; i++) {
+      el = children[i];
+
+      if (closest(el, options.draggable, this.el, false)) {
+        order.push(el.getAttribute(options.dataIdAttr) || _generateId(el));
+      }
+    }
+
+    return order;
+  },
+
+  /**
+   * Sorts the elements according to the array.
+   * @param  {String[]}  order  order of the items
+   */
+  sort: function sort(order, useAnimation) {
+    var items = {},
+        rootEl = this.el;
+    this.toArray().forEach(function (id, i) {
+      var el = rootEl.children[i];
+
+      if (closest(el, this.options.draggable, rootEl, false)) {
+        items[id] = el;
+      }
+    }, this);
+    useAnimation && this.captureAnimationState();
+    order.forEach(function (id) {
+      if (items[id]) {
+        rootEl.removeChild(items[id]);
+        rootEl.appendChild(items[id]);
+      }
+    });
+    useAnimation && this.animateAll();
+  },
+
+  /**
+   * Save the current sorting
+   */
+  save: function save() {
+    var store = this.options.store;
+    store && store.set && store.set(this);
+  },
+
+  /**
+   * For each element in the set, get the first element that matches the selector by testing the element itself and traversing up through its ancestors in the DOM tree.
+   * @param   {HTMLElement}  el
+   * @param   {String}       [selector]  default: `options.draggable`
+   * @returns {HTMLElement|null}
+   */
+  closest: function closest$1(el, selector) {
+    return closest(el, selector || this.options.draggable, this.el, false);
+  },
+
+  /**
+   * Set/get option
+   * @param   {string} name
+   * @param   {*}      [value]
+   * @returns {*}
+   */
+  option: function option(name, value) {
+    var options = this.options;
+
+    if (value === void 0) {
+      return options[name];
+    } else {
+      var modifiedValue = PluginManager.modifyOption(this, name, value);
+
+      if (typeof modifiedValue !== 'undefined') {
+        options[name] = modifiedValue;
+      } else {
+        options[name] = value;
+      }
+
+      if (name === 'group') {
+        _prepareGroup(options);
+      }
+    }
+  },
+
+  /**
+   * Destroy
+   */
+  destroy: function destroy() {
+    pluginEvent('destroy', this);
+    var el = this.el;
+    el[expando] = null;
+    off(el, 'mousedown', this._onTapStart);
+    off(el, 'touchstart', this._onTapStart);
+    off(el, 'pointerdown', this._onTapStart);
+
+    if (this.nativeDraggable) {
+      off(el, 'dragover', this);
+      off(el, 'dragenter', this);
+    } // Remove draggable attributes
+
+
+    Array.prototype.forEach.call(el.querySelectorAll('[draggable]'), function (el) {
+      el.removeAttribute('draggable');
+    });
+
+    this._onDrop();
+
+    this._disableDelayedDragEvents();
+
+    sortables.splice(sortables.indexOf(this.el), 1);
+    this.el = el = null;
+  },
+  _hideClone: function _hideClone() {
+    if (!cloneHidden) {
+      pluginEvent('hideClone', this);
+      if (Sortable.eventCanceled) return;
+      css(cloneEl, 'display', 'none');
+
+      if (this.options.removeCloneOnHide && cloneEl.parentNode) {
+        cloneEl.parentNode.removeChild(cloneEl);
+      }
+
+      cloneHidden = true;
+    }
+  },
+  _showClone: function _showClone(putSortable) {
+    if (putSortable.lastPutMode !== 'clone') {
+      this._hideClone();
+
+      return;
+    }
+
+    if (cloneHidden) {
+      pluginEvent('showClone', this);
+      if (Sortable.eventCanceled) return; // show clone at dragEl or original position
+
+      if (dragEl.parentNode == rootEl && !this.options.group.revertClone) {
+        rootEl.insertBefore(cloneEl, dragEl);
+      } else if (nextEl) {
+        rootEl.insertBefore(cloneEl, nextEl);
+      } else {
+        rootEl.appendChild(cloneEl);
+      }
+
+      if (this.options.group.revertClone) {
+        this.animate(dragEl, cloneEl);
+      }
+
+      css(cloneEl, 'display', '');
+      cloneHidden = false;
+    }
+  }
+};
+
+function _globalDragOver(
+/**Event*/
+evt) {
+  if (evt.dataTransfer) {
+    evt.dataTransfer.dropEffect = 'move';
+  }
+
+  evt.cancelable && evt.preventDefault();
+}
+
+function _onMove(fromEl, toEl, dragEl, dragRect, targetEl, targetRect, originalEvent, willInsertAfter) {
+  var evt,
+      sortable = fromEl[expando],
+      onMoveFn = sortable.options.onMove,
+      retVal; // Support for new CustomEvent feature
+
+  if (window.CustomEvent && !IE11OrLess && !Edge) {
+    evt = new CustomEvent('move', {
+      bubbles: true,
+      cancelable: true
+    });
+  } else {
+    evt = document.createEvent('Event');
+    evt.initEvent('move', true, true);
+  }
+
+  evt.to = toEl;
+  evt.from = fromEl;
+  evt.dragged = dragEl;
+  evt.draggedRect = dragRect;
+  evt.related = targetEl || toEl;
+  evt.relatedRect = targetRect || getRect(toEl);
+  evt.willInsertAfter = willInsertAfter;
+  evt.originalEvent = originalEvent;
+  fromEl.dispatchEvent(evt);
+
+  if (onMoveFn) {
+    retVal = onMoveFn.call(sortable, evt, originalEvent);
+  }
+
+  return retVal;
+}
+
+function _disableDraggable(el) {
+  el.draggable = false;
+}
+
+function _unsilent() {
+  _silent = false;
+}
+
+function _ghostIsFirst(evt, vertical, sortable) {
+  var rect = getRect(getChild(sortable.el, 0, sortable.options, true));
+  var spacer = 10;
+  return vertical ? evt.clientX < rect.left - spacer || evt.clientY < rect.top && evt.clientX < rect.right : evt.clientY < rect.top - spacer || evt.clientY < rect.bottom && evt.clientX < rect.left;
+}
+
+function _ghostIsLast(evt, vertical, sortable) {
+  var rect = getRect(lastChild(sortable.el, sortable.options.draggable));
+  var spacer = 10;
+  return vertical ? evt.clientX > rect.right + spacer || evt.clientX <= rect.right && evt.clientY > rect.bottom && evt.clientX >= rect.left : evt.clientX > rect.right && evt.clientY > rect.top || evt.clientX <= rect.right && evt.clientY > rect.bottom + spacer;
+}
+
+function _getSwapDirection(evt, target, targetRect, vertical, swapThreshold, invertedSwapThreshold, invertSwap, isLastTarget) {
+  var mouseOnAxis = vertical ? evt.clientY : evt.clientX,
+      targetLength = vertical ? targetRect.height : targetRect.width,
+      targetS1 = vertical ? targetRect.top : targetRect.left,
+      targetS2 = vertical ? targetRect.bottom : targetRect.right,
+      invert = false;
+
+  if (!invertSwap) {
+    // Never invert or create dragEl shadow when target movemenet causes mouse to move past the end of regular swapThreshold
+    if (isLastTarget && targetMoveDistance < targetLength * swapThreshold) {
+      // multiplied only by swapThreshold because mouse will already be inside target by (1 - threshold) * targetLength / 2
+      // check if past first invert threshold on side opposite of lastDirection
+      if (!pastFirstInvertThresh && (lastDirection === 1 ? mouseOnAxis > targetS1 + targetLength * invertedSwapThreshold / 2 : mouseOnAxis < targetS2 - targetLength * invertedSwapThreshold / 2)) {
+        // past first invert threshold, do not restrict inverted threshold to dragEl shadow
+        pastFirstInvertThresh = true;
+      }
+
+      if (!pastFirstInvertThresh) {
+        // dragEl shadow (target move distance shadow)
+        if (lastDirection === 1 ? mouseOnAxis < targetS1 + targetMoveDistance // over dragEl shadow
+        : mouseOnAxis > targetS2 - targetMoveDistance) {
+          return -lastDirection;
+        }
+      } else {
+        invert = true;
+      }
+    } else {
+      // Regular
+      if (mouseOnAxis > targetS1 + targetLength * (1 - swapThreshold) / 2 && mouseOnAxis < targetS2 - targetLength * (1 - swapThreshold) / 2) {
+        return _getInsertDirection(target);
+      }
+    }
+  }
+
+  invert = invert || invertSwap;
+
+  if (invert) {
+    // Invert of regular
+    if (mouseOnAxis < targetS1 + targetLength * invertedSwapThreshold / 2 || mouseOnAxis > targetS2 - targetLength * invertedSwapThreshold / 2) {
+      return mouseOnAxis > targetS1 + targetLength / 2 ? 1 : -1;
+    }
+  }
+
+  return 0;
+}
+/**
+ * Gets the direction dragEl must be swapped relative to target in order to make it
+ * seem that dragEl has been "inserted" into that element's position
+ * @param  {HTMLElement} target       The target whose position dragEl is being inserted at
+ * @return {Number}                   Direction dragEl must be swapped
+ */
+
+
+function _getInsertDirection(target) {
+  if (index(dragEl) < index(target)) {
+    return 1;
+  } else {
+    return -1;
+  }
+}
+/**
+ * Generate id
+ * @param   {HTMLElement} el
+ * @returns {String}
+ * @private
+ */
+
+
+function _generateId(el) {
+  var str = el.tagName + el.className + el.src + el.href + el.textContent,
+      i = str.length,
+      sum = 0;
+
+  while (i--) {
+    sum += str.charCodeAt(i);
+  }
+
+  return sum.toString(36);
+}
+
+function _saveInputCheckedState(root) {
+  savedInputChecked.length = 0;
+  var inputs = root.getElementsByTagName('input');
+  var idx = inputs.length;
+
+  while (idx--) {
+    var el = inputs[idx];
+    el.checked && savedInputChecked.push(el);
+  }
+}
+
+function _nextTick(fn) {
+  return setTimeout(fn, 0);
+}
+
+function _cancelNextTick(id) {
+  return clearTimeout(id);
+} // Fixed #973:
+
+
+if (documentExists) {
+  on(document, 'touchmove', function (evt) {
+    if ((Sortable.active || awaitingDragStarted) && evt.cancelable) {
+      evt.preventDefault();
+    }
+  });
+} // Export utils
+
+
+Sortable.utils = {
+  on: on,
+  off: off,
+  css: css,
+  find: find,
+  is: function is(el, selector) {
+    return !!closest(el, selector, el, false);
+  },
+  extend: extend,
+  throttle: throttle,
+  closest: closest,
+  toggleClass: toggleClass,
+  clone: clone,
+  index: index,
+  nextTick: _nextTick,
+  cancelNextTick: _cancelNextTick,
+  detectDirection: _detectDirection,
+  getChild: getChild
+};
+/**
+ * Get the Sortable instance of an element
+ * @param  {HTMLElement} element The element
+ * @return {Sortable|undefined}         The instance of Sortable
+ */
+
+Sortable.get = function (element) {
+  return element[expando];
+};
+/**
+ * Mount a plugin to Sortable
+ * @param  {...SortablePlugin|SortablePlugin[]} plugins       Plugins being mounted
+ */
+
+
+Sortable.mount = function () {
+  for (var _len = arguments.length, plugins = new Array(_len), _key = 0; _key < _len; _key++) {
+    plugins[_key] = arguments[_key];
+  }
+
+  if (plugins[0].constructor === Array) plugins = plugins[0];
+  plugins.forEach(function (plugin) {
+    if (!plugin.prototype || !plugin.prototype.constructor) {
+      throw "Sortable: Mounted plugin must be a constructor function, not ".concat({}.toString.call(plugin));
+    }
+
+    if (plugin.utils) Sortable.utils = _objectSpread2(_objectSpread2({}, Sortable.utils), plugin.utils);
+    PluginManager.mount(plugin);
+  });
+};
+/**
+ * Create sortable instance
+ * @param {HTMLElement}  el
+ * @param {Object}      [options]
+ */
+
+
+Sortable.create = function (el, options) {
+  return new Sortable(el, options);
+}; // Export
+
+
+Sortable.version = version;
+
+var autoScrolls = [],
+    scrollEl,
+    scrollRootEl,
+    scrolling = false,
+    lastAutoScrollX,
+    lastAutoScrollY,
+    touchEvt$1,
+    pointerElemChangedInterval;
+
+function AutoScrollPlugin() {
+  function AutoScroll() {
+    this.defaults = {
+      scroll: true,
+      forceAutoScrollFallback: false,
+      scrollSensitivity: 30,
+      scrollSpeed: 10,
+      bubbleScroll: true
+    }; // Bind all private methods
+
+    for (var fn in this) {
+      if (fn.charAt(0) === '_' && typeof this[fn] === 'function') {
+        this[fn] = this[fn].bind(this);
+      }
+    }
+  }
+
+  AutoScroll.prototype = {
+    dragStarted: function dragStarted(_ref) {
+      var originalEvent = _ref.originalEvent;
+
+      if (this.sortable.nativeDraggable) {
+        on(document, 'dragover', this._handleAutoScroll);
+      } else {
+        if (this.options.supportPointer) {
+          on(document, 'pointermove', this._handleFallbackAutoScroll);
+        } else if (originalEvent.touches) {
+          on(document, 'touchmove', this._handleFallbackAutoScroll);
+        } else {
+          on(document, 'mousemove', this._handleFallbackAutoScroll);
+        }
+      }
+    },
+    dragOverCompleted: function dragOverCompleted(_ref2) {
+      var originalEvent = _ref2.originalEvent;
+
+      // For when bubbling is canceled and using fallback (fallback 'touchmove' always reached)
+      if (!this.options.dragOverBubble && !originalEvent.rootEl) {
+        this._handleAutoScroll(originalEvent);
+      }
+    },
+    drop: function drop() {
+      if (this.sortable.nativeDraggable) {
+        off(document, 'dragover', this._handleAutoScroll);
+      } else {
+        off(document, 'pointermove', this._handleFallbackAutoScroll);
+        off(document, 'touchmove', this._handleFallbackAutoScroll);
+        off(document, 'mousemove', this._handleFallbackAutoScroll);
+      }
+
+      clearPointerElemChangedInterval();
+      clearAutoScrolls();
+      cancelThrottle();
+    },
+    nulling: function nulling() {
+      touchEvt$1 = scrollRootEl = scrollEl = scrolling = pointerElemChangedInterval = lastAutoScrollX = lastAutoScrollY = null;
+      autoScrolls.length = 0;
+    },
+    _handleFallbackAutoScroll: function _handleFallbackAutoScroll(evt) {
+      this._handleAutoScroll(evt, true);
+    },
+    _handleAutoScroll: function _handleAutoScroll(evt, fallback) {
+      var _this = this;
+
+      var x = (evt.touches ? evt.touches[0] : evt).clientX,
+          y = (evt.touches ? evt.touches[0] : evt).clientY,
+          elem = document.elementFromPoint(x, y);
+      touchEvt$1 = evt; // IE does not seem to have native autoscroll,
+      // Edge's autoscroll seems too conditional,
+      // MACOS Safari does not have autoscroll,
+      // Firefox and Chrome are good
+
+      if (fallback || this.options.forceAutoScrollFallback || Edge || IE11OrLess || Safari) {
+        autoScroll(evt, this.options, elem, fallback); // Listener for pointer element change
+
+        var ogElemScroller = getParentAutoScrollElement(elem, true);
+
+        if (scrolling && (!pointerElemChangedInterval || x !== lastAutoScrollX || y !== lastAutoScrollY)) {
+          pointerElemChangedInterval && clearPointerElemChangedInterval(); // Detect for pointer elem change, emulating native DnD behaviour
+
+          pointerElemChangedInterval = setInterval(function () {
+            var newElem = getParentAutoScrollElement(document.elementFromPoint(x, y), true);
+
+            if (newElem !== ogElemScroller) {
+              ogElemScroller = newElem;
+              clearAutoScrolls();
+            }
+
+            autoScroll(evt, _this.options, newElem, fallback);
+          }, 10);
+          lastAutoScrollX = x;
+          lastAutoScrollY = y;
+        }
+      } else {
+        // if DnD is enabled (and browser has good autoscrolling), first autoscroll will already scroll, so get parent autoscroll of first autoscroll
+        if (!this.options.bubbleScroll || getParentAutoScrollElement(elem, true) === getWindowScrollingElement()) {
+          clearAutoScrolls();
+          return;
+        }
+
+        autoScroll(evt, this.options, getParentAutoScrollElement(elem, false), false);
+      }
+    }
+  };
+  return _extends(AutoScroll, {
+    pluginName: 'scroll',
+    initializeByDefault: true
+  });
+}
+
+function clearAutoScrolls() {
+  autoScrolls.forEach(function (autoScroll) {
+    clearInterval(autoScroll.pid);
+  });
+  autoScrolls = [];
+}
+
+function clearPointerElemChangedInterval() {
+  clearInterval(pointerElemChangedInterval);
+}
+
+var autoScroll = throttle(function (evt, options, rootEl, isFallback) {
+  // Bug: https://bugzilla.mozilla.org/show_bug.cgi?id=505521
+  if (!options.scroll) return;
+  var x = (evt.touches ? evt.touches[0] : evt).clientX,
+      y = (evt.touches ? evt.touches[0] : evt).clientY,
+      sens = options.scrollSensitivity,
+      speed = options.scrollSpeed,
+      winScroller = getWindowScrollingElement();
+  var scrollThisInstance = false,
+      scrollCustomFn; // New scroll root, set scrollEl
+
+  if (scrollRootEl !== rootEl) {
+    scrollRootEl = rootEl;
+    clearAutoScrolls();
+    scrollEl = options.scroll;
+    scrollCustomFn = options.scrollFn;
+
+    if (scrollEl === true) {
+      scrollEl = getParentAutoScrollElement(rootEl, true);
+    }
+  }
+
+  var layersOut = 0;
+  var currentParent = scrollEl;
+
+  do {
+    var el = currentParent,
+        rect = getRect(el),
+        top = rect.top,
+        bottom = rect.bottom,
+        left = rect.left,
+        right = rect.right,
+        width = rect.width,
+        height = rect.height,
+        canScrollX = void 0,
+        canScrollY = void 0,
+        scrollWidth = el.scrollWidth,
+        scrollHeight = el.scrollHeight,
+        elCSS = css(el),
+        scrollPosX = el.scrollLeft,
+        scrollPosY = el.scrollTop;
+
+    if (el === winScroller) {
+      canScrollX = width < scrollWidth && (elCSS.overflowX === 'auto' || elCSS.overflowX === 'scroll' || elCSS.overflowX === 'visible');
+      canScrollY = height < scrollHeight && (elCSS.overflowY === 'auto' || elCSS.overflowY === 'scroll' || elCSS.overflowY === 'visible');
+    } else {
+      canScrollX = width < scrollWidth && (elCSS.overflowX === 'auto' || elCSS.overflowX === 'scroll');
+      canScrollY = height < scrollHeight && (elCSS.overflowY === 'auto' || elCSS.overflowY === 'scroll');
+    }
+
+    var vx = canScrollX && (Math.abs(right - x) <= sens && scrollPosX + width < scrollWidth) - (Math.abs(left - x) <= sens && !!scrollPosX);
+    var vy = canScrollY && (Math.abs(bottom - y) <= sens && scrollPosY + height < scrollHeight) - (Math.abs(top - y) <= sens && !!scrollPosY);
+
+    if (!autoScrolls[layersOut]) {
+      for (var i = 0; i <= layersOut; i++) {
+        if (!autoScrolls[i]) {
+          autoScrolls[i] = {};
+        }
+      }
+    }
+
+    if (autoScrolls[layersOut].vx != vx || autoScrolls[layersOut].vy != vy || autoScrolls[layersOut].el !== el) {
+      autoScrolls[layersOut].el = el;
+      autoScrolls[layersOut].vx = vx;
+      autoScrolls[layersOut].vy = vy;
+      clearInterval(autoScrolls[layersOut].pid);
+
+      if (vx != 0 || vy != 0) {
+        scrollThisInstance = true;
+        /* jshint loopfunc:true */
+
+        autoScrolls[layersOut].pid = setInterval(function () {
+          // emulate drag over during autoscroll (fallback), emulating native DnD behaviour
+          if (isFallback && this.layer === 0) {
+            Sortable.active._onTouchMove(touchEvt$1); // To move ghost if it is positioned absolutely
+
+          }
+
+          var scrollOffsetY = autoScrolls[this.layer].vy ? autoScrolls[this.layer].vy * speed : 0;
+          var scrollOffsetX = autoScrolls[this.layer].vx ? autoScrolls[this.layer].vx * speed : 0;
+
+          if (typeof scrollCustomFn === 'function') {
+            if (scrollCustomFn.call(Sortable.dragged.parentNode[expando], scrollOffsetX, scrollOffsetY, evt, touchEvt$1, autoScrolls[this.layer].el) !== 'continue') {
+              return;
+            }
+          }
+
+          scrollBy(autoScrolls[this.layer].el, scrollOffsetX, scrollOffsetY);
+        }.bind({
+          layer: layersOut
+        }), 24);
+      }
+    }
+
+    layersOut++;
+  } while (options.bubbleScroll && currentParent !== winScroller && (currentParent = getParentAutoScrollElement(currentParent, false)));
+
+  scrolling = scrollThisInstance; // in case another function catches scrolling as false in between when it is not
+}, 30);
+
+var drop = function drop(_ref) {
+  var originalEvent = _ref.originalEvent,
+      putSortable = _ref.putSortable,
+      dragEl = _ref.dragEl,
+      activeSortable = _ref.activeSortable,
+      dispatchSortableEvent = _ref.dispatchSortableEvent,
+      hideGhostForTarget = _ref.hideGhostForTarget,
+      unhideGhostForTarget = _ref.unhideGhostForTarget;
+  if (!originalEvent) return;
+  var toSortable = putSortable || activeSortable;
+  hideGhostForTarget();
+  var touch = originalEvent.changedTouches && originalEvent.changedTouches.length ? originalEvent.changedTouches[0] : originalEvent;
+  var target = document.elementFromPoint(touch.clientX, touch.clientY);
+  unhideGhostForTarget();
+
+  if (toSortable && !toSortable.el.contains(target)) {
+    dispatchSortableEvent('spill');
+    this.onSpill({
+      dragEl: dragEl,
+      putSortable: putSortable
+    });
+  }
+};
+
+function Revert() {}
+
+Revert.prototype = {
+  startIndex: null,
+  dragStart: function dragStart(_ref2) {
+    var oldDraggableIndex = _ref2.oldDraggableIndex;
+    this.startIndex = oldDraggableIndex;
+  },
+  onSpill: function onSpill(_ref3) {
+    var dragEl = _ref3.dragEl,
+        putSortable = _ref3.putSortable;
+    this.sortable.captureAnimationState();
+
+    if (putSortable) {
+      putSortable.captureAnimationState();
+    }
+
+    var nextSibling = getChild(this.sortable.el, this.startIndex, this.options);
+
+    if (nextSibling) {
+      this.sortable.el.insertBefore(dragEl, nextSibling);
+    } else {
+      this.sortable.el.appendChild(dragEl);
+    }
+
+    this.sortable.animateAll();
+
+    if (putSortable) {
+      putSortable.animateAll();
+    }
+  },
+  drop: drop
+};
+
+_extends(Revert, {
+  pluginName: 'revertOnSpill'
+});
+
+function Remove() {}
+
+Remove.prototype = {
+  onSpill: function onSpill(_ref4) {
+    var dragEl = _ref4.dragEl,
+        putSortable = _ref4.putSortable;
+    var parentSortable = putSortable || this.sortable;
+    parentSortable.captureAnimationState();
+    dragEl.parentNode && dragEl.parentNode.removeChild(dragEl);
+    parentSortable.animateAll();
+  },
+  drop: drop
+};
+
+_extends(Remove, {
+  pluginName: 'removeOnSpill'
+});
+
+var lastSwapEl;
+
+function SwapPlugin() {
+  function Swap() {
+    this.defaults = {
+      swapClass: 'sortable-swap-highlight'
+    };
+  }
+
+  Swap.prototype = {
+    dragStart: function dragStart(_ref) {
+      var dragEl = _ref.dragEl;
+      lastSwapEl = dragEl;
+    },
+    dragOverValid: function dragOverValid(_ref2) {
+      var completed = _ref2.completed,
+          target = _ref2.target,
+          onMove = _ref2.onMove,
+          activeSortable = _ref2.activeSortable,
+          changed = _ref2.changed,
+          cancel = _ref2.cancel;
+      if (!activeSortable.options.swap) return;
+      var el = this.sortable.el,
+          options = this.options;
+
+      if (target && target !== el) {
+        var prevSwapEl = lastSwapEl;
+
+        if (onMove(target) !== false) {
+          toggleClass(target, options.swapClass, true);
+          lastSwapEl = target;
+        } else {
+          lastSwapEl = null;
+        }
+
+        if (prevSwapEl && prevSwapEl !== lastSwapEl) {
+          toggleClass(prevSwapEl, options.swapClass, false);
+        }
+      }
+
+      changed();
+      completed(true);
+      cancel();
+    },
+    drop: function drop(_ref3) {
+      var activeSortable = _ref3.activeSortable,
+          putSortable = _ref3.putSortable,
+          dragEl = _ref3.dragEl;
+      var toSortable = putSortable || this.sortable;
+      var options = this.options;
+      lastSwapEl && toggleClass(lastSwapEl, options.swapClass, false);
+
+      if (lastSwapEl && (options.swap || putSortable && putSortable.options.swap)) {
+        if (dragEl !== lastSwapEl) {
+          toSortable.captureAnimationState();
+          if (toSortable !== activeSortable) activeSortable.captureAnimationState();
+          swapNodes(dragEl, lastSwapEl);
+          toSortable.animateAll();
+          if (toSortable !== activeSortable) activeSortable.animateAll();
+        }
+      }
+    },
+    nulling: function nulling() {
+      lastSwapEl = null;
+    }
+  };
+  return _extends(Swap, {
+    pluginName: 'swap',
+    eventProperties: function eventProperties() {
+      return {
+        swapItem: lastSwapEl
+      };
+    }
+  });
+}
+
+function swapNodes(n1, n2) {
+  var p1 = n1.parentNode,
+      p2 = n2.parentNode,
+      i1,
+      i2;
+  if (!p1 || !p2 || p1.isEqualNode(n2) || p2.isEqualNode(n1)) return;
+  i1 = index(n1);
+  i2 = index(n2);
+
+  if (p1.isEqualNode(p2) && i1 < i2) {
+    i2++;
+  }
+
+  p1.insertBefore(n2, p1.children[i1]);
+  p2.insertBefore(n1, p2.children[i2]);
+}
+
+var multiDragElements = [],
+    multiDragClones = [],
+    lastMultiDragSelect,
+    // for selection with modifier key down (SHIFT)
+multiDragSortable,
+    initialFolding = false,
+    // Initial multi-drag fold when drag started
+folding = false,
+    // Folding any other time
+dragStarted = false,
+    dragEl$1,
+    clonesFromRect,
+    clonesHidden;
+
+function MultiDragPlugin() {
+  function MultiDrag(sortable) {
+    // Bind all private methods
+    for (var fn in this) {
+      if (fn.charAt(0) === '_' && typeof this[fn] === 'function') {
+        this[fn] = this[fn].bind(this);
+      }
+    }
+
+    if (!sortable.options.avoidImplicitDeselect) {
+      if (sortable.options.supportPointer) {
+        on(document, 'pointerup', this._deselectMultiDrag);
+      } else {
+        on(document, 'mouseup', this._deselectMultiDrag);
+        on(document, 'touchend', this._deselectMultiDrag);
+      }
+    }
+
+    on(document, 'keydown', this._checkKeyDown);
+    on(document, 'keyup', this._checkKeyUp);
+    this.defaults = {
+      selectedClass: 'sortable-selected',
+      multiDragKey: null,
+      avoidImplicitDeselect: false,
+      setData: function setData(dataTransfer, dragEl) {
+        var data = '';
+
+        if (multiDragElements.length && multiDragSortable === sortable) {
+          multiDragElements.forEach(function (multiDragElement, i) {
+            data += (!i ? '' : ', ') + multiDragElement.textContent;
+          });
+        } else {
+          data = dragEl.textContent;
+        }
+
+        dataTransfer.setData('Text', data);
+      }
+    };
+  }
+
+  MultiDrag.prototype = {
+    multiDragKeyDown: false,
+    isMultiDrag: false,
+    delayStartGlobal: function delayStartGlobal(_ref) {
+      var dragged = _ref.dragEl;
+      dragEl$1 = dragged;
+    },
+    delayEnded: function delayEnded() {
+      this.isMultiDrag = ~multiDragElements.indexOf(dragEl$1);
+    },
+    setupClone: function setupClone(_ref2) {
+      var sortable = _ref2.sortable,
+          cancel = _ref2.cancel;
+      if (!this.isMultiDrag) return;
+
+      for (var i = 0; i < multiDragElements.length; i++) {
+        multiDragClones.push(clone(multiDragElements[i]));
+        multiDragClones[i].sortableIndex = multiDragElements[i].sortableIndex;
+        multiDragClones[i].draggable = false;
+        multiDragClones[i].style['will-change'] = '';
+        toggleClass(multiDragClones[i], this.options.selectedClass, false);
+        multiDragElements[i] === dragEl$1 && toggleClass(multiDragClones[i], this.options.chosenClass, false);
+      }
+
+      sortable._hideClone();
+
+      cancel();
+    },
+    clone: function clone(_ref3) {
+      var sortable = _ref3.sortable,
+          rootEl = _ref3.rootEl,
+          dispatchSortableEvent = _ref3.dispatchSortableEvent,
+          cancel = _ref3.cancel;
+      if (!this.isMultiDrag) return;
+
+      if (!this.options.removeCloneOnHide) {
+        if (multiDragElements.length && multiDragSortable === sortable) {
+          insertMultiDragClones(true, rootEl);
+          dispatchSortableEvent('clone');
+          cancel();
+        }
+      }
+    },
+    showClone: function showClone(_ref4) {
+      var cloneNowShown = _ref4.cloneNowShown,
+          rootEl = _ref4.rootEl,
+          cancel = _ref4.cancel;
+      if (!this.isMultiDrag) return;
+      insertMultiDragClones(false, rootEl);
+      multiDragClones.forEach(function (clone) {
+        css(clone, 'display', '');
+      });
+      cloneNowShown();
+      clonesHidden = false;
+      cancel();
+    },
+    hideClone: function hideClone(_ref5) {
+      var _this = this;
+
+      var sortable = _ref5.sortable,
+          cloneNowHidden = _ref5.cloneNowHidden,
+          cancel = _ref5.cancel;
+      if (!this.isMultiDrag) return;
+      multiDragClones.forEach(function (clone) {
+        css(clone, 'display', 'none');
+
+        if (_this.options.removeCloneOnHide && clone.parentNode) {
+          clone.parentNode.removeChild(clone);
+        }
+      });
+      cloneNowHidden();
+      clonesHidden = true;
+      cancel();
+    },
+    dragStartGlobal: function dragStartGlobal(_ref6) {
+      var sortable = _ref6.sortable;
+
+      if (!this.isMultiDrag && multiDragSortable) {
+        multiDragSortable.multiDrag._deselectMultiDrag();
+      }
+
+      multiDragElements.forEach(function (multiDragElement) {
+        multiDragElement.sortableIndex = index(multiDragElement);
+      }); // Sort multi-drag elements
+
+      multiDragElements = multiDragElements.sort(function (a, b) {
+        return a.sortableIndex - b.sortableIndex;
+      });
+      dragStarted = true;
+    },
+    dragStarted: function dragStarted(_ref7) {
+      var _this2 = this;
+
+      var sortable = _ref7.sortable;
+      if (!this.isMultiDrag) return;
+
+      if (this.options.sort) {
+        // Capture rects,
+        // hide multi drag elements (by positioning them absolute),
+        // set multi drag elements rects to dragRect,
+        // show multi drag elements,
+        // animate to rects,
+        // unset rects & remove from DOM
+        sortable.captureAnimationState();
+
+        if (this.options.animation) {
+          multiDragElements.forEach(function (multiDragElement) {
+            if (multiDragElement === dragEl$1) return;
+            css(multiDragElement, 'position', 'absolute');
+          });
+          var dragRect = getRect(dragEl$1, false, true, true);
+          multiDragElements.forEach(function (multiDragElement) {
+            if (multiDragElement === dragEl$1) return;
+            setRect(multiDragElement, dragRect);
+          });
+          folding = true;
+          initialFolding = true;
+        }
+      }
+
+      sortable.animateAll(function () {
+        folding = false;
+        initialFolding = false;
+
+        if (_this2.options.animation) {
+          multiDragElements.forEach(function (multiDragElement) {
+            unsetRect(multiDragElement);
+          });
+        } // Remove all auxiliary multidrag items from el, if sorting enabled
+
+
+        if (_this2.options.sort) {
+          removeMultiDragElements();
+        }
+      });
+    },
+    dragOver: function dragOver(_ref8) {
+      var target = _ref8.target,
+          completed = _ref8.completed,
+          cancel = _ref8.cancel;
+
+      if (folding && ~multiDragElements.indexOf(target)) {
+        completed(false);
+        cancel();
+      }
+    },
+    revert: function revert(_ref9) {
+      var fromSortable = _ref9.fromSortable,
+          rootEl = _ref9.rootEl,
+          sortable = _ref9.sortable,
+          dragRect = _ref9.dragRect;
+
+      if (multiDragElements.length > 1) {
+        // Setup unfold animation
+        multiDragElements.forEach(function (multiDragElement) {
+          sortable.addAnimationState({
+            target: multiDragElement,
+            rect: folding ? getRect(multiDragElement) : dragRect
+          });
+          unsetRect(multiDragElement);
+          multiDragElement.fromRect = dragRect;
+          fromSortable.removeAnimationState(multiDragElement);
+        });
+        folding = false;
+        insertMultiDragElements(!this.options.removeCloneOnHide, rootEl);
+      }
+    },
+    dragOverCompleted: function dragOverCompleted(_ref10) {
+      var sortable = _ref10.sortable,
+          isOwner = _ref10.isOwner,
+          insertion = _ref10.insertion,
+          activeSortable = _ref10.activeSortable,
+          parentEl = _ref10.parentEl,
+          putSortable = _ref10.putSortable;
+      var options = this.options;
+
+      if (insertion) {
+        // Clones must be hidden before folding animation to capture dragRectAbsolute properly
+        if (isOwner) {
+          activeSortable._hideClone();
+        }
+
+        initialFolding = false; // If leaving sort:false root, or already folding - Fold to new location
+
+        if (options.animation && multiDragElements.length > 1 && (folding || !isOwner && !activeSortable.options.sort && !putSortable)) {
+          // Fold: Set all multi drag elements's rects to dragEl's rect when multi-drag elements are invisible
+          var dragRectAbsolute = getRect(dragEl$1, false, true, true);
+          multiDragElements.forEach(function (multiDragElement) {
+            if (multiDragElement === dragEl$1) return;
+            setRect(multiDragElement, dragRectAbsolute); // Move element(s) to end of parentEl so that it does not interfere with multi-drag clones insertion if they are inserted
+            // while folding, and so that we can capture them again because old sortable will no longer be fromSortable
+
+            parentEl.appendChild(multiDragElement);
+          });
+          folding = true;
+        } // Clones must be shown (and check to remove multi drags) after folding when interfering multiDragElements are moved out
+
+
+        if (!isOwner) {
+          // Only remove if not folding (folding will remove them anyways)
+          if (!folding) {
+            removeMultiDragElements();
+          }
+
+          if (multiDragElements.length > 1) {
+            var clonesHiddenBefore = clonesHidden;
+
+            activeSortable._showClone(sortable); // Unfold animation for clones if showing from hidden
+
+
+            if (activeSortable.options.animation && !clonesHidden && clonesHiddenBefore) {
+              multiDragClones.forEach(function (clone) {
+                activeSortable.addAnimationState({
+                  target: clone,
+                  rect: clonesFromRect
+                });
+                clone.fromRect = clonesFromRect;
+                clone.thisAnimationDuration = null;
+              });
+            }
+          } else {
+            activeSortable._showClone(sortable);
+          }
+        }
+      }
+    },
+    dragOverAnimationCapture: function dragOverAnimationCapture(_ref11) {
+      var dragRect = _ref11.dragRect,
+          isOwner = _ref11.isOwner,
+          activeSortable = _ref11.activeSortable;
+      multiDragElements.forEach(function (multiDragElement) {
+        multiDragElement.thisAnimationDuration = null;
+      });
+
+      if (activeSortable.options.animation && !isOwner && activeSortable.multiDrag.isMultiDrag) {
+        clonesFromRect = _extends({}, dragRect);
+        var dragMatrix = matrix(dragEl$1, true);
+        clonesFromRect.top -= dragMatrix.f;
+        clonesFromRect.left -= dragMatrix.e;
+      }
+    },
+    dragOverAnimationComplete: function dragOverAnimationComplete() {
+      if (folding) {
+        folding = false;
+        removeMultiDragElements();
+      }
+    },
+    drop: function drop(_ref12) {
+      var evt = _ref12.originalEvent,
+          rootEl = _ref12.rootEl,
+          parentEl = _ref12.parentEl,
+          sortable = _ref12.sortable,
+          dispatchSortableEvent = _ref12.dispatchSortableEvent,
+          oldIndex = _ref12.oldIndex,
+          putSortable = _ref12.putSortable;
+      var toSortable = putSortable || this.sortable;
+      if (!evt) return;
+      var options = this.options,
+          children = parentEl.children; // Multi-drag selection
+
+      if (!dragStarted) {
+        if (options.multiDragKey && !this.multiDragKeyDown) {
+          this._deselectMultiDrag();
+        }
+
+        toggleClass(dragEl$1, options.selectedClass, !~multiDragElements.indexOf(dragEl$1));
+
+        if (!~multiDragElements.indexOf(dragEl$1)) {
+          multiDragElements.push(dragEl$1);
+          dispatchEvent({
+            sortable: sortable,
+            rootEl: rootEl,
+            name: 'select',
+            targetEl: dragEl$1,
+            originalEvent: evt
+          }); // Modifier activated, select from last to dragEl
+
+          if (evt.shiftKey && lastMultiDragSelect && sortable.el.contains(lastMultiDragSelect)) {
+            var lastIndex = index(lastMultiDragSelect),
+                currentIndex = index(dragEl$1);
+
+            if (~lastIndex && ~currentIndex && lastIndex !== currentIndex) {
+              // Must include lastMultiDragSelect (select it), in case modified selection from no selection
+              // (but previous selection existed)
+              var n, i;
+
+              if (currentIndex > lastIndex) {
+                i = lastIndex;
+                n = currentIndex;
+              } else {
+                i = currentIndex;
+                n = lastIndex + 1;
+              }
+
+              for (; i < n; i++) {
+                if (~multiDragElements.indexOf(children[i])) continue;
+                toggleClass(children[i], options.selectedClass, true);
+                multiDragElements.push(children[i]);
+                dispatchEvent({
+                  sortable: sortable,
+                  rootEl: rootEl,
+                  name: 'select',
+                  targetEl: children[i],
+                  originalEvent: evt
+                });
+              }
+            }
+          } else {
+            lastMultiDragSelect = dragEl$1;
+          }
+
+          multiDragSortable = toSortable;
+        } else {
+          multiDragElements.splice(multiDragElements.indexOf(dragEl$1), 1);
+          lastMultiDragSelect = null;
+          dispatchEvent({
+            sortable: sortable,
+            rootEl: rootEl,
+            name: 'deselect',
+            targetEl: dragEl$1,
+            originalEvent: evt
+          });
+        }
+      } // Multi-drag drop
+
+
+      if (dragStarted && this.isMultiDrag) {
+        folding = false; // Do not "unfold" after around dragEl if reverted
+
+        if ((parentEl[expando].options.sort || parentEl !== rootEl) && multiDragElements.length > 1) {
+          var dragRect = getRect(dragEl$1),
+              multiDragIndex = index(dragEl$1, ':not(.' + this.options.selectedClass + ')');
+          if (!initialFolding && options.animation) dragEl$1.thisAnimationDuration = null;
+          toSortable.captureAnimationState();
+
+          if (!initialFolding) {
+            if (options.animation) {
+              dragEl$1.fromRect = dragRect;
+              multiDragElements.forEach(function (multiDragElement) {
+                multiDragElement.thisAnimationDuration = null;
+
+                if (multiDragElement !== dragEl$1) {
+                  var rect = folding ? getRect(multiDragElement) : dragRect;
+                  multiDragElement.fromRect = rect; // Prepare unfold animation
+
+                  toSortable.addAnimationState({
+                    target: multiDragElement,
+                    rect: rect
+                  });
+                }
+              });
+            } // Multi drag elements are not necessarily removed from the DOM on drop, so to reinsert
+            // properly they must all be removed
+
+
+            removeMultiDragElements();
+            multiDragElements.forEach(function (multiDragElement) {
+              if (children[multiDragIndex]) {
+                parentEl.insertBefore(multiDragElement, children[multiDragIndex]);
+              } else {
+                parentEl.appendChild(multiDragElement);
+              }
+
+              multiDragIndex++;
+            }); // If initial folding is done, the elements may have changed position because they are now
+            // unfolding around dragEl, even though dragEl may not have his index changed, so update event
+            // must be fired here as Sortable will not.
+
+            if (oldIndex === index(dragEl$1)) {
+              var update = false;
+              multiDragElements.forEach(function (multiDragElement) {
+                if (multiDragElement.sortableIndex !== index(multiDragElement)) {
+                  update = true;
+                  return;
+                }
+              });
+
+              if (update) {
+                dispatchSortableEvent('update');
+              }
+            }
+          } // Must be done after capturing individual rects (scroll bar)
+
+
+          multiDragElements.forEach(function (multiDragElement) {
+            unsetRect(multiDragElement);
+          });
+          toSortable.animateAll();
+        }
+
+        multiDragSortable = toSortable;
+      } // Remove clones if necessary
+
+
+      if (rootEl === parentEl || putSortable && putSortable.lastPutMode !== 'clone') {
+        multiDragClones.forEach(function (clone) {
+          clone.parentNode && clone.parentNode.removeChild(clone);
+        });
+      }
+    },
+    nullingGlobal: function nullingGlobal() {
+      this.isMultiDrag = dragStarted = false;
+      multiDragClones.length = 0;
+    },
+    destroyGlobal: function destroyGlobal() {
+      this._deselectMultiDrag();
+
+      off(document, 'pointerup', this._deselectMultiDrag);
+      off(document, 'mouseup', this._deselectMultiDrag);
+      off(document, 'touchend', this._deselectMultiDrag);
+      off(document, 'keydown', this._checkKeyDown);
+      off(document, 'keyup', this._checkKeyUp);
+    },
+    _deselectMultiDrag: function _deselectMultiDrag(evt) {
+      if (typeof dragStarted !== "undefined" && dragStarted) return; // Only deselect if selection is in this sortable
+
+      if (multiDragSortable !== this.sortable) return; // Only deselect if target is not item in this sortable
+
+      if (evt && closest(evt.target, this.options.draggable, this.sortable.el, false)) return; // Only deselect if left click
+
+      if (evt && evt.button !== 0) return;
+
+      while (multiDragElements.length) {
+        var el = multiDragElements[0];
+        toggleClass(el, this.options.selectedClass, false);
+        multiDragElements.shift();
+        dispatchEvent({
+          sortable: this.sortable,
+          rootEl: this.sortable.el,
+          name: 'deselect',
+          targetEl: el,
+          originalEvent: evt
+        });
+      }
+    },
+    _checkKeyDown: function _checkKeyDown(evt) {
+      if (evt.key === this.options.multiDragKey) {
+        this.multiDragKeyDown = true;
+      }
+    },
+    _checkKeyUp: function _checkKeyUp(evt) {
+      if (evt.key === this.options.multiDragKey) {
+        this.multiDragKeyDown = false;
+      }
+    }
+  };
+  return _extends(MultiDrag, {
+    // Static methods & properties
+    pluginName: 'multiDrag',
+    utils: {
+      /**
+       * Selects the provided multi-drag item
+       * @param  {HTMLElement} el    The element to be selected
+       */
+      select: function select(el) {
+        var sortable = el.parentNode[expando];
+        if (!sortable || !sortable.options.multiDrag || ~multiDragElements.indexOf(el)) return;
+
+        if (multiDragSortable && multiDragSortable !== sortable) {
+          multiDragSortable.multiDrag._deselectMultiDrag();
+
+          multiDragSortable = sortable;
+        }
+
+        toggleClass(el, sortable.options.selectedClass, true);
+        multiDragElements.push(el);
+      },
+
+      /**
+       * Deselects the provided multi-drag item
+       * @param  {HTMLElement} el    The element to be deselected
+       */
+      deselect: function deselect(el) {
+        var sortable = el.parentNode[expando],
+            index = multiDragElements.indexOf(el);
+        if (!sortable || !sortable.options.multiDrag || !~index) return;
+        toggleClass(el, sortable.options.selectedClass, false);
+        multiDragElements.splice(index, 1);
+      }
+    },
+    eventProperties: function eventProperties() {
+      var _this3 = this;
+
+      var oldIndicies = [],
+          newIndicies = [];
+      multiDragElements.forEach(function (multiDragElement) {
+        oldIndicies.push({
+          multiDragElement: multiDragElement,
+          index: multiDragElement.sortableIndex
+        }); // multiDragElements will already be sorted if folding
+
+        var newIndex;
+
+        if (folding && multiDragElement !== dragEl$1) {
+          newIndex = -1;
+        } else if (folding) {
+          newIndex = index(multiDragElement, ':not(.' + _this3.options.selectedClass + ')');
+        } else {
+          newIndex = index(multiDragElement);
+        }
+
+        newIndicies.push({
+          multiDragElement: multiDragElement,
+          index: newIndex
+        });
+      });
+      return {
+        items: _toConsumableArray(multiDragElements),
+        clones: [].concat(multiDragClones),
+        oldIndicies: oldIndicies,
+        newIndicies: newIndicies
+      };
+    },
+    optionListeners: {
+      multiDragKey: function multiDragKey(key) {
+        key = key.toLowerCase();
+
+        if (key === 'ctrl') {
+          key = 'Control';
+        } else if (key.length > 1) {
+          key = key.charAt(0).toUpperCase() + key.substr(1);
+        }
+
+        return key;
+      }
+    }
+  });
+}
+
+function insertMultiDragElements(clonesInserted, rootEl) {
+  multiDragElements.forEach(function (multiDragElement, i) {
+    var target = rootEl.children[multiDragElement.sortableIndex + (clonesInserted ? Number(i) : 0)];
+
+    if (target) {
+      rootEl.insertBefore(multiDragElement, target);
+    } else {
+      rootEl.appendChild(multiDragElement);
+    }
+  });
+}
+/**
+ * Insert multi-drag clones
+ * @param  {[Boolean]} elementsInserted  Whether the multi-drag elements are inserted
+ * @param  {HTMLElement} rootEl
+ */
+
+
+function insertMultiDragClones(elementsInserted, rootEl) {
+  multiDragClones.forEach(function (clone, i) {
+    var target = rootEl.children[clone.sortableIndex + (elementsInserted ? Number(i) : 0)];
+
+    if (target) {
+      rootEl.insertBefore(clone, target);
+    } else {
+      rootEl.appendChild(clone);
+    }
+  });
+}
+
+function removeMultiDragElements() {
+  multiDragElements.forEach(function (multiDragElement) {
+    if (multiDragElement === dragEl$1) return;
+    multiDragElement.parentNode && multiDragElement.parentNode.removeChild(multiDragElement);
+  });
+}
+
+Sortable.mount(new AutoScrollPlugin());
+Sortable.mount(Remove, Revert);
+
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (Sortable);
+
 
 
 /***/ }),
