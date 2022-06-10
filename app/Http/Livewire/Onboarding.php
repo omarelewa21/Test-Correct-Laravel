@@ -51,6 +51,8 @@ class Onboarding extends Component
 
     public $entree_message = '';
 
+    public $showSubjects = true;
+
 
     protected $queryString = ['step', 'email', 'confirmed', 'ref','entree_message', 'level'];
 
@@ -145,9 +147,9 @@ class Onboarding extends Component
         $this->registration->username = $this->email;
         $this->registration->gender = 'male';
 
-        if (!$this->step != 1 || $this->step >= '4') {
-            $this->step = 1;
-        }
+//        if (!$this->step != 1 || $this->step > '4') {
+//            $this->step = 1;
+//        }
         if (!$this->email) {
             $this->email = '';
         }
@@ -428,5 +430,10 @@ class Onboarding extends Component
         return collect($subjects)->map(function($subject) {
             return __('subject.'.$subject);
         })->toArray();
+    }
+
+    public function finish()
+    {
+        $this->step = 4;
     }
 }

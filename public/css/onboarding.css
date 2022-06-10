@@ -252,10 +252,6 @@ h6 {
     margin-bottom: 1rem;
 }
 
-.email-section input {
-    max-width: 476px;
-}
-
 .input-group #name_suffix {
     min-width: 80px;
     width: 80px;

@@ -13,6 +13,7 @@ return [
     'Anders'                                                                                                                                           => 'Anders',
     'Voornaam'                                                                                                                                         => 'Voornaam',
     'Tussenvoegsel'                                                                                                                                    => 'Tussenvoegsel',
+    'Tussenv.'                                                                                                                                         => 'Tussenv.',
     'Achternaam'                                                                                                                                       => 'Achternaam',
     'Creeër wachtwoord'                                                                                                                                => 'Creeër wachtwoord',
     'Herhaal wachtwoord'                                                                                                                               => 'Herhaal wachtwoord',
@@ -74,5 +75,6 @@ return [
     'Gefeliciteerd met je Test-Correct account!'                                                                                                       => 'Gefeliciteerd met je Test-Correct account!',
     'Deel dit op jouw social media'                                                                                                                    => 'Deel dit op jouw social media',
     'Wijzig locaties'                                                                                                                                  => 'Wijzig locaties',
+    'Locatie'                                                                                                                                          => 'Locatie',
 ];
 ?>

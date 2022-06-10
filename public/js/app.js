@@ -6724,7 +6724,7 @@ window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
 window.Pusher = __webpack_require__(/*! pusher-js */ "./node_modules/pusher-js/dist/web/pusher.js");
 window.Echo = new laravel_echo__WEBPACK_IMPORTED_MODULE_0__["default"]({
   broadcaster: 'pusher',
-  key: "51d7221bf733999d7138",
+  key: "fc18ed69b446aeb8c8a5",
   cluster: "eu",
   forceTLS: true
 });
@@ -12651,17 +12651,8 @@ RichTextEditor = {
 
     CKEDITOR.replace(editorId, {});
     editor = CKEDITOR.instances[editorId];
-    editor.shouldDispatchChange = false;
     editor.on('change', function (e) {
-      RichTextEditor.sendInputEventToEditor(editorId, e); // if(!e.editor.getData()?.includes('MathML')) {
-      //     RichTextEditor.sendInputEventToEditor(editorId, e);
-      //     editor.shouldDispatchChange = true;
-      //     return;
-      // }
-      // if (editor.shouldDispatchChange) {
-      //     RichTextEditor.sendInputEventToEditor(editorId, e);
-      // }
-      // editor.shouldDispatchChange = true
+      RichTextEditor.sendInputEventToEditor(editorId, e);
     });
     editor.on('simpleuploads.startUpload', function (e) {
       e.data.extraHeaders = {
