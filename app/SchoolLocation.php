@@ -1032,9 +1032,9 @@ class SchoolLocation extends BaseModel implements AccessCheckable
         $user = $userFactory->generate(
             [
                 'account_verified' => Carbon::now(),
-                'name' => 'Schoolbeheerder',
-                'name_first' => 'default',
-                'username' => sprintf('info+%sSchoolbeheerder@test-correct.nl',Str::kebab($this->name)),
+                'name' => sprintf('TLC schoolbeheerder %s',$this->customer_code),
+                'name_first' => '',
+                'username' => sprintf('info+%sSchoolbeheerder@test-correct.nl',$this->customer_code),
                 'send_welcome_email' => 1,
                 'user_roles' => [6],
                 'school_location_id' => $this->getKey(),
