@@ -124,6 +124,10 @@ return [
 	|
 	*/
 
-	'attributes' => [],
+	'attributes' => [
+        'request.abbreviation' => 'abbreviation',
+        'request.name'         => 'name',
+        'request.introduction' => 'introduction-text',
+    ],
 
 ];

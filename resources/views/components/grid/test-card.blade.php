@@ -1,9 +1,13 @@
-<div {{ $attributes->merge(['class' => 'grid-card bg-white p-6 rounded-10 card-shadow hover:text-primary']) }}
+<div
+        {{ $attributes->merge(['class' => 'grid-card bg-white p-6 rounded-10 card-shadow hover:text-primary']) }}
      wire:key="questioncard-{{ $test->uuid }}"
+        @click="activateCard($el)"
 >
     <div class="flex w-full justify-between mb-2">
-        <h3 class="line-clamp-2 min-h-[64px] @if(blank($test->name)) italic @endif"
-            title="{{ $test->name }}">{{ $test->name ? $test->name : __('test.test_name') }}</h3>
+        <h3 class="line-clamp-2 min-h-[64px] text-inherit @if(blank($test->name)) italic @endif"
+            title="{{ $test->name }}"
+            style="color:inherit"
+        >{{ $test->name ? $test->name : __('test.test_name') }}</h3>
         <div class="relative" x-data="{
                 testOptionMenu: false,
                 makePDF: async function(uuid) {
@@ -39,23 +43,23 @@
                     <x-icon.schedule/>
                     <span class="text-base bold inherit">{{ __('cms.Inplannen') }}</span>
                 </button>
-                @if( $test->canEdit(auth()->user()))
+                @if( $test->canEdit(auth()->user()) &&  $this->openTab != 'organization')
                 <button class="flex items-center space-x-2 py-1 px-4 base hover:text-primary hover:bg-offwhite transition w-full"
                         @click="duplicateTest('{{ $test->uuid }}')"
 
 
                 >
-                    <x-icon.schedule/>
+                    <x-icon.copy/>
                     <span class="text-base bold inherit">{{ __('cms.Kopie maken') }}</span>
                 </button>
                 @endif
-                @if( $test->canEdit(auth()->user()))
+                @if( $test->canEdit(auth()->user()) && $this->openTab == 'organization')
                     <button
                             class="flex items-center space-x-2 py-1 px-4 base hover:text-primary hover:bg-offwhite transition w-full"
                             wire:click="$emitTo('teacher.copy-test-from-schoollocation-modal', 'showModal', '{{ $test->uuid }}')"
                     >
-                        <x-icon.schedule/>
-                        <span class="text-base bold inherit">{{ __('cms.Kopie maken') }} !!!</span>
+                        <x-icon.copy/>
+                        <span class="text-base bold inherit">{{ __('cms.Kopie maken') }}</span>
                     </button>
                 @endif
                 <button
@@ -112,5 +116,10 @@
         <div>
             <span>{{ $test->authorsAsString }}</span>
         </div>
+        @if ($test->isCopy())
+        <div class="p-1 text-sm rounded uppercase text-muted border-2 bg-light-grey border-grey-500 text-gray-500">
+            {{ __('kopie') }}
+        </div>
+            @endif
     </div>
 </div>

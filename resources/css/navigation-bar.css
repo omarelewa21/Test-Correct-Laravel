@@ -27,6 +27,7 @@
     height: 50px;
     display: flex;
     justify-content: end;
+    -webkit-justify-content: flex-end;
 }
 
 .navigation-bar .menu-top .action-icon-container {

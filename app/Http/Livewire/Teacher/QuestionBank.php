@@ -18,7 +18,7 @@ use tcCore\Test;
 
 class QuestionBank extends Component
 {
-    const ITEM_INCREMENT = 15;
+    const ITEM_INCREMENT = 16;
 
     const SOURCE_PERSONAL = 'me';
     const SOURCE_SCHOOL = '';
@@ -37,7 +37,7 @@ class QuestionBank extends Component
     public $inGroup = false;
 
     private $allowedTabs = [
-        'school',
+        'school_location',
         'personal',
     ];
 
@@ -125,10 +125,11 @@ class QuestionBank extends Component
 
     public function handleCheckboxClick($questionId)
     {
-        if ($this->isQuestionInTest($questionId)) {
-            $this->emitTo('drawer.cms', 'deleteQuestionByQuestionId', $questionId);
-            return $this->removeQuestionFromTest($questionId);
-        }
+//        if ($this->isQuestionInTest($questionId)) {
+//            $this->emitTo('drawer.cms', 'deleteQuestionByQuestionId', $questionId);
+//            $this->removeQuestionFromTest($questionId);
+//            return;
+//        }
 
         $this->addQuestionToTest($questionId);
     }
@@ -145,7 +146,6 @@ class QuestionBank extends Component
             $this->addedQuestionIds[json_decode($response->getContent())->question_id] = 0;
             $this->dispatchBrowserEvent('question-added');
         }
-
     }
 
     private function getQuestionIdsThatAreAlreadyInTest()
@@ -170,11 +170,6 @@ class QuestionBank extends Component
         $this->itemsPerPage += QuestionBank::ITEM_INCREMENT;
     }
 
-    public function updatingFilters()
-    {
-        $this->dispatchBrowserEvent('filters-handling');
-    }
-
     public function updatedFilters($name, $value)
     {
         $this->resetItemsPerPage();
@@ -192,10 +187,6 @@ class QuestionBank extends Component
         $this->itemsPerPage = QuestionBank::ITEM_INCREMENT;
     }
 
-
-    /**
-     * @return mixed
-     */
     private function getQuestionsQuery()
     {
         return Question::filtered($this->getFilters())
@@ -234,8 +225,6 @@ class QuestionBank extends Component
 
     private function performControllerActionForQuestion($questionId)
     {
-        $this->addedQuestionIds[] = $questionId;
-
         $requestParams = [
             'test_id'           => $this->test->getKey(),
             'order'             => 0,

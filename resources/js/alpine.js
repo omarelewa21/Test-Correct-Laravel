@@ -484,10 +484,7 @@ document.addEventListener('alpine:init', () => {
                 }
 
                 refreshChoices()
-                // this.$refs.select.addEventListener('addItem', (event) => {
-                //     console.log('additem');
-                //
-                // })
+
                 this.$refs.select.addEventListener('choice', (event) => {
                     if (this.value.includes(parseInt(event.detail.choice.value))) {
                         this.removeFilterItem(choices.getValue().find(value => value.value === event.detail.choice.value));
@@ -495,7 +492,8 @@ document.addEventListener('alpine:init', () => {
                 })
                 this.$refs.select.addEventListener('change', () => {
                     this.value = choices.getValue(true)
-                    this.wireModel = this.value;
+                    // This causes 2 update calls:
+                    // this.wireModel = this.value;
                 })
 
                 let eventName = 'removeFrom'+this.$root.dataset.modelName;

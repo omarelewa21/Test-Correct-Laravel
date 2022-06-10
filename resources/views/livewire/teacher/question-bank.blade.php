@@ -16,7 +16,7 @@
                             {{--                         wire:click="setSource('personal')"--}}
                     >
                         <span class="bold pt-[0.9375rem] pb-[0.8125rem]"
-                              :class="openTab === 'personal' ? 'primary' : '' ">Persoonlijk</span>
+                              :class="openTab === 'personal' ? 'primary' : '' ">{{ __('general.Persoonlijk') }}</span>
                         <span class="absolute w-full bottom-0" style="height: 3px"
                               :class="openTab === 'personal' ? 'bg-primary' : 'bg-transparent' "></span>
                     </div>
@@ -25,13 +25,13 @@
                 <div>
                     {{--                    <div class="flex relative text-midgrey cursor-default">--}}
                     <div class="flex relative hover:text-primary cursor-pointer"
-                         @click="openTab = 'school'"
-                            {{--                         wire:click="setSource('school')"--}}
+                         @click="openTab = 'school_location'"
+                            {{--                         wire:click="setSource('school_location')"--}}
                     >
                         <span class="bold pt-[0.9375rem] pb-[0.8125rem]"
-                              :class="openTab === 'school' ? 'primary' : '' ">School</span>
+                              :class="openTab === 'school_location' ? 'primary' : '' ">Schoollocatie</span>
                         <span class="absolute w-full bottom-0" style="height: 3px"
-                              :class="openTab === 'school' ? 'bg-primary' : 'bg-transparent' "></span>
+                              :class="openTab === 'school_location' ? 'bg-primary' : 'bg-transparent' "></span>
                     </div>
                 </div>
 
@@ -64,12 +64,12 @@
                     <div class="relative w-full">
                         <x-input.text class="w-full"
                                       placeholder="Zoek..."
-                                      wire:model.300ms="filters.{{ $this->openTab }}.search"
+                                      wire:model.debounce.300ms="filters.{{ $this->openTab }}.search"
                         />
                         <x-icon.search class="absolute right-0 -top-2"/>
                     </div>
                 </div>
-                <div class="flex flex-wrap w-full space-x-2">
+                <div class="flex flex-wrap w-full space-x-2" x-cloak>
                     <x-input.choices-select :multiple="true"
                                             :options="$this->subjects"
                                             :withSearch="true"
@@ -94,6 +94,7 @@
                                             wire:key="education_level_year_{{ $this->openTab }}"
                                             filterContainer="questionbank-{{ $this->openTab }}-active-filters"
                     />
+                    <span x-show="openTab !== 'personal'">
                     <x-input.choices-select :multiple="true"
                                             :options="$this->authors"
                                             :withSearch="true"
@@ -102,6 +103,7 @@
                                             wire:key="author_id_{{ $this->openTab }}"
                                             filterContainer="questionbank-{{ $this->openTab }}-active-filters"
                     />
+                        </span>
                 </div>
 
                 <div id="questionbank-{{ $this->openTab }}-active-filters"
@@ -115,13 +117,38 @@
 
             {{-- Content --}}
             <div class="flex flex-col py-4" style="min-height: 500px"
-                 wire:loading.class="opacity-75"
+                 x-data="{filterLoading: false}"
+                 x-init="
+                    Livewire.hook('message.sent', (message, component) => {
+                        if (component.el.id !== 'question-bank') {
+                            return;
+                        }
+                        if (!livewireMessageContainsModelName(message, 'filter') && !livewireMessageContainsModelName(message, 'openTab')) {
+                            return;
+                        }
+                        filterLoading = true;
+                    })
+                    Livewire.hook('message.processed', (message, component) => {
+                        if (component.el.id !== 'question-bank') {
+                            return;
+                        }
+                        if (!livewireMessageContainsModelName(message, 'filter') && !livewireMessageContainsModelName(message, 'openTab')) {
+                            return;
+                        }
+                        filterLoading = false;
+                    })
+                 "
             >
                 <div class="flex">
                     <span class="note text-sm">{{ $this->resultCount }} resultaten</span>
                 </div>
 
-                <x-grid class="mt-4" wire:key="grid-{{ $this->resultCount }}">
+                <x-grid class="mt-4" x-show="filterLoading" wire:key="grid-{{ $this->resultCount }}">
+                    @foreach(range(1,6) as $value)
+                        <x-grid.loading-card :delay="$value"/>
+                    @endforeach
+                </x-grid>
+                <x-grid class="mt-4" x-show="!filterLoading" x-cloak    >
                     {{-- @TODO: Fix loading animation --}}
                     @foreach($this->questions as $question)
                         <x-grid.question-card :question="$question"/>

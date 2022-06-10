@@ -1,8 +1,9 @@
 <div {{ $attributes->merge(['class' => 'grid-card bg-white p-6 rounded-10 card-shadow hover:text-primary']) }}
-        wire:key="questioncard-{{ $question->getQuestionInstance()->uuid }}"
+        wire:key="questioncard-{{ $question->uuid }}"
 >
     <div class="flex w-full justify-between mb-2">
-        <h3 class="line-clamp-2 min-h-[64px] @if(blank($question->title)) italic @endif" title="{{ $question->title }}">{{ $question->title ? $question->title : __('question.no_question_text') }}</h3>
+        <h3 class="line-clamp-2 min-h-[64px] @if(blank($question->title)) italic @endif" title="{{ $question->title }}">
+            {{ $testQuestion->order }} {{ $question->title ? $question->title : __('question.no_question_text') }}</h3>
 
         <x-icon.options class="text-sysbase"/>
     </div>
@@ -21,12 +22,6 @@
             <span>{{ $question->getAuthorNamesString() }}</span>
         </div>
 
-        <x-button.cta class="text-white" @click="$el.disabled = true" wire:click="handleCheckboxClick({{ $question->getKey() }})">
-            {{ __('cms.Toevoegen') }}
-        </x-button.cta>
-{{--            <x-input.custom-checkbox wire:click.stop="handleCheckboxClick({{ $question->getKey() }})"--}}
-{{--                                     wire:key="checkbox-for-question{{ $question->uuid }}"--}}
-{{--                                     :checked="$this->isQuestionInTest($question->getKey())"--}}
-{{--            />--}}
+
     </div>
 </div>

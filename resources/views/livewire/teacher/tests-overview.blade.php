@@ -1,6 +1,18 @@
 <div id="question-bank"
+     x-data="{
+        openTab: @entangle('openTab'),
+         checkedCount: 0,
+          loading: false,
+         activateCard: (current) => {
+            document.querySelectorAll('.grid-card').forEach(el => {
+                el == current
+                ? el.classList.add('text-primary')
+                : el.classList.remove('text-primary');
+            });
+
+         }
+     }"
      class="flex flex-col relative w-full min-h-full bg-lightGrey border-t border-secondary overflow-auto"
-     x-data="{openTab: @entangle('openTab'), checkedCount: 0, loading: false}"
      @checked="$event.detail ? checkedCount += 1 : checkedCount -= 1"
      @question-added.window="Notify.notify('Vraag toegevoegd!')"
      @question-removed.window="Notify.notify('Vraag verwijderd!')"
@@ -28,10 +40,24 @@
                 </div>
 
                 <div>
-                    <div class="flex relative text-midgrey cursor-default">
+                    <div class="flex relative cursor-default">
                         {{--                    <div class="flex relative hover:text-primary cursor-pointer" @click="openTab = 3">--}}
-                        <span class="bold pt-[0.9375rem] pb-[0.8125rem]"
-                              :class="openTab === 'national' ? 'primary' : '' ">{{ __('general.Nationaal') }}</span>
+                        <span class="bold pt-[0.9375rem] pb-[0.8125rem]  "
+                              :class="openTab === 'national' ? 'primary' : '' ">
+                            <span class="text-white  bg-mid-grey px-2 py-1 rounded-lg">{{ __('general.Scholengemeenschap') }}</span>
+                            </span>
+                        <span class="absolute w-full bottom-0" style="height: 3px"
+                              :class="openTab === 'national' ? 'bg-primary' : 'bg-transparent' "></span>
+                    </div>
+                </div>
+
+                <div>
+                    <div class="flex relative cursor-default">
+                        {{--                    <div class="flex relative hover:text-primary cursor-pointer" @click="openTab = 3">--}}
+                        <span class="bold pt-[0.9375rem] pb-[0.8125rem]  "
+                              :class="openTab === 'national' ? 'primary' : '' ">
+                            <span class="text-white  bg-mid-grey px-2 py-1 rounded-lg">{{ __('general.Nationaal') }}</span>
+                        </span>
                         <span class="absolute w-full bottom-0" style="height: 3px"
                               :class="openTab === 'national' ? 'bg-primary' : 'bg-transparent' "></span>
                     </div>
@@ -115,6 +141,7 @@
                     @endif
                 </div>
                 <div id="questionbank-{{ $this->openTab }}-active-filters"
+                     wire:ignore
 
                      x-data=""
                      :class="($el.childElementCount !== 1) ? 'mt-2' : ''"
@@ -133,10 +160,10 @@
                     <span class="note text-sm"
                           wire:loading.remove>{{  trans_choice('general.number-of-tests', $results->total(), ['count' => $results->total()]) }}</span>
                     <div>
-{{--                        <x-button.primary wire:click="$emitTo('teacher.planning-modal', 'showModal')">--}}
-{{--                            <x-icon.schedule/>--}}
-{{--                            <span>{{ __('cms.Inplannen') }}</span>--}}
-{{--                        </x-button.primary>--}}
+                                                <x-button.primary wire:click="$emitTo('navigation-bar', 'redirectToCake', 'planned.my_tests.plan')">
+                                                    <x-icon.schedule/>
+                                                    <span>{{ __('cms.Inplannen') }}</span>
+                                                </x-button.primary>
                         <x-button.cta wire:click="$emit('openModal', 'teacher.test-start-create-modal')">
                             <x-icon.plus/>
                             <span>{{ __('general.create test') }}</span>
@@ -147,8 +174,6 @@
                     @foreach(range(1, 6) as $value)
                         <x-grid.loading-card :delay="$value"/>
                     @endforeach
-
-
 
                     @foreach($results as $test)
                         <x-grid.test-card :test="$test" wire:loading.class="hidden"/>

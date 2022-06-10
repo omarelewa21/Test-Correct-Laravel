@@ -1,9 +1,6 @@
 <x-modal-new>
     <x-slot name="title">
-        <div class="flex justify-between">
             <span>{{ __('teacher.Inplannen') }}</span>
-            <span wire:click="$set('showModal', false)" class="cursor-pointer">x</span>
-        </div>
     </x-slot>
     <x-slot name="body">
         <div class="email-section mb-4 w-full">
@@ -130,4 +127,4 @@
             </div>
         </div>
     </x-slot>
-</x-modal-new>>
+</x-modal-new>

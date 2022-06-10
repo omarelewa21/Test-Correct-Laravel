@@ -118,6 +118,23 @@
                             </div>
                         </div>
                     </div>
+                    <div class="error-section md:mb-20">
+                        @error('request.name')
+                        <div class="notification error mt-4">
+                            <span class="title">{{ $message }}</span>
+                        </div>
+                        @enderror
+                        @error('request.abbreviation')
+                        <div class="notification error mt-4">
+                            <span class="title">{{ $message }}</span>
+                        </div>
+                        @enderror
+                        @error('request.introduction')
+                        <div class="notification error mt-4">
+                            <span class="title">{{ $message }}</span>
+                        </div>
+                        @enderror
+                    </div>
                 </div>
             </div>
         </x-slot>
