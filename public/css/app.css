@@ -7837,7 +7837,15 @@ ul ul ul {
     content: ' ';
 }
 
-.draggable-mirror.sub-item-with-connecting-line::before {
+.sortable-nogo {
+    background: rgb(255,209,218);
+}
+.sortable-nogo * {
+    color: grey !important;
+}
+
+.draggable-mirror.sub-item-with-connecting-line::before,
+.sortable-grab.sub-item-with-connecting-line::before{
     display:none;
 }
 .draggable--over.sub-item-with-connecting-line::before,
