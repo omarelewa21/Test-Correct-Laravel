@@ -24,13 +24,9 @@
         <x-button.cta class="text-white" @click="$el.disabled = true" wire:click="handleCheckboxClick({{ $question->getKey() }})">
             {{ __('cms.Toevoegen') }}
         </x-button.cta>
-{{--        @if($this->isQuestionInTest($question->getKey()))--}}
-{{--            toegevoegd--}}
-{{--        @else--}}
 {{--            <x-input.custom-checkbox wire:click.stop="handleCheckboxClick({{ $question->getKey() }})"--}}
 {{--                                     wire:key="checkbox-for-question{{ $question->uuid }}"--}}
 {{--                                     :checked="$this->isQuestionInTest($question->getKey())"--}}
 {{--            />--}}
-{{--        @endif--}}
     </div>
 </div>

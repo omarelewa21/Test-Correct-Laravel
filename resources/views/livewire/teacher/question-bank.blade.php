@@ -64,7 +64,7 @@
                     <div class="relative w-full">
                         <x-input.text class="w-full"
                                       placeholder="Zoek..."
-                                      wire:model.300ms="filters.{{ $this->openTab }}.search"
+                                      wire:model.debounce.300ms="filters.{{ $this->openTab }}.search"
                         />
                         <x-icon.search class="absolute right-0 -top-2"/>
                     </div>
