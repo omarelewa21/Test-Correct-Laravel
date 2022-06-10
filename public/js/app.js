@@ -12341,6 +12341,7 @@ window.Livewire.directive('sortable', function (el, directive, component) {
       pull: false,
       put: false
     },
+    forceFallback: true,
     store: {
       set: function set(sortable) {
         var items = sortable.toArray().map(function (value, index) {
@@ -12370,6 +12371,7 @@ window.Livewire.directive('sortable-group', function (el, directive, component) 
       pull: true,
       put: true
     },
+    forceFallback: true,
     onSort: function onSort() {
       var masterEl = el.closest('[wire\\:sortable-group]');
       var groups = Array.from(masterEl.querySelectorAll('[wire\\:sortable-group\\.item-group]')).map(function (el, index) {

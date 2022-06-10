@@ -20,7 +20,9 @@ window.Livewire.directive('sortable', (el, directive, component) => {
             name: el.getAttribute('wire:sortable'),
             pull: false,
             put: false,
+
         },
+        forceFallback: true,
         store: {
             set: function (sortable) {
                 let items = sortable.toArray().map((value, index) => {
@@ -52,6 +54,7 @@ window.Livewire.directive('sortable-group', (el, directive, component) => {
             pull: true,
             put: true,
         },
+        forceFallback: true,
         onSort: () => {
             let masterEl = el.closest('[wire\\:sortable-group]');
 
