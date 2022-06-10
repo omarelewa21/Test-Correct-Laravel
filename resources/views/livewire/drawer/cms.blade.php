@@ -26,6 +26,8 @@
      :class="{'collapsed': collapse}"
      @backdrop="backdrop = !backdrop"
      @processing-end.window="$store.cms.processing = false;"
+     @filepond-start.window="loadingOverlay = true;"
+     @filepond-finished.window="loadingOverlay = false;"
      wire:ignore.self
      wire:init="handleCmsInit()"
 >
