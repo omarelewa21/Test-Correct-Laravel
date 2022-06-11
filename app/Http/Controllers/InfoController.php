@@ -18,9 +18,14 @@ use tcCore\Http\Requests\UpdateDeploymentRequest;
 use tcCore\Http\Requests\UpdateInfoRequest;
 use tcCore\Info;
 use tcCore\UserInfosDontShow;
+use DOMDocument;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class InfoController extends Controller
 {
+    private $key = '<I&*}":BLi/pa>O,/IrJN4w4k#>Qh@';
 
     public function index(IndexInfoRequest $request)
     {
@@ -46,7 +51,18 @@ class InfoController extends Controller
 
     public function update(UpdateInfoRequest $request, Info $info)
     {
-        $info->fill($request->validated());
+        $data = collect($request->validated());
+        if(Str::contains($data->get('content_nl'), '<img')){
+            $data = $data->replace([
+                'content_nl' => $this->handleInlineImage($data->get('content_nl'))
+            ]);
+        }
+        if(Str::contains($data->get('content_en'), '<img')){
+            $data = $data->replace([
+                'content_en' => $this->handleInlineImage($data->get('content_en'))
+            ]);
+        }
+        $info->fill($data->all());
         $info->save();
         $info->saveRoleInfo($request->validated('roles'));
         return Response::make($info,200);
@@ -54,8 +70,18 @@ class InfoController extends Controller
 
     public function store(CreateInfoRequest $request)
     {
-
-        $info = Info::create($request->validated());
+        $data = collect($request->validated());
+        if(Str::contains($data->get('content_nl'), '<img')){
+            $data = $data->replace([
+                'content_nl' => $this->handleInlineImage($data->get('content_nl'))
+            ]);
+        }
+        if(Str::contains($data->get('content_en'), '<img')){
+            $data = $data->replace([
+                'content_en' => $this->handleInlineImage($data->get('content_en'))
+            ]);
+        }
+        $info = Info::create($data->all());
         $info->saveRoleInfo($request->validated('roles'));
         return Response::make($info,200);
     }
@@ -80,4 +106,48 @@ class InfoController extends Controller
 
     }
 
+    /**
+     * Get image from cak part and replaces each img src with laravel src
+     * @param (string) html content
+     * @return (string) html content
+     */
+    public function handleInlineImage($content){
+        $dom = new DOMDocument();
+        $dom->loadHTML($content, LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD);
+        $imgs = $dom->getElementsByTagName('img');
+
+        foreach($imgs as $img) {
+            $src = $img->getAttribute('src');
+            $url_arr = parse_url($src);
+            if($url_arr['host'] !== request()->getHost()){          // continue if saved image domain !=  test-correct.{env_type}
+                parse_str($url_arr['query'], $query);
+                $filename = $query['filename'];
+                $response = Http::post(                                                                         // Send a post request to get image content
+                    $url_arr['scheme'] . '://' . $url_arr['host'] . '/infos/inlineInfoImage/' . $filename,      // link
+                    ['key' => $this->key]                                                                       // secret key between cake and laravel
+                );
+                if($response->successful()){
+                    $storagePath = storage_path() . sprintf('/inlineimages/%f', $filename);
+                    Storage::disk('inline_images')->put($filename, base64_decode($response->body()));
+                    $img->setAttribute('src', request()->getSchemeAndHttpHost() . '/infos/inline-image/'. $filename);
+                }
+            }
+        }
+        $html = $dom->saveHTML();
+        return $html;
+    }
+
+    /**
+     * Serve inline image links
+     * @param string image name
+     * @return response of image content
+     */
+    public function getInlineImage($image){
+        $image_path = storage_path('inlineimages/') . $image;
+        if(file_exists($image_path)){
+            return Response::file($image_path);
+        }else{
+            return Response::noContent();
+        }
+    }
 }
