@@ -17,7 +17,7 @@
                                     @if($answerStruct[$option->id] === '')
                                         <x-drag-item wire:key="option-{{ $option->id }}" sortableHandle="false"
                                                      wire:sortable-group.item="{{ $option->id }}">
-                                            {{ $option->answer }}
+                                            {!! $option->answer !!}
                                         </x-drag-item>
                                     @endif
                                 @endif
@@ -28,7 +28,7 @@
                 <div class="flex space-x-5 classified">
                     @foreach ($question->matchingQuestionAnswers as $group)
                         @if(  $group->correct_answer_id === null )
-                            <x-dropzone type="classify" title="{{ $group->answer }}" wire:key="group-{{ $group->id }}"
+                            <x-dropzone type="classify" title="{!! html_entity_decode($group->answer) !!}" wire:key="group-{{ $group->id }}"
                                         wire:sortable.item="{{ $group->id }}">
                                 <div class="flex flex-col w-full dropzone-height" wire:sortable-group.item-group="{{ $group->id }}">
                                     @foreach($shuffledAnswers as $option)
