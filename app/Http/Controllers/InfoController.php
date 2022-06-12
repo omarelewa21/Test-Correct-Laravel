@@ -107,7 +107,7 @@ class InfoController extends Controller
     }
 
     /**
-     * Get image from cak part and replaces each img src with laravel src
+     * Get image from cake part and replace each cake img src with laravel src
      * @param (string) html content
      * @return (string) html content
      */
