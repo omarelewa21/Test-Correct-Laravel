@@ -139,7 +139,7 @@
             <a class="cursor-pointer" wire:click="cakeRedirect('update-password')">{{__('Wachtwoord wijzigen')}}</a>
             <a href="https://support.test-correct.nl/knowledge" target="_blank">{{__('Supportpagina')}}</a>
             <a class="cursor-pointer" wire:click="cakeRedirect('delay-auto-logout')">{{__('Automatisch uitloggen uitstellen')}}</a>
-            <a class="cursor-pointer" wire:click="cakeRedirect('tests.my_uploads')">{{__('Uploaden toets')}}</a>
+            <a class="cursor-pointer" wire:click="cakeRedirect('tests.my_uploads_with_popup')">{{__('Uploaden toets')}}</a>
         </div>
         <div class="support-menu" x-ref="support_menu" x-cloak="" x-show="supportMenu" x-transition="" @click.outside="supportmenu = false">
             <a class="cursor-pointer" wire:click="cakeRedirect('knowledge_base')">{{__('kennisbank')}}</a>
