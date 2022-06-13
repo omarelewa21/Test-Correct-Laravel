@@ -18,13 +18,13 @@ class TestsOverview extends Component
 {
     use WithPagination;
 
-    const PER_PAGE = 16;
+    const PER_PAGE = 12;
 
 
     public $filters = [];
 
 
-    public $sorting = ['created_at', 'desc'];
+    private $sorting = ['id' => 'desc'];
 
     protected $queryString = ['openTab'];
 

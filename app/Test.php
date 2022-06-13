@@ -876,10 +876,18 @@ class Test extends BaseModel
 
     public function getAuthorsAsStringAttribute()
     {
-        return $this->testAuthors()->get()->map(function($author) {
+        $names = $this->testAuthors()->get()->map(function($author) {
             return implode(' ', array_filter([$author->user->name_first, $author->user->name_suffix, $author->user->name]));
-        })->join(',');
+        });
 
+        $return = $names->take(4)->join(', ');
+
+
+        if ($names->count() > 4){
+            $return .= ' +'. ($names->count() - 4);
+        }
+
+        return $return;
     }
 
     public function getQuestionOrderList()
