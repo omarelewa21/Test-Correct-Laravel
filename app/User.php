@@ -1994,6 +1994,10 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
                 $schoolLocation->getKey());
     }
 
+    public function hasMultipleSchools() {
+        return !! ($this->allowedSchoolLocations->count() > 1);
+    }
+
     public function addSchoolLocation(SchoolLocation $schoolLocation)
     {
         if (!$this->allowedSchoolLocations->contains($schoolLocation)) {
@@ -2549,6 +2553,21 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
                 return $result->education_level_year;
             })->unique()->values()->toArray(),
         ];
+    }
+
+    public function getFormalNameAttribute()
+    {
+        return sprintf('%s.%s', substr($this->name_first,0,1), $this->name,);
+    }
+
+    public function getFormalNameWithCurrentSchoolLocationAttribute()
+    {
+        $schoolLocation = $this->schoolLocation->name;
+        if (strlen($schoolLocation) > 30) {
+            $schoolLocation = substr($schoolLocation, 0, 30);
+        }
+
+        return sprintf('%s(<span id="active_school">%s</span>)', $this->formal_name, $schoolLocation);
     }
 
 }

@@ -127,14 +127,20 @@
         </div>
         <div class="user-button-container" x-ref="user_button">
                 <span>
-                    {{ Auth::user()->nameFull }}
+                    @if(Auth::user()->hasMultipleSchools())
+                        {!!  Auth::user()->formal_name_with_current_school_location !!}
+                        @else
+                        {{ Auth::user()->formal_name }}
+                        @endif
                 </span>
             <svg height="9" width="12">
                 <polygon points="6,9 1,0 11,0" stroke="rgba(71, 129, 255, 1)" fill="rgba(71, 129, 255, 1)"/>
             </svg>
         </div>
         <div class="user-menu" x-ref="user_menu" x-cloak="" x-show="userMenu" x-transition.origin.top @click.outside="userMenu = false">
-            <div id="user_school_locations"></div> {{-- only visible when teacher has multiple school locations --}}
+            @if ($this->showSchoolSwitcher)
+                <a  id="user_school_locations" class="cursor-pointer" wire:click="$emit('openModal', 'teacher.schoollocation-switcher-modal')">{{ __('general.Wissel van school') }}</a>
+            @endif
             <a href="{{ route('auth.login') }}">{{__('Uitloggen')}}</a>
             <a class="cursor-pointer" wire:click="cakeRedirect('update-password')">{{__('Wachtwoord wijzigen')}}</a>
             <a href="https://support.test-correct.nl/knowledge" target="_blank">{{__('Supportpagina')}}</a>
