@@ -197,6 +197,7 @@ class QuestionBank extends Component
             ->with([
                 'subject:id,name',
             ])
+            ->orderby('created_at', 'desc')
             ->distinct();
     }
 
@@ -242,12 +243,17 @@ class QuestionBank extends Component
         collect($this->allowedTabs)->each(function ($tab) {
             $this->filters[$tab] = [
                 'search'               => '',
-                'subject_id'           => [],
-                'education_level_year' => [],
-                'education_level_id'   => [],
+                'subject_id'           => [$this->test->subject_id],
+                'education_level_year' => [$this->test->education_level_year],
+                'education_level_id'   => [$this->test->education_level_id],
                 'without_groups'       => '',
                 'author_id'            => []
             ];
         });
+    }
+
+    public function openDetail($questionUuid)
+    {
+        $this->emit('openModal', 'teacher.question-detail-modal', ['questionUuid' => $questionUuid]);
     }
 }

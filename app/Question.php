@@ -79,7 +79,8 @@ class Question extends MtiBaseModel {
                             'html_specialchars_encoded',
                             'is_subquestion',
                             'all_or_nothing',
-                            'fix_order'
+                            'fix_order',
+                            'owner_id'
                             ];
 
     /**
@@ -1553,8 +1554,42 @@ class Question extends MtiBaseModel {
 
     public function getAuthorNamesString(): string
     {
+        return $this->getAuthorNamesCollection()->implode(', ');
+    }
+
+    public function getAuthorNamesCollection()
+    {
         return $this->authors()->get(['id', 'name', 'name_first', 'name_suffix'])->map(function($author) {
             return $author->getFullNameWithAbbreviatedFirstName();
-        })->implode(', ');
+        });
+    }
+
+    public static function addOwnerIds()
+    {
+        Question::withTrashed()
+            ->where(function ($query) {
+                $query->whereNotIn('type', ['BlaBla', 'BlaBla-2', 'BlaBla-3'])
+                    ->whereNull('owner_id');
+            })
+            ->chunkById(100, function ($questions) {
+                foreach ($questions as $question) {
+                    Question::whereId($question->id)
+                        ->withTrashed()
+                        ->update(['owner_id' =>
+                                      SchoolLocationSection::select('school_location_id')
+                                          ->where('section_id', function ($query) use ($question) {
+                                              $query->select('section_id')
+                                                  ->from((new Subject)->getTable())
+                                                  ->where('id', function ($query) use ($question) {
+                                                      $query->select('subject_id')
+                                                          ->from((new Question)->getTable())
+                                                          ->where('id', $question->id);
+                                                  });
+                                          })
+                                          ->first()
+                                          ->school_location_id
+                        ]);
+                }
+            });
     }
 }

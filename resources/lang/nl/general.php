@@ -40,4 +40,10 @@ return [
     'duplication successful' => 'Kopieren gelukt',
     'create test'            => 'Toets creëren',
     'Scholengemeenschap'     => 'Scholengemeenschap',
+    'Later beschikbaar'      => 'Later beschikbaar',
+    'Eigenaar'               => 'Eigenaar',
+    'Auteurs'                => 'Auteurs',
+    'Niveau'                 => 'Niveau',
+    'Uniek ID'               => 'Uniek ID',
+    'Periode'                => 'Periode',
 ];
