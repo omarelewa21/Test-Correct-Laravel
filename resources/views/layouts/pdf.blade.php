@@ -1,3 +1,6 @@
+@props([
+'type' => 'pdf'
+])
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -5,227 +8,32 @@
     <meta charset="UTF-8">
     <meta name="_token" content="{{ csrf_token() }}">
     <meta http-equiv="refresh" content="{{ config('session.lifetime') * 60 }}">
-    <title version="{{ \tcCore\Http\Helpers\BaseHelper::getCurrentVersion() }}">Test-Correct</title>
+    <title version="{{ \tcCore\Http\Helpers\BaseHelper::getCurrentVersion() }}">Test-Correct {{ (!is_null(optional($type))&&$type=='answer-model')?'antwoord model':'' }}</title>
     <link rel="icon" href="{{ asset('img/icons/Logo-Test-Correct-recolored-icon-only.svg') }}"/>
     {{--    <link href="https://unpkg.com/tailwindcss@^2/dist/tailwind.min.css" rel="stylesheet">--}}
     <script src="/ckeditor/ckeditor.js" type="text/javascript"></script>
     <script src="{{ mix('/js/ckeditor.js') }}" type="text/javascript"></script>
-    @if(!is_null(Auth::user())&&Auth::user()->text2speech)
-        <link rel="stylesheet" type="text/css" href="{{ mix('/css/rs_tlc.css') }}" />
-    @endif
+
     @livewireStyles
-    <link rel="stylesheet" href="{{ public_path('/css/app.css') }}">
+<style>
+    @font-face {
+        font-family: "Nunito Bold";
+        src: url("file:{{base_path()}}/resources/fonts/Nunito/Nunito-Bold.ttf") format('truetype');
+        font-weight: bold;
+    }
+    @font-face {
+        font-family: Nunito Regular;
+        src: url("file:{{base_path()}}/resources/fonts/Nunito/Nunito-Regular.ttf") format('truetype');
+        font-weight: normal;
+    }
+</style>
+
+    <link rel="stylesheet" href="file://{{ public_path('/css/app_pdf.css') }}">
     @if(config('bugsnag.browser_key') != '')
         <script src="//d2wy8f7a9ursnm.cloudfront.net/v7/bugsnag.min.js"></script>
         <script>Bugsnag.start({ apiKey: '{{ config('bugsnag.browser_key') }}' })</script>
     @endif
     @stack('styling')
-    <style>
-        [x-cloak] {
-            visibility: visible !important;
-        }
-        body{
-            background: #ffffff !important;
-        }
-        .question-indicator .question-number.complete {
-            border-color: #3ab753;
-            background: #3ab753;
-            color: white;
-        }
-        .question-title .question-number {
-            margin-bottom: 0;
-            margin-right: 0;
-        }
-        .question-title {
-            padding-bottom: 1rem;
-            border-bottom: 3px solid #041f74;
-        }
-
-        .question-indicator .question-number {
-            position: relative;
-            min-width: 30px;
-            height: 30px;
-            font-size: 14px;
-            font-weight: bold;
-            border: solid 3px;
-        }
-        .question-number>span {
-            font-size: 18px;
-            font-weight: bold;
-        }
-        h1 {
-            color: #041f74;
-        }
-        .form-input,.form-input-pdf {
-            background: #f9faff;
-            border: 1px solid #c3d0ed;
-            padding: 0 10px 0 10px;
-            border-radius: 8px;
-        }
-        p{
-            vertical-align: top;
-        }
-        .multiple-choice-question.active {
-            box-sizing: border-box;
-            border-color: #004df5;
-            border-width: 2px;
-            background: #f9faff;
-            font-weight: bold;
-            color: #004df5;
-        }
-        .stroke-current {
-            stroke: #004df5;
-        }
-        .icon_checkmark_pdf{
-            display: inline-flex;
-            margin-left: 10px;
-            /*width: 16px;*/
-            /*height: 16px;*/
-            max-width: none !important;
-            margin-top: 10px;
-        }
-        .multiple-choice-question.disabled, .multiple-choice-question.disabled:hover {
-            background: white;
-            border: solid 2px #c3d0ed;
-            color: #929DAF;
-            box-shadow: none;
-            font-weight: normal;
-        }
-        .overview .trueFalse.active, .overview .trueFalse.active:hover {
-            border: 2px solid #004df5;
-            color: #004df5;
-        }
-        .bg-blue-grey {
-            background: #c3d0ed;
-        }
-        .border-blue-grey {
-            border-color: #c3d0ed;
-        }
-        .bg-off-white {
-            background: #f9faff;
-        }
-        .overview .trueFalse, .overview .trueFalse:hover {
-            border: 1px solid transparent;
-            margin: 0;
-            color: #929DAF;
-        }
-        .divider {
-            height: 3px;
-            background: #041f74;
-        }
-        .mc-radio,.arq-radio{
-            margin-top: 8px;
-        }
-        .bg-primary-light {
-            background: #e6edfa;
-        }
-        .border-light-grey {
-            border-color: #F0F2F5;
-        }
-        .bg-light-grey {
-            background: #F0F2F5;
-        }
-        .border-mid-grey {
-            border-color: #929DAF;
-        }
-        .border-system-secondary {
-            border-color: #CEDAF3;
-        }
-        .border-primary {
-            border-color: #004df5;
-        }
-        .base {
-            color: #041f74;
-        }
-        .matching-dropzone{
-            height: 44px;
-            margin-left: 40px;
-        }
-        .label-dropzone>span{
-            min-height: 27px;
-        }
-        .label-dropzone{
-            padding: 0;
-        }
-        .space-x-2{
-            margin-top: 12px;
-        }
-        .classified>div{
-            display: inline-flex;
-        }
-        .pdf-35{
-            width: 35%;
-        }
-        .pdf-45{
-            width: 45%;
-        }
-        .pdf-ml-2{
-            margin-left: 10px;
-        }
-        .pdf-ml-5{
-            margin-left: 25px;
-        }
-        .pdf-ml-8{
-            margin-left: 40px;
-        }
-        .pdf-ml-9{
-            margin-left: 45px;
-        }
-        .pdf-mt-2{
-            margin-top: 10px;
-        }
-        .pdf-100{
-            width: 100%;
-        }
-        .pdf-90{
-            width: 90%;
-        }
-        .pdf-80{
-            width: 80%;
-        }
-        .pdf-minh-40{
-            min-height: 40px;
-        }
-        .pdf-align-center{
-            vertical-align: sub;
-        }
-        .pdf-dropzone{
-            padding-right: 40px;
-        }
-        .pdf-answer-model-select{
-            display: inline-flex;
-            border: solid 2px #c3d0ed;
-            padding-left: 10px;
-            padding-right: 10px;
-        }
-        .pdf-answer-model-input{
-            display: inline-flex;
-            border: solid 2px #c3d0ed;
-            padding-left: 10px;
-            padding-right: 10px;
-            border-radius: 10px;
-            height: 30px;
-        }
-        .prevent-pagebreak{
-            page-break-before:auto;
-        }
-        .prevent-pagebreak-table{
-            width: 100%;
-            border: 0 !important;
-            border-width: 0 !important;
-            border-collapse: unset;
-        }
-        .pdf-texarea{
-            padding-top: 5px;
-        }
-        .questionContainer .prevent-pagebreak-table td{
-            border: 0 !important;
-            border-width: 0 !important;
-        }
-        div.input-group u, div.input-group strong, div.input-group span,p strong{
-            vertical-align: top;
-        }
-    </style>
 
 
 

@@ -7,7 +7,6 @@ use DOMDocument;
 use Facade\FlareClient\Http\Response;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
-use mikehaertl\wkhtmlto\Pdf;
 use tcCore\Http\Helpers\PdfHelper;
 use tcCore\Http\Requests\HtmlToPdfRequest;
 
@@ -23,17 +22,18 @@ class PdfController extends Controller
      */
     public function HtmlToPdf(HtmlToPdfRequest $request)
     {
-        $html = $this->base64ImgPaths($request->get('html'));
-        $output = PdfHelper::HtmlToPdf($html);
-        return response($output);
+        return $this->wkhtmlToPdf($request);
+//        $html = $this->base64ImgPaths($request->get('html'));
+//        $output = PdfHelper::HtmlToPdf($html);
+//        return response($output);
     }
 
     public function HtmlToPdfFromString($html)
     {
         $html = $this->base64ImgPaths($html);
-        file_put_contents(storage_path('temp/test.html'),$html);
-//        return $this->wkhtmlToPdfFromString($html);
-        return PdfHelper::HtmlToPdf($html);
+        //file_put_contents(storage_path('temp/test.html'),$html);
+        return $this->snappyToPdfFromString($html);
+        //return PdfHelper::HtmlToPdf($html);
     }
 
     public function getSetting($setting)
@@ -163,12 +163,13 @@ class PdfController extends Controller
 
     private function wkhtmlToPdfFromString($html)
     {
+        //dump($html);
         file_put_contents(storage_path('temp/result1.html'),$html);
+//        $html = file_get_contents(storage_path('temp/result1.html'));
         $options = [
             'disable-javascript',
             'header-html'=> storage_path('temp/header.html'),
-            'load-error-handling'=>'ignore',
-            'enable-local-file-access'=> true,
+            'allow'=>'Users/gm/Sites/test-correct/public/css/app_pdf.css',
         ];
         $pdf = new Pdf($options);
         $pdf->addPage($html);
@@ -176,6 +177,34 @@ class PdfController extends Controller
         $pdf->saveAs($outputPath);
         $output = $pdf->toString();
         dump($pdf->getError());
+        return $output;
+
+    }
+
+    private function snappyToPdfFromString($html)
+    {
+        //dump($html);
+        file_put_contents(storage_path('temp/result1.html'),$html);
+//        $html = file_get_contents(storage_path('temp/result1.html'));
+        $options = [
+            'disable-javascript',
+            'header-html'=> storage_path('temp/header.html'),
+        ];
+        $output = \PDF::loadHtml($html)->setOption('header-html', storage_path('temp/header.html'));
+        return $output->download('file.pdf');
+        return new Response(
+            $output,
+            200,
+            array(
+                'Content-Type'          => 'application/pdf',
+                'Content-Disposition'   => 'attachment; filename="file.pdf"'
+            )
+        );
+        $pdf = new Pdf($options);
+        $pdf->addPage($html);
+        $outputPath = storage_path('temp/result1.pdf');
+        $pdf->saveAs($outputPath);
+        $output = $pdf->toString();
         return $output;
 
     }

@@ -9,6 +9,7 @@
 		"aacotroneo/laravel-saml2": "^2.1",
 		"artisaninweb/laravel-soap": "0.3.0.10",
 		"barryvdh/laravel-dompdf": "^0.9.0",
+		"barryvdh/laravel-snappy": "^1.0",
 		"betterapp/laravel-db-encrypter": "^1.0",
 		"bonecms/laravel-captcha": "^2.2",
 		"bugsnag/bugsnag-laravel": "^2.0",

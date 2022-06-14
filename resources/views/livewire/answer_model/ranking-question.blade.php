@@ -3,11 +3,14 @@
         <div>{!! $question->converted_question_html !!}</div>
         <div class="flex flex-col pdf-100 max-w-max space-y-2">
             @foreach($answerStruct as $answer)
-                <x-drag-item-disabled sortId="{{ $answer->value }}"
-                                      wireKey="option-{{ $answer->value }}"
-                                        class="pdf-mt-2">
-                    {{ $answerText[$answer->value] }}
-                </x-drag-item-disabled>
+                <div class="bg-light-grey mt-2 base border-light-grey border-2
+                                                                 rounded-10 inline-flex px-4 py-1.5 items-center justify-between drag-item bold font-size-18 pdf-80 pdf-minh-40"
+                >
+                    <span class="mr-3 flex items-center pdf-align-center" >{{ $answerText[$answer->value] }}</span>
+                    <div class="w-4">
+                        <x-icon.drag-pdf/>
+                    </div>
+                </div>
             @endforeach
         </div>
     </div>

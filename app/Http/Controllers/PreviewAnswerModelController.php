@@ -31,6 +31,7 @@ class PreviewAnswerModelController extends Controller
         $uuid = '';
         // todo add check or failure when $current out of bounds $data;
         $styling = $this->getCustomStylingFromQuestions($data);
+//        $styling = $styling.$this->getAppCssForPdf();
 //        return view('test-answer-model-overview',compact(['data', 'current', 'answers', 'playerUrl', 'nav', 'uuid', 'testParticipant', 'styling']));
         $html = view('test-answer-model-overview',compact(['data', 'current', 'answers', 'playerUrl', 'nav', 'uuid', 'testParticipant', 'styling']))->render();
         return response()->make(PdfController::HtmlToPdfFromString($html), 200, [
@@ -70,12 +71,17 @@ class PreviewAnswerModelController extends Controller
         })->toArray();
     }
 
-
-
     private function getCustomStylingFromQuestions($data)
     {
         return $data->map(function($question) {
             return $question->getQuestionInstance()->styling;
         })->unique()->implode(' ');
+    }
+
+    private function getAppCssForPdf()
+    {
+        $appCss = file_get_contents(public_path('css/app.css'));
+        $appCss = str_replace('/fonts/',config('app.base_url').'fonts/',$appCss);
+        return $appCss;
     }
 }
