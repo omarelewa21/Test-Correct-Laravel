@@ -4,6 +4,7 @@ namespace tcCore\Http\Livewire\Teacher;
 
 use Carbon\Carbon;
 use LivewireUI\Modal\ModalComponent;
+use tcCore\Http\Helpers\QuestionHelper;
 use tcCore\Question;
 
 class QuestionDetailModal extends ModalComponent
@@ -12,6 +13,7 @@ class QuestionDetailModal extends ModalComponent
     public $authors;
     public $lastUpdated;
     public $attachmentCount;
+    public $pValues = [];
 
     public function mount($questionUuid)
     {
@@ -19,6 +21,9 @@ class QuestionDetailModal extends ModalComponent
         $this->authors = $this->question->getAuthorNamesCollection();
         $this->lastUpdated = Carbon::parse($this->question->updated_at)->format('d/m/\'y');
         $this->attachmentCount = $this->question->attachments()->count();
+
+        $q = (new QuestionHelper())->getTotalQuestion($this->question->getQuestionInstance());
+        $this->pValues = $q->getQuestionInstance()->getRelation('pValue');
     }
 
     public function render()

@@ -11,8 +11,8 @@
         <x-icon.options class="text-sysbase"/>
     </div>
     <div class="flex w-full justify-between text-base mb-1">
-        <div>
-            <span class="bold">{{ $question->typeName }}</span>
+        <div class="flex">
+            <span class="bold min-w-[125px]">{{ $question->typeName }}</span>
             <span>{!! optional($question->subject)->name ?? __('general.unavailable') !!}</span>
         </div>
         <div class="text-sm">

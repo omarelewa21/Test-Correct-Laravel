@@ -342,6 +342,10 @@ class Question extends MtiBaseModel {
         return $this->hasMany('tcCore\PValue');
     }
 
+    public function owner() {
+        return $this->belongsTo('tcCore\SchoolLocation', 'owner_id');
+    }
+
     public function getChangedIds() {
         return ['oldId' => $this->changedId, 'newId' => $this->getKey(), 'children' => $this->changedChildrenIds];
     }
