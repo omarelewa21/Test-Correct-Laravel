@@ -36,7 +36,7 @@
 
                             >
                                 @foreach($allowedSubjects as $subject)
-                                    <option value="{{ $subject->id }}">{{ $subject->name }}</option>
+                                    <option value="{{ $subject->id }}">{!! $subject->name !!}</option>
                                 @endforeach
                             </x-input.select>
                             <label for="test_kind"
@@ -44,6 +44,7 @@
                         </div>
                         <div class="input-group mb-4 sm:mb-0 flex-1">
                             <input id="name"
+                                   maxlength="5"
                                    wire:model.lazy="request.abbreviation"
                                    class="form-input md:w-full inline-block @error('request.abbreviation') border-red @enderror"
                             >
@@ -146,8 +147,8 @@
                 </x-button.text-button>
 
                 <div class="absolute bottom-8 left-1/2 -translate-x-1/2 h-4 flex items-center justify-center space-x-2">
-                    <div class="border-0 rounded-xl bg-primary h-[14px] w-[14px]"></div>
                     <div class="border-0 rounded-xl bg-bluegrey h-[14px] w-[14px]"></div>
+                    <div class="border-0 rounded-xl bg-primary h-[14px] w-[14px]"></div>
                 </div>
 
                 <x-button.cta wire:click="submit">
