@@ -132,5 +132,7 @@ return [
     ],
 
     'school_class_or_guest_accounts_required' => 'Select a school class or the guest account option.',
+    'test name'                               => 'test name',
+
 
 ];

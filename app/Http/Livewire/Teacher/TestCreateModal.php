@@ -49,7 +49,7 @@ class TestCreateModal extends ModalComponent
 
 
         return [
-            'request.name'                 => 'required|min:3',
+            'request.name'                 => 'required|min:3|unique:tests,name,NULL,id,author_id,' . Auth::id().',deleted_at,NULL,is_system_test,0',
             'request.abbreviation'         => 'required|max:5',
             'request.test_kind_id'         => ['required', 'integer', $allowedTestKindIds],
             'request.subject_id'           => ['required', 'integer', $allowedSubjectIds],
@@ -61,10 +61,16 @@ class TestCreateModal extends ModalComponent
         ];
     }
 
+    protected function getMessages()
+    {
+        return [
+            'request.name.unique' => __('validation.unique', ['attribute' => __('validation.test name')]),
+        ];
+    }
+
     public function mount()
     {
-        $this->allowedSubjects = Subject::filtered(['user_id' => auth()->id()], [])->get(['id', 'name'])->keyBy('id');
-
+        $this->allowedSubjects = Subject::filtered(['user_current' => auth()->id()], ['name' => 'asc'])->get(['id', 'name'])->keyBy('id');
         $this->allowedTestKinds = TestKind::orderBy('name', 'asc')->get(['name', 'id']);
         $this->allowedPeriods = Period::filtered(['current_school_year' => 1], [])->get(['id', 'name', 'start_date', 'end_date'])->keyBy('id');
         $this->allowedEductionLevels = EducationLevel::filtered(['user_id' => auth()->id()], [])->select(['id', 'name', 'max_years', 'uuid'])->get()->keyBy('id');
@@ -72,7 +78,7 @@ class TestCreateModal extends ModalComponent
         $this->request = [
             'name'                 => '',
             'abbreviation'         => '',
-            'test_kind_id'         => 1,
+            'test_kind_id'         => 3,
             'subject_id'           => $this->allowedSubjects->first()->id,
             'education_level_id'   => $this->allowedEductionLevels->first()->id,
             'education_level_year' => 1,

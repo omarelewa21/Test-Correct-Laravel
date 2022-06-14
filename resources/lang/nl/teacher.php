@@ -34,4 +34,5 @@ Lees meer op de Kennisbank',
     'examenvak'                                        => 'Examenvak',
     'make copy'                                        => 'Maak kopie',
     'testtake planned'                                 => 'De toets is gepland',
+    'test created'                                     => 'Toets opgeslagen',
 ];
