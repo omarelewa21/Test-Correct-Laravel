@@ -34,4 +34,5 @@ Lees meer op de Kennisbank',
     'kies een vak'                                     => 'Subject',
     'examenvak'                                        => 'Examn Subject',
     'make copy'                                        => 'Make copy',
+    'testtake planned' => 'The test is planned',
 ];

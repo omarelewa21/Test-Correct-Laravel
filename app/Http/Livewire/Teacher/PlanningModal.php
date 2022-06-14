@@ -3,6 +3,7 @@
 namespace tcCore\Http\Livewire\Teacher;
 
 use Illuminate\Http\Request;
+use Illuminate\Validation\Validator;
 use LivewireUI\Modal\ModalComponent;
 use tcCore\Http\Controllers\InvigilatorsController;
 use tcCore\Http\Controllers\TemporaryLoginController;
@@ -57,9 +58,27 @@ class PlanningModal extends ModalComponent
         $this->resetModalRequest();
     }
 
-    protected $rules = [
-        'request.*' => 'sometimes',
-    ];
+    protected function rules()
+    {
+        $rules = [
+            'request.date'          => 'required',
+            'request.date_till'     => 'sometimes',
+            'request.weight'        => 'required',
+            'request.period_id'     => 'required',
+            'request.schoolClasses' => 'required',
+        ];
+
+
+        if (auth()->user()->schoollocation->allow_guest_accounts) {
+            $rules['request.schoolClasses'] = '';
+            if (!empty(request()->get('request.guest_accounts'))) {
+                $rules['request.guest_accounts'] = 'required|in:1';
+            }
+
+        }
+
+        return $rules;
+    }
 
 
     public function plan()
@@ -77,14 +96,23 @@ class PlanningModal extends ModalComponent
         ]);
 
         redirect($controller->toCakeUrl($request));
-
     }
+
+
 
     private function planTest()
     {
         $t = new TestTake();
         $this->request['time_start'] = $this->request['date'];
         $this->request['test_take_status_id'] = TestTakeStatus::STATUS_PLANNED;
+
+        $this->withValidator(function (Validator $validator) {
+            $validator->after(function ($validator) {
+                if (empty($this->request['schoolClasses']) && empty($this->request['guest_accounts'])) {
+                    $validator->errors()->add('request.schoolClasses', __('validation.school_class_or_guest_accounts_required'));
+                }
+            });
+        })->validate();
 
         $t->fill($this->request);
 
@@ -103,8 +131,8 @@ class PlanningModal extends ModalComponent
 
     private function resetModalRequest()
     {
-        $this->selectedClassesContainerId = 'selected_classes'.$this->test->getKey();
-        $this->selectedInvigilatorsContrainerId = 'selected_invigilator'.$this->test->getKey();
+        $this->selectedClassesContainerId = 'selected_classes' . $this->test->getKey();
+        $this->selectedInvigilatorsContrainerId = 'selected_invigilator' . $this->test->getKey();
 
         $this->request = [];
 
