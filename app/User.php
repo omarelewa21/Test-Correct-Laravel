@@ -2560,14 +2560,19 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
         return sprintf('%s.%s', substr($this->name_first,0,1), $this->name,);
     }
 
-    public function getFormalNameWithCurrentSchoolLocationAttribute()
+    public function getFormalNameWithCurrentSchoolLocationShortAttribute()
     {
         $schoolLocation = $this->schoolLocation->name;
         if (strlen($schoolLocation) > 30) {
-            $schoolLocation = substr($schoolLocation, 0, 30);
+            $schoolLocation = sprintf('%s ...', substr($schoolLocation, 0, 28 - strlen($this->formal_name)));
         }
 
         return sprintf('%s(<span id="active_school">%s</span>)', $this->formal_name, $schoolLocation);
+    }
+
+    public function getFormalNameWithCurrentSchoolLocationAttribute()
+    {
+        return sprintf('%s(%s)', $this->formal_name, $this->schoolLocation->name);
     }
 
 }

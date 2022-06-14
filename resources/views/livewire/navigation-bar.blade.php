@@ -126,13 +126,13 @@
             </div>
         </div>
         <div class="user-button-container" x-ref="user_button">
-                <span>
+
                     @if(Auth::user()->hasMultipleSchools())
-                        {!!  Auth::user()->formal_name_with_current_school_location !!}
+                        <span title="{{ Auth::user()->formal_name_with_current_school_location }}">{!!  Auth::user()->formal_name_with_current_school_location_short !!}</span>
                         @else
                         {{ Auth::user()->formal_name }}
                         @endif
-                </span>
+
             <svg height="9" width="12">
                 <polygon points="6,9 1,0 11,0" stroke="rgba(71, 129, 255, 1)" fill="rgba(71, 129, 255, 1)"/>
             </svg>
