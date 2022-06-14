@@ -33,4 +33,5 @@ Lees meer op de Kennisbank',
     'kies een vak'                                     => 'Kies een vak',
     'examenvak'                                        => 'Examenvak',
     'make copy'                                        => 'Maak kopie',
+    'testtake planned'                                 => 'De toets is gepland',
 ];
