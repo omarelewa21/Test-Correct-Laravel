@@ -26,7 +26,8 @@
         </span>
         <div class="flex mt-.5 flex-1">
             <div class="flex flex-col flex-1 pl-2 pr-4">
-                <span class="truncate" style="max-width: 160px; width: 160px"
+                <span class="truncate"
+                      style="{{ $double ? 'max-width: 145px; width: 145px' : 'max-width: 160px; width: 160px' }}"
                       title="{{ $question->title }}">{{ $question->title }}</span>
                 <div class="flex note text-sm regular justify-between">
                     <span>{{ $question->typeName }}</span>
@@ -42,8 +43,13 @@
                 </div>
             </div>
             <div class="flex items-start space-x-2.5 mt-1 text-sysbase">
+                @if($double)
+                    <div class="flex h-full rounded-md" title="{{ __('cms.duplicate_question_in_test') }}">
+                        <x-icon.exclamation class="all-red"/>
+                    </div>
+                @endif
                 <div class="flex h-full rounded-md" @if($subQuestion) wire:sortable-group.handle @else wire:sortable.handle @endif>
-                        <x-icon.reorder/>
+                    <x-icon.reorder/>
                 </div>
                 <div class="flex">
                     <x-sidebar.cms.question-options :testQuestion="$testQuestion" :question="$question" :subQuestion="$subQuestion"/>

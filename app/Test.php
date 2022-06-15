@@ -598,29 +598,7 @@ class Test extends BaseModel
 
     public function getHasDuplicatesAttribute()
     {
-        return !!DB::select('
-            select (id)
-                from (
-                select
-                  question_id as id
-                  from
-                  `test_questions`
-                where
-                  `test_id` = ?  and `deleted_at` is null
-                Union  all
-                  select question_id as id from group_question_questions where group_question_id in(
-                  select question_id from test_questions where test_id = ? and deleted_at is null
-                  ) and deleted_at is null
-
-
-                )as t
-                 group by
-                  `id`
-
-                having
-                  COUNT(id) > 1
-        ', [$this->getKey(), $this->getKey()]);
-
+        return $this->getDuplicateQuestionIds()->isNotEmpty();
     }
 
     public function getQuestionCount()
@@ -965,6 +943,36 @@ class Test extends BaseModel
                 });
             }
             return [$testQuestion];
+        });
+    }
+
+    public function getDuplicateQuestionIds()
+    {
+        $ids = DB::select('
+            select id
+                from (
+                select
+                  question_id as id
+                  from
+                  `test_questions`
+                where
+                  `test_id` = ?  and `deleted_at` is null
+                Union  all
+                  select question_id as id from group_question_questions where group_question_id in(
+                  select question_id from test_questions where test_id = ? and deleted_at is null
+                  ) and deleted_at is null
+
+
+                )as t
+                 group by
+                  `id`
+
+                having
+                  COUNT(id) > 1
+        ', [$this->getKey(), $this->getKey()]);
+
+        return collect($ids)->map(function($id) {
+            return $id->id;
         });
     }
 }

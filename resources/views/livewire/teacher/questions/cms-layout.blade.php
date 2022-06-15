@@ -174,6 +174,11 @@
                     @endif
                 @endif
 
+                @if($this->duplicateQuestion)
+                    <div class="notification error stretched mt-4">
+                        <span class="title">{{ __('cms.duplicate_question_in_test') }}</span>
+                    </div>
+                @endif
             </div>
             <div class="flex justify-end px-4 sm:px-6 lg:px-8 py-5">
                 @if($this->showQuestionScore())

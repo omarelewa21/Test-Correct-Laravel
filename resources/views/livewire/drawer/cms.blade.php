@@ -32,7 +32,8 @@
      wire:init="handleCmsInit()"
 >
     <div id="sidebar-backdrop"
-         class="fixed inset-0 transform transition-all"
+         class="fixed inset-y-0 right-0 transform transition-all"
+         style="left: var(--sidebar-width)"
          x-show="backdrop"
          x-cloak
          x-transition:enter="ease-out duration-300"
@@ -91,6 +92,7 @@
                                                                    :subQuestion="true"
                                                                    :activeTestQuestion="$this->testQuestionId"
                                                                    :activeGQQ="$this->groupQuestionQuestionId"
+                                                                   :double="$this->duplicateQuestions->contains($testQuestion->question_id)"
                                     />
                                 @endforeach
                                 <x-sidebar.cms.dummy-group-question-button :testQuestionUuid="$testQuestion->uuid" :loop="$loopIndex"/>
@@ -103,6 +105,7 @@
                                                            :subQuestion="false"
                                                            :activeTestQuestion="$this->testQuestionId"
                                                            :activeGQQ="$this->groupQuestionQuestionId"
+                                                           :double="$this->duplicateQuestions->contains($testQuestion->question_id)"
                             />
                         @endif
                     @endforeach

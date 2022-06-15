@@ -168,8 +168,8 @@ return [
     'nieuwe'                                                                                 => 'new',
     'Wijzigingen niet opslaan'                                                               => 'Discard changes',
     'fix_order'                                                                              => 'Fix order of answers',
-
     'one_empty_container_allowed'                                                            => 'No more than one empty container is allowed',
     'one_container_with_items'                                                               => 'Answers must contain at least one container with items',
     'container_label_missing'                                                                => 'Container label missing, each container should have a label',
+    'duplicate_question_in_test'                                                             => 'This question is double in the test. Adjust the test to make planning possible.',
 ];
