@@ -35,6 +35,7 @@
                  x-transition:leave="transition origin-top-right ease-in duration-100"
                  x-transition:leave-start="opacity-100 transform scale-100"
                  x-transition:leave-end="opacity-0 transform scale-90"
+                 @click="testOptionMenu=false"
             >
                 <button class="flex items-center space-x-2 py-1 px-4 base hover:text-primary hover:bg-offwhite transition w-full"
                         wire:click='$emit("openModal","teacher.planning-modal", {{ json_encode(["testUuid" => $test->uuid]) }})'
