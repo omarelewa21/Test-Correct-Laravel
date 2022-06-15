@@ -42,6 +42,8 @@ return [
             'orientation' => 'portrait',
             'encoding' => 'UTF-8',
             'disable-javascript'=> true,
+            'load-error-handling' => 'ignore',
+            'load-media-error-handling' => 'ignore'
         ],
         'env' => [],
     ],
@@ -54,6 +56,8 @@ return [
             'orientation' => 'portrait',
             'encoding' => 'UTF-8',
             'disable-javascript'=> true,
+            'load-error-handling' => 'ignore',
+            'load-media-error-handling' => 'ignore'
         ],
         'env' => [],
     ],

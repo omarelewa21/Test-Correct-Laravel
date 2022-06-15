@@ -78,10 +78,4 @@ class PreviewAnswerModelController extends Controller
         })->unique()->implode(' ');
     }
 
-    private function getAppCssForPdf()
-    {
-        $appCss = file_get_contents(public_path('css/app.css'));
-        $appCss = str_replace('/fonts/',config('app.base_url').'fonts/',$appCss);
-        return $appCss;
-    }
 }

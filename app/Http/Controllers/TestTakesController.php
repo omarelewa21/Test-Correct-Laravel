@@ -1395,6 +1395,14 @@ class TestTakesController extends Controller {
 
     }
 
+    public function AnswersWithTemporaryLogin(TestTake $testTake) {
+
+        $temporaryLogin = TemporaryLogin::createWithOptionsForUser('app_details', request()->get('app_details'), auth()->user());
+
+        return BaseHelper::createRedirectUrlWithTemporaryLoginUuid($temporaryLogin->uuid,route('teacher.preview.test_take', $testTake->uuid,false));
+
+    }
+
     public function hasCarouselQuestion(TestTake $testTake)
     {
         return response()->json(['has_carousel' =>  $testTake->hasCarousel()]);

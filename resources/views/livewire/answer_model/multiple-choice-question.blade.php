@@ -1,7 +1,7 @@
 <x-partials.answer-model-question-container :number="$number" :question="$question" :answer="$answer">
     <div class="w-full">
         {!! $question->converted_question_html  !!}
-        <div class="mt-4 space-y-2 w-1/2 ">
+        <div class="mt-4 space-y-2 w-1/2 question-no-break-mc-option">
             @foreach( $this->answerStruct as $key => $value)
                 <div class="block items-center  mc-radio">
                     <label

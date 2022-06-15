@@ -6792,9 +6792,7 @@ p{
     border-radius: 10px;
     height: 30px;
 }
-.prevent-pagebreak{
-    page-break-before:auto;
-}
+
 .prevent-pagebreak-table{
     width: 100%;
     border: 0 !important;
@@ -6865,6 +6863,39 @@ div.drag-item>div{
 }
 .matrix-table td>label>div{
     margin:auto;
+}
+.page-no-break{
+    /*page-break-inside: avoid;*/
+}
+.question-no-break-mc-option{
+    page-break-inside: avoid;
+}
+.question-no-break-matching-option{
+    page-break-inside: avoid;
+}
+.question-no-break-classify-option{
+    page-break-inside: avoid;
+}
+.question-no-break-ranking-option{
+    page-break-inside: avoid;
+}
+.question-no-break-arq-option{
+    page-break-inside: avoid;
+}
+.question-no-break-open-short{
+    page-break-inside: avoid;
+}
+.question-no-break-open-medium{
+    page-break-inside: avoid;
+}
+.question-no-break-drawing{
+    page-break-inside: avoid;
+}
+.question-no-break-matrix{
+    page-break-inside: avoid;
+}
+.prevent-pagebreak{
+    page-break-before:auto;
 }
 .focus-within\:outline-none:focus-within{
 	outline: 2px solid transparent;

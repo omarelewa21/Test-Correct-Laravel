@@ -186,11 +186,8 @@ class PdfController extends Controller
         //dump($html);
         file_put_contents(storage_path('temp/result1.html'),$html);
 //        $html = file_get_contents(storage_path('temp/result1.html'));
-        $options = [
-            'disable-javascript',
-            'header-html'=> storage_path('temp/header.html'),
-        ];
-        $output = \PDF::loadHtml($html)->setOption('header-html', storage_path('temp/header.html'));
+
+        $output = \PDF::loadHtml($html)->setOption('header-html', storage_path('app/pdf_templates/header.html'));
         return $output->download('file.pdf');
         return new Response(
             $output,

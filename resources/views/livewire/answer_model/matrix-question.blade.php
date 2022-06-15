@@ -2,7 +2,7 @@
     <div class="w-full">
         <div wire:ignore>{!! $question->converted_question_html  !!}</div>
         <div class="mt-4 flex">
-            <table class="border-collapse prevent-pagebreak matrix-table">
+            <table class="border-collapse question-no-break-matrix matrix-table">
                 <thead>
                 <tr>
                     <th class=""></th>

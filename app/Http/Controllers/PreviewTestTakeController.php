@@ -1,114 +1,59 @@
 <?php
 
+namespace tcCore\Http\Controllers;
 
-namespace tcCore\Http\Traits;
-
-
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Str;
 use tcCore\GroupQuestionQuestion;
-use tcCore\TestKind;
-use tcCore\TestTakeStatus;
+use tcCore\Http\Traits\TestTakeNavigationForController;
+use tcCore\Question;
+use tcCore\Test;
+use tcCore\TestParticipant;
 use tcCore\TestTake;
+use tcCore\User;
+use Facades\tcCore\Http\Controllers\PdfController;
 
-trait WithStudentTestTakes
+class PreviewTestTakeController extends Controller
 {
+    use TestTakeNavigationForController;
 
-    private function getSchedueledTestTakesForStudent($amount = null, $paginateBy = 0, $orderColumn = 'test_takes.time_start', $orderDirection = 'ASC')
+    public function show(TestTake $testTake, Request $request)
     {
-        $takePlannedQuery = TestTake::leftJoin('test_participants', 'test_participants.test_take_id', '=', 'test_takes.id')
-            ->leftJoin('tests', 'tests.id', '=', 'test_takes.test_id')
-            ->leftJoin('subjects', 'subjects.id', '=', 'tests.subject_id')
-            ->select(
-                'test_takes.*',
-                'tests.name as test_name',
-                'tests.question_count',
-                'subjects.name as subject_name',
-                DB::raw(
-                    sprintf(
-                        "case when tests.test_kind_id = %d then 1 else 0 end as is_assignment",
-                        TestKind::ASSESSMENT_TYPE
-                    )
-                )
-            )
-            ->where('test_participants.user_id', Auth::id())
-            ->where('test_takes.test_take_status_id', '<=', TestTakeStatus::STATUS_TAKING_TEST)
-            ->where(function ($query) {
-                $query->where(function ($query) {
-                    // dit is voor de toetsen.
-                    $query->where('test_takes.time_start', '>=', date('y-m-d'));
-                    $query->whereNull('test_takes.time_end');
-                })->orWhere(function ($query) {
-                    // dit is voor opdrachten;
-                    $query->where('test_takes.time_end', '>=', now());
-                });
-            })
-            ->orderBy($orderColumn, $orderDirection);
+        $test = $testTake->test;
+        $current = '1';
+        $data = self::getData($test);
+        $answers = [];
 
-        return $paginateBy ? $takePlannedQuery->paginate($paginateBy) : $takePlannedQuery->take($amount)->get();
-    }
+        $playerUrl = '';
+        $testParticipants = $testTake->testParticipants;
+        $html = view('test-take-overview-preview', compact(['testParticipants','testTake']))->render();
 
-    private function getRatingsForStudent($amount = null, $paginateBy = 0, $orderColumn = 'test_takes.updated_at', $orderDirection = 'desc', $withNullRatings = true)
-    {
-        $ratedTakesQuery = TestTake::gradedTakesWithParticipantForUser(Auth::user(), $withNullRatings)
-            ->select('test_takes.*', 'tests.name as test_name', 'subjects.name as subject_name')
-            ->leftJoin('tests', 'tests.id', '=', 'test_takes.test_id')
-            ->leftJoin('subjects', 'tests.subject_id', '=', 'subjects.id');
 
-        return $paginateBy ? $ratedTakesQuery->orderBy($orderColumn, $orderDirection)->paginate($paginateBy) : $ratedTakesQuery->take($amount)->get();
-    }
+        return response()->make(PdfController::HtmlToPdfFromString($html), 200, [
+            'Content-Type' => 'application/pdf',
+            'Content-Disposition' => 'inline; filename="toets.pdf"'
+        ]);
 
-    public function getBgColorForTestParticipantRating($rating): string
-    {
-        if ($rating > 5.5) {
-            return 'bg-cta-primary text-white';
-        }
-        if ($rating < 5.5) {
-            return 'bg-all-red text-white';
-        }
-        return 'bg-orange base';
-    }
 
-    public function redirectToWaitingRoom($testTakeUuid, $origin = null)
-    {
-        return redirect(route('student.waiting-room', ['take' => $testTakeUuid, 'origin' => $origin]));
-    }
 
-    public function getTestTakeStatusTranslationString($testTake): string
-    {
-        $statusName = strtolower($testTake->status_name);
+        foreach ($testParticipants as $testParticipant){
 
-        if (Str::contains($testTake->status_name, ' ')) {
-            $statusName = Str::of($testTake->status_name)->replaceFirst(' ', '_')->lower();
+            $data = self::getData($testParticipant, $testTake);
+            $answers = $this->getAnswers($testTake, $data, $testParticipant);
+
+//            $data = $this->applyAnswerOrderForParticipant($data, $answers);
+            $playerUrl = route('student.test-take-laravel', ['test_take' => $testTake->uuid]);
+
+            $nav = $this->getNavigationData($data, $answers);
+            $uuid = $testTake->uuid;
+            $styling = $this->getCustomStylingFromQuestions($data);
+            $html .= view('test-take-overview', compact(['data', 'current', 'answers', 'playerUrl', 'nav', 'uuid', 'testParticipant', 'styling']))->render();
         }
 
-        return sprintf('general.%s', $statusName);
-    }
-
-    public function getRatingToDisplay($participant): float
-    {
-        $rating = $participant->rating;
-        if ($participant->retake_rating != null) {
-            $rating = $participant->retake_rating;
-        }
-
-        str_replace('.', ',', round($rating, 1));
-
-        return $rating;
-    }
-
-    public function getParticipatingClasses($testTake)
-    {
-        $names = $testTake->schoolClasses()->pluck('name');
-
-        collect($names)->each(function ($name, $key) use ($names) {
-            if (Str::contains($name, 'guest_class')) {
-                $names[$key] = 'Gast accounts';
-            }
-        });
-
-        return $names;
+        return response()->make(PdfController::HtmlToPdfFromString($html), 200, [
+            'Content-Type' => 'application/pdf',
+            'Content-Disposition' => 'inline; filename="toets.pdf"'
+        ]);
     }
 
     public static function getData($testParticipant, $testTake)
@@ -192,4 +137,6 @@ trait WithStudentTestTakes
             return $question->getQuestionInstance()->styling;
         })->unique()->implode(' ');
     }
+
+
 }

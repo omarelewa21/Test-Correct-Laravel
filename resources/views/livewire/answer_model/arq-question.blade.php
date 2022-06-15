@@ -8,7 +8,7 @@
             <div class="flex flex-1 flex-col space-y-6">
                 {!! $question->converted_question_html !!}
             </div>
-            <div class="flex flex-1 flex-col">
+            <div class="flex flex-1 flex-col question-no-break-arq-option">
                 <div>
                     <div class="px-5 space-x-4 text-base bold flex flex-row">
                         <span class="w-16">{{__('test_take.option')}}</span>

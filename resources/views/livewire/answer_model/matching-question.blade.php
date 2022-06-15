@@ -7,7 +7,7 @@
 
                         <div class="flex flex-col classify " style="margin-top: 40px;">
                             <div class="flex space-x-5 classified">
-                                <table class="prevent-pagebreak-table prevent-pagebreak no-border">
+                                <table class="prevent-pagebreak-table question-no-break-classify-option no-border">
                                     <tr class="no-border">
 
                                 @foreach ($question->matchingQuestionAnswers as $group)
@@ -47,7 +47,7 @@
         @if($question->subtype == 'Matching')
             <div class="flex flex-col space-y-1 matching prevent-pagebreak">
                 <div class="flex flex-col space-y-3">
-                    <table class="no-border prevent-pagebreak" border="0" >
+                    <table class="no-border question-no-break-matching-option" border="0" >
                     @foreach ($question->matchingQuestionAnswers as $group)
                         @if(  $group->correct_answer_id === null )
                             <tr class="no-border" style="border: 0;">
