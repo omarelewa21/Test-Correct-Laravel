@@ -254,6 +254,15 @@ class ImportAttainmentTest extends TestCase
     }
 
     /** @test */
+    public function new_learning_goals_verpleegkunde_nova_haarlem_14_06_2022_integrity_test()
+    {
+        $this->loginAdmin();
+        $this->inactivateAttainmentToMakeImportPossible();
+        $testXslx = __DIR__.'/../files/verpleegkunde_nova_haarlem_14_06_2022.xlsx';
+        $this->learningGoalsXslxIntegrityTest($testXslx);
+    }
+
+    /** @test */
     public function new_learning_goals_file_03_06_22_integrity_test()
     {
         $this->loginAdmin();
