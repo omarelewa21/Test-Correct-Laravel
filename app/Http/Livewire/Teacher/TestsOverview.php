@@ -93,7 +93,10 @@ class TestsOverview extends Component
     private function getSchoolDatasource()
     {
         return Test::filtered(
-            $this->cleanFilterForSearch($this->filters['school']),
+            array_merge(
+                $this->cleanFilterForSearch($this->filters['school']),
+                ['owner_id' => auth()->user()->school_location_id]
+            ),
             $this->sorting
         )
             ->with('educationLevel', 'testKind', 'subject', 'author', 'author.school', 'author.schoolLocation')
