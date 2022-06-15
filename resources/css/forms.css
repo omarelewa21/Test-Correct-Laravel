@@ -425,3 +425,62 @@ input[type=number] {
 .checkbox-custom:checked + .checkbox-custom-label svg {
     color: white;
 }
+
+.radio-custom {
+    --radio-background-color: var(--off-white);
+    --radio-border-color: var(--blue-grey);
+    --radio-checked-color: var(--teacher-primary);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+}
+
+.radio-custom input {
+    -webkit-appearance: none;
+    appearance: none;
+    background-color: var(--radio-background-color);
+    margin: 0;
+    width: 24px;
+    height: 24px;
+    border: 1px solid var(--radio-border-color);
+    border-radius: 50%;
+    display: grid;
+    place-content: center;
+    cursor: pointer;
+}
+.radio-custom input:hover {
+    --radio-border-color: var(--teacher-primary-light)
+}
+.radio-custom input:checked:hover {
+    --radio-checked-color: var(--teacher-primary-light);
+}
+.radio-custom input:checked:disabled,
+.radio-custom input:checked:disabled:hover,
+.radio-custom input:checked:disabled:active {
+    --radio-border-color: var(--blue-grey);
+    --radio-checked-color: var(--teacher-primary-light);
+}
+.radio-custom input:disabled,
+.radio-custom input:disabled:hover,
+.radio-custom input:disabled:active {
+    --radio-border-color: var(--blue-grey);
+}
+
+
+.radio-custom input:active {
+    --radio-border-color: var(--teacher-primary)
+}
+
+.radio-custom input::before {
+    content: "";
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    transform: scale(0);
+    transition: 100ms transform ease-in-out;
+    background-color: var(--radio-checked-color);
+}
+
+.radio-custom input:checked::before {
+    transform: scale(1);
+}

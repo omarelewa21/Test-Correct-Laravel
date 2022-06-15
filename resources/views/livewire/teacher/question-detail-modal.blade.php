@@ -2,9 +2,11 @@
     <div class="px-6 pb-4 pt-6 main-shadow">
         <div class="flex w-full justify-between mb-2">
             @if($question->type === 'GroupQuestion')
-                <h3 class="line-clamp-2 min-h-[64px] @if(blank($question->name)) italic @endif" title="{{ $question->name }}">{{ filled($question->name) ? $question->name : __('question.no_question_text') }}</h3>
+                <h3 class="line-clamp-2 min-h-[64px] @if(blank($question->name)) italic @endif"
+                    title="{{ $question->name }}">{{ filled($question->name) ? $question->name : __('question.no_question_text') }}</h3>
             @else
-                <h3 class="line-clamp-2 min-h-[64px] @if(blank($question->title)) italic @endif" title="{{ $question->title }}">{{ $question->title ?? __('question.no_question_text') }}</h3>
+                <h3 class="line-clamp-2 min-h-[64px] @if(blank($question->title)) italic @endif"
+                    title="{{ $question->title }}">{{ $question->title ?? __('question.no_question_text') }}</h3>
             @endif
 
             <x-icon.close class="hover:text-primary cursor-pointer" wire:click="$emit('closeModal')"/>
@@ -68,12 +70,14 @@
         <div>
             <x-divider-with-title title="Instellingen"/>
             <div>
-                <x-input.toggle-row-with-title :small="true" :disabled="true" :toolTip="__('cms.close_after_answer_tooltip_text')">
+                <x-input.toggle-row-with-title :small="true" :disabled="true"
+                                               :toolTip="__('cms.close_after_answer_tooltip_text')">
                     <x-icon.locked/>
                     <span>{{ __('cms.Sluiten na beantwoorden') }}</span>
                 </x-input.toggle-row-with-title>
 
-                <x-input.toggle-row-with-title :small="true" :disabled="true" :toolTip="__('cms.make_public_tooltip_text')">
+                <x-input.toggle-row-with-title :small="true" :disabled="true"
+                                               :toolTip="__('cms.make_public_tooltip_text')">
                     <x-icon.preview/>
                     <span>{{ __('cms.Openbaar maken') }}</span>
                 </x-input.toggle-row-with-title>
@@ -121,9 +125,7 @@
 
         <div>
             <x-divider-with-title title="Taxonomie"/>
-            <div class=""
-                 x-data="{rtti: true, bloom: true, miller: true }"
-{{--                 x-data="{rtti: @js($question->rtti), bloom: @js($question->bloom), miller: @js($question->miller) }"--}}
+            <div class="" x-data="{rtti: @js($question->rtti), bloom: @js($question->bloom), miller: @js($question->miller) }"
             >
                 <div>
                     <x-input.toggle-row-with-title :small="true" x-model="rtti" :disabled="true">
@@ -131,14 +133,14 @@
                     </x-input.toggle-row-with-title>
                     <div x-show="rtti" class="grid grid-cols-4 pt-2">
                         @foreach(['R'  , 'T1' , 'T2' , 'I'] as $value)
-                            <label class="">
-                                <input wire:key="rrti-{{ $value }}"
+                            <label class="radio-custom">
+                                <input wire:key="rtti-{{ $value }}"
                                        name="rtti"
                                        type="radio"
                                        value="{{ $value }}"
-
+                                       disabled
                                 />
-                                <span>{{ $value }}</span>
+                                <span class="ml-2">{{ $value }}</span>
                             </label>
                         @endforeach
                     </div>
@@ -149,13 +151,13 @@
                     </x-input.toggle-row-with-title>
                     <div x-show="bloom" class="grid grid-cols-3 pt-2">
                         @foreach([ __('cms.Onthouden'), __('cms.Begrijpen'), __('cms.Toepassen'), __('cms.Analyseren'), __('cms.Evalueren'), __('cms.Creëren')] as $value)
-                            <label class="">
+                            <label class="radio-custom">
                                 <input wire:key="bloom-{{ $value }}"
                                        name="bloom"
                                        type="radio"
                                        value="{{ $value }}"
                                 />
-                                <span>{{ $value }}</span>
+                                <span class="ml-2">{{ $value }}</span>
                             </label>
                         @endforeach
                     </div>
@@ -166,14 +168,14 @@
                     </x-input.toggle-row-with-title>
                     <div x-show="miller" class="grid grid-cols-2 pt-2">
                         @foreach([ __('cms.Weten'), __('cms.Weten hoe'), __('cms.Laten zien'), __('cms.Doen'),] as $value)
-                            <label class="">
+                            <label class="radio-custom">
                                 <input wire:key="miller-{{ $value }}"
                                        name="miller"
                                        type="radio"
                                        value="{{ $value }}"
-
+                                       disabled
                                 />
-                                <span>{{ __($value) }}</span>
+                                <span class="ml-2">{{ __($value) }}</span>
                             </label>
                         @endforeach
                     </div>
@@ -181,10 +183,18 @@
             </div>
         </div>
 
-        <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Accusantium corporis delectus eos exercitationem explicabo harum magni nam, odit qui quidem rerum saepe vel voluptatum. Ab asperiores laudantium magni non placeat!</p>
-        <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Accusantium corporis delectus eos exercitationem explicabo harum magni nam, odit qui quidem rerum saepe vel voluptatum. Ab asperiores laudantium magni non placeat!</p>
-        <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Accusantium corporis delectus eos exercitationem explicabo harum magni nam, odit qui quidem rerum saepe vel voluptatum. Ab asperiores laudantium magni non placeat!</p>
-        <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Accusantium corporis delectus eos exercitationem explicabo harum magni nam, odit qui quidem rerum saepe vel voluptatum. Ab asperiores laudantium magni non placeat!</p>
+        <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Accusantium corporis delectus eos exercitationem
+            explicabo harum magni nam, odit qui quidem rerum saepe vel voluptatum. Ab asperiores laudantium magni non
+            placeat!</p>
+        <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Accusantium corporis delectus eos exercitationem
+            explicabo harum magni nam, odit qui quidem rerum saepe vel voluptatum. Ab asperiores laudantium magni non
+            placeat!</p>
+        <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Accusantium corporis delectus eos exercitationem
+            explicabo harum magni nam, odit qui quidem rerum saepe vel voluptatum. Ab asperiores laudantium magni non
+            placeat!</p>
+        <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Accusantium corporis delectus eos exercitationem
+            explicabo harum magni nam, odit qui quidem rerum saepe vel voluptatum. Ab asperiores laudantium magni non
+            placeat!</p>
     </div>
     <div class="px-6 py-4 flex justify-end w-full" style="box-shadow: 0 -3px 8px 0 rgba(4, 31, 116, 0.2);">
         <div class="flex space-x-2.5">

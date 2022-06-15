@@ -40,7 +40,7 @@
                     </span>
                 @endif
                     <span class="note text-sm">{{ $question->score }}pt.</span>
-            <x-button.cta class="text-white" @click="$el.disabled = true" wire:click="handleCheckboxClick({{ $question->getKey() }})">
+            <x-button.cta class="text-white" @click="$el.disabled = true" wire:click.stop="handleCheckboxClick({{ $question->getKey() }})">
                 {{ __('cms.Toevoegen') }}
             </x-button.cta>
         </div>
