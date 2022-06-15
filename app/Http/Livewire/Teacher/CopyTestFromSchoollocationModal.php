@@ -72,7 +72,7 @@ class CopyTestFromSchoollocationModal extends Component
             return 'Error no test was found';
         }
 
-        if (!$test->canDuplicate()) {
+        if (! $test->canCopyFromSchool(auth()->user())) {
             return 'Error duplication not allowed';
         }
 

@@ -987,4 +987,14 @@ class Test extends BaseModel
             return [$testQuestion];
         });
     }
+
+    public function canCopy(User $user)
+    {
+        return $this->canDuplicate() && $user->school_location_id == $this->owner_id;
+    }
+
+    public function canCopyFromSchool(User $user)
+    {
+        return $this->canDuplicate() && $user->isAllowedSchool($this->owner->school);
+    }
 }
