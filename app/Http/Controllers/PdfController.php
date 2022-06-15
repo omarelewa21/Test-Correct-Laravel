@@ -22,10 +22,10 @@ class PdfController extends Controller
      */
     public function HtmlToPdf(HtmlToPdfRequest $request)
     {
-        return $this->wkhtmlToPdf($request);
-//        $html = $this->base64ImgPaths($request->get('html'));
-//        $output = PdfHelper::HtmlToPdf($html);
-//        return response($output);
+//        return $this->wkhtmlToPdf($request);
+        $html = $this->base64ImgPaths($request->get('html'));
+        $output = PdfHelper::HtmlToPdf($html);
+        return response($output);
     }
 
     public function HtmlToPdfFromString($html)
