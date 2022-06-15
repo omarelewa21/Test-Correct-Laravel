@@ -764,6 +764,9 @@ class Test extends BaseModel
                         $query->where('author_id', '=', $value);
                     }
                     break;
+                case 'owner_id':
+                    $query->where('tests.owner_id', '=', $value);
+                    break;
             }
         }
     }
