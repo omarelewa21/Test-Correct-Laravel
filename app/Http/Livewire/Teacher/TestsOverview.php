@@ -169,9 +169,10 @@ class TestsOverview extends Component
             return 'Error no test was found';
         }
 
-        if (!$test->canDuplicate()) {
+        if (!$test->canCopy(auth()->user())) {
             return 'Error duplication not allowed';
         }
+
 
         try {
             $newTest = $test->userDuplicate([], Auth::id());

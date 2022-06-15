@@ -43,7 +43,7 @@
                     <x-icon.schedule/>
                     <span class="text-base bold inherit">{{ __('cms.Inplannen') }}</span>
                 </button>
-                @if( $test->canEdit(auth()->user()) &&  $this->openTab != 'organization')
+                @if( $test->canCopy(auth()->user()) &&  $this->openTab != 'organization')
                 <button class="flex items-center space-x-2 py-1 px-4 base hover:text-primary hover:bg-offwhite transition w-full"
                         @click="duplicateTest('{{ $test->uuid }}')"
 
@@ -53,7 +53,7 @@
                     <span class="text-base bold inherit">{{ __('cms.Kopie maken') }}</span>
                 </button>
                 @endif
-                @if( $test->canEdit(auth()->user()) && $this->openTab == 'organization')
+                @if( $test->canCopyFromSchool(auth()->user()) && $this->openTab == 'organization')
                     <button
                             class="flex items-center space-x-2 py-1 px-4 base hover:text-primary hover:bg-offwhite transition w-full"
                             wire:click="$emitTo('teacher.copy-test-from-schoollocation-modal', 'showModal', '{{ $test->uuid }}')"
