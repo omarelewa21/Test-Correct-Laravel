@@ -127,7 +127,6 @@ class InfoController extends Controller
                     ['key' => $this->key]                                                                       // secret key between cake and laravel
                 );
                 if($response->successful()){
-                    $storagePath = storage_path() . sprintf('/inlineimages/%f', $filename);
                     Storage::disk('inline_images')->put($filename, base64_decode($response->body()));
                     $img->setAttribute('src', request()->getSchemeAndHttpHost() . '/infos/inline-image/'. $filename);
                 }
