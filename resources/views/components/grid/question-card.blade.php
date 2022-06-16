@@ -20,6 +20,13 @@
             <span class="note">{{ $lastUpdated }}</span>
         </div>
     </div>
+    <div class="flex w-full justify-between text-base mb-1">
+        <div class="flex">
+            @foreach($tags as $tag)
+                <span>{{ $tag->name }}</span>
+            @endforeach
+        </div>
+    </div>
     <div class="flex w-full justify-between text-base">
         <div title="{{ $authors->implode(', ') }}">
             @if($authors->count() > 1)

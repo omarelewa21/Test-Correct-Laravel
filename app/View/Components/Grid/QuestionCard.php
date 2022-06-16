@@ -11,6 +11,7 @@ class QuestionCard extends Component
     public $authors;
     public $lastUpdated;
     public $attachmentCount;
+    public $tags;
 
     public function __construct($question)
     {
@@ -18,6 +19,8 @@ class QuestionCard extends Component
         $this->authors = $question->getAuthorNamesCollection();
         $this->lastUpdated = Carbon::parse($question->updated_at)->format('d/m/\'y');
         $this->attachmentCount = $question->attachments()->count();
+
+        $this->tags = $this->question->tags;
     }
 
     public function render(): string

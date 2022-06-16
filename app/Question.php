@@ -824,6 +824,7 @@ class Question extends MtiBaseModel {
                                 break;
                             case 'schoolLocation': // only my colleages and me
                                 $query->whereIn('subject_id',$user->subjects()->pluck('id'));
+                                $query->where($this->table.'.owner_id', Auth::user()->school_location_id);
                                 break;
                             case 'school': //  shared sections
                                 $query->whereIn('subject_id',$user->subjectsOnlyShared()->pluck('id'));

@@ -40,7 +40,7 @@
      x-on:show-empty.window="empty = !empty"
      x-on:new-question-added.window="removeDrawingLegacy(); $nextTick(() => empty = false)"
      x-on:store-current-question.window="forceSyncEditors();"
-     x-effect="if(!!empty) { $refs.editorcontainer.style.opacity = 0}"
+     x-effect="if(!!empty) { $refs.editorcontainer.style.opacity = 0 }"
      questionComponent
 >
     <x-partials.header.cms-editor :testName="$testName" :questionCount="$this->amountOfQuestions"/>

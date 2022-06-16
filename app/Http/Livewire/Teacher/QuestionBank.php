@@ -68,6 +68,13 @@ class QuestionBank extends Component
             ->when($this->openTab === 'personal', function ($filters) {
                 return $filters->merge(['source' => 'me']);
             })
+            ->when($this->openTab === 'school_location', function ($filters) {
+                return $filters->merge(['source' => 'schoolLocation']);
+            })
+            ->when(is_numeric($this->filters[$this->openTab]['search']), function ($filters) {
+                unset($filters['search']);
+                return $filters->merge(['id' => $this->filters[$this->openTab]['search']]);
+            })
             ->toArray();
     }
 
