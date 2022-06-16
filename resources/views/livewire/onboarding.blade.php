@@ -559,6 +559,10 @@
                                 </div>
 
                             <div class="flex mt-auto w-full">
+                                <x-button.text-button class="disabled rotate-svg-180" disabled>
+                                    <x-icon.chevron/>
+                                    <span>{{ __('modal.Terug') }}</span>
+                                </x-button.text-button>
                                 <x-button.cta size="md" class="ml-auto" wire:click="loginUser">
                                     <span class="">{{ __('auth.log_in_verb') }}</span>
                                     <x-icon.arrow></x-icon.arrow>
