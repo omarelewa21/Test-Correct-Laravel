@@ -17,7 +17,7 @@ class AddOwnerIdToQuestionsCommand extends Command
     {
         DB::beginTransaction();
         try {
-            Question::addOwnerIds();
+            Question::addOwnerIdToAllQuestions();
 
             DB::commit();
         } catch (\Throwable $e) {

@@ -15,7 +15,7 @@ class AddOwnerIdToQuestionsTable extends Migration
                 $table->unsignedInteger('owner_id')->after('score')->nullable();
             });
 
-            Question::addOwnerIds();;
+            Question::addOwnerIdToAllQuestions();;
 
             DB::commit();
         } catch (Throwable $e) {

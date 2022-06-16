@@ -222,6 +222,9 @@ class Question extends MtiBaseModel {
         parent::boot();
 
         // Progress additional answers
+        static::creating(function(Question $question) {
+            self::addOwnerId($question->getQuestionInstance());
+        });
         static::created(function(Question $question)
         {
             QuestionAuthor::addAuthorToQuestion($question);
@@ -1568,7 +1571,7 @@ class Question extends MtiBaseModel {
         });
     }
 
-    public static function addOwnerIds()
+    public static function addOwnerIdToAllQuestions()
     {
         Question::withTrashed()
             ->where(function ($query) {
@@ -1595,5 +1598,27 @@ class Question extends MtiBaseModel {
                         ]);
                 }
             });
+    }
+
+    private static function addOwnerId($question)
+    {
+        try {
+            $ownerId = SchoolLocationSection::select('school_location_id')
+                ->where('section_id', function ($query) use ($question) {
+                    $query->select('section_id')
+                        ->from((new Subject)->getTable())
+                        ->where('id', function ($query) use ($question) {
+                            $query->select('subject_id')
+                                ->from((new Question)->getTable())
+                                ->where('id', $question->id);
+                        });
+                })
+                ->first()
+                ->school_location_id;
+
+            $question->owner_id = $ownerId;
+        } catch (\Throwable $e) {
+            $question->owner_id = Auth::user()->school_location_id;
+        }
     }
 }
