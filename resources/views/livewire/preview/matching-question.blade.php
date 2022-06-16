@@ -17,7 +17,7 @@
                                     @if($answerStruct[$option->id] === '')
                                         <x-drag-item wire:key="option-{{ $option->id }}" sortableHandle="false"
                                                      wire:sortable-group.item="{{ $option->id }}">
-                                            {!! $option->answer !!}
+                                            {{ html_entity_decode($option->answer) }}
                                         </x-drag-item>
                                     @endif
                                 @endif
@@ -36,7 +36,7 @@
                                             @if($answerStruct[$option->id] == $group->id)
                                                 <x-drag-item wire:key="option-{{ $option->id }}" sortableHandle="false"
                                                              wire:sortable-group.item="{{ $option->id }}">
-                                                    {{ $option->answer }}
+                                                    {{ html_entity_decode($option->answer) }}
                                                 </x-drag-item>
                                             @endif
                                         @endif
@@ -58,7 +58,7 @@
                                     @if($answerStruct[$option->id] === '')
                                         <x-drag-item wire:key="option-{{ $option->id }}" sortableHandle="false"
                                                      wire:sortable-group.item="{{ $option->id }}">
-                                            {{ $option->answer }}
+                                            {{ html_entity_decode($option->answer) }}
                                         </x-drag-item>
                                     @endif
                                 @endif
@@ -73,7 +73,7 @@
                                 <div class="w-1/3">
                                     <span class="flex w-full py-2 px-4 border-2 border-blue-grey rounded-10
                                                  bg-primary-light font-size-18 bold base leading-5 select-none">
-                                                {{ $group->answer }}
+                                                {{ html_entity_decode($group->answer) }}
                                     </span>
                                 </div>
                                 <div class="flex-1 matching-dropzone">
@@ -85,7 +85,7 @@
                                                     @if($answerStruct[$option->id] == $group->id)
                                                         <x-drag-item wire:key="option-{{ $option->id }}" sortableHandle="false"
                                                                      wire:sortable-group.item="{{ $option->id }}">
-                                                            {{ $option->answer }}
+                                                            {{ html_entity_decode($option->answer) }}
                                                         </x-drag-item>
                                                     @endif
                                                 @endif

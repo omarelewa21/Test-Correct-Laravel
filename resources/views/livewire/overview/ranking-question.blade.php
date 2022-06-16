@@ -5,7 +5,7 @@
             @foreach($answerStruct as $answer)
                 <x-drag-item-disabled sortId="{{ $answer->value }}"
                                       wireKey="option-{{ $answer->value }}">
-                    {{ $answerText[$answer->value] }}
+                    {{ html_entity_decode($answerText[$answer->value]) }}
                 </x-drag-item-disabled>
             @endforeach
         </div>

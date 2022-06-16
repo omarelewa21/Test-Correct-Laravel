@@ -230,7 +230,7 @@ class CmsClassify extends CmsBase
                     }
                     $corresponding = [
                         'id'     => Uuid::uuid4()->toString(),
-                        'left'   => html_entity_decode($answer->answer),
+                        'left'   => BaseHelper::transformHtmlCharsReverse($answer->answer),
                         'order'  => count($struct) + 1,
                         'rights' => [],
                     ];
@@ -238,7 +238,7 @@ class CmsClassify extends CmsBase
                     $corresponding['rights'][] = [
                         'id'     => Uuid::uuid4()->toString(),
                         'order'  => $corresponding ? count($corresponding['rights']) + 1 : 1,
-                        'answer' => html_entity_decode($answer->answer),
+                        'answer' => BaseHelper::transformHtmlCharsReverse($answer->answer),
                     ];
                 }
             });

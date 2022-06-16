@@ -167,6 +167,7 @@ class BaseHelper
     {
         $answer = str_replace('<','&lt;',$answer);
         $answer = str_replace('>','&gt;',$answer);
+        $answer = str_replace('&;','&amp;',$answer);
         return $answer;
     }
 
@@ -174,6 +175,7 @@ class BaseHelper
     {
         $answer = str_replace('&lt;','<',$answer);
         $answer = str_replace('&gt;','>',$answer);
+        $answer = str_replace('&amp;','&',$answer);
         return $answer;
     }
 
