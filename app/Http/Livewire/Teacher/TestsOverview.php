@@ -250,6 +250,9 @@ class TestsOverview extends Component
 
     public function mount()
     {
+        if (auth()->user()->schoolLocation->allow_new_test_bank !== 1) {
+            abort(403);
+        }
         $this->setFilters();
     }
 
