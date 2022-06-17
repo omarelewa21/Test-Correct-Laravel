@@ -185,7 +185,13 @@ class TestsOverview extends Component
 
     public function openEdit($testUuid)
     {
-        $this->redirect(route('teacher.question-editor', ['testId' => $testUuid]));
+        $this->redirect(route('teacher.question-editor', [
+            'testId'     => $testUuid,
+            'action'     => 'edit',
+            'owner'      => 'test',
+            'withDrawer' => 'true',
+            'referrer'   => 'teacher.tests',
+        ]));
     }
 
     public function getTemporaryLoginToPdfForTest($testUuid)
