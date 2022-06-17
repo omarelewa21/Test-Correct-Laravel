@@ -4,6 +4,7 @@ namespace tcCore\Http\Livewire\Teacher\Questions;
 
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
@@ -72,6 +73,8 @@ class OpenShort extends Component
 
     public $pValues = [];
 
+    public $referrer;
+
     public $attachmentsCount = 0;
 
     public $cmsPropertyBag = [];
@@ -86,7 +89,7 @@ class OpenShort extends Component
     protected $tags = [];
 
     protected $queryString = [
-        'action', 'type', 'subtype', 'testId', 'testQuestionId', 'groupQuestionQuestionId', 'owner', 'isCloneRequest', 'withDrawer' => ['except' => false]
+        'action', 'type', 'subtype', 'testId', 'testQuestionId', 'groupQuestionQuestionId', 'owner', 'isCloneRequest', 'withDrawer' => ['except' => false], 'referrer' => ['except' => false],
     ];
 
     protected $settingsGeneralPropertiesVisibility = [
@@ -521,8 +524,13 @@ class OpenShort extends Component
         }
     }
 
-    public function returnToTestOverview(): void
+    public function returnToTestOverview()
     {
+        if ($this->referrer) {
+            if ($this->referrer === 'teacher.tests') {
+                return redirect()->to(route($this->referrer));
+            }
+        }
         $url = sprintf("tests/view/%s", $this->testId);
         if ($this->isPartOfGroupQuestion() && !$this->withDrawer) {
             $url = sprintf(
