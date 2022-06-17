@@ -5,7 +5,7 @@
     <x-slot name="body">
         <div class="email-section mb-4 w-full">
             @if($errors->count())
-                <div class="notification error mt-4">
+                <div class="notification stretched error mt-4">
                     @error('request.schoolClasses')
                     <div class="title">{{ $message }}</div>
                     @enderror
@@ -65,8 +65,9 @@
                                             wire:model="request.schoolClasses"
                                             filterContainer="selected_classes"
                                             id="teachers_and_classes"
+                                            hasErrors="{{ $errors->has('request.schoolClasses') ? 'true': '' }}"
                     />
-                    <div id="selected_classes" class="space-x-4 ml-4"></div>
+                    <div id="selected_classes" wire:ignore class="space-x-4 ml-4"></div>
 
                 </div>
             </div>
@@ -84,7 +85,7 @@
                                             id="choices_invigilators"
                     />
 
-                    <div id="selected_invigilators" class="space-x-4 ml-4"></div>
+                    <div id="selected_invigilators" wire:ignore class="space-x-4 ml-4"></div>
                 </div>
             </div>
             <div class="input-section">
@@ -99,7 +100,7 @@
                             <span class="bold"> <x-icon.preview/>{{ __('teacher.Browsertoetsen toestaan') }} </span>
                         </x-input.toggle-row-with-title>
                     </div>
-                    <div class="input-group mb-4 sm:mb-0 flex-auto border-t">
+                    <div class="input-group mb-4 sm:mb-0 flex-auto border-t @error('request.schoolClasses') border-red-500 @enderror">
                         @if(auth()->user()->schoollocation->allow_guest_accounts)
                             <x-input.toggle-row-with-title wire:model="request.guest_accounts"
                                                            :toolTip="__('teacher.guest_accounts_tooltip')"
@@ -127,7 +128,7 @@
             <x-button.text-button size="sm" wire:click="closeModal">
                 <span>{{__('Annuleren')}}</span>
             </x-button.text-button>
-            <div>
+            <div class="flex space-x-2.5">
                 <x-button.primary size="sm" wire:click="planNext">
                     <span>{{__('teacher.Volgende Inplannen')}}</span>
                     <x-icon.chevron/>

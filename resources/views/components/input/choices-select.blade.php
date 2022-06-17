@@ -4,8 +4,9 @@
     'withSearch' => false,
     'placeholderText' => 'ddd',
     'filterContainer' => '',
+    'hasErrors' => false,
  ])
-<div>
+<div class="{{ $hasErrors ? 'has-error' : ''  }}">
     <div wire:ignore
          {{ $attributes->wire('key') ? 'wire:key="'. $attributes->wire('key')->value. '"' : '' }}
          x-data="choices(@entangle($attributes->wire('model')),

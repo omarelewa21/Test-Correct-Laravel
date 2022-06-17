@@ -877,7 +877,18 @@ class Test extends BaseModel
         return $this->test_kind_id == TestKind::ASSESSMENT_TYPE;
     }
 
+    public function getAuthorsAsString(){
+        return $this->authorsAsString;
+    }
+
     public function getAuthorsAsStringAttribute()
+    {
+        return $this->testAuthors()->get()->map(function ($author) {
+            return implode(' ', array_filter([$author->user->name_first, $author->user->name_suffix, $author->user->name]));
+        })->join(', ');
+    }
+
+    public function getAuthorsAsStringTwoAttribute()
     {
         $authorsToShow = 2;
 
