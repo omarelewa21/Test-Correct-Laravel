@@ -41,7 +41,13 @@ class PlanningModal extends ModalComponent
         $this->test = \tcCore\Test::whereUuid($testUuid)->first();
 
         $this->allowedPeriods = Period::filtered(['current_school_year' => true])->get();
-        $this->schoolClasses = SchoolClass::filtered(['user_id' => auth()->id()], [])
+        $this->schoolClasses = SchoolClass::filtered(
+            [
+                'user_id' => auth()->id(),
+                'current' => true,
+            ],
+            []
+        )
             ->get(['id', 'name'])
             ->map(function ($item) {
                 return ['value' => (int)$item->id, 'label' => $item->name];
