@@ -176,8 +176,8 @@ class PdfController extends Controller
         ];
 //        $createPath = config('app.base_url').'ckeditor/plugins/ckeditor_wiris/integration/createimage.php';
 //        $path = config('app.base_url').'ckeditor/plugins/ckeditor_wiris/integration/showimage.php';
-        $createPath = 'https://localhost/ckeditor/plugins/ckeditor_wiris/integration/createimage.php';
-        $path = 'https://localhost/ckeditor/plugins/ckeditor_wiris/integration/showimage.php';
+        $createPath = 'https://testwelcome.test-correct.nl/ckeditor/plugins/ckeditor_wiris/integration/createimage.php';
+        $path = 'https://testwelcome.test-correct.nl/ckeditor/plugins/ckeditor_wiris/integration/showimage.php';
         $client = new Client();
         $res = $client->request('POST',$createPath,[
             'form_params' => $data,
