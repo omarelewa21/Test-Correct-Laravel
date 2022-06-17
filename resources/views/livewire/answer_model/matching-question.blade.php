@@ -5,17 +5,15 @@
         </div>
         @if($question->subtype == 'Classify')
 
-                        <div class="flex flex-col classify " style="margin-top: 40px;">
-                            <div class="flex space-x-5 classified">
-                                <table class="prevent-pagebreak-table question-no-break-classify-option no-border">
-                                    <tr class="no-border">
-
+                        <div class="flex-wrap-pdf flex-col-pdf classify " style="margin-top: 40px;">
+                            <div class="flex-row-pdf space-x-5 classified">
+                                @php $counter = 0; @endphp
                                 @foreach ($question->matchingQuestionAnswers as $group)
                                     @if(  $group->correct_answer_id === null )
-                                    <td class="no-border">
+                                        @php $counter++; @endphp
                                         <x-dropzone type="classify" title="{{ $group->answer }}" wire:key="group-{{ $group->id }}"
                                                     wire:sortable.item="{{ $group->id }}">
-                                            <div class="flex flex-col w-full dropzone-height" selid="drag-block-input" >
+                                            <div class="flex-pdf flex-col-pdf w-full dropzone-height" selid="drag-block-input" >
                                                 @foreach($question->matchingQuestionAnswers as $option)
                                                     @if(  $option->correct_answer_id !== null )
                                                         @if($option->correct_answer_id == $group->id)
@@ -32,16 +30,15 @@
                                                 @endforeach
                                             </div>
                                         </x-dropzone>
-                                    </td>
+                                        @if($counter %3 == 0)
+                                            </div>
+                                            <div class="flex-row-pdf space-x-5 classified">
+                                        @endif
                                     @endif
                                 @endforeach
-                                    </tr>
-                                </table>
                             </div>
                         </div>
-                    </td>
-                </tr>
-            </table>
+
 
         @endif
         @if($question->subtype == 'Matching')

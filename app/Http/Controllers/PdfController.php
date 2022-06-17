@@ -31,9 +31,7 @@ class PdfController extends Controller
     public function HtmlToPdfFromString($html)
     {
         $html = $this->base64ImgPaths($html);
-        //file_put_contents(storage_path('temp/test.html'),$html);
         return $this->snappyToPdfFromString($html);
-        //return PdfHelper::HtmlToPdf($html);
     }
 
     public function getSetting($setting)
@@ -141,45 +139,6 @@ class PdfController extends Controller
         return $server->getImageAsBase64($file, $widthHeight+['fit'=>'contain',  'fm' => 'jpg', 'q' => $quality,]);
     }
 
-    private function wkhtmlToPdf(HtmlToPdfRequest $request)
-    {
-        $html = $this->base64ImgPaths($request->get('html'));
-        file_put_contents(storage_path('temp/result1.html'),$html);
-        $options = [
-            'disable-javascript',
-            'header-html'=> storage_path('temp/header.html'),
-        ];
-        $pdf = new Pdf($options);
-        $pdf->addPage($html);
-        $outputPath = storage_path('temp/result1.pdf');
-        $pdf->saveAs($outputPath);
-        $output = $pdf->toString();
-
-        return response()->make($output, 200, [
-            'Content-Type' => 'application/pdf',
-            'Content-Disposition' => 'inline; filename="toets.pdf"'
-        ]);
-    }
-
-    private function wkhtmlToPdfFromString($html)
-    {
-        //dump($html);
-        file_put_contents(storage_path('temp/result1.html'),$html);
-//        $html = file_get_contents(storage_path('temp/result1.html'));
-        $options = [
-            'disable-javascript',
-            'header-html'=> storage_path('temp/header.html'),
-            'allow'=>'Users/gm/Sites/test-correct/public/css/app_pdf.css',
-        ];
-        $pdf = new Pdf($options);
-        $pdf->addPage($html);
-        $outputPath = storage_path('temp/result1.pdf');
-        $pdf->saveAs($outputPath);
-        $output = $pdf->toString();
-        dump($pdf->getError());
-        return $output;
-
-    }
 
     private function snappyToPdfFromString($html)
     {
@@ -187,7 +146,7 @@ class PdfController extends Controller
         file_put_contents(storage_path('temp/result1.html'),$html);
 //        $html = file_get_contents(storage_path('temp/result1.html'));
 
-        $output = \PDF::loadHtml($html)->setOption('header-html', storage_path('app/pdf_templates/header.html'));
+        $output = \PDF::loadHtml($html)->setOption('header-html', resource_path('pdf_templates/header.html'))->setOption('footer-html', resource_path('pdf_templates/footer.html'));
         return $output->download('file.pdf');
         return new Response(
             $output,

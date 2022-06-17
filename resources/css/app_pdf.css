@@ -162,6 +162,9 @@ p{
 .classified>div{
     display: inline;
 }
+.pdf-30{
+    width: 30%;
+}
 .pdf-35{
     width: 35%;
 }
@@ -274,7 +277,7 @@ div.input-group u, div.input-group strong, div.input-group span,p strong{
     width: 500px;
 }
 .pdf-dropzone {
-    width: 500px !important;
+    width: 400px !important;
 }
 div.drag-item>div{
     float:right;
@@ -322,4 +325,7 @@ div.drag-item>div{
 }
 .prevent-pagebreak{
     page-break-before:auto;
+}
+.content-section {
+    box-shadow: none;
 }

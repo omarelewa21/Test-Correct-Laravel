@@ -2,6 +2,7 @@
 
 namespace tcCore\Http\Controllers;
 
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use tcCore\GroupQuestionQuestion;
@@ -33,6 +34,8 @@ class PreviewAnswerModelController extends Controller
         $styling = $this->getCustomStylingFromQuestions($data);
 //        $styling = $styling.$this->getAppCssForPdf();
 //        return view('test-answer-model-overview',compact(['data', 'current', 'answers', 'playerUrl', 'nav', 'uuid', 'testParticipant', 'styling']));
+        $titleForPdfPage = __('Antwoord model').' '.$test->name.' '.Carbon::now()->format('d-m-Y H:i');
+        view()->share('titleForPdfPage',$titleForPdfPage);
         $html = view('test-answer-model-overview',compact(['data', 'current', 'answers', 'playerUrl', 'nav', 'uuid', 'testParticipant', 'styling']))->render();
         return response()->make(PdfController::HtmlToPdfFromString($html), 200, [
             'Content-Type' => 'application/pdf',

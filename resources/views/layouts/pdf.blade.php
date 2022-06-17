@@ -1,5 +1,5 @@
 @props([
-'type' => 'pdf'
+'titleForPdfPage' => 'Test-Correct'
 ])
 <!DOCTYPE html>
 <html lang="en">
@@ -8,7 +8,7 @@
     <meta charset="UTF-8">
     <meta name="_token" content="{{ csrf_token() }}">
     <meta http-equiv="refresh" content="{{ config('session.lifetime') * 60 }}">
-    <title version="{{ \tcCore\Http\Helpers\BaseHelper::getCurrentVersion() }}">Test-Correct {{ (!is_null(optional($type))&&$type=='answer-model')?'antwoord model':'' }}</title>
+    <title version="{{ \tcCore\Http\Helpers\BaseHelper::getCurrentVersion() }}">{{ $titleForPdfPage }}</title>
     <link rel="icon" href="{{ asset('img/icons/Logo-Test-Correct-recolored-icon-only.svg') }}"/>
     {{--    <link href="https://unpkg.com/tailwindcss@^2/dist/tailwind.min.css" rel="stylesheet">--}}
     <script src="/ckeditor/ckeditor.js" type="text/javascript"></script>
