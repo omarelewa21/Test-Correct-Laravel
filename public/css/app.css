@@ -1214,6 +1214,11 @@ input[type=number] {
     color: var(--primary);
 }
 
+#sidebar-carousel-container .group-add-new:hover,
+#sidebar-carousel-container .question-button:hover {
+    background-color: var(--primary-opacity-05);
+}
+
 #sidebar-carousel-container .group-question-questions .question-button:not(:last-child, :first-child) span.rounded-full::before {
     content: '';
     position: absolute;
@@ -1229,7 +1234,7 @@ input[type=number] {
     height: 30px;
     width: 1px;
     border-left: dashed 3px var(--system-base);
-    left: 14px;
+    left: 38px;
     top: -50%;
 }
 
@@ -1284,7 +1289,7 @@ input[type=number] {
 #sidebar-backdrop .empty-state-popover {
     position: relative;
     top: calc(var(--header-height) + 20px);
-    left: calc(var(--sidebar-width) + 35px);
+    left: 35px;
     width: 360px;
     background-color: var(--off-white);
     border-radius: 10px;
@@ -6481,10 +6486,6 @@ video {
 	--tw-border-opacity: 1;
 	border-color: rgba(219, 234, 254, var(--tw-border-opacity));
 }
-.border-sysbase{
-	--tw-border-opacity: 1;
-	border-color: rgba(4, 31, 116, var(--tw-border-opacity));
-}
 .bg-white{
 	--tw-bg-opacity: 1;
 	background-color: rgba(255, 255, 255, var(--tw-bg-opacity));
@@ -7181,6 +7182,11 @@ video {
 }
 .transition-transform{
 	transition-property: transform;
+	transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+	transition-duration: 150ms;
+}
+.transition-colors{
+	transition-property: background-color, border-color, color, fill, stroke;
 	transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
 	transition-duration: 150ms;
 }

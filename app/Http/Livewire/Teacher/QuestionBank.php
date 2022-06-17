@@ -142,6 +142,10 @@ class QuestionBank extends Component
             $response = $this->performControllerActionForQuestion($questionId);
         }
 
+        if (empty($this->addedQuestionIds)) {
+            $this->dispatchBrowserEvent('first-question-of-test-added');
+        }
+
         if ($response->getStatusCode() == 200) {
             $this->addedQuestionIds[json_decode($response->getContent())->question_id] = 0;
             $this->dispatchBrowserEvent('question-added');

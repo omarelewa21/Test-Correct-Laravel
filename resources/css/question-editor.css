@@ -200,6 +200,11 @@
     color: var(--primary);
 }
 
+#sidebar-carousel-container .group-add-new:hover,
+#sidebar-carousel-container .question-button:hover {
+    background-color: var(--primary-opacity-05);
+}
+
 #sidebar-carousel-container .group-question-questions .question-button:not(:last-child, :first-child) span.rounded-full::before {
     content: '';
     position: absolute;
@@ -215,7 +220,7 @@
     height: 30px;
     width: 1px;
     border-left: dashed 3px var(--system-base);
-    left: 14px;
+    left: 38px;
     top: -50%;
 }
 
@@ -270,7 +275,7 @@
 #sidebar-backdrop .empty-state-popover {
     position: relative;
     top: calc(var(--header-height) + 20px);
-    left: calc(var(--sidebar-width) + 35px);
+    left: 35px;
     width: 360px;
     background-color: var(--off-white);
     border-radius: 10px;

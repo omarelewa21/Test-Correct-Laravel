@@ -24,17 +24,19 @@
      "
      x-data="{loadingOverlay: false, collapse: false, backdrop: false, emptyStateActive: @entangle('emptyStateActive')}"
      x-cloak
-     x-effect="handleLoading(); $el.scrollTop = $store.cms.scrollPos"
+     x-effect="handleLoading(); $el.scrollTop = $store.cms.scrollPos;"
      :class="{'collapsed': collapse}"
      @backdrop="backdrop = !backdrop"
      @processing-end.window="$store.cms.processing = false;"
      @filepond-start.window="loadingOverlay = true;"
      @filepond-finished.window="loadingOverlay = false;"
+     @first-question-of-test-added.window="$wire.showFirstQuestionOfTest(); emptyStateActive = false; $nextTick(() => backdrop = true)"
      wire:ignore.self
      wire:init="handleCmsInit()"
 >
     <div id="sidebar-backdrop"
-         class="fixed inset-0 transform transition-all"
+         class="fixed inset-y-0 right-0 transform transition-all"
+         style="left: var(--sidebar-width)"
          x-show="backdrop"
          x-cloak
          x-transition:enter="ease-out duration-300"
@@ -93,6 +95,7 @@
                                                                    :subQuestion="true"
                                                                    :activeTestQuestion="$this->testQuestionId"
                                                                    :activeGQQ="$this->groupQuestionQuestionId"
+                                                                   :double="$this->duplicateQuestions->contains($testQuestion->question_id)"
                                     />
                                 @endforeach
                                 <x-sidebar.cms.dummy-group-question-button :testQuestionUuid="$testQuestion->uuid" :loop="$loopIndex"/>
@@ -105,6 +108,7 @@
                                                            :subQuestion="false"
                                                            :activeTestQuestion="$this->testQuestionId"
                                                            :activeGQQ="$this->groupQuestionQuestionId"
+                                                           :double="$this->duplicateQuestions->contains($testQuestion->question_id)"
                             />
                         @endif
                     @endforeach

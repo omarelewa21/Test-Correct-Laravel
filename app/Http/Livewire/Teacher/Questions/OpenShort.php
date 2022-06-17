@@ -123,6 +123,7 @@ class OpenShort extends Component
     public $nextQuestionToShow = [];
     public $forceOpenNewQuestion = false;
     public $uniqueQuestionKey = '';
+    public $duplicateQuestion = false;
 
 
     protected function rules()
@@ -225,6 +226,7 @@ class OpenShort extends Component
         $this->registerDirty = true;
         $this->forceOpenNewQuestion = false;
         $this->uniqueQuestionKey = $this->testQuestionId . $this->groupQuestionQuestionId . $this->action . $this->questionEditorId;
+        $this->duplicateQuestion = false;
     }
 
 
@@ -910,6 +912,8 @@ class OpenShort extends Component
             if ($this->obj && method_exists($this->obj, 'initializePropertyBag')) {
                 $this->obj->initializePropertyBag($q);
             }
+
+            $this->duplicateQuestion = $activeTest->getDuplicateQuestionIds()->contains($this->questionId);
         }
 
         if ($this->obj && method_exists($this->obj, 'createAnswerStruct')) {

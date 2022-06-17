@@ -35,6 +35,8 @@ class Cms extends Component
 
     public $newQuestionTypeName = '';
 
+    public $duplicateQuestions;
+
     protected function getListeners()
     {
         return [
@@ -60,6 +62,11 @@ class Cms extends Component
         if ($this->action === 'add') {
             $this->setQuestionNameString($this->type, $this->subtype);
         }
+    }
+
+    public function booted()
+    {
+        $this->duplicateQuestions = Test::whereUuid($this->testId)->first()->getDuplicateQuestionIds();
     }
 
     public function render()
@@ -342,6 +349,13 @@ class Cms extends Component
     public function handleCmsInit()
     {
         if ($this->emitShowOnInit) {
+            $this->showFirstQuestionOfTest();
+        }
+    }
+
+    public function showFirstQuestionOfTest()
+    {
+        if ($this->questionsInTest->isNotEmpty()) {
             $this->showQuestionByTestQuestion($this->questionsInTest->first());
         }
     }

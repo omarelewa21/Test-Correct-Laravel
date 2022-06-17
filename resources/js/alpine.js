@@ -421,8 +421,8 @@ document.addEventListener('alpine:init', () => {
                     this.$root.querySelectorAll('.slide-container').forEach((slide) => {
                         slide.classList.remove('opacity-0')
                     })
-                    this.$wire.emitTo('drawer.cms', 'refreshDrawer');
                 }, 400)
+                this.$wire.emitTo('drawer.cms', 'refreshDrawer');
             })
         },
         addQuestionToGroup(uuid) {
@@ -448,7 +448,6 @@ document.addEventListener('alpine:init', () => {
         backToQuestionOverview(container) {
             this.prev(container);
             this.$store.questionBank.inGroup = false;
-            // this.$store.cms.processing = false;
         }
 
     }));
@@ -561,6 +560,7 @@ document.addEventListener('alpine:init', () => {
         processing: false,
         dirty: false,
         scrollPos: 0,
+        reinitOnClose: false,
     });
     Alpine.store('questionBank', {
         active: false,
