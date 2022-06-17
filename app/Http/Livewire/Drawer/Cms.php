@@ -349,6 +349,13 @@ class Cms extends Component
     public function handleCmsInit()
     {
         if ($this->emitShowOnInit) {
+            $this->showFirstQuestionOfTest();
+        }
+    }
+
+    public function showFirstQuestionOfTest()
+    {
+        if ($this->questionsInTest->isNotEmpty()) {
             $this->showQuestionByTestQuestion($this->questionsInTest->first());
         }
     }

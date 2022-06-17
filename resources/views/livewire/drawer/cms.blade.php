@@ -22,12 +22,13 @@
         }
      "
      x-cloak
-     x-effect="handleLoading(); $el.scrollTop = $store.cms.scrollPos"
+     x-effect="handleLoading(); $el.scrollTop = $store.cms.scrollPos;"
      :class="{'collapsed': collapse}"
      @backdrop="backdrop = !backdrop"
      @processing-end.window="$store.cms.processing = false;"
      @filepond-start.window="loadingOverlay = true;"
      @filepond-finished.window="loadingOverlay = false;"
+     @first-question-of-test-added.window="$wire.showFirstQuestionOfTest(); emptyStateActive = false; $nextTick(() => backdrop = true)"
      wire:ignore.self
      wire:init="handleCmsInit()"
 >

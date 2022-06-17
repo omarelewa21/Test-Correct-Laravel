@@ -6006,9 +6006,9 @@ document.addEventListener('alpine:init', function () {
             _this10.$root.querySelectorAll('.slide-container').forEach(function (slide) {
               slide.classList.remove('opacity-0');
             });
-
-            _this10.$wire.emitTo('drawer.cms', 'refreshDrawer');
           }, 400);
+
+          _this10.$wire.emitTo('drawer.cms', 'refreshDrawer');
         });
       },
       addQuestionToGroup: function addQuestionToGroup(uuid) {
@@ -6042,7 +6042,7 @@ document.addEventListener('alpine:init', function () {
       },
       backToQuestionOverview: function backToQuestionOverview(container) {
         this.prev(container);
-        this.$store.questionBank.inGroup = false; // this.$store.cms.processing = false;
+        this.$store.questionBank.inGroup = false;
       }
     };
   });
@@ -6169,7 +6169,8 @@ document.addEventListener('alpine:init', function () {
     loading: false,
     processing: false,
     dirty: false,
-    scrollPos: 0
+    scrollPos: 0,
+    reinitOnClose: false
   });
   alpinejs__WEBPACK_IMPORTED_MODULE_1__["default"].store('questionBank', {
     active: false,
