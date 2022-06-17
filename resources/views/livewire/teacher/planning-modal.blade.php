@@ -31,11 +31,9 @@
 
                     @if ($this->isAssessmentType())
                         <x-input.group class="min-w[150px] mb-4 sm:mb-0 flex-1" label="{{ __('teacher.Datum tot') }}">
-                            <x-input.datepicker wire:model="request.date_till" locale="nl"/>
+                            <x-input.datepicker wire:model="request.time_end" locale="nl"/>
                         </x-input.group>
-
                     @endif
-
 
                     <x-input.group class="mb-4 sm:mb-0"  label="{{ __('teacher.Periode') }}">
                         <x-input.select wire:model="request.period_id">
@@ -44,7 +42,6 @@
                             @endforeach
                         </x-input.select>
                     </x-input.group>
-
 
                     <x-input.group class="mb-4 sm:mb-0 " label="{{ __('teacher.Weging') }}">
                         <input

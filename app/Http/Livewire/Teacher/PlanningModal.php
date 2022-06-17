@@ -68,11 +68,15 @@ class PlanningModal extends ModalComponent
     {
         $rules = [
             'request.date'          => 'required',
-            'request.date_till'     => 'sometimes',
+            'request.time_end'      => 'sometimes',
             'request.weight'        => 'required',
             'request.period_id'     => 'required',
             'request.schoolClasses' => 'required',
         ];
+
+        if ($this->isAssessmentType()) {
+            $rules['request.time_end'] = 'required';
+        }
 
 
         if (auth()->user()->schoollocation->allow_guest_accounts) {
@@ -94,16 +98,17 @@ class PlanningModal extends ModalComponent
         $controller = new TemporaryLoginController();
         $request = new Request();
 
+        $action = $this->isAssessmentType() ? "Navigation.load('/test_takes/assessment_open_teacher')" : "Navigation.load('/test_takes/planned_teacher')";
+
         $request->merge([
             'options' => [
                 'page'        => '/',
-                'page_action' => "Navigation.load('/test_takes/planned_teacher')"
+                'page_action' => $action,
             ]
         ]);
 
         redirect($controller->toCakeUrl($request));
     }
-
 
 
     private function planTest()
@@ -121,6 +126,9 @@ class PlanningModal extends ModalComponent
         })->validate();
 
         $t->fill($this->request);
+        if ($this->isAssessmentType()) {
+            $t->setAttribute('test_take_status_id', TestTakeStatus::STATUS_TAKING_TEST);
+        }
 
         $t->setAttribute('user_id', auth()->id());
         $t->save();
@@ -145,7 +153,7 @@ class PlanningModal extends ModalComponent
         $this->request['visible'] = 1;
         $this->request['date'] = now()->format('Y-m-d');
         if ($this->isAssessmentType()) {
-            $this->request['date_till'] = now();
+            $this->request['time_end'] = now();
         }
         $this->request['period_id'] = $this->allowedPeriods->first()->getKey();
         $this->request['invigilators'] = [auth()->id()];
