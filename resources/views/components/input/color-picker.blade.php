@@ -29,7 +29,6 @@
                     autocomplete="off"
                     type="color"
                     class="cursor-pointer"
-                    :title=""
                     @click.prevent="isOpen = !isOpen"
                     :value="`${colorSelected}`"
                     >
