@@ -40,6 +40,12 @@ return [
     'duplication successful' => 'Duplication successfull.',
     'create test'            => 'Create test',
     'Scholengemeenschap'     => 'Organization',
+    'Later beschikbaar'      => 'Available soon',
+    'Eigenaar'               => 'Owner',
+    'Auteurs'                => 'Authors',
+    'Niveau'                 => 'Level',
+    'Uniek ID'               => 'Unique ID',
+    'Periode'                => 'Period',
     'Wissel van school'      => 'Change active school',
     'Actieve schoollocatie aangepast' => 'Changed active school location',
 ];

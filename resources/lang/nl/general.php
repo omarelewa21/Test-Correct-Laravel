@@ -42,4 +42,10 @@ return [
     'Scholengemeenschap'              => 'Scholengemeenschap',
     'Actieve schoollocatie aangepast' => 'Actieve schoollocatie aangepast',
     'Wissel van school'               => 'Wissel van school',
+    'Later beschikbaar'               => 'Later beschikbaar',
+    'Eigenaar'                        => 'Eigenaar',
+    'Auteurs'                         => 'Auteurs',
+    'Niveau'                          => 'Niveau',
+    'Uniek ID'                        => 'Uniek ID',
+    'Periode'                         => 'Periode',
 ];

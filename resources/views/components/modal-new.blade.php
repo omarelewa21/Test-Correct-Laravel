@@ -19,6 +19,8 @@
                 {{ $body }}
             </div>
             {{ $footer }}
-            @if($formAction) </form> @endif
+            @if($formAction)
+        </form>
+    @endif
 </div>
 

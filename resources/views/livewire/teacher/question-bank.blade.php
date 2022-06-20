@@ -8,8 +8,8 @@
 
 >
     <div class="flex w-full border-b border-secondary">
-        <div class="w-full max-w-5xl mx-auto">
-            <div class="flex w-full space-x-4">
+        <div class="w-full max-w-5xl lg:max-w-7xl  mx-auto">
+            <div class="flex w-full space-x-4 mx-5">
                 <div>
                     <div class="flex relative hover:text-primary cursor-pointer"
                          @click="openTab = 'personal'"
@@ -23,10 +23,8 @@
                 </div>
 
                 <div>
-                    {{--                    <div class="flex relative text-midgrey cursor-default">--}}
                     <div class="flex relative hover:text-primary cursor-pointer"
                          @click="openTab = 'school_location'"
-                            {{--                         wire:click="setSource('school_location')"--}}
                     >
                         <span class="bold pt-[0.9375rem] pb-[0.8125rem]"
                               :class="openTab === 'school_location' ? 'primary' : '' ">Schoollocatie</span>
@@ -36,18 +34,18 @@
                 </div>
 
                 <div>
-                    <div class="flex relative text-midgrey cursor-default">
+                    <div class="flex relative text-midgrey cursor-default" title="{{ __('general.Later beschikbaar') }}">
                         {{--                    <div class="flex relative hover:text-primary cursor-pointer" @click="openTab = 3">--}}
-                        <span class="bold pt-[0.9375rem] pb-[0.8125rem]" :class="openTab === 3 ? 'primary' : '' ">Nationaal</span>
+                        <span class="bold pt-[0.9375rem] pb-[0.8125rem]" :class="openTab === 3 ? 'primary' : '' ">{{ __('general.Nationaal') }}</span>
                         <span class="absolute w-full bottom-0" style="height: 3px"
                               :class="openTab === 3 ? 'bg-primary' : 'bg-transparent' "></span>
                     </div>
                 </div>
 
                 <div>
-                    <div class="flex relative text-midgrey cursor-default">
+                    <div class="flex relative text-midgrey cursor-default" title="{{ __('general.Later beschikbaar') }}">
                         {{--                    <div class="flex relative hover:text-primary cursor-pointer" @click="openTab = 4">--}}
-                        <span class="bold pt-[0.9375rem] pb-[0.8125rem]" :class="openTab === 4 ? 'primary' : '' ">Examens</span>
+                        <span class="bold pt-[0.9375rem] pb-[0.8125rem]" :class="openTab === 4 ? 'primary' : '' ">{{ __('general.Examens') }}</span>
                         <span class="absolute w-full bottom-0" style="height: 3px"
                               :class="openTab === 4 ? 'bg-primary' : 'bg-transparent' "></span>
                     </div>
@@ -57,44 +55,45 @@
         </div>
     </div>
     <div class="flex w-full">
-        <div class="w-full max-w-5xl mx-auto divide-y divide-secondary">
-            {{-- Filters--}}
-            <div class="flex flex-col pt-4 pb-2">
-                <div class="flex w-full my-2">
-                    <div class="relative w-full">
-                        <x-input.text class="w-full"
-                                      placeholder="Zoek..."
-                                      wire:model.debounce.300ms="filters.{{ $this->openTab }}.search"
-                        />
-                        <x-icon.search class="absolute right-0 -top-2"/>
+        <div class="w-full max-w-5xl lg:max-w-7xl mx-auto divide-y divide-secondary">
+            <div class="mx-5">
+                {{-- Filters--}}
+                <div class="flex flex-col pt-4 pb-2">
+                    <div class="flex w-full my-2">
+                        <div class="relative w-full">
+                            <x-input.text class="w-full"
+                                          placeholder="Zoek..."
+                                          wire:model.debounce.300ms="filters.{{ $this->openTab }}.search"
+                            />
+                            <x-icon.search class="absolute right-0 -top-2"/>
+                        </div>
                     </div>
-                </div>
-                <div class="flex flex-wrap w-full space-x-2" x-cloak>
-                    <x-input.choices-select :multiple="true"
-                                            :options="$this->subjects"
-                                            :withSearch="true"
-                                            placeholderText="Vak"
-                                            wire:model="filters.{{ $this->openTab }}.subject_id"
-                                            wire:key="subject_id_{{ $this->openTab }}"
-                                            filterContainer="questionbank-{{ $this->openTab }}-active-filters"
-                    />
-                    <x-input.choices-select :multiple="true"
-                                            :options="$this->educationLevel"
-                                            :withSearch="true"
-                                            placeholderText="Niveau"
-                                            wire:model="filters.{{ $this->openTab }}.education_level_id"
-                                            wire:key="education_level_id_{{ $this->openTab }}"
-                                            filterContainer="questionbank-{{ $this->openTab }}-active-filters"
-                    />
-                    <x-input.choices-select :multiple="true"
-                                            :options="$this->educationLevelYear"
-                                            :withSearch="true"
-                                            placeholderText="Leerjaar"
-                                            wire:model="filters.{{ $this->openTab }}.education_level_year"
-                                            wire:key="education_level_year_{{ $this->openTab }}"
-                                            filterContainer="questionbank-{{ $this->openTab }}-active-filters"
-                    />
-                    <span x-show="openTab !== 'personal'">
+                    <div class="flex flex-wrap w-full space-x-2" x-cloak>
+                        <x-input.choices-select :multiple="true"
+                                                :options="$this->subjects"
+                                                :withSearch="true"
+                                                placeholderText="Vak"
+                                                wire:model="filters.{{ $this->openTab }}.subject_id"
+                                                wire:key="subject_id_{{ $this->openTab }}"
+                                                filterContainer="questionbank-{{ $this->openTab }}-active-filters"
+                        />
+                        <x-input.choices-select :multiple="true"
+                                                :options="$this->educationLevel"
+                                                :withSearch="true"
+                                                placeholderText="Niveau"
+                                                wire:model="filters.{{ $this->openTab }}.education_level_id"
+                                                wire:key="education_level_id_{{ $this->openTab }}"
+                                                filterContainer="questionbank-{{ $this->openTab }}-active-filters"
+                        />
+                        <x-input.choices-select :multiple="true"
+                                                :options="$this->educationLevelYear"
+                                                :withSearch="true"
+                                                placeholderText="Leerjaar"
+                                                wire:model="filters.{{ $this->openTab }}.education_level_year"
+                                                wire:key="education_level_year_{{ $this->openTab }}"
+                                                filterContainer="questionbank-{{ $this->openTab }}-active-filters"
+                        />
+                        <span x-show="openTab !== 'personal'">
                     <x-input.choices-select :multiple="true"
                                             :options="$this->authors"
                                             :withSearch="true"
@@ -104,21 +103,21 @@
                                             filterContainer="questionbank-{{ $this->openTab }}-active-filters"
                     />
                         </span>
+                    </div>
+
+                    <div id="questionbank-{{ $this->openTab }}-active-filters"
+                         x-data
+                         wire:key="filters-container-{{ $this->openTab }}"
+                         wire:ignore
+                         class="flex flex-wrap gap-2 mt-2"
+                    >
+                    </div>
                 </div>
 
-                <div id="questionbank-{{ $this->openTab }}-active-filters"
-                     x-data
-                     wire:key="filters-container-{{ $this->openTab }}"
-                     wire:ignore
-                     class="flex flex-wrap gap-2 mt-2"
-                >
-                </div>
-            </div>
-
-            {{-- Content --}}
-            <div class="flex flex-col py-4" style="min-height: 500px"
-                 x-data="{filterLoading: false}"
-                 x-init="
+                {{-- Content --}}
+                <div class="flex flex-col py-4" style="min-height: 500px"
+                     x-data="{filterLoading: false}"
+                     x-init="
                     Livewire.hook('message.sent', (message, component) => {
                         if (component.el.id !== 'question-bank') {
                             return;
@@ -138,58 +137,59 @@
                         filterLoading = false;
                     })
                  "
-            >
-                <div class="flex">
-                    <span class="note text-sm">{{ $this->resultCount }} resultaten</span>
-                </div>
+                >
+                    <div class="flex">
+                        <span class="note text-sm">{{ $this->resultCount }} resultaten</span>
+                    </div>
 
-                <x-grid class="mt-4" x-show="filterLoading" wire:key="grid-{{ $this->resultCount }}">
-                    @foreach(range(1,6) as $value)
-                        <x-grid.loading-card :delay="$value"/>
-                    @endforeach
-                </x-grid>
-                <x-grid class="mt-4" x-show="!filterLoading" x-cloak    >
-                    {{-- @TODO: Fix loading animation --}}
-                    @foreach($this->questions as $question)
-                        <x-grid.question-card :question="$question"/>
-                    @endforeach
+                    <x-grid class="mt-4" x-show="filterLoading" wire:key="grid-{{ $this->resultCount }}">
+                        @foreach(range(1,6) as $value)
+                            <x-grid.loading-card :delay="$value"/>
+                        @endforeach
+                    </x-grid>
+                    <x-grid class="mt-4" x-show="!filterLoading" x-cloak    >
+                        {{-- @TODO: Fix loading animation --}}
+                        @foreach($this->questions as $question)
+                            <x-grid.question-card :question="$question"/>
+                        @endforeach
 
-                    @if($this->questions->count() && $this->questions->count() != $this->resultCount)
-                        @foreach(range(1, 6) as $delay)
-                            <div class="animate-borderpulse border-6 rounded-10"
-                                 style="min-height: 180px; height: 180px; animation-delay: calc({{ $delay }} * 200ms)">
-                                @if($delay === 4)
-                                    <span x-data="{shouldSend: true}"
-                                          x-init="$watch('shouldSend', value => {
+                        @if($this->questions->count() && $this->questions->count() != $this->resultCount)
+                            @foreach(range(1, 6) as $delay)
+                                <div class="animate-borderpulse border-6 rounded-10"
+                                     style="min-height: 180px; height: 180px; animation-delay: calc({{ $delay }} * 200ms)">
+                                    @if($delay === 4)
+                                        <span x-data="{shouldSend: true}"
+                                              x-init="$watch('shouldSend', value => {
                                                 setTimeout(() => {
                                                     shouldSend = true
                                                 }, 500);
                                           })"
-                                          x-intersect.once="
+                                              x-intersect.once="
                                             if (shouldSend) {
                                                 $wire.showMore();
                                                 shouldSend = false;
                                             }
                                           "
-                                    ></span>
-                                @endif
-                            </div>
-                        @endforeach
-                    @else
-                        <span class="col-span-1 xl:col-span-3 lg:col-span-2 text-center">
+                                        ></span>
+                                    @endif
+                                </div>
+                            @endforeach
+                        @else
+                            <span class="col-span-1 xl:col-span-3 lg:col-span-2 text-center">
                             {{-- @TODO: Add translations--}}
-                            @if(!$this->questions->count())
-                                @if($this->openTab === 'personal')
-                                    U heeft nog geen eigen gemaakte vragen voor deze zoekfilters.
+                                @if(!$this->questions->count())
+                                    @if($this->openTab === 'personal')
+                                        U heeft nog geen eigen gemaakte vragen voor deze zoekfilters.
+                                    @else
+                                        Er is nog geen openbare content voor uw school.
+                                    @endif
                                 @else
-                                    Er is nog geen openbare content voor uw school.
+                                    Er zijn geen items meer voor deze zoekfilters.
                                 @endif
-                            @else
-                                Er zijn geen items meer voor deze zoekfilters.
-                            @endif
                         </span>
-                    @endif
-                </x-grid>
+                        @endif
+                    </x-grid>
+                </div>
             </div>
         </div>
     </div>

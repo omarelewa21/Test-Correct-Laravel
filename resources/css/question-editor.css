@@ -52,23 +52,36 @@
 }
 
 .pvalue-indicator {
-    height: 1rem;
-    width: 3px;
+    --pvalue-indicator-width: 3px;
+    --pvalue-indicator-height: 1rem;
+    height: var(--pvalue-indicator-height);
+    width: var(--pvalue-indicator-width);
     position: absolute;
     background: var(--system-base);
     bottom: -2px;
     border-radius: 2px;
 }
 
+.pvalue-indicator.small {
+    --pvalue-indicator-width: 2px;
+    --pvalue-indicator-height: 12px;
+}
+
 .pvalue-indicator:before {
+    --pvalue-indicator-ball-width: 7px;
+    --pvalue-indicator-ball-left: 2px;
     content: '';
     background: var(--system-base);
-    width: 7px;
-    height: 7px;
+    width: var(--pvalue-indicator-ball-width);
+    height: var(--pvalue-indicator-ball-width);
     position: absolute;
     top: -4px;
-    left: -2px;
+    left: var(--pvalue-indicator-ball-left);
     border-radius: 10px;
+}
+.pvalue-indicator.small:before {
+    --pvalue-indicator-ball-width: 4px;
+    --pvalue-indicator-ball-left: -1px;
 }
 
 .selection-toggle-label {
@@ -249,9 +262,12 @@
 .grid .grid-card,
 .grid .grid-card h3,
 .grid .grid-card span{
-    transition: color 150ms ease-in;
+    transition: color 150ms ease-in, box-shadow 150ms ease-in;
 }
 
+.grid .grid-card:hover {
+    box-shadow: 0 8px 16px 0 rgba(4, 31, 116, 0.2);
+}
 .grid .grid-card:hover h3,
 .grid .grid-card:hover span{
     color: var(--primary);
