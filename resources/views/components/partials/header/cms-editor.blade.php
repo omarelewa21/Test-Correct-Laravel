@@ -18,12 +18,12 @@
             <div>
                 <span class="primary bg-white px-2 text-sm rounded-sm bold">BETA</span>
             </div>
-{{--            <div>--}}
-{{--                <button wire:click="$emitTo('teacher.test-edit-modal', 'displayModal', '{{ $this->testId }}')"--}}
-{{--                        class="new-button button-primary">--}}
-{{--                    <x-icon.settings/>--}}
-{{--                </button>--}}
-{{--            </div>--}}
+            <div>
+                <button wire:click="$emit('openModal', 'teacher.test-edit-modal', {testUuid: '{{ $this->testId }}'})"
+                        class="new-button button-primary">
+                    <x-icon.settings/>
+                </button>
+            </div>
         @endif
     </div>
 </div>
