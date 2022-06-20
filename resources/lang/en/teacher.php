@@ -25,16 +25,15 @@ return [
     'niveau-jaar'                                      => 'Education level year',
     'Shuffle vragen tijdens afname'                    => 'Shuffle during testing',
     'introductie-tekst'                                => 'Introduction',
-    'Klassen en studenten'                             => 'School classes & students',
     'guest_accounts_tooltip'                           => 'A student is able t use a Test-Direct account (and test-access code) to take the test',
-    'inbrowser_testing_tooltip'                        => 'Let op! Als browsertoetsen aanstaat, dan kan de student de toets maken zonder de beveiligde studenten app. In de browser kunnen wij het gebruik van andere apps niet blokkeren.
-
-Lees meer op de Kennisbank',
+    'inbrowser_testing_tooltip'                        => 'Let op! Als browsertoetsen aanstaat, dan kan de student de toets maken zonder de beveiligde studenten app. In de browser kunnen wij het gebruik van andere apps niet blokkeren. Lees meer op de Kennisbank',
     'copy for schoollocation'                          => 'Make copy: choose subject',
     'kies een vak'                                     => 'Subject',
     'examenvak'                                        => 'Examn Subject',
     'make copy'                                        => 'Make copy',
     'testtake planned'                                 => 'The test is planned',
     'test created'                                     => 'Test created',
+    'toets wijzigen'                                   => 'Edit test',
+    'Gegevens wijzigen'                                => 'Edit settings',
 
 ];

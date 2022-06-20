@@ -254,7 +254,8 @@ class OpenShort extends Component
             'addQuestion'           => 'addQuestion',
             'showEmpty'             => 'showEmpty',
             'questionDeleted'       => '$refresh',
-            'addQuestionFromDirty'  => 'addQuestionFromDirty'
+            'addQuestionFromDirty'  => 'addQuestionFromDirty',
+            'testSettingsUpdated' => 'handleUpdatedTestSettings'
         ];
     }
 
@@ -1322,5 +1323,10 @@ class OpenShort extends Component
             }
         }
         return true;
+    }
+
+    public function handleUpdatedTestSettings($settings)
+    {
+        $this->testName = $settings['name'];
     }
 }

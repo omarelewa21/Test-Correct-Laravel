@@ -18,26 +18,11 @@
             <div>
                 <span class="primary bg-white px-2 text-sm rounded-sm bold">BETA</span>
             </div>
-            <div class="flex space-x-2 hidden">
-                <button class="new-button button-primary">
-                    <x-icon.edit/>
+            <div>
+                <button wire:click="$emit('openModal', 'teacher.test-edit-modal', {testUuid: '{{ $this->testId }}'})"
+                        class="new-button button-primary">
+                    <x-icon.settings/>
                 </button>
-                <button class="new-button button-primary">
-                    <x-icon.edit/>
-                </button>
-                <button class="new-button button-primary">
-                    <x-icon.edit/>
-                </button>
-                <button class="new-button button-primary">
-                    <x-icon.edit/>
-                </button>
-                <button class="new-button button-primary">
-                    <x-icon.edit/>
-                </button>
-                <button class="new-button button-primary">
-                    <x-icon.edit/>
-                </button>
-
             </div>
         @endif
     </div>
