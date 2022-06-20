@@ -19,10 +19,49 @@
                 <span class="primary bg-white px-2 text-sm rounded-sm bold">BETA</span>
             </div>
             <div>
+                <button wire:click=""
+                        disabled
+                        class="new-button button-primary"
+                        title="{{ __('teacher.Toets instellingen') }}"
+                >
+                    <x-icon.trash/>
+                </button>
                 <button wire:click="$emit('openModal', 'teacher.test-edit-modal', {testUuid: '{{ $this->testId }}'})"
-                        class="new-button button-primary">
+                        class="new-button button-primary"
+                        title="{{ __('teacher.Toets instellingen') }}"
+                >
                     <x-icon.settings/>
                 </button>
+                <button wire:click=""
+                        disabled
+                        class="new-button button-primary"
+                        title="{{ __('teacher.Toets instellingen') }}"
+                >
+                    <x-icon.edit/>
+                </button>
+                <button wire:click=""
+                        disabled
+                        class="new-button button-primary"
+                        title="{{ __('teacher.Toets instellingen') }}"
+                >
+                    <x-icon.preview/>
+                </button>
+                <button wire:click=""
+                        disabled
+                        class="new-button button-primary"
+                        title="{{ __('teacher.Toets instellingen') }}"
+                >
+                    <x-icon.pdf color="currentColor"/>
+                </button>
+                <button wire:click=""
+                        disabled
+                        class="new-button button-cta"
+                        title="{{ __('teacher.Toets instellingen') }}"
+                >
+                    <x-icon.schedule/>
+                </button>
+
+
             </div>
         @endif
     </div>

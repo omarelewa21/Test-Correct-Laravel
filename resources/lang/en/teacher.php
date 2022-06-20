@@ -35,5 +35,6 @@ return [
     'test created'                                     => 'Test created',
     'toets wijzigen'                                   => 'Edit test',
     'Gegevens wijzigen'                                => 'Edit settings',
+    'Toets instellingen'                               => 'Test settings',
 
 ];
