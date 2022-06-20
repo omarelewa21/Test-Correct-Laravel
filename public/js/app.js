@@ -12398,11 +12398,12 @@ __webpack_require__.r(__webpack_exports__);
 
 
 document.addEventListener('alpine:init', function () {
-  Alpine.data('flatpickr', function (wireModel, mode, locale) {
+  Alpine.data('flatpickr', function (wireModel, mode, locale, minDate) {
     return {
       wireModel: wireModel,
       mode: mode,
       locale: locale,
+      minDate: minDate,
       init: function init() {
         var _this = this;
 
@@ -12413,6 +12414,7 @@ document.addEventListener('alpine:init', function () {
         // }
         var picker = (0,flatpickr__WEBPACK_IMPORTED_MODULE_0__["default"])(this.$refs.datepickr, {
           locale: this.locale,
+          minDate: minDate == 'today' ? 'today' : false,
           mode: this.mode,
           defaultDate: this.wireModel,
           onChange: function onChange(date, dateString) {

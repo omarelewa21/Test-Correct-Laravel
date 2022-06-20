@@ -26,12 +26,12 @@
                 <div class="name flex mb-4 space-x-4">
 
                     <x-input.group class="min-w[150px] mb-4 sm:mb-0 flex-1" label="{{ __('teacher.Datum') }}">
-                        <x-input.datepicker wire:model="request.date" locale="nl"/>
+                        <x-input.datepicker wire:model="request.date" locale="nl" min-date="today"/>
                     </x-input.group>
 
                     @if ($this->isAssessmentType())
                         <x-input.group class="min-w[150px] mb-4 sm:mb-0 flex-1" label="{{ __('teacher.Datum tot') }}">
-                            <x-input.datepicker wire:model="request.time_end" locale="nl"/>
+                            <x-input.datepicker wire:model="request.time_end" locale="nl" min-date="today"/>
                         </x-input.group>
                     @endif
 
