@@ -2,6 +2,7 @@
 
 namespace tcCore\Http\Livewire\Teacher;
 
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Validator;
 use LivewireUI\Modal\ModalComponent;
@@ -123,6 +124,10 @@ class PlanningModal extends ModalComponent
             });
         })->validate();
 
+        if ($this->request['time_end']) {
+            $this->request['time_end'] = Carbon::parse($this->request['time_end'])->endOfDay();
+        }
+
         $t->fill($this->request);
         if ($this->isAssessmentType()) {
             $t->setAttribute('test_take_status_id', TestTakeStatus::STATUS_TAKING_TEST);
@@ -151,7 +156,7 @@ class PlanningModal extends ModalComponent
         $this->request['visible'] = 1;
         $this->request['date'] = now()->format('Y-m-d');
         if ($this->isAssessmentType()) {
-            $this->request['time_end'] = now();
+            $this->request['time_end'] = now()->endOfDay();
         }
         $this->request['period_id'] = $this->allowedPeriods->first()->getKey();
         $this->request['invigilators'] = [auth()->id()];
