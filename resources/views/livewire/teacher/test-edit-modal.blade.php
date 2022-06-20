@@ -149,7 +149,6 @@
     <x-slot name="footer">
         <div class="flex justify-between w-full">
             <x-button.text-button wire:click="$emit('closeModal')">
-                <x-icon.arrow-left/>
                 <span>{{ __("teacher.Annuleer") }}</span>
             </x-button.text-button>
 
