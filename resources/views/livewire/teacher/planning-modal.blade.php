@@ -104,6 +104,7 @@
                         @if(auth()->user()->schoollocation->allow_guest_accounts)
                             <x-input.toggle-row-with-title wire:model="request.guest_accounts"
                                                            :toolTip="__('teacher.guest_accounts_tooltip')"
+                                                           :tooltipAlwaysLeft="true"
 
                             >
                                 <span class="bold">  <x-icon.preview/>{{ __('teacher.Test-Direct toestaan') }} </span>

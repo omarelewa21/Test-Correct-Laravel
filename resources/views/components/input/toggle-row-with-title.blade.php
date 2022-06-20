@@ -1,6 +1,7 @@
 @props([
     'toolTip' => '',
     'disabled' => false,
+    'tooltipAlwaysLeft' => false,
 ])
 <div class="border-b flex w-full justify-between items-center pt-2.5 pb-[11px]" style="border-color:inherit">
     <div {{ $attributes->merge(['class' => 'flex items-center space-x-2.5 text-base']) }}>
@@ -8,7 +9,7 @@
     </div>
     <div class="flex items-center">
         @if($toolTip)
-            <x-tooltip class="mr-2">
+            <x-tooltip class="mr-2" :always-left="$tooltipAlwaysLeft">
                 <span class="text-base">{{ $toolTip }}</span>
             </x-tooltip>
         @endif
