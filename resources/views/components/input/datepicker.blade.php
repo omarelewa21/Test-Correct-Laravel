@@ -1,13 +1,16 @@
 @props([
     'multiple' => false,
-    'locale' => 'nl'
+    'locale' => 'nl',
+    'minDate' => false,
 ])
 
 <div wire:ignore
      class="inline-flex rounded-10 relative"
      x-data="flatpickr(@entangle($attributes->wire('model')),
                 '{{$multiple ? 'range' : 'single' }}',
-                '{{$locale}}')
+                '{{$locale}}',
+                '{{$minDate}}'
+             )
     ">
     <input type="text" x-ref="datepickr" class="datepicker w-full form-input {{$multiple ? 'range' : 'single'}}">
     <div class="absolute right-2 top-1 h-[32px] w-[24px] flex items-center pointer-events-none">
