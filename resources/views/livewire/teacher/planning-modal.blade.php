@@ -6,7 +6,7 @@
         <div class="email-section mb-4 w-full">
             @if($errors->count())
                 <div class="notification stretched error mt-4">
-                    @error('request.schoolClasses')
+                    @error('request.school_classes')
                     <div class="title">{{ $message }}</div>
                     @enderror
                     @error('request.weight')
@@ -62,7 +62,7 @@
                                             :options="$this->schoolClasses"
                                             :withSearch="true"
                                             placeholderText="{!!  __('Klassen') !!}"
-                                            wire:model="request.schoolClasses"
+                                            wire:model="request.school_classes"
                                             filterContainer="selected_classes"
                                             id="teachers_and_classes"
                                             hasErrors="{{ $errors->has('request.schoolClasses') ? 'true': '' }}"
@@ -100,7 +100,7 @@
                             <span class="bold"> <x-icon.preview/>{{ __('teacher.Browsertoetsen toestaan') }} </span>
                         </x-input.toggle-row-with-title>
                     </div>
-                    <div class="input-group mb-4 sm:mb-0 flex-auto border-t @error('request.schoolClasses') border-red-500 @enderror">
+                    <div class="input-group mb-4 sm:mb-0 flex-auto border-t @error('request.school_classes') border-red-500 @enderror">
                         @if(auth()->user()->schoollocation->allow_guest_accounts)
                             <x-input.toggle-row-with-title wire:model="request.guest_accounts"
                                                            :toolTip="__('teacher.guest_accounts_tooltip')"

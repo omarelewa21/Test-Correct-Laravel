@@ -71,20 +71,18 @@ class PlanningModal extends ModalComponent
             'request.time_end'      => 'sometimes',
             'request.weight'        => 'required',
             'request.period_id'     => 'required',
-            'request.schoolClasses' => 'required',
+            'request.school_classes' => 'required',
         ];
 
         if ($this->isAssessmentType()) {
             $rules['request.time_end'] = 'required';
         }
 
-
         if (auth()->user()->schoollocation->allow_guest_accounts) {
-            $rules['request.schoolClasses'] = '';
+            $rules['request.school_classes'] = 'sometimes';
             if (!empty(request()->get('request.guest_accounts'))) {
                 $rules['request.guest_accounts'] = 'required|in:1';
             }
-
         }
 
         return $rules;
@@ -119,8 +117,8 @@ class PlanningModal extends ModalComponent
 
         $this->withValidator(function (Validator $validator) {
             $validator->after(function ($validator) {
-                if (empty($this->request['schoolClasses']) && empty($this->request['guest_accounts'])) {
-                    $validator->errors()->add('request.schoolClasses', __('validation.school_class_or_guest_accounts_required'));
+                if (empty($this->request['school_classes']) && empty($this->request['guest_accounts'])) {
+                    $validator->errors()->add('request.school_classes', __('validation.school_class_or_guest_accounts_required'));
                 }
             });
         })->validate();
@@ -165,7 +163,7 @@ class PlanningModal extends ModalComponent
 
         $this->request['retake'] = 0;
         $this->request['guest_accounts'] = 0;
-        $this->request['schoolClasses'] = [];
+        $this->request['school_classes'] = [];
         $this->request['invigilators'] = [auth()->id()];
     }
 
