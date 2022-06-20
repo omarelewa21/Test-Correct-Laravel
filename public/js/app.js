@@ -13041,7 +13041,7 @@ RichTextEditor = {
     textarea.dispatchEvent(new Event('input'));
   },
   initClassicEditorForStudentplayer: function initClassicEditorForStudentplayer(editorId, questionId) {
-    ClassicEditor.create(document.querySelector('#' + editorId), {
+    return ClassicEditor.create(document.querySelector('#' + editorId), {
       autosave: {
         waitingTime: 300,
         save: function save(editor) {
