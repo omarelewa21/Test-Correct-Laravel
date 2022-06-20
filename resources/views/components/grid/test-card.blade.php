@@ -83,7 +83,7 @@
                             wire:click="openEdit('{{ $test->uuid }}')"
                     >
                         <x-icon.edit/>
-                        <span class="text-base bold inherit">{{ __('cms.Wijzigen') }}</span>
+                        <span class="text-base bold inherit">{{ __('cms.Construeren') }}</span>
                     </button>
                 @endif
                 @if( $test->canEdit(auth()->user()))

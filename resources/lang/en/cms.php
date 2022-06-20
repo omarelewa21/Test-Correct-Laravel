@@ -172,4 +172,5 @@ return [
     'one_container_with_items'                                                               => 'Answers must contain at least one container with items',
     'container_label_missing'                                                                => 'Container label missing, each container should have a label',
     'duplicate_question_in_test'                                                             => 'This question is double in the test. Adjust the test to make planning possible.',
+    'Construeren'                         => 'Construct',
 ];

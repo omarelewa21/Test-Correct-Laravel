@@ -170,4 +170,5 @@ return [
     'one_container_with_items'                                                               => 'Antwoorden moeten ten minste één container met items bevatten',
     'container_label_missing'                                                                => 'Containerlabel ontbreekt, elke container moet een label hebben',
     'duplicate_question_in_test'                                                             => 'Deze vraag staat dubbel in de toets. Pas de toets aan om het inplannen mogelijk te maken.',
+    'Construeren'                         => 'Construeren',
 ];
