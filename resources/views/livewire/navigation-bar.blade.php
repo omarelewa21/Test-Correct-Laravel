@@ -126,26 +126,32 @@
             </div>
         </div>
         <div class="user-button-container" x-ref="user_button">
-                <span>
-                    {{ Auth::user()->nameFull }}
-                </span>
+
+                    @if(Auth::user()->hasMultipleSchools())
+                        <span title="{{ Auth::user()->formal_name_with_current_school_location }}">{!!  Auth::user()->formal_name_with_current_school_location_short !!}</span>
+                        @else
+                        {{ Auth::user()->formal_name }}
+                        @endif
+
             <svg height="9" width="12">
                 <polygon points="6,9 1,0 11,0" stroke="rgba(71, 129, 255, 1)" fill="rgba(71, 129, 255, 1)"/>
             </svg>
         </div>
         <div class="user-menu" x-ref="user_menu" x-cloak="" x-show="userMenu" x-transition.origin.top @click.outside="userMenu = false">
-            <div id="user_school_locations"></div> {{-- only visible when teacher has multiple school locations --}}
+            @if ($this->showSchoolSwitcher)
+                <a  id="user_school_locations" class="cursor-pointer" wire:click="$emit('openModal', 'teacher.schoollocation-switcher-modal')">{{ __('general.Wissel van school') }}</a>
+            @endif
             <a href="{{ route('auth.login') }}">{{__('Uitloggen')}}</a>
-            <a wire:click="cakeRedirect('update-password')">{{__('Wachtwoord wijzigen')}}</a>
+            <a class="cursor-pointer" wire:click="cakeRedirect('update-password')">{{__('Wachtwoord wijzigen')}}</a>
             <a href="https://support.test-correct.nl/knowledge" target="_blank">{{__('Supportpagina')}}</a>
-            <a wire:click="cakeRedirect('delay-auto-logout')">{{__('Automatisch uitloggen uitstellen')}}</a>
-            <a wire:click="cakeRedirect('tests.my_uploads')">{{__('Uploaden toets')}}</a>
+            <a class="cursor-pointer" wire:click="cakeRedirect('delay-auto-logout')">{{__('Automatisch uitloggen uitstellen')}}</a>
+            <a class="cursor-pointer" wire:click="cakeRedirect('tests.my_uploads_with_popup')">{{__('Uploaden toets')}}</a>
         </div>
         <div class="support-menu" x-ref="support_menu" x-cloak="" x-show="supportMenu" x-transition="" @click.outside="supportmenu = false">
-            <a wire:click="cakeRedirect('knowledge_base')">{{__('kennisbank')}}</a>
-            <a wire:click="cakeRedirect('webinar')">{{__('Webinar')}}</a>
+            <a class="cursor-pointer" wire:click="cakeRedirect('knowledge_base')">{{__('kennisbank')}}</a>
+            <a class="cursor-pointer" wire:click="cakeRedirect('webinar')">{{__('Webinar')}}</a>
             <a href="mailto:{{ config('mail.from.address') }}">{{__('Email')}}</a>
-            <a wire:click="cakeRedirect('support_updates')">{{__('Updates & onderhoud')}}</a>
+            <a class="cursor-pointer" wire:click="cakeRedirect('support_updates')">{{__('Updates & onderhoud')}}</a>
         </div>
     </div>
 
@@ -174,8 +180,8 @@
     </div>
     <div id="tiles" class="tiles" x-ref="tiles">
         <div class="tile-group tests">
-            <div class="tile-item create-test" wire:click="$emitTo('teacher.test-start-create-modal', 'showModal')">{{__('Toets creëren')}}</div>
-            <div class="tile-item test-bank" wire:click="cakeRedirect('tests.test_bank')">{{__('Toetsenbank')}}</div>
+            <div class="tile-item create-test" wire:click="$emit('openModal', 'teacher.test-start-create-modal')">{{__('Toets creëren')}}</div>
+            <div class="tile-item test-bank" @click="window.open('{{ route('teacher.tests') }}','_self')">{{__('Toetsenbank')}}</div>
             <div class="tile-item question-bank" wire:click="cakeRedirect('tests.question_bank')">{{__('Vragenbank')}}</div>
             <div class="tile-item my-uploads" wire:click="cakeRedirect('tests.my_uploads')">{{__('Mijn uploads')}}</div>
         </div>

@@ -5929,6 +5929,8 @@ document.addEventListener('alpine:init', function () {
         this.drawer = this.$root.closest('.drawer');
         setTimeout(function () {
           _this8.handleVerticalScroll(_this8.$root.firstElementChild);
+
+          _this8.$dispatch('groupFoldingUpdate');
         }, 400);
       },
       next: function next(currentEl) {
@@ -5955,7 +5957,6 @@ document.addEventListener('alpine:init', function () {
           left: position >= 0 ? position : 0,
           behavior: 'smooth'
         });
-        this.$store.cms.scrollPos = 0;
       },
       handleVerticalScroll: function handleVerticalScroll(el) {
         var _this9 = this;
@@ -6006,15 +6007,14 @@ document.addEventListener('alpine:init', function () {
             _this10.$root.querySelectorAll('.slide-container').forEach(function (slide) {
               slide.classList.remove('opacity-0');
             });
-          }, 400);
 
-          _this10.$wire.emitTo('drawer.cms', 'refreshDrawer');
+            _this10.$wire.emitTo('drawer.cms', 'refreshDrawer');
+          }, 400);
         });
       },
       addQuestionToGroup: function addQuestionToGroup(uuid) {
         this.showAddQuestionSlide();
         this.$store.questionBank.inGroup = uuid;
-        this.$dispatch('backdrop');
       },
       addGroup: function addGroup() {
         var shouldCheckDirty = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : true;
@@ -6039,10 +6039,12 @@ document.addEventListener('alpine:init', function () {
         }
 
         this.next(this.$refs.container1);
+        this.$dispatch('backdrop');
       },
       backToQuestionOverview: function backToQuestionOverview(container) {
         this.prev(container);
-        this.$store.questionBank.inGroup = false;
+        this.$dispatch('backdrop');
+        this.$store.questionBank.inGroup = false; // this.$store.cms.processing = false;
       }
     };
   });
@@ -6083,7 +6085,10 @@ document.addEventListener('alpine:init', function () {
             _this11.handleActiveFilters(choices.getValue());
           };
 
-          refreshChoices();
+          refreshChoices(); // this.$refs.select.addEventListener('addItem', (event) => {
+          //     console.log('additem');
+          //
+          // })
 
           _this11.$refs.select.addEventListener('choice', function (event) {
             if (_this11.value.includes(parseInt(event.detail.choice.value))) {
@@ -6094,8 +6099,8 @@ document.addEventListener('alpine:init', function () {
           });
 
           _this11.$refs.select.addEventListener('change', function () {
-            _this11.value = choices.getValue(true); // This causes 2 update calls:
-            // this.wireModel = this.value;
+            _this11.value = choices.getValue(true);
+            _this11.wireModel = _this11.value;
           });
 
           var eventName = 'removeFrom' + _this11.$root.dataset.modelName;
@@ -6168,9 +6173,7 @@ document.addEventListener('alpine:init', function () {
   alpinejs__WEBPACK_IMPORTED_MODULE_1__["default"].store('cms', {
     loading: false,
     processing: false,
-    dirty: false,
-    scrollPos: 0,
-    reinitOnClose: false
+    dirty: false
   });
   alpinejs__WEBPACK_IMPORTED_MODULE_1__["default"].store('questionBank', {
     active: false,
@@ -6221,6 +6224,8 @@ __webpack_require__(/*! ./attachment */ "./resources/js/attachment.js");
 __webpack_require__(/*! ./flatpickr */ "./resources/js/flatpickr.js");
 
 __webpack_require__(/*! ./navigation-bar */ "./resources/js/navigation-bar.js");
+
+__webpack_require__(/*! ../../vendor/wire-elements/modal/resources/js/modal */ "./vendor/wire-elements/modal/resources/js/modal.js");
 
 window.ClassicEditors = [];
 
@@ -6566,20 +6571,6 @@ preventNavigationByKeydown = function preventNavigationByKeydown(event) {
   return event.stopPropagation();
 };
 
-livewireMessageContainsModelName = function livewireMessageContainsModelName(message, modelName) {
-  return message.updateQueue.map(function (queue) {
-    var _queue$payload, _String, _queue$payload2;
-
-    if (typeof ((_queue$payload = queue.payload) === null || _queue$payload === void 0 ? void 0 : _queue$payload.name) !== 'undefined') {
-      var _queue$payload$name;
-
-      return (_queue$payload$name = queue.payload.name) === null || _queue$payload$name === void 0 ? void 0 : _queue$payload$name.includes(modelName);
-    }
-
-    return (_String = String((_queue$payload2 = queue.payload) === null || _queue$payload2 === void 0 ? void 0 : _queue$payload2.params[0])) === null || _String === void 0 ? void 0 : _String.includes(modelName);
-  })[0];
-};
-
 /***/ }),
 
 /***/ "./resources/js/attachment.js":
@@ -6714,8 +6705,6 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var laravel_echo__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! laravel-echo */ "./node_modules/laravel-echo/dist/echo.js");
 /* harmony import */ var filepond_plugin_file_validate_size__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! filepond-plugin-file-validate-size */ "./node_modules/filepond-plugin-file-validate-size/dist/filepond-plugin-file-validate-size.js");
 /* harmony import */ var filepond_plugin_file_validate_size__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(filepond_plugin_file_validate_size__WEBPACK_IMPORTED_MODULE_1__);
-/* harmony import */ var _smoothscroll_polyfill__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./smoothscroll-polyfill */ "./resources/js/smoothscroll-polyfill.js");
-/* harmony import */ var _smoothscroll_polyfill__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(_smoothscroll_polyfill__WEBPACK_IMPORTED_MODULE_2__);
 window._ = __webpack_require__(/*! lodash */ "./node_modules/lodash/lodash.js");
 /**
  * We'll load the axios HTTP library which allows us to easily issue requests
@@ -6735,17 +6724,14 @@ window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
 window.Pusher = __webpack_require__(/*! pusher-js */ "./node_modules/pusher-js/dist/web/pusher.js");
 window.Echo = new laravel_echo__WEBPACK_IMPORTED_MODULE_0__["default"]({
   broadcaster: 'pusher',
-  key: "fc18ed69b446aeb8c8a5",
+  key: "51d7221bf733999d7138",
   cluster: "eu",
   forceTLS: true
 });
 window.$ = window.jQuery = __webpack_require__(/*! jquery */ "./node_modules/jquery/dist/jquery.js");
 window.FilePond = __webpack_require__(/*! filepond */ "./node_modules/filepond/dist/filepond.js");
 
-FilePond.registerPlugin((filepond_plugin_file_validate_size__WEBPACK_IMPORTED_MODULE_1___default())); // require('./smoothscroll-polyfill');
-
-
-_smoothscroll_polyfill__WEBPACK_IMPORTED_MODULE_2___default().polyfill();
+FilePond.registerPlugin((filepond_plugin_file_validate_size__WEBPACK_IMPORTED_MODULE_1___default()));
 
 /***/ }),
 
@@ -6879,53 +6865,10 @@ Core = {
     }
   },
   enableAppFeatures: function enableAppFeatures(appType) {
-    var show = function show() {
-      var appElements = document.querySelectorAll('[' + appType + ']');
-      appElements.forEach(function (element) {
-        element.style.display = 'flex';
-      });
-    };
-
-    if (appType === 'chromebook') {
-      window.onload = function () {
-        try {
-          var count = 1;
-          var buttonDisplay = setInterval(function () {
-            // send request to get the version, max 5 times then break the interval
-            var xhttp = new XMLHttpRequest();
-            xhttp.open("GET", "/get_app_version", true);
-            xhttp.send();
-
-            xhttp.onload = function () {
-              var response = JSON.parse(this.response).TLCVersion; // get chrome version
-
-              if (response != 'x') {
-                // version is defined                              
-                if (response.charAt(0) == '2') {
-                  // version starts with 2.
-                  show();
-                } else if (response.charAt(0) == '3') {
-                  // version starts with 3.
-                  chrome.runtime.sendMessage( // see if it is a kiosk app\
-                  document.getElementById("chromeos-extension-id").name, {
-                    isKiosk: true
-                  }, function (response) {
-                    response.isKiosk ? show() : ''; // if koisk app, show button
-                  });
-                }
-
-                clearInterval(buttonDisplay);
-              } else {
-                count >= 5 ? clearInterval(buttonDisplay) : count++;
-              }
-            };
-          }, 2000);
-        } catch (error) {}
-      };
-    } else {
-      // version is not defined (headers is not recieved from the app yet)
-      show();
-    }
+    var appElements = document.querySelectorAll('[' + appType + ']');
+    appElements.forEach(function (element) {
+      element.style.display = 'flex';
+    });
   },
   checkForElectron: function checkForElectron() {
     try {
@@ -12892,131 +12835,6 @@ RichTextEditor = {
 
 /***/ }),
 
-/***/ "./resources/js/smoothscroll-polyfill.js":
-/*!***********************************************!*\
-  !*** ./resources/js/smoothscroll-polyfill.js ***!
-  \***********************************************/
-/***/ ((module, exports) => {
-
-function _typeof(obj) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (obj) { return typeof obj; } : function (obj) { return obj && "function" == typeof Symbol && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }, _typeof(obj); }
-
-!function () {
-  "use strict";
-
-  function o() {
-    var o = window,
-        t = document;
-
-    if (!("scrollBehavior" in t.documentElement.style && !0 !== o.__forceSmoothScrollPolyfill__)) {
-      var l,
-          e = o.HTMLElement || o.Element,
-          r = 468,
-          i = {
-        scroll: o.scroll || o.scrollTo,
-        scrollBy: o.scrollBy,
-        elementScroll: e.prototype.scroll || n,
-        scrollIntoView: e.prototype.scrollIntoView
-      },
-          s = o.performance && o.performance.now ? o.performance.now.bind(o.performance) : Date.now,
-          c = (l = o.navigator.userAgent, new RegExp(["MSIE ", "Trident/", "Edge/"].join("|")).test(l) ? 1 : 0);
-      o.scroll = o.scrollTo = function () {
-        void 0 !== arguments[0] && (!0 !== f(arguments[0]) ? h.call(o, t.body, void 0 !== arguments[0].left ? ~~arguments[0].left : o.scrollX || o.pageXOffset, void 0 !== arguments[0].top ? ~~arguments[0].top : o.scrollY || o.pageYOffset) : i.scroll.call(o, void 0 !== arguments[0].left ? arguments[0].left : "object" != _typeof(arguments[0]) ? arguments[0] : o.scrollX || o.pageXOffset, void 0 !== arguments[0].top ? arguments[0].top : void 0 !== arguments[1] ? arguments[1] : o.scrollY || o.pageYOffset));
-      }, o.scrollBy = function () {
-        void 0 !== arguments[0] && (f(arguments[0]) ? i.scrollBy.call(o, void 0 !== arguments[0].left ? arguments[0].left : "object" != _typeof(arguments[0]) ? arguments[0] : 0, void 0 !== arguments[0].top ? arguments[0].top : void 0 !== arguments[1] ? arguments[1] : 0) : h.call(o, t.body, ~~arguments[0].left + (o.scrollX || o.pageXOffset), ~~arguments[0].top + (o.scrollY || o.pageYOffset)));
-      }, e.prototype.scroll = e.prototype.scrollTo = function () {
-        if (void 0 !== arguments[0]) if (!0 !== f(arguments[0])) {
-          var o = arguments[0].left,
-              t = arguments[0].top;
-          h.call(this, this, void 0 === o ? this.scrollLeft : ~~o, void 0 === t ? this.scrollTop : ~~t);
-        } else {
-          if ("number" == typeof arguments[0] && void 0 === arguments[1]) throw new SyntaxError("Value could not be converted");
-          i.elementScroll.call(this, void 0 !== arguments[0].left ? ~~arguments[0].left : "object" != _typeof(arguments[0]) ? ~~arguments[0] : this.scrollLeft, void 0 !== arguments[0].top ? ~~arguments[0].top : void 0 !== arguments[1] ? ~~arguments[1] : this.scrollTop);
-        }
-      }, e.prototype.scrollBy = function () {
-        void 0 !== arguments[0] && (!0 !== f(arguments[0]) ? this.scroll({
-          left: ~~arguments[0].left + this.scrollLeft,
-          top: ~~arguments[0].top + this.scrollTop,
-          behavior: arguments[0].behavior
-        }) : i.elementScroll.call(this, void 0 !== arguments[0].left ? ~~arguments[0].left + this.scrollLeft : ~~arguments[0] + this.scrollLeft, void 0 !== arguments[0].top ? ~~arguments[0].top + this.scrollTop : ~~arguments[1] + this.scrollTop));
-      }, e.prototype.scrollIntoView = function () {
-        if (!0 !== f(arguments[0])) {
-          var l = function (o) {
-            for (; o !== t.body && !1 === (e = p(l = o, "Y") && a(l, "Y"), r = p(l, "X") && a(l, "X"), e || r);) {
-              o = o.parentNode || o.host;
-            }
-
-            var l, e, r;
-            return o;
-          }(this),
-              e = l.getBoundingClientRect(),
-              r = this.getBoundingClientRect();
-
-          l !== t.body ? (h.call(this, l, l.scrollLeft + r.left - e.left, l.scrollTop + r.top - e.top), "fixed" !== o.getComputedStyle(l).position && o.scrollBy({
-            left: e.left,
-            top: e.top,
-            behavior: "smooth"
-          })) : o.scrollBy({
-            left: r.left,
-            top: r.top,
-            behavior: "smooth"
-          });
-        } else i.scrollIntoView.call(this, void 0 === arguments[0] || arguments[0]);
-      };
-    }
-
-    function n(o, t) {
-      this.scrollLeft = o, this.scrollTop = t;
-    }
-
-    function f(o) {
-      if (null === o || "object" != _typeof(o) || void 0 === o.behavior || "auto" === o.behavior || "instant" === o.behavior) return !0;
-      if ("object" == _typeof(o) && "smooth" === o.behavior) return !1;
-      throw new TypeError("behavior member of ScrollOptions " + o.behavior + " is not a valid value for enumeration ScrollBehavior.");
-    }
-
-    function p(o, t) {
-      return "Y" === t ? o.clientHeight + c < o.scrollHeight : "X" === t ? o.clientWidth + c < o.scrollWidth : void 0;
-    }
-
-    function a(t, l) {
-      var e = o.getComputedStyle(t, null)["overflow" + l];
-      return "auto" === e || "scroll" === e;
-    }
-
-    function d(t) {
-      var l,
-          e,
-          i,
-          c,
-          n = (s() - t.startTime) / r;
-      c = n = n > 1 ? 1 : n, l = .5 * (1 - Math.cos(Math.PI * c)), e = t.startX + (t.x - t.startX) * l, i = t.startY + (t.y - t.startY) * l, t.method.call(t.scrollable, e, i), e === t.x && i === t.y || o.requestAnimationFrame(d.bind(o, t));
-    }
-
-    function h(l, e, r) {
-      var c,
-          f,
-          p,
-          a,
-          h = s();
-      l === t.body ? (c = o, f = o.scrollX || o.pageXOffset, p = o.scrollY || o.pageYOffset, a = i.scroll) : (c = l, f = l.scrollLeft, p = l.scrollTop, a = n), d({
-        scrollable: c,
-        method: a,
-        startTime: h,
-        startX: f,
-        startY: p,
-        x: e,
-        y: r
-      });
-    }
-  }
-
-  "object" == ( false ? 0 : _typeof(exports)) && "undefined" != "object" ? module.exports = {
-    polyfill: o
-  } : o();
-}();
-
-/***/ }),
-
 /***/ "./resources/js/swipe.js":
 /*!*******************************!*\
   !*** ./resources/js/swipe.js ***!
@@ -13080,6 +12898,194 @@ function shouldSwipeDirectionBeReturned(target) {
   });
   return returnDirection;
 }
+
+/***/ }),
+
+/***/ "./vendor/wire-elements/modal/resources/js/modal.js":
+/*!**********************************************************!*\
+  !*** ./vendor/wire-elements/modal/resources/js/modal.js ***!
+  \**********************************************************/
+/***/ (() => {
+
+function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _unsupportedIterableToArray(arr) || _nonIterableSpread(); }
+
+function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
+
+function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen); }
+
+function _iterableToArray(iter) { if (typeof Symbol !== "undefined" && iter[Symbol.iterator] != null || iter["@@iterator"] != null) return Array.from(iter); }
+
+function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) return _arrayLikeToArray(arr); }
+
+function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) { arr2[i] = arr[i]; } return arr2; }
+
+window.LivewireUIModal = function () {
+  return {
+    show: false,
+    showActiveComponent: true,
+    activeComponent: false,
+    componentHistory: [],
+    modalWidth: null,
+    getActiveComponentModalAttribute: function getActiveComponentModalAttribute(key) {
+      if (this.$wire.get('components')[this.activeComponent] !== undefined) {
+        return this.$wire.get('components')[this.activeComponent]['modalAttributes'][key];
+      }
+    },
+    closeModalOnEscape: function closeModalOnEscape(trigger) {
+      if (this.getActiveComponentModalAttribute('closeOnEscape') === false) {
+        return;
+      }
+
+      var force = this.getActiveComponentModalAttribute('closeOnEscapeIsForceful') === true;
+      this.closeModal(force);
+    },
+    closeModalOnClickAway: function closeModalOnClickAway(trigger) {
+      if (this.getActiveComponentModalAttribute('closeOnClickAway') === false) {
+        return;
+      }
+
+      this.closeModal(true);
+    },
+    closeModal: function closeModal() {
+      var force = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : false;
+      var skipPreviousModals = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 0;
+      var destroySkipped = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
+
+      if (this.show === false) {
+        return;
+      }
+
+      if (this.getActiveComponentModalAttribute('dispatchCloseEvent') === true) {
+        var componentName = this.$wire.get('components')[this.activeComponent].name;
+        Livewire.emit('modalClosed', componentName);
+      }
+
+      if (this.getActiveComponentModalAttribute('destroyOnClose') === true) {
+        Livewire.emit('destroyComponent', this.activeComponent);
+      }
+
+      if (skipPreviousModals > 0) {
+        for (var i = 0; i < skipPreviousModals; i++) {
+          if (destroySkipped) {
+            var _id = this.componentHistory[this.componentHistory.length - 1];
+            Livewire.emit('destroyComponent', _id);
+          }
+
+          this.componentHistory.pop();
+        }
+      }
+
+      var id = this.componentHistory.pop();
+
+      if (id && force === false) {
+        if (id) {
+          this.setActiveModalComponent(id, true);
+        } else {
+          this.setShowPropertyTo(false);
+        }
+      } else {
+        this.setShowPropertyTo(false);
+      }
+    },
+    setActiveModalComponent: function setActiveModalComponent(id) {
+      var _this = this;
+
+      var skip = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
+      this.setShowPropertyTo(true);
+
+      if (this.activeComponent === id) {
+        return;
+      }
+
+      if (this.activeComponent !== false && skip === false) {
+        this.componentHistory.push(this.activeComponent);
+      }
+
+      var focusableTimeout = 50;
+
+      if (this.activeComponent === false) {
+        this.activeComponent = id;
+        this.showActiveComponent = true;
+        this.modalWidth = this.getActiveComponentModalAttribute('maxWidthClass');
+      } else {
+        this.showActiveComponent = false;
+        focusableTimeout = 400;
+        setTimeout(function () {
+          _this.activeComponent = id;
+          _this.showActiveComponent = true;
+          _this.modalWidth = _this.getActiveComponentModalAttribute('maxWidthClass');
+        }, 300);
+      }
+
+      this.$nextTick(function () {
+        var _this$$refs$id;
+
+        var focusable = (_this$$refs$id = _this.$refs[id]) === null || _this$$refs$id === void 0 ? void 0 : _this$$refs$id.querySelector('[autofocus]');
+
+        if (focusable) {
+          setTimeout(function () {
+            focusable.focus();
+          }, focusableTimeout);
+        }
+      });
+    },
+    focusables: function focusables() {
+      var selector = 'a, button, input, textarea, select, details, [tabindex]:not([tabindex=\'-1\'])';
+      return _toConsumableArray(this.$el.querySelectorAll(selector)).filter(function (el) {
+        return !el.hasAttribute('disabled');
+      });
+    },
+    firstFocusable: function firstFocusable() {
+      return this.focusables()[0];
+    },
+    lastFocusable: function lastFocusable() {
+      return this.focusables().slice(-1)[0];
+    },
+    nextFocusable: function nextFocusable() {
+      return this.focusables()[this.nextFocusableIndex()] || this.firstFocusable();
+    },
+    prevFocusable: function prevFocusable() {
+      return this.focusables()[this.prevFocusableIndex()] || this.lastFocusable();
+    },
+    nextFocusableIndex: function nextFocusableIndex() {
+      return (this.focusables().indexOf(document.activeElement) + 1) % (this.focusables().length + 1);
+    },
+    prevFocusableIndex: function prevFocusableIndex() {
+      return Math.max(0, this.focusables().indexOf(document.activeElement)) - 1;
+    },
+    setShowPropertyTo: function setShowPropertyTo(show) {
+      var _this2 = this;
+
+      this.show = show;
+
+      if (show) {
+        document.body.classList.add('overflow-y-hidden');
+      } else {
+        document.body.classList.remove('overflow-y-hidden');
+        setTimeout(function () {
+          _this2.activeComponent = false;
+
+          _this2.$wire.resetState();
+        }, 300);
+      }
+    },
+    init: function init() {
+      var _this3 = this;
+
+      this.modalWidth = this.getActiveComponentModalAttribute('maxWidthClass');
+      Livewire.on('closeModal', function () {
+        var force = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : false;
+        var skipPreviousModals = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 0;
+        var destroySkipped = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
+
+        _this3.closeModal(force, skipPreviousModals, destroySkipped);
+      });
+      Livewire.on('activeModalComponentChanged', function (id) {
+        _this3.setActiveModalComponent(id);
+      });
+    }
+  };
+};
 
 /***/ }),
 

@@ -3,8 +3,8 @@
 namespace tcCore\Http\Livewire\Teacher;
 
 use Illuminate\Http\Request;
-use Livewire\Component;
-use Ramsey\Uuid\Uuid;
+use Illuminate\Validation\Validator;
+use LivewireUI\Modal\ModalComponent;
 use tcCore\Http\Controllers\InvigilatorsController;
 use tcCore\Http\Controllers\TemporaryLoginController;
 use tcCore\SchoolClass;
@@ -13,13 +13,11 @@ use tcCore\Period;
 use tcCore\TestTake;
 use tcCore\TestTakeStatus;
 
-class PlanningModal extends Component
+class PlanningModal extends ModalComponent
 {
     protected $listeners = ['showModal'];
 
     public $test;
-
-    public $showModal = false;
 
     public $allowedPeriods;
 
@@ -38,15 +36,23 @@ class PlanningModal extends Component
         return $this->test->isAssignment();
     }
 
-    public function mount()
+    public function mount($testUuid)
     {
-        $this->test = new Test();
+        $this->test = \tcCore\Test::whereUuid($testUuid)->first();
+
         $this->allowedPeriods = Period::filtered(['current_school_year' => true])->get();
-        $this->schoolClasses = SchoolClass::filtered(['user_id' => auth()->id()], [])
+        $this->schoolClasses = SchoolClass::filtered(
+            [
+                'user_id' => auth()->id(),
+                'current' => true,
+            ],
+            []
+        )
             ->get(['id', 'name'])
             ->map(function ($item) {
                 return ['value' => (int)$item->id, 'label' => $item->name];
             })->toArray();
+        $this->resetModalRequest();
 
         $this->allowedInvigilators = InvigilatorsController::getInvigilatorList()->map(function ($invigilator) {
             return [
@@ -58,18 +64,32 @@ class PlanningModal extends Component
         $this->resetModalRequest();
     }
 
-    protected $rules = [
-        'request.*' => 'sometimes',
-    ];
-
-    public function showModal($testUuid)
+    protected function rules()
     {
-        $this->test = \tcCore\Test::whereUuid($testUuid)->first();
+        $rules = [
+            'request.date'          => 'required',
+            'request.time_end'      => 'sometimes',
+            'request.weight'        => 'required',
+            'request.period_id'     => 'required',
+            'request.schoolClasses' => 'required',
+        ];
 
-        $this->resetModalRequest();
+        if ($this->isAssessmentType()) {
+            $rules['request.time_end'] = 'required';
+        }
 
-        $this->showModal = true;
+
+        if (auth()->user()->schoollocation->allow_guest_accounts) {
+            $rules['request.schoolClasses'] = '';
+            if (!empty(request()->get('request.guest_accounts'))) {
+                $rules['request.guest_accounts'] = 'required|in:1';
+            }
+
+        }
+
+        return $rules;
     }
+
 
     public function plan()
     {
@@ -78,16 +98,18 @@ class PlanningModal extends Component
         $controller = new TemporaryLoginController();
         $request = new Request();
 
+        $action = $this->isAssessmentType() ? "Navigation.load('/test_takes/assessment_open_teacher')" : "Navigation.load('/test_takes/planned_teacher')";
+
         $request->merge([
             'options' => [
                 'page'        => '/',
-                'page_action' => "Navigation.load('/test_takes/planned_teacher')"
+                'page_action' => $action,
             ]
         ]);
 
         redirect($controller->toCakeUrl($request));
-
     }
+
 
     private function planTest()
     {
@@ -95,7 +117,18 @@ class PlanningModal extends Component
         $this->request['time_start'] = $this->request['date'];
         $this->request['test_take_status_id'] = TestTakeStatus::STATUS_PLANNED;
 
+        $this->withValidator(function (Validator $validator) {
+            $validator->after(function ($validator) {
+                if (empty($this->request['schoolClasses']) && empty($this->request['guest_accounts'])) {
+                    $validator->errors()->add('request.schoolClasses', __('validation.school_class_or_guest_accounts_required'));
+                }
+            });
+        })->validate();
+
         $t->fill($this->request);
+        if ($this->isAssessmentType()) {
+            $t->setAttribute('test_take_status_id', TestTakeStatus::STATUS_TAKING_TEST);
+        }
 
         $t->setAttribute('user_id', auth()->id());
         $t->save();
@@ -106,20 +139,21 @@ class PlanningModal extends Component
     public function planNext()
     {
         $this->planTest();
-        $this->showModal = false;
+
+        $this->closeModal();
     }
 
     private function resetModalRequest()
     {
-        $this->selectedClassesContainerId = 'selected_classes'.$this->test->getKey();
-        $this->selectedInvigilatorsContrainerId = 'selected_invigilator'.$this->test->getKey();
+        $this->selectedClassesContainerId = 'selected_classes' . $this->test->getKey();
+        $this->selectedInvigilatorsContrainerId = 'selected_invigilator' . $this->test->getKey();
 
         $this->request = [];
 
         $this->request['visible'] = 1;
         $this->request['date'] = now()->format('Y-m-d');
         if ($this->isAssessmentType()) {
-            $this->request['date_till'] = now();
+            $this->request['time_end'] = now();
         }
         $this->request['period_id'] = $this->allowedPeriods->first()->getKey();
         $this->request['invigilators'] = [auth()->id()];

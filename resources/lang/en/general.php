@@ -39,4 +39,7 @@ return [
     'searching'              => 'Searching ...',
     'duplication successful' => 'Duplication successfull.',
     'create test'            => 'Create test',
+    'Scholengemeenschap'     => 'Organization',
+    'Wissel van school'      => 'Change active school',
+    'Actieve schoollocatie aangepast' => 'Changed active school location',
 ];

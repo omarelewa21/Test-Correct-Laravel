@@ -18,13 +18,13 @@ class TestsOverview extends Component
 {
     use WithPagination;
 
-    const PER_PAGE = 16;
+    const PER_PAGE = 12;
 
 
     public $filters = [];
 
 
-    public $sorting = ['created_at', 'desc'];
+    private $sorting = ['id' => 'desc'];
 
     protected $queryString = ['openTab'];
 
@@ -93,7 +93,10 @@ class TestsOverview extends Component
     private function getSchoolDatasource()
     {
         return Test::filtered(
-            $this->cleanFilterForSearch($this->filters['school']),
+            array_merge(
+                $this->cleanFilterForSearch($this->filters['school']),
+                ['owner_id' => auth()->user()->school_location_id]
+            ),
             $this->sorting
         )
             ->with('educationLevel', 'testKind', 'subject', 'author', 'author.school', 'author.schoolLocation')
@@ -148,7 +151,7 @@ class TestsOverview extends Component
                 'education_level_year' => [],
                 'education_level_id'   => [],
                 'subject_id'           => [],
-                'author_id'           => [],
+                'author_id'            => [],
             ];
         });
 
@@ -166,9 +169,10 @@ class TestsOverview extends Component
             return 'Error no test was found';
         }
 
-        if (!$test->canDuplicate()) {
+        if (!$test->canCopy(auth()->user())) {
             return 'Error duplication not allowed';
         }
+
 
         try {
             $newTest = $test->userDuplicate([], Auth::id());
@@ -181,7 +185,13 @@ class TestsOverview extends Component
 
     public function openEdit($testUuid)
     {
-        $this->redirect(route('teacher.question-editor', ['testId' => $testUuid]));
+        $this->redirect(route('teacher.question-editor', [
+            'testId'     => $testUuid,
+            'action'     => 'edit',
+            'owner'      => 'test',
+            'withDrawer' => 'true',
+            'referrer'   => 'teacher.tests',
+        ]));
     }
 
     public function getTemporaryLoginToPdfForTest($testUuid)
@@ -201,9 +211,8 @@ class TestsOverview extends Component
 
     public function getEducationLevelProperty()
     {
-        return EducationLevel::filtered([], ['name' => 'desc'])
-            ->select(['id', 'name'])
-            ->get()
+        return EducationLevel::filtered(['user_id' => auth()->id()], ['name' => 'desc'])
+            ->get(['id', 'name'])
             ->map(function ($educationLevel) {
                 return ['value' => (int)$educationLevel->id, 'label' => $educationLevel->name];
             });
@@ -211,7 +220,13 @@ class TestsOverview extends Component
 
     public function getSubjectsProperty()
     {
-        return Subject::filtered([], ['name' => 'asc'])
+        return Subject::when($this->openTab === 'cito', function ($query) {
+            $query->citoFiltered([], ['name' => 'asc']);
+        })->when($this->openTab === 'exams', function ($query) {
+            $query->examFiltered([], ['name' => 'asc']);
+        }, function ($query) {
+            $query->filtered([], ['name' => 'asc']);
+        })
             ->get(['name', 'id'])
             ->map(function ($subject) {
                 return ['value' => (int)$subject->id, 'label' => $subject->name];
@@ -235,6 +250,9 @@ class TestsOverview extends Component
 
     public function mount()
     {
+        if (auth()->user()->schoolLocation->allow_new_test_bank !== 1) {
+            abort(403);
+        }
         $this->setFilters();
     }
 

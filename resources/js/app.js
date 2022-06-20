@@ -1,6 +1,6 @@
 require('./bootstrap');
-require('livewire-sortable');
 require('./swipe');
+require('./livewire-sortablejs');
 require('./core');
 require('./notify');
 require('./alpine');
@@ -10,6 +10,7 @@ require('./readspeaker_app');
 require('./attachment');
 require('./flatpickr');
 require('./navigation-bar');
+require('../../vendor/wire-elements/modal/resources/js/modal');
 
 
 window.ClassicEditors = [];

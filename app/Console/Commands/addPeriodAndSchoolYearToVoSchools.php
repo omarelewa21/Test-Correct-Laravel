@@ -54,7 +54,8 @@ class addPeriodAndSchoolYearToVoSchools extends Command
         });
         if ($this->locationWithoutUser) {
             $this->error(
-                sprintf("no new school year was created for location(s) with id: [%s]", implode($this->locationWithoutUser, ','))
+                sprintf("no new school year was created for location(s) with id: [%s]", implode(',',
+                    $this->locationWithoutUser))
             );
         }
 

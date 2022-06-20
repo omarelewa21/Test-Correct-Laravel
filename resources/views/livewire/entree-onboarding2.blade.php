@@ -1,6 +1,6 @@
 <div id="entree">
     <div class="flex w-full items-center justify-center pt-7">
-        <a class="flex  w-36 md:w-auto" href="https://test-correct.nl">
+        <a class="flex  w-36 md:w-44" href="https://test-correct.nl">
             <img class="" src="{{ asset('svg/logos/Logo-Test-Correct-2.svg') }}" alt="Test-Correct">
         </a>
     </div>
@@ -600,17 +600,19 @@
                                 </div>
 
                                 <div class="flex w-full mb-4 space-x-4">
-                                    <a class="button button-sm primary-button flex-1"
+                                    <a class="button button-sm primary-button flex-1 justify-center !px-2 sm:px-5"
                                        target="_blank" href="https://www.linkedin.com/company/9225774">
-                                        LinkedIn
+                                        <x-logos.linkedin/>
                                     </a>
-                                    <a class="button button-sm primary-button flex-1"
+                                    <a class="button button-sm primary-button flex-1 justify-center !px-2 sm:px-5"
                                        target="_blank" href="https://twitter.com/testcorrect">
-                                        Twitter
+                                        <span class="flex h-4">
+                                            <x-logos.twitter class="w-full h-auto"/>
+                                        </span>
                                     </a>
-                                    <a class="button button-sm primary-button flex-1"
+                                    <a class="button button-sm primary-button flex-1 justify-center !px-2 sm:px-5"
                                        target="_blank" href="https://www.facebook.com/TestCorrect/">
-                                        Facebook
+                                        <x-logos.facebook/>
                                     </a>
                                 </div>
                             </div>

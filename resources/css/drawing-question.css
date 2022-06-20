@@ -1072,3 +1072,28 @@
         }
     }
 }
+
+.colorPick {
+    background: rgba(255, 255, 255, 0.85);
+    -webkit-backdrop-filter: blur(15px);
+    border-radius: 5px;
+    box-shadow: 0px 3px 8px rgba(0, 0, 0, 0.2);
+    padding: 4px !important;
+    font-family: "Open Sans", sans-serif;
+    width: 372px;
+    box-sizing: content-box;
+}
+
+.colorPickButton {
+    border-radius: 5px;
+    width: 25px;
+    height: 25px;
+    margin: 0px 1.5px !important;
+    cursor: pointer;
+    display: inline-block;
+    border: thin solid #eee;
+}
+  
+.colorPickButton:hover {
+    transform: scale(1.1);
+}

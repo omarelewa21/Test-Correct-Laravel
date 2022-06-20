@@ -1,5 +1,4 @@
 <div class="drawer flex z-[20]"
-     x-data="{loadingOverlay: false, collapse: false, backdrop: false, emptyStateActive: @entangle('emptyStateActive')}"
      x-init="
         collapse = window.innerWidth < 1000;
         if (emptyStateActive) backdrop = true;
@@ -20,7 +19,10 @@
         handleLoading = () => {
             loadingOverlay = $store.cms.loading;
         }
+
+
      "
+     x-data="{loadingOverlay: false, collapse: false, backdrop: false, emptyStateActive: @entangle('emptyStateActive')}"
      x-cloak
      x-effect="handleLoading(); $el.scrollTop = $store.cms.scrollPos;"
      :class="{'collapsed': collapse}"
@@ -76,7 +78,7 @@
                                        @continue-to-new-slide.window="$store.cms.processing = true;$wire.removeDummy();showAddQuestionSlide(false)"
                                        @continue-to-add-group.window="addGroup(false)"
             >
-                <div wire:sortable="updateTestItemsOrder" wire:sortable-group="updateGroupItemsOrder" class="divide-y divide-bluegrey pb-6" {{ $emptyStateActive ? 'hidden' : '' }} >
+                <div wire:sortable="updateTestItemsOrder" wire:sortable-group="updateGroupItemsOrder" class="sortable-drawer divide-y divide-bluegrey pb-6" {{ $emptyStateActive ? 'hidden' : '' }} >
                     @php $loopIndex = 0; @endphp
                     @foreach($this->questionsInTest as $testQuestion)
                         @if($testQuestion->question->type === 'GroupQuestion')
@@ -209,5 +211,34 @@
         </div>
         <span class="invisible"></span>
     </div>
-</div>
 
+
+    <style>
+
+        .reorder{
+            cursor:move;
+        }
+
+        .draggable-container--over  .draggable-mirror:before  {
+            content: none !important;
+        }
+
+        .draggable-mirror:before,
+        .draggable-container--over .draggable-group .draggable-mirror:before,
+        .draggable-not-droppable{
+            content: url('data:image/svg+xml,%3Csvg width="4" height="14" xmlns="http://www.w3.org/2000/svg"%3E %3Cg class="fill-current" fill-rule="evenodd"%3E %3Cpath d="M1.615 0h.77A1.5 1.5 0 013.88 1.61l-.45 6.06a1.436 1.436 0 01-2.863 0L.12 1.61A1.5 1.5 0 011.615 0z"/%3E %3Ccircle cx="2" cy="12" r="2"/%3E %3C/g%3E %3C/svg%3E') !important;
+            position: absolute;
+            top: -17px;
+            right: -17px;
+            background: rgb(247,225,223);
+            width: 25px;
+            height: 25px;
+            border-radius: 50%;
+            text-align: center;
+        }
+        .draggable-mirror {
+            z-index: 1000;
+        }
+
+    </style>
+</div>

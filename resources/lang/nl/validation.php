@@ -129,31 +129,31 @@ return [
     */
 
     'custom' => [
-        'attribute-name'    => [
+        'attribute-name' => [
             'rule-name' => 'custom-message',
         ],
 
-        'epp'  => [
+        'epp' => [
 
-            'max'   => 'Het totaal aantal punten voor deze toets is :max.
+            'max' => 'Het totaal aantal punten voor deze toets is :max.
             
             Je kunt geen hoger getal invullen dan het totaal aantal punten voor deze toets.',
         ],
-        'ppp'  => [
-            'max'   => 'Het totaal aantal punten voor deze toets is :max.
+        'ppp' => [
+            'max' => 'Het totaal aantal punten voor deze toets is :max.
                             Je kunt geen hoger getal invullen dan het totaal aantal punten voor deze toets.',
         ],
 
-        'wanted_average'    => [
-            'between'   => 'Het gemiddelde cijfer dient tussen de :min en de :max te liggen.'
+        'wanted_average' => [
+            'between' => 'Het gemiddelde cijfer dient tussen de :min en de :max te liggen.'
         ],
 
-        'n_term'            => [
-            'between'   => 'De N-term dient tussen de :min en de :max te liggen.'
+        'n_term' => [
+            'between' => 'De N-term dient tussen de :min en de :max te liggen.'
         ],
 
-        'pass_mark'         => [
-            'between'   => 'De Cesuur dient tussen de :min en de :max te liggen.'
+        'pass_mark' => [
+            'between' => 'De Cesuur dient tussen de :min en de :max te liggen.'
         ]
     ],
 
@@ -168,5 +168,13 @@ return [
     |
     */
 
-    'attributes' => [],
+    'attributes' => [
+        'request.abbreviation' => 'afkorting',
+        'request.name'         => 'naam',
+        'request.introduction' => 'instructie-tekst',
+        'request.weight'       => 'gewicht',
+    ],
+
+    'school_class_or_guest_accounts_required' => 'Selecteer een klas of Test-direct toestaan.',
+    'test name'                               => 'Naam toets',
 ];

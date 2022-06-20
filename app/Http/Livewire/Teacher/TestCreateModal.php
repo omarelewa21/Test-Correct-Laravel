@@ -4,7 +4,9 @@ namespace tcCore\Http\Livewire\Teacher;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Route;
 use Livewire\Component;
+use LivewireUI\Modal\ModalComponent;
 use tcCore\EducationLevel;
 use tcCore\Http\Controllers\TemporaryLoginController;
 use tcCore\Period;
@@ -12,10 +14,9 @@ use tcCore\Subject;
 use tcCore\Test;
 use tcCore\TestKind;
 
-class TestCreateModal extends Component
+class TestCreateModal extends ModalComponent
 {
-    public $showModal = false;
-    public $modalId = 'test-create-modal';
+    public bool $forceClose = true;
 
     public $allowedTestKinds = [];
 
@@ -25,9 +26,6 @@ class TestCreateModal extends Component
 
     public $allowedEductionLevels = [];
 
-    protected $listeners = [
-        'showModal'
-    ];
 
     public $request = [];
 
@@ -51,7 +49,7 @@ class TestCreateModal extends Component
 
 
         return [
-            'request.name'                 => 'required|min:3',
+            'request.name'                 => 'required|min:3|unique:tests,name,NULL,id,author_id,' . Auth::id() . ',deleted_at,NULL,is_system_test,0',
             'request.abbreviation'         => 'required|max:5',
             'request.test_kind_id'         => ['required', 'integer', $allowedTestKindIds],
             'request.subject_id'           => ['required', 'integer', $allowedSubjectIds],
@@ -63,10 +61,16 @@ class TestCreateModal extends Component
         ];
     }
 
+    protected function getMessages()
+    {
+        return [
+            'request.name.unique' => __('validation.unique', ['attribute' => __('validation.test name')]),
+        ];
+    }
+
     public function mount()
     {
-        $this->allowedSubjects = Subject::filtered(['user_id' => auth()->id()], [])->get(['id', 'name'])->keyBy('id');
-
+        $this->allowedSubjects = Subject::filtered(['user_current' => auth()->id()], ['name' => 'asc'])->get(['id', 'name'])->keyBy('id');
         $this->allowedTestKinds = TestKind::orderBy('name', 'asc')->get(['name', 'id']);
         $this->allowedPeriods = Period::filtered(['current_school_year' => 1], [])->get(['id', 'name', 'start_date', 'end_date'])->keyBy('id');
         $this->allowedEductionLevels = EducationLevel::filtered(['user_id' => auth()->id()], [])->select(['id', 'name', 'max_years', 'uuid'])->get()->keyBy('id');
@@ -74,7 +78,7 @@ class TestCreateModal extends Component
         $this->request = [
             'name'                 => '',
             'abbreviation'         => '',
-            'test_kind_id'         => 1,
+            'test_kind_id'         => 3,
             'subject_id'           => $this->allowedSubjects->first()->id,
             'education_level_id'   => $this->allowedEductionLevels->first()->id,
             'education_level_year' => 1,
@@ -84,29 +88,20 @@ class TestCreateModal extends Component
         ];
     }
 
-    public function getMaxEducationLevelYearProperty(){
+    public function getMaxEducationLevelYearProperty()
+    {
         $maxYears = 6;
         if ($this->request['education_level_id']) {
-             $level = $this->allowedEductionLevels->first(function($level) {
-                 $compareWith =  property_exists($level, 'id') ? $level->id: $level['id'];
-                 return $compareWith == $this->request['education_level_id'];
-             });
+            $level = $this->allowedEductionLevels->first(function ($level) {
+                $compareWith = property_exists($level, 'id') ? $level->id : $level['id'];
+                return $compareWith == $this->request['education_level_id'];
+            });
 
-             return  is_array($level) ? $level['id']: $level->id ;
+            return is_array($level) ? $level['id'] : $level->id;
         }
         return $maxYears;
     }
 
-    public function showModal()
-    {
-        $this->showModal = !$this->showModal;
-    }
-
-    public function hideModal()
-    {
-        $this->showModal = false;
-        $this->emitTo('teacher.test-start-create-modal', 'showModal');
-    }
 
     public function submit()
     {
@@ -127,27 +122,12 @@ class TestCreateModal extends Component
                     'type'           => '',
                     'isCloneRequest' => '',
                     'withDrawer'     => 'true',
+                    'referrer'       => 'teacher.tests',
                 ]
             )
         );
 
-
         $this->dispatchBrowserEvent('notify', ['message' => __('teacher.test created')]);
-    }
-
-    public function goToUploadTest()
-    {
-        $this->showModal = false;
-        $controller = new TemporaryLoginController();
-        $request = new Request();
-        $request->merge([
-            'options' => [
-                'page'        => '/',
-                'page_action' => "Loading.show();Popup.load('/file_management/upload_test',800);"
-            ],
-        ]);
-
-        redirect($controller->toCakeUrl($request));
     }
 
     public function render()

@@ -31,14 +31,14 @@ class DemoHelperTest extends TestCase
 {
     use DatabaseTransactions;
 
-
     /** @test */
     public function demohelper_a_teacher_should_be_created()
     {
+
         $helper = (new DemoHelperTestHelper());
         $schoolLocation = SchoolLocation::first();
         $helper->setSchoolLocation($schoolLocation);
-
+        $helper->getUsername('teacher');
         $this->assertEquals(0,User::where('username',$helper->getUsername('teacher'))->count());
 
         $helper->createDemoTeacherIfNeeded();
