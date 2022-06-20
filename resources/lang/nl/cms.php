@@ -166,5 +166,6 @@ return [
     'nieuwe'                                                                                 => '{0} nieuw|{1}nieuwe',
     'Wijzigingen niet opslaan'                                                               => 'Wijzigingen niet opslaan',
     'fix_order'                                                                              => 'Volgorde van antwoorden vastzetten',
+    'Construeren'                         => 'Construeren',
 
 ];
