@@ -2,10 +2,11 @@ import flatpickr from "flatpickr";
 import "flatpickr/dist/l10n/nl.js";
 
 document.addEventListener('alpine:init', () => {
-    Alpine.data('flatpickr', (wireModel, mode, locale) => ({
+    Alpine.data('flatpickr', (wireModel, mode, locale, minDate) => ({
         wireModel: wireModel,
         mode: mode,
         locale: locale,
+        minDate: minDate,
         init() {
 
             // if(this.mode == 'range'){
@@ -15,6 +16,7 @@ document.addEventListener('alpine:init', () => {
             // }
             let picker = flatpickr(this.$refs.datepickr, {
                 locale: this.locale,
+                minDate: minDate == 'today' ? 'today' : false,
                 mode: this.mode,
                 defaultDate: this.wireModel,
                 onChange: (date, dateString) => {
