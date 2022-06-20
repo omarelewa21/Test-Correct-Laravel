@@ -351,14 +351,14 @@ document.addEventListener('alpine:init', () => {
             this.drawer = this.$root.closest('.drawer');
             setTimeout(() => {
                 this.handleVerticalScroll(this.$root.firstElementChild);
-
-                this.showQuestionBank();
-                setTimeout(() => {
-                    this.$refs.questionEditorSidebar.scrollTo({
-                        left: this.$refs.questionEditorSidebar.scrollLeft - 300,
-                        behavior: 'smooth'
-                    });
-                },1000)
+                //To enable questionbank on startup :
+                // this.showQuestionBank();
+                // setTimeout(() => {
+                //     this.$refs.questionEditorSidebar.scrollTo({
+                //         left: this.$refs.questionEditorSidebar.scrollLeft - 300,
+                //         behavior: 'smooth'
+                //     });
+                // },1000)
 
             }, 400);
         },
