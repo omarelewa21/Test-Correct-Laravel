@@ -33,8 +33,9 @@ class TestsOverview extends Component
     public $selected = [];
 
     protected $listeners = [
-        'test-deleted' => '$refresh',
-        'test-added'   => '$refresh',
+        'test-deleted'        => '$refresh',
+        'test-added'          => '$refresh',
+        'testSettingsUpdated' => '$refresh',
     ];
 
     private $allowedTabs = [

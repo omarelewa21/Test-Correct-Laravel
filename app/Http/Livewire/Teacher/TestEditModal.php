@@ -49,7 +49,7 @@ class TestEditModal extends ModalComponent
         $test->save();
 
         $this->forceClose()->closeModal();
-        $this->emitTo(OpenShort::class, 'testSettingsUpdated', $this->request);
+        $this->emit('testSettingsUpdated', $this->request);
     }
 
     public static function modalMaxWidthClass(): string
