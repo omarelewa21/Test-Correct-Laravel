@@ -157,7 +157,7 @@ class PlanningModal extends ModalComponent
         $this->request['invigilators'] = [auth()->id()];
         $this->request['weight'] = 5;
         $this->request['test_id'] = $this->test->getKey();
-        $this->request['allow_inbrowser_testing'] = this->isAssessmentType() ? 1 :0;
+        $this->request['allow_inbrowser_testing'] = $this->isAssessmentType() ? 1 :0;
         $this->request['invigilator_note'] = '';
         $this->request['test_kind_id'] = 3;
 
