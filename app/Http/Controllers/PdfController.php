@@ -210,7 +210,7 @@ class PdfController extends Controller
         ];
         $createPath = 'http://127.0.0.1/ckeditor/plugins/ckeditor_wiris/integration/createimage.php';
         $path = 'http://127.0.0.1/ckeditor/plugins/ckeditor_wiris/integration/showimage.php';
-        if(stristr(config('app.base_url'),'.test')){
+        if(stristr(config('app.base_url'),'correct.test')){
             $createPath = 'https://testwelcome.test-correct.nl/ckeditor/plugins/ckeditor_wiris/integration/createimage.php';
             $path = 'https://testwelcome.test-correct.nl/ckeditor/plugins/ckeditor_wiris/integration/showimage.php';
         }
