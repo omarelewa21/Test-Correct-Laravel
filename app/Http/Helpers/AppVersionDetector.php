@@ -327,6 +327,7 @@ class AppVersionDetector
                     'nl',
                     self::$allowedVersions[$version["os"]]["needsUpdateDeadline"][$version["app_version"]]
                 );
+                return $date->isoFormat('LL');
             } catch(\Throwable $e){
                 $date = Carbon::createFromLocaleIsoFormat(
                     'MMMM YYYY',
@@ -334,7 +335,8 @@ class AppVersionDetector
                     self::$allowedVersions[$version["os"]]["needsUpdateDeadline"][$version["app_version"]]
                 );
             }
-            return $date->isoFormat('LL');
+            return $date->isoFormat('MMM YYYY');
+
         }
         return false;
     }
