@@ -54,7 +54,7 @@
                             @enderror
                             <x-drag-item id="mc-{{ $key }}-{{$answer->id}}" sortId="{{ $key }}={{ $answer->id }}"
                                          wireKey="option-{{ $key }}-{{ $answer->id }}" selid="drag-box"
-                                         class="flex ml-3 pr-2.5  mb-2 px-0 py-0 border-0 bg-system-white relative relative sub-item-with-connecting-line regular"
+                                         class="flex ml-3 pr-2.5  mb-2 px-0 py-0 border-0 bg-system-white relative sub-item-with-connecting-line regular"
                                          slotClasses="w-full mr-0 "
                                          dragClasses="absolute right-14 hover:text-primary transition"
                                          dragIconClasses=" cursor-move"

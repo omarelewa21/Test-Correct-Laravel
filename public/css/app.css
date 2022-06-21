@@ -499,14 +499,20 @@
     z-index: -1;
 }
 
+.sortable-fallback,
 .drag-item.draggable-source--is-dragging {
     background-color: white;
-    border: 2px dashed var(--blue-grey);
-    color: white;
+    border-width: 2px!important;
+    border-style: dashed;
+    border-color:  var(--blue-grey);
+    opacity: 1!important;
 }
+.sortable-chosen.sortable-ghost,
 .drag-item.draggable--over {
     background-color: white;
-    border: 2px dashed var(--primary);
+    border-width: 2px!important;
+    border-style: dashed;
+    border-color:  var(--primary);
     color: white;
 }
 
@@ -6658,6 +6664,11 @@ ul ul ul {
 }
 .sortable-nogo * {
     color: grey !important;
+}
+
+.sortable-drawer .sortable-drag{
+    background-color: rgba(255,255,255,1)  !important;
+    opacity: 0;
 }
 
 .draggable-mirror.sub-item-with-connecting-line::before,

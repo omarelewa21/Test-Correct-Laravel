@@ -597,6 +597,11 @@ ul ul ul {
     color: grey !important;
 }
 
+.sortable-drawer .sortable-drag{
+    background-color: rgba(255,255,255,1)  !important;
+    opacity: 0;
+}
+
 .draggable-mirror.sub-item-with-connecting-line::before,
 .sortable-grab.sub-item-with-connecting-line::before{
     display:none;

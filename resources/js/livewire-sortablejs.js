@@ -22,7 +22,7 @@ window.Livewire.directive('sortable', (el, directive, component) => {
             put: false,
 
         },
-        forceFallback: true,
+        forceFallback: el.closest('.sortable-drawer') ? true : false,
         store: {
             set: function (sortable) {
                 let items = sortable.toArray().map((value, index) => {
@@ -38,9 +38,10 @@ window.Livewire.directive('sortable', (el, directive, component) => {
         onStart: (evt) => {
             if(evt.target.closest('.drawer')){
                 const groups = evt.target.closest('.drawer').querySelectorAll('.draggable-group');
-
                 for (const group of groups) {
-                    group.classList.add('sortable-nogo');
+                    if(group != evt.target) {
+                        group.classList.add('sortable-nogo');
+                    }
                 }
             }
         },

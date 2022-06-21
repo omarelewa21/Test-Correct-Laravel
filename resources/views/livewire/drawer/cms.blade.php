@@ -207,34 +207,4 @@
         </div>
         <span class="invisible"></span>
     </div>
-
-
-    <style>
-
-        .reorder{
-            cursor:move;
-        }
-
-        .draggable-container--over  .draggable-mirror:before  {
-            content: none !important;
-        }
-
-        .draggable-mirror:before,
-        .draggable-container--over .draggable-group .draggable-mirror:before,
-        .draggable-not-droppable{
-            content: url('data:image/svg+xml,%3Csvg width="4" height="14" xmlns="http://www.w3.org/2000/svg"%3E %3Cg class="fill-current" fill-rule="evenodd"%3E %3Cpath d="M1.615 0h.77A1.5 1.5 0 013.88 1.61l-.45 6.06a1.436 1.436 0 01-2.863 0L.12 1.61A1.5 1.5 0 011.615 0z"/%3E %3Ccircle cx="2" cy="12" r="2"/%3E %3C/g%3E %3C/svg%3E') !important;
-            position: absolute;
-            top: -17px;
-            right: -17px;
-            background: rgb(247,225,223);
-            width: 25px;
-            height: 25px;
-            border-radius: 50%;
-            text-align: center;
-        }
-        .draggable-mirror {
-            z-index: 1000;
-        }
-
-    </style>
 </div>
