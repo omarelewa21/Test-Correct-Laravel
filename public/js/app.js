@@ -12467,7 +12467,7 @@ window.Livewire.directive('sortable', function (el, directive, component) {
       pull: false,
       put: false
     },
-    forceFallback: true,
+    forceFallback: el.closest('.sortable-drawer') ? true : false,
     store: {
       set: function set(sortable) {
         var items = sortable.toArray().map(function (value, index) {
@@ -12489,7 +12489,10 @@ window.Livewire.directive('sortable', function (el, directive, component) {
         try {
           for (_iterator.s(); !(_step = _iterator.n()).done;) {
             var group = _step.value;
-            group.classList.add('sortable-nogo');
+
+            if (group != evt.target) {
+              group.classList.add('sortable-nogo');
+            }
           }
         } catch (err) {
           _iterator.e(err);
