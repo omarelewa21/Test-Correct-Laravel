@@ -724,25 +724,23 @@ class OpenShort extends Component
                 "json"       => json_encode($uploadJson),
                 "attachment" => $upload,
             ]);
-            $this->createAttachementWithRequest($attachementRequest, $response);
+            $this->createAttachmentWithRequest($attachementRequest, $response);
         });
     }
 
     private function handleVideoAttachments($response)
     {
         collect($this->videos)->each(function ($video) use ($response) {
-            $testQuestion = $response->original;
-            $attachementRequest = new  CreateAttachmentRequest([
+            $attachmentRequest = new  CreateAttachmentRequest([
                 "type"  => "video",
                 "link"  => $video['link'],
                 "title" => $video['title']
             ]);
-
-            $response = $this->createAttachementWithRequest($attachementRequest, $response);
+            $this->createAttachmentWithRequest($attachmentRequest, $response);
         });
     }
 
-    public function createAttachementWithRequest(CreateAttachmentRequest $request, $response)
+    public function createAttachmentWithRequest(CreateAttachmentRequest $request, $response)
     {
         if ($this->isPartOfGroupQuestion()) {
             return (new GroupAttachmentsController)
@@ -753,7 +751,7 @@ class OpenShort extends Component
         }
         return (new AttachmentsController)
             ->store(
-                $testQuestion = $response->original,
+                TestQuestion::find($response->original->id),
                 $request
             );
     }

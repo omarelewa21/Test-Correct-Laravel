@@ -161,7 +161,7 @@ class QuestionBank extends Component
 
     private function getQuestionIdsThatAreAlreadyInTest()
     {
-        return $this->test->getQuestionOrderList();
+        return optional($this->test)->getQuestionOrderList() ?? [];
     }
 
     private function removeQuestionFromTest($questionId)
