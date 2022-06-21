@@ -143,7 +143,7 @@ class AppVersionDetector
                 "2.4.1",
             ],
             "needsUpdateDeadline" => [
-                "2.4.1" => "Juli 2922",
+                "2.4.1" => "Juli 2022",
             ],
         ],
         "windowsElectron" => [
