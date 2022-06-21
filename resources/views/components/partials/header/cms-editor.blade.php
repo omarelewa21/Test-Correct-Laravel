@@ -18,11 +18,19 @@
             <div>
                 <span class="primary bg-white px-2 text-sm rounded-sm bold">BETA</span>
             </div>
-            <div>
-                <button wire:click=""
-                        disabled
+            <div x-data="{
+                    toPdf: async () => {
+                        let response = await $wire.getPdfUrl();
+                        window.open(response, '_blank');
+                    }
+                }">
+                <button @if($this->canDeleteTest)
+                            @click="$dispatch('delete-modal', ['test', '{{ $this->testId }}'])"
+                        @else
+                            disabled
+                        @endif
                         class="new-button button-primary"
-                        title="{{ __('teacher.Toets instellingen') }}"
+                        title="{{ __('teacher.Toets verwijderen') }}"
                 >
                     <x-icon.trash/>
                 </button>
@@ -39,29 +47,24 @@
                 >
                     <x-icon.edit/>
                 </button>
-                <button wire:click=""
-                        disabled
+                <button @click="window.open('{{ route('teacher.test-preview', ['test'=> $this->testId]) }}', '_blank')"
                         class="new-button button-primary"
-                        title="{{ __('teacher.Toets instellingen') }}"
+                        title="{{ __('teacher.Toets voorbeeldweergave') }}"
                 >
                     <x-icon.preview/>
                 </button>
-                <button wire:click=""
-                        disabled
+                <button @click="toPdf()"
                         class="new-button button-primary"
-                        title="{{ __('teacher.Toets instellingen') }}"
+                        title="{{ __('teacher.Toets PDF-weergave') }}"
                 >
                     <x-icon.pdf color="currentColor"/>
                 </button>
-                <button wire:click=""
-                        disabled
+                <button wire:click="$emit('openModal','teacher.planning-modal', {{ json_encode(['testUuid' => $this->testId]) }}) "
                         class="new-button button-cta"
-                        title="{{ __('teacher.Toets instellingen') }}"
+                        title="{{ __('teacher.Toets inplannen') }}"
                 >
                     <x-icon.schedule/>
                 </button>
-
-
             </div>
         @endif
     </div>

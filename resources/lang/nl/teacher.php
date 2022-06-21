@@ -35,4 +35,8 @@ return [
     'toets wijzigen'                                   => 'Toets wijzigen',
     'Gegevens wijzigen'                                => 'Gegevens wijzigen',
     'Toets instellingen'                               => 'Toets instellingen',
+    'Toets verwijderen'                                => 'Toets verwijderen',
+    'Toets voorbeeldweergave'                          => 'Toets voorbeeldweergave',
+    'Toets PDF-weergave'                               => 'Toets PDF-weergave',
+    'Toets inplannen'                                  => 'Toets inplannen',
 ];

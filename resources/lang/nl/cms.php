@@ -35,6 +35,7 @@ return [
     'delete'                                                                                 => 'Verwijderen',
     'delete_attachment_confirm_text'                                                         => 'Weet je zeker dat je deze bijlage wilt verwijderen? Je kunt deze actie niet ongedaan maken.',
     'delete_question_confirm_text'                                                           => 'Weet je zeker dat je deze vraag wilt verwijderen? Je kunt deze actie niet ongedaan maken.',
+    'delete_test_confirm_text'                                                               => 'Weet je zeker dat je deze toets wilt verwijderen? Je kunt deze actie niet ongedaan maken.',
     'Vraag verwijderen'                                                                      => 'Vraag verwijderen',
     'bijlage'                                                                                => ':count bijlage|:count bijlagen',
     'all_or_nothing_tooltip_text'                                                            => 'Wijs alleen punten toe als alle onderdelen goed beantwoord zijn',

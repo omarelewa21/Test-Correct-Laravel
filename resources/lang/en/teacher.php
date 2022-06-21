@@ -36,5 +36,9 @@ return [
     'toets wijzigen'                                   => 'Edit test',
     'Gegevens wijzigen'                                => 'Edit settings',
     'Toets instellingen'                               => 'Test settings',
+    'Toets verwijderen'                                => 'Delete test',
+    'Toets voorbeeldweergave'                          => 'Test preview',
+    'Toets PDF-weergave'                               => 'Test PDF preview',
+    'Toets inplannen'                                  => 'Plan test',
 
 ];
