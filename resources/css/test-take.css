@@ -93,10 +93,10 @@
 }
 .sortable-chosen.sortable-ghost,
 .drag-item.draggable--over {
-    background-color: white;
+    background-color: var(--primary-light);;
     border-width: 2px!important;
     border-style: dashed;
-    border-color:  var(--primary);
+    border-color:  var(--primary) !important;
     color: white;
 }
 
