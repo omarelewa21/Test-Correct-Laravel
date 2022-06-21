@@ -8,7 +8,6 @@ use Facade\FlareClient\Http\Response;
 use GuzzleHttp\Client;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
-use mikehaertl\wkhtmlto\Pdf;
 use tcCore\Http\Helpers\PdfHelper;
 use tcCore\Http\Requests\HtmlToPdfRequest;
 
@@ -24,6 +23,7 @@ class PdfController extends Controller
      */
     public function HtmlToPdf(HtmlToPdfRequest $request)
     {
+//        return $this->wkhtmlToPdf($request);
         $html = $this->base64ImgPaths($request->get('html'));
         $html = $this->svgWirisFormulas($html);
         $output = PdfHelper::HtmlToPdf($html);
@@ -33,8 +33,8 @@ class PdfController extends Controller
     public function HtmlToPdfFromString($html)
     {
         $html = $this->base64ImgPaths($html);
-//        return $this->wkhtmlToPdfFromString($html);
-        return PdfHelper::HtmlToPdf($html);
+        $html = $this->svgWirisFormulas($html);
+        return $this->snappyToPdfFromString($html);
     }
 
     public function getSetting($setting)
@@ -142,43 +142,108 @@ class PdfController extends Controller
         return $server->getImageAsBase64($file, $widthHeight+['fit'=>'contain',  'fm' => 'jpg', 'q' => $quality,]);
     }
 
-    private function wkhtmlToPdf(HtmlToPdfRequest $request)
+
+    private function snappyToPdfFromString($html)
     {
-        $html = $this->base64ImgPaths($request->get('html'));
-        file_put_contents(storage_path('temp/result1.html'),$html);
-        $options = [
-            'disable-javascript',
-            'header-html'=> storage_path('temp/header.html'),
-        ];
+        //dump($html);
+//        file_put_contents(storage_path('temp/result1.html'),$html);
+//        $html = file_get_contents(storage_path('temp/result1.html'));
+
+        $output = \PDF::loadHtml($html)->setOption('header-html', resource_path('pdf_templates/header.html'))->setOption('footer-html', resource_path('pdf_templates/footer.html'));
+        return $output->download('file.pdf');
+        return new Response(
+            $output,
+            200,
+            array(
+                'Content-Type'          => 'application/pdf',
+                'Content-Disposition'   => 'attachment; filename="file.pdf"'
+            )
+        );
         $pdf = new Pdf($options);
         $pdf->addPage($html);
         $outputPath = storage_path('temp/result1.pdf');
         $pdf->saveAs($outputPath);
         $output = $pdf->toString();
-
-        return response()->make($output, 200, [
-            'Content-Type' => 'application/pdf',
-            'Content-Disposition' => 'inline; filename="toets.pdf"'
-        ]);
-    }
-
-    private function wkhtmlToPdfFromString($html)
-    {
-        file_put_contents(storage_path('temp/result1.html'),$html);
-        $options = [
-            'disable-javascript',
-            'header-html'=> storage_path('temp/header.html'),
-            'load-error-handling'=>'ignore',
-            'enable-local-file-access'=> true,
-        ];
-        $pdf = new Pdf($options);
-        $pdf->addPage($html);
-        $outputPath = storage_path('temp/result1.pdf');
-        $pdf->saveAs($outputPath);
-        $output = $pdf->toString();
-        dump($pdf->getError());
         return $output;
 
+    }
+
+    private function svgWirisFormulas($html)
+    {
+        $internalErrors = libxml_use_internal_errors(true);
+        $doc = new DOMDocument('1.0', 'UTF-8');
+        $doc->loadHTML($html);
+        libxml_use_internal_errors($internalErrors);
+        $mathList = $doc->getElementsByTagName('math');
+        foreach ($mathList as $mathNode) {
+            try {
+                $this->replaceMathNodeWithSvg($mathNode, $doc);
+            } catch (\Throwable $th) {
+                Bugsnag::notifyException($th);
+            }
+        }
+        $html = $doc->saveHTML($doc->documentElement);
+        return $html;
+    }
+
+    private function replaceMathNodeWithSvg($mathNode, $doc)
+    {
+        try {
+            $mathNodeString = $doc->saveHtml($mathNode);
+            $img = $this->getWirisSvgImg($mathNodeString, $doc);
+            $mathNode->parentNode->replaceChild($img, $mathNode);
+        } catch (\Throwable $th) {
+            Bugsnag::notifyException($th);
+            return;
+        }
+    }
+
+
+    private function getWirisSvgImg($mml, $doc)
+    {
+        $data = [
+            'mml' => $mml,
+            'lang' => 'en-gb',
+            'metrics' => true,
+            'centerbaseline' => false,
+
+        ];
+        $createPath = 'http://127.0.0.1/ckeditor/plugins/ckeditor_wiris/integration/createimage.php';
+        $path = 'http://127.0.0.1/ckeditor/plugins/ckeditor_wiris/integration/showimage.php';
+        if(stristr(config('app.base_url'),'.test')){
+            $createPath = 'https://testwelcome.test-correct.nl/ckeditor/plugins/ckeditor_wiris/integration/createimage.php';
+            $path = 'https://testwelcome.test-correct.nl/ckeditor/plugins/ckeditor_wiris/integration/showimage.php';
+        }
+
+
+
+        $client = new Client();
+        $res = $client->request('POST', $createPath, [
+            'form_params' => $data,
+            'verify' => false]);
+        $formulaUrl = $res->getBody()->getContents();
+
+        $components = parse_url($formulaUrl);
+        parse_str($components['query'], $results);
+        $formula = $results['formula'];
+        $data1 = [
+            'lang' => 'en-gb',
+            'metrics' => true,
+            'centerbaseline' => false,
+            'formula' => $formula,
+            'version' => '7.26.0.1439',
+        ];
+        $res = $client->request('GET', $path, ['query' => $data1]);
+        $res = $client->request('POST', $path, [
+            'form_params' => $data]);
+        $json = json_decode($res->getBody()->getContents(), true);
+        $img = $doc->createElement('img');
+        $img->setAttribute('width', $json['result']['width']);
+        $img->setAttribute('height', $json['result']['height']);
+        $src = sprintf('data:image/svg+xml;charset=utf8,%s', rawurlencode($json['result']['content']));
+        $img->setAttribute('src', $src);
+        $img->setAttribute('style', 'max-width: none; vertical-align: -4px;');
+        return $img;
     }
 
     private function svgWirisFormulas($html)

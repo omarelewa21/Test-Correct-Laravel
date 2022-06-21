@@ -50,11 +50,9 @@ class CompletionQuestion extends Component
         $replacementFunction = function ($matches) use ($question) {
             $tag_id = $matches[1]; // the completion_question_answers list is 1 based but the inputs need to be 0 based
 
-            return sprintf(
-                '<input value="%s" class="form-input mb-2 disabled truncate text-center overflow-ellipsis" type="text" id="%s" style="width: 100px" disabled/>',
-                $this->answerStruct[$tag_id],
-                'answer_' . $tag_id
-            );
+            return sprintf('<span class="form-input resize-none overflow-ellipsis rounded-10 pdf-answer-model-input" >%s </span>', $this->answerStruct[$tag_id]);
+
+
         };
 
         return preg_replace_callback($this->searchPattern, $replacementFunction, $question_text);
@@ -79,7 +77,7 @@ class CompletionQuestion extends Component
             $this->searchPattern,
             function ($matches) use ($tags) {
                 $answers = $tags[$matches[1]];
-                return $this->getOptions($answers,$this->answerStruct[$matches[1]]);
+                return $this->getOption($answers,$this->answerStruct[$matches[1]]);
             },
             $question_text
         );
@@ -87,16 +85,17 @@ class CompletionQuestion extends Component
         return $question_text;
     }
 
-    private function getOptions($answers,$correct)
+    private function getOption($answers,$correct)
     {
         return collect($answers)->map(function ($option, $key) use ($correct) {
-            $check = '';
             if(trim($option)==trim($correct)){
-                $check = sprintf('<img class="icon_checkmark_pdf" src="data:image/svg+xml;charset=utf8,%s" >',$this->getEncodedCheckmarkSvg());
+                $check = sprintf('<img class="icon_checkmark_pdf no-margin" src="data:image/svg+xml;charset=utf8,%s" >',$this->getEncodedCheckmarkSvg());
+                return sprintf('<span class="overflow-ellipsis rounded-10 pdf-answer-model-select" >%s %s</span>', $option,$check);
             }
-            return sprintf('<span class="overflow-ellipsis rounded-10 pdf-answer-model-select" >%s %s</span>', $option,$check);
+            return '';
         })->join('');
     }
+
 
     public function render()
     {
