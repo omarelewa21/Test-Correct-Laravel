@@ -22,18 +22,22 @@
             <div class="flex items-center">
                 <div class="relative ml-3 mt-8">
                 <!-- Selector Input -->
-                    <input
-                    id="{{$id}}"
-                    name="{{$name}}"
-                    title="{{$title}}"
-                    autocomplete="off"
-                    type="color"
-                    class="cursor-pointer"
-                    :title=""
-                    @click.prevent="isOpen = !isOpen"
-                    :value="`${colorSelected}`"
+                    <div
+                        title="{{$title}}"
+                        class="{{$id}} cursor-pointer bg-white"
+                        @click="isOpen = !isOpen"
                     >
-                    
+                        <input
+                            id="{{$id}}"
+                            name="{{$name}}"
+                            autocomplete="off"
+                            class="cursor-pointer"
+                            type="button"
+                            :value="`${colorSelected}`"
+                            :style="`background: ${colorSelected}; color: ${colorSelected};`"
+                            >
+                    </div>
+
                 <!-- Color Palette Container  -->
                     <div 
                     x-show="isOpen" 

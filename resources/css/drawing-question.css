@@ -207,8 +207,39 @@
 
 
 /* Color inputs */
+#drawing-tool .stroke-color{
+    width: 2.5rem;
+    height: 2.5rem;
+    border: var(--default-border);
+    border-radius: 0.5rem;
+    margin-right: 0.5rem;
+}
 
-#drawing-tool input[type=color] {
+#drawing-tool .fill-color {
+    width: 2.5rem;
+    height: 2.5rem;
+    margin-right: 0.5rem;
+}
+
+#drawing-tool #fill-color:hover {
+    border: var(--solid-Primary-border);
+    color: var(--teacher-Primary);
+}
+
+#drawing-tool #fill-color:focus {
+    border: var(--solid-Primary-border);
+}
+
+#drawing-tool .stroke-color:hover {
+    border: var(--solid-Primary-border);
+    color: var(--teacher-Primary);
+}
+
+#drawing-tool .stroke-color:focus {
+    border: var(--solid-Primary-border);
+}
+
+#drawing-tool input[type=button] {
     width: 2.5rem;
     height: 2.5rem;
     border: var(--default-border);
@@ -216,40 +247,10 @@
     background: var(--all-OffWhite);
 }
 
-#drawing-tool input[type=color]:hover {
-    border: var(--solid-Primary-border);
-    color: var(--teacher-Primary);
-}
-
-#drawing-tool input[type=color]:focus {
-    border: var(--solid-Primary-border);
-}
-
-#drawing-tool input[type=color]::-webkit-color-swatch-wrapper {
-    padding: 0;
-}
-
-#drawing-tool input[type=color]::-webkit-color-swatch {
-    border: none;
-    border-radius: 0.45rem;
-}
-
-#drawing-tool input[type=color]::-moz-color-swatch {
-    border: none;
-    border-radius: 0.45rem;
-}
-
 #drawing-tool #stroke-color {
     --height: 0.5rem;
 }
-
-#drawing-tool #stroke-color::-webkit-color-swatch {
-    height: var(--height);
-    transform: rotate(-45deg);
-    margin: calc(50% - (var(--height) / 2)) 0;
-}
-
-#drawing-tool #stroke-color::-moz-color-swatch {
+#drawing-tool #stroke-color {
     height: var(--height);
     transform: rotate(-45deg);
     margin: calc(50% - (var(--height) / 2)) 0;
