@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Auth;
 use tcCore\EducationLevel;
 use tcCore\Period;
 use tcCore\Subject;
+use tcCore\Test;
 use tcCore\TestKind;
 
 trait TestActions
@@ -20,8 +21,9 @@ trait TestActions
 
     protected function rules()
     {
+        //@TODO: Check if this also works when implemented for create modal - RR
         return [
-            'request.name'                 => 'required|min:3|unique:tests,name,NULL,id,author_id,' . Auth::id() . ',deleted_at,NULL,is_system_test,0',
+            'request.name'                 => 'required|min:3|unique:tests,name,'. Test::whereUuid($this->testUuid)->value('id') .',id,author_id,' . Auth::id() . ',deleted_at,NULL,is_system_test,0',
             'request.abbreviation'         => 'required|max:5',
             'request.test_kind_id'         => ['required', 'integer', $this->getAllowedTestKindsRule()],
             'request.subject_id'           => ['required', 'integer', $this->getAllowedSubjectsRule()],
@@ -36,7 +38,7 @@ trait TestActions
     protected function getMessages()
     {
         return [
-            'request.name.unique' => __('validation.unique', ['attribute' => __('validation.test name')]),
+            'request.name.unique' => __('validation.unique_test_name'),
         ];
     }
 

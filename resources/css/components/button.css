@@ -225,7 +225,7 @@
     --button-padding: 0 12px;
     --button-focus-border: 0 solid transparent;
     height: 40px;
-    padding: var(--button-padding);
+    /*padding: var(--button-padding);*/
     border-radius: 10px;
     background-color: var(--button-background-color);
     color: var(--button-text);
@@ -235,6 +235,9 @@
     position: relative;
     z-index: 1;
     border: var(--button-focus-border);
+    display: inline;
+    align-items: center;
+    justify-content: center;
 }
 .new-button::after {
     content: '';

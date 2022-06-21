@@ -195,6 +195,9 @@
     flex: 1 0 100%;
 }
 
+.add-question-card:hover {
+    background-color: var(--primary-opacity-05);
+}
 .add-question-card:hover .content .bold,
 .add-question-card:hover .content button {
     color: var(--primary);

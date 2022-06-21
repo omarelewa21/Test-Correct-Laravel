@@ -18,7 +18,7 @@
             <div>
                 <span class="primary bg-white px-2 text-sm rounded-sm bold">BETA</span>
             </div>
-            <div x-data="{
+            <div class="flex space-x-2" x-data="{
                     toPdf: async () => {
                         let response = await $wire.getPdfUrl();
                         window.open(response, '_blank');
@@ -29,38 +29,31 @@
                         @else
                             disabled
                         @endif
-                        class="new-button button-primary"
+                        class="new-button button-primary w-10"
                         title="{{ __('teacher.Toets verwijderen') }}"
                 >
                     <x-icon.trash/>
                 </button>
                 <button wire:click="$emit('openModal', 'teacher.test-edit-modal', {testUuid: '{{ $this->testId }}'})"
-                        class="new-button button-primary"
+                        class="new-button button-primary w-10"
                         title="{{ __('teacher.Toets instellingen') }}"
                 >
                     <x-icon.settings/>
                 </button>
-                <button wire:click=""
-                        disabled
-                        class="new-button button-primary"
-                        title="{{ __('teacher.Toets instellingen') }}"
-                >
-                    <x-icon.edit/>
-                </button>
                 <button @click="window.open('{{ route('teacher.test-preview', ['test'=> $this->testId]) }}', '_blank')"
-                        class="new-button button-primary"
+                        class="new-button button-primary w-10"
                         title="{{ __('teacher.Toets voorbeeldweergave') }}"
                 >
                     <x-icon.preview/>
                 </button>
                 <button @click="toPdf()"
-                        class="new-button button-primary"
+                        class="new-button button-primary w-10"
                         title="{{ __('teacher.Toets PDF-weergave') }}"
                 >
                     <x-icon.pdf color="currentColor"/>
                 </button>
                 <button wire:click="$emit('openModal','teacher.planning-modal', {{ json_encode(['testUuid' => $this->testId]) }}) "
-                        class="new-button button-cta"
+                        class="new-button button-cta w-10"
                         title="{{ __('teacher.Toets inplannen') }}"
                 >
                     <x-icon.schedule/>
