@@ -12497,15 +12497,15 @@ window.Livewire.directive('sortable', function (el, directive, component) {
 
             if (group != evt.target) {
               group.classList.add('sortable-nogo');
-              var items = group.querySelectorAll('.drag-item');
+              var elms = group.querySelectorAll('.drag-item');
 
-              var _iterator2 = _createForOfIteratorHelper(items),
+              var _iterator2 = _createForOfIteratorHelper(elms),
                   _step2;
 
               try {
                 for (_iterator2.s(); !(_step2 = _iterator2.n()).done;) {
-                  var item = _step2.value;
-                  items.classList.add('sortable-nogo');
+                  var elm = _step2.value;
+                  elm.classList.add('sortable-nogo');
                 }
               } catch (err) {
                 _iterator2.e(err);
@@ -12586,6 +12586,21 @@ window.Livewire.directive('sortable-group', function (el, directive, component) 
           for (_iterator4.s(); !(_step4 = _iterator4.n()).done;) {
             var item = _step4.value;
             item.classList.add('sortable-nogo');
+            var elms = item.querySelectorAll('.drag-item');
+
+            var _iterator6 = _createForOfIteratorHelper(elms),
+                _step6;
+
+            try {
+              for (_iterator6.s(); !(_step6 = _iterator6.n()).done;) {
+                var elm = _step6.value;
+                elm.classList.add('sortable-nogo');
+              }
+            } catch (err) {
+              _iterator6.e(err);
+            } finally {
+              _iterator6.f();
+            }
           }
         } catch (err) {
           _iterator4.e(err);
@@ -12602,7 +12617,6 @@ window.Livewire.directive('sortable-group', function (el, directive, component) 
         try {
           for (_iterator5.s(); !(_step5 = _iterator5.n()).done;) {
             var _item = _step5.value;
-            console.log('remove');
 
             _item.classList.remove('sortable-nogo');
           }
@@ -12617,18 +12631,18 @@ window.Livewire.directive('sortable-group', function (el, directive, component) 
       if (evt.target.closest('.drawer')) {
         var items = evt.target.closest('.drawer').querySelectorAll('.drag-item');
 
-        var _iterator6 = _createForOfIteratorHelper(items),
-            _step6;
+        var _iterator7 = _createForOfIteratorHelper(items),
+            _step7;
 
         try {
-          for (_iterator6.s(); !(_step6 = _iterator6.n()).done;) {
-            var item = _step6.value;
+          for (_iterator7.s(); !(_step7 = _iterator7.n()).done;) {
+            var item = _step7.value;
             item.classList.remove('sortable-nogo');
           }
         } catch (err) {
-          _iterator6.e(err);
+          _iterator7.e(err);
         } finally {
-          _iterator6.f();
+          _iterator7.f();
         }
       }
     }
