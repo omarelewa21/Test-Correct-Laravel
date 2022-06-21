@@ -169,7 +169,7 @@
             <x-sidebar.slide-container x-ref="questionbank" @mouseenter="handleVerticalScroll($el);">
                 <div class="py-1 px-6 flex">
                     <x-button.text-button class="rotate-svg-180"
-                                          @click="prev($refs.container2);hideQuestionBank($refs.container2); $store.questionBank.inGroup = false;"
+                                          @click="hideQuestionBank($refs.container2);$store.questionBank.inGroup = false;"
                                           wire:click="$set('groupId', null)"
                     >
                         <x-icon.arrow/>
@@ -197,7 +197,7 @@
             <x-sidebar.slide-container x-ref="newquestion" @mouseenter="handleVerticalScroll($el);">
                 <div class="py-1 px-6">
                     <x-button.text-button class="rotate-svg-180"
-                                          @click="prev($refs.newquestion); $store.questionBank.inGroup = false;"
+                                          @click="home(); $store.questionBank.inGroup = false;"
                                           wire:click="$set('groupId', null)"
                     >
                         <x-icon.arrow/>

@@ -415,7 +415,8 @@ document.addEventListener('alpine:init', () => {
             this.$store.questionBank.active = false;
             this.$nextTick(() => {
                 this.drawer.classList.remove('fullscreen');
-                this.scroll(container.parentElement.firstElementChild.offsetWidth);
+                this.home();
+                // this.scroll(container.parentElement.firstElementChild.offsetWidth);
 
                 setTimeout(() => {
                     this.$root.querySelectorAll('.slide-container').forEach((slide) => {
