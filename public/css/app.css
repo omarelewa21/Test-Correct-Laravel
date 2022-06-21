@@ -2403,14 +2403,14 @@ input[type=number] {
     box-shadow: 0px 3px 8px rgba(0, 0, 0, 0.2);
     padding: 4px !important;
     font-family: "Open Sans", sans-serif;
-    width: 372px;
+    width: 325px;
     box-sizing: content-box;
 }
 
-.colorPickButton {
+.colorPickButton, .colorPickButton-selected {
     border-radius: 5px;
-    width: 25px;
-    height: 25px;
+    width: 1.5rem;
+    height: 1.5rem;
     margin: 0px 1.5px !important;
     cursor: pointer;
     display: inline-block;
@@ -2419,6 +2419,7 @@ input[type=number] {
   
 .colorPickButton:hover {
     transform: scale(1.1);
+    border: 1px solid blue;
 }
 
 .ck-editor__editable_inline {
@@ -5693,9 +5694,6 @@ video {
 .h-8{
 	height: 2rem;
 }
-.h-7{
-	height: 1.75rem;
-}
 .h-\[32px\]{
 	height: 32px;
 }
@@ -5704,6 +5702,9 @@ video {
 }
 .h-\[90vh\]{
 	height: 90vh;
+}
+.h-7{
+	height: 1.75rem;
 }
 .h-80{
 	height: 20rem;
@@ -5833,9 +5834,6 @@ video {
 .w-8{
 	width: 2rem;
 }
-.w-7{
-	width: 1.75rem;
-}
 .w-\[24px\]{
 	width: 24px;
 }
@@ -5847,6 +5845,9 @@ video {
 }
 .w-px{
 	width: 1px;
+}
+.w-7{
+	width: 1.75rem;
 }
 .w-3\/5{
 	width: 60%;
@@ -6411,11 +6412,11 @@ video {
 .border-3{
 	border-width: 3px;
 }
-.border-4{
-	border-width: 4px;
-}
 .\!border{
 	border-width: 1px !important;
+}
+.border-4{
+	border-width: 4px;
 }
 .border-\[3px\]{
 	border-width: 3px;

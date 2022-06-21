@@ -56,8 +56,8 @@
                                     <div>
                                         <template x-if="colorSelected === color">
                                             <div
-                                            class="w-7 h-7 inline-flex rounded border-4 colorPickButton"
-                                            :style="`background: ${color}; box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.2);`"
+                                            class="inline-flex rounded colorPickButton-selected"
+                                            :style="`background: ${color}; outline: 2px solid blue;`"
                                             />
                                         </template>
 
@@ -67,7 +67,7 @@
                                             @keydown.enter="colorSelected = color"
                                             role="checkbox" tabindex="0"
                                             :aria-checked="colorSelected"
-                                            class="w-7 h-7 inline-flex rounded border-4 colorPickButton"
+                                            class="inline-flex rounded colorPickButton"
                                             :style="`background: ${color};`"
                                             />
                                         </template>
