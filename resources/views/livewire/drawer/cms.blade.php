@@ -95,7 +95,7 @@
                                                                    :subQuestion="true"
                                                                    :activeTestQuestion="$this->testQuestionId"
                                                                    :activeGQQ="$this->groupQuestionQuestionId"
-                                                                   :double="$this->duplicateQuestions->contains($testQuestion->question_id)"
+                                                                   :double="$this->duplicateQuestions->contains($question->id)"
                                     />
                                 @endforeach
                                 <x-sidebar.cms.dummy-group-question-button :testQuestionUuid="$testQuestion->uuid" :loop="$loopIndex"/>

@@ -92,6 +92,7 @@
                 <div class="name flex mb-4 space-x-4">
 
                     <div class="input-group mb-4 sm:mb-0 flex-auto border-t ">
+                        @if(! $this->isAssessmentType())
                         <x-input.toggle-row-with-title wire:model="request.allow_inbrowser_testing"
                                                        :toolTip="__('teacher.inbrowser_testing_tooltip')"
                                                        class="flex-row-reverse"
@@ -99,6 +100,7 @@
                         >
                             <span class="bold"> <x-icon.preview/>{{ __('teacher.Browsertoetsen toestaan') }} </span>
                         </x-input.toggle-row-with-title>
+                        @endif
                     </div>
                     <div class="input-group mb-4 sm:mb-0 flex-auto border-t @error('request.school_classes') border-red-500 @enderror">
                         @if(auth()->user()->schoollocation->allow_guest_accounts)
