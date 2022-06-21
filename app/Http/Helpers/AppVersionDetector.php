@@ -335,7 +335,7 @@ class AppVersionDetector
                     self::$allowedVersions[$version["os"]]["needsUpdateDeadline"][$version["app_version"]]
                 );
             }
-            return $date->isoFormat('MMMM yyyy');
+            return $date->isoFormat('MMMM YYYY');
 
         }
         return false;
