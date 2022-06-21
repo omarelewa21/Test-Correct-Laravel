@@ -92,7 +92,7 @@
                 <div class="name flex mb-4 space-x-4">
 
                     <div class="input-group mb-4 sm:mb-0 flex-auto border-t ">
-                        @if(! $this->isAssignment())
+                        @if(! $this->isAssessmentType())
                         <x-input.toggle-row-with-title wire:model="request.allow_inbrowser_testing"
                                                        :toolTip="__('teacher.inbrowser_testing_tooltip')"
                                                        class="flex-row-reverse"
