@@ -321,11 +321,19 @@ class AppVersionDetector
             return false;
         }
         if (array_key_exists($version["app_version"], self::$allowedVersions[$version["os"]]["needsUpdateDeadline"])) {
-            $date = Carbon::createFromLocaleIsoFormat(
-                '!DD MMMM YYYY',
-                'nl',
-                self::$allowedVersions[$version["os"]]["needsUpdateDeadline"][$version["app_version"]]
-            );
+            try {
+                $date = Carbon::createFromLocaleIsoFormat(
+                    '!DD MMMM YYYY',
+                    'nl',
+                    self::$allowedVersions[$version["os"]]["needsUpdateDeadline"][$version["app_version"]]
+                );
+            } catch(\Throwable $e){
+                $date = Carbon::createFromLocaleIsoFormat(
+                    'MMMM YYYY',
+                    'nl',
+                    self::$allowedVersions[$version["os"]]["needsUpdateDeadline"][$version["app_version"]]
+                );
+            }
             return $date->isoFormat('LL');
         }
         return false;
