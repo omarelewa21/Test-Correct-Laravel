@@ -159,7 +159,7 @@
 
                     <span class="note text-sm"
                           wire:loading.remove>{{  trans_choice('general.number-of-tests', $results->total(), ['count' => $results->total()]) }}</span>
-                    <div>
+                    <div class="flex space-x-2.5">
                                                 <x-button.primary wire:click="$emitTo('navigation-bar', 'redirectToCake', 'planned.my_tests.plan')">
                                                     <x-icon.schedule/>
                                                     <span>{{ __('cms.Inplannen') }}</span>
