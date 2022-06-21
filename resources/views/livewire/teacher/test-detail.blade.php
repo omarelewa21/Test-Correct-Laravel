@@ -2,8 +2,8 @@
      class="flex flex-col relative w-full min-h-full bg-lightGrey border-t border-secondary overflow-auto"
 >
     <div class="flex w-full border-b border-secondary">
-        <div class="flex w-full space-x-4 justify-between">
-            <div class="flex items-center">
+        <div class="flex w-full justify-between">
+            <div class="flex items-center space-x-2.5">
                 <button class="flex items-center justify-center rounded-full border bg-white/20 w-10 h-10 rotate-svg-180 hover:scale-105 transition-transform" wire:click="saveAndRedirect">
                     <svg class="inline-block" width="14" height="13" xmlns="http://www.w3.org/2000/svg">
                         <g class="stroke-current" fill="none" fill-rule="evenodd" stroke-linecap="round" stroke-width="3">
@@ -34,10 +34,10 @@
     </div>
 
     <div class="flex w-full justify-end mt-3 note text-sm space-x-2.5">
-        <x-button.primary disabled class="pl-[12px] pr-[12px] " wire:click="$emitTo('navigation-bar', 'redirectToCake', 'planned.my_tests.plan')">
+        <x-button.primary  class="pl-[12px] pr-[12px] opacity-20 cursor-not-allowed" >
             <x-icon.trash/>
         </x-button.primary>
-        <x-button.primary disabled class="pl-[12px] pr-[12px] " wire:click="$emitTo('navigation-bar', 'redirectToCake', 'planned.my_tests.plan')">
+        <x-button.primary  class="pl-[12px] pr-[12px] opacity-20 cursor-not-allowed" >
             <x-icon.edit/>
         </x-button.primary>
         <x-button.primary class="pl-[12px] pr-[12px] " wire:click="$emitTo('navigation-bar', 'redirectToCake', 'planned.my_tests.plan')">
