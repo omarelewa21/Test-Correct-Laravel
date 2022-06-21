@@ -176,7 +176,7 @@
                     @endforeach
 
                     @foreach($results as $test)
-                        <x-grid.test-card :test="$test" wire:loading.class="hidden"/>
+                        <x-grid.test-card wire:click="openTestDetail('{{ $test->uuid }}')" :test="$test" wire:loading.class="hidden"/>
                     @endforeach
                 </x-grid>
                 {{ $results->links('components.partials.tc-paginator') }}

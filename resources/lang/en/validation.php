@@ -133,6 +133,7 @@ return [
 
     'school_class_or_guest_accounts_required' => 'Select a school class or the guest account option.',
     'test name'                               => 'test name',
+    'unique_test_name' => 'The given test name is already in use. Please enter a unique test name.',
 
 
 ];
