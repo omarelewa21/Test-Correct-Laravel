@@ -12492,6 +12492,21 @@ window.Livewire.directive('sortable', function (el, directive, component) {
 
             if (group != evt.target) {
               group.classList.add('sortable-nogo');
+              var items = group.querySelectorAll('.drag-item');
+
+              var _iterator2 = _createForOfIteratorHelper(items),
+                  _step2;
+
+              try {
+                for (_iterator2.s(); !(_step2 = _iterator2.n()).done;) {
+                  var item = _step2.value;
+                  items.classList.add('sortable-nogo');
+                }
+              } catch (err) {
+                _iterator2.e(err);
+              } finally {
+                _iterator2.f();
+              }
             }
           }
         } catch (err) {
@@ -12503,20 +12518,20 @@ window.Livewire.directive('sortable', function (el, directive, component) {
     },
     onEnd: function onEnd(evt) {
       if (evt.target.closest('.drawer')) {
-        var groups = evt.target.closest('.drawer').querySelectorAll('.draggable-group');
+        var nogos = evt.target.closest('.drawer').querySelectorAll('.sortable-nogo');
 
-        var _iterator2 = _createForOfIteratorHelper(groups),
-            _step2;
+        var _iterator3 = _createForOfIteratorHelper(nogos),
+            _step3;
 
         try {
-          for (_iterator2.s(); !(_step2 = _iterator2.n()).done;) {
-            var group = _step2.value;
-            group.classList.remove('sortable-nogo');
+          for (_iterator3.s(); !(_step3 = _iterator3.n()).done;) {
+            var nogo = _step3.value;
+            nogo.classList.remove('sortable-nogo');
           }
         } catch (err) {
-          _iterator2.e(err);
+          _iterator3.e(err);
         } finally {
-          _iterator2.f();
+          _iterator3.f();
         }
       }
     }
@@ -12559,37 +12574,37 @@ window.Livewire.directive('sortable-group', function (el, directive, component) 
       if (evt.target.closest('.drawer')) {
         var items = evt.target.closest('.drawer').querySelectorAll('.drag-item');
 
-        var _iterator3 = _createForOfIteratorHelper(items),
-            _step3;
-
-        try {
-          for (_iterator3.s(); !(_step3 = _iterator3.n()).done;) {
-            var item = _step3.value;
-            item.classList.add('sortable-nogo');
-          }
-        } catch (err) {
-          _iterator3.e(err);
-        } finally {
-          _iterator3.f();
-        }
-
-        var okItems = evt.target.closest('.draggable-group').querySelectorAll('.drag-item');
-        evt.target.closest('.draggable-group').classList.remove('sortable-nogo');
-
-        var _iterator4 = _createForOfIteratorHelper(okItems),
+        var _iterator4 = _createForOfIteratorHelper(items),
             _step4;
 
         try {
           for (_iterator4.s(); !(_step4 = _iterator4.n()).done;) {
-            var _item = _step4.value;
-            console.log('remove');
-
-            _item.classList.remove('sortable-nogo');
+            var item = _step4.value;
+            item.classList.add('sortable-nogo');
           }
         } catch (err) {
           _iterator4.e(err);
         } finally {
           _iterator4.f();
+        }
+
+        var okItems = evt.target.closest('.draggable-group').querySelectorAll('.drag-item');
+        evt.target.closest('.draggable-group').classList.remove('sortable-nogo');
+
+        var _iterator5 = _createForOfIteratorHelper(okItems),
+            _step5;
+
+        try {
+          for (_iterator5.s(); !(_step5 = _iterator5.n()).done;) {
+            var _item = _step5.value;
+            console.log('remove');
+
+            _item.classList.remove('sortable-nogo');
+          }
+        } catch (err) {
+          _iterator5.e(err);
+        } finally {
+          _iterator5.f();
         }
       }
     },
@@ -12597,18 +12612,18 @@ window.Livewire.directive('sortable-group', function (el, directive, component) 
       if (evt.target.closest('.drawer')) {
         var items = evt.target.closest('.drawer').querySelectorAll('.drag-item');
 
-        var _iterator5 = _createForOfIteratorHelper(items),
-            _step5;
+        var _iterator6 = _createForOfIteratorHelper(items),
+            _step6;
 
         try {
-          for (_iterator5.s(); !(_step5 = _iterator5.n()).done;) {
-            var item = _step5.value;
+          for (_iterator6.s(); !(_step6 = _iterator6.n()).done;) {
+            var item = _step6.value;
             item.classList.remove('sortable-nogo');
           }
         } catch (err) {
-          _iterator5.e(err);
+          _iterator6.e(err);
         } finally {
-          _iterator5.f();
+          _iterator6.f();
         }
       }
     }
