@@ -15,8 +15,10 @@ use tcCore\Attachment;
 use tcCore\GroupQuestionQuestion;
 use tcCore\Http\Controllers\GroupQuestionQuestions\AttachmentsController as GroupAttachmentsController;
 use tcCore\Http\Controllers\GroupQuestionQuestionsController;
+use tcCore\Http\Controllers\TemporaryLoginController;
 use tcCore\Http\Controllers\TestQuestions\AttachmentsController;
 use tcCore\Http\Controllers\TestQuestionsController;
+use tcCore\Http\Controllers\TestsController;
 use tcCore\Http\Helpers\QuestionHelper;
 use tcCore\Http\Livewire\Preview\DrawingQuestion;
 use tcCore\Http\Requests\CreateAttachmentRequest;
@@ -127,6 +129,7 @@ class OpenShort extends Component
     public $forceOpenNewQuestion = false;
     public $uniqueQuestionKey = '';
     public $duplicateQuestion = false;
+    public $canDeleteTest = false;
 
 
     protected function rules()
@@ -230,6 +233,7 @@ class OpenShort extends Component
         $this->forceOpenNewQuestion = false;
         $this->uniqueQuestionKey = $this->testQuestionId . $this->groupQuestionQuestionId . $this->action . $this->questionEditorId;
         $this->duplicateQuestion = false;
+        $this->canDeleteTest = false;
     }
 
 
@@ -874,6 +878,7 @@ class OpenShort extends Component
 
         $this->question['test_id'] = $activeTest->id;
         $this->question['is_open_source_content'] = $activeTest->is_open_source_content ?? 0;
+        $this->canDeleteTest = $activeTest->canDelete(Auth::user());
 
         if ($this->editModeForExistingQuestion()) {
             if ($this->isPartOfGroupQuestion()) {
@@ -1328,5 +1333,46 @@ class OpenShort extends Component
     public function handleUpdatedTestSettings($settings)
     {
         $this->testName = $settings['name'];
+    }
+
+    public function getPdfUrl()
+    {
+        $controller = new TemporaryLoginController();
+        $request = new \Illuminate\Http\Request();
+        $request->merge([
+            'options' => [
+                'page'        => sprintf('/tests/view/%s', $this->testId),
+                'page_action' => sprintf("Loading.show();Popup.load('/tests/pdf_showPDFAttachment/%s', 1000);", $this->testId),
+            ]
+        ]);
+
+        return $controller->toCakeUrl($request);
+    }
+
+    private function removeTest($uuid)
+    {
+        $test = Test::whereUuid($uuid)->first();
+
+        if ($test->canDelete(Auth::user())) {
+            $response = (new TestsController())->destroy($test);
+
+            if ($response->getStatusCode() === 200) {
+                return $this->returnToTestsList();
+            }
+        }
+
+        $this->dispatchBrowserEvent('notify', ['message' => __('auth.something_went_wrong'), 'error']);
+    }
+
+    private function returnToTestsList()
+    {
+        if ($this->referrer) {
+            if ($this->referrer === 'teacher.tests') {
+                return redirect()->to(route($this->referrer));
+            }
+        }
+
+        $options = TemporaryLogin::buildValidOptionObject('page', 'tests/index');
+        return Auth::user()->redirectToCakeWithTemporaryLogin($options);
     }
 }

@@ -37,6 +37,7 @@
             <div class="flex flex-1 flex-col ">
                 <span x-show="item === 'question'">{{ __('cms.delete_question_confirm_text') }}</span>
                 <span x-show="['attachment', 'upload', 'video'].includes(item)">{{ __('cms.delete_attachment_confirm_text') }}</span>
+                <span x-show="item === 'test'">{{ __('cms.delete_test_confirm_text') }}</span>
 
                 <div class="flex w-full justify-end mt-4 space-x-4">
                     <x-button.text-button class="rotate-svg-180" @click="show = false">

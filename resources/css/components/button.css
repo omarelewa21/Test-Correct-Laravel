@@ -223,7 +223,7 @@
     --button-box-shadow: none;
     --button-transition-time-effect: 0.3s cubic-bezier(.215,.61,.355,1);
     --button-padding: 0 12px;
-    width: auto;
+    --button-focus-border: 0 solid transparent;
     height: 40px;
     padding: var(--button-padding);
     border-radius: 10px;
@@ -234,6 +234,7 @@
                 box-shadow var(--button-transition-time-effect);
     position: relative;
     z-index: 1;
+    border: var(--button-focus-border);
 }
 .new-button::after {
     content: '';
@@ -258,13 +259,34 @@
     --button-box-shadow: 0 1px 3px 0 rgba(4, 31, 116, 0.4);
 }
 .new-button:focus {
+    --button-focus-border: 2px solid #002096;
     --button-box-shadow: 0 3px 6px 0 rgba(4, 31, 116, 0.3);;
-    border: 2px solid #002096;
     --button-padding: 0 10px
 }
 .new-button > * {
     position: relative;
     z-index: 2;
+}
+.new-button.button-cta {
+    --button-background-color: var(--cta-primary);
+    --button-background-image: var(--cta-gradient);
+}
+.new-button.button-cta:focus {
+    --button-focus-border: solid 2px var(--cta-primary-dark);;
+}
+
+.new-button:disabled,
+.new-button:disabled:hover,
+.new-button:disabled:focus,
+.new-button:disabled:active,
+.new-button.button-cta:disabled,
+.new-button.button-cta:disabled:hover,
+.new-button.button-cta:disabled:focus,
+.new-button.button-cta:disabled:active
+{
+    --button-background-color: var(--light-grey);
+    --button-background-image: var(--mid-grey);
+    --button-text: var(--mid-grey);
 }
 
 .group-type {
