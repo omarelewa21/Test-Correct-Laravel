@@ -5,10 +5,13 @@ namespace tcCore\Http\Livewire\Teacher\Questions;
 use Ramsey\Uuid\Uuid;
 use tcCore\GroupQuestionQuestion;
 use tcCore\Http\Helpers\BaseHelper;
+use tcCore\Http\Traits\WithCmsCustomRulesHandling;
 use tcCore\TestQuestion;
 
 class CmsMatching extends CmsBase
 {
+    use WithCmsCustomRulesHandling;
+
     CONST MIN_ANSWER_COUNT = 2;
 
     private $instance;
@@ -113,6 +116,7 @@ class CmsMatching extends CmsBase
     public function prepareForSave()
     {
         $this->instance->question['answers'] = array_values(collect($this->instance->cmsPropertyBag['answerStruct'])->map(function($answer){
+            $answer = $answer InstanceOf \stdClass ? (array)$answer : $answer;
             return [
                 'order' => $answer['order'],
                 'left' => BaseHelper::transformHtmlChars($answer['left']),

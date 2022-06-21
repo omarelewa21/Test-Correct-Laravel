@@ -57,6 +57,9 @@
                         var textarea = document.querySelector('#textarea_{{ $question->id }}')
                         ReadspeakerTlc.hiddenElement.createHiddenDivTextArea(textarea);
                     })
+                    document.addEventListener('trigger_livewire_rerender', () => {
+                        @this.render();
+                    })
                 @endif
             </script>
         @endpush

@@ -5,10 +5,13 @@ namespace tcCore\Http\Livewire\Teacher\Questions;
 use Ramsey\Uuid\Uuid;
 use tcCore\GroupQuestionQuestion;
 use tcCore\Http\Helpers\BaseHelper;
+use tcCore\Http\Traits\WithCmsCustomRulesHandling;
 use tcCore\TestQuestion;
 
 class CmsMultipleChoice extends CmsBase
 {
+    use WithCmsCustomRulesHandling;
+
     const MIN_ANSWER_COUNT = 2;
 
     private $instance;
@@ -56,7 +59,7 @@ class CmsMultipleChoice extends CmsBase
 
     public function initializePropertyBag($q)
     {
-
+        $this->instance->question['fix_order'] = $q->fix_order;
     }
 
     public function prepareForSave()

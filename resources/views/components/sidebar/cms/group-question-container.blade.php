@@ -12,11 +12,11 @@
               :class="($root.querySelectorAll('.question-button.active').length > 0 && !expand) ? 'primary' : ''"
               title="{{ $question->name }}"
         >
-            <span>{{ $question->name }}</span>
+            <span class="truncate">{{ $question->name }}</span>
             <div class="flex items-center justify-between">
                 <span class="note text-sm regular">{{ trans_choice('cms.vraag', $question->subQuestions->count()) }}</span>
-                @if($question->attachments()->count())
-                    <span class="flex items-center note text-sm regular pr-2"><x-icon.attachment class="mr-1"/> {{ $question->attachments()->count() }}</span>
+                @if($question->attachmentCount)
+                    <span class="flex items-center note text-sm regular pr-2"><x-icon.attachment class="mr-1"/> {{ $question->attachmentCount }}</span>
                 @endif
             </div>
         </span>
@@ -51,7 +51,7 @@
         {{ $slot }}
 
         <div class="group-add-new relative flex space-x-2.5 py-2 hover:text-primary cursor-pointer items-center"
-             @click="addQuestionToGroup()"
+             @click="addQuestionToGroup('{{ $testQuestion->uuid }}')"
              wire:click="$set('groupId', '{{ $testQuestion->uuid }}')"
         >
             <x-icon.plus-in-circle/>

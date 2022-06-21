@@ -46,12 +46,24 @@
                             {{-- Previous Page Link --}}
                             @if ($paginator->onFirstPage())
                                 <span aria-disabled="true" aria-label="{{ __('pagination.previous') }}">
-                                    <x-button.text-button class="invisible" aria-disabled="true" aria-label="{{ __('pagination.previous') }}">
+                                    <x-button.text-button class="text-midgrey px-2" aria-disabled="true" disabled aria-label="{{ __('pagination.previous') }}">
+                                        <x-icon.arrow-left/>
+                                    </x-button.text-button>
+                                </span>
+
+                                <span aria-disabled="true" aria-label="{{ __('pagination.previous') }}">
+                                    <x-button.text-button class="text-midgrey rotate-svg-180" disabled aria-disabled="true" aria-label="{{ __('pagination.previous') }}">
                                         <x-icon.chevron/>
                                         <span>{{ __('pagination.previous') }}</span>
                                     </x-button.text-button>
                                 </span>
                             @else
+                                <span aria-disabled="true" aria-label="{{ __('pagination.previous') }}">
+                                    <x-button.text-button class="px-2"  wire:click="gotoPage(1)" aria-disabled="true" aria-label="{{ __('pagination.previous') }}">
+                                        <x-icon.arrow-left/>
+
+                                    </x-button.text-button>
+                                </span>
                                 <x-button.text-button wire:click="previousPage" dusk="previousPage.after" rel="prev" aria-label="{{ __('pagination.previous') }}" class="rotate-svg-180">
                                     <x-icon.chevron/>
                                     <span>{{ __('pagination.previous') }}</span>
@@ -79,7 +91,7 @@
                                                 </span>
                                             </span>
                                         @else
-                                            <button wire:click="gotoPage({{ $page }})" class="relative paginator-button inline-flex items-center justify-center w-8 h-8 transition ease-in-out duration-150 bg-mid-grey text-sm text-white rounded-full focus:outline-none" aria-label="{{ __('Go to page :page', ['page' => $page]) }}">
+                                            <button wire:click="gotoPage({{ $page }})" class="relative paginator-button inline-flex items-center justify-center w-8 h-8 transition ease-in-out duration-150  text-sm base border-3 border-system-base rounded-full focus:outline-none" aria-label="{{ __('Go to page :page', ['page' => $page]) }}">
                                             {{ $page }}
                                             </button>
                                         @endif
@@ -95,15 +107,19 @@
                                     <span>{{ __('pagination.next') }}</span>
                                     <x-icon.chevron/>
                                 </x-button.text-button>
-{{--                                <x-button.text-button wire:click="gotoPage({{ ceil($paginator->total() / $paginator->perPage()) }})" aria-label="{{ __('pagination.next') }}">--}}
-{{--                                    <span>Laatste</span>--}}
-{{--                                    <x-icon.arrow/>--}}
-{{--                                </x-button.text-button>--}}
+                                <x-button.text-button class="px-2"  wire:click="gotoPage({{ ceil($paginator->total() / $paginator->perPage()) }})" aria-label="{{ __('pagination.next') }}">
+                                    <x-icon.arrow/>
+                                </x-button.text-button>
                             @else
                                 <span aria-disabled="true" aria-label="{{ __('pagination.next') }}">
-                                    <x-button.text-button class="invisible">
+                                    <x-button.text-button class="text-midgrey" disabled>
                                         <span>{{ __('pagination.next') }}</span>
                                         <x-icon.chevron/>
+                                    </x-button.text-button>
+                                </span>
+                                <span aria-disabled="true" aria-label="{{ __('pagination.next') }}">
+                                    <x-button.text-button class="px-2 text-midgrey" disabled>
+                                         <x-icon.arrow/>
                                     </x-button.text-button>
                                 </span>
                             @endif

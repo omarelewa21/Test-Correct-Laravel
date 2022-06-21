@@ -1,4 +1,4 @@
-<div class="drawer flex z-[3]"
+<div class="drawer flex z-[20]"
      x-data="{loadingOverlay: false, collapse: false, backdrop: false, emptyStateActive: @entangle('emptyStateActive')}"
      x-init="
         collapse = window.innerWidth < 1000;
@@ -26,6 +26,7 @@
      :class="{'collapsed': collapse}"
      @backdrop="backdrop = !backdrop"
      @scroll.throttle.500ms="$dispatch('drawer-scroll')"
+     @processing-end.window="$store.cms.processing = false;"
      wire:ignore.self
      wire:init="handleCmsInit()"
 >
@@ -66,14 +67,20 @@
              x-ref="questionEditorSidebar"
              wire:ignore.self
         >
-            <x-sidebar.slide-container class="pt-4 divide-y divide-bluegrey" x-ref="container1" @drawer-scroll.window="handleVerticalScroll($el)">
+            <x-sidebar.slide-container class="pt-4 divide-y divide-bluegrey"
+                                       x-ref="container1"
+{{--                                       @drawer-scroll.window="handleVerticalScroll($el)"--}}
+                                       @mouseenter="handleVerticalScroll($el);"
+                                       @continue-to-new-slide.window="$store.cms.processing = true;$wire.removeDummy();showAddQuestionSlide(false)"
+                                       @continue-to-add-group.window="addGroup(false)"
+            >
                 <div class="divide-y divide-bluegrey pb-6" {{ $emptyStateActive ? 'hidden' : '' }} >
                     @php $loopIndex = 0; @endphp
                     @foreach($this->questionsInTest as $testQuestion)
                         @if($testQuestion->question->type === 'GroupQuestion')
                             <x-sidebar.cms.group-question-container
-                                    :testQuestion="$testQuestion"
                                     :question="$testQuestion->question"
+                                    :testQuestion="$testQuestion"
                             >
                                 @foreach($testQuestion->question->subQuestions as $question)
                                     @php $loopIndex ++; @endphp
@@ -81,6 +88,8 @@
                                                                    :question="$question"
                                                                    :loop="$loopIndex"
                                                                    :subQuestion="true"
+                                                                   :activeTestQuestion="$this->testQuestionId"
+                                                                   :activeGQQ="$this->groupQuestionQuestionId"
                                     />
                                 @endforeach
                                 <x-sidebar.cms.dummy-group-question-button :testQuestionUuid="$testQuestion->uuid" :loop="$loopIndex"/>
@@ -89,7 +98,10 @@
                             @php $loopIndex ++; @endphp
                             <x-sidebar.cms.question-button :testQuestion="$testQuestion"
                                                            :question="$testQuestion->question"
-                                                           :loop="$loopIndex "
+                                                           :loop="$loopIndex"
+                                                           :subQuestion="false"
+                                                           :activeTestQuestion="$this->testQuestionId"
+                                                           :activeGQQ="$this->groupQuestionQuestionId"
                             />
                         @endif
                     @endforeach
@@ -105,22 +117,21 @@
                      class="fixed inset-0 bg-white opacity-20"
                      style="width: var(--sidebar-width)"></div>
 
-                <x-button.plus-circle wire:click="addGroup">
+                <x-button.plus-circle @click="addGroup()">
                     {{ __('cms.Vraaggroep toevoegen') }}
                 </x-button.plus-circle>
 
-                <x-button.plus-circle @click="next($refs.container1); dispatchBackdrop()"
+                <x-button.plus-circle @click="showAddQuestionSlide()"
                 >
                     {{__('cms.Vraag toevoegen')}}
                 </x-button.plus-circle>
-
                 <span></span>
             </x-sidebar.slide-container>
 
-            <x-sidebar.slide-container class="divide-y divide-bluegrey" x-ref="container2">
+            <x-sidebar.slide-container class="divide-y divide-bluegrey" x-ref="container2" @mouseenter="handleVerticalScroll($el);">
                 <div class="py-1 px-6 flex">
                     <x-button.text-button class="rotate-svg-180"
-                                          @click="prev($refs.container2); dispatchBackdrop(); $store.questionBank.inGroup = false;"
+                                          @click="backToQuestionOverview($refs.container2)"
                                           wire:click="$set('groupId', null)"
                     >
                         <x-icon.arrow/>
@@ -148,7 +159,7 @@
 
                 <span></span>
             </x-sidebar.slide-container>
-            <x-sidebar.slide-container x-ref="questionbank">
+            <x-sidebar.slide-container x-ref="questionbank" @mouseenter="handleVerticalScroll($el);">
                 <div class="py-1 px-6 flex">
                     <x-button.text-button class="rotate-svg-180"
                                           @click="prev($refs.container2);hideQuestionBank($refs.container2); $store.questionBank.inGroup = false;"
@@ -176,7 +187,7 @@
 
                 <livewire:teacher.question-bank/>
             </x-sidebar.slide-container>
-            <x-sidebar.slide-container x-ref="newquestion">
+            <x-sidebar.slide-container x-ref="newquestion" @mouseenter="handleVerticalScroll($el);">
                 <div class="py-1 px-6">
                     <x-button.text-button class="rotate-svg-180"
                                           @click="prev($refs.newquestion); $store.questionBank.inGroup = false;"
@@ -187,7 +198,7 @@
                     </x-button.text-button>
                 </div>
 
-                <x-sidebar.question-types/>
+                <x-sidebar.cms.question-types/>
             </x-sidebar.slide-container>
 
         </div>

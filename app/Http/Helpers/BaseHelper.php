@@ -19,6 +19,24 @@ class BaseHelper
 {
     protected $errors = [];
 
+    public static function getLoginUrl()
+    {
+        $url = config('app.url_login');
+        if(GlobalStateHelper::getInstance()->isOnDeploymentTesting()){
+            $url = Str::replaceFirst('portal', 'portal2', $url);
+        }
+        return $url;
+    }
+
+    public static function getLogoutUrl()
+    {
+        $url = config('app.url_logout');
+        if(GlobalStateHelper::getInstance()->isOnDeploymentTesting()){
+            $url = Str::replaceFirst('portal', 'portal2', $url);
+        }
+        return $url;
+    }
+
     public static function doLoginProcedure()
     {
         $user = auth()->user();
@@ -121,7 +139,7 @@ class BaseHelper
             $relativeUrl = Str::replaceFirst('/', '', $relativeUrl);
         }
 
-        return sprintf('%s%s',config('app.url_login'), $relativeUrl);
+        return sprintf('%s%s',BaseHelper::getLoginUrl(), $relativeUrl);
     }
 
     public static function getMaxFileUploadSize()

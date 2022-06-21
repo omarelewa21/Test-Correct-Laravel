@@ -406,12 +406,13 @@ document.addEventListener('alpine:init', () => {
             this.drawer.classList.add('fullscreen');
             const boundingRect = this.$refs.questionbank.getBoundingClientRect();
             this.scroll(boundingRect.x + boundingRect.width);
+            this.$store.questionBank.active = true;
         },
         hideQuestionBank(container) {
             this.$root.querySelectorAll('.slide-container').forEach((slide) => {
                 slide.classList.add('opacity-0')
             })
-
+            this.$store.questionBank.active = false;
             this.$nextTick(() => {
                 this.drawer.classList.remove('fullscreen');
                 this.scroll(container.parentElement.firstElementChild.offsetWidth);
@@ -424,16 +425,37 @@ document.addEventListener('alpine:init', () => {
                 }, 400)
             })
         },
-        addQuestionToGroup() {
+        addQuestionToGroup(uuid) {
+            this.showAddQuestionSlide()
+            this.$store.questionBank.inGroup = uuid;
+        },
+        addGroup(shouldCheckDirty = true) {
+            if (shouldCheckDirty && this.$store.cms.dirty) {
+                this.$wire.emitTo('teacher.questions.open-short', 'addQuestionFromDirty', {'group': true})
+                return;
+            }
+            this.$wire.addGroup();
+        },
+        showAddQuestionSlide(shouldCheckDirty = true) {
+            if (shouldCheckDirty && this.$store.cms.dirty) {
+                this.$wire.emitTo('teacher.questions.open-short', 'addQuestionFromDirty', {'group': false})
+                return;
+            }
+
             this.next(this.$refs.container1);
+            this.$dispatch('backdrop')
+        },
+        backToQuestionOverview(container) {
+            this.prev(container);
             this.$dispatch('backdrop');
-            this.$store.questionBank.inGroup = true;
+            this.$store.questionBank.inGroup = false;
+            // this.$store.cms.processing = false;
         }
 
     }));
     Alpine.data('choices', (wireModel, multiple, options, config, filterContainer) => ({
         multiple: multiple,
-        value: [],
+        value: wireModel,
         options: options,
         config: config,
         wireModel: wireModel,
@@ -451,7 +473,7 @@ document.addEventListener('alpine:init', () => {
                     choices.setChoices(this.options.map(({value, label}) => ({
                         value,
                         label,
-                        selected: selection.includes(value),
+                        selected: selection.includes(value)
                     })))
                     this.handleActiveFilters(choices.getValue());
                 }
@@ -469,6 +491,10 @@ document.addEventListener('alpine:init', () => {
                 this.$refs.select.addEventListener('change', () => {
                     this.value = choices.getValue(true)
                     this.wireModel = this.value;
+                })
+
+                window.addEventListener('removeFrom'+this.$root.dataset.modelName, (event) => {
+                    this.removeFilterItem(event.detail);
                 })
 
                 this.$watch('value', () => refreshChoices());
@@ -489,7 +515,9 @@ document.addEventListener('alpine:init', () => {
             this.value.forEach(item => {
                 if(this.needsFilterPill(item)) {
                     const cItem = choicesValues.find(value => value.value === item);
-                    this.createFilterPill(cItem);
+                    if(typeof cItem !== 'undefined'){
+                        this.createFilterPill(cItem);
+                    }
                 }
             })
         },
@@ -523,9 +551,11 @@ document.addEventListener('alpine:init', () => {
 
     Alpine.store('cms', {
         loading: false,
-        processing: false
+        processing: false,
+        dirty: false
     });
     Alpine.store('questionBank', {
+        active: false,
         inGroup: false
     });
 });

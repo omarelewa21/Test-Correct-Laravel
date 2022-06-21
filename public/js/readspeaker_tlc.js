@@ -208,6 +208,9 @@ ReadspeakerTlc = function(){
                                 if (!util.checkElementInActiveQuestion(ClassicEditors[editorId].ui.view.editable.element)) {
                                     return true;
                                 }
+                                if(ClassicEditors[editorId].ui.view.editable.element.classList.contains('ck-read-only')){
+                                    return true;
+                                }
                                 var range = ClassicEditors[editorId].model.document.selection.getFirstRange();
                                 if(range.end.isEqual(range.start)) {
                                     return true;
@@ -359,7 +362,6 @@ ReadspeakerTlc = function(){
             return clone;
         }
         function createHiddenDivTextArea(textarea){
-
             var hidden_div = getHiddenDivForTextarea(textarea);
             var container = textarea.closest('.open-question-container');
             if(container){
@@ -373,6 +375,7 @@ ReadspeakerTlc = function(){
             hidden_div.classList.add('form-input');
             hidden_div.classList.add('overflow-ellipsis');
             hidden_div.classList.add('rs-click-listen');
+            hidden_div.setAttribute('wire:ignore','');
             textarea.parentNode.insertBefore(hidden_div,textarea);
             textarea.classList.add('hidden');
             textarea.classList.add('readspeaker_hidden_element');
@@ -963,6 +966,12 @@ ReadspeakerTlc = function(){
         function detachReadableAreaFromCkeditor(editorId)
         {
             var editor = ClassicEditors[editorId];
+            replaceReadableAreaByClone(editor);
+            window.classicEditorDetached = true;
+            return element;
+        }
+        function replaceReadableAreaByClone(editor)
+        {
             editor.currentElement  = editor.ui.view.editable.element;
             var element = editor.ui.view.editable.element;
             if(element) {
@@ -970,8 +979,6 @@ ReadspeakerTlc = function(){
                 elementClone.classList.add('ck-editor__editable_inline_replaced');
                 element.replaceWith(elementClone);
             }
-            window.classicEditorDetached = true;
-            return element;
         }
         function reattachReadableAreaAndDestroy(editorId)
         {
@@ -1037,7 +1044,8 @@ ReadspeakerTlc = function(){
             shouldNotReinitCkeditor:shouldNotReinitCkeditor,
             detachReadableAreaFromCkeditor:detachReadableAreaFromCkeditor,
             addListenersForReadspeaker:addListenersForReadspeaker,
-            reattachReadableAreaAndDestroy:reattachReadableAreaAndDestroy
+            reattachReadableAreaAndDestroy:reattachReadableAreaAndDestroy,
+            replaceReadableAreaByClone
         }
     }();
     guard = function(){
@@ -1163,6 +1171,10 @@ window.rsConf = {
                 ReadspeakerTlc.player.hideRsPlayer();
                 rspkr.rs_tlc_prevent_ckeditor_focus = false;
                 window.document.dispatchEvent(new Event("readspeaker_closed", {
+                    bubbles: true,
+                    cancelable: true
+                }));
+                window.document.dispatchEvent(new Event("trigger_livewire_rerender", {
                     bubbles: true,
                     cancelable: true
                 }));

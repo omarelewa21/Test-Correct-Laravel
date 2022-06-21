@@ -1,7 +1,6 @@
 @props(['loop' => 1])
-<div class="question-button"
+<div class="question-button dummy"
      x-data="{mode: @entangle('action'), owner: @entangle('owner'), name: @entangle('newQuestionTypeName')}"
-     x-init=""
      x-show="mode === 'add' && owner === 'test'"
      x-cloak
      wire:key="dummy-{{ $loop.$this->owner }}"
@@ -27,7 +26,6 @@
                 </div>
                 <div class="flex items-start space-x-2.5 mt-1 text-sysbase hover:text-primary" wire:click="removeDummy">
                     <x-icon.trash/>
-{{--                    <span class="note italic text-sm regular">Concept</span>--}}
                 </div>
             </div>
         </div>

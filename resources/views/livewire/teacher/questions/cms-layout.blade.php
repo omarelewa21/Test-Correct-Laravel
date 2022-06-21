@@ -1,5 +1,5 @@
 <div id="cms" class="flex flex-1"
-     x-data="{loading: @entangle('loading'), empty: {{ $this->emptyState ? 1 : 0 }} }"
+     x-data="{loading: @entangle('loading'), empty: {{ $this->emptyState ? 1 : 0 }}, dirty: @entangle('dirty') }"
      x-init="
            handleQuestionChange = (evt) => {
                 $store.cms.loading = true;
@@ -21,9 +21,18 @@
 
            $watch('$store.cms.loading', (value) => loadingTimeout(value));
            $watch('loading', (value) => loadingTimeout(value));
+           $watch('dirty', (value) => $store.cms.dirty = value);
 
            removeDrawingLegacy = () => {
                 $root.querySelector('#drawing-question-tool-container')?.remove();
+           }
+           forceSyncEditors = () => {
+                if (document.getElementById('{{ $this->questionEditorId }}')) {
+                    $wire.sync('question.question', CKEDITOR.instances['{{ $this->questionEditorId }}'].getData());
+                }
+                if (document.getElementById('{{ $this->answerEditorId }}')) {
+                    $wire.sync('question.answer', CKEDITOR.instances['{{ $this->answerEditorId }}'].getData());
+                }
            }
            "
      x-cloak
@@ -48,8 +57,8 @@
                 <div class="flex w-full items-center px-4 sm:px-6 lg:px-8 justify-between">
                     <div class="flex items-center">
                         @if(!$this->isGroupQuestion())
-                        <span class="w-8 h-8 rounded-full bg-sysbase text-white text-sm flex items-center justify-center">
-                            <span>{{ $this->question['order'] == 0 ? '1' : $this->question['order']}}</span>
+                            <span class="w-8 h-8 rounded-full bg-sysbase text-white text-sm flex items-center justify-center">
+                            <span>{{ $this->resolveOrderNumber() }}</span>
                         </span>
                         @endif
                         <h2 class="ml-2.5" selid="question-type-title">{{ $this->questionType }}</h2>
@@ -158,9 +167,9 @@
                         </div>
                     @endif
                     @if(!$this->hasEqualScoresForSubQuestions())
-                            <div class="notification warning stretched mt-4">
-                                <span class="title">{{ __('cms.carousel_subquestions_scores_differ') }}</span>
-                            </div>
+                        <div class="notification warning stretched mt-4">
+                            <span class="title">{{ __('cms.carousel_subquestions_scores_differ') }}</span>
+                        </div>
                     @endif
                 @endif
 
@@ -232,15 +241,6 @@
                         <x-slot name="title">
                             {{ __('cms.Antwoordmodel') }}
                         </x-slot>
-
-                        @if($this->hasAllOrNothing())
-                            <x-input.toggle-row-with-title wire:model="question.all_or_nothing"
-                                                           :toolTip="__('cms.all_or_nothing_tooltip_text')"
-                            >
-                                <span class="bold"> {{ __('cms.Alles of niets correct') }}</span>
-                            </x-input.toggle-row-with-title>
-
-                        @endif
 
                         @yield('question-cms-answer')
                     </x-content-section>
@@ -447,10 +447,15 @@
                         <div class="flex flex-col flex-2">
                             <p class="text-base">{{ __('cms.Selecteer het domein en het subdomein waaraan deze vraag bijdraagt.') }}</p>
                             <div class="grid grid-cols-2 gap-x-6 mt-4">
-                                <livewire:attainment-manager :value="$question['attainments']" :subject-id="$subjectId"
-                                                     :eduction-level-id="$educationLevelId"/>
-{{--                                <livewire:learning-goal-manager :value="$question['learning_goals']" :subject-id="$subjectId"--}}
-{{--                                                             :eduction-level-id="$educationLevelId"/>--}}
+                                <livewire:attainment-manager :value="$question['attainments']"
+                                                             :subject-id="$subjectId"
+                                                             :eduction-level-id="$educationLevelId"
+                                                             :key="'AT-'. $this->uniqueQuestionKey"/>
+                                <livewire:learning-goal-manager :value="$question['learning_goals']"
+                                                                :subject-id="$subjectId"
+                                                                :eduction-level-id="$educationLevelId"
+                                                                :key="'LG-'. $this->uniqueQuestionKey "/>
+
                             </div>
                         </div>
                     </x-content-section>
@@ -460,7 +465,8 @@
 
                     <x-content-section>
                         <x-slot name="title">{{ __('Tags') }}</x-slot>
-                        <livewire:tag-manager :init-with-tags="$initWithTags"/>
+                        <livewire:tag-manager :init-with-tags="$this->initWithTags"
+                                              :key="'TA-'. $this->uniqueQuestionKey"/>
                     </x-content-section>
                 @endif
 
@@ -503,8 +509,9 @@
             @endif
         </div>
         <x-modal.question-editor-delete-modal/>
-        <x-modal.question-editor-dirty-question-modal :item="strtolower($this->isGroupQuestion() ? __('cms.group-question') : __('drawing-modal.Vraag'))"
-                                                      :new="!$this->editModeForExistingQuestion()"/>
+        <x-modal.question-editor-dirty-question-modal
+                :item="strtolower($this->isGroupQuestion() ? __('cms.group-question') : __('drawing-modal.Vraag'))"
+                :new="!$this->editModeForExistingQuestion()"/>
     </div>
     <div class="question-editor-footer" x-data>
         <div class="question-editor-footer-button-container">
@@ -524,9 +531,14 @@
                     type="button"
                     class="button cta-button button-sm save_button"
                     wire:loading.attr="disabled"
-                    wire:click="saveAndRefreshDrawer()"
-                    @beforeunload.window="$el.disabled = true"
-                    :disabled="!!empty"
+{{--                    wire:click="saveAndRefreshDrawer()"--}}
+                    @click="forceSyncEditors();$wire.saveAndRefreshDrawer()"
+                    x-data="{disabled: false}"
+                    x-init="$watch('$store.questionBank.active', value => disabled = value);"
+                    x-on:beforeunload.window="disabled = true"
+                    x-on:filepond-start.window="disabled = true"
+                    x-on:filepond-finished.window="disabled = false"
+                    :disabled="!!empty || disabled"
                     selid="save-btn"
             >
                 <span>{{ __("drawing-modal.Opslaan") }}</span>

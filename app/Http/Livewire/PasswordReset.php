@@ -5,6 +5,7 @@ namespace tcCore\Http\Livewire;
 use Illuminate\Auth\Passwords\PasswordBroker;
 use Illuminate\Support\Facades\Password;
 use Livewire\Component;
+use tcCore\Http\Helpers\BaseHelper;
 use tcCore\Http\Traits\UserNotificationForController;
 use tcCore\User;
 
@@ -112,7 +113,7 @@ class PasswordReset extends Component
 
     public function redirectToLogin()
     {
-        $this->redirect(config('app.url_login'));
+        $this->redirect(BaseHelper::getLoginUrl());
     }
 
     public function render()
