@@ -68,10 +68,10 @@ class PlanningModal extends ModalComponent
     protected function rules()
     {
         $rules = [
-            'request.date'          => 'required',
-            'request.time_end'      => 'sometimes',
-            'request.weight'        => 'required',
-            'request.period_id'     => 'required',
+            'request.date'           => 'required',
+            'request.time_end'       => 'sometimes',
+            'request.weight'         => 'required',
+            'request.period_id'      => 'required',
             'request.school_classes' => 'required',
         ];
 
@@ -124,7 +124,7 @@ class PlanningModal extends ModalComponent
             });
         })->validate();
 
-        if ($this->request['time_end']) {
+        if ($this->isAssessmentType() && array_key_exists('time_end', $this->request) && $this->request['time_end']) {
             $this->request['time_end'] = Carbon::parse($this->request['time_end'])->endOfDay();
         }
 
@@ -162,7 +162,7 @@ class PlanningModal extends ModalComponent
         $this->request['invigilators'] = [auth()->id()];
         $this->request['weight'] = 5;
         $this->request['test_id'] = $this->test->getKey();
-        $this->request['allow_inbrowser_testing'] = $this->isAssessmentType() ? 1 :0;
+        $this->request['allow_inbrowser_testing'] = $this->isAssessmentType() ? 1 : 0;
         $this->request['invigilator_note'] = '';
         $this->request['test_kind_id'] = 3;
 
