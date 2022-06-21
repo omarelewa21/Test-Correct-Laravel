@@ -266,4 +266,8 @@ class TestsOverview extends Component
         }
         return $searchFilter;
     }
+
+    public function openTestDetail($testUuid) {
+        redirect()->to(route('teacher.test-detail', ['uuid' => $testUuid]));
+    }
 }
