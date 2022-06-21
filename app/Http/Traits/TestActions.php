@@ -64,12 +64,7 @@ trait TestActions
     {
         $maxYears = 6;
         if ($this->request['education_level_id']) {
-            $level = $this->allowedEductionLevels->first(function ($level) {
-                $compareWith = property_exists($level, 'id') ? $level->id : $level['id'];
-                return $compareWith == $this->request['education_level_id'];
-            });
-
-            return is_array($level) ? $level['id'] : $level->id;
+            return $this->allowedEductionLevels->where('id', $this->request['education_level_id'])->first()->max_years;
         }
         return $maxYears;
     }
