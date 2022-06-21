@@ -276,7 +276,7 @@
     --button-padding: 0 12px;
     --button-focus-border: 0 solid transparent;
     height: 40px;
-    padding: var(--button-padding);
+    /*padding: var(--button-padding);*/
     border-radius: 10px;
     background-color: var(--button-background-color);
     color: var(--button-text);
@@ -286,6 +286,9 @@
     position: relative;
     z-index: 1;
     border: var(--button-focus-border);
+    display: inline;
+    align-items: center;
+    justify-content: center;
 }
 .new-button::after {
     content: '';
@@ -1231,6 +1234,9 @@ input[type=number] {
     flex: 1 0 100%;
 }
 
+.add-question-card:hover {
+    background-color: var(--primary-opacity-05);
+}
 .add-question-card:hover .content .bold,
 .add-question-card:hover .content button {
     color: var(--primary);

@@ -64,7 +64,7 @@ class TestCreateModal extends ModalComponent
     protected function getMessages()
     {
         return [
-            'request.name.unique' => __('validation.unique', ['attribute' => __('validation.test name')]),
+            'request.name.unique' => __('validation.unique_test_name'),
         ];
     }
 
