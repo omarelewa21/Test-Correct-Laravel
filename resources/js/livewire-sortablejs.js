@@ -41,16 +41,20 @@ window.Livewire.directive('sortable', (el, directive, component) => {
                 for (const group of groups) {
                     if(group != evt.target) {
                         group.classList.add('sortable-nogo');
+                        const items = group.querySelectorAll('.drag-item');
+                        for(const item of items){
+                            items.classList.add('sortable-nogo');
+                        }
                     }
                 }
             }
         },
         onEnd: (evt) => {
             if(evt.target.closest('.drawer')){
-                const groups = evt.target.closest('.drawer').querySelectorAll('.draggable-group');
+                const nogos = evt.target.closest('.drawer').querySelectorAll('.sortable-nogo');
 
-                for (const group of groups) {
-                    group.classList.remove('sortable-nogo');
+                for (const nogo of nogos) {
+                    nogo.classList.remove('sortable-nogo');
                 }
             }
         }
