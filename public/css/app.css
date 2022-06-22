@@ -8069,6 +8069,9 @@ ul ul ul {
 	--tw-bg-opacity: 1;
 	background-color: rgba(255, 255, 255, var(--tw-bg-opacity));
 }
+.hover\:bg-primary\/5:hover{
+	background-color: rgba(0, 77, 245, 0.05);
+}
 .hover\:font-bold:hover{
 	font-weight: 700;
 }

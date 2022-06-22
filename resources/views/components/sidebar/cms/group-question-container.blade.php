@@ -4,7 +4,7 @@
      wire:key="group-{{ $testQuestion->uuid }}"
      wire:sortable.item="{{ $question->uuid }}"
 >
-    <div class="flex space-x-2 py-1.5 pl-6 pr-4 cursor-pointer group-question-title-container"
+    <div class="flex space-x-2 py-1.5 pl-6 pr-4 cursor-pointer group-question-title-container hover:bg-primary/5 hover:text-primary"
          :class="expand ? 'rotate-svg-270' : 'rotate-svg-90'"
          @click="expand = !expand; setTimeout(() => {handleVerticalScroll($refs.container1);}, 210);"
     >
@@ -34,7 +34,7 @@
                     </div>
                 @endif
             @endif
-            <div class="flex h-full rounded-md" class="mt-2" wire:sortable.handle>
+            <div class="flex h-full rounded-md hover:text-primary reorder" wire:sortable.handle>
                     <x-icon.reorder/>
             </div>
             <div class="flex">

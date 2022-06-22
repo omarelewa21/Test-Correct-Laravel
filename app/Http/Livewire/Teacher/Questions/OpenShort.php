@@ -305,6 +305,7 @@ class OpenShort extends Component
     {
         $this->resetQuestionProperties();
         $activeTest = Test::whereUuid($this->testId)->with('testAuthors', 'testAuthors.user')->first();
+        $this->canDeleteTest = $activeTest->canDelete(Auth::user());
         if (blank($this->type) && blank($this->subtype)) {
             $this->testName = $activeTest->name;
             return $this->emptyState = true;
@@ -876,7 +877,6 @@ class OpenShort extends Component
 
         $this->question['test_id'] = $activeTest->id;
         $this->question['is_open_source_content'] = $activeTest->is_open_source_content ?? 0;
-        $this->canDeleteTest = $activeTest->canDelete(Auth::user());
 
         if ($this->editModeForExistingQuestion()) {
             if ($this->isPartOfGroupQuestion()) {
