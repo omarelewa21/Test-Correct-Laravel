@@ -514,11 +514,11 @@
                 </div>
             @endif
         </div>
-        <x-modal.question-editor-delete-modal/>
-        <x-modal.question-editor-dirty-question-modal
-                :item="strtolower($this->isGroupQuestion() ? __('cms.group-question') : __('drawing-modal.Vraag'))"
-                :new="!$this->editModeForExistingQuestion()"/>
     </div>
+    <x-modal.question-editor-delete-modal/>
+    <x-modal.question-editor-dirty-question-modal
+            :item="strtolower($this->isGroupQuestion() ? __('cms.group-question') : __('drawing-modal.Vraag'))"
+            :new="!$this->editModeForExistingQuestion()"/>
     <div class="question-editor-footer" x-data>
         <div class="question-editor-footer-button-container">
 
