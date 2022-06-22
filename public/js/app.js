@@ -5928,16 +5928,15 @@ document.addEventListener('alpine:init', function () {
         this.slideWidth = this.$root.offsetWidth;
         this.drawer = this.$root.closest('.drawer');
         setTimeout(function () {
-          _this8.handleVerticalScroll(_this8.$root.firstElementChild);
+          _this8.handleVerticalScroll(_this8.$root.firstElementChild); //To enable questionbank on startup :
+          // this.showQuestionBank();
+          // setTimeout(() => {
+          //     this.$refs.questionEditorSidebar.scrollTo({
+          //         left: this.$refs.questionEditorSidebar.scrollLeft - 300,
+          //         behavior: 'smooth'
+          //     });
+          // },1000)
 
-          _this8.showQuestionBank();
-
-          setTimeout(function () {
-            _this8.$refs.questionEditorSidebar.scrollTo({
-              left: _this8.$refs.questionEditorSidebar.scrollLeft - 300,
-              behavior: 'smooth'
-            });
-          }, 1000);
         }, 400);
       },
       next: function next(currentEl) {
