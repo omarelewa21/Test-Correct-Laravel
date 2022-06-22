@@ -38,7 +38,7 @@
                  @click="testOptionMenu=false"
             >
                 <button class="flex items-center space-x-2 py-1 px-4 base hover:text-primary hover:bg-offwhite transition w-full"
-                        wire:click.stop='$emit("openModal","teacher.planning-modal", {{ json_encode(["testUuid" => $test->uuid]) }})'
+                        wire:click='$emit("openModal","teacher.planning-modal", {{ json_encode(["testUuid" => $test->uuid]) }})'
 
                 >
                     <x-icon.schedule/>
@@ -46,7 +46,7 @@
                 </button>
                 @if(in_array($this->openTab, ['school', 'personal']) && $test->canCopy(auth()->user())  )
                 <button class="flex items-center space-x-2 py-1 px-4 base hover:text-primary hover:bg-offwhite transition w-full"
-                        @click="(e)=> {e.stopPropagation(); duplicateTest('{{ $test->uuid }}')}"
+                        @click="(e)=> duplicateTest('{{ $test->uuid }}')"
 
 
                 >
