@@ -54,7 +54,7 @@ trait TestActions
 
     protected function getAllowedPeriods()
     {
-        return Period::filtered(['current_school_year' => 1], [])->get(['id', 'name', 'start_date', 'end_date'])->keyBy('id');
+        return Period::filtered([], [])->get(['id', 'name', 'start_date', 'end_date'])->keyBy('id');
     }
 
     protected function getAllowedEducationLevels()
