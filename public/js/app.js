@@ -6008,16 +6008,15 @@ document.addEventListener('alpine:init', function () {
         this.$nextTick(function () {
           _this10.drawer.classList.remove('fullscreen');
 
-          _this10.home(); // this.scroll(container.parentElement.firstElementChild.offsetWidth);
-
+          _this10.scroll(container.parentElement.firstElementChild.offsetWidth);
 
           setTimeout(function () {
             _this10.$root.querySelectorAll('.slide-container').forEach(function (slide) {
               slide.classList.remove('opacity-0');
             });
-          }, 400);
 
-          _this10.$wire.emitTo('drawer.cms', 'refreshDrawer');
+            _this10.$wire.emitTo('drawer.cms', 'refreshDrawer');
+          }, 400);
         });
       },
       addQuestionToGroup: function addQuestionToGroup(uuid) {
@@ -6051,7 +6050,12 @@ document.addEventListener('alpine:init', function () {
       },
       backToQuestionOverview: function backToQuestionOverview(container) {
         this.prev(container);
-        this.$store.questionBank.inGroup = false;
+        this.$store.questionBank.inGroup = false; // this.$store.cms.processing = false;
+      },
+      handleResizing: function handleResizing() {
+        if (this.$store.questionBank.active) {
+          this.$root.scrollLeft = this.$refs.questionbank.offsetLeft;
+        }
       }
     };
   });
@@ -6178,8 +6182,7 @@ document.addEventListener('alpine:init', function () {
     loading: false,
     processing: false,
     dirty: false,
-    scrollPos: 0,
-    reinitOnClose: false
+    scrollPos: 0
   });
   alpinejs__WEBPACK_IMPORTED_MODULE_1__["default"].store('questionBank', {
     active: false,
@@ -6725,8 +6728,6 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var laravel_echo__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! laravel-echo */ "./node_modules/laravel-echo/dist/echo.js");
 /* harmony import */ var filepond_plugin_file_validate_size__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! filepond-plugin-file-validate-size */ "./node_modules/filepond-plugin-file-validate-size/dist/filepond-plugin-file-validate-size.js");
 /* harmony import */ var filepond_plugin_file_validate_size__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(filepond_plugin_file_validate_size__WEBPACK_IMPORTED_MODULE_1__);
-/* harmony import */ var _smoothscroll_polyfill__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./smoothscroll-polyfill */ "./resources/js/smoothscroll-polyfill.js");
-/* harmony import */ var _smoothscroll_polyfill__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(_smoothscroll_polyfill__WEBPACK_IMPORTED_MODULE_2__);
 window._ = __webpack_require__(/*! lodash */ "./node_modules/lodash/lodash.js");
 /**
  * We'll load the axios HTTP library which allows us to easily issue requests
@@ -6746,17 +6747,14 @@ window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
 window.Pusher = __webpack_require__(/*! pusher-js */ "./node_modules/pusher-js/dist/web/pusher.js");
 window.Echo = new laravel_echo__WEBPACK_IMPORTED_MODULE_0__["default"]({
   broadcaster: 'pusher',
-  key: "51d7221bf733999d7138",
+  key: "fc18ed69b446aeb8c8a5",
   cluster: "eu",
   forceTLS: true
 });
 window.$ = window.jQuery = __webpack_require__(/*! jquery */ "./node_modules/jquery/dist/jquery.js");
 window.FilePond = __webpack_require__(/*! filepond */ "./node_modules/filepond/dist/filepond.js");
 
-FilePond.registerPlugin((filepond_plugin_file_validate_size__WEBPACK_IMPORTED_MODULE_1___default())); // require('./smoothscroll-polyfill');
-
-
-_smoothscroll_polyfill__WEBPACK_IMPORTED_MODULE_2___default().polyfill();
+FilePond.registerPlugin((filepond_plugin_file_validate_size__WEBPACK_IMPORTED_MODULE_1___default()));
 
 /***/ }),
 
@@ -12404,12 +12402,11 @@ __webpack_require__.r(__webpack_exports__);
 
 
 document.addEventListener('alpine:init', function () {
-  Alpine.data('flatpickr', function (wireModel, mode, locale, minDate) {
+  Alpine.data('flatpickr', function (wireModel, mode, locale) {
     return {
       wireModel: wireModel,
       mode: mode,
       locale: locale,
-      minDate: minDate,
       init: function init() {
         var _this = this;
 
@@ -12420,11 +12417,10 @@ document.addEventListener('alpine:init', function () {
         // }
         var picker = (0,flatpickr__WEBPACK_IMPORTED_MODULE_0__["default"])(this.$refs.datepickr, {
           locale: this.locale,
-          minDate: minDate == 'today' ? 'today' : false,
           mode: this.mode,
           defaultDate: this.wireModel,
-          dateFormat: "d-m-Y",
           onChange: function onChange(date, dateString) {
+            console.log('change');
             _this.wireModel = _this.value = _this.mode == 'range' ? dateString.split(' t/m ') : dateString; //split t/m or to
           }
         });
@@ -12473,7 +12469,7 @@ window.Livewire.directive('sortable', function (el, directive, component) {
       pull: false,
       put: false
     },
-    forceFallback: el.closest('.sortable-drawer') ? true : false,
+    forceFallback: true,
     store: {
       set: function set(sortable) {
         var items = sortable.toArray().map(function (value, index) {
@@ -12495,25 +12491,7 @@ window.Livewire.directive('sortable', function (el, directive, component) {
         try {
           for (_iterator.s(); !(_step = _iterator.n()).done;) {
             var group = _step.value;
-
-            if (group != evt.target) {
-              group.classList.add('sortable-nogo');
-              var elms = group.querySelectorAll('.drag-item');
-
-              var _iterator2 = _createForOfIteratorHelper(elms),
-                  _step2;
-
-              try {
-                for (_iterator2.s(); !(_step2 = _iterator2.n()).done;) {
-                  var elm = _step2.value;
-                  elm.classList.add('sortable-nogo');
-                }
-              } catch (err) {
-                _iterator2.e(err);
-              } finally {
-                _iterator2.f();
-              }
-            }
+            group.classList.add('sortable-nogo');
           }
         } catch (err) {
           _iterator.e(err);
@@ -12524,20 +12502,20 @@ window.Livewire.directive('sortable', function (el, directive, component) {
     },
     onEnd: function onEnd(evt) {
       if (evt.target.closest('.drawer')) {
-        var nogos = evt.target.closest('.drawer').querySelectorAll('.sortable-nogo');
+        var groups = evt.target.closest('.drawer').querySelectorAll('.draggable-group');
 
-        var _iterator3 = _createForOfIteratorHelper(nogos),
-            _step3;
+        var _iterator2 = _createForOfIteratorHelper(groups),
+            _step2;
 
         try {
-          for (_iterator3.s(); !(_step3 = _iterator3.n()).done;) {
-            var nogo = _step3.value;
-            nogo.classList.remove('sortable-nogo');
+          for (_iterator2.s(); !(_step2 = _iterator2.n()).done;) {
+            var group = _step2.value;
+            group.classList.remove('sortable-nogo');
           }
         } catch (err) {
-          _iterator3.e(err);
+          _iterator2.e(err);
         } finally {
-          _iterator3.f();
+          _iterator2.f();
         }
       }
     }
@@ -12580,51 +12558,37 @@ window.Livewire.directive('sortable-group', function (el, directive, component) 
       if (evt.target.closest('.drawer')) {
         var items = evt.target.closest('.drawer').querySelectorAll('.drag-item');
 
-        var _iterator4 = _createForOfIteratorHelper(items),
-            _step4;
+        var _iterator3 = _createForOfIteratorHelper(items),
+            _step3;
 
         try {
-          for (_iterator4.s(); !(_step4 = _iterator4.n()).done;) {
-            var item = _step4.value;
+          for (_iterator3.s(); !(_step3 = _iterator3.n()).done;) {
+            var item = _step3.value;
             item.classList.add('sortable-nogo');
-            var elms = item.querySelectorAll('.drag-item');
-
-            var _iterator6 = _createForOfIteratorHelper(elms),
-                _step6;
-
-            try {
-              for (_iterator6.s(); !(_step6 = _iterator6.n()).done;) {
-                var elm = _step6.value;
-                elm.classList.add('sortable-nogo');
-              }
-            } catch (err) {
-              _iterator6.e(err);
-            } finally {
-              _iterator6.f();
-            }
           }
         } catch (err) {
-          _iterator4.e(err);
+          _iterator3.e(err);
         } finally {
-          _iterator4.f();
+          _iterator3.f();
         }
 
         var okItems = evt.target.closest('.draggable-group').querySelectorAll('.drag-item');
         evt.target.closest('.draggable-group').classList.remove('sortable-nogo');
 
-        var _iterator5 = _createForOfIteratorHelper(okItems),
-            _step5;
+        var _iterator4 = _createForOfIteratorHelper(okItems),
+            _step4;
 
         try {
-          for (_iterator5.s(); !(_step5 = _iterator5.n()).done;) {
-            var _item = _step5.value;
+          for (_iterator4.s(); !(_step4 = _iterator4.n()).done;) {
+            var _item = _step4.value;
+            console.log('remove');
 
             _item.classList.remove('sortable-nogo');
           }
         } catch (err) {
-          _iterator5.e(err);
+          _iterator4.e(err);
         } finally {
-          _iterator5.f();
+          _iterator4.f();
         }
       }
     },
@@ -12632,18 +12596,18 @@ window.Livewire.directive('sortable-group', function (el, directive, component) 
       if (evt.target.closest('.drawer')) {
         var items = evt.target.closest('.drawer').querySelectorAll('.drag-item');
 
-        var _iterator7 = _createForOfIteratorHelper(items),
-            _step7;
+        var _iterator5 = _createForOfIteratorHelper(items),
+            _step5;
 
         try {
-          for (_iterator7.s(); !(_step7 = _iterator7.n()).done;) {
-            var item = _step7.value;
+          for (_iterator5.s(); !(_step5 = _iterator5.n()).done;) {
+            var item = _step5.value;
             item.classList.remove('sortable-nogo');
           }
         } catch (err) {
-          _iterator7.e(err);
+          _iterator5.e(err);
         } finally {
-          _iterator7.f();
+          _iterator5.f();
         }
       }
     }
@@ -13081,7 +13045,7 @@ RichTextEditor = {
     textarea.dispatchEvent(new Event('input'));
   },
   initClassicEditorForStudentplayer: function initClassicEditorForStudentplayer(editorId, questionId) {
-    return ClassicEditor.create(document.querySelector('#' + editorId), {
+    ClassicEditor.create(document.querySelector('#' + editorId), {
       autosave: {
         waitingTime: 300,
         save: function save(editor) {
@@ -13119,131 +13083,6 @@ RichTextEditor = {
     }
   }
 };
-
-/***/ }),
-
-/***/ "./resources/js/smoothscroll-polyfill.js":
-/*!***********************************************!*\
-  !*** ./resources/js/smoothscroll-polyfill.js ***!
-  \***********************************************/
-/***/ ((module, exports) => {
-
-function _typeof(obj) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (obj) { return typeof obj; } : function (obj) { return obj && "function" == typeof Symbol && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }, _typeof(obj); }
-
-!function () {
-  "use strict";
-
-  function o() {
-    var o = window,
-        t = document;
-
-    if (!("scrollBehavior" in t.documentElement.style && !0 !== o.__forceSmoothScrollPolyfill__)) {
-      var l,
-          e = o.HTMLElement || o.Element,
-          r = 468,
-          i = {
-        scroll: o.scroll || o.scrollTo,
-        scrollBy: o.scrollBy,
-        elementScroll: e.prototype.scroll || n,
-        scrollIntoView: e.prototype.scrollIntoView
-      },
-          s = o.performance && o.performance.now ? o.performance.now.bind(o.performance) : Date.now,
-          c = (l = o.navigator.userAgent, new RegExp(["MSIE ", "Trident/", "Edge/"].join("|")).test(l) ? 1 : 0);
-      o.scroll = o.scrollTo = function () {
-        void 0 !== arguments[0] && (!0 !== f(arguments[0]) ? h.call(o, t.body, void 0 !== arguments[0].left ? ~~arguments[0].left : o.scrollX || o.pageXOffset, void 0 !== arguments[0].top ? ~~arguments[0].top : o.scrollY || o.pageYOffset) : i.scroll.call(o, void 0 !== arguments[0].left ? arguments[0].left : "object" != _typeof(arguments[0]) ? arguments[0] : o.scrollX || o.pageXOffset, void 0 !== arguments[0].top ? arguments[0].top : void 0 !== arguments[1] ? arguments[1] : o.scrollY || o.pageYOffset));
-      }, o.scrollBy = function () {
-        void 0 !== arguments[0] && (f(arguments[0]) ? i.scrollBy.call(o, void 0 !== arguments[0].left ? arguments[0].left : "object" != _typeof(arguments[0]) ? arguments[0] : 0, void 0 !== arguments[0].top ? arguments[0].top : void 0 !== arguments[1] ? arguments[1] : 0) : h.call(o, t.body, ~~arguments[0].left + (o.scrollX || o.pageXOffset), ~~arguments[0].top + (o.scrollY || o.pageYOffset)));
-      }, e.prototype.scroll = e.prototype.scrollTo = function () {
-        if (void 0 !== arguments[0]) if (!0 !== f(arguments[0])) {
-          var o = arguments[0].left,
-              t = arguments[0].top;
-          h.call(this, this, void 0 === o ? this.scrollLeft : ~~o, void 0 === t ? this.scrollTop : ~~t);
-        } else {
-          if ("number" == typeof arguments[0] && void 0 === arguments[1]) throw new SyntaxError("Value could not be converted");
-          i.elementScroll.call(this, void 0 !== arguments[0].left ? ~~arguments[0].left : "object" != _typeof(arguments[0]) ? ~~arguments[0] : this.scrollLeft, void 0 !== arguments[0].top ? ~~arguments[0].top : void 0 !== arguments[1] ? ~~arguments[1] : this.scrollTop);
-        }
-      }, e.prototype.scrollBy = function () {
-        void 0 !== arguments[0] && (!0 !== f(arguments[0]) ? this.scroll({
-          left: ~~arguments[0].left + this.scrollLeft,
-          top: ~~arguments[0].top + this.scrollTop,
-          behavior: arguments[0].behavior
-        }) : i.elementScroll.call(this, void 0 !== arguments[0].left ? ~~arguments[0].left + this.scrollLeft : ~~arguments[0] + this.scrollLeft, void 0 !== arguments[0].top ? ~~arguments[0].top + this.scrollTop : ~~arguments[1] + this.scrollTop));
-      }, e.prototype.scrollIntoView = function () {
-        if (!0 !== f(arguments[0])) {
-          var l = function (o) {
-            for (; o !== t.body && !1 === (e = p(l = o, "Y") && a(l, "Y"), r = p(l, "X") && a(l, "X"), e || r);) {
-              o = o.parentNode || o.host;
-            }
-
-            var l, e, r;
-            return o;
-          }(this),
-              e = l.getBoundingClientRect(),
-              r = this.getBoundingClientRect();
-
-          l !== t.body ? (h.call(this, l, l.scrollLeft + r.left - e.left, l.scrollTop + r.top - e.top), "fixed" !== o.getComputedStyle(l).position && o.scrollBy({
-            left: e.left,
-            top: e.top,
-            behavior: "smooth"
-          })) : o.scrollBy({
-            left: r.left,
-            top: r.top,
-            behavior: "smooth"
-          });
-        } else i.scrollIntoView.call(this, void 0 === arguments[0] || arguments[0]);
-      };
-    }
-
-    function n(o, t) {
-      this.scrollLeft = o, this.scrollTop = t;
-    }
-
-    function f(o) {
-      if (null === o || "object" != _typeof(o) || void 0 === o.behavior || "auto" === o.behavior || "instant" === o.behavior) return !0;
-      if ("object" == _typeof(o) && "smooth" === o.behavior) return !1;
-      throw new TypeError("behavior member of ScrollOptions " + o.behavior + " is not a valid value for enumeration ScrollBehavior.");
-    }
-
-    function p(o, t) {
-      return "Y" === t ? o.clientHeight + c < o.scrollHeight : "X" === t ? o.clientWidth + c < o.scrollWidth : void 0;
-    }
-
-    function a(t, l) {
-      var e = o.getComputedStyle(t, null)["overflow" + l];
-      return "auto" === e || "scroll" === e;
-    }
-
-    function d(t) {
-      var l,
-          e,
-          i,
-          c,
-          n = (s() - t.startTime) / r;
-      c = n = n > 1 ? 1 : n, l = .5 * (1 - Math.cos(Math.PI * c)), e = t.startX + (t.x - t.startX) * l, i = t.startY + (t.y - t.startY) * l, t.method.call(t.scrollable, e, i), e === t.x && i === t.y || o.requestAnimationFrame(d.bind(o, t));
-    }
-
-    function h(l, e, r) {
-      var c,
-          f,
-          p,
-          a,
-          h = s();
-      l === t.body ? (c = o, f = o.scrollX || o.pageXOffset, p = o.scrollY || o.pageYOffset, a = i.scroll) : (c = l, f = l.scrollLeft, p = l.scrollTop, a = n), d({
-        scrollable: c,
-        method: a,
-        startTime: h,
-        startX: f,
-        startY: p,
-        x: e,
-        y: r
-      });
-    }
-  }
-
-  "object" == ( false ? 0 : _typeof(exports)) && "undefined" != "object" ? module.exports = {
-    polyfill: o
-  } : o();
-}();
 
 /***/ }),
 
@@ -65473,19 +65312,6 @@ __webpack_require__.r(__webpack_exports__);
 
 /***/ }),
 
-/***/ "./resources/css/app_pdf.css":
-/*!***********************************!*\
-  !*** ./resources/css/app_pdf.css ***!
-  \***********************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-// extracted by mini-css-extract-plugin
-
-
-/***/ }),
-
 /***/ "./node_modules/plyr/dist/plyr.min.js":
 /*!********************************************!*\
   !*** ./node_modules/plyr/dist/plyr.min.js ***!
@@ -75129,8 +74955,7 @@ module.exports = JSON.parse('{"name":"axios","version":"0.21.4","description":"P
 /******/ 		// [resolve, reject, Promise] = chunk loading, 0 = chunk loaded
 /******/ 		var installedChunks = {
 /******/ 			"/js/app": 0,
-/******/ 			"css/app": 0,
-/******/ 			"css/app_pdf": 0
+/******/ 			"css/app": 0
 /******/ 		};
 /******/ 		
 /******/ 		// no chunk on demand loading
@@ -75180,9 +75005,8 @@ module.exports = JSON.parse('{"name":"axios","version":"0.21.4","description":"P
 /******/ 	// startup
 /******/ 	// Load entry module and return exports
 /******/ 	// This entry module depends on other loaded chunks and execution need to be delayed
-/******/ 	__webpack_require__.O(undefined, ["css/app","css/app_pdf"], () => (__webpack_require__("./resources/js/app.js")))
-/******/ 	__webpack_require__.O(undefined, ["css/app","css/app_pdf"], () => (__webpack_require__("./resources/css/app.css")))
-/******/ 	var __webpack_exports__ = __webpack_require__.O(undefined, ["css/app","css/app_pdf"], () => (__webpack_require__("./resources/css/app_pdf.css")))
+/******/ 	__webpack_require__.O(undefined, ["css/app"], () => (__webpack_require__("./resources/js/app.js")))
+/******/ 	var __webpack_exports__ = __webpack_require__.O(undefined, ["css/app"], () => (__webpack_require__("./resources/css/app.css")))
 /******/ 	__webpack_exports__ = __webpack_require__.O(__webpack_exports__);
 /******/ 	
 /******/ })()

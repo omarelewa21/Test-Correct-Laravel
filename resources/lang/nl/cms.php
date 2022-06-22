@@ -170,6 +170,7 @@ return [
     'one_empty_container_allowed'                                                            => 'Niet meer dan één lege container is toegestaan',
     'one_container_with_items'                                                               => 'Antwoorden moeten ten minste één container met items bevatten',
     'container_label_missing'                                                                => 'Containerlabel ontbreekt, elke container moet een label hebben',
+    'Deze vraag is aanwezig in de toets.'                                                    => 'Deze vraag is aanwezig in de toets.',
     'duplicate_question_in_test'                                                             => 'Deze vraag staat dubbel in de toets. Pas de toets aan om het inplannen mogelijk te maken.',
-    'Construeren'                         => 'Construeren',
+    'Construeren'                                                                            => 'Construeren',
 ];

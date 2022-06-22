@@ -1622,4 +1622,9 @@ class Question extends MtiBaseModel {
             $question->owner_id = Auth::user()->school_location_id;
         }
     }
+
+    public function isType($type): bool
+    {
+        return Str::of($this->type)->lower()->contains(Str::lower($type));
+    }
 }

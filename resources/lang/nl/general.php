@@ -48,4 +48,5 @@ return [
     'Niveau'                          => 'Niveau',
     'Uniek ID'                        => 'Uniek ID',
     'Periode'                         => 'Periode',
+    'Leerjaar'               => 'Leerjaar',
 ];

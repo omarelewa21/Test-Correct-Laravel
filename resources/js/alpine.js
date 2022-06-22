@@ -431,6 +431,7 @@ document.addEventListener('alpine:init', () => {
                     this.$root.querySelectorAll('.slide-container').forEach((slide) => {
                         slide.classList.remove('opacity-0')
                     })
+                    this.$wire.emitTo('drawer.cms', 'refreshDrawer');
                 }, 400)
                 this.$wire.emitTo('drawer.cms', 'refreshDrawer');
             })
@@ -458,8 +459,13 @@ document.addEventListener('alpine:init', () => {
         backToQuestionOverview(container) {
             this.prev(container);
             this.$store.questionBank.inGroup = false;
+        },
+        handleResizing() {
+            if (this.$store.questionBank.active)
+            {
+                this.$root.scrollLeft = this.$refs.questionbank.offsetLeft;
+            }
         }
-
     }));
     Alpine.data('choices', (wireModel, multiple, options, config, filterContainer) => ({
         multiple: multiple,

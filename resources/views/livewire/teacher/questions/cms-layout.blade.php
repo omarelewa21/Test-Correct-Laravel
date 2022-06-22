@@ -15,7 +15,7 @@
                         $store.cms.processing = false;
                         loading = false;
                         clearTimeout(loadingTimeout);
-                    }, 1500)
+                    }, 1000)
                 }
            }
 
