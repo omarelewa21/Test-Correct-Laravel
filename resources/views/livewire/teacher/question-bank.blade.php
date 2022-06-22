@@ -9,7 +9,7 @@
 >
     <div class="flex w-full border-b border-secondary">
         <div class="w-full max-w-5xl lg:max-w-7xl  mx-auto">
-            <div class="flex w-full space-x-4 mx-5">
+            <div class="flex w-full space-x-4 mx-8">
                 <div>
                     <div class="flex relative hover:text-primary cursor-pointer"
                          @click="openTab = 'personal'"
@@ -50,13 +50,12 @@
                               :class="openTab === 4 ? 'bg-primary' : 'bg-transparent' "></span>
                     </div>
                 </div>
-
             </div>
         </div>
     </div>
     <div class="flex w-full">
         <div class="w-full max-w-5xl lg:max-w-7xl mx-auto divide-y divide-secondary">
-            <div class="mx-5">
+            <div class="mx-8">
                 {{-- Filters--}}
                 <div class="flex flex-col pt-4 pb-2">
                     <div class="flex w-full my-2">
@@ -142,12 +141,12 @@
                         <span class="note text-sm">{{ $this->resultCount }} resultaten</span>
                     </div>
 
-                    <x-grid class="mt-4" x-show="filterLoading" wire:key="grid-{{ $this->resultCount }}">
+                    <div class="mt-4 grid gap-6 grid-cols-1 lg:grid-cols-2" x-show="filterLoading" x-cloak>
                         @foreach(range(1,6) as $value)
                             <x-grid.loading-card :delay="$value"/>
                         @endforeach
-                    </x-grid>
-                    <x-grid class="mt-4" x-show="!filterLoading" x-cloak    >
+                    </div>
+                    <div class="mt-4 grid gap-6 grid-cols-1 lg:grid-cols-2" x-show="!filterLoading" x-cloak>
                         {{-- @TODO: Fix loading animation --}}
                         @foreach($this->questions as $question)
                             <x-grid.question-card :question="$question"/>
@@ -188,7 +187,7 @@
                                 @endif
                         </span>
                         @endif
-                    </x-grid>
+                    </div>
                 </div>
             </div>
         </div>

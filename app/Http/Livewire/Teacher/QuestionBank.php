@@ -130,7 +130,7 @@ class QuestionBank extends Component
         return Test::whereUuid($this->testId)->first();
     }
 
-    public function handleCheckboxClick($questionId)
+    public function handleCheckboxClick($questionUuid)
     {
 //        if ($this->isQuestionInTest($questionId)) {
 //            $this->emitTo('drawer.cms', 'deleteQuestionByQuestionId', $questionId);
@@ -138,7 +138,7 @@ class QuestionBank extends Component
 //            return;
 //        }
 
-        $this->addQuestionToTest($questionId);
+        $this->addQuestionToTest(Question::whereUuid($questionUuid)->value('id'));
     }
 
     public function addQuestionToTest($questionId)

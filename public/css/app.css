@@ -5834,11 +5834,11 @@ video {
 .w-8{
 	width: 2rem;
 }
-.w-\[24px\]{
-	width: 24px;
-}
 .w-10{
 	width: 2.5rem;
+}
+.w-\[24px\]{
+	width: 24px;
 }
 .w-12{
 	width: 3rem;
