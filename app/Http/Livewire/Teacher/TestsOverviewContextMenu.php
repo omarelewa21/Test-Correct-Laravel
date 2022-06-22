@@ -3,14 +3,27 @@
 namespace tcCore\Http\Livewire\Teacher;
 
 use Livewire\Component;
+use tcCore\Test;
 
 class TestsOverviewContextMenu extends Component
 {
     public $displayMenu = false;
 
+    public $btnId;
 
-    public function showMenu($testUuid) {
-        $this->test = Test::whereUuid($testUuid)->first();
+    public $openTab = 'personal';
+
+    protected $listeners = [
+        'showMenu',
+    ];
+
+
+    public function showMenu($args) {
+
+        $this->test = Test::whereUuid($args['testUuid'])->first();
+         $this->openTab = $args['openTab'];
+         $this->btnId = sprintf('test%s',$args['id']);
+        $this->displayMenu = true;
     }
 
     public function render()

@@ -20,9 +20,9 @@
                 }
 
                 }">
-            <button class="px-4 py-1.5 -mr-4 rounded-full hover:bg-primary hover:text-white transition-all"
+            <button id="test{{ $test->id }}" class="px-4 py-1.5 -mr-4 rounded-full hover:bg-primary hover:text-white transition-all"
                     :class="{'bg-primary text-white' : testOptionMenu === true}"
-                    @click.prevent="(e)=> { e.stopPropagation(); testOptionMenu = true}">
+                    wire:click="$emitTo('teacher.tests-overview-context-menu', 'showMenu', {{ json_encode(['testUuid' => $test->uuid, 'openTab' => $this->openTab, 'id' => $test->id]) }})">
                 <x-icon.options class="text-sysbase"/>
             </button>
 

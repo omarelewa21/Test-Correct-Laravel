@@ -1,8 +1,25 @@
+<div>
 @if ( $this->displayMenu)
-    <div x-cloak
-         x-show="testOptionMenu"
-         class="absolute right-0 top-10 bg-white py-2 main-shadow rounded-10 w-72 z-30 "
-         @click.outside="testOptionMenu=false"
+    <div
+        x-ref="contextMenu"
+            x-cloak
+         x-data = "{
+            show: @entangle('displayMenu'),
+            btnId: @entangle('btnId'),
+            init() {
+                $nextTick(() => {
+                    const rect  = document.getElementById(this.btnId).getBoundingClientRect();
+                    $refs.contextMenu.style.top = rect.top +100 + 'px';
+                    $refs.contextMenu.style.left = rect.left - 100 + 'px';
+                    $refs.contextMenu.style.position = 'absolute';
+
+                })
+            }
+             }"
+
+
+         class="absolute bg-white py-2 main-shadow rounded-10 w-72 z-30 "
+         @click.outside="show = false; "
          x-transition:enter="transition ease-out origin-top-right duration-200"
          x-transition:enter-start="opacity-0 transform scale-90"
          x-transition:enter-end="opacity-100 transform scale-100"
@@ -84,3 +101,4 @@
         @endif
     </div>
 @endif
+</div>
