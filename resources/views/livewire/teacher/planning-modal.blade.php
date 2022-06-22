@@ -23,17 +23,20 @@
 
             </div>
             <div class="input-section">
-                <div class="name flex mb-4 space-x-4">
-
+                <div class="name flex mb-4 flex-wrap">
+                    <div class="flex space-x-2" >
                     <x-input.group class="w-[150px] flex-shrink-0 flex mb-4 sm:mb-0 " label="{{ __('teacher.Datum') }}">
                         <x-input.datepicker wire:model="request.date" locale="nl" min-date="today"/>
                     </x-input.group>
+
 
                     @if ($this->isAssessmentType())
                         <x-input.group class="w-[150px] flex-shrink-0 flex mb-4 sm:mb-0 " label="{{ __('teacher.Datum tot') }}">
                             <x-input.datepicker wire:model="request.time_end" locale="nl" min-date="today"/>
                         </x-input.group>
                     @endif
+                </div>
+                <div class="flex space-x-4">
 
                     <x-input.group class="mb-4 sm:mb-0 flex flex-1"  label="{{ __('teacher.Periode') }}">
                         <x-input.select wire:model="request.period_id">
@@ -50,7 +53,7 @@
                                 wire:model="request.weight"
                                 autocomplete="off"
                         ></x-input.group>
-
+                </div>
                 </div>
             </div>
             <div class="input-section" x-data>
@@ -91,8 +94,8 @@
             <div class="input-section">
                 <div class="name flex mb-4 space-x-4">
 
+                    @if(! $this->isAssessmentType())
                     <div class="input-group mb-4 sm:mb-0 flex-auto border-t ">
-                        @if(! $this->isAssessmentType())
                         <x-input.toggle-row-with-title wire:model="request.allow_inbrowser_testing"
                                                        :toolTip="__('teacher.inbrowser_testing_tooltip')"
                                                        class="flex-row-reverse"
@@ -100,8 +103,10 @@
                         >
                             <span class="bold"> <x-icon.preview/>{{ __('teacher.Browsertoetsen toestaan') }} </span>
                         </x-input.toggle-row-with-title>
-                        @endif
                     </div>
+
+                    @endif
+
                     <div class="input-group mb-4 sm:mb-0 flex-auto border-t @error('request.school_classes') border-red-500 @enderror">
                         @if(auth()->user()->schoollocation->allow_guest_accounts)
                             <x-input.toggle-row-with-title wire:model="request.guest_accounts"
