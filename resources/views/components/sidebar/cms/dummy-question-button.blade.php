@@ -5,7 +5,7 @@
      x-cloak
      wire:key="dummy-{{ $loop.$this->owner }}"
 >
-    <div class="question-button flex items-center cursor-pointer bold py-2 hover:text-primary pl-6 pr-4 question-active"
+    <div class="flex items-center cursor-pointer bold py-2 hover:text-primary pl-6 pr-4 question-active"
          style="max-width: 300px"
     >
         <div class="flex w-full">
