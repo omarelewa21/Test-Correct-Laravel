@@ -1,6 +1,6 @@
 <?php
 
-namespace tcCore\Http\Livewire\Overview;
+namespace tcCore\Http\Livewire\TestTakeOverviewPreview;
 
 use Livewire\Component;
 use tcCore\Answer;
@@ -28,7 +28,6 @@ class MatchingQuestion extends Component
     {
         $this->question->loadRelated();
         $this->answered = $this->answers[$this->question->uuid]['answered'];
-
         $this->answerStruct = json_decode($this->answers[$this->question->uuid]['answer'], true);
 
         if ($this->answers[$this->question->uuid]['answer']) {
@@ -42,9 +41,8 @@ class MatchingQuestion extends Component
                 }
             }
         }
-
-        $this->shuffledAnswers = $this->question->matchingQuestionAnswers->shuffle();
-
+        $this->shuffledAnswers = $this->getMatchingQuestionAnswers();
+        dump($this->shuffledAnswers);
         if(!is_null($this->question->belongs_to_groupquestion_id)){
             $this->question->groupQuestion = Question::find($this->question->belongs_to_groupquestion_id);
         }
@@ -52,7 +50,7 @@ class MatchingQuestion extends Component
 
     public function render()
     {
-        return view('livewire.overview.matching-question');
+        return view('livewire.test_take_overview_preview.matching-question');
     }
 
     public function isQuestionFullyAnswered(): bool
@@ -61,5 +59,24 @@ class MatchingQuestion extends Component
         $options = count($this->answerStruct);
         return $options === $givedAnswers;
     }
-    
+
+    private function getMatchingQuestionAnswers()
+    {
+        $matchingQuestionAnswersIds = [];
+        $matchingQuestionAnswers = [];
+        collect($this->answerStruct)->each(function($key,$value) use (&$matchingQuestionAnswersIds){
+            $matchingQuestionAnswersIds[] = $key;
+            $matchingQuestionAnswersIds[] = (int) $value;
+        });
+        array_unique($matchingQuestionAnswersIds);
+        dump($this->question->getKey());
+        dump($this->answerStruct);
+        dump($matchingQuestionAnswersIds);
+        collect($matchingQuestionAnswersIds)->each(function($key,$value) use (&$matchingQuestionAnswers){
+            $matchingQuestionAnswer = MatchingQuestionAnswer::withTrashed()->find($value);
+            $matchingQuestionAnswers[] = $matchingQuestionAnswer;
+        });
+
+        return $matchingQuestionAnswers;
+    }
 }
