@@ -9,7 +9,7 @@
 >
     <div class="flex w-full border-b border-secondary">
         <div class="w-full max-w-5xl lg:max-w-7xl  mx-auto">
-            <div class="flex w-full space-x-4 mx-5">
+            <div class="flex w-full space-x-4 mx-8">
                 <div>
                     <div class="flex relative hover:text-primary cursor-pointer"
                          @click="openTab = 'personal'"
@@ -50,13 +50,12 @@
                               :class="openTab === 4 ? 'bg-primary' : 'bg-transparent' "></span>
                     </div>
                 </div>
-
             </div>
         </div>
     </div>
     <div class="flex w-full">
         <div class="w-full max-w-5xl lg:max-w-7xl mx-auto divide-y divide-secondary">
-            <div class="mx-5">
+            <div class="mx-8">
                 {{-- Filters--}}
                 <div class="flex flex-col pt-4 pb-2">
                     <div class="flex w-full my-2">
