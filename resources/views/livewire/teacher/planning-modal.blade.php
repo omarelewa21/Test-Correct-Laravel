@@ -23,37 +23,38 @@
 
             </div>
             <div class="input-section">
-                <div class="name flex mb-4 flex-wrap">
-                    <div class="flex space-x-2" >
-                    <x-input.group class="w-[150px] flex-shrink-0 flex mb-4 sm:mb-0 " label="{{ __('teacher.Datum') }}">
-                        <x-input.datepicker wire:model="request.date" locale="nl" min-date="today"/>
-                    </x-input.group>
-
-
-                    @if ($this->isAssessmentType())
-                        <x-input.group class="w-[150px] flex-shrink-0 flex mb-4 sm:mb-0 " label="{{ __('teacher.Datum tot') }}">
-                            <x-input.datepicker wire:model="request.time_end" locale="nl" min-date="today"/>
+                <div class="name flex mb-4 flex-wrap gap-4">
+                    <div class="flex flex-1 space-x-4">
+                        <x-input.group class="flex flex-1" label="{{ __('teacher.Datum') }}">
+                            <x-input.datepicker wire:model="request.date" locale="nl" min-date="today"/>
                         </x-input.group>
-                    @endif
-                </div>
-                <div class="flex space-x-4">
 
-                    <x-input.group class="mb-4 sm:mb-0 flex flex-1"  label="{{ __('teacher.Periode') }}">
-                        <x-input.select wire:model="request.period_id">
-                            @foreach($allowedPeriods as $period)
-                                <option value="{{ $period->uuid }}">{{ $period->name }}</option>
-                            @endforeach
-                        </x-input.select>
-                    </x-input.group>
 
-                    <x-input.group class="mb-4 sm:mb-0 flex flex-1" label="{{ __('teacher.Weging') }}">
-                        <input
-                                type="text"
-                                class="w-full form-input @error('request.weight') border-red @enderror"
-                                wire:model="request.weight"
-                                autocomplete="off"
-                        ></x-input.group>
-                </div>
+                        @if ($this->isAssessmentType())
+                            <x-input.group class="flex flex-1" label="{{ __('teacher.Datum tot') }}">
+                                <x-input.datepicker wire:model="request.time_end" locale="nl" min-date="today"/>
+                            </x-input.group>
+                        @endif
+                    </div>
+                    <div class="flex flex-1 space-x-4">
+
+                        <x-input.group class="flex flex-1"  label="{{ __('teacher.Periode') }}">
+                            <x-input.select class="w-full" wire:model="request.period_id">
+                                @foreach($allowedPeriods as $period)
+                                    <option value="{{ $period->uuid }}">{{ $period->name }}</option>
+                                @endforeach
+                            </x-input.select>
+                        </x-input.group>
+
+                        <x-input.group class="flex" label="{{ __('teacher.Weging') }}">
+                            <input
+                                    type="text"
+                                    style="max-width: 100px"
+                                    class=" form-input @error('request.weight') border-red @enderror"
+                                    wire:model="request.weight"
+                                    autocomplete="off"
+                            ></x-input.group>
+                    </div>
                 </div>
             </div>
             <div class="input-section" x-data>

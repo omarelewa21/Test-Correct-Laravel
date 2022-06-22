@@ -12355,8 +12355,8 @@ document.addEventListener('alpine:init', function () {
           minDate: minDate == 'today' ? 'today' : false,
           mode: this.mode,
           defaultDate: this.wireModel,
+          dateFormat: "d-m-Y",
           onChange: function onChange(date, dateString) {
-            console.log('change');
             _this.wireModel = _this.value = _this.mode == 'range' ? dateString.split(' t/m ') : dateString; //split t/m or to
           }
         });
