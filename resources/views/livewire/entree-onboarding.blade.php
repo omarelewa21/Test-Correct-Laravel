@@ -107,7 +107,7 @@
                                                         wire:click="$set('registration.gender', 'male')"
                                                         class="relative inline-flex w-full items-center p-4 select-button btn-active">
                                                     <x-icon.onboarding-gender-man></x-icon.onboarding-gender-man>
-                                                    <x-icon.checkmark-circle></x-icon.checkmark-circle>
+                                                    <x-icon.checkmark-circle class="absolute top-2 right-2 overflow-visible"></x-icon.checkmark-circle>
                                                     {{ __("onboarding.Meneer") }}
                                                 </button>
                                             @else
@@ -128,7 +128,7 @@
                                                 <button type="button" wire:click="$set('registration.gender', 'female')"
                                                         class="relative inline-flex w-full items-center select-button  btn-active">
                                                     <x-icon.onboarding-gender-woman></x-icon.onboarding-gender-woman>
-                                                    <x-icon.checkmark-circle></x-icon.checkmark-circle>
+                                                    <x-icon.checkmark-circle class="absolute top-2 right-2 overflow-visible"></x-icon.checkmark-circle>
                                                     {{ __("onboarding.Mevrouw") }}
                                                 </button>
                                             @else
@@ -149,7 +149,7 @@
                                                         class="relative inline-flex items-center p-4 w-full select-button  btn-active">
                                                     <div class="inline-block w-full text-left">
                                                         <x-icon.onboarding-gender-other></x-icon.onboarding-gender-other>
-                                                        <x-icon.checkmark-circle></x-icon.checkmark-circle>
+                                                        <x-icon.checkmark-circle class="absolute top-2 right-2 overflow-visible"></x-icon.checkmark-circle>
                                                         <div class="inline-block">
                                                             <span>{{ __("onboarding.Anders") }}: </span>
                                                             <input id="gender_different"

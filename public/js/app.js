@@ -6051,6 +6051,11 @@ document.addEventListener('alpine:init', function () {
       backToQuestionOverview: function backToQuestionOverview(container) {
         this.prev(container);
         this.$store.questionBank.inGroup = false; // this.$store.cms.processing = false;
+      },
+      handleResizing: function handleResizing() {
+        if (this.$store.questionBank.active) {
+          this.$root.scrollLeft = this.$refs.questionbank.offsetLeft;
+        }
       }
     };
   });

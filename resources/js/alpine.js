@@ -458,8 +458,13 @@ document.addEventListener('alpine:init', () => {
             this.prev(container);
             this.$store.questionBank.inGroup = false;
             // this.$store.cms.processing = false;
+        },
+        handleResizing() {
+            if (this.$store.questionBank.active)
+            {
+                this.$root.scrollLeft = this.$refs.questionbank.offsetLeft;
+            }
         }
-
     }));
     Alpine.data('choices', (wireModel, multiple, options, config, filterContainer) => ({
         multiple: multiple,

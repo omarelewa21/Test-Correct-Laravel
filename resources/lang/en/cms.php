@@ -147,7 +147,6 @@ return [
     'Kopie maken'                                                                            => 'Copy',
     'PDF maken'                                                                              => 'PDF',
     'voorbeeld'                                                                              => 'Preview',
-
     'vraag'                                                                                  => ':count question|:count questions',
     'group-question-count'                                                                   => ':count group question|:count group questions',
     'Stel een nieuwe vraag op'                                                               => 'Create a new question',
@@ -168,8 +167,8 @@ return [
     'nieuwe'                                                                                 => 'new',
     'Wijzigingen niet opslaan'                                                               => 'Discard changes',
     'fix_order'                                                                              => 'Fix order of answers',
-
     'one_empty_container_allowed'                                                            => 'No more than one empty container is allowed',
     'one_container_with_items'                                                               => 'Answers must contain at least one container with items',
     'container_label_missing'                                                                => 'Container label missing, each container should have a label',
+    'Deze vraag is aanwezig in de toets.'                                                    => 'This question is present in the test.',
 ];

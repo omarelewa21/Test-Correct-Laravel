@@ -21,7 +21,5 @@
         <div>
             <span>{{ $question->getAuthorNamesString() }}</span>
         </div>
-
-
     </div>
 </div>

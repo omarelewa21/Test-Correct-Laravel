@@ -290,6 +290,9 @@ input:disabled + .slider,
     background: var(--off-white);
     border-color: var(--blue-grey);
 }
+input:checked:disabled + .slider {
+    background: rgba(var(--cta-primary-rgb), .3);
+}
 
 input:checked + .slider:before, .slider.checked:before {
     --slider-translate: 20px;
