@@ -4144,7 +4144,7 @@ input.datepicker {
     background: inherit;
     border: 1px solid var(--datepicker-border-color);
     border-radius: 10px;
-    padding: 4px 8px;
+    padding: 4px 40px 4px 8px;
     display: flex;
     align-items: center;
     margin-left: 1px;
@@ -5876,9 +5876,6 @@ video {
 .w-14{
 	width: 3.5rem;
 }
-.w-\[150px\]{
-	width: 150px;
-}
 .min-w-full{
 	min-width: 100%;
 }
@@ -5892,9 +5889,6 @@ video {
 }
 .min-w-\[250px\]{
 	min-width: 250px;
-}
-.min-w-0{
-	min-width: 0px;
 }
 .max-w-2xl{
 	max-width: 42rem;

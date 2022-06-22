@@ -19,8 +19,8 @@ document.addEventListener('alpine:init', () => {
                 minDate: minDate == 'today' ? 'today' : false,
                 mode: this.mode,
                 defaultDate: this.wireModel,
+                dateFormat: "d-m-Y",
                 onChange: (date, dateString) => {
-                    console.log('change');
                    this.wireModel = this.value = this.mode == 'range' ? dateString.split(' t/m ') : dateString; //split t/m or to
                 }
             })
