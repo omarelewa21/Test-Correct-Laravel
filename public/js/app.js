@@ -6008,7 +6008,8 @@ document.addEventListener('alpine:init', function () {
         this.$nextTick(function () {
           _this10.drawer.classList.remove('fullscreen');
 
-          _this10.scroll(container.parentElement.firstElementChild.offsetWidth);
+          _this10.home(); // this.scroll(container.parentElement.firstElementChild.offsetWidth);
+
 
           setTimeout(function () {
             _this10.$root.querySelectorAll('.slide-container').forEach(function (slide) {
