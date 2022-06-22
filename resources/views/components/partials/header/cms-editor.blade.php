@@ -9,6 +9,7 @@
             <h4 class="text-white truncate"
                 :style="{'max-width': $el.parentElement.offsetWidth + 'px'}"
                 x-text="testName"
+                :title="testName"
             >
 
             </h4>
@@ -18,7 +19,7 @@
     <div class="flex space-x-6 items-center">
         @if($this->withDrawer)
             <div class="flex min-w-max space-x-2">
-                <span class="text-sm">{{ trans_choice('cms.vraag', $questionCount['regular']) }}, {{ trans_choice('cms.group-question-count', $questionCount['group']) }}</span>
+{{--                <span class="text-sm">{{ trans_choice('cms.vraag', $questionCount['regular']) }}, {{ trans_choice('cms.group-question-count', $questionCount['group']) }}</span>--}}
                 <span class="primary bg-white px-2 text-sm rounded-sm bold">BETA</span>
             </div>
 
