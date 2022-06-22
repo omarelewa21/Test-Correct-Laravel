@@ -39,9 +39,12 @@ class TestDetail extends Component
             ])
             ->first();
 
-
-
         return view('livewire.teacher.test-detail')->layout('layouts.app-teacher')->with(compact(['test']));
+    }
+
+    public function redirectToTestOverview()
+    {
+        redirect()->to(route('teacher.tests'));
     }
 
 }
