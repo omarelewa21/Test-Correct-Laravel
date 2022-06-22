@@ -46,7 +46,6 @@ class AppVersionDetector
         ],
         "iOS" => [
             "ok" => [
-                "2.4.1",
                 "2.4.2",
                 "2.4.3",
                 "2.4.4",
@@ -90,8 +89,10 @@ class AppVersionDetector
                 "3.1.0",
             ],
             "needsUpdate" => [
+                "2.4.1",
             ],
             "needsUpdateDeadline" => [
+                "2.4.1" => "24 juli 2022",
             ],
         ],
         "ChromeOS" => [
