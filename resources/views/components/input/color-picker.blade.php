@@ -22,17 +22,22 @@
             <div class="flex items-center">
                 <div class="relative ml-3 mt-8">
                 <!-- Selector Input -->
-                    <input
-                    id="{{$id}}"
-                    name="{{$name}}"
-                    title="{{$title}}"
-                    autocomplete="off"
-                    type="color"
-                    class="cursor-pointer"
-                    @click.prevent="isOpen = !isOpen"
-                    :value="`${colorSelected}`"
+                    <div
+                        title="{{$title}}"
+                        class="{{$id}} cursor-pointer bg-white"
+                        @click="isOpen = !isOpen"
                     >
-                    
+                        <input
+                            id="{{$id}}"
+                            name="{{$name}}"
+                            autocomplete="off"
+                            class="cursor-pointer"
+                            type="button"
+                            :value="`${colorSelected}`"
+                            :style="`background: ${colorSelected}; color: ${colorSelected};`"
+                            >
+                    </div>
+
                 <!-- Color Palette Container  -->
                     <div 
                     x-show="isOpen" 
@@ -51,8 +56,8 @@
                                     <div>
                                         <template x-if="colorSelected === color">
                                             <div
-                                            class="w-7 h-7 inline-flex rounded border-4 colorPickButton"
-                                            :style="`background: ${color}; box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.2);`"
+                                            class="inline-flex rounded colorPickButton-selected"
+                                            :style="`background: ${color}; outline: 2px solid blue;`"
                                             />
                                         </template>
 
@@ -62,7 +67,7 @@
                                             @keydown.enter="colorSelected = color"
                                             role="checkbox" tabindex="0"
                                             :aria-checked="colorSelected"
-                                            class="w-7 h-7 inline-flex rounded border-4 colorPickButton"
+                                            class="inline-flex rounded colorPickButton"
                                             :style="`background: ${color};`"
                                             />
                                         </template>
