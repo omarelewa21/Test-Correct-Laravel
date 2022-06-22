@@ -22,7 +22,7 @@
                 }">
             <button class="px-4 py-1.5 -mr-4 rounded-full hover:bg-primary hover:text-white transition-all"
                     :class="{'bg-primary text-white' : testOptionMenu === true}"
-                    @click="testOptionMenu = true">
+                    @click.prevent="(e)=> { e.stopPropagation(); testOptionMenu = true}">
                 <x-icon.options class="text-sysbase"/>
             </button>
             <div x-cloak
@@ -38,7 +38,7 @@
                  @click="testOptionMenu=false"
             >
                 <button class="flex items-center space-x-2 py-1 px-4 base hover:text-primary hover:bg-offwhite transition w-full"
-                        wire:click='$emit("openModal","teacher.planning-modal", {{ json_encode(["testUuid" => $test->uuid]) }})'
+                        wire:click.stop='$emit("openModal","teacher.planning-modal", {{ json_encode(["testUuid" => $test->uuid]) }})'
 
                 >
                     <x-icon.schedule/>
@@ -46,7 +46,7 @@
                 </button>
                 @if(in_array($this->openTab, ['school', 'personal']) && $test->canCopy(auth()->user())  )
                 <button class="flex items-center space-x-2 py-1 px-4 base hover:text-primary hover:bg-offwhite transition w-full"
-                        @click="duplicateTest('{{ $test->uuid }}')"
+                        @click="(e)=> {e.stopPropagation(); duplicateTest('{{ $test->uuid }}')}"
 
 
                 >

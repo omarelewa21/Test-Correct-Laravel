@@ -268,6 +268,6 @@ class TestsOverview extends Component
     }
 
     public function openTestDetail($testUuid) {
-        redirect()->to(route('teacher.test-detail', ['uuid' => $testUuid]));
+//        redirect()->to(route('teacher.test-detail', ['uuid' => $testUuid]));
     }
 }

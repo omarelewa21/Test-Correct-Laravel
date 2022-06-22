@@ -4,7 +4,7 @@
     <div class="flex w-full border-b border-secondary">
         <div class="flex w-full justify-between">
             <div class="flex items-center space-x-2.5">
-                <button class="flex items-center justify-center rounded-full border bg-white/20 w-10 h-10 rotate-svg-180 hover:scale-105 transition-transform" wire:click="saveAndRedirect">
+                <button class="flex items-center justify-center rounded-full border bg-white/20 w-10 h-10 rotate-svg-180 hover:scale-105 transition-transform" wire:click="redirectToTestOverview">
                     <svg class="inline-block" width="14" height="13" xmlns="http://www.w3.org/2000/svg">
                         <g class="stroke-current" fill="none" fill-rule="evenodd" stroke-linecap="round" stroke-width="3">
                             <path d="M1.5 6.5h10M6.5 1.5l5 5-5 5"></path>
