@@ -22,7 +22,7 @@
                 }">
             <button class="px-4 py-1.5 -mr-4 rounded-full hover:bg-primary hover:text-white transition-all"
                     :class="{'bg-primary text-white' : testOptionMenu === true}"
-                    @click="testOptionMenu = true">
+                    @click.prevent="(e)=> { e.stopPropagation(); testOptionMenu = true}">
                 <x-icon.options class="text-sysbase"/>
             </button>
             <div x-cloak
@@ -35,6 +35,7 @@
                  x-transition:leave="transition origin-top-right ease-in duration-100"
                  x-transition:leave-start="opacity-100 transform scale-100"
                  x-transition:leave-end="opacity-0 transform scale-90"
+                 @click="testOptionMenu=false"
             >
                 <button class="flex items-center space-x-2 py-1 px-4 base hover:text-primary hover:bg-offwhite transition w-full"
                         wire:click='$emit("openModal","teacher.planning-modal", {{ json_encode(["testUuid" => $test->uuid]) }})'
@@ -43,9 +44,9 @@
                     <x-icon.schedule/>
                     <span class="text-base bold inherit">{{ __('cms.Inplannen') }}</span>
                 </button>
-                @if( $test->canEdit(auth()->user()) &&  $this->openTab != 'organization')
+                @if(in_array($this->openTab, ['school', 'personal']) && $test->canCopy(auth()->user())  )
                 <button class="flex items-center space-x-2 py-1 px-4 base hover:text-primary hover:bg-offwhite transition w-full"
-                        @click="duplicateTest('{{ $test->uuid }}')"
+                        @click="(e)=> duplicateTest('{{ $test->uuid }}')"
 
 
                 >
@@ -53,7 +54,7 @@
                     <span class="text-base bold inherit">{{ __('cms.Kopie maken') }}</span>
                 </button>
                 @endif
-                @if( $test->canEdit(auth()->user()) && $this->openTab == 'organization')
+                @if($this->openTab == 'organization' &&  $test->canCopyFromSchool(auth()->user()) )
                     <button
                             class="flex items-center space-x-2 py-1 px-4 base hover:text-primary hover:bg-offwhite transition w-full"
                             wire:click="$emitTo('teacher.copy-test-from-schoollocation-modal', 'showModal', '{{ $test->uuid }}')"
@@ -82,7 +83,15 @@
                             wire:click="openEdit('{{ $test->uuid }}')"
                     >
                         <x-icon.edit/>
-                        <span class="text-base bold inherit">{{ __('cms.Wijzigen') }}</span>
+                        <span class="text-base bold inherit">{{ __('cms.Construeren') }}</span>
+                    </button>
+                @endif
+                @if( $test->canEdit(auth()->user()))
+                    <button class="flex items-center space-x-2 py-1 px-4 base hover:text-primary hover:bg-offwhite transition w-full"
+                            wire:click="$emit('openModal', 'teacher.test-edit-modal', {testUuid: '{{ $test->uuid }}'})"
+                    >
+                        <x-icon.settings/>
+                        <span class="text-base bold inherit">{{ __('cms.Instellingen') }}</span>
                     </button>
                 @endif
                 @if( $test->canEdit(auth()->user()))
@@ -105,7 +114,7 @@
     <div class="flex w-full justify-between text-base mb-1">
         <div>
             <span class="bold">{{ $test->subject->name }}</span>
-            <span>{{ $test->abbreviation }}</span>
+            <span class="italic">{{ $test->abbreviation }}</span>
         </div>
         <div class="text-sm">
             <span class="note">{{__('Laatst gewijzigd') }}:</span>
@@ -114,7 +123,7 @@
     </div>
     <div class="flex w-full justify-between text-base">
         <div>
-            <span>{{ $test->authorsAsString }}</span>
+            <span>{{ $test->authorsAsStringTwo }}</span>
         </div>
         @if ($test->isCopy())
         <div class="p-1 text-sm rounded uppercase text-muted border-2 bg-light-grey border-grey-500 text-gray-500">

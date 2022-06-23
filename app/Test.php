@@ -84,36 +84,36 @@ class Test extends BaseModel
             $test->handleExamPublishingTest();
         });
 
-        static::saved(function (Test $test){
+        static::saved(function (Test $test) {
             $dirty = $test->getDirty();
-            if( $test->isDirty(['subject_id','education_level_id','education_level_year'])){
+            if ($test->isDirty(['subject_id', 'education_level_id', 'education_level_year'])) {
                 $testQuestions = $test->testQuestions;
-                foreach ($testQuestions as $testQuestion){
-                    if((    $testQuestion->question->subject_id==$test->subject_id)&&
-                            ($testQuestion->question->education_level_id==$test->education_level_id)&&
-                            ($testQuestion->question->education_level_year==$test->education_level_year)
-                    ){
+                foreach ($testQuestions as $testQuestion) {
+                    if (($testQuestion->question->subject_id == $test->subject_id) &&
+                        ($testQuestion->question->education_level_id == $test->education_level_id) &&
+                        ($testQuestion->question->education_level_year == $test->education_level_year)
+                    ) {
                         continue;
                     }
-                    $request  = new Request();
+                    $request = new Request();
                     $params = [
-                        'session_hash' => Auth::user()->session_hash,
-                        'user'         => Auth::user()->username,
-                        'id' => $testQuestion->id,
-                        'subject_id' => $test->subject_id,
-                        'education_level_id' => $test->education_level_id,
+                        'session_hash'         => Auth::user()->session_hash,
+                        'user'                 => Auth::user()->username,
+                        'id'                   => $testQuestion->id,
+                        'subject_id'           => $test->subject_id,
+                        'education_level_id'   => $test->education_level_id,
                         'education_level_year' => $test->education_level_year
                     ];
                     $testQuestionQuestionId = $testQuestion->question->id;
                     $request->merge($params);
-                    $response = (new TestQuestionsController())->updateFromWithin($testQuestion,  $request);
-                    if($testQuestion->question->type=='GroupQuestion'){
+                    $response = (new TestQuestionsController())->updateFromWithin($testQuestion, $request);
+                    if ($testQuestion->question->type == 'GroupQuestion') {
                         $testQuestion = $testQuestion->fresh();
                         $groupQuestionQuestionManager = GroupQuestionQuestionManager::getInstanceWithUuid($testQuestion->uuid);
-                        foreach($testQuestion->question->groupQuestionQuestions as $groupQuestionQuestion){
-                            $request  = new Request();
+                        foreach ($testQuestion->question->groupQuestionQuestions as $groupQuestionQuestion) {
+                            $request = new Request();
                             $request->merge($params);
-                            $response = (new GroupQuestionQuestionsController())->updateFromWithin($groupQuestionQuestionManager,$groupQuestionQuestion,  $request);
+                            $response = (new GroupQuestionQuestionsController())->updateFromWithin($groupQuestionQuestionManager, $groupQuestionQuestion, $request);
                         }
                     }
                 }
@@ -389,8 +389,8 @@ class Test extends BaseModel
     {
         $user = Auth::user();
         $query->select();
-        $subjectIds = Subject::getSubjectsOfCustomSchoolForUser(config('custom.examschool_customercode'),$user);
-        if(count($subjectIds)==0){
+        $subjectIds = Subject::getSubjectsOfCustomSchoolForUser(config('custom.examschool_customercode'), $user);
+        if (count($subjectIds) == 0) {
             $query->where('tests.id', -1);
             return $query;
         }
@@ -400,7 +400,7 @@ class Test extends BaseModel
         if (!array_key_exists('is_system_test', $filters)) {
             $query->where('is_system_test', '=', 0);
         }
-        $this->handleFilterParams($query,$filters);
+        $this->handleFilterParams($query, $filters);
         $this->handleFilteredSorting($query, $sorting);
 
         return $query;
@@ -417,7 +417,7 @@ class Test extends BaseModel
         $query->select();
 
         if (count($sharedSectionIds) > 0) {
-            $subjectIds = Subject::whereIn('section_id', $sharedSectionIds)->whereIn('base_subject_id',$baseSubjectIds)->pluck('id')->unique();
+            $subjectIds = Subject::whereIn('section_id', $sharedSectionIds)->whereIn('base_subject_id', $baseSubjectIds)->pluck('id')->unique();
         } else {
             $query->where('tests.id', -1);
             return $query;
@@ -430,7 +430,7 @@ class Test extends BaseModel
             $query->where('is_system_test', '=', 0);
         }
 
-        $this->handleFilterParams($query,$filters);
+        $this->handleFilterParams($query, $filters);
         $this->handleFilteredSorting($query, $sorting);
 
         // don't show demo tests from other location
@@ -451,25 +451,25 @@ class Test extends BaseModel
 
         if (in_array('Teacher', $roles)) {
             $subject = (new DemoHelper())->getDemoSectionForSchoolLocation($user->getAttribute('school_location_id'));
-            $query->join($this->switchScopeFilteredSubQueryForDifferentScenarios($user,$subject), function ($join) {
+            $query->join($this->switchScopeFilteredSubQueryForDifferentScenarios($user, $subject), function ($join) {
                 $join->on('tests.id', '=', 't1.t2_id');
             });
 
-            if(!is_null($subject)){
-                $query->where(function ($q) use ($user,$subject) {
+            if (!is_null($subject)) {
+                $query->where(function ($q) use ($user, $subject) {
                     $q->where(function ($query) use ($user, $subject) {
                         $query->where('tests.subject_id', $subject->getKey())->where('tests.author_id', $user->getKey());
                     })->orWhere('tests.subject_id', '<>', $subject->getKey());
                 });
             }
 
-         }
+        }
 
         if (!array_key_exists('is_system_test', $filters)) {
             $query->where('is_system_test', '=', 0);
         }
 
-        $this->handleFilterParams($query,$filters);
+        $this->handleFilterParams($query, $filters);
         $this->handleFilteredSorting($query, $sorting);
 
         if ($user->isA('teacher')) {
@@ -572,16 +572,16 @@ class Test extends BaseModel
         }
 
         // existing testauthors duplicate
-        $this->testAuthors()->pluck('user_id')->each(function($userId) use ($test){
+        $this->testAuthors()->pluck('user_id')->each(function ($userId) use ($test) {
             TestAuthor::addAuthorToTest($test, $userId);
         });
 
         // add testauthor if author_id is not null
-        if(null !== $authorId){
+        if (null !== $authorId) {
             TestAuthor::addAuthorToTest($test, $authorId);
         }
 
-        $test->setAttribute('derived_test_id',$this->getKey());
+        $test->setAttribute('derived_test_id', $this->getKey());
         $test->save();
 
         return $test;
@@ -598,37 +598,15 @@ class Test extends BaseModel
 
     public function getHasDuplicatesAttribute()
     {
-        return !!DB::select('
-            select (id)
-                from (
-                select
-                  question_id as id
-                  from
-                  `test_questions`
-                where
-                  `test_id` = ?  and `deleted_at` is null
-                Union  all
-                  select question_id as id from group_question_questions where group_question_id in(
-                  select question_id from test_questions where test_id = ? and deleted_at is null
-                  ) and deleted_at is null
-
-
-                )as t
-                 group by
-                  `id`
-
-                having
-                  COUNT(id) > 1
-        ', [$this->getKey(), $this->getKey()]);
-
+        return $this->getDuplicateQuestionIds()->isNotEmpty();
     }
 
     public function getQuestionCount()
     {
-        $this->load(['testQuestions','testQuestions.question']);
+        $this->load(['testQuestions', 'testQuestions.question']);
         $questionCount = 0;
-        foreach($this->testQuestions as $testQuestion) {
-            if(null !== $testQuestion->question) {
+        foreach ($this->testQuestions as $testQuestion) {
+            if (null !== $testQuestion->question) {
                 $questionCount += $testQuestion->question->getQuestionCount();
             }
         }
@@ -695,7 +673,7 @@ class Test extends BaseModel
         return $query;
     }
 
-    private function handleFilterParams(&$query,$filters):void
+    private function handleFilterParams(&$query, $filters): void
     {
         foreach ($filters as $key => $value) {
             switch ($key) {
@@ -764,12 +742,16 @@ class Test extends BaseModel
                         $query->where('author_id', '=', $value);
                     }
                     break;
+                case 'owner_id':
+                    $query->where('tests.owner_id', '=', $value);
+                    break;
             }
         }
     }
 
-    public function hasOpenQuestion(){
-        return !! collect(QuestionGatherer::getQuestionsOfTest($this->getKey(), true))->search(function(Question $question){
+    public function hasOpenQuestion()
+    {
+        return !!collect(QuestionGatherer::getQuestionsOfTest($this->getKey(), true))->search(function (Question $question) {
             return !$question->canCheckAnswer();
         });
     }
@@ -795,11 +777,11 @@ class Test extends BaseModel
                                                         ) as s2
                                                     on t2.subject_id = s2.subject_id
                                             where test_authors.user_id = %d',
-                                            $user->school_location_id,
-                                            $user->id);
+            $user->school_location_id,
+            $user->id);
     }
 
-    private function getQueryGetItemsFromSectionWithinSchoolLocation($user,$demoSubject)
+    private function getQueryGetItemsFromSectionWithinSchoolLocation($user, $demoSubject)
     {
         return sprintf('select distinct t2.id as t2_id /* select tests from active schoollocation with subjects that fall under the section the user is member of */
                                             from
@@ -826,14 +808,13 @@ class Test extends BaseModel
                                                             ) as s2
                                                     on t2.subject_id = s2.subject_id
                                             where t2.demo = false',
-                                                    $user->id,
-                                                    $user->school_location_id
+            $user->id,
+            $user->school_location_id
         );
     }
 
 
-
-    private function getQueryGetItemsFromAllSchoolLocationsAuthoredByUserCurrentlyTaughtByUserInActiveSchoolLocation($user,$demoSubject)
+    private function getQueryGetItemsFromAllSchoolLocationsAuthoredByUserCurrentlyTaughtByUserInActiveSchoolLocation($user, $demoSubject)
     {
         return sprintf('select distinct t2.id as t2_id  /* select tests from all schoollocations authored by user and currently taught in active schoollocation */
                                             from
@@ -862,24 +843,45 @@ class Test extends BaseModel
                                                         ) as s2
                                                     on t2.subject_id = s2.subject_id
                                             where test_authors.user_id = %d and t2.demo = false',
-                                            $user->id,
-                                            $user->school_location_id,
-                                            $user->id
+            $user->id,
+            $user->school_location_id,
+            $user->id
         );
     }
 
 
-
-    public function isAssignment() {
+    public function isAssignment()
+    {
         return $this->test_kind_id == TestKind::ASSESSMENT_TYPE;
+    }
+
+    public function getAuthorsAsString(){
+        return $this->authorsAsString;
     }
 
     public function getAuthorsAsStringAttribute()
     {
-        return $this->testAuthors()->get()->map(function($author) {
+        return $this->testAuthors()->get()->map(function ($author) {
             return implode(' ', array_filter([$author->user->name_first, $author->user->name_suffix, $author->user->name]));
-        })->join(',');
+        })->join(', ');
+    }
 
+    public function getAuthorsAsStringTwoAttribute()
+    {
+        $authorsToShow = 2;
+
+        $names = $this->testAuthors()->get()->map(function ($author) {
+            return implode(' ', array_filter([$author->user->name_first, $author->user->name_suffix, $author->user->name]));
+        });
+
+        $return = $names->take($authorsToShow)->join(', ');
+
+
+        if ($names->count() > $authorsToShow) {
+            $return .= ' +' . ($names->count() - $authorsToShow);
+        }
+
+        return $return;
     }
 
     public function getQuestionOrderList()
@@ -891,68 +893,75 @@ class Test extends BaseModel
                 });
             }
             return [$testQuestion->question->getKey()];
-        })->flip()->map(function($orderNr) {
+        })->flip()->map(function ($orderNr) {
             return $orderNr + 1;
         })->toArray();
     }
-    public function canDuplicate(){
+
+    public function canDuplicate()
+    {
         return strtolower($this->scope) !== 'cito';
     }
 
-    public function canEdit(User $user) {
+    public function canEdit(User $user)
+    {
         return $this->author->is($user);
     }
 
-    public function canDelete(User $user) {
+    public function canDelete(User $user)
+    {
         return $this->author->is($user);
     }
 
 
-    public function maxScore($ignoreQuestions = []){
-        if(is_null($ignoreQuestions)){
+    public function maxScore($ignoreQuestions = [])
+    {
+        if (is_null($ignoreQuestions)) {
             $ignoreQuestions = [];
         }
         $testId = $this->id;
         $maxScore = 0;
         $questions = QuestionGatherer::getQuestionsOfTest($testId, true);
         $carouselQuestions = QuestionGatherer::getCarouselQuestionsOfTest($testId);
-        $carouselQuestionIds = array_map(function($carouselQuestion){
+        $carouselQuestionIds = array_map(function ($carouselQuestion) {
             return $carouselQuestion->getKey();
         }, $carouselQuestions);
         $carouselQuestionChilds = [];
         foreach ($questions as $key => $question) {
-            if(!stristr($key, '.')){
-                $this->addToMaxScore($maxScore,$question,$ignoreQuestions);
+            if (!stristr($key, '.')) {
+                $this->addToMaxScore($maxScore, $question, $ignoreQuestions);
                 continue;
             }
             $arr = explode('.', $key);
-            if(!in_array($arr[0], $carouselQuestionIds)){
-                $this->addToMaxScore($maxScore,$question,$ignoreQuestions);
+            if (!in_array($arr[0], $carouselQuestionIds)) {
+                $this->addToMaxScore($maxScore, $question, $ignoreQuestions);
                 continue;
             }
             $carouselQuestionChilds[$arr[0]][$arr[1]] = $question;
         }
         foreach ($carouselQuestionChilds as $groupquestionId => $childArray) {
-            if(in_array($groupquestionId, $ignoreQuestions)){
+            if (in_array($groupquestionId, $ignoreQuestions)) {
                 continue;
             }
             $questionScore = current($childArray)->score;
             $numberOfSubquestions = $carouselQuestions[$groupquestionId]->number_of_subquestions;
-            $maxScore += ($questionScore*$numberOfSubquestions);
+            $maxScore += ($questionScore * $numberOfSubquestions);
         }
         return $maxScore;
     }
 
-    private function addToMaxScore(&$maxScore,$question,$ignoreQuestions):void
+    private function addToMaxScore(&$maxScore, $question, $ignoreQuestions): void
     {
-        if(in_array($question->getKey(), $ignoreQuestions)){
+        if (in_array($question->getKey(), $ignoreQuestions)) {
             return;
         }
         $maxScore += $question->score;
     }
 
-    public function isCopy(){
-        if (! $this->created_at) {
+    public function isCopy()
+    {
+        return false;
+        if (!$this->created_at) {
             return false;
         }
         return $this->created_at->is($this->updated_at);
@@ -972,6 +981,46 @@ class Test extends BaseModel
                 });
             }
             return [$testQuestion];
+        });
+    }
+
+    public function canCopy(User $user)
+    {
+        return $this->canDuplicate() && $user->school_location_id == $this->owner_id;
+    }
+
+    public function canCopyFromSchool(User $user)
+    {
+        return $this->canDuplicate() && $user->isAllowedSchool($this->owner->school);
+    }
+
+    public function getDuplicateQuestionIds()
+    {
+        $ids = DB::select('
+            select id
+                from (
+                select
+                  question_id as id
+                  from
+                  `test_questions`
+                where
+                  `test_id` = ?  and `deleted_at` is null
+                Union  all
+                  select question_id as id from group_question_questions where group_question_id in(
+                  select question_id from test_questions where test_id = ? and deleted_at is null
+                  ) and deleted_at is null
+
+
+                )as t
+                 group by
+                  `id`
+
+                having
+                  COUNT(id) > 1
+        ', [$this->getKey(), $this->getKey()]);
+
+        return collect($ids)->map(function($id) {
+            return $id->id;
         });
     }
 }

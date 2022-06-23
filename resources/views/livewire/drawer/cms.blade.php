@@ -24,17 +24,19 @@
      "
      x-data="{loadingOverlay: false, collapse: false, backdrop: false, emptyStateActive: @entangle('emptyStateActive')}"
      x-cloak
-     x-effect="handleLoading(); $el.scrollTop = $store.cms.scrollPos"
+     x-effect="handleLoading(); $el.scrollTop = $store.cms.scrollPos;"
      :class="{'collapsed': collapse}"
      @backdrop="backdrop = !backdrop"
      @processing-end.window="$store.cms.processing = false;"
      @filepond-start.window="loadingOverlay = true;"
      @filepond-finished.window="loadingOverlay = false;"
+     @first-question-of-test-added.window="$wire.showFirstQuestionOfTest(); emptyStateActive = false; $nextTick(() => backdrop = true)"
      wire:ignore.self
      wire:init="handleCmsInit()"
 >
     <div id="sidebar-backdrop"
-         class="fixed inset-0 transform transition-all"
+         class="fixed inset-y-0 right-0 transform transition-all"
+         style="left: var(--sidebar-width)"
          x-show="backdrop"
          x-cloak
          x-transition:enter="ease-out duration-300"
@@ -94,6 +96,7 @@
                                                                    :subQuestion="true"
                                                                    :activeTestQuestion="$this->testQuestionId"
                                                                    :activeGQQ="$this->groupQuestionQuestionId"
+                                                                   :double="$this->duplicateQuestions->contains($question->id)"
                                     />
                                 @endforeach
                                 <x-sidebar.cms.dummy-group-question-button :testQuestionUuid="$testQuestion->uuid" :loop="$loopIndex"/>
@@ -106,6 +109,7 @@
                                                            :subQuestion="false"
                                                            :activeTestQuestion="$this->testQuestionId"
                                                            :activeGQQ="$this->groupQuestionQuestionId"
+                                                           :double="$this->duplicateQuestions->contains($testQuestion->question_id)"
                             />
                         @endif
                     @endforeach
@@ -166,7 +170,7 @@
             <x-sidebar.slide-container x-ref="questionbank" @mouseenter="handleVerticalScroll($el);">
                 <div class="py-1 px-6 flex">
                     <x-button.text-button class="rotate-svg-180"
-                                          @click="prev($refs.container2);hideQuestionBank($refs.container2); $store.questionBank.inGroup = false;"
+                                          @click="hideQuestionBank($refs.container2);$store.questionBank.inGroup = false;"
                                           wire:click="$set('groupId', null)"
                     >
                         <x-icon.arrow/>
@@ -194,7 +198,7 @@
             <x-sidebar.slide-container x-ref="newquestion" @mouseenter="handleVerticalScroll($el);">
                 <div class="py-1 px-6">
                     <x-button.text-button class="rotate-svg-180"
-                                          @click="prev($refs.newquestion); $store.questionBank.inGroup = false;"
+                                          @click="home(); $store.questionBank.inGroup = false;"
                                           wire:click="$set('groupId', null)"
                     >
                         <x-icon.arrow/>
@@ -208,34 +212,4 @@
         </div>
         <span class="invisible"></span>
     </div>
-
-
-    <style>
-
-        .reorder{
-            cursor:move;
-        }
-
-        .draggable-container--over  .draggable-mirror:before  {
-            content: none !important;
-        }
-
-        .draggable-mirror:before,
-        .draggable-container--over .draggable-group .draggable-mirror:before,
-        .draggable-not-droppable{
-            content: url('data:image/svg+xml,%3Csvg width="4" height="14" xmlns="http://www.w3.org/2000/svg"%3E %3Cg class="fill-current" fill-rule="evenodd"%3E %3Cpath d="M1.615 0h.77A1.5 1.5 0 013.88 1.61l-.45 6.06a1.436 1.436 0 01-2.863 0L.12 1.61A1.5 1.5 0 011.615 0z"/%3E %3Ccircle cx="2" cy="12" r="2"/%3E %3C/g%3E %3C/svg%3E') !important;
-            position: absolute;
-            top: -17px;
-            right: -17px;
-            background: rgb(247,225,223);
-            width: 25px;
-            height: 25px;
-            border-radius: 50%;
-            text-align: center;
-        }
-        .draggable-mirror {
-            z-index: 1000;
-        }
-
-    </style>
 </div>

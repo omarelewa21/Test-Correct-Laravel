@@ -22,7 +22,7 @@ window.Livewire.directive('sortable', (el, directive, component) => {
             put: false,
 
         },
-        forceFallback: true,
+        forceFallback: el.closest('.sortable-drawer') ? true : false,
         store: {
             set: function (sortable) {
                 let items = sortable.toArray().map((value, index) => {
@@ -38,18 +38,23 @@ window.Livewire.directive('sortable', (el, directive, component) => {
         onStart: (evt) => {
             if(evt.target.closest('.drawer')){
                 const groups = evt.target.closest('.drawer').querySelectorAll('.draggable-group');
-
                 for (const group of groups) {
-                    group.classList.add('sortable-nogo');
+                    if(group != evt.target) {
+                        group.classList.add('sortable-nogo');
+                        const elms = group.querySelectorAll('.drag-item');
+                        for(const elm of elms){
+                            elm.classList.add('sortable-nogo');
+                        }
+                    }
                 }
             }
         },
         onEnd: (evt) => {
             if(evt.target.closest('.drawer')){
-                const groups = evt.target.closest('.drawer').querySelectorAll('.draggable-group');
+                const nogos = evt.target.closest('.drawer').querySelectorAll('.sortable-nogo');
 
-                for (const group of groups) {
-                    group.classList.remove('sortable-nogo');
+                for (const nogo of nogos) {
+                    nogo.classList.remove('sortable-nogo');
                 }
             }
         }
@@ -98,13 +103,17 @@ window.Livewire.directive('sortable-group', (el, directive, component) => {
 
                 for (const item of items) {
                     item.classList.add('sortable-nogo');
+                    const elms = item.querySelectorAll('.drag-item');
+                    for(const elm of elms){
+                        elm.classList.add('sortable-nogo');
+                    }
                 }
 
                 const okItems = evt.target.closest('.draggable-group').querySelectorAll('.drag-item');
 
                 evt.target.closest('.draggable-group').classList.remove('sortable-nogo');
 
-                for (const item of okItems) {console.log('remove');
+                for (const item of okItems) {
                     item.classList.remove('sortable-nogo');
                 }
             }

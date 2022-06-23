@@ -11,13 +11,15 @@ class QuestionButton extends Component
     public $subQuestion;
     public $testQuestion;
     public $active = false;
+    public $double;
 
-    public function __construct($question, $loop, $subQuestion, $testQuestion, $activeTestQuestion, $activeGQQ)
+    public function __construct($question, $loop, $subQuestion, $testQuestion, $activeTestQuestion, $activeGQQ, $double)
     {
         $this->question = $question;
         $this->loop = $loop;
         $this->subQuestion = $subQuestion;
         $this->testQuestion = $testQuestion;
+        $this->double = $double;
 
         $this->active = $this->isActiveCheck($activeTestQuestion, $activeGQQ);
     }

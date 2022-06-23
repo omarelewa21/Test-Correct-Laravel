@@ -46,5 +46,7 @@ return [
     'Niveau'                 => 'Level',
     'Uniek ID'               => 'Unique ID',
     'Periode'                => 'Period',
+    'Wissel van school'      => 'Change active school',
+    'Actieve schoollocatie aangepast' => 'Changed active school location',
     'Leerjaar'               => 'Level year',
 ];

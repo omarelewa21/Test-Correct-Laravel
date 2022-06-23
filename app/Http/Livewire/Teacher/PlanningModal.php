@@ -2,7 +2,9 @@
 
 namespace tcCore\Http\Livewire\Teacher;
 
+use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Validator;
 use LivewireUI\Modal\ModalComponent;
 use tcCore\Http\Controllers\InvigilatorsController;
 use tcCore\Http\Controllers\TemporaryLoginController;
@@ -40,7 +42,13 @@ class PlanningModal extends ModalComponent
         $this->test = \tcCore\Test::whereUuid($testUuid)->first();
 
         $this->allowedPeriods = Period::filtered(['current_school_year' => true])->get();
-        $this->schoolClasses = SchoolClass::filtered(['user_id' => auth()->id()], [])
+        $this->schoolClasses = SchoolClass::filtered(
+            [
+                'user_id' => auth()->id(),
+                'current' => true,
+            ],
+            []
+        )
             ->get(['id', 'name'])
             ->map(function ($item) {
                 return ['value' => (int)$item->id, 'label' => $item->name];
@@ -57,9 +65,29 @@ class PlanningModal extends ModalComponent
         $this->resetModalRequest();
     }
 
-    protected $rules = [
-        'request.*' => 'sometimes',
-    ];
+    protected function rules()
+    {
+        $rules = [
+            'request.date'           => 'required',
+            'request.time_end'       => 'sometimes',
+            'request.weight'         => 'required',
+            'request.period_id'      => 'required',
+            'request.school_classes' => 'required',
+        ];
+
+        if ($this->isAssessmentType()) {
+            $rules['request.time_end'] = 'required';
+        }
+
+        if (auth()->user()->schoollocation->allow_guest_accounts) {
+            $rules['request.school_classes'] = 'sometimes';
+            if (!empty(request()->get('request.guest_accounts'))) {
+                $rules['request.guest_accounts'] = 'required|in:1';
+            }
+        }
+
+        return $rules;
+    }
 
 
     public function plan()
@@ -69,16 +97,18 @@ class PlanningModal extends ModalComponent
         $controller = new TemporaryLoginController();
         $request = new Request();
 
+        $action = $this->isAssessmentType() ? "Navigation.load('/test_takes/assessment_open_teacher')" : "Navigation.load('/test_takes/planned_teacher')";
+
         $request->merge([
             'options' => [
                 'page'        => '/',
-                'page_action' => "Navigation.load('/test_takes/planned_teacher')"
+                'page_action' => $action,
             ]
         ]);
 
         redirect($controller->toCakeUrl($request));
-
     }
+
 
     private function planTest()
     {
@@ -86,7 +116,22 @@ class PlanningModal extends ModalComponent
         $this->request['time_start'] = $this->request['date'];
         $this->request['test_take_status_id'] = TestTakeStatus::STATUS_PLANNED;
 
+        $this->withValidator(function (Validator $validator) {
+            $validator->after(function ($validator) {
+                if (empty($this->request['school_classes']) && empty($this->request['guest_accounts'])) {
+                    $validator->errors()->add('request.school_classes', __('validation.school_class_or_guest_accounts_required'));
+                }
+            });
+        })->validate();
+
+        if ($this->isAssessmentType() && array_key_exists('time_end', $this->request) && $this->request['time_end']) {
+            $this->request['time_end'] = Carbon::parse($this->request['time_end'])->endOfDay();
+        }
+
         $t->fill($this->request);
+        if ($this->isAssessmentType()) {
+            $t->setAttribute('test_take_status_id', TestTakeStatus::STATUS_TAKING_TEST);
+        }
 
         $t->setAttribute('user_id', auth()->id());
         $t->save();
@@ -103,27 +148,27 @@ class PlanningModal extends ModalComponent
 
     private function resetModalRequest()
     {
-        $this->selectedClassesContainerId = 'selected_classes'.$this->test->getKey();
-        $this->selectedInvigilatorsContrainerId = 'selected_invigilator'.$this->test->getKey();
+        $this->selectedClassesContainerId = 'selected_classes' . $this->test->getKey();
+        $this->selectedInvigilatorsContrainerId = 'selected_invigilator' . $this->test->getKey();
 
         $this->request = [];
 
         $this->request['visible'] = 1;
-        $this->request['date'] = now()->format('Y-m-d');
+        $this->request['date'] = now()->format('d-m-Y');
         if ($this->isAssessmentType()) {
-            $this->request['date_till'] = now();
+            $this->request['time_end'] = now()->endOfDay();
         }
         $this->request['period_id'] = $this->allowedPeriods->first()->getKey();
         $this->request['invigilators'] = [auth()->id()];
         $this->request['weight'] = 5;
         $this->request['test_id'] = $this->test->getKey();
-        $this->request['allow_inbrowser_testing'] = 0;
+        $this->request['allow_inbrowser_testing'] = $this->isAssessmentType() ? 1 : 0;
         $this->request['invigilator_note'] = '';
         $this->request['test_kind_id'] = 3;
 
         $this->request['retake'] = 0;
         $this->request['guest_accounts'] = 0;
-        $this->request['schoolClasses'] = [];
+        $this->request['school_classes'] = [];
         $this->request['invigilators'] = [auth()->id()];
     }
 

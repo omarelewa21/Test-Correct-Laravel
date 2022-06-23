@@ -55,6 +55,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/drawing-question/{drawingQuestion}/{identifier}/question', [tcCore\Http\Controllers\QuestionsController::class, 'drawingQuestionQuestionBackgroundImage'])->name('drawing-question.background-question-svg');
     Route::get('/drawing-question/{drawingQuestion}/correction-model', [tcCore\Http\Controllers\QuestionsController::class, 'drawingQuestionCorrectionModelPng'])->name('drawing-question.correction-model');
     Route::get('/drawing-question/{drawingQuestion}/svg', [tcCore\Http\Controllers\QuestionsController::class, 'drawingQuestionSvg'])->name('drawing-question.svg');
+    Route::get('/infos/inline-image/{image}', [tcCore\Http\Controllers\InfoController::class, 'getInlineImage']);
     Route::middleware(['dll', 'student'])->prefix('student')->name('student.')->group(function () {
         Route::get('/test-take-overview/{test_take}', [tcCore\Http\Controllers\TestTakeLaravelController::class, 'overview'])->name('test-take-overview');
         Route::get('/test-take-laravel/{test_take}', [tcCore\Http\Controllers\TestTakeLaravelController::class, 'show'])->name('test-take-laravel');
@@ -77,6 +78,8 @@ Route::middleware('auth')->group(function () {
         Route::get('/tests', tcCore\Http\Livewire\Teacher\TestsOverview::class)->name('tests');
         Route::get('/test-detail/{uuid}', tcCore\Http\Livewire\Teacher\TestDetail::class)->name('test-detail');
         Route::get('/preview/answer_model/{test}', [tcCore\Http\Controllers\PreviewAnswerModelController::class, 'show'])->name('test-answer-model');
+        Route::get('/preview/test_take/{test_take}', [tcCore\Http\Controllers\PreviewTestTakeController::class, 'show'])->name('preview.test_take');
+
     });
 
     Route::middleware(['dll', 'student'])->prefix('appapi')->name('appapi')->group(function() {

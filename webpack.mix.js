@@ -18,6 +18,8 @@ const { execSync } = require('child_process');
 
 mix.postCss("resources/css/app.css", "public/css", [
     require("tailwindcss"),
+]).postCss("resources/css/app_pdf.css", "public/css/", [
+    require("tailwindcss"),
 ]).js('resources/js/app.js', 'public/js');
 
 const wirisPath = "node_modules/@wiris/mathtype-ckeditor4";

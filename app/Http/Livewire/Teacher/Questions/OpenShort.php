@@ -4,6 +4,7 @@ namespace tcCore\Http\Livewire\Teacher\Questions;
 
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
@@ -14,8 +15,10 @@ use tcCore\Attachment;
 use tcCore\GroupQuestionQuestion;
 use tcCore\Http\Controllers\GroupQuestionQuestions\AttachmentsController as GroupAttachmentsController;
 use tcCore\Http\Controllers\GroupQuestionQuestionsController;
+use tcCore\Http\Controllers\TemporaryLoginController;
 use tcCore\Http\Controllers\TestQuestions\AttachmentsController;
 use tcCore\Http\Controllers\TestQuestionsController;
+use tcCore\Http\Controllers\TestsController;
 use tcCore\Http\Helpers\QuestionHelper;
 use tcCore\Http\Livewire\Preview\DrawingQuestion;
 use tcCore\Http\Requests\CreateAttachmentRequest;
@@ -72,6 +75,8 @@ class OpenShort extends Component
 
     public $pValues = [];
 
+    public $referrer;
+
     public $attachmentsCount = 0;
 
     public $cmsPropertyBag = [];
@@ -86,7 +91,7 @@ class OpenShort extends Component
     protected $tags = [];
 
     protected $queryString = [
-        'action', 'type', 'subtype', 'testId', 'testQuestionId', 'groupQuestionQuestionId', 'owner', 'isCloneRequest', 'withDrawer' => ['except' => false]
+        'action', 'type', 'subtype', 'testId', 'testQuestionId', 'groupQuestionQuestionId', 'owner', 'isCloneRequest', 'withDrawer' => ['except' => false], 'referrer' => ['except' => false],
     ];
 
     protected $settingsGeneralPropertiesVisibility = [
@@ -123,6 +128,8 @@ class OpenShort extends Component
     public $nextQuestionToShow = [];
     public $forceOpenNewQuestion = false;
     public $uniqueQuestionKey = '';
+    public $duplicateQuestion = false;
+    public $canDeleteTest = false;
 
 
     protected function rules()
@@ -225,6 +232,8 @@ class OpenShort extends Component
         $this->registerDirty = true;
         $this->forceOpenNewQuestion = false;
         $this->uniqueQuestionKey = $this->testQuestionId . $this->groupQuestionQuestionId . $this->action . $this->questionEditorId;
+        $this->duplicateQuestion = false;
+        $this->canDeleteTest = false;
     }
 
 
@@ -249,7 +258,8 @@ class OpenShort extends Component
             'addQuestion'           => 'addQuestion',
             'showEmpty'             => 'showEmpty',
             'questionDeleted'       => '$refresh',
-            'addQuestionFromDirty'  => 'addQuestionFromDirty'
+            'addQuestionFromDirty'  => 'addQuestionFromDirty',
+            'testSettingsUpdated' => 'handleUpdatedTestSettings'
         ];
     }
 
@@ -295,6 +305,7 @@ class OpenShort extends Component
     {
         $this->resetQuestionProperties();
         $activeTest = Test::whereUuid($this->testId)->with('testAuthors', 'testAuthors.user')->first();
+        $this->canDeleteTest = $activeTest->canDelete(Auth::user());
         if (blank($this->type) && blank($this->subtype)) {
             $this->testName = $activeTest->name;
             return $this->emptyState = true;
@@ -519,8 +530,13 @@ class OpenShort extends Component
         }
     }
 
-    public function returnToTestOverview(): void
+    public function returnToTestOverview()
     {
+        if ($this->referrer) {
+            if ($this->referrer === 'teacher.tests') {
+                return redirect()->to(route($this->referrer));
+            }
+        }
         $url = sprintf("tests/view/%s", $this->testId);
         if ($this->isPartOfGroupQuestion() && !$this->withDrawer) {
             $url = sprintf(
@@ -709,25 +725,23 @@ class OpenShort extends Component
                 "json"       => json_encode($uploadJson),
                 "attachment" => $upload,
             ]);
-            $this->createAttachementWithRequest($attachementRequest, $response);
+            $this->createAttachmentWithRequest($attachementRequest, $response);
         });
     }
 
     private function handleVideoAttachments($response)
     {
         collect($this->videos)->each(function ($video) use ($response) {
-            $testQuestion = $response->original;
-            $attachementRequest = new  CreateAttachmentRequest([
+            $attachmentRequest = new  CreateAttachmentRequest([
                 "type"  => "video",
                 "link"  => $video['link'],
                 "title" => $video['title']
             ]);
-
-            $response = $this->createAttachementWithRequest($attachementRequest, $response);
+            $this->createAttachmentWithRequest($attachmentRequest, $response);
         });
     }
 
-    public function createAttachementWithRequest(CreateAttachmentRequest $request, $response)
+    public function createAttachmentWithRequest(CreateAttachmentRequest $request, $response)
     {
         if ($this->isPartOfGroupQuestion()) {
             return (new GroupAttachmentsController)
@@ -738,7 +752,7 @@ class OpenShort extends Component
         }
         return (new AttachmentsController)
             ->store(
-                $testQuestion = $response->original,
+                TestQuestion::find($response->original->id),
                 $request
             );
     }
@@ -910,6 +924,8 @@ class OpenShort extends Component
             if ($this->obj && method_exists($this->obj, 'initializePropertyBag')) {
                 $this->obj->initializePropertyBag($q);
             }
+
+            $this->duplicateQuestion = $activeTest->getDuplicateQuestionIds()->contains($this->questionId);
         }
 
         if ($this->obj && method_exists($this->obj, 'createAnswerStruct')) {
@@ -1310,5 +1326,51 @@ class OpenShort extends Component
             }
         }
         return true;
+    }
+
+    public function handleUpdatedTestSettings($settings)
+    {
+        $this->testName = $settings['name'];
+    }
+
+    public function getPdfUrl()
+    {
+        $controller = new TemporaryLoginController();
+        $request = new \Illuminate\Http\Request();
+        $request->merge([
+            'options' => [
+                'page'        => sprintf('/tests/view/%s', $this->testId),
+                'page_action' => sprintf("Loading.show();Popup.load('/tests/pdf_showPDFAttachment/%s', 1000);", $this->testId),
+            ]
+        ]);
+
+        return $controller->toCakeUrl($request);
+    }
+
+    private function removeTest($uuid)
+    {
+        $test = Test::whereUuid($uuid)->first();
+
+        if ($test->canDelete(Auth::user())) {
+            $response = (new TestsController())->destroy($test);
+
+            if ($response->getStatusCode() === 200) {
+                return $this->returnToTestsList();
+            }
+        }
+
+        $this->dispatchBrowserEvent('notify', ['message' => __('auth.something_went_wrong'), 'error']);
+    }
+
+    private function returnToTestsList()
+    {
+        if ($this->referrer) {
+            if ($this->referrer === 'teacher.tests') {
+                return redirect()->to(route($this->referrer));
+            }
+        }
+
+        $options = TemporaryLogin::buildValidOptionObject('page', 'tests/index');
+        return Auth::user()->redirectToCakeWithTemporaryLogin($options);
     }
 }

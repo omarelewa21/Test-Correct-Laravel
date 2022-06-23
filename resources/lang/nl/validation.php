@@ -172,5 +172,10 @@ return [
         'request.abbreviation' => 'afkorting',
         'request.name'         => 'naam',
         'request.introduction' => 'instructie-tekst',
+        'request.weight'       => 'gewicht',
     ],
+
+    'school_class_or_guest_accounts_required' => 'Selecteer een klas of Test-direct toestaan.',
+    'test name'                               => 'Naam toets',
+    'unique_test_name'                        => 'De gekozen naam is al in gebruik. Gebruik een unieke naam',
 ];

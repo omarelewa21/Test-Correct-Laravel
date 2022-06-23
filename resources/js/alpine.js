@@ -424,7 +424,8 @@ document.addEventListener('alpine:init', () => {
             this.$store.questionBank.active = false;
             this.$nextTick(() => {
                 this.drawer.classList.remove('fullscreen');
-                this.scroll(container.parentElement.firstElementChild.offsetWidth);
+                this.home();
+                // this.scroll(container.parentElement.firstElementChild.offsetWidth);
 
                 setTimeout(() => {
                     this.$root.querySelectorAll('.slide-container').forEach((slide) => {
@@ -432,6 +433,7 @@ document.addEventListener('alpine:init', () => {
                     })
                     this.$wire.emitTo('drawer.cms', 'refreshDrawer');
                 }, 400)
+                this.$wire.emitTo('drawer.cms', 'refreshDrawer');
             })
         },
         addQuestionToGroup(uuid) {
@@ -457,7 +459,6 @@ document.addEventListener('alpine:init', () => {
         backToQuestionOverview(container) {
             this.prev(container);
             this.$store.questionBank.inGroup = false;
-            // this.$store.cms.processing = false;
         },
         handleResizing() {
             if (this.$store.questionBank.active) {
@@ -574,6 +575,7 @@ document.addEventListener('alpine:init', () => {
         processing: false,
         dirty: false,
         scrollPos: 0,
+        reinitOnClose: false,
     });
     Alpine.store('questionBank', {
         active: false,

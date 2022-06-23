@@ -14,9 +14,12 @@ class NavigationBar extends Component
 
     protected $listeners = ['redirectToCake' => 'cakeRedirect'];
 
+    public $showSchoolSwitcher = false;
+
     public function mount()
     {
         $this->activeRoute = NavigationBarHelper::getActiveRoute();
+        $this->showSchoolSwitcher = Auth::user()->hasMultipleSchools();
     }
 
     public function render()
@@ -26,9 +29,7 @@ class NavigationBar extends Component
 
     public function cakeRedirect($cakeRouteName)
     {
-
         $url = $this->createCakeUrl($cakeRouteName);
-
         redirect($url);
     }
 

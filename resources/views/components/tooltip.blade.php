@@ -1,5 +1,9 @@
 {{--maxToolTipWidth 24rem = 24*16 = 384 px--}}
-<div x-data="{tooltip: false, maxToolTipWidth: 384}"
+@props([
+    'alwaysLeft' => false,
+])
+
+<div x-data="{tooltip: false, maxToolTipWidth: 384, alwaysLeft: @js($alwaysLeft) }"
      x-init="
         $watch('tooltip', value => {
             if (tooltip) {
@@ -8,6 +12,10 @@
                     $refs.tooltipdiv.classList.remove('left-1/2', '-translate-x-1/2');
                     $refs.tooltipdiv.classList.add('right-0');
                 }
+                if (alwaysLeft) {
+                    $refs.tooltipdiv.classList.remove('left-1/2', '-translate-x-1/2');
+                    $refs.tooltipdiv.classList.add('right-0');
+               }
             }
         })
      "

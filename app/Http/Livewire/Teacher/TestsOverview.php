@@ -18,13 +18,13 @@ class TestsOverview extends Component
 {
     use WithPagination;
 
-    const PER_PAGE = 16;
+    const PER_PAGE = 12;
 
 
     public $filters = [];
 
 
-    public $sorting = ['created_at', 'desc'];
+    private $sorting = ['id' => 'desc'];
 
     protected $queryString = ['openTab'];
 
@@ -33,8 +33,9 @@ class TestsOverview extends Component
     public $selected = [];
 
     protected $listeners = [
-        'test-deleted' => '$refresh',
-        'test-added'   => '$refresh',
+        'test-deleted'        => '$refresh',
+        'test-added'          => '$refresh',
+        'testSettingsUpdated' => '$refresh',
     ];
 
     private $allowedTabs = [
@@ -93,7 +94,10 @@ class TestsOverview extends Component
     private function getSchoolDatasource()
     {
         return Test::filtered(
-            $this->cleanFilterForSearch($this->filters['school']),
+            array_merge(
+                $this->cleanFilterForSearch($this->filters['school']),
+                ['owner_id' => auth()->user()->school_location_id]
+            ),
             $this->sorting
         )
             ->with('educationLevel', 'testKind', 'subject', 'author', 'author.school', 'author.schoolLocation')
@@ -166,9 +170,10 @@ class TestsOverview extends Component
             return 'Error no test was found';
         }
 
-        if (!$test->canDuplicate()) {
+        if (!$test->canCopy(auth()->user())) {
             return 'Error duplication not allowed';
         }
+
 
         try {
             $newTest = $test->userDuplicate([], Auth::id());
@@ -181,7 +186,13 @@ class TestsOverview extends Component
 
     public function openEdit($testUuid)
     {
-        $this->redirect(route('teacher.question-editor', ['testId' => $testUuid]));
+        $this->redirect(route('teacher.question-editor', [
+            'testId'     => $testUuid,
+            'action'     => 'edit',
+            'owner'      => 'test',
+            'withDrawer' => 'true',
+            'referrer'   => 'teacher.tests',
+        ]));
     }
 
     public function getTemporaryLoginToPdfForTest($testUuid)
@@ -240,6 +251,9 @@ class TestsOverview extends Component
 
     public function mount()
     {
+        if (auth()->user()->schoolLocation->allow_new_test_bank !== 1) {
+            abort(403);
+        }
         $this->setFilters();
     }
 
@@ -252,5 +266,9 @@ class TestsOverview extends Component
             }
         }
         return $searchFilter;
+    }
+
+    public function openTestDetail($testUuid) {
+//        redirect()->to(route('teacher.test-detail', ['uuid' => $testUuid]));
     }
 }
