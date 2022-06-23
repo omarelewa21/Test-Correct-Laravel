@@ -1128,8 +1128,7 @@ class TestTake extends BaseModel
     {
         $user = $user ?? Auth::user();
         $query->where(function ($query) {
-                $query->where('test_take_status_id', TestTakeStatus::STATUS_RATED)
-                    ->orWhere('test_take_status_id', TestTakeStatus::STATUS_DISCUSSED);
+                $query->where('test_take_status_id', TestTakeStatus::STATUS_RATED);
             })
             ->whereIn('test_takes.id', function ($query) use ($withNullRating, $user) {
                 $query->select('test_take_id')
