@@ -150,7 +150,7 @@
 {{--                    <div class="mt-4 " x-show="!filterLoading" x-cloak>--}}
                         {{-- @TODO: Fix loading animation --}}
                         @foreach($this->questions as $question)
-                            <x-grid.question-card :question="$question"/>
+                            <x-grid.question-card :question="$question" :testUuid="$this->testId"/>
                         @endforeach
 
                         @if($this->questions->count() && $this->questions->count() != $this->resultCount)

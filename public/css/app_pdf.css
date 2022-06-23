@@ -226,6 +226,7 @@
     --button-focus-border: 0 solid transparent;
     height: 40px;
     /*padding: var(--button-padding);*/
+    min-width: 40px;
     border-radius: 10px;
     background-color: var(--button-background-color);
     color: var(--button-text);
@@ -290,6 +291,8 @@
     --button-background-color: var(--light-grey);
     --button-background-image: var(--mid-grey);
     --button-text: var(--mid-grey);
+    --button-box-shadow: none;
+    cursor: default;
 }
 
 .group-type {
@@ -6047,6 +6050,9 @@ video {
 }
 .whitespace-nowrap{
 	white-space: nowrap;
+}
+.break-all{
+	word-break: break-all;
 }
 .rounded-lg{
 	border-radius: 0.5rem;
