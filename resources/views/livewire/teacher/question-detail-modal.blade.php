@@ -43,7 +43,7 @@
                         <span>{{ $attachmentCount }}</span>
                     </span>
                 @endif
-                <span class="note text-sm">{{ $question->score }}pt.</span>
+                <span class="note text-sm">{{ $question->isType('GroupQuestion') ?  $question->total_score ?? 0 : $question->score ?? 0 }}pt.</span>
             </div>
         </div>
     </div>
@@ -97,43 +97,43 @@
                     <span>{{ __('cms.Deze vraag niet shuffelen') }}</span>
                 </x-input.toggle-row-with-title>
                 @if(!$question->isType('Group'))
-                <x-input.toggle-row-with-title :small="true"
-                                               :disabled="true"
-                                               :checked="$question->discuss"
-                >
-                    <x-icon.discuss/>
-                    <span>{{ __('cms.Bespreken in de klas') }}</span>
-                </x-input.toggle-row-with-title>
-                <x-input.toggle-row-with-title :small="true"
-                                               :disabled="true"
-                                               :checked="$question->allow_notes"
-                >
-                    <x-icon.notepad/>
-                    <span>{{ __('cms.Notities toestaan') }}</span>
-                </x-input.toggle-row-with-title>
-                <x-input.toggle-row-with-title :small="true"
-                                               :disabled="true"
-                                               :checked="$question->decimal_score"
-                >
-                    <x-icon.half-points/>
-                    <span>{{ __('cms.Halve puntenbeoordeling mogelijk') }}</span>
-                </x-input.toggle-row-with-title>
+                    <x-input.toggle-row-with-title :small="true"
+                                                   :disabled="true"
+                                                   :checked="$question->discuss"
+                    >
+                        <x-icon.discuss/>
+                        <span>{{ __('cms.Bespreken in de klas') }}</span>
+                    </x-input.toggle-row-with-title>
+                    <x-input.toggle-row-with-title :small="true"
+                                                   :disabled="true"
+                                                   :checked="$question->allow_notes"
+                    >
+                        <x-icon.notepad/>
+                        <span>{{ __('cms.Notities toestaan') }}</span>
+                    </x-input.toggle-row-with-title>
+                    <x-input.toggle-row-with-title :small="true"
+                                                   :disabled="true"
+                                                   :checked="$question->decimal_score"
+                    >
+                        <x-icon.half-points/>
+                        <span>{{ __('cms.Halve puntenbeoordeling mogelijk') }}</span>
+                    </x-input.toggle-row-with-title>
                 @endif
                 @if($question->isType('Completion'))
-                <x-input.toggle-row-with-title :small="true"
-                                               :disabled="true"
-                                               :checked="$question->auto_check_answer"
-                >
-                    <x-icon.autocheck/>
-                    <span>{{ __('cms.Automatisch nakijken') }}</span>
-                </x-input.toggle-row-with-title>
-                <x-input.toggle-row-with-title :small="true"
-                                               :disabled="true"
-                                               :checked="$question->auto_check_answer_case_sensitive"
-                >
-                    <x-icon.case-sensitive/>
-                    <span>{{ __('cms.Hoofdletter gevoelig nakijken') }}</span>
-                </x-input.toggle-row-with-title>
+                    <x-input.toggle-row-with-title :small="true"
+                                                   :disabled="true"
+                                                   :checked="$question->auto_check_answer"
+                    >
+                        <x-icon.autocheck/>
+                        <span>{{ __('cms.Automatisch nakijken') }}</span>
+                    </x-input.toggle-row-with-title>
+                    <x-input.toggle-row-with-title :small="true"
+                                                   :disabled="true"
+                                                   :checked="$question->auto_check_answer_case_sensitive"
+                    >
+                        <x-icon.case-sensitive/>
+                        <span>{{ __('cms.Hoofdletter gevoelig nakijken') }}</span>
+                    </x-input.toggle-row-with-title>
                 @endif
                 @if($question->isType('Group'))
                     <x-input.toggle-row-with-title :small="true"
@@ -234,15 +234,20 @@
         </div>
     </div>
     <div class="px-6 py-4 flex justify-end w-full" style="box-shadow: 0 -3px 8px 0 rgba(4, 31, 116, 0.2);">
-        <div class="flex space-x-2.5">
+        <div class="flex space-x-2.5 items-center">
             <button class="new-button button-primary"
                     disabled
                     title="{{ __('general.Later beschikbaar') }}"
             >
                 <x-icon.preview/>
             </button>
+            @if($this->inTest)
+                <span title="{{ __('cms.Deze vraag is aanwezig in de toets.') }}">
+                    <x-icon.checkmark-circle color="var(--cta-primary)"/>
+                </span>
+            @endif
             <button class="new-button button-cta w-10 items-center justify-center flex"
-                    wire:click.stop="handleCheckboxClick('{{ $question->uuid }}')"
+                    wire:click.stop="addQuestion"
                     @click="$el.disabled = true"
             >
                 <x-icon.plus-2/>
