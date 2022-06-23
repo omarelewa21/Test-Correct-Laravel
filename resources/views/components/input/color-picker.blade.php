@@ -3,6 +3,7 @@
 <div x-data="{
     isOpen: false,
     colorSelected: '#000000',
+    showX: false,
     colors: [
         '#16465a', '#002f7a', '#240075', '#3e005c', '#52001c', '#6a1500',  '#592500', '#5d4500', '#646200', '#334400', '#164401', '#00341d',
         '#265f76', '#003995', '#3300a8', '#55007f', '#700027', '#8d1c00',  '#783200', '#7d5d00', '#848100', '#425800', '#1e5f00', '#004f2c',
@@ -24,8 +25,11 @@
                 <!-- Selector Input -->
                     <div
                         title="{{$title}}"
-                        class="{{$id}} cursor-pointer bg-white"
+                        class="color-pallete cursor-pointer bg-white"
                         @click="isOpen = !isOpen"
+                        @mouseover="showX = true"
+                        @mouseleave="showX = false"
+                        :class="isOpen && 'outline'"
                     >
                         <input
                             id="{{$id}}"
@@ -34,8 +38,22 @@
                             class="cursor-pointer"
                             type="button"
                             :value="`${colorSelected}`"
-                            :style="`background: ${colorSelected}; color: ${colorSelected};`"
+                            @if($name === "stroke-color")
+                                :style="`border-color: ${colorSelected}`"
+                            @else
+                                :style="`background: ${colorSelected}; color: ${colorSelected};`"
+                            @endif
                             >
+
+                            <svg
+                                x-show="isOpen && showX"
+                                class="pallete-x-button inline-block absolute"
+                                width="14" height="14" xmlns="http://www.w3.org/2000/svg"
+                            >
+                                <g class="stroke-current" fill="none" fill-rule="evenodd" stroke-linecap="round" stroke-width="3">
+                                    <path d="M1.5 12.5l11-11M12.5 12.5l-11-11"></path>
+                                </g>
+                            </svg>
                     </div>
 
                 <!-- Color Palette Container  -->
@@ -57,7 +75,7 @@
                                         <template x-if="colorSelected === color">
                                             <div
                                             class="inline-flex rounded colorPickButton-selected"
-                                            :style="`background: ${color}; outline: 2px solid blue;`"
+                                            :style="`background: ${color}; outline: 3px solid blue;`"
                                             />
                                         </template>
 

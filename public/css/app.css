@@ -1527,53 +1527,39 @@ input[type=number] {
 
 
 /* Color inputs */
-#drawing-tool .stroke-color{
+#drawing-tool .color-pallete {
     width: 2.5rem;
     height: 2.5rem;
-    border: var(--default-border);
+    margin-right: 0.5rem;
     border-radius: 0.5rem;
-    margin-right: 0.5rem;
 }
 
-#drawing-tool .fill-color {
-    width: 2.5rem;
-    height: 2.5rem;
-    margin-right: 0.5rem;
+#drawing-tool .color-pallete:hover {
+    outline: 2px solid blue;
 }
 
-#drawing-tool #fill-color:hover {
-    border: var(--solid-Primary-border);
-    color: var(--teacher-Primary);
-}
-
-#drawing-tool #fill-color:focus {
-    border: var(--solid-Primary-border);
-}
-
-#drawing-tool .stroke-color:hover {
-    border: var(--solid-Primary-border);
-    color: var(--teacher-Primary);
-}
-
-#drawing-tool .stroke-color:focus {
-    border: var(--solid-Primary-border);
+#drawing-tool .outline {
+    outline: 3px solid blue;
+    outline-offset: 1px;
 }
 
 #drawing-tool input[type=button] {
-    width: 2.5rem;
-    height: 2.5rem;
-    border: var(--default-border);
+    width: 100%;
+    height: 100%;
     border-radius: 0.5rem;
-    background: var(--all-OffWhite);
 }
 
 #drawing-tool #stroke-color {
-    --height: 0.5rem;
-    height: var(--height);
-    transform: rotate(-45deg);
-    margin: calc(50% - (var(--height) / 2)) 0;
+    border: 10px solid black;
+    background-color: white;
+    color: white;
 }
 
+#drawing-tool .color-pallete .pallete-x-button {
+    right: 1.3rem;
+    top: 0.8rem;
+    color: blue;
+}
 
 /* Range inputs */
 
@@ -2419,7 +2405,7 @@ input[type=number] {
   
 .colorPickButton:hover {
     transform: scale(1.1);
-    border: 1px solid blue;
+    border: 2px solid blue;
 }
 
 .ck-editor__editable_inline {
@@ -5322,6 +5308,21 @@ video {
 }
 .right-14{
 	right: 3.5rem;
+}
+.left-40{
+	left: 10rem;
+}
+.top-40{
+	top: 10rem;
+}
+.left-10{
+	left: 2.5rem;
+}
+.right-10{
+	right: 2.5rem;
+}
+.right-5{
+	right: 1.25rem;
 }
 .z-10{
 	z-index: 10;
