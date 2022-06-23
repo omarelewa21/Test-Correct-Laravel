@@ -1627,4 +1627,20 @@ class Question extends MtiBaseModel {
     {
         return Str::of($this->type)->lower()->contains(Str::lower($type));
     }
+
+    public function isInTest($testUuid, $strict = false): bool
+    {
+        $test = Test::whereUuid($testUuid)->first();
+        if (!$test) {
+            return false;
+        }
+
+        if ($strict) {
+            return !!$test->testQuestions()->where('question_id', $this->getKey())->first();
+        }
+
+        return $test->testQuestions->filter(function($testQuestion) {
+            return $testQuestion->question->id === $this->getKey() || $testQuestion->question->derived_question_id === $this->getKey();
+        })->isNotEmpty();
+    }
 }

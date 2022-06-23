@@ -4,13 +4,13 @@
 >
     <div class="flex w-full justify-between mb-2">
         <div class="flex">
-        @if($question->type === 'GroupQuestion')
-            <h3 class="line-clamp-2 min-h-[64px] @if(blank($question->name)) italic @endif"
-                title="{{ $question->name }}">{{ filled($question->name) ? $question->name : __('question.no_question_text') }}</h3>
-        @else
-            <h3 class="line-clamp-2 min-h-[64px] @if(blank($question->title)) italic @endif"
-                title="{{ $question->title }}">{{ $question->title ?? __('question.no_question_text') }}</h3>
-        @endif
+            @if($question->type === 'GroupQuestion')
+                <h3 class="line-clamp-2 min-h-[64px] @if(blank($question->name)) italic @endif"
+                    title="{{ $question->name }}">{{ filled($question->name) ? $question->name : __('question.no_question_text') }}</h3>
+            @else
+                <h3 class="line-clamp-2 min-h-[64px] @if(blank($question->title)) italic @endif"
+                    title="{{ $question->title }}">{{ $question->title ?? __('question.no_question_text') }}</h3>
+            @endif
         </div>
         <div class="flex">
             <x-icon.options class="w-full h-8 w-5 text-sysbase hover:text-primary px-2 py-1"/>
@@ -46,7 +46,7 @@
                             <span>{{ $attachmentCount }}</span>
                         </span>
                 @endif
-                <span class="note text-sm">{{ $question->score }}pt.</span>
+                <span class="note text-sm">{{ $question->isType('GroupQuestion') ?  $question->total_score ?? 0 : $question->score ?? 0 }}pt.</span>
             </div>
             <div class="flex space-x-2.5 items-center">
                 @isset($this->addedQuestionIds[$question->getKey()])

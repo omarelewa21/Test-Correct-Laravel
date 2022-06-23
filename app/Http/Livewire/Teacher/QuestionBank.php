@@ -36,6 +36,8 @@ class QuestionBank extends Component
 
     public $inGroup = false;
 
+    private $test;
+
     private $allowedTabs = [
         'school_location',
         'personal',
@@ -44,6 +46,7 @@ class QuestionBank extends Component
     public function mount()
     {
         $this->itemsPerPage = QuestionBank::ITEM_INCREMENT;
+        $this->setTestProperty();
         $this->addedQuestionIds = $this->getQuestionIdsThatAreAlreadyInTest();
         $this->setFilters();
     }
@@ -125,9 +128,14 @@ class QuestionBank extends Component
             })->toArray();
     }
 
-    public function getTestProperty()
+    public function booted()
     {
-        return Test::whereUuid($this->testId)->first();
+        $this->setTestProperty();
+    }
+
+    private function setTestProperty()
+    {
+        $this->test = Test::whereUuid($this->testId)->first();
     }
 
     public function handleCheckboxClick($questionUuid)
@@ -161,7 +169,10 @@ class QuestionBank extends Component
 
     private function getQuestionIdsThatAreAlreadyInTest()
     {
-        return optional($this->test)->getQuestionOrderList() ?? [];
+        $questionIdList = optional($this->test)->getQuestionOrderList() ?? [];
+        return $questionIdList + $this->test->testQuestions->map(function ($testQ) {
+            return $testQ->question()->where('type', 'GroupQuestion')->value('id');
+        })->filter()->flip()->toArray();
     }
 
     private function removeQuestionFromTest($questionId)
@@ -265,6 +276,6 @@ class QuestionBank extends Component
 
     public function openDetail($questionUuid)
     {
-        $this->emit('openModal', 'teacher.question-detail-modal', ['questionUuid' => $questionUuid]);
+        $this->emit('openModal', 'teacher.question-detail-modal', ['questionUuid' => $questionUuid, 'testUuid' => $this->testId]);
     }
 }
