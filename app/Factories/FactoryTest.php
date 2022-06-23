@@ -172,7 +172,7 @@ class FactoryTest
 
         return [
             "name" => $this->faker->word() . '-' . $this->faker->numberBetween(1000, 9999),
-            "abbreviation" => 'demo-test',
+            "abbreviation" => 'TEST',
             "test_kind_id" => SUMMATIVE_TEST_KIND,
             "subject_id" => $this->testSubject->id,
             "education_level_id" => $this->testEducationLevel->id,

@@ -34,8 +34,9 @@ return [
     'make_public_tooltip_text'                                                               => 'In the near future we will expand Test-Correct with the National Item Bank. You will then be able to use items from your colleagues from all over the country. If this option is checked, you give your subject colleagues (outside your school) the opportunity to find this item in the National Item Bank and use it within their own test. You remain the author of this item. You remain in control, even if you wish to share with your colleagues.',
     'close_after_answer_tooltip_text'                                                        => 'If you choose to close the question, the student will not be able to return to this question when taking the test once the question has been left. This feature is useful, for example, if you do not want students to be able to review information you provide in this question. The student is asked if he / she is sure when leaving the question.',
     'delete'                                                                                 => 'Delete',
-    'delete_attachment_confirm_text'                                                         => 'Are you sure you want to delete this question? You can not undo this action.',
-    'delete_question_confirm_text'                                                           => 'Are you sure you want to delete this attachment? You can not undo this action.',
+    'delete_attachment_confirm_text'                                                         => 'Are you sure you want to delete this attachment? You can not undo this action.',
+    'delete_question_confirm_text'                                                           => 'Are you sure you want to delete this question? You can not undo this action.',
+    'delete_test_confirm_text'                                                               => 'Are you sure you want to delete this test? You can not undo this action.',
     'Vraag verwijderen'                                                                      => 'Delete question',
     'bijlage'                                                                                => 'attachment|attachments',
     'all_or_nothing_tooltip_text'                                                            => 'Only give points when all the correct answers are given.',
@@ -147,7 +148,6 @@ return [
     'Kopie maken'                                                                            => 'Copy',
     'PDF maken'                                                                              => 'PDF',
     'voorbeeld'                                                                              => 'Preview',
-
     'vraag'                                                                                  => ':count question|:count questions',
     'group-question-count'                                                                   => ':count group question|:count group questions',
     'Stel een nieuwe vraag op'                                                               => 'Create a new question',
@@ -168,5 +168,10 @@ return [
     'nieuwe'                                                                                 => 'new',
     'Wijzigingen niet opslaan'                                                               => 'Discard changes',
     'fix_order'                                                                              => 'Fix order of answers',
-
+    'one_empty_container_allowed'                                                            => 'No more than one empty container is allowed',
+    'one_container_with_items'                                                               => 'Answers must contain at least one container with items',
+    'container_label_missing'                                                                => 'Container label missing, each container should have a label',
+    'Deze vraag is aanwezig in de toets.'                                                    => 'This question is present in the test.',
+    'duplicate_question_in_test'          => 'This question is double in the test. Adjust the test to make planning possible.',
+    'Construeren'                         => 'Construct',
 ];

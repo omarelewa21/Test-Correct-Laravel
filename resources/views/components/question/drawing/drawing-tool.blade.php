@@ -76,7 +76,7 @@
             </div>
             <div id="properties">
                 <div class="property-group" id="text-style">
-                    <input type="color" name="text-color" id="text-color" autocomplete="off" title="{{ __('drawing-modal.Tekstkleur') }}">
+                    <x-input.color-picker  :name="'text-color'" :id="'text-color'" :title="__('drawing-modal.Tekstkleur')"/>
                     <div class="input-with-button-group" style="margin-right: .5rem">
                         <button id="decr-text-size" class="Secondary" title="{{ __('drawing-modal.Vergroot tekst') }}">
                             <div>
@@ -107,7 +107,7 @@
                 </div>
 
                 <div class="property-group" id="edge">
-                    <input type="color" name="stroke-color" id="stroke-color" autocomplete="off" title="{{ __('drawing-modal.Randkleur') }}" class="cursor-pointer">
+                    <x-input.color-picker  :name="'stroke-color'" :id="'stroke-color'" :title="__('drawing-modal.Randkleur')"/>
                     <div class="input-with-button-group">
                         <button id="decr-stroke" class="Secondary" title="{{ __('drawing-modal.Vergroot randdikte') }}">
                             <div>
@@ -125,8 +125,7 @@
                 </div>
 
                 <div class="property-group" id="fill">
-                    <input type="color" name="fill-color" id="fill-color" value="#000000" autocomplete="off"
-                           title="{{ __('drawing-modal.Opvulkleur') }}" class="cursor-pointer">
+                    <x-input.color-picker  :name="'fill-color'" :id="'fill-color'" :title="__('drawing-modal.Opvulkleur')"/>
                     <input type="number" name="fill-opacity" id="fill-opacity-number" min="0" max="100" value="25"
                            step="1" autocomplete="off" title="{{ __('drawing-modal.Doorzichtigheid opvulkleur') }}">
                     <input class="drawing-toolbar-slider" type="range" name="fill-opacity" id="fill-opacity-range" style="cursor: grab"

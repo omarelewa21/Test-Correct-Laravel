@@ -97,7 +97,7 @@ RichTextEditor = {
     },
 
     initClassicEditorForStudentplayer: function (editorId,questionId) {
-        ClassicEditor
+        return ClassicEditor
             .create( document.querySelector( '#'+editorId ),{
                 autosave: {
                     waitingTime: 300,

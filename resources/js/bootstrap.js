@@ -31,3 +31,7 @@ window.$ = window.jQuery = require('jquery');
 window.FilePond = require('filepond');
 import FilePondPluginFileValidateSize from 'filepond-plugin-file-validate-size';
 FilePond.registerPlugin(FilePondPluginFileValidateSize);
+
+// require('./smoothscroll-polyfill');
+import smoothscroll from './smoothscroll-polyfill'
+smoothscroll.polyfill();
