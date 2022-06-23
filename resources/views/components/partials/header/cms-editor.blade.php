@@ -57,8 +57,9 @@
                 >
                     <x-icon.pdf-file color="currentColor"/>
                 </button>
-                <button wire:click="$emit('openModal','teacher.planning-modal', {{ json_encode(['testUuid' => $this->testId]) }}) "
-                        class="new-button button-cta w-10"
+                <button disabled
+{{--                        wire:click="$emit('openModal','teacher.planning-modal', {{ json_encode(['testUuid' => $this->testId]) }}) "--}}
+                        class="new-button button-cta w-10 disabled"
                         title="{{ __('teacher.Toets inplannen') }}"
                 >
                     <x-icon.schedule/>
