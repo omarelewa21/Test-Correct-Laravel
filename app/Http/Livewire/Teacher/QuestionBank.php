@@ -43,6 +43,14 @@ class QuestionBank extends Component
         'personal',
     ];
 
+    protected function getListeners()
+    {
+        return [
+            'testSettingsUpdated',
+            'addQuestionFromDetail' => 'addQuestionToTest'
+            ];
+    }
+
     public function mount()
     {
         $this->itemsPerPage = QuestionBank::ITEM_INCREMENT;
@@ -278,4 +286,12 @@ class QuestionBank extends Component
     {
         $this->emit('openModal', 'teacher.question-detail-modal', ['questionUuid' => $questionUuid, 'testUuid' => $this->testId]);
     }
+
+    public function testSettingsUpdated($newData)
+    {
+        /* @TODO
+         * Fix the resetting of filters when the test is edited from TestEditModal;
+         */
+    }
+
 }

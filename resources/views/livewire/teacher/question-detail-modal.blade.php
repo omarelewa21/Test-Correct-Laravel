@@ -247,7 +247,7 @@
                 </span>
             @endif
             <button class="new-button button-cta w-10 items-center justify-center flex"
-                    wire:click.stop="handleCheckboxClick('{{ $question->uuid }}')"
+                    wire:click.stop="addQuestion"
                     @click="$el.disabled = true"
             >
                 <x-icon.plus-2/>

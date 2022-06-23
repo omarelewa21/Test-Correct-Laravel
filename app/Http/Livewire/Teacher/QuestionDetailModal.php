@@ -40,4 +40,10 @@ class QuestionDetailModal extends ModalComponent
     {
         return 'xl';
     }
+
+    public function addQuestion()
+    {
+//        $this->emitTo(QuestionBank::class, 'addQuestionFromDetail', ['questionId' => $this->question->id]);
+        $this->closeModal();
+    }
 }

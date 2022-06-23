@@ -878,6 +878,9 @@ input:disabled + .slider,
     background: var(--off-white);
     border-color: var(--blue-grey);
 }
+input:checked:disabled + .slider {
+    background: rgba(var(--cta-primary-rgb), .3);
+}
 
 input:checked + .slider:before, .slider.checked:before {
     --slider-translate: 20px;
@@ -4932,14 +4935,11 @@ video {
 .-right-px{
 	right: -1px;
 }
-.top-2{
-	top: 0.5rem;
+.right-4{
+	right: 1rem;
 }
 .right-2{
 	right: 0.5rem;
-}
-.right-4{
-	right: 1rem;
 }
 .top-1{
 	top: 0.25rem;
@@ -4955,6 +4955,9 @@ video {
 }
 .left-0\.5{
 	left: 0.125rem;
+}
+.top-2{
+	top: 0.5rem;
 }
 .-top-px{
 	top: -1px;
@@ -5497,11 +5500,11 @@ video {
 .w-8{
 	width: 2rem;
 }
-.w-\[24px\]{
-	width: 24px;
-}
 .w-10{
 	width: 2.5rem;
+}
+.w-\[24px\]{
+	width: 24px;
 }
 .w-12{
 	width: 3rem;
@@ -5532,9 +5535,6 @@ video {
 }
 .w-80{
 	width: 20rem;
-}
-.w-\[150px\]{
-	width: 150px;
 }
 .w-\[14px\]{
 	width: 14px;
@@ -5871,6 +5871,9 @@ video {
 }
 .gap-2{
 	gap: 0.5rem;
+}
+.gap-2\.5{
+	gap: 0.625rem;
 }
 .gap-\[15px\]{
 	gap: 15px;
@@ -7935,11 +7938,6 @@ div.drag-item>div{
 
 	.xl\:left-10{
 		left: 2.5rem;
-	}
-
-
-	.xl\:col-span-3{
-		grid-column: span 3 / span 3;
 	}
 
 
