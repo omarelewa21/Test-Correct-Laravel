@@ -347,6 +347,13 @@ class OpenShort extends Component
 
         if ($this->action == 'edit' && !$this->isCloneRequest) {
             $response = $this->updateQuestion();
+
+            if ($this->isPartOfGroupQuestion()) {
+                $content = json_decode($response->getContent());
+                if ($content != null && property_exists($content, 'uuid')) {
+                    $this->groupQuestionQuestionId = $content->uuid;
+                }
+            }
         } else {
             $this->question['order'] = 0;
             if ($this->isCloneRequest) {
