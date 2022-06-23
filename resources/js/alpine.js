@@ -460,8 +460,7 @@ document.addEventListener('alpine:init', () => {
             // this.$store.cms.processing = false;
         },
         handleResizing() {
-            if (this.$store.questionBank.active)
-            {
+            if (this.$store.questionBank.active) {
                 this.$root.scrollLeft = this.$refs.questionbank.offsetLeft;
             }
         }

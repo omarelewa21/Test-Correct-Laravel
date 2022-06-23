@@ -141,12 +141,12 @@
                         <span class="note text-sm">{{ $this->resultCount }} resultaten</span>
                     </div>
 
-                    <div class="mt-4 grid gap-6 grid-cols-1 lg:grid-cols-2" x-show="filterLoading" x-cloak>
+                    <div class="mt-4 grid gap-6 grid-cols-1 lg:grid-cols-2 xl:grid-cols-2" x-show="filterLoading" x-cloak>
                         @foreach(range(1,6) as $value)
                             <x-grid.loading-card :delay="$value"/>
                         @endforeach
                     </div>
-                    <div class="mt-4 grid gap-6 grid-cols-1 lg:grid-cols-2" x-show="!filterLoading" x-cloak>
+                    <div class="mt-4 grid gap-6 grid-cols-1 lg:grid-cols-2 xl:grid-cols-2" x-show="!filterLoading" x-cloak>
                         {{-- @TODO: Fix loading animation --}}
                         @foreach($this->questions as $question)
                             <x-grid.question-card :question="$question"/>
