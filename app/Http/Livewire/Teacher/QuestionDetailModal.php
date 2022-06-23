@@ -14,8 +14,9 @@ class QuestionDetailModal extends ModalComponent
     public $lastUpdated;
     public $attachmentCount;
     public $pValues = [];
+    public $inTest = false;
 
-    public function mount($questionUuid)
+    public function mount($questionUuid, $testUuid = null)
     {
         $this->question = Question::whereUuid($questionUuid)->first();
         $this->authors = $this->question->getAuthorNamesCollection();
@@ -24,6 +25,10 @@ class QuestionDetailModal extends ModalComponent
 
         $q = (new QuestionHelper())->getTotalQuestion($this->question->getQuestionInstance());
         $this->pValues = $q->getQuestionInstance()->getRelation('pValue');
+
+        if ($testUuid) {
+            $this->inTest = $this->question->isInTest($testUuid);
+        }
     }
 
     public function render()

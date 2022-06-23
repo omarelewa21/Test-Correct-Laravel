@@ -6776,6 +6776,10 @@ video {
 	--tw-bg-opacity: 1;
 	background-color: rgba(4, 31, 116, var(--tw-bg-opacity));
 }
+.bg-yellow-400{
+	--tw-bg-opacity: 1;
+	background-color: rgba(251, 191, 36, var(--tw-bg-opacity));
+}
 .bg-opacity-0{
 	--tw-bg-opacity: 0;
 }
@@ -8649,6 +8653,11 @@ ul ul ul {
 
 	.md\:grid-cols-3{
 		grid-template-columns: repeat(3, minmax(0, 1fr));
+	}
+
+
+	.md\:grid-cols-2{
+		grid-template-columns: repeat(2, minmax(0, 1fr));
 	}
 
 

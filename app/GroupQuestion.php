@@ -403,4 +403,12 @@ class GroupQuestion extends Question implements QuestionInterface {
 
         return $scores <= 1;
     }
+
+    public function getTotalScoreAttribute()
+    {
+        $questionMaxScore = 0;
+        $pointsPerQuestion = [];
+        $this->getQuestionScores([], $questionMaxScore, $pointsPerQuestion);
+        return $questionMaxScore;
+    }
 }
