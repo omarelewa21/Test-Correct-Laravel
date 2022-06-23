@@ -12,8 +12,9 @@ class QuestionCard extends Component
     public $lastUpdated;
     public $attachmentCount;
     public $tags;
+    public $inTest = false;
 
-    public function __construct($question)
+    public function __construct($question, $testUuid)
     {
         $this->question = $question;
         $this->authors = $question->getAuthorNamesCollection();
@@ -21,6 +22,10 @@ class QuestionCard extends Component
         $this->attachmentCount = $question->attachments()->count();
 
         $this->tags = $this->question->tags;
+
+        if ($testUuid) {
+            $this->inTest = $this->question->isInTest($testUuid);
+        }
     }
 
     public function render(): string

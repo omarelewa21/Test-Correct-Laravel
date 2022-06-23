@@ -4,11 +4,11 @@
 >
     <div class="flex w-full justify-between mb-2">
         <div class="flex">
-            @if($question->type === 'GroupQuestion')
-                <h3 class="line-clamp-2 min-h-[64px] @if(blank($question->name)) italic @endif"
+            @if($question->isType('GroupQuestion'))
+                <h3 class="line-clamp-2 break-all min-h-[64px] @if(blank($question->name)) italic @endif"
                     title="{{ $question->name }}">{{ filled($question->name) ? $question->name : __('question.no_question_text') }}</h3>
             @else
-                <h3 class="line-clamp-2 min-h-[64px] @if(blank($question->title)) italic @endif"
+                <h3 class="line-clamp-2 break-all min-h-[64px] @if(blank($question->title)) italic @endif"
                     title="{{ $question->title }}">{{ $question->title ?? __('question.no_question_text') }}</h3>
             @endif
         </div>
@@ -49,11 +49,11 @@
                 <span class="note text-sm">{{ $question->isType('GroupQuestion') ?  $question->total_score ?? 0 : $question->score ?? 0 }}pt.</span>
             </div>
             <div class="flex space-x-2.5 items-center">
-                @isset($this->addedQuestionIds[$question->getKey()])
+                @if($inTest)
                     <span title="{{ __('cms.Deze vraag is aanwezig in de toets.') }}">
                         <x-icon.checkmark-circle color="var(--cta-primary)"/>
                     </span>
-                @endisset
+                @endif
                 <button class="new-button button-primary w-10 items-center justify-center flex"
                         wire:click.stop="handleCheckboxClick('{{ $question->uuid }}')"
                         @click="$el.disabled = true"

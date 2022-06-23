@@ -1060,7 +1060,7 @@ class OpenShort extends Component
         $questionList = Test::whereUuid($this->testId)->first()->getQuestionOrderList();
 
         if ($this->editModeForExistingQuestion()) {
-            return $questionList[$this->questionId];
+            return $questionList[$this->questionId] ?? 1;
         }
 
         if ($this->owner === 'group') {
