@@ -10,8 +10,8 @@
             posY: @js($y),
             init() {
                 $nextTick(() => {
-                    $refs.contextMenu.style.top = (this.posY ) + 'px';
-                    $refs.contextMenu.style.left = (this.posX) + 'px';
+                    $refs.contextMenu.style.top = (this.posY + 36 ) + 'px';
+                    $refs.contextMenu.style.left = (this.posX - (this.$el.offsetWidth - 36)) + 'px';
                 })
             }
              }"
