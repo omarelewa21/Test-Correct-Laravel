@@ -735,9 +735,17 @@ class Question extends MtiBaseModel {
             $tags = Tag::whereIn('name', $value)->pluck('name', 'id')->all();
             if ($tags) {
                 $tags = array_map('strtolower', $tags);
-                $subQuery = DB::table('tag_relations')->where('deleted_at', null)->where('tag_relation_type', 'tcCore\Question')->whereIn('tag_id', array_keys($tags))->select(['tag_relation_id', DB::raw('CONCAT(\' \', GROUP_CONCAT(tag_id SEPARATOR \' \'), \' \') as tags')])->groupBy('tag_relation_id');
-                $query->leftJoin(DB::raw('(' . $subQuery->toSql() . ') as tags'), 'tags.tag_relation_id', '=', $this->getTable() . '.' . $this->getKeyName());
-                $query->mergeBindings($subQuery);
+                $subQuery = TagRelation::where('tag_relation_type', '=','tcCore\Question')
+                    ->whereIn('tag_id', array_keys($tags))
+                    ->select([
+                        'tag_relation_id',
+                        DB::raw('CONCAT(\' \', GROUP_CONCAT(tag_id SEPARATOR \' \'), \' \') as tags')
+                    ])
+                    ->groupBy('tag_relation_id');
+
+                $query->leftJoinSub($subQuery, 'tags', function($join) {
+                    $join->on('tags.tag_relation_id', '=', $this->getTable() . '.' . $this->getKeyName());
+                });
             }
 
             // Search terms + tags

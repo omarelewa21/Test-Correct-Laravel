@@ -219,7 +219,7 @@ class QuestionBank extends Component
 
     private function getQuestionsQuery()
     {
-        return Question::filtered($this->getFilters())
+        $query = Question::filtered($this->getFilters())
             ->where(function ($query) {
                 $query->where('scope', '!=', 'cito')
                     ->orWhereNull('scope');
@@ -229,6 +229,11 @@ class QuestionBank extends Component
             ])
             ->orderby('created_at', 'desc')
             ->distinct();
+
+        logger($query->toSql());
+        logger($query->getBindings());
+
+        return $query;
     }
 
     public function getResultCountProperty()
