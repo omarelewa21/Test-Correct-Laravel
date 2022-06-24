@@ -16,14 +16,18 @@ class TestsOverviewContextMenu extends Component
     protected $listeners = [
         'showMenu',
     ];
+    public $x;
+    public $y;
 
 
-    public function showMenu($args) {
-
+    public function showMenu($args)
+    {
         $this->test = Test::whereUuid($args['testUuid'])->first();
-         $this->openTab = $args['openTab'];
-         $this->btnId = sprintf('test%s',$args['id']);
+        $this->openTab = $args['openTab'];
+        $this->btnId = sprintf('test%s', $args['id']);
         $this->displayMenu = true;
+        $this->x = $args['x'];
+        $this->y = $args['y'];
     }
 
     public function render()

@@ -3,22 +3,21 @@
     <div
         x-ref="contextMenu"
             x-cloak
+        x-show="show"
          x-data = "{
             show: @entangle('displayMenu'),
-            btnId: @entangle('btnId'),
+            posX: @js($x),
+            posY: @js($y),
             init() {
                 $nextTick(() => {
-                    const rect  = document.getElementById(this.btnId).getBoundingClientRect();
-                    $refs.contextMenu.style.top = rect.top +100 + 'px';
-                    $refs.contextMenu.style.left = rect.left - 100 + 'px';
-                    $refs.contextMenu.style.position = 'absolute';
-
+                    $refs.contextMenu.style.top = (this.posY ) + 'px';
+                    $refs.contextMenu.style.left = (this.posX) + 'px';
                 })
             }
              }"
 
 
-         class="absolute bg-white py-2 main-shadow rounded-10 w-72 z-30 "
+         class="fixed bg-white py-2 main-shadow rounded-10 w-72 z-30 "
          @click.outside="show = false; "
          x-transition:enter="transition ease-out origin-top-right duration-200"
          x-transition:enter-start="opacity-0 transform scale-90"
@@ -30,7 +29,6 @@
     >
         <button class="flex items-center space-x-2 py-1 px-4 base hover:text-primary hover:bg-offwhite transition w-full"
                 wire:click='$emit("openModal","teacher.planning-modal", {{ json_encode(["testUuid" => $this->test->uuid]) }})'
-
         >
             <x-icon.schedule/>
             <span class="text-base bold inherit">{{ __('cms.Inplannen') }}</span>

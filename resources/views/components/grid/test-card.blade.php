@@ -22,7 +22,8 @@
                 }">
             <button id="test{{ $test->id }}" class="px-4 py-1.5 -mr-4 rounded-full hover:bg-primary hover:text-white transition-all"
                     :class="{'bg-primary text-white' : testOptionMenu === true}"
-                    wire:click="$emitTo('teacher.tests-overview-context-menu', 'showMenu', {{ json_encode(['testUuid' => $test->uuid, 'openTab' => $this->openTab, 'id' => $test->id]) }})">
+                    @click="console.log($el.getBoundingClientRect());$wire.openContextMenu({x: $el.getBoundingClientRect().x, y: $el.getBoundingClientRect().y, testUuid: '{{ $test->uuid }}', openTab: '{{ $this->openTab }}', id: '{{ $test->id }}' })"
+            >
                 <x-icon.options class="text-sysbase"/>
             </button>
 
