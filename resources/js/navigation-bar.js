@@ -1,5 +1,3 @@
-
-
 document.addEventListener('alpine:init', () => {
     Alpine.data('navigationBar', () => ({
         hideTimeout: null,
@@ -8,6 +6,9 @@ document.addEventListener('alpine:init', () => {
         supportMenuTimeout: null,
         userMenu: false,
         supportMenu: false,
+        menuButtons: null,
+        menuButtonsWithoutItems: null,
+        activeMenuItem: null,
         init() {
             let navBar = this.$refs.nav_bar;
             this.bottom = this.$refs.menu_bottom;
@@ -15,12 +16,25 @@ document.addEventListener('alpine:init', () => {
             let scrollLeft = this.$refs.menu_scroll_left;
             let scrollRight = this.$refs.menu_scroll_right;
 
-            var menuButtons = this.bottom.querySelectorAll('.has-items');
-            menuButtons.forEach(element => {
+            this.menuButtonsWithItems = this.bottom.querySelectorAll('.has-items');
+            this.menuButtonsWithoutItems = this.bottom.querySelectorAll('div:not(.has-items)');
+
+            if (this.$wire.activeRoute.sub !== '') {
+                let activeTileItem = navBar.querySelector('.' + this.$wire.activeRoute.sub);
+                activeTileItem.classList.add('tile-active');
+            }
+            if (this.$wire.activeRoute.main !== ''){
+                this.activeMenuItem = this.bottom.querySelector('[data-menu="' + this.$wire.activeRoute.main + '"]');
+                this.activeMenuItem.classList.add('button-active');
+            }
+            this.resetActiveState();
+
+            this.menuButtonsWithItems.forEach(element => {
                 element.addEventListener('mouseover', (event) => {
-                    menuButtons.forEach(element => {
-                        tiles.querySelectorAll('.tile-group').forEach(tilegroup => { tilegroup.style.display = 'none';});
-                    });
+                    if(this.activeMenuItem) {
+                        this.activeMenuItem.classList.remove('button-active');
+                    }
+                    this.tileItemsHide();
                     this.tilesBarShow();
                     var tilesGroup = tiles.querySelector('.' + event.target.dataset.menu);
                     tilesGroup.style.display = 'flex';
@@ -28,10 +42,13 @@ document.addEventListener('alpine:init', () => {
                 });
             });
             this.bottom.querySelectorAll('div:not(.has-items)').forEach(element => element.addEventListener('mouseover', (event) => {
-                this.tilesBarHide();
+                this.tilesBarHide(0, false);
+                if(this.activeMenuItem){
+                    this.activeMenuItem.classList.remove('button-active');
+                }
             }));
             navBar.addEventListener('mouseleave', event => {
-                this.tilesBarHide();
+                this.tilesBarHide(500);
             });
             scrollLeft.addEventListener('click', event => {
                 this.menuBottomScrollLeft();
@@ -45,13 +62,38 @@ document.addEventListener('alpine:init', () => {
             this.$refs.support_button.addEventListener('click', event => {
                 this.supportMenuShow();
             });
+
         },
-        tilesBarHide() {
+        tileItemsHide(){
+            this.menuButtonsWithItems.forEach(element => {
+                tiles.querySelectorAll('.tile-group').forEach(tilegroup => { tilegroup.style.display = 'none';});
+            });
+        },
+        tilesBarHide(timeout = 1, reset = true) {
             this.hideTimeout = setTimeout(() => {
+                this.tileItemsHide();
                 tiles.style.setProperty('--top', '0px');
                 tiles.style.paddingLeft = '0px';
                 clearTimeout(this.hideTimeout);
-            },500);
+                if(reset){
+                    this.resetActiveState();
+                }
+            },timeout);
+            // alert(this.$wire.activeRoute.main == '');
+        },
+        resetActiveState() {
+            if (this.$wire.activeRoute.sub !== ''){
+                tiles.style.setProperty('--top', '98px');
+
+                var activeTile = tiles.querySelector('.' + this.$wire.activeRoute.main);
+                activeTile.style.display = "flex";
+
+                //menu item
+                this.setPaddingForActiveTileGroupByMenuItem(this.activeMenuItem);
+            }
+            if (this.activeMenuItem){
+                this.activeMenuItem.classList.add('button-active');
+            }
         },
         tilesBarShow() {
             clearTimeout(this.hideTimeout);
@@ -75,7 +117,7 @@ document.addEventListener('alpine:init', () => {
                 this.supportMenu = true;
                 this.supportMenuTimeout = setTimeout(() => {
                     this.supportMenu = false;
-                },1000);
+                },5000);
             } else {
                 this.supportMenu = false;
             }

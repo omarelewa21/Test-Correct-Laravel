@@ -35,7 +35,7 @@
                 </div>
 
                 <div x-show="selected('standard')">
-                    <x-icon.checkmark-circle/>
+                    <x-icon.checkmark-circle class="absolute top-2 right-2 overflow-visible"/>
                 </div>
                 <div class="-mt-1 ml-2.5 text-left">
                     <span :class="selected('standard') ? 'text-primary' : 'text-sysbase'">{{ __('cms.klassiek') }}</span>
@@ -50,7 +50,7 @@
                     <x-stickers.group-carousel/>
                 </div>
                 <div x-show="selected('carousel')">
-                    <x-icon.checkmark-circle/>
+                    <x-icon.checkmark-circle class="absolute top-2 right-2 overflow-visible"/>
                 </div>
                 <div class="-mt-1 ml-2.5 text-left">
                     <span :class="selected('carousel') ? 'text-primary' : 'text-sysbase'">{{ __('cms.carrousel') }}</span>

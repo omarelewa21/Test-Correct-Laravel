@@ -1,6 +1,6 @@
 require('./bootstrap');
-require('livewire-sortable');
 require('./swipe');
+require('./livewire-sortablejs');
 require('./core');
 require('./notify');
 require('./alpine');
@@ -10,6 +10,7 @@ require('./readspeaker_app');
 require('./attachment');
 require('./flatpickr');
 require('./navigation-bar');
+require('../../vendor/wire-elements/modal/resources/js/modal');
 
 
 window.ClassicEditors = [];
@@ -337,17 +338,13 @@ preventNavigationByKeydown = function(event)
 {
     return event.stopPropagation();
 }
-removeFilterItem = (el) => {
-    console.log(el);
-    document.querySelector(`[data-model-name="${el.parentElement.dataset.filter}"`)
-        .querySelector('select')
-        .dispatchEvent(
-            new CustomEvent('choice',
-                {'detail':
-                        {'choice':
-                                {'value': el.parentElement.dataset.filterValue }
-                        }
-                }
-            )
-        )
+
+livewireMessageContainsModelName = (message, modelName) => {
+    return message.updateQueue.map(queue => {
+
+        if(typeof queue.payload?.name !== 'undefined') {
+            return queue.payload.name?.includes(modelName)
+        }
+        return String(queue.payload?.params[0])?.includes(modelName)
+    })[0];
 }

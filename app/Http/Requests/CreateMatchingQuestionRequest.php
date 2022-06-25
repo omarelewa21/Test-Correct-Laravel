@@ -1,4 +1,6 @@
 <?php namespace tcCore\Http\Requests;
+use tcCore\MatchingQuestion;
+use Illuminate\Support\Str;
 
 class CreateMatchingQuestionRequest extends CreateQuestionRequest {
 
@@ -35,6 +37,23 @@ class CreateMatchingQuestionRequest extends CreateQuestionRequest {
 	public function sanitize()
 	{
 		return $this->all();
+	}
+
+
+	/**
+	 * Configure the validator instance.
+	 *
+	 * @param  \Illuminate\Validation\Validator $validator
+	 * @return void
+	 */
+	public function getWithValidator($validator)
+	{
+		$validator->after(function ($validator) {
+			if(Str::lower(request()->input('subtype')) === 'classify'){
+				$answers = request()->input('answers');
+				MatchingQuestion::validateWithValidator($validator, $answers);
+			}
+        });
 	}
 
 }

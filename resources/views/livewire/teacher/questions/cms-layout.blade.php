@@ -15,7 +15,7 @@
                         $store.cms.processing = false;
                         loading = false;
                         clearTimeout(loadingTimeout);
-                    }, 1500)
+                    }, 1000)
                 }
            }
 
@@ -38,8 +38,9 @@
      x-cloak
      x-on:question-change.window="handleQuestionChange($event.detail)"
      x-on:show-empty.window="empty = !empty"
-     x-on:new-question-added.window="removeDrawingLegacy()"
-     x-effect="if(!!empty) { $refs.editorcontainer.style.opacity = 0}"
+     x-on:new-question-added.window="removeDrawingLegacy(); $nextTick(() => empty = false)"
+     x-on:store-current-question.window="forceSyncEditors();"
+     x-effect="if(!!empty) { $refs.editorcontainer.style.opacity = 0 }"
      questionComponent
 >
     <x-partials.header.cms-editor :testName="$testName" :questionCount="$this->amountOfQuestions"/>
@@ -173,6 +174,11 @@
                     @endif
                 @endif
 
+                @if($this->duplicateQuestion)
+                    <div class="notification error stretched mt-4">
+                        <span class="title">{{ __('cms.duplicate_question_in_test') }}</span>
+                    </div>
+                @endif
             </div>
             <div class="flex justify-end px-4 sm:px-6 lg:px-8 py-5">
                 @if($this->showQuestionScore())
@@ -508,11 +514,11 @@
                 </div>
             @endif
         </div>
-        <x-modal.question-editor-delete-modal/>
-        <x-modal.question-editor-dirty-question-modal
-                :item="strtolower($this->isGroupQuestion() ? __('cms.group-question') : __('drawing-modal.Vraag'))"
-                :new="!$this->editModeForExistingQuestion()"/>
     </div>
+    <x-modal.question-editor-delete-modal/>
+    <x-modal.question-editor-dirty-question-modal
+            :item="strtolower($this->isGroupQuestion() ? __('cms.group-question') : __('drawing-modal.Vraag'))"
+            :new="!$this->editModeForExistingQuestion()"/>
     <div class="question-editor-footer" x-data>
         <div class="question-editor-footer-button-container">
 

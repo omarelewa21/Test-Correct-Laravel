@@ -7,7 +7,7 @@
             <div>
                 {!! $question->converted_question_html !!}
             </div>
-            <x-input.group wire:ignore class="w-full">
+            <x-input.group wire:ignore class="w-full ">
                 <x-input.mock-textarea :question="$question"
                                        disabled style="min-height:80px"
                 ></x-input.mock-textarea>

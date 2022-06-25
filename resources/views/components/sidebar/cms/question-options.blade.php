@@ -2,6 +2,7 @@
         x-data="{options:false, topOffset: $el.getBoundingClientRect().top, updatetime: new Date() }"
         x-init="$watch('options', value => topOffset = $root.getBoundingClientRect().y)"
         @click.stop="options = true"
+        @keydown.escape.stop="options = false"
         x-cloak
 >
     <div x-show="options" @click.stop="options=false" class="fixed inset-0 cursor-default z-10"

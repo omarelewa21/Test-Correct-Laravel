@@ -2,14 +2,18 @@
 
 namespace tcCore\Http\Livewire\Drawer;
 
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Livewire\Component;
+use tcCore\GroupQuestion;
 use tcCore\GroupQuestionQuestion;
 use tcCore\Http\Controllers\GroupQuestionQuestionsController;
 use tcCore\Http\Controllers\TestQuestionsController;
 use tcCore\Http\Livewire\Teacher\Questions\CmsFactory;
 use tcCore\Lib\GroupQuestionQuestion\GroupQuestionQuestionManager;
+use tcCore\Question;
 use tcCore\Test;
+use tcCore\TestQuestion;
 
 class Cms extends Component
 {
@@ -30,6 +34,8 @@ class Cms extends Component
     public $emitShowOnInit = false;
 
     public $newQuestionTypeName = '';
+
+    public $duplicateQuestions;
 
     protected function getListeners()
     {
@@ -54,13 +60,67 @@ class Cms extends Component
             return true;
         }
         if ($this->action === 'add') {
-            $this->newQuestionTypeName = CmsFactory::findQuestionNameByTypes($this->type, $this->subtype);
+            $this->setQuestionNameString($this->type, $this->subtype);
         }
+    }
+
+    public function booted()
+    {
+        $this->duplicateQuestions = Test::whereUuid($this->testId)->first()->getDuplicateQuestionIds();
     }
 
     public function render()
     {
         return view('livewire.drawer.cms');
+    }
+
+    public function updateTestItemsOrder($data)
+    {
+        DB::beginTransaction();
+        try {
+            $test = Test::whereUuid($this->testId)->first();
+            if(!$test){
+                throw new \Exception('test could not be found');
+            }
+            collect($data)->each(function($item) use ($test){
+                $question = Question::whereUuid($item['value'])->first();
+                if(!$question){
+                    throw new \Exception('question could not be found');
+                }
+                TestQuestion::where('test_id',$test->getKey())->where('question_id',$question->getKey())->update(['order' => $item['order']]);
+            });
+            DB::commit();
+        } catch (\Throwable $e) {
+            logger($e->getMessage());
+            DB::rollBack();
+            $this->refreshDrawer();
+        }
+    }
+
+    public function updateGroupItemsOrder($data)
+    {
+        $group = collect($data)->first();
+
+        $groupQuestion = GroupQuestion::whereUuid($group['value'])->first();
+        if(!$groupQuestion){
+            $this->refreshDrawer();
+            dd('could not find the group question');
+        }
+        DB::beginTransaction();
+        try {
+            collect($group['items'])->each(function ($item) use ($groupQuestion) {
+                $question = Question::whereUuid($item['value'])->first();
+                if(!$question){
+                    throw new \Exception('question could not be found');
+                }
+                GroupQuestionQuestion::where('group_question_id',$groupQuestion->getKey())->where('question_id',$question->getKey())->update(['order' => $item['order']]);
+            });
+            DB::commit();
+        } catch (\Throwable $e) {
+            logger($e->getMessage());
+            DB::rollBack();
+            $this->refreshDrawer();
+        }
     }
 
     public function showQuestion($testQuestionUuid, $questionUuid, $subQuestion, $shouldSave = true)
@@ -93,11 +153,12 @@ class Cms extends Component
 
     public function addQuestionResponse($args)
     {
-        $this->newQuestionTypeName = $args['subtype'] == 'group' ? __('cms.group-question') : CmsFactory::findQuestionNameByTypes($args['type'], $args['subtype']);
+        $this->setQuestionNameString($args['type'], $args['subtype']);
 
         if ($this->emptyStateActive) {
             $this->emptyStateActive = false;
             $this->dispatchBrowserEvent('question-change');
+            $this->dispatchBrowserEvent('new-question-added');
         }
         $this->dispatchBrowserEvent('processing-end');
         $this->groupId = null;
@@ -119,21 +180,6 @@ class Cms extends Component
             }
             return [$testQuestion];
         });
-    }
-
-    public function getQuestionNameForDisplay($question)
-    {
-        if ($question->type === "MultipleChoiceQuestion") {
-            if ($question->subtype === "ARQ") {
-                return 'question.arq';
-            }
-
-            return 'question.' . Str::kebab($question->subtype);
-        }
-        if ($question->type === "OpenQuestion") {
-            return 'question.open-long-short';
-        }
-        return 'question.' . Str::kebab(Str::replaceFirst('Question', '', $question->type));
     }
 
     public function addGroup()
@@ -222,11 +268,46 @@ class Cms extends Component
 
     public function deleteQuestionByQuestionId($questionId)
     {
-        $testQuestionUuid = $this->questionsInTest->filter(function ($question) use ($questionId) {
+        $testQuestion = $this->questionsInTest->filter(function ($question) use ($questionId) {
             return $question->question_id == $questionId;
-        })->first()->uuid;
+        })->first();
 
-        $this->deleteQuestion($testQuestionUuid);
+//        if (!$testQuestion) {
+//            $testId = Test::whereUuid($this->testId)->value('id');
+//            $groupQuestionsInTest = GroupQuestionQuestion::select('uuid', 'question_id', 'group_question_id')
+//                ->whereIn(
+//                    'group_question_id',
+//                    TestQuestion::from('test_questions as tq')
+//                        ->select('q.id')
+//                        ->join('questions as q', 'tq.question_id', '=', 'q.id')
+//                        ->where('tq.test_id', '=', $testId)
+//                        ->where('q.type', '=', 'GroupQuestion')
+//                        ->whereNull('q.deleted_at')
+//                        ->withTrashed()
+//                )
+//                ->get()
+//                ->mapWithKeys(function ($groupQuestionQuestion) {
+//                    return [
+//                        $groupQuestionQuestion->question_id => [
+//                            'groupQuestionQuestionUuid' => $groupQuestionQuestion->uuid,
+//                            'groupQuestionId'           => $groupQuestionQuestion->group_question_id
+//                        ]
+//                    ];
+//                });
+//
+//            if ($groupQuestionQuestionData = $groupQuestionsInTest->get($questionId)) {
+//                $testQuestion = TestQuestion::where('question_id', $groupQuestionQuestionData['groupQuestionId'])
+//                                                ->where('test_id', $testId)
+//                                                ->value('uuid');
+//                $this->dispatchBrowserEvent('question-removed');
+//                return $this->deleteSubQuestion($groupQuestionQuestionData['groupQuestionQuestionUuid'], $testQuestion);
+//            }
+//
+//            $this->dispatchBrowserEvent('notify', ['message' => 'Er is iets mis gegaan met verwijderen van de vraag.', 'error']);
+//            return false;
+//        }
+        $this->dispatchBrowserEvent('question-removed');
+        $this->deleteQuestion($testQuestion->uuid);
     }
 
     public function deleteSubQuestion($groupQuestionQuestionId, $testQuestionId)
@@ -268,6 +349,13 @@ class Cms extends Component
     public function handleCmsInit()
     {
         if ($this->emitShowOnInit) {
+            $this->showFirstQuestionOfTest();
+        }
+    }
+
+    public function showFirstQuestionOfTest()
+    {
+        if ($this->questionsInTest->isNotEmpty()) {
             $this->showQuestionByTestQuestion($this->questionsInTest->first());
         }
     }
@@ -299,5 +387,10 @@ class Cms extends Component
     private function shouldRedirectFromSubQuestion($groupQuestionQuestionId)
     {
         return $this->groupQuestionQuestionId === $groupQuestionQuestionId;
+    }
+
+    private function setQuestionNameString($type, $subtype)
+    {
+        $this->newQuestionTypeName = $subtype === 'group' ? __('cms.group-question') : CmsFactory::findQuestionNameByTypes($type, $subtype);
     }
 }

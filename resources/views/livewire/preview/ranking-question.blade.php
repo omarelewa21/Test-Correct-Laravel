@@ -24,7 +24,7 @@
             @foreach($answerStruct as $answer)
                 <x-drag-item sortId="{{ $answer->value }}"
                              wireKey="option-{{ $answer->value }}">
-                    {{ $answerText[$answer->value] }}
+                    {{ html_entity_decode($answerText[$answer->value]) }}
                 </x-drag-item>
             @endforeach
         </div>

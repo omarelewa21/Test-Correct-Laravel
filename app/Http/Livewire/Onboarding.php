@@ -51,6 +51,8 @@ class Onboarding extends Component
 
     public $entree_message = '';
 
+    public $showSubjects = true;
+
 
     protected $queryString = ['step', 'email', 'confirmed', 'ref','entree_message', 'level'];
 
@@ -121,7 +123,7 @@ class Onboarding extends Component
     {
         return [
             'registration.school_location' => 'required',
-            'registration.website_url'     => 'required',
+            'registration.website_url'     => '',
             'registration.address'         => 'required',
             'registration.house_number'    => 'required|regex:/\d/',
             'registration.postcode'        => 'required|min:6|regex:/^[1-9][0-9]{3}\s?[a-zA-Z]{2}$/',
@@ -145,7 +147,7 @@ class Onboarding extends Component
         $this->registration->username = $this->email;
         $this->registration->gender = 'male';
 
-        if (!$this->step != 1 || $this->step >= '4') {
+        if (!$this->step != 1 || $this->step > '4') {
             $this->step = 1;
         }
         if (!$this->email) {
@@ -428,5 +430,10 @@ class Onboarding extends Component
         return collect($subjects)->map(function($subject) {
             return __('subject.'.$subject);
         })->toArray();
+    }
+
+    public function finish()
+    {
+        $this->step = 4;
     }
 }

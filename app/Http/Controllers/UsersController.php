@@ -462,7 +462,7 @@ class UsersController extends Controller
     public function isAccountVerified(Request $request)
     {
         $user = User::where('id', $request->user_id)->first();
-        if ($user->account_verified) {
+        if ($user && $user->account_verified) {
             return Response::make(true, 200);
         }
         return Response::make(null, 204);

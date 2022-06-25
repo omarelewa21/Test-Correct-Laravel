@@ -1,4 +1,4 @@
-<x-layouts.pdf>
+<x-layouts.pdf >
     <div class="w-full flex flex-col mb-5 overview"
          x-data="{marginTop: 0}"
          x-on:unload="(function () {window.scrollTo(0, 0);})"
@@ -9,7 +9,6 @@
              x-show="showMe"
              x-on:force-taken-away-blur.window="showMe = !$event.detail.shouldBlur;"
              class="w-full space-y-8 mt-10" :style="calculateMarginTop()">
-            <h1 class="mb-7" style="padding-left:40px;">{{ __('test.answer_model') }}</h1>
             @push('styling')
                 <style>
                     {!! $styling !!}
