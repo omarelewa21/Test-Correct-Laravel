@@ -6753,7 +6753,7 @@ window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
 window.Pusher = __webpack_require__(/*! pusher-js */ "./node_modules/pusher-js/dist/web/pusher.js");
 window.Echo = new laravel_echo__WEBPACK_IMPORTED_MODULE_0__["default"]({
   broadcaster: 'pusher',
-  key: "fc18ed69b446aeb8c8a5",
+  key: "2149988ad52a600a2309",
   cluster: "eu",
   forceTLS: true
 });
@@ -8872,7 +8872,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview) {
           "x2": cursorPosition.x,
           "y2": cursorPosition.y,
           "marker-end": "url(#svg-".concat(drawingApp.params.endmarkerType, "-line)"),
-          "stroke": UI.strokeColor.value,
+          "stroke": UI.lineColor.value,
           "stroke-width": UI.strokeWidth.value,
           "opacity": parseFloat(UI.elemOpacityNumber.value / 100)
         };
@@ -8881,7 +8881,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview) {
         return {
           "d": "M ".concat(cursorPosition.x, ",").concat(cursorPosition.y),
           "fill": "none",
-          "stroke": UI.strokeColor.value,
+          "stroke": UI.lineColor.value,
           "stroke-width": UI.strokeWidth.value,
           "opacity": parseFloat(UI.elemOpacityNumber.value / 100)
         };

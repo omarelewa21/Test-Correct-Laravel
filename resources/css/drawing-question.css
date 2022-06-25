@@ -218,6 +218,10 @@
     outline: 2px solid blue;
 }
 
+#drawing-tool .add-border {
+    outline: 2px solid black;
+}
+
 #drawing-tool .outline {
     outline: 3px solid blue;
     outline-offset: 1px;
@@ -239,6 +243,23 @@
     right: 1.3rem;
     top: 0.8rem;
     color: blue;
+}
+
+#drawing-tool #line-color {
+    width: 2.5rem;
+    height: 2.5rem;
+    border: var(--default-border);
+    border-radius: 0.5rem;
+    background: var(--all-OffWhite);
+}
+
+#drawing-tool #line-color {
+    --height: 0.5rem;
+}
+#drawing-tool #line-color {
+    height: var(--height);
+    transform: rotate(-45deg);
+    margin: calc(50% - (var(--height) / 2)) 0;
 }
 
 /* Range inputs */

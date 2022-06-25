@@ -25,7 +25,7 @@
                 <!-- Selector Input -->
                     <div
                         title="{{$title}}"
-                        class="color-pallete cursor-pointer bg-white"
+                        class="color-pallete cursor-pointer bg-white @if($name === 'line-color') add-border @endif"
                         @click="isOpen = !isOpen"
                         @mouseover="showX = true"
                         @mouseleave="showX = false"

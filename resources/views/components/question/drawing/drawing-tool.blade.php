@@ -107,12 +107,12 @@
                 </div>
 
                 <div class="property-group" id="edge">
-                    <template x-if="lineBtn">
+                    <div x-show="lineBtn">
                         <x-input.color-picker  :name="'line-color'" :id="'line-color'" :title="__('drawing-modal.Randkleur')"/>
-                    </template>
-                    <template x-if="!lineBtn">
+                    </div>
+                    <div x-show="!lineBtn">
                         <x-input.color-picker  :name="'stroke-color'" :id="'stroke-color'" :title="__('drawing-modal.Randkleur')"/>
-                    </template>
+                    </div>
                     <div class="input-with-button-group">
                         <button id="decr-stroke" class="Secondary" title="{{ __('drawing-modal.Vergroot randdikte') }}">
                             <div>
