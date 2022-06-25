@@ -1,7 +1,7 @@
 <div id="drawing-tool"
      class="rounded-10 @student student @else teacher @endstudent"
      wire:ignore
-
+    x-data="{lineBtn:false}"
 >
     <div class="section-container">
         <section>
@@ -12,22 +12,22 @@
                             <x-icon.drag/>
                         </div>
                     </button>
-                    <button id="add-rect-btn" title="{{ __('drawing-modal.Rechthoek') }}" data-button-group="tool">
+                    <button id="add-rect-btn" title="{{ __('drawing-modal.Rechthoek') }}" data-button-group="tool" @click="lineBtn=false">
                         <div>
                             <x-icon.square/>
                         </div>
                     </button>
-                    <button id="add-circle-btn" title="{{ __('drawing-modal.Cirkel') }}" data-button-group="tool">
+                    <button id="add-circle-btn" title="{{ __('drawing-modal.Cirkel') }}" data-button-group="tool" @click="lineBtn=false">
                         <div>
                             <x-icon.circle/>
                         </div>
                     </button>
-                    <button id="add-line-btn" title="{{ __('drawing-modal.Rechte lijn') }}" data-button-group="tool">
+                    <button id="add-line-btn" title="{{ __('drawing-modal.Rechte lijn') }}" data-button-group="tool" @click="lineBtn=true">
                         <div>
                             <x-icon.line/>
                         </div>
                     </button>
-                    <button id="add-freehand-btn" title="{{ __('drawing-modal.Penlijn') }}" data-button-group="tool">
+                    <button id="add-freehand-btn" title="{{ __('drawing-modal.Penlijn') }}" data-button-group="tool" @click="lineBtn=true">
                         <div>
                             <x-icon.freehand/>
                         </div>
@@ -107,7 +107,12 @@
                 </div>
 
                 <div class="property-group" id="edge">
-                    <x-input.color-picker  :name="'stroke-color'" :id="'stroke-color'" :title="__('drawing-modal.Randkleur')"/>
+                    <template x-if="lineBtn">
+                        <x-input.color-picker  :name="'line-color'" :id="'line-color'" :title="__('drawing-modal.Randkleur')"/>
+                    </template>
+                    <template x-if="!lineBtn">
+                        <x-input.color-picker  :name="'stroke-color'" :id="'stroke-color'" :title="__('drawing-modal.Randkleur')"/>
+                    </template>
                     <div class="input-with-button-group">
                         <button id="decr-stroke" class="Secondary" title="{{ __('drawing-modal.Vergroot randdikte') }}">
                             <div>
