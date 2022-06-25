@@ -108,7 +108,7 @@
 
                 <div class="property-group" id="edge">
                     <div x-show="lineBtn">
-                        <x-input.color-picker  :name="'line-color'" :id="'line-color'" :title="__('drawing-modal.Randkleur')"/>
+                        <x-input.color-picker  :name="'line-color'" :id="'line-color'" :title="__('drawing-modal.lineColor')"/>
                     </div>
                     <div x-show="!lineBtn">
                         <x-input.color-picker  :name="'stroke-color'" :id="'stroke-color'" :title="__('drawing-modal.Randkleur')"/>
