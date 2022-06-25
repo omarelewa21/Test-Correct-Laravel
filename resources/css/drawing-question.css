@@ -219,7 +219,13 @@
 }
 
 #drawing-tool .add-border {
-    outline: 2px solid black;
+    outline: var(--default-border);
+    border-radius: 0.5rem;
+}
+
+#drawing-tool .add-border:hover {
+    outline: var(--solid-Primary-border);
+    border-radius: 0.5rem;
 }
 
 #drawing-tool .outline {
