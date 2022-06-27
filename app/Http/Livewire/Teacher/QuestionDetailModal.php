@@ -46,4 +46,9 @@ class QuestionDetailModal extends ModalComponent
         $this->emitTo(QuestionBank::class, 'addQuestionFromDetail', $this->question->id);
         $this->closeModal();
     }
+
+    public function openPreviewMode()
+    {
+        $this->emit('openModal', QuestionCmsPreviewModal::class, ['uuid' => $this->question->uuid]);
+    }
 }
