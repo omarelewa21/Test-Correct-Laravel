@@ -1488,7 +1488,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview) {
                     "x2": cursorPosition.x,
                     "y2": cursorPosition.y,
                     "marker-end": `url(#svg-${drawingApp.params.endmarkerType}-line)`,
-                    "stroke": UI.strokeColor.value,
+                    "stroke": UI.lineColor.value,
                     "stroke-width": UI.strokeWidth.value,
                     "opacity": parseFloat(UI.elemOpacityNumber.value / 100),
                 };
@@ -1496,7 +1496,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview) {
                 return {
                     "d": `M ${cursorPosition.x},${cursorPosition.y}`,
                     "fill": "none",
-                    "stroke": UI.strokeColor.value,
+                    "stroke": UI.lineColor.value,
                     "stroke-width": UI.strokeWidth.value,
                     "opacity": parseFloat(UI.elemOpacityNumber.value / 100),
                 };
