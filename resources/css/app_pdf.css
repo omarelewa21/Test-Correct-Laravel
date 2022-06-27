@@ -92,6 +92,9 @@ p{
     max-width: none !important;
     margin-top: 10px;
 }
+.student_test_take_checkmark_pdf{
+    margin-top: 0px;
+}
 .multiple-choice-question.disabled, .multiple-choice-question.disabled:hover {
     background: white;
     border: solid 2px #c3d0ed;
@@ -328,4 +331,7 @@ div.drag-item>div{
 }
 .content-section {
     box-shadow: none;
+}
+.cta-primary {
+    color: #3ab753;
 }

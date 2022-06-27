@@ -4904,11 +4904,11 @@ video {
 .mt-10{
 	margin-top: 2.5rem;
 }
-.mb-7{
-	margin-bottom: 1.75rem;
-}
 .mt-40{
 	margin-top: 10rem;
+}
+.mb-7{
+	margin-bottom: 1.75rem;
 }
 .ml-auto{
 	margin-left: auto;
