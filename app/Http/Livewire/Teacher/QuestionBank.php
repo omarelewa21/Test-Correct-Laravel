@@ -4,8 +4,10 @@ namespace tcCore\Http\Livewire\Teacher;
 
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Str;
 use Livewire\Component;
 use tcCore\EducationLevel;
+use tcCore\GroupQuestion;
 use tcCore\Http\Controllers\AuthorsController;
 use tcCore\Http\Controllers\GroupQuestionQuestionsController;
 use tcCore\Http\Controllers\TestQuestionsController;
@@ -37,6 +39,8 @@ class QuestionBank extends Component
     public $inGroup = false;
 
     private $test;
+
+    public $groupQuestionDetail;
 
     private $allowedTabs = [
         'school_location',
@@ -219,21 +223,17 @@ class QuestionBank extends Component
 
     private function getQuestionsQuery()
     {
-        $query = Question::filtered($this->getFilters())
+        return Question::filtered($this->getFilters())
             ->where(function ($query) {
                 $query->where('scope', '!=', 'cito')
                     ->orWhereNull('scope');
             })
+            ->where('is_subquestion', 0)
             ->with([
                 'subject:id,name',
             ])
             ->orderby('created_at', 'desc')
             ->distinct();
-
-        logger($query->toSql());
-        logger($query->getBindings());
-
-        return $query;
     }
 
     public function getResultCountProperty()
@@ -315,6 +315,20 @@ class QuestionBank extends Component
     public function openDetail($questionUuid)
     {
         $this->emit('openModal', 'teacher.question-detail-modal', ['questionUuid' => $questionUuid, 'testUuid' => $this->testId]);
+    }
+
+    public function showGroupDetails($groupUuid)
+    {
+        $groupQuestionId = Question::whereUuid($groupUuid)->value('id');
+        $this->groupQuestionDetail = GroupQuestion::find($groupQuestionId);
+        $this->groupQuestionDetail->loadRelated();
+
+        return true;
+    }
+
+    public function clearGroupDetails()
+    {
+        $this->reset('groupQuestionDetail');
     }
 
     public function testSettingsUpdated($newData)

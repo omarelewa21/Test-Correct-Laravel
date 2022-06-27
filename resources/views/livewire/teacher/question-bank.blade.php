@@ -1,15 +1,42 @@
 <div id="question-bank"
-     class="flex flex-col relative w-full min-h-full bg-lightGrey border-t border-secondary overflow-auto"
-     x-data="{openTab: @entangle('openTab'), checkedCount: 0, inGroup: @entangle('inGroup')}"
-     x-init="$watch('$store.questionBank.inGroup', value => inGroup = value);"
-     @checked="$event.detail ? checkedCount += 1 : checkedCount -= 1"
+     class="flex flex-col relative w-full min-h-full bg-lightGrey border-t border-secondary overflow-auto overflow-x-hidden"
+     x-data="{openTab: @entangle('openTab'), inGroup: @entangle('inGroup'), groupDetail: null}"
+     x-init="
+        groupDetail = $el.querySelector('#groupdetail');
+        $watch('$store.questionBank.inGroup', value => inGroup = value);
+        $watch('$store.questionBank.active', value => closeGroupDetail());
+        showGroupDetails = async (groupQuestionUuid) => {
+            let readyForSlide = await $wire.showGroupDetails(groupQuestionUuid);
+
+            if (readyForSlide) {
+                groupDetail.style.left = 0;
+                $el.closest('.drawer').scrollTo({top: 0, behaviour: 'smooth'});
+                $el.scrollTo({top: 0, behaviour: 'smooth'});
+                $el.style.maxHeight = groupDetail.offsetHeight + 'px';
+                $nextTick(() => {
+                    $el.querySelector('.main').style.display = 'none'
+                    handleVerticalScroll($el.closest('.slide-container'));
+                })
+
+            }
+        }
+
+        closeGroupDetail = () => {
+            $el.querySelector('.main').style.display = 'flex'
+            groupDetail.style.left = '100%';
+            $nextTick(() => {
+                handleVerticalScroll($el.closest('.slide-container'));
+                $wire.clearGroupDetails();
+                groupDetail.querySelector('.subquestion-grid').innerHTML = '';
+            })
+        }
+        "
      @question-added.window="Notify.notify('Vraag toegevoegd!');"
      @question-removed.window="Notify.notify('Vraag verwijderd!')"
-
 >
     <div class="flex w-full border-b border-secondary">
         <div class="w-full max-w-5xl lg:max-w-7xl  mx-auto">
-            <div class="flex w-full space-x-4 mx-8">
+            <div class="flex w-full space-x-4 mx-8 max-w-max">
                 <div>
                     <div class="flex relative hover:text-primary cursor-pointer"
                          @click="openTab = 'personal'"
@@ -53,7 +80,7 @@
             </div>
         </div>
     </div>
-    <div class="flex w-full">
+    <div class="flex w-full main">
         <div class="w-full max-w-5xl lg:max-w-7xl mx-auto divide-y divide-secondary">
             <div class="mx-8">
                 {{-- Filters--}}
@@ -205,18 +232,12 @@
             </div>
         </div>
     </div>
-    <div class="hidden sticky h-0 bottom-20 ml-auto mr-4">
-        <div class="flex justify-end mb-2">
-            <span class="relative text-sm text-white rounded-full flex items-center justify-center main-shadow"
-                  :class="checkedCount > 0 ? 'bg-primary' : 'bg-midgrey'"
-                  style="min-width: 30px; height: 30px"
-            >
-                <span class="inline-flex -ml-px mt-px" x-text="checkedCount">0</span>
-            </span>
+
+    <div id="groupdetail" wire:ignore.self>
+        <div class="max-w-5xl lg:max-w-7xl mx-auto">
+            @if($this->groupQuestionDetail != null)
+                <x-partials.group-question-details :groupQuestion="$this->groupQuestionDetail" :testUuid="$this->testId"/>
+            @endif
         </div>
-        <x-button.cta class="main-shadow">
-            <x-icon.checkmark/>
-            <span>{{ __('cms.Toevoegen') }}</span>
-        </x-button.cta>
     </div>
 </div>
