@@ -24,7 +24,7 @@
                 </div>
 
                 <div class="text-sm">
-                    <span class="note">Laatst gewijzigd:</span>
+                    <span class="note">{{ __('general.Laatst gewijzigd') }}:</span>
                     <span class="note">{{ $lastUpdated }}</span>
                 </div>
             </div>
@@ -49,9 +49,11 @@
 
         <x-grid class="subquestion-grid w-full">
 
-            @foreach($subQuestions as $sub)
+            @forelse($subQuestions as $sub)
                 <x-grid.question-card :question="$sub->question->getQuestionInstance()" :testUuid="$this->testId"/>
-            @endforeach
+            @empty
+                <span>Geen subvragen</span>
+            @endforelse
         </x-grid>
     </div>
 </div>

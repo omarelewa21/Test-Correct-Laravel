@@ -386,6 +386,7 @@ document.addEventListener('alpine:init', () => {
             this.$store.cms.scrollPos = 0
         },
         handleVerticalScroll(el) {
+
             this.$refs.questionEditorSidebar.style.minHeight = 'auto';
             this.$refs.questionEditorSidebar.style.height = 'auto';
 
@@ -396,8 +397,7 @@ document.addEventListener('alpine:init', () => {
                 this.drawer.classList.add('overflow-hidden');
                 this.drawer.classList.remove('overflow-auto');
             }
-
-
+            
             this.$nextTick(() => {
                 this.$refs.questionEditorSidebar.style.minHeight = this.drawer.offsetHeight+'px';
                 this.$refs.questionEditorSidebar.style.height = el.offsetHeight+'px';

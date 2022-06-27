@@ -30,7 +30,7 @@
         <div class="flex">
             4 vraaggroep(en), 37 vragen
         </div>
-        <div> {{ __('laatst gewijzigd') }}: {{ $test->updated_at }}</div>
+        <div> {{ __('general.Laatst gewijzigd') }}: {{ $test->updated_at }}</div>
     </div>
 
     <div class="flex w-full justify-end mt-3 note text-sm space-x-2.5">
