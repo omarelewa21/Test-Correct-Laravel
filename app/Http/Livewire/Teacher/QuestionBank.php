@@ -4,6 +4,7 @@ namespace tcCore\Http\Livewire\Teacher;
 
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Str;
 use Livewire\Component;
 use tcCore\EducationLevel;
 use tcCore\Http\Controllers\AuthorsController;
@@ -315,6 +316,13 @@ class QuestionBank extends Component
     public function openDetail($questionUuid)
     {
         $this->emit('openModal', 'teacher.question-detail-modal', ['questionUuid' => $questionUuid, 'testUuid' => $this->testId]);
+    }
+
+    public function showGroupDetails($groupUuid)
+    {
+        sleep(3);
+
+        return true;
     }
 
     public function testSettingsUpdated($newData)

@@ -146,6 +146,14 @@
 {{--                            }--}}
                             filterLoading = false;
                         })
+
+                        showGroupDetails = async (groupQuestionUuid) => {
+                            let readyForSlide = await $wire.showGroupDetails(groupQuestionUuid);
+
+                            if (readyForSlide) {
+                                console.log('klaar');
+                            }
+                        }
                      "
                      @enable-loading-grid.window="filterLoading = true;"
                 >

@@ -1,6 +1,10 @@
 <div {{ $attributes->merge(['class' => 'grid-card bg-white p-6 rounded-10 card-shadow hover:text-primary cursor-pointer']) }}
      wire:key="questioncard-{{ $question->getQuestionInstance()->uuid }}"
-     wire:click="openDetail('{{ $question->uuid }}')"
+     @if($question->isType('GroupQuestion'))
+         @click="showGroupDetails('{{ $question->uuid }}')"
+     @else
+         wire:click="openDetail('{{ $question->uuid }}')"
+     @endif
 >
     <div class="flex w-full justify-between mb-2">
         <div class="flex">
