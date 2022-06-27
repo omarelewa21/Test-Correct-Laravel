@@ -376,7 +376,6 @@ class EntreeOnboarding extends Onboarding
                 $this->step = 3;
             } catch (\Throwable $e) {
                 DB::rollBack();
-                dd($e);
                 $this->step = 'error';
                 Bugsnag::notifyException($e);
             }
