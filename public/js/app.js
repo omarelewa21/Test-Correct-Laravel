@@ -9472,12 +9472,12 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview) {
    */
 
 
-  function setSliderColor(slider) {
+  window.setSliderColor = function (slider) {
     var leftColorHexValue = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : getRootCSSProperty("--all-Base");
     var ratio = calculateRatioOfValueToMax(slider);
     var leftColorRgbaValue = convertHexToRgbaColor(leftColorHexValue, slider.value);
     slider.style.setProperty("--slider-color", "linear-gradient(to right, ".concat(leftColorRgbaValue, " 0%, ").concat(leftColorRgbaValue, " ").concat(ratio, "%, var(--all-White) ").concat(ratio, "%, var(--all-White) 100%)"));
-  }
+  };
   /**
    * Gets the value of the property from the CSS :root selector element
    * @param {string} property
