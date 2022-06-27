@@ -48,7 +48,7 @@ class QuestionBank extends Component
         return [
             'testSettingsUpdated',
             'addQuestionFromDetail' => 'addQuestionToTest'
-            ];
+        ];
     }
 
     public function mount()
@@ -179,8 +179,8 @@ class QuestionBank extends Component
     {
         $questionIdList = optional($this->test)->getQuestionOrderList() ?? [];
         return $questionIdList + $this->test->testQuestions->map(function ($testQ) {
-            return $testQ->question()->where('type', 'GroupQuestion')->value('id');
-        })->filter()->flip()->toArray();
+                return $testQ->question()->where('type', 'GroupQuestion')->value('id');
+            })->filter()->flip()->toArray();
     }
 
     private function removeQuestionFromTest($questionId)
@@ -281,6 +281,31 @@ class QuestionBank extends Component
                 'subject_id'           => [$this->test->subject_id],
                 'education_level_year' => [$this->test->education_level_year],
                 'education_level_id'   => [$this->test->education_level_id],
+                'without_groups'       => '',
+                'author_id'            => []
+            ];
+        });
+    }
+
+    public function clearFilters($tab = null)
+    {
+        if ($tab) {
+            return $this->filters[$tab] = [
+                'search'               => '',
+                'subject_id'           => [],
+                'education_level_year' => [],
+                'education_level_id'   => [],
+                'without_groups'       => '',
+                'author_id'            => []
+            ];
+        }
+
+        return collect($this->allowedTabs)->each(function ($tab) {
+            $this->filters[$tab] = [
+                'search'               => '',
+                'subject_id'           => [],
+                'education_level_year' => [],
+                'education_level_id'   => [],
                 'without_groups'       => '',
                 'author_id'            => []
             ];

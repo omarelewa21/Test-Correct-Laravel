@@ -67,41 +67,52 @@
                             <x-icon.search class="absolute right-0 -top-2"/>
                         </div>
                     </div>
-                    <div class="flex flex-wrap w-full space-x-2" x-cloak>
-                        <x-input.choices-select :multiple="true"
-                                                :options="$this->subjects"
-                                                :withSearch="true"
-                                                placeholderText="{{ __('student.subject')}}"
-                                                wire:model="filters.{{ $this->openTab }}.subject_id"
-                                                wire:key="subject_id_{{ $this->openTab }}"
-                                                filterContainer="questionbank-{{ $this->openTab }}-active-filters"
-                        />
-                        <x-input.choices-select :multiple="true"
-                                                :options="$this->educationLevel"
-                                                :withSearch="true"
-                                                placeholderText="{{ __('general.Niveau')}}"
-                                                wire:model="filters.{{ $this->openTab }}.education_level_id"
-                                                wire:key="education_level_id_{{ $this->openTab }}"
-                                                filterContainer="questionbank-{{ $this->openTab }}-active-filters"
-                        />
-                        <x-input.choices-select :multiple="true"
-                                                :options="$this->educationLevelYear"
-                                                :withSearch="true"
-                                                placeholderText="{{ __('general.Leerjaar')}}"
-                                                wire:model="filters.{{ $this->openTab }}.education_level_year"
-                                                wire:key="education_level_year_{{ $this->openTab }}"
-                                                filterContainer="questionbank-{{ $this->openTab }}-active-filters"
-                        />
-                        <span x-show="openTab !== 'personal'">
-                    <x-input.choices-select :multiple="true"
-                                            :options="$this->authors"
-                                            :withSearch="true"
-                                            placeholderText="{{ __('general.Auteurs')}}"
-                                            wire:model="filters.{{ $this->openTab }}.author_id"
-                                            wire:key="author_id_{{ $this->openTab }}"
-                                            filterContainer="questionbank-{{ $this->openTab }}-active-filters"
-                    />
-                        </span>
+                    <div class="flex w-full items-center">
+                        <div class="flex flex-wrap w-full space-x-2 items-center" x-cloak>
+                            <x-input.choices-select :multiple="true"
+                                                    :options="$this->subjects"
+                                                    :withSearch="true"
+                                                    placeholderText="{{ __('student.subject')}}"
+                                                    wire:model="filters.{{ $this->openTab }}.subject_id"
+                                                    wire:key="subject_id_{{ $this->openTab }}"
+                                                    filterContainer="questionbank-{{ $this->openTab }}-active-filters"
+                            />
+                            <x-input.choices-select :multiple="true"
+                                                    :options="$this->educationLevel"
+                                                    :withSearch="true"
+                                                    placeholderText="{{ __('general.Niveau')}}"
+                                                    wire:model="filters.{{ $this->openTab }}.education_level_id"
+                                                    wire:key="education_level_id_{{ $this->openTab }}"
+                                                    filterContainer="questionbank-{{ $this->openTab }}-active-filters"
+                            />
+                            <x-input.choices-select :multiple="true"
+                                                    :options="$this->educationLevelYear"
+                                                    :withSearch="true"
+                                                    placeholderText="{{ __('general.Leerjaar')}}"
+                                                    wire:model="filters.{{ $this->openTab }}.education_level_year"
+                                                    wire:key="education_level_year_{{ $this->openTab }}"
+                                                    filterContainer="questionbank-{{ $this->openTab }}-active-filters"
+                            />
+                            <span x-show="openTab !== 'personal'">
+                                        <x-input.choices-select :multiple="true"
+                                                                :options="$this->authors"
+                                                                :withSearch="true"
+                                                                placeholderText="{{ __('general.Auteurs')}}"
+                                                                wire:model="filters.{{ $this->openTab }}.author_id"
+                                                                wire:key="author_id_{{ $this->openTab }}"
+                                                                filterContainer="questionbank-{{ $this->openTab }}-active-filters"
+                                        />
+                                            </span>
+                        </div>
+
+                        <x-button.text-button class="ml-auto text-base"
+                                              size="sm"
+                                              @click="$dispatch('enable-loading-grid') ;document.getElementById('questionbank-{{ $this->openTab }}-active-filters').innerHTML = '';"
+                                              wire:click="clearFilters('{{ $this->openTab }}')"
+                        >
+                            <span class="min-w-max">{{ __('teacher.Filters wissen') }}</span>
+                            <x-icon.close-small/>
+                        </x-button.text-button>
                     </div>
 
                     <div id="questionbank-{{ $this->openTab }}-active-filters"
@@ -117,25 +128,26 @@
                 <div class="flex flex-col py-4" style="min-height: 500px"
                      x-data="{filterLoading: false}"
                      x-init="
-                    Livewire.hook('message.sent', (message, component) => {
-                        if (component.el.id !== 'question-bank') {
-                            return;
-                        }
-                        if (!livewireMessageContainsModelName(message, 'filter') && !livewireMessageContainsModelName(message, 'openTab')) {
-                            return;
-                        }
-                        filterLoading = true;
-                    })
-                    Livewire.hook('message.processed', (message, component) => {
-                        if (component.el.id !== 'question-bank') {
-                            return;
-                        }
-                        if (!livewireMessageContainsModelName(message, 'filter') && !livewireMessageContainsModelName(message, 'openTab')) {
-                            return;
-                        }
-                        filterLoading = false;
-                    })
-                 "
+                        Livewire.hook('message.sent', (message, component) => {
+                            if (component.el.id !== 'question-bank') {
+                                return;
+                            }
+                            if (!livewireMessageContainsModelName(message, 'filter') && !livewireMessageContainsModelName(message, 'openTab')) {
+                                return;
+                            }
+                            filterLoading = true;
+                        })
+                        Livewire.hook('message.processed', (message, component) => {
+{{--                            if (component.el.id !== 'question-bank') {--}}
+{{--                                return;--}}
+{{--                            }--}}
+{{--                            if (!livewireMessageContainsModelName(message, 'filter') && !livewireMessageContainsModelName(message, 'openTab') ) {--}}
+{{--                                return;--}}
+{{--                            }--}}
+                            filterLoading = false;
+                        })
+                     "
+                     @enable-loading-grid.window="filterLoading = true;"
                 >
                     <div class="flex">
                         <span class="note text-sm">{{ $this->resultCount }} resultaten</span>
