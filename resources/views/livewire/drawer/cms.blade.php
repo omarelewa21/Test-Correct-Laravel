@@ -208,7 +208,6 @@
 
                 <x-sidebar.cms.question-types/>
             </x-sidebar.slide-container>
-
         </div>
         <span class="invisible"></span>
     </div>

@@ -1448,6 +1448,19 @@ input[type=number] {
     transform: translate(-50%, -50%) rotate(45deg);
 }
 
+#groupdetail {
+    position: absolute;
+    left: 100%;
+    min-height: calc(100vh - calc(var(--header-height) * 2) - 58px );
+    height: -webkit-max-content;
+    height: -moz-max-content;
+    height: max-content;
+    width: 100%;
+    background-color: var(--light-grey);
+    z-index: 1;
+    transition: left ease-in-out 300ms;
+    padding-bottom: var(--header-height);
+}
 /*!
  * FilePond 4.30.3
  * Licensed under MIT, https://opensource.org/licenses/MIT/
@@ -5525,6 +5538,12 @@ video {
 .right-14{
 	right: 3.5rem;
 }
+.right-full{
+	right: 100%;
+}
+.left-full{
+	left: 100%;
+}
 .z-10{
 	z-index: 10;
 }
@@ -6570,6 +6589,9 @@ video {
 .overflow-y-auto{
 	overflow-y: auto;
 }
+.overflow-x-hidden{
+	overflow-x: hidden;
+}
 .overflow-y-hidden{
 	overflow-y: hidden;
 }
@@ -6746,6 +6768,10 @@ video {
 .border-blue-100{
 	--tw-border-opacity: 1;
 	border-color: rgba(219, 234, 254, var(--tw-border-opacity));
+}
+.border-midgrey{
+	--tw-border-opacity: 1;
+	border-color: rgba(146, 157, 175, var(--tw-border-opacity));
 }
 .bg-gray-500{
 	--tw-bg-opacity: 1;
