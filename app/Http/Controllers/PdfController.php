@@ -208,21 +208,18 @@ class PdfController extends Controller
             'centerbaseline' => false,
 
         ];
-        $createPath = 'http://127.0.0.1/ckeditor/plugins/ckeditor_wiris/integration/createimage.php';
-        $path = 'http://127.0.0.1/ckeditor/plugins/ckeditor_wiris/integration/showimage.php';
+        $createPath = 'http://127.0.0.1/ckeditor_png/plugins/ckeditor_wiris/integration/createimage.php';
+        $path = 'http://127.0.0.1/ckeditor_png/plugins/ckeditor_wiris/integration/showimage.php';
         if(stristr(config('app.base_url'),'correct.test')){
-            $createPath = 'https://testwelcome.test-correct.nl/ckeditor/plugins/ckeditor_wiris/integration/createimage.php';
-            $path = 'https://testwelcome.test-correct.nl/ckeditor/plugins/ckeditor_wiris/integration/showimage.php';
+            $createPath = 'http://testwelcome.test-correct.test/ckeditor_png/plugins/ckeditor_wiris/integration/createimage.php';
+            $path = 'http://testwelcome.test-correct.test/ckeditor_png/plugins/ckeditor_wiris/integration/showimage.php';
         }
-
-
-
+        try {
         $client = new Client();
         $res = $client->request('POST', $createPath, [
             'form_params' => $data,
             'verify' => false]);
         $formulaUrl = $res->getBody()->getContents();
-
         $components = parse_url($formulaUrl);
         parse_str($components['query'], $results);
         $formula = $results['formula'];
@@ -236,13 +233,20 @@ class PdfController extends Controller
         $res = $client->request('GET', $path, ['query' => $data1]);
         $res = $client->request('POST', $path, [
             'form_params' => $data]);
+
+        } catch (\GuzzleHttp\Exception\RequestException $e) {
+            if ($e->hasResponse()) {
+                Bugsnag::notifyException($e);
+            }
+        }
         $json = json_decode($res->getBody()->getContents(), true);
         $img = $doc->createElement('img');
         $img->setAttribute('width', $json['result']['width']);
         $img->setAttribute('height', $json['result']['height']);
-        $src = sprintf('data:image/svg+xml;charset=utf8,%s', rawurlencode($json['result']['content']));
+        //$src = sprintf('data:image/png;base64,%s', rawurlencode($json['result']['content']));
+        $src = sprintf('data:image/png;base64,%s', $json['result']['content']);
         $img->setAttribute('src', $src);
-        $img->setAttribute('style', 'max-width: none; vertical-align: -4px;');
+        $img->setAttribute('style', 'max-width: none; display: inline-block;');
         return $img;
     }
 }
