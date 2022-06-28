@@ -49,6 +49,6 @@ class QuestionDetailModal extends ModalComponent
 
     public function openPreviewMode()
     {
-        $this->emit('openModal', QuestionCmsPreviewModal::class, ['uuid' => $this->question->uuid]);
+        $this->emit('openModal', 'teacher.question-cms-preview-modal', ['uuid' => $this->question->uuid]);
     }
 }

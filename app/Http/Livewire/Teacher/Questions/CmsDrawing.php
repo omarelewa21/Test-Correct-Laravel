@@ -4,6 +4,7 @@ namespace tcCore\Http\Livewire\Teacher\Questions;
 
 use Illuminate\Support\Str;
 use tcCore\Http\Helpers\SvgHelper;
+use tcCore\Http\Interfaces\QuestionCms;
 use tcCore\Question;
 
 class CmsDrawing
@@ -11,7 +12,7 @@ class CmsDrawing
     private $instance;
     public $requiresAnswer = true;
 
-    public function __construct(OpenShort $instance)
+    public function __construct(QuestionCms $instance)
     {
         $this->instance = $instance;
     }

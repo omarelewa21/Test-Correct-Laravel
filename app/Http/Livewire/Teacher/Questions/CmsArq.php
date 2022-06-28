@@ -4,8 +4,10 @@ namespace tcCore\Http\Livewire\Teacher\Questions;
 
 use Ramsey\Uuid\Uuid;
 use tcCore\GroupQuestionQuestion;
+use tcCore\Http\Interfaces\QuestionCms;
 use tcCore\Http\Traits\WithCmsCustomRulesHandling;
 use tcCore\MultipleChoiceQuestion;
+use tcCore\Question;
 use tcCore\TestQuestion;
 
 class CmsArq
@@ -15,7 +17,7 @@ class CmsArq
     private $instance;
     public $requiresAnswer = true;
 
-    public function __construct(OpenShort $instance)
+    public function __construct(QuestionCms $instance)
     {
         $this->instance = $instance;
 
@@ -110,12 +112,7 @@ class CmsArq
     private function setAnswerStruct()
     {
         if (empty($this->instance->cmsPropertyBag['answerStruct'])) {
-            if ($this->instance->isPartOfGroupQuestion()) {
-                $tq = GroupQuestionQuestion::whereUuid($this->instance->groupQuestionQuestionId)->first();
-            } else {
-                $tq = TestQuestion::whereUuid($this->instance->testQuestionId)->first();
-            }
-            $q = $tq->question;
+            $q = $this->getQuestion();
 
             $this->instance->cmsPropertyBag['answerStruct'] = $q->multipleChoiceQuestionAnswers->map(function ($answer, $key) {
                 return [
@@ -130,5 +127,22 @@ class CmsArq
     public function getTemplate()
     {
         return 'arq-question';
+    }
+
+    /**
+     * @return mixed|\tcCore\Question
+     */
+    private function getQuestion()
+    {
+        if ($this->instance instanceof OpenShort) {
+            if ($this->instance->isPartOfGroupQuestion()) {
+                $tq = GroupQuestionQuestion::whereUuid($this->instance->groupQuestionQuestionId)->first();
+            } else {
+                $tq = TestQuestion::whereUuid($this->instance->testQuestionId)->first();
+            }
+            return $tq->question;
+        }
+
+        return Question::whereUuid($this->instance->question['uuid'])->first();
     }
 }

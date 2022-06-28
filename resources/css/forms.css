@@ -16,6 +16,12 @@
     outline: none;
 }
 
+.form-input:disabled, .form-input:disabled:hover {
+    background-color: white;
+    border-color: var(--light-grey);
+    color: var(--mid-grey);
+}
+
 .form-input.border-red {
     border-color: red!important;
 }

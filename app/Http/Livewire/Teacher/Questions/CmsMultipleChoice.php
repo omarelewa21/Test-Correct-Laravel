@@ -5,6 +5,7 @@ namespace tcCore\Http\Livewire\Teacher\Questions;
 use Ramsey\Uuid\Uuid;
 use tcCore\GroupQuestionQuestion;
 use tcCore\Http\Helpers\BaseHelper;
+use tcCore\Http\Interfaces\QuestionCms;
 use tcCore\Http\Traits\WithCmsCustomRulesHandling;
 use tcCore\TestQuestion;
 
@@ -19,7 +20,7 @@ class CmsMultipleChoice extends CmsBase
     public $requiresAnswer = true;
 
 
-    public function __construct(OpenShort $instance)
+    public function __construct(QuestionCms $instance)
     {
         $this->instance = $instance;
 

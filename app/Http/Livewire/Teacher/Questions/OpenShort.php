@@ -20,6 +20,7 @@ use tcCore\Http\Controllers\TestQuestions\AttachmentsController;
 use tcCore\Http\Controllers\TestQuestionsController;
 use tcCore\Http\Controllers\TestsController;
 use tcCore\Http\Helpers\QuestionHelper;
+use tcCore\Http\Interfaces\QuestionCms;
 use tcCore\Http\Livewire\Preview\DrawingQuestion;
 use tcCore\Http\Requests\CreateAttachmentRequest;
 use tcCore\Http\Requests\CreateGroupQuestionQuestionRequest;
@@ -31,7 +32,7 @@ use tcCore\TemporaryLogin;
 use tcCore\Test;
 use tcCore\TestQuestion;
 
-class OpenShort extends Component
+class OpenShort extends Component implements QuestionCms
 {
     use WithFileUploads;
 

@@ -2,6 +2,7 @@
 
 namespace tcCore\Http\Livewire\Teacher\Questions;
 
+use tcCore\Http\Interfaces\QuestionCms;
 use tcCore\Http\Traits\WithCmsCompletionType;
 
 class CmsCompletion
@@ -21,7 +22,7 @@ class CmsCompletion
         'autoCheckAnswerCaseSensitive' => true,
     ];
 
-    public function __construct(OpenShort $instance)
+    public function __construct(QuestionCms $instance)
     {
         $this->instance = $instance;
     }

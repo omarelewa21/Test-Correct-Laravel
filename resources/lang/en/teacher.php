@@ -41,5 +41,6 @@ return [
     'Toets PDF-weergave'                               => 'Test PDF preview',
     'Toets inplannen'                                  => 'Plan test',
     'Filters wissen'                                   => 'Delete filters',
+    'Vraag voorbeeld'                                  => 'Question preview',
 
 ];

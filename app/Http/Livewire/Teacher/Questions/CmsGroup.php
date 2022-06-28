@@ -4,6 +4,7 @@ namespace tcCore\Http\Livewire\Teacher\Questions;
 
 use Illuminate\Support\Str;
 use tcCore\GroupQuestion;
+use tcCore\Http\Interfaces\QuestionCms;
 
 class CmsGroup
 {
@@ -38,7 +39,7 @@ class CmsGroup
     }
 
 
-    public function __construct(OpenShort $instance)
+    public function __construct(QuestionCms $instance)
     {
         $this->instance = $instance;
     }

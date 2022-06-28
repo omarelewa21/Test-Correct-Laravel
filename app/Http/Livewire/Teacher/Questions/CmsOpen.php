@@ -3,13 +3,14 @@
 namespace tcCore\Http\Livewire\Teacher\Questions;
 
 use Illuminate\Support\Str;
+use tcCore\Http\Interfaces\QuestionCms;
 
 class CmsOpen
 {
     private $instance;
     public $requiresAnswer = true;
 
-    public function __construct(OpenShort $instance) {
+    public function __construct(QuestionCms $instance) {
         $this->instance = $instance;
     }
 
