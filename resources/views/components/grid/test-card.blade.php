@@ -117,7 +117,7 @@
             <span class="italic">{{ $test->abbreviation }}</span>
         </div>
         <div class="text-sm">
-            <span class="note">{{__('Laatst gewijzigd') }}:</span>
+            <span class="note">{{ __('general.Laatst gewijzigd') }}:</span>
             <span class="note">{{ Carbon\Carbon::parse($test->updated_at)->format('d/m/\'y') }}</span>
         </div>
     </div>

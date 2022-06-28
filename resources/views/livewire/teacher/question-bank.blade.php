@@ -4,7 +4,9 @@
      x-init="
         groupDetail = $el.querySelector('#groupdetail');
         $watch('$store.questionBank.inGroup', value => inGroup = value);
-        $watch('$store.questionBank.active', value => closeGroupDetail());
+        $watch('$store.questionBank.active', value => {
+            if(!value) closeGroupDetail();
+        });
         showGroupDetails = async (groupQuestionUuid) => {
             let readyForSlide = await $wire.showGroupDetails(groupQuestionUuid);
 
@@ -25,9 +27,9 @@
             $el.querySelector('.main').style.display = 'flex'
             groupDetail.style.left = '100%';
             $nextTick(() => {
-                handleVerticalScroll($el.closest('.slide-container'));
                 $wire.clearGroupDetails();
                 groupDetail.querySelector('.subquestion-grid').innerHTML = '';
+                handleVerticalScroll($el.querySelector('.main'));
             })
         }
         "
