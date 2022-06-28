@@ -92,7 +92,7 @@ class SchoolLocation extends BaseModel implements AccessCheckable
         'lvs_type',
         'sso', 'sso_type', 'sso_active', 'lvs_authorization_key', 'school_language', 'company_id', 'allow_guest_accounts',
         'allow_new_student_environment', 'allow_new_question_editor',
-        'main_phonenumber','internetaddress',
+        'main_phonenumber','internetaddress','keep_out_of_school_location_report'
     ];
 
     /**
