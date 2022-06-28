@@ -374,7 +374,7 @@
 
                 </x-content-section>
                 @if($this->showSettingsTaxonomy())
-                    <x-content-section class="taxonomie"
+                    <x-content-section class=""
                                        x-data="{
                                         rtti: $wire.entangle('rttiToggle'),
                                         bloom: $wire.entangle('bloomToggle'),
@@ -391,14 +391,15 @@
                                     @enderror
                                     <span class="bold">RTTI {{ __('cms.methode') }}</span>
                                 </x-input.toggle-row-with-title>
-                                <div x-show="rtti" class="flex flex-col">
+                                <div x-show="rtti" class="flex flex-col gap-2.5 mt-2.5">
                                     @foreach(['R'  , 'T1' , 'T2' , 'I'] as $value)
-                                        <label class="flex space-x-2.5 items-center">
+                                        <label class="radio-custom">
                                             <input wire:key="{{ $value }}"
-                                                   name="rtti" type="radio"
+                                                   name="rtti"
+                                                   type="radio"
                                                    wire:model.defer="question.rtti"
                                                    value="{{ $value }}"/>
-                                            <span>{{ $value }}</span>
+                                            <span class="ml-2.5">{{ $value }}</span>
                                         </label>
                                     @endforeach
                                 </div>
@@ -410,14 +411,15 @@
                                     @enderror
                                     <span class="bold">BLOOM {{ __('cms.methode') }}</span>
                                 </x-input.toggle-row-with-title>
-                                <div x-show="bloom" class="flex flex-col">
+                                <div x-show="bloom" class="flex flex-col gap-2.5 mt-2.5">
                                     @foreach([ __('cms.Onthouden'), __('cms.Begrijpen'), __('cms.Toepassen'), __('cms.Analyseren'), __('cms.Evalueren'), __('cms.Creëren')] as $value)
-                                        <label class="flex space-x-2.5 items-center">
+                                        <label class="radio-custom">
                                             <input wire:key="{{ $value }}"
-                                                   name="bloom" type="radio"
+                                                   name="bloom"
+                                                   type="radio"
                                                    wire:model.defer="question.bloom"
                                                    value="{{ $value }}"/>
-                                            <span>{{ __($value) }}</span>
+                                            <span class="ml-2.5">{{ __($value) }}</span>
                                         </label>
                                     @endforeach
                                 </div>
@@ -429,14 +431,15 @@
                                     @enderror
                                     <span class="bold">Miller {{ __('cms.methode') }}</span>
                                 </x-input.toggle-row-with-title>
-                                <div x-show="miller" class="flex flex-col">
+                                <div x-show="miller" class="flex flex-col gap-2.5 mt-2.5">
                                     @foreach([ __('cms.Weten'), __('cms.Weten hoe'), __('cms.Laten zien'), __('cms.Doen'),] as $value)
-                                        <label class="flex space-x-2.5 items-center">
+                                        <label class="radio-custom">
                                             <input wire:key="{{ $value }}"
-                                                   name="miller" type="radio"
+                                                   name="miller"
+                                                   type="radio"
                                                    wire:model.defer="question.miller"
                                                    value="{{ $value }}"/>
-                                            <span>{{ __($value) }}</span>
+                                            <span class="ml-2.5">{{ __($value) }}</span>
                                         </label>
                                     @endforeach
                                 </div>
