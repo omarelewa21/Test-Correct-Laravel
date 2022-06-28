@@ -2023,7 +2023,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview) {
      * @param {HTMLElement} slider The slider to update.
      * @param {?string} leftColorHexValue The hexadecimal value for the color left of the knob.
      */
-    function setSliderColor(
+    window.setSliderColor = function(
         slider,
         leftColorHexValue = getRootCSSProperty("--all-Base")
     ) {

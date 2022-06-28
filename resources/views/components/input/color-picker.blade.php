@@ -81,8 +81,8 @@
 
                                         <template x-if="colorSelected != color">
                                             <div
-                                            @click="colorSelected = color"
-                                            @keydown.enter="colorSelected = color"
+                                            @click="colorSelected = color; @if($name === 'fill-color') setSliderColor($refs.slider, colorSelected) @endif"
+                                            @keydown.enter="colorSelected = color; @if($name === 'fill-color') setSliderColor($refs.slider, colorSelected) @endif"
                                             role="checkbox" tabindex="0"
                                             :aria-checked="colorSelected"
                                             class="inline-flex rounded colorPickButton"
