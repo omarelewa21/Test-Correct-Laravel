@@ -240,7 +240,7 @@ class EntreeOnboarding extends Onboarding
                 break;
         }
 
-        return view('livewire.entree-onboarding2')->layout('layouts.onboarding');
+        return view('livewire.entree-onboarding')->layout('layouts.onboarding');
     }
 
     public function step1()
@@ -348,7 +348,7 @@ class EntreeOnboarding extends Onboarding
                                 'school_location_id'              => $schoolLocation->getKey(),
                                 'education_level_id'              => $slEl->education_level_id,
                                 'school_year_id'                  => $currentSchoolYearId,
-                                'name'                            => sprintf('entree_registration_class_userid_%s_elid_%s', $user->getKey(), $slEl->education_level_id),
+                                'name'                            => sprintf('entree_registration_class_locationid_%s_userid_%s_elid_%s', $schoolLocation->getKey(),$user->getKey(), $slEl->education_level_id),
                                 'education_level_year'            => 1,
                                 'is_main_school_class'            => 0,
                                 'do_not_overwrite_from_interface' => 0,
@@ -376,7 +376,6 @@ class EntreeOnboarding extends Onboarding
                 $this->step = 3;
             } catch (\Throwable $e) {
                 DB::rollBack();
-                dd($e);
                 $this->step = 'error';
                 Bugsnag::notifyException($e);
             }

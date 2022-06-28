@@ -2,9 +2,11 @@
 
 namespace tcCore\Http\Livewire\Teacher;
 
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 use tcCore\EducationLevel;
+use tcCore\Http\Controllers\AuthorsController;
 use tcCore\Http\Controllers\GroupQuestionQuestionsController;
 use tcCore\Http\Controllers\TestQuestionsController;
 use tcCore\Http\Requests\CreateGroupQuestionQuestionRequest;
@@ -16,34 +18,45 @@ use tcCore\Test;
 
 class QuestionBank extends Component
 {
-    const ITEM_INCREMENT = 15;
+    const ITEM_INCREMENT = 16;
 
     const SOURCE_PERSONAL = 'me';
     const SOURCE_SCHOOL = '';
 
     protected $queryString = ['testId', 'testQuestionId'];
 
+    public $openTab = 'personal';
     public $testId;
     public $testQuestionId;
 
-    public $filters = [
-        'search'               => '',
-        'subject_id'           => [],
-        'education_level_year' => [],
-        'education_level_id'   => [],
-        'source'               => self::SOURCE_PERSONAL,
-        'without_groups'       => ''
-    ];
+    public $filters = [];
 
     public $addedQuestionIds = [];
     public $itemsPerPage;
 
     public $inGroup = false;
 
+    private $test;
+
+    private $allowedTabs = [
+        'school_location',
+        'personal',
+    ];
+
+    protected function getListeners()
+    {
+        return [
+            'testSettingsUpdated',
+            'addQuestionFromDetail' => 'addQuestionToTest'
+            ];
+    }
+
     public function mount()
     {
         $this->itemsPerPage = QuestionBank::ITEM_INCREMENT;
+        $this->setTestProperty();
         $this->addedQuestionIds = $this->getQuestionIdsThatAreAlreadyInTest();
+        $this->setFilters();
     }
 
     public function render()
@@ -55,14 +68,25 @@ class QuestionBank extends Component
     {
         return $this->getQuestionsQuery()
             ->take($this->itemsPerPage)
-            ->get();
+            ->get(['questions.*']);
     }
 
     private function getFilters()
     {
-        return collect($this->filters)->reject(function ($filter) {
+        return collect($this->filters[$this->openTab])->reject(function ($filter) {
             return empty($filter);
-        })->toArray();
+        })
+            ->when($this->openTab === 'personal', function ($filters) {
+                return $filters->merge(['source' => 'me']);
+            })
+            ->when($this->openTab === 'school_location', function ($filters) {
+                return $filters->merge(['source' => 'schoolLocation']);
+            })
+            ->when(is_numeric($this->filters[$this->openTab]['search']), function ($filters) {
+                unset($filters['search']);
+                return $filters->merge(['id' => $this->filters[$this->openTab]['search']]);
+            })
+            ->toArray();
     }
 
     public function getSubjectsProperty()
@@ -104,19 +128,33 @@ class QuestionBank extends Component
         ];
     }
 
-    public function getTestProperty()
+    public function getAuthorsProperty()
     {
-        return Test::whereUuid($this->testId)->first();
+        return (new AuthorsController())->getBuilderWithAuthors()
+            ->map(function ($author) {
+                return ['value' => $author->id, 'label' => trim($author->name_first . ' ' . $author->name)];
+            })->toArray();
     }
 
-    public function handleCheckboxClick($questionId)
+    public function booted()
     {
-        if ($this->isQuestionInTest($questionId)) {
-            $this->emitTo('drawer.cms', 'deleteQuestionByQuestionId', $questionId);
-            return $this->removeQuestionFromTest($questionId);
-        }
+        $this->setTestProperty();
+    }
 
-        $this->addQuestionToTest($questionId);
+    private function setTestProperty()
+    {
+        $this->test = Test::whereUuid($this->testId)->first();
+    }
+
+    public function handleCheckboxClick($questionUuid)
+    {
+//        if ($this->isQuestionInTest($questionId)) {
+//            $this->emitTo('drawer.cms', 'deleteQuestionByQuestionId', $questionId);
+//            $this->removeQuestionFromTest($questionId);
+//            return;
+//        }
+
+        $this->addQuestionToTest(Question::whereUuid($questionUuid)->value('id'));
     }
 
     public function addQuestionToTest($questionId)
@@ -127,15 +165,22 @@ class QuestionBank extends Component
             $response = $this->performControllerActionForQuestion($questionId);
         }
 
-        if ($response->getStatusCode() == 200) {
-            $this->dispatchBrowserEvent('question-added');
+        if (empty($this->addedQuestionIds)) {
+            $this->dispatchBrowserEvent('first-question-of-test-added');
         }
 
+        if ($response->getStatusCode() == 200) {
+            $this->addedQuestionIds[json_decode($response->getContent())->question_id] = 0;
+            $this->dispatchBrowserEvent('question-added');
+        }
     }
 
     private function getQuestionIdsThatAreAlreadyInTest()
     {
-        return $this->test->getQuestionOrderList();
+        $questionIdList = optional($this->test)->getQuestionOrderList() ?? [];
+        return $questionIdList + $this->test->testQuestions->map(function ($testQ) {
+            return $testQ->question()->where('type', 'GroupQuestion')->value('id');
+        })->filter()->flip()->toArray();
     }
 
     private function removeQuestionFromTest($questionId)
@@ -162,7 +207,9 @@ class QuestionBank extends Component
 
     public function updatedInGroup($value)
     {
-        $this->filters['without_groups'] = $value;
+        collect($this->allowedTabs)->each(function ($tab) use ($value) {
+            $this->filters[$tab]['without_groups'] = $value;
+        });
     }
 
     private function resetItemsPerPage()
@@ -170,18 +217,6 @@ class QuestionBank extends Component
         $this->itemsPerPage = QuestionBank::ITEM_INCREMENT;
     }
 
-    public function setSource($source)
-    {
-        if ($source === 'personal') {
-            return $this->filters['source'] = self::SOURCE_PERSONAL;
-        }
-
-        return $this->filters['source'] = self::SOURCE_SCHOOL;
-    }
-
-    /**
-     * @return mixed
-     */
     private function getQuestionsQuery()
     {
         return Question::filtered($this->getFilters())
@@ -189,17 +224,10 @@ class QuestionBank extends Component
                 $query->where('scope', '!=', 'cito')
                     ->orWhereNull('scope');
             })
-//            ->where(function ($query) {
-//                $query->whereNotIn('id', $this->getQuestionIdsThatAreAlreadyInTest());
-//            })
             ->with([
-                'questionAttainments',
-                'questionAttainments.attainment',
-                'tags',
-                'authors',
-                'subject:id,base_subject_id,name',
-                'subject.baseSubject:id,name'
+                'subject:id,name',
             ])
+            ->orderby('created_at', 'desc')
             ->distinct();
     }
 
@@ -228,8 +256,6 @@ class QuestionBank extends Component
 
     private function performControllerActionForQuestion($questionId)
     {
-        $this->addedQuestionIds[] = $questionId;
-
         $requestParams = [
             'test_id'           => $this->test->getKey(),
             'order'             => 0,
@@ -241,4 +267,31 @@ class QuestionBank extends Component
 
         return (new TestQuestionsController)->store(new CreateTestQuestionRequest($requestParams));
     }
+
+    private function setFilters()
+    {
+        collect($this->allowedTabs)->each(function ($tab) {
+            $this->filters[$tab] = [
+                'search'               => '',
+                'subject_id'           => [$this->test->subject_id],
+                'education_level_year' => [$this->test->education_level_year],
+                'education_level_id'   => [$this->test->education_level_id],
+                'without_groups'       => '',
+                'author_id'            => []
+            ];
+        });
+    }
+
+    public function openDetail($questionUuid)
+    {
+        $this->emit('openModal', 'teacher.question-detail-modal', ['questionUuid' => $questionUuid, 'testUuid' => $this->testId]);
+    }
+
+    public function testSettingsUpdated($newData)
+    {
+        /* @TODO
+         * Fix the resetting of filters when the test is edited from TestEditModal;
+         */
+    }
+
 }

@@ -48,7 +48,6 @@
                     if (error.main === 'File is too large' ) {
                         Notify.notify('{{ __('cms.File too large, max file size') }}', 'error');
                     }
-                    console.log('filepond-finished error');
                     this.$dispatch('filepond-finished')
                 }
             });

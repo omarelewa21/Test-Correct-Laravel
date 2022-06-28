@@ -79,7 +79,8 @@ class Question extends MtiBaseModel {
                             'html_specialchars_encoded',
                             'is_subquestion',
                             'all_or_nothing',
-                            'fix_order'
+                            'fix_order',
+                            'owner_id'
                             ];
 
     /**
@@ -221,6 +222,9 @@ class Question extends MtiBaseModel {
         parent::boot();
 
         // Progress additional answers
+        static::creating(function(Question $question) {
+            self::addOwnerId($question->getQuestionInstance());
+        });
         static::created(function(Question $question)
         {
             QuestionAuthor::addAuthorToQuestion($question);
@@ -339,6 +343,10 @@ class Question extends MtiBaseModel {
 
     public function pValue() {
         return $this->hasMany('tcCore\PValue');
+    }
+
+    public function owner() {
+        return $this->belongsTo('tcCore\SchoolLocation', 'owner_id');
     }
 
     public function getChangedIds() {
@@ -647,9 +655,9 @@ class Question extends MtiBaseModel {
     }
 
     public function scopeDifferentScenariosAndDemo($query, $filters = []){
-        $roles = $this->getUserRoles();
+//        $roles = $this->getUserRoles();
         $user = Auth::user();
-        $schoolLocation = SchoolLocation::find($user->getAttribute('school_location_id'));
+//        $schoolLocation = SchoolLocation::find($user->getAttribute('school_location_id'));
         if ($user->isA('Teacher')) {
             $subject = (new DemoHelper())->getDemoSubjectForTeacher($user);
             $query->join($this->switchScopeFilteredSubQueryForDifferentScenarios($user,$subject), function ($join) {
@@ -816,6 +824,7 @@ class Question extends MtiBaseModel {
                                 break;
                             case 'schoolLocation': // only my colleages and me
                                 $query->whereIn('subject_id',$user->subjects()->pluck('id'));
+                                $query->where($this->table.'.owner_id', Auth::user()->school_location_id);
                                 break;
                             case 'school': //  shared sections
                                 $query->whereIn('subject_id',$user->subjectsOnlyShared()->pluck('id'));
@@ -1553,8 +1562,85 @@ class Question extends MtiBaseModel {
 
     public function getAuthorNamesString(): string
     {
+        return $this->getAuthorNamesCollection()->implode(', ');
+    }
+
+    public function getAuthorNamesCollection()
+    {
         return $this->authors()->get(['id', 'name', 'name_first', 'name_suffix'])->map(function($author) {
             return $author->getFullNameWithAbbreviatedFirstName();
-        })->implode(', ');
+        });
+    }
+
+    public static function addOwnerIdToAllQuestions()
+    {
+        Question::withTrashed()
+            ->where(function ($query) {
+                $query->whereNotIn('type', ['BlaBla', 'BlaBla-2', 'BlaBla-3'])
+                    ->whereNull('owner_id');
+            })
+            ->chunkById(100, function ($questions) {
+                foreach ($questions as $question) {
+                    Question::whereId($question->id)
+                        ->withTrashed()
+                        ->update(['owner_id' =>
+                                      SchoolLocationSection::select('school_location_id')
+                                          ->where('section_id', function ($query) use ($question) {
+                                              $query->select('section_id')
+                                                  ->from((new Subject)->getTable())
+                                                  ->where('id', function ($query) use ($question) {
+                                                      $query->select('subject_id')
+                                                          ->from((new Question)->getTable())
+                                                          ->where('id', $question->id);
+                                                  });
+                                          })
+                                          ->first()
+                                          ->school_location_id
+                        ]);
+                }
+            });
+    }
+
+    private static function addOwnerId($question)
+    {
+        try {
+            $ownerId = SchoolLocationSection::select('school_location_id')
+                ->where('section_id', function ($query) use ($question) {
+                    $query->select('section_id')
+                        ->from((new Subject)->getTable())
+                        ->where('id', function ($query) use ($question) {
+                            $query->select('subject_id')
+                                ->from((new Question)->getTable())
+                                ->where('id', $question->id);
+                        });
+                })
+                ->first()
+                ->school_location_id;
+
+            $question->owner_id = $ownerId;
+        } catch (\Throwable $e) {
+            $question->owner_id = Auth::user()->school_location_id;
+        }
+    }
+
+    public function isType($type): bool
+    {
+        return Str::of($this->type)->lower()->contains(Str::lower($type));
+    }
+
+    public function isInTest($testUuid, $strict = false): bool
+    {
+        $test = Test::whereUuid($testUuid)->first();
+        if (!$test) {
+            return false;
+        }
+
+        if ($strict) {
+            return !!$test->testQuestions()->where('question_id', $this->getKey())->first();
+        }
+
+        return $test->testQuestions->filter(function($testQuestion) {
+            return $testQuestion->question->id === $this->getKey() || $testQuestion->question->derived_question_id === $this->getKey();
+        })->isNotEmpty();
     }
 }

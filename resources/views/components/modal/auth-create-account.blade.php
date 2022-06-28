@@ -78,7 +78,7 @@
                 <span class="body2 mt-4 mb-2 @if($this->authModalRoleType === 'teacher') primary bold @else base @endif">{{ __('student.teacher') }}</span>
                 <span class="mid-grey text-sm">{{ __('auth.modal_teacher_text') }}</span>
                 @if($this->authModalRoleType === 'teacher')
-                    <x-icon.checkmark-circle/>
+                    <x-icon.checkmark-circle class="absolute top-2 right-2 overflow-visible"/>
                 @endif
             </div>
             <div class="flex flex-col p-8 items-center flex-1 border-2 h-full rounded-10 cursor-pointer transition-all relative
@@ -89,7 +89,7 @@
                 <span class="body2 mt-4 mb-2 @if($this->authModalRoleType === 'student') primary bold @else base @endif">{{ __('auth.student_pupil') }}</span>
                 <span class="mid-grey text-sm">{{ __('auth.modal_student_text') }}</span>
                 @if($this->authModalRoleType === 'student')
-                    <x-icon.checkmark-circle/>
+                    <x-icon.checkmark-circle class="absolute top-2 right-2 overflow-visible"/>
                 @endif
             </div>
         </div>

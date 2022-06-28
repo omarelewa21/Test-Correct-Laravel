@@ -406,7 +406,7 @@ class AttainmentImportController extends Controller
 
         while(!$handled){
             $prevAttainment = $this->attainmentsCollection[$key];
-            if(is_null($prevAttainment->subcode)&&($prevAttainment->base_subject_id==$attainmentResource->base_subject_id)&&($prevAttainment->education_level_id==$attainmentResource->education_level_id)){
+            if(is_null($prevAttainment->subcode)&&($prevAttainment->base_subject_id==$attainmentResource->base_subject_id)&&($prevAttainment->education_level_id==$attainmentResource->education_level_id)&&(trim($prevAttainment->code)==trim($attainmentResource->code))){
                 $attainmentResource->parent_temp_id = $key;
                 $handled = true;
                 break;
@@ -423,7 +423,7 @@ class AttainmentImportController extends Controller
         $handled = false;
         while(!$handled){
             $prevAttainment = $this->attainmentsCollection[$key];
-            if(is_null($prevAttainment->subsubcode)&&($prevAttainment->base_subject_id==$attainmentResource->base_subject_id)&&($prevAttainment->education_level_id==$attainmentResource->education_level_id)){
+            if(is_null($prevAttainment->subsubcode)&&($prevAttainment->base_subject_id==$attainmentResource->base_subject_id)&&($prevAttainment->education_level_id==$attainmentResource->education_level_id)&&(trim($prevAttainment->subcode)==trim($attainmentResource->subcode))){
                 $attainmentResource->parent_temp_id = $key;
                 $handled = true;
             }

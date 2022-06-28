@@ -1,5 +1,4 @@
 <div class="drawer flex z-[20]"
-     x-data="{loadingOverlay: false, collapse: false, backdrop: false, emptyStateActive: @entangle('emptyStateActive')}"
      x-init="
         collapse = window.innerWidth < 1000;
         if (emptyStateActive) backdrop = true;
@@ -20,18 +19,24 @@
         handleLoading = () => {
             loadingOverlay = $store.cms.loading;
         }
-    "
+
+
+     "
+     x-data="{loadingOverlay: false, collapse: false, backdrop: false, emptyStateActive: @entangle('emptyStateActive')}"
      x-cloak
-     x-effect="handleLoading()"
+     x-effect="handleLoading(); $el.scrollTop = $store.cms.scrollPos;"
      :class="{'collapsed': collapse}"
      @backdrop="backdrop = !backdrop"
-     @scroll.throttle.500ms="$dispatch('drawer-scroll')"
      @processing-end.window="$store.cms.processing = false;"
+     @filepond-start.window="loadingOverlay = true;"
+     @filepond-finished.window="loadingOverlay = false;"
+     @first-question-of-test-added.window="$wire.showFirstQuestionOfTest(); emptyStateActive = false; $nextTick(() => backdrop = true)"
      wire:ignore.self
      wire:init="handleCmsInit()"
 >
     <div id="sidebar-backdrop"
-         class="fixed inset-0 transform transition-all"
+         class="fixed inset-y-0 right-0 transform transition-all"
+         style="left: var(--sidebar-width)"
          x-show="backdrop"
          x-cloak
          x-transition:enter="ease-out duration-300"
@@ -66,21 +71,22 @@
              x-data="questionEditorSidebar"
              x-ref="questionEditorSidebar"
              wire:ignore.self
+             @resize.window.debounce.150ms="handleResizing()"
         >
             <x-sidebar.slide-container class="pt-4 divide-y divide-bluegrey"
                                        x-ref="container1"
-{{--                                       @drawer-scroll.window="handleVerticalScroll($el)"--}}
                                        @mouseenter="handleVerticalScroll($el);"
                                        @continue-to-new-slide.window="$store.cms.processing = true;$wire.removeDummy();showAddQuestionSlide(false)"
                                        @continue-to-add-group.window="addGroup(false)"
             >
-                <div class="divide-y divide-bluegrey pb-6" {{ $emptyStateActive ? 'hidden' : '' }} >
+                <div wire:sortable="updateTestItemsOrder" wire:sortable-group="updateGroupItemsOrder" class="sortable-drawer divide-y divide-bluegrey pb-6" {{ $emptyStateActive ? 'hidden' : '' }} >
                     @php $loopIndex = 0; @endphp
                     @foreach($this->questionsInTest as $testQuestion)
                         @if($testQuestion->question->type === 'GroupQuestion')
                             <x-sidebar.cms.group-question-container
                                     :question="$testQuestion->question"
                                     :testQuestion="$testQuestion"
+
                             >
                                 @foreach($testQuestion->question->subQuestions as $question)
                                     @php $loopIndex ++; @endphp
@@ -90,6 +96,7 @@
                                                                    :subQuestion="true"
                                                                    :activeTestQuestion="$this->testQuestionId"
                                                                    :activeGQQ="$this->groupQuestionQuestionId"
+                                                                   :double="$this->duplicateQuestions->contains($question->id)"
                                     />
                                 @endforeach
                                 <x-sidebar.cms.dummy-group-question-button :testQuestionUuid="$testQuestion->uuid" :loop="$loopIndex"/>
@@ -102,6 +109,7 @@
                                                            :subQuestion="false"
                                                            :activeTestQuestion="$this->testQuestionId"
                                                            :activeGQQ="$this->groupQuestionQuestionId"
+                                                           :double="$this->duplicateQuestions->contains($testQuestion->question_id)"
                             />
                         @endif
                     @endforeach
@@ -121,7 +129,7 @@
                     {{ __('cms.Vraaggroep toevoegen') }}
                 </x-button.plus-circle>
 
-                <x-button.plus-circle @click="showAddQuestionSlide()"
+                <x-button.plus-circle @click="showAddQuestionSlide();dispatchBackdrop()"
                 >
                     {{__('cms.Vraag toevoegen')}}
                 </x-button.plus-circle>
@@ -131,7 +139,7 @@
             <x-sidebar.slide-container class="divide-y divide-bluegrey" x-ref="container2" @mouseenter="handleVerticalScroll($el);">
                 <div class="py-1 px-6 flex">
                     <x-button.text-button class="rotate-svg-180"
-                                          @click="backToQuestionOverview($refs.container2)"
+                                          @click="backToQuestionOverview($refs.container2);dispatchBackdrop()"
                                           wire:click="$set('groupId', null)"
                     >
                         <x-icon.arrow/>
@@ -144,25 +152,25 @@
                     <x-slot name="subtext">{{ __('cms.Stel een nieuwe vraag op') }}</x-slot>
                 </x-button.plus-circle>
 
-{{--                <x-button.plus-circle class="py-4" @click="showQuestionBank()">--}}
-{{--                    {{ __( 'cms.Bestaande toevoegen' ) }}--}}
-{{--                    <x-slot name="subtext">{{ __('cms.Verken en kies uit vragenbank') }}</x-slot>--}}
-{{--                </x-button.plus-circle>--}}
+                <x-button.plus-circle class="py-4" @click="showQuestionBank()">
+                    {{ __( 'cms.Bestaande toevoegen' ) }}
+                    <x-slot name="subtext">{{ __('cms.Verken en kies uit vragenbank') }}</x-slot>
+                </x-button.plus-circle>
 
-                <div class="flex px-6 py-2.5 space-x-2.5 note cursor-default">
-                    <x-icon.plus-in-circle/>
-                    <div class="flex flex-col ">
-                        <button class="bold mt-px text-left cursor-default">{{ __( 'cms.Bestaande toevoegen' ) }}</button>
-                        <span class="text-sm note regular">{{ __('cms.Verken en kies uit vragenbank') }}</span>
-                    </div>
-                </div>
+{{--                <div class="flex px-6 py-2.5 space-x-2.5 note cursor-default">--}}
+{{--                    <x-icon.plus-in-circle/>--}}
+{{--                    <div class="flex flex-col ">--}}
+{{--                        <button class="bold mt-px text-left cursor-default">{{ __( 'cms.Bestaande toevoegen' ) }}</button>--}}
+{{--                        <span class="text-sm note regular">{{ __('cms.Verken en kies uit vragenbank') }}</span>--}}
+{{--                    </div>--}}
+{{--                </div>--}}
 
                 <span></span>
             </x-sidebar.slide-container>
             <x-sidebar.slide-container x-ref="questionbank" @mouseenter="handleVerticalScroll($el);">
                 <div class="py-1 px-6 flex">
                     <x-button.text-button class="rotate-svg-180"
-                                          @click="prev($refs.container2);hideQuestionBank($refs.container2); $store.questionBank.inGroup = false;"
+                                          @click="hideQuestionBank($refs.container2);$store.questionBank.inGroup = false;"
                                           wire:click="$set('groupId', null)"
                     >
                         <x-icon.arrow/>
@@ -190,7 +198,7 @@
             <x-sidebar.slide-container x-ref="newquestion" @mouseenter="handleVerticalScroll($el);">
                 <div class="py-1 px-6">
                     <x-button.text-button class="rotate-svg-180"
-                                          @click="prev($refs.newquestion); $store.questionBank.inGroup = false;"
+                                          @click="home(); $store.questionBank.inGroup = false;"
                                           wire:click="$set('groupId', null)"
                     >
                         <x-icon.arrow/>

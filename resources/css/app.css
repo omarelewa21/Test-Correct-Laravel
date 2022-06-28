@@ -24,6 +24,7 @@
     --cta-primary: #3ab753;
     --cta-primary-mid-dark: #27973D;
     --cta-primary-mid-dark-rgb: 39, 151, 61;
+    --cta-primary-rgb: 58, 183, 83;
     --cta-primary-dark: #006314;
     --cta-secondary: #004DF5;
     --primary: #004df5;
@@ -63,8 +64,12 @@
     --collapsed-sidebar-width: 24px;
 
     --primary-gradient: linear-gradient(to right, var(--teacher-primary) 0%,var(--teacher-primary-light) 100%);
+
     --button-gradient: linear-gradient(to right, #002096 0%, var(--teacher-primary-light) 100%),
                        linear-gradient(to bottom, var(--teacher-primary), var(--teacher-primary));
+
+    --cta-gradient: linear-gradient(to right, var(--cta-primary-dark) 0%, var(--cta-primary) 100%),
+                    linear-gradient(to bottom, var(--cta-primary), var(--cta-primary));
 }
 
 @font-face {
@@ -610,7 +615,20 @@ ul ul ul {
     content: ' ';
 }
 
-.draggable-mirror.sub-item-with-connecting-line::before {
+.sortable-nogo {
+    background: rgb(255,209,218);
+}
+.sortable-nogo * {
+    color: grey !important;
+}
+
+.sortable-drawer .sortable-drag{
+    background-color: rgba(255,255,255,1)  !important;
+    opacity: 0;
+}
+
+.draggable-mirror.sub-item-with-connecting-line::before,
+.sortable-grab.sub-item-with-connecting-line::before{
     display:none;
 }
 .draggable--over.sub-item-with-connecting-line::before,

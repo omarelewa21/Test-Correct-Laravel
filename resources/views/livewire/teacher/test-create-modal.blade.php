@@ -1,10 +1,6 @@
-<x-modal-with-footer id="{{$this->modalId}}" maxWidth="3xl" :showCancelButton="false" wire:model="showModal">
-    <form class="h-full relative" wire:submit.prevent="submit" action="#" method="POST">
+<x-modal-new force-close="true">
         <x-slot name="title">
-            <div class="flex justify-between">
-                <span>{{__("teacher.toets aanmaken")}}</span>
-                <span wire:click="showModal()" class="cursor-pointer">x</span>
-            </div>
+                {{__("teacher.toets aanmaken")}}
         </x-slot>
         <x-slot name="body">
             <div class="flex-grow">
@@ -40,7 +36,7 @@
 
                             >
                                 @foreach($allowedSubjects as $subject)
-                                    <option value="{{ $subject->id }}">{{ $subject->name }}</option>
+                                    <option value="{{ $subject->id }}">{!! $subject->name !!}</option>
                                 @endforeach
                             </x-input.select>
                             <label for="test_kind"
@@ -48,6 +44,7 @@
                         </div>
                         <div class="input-group mb-4 sm:mb-0 flex-1">
                             <input id="name"
+                                   maxlength="5"
                                    wire:model.lazy="request.abbreviation"
                                    class="form-input md:w-full inline-block @error('request.abbreviation') border-red @enderror"
                             >
@@ -90,7 +87,7 @@
                                         id="education_level_year"
                                         wire:model="request.education_level_year"
                                 >
-                                    @foreach(range(1,6) as $levelYear)
+                                    @foreach(range(1,$this->maxEducationLevelYear) as $levelYear)
                                         <option value="{{ $levelYear }}">{{ $levelYear }}</option>
                                     @endforeach
                                 </x-input.select>
@@ -122,19 +119,36 @@
                             </div>
                         </div>
                     </div>
+                    <div class="error-section md:mb-20">
+                        @error('request.name')
+                        <div class="notification error mt-4">
+                            <span class="title">{{ $message }}</span>
+                        </div>
+                        @enderror
+                        @error('request.abbreviation')
+                        <div class="notification error mt-4">
+                            <span class="title">{{ $message }}</span>
+                        </div>
+                        @enderror
+                        @error('request.introduction')
+                        <div class="notification error mt-4">
+                            <span class="title">{{ $message }}</span>
+                        </div>
+                        @enderror
+                    </div>
                 </div>
             </div>
         </x-slot>
         <x-slot name="footer">
             <div class="flex justify-between w-full">
-                <x-button.text-button @click="show = false">
+                <x-button.text-button wire:click="$emit('closeModal')">
                     <x-icon.arrow-left/>
                     <span>{{ __("modal.Terug") }}</span>
                 </x-button.text-button>
 
                 <div class="absolute bottom-8 left-1/2 -translate-x-1/2 h-4 flex items-center justify-center space-x-2">
-                    <div class="border-0 rounded-xl bg-primary h-[14px] w-[14px]"></div>
                     <div class="border-0 rounded-xl bg-bluegrey h-[14px] w-[14px]"></div>
+                    <div class="border-0 rounded-xl bg-primary h-[14px] w-[14px]"></div>
                 </div>
 
                 <x-button.cta wire:click="submit">
@@ -143,6 +157,5 @@
                 </x-button.cta>
             </div>
         </x-slot>
-    </form>
-</x-modal-with-footer>
+</x-modal-new>
 

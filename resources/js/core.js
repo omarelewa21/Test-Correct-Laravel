@@ -117,10 +117,47 @@ Core = {
         }
     },
     enableAppFeatures(appType) {
-        let appElements = document.querySelectorAll('[' + appType + ']');
-        appElements.forEach((element) => {
-            element.style.display = 'flex';
-        });
+        let show = () => {
+            let appElements = document.querySelectorAll('[' + appType + ']');
+            appElements.forEach((element) => {
+                element.style.display = 'flex';
+            });
+        }
+        if(appType === 'chromebook'){
+            window.onload = () => {
+                try {
+                    let count = 1;
+                    let buttonDisplay = setInterval( () => {                         // send request to get the version, max 5 times then break the interval
+                        let xhttp = new XMLHttpRequest();
+                        xhttp.open("GET", "/get_app_version", true)
+                        xhttp.send();
+                        xhttp.onload = function() {
+                            let response = JSON.parse(this.response).TLCVersion;    // get chrome version
+                            if(response != 'x'){                                    // version is defined                              
+                                if(response.charAt(0) == '2'){                      // version starts with 2.
+                                    show();
+                                }
+                                else if(response.charAt(0) == '3'){                 // version starts with 3.
+                                    chrome.runtime.sendMessage(                     // see if it is a kiosk app\
+                                        document.getElementById("chromeos-extension-id").name,
+                                        {isKiosk: true},
+                                        function(response) {
+                                            response.isKiosk ? show() : '';    // if koisk app, show button
+                                        }
+                                    )
+                                }
+                                clearInterval(buttonDisplay);
+
+                            } else {
+                                count >= 5 ? clearInterval(buttonDisplay) : count++;
+                            }
+                        }
+                    }, 2000)
+                } catch (error) {}
+            }
+        } else {                                                                    // version is not defined (headers is not recieved from the app yet)
+            show();
+        }
     },
     checkForElectron() {
         try {

@@ -23,6 +23,12 @@ class AppServiceProvider extends ServiceProvider {
             URL::forceScheme('https');
             request()->server->set('HTTPS', 'on');
         }
+
+        \Illuminate\Database\Eloquent\Builder::macro('optionList', function () {
+            return $this->get(['id', 'name'])->map(function ($value) {
+                return (object) ['id' => $value->id, 'value' => $value->name];
+            });
+        });
 	}
 
 	/**

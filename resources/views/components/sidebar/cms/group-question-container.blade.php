@@ -1,9 +1,10 @@
 <div x-data="{expand: true}"
-     class="flex flex-col py-1.5 pl-6 pr-4 {{ ($this->testQuestionId == $testQuestion->uuid) ? 'group-active' : '' }}"
+     class="drag-item flex flex-col py-1.5 draggable-group {{ ($this->testQuestionId == $testQuestion->uuid) ? 'group-active' : '' }}"
      style="max-width: 300px"
      wire:key="group-{{ $testQuestion->uuid }}"
+     wire:sortable.item="{{ $question->uuid }}"
 >
-    <div class="flex space-x-2 py-1.5 cursor-pointer group-question-title-container"
+    <div class="flex space-x-2 py-1.5 pl-6 pr-4 cursor-pointer group-question-title-container hover:bg-primary/5 hover:text-primary"
          :class="expand ? 'rotate-svg-270' : 'rotate-svg-90'"
          @click="expand = !expand; setTimeout(() => {handleVerticalScroll($refs.container1);}, 210);"
     >
@@ -33,12 +34,8 @@
                     </div>
                 @endif
             @endif
-            <div class="flex h-full rounded-md">
-                @if($question->closeable)
-                    <x-icon.locked/>
-                @else
-                    <x-icon.unlocked class="note"/>
-                @endif
+            <div class="flex h-full rounded-md hover:text-primary reorder" wire:sortable.handle>
+                    <x-icon.reorder/>
             </div>
             <div class="flex">
                 <x-sidebar.cms.question-options :testQuestion="$testQuestion" :question="$question" :subQuestion="false"/>
@@ -47,10 +44,11 @@
     </div>
     <div class="w-full relative overflow-hidden transition-all max-h-0 duration-200 group-question-questions"
          :style="expand ? 'max-height:' + $el.scrollHeight + 'px' : ''"
+         wire:sortable-group.item-group="{{ $question->uuid }}"
     >
         {{ $slot }}
 
-        <div class="group-add-new relative flex space-x-2.5 py-2 hover:text-primary cursor-pointer items-center"
+        <div class="group-add-new relative flex space-x-2.5 py-2 px-6 hover:text-primary cursor-pointer items-center"
              @click="addQuestionToGroup('{{ $testQuestion->uuid }}')"
              wire:click="$set('groupId', '{{ $testQuestion->uuid }}')"
         >

@@ -83,14 +83,14 @@ class ExcelAttainmentCitoManifest
                 return trim($a);
             })
             ->map(function($objective) use ($domain){
-                $letter = $domain{0};
+                $letter = $domain[0];
                 $nrRaw = substr($domain,1);
                 $nr = (int) $nrRaw;
 //        $code = sprintf('%s%s',$letter,$nr);
                 $short = sprintf('%s%s',$letter,$nr);;
                 $code = $domain;
                 $subcode = str_replace([$domain,$code, $short, $letter],'',$objective);
-                if($subcode && $subcode{0} !== '.' && (substr_count($subcode,'.') > 0 || (!is_numeric($subcode) && !in_array($subcode, ['a','b','c','d','e','f','g','h',]))) && substr($subcode,0,strlen($nr)) == $nr){
+                if($subcode && $subcode[0] !== '.' && (substr_count($subcode,'.') > 0 || (!is_numeric($subcode) && !in_array($subcode, ['a','b','c','d','e','f','g','h',]))) && substr($subcode,0,strlen($nr)) == $nr){
                     $subcode = substr($subcode,strlen($nr));
                 }
 
