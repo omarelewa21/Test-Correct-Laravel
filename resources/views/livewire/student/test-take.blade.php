@@ -48,8 +48,38 @@
                     renderMathML()
                 });
                 // Livewire.hook('element.removed', (el, component) => {})
-                // Livewire.hook('message.sent', (message, component) => {})
-                // Livewire.hook('message.failed', (message, component) => {})
+                // Livewire.hook('message.sent', (message, component) => {});
+                Livewire.hook('message.failed', (message, component) => {
+                    let container;
+                    if(!window.navigator.online && message.component.hasOwnProperty('fingerprint') && message.component.fingerprint.name.startsWith('question.')) {
+                        const listener = () => {
+                            // if(window.navigator.online) {
+                                if (container.type == 'callMethod') {
+                                    component.call(container.payload.method, container.payload.params[0]);
+                                } else if (container.type == 'syncInput') {
+                                    component.set(container.payload.name, container.payload.value);
+                                } else {
+                                    console.log('no clue what to do with ' + container.type);
+                                }
+                                window.removeEventListener('online', listener);
+                            // }
+                        }
+
+                        if (message.hasOwnProperty('updateQueue')) {
+                            container = message.updateQueue[0];
+                        } else if(message.hasOwnProperty('updates')){
+                            container = message.updates[0];
+                        }
+                        if(container) {
+                            if( // only handle this if there's no type callMethod and if so if it is not render (like in the drawing question)
+                                container.type != 'callMethod'
+                                || (container.type == 'callMethod' && container.payload.method !='render')) {
+                                window.addEventListener('online', listener);
+                            }
+                        }
+                    }
+
+                });
                 // Livewire.hook('message.received', (message, component) => {})
                 // Livewire.hook('message.processed', (message, component) => {})
             });
