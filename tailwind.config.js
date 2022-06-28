@@ -1,23 +1,35 @@
 module.exports = {
-    mode: 'jit',
-    purge: {
-        content: [
-            './vendor/wire-elements/modal/resources/views/*.blade.php',
-            './resources/**/*.blade.php',
-            './resources/**/*.js',
-            './resources/**/*.vue',
-        ],
-        safelist: [
-            'sm:w-full',
-            'sm:max-w-md',
-            'md:max-w-xl',
-            'lg:max-w-3xl',
-            'xl:max-w-5xl',
-            '2xl:max-w-6xl',
-            'max-w-[600px]'
-        ]
-    },
-    darkMode: false, // or 'media' or 'class'
+    // mode: 'jit',
+    // purge: {
+    //     content: [
+    //         './vendor/wire-elements/modal/resources/views/*.blade.php',
+    //         './resources/**/*.blade.php',
+    //         './resources/**/*.js',
+    //         './resources/**/*.vue',
+    //     ],
+    //     safelist: [
+    //         'sm:w-full',
+    //         'sm:max-w-md',
+    //         'md:max-w-xl',
+    //         'lg:max-w-3xl',
+    //         'xl:max-w-5xl',
+    //         '2xl:max-w-6xl',
+    //         'max-w-[600px]'
+    //     ]
+    // },
+    content: [
+        './vendor/wire-elements/modal/resources/views/*.blade.php',
+        './resources/**/*.{blade.php,js}',
+    ],
+    safelist: [
+        'sm:w-full',
+        'sm:max-w-md',
+        'md:max-w-xl',
+        'lg:max-w-3xl',
+        'xl:max-w-5xl',
+        '2xl:max-w-6xl',
+        'max-w-[600px]'
+    ],
     theme: {
         extend: {
             colors: {
@@ -58,9 +70,6 @@ module.exports = {
             'knightrider': 'knightrider 2s ease infinite',
             'borderpulse': 'borderPulse 3s ease infinite'
         }
-    },
-    variants: {
-        extend: {},
     },
     plugins: [
         require('@tailwindcss/line-clamp')
