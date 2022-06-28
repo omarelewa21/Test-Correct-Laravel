@@ -6860,6 +6860,9 @@ div.drag-item>div{
     float:right;
     height: 16px;
 }
+.matching-question .matching-dropzone .drag-item-test-take-overview-preview{
+    width:380px;
+}
 .no-margin{
     margin: 0!important;
 }
@@ -6898,6 +6901,15 @@ div.drag-item>div{
     page-break-inside: avoid;
 }
 .question-no-break-matrix{
+    page-break-inside: avoid;
+}
+.question-no-break-completion{
+    page-break-inside: avoid;
+}
+.question-no-break-info{
+    page-break-inside: avoid;
+}
+.question-indicator-no-break{
     page-break-inside: avoid;
 }
 .prevent-pagebreak{

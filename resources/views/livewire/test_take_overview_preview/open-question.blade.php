@@ -4,9 +4,10 @@
             {!!   $question->converted_question_html !!}
 
             <x-input.group for="me" class="w-full disabled mt-4">
-                <x-input.textarea
-                        wire:model="answer" disabled style="min-height:80px"
-                ></x-input.textarea>
+                <x-input.mock-textarea-answered :question="$question"
+                                                disabled style="min-height:80px"
+                                                :answer="$answer"
+                ></x-input.mock-textarea-answered>
             </x-input.group>
         </div>
     </div>

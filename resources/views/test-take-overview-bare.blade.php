@@ -4,7 +4,7 @@
              x-show="showMe"
              x-on:force-taken-away-blur.window="showMe = !$event.detail.shouldBlur;"
              class="w-full space-y-8 mt-40" :style="calculateMarginTop()">
-            <h1 class="mb-7">{{ $studentName }}</h1>
+            <h4 class="mb-7">{{ $studentName }}</h4>
             @push('styling')
                 <style>
                     {!! $styling !!}

@@ -8,7 +8,7 @@
             <div class="flex flex-1 flex-col space-y-6">
                 {!! $question->converted_question_html !!}
             </div>
-            <div class="flex flex-1 flex-col">
+            <div class="flex flex-1 flex-col question-no-break-arq-option">
                 <div>
                     <div class="px-5 space-x-4 text-base bold flex flex-row">
                         <span class="w-16">{{__('test_take.option')}}</span>
@@ -19,9 +19,9 @@
                 </div>
                 <div class="divider my-2"></div>
                 <div class="space-y-2">
-                    @foreach( $question->multipleChoiceQuestionAnswers as $loopCount => $link)
+                    @foreach( $this->getMultipleChoiceQuestionAnswers() as $loopCount => $link)
                         <label
-                                class="flex p-5 border-2 border-blue-grey rounded-10 base multiple-choice-question transition ease-in-out duration-150 focus:outline-none
+                                class="block p-5 border-2 border-blue-grey rounded-10 base multiple-choice-question transition ease-in-out duration-150 focus:outline-none
                                         {!! ($this->answer == $link->id) ? 'active' : 'disabled' !!}"
                                 for="link{{ $link->id }}">
                             <input
@@ -31,12 +31,12 @@
                                     class="hidden"
                                     value="{{ $link->id }}"
                             >
-                            <span class="w-16 mr-4">{{ __($this->arqStructure[$loopCount][0]) }}</span>
-                            <span class="w-20 mr-4">{{ __($this->arqStructure[$loopCount][1]) }}</span>
-                            <span class="w-20 mr-4">{{ __($this->arqStructure[$loopCount][2]) }}</span>
+                            <span class="w-16" style="display:inline-block;">{{ __($this->arqStructure[$loopCount][0]) }}</span>
+                            <span class="mr-4  w-20" style="display:inline-block;">{{ __($this->arqStructure[$loopCount][1]) }}</span>
+                            <span class="mr-4  w-20" style="display:inline-block;">{{ __($this->arqStructure[$loopCount][2]) }}</span>
                             <span class="max-w-max">{{ __($this->arqStructure[$loopCount][3]) }}</span>
-                            <div class="ml-auto   {!! ($this->answer == $link->id) ? '' :'hidden' !!}">
-                                <x-icon.checkmark/>
+                            <div class="ml-auto   {!! ($this->answer == $link->id) ? '' :'hidden' !!}"  style="float:right;">
+                                <x-icon.checkmark-pdf ></x-icon.checkmark-pdf>
                             </div>
                         </label>
                     @endforeach

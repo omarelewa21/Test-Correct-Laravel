@@ -27,7 +27,6 @@ class OpenQuestion extends Component
         if (key_exists('value', $temp)) {
             $this->answer = $temp['value'];
         }
-
         $this->answered = $this->answers[$this->question->uuid]['answered'];
 
         if(!is_null($this->question->belongs_to_groupquestion_id)){

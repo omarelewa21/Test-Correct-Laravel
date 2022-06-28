@@ -5,6 +5,7 @@ namespace tcCore\Http\Livewire\TestTakeOverviewPreview;
 use Livewire\Component;
 use tcCore\Answer;
 use tcCore\Http\Traits\WithCloseable;
+use tcCore\MultipleChoiceQuestionAnswer;
 use tcCore\Question;
 
 class MultipleChoiceQuestion extends Component
@@ -45,13 +46,14 @@ class MultipleChoiceQuestion extends Component
         }
 
         $this->shuffledKeys = array_keys($this->answerStruct);
-        if (!$this->question->isCitoQuestion()) {
-            if ($this->question->subtype != 'ARQ' && $this->question->subtype != 'TrueFalse') {
-                shuffle($this->shuffledKeys);
-            }
-        }
+//        if (!$this->question->isCitoQuestion()) {
+//            if ($this->question->subtype != 'ARQ' && $this->question->subtype != 'TrueFalse') {
+//                shuffle($this->shuffledKeys);
+//            }
+//        }
 
-        $this->question->multipleChoiceQuestionAnswers->each(function ($answers) use (&$map) {
+
+        collect($this->getMultipleChoiceQuestionAnswers())->each(function ($answers) use (&$map) {
             $this->answerText[$answers->id] = $answers->answer;
         });
 
@@ -93,5 +95,24 @@ class MultipleChoiceQuestion extends Component
     public function isQuestionFullyAnswered(): bool
     {
         return true;
+    }
+
+    private function getMultipleChoiceQuestionAnswers()
+    {
+        $answersIds = [];
+        $answers = [];
+        collect($this->answerStruct)->each(function($value,$key) use (&$answersIds){
+            $answersIds[] = (int) $key ;
+        });
+        $answersIds = array_unique($answersIds);
+
+        collect($answersIds)->each(function($value,$key) use (&$answers){
+            $answer = MultipleChoiceQuestionAnswer::withTrashed()->find($value);
+            if(is_null($answer)){
+                return true;
+            }
+            $answers[] = $answer;
+        });
+        return $answers;
     }
 }

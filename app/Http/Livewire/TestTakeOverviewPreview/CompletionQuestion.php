@@ -29,7 +29,6 @@ class CompletionQuestion extends Component
             $this->answer[$key] = BaseHelper::transformHtmlCharsReverse($val);
         }
         $this->answered = $this->answers[$this->question->uuid]['answered'];
-
         if(!is_null($this->question->belongs_to_groupquestion_id)){
             $this->question->groupQuestion = Question::find($this->question->belongs_to_groupquestion_id);
         }
@@ -43,12 +42,7 @@ class CompletionQuestion extends Component
 
         $replacementFunction = function ($matches) use ($question) {
             $tag_id = $matches[1] - 1; // the completion_question_answers list is 1 based but the inputs need to be 0 based
-
-            return sprintf(
-                '<input wire:model="answer.%d" class="form-input mb-2 disabled truncate text-center overflow-ellipsis" type="text" id="%s" style="width: 100px" disabled/>',
-                $tag_id,
-                'answer_' . $tag_id
-            );
+            return sprintf('<span class="form-input resize-none overflow-ellipsis rounded-10 pdf-answer-model-input" >%s </span>', $this->answer[$tag_id]);
         };
 
         return preg_replace_callback($this->searchPattern, $replacementFunction, $question_text);
@@ -68,17 +62,13 @@ class CompletionQuestion extends Component
         foreach ($question->completionQuestionAnswers as $option) {
             $tags[$option->tag][$option->answer] = $option->answer;
         }
-        $isCitoQuestion = $question->isCitoQuestion();
 
         $question_text = preg_replace_callback(
             $this->searchPattern,
-            function ($matches) use ($tags, $isCitoQuestion) {
+            function ($matches) use ($tags) {
 
                 $answers = $tags[$matches[1]];
                 $keys = array_keys($answers);
-                if (!$isCitoQuestion) {
-                    shuffle($keys);
-                }
                 $random = array(
                     '' => 'Selecteer'
                 );
@@ -87,9 +77,13 @@ class CompletionQuestion extends Component
                 }
 
                 $answers = $random;
+                if(array_key_exists($matches[1],$this->answer)){
+                    return $this->getOption($answers,$this->answer[$matches[1]]);
+                }
+                return '<span class="overflow-ellipsis rounded-10 pdf-answer-model-select" ></span>';
 
-                return sprintf('<select wire:model="answer.%s" class="form-input text-base disabled max-w-full overflow-ellipsis overflow-hidden" selid="testtake-select" disabled>%s</select>', $matches[1],
-                    $this->getOptions($answers));
+//                return sprintf('<select wire:model="answer.%s" class="form-input text-base disabled max-w-full overflow-ellipsis overflow-hidden" selid="testtake-select" disabled>%s</select>', $matches[1],
+//                    $this->getOptions($answers));
 
 //                return $this->Form->input('Answer.'.$tag_id ,['id' => 'answer_' . $tag_id, 'class' => 'multi_selection_answer', 'onchange' => 'Answer.answerChanged = true', 'value' => $value, 'options' => $answers, 'label' => false, 'div' => false, 'style' => 'display:inline-block; width:150px']);
             },
@@ -97,6 +91,17 @@ class CompletionQuestion extends Component
         );
 
         return $question_text;
+    }
+
+    private function getOption($answers,$correct)
+    {
+        return collect($answers)->map(function ($option, $key) use ($correct) {
+            if(trim($option)==trim($correct)){
+                $check = sprintf('<img class="icon_checkmark_pdf no-margin" src="data:image/svg+xml;charset=utf8,%s" >',$this->getEncodedCheckmarkSvg());
+                return sprintf('<span class="overflow-ellipsis rounded-10 pdf-answer-model-select" >%s %s</span>', $option,$check);
+            }
+            return '';
+        })->join('');
     }
 
     private function getOptions($answers)

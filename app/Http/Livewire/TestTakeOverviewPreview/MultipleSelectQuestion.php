@@ -5,6 +5,7 @@ namespace tcCore\Http\Livewire\TestTakeOverviewPreview;
 use Livewire\Component;
 use tcCore\Answer;
 use tcCore\Http\Traits\WithCloseable;
+use tcCore\MultipleChoiceQuestionAnswer;
 use tcCore\Question;
 
 class MultipleSelectQuestion extends Component
@@ -37,14 +38,15 @@ class MultipleSelectQuestion extends Component
             });
         }
 
-        $this->shuffledKeys = array_keys($this->answerStruct);
-        if (!$this->question->isCitoQuestion()) {
-            if ($this->question->subtype != 'ARQ' && $this->question->subtype != 'TrueFalse') {
-                shuffle($this->shuffledKeys);
-            }
-        }
 
-        $this->question->multipleChoiceQuestionAnswers->each(function ($answers) use (&$map) {
+        $this->shuffledKeys = array_keys($this->answerStruct);
+//        if (!$this->question->isCitoQuestion()) {
+//            if ($this->question->subtype != 'ARQ' && $this->question->subtype != 'TrueFalse') {
+//                shuffle($this->shuffledKeys);
+//            }
+//        }
+
+        collect($this->getMultipleSelectQuestionAnswers())->each(function ($answers) use (&$map) {
             $this->answerText[$answers->id] = $answers->answer;
         });
 
@@ -64,5 +66,24 @@ class MultipleSelectQuestion extends Component
     {
         $selectedAnswers = count(array_keys($this->answerStruct, 1));
         return $this->question->selectable_answers === $selectedAnswers;
+    }
+
+    private function getMultipleSelectQuestionAnswers()
+    {
+        $answersIds = [];
+        $answers = [];
+        collect($this->answerStruct)->each(function($value,$key) use (&$answersIds){
+            $answersIds[] = (int) $key ;
+        });
+        $answersIds = array_unique($answersIds);
+
+        collect($answersIds)->each(function($value,$key) use (&$answers){
+            $answer = MultipleChoiceQuestionAnswer::withTrashed()->find($value);
+            if(is_null($answer)){
+                return true;
+            }
+            $answers[] = $answer;
+        });
+        return $answers;
     }
 }

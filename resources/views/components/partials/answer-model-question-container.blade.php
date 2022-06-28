@@ -6,7 +6,7 @@
 ])
 
 <div class="flex flex-col p-8 sm:p-10 content-section rs_readable page-no-break" >
-    <div class="question-title flex-pdf flex-wrap-pdf items-center question-indicator border-bottom mb-6"  style="position:relative;">
+    <div class="question-title flex-pdf flex-wrap-pdf items-center question-indicator border-bottom mb-6 question-indicator-no-break"  style="position:relative;">
         <div class="inline-flex-pdf question-number rounded-full text-center justify-center items-center complete" >
             <span class="align-middle cursor-default">{{ $number }}</span>
         </div>
