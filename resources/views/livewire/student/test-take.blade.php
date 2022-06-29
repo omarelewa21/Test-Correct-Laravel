@@ -20,7 +20,7 @@
             @endif
         </x-slot>
         <x-slot name="actionButton">
-            <x-button.cta size="md" onclick="endTest(true)" wire:offline.attr="disabled">
+            <x-button.cta size="md" onclick="endTest(true)" >
                 <span>
                     @if(!Auth::user()->guest)
                         {{ __('student.dashboard') }}
@@ -71,11 +71,7 @@
                             container = message.updates[0];
                         }
                         if(container) {
-                            if( // only handle this if there's no type callMethod and if so if it is not render (like in the drawing question)
-                                container.type != 'callMethod'
-                                || (container.type == 'callMethod' && container.payload.method !='render')) {
-                                window.addEventListener('online', listener);
-                            }
+                            window.addEventListener('online', listener);
                         }
                     }
 
