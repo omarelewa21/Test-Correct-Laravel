@@ -4,17 +4,15 @@ namespace tcCore\Http\Livewire\Teacher;
 
 use Illuminate\Support\Str;
 use LivewireUI\Modal\ModalComponent;
-use phpDocumentor\Reflection\Types\Boolean;
 use tcCore\Http\Helpers\QuestionHelper;
 use tcCore\Http\Interfaces\QuestionCms;
 use tcCore\Http\Livewire\Teacher\Questions\CmsFactory;
 use tcCore\Http\Livewire\Teacher\Questions\CmsMultipleChoice;
-use tcCore\Lib\Question\QuestionInterface;
 use tcCore\Question;
 
 class QuestionCmsPreviewModal extends ModalComponent implements QuestionCms
 {
-    public $question = [
+    public array $question = [
         'add_to_database'        => 1,
         'answer'                 => '',
         'bloom'                  => '',
@@ -38,22 +36,24 @@ class QuestionCmsPreviewModal extends ModalComponent implements QuestionCms
         'all_or_nothing'         => false,
         'uuid'                   => ''
     ];
-    protected $questionModel;
-    public $action = 'edit';
-    public $cmsPropertyBag;
-    public $questionType = 'abc';
-    public $attachmentsCount = 3;
+    public string $action = 'edit';
+    public array $cmsPropertyBag;
+    public string $questionType;
+    public int $attachmentsCount;
     public string $answerEditorId;
     public string $questionEditorId;
-    public $isPartOfGroupQuestion = false;
-    public $uniqueQuestionKey = 'abckaas';
-    public $sortOrderAttachments = [];
-    public $subjectId;
-    public $educationLevelId;
+    public bool $isPartOfGroupQuestion = false;
+    public bool $isPreview = true;
+    public string $uniqueQuestionKey;
+    public array $sortOrderAttachments = [];
+    public int $subjectId;
+    public int $educationLevelId;
+    public int $questionId;
+    public string $questionTitle;
+
+    protected $questionModel;
     private $obj;
     public $pValues;
-    public $questionId;
-    public $questionTitle;
     public $initWithTags;
     public $attachments;
 
@@ -124,7 +124,6 @@ class QuestionCmsPreviewModal extends ModalComponent implements QuestionCms
     /*
      * Helper methods
      */
-
     private function initializeComponent(Question $question)
     {
         $this->question['type'] = $question->type;
@@ -135,12 +134,14 @@ class QuestionCmsPreviewModal extends ModalComponent implements QuestionCms
 
         $this->answerEditorId = Str::uuid()->__toString();
         $this->questionEditorId = Str::uuid()->__toString();
+        $this->uniqueQuestionKey = $question->uuid;
 
         $this->obj = CmsFactory::create($this);
 
         if ($this->obj && method_exists($this->obj, 'preparePropertyBag')) {
             $this->obj->preparePropertyBag();
         }
+
         $question = (new QuestionHelper())->getTotalQuestion($question->question);
         $this->pValues = $question->getQuestionInstance()->getRelation('pValue');
 
@@ -154,17 +155,15 @@ class QuestionCmsPreviewModal extends ModalComponent implements QuestionCms
         $this->question['note_type'] = $question->note_type;
         $this->question['attainments'] = $question->getQuestionAttainmentsAsArray();
         $this->question['learning_goals'] = $question->getQuestionLearningGoalsAsArray();
-//        $this->question['order'] = $tq->order;
         $this->question['all_or_nothing'] = $question->all_or_nothing;
         $this->question['closeable'] = $question->closeable;
-//        $this->question['maintain_position'] = $tq->maintain_position;
         $this->question['add_to_database'] = $question->add_to_database;
-//        $this->question['discuss'] = $tq->discuss;
         $this->question['decimal_score'] = $question->decimal_score;
         $this->initWithTags = $question->tags;
         $this->initWithTags->each(function ($tag) {
             $this->question['tags'][] = $tag->name;
         });
+
         $this->attachments = $question->attachments;
         $this->attachmentsCount = count($this->attachments);
 

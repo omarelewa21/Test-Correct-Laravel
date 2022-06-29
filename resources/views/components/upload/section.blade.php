@@ -5,15 +5,10 @@
 'uploadModel',
 'multiple' => false,
 'defaultFilepond' => true,
+'enableUpload' => false
 ])
 
-<x-content-section x-data=""
-                   @dragover.prevent="$el.classList.add('dragover')"
-                   @dragleave.prevent="$el.classList.remove('dragover')"
-                   @drop.prevent="$el.classList.remove('dragover');  $dispatch('newfile', $event)"
-                   droppable
-                   @video-url-not-supported.window="Notify.notify($event.detail, 'error')"
->
+<x-content-section x-data="" :withUploadHandling="$enableUpload">
     <x-slot name="title">
         {{ $title }}
     </x-slot>

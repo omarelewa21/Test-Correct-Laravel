@@ -2,14 +2,12 @@
 
 namespace tcCore\Http\Livewire\Teacher\Questions;
 
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\ValidationException;
 use Ramsey\Uuid\Uuid;
-use tcCore\GroupQuestionQuestion;
 use tcCore\Http\Helpers\BaseHelper;
 use tcCore\Http\Interfaces\QuestionCms;
 use tcCore\Http\Traits\WithCmsCustomRulesHandling;
-use tcCore\TestQuestion;
-use Illuminate\Support\Facades\Validator;
-use Illuminate\Validation\ValidationException;
 use tcCore\MatchingQuestion;
 
 class CmsClassify extends CmsBase
@@ -19,12 +17,10 @@ class CmsClassify extends CmsBase
     const MIN_ANSWER_COUNT = 2;
     const MIN_ANSWER_SUB_COUNT = 1;
 
-    private $instance;
-    public $requiresAnswer = true;
-
     public function __construct(QuestionCms $instance)
     {
-        $this->instance = $instance;
+        parent::__construct($instance);
+
         if ($this->instance->action == 'edit') {
             $this->setAnswerStruct();
         } elseif (!array_key_exists('answerStruct', $this->instance->cmsPropertyBag)) {
@@ -32,10 +28,9 @@ class CmsClassify extends CmsBase
             $this->instance->cmsPropertyBag['answerCount'] = 2;
             $this->instance->cmsPropertyBag['answerSubCount'] = [];
         }
-
     }
 
-    public function getTranslationKey()
+    public function getTranslationKey(): string
     {
         return __('cms.classify-question');
     }
@@ -213,13 +208,7 @@ class CmsClassify extends CmsBase
     private function setAnswerStruct()
     {
         if (empty($this->instance->cmsPropertyBag['answerStruct'])) {
-            if ($this->instance->isPartOfGroupQuestion()) {
-                $tq = GroupQuestionQuestion::whereUuid($this->instance->groupQuestionQuestionId)->first();
-                $q = $tq->question;
-            } else {
-                $tq = TestQuestion::whereUuid($this->instance->testQuestionId)->first();
-                $q = $tq->question;
-            }
+            $q = $this->getQuestion();
 
             $struct = [];
 
@@ -256,7 +245,7 @@ class CmsClassify extends CmsBase
         $this->instance->cmsPropertyBag['answerCount'] = count($this->instance->cmsPropertyBag['answerStruct']);
     }
 
-    public function getTemplate()
+    public function getTemplate(): string
     {
         return 'classify-question';
     }

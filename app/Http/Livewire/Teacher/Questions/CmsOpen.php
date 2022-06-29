@@ -3,25 +3,18 @@
 namespace tcCore\Http\Livewire\Teacher\Questions;
 
 use Illuminate\Support\Str;
-use tcCore\Http\Interfaces\QuestionCms;
 
-class CmsOpen
+class CmsOpen extends CmsBase
 {
-    private $instance;
-    public $requiresAnswer = true;
-
-    public function __construct(QuestionCms $instance) {
-        $this->instance = $instance;
-    }
-
-    public function getTranslationKey() {
+    public function getTranslationKey(): string
+    {
         if (Str::lower($this->instance->question['subtype']) == 'short') {
             return __('cms.open-question-short');
         }
         return __('cms.open-question-medium');
     }
 
-    public function getTemplate()
+    public function getTemplate(): string
     {
         return 'open-question';
     }

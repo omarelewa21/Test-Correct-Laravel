@@ -2,14 +2,10 @@
 
 namespace tcCore\Http\Livewire\Teacher\Questions;
 
-use Illuminate\Support\Str;
 use tcCore\GroupQuestion;
-use tcCore\Http\Interfaces\QuestionCms;
 
-class CmsGroup
+class CmsGroup extends CmsBase
 {
-    private $instance;
-
     public $requiresAnswer = false;
 
     private $questionProperties = [
@@ -38,18 +34,12 @@ class CmsGroup
         ];
     }
 
-
-    public function __construct(QuestionCms $instance)
-    {
-        $this->instance = $instance;
-    }
-
-    public function getTranslationKey()
+    public function getTranslationKey(): string
     {
         return __('cms.group-question');
     }
 
-    public function getTemplate()
+    public function getTemplate(): string
     {
         return 'group-question';
     }

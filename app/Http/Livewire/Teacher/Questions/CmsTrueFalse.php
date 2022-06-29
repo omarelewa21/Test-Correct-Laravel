@@ -7,16 +7,13 @@ use tcCore\Http\Interfaces\QuestionCms;
 use tcCore\Http\Traits\WithCmsCustomRulesHandling;
 use tcCore\Rules\TrueFalseRule;
 
-class CmsTrueFalse
+class CmsTrueFalse extends CmsBase
 {
     use WithCmsCustomRulesHandling;
 
-    private $instance;
-    public $requiresAnswer = true;
-
     public function __construct(QuestionCms $instance)
     {
-        $this->instance = $instance;
+        parent::__construct($instance);
 
         if (!array_key_exists('tfTrue', $this->instance->cmsPropertyBag)) {
             $this->instance->cmsPropertyBag['tfTrue'] = [];
@@ -76,15 +73,17 @@ class CmsTrueFalse
         unset($this->instance->question['answer']);
     }
 
-    public function getTranslationKey()
+    public function getTranslationKey(): string
     {
         return __('cms.multiplechoice-question-truefalse');
     }
 
-    public function getTemplate()
+    public function getTemplate(): string
     {
         return 'true-false-question';
     }
 
-    public function createAnswerStruct() {}
+    public function createAnswerStruct()
+    {
+    }
 }

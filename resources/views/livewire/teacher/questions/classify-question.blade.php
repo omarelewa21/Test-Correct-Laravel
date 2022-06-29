@@ -1,9 +1,10 @@
-@extends('livewire.teacher.questions.cms-layout')
+@extends($preview ?? 'livewire.teacher.questions.cms-layout')
 @section('question-cms-question')
     <x-input.rich-textarea
             wire:model.debounce.1000ms="question.question"
             editorId="{{ $questionEditorId }}"
             type="cms"
+            :disabled="isset($preview)"
     />
 @endsection
 
@@ -34,14 +35,23 @@
                     <x-input.text class="w-full mr-1 text-center relative z-10 {{ $errorMainClass }}"
                                   wire:key="left-{{$key}}"
                                   wire:model.lazy="cmsPropertyBag.answerStruct.{{$key}}.left"
-                                  selid="left-answer"/>
-                    <x-icon.remove id="remove_{{ $key }}"
-                                   class="mx-2 w-4 cursor-pointer {{ $disabledMainClass }}"
-                                   wire:key="remove-{{$key}}"
-                                   wire:click="__call('delete','{{ $key }}')"/>
+                                  selid="left-answer"
+                                  :disabled="isset($preview)"
+                    />
+                    @if(isset($preview))
+                        <x-icon.remove class="mx-2 w-4 mid-grey"/>
+                    @else
+                        <x-icon.remove id="remove_{{ $key }}"
+                                       class="mx-2 w-4 cursor-pointer {{ $disabledMainClass }}"
+                                       wire:key="remove-{{$key}}"
+                                       wire:click="__call('delete','{{ $key }}')"/>
+                    @endif
                 </div>
                 <div class="w-full mt-4"
-                     wire:sortable="__call('updateRankingOrder')">
+                     @if(!isset($preview))
+                         wire:sortable="__call('updateRankingOrder')"
+                        @endif
+                >
                     @php
                         $disabledClass = "icon disabled cursor-not-allowed";
                         if($this->__call('canDeleteSubItem',$key)) {
@@ -65,7 +75,7 @@
                                      selid="drag-box"
                                      slotClasses="w-full mr-0 "
                                      dragClasses="absolute right-14 hover:text-primary transition"
-                                     dragIconClasses=" cursor-move"
+                                     dragIconClasses="cursor-move {{ isset($preview) ? 'text-midgrey hover:text-midgrey' : '' }}"
                                      :useHandle="true"
                                      :keepWidth="true"
                                      sortIcon="reorder"
@@ -73,20 +83,28 @@
                             <x-input.text class="w-full mr-0.5 {{ $errorAnswerClass }} "
                                           wire:key="input-{{$key}}-{{$answer->id}}"
                                           wire:model.lazy="cmsPropertyBag.answerStruct.{{$key}}.rights.{{ $loop->index }}.answer"
-                                          selid="right-answer"/>
+                                          selid="right-answer"
+                                          :disabled="isset($preview)"
+                            />
                             <x-slot name="after">
-                                <x-icon.remove class="mx-2 w-4 cursor-pointer  {{ $disabledClass }}"
-                                               wire:key="remove-{{$key}}-{{$answer->id}}"
-                                               id="remove_{{ $answer->order }}"
-                                               wire:click="__call('deleteSubItem','{{ $key }}={{$answer->id}}')"
-                                />
+                                @if(isset($preview))
+                                    <x-icon.remove class="mx-2 w-4 mid-grey"/>
+                                @else
+                                    <x-icon.remove class="mx-2 w-4 cursor-pointer  {{ $disabledClass }}"
+                                                   wire:key="remove-{{$key}}-{{$answer->id}}"
+                                                   id="remove_{{ $answer->order }}"
+                                                   wire:click="__call('deleteSubItem','{{ $key }}={{$answer->id}}')"
+                                    />
+                                @endif
                             </x-slot>
                         </x-drag-item>
                     @endforeach
                 </div>
                 <x-button.primary class="mt-1 justify-center w-full"
                                   wire:click="__call('addAnswerSubItem','{{$key}}')"
-                                  selid="add-answer-sub-option-btn">
+                                  selid="add-answer-sub-option-btn"
+                                  :disabled="isset($preview)"
+                >
                     <x-icon.plus/>
                     <span>{{ __('cms.Item toevoegen') }}</span>
                 </x-button.primary>
@@ -97,7 +115,9 @@
     <div class="flex flex-col space-y-2 w-full">
         <x-button.primary class="mt-3 justify-center"
                           wire:click="__call('addAnswerItem')"
-                          selid="add-answer-option-btn">
+                          selid="add-answer-option-btn"
+                          :disabled="isset($preview)"
+        >
             <x-icon.plus/>
             <span>{{ __('cms.Insleepvak toevoegen') }}</span>
         </x-button.primary>

@@ -2,24 +2,14 @@
 
 namespace tcCore\Http\Livewire\Teacher\Questions;
 
-use Illuminate\Support\Str;
-use tcCore\Http\Interfaces\QuestionCms;
-
-class CmsInfoScreen
+class CmsInfoScreen extends CmsBase
 {
-    private $instance;
-
     public $settingsGeneralDisabledProperties = [
         'allowNotes',
         'addToDatabase',
         'discuss',
         'decimalOption',
     ];
-
-    public function __construct(QuestionCms $instance)
-    {
-        $this->instance = $instance;
-    }
 
     public function showQuestionScore()
     {
@@ -42,7 +32,7 @@ class CmsInfoScreen
         }
     }
 
-    public function getTranslationKey()
+    public function getTranslationKey(): string
     {
         return __('cms.infoscreen-question');
     }
@@ -67,7 +57,7 @@ class CmsInfoScreen
         return false;
     }
 
-    public function getTemplate()
+    public function getTemplate(): string
     {
         return 'infoscreen-question';
     }

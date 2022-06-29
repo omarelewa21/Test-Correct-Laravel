@@ -1,4 +1,4 @@
-@extends('livewire.teacher.questions.cms-layout')
+@extends($preview ?? 'livewire.teacher.questions.cms-layout')
 @section('question-cms-group-question')
     <x-input.group class="text-base" label="{{ __('cms.naam vraaggroep') }}">
 
@@ -66,6 +66,7 @@
             wire:model.debounce.1000ms="question.question"
             editorId="{{ $questionEditorId }}"
             type="cms"
+            :disabled="isset($preview)"
     />
     </x-input.group>
 @endsection

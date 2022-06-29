@@ -2,14 +2,12 @@
 
 namespace tcCore\Http\Livewire\Teacher\Questions;
 
-use tcCore\Http\Interfaces\QuestionCms;
 use tcCore\Http\Traits\WithCmsCompletionType;
 
-class CmsCompletion
+class CmsCompletion extends CmsBase
 {
     use WithCmsCompletionType;
 
-    private $instance;
     public $requiresAnswer = false;
 
     protected $questionOptions = [
@@ -21,11 +19,6 @@ class CmsCompletion
         'autoCheckAnswer' => true,
         'autoCheckAnswerCaseSensitive' => true,
     ];
-
-    public function __construct(QuestionCms $instance)
-    {
-        $this->instance = $instance;
-    }
 
     public function preparePropertyBag()
     {
@@ -61,12 +54,12 @@ class CmsCompletion
         }
     }
 
-    public function getTranslationKey()
+    public function getTranslationKey(): string
     {
         return __('cms.completion-question');
     }
 
-    public function getTemplate()
+    public function getTemplate(): string
     {
         return 'completion-question';
     }

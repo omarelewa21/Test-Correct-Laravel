@@ -15,18 +15,13 @@ class CmsMultipleChoice extends CmsBase
 
     const MIN_ANSWER_COUNT = 2;
 
-    private $instance;
-//    private $answerCount = 2;
-    public $requiresAnswer = true;
-
-
     public function __construct(QuestionCms $instance)
     {
-        $this->instance = $instance;
+        parent::__construct($instance);
 
         if ($this->instance->action == 'edit') {
             $this->setAnswerStruct();
-        } elseif(!array_key_exists('answerStruct', $this->instance->cmsPropertyBag)) {
+        } elseif (!array_key_exists('answerStruct', $this->instance->cmsPropertyBag)) {
             $this->instance->cmsPropertyBag['answerStruct'] = [];
             $this->instance->cmsPropertyBag['answerCount'] = 2;
         }
@@ -66,18 +61,18 @@ class CmsMultipleChoice extends CmsBase
     public function prepareForSave()
     {
         $this->instance->question['answers'] = collect($this->instance->cmsPropertyBag['answerStruct'])
-                ->map(function ($answer) {
-                    $answer = (array) $answer;
-                    return [
-                        'order'  => $answer['order'],
-                        'answer' => BaseHelper::transformHtmlChars($answer['answer']),
-                        'score'  => (int)$answer['score'],
-                    ];
-                })
-                ->toArray();
+            ->map(function ($answer) {
+                $answer = (array)$answer;
+                return [
+                    'order'  => $answer['order'],
+                    'answer' => BaseHelper::transformHtmlChars($answer['answer']),
+                    'score'  => (int)$answer['score'],
+                ];
+            })
+            ->toArray();
         unset($this->instance->question['answer']);
         $this->instance->question['score'] = collect($this->instance->cmsPropertyBag['answerStruct'])->sum('score');
-        $this->instance->question['selectable_answers'] = collect($this->instance->cmsPropertyBag['answerStruct'])->where('score','>',0)->count();
+        $this->instance->question['selectable_answers'] = collect($this->instance->cmsPropertyBag['answerStruct'])->where('score', '>', 0)->count();
 
     }
 
@@ -86,19 +81,19 @@ class CmsMultipleChoice extends CmsBase
         $result = [];
 
         collect($this->instance->cmsPropertyBag['answerStruct'])->each(function ($value, $key) use (&$result) {
-            $value = (array) $value;
+            $value = (array)$value;
 
-            $result[] = (object) [
-                'id'    => $value['id'],
-                'order' => $key + 1,
+            $result[] = (object)[
+                'id'     => $value['id'],
+                'order'  => $key + 1,
                 'answer' => $value['answer'],
-                'score' => (int) $value['score']
+                'score'  => (int)$value['score']
             ];
         })->toArray();
 
         if (count($this->instance->cmsPropertyBag['answerStruct']) < $this->instance->cmsPropertyBag['answerCount']) {
             for ($i = count($this->instance->cmsPropertyBag['answerStruct']); $i < $this->instance->cmsPropertyBag['answerCount']; $i++) {
-                $result[] = (object) [
+                $result[] = (object)[
                     'id'     => Uuid::uuid4(),
                     'order'  => $i + 1,
                     'score'  => 0,
@@ -112,7 +107,7 @@ class CmsMultipleChoice extends CmsBase
     }
 
 
-    public function getTranslationKey()
+    public function getTranslationKey(): string
     {
         return __('cms.multiplechoice-question-multiplechoice');
     }
@@ -121,7 +116,7 @@ class CmsMultipleChoice extends CmsBase
     public function updateMCOrder($value)
     {
         foreach ($value as $item) {
-            $this->instance->cmsPropertyBag['answerStruct'][((int) $item['value']) - 1]['order'] = $item['order'];
+            $this->instance->cmsPropertyBag['answerStruct'][((int)$item['value']) - 1]['order'] = $item['order'];
         }
 
         $this->instance->cmsPropertyBag['answerStruct'] = array_values(collect($this->instance->cmsPropertyBag['answerStruct'])->sortBy('order')->toArray());
@@ -192,7 +187,7 @@ class CmsMultipleChoice extends CmsBase
         $this->instance->cmsPropertyBag['answerCount'] = count($this->instance->cmsPropertyBag['answerStruct']);
     }
 
-    public function getTemplate()
+    public function getTemplate(): string
     {
         return 'multiple-choice-question';
     }

@@ -1,5 +1,6 @@
-<div id="cms-preview" class="flex flex-1 flex-col bg-lightGrey">
-    <div class="question-editor-preview-header flex w-full bg-white items-center px-6 py-4">
+<div id="cms-preview" class="flex flex-1 flex-col bg-lightGrey h-full overflow-auto"
+>
+    <div class="question-editor-preview-header flex w-full bg-white items-center px-6 py-4 fixed z-10">
         <div class="bold flex items-center space-x-2.5 text-lg">
             <x-icon.preview/>
             <span>{{ __('teacher.Vraag voorbeeld') }}:</span>
@@ -49,6 +50,7 @@
                 @if($this->showQuestionScore())
                     <x-input.score wire:model.defer="question.score"
                                    wire:key="score-component-{{ $this->uniqueQuestionKey }}"
+                                   :disabled="true"
                     />
                 @endif
             </div>
@@ -56,6 +58,9 @@
         </div>
         <div class="flex flex-col flex-1 px-4 sm:px-6 lg:px-8"
              x-data="{openTab: 1}"
+             x-init="setTimeout(() => {
+                $dispatch('tabchange');console.log('dispatch');
+             }, 300)"
              selid="tabcontainer"
         >
             <div class="flex w-full space-x-6 mb-5 border-b border-secondary max-h-[50px]" selid="tabs">
@@ -90,7 +95,7 @@
             </div>
 
 
-            <div class="flex flex-col flex-1 pb-20 space-y-4 relative" x-show="openTab === 1"
+            <div class="flex flex-col flex-1 pb-5 space-y-4 relative" x-show="openTab === 1"
                  x-transition:enter="transition duration-200"
                  x-transition:enter-start="opacity-0 delay-200"
                  x-transition:enter-end="opacity-100"
@@ -118,7 +123,7 @@
             </div>
 
 
-            <div class="flex flex-col flex-1 pb-20 space-y-4" x-show="openTab === 2"
+            <div class="flex flex-col flex-1 pb-5 space-y-4" x-show="openTab === 2"
                  x-transition:enter="transition duration-200"
                  x-transition:enter-start="opacity-0 delay-200"
                  x-transition:enter-end="opacity-100"
@@ -312,7 +317,7 @@
 {{--                                              :key="'TA-'. $this->uniqueQuestionKey"/>--}}
                         <div class="flex gap-2.5">
                             @foreach($this->initWithTags as $tag)
-                                <span class="border border-allred">{{ $tag->name }}</span>
+                                <span class="bg-system-secondary px-5 py-2 rounded-10 bold">{{ $tag->name }}</span>
                             @endforeach
                         </div>
                     </x-content-section>
@@ -320,7 +325,7 @@
 
             </div>
             @if($this->showStatistics())
-                <div class="flex flex-col flex-1 pb-20 space-y-4" x-show="openTab === 3"
+                <div class="flex flex-col flex-1 pb-5 space-y-4" x-show="openTab === 3"
                      x-transition:enter="transition duration-200"
                      x-transition:enter-start="opacity-0 delay-200"
                      x-transition:enter-end="opacity-100"

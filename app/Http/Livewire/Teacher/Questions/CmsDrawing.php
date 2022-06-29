@@ -4,25 +4,15 @@ namespace tcCore\Http\Livewire\Teacher\Questions;
 
 use Illuminate\Support\Str;
 use tcCore\Http\Helpers\SvgHelper;
-use tcCore\Http\Interfaces\QuestionCms;
-use tcCore\Question;
 
-class CmsDrawing
+class CmsDrawing extends CmsBase
 {
-    private $instance;
-    public $requiresAnswer = true;
-
-    public function __construct(QuestionCms $instance)
-    {
-        $this->instance = $instance;
-    }
-
-    public function getTranslationKey()
+    public function getTranslationKey(): string
     {
         return __('cms.drawing-question');
     }
 
-    public function getTemplate()
+    public function getTemplate(): string
     {
         return 'drawing-question';
     }
