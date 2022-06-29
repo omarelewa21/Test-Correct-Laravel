@@ -6753,7 +6753,7 @@ window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
 window.Pusher = __webpack_require__(/*! pusher-js */ "./node_modules/pusher-js/dist/web/pusher.js");
 window.Echo = new laravel_echo__WEBPACK_IMPORTED_MODULE_0__["default"]({
   broadcaster: 'pusher',
-  key: "2149988ad52a600a2309",
+  key: "51d7221bf733999d7138",
   cluster: "eu",
   forceTLS: true
 });
@@ -8872,7 +8872,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview) {
           "x2": cursorPosition.x,
           "y2": cursorPosition.y,
           "marker-end": "url(#svg-".concat(drawingApp.params.endmarkerType, "-line)"),
-          "stroke": UI.lineColor.value,
+          "stroke": UI.strokeColor.value,
           "stroke-width": UI.strokeWidth.value,
           "opacity": parseFloat(UI.elemOpacityNumber.value / 100)
         };
@@ -8881,7 +8881,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview) {
         return {
           "d": "M ".concat(cursorPosition.x, ",").concat(cursorPosition.y),
           "fill": "none",
-          "stroke": UI.lineColor.value,
+          "stroke": UI.strokeColor.value,
           "stroke-width": UI.strokeWidth.value,
           "opacity": parseFloat(UI.elemOpacityNumber.value / 100)
         };
@@ -9472,12 +9472,12 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview) {
    */
 
 
-  window.setSliderColor = function (slider) {
+  function setSliderColor(slider) {
     var leftColorHexValue = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : getRootCSSProperty("--all-Base");
     var ratio = calculateRatioOfValueToMax(slider);
     var leftColorRgbaValue = convertHexToRgbaColor(leftColorHexValue, slider.value);
     slider.style.setProperty("--slider-color", "linear-gradient(to right, ".concat(leftColorRgbaValue, " 0%, ").concat(leftColorRgbaValue, " ").concat(ratio, "%, var(--all-White) ").concat(ratio, "%, var(--all-White) 100%)"));
-  };
+  }
   /**
    * Gets the value of the property from the CSS :root selector element
    * @param {string} property
@@ -12494,7 +12494,6 @@ window.Livewire.directive('sortable', function (el, directive, component) {
     },
     onStart: function onStart(evt) {
       if (evt.target.closest('.drawer')) {
-        var chosen = evt.target.closest('.drawer').querySelector('.sortable-chosen');
         var groups = evt.target.closest('.drawer').querySelectorAll('.draggable-group');
 
         var _iterator = _createForOfIteratorHelper(groups),
@@ -12504,22 +12503,22 @@ window.Livewire.directive('sortable', function (el, directive, component) {
           for (_iterator.s(); !(_step = _iterator.n()).done;) {
             var group = _step.value;
 
-            if (chosen && group != chosen) {
+            if (group != evt.target) {
               group.classList.add('sortable-nogo');
               var elms = group.querySelectorAll('.drag-item');
 
-              var _iterator3 = _createForOfIteratorHelper(elms),
-                  _step3;
+              var _iterator2 = _createForOfIteratorHelper(elms),
+                  _step2;
 
               try {
-                for (_iterator3.s(); !(_step3 = _iterator3.n()).done;) {
-                  var elm = _step3.value;
+                for (_iterator2.s(); !(_step2 = _iterator2.n()).done;) {
+                  var elm = _step2.value;
                   elm.classList.add('sortable-nogo');
                 }
               } catch (err) {
-                _iterator3.e(err);
+                _iterator2.e(err);
               } finally {
-                _iterator3.f();
+                _iterator2.f();
               }
             }
           }
@@ -12528,61 +12527,24 @@ window.Livewire.directive('sortable', function (el, directive, component) {
         } finally {
           _iterator.f();
         }
-
-        var dragging = evt.target.closest('.drawer').querySelector('.sortable-drag');
-        var agroups = evt.target.closest('.drawer').querySelectorAll('.draggable-group');
-
-        var _iterator2 = _createForOfIteratorHelper(agroups),
-            _step2;
-
-        try {
-          for (_iterator2.s(); !(_step2 = _iterator2.n()).done;) {
-            var _group = _step2.value;
-
-            if (dragging && dragging == _group) {
-              _group.classList.remove('sortable-nogo');
-
-              var _elms = _group.querySelectorAll('.drag-item');
-
-              var _iterator4 = _createForOfIteratorHelper(_elms),
-                  _step4;
-
-              try {
-                for (_iterator4.s(); !(_step4 = _iterator4.n()).done;) {
-                  var _elm = _step4.value;
-
-                  _elm.classList.remove('sortable-nogo');
-                }
-              } catch (err) {
-                _iterator4.e(err);
-              } finally {
-                _iterator4.f();
-              }
-            }
-          }
-        } catch (err) {
-          _iterator2.e(err);
-        } finally {
-          _iterator2.f();
-        }
       }
     },
     onEnd: function onEnd(evt) {
       if (evt.target.closest('.drawer')) {
         var nogos = evt.target.closest('.drawer').querySelectorAll('.sortable-nogo');
 
-        var _iterator5 = _createForOfIteratorHelper(nogos),
-            _step5;
+        var _iterator3 = _createForOfIteratorHelper(nogos),
+            _step3;
 
         try {
-          for (_iterator5.s(); !(_step5 = _iterator5.n()).done;) {
-            var nogo = _step5.value;
+          for (_iterator3.s(); !(_step3 = _iterator3.n()).done;) {
+            var nogo = _step3.value;
             nogo.classList.remove('sortable-nogo');
           }
         } catch (err) {
-          _iterator5.e(err);
+          _iterator3.e(err);
         } finally {
-          _iterator5.f();
+          _iterator3.f();
         }
       }
     }
@@ -12625,69 +12587,51 @@ window.Livewire.directive('sortable-group', function (el, directive, component) 
       if (evt.target.closest('.drawer')) {
         var items = evt.target.closest('.drawer').querySelectorAll('.drag-item');
 
-        var _iterator6 = _createForOfIteratorHelper(items),
-            _step6;
+        var _iterator4 = _createForOfIteratorHelper(items),
+            _step4;
 
         try {
-          for (_iterator6.s(); !(_step6 = _iterator6.n()).done;) {
-            var _item = _step6.value;
+          for (_iterator4.s(); !(_step4 = _iterator4.n()).done;) {
+            var item = _step4.value;
+            item.classList.add('sortable-nogo');
+            var elms = item.querySelectorAll('.drag-item');
 
-            _item.classList.add('sortable-nogo');
-
-            var elms = _item.querySelectorAll('.drag-item');
-
-            var _iterator9 = _createForOfIteratorHelper(elms),
-                _step9;
+            var _iterator6 = _createForOfIteratorHelper(elms),
+                _step6;
 
             try {
-              for (_iterator9.s(); !(_step9 = _iterator9.n()).done;) {
-                var elm = _step9.value;
+              for (_iterator6.s(); !(_step6 = _iterator6.n()).done;) {
+                var elm = _step6.value;
                 elm.classList.add('sortable-nogo');
               }
             } catch (err) {
-              _iterator9.e(err);
+              _iterator6.e(err);
             } finally {
-              _iterator9.f();
+              _iterator6.f();
             }
           }
         } catch (err) {
-          _iterator6.e(err);
+          _iterator4.e(err);
         } finally {
-          _iterator6.f();
+          _iterator4.f();
         }
 
         var okItems = evt.target.closest('.draggable-group').querySelectorAll('.drag-item');
         evt.target.closest('.draggable-group').classList.remove('sortable-nogo');
 
-        var _iterator7 = _createForOfIteratorHelper(okItems),
-            _step7;
+        var _iterator5 = _createForOfIteratorHelper(okItems),
+            _step5;
 
         try {
-          for (_iterator7.s(); !(_step7 = _iterator7.n()).done;) {
-            var _item2 = _step7.value;
+          for (_iterator5.s(); !(_step5 = _iterator5.n()).done;) {
+            var _item = _step5.value;
 
-            _item2.classList.remove('sortable-nogo');
+            _item.classList.remove('sortable-nogo');
           }
         } catch (err) {
-          _iterator7.e(err);
+          _iterator5.e(err);
         } finally {
-          _iterator7.f();
-        }
-
-        if (evt.target.classList.contains('.draggable-group')) {
-          var _iterator8 = _createForOfIteratorHelper(evt.target.querySelector('.drag-item')),
-              _step8;
-
-          try {
-            for (_iterator8.s(); !(_step8 = _iterator8.n()).done;) {
-              var item = _step8.value;
-              item.classList.remove('sortable-nogo');
-            }
-          } catch (err) {
-            _iterator8.e(err);
-          } finally {
-            _iterator8.f();
-          }
+          _iterator5.f();
         }
       }
     },
@@ -12695,18 +12639,18 @@ window.Livewire.directive('sortable-group', function (el, directive, component) 
       if (evt.target.closest('.drawer')) {
         var items = evt.target.closest('.drawer').querySelectorAll('.drag-item');
 
-        var _iterator10 = _createForOfIteratorHelper(items),
-            _step10;
+        var _iterator7 = _createForOfIteratorHelper(items),
+            _step7;
 
         try {
-          for (_iterator10.s(); !(_step10 = _iterator10.n()).done;) {
-            var item = _step10.value;
+          for (_iterator7.s(); !(_step7 = _iterator7.n()).done;) {
+            var item = _step7.value;
             item.classList.remove('sortable-nogo');
           }
         } catch (err) {
-          _iterator10.e(err);
+          _iterator7.e(err);
         } finally {
-          _iterator10.f();
+          _iterator7.f();
         }
       }
     }

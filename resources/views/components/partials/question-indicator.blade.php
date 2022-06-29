@@ -41,7 +41,7 @@
                                  "
                          wire:key="nav_circle_for_q_{{$q['id']}}"
                     >
-                        <section selid="testtake-navitem" wire:key="nav_item{{$q['id']}}"
+                        <section selid="testtake-navitem" wire:key="nav_item{{$q['id']}}" wire:offline.attr="disabled"
                                  class="question-number rounded-full text-center cursor-pointer flex items-center justify-center
                                     {!! $key === ($this->q - 1) ? 'active' : ''!!}
                                  @if (!$q['answered'] && ($q['group']['closed'] || $q['closed']))

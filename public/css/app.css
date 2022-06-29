@@ -5497,6 +5497,10 @@ video {
   margin-top: 2.5rem;
   margin-bottom: 2.5rem;
 }
+.my-3{
+	margin-top: 0.75rem;
+	margin-bottom: 0.75rem;
+}
 .mx-2\.5{
   margin-left: 0.625rem;
   margin-right: 0.625rem;
@@ -6715,6 +6719,10 @@ video {
 .bg-\[\#2e3192\]{
   --tw-bg-opacity: 1;
   background-color: rgb(46 49 146 / var(--tw-bg-opacity));
+}
+.bg-green-50{
+	--tw-bg-opacity: 1;
+	background-color: rgba(236, 253, 245, var(--tw-bg-opacity));
 }
 .bg-transparent{
   background-color: transparent;
