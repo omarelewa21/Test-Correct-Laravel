@@ -3,7 +3,7 @@
         <div class="relative">
             {!!   $question->converted_question_html !!}
 
-            <x-input.group for="me" class="w-full disabled mt-4">
+            <x-input.group for="me" class="w-full disabled mt-4 question-no-break-open-medium">
                 <x-input.mock-textarea-answered :question="$question"
                                                 disabled style="min-height:80px"
                                                 :answer="$answer"
