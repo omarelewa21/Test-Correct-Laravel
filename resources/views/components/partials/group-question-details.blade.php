@@ -37,12 +37,17 @@
                     <span class="note text-sm">{{ $totalScore ?? 0 }}pt.</span>
                 </div>
             </div>
-            <div class="flex w-full justify-end gap-4">
+            <div class="flex w-full items-center justify-end gap-4">
                 <button class="new-button button-primary"
                         wire:click="$emit('openModal', 'teacher.question-cms-preview-modal', {uuid: @js($uuid)} );"
                 >
                     <x-icon.preview/>
                 </button>
+                @if($inTest)
+                    <span wire:ignore wire:key="checked-for-{{ $uuid }}" title="{{ __('cms.Deze vraag is aanwezig in de toets.') }}">
+                        <x-icon.checkmark-circle color="var(--cta-primary)"/>
+                    </span>
+                @endif
                 <x-button.cta wire:click.stop="handleCheckboxClick('{{ $uuid }}')"
                               @click="$el.disabled = true">
                     <x-icon.plus-2/>

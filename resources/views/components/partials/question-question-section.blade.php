@@ -6,6 +6,7 @@
                                     :attachment="$attachment"
                                     :title="$attachment->title"
                                     wire:key="a-badge-{{ $attachment->id.$this->questionEditorId }}"
+                                    :disabled="isset($this->isPreview)"
                 />
             @endforeach
 
@@ -20,12 +21,14 @@
                             :upload="true"
                             :attachment="$upload"
                             :title="$upload->getClientOriginalName()"
+                            :disabled="isset($this->isPreview)"
                     />
                 @elseif($video)
                     <x-attachment.video-badge
                             wire:key="video-{{ $key }}"
                             :video="$video"
                             :host="$this->getVideoHost($video['link'])"
+                            :disabled="isset($this->isPreview)"
                     />
                 @endif
             @endforeach

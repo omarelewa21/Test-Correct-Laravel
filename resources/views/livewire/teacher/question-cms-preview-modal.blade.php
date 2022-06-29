@@ -9,15 +9,17 @@
         <h3 class="flex ml-4 truncate">{{ $this->questionTitle }}</h3>
 
         <div class="flex ml-auto space-x-2.5">
+            @if($this->inTest)
+                <span title="{{ __('cms.Deze vraag is aanwezig in de toets.') }}">
+                    <x-icon.checkmark-circle color="var(--cta-primary)"/>
+                </span>
+            @endif
             <x-button.cta size="sm">
                 <x-icon.plus-2/>
                 <span>{{ __('cms.Toevoegen') }}</span>
             </x-button.cta>
 
-            <button class="flex items-center justify-center w-10 h-10 rounded-full hover:bg-primary/5 hover:text-primary transition-colors"
-                    wire:click="$emit('closeModal')">
-                <x-icon.close/>
-            </button>
+            <x-button.close wire:click="$emit('closeModal')"/>
         </div>
     </div>
     <div class="question-editor-content w-full max-w-7xl mx-auto relative" wire:ignore.self>
@@ -162,19 +164,7 @@
                             <span>{{ __('cms.Openbaar maken') }}</span>
                         </x-input.toggle-row-with-title>
 
-                        {{--                        <x-input.toggle-row-with-title :disabled="true"--}}
-                        {{--                                                       :checked="$this->questionModel->maintain_position"--}}
-                        {{--                        >--}}
-                        {{--                            <x-icon.shuffle-off/>--}}
-                        {{--                            <span>{{ __('cms.Deze vraag niet shuffelen') }}</span>--}}
-                        {{--                        </x-input.toggle-row-with-title>--}}
                         @if(!$this->questionModel->isType('Group'))
-                            {{--                            <x-input.toggle-row-with-title :disabled="true"--}}
-                            {{--                                                           :checked="$this->questionModel->discuss"--}}
-                            {{--                            >--}}
-                            {{--                                <x-icon.discuss/>--}}
-                            {{--                                <span>{{ __('cms.Bespreken in de klas') }}</span>--}}
-                            {{--                            </x-input.toggle-row-with-title>--}}
                             <x-input.toggle-row-with-title :disabled="true"
                                                            :checked="$this->questionModel->allow_notes"
                             >

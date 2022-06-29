@@ -277,7 +277,7 @@ document.addEventListener('alpine:init', () => {
             }
         },
         setIndex() {
-            const parent = document.getElementById('attachment-badges')
+            const parent = this.$root.parentElement;
             this.index = Array.prototype.indexOf.call(parent.children, this.$el) + 1;
         }
     }));

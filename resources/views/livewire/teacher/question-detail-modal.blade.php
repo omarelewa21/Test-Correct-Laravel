@@ -10,9 +10,7 @@
                         title="{{ $question->title }}">{{ $question->title ?? __('question.no_question_text') }}</h3>
                 @endif
             </div>
-            <div class="flex">
-                <x-icon.close class="hover:text-primary cursor-pointer" wire:click="$emit('closeModal')"/>
-            </div>
+            <x-button.close wire:click="$emit('closeModal')"/>
         </div>
         <div class="flex w-full justify-between text-base mb-1">
             <div class="flex">

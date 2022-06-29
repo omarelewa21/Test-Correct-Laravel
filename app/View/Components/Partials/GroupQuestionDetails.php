@@ -18,8 +18,9 @@ class GroupQuestionDetails extends Component
     public $totalScore;
     public $uuid;
     public $closeable;
+    public $inTest;
 
-    public function __construct(GroupQuestion $groupQuestion, $testUuid = null)
+    public function __construct(GroupQuestion $groupQuestion)
     {
         $this->name = $groupQuestion->name;
         $this->subject = $groupQuestion->getQuestionInstance()->subject;
@@ -30,10 +31,7 @@ class GroupQuestionDetails extends Component
         $this->totalScore = $groupQuestion->total_score;
         $this->uuid = $groupQuestion->uuid;
         $this->closeable = $groupQuestion->getQuestionInstance()->closeable;
-
-        if ($testUuid) {
-            $this->inTest = $groupQuestion->isInTest($testUuid);
-        }
+        $this->inTest = $groupQuestion->inTest ?? false;
     }
 
     public function render(): View

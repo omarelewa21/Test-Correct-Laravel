@@ -59,6 +59,7 @@ class QuestionCmsPreviewModal extends ModalComponent implements QuestionCms
     public $initWithTags;
     public $attachments;
     public $authors;
+    public $inTest = false;
 
     protected static array $maxWidths = [
         'full' => 'modal-full-screen',
@@ -67,9 +68,10 @@ class QuestionCmsPreviewModal extends ModalComponent implements QuestionCms
     /*
      *  Component initialization
      */
-    public function mount($uuid)
+    public function mount($uuid, $inTest = false)
     {
         $question = Question::whereUuid($uuid)->first();
+        $this->inTest = $inTest;
 
         $this->initializeComponent($question);
     }

@@ -2,9 +2,7 @@
 
 namespace tcCore\Http\Livewire\Teacher;
 
-use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Str;
 use Livewire\Component;
 use tcCore\EducationLevel;
 use tcCore\GroupQuestion;
@@ -317,11 +315,12 @@ class QuestionBank extends Component
         $this->emit('openModal', 'teacher.question-detail-modal', ['questionUuid' => $questionUuid, 'testUuid' => $this->testId]);
     }
 
-    public function showGroupDetails($groupUuid)
+    public function showGroupDetails($groupUuid, $inTest = false)
     {
         $groupQuestionId = Question::whereUuid($groupUuid)->value('id');
         $this->groupQuestionDetail = GroupQuestion::find($groupQuestionId);
         $this->groupQuestionDetail->loadRelated();
+        $this->groupQuestionDetail->inTest = $inTest;
 
         return true;
     }

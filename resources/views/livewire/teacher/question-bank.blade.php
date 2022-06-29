@@ -1,5 +1,5 @@
 <div id="question-bank"
-     class="flex flex-col relative w-full min-h-full bg-lightGrey border-t border-secondary overflow-auto overflow-x-hidden mt-14"
+     class="flex flex-col relative w-full min-h-full bg-lightGrey border-t border-secondary overflow-auto overflow-x-hidden"
      x-data="{openTab: @entangle('openTab'), inGroup: @entangle('inGroup'), groupDetail: null, bodyVisibility: true,  maxHeight: '100%'}"
      :style="`max-height: ${maxHeight}`"
      x-init="
@@ -8,8 +8,8 @@
         $watch('$store.questionBank.active', value => {
             if(!value) closeGroupDetail();
         });
-        showGroupDetails = async (groupQuestionUuid) => {
-            let readyForSlide = await $wire.showGroupDetails(groupQuestionUuid);
+        showGroupDetails = async (groupQuestionUuid, inTest = false) => {
+            let readyForSlide = await $wire.showGroupDetails(groupQuestionUuid, inTest);
 
             if (readyForSlide) {
                 groupDetail.style.left = 0;
@@ -232,7 +232,7 @@
     <div id="groupdetail" wire:ignore.self>
         <div class="max-w-5xl lg:max-w-7xl mx-auto">
             @if($this->groupQuestionDetail != null)
-                <x-partials.group-question-details :groupQuestion="$this->groupQuestionDetail" :testUuid="$this->testId"/>
+                <x-partials.group-question-details :groupQuestion="$this->groupQuestionDetail"/>
             @endif
         </div>
     </div>
