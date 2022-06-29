@@ -47,11 +47,7 @@
                                        wire:click="__call('delete','{{ $key }}')"/>
                     @endif
                 </div>
-                <div class="w-full mt-4"
-                     @if(!isset($preview))
-                         wire:sortable="__call('updateRankingOrder')"
-                        @endif
-                >
+                <div class="w-full mt-4" @if(!isset($preview)) wire:sortable="__call('updateRankingOrder')" @endif >
                     @php
                         $disabledClass = "icon disabled cursor-not-allowed";
                         if($this->__call('canDeleteSubItem',$key)) {

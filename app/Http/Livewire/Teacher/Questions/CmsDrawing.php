@@ -157,9 +157,13 @@ class CmsDrawing extends CmsBase
 
     public function drawingToolName()
     {
-        if ($this->instance->action == 'edit') {
-            return $this->instance->groupQuestionQuestionId === '' ? $this->instance->testQuestionId : $this->instance->groupQuestionQuestionId;
+        if ($this->instance instanceof OpenShort) {
+            if ($this->instance->action == 'edit') {
+                return $this->instance->groupQuestionQuestionId === '' ? $this->instance->testQuestionId : $this->instance->groupQuestionQuestionId;
+            }
+            return $this->instance->questionEditorId;
         }
-        return $this->instance->questionEditorId;
+
+        return $this->instance->question['uuid'];
     }
 }

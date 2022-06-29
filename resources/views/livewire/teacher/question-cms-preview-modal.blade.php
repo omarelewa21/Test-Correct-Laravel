@@ -1,4 +1,4 @@
-<div id="cms-preview" class="flex flex-1 flex-col bg-lightGrey h-full overflow-auto"
+<div cms id="cms-preview" class="flex flex-1 flex-col bg-lightGrey h-full overflow-auto"
 >
     <div class="question-editor-preview-header flex w-full bg-white items-center px-6 py-4 fixed z-10">
         <div class="bold flex items-center space-x-2.5 text-lg">
@@ -14,7 +14,8 @@
                 <span>{{ __('cms.Toevoegen') }}</span>
             </x-button.cta>
 
-            <button class="flex items-center justify-center w-10 h-10 rounded-full hover:bg-primary/5 hover:text-primary transition-colors" wire:click="$emit('closeModal')">
+            <button class="flex items-center justify-center w-10 h-10 rounded-full hover:bg-primary/5 hover:text-primary transition-colors"
+                    wire:click="$emit('closeModal')">
                 <x-icon.close/>
             </button>
         </div>
@@ -58,9 +59,8 @@
         </div>
         <div class="flex flex-col flex-1 px-4 sm:px-6 lg:px-8"
              x-data="{openTab: 1}"
-             x-init="setTimeout(() => {
-                $dispatch('tabchange');console.log('dispatch');
-             }, 300)"
+             {{--Dispatch tabchange when everything is rendered so drag item width is fixed--}}
+             x-init="setTimeout(() => { $dispatch('tabchange') }, 300)"
              selid="tabcontainer"
         >
             <div class="flex w-full space-x-6 mb-5 border-b border-secondary max-h-[50px]" selid="tabs">
@@ -133,18 +133,18 @@
                     <x-slot name="title">{{ __('cms.Algemeen') }}</x-slot>
 
                     <div class="general-settings-grid">
-                            <div class="border-b flex w-full justify-between items-center py-2">
-                                <div class="flex items-center space-x-2.5">
-                                    <span class="bold text-base">{{ __('cms.unieke id') }}</span>
-                                    <span class="ml-10 text-base">{{ $questionId }}</span>
-                                </div>
+                        <div class="border-b flex w-full justify-between items-center py-2">
+                            <div class="flex items-center space-x-2.5">
+                                <span class="bold text-base">{{ __('cms.unieke id') }}</span>
+                                <span class="ml-10 text-base">{{ $questionId }}</span>
                             </div>
-                            <div class="border-b flex w-full justify-between items-center py-2">
-                                <div class="flex items-center space-x-2.5">
-                                    <span class="bold text-base">{{ __('cms.auteur(s)') }}</span>
-                                    <span class="ml-10 text-base"></span>
-                                </div>
+                        </div>
+                        <div class="border-b flex w-full justify-between items-center py-2">
+                            <div class="flex items-center space-x-2.5">
+                                <span class="bold text-base">{{ __('cms.auteur(s)') }}</span>
+                                <span class="ml-10 text-base"></span>
                             </div>
+                        </div>
 
                         <x-input.toggle-row-with-title :disabled="true"
                                                        :toolTip="__('cms.close_after_answer_tooltip_text')"
@@ -162,19 +162,19 @@
                             <span>{{ __('cms.Openbaar maken') }}</span>
                         </x-input.toggle-row-with-title>
 
-{{--                        <x-input.toggle-row-with-title :disabled="true"--}}
-{{--                                                       :checked="$this->questionModel->maintain_position"--}}
-{{--                        >--}}
-{{--                            <x-icon.shuffle-off/>--}}
-{{--                            <span>{{ __('cms.Deze vraag niet shuffelen') }}</span>--}}
-{{--                        </x-input.toggle-row-with-title>--}}
+                        {{--                        <x-input.toggle-row-with-title :disabled="true"--}}
+                        {{--                                                       :checked="$this->questionModel->maintain_position"--}}
+                        {{--                        >--}}
+                        {{--                            <x-icon.shuffle-off/>--}}
+                        {{--                            <span>{{ __('cms.Deze vraag niet shuffelen') }}</span>--}}
+                        {{--                        </x-input.toggle-row-with-title>--}}
                         @if(!$this->questionModel->isType('Group'))
-{{--                            <x-input.toggle-row-with-title :disabled="true"--}}
-{{--                                                           :checked="$this->questionModel->discuss"--}}
-{{--                            >--}}
-{{--                                <x-icon.discuss/>--}}
-{{--                                <span>{{ __('cms.Bespreken in de klas') }}</span>--}}
-{{--                            </x-input.toggle-row-with-title>--}}
+                            {{--                            <x-input.toggle-row-with-title :disabled="true"--}}
+                            {{--                                                           :checked="$this->questionModel->discuss"--}}
+                            {{--                            >--}}
+                            {{--                                <x-icon.discuss/>--}}
+                            {{--                                <span>{{ __('cms.Bespreken in de klas') }}</span>--}}
+                            {{--                            </x-input.toggle-row-with-title>--}}
                             <x-input.toggle-row-with-title :disabled="true"
                                                            :checked="$this->questionModel->allow_notes"
                             >
@@ -298,27 +298,29 @@
                                 <livewire:attainment-manager :value="$question['attainments']"
                                                              :subject-id="$subjectId"
                                                              :eduction-level-id="$educationLevelId"
-                                                             :key="'AT-'. $this->uniqueQuestionKey"/>
+                                                             :key="'AT-'. $this->uniqueQuestionKey"
+                                                             :disabled="true"
+                                />
                                 <livewire:learning-goal-manager :value="$question['learning_goals']"
                                                                 :subject-id="$subjectId"
                                                                 :eduction-level-id="$educationLevelId"
-                                                                :key="'LG-'. $this->uniqueQuestionKey "/>
-                                <div class="absolute inset-0 bg-white/10"></div>
+                                                                :key="'LG-'. $this->uniqueQuestionKey "
+                                                                :disabled="true"
+                                />
                             </div>
                         </div>
                     </x-content-section>
                 @endif
 
                 @if($this->showSettingsTags())
-
                     <x-content-section>
                         <x-slot name="title">{{ __('Tags') }}</x-slot>
-{{--                        <livewire:tag-manager :init-with-tags="$this->initWithTags"--}}
-{{--                                              :key="'TA-'. $this->uniqueQuestionKey"/>--}}
                         <div class="flex gap-2.5">
-                            @foreach($this->initWithTags as $tag)
+                            @forelse($this->initWithTags as $tag)
                                 <span class="bg-system-secondary px-5 py-2 rounded-10 bold">{{ $tag->name }}</span>
-                            @endforeach
+                            @empty
+                                <span>{{ __('cms.Deze vraag heeft geen tags') }}</span>
+                            @endforelse
                         </div>
                     </x-content-section>
                 @endif
@@ -346,7 +348,7 @@
                                     <div class="flex items-center space-x-2.5">
                                         <div class="flex items-center space-x-2.5">
                                             <span class="bold text-base">{{ __('cms.auteur(s)') }}</span>
-{{--                                            <span class="ml-10 text-base">{{ $testAuthors }}</span>--}}
+                                            <span class="ml-10 text-base">{{ $authors }}</span>
                                         </div>
                                     </div>
                                 </div>

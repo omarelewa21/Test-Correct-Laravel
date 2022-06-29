@@ -3,11 +3,9 @@
 namespace tcCore\Http\Livewire\Teacher\Questions;
 
 use Ramsey\Uuid\Uuid;
-use tcCore\GroupQuestionQuestion;
 use tcCore\Http\Helpers\BaseHelper;
 use tcCore\Http\Interfaces\QuestionCms;
 use tcCore\Http\Traits\WithCmsCustomRulesHandling;
-use tcCore\TestQuestion;
 
 class CmsRanking extends CmsBase
 {
@@ -132,13 +130,7 @@ class CmsRanking extends CmsBase
     private function setAnswerStruct()
     {
         if (empty($this->instance->cmsPropertyBag['answerStruct'])) {
-            if ($this->instance->isPartOfGroupQuestion()) {
-                $tq = GroupQuestionQuestion::whereUuid($this->instance->groupQuestionQuestionId)->first();
-                $q = $tq->question;
-            } else {
-                $tq = TestQuestion::whereUuid($this->instance->testQuestionId)->first();
-                $q = $tq->question;
-            }
+            $q = $this->getQuestion();
 
             $this->instance->cmsPropertyBag['answerStruct'] = $q->rankingQuestionAnswers->map(function ($answer, $key) {
                 return [

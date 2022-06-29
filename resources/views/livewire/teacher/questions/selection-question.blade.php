@@ -3,5 +3,6 @@
     <x-input.selection-textarea
             wire:model.debounce.1000ms="question.question"
             editorId="{{ $questionEditorId }}"
+            :disabled="isset($preview)"
     />
 @endsection

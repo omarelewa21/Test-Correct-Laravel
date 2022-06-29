@@ -1,6 +1,7 @@
 <div id="question-bank"
-     class="flex flex-col relative w-full min-h-full bg-lightGrey border-t border-secondary overflow-auto overflow-x-hidden"
-     x-data="{openTab: @entangle('openTab'), inGroup: @entangle('inGroup'), groupDetail: null}"
+     class="flex flex-col relative w-full min-h-full bg-lightGrey border-t border-secondary overflow-auto overflow-x-hidden mt-14"
+     x-data="{openTab: @entangle('openTab'), inGroup: @entangle('inGroup'), groupDetail: null, bodyVisibility: true,  maxHeight: '100%'}"
+     :style="`max-height: ${maxHeight}`"
      x-init="
         groupDetail = $el.querySelector('#groupdetail');
         $watch('$store.questionBank.inGroup', value => inGroup = value);
@@ -14,9 +15,9 @@
                 groupDetail.style.left = 0;
                 $el.closest('.drawer').scrollTo({top: 0, behaviour: 'smooth'});
                 $el.scrollTo({top: 0, behaviour: 'smooth'});
-                $el.style.maxHeight = groupDetail.offsetHeight + 'px';
+                maxHeight = groupDetail.offsetHeight + 'px';
                 $nextTick(() => {
-                    $el.querySelector('.main').style.display = 'none'
+                    setTimeout(() => bodyVisibility = false, 250);
                     handleVerticalScroll($el.closest('.slide-container'));
                 })
 
@@ -24,11 +25,11 @@
         }
 
         closeGroupDetail = () => {
-            $el.querySelector('.main').style.display = 'flex'
-            groupDetail.style.left = '100%';
+{{--            $el.querySelector('.main').style.display = 'flex'--}}
+            bodyVisibility = true;
+            maxHeight = groupDetail.style.left = '100%';
             $nextTick(() => {
                 $wire.clearGroupDetails();
-                groupDetail.querySelector('.subquestion-grid').innerHTML = '';
                 handleVerticalScroll($el.querySelector('.main'));
             })
         }
@@ -82,9 +83,24 @@
             </div>
         </div>
     </div>
-    <div class="flex w-full main">
+    <div class="flex w-full main" x-show="bodyVisibility" x-cloak>
         <div class="w-full max-w-5xl lg:max-w-7xl mx-auto divide-y divide-secondary">
-            <div class="mx-8">
+            <div class="mx-8"
+                 x-data="{filterLoading: false}"
+                 x-init="
+                        Livewire.hook('message.sent', (message, component) => {
+                            if (component.el.id !== 'question-bank') {
+                                return;
+                            }
+                            if (!livewireMessageContainsModelName(message, 'filter') && !livewireMessageContainsModelName(message, 'openTab')) {
+                                return;
+                            }
+                            filterLoading = true;
+                        })
+                        Livewire.hook('message.processed', (message, component) => filterLoading = false);
+                     "
+                 @enable-loading-grid.window="filterLoading = true;"
+            >
                 {{-- Filters--}}
                 <div class="flex flex-col pt-4 pb-2">
                     <div class="flex w-full my-2">
@@ -148,36 +164,14 @@
                          x-data
                          wire:key="filters-container-{{ $this->openTab }}"
                          wire:ignore
-                         class="flex flex-wrap gap-2 mt-2"
+                         class="flex flex-wrap gap-2 mt-2 relative"
                     >
+{{--                        <a class="block absolute inset-0 bg-allred z-10 pointer-events-none" x-show="filterLoading"></a>--}}
                     </div>
                 </div>
 
                 {{-- Content --}}
-                <div class="flex flex-col py-4" style="min-height: 500px"
-                     x-data="{filterLoading: false}"
-                     x-init="
-                        Livewire.hook('message.sent', (message, component) => {
-                            if (component.el.id !== 'question-bank') {
-                                return;
-                            }
-                            if (!livewireMessageContainsModelName(message, 'filter') && !livewireMessageContainsModelName(message, 'openTab')) {
-                                return;
-                            }
-                            filterLoading = true;
-                        })
-                        Livewire.hook('message.processed', (message, component) => {
-{{--                            if (component.el.id !== 'question-bank') {--}}
-{{--                                return;--}}
-{{--                            }--}}
-{{--                            if (!livewireMessageContainsModelName(message, 'filter') && !livewireMessageContainsModelName(message, 'openTab') ) {--}}
-{{--                                return;--}}
-{{--                            }--}}
-                            filterLoading = false;
-                        })
-                     "
-                     @enable-loading-grid.window="filterLoading = true;"
-                >
+                <div class="flex flex-col py-4" style="min-height: 500px">
                     <div class="flex">
                         <span class="note text-sm">{{ $this->resultCount }} resultaten</span>
                     </div>

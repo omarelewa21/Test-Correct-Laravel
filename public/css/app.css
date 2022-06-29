@@ -1136,6 +1136,9 @@ input[type=number] {
     transform: scale(1);
 }
 
+.select-search.disabled {
+
+}
 .primary-gradient {
     background: linear-gradient(to right, var(--primary) 0%, var(--teacher-primary-light) 100%);
 }
@@ -5679,6 +5682,9 @@ video {
 .-mt-1{
   margin-top: -0.25rem;
 }
+.mt-14{
+  margin-top: 3.5rem;
+}
 .block{
   display: block;
 }
@@ -6648,6 +6654,10 @@ video {
 .border-blue-100{
   --tw-border-opacity: 1;
   border-color: rgb(219 234 254 / var(--tw-border-opacity));
+}
+.border-lightGrey{
+  --tw-border-opacity: 1;
+  border-color: rgb(240 242 245 / var(--tw-border-opacity));
 }
 .bg-gray-500{
   --tw-bg-opacity: 1;

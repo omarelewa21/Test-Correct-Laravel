@@ -40,6 +40,7 @@ return [
     'completionquestioncompletion'         => 'Completion',
     'completionquestionmulti'              => 'Selection',
     'drawingquestion'                      => 'Drawing',
+    'drawingquestiondrawing'               => 'Drawing',
     'matchingquestion'                     => 'Matching',
     'matchingquestionmatching'             => 'Matching',
     'matchingquestionclassify'             => 'Classify',

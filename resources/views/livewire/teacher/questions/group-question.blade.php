@@ -3,15 +3,16 @@
     <x-input.group class="text-base" label="{{ __('cms.naam vraaggroep') }}">
 
         <input type="text" wire:model="question.name"
-               class="form-input w-full text-left @error('question.name') border border-allred @enderror"/>
+               class="form-input w-full text-left @error('question.name') border border-allred @enderror"
+               @isset($preview) disabled @endisset
+        />
     </x-input.group>
-
 
     <x-input.group
             class="my-5 text-base"
             label="{{ __('cms.type vraaggroep') }}"
             x-data="{
-                value: window.Livewire.find(document.getElementById('cms').getAttribute('wire:id')).entangle('question.groupquestion_type'),
+                value: getClosestLivewireComponentByAttribute($el, 'cms').entangle('question.groupquestion_type'),
                 select: function(option) {
                     this.value = option;
                 },
@@ -22,13 +23,14 @@
     >
         <div x-show="selected('carousel')" x-transition class="mt-1">
             <div class="flex relative -left-4">
-                <x-input.score wire:model.defer="question.number_of_subquestions" label="Aantal vragen"/>
+                <x-input.score wire:model.defer="question.number_of_subquestions" label="Aantal vragen" :disabled="isset($preview)"/>
             </div>
         </div>
         <div class="flex flex-wrap">
             <button class="group-type mr-2 mb-2"
                     :class="selected('standard') ? 'active' : ''"
                     @click="select('standard')"
+                    @isset($preview) disabled @endisset
             >
                 <div class="flex">
                     <x-stickers.group-classic/>
@@ -45,6 +47,7 @@
             <button class="group-type mb-2"
                     :class="selected('carousel') ? 'active' : ''"
                     @click="select('carousel')"
+                    @isset($preview) disabled @endisset
             >
                 <div>
                     <x-stickers.group-carousel/>

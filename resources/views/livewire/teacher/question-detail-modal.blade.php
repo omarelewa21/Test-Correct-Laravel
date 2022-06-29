@@ -236,7 +236,6 @@
     <div class="px-6 py-4 flex justify-end w-full" style="box-shadow: 0 -3px 8px 0 rgba(4, 31, 116, 0.2);">
         <div class="flex space-x-2.5 items-center">
             <button class="new-button button-primary"
-                    title="{{ __('general.Later beschikbaar') }}"
                     wire:click="openPreviewMode()"
             >
                 <x-icon.preview/>

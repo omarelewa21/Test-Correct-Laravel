@@ -37,7 +37,7 @@ class QuestionCmsPreviewModal extends ModalComponent implements QuestionCms
         'uuid'                   => ''
     ];
     public string $action = 'edit';
-    public array $cmsPropertyBag;
+    public array $cmsPropertyBag = [];
     public string $questionType;
     public int $attachmentsCount;
     public string $answerEditorId;
@@ -51,11 +51,14 @@ class QuestionCmsPreviewModal extends ModalComponent implements QuestionCms
     public int $questionId;
     public string $questionTitle;
 
+    public bool $showSelectionOptionsModal = false;
+
     protected $questionModel;
     private $obj;
     public $pValues;
     public $initWithTags;
     public $attachments;
+    public $authors;
 
     protected static array $maxWidths = [
         'full' => 'modal-full-screen',
@@ -170,8 +173,10 @@ class QuestionCmsPreviewModal extends ModalComponent implements QuestionCms
         $this->subjectId = $question->subject_id;
         $this->educationLevelId = $question->education_level_id;
 
-        $this->questionTitle = $question->title;
-        $this->questionType = $question->typeName;
+        $this->questionTitle = $question->isType('GroupQuestion') ? $question->name : $question->title;
+        $this->questionType = $question->isType('GroupQuestion') ? __('question.Vraaggroep') : $question->typeName;
+
+        $this->authors = $question->getAuthorNamesString();
 
         if ($this->obj && method_exists($this->obj, 'initializePropertyBag')) {
             $this->obj->initializePropertyBag($question);

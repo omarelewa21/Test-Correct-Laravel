@@ -493,3 +493,7 @@ input[type=number] {
 .radio-custom input:checked::before {
     transform: scale(1);
 }
+
+.select-search.disabled {
+
+}

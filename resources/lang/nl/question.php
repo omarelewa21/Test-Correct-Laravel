@@ -40,6 +40,7 @@ return [
     'completionquestioncompletion'         => 'Gatentekst',
     'completionquestionmulti'              => 'Selectie',
     'drawingquestion'                      => 'Teken',
+    'drawingquestiondrawing'               => 'Teken',
     'matchingquestion'                     => 'Combineer',
     'matchingquestionmatching'             => 'Combineer',
     'matchingquestionclassify'             => 'Rubriceer',

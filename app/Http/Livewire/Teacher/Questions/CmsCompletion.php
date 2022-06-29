@@ -2,6 +2,7 @@
 
 namespace tcCore\Http\Livewire\Teacher\Questions;
 
+use tcCore\CompletionQuestion;
 use tcCore\Http\Traits\WithCmsCompletionType;
 
 class CmsCompletion extends CmsBase
@@ -33,7 +34,7 @@ class CmsCompletion extends CmsBase
             $this->instance->question[$key] = $q[$key];
         }
 
-        $this->instance->question['question'] = $this->instance->decodeCompletionTags($q);
+        $this->instance->question['question'] = CompletionQuestion::decodeCompletionTags($q);
     }
 
     public function isSettingsGeneralPropertyDisabled($property, $asText = false)

@@ -4,6 +4,8 @@ namespace tcCore\Http\Livewire\Teacher\Questions;
 
 class CmsInfoScreen extends CmsBase
 {
+    public $requiresAnswer = false;
+
     public $settingsGeneralDisabledProperties = [
         'allowNotes',
         'addToDatabase',

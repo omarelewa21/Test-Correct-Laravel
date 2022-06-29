@@ -11,23 +11,25 @@
 @section('question-cms-answer')
     <div class="flex flex-row justify-between gap-6">
         <x-input.toggle-row-with-title wire:model="question.all_or_nothing"
-                                        :toolTip="__('cms.all_or_nothing_tooltip_text')"
+                                       :toolTip="__('cms.all_or_nothing_tooltip_text')"
+                                       :disabled="isset($preview)"
         >
             <span class="bold"> {{ __('cms.Alles of niets correct') }}</span>
         </x-input.toggle-row-with-title>
 
-        <x-input.toggle-row-with-title wire:model="question.fix_order" class="flex-1">
+        <x-input.toggle-row-with-title wire:model="question.fix_order"
+                                       class="flex-1"
+                                       :disabled="isset($preview)">
             <span class="bold"> {{ __('cms.fix_order') }}</span>
         </x-input.toggle-row-with-title>
     </div>
     <div class="flex w-full mt-4">{{ __('cms.MultipleChoice Question Uitleg Text') }}</div>
     <div class="flex flex-col space-y-2 w-full mt-4"
-         wire:sortable="__call('updateMCOrder')"
-         x-data="{}"
-         x-init="
-                                    $refs.punten.style.left = ($el.querySelector('input').offsetWidth+10) +'px';
-                                   "
-         @resize.window.debounce.100ms="$refs.punten.style.left = ($el.querySelector('input').offsetWidth+10) +'px';"
+         @if(!isset($preview)) wire:sortable="__call('updateMCOrder')" @endif
+         x-data="{addPointsPosition: () => $refs.punten.style.left = ($el.querySelector('input').offsetWidth+10) +'px'}"
+         x-init="addPointsPosition()"
+         @tabchange.window="setTimeout(() => addPointsPosition(), 100)"
+         @resize.window.debounce.100ms="addPointsPosition()"
     >
         <div class="flex px-0 py-0 border-0 bg-system-white justify-between relative">
             <div class="">{{ __('cms.Antwoord') }}</div>
@@ -62,11 +64,12 @@
                          class="flex px-0 py-0 border-0 bg-system-white regular"
                          slotClasses="w-full space-x-2.5"
                          sortIcon="reorder"
-                         dragIconClasses="cursor-move"
+                         dragIconClasses="cursor-move {{ isset($preview) ? 'text-midgrey hover:text-midgrey' : '' }}"
             >
                 <x-input.text class="w-full  {{ $errorAnswerClass }} "
                               wire:model.lazy="cmsPropertyBag.answerStruct.{{ $loop->index }}.answer"
                               selid="answer-field"
+                              :disabled="isset($preview)"
                 />
                 <div class=" text-center justify-center">
                     <x-input.text class="w-12 text-center {{ $errorScoreClass }}"
@@ -75,20 +78,29 @@
                                   type="number"
                                   :onlyInteger="true"
                                   selid="score-field"
+                                  :disabled="isset($preview)"
                     />
                 </div>
                 <x-slot name="after">
-                    <x-icon.remove class="cursor-pointer {{ $disabledClass }}"
-                                   id="remove_{{ $answer->order }}"
-                                   wire:click="__call('delete', '{{$answer->id}}')"/>
+                    @isset($preview)
+                        <x-icon.remove class="mx-2 w-4 mid-grey"/>
+                    @else
+                        <x-icon.remove class="cursor-pointer {{ $disabledClass }}"
+                                       id="remove_{{ $answer->order }}"
+                                       wire:click="__call('delete', '{{$answer->id}}')"/>
+                    @endisset
                 </x-slot>
             </x-drag-item>
         @endforeach
     </div>
     <div class="flex flex-col space-y-2 w-full">
-        <x-button.primary class="mt-3 justify-center" wire:click="__call('addAnswerItem')" selid="add-answer-option-btn">
+        <x-button.primary class="mt-3 justify-center"
+                          wire:click="__call('addAnswerItem')"
+                          selid="add-answer-option-btn"
+                          :disabled="isset($preview)"
+        >
             <x-icon.plus/>
-            <span >
+            <span>
                                     {{ __('cms.Item toevoegen') }}
                                     </span>
         </x-button.primary>

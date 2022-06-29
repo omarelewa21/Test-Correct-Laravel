@@ -2,6 +2,7 @@
 
 namespace tcCore\Http\Livewire\Teacher\Questions;
 
+use tcCore\CompletionQuestion;
 use tcCore\Http\Traits\WithCmsCompletionType;
 
 class CmsSelection extends CmsBase
@@ -22,6 +23,6 @@ class CmsSelection extends CmsBase
 
     public function initializePropertyBag($q)
     {
-        $this->instance->question['question'] = $this->instance->decodeCompletionTags($q);
+        $this->instance->question['question'] = CompletionQuestion::decodeCompletionTags($q);
     }
 }
