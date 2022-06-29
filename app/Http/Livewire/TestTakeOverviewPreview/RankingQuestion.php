@@ -68,6 +68,7 @@ class RankingQuestion extends Component
             $answersIds[] = (int) $struct->value ;
         });
         $answersIds = array_unique($answersIds);
+        sort($answersIds);
         collect($answersIds)->each(function($value,$key) use (&$answers){
             $answer = RankingQuestionAnswer::withTrashed()->find($value);
             if(is_null($answer)){

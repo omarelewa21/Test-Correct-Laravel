@@ -42,7 +42,7 @@
             <div class="flex flex-col space-y-1 matching">
                 <div class="flex">
                     <x-dropzone wire:key="group-start" startGroup="true">
-                        <div class="h-full space-x-1 focus:outline-none">
+                        <div class="h-full-pdf space-x-1 focus:outline-none">
                             @foreach($shuffledAnswers as $option)
                                 @if(  $option->correct_answer_id !== null )
                                     @if($answerStruct[$option->id] === '')

@@ -6874,52 +6874,60 @@ div.drag-item>div{
     margin:auto;
 }
 .page-no-break{
-    /*page-break-inside: avoid;*/
-}
-.question-no-break-mc-option{
     page-break-inside: avoid;
 }
-.question-no-break-matching-option{
-    page-break-inside: avoid;
-}
-.question-no-break-classify-option{
-    page-break-inside: avoid;
-}
-.question-no-break-ranking-option{
-    page-break-inside: avoid;
-}
-.question-no-break-arq-option{
-    page-break-inside: avoid;
-}
-.question-no-break-open-short{
-    page-break-inside: avoid;
-}
-.question-no-break-open-medium{
-    page-break-inside: avoid;
-}
-.question-no-break-drawing{
-    page-break-inside: avoid;
-}
-.question-no-break-matrix{
-    page-break-inside: avoid;
-}
-.question-no-break-completion{
-    page-break-inside: avoid;
-}
-.question-no-break-info{
-    page-break-inside: avoid;
-}
-.question-indicator-no-break{
-    page-break-inside: avoid;
-}
-.prevent-pagebreak{
-    page-break-before:auto;
-}
+/*.question-no-break-mc-option{*/
+/*    page-break-inside: avoid;*/
+/*}*/
+/*.question-no-break-matching-option{*/
+/*    page-break-inside: avoid;*/
+/*}*/
+/*.question-no-break-classify-option{*/
+/*    page-break-inside: avoid;*/
+/*}*/
+/*.question-no-break-ranking-option{*/
+/*    page-break-inside: avoid;*/
+/*}*/
+/*.question-no-break-arq-option{*/
+/*    page-break-inside: avoid;*/
+/*}*/
+/*.question-no-break-open-short{*/
+/*    page-break-inside: avoid;*/
+/*}*/
+/*.question-no-break-open-medium{*/
+/*    page-break-inside: avoid;*/
+/*}*/
+/*.question-no-break-drawing{*/
+/*    page-break-inside: avoid;*/
+/*}*/
+/*.question-no-break-matrix{*/
+/*    page-break-inside: avoid;*/
+/*}*/
+/*.question-no-break-completion{*/
+/*    page-break-inside: avoid;*/
+/*}*/
+/*.question-no-break-info{*/
+/*    page-break-inside: avoid;*/
+/*}*/
+/*.question-indicator-no-break{*/
+/*    page-break-inside: avoid;*/
+/*}*/
+/*.prevent-pagebreak{*/
+/*    page-break-before:auto;*/
+/*}*/
 .content-section {
     box-shadow: none;
 }
 .cta-primary {
     color: #3ab753;
+}
+.h-full-pdf{
+    max-height: -webkit-fit-content;
+    max-height: -moz-fit-content;
+    max-height: fit-content;
+}
+.justify-between {
+    -webkit-justify-content: space-between;
 }
 .focus-within\:outline-none:focus-within{
 	outline: 2px solid transparent;

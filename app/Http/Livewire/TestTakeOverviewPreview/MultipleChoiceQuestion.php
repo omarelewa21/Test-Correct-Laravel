@@ -105,7 +105,7 @@ class MultipleChoiceQuestion extends Component
             $answersIds[] = (int) $key ;
         });
         $answersIds = array_unique($answersIds);
-
+        sort($answersIds);
         collect($answersIds)->each(function($value,$key) use (&$answers){
             $answer = MultipleChoiceQuestionAnswer::withTrashed()->find($value);
             if(is_null($answer)){

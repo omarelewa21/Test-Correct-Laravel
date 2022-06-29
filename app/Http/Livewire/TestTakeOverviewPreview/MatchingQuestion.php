@@ -71,6 +71,7 @@ class MatchingQuestion extends Component
         if(in_array(0,$matchingQuestionAnswersIds)){
             $matchingQuestionAnswersIds = $this->repairForMissingAnswers($matchingQuestionAnswersIds);
         }
+        sort($matchingQuestionAnswersIds);
         collect($matchingQuestionAnswersIds)->each(function($value,$key) use (&$matchingQuestionAnswers){
             $matchingQuestionAnswer = MatchingQuestionAnswer::withTrashed()->find($value);
             if(is_null($matchingQuestionAnswer)){
