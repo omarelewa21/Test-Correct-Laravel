@@ -146,7 +146,7 @@ class PdfController extends Controller
     private function snappyToPdfFromString($html)
     {
         //dump($html);
-//        file_put_contents(storage_path('temp/result1.html'),$html);
+        //file_put_contents(storage_path('temp/result1.html'),$html);
 //        $html = file_get_contents(storage_path('temp/result1.html'));
 
         $output = \PDF::loadHtml($html)->setOption('header-html', resource_path('pdf_templates/header.html'))->setOption('footer-html', resource_path('pdf_templates/footer.html'));
@@ -209,7 +209,7 @@ class PdfController extends Controller
         $width = $json['result']['width'];
         $height = $json['result']['height'];
         $src = sprintf('data:image/png;base64,%s', $json['result']['content']);
-        return sprintf('<img src="%s" height="%s" width="%s" style="max-width: none; display: inline-block;"',$src,$height,$width);
+        return sprintf('<img src="%s" height="%s" width="%s" style="max-width: none; display: inline-block;">',$src,$height,$width);
     }
 
     private function getWirisSvgImgString($mml)
@@ -218,7 +218,7 @@ class PdfController extends Controller
         $width = $json['result']['width'];
         $height = $json['result']['height'];
         $src = sprintf('data:image/svg+xml;charset=utf8,%s', rawurlencode($json['result']['content']));
-        return sprintf('<img src="%s" height="%s" width="%s" style="max-width: none; display: inline-block;"',$src,$height,$width);
+        return sprintf('<img src="%s" height="%s" width="%s" style="max-width: none; display: inline-block;">',$src,$height,$width);
     }
 
 
