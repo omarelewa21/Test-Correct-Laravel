@@ -3,6 +3,7 @@
      style="max-width: 300px"
      wire:key="group-{{ $testQuestion->uuid }}"
      wire:sortable.item="{{ $question->uuid }}"
+     title="{{ __('sidebar.group-question') }}"
 >
     <div class="flex space-x-2 py-1.5 pl-6 pr-4 cursor-pointer group-question-title-container hover:bg-primary/5 hover:text-primary"
          :class="expand ? 'rotate-svg-270' : 'rotate-svg-90'"
