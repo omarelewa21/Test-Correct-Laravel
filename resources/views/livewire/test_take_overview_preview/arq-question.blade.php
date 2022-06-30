@@ -20,25 +20,27 @@
                 <div class="divider my-2"></div>
                 <div class="space-y-2">
                     @foreach( $this->getMultipleChoiceQuestionAnswers() as $loopCount => $link)
-                        <label
-                                class="block p-5 border-2 border-blue-grey rounded-10 base multiple-choice-question transition ease-in-out duration-150 focus:outline-none
-                                        {!! ($this->answer == $link->id) ? 'active' : 'disabled' !!}"
-                                for="link{{ $link->id }}">
-                            <input
-                                    id="link{{ $link->id }}"
-                                    name="Question_{{ $question->id }}"
-                                    type="radio"
-                                    class="hidden"
-                                    value="{{ $link->id }}"
-                            >
-                            <span class="w-16" style="display:inline-block;">{{ __($this->arqStructure[$loopCount][0]) }}</span>
-                            <span class="mr-4  w-20" style="display:inline-block;">{{ __($this->arqStructure[$loopCount][1]) }}</span>
-                            <span class="mr-4  w-20" style="display:inline-block;">{{ __($this->arqStructure[$loopCount][2]) }}</span>
-                            <span class="max-w-max">{{ __($this->arqStructure[$loopCount][3]) }}</span>
-                            <div class="ml-auto   {!! ($this->answer == $link->id) ? '' :'hidden' !!}"  style="float:right;">
-                                <x-icon.checkmark-pdf ></x-icon.checkmark-pdf>
-                            </div>
-                        </label>
+                        @if($this->answer == $link->id)
+                            <label
+                                    class="block p-5 border-2 border-blue-grey rounded-10 base multiple-choice-question transition ease-in-out duration-150 focus:outline-none
+                                            {!! ($this->answer == $link->id) ? 'active' : 'disabled' !!}"
+                                    for="link{{ $link->id }}">
+                                <input
+                                        id="link{{ $link->id }}"
+                                        name="Question_{{ $question->id }}"
+                                        type="radio"
+                                        class="hidden"
+                                        value="{{ $link->id }}"
+                                >
+                                <span class="w-16" style="display:inline-block;">{{ __($this->arqStructure[$loopCount][0]) }}</span>
+                                <span class="mr-4  w-20" style="display:inline-block;">{{ __($this->arqStructure[$loopCount][1]) }}</span>
+                                <span class="mr-4  w-20" style="display:inline-block;">{{ __($this->arqStructure[$loopCount][2]) }}</span>
+                                <span class="max-w-max">{{ __($this->arqStructure[$loopCount][3]) }}</span>
+                                <div class="ml-auto   {!! ($this->answer == $link->id) ? '' :'hidden' !!}"  style="float:right;">
+                                    <x-icon.checkmark-pdf ></x-icon.checkmark-pdf>
+                                </div>
+                            </label>
+                        @endif
                     @endforeach
                 </div>
             </div>

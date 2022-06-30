@@ -3,6 +3,7 @@
         {!! $question->converted_question_html  !!}
         <div class="mt-4 space-y-2 w-1/2 question-no-break-mc-option">
             @foreach( $this->shuffledKeys as $value)
+                @if($this->answerStruct[$value] == 1)
                 <div class="block items-center  mc-radio">
                     <label
                             for="link{{ $value }}"
@@ -22,6 +23,7 @@
                         </div>
                     </label>
                 </div>
+                @endif
             @endforeach
         </div>
     </div>

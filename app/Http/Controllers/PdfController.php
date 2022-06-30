@@ -170,12 +170,23 @@ class PdfController extends Controller
 
     private function svgWirisFormulas($html)
     {
+//        $start = strpos($html,'<mo>'.chr(194).chr(160).'</mo>');
+//        $substr = substr($html,$start,11);
+//        $html = str_replace($substr,'<mspace depth="5px" height="10px" />',$html);
+//        $html = str_replace(chr(194).chr(160),'',$html);
+//        $html = str_replace(chr(194),'',$html);
+//        $html = str_replace(chr(160),'',$html);
+//        $start = strpos($html,'<mo>');
+//        $substr = substr($html,$start,7);
+//        $char = substr($substr,5,1);
+//        dump(ord($char));
+//        file_put_contents(storage_path('temp/raw.html'),$html);
         $internalErrors = libxml_use_internal_errors(true);
         $doc = new DOMDocument('1.0', 'UTF-8');
         $doc->loadHTML($html);
         libxml_use_internal_errors($internalErrors);
         $mathList = $doc->getElementsByTagName('math');
-        foreach ($mathList as $mathNode) {
+        foreach ($mathList as $key => $mathNode) {
             try {
                 $this->replaceMathNodeWithSvg($mathNode, $doc);
             } catch (\Throwable $th) {
@@ -193,6 +204,7 @@ class PdfController extends Controller
             $img = $this->getWirisSvgImg($mathNodeString, $doc);
             $mathNode->parentNode->replaceChild($img, $mathNode);
         } catch (\Throwable $th) {
+            dump($th->getMessage());
             Bugsnag::notifyException($th);
             return;
         }
@@ -236,6 +248,7 @@ class PdfController extends Controller
 
         } catch (\GuzzleHttp\Exception\RequestException $e) {
             if ($e->hasResponse()) {
+                dump($e->getMessage());
                 Bugsnag::notifyException($e);
             }
         }
