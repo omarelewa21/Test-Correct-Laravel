@@ -2,6 +2,8 @@
 
 namespace tcCore\Http\Livewire\Teacher\Questions;
 
+use Illuminate\Support\Str;
+use tcCore\Attachment;
 use tcCore\GroupQuestionQuestion;
 use tcCore\Http\Interfaces\CmsProvider;
 use tcCore\Http\Interfaces\QuestionCms;
@@ -33,5 +35,10 @@ abstract class CmsBase implements CmsProvider
         }
 
         return Question::whereUuid($this->instance->question['uuid'])->first();
+    }
+
+    public function getVideoHost($link): ?string
+    {
+        return Attachment::getVideoHost($link);
     }
 }

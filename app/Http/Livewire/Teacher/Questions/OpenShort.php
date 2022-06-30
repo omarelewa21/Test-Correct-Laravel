@@ -919,28 +919,7 @@ class OpenShort extends Component implements QuestionCms
 
     private function validateVideoLink($link)
     {
-        return !!$this->getVideoHost($link);
-    }
-
-    private function getVideoHost($link)
-    {
-        $youtube = collect(['youtube.com', 'youtu.be']);
-        $vimeo = collect(['vimeo.com']);
-        $host = null;
-
-        $youtube->each(function ($opt) use ($link, &$host) {
-            if (Str::contains($link, $opt)) {
-                $host = 'youtube';
-            }
-        });
-
-        $vimeo->each(function ($opt) use ($link, &$host) {
-            if (Str::contains($link, $opt)) {
-                $host = 'vimeo';
-            }
-        });
-
-        return $host;
+        return !!$this->obj->getVideoHost($link);
     }
 
     private function checkTaxonomyValues()
