@@ -240,4 +240,6 @@ class QuestionCmsPreviewModal extends ModalComponent implements QuestionCms
         $this->emitTo(QuestionBank::class, 'addQuestionFromDetail', $this->questionModel->id);
         $this->forceClose()->closeModal();
     }
+
+    public function setVideoTitle($videoUrl, $title) { }
 }
