@@ -71,6 +71,7 @@
              x-data="questionEditorSidebar"
              x-ref="questionEditorSidebar"
              wire:ignore.self
+             :class="{'!invisible': resizing}"
              @resize.window="handleResizing()"
         >
             <x-sidebar.slide-container class="pt-4 divide-y divide-bluegrey"
