@@ -470,7 +470,7 @@ document.addEventListener('alpine:init', () => {
                 this.resizeTimout = setTimeout(() => {
                     this.$root.scrollLeft = this.$refs.questionbank.offsetLeft;
                     this.resizing = false;
-                }, 200);
+                }, 500);
             }
         }
     }));
