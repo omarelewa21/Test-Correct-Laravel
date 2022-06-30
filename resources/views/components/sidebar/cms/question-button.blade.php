@@ -6,6 +6,7 @@
                 'isSubQuestion': {{ $subQuestion ? 1 : 0 }},
                 'shouldSave': true
                 })"
+     title = "{{ __($this->getQuestionNameForDisplay($question)) }}"
      style="max-width: 300px"
      @if($subQuestion)
         wire:sortable-group.item="{{ $question->uuid }}"
@@ -38,7 +39,7 @@
                 </div>
             </div>
             <div class="flex items-start space-x-2.5 mt-1 text-sysbase">
-                <div class="flex h-full rounded-md reorder" @if($subQuestion) wire:sortable-group.handle @else wire:sortable.handle @endif>
+                <div class="flex h-full rounded-md reorder" @if($subQuestion) wire:sortable-group.handle @else wire:sortable.handle @endif title="{{ __('sidebar.reorder') }}">
                         <x-icon.reorder/>
                 </div>
                 <div class="flex">

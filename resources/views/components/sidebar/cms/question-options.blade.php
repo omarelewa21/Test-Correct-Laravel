@@ -3,6 +3,7 @@
         x-init="$watch('options', value => topOffset = $root.getBoundingClientRect().y)"
         @click.stop="options = true"
         x-cloak
+        title="{{ __('sidebar.options') }}"
 >
     <div x-show="options" @click.stop="options=false" class="fixed inset-0 cursor-default z-10"
          style="width: var(--sidebar-width)"></div>
