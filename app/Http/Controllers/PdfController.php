@@ -170,30 +170,10 @@ class PdfController extends Controller
 
     private function svgWirisFormulas($html)
     {
-//        $start = strpos($html,'<mo>'.chr(194).chr(160).'</mo>');
-//        $substr = substr($html,$start,11);
-//        $html = str_replace($substr,'<mspace depth="5px" height="10px" />',$html);
-//        $html = str_replace(chr(194).chr(160),'',$html);
-//        $html = str_replace(chr(194),'',$html);
-//        $html = str_replace(chr(160),'',$html);
-//        $start = strpos($html,'<mo>');
-//        $substr = substr($html,$start,7);
-//        $char = substr($substr,5,1);
-//        dump(ord($char));
-//        file_put_contents(storage_path('temp/raw.html'),$html);
-        $internalErrors = libxml_use_internal_errors(true);
-        $doc = new DOMDocument('1.0', 'UTF-8');
-        $doc->loadHTML($html);
-        libxml_use_internal_errors($internalErrors);
-        $mathList = $doc->getElementsByTagName('math');
-        foreach ($mathList as $key => $mathNode) {
-            try {
-                $this->replaceMathNodeWithSvg($mathNode, $doc);
-            } catch (\Throwable $th) {
-                Bugsnag::notifyException($th);
-            }
+
+        while($this->hasMathTag($html)){
+            $html = $this->replaceMathTagInHtml($html);
         }
-        $html = $doc->saveHTML($doc->documentElement);
         return $html;
     }
 
@@ -201,7 +181,7 @@ class PdfController extends Controller
     {
         try {
             $mathNodeString = $doc->saveHtml($mathNode);
-            $img = $this->getWirisSvgImg($mathNodeString, $doc);
+            $img = $this->getWirisPngImg($mathNodeString, $doc);
             $mathNode->parentNode->replaceChild($img, $mathNode);
         } catch (\Throwable $th) {
             Bugsnag::notifyException($th);
@@ -210,47 +190,9 @@ class PdfController extends Controller
     }
 
 
-    private function getWirisSvgImg($mml, $doc)
+    private function getWirisPngImg($mml, $doc)
     {
-        $data = [
-            'mml' => $mml,
-            'lang' => 'en-gb',
-            'metrics' => true,
-            'centerbaseline' => false,
-
-        ];
-        $createPath = 'http://127.0.0.1/ckeditor_png/plugins/ckeditor_wiris/integration/createimage.php';
-        $path = 'http://127.0.0.1/ckeditor_png/plugins/ckeditor_wiris/integration/showimage.php';
-        if(stristr(config('app.base_url'),'correct.test')){
-            $createPath = 'http://testwelcome.test-correct.test/ckeditor_png/plugins/ckeditor_wiris/integration/createimage.php';
-            $path = 'http://testwelcome.test-correct.test/ckeditor_png/plugins/ckeditor_wiris/integration/showimage.php';
-        }
-        try {
-        $client = new Client();
-        $res = $client->request('POST', $createPath, [
-            'form_params' => $data,
-            'verify' => false]);
-        $formulaUrl = $res->getBody()->getContents();
-        $components = parse_url($formulaUrl);
-        parse_str($components['query'], $results);
-        $formula = $results['formula'];
-        $data1 = [
-            'lang' => 'en-gb',
-            'metrics' => true,
-            'centerbaseline' => false,
-            'formula' => $formula,
-            'version' => '7.26.0.1439',
-        ];
-        $res = $client->request('GET', $path, ['query' => $data1]);
-        $res = $client->request('POST', $path, [
-            'form_params' => $data]);
-
-        } catch (\GuzzleHttp\Exception\RequestException $e) {
-            if ($e->hasResponse()) {
-                Bugsnag::notifyException($e);
-            }
-        }
-        $json = json_decode($res->getBody()->getContents(), true);
+        $json = $this->getWirisPngFromService($mml);
         $img = $doc->createElement('img');
         $img->setAttribute('width', $json['result']['width']);
         $img->setAttribute('height', $json['result']['height']);
@@ -259,5 +201,99 @@ class PdfController extends Controller
         $img->setAttribute('src', $src);
         $img->setAttribute('style', 'max-width: none; display: inline-block;');
         return $img;
+    }
+
+    private function getWirisPngImgString($mml)
+    {
+        $json = $this->getWirisPngFromService($mml);
+        $width = $json['result']['width'];
+        $height = $json['result']['height'];
+        $src = sprintf('data:image/png;base64,%s', $json['result']['content']);
+        return sprintf('<img src="%s" height="%s" width="%s" style="max-width: none; display: inline-block;"',$src,$height,$width);
+    }
+
+    private function getWirisSvgImgString($mml)
+    {
+        $json = $this->getWirisSvgFromService($mml);
+        $width = $json['result']['width'];
+        $height = $json['result']['height'];
+        $src = sprintf('data:image/svg+xml;charset=utf8,%s', rawurlencode($json['result']['content']));
+        return sprintf('<img src="%s" height="%s" width="%s" style="max-width: none; display: inline-block;"',$src,$height,$width);
+    }
+
+
+    private function hasMathTag($html)
+    {
+        if(strpos($html,'<math')>-1){
+            return true;
+        }
+        return false;
+    }
+
+    private function replaceMathTagInHtml($html)
+    {
+        $start = strpos($html,'<math');
+        $end = strpos($html,'</math>')+7;
+        $length = $end - $start;
+        $mml = substr($html,$start,$length);
+        $imgString = $this->getWirisPngImgString($mml);
+        return str_replace($mml,$imgString,$html);
+    }
+
+    private function getWirisPngFromService($mml)
+    {
+        return $this->getWirisImageFromService($mml,'png');
+    }
+
+    private function getWirisSvgFromService($mml)
+    {
+        return $this->getWirisImageFromService($mml,'svg');
+    }
+
+    private function getWirisImageFromService($mml,$type = 'png')
+    {
+        $folder = 'ckeditor';
+        if($type == 'png'){
+            $folder = 'ckeditor_png';
+        }
+        $data = [
+            'mml' => $mml,
+            'lang' => 'en-gb',
+            'metrics' => true,
+            'centerbaseline' => false,
+
+        ];
+        $createPath = sprintf('http://127.0.0.1/%s/plugins/ckeditor_wiris/integration/createimage.php',$folder);
+        $path = sprintf('http://127.0.0.1/%s/plugins/ckeditor_wiris/integration/showimage.php',$folder);
+        if(stristr(config('app.base_url'),'correct.test')){
+            $createPath = sprintf('http://testwelcome.test-correct.test/%s/plugins/ckeditor_wiris/integration/createimage.php',$folder);
+            $path = sprintf('http://testwelcome.test-correct.test/%s/plugins/ckeditor_wiris/integration/showimage.php',$folder);
+        }
+        try {
+            $client = new Client();
+            $res = $client->request('POST', $createPath, [
+                'form_params' => $data,
+                'verify' => false]);
+            $formulaUrl = $res->getBody()->getContents();
+            $components = parse_url($formulaUrl);
+            parse_str($components['query'], $results);
+            $formula = $results['formula'];
+            $data1 = [
+                'lang' => 'en-gb',
+                'metrics' => true,
+                'centerbaseline' => false,
+                'formula' => $formula,
+                'version' => '7.26.0.1439',
+            ];
+            $res = $client->request('GET', $path, ['query' => $data1]);
+            $res = $client->request('POST', $path, [
+                'form_params' => $data]);
+
+        } catch (\GuzzleHttp\Exception\RequestException $e) {
+            if ($e->hasResponse()) {
+                Bugsnag::notifyException($e);
+            }
+        }
+        return json_decode($res->getBody()->getContents(), true);
     }
 }
