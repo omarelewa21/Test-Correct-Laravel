@@ -8,8 +8,8 @@ trait WithCmsCustomRulesHandling
 {
     /**
      * @return bool
-     * The instance data first needs to be restructured/'prepared for save'd before it can be validated correctly.
-     * After it fails/passes it should be restructured back to be useable by the CMS.
+     * The instance data first needs to be restructured/prepared for save'd before it can be validated correctly.
+     * After it fails/passes it should be restructured back to be usable by the CMS.
      *
      * This is used to see if it passes the validation without actually validating it and triggering the errors (dirty confirmation)
      * -RR

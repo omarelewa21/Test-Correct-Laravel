@@ -3,32 +3,31 @@
 namespace tcCore\Http\Livewire\Teacher\Questions;
 
 use Ramsey\Uuid\Uuid;
-use tcCore\GroupQuestionQuestion;
 use tcCore\Http\Helpers\BaseHelper;
+use tcCore\Http\Interfaces\QuestionCms;
 use tcCore\Http\Traits\WithCmsCustomRulesHandling;
-use tcCore\TestQuestion;
 
 class CmsMatching extends CmsBase
 {
     use WithCmsCustomRulesHandling;
 
-    CONST MIN_ANSWER_COUNT = 2;
+    const MIN_ANSWER_COUNT = 2;
 
-    private $instance;
-    public $requiresAnswer = true;
+    public function __construct(QuestionCms $instance)
+    {
+        parent::__construct($instance);
 
-    public function __construct(OpenShort $instance) {
-        $this->instance = $instance;
         if ($this->instance->action == 'edit') {
             $this->setAnswerStruct();
-        } elseif(!array_key_exists('answerStruct', $this->instance->cmsPropertyBag)) {
+        } elseif (!array_key_exists('answerStruct', $this->instance->cmsPropertyBag)) {
             $this->instance->cmsPropertyBag['answerStruct'] = [];
             $this->instance->cmsPropertyBag['answerCount'] = 2;
         }
 
     }
 
-    public function getTranslationKey() {
+    public function getTranslationKey(): string
+    {
         return __('cms.matching-question');
     }
 
@@ -40,17 +39,17 @@ class CmsMatching extends CmsBase
     public function mergeRules(&$rules)
     {
         $rules += [
-            'question.answers'          => 'required|array|min:2',
-            'question.answers.*.left' => 'required',
+            'question.answers'         => 'required|array|min:2',
+            'question.answers.*.left'  => 'required',
             'question.answers.*.right' => 'required',
-            'question.answers.*.order'  => 'required',
+            'question.answers.*.order' => 'required',
         ];
     }
 
     public function updateRankingOrder($value)
     {
-        foreach($value as $key => $item){
-            $this->instance->cmsPropertyBag['answerStruct'][((int) $item['value'])-1]['order'] = $item['order'];
+        foreach ($value as $key => $item) {
+            $this->instance->cmsPropertyBag['answerStruct'][((int)$item['value']) - 1]['order'] = $item['order'];
         }
 
         $this->instance->cmsPropertyBag['answerStruct'] = array_values(collect($this->instance->cmsPropertyBag['answerStruct'])->sortBy('order')->toArray());
@@ -65,15 +64,15 @@ class CmsMatching extends CmsBase
 
     public function delete($id)
     {
-        if(!$this->canDelete()) {
+        if (!$this->canDelete()) {
             return;
         }
 
-        $this->instance->cmsPropertyBag['answerStruct'] = array_values(collect($this->instance->cmsPropertyBag['answerStruct'])->filter(function($answer) use ($id){
+        $this->instance->cmsPropertyBag['answerStruct'] = array_values(collect($this->instance->cmsPropertyBag['answerStruct'])->filter(function ($answer) use ($id) {
             return $answer['id'] != $id;
         })->toArray());
 
-        if(self::MIN_ANSWER_COUNT < $this->instance->cmsPropertyBag['answerCount']) {
+        if (self::MIN_ANSWER_COUNT < $this->instance->cmsPropertyBag['answerCount']) {
             $this->instance->cmsPropertyBag['answerCount']--;
         }
         $this->createAnswerStruct();
@@ -85,7 +84,7 @@ class CmsMatching extends CmsBase
         $this->createAnswerStruct();
     }
 
-    public function rankingUpdated($name,$value)
+    public function rankingUpdated($name, $value)
     {
         $this->createAnswerStruct();
     }
@@ -98,28 +97,28 @@ class CmsMatching extends CmsBase
             $result[] = (object)['id' => $value['id'], 'order' => $key + 1, 'left' => $value['left'], 'right' => $value['right']];
         })->toArray();
 
-        if(count($this->instance->cmsPropertyBag['answerStruct']) < $this->instance->cmsPropertyBag['answerCount']){
-            for($i = count($this->instance->cmsPropertyBag['answerStruct']);$i < $this->instance->cmsPropertyBag['answerCount'];$i++){
+        if (count($this->instance->cmsPropertyBag['answerStruct']) < $this->instance->cmsPropertyBag['answerCount']) {
+            for ($i = count($this->instance->cmsPropertyBag['answerStruct']); $i < $this->instance->cmsPropertyBag['answerCount']; $i++) {
                 $result[] = (object)[
                     'id'    => Uuid::uuid4(),
-                    'order' => $i+1,
-                    'left' => '',
+                    'order' => $i + 1,
+                    'left'  => '',
                     'right' => '',
                 ];
             }
         }
 
-        $this->instance->cmsPropertyBag['answerStruct']  = $result;
+        $this->instance->cmsPropertyBag['answerStruct'] = $result;
         $this->instance->cmsPropertyBag['answerCount'] = count($this->instance->cmsPropertyBag['answerStruct']);
     }
 
     public function prepareForSave()
     {
-        $this->instance->question['answers'] = array_values(collect($this->instance->cmsPropertyBag['answerStruct'])->map(function($answer){
-            $answer = $answer InstanceOf \stdClass ? (array)$answer : $answer;
+        $this->instance->question['answers'] = array_values(collect($this->instance->cmsPropertyBag['answerStruct'])->map(function ($answer) {
+            $answer = $answer instanceof \stdClass ? (array)$answer : $answer;
             return [
                 'order' => $answer['order'],
-                'left' => BaseHelper::transformHtmlChars($answer['left']),
+                'left'  => BaseHelper::transformHtmlChars($answer['left']),
                 'right' => BaseHelper::transformHtmlChars($answer['right']),
             ];
         })->toArray());
@@ -134,13 +133,8 @@ class CmsMatching extends CmsBase
     private function setAnswerStruct()
     {
         if (empty($this->instance->cmsPropertyBag['answerStruct'])) {
-            if ($this->instance->isPartOfGroupQuestion()) {
-                $tq = GroupQuestionQuestion::whereUuid($this->instance->groupQuestionQuestionId)->first();
-                $q = $tq->question;
-            } else {
-                $tq = TestQuestion::whereUuid($this->instance->testQuestionId)->first();
-                $q = $tq->question;
-            }
+            $q = $this->getQuestion();
+
             $corresponding = (object)[
                 'id'     => '',
                 'answer' => '',
@@ -171,7 +165,7 @@ class CmsMatching extends CmsBase
         $this->instance->cmsPropertyBag['answerCount'] = count($this->instance->cmsPropertyBag['answerStruct']);
     }
 
-    public function getTemplate()
+    public function getTemplate(): string
     {
         return 'matching-question';
     }

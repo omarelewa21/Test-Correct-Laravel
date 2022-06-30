@@ -2,11 +2,9 @@
 
 namespace tcCore\Http\Livewire\Teacher\Questions;
 
-use Illuminate\Support\Str;
-
-class CmsInfoScreen
+class CmsInfoScreen extends CmsBase
 {
-    private $instance;
+    public $requiresAnswer = false;
 
     public $settingsGeneralDisabledProperties = [
         'allowNotes',
@@ -14,11 +12,6 @@ class CmsInfoScreen
         'discuss',
         'decimalOption',
     ];
-
-    public function __construct(OpenShort $instance)
-    {
-        $this->instance = $instance;
-    }
 
     public function showQuestionScore()
     {
@@ -41,7 +34,7 @@ class CmsInfoScreen
         }
     }
 
-    public function getTranslationKey()
+    public function getTranslationKey(): string
     {
         return __('cms.infoscreen-question');
     }
@@ -66,7 +59,7 @@ class CmsInfoScreen
         return false;
     }
 
-    public function getTemplate()
+    public function getTemplate(): string
     {
         return 'infoscreen-question';
     }

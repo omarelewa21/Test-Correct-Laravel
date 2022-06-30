@@ -4,7 +4,6 @@ namespace tcCore\Http\Livewire\Teacher\Questions;
 
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
@@ -20,7 +19,7 @@ use tcCore\Http\Controllers\TestQuestions\AttachmentsController;
 use tcCore\Http\Controllers\TestQuestionsController;
 use tcCore\Http\Controllers\TestsController;
 use tcCore\Http\Helpers\QuestionHelper;
-use tcCore\Http\Livewire\Preview\DrawingQuestion;
+use tcCore\Http\Interfaces\QuestionCms;
 use tcCore\Http\Requests\CreateAttachmentRequest;
 use tcCore\Http\Requests\CreateGroupQuestionQuestionRequest;
 use tcCore\Http\Requests\CreateTestQuestionRequest;
@@ -31,7 +30,7 @@ use tcCore\TemporaryLogin;
 use tcCore\Test;
 use tcCore\TestQuestion;
 
-class OpenShort extends Component
+class OpenShort extends Component implements QuestionCms
 {
     use WithFileUploads;
 
@@ -810,28 +809,6 @@ class OpenShort extends Component
     {
         $this->attachmentsCount++;
         $this->dirty = true;
-    }
-
-    public function decodeCompletionTags($question)
-    {
-        if (!$question->completionQuestionAnswers) {
-            return $question->getQuestionHtml();
-        }
-
-        $tags = [];
-        $question->completionQuestionAnswers->each(function ($tag) use (&$tags) {
-            $tags[$tag['tag']][] = $tag['answer'];
-        });
-
-        $searchPattern = '/\[([0-9]+)\]/i';
-        $replacementFunction = function ($matches) use ($question, $tags) {
-            $tag_id = $matches[1]; // the completion_question_answers list is 1 based
-            if (isset($tags[$tag_id])) {
-                return sprintf('[%s]', implode('|', $tags[$tag_id]));
-            }
-        };
-
-        return preg_replace_callback($searchPattern, $replacementFunction, $question->getQuestionHtml());
     }
 
     public function isPartOfGroupQuestion(): bool

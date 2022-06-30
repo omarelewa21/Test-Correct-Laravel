@@ -57,7 +57,7 @@
     cursor: default!important;
 }
 
-.cta-button {
+button.cta-button, a.cta-button {
     color: white;
     background-color: rgba(58,183,83,1);
     background-image: radial-gradient(ellipse farthest-side at 10% 10%,rgba(58,183,83,.5) 0,rgba(58,183,83,0) 100%);
@@ -67,24 +67,24 @@
     transition: color 0.3s cubic-bezier(.215,.61,.355,1);
 }
 
-.cta-button:hover {
+button.cta-button:hover, a.cta-button:hover {
     background-color: rgb(60, 202, 86);
     background-size: 100% 100%;
     box-shadow: 0 4px 10px 0 rgba(0,0,0,0.1);
     transition: all 0.3s cubic-bezier(.215,.61,.355,1);
 }
 
-.cta-button:active {
+button.cta-button:active, a.cta-button:active {
     background: linear-gradient(90deg, rgba(57, 180, 81, 1) 0%, rgba(61, 187, 86, 1) 100%);
     box-shadow: 0 1px 6px 0 rgba(77, 87, 143, 0.5);
 }
 
-.cta-button:focus {
+button.cta-button:focus, a.cta-button:focus {
     background: var(--cta-primary);
     border: 1px solid var(--cta-primary-dark);
 }
 
-.cta-button:disabled {
+button.cta-button:disabled, a.cta-button:disabled {
     background: var(--light-grey);
     color: var(--mid-grey);
     box-shadow: none;
@@ -609,6 +609,12 @@
     outline: none;
 }
 
+.form-input:disabled, .form-input:disabled:hover {
+    background-color: white;
+    border-color: var(--light-grey);
+    color: var(--mid-grey);
+}
+
 .form-input.border-red {
     border-color: red!important;
 }
@@ -1075,6 +1081,9 @@ input[type=number] {
     transform: scale(1);
 }
 
+.select-search.disabled {
+
+}
 .primary-gradient {
     background: linear-gradient(to right, var(--primary) 0%, var(--teacher-primary-light) 100%);
 }
@@ -1410,6 +1419,11 @@ input[type=number] {
     transition: left ease-in-out 300ms;
     padding-bottom: var(--header-height);
 }
+
+#cms-preview .question-editor-preview-header {
+    box-shadow: 0 3px 8px 0 rgba(4, 31, 116, 0.2);
+}
+
 /*!
  * FilePond 4.30.3
  * Licensed under MIT, https://opensource.org/licenses/MIT/
@@ -4928,6 +4942,10 @@ video {
 .m-1{
   margin: 0.25rem;
 }
+.mx-8{
+  margin-left: 2rem;
+  margin-right: 2rem;
+}
 .mx-auto{
   margin-left: auto;
   margin-right: auto;
@@ -4935,10 +4953,6 @@ video {
 .my-8{
   margin-top: 2rem;
   margin-bottom: 2rem;
-}
-.mx-8{
-  margin-left: 2rem;
-  margin-right: 2rem;
 }
 .mx-4{
   margin-left: 1rem;
@@ -5117,6 +5131,12 @@ video {
 .mt-16{
   margin-top: 4rem;
 }
+.ml-2\.5{
+  margin-left: 0.625rem;
+}
+.ml-10{
+  margin-left: 2.5rem;
+}
 .-mt-px{
   margin-top: -1px;
 }
@@ -5131,12 +5151,6 @@ video {
 }
 .mr-0\.5{
   margin-right: 0.125rem;
-}
-.ml-2\.5{
-  margin-left: 0.625rem;
-}
-.ml-10{
-  margin-left: 2.5rem;
 }
 .-mt-1{
   margin-top: -0.25rem;
@@ -5246,11 +5260,11 @@ video {
 .h-px{
   height: 1px;
 }
-.h-8{
-  height: 2rem;
-}
 .h-10{
   height: 2.5rem;
+}
+.h-8{
+  height: 2rem;
 }
 .h-\[32px\]{
   height: 32px;
@@ -5386,11 +5400,11 @@ video {
 .w-24{
   width: 6rem;
 }
-.w-8{
-  width: 2rem;
-}
 .w-10{
   width: 2.5rem;
+}
+.w-8{
+  width: 2rem;
 }
 .w-\[24px\]{
   width: 24px;
@@ -6834,6 +6848,13 @@ video {
   transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
   transition-duration: 150ms;
 }
+.transition-colors{
+  transition-property: color, background-color, border-color, fill, stroke, -webkit-text-decoration-color;
+  transition-property: color, background-color, border-color, text-decoration-color, fill, stroke;
+  transition-property: color, background-color, border-color, text-decoration-color, fill, stroke, -webkit-text-decoration-color;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 150ms;
+}
 .transition-opacity{
   transition-property: opacity;
   transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
@@ -6844,13 +6865,6 @@ video {
 }
 .transition-transform{
   transition-property: transform;
-  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
-  transition-duration: 150ms;
-}
-.transition-colors{
-  transition-property: color, background-color, border-color, fill, stroke, -webkit-text-decoration-color;
-  transition-property: color, background-color, border-color, text-decoration-color, fill, stroke;
-  transition-property: color, background-color, border-color, text-decoration-color, fill, stroke, -webkit-text-decoration-color;
   transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
   transition-duration: 150ms;
 }
@@ -7292,12 +7306,12 @@ div.drag-item>div{
   --tw-bg-opacity: 1;
   background-color: rgb(0 77 245 / var(--tw-bg-opacity));
 }
+.hover\:bg-primary\/5:hover{
+  background-color: rgb(0 77 245 / 0.05);
+}
 .hover\:bg-white:hover{
   --tw-bg-opacity: 1;
   background-color: rgb(255 255 255 / var(--tw-bg-opacity));
-}
-.hover\:bg-primary\/5:hover{
-  background-color: rgb(0 77 245 / 0.05);
 }
 .hover\:font-bold:hover{
   font-weight: 700;
@@ -7325,6 +7339,10 @@ div.drag-item>div{
 .hover\:text-gray-400:hover{
   --tw-text-opacity: 1;
   color: rgb(156 163 175 / var(--tw-text-opacity));
+}
+.hover\:text-midgrey:hover{
+  --tw-text-opacity: 1;
+  color: rgb(146 157 175 / var(--tw-text-opacity));
 }
 .hover\:underline:hover{
   -webkit-text-decoration-line: underline;

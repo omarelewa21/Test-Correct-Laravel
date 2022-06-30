@@ -1,4 +1,4 @@
-<div id="cms" class="flex flex-1"
+<div cms id="cms" class="flex flex-1"
      x-data="{loading: @entangle('loading'), empty: {{ $this->emptyState ? 1 : 0 }}, dirty: @entangle('dirty') }"
      x-init="
            handleQuestionChange = (evt) => {

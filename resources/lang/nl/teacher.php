@@ -40,4 +40,5 @@ return [
     'Toets PDF-weergave'                               => 'Toets PDF-weergave',
     'Toets inplannen'                                  => 'Toets inplannen',
     'Filters wissen'                                   => 'Filters wissen',
+    'Vraag voorbeeld'                                  => 'Vraag voorbeeld',
 ];
