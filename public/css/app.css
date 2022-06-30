@@ -5266,6 +5266,9 @@ video {
 .invisible{
   visibility: hidden;
 }
+.\!invisible{
+  visibility: hidden !important;
+}
 .static{
   position: static;
 }

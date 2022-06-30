@@ -5922,6 +5922,8 @@ document.addEventListener('alpine:init', function () {
     return {
       slideWidth: 300,
       drawer: null,
+      resizing: false,
+      resizeTimout: null,
       init: function init() {
         var _this8 = this;
 
@@ -6056,8 +6058,16 @@ document.addEventListener('alpine:init', function () {
         this.$store.questionBank.inGroup = false;
       },
       handleResizing: function handleResizing() {
+        var _this11 = this;
+
+        clearTimeout(this.resizeTimout);
+
         if (this.$store.questionBank.active) {
-          this.$root.scrollLeft = this.$refs.questionbank.offsetLeft;
+          if (!this.resizing) this.resizing = true;
+          this.resizeTimout = setTimeout(function () {
+            _this11.$root.scrollLeft = _this11.$refs.questionbank.offsetLeft;
+            _this11.resizing = false;
+          }, 200);
         }
       }
     };
@@ -6074,19 +6084,19 @@ document.addEventListener('alpine:init', function () {
       init: function init() {
         var _window,
             _window$registeredEve,
-            _this11 = this;
+            _this12 = this;
 
         // some new fancy way of setting a value when undefined
         (_window$registeredEve = (_window = window).registeredEventHandlers) !== null && _window$registeredEve !== void 0 ? _window$registeredEve : _window.registeredEventHandlers = [];
         this.activeFiltersContainer = document.getElementById(filterContainer);
         this.multiple = multiple === 1;
         this.$nextTick(function () {
-          var choices = new (choices_js__WEBPACK_IMPORTED_MODULE_2___default())(_this11.$refs.select, _this11.config);
+          var choices = new (choices_js__WEBPACK_IMPORTED_MODULE_2___default())(_this12.$refs.select, _this12.config);
 
           var refreshChoices = function refreshChoices() {
-            var selection = _this11.multiple ? _this11.value : [_this11.value];
+            var selection = _this12.multiple ? _this12.value : [_this12.value];
             choices.clearStore();
-            choices.setChoices(_this11.options.map(function (_ref) {
+            choices.setChoices(_this12.options.map(function (_ref) {
               var value = _ref.value,
                   label = _ref.label;
               return {
@@ -6096,38 +6106,38 @@ document.addEventListener('alpine:init', function () {
               };
             }));
 
-            _this11.handleActiveFilters(choices.getValue());
+            _this12.handleActiveFilters(choices.getValue());
           };
 
           refreshChoices();
 
-          _this11.$refs.select.addEventListener('choice', function (event) {
-            if (_this11.value.includes(parseInt(event.detail.choice.value))) {
-              _this11.removeFilterItem(choices.getValue().find(function (value) {
+          _this12.$refs.select.addEventListener('choice', function (event) {
+            if (_this12.value.includes(parseInt(event.detail.choice.value))) {
+              _this12.removeFilterItem(choices.getValue().find(function (value) {
                 return value.value === event.detail.choice.value;
               }));
             }
           });
 
-          _this11.$refs.select.addEventListener('change', function () {
-            _this11.value = choices.getValue(true); // This causes 2 update calls:
+          _this12.$refs.select.addEventListener('change', function () {
+            _this12.value = choices.getValue(true); // This causes 2 update calls:
             // this.wireModel = this.value;
           });
 
-          var eventName = 'removeFrom' + _this11.$root.dataset.modelName;
+          var eventName = 'removeFrom' + _this12.$root.dataset.modelName;
 
           if (!window.registeredEventHandlers.includes(eventName)) {
             window.registeredEventHandlers.push(eventName);
             window.addEventListener(eventName, function (event) {
-              _this11.removeFilterItem(event.detail);
+              _this12.removeFilterItem(event.detail);
             });
           }
 
-          _this11.$watch('value', function () {
+          _this12.$watch('value', function () {
             return refreshChoices();
           });
 
-          _this11.$watch('options', function () {
+          _this12.$watch('options', function () {
             return refreshChoices();
           });
         });
@@ -6142,16 +6152,16 @@ document.addEventListener('alpine:init', function () {
         return "[data-filter=\"".concat(this.$root.dataset.modelName, "\"][data-filter-value=\"").concat(item, "\"]");
       },
       handleActiveFilters: function handleActiveFilters(choicesValues) {
-        var _this12 = this;
+        var _this13 = this;
 
         this.value.forEach(function (item) {
-          if (_this12.needsFilterPill(item)) {
+          if (_this13.needsFilterPill(item)) {
             var cItem = choicesValues.find(function (value) {
               return value.value === item;
             });
 
             if (typeof cItem !== 'undefined') {
-              _this12.createFilterPill(cItem);
+              _this13.createFilterPill(cItem);
             }
           }
         });

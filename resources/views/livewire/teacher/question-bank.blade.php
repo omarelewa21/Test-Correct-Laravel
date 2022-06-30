@@ -66,18 +66,22 @@
                 </div>
 
                 <div>
-                    <div class="flex relative text-midgrey cursor-default" title="{{ __('general.Later beschikbaar') }}">
+                    <div class="flex relative text-midgrey cursor-default"
+                         title="{{ __('general.Later beschikbaar') }}">
                         {{--                    <div class="flex relative hover:text-primary cursor-pointer" @click="openTab = 3">--}}
-                        <span class="bold pt-[0.9375rem] pb-[0.8125rem]" :class="openTab === 3 ? 'primary' : '' ">{{ __('general.Nationaal') }}</span>
+                        <span class="bold pt-[0.9375rem] pb-[0.8125rem]"
+                              :class="openTab === 3 ? 'primary' : '' ">{{ __('general.Nationaal') }}</span>
                         <span class="absolute w-full bottom-0" style="height: 3px"
                               :class="openTab === 3 ? 'bg-primary' : 'bg-transparent' "></span>
                     </div>
                 </div>
 
                 <div>
-                    <div class="flex relative text-midgrey cursor-default" title="{{ __('general.Later beschikbaar') }}">
+                    <div class="flex relative text-midgrey cursor-default"
+                         title="{{ __('general.Later beschikbaar') }}">
                         {{--                    <div class="flex relative hover:text-primary cursor-pointer" @click="openTab = 4">--}}
-                        <span class="bold pt-[0.9375rem] pb-[0.8125rem]" :class="openTab === 4 ? 'primary' : '' ">{{ __('general.Examens') }}</span>
+                        <span class="bold pt-[0.9375rem] pb-[0.8125rem]"
+                              :class="openTab === 4 ? 'primary' : '' ">{{ __('general.Examens') }}</span>
                         <span class="absolute w-full bottom-0" style="height: 3px"
                               :class="openTab === 4 ? 'bg-primary' : 'bg-transparent' "></span>
                     </div>
@@ -152,14 +156,25 @@
                                             </span>
                         </div>
 
-                        <x-button.text-button class="ml-auto text-base"
-                                              size="sm"
-                                              @click="$dispatch('enable-loading-grid') ;document.getElementById('questionbank-{{ $this->openTab }}-active-filters').innerHTML = '';"
-                                              wire:click="clearFilters('{{ $this->openTab }}')"
-                        >
-                            <span class="min-w-max">{{ __('teacher.Filters wissen') }}</span>
-                            <x-icon.close-small/>
-                        </x-button.text-button>
+
+                        @if($this->hasActiveFilters())
+                            <x-button.text-button class="ml-auto text-base"
+                                                  size="sm"
+                                                  @click="$dispatch('enable-loading-grid');document.getElementById('questionbank-{{ $this->openTab }}-active-filters').innerHTML = '';"
+                                                  wire:click="clearFilters('{{ $this->openTab }}')"
+                            >
+                                <span class="min-w-max">{{ __('teacher.Filters wissen') }}</span>
+                                <x-icon.close-small/>
+                            </x-button.text-button>
+                        @else
+                            <x-button.text-button class="ml-auto text-base disabled"
+                                                  size="sm"
+                                                  disabled
+                            >
+                                <span class="min-w-max">{{ __('teacher.Filters wissen') }}</span>
+                                <x-icon.close-small/>
+                            </x-button.text-button>
+                        @endif
                     </div>
 
                     <div id="questionbank-{{ $this->openTab }}-active-filters"
@@ -168,7 +183,7 @@
                          wire:ignore
                          class="flex flex-wrap gap-2 mt-2 relative"
                     >
-{{--                        <a class="block absolute inset-0 bg-allred z-10 pointer-events-none" x-show="filterLoading"></a>--}}
+                        {{--                        <a class="block absolute inset-0 bg-allred z-10 pointer-events-none" x-show="filterLoading"></a>--}}
                     </div>
                 </div>
 
@@ -184,7 +199,7 @@
                         @endforeach
                     </div>
                     <div class="mt-4 grid gap-6 grid-cols-1 lg:grid-cols-2" x-show="!filterLoading" x-cloak>
-{{--                    <div class="mt-4 " x-show="!filterLoading" x-cloak>--}}
+                        {{--                    <div class="mt-4 " x-show="!filterLoading" x-cloak>--}}
                         {{-- @TODO: Fix loading animation --}}
                         @foreach($this->questions as $question)
                             <x-grid.question-card :question="$question"/>

@@ -346,4 +346,10 @@ class QuestionBank extends Component
          */
     }
 
+    public function hasActiveFilters()
+    {
+        return collect($this->filters[$this->openTab])->filter(function($filter) {
+            return filled($filter);
+        })->isNotEmpty();
+    }
 }
