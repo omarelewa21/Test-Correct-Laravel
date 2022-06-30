@@ -8,13 +8,13 @@
 
         <h3 class="flex ml-4 truncate">{{ $this->questionTitle }}</h3>
 
-        <div class="flex ml-auto space-x-2.5">
+        <div class="flex ml-auto items-center space-x-2.5">
             @if($this->inTest)
                 <span title="{{ __('cms.Deze vraag is aanwezig in de toets.') }}">
                     <x-icon.checkmark-circle color="var(--cta-primary)"/>
                 </span>
             @endif
-            <x-button.cta size="sm">
+            <x-button.cta size="sm" wire:click="addQuestion">
                 <x-icon.plus-2/>
                 <span>{{ __('cms.Toevoegen') }}</span>
             </x-button.cta>

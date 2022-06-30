@@ -4,6 +4,7 @@ namespace tcCore\View\Components\Grid;
 
 use Carbon\Carbon;
 use Illuminate\View\Component;
+use Illuminate\View\View;
 
 class QuestionCard extends Component
 {
@@ -14,22 +15,18 @@ class QuestionCard extends Component
     public $tags;
     public $inTest = false;
 
-    public function __construct($question, $testUuid)
+    public function __construct($question)
     {
         $this->question = $question;
-        $this->authors = $question->getAuthorNamesCollection();
+        $this->authors = $question->authors->map(function($author) {
+            return $author->getFullNameWithAbbreviatedFirstName();
+        });
         $this->lastUpdated = Carbon::parse($question->updated_at)->format('d/m/\'y');
-        $this->attachmentCount = $question->attachments()->count();
-
-        $this->tags = $this->question->tags;
-
-        if ($testUuid) {
-            $this->inTest = $this->question->isInTest($testUuid);
-        }
+        $this->attachmentCount = $question->attachments_count;
     }
 
-    public function render(): string
+    public function render(): View
     {
-        return 'components.grid.question-card';
+        return view('components.grid.question-card');
     }
 }

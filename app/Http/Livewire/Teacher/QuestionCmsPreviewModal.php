@@ -121,11 +121,6 @@ class QuestionCmsPreviewModal extends ModalComponent implements QuestionCms
         return 'full';
     }
 
-    public static function destroyOnClose(): bool
-    {
-        return true;
-    }
-
     /*
      * Helper methods
      */
@@ -235,5 +230,14 @@ class QuestionCmsPreviewModal extends ModalComponent implements QuestionCms
     public function _showSettingsTags()
     {
         return true;
+    }
+
+    /*
+     * Modal actions
+     */
+    public function addQuestion()
+    {
+        $this->emitTo(QuestionBank::class, 'addQuestionFromDetail', $this->questionModel->id);
+        $this->forceClose()->closeModal();
     }
 }

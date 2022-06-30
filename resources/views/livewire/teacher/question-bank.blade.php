@@ -30,7 +30,9 @@
             maxHeight = groupDetail.style.left = '100%';
             $nextTick(() => {
                 $wire.clearGroupDetails();
-                handleVerticalScroll($el.querySelector('.main'));
+                setTimeout(() => {
+                    handleVerticalScroll($el.closest('.slide-container'));
+                }, 250);
             })
         }
         "
@@ -185,7 +187,7 @@
 {{--                    <div class="mt-4 " x-show="!filterLoading" x-cloak>--}}
                         {{-- @TODO: Fix loading animation --}}
                         @foreach($this->questions as $question)
-                            <x-grid.question-card :question="$question" :testUuid="$this->testId"/>
+                            <x-grid.question-card :question="$question"/>
                         @endforeach
 
                         @if($this->questions->count() && $this->questions->count() != $this->resultCount)

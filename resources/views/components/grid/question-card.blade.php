@@ -3,7 +3,7 @@
      @if($question->isType('GroupQuestion'))
          @click.stop="showGroupDetails('{{ $question->uuid }}', @js($inTest))"
      @else
-         wire:click.stop="openDetail('{{ $question->uuid }}')"
+         wire:click.stop="openDetail('{{ $question->uuid }}', @js($this->isQuestionInTest($question->id) || $this->isQuestionInTest($question->derived_question_id)))"
      @endif
 >
     <div class="flex w-full justify-between mb-2">
@@ -53,7 +53,7 @@
                 <span class="note text-sm">{{ $question->isType('GroupQuestion') ?  $question->total_score ?? 0 : $question->score ?? 0 }}pt.</span>
             </div>
             <div class="flex space-x-2.5 items-center">
-                @if($inTest)
+                @if($this->isQuestionInTest($question->id) || $this->isQuestionInTest($question->derived_question_id))
                     <span title="{{ __('cms.Deze vraag is aanwezig in de toets.') }}">
                         <x-icon.checkmark-circle color="var(--cta-primary)"/>
                     </span>
@@ -67,10 +67,5 @@
             </div>
 
         </div>
-
-        {{--            <x-input.custom-checkbox wire:click.stop="handleCheckboxClick({{ $question->getKey() }})"--}}
-        {{--                                     wire:key="checkbox-for-question{{ $question->uuid }}"--}}
-        {{--                                     :checked="$this->isQuestionInTest($question->getKey())"--}}
-        {{--            />--}}
     </div>
 </div>

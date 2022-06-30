@@ -44,6 +44,7 @@ return [
     'matchingquestion'                     => 'Combineer',
     'matchingquestionmatching'             => 'Combineer',
     'matchingquestionclassify'             => 'Rubriceer',
+    'infoscreenquestion'                   => 'Infoscherm',
     'infoscreenquestioninfo'               => 'Infoscherm',
     'infoscreenquestioninfoscreen'         => 'Infoscherm',
     'infoscreenquestionnone'               => 'Infoscherm',

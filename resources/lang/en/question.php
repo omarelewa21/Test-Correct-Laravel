@@ -44,6 +44,7 @@ return [
     'matchingquestion'                     => 'Matching',
     'matchingquestionmatching'             => 'Matching',
     'matchingquestionclassify'             => 'Classify',
+    'infoscreenquestion'                   => 'Infoscreen',
     'infoscreenquestioninfo'               => 'Infoscreen',
     'infoscreenquestioninfoscreen'         => 'Infoscreen',
     'infoscreenquestionnone'               => 'Infoscreen',

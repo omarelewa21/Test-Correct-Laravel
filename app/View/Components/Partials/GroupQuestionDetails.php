@@ -27,8 +27,8 @@ class GroupQuestionDetails extends Component
         $this->authors = $groupQuestion->getAuthorNamesCollection();
         $this->lastUpdated = Carbon::parse($groupQuestion->updated_at)->format('d/m/\'y');
         $this->attachmentCount = $groupQuestion->attachments()->count();
-        $this->subQuestions = $groupQuestion->groupQuestionQuestions;
         $this->totalScore = $groupQuestion->total_score;
+        $this->subQuestions = $groupQuestion->groupQuestionQuestions;
         $this->uuid = $groupQuestion->uuid;
         $this->closeable = $groupQuestion->getQuestionInstance()->closeable;
         $this->inTest = $groupQuestion->inTest ?? false;
