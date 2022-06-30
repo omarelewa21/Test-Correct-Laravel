@@ -204,7 +204,6 @@ class PdfController extends Controller
             $img = $this->getWirisSvgImg($mathNodeString, $doc);
             $mathNode->parentNode->replaceChild($img, $mathNode);
         } catch (\Throwable $th) {
-            dump($th->getMessage());
             Bugsnag::notifyException($th);
             return;
         }
@@ -248,7 +247,6 @@ class PdfController extends Controller
 
         } catch (\GuzzleHttp\Exception\RequestException $e) {
             if ($e->hasResponse()) {
-                dump($e->getMessage());
                 Bugsnag::notifyException($e);
             }
         }
