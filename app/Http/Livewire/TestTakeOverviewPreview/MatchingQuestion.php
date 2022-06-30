@@ -42,7 +42,6 @@ class MatchingQuestion extends Component
             }
         }
         $this->shuffledAnswers = $this->getMatchingQuestionAnswers();
-        dump($this->shuffledAnswers);
         if(!is_null($this->question->belongs_to_groupquestion_id)){
             $this->question->groupQuestion = Question::find($this->question->belongs_to_groupquestion_id);
         }
@@ -65,18 +64,45 @@ class MatchingQuestion extends Component
         $matchingQuestionAnswersIds = [];
         $matchingQuestionAnswers = [];
         collect($this->answerStruct)->each(function($key,$value) use (&$matchingQuestionAnswersIds){
-            $matchingQuestionAnswersIds[] = $key;
-            $matchingQuestionAnswersIds[] = (int) $value;
+            $matchingQuestionAnswersIds[] = (int) $key;
+            $matchingQuestionAnswersIds[] = (int) $value ;
         });
-        array_unique($matchingQuestionAnswersIds);
-        dump($this->question->getKey());
-        dump($this->answerStruct);
-        dump($matchingQuestionAnswersIds);
-        collect($matchingQuestionAnswersIds)->each(function($key,$value) use (&$matchingQuestionAnswers){
+        $matchingQuestionAnswersIds = array_unique($matchingQuestionAnswersIds);
+        if(in_array(0,$matchingQuestionAnswersIds)){
+            $matchingQuestionAnswersIds = $this->repairForMissingAnswers($matchingQuestionAnswersIds);
+        }
+        sort($matchingQuestionAnswersIds);
+        collect($matchingQuestionAnswersIds)->each(function($value,$key) use (&$matchingQuestionAnswers){
             $matchingQuestionAnswer = MatchingQuestionAnswer::withTrashed()->find($value);
+            if(is_null($matchingQuestionAnswer)){
+                return true;
+            }
             $matchingQuestionAnswers[] = $matchingQuestionAnswer;
         });
-
         return $matchingQuestionAnswers;
+    }
+
+    private function repairForMissingAnswers($matchingQuestionAnswersIds)
+    {
+        $collection = collect($matchingQuestionAnswersIds);
+        $keyArray = [];
+        $collection->each(function($value,$key) use (&$matchingQuestionAnswersIds,&$keyArray){
+            $matchingQuestionAnswer = MatchingQuestionAnswer::withTrashed()->find($value);
+            if(is_null($matchingQuestionAnswer)){
+                $keyArray[] = $key;
+                return true;
+            }
+            if(is_null($matchingQuestionAnswer->correct_answer_id)){
+                return true;
+            }
+            if(in_array($matchingQuestionAnswer->correct_answer_id,$matchingQuestionAnswersIds)){
+                return true;
+            }
+            $matchingQuestionAnswersIds[] = $matchingQuestionAnswer->correct_answer_id;
+        });
+        collect($keyArray)->each(function($value,$key) use (&$matchingQuestionAnswersIds){
+            unset($matchingQuestionAnswersIds[$value]);
+        });
+        return $matchingQuestionAnswersIds;
     }
 }

@@ -22,6 +22,7 @@ class PreviewTestTakeController extends Controller
     {
         $titleForPdfPage = $testTake->test->name.' '.Carbon::now()->format('d-m-Y H:i');
         view()->share('titleForPdfPage',$titleForPdfPage);
+        view()->share('pdf_type','student_test_take');
         $testParticipants = $testTake->testParticipants()->whereNotNull('answer_id')->get();
         $html = view('test-take-overview-preview',compact(['testTake','testParticipants']))->render();
         return response()->make(PdfController::HtmlToPdfFromString($html), 200, [
