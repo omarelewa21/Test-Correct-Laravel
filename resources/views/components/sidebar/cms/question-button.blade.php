@@ -10,8 +10,7 @@
                 })
              $store.cms.scrollPos = document.querySelector('.drawer').scrollTop;
                 "
-                })"
-     title = "{{ __($this->getQuestionNameForDisplay($question)) }}"
+     title="{{ $question->typeName }}"
      style="max-width: 300px"
      @if($subQuestion)
         wire:sortable-group.item="{{ $question->uuid }}"
