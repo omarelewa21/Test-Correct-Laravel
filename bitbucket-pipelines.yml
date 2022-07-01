@@ -8,7 +8,8 @@ pipelines:
                   image: php:7.4-cli
                   deployment: testportal
                   script:
-                      - apt install git
+                      - apt-get update
+                      - apt-get install git
                       - git clone ssh://git@bitbucket.org/teachandlearncompany/tlc-deploy
                       - cd tlc-deploy
                       - composer install
