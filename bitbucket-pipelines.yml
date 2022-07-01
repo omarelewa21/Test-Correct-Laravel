@@ -1,0 +1,16 @@
+pipelines:
+    custom:
+        deploy-to-testportal:
+            - step:
+                  name: Deploy to testportal
+                  image: php:7.4-alpine
+                  clone:
+                      enabled: false
+                  deployment: testportal
+                  script:
+                      - apk add openssh git
+                      - git clone ssh://git@bitbucket.org/teachandlearncompany/tlc-deploy
+                      - cd tlc-deploy
+                      - wget https://raw.githubusercontent.com/composer/getcomposer.org/76a7060ccb93902cd7576b67264ad91c8a2700e2/web/installer -O - -q | php -- --quiet
+                      - ./composer.phar install
+                      - ssh webdev@thetr-7.vm.bit.nl "id"

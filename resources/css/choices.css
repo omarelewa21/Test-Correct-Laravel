@@ -6,17 +6,22 @@
 }
 .custom-choices .choices {
     padding-right: 1px;
+    margin-bottom: 0;
 }
 
 .custom-choices .choices .choices__inner {
     border-color: var(--choices-border-color);
     border-radius: 10px;
-    padding: 4px 8px;
+    padding: 2px 20px 2px 16px;
+    max-height: 40px;
+    min-height: auto;
+    height: 40px;
     display: flex;
     align-items: center;
     margin-left: 1px;
     margin-right: 1px;
     transition: border 150ms ease, background-color 150ms ease;
+    cursor: pointer;
 }
 .custom-choices.has-item {
     --choices-border-color: var(--primary);
@@ -25,6 +30,7 @@
 
 .custom-choices .choices__input {
     background-color: transparent;
+    cursor: pointer;
 }
 .custom-choices .choices__inner {
     background-color: var(--choices-background);
@@ -43,6 +49,9 @@
     border-radius: 10px;
     border-color: transparent;
     box-shadow: var(--main-shadow);
+    min-width: 100px;
+    max-width: 250px;
+    width: max-content;
 }
 
 .custom-choices .choices__list .choices__item.choices__item--choice.choices__item--selectable {

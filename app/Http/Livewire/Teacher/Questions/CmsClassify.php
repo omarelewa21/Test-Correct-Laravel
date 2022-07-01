@@ -7,6 +7,9 @@ use tcCore\GroupQuestionQuestion;
 use tcCore\Http\Helpers\BaseHelper;
 use tcCore\Http\Traits\WithCmsCustomRulesHandling;
 use tcCore\TestQuestion;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\ValidationException;
+use tcCore\MatchingQuestion;
 
 class CmsClassify extends CmsBase
 {
@@ -47,8 +50,8 @@ class CmsClassify extends CmsBase
     {
         $rules += [
             'question.answers'         => 'required|array|min:2',
-            'question.answers.*.left'  => 'required',
-            'question.answers.*.right' => 'required',
+            // 'question.answers.*.left' => 'required',
+            // 'question.answers.*.right' => 'required',
             'question.answers.*.order' => 'required',
         ];
     }
@@ -230,7 +233,7 @@ class CmsClassify extends CmsBase
                     }
                     $corresponding = [
                         'id'     => Uuid::uuid4()->toString(),
-                        'left'   => $answer->answer,
+                        'left'   => BaseHelper::transformHtmlCharsReverse($answer->answer),
                         'order'  => count($struct) + 1,
                         'rights' => [],
                     ];
@@ -238,7 +241,7 @@ class CmsClassify extends CmsBase
                     $corresponding['rights'][] = [
                         'id'     => Uuid::uuid4()->toString(),
                         'order'  => $corresponding ? count($corresponding['rights']) + 1 : 1,
-                        'answer' => $answer->answer,
+                        'answer' => BaseHelper::transformHtmlCharsReverse($answer->answer),
                     ];
                 }
             });
@@ -255,5 +258,17 @@ class CmsClassify extends CmsBase
     public function getTemplate()
     {
         return 'classify-question';
+    }
+
+    public function customValidation()
+    {
+        $validator = Validator::make([], []);
+        $answers = $this->instance->question['answers'];
+
+        MatchingQuestion::validateWithValidator($validator, $answers);
+
+        if ($validator->errors()->count()) {
+            throw new ValidationException($validator);
+        }
     }
 }

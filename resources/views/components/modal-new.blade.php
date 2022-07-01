@@ -4,7 +4,8 @@
 <div
         class="flex flex-col py-5 px-7 bg-white rounded-10 overflow-hidden shadow-xl transform transition-all sm:w-full"
 >
-    @if($formAction) <form wire:submit.prevent="{{ $formAction }}"> @endif
+    @if($formAction)
+        <form wire:submit.prevent="{{ $formAction }}"> @endif
             <div class="px-2.5">
                 <h2>
                     <div class="flex justify-between">
@@ -18,6 +19,8 @@
                 {{ $body }}
             </div>
             {{ $footer }}
-    @if($formAction) </form> @endif
+    @if($formAction)
+        </form>
+    @endif
 </div>
 

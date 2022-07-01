@@ -1,12 +1,12 @@
 @props(['loop' => 1, 'testQuestionUuid' => ''])
-<div class="question-button group-dummy"
+<div class="question-button group-dummy pl-6 pr-4"
      x-data="{mode: @entangle('action'), owner: @entangle('owner'), name: @entangle('newQuestionTypeName'), groupId: '{{ $testQuestionUuid}}' }"
      x-init=""
      x-show="mode === 'add' && owner === 'group' && groupId === '{{ $this->testQuestionId}}'"
      x-cloak
      wire:key="dummy-{{ $loop.$testQuestionUuid.$this->testQuestionId }}"
 >
-    <div class="question-button flex items-center cursor-pointer bold py-2 hover:text-primary question-active"
+    <div class="flex items-center cursor-pointer bold py-2 hover:text-primary question-active"
          style="max-width: 300px"
     >
         <div class="flex w-full">

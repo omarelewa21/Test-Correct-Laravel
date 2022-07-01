@@ -13,6 +13,7 @@ return [
     'Anders'                                                                                                                                           => 'Otherwise',
     'Voornaam'                                                                                                                                         => 'First name',
     'Tussenvoegsel'                                                                                                                                    => 'Prefix',
+    'Tussenv.'                                                                                                                                         => 'Prefix',
     'Achternaam'                                                                                                                                       => 'Surname',
     'Creeër wachtwoord'                                                                                                                                => 'Create password',
     'Herhaal wachtwoord'                                                                                                                               => 'Repeat password',
@@ -72,6 +73,7 @@ return [
     'Bevestigen'                                                                                                                                       => 'Confirm',
     'Gefeliciteerd met je Test-Correct account!'                                                                                                       => 'Congratulations with your Test-Correct account!',
     'Deel dit op jouw social media'                                                                                                                    => 'Share this on your social media',
-    'Wijzig locaties'                                                                                                                                  => 'Change locations',
+    'Locatie'                                                                                                                                          => 'Location',
+    'Docent account maken'                                                                                                                             => 'Create teacher account',
 ];
 ?>

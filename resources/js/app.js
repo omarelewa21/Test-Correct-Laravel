@@ -1,6 +1,6 @@
 require('./bootstrap');
-require('livewire-sortable');
 require('./swipe');
+require('./livewire-sortablejs');
 require('./core');
 require('./notify');
 require('./alpine');
@@ -337,4 +337,14 @@ clearClipboard = function () {
 preventNavigationByKeydown = function(event)
 {
     return event.stopPropagation();
+}
+
+livewireMessageContainsModelName = (message, modelName) => {
+    return message.updateQueue.map(queue => {
+
+        if(typeof queue.payload?.name !== 'undefined') {
+            return queue.payload.name?.includes(modelName)
+        }
+        return String(queue.payload?.params[0])?.includes(modelName)
+    })[0];
 }

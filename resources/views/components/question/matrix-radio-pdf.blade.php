@@ -15,7 +15,7 @@
      class="flex w-5 h-5 cursor-pointer rounded-full bg-white items-center justify-center transition border border-primary-hover
             @if($showCheckmark) border-primary @else border-system-secondary @endif">
     @if($showCheckmark)
-        <x-icon.checkmark-pdf id="matrix_radio_checkmark{{ $subQuestionId }}_{{ $questionAnswerId }}" class="primary"></x-icon.checkmark-pdf>
+        <x-icon.checkmark-pdf id="matrix_radio_checkmark{{ $subQuestionId }}_{{ $questionAnswerId }}" class="primary no-margin"></x-icon.checkmark-pdf>
     @endif
 </div>
 

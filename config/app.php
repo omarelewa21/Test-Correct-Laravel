@@ -186,6 +186,8 @@ return [
         ZanySoft\Zip\ZipServiceProvider::class,
 
         tcCore\Providers\BladeServiceProvider::class,
+        //Pdf renderer
+        Barryvdh\Snappy\ServiceProvider::class,
     ],
 
     /*
@@ -237,6 +239,8 @@ return [
         'Excel'        => Maatwebsite\Excel\Facades\Excel::class,
 
         'Bugsnag' => Bugsnag\BugsnagLaravel\Facades\Bugsnag::class,
+        'PDF' => Barryvdh\Snappy\Facades\SnappyPdf::class,
+        'SnappyImage' => Barryvdh\Snappy\Facades\SnappyImage::class,
 
     ],
     'debug_blacklist' => [

@@ -351,7 +351,15 @@ document.addEventListener('alpine:init', () => {
             this.drawer = this.$root.closest('.drawer');
             setTimeout(() => {
                 this.handleVerticalScroll(this.$root.firstElementChild);
-                this.$dispatch('groupFoldingUpdate');
+                //To enable questionbank on startup :
+                // this.showQuestionBank();
+                // setTimeout(() => {
+                //     this.$refs.questionEditorSidebar.scrollTo({
+                //         left: this.$refs.questionEditorSidebar.scrollLeft - 300,
+                //         behavior: 'smooth'
+                //     });
+                // },1000)
+
             }, 400);
         },
         next(currentEl) {
@@ -375,6 +383,7 @@ document.addEventListener('alpine:init', () => {
                 left: position >= 0 ? position : 0,
                 behavior: 'smooth'
             });
+            this.$store.cms.scrollPos = 0
         },
         handleVerticalScroll(el) {
             this.$refs.questionEditorSidebar.style.minHeight = 'auto';
@@ -415,7 +424,8 @@ document.addEventListener('alpine:init', () => {
             this.$store.questionBank.active = false;
             this.$nextTick(() => {
                 this.drawer.classList.remove('fullscreen');
-                this.scroll(container.parentElement.firstElementChild.offsetWidth);
+                this.home();
+                // this.scroll(container.parentElement.firstElementChild.offsetWidth);
 
                 setTimeout(() => {
                     this.$root.querySelectorAll('.slide-container').forEach((slide) => {
@@ -423,11 +433,13 @@ document.addEventListener('alpine:init', () => {
                     })
                     this.$wire.emitTo('drawer.cms', 'refreshDrawer');
                 }, 400)
+                this.$wire.emitTo('drawer.cms', 'refreshDrawer');
             })
         },
         addQuestionToGroup(uuid) {
             this.showAddQuestionSlide()
             this.$store.questionBank.inGroup = uuid;
+            this.$dispatch('backdrop');
         },
         addGroup(shouldCheckDirty = true) {
             if (shouldCheckDirty && this.$store.cms.dirty) {
@@ -443,15 +455,16 @@ document.addEventListener('alpine:init', () => {
             }
 
             this.next(this.$refs.container1);
-            this.$dispatch('backdrop')
         },
         backToQuestionOverview(container) {
             this.prev(container);
-            this.$dispatch('backdrop');
             this.$store.questionBank.inGroup = false;
-            // this.$store.cms.processing = false;
+        },
+        handleResizing() {
+            if (this.$store.questionBank.active) {
+                this.$root.scrollLeft = this.$refs.questionbank.offsetLeft;
+            }
         }
-
     }));
     Alpine.data('choices', (wireModel, multiple, options, config, filterContainer) => ({
         multiple: multiple,
@@ -485,10 +498,7 @@ document.addEventListener('alpine:init', () => {
                 }
 
                 refreshChoices()
-                // this.$refs.select.addEventListener('addItem', (event) => {
-                //     console.log('additem');
-                //
-                // })
+
                 this.$refs.select.addEventListener('choice', (event) => {
                     if (this.value.includes(parseInt(event.detail.choice.value))) {
                         this.removeFilterItem(choices.getValue().find(value => value.value === event.detail.choice.value));
@@ -496,7 +506,8 @@ document.addEventListener('alpine:init', () => {
                 })
                 this.$refs.select.addEventListener('change', () => {
                     this.value = choices.getValue(true)
-                    this.wireModel = this.value;
+                    // This causes 2 update calls:
+                    // this.wireModel = this.value;
                 })
 
                 let eventName = 'removeFrom'+this.$root.dataset.modelName;
@@ -562,7 +573,9 @@ document.addEventListener('alpine:init', () => {
     Alpine.store('cms', {
         loading: false,
         processing: false,
-        dirty: false
+        dirty: false,
+        scrollPos: 0,
+        reinitOnClose: false,
     });
     Alpine.store('questionBank', {
         active: false,
