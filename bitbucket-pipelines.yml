@@ -6,10 +6,12 @@ pipelines:
             - step:
                   name: Deploy to testportal
                   image: php:7.4-cli
+                  clone:
+                      enabled: false
                   deployment: testportal
                   script:
                       - apt-get update
-                      - apt-get install git
+                      - apt-get -y install git
                       - git clone ssh://git@bitbucket.org/teachandlearncompany/tlc-deploy
                       - cd tlc-deploy
                       - composer install
