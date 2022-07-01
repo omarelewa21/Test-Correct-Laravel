@@ -8,9 +8,14 @@ pipelines:
                       enabled: false
                   deployment: testportal
                   script:
+                      - (umask  077 ; echo $TESTPORTAL_DEPLOYMENT_KEY_PRIVATE | base64 -d > ~/.ssh/tlc_rsa)
+                      - (umask  077 ; echo $TLC_DEPLOY_PRIVATE_KEY | base64 -d > ~/.ssh/tlc_deploy)
                       - apk add openssh git
                       - git clone ssh://git@bitbucket.org/teachandlearncompany/tlc-deploy
                       - cd tlc-deploy
+                      - cat hosts >> /etc/hosts
+                      - cat my_known_hosts >> ~/.ssh/known_hosts
+                      - cat ssh_config >> ~/.ssh/config
                       - wget https://raw.githubusercontent.com/composer/getcomposer.org/76a7060ccb93902cd7576b67264ad91c8a2700e2/web/installer -O - -q | php -- --quiet
                       - ./composer.phar install
-                      - ssh webdev@thetr-7.vm.bit.nl "id"
+                      - ./dep deploy -o pipeline=testportal:pipeline:laravel -o git_tty=false
