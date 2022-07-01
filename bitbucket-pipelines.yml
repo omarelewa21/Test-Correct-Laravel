@@ -8,8 +8,8 @@ pipelines:
                       enabled: false
                   deployment: testportal
                   script:
-                      - (umask  077 ; echo $TESTPORTAL_DEPLOYMENT_KEY_PRIVATE | base64 --decode > ~/.ssh/tlc_rsa)
-                      - (umask  077 ; echo $TLC_DEPLOY_PRIVATE_KEY | base64 --decode > ~/.ssh/tlc_deploy)
+                      - (umask  077 ; echo $TESTPORTAL_DEPLOYMENT_KEY_PRIVATE | base64 -d > ~/.ssh/tlc_rsa)
+                      - (umask  077 ; echo $TLC_DEPLOY_PRIVATE_KEY | base64 -d > ~/.ssh/tlc_deploy)
                       - apk add openssh git
                       - git clone ssh://git@bitbucket.org/teachandlearncompany/tlc-deploy
                       - cd tlc-deploy
