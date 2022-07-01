@@ -1,12 +1,13 @@
 <?php namespace tcCore;
 
+use Dyrynda\Database\Casts\EfficientUuid;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Http\Request;
-use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Str;
-use tcCore\Http\Controllers\AuthorsController;
+use Ramsey\Uuid\Uuid;
 use tcCore\Http\Controllers\GroupQuestionQuestionsController;
 use tcCore\Http\Controllers\RequestController;
 use tcCore\Http\Controllers\TestQuestionsController;
@@ -14,13 +15,10 @@ use tcCore\Http\Helpers\DemoHelper;
 use tcCore\Jobs\CountTeacherTests;
 use tcCore\Lib\GroupQuestionQuestion\GroupQuestionQuestionManager;
 use tcCore\Lib\Models\BaseModel;
-use Illuminate\Database\Eloquent\SoftDeletes;
 use tcCore\Lib\Question\QuestionGatherer;
-use Dyrynda\Database\Casts\EfficientUuid;
-use Ramsey\Uuid\Uuid;
 use tcCore\Traits\ExamSchoolTestTrait;
-use tcCore\Traits\UuidTrait;
 use tcCore\Traits\UserContentAccessTrait;
+use tcCore\Traits\UuidTrait;
 
 
 class Test extends BaseModel
@@ -855,7 +853,8 @@ class Test extends BaseModel
         return $this->test_kind_id == TestKind::ASSESSMENT_TYPE;
     }
 
-    public function getAuthorsAsString(){
+    public function getAuthorsAsString()
+    {
         return $this->authorsAsString;
     }
 
@@ -996,31 +995,17 @@ class Test extends BaseModel
 
     public function getDuplicateQuestionIds()
     {
-        $ids = DB::select('
-            select id
-                from (
-                select
-                  question_id as id
-                  from
-                  `test_questions`
-                where
-                  `test_id` = ?  and `deleted_at` is null
-                Union  all
-                  select question_id as id from group_question_questions where group_question_id in(
-                  select question_id from test_questions where test_id = ? and deleted_at is null
-                  ) and deleted_at is null
+        $testQuestionsForTestQuery = TestQuestion::select('question_id as id')->whereTestId($this->getKey());
+        $groupQuestionQuestionsFromTestQuestionsQuery = GroupQuestionQuestion::select('question_id as id')->whereIn('group_question_id', $testQuestionsForTestQuery);
 
-
-                )as t
-                 group by
-                  `id`
-
-                having
-                  COUNT(id) > 1
-        ', [$this->getKey(), $this->getKey()]);
-
-        return collect($ids)->map(function($id) {
-            return $id->id;
-        });
+        return DB::query()
+            ->selectRaw('id')
+            ->fromSub(
+                $testQuestionsForTestQuery->unionAll($groupQuestionQuestionsFromTestQuestionsQuery),
+                'duplicateIds'
+            )
+            ->groupBy('id')
+            ->havingCount('id', '>', 1)
+            ->pluck('id');
     }
 }
