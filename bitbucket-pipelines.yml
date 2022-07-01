@@ -1,0 +1,15 @@
+image: php:7.4-cli
+
+pipelines:
+    custom:
+        deploy-to-testportal:
+            - step:
+                  name: Deploy to testportal
+                  image: php:7.4-cli
+                  deployment: testportal
+                  trigger: manual
+                  script:
+                      - git clone ssh://git@bitbucket.org/teachandlearncompany/tlc-deploy
+                      - cd tlc-deploy
+                      - composer install
+                      - ssh webdev@thetr-7.vm.bit.nl "id"
