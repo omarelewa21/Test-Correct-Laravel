@@ -8,8 +8,7 @@ pipelines:
                       enabled: false
                   deployment: testportal
                   script:
-                      - apt-get update
-                      - apt-get -y install git
+                      - apk add openssh git
                       - git clone ssh://git@bitbucket.org/teachandlearncompany/tlc-deploy
                       - cd tlc-deploy
                       - composer install
