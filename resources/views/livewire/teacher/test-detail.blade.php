@@ -6,7 +6,7 @@
             <div class="flex items-center space-x-2.5">
                 <x-button.back-round wire:click="redirectToTestOverview"/>
                 <div class="flex text-lg bold">
-                    <span>{{ __('Toets') }}: {{ $test->name }}</span>
+                    <span>{{ __('Toets') }}: {{ $this->test->name }}</span>
                 </div>
             </div>
 
@@ -15,12 +15,12 @@
     </div>
     <div class="flex w-full justify-between mt-3 items-center">
         <div class="flex space-x-2.5">
-            <div class="bold">{{ $test->subject->name }}</div>
-            <div class="italic">{{ $test->abbreviation }}</div>
-            <div>{{ $test->authors_as_string }}</div>
+            <div class="bold">{{ $this->test->subject->name }}</div>
+            <div class="italic">{{ $this->test->abbreviation }}</div>
+            <div>{{ $this->test->authors_as_string }}</div>
         </div>
         <div class="flex note text-sm">
-            <span>{{ __('general.Laatst gewijzigd') }}: {{ \Carbon\Carbon::parse($test->updated_at)->format('d/m/\'y') }}</span>
+            <span>{{ __('general.Laatst gewijzigd') }}: {{ \Carbon\Carbon::parse($this->test->updated_at)->format('d/m/\'y') }}</span>
         </div>
     </div>
     <div class="flex w-full justify-between mt-1 note text-sm">
@@ -59,7 +59,7 @@
                         <x-grid.loading-card :delay="$value"/>
                     @endforeach
 
-                    @foreach($test->testQuestions as $testQuestion)
+                    @foreach($this->test->testQuestions as $testQuestion)
                             {{--<x-grid.question-card :question="$testQuestion->question" />--}}
                             <x-grid.question-card-detail :testQuestion="$testQuestion" wire:loading.class="hidden"/>
                     @endforeach

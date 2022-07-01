@@ -17,7 +17,15 @@ class TestDetail extends Component
 
     public function booted()
     {
-        $this->test = Test::whereUuid($this->uuid)->first();
+        $this->test = Test::whereUuid($this->uuid)
+            ->with([
+                'testQuestions' => function ($query) {
+                    $query->orderBy('test_questions.order', 'asc');
+                },
+                'testQuestions.question',
+                'testQuestions.question.authors'
+            ])
+            ->first();
     }
 
     public function getAmountOfQuestionsProperty()
@@ -27,17 +35,7 @@ class TestDetail extends Component
 
     public function render()
     {
-        $test = Test::whereUuid($this->uuid)
-            ->with([
-                'testQuestions' => function ($query) {
-                    $query->orderBy('test_questions.order', 'asc');
-                },
-                'testQuestions.question',
-                'testQuestions.question.authors'
-            ])
-            ->first();
-
-        return view('livewire.teacher.test-detail')->layout('layouts.app-teacher')->with(compact(['test']));
+        return view('livewire.teacher.test-detail')->layout('layouts.app-teacher');
     }
 
     public function redirectToTestOverview()
