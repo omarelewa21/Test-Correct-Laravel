@@ -1,11 +1,9 @@
-image: composer:latest
-
 pipelines:
     custom:
         deploy-to-testportal:
             - step:
                   name: Deploy to testportal
-                  image: php:7.4-cli
+                  image: composer:latest
                   clone:
                       enabled: false
                   deployment: testportal
