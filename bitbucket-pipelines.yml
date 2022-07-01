@@ -7,7 +7,6 @@ pipelines:
                   name: Deploy to testportal
                   image: php:7.4-cli
                   deployment: testportal
-                  trigger: manual
                   script:
                       - git clone ssh://git@bitbucket.org/teachandlearncompany/tlc-deploy
                       - cd tlc-deploy
