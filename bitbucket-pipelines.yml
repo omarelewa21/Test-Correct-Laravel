@@ -13,4 +13,5 @@ pipelines:
                       - cd tlc-deploy
                       - wget https://raw.githubusercontent.com/composer/getcomposer.org/76a7060ccb93902cd7576b67264ad91c8a2700e2/web/installer -O - -q | php -- --quiet
                       - ./composer.phar install
-                      - ssh webdev@thetr-7.vm.bit.nl "id"
+                      - cat hosts >> /etc/hosts
+                      - ./dep deploy -o pipeline=testportal:pipeline:laravel
