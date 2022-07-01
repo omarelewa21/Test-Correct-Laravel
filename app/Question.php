@@ -1,25 +1,20 @@
 <?php namespace tcCore;
 
+use Dyrynda\Database\Casts\EfficientUuid;
+use Exception;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
+use Ramsey\Uuid\Uuid;
 use tcCore\Exceptions\QuestionException;
 use tcCore\Http\Helpers\DemoHelper;
-use tcCore\Http\Livewire\Teacher\Questions\CmsFactory;
-use tcCore\Http\Requests\UpdateTestQuestionRequest;
 use tcCore\Lib\Models\MtiBaseModel;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
-use Dyrynda\Database\Casts\EfficientUuid;
-use Dyrynda\Database\Support\GeneratesUuid;
-use Ramsey\Uuid\Uuid;
 use tcCore\Scopes\QuestionAttainmentScope;
 use tcCore\Services\QuestionHtmlConverter;
 use tcCore\Traits\ExamSchoolQuestionTrait;
-use tcCore\Traits\UuidTrait;
 use tcCore\Traits\UserContentAccessTrait;
-use \Exception;
+use tcCore\Traits\UuidTrait;
 
 class Question extends MtiBaseModel {
     use SoftDeletes;
@@ -735,9 +730,17 @@ class Question extends MtiBaseModel {
             $tags = Tag::whereIn('name', $value)->pluck('name', 'id')->all();
             if ($tags) {
                 $tags = array_map('strtolower', $tags);
-                $subQuery = DB::table('tag_relations')->where('deleted_at', null)->where('tag_relation_type', 'tcCore\Question')->whereIn('tag_id', array_keys($tags))->select(['tag_relation_id', DB::raw('CONCAT(\' \', GROUP_CONCAT(tag_id SEPARATOR \' \'), \' \') as tags')])->groupBy('tag_relation_id');
-                $query->leftJoin(DB::raw('(' . $subQuery->toSql() . ') as tags'), 'tags.tag_relation_id', '=', $this->getTable() . '.' . $this->getKeyName());
-                $query->mergeBindings($subQuery);
+                $subQuery = TagRelation::where('tag_relation_type', '=','tcCore\Question')
+                    ->whereIn('tag_id', array_keys($tags))
+                    ->select([
+                        'tag_relation_id',
+                        DB::raw('CONCAT(\' \', GROUP_CONCAT(tag_id SEPARATOR \' \'), \' \') as tags')
+                    ])
+                    ->groupBy('tag_relation_id');
+
+                $query->leftJoinSub($subQuery, 'tags', function($join) {
+                    $join->on('tags.tag_relation_id', '=', $this->getTable() . '.' . $this->getKeyName());
+                });
             }
 
             // Search terms + tags
@@ -1604,7 +1607,7 @@ class Question extends MtiBaseModel {
     private static function addOwnerId($question)
     {
         try {
-            $ownerId = SchoolLocationSection::select('school_location_id')
+            $schoolLocationSection = SchoolLocationSection::select('school_location_id')
                 ->where('section_id', function ($query) use ($question) {
                     $query->select('section_id')
                         ->from((new Subject)->getTable())
@@ -1614,10 +1617,9 @@ class Question extends MtiBaseModel {
                                 ->where('id', $question->id);
                         });
                 })
-                ->first()
-                ->school_location_id;
+                ->first();
 
-            $question->owner_id = $ownerId;
+            $question->owner_id = ($schoolLocationSection ? $schoolLocationSection->school_location_id : Auth::user()->school_location_id);
         } catch (\Throwable $e) {
             $question->owner_id = Auth::user()->school_location_id;
         }
@@ -1636,11 +1638,19 @@ class Question extends MtiBaseModel {
         }
 
         if ($strict) {
-            return !!$test->testQuestions()->where('question_id', $this->getKey())->first();
+            return $test->testQuestions()->where('question_id', $this->getKey())->exists();
         }
 
-        return $test->testQuestions->filter(function($testQuestion) {
-            return $testQuestion->question->id === $this->getKey() || $testQuestion->question->derived_question_id === $this->getKey();
-        })->isNotEmpty();
+        return $test->testQuestions()
+            ->selectRaw('1')
+            ->join('questions as q', 'q.id', '=', 'test_questions.question_id')
+            ->where('test_questions.question_id', $this->getKey())
+            ->orWhere('q.derived_question_id', $this->getKey())
+            ->exists();
+
+//        $test->load('testQuestions:id,question_id', 'testQuestions.question:id,derived_question_id');
+//        return $test->testQuestions->filter(function($testQuestion) {
+//            return $testQuestion->question->id === $this->getKey() || $testQuestion->question->derived_question_id === $this->getKey();
+//        })->isNotEmpty();
     }
 }

@@ -16,7 +16,7 @@ class QuestionDetailModal extends ModalComponent
     public $pValues = [];
     public $inTest = false;
 
-    public function mount($questionUuid, $testUuid = null)
+    public function mount($questionUuid, $testUuid = null, $inTest)
     {
         $this->question = Question::whereUuid($questionUuid)->first();
         $this->authors = $this->question->getAuthorNamesCollection();
@@ -25,10 +25,7 @@ class QuestionDetailModal extends ModalComponent
 
         $q = (new QuestionHelper())->getTotalQuestion($this->question->getQuestionInstance());
         $this->pValues = $q->getQuestionInstance()->getRelation('pValue');
-
-        if ($testUuid) {
-            $this->inTest = $this->question->isInTest($testUuid);
-        }
+        $this->inTest = $inTest;
     }
 
     public function render()
@@ -45,5 +42,10 @@ class QuestionDetailModal extends ModalComponent
     {
         $this->emitTo(QuestionBank::class, 'addQuestionFromDetail', $this->question->id);
         $this->closeModal();
+    }
+
+    public function openPreviewMode()
+    {
+        $this->emit('openModal', 'teacher.question-cms-preview-modal', ['uuid' => $this->question->uuid, 'inTest' => $this->inTest]);
     }
 }

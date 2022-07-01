@@ -2,10 +2,10 @@
 
 namespace tcCore\Http\Livewire\Teacher;
 
-use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 use tcCore\EducationLevel;
+use tcCore\GroupQuestion;
 use tcCore\Http\Controllers\AuthorsController;
 use tcCore\Http\Controllers\GroupQuestionQuestionsController;
 use tcCore\Http\Controllers\TestQuestionsController;
@@ -38,6 +38,8 @@ class QuestionBank extends Component
 
     private $test;
 
+    public $groupQuestionDetail;
+
     private $allowedTabs = [
         'school_location',
         'personal',
@@ -48,7 +50,7 @@ class QuestionBank extends Component
         return [
             'testSettingsUpdated',
             'addQuestionFromDetail' => 'addQuestionToTest'
-            ];
+        ];
     }
 
     public function mount()
@@ -62,13 +64,6 @@ class QuestionBank extends Component
     public function render()
     {
         return view('livewire.teacher.question-bank');
-    }
-
-    public function getQuestionsProperty()
-    {
-        return $this->getQuestionsQuery()
-            ->take($this->itemsPerPage)
-            ->get(['questions.*']);
     }
 
     private function getFilters()
@@ -179,8 +174,8 @@ class QuestionBank extends Component
     {
         $questionIdList = optional($this->test)->getQuestionOrderList() ?? [];
         return $questionIdList + $this->test->testQuestions->map(function ($testQ) {
-            return $testQ->question()->where('type', 'GroupQuestion')->value('id');
-        })->filter()->flip()->toArray();
+                return $testQ->question()->where('type', 'GroupQuestion')->value('id');
+            })->filter()->flip()->toArray();
     }
 
     private function removeQuestionFromTest($questionId)
@@ -224,11 +219,18 @@ class QuestionBank extends Component
                 $query->where('scope', '!=', 'cito')
                     ->orWhereNull('scope');
             })
-            ->with([
-                'subject:id,name',
-            ])
+            ->where('is_subquestion', 0)
             ->orderby('created_at', 'desc')
             ->distinct();
+    }
+
+    public function getQuestionsProperty()
+    {
+        return $this->getQuestionsQuery()
+            ->take($this->itemsPerPage)
+            ->withCount('attachments')
+            ->with(['subject:id,name', 'authors:id,name,name_first,name_suffix'])
+            ->get(['questions.*']);
     }
 
     public function getResultCountProperty()
@@ -282,9 +284,59 @@ class QuestionBank extends Component
         });
     }
 
-    public function openDetail($questionUuid)
+    public function clearFilters($tab = null)
     {
-        $this->emit('openModal', 'teacher.question-detail-modal', ['questionUuid' => $questionUuid, 'testUuid' => $this->testId]);
+        if ($tab) {
+            return $this->filters[$tab] = [
+                'search'               => '',
+                'subject_id'           => [],
+                'education_level_year' => [],
+                'education_level_id'   => [],
+                'without_groups'       => '',
+                'author_id'            => []
+            ];
+        }
+
+        return collect($this->allowedTabs)->each(function ($tab) {
+            $this->filters[$tab] = [
+                'search'               => '',
+                'subject_id'           => [],
+                'education_level_year' => [],
+                'education_level_id'   => [],
+                'without_groups'       => '',
+                'author_id'            => []
+            ];
+        });
+    }
+
+    public function openDetail($questionUuid, $inTest)
+    {
+        $this->emit(
+            'openModal',
+            'teacher.question-detail-modal',
+            [
+                'questionUuid' => $questionUuid,
+                'testUuid' => $this->testId,
+                'inTest' => $inTest
+            ]
+        );
+    }
+
+    public function showGroupDetails($groupUuid, $inTest = false)
+    {
+        $groupQuestionId = Question::whereUuid($groupUuid)->value('id');
+        $this->groupQuestionDetail = GroupQuestion::whereId($groupQuestionId)
+            ->with(['groupQuestionQuestions', 'groupQuestionQuestions.question'])
+            ->first();
+//        $this->groupQuestionDetail->loadRelated();
+        $this->groupQuestionDetail->inTest = $inTest;
+
+        return true;
+    }
+
+    public function clearGroupDetails()
+    {
+        $this->reset('groupQuestionDetail');
     }
 
     public function testSettingsUpdated($newData)
@@ -294,4 +346,10 @@ class QuestionBank extends Component
          */
     }
 
+    public function hasActiveFilters()
+    {
+        return collect($this->filters[$this->openTab])->filter(function($filter) {
+            return filled($filter);
+        })->isNotEmpty();
+    }
 }

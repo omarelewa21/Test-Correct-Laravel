@@ -1,6 +1,7 @@
 @props([
 'type' => 'cms-selection',
 'editorId',
+'disabled' => false
 ])
 <div class="relative"
      x-data="selectionOptions({ value: $wire.entangle('showSelectionOptionsModal'), editorId: '{{ $editorId }}' })"
@@ -10,6 +11,7 @@
             wire:model.defer="{!!  $attributes->wire('model') !!}"
             editorId="{{ $editorId }}"
             type="{{ $type }}"
+            :disabled="$disabled"
     />
 
     <div x-show="showPopup"

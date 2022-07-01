@@ -13,7 +13,7 @@
             <span>{{ optional($question->subject)->name ?? __('general.unavailable') }}</span>
         </div>
         <div class="text-sm">
-            <span class="note">Laatst gewijzigd:</span>
+            <span class="note">{{ __('general.Laatst gewijzigd') }}:</span>
             <span class="note">{{ Carbon\Carbon::parse($question->updated_at)->format('d/m/\'y') }}</span>
         </div>
     </div>

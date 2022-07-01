@@ -277,7 +277,7 @@ document.addEventListener('alpine:init', () => {
             }
         },
         setIndex() {
-            const parent = document.getElementById('attachment-badges')
+            const parent = this.$root.parentElement;
             this.index = Array.prototype.indexOf.call(parent.children, this.$el) + 1;
         }
     }));
@@ -298,7 +298,7 @@ document.addEventListener('alpine:init', () => {
             }
             const toolName = window[this.toolName] = initDrawingQuestion(this.$root, this.isTeacher, this.isPreview);
 
-            if(this.isTeacher) {
+            if (this.isTeacher) {
                 this.makeGridIfNecessary(toolName);
             }
 
@@ -317,7 +317,7 @@ document.addEventListener('alpine:init', () => {
             })
 
             toolName.Canvas.layers.answer.enable();
-            if(this.isTeacher){
+            if (this.isTeacher) {
                 toolName.Canvas.setCurrentLayer("question");
             } else {
                 toolName.Canvas.setCurrentLayer("answer");
@@ -332,7 +332,7 @@ document.addEventListener('alpine:init', () => {
                 toolName.drawingApp.params.gridSize = parsedGrid;
                 toolName.Canvas.layers.grid.params.hidden = false;
 
-                if(!this.isTeacher) {
+                if (!this.isTeacher) {
                     // this.$root.querySelector('#grid-background')?.remove();
                 }
             }
@@ -346,6 +346,8 @@ document.addEventListener('alpine:init', () => {
     Alpine.data('questionEditorSidebar', () => ({
         slideWidth: 300,
         drawer: null,
+        resizing: false,
+        resizeTimout: null,
         init() {
             this.slideWidth = this.$root.offsetWidth;
             this.drawer = this.$root.closest('.drawer');
@@ -386,6 +388,7 @@ document.addEventListener('alpine:init', () => {
             this.$store.cms.scrollPos = 0
         },
         handleVerticalScroll(el) {
+
             this.$refs.questionEditorSidebar.style.minHeight = 'auto';
             this.$refs.questionEditorSidebar.style.height = 'auto';
 
@@ -397,10 +400,9 @@ document.addEventListener('alpine:init', () => {
                 this.drawer.classList.remove('overflow-auto');
             }
 
-
             this.$nextTick(() => {
-                this.$refs.questionEditorSidebar.style.minHeight = this.drawer.offsetHeight+'px';
-                this.$refs.questionEditorSidebar.style.height = el.offsetHeight+'px';
+                this.$refs.questionEditorSidebar.style.minHeight = this.drawer.offsetHeight + 'px';
+                this.$refs.questionEditorSidebar.style.height = el.offsetHeight + 'px';
             })
         },
         setNextSlide(toInsert) {
@@ -461,8 +463,14 @@ document.addEventListener('alpine:init', () => {
             this.$store.questionBank.inGroup = false;
         },
         handleResizing() {
+            clearTimeout(this.resizeTimout);
             if (this.$store.questionBank.active) {
-                this.$root.scrollLeft = this.$refs.questionbank.offsetLeft;
+                if (!this.resizing) this.resizing = true;
+
+                this.resizeTimout = setTimeout(() => {
+                    this.$root.scrollLeft = this.$refs.questionbank.offsetLeft;
+                    this.resizing = false;
+                }, 500);
             }
         }
     }));
@@ -477,7 +485,6 @@ document.addEventListener('alpine:init', () => {
         init() {
             // some new fancy way of setting a value when undefined
             window.registeredEventHandlers ??= []
-
 
 
             this.activeFiltersContainer = document.getElementById(filterContainer);
@@ -510,10 +517,10 @@ document.addEventListener('alpine:init', () => {
                     // this.wireModel = this.value;
                 })
 
-                let eventName = 'removeFrom'+this.$root.dataset.modelName;
+                let eventName = 'removeFrom' + this.$root.dataset.modelName;
                 if (!window.registeredEventHandlers.includes(eventName)) {
                     window.registeredEventHandlers.push(eventName)
-                    window.addEventListener(eventName,(event) => {
+                    window.addEventListener(eventName, (event) => {
                         this.removeFilterItem(event.detail);
                     })
                 }
@@ -534,9 +541,9 @@ document.addEventListener('alpine:init', () => {
 
         handleActiveFilters(choicesValues) {
             this.value.forEach(item => {
-                if(this.needsFilterPill(item)) {
+                if (this.needsFilterPill(item)) {
                     const cItem = choicesValues.find(value => value.value === item);
-                    if(typeof cItem !== 'undefined'){
+                    if (typeof cItem !== 'undefined') {
                         this.createFilterPill(cItem);
                     }
                 }

@@ -20,7 +20,7 @@
             <div>{{ $test->authors_as_string }}</div>
         </div>
         <div class="flex note text-sm">
-            <span>{{ __('laatst gewijzigd') }}: {{ \Carbon\Carbon::parse($test->updated_at)->format('d/m/\'y') }}</span>
+            <span>{{ __('general.Laatst gewijzigd') }}: {{ \Carbon\Carbon::parse($test->updated_at)->format('d/m/\'y') }}</span>
         </div>
     </div>
     <div class="flex w-full justify-between mt-1 note text-sm">

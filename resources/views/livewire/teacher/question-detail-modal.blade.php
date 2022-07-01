@@ -10,9 +10,7 @@
                         title="{{ $question->title }}">{{ $question->title ?? __('question.no_question_text') }}</h3>
                 @endif
             </div>
-            <div class="flex">
-                <x-icon.close class="hover:text-primary cursor-pointer" wire:click="$emit('closeModal')"/>
-            </div>
+            <x-button.close wire:click="$emit('closeModal')"/>
         </div>
         <div class="flex w-full justify-between text-base mb-1">
             <div class="flex">
@@ -20,7 +18,7 @@
                 <span>{!! optional($question->subject)->name ?? __('general.unavailable') !!}</span>
             </div>
             <div class="text-sm">
-                <span class="note">Laatst gewijzigd:</span>
+                <span class="note">{{ __('general.Laatst gewijzigd') }}:</span>
                 <span class="note">{{ $lastUpdated }}</span>
             </div>
         </div>
@@ -236,8 +234,7 @@
     <div class="px-6 py-4 flex justify-end w-full" style="box-shadow: 0 -3px 8px 0 rgba(4, 31, 116, 0.2);">
         <div class="flex space-x-2.5 items-center">
             <button class="new-button button-primary"
-                    disabled
-                    title="{{ __('general.Later beschikbaar') }}"
+                    wire:click="openPreviewMode()"
             >
                 <x-icon.preview/>
             </button>
