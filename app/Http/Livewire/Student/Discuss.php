@@ -45,7 +45,7 @@ class Discuss extends Component
 
     public function getTestTakesToDiscuss($orderColumn, $orderDirection)
     {
-        return TestTake::distinct()
+        return TestTake::distinct()->doesntHave('archived_model')
             ->select('test_takes.*', 'tests.name as test_name', 'subjects.name as subject_name', 'test_take_statuses.name as status_name')
             ->leftJoin('test_participants', 'test_participants.test_take_id', '=', 'test_takes.id')
             ->leftJoin('tests', 'tests.id', '=', 'test_takes.test_id')
