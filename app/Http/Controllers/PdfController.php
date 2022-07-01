@@ -151,20 +151,7 @@ class PdfController extends Controller
 
         $output = \PDF::loadHtml($html)->setOption('header-html', resource_path('pdf_templates/header.html'))->setOption('footer-html', resource_path('pdf_templates/footer.html'));
         return $output->download('file.pdf');
-        return new Response(
-            $output,
-            200,
-            array(
-                'Content-Type'          => 'application/pdf',
-                'Content-Disposition'   => 'attachment; filename="file.pdf"'
-            )
-        );
-        $pdf = new Pdf($options);
-        $pdf->addPage($html);
-        $outputPath = storage_path('temp/result1.pdf');
-        $pdf->saveAs($outputPath);
-        $output = $pdf->toString();
-        return $output;
+
 
     }
 
@@ -261,7 +248,7 @@ class PdfController extends Controller
             'lang' => 'en-gb',
             'metrics' => true,
             'centerbaseline' => false,
-
+            'dpi' => 120,
         ];
         $createPath = sprintf('http://127.0.0.1/%s/plugins/ckeditor_wiris/integration/createimage.php',$folder);
         $path = sprintf('http://127.0.0.1/%s/plugins/ckeditor_wiris/integration/showimage.php',$folder);
@@ -284,6 +271,7 @@ class PdfController extends Controller
                 'centerbaseline' => false,
                 'formula' => $formula,
                 'version' => '7.26.0.1439',
+                'dpi' => 120,
             ];
             $res = $client->request('GET', $path, ['query' => $data1]);
             $res = $client->request('POST', $path, [
