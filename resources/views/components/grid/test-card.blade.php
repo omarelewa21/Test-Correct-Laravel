@@ -1,7 +1,7 @@
-<div
-        {{ $attributes->merge(['class' => 'grid-card bg-white p-6 rounded-10 card-shadow hover:text-primary']) }}
+<div {{ $attributes->merge(['class' => 'grid-card bg-white p-6 rounded-10 card-shadow hover:text-primary']) }}
      wire:key="questioncard-{{ $test->uuid }}"
-        @click="activateCard($el)"
+     @click="activateCard($el)"
+     wire:click="openTestDetail('{{ $test->uuid }}')"
 >
     <div class="flex w-full justify-between mb-2">
         <h3 class="line-clamp-2 min-h-[64px] text-inherit @if(blank($test->name)) italic @endif"
@@ -20,7 +20,8 @@
                 }
 
                 }">
-            <button id="test{{ $test->id }}" class="px-4 py-1.5 -mr-4 rounded-full hover:bg-primary hover:text-white transition-all"
+            <button id="test{{ $test->id }}"
+                    class="px-4 py-1.5 -mr-4 rounded-full hover:bg-primary hover:text-white transition-all"
                     :class="{'bg-primary text-white' : testOptionMenu === true}"
                     @click="console.log($el.getBoundingClientRect());$wire.openContextMenu({x: $el.getBoundingClientRect().x, y: $el.getBoundingClientRect().y, testUuid: '{{ $test->uuid }}', openTab: '{{ $this->openTab }}', id: '{{ $test->id }}' })"
             >
@@ -44,9 +45,9 @@
             <span>{{ $test->authorsAsStringTwo }}</span>
         </div>
         @if ($test->isCopy())
-        <div class="p-1 text-sm rounded uppercase text-muted border-2 bg-light-grey border-grey-500 text-gray-500">
-            {{ __('kopie') }}
-        </div>
-            @endif
+            <div class="p-1 text-sm rounded uppercase text-muted border-2 bg-light-grey border-grey-500 text-gray-500">
+                {{ __('kopie') }}
+            </div>
+        @endif
     </div>
 </div>

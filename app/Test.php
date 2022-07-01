@@ -855,7 +855,8 @@ class Test extends BaseModel
         return $this->test_kind_id == TestKind::ASSESSMENT_TYPE;
     }
 
-    public function getAuthorsAsString(){
+    public function getAuthorsAsString()
+    {
         return $this->authorsAsString;
     }
 
@@ -1019,8 +1020,23 @@ class Test extends BaseModel
                   COUNT(id) > 1
         ', [$this->getKey(), $this->getKey()]);
 
-        return collect($ids)->map(function($id) {
+        return collect($ids)->map(function ($id) {
             return $id->id;
         });
+    }
+
+    public function getAmountOfQuestions()
+    {
+        $groupQ = $this->testQuestions()
+            ->select('id')
+            ->withCount(['question' => function ($query) {
+                $query->where('type', '=', 'GroupQuestion');
+            }])
+            ->get()
+            ->sum(function ($testQuestion) {
+                return $testQuestion->question_count;
+            });
+
+        return ['regular' => $this->getQuestionCount(), 'group' => $groupQ];
     }
 }

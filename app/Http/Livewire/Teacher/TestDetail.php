@@ -2,31 +2,28 @@
 
 namespace tcCore\Http\Livewire\Teacher;
 
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
-use Livewire\WithPagination;
-use tcCore\EducationLevel;
-use tcCore\Http\Controllers\AuthorsController;
-use tcCore\Http\Controllers\SubjectsController;
-use tcCore\Http\Controllers\TemporaryLoginController;
-use tcCore\Http\Requests\DuplicateTestRequest;
-use tcCore\Subject;
 use tcCore\Test;
 
 class TestDetail extends Component
 {
-
-
     public $uuid;
-
+    protected $test;
 
     public function mount($uuid)
     {
         $this->uuid = $uuid;
-
     }
 
+    public function booted()
+    {
+        $this->test = Test::whereUuid($this->uuid)->first();
+    }
+
+    public function getAmountOfQuestionsProperty()
+    {
+        return $this->test->getAmountOfQuestions();
+    }
 
     public function render()
     {
@@ -35,7 +32,8 @@ class TestDetail extends Component
                 'testQuestions' => function ($query) {
                     $query->orderBy('test_questions.order', 'asc');
                 },
-                'testQuestions.question'
+                'testQuestions.question',
+                'testQuestions.question.authors'
             ])
             ->first();
 
