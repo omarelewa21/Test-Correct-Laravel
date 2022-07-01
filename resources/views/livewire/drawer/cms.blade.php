@@ -87,7 +87,7 @@
                             <x-sidebar.cms.group-question-container
                                     :question="$testQuestion->question"
                                     :testQuestion="$testQuestion"
-
+                                    :double="$this->duplicateQuestions->contains($testQuestion->question->id)"
                             >
                                 @foreach($testQuestion->question->subQuestions as $question)
                                     @php $loopIndex ++; @endphp
