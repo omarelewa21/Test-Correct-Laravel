@@ -62,6 +62,7 @@
                                     console.log('no clue what to do with ' + container.type);
                                 }
                                 window.removeEventListener('online', listener);
+                                Notify.notify('{{ __('test-take.your connection is back online') }}');
                             // }
                         }
 
