@@ -282,9 +282,7 @@ div.input-group u, div.input-group strong, div.input-group span,p strong{
     -webkit-box-orient: horizontal;   /* WebKit */
 
 }
-.matching-question .matching-dropzone .drag-item {
-    width: 500px;
-}
+
 .pdf-dropzone {
     width: 400px !important;
 }
@@ -292,7 +290,7 @@ div.drag-item>div{
     float:right;
     height: 16px;
 }
-.matching-question .matching-dropzone .drag-item-test-take-overview-preview{
+.matching-question .matching-dropzone .drag-item, .matching-question .matching-dropzone .drag-item-test-take-overview-preview{
     width:380px;
 }
 .no-margin{
