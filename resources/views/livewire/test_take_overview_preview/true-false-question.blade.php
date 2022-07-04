@@ -2,7 +2,7 @@
 
     <div class="w-full overview">
         <div class="flex-pdf flex-wrap-pdf space-x-4 items-center">
-            <div class="inline-block-pdf">
+            <div class="inline-block-pdf question-no-break-true-false">
                 <div class="flex-pdf flex-wrap-pdf bg-off-white border @if(!$this->answered) border-all-red @else border-blue-grey @endif rounded-lg overview truefalse-container">
                     @foreach( $question->multipleChoiceQuestionAnswers as $link)
 

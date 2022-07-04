@@ -308,6 +308,7 @@ div.drag-item>div{
 /*.page-no-break{*/
 /*    page-break-inside: avoid;*/
 /*}*/
+
 .question-no-break-mc-option{
     page-break-inside: avoid;
 }
@@ -338,6 +339,9 @@ div.drag-item>div{
 .question-no-break-completion{
     page-break-inside: avoid;
 }
+.question-no-break-true-false{
+    page-break-inside: avoid;
+}
 .question-no-break-info{
     page-break-inside: avoid;
 }
@@ -349,6 +353,12 @@ div.drag-item>div{
 }
 .img-no-break{
     page-break-inside: avoid;
+}
+.img-pdf{
+    margin-top: 10px;
+    margin-bottom: 10px;
+    margin-right: 10px;
+    max-height: 600px;
 }
 .content-section {
     box-shadow: none;

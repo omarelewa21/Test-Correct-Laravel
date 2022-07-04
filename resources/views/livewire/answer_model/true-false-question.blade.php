@@ -1,8 +1,8 @@
 <x-partials.answer-model-question-container :number="$number" :question="$question" :answer="$answer">
 
     <div class="w-full overview" >
-        <div class="flex-pdf flex-wrap-pdf items-center">
-            <div class="inline-block-pdf">
+        <div class="items-center" >
+            <div class="inline-block-pdf question-no-break-true-false">
                 <div class="flex-pdf flex-wrap-pdf bg-off-white border  border-blue-grey  rounded-lg overview truefalse-container" style="height: 38px;">
                     @foreach( $question->multipleChoiceQuestionAnswers as $link)
 
