@@ -62,6 +62,7 @@ class PdfController extends Controller
         foreach ($imgList as $imgNode){
             $this->getInlineImageBase64ImgPath($imgNode);
             $this->getImageLoadBase64ImgPath($imgNode);
+            $imgNode->setAttribute('class','img-no-break '.$imgNode->getAttribute('class'));
         }
         $html = $doc->saveHTML($doc->documentElement);
         return $html;

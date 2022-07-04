@@ -105,7 +105,6 @@ class QuestionsController extends Controller
             $path = Storage::disk('cake')->path("questionanswers/$image");
             return Response::file($path);
         }
-        dump(Storage::disk('inline_images')->path($image));
         if (Storage::disk('inline_images')->exists($image)) {
             $path = Storage::disk('inline_images')->path($image);
             return Response::file($path);
