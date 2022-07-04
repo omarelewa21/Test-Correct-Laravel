@@ -13,8 +13,8 @@
 
             if (readyForSlide) {
                 groupDetail.style.left = 0;
-                $el.closest('.drawer').scrollTo({top: 0, behaviour: 'smooth'});
-                $el.scrollTo({top: 0, behaviour: 'smooth'});
+                $el.closest('.drawer').scrollTo({top: 0, behavior: 'smooth'});
+                $el.scrollTo({top: 0, behavior: 'smooth'});
                 maxHeight = groupDetail.offsetHeight + 'px';
                 $nextTick(() => {
                     setTimeout(() => bodyVisibility = false, 250);

@@ -3,12 +3,15 @@
 namespace tcCore\Http\Livewire\Teacher;
 
 use Livewire\Component;
+use tcCore\GroupQuestion;
+use tcCore\Question;
 use tcCore\Test;
 
 class TestDetail extends Component
 {
     public $uuid;
     protected $test;
+    public $groupQuestionDetail;
 
     public function mount($uuid)
     {
@@ -43,4 +46,28 @@ class TestDetail extends Component
         redirect()->to(route('teacher.tests'));
     }
 
+    public function showGroupDetails($groupUuid)
+    {
+        $groupQuestionId = Question::whereUuid($groupUuid)->value('id');
+        $this->groupQuestionDetail = GroupQuestion::whereId($groupQuestionId)
+            ->with(['groupQuestionQuestions', 'groupQuestionQuestions.question'])
+            ->first();
+
+        return true;
+    }
+
+    public function clearGroupDetails()
+    {
+        $this->reset('groupQuestionDetail');
+    }
+
+    public function isQuestionInTest()
+    {
+        return false;
+    }
+
+    public function openDetail($questionUuid)
+    {
+        $this->emit('openModal', 'teacher.question-detail-modal', ['questionUuid' => $questionUuid ]);
+    }
 }

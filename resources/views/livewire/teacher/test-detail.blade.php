@@ -1,5 +1,29 @@
 <div id="test-detail"
      class="flex flex-col relative w-full min-h-full bg-lightGrey border-secondary mt-12"
+     x-data="{groupDetail: null, bodyVisibility: true,  maxHeight: '100%'}"
+     x-init="
+     groupDetail = $el.querySelector('#groupdetail');
+     showGroupDetails = async (groupQuestionUuid) => {
+            let readyForSlide = await $wire.showGroupDetails(groupQuestionUuid);
+
+            if (readyForSlide) {
+                groupDetail.style.left = 0;
+                document.documentElement.scrollTo({top: 0, behavior: 'smooth'});
+                maxHeight = groupDetail.offsetHeight + 'px';
+                $nextTick(() => {
+                    setTimeout(() => bodyVisibility = false, 250);
+                })
+
+            }
+        }
+
+        closeGroupDetail = () => {
+            bodyVisibility = true;
+            maxHeight = groupDetail.style.left = '100%';
+            $nextTick(() => $wire.clearGroupDetails() );
+        }
+     "
+     :style="`max-height: ${maxHeight}`"
 >
     <div class="flex w-full border-b border-secondary pb-1">
         <div class="flex w-full justify-between">
@@ -50,7 +74,7 @@
             <span>{{ __('cms.Inplannen') }}</span>
         </x-button.cta>
     </div>
-    <div class="flex w-full">
+    <div class="flex w-full" x-show="bodyVisibility">
         <div class="w-full mx-auto divide-y divide-secondary">
             {{-- Content --}}
             <div class="flex flex-col py-4" style="min-height: 500px">
@@ -61,11 +85,18 @@
 
                     @foreach($this->test->testQuestions as $testQuestion)
                             {{--<x-grid.question-card :question="$testQuestion->question" />--}}
-                            <x-grid.question-card-detail :testQuestion="$testQuestion" wire:loading.class="hidden"/>
+                            <x-grid.question-card-detail :testQuestion="$testQuestion"/>
                     @endforeach
                 </x-grid>
             </div>
         </div>
     </div>
     <x-notification/>
+    <div id="groupdetail" wire:ignore.self style="min-height: 100%;">
+        <div class="max-w-5xl lg:max-w-7xl mx-auto">
+            @if($this->groupQuestionDetail != null)
+                <x-partials.group-question-details :groupQuestion="$this->groupQuestionDetail" context="testdetail"/>
+            @endif
+        </div>
+    </div>
 </div>

@@ -1,7 +1,7 @@
 <div class="">
     <div class="px-6 pb-4 pt-6 main-shadow">
         <div class="flex w-full justify-between mb-2">
-            <div class="flex">
+            <div class="flex pr-2.5">
                 @if($question->type === 'GroupQuestion')
                     <h3 class="line-clamp-2 break-all min-h-[64px] @if(blank($question->name)) italic @endif"
                         title="{{ $question->name }}">{{ filled($question->name) ? $question->name : __('question.no_question_text') }}</h3>
@@ -243,7 +243,7 @@
                     <x-icon.checkmark-circle color="var(--cta-primary)"/>
                 </span>
             @endif
-            <button class="new-button button-cta w-10 items-center justify-center flex"
+            <button x-cloak x-show="$store.questionBank.active" class="new-button button-cta w-10 items-center justify-center flex"
                     wire:click.stop="addQuestion"
                     @click="$el.disabled = true"
             >

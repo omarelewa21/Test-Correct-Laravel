@@ -1,7 +1,9 @@
-<div {{ $attributes->merge(['class' => 'grid-card bg-white p-6 rounded-10 card-shadow hover:text-primary']) }}
+<div {{ $attributes->merge(['class' => 'grid-card bg-white p-6 rounded-10 card-shadow hover:text-primary cursor-pointer']) }}
      wire:key="questioncard-{{ $test->uuid }}"
      @click="activateCard($el)"
-     wire:click="openTestDetail('{{ $test->uuid }}')"
+     @if($this->openTab === 'personal')
+        wire:click="openTestDetail('{{ $test->uuid }}')"
+     @endif
 >
     <div class="flex w-full justify-between mb-2">
         <h3 class="line-clamp-2 min-h-[64px] text-inherit @if(blank($test->name)) italic @endif"

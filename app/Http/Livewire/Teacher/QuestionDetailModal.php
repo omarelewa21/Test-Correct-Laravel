@@ -16,7 +16,7 @@ class QuestionDetailModal extends ModalComponent
     public $pValues = [];
     public $inTest = false;
 
-    public function mount($questionUuid, $testUuid = null, $inTest)
+    public function mount($questionUuid, $testUuid = null, $inTest = false)
     {
         $this->question = Question::whereUuid($questionUuid)->first();
         $this->authors = $this->question->getAuthorNamesCollection();

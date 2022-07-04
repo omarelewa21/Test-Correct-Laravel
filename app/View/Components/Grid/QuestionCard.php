@@ -14,8 +14,9 @@ class QuestionCard extends Component
     public $attachmentCount;
     public $tags;
     public $inTest = false;
+    public $order;
 
-    public function __construct($question)
+    public function __construct($question, $order = null)
     {
         $this->question = $question;
         $this->authors = $question->authors->map(function($author) {
@@ -23,6 +24,7 @@ class QuestionCard extends Component
         });
         $this->lastUpdated = Carbon::parse($question->updated_at)->format('d/m/\'y');
         $this->attachmentCount = $question->attachments_count;
+        $this->order = $order;
     }
 
     public function render(): View

@@ -7,7 +7,13 @@
      @endif
 >
     <div class="flex w-full justify-between mb-2">
-        <div class="flex">
+        <div class="flex gap-2.5">
+            @if($order)
+                <span class="rounded-full border-current text-sm flex items-center justify-center border-3 relative px-1.5 min-w-[30px] h-[30px]"
+                      style="">
+                    <span class="mt-px bold">{{ $order }}</span>
+                </span>
+            @endif
             @if($question->isType('GroupQuestion'))
                 <h3 class="line-clamp-2 break-all min-h-[64px] @if(blank($question->name)) italic @endif"
                     title="{{ $question->name }}">{{ filled($question->name) ? $question->name : __('question.no_question_text') }}</h3>
@@ -58,7 +64,7 @@
                         <x-icon.checkmark-circle color="var(--cta-primary)"/>
                     </span>
                 @endif
-                <button class="new-button button-primary w-10 items-center justify-center flex"
+                <button x-show="$store.questionBank.active" class="new-button button-primary w-10 items-center justify-center flex"
                         wire:click.stop="handleCheckboxClick('{{ $question->uuid }}')"
                         @click="$el.disabled = true"
                 >

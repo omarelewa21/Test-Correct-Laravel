@@ -1,4 +1,4 @@
-<div id="question-bank"
+<div id="testbank"
      x-data="{
         openTab: @entangle('openTab'),
          checkedCount: 0,
@@ -12,7 +12,7 @@
 
          }
      }"
-     class="flex flex-col relative w-full min-h-full bg-lightGrey border-t border-secondary overflow-auto"
+     class="flex flex-col relative w-full min-h-full bg-lightGrey border-t border-secondary overflow-auto mt-24"
      @checked="$event.detail ? checkedCount += 1 : checkedCount -= 1"
      @question-added.window="Notify.notify('Vraag toegevoegd!')"
      @question-removed.window="Notify.notify('Vraag verwijderd!')"

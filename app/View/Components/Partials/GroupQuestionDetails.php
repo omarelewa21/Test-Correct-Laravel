@@ -19,8 +19,9 @@ class GroupQuestionDetails extends Component
     public $uuid;
     public $closeable;
     public $inTest;
+    public $context;
 
-    public function __construct(GroupQuestion $groupQuestion)
+    public function __construct(GroupQuestion $groupQuestion, $context = 'question-bank')
     {
         $this->name = $groupQuestion->name;
         $this->subject = $groupQuestion->getQuestionInstance()->subject;
@@ -32,6 +33,7 @@ class GroupQuestionDetails extends Component
         $this->uuid = $groupQuestion->uuid;
         $this->closeable = $groupQuestion->getQuestionInstance()->closeable;
         $this->inTest = $groupQuestion->inTest ?? false;
+        $this->context = $context;
     }
 
     public function render(): View
