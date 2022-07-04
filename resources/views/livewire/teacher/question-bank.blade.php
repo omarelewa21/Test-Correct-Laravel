@@ -1,22 +1,23 @@
 <div id="question-bank"
      class="flex flex-col relative w-full min-h-full bg-lightGrey border-t border-secondary overflow-auto overflow-x-hidden"
-     x-data="{openTab: @entangle('openTab'), inGroup: @entangle('inGroup'), groupDetail: null}"
+     x-data="{openTab: @entangle('openTab'), inGroup: @entangle('inGroup'), groupDetail: null, bodyVisibility: true,  maxHeight: '100%'}"
+     :style="`max-height: ${maxHeight}`"
      x-init="
         groupDetail = $el.querySelector('#groupdetail');
         $watch('$store.questionBank.inGroup', value => inGroup = value);
         $watch('$store.questionBank.active', value => {
             if(!value) closeGroupDetail();
         });
-        showGroupDetails = async (groupQuestionUuid) => {
-            let readyForSlide = await $wire.showGroupDetails(groupQuestionUuid);
+        showGroupDetails = async (groupQuestionUuid, inTest = false) => {
+            let readyForSlide = await $wire.showGroupDetails(groupQuestionUuid, inTest);
 
             if (readyForSlide) {
                 groupDetail.style.left = 0;
                 $el.closest('.drawer').scrollTo({top: 0, behaviour: 'smooth'});
                 $el.scrollTo({top: 0, behaviour: 'smooth'});
-                $el.style.maxHeight = groupDetail.offsetHeight + 'px';
+                maxHeight = groupDetail.offsetHeight + 'px';
                 $nextTick(() => {
-                    $el.querySelector('.main').style.display = 'none'
+                    setTimeout(() => bodyVisibility = false, 250);
                     handleVerticalScroll($el.closest('.slide-container'));
                 })
 
@@ -24,12 +25,14 @@
         }
 
         closeGroupDetail = () => {
-            $el.querySelector('.main').style.display = 'flex'
-            groupDetail.style.left = '100%';
+{{--            $el.querySelector('.main').style.display = 'flex'--}}
+            bodyVisibility = true;
+            maxHeight = groupDetail.style.left = '100%';
             $nextTick(() => {
                 $wire.clearGroupDetails();
-                groupDetail.querySelector('.subquestion-grid').innerHTML = '';
-                handleVerticalScroll($el.querySelector('.main'));
+                setTimeout(() => {
+                    handleVerticalScroll($el.closest('.slide-container'));
+                }, 250);
             })
         }
         "
@@ -63,18 +66,22 @@
                 </div>
 
                 <div>
-                    <div class="flex relative text-midgrey cursor-default" title="{{ __('general.Later beschikbaar') }}">
+                    <div class="flex relative text-midgrey cursor-default"
+                         title="{{ __('general.Later beschikbaar') }}">
                         {{--                    <div class="flex relative hover:text-primary cursor-pointer" @click="openTab = 3">--}}
-                        <span class="bold pt-[0.9375rem] pb-[0.8125rem]" :class="openTab === 3 ? 'primary' : '' ">{{ __('general.Nationaal') }}</span>
+                        <span class="bold pt-[0.9375rem] pb-[0.8125rem]"
+                              :class="openTab === 3 ? 'primary' : '' ">{{ __('general.Nationaal') }}</span>
                         <span class="absolute w-full bottom-0" style="height: 3px"
                               :class="openTab === 3 ? 'bg-primary' : 'bg-transparent' "></span>
                     </div>
                 </div>
 
                 <div>
-                    <div class="flex relative text-midgrey cursor-default" title="{{ __('general.Later beschikbaar') }}">
+                    <div class="flex relative text-midgrey cursor-default"
+                         title="{{ __('general.Later beschikbaar') }}">
                         {{--                    <div class="flex relative hover:text-primary cursor-pointer" @click="openTab = 4">--}}
-                        <span class="bold pt-[0.9375rem] pb-[0.8125rem]" :class="openTab === 4 ? 'primary' : '' ">{{ __('general.Examens') }}</span>
+                        <span class="bold pt-[0.9375rem] pb-[0.8125rem]"
+                              :class="openTab === 4 ? 'primary' : '' ">{{ __('general.Examens') }}</span>
                         <span class="absolute w-full bottom-0" style="height: 3px"
                               :class="openTab === 4 ? 'bg-primary' : 'bg-transparent' "></span>
                     </div>
@@ -82,9 +89,24 @@
             </div>
         </div>
     </div>
-    <div class="flex w-full main">
+    <div class="flex w-full main" x-show="bodyVisibility" x-cloak>
         <div class="w-full max-w-5xl lg:max-w-7xl mx-auto divide-y divide-secondary">
-            <div class="mx-8">
+            <div class="mx-8"
+                 x-data="{filterLoading: false}"
+                 x-init="
+                        Livewire.hook('message.sent', (message, component) => {
+                            if (component.el.id !== 'question-bank') {
+                                return;
+                            }
+                            if (!livewireMessageContainsModelName(message, 'filter') && !livewireMessageContainsModelName(message, 'openTab')) {
+                                return;
+                            }
+                            filterLoading = true;
+                        })
+                        Livewire.hook('message.processed', (message, component) => filterLoading = false);
+                     "
+                 @enable-loading-grid.window="filterLoading = true;"
+            >
                 {{-- Filters--}}
                 <div class="flex flex-col pt-4 pb-2">
                     <div class="flex w-full my-2">
@@ -134,50 +156,39 @@
                                             </span>
                         </div>
 
-                        <x-button.text-button class="ml-auto text-base"
-                                              size="sm"
-                                              @click="$dispatch('enable-loading-grid') ;document.getElementById('questionbank-{{ $this->openTab }}-active-filters').innerHTML = '';"
-                                              wire:click="clearFilters('{{ $this->openTab }}')"
-                        >
-                            <span class="min-w-max">{{ __('teacher.Filters wissen') }}</span>
-                            <x-icon.close-small/>
-                        </x-button.text-button>
+
+                        @if($this->hasActiveFilters())
+                            <x-button.text-button class="ml-auto text-base"
+                                                  size="sm"
+                                                  @click="$dispatch('enable-loading-grid');document.getElementById('questionbank-{{ $this->openTab }}-active-filters').innerHTML = '';"
+                                                  wire:click="clearFilters('{{ $this->openTab }}')"
+                            >
+                                <span class="min-w-max">{{ __('teacher.Filters wissen') }}</span>
+                                <x-icon.close-small/>
+                            </x-button.text-button>
+                        @else
+                            <x-button.text-button class="ml-auto text-base disabled"
+                                                  size="sm"
+                                                  disabled
+                            >
+                                <span class="min-w-max">{{ __('teacher.Filters wissen') }}</span>
+                                <x-icon.close-small/>
+                            </x-button.text-button>
+                        @endif
                     </div>
 
                     <div id="questionbank-{{ $this->openTab }}-active-filters"
                          x-data
                          wire:key="filters-container-{{ $this->openTab }}"
                          wire:ignore
-                         class="flex flex-wrap gap-2 mt-2"
+                         class="flex flex-wrap gap-2 mt-2 relative"
                     >
+                        {{--                        <a class="block absolute inset-0 bg-allred z-10 pointer-events-none" x-show="filterLoading"></a>--}}
                     </div>
                 </div>
 
                 {{-- Content --}}
-                <div class="flex flex-col py-4" style="min-height: 500px"
-                     x-data="{filterLoading: false}"
-                     x-init="
-                        Livewire.hook('message.sent', (message, component) => {
-                            if (component.el.id !== 'question-bank') {
-                                return;
-                            }
-                            if (!livewireMessageContainsModelName(message, 'filter') && !livewireMessageContainsModelName(message, 'openTab')) {
-                                return;
-                            }
-                            filterLoading = true;
-                        })
-                        Livewire.hook('message.processed', (message, component) => {
-{{--                            if (component.el.id !== 'question-bank') {--}}
-{{--                                return;--}}
-{{--                            }--}}
-{{--                            if (!livewireMessageContainsModelName(message, 'filter') && !livewireMessageContainsModelName(message, 'openTab') ) {--}}
-{{--                                return;--}}
-{{--                            }--}}
-                            filterLoading = false;
-                        })
-                     "
-                     @enable-loading-grid.window="filterLoading = true;"
-                >
+                <div class="flex flex-col py-4" style="min-height: 500px">
                     <div class="flex">
                         <span class="note text-sm">{{ $this->resultCount }} resultaten</span>
                     </div>
@@ -188,10 +199,10 @@
                         @endforeach
                     </div>
                     <div class="mt-4 grid gap-6 grid-cols-1 lg:grid-cols-2" x-show="!filterLoading" x-cloak>
-{{--                    <div class="mt-4 " x-show="!filterLoading" x-cloak>--}}
+                        {{--                    <div class="mt-4 " x-show="!filterLoading" x-cloak>--}}
                         {{-- @TODO: Fix loading animation --}}
                         @foreach($this->questions as $question)
-                            <x-grid.question-card :question="$question" :testUuid="$this->testId"/>
+                            <x-grid.question-card :question="$question"/>
                         @endforeach
 
                         @if($this->questions->count() && $this->questions->count() != $this->resultCount)
@@ -238,7 +249,7 @@
     <div id="groupdetail" wire:ignore.self>
         <div class="max-w-5xl lg:max-w-7xl mx-auto">
             @if($this->groupQuestionDetail != null)
-                <x-partials.group-question-details :groupQuestion="$this->groupQuestionDetail" :testUuid="$this->testId"/>
+                <x-partials.group-question-details :groupQuestion="$this->groupQuestionDetail"/>
             @endif
         </div>
     </div>

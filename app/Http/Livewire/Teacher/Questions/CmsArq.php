@@ -3,21 +3,17 @@
 namespace tcCore\Http\Livewire\Teacher\Questions;
 
 use Ramsey\Uuid\Uuid;
-use tcCore\GroupQuestionQuestion;
+use tcCore\Http\Interfaces\QuestionCms;
 use tcCore\Http\Traits\WithCmsCustomRulesHandling;
 use tcCore\MultipleChoiceQuestion;
-use tcCore\TestQuestion;
 
-class CmsArq
+class CmsArq extends CmsBase
 {
     use WithCmsCustomRulesHandling;
 
-    private $instance;
-    public $requiresAnswer = true;
-
-    public function __construct(OpenShort $instance)
+    public function __construct(QuestionCms $instance)
     {
-        $this->instance = $instance;
+        parent::__construct($instance);
 
         if ($this->instance->action == 'edit') {
             $this->setAnswerStruct();
@@ -27,7 +23,7 @@ class CmsArq
 
     }
 
-    public function showQuestionScore()
+    public function showQuestionScore(): bool
     {
         return false;
     }
@@ -97,7 +93,7 @@ class CmsArq
     }
 
 
-    public function getTranslationKey()
+    public function getTranslationKey(): string
     {
         return __('cms.multiplechoice-question-arq');
     }
@@ -110,12 +106,7 @@ class CmsArq
     private function setAnswerStruct()
     {
         if (empty($this->instance->cmsPropertyBag['answerStruct'])) {
-            if ($this->instance->isPartOfGroupQuestion()) {
-                $tq = GroupQuestionQuestion::whereUuid($this->instance->groupQuestionQuestionId)->first();
-            } else {
-                $tq = TestQuestion::whereUuid($this->instance->testQuestionId)->first();
-            }
-            $q = $tq->question;
+            $q = $this->getQuestion();
 
             $this->instance->cmsPropertyBag['answerStruct'] = $q->multipleChoiceQuestionAnswers->map(function ($answer, $key) {
                 return [
@@ -127,7 +118,7 @@ class CmsArq
         }
     }
 
-    public function getTemplate()
+    public function getTemplate(): string
     {
         return 'arq-question';
     }

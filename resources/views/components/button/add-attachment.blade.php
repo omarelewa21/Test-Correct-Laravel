@@ -20,9 +20,15 @@
         <div x-show="base"
              x-cloak
              class="flex py-px transition duration-500 items-center flex-wrap">
+            @if($disabled)
+            <x-button.secondary disabled class="max-h-10 min-w-max disabled">
+                {{ $text }}
+            </x-button.secondary>
+            @else
             <x-button.secondary @click="base = false; open = true" class="max-h-10 min-w-max">
                 {{ $text }}
             </x-button.secondary>
+            @endif
             <span class="flex italic text-base mx-4 min-w-max">
                 {!!__('cms.Of sleep je bijlage over dit vak')  !!}
             </span>

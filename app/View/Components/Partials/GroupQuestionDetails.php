@@ -18,22 +18,20 @@ class GroupQuestionDetails extends Component
     public $totalScore;
     public $uuid;
     public $closeable;
+    public $inTest;
 
-    public function __construct(GroupQuestion $groupQuestion, $testUuid = null)
+    public function __construct(GroupQuestion $groupQuestion)
     {
         $this->name = $groupQuestion->name;
         $this->subject = $groupQuestion->getQuestionInstance()->subject;
         $this->authors = $groupQuestion->getAuthorNamesCollection();
         $this->lastUpdated = Carbon::parse($groupQuestion->updated_at)->format('d/m/\'y');
         $this->attachmentCount = $groupQuestion->attachments()->count();
-        $this->subQuestions = $groupQuestion->groupQuestionQuestions;
         $this->totalScore = $groupQuestion->total_score;
+        $this->subQuestions = $groupQuestion->groupQuestionQuestions;
         $this->uuid = $groupQuestion->uuid;
         $this->closeable = $groupQuestion->getQuestionInstance()->closeable;
-
-        if ($testUuid) {
-            $this->inTest = $groupQuestion->isInTest($testUuid);
-        }
+        $this->inTest = $groupQuestion->inTest ?? false;
     }
 
     public function render(): View

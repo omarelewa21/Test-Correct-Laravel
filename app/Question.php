@@ -1,25 +1,20 @@
 <?php namespace tcCore;
 
+use Dyrynda\Database\Casts\EfficientUuid;
+use Exception;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
+use Ramsey\Uuid\Uuid;
 use tcCore\Exceptions\QuestionException;
 use tcCore\Http\Helpers\DemoHelper;
-use tcCore\Http\Livewire\Teacher\Questions\CmsFactory;
-use tcCore\Http\Requests\UpdateTestQuestionRequest;
 use tcCore\Lib\Models\MtiBaseModel;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
-use Dyrynda\Database\Casts\EfficientUuid;
-use Dyrynda\Database\Support\GeneratesUuid;
-use Ramsey\Uuid\Uuid;
 use tcCore\Scopes\QuestionAttainmentScope;
 use tcCore\Services\QuestionHtmlConverter;
 use tcCore\Traits\ExamSchoolQuestionTrait;
-use tcCore\Traits\UuidTrait;
 use tcCore\Traits\UserContentAccessTrait;
-use \Exception;
+use tcCore\Traits\UuidTrait;
 
 class Question extends MtiBaseModel {
     use SoftDeletes;
@@ -1644,11 +1639,19 @@ class Question extends MtiBaseModel {
         }
 
         if ($strict) {
-            return !!$test->testQuestions()->where('question_id', $this->getKey())->first();
+            return $test->testQuestions()->where('question_id', $this->getKey())->exists();
         }
 
-        return $test->testQuestions->filter(function($testQuestion) {
-            return $testQuestion->question->id === $this->getKey() || $testQuestion->question->derived_question_id === $this->getKey();
-        })->isNotEmpty();
+        return $test->testQuestions()
+            ->selectRaw('1')
+            ->join('questions as q', 'q.id', '=', 'test_questions.question_id')
+            ->where('test_questions.question_id', $this->getKey())
+            ->orWhere('q.derived_question_id', $this->getKey())
+            ->exists();
+
+//        $test->load('testQuestions:id,question_id', 'testQuestions.question:id,derived_question_id');
+//        return $test->testQuestions->filter(function($testQuestion) {
+//            return $testQuestion->question->id === $this->getKey() || $testQuestion->question->derived_question_id === $this->getKey();
+//        })->isNotEmpty();
     }
 }

@@ -1,6 +1,7 @@
 @props([
     'type' => 'student',
     'editorId',
+    'disabled' => false
 ])
 
 @php
@@ -27,6 +28,7 @@
             x-data="{}" x-init="{{ $initFunctionCall }}"
             id="{{ $editorId }}"
             name="{{ $editorId }}"
+            @if($disabled) disabled @endif
         ></textarea>
     </div>
 </div>

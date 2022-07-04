@@ -2,9 +2,7 @@
 
 namespace tcCore\Http\Livewire\Teacher;
 
-use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Str;
 use Livewire\Component;
 use tcCore\EducationLevel;
 use tcCore\GroupQuestion;
@@ -66,13 +64,6 @@ class QuestionBank extends Component
     public function render()
     {
         return view('livewire.teacher.question-bank');
-    }
-
-    public function getQuestionsProperty()
-    {
-        return $this->getQuestionsQuery()
-            ->take($this->itemsPerPage)
-            ->get(['questions.*']);
     }
 
     private function getFilters()
@@ -229,11 +220,17 @@ class QuestionBank extends Component
                     ->orWhereNull('scope');
             })
             ->where('is_subquestion', 0)
-            ->with([
-                'subject:id,name',
-            ])
             ->orderby('created_at', 'desc')
             ->distinct();
+    }
+
+    public function getQuestionsProperty()
+    {
+        return $this->getQuestionsQuery()
+            ->take($this->itemsPerPage)
+            ->withCount('attachments')
+            ->with(['subject:id,name', 'authors:id,name,name_first,name_suffix'])
+            ->get(['questions.*']);
     }
 
     public function getResultCountProperty()
@@ -312,16 +309,27 @@ class QuestionBank extends Component
         });
     }
 
-    public function openDetail($questionUuid)
+    public function openDetail($questionUuid, $inTest)
     {
-        $this->emit('openModal', 'teacher.question-detail-modal', ['questionUuid' => $questionUuid, 'testUuid' => $this->testId]);
+        $this->emit(
+            'openModal',
+            'teacher.question-detail-modal',
+            [
+                'questionUuid' => $questionUuid,
+                'testUuid' => $this->testId,
+                'inTest' => $inTest
+            ]
+        );
     }
 
-    public function showGroupDetails($groupUuid)
+    public function showGroupDetails($groupUuid, $inTest = false)
     {
         $groupQuestionId = Question::whereUuid($groupUuid)->value('id');
-        $this->groupQuestionDetail = GroupQuestion::find($groupQuestionId);
-        $this->groupQuestionDetail->loadRelated();
+        $this->groupQuestionDetail = GroupQuestion::whereId($groupQuestionId)
+            ->with(['groupQuestionQuestions', 'groupQuestionQuestions.question'])
+            ->first();
+//        $this->groupQuestionDetail->loadRelated();
+        $this->groupQuestionDetail->inTest = $inTest;
 
         return true;
     }
@@ -338,4 +346,10 @@ class QuestionBank extends Component
          */
     }
 
+    public function hasActiveFilters()
+    {
+        return collect($this->filters[$this->openTab])->filter(function($filter) {
+            return filled($filter);
+        })->isNotEmpty();
+    }
 }

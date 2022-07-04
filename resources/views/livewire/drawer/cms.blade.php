@@ -71,7 +71,8 @@
              x-data="questionEditorSidebar"
              x-ref="questionEditorSidebar"
              wire:ignore.self
-             @resize.window.debounce.75ms="handleResizing()"
+             :class="{'!invisible': resizing}"
+             @resize.window="handleResizing()"
         >
             <x-sidebar.slide-container class="pt-4 divide-y divide-bluegrey"
                                        x-ref="container1"
@@ -86,7 +87,7 @@
                             <x-sidebar.cms.group-question-container
                                     :question="$testQuestion->question"
                                     :testQuestion="$testQuestion"
-
+                                    :double="$this->duplicateQuestions->contains($testQuestion->question->id)"
                             >
                                 @foreach($testQuestion->question->subQuestions as $question)
                                     @php $loopIndex ++; @endphp

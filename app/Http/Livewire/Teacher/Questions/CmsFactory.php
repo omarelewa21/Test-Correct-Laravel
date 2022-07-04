@@ -3,13 +3,14 @@
 namespace tcCore\Http\Livewire\Teacher\Questions;
 
 use Illuminate\Support\Str;
+use tcCore\Http\Interfaces\QuestionCms;
 
 class CmsFactory
 {
 
     private static $self;
 
-    public static function create(OpenShort $instance)
+    public static function create(QuestionCms $instance)
     {
         $type = $instance->question['type'];
         $subType = Str::lower($instance->question['subtype']);

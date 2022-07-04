@@ -23,11 +23,19 @@
                   x-text="videoTitle"
             >
             </span>
-            <button class="py-3 px-4 flex items-center h-full rounded-md hover:bg-primary hover:text-white transition"
-                    @click="options = true"
-            >
-                <x-icon.options/>
-            </button>
+            @if(isset($disabled) && $disabled)
+                <button class="py-3 px-4 flex items-center h-full rounded-md text-midgrey transition"
+                >
+                    <x-icon.options/>
+                </button>
+                @else
+                <button class="py-3 px-4 flex items-center h-full rounded-md hover:bg-primary hover:text-white transition"
+                        @click="options = true"
+                >
+                    <x-icon.options/>
+                </button>
+            @endif
+
 
             <div x-cloak
                  x-show="options"

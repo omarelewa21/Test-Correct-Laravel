@@ -1,4 +1,4 @@
-<x-upload.section uploadModel="uploads" :defaultFilepond="false" :multiple="true" :disableUpload="$this->isPartOfGroupQuestion">
+<x-upload.section uploadModel="uploads" :defaultFilepond="false" :multiple="true" :enableUpload="!$this->isPartOfGroupQuestion && !isset($this->isPreview)">
     <x-slot name="files">
         <div id="attachment-badges" class="flex flex-wrap" wire:key="attachment-section-{{$this->uniqueQuestionKey}}">
             @foreach($this->attachments as $attachment)
@@ -6,6 +6,7 @@
                                     :attachment="$attachment"
                                     :title="$attachment->title"
                                     wire:key="a-badge-{{ $attachment->id.$this->questionEditorId }}"
+                                    :disabled="isset($this->isPreview)"
                 />
             @endforeach
 
@@ -20,12 +21,14 @@
                             :upload="true"
                             :attachment="$upload"
                             :title="$upload->getClientOriginalName()"
+                            :disabled="isset($this->isPreview)"
                     />
                 @elseif($video)
                     <x-attachment.video-badge
                             wire:key="video-{{ $key }}"
                             :video="$video"
                             :host="$this->getVideoHost($video['link'])"
+                            :disabled="isset($this->isPreview)"
                     />
                 @endif
             @endforeach
@@ -33,7 +36,7 @@
         </div>
     </x-slot>
     <x-slot name="filepond">
-        <x-button.add-attachment>
+        <x-button.add-attachment :disabled="isset($this->isPreview)">
             <x-slot name="text">
                 <x-icon.attachment/>
                 <span selid="add-attachment-btn">{!! __('cms.Bijlage toevoegen')  !!}</span>

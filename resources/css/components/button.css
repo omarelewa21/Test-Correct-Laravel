@@ -57,7 +57,7 @@
     cursor: default!important;
 }
 
-.cta-button {
+button.cta-button, a.cta-button {
     color: white;
     background-color: rgba(58,183,83,1);
     background-image: radial-gradient(ellipse farthest-side at 10% 10%,rgba(58,183,83,.5) 0,rgba(58,183,83,0) 100%);
@@ -67,24 +67,24 @@
     transition: color 0.3s cubic-bezier(.215,.61,.355,1);
 }
 
-.cta-button:hover {
+button.cta-button:hover, a.cta-button:hover {
     background-color: rgb(60, 202, 86);
     background-size: 100% 100%;
     box-shadow: 0 4px 10px 0 rgba(0,0,0,0.1);
     transition: all 0.3s cubic-bezier(.215,.61,.355,1);
 }
 
-.cta-button:active {
+button.cta-button:active, a.cta-button:active {
     background: linear-gradient(90deg, rgba(57, 180, 81, 1) 0%, rgba(61, 187, 86, 1) 100%);
     box-shadow: 0 1px 6px 0 rgba(77, 87, 143, 0.5);
 }
 
-.cta-button:focus {
+button.cta-button:focus, a.cta-button:focus {
     background: var(--cta-primary);
     border: 1px solid var(--cta-primary-dark);
 }
 
-.cta-button:disabled {
+button.cta-button:disabled, a.cta-button:disabled {
     background: var(--light-grey);
     color: var(--mid-grey);
     box-shadow: none;

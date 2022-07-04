@@ -27,6 +27,8 @@ class AttainmentManager extends Component
 
     public $type = 'attainments';
 
+    public $disabled = false;
+
     public function mount()
     {
         $filter = [
