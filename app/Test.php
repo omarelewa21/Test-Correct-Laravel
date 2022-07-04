@@ -1008,4 +1008,19 @@ class Test extends BaseModel
             ->havingCount('id', '>', 1)
             ->pluck('id');
     }
+
+    public function getAmountOfQuestions()
+    {
+        $groupQ = $this->testQuestions()
+            ->select('id')
+            ->withCount(['question' => function ($query) {
+                $query->where('type', '=', 'GroupQuestion');
+            }])
+            ->get()
+            ->sum(function ($testQuestion) {
+                return $testQuestion->question_count;
+            });
+
+        return ['regular' => $this->getQuestionCount(), 'group' => $groupQ];
+    }
 }

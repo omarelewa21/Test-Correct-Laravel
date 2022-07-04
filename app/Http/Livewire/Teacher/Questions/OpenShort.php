@@ -1106,15 +1106,7 @@ class OpenShort extends Component implements QuestionCms
 
     public function getAmountOfQuestionsProperty()
     {
-        $groupQ = 0;
-        $test = Test::whereUuid($this->testId)->first();
-        $test->testQuestions->map(function ($tq) use (&$groupQ) {
-            if ($tq->question->type === 'GroupQuestion') {
-                $groupQ++;
-            }
-        });
-
-        return ['regular' => $test->getQuestionCount(), 'group' => $groupQ];
+        return Test::whereUuid($this->testId)->first()->getAmountOfQuestions();
     }
 
     private function testHasNoQuestions()

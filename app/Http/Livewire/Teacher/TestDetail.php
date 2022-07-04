@@ -2,44 +2,43 @@
 
 namespace tcCore\Http\Livewire\Teacher;
 
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
-use Livewire\WithPagination;
-use tcCore\EducationLevel;
-use tcCore\Http\Controllers\AuthorsController;
-use tcCore\Http\Controllers\SubjectsController;
-use tcCore\Http\Controllers\TemporaryLoginController;
-use tcCore\Http\Requests\DuplicateTestRequest;
-use tcCore\Subject;
+use tcCore\GroupQuestion;
+use tcCore\Question;
 use tcCore\Test;
 
 class TestDetail extends Component
 {
-
-
     public $uuid;
-
+    protected $test;
+    public $groupQuestionDetail;
 
     public function mount($uuid)
     {
         $this->uuid = $uuid;
-
     }
 
-
-    public function render()
+    public function booted()
     {
-        $test = Test::whereUuid($this->uuid)
+        $this->test = Test::whereUuid($this->uuid)
             ->with([
                 'testQuestions' => function ($query) {
                     $query->orderBy('test_questions.order', 'asc');
                 },
-                'testQuestions.question'
+                'testQuestions.question',
+                'testQuestions.question.authors'
             ])
             ->first();
+    }
 
-        return view('livewire.teacher.test-detail')->layout('layouts.app-teacher')->with(compact(['test']));
+    public function getAmountOfQuestionsProperty()
+    {
+        return $this->test->getAmountOfQuestions();
+    }
+
+    public function render()
+    {
+        return view('livewire.teacher.test-detail')->layout('layouts.app-teacher');
     }
 
     public function redirectToTestOverview()
@@ -47,4 +46,28 @@ class TestDetail extends Component
         redirect()->to(route('teacher.tests'));
     }
 
+    public function showGroupDetails($groupUuid)
+    {
+        $groupQuestionId = Question::whereUuid($groupUuid)->value('id');
+        $this->groupQuestionDetail = GroupQuestion::whereId($groupQuestionId)
+            ->with(['groupQuestionQuestions', 'groupQuestionQuestions.question'])
+            ->first();
+
+        return true;
+    }
+
+    public function clearGroupDetails()
+    {
+        $this->reset('groupQuestionDetail');
+    }
+
+    public function isQuestionInTest()
+    {
+        return false;
+    }
+
+    public function openDetail($questionUuid)
+    {
+        $this->emit('openModal', 'teacher.question-detail-modal', ['questionUuid' => $questionUuid ]);
+    }
 }

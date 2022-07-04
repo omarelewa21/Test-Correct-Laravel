@@ -1,9 +1,11 @@
 <div>
     <div class="flex items-center justify-between px-8 py-1 border-b border-bluegrey">
-        <x-button.text-button @click="closeGroupDetail()">
-            <x-icon.arrow-left/>
-            <span>{{ __('question.Vraaggroep') }}: {{ $name ?? '' }}</span>
-        </x-button.text-button>
+        <div class="flex items-center space-x-2.5">
+            <x-button.back-round @click="closeGroupDetail()"/>
+            <div class="flex text-lg bold">
+                <span>{{ __('question.Vraaggroep') }}: {{ $name ?? '' }}</span>
+            </div>
+        </div>
 
         <div class="flex gap-4 note">
             @if($closeable)
@@ -48,7 +50,7 @@
                         <x-icon.checkmark-circle color="var(--cta-primary)"/>
                     </span>
                 @endif
-                <x-button.cta wire:click.stop="handleCheckboxClick('{{ $uuid }}')"
+                <x-button.cta x-show="$store.questionBank.active" wire:click.stop="handleCheckboxClick('{{ $uuid }}')"
                               @click="$el.disabled = true">
                     <x-icon.plus-2/>
                     <span>{{ __('cms.Toevoegen') }}</span>
@@ -58,9 +60,8 @@
 
 
         <x-grid class="subquestion-grid w-full">
-
             @forelse($subQuestions as $sub)
-                <x-grid.question-card :question="$sub->question->getQuestionInstance()" :testUuid="$this->testId"/>
+                <x-grid.question-card :question="$sub->question->getQuestionInstance()" :testUuid="$this->testId ?? null" :order="$sub->order"/>
             @empty
                 <span>Geen subvragen</span>
             @endforelse

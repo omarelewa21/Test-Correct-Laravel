@@ -1607,7 +1607,7 @@ class Question extends MtiBaseModel {
     private static function addOwnerId($question)
     {
         try {
-            $ownerId = SchoolLocationSection::select('school_location_id')
+            $schoolLocationSection = SchoolLocationSection::select('school_location_id')
                 ->where('section_id', function ($query) use ($question) {
                     $query->select('section_id')
                         ->from((new Subject)->getTable())
@@ -1617,10 +1617,9 @@ class Question extends MtiBaseModel {
                                 ->where('id', $question->id);
                         });
                 })
-                ->first()
-                ->school_location_id;
+                ->first();
 
-            $question->owner_id = $ownerId;
+            $question->owner_id = ($schoolLocationSection ? $schoolLocationSection->school_location_id : Auth::user()->school_location_id);
         } catch (\Throwable $e) {
             $question->owner_id = Auth::user()->school_location_id;
         }

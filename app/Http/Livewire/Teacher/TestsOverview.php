@@ -269,6 +269,15 @@ class TestsOverview extends Component
     }
 
     public function openTestDetail($testUuid) {
-//        redirect()->to(route('teacher.test-detail', ['uuid' => $testUuid]));
+        redirect()->to(route('teacher.test-detail', ['uuid' => $testUuid]));
+    }
+
+    public function openContextMenu($args)
+    {
+        $this->emitTo(
+            'teacher.tests-overview-context-menu',
+            'showMenu',
+            $args
+        );
     }
 }
