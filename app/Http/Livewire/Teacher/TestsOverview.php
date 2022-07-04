@@ -268,7 +268,8 @@ class TestsOverview extends Component
         return $searchFilter;
     }
 
-    public function openTestDetail($testUuid) {
+    public function openTestDetail($testUuid)
+    {
         redirect()->to(route('teacher.test-detail', ['uuid' => $testUuid]));
     }
 
@@ -279,5 +280,34 @@ class TestsOverview extends Component
             'showMenu',
             $args
         );
+    }
+
+    public function clearFilters($tab = null)
+    {
+        $tabs = $tab ? [$tab] : $this->allowedTabs;
+        return collect($tabs)->each(function ($tab) {
+            $this->filters[$tab] = [
+                'name'                 => '',
+                'education_level_year' => [],
+                'education_level_id'   => [],
+                'subject_id'           => [],
+                'author_id'            => [],
+            ];
+        });
+    }
+
+    public function hasActiveFilters(): bool
+    {
+        return collect($this->filters[$this->openTab])
+            ->when($this->openTab === 'personal', function ($collection) {
+                return $collection->except('author_id');
+            })
+            ->whenEmpty(function ($collection) {
+                return false;
+            }, function ($collection) {
+                return $collection->filter(function ($filter) {
+                    return filled($filter);
+                })->isNotEmpty();
+            });
     }
 }

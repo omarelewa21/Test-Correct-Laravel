@@ -139,6 +139,27 @@
                                 filterContainer="questionbank-{{ $this->openTab }}-active-filters"
                         />
                     @endif
+
+                    @if($this->hasActiveFilters())
+                        <x-button.text-button class="ml-auto text-base"
+                                              size="sm"
+                                              @click="$dispatch('enable-loading-grid');document.getElementById('questionbank-{{ $this->openTab }}-active-filters').innerHTML = '';"
+                                              wire:click="clearFilters('{{ $this->openTab }}')"
+                                              wire:key="clearfilters-{{ $this->openTab }}"
+                        >
+                            <span class="min-w-max">{{ __('teacher.Filters wissen') }}</span>
+                            <x-icon.close-small/>
+                        </x-button.text-button>
+                    @else
+                        <x-button.text-button class="ml-auto text-base disabled"
+                                              size="sm"
+                                              disabled
+                                              wire:key="clearfilters-disabled-{{ $this->openTab }}"
+                        >
+                            <span class="min-w-max">{{ __('teacher.Filters wissen') }}</span>
+                            <x-icon.close-small/>
+                        </x-button.text-button>
+                    @endif
                 </div>
                 <div id="questionbank-{{ $this->openTab }}-active-filters"
                      wire:ignore

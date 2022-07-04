@@ -5153,6 +5153,9 @@ video {
 .mt-\[-1rem\]{
   margin-top: -1rem;
 }
+.mt-24{
+  margin-top: 6rem;
+}
 .-ml-px{
   margin-left: -1px;
 }
@@ -5164,9 +5167,6 @@ video {
 }
 .-mt-1{
   margin-top: -0.25rem;
-}
-.mt-24{
-  margin-top: 6rem;
 }
 .block{
   display: block;
