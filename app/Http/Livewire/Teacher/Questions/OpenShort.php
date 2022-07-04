@@ -5,6 +5,7 @@ namespace tcCore\Http\Livewire\Teacher\Questions;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
+use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
@@ -342,10 +343,8 @@ class OpenShort extends Component
         if ($this->obj && method_exists($this->obj, 'prepareForSave')) {
             $this->obj->prepareForSave();
         }
-
         $this->validateAndReturnErrorsToTabOne();
-
-        if ($this->action == 'edit' && !$this->isCloneRequest) {
+        if ($this->action == 'edit' && !$this->isCloneRequest ) {
             $response = $this->updateQuestion();
 
             if ($this->isPartOfGroupQuestion()) {
@@ -577,6 +576,9 @@ class OpenShort extends Component
 
     private function updateQuestion()
     {
+        if(!$this->dirty){
+            return Response::make('not dirty',304);
+        }
         $request = new CmsRequest();
         $request->merge($this->question);
         $request->filterInput();
