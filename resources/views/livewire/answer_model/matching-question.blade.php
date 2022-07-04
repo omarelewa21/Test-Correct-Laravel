@@ -5,8 +5,8 @@
         </div>
         @if($question->subtype == 'Classify')
 
-                        <div class="flex-wrap-pdf flex-col-pdf classify " style="margin-top: 40px;">
-                            <div class="flex-row-pdf space-x-5 classified question-no-break-matching-option">
+                        <div class="flex-wrap-pdf flex-col-pdf classify question-no-break-matching-option" style="margin-top: 40px;">
+                            <div class="flex-row-pdf space-x-5 classified ">
                                 @php $counter = 0; @endphp
                                 @foreach ($question->matchingQuestionAnswers as $group)
                                     @if(  $group->correct_answer_id === null )
