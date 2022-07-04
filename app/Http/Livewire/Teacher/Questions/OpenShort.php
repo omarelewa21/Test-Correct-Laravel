@@ -4,6 +4,8 @@ namespace tcCore\Http\Livewire\Teacher\Questions;
 
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Redirect;
+use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
@@ -576,6 +578,9 @@ class OpenShort extends Component implements QuestionCms
 
     private function updateQuestion()
     {
+        if(!$this->dirty){
+            return Response::make('not dirty',304);
+        }
         $request = new CmsRequest();
         $request->merge($this->question);
         $request->filterInput();
