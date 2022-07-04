@@ -6,7 +6,7 @@
         groupDetail = $el.querySelector('#groupdetail');
         $watch('$store.questionBank.inGroup', value => inGroup = value);
         $watch('$store.questionBank.active', value => {
-            if(!value) closeGroupDetail();
+           value ? $wire.render() : closeGroupDetail();
         });
         showGroupDetails = async (groupQuestionUuid, inTest = false) => {
             let readyForSlide = await $wire.showGroupDetails(groupQuestionUuid, inTest);

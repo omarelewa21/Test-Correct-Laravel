@@ -134,7 +134,7 @@
     position: sticky;
     top: var(--header-height);
     width: var(--sidebar-width);
-    height: calc(100vh - var(--header-height) * 2);
+    height: calc(100vh - var(--header-height));
     background-color: white;
     box-shadow: var(--main-shadow);
     z-index: 1;
@@ -315,7 +315,7 @@
 #groupdetail {
     position: absolute;
     left: 100%;
-    min-height: calc(100vh - calc(var(--header-height) * 2) - 58px );
+    min-height: calc(100vh - var(--header-height) - 58px );
     height: max-content;
     width: 100%;
     background-color: var(--light-grey);

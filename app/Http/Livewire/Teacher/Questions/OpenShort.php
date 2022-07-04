@@ -1122,7 +1122,7 @@ class OpenShort extends Component implements QuestionCms
 
     public function saveAndRedirect()
     {
-        if (!$this->editModeForExistingQuestion() && $this->isDirty()) {
+        if ($this->isDirty()) {
             if ($this->completedMandatoryFields()) {
                 return $this->save();
             }

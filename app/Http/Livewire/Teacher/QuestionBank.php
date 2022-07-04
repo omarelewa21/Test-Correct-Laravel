@@ -173,7 +173,7 @@ class QuestionBank extends Component
     private function getQuestionIdsThatAreAlreadyInTest()
     {
         $questionIdList = optional($this->test)->getQuestionOrderList() ?? [];
-        return $questionIdList + $this->test->testQuestions->map(function ($testQ) {
+        return $questionIdList + optional($this->test)->testQuestions->map(function ($testQ) {
                 return $testQ->question()->where('type', 'GroupQuestion')->value('id');
             })->filter()->flip()->toArray();
     }
