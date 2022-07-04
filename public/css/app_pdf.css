@@ -1635,53 +1635,59 @@ input[type=number] {
 
 
 /* Color inputs */
-#drawing-tool .stroke-color{
+#drawing-tool .color-pallete {
     width: 2.5rem;
     height: 2.5rem;
-    border: var(--default-border);
+    margin-right: 0.5rem;
     border-radius: 0.5rem;
-    margin-right: 0.5rem;
 }
 
-#drawing-tool .fill-color {
-    width: 2.5rem;
-    height: 2.5rem;
-    margin-right: 0.5rem;
+#drawing-tool .color-pallete:hover {
+    outline: 2px solid blue;
 }
 
-#drawing-tool #fill-color:hover {
-    border: var(--solid-Primary-border);
-    color: var(--teacher-Primary);
+#drawing-tool .add-border {
+    outline: 1px solid blue;
 }
 
-#drawing-tool #fill-color:focus {
-    border: var(--solid-Primary-border);
+#drawing-tool .add-border:hover {
+    outline: 2px solid blue;
 }
 
-#drawing-tool .stroke-color:hover {
-    border: var(--solid-Primary-border);
-    color: var(--teacher-Primary);
-}
-
-#drawing-tool .stroke-color:focus {
-    border: var(--solid-Primary-border);
+#drawing-tool .outline {
+    outline: 2px solid blue;
+    outline-offset: 2px;
 }
 
 #drawing-tool input[type=button] {
+    width: 100%;
+    height: 100%;
+    border-radius: 0.5rem;
+}
+
+#drawing-tool #stroke-color {
+    border: 10px solid black;
+    background-color: white;
+    color: white;
+}
+
+#drawing-tool .color-pallete .pallete-x-button {
+    right: 1.3rem;
+    top: 0.8rem;
+    color: blue;
+}
+
+#drawing-tool #line-color {
     width: 2.5rem;
     height: 2.5rem;
     border: var(--default-border);
     border-radius: 0.5rem;
     background: var(--all-OffWhite);
-}
-
-#drawing-tool #stroke-color {
     --height: 0.5rem;
     height: var(--height);
     transform: rotate(-45deg);
     margin: calc(50% - (var(--height) / 2)) 0;
 }
-
 
 /* Range inputs */
 
@@ -2526,7 +2532,7 @@ input[type=number] {
   
 .colorPickButton:hover {
     transform: scale(1.1);
-    border: 1px solid blue;
+    border: 2px solid blue;
 }
 
 .ck-editor__editable_inline {
@@ -4964,10 +4970,6 @@ video {
   margin-top: 2.5rem;
   margin-bottom: 2.5rem;
 }
-.my-3{
-	margin-top: 0.75rem;
-	margin-bottom: 0.75rem;
-}
 .mx-2\.5{
   margin-left: 0.625rem;
   margin-right: 0.625rem;
@@ -6186,10 +6188,6 @@ video {
 .bg-\[\#2e3192\]{
   --tw-bg-opacity: 1;
   background-color: rgb(46 49 146 / var(--tw-bg-opacity));
-}
-.bg-green-50{
-	--tw-bg-opacity: 1;
-	background-color: rgba(236, 253, 245, var(--tw-bg-opacity));
 }
 .bg-transparent{
   background-color: transparent;
