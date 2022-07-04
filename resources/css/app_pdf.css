@@ -262,6 +262,12 @@ div.input-group u, div.input-group strong, div.input-group span,p strong{
     display: inline-block;
     white-space: nowrap;
 }
+.children-block-pdf p{
+    display: block ;
+    white-space: normal;
+    margin-block-start: 1em;
+    margin-block-end: 1em;
+}
 .space-x-4 > :not([hidden]) ~ :not([hidden]) {
     margin-right: 16px;
     margin-left: 16px;
