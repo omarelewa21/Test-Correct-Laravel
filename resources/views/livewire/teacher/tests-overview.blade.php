@@ -12,6 +12,7 @@
 
          }
      }"
+     wire:init="handleReferrerActions()"
      class="flex flex-col relative w-full min-h-full bg-lightGrey border-t border-secondary overflow-auto mt-24"
      @checked="$event.detail ? checkedCount += 1 : checkedCount -= 1"
      @question-added.window="Notify.notify('Vraag toegevoegd!')"

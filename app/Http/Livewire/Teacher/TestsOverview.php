@@ -26,9 +26,10 @@ class TestsOverview extends Component
 
     private $sorting = ['id' => 'desc'];
 
-    protected $queryString = ['openTab'];
+    protected $queryString = ['openTab', 'referrerAction' => ['except' => '']];
 
     public $openTab = 'personal';
+    public $referrerAction = '';
 
     public $selected = [];
 
@@ -309,5 +310,17 @@ class TestsOverview extends Component
                     return filled($filter);
                 })->isNotEmpty();
             });
+    }
+
+    public function handleReferrerActions()
+    {
+        if (!$this->referrerAction) {
+            return true;
+        }
+
+        if ($this->referrerAction === 'create_test') {
+            $this->emit('openModal', 'teacher.test-create-modal');
+            $this->referrerAction = '';
+        }
     }
 }
