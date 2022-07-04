@@ -12,5 +12,6 @@ return [
     'Terug'                                                                                                     => 'Terug',
     'Doorgaan'                                                                                                  => 'Doorgaan',
     'De toets is ingenomen door de docent, je kunt daardoor niet verder werken. Sluit de toets.'                => 'De toets is ingenomen door de docent, je kunt daardoor niet verder werken. Sluit de toets.',
-    'you are currently offline and therefore you can not save your answers. Please restore your internet connection and continue' => 'Je bent momenteel offline en kan daardoor je antwoord niet opslaan. Herstel je internet connectie en het antwoord wordt alsnog opgeslagen zodat je weer verder kunt.'
+    'you are currently offline and therefore you can not save your answers. Please restore your internet connection and continue' => 'Je bent momenteel offline en kan daardoor je antwoord niet opslaan. Herstel je internet connectie en het antwoord wordt alsnog opgeslagen zodat je weer verder kunt.',
+    'your connection is back online'                                                                            => 'Je verbinding is weer online',
 ];
