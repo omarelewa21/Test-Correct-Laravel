@@ -62,7 +62,6 @@
                                     console.log('no clue what to do with ' + container.type);
                                 }
                                 window.removeEventListener('online', listener);
-                                Notify.notify('{{ __('test-take.your connection is back online') }}');
                             // }
                         }
 
@@ -79,6 +78,17 @@
                 });
                 // Livewire.hook('message.received', (message, component) => {})
                 // Livewire.hook('message.processed', (message, component) => {})
+                const OnlineListener = function(){
+                    Notify.notify('{{ __('test-take.your connection is back online') }}', 'success');
+                    window.removeEventListener('online',OnlineListener);
+                    window.addEventListener('offline',Offlinelistener);
+                }
+                const Offlinelistener = function() {
+                    window.addEventListener('online', OnlineListener);
+                    window.removeEventListener('offline',Offlinelistener);
+                }
+
+                window.addEventListener('offline',Offlinelistener);
             });
 
             function renderMathML() {
