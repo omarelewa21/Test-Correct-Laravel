@@ -6038,6 +6038,7 @@ document.addEventListener('alpine:init', function () {
       },
       addGroup: function addGroup() {
         var shouldCheckDirty = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : true;
+        this.$dispatch('store-current-question');
 
         if (shouldCheckDirty && this.$store.cms.dirty) {
           this.$wire.emitTo('teacher.questions.open-short', 'addQuestionFromDirty', {
@@ -6050,6 +6051,7 @@ document.addEventListener('alpine:init', function () {
       },
       showAddQuestionSlide: function showAddQuestionSlide() {
         var shouldCheckDirty = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : true;
+        this.$dispatch('store-current-question');
 
         if (shouldCheckDirty && this.$store.cms.dirty) {
           this.$wire.emitTo('teacher.questions.open-short', 'addQuestionFromDirty', {

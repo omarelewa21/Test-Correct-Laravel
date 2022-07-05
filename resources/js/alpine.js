@@ -450,6 +450,7 @@ document.addEventListener('alpine:init', () => {
             this.$dispatch('backdrop');
         },
         addGroup(shouldCheckDirty = true) {
+            this.$dispatch('store-current-question');
             if (shouldCheckDirty && this.$store.cms.dirty) {
                 this.$wire.emitTo('teacher.questions.open-short', 'addQuestionFromDirty', {'group': true})
                 return;
@@ -457,6 +458,7 @@ document.addEventListener('alpine:init', () => {
             this.$wire.addGroup();
         },
         showAddQuestionSlide(shouldCheckDirty = true) {
+            this.$dispatch('store-current-question');
             if (shouldCheckDirty && this.$store.cms.dirty) {
                 this.$wire.emitTo('teacher.questions.open-short', 'addQuestionFromDirty', {'group': false})
                 return;

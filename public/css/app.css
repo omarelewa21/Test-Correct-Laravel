@@ -6342,6 +6342,9 @@ video {
 .gap-2{
   gap: 0.5rem;
 }
+.gap-5{
+  gap: 1.25rem;
+}
 .gap-4{
   gap: 1rem;
 }
@@ -6350,9 +6353,6 @@ video {
 }
 .gap-0{
   gap: 0px;
-}
-.gap-5{
-  gap: 1.25rem;
 }
 .gap-y-4{
   row-gap: 1rem;
