@@ -8,7 +8,7 @@
     <div class="flex space-x-2 py-1.5 pl-6 pr-4 cursor-pointer group-question-title-container hover:bg-primary/5 hover:text-primary"
          :class="expand ? 'rotate-svg-270' : 'rotate-svg-90'"
     >
-        <x-icon.chevron class="mt-2"
+        <x-icon.chevron class="mt-2 text-sysbase hover:text-primary"
                         @click.stop="expand = !expand; setTimeout(() => {handleVerticalScroll($refs.container1);}, 210);"
         />
         <span class="flex flex-1 flex-col truncate text-lg bold"
