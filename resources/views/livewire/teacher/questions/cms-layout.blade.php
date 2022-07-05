@@ -309,7 +309,7 @@
                                                            :disabled="$this->isSettingsGeneralPropertyDisabled('maintainPosition')"
                             >
                                 <x-icon.shuffle-off/>
-                                <span class="bold"> {{ __('cms.Deze vraag niet shuffelen') }}</span>
+                                <span class="bold"> {{ $this->isGroupQuestion() ? __('cms.Deze vraaggroep niet shuffelen') : __('cms.Deze vraag niet shuffelen') }}</span>
                             </x-input.toggle-row-with-title>
                         @endif
 
@@ -522,6 +522,7 @@
     <x-modal.question-editor-dirty-question-modal
             :item="strtolower($this->isGroupQuestion() ? __('cms.group-question') : __('drawing-modal.Vraag'))"
             :new="!$this->editModeForExistingQuestion()"/>
+    @if(!$this->withDrawer)
     <div class="question-editor-footer" x-data>
         <div class="question-editor-footer-button-container">
 
@@ -554,4 +555,5 @@
             </button>
         </div>
     </div>
+        @endif
 </div>

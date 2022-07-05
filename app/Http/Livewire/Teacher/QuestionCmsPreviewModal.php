@@ -94,6 +94,9 @@ class QuestionCmsPreviewModal extends ModalComponent implements QuestionCms
 
     public function __call($method, $arguments = null)
     {
+        if (in_array($method, ['updating', 'updated'])) {
+            return true;
+        }
         if ($this->obj && is_array($method) && method_exists($this->obj, 'arrayCallback')) {
             return $this->obj->arrayCallback($method);
         }

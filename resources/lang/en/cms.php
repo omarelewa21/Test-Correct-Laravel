@@ -85,6 +85,7 @@ return [
     'Sluiten na beantwoorden'                                                                => 'Closing when answered',
     'Openbaar maken'                                                                         => 'Make public',
     'Deze vraag niet shuffelen'                                                              => 'Don\'t shuffle this question',
+    'Deze vraaggroep niet shuffelen'                                                         => 'Don\'t shuffle this group',
     'Bespreken in de klas'                                                                   => 'Discuss in class',
     'Notities toestaan'                                                                      => 'Allow notes',
     'Halve puntenbeoordeling mogelijk'                                                       => 'Allow halve points review',

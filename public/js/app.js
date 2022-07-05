@@ -6000,13 +6000,20 @@ document.addEventListener('alpine:init', function () {
         this.scroll(boundingRect.x + boundingRect.width);
         this.$store.questionBank.active = true;
       },
-      hideQuestionBank: function hideQuestionBank(container) {
+      hideQuestionBank: function hideQuestionBank() {
         var _this10 = this;
 
         this.$root.querySelectorAll('.slide-container').forEach(function (slide) {
           slide.classList.add('opacity-0');
         });
         this.$store.questionBank.active = false;
+
+        if (this.$store.questionBank.inGroup) {
+          var drawerComponent = getClosestLivewireComponentByAttribute(this.$el, 'cms-drawer');
+          drawerComponent.set('groupId', null);
+          this.$store.questionBank.inGroup = false;
+        }
+
         this.$nextTick(function () {
           _this10.drawer.classList.remove('fullscreen');
 
@@ -6763,7 +6770,7 @@ window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
 window.Pusher = __webpack_require__(/*! pusher-js */ "./node_modules/pusher-js/dist/web/pusher.js");
 window.Echo = new laravel_echo__WEBPACK_IMPORTED_MODULE_0__["default"]({
   broadcaster: 'pusher',
-  key: "51d7221bf733999d7138",
+  key: "fc18ed69b446aeb8c8a5",
   cluster: "eu",
   forceTLS: true
 });

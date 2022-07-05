@@ -27,13 +27,12 @@
         </div>
     </div>
     <div class="flex w-full justify-between text-base mb-1">
-        <div class="flex">
-            <span class="bold min-w-[125px]">{{ $question->typeName }}</span>
+        <div class="flex gap-5">
+            <span class="bold">{{ $question->typeName }}</span>
             <span>{!! optional($question->subject)->name ?? __('general.unavailable') !!}</span>
         </div>
         <div class="text-sm">
-            <span class="note">{{ __('general.Laatst gewijzigd') }}:</span>
-            <span class="note">{{ $lastUpdated }}</span>
+            <span class="note">{{ __('general.Laatst gewijzigd') }}: {{ $lastUpdated }}</span>
         </div>
     </div>
     <div class="flex w-full justify-between text-base">
@@ -64,9 +63,9 @@
                         <x-icon.checkmark-circle color="var(--cta-primary)"/>
                     </span>
                 @endif
-                <button x-show="$store.questionBank.active" class="new-button button-primary w-10 items-center justify-center flex"
-                        wire:click.stop="handleCheckboxClick('{{ $question->uuid }}')"
-                        @click="$el.disabled = true"
+                <button x-show="$store.questionBank.active"
+                        class="new-button button-primary w-10 items-center justify-center flex"
+                        @click.stop="addQuestionToTest($el, '{{ $question->uuid }}')"
                 >
                     <x-icon.plus-2/>
                 </button>
