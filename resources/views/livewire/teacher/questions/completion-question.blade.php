@@ -4,6 +4,6 @@
             wire:model.debounce.1000ms="question.question"
             editorId="{{ $questionEditorId }}"
             type="cms-completion"
-            :disabled="true"
+            :disabled="isset($preview)"
     />
 @endsection
