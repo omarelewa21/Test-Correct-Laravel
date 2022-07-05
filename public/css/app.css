@@ -5433,6 +5433,12 @@ video {
 .right-14{
   right: 3.5rem;
 }
+.top-\[var\(--header-width\)\]{
+  top: var(--header-width);
+}
+.top-\[var\(--header-height\)\]{
+  top: var(--header-height);
+}
 .isolate{
   isolation: isolate;
 }
