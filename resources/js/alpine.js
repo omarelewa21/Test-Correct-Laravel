@@ -419,11 +419,17 @@ document.addEventListener('alpine:init', () => {
             this.scroll(boundingRect.x + boundingRect.width);
             this.$store.questionBank.active = true;
         },
-        hideQuestionBank(container) {
+        hideQuestionBank() {
             this.$root.querySelectorAll('.slide-container').forEach((slide) => {
                 slide.classList.add('opacity-0')
             })
             this.$store.questionBank.active = false;
+
+            if (this.$store.questionBank.inGroup) {
+                let drawerComponent = getClosestLivewireComponentByAttribute(this.$el, 'cms-drawer');
+                drawerComponent.set('groupId', null);
+                this.$store.questionBank.inGroup = false;
+            }
             this.$nextTick(() => {
                 this.drawer.classList.remove('fullscreen');
                 this.home();

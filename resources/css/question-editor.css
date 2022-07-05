@@ -319,9 +319,9 @@
     height: max-content;
     width: 100%;
     background-color: var(--light-grey);
-    z-index: 1;
+    z-index: 3;
     transition: left ease-in-out 300ms;
-    padding-bottom: var(--header-height);
+    padding-bottom: 2rem;
 }
 
 #cms-preview .question-editor-preview-header {

@@ -143,13 +143,7 @@ class QuestionBank extends Component
 
     public function handleCheckboxClick($questionUuid)
     {
-//        if ($this->isQuestionInTest($questionId)) {
-//            $this->emitTo('drawer.cms', 'deleteQuestionByQuestionId', $questionId);
-//            $this->removeQuestionFromTest($questionId);
-//            return;
-//        }
-
-        $this->addQuestionToTest(Question::whereUuid($questionUuid)->value('id'));
+        return $this->addQuestionToTest(Question::whereUuid($questionUuid)->value('id'));
     }
 
     public function addQuestionToTest($questionId)
@@ -168,6 +162,7 @@ class QuestionBank extends Component
             $this->addedQuestionIds[json_decode($response->getContent())->question_id] = 0;
             $this->dispatchBrowserEvent('question-added');
         }
+        return true;
     }
 
     private function getQuestionIdsThatAreAlreadyInTest()

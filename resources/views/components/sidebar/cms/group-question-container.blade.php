@@ -7,12 +7,22 @@
 >
     <div class="flex space-x-2 py-1.5 pl-6 pr-4 cursor-pointer group-question-title-container hover:bg-primary/5 hover:text-primary"
          :class="expand ? 'rotate-svg-270' : 'rotate-svg-90'"
-         @click="expand = !expand; setTimeout(() => {handleVerticalScroll($refs.container1);}, 210);"
     >
-        <x-icon.chevron class="mt-2"/>
+        <x-icon.chevron class="mt-2"
+                        @click.stop="expand = !expand; setTimeout(() => {handleVerticalScroll($refs.container1);}, 210);"
+        />
         <span class="flex flex-1 flex-col truncate text-lg bold"
               :class="($root.querySelectorAll('.question-button.active').length > 0 && !expand) ? 'primary' : ''"
               title="{{ $question->name }}"
+              @click.stop="
+                  $wire.emitTo('teacher.questions.open-short','showQuestion',
+                    {
+                        'testQuestionUuid':'{{ $testQuestion ? $testQuestion->uuid : null }}',
+                        'questionUuid': '{{ $question->uuid }}',
+                        'isSubQuestion': false,
+                        'shouldSave': true
+                    })
+                    "
         >
             <span class="truncate">{{ $question->name }}</span>
             <div class="flex items-center justify-between">

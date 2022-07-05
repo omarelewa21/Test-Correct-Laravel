@@ -1,4 +1,5 @@
-<div class="drawer flex z-[20]"
+<div cms-drawer
+     class="drawer flex z-[20]"
      x-init="
         collapse = window.innerWidth < 1000;
         if (emptyStateActive) backdrop = true;
@@ -138,14 +139,13 @@
             </x-sidebar.slide-container>
 
             <x-sidebar.slide-container class="divide-y divide-bluegrey" x-ref="container2" @mouseenter="handleVerticalScroll($el);">
-                <div class="py-1 px-6 flex">
-                    <x-button.text-button class="rotate-svg-180"
-                                          @click="backToQuestionOverview($refs.container2);dispatchBackdrop()"
-                                          wire:click="$set('groupId', null)"
-                    >
-                        <x-icon.arrow/>
-                        <span>{{ __('cms.Vraag toevoegen') }}</span>
-                    </x-button.text-button>
+                <div class="py-2 px-5 flex">
+                    <div class="flex items-center space-x-2.5">
+                        <x-button.back-round @click="backToQuestionOverview($refs.container2);dispatchBackdrop()"
+                                             wire:click="$set('groupId', null)"
+                        />
+                        <span class="bold text-lg">{{ __('cms.Vraag toevoegen') }}</span>
+                    </div>
                 </div>
 
                 <x-button.plus-circle class="py-4" @click="showNewQuestion($refs.container2)">
@@ -169,42 +169,16 @@
                 <span></span>
             </x-sidebar.slide-container>
             <x-sidebar.slide-container x-ref="questionbank" @mouseenter="handleVerticalScroll($el);">
-                <div class="py-1 px-6 flex">
-                    <x-button.text-button class="rotate-svg-180"
-                                          @click="hideQuestionBank($refs.container2);$store.questionBank.inGroup = false;"
-                                          wire:click="$set('groupId', null)"
-                    >
-                        <x-icon.arrow/>
-                        <span>{{ __('cms.Bestaande vraag toevoegen') }}</span>
-                    </x-button.text-button>
-
-                    <div class="flex ml-auto items-center">
-                        <div x-data="{active: 2}"
-                             class="text-toggle inline-flex border border-secondary bg-offwhite relative rounded-lg h-10 ">
-                            <span class="px-4 py-2 bold note cursor-default"
-                                  :class="{'primary': active === 1}">{{ __('cms.Toetsenbank') }}</span>
-                            <span @click="active = 2" class="px-4 py-2 bold"
-                                  :class="{'primary': active === 2}">{{ __('cms.Vragenbank') }}</span>
-
-                            <span class="active-border absolute -inset-px border-2 border-primary rounded-lg transition-all"
-                                  :style="active === 1 ? 'left:0' : 'left:'+ $root.offsetWidth/2 +'px' "
-                            ></span>
-                        </div>
-                    </div>
-
-                </div>
-
                 <livewire:teacher.question-bank/>
             </x-sidebar.slide-container>
             <x-sidebar.slide-container x-ref="newquestion" @mouseenter="handleVerticalScroll($el);">
-                <div class="py-1 px-6">
-                    <x-button.text-button class="rotate-svg-180"
-                                          @click="home(); $store.questionBank.inGroup = false;"
-                                          wire:click="$set('groupId', null)"
-                    >
-                        <x-icon.arrow/>
-                        <span>{{ __('cms.choose-question-type') }}</span>
-                    </x-button.text-button>
+                <div class="py-2 px-5">
+                    <div class="flex items-center space-x-2.5">
+                        <x-button.back-round @click="home(); $store.questionBank.inGroup = false;"
+                                             wire:click="$set('groupId', null)"
+                        />
+                        <span class="bold text-lg">{{ __('cms.choose-question-type') }}</span>
+                    </div>
                 </div>
 
                 <x-sidebar.cms.question-types/>

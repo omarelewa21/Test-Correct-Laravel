@@ -1423,9 +1423,9 @@ input[type=number] {
     height: max-content;
     width: 100%;
     background-color: var(--light-grey);
-    z-index: 1;
+    z-index: 3;
     transition: left ease-in-out 300ms;
-    padding-bottom: var(--header-height);
+    padding-bottom: 2rem;
 }
 
 #cms-preview .question-editor-preview-header {
@@ -4932,6 +4932,9 @@ video {
 .z-\[20\]{
   z-index: 20;
 }
+.z-\[2\]{
+  z-index: 2;
+}
 .order-2{
   order: 2;
 }
@@ -5816,6 +5819,9 @@ video {
 }
 .gap-0{
   gap: 0px;
+}
+.gap-5{
+  gap: 1.25rem;
 }
 .gap-y-4{
   row-gap: 1rem;
@@ -8016,11 +8022,6 @@ div.drag-item>div{
   }
 
 
-  .xl\:grid-cols-3{
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-  }
-
-
   .xl\:flex-row{
     flex-direction: row;
   }
@@ -8074,5 +8075,10 @@ div.drag-item>div{
 
   .\32xl\:max-w-6xl{
     max-width: 72rem;
+  }
+
+
+  .\32xl\:grid-cols-3{
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }
