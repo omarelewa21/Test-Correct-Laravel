@@ -27,9 +27,9 @@ abstract class CmsBase implements CmsProvider
     {
         if ($this->instance instanceof OpenShort) {
             if ($this->instance->isPartOfGroupQuestion()) {
-                $tq = GroupQuestionQuestion::whereUuid($this->instance->groupQuestionQuestionId)->first();
+                $tq = GroupQuestionQuestion::whereUuid($this->instance->groupQuestionQuestionId)->firstOrFail();
             } else {
-                $tq = TestQuestion::whereUuid($this->instance->testQuestionId)->first();
+                $tq = TestQuestion::whereUuid($this->instance->testQuestionId)->firstOrFail();
             }
             return $tq->question;
         }

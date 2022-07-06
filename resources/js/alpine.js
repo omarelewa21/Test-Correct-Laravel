@@ -376,7 +376,7 @@ document.addEventListener('alpine:init', () => {
         },
         home() {
             this.scroll(0);
-            this.$dispatch('backdrop');
+            if (!this.$store.cms.emptyState) this.$dispatch('backdrop');
             this.handleVerticalScroll(this.$refs.container1);
         },
         scroll(position) {
@@ -591,6 +591,7 @@ document.addEventListener('alpine:init', () => {
         dirty: false,
         scrollPos: 0,
         reinitOnClose: false,
+        emptyState: false,
     });
     Alpine.store('questionBank', {
         active: false,

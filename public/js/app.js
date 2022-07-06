@@ -5953,7 +5953,7 @@ document.addEventListener('alpine:init', function () {
       },
       home: function home() {
         this.scroll(0);
-        this.$dispatch('backdrop');
+        if (!this.$store.cms.emptyState) this.$dispatch('backdrop');
         this.handleVerticalScroll(this.$refs.container1);
       },
       scroll: function scroll(position) {
@@ -6205,7 +6205,8 @@ document.addEventListener('alpine:init', function () {
     processing: false,
     dirty: false,
     scrollPos: 0,
-    reinitOnClose: false
+    reinitOnClose: false,
+    emptyState: false
   });
   alpinejs__WEBPACK_IMPORTED_MODULE_1__["default"].store('questionBank', {
     active: false,

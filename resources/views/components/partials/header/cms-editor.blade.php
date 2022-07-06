@@ -6,7 +6,7 @@
         >
             <x-icon.arrow/>
         </button>
-        <div class="flex flex-1" x-data="{testName: @js($testName)}">
+        <div class="flex flex-1" x-data="{testName: @entangle('testName')}">
             <h4 class="text-white truncate"
                 :style="{'max-width': $el.parentElement.offsetWidth + 'px'}"
                 x-text="testName"
