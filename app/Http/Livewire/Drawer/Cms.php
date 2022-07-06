@@ -200,6 +200,7 @@ class Cms extends Component
         $this->findOutHowToRedirectButFirstExecuteCallback($testQuestionUuid, function () use ($testQuestionUuid) {
             $response = (new TestQuestionsController)->destroy($this->questionsInTest->firstWhere('uuid', $testQuestionUuid));
         });
+        $this->emit('questionDeleted', $testQuestionUuid);
     }
 
     public function findOutHowToRedirectButFirstExecuteCallback($testQuestionUuid, $callback = null)
@@ -342,6 +343,9 @@ class Cms extends Component
 
     public function showEmpty()
     {
+        $this->type = '';
+        $this->subtype = '';
+        $this->action = 'add';
         $this->emptyStateActive = true;
         $this->emitTo('teacher.questions.open-short', 'showEmpty');
     }

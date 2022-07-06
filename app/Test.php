@@ -993,7 +993,7 @@ class Test extends BaseModel
         return $this->canDuplicate() && $user->isAllowedSchool($this->owner->school);
     }
 
-    public function getDuplicateQuestionIds()
+    public function getDuplicateQuestionIds(
     {
         $testQuestionsForTestQuery = TestQuestion::select('question_id as id')->whereTestId($this->getKey());
         $groupQuestionQuestionsFromTestQuestionsQuery = GroupQuestionQuestion::select('question_id as id')->whereIn('group_question_id', $testQuestionsForTestQuery);
@@ -1003,7 +1003,7 @@ class Test extends BaseModel
             ->fromSub(
                 $testQuestionsForTestQuery
                     ->unionAll($groupQuestionQuestionsFromTestQuestionsQuery)
-                    ->unionAll($groupQuestionQuestionsFromTestQuestionsQuery)
+//                    ->unionAll($groupQuestionQuestionsFromTestQuestionsQuery)
                 ,
                 'duplicateIds'
             )

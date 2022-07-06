@@ -2,7 +2,10 @@
      class="drawer flex z-[20]"
      x-init="
         collapse = window.innerWidth < 1000;
-        if (emptyStateActive) backdrop = true;
+        if (emptyStateActive) {
+            $store.cms.emptyState = true
+            backdrop = true;
+        }
         handleBackdrop = () => {
             if(backdrop) {
                 $root.dataset.closedWithBackdrop = 'true';
@@ -16,7 +19,10 @@
         dispatchBackdrop = () => {
             if(!emptyStateActive) $dispatch('backdrop');
         }
-        $watch('emptyStateActive', (value) => backdrop = value)
+        $watch('emptyStateActive', (value) => {
+            backdrop = value
+            $store.cms.emptyState = value
+        })
         handleLoading = () => {
             loadingOverlay = $store.cms.loading;
         }
