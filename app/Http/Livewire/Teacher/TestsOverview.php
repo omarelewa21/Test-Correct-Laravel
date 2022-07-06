@@ -162,28 +162,7 @@ class TestsOverview extends Component
 //        $this->filters = array_merge($this->filters, auth()->user()->getSearchFilterDefaultsTeacher());
     }
 
-    public function duplicateTest($testUuid)
-    {
-        // @TODO only duplicate when allowed?
 
-        $test = Test::whereUuid($testUuid)->first();
-        if ($test == null) {
-            return 'Error no test was found';
-        }
-
-        if (!$test->canCopy(auth()->user())) {
-            return 'Error duplication not allowed';
-        }
-
-
-        try {
-            $newTest = $test->userDuplicate([], Auth::id());
-        } catch (\Exception $e) {
-            return 'Error duplication failed';
-        }
-
-        return __('general.duplication successful');
-    }
 
     public function openEdit($testUuid)
     {
