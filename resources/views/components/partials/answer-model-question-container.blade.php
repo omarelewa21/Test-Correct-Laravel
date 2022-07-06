@@ -18,6 +18,9 @@
 
             <h1 class="inline-block-pdf ml-2 mr-6" selid="questiontitle" > {!! __($question->caption) !!} </h1>
             <h4 class="inline-block-pdf">{{ $question->score }} pt</h4>
+            @if($this->group)
+                <h1  class="inline-flex ml-2">{{ $this->group->name }}</h1>
+            @endif
         </div>
         @if ($this->answered && $pdf_type=='student_test_take')
             @if($this->isQuestionFullyAnswered())
@@ -33,11 +36,14 @@
             @endif
         @elseif(!$this->answered && $pdf_type=='student_test_take')
             <div class="cta-primary" style="float:right;margin-top: -20px;">
-                <x-icon.close class="student_test_take_checkmark_pdf"/>
+                <x-icon.close-pdf class="student_test_take_checkmark_pdf"/>
                 <span class="ml-auto font-size-14 bold align-middle uppercase">{{ __('test_take.not_answered') }}</span>
             </div>
         @endif
     </div>
+    @if($this->group)
+        <div class="mb-5" >{!! $this->group->question->converted_question_html !!}</div>
+    @endif
     <div class="flex flex-1 overview">
         <div class="questionContainer w-full">
             {{ $slot }}
