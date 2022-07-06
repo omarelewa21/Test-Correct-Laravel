@@ -2,9 +2,9 @@
 @if ( $this->displayMenu)
     <div
         x-ref="contextMenu"
-            x-cloak
+        x-cloak
         x-show="show"
-         x-data = "{
+        x-data = "{
             show: @entangle('displayMenu'),
             posX: @js($x),
             posY: @js($y),
@@ -12,18 +12,17 @@
                     let response = await $wire.getTemporaryLoginToPdfForTest(uuid);
                     window.open(response, '_blank');
                 },
-                duplicateTest: async function(uuid) {
-                    let response = await $wire.duplicateTest(uuid);
-                    Notify.notify(response);
-                },
+            duplicateTest: async function(uuid) {
+                let response = await $wire.duplicateTest(uuid);
+                Notify.notify(response);
+            },
             init() {
                 $nextTick(() => {
                     $refs.contextMenu.style.top = (this.posY + 36 ) + 'px';
                     $refs.contextMenu.style.left = (this.posX - (this.$el.offsetWidth - 36)) + 'px';
                 })
             }
-             }"
-
+        }"
 
          class="fixed bg-white py-2 main-shadow rounded-10 w-72 z-30 "
          @click.outside="show = false; "

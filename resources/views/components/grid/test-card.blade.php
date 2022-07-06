@@ -4,6 +4,8 @@
      @if($this->openTab === 'personal')
         wire:click="openTestDetail('{{ $test->uuid }}')"
      @endif
+     wire:loading.class="hidden"
+     wire:target="filters,clearFilters,$set"
 >
     <div class="flex w-full justify-between mb-2">
         <h3 class="line-clamp-2 min-h-[64px] text-inherit @if(blank($test->name)) italic @endif"
@@ -18,7 +20,7 @@
             <button id="test{{ $test->id }}"
                     class="px-4 py-1.5 -mr-4 rounded-full hover:bg-primary hover:text-white transition-all"
                     :class="{'bg-primary text-white' : testOptionMenu === true}"
-                    @click.stop="console.log($el.getBoundingClientRect());$wire.openContextMenu({x: $el.getBoundingClientRect().x, y: $el.getBoundingClientRect().y, testUuid: '{{ $test->uuid }}', openTab: '{{ $this->openTab }}', id: '{{ $test->id }}' })"
+                    @click.stop="$wire.openContextMenu({x: $el.getBoundingClientRect().x, y: $el.getBoundingClientRect().y, testUuid: '{{ $test->uuid }}', openTab: '{{ $this->openTab }}', id: '{{ $test->id }}' })"
             >
                 <x-icon.options class="text-sysbase"/>
             </button>

@@ -2,14 +2,13 @@
      x-data="{
         openTab: @entangle('openTab'),
          checkedCount: 0,
-          loading: false,
+         loading: false,
          activateCard: (current) => {
             document.querySelectorAll('.grid-card').forEach(el => {
                 el == current
                 ? el.classList.add('text-primary')
                 : el.classList.remove('text-primary');
             });
-
          }
      }"
      wire:init="handleReferrerActions()"
@@ -169,23 +168,22 @@
                      :class="($el.childElementCount !== 1) ? 'mt-2' : ''"
                      class="flex flex-wrap gap-2"
                 >
-
-
                 </div>
             </div>
 
             {{-- Content --}}
             <div class="flex flex-col py-4" style="min-height: 500px">
                 <div class="flex justify-between">
-                    <span class="note text-sm" wire:loading>{{  __('general.searching') }}</span>
+                    <span class="note text-sm" wire:loading  wire:target="filters,clearFilters,$set">{{  __('general.searching') }}</span>
 
                     <span class="note text-sm"
-                          wire:loading.remove>{{  trans_choice('general.number-of-tests', $results->total(), ['count' => $results->total()]) }}</span>
+                          wire:loading.remove  wire:target="filters,clearFilters,$set">{{  trans_choice('general.number-of-tests', $results->total(), ['count' => $results->total()]) }}</span>
                     <div class="flex space-x-2.5">
-                                                <x-button.primary wire:click="$emitTo('navigation-bar', 'redirectToCake', 'planned.my_tests.plan')">
-                                                    <x-icon.schedule/>
-                                                    <span>{{ __('cms.Inplannen') }}</span>
-                                                </x-button.primary>
+                        <x-button.primary
+                                wire:click="$emitTo('navigation-bar', 'redirectToCake', 'planned.my_tests.plan')">
+                            <x-icon.schedule/>
+                            <span>{{ __('cms.Inplannen') }}</span>
+                        </x-button.primary>
                         <x-button.cta wire:click="$emit('openModal', 'teacher.test-start-create-modal')">
                             <x-icon.plus/>
                             <span>{{ __('general.create test') }}</span>
@@ -194,11 +192,15 @@
                 </div>
                 <x-grid class="mt-4">
                     @foreach(range(1, 6) as $value)
-                        <x-grid.loading-card :delay="$value"/>
+                        <x-grid.loading-card
+                                :delay="$value"
+                                wire:loading.class.remove="hidden"
+                                wire:target="filters,clearFilters,$set"
+                        />
                     @endforeach
 
                     @foreach($results as $test)
-                        <x-grid.test-card :test="$test" wire:loading.class="hidden"/>
+                        <x-grid.test-card :test="$test" />
                     @endforeach
                 </x-grid>
                 {{ $results->links('components.partials.tc-paginator') }}
