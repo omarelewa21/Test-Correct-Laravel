@@ -2,6 +2,7 @@
 
 namespace tcCore\Http\Livewire\Teacher;
 
+use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 use tcCore\Test;
 
@@ -28,6 +29,31 @@ class TestsOverviewContextMenu extends Component
         $this->displayMenu = true;
         $this->x = $args['x'];
         $this->y = $args['y'];
+    }
+
+    public function duplicateTest($testUuid)
+    {
+        // @TODO only duplicate when allowed?
+
+        $test = Test::whereUuid($testUuid)->first();
+        if ($test == null) {
+            return 'Error no test was found';
+        }
+
+        if (!$test->canCopy(auth()->user())) {
+            return 'Error duplication not allowed';
+        }
+
+
+        try {
+            $newTest = $test->userDuplicate([], Auth::id());
+        } catch (\Exception $e) {
+            return 'Error duplication failed';
+        }
+
+        redirect()->to(route('teacher.test-detail', ['uuid' => $newTest->uuid]));
+
+        return __('general.duplication successful');
     }
 
     public function render()

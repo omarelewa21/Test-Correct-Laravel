@@ -12,20 +12,13 @@
         >{{ $test->name ? $test->name : __('test.test_name') }}</h3>
         <div class="relative" x-data="{
                 testOptionMenu: false,
-                makePDF: async function(uuid) {
-                    let response = await $wire.getTemporaryLoginToPdfForTest(uuid);
-                    window.open(response, '_blank');
-                },
-                duplicateTest: async function(uuid) {
-                    let response = await $wire.duplicateTest(uuid);
-                    Notify.notify(response);
-                }
+
 
                 }">
             <button id="test{{ $test->id }}"
                     class="px-4 py-1.5 -mr-4 rounded-full hover:bg-primary hover:text-white transition-all"
                     :class="{'bg-primary text-white' : testOptionMenu === true}"
-                    @click="console.log($el.getBoundingClientRect());$wire.openContextMenu({x: $el.getBoundingClientRect().x, y: $el.getBoundingClientRect().y, testUuid: '{{ $test->uuid }}', openTab: '{{ $this->openTab }}', id: '{{ $test->id }}' })"
+                    @click.stop="console.log($el.getBoundingClientRect());$wire.openContextMenu({x: $el.getBoundingClientRect().x, y: $el.getBoundingClientRect().y, testUuid: '{{ $test->uuid }}', openTab: '{{ $this->openTab }}', id: '{{ $test->id }}' })"
             >
                 <x-icon.options class="text-sysbase"/>
             </button>
