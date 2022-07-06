@@ -9,13 +9,32 @@
             posX: @js($x),
             posY: @js($y),
             makePDF: async function(uuid) {
-                    let response = await $wire.getTemporaryLoginToPdfForTest(uuid);
-                    window.open(response, '_blank');
-                },
+                this.show = false;
+                let response = await $wire.getTemporaryLoginToPdfForTest(uuid);
+                window.open(response, '_blank');
+            },
             duplicateTest: async function(uuid) {
+                this.show = false;
                 let response = await $wire.duplicateTest(uuid);
                 Notify.notify(response);
             },
+            planTest:function(uuid) {
+                this.show = false;
+                $wire.emit('openModal','teacher.planning-modal', {testUuid: uuid})
+            },
+            openSettings:function(uuid) {
+                this.show = false;
+                $wire.emit('openModal', 'teacher.test-edit-modal', {testUuid: uuid})
+            },
+            openDelete(uuid) {
+                this.show = false;
+                $wire.emitTo('teacher.test-delete-modal', 'displayModal', {testUuid: uuid });
+            },
+            openPreview(url) {
+                this.show = false;
+                window.open(url, '_blank');
+            },
+
             init() {
                 $nextTick(() => {
                     $refs.contextMenu.style.top = (this.posY + 36 ) + 'px';
@@ -35,14 +54,14 @@
          @click="testOptionMenu=false"
     >
         <button class="flex items-center space-x-2 py-1 px-4 base hover:text-primary hover:bg-offwhite transition w-full"
-                wire:click='$emit("openModal","teacher.planning-modal", {{ json_encode(["testUuid" => $this->test->uuid]) }})'
+                @click="planTest('{{ $test->uuid }}')"
         >
             <x-icon.schedule/>
             <span class="text-base bold inherit">{{ __('cms.Inplannen') }}</span>
         </button>
         @if(in_array($this->openTab, ['school', 'personal']) && $test->canCopy(auth()->user())  )
             <button class="flex items-center space-x-2 py-1 px-4 base hover:text-primary hover:bg-offwhite transition w-full"
-                    @click="(e)=> duplicateTest('{{ $test->uuid }}')"
+                    @click="duplicateTest('{{ $test->uuid }}')"
 
 
             >
@@ -69,7 +88,7 @@
         </button>
         <button
                 class="flex items-center space-x-2 py-1 px-4 base hover:text-primary hover:bg-offwhite transition w-full"
-                @click="window.open('{{ route('teacher.test-preview', ['test'=> $test->uuid]) }}', '_blank')"
+                @click="openPreview('{{ route('teacher.test-preview', ['test'=> $test->uuid]) }}')"
         >
             <x-icon.preview/>
             <span class="text-base bold inherit">{{ __('cms.voorbeeld') }}</span>
@@ -84,7 +103,8 @@
         @endif
         @if( $test->canEdit(auth()->user()))
             <button class="flex items-center space-x-2 py-1 px-4 base hover:text-primary hover:bg-offwhite transition w-full"
-                    wire:click="$emit('openModal', 'teacher.test-edit-modal', ['testUuid' => '{{ $test->uuid }}'])"
+                    @click="openSettings('{{$test->uuid}}')"
+
             >
                 <x-icon.settings/>
                 <span class="text-base bold inherit">{{ __('cms.Instellingen') }}</span>
@@ -96,7 +116,7 @@
 
             >
                 <button class="flex items-center space-x-2 py-1 px-4 base hover:text-primary hover:bg-offwhite transition w-full"
-                        wire:click="$emitTo('teacher.test-delete-modal', 'displayModal', '{{ $test->uuid }}')"
+                        @click="openDelete('{{ $test->uuid }}')"
 
                 >
                     <x-icon.remove/>
