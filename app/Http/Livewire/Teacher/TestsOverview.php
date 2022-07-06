@@ -20,15 +20,14 @@ class TestsOverview extends Component
 
     const PER_PAGE = 12;
 
-
     public $filters = [];
-
 
     private $sorting = ['id' => 'desc'];
 
     protected $queryString = ['openTab', 'referrerAction' => ['except' => '']];
 
     public $openTab = 'personal';
+
     public $referrerAction = '';
 
     public $selected = [];
@@ -47,7 +46,6 @@ class TestsOverview extends Component
         'personal',
     ];
 
-
     public function render()
     {
         $results = $this->getDatasource();
@@ -63,6 +61,12 @@ class TestsOverview extends Component
     public function updatingOpenTab($value)
     {
         $this->resetPage();
+    }
+
+    public function setOpenTab($tab) {
+        if (in_array($tab, $this->allowedTabs)) {
+            $this->openTab = $tab;
+        }
     }
 
     private function getDatasource()
