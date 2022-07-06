@@ -2,8 +2,10 @@
 
 namespace tcCore\Http\Livewire\Teacher;
 
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
+use tcCore\Http\Controllers\TemporaryLoginController;
 use tcCore\Test;
 
 class TestsOverviewContextMenu extends Component
@@ -31,6 +33,31 @@ class TestsOverviewContextMenu extends Component
         $this->y = $args['y'];
     }
 
+    public function getTemporaryLoginToPdfForTest($testUuid)
+    {
+        $controller = new TemporaryLoginController();
+        $request = new Request();
+        $request->merge([
+            'options' => [
+                'page'        => sprintf('/tests/view/%s', $testUuid),
+                'page_action' => sprintf("Loading.show();Popup.load('/tests/pdf_showPDFAttachment/%s', 1000);", $testUuid),
+            ],
+        ]);
+
+        return $controller->toCakeUrl($request);
+    }
+
+    public function openEdit($testUuid)
+    {
+        $this->redirect(route('teacher.question-editor', [
+            'testId'     => $testUuid,
+            'action'     => 'edit',
+            'owner'      => 'test',
+            'withDrawer' => 'true',
+            'referrer'   => 'teacher.tests',
+        ]));
+    }
+
     public function duplicateTest($testUuid)
     {
         // @TODO only duplicate when allowed?
@@ -43,7 +70,6 @@ class TestsOverviewContextMenu extends Component
         if (!$test->canCopy(auth()->user())) {
             return 'Error duplication not allowed';
         }
-
 
         try {
             $newTest = $test->userDuplicate([], Auth::id());
