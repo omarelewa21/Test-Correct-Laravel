@@ -281,25 +281,14 @@ class QuestionBank extends Component
 
     public function clearFilters($tab = null)
     {
-        if ($tab) {
-            return $this->filters[$tab] = [
-                'search'               => '',
-                'subject_id'           => [],
-                'education_level_year' => [],
-                'education_level_id'   => [],
-                'without_groups'       => '',
-                'author_id'            => []
-            ];
-        }
-
-        return collect($this->allowedTabs)->each(function ($tab) {
+        $tabs = $tab ? [$tab] : $this->allowedTabs;
+        return collect($tabs)->each(function ($tab) {
             $this->filters[$tab] = [
-                'search'               => '',
-                'subject_id'           => [],
+                'name'                 => '',
                 'education_level_year' => [],
                 'education_level_id'   => [],
-                'without_groups'       => '',
-                'author_id'            => []
+                'subject_id'           => [],
+                'author_id'            => [],
             ];
         });
     }
