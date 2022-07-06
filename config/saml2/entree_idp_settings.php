@@ -115,6 +115,8 @@ jzwnvGSTRr4zLbXwz+RZmkre'
 //7uD696761sUpsGnDlWjf6oGIsG8YulDhAf8hZTOlB4Xi3GowtQ42gCKVgE1cgXeDRjkOIgSHhXuF
 //N99D5dVbx2vmPcidF8Lqre2S6R7AvpP0vVuh'
 //    ),
+            // @@ Dit certificaat vervangen voor PRODUCTIE
+            // https://hub.entree.kennisnet.nl/openaselect/profiles/saml/
             'x509cert' => 'MIID0TCCArmgAwIBAgIEQ8XygzANBgkqhkiG9w0BAQsFADCBmDELMAkGA1UEBhMCTkwxFTATBgNV
 BAgTDFp1aWQtSG9sbGFuZDETMBEGA1UEBxMKWm9ldGVybWVlcjEcMBoGA1UEChMTU3RpY2h0aW5n
 IEtlbm5pc25ldDEZMBcGA1UECxMQRW50cmVlIEZlZGVyYXRpZTEkMCIGA1UEAxMbYXNlbGVjdC5l
@@ -250,6 +252,8 @@ jzwnvGSTRr4zLbXwz+RZmkre'
                 'binding' => 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST',
             ),
             // De public key in de metadata van Entree Federatie, te vinden in de metadata onder het onderdeel IDPSSODescriptor / X509Certificate.
+            // @@ Dit certificaat vervangen voor TESTING
+            // https://hub-s.entree.kennisnet.nl/openaselect/profiles/saml/
         'x509cert'            => 'MIIF4TCCA8mgAwIBAgIEXXr4LzANBgkqhkiG9w0BAQsFADCBoDELMAkGA1UEBhMCTkwxFTATBgNV
 BAgTDFp1aWQtSG9sbGFuZDETMBEGA1UEBxMKWm9ldGVybWVlcjEcMBoGA1UEChMTU3RpY2h0aW5n
 IEtlbm5pc25ldDEZMBcGA1UECxMQRW50cmVlIEZlZGVyYXRpZTEsMCoGA1UEAxMjYXNlbGVjdC5z
