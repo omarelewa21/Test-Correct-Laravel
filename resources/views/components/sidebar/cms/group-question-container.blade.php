@@ -15,6 +15,8 @@
               :class="($root.querySelectorAll('.question-button.active').length > 0 && !expand) ? 'primary' : ''"
               title="{{ $question->name }}"
               @click.stop="
+                  $store.cms.processing = true;
+                  $dispatch('store-current-question');
                   $wire.emitTo('teacher.questions.open-short','showQuestion',
                     {
                         'testQuestionUuid':'{{ $testQuestion ? $testQuestion->uuid : null }}',

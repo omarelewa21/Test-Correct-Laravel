@@ -28,6 +28,7 @@
             }
             continueAction = () => {
                 dirtyModal = false;
+                $dispatch('hide-backdrop-if-active')
                 $wire.validateFromDirtyModal()
             }
      "

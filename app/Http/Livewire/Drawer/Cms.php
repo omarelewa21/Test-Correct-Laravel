@@ -367,6 +367,9 @@ class Cms extends Component
 
     public function removeDummy()
     {
+        if ($this->action !== 'add') {
+            return true;
+        }
         if ($this->questionsInTest->count() > 0) {
             if ($this->owner === 'group') {
                 $testQuestion = $this->questionsInTest->where('uuid', $this->testQuestionId)->first();

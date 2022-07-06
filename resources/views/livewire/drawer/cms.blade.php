@@ -32,6 +32,7 @@
      @filepond-start.window="loadingOverlay = true;"
      @filepond-finished.window="loadingOverlay = false;"
      @first-question-of-test-added.window="$wire.showFirstQuestionOfTest(); emptyStateActive = false; $nextTick(() => backdrop = true)"
+     @hide-backdrop-if-active.window="if(backdrop) backdrop = false"
      wire:ignore.self
      wire:init="handleCmsInit()"
 >
@@ -127,11 +128,11 @@
                      class="fixed inset-0 bg-white opacity-20"
                      style="width: var(--sidebar-width)"></div>
 
-                <x-button.plus-circle @click="addGroup()">
+                <x-button.plus-circle @click.stop="addGroup()">
                     {{ __('cms.Vraaggroep toevoegen') }}
                 </x-button.plus-circle>
 
-                <x-button.plus-circle @click="showAddQuestionSlide();dispatchBackdrop()"
+                <x-button.plus-circle @click.stop="showAddQuestionSlide();dispatchBackdrop()"
                 >
                     {{__('cms.Vraag toevoegen')}}
                 </x-button.plus-circle>
