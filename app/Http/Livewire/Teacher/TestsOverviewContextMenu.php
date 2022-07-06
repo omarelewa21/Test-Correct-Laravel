@@ -82,6 +82,41 @@ class TestsOverviewContextMenu extends Component
         return __('general.duplication successful');
     }
 
+    public function planTest($uuid)
+    {
+        $test = Test::findByUuid($uuid);
+        if (!$test->hasDuplicateQuestions() && !$test->hasToFewQuestionsInCarousel()) {
+            $this->emit('openModal', 'teacher.planning-modal', ['testUuid' => $uuid]);
+            return false;
+        }
+        $primaryAction = false;
+        $message = __('modal.cannot_schedule_test_full_not_author');
+
+        if ($test->author->is(auth()->user())) {
+            $primaryAction = route('teacher.question-editor',
+                [
+                    'action'         => 'add',
+                    'owner'          => 'test',
+                    'testId'         => $test->uuid,
+                    'testQuestionId' => '',
+                    'type'           => '',
+                    'isCloneRequest' => '',
+                    'withDrawer'     => 'true',
+                ]
+            );
+            $message = __('modal.cannot_schedule_test_full_author');
+        }
+
+        $this->emit(
+            'openModal',
+            'alert-modal', [
+            'message'               => $message,
+            'title'                 => __('modal.cannot_schedule_test'),
+            'primaryAction'         => $primaryAction,
+            'primaryActionBtnLabel' => __('modal.Toets bewerken')
+        ]);
+    }
+
     public function render()
     {
         return view('livewire.teacher.tests-overview-context-menu');

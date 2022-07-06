@@ -1023,4 +1023,23 @@ class Test extends BaseModel
 
         return ['regular' => $this->getQuestionCount(), 'group' => $groupQ];
     }
+
+    public static function findByUuid($uuid)
+    {
+        return self::whereUuid($uuid)->first();
+    }
+
+    public function hasDuplicateQuestions()
+    {
+       return count($this->getDuplicateQuestionIds()) > 0;
+    }
+
+    public function hasToFewQuestionsInCarousel()
+    {
+        $this->load(['testQuestions', 'testQuestions.question']);
+        $countCarouselQuestionWithToFewQuestions = $this->testQuestions->filter(function($testQuestion) {
+            return ($testQuestion->question instanceof \tcCore\GroupQuestion && !$testQuestion->question->hasEnoughSubQuestionsAsCarousel());
+        })->count();
+        return $countCarouselQuestionWithToFewQuestions != 0;
+    }
 }
