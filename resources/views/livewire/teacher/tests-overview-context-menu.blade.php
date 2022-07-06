@@ -20,7 +20,7 @@
             },
             planTest:function(uuid) {
                 this.show = false;
-                $wire.emit('openModal','teacher.planning-modal', {testUuid: uuid})
+                $wire.planTest(uuid);
             },
             openSettings:function(uuid) {
                 this.show = false;
@@ -44,7 +44,7 @@
         }"
 
          class="fixed bg-white py-2 main-shadow rounded-10 w-72 z-30 "
-         @click.outside="show = false; "
+         @click.outside="show = false;"
          x-transition:enter="transition ease-out origin-top-right duration-200"
          x-transition:enter-start="opacity-0 transform scale-90"
          x-transition:enter-end="opacity-100 transform scale-100"
