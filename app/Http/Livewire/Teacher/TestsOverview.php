@@ -163,33 +163,6 @@ class TestsOverview extends Component
     }
 
 
-
-    public function openEdit($testUuid)
-    {
-        $this->redirect(route('teacher.question-editor', [
-            'testId'     => $testUuid,
-            'action'     => 'edit',
-            'owner'      => 'test',
-            'withDrawer' => 'true',
-            'referrer'   => 'teacher.tests',
-        ]));
-    }
-
-    public function getTemporaryLoginToPdfForTest($testUuid)
-    {
-        $controller = new TemporaryLoginController();
-        $request = new Request();
-        $request->merge([
-            'options' => [
-                'page'        => sprintf('/tests/view/%s', $testUuid),
-                'page_action' => sprintf("Loading.show();Popup.load('/tests/pdf_showPDFAttachment/%s', 1000);", $testUuid),
-            ],
-        ]);
-
-        return $controller->toCakeUrl($request);
-    }
-
-
     public function getEducationLevelProperty()
     {
         return EducationLevel::filtered(['user_id' => auth()->id()], ['name' => 'desc'])
