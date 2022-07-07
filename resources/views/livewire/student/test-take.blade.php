@@ -51,7 +51,7 @@
                 // Livewire.hook('message.sent', (message, component) => {});
                 Livewire.hook('message.failed', (message, component) => {
                     let container;
-                    if(!window.navigator.online && message.component.hasOwnProperty('fingerprint') && message.component.fingerprint.name.startsWith('question.')) {
+                    if(!window.navigator.onLine && message.component.hasOwnProperty('fingerprint') && message.component.fingerprint.name.startsWith('question.')) {
                         const listener = () => {
                             // if(window.navigator.online) {
                                 if (container.type == 'callMethod') {
