@@ -84,6 +84,7 @@ Route::middleware('auth')->group(function () {
 
     Route::middleware(['dll', 'student'])->prefix('appapi')->name('appapi')->group(function() {
         Route::put('/test_participant/{test_participant}/hand_in', [tcCore\Http\Controllers\AppApi::class, 'handIn'])->name('appapi-hand-in');
+        Route::put('/test_participant/{test_participant}/fraud_event', [tcCore\Http\Controllers\AppApi::class, 'fraudEvent'])->name('appapi-fraud-event');
     });
 
     Route::get('/entree-link', tcCore\Http\Livewire\Auth\EntreeLink::class)->name('entree-link');
