@@ -223,6 +223,10 @@ class QuestionBank extends Component
             ->when(!$this->inGroup, function($query) {
                 $query->where('is_subquestion', 0);
             })
+            // strip GroupQuestions from result when inGroup is set to a guid;
+            ->when($this->inGroup, function($query){
+                $query->where('type', '!=', 'GroupQuestion');
+            })
             ->orderby('created_at', 'desc')
             ->distinct();
     }
