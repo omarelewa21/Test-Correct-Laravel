@@ -146,7 +146,7 @@ class PdfController extends Controller
     private function snappyToPdfFromString($html)
     {
         //dump($html);
-//        file_put_contents(storage_path('temp/result1.html'),$html);
+        file_put_contents(storage_path('temp/result1.html'),$html);
 
 //        $html = file_get_contents(storage_path('temp/result1.html'));
 

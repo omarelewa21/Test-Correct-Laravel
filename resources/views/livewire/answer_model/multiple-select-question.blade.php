@@ -17,7 +17,7 @@
                                     class="hidden"
                                     value="{{ $value }}"
                             >
-                            <div style="display: inline;">{!! $this->answerText[$key] !!}</div>
+                            <div class="mc-radio-label-pdf">{!! $this->answerText[$key] !!}</div>
                             <div class="{!! ($value == 1) ? '' :'hidden' !!}" style="float:right;">
                                 <x-icon.checkmark-pdf ></x-icon.checkmark-pdf>
                                 {!! $this->scoreStruct[$key] !!} pt

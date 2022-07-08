@@ -127,6 +127,9 @@ p{
 .mc-radio,.arq-radio{
     margin-top: 8px;
 }
+.mc-radio-label-pdf, .mc-radio-label-pdf *{
+    display: inline;
+}
 .bg-primary-light {
     background: #e6edfa;
 }
@@ -298,7 +301,7 @@ div.drag-item>div{
     margin: 0!important;
 }
 .matrix-table td,.matrix-table th{
-    white-space: nowrap;
+    /*white-space: nowrap;*/
     text-align: left;
 }
 .matrix-table td>label>div{
