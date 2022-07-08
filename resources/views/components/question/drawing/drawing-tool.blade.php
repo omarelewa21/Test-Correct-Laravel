@@ -161,7 +161,7 @@
     </div>
     <div id="canvas-sidebar-container" class="overflow-hidden">
         <article id="canvas" class="overflow-hidden">
-            <svg id="svg-canvas" xmlns="http://www.w3.org/2000/svg" class="overflow-hidden">
+            <svg id="svg-canvas" x-ref="svg-canvas" xmlns="http://www.w3.org/2000/svg" class="overflow-hidden">
                 <defs>
                     <marker id="svg-filled-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6"
                             orient="auto-start-reverse">
@@ -375,3 +375,11 @@
           data-image="{{ __("drawing-modal.Afbeelding") }}"
           data-path="{{ __("drawing-modal.Penlijn") }}"
 ></template>
+
+<script>
+    function setCanvasState(isOpen=false){
+        isOpen
+        ? document.querySelector('#svg-canvas').style.pointerEvents = "none"
+        : document.querySelector('#svg-canvas').style.pointerEvents = "initial"
+    }
+</script>
