@@ -3,13 +3,14 @@
 namespace tcCore\Http\Livewire\TestTakeOverviewPreview;
 
 use Livewire\Component;
+use tcCore\Http\Traits\WithGroups;
 use tcCore\Question;
 use tcCore\Http\Helpers\BaseHelper;
 use tcCore\Http\Traits\WithCloseable;
 
 class CompletionQuestion extends Component
 {
-    use WithCloseable;
+    use WithCloseable, WithGroups;
 
     protected $listeners = ['questionUpdated' => 'questionUpdated'];
 
@@ -42,7 +43,8 @@ class CompletionQuestion extends Component
 
         $replacementFunction = function ($matches) use ($question) {
             $tag_id = $matches[1] - 1; // the completion_question_answers list is 1 based but the inputs need to be 0 based
-            return sprintf('<span class="form-input resize-none overflow-ellipsis rounded-10 pdf-answer-model-input" >%s </span>', $this->answer[$tag_id]);
+            $answer = array_key_exists($tag_id,$this->answer)?$this->answer[$tag_id]:'';
+            return sprintf('<span class="form-input resize-none overflow-ellipsis rounded-10 pdf-answer-model-input" >%s </span>', $answer);
         };
 
         return preg_replace_callback($this->searchPattern, $replacementFunction, $question_text);
@@ -81,11 +83,6 @@ class CompletionQuestion extends Component
                     return $this->getOption($answers,$this->answer[$matches[1]]);
                 }
                 return '<span class="overflow-ellipsis rounded-10 pdf-answer-model-select" ></span>';
-
-//                return sprintf('<select wire:model="answer.%s" class="form-input text-base disabled max-w-full overflow-ellipsis overflow-hidden" selid="testtake-select" disabled>%s</select>', $matches[1],
-//                    $this->getOptions($answers));
-
-//                return $this->Form->input('Answer.'.$tag_id ,['id' => 'answer_' . $tag_id, 'class' => 'multi_selection_answer', 'onchange' => 'Answer.answerChanged = true', 'value' => $value, 'options' => $answers, 'label' => false, 'div' => false, 'style' => 'display:inline-block; width:150px']);
             },
             $question_text
         );

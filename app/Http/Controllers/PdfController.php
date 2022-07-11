@@ -23,7 +23,6 @@ class PdfController extends Controller
      */
     public function HtmlToPdf(HtmlToPdfRequest $request)
     {
-//        return $this->wkhtmlToPdf($request);
         $html = $this->base64ImgPaths($request->get('html'));
         $html = $this->svgWirisFormulas($html);
         $output = PdfHelper::HtmlToPdf($html);
@@ -148,6 +147,7 @@ class PdfController extends Controller
     {
         //dump($html);
 //        file_put_contents(storage_path('temp/result1.html'),$html);
+
 //        $html = file_get_contents(storage_path('temp/result1.html'));
 
         $output = \PDF::loadHtml($html)->setOption('header-html', resource_path('pdf_templates/header.html'))->setOption('footer-html', resource_path('pdf_templates/footer.html'));
