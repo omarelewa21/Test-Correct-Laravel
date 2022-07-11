@@ -23,17 +23,27 @@ class PdfController extends Controller
      */
     public function HtmlToPdf(HtmlToPdfRequest $request)
     {
-        $html = $this->base64ImgPaths($request->get('html'));
-        $html = $this->svgWirisFormulas($html);
-        $output = PdfHelper::HtmlToPdf($html);
-        return response($output);
+        ini_set('max_execution_time', '90');
+        try {
+            $html = $this->base64ImgPaths($request->get('html'));
+            $html = $this->svgWirisFormulas($html);
+            $output = PdfHelper::HtmlToPdf($html);
+            return response($output);
+        }catch(\Exception $e){
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
     }
 
     public function HtmlToPdfFromString($html)
     {
-        $html = $this->base64ImgPaths($html);
-        $html = $this->svgWirisFormulas($html);
-        return $this->snappyToPdfFromString($html);
+        try {
+            ini_set('max_execution_time', '90');
+            $html = $this->base64ImgPaths($html);
+            $html = $this->svgWirisFormulas($html);
+            return $this->snappyToPdfFromString($html);
+        }catch(\Exception $e){
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
     }
 
     public function getSetting($setting)
