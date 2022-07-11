@@ -50,7 +50,7 @@
                         <x-icon.checkmark-circle color="var(--cta-primary)"/>
                     </span>
                 @endif
-                <x-button.cta x-show="$store.questionBank.active" wire:click.stop="handleCheckboxClick('{{ $uuid }}')"
+                <x-button.cta x-data="{}" x-show="$store.questionBank.active" wire:click.stop="handleCheckboxClick('{{ $uuid }}')"
                               @click="$el.disabled = true">
                     <x-icon.plus-2/>
                     <span>{{ __('cms.Toevoegen') }}</span>

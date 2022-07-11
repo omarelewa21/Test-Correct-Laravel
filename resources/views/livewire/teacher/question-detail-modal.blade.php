@@ -243,7 +243,7 @@
                     <x-icon.checkmark-circle color="var(--cta-primary)"/>
                 </span>
             @endif
-            <button x-cloak x-show="$store.questionBank.active" class="new-button button-cta w-10 items-center justify-center flex"
+            <button x-cloak x-data="{}" x-show="$store.questionBank.active" class="new-button button-cta w-10 items-center justify-center flex"
                     wire:click.stop="addQuestion"
                     @click="$el.disabled = true"
             >
