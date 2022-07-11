@@ -55,8 +55,12 @@ class TestsOverview extends Component
 
     public function updatingFilters($value, $filter)
     {
-        session(['test-overview-filters' => $this->filters]);
         $this->resetPage();
+    }
+
+    public function updatedFilters($value, $filter)
+    {
+        session(['tests-overview-filters' => $this->filters]);
     }
 
     public function updatingOpenTab($value)
@@ -64,7 +68,8 @@ class TestsOverview extends Component
         $this->resetPage();
     }
 
-    public function setOpenTab($tab) {
+    public function setOpenTab($tab)
+    {
         if (in_array($tab, $this->allowedTabs)) {
             $this->openTab = $tab;
         }
@@ -152,8 +157,8 @@ class TestsOverview extends Component
 
     private function setFilters()
     {
-        if (session()->has('test-overview-filters'))
-            $this->filters = session()->get('test-overview-filters');
+        if (session()->has('tests-overview-filters'))
+            $this->filters = session()->get('tests-overview-filters');
         else {
             collect($this->allowedTabs)->each(function ($tab) {
                 $this->filters[$tab] = [
