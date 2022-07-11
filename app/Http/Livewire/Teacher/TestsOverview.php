@@ -58,12 +58,18 @@ class TestsOverview extends Component
         $this->resetPage();
     }
 
+    public function updatedFilters($value, $filter)
+    {
+        session(['tests-overview-filters' => $this->filters]);
+    }
+
     public function updatingOpenTab($value)
     {
         $this->resetPage();
     }
 
-    public function setOpenTab($tab) {
+    public function setOpenTab($tab)
+    {
         if (in_array($tab, $this->allowedTabs)) {
             $this->openTab = $tab;
         }
@@ -151,15 +157,19 @@ class TestsOverview extends Component
 
     private function setFilters()
     {
-        collect($this->allowedTabs)->each(function ($tab) {
-            $this->filters[$tab] = [
-                'name'                 => '',
-                'education_level_year' => [],
-                'education_level_id'   => [],
-                'subject_id'           => [],
-                'author_id'            => [],
-            ];
-        });
+        if (session()->has('tests-overview-filters'))
+            $this->filters = session()->get('tests-overview-filters');
+        else {
+            collect($this->allowedTabs)->each(function ($tab) {
+                $this->filters[$tab] = [
+                    'name'                 => '',
+                    'education_level_year' => [],
+                    'education_level_id'   => [],
+                    'subject_id'           => [],
+                    'author_id'            => [],
+                ];
+            });
+        }
 
 
         /** @TODO default search filter for teacher (is dirty now) */
