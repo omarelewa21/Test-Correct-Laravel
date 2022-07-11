@@ -1,6 +1,6 @@
 <x-partials.answer-model-question-container :number="$number" :question="$question" :answer="$answer">
     <div class="w-full space-y-3 matching-question">
-        <div>
+        <div class="children-block-pdf">
             {!!   $question->converted_question_html !!}
         </div>
         @if($question->subtype == 'Classify')
