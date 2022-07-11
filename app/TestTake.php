@@ -410,11 +410,6 @@ class TestTake extends BaseModel
         return $this->hasMany('tcCore\TestRating');
     }
 
-    public function archived_model()
-    {
-        return $this->hasOne('tcCore\ArchivedModel', 'archivable_model_id', 'id')->where('archivable_model_type', 'tcCore\TestTake');
-    }
-
     public function schoolClasses()
     {
         $id = $this->getKey();

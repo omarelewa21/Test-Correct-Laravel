@@ -45,7 +45,7 @@ class Discuss extends Component
 
     public function getTestTakesToDiscuss($orderColumn, $orderDirection)
     {
-        return TestTake::distinct()->doesntHave('archived_model')
+        return TestTake::distinct()
             ->select('test_takes.*', 'tests.name as test_name', 'subjects.name as subject_name', 'test_take_statuses.name as status_name')
             ->leftJoin('test_participants', 'test_participants.test_take_id', '=', 'test_takes.id')
             ->leftJoin('tests', 'tests.id', '=', 'test_takes.test_id')
@@ -53,6 +53,7 @@ class Discuss extends Component
             ->leftJoin('test_take_statuses', 'test_take_statuses.id', '=', 'test_takes.test_take_status_id')
             ->where('test_participants.user_id', Auth::id())
             ->whereIn('test_takes.test_take_status_id', [TestTakeStatus::STATUS_TAKEN, TestTakeStatus::STATUS_DISCUSSING])
+            ->doesntHave('archived_model')
             ->orderBy($orderColumn, $orderDirection)
             ->paginate($this->paginateBy);
     }
