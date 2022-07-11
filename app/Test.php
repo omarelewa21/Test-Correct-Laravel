@@ -1045,4 +1045,12 @@ class Test extends BaseModel
         })->count();
         return $countCarouselQuestionWithToFewQuestions != 0;
     }
+
+    public function hasEqualScoresForSubQuestions(){
+        $this->load(['testQuestions', 'testQuestions.question']);
+        $countCarouselQuestionWithToFewQuestions = $this->testQuestions->filter(function($testQuestion) {
+            return ($testQuestion->question instanceof \tcCore\GroupQuestion && !$testQuestion->question->hasEqualScoresForSubQuestions());
+        })->count();
+        return $countCarouselQuestionWithToFewQuestions != 0;
+    }
 }
