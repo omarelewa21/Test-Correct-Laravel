@@ -26,6 +26,8 @@ RichTextEditor = {
         if (editor) {
             editor.destroy(true)
         }
+        CKEDITOR.disableAutoInline = true;
+        CKEDITOR.config.removePlugins = 'scayt,wsc';
         CKEDITOR.replace(editorId, {});
         editor = CKEDITOR.instances[editorId];
         editor.on('change', function (e) {
@@ -38,6 +40,11 @@ RichTextEditor = {
         });
         editor.on('simpleuploads.finishedUpload', function (e) {
             RichTextEditor.sendInputEventToEditor(editorId, e);
+        });
+        editor.on('instanceReady', function(event) {
+            WEBSPELLCHECKER.init({
+                container: editor.window.getFrame() ? editor.window.getFrame().$ : editor.element.$
+            });
         });
     },
     initSelectionCMS:function(editorId) {
