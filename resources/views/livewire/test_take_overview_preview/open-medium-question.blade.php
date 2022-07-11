@@ -4,7 +4,7 @@
          >
 
         <div class="flex-col space-y-3">
-            <div>
+            <div class="children-block-pdf">
                 {!! $question->converted_question_html !!}
             </div>
             <x-input.group wire:ignore class="w-full question-no-break-open-short">
