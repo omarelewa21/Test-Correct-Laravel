@@ -13,6 +13,11 @@ class TestDetail extends Component
     protected $test;
     public $groupQuestionDetail;
 
+    protected $listeners = [
+        'test-deleted' => 'redirectToTestOverview',
+        'testSettingsUpdated' => '$refresh',
+    ];
+
     public function mount($uuid)
     {
         $this->uuid = $uuid;
@@ -70,4 +75,5 @@ class TestDetail extends Component
     {
         $this->emit('openModal', 'teacher.question-detail-modal', ['questionUuid' => $questionUuid ]);
     }
+
 }
