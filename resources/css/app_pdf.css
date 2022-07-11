@@ -353,6 +353,9 @@ div.drag-item>div{
 .prevent-pagebreak{
     page-break-before:auto;
 }
+.page-break-before-pdf{
+    page-break-before: always;
+}
 .img-no-break{
     page-break-inside: avoid;
 }
@@ -373,4 +376,16 @@ div.drag-item>div{
 }
 .justify-between {
     -webkit-justify-content: space-between;
+}
+h2.student-testtake-answers-separator{
+    width: 100%;
+    text-align: center;
+    border:0;
+    border-bottom: 3px solid #000;
+    line-height: 0.1em;
+    margin: 10px 0 20px;
+}
+h2.student-testtake-answers-separator span{
+    background:#fff;
+    padding:0 10px;
 }

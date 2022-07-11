@@ -3,7 +3,7 @@
         <div x-data="{showMe: true}"
              x-show="showMe"
              x-on:force-taken-away-blur.window="showMe = !$event.detail.shouldBlur;"
-             class="w-full space-y-8 mt-40" :style="calculateMarginTop()">
+             class="w-full space-y-8 mt-40 page-break-before-pdf" :style="calculateMarginTop()">
             <h4 class="mb-7">{{ $studentName }}</h4>
             @push('styling')
                 <style>
@@ -80,6 +80,7 @@
 
                 </div>
             @endforeach
+            <h2 class="student-testtake-answers-separator"><span class="student-testtake-answers-label">{{__('Einde antwoorden').' '.$studentName}}</span></h2>
         </div>
 
 
