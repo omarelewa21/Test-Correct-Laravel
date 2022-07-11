@@ -57,9 +57,9 @@
                 @endif
                 <span class="note text-sm">{{ $question->isType('GroupQuestion') ?  $question->total_score ?? 0 : $question->score ?? 0 }}pt.</span>
             </div>
-            <div class="flex space-x-2.5 items-center">
+            <div class="flex space-x-2.5 items-center" wire:key="is_present_{{ $question->id }}">
                 @if($this->isQuestionInTest($question->id) || $this->isQuestionInTest($question->derived_question_id))
-                    <span title="{{ __('cms.Deze vraag is aanwezig in de toets.') }}">
+                    <span  title="{{ __('cms.Deze vraag is aanwezig in de toets.') }}">
                         <x-icon.checkmark-circle color="var(--cta-primary)"/>
                     </span>
                 @endif
