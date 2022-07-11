@@ -287,7 +287,7 @@ div.input-group u, div.input-group strong, div.input-group span,p strong{
 
 }
 
-.pdf-dropzone {
+.pdf-dropzone, .pdf-dropzone-heading {
     width: 400px !important;
 }
 div.drag-item>div{
