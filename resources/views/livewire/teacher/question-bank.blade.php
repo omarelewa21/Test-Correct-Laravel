@@ -225,7 +225,7 @@
                 {{-- Content --}}
                 <div class="flex flex-col py-4" style="min-height: 500px">
                     <div class="flex">
-                        <span class="note text-sm">{{ $this->resultCount }} resultaten </span>
+                        <span class="note text-sm">{{ $this->resultCount }} resultaten</span>
                     </div>
 
                     <x-grid class="mt-4" x-show="filterLoading" x-cloak>

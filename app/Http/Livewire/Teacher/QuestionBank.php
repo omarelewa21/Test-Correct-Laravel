@@ -182,7 +182,7 @@ class QuestionBank extends Component
     private function removeQuestionFromTest($questionId)
     {
         $this->addedQuestionIds = collect($this->addedQuestionIds)->reject(function ($index, $id) use ($questionId) {
-            return $id === $questionId;
+            return $id == $questionId;
         });
     }
 
