@@ -235,6 +235,25 @@ class Subject extends BaseModel implements AccessCheckable
         return $query;
     }
 
+    public function scopeNationalItemBankFiltered($query, $filters = [], $sorting = [])
+    {
+        $user = Auth::user();
+
+        $nationalItemBankSchool = SchoolLocation::where('customer_code', config('custom.national_item_bank_school_customercode'))->first();
+        $baseSubjectIds = $user->subjects()->pluck('base_subject_id')->unique();
+        if ($nationalItemBankSchool) {
+            $classIds = $nationalItemBankSchool->schoolClasses()->pluck('id');
+            $tempSubjectIds = Teacher::whereIn('class_id', $classIds)->pluck('subject_id')->unique();
+            $baseSubjects = Subject::whereIn('id', $tempSubjectIds)->get();
+            $subjectIds = $baseSubjects->whereIn('base_subject_id', $baseSubjectIds)->pluck('id')->unique()->toArray();
+        } else { // slower but as a fallback in case there's no cito school
+            $query->where('subjects.id', -1);
+            return $query;
+        }
+        $query->whereIn('id', $subjectIds);
+        return $query;
+    }
+
     public function canAccess()
     {
         $roles = Roles::getUserRoles();

@@ -43,21 +43,19 @@
                     <div class="flex relative cursor-default">
                         {{--                    <div class="flex relative hover:text-primary cursor-pointer" @click="openTab = 3">--}}
                         <span class="bold pt-[0.9375rem] pb-[0.8125rem]  "
-                              :class="openTab === 'national' ? 'primary' : '' ">
+                              :class="openTab === 'umbrella' ? 'primary' : '' ">
                             <span class="text-white  bg-mid-grey px-2 py-1 rounded-lg">{{ __('general.Scholengemeenschap') }}</span>
                             </span>
                         <span class="absolute w-full bottom-0" style="height: 3px"
-                              :class="openTab === 'national' ? 'bg-primary' : 'bg-transparent' "></span>
+                              :class="openTab === 'umbrella' ? 'bg-primary' : 'bg-transparent' "></span>
                     </div>
                 </div>
 
                 <div>
-                    <div class="flex relative cursor-default">
-                        {{--                    <div class="flex relative hover:text-primary cursor-pointer" @click="openTab = 3">--}}
+{{--                    <div class="flex relative cursor-default">--}}
+                    <div class="flex relative hover:text-primary cursor-pointer" @click="openTab = 'national'">
                         <span class="bold pt-[0.9375rem] pb-[0.8125rem]  "
-                              :class="openTab === 'national' ? 'primary' : '' ">
-                            <span class="text-white  bg-mid-grey px-2 py-1 rounded-lg">{{ __('general.Nationaal') }}</span>
-                        </span>
+                              :class="openTab === 'national' ? 'primary' : '' ">{{ __('general.Nationaal') }}</span>
                         <span class="absolute w-full bottom-0" style="height: 3px"
                               :class="openTab === 'national' ? 'bg-primary' : 'bg-transparent' "></span>
                     </div>

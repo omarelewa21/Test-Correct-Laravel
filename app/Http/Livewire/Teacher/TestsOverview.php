@@ -82,6 +82,8 @@ class TestsOverview extends Component
                 $datasource = $this->getCitoDataSource();
                 break;
             case 'national':
+                $datasource = $this->getNationalDatasource();
+                break;
             case 'personal':
             default :
                 $datasource = $this->getPersonalDatasource();
@@ -109,6 +111,17 @@ class TestsOverview extends Component
     {
         return Test::examFiltered(
             $this->cleanFilterForSearch($this->filters['exams']),
+            $this->sorting
+        )
+            ->with('educationLevel', 'testKind', 'subject', 'author', 'author.school', 'author.schoolLocation')
+            ->paginate(self::PER_PAGE);
+
+    }
+
+    private function getNationalDatasource()
+    {
+        return Test::nationalItemBankFiltered(
+            $this->cleanFilterForSearch($this->filters['national']),
             $this->sorting
         )
             ->with('educationLevel', 'testKind', 'subject', 'author', 'author.school', 'author.schoolLocation')
@@ -223,6 +236,8 @@ class TestsOverview extends Component
     {
         return Subject::when($this->openTab === 'cito', function ($query) {
             $query->citoFiltered([], ['name' => 'asc']);
+        })->when($this->openTab === 'national', function ($query) {
+            $query->nationalItemBankFiltered([], ['name' => 'asc']);
         })->when($this->openTab === 'exams', function ($query) {
             $query->examFiltered([], ['name' => 'asc']);
         }, function ($query) {

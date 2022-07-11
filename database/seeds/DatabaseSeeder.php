@@ -17,5 +17,6 @@ class DatabaseSeeder extends Seeder {
         $this->call(SwitchSchoolAccountTableSeeder::class);
         $this->call(CitoAccountSeeder::class);
         $this->call(ExamSchoolSeeder::class);
+        $this->call(NationalItemBankSeeder::class);
 	}
 }
