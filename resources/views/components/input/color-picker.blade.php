@@ -17,6 +17,7 @@
         '#000000', '#222222', '#454545', '#616161', '#808080', '#9a9a9a',  '#bebebe', '#d6d6d6', '#ebebeb', '#f1f1f1', '#f8f8f8', '#ffffff',
     ]}"
     x-cloak
+    x-effect="$refs.canvas.style.pointerEvents = isOpen ? 'none' : 'initial'"
 >
     <div class="max-w-sm">
         <div class="mb-5">
