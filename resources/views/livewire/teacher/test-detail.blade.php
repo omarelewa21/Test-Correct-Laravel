@@ -54,19 +54,39 @@
     </div>
 
     <div class="flex w-full justify-end mt-3 note text-sm space-x-2.5">
-        <x-button.primary  class="pl-[12px] pr-[12px] opacity-20 cursor-not-allowed" >
-            <x-icon.trash/>
-        </x-button.primary>
-        <x-button.primary  class="pl-[12px] pr-[12px] opacity-20 cursor-not-allowed" >
-            <x-icon.edit/>
-        </x-button.primary>
-        <x-button.primary class="pl-[12px] pr-[12px] " wire:click="$emitTo('navigation-bar', 'redirectToCake', 'planned.my_tests.plan')">
+        @if ($this->test->canDelete(auth()->user()))
+            <x-button.primary
+                    class="pl-[12px] pr-[12px]"
+                    wire:click="$emitTo('teacher.test-delete-modal', 'displayModal', '{{  $this->test->uuid }}')">
+                <x-icon.trash/>
+            </x-button.primary>
+        @else
+            <x-button.primary
+                    class="pl-[12px] pr-[12px] opacity-20 cursor-not-allowed">
+                <x-icon.trash/>
+            </x-button.primary>
+        @endif
+        @if($this->test->canEdit(auth()->user()))
+            <x-button.primary class="pl-[12px] pr-[12px]"
+                              wire:click="$emit('openModal', 'teacher.test-edit-modal', {{ json_encode(['testUuid' => $this->test->uuid ]) }})">
+                <x-icon.edit/>
+            </x-button.primary>
+        @else
+            <x-button.primary class="pl-[12px] pr-[12px] opacity-20 cursor-not-allowed">
+                <x-icon.edit/>
+            </x-button.primary>
+        @endif
+
+        <x-button.primary class="pl-[12px] pr-[12px] "
+                          wire:click="$emitTo('navigation-bar', 'redirectToCake', 'planned.my_tests.plan')">
             <x-icon.preview/>
         </x-button.primary>
-        <x-button.primary class="pl-[12px] pr-[12px] " wire:click="$emitTo('navigation-bar', 'redirectToCake', 'planned.my_tests.plan')">
-            <x-icon.pdf  color="var(--off-white)"/>
+        <x-button.primary class="pl-[12px] pr-[12px] "
+                          wire:click="$emitTo('navigation-bar', 'redirectToCake', 'planned.my_tests.plan')">
+            <x-icon.pdf color="var(--off-white)"/>
         </x-button.primary>
-        <x-button.primary class="pl-[12px] pr-[12px]" wire:click="$emitTo('navigation-bar', 'redirectToCake', 'planned.my_tests.plan')">
+        <x-button.primary class="pl-[12px] pr-[12px]"
+                          wire:click="$emitTo('navigation-bar', 'redirectToCake', 'planned.my_tests.plan')">
             <x-icon.copy/>
         </x-button.primary>
         <x-button.cta wire:click="$emitTo('navigation-bar', 'redirectToCake', 'planned.my_tests.plan')">
@@ -84,8 +104,8 @@
                     @endforeach
 
                     @foreach($this->test->testQuestions as $testQuestion)
-                            {{--<x-grid.question-card :question="$testQuestion->question" />--}}
-                            <x-grid.question-card-detail :testQuestion="$testQuestion"/>
+                        {{--<x-grid.question-card :question="$testQuestion->question" />--}}
+                        <x-grid.question-card-detail :testQuestion="$testQuestion"/>
                     @endforeach
                 </x-grid>
             </div>
@@ -99,4 +119,6 @@
             @endif
         </div>
     </div>
+    <livewire:teacher.test-delete-modal></livewire:teacher.test-delete-modal>
+
 </div>
