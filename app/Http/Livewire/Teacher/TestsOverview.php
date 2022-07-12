@@ -252,7 +252,7 @@ class TestsOverview extends Component
     public function clearFilters($tab = null)
     {
         $tabs = $tab ? [$tab] : $this->allowedTabs;
-        return collect($tabs)->each(function ($tab) {
+        collect($tabs)->each(function ($tab) {
             $this->filters[$tab] = [
                 'name'                 => '',
                 'education_level_year' => [],
@@ -261,6 +261,7 @@ class TestsOverview extends Component
                 'author_id'            => [],
             ];
         });
+        session(['tests-overview-filters' => $this->filters]);
     }
 
     public function hasActiveFilters(): bool
