@@ -107,6 +107,14 @@ class TestsOverviewContextMenu extends Component
             $message = __('modal.cannot_schedule_test_full_author');
         }
 
+        $mode = [
+            'hasDuplicateQuestions' => $test->hasDuplicateQuestions() ,
+            'hasToFewQuestionsInCarousel' => $test->hasToFewQuestionsInCarousel(),
+            'hasEqualScoreForSubQuestions' => $test->hasEqualScoresForSubQuestions(),
+        ];
+
+        $message = $message . print_r($mode, true);
+
         $this->emit(
             'openModal',
             'alert-modal', [
