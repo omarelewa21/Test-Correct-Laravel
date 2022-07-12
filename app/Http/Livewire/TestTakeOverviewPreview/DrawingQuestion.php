@@ -2,6 +2,7 @@
 
 namespace tcCore\Http\Livewire\TestTakeOverviewPreview;
 
+use Bugsnag\BugsnagLaravel\Facades\Bugsnag;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Livewire\Component;
@@ -47,11 +48,16 @@ class DrawingQuestion extends Component
         if(!$this->answered){
             return;
         }
-        $file = Storage::get($answer->getDrawingStoragePath());
-        if (substr($file, 0, 4) ==='<svg') {
-            $this->imgSrc = "data:image/svg+xml;charset=UTF-8," . rawurlencode($file);
-        }else{
-            $this->imgSrc = "data:image/png;base64," . base64_encode(file_get_contents($file));
+        try {
+            $file = Storage::get($answer->getDrawingStoragePath());
+            if (substr($file, 0, 4) === '<svg') {
+                $this->imgSrc = "data:image/svg+xml;charset=UTF-8," . rawurlencode($file);
+            } else {
+                $this->imgSrc = "data:image/png;base64," . base64_encode(file_get_contents($file));
+            }
+        }catch (\Exception $e){
+            Bugsnag::notifyException($e);
+            $this->imgSrc = '';
         }
 
     }
@@ -68,14 +74,17 @@ class DrawingQuestion extends Component
 
     private function getStudenAnswerImage(Answer $answer)
     {
-        $file = Storage::get($answer->getDrawingStoragePath());
-
-        if (substr($file, 0, 4) ==='<svg') {
-            header('Content-type: image/svg+xml');
-            echo $file;
-            die;
+        try{
+            $file = Storage::get($answer->getDrawingStoragePath());
+            if (substr($file, 0, 4) ==='<svg') {
+                header('Content-type: image/svg+xml');
+                echo $file;
+                die;
+            }
+            return file_get_contents($file);
+        }catch (\Exception $e){
+            Bugsnag::notifyException($e);
         }
-
-        return file_get_contents($file);
+        return '';
     }
 }

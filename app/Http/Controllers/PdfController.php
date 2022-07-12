@@ -23,8 +23,8 @@ class PdfController extends Controller
      */
     public function HtmlToPdf(HtmlToPdfRequest $request)
     {
-        ini_set('max_execution_time', '90');
         try {
+            ini_set('max_execution_time', '90');
             $html = $this->base64ImgPaths($request->get('html'));
             $html = $this->svgWirisFormulas($html);
             $output = PdfHelper::HtmlToPdf($html);
@@ -96,6 +96,9 @@ class PdfController extends Controller
             $this->getBase64ImgPath($imgNode,$baseName,$diskName);
         }catch (\Throwable $th) {
             Bugsnag::notifyException($th);
+            $imgNode->setAttribute('width',20);
+            $imgNode->setAttribute('height',20);
+            $imgNode->setAttribute('src', public_path('svg/icons/warning.svg'));
             return;
         }
     }
