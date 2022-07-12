@@ -53,7 +53,21 @@
         </div>
     </div>
 
-    <div class="flex w-full justify-end mt-3 note text-sm space-x-2.5">
+    <div
+            class="flex w-full justify-end mt-3 note text-sm space-x-2.5"
+            x-data = "{
+
+            makePDF: async function(uuid) {
+                this.show = false;
+                let response = await $wire.getTemporaryLoginToPdfForTest(uuid);
+                window.open(response, '_blank');
+            },
+             openPreview(url) {
+                this.show = false;
+                window.open(url, '_blank');
+            }
+        }"
+    >
         @if ($this->test->canDelete(auth()->user()))
             <x-button.primary
                     class="pl-[12px] pr-[12px]"
@@ -68,7 +82,7 @@
         @endif
         @if($this->test->canEdit(auth()->user()))
             <x-button.primary class="pl-[12px] pr-[12px]"
-                              wire:click="$emit('openModal', 'teacher.test-edit-modal', {{ json_encode(['testUuid' => $this->test->uuid ]) }})">
+                              wire:click="openTestInCMS">
                 <x-icon.edit/>
             </x-button.primary>
         @else
@@ -76,20 +90,32 @@
                 <x-icon.edit/>
             </x-button.primary>
         @endif
+            @if($this->test->canEdit(auth()->user()))
+                <x-button.primary class="pl-[12px] pr-[12px]"
+                                  wire:click="$emit('openModal', 'teacher.test-edit-modal', {{ json_encode(['testUuid' => $this->test->uuid ]) }})">
+                    <x-icon.settings/>
+                </x-button.primary>
+            @else
+                <x-button.primary class="pl-[12px] pr-[12px] opacity-20 cursor-not-allowed">
+                    <x-icon.settings/>
+                </x-button.primary>
+            @endif
 
         <x-button.primary class="pl-[12px] pr-[12px] "
-                          wire:click="$emitTo('navigation-bar', 'redirectToCake', 'planned.my_tests.plan')">
+                          @click="openPreview('{{ route('teacher.test-preview', ['test'=> $this->uuid]) }}')"
+        >
             <x-icon.preview/>
         </x-button.primary>
         <x-button.primary class="pl-[12px] pr-[12px] "
-                          wire:click="$emitTo('navigation-bar', 'redirectToCake', 'planned.my_tests.plan')">
+                          @click="makePDF('{{ $this->uuid }}')"
+        >
             <x-icon.pdf color="var(--off-white)"/>
         </x-button.primary>
         <x-button.primary class="pl-[12px] pr-[12px]"
-                          wire:click="$emitTo('navigation-bar', 'redirectToCake', 'planned.my_tests.plan')">
+                          wire:click="duplicateTest">
             <x-icon.copy/>
         </x-button.primary>
-        <x-button.cta wire:click="$emitTo('navigation-bar', 'redirectToCake', 'planned.my_tests.plan')">
+        <x-button.cta wire:click="planTest">
             <x-icon.schedule/>
             <span>{{ __('cms.Inplannen') }}</span>
         </x-button.cta>
