@@ -15,12 +15,12 @@
             "autoDestroy": true,
             "autocorrect": true,
             "autocomplete": true,
-            "serviceProtocol": "http",
+            "serviceProtocol": "https",
             "servicePort": "80",
             "serviceHost": "testwsc.test-correct.nl",
             "servicePath": "wscservice/api"
         }
     </script>
-    <script src="http://testwsc.test-correct.nl:80/wscservice/wscbundle/wscbundle.js"></script>
+    <script src="https://testwsc.test-correct.nl:80/wscservice/wscbundle/wscbundle.js"></script>
 @endpush
 </x-layouts.base>
