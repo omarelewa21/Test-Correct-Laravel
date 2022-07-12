@@ -1046,10 +1046,10 @@ class Test extends BaseModel
         return $countCarouselQuestionWithToFewQuestions != 0;
     }
 
-    public function hasEqualScoresForSubQuestions(){
+    public function hasNotEqualScoresForSubQuestionsInCarousel(){
         $this->load(['testQuestions', 'testQuestions.question']);
         $countCarouselQuestionWithToFewQuestions = $this->testQuestions->filter(function($testQuestion) {
-            return ($testQuestion->question instanceof \tcCore\GroupQuestion && !$testQuestion->question->hasEqualScoresForSubQuestions());
+            return ($testQuestion->question instanceof \tcCore\GroupQuestion && $this->question->isCarouselQuestion() && !$testQuestion->question->hasEqualScoresForSubQuestions());
         })->count();
         return $countCarouselQuestionWithToFewQuestions != 0;
     }
