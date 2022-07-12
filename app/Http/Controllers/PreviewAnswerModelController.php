@@ -36,6 +36,7 @@ class PreviewAnswerModelController extends Controller
 //        return view('test-answer-model-overview',compact(['data', 'current', 'answers', 'playerUrl', 'nav', 'uuid', 'testParticipant', 'styling']));
         $titleForPdfPage = __('Antwoord model').' '.$test->name.' '.Carbon::now()->format('d-m-Y H:i');
         view()->share('titleForPdfPage',$titleForPdfPage);
+        ini_set('max_execution_time', '90');
         $html = view('test-answer-model-overview',compact(['data', 'current', 'answers', 'playerUrl', 'nav', 'uuid', 'testParticipant', 'styling', 'test']))->render();
         return response()->make(PdfController::HtmlToPdfFromString($html), 200, [
             'Content-Type' => 'application/pdf',

@@ -24,6 +24,7 @@ class PreviewTestTakeController extends Controller
         view()->share('titleForPdfPage',$titleForPdfPage);
         view()->share('pdf_type','student_test_take');
         $testParticipants = $testTake->testParticipants()->whereNotNull('answer_id')->get();
+        ini_set('max_execution_time', '90');
         $html = view('test-take-overview-preview',compact(['testTake','testParticipants']))->render();
         return response()->make(PdfController::HtmlToPdfFromString($html), 200, [
             'Content-Type' => 'application/pdf',
