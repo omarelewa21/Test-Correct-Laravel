@@ -99,21 +99,33 @@
                 </div>
                 <div class="flex flex-wrap w-full gap-2 mt-2">
 
-                    <x-input.choices-select
-                            wire:key="subject_{{ $this->openTab }}"
-                            :multiple="true"
-                            :options="$this->subjects"
-                            :withSearch="true"
-                            placeholderText="Vak"
-                            wire:model="filters.{{ $this->openTab }}.subject_id"
-                            filterContainer="questionbank-{{ $this->openTab }}-active-filters"
-                    />
+                    @if ($this->openTab === 'national')
+                        <x-input.choices-select
+                                wire:key="base_subject_{{ $this->openTab }}"
+                                :multiple="true"
+                                :options="$this->basesubjects"
+                                :withSearch="true"
+                                placeholderText="{{ __('Categorie') }}"
+                                wire:model="filters.{{ $this->openTab }}.base_subject_id"
+                                filterContainer="questionbank-{{ $this->openTab }}-active-filters"
+                        />
+                    @else
+                        <x-input.choices-select
+                                wire:key="subject_{{ $this->openTab }}"
+                                :multiple="true"
+                                :options="$this->subjects"
+                                :withSearch="true"
+                                placeholderText="Vak"
+                                wire:model="filters.{{ $this->openTab }}.subject_id"
+                                filterContainer="questionbank-{{ $this->openTab }}-active-filters"
+                        />
+                    @endif
                     <x-input.choices-select
                             wire:key="education_level_year_{{ $this->openTab }}"
                             :multiple="true"
                             :options="$this->educationLevelYear"
                             :withSearch="true"
-                            placeholderText="Leerjaar"
+                            placeholderText="{{ __('Leerjaar') }}"
                             wire:model="filters.{{ $this->openTab }}.education_level_year"
                             filterContainer="questionbank-{{ $this->openTab }}-active-filters"
                     />

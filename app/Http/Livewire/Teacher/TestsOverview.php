@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 use Livewire\WithPagination;
+use tcCore\BaseSubject;
 use tcCore\EducationLevel;
 use tcCore\Http\Controllers\AuthorsController;
 use tcCore\Http\Controllers\SubjectsController;
@@ -120,10 +121,21 @@ class TestsOverview extends Component
 
     private function getNationalDatasource()
     {
-        return Test::nationalItemBankFiltered(
+//        $examsFiltered = Test::examFiltered( //todo add basesubject filtering
+//            $this->cleanFilterForSearch($this->filters['national']),
+//            $this->sorting
+//        );
+//
+//        $citoFiltered = Test::citoFiltered( //todo add basesubject filtering
+//            $this->cleanFilterForSearch($this->filters['national']),
+//            $this->sorting
+//        );
+        return Test::nationalItemBankFiltered( //todo add basesubject filtering
             $this->cleanFilterForSearch($this->filters['national']),
             $this->sorting
         )
+//            ->union($examsFiltered)
+//            ->union($citoFiltered)
             ->with('educationLevel', 'testKind', 'subject', 'author', 'author.school', 'author.schoolLocation')
             ->paginate(self::PER_PAGE);
 
@@ -166,6 +178,7 @@ class TestsOverview extends Component
                 'education_level_id'   => [],
                 'subject_id'           => [],
                 'author_id'            => [],
+                'base_subject_id'      => [],
             ];
         });
 
@@ -232,16 +245,44 @@ class TestsOverview extends Component
             });
     }
 
+    public function getBasesubjectsProperty()
+    {
+        if ($this->openTab === 'national') {
+            return BaseSubject::whereIn('id',
+                \DB::table(
+                    Subject::nationalItemBankFiltered([], ['name' => 'asc'])
+                        ->union(Subject::citoFiltered([], ['name' => 'asc']))
+                        ->union(Subject::examFiltered([], ['name' => 'asc']))
+                )
+                    ->distinct()
+                    ->pluck('base_subject_id')
+            )->get(['name', 'id'])
+                ->map(function ($subject) {
+                    return ['value' => (int)$subject->id, 'label' => $subject->name];
+                })->toArray();
+        }
+        return [];
+    }
+
     public function getSubjectsProperty()
     {
         return Subject::when($this->openTab === 'cito', function ($query) {
             $query->citoFiltered([], ['name' => 'asc']);
-        })->when($this->openTab === 'national', function ($query) {
-            $query->nationalItemBankFiltered([], ['name' => 'asc']);
-        })->when($this->openTab === 'exams', function ($query) {
-            $query->examFiltered([], ['name' => 'asc']);
         }, function ($query) {
-            $query->filtered([], ['name' => 'asc']);
+            $query->when($this->openTab === 'national', function ($query) {
+                $query->nationalItemBankFiltered([], ['name' => 'asc']);
+                //DB::table(
+                //        Subject::nationalItemBankFiltered([], ['name' => 'asc'])
+                //        ->union(Subject::citoFiltered([], ['name' => 'asc']))
+                //        ->union(Subject::examFiltered([], ['name' => 'asc']))
+                //    )->get() //returns multiple subjects with the same baseSubject
+            }, function ($query) {
+                $query->when($this->openTab === 'exams', function ($query) {
+                    $query->examFiltered([], ['name' => 'asc']);
+                }, function ($query) {
+                    $query->filtered([], ['name' => 'asc']);
+                });
+            });
         })
             ->get(['name', 'id'])
             ->map(function ($subject) {
@@ -275,7 +316,7 @@ class TestsOverview extends Component
     private function cleanFilterForSearch(array $filters)
     {
         $searchFilter = [];
-        foreach (['name', 'education_level_year', 'education_level_id', 'subject_id', 'author_id'] as $filter) {
+        foreach (['name', 'education_level_year', 'education_level_id', 'subject_id', 'author_id', 'base_subject_id'] as $filter) {
             if (!empty($filters[$filter])) {
                 $searchFilter[$filter] = $filters[$filter];
             }
@@ -283,7 +324,8 @@ class TestsOverview extends Component
         return $searchFilter;
     }
 
-    public function openTestDetail($testUuid) {
+    public function openTestDetail($testUuid)
+    {
 //        redirect()->to(route('teacher.test-detail', ['uuid' => $testUuid]));
     }
 }

@@ -19,6 +19,7 @@ use tcCore\Lib\Question\QuestionGatherer;
 use Dyrynda\Database\Casts\EfficientUuid;
 use Ramsey\Uuid\Uuid;
 use tcCore\Traits\ExamSchoolTestTrait;
+use tcCore\Traits\NationalItemBankSchoolTestTrait;
 use tcCore\Traits\UuidTrait;
 use tcCore\Traits\UserContentAccessTrait;
 
@@ -29,6 +30,7 @@ class Test extends BaseModel
     use SoftDeletes;
     use UuidTrait;
     use ExamSchoolTestTrait;
+    use NationalItemBankSchoolTestTrait;
     use UserContentAccessTrait;
 
 
@@ -82,6 +84,7 @@ class Test extends BaseModel
                 $test->setAttribute('system_test_id', null);
             }
             $test->handleExamPublishingTest();
+            $test->handleNationalItemBankTestPublishing(); //todo refactor / combine exam and NationalItemBank logic
         });
 
         static::saved(function (Test $test) {
@@ -119,7 +122,9 @@ class Test extends BaseModel
                 }
             }
             $test->handleExamPublishingQuestionsOfTest();
+            $test->handleNationalItemBankPublishingQuestionsOfTest();
             TestAuthor::addExamAuthorToTest($test);
+            TestAuthor::addNationalItemBankAuthorToTest($test);
         });
 
         static::deleted(function (Test $test) {
@@ -322,6 +327,13 @@ class Test extends BaseModel
                         $query->where('subject_id', '=', $value);
                     }
                     break;
+                case 'base_subject_id':
+                    if (is_array($value)) {
+                        $query->whereIn('tests.subject_id', Subject::whereIn('base_subject_id', $value)->pluck('id'));
+                    } else {
+                        $query->whereIn('tests.subject_id', Subject::where('base_subject_id', $value)->pluck('id'));
+                    }
+                    break;
                 case 'education_level_id':
                     if (is_array($value)) {
                         $query->whereIn('education_level_id', $value);
@@ -416,7 +428,7 @@ class Test extends BaseModel
             return $query;
         }
         $query->whereIn('subject_id', $subjectIds);
-        $query->where('scope', 'tbni');
+        $query->where('scope', 'ldt');
         $query->where('published', true);
         if (!array_key_exists('is_system_test', $filters)) {
             $query->where('is_system_test', '=', 0);
@@ -424,7 +436,11 @@ class Test extends BaseModel
         $this->handleFilterParams($query, $filters);
         $this->handleFilteredSorting($query, $sorting);
 
-        return $query;
+        return $query->union(
+            $this->examFiltered($filters, $sorting)
+        )->union(
+            $this->citoFiltered($filters, $sorting)
+        );
     }
 
     public function scopeSharedSectionsFiltered($query, $filters = [], $sorting = [])
@@ -714,6 +730,13 @@ class Test extends BaseModel
                         $query->whereIn('tests.subject_id', $value);
                     } else {
                         $query->where('tests.subject_id', '=', $value);
+                    }
+                    break;
+                case 'base_subject_id':
+                    if (is_array($value)) {
+                        $query->whereIn('tests.subject_id', Subject::whereIn('base_subject_id', $value)->pluck('id'));
+                    } else {
+                        $query->whereIn('tests.subject_id', Subject::where('base_subject_id', $value)->pluck('id'));
                     }
                     break;
                 case 'education_level_id':

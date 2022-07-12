@@ -169,7 +169,7 @@ class NationalItemBankSeeder extends Seeder
                 'period_id'=>$periodLocationA->id,
                 'test_kind_id'=>3,
                 'name'=>'test toets nationale item bank '.$subject->name,
-                'abbreviation'=>'TBNI', //not finished: TBNI, if finished: LDT
+                'abbreviation'=>'NOT_LDT', //not finished: NOT_LDT, if finished: LDT
                 'education_level_year'=>1,
                 'status'=>1,
                 'introduction'=>'Beste docent,
@@ -180,7 +180,7 @@ class NationalItemBankSeeder extends Seeder
                 'question_count'=>0,
                 'is_open_source_content'=>false,
                 'demo'=>false,
-                'scope'=>'tbni', //not finished: tbni, if finished: ldt
+                'scope'=>'not_ldt', //not finished: not_ldt, if finished: ldt
                 'published'=>'1',
             ]);
             $test->setAttribute('author_id', $teacherB->id);
