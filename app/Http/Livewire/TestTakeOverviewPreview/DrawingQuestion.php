@@ -51,15 +51,17 @@ class DrawingQuestion extends Component
         try {
             try {
                 $png = Storage::get($answer->getDrawingStoragePathPng());
-                $this->imgSrc = "data:image/png;base64," . base64_encode(file_get_contents($png));
+                $this->imgSrc = "data:image/png;base64," . base64_encode($png);
                 return true;
-            } catch (\Exception $exception) {}
+            } catch (\Exception $exception) {
+                Bugsnag::notifyException($exception);
+            }
 
             $file = Storage::get($answer->getDrawingStoragePath());
             if (substr($file, 0, 4) === '<svg') {
                 $this->imgSrc = "data:image/svg+xml;charset=UTF-8," . rawurlencode($file);
             } else {
-                $this->imgSrc = "data:image/png;base64," . base64_encode(file_get_contents($file));
+                $this->imgSrc = "data:image/png;base64," . base64_encode($file);
             }
         }catch (\Exception $e){
             Bugsnag::notifyException($e);

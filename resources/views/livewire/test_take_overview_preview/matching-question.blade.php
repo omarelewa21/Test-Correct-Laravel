@@ -61,12 +61,12 @@
                     @foreach ($this->getMatchingQuestionAnswers() as $group)
                         @if(  $group->correct_answer_id === null )
                                 <tr class="no-border" style="border: 0;">
-                                    <td class="no-border" style="width: 400px;height: 70px;">
-                                        <div class="w-1/3">
-                                                <span class="flex w-full py-2 px-4 border-2 border-blue-grey rounded-10
-                                                             bg-primary-light font-size-18 bold base leading-5">
+                                    <td class="no-border" style="width: 400px;height: 60px;">
+                                        <div class="w-full label-dropzone" style="height: 50px;">
+                                            <div class="block w-full h-full py-2 px-4 border-2 border-blue-grey rounded-10
+                                                         bg-primary-light font-size-18 bold base leading-5" style="height: 50px;">
                                                             {{ $group->answer }}
-                                                </span>
+                                                </div>
                                         </div>
                                     </td>
                                     <td class="no-border" style="width:600px;border: 0;">
