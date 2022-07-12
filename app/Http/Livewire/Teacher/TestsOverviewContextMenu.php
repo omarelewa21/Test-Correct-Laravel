@@ -85,7 +85,7 @@ class TestsOverviewContextMenu extends Component
     public function planTest($uuid)
     {
         $test = Test::findByUuid($uuid);
-        if (!$test->hasDuplicateQuestions() && !$test->hasToFewQuestionsInCarousel() && $test->hasEqualScoresForSubQuestions()) {
+        if (!$test->hasDuplicateQuestions() && !$test->hasToFewQuestionsInCarousel() && !$test->hasEqualScoresForSubQuestions()) {
             $this->emit('openModal', 'teacher.planning-modal', ['testUuid' => $uuid]);
             return false;
         }
@@ -107,13 +107,13 @@ class TestsOverviewContextMenu extends Component
             $message = __('modal.cannot_schedule_test_full_author');
         }
 
-//        $mode = [
-//            'hasDuplicateQuestions' => $test->hasDuplicateQuestions() ,
-//            'hasToFewQuestionsInCarousel' => $test->hasToFewQuestionsInCarousel(),
-//            'hasEqualScoreForSubQuestions' => $test->hasEqualScoresForSubQuestions(),
-//        ];
-//
-//        $message = $message . print_r($mode, true);
+        $mode = [
+            'hasDuplicateQuestions' => $test->hasDuplicateQuestions() ,
+            'hasToFewQuestionsInCarousel' => $test->hasToFewQuestionsInCarousel(),
+            'hasEqualScoreForSubQuestions' => $test->hasEqualScoresForSubQuestions(),
+        ];
+
+        $message = $message . print_r($mode, true);
 
         $this->emit(
             'openModal',
