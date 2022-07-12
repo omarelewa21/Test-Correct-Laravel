@@ -85,7 +85,7 @@ class TestsOverviewContextMenu extends Component
     public function planTest($uuid)
     {
         $test = Test::findByUuid($uuid);
-        if (!$test->hasDuplicateQuestions() && !$test->hasToFewQuestionsInCarousel() && $test->hasEqualScoresForSubQuestions()) {
+        if (!$test->hasDuplicateQuestions() && !$test->hasToFewQuestionsInCarousel() && !$test->hasNotEqualScoresForSubQuestionsInCarousel()) {
             $this->emit('openModal', 'teacher.planning-modal', ['testUuid' => $uuid]);
             return false;
         }
