@@ -158,10 +158,11 @@ class PdfController extends Controller
 
     private function snappyToPdfFromString($html)
     {
-        //dump($html);
-//        file_put_contents(storage_path('temp/result1.html'),$html);
 
-//        $html = file_get_contents(storage_path('temp/result1.html'));
+        if(env('APP_ENV')=='local'){
+            Storage::put('temp/result1.html',$html);
+        }
+
 
         $output = \PDF::loadHtml($html)->setOption('header-html', resource_path('pdf_templates/header.html'))->setOption('footer-html', resource_path('pdf_templates/footer.html'));
         return $output->download('file.pdf');
