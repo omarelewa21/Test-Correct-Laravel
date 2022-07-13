@@ -51,6 +51,7 @@
                     </div>
                 </div>
 
+                @if(auth()->user()->schoolLocation->show_national_item_bank)
                 <div>
 {{--                    <div class="flex relative cursor-default">--}}
                     <div class="flex relative hover:text-primary cursor-pointer" @click="openTab = 'national'">
@@ -60,7 +61,7 @@
                               :class="openTab === 'national' ? 'bg-primary' : 'bg-transparent' "></span>
                     </div>
                 </div>
-
+                @endif
             </div>
         </div>
     </div>
