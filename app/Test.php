@@ -84,7 +84,7 @@ class Test extends BaseModel
                 $test->setAttribute('system_test_id', null);
             }
             $test->handleExamPublishingTest();
-            $test->handleNationalItemBankTestPublishing(); //todo refactor / combine exam and NationalItemBank logic
+            $test->handleNationalItemBankTestPublishing();
         });
 
         static::saved(function (Test $test) {

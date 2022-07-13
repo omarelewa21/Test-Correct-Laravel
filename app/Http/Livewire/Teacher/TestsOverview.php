@@ -41,8 +41,6 @@ class TestsOverview extends Component
 
     private $allowedTabs = [
         'school',
-        'exams',
-        'cito',
         'national',
         'personal',
     ];
@@ -76,12 +74,6 @@ class TestsOverview extends Component
             case 'school':
                 $datasource = $this->getSchoolDatasource();
                 break;
-            case 'exams':
-                $datasource = $this->getExamsDatasource();
-                break;
-            case 'cito':
-                $datasource = $this->getCitoDataSource();
-                break;
             case 'national':
                 $datasource = $this->getNationalDatasource();
                 break;
@@ -108,34 +100,13 @@ class TestsOverview extends Component
 
     }
 
-    private function getExamsDatasource()
-    {
-        return Test::examFiltered(
-            $this->cleanFilterForSearch($this->filters['exams']),
-            $this->sorting
-        )
-            ->with('educationLevel', 'testKind', 'subject', 'author', 'author.school', 'author.schoolLocation')
-            ->paginate(self::PER_PAGE);
-
-    }
 
     private function getNationalDatasource()
     {
-//        $examsFiltered = Test::examFiltered( //todo add basesubject filtering
-//            $this->cleanFilterForSearch($this->filters['national']),
-//            $this->sorting
-//        );
-//
-//        $citoFiltered = Test::citoFiltered( //todo add basesubject filtering
-//            $this->cleanFilterForSearch($this->filters['national']),
-//            $this->sorting
-//        );
-        return Test::nationalItemBankFiltered( //todo add basesubject filtering
+        return Test::nationalItemBankFiltered(
             $this->cleanFilterForSearch($this->filters['national']),
             $this->sorting
         )
-//            ->union($examsFiltered)
-//            ->union($citoFiltered)
             ->with('educationLevel', 'testKind', 'subject', 'author', 'author.school', 'author.schoolLocation')
             ->paginate(self::PER_PAGE);
 
@@ -157,17 +128,6 @@ class TestsOverview extends Component
         return $results;
     }
 
-    private function getCitoDataSource()
-    {
-        $results = Test::citoFiltered(
-            $this->cleanFilterForSearch($this->filters['cito']),
-            $this->sorting
-        )
-            ->with('educationLevel', 'testKind', 'subject', 'author', 'author.school', 'author.schoolLocation')
-            ->paginate(self::PER_PAGE);
-
-        return $results;
-    }
 
     private function setFilters()
     {

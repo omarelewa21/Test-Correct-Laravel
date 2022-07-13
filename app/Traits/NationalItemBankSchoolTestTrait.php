@@ -12,7 +12,7 @@ trait NationalItemBankSchoolTestTrait {
 
     //Exam vs NationalItemBank:
     //  finished/published:     EXAM/exam  vs  LDT/ldt
-    //  not finished:           not_exam   vs  not_ldt ?
+    //  not finished:           not_exam   vs  not_ldt
 
     private function handleNationalItemBankTestPublishing():void
     {
@@ -79,6 +79,7 @@ trait NationalItemBankSchoolTestTrait {
         return false;
     }
 
+    //duplicate
     public function hasNonPublishableNationalItemBankTestSubject():bool
     {
         if($this->subject->name=='TLC Toetsenbakken'){
@@ -90,6 +91,7 @@ trait NationalItemBankSchoolTestTrait {
         return false;
     }
 
+    //duplicate
     public function hasNonPublishableNationalItemBankTestSubjectDemo():bool
     {
         if($this->subject->name=='Demovak'){
@@ -144,6 +146,7 @@ trait NationalItemBankSchoolTestTrait {
         });
     }
 
+    //semi duplicate (unpublish call)
     public function unpublishQuestionsOfNationalItemBankTest():void
     {
         $questions = $this->testQuestions->map(function($testQuestion){
@@ -163,6 +166,7 @@ trait NationalItemBankSchoolTestTrait {
         });
     }
 
+    //duplicate
     private function nationalGroupQuestionRecursive($question,$functionCall):void
     {
         $groupQuestion = GroupQuestion::find($question->getKey());

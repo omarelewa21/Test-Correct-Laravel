@@ -61,26 +61,6 @@
                     </div>
                 </div>
 
-                <div>
-                    {{--                    <div class="flex relative text-midgrey cursor-default">--}}
-                    <div class="flex relative hover:text-primary cursor-pointer" @click="openTab = 'exams'">
-                        <span class="bold pt-[0.9375rem] pb-[0.8125rem]"
-                              :class="openTab === 'exams' ? 'primary' : '' ">{{ __('general.Examens') }}</span>
-                        <span class="absolute w-full bottom-0" style="height: 3px"
-                              :class="openTab === 'exams' ? 'bg-primary' : 'bg-transparent' "></span>
-                    </div>
-                </div>
-
-                <div>
-                    {{--                    <div class="flex relative text-midgrey cursor-default">--}}
-                    <div class="flex relative hover:text-primary cursor-pointer" @click="openTab = 'cito'">
-                        <span class="bold pt-[0.9375rem] pb-[0.8125rem]"
-                              :class="openTab === 'cito' ? 'primary' : '' ">{{ __( 'general.cito-snelstart') }}</span>
-                        <span class="absolute w-full bottom-0" style="height: 3px"
-                              :class="openTab === 'cito' ? 'bg-primary' : 'bg-transparent' "></span>
-                    </div>
-                </div>
-
             </div>
         </div>
     </div>
