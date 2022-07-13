@@ -18,8 +18,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use tcCore\Lib\Question\QuestionGatherer;
 use Dyrynda\Database\Casts\EfficientUuid;
 use Ramsey\Uuid\Uuid;
-use tcCore\Traits\ExamSchoolTestTrait;
-use tcCore\Traits\NationalItemBankSchoolTestTrait;
+use tcCore\Traits\PublishesNationalItemBankAndExamTests;
 use tcCore\Traits\UuidTrait;
 use tcCore\Traits\UserContentAccessTrait;
 
@@ -29,8 +28,7 @@ class Test extends BaseModel
 
     use SoftDeletes;
     use UuidTrait;
-    use ExamSchoolTestTrait;
-    use NationalItemBankSchoolTestTrait;
+    use PublishesNationalItemBankAndExamTests;
     use UserContentAccessTrait;
 
 
@@ -83,8 +81,7 @@ class Test extends BaseModel
             if ((count($dirty) > 1 && array_key_exists('system_test_id', $dirty)) || (count($dirty) > 0 && !array_key_exists('system_test_id', $dirty)) && !$test->getAttribute('is_system_test')) {
                 $test->setAttribute('system_test_id', null);
             }
-            $test->handleExamPublishingTest();
-            $test->handleNationalItemBankTestPublishing();
+            $test->handleTestPublishing();
         });
 
         static::saved(function (Test $test) {
@@ -121,8 +118,7 @@ class Test extends BaseModel
                     }
                 }
             }
-            $test->handleExamPublishingQuestionsOfTest();
-            $test->handleNationalItemBankPublishingQuestionsOfTest();
+            $test->handlePublishingQuestionsOfTest();
             TestAuthor::addExamAuthorToTest($test);
             TestAuthor::addNationalItemBankAuthorToTest($test);
         });
