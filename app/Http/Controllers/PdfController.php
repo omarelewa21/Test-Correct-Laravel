@@ -159,7 +159,7 @@ class PdfController extends Controller
     private function snappyToPdfFromString($html)
     {
 
-        if(env('APP_ENV')=='local'){
+        if(env('APP_URL')=='testwelcome.test-correct.nl'){
             Storage::put('temp/result1.html',$html);
         }
 
