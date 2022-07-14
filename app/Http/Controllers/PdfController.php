@@ -272,7 +272,7 @@ class PdfController extends Controller
             $path = sprintf('http://testwelcome.test-correct.test/%s/plugins/ckeditor_wiris/integration/showimage.php',$folder);
         }
         try {
-            $client = new Client();
+            $client = new Client(['headers' => ['host' => 'welcome.test-correct.nl']]);
             $res = $client->request('POST', $createPath, [
                 'form_params' => $data,
                 'verify' => false]);
