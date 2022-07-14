@@ -350,6 +350,9 @@ div.drag-item>div{
 .question-indicator-no-break{
     page-break-inside: avoid;
 }
+.question-no-break-dropzone{
+    page-break-inside: avoid;
+}
 .prevent-pagebreak{
     page-break-before:auto;
 }

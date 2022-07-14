@@ -3,7 +3,7 @@
     'startGroup' => false,
     'type'
 ])
-<div class="flex flex-col flex-1 space-y-3 leading-5 pdf-200px pdf-ml-2" id="main-{{$attributes->get('id')}}" >
+<div class="flex flex-col flex-1 space-y-3 leading-5 pdf-200px pdf-ml-2 question-no-break-dropzone" id="main-{{$attributes->get('id')}}" >
     @isset($title)
         <h6 id="heading_for_{{ $attributes->get('id') }}" class="text-center pdf-dropzone-heading"> {{ $title }}</h6>
     @endif
