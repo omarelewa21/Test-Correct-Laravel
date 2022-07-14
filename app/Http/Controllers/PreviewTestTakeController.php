@@ -23,7 +23,7 @@ class PreviewTestTakeController extends Controller
         $titleForPdfPage = $testTake->test->name.' '.Carbon::now()->format('d-m-Y H:i');
         view()->share('titleForPdfPage',$titleForPdfPage);
         view()->share('pdf_type','student_test_take');
-        $testParticipants = $testTake->testParticipants()->whereNotNull('answer_id')->get();
+        $testParticipants = $testTake->testParticipants()->where('test_take_status_id','>',3)->get();
         ini_set('max_execution_time', '90');
         $html = view('test-take-overview-preview',compact(['testTake','testParticipants']))->render();
         return response()->make(PdfController::HtmlToPdfFromString($html), 200, [
