@@ -8,15 +8,19 @@ use tcCore\Test;
 class TestDelete extends Component
 {
     public $test;
+    public $variant;
+
     /**
      * Create a new component instance.
      *
      * @return void
      */
-    public function __construct($uuid)
+    public function __construct($uuid, $variant='icon-button')
     {
 
         $this->test = Test::findByUuid($uuid);
+        $this->variant = $variant;
+
     }
 
     /**

@@ -43,6 +43,7 @@
             }
         }"
 
+         x-on:context-menu-close="alert('me');show = false"
          class="fixed bg-white py-2 main-shadow rounded-10 w-72 z-30 "
          @click.outside="show = false;"
          x-transition:enter="transition ease-out origin-top-right duration-200"
@@ -110,16 +111,8 @@
                 <span class="text-base bold inherit">{{ __('cms.Instellingen') }}</span>
             </button>
         @endif
-        @if( $test->canDelete(auth()->user()))
-                <button class="flex items-center space-x-2 py-1 px-4 base hover:text-primary hover:bg-offwhite transition w-full"
-                        @click="openDelete('{{ $test->uuid }}')"
+        <x-actions.test-delete :uuid="$test->uuid" variant="context-menu" />
 
-                >
-                    <x-icon.remove/>
-                    <span class="text-base bold inherit">{{ __('cms.Verwijderen') }}</span>
-                </button>
-
-        @endif
     </div>
 @endif
 </div>
