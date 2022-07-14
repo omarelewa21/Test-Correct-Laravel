@@ -61,7 +61,7 @@ class DrawingQuestion extends Component
             if (substr($file, 0, 4) === '<svg') {
                 $this->imgSrc = "data:image/svg+xml;charset=UTF-8," . rawurlencode($file);
             } else {
-                $this->imgSrc = "data:image/png;base64," . base64_encode($file);
+                $this->imgSrc = "data:image/png;base64," . base64_encode(file_get_contents($file));
             }
         }catch (\Exception $e){
             Bugsnag::notifyException($e);
