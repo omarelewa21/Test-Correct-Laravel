@@ -1,5 +1,5 @@
 <div id="login-body" class="flex justify-center items-center min-h-screen"
-     x-data="{ openTab: @entangle('login_tab'), showPassword: false, showEntreePassword: false, device: @entangle('device')}"
+     x-data="{ openTab: @entangle('login_tab'), showPassword: false, hoverPassword: false, initialPreviewIconState: true, showEntreePassword: false, device: @entangle('device')}"
      x-init="
             addRelativePaddingToBody('login-body', 10);
             setTimeout(() => {$wire.checkLoginFieldsForInput()}, 250);
@@ -61,8 +61,19 @@
                                     <x-input.text wire:model.lazy="username" autofocus></x-input.text>
                                 </x-input.group>
                                 <x-input.group label="{{ __('auth.password')}}" class="flex-1 relative">
-                                    <x-icon.preview class="absolute bottom-3 right-3.5 primary-hover cursor-pointer"
-                                                    @click="showPassword = !showPassword"/>
+                                    <div class="group"
+                                         @mouseenter="hoverPassword = true"
+                                         @mouseleave="hoverPassword = false"
+                                         @click="showPassword = !showPassword; hoverPassword = false; initialPreviewIconState = false">
+                                        <x-icon.preview-off class="absolute bottom-3 right-3.5 primary-hover cursor-pointer"
+                                                            x-bind:class="{'opacity-50' : initialPreviewIconState, 'hover:text-sysbase': (!showPassword && !hoverPassword)}"
+                                                            x-show="(!showPassword && !hoverPassword) || (showPassword && hoverPassword)"/>
+                                        <div class="absolute bottom-3 right-3.5 flex items-center h-[16px]">
+                                            <x-icon.preview class="primary-hover cursor-pointer"
+                                                            x-bind:class="{'hover:text-sysbase': (showPassword && !hoverPassword)}"
+                                                            x-show="(showPassword && !hoverPassword) || (!showPassword && hoverPassword)"/>
+                                        </div>
+                                    </div>
                                     <x-input.text wire:model.lazy="password"
                                                   x-bind:type="showPassword ? 'text' : 'password'"
                                                   class="pr-12 overflow-ellipsis"
