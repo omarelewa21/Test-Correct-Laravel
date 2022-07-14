@@ -68,7 +68,7 @@
             }
         }"
     >
-        <livewire:action.test-delete :test-uuid="$this->test->uuid"/>
+        <x-actions.test-delete :uuid="$this->test->uuid"/>
         @if($this->test->canEdit(auth()->user()))
             <x-button.primary class="pl-[12px] pr-[12px]"
                               wire:click="openTestInCMS">
