@@ -275,7 +275,9 @@ class PdfController extends Controller
             $client = new Client(['headers' => ['host' => 'welcome.test-correct.nl']]);
             $res = $client->request('POST', $createPath, [
                 'form_params' => $data,
-                'verify' => false]);
+                'verify' => false,
+                'headers' => ['host' => 'welcome.test-correct.nl'],
+                ]);
             $formulaUrl = $res->getBody()->getContents();
             $components = parse_url($formulaUrl);
             parse_str($components['query'], $results);
@@ -288,9 +290,14 @@ class PdfController extends Controller
                 'version' => '7.26.0.1439',
                 'dpi' => 120,
             ];
-            $res = $client->request('GET', $path, ['query' => $data1]);
+            $res = $client->request('GET', $path, [
+                'query' => $data1,
+                'headers' => ['host' => 'welcome.test-correct.nl'],
+            ]);
             $res = $client->request('POST', $path, [
-                'form_params' => $data]);
+                'form_params' => $data,
+                'headers' => ['host' => 'welcome.test-correct.nl'],
+            ]);
 
         } catch (\GuzzleHttp\Exception\RequestException $e) {
             if ($e->hasResponse()) {
