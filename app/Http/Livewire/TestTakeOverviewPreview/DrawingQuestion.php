@@ -49,20 +49,10 @@ class DrawingQuestion extends Component
             return;
         }
         try {
-            try {
-                $png = Storage::get($answer->getDrawingStoragePathPng());
-                $this->imgSrc = "data:image/png;base64," . base64_encode($png);
+            if($this->handleDrawingQuestionWithPngExtension($answer)){
                 return true;
-            } catch (\Exception $exception) {
-                Bugsnag::notifyException($exception);
             }
-
-            $file = Storage::get($answer->getDrawingStoragePath());
-            if (substr($file, 0, 4) === '<svg') {
-                $this->imgSrc = "data:image/svg+xml;charset=UTF-8," . rawurlencode($file);
-            } else {
-                $this->imgSrc = "data:image/png;base64," . base64_encode(file_get_contents($file));
-            }
+            $this->handleDrawingQuestionWithoutPngExtension($answer);
         }catch (\Exception $e){
             Bugsnag::notifyException($e);
             $this->imgSrc = '';
@@ -94,5 +84,26 @@ class DrawingQuestion extends Component
             Bugsnag::notifyException($e);
         }
         return '';
+    }
+
+    private function handleDrawingQuestionWithPngExtension($answer) // new Drawing question
+    {
+        try {
+            $png = Storage::get($answer->getDrawingStoragePathPng());
+            $this->imgSrc = "data:image/png;base64," . base64_encode($png);
+            return true;
+        } catch (\Exception $exception) {
+            return false;
+        }
+    }
+
+    private function handleDrawingQuestionWithoutPngExtension($answer) // old Drawing question
+    {
+        $file = Storage::get($answer->getDrawingStoragePath());
+        if (substr($file, 0, 4) === '<svg') {
+            throw new \Exception(sprintf('answer of old drawing question with id:%d has svg as drawingStoragePath',$answer->getKey()));
+        } else {
+            $this->imgSrc = "data:image/png;base64," . base64_encode(file_get_contents($file));
+        }
     }
 }
