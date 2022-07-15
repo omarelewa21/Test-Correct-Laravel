@@ -41,4 +41,5 @@ return [
     'Toets inplannen'                                  => 'Toets inplannen',
     'Filters wissen'                                   => 'Filters wissen',
     'Vraag voorbeeld'                                  => 'Vraag voorbeeld',
+    'Test is verwijderd'                               => 'Test is verwijderd',
 ];

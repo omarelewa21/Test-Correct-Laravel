@@ -31,5 +31,6 @@ class TestDeleteModal extends Component
 
         $this->showModal = false;
         $this->emitUp('test-deleted');
+        $this->dispatchBrowserEvent('notify', ['message'=> __('teacher.Test is verwijderd')]);
     }
 }
