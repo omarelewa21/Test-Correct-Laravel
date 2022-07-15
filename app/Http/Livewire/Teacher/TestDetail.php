@@ -54,8 +54,6 @@ class TestDetail extends Component
         redirect()->to(route('teacher.tests'));
     }
 
-
-
     public function showGroupDetails($groupUuid)
     {
         $groupQuestionId = Question::whereUuid($groupUuid)->value('id');
@@ -75,12 +73,5 @@ class TestDetail extends Component
     {
         return false;
     }
-
-    public function openDetail($questionUuid)
-    {
-        $this->emit('openModal', 'teacher.question-detail-modal', ['questionUuid' => $questionUuid]);
-    }
-
-
 
 }
