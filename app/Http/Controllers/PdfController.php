@@ -272,10 +272,9 @@ class PdfController extends Controller
             if(stristr(config('app.base_url'),'correct.test')){
                 $createPath = sprintf('http://testwelcome.test-correct.test/%s/plugins/ckeditor_wiris/integration/createimage.php',$folder);
                 $path = sprintf('http://testwelcome.test-correct.test/%s/plugins/ckeditor_wiris/integration/showimage.php',$folder);
-                $headers =  ['host' => trim(str_replace('http://','',config('app.base_url')),'/')];
-            }else{
-                $headers =  ['host' => trim(str_replace('https://','',config('app.base_url')),'/')];
             }
+            $headers =  ['host' => trim(str_replace('https://','',str_replace('http://','',config('app.base_url'))),'/')];
+
             $client = new Client();
             $res = $client->request('POST', $createPath, [
                 'form_params' => $data,
