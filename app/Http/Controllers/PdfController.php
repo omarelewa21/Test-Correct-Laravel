@@ -265,17 +265,23 @@ class PdfController extends Controller
             'centerbaseline' => false,
             'dpi' => 120,
         ];
-        $createPath = sprintf('http://127.0.0.1/%s/plugins/ckeditor_wiris/integration/createimage.php',$folder);
-        $path = sprintf('http://127.0.0.1/%s/plugins/ckeditor_wiris/integration/showimage.php',$folder);
-        if(stristr(config('app.base_url'),'correct.test')){
-            $createPath = sprintf('http://testwelcome.test-correct.test/%s/plugins/ckeditor_wiris/integration/createimage.php',$folder);
-            $path = sprintf('http://testwelcome.test-correct.test/%s/plugins/ckeditor_wiris/integration/showimage.php',$folder);
-        }
+
         try {
+            $createPath = sprintf('http://127.0.0.1/%s/plugins/ckeditor_wiris/integration/createimage.php',$folder);
+            $path = sprintf('http://127.0.0.1/%s/plugins/ckeditor_wiris/integration/showimage.php',$folder);
+            if(stristr(config('app.base_url'),'correct.test')){
+                $createPath = sprintf('http://testwelcome.test-correct.test/%s/plugins/ckeditor_wiris/integration/createimage.php',$folder);
+                $path = sprintf('http://testwelcome.test-correct.test/%s/plugins/ckeditor_wiris/integration/showimage.php',$folder);
+                $headers =  ['host' => trim(str_replace('http://','',config('app.base_url')),'/')];
+            }else{
+                $headers =  ['host' => trim(str_replace('https://','',config('app.base_url')),'/')];
+            }
             $client = new Client();
             $res = $client->request('POST', $createPath, [
                 'form_params' => $data,
-                'verify' => false]);
+                'verify' => false,
+                'headers' => $headers
+            ]);
             $formulaUrl = $res->getBody()->getContents();
             $components = parse_url($formulaUrl);
             parse_str($components['query'], $results);
@@ -288,9 +294,9 @@ class PdfController extends Controller
                 'version' => '7.26.0.1439',
                 'dpi' => 120,
             ];
-            $res = $client->request('GET', $path, ['query' => $data1]);
+            $res = $client->request('GET', $path, ['query' => $data1,'headers' => $headers]);
             $res = $client->request('POST', $path, [
-                'form_params' => $data]);
+                'form_params' => $data,'headers' => $headers]);
 
         } catch (\GuzzleHttp\Exception\RequestException $e) {
             if ($e->hasResponse()) {
