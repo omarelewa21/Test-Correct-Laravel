@@ -1,5 +1,5 @@
 <div id="login-body" class="flex justify-center items-center min-h-screen"
-     x-data="{ openTab: @entangle('login_tab'), showPassword: false, hoverPassword: false, initialPreviewIconState: true, showEntreePassword: false, device: @entangle('device')}"
+     x-data="{ openTab: @entangle('login_tab'), showPassword: false, hoverPassword: false, initialPreviewIconState: true, showEntreePassword: false, active_overlay: @entangle('active_overlay'), device: @entangle('device')}"
      x-init="
             addRelativePaddingToBody('login-body', 10);
             setTimeout(() => {$wire.checkLoginFieldsForInput()}, 250);
@@ -55,294 +55,354 @@
 
                 </div>
             </div>
-            {{-- middle content block height:377px --}}
-            <div class="bg-white px-10 py-[30px] space-y-5 shadow-lg flex flex-col relative border-b border-secondary"
-                 style="min-height: 377px">
+            <div class="relative">
+                {{-- middle content block height:377px --}}
+                <div class="bg-white px-10 py-[30px] shadow-lg flex flex-col border-b border-secondary"
+                     style="min-height: 377px">
 
-                <div class="flex flex-col flex-1">
+                    {{-- forgot password overlay --}}
+                        <div class="absolute w-full h-full left-0 top-0 bg-opacity-50 bg-white z-10 rounded-b-lg"
+                             x-show="active_overlay == 'send_reset_password'" @click.outside="active_overlay = ''"
+                             x-transition.duration.300ms x-cloak>
+                            <div class="absolute rounded-b-lg right-1/2 top-0 translate-x-1/2 w-[460px] h-[333px] bg-white shadow-xl">
+                                <form wire:submit.prevent="sendForgotPasswordEmail" action="#" method="POST"
+                                      class="flex flex-col px-10 pb-10 pt-[31px] h-full w-full">
+                                <h5 class="w-full text-center leading-6 pb-2.5">{{__('auth.reset_password')}}</h5>
+                                <div>{{ __('auth.forgot_password_explain_text') }}</div>
 
-                    <div class="flex flex-col flex-1" x-show="openTab === 1">
-                        <form wire:submit.prevent="login" action="#" method="POST" class="flex-col flex flex-1">
-                            <div class="flex flex-col space-y-4">
-                                <x-input.group label="{{ __('auth.emailaddress')}}" class="flex-1">
-                                    <x-input.text wire:model.lazy="username" autofocus></x-input.text>
-                                </x-input.group>
-                                <x-input.group label="{{ __('auth.password')}}" class="flex-1 relative">
-                                    <div @mouseenter="hoverPassword = true"
-                                         @mouseleave="hoverPassword = false"
-                                         @click="showPassword = !showPassword; hoverPassword = false; initialPreviewIconState = false">
-                                        <x-icon.preview-off
-                                                class="absolute bottom-3 right-3.5 primary-hover cursor-pointer"
-                                                x-bind:class="{'opacity-50' : initialPreviewIconState, 'hover:text-sysbase': (!showPassword && !hoverPassword)}"
-                                                x-show="(!showPassword && !hoverPassword) || (showPassword && hoverPassword)"/>
-                                        <div class="absolute bottom-3 right-3.5 flex items-center h-[16px]">
-                                            <x-icon.preview class="primary-hover cursor-pointer"
-                                                            x-bind:class="{'hover:text-sysbase': (showPassword && !hoverPassword)}"
-                                                            x-show="(showPassword && !hoverPassword) || (!showPassword && hoverPassword)"/>
-                                        </div>
+
+                                    <x-input.group class="mt-5" label="{{ __('auth.emailaddress') }}">
+                                        <x-input.text wire:model.debounce.300ms="forgotPasswordEmail"/>
+                                    </x-input.group>
+
+                                    <div class="flex w-full justify-self-end mt-auto">
+                                        @if($forgotPasswordButtonDisabled)
+                                            <x-button.cta class="flex-1 justify-center" size="sm" disabled>
+                                                <span>{{ __('auth.send_email') }}</span>
+                                            </x-button.cta>
+                                        @else
+                                            <x-button.cta class="flex-1 justify-center" size="sm">
+                                                <span>{{ __('auth.send_email') }}</span>
+                                            </x-button.cta>
+                                        @endif
                                     </div>
-                                    <x-input.text wire:model.lazy="password"
-                                                  x-bind:type="showPassword ? 'text' : 'password'"
-                                                  class="pr-12 overflow-ellipsis"
-                                    >
-                                    </x-input.text>
-                                </x-input.group>
+                                </form>
                             </div>
+                        </div>
+                        <div class="absolute w-full h-full left-0 top-0 bg-opacity-50 bg-white z-10 rounded-b-lg "
+                             x-show="active_overlay == 'reset_password'" @click.outside="active_overlay = ''"
+                             x-transition.duration.300ms x-cloak>
+                            <div class="absolute rounded-b-lg right-1/2 top-0 translate-x-1/2 w-[460px] min-h-[333px] bg-white shadow-xl flex flex-col px-10 pb-10 pt-[31px]">
+                                    <livewire:password-reset/>
+                            </div>
+                        </div>
 
-                            <div class="hidden">
-                                <div class="mx-auto mt-4 flex flex-col items-center"
-                                     x-data="{showCode: @entangle('showTestCode'), tooltip: false}">
-                                    <div class="w-full flex items-center">
-                                        <x-icon.arrow/>
+                    <div class="flex flex-col flex-1">
 
-                                        <span class="bold ml-2 mr-4">{{ __('auth.go_to_test_directly') }}</span>
-
-                                        <div
-                                                class="flex relative justify-center items-center mr-2 base bg-blue-grey rounded-full "
-                                                style="width: 22px; height: 22px"
-                                                x-on:mouseenter="tooltip = true"
-                                                x-on:mouseleave="tooltip = false"
-                                        >
-                                            <x-icon.questionmark class="transform scale-75"/>
-                                            <div class="absolute p-4 top-8 rounded-10 bg-off-white w-60 z-10 shadow-lg"
-                                                 x-cloak x-show.transition="tooltip">
-                                                <p>Tooltip tekst voor meteen naar toets gaan</p>
+                        <div class="flex flex-col flex-1" x-show="openTab === 1">
+                            <form wire:submit.prevent="login" action="#" method="POST" class="flex-col flex flex-1">
+                                <div class="flex flex-col space-y-4">
+                                    <x-input.group label="{{ __('auth.emailaddress')}}" class="flex-1">
+                                        <x-input.text wire:model.lazy="username" autofocus></x-input.text>
+                                    </x-input.group>
+                                    <x-input.group label="{{ __('auth.password')}}" class="flex-1 relative">
+                                        <div @mouseenter="hoverPassword = true"
+                                             @mouseleave="hoverPassword = false"
+                                             @click="showPassword = !showPassword; hoverPassword = false; initialPreviewIconState = false">
+                                            <x-icon.preview-off
+                                                    class="absolute bottom-3 right-3.5 primary-hover cursor-pointer"
+                                                    x-bind:class="{'opacity-50' : initialPreviewIconState, 'hover:text-sysbase': (!showPassword && !hoverPassword)}"
+                                                    x-show="(!showPassword && !hoverPassword) || (showPassword && hoverPassword)"/>
+                                            <div class="absolute bottom-3 right-3.5 flex items-center h-[16px]">
+                                                <x-icon.preview class="primary-hover cursor-pointer"
+                                                                x-bind:class="{'hover:text-sysbase': (showPassword && !hoverPassword)}"
+                                                                x-show="(showPassword && !hoverPassword) || (!showPassword && hoverPassword)"/>
                                             </div>
                                         </div>
+                                        <x-input.text wire:model.lazy="password"
+                                                      x-bind:type="showPassword ? 'text' : 'password'"
+                                                      class="pr-12 overflow-ellipsis"
+                                        >
+                                        </x-input.text>
+                                    </x-input.group>
+                                </div>
 
-                                        <label class="switch">
-                                            <input type="checkbox"
-                                                   @click="!showCode ? showCode = true : showCode = false"
-                                                   @if($showTestCode) checked="checked" @endif
+                                <div class="hidden">
+                                    <div class="mx-auto mt-4 flex flex-col items-center"
+                                         x-data="{showCode: @entangle('showTestCode'), tooltip: false}">
+                                        <div class="w-full flex items-center">
+                                            <x-icon.arrow/>
+
+                                            <span class="bold ml-2 mr-4">{{ __('auth.go_to_test_directly') }}</span>
+
+                                            <div
+                                                    class="flex relative justify-center items-center mr-2 base bg-blue-grey rounded-full "
+                                                    style="width: 22px; height: 22px"
+                                                    x-on:mouseenter="tooltip = true"
+                                                    x-on:mouseleave="tooltip = false"
                                             >
-                                            <span class="slider round"></span>
-                                        </label>
+                                                <x-icon.questionmark class="transform scale-75"/>
+                                                <div class="absolute p-4 top-8 rounded-10 bg-off-white w-60 z-10 shadow-lg"
+                                                     x-cloak x-show.transition="tooltip">
+                                                    <p>Tooltip tekst voor meteen naar toets gaan</p>
+                                                </div>
+                                            </div>
+
+                                            <label class="switch">
+                                                <input type="checkbox"
+                                                       @click="!showCode ? showCode = true : showCode = false"
+                                                       @if($showTestCode) checked="checked" @endif
+                                                >
+                                                <span class="slider round"></span>
+                                            </label>
+                                        </div>
+
+                                        <div class="w-full relative overflow-hidden transition-all max-h-0 duration-200"
+                                             x-ref="container1"
+                                             :style="showCode ? 'max-height: ' + $refs.container1.scrollHeight + 'px' : ''"
+                                        >
+                                            <x-partials.test-take-code/>
+                                        </div>
                                     </div>
 
-                                    <div class="w-full relative overflow-hidden transition-all max-h-0 duration-200"
-                                         x-ref="container1"
-                                         :style="showCode ? 'max-height: ' + $refs.container1.scrollHeight + 'px' : ''"
-                                    >
+                                </div>
+                                <div class="error-section">
+                                    @error('username')
+                                    <div class="notification error stretched mt-4">
+                                        <span class="title">{{ $message }}</span>
+                                    </div>
+                                    @enderror
+                                    @error('password')
+                                    <div class="notification error stretched mt-4">
+                                        <span class="title">{{ $message }}</span>
+                                    </div>
+                                    @enderror
+                                    @error('invalid_user')
+                                    <div class="notification error stretched mt-4">
+                                        <div class="flex items-center space-x-3">
+                                            <x-icon.exclamation/>
+                                            <span class="title">{{ __('auth.incorrect_credentials') }}</span>
+                                        </div>
+                                        <span class="body">{{ __('auth.incorrect_credentials_long') }}</span>
+                                    </div>
+                                    @enderror
+                                    @if($this->entree_error_message)
+                                        <div class="notification error stretched mt-4">
+                                            <div class="flex items-center space-x-3">
+                                                <x-icon.exclamation/>
+                                                <span class="title">{{ __('auth.entree_error') }}</span>
+                                            </div>
+                                            <span class="body">{{ __($this->entree_error_message) }}</span>
+                                        </div>
+                                    @endif
+                                    @error('should_first_go_to_entree')
+                                    <div class="notification error stretched mt-4">
+                                        <div class="flex items-center space-x-3">
+                                            <x-icon.exclamation/>
+                                            <span class="title">{{ $message }}</span>
+                                        </div>
+                                    </div>
+                                    @enderror
+
+                                    @if($requireCaptcha)
+                                        <div
+                                                x-on:refresh-captcha.window="$refs.captcha.firstElementChild.setAttribute('src','/captcha/image?_=1333294957&_='+Math.random());">
+                                            <div class="notification error stretched mt-4">
+                                                <div class="flex items-center space-x-3">
+                                                    <x-icon.exclamation/>
+                                                    <span class="title">{{ __('auth.require_captcha') }}</span>
+                                                </div>
+                                                <span class="body">{{ __('auth.require_captcha_long') }}</span>
+                                            </div>
+                                            <div class="mt-2 inline-flex flex-col items-center space-y-1">
+                                                <div x-ref="captcha" wire:ignore>
+                                                    @captcha
+                                                </div>
+                                                <input type="text" id="captcha"
+                                                       class="form-input @error('captcha') border-all-red @enderror"
+                                                       name="captcha"
+                                                       wire:model="captcha" autocomplete="off" style="width: 180px"/>
+                                            </div>
+                                        </div>
+                                    @endif
+                                    @error('captcha')
+                                    <span class="text-sm all-red">{{ __('auth.incorrect_captcha') }}</span>
+                                    @enderror
+                                    @error('invalid_test_code')
+                                    <div class="notification error stretched mt-4">
+                                        <span class="title">{{ $message }}</span>
+                                    </div>
+                                    @enderror
+                                </div>
+                                @if($showSendForgotPasswordNotification)
+                                    <div class="flex flex-col notification info stretched mt-5 px-6">
+                                        <div class="title flex ">
+                                            <span>{{ __('auth.forgot_password_email_send') }}</span>
+                                        </div>
+                                        <div class="body space-y-0.5">
+                                            <span>{{ __('auth.forgot_password_email_send_text') }}</span>
+                                            <div class="flex flex-col">
+                                                <x-button.text-button class="text-sm primary space-x-1 !min-h-0"
+                                                                      wire:click.prevent="sendForgotPasswordEmail()">
+                                                    <span>{{ __('auth.send_mail_again') }}</span>
+                                                    <x-icon.arrow-small/>
+                                                </x-button.text-button>
+                                                <x-button.text-button class="text-sm primary space-x-1 !min-h-0"
+                                                                      type="link"
+                                                                      href="https://test-correct.nl/support"
+                                                                      target="_blank">
+                                                    <span>{{ __('auth.find_support') }}</span>
+                                                    <x-icon.arrow-small/>
+                                                </x-button.text-button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                @endif
+                                <div class="flex mt-auto pt-4">
+                                    <x-button.cta class="flex flex-grow justify-center" size="md">
+                                        <span>{{ __('auth.log_in_verb') }}</span>
+                                    </x-button.cta>
+                                </div>
+                            </form>
+                        </div>
+
+                        <div class="flex flex-col flex-1" x-show="openTab === 2" x-cloak>
+
+                            <form wire:submit.prevent="guestLogin" action="#" method="POST"
+                                  class="flex-col flex flex-1 justify-start">
+                                <div class="flex flex-col md:flex-row space-y-4 md:space-x-4 md:space-y-0">
+                                    <x-input.group label="{{ __('auth.first_name')}}" class="w-full">
+                                        <x-input.text wire:model.lazy="firstName" autofocus></x-input.text>
+                                    </x-input.group>
+                                    <x-input.group label="{{ __('auth.suffix')}}" class="w-28">
+                                        <x-input.text wire:model.lazy="suffix" autofocus></x-input.text>
+                                    </x-input.group>
+                                </div>
+                                <x-input.group label="{{ __('auth.last_name')}}" class="mt-4">
+                                    <x-input.text wire:model.lazy="lastName" autofocus></x-input.text>
+                                </x-input.group>
+                                <div class="flex-1 ">
+                                    <div class="mx-auto flex flex-col">
                                         <x-partials.test-take-code/>
                                     </div>
                                 </div>
 
-                            </div>
-                            <div class="error-section">
-                                @error('username')
-                                <div class="notification error stretched mt-4">
-                                    <span class="title">{{ $message }}</span>
-                                </div>
-                                @enderror
-                                @error('password')
-                                <div class="notification error stretched mt-4">
-                                    <span class="title">{{ $message }}</span>
-                                </div>
-                                @enderror
-                                @error('invalid_user')
-                                <div class="notification error stretched mt-4">
-                                    <div class="flex items-center space-x-3">
-                                        <x-icon.exclamation/>
-                                        <span class="title">{{ __('auth.incorrect_credentials') }}</span>
-                                    </div>
-                                    <span class="body">{{ __('auth.incorrect_credentials_long') }}</span>
-                                </div>
-                                @enderror
-                                @if($this->entree_error_message)
+                                <div class="error-section">
+                                    @error('firstName')
                                     <div class="notification error stretched mt-4">
-                                        <div class="flex items-center space-x-3">
-                                            <x-icon.exclamation/>
-                                            <span class="title">{{ __('auth.entree_error') }}</span>
-                                        </div>
-                                        <span class="body">{{ __($this->entree_error_message) }}</span>
-                                    </div>
-                                @endif
-                                @error('should_first_go_to_entree')
-                                <div class="notification error stretched mt-4">
-                                    <div class="flex items-center space-x-3">
-                                        <x-icon.exclamation/>
                                         <span class="title">{{ $message }}</span>
                                     </div>
-                                </div>
-                                @enderror
-
-                                @if($requireCaptcha)
-                                    <div
-                                            x-on:refresh-captcha.window="$refs.captcha.firstElementChild.setAttribute('src','/captcha/image?_=1333294957&_='+Math.random());">
-                                        <div class="notification error stretched mt-4">
-                                            <div class="flex items-center space-x-3">
-                                                <x-icon.exclamation/>
-                                                <span class="title">{{ __('auth.require_captcha') }}</span>
-                                            </div>
-                                            <span class="body">{{ __('auth.require_captcha_long') }}</span>
-                                        </div>
-                                        <div class="mt-2 inline-flex flex-col items-center space-y-1">
-                                            <div x-ref="captcha" wire:ignore>
-                                                @captcha
-                                            </div>
-                                            <input type="text" id="captcha"
-                                                   class="form-input @error('captcha') border-all-red @enderror"
-                                                   name="captcha"
-                                                   wire:model="captcha" autocomplete="off" style="width: 180px"/>
-                                        </div>
+                                    @enderror
+                                    @error('lastName')
+                                    <div class="notification error stretched mt-4">
+                                        <span class="title">{{ $message }}</span>
                                     </div>
-                                @endif
-                                @error('captcha')
-                                <span class="text-sm all-red">{{ __('auth.incorrect_captcha') }}</span>
-                                @enderror
-                                @error('invalid_test_code')
-                                <div class="notification error stretched mt-4">
-                                    <span class="title">{{ $message }}</span>
-                                </div>
-                                @enderror
-                            </div>
-                            {{-- With forgot_password button, ml_auto can be switched justify-between on the parent --}}
-                            <div class="flex mt-auto pt-4">
-                                <x-button.cta class="flex flex-grow justify-center" size="md">
-                                    <span>{{ __('auth.log_in_verb') }}</span>
-                                </x-button.cta>
-                            </div>
-                        </form>
-                    </div>
-
-                    <div class="flex flex-col flex-1" x-show="openTab === 2" x-cloak>
-
-                        <form wire:submit.prevent="guestLogin" action="#" method="POST"
-                              class="flex-col flex flex-1 justify-start">
-                            <div class="flex flex-col md:flex-row space-y-4 md:space-x-4 md:space-y-0">
-                                <x-input.group label="{{ __('auth.first_name')}}" class="w-56">
-                                    <x-input.text wire:model.lazy="firstName" autofocus></x-input.text>
-                                </x-input.group>
-                                <x-input.group label="{{ __('auth.suffix')}}" class="w-28">
-                                    <x-input.text wire:model.lazy="suffix" autofocus></x-input.text>
-                                </x-input.group>
-                            </div>
-                            <x-input.group label="{{ __('auth.last_name')}}" class="mt-4">
-                                <x-input.text wire:model.lazy="lastName" autofocus></x-input.text>
-                            </x-input.group>
-                            <div class="flex-1 ">
-                                <div class="mx-auto flex flex-col">
-                                    <x-partials.test-take-code/>
-                                </div>
-                            </div>
-
-                            <div class="error-section">
-                                @error('firstName')
-                                <div class="notification error stretched mt-4">
-                                    <span class="title">{{ $message }}</span>
-                                </div>
-                                @enderror
-                                @error('lastName')
-                                <div class="notification error stretched mt-4">
-                                    <span class="title">{{ $message }}</span>
-                                </div>
-                                @enderror
-                                @error('invalid_test_code')
-                                <div class="notification error stretched mt-4">
-                                    <span class="title">{{ $message }}</span>
-                                </div>
-                                @enderror
-                                @error('no_test_found_with_code')
-                                <div class="notification error stretched mt-4">
-                                    <span class="title">{{ $message }}</span>
-                                </div>
-                                @enderror
-                                @error('empty_guest_first_name')
-                                <div class="notification error stretched mt-4">
-                                    <span class="title">{{ $message }}</span>
-                                </div>
-                                @enderror
-                                @error('empty_guest_last_name')
-                                <div class="notification error stretched mt-4">
-                                    <span class="title">{{ $message }}</span>
-                                </div>
-                                @enderror
-                                @error('error_on_handling_guest_login')
-                                <div class="notification error stretched mt-4">
-                                    <span class="title">{{ $message }}</span>
-                                </div>
-                                @enderror
-                                @error('name_already_in_use')
-                                <div class="notification warning stretched mt-4">
-                                    <span class="title">{{ __('auth.choose_a_different_name') }}</span>
-                                    <span class="body">{{ __('auth.name_already_in_use') }}</span>
-                                </div>
-                                @enderror
-                                @error('rating_visible_expired')
-                                <div class="notification warning stretched mt-4">
-                                    <span class="title">{{ __('auth.test_code_expired') }}</span>
-                                    <span class="body">{{ __('auth.can_no_longer_log_in_to_this_test') }}</span>
-                                </div>
-                                @enderror
-                                @error('test_take_not_in_valid_stage')
-                                <div class="notification warning stretched mt-4">
-                                    <span class="title">{{ __('auth.something_went_wrong') }}</span>
-                                    <span class="body">{{ __('auth.test_for_this_code_is_not_valid_anymore_contact_teacher') }}</span>
-                                </div>
-                                @enderror
-                                @error('user_not_found_for_test_code')
-                                <div class="notification warning stretched mt-4">
-                                    <span class="title">{{ __('auth.user_not_found_for_test_code') }}</span>
-                                    <span class="body">{{ __('auth.contact_teacher_for_more_information') }}</span>
-                                </div>
-                                @enderror
-                                @if($showGuestError)
-                                    @if($guest_message == 'removed_by_teacher')
-                                        <div class="notification warning stretched mt-4">
-                                            <span class="title">{{ __('auth.log_in_again') }}</span>
-                                            <span class="body">{{ __('auth.removed_by_teacher') }}</span>
-                                        </div>
+                                    @enderror
+                                    @error('invalid_test_code')
+                                    <div class="notification error stretched mt-4">
+                                        <span class="title">{{ $message }}</span>
+                                    </div>
+                                    @enderror
+                                    @error('no_test_found_with_code')
+                                    <div class="notification error stretched mt-4">
+                                        <span class="title">{{ $message }}</span>
+                                    </div>
+                                    @enderror
+                                    @error('empty_guest_first_name')
+                                    <div class="notification error stretched mt-4">
+                                        <span class="title">{{ $message }}</span>
+                                    </div>
+                                    @enderror
+                                    @error('empty_guest_last_name')
+                                    <div class="notification error stretched mt-4">
+                                        <span class="title">{{ $message }}</span>
+                                    </div>
+                                    @enderror
+                                    @error('error_on_handling_guest_login')
+                                    <div class="notification error stretched mt-4">
+                                        <span class="title">{{ $message }}</span>
+                                    </div>
+                                    @enderror
+                                    @error('name_already_in_use')
+                                    <div class="notification warning stretched mt-4">
+                                        <span class="title">{{ __('auth.choose_a_different_name') }}</span>
+                                        <span class="body">{{ __('auth.name_already_in_use') }}</span>
+                                    </div>
+                                    @enderror
+                                    @error('rating_visible_expired')
+                                    <div class="notification warning stretched mt-4">
+                                        <span class="title">{{ __('auth.test_code_expired') }}</span>
+                                        <span class="body">{{ __('auth.can_no_longer_log_in_to_this_test') }}</span>
+                                    </div>
+                                    @enderror
+                                    @error('test_take_not_in_valid_stage')
+                                    <div class="notification warning stretched mt-4">
+                                        <span class="title">{{ __('auth.something_went_wrong') }}</span>
+                                        <span class="body">{{ __('auth.test_for_this_code_is_not_valid_anymore_contact_teacher') }}</span>
+                                    </div>
+                                    @enderror
+                                    @error('user_not_found_for_test_code')
+                                    <div class="notification warning stretched mt-4">
+                                        <span class="title">{{ __('auth.user_not_found_for_test_code') }}</span>
+                                        <span class="body">{{ __('auth.contact_teacher_for_more_information') }}</span>
+                                    </div>
+                                    @enderror
+                                    @if($showGuestError)
+                                        @if($guest_message == 'removed_by_teacher')
+                                            <div class="notification warning stretched mt-4">
+                                                <span class="title">{{ __('auth.log_in_again') }}</span>
+                                                <span class="body">{{ __('auth.removed_by_teacher') }}</span>
+                                            </div>
+                                        @endif
+                                        @if($guest_message == 'no_browser_testing')
+                                            <div class="notification warning stretched mt-4">
+                                                <span class="title">{{ __('auth.cannot_log_in_to_test_with_browser') }}</span>
+                                                <span class="body">{{ __('auth.usage_of_app_is_required_for_this_test') }}</span>
+                                                <a href="{{ $studentDownloadUrl }}" class="bold text-sm"
+                                                   target="_blank">{{ __("auth.download_and_install_the_app") }}
+                                                    <x-icon.arrow-small></x-icon.arrow-small>
+                                                </a>
+                                            </div>
+                                        @endif
                                     @endif
-                                    @if($guest_message == 'no_browser_testing')
-                                        <div class="notification warning stretched mt-4">
-                                            <span class="title">{{ __('auth.cannot_log_in_to_test_with_browser') }}</span>
-                                            <span class="body">{{ __('auth.usage_of_app_is_required_for_this_test') }}</span>
-                                            <a href="{{ $studentDownloadUrl }}" class="bold text-sm"
-                                               target="_blank">{{ __("auth.download_and_install_the_app") }}
-                                                <x-icon.arrow-small></x-icon.arrow-small>
-                                            </a>
-                                        </div>
-                                    @endif
-                                @endif
-                            </div>
+                                </div>
 
-                            <div class="flex mt-auto pt-4">
-                                <x-button.cta class="flex flex-grow justify-center" size="md">
-                                    <span>{{ __('auth.log_in_verb') }}</span>
-                                </x-button.cta>
-                            </div>
-                        </form>
+                                <div class="flex mt-auto pt-4">
+                                    <x-button.cta class="flex flex-grow justify-center" size="md">
+                                        <span>{{ __('auth.log_in_verb') }}</span>
+                                    </x-button.cta>
+                                </div>
+                            </form>
+                        </div>
+
                     </div>
-
                 </div>
-            </div>
-            <div class="bg-white rounded-b-[10px] px-10 pb-5 pt-2 mb-1.5 space-y-5 shadow-lg flex flex-col relative border-b border-secondary">
+                <div class="bg-white rounded-b-[10px] px-10 pb-5 pt-2 mb-1.5 space-y-5 shadow-lg flex flex-col relative border-b border-secondary">
 
-                <div class="flex flex-col flex-1 space-y-2 items-center">
-                    <div>
+                    <div class="flex flex-col flex-1 space-y-2 items-center">
+                        <div>
                         <span>
                             {{__('auth.do_you_have_an_entree_account')}}
                         </span>
-                    </div>
-                    <x-button.primary type="link" class="" size="md"
-                                      href="{{ route('saml2_login', 'entree') }}">
-                        <x-icon.entreefederatie/>
-                        <span>{{ __('auth.login_with_entree') }}</span>
-                    </x-button.primary>
+                        </div>
+                        <x-button.primary type="link" class="" size="md"
+                                          href="{{ route('saml2_login', 'entree') }}">
+                            <x-icon.entreefederatie/>
+                            <span>{{ __('auth.login_with_entree') }}</span>
+                        </x-button.primary>
 
+                    </div>
                 </div>
             </div>
 
-
-            {{-- todo: create text buttons under login container: --}}
-
+            {{-- text buttons (forgot password) todo add download the app? --}}
             <div class="w-full flex flex-col items-center">
                 <div class="flex items-center space-x-2">
                     <span class="hidden md:flex">
                         {{__('auth.forgot_password_long')}}
                     </span>
                     <x-button.text-button class="order-1" size="sm"
-                                          wire:click.prevent="$set('tab', 'forgotPassword')">
+                                          wire:click.prevent="$set('active_overlay', 'send_reset_password')">
                         <span class="text-base">{{__('auth.forgot_password')}}</span>
                         <x-icon.arrow/>
                     </x-button.text-button>
@@ -357,8 +417,14 @@
                         <x-icon.arrow/>
                     </x-button.text-button>
                 </div>
+                <a href="http://testwelcome.testcorrect.test/login?token=4614b6a792416f4b8828de07909c51166a5cab579a0b0309b3bcdab292073b9d&active_overlay=reset_password">
+                    <span >temp link</span>
+                </a>
+
             </div>
-        @elseif($tab == 'forgotPassword') {{-- todo: bring forgot password in line with login tab --}}
+        @elseif($tab == 'forgotPassword')
+            {{-- remove code after implementing new design --}}
+            {{-- todo: bring forgot password in line with login tab --}}
             <div class="content-section p-10 space-y-5 shadow-xl flex flex-col " style="min-height: 550px">
                 <form wire:submit.prevent="sendForgotPasswordEmail" action="#" method="POST"
                       class="flex-col flex flex-1">
@@ -759,7 +825,9 @@
                 </form>
             </div>
         @endif
-        {{--<div class="flex flex-col md:flex-row justify-center items-center md:space-x-4" browser wire:ignore>
+        {{-- download the app button(s) --}}
+            {{-- Gebruik je liever de app? Download de app -> --}}
+        <div class="flex flex-col md:flex-row justify-center items-center md:space-x-4" browser wire:ignore>
             <x-button.primary type="link" href="{{ $this->studentDownloadUrl }}">
                 <x-icon.download/>
                 <span>{{__('auth.download_student_app')}}</span>
@@ -769,7 +837,7 @@
                 <span>{{__('auth.request_account_from_teacher')}}</span>
                 <x-icon.arrow/>
             </x-button.text-button>
-        </div>--}}
+        </div>
     </div>
 
     <x-modal.auth-create-account maxWidth="lg" wire:model="showAuthModal"/>

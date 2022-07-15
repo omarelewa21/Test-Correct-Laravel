@@ -48,6 +48,7 @@ class Login extends Component
 
     protected $queryString = [
         'tab'                  => ['except' => 'login'],
+        'active_overlay'       => ['except' => ''],
         'login_tab'            => ['except' => 1],
         'uuid'                 => ['except' => ''],
         'entree_error_message' => ['except' => ''],
@@ -76,7 +77,7 @@ class Login extends Component
     public $showGuestSuccess = false;
 
 //    public $loginTab = true;
-//    public $forgotPasswordTab = false;
+    public $active_overlay = '';
 //    public $entreeTab = false;
 
     public $showTestCode = false;
@@ -275,11 +276,12 @@ class Login extends Component
 
     public function sendForgotPasswordEmail()
     {
+        $this->active_overlay = '';
         $this->entree_error_message = '';
         $user = User::whereUsername($this->forgotPasswordEmail)->first();
         if ($user) {
             $token = Password::getRepository()->create($user);
-            $url = sprintf('%spassword-reset/?token=%%s', config('app.base_url'));
+            $url = sprintf('%slogin/?active_overlay=reset_password&token=%%s', config('app.base_url'));
             $urlLogin = route('auth.login');
 
             try {
