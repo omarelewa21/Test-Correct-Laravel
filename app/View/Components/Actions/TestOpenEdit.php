@@ -5,11 +5,11 @@ namespace tcCore\View\Components\Actions;
 use Illuminate\View\Component;
 use tcCore\Test;
 
-class TestDelete extends Component
+class TestOpenEdit extends Component
 {
     public $test;
     public $variant;
-
+    public $url;
     /**
      * Create a new component instance.
      *
@@ -19,6 +19,8 @@ class TestDelete extends Component
     {
         $this->test = Test::findByUuid($uuid);
         $this->variant = $variant;
+
+        $this->generateEditUrl();
     }
 
     /**
@@ -28,6 +30,17 @@ class TestDelete extends Component
      */
     public function render()
     {
-        return view('components.actions.test-delete');
+        return view('components.actions.test-open-edit');
+    }
+
+    public function generateEditUrl()
+    {
+        $this->url = route('teacher.question-editor', [
+            'testId'     => $this->test->uuid,
+            'action'     => 'edit',
+            'owner'      => 'test',
+            'withDrawer' => 'true',
+            'referrer'   => 'teacher.tests',
+        ]);
     }
 }
