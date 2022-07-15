@@ -1,12 +1,12 @@
 <x-partials.answer-model-question-container :number="$number" :question="$question" :answer="$answer">
     <div class="w-full space-y-3 matching-question">
-        <div>
+        <div class="children-block-pdf">
             {!!   $question->converted_question_html !!}
         </div>
         @if($question->subtype == 'Classify')
 
-                        <div class="flex-wrap-pdf flex-col-pdf classify " style="margin-top: 40px;">
-                            <div class="flex-row-pdf space-x-5 classified">
+                        <div class="flex-wrap-pdf flex-col-pdf classify question-no-break-matching-option" style="margin-top: 40px;">
+                            <div class="flex-row-pdf space-x-5 classified ">
                                 @php $counter = 0; @endphp
                                 @foreach ($question->matchingQuestionAnswers as $group)
                                     @if(  $group->correct_answer_id === null )
@@ -48,7 +48,7 @@
                     @foreach ($question->matchingQuestionAnswers as $group)
                         @if(  $group->correct_answer_id === null )
                             <tr class="no-border" style="border: 0;">
-                                <td class="no-border" style="width: 400px;height: 70px;">
+                                <td class="no-border" style="width: 400px;height: 60px;">
                                     <div class="w-full label-dropzone" style="height: 50px;">
                                             <div class="block w-full h-full py-2 px-4 border-2 border-blue-grey rounded-10
                                                          bg-primary-light font-size-18 bold base leading-5" style="height: 50px;">
@@ -65,7 +65,7 @@
                                                     @if(  $option->correct_answer_id !== null )
                                                         @if($option->correct_answer_id == $group->id)
                                                             <div class="bg-light-grey base border-light-grey border-2
-                                                                 rounded-10 inline-flex px-4 py-1.5 items-center justify-between drag-item bold font-size-18 pdf-80 pdf-minh-40"
+                                                                 rounded-10 inline-flex px-4 py-1.5 items-center justify-between drag-item bold font-size-18 pdf-minh-40"
                                                             >
                                                                 <span class="mr-3 flex items-center pdf-align-center" >{{ $option->answer }}</span>
                                                                 <div class="w-4">

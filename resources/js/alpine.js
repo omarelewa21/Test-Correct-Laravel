@@ -376,7 +376,7 @@ document.addEventListener('alpine:init', () => {
         },
         home() {
             this.scroll(0);
-            this.$dispatch('backdrop');
+            if (!this.$store.cms.emptyState) this.$dispatch('backdrop');
             this.handleVerticalScroll(this.$refs.container1);
         },
         scroll(position) {
@@ -419,11 +419,17 @@ document.addEventListener('alpine:init', () => {
             this.scroll(boundingRect.x + boundingRect.width);
             this.$store.questionBank.active = true;
         },
-        hideQuestionBank(container) {
+        hideQuestionBank() {
             this.$root.querySelectorAll('.slide-container').forEach((slide) => {
                 slide.classList.add('opacity-0')
             })
             this.$store.questionBank.active = false;
+
+            if (this.$store.questionBank.inGroup) {
+                let drawerComponent = getClosestLivewireComponentByAttribute(this.$el, 'cms-drawer');
+                drawerComponent.set('groupId', null);
+                this.$store.questionBank.inGroup = false;
+            }
             this.$nextTick(() => {
                 this.drawer.classList.remove('fullscreen');
                 this.home();
@@ -444,6 +450,7 @@ document.addEventListener('alpine:init', () => {
             this.$dispatch('backdrop');
         },
         addGroup(shouldCheckDirty = true) {
+            this.$dispatch('store-current-question');
             if (shouldCheckDirty && this.$store.cms.dirty) {
                 this.$wire.emitTo('teacher.questions.open-short', 'addQuestionFromDirty', {'group': true})
                 return;
@@ -451,6 +458,7 @@ document.addEventListener('alpine:init', () => {
             this.$wire.addGroup();
         },
         showAddQuestionSlide(shouldCheckDirty = true) {
+            this.$dispatch('store-current-question');
             if (shouldCheckDirty && this.$store.cms.dirty) {
                 this.$wire.emitTo('teacher.questions.open-short', 'addQuestionFromDirty', {'group': false})
                 return;
@@ -583,6 +591,7 @@ document.addEventListener('alpine:init', () => {
         dirty: false,
         scrollPos: 0,
         reinitOnClose: false,
+        emptyState: false,
     });
     Alpine.store('questionBank', {
         active: false,

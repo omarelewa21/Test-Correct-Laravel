@@ -1332,6 +1332,9 @@ class Question extends MtiBaseModel {
         if(!self::usesDeleteAndAddAnswersMethods($baseModel->type)){
             return;
         }
+        if(!$this->needsToBeUpdated($request)){
+            return;
+        }
         $totalData = $this->getTotalDataForTestQuestionUpdate($request);
         if(!array_key_exists('answers',$totalData)){
             return;

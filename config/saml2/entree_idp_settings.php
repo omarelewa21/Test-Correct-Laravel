@@ -115,24 +115,26 @@ jzwnvGSTRr4zLbXwz+RZmkre'
 //7uD696761sUpsGnDlWjf6oGIsG8YulDhAf8hZTOlB4Xi3GowtQ42gCKVgE1cgXeDRjkOIgSHhXuF
 //N99D5dVbx2vmPcidF8Lqre2S6R7AvpP0vVuh'
 //    ),
-            'x509cert' => 'MIID0TCCArmgAwIBAgIEQ8XygzANBgkqhkiG9w0BAQsFADCBmDELMAkGA1UEBhMCTkwxFTATBgNV
+            // @@ Dit certificaat vervangen voor PRODUCTIE
+            // https://hub.entree.kennisnet.nl/openaselect/profiles/saml/
+            'x509cert' => 'MIID0TCCArmgAwIBAgIESb+pqDANBgkqhkiG9w0BAQsFADCBmDELMAkGA1UEBhMCTkwxFTATBgNV
 BAgTDFp1aWQtSG9sbGFuZDETMBEGA1UEBxMKWm9ldGVybWVlcjEcMBoGA1UEChMTU3RpY2h0aW5n
 IEtlbm5pc25ldDEZMBcGA1UECxMQRW50cmVlIEZlZGVyYXRpZTEkMCIGA1UEAxMbYXNlbGVjdC5l
-bnRyZWUua2VubmlzbmV0Lm5sMB4XDTE3MDcyNDEzMzM1OVoXDTIyMDkwMTEzMzM1OVowgZgxCzAJ
+bnRyZWUua2VubmlzbmV0Lm5sMB4XDTIyMDYzMDExMjYzNFoXDTI1MDYyOTExMjYzNFowgZgxCzAJ
 BgNVBAYTAk5MMRUwEwYDVQQIEwxadWlkLUhvbGxhbmQxEzARBgNVBAcTClpvZXRlcm1lZXIxHDAa
 BgNVBAoTE1N0aWNodGluZyBLZW5uaXNuZXQxGTAXBgNVBAsTEEVudHJlZSBGZWRlcmF0aWUxJDAi
 BgNVBAMTG2FzZWxlY3QuZW50cmVlLmtlbm5pc25ldC5ubDCCASIwDQYJKoZIhvcNAQEBBQADggEP
-ADCCAQoCggEBAN4WRmDAKciNyFaoZ/iC3ufN6Yyn0zHO1MeHgoBTqGb6IemAXsZ6mQjcZdkqYnC0
-s6/vuzEL0f/a9kWKtJZvguDowgTw6/+l9XCVwAXH7eQIE+D0HTCzl/yxdPHPdbAWQf7VIJbfUW6z
-rNCvAl6EpkAfhVimWSUX9UOsBhoMzbicQ2IWvCt1XTun7kl30AdZQGig8BG8r685dLrIUTX8dtrE
-HNp4Gg9NUcRjr1gpahBE+5vi7cuapPVfEZm18eJ/JFOmkCMzDxhkoDU7F+7HcjSNGslB3Ku3gE1F
-/1fEvgyDFTRI8M5TDt5x/5xLj4amlPU056jmDjQyMbUlCK4wxSsCAwEAAaMhMB8wHQYDVR0OBBYE
-FArUr8wsz1HjlcHV2wT9GSXHA9qEMA0GCSqGSIb3DQEBCwUAA4IBAQBWPD8lus6E6q6m+CZzY2m9
-4oHsjH3pmVtqxHyvz7SupVKcU7kbxS+kBbzhfX3CHmA3F20Du5f2XS72Won3p9Ks2ceo0IuoqpkB
-w4+IN6M2n8UPf+ULin1URSZQO4nB1aG7cPtdrJ2cv6q0dSi4fo5DADMB+8BibEbDRxHFnTjfleHA
-swmNx2Tea8k3LoZftch6VakmtxAvS8ooFY88o5LUkFdcwHMvcxXiy9+zTCtSMJqJzV3qD0NK/rq+
-kgkLoXSP9RrAVO/0AYF8x2MjiwyXMa+eH6ELZvPgdeObT7FfZExx+hZuto5P4BWPIdalMx7Ayxjf
-U/ywJ8PBYG1sEYYU'),
+ADCCAQoCggEBAKdM6toMzJ2hFrem7rL3iX8EO40IJzDdEABcPqK+Ef/OAaHm2bkJid5tqOnBIOoD
+J7xh71m7xmDsr49CqsDGFoxdOfO+WmWDpRSq72vMGJfp7wSUK6GHGtfAV/90N5UWY/GrvBrTO9v+
+bxHt8szmFwMk3NWJ60CkCwgNDBaMcx17OBLEp4A5tlvDzjdnAoKIvLruTazOMoN4oXWV+DJPmXlf
+OLE0DqZ6pEWLEDq/Z6fdyK0X9+z8+FfR053tB2cP2e5Fs6cwRl2FLlHD7WofgX13egXTXK2Bj0XR
+CxG0QOEcVgRW8QiGISsHbn/0ab9s+4hGTgjruvSBYGaj/jhZvR8CAwEAAaMhMB8wHQYDVR0OBBYE
+FFoX0DmWDccLiC6UBFGZpfoXs4ykMA0GCSqGSIb3DQEBCwUAA4IBAQBl1oF8xMC6S8Wk+udz+FG2
+n9k9W6yNIXn1LwvKnqwAWGMMCeRUbCIVZbb5Qn12ZvMzHrcYBzA5Hm6SIzRwAsHxuWvmSnJ+1gIo
+jW2nSLIizvyvKiW9VrutUBtGBlS7rqGLUs/l1YRq7/7NnyaE/IXehPM2hqRkbhp4lfQccDbBJE01
+0sA/AFVkG7CirHXUG21q2XaZ+UwVWjVqEertYbTQMjZdcODqiSgH8J85QB5b4zt5ylidkkcY0ZiG
+y2SJeyusQWRDyzlVETToOARiTXRCsisMrK4L1UBeCADfEVzxnHQpfKw6nE1BE8yi4WbyXFDNRnhC
+1Ug6uRVGIB1MvTj2'),
         'security' => array(
             // Alle verzonden en ontvangen berichten moeten gesigned zijn
             'authnRequestsSigned' => true,
@@ -240,17 +242,19 @@ jzwnvGSTRr4zLbXwz+RZmkre'
         'idp'      => array(
             // De unieke identifier van Entree Federatie
 //            'entityId'            => 'https://aselect.entree.kennisnet.nl/',
-        'entityId'            => 'https://aselect-s.entree.kennisnet.nl/',
+            'entityId'            => 'https://aselect-s.entree.kennisnet.nl/',
             // Endpoint van Entree Federatie waar de authenticatie requests naar toegestuurd worden
             'singleSignOnService' => array(
                 // De URL van het endpoint
 //                'url'     => 'https://aselect.entree.kennisnet.nl/openaselect/profiles/saml/sso/web',
-            'url'     => 'https://aselect-s.entree.kennisnet.nl/openaselect/profiles/saml/sso/web',
+                'url'     => 'https://aselect-s.entree.kennisnet.nl/openaselect/profiles/saml/sso/web',
                 // SAML protocol binding dat gebruikt wordt om de requests naar Entree Federatie te versturen
                 'binding' => 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST',
             ),
             // De public key in de metadata van Entree Federatie, te vinden in de metadata onder het onderdeel IDPSSODescriptor / X509Certificate.
-        'x509cert'            => 'MIIF4TCCA8mgAwIBAgIEXXr4LzANBgkqhkiG9w0BAQsFADCBoDELMAkGA1UEBhMCTkwxFTATBgNV
+            // @@ Dit certificaat vervangen voor TESTING
+            // https://hub-s.entree.kennisnet.nl/openaselect/profiles/saml/
+            'x509cert'            => 'MIIF4TCCA8mgAwIBAgIEXXr4LzANBgkqhkiG9w0BAQsFADCBoDELMAkGA1UEBhMCTkwxFTATBgNV
 BAgTDFp1aWQtSG9sbGFuZDETMBEGA1UEBxMKWm9ldGVybWVlcjEcMBoGA1UEChMTU3RpY2h0aW5n
 IEtlbm5pc25ldDEZMBcGA1UECxMQRW50cmVlIEZlZGVyYXRpZTEsMCoGA1UEAxMjYXNlbGVjdC5z
 dGFnaW5nLmVudHJlZS5rZW5uaXNuZXQubmwwHhcNMTcwNzI0MTMzMTEwWhcNMjIwOTAxMTMzMTEw
@@ -277,10 +281,10 @@ DwwVN+YKl7O/tLUYRvmTnOed5zpOwX6WELT9Gshmi9T3lVn/p3XnGxxz8RpnrcQbc/MvGjybsRsj
 6uFjsGWLBSqhn9e10awAl9JrJtojDje7PhADopUpe9dGbKBBgUBewDorkf55L+l5XNiH3f+Ne7jn
 7uD696761sUpsGnDlWjf6oGIsG8YulDhAf8hZTOlB4Xi3GowtQ42gCKVgE1cgXeDRjkOIgSHhXuF
 N99D5dVbx2vmPcidF8Lqre2S6R7AvpP0vVuh'
-    ),
-    'security' => array(
-        // Alle verzonden en ontvangen berichten moeten gesigned zijn
-        'authnRequestsSigned' => true,
+        ),
+        'security' => array(
+            // Alle verzonden en ontvangen berichten moeten gesigned zijn
+            'authnRequestsSigned' => true,
 
             // Algorithm that the toolkit will use on signing process. Options:
             // Entree Federatie only uses SHA1 for SAML signing.

@@ -4,11 +4,12 @@ namespace tcCore\Http\Livewire\TestTakeOverviewPreview;
 
 use Livewire\Component;
 use tcCore\Http\Traits\WithCloseable;
+use tcCore\Http\Traits\WithGroups;
 use tcCore\Question;
 
 class InfoScreenQuestion extends Component
 {
-    use WithCloseable;
+    use WithCloseable, WithGroups;
 
     protected $listeners = ['questionUpdated' => 'questionUpdated'];
 

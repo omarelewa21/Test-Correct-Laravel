@@ -27,13 +27,12 @@
         </div>
     </div>
     <div class="flex w-full justify-between text-base mb-1">
-        <div class="flex">
-            <span class="bold min-w-[125px]">{{ $question->typeName }}</span>
+        <div class="flex gap-5">
+            <span class="bold">{{ $question->typeName }}</span>
             <span>{!! optional($question->subject)->name ?? __('general.unavailable') !!}</span>
         </div>
         <div class="text-sm">
-            <span class="note">{{ __('general.Laatst gewijzigd') }}:</span>
-            <span class="note">{{ $lastUpdated }}</span>
+            <span class="note">{{ __('general.Laatst gewijzigd') }}: {{ $lastUpdated }}</span>
         </div>
     </div>
     <div class="flex w-full justify-between text-base">
@@ -58,15 +57,15 @@
                 @endif
                 <span class="note text-sm">{{ $question->isType('GroupQuestion') ?  $question->total_score ?? 0 : $question->score ?? 0 }}pt.</span>
             </div>
-            <div class="flex space-x-2.5 items-center">
+            <div class="flex space-x-2.5 items-center" wire:key="is_present_{{ $question->id }}">
                 @if($this->isQuestionInTest($question->id) || $this->isQuestionInTest($question->derived_question_id))
-                    <span title="{{ __('cms.Deze vraag is aanwezig in de toets.') }}">
+                    <span  title="{{ __('cms.Deze vraag is aanwezig in de toets.') }}">
                         <x-icon.checkmark-circle color="var(--cta-primary)"/>
                     </span>
                 @endif
-                <button x-show="$store.questionBank.active" class="new-button button-primary w-10 items-center justify-center flex"
-                        wire:click.stop="handleCheckboxClick('{{ $question->uuid }}')"
-                        @click="$el.disabled = true"
+                <button x-show="Alpine.store('questionBank').active"
+                        class="new-button button-primary w-10 items-center justify-center flex"
+                        @click.stop="addQuestionToTest($el, '{{ $question->uuid }}')"
                 >
                     <x-icon.plus-2/>
                 </button>

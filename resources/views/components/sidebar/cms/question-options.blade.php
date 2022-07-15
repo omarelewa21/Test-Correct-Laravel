@@ -4,6 +4,7 @@
         @click.stop="options = true"
         @keydown.escape.stop="options = false"
         x-cloak
+        title="{{ __('sidebar.options') }}"
 >
     <div x-show="options" @click.stop="options=false" class="fixed inset-0 cursor-default z-10"
          style="width: var(--sidebar-width)"></div>

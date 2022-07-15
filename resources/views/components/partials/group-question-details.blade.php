@@ -50,7 +50,7 @@
                         <x-icon.checkmark-circle color="var(--cta-primary)"/>
                     </span>
                 @endif
-                <x-button.cta x-data="{}" x-show="$store.questionBank.active" wire:click.stop="handleCheckboxClick('{{ $uuid }}')"
+                <x-button.cta x-data="{}" x-show="Alpine.store('questionBank').active" wire:click.stop="handleCheckboxClick('{{ $uuid }}')"
                               @click="$el.disabled = true">
                     <x-icon.plus-2/>
                     <span>{{ __('cms.Toevoegen') }}</span>
@@ -61,7 +61,7 @@
 
         <x-grid class="subquestion-grid w-full">
             @forelse($subQuestions as $sub)
-                <x-grid.question-card :question="$sub->question->getQuestionInstance()" :testUuid="$this->testId ?? null" :order="$sub->order"/>
+                <x-grid.question-card :question="$sub->question->getQuestionInstance()" :testUuid="$this->testId ?? null" :order="$loop->iteration"/>
             @empty
                 <span>Geen subvragen</span>
             @endforelse

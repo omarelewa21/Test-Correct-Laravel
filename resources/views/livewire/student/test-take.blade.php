@@ -20,7 +20,7 @@
             @endif
         </x-slot>
         <x-slot name="actionButton">
-            <x-button.cta size="md" onclick="endTest(true)">
+            <x-button.cta size="md" onclick="endTest(true)" >
                 <span>
                     @if(!Auth::user()->guest)
                         {{ __('student.dashboard') }}
@@ -48,10 +48,47 @@
                     renderMathML()
                 });
                 // Livewire.hook('element.removed', (el, component) => {})
-                // Livewire.hook('message.sent', (message, component) => {})
-                // Livewire.hook('message.failed', (message, component) => {})
+                // Livewire.hook('message.sent', (message, component) => {});
+                Livewire.hook('message.failed', (message, component) => {
+                    let container;
+                    if(!window.navigator.onLine && message.component.hasOwnProperty('fingerprint') && message.component.fingerprint.name.startsWith('question.')) {
+                        const listener = () => {
+                            // if(window.navigator.online) {
+                                if (container.type == 'callMethod') {
+                                    component.call(container.payload.method, container.payload.params[0]);
+                                } else if (container.type == 'syncInput') {
+                                    component.set(container.payload.name, container.payload.value);
+                                } else {
+                                    console.log('no clue what to do with ' + container.type);
+                                }
+                                window.removeEventListener('online', listener);
+                            // }
+                        }
+
+                        if (message.hasOwnProperty('updateQueue')) {
+                            container = message.updateQueue[0];
+                        } else if(message.hasOwnProperty('updates')){
+                            container = message.updates[0];
+                        }
+                        if(container) {
+                            window.addEventListener('online', listener);
+                        }
+                    }
+
+                });
                 // Livewire.hook('message.received', (message, component) => {})
                 // Livewire.hook('message.processed', (message, component) => {})
+                const OnlineListener = function(){
+                    Notify.notify('{{ __('test-take.your connection is back online') }}', 'success');
+                    window.removeEventListener('online',OnlineListener);
+                    window.addEventListener('offline',Offlinelistener);
+                }
+                const Offlinelistener = function() {
+                    window.addEventListener('online', OnlineListener);
+                    window.removeEventListener('offline',Offlinelistener);
+                }
+
+                window.addEventListener('offline',Offlinelistener);
             });
 
             function renderMathML() {

@@ -47,10 +47,17 @@
                     <div class="max-w-2xl z-0  p-8 flex flex-col items-center justify-center relative rounded-10 overflow-auto">
                         <div class="absolute bg-white opacity-80 w-full h-full"></div>
                         <div class="z-0 flex flex-col items-center justify-center">
-                            <x-button.primary @click="showWarning = !showWarning" selid="draw-answer">
+                            @isset($preview)
+                            <x-button.primary class="disabled" disabled selid="draw-answer">
                                 <x-icon.edit/>
                                 <span>{{ __('cms.Tekening maken') }}</span>
                             </x-button.primary>
+                            @else
+                                <x-button.primary @click="showWarning = !showWarning" selid="draw-answer">
+                                    <x-icon.edit/>
+                                    <span>{{ __('cms.Tekening maken') }}</span>
+                                </x-button.primary>
+                            @endisset
                             <p class="text-note text-sm text-center mt-4">{{ __('cms.waarschuwing_aanpassen_oude_tekenvraag') }} </p>
                         </div>
                     </div>
@@ -78,7 +85,7 @@
                 <div x-cloak x-show="answerSvg === ''" class="max-w-2xl z-0  p-8 flex flex-col items-center justify-center relative rounded-10 overflow-auto">
                     <div class="absolute bg-white opacity-80 w-full h-full"></div>
                     <div class="z-0 flex flex-col items-center justify-center">
-                        @isset($preview))
+                        @isset($preview)
                         <x-button.primary disabled selid="draw-answer">
                             <x-icon.edit/>
                             <span>{{ __('cms.Tekening maken') }}</span>

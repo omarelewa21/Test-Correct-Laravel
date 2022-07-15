@@ -14,7 +14,7 @@
                     <x-icon.checkmark-circle color="var(--cta-primary)"/>
                 </span>
             @endif
-            <x-button.cta x-data="{}" x-cloak x-show="$store.questionBank.active" size="sm" wire:click="addQuestion">
+            <x-button.cta x-data="{}" x-cloak x-show="Alpine.store('questionBank').active" size="sm" wire:click="addQuestion">
                 <x-icon.plus-2/>
                 <span>{{ __('cms.Toevoegen') }}</span>
             </x-button.cta>

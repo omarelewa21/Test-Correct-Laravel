@@ -29,7 +29,7 @@ class GroupQuestionDetails extends Component
         $this->lastUpdated = Carbon::parse($groupQuestion->updated_at)->format('d/m/\'y');
         $this->attachmentCount = $groupQuestion->attachments()->count();
         $this->totalScore = $groupQuestion->total_score;
-        $this->subQuestions = $groupQuestion->groupQuestionQuestions;
+        $this->subQuestions = $groupQuestion->groupQuestionQuestions->sortBy('order');
         $this->uuid = $groupQuestion->uuid;
         $this->closeable = $groupQuestion->getQuestionInstance()->closeable;
         $this->inTest = $groupQuestion->inTest ?? false;

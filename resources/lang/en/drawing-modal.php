@@ -20,6 +20,7 @@ return [
     'Zet dikgedrukt aan/uit'             => 'Turn bold on/off',
     'Doorzichtigheid'                    => 'Opacity',
     'Randkleur'                          => 'Border color',
+    'lineColor'                          => 'Line color',
     'Vergroot randdikte'                 => 'Enlarge border width',
     'Verklein randdikte'                 => 'Reduce border width',
     'Opvulkleur'                         => 'Fill',

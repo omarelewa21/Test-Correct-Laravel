@@ -44,16 +44,16 @@
      questionComponent
 >
     <x-partials.header.cms-editor :testName="$testName" :questionCount="$this->amountOfQuestions"/>
-    <div class="question-editor-content w-full max-w-7xl mx-auto relative"
+    <div class="question-editor-content w-full relative"
          wire:key="container-{{ $this->uniqueQuestionKey }}"
          {{--         :class="{'opacity-0': $store.cms.loading || empty, 'opacity-50': $store.cms.processing && !loading}"--}}
          style="opacity: 0; transition: opacity .3s ease-in"
-         :style="{'opacity': ($store.cms.loading || !!empty) ? 0 : ($store.cms.processing) ? 0 : 1}"
+         :style="{'opacity': ($store.cms.loading || $store.cms.emptyState) ? 0 : ($store.cms.processing) ? 0 : 1}"
          x-ref="editorcontainer"
          wire:ignore.self
     >
 
-        <div class="flex w-full flex-col">
+        <div class="flex w-full flex-col sticky top-[var(--header-height)] bg-lightGrey z-10">
             <div class="flex w-full border-b border-secondary mt-2.5 py-2.5">
                 <div class="flex w-full items-center px-4 sm:px-6 lg:px-8 justify-between">
                     <div class="flex items-center">
@@ -107,7 +107,21 @@
                     </div>
                 </div>
             </div>
-            <div class="px-4 sm:px-6 lg:px-8 ">
+        </div>
+        <div class="flex flex-col flex-1 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto"
+             x-data="{openTab: 1}"
+             x-init="$watch('openTab', value => { value === 1 ? $dispatch('tabchange') : '';})"
+             @opentab.window="openTab = $event.detail; window.scrollTo({top: 0, behavior: 'smooth'})"
+             selid="tabcontainer"
+        >
+            <div class="flex justify-end py-5">
+                @if($this->showQuestionScore())
+                    <x-input.score wire:model.defer="question.score"
+                                   wire:key="score-component-{{ $this->uniqueQuestionKey }}"
+                    />
+                @endif
+            </div>
+            <div class="{{ $this->getErrorBag()->isEmpty() ? 'mb-4' : '' }}">
                 @error('question.name')
                 <div class="notification error stretched mt-4">
                     <span class="title">{{ $message }}</span>
@@ -180,21 +194,6 @@
                     </div>
                 @endif
             </div>
-            <div class="flex justify-end px-4 sm:px-6 lg:px-8 py-5">
-                @if($this->showQuestionScore())
-                    <x-input.score wire:model.defer="question.score"
-                                   wire:key="score-component-{{ $this->uniqueQuestionKey }}"
-                    />
-                @endif
-            </div>
-
-        </div>
-        <div class="flex flex-col flex-1 px-4 sm:px-6 lg:px-8"
-             x-data="{openTab: 1}"
-             x-init="$watch('openTab', value => { value === 1 ? $dispatch('tabchange') : '';})"
-             @opentab.window="openTab = $event.detail; window.scrollTo({top: 0, behavior: 'smooth'})"
-             selid="tabcontainer"
-        >
             <div class="flex w-full space-x-6 mb-5 border-b border-secondary max-h-[50px]" selid="tabs">
                 <div :class="{'border-b-2 border-primary -mb-px primary' : openTab === 1}" selid="tab-question">
                     <x-button.text-button
@@ -309,7 +308,7 @@
                                                            :disabled="$this->isSettingsGeneralPropertyDisabled('maintainPosition')"
                             >
                                 <x-icon.shuffle-off/>
-                                <span class="bold"> {{ __('cms.Deze vraag niet shuffelen') }}</span>
+                                <span class="bold"> {{ $this->isGroupQuestion() ? __('cms.Deze vraaggroep niet shuffelen') : __('cms.Deze vraag niet shuffelen') }}</span>
                             </x-input.toggle-row-with-title>
                         @endif
 
@@ -522,6 +521,7 @@
     <x-modal.question-editor-dirty-question-modal
             :item="strtolower($this->isGroupQuestion() ? __('cms.group-question') : __('drawing-modal.Vraag'))"
             :new="!$this->editModeForExistingQuestion()"/>
+    @if(!$this->withDrawer)
     <div class="question-editor-footer" x-data>
         <div class="question-editor-footer-button-container">
 
@@ -554,4 +554,5 @@
             </button>
         </div>
     </div>
+        @endif
 </div>

@@ -4,7 +4,12 @@
 ])
 <div x-cloak
      x-data="{ showMe: false, progressBar: false, startTime: 0, endTime: 1, progress: 0 }"
-     x-init="$watch('showMe', () => { if(showMe) { $dispatch('visible-component', {el: $el});} })"
+     x-init="$watch('showMe', () => {
+        if(showMe) {
+            $dispatch('visible-component', {el: $el});
+            return;
+        }
+     })"
      x-show="showMe"
      x-on:current-updated.window="
         showMe = ({{ $number }} == $event.detail.current);

@@ -1,12 +1,12 @@
 <div id="question-bank"
      class="flex flex-col relative w-full min-h-full bg-lightGrey border-t border-secondary overflow-auto overflow-x-hidden"
-     x-data="{openTab: @entangle('openTab'), inGroup: @entangle('inGroup'), groupDetail: null, bodyVisibility: true,  maxHeight: '100%'}"
+     x-data="{openTab: @entangle('openTab'), inGroup: @entangle('inGroup'), groupDetail: null, bodyVisibility: true,  maxHeight: 'calc(100vh - var(--header-height))'}"
      :style="`max-height: ${maxHeight}`"
      x-init="
         groupDetail = $el.querySelector('#groupdetail');
         $watch('$store.questionBank.inGroup', value => inGroup = value);
         $watch('$store.questionBank.active', value => {
-            if(!value) closeGroupDetail();
+           value ? $wire.render() : closeGroupDetail();
         });
         showGroupDetails = async (groupQuestionUuid, inTest = false) => {
             let readyForSlide = await $wire.showGroupDetails(groupQuestionUuid, inTest);
@@ -25,72 +25,107 @@
         }
 
         closeGroupDetail = () => {
-{{--            $el.querySelector('.main').style.display = 'flex'--}}
-            bodyVisibility = true;
-            maxHeight = groupDetail.style.left = '100%';
-            $nextTick(() => {
-                $wire.clearGroupDetails();
-                setTimeout(() => {
-                    handleVerticalScroll($el.closest('.slide-container'));
-                }, 250);
-            })
+            if (!bodyVisibility) {
+                bodyVisibility = true;
+                maxHeight = 'calc(100vh - var(--header-height))';
+                groupDetail.style.left = '100%';
+                $nextTick(() => {
+                    $wire.clearGroupDetails();
+                    setTimeout(() => {
+                        handleVerticalScroll($el.closest('.slide-container'));
+                    }, 250);
+                })
+            }
+
+        }
+        addQuestionToTest = async (button, questionUuid) => {
+            button.disabled = true
+            var enableButton = await $wire.handleCheckboxClick(questionUuid);
+            if (enableButton) button.disabled = false;
         }
         "
      @question-added.window="Notify.notify('Vraag toegevoegd!');"
      @question-removed.window="Notify.notify('Vraag verwijderd!')"
 >
-    <div class="flex w-full border-b border-secondary">
-        <div class="w-full max-w-5xl lg:max-w-7xl  mx-auto">
-            <div class="flex w-full space-x-4 mx-8 max-w-max">
-                <div>
-                    <div class="flex relative hover:text-primary cursor-pointer"
-                         @click="openTab = 'personal'"
-                            {{--                         wire:click="setSource('personal')"--}}
-                    >
+    <div class="flex w-full flex-col border-b border-secondary sticky top-0 z-[2]">
+        <div class="py-2 px-6 flex w-full bg-white border-b border-secondary">
+            <div class="flex items-center space-x-2.5">
+                <x-button.back-round @click="hideQuestionBank();"/>
+                <span class="bold text-lg cursor-default">{{ __('cms.Bestaande vraag toevoegen') }}</span>
+            </div>
+
+            <div class="flex ml-auto items-center space-x-2.5">
+                <x-button.cta @click="hideQuestionBank();">
+                    <span>{{ __('drawing-modal.Sluiten') }}</span>
+                </x-button.cta>
+
+                <div x-data="{active: 2}"
+                     class="text-toggle inline-flex border border-secondary bg-offwhite relative rounded-lg h-10 ">
+                            <span class="px-4 py-2 bold note cursor-default"
+                                  :class="{'primary': active === 1}">{{ __('cms.Toetsenbank') }}</span>
+                    <span @click="active = 2" class="px-4 py-2 bold"
+                          :class="{'primary': active === 2}">{{ __('cms.Vragenbank') }}</span>
+
+                    <span class="active-border absolute -inset-px border-2 border-primary rounded-lg transition-all"
+                          :style="active === 1 ? 'left:0' : 'left:'+ $root.offsetWidth/2 +'px' "
+                    ></span>
+                </div>
+            </div>
+
+        </div>
+        <div class="flex w-full bg-lightGrey">
+            <div class="w-full   mx-auto">
+                <div class="flex w-full space-x-4 mx-8 max-w-max">
+                    <div>
+                        <div class="flex relative hover:text-primary cursor-pointer"
+                             @click="openTab = 'personal'"
+                                {{--                         wire:click="setSource('personal')"--}}
+                        >
                         <span class="bold pt-[0.9375rem] pb-[0.8125rem]"
                               :class="openTab === 'personal' ? 'primary' : '' ">{{ __('general.Persoonlijk') }}</span>
-                        <span class="absolute w-full bottom-0" style="height: 3px"
-                              :class="openTab === 'personal' ? 'bg-primary' : 'bg-transparent' "></span>
+                            <span class="absolute w-full bottom-0" style="height: 3px"
+                                  :class="openTab === 'personal' ? 'bg-primary' : 'bg-transparent' "></span>
+                        </div>
                     </div>
-                </div>
 
-                <div>
-                    <div class="flex relative hover:text-primary cursor-pointer"
-                         @click="openTab = 'school_location'"
-                    >
+                    <div>
+                        <div class="flex relative hover:text-primary cursor-pointer"
+                             @click="openTab = 'school_location'"
+                        >
                         <span class="bold pt-[0.9375rem] pb-[0.8125rem]"
                               :class="openTab === 'school_location' ? 'primary' : '' ">Schoollocatie</span>
-                        <span class="absolute w-full bottom-0" style="height: 3px"
-                              :class="openTab === 'school_location' ? 'bg-primary' : 'bg-transparent' "></span>
+                            <span class="absolute w-full bottom-0" style="height: 3px"
+                                  :class="openTab === 'school_location' ? 'bg-primary' : 'bg-transparent' "></span>
+                        </div>
                     </div>
-                </div>
 
-                <div>
-                    <div class="flex relative text-midgrey cursor-default"
-                         title="{{ __('general.Later beschikbaar') }}">
-                        {{--                    <div class="flex relative hover:text-primary cursor-pointer" @click="openTab = 3">--}}
-                        <span class="bold pt-[0.9375rem] pb-[0.8125rem]"
-                              :class="openTab === 3 ? 'primary' : '' ">{{ __('general.Nationaal') }}</span>
-                        <span class="absolute w-full bottom-0" style="height: 3px"
-                              :class="openTab === 3 ? 'bg-primary' : 'bg-transparent' "></span>
+                    <div>
+                        <div class="flex relative text-midgrey cursor-default"
+                             title="{{ __('general.Later beschikbaar') }}">
+                            {{--                    <div class="flex relative hover:text-primary cursor-pointer" @click="openTab = 3">--}}
+                            <span class="bold pt-[0.9375rem] pb-[0.8125rem]"
+                                  :class="openTab === 3 ? 'primary' : '' ">{{ __('general.Nationaal') }}</span>
+                            <span class="absolute w-full bottom-0" style="height: 3px"
+                                  :class="openTab === 3 ? 'bg-primary' : 'bg-transparent' "></span>
+                        </div>
                     </div>
-                </div>
 
-                <div>
-                    <div class="flex relative text-midgrey cursor-default"
-                         title="{{ __('general.Later beschikbaar') }}">
-                        {{--                    <div class="flex relative hover:text-primary cursor-pointer" @click="openTab = 4">--}}
-                        <span class="bold pt-[0.9375rem] pb-[0.8125rem]"
-                              :class="openTab === 4 ? 'primary' : '' ">{{ __('general.Examens') }}</span>
-                        <span class="absolute w-full bottom-0" style="height: 3px"
-                              :class="openTab === 4 ? 'bg-primary' : 'bg-transparent' "></span>
+                    <div>
+                        <div class="flex relative text-midgrey cursor-default"
+                             title="{{ __('general.Later beschikbaar') }}">
+                            {{--                    <div class="flex relative hover:text-primary cursor-pointer" @click="openTab = 4">--}}
+                            <span class="bold pt-[0.9375rem] pb-[0.8125rem]"
+                                  :class="openTab === 4 ? 'primary' : '' ">{{ __('general.Examens') }}</span>
+                            <span class="absolute w-full bottom-0" style="height: 3px"
+                                  :class="openTab === 4 ? 'bg-primary' : 'bg-transparent' "></span>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
     <div class="flex w-full main" x-show="bodyVisibility" x-cloak>
-        <div class="w-full max-w-5xl lg:max-w-7xl mx-auto divide-y divide-secondary">
+        <div class="w-full  mx-auto divide-y divide-secondary">
             <div class="mx-8"
                  x-data="{filterLoading: false}"
                  x-init="
@@ -190,17 +225,15 @@
                 {{-- Content --}}
                 <div class="flex flex-col py-4" style="min-height: 500px">
                     <div class="flex">
-                        <span class="note text-sm">{{ $this->resultCount }} resultaten</span>
+                        <span class="note text-sm">{{ $this->resultCount }} resultaten </span>
                     </div>
 
-                    <div class="mt-4 grid gap-6 grid-cols-1 lg:grid-cols-2" x-show="filterLoading" x-cloak>
+                    <x-grid class="mt-4" x-show="filterLoading" x-cloak>
                         @foreach(range(1,6) as $value)
                             <x-grid.loading-card :delay="$value"/>
                         @endforeach
-                    </div>
-                    <div class="mt-4 grid gap-6 grid-cols-1 lg:grid-cols-2" x-show="!filterLoading" x-cloak>
-                        {{--                    <div class="mt-4 " x-show="!filterLoading" x-cloak>--}}
-                        {{-- @TODO: Fix loading animation --}}
+                    </x-grid>
+                    <x-grid class="mt-4" x-show="!filterLoading" x-cloak>
                         @foreach($this->questions as $question)
                             <x-grid.question-card :question="$question"/>
                         @endforeach
@@ -240,14 +273,14 @@
                                 @endif
                         </span>
                         @endif
-                    </div>
+                    </x-grid>
                 </div>
             </div>
         </div>
     </div>
 
     <div id="groupdetail" wire:ignore.self>
-        <div class="max-w-5xl lg:max-w-7xl mx-auto">
+        <div class=" mx-auto">
             @if($this->groupQuestionDetail != null)
                 <x-partials.group-question-details :groupQuestion="$this->groupQuestionDetail"/>
             @endif

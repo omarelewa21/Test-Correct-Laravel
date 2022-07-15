@@ -84,6 +84,7 @@ return [
     'Sluiten na beantwoorden'                                                                => 'Sluiten na beantwoorden',
     'Openbaar maken'                                                                         => 'Openbaar maken',
     'Deze vraag niet shuffelen'                                                              => 'Deze vraag niet shuffelen',
+    'Deze vraaggroep niet shuffelen'                                                         => 'Deze vraaggroep niet shuffelen',
     'Bespreken in de klas'                                                                   => 'Bespreken in de klas',
     'Notities toestaan'                                                                      => 'Notities toestaan',
     'Halve puntenbeoordeling mogelijk'                                                       => 'Halve puntenbeoordeling mogelijk',
