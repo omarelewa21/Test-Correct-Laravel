@@ -10,6 +10,7 @@
                 })
              $store.cms.scrollPos = document.querySelector('.drawer').scrollTop;
                 "
+     title="{{ $question->typeName }}"
      style="max-width: 300px"
      @if($subQuestion)
         wire:sortable-group.item="{{ $question->uuid }}"
@@ -48,7 +49,7 @@
                         <x-icon.exclamation class="all-red"/>
                     </div>
                 @endif
-                <div class="flex h-full rounded-md hover:text-primary reorder" @if($subQuestion) wire:sortable-group.handle @else wire:sortable.handle @endif>
+                <div class="flex h-full rounded-md hover:text-primary reorder" @if($subQuestion) wire:sortable-group.handle @else wire:sortable.handle @endif title="{{ __('sidebar.reorder') }}">
                     <x-icon.reorder/>
                 </div>
                 <div class="flex">

@@ -5,11 +5,12 @@ namespace tcCore\Http\Livewire\AnswerModel;
 use Livewire\Component;
 use tcCore\Answer;
 use tcCore\Http\Traits\WithCloseable;
+use tcCore\Http\Traits\WithGroups;
 use tcCore\Question;
 
 class MultipleChoiceQuestion extends Component
 {
-    use WithCloseable;
+    use WithCloseable, WithGroups;
 
     public $question;
 
@@ -34,7 +35,6 @@ class MultipleChoiceQuestion extends Component
     public function mount()
     {
         $this->arqStructure = \tcCore\MultipleChoiceQuestion::getArqStructure();
-
 
         $this->question->multipleChoiceQuestionAnswers->each(function ($answers) use (&$map) {
             $this->answerStruct[$answers->id] = ($answers->score>0)?1:0;

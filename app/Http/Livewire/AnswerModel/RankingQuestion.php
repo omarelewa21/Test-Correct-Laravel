@@ -4,6 +4,7 @@ namespace tcCore\Http\Livewire\AnswerModel;
 
 use Livewire\Component;
 use tcCore\Answer;
+use tcCore\Http\Traits\WithGroups;
 use tcCore\Question;
 use tcCore\Http\Traits\WithAttachments;
 use tcCore\Http\Traits\WithCloseable;
@@ -11,7 +12,7 @@ use tcCore\Http\Traits\WithNotepad;
 
 class RankingQuestion extends Component
 {
-    use WithNotepad, WithCloseable;
+    use WithNotepad, WithCloseable, WithGroups;
 
     public $uuid;
     public $answer;

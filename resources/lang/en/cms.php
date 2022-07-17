@@ -85,6 +85,7 @@ return [
     'Sluiten na beantwoorden'                                                                => 'Closing when answered',
     'Openbaar maken'                                                                         => 'Make public',
     'Deze vraag niet shuffelen'                                                              => 'Don\'t shuffle this question',
+    'Deze vraaggroep niet shuffelen'                                                         => 'Don\'t shuffle this group',
     'Bespreken in de klas'                                                                   => 'Discuss in class',
     'Notities toestaan'                                                                      => 'Allow notes',
     'Halve puntenbeoordeling mogelijk'                                                       => 'Allow halve points review',
@@ -172,6 +173,7 @@ return [
     'one_container_with_items'                                                               => 'Answers must contain at least one container with items',
     'container_label_missing'                                                                => 'Container label missing, each container should have a label',
     'Deze vraag is aanwezig in de toets.'                                                    => 'This question is present in the test.',
-    'duplicate_question_in_test'          => 'This question is double in the test. Adjust the test to make planning possible.',
-    'Construeren'                         => 'Construct',
+    'duplicate_question_in_test'                                                             => 'This question is double in the test. Adjust the test to make planning possible.',
+    'Construeren'                                                                            => 'Construct',
+    'Deze vraag heeft geen tags'                                                             => 'This question has no tags.',
 ];

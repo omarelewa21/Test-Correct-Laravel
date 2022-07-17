@@ -1,15 +1,13 @@
 <?php namespace tcCore;
 
-use Illuminate\Validation\Validator;
+use Dyrynda\Database\Casts\EfficientUuid;
 use Illuminate\Support\Str;
+use Illuminate\Validation\Validator;
+use Ramsey\Uuid\Uuid;
 use tcCore\Exceptions\QuestionException;
 use tcCore\Http\Helpers\BaseHelper;
 use tcCore\Http\Helpers\QuestionHelper;
-use tcCore\Http\Requests\UpdateTestQuestionRequest;
 use tcCore\Lib\Question\QuestionInterface;
-use Dyrynda\Database\Casts\EfficientUuid;
-use Dyrynda\Database\Support\GeneratesUuid;
-use Ramsey\Uuid\Uuid;
 use tcCore\Traits\UuidTrait;
 
 class CompletionQuestion extends Question implements QuestionInterface
@@ -495,5 +493,27 @@ class CompletionQuestion extends Question implements QuestionInterface
                 $validator->errors()->add($fieldPreFix . 'question', $questionData["error"]);
             }
         }
+    }
+
+    public static function decodeCompletionTags($question)
+    {
+        if (!$question->completionQuestionAnswers) {
+            return $question->getQuestionHtml();
+        }
+
+        $tags = [];
+        $question->completionQuestionAnswers->each(function ($tag) use (&$tags) {
+            $tags[$tag['tag']][] = $tag['answer'];
+        });
+
+        $searchPattern = '/\[([0-9]+)\]/i';
+        $replacementFunction = function ($matches) use ($question, $tags) {
+            $tag_id = $matches[1]; // the completion_question_answers list is 1 based
+            if (isset($tags[$tag_id])) {
+                return sprintf('[%s]', implode('|', $tags[$tag_id]));
+            }
+        };
+
+        return preg_replace_callback($searchPattern, $replacementFunction, $question->getQuestionHtml());
     }
 }

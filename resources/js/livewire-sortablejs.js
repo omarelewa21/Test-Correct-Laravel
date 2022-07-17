@@ -37,9 +37,10 @@ window.Livewire.directive('sortable', (el, directive, component) => {
         },
         onStart: (evt) => {
             if(evt.target.closest('.drawer')){
+                const chosen = evt.target.closest('.drawer').querySelector('.sortable-chosen');
                 const groups = evt.target.closest('.drawer').querySelectorAll('.draggable-group');
                 for (const group of groups) {
-                    if(group != evt.target) {
+                    if(chosen && group != chosen) {
                         group.classList.add('sortable-nogo');
                         const elms = group.querySelectorAll('.drag-item');
                         for(const elm of elms){
@@ -47,6 +48,19 @@ window.Livewire.directive('sortable', (el, directive, component) => {
                         }
                     }
                 }
+
+                const dragging = evt.target.closest('.drawer').querySelector('.sortable-drag');
+                const agroups = evt.target.closest('.drawer').querySelectorAll('.draggable-group');
+                for (const group of agroups) {
+                    if(dragging && dragging == group) {
+                        group.classList.remove('sortable-nogo');
+                        const elms = group.querySelectorAll('.drag-item');
+                        for(const elm of elms){
+                            elm.classList.remove('sortable-nogo');
+                        }
+                    }
+                }
+
             }
         },
         onEnd: (evt) => {
@@ -115,6 +129,12 @@ window.Livewire.directive('sortable-group', (el, directive, component) => {
 
                 for (const item of okItems) {
                     item.classList.remove('sortable-nogo');
+                }
+
+                if(evt.target.classList.contains('.draggable-group')){
+                    for(const item of evt.target.querySelector('.drag-item')){
+                        item.classList.remove('sortable-nogo');
+                    }
                 }
             }
         },

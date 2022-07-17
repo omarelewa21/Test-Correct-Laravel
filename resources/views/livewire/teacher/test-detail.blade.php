@@ -1,60 +1,126 @@
 <div id="test-detail"
-     class="flex flex-col relative w-full min-h-full bg-lightGrey border-t border-secondary overflow-auto"
+     class="flex flex-col relative w-full min-h-full bg-lightGrey border-secondary mt-12"
+     x-data="{groupDetail: null, bodyVisibility: true,  maxHeight: '100%'}"
+     x-init="
+     groupDetail = $el.querySelector('#groupdetail');
+     showGroupDetails = async (groupQuestionUuid) => {
+            let readyForSlide = await $wire.showGroupDetails(groupQuestionUuid);
+
+            if (readyForSlide) {
+                groupDetail.style.left = 0;
+                document.documentElement.scrollTo({top: 0, behavior: 'smooth'});
+                maxHeight = groupDetail.offsetHeight + 'px';
+                $nextTick(() => {
+                    setTimeout(() => bodyVisibility = false, 250);
+                })
+
+            }
+        }
+
+        closeGroupDetail = () => {
+            bodyVisibility = true;
+            maxHeight = groupDetail.style.left = '100%';
+            $nextTick(() => $wire.clearGroupDetails() );
+        }
+     "
+     :style="`max-height: ${maxHeight}`"
 >
-    <div class="flex w-full border-b border-secondary">
+    <div class="flex w-full border-b border-secondary pb-1">
         <div class="flex w-full justify-between">
             <div class="flex items-center space-x-2.5">
-                <button class="flex items-center justify-center rounded-full border bg-white/20 w-10 h-10 rotate-svg-180 hover:scale-105 transition-transform" wire:click="redirectToTestOverview">
-                    <svg class="inline-block" width="14" height="13" xmlns="http://www.w3.org/2000/svg">
-                        <g class="stroke-current" fill="none" fill-rule="evenodd" stroke-linecap="round" stroke-width="3">
-                            <path d="M1.5 6.5h10M6.5 1.5l5 5-5 5"></path>
-                        </g>
-                    </svg>
-
-                </button>
-                <div class="font-bold">{{ __('Toets') }}: {{ $test->name }}</div>
+                <x-button.back-round wire:click="redirectToTestOverview"/>
+                <div class="flex text-lg bold">
+                    <span>{{ __('Toets') }}: {{ $this->test->name }}</span>
+                </div>
             </div>
 
         </div>
 
     </div>
-    <div class="flex w-full justify-between mt-3">
+    <div class="flex w-full justify-between mt-3 items-center">
         <div class="flex space-x-2.5">
-            <div class="font-bold">{{ $test->subject->name }}</div>
-            <div class="italic">{{ $test->abbreviation }}</div>
-            <div>{{ $test->authors_as_string }}</div>
+            <div class="bold">{{ $this->test->subject->name }}</div>
+            <div class="italic">{{ $this->test->abbreviation }}</div>
+            <div>{{ $this->test->authors_as_string }}</div>
         </div>
-
+        <div class="flex note text-sm">
+            <span>{{ __('general.Laatst gewijzigd') }}: {{ \Carbon\Carbon::parse($this->test->updated_at)->format('d/m/\'y') }}</span>
+        </div>
     </div>
     <div class="flex w-full justify-between mt-1 note text-sm">
         <div class="flex">
-            4 vraaggroep(en), 37 vragen
+            <span class="text-sm">{{ trans_choice('cms.vraag', $this->amountOfQuestions['regular']) }}, {{ trans_choice('cms.group-question-count', $this->amountOfQuestions['group']) }}</span>
         </div>
-        <div> {{ __('laatst gewijzigd') }}: {{ $test->updated_at }}</div>
     </div>
 
-    <div class="flex w-full justify-end mt-3 note text-sm space-x-2.5">
-        <x-button.primary  class="pl-[12px] pr-[12px] opacity-20 cursor-not-allowed" >
-            <x-icon.trash/>
-        </x-button.primary>
-        <x-button.primary  class="pl-[12px] pr-[12px] opacity-20 cursor-not-allowed" >
-            <x-icon.edit/>
-        </x-button.primary>
-        <x-button.primary class="pl-[12px] pr-[12px] " wire:click="$emitTo('navigation-bar', 'redirectToCake', 'planned.my_tests.plan')">
+    <div
+            class="flex w-full justify-end mt-3 note text-sm space-x-2.5"
+            x-data = "{
+
+            makePDF: async function(uuid) {
+                this.show = false;
+                let response = await $wire.getTemporaryLoginToPdfForTest(uuid);
+                window.open(response, '_blank');
+            },
+             openPreview(url) {
+                this.show = false;
+                window.open(url, '_blank');
+            }
+        }"
+    >
+        @if ($this->test->canDelete(auth()->user()))
+            <x-button.primary
+                    class="pl-[12px] pr-[12px]"
+                    wire:click="$emitTo('teacher.test-delete-modal', 'displayModal', '{{  $this->test->uuid }}')">
+                <x-icon.trash/>
+            </x-button.primary>
+        @else
+            <x-button.primary
+                    class="pl-[12px] pr-[12px] opacity-20 cursor-not-allowed">
+                <x-icon.trash/>
+            </x-button.primary>
+        @endif
+        @if($this->test->canEdit(auth()->user()))
+            <x-button.primary class="pl-[12px] pr-[12px]"
+                              wire:click="openTestInCMS">
+                <x-icon.edit/>
+            </x-button.primary>
+        @else
+            <x-button.primary class="pl-[12px] pr-[12px] opacity-20 cursor-not-allowed">
+                <x-icon.edit/>
+            </x-button.primary>
+        @endif
+            @if($this->test->canEdit(auth()->user()))
+                <x-button.primary class="pl-[12px] pr-[12px]"
+                                  wire:click="$emit('openModal', 'teacher.test-edit-modal', {{ json_encode(['testUuid' => $this->test->uuid ]) }})">
+                    <x-icon.settings/>
+                </x-button.primary>
+            @else
+                <x-button.primary class="pl-[12px] pr-[12px] opacity-20 cursor-not-allowed">
+                    <x-icon.settings/>
+                </x-button.primary>
+            @endif
+
+        <x-button.primary class="pl-[12px] pr-[12px] "
+                          @click="openPreview('{{ route('teacher.test-preview', ['test'=> $this->uuid]) }}')"
+        >
             <x-icon.preview/>
         </x-button.primary>
-        <x-button.primary class="pl-[12px] pr-[12px] " wire:click="$emitTo('navigation-bar', 'redirectToCake', 'planned.my_tests.plan')">
-            <x-icon.pdf  color="var(--off-white)"/>
+        <x-button.primary class="pl-[12px] pr-[12px] "
+                          @click="makePDF('{{ $this->uuid }}')"
+        >
+            <x-icon.pdf color="var(--off-white)"/>
         </x-button.primary>
-        <x-button.primary class="pl-[12px] pr-[12px]" wire:click="$emitTo('navigation-bar', 'redirectToCake', 'planned.my_tests.plan')">
+        <x-button.primary class="pl-[12px] pr-[12px]"
+                          wire:click="duplicateTest">
             <x-icon.copy/>
         </x-button.primary>
-        <x-button.cta wire:click="$emitTo('navigation-bar', 'redirectToCake', 'planned.my_tests.plan')">
+        <x-button.cta wire:click="planTest">
             <x-icon.schedule/>
             <span>{{ __('cms.Inplannen') }}</span>
         </x-button.cta>
     </div>
-    <div class="flex w-full">
+    <div class="flex w-full" x-show="bodyVisibility">
         <div class="w-full mx-auto divide-y divide-secondary">
             {{-- Content --}}
             <div class="flex flex-col py-4" style="min-height: 500px">
@@ -63,12 +129,22 @@
                         <x-grid.loading-card :delay="$value"/>
                     @endforeach
 
-                    @foreach($test->testQuestions as $testQuestion)
-                        <x-grid.question-card-detail :testQuestion="$testQuestion" wire:loading.class="hidden"/>
+                    @foreach($this->test->testQuestions as $testQuestion)
+                        {{--<x-grid.question-card :question="$testQuestion->question" />--}}
+                        <x-grid.question-card-detail :testQuestion="$testQuestion"/>
                     @endforeach
                 </x-grid>
             </div>
         </div>
     </div>
     <x-notification/>
+    <div id="groupdetail" wire:ignore.self style="min-height: 100%;">
+        <div class="max-w-5xl lg:max-w-7xl mx-auto">
+            @if($this->groupQuestionDetail != null)
+                <x-partials.group-question-details :groupQuestion="$this->groupQuestionDetail" context="testdetail"/>
+            @endif
+        </div>
+    </div>
+    <livewire:teacher.test-delete-modal></livewire:teacher.test-delete-modal>
+
 </div>

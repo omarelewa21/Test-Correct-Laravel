@@ -9,11 +9,13 @@ class GroupQuestionContainer extends Component
 
     public $testQuestion;
     public $question;
+    public $double;
 
-    public function __construct($testQuestion, $question)
+    public function __construct($testQuestion, $question, $double)
     {
         $this->testQuestion = $testQuestion;
         $this->question = $question;
+        $this->double = $double;
     }
 
     public function render(): string
