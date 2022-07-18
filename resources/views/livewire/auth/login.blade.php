@@ -397,8 +397,8 @@
 
             {{-- text buttons (forgot password) todo add download the app? --}}
             <div class="w-full flex flex-col items-center">
-                <div class="flex items-center space-x-2">
-                    <span class="hidden md:flex">
+                <div class="flex flex-col md:flex-row items-center space-x-2">
+                    <span class="flex">
                         {{__('auth.forgot_password_long')}}
                     </span>
                     <x-button.text-button class="order-1" size="sm"
@@ -407,8 +407,8 @@
                         <x-icon.arrow/>
                     </x-button.text-button>
                 </div>
-                <div class="flex items-center space-x-2">
-                    <span class="hidden md:flex">
+                <div class="flex flex-col md:flex-row items-center space-x-2">
+                    <span class="flex">
                         {{__('auth.Maak account long')}}
                     </span>
                     <x-button.text-button class="order-1" size="sm"

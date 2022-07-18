@@ -1,5 +1,5 @@
 <div>
-    <div class="flex-grow">
+    <div class="flex-grow" x-data="{showPassword: false, hoverPassword: false, initialPreviewIconState: true}">
         <form autocomplete="off" class="h-full relative" wire:submit.prevent="resetPassword" action="#" method="POST">
             <div class="input-section">
                 <h5 class="w-full text-center leading-6 pb-2.5">{{__('password-reset.Maak een nieuw wachtwoord')}}</h5>
@@ -17,18 +17,48 @@
                     </div>
                 </div>
                 <div class="password ">
-                    <div class="input-group w-full mb-4">
-                        <input id="password" wire:model="password" type="password"
+                    <div class="input-group w-full mb-4 relative"
+                         >
+                        <input id="password" wire:model="password" x-bind:type="showPassword ? 'text' : 'password'"
                                autocomplete="new-password"
                                class="form-input ">
+                        <div @mouseenter="hoverPassword = true"
+                             @mouseleave="hoverPassword = false"
+                             @click="showPassword = !showPassword; hoverPassword = false; initialPreviewIconState = false">
+                            <x-icon.preview-off
+                                    class="absolute bottom-3 right-3.5 primary-hover cursor-pointer"
+                                    x-bind:class="{'opacity-50' : initialPreviewIconState, 'hover:text-sysbase': (!showPassword && !hoverPassword)}"
+                                    x-show="(!showPassword && !hoverPassword) || (showPassword && hoverPassword)"/>
+                            <div class="absolute bottom-3 right-3.5 flex items-center h-[16px]">
+                                <x-icon.preview class="primary-hover cursor-pointer"
+                                                x-bind:class="{'hover:text-sysbase': (showPassword && !hoverPassword)}"
+                                                x-show="(showPassword && !hoverPassword) || (!showPassword && hoverPassword)"/>
+                            </div>
+                        </div>
+
                         <label for="password"
                                class="transition ease-in-out duration-150">{{__("password-reset.Creeër wachtwoord")}}</label>
                     </div>
                     <div
-                            class="input-group w-full mb-4">
+                            class="input-group w-full mb-4 relative"
+                            >
                         <input id="password_confirm" wire:model="password_confirmation"
-                               type="password"
+                               x-bind:type="showPassword ? 'text' : 'password'"
                                class="form-input ">
+                        <div    @click="showPassword = !showPassword; hoverPassword = false; initialPreviewIconState = false"
+                                @mouseenter="hoverPassword = true"
+                                @mouseleave="hoverPassword = false">
+                            <x-icon.preview-off
+                                    class="absolute bottom-3 right-3.5 primary-hover cursor-pointer"
+                                    x-bind:class="{'opacity-50' : initialPreviewIconState, 'hover:text-sysbase': (!showPassword && !hoverPassword)}"
+                                    x-show="(!showPassword && !hoverPassword) || (showPassword && hoverPassword)"/>
+                            <div class="absolute bottom-3 right-3.5 flex items-center h-[16px]">
+                                <x-icon.preview class="primary-hover cursor-pointer"
+                                                x-bind:class="{'hover:text-sysbase': (showPassword && !hoverPassword)}"
+                                                x-show="(showPassword && !hoverPassword) || (!showPassword && hoverPassword)"/>
+                            </div>
+                        </div>
+
                         <label for="password_confirm" class="transition ease-in-out duration-150">
                             {{__("password-reset.Herhaal wachtwoord")}}</label>
                     </div>
@@ -55,10 +85,6 @@
             </div>
 
             <div class="mt-4">
-                <x-button.cta size="sm" class="w-full flex justify-center">
-                    <x-icon.checkmark/>
-                    <span class="mr-2">{{__("password-reset.Wachtwoord resetten")}}</span>
-                </x-button.cta>
                 <x-button.cta size="sm" class="w-full flex justify-center">
                     <x-icon.checkmark/>
                     <span class="mr-2">{{__("password-reset.Wachtwoord resetten")}}</span>
