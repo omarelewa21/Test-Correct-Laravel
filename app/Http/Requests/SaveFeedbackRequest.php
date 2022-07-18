@@ -47,7 +47,7 @@ class SaveFeedbackRequest extends FormRequest
     public function rules()
     {
         return [
-            'message' => 'required|max:240',
+            'message' => 'required',
         ];
     }
 }
