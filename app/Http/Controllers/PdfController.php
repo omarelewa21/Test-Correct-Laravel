@@ -265,19 +265,22 @@ class PdfController extends Controller
             'centerbaseline' => false,
             'dpi' => 120,
         ];
-        $createPath = sprintf('http://127.0.0.1/%s/plugins/ckeditor_wiris/integration/createimage.php',$folder);
-        $path = sprintf('http://127.0.0.1/%s/plugins/ckeditor_wiris/integration/showimage.php',$folder);
-        if(stristr(config('app.base_url'),'correct.test')){
-            $createPath = sprintf('http://testwelcome.test-correct.test/%s/plugins/ckeditor_wiris/integration/createimage.php',$folder);
-            $path = sprintf('http://testwelcome.test-correct.test/%s/plugins/ckeditor_wiris/integration/showimage.php',$folder);
-        }
+
         try {
-            $client = new Client(['headers' => ['host' => 'welcome.test-correct.nl']]);
+            $createPath = sprintf('http://127.0.0.1/%s/plugins/ckeditor_wiris/integration/createimage.php',$folder);
+            $path = sprintf('http://127.0.0.1/%s/plugins/ckeditor_wiris/integration/showimage.php',$folder);
+            if(stristr(config('app.base_url'),'correct.test')){
+                $createPath = sprintf('http://testwelcome.test-correct.test/%s/plugins/ckeditor_wiris/integration/createimage.php',$folder);
+                $path = sprintf('http://testwelcome.test-correct.test/%s/plugins/ckeditor_wiris/integration/showimage.php',$folder);
+            }
+            $headers =  ['host' => trim(str_replace('https://','',str_replace('http://','',config('app.base_url'))),'/')];
+
+            $client = new Client();
             $res = $client->request('POST', $createPath, [
                 'form_params' => $data,
                 'verify' => false,
-                'headers' => ['host' => 'welcome.test-correct.nl'],
-                ]);
+                'headers' => $headers
+            ]);
             $formulaUrl = $res->getBody()->getContents();
             $components = parse_url($formulaUrl);
             parse_str($components['query'], $results);
@@ -290,14 +293,9 @@ class PdfController extends Controller
                 'version' => '7.26.0.1439',
                 'dpi' => 120,
             ];
-            $res = $client->request('GET', $path, [
-                'query' => $data1,
-                'headers' => ['host' => 'welcome.test-correct.nl'],
-            ]);
+            $res = $client->request('GET', $path, ['query' => $data1,'headers' => $headers]);
             $res = $client->request('POST', $path, [
-                'form_params' => $data,
-                'headers' => ['host' => 'welcome.test-correct.nl'],
-            ]);
+                'form_params' => $data,'headers' => $headers]);
 
         } catch (\GuzzleHttp\Exception\RequestException $e) {
             if ($e->hasResponse()) {
