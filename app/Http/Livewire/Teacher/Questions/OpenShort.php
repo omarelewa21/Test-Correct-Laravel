@@ -870,8 +870,8 @@ class OpenShort extends Component implements QuestionCms
         if ($this->editModeForExistingQuestion()) {
             if ($this->isPartOfGroupQuestion()) {
                 $tq = GroupQuestionQuestion::whereUuid($this->groupQuestionQuestionId)->first();
-                $this->attachments = $tq->groupQuestion->attachments;
                 $q = $tq->question;
+                $this->attachments = $q->attachments;
             } else {
                 $tq = TestQuestion::whereUuid($this->testQuestionId)->first();
                 $q = $tq->question;

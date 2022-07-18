@@ -235,8 +235,6 @@
                     <x-partials.group-question-basic-section/>
 
                     @yield('upload-section-for-group-question')
-                @elseif($this->isPartOfGroupQuestion())
-                    <x-partials.group-question-question-section/>
                 @else
                     <x-partials.question-question-section/>
                 @endif
