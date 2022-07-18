@@ -77,7 +77,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/question-editor', tcCore\Http\Livewire\Teacher\Questions\OpenShort::class)->name('question-editor');
         Route::get('/tests', tcCore\Http\Livewire\Teacher\TestsOverview::class)->name('tests');
         Route::get('/test-detail/{uuid}', tcCore\Http\Livewire\Teacher\TestDetail::class)->name('test-detail');
-        Route::get('/preview/test/{test}', [tcCore\Http\Controllers\PreviewTestController::class, 'show'])->name('preview.test');
+        Route::get('/preview/test/{test}', [tcCore\Http\Controllers\PrintTestController::class, 'show'])->name('preview.test');
         Route::get('/preview/answer_model/{test}', [tcCore\Http\Controllers\PreviewAnswerModelController::class, 'show'])->name('test-answer-model');
         Route::get('/preview/test_take/{test_take}', [tcCore\Http\Controllers\PreviewTestTakeController::class, 'show'])->name('preview.test_take');
 

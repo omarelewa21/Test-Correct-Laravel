@@ -13,7 +13,7 @@ use tcCore\TestParticipant;
 use tcCore\User;
 use Facades\tcCore\Http\Controllers\PdfController;
 
-class PreviewTestController extends Controller
+class PrintTestController extends Controller
 {
     use TestTakeNavigationForController;
 
@@ -34,10 +34,10 @@ class PreviewTestController extends Controller
         $styling = $this->getCustomStylingFromQuestions($data);
 //        $styling = $styling.$this->getAppCssForPdf();
 //        return view('test-answer-model-overview',compact(['data', 'current', 'answers', 'playerUrl', 'nav', 'uuid', 'testParticipant', 'styling']));
-        $titleForPdfPage = __('Antwoord model').' '.$test->name.' '.Carbon::now()->format('d-m-Y H:i');
+        $titleForPdfPage = __('Printversie toets:').' '.$test->name.' '.Carbon::now()->format('d-m-Y H:i');
         view()->share('titleForPdfPage',$titleForPdfPage);
         ini_set('max_execution_time', '90');
-        $html = view('test-answer-model-overview',compact(['data', 'current', 'answers', 'playerUrl', 'nav', 'uuid', 'testParticipant', 'styling', 'test']))->render();
+        $html = view('test-print',compact(['data', 'current', 'answers', 'playerUrl', 'nav', 'uuid', 'testParticipant', 'styling', 'test']))->render();
         return response()->make(PdfController::HtmlToPdfFromString($html), 200, [
             'Content-Type' => 'application/pdf',
             'Content-Disposition' => 'inline; filename="toets.pdf"'
