@@ -13,7 +13,7 @@ return [
     'Notities voor Surveillant'                        => 'Notes for invigilator',
     'Volgende Inplannen'                               => 'Plan next',
     'Verwijder'                                        => 'Delete',
-    'Annuleer'                                         => 'Annuleer',
+    'Annuleer'                                         => 'Cancel',
     'Verwijder test'                                   => 'Delete test',
     'Weet je zeker dat je deze test wilt verwijderen?' => 'Are you sure you want to delete this test?',
     'toets aanmaken'                                   => 'Create test',

@@ -5088,6 +5088,9 @@ video {
 .-ml-2{
   margin-left: -0.5rem;
 }
+.mb-16{
+  margin-bottom: 4rem;
+}
 .-mb-4{
   margin-bottom: -1rem;
 }
@@ -6577,6 +6580,12 @@ video {
 .pr-2\.5{
   padding-right: 0.625rem;
 }
+<<<<<<< HEAD
+=======
+.pb-9{
+  padding-bottom: 2.25rem;
+}
+>>>>>>> a9b9f919e (minor changes)
 .text-left{
   text-align: left;
 }

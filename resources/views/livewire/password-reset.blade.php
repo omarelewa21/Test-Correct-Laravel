@@ -84,8 +84,11 @@
                 @enderror
             </div>
 
-            <div class="mt-4">
-                <x-button.cta size="sm" class="w-full flex justify-center">
+            <div class="mt-4 flex">
+                <x-button.text-button size="md" class="w-1/2 flex justify-center">
+                    <span class="mr-2">{{__("auth.cancel")}}</span>
+                </x-button.text-button>
+                <x-button.cta size="sm" class="w-1/2 flex justify-center">
                     <x-icon.checkmark/>
                     <span class="mr-2">{{__("password-reset.Wachtwoord resetten")}}</span>
                 </x-button.cta>

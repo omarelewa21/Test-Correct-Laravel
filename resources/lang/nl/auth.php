@@ -13,6 +13,7 @@ return [
    |
    */
 
+    'cancel'                                                                                         => 'Annuleren',
     'are_you_sure_you_have_no_account'                                                               => 'Weet je zeker dat je niet al een Test-Correct account hebt?',
     'back_to_login'                                                                                  => 'Terug naar inloggen',
     'back_to_make_choice'                                                                            => 'Terug naar keuze maken',
@@ -40,10 +41,10 @@ return [
     'error_while_syncing_please_contact_helpdesk'                                                    => 'Er is een fout opgetreden tijdens het synchroniseren van uw accountgegevens vanuit Entree, neem contact op met de helpdesk',
     'find_support'                                                                                   => 'Neem contact op met de supportafdeling',
     'first_name'                                                                                     => 'Voornaam',
-    'forgot_password'                                                                                => 'Stel opnieuw in?',
-    'forgot_password_email_send'                                                                     => 'Reset wachtwoord aangevraagd',
+    'forgot_password'                                                                                => 'Stel opnieuw in',
+    'forgot_password_email_send'                                                                     => 'Wachtwoord opnieuw instellen aangevraagd',
     'forgot_password_email_send_text'                                                                => 'Binnen enkele minuten ontvang je een e-mail met instructies om je wachtwoord opnieuw in te stellen. Vergeet niet je spamfolder te checken als je de e-mail niet binnenkrijgt.',
-    'forgot_password_explain_text'                                                                   => 'Vul het e-mailadres in waarmee je bij Test-Correct een account hebt. Wij sturen je een mail om je wachtwoord te resetten.',
+    'forgot_password_explain_text'                                                                   => 'Vul het e-mailadres in waarmee je bij Test-Correct een account hebt. Wij sturen je een mail om je wachtwoord opnieuw in te stellen.',
     'forgot_password_long'                                                                           => 'Ben je jouw wachtwoord vergeten?',
     'go_to_test_directly'                                                                            => 'Als student meteen naar toets gaan',
     'i_have_a_tc_account'                                                                            => 'Ik heb een Test-Correct account',
@@ -86,7 +87,7 @@ return [
     'request_account_from_teacher'                                                                   => 'Vraag jouw account aan bij je docent',
     'require_captcha'                                                                                => 'Captcha vereist',
     'require_captcha_long'                                                                           => 'Je hebt te vaak een verkeerde combinatie van inloggegevens ingevuld. Vul de onderstaande code correct in om door te gaan.',
-    'reset_password'                                                                                 => 'Stel je wachtwoord opnieuw in',
+    'reset_password'                                                                                 => 'Wachtwoord opnieuw instellen',
     'roles_do_not_match_up'                                                                          => 'Oeps, de rol voor dit account in Test-Correct komt niet overeen met de rol die meekomt vanuit Entree, neem contact op met de helpdesk.',
     'saml_message_to_old'                                                                            => 'U heeft te veel tijd genomen om uw account te koppelen, het verzoek is reeds verlopen',
     'school_info_not_synced_with_test_correct'                                                       => 'Je schoolgegevens zijn nog niet gesynchroniseerd met Test-Correct.',
@@ -94,6 +95,7 @@ return [
     'Schoolbeheerder'                                                                                => 'Schoolbeheerder',
     'send'                                                                                           => 'Verzenden',
     'send_email'                                                                                     => 'Verstuur e-mail',
+    'request_password_reset'                                                                         => 'Aanvragen',
     'send_mail_again'                                                                                => 'Stuur de e-mail nog een keer',
     'should_first_login_using_entree'                                                                => 'Je gegevens zijn nog niet compleet. Log de eerste keer in via Entree',
     'Student'                                                                                        => 'Student',

@@ -11,7 +11,7 @@
         'Min. 1 cijfer' => 'Min. 1 cijfer' ,
         'Min. 1 speciaal' => 'Min. 1 speciaal',
         'teken (bijv. $ of @)' => 'teken (bijv. $ of @)',
-        'Wachtwoord resetten' => 'Wachtwoord instellen',
+        'Wachtwoord resetten' => 'Instellen',
         'Heb je al een account?' => 'Heb je al een account?',
         'Log in' => 'Log in',
         'Ben je een student?' => 'Ben je een student?',
