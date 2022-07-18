@@ -8,7 +8,7 @@
     <div id="login-body" class="flex justify-center items-center flex-grow"
          x-data="{ openTab: @entangle('login_tab'), showPassword: false, hoverPassword: false, initialPreviewIconState: true, showEntreePassword: false, active_overlay: @entangle('active_overlay'), device: @entangle('device')}"
          x-init="
-            addRelativePaddingToBody('login-body', 10);
+            /*addRelativePaddingToBody('login-body', 10);*/
             setTimeout(() => {$wire.checkLoginFieldsForInput()}, 250);
             "
          x-on:resize.window.debounce.200ms="addRelativePaddingToBody('login-body')"
@@ -18,11 +18,16 @@
 
 
             @if($tab == 'login')
-                @if($showGuestSuccess)
-                    {{-- remove and replace with toaster? --}}
+{{--                <div wire:click="dispatchGuestSuccessNotification">--}}
+{{--                    <x-stickers.congratulations2 class="m-4 "/>--}}
+
+{{--                </div>--}}
+                {{--@if($showGuestSuccess)
+
+                    --}}{{-- remove and replace with toaster? --}}{{--
                     <div class="flex cta-gradient w-full p-10 -mb-4 rounded-t-10 relative top-2.5 space-x-2.5">
                         <div class="flex" x-data="">
-                            <x-stickers.congratulations/>
+                            <x-stickers.congratulations2/>
                         </div>
                         <div class="flex flex-col text-white pt-4 space-y-2.5">
                             <h1 class="flex text-white">{{ __('auth.'.$guest_message) }}</h1>
@@ -32,7 +37,7 @@
                             </div>
                         </div>
                     </div>
-                @endif
+                @endif--}}
                 {{-- top content block height:120px --}}
                 <div class="bg-white rounded-t-[10px] px-10 pt-[31px] pb-0 shadow-lg flex flex-col relative border-b border-secondary">
                     <div class="absolute -top-10 left-1/2 -translate-x-1/2 flex">
@@ -431,12 +436,21 @@
                             <span class="text-base">{{__('auth.Maak account')}}</span>
                             <x-icon.arrow/>
                         </x-button.text-button>
-                    </div>
-                    <a href="http://testwelcome.test-correct.test/login/?active_overlay=reset_password&token=1733eae97ebfc69aac4bdf40e4b25f93f4bcbd223e54bf65e0391aade176310f">
-                        <span>temp link</span>
-                    </a>
-
                 </div>
+                <div class="flex flex-col md:flex-row items-center space-x-2" browser>
+                    <span class="flex">
+                        {{__('auth.download_app_long')}}
+                    </span>
+                    <x-button.text-button size="sm" type="link" href="{{ $this->studentDownloadUrl }}">
+                        <span class="text-base">{{__('auth.download')}}</span>
+                        <x-icon.arrow/>
+                    </x-button.text-button>
+                </div>
+                <a href="http://testwelcome.test-correct.test/login/?active_overlay=reset_password&token=1733eae97ebfc69aac4bdf40e4b25f93f4bcbd223e54bf65e0391aade176310f">
+                    <span>temp link</span> {{-- todo remove! --}}
+                </a>
+            </div>
+
             @elseif($tab == 'forgotPassword')
                 {{-- remove code after implementing new design --}}
                 {{-- todo: bring forgot password in line with login tab --}}
@@ -844,7 +858,7 @@
             @endif
             {{-- download the app button(s) --}}
             {{-- Gebruik je liever de app? Download de app -> --}}
-            <div class="flex flex-col md:flex-row justify-center items-center md:space-x-4" browser wire:ignore>
+            {{--<div class="flex flex-col md:flex-row justify-center items-center md:space-x-4" browser wire:ignore>
                 <x-button.primary type="link" href="{{ $this->studentDownloadUrl }}">
                     <x-icon.download/>
                     <span>{{__('auth.download_student_app')}}</span>
@@ -854,9 +868,10 @@
                     <span>{{__('auth.request_account_from_teacher')}}</span>
                     <x-icon.arrow/>
                 </x-button.text-button>
-            </div>
+            </div>--}}
         </div>
 
         <x-modal.auth-create-account maxWidth="lg" wire:model="showAuthModal"/>
     </div>
+    <x-login-notification :notificationTimeout="50000"/>
 </div>

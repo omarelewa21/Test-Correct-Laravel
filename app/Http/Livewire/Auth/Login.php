@@ -5,6 +5,7 @@ namespace tcCore\Http\Livewire\Auth;
 use Bugsnag\BugsnagLaravel\Facades\Bugsnag;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Crypt;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Facades\Session;
@@ -201,6 +202,8 @@ class Login extends Component
 
     public function render()
     {
+        $this->dispatchGuestSuccessNotification();
+
         return view('livewire.auth.login')
             ->layout('layouts.base');
     }
@@ -580,5 +583,19 @@ class Login extends Component
         $this->guest_message_type = '';
         $this->showGuestError = false;
         $this->showGuestSuccess = false;
+    }
+
+    public function dispatchGuestSuccessNotification()
+    {
+        if($this->showGuestSuccess){
+            $this->dispatchBrowserEvent('notify',
+                [
+                    'type' => 'guest_success',
+                    'title' => __('auth.'.$this->guest_message),
+                    'message' => __('auth.'.$this->guest_message.'_sub'),
+                ]
+            );
+//            $this->showGuestSuccess = false;
+        }
     }
 }

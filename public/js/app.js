@@ -12855,11 +12855,13 @@ document.addEventListener('alpine:init', function () {
 
 Notify = {
   notify: function notify(message, initialType) {
+    var title = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
     var type = initialType ? initialType : 'info';
     window.dispatchEvent(new CustomEvent('notify', {
       detail: {
         message: message,
-        type: type
+        type: type,
+        title: title
       }
     }));
   }

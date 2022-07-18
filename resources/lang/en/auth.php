@@ -31,6 +31,8 @@ return [
     'forgot_password_email_send_text'                         => 'Within serveral minutes you will receive an e-mail with instructions about how to reset your password. Do\'t forget to check your spam folder if you have not received the e-mail yet',
     'download_student_app'                                    => 'Download the student app',
     'download_app'                                            => 'Download the app',
+    'download'                                                => 'Download',
+    'download_app_long'                                       => 'Do you rather want to use the app?',
     'request_account_from_teacher'                            => 'Request your account from your teacher',
     'reset_password'                                          => 'Reset your password',
     'Oplossingen'                                             => 'Solutions',
