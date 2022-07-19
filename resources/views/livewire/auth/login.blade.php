@@ -426,73 +426,8 @@
                         <x-icon.arrow/>
                     </x-button.text-button>
                 </div>
-                <a href="http://testwelcome.test-correct.test/login/?active_overlay=reset_password&token=1733eae97ebfc69aac4bdf40e4b25f93f4bcbd223e54bf65e0391aade176310f">
-                    <span>temp link</span> {{-- todo remove! --}}
-                </a>
             </div>
 
-            @elseif($tab == 'forgotPassword')
-                {{-- remove code after implementing new design --}}
-                {{-- todo: bring forgot password in line with login tab --}}
-                <div class="content-section p-10 space-y-5 shadow-xl flex flex-col " style="min-height: 550px">
-                    <form wire:submit.prevent="sendForgotPasswordEmail" action="#" method="POST"
-                          class="flex-col flex flex-1">
-                        <div class="flex items-center space-x-2.5 mb-5">
-                            <div class="flex">
-                                <x-stickers.login/>
-                            </div>
-                            <div>
-                                <h1>{{ __('auth.forgot_password') }}</h1>
-                            </div>
-                        </div>
-                        <div class="flex flex-col flex-1 h-full">
-                            <p class="mb-4 body1">{{ __('auth.forgot_password_explain_text') }}</p>
-                            <x-input.group label="{{ __('auth.emailaddress') }}">
-                                <x-input.text wire:model.debounce.300ms="forgotPasswordEmail"/>
-                            </x-input.group>
-                            @if($showSendForgotPasswordNotification)
-                                <div class="flex flex-col notification info stretched mt-4 px-6">
-                                    <div class="title flex items-center space-x-2">
-                                        <x-icon.arrow/>
-                                        <span>{{ __('auth.forgot_password_email_send') }}</span>
-                                    </div>
-                                    <div class="body">
-                                        <span>{{ __('auth.forgot_password_email_send_text') }}</span>
-                                        <div class="flex space-x-4">
-                                            <x-button.text-button class="text-sm primary space-x-1"
-                                                                  wire:click.prevent="sendForgotPasswordEmail()">
-                                                <span>{{ __('auth.send_mail_again') }}</span>
-                                                <x-icon.arrow-small/>
-                                            </x-button.text-button>
-                                            <x-button.text-button class="text-sm primary space-x-1" type="link"
-                                                                  href="https://test-correct.nl/support"
-                                                                  target="_blank">
-                                                <span>{{ __('auth.find_support') }}</span>
-                                                <x-icon.arrow-small/>
-                                            </x-button.text-button>
-                                        </div>
-                                    </div>
-                                </div>
-                            @endif
-                            <div class="mt-auto flex w-full">
-                                @if($forgotPasswordButtonDisabled)
-                                    <x-button.cta class="order-2 ml-auto" size="md" disabled>
-                                        <span>{{ __('auth.send_email') }}</span>
-                                    </x-button.cta>
-                                @else
-                                    <x-button.cta class="order-2 ml-auto" size="md">
-                                        <span>{{ __('auth.send_email') }}</span>
-                                    </x-button.cta>
-                                @endif
-                                <x-button.text-button class="order-1 rotate-svg-180"
-                                                      wire:click.prevent="$set('tab', 'login')">
-                                    <x-icon.arrow/>
-                                    <span class="text-base">{{ __('auth.back_to_login') }}</span>
-                                </x-button.text-button>
-                            </div>
-                        </div>
-                    </form>
-                </div>
             @elseif($tab == 'no_mail_present')
                 <div class="content-section p-10 shadow-xl flex flex-col " style="min-height: 550px"
                      x-data="{hoverAccount: false, hoverNoAccount: false, hasAccount: @entangle('doIHaveATcAccountChoice'), showPasswordNoEmail: false}"

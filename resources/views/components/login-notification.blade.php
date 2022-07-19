@@ -1,5 +1,5 @@
 @props(['notificationTimeout' => 5000])
-<x-stickers.congratulations2 class="hidden"/> {{-- svg wont load properly if it is not already existing on the page --}}
+<x-stickers.congratulations2 class="hidden"/>  {{--svg wont load properly if it is not already existing on the page--}}
 <div
         x-data="{
         messages: [],
