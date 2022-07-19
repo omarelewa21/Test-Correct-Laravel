@@ -1,6 +1,7 @@
 <div>
 @if ( $this->displayMenu)
     <div
+        wire:key="test_{{$test->uuid}}"
         x-ref="contextMenu"
         x-cloak
         x-show="show"
@@ -18,7 +19,7 @@
         }"
 
          x-on:context-menu-close="show = false"
-         class="fixed bg-white py-2 main-shadow rounded-10 w-72 z-30 "
+         class="fixed bg-white py-2 main-shadow rounded-10 w-[200px] z-30 "
          @click.outside="show = false;"
          x-transition:enter="transition ease-out origin-top-right duration-200"
          x-transition:enter-start="opacity-0 transform scale-90"

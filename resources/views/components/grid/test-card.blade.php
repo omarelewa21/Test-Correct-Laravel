@@ -20,7 +20,7 @@
             <button id="test{{ $test->id }}"
                     class="px-4 py-1.5 -mr-4 rounded-full hover:bg-primary hover:text-white transition-all"
                     :class="{'bg-primary text-white' : testOptionMenu === true}"
-                    @click.stop="$wire.openContextMenu({x: $el.getBoundingClientRect().x, y: $el.getBoundingClientRect().y, testUuid: '{{ $test->uuid }}', openTab: '{{ $this->openTab }}', id: '{{ $test->id }}' })"
+                    @click.stop="$event.target.dispatchEvent(new CustomEvent('context-menu-close', { bubbles: true })); $wire.openContextMenu({x: $el.getBoundingClientRect().x, y: $el.getBoundingClientRect().y, testUuid: '{{ $test->uuid }}', openTab: '{{ $this->openTab }}', id: '{{ $test->id }}' })"
             >
                 <x-icon.options class="text-sysbase"/>
             </button>
