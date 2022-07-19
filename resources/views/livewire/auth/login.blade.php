@@ -18,26 +18,6 @@
 
 
             @if($tab == 'login')
-{{--                <div wire:click="dispatchGuestSuccessNotification">--}}
-{{--                    <x-stickers.congratulations2 class="m-4 "/>--}}
-
-{{--                </div>--}}
-                {{--@if($showGuestSuccess)
-
-                    --}}{{-- remove and replace with toaster? --}}{{--
-                    <div class="flex cta-gradient w-full p-10 -mb-4 rounded-t-10 relative top-2.5 space-x-2.5">
-                        <div class="flex" x-data="">
-                            <x-stickers.congratulations2/>
-                        </div>
-                        <div class="flex flex-col text-white pt-4 space-y-2.5">
-                            <h1 class="flex text-white">{{ __('auth.'.$guest_message) }}</h1>
-                            <div class="flex space-x-2.5 items-center">
-                                <x-icon.checkmark/>
-                                <h5 class="text-white">{{ __('auth.'.$guest_message.'_sub') }}</h5>
-                            </div>
-                        </div>
-                    </div>
-                @endif--}}
                 {{-- top content block height:120px --}}
                 <div class="bg-white rounded-t-[10px] px-10 pt-[31px] pb-0 shadow-lg flex flex-col relative border-b border-secondary">
                     <div class="absolute -top-10 left-1/2 -translate-x-1/2 flex">
@@ -856,19 +836,6 @@
                     </form>
                 </div>
             @endif
-            {{-- download the app button(s) --}}
-            {{-- Gebruik je liever de app? Download de app -> --}}
-            {{--<div class="flex flex-col md:flex-row justify-center items-center md:space-x-4" browser wire:ignore>
-                <x-button.primary type="link" href="{{ $this->studentDownloadUrl }}">
-                    <x-icon.download/>
-                    <span>{{__('auth.download_student_app')}}</span>
-                </x-button.primary>
-                <h5 class="hidden inline-flex mt-2 md:mt-0">&amp;</h5>
-                <x-button.text-button class="hidden">
-                    <span>{{__('auth.request_account_from_teacher')}}</span>
-                    <x-icon.arrow/>
-                </x-button.text-button>
-            </div>--}}
         </div>
 
         <x-modal.auth-create-account maxWidth="lg" wire:model="showAuthModal"/>

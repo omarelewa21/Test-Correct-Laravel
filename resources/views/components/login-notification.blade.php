@@ -1,4 +1,5 @@
-@props(['notificationTimeout' => 5000]) {{-- todo set to 5000 --}}
+@props(['notificationTimeout' => 5000])
+<x-stickers.congratulations2 class="hidden"/> {{-- svg wont load properly if it is not already existing on the page --}}
 <div
         x-data="{
         messages: [],
@@ -40,7 +41,7 @@
                             </div>
                             <div class="flex items-center w-full flex-1 pt-0.5">
                                 <x-icon.checkmark/>
-                                <h7 x-text="message.message" class="ml-2 {{--text-sm leading-5 font-bold text-base--}}"></h7>
+                                <h7 x-text="message.message" class="ml-2"></h7>
                             </div>
                         </div>
 
