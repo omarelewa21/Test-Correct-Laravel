@@ -2,6 +2,7 @@
 'blockAttachments' => false,
 'question'
 ])
+@php $attachment_count = 1 @endphp
 
 @if($this->group && !$this->group->attachments->isEmpty())
     @foreach($this->group->attachments as $attachment)
@@ -14,7 +15,8 @@
                               selid="open-attachment-btn"
         >
             <x-icon.attachment/>
-            <span wire:ignore>{{ __('test_take.attachment') }} {{$loop->iteration}}</span>
+            <span wire:ignore>{{ __('test_take.attachment') }} {{$attachment_count}}</span>
+            @php $attachment_count++ @endphp
         </x-button.text-button>
     @endforeach
 @endif
@@ -30,7 +32,8 @@
                                 selid="open-attachment-btn"
         >
             <x-icon.attachment/>
-            <span wire:ignore>{{ __('test_take.attachment') }} {{$loop->iteration}}</span>
+            <span wire:ignore>{{ __('test_take.attachment') }} {{$attachment_count}}</span>
+            @php $attachment_count++ @endphp
         </x-button.text-button>
     @endforeach
 @endif
