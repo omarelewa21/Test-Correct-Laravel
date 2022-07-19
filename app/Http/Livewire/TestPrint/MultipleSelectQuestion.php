@@ -27,6 +27,8 @@ class MultipleSelectQuestion extends Component
     public $answerText;
     public $shuffledKeys;
 
+    public $charCounter = 0;
+    public $characters;
 
     public function mount()
     {
@@ -39,6 +41,7 @@ class MultipleSelectQuestion extends Component
         if(!is_null($this->question->belongs_to_groupquestion_id)){
             $this->question->groupQuestion = Question::find($this->question->belongs_to_groupquestion_id);
         }
+        $this->characters = range('A', 'Z');
     }
 
     public function render()

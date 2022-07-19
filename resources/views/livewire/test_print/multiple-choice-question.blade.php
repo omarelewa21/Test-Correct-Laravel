@@ -1,4 +1,4 @@
-<x-partials.answer-model-question-container :number="$number" :question="$question" :answer="$answer">
+<x-partials.test-print-question-container :number="$number" :question="$question" :answer="$answer">
     <div class="w-full">
         <div class="children-block-pdf">
             {!! $question->converted_question_html  !!}
@@ -19,13 +19,13 @@
                                 value="{{ $value }}"
                         >
                         <div class="mc-radio-label-pdf">{!! $this->answerText[$key] !!}</div>
-                        <div class="{!! ($value == 1) ? '' :'hidden' !!}" style="float:right;">
-                            <x-icon.checkmark-pdf ></x-icon.checkmark-pdf>
-                            {!! $this->scoreStruct[$key] !!} pt
-                        </div>
+{{--                        <div class="{!! ($value == 1) ? '' :'hidden' !!}" style="float:right;">--}}
+{{--                            <x-icon.checkmark-pdf ></x-icon.checkmark-pdf>--}}
+{{--                            {!! $this->scoreStruct[$key] !!} pt--}}
+{{--                        </div>--}}
                     </label>
                 </div>
             @endforeach
         </div>
     </div>
-</x-partials.answer-model-question-container>
+</x-partials.test-print-question-container>

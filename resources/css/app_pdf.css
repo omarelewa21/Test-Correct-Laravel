@@ -73,6 +73,16 @@ h4 {
 p{
     vertical-align: top;
 }
+.checkbox-border {
+    border-color: var(--blue-grey);
+}
+.multiple-select-question {
+    height: 2.5rem;
+    width: 95%;
+}
+.multiple-select-text-container {
+    padding-top: 2px;
+}
 .multiple-choice-question.active {
     box-sizing: border-box;
     border-color: #004df5;

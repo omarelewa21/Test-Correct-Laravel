@@ -22,7 +22,7 @@
                     @foreach( $question->multipleChoiceQuestionAnswers as $loopCount => $link)
                         <label
                                 class="block p-5 border-2 border-blue-grey rounded-10 base multiple-choice-question transition ease-in-out duration-150 focus:outline-none arq-radio
-                                        {!! ($link->score>0) ? 'active' : 'disabled' !!}"
+                                        "
                                 for="link{{ $link->id }}">
                             <input
                                     id="link{{ $link->id }}"
