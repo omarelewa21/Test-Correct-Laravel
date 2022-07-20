@@ -5711,9 +5711,6 @@ video {
 .-mt-1{
   margin-top: -0.25rem;
 }
-.box-border{
-  box-sizing: border-box;
-}
 .block{
   display: block;
 }
@@ -6006,6 +6003,9 @@ video {
 }
 .w-\[44vw\]{
   width: 44vw;
+}
+.w-32{
+  width: 8rem;
 }
 .w-14{
   width: 3.5rem;
@@ -6631,9 +6631,6 @@ video {
 .border-dashed{
   border-style: dashed;
 }
-.border-dotted{
-  border-style: dotted;
-}
 .border-red-500{
   --tw-border-opacity: 1;
   border-color: rgb(239 68 68 / var(--tw-border-opacity));
@@ -6846,9 +6843,6 @@ video {
 }
 .p-16{
   padding: 4rem;
-}
-.p-0\.5{
-  padding: 0.125rem;
 }
 .px-4{
   padding-left: 1rem;

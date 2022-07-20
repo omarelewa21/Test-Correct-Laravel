@@ -1,15 +1,21 @@
 <x-partials.test-print-question-container :number="$number" :question="$question" :answer="$answer">
     <div class="w-full">
+        <div class="italic">
+            {{__('test-pdf.multiple_choice_question_explanation')}}
+        </div>
         <div class="children-block-pdf">
             {!! $question->converted_question_html  !!}
         </div>
         <div class="mt-4 space-y-2 w-1/2 question-no-break-mc-option">
             @foreach( $this->answerStruct as $key => $value)
-                <div class="block items-center  mc-radio">
+                <div class="block items-center  mc-radio relative">
+                    <div class="square-checkbox relative">
+                        &nbsp;
+                    </div>
                     <label
                             for="link{{ $value }}"
-                            class="relative w-full block hover:font-bold p-5 border-2 border-blue-grey rounded-10 base multiple-choice-question transition ease-in-out duration-150 focus:outline-none justify-between
-                                        {!! ($value == 1) ? 'active' : 'disabled' !!}"
+                            class="absolute inline-block w-1/2 px-2 py-1 border-2 border-blue-grey rounded-10 base
+                            multiple-select-label justify-between"
                     >
                         <input
                                 id="link{{ $value }}"
@@ -18,11 +24,9 @@
                                 class="hidden"
                                 value="{{ $value }}"
                         >
-                        <div class="mc-radio-label-pdf">{!! $this->answerText[$key] !!}</div>
-{{--                        <div class="{!! ($value == 1) ? '' :'hidden' !!}" style="float:right;">--}}
-{{--                            <x-icon.checkmark-pdf ></x-icon.checkmark-pdf>--}}
-{{--                            {!! $this->scoreStruct[$key] !!} pt--}}
-{{--                        </div>--}}
+                        <div class="w-full multiple-select-text">
+                            <div class="mc-radio-label-pdf">{!! $this->answerText[$key] !!}</div>
+                        </div>
                     </label>
                 </div>
             @endforeach
