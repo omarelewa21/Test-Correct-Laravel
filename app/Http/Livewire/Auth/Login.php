@@ -46,6 +46,7 @@ class Login extends Component
 
     public $requireCaptcha = false;
     public $testTakeCode = [];
+    public $guest_message_shown = 0;
 
     protected $queryString = [
         'tab'                  => ['except' => 'login'],
@@ -280,6 +281,7 @@ class Login extends Component
     public function sendForgotPasswordEmail()
     {
         $this->active_overlay = '';
+        $this->login_tab = 1;
         $this->entree_error_message = '';
         $user = User::whereUsername($this->forgotPasswordEmail)->first();
         if ($user) {
@@ -587,7 +589,8 @@ class Login extends Component
 
     public function dispatchGuestSuccessNotification()
     {
-        if($this->showGuestSuccess){
+        //initial render calls this method somehow 2 times, only 2nd gets dispatched, so setting to false immediately won't work.
+        if($this->showGuestSuccess && $this->guest_message_shown < 2){
             $this->dispatchBrowserEvent('notify',
                 [
                     'type' => 'guest_success',
@@ -595,7 +598,6 @@ class Login extends Component
                     'message' => __('auth.'.$this->guest_message.'_sub'),
                 ]
             );
-//            $this->showGuestSuccess = false;
         }
     }
 }

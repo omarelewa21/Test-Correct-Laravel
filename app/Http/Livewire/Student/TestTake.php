@@ -66,7 +66,7 @@ class TestTake extends Component
         $this->returnToDashboard();
     }
 
-    public function createTestTakeEventEvent($event)
+    public function createTestTakeEvent($event)
     {
         $eventType = $this->getEventType($event);
         $testTakeEvent = new TestTakeEvent([
@@ -113,7 +113,7 @@ class TestTake extends Component
             ->value('confirmed');
 
         if ($eventConfirmed == 1) {
-            $this->createTestTake($reason);
+            $this->createTestTakeEvent($reason);
         }
     }
 

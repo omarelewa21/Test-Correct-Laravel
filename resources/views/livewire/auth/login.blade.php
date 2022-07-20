@@ -395,7 +395,6 @@
                     </div>
                 </div>
 
-            {{-- text buttons (forgot password) todo add download the app? --}}
             <div class="w-full flex flex-col items-center">
                 <div class="flex flex-col md:flex-row items-center space-x-2">
                     <span class="flex">

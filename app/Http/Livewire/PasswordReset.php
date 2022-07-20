@@ -84,7 +84,6 @@ class PasswordReset extends Component
         $response = Password::reset($credentials, function ($user, $password) {
             $user->password = bcrypt($password);
             $user->save();
-            dd(\Hash::check('Welkom456', $user->password));
         });
 
         if ($response === PasswordBroker::PASSWORD_RESET){
