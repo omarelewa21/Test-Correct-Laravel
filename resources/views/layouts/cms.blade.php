@@ -21,6 +21,6 @@
             "servicePath": "wscservice/api"
         }
     </script>
-    <script src="https://testwsc.test-correct.nl:80/wscservice/wscbundle/wscbundle.js"></script>
+    <script src="https://testwsc.test-correct.nl/wscservice/wscbundle/wscbundle.js"></script>
 @endpush
 </x-layouts.base>

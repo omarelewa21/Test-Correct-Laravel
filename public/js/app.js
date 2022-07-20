@@ -12995,9 +12995,7 @@ RichTextEditor = {
     CKEDITOR.config.removePlugins = 'scayt,wsc';
     CKEDITOR.on('instanceReady', function (event) {
       var editor = event.editor;
-      WEBSPELLCHECKER.init({
-        container: editor.window.getFrame() ? editor.window.getFrame().$ : editor.element.$
-      });
+      WebspellcheckerTlc.init.forTeacherQuestion(editor, 'nl_NL');
     });
     CKEDITOR.replace(editorId, {});
     editor = CKEDITOR.instances[editorId];
@@ -13114,6 +13112,28 @@ RichTextEditor = {
         ReadspeakerTlc.ckeditor.addListenersForReadspeaker(editor, questionId, editorId);
         ReadspeakerTlc.ckeditor.disableContextMenuOnCkeditor();
       }
+    })["catch"](function (error) {
+      console.error(error);
+    });
+  },
+  initClassicEditorForTeacherplayer: function initClassicEditorForTeacherplayer(editorId) {
+    return ClassicEditor.create(document.getElementById(editorId), {
+      autosave: {
+        waitingTime: 300,
+        save: function save(editor) {
+          editor.updateSourceElement();
+          editor.sourceElement.dispatchEvent(new Event('input'));
+        }
+      },
+      wproofreader: {
+        lang: 'en_US' // sets the default language
+
+      }
+    }).then(function (editor) {
+      ClassicEditors[editorId] = editor;
+      var wordCountPlugin = editor.plugins.get('WordCount');
+      var wordCountWrapper = document.getElementById('word-count-' + editorId);
+      wordCountWrapper.appendChild(wordCountPlugin.wordCountContainer);
     })["catch"](function (error) {
       console.error(error);
     });
