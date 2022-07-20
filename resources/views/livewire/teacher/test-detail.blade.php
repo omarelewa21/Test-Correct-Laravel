@@ -82,7 +82,7 @@
                         <x-grid.loading-card :delay="$value"/>
                     @endforeach
 
-                    @foreach($this->test->testQuestions as $testQuestion)
+                    @foreach($this->test->testQuestions->sortBy('order') as $testQuestion)
                         {{--<x-grid.question-card :question="$testQuestion->question" />--}}
                         <x-grid.question-card-detail :testQuestion="$testQuestion"/>
                     @endforeach
