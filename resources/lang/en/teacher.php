@@ -43,5 +43,5 @@ return [
     'Filters wissen'                                   => 'Delete filters',
     'Vraag voorbeeld'                                  => 'Question preview',
     'Test is verwijderd'                               => 'Test deleted',
-
+    'Verbetering of nieuwe toets?'                     => 'Update current or create new test?',
 ];

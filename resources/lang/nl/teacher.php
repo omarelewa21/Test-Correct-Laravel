@@ -42,4 +42,5 @@ return [
     'Filters wissen'                                   => 'Filters wissen',
     'Vraag voorbeeld'                                  => 'Vraag voorbeeld',
     'Test is verwijderd'                               => 'Test is verwijderd',
+    'Verbetering of nieuwe toets?' => 'Verbetering of nieuwe toets?',
 ];
