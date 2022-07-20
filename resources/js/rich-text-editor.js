@@ -30,7 +30,7 @@ RichTextEditor = {
         CKEDITOR.config.removePlugins = 'scayt,wsc';
         CKEDITOR.on('instanceReady', function(event) {
             var editor = event.editor;
-            WebspellcheckerTlc.init.forTeacherQuestion(editor,'nl_NL');
+            WebspellcheckerTlc.forTeacherQuestion(editor,'nl_NL');
         });
         CKEDITOR.replace(editorId, {});
         editor = CKEDITOR.instances[editorId];
@@ -138,11 +138,17 @@ RichTextEditor = {
                     }
                 },
                 wproofreader: {
-                    lang: 'en_US', // sets the default language
+                    lang: 'nl_NL',
+                    serviceProtocol: 'https',
+                    servicePort: '80',
+                    serviceHost: 'testwsc.test-correct.nl',
+                    servicePath: 'wscservice/api',
+                    srcUrl: 'https://testwsc.test-correct.nl/wscservice/wscbundle/wscbundle.js'
                 }
             } )
             .then( editor => {
                 ClassicEditors[editorId] = editor;
+                WebspellcheckerTlc.lang(editor, 'nl_NL');
             } )
             .catch( error => {
                 console.error( error );

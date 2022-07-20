@@ -12997,7 +12997,7 @@ RichTextEditor = {
     CKEDITOR.config.removePlugins = 'scayt,wsc';
     CKEDITOR.on('instanceReady', function (event) {
       var editor = event.editor;
-      WebspellcheckerTlc.init.forTeacherQuestion(editor, 'nl_NL');
+      WebspellcheckerTlc.forTeacherQuestion(editor, 'nl_NL');
     });
     CKEDITOR.replace(editorId, {});
     editor = CKEDITOR.instances[editorId];
@@ -13128,11 +13128,16 @@ RichTextEditor = {
         }
       },
       wproofreader: {
-        lang: 'en_US' // sets the default language
-
+        lang: 'nl_NL',
+        serviceProtocol: 'https',
+        servicePort: '80',
+        serviceHost: 'testwsc.test-correct.nl',
+        servicePath: 'wscservice/api',
+        srcUrl: 'https://testwsc.test-correct.nl/wscservice/wscbundle/wscbundle.js'
       }
     }).then(function (editor) {
       ClassicEditors[editorId] = editor;
+      WebspellcheckerTlc.lang(editor, 'nl_NL');
     })["catch"](function (error) {
       console.error(error);
     });
@@ -13353,24 +13358,31 @@ function shouldSwipeDirectionBeReturned(target) {
   \*********************************************/
 /***/ (() => {
 
-WebspellcheckerTlc = function WebspellcheckerTlc() {
-  init = function init() {
-    function forTeacherQuestion(editor, language) {
-      WEBSPELLCHECKER.init({
-        container: editor.window.getFrame() ? editor.window.getFrame().$ : editor.element.$,
-        spellcheckLang: language,
-        localization: 'nl'
-      });
-    }
-
-    return {
-      forTeacherQuestion: forTeacherQuestion
+WebspellcheckerTlc = {
+  forTeacherQuestion: function forTeacherQuestion(editor, language) {
+    WEBSPELLCHECKER.init({
+      container: editor.window.getFrame() ? editor.window.getFrame().$ : editor.element.$,
+      spellcheckLang: language,
+      localization: 'nl'
+    });
+  },
+  lang: function lang(editor, language) {
+    var config = {
+      attributes: true,
+      childList: false,
+      subtree: false
     };
-  };
+    var element = editor.ui.view.editable.element;
 
-  return {
-    init: init
-  };
+    var callback = function callback(mutationsList, observer) {
+      WEBSPELLCHECKER.getInstances().forEach(function (instance) {
+        instance.setLang(language);
+      });
+    };
+
+    var observer = new MutationObserver(callback);
+    observer.observe(element, config);
+  }
 };
 
 /***/ }),
