@@ -60,14 +60,20 @@
         </div>
     </x-input.group>
 
-
-    <x-input.group class="text-base" label="{{ __('cms.Omschrijving') }}">
-    <x-input.rich-textarea
-            wire:model.debounce.1000ms="question.question"
-            editorId="{{ $questionEditorId }}"
-            type="cms"
-    />
-    </x-input.group>
+    <div wire:ignore >
+        <x-input.group class="w-full" label="{{ __('cms.Omschrijving') }}" >
+            <textarea class="form-input resize-none" id="{{ $questionEditorId }}" name="{{ $questionEditorId }}" wire:model.debounce.1000ms="question.question"></textarea>
+        </x-input.group>
+    </div>
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            var editor = ClassicEditors['{{ $questionEditorId }}'];
+            if (editor) {
+                editor.destroy(true);
+            }
+            RichTextEditor.initClassicEditorForTeacherplayer('{{$questionEditorId}}');
+        });
+    </script>
 @endsection
 
 @section('upload-section-for-group-question')

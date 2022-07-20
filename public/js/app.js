@@ -6240,6 +6240,8 @@ __webpack_require__(/*! ./navigation-bar */ "./resources/js/navigation-bar.js");
 
 __webpack_require__(/*! ../../vendor/wire-elements/modal/resources/js/modal */ "./vendor/wire-elements/modal/resources/js/modal.js");
 
+__webpack_require__(/*! ./webspellchecker_tlc */ "./resources/js/webspellchecker_tlc.js");
+
 window.ClassicEditors = [];
 
 addIdsToQuestionHtml = function addIdsToQuestionHtml() {
@@ -12995,9 +12997,7 @@ RichTextEditor = {
     CKEDITOR.config.removePlugins = 'scayt,wsc';
     CKEDITOR.on('instanceReady', function (event) {
       var editor = event.editor;
-      WEBSPELLCHECKER.init({
-        container: editor.window.getFrame() ? editor.window.getFrame().$ : editor.element.$
-      });
+      WebspellcheckerTlc.init.forTeacherQuestion(editor, 'nl_NL');
     });
     CKEDITOR.replace(editorId, {});
     editor = CKEDITOR.instances[editorId];
@@ -13114,6 +13114,25 @@ RichTextEditor = {
         ReadspeakerTlc.ckeditor.addListenersForReadspeaker(editor, questionId, editorId);
         ReadspeakerTlc.ckeditor.disableContextMenuOnCkeditor();
       }
+    })["catch"](function (error) {
+      console.error(error);
+    });
+  },
+  initClassicEditorForTeacherplayer: function initClassicEditorForTeacherplayer(editorId) {
+    return ClassicEditor.create(document.getElementById(editorId), {
+      autosave: {
+        waitingTime: 300,
+        save: function save(editor) {
+          editor.updateSourceElement();
+          editor.sourceElement.dispatchEvent(new Event('input'));
+        }
+      },
+      wproofreader: {
+        lang: 'en_US' // sets the default language
+
+      }
+    }).then(function (editor) {
+      ClassicEditors[editorId] = editor;
     })["catch"](function (error) {
       console.error(error);
     });
@@ -13325,6 +13344,34 @@ function shouldSwipeDirectionBeReturned(target) {
   });
   return returnDirection;
 }
+
+/***/ }),
+
+/***/ "./resources/js/webspellchecker_tlc.js":
+/*!*********************************************!*\
+  !*** ./resources/js/webspellchecker_tlc.js ***!
+  \*********************************************/
+/***/ (() => {
+
+WebspellcheckerTlc = function WebspellcheckerTlc() {
+  init = function init() {
+    function forTeacherQuestion(editor, language) {
+      WEBSPELLCHECKER.init({
+        container: editor.window.getFrame() ? editor.window.getFrame().$ : editor.element.$,
+        spellcheckLang: language,
+        localization: 'nl'
+      });
+    }
+
+    return {
+      forTeacherQuestion: forTeacherQuestion
+    };
+  };
+
+  return {
+    init: init
+  };
+};
 
 /***/ }),
 
