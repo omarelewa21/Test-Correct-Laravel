@@ -30,7 +30,10 @@ RichTextEditor = {
         CKEDITOR.config.removePlugins = 'scayt,wsc';
         CKEDITOR.on('instanceReady', function(event) {
             var editor = event.editor;
-            WebspellcheckerTlc.init.forTeacherQuestion(editor,'nl_NL');
+
+            WEBSPELLCHECKER.init({
+                container: editor.window.getFrame() ? editor.window.getFrame().$ : editor.element.$
+            });
         });
         CKEDITOR.replace(editorId, {});
         editor = CKEDITOR.instances[editorId];
@@ -122,31 +125,6 @@ RichTextEditor = {
                     ReadspeakerTlc.ckeditor.addListenersForReadspeaker(editor, questionId, editorId);
                     ReadspeakerTlc.ckeditor.disableContextMenuOnCkeditor();
                 }
-            } )
-            .catch( error => {
-                console.error( error );
-            } );
-    },
-    initClassicEditorForTeacherplayer: function (editorId) {
-        return ClassicEditor
-            .create( document.getElementById( editorId ),{
-                autosave: {
-                    waitingTime: 300,
-                    save( editor ) {
-                        editor.updateSourceElement();
-                        editor.sourceElement.dispatchEvent(new Event('input'));
-                    }
-                },
-                wproofreader: {
-                    lang: 'en_US', // sets the default language
-                }
-            } )
-            .then( editor => {
-                ClassicEditors[editorId] = editor;
-                const wordCountPlugin = editor.plugins.get( 'WordCount' );
-                const wordCountWrapper = document.getElementById( 'word-count-'+editorId );
-                wordCountWrapper.appendChild( wordCountPlugin.wordCountContainer );
-
             } )
             .catch( error => {
                 console.error( error );

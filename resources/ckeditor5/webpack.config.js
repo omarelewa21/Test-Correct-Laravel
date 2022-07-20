@@ -17,16 +17,14 @@ module.exports = {
 	devtool: 'source-map',
 	performance: { hints: false },
 
-	entry: {
-		ckeditor: path.resolve( __dirname, 'src', 'ckeditor.js' ),
-		ckeditor_teacher: path.resolve( __dirname, 'src', 'ckeditor_teacher.js' ),
-	},
+	entry: path.resolve( __dirname, 'src', 'ckeditor.js' ),
 
 	output: {
 		// The name under which the editor will be exported.
 		library: 'ClassicEditor',
-		filename: '[name].js',
+
 		path: path.resolve( __dirname, 'build' ),
+		filename: 'ckeditor.js',
 		libraryTarget: 'umd',
 		libraryExport: 'default'
 	},
@@ -51,7 +49,6 @@ module.exports = {
 			// UI language. Language codes follow the https://en.wikipedia.org/wiki/ISO_639-1 format.
 			// When changing the built-in language, remember to also change it in the editor's configuration (src/ckeditor.js).
 			language: 'nl',
-			addMainLanguageTranslationsToAllAssets: true,
 			additionalLanguages: 'all'
 		} ),
 		new webpack.BannerPlugin( {
