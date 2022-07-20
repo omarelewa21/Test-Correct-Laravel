@@ -1,0 +1,2 @@
+The special characters plugin has a build version of ckeditor5 in its node_modules. This breaks up the editor with a duplicate modules error.
+The solution is to remove the ckeditor5 folder.

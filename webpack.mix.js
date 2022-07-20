@@ -27,6 +27,7 @@ mix.copy(wirisPath + "/plugin.js", "public/ckeditor/plugins/ckeditor_wiris/plugi
     .copyDirectory(wirisPath + "/icons", "public/ckeditor/plugins/ckeditor_wiris/icons");
 
 mix.copy("resources/ckeditor5/build/ckeditor.js", "public/js/ckeditor.js");
+mix.copy("resources/ckeditor5/build/ckeditor_teacher.js", "public/js/ckeditor_teacher.js");
 mix.copy("resources/js/readspeaker_tlc.js", "public/js/readspeaker_tlc.js");
 mix.copy("resources/css/rs_tlc.css", "public/css/rs_tlc.css");
 mix.copy("resources/css/rs_tlc_pdf.css", "public/css/rs_tlc_pdf.css");

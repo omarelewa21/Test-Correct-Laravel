@@ -33,6 +33,7 @@
   "dependencies": {
     "@ckeditor/ckeditor5-autosave": "^32.0.0",
     "@ckeditor/ckeditor5-special-characters": "^33.0.0",
+    "@webspellchecker/wproofreader-ckeditor5": "^2.1.0",
     "@wiris/mathtype-ckeditor5": "^7.27.2"
   }
 }
