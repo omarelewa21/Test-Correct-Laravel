@@ -3,6 +3,9 @@
         {{__("teacher.Verbetering of nieuwe toets?")}}
     </x-slot>
     <x-slot name="body">
+        @if($displayValueRequiredMessage)
+            <div class="mt-1 text-red-500 text-sm">{{ __('Selecteer een waarde') }}</div>
+        @endif
         <div class="flex px-1" x-data="{
                 value : @entangle('value'),
                 select: function(option) {
@@ -58,8 +61,8 @@
     <x-slot name="footer">
         <div class="w-[44vw] flex justify-end items-center">
             <div class="mt-8 pr-12 space-x-2.5">
-                <x-button.text-button>{{ __('teacher.Annuleer') }}</x-button.text-button>
-                <x-button.cta>{{ __('Bevestigen') }}</x-button.cta>
+                <x-button.text-button wire:click="close">{{ __('teacher.Annuleer') }}</x-button.text-button>
+                <x-button.cta wire:click="submit">{{ __('Bevestigen') }}</x-button.cta>
             </div> {{-- 44vw depends on maxWidth 2xl... --}}
         </div>
     </x-slot>

@@ -75,7 +75,7 @@ class TestEditModal extends ModalComponent
             return true;
         }
 
-        $this->emit('openModal', 'teacher.test-update-or-duplicate-confirm-modal');
+        $this->emit('openModal', 'teacher.test-update-or-duplicate-confirm-modal', ['request' => $this->request, 'testUuid' => $this->testUuid]);
     }
 
     private function saveTest($test) {
