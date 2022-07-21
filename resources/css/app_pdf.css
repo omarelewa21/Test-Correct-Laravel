@@ -617,3 +617,42 @@ h2.student-testtake-answers-separator span {
     width: 660px;
     margin-left: 1rem;
 }
+
+.test-print-pdf .open-long .paper-text-area,
+.test-print-pdf .open-short .paper-text-area {
+    background: #f9faff;
+    border: 2px dashed #c3d0ed;
+    padding: 0 10px 0 10px;
+    border-radius: 10px;
+}
+
+.test-print-pdf .open-short .paper-text-area {
+    height: 246px;
+}
+
+.test-print-pdf .open-long .paper-text-area {
+    height: 560px;
+}
+
+.test-print-pdf .paper-line {
+    border-bottom: 2px dotted #c3d0ed;
+    height: 35px;
+}
+
+.test-print-pdf strong {
+    -webkit-text-stroke-width: 0.30px /* font-weight: bold doesn't work with pdf*/
+}
+
+.test-print-pdf .completion-question-answer {
+    display: inline-block;
+    margin-bottom: 0.5rem;
+}
+
+.test-print-pdf .completion-question-answer-sub {
+    display: inline-block;
+    margin-left: 0.25rem;
+    margin-right: 0.5rem;
+    height: 1rem;
+    width: 385px;
+    border-bottom: 2px dotted #c3d0ed;
+}

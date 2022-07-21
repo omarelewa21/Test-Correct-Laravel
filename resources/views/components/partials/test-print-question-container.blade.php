@@ -1,7 +1,6 @@
 @props([
 'question',
 'number',
-'answer',
 'pdf_type' => 'answer_model'
 ])
 
@@ -13,7 +12,9 @@
             </div>
 
             <h1 class="inline-block-pdf ml-2 mr-6" selid="questiontitle" > {!! __($question->caption) !!} </h1>
-            <h4 class="inline-block-pdf">{{ $question->score }} pt</h4>
+            @if($question->type != 'InfoscreenQuestion')
+                <h4 class="inline-block-pdf">{{ $question->score }} pt</h4>
+            @endif
             @if($this->group)
                 <h1  class="inline-flex ml-2">{{ $this->group->name }}</h1>
             @endif
