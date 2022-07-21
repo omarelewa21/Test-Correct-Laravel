@@ -102,7 +102,7 @@ class Login extends Component
 
     public $studentDownloadUrl = 'https://www.test-correct.nl/student/';
 
-    protected $listeners = ['open-auth-modal' => 'openAuthModal'];
+    protected $listeners = ['open-auth-modal' => 'openAuthModal', 'password_reset' => 'passwordReset'];
 
     protected $rules = [
         'username' => 'required|email',
@@ -599,5 +599,18 @@ class Login extends Component
                 ]
             );
         }
+    }
+
+    public function passwordReset()
+    {
+        $this->active_overlay = '';
+
+        $this->dispatchBrowserEvent('notify',
+            [
+                'type' => 'guest_success',
+                'title' => __('passwords.reset_title'),
+                'message' => __('passwords.reset'),
+            ]
+        );
     }
 }
