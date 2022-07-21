@@ -39,6 +39,11 @@ class NationalItemBankTest extends TestCase
     /** @test */
     public function nationalItemBank_filteredTests_contain_tests_with_all_three_test_scopes_ldt_exam_cito()
     {
+        if(!(Test::where('scope', 'exam')->exists() && Test::where('scope', 'ldt')->exists() && Test::where('scope', 'cito')->exists()))
+        {
+            $this->markTestSkipped('Skipping test: not each of the three types of test scopes exist in the database');
+        }
+
         \Auth::login(self::getTeacherOne()); //Auth::User needs access to new testOverview (school_location -> allow_new_test_bank)
         $scopeInDataset = collect([
             'ldt' => false,
@@ -76,6 +81,11 @@ class NationalItemBankTest extends TestCase
     /** @test */
     public function nationalItemBank_dataset_contains_tests_with_all_three_test_scopes_ldt_exam_cito()
     {
+        if(!(Test::where('scope', 'exam')->exists() && Test::where('scope', 'ldt')->exists() && Test::where('scope', 'cito')->exists()))
+        {
+            $this->markTestSkipped('Skipping test: not each of the three types of test scopes exist in the database');
+        }
+
         \Auth::login(self::getTeacherOne()); //Auth::User needs access to new testOverview (school_location -> allow_new_test_bank)
         $scopeInDataset = collect([
             'ldt' => false,

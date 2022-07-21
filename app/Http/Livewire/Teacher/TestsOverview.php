@@ -208,46 +208,42 @@ class TestsOverview extends Component
     public function getBasesubjectsProperty()
     {
         if ($this->openTab === 'national') {
-            return BaseSubject::whereIn('id',
-                \DB::table(
-                    Subject::nationalItemBankFiltered([], ['name' => 'asc'])
-                        ->union(Subject::citoFiltered([], ['name' => 'asc']))
-                        ->union(Subject::examFiltered([], ['name' => 'asc']))
-                )
-                    ->distinct()
-                    ->pluck('base_subject_id')
-            )->get(['name', 'id'])
-                ->map(function ($subject) {
-                    return ['value' => (int)$subject->id, 'label' => $subject->name];
-                })->toArray();
+            return $this->getBaseSubjectsOptions();
         }
         return [];
     }
 
-    public function getSubjectsProperty()
+    private function getBaseSubjectsOptions()
     {
-        return Subject::when($this->openTab === 'cito', function ($query) {
-            $query->citoFiltered([], ['name' => 'asc']);
-        }, function ($query) {
-            $query->when($this->openTab === 'national', function ($query) {
-                $query->nationalItemBankFiltered([], ['name' => 'asc']);
-                //DB::table(
-                //        Subject::nationalItemBankFiltered([], ['name' => 'asc'])
-                //        ->union(Subject::citoFiltered([], ['name' => 'asc']))
-                //        ->union(Subject::examFiltered([], ['name' => 'asc']))
-                //    )->get() //returns multiple subjects with the same baseSubject
-            }, function ($query) {
-                $query->when($this->openTab === 'exams', function ($query) {
-                    $query->examFiltered([], ['name' => 'asc']);
-                }, function ($query) {
-                    $query->filtered([], ['name' => 'asc']);
-                });
-            });
-        })
+        return BaseSubject::nationalItemBankFiltered()
             ->get(['name', 'id'])
             ->map(function ($subject) {
                 return ['value' => (int)$subject->id, 'label' => $subject->name];
             })->toArray();
+    }
+
+    public function getSubjectsProperty()
+    {
+        return $this->filterSubjectsByTabName($this->openTab)
+            ->get(['name', 'id'])
+            ->map(function ($subject) {
+                return ['value' => (int)$subject->id, 'label' => $subject->name];
+            })->toArray();
+    }
+
+    private function filterSubjectsByTabName(string $tab)
+    {
+        switch ($tab)
+        {
+            case 'cito':
+                return Subject::citoFiltered([], ['name' => 'asc']);
+            case 'national':
+                return Subject::nationalItemBankFiltered([], ['name' => 'asc']);
+            case 'exams':
+                return Subject::examFiltered([], ['name' => 'asc']);
+            default:
+                return Subject::filtered([], ['name' => 'asc']);
+        }
     }
 
     public function getEducationLevelYearProperty()

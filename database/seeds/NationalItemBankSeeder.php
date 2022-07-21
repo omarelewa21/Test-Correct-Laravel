@@ -22,6 +22,9 @@ class NationalItemBankSeeder extends Seeder
     {
         \tcCore\Http\Helpers\ActingAsHelper::getInstance()->reset();
 
+        if(User::where('username', 'info+ontwikkelaar@test-correct.nl')->exists()){
+            return;
+        }
 
         // maak een scholengemeenschap (table schools)
         $comprehensiveSchool = \tcCore\School::create([
