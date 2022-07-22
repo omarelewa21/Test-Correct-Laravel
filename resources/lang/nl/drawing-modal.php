@@ -20,6 +20,7 @@ return [
     'Zet dikgedrukt aan/uit'             => 'Zet dikgedrukt aan/uit',
     'Doorzichtigheid'                    => 'Doorzichtigheid',
     'Randkleur'                          => 'Randkleur',
+    'lineColor'                          => 'Lijnkleur',
     'Vergroot randdikte'                 => 'Vergroot randdikte',
     'Verklein randdikte'                 => 'Verklein randdikte',
     'Opvulkleur'                         => 'Opvulkleur',

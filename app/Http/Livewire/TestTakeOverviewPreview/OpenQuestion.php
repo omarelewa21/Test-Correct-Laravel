@@ -5,11 +5,12 @@ namespace tcCore\Http\Livewire\TestTakeOverviewPreview;
 use Livewire\Component;
 use tcCore\Answer;
 use tcCore\Http\Traits\WithCloseable;
+use tcCore\Http\Traits\WithGroups;
 use tcCore\Question;
 
 class OpenQuestion extends Component
 {
-    use WithCloseable;
+    use WithCloseable, WithGroups;
 
     protected $listeners = ['questionUpdated' => 'questionUpdated'];
     public $answer = '';
@@ -27,7 +28,6 @@ class OpenQuestion extends Component
         if (key_exists('value', $temp)) {
             $this->answer = $temp['value'];
         }
-
         $this->answered = $this->answers[$this->question->uuid]['answered'];
 
         if(!is_null($this->question->belongs_to_groupquestion_id)){

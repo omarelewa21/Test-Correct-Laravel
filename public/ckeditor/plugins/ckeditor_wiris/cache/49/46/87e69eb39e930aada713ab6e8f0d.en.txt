@@ -1,1 +1,0 @@
-{"result":{"text":"c-th root of A over B end root"},"status":"ok"}

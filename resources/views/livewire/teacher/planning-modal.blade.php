@@ -138,11 +138,11 @@
                 <span>{{__('Annuleren')}}</span>
             </x-button.text-button>
             <div class="flex space-x-2.5">
-                <x-button.primary size="sm" wire:click="planNext">
-                    <span>{{__('teacher.Volgende Inplannen')}}</span>
-                    <x-icon.chevron/>
-                </x-button.primary>
-                <x-button.cta size="sm" wire:click="plan">
+{{--                <x-button.primary size="sm" wire:click="planNext">--}}
+{{--                    <span>{{__('teacher.Volgende Inplannen')}}</span>--}}
+{{--                    <x-icon.chevron/>--}}
+{{--                </x-button.primary>--}}
+                <x-button.cta size="sm" wire:click="planNext">
                     <x-icon.checkmark/>
                     <span>{{__('teacher.Inplannen')}}</span>
                 </x-button.cta>

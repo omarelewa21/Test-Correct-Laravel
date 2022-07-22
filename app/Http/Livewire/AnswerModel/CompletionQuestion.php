@@ -3,13 +3,14 @@
 namespace tcCore\Http\Livewire\AnswerModel;
 
 use Livewire\Component;
+use tcCore\Http\Traits\WithGroups;
 use tcCore\Question;
 use tcCore\Http\Helpers\BaseHelper;
 use tcCore\Http\Traits\WithCloseable;
 
 class CompletionQuestion extends Component
 {
-    use WithCloseable;
+    use WithCloseable, WithGroups;
 
     protected $listeners = ['questionUpdated' => 'questionUpdated'];
 
@@ -49,10 +50,7 @@ class CompletionQuestion extends Component
 
         $replacementFunction = function ($matches) use ($question) {
             $tag_id = $matches[1]; // the completion_question_answers list is 1 based but the inputs need to be 0 based
-
             return sprintf('<span class="form-input resize-none overflow-ellipsis rounded-10 pdf-answer-model-input" >%s </span>', $this->answerStruct[$tag_id]);
-
-
         };
 
         return preg_replace_callback($this->searchPattern, $replacementFunction, $question_text);

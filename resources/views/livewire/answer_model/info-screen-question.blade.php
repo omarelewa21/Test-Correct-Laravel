@@ -1,4 +1,4 @@
-<div class="flex flex-col p-8 sm:p-10 content-section rs_readable" style="page-break-inside: avoid;">
+<div class="flex flex-col p-8 sm:p-10 content-section rs_readable question-no-break-info" >
     <div class="question-title flex-pdf flex-wrap-pdf items-center question-indicator border-bottom mb-6" >
         <div class="inline-flex-pdf question-number rounded-full text-center justify-center items-center complete" >
             <span class="align-middle">{{ $number }}</span>
@@ -18,7 +18,7 @@
             <div class="w-full">
                 <div class="flex flex-col body1 space-y-3">
                     <span>{!! __('test_take.info_screen_question_bottom_text') !!}</span>
-                    <div class="questionContainer">
+                    <div class="questionContainer children-block-pdf">
                         {!! $question->converted_question_html !!}
                     </div>
                 </div>

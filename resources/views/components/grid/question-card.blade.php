@@ -1,9 +1,19 @@
 <div {{ $attributes->merge(['class' => 'grid-card bg-white p-6 rounded-10 card-shadow hover:text-primary cursor-pointer']) }}
      wire:key="questioncard-{{ $question->getQuestionInstance()->uuid }}"
-     wire:click="openDetail('{{ $question->uuid }}')"
+     @if($question->isType('GroupQuestion'))
+         @click.stop="showGroupDetails('{{ $question->uuid }}', @js($inTest))"
+     @else
+         wire:click.stop="openDetail('{{ $question->uuid }}', @js($this->isQuestionInTest($question->id) || $this->isQuestionInTest($question->derived_question_id)))"
+     @endif
 >
     <div class="flex w-full justify-between mb-2">
-        <div class="flex">
+        <div class="flex gap-2.5">
+            @if($order)
+                <span class="rounded-full border-current text-sm flex items-center justify-center border-3 relative px-1.5 min-w-[30px] h-[30px]"
+                      style="">
+                    <span class="mt-px bold">{{ $order }}</span>
+                </span>
+            @endif
             @if($question->isType('GroupQuestion'))
                 <h3 class="line-clamp-2 break-all min-h-[64px] @if(blank($question->name)) italic @endif"
                     title="{{ $question->name }}">{{ filled($question->name) ? $question->name : __('question.no_question_text') }}</h3>
@@ -17,13 +27,12 @@
         </div>
     </div>
     <div class="flex w-full justify-between text-base mb-1">
-        <div class="flex">
-            <span class="bold min-w-[125px]">{{ $question->typeName }}</span>
+        <div class="flex gap-5">
+            <span class="bold">{{ $question->typeName }}</span>
             <span>{!! optional($question->subject)->name ?? __('general.unavailable') !!}</span>
         </div>
         <div class="text-sm">
-            <span class="note">Laatst gewijzigd:</span>
-            <span class="note">{{ $lastUpdated }}</span>
+            <span class="note">{{ __('general.Laatst gewijzigd') }}: {{ $lastUpdated }}</span>
         </div>
     </div>
     <div class="flex w-full justify-between text-base">
@@ -48,25 +57,20 @@
                 @endif
                 <span class="note text-sm">{{ $question->isType('GroupQuestion') ?  $question->total_score ?? 0 : $question->score ?? 0 }}pt.</span>
             </div>
-            <div class="flex space-x-2.5 items-center">
-                @if($inTest)
-                    <span title="{{ __('cms.Deze vraag is aanwezig in de toets.') }}">
+            <div class="flex space-x-2.5 items-center" wire:key="is_present_{{ $question->id }}">
+                @if($this->isQuestionInTest($question->id) || $this->isQuestionInTest($question->derived_question_id))
+                    <span  title="{{ __('cms.Deze vraag is aanwezig in de toets.') }}">
                         <x-icon.checkmark-circle color="var(--cta-primary)"/>
                     </span>
                 @endif
-                <button class="new-button button-primary w-10 items-center justify-center flex"
-                        wire:click.stop="handleCheckboxClick('{{ $question->uuid }}')"
-                        @click="$el.disabled = true"
+                <button x-show="Alpine.store('questionBank').active"
+                        class="new-button button-primary w-10 items-center justify-center flex"
+                        @click.stop="addQuestionToTest($el, '{{ $question->uuid }}')"
                 >
                     <x-icon.plus-2/>
                 </button>
             </div>
 
         </div>
-
-        {{--            <x-input.custom-checkbox wire:click.stop="handleCheckboxClick({{ $question->getKey() }})"--}}
-        {{--                                     wire:key="checkbox-for-question{{ $question->uuid }}"--}}
-        {{--                                     :checked="$this->isQuestionInTest($question->getKey())"--}}
-        {{--            />--}}
     </div>
 </div>

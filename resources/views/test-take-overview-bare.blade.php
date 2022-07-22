@@ -3,8 +3,8 @@
         <div x-data="{showMe: true}"
              x-show="showMe"
              x-on:force-taken-away-blur.window="showMe = !$event.detail.shouldBlur;"
-             class="w-full space-y-8 mt-40" :style="calculateMarginTop()">
-            <h1 class="mb-7">{{ $studentName }}</h1>
+             class="w-full space-y-8 mt-40 page-break-before-pdf" :style="calculateMarginTop()">
+            <h4 class="mb-7">{{ $studentName }}</h4>
             @push('styling')
                 <style>
                     {!! $styling !!}
@@ -13,63 +13,63 @@
             @foreach($data as  $key => $testQuestion)
                 <div class="flex flex-col space-y-4">
                     @if($testQuestion->type === 'MultipleChoiceQuestion' && $testQuestion->selectable_answers > 1 && $testQuestion->subtype != 'ARQ')
-                        <livewire:overview.multiple-select-question
+                        <livewire:test-take-overview-preview.multiple-select-question
                                 :question="$testQuestion"
                                 :number="++$key"
                                 :answers="$answers"
                                 wire:key="'q-'.$testQuestion->uuid'"
                         />
                     @elseif($testQuestion->type === 'MultipleChoiceQuestion')
-                        <livewire:overview.multiple-choice-question
+                        <livewire:test-take-overview-preview.multiple-choice-question
                                 :question="$testQuestion"
                                 :number="++$key"
                                 :answers="$answers"
                                 wire:key="'q-'.$testQuestion->uuid'"
                         />
                     @elseif($testQuestion->type === 'OpenQuestion')
-                        <livewire:overview.open-question
+                        <livewire:test-take-overview-preview.open-question
                                 :question="$testQuestion"
                                 :number="++$key"
                                 :answers="$answers"
                                 wire:key="'q-'.$testQuestion->uuid'q-'"
                         />
                     @elseif($testQuestion->type === 'MatchingQuestion')
-                        <livewire:overview.matching-question
+                        <livewire:test-take-overview-preview.matching-question
                                 :question="$testQuestion"
                                 :number="++$key"
                                 :answers="$answers"
                                 wire:key="'q-'.$testQuestion->uuid'"
                         />
                     @elseif($testQuestion->type === 'CompletionQuestion')
-                        <livewire:overview.completion-question
+                        <livewire:test-take-overview-preview.completion-question
                                 :question="$testQuestion"
                                 :number="++$key"
                                 :answers="$answers"
                                 wire:key="'q-'.$testQuestion->uuid'"
                         />
                     @elseif($testQuestion->type === 'RankingQuestion')
-                        <livewire:overview.ranking-question
+                        <livewire:test-take-overview-preview.ranking-question
                                 :question="$testQuestion"
                                 :number="++$key"
                                 :answers="$answers"
                                 wire:key="'q-'.$testQuestion->uuid'"
                         />
                     @elseif($testQuestion->type === 'InfoscreenQuestion')
-                        <livewire:overview.info-screen-question
+                        <livewire:test-take-overview-preview.info-screen-question
                                 :question="$testQuestion"
                                 :number="++$key"
                                 :answers="$answers"
                                 wire:key="'q-'.$testQuestion->uuid"
                         />
                     @elseif($testQuestion->type === 'DrawingQuestion')
-                        <livewire:overview.drawing-question
+                        <livewire:test-take-overview-preview.drawing-question
                                 :question="$testQuestion"
                                 :number="++$key"
                                 :answers="$answers"
                                 wire:key="'q-'.$testQuestion->uuid"
                         />
                     @elseif($testQuestion->type === 'MatrixQuestion')
-                        <livewire:overview.matrix-question
+                        <livewire:test-take-overview-preview.matrix-question
                                 :question="$testQuestion"
                                 :number="++$key"
                                 :answers="$answers"
@@ -80,6 +80,7 @@
 
                 </div>
             @endforeach
+            <h2 class="student-testtake-answers-separator"><span class="student-testtake-answers-label">{{__('Einde antwoorden').' '.$studentName}}</span></h2>
         </div>
 
 

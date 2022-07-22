@@ -1,6 +1,7 @@
 <?php namespace tcCore;
 
 use Dyrynda\Database\Casts\EfficientUuid;
+use Illuminate\Support\Str;
 use Livewire\TemporaryUploadedFile;
 use Monolog\Handler\IFTTTHandler;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
@@ -339,5 +340,27 @@ class Attachment extends BaseModel
         }
 
         return $type;
+    }
+
+    public static function getVideoHost($link)
+    {
+        $youtube = collect(['youtube.com', 'youtu.be']);
+        $vimeo = collect(['vimeo.com']);
+        $host = null;
+        $link = is_array($link) ? $link[0] : $link;
+
+        $youtube->each(function ($opt) use ($link, &$host) {
+            if (Str::contains($link, $opt)) {
+                $host = 'youtube';
+            }
+        });
+
+        $vimeo->each(function ($opt) use ($link, &$host) {
+            if (Str::contains($link, $opt)) {
+                $host = 'vimeo';
+            }
+        });
+
+        return $host;
     }
 }

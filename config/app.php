@@ -1,7 +1,5 @@
 <?php
 
-use tcCore\Http\Helpers\BaseHelper;
-
 if (array_key_exists('HTTP_ACCEPT_LANGUAGE', $_SERVER)) {
     $language = substr($_SERVER['HTTP_ACCEPT_LANGUAGE'], 0, 2);
     if ($language != 'nl') {
@@ -188,6 +186,7 @@ return [
         tcCore\Providers\BladeServiceProvider::class,
         //Pdf renderer
         Barryvdh\Snappy\ServiceProvider::class,
+        tcCore\Providers\MacrosServiceProvider::class,
     ],
 
     /*

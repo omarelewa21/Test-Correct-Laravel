@@ -92,6 +92,9 @@ p{
     max-width: none !important;
     margin-top: 10px;
 }
+.student_test_take_checkmark_pdf{
+    margin-top: 0px;
+}
 .multiple-choice-question.disabled, .multiple-choice-question.disabled:hover {
     background: white;
     border: solid 2px #c3d0ed;
@@ -123,6 +126,9 @@ p{
 }
 .mc-radio,.arq-radio{
     margin-top: 8px;
+}
+.mc-radio-label-pdf, .mc-radio-label-pdf *{
+    display: inline;
 }
 .bg-primary-light {
     background: #e6edfa;
@@ -259,6 +265,13 @@ div.input-group u, div.input-group strong, div.input-group span,p strong{
     display: inline-block;
     white-space: nowrap;
 }
+.children-block-pdf p{
+    display: block ;
+    white-space: normal;
+    margin-block-start: 1em;
+    margin-block-end: 1em;
+    vertical-align: middle;
+}
 .space-x-4 > :not([hidden]) ~ :not([hidden]) {
     margin-right: 16px;
     margin-left: 16px;
@@ -273,29 +286,31 @@ div.input-group u, div.input-group strong, div.input-group span,p strong{
     -webkit-box-orient: horizontal;   /* WebKit */
 
 }
-.matching-question .matching-dropzone .drag-item {
-    width: 500px;
-}
-.pdf-dropzone {
+
+.pdf-dropzone, .pdf-dropzone-heading {
     width: 400px !important;
 }
 div.drag-item>div{
     float:right;
     height: 16px;
 }
+.matching-question .matching-dropzone .drag-item, .matching-question .matching-dropzone .drag-item-test-take-overview-preview{
+    width:380px;
+}
 .no-margin{
     margin: 0!important;
 }
 .matrix-table td,.matrix-table th{
-    white-space: nowrap;
+    /*white-space: nowrap;*/
     text-align: left;
 }
 .matrix-table td>label>div{
     margin:auto;
 }
-.page-no-break{
-    /*page-break-inside: avoid;*/
-}
+/*.page-no-break{*/
+/*    page-break-inside: avoid;*/
+/*}*/
+
 .question-no-break-mc-option{
     page-break-inside: avoid;
 }
@@ -323,9 +338,57 @@ div.drag-item>div{
 .question-no-break-matrix{
     page-break-inside: avoid;
 }
+.question-no-break-completion{
+    page-break-inside: avoid;
+}
+.question-no-break-true-false{
+    page-break-inside: avoid;
+}
+.question-no-break-info{
+    page-break-inside: avoid;
+}
+.question-indicator-no-break{
+    page-break-inside: avoid;
+}
+.question-no-break-dropzone{
+    page-break-inside: avoid;
+}
 .prevent-pagebreak{
     page-break-before:auto;
 }
+.page-break-before-pdf{
+    page-break-before: always;
+}
+.img-no-break{
+    page-break-inside: avoid;
+}
+.img-pdf{
+    margin-top: 10px;
+    margin-bottom: 10px;
+    margin-right: 10px;
+    max-height: 600px;
+}
 .content-section {
     box-shadow: none;
+}
+.cta-primary {
+    color: #3ab753;
+}
+.h-full-pdf{
+    max-height: fit-content;
+}
+.justify-between {
+    -webkit-justify-content: space-between;
+}
+h2.student-testtake-answers-separator{
+    width: 100%;
+    text-align: center;
+    border:0;
+    border-bottom: 3px solid #000;
+    line-height: 0.1em;
+    margin: 10px 0 20px;
+}
+h2.student-testtake-answers-separator span{
+    background:#fff;
+    padding:0 10px;
 }

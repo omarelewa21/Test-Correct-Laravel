@@ -3,15 +3,28 @@
      style="max-width: 300px"
      wire:key="group-{{ $testQuestion->uuid }}"
      wire:sortable.item="{{ $question->uuid }}"
+     title="{{ __('sidebar.group-question') }}"
 >
     <div class="flex space-x-2 py-1.5 pl-6 pr-4 cursor-pointer group-question-title-container hover:bg-primary/5 hover:text-primary"
          :class="expand ? 'rotate-svg-270' : 'rotate-svg-90'"
-         @click="expand = !expand; setTimeout(() => {handleVerticalScroll($refs.container1);}, 210);"
     >
-        <x-icon.chevron class="mt-2"/>
+        <x-icon.chevron class="mt-2 text-sysbase hover:text-primary"
+                        @click.stop="expand = !expand; setTimeout(() => {handleVerticalScroll($refs.container1);}, 210);"
+        />
         <span class="flex flex-1 flex-col truncate text-lg bold"
               :class="($root.querySelectorAll('.question-button.active').length > 0 && !expand) ? 'primary' : ''"
               title="{{ $question->name }}"
+              @click.stop="
+                  $store.cms.processing = true;
+                  $dispatch('store-current-question');
+                  $wire.emitTo('teacher.questions.open-short','showQuestion',
+                    {
+                        'testQuestionUuid':'{{ $testQuestion ? $testQuestion->uuid : null }}',
+                        'questionUuid': '{{ $question->uuid }}',
+                        'isSubQuestion': false,
+                        'shouldSave': true
+                    })
+                    "
         >
             <span class="truncate">{{ $question->name }}</span>
             <div class="flex items-center justify-between">
@@ -23,7 +36,11 @@
         </span>
 
         <div class="flex items-start space-x-2.5 mt-2 text-sysbase">
-            @if($question->isCarouselQuestion())
+            @if($double)
+                <div class="flex h-full rounded-md" title="{{ __('cms.duplicate_question_in_test') }}">
+                    <x-icon.exclamation class="all-red"/>
+                </div>
+            @elseif($question->isCarouselQuestion())
                 @if(!$question->hasEnoughSubQuestionsAsCarousel())
                     <div class="flex h-full rounded-md" title="{{ __('cms.carousel_not_enough_questions') }}">
                         <x-icon.exclamation class="all-red"/>

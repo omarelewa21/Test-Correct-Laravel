@@ -20,15 +20,15 @@ class TestsOverview extends Component
 
     const PER_PAGE = 12;
 
-
     public $filters = [];
-
 
     private $sorting = ['id' => 'desc'];
 
-    protected $queryString = ['openTab'];
+    protected $queryString = ['openTab', 'referrerAction' => ['except' => '']];
 
     public $openTab = 'personal';
+
+    public $referrerAction = '';
 
     public $selected = [];
 
@@ -46,7 +46,6 @@ class TestsOverview extends Component
         'personal',
     ];
 
-
     public function render()
     {
         $results = $this->getDatasource();
@@ -59,9 +58,21 @@ class TestsOverview extends Component
         $this->resetPage();
     }
 
+    public function updatedFilters($value, $filter)
+    {
+        session(['tests-overview-filters' => $this->filters]);
+    }
+
     public function updatingOpenTab($value)
     {
         $this->resetPage();
+    }
+
+    public function setOpenTab($tab)
+    {
+        if (in_array($tab, $this->allowedTabs)) {
+            $this->openTab = $tab;
+        }
     }
 
     private function getDatasource()
@@ -146,67 +157,23 @@ class TestsOverview extends Component
 
     private function setFilters()
     {
-        collect($this->allowedTabs)->each(function ($tab) {
-            $this->filters[$tab] = [
-                'name'                 => '',
-                'education_level_year' => [],
-                'education_level_id'   => [],
-                'subject_id'           => [],
-                'author_id'            => [],
-            ];
-        });
+        if (session()->has('tests-overview-filters'))
+            $this->filters = session()->get('tests-overview-filters');
+        else {
+            collect($this->allowedTabs)->each(function ($tab) {
+                $this->filters[$tab] = [
+                    'name'                 => '',
+                    'education_level_year' => [],
+                    'education_level_id'   => [],
+                    'subject_id'           => [],
+                    'author_id'            => [],
+                ];
+            });
+        }
 
 
         /** @TODO default search filter for teacher (is dirty now) */
 //        $this->filters = array_merge($this->filters, auth()->user()->getSearchFilterDefaultsTeacher());
-    }
-
-    public function duplicateTest($testUuid)
-    {
-        // @TODO only duplicate when allowed?
-
-        $test = Test::whereUuid($testUuid)->first();
-        if ($test == null) {
-            return 'Error no test was found';
-        }
-
-        if (!$test->canCopy(auth()->user())) {
-            return 'Error duplication not allowed';
-        }
-
-
-        try {
-            $newTest = $test->userDuplicate([], Auth::id());
-        } catch (\Exception $e) {
-            return 'Error duplication failed';
-        }
-
-        return __('general.duplication successful');
-    }
-
-    public function openEdit($testUuid)
-    {
-        $this->redirect(route('teacher.question-editor', [
-            'testId'     => $testUuid,
-            'action'     => 'edit',
-            'owner'      => 'test',
-            'withDrawer' => 'true',
-            'referrer'   => 'teacher.tests',
-        ]));
-    }
-
-    public function getTemporaryLoginToPdfForTest($testUuid)
-    {
-        $controller = new TemporaryLoginController();
-        $request = new Request();
-        $request->merge([
-            'options' => [
-                'page'        => sprintf('/tests/view/%s', $testUuid),
-                'page_action' => sprintf("Loading.show();Popup.load('/tests/pdf_showPDFAttachment/%s', 1000);", $testUuid),
-            ],
-        ]);
-
-        return $controller->toCakeUrl($request);
     }
 
 
@@ -268,7 +235,59 @@ class TestsOverview extends Component
         return $searchFilter;
     }
 
-    public function openTestDetail($testUuid) {
-//        redirect()->to(route('teacher.test-detail', ['uuid' => $testUuid]));
+    public function openTestDetail($testUuid)
+    {
+        redirect()->to(route('teacher.test-detail', ['uuid' => $testUuid]));
+    }
+
+    public function openContextMenu($args)
+    {
+        $this->emitTo(
+            'teacher.tests-overview-context-menu',
+            'showMenu',
+            $args
+        );
+    }
+
+    public function clearFilters($tab = null)
+    {
+        $tabs = $tab ? [$tab] : $this->allowedTabs;
+        collect($tabs)->each(function ($tab) {
+            $this->filters[$tab] = [
+                'name'                 => '',
+                'education_level_year' => [],
+                'education_level_id'   => [],
+                'subject_id'           => [],
+                'author_id'            => [],
+            ];
+        });
+        session(['tests-overview-filters' => $this->filters]);
+    }
+
+    public function hasActiveFilters(): bool
+    {
+        return collect($this->filters[$this->openTab])
+            ->when($this->openTab === 'personal', function ($collection) {
+                return $collection->except('author_id');
+            })
+            ->whenEmpty(function ($collection) {
+                return false;
+            }, function ($collection) {
+                return $collection->filter(function ($filter) {
+                    return filled($filter);
+                })->isNotEmpty();
+            });
+    }
+
+    public function handleReferrerActions()
+    {
+        if (!$this->referrerAction) {
+            return true;
+        }
+
+        if ($this->referrerAction === 'create_test') {
+            $this->emit('openModal', 'teacher.test-create-modal');
+            $this->referrerAction = '';
+        }
     }
 }

@@ -84,6 +84,7 @@ return [
     'Sluiten na beantwoorden'                                                                => 'Sluiten na beantwoorden',
     'Openbaar maken'                                                                         => 'Openbaar maken',
     'Deze vraag niet shuffelen'                                                              => 'Deze vraag niet shuffelen',
+    'Deze vraaggroep niet shuffelen'                                                         => 'Deze vraaggroep niet shuffelen',
     'Bespreken in de klas'                                                                   => 'Bespreken in de klas',
     'Notities toestaan'                                                                      => 'Notities toestaan',
     'Halve puntenbeoordeling mogelijk'                                                       => 'Halve puntenbeoordeling mogelijk',
@@ -173,4 +174,5 @@ return [
     'Deze vraag is aanwezig in de toets.'                                                    => 'Deze vraag is aanwezig in de toets.',
     'duplicate_question_in_test'                                                             => 'Deze vraag staat dubbel in de toets. Pas de toets aan om het inplannen mogelijk te maken.',
     'Construeren'                                                                            => 'Construeren',
+    'Deze vraag heeft geen tags'                                                             => 'Deze vraag heeft geen tags',
 ];

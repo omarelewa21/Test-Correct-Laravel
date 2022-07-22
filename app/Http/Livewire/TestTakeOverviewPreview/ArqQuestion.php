@@ -4,11 +4,13 @@ namespace tcCore\Http\Livewire\TestTakeOverviewPreview;
 
 use Livewire\Component;
 use tcCore\Http\Traits\WithCloseable;
+use tcCore\Http\Traits\WithGroups;
+use tcCore\MultipleChoiceQuestionAnswer;
 use tcCore\Question;
 
 class ArqQuestion extends Component
 {
-    use WithCloseable;
+    use WithCloseable, WithGroups;
 
     protected $listeners = ['questionUpdated' => 'questionUpdated'];
 
@@ -25,5 +27,24 @@ class ArqQuestion extends Component
     {
         $question = Question::whereUuid($this->uuid)->first();
         return view('livewire.test_take_overview_preview.arq-question');
+    }
+
+    private function getMultipleChoiceQuestionAnswers()
+    {
+        $answersIds = [];
+        $answers = [];
+        collect($this->answerStruct)->each(function($value,$key) use (&$answersIds){
+            $answersIds[] = (int) $key ;
+        });
+        $answersIds = array_unique($answersIds);
+        sort($answersIds);
+        collect($answersIds)->each(function($value,$key) use (&$answers){
+            $answer = MultipleChoiceQuestionAnswer::withTrashed()->find($value);
+            if(is_null($answer)){
+                return true;
+            }
+            $answers[] = $answer;
+        });
+        return $answers;
     }
 }
