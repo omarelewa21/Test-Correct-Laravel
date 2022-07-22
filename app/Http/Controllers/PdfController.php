@@ -10,6 +10,10 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use tcCore\Http\Helpers\PdfHelper;
 use tcCore\Http\Requests\HtmlToPdfRequest;
+use tcCore\Test;
+use tcCore\View\Components\TestPrintPdf\Cover;
+use tcCore\View\Components\TestPrintPdf\Footer;
+use tcCore\View\Components\TestPrintPdf\Header;
 
 class PdfController extends Controller
 {
@@ -34,12 +38,15 @@ class PdfController extends Controller
         }
     }
 
-    public function HtmlToPdfFromString($html)
+    public function HtmlToPdfFromString($html, ?Test $test = null)
     {
         try {
             ini_set('max_execution_time', '90');
             $html = $this->base64ImgPaths($html);
             $html = $this->svgWirisFormulas($html);
+            if($test){
+                return $this->snappyToTestPrintPdfFromString($html, $test);
+            }
             return $this->snappyToPdfFromString($html);
         }catch(\Exception $e){
             return response()->json(['error' => $e->getMessage()], 500);
@@ -158,15 +165,30 @@ class PdfController extends Controller
 
     private function snappyToPdfFromString($html)
     {
-        if(config('app.url')=='https://testwelcome.test-correct.nl'){
-            Storage::put('temp/result1.html',$html);
-        }
-
+//        if(config('app.url')=='https://testwelcome.test-correct.nl'){
+//            Storage::put('temp/result1.html',$html);
+//        }
 
         $output = \PDF::loadHtml($html)->setOption('header-html', resource_path('pdf_templates/header.html'))->setOption('footer-html', resource_path('pdf_templates/footer.html'));
         return $output->download('file.pdf');
 
+    }
 
+    private function snappyToTestPrintPdfFromString($html, $test)
+    {
+        if(config('app.url')=='https://testwelcome.test-correct.nl'){
+            Storage::put('temp/result1.html',$html);
+        }
+
+        $cover = (new Cover())->render();
+        $header = (new Header($test))->render();
+        $footer = (new Footer($test))->render();
+        $output = \PDF::loadHtml($html)
+            ->setOption('cover', $cover)
+            ->setOption('header-html', $header)
+            ->setOption('footer-html', $footer);
+
+        return $output->download('file.pdf');
     }
 
     private function svgWirisFormulas($html)

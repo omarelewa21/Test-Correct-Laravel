@@ -1,4 +1,4 @@
-<x-layouts.pdf >
+<x-layouts.pdf-test-print >
     <div class="w-full flex flex-col mb-5 overview"
          x-data="{marginTop: 0}"
          x-on:unload="(function () {window.scrollTo(0, 0);})"
@@ -103,4 +103,4 @@
         }
     </script>
     @endpush
-</x-layouts.pdf>
+</x-layouts.pdf-test-print>

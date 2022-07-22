@@ -38,7 +38,7 @@ class PrintTestController extends Controller
         view()->share('titleForPdfPage',$titleForPdfPage);
         ini_set('max_execution_time', '90');
         $html = view('test-print',compact(['data', 'current', 'answers', 'playerUrl', 'nav', 'uuid', 'testParticipant', 'styling', 'test']))->render();
-        return response()->make(PdfController::HtmlToPdfFromString($html), 200, [
+        return response()->make(PdfController::HtmlToPdfFromString($html, $test), 200, [
             'Content-Type' => 'application/pdf',
             'Content-Disposition' => 'inline; filename="toets.pdf"'
         ]);

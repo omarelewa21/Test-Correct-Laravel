@@ -639,8 +639,11 @@ h2.student-testtake-answers-separator span {
     height: 35px;
 }
 
-.test-print-pdf strong {
-    -webkit-text-stroke-width: 0.30px /* font-weight: bold doesn't work with pdf*/
+.test-print-pdf strong,
+.test-print-pdf b,
+.test-print-pdf .bold {
+    font-weight: bold;
+    /*-webkit-text-stroke-width: 0.30px !* font-weight: bold doesn't work with pdf*!*/
 }
 
 .test-print-pdf .completion-question-answer {
@@ -655,4 +658,34 @@ h2.student-testtake-answers-separator span {
     height: 1rem;
     width: 385px;
     border-bottom: 2px dotted #c3d0ed;
+}
+
+.test-print-pdf .completion-question-placeholder {
+    display: inline;
+    letter-spacing: 0.1em;
+}
+
+.test-print-pdf .header-line,
+.test-print-pdf .footer-line {
+    width: -moz-available;
+    height: min-content;
+    border: 2px solid #041f74;
+    border-radius: 10em !important;
+    background-color: #041f74
+}
+
+.test-print-pdf .header-line {
+    margin-bottom: 1rem;
+}
+
+.test-print-pdf .footer-line {
+    margin-top: 0.25rem;
+}
+
+.test-print-pdf .header-table * {
+    font-size: 18px;
+}
+
+.test-print-pdf * {
+    font-family: Arial;
 }
