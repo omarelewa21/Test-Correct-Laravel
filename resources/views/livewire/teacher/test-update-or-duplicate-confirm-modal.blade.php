@@ -59,8 +59,8 @@
             </div>
     </x-slot>
     <x-slot name="footer">
-        <div class="w-[44vw] flex justify-end items-center">
-            <div class="mt-8 pr-12 space-x-2.5">
+        <div class="flex justify-end items-center">
+            <div class="mt-8 space-x-2.5">
                 <x-button.text-button wire:click="close">{{ __('teacher.Annuleer') }}</x-button.text-button>
                 <x-button.cta wire:click="submit">{{ __('Bevestigen') }}</x-button.cta>
             </div> {{-- 44vw depends on maxWidth 2xl... --}}

@@ -47,9 +47,21 @@ class TestUpdateOrDuplicateConfirmModal extends ModalComponent
         }
     }
 
+    public function close()
+    {
+        $this->closeModal();
+
+    }
+
     private function duplicate(Test $test)
     {
+
+        $newTestName = $this->request['name'];
+        unset($this->request['name']);
         $newTest = $test->userDuplicate($this->request, auth()->id());
+        if(!stristr($newTest->name, $newTestName)){
+           $newTest->name = $newTestName;
+        }
         $newTest->save();
         $this->forceClose()->closeModal();
         $this->emit('testSettingsUpdated', $this->request);
