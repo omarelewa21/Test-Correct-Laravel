@@ -1,13 +1,12 @@
 <div>
     @if($variant == 'icon-button')
         @if($test->canEdit(auth()->user()))
-            <x-tooltip-as-a-wrapper>
-                <x-button.primary class="pl-[12px] pr-[12px]"
-                                  wire:click="$emit('openModal', 'teacher.test-edit-modal', {{ json_encode(['testUuid' => $test->uuid ]) }})">
-                    <x-icon.settings/>
-                </x-button.primary>
-                <x-slot name="text">{{ __('teacher.Gegevens wijzigen') }}</x-slot>
-            </x-tooltip-as-a-wrapper>
+            <x-button.primary class="pl-[12px] pr-[12px]"
+                              title="{{ __('teacher.Instellingen') }}"
+                              wire:click="$emit('openModal', 'teacher.test-edit-modal', {{ json_encode(['testUuid' => $test->uuid ]) }})">
+                <x-icon.settings/>
+            </x-button.primary>
+            <x-slot name="text">{{ __('teacher.Gegevens wijzigen') }}</x-slot>
         @else
             <x-button.primary class="pl-[12px] pr-[12px] opacity-20 cursor-not-allowed">
                 <x-icon.settings/>

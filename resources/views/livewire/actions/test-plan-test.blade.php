@@ -1,6 +1,8 @@
 <div>
     @if($variant == 'icon-button')
-    <x-button.cta wire:click="planTest">
+    <x-button.cta wire:click="planTest"
+        title="{{ __('teacher.Inplannen') }}"
+    >
         <x-icon.schedule/>
         <span>{{ __('cms.Inplannen') }}</span>
     </x-button.cta>
