@@ -1,8 +1,9 @@
 <div x-data="{}">
     @if($variant == 'icon-button')
         @if ($test->canDelete(auth()->user()))
-            <x-tooltip-as-a-wrapper>
+
             <x-button.primary
+                    title="{{ __('teacher.Verwijderen') }}"
                     class="pl-[12px] pr-[12px]"
                     @click="$wire.emitTo('teacher.test-delete-modal', 'displayModal', '{{  $test->uuid }}')">
                 <x-icon.trash/>
@@ -13,7 +14,7 @@
                                     {{ __('teacher.Verwijder test') }}
                                 </span>
                 </x-slot>
-            </x-tooltip-as-a-wrapper>
+
         @else
             <x-button.primary
                     class="pl-[12px] pr-[12px] opacity-20 cursor-not-allowed">

@@ -1,9 +1,9 @@
 <div>
     @if ($variant == 'icon-button')
-        <x-tooltip-as-a-wrapper>
             <x-button.primary
                 class="pl-[12px] pr-[12px]"
                 wire:click="duplicateTest"
+                title="{{ __('teacher.Kopie maken') }}"
             >
                 <x-icon.copy/>
             </x-button.primary>
@@ -12,7 +12,6 @@
                                     {{ __('cms.Kopie maken') }}
                                 </span>
             </x-slot>
-        </x-tooltip-as-a-wrapper>
     @elseif($variant == 'context-menu')
         <button
             class="flex items-center space-x-2 py-1 px-4 base hover:text-primary hover:bg-offwhite transition w-full"
