@@ -18,12 +18,12 @@
                     }
                 }
             }
-            if (vars['page'] != vars['topage']) {
-                document.getElementById('extraFooterLine').classList.add('hidden');
-                document.getElementById('extraFooterTable').classList.add('hidden');
-            }
-            // document.getElementById('hello3').textContent = vars[0];
-            // document.getElementById('hello4').textContent = vars['sitepage'];
+            {{-- adding 'Bronvermelding' makes all footers larger... this is a problem --}}
+            // if (vars['page'] == vars['topage']) {
+            //     document.getElementById('extraFooterLine').classList.remove('hidden');
+            //     document.getElementById('extraFooterTable').classList.remove('hidden');
+            // }
+
             document.getElementById('continue-reading').textContent = vars['page'] == vars['topage'] ? 'einde.' : 'lees verder';
         }
     </script>
@@ -42,20 +42,23 @@
     </style>
 </head>
 <body class="test-print-pdf" style="border:0; margin: 0;" onload="subst()">
-<div id="extraFooterLine" class="footer-line" style=""></div>
-<table id="extraFooterTable">
-    <tr>
-        <th >
-            {{ __('Bronvermelding') }}
-        </th>
-    </tr>
-    <tr>
-        <td>
-            {{ __('Bronvermelding_text') }}
-        </td>
-    </tr>
-</table>
-<div class="footer-line" style=""></div>
+{{-- adding 'Bronvermelding' makes all footers larger... this is a problem --}}
+
+{{--<div id="extraFooterLine" class="footer-line" style=""></div> --}}
+{{--<table id="extraFooterTable" class="hidden">--}}
+{{--    <tr>--}}
+{{--        <th >--}}
+{{--            {{ __('Bronvermelding') }}--}}
+{{--        </th>--}}
+{{--    </tr>--}}
+{{--    <tr>--}}
+{{--        <td>--}}
+{{--            {{ __('Bronvermelding_text') }}--}}
+{{--        </td>--}}
+{{--    </tr>--}}
+{{--</table>--}}
+<span style="font-size: 7px">&nbsp;</span>
+<div class="footer-line"></div>
 <table style="border:0; width: 100%;height: 20px; ">
     <tr>
         <td colspan="3" style="width: 10em">
@@ -66,7 +69,7 @@
             <span id="Title" > {{ $title }} </span>
         </td>
         <td style="text-align: center; width: 33%">
-            <span class="page"></span> / <span class="topage"></span>
+            <span class="sitepage"></span> / <span class="sitepages"></span>
         </td>
         <td style="text-align: right; width: 33%">
             <span id="continue-reading"></span>

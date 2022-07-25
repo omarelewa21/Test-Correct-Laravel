@@ -15,11 +15,15 @@ const { execSync } = require('child_process');
 
 // mix.js('resources/js/app.js', 'public/js')
 //     .sass('resources/sass/app.scss', 'public/css');
+const autoprefixer = require('autoprefixer');
 
 mix.postCss("resources/css/app.css", "public/css", [
     require("tailwindcss"),
 ]).postCss("resources/css/app_pdf.css", "public/css/", [
-    require("tailwindcss"),
+    require("tailwindcss"), autoprefixer({overrideBrowserslist: [
+            "> 1%",
+            "last 20 versions"
+        ]})
 ]).js('resources/js/app.js', 'public/js');
 
 const wirisPath = "node_modules/@wiris/mathtype-ckeditor4";

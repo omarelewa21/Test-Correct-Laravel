@@ -23,6 +23,6 @@ class Header extends Component
      */
     public function render()
     {
-        return view('components.test-print-pdf.header');
+        return view('components.test-print-pdf.header')->with('test', $this->test);
     }
 }

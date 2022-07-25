@@ -30,19 +30,22 @@
 <body class="test-print-pdf" style="border:0; margin: 0;" onload="subst()">
 <table class="header-table" style="width: 100%;">
     <tr>
-        <td class="doctitle bold"></td>
+        <td class=" bold">
+            {{ $test->name }}
+        </td>
         <td class="" style="text-align:right">
-            Toets HAVO
+            {{__('test.toets')}} {{ $test->educationLevel->name }}
         </td>
     </tr>
     <tr>
         <td class="bold">
-            Biologie
+            {{ $test->subject->name }}
         </td>
         <td class="bold text-right">
-            2022
+            {{ $test->period->schoolYear->year }}
         </td>
     </tr>
 </table>
 <div class="header-line"></div>
+<span style="font-size: 4px; line-height: 4px;">&nbsp;</span>
 </body></html>

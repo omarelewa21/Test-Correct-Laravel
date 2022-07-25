@@ -4,9 +4,9 @@
             Explaination of the question
         </div>
         <div>
-            @foreach($answerStruct as $index => $answer)
+            @foreach($answerPlaceholdersList as $index => $value)
                 <span class="completion-question-answer inline-block">
-                    <strong>{{$index}}.</strong>
+                    <strong>{{$value}}.</strong>
                     <span class="completion-question-answer-sub"></span>
                 </span>
             @endforeach
