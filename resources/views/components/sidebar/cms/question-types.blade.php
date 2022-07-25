@@ -5,6 +5,7 @@
         <div wire:click="addQuestion('{{ $question['type'] }}', '{{ $question['subtype'] }}')"
              @click="home;$store.cms.loading = true; $dispatch('new-question-added')"
              class="add-question-card cursor-pointer py-4 px-6 flex space-x-4 items-center text-sm"
+             selid="add-{{$question['type']}}-{{$question['subtype']}}-question-btn"
         >
             <div>
                 @if($question['sticker'] === 'question-open')
@@ -30,6 +31,7 @@
         <div wire:click="addQuestion('{{ $question['type']}}', '{{ $question['subtype'] }}')"
              @click="home;$store.cms.loading = true; $dispatch('new-question-added')"
              class="add-question-card cursor-pointer py-4 px-6 flex space-x-4 items-center text-sm"
+             selid="add-{{$question['type']}}-{{$question['subtype']}}-question-btn"
         >
             <div>
                 @if($question['sticker'] === 'question-multiple-choice')
@@ -63,6 +65,7 @@
         <div wire:click="addQuestion('{{ $question['type']}}', '{{ $question['subtype'] }}')"
              @click="home;$store.cms.loading = true; $dispatch('new-question-added')"
              class="add-question-card cursor-pointer py-4 px-6 flex space-x-4 items-center text-sm"
+             selid="add-{{$question['type']}}-{{$question['subtype']}}-question-btn"
         >
             <div>
                 <x-stickers.question-infoscreen/>
