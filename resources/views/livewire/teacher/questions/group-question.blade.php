@@ -65,7 +65,7 @@
 
     <div wire:ignore >
         <x-input.group class="w-full" label="{{ __('cms.Omschrijving') }}" >
-            <textarea class="form-input resize-none" id="{{ $questionEditorId }}" name="{{ $questionEditorId }}" wire:model.debounce.1000ms="question.question"></textarea>
+            <textarea class="form-input resize-none" :disabled="isset($preview)" id="{{ $questionEditorId }}" name="{{ $questionEditorId }}" wire:model.debounce.1000ms="question.question"></textarea>
         </x-input.group>
     </div>
     <script>
