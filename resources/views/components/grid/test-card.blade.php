@@ -5,7 +5,7 @@
      wire:loading.class="hidden"
      wire:target="filters,clearFilters,$set"
 >
-    <div class="flex w-full justify-between mb-2">
+    <div class="flex w-full justify-between mb-2 align-middle">
         <h3 class="line-clamp-2 min-h-[64px] text-inherit @if(blank($test->name)) italic @endif"
             title="{{ $test->name }}"
             style="color:inherit"
@@ -16,7 +16,7 @@
 
                 }">
             <button id="test{{ $test->id }}"
-                    class="px-4 py-1.5 -mr-4 rounded-full hover:bg-primary hover:text-white transition-all"
+                    class="px-4 py-1.5 -mr-4 h-10 w-10 rounded-full hover:bg-primary hover:text-white transition-all"
                     :class="{'bg-primary text-white' : testOptionMenu === true}"
                     @click.stop="$event.target.dispatchEvent(new CustomEvent('context-menu-close', { bubbles: true })); $wire.openContextMenu({x: $el.getBoundingClientRect().x, y: $el.getBoundingClientRect().y, testUuid: '{{ $test->uuid }}', openTab: '{{ $this->openTab }}', id: '{{ $test->id }}' })"
             >
