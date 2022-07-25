@@ -1333,6 +1333,14 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
         return false;
     }
 
+    public function isInNationalItemBankSchool(): bool
+    {
+        if (optional($this->schoolLocation)->customer_code == config('custom.national_item_bank_school_customercode')) {
+            return true;
+        }
+        return false;
+    }
+
     public function getNameFullAttribute()
     {
         $result = '';
