@@ -80,7 +80,8 @@ class Question extends MtiBaseModel {
                             'is_subquestion',
                             'all_or_nothing',
                             'fix_order',
-                            'owner_id'
+                            'owner_id',
+                            'lang'
                             ];
 
     /**

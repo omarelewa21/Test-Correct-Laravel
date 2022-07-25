@@ -1,11 +1,13 @@
 WebspellcheckerTlc = {
 
     forTeacherQuestion: function(editor, language) {
-            WEBSPELLCHECKER.init({
+            var instance = WEBSPELLCHECKER.init({
                 container: editor.window.getFrame() ? editor.window.getFrame().$ : editor.element.$,
                 spellcheckLang: language,
                 localization: 'nl'
             });
+            instance.setLang(language);
+
         },
     lang: function(editor, language) {
             var config = { attributes: true, childList: false, subtree: false };

@@ -87,6 +87,7 @@ class OpenShort extends Component
     public $rttiWarningShown = false;
     public $bloomWarningShown = false;
     public $millerWarningShown = false;
+    public $lang = 'nl_NL';
 
     protected $tags = [];
 
@@ -234,6 +235,7 @@ class OpenShort extends Component
         $this->uniqueQuestionKey = $this->testQuestionId . $this->groupQuestionQuestionId . $this->action . $this->questionEditorId;
         $this->duplicateQuestion = false;
         $this->canDeleteTest = false;
+        $this->lang = 'nl_NL';
     }
 
 
@@ -313,6 +315,7 @@ class OpenShort extends Component
         $this->initializeContext($this->action, $this->type, $this->subtype, $activeTest);
         $this->obj = CmsFactory::create($this);
         $this->initializePropertyBag($activeTest);
+
     }
 
     public function __call($method, $arguments = null)
@@ -916,7 +919,9 @@ class OpenShort extends Component
             $this->question['add_to_database'] = $q->add_to_database;
             $this->question['discuss'] = $tq->discuss;
             $this->question['decimal_score'] = $q->decimal_score;
+            $this->question['lang'] = $q->lang;
 
+            $this->lang = $this->question['lang'];
             $this->educationLevelId = $q->education_level_id;
             $this->rttiToggle = filled($this->question['rtti']);
             $this->bloomToggle = filled($this->question['bloom']);

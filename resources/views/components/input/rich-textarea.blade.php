@@ -1,12 +1,13 @@
 @props([
     'type' => 'student',
     'editorId',
+    'lang' => 'nl_NL',
 ])
 
 @php
     switch($type) {
        case 'cms':
-           $initFunctionCall = "RichTextEditor.initCMS('".$editorId."')";
+           $initFunctionCall = "RichTextEditor.initCMS('".$editorId."','".$lang."')";
            break;
        case 'cms-completion':
            $initFunctionCall = "RichTextEditor.initCompletionCMS('".$editorId."')";

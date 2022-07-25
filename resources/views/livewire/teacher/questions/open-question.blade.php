@@ -4,9 +4,9 @@
             wire:model.debounce.1000ms="question.question"
             editorId="{{ $questionEditorId }}"
             type="cms"
+            lang="{{ $lang }}"
     />
 @endsection
-
 @section('question-cms-answer')
     @if($this->withDrawer)
         <div class="hidden flex w-full justify-end">
@@ -22,6 +22,7 @@
             wire:model.debounce.1000ms="question.answer"
             editorId="{{ $answerEditorId }}"
             type="cms"
+            lang="{{ $lang }}"
     />
 
 @endsection

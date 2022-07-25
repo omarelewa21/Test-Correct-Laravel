@@ -21,8 +21,8 @@ RichTextEditor = {
             });
     },
 
-    initCMS: function (editorId) {
-        var editor = CKEDITOR.instances[editorId]
+    initCMS: function (editorId,lang= 'nl_NL') {
+        var editor = CKEDITOR.instances[editorId];
         if (editor) {
             editor.destroy(true)
         }
@@ -30,7 +30,7 @@ RichTextEditor = {
         CKEDITOR.config.removePlugins = 'scayt,wsc';
         CKEDITOR.on('instanceReady', function(event) {
             var editor = event.editor;
-            WebspellcheckerTlc.forTeacherQuestion(editor,'nl_NL');
+            WebspellcheckerTlc.forTeacherQuestion(editor,lang);
         });
         CKEDITOR.replace(editorId, {});
         editor = CKEDITOR.instances[editorId];

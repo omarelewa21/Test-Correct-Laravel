@@ -12987,6 +12987,7 @@ RichTextEditor = {
     });
   },
   initCMS: function initCMS(editorId) {
+    var lang = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 'nl_NL';
     var editor = CKEDITOR.instances[editorId];
 
     if (editor) {
@@ -12997,7 +12998,7 @@ RichTextEditor = {
     CKEDITOR.config.removePlugins = 'scayt,wsc';
     CKEDITOR.on('instanceReady', function (event) {
       var editor = event.editor;
-      WebspellcheckerTlc.forTeacherQuestion(editor, 'nl_NL');
+      WebspellcheckerTlc.forTeacherQuestion(editor, lang);
     });
     CKEDITOR.replace(editorId, {});
     editor = CKEDITOR.instances[editorId];
@@ -13360,11 +13361,12 @@ function shouldSwipeDirectionBeReturned(target) {
 
 WebspellcheckerTlc = {
   forTeacherQuestion: function forTeacherQuestion(editor, language) {
-    WEBSPELLCHECKER.init({
+    var instance = WEBSPELLCHECKER.init({
       container: editor.window.getFrame() ? editor.window.getFrame().$ : editor.element.$,
       spellcheckLang: language,
       localization: 'nl'
     });
+    instance.setLang(language);
   },
   lang: function lang(editor, language) {
     var config = {
