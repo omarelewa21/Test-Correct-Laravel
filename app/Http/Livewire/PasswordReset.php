@@ -6,6 +6,7 @@ use Illuminate\Auth\Passwords\PasswordBroker;
 use Illuminate\Support\Facades\Password;
 use Livewire\Component;
 use tcCore\Http\Helpers\BaseHelper;
+use tcCore\Http\Livewire\Auth\Login;
 use tcCore\Http\Traits\UserNotificationForController;
 use tcCore\User;
 
@@ -88,7 +89,7 @@ class PasswordReset extends Component
 
         if ($response === PasswordBroker::PASSWORD_RESET){
             $this->notifyUser($this->username);
-            $this->showSuccessModal = true;
+            $this->emitTo(Login::class, 'password_reset');
         }
 
         if ($response === PasswordBroker::INVALID_USER) {

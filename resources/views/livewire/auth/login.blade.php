@@ -11,7 +11,7 @@
             /*addRelativePaddingToBody('login-body', 10);*/
             setTimeout(() => {$wire.checkLoginFieldsForInput()}, 250);
             "
-         x-on:resize.window.debounce.200ms="addRelativePaddingToBody('login-body')"
+{{--         x-on:resize.window.debounce.200ms="addRelativePaddingToBody('login-body')"--}}
          wire:ignore.self
     >
         <div class="w-full max-w-[540px] mx-4 py-4">
@@ -107,7 +107,7 @@
                                         <x-input.group label="{{ __('auth.password')}}" class="flex-1 relative">
                                             <div @mouseenter="hoverPassword = true"
                                                  @mouseleave="hoverPassword = false"
-                                                 @click="showPassword = !showPassword; hoverPassword = false; initialPreviewIconState = false">
+                                                 @click="showPassword = !showPassword; hoverPassword = false; initialPreviewIconState = false" wire:ignore>
                                                 <x-icon.preview-off
                                                         class="absolute bottom-3 right-3.5 primary-hover cursor-pointer"
                                                         x-bind:class="{'opacity-50' : initialPreviewIconState, 'hover:text-sysbase': (!showPassword && !hoverPassword)}"
