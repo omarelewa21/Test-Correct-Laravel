@@ -176,4 +176,9 @@ return [
     'duplicate_question_in_test'                                                             => 'This question is double in the test. Adjust the test to make planning possible.',
     'Construeren'                                                                            => 'Construct',
     'Deze vraag heeft geen tags'                                                             => 'This question has no tags.',
+    'test_verbetering' => 'Update test',
+    'test_verbetering_omschrijving' => 'The current test and its siblings will be updated',
+    'test_nieuw_omschrijving' => 'The current test and its siblings will be duplicated',
+    'test_nieuw' => 'Duplicate as new test',
+
 ];

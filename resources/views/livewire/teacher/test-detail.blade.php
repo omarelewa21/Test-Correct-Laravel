@@ -70,6 +70,8 @@
         <livewire:actions.test-duplicate-test :uuid="$this->uuid"/>
         <livewire:actions.test-plan-test :uuid="$this->uuid"/>
 
+        <button @click="$wire.emit('openModal', 'teacher.test-update-or-duplicate-confirm-modal')">Hoi</button>
+
 
 
     </div>
