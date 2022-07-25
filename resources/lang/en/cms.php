@@ -158,7 +158,7 @@ return [
     'new_question_incomplete_text'                                                           => 'The new :item is incomplete. Complete the :item if you would like to save. What would you like to do?',
     'question_incomplete_text'                                                               => 'The :item is incomplete. Complete the :item if you would like to save. What would you like to do?',
     'Aanvullen'                                                                              => 'Complete',
-    'Wijzigingen opgeslagen'                                                                 => 'Wijzigingen opgeslagen',
+    'Wijzigingen opgeslagen'                                                                 => 'Changes saved',
     'item added'                                                                             => ':item added',
     'Vragen in deze group shuffelen'                                                         => 'Shuffle questions in this group',
     'Omschrijving'                                                                           => 'Description',
