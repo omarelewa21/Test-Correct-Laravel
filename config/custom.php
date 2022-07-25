@@ -17,6 +17,8 @@ return [
         'eckid_passphrase' => env('ECK_ID_PASSPHRASE','joepie'),
         'eckid_iv' => env('ECK_ID_IV',''),
     ],
+    'national_item_bank_school_customercode' => env('NATIONALITEMBANK_SCHOOL_CUSTOMERCODE','TBNI'),
+    'national_item_bank_school_author' => env('NATIONALITEMBANK_SCHOOL_AUTHOR','info+ontwikkelaar@test-correct.nl'),
     'examschool_customercode' => env('EXAMSCHOOL_CUSTOMERCODE','OPENSOURCE1'),
     'examschool_author' => env('EXAMSCHOOL_AUTOR','info+CEdocent@test-correct.nl'),
 ];

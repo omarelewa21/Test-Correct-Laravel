@@ -28,7 +28,7 @@ class SendForgotPasswordMail extends Mailable
     public function build()
     {
         return $this->view('emails.password')
-            ->subject('Nieuw wachtwoord aangevraagd.')
+            ->subject('Wachtwoord opnieuw instellen aangevraagd')
             ->with([
                 'user' => $this->user,
                 'token' => $this->token,

@@ -9,7 +9,11 @@
     <link rel="icon" href="{{ asset('img/icons/Logo-Test-Correct-recolored-icon-only.svg') }}"/>
     {{--    <link href="https://unpkg.com/tailwindcss@^2/dist/tailwind.min.css" rel="stylesheet">--}}
     <script src="/ckeditor/ckeditor.js" type="text/javascript"></script>
-    <script src="{{ mix('/js/ckeditor.js') }}" type="text/javascript"></script>
+    @if(!is_null(Auth::user())&&Auth::user()->isA('teacher'))
+        <script src="{{ mix('/js/ckeditor_teacher.js') }}" type="text/javascript"></script>
+    @else
+        <script src="{{ mix('/js/ckeditor.js') }}" type="text/javascript"></script>
+    @endif
     @if(!is_null(Auth::user())&&Auth::user()->text2speech)
         <link rel="stylesheet" type="text/css" href="{{ mix('/css/rs_tlc.css') }}" />
     @endif

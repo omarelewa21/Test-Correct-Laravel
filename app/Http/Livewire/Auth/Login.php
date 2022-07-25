@@ -5,6 +5,7 @@ namespace tcCore\Http\Livewire\Auth;
 use Bugsnag\BugsnagLaravel\Facades\Bugsnag;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Crypt;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Facades\Session;
@@ -45,9 +46,11 @@ class Login extends Component
 
     public $requireCaptcha = false;
     public $testTakeCode = [];
+    public $guest_message_shown = 0;
 
     protected $queryString = [
         'tab'                  => ['except' => 'login'],
+        'active_overlay'       => ['except' => ''],
         'login_tab'            => ['except' => 1],
         'uuid'                 => ['except' => ''],
         'entree_error_message' => ['except' => ''],
@@ -76,7 +79,7 @@ class Login extends Component
     public $showGuestSuccess = false;
 
 //    public $loginTab = true;
-//    public $forgotPasswordTab = false;
+    public $active_overlay = '';
 //    public $entreeTab = false;
 
     public $showTestCode = false;
@@ -200,8 +203,10 @@ class Login extends Component
 
     public function render()
     {
+        $this->dispatchGuestSuccessNotification();
+
         return view('livewire.auth.login')
-            ->layout('layouts.auth');
+            ->layout('layouts.base');
     }
 
     public function goToPasswordReset()
@@ -275,11 +280,13 @@ class Login extends Component
 
     public function sendForgotPasswordEmail()
     {
+        $this->active_overlay = '';
+        $this->login_tab = 1;
         $this->entree_error_message = '';
         $user = User::whereUsername($this->forgotPasswordEmail)->first();
         if ($user) {
             $token = Password::getRepository()->create($user);
-            $url = sprintf('%spassword-reset/?token=%%s', config('app.base_url'));
+            $url = sprintf('%slogin/?active_overlay=reset_password&token=%%s', config('app.base_url'));
             $urlLogin = route('auth.login');
 
             try {
@@ -578,5 +585,19 @@ class Login extends Component
         $this->guest_message_type = '';
         $this->showGuestError = false;
         $this->showGuestSuccess = false;
+    }
+
+    public function dispatchGuestSuccessNotification()
+    {
+        //initial render calls this method somehow 2 times, only 2nd gets dispatched, so setting to false immediately won't work.
+        if($this->showGuestSuccess && $this->guest_message_shown < 2){
+            $this->dispatchBrowserEvent('notify',
+                [
+                    'type' => 'guest_success',
+                    'title' => __('auth.'.$this->guest_message),
+                    'message' => __('auth.'.$this->guest_message.'_sub'),
+                ]
+            );
+        }
     }
 }

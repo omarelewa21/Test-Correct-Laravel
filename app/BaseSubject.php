@@ -108,4 +108,17 @@ class BaseSubject extends BaseModel {
         }
         return $query;
     }
+
+    public function scopeNationalItemBankFiltered($query)
+    {
+        return $query->whereIn('id',
+            \DB::table(
+                Subject::nationalItemBankFiltered([], ['name' => 'asc'])
+                    ->union(Subject::citoFiltered([], ['name' => 'asc']))
+                    ->union(Subject::examFiltered([], ['name' => 'asc']))
+            )
+                ->distinct()
+                ->pluck('base_subject_id')
+        );
+    }
 }

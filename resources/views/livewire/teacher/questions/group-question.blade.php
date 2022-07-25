@@ -28,7 +28,7 @@
         </div>
         <div class="flex flex-wrap">
             <button class="group-type mr-2 mb-2"
-                    :class="selected('standard') ? 'active' : ''"
+                    :class="selected('standard') ? 'active' : 'hover:shadow-lg'"
                     @click="select('standard')"
                     @isset($preview) disabled @endisset
             >
@@ -45,7 +45,7 @@
                 </div>
             </button>
             <button class="group-type mb-2"
-                    :class="selected('carousel') ? 'active' : ''"
+                    :class="selected('carousel') ? 'active' : 'hover:shadow-lg'"
                     @click="select('carousel')"
                     @isset($preview) disabled @endisset
             >
@@ -63,15 +63,20 @@
         </div>
     </x-input.group>
 
-
-    <x-input.group class="text-base" label="{{ __('cms.Omschrijving') }}">
-    <x-input.rich-textarea
-            wire:model.debounce.1000ms="question.question"
-            editorId="{{ $questionEditorId }}"
-            type="cms"
-            :disabled="isset($preview)"
-    />
-    </x-input.group>
+    <div wire:ignore >
+        <x-input.group class="w-full" label="{{ __('cms.Omschrijving') }}" >
+            <textarea class="form-input resize-none" @isset($preview) disabled @endisset id="{{ $questionEditorId }}" name="{{ $questionEditorId }}" wire:model.debounce.1000ms="question.question"></textarea>
+        </x-input.group>
+    </div>
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            var editor = ClassicEditors['{{ $questionEditorId }}'];
+            if (editor) {
+                editor.destroy(true);
+            }
+            RichTextEditor.initClassicEditorForTeacherplayer('{{$questionEditorId}}');
+        });
+    </script>
 @endsection
 
 @section('upload-section-for-group-question')

@@ -1,9 +1,7 @@
 <div {{ $attributes->merge(['class' => 'grid-card bg-white p-6 rounded-10 card-shadow hover:text-primary cursor-pointer']) }}
      wire:key="questioncard-{{ $test->uuid }}"
      @click="activateCard($el)"
-     @if($this->openTab === 'personal')
-        wire:click="openTestDetail('{{ $test->uuid }}')"
-     @endif
+     wire:click="openTestDetail('{{ $test->uuid }}')"
      wire:loading.class="hidden"
      wire:target="filters,clearFilters,$set"
 >
@@ -20,7 +18,7 @@
             <button id="test{{ $test->id }}"
                     class="px-4 py-1.5 -mr-4 rounded-full hover:bg-primary hover:text-white transition-all"
                     :class="{'bg-primary text-white' : testOptionMenu === true}"
-                    @click.stop="$wire.openContextMenu({x: $el.getBoundingClientRect().x, y: $el.getBoundingClientRect().y, testUuid: '{{ $test->uuid }}', openTab: '{{ $this->openTab }}', id: '{{ $test->id }}' })"
+                    @click.stop="$event.target.dispatchEvent(new CustomEvent('context-menu-close', { bubbles: true })); $wire.openContextMenu({x: $el.getBoundingClientRect().x, y: $el.getBoundingClientRect().y, testUuid: '{{ $test->uuid }}', openTab: '{{ $this->openTab }}', id: '{{ $test->id }}' })"
             >
                 <x-icon.options class="text-sysbase"/>
             </button>

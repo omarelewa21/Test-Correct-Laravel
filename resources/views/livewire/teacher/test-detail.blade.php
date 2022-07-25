@@ -69,9 +69,6 @@
         <livewire:actions.test-make-pdf :uuid="$this->uuid"/>
         <livewire:actions.test-duplicate-test :uuid="$this->uuid"/>
         <livewire:actions.test-plan-test :uuid="$this->uuid"/>
-
-
-
     </div>
     <div class="flex w-full" x-show="bodyVisibility">
         <div class="w-full mx-auto divide-y divide-secondary">
@@ -82,7 +79,7 @@
                         <x-grid.loading-card :delay="$value"/>
                     @endforeach
 
-                    @foreach($this->test->testQuestions as $testQuestion)
+                    @foreach($this->test->testQuestions->sortBy('order') as $testQuestion)
                         {{--<x-grid.question-card :question="$testQuestion->question" />--}}
                         <x-grid.question-card-detail :testQuestion="$testQuestion"/>
                     @endforeach

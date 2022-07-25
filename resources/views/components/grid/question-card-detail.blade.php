@@ -10,16 +10,21 @@
         <div class="flex items-start gap-2.5 pr-2.5">
             @if($question->isType('GroupQuestion'))
                 <x-icon.chevron class="mt-2.5"/>
+                <h3 class="line-clamp-2 min-h-[64px] @if(blank($question->name)) italic @endif"
+                    title="{{ $question->name }}">
+                    {{ $question->name ?? __('question.no_question_text') }}
+                </h3>
             @else
                 <span class="rounded-full border-current text-sm flex items-center justify-center border-3 relative px-1.5 min-w-[30px] h-[30px]"
                       style="">
                     <span class="mt-px bold">{{ $testQuestion->order }}</span>
                 </span>
+                <h3 class="line-clamp-2 min-h-[64px] @if(blank($question->title)) italic @endif"
+                    title="{{ $question->title }}">
+                    {{ $question->title ?? __('question.no_question_text') }}
+                </h3>
             @endif
-            <h3 class="line-clamp-2 min-h-[64px] @if(blank($question->title)) italic @endif"
-                title="{{ $question->title }}">
-                {{ $question->title ?? __('question.no_question_text') }}
-            </h3>
+
         </div>
         <div class="flex flex-col">
             <x-icon.options class="ml-auto"/>

@@ -26,6 +26,12 @@ RichTextEditor = {
         if (editor) {
             editor.destroy(true)
         }
+        CKEDITOR.disableAutoInline = true;
+        CKEDITOR.config.removePlugins = 'scayt,wsc';
+        CKEDITOR.on('instanceReady', function(event) {
+            var editor = event.editor;
+            WebspellcheckerTlc.forTeacherQuestion(editor,'nl_NL');
+        });
         CKEDITOR.replace(editorId, {});
         editor = CKEDITOR.instances[editorId];
         editor.on('change', function (e) {
@@ -116,6 +122,33 @@ RichTextEditor = {
                     ReadspeakerTlc.ckeditor.addListenersForReadspeaker(editor, questionId, editorId);
                     ReadspeakerTlc.ckeditor.disableContextMenuOnCkeditor();
                 }
+            } )
+            .catch( error => {
+                console.error( error );
+            } );
+    },
+    initClassicEditorForTeacherplayer: function (editorId) {
+        return ClassicEditor
+            .create( document.getElementById( editorId ),{
+                autosave: {
+                    waitingTime: 300,
+                    save( editor ) {
+                        editor.updateSourceElement();
+                        editor.sourceElement.dispatchEvent(new Event('input'));
+                    }
+                },
+                wproofreader: {
+                    lang: 'nl_NL',
+                    serviceProtocol: 'https',
+                    servicePort: '80',
+                    serviceHost: 'testwsc.test-correct.nl',
+                    servicePath: 'wscservice/api',
+                    srcUrl: 'https://testwsc.test-correct.nl/wscservice/wscbundle/wscbundle.js'
+                }
+            } )
+            .then( editor => {
+                ClassicEditors[editorId] = editor;
+                WebspellcheckerTlc.lang(editor, 'nl_NL');
             } )
             .catch( error => {
                 console.error( error );

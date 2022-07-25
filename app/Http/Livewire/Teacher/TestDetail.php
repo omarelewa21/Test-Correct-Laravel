@@ -74,4 +74,9 @@ class TestDetail extends Component
         return false;
     }
 
+    public function openDetail($questionUuid)
+    {
+        $this->emit('openModal', 'teacher.question-detail-modal', ['questionUuid' => $questionUuid]);
+    }
+
 }
