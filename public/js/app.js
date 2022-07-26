@@ -12988,17 +12988,21 @@ RichTextEditor = {
   },
   initCMS: function initCMS(editorId) {
     var lang = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 'nl_NL';
+    var wsc = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
     var editor = CKEDITOR.instances[editorId];
 
     if (editor) {
       editor.destroy(true);
     }
 
-    CKEDITOR.disableAutoInline = true;
-    CKEDITOR.config.removePlugins = 'scayt,wsc';
+    if (wsc) {
+      CKEDITOR.disableAutoInline = true;
+      CKEDITOR.config.removePlugins = 'scayt,wsc';
+    }
+
     CKEDITOR.on('instanceReady', function (event) {
       var editor = event.editor;
-      WebspellcheckerTlc.forTeacherQuestion(editor, lang);
+      WebspellcheckerTlc.forTeacherQuestion(editor, lang, wsc);
     });
     CKEDITOR.replace(editorId, {});
     editor = CKEDITOR.instances[editorId];
@@ -13015,12 +13019,23 @@ RichTextEditor = {
     });
   },
   initSelectionCMS: function initSelectionCMS(editorId) {
+    var lang = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 'nl_NL';
+    var wsc = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
     var editor = CKEDITOR.instances[editorId];
 
     if (editor) {
       editor.destroy(true);
     }
 
+    if (wsc) {
+      CKEDITOR.disableAutoInline = true;
+      CKEDITOR.config.removePlugins = 'scayt,wsc';
+    }
+
+    CKEDITOR.on('instanceReady', function (event) {
+      var editor = event.editor;
+      WebspellcheckerTlc.forTeacherQuestion(editor, lang, wsc);
+    });
     CKEDITOR.replace(editorId, {
       extraPlugins: 'selection,simpleuploads,quicktable,ckeditor_wiris,autogrow,wordcount,notification',
       toolbar: [{
@@ -13048,12 +13063,23 @@ RichTextEditor = {
     });
   },
   initCompletionCMS: function initCompletionCMS(editorId) {
+    var lang = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 'nl_NL';
+    var wsc = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
     var editor = CKEDITOR.instances[editorId];
 
     if (editor) {
       editor.destroy(true);
     }
 
+    if (wsc) {
+      CKEDITOR.disableAutoInline = true;
+      CKEDITOR.config.removePlugins = 'scayt,wsc';
+    }
+
+    CKEDITOR.on('instanceReady', function (event) {
+      var editor = event.editor;
+      WebspellcheckerTlc.forTeacherQuestion(editor, lang, wsc);
+    });
     CKEDITOR.replace(editorId, {
       extraPlugins: 'completion,simpleuploads,quicktable,ckeditor_wiris,autogrow,wordcount,notification',
       toolbar: [{
@@ -13119,7 +13145,7 @@ RichTextEditor = {
       console.error(error);
     });
   },
-  initClassicEditorForTeacherplayer: function initClassicEditorForTeacherplayer(editorId) {
+  initClassicEditorForTeacherplayerWsc: function initClassicEditorForTeacherplayerWsc(editorId) {
     return ClassicEditor.create(document.getElementById(editorId), {
       autosave: {
         waitingTime: 300,
@@ -13139,6 +13165,21 @@ RichTextEditor = {
     }).then(function (editor) {
       ClassicEditors[editorId] = editor;
       WebspellcheckerTlc.lang(editor, 'nl_NL');
+    })["catch"](function (error) {
+      console.error(error);
+    });
+  },
+  initClassicEditorForTeacherplayer: function initClassicEditorForTeacherplayer(editorId) {
+    return ClassicEditor.create(document.getElementById(editorId), {
+      autosave: {
+        waitingTime: 300,
+        save: function save(editor) {
+          editor.updateSourceElement();
+          editor.sourceElement.dispatchEvent(new Event('input'));
+        }
+      }
+    }).then(function (editor) {
+      ClassicEditors[editorId] = editor;
     })["catch"](function (error) {
       console.error(error);
     });
@@ -13361,6 +13402,12 @@ function shouldSwipeDirectionBeReturned(target) {
 
 WebspellcheckerTlc = {
   forTeacherQuestion: function forTeacherQuestion(editor, language) {
+    var wsc = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : true;
+
+    if (!wsc) {
+      return;
+    }
+
     var instance = WEBSPELLCHECKER.init({
       container: editor.window.getFrame() ? editor.window.getFrame().$ : editor.element.$,
       spellcheckLang: language,

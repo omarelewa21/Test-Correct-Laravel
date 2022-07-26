@@ -9,18 +9,20 @@
     @livewire('livewire-ui-modal')
 
 @push('scripts')
-    <script>
-        window.WEBSPELLCHECKER_CONFIG = {
-            "autoSearch": true,
-            "autoDestroy": true,
-            "autocorrect": true,
-            "autocomplete": true,
-            "serviceProtocol": "https",
-            "servicePort": "80",
-            "serviceHost": "testwsc.test-correct.nl",
-            "servicePath": "wscservice/api"
-        }
-    </script>
-    <script src="https://testwsc.test-correct.nl/wscservice/wscbundle/wscbundle.js"></script>
+    @if(Auth::user()->schoolLocation->allow_cms)
+        <script>
+            window.WEBSPELLCHECKER_CONFIG = {
+                "autoSearch": true,
+                "autoDestroy": true,
+                "autocorrect": true,
+                "autocomplete": true,
+                "serviceProtocol": "https",
+                "servicePort": "80",
+                "serviceHost": "testwsc.test-correct.nl",
+                "servicePath": "wscservice/api"
+            }
+        </script>
+        <script src="https://testwsc.test-correct.nl/wscservice/wscbundle/wscbundle.js"></script>
+    @endif
 @endpush
 </x-layouts.base>

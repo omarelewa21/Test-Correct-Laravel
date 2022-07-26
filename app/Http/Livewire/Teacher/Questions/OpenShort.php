@@ -88,6 +88,7 @@ class OpenShort extends Component
     public $bloomWarningShown = false;
     public $millerWarningShown = false;
     public $lang = 'nl_NL';
+    public $allowWsc = false;
 
     protected $tags = [];
 
@@ -315,7 +316,7 @@ class OpenShort extends Component
         $this->initializeContext($this->action, $this->type, $this->subtype, $activeTest);
         $this->obj = CmsFactory::create($this);
         $this->initializePropertyBag($activeTest);
-
+        $this->allowWsc = Auth::user()->schoolLocation->allow_wsc;
     }
 
     public function __call($method, $arguments = null)

@@ -5,6 +5,7 @@
             editorId="{{ $questionEditorId }}"
             type="cms"
             lang="{{ $lang }}"
+            allowWsc={{ $allowWsc }}
     />
 @endsection
 @section('question-cms-answer')
