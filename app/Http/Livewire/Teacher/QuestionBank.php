@@ -251,7 +251,7 @@ class QuestionBank extends Component
             "group_question_id" => $this->inGroup,
             "order"             => 0,
             "maintain_position" => 0,
-            "discuss"           => 0,
+            "discuss"           => 1,
             "closeable"         => 0,
             "question_id"       => $questionId,
             "owner_id"          => $this->inGroup
