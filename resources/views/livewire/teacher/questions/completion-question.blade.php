@@ -5,6 +5,6 @@
             editorId="{{ $questionEditorId }}"
             type="cms-completion"
             lang="{{ $lang }}"
-            allowWsc={{ $allowWsc }}
+            :allowWsc="$allowWsc"
     />
 @endsection

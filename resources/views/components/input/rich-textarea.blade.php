@@ -4,7 +4,6 @@
     'lang' => 'nl_NL',
     'allowWsc' => false,
 ])
-<h1>{{$allowWsc }}</h1>
 @php
     $temp = $allowWsc?'true':'false';
         switch($type) {
