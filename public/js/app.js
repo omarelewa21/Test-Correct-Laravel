@@ -5982,8 +5982,10 @@ document.addEventListener('alpine:init', function () {
         }
 
         this.$nextTick(function () {
+          console.log('handleverticalsrolololo');
           _this9.$refs.questionEditorSidebar.style.minHeight = _this9.drawer.offsetHeight + 'px';
           _this9.$refs.questionEditorSidebar.style.height = el.offsetHeight + 'px';
+          _this9.drawer.scrollTop = _this9.$store.cms.scrollPos;
         });
       },
       setNextSlide: function setNextSlide(toInsert) {

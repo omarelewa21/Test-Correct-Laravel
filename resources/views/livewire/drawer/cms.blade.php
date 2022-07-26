@@ -31,7 +31,7 @@
      "
      x-data="{loadingOverlay: false, collapse: false, backdrop: false, emptyStateActive: @entangle('emptyStateActive')}"
      x-cloak
-     x-effect="handleLoading(); $el.scrollTop = $store.cms.scrollPos;"
+     x-effect="handleLoading(); $el.scrollTop = $store.cms.scrollPos;console.log('gescrolled')"
      :class="{'collapsed': collapse}"
      @backdrop="backdrop = !backdrop"
      @processing-end.window="$store.cms.processing = false;"
@@ -39,6 +39,7 @@
      @filepond-finished.window="loadingOverlay = false;"
      @first-question-of-test-added.window="$wire.showFirstQuestionOfTest(); emptyStateActive = false; $nextTick(() => backdrop = true)"
      @hide-backdrop-if-active.window="if(backdrop) backdrop = false"
+     @scroll="$store.cms.scrollPos = $el.scrollTop; console.log($store.cms.scrollPos)"
      wire:ignore.self
      wire:init="handleCmsInit()"
 >

@@ -401,8 +401,10 @@ document.addEventListener('alpine:init', () => {
             }
 
             this.$nextTick(() => {
+                console.log('handleverticalsrolololo')
                 this.$refs.questionEditorSidebar.style.minHeight = this.drawer.offsetHeight + 'px';
                 this.$refs.questionEditorSidebar.style.height = el.offsetHeight + 'px';
+                this.drawer.scrollTop = this.$store.cms.scrollPos;
             })
         },
         setNextSlide(toInsert) {

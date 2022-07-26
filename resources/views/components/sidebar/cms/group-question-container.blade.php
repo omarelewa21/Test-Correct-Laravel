@@ -17,6 +17,7 @@
               @click.stop="
                   $store.cms.processing = true;
                   $dispatch('store-current-question');
+                  $store.cms.scrollPos = document.querySelector('.drawer').scrollTop;
                   $wire.emitTo('teacher.questions.open-short','showQuestion',
                     {
                         'testQuestionUuid':'{{ $testQuestion ? $testQuestion->uuid : null }}',

@@ -1134,7 +1134,7 @@ input[type=number] {
     width: 100%;
     left: 0;
     display: flex;
-    justify-content: end;
+    justify-content: flex-end;
     z-index: 100;
 }
 
