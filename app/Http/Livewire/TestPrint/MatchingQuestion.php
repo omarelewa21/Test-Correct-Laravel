@@ -20,9 +20,11 @@ class MatchingQuestion extends Component
     public $number;
 
     public $answers;
+    public $answerOptions;
+    public $answerGroups;
     public $answerStruct = [];
 
-    public $shuffledAnswers;
+    public $shuffledAnswerSets;
 
     public function mount()
     {
@@ -32,6 +34,11 @@ class MatchingQuestion extends Component
         if(!is_null($this->question->belongs_to_groupquestion_id)){
             $this->question->groupQuestion = Question::find($this->question->belongs_to_groupquestion_id);
         }
+        if($this->question->subtype == "Matching") {
+            $this->matchingSubTypeHandler();
+        } elseif ($this->question->subtype == "Classify") {
+            $this->classifySubTypeHandler();
+        }
     }
 
     public function render()
@@ -39,5 +46,46 @@ class MatchingQuestion extends Component
         return view('livewire.test_print.matching-question');
     }
 
+    private function matchingSubTypeHandler()
+    {
+        $this->shuffledAnswerSets = $this->question->matchingQuestionAnswers->mapToGroups(function ($item, $key) {
+            return [$item->type => $item->answer];
+        })->map(function ($group) {
+            return $group->shuffle();
+        });
+    }
 
+    private function classifySubTypeHandler()
+    {
+        [$answerGroups, $answers] = $this->question->matchingQuestionAnswers->mapToGroups(function ($item, $key) {
+            return [$item->type => $item->answer];
+        })->map(function ($group, $key) {
+            if($key == "RIGHT"){
+                return $group->shuffle();
+            }
+            return $group;
+        })->chunk(1);
+
+        $this->answerGroups = $answerGroups->flatten();
+        $this->answerOptions = $answers->flatten();
+        $this->reorderAnswerOptions();
+    }
+
+    private function reorderAnswerOptions()
+    {
+        //todo reorder answerOptions so the keys render like:
+        // 1 4
+        // 2 5
+        // 3
+//        $count = $this->answerOptions->count();
+//
+//        $left = collect([]);
+//        $right = collect([]);
+//
+//        $this->answerOptions->each(function ($item, $i) use ($count, &$left, &$right) {
+//            return $i <= (int)round($count / 2) ? $left->add($item) : $right->add($i);
+//        });
+//        $this->answerOptions = $left->zip($right)->flatten()->filter();
+//        dd($this->answerOptions);
+    }
 }

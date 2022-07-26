@@ -15,7 +15,7 @@
                 </style>
             @endpush
             @foreach($data as  $key => $testQuestion)
-                <div class="flex flex-col space-y-4">
+                    <div class="flex flex-col space-y-4">
                     @if($testQuestion->type === 'MultipleChoiceQuestion' && $testQuestion->selectable_answers > 1 && $testQuestion->subtype != 'ARQ')
                         <livewire:test-print.multiple-select-question
                                 :question="$testQuestion"

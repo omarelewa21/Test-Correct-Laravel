@@ -4,10 +4,10 @@
 'pdf_type' => 'answer_model'
 ])
 
-<div class="test-print-pdf flex flex-col p-8 sm:p-10 content-section rs_readable page-no-break" >
-    <div class="tp-question-title inline-flex-pdf justify-between items-center question-indicator border-bottom mb-2 question-indicator-no-break"  style="position:relative;">
+<div class="test-print-pdf p-8 sm:p-10 content-section rs_readable page-no-break" >
+    <div class="tp-question-title justify-between items-center question-indicator border-bottom mb-2 question-indicator-no-break"  style="position:relative;">
         <div class="flex-pdf flex-wrap-pdf">
-            <div class="inline-flex-pdf question-number rounded-full text-center justify-center items-center complete" >
+            <div class="question-number rounded-full text-center justify-center items-center complete" >
                 <span class="align-middle cursor-default">{{ $number }}</span>
             </div>
 

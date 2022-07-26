@@ -7,13 +7,13 @@
             <div class="children-block-pdf">
                 {!! $question->converted_question_html !!}
             </div>
-            <x-input.group wire:ignore class="w-full mt-2 question-no-break-open-medium">
+            <div wire:ignore class="w-full mt-2 question-no-break-open-medium">
                 <div class="paper-text-area resize-none overflow-ellipsis">
                     @for($i = 0; $i < 15; $i++)
                         <div class="paper-line"/>
                     @endfor
                 </div>
-            </x-input.group>
+            </div>
         </div>
         <div id="word-count-{{ $editorId }}" wire:ignore></div>
     </div>

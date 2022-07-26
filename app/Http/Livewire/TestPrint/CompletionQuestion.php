@@ -18,6 +18,7 @@ class CompletionQuestion extends Component
 
     public $answer = [];
     public $answerStruct = [];
+    public $availableAnswersList = [];
     public $answerPlaceholdersList = [];
     public $answered;
     public $answers;
@@ -66,18 +67,12 @@ class CompletionQuestion extends Component
         }
         $question_text = $question->converted_question_html;
 
-
-        $tags = [];
-
-        foreach ($question->completionQuestionAnswers as $option) {
-            $tags[$option->tag][$option->answer] = $option->answer;
-        }
+        $this->createAvailableAnswersList();
 
         $question_text = preg_replace_callback(
             $this->searchPattern,
-            function ($matches) use ($tags) {
-                $answers = $tags[$matches[1]];
-                return $this->getOption($answers, $this->answerStruct[$matches[1]]);
+            function ($matches) {
+                return sprintf('<span class="completion-question-placeholder"><strong>%s.</strong> .........</span>', $matches[1]);
             },
             $question_text
         );
@@ -101,13 +96,13 @@ class CompletionQuestion extends Component
     {
         if ($this->question->subtype == 'completion') {
             $html = $this->completionHelper($this->question);
+            return view('livewire.test_print.completion-question', ['html' => $html]);
         } elseif ($this->question->subtype == 'multi') {
             $html = $this->multiHelper($this->question);
+            return view('livewire.test_print.selection-question', ['html' => $html]);
         } else {
             throw new \Exception ('unknown type');
         }
-
-        return view('livewire.test_print.completion-question', ['html' => $html]);
     }
 
     public function isQuestionFullyAnswered(): bool
@@ -134,19 +129,32 @@ class CompletionQuestion extends Component
      */
     private function createAnswerPlaceholdersList()
     {
-        $max = collect($this->answerStruct)->count();
+        $answerStruct = collect($this->answerStruct);
+        $max = $answerStruct->count();
 
         $left = collect([]);
         $right = collect([]);
 
-        for($i = 1; $i <= $max;$i++)
-        {
-            if($i <= (int)round($max/2)){
-                $left->add($i);
-            } else {
-                $right->add($i);
-            }
-        }
-        $this->answerPlaceholdersList = $left->zip($right)->flatten();
+        $answerStruct->each(function ($item, $i) use ($max, &$left, &$right) {
+            return $i <= (int)round($max / 2) ? $left->add($i) : $right->add($i);
+        });
+
+        $this->answerPlaceholdersList = $left->zip($right)->flatten()->filter();
+    }
+
+    private function createAvailableAnswersList()
+    {
+        $availableAnswers = [];
+        $this->question->completionQuestionAnswers->each(function ($option) use (&$availableAnswers) {
+            $availableAnswers[$option->tag][] = $option->answer;
+        });
+
+        $this->availableAnswersList = collect($availableAnswers)->map(function ($answer) {
+            return collect($answer)->shuffle()->mapWithKeys(function ($item, $key) {
+                $asciiValueLetterA = 65;
+                return [chr($asciiValueLetterA + $key) => $item];
+            });
+            return $answer;
+        });
     }
 }

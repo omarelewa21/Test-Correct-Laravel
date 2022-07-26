@@ -20,6 +20,8 @@ const autoprefixer = require('autoprefixer');
 mix.postCss("resources/css/app.css", "public/css", [
     require("tailwindcss"),
 ]).postCss("resources/css/app_pdf.css", "public/css/", [
+    require("tailwindcss"),
+]).postCss("resources/css/print-test-pdf.css", "public/css/", [
     require("tailwindcss"), autoprefixer({overrideBrowserslist: [
             "> 1%",
             "last 20 versions"

@@ -28,18 +28,7 @@
         }
     </script>
     <link rel="stylesheet" href="file://{{ public_path('/css/app_pdf.css') }}">
-    <style>
-        @font-face {
-            font-family: "Nunito Bold";
-            src: url("file:{{base_path()}}/resources/fonts/Nunito/Nunito-Bold.ttf") format('truetype');
-            font-weight: bold;
-        }
-        @font-face {
-            font-family: Nunito Regular;
-            src: url("file:{{base_path()}}/resources/fonts/Nunito/Nunito-Regular.ttf") format('truetype');
-            font-weight: normal;
-        }
-    </style>
+    <link rel="stylesheet" href="file://{{ public_path('/css/print-test-pdf.css') }}">
 </head>
 <body class="test-print-pdf" style="border:0; margin: 0;" onload="subst()">
 {{-- adding 'Bronvermelding' makes all footers larger... this is a problem --}}

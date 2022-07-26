@@ -1,7 +1,7 @@
 <x-partials.test-print-question-container :number="$number" :question="$question">
     <div class="w-full space-y-3 question-no-break-completion" x-data="">
         <div class="italic">
-            Explaination of the question
+            {{ __('test-pdf.completion-question-explanation') }}
         </div>
         <div>
             @foreach($answerPlaceholdersList as $index => $value)

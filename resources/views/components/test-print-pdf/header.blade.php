@@ -26,6 +26,7 @@
         }
     </script>
     <link rel="stylesheet" href="file://{{ public_path('/css/app_pdf.css') }}">
+    <link rel="stylesheet" href="file://{{ public_path('/css/print-test-pdf.css') }}">
 </head>
 <body class="test-print-pdf" style="border:0; margin: 0;" onload="subst()">
 <table class="header-table" style="width: 100%;">
