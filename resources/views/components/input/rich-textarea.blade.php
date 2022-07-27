@@ -1,7 +1,7 @@
 @props([
     'type' => 'student',
     'editorId',
-    'disabled' => false
+    'disabled' => false,
     'lang' => 'nl_NL',
     'allowWsc' => false,
 ])
