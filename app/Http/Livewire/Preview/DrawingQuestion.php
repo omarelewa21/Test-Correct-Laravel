@@ -48,7 +48,7 @@ class DrawingQuestion extends Component
         $this->question_svg = $svgHelper->getQuestionSvg($this->question);
 
         $this->grid_svg = $this->question->grid_svg;
-        $this->usesNewDrawingTool = Auth::user()->schoolLocation()->value('allow_new_drawing_question') && (blank($this->question->bg_name) && empty($this->question->grid));
+        $this->usesNewDrawingTool = Auth::user()->schoolLocation()->value('allow_new_drawing_question');
 
         $this->backgroundImage = $this->question->getBackgroundImage();
     }
