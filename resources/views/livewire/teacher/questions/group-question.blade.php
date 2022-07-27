@@ -72,7 +72,7 @@
                 editor.destroy(true);
             }
             @if(Auth::user()->schoolLocation->allow_wsc)
-                RichTextEditor.initClassicEditorForTeacherplayerWsc('{{$questionEditorId}}');
+                RichTextEditor.initClassicEditorForTeacherplayerWsc('{{$questionEditorId}}','{{$lang}}');
             @else
                 RichTextEditor.initClassicEditorForTeacherplayer('{{$questionEditorId}}');
             @endif

@@ -144,7 +144,7 @@ RichTextEditor = {
                 console.error( error );
             } );
     },
-    initClassicEditorForTeacherplayerWsc: function (editorId) {
+    initClassicEditorForTeacherplayerWsc: function (editorId,lang) {
         return ClassicEditor
             .create( document.getElementById( editorId ),{
                 autosave: {
@@ -155,17 +155,18 @@ RichTextEditor = {
                     }
                 },
                 wproofreader: {
-                    lang: 'nl_NL',
+                    lang: lang,
                     serviceProtocol: 'https',
                     servicePort: '80',
                     serviceHost: 'testwsc.test-correct.nl',
                     servicePath: 'wscservice/api',
                     srcUrl: 'https://testwsc.test-correct.nl/wscservice/wscbundle/wscbundle.js'
-                }
+                },
             } )
             .then( editor => {
                 ClassicEditors[editorId] = editor;
-                WebspellcheckerTlc.lang(editor, 'nl_NL');
+                WebspellcheckerTlc.lang(editor, lang);
+                // WebspellcheckerTlc.setEditorToReadOnly(editor);
             } )
             .catch( error => {
                 console.error( error );

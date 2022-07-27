@@ -13145,7 +13145,7 @@ RichTextEditor = {
       console.error(error);
     });
   },
-  initClassicEditorForTeacherplayerWsc: function initClassicEditorForTeacherplayerWsc(editorId) {
+  initClassicEditorForTeacherplayerWsc: function initClassicEditorForTeacherplayerWsc(editorId, lang) {
     return ClassicEditor.create(document.getElementById(editorId), {
       autosave: {
         waitingTime: 300,
@@ -13155,7 +13155,7 @@ RichTextEditor = {
         }
       },
       wproofreader: {
-        lang: 'nl_NL',
+        lang: lang,
         serviceProtocol: 'https',
         servicePort: '80',
         serviceHost: 'testwsc.test-correct.nl',
@@ -13164,7 +13164,7 @@ RichTextEditor = {
       }
     }).then(function (editor) {
       ClassicEditors[editorId] = editor;
-      WebspellcheckerTlc.lang(editor, 'nl_NL');
+      WebspellcheckerTlc.lang(editor, lang); // WebspellcheckerTlc.setEditorToReadOnly(editor);
     })["catch"](function (error) {
       console.error(error);
     });
@@ -13416,21 +13416,23 @@ WebspellcheckerTlc = {
     instance.setLang(language);
   },
   lang: function lang(editor, language) {
-    var config = {
-      attributes: true,
-      childList: false,
-      subtree: false
-    };
-    var element = editor.ui.view.editable.element;
+    var i = 0;
+    var timer = setInterval(function () {
+      ++i;
+      if (i === 50) clearInterval(timer);
 
-    var callback = function callback(mutationsList, observer) {
-      WEBSPELLCHECKER.getInstances().forEach(function (instance) {
-        instance.setLang(language);
-      });
-    };
-
-    var observer = new MutationObserver(callback);
-    observer.observe(element, config);
+      if (typeof WEBSPELLCHECKER != "undefined") {
+        WEBSPELLCHECKER.getInstances().forEach(function (instance) {
+          instance.setLang(language);
+        });
+        clearInterval(timer);
+      }
+    }, 200);
+  },
+  setEditorToReadOnly: function setEditorToReadOnly(editor) {
+    setTimeout(function () {
+      editor.ui.view.editable.element.setAttribute('contenteditable', false);
+    }, 3000);
   }
 };
 

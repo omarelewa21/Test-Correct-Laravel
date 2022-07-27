@@ -920,7 +920,7 @@ class OpenShort extends Component
             $this->question['add_to_database'] = $q->add_to_database;
             $this->question['discuss'] = $tq->discuss;
             $this->question['decimal_score'] = $q->decimal_score;
-            $this->question['lang'] = $q->lang;
+            $this->question['lang'] = !is_null($q->lang)?$q->lang:'nl_NL';
 
             $this->lang = $this->question['lang'];
             $this->educationLevelId = $q->education_level_id;
