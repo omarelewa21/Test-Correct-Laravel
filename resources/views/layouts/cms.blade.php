@@ -9,7 +9,7 @@
     @livewire('livewire-ui-modal')
 
 @push('scripts')
-    @if(Auth::user()->schoolLocation->allow_cms)
+    @if(Auth::user()->schoolLocation->allow_wsc)
         <script>
             window.WEBSPELLCHECKER_CONFIG = {
                 "autoSearch": true,

@@ -161,7 +161,7 @@ RichTextEditor = {
                     serviceHost: 'testwsc.test-correct.nl',
                     servicePath: 'wscservice/api',
                     srcUrl: 'https://testwsc.test-correct.nl/wscservice/wscbundle/wscbundle.js'
-                },
+                }
             } )
             .then( editor => {
                 ClassicEditors[editorId] = editor;
