@@ -21,16 +21,18 @@ RichTextEditor = {
             });
     },
 
-    initCMS: function (editorId) {
-        var editor = CKEDITOR.instances[editorId]
+    initCMS: function (editorId,lang= 'nl_NL',wsc = false) {
+        var editor = CKEDITOR.instances[editorId];
         if (editor) {
             editor.destroy(true)
         }
-        CKEDITOR.disableAutoInline = true;
-        CKEDITOR.config.removePlugins = 'scayt,wsc';
+        if(wsc){
+            CKEDITOR.disableAutoInline = true;
+            CKEDITOR.config.removePlugins = 'scayt,wsc';
+        }
         CKEDITOR.on('instanceReady', function(event) {
             var editor = event.editor;
-            WebspellcheckerTlc.forTeacherQuestion(editor,'nl_NL');
+            WebspellcheckerTlc.forTeacherQuestion(editor,lang,wsc);
         });
         CKEDITOR.replace(editorId, {});
         editor = CKEDITOR.instances[editorId];
@@ -46,12 +48,19 @@ RichTextEditor = {
             RichTextEditor.sendInputEventToEditor(editorId, e);
         });
     },
-    initSelectionCMS:function(editorId) {
+    initSelectionCMS:function(editorId,lang= 'nl_NL',wsc = false) {
         var editor = CKEDITOR.instances[editorId]
         if (editor) {
             editor.destroy(true)
         }
-
+        if(wsc){
+            CKEDITOR.disableAutoInline = true;
+            CKEDITOR.config.removePlugins = 'scayt,wsc';
+        }
+        CKEDITOR.on('instanceReady', function(event) {
+            var editor = event.editor;
+            WebspellcheckerTlc.forTeacherQuestion(editor,lang,wsc);
+        });
         CKEDITOR.replace(editorId, {
             extraPlugins: 'selection,simpleuploads,quicktable,ckeditor_wiris,autogrow,wordcount,notification',
             toolbar: [
@@ -68,12 +77,20 @@ RichTextEditor = {
                 RichTextEditor.sendInputEventToEditor(editorId, e);
             });
     },
-    initCompletionCMS: function (editorId) {
+    initCompletionCMS: function (editorId,lang= 'nl_NL',wsc = false) {
 
         var editor = CKEDITOR.instances[editorId]
         if (editor) {
             editor.destroy(true)
         }
+        if(wsc){
+            CKEDITOR.disableAutoInline = true;
+            CKEDITOR.config.removePlugins = 'scayt,wsc';
+        }
+        CKEDITOR.on('instanceReady', function(event) {
+            var editor = event.editor;
+            WebspellcheckerTlc.forTeacherQuestion(editor,lang,wsc);
+        });
         CKEDITOR.replace(editorId, {
             extraPlugins: 'completion,simpleuploads,quicktable,ckeditor_wiris,autogrow,wordcount,notification',
             toolbar : [
@@ -127,7 +144,7 @@ RichTextEditor = {
                 console.error( error );
             } );
     },
-    initClassicEditorForTeacherplayer: function (editorId) {
+    initClassicEditorForTeacherplayerWsc: function (editorId,lang) {
         return ClassicEditor
             .create( document.getElementById( editorId ),{
                 autosave: {
@@ -138,17 +155,36 @@ RichTextEditor = {
                     }
                 },
                 wproofreader: {
-                    lang: 'nl_NL',
+                    lang: lang,
                     serviceProtocol: 'https',
                     servicePort: '80',
                     serviceHost: 'testwsc.test-correct.nl',
                     servicePath: 'wscservice/api',
                     srcUrl: 'https://testwsc.test-correct.nl/wscservice/wscbundle/wscbundle.js'
+                },
+            } )
+            .then( editor => {
+                ClassicEditors[editorId] = editor;
+                WebspellcheckerTlc.lang(editor, lang);
+                // WebspellcheckerTlc.setEditorToReadOnly(editor);
+            } )
+            .catch( error => {
+                console.error( error );
+            } );
+    },
+    initClassicEditorForTeacherplayer: function (editorId) {
+        return ClassicEditor
+            .create( document.getElementById( editorId ),{
+                autosave: {
+                    waitingTime: 300,
+                    save( editor ) {
+                        editor.updateSourceElement();
+                        editor.sourceElement.dispatchEvent(new Event('input'));
+                    }
                 }
             } )
             .then( editor => {
                 ClassicEditors[editorId] = editor;
-                WebspellcheckerTlc.lang(editor, 'nl_NL');
             } )
             .catch( error => {
                 console.error( error );

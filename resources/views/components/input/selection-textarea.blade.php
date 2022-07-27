@@ -2,6 +2,8 @@
 'type' => 'cms-selection',
 'editorId',
 'disabled' => false
+'lang' => 'nl_NL',
+'allowWsc' => false,
 ])
 <div class="relative"
      x-data="selectionOptions({ value: $wire.entangle('showSelectionOptionsModal'), editorId: '{{ $editorId }}' })"
@@ -12,6 +14,8 @@
             editorId="{{ $editorId }}"
             type="{{ $type }}"
             :disabled="$disabled"
+            lang="{{ $lang }}"
+            allowWsc={{ $allowWsc }}
     />
 
     <div x-show="showPopup"

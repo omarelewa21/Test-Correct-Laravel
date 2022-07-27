@@ -5,5 +5,7 @@
             editorId="{{ $questionEditorId }}"
             type="cms-completion"
             :disabled="isset($preview)"
+            lang="{{ $lang }}"
+            :allowWsc="$allowWsc"
     />
 @endsection

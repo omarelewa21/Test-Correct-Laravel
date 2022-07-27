@@ -23,7 +23,6 @@ import WordCount from '@ckeditor/ckeditor5-word-count/src/wordcount.js';
 import MathType from '@wiris/mathtype-ckeditor5/src/plugin';
 import AutoSave from '@ckeditor/ckeditor5-autosave/src/autosave.js';
 import SpecialCharacters from '@ckeditor/ckeditor5-special-characters/src/specialcharacters';
-import WProofreader from '@webspellchecker/wproofreader-ckeditor5/src/wproofreader';
 
 function SpecialCharactersTLC( editor ) {
 	editor.plugins.get( 'SpecialCharacters' ).addItems( 'Vreemde tekens', [
@@ -76,7 +75,6 @@ Editor.builtinPlugins = [
 	AutoSave,
 	SpecialCharacters,
 	SpecialCharactersTLC,
-	WProofreader
 ];
 
 // Editor configuration.
@@ -99,8 +97,7 @@ Editor.defaultConfig = {
 			'redo',
 			'MathType',
 			'ChemType',
-			'specialCharacters',
-			'wproofreader'
+			'specialCharacters'
 		]
 	},
 	language: 'nl',
