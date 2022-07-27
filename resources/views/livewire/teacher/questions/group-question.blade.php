@@ -3,6 +3,7 @@
     <x-input.group class="text-base" label="{{ __('cms.naam vraaggroep') }}">
 
         <input type="text" wire:model="question.name"
+               selid="question-name"
                class="form-input w-full text-left @error('question.name') border border-allred @enderror"
                @isset($preview) disabled @endisset
         />
@@ -28,8 +29,9 @@
         </div>
         <div class="flex flex-wrap">
             <button class="group-type mr-2 mb-2"
-                    :class="selected('standard') ? 'active' : ''"
+                    :class="selected('standard') ? 'active' : 'hover:shadow-lg'"
                     @click="select('standard')"
+                    selid="group-type-normal"
                     @isset($preview) disabled @endisset
             >
                 <div class="flex">
@@ -45,8 +47,9 @@
                 </div>
             </button>
             <button class="group-type mb-2"
-                    :class="selected('carousel') ? 'active' : ''"
+                    :class="selected('carousel') ? 'active' : 'hover:shadow-lg'"
                     @click="select('carousel')"
+                    selid="group-type-carrousel"
                     @isset($preview) disabled @endisset
             >
                 <div>
@@ -65,7 +68,7 @@
 
     <div wire:ignore >
         <x-input.group class="w-full" label="{{ __('cms.Omschrijving') }}" >
-            <textarea class="form-input resize-none" @isset($preview) disabled @endisset id="{{ $questionEditorId }}" name="{{ $questionEditorId }}" wire:model.debounce.1000ms="question.question"></textarea>
+            <textarea class="form-input resize-none" @isset($preview) disabled @endisset id="{{ $questionEditorId }}" name="{{ $questionEditorId }}" wire:model.debounce.1000ms="question.question" selid="question-input"></textarea>
         </x-input.group>
     </div>
     <script>

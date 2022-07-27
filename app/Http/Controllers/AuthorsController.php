@@ -36,6 +36,11 @@ class AuthorsController extends Controller
          return User::where('username', config('custom.examschool_author'))->first();
     }
 
+    public static function getNationalItemBankAuthor()
+    {
+         return User::where('username', config('custom.national_item_bank_school_author'))->first();
+    }
+
     private function getBuilderForOwnSubjects($user)
     {
         return User::withTrashed()->whereIn('id', // find all users part of this selection

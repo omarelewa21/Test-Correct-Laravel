@@ -175,4 +175,8 @@ return [
     'duplicate_question_in_test'                                                             => 'Deze vraag staat dubbel in de toets. Pas de toets aan om het inplannen mogelijk te maken.',
     'Construeren'                                                                            => 'Construeren',
     'Deze vraag heeft geen tags'                                                             => 'Deze vraag heeft geen tags',
+    'test_verbetering'                                                                       => 'Toets verbetering',
+    'test_verbetering_omschrijving'                                                          => 'De huidige toets en bijbehorende vraagitems worden aangepast',
+    'test_nieuw_omschrijving'                                                                => 'De huidige toets en bijbehorende items worden gedupliceerd',
+    'test_nieuw'                                                                             => 'Nieuwe toets maken',
 ];

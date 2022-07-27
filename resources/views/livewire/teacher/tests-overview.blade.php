@@ -43,46 +43,25 @@
                     <div class="flex relative cursor-default">
                         {{--                    <div class="flex relative hover:text-primary cursor-pointer" @click="openTab = 3">--}}
                         <span class="bold pt-[0.9375rem] pb-[0.8125rem]  "
-                              :class="openTab === 'national' ? 'primary' : '' ">
+                              :class="openTab === 'umbrella' ? 'primary' : '' ">
                             <span class="text-white  bg-mid-grey px-2 py-1 rounded-lg">{{ __('general.Scholengemeenschap') }}</span>
                             </span>
                         <span class="absolute w-full bottom-0" style="height: 3px"
-                              :class="openTab === 'national' ? 'bg-primary' : 'bg-transparent' "></span>
+                              :class="openTab === 'umbrella' ? 'bg-primary' : 'bg-transparent' "></span>
                     </div>
                 </div>
 
+                @if(auth()->user()->schoolLocation->show_national_item_bank)
                 <div>
-                    <div class="flex relative cursor-default">
-                        {{--                    <div class="flex relative hover:text-primary cursor-pointer" @click="openTab = 3">--}}
+{{--                    <div class="flex relative cursor-default">--}}
+                    <div class="flex relative hover:text-primary cursor-pointer" @click="openTab = 'national'">
                         <span class="bold pt-[0.9375rem] pb-[0.8125rem]  "
-                              :class="openTab === 'national' ? 'primary' : '' ">
-                            <span class="text-white  bg-mid-grey px-2 py-1 rounded-lg">{{ __('general.Nationaal') }}</span>
-                        </span>
+                              :class="openTab === 'national' ? 'primary' : '' ">{{ __('general.Nationaal') }}</span>
                         <span class="absolute w-full bottom-0" style="height: 3px"
                               :class="openTab === 'national' ? 'bg-primary' : 'bg-transparent' "></span>
                     </div>
                 </div>
-
-                <div>
-                    {{--                    <div class="flex relative text-midgrey cursor-default">--}}
-                    <div class="flex relative hover:text-primary cursor-pointer" @click="openTab = 'exams'">
-                        <span class="bold pt-[0.9375rem] pb-[0.8125rem]"
-                              :class="openTab === 'exams' ? 'primary' : '' ">{{ __('general.Examens') }}</span>
-                        <span class="absolute w-full bottom-0" style="height: 3px"
-                              :class="openTab === 'exams' ? 'bg-primary' : 'bg-transparent' "></span>
-                    </div>
-                </div>
-
-                <div>
-                    {{--                    <div class="flex relative text-midgrey cursor-default">--}}
-                    <div class="flex relative hover:text-primary cursor-pointer" @click="openTab = 'cito'">
-                        <span class="bold pt-[0.9375rem] pb-[0.8125rem]"
-                              :class="openTab === 'cito' ? 'primary' : '' ">{{ __( 'general.cito-snelstart') }}</span>
-                        <span class="absolute w-full bottom-0" style="height: 3px"
-                              :class="openTab === 'cito' ? 'bg-primary' : 'bg-transparent' "></span>
-                    </div>
-                </div>
-
+                @endif
             </div>
         </div>
     </div>
@@ -101,21 +80,33 @@
                 </div>
                 <div class="flex flex-wrap w-full gap-2 mt-2">
 
-                    <x-input.choices-select
-                            wire:key="subject_{{ $this->openTab }}"
-                            :multiple="true"
-                            :options="$this->subjects"
-                            :withSearch="true"
-                            placeholderText="Vak"
-                            wire:model="filters.{{ $this->openTab }}.subject_id"
-                            filterContainer="questionbank-{{ $this->openTab }}-active-filters"
-                    />
+                    @if ($this->openTab === 'national')
+                        <x-input.choices-select
+                                wire:key="base_subject_{{ $this->openTab }}"
+                                :multiple="true"
+                                :options="$this->basesubjects"
+                                :withSearch="true"
+                                placeholderText="{{ __('Categorie') }}"
+                                wire:model="filters.{{ $this->openTab }}.base_subject_id"
+                                filterContainer="questionbank-{{ $this->openTab }}-active-filters"
+                        />
+                    @else
+                        <x-input.choices-select
+                                wire:key="subject_{{ $this->openTab }}"
+                                :multiple="true"
+                                :options="$this->subjects"
+                                :withSearch="true"
+                                placeholderText="Vak"
+                                wire:model="filters.{{ $this->openTab }}.subject_id"
+                                filterContainer="questionbank-{{ $this->openTab }}-active-filters"
+                        />
+                    @endif
                     <x-input.choices-select
                             wire:key="education_level_year_{{ $this->openTab }}"
                             :multiple="true"
                             :options="$this->educationLevelYear"
                             :withSearch="true"
-                            placeholderText="Leerjaar"
+                            placeholderText="{{ __('Leerjaar') }}"
                             wire:model="filters.{{ $this->openTab }}.education_level_year"
                             filterContainer="questionbank-{{ $this->openTab }}-active-filters"
                     />

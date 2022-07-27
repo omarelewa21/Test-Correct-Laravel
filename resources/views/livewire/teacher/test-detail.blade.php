@@ -69,9 +69,6 @@
         <livewire:actions.test-make-pdf :uuid="$this->uuid"/>
         <livewire:actions.test-duplicate-test :uuid="$this->uuid"/>
         <livewire:actions.test-plan-test :uuid="$this->uuid"/>
-
-
-
     </div>
     <div class="flex w-full" x-show="bodyVisibility">
         <div class="w-full mx-auto divide-y divide-secondary">

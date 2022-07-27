@@ -83,6 +83,21 @@ class TestAuthor extends CompositePrimaryKeyModel {
         return self::addOrRestoreAuthor($test,$examAuthorUser->getKey());
     }
 
+    public static function addNationalItemBankAuthorToTest(Test $test) {
+
+        if(!optional(Auth::user())->isInNationalItemBankSchool()){
+            return false;
+        }
+        if($test->scope!='ldt'){
+            return false;
+        }
+        $test->testAuthors->each(function ($testAuthor){
+            $testAuthor->delete();
+        });
+        $nationalItemBankAuthorUser = AuthorsController::getNationalItemBankAuthor();
+        return self::addOrRestoreAuthor($test,$nationalItemBankAuthorUser->getKey());
+    }
+
     private static function addOrRestoreAuthor($test,$userId)
     {
         $testAuthor = static::withTrashed()->where('user_id', $userId)->where('test_id', $test->getKey())->first();
