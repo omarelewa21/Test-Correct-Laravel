@@ -395,11 +395,8 @@
                     </div>
                 </div>
 
-            <div class="w-full flex flex-col items-center">
+            <div class="w-full flex flex items-center justify-center space-x-2">
                 <div class="flex flex-col md:flex-row items-center space-x-2">
-                    <span class="flex">
-                        {{__('auth.forgot_password_long')}}
-                    </span>
                     <x-button.text-button class="order-1" size="sm"
                                           wire:click.prevent="$set('active_overlay', 'send_reset_password')">
                         <span class="text-base">{{__('auth.forgot_password')}}</span>
@@ -407,19 +404,13 @@
                     </x-button.text-button>
                 </div>
                 <div class="flex flex-col md:flex-row items-center space-x-2">
-                    <span class="flex">
-                        {{__('auth.Maak account long')}}
-                    </span>
                         <x-button.text-button class="order-1" size="sm"
                                               @click="Livewire.emit('open-auth-modal')">
                             <span class="text-base">{{__('auth.Maak account')}}</span>
                             <x-icon.arrow/>
                         </x-button.text-button>
                 </div>
-                <div class="flex flex-col md:flex-row items-center space-x-2" browser>
-                    <span class="flex">
-                        {{__('auth.download_app_long')}}
-                    </span>
+                <div class="flex flex-col md:flex-row items-center space-x-2" browser wire:ignore>
                     <x-button.text-button size="sm" type="link" href="{{ $this->studentDownloadUrl }}">
                         <span class="text-base">{{__('auth.download')}}</span>
                         <x-icon.arrow/>
