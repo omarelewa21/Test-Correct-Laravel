@@ -203,8 +203,6 @@ class Login extends Component
 
     public function render()
     {
-        $this->dispatchGuestSuccessNotification();
-
         return view('livewire.auth.login')
             ->layout('layouts.base');
     }
@@ -589,8 +587,7 @@ class Login extends Component
 
     public function dispatchGuestSuccessNotification()
     {
-        //initial render calls this method somehow 2 times, only 2nd gets dispatched, so setting to false immediately won't work.
-        if($this->showGuestSuccess && $this->guest_message_shown < 2){
+        if($this->showGuestSuccess){
             $this->dispatchBrowserEvent('notify',
                 [
                     'type' => 'guest_success',
