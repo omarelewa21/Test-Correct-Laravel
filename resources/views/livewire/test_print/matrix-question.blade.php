@@ -1,4 +1,4 @@
-<x-partials.answer-model-question-container :number="$number" :question="$question" :answer="$answer">
+<x-partials.test-print-question-container :number="$number" :question="$question" :answer="$answer">
     <div class="w-full">
         <div class="children-block-pdf"> {!! $question->converted_question_html  !!}</div>
         <div class="mt-4 flex">
@@ -29,15 +29,13 @@
                                 class="p-3 text-gray-800 text-center border border-b table-cell static">
                                 <label id="label_{{ $subQuestion->getKey() }}_{{ $questionAnswer->getKey() }}"
                                        wire:key="label_{{ $subQuestion->getKey() }}_{{ $questionAnswer->getKey() }}"
-                                       class="flex items-center justify-center"
+                                       class="block items-center justify-center"
                                 >
-                                    <input id="input_{{ $subQuestion->getKey() }}_{{ $questionAnswer->getKey() }}"
-                                           wire:key="input_{{ $subQuestion->getKey() }}_{{ $questionAnswer->getKey() }}"
-                                           type="radio" name="matrix_input_{{$subQuestion->getKey()}}"
-                                           value="{{ $subQuestion->getKey() }}:{{ $questionAnswer->getKey() }}"
-                                           class="hidden"
-                                    >
-                                    <x-question.matrix-radio-pdf :subQuestionId="$subQuestion->getKey()" :questionAnswerId="$questionAnswer->getKey()" disabled="true"/>
+{{--                                    <div class="flex w-5 h-5 cursor-pointer rounded-full bg-white items-center justify-center transition border border-primary-hover border-system-secondary">--}}
+{{--                                    </div>--}}
+                                    <div class="round-checkbox matrix-checkbox block mx-auto relative align-middle">
+                                        &nbsp;
+                                    </div>
                                 </label>
                             </td>
                         @endforeach
@@ -47,4 +45,4 @@
             </table>
         </div>
     </div>
-</x-partials.answer-model-question-container>
+</x-partials.test-print-question-container>

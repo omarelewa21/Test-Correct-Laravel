@@ -6,16 +6,16 @@
         <div class="children-block-pdf">
             {!! $question->converted_question_html  !!}
         </div>
-        <div class="mt-4 space-y-2 w-1/2 question-no-break-mc-option">
+        <div class="mt-4 space-y-2 w-full question-no-break-mc-option">
             @foreach( $this->answerStruct as $key => $value)
-                <div class="block items-center  mc-radio relative">
-                    <div class="square-checkbox relative">
+                <div class="block mc-radio relative " style="vertical-align: top">
+                    <div class="square-checkbox block relative align-middle">
                         &nbsp;
                     </div>
                     <label
                             for="link{{ $value }}"
-                            class="absolute inline-block w-1/2 px-2 py-1 border-2 border-blue-grey rounded-10 base
-                            multiple-select-label justify-between"
+                            class="inline-block w-1/2 px-2 py-1 border-2 border-blue-grey rounded-10 base
+                            multiple-select-label align-top"
                     >
                         <input
                                 id="link{{ $value }}"

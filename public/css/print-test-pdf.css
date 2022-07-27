@@ -18,10 +18,15 @@
     border-radius: 9999px;
 }
 
+.test-print-pdf .round-checkbox.matrix-checkbox {
+    margin: 0 auto;
+    display: block;
+}
+
 .test-print-pdf .truefalse-label,
 .test-print-pdf .multiple-select-label,
 .test-print-pdf .arq-label {
-    height: 2.5rem;
+    min-height: 2.5rem;
     border-color: #c3d0ed;
     border-radius: 10px;
     border-width: 2px;
@@ -29,7 +34,7 @@
 
 .test-print-pdf .multiple-select-label,
 .test-print-pdf .arq-label {
-    width: 94%;
+    width: 93%;
 }
 
 .test-print-pdf .truefalse-label {
@@ -138,12 +143,17 @@
     margin-left: 1rem;
 }
 
+.test-print-pdf .classify-groups-container .paper-text-area,
 .test-print-pdf .open-long .paper-text-area,
 .test-print-pdf .open-short .paper-text-area {
     background: #f9faff;
     border: 2px dashed #c3d0ed;
     padding: 0 10px 0 10px;
     border-radius: 10px;
+}
+
+.test-print-pdf .classify-groups-container .paper-text-area {
+    height: 105px;
 }
 
 .test-print-pdf .open-short .paper-text-area {
@@ -219,18 +229,18 @@
     vertical-align: top;
     margin-bottom: 0.5rem;
 }
+
 .test-print-pdf .selection-answers-container-sub {
     display: block;
 }
 
 .test-print-pdf .selection-answers-container-sub-sub {
     display: -webkit-box;
-    display: -webkit-flex;
-    display: -ms-flexbox;
     display: flex;
     word-wrap: normal;
     margin-right: 2rem;
 }
+
 .test-print-pdf .selection-answer-tag-id {
     display: -webkit-inline-box;
     vertical-align: top;
@@ -243,6 +253,7 @@
     word-wrap: normal;
     font-weight: bold;
 }
+
 .test-print-pdf .selection-answers-container-sub-sub span:nth-child(2) {
 
 }
@@ -278,6 +289,10 @@
     width: 100%;
 }
 
+.test-print-pdf .matching-table {
+    border-spacing: 3rem 0rem;
+}
+
 .test-print-pdf .matching-textbox-left,
 .test-print-pdf .matching-textbox-right {
     border-radius: 10px;
@@ -288,8 +303,6 @@
     font-weight: bold;
     position: relative;
     display: -webkit-inline-box;
-    display: -webkit-inline-flex;
-    display: -ms-inline-flexbox;
     display: inline-flex;
 }
 
@@ -310,6 +323,7 @@
     text-align: right;
     padding-bottom: 0.25rem;
 }
+
 .test-print-pdf .matching-textbox-container-left {
     text-align: left;
     padding-bottom: 0.25rem;
@@ -326,15 +340,42 @@
     left: -4px;
     top: 45%;
 }
+
 .test-print-pdf .matching-dot-left {
     right: -4px;
     top: 45%;
 }
 
-.test-print-pdf .classify-answers-container {
 
+.test-print-pdf .classify-answers-sub {
+    display: inline-block;
+    width: 48%;
+    margin-right: 0.5rem;
 }
 
+.test-print-pdf .classify-answers-container,
 .test-print-pdf .classify-groups-container {
-
+    width: 100%;
+    display: block;
 }
+
+.test-print-pdf .classify-group-block {
+    display: inline-block;
+    width: 32%;
+    margin-right: 0.5rem;
+}
+
+.test-print-pdf .classify-group-title {
+    display: block;
+    text-align: center;
+    font-weight: bold;
+    margin-top: 0.5rem;
+}
+
+.test-print-pdf .classify-group-textarea {
+    display: block;
+    border: 2px dashed #c3d0ed;
+    height: 6rem;
+    border-radius: 10px;
+}
+

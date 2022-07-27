@@ -9,13 +9,13 @@
             <div class="space-y-2 w-full question-no-break-mc-option">
                 @foreach( $this->answerStruct as $key => $value)
                     <div class="block mc-radio relative">
-                        <div class="square-checkbox relative">
+                        <div class="square-checkbox relative align-middle">
                             &nbsp;
                         </div>
                         <label
                                 for="link{{ $value }}"
-                                class="absolute inline-block px-2 py-1 base
-                            multiple-select-label justify-between"
+                                class="inline-block px-2 py-1 base
+                            multiple-select-label align-top"
                         >
                             <input
                                     id="link{{ $value }}"
@@ -26,7 +26,6 @@
                             >
                             <div class="w-full multiple-select-text">
                                 <div class="mc-radio-label-pdf">
-                                    <span style="-webkit-text-stroke-width: 0.30px">{{$this->characters[$this->charCounter++]}}.</span> {{-- webkit-text-stroke-width == bold text replacement --}}
                                     {!! $this->answerText[$key] !!}
                                 </div>
                             </div>

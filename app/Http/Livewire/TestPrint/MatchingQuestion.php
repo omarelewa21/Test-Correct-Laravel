@@ -57,35 +57,35 @@ class MatchingQuestion extends Component
 
     private function classifySubTypeHandler()
     {
-        [$answerGroups, $answers] = $this->question->matchingQuestionAnswers->mapToGroups(function ($item, $key) {
+        [$this->answerGroups, $this->answerOptions] = $this->question->matchingQuestionAnswers->mapToGroups(function ($item, $key) {
             return [$item->type => $item->answer];
         })->map(function ($group, $key) {
             if($key == "RIGHT"){
                 return $group->shuffle();
             }
             return $group;
-        })->chunk(1);
+        })->chunk(1)->map->flatten();
 
-        $this->answerGroups = $answerGroups->flatten();
-        $this->answerOptions = $answers->flatten();
         $this->reorderAnswerOptions();
     }
 
     private function reorderAnswerOptions()
     {
+//        dd($this->answerOptions->count(), $this->answerOptions);
         //todo reorder answerOptions so the keys render like:
         // 1 4
         // 2 5
         // 3
-//        $count = $this->answerOptions->count();
-//
-//        $left = collect([]);
-//        $right = collect([]);
-//
-//        $this->answerOptions->each(function ($item, $i) use ($count, &$left, &$right) {
-//            return $i <= (int)round($count / 2) ? $left->add($item) : $right->add($i);
-//        });
-//        $this->answerOptions = $left->zip($right)->flatten()->filter();
-//        dd($this->answerOptions);
+        $count = $this->answerOptions->count();
+
+        $left = collect([]);
+        $right = collect([]);
+
+        $this->answerOptions->each(function ($item, $i) use ($count, &$left, &$right) {
+            return $i+1 <= (int)round($count / 2) ? ($left[(string)($i+1)] = $item) : ($right[(string)($i+1)] = $item);
+        });
+        dd($left, $right);
+        $this->answerOptions = $left->zip($right)->flatten()->filter();
+        dd($this->answerOptions);
     }
 }

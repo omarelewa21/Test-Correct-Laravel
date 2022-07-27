@@ -1,7 +1,11 @@
 <x-partials.test-print-question-container :number="$number" :question="$question" :answer="$answer">
     <div class="w-full space-y-3 matching-question">
         <div class="italic">
-            {{--            {{__('test-pdf.matching-question-explanation')}} {{-- of classify-question-explanation --}}
+            @if($question->subtype == 'Classify')
+                {{__('test-pdf.classify-question-explanation')}}
+            @else
+                {{__('test-pdf.matching-question-explanation')}}
+            @endif
         </div>
         <div class="children-block-pdf">
             {!!   $question->converted_question_html !!}
@@ -10,7 +14,9 @@
             {{-- maak x aantal vakken, 3 per regel --}}
         <div class="classify-answers-container">
             @foreach($answerOptions as $key => $answer)
-                <div>{{$answer}}</div>
+                <div class="classify-answers-sub">
+                    <span class="bold">{{$key}}.</span> {{$answer}}
+                </div>
 
             @endforeach
         </div>
@@ -18,7 +24,17 @@
 
         <div class="classify-groups-container">
             @foreach($answerGroups as $group)
-                <div>{{$group}}</div>
+                <div class="classify-group-block">
+                    <div class="classify-group-title">
+                        {{$group}}
+                    </div>
+
+                        <div class="paper-text-area resize-none">
+                            @for($i = 0; $i < 2; $i++)
+                                <div class="paper-line"/>
+                            @endfor
+                        </div>
+                </div>
             @endforeach
         </div>
 
