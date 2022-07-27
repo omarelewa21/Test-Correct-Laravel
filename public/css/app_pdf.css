@@ -4905,6 +4905,9 @@ video {
 .top-\[var\(--header-height\)\]{
   top: var(--header-height);
 }
+.right-5{
+  right: 1.25rem;
+}
 .isolate{
   isolation: isolate;
 }
@@ -5504,6 +5507,9 @@ video {
 }
 .min-w-\[163px\]{
   min-width: 163px;
+}
+.min-w-\[1\.25rem\]{
+  min-width: 1.25rem;
 }
 .max-w-\[600px\]{
   max-width: 600px;
@@ -6939,6 +6945,12 @@ video {
   display: -webkit-box;
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 2;
+}
+.line-clamp-1{
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 1;
 }
 .\[hash\:base64\]{
   hash: base64;

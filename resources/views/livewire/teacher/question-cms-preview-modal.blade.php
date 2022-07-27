@@ -1,12 +1,12 @@
 <div cms id="cms-preview" class="flex flex-1 flex-col bg-lightGrey h-full overflow-auto"
 >
     <div class="question-editor-preview-header flex w-full bg-white items-center px-6 py-4 fixed z-10">
-        <div class="bold flex items-center space-x-2.5 text-lg">
+        <div class="bold flex items-center min-w-max space-x-2.5 text-lg">
             <x-icon.preview/>
             <span>{{ __('teacher.Vraag voorbeeld') }}:</span>
         </div>
 
-        <h3 class="flex ml-4 truncate">{{ $this->questionTitle }}</h3>
+        <h3 class="line-clamp-1 break-all px-2.5">{{ $this->questionTitle }}</h3>
 
         <div class="flex ml-auto items-center space-x-2.5">
             @if($this->inTest)
