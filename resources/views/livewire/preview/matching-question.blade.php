@@ -103,20 +103,7 @@
             </div>
         @endif
     </div>
-    @push('scripts')
-        <script>
-            var draggableElementWidth;
-            setTimeout(function () {
-                document.getElementById('matching-container{{$question->getKey()}}').livewire_sortable.on('mirror:attached', (evt) => {
-                    draggableElementWidth = evt.data.mirror.parentElement.offsetWidth+'px';
-                });
 
-                document.getElementById('matching-container{{$question->getKey()}}').livewire_sortable.on('mirror:move', (evt) => {
-                    evt.data.mirror.style.width = draggableElementWidth;
-                });
-            }, 100);
-        </script>
-    @endpush
     <x-attachment.preview-attachment-modal :attachment="$attachment" :questionId="$questionId"/>
     <x-question.notepad :showNotepad="$showNotepad" />
 </x-partials.question-container>

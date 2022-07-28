@@ -1,9 +1,10 @@
-@extends('livewire.teacher.questions.cms-layout')
+@extends($preview ?? 'livewire.teacher.questions.cms-layout')
 @section('question-cms-question')
     <x-input.rich-textarea
             wire:model.debounce.1000ms="question.question"
             editorId="{{ $questionEditorId }}"
             type="cms"
+            :disabled="isset($preview)"
     />
 @endsection
 
@@ -13,7 +14,7 @@
         {{ __('cms.Ranking Question Uitleg Text') }}
     </div>
     <div class="flex flex-col space-y-2 w-full mt-4"
-         wire:sortable="__call('updateRankingOrder')">
+         @if(!isset($preview)) wire:sortable="__call('updateRankingOrder')" @endif>
         <div class="flex px-0 py-0 border-0 bg-system-white">
             <div class="w-full mr-2">{{ __('cms.Stel je te rangschikken items op') }}</div>
             <div class="w-20"></div>
@@ -41,25 +42,34 @@
                          selid="drag-box"
                          slotClasses="w-full mr-0 "
                          dragClasses="absolute right-14 hover:text-primary transition"
-                         dragIconClasses=" cursor-move"
+                         dragIconClasses="cursor-move {{ isset($preview) ? 'text-midgrey hover:text-midgrey' : '' }}"
                          :useHandle="true"
                          :keepWidth="true"
                          sortIcon="reorder"
             >
                 <x-input.text class="w-full mr-1 {{ $errorAnswerClass }} "
                               wire:model.lazy="cmsPropertyBag.answerStruct.{{ $loop->index }}.answer"
-                              selid="answer-field"/>
+                              selid="answer-field"
+                              :disabled="isset($preview)"
+                />
                 <x-slot name="after">
+                    @if(isset($preview))
+                        <x-icon.remove class="mx-2 w-4 mid-grey"/>
+                    @else
                     <x-icon.remove class="mx-2 w-4 cursor-pointer  {{ $disabledClass }}"
                                    id="remove_{{ $answer->order }}"
                                    wire:click="__call('delete','{{$answer->id}}')"/>
+                    @endif
                 </x-slot>
             </x-drag-item>
         @endforeach
     </div>
     <div class="flex flex-col space-y-2 w-full">
-        <x-button.primary class="mt-3 justify-center" wire:click="__call('addAnswerItem')"
-                          selid="add-answer-option-btn">
+        <x-button.primary class="mt-3 justify-center"
+                          wire:click="__call('addAnswerItem')"
+                          selid="add-answer-option-btn"
+                          :disabled="isset($preview)"
+        >
             <x-icon.plus/>
             <span>{{ __('cms.Item toevoegen') }}</span>
         </x-button.primary>

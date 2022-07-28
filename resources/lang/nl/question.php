@@ -40,9 +40,11 @@ return [
     'completionquestioncompletion'         => 'Gatentekst',
     'completionquestionmulti'              => 'Selectie',
     'drawingquestion'                      => 'Teken',
+    'drawingquestiondrawing'               => 'Teken',
     'matchingquestion'                     => 'Combineer',
     'matchingquestionmatching'             => 'Combineer',
     'matchingquestionclassify'             => 'Rubriceer',
+    'infoscreenquestion'                   => 'Infoscherm',
     'infoscreenquestioninfo'               => 'Infoscherm',
     'infoscreenquestioninfoscreen'         => 'Infoscherm',
     'infoscreenquestionnone'               => 'Infoscherm',
@@ -52,4 +54,5 @@ return [
     'matrixquestion'                       => 'Matrix',
     'matrixquestionsinglechoice'           => 'Matrix',
     'groupquestion'                        => 'Groep',
+    'Vraaggroep'                           => 'Vraaggroep',
 ];

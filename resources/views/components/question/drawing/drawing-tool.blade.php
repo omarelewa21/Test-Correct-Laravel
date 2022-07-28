@@ -1,7 +1,7 @@
 <div id="drawing-tool"
      class="rounded-10 @student student @else teacher @endstudent"
      wire:ignore
-
+    x-data="{lineBtn:false}"
 >
     <div class="section-container">
         <section>
@@ -12,22 +12,22 @@
                             <x-icon.drag/>
                         </div>
                     </button>
-                    <button id="add-rect-btn" title="{{ __('drawing-modal.Rechthoek') }}" data-button-group="tool">
+                    <button id="add-rect-btn" title="{{ __('drawing-modal.Rechthoek') }}" data-button-group="tool" @click="lineBtn=false">
                         <div>
                             <x-icon.square/>
                         </div>
                     </button>
-                    <button id="add-circle-btn" title="{{ __('drawing-modal.Cirkel') }}" data-button-group="tool">
+                    <button id="add-circle-btn" title="{{ __('drawing-modal.Cirkel') }}" data-button-group="tool" @click="lineBtn=false">
                         <div>
                             <x-icon.circle/>
                         </div>
                     </button>
-                    <button id="add-line-btn" title="{{ __('drawing-modal.Rechte lijn') }}" data-button-group="tool">
+                    <button id="add-line-btn" title="{{ __('drawing-modal.Rechte lijn') }}" data-button-group="tool" @click="lineBtn=true">
                         <div>
                             <x-icon.line/>
                         </div>
                     </button>
-                    <button id="add-freehand-btn" title="{{ __('drawing-modal.Penlijn') }}" data-button-group="tool">
+                    <button id="add-freehand-btn" title="{{ __('drawing-modal.Penlijn') }}" data-button-group="tool" @click="lineBtn=true">
                         <div>
                             <x-icon.freehand/>
                         </div>
@@ -107,7 +107,12 @@
                 </div>
 
                 <div class="property-group" id="edge">
-                    <x-input.color-picker  :name="'stroke-color'" :id="'stroke-color'" :title="__('drawing-modal.Randkleur')"/>
+                    <div x-show="lineBtn">
+                        <x-input.color-picker  :name="'line-color'" :id="'line-color'" :title="__('drawing-modal.lineColor')"/>
+                    </div>
+                    <div x-show="!lineBtn">
+                        <x-input.color-picker  :name="'stroke-color'" :id="'stroke-color'" :title="__('drawing-modal.Randkleur')"/>
+                    </div>
                     <div class="input-with-button-group">
                         <button id="decr-stroke" class="Secondary" title="{{ __('drawing-modal.Vergroot randdikte') }}">
                             <div>
@@ -128,8 +133,8 @@
                     <x-input.color-picker  :name="'fill-color'" :id="'fill-color'" :title="__('drawing-modal.Opvulkleur')"/>
                     <input type="number" name="fill-opacity" id="fill-opacity-number" min="0" max="100" value="25"
                            step="1" autocomplete="off" title="{{ __('drawing-modal.Doorzichtigheid opvulkleur') }}">
-                    <input class="drawing-toolbar-slider" type="range" name="fill-opacity" id="fill-opacity-range" style="cursor: grab"
-                           min="0" max="100" value="25" step="1" autocomplete="off" title="{{ __('drawing-modal.Doorzichtigheid opvulkleur') }}">
+                    <input class="drawing-toolbar-slider" x-ref="slider" type="range" name="fill-opacity" id="fill-opacity-range" style="cursor: grab"
+                            min="0" max="100" value="25" step="1" autocomplete="off" title="{{ __('drawing-modal.Doorzichtigheid opvulkleur') }}">
                 </div>
 
                 <div class="property-group" id="endmarker-type" title="{{ __('drawing-modal.Type lijneinde') }}">
@@ -156,7 +161,7 @@
     </div>
     <div id="canvas-sidebar-container" class="overflow-hidden">
         <article id="canvas" class="overflow-hidden">
-            <svg id="svg-canvas" xmlns="http://www.w3.org/2000/svg" class="overflow-hidden">
+            <svg id="svg-canvas" x-ref="canvas" xmlns="http://www.w3.org/2000/svg" class="overflow-hidden">
                 <defs>
                     <marker id="svg-filled-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6"
                             orient="auto-start-reverse">
@@ -370,3 +375,4 @@
           data-image="{{ __("drawing-modal.Afbeelding") }}"
           data-path="{{ __("drawing-modal.Penlijn") }}"
 ></template>
+

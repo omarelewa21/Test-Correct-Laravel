@@ -1,12 +1,13 @@
 <?php namespace tcCore;
 
+use Dyrynda\Database\Casts\EfficientUuid;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Http\Request;
-use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Str;
-use tcCore\Http\Controllers\AuthorsController;
+use Ramsey\Uuid\Uuid;
 use tcCore\Http\Controllers\GroupQuestionQuestionsController;
 use tcCore\Http\Controllers\RequestController;
 use tcCore\Http\Controllers\TestQuestionsController;
@@ -14,13 +15,10 @@ use tcCore\Http\Helpers\DemoHelper;
 use tcCore\Jobs\CountTeacherTests;
 use tcCore\Lib\GroupQuestionQuestion\GroupQuestionQuestionManager;
 use tcCore\Lib\Models\BaseModel;
-use Illuminate\Database\Eloquent\SoftDeletes;
 use tcCore\Lib\Question\QuestionGatherer;
-use Dyrynda\Database\Casts\EfficientUuid;
-use Ramsey\Uuid\Uuid;
 use tcCore\Traits\ExamSchoolTestTrait;
-use tcCore\Traits\UuidTrait;
 use tcCore\Traits\UserContentAccessTrait;
+use tcCore\Traits\UuidTrait;
 
 
 class Test extends BaseModel
@@ -855,7 +853,8 @@ class Test extends BaseModel
         return $this->test_kind_id == TestKind::ASSESSMENT_TYPE;
     }
 
-    public function getAuthorsAsString(){
+    public function getAuthorsAsString()
+    {
         return $this->authorsAsString;
     }
 
@@ -996,31 +995,62 @@ class Test extends BaseModel
 
     public function getDuplicateQuestionIds()
     {
-        $ids = DB::select('
-            select id
-                from (
-                select
-                  question_id as id
-                  from
-                  `test_questions`
-                where
-                  `test_id` = ?  and `deleted_at` is null
-                Union  all
-                  select question_id as id from group_question_questions where group_question_id in(
-                  select question_id from test_questions where test_id = ? and deleted_at is null
-                  ) and deleted_at is null
+        $testQuestionsForTestQuery = TestQuestion::select('question_id as id')->whereTestId($this->getKey());
+        $groupQuestionQuestionsFromTestQuestionsQuery = GroupQuestionQuestion::select('question_id as id')->whereIn('group_question_id', $testQuestionsForTestQuery);
 
+        return DB::query()
+            ->selectRaw('id')
+            ->fromSub(
+                $testQuestionsForTestQuery
+                    ->unionAll($groupQuestionQuestionsFromTestQuestionsQuery)
+//                    ->unionAll($groupQuestionQuestionsFromTestQuestionsQuery)
+                ,
+                'duplicateIds'
+            )
+            ->groupBy('id')
+            ->havingCount('id', '>', 1)
+            ->pluck('id');
+    }
 
-                )as t
-                 group by
-                  `id`
+    public function getAmountOfQuestions()
+    {
+        $groupQ = $this->testQuestions()
+            ->select('id')
+            ->withCount(['question' => function ($query) {
+                $query->where('type', '=', 'GroupQuestion');
+            }])
+            ->get()
+            ->sum(function ($testQuestion) {
+                return $testQuestion->question_count;
+            });
 
-                having
-                  COUNT(id) > 1
-        ', [$this->getKey(), $this->getKey()]);
+        return ['regular' => $this->getQuestionCount(), 'group' => $groupQ];
+    }
 
-        return collect($ids)->map(function($id) {
-            return $id->id;
-        });
+    public static function findByUuid($uuid)
+    {
+        return self::whereUuid($uuid)->first();
+    }
+
+    public function hasDuplicateQuestions()
+    {
+       return count($this->getDuplicateQuestionIds()) > 0;
+    }
+
+    public function hasToFewQuestionsInCarousel()
+    {
+        $this->load(['testQuestions', 'testQuestions.question']);
+        $countCarouselQuestionWithToFewQuestions = $this->testQuestions->filter(function($testQuestion) {
+            return ($testQuestion->question instanceof \tcCore\GroupQuestion && !$testQuestion->question->hasEnoughSubQuestionsAsCarousel());
+        })->count();
+        return $countCarouselQuestionWithToFewQuestions != 0;
+    }
+
+    public function hasNotEqualScoresForSubQuestionsInCarousel(){
+        $this->load(['testQuestions', 'testQuestions.question']);
+        $countCarouselQuestionWithToFewQuestions = $this->testQuestions->filter(function($testQuestion) {
+            return ($testQuestion->question instanceof \tcCore\GroupQuestion && $testQuestion->question->isCarouselQuestion() && !$testQuestion->question->hasEqualScoresForSubQuestions());
+        })->count();
+        return $countCarouselQuestionWithToFewQuestions != 0;
     }
 }

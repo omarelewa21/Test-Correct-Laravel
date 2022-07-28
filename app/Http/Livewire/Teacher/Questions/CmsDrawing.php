@@ -4,24 +4,15 @@ namespace tcCore\Http\Livewire\Teacher\Questions;
 
 use Illuminate\Support\Str;
 use tcCore\Http\Helpers\SvgHelper;
-use tcCore\Question;
 
-class CmsDrawing
+class CmsDrawing extends CmsBase
 {
-    private $instance;
-    public $requiresAnswer = true;
-
-    public function __construct(OpenShort $instance)
-    {
-        $this->instance = $instance;
-    }
-
-    public function getTranslationKey()
+    public function getTranslationKey(): string
     {
         return __('cms.drawing-question');
     }
 
-    public function getTemplate()
+    public function getTemplate(): string
     {
         return 'drawing-question';
     }
@@ -166,9 +157,13 @@ class CmsDrawing
 
     public function drawingToolName()
     {
-        if ($this->instance->action == 'edit') {
-            return $this->instance->groupQuestionQuestionId === '' ? $this->instance->testQuestionId : $this->instance->groupQuestionQuestionId;
+        if ($this->instance instanceof OpenShort) {
+            if ($this->instance->action == 'edit') {
+                return $this->instance->groupQuestionQuestionId === '' ? $this->instance->testQuestionId : $this->instance->groupQuestionQuestionId;
+            }
+            return $this->instance->questionEditorId;
         }
-        return $this->instance->questionEditorId;
+
+        return $this->instance->question['uuid'];
     }
 }

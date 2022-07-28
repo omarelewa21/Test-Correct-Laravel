@@ -4,14 +4,16 @@ namespace tcCore\Http\Livewire\TestTakeOverviewPreview;
 
 use Livewire\Component;
 use tcCore\Answer;
+use tcCore\Http\Traits\WithGroups;
 use tcCore\Question;
 use tcCore\Http\Traits\WithAttachments;
 use tcCore\Http\Traits\WithCloseable;
 use tcCore\Http\Traits\WithNotepad;
+use tcCore\RankingQuestionAnswer;
 
 class RankingQuestion extends Component
 {
-    use WithAttachments, WithNotepad, WithCloseable;
+    use WithAttachments, WithNotepad, WithCloseable, WithGroups;
 
     public $uuid;
     public $answer;
@@ -31,7 +33,6 @@ class RankingQuestion extends Component
             foreach($this->question->rankingQuestionAnswers as $key => $value) {
                 $result[] = (object)['order' => $key + 1, 'value' => $value->id];
             }
-            shuffle($result);
         } else {
             collect($this->answerStruct)->each(function ($value, $key) use (&$result) {
                 $result[] = (object)['order' => $value + 1, 'value' => $key];
@@ -39,10 +40,9 @@ class RankingQuestion extends Component
             $this->answer = true;
         }
         $this->answerStruct = ($result);
-
-        collect($this->question->rankingQuestionAnswers->each(function($answers) use (&$map) {
+        collect($this->getRankingQuestionAnswers())->each(function($answers) {
             $this->answerText[$answers->id] = $answers->answer;
-        }));
+        });
 
         $this->answered = $this->answers[$this->question->uuid]['answered'];
 
@@ -59,5 +59,24 @@ class RankingQuestion extends Component
     public function isQuestionFullyAnswered(): bool
     {
         return true;
+    }
+
+    private function getRankingQuestionAnswers()
+    {
+        $answersIds = [];
+        $answers = [];
+        collect($this->answerStruct)->each(function($struct,$key) use (&$answersIds){
+            $answersIds[] = (int) $struct->value ;
+        });
+        $answersIds = array_unique($answersIds);
+        sort($answersIds);
+        collect($answersIds)->each(function($value,$key) use (&$answers){
+            $answer = RankingQuestionAnswer::withTrashed()->find($value);
+            if(is_null($answer)){
+                return true;
+            }
+            $answers[] = $answer;
+        });
+        return $answers;
     }
 }

@@ -242,19 +242,19 @@ jzwnvGSTRr4zLbXwz+RZmkre'
         'idp'      => array(
             // De unieke identifier van Entree Federatie
 //            'entityId'            => 'https://aselect.entree.kennisnet.nl/',
-        'entityId'            => 'https://aselect-s.entree.kennisnet.nl/',
+            'entityId'            => 'https://aselect-s.entree.kennisnet.nl/',
             // Endpoint van Entree Federatie waar de authenticatie requests naar toegestuurd worden
             'singleSignOnService' => array(
                 // De URL van het endpoint
 //                'url'     => 'https://aselect.entree.kennisnet.nl/openaselect/profiles/saml/sso/web',
-            'url'     => 'https://aselect-s.entree.kennisnet.nl/openaselect/profiles/saml/sso/web',
+                'url'     => 'https://aselect-s.entree.kennisnet.nl/openaselect/profiles/saml/sso/web',
                 // SAML protocol binding dat gebruikt wordt om de requests naar Entree Federatie te versturen
                 'binding' => 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST',
             ),
             // De public key in de metadata van Entree Federatie, te vinden in de metadata onder het onderdeel IDPSSODescriptor / X509Certificate.
             // @@ Dit certificaat vervangen voor TESTING
             // https://hub-s.entree.kennisnet.nl/openaselect/profiles/saml/
-        'x509cert'            => 'MIIF4TCCA8mgAwIBAgIEXXr4LzANBgkqhkiG9w0BAQsFADCBoDELMAkGA1UEBhMCTkwxFTATBgNV
+            'x509cert'            => 'MIIF4TCCA8mgAwIBAgIEXXr4LzANBgkqhkiG9w0BAQsFADCBoDELMAkGA1UEBhMCTkwxFTATBgNV
 BAgTDFp1aWQtSG9sbGFuZDETMBEGA1UEBxMKWm9ldGVybWVlcjEcMBoGA1UEChMTU3RpY2h0aW5n
 IEtlbm5pc25ldDEZMBcGA1UECxMQRW50cmVlIEZlZGVyYXRpZTEsMCoGA1UEAxMjYXNlbGVjdC5z
 dGFnaW5nLmVudHJlZS5rZW5uaXNuZXQubmwwHhcNMTcwNzI0MTMzMTEwWhcNMjIwOTAxMTMzMTEw
@@ -281,10 +281,10 @@ DwwVN+YKl7O/tLUYRvmTnOed5zpOwX6WELT9Gshmi9T3lVn/p3XnGxxz8RpnrcQbc/MvGjybsRsj
 6uFjsGWLBSqhn9e10awAl9JrJtojDje7PhADopUpe9dGbKBBgUBewDorkf55L+l5XNiH3f+Ne7jn
 7uD696761sUpsGnDlWjf6oGIsG8YulDhAf8hZTOlB4Xi3GowtQ42gCKVgE1cgXeDRjkOIgSHhXuF
 N99D5dVbx2vmPcidF8Lqre2S6R7AvpP0vVuh'
-    ),
-    'security' => array(
-        // Alle verzonden en ontvangen berichten moeten gesigned zijn
-        'authnRequestsSigned' => true,
+        ),
+        'security' => array(
+            // Alle verzonden en ontvangen berichten moeten gesigned zijn
+            'authnRequestsSigned' => true,
 
             // Algorithm that the toolkit will use on signing process. Options:
             // Entree Federatie only uses SHA1 for SAML signing.
