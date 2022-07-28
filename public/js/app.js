@@ -13146,6 +13146,12 @@ RichTextEditor = {
     });
   },
   initClassicEditorForTeacherplayerWsc: function initClassicEditorForTeacherplayerWsc(editorId, lang) {
+    var editor = ClassicEditors[editorId];
+
+    if (editor) {
+      editor.destroy(true);
+    }
+
     return ClassicEditor.create(document.getElementById(editorId), {
       autosave: {
         waitingTime: 300,
@@ -13170,6 +13176,12 @@ RichTextEditor = {
     });
   },
   initClassicEditorForTeacherplayer: function initClassicEditorForTeacherplayer(editorId) {
+    var editor = ClassicEditors[editorId];
+
+    if (editor) {
+      editor.destroy(true);
+    }
+
     return ClassicEditor.create(document.getElementById(editorId), {
       autosave: {
         waitingTime: 300,
