@@ -16,8 +16,7 @@
                 },}">
             <div name="block-container" class="grid grid-cols-2 pt-5">
                 <div class="col-span-2 mb-6">
-                    Je hebt het type, niveau en/of leerjaar van de toets aangepast. Is deze verandering een verbetering
-                    van de toets of is het een nieuwe toets?
+                    {{ __('teacher.Je hebt het vak, niveau en/of leerjaar van de toets aangepast.') }}
                 </div>
 
                 <button class="group-type mr-2 mb-2 "
