@@ -1,4 +1,4 @@
-<div>
+<div class="absolute">
 @if ( $this->displayMenu)
     <div
         wire:key="test_{{$test->uuid}}"
@@ -9,17 +9,21 @@
             show: @entangle('displayMenu'),
             posX: @js($x),
             posY: @js($y),
+            uuid: @js($test->uuid),
 
             init() {
                 $nextTick(() => {
                     $refs.contextMenu.style.top = (this.posY + 36 ) + 'px';
                     $refs.contextMenu.style.left = (this.posX - (this.$el.offsetWidth - 36)) + 'px';
                 })
+                $watch('show', value => {
+                    document.querySelector('#test-card-options-'+this.uuid).dispatchEvent(new CustomEvent('close-menu'))
+                });
             }
         }"
 
          x-on:context-menu-close="show = false"
-         class="fixed bg-white py-2 main-shadow rounded-10 w-[200px] z-30 "
+         class="absolute bg-white py-2 main-shadow rounded-10 w-[200px] z-30 "
          @click.outside="show = false;"
          x-transition:enter="transition ease-out origin-top-right duration-200"
          x-transition:enter-start="opacity-0 transform scale-90"
