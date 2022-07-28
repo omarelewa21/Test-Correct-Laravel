@@ -4890,6 +4890,12 @@ video {
 .-top-2{
   top: -0.5rem;
 }
+.-top-3{
+  top: -0.75rem;
+}
+.-right-3{
+  right: -0.75rem;
+}
 .bottom-8{
   bottom: 2rem;
 }
@@ -4905,9 +4911,6 @@ video {
 .top-\[var\(--header-height\)\]{
   top: var(--header-height);
 }
-.right-5{
-  right: 1.25rem;
-}
 .isolate{
   isolation: isolate;
 }
@@ -4919,6 +4922,9 @@ video {
 }
 .z-50{
   z-index: 50;
+}
+.z-1{
+  z-index: 1;
 }
 .z-20{
   z-index: 20;
@@ -5405,6 +5411,9 @@ video {
 .w-\[350px\]{
   width: 350px;
 }
+.w-50{
+  width: 12.5rem;
+}
 .w-max{
   width: -webkit-max-content;
   width: -moz-max-content;
@@ -5507,9 +5516,6 @@ video {
 }
 .min-w-\[163px\]{
   min-width: 163px;
-}
-.min-w-\[1\.25rem\]{
-  min-width: 1.25rem;
 }
 .max-w-\[600px\]{
   max-width: 600px;
@@ -6762,6 +6768,18 @@ video {
   --tw-text-opacity: 1;
   color: rgb(207 27 4 / var(--tw-text-opacity));
 }
+.\!text-white{
+  --tw-text-opacity: 1 !important;
+  color: rgb(255 255 255 / var(--tw-text-opacity)) !important;
+}
+.\!text-sysbase{
+  --tw-text-opacity: 1 !important;
+  color: rgb(4 31 116 / var(--tw-text-opacity)) !important;
+}
+.\!text-primary{
+  --tw-text-opacity: 1 !important;
+  color: rgb(0 77 245 / var(--tw-text-opacity)) !important;
+}
 .underline{
   -webkit-text-decoration-line: underline;
           text-decoration-line: underline;
@@ -7402,6 +7420,10 @@ h2.student-testtake-answers-separator span{
   --tw-bg-opacity: 1;
   background-color: rgb(255 255 255 / var(--tw-bg-opacity));
 }
+.hover\:text-base:hover{
+  font-size: 1rem;
+  line-height: 1.5rem;
+}
 .hover\:font-bold:hover{
   font-weight: 700;
 }
@@ -7432,6 +7454,14 @@ h2.student-testtake-answers-separator span{
 .hover\:text-midgrey:hover{
   --tw-text-opacity: 1;
   color: rgb(146 157 175 / var(--tw-text-opacity));
+}
+.hover\:\!text-sysbase:hover{
+  --tw-text-opacity: 1 !important;
+  color: rgb(4 31 116 / var(--tw-text-opacity)) !important;
+}
+.hover\:\!text-primary:hover{
+  --tw-text-opacity: 1 !important;
+  color: rgb(0 77 245 / var(--tw-text-opacity)) !important;
 }
 .hover\:underline:hover{
   -webkit-text-decoration-line: underline;

@@ -385,7 +385,7 @@ document.addEventListener('alpine:init', () => {
             this.$store.cms.scrollPos = 0
         },
         handleVerticalScroll(el) {
-            if(el.getAttribute('x-ref') !== this.activeSlide) return;
+            if (el.getAttribute('x-ref') !== this.activeSlide) return;
 
             this.$refs.questionEditorSidebar.style.minHeight = 'auto';
             this.$refs.questionEditorSidebar.style.height = 'auto';
@@ -479,7 +479,7 @@ document.addEventListener('alpine:init', () => {
             }
         },
         scrollActiveQuestionIntoView() {
-            let scrollTimeout = setTimeout( () => {
+            let scrollTimeout = setTimeout(() => {
                 if (this.$refs.questionEditorSidebar.scrollLeft > 0) return;
 
                 let activeQuestion = this.$refs.home.querySelector('.question-button.question-active');
@@ -489,14 +489,14 @@ document.addEventListener('alpine:init', () => {
                 const top = activeQuestion.getBoundingClientRect().top;
                 const screenWithMargin = (window.screen.height - 200);
                 if (top >= screenWithMargin) {
-                    this.drawer.scrollTo({top: (top - screenWithMargin/2), behavior: 'smooth'});
+                    this.drawer.scrollTo({top: (top - screenWithMargin / 2), behavior: 'smooth'});
                 }
 
                 clearTimeout(scrollTimeout);
             }, 750)
         },
         setActiveSlideProperty(position) {
-            let index = position/this.slideWidth > 2 ? 3 : position/this.slideWidth ;
+            let index = position / this.slideWidth > 2 ? 3 : position / this.slideWidth;
             this.activeSlide = this.slides[index];
         }
     }));
@@ -595,8 +595,35 @@ document.addEventListener('alpine:init', () => {
         clearFilterPill(item) {
             return this.activeFiltersContainer.querySelector(this.getDataSelector(item))?.remove();
         }
-
     }));
+
+    Alpine.data('questionCardContextMenu', () => ({
+        menuOpen: false,
+        questionUuid: null,
+        inTest: null,
+        correspondingButton: null,
+        handleIncomingEvent(detail) {
+            if (!this.menuOpen) return this.openMenu(detail);
+
+            this.closeMenu();
+            setTimeout(() => {
+                this.openMenu(detail);
+            }, 150);
+        },
+        openMenu(detail) {
+            this.questionUuid = detail.questionUuid;
+            this.inTest = detail.inTest;
+            this.correspondingButton = detail.button;
+            this.$root.style.top = (detail.coords.top + 56) + 'px';
+            this.$root.style.left = (detail.coords.left - 224) + 'px';
+            this.menuOpen = true
+        },
+        closeMenu() {
+            this.correspondingButton.dispatchEvent(new CustomEvent('close-menu'));
+            this.menuOpen = false
+        }
+    }));
+
 
     Alpine.directive('global', function (el, {expression}) {
         let f = new Function('_', '$data', '_.' + expression + ' = $data;return;');

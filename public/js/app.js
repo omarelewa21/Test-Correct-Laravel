@@ -6219,6 +6219,35 @@ document.addEventListener('alpine:init', function () {
       }
     };
   });
+  alpinejs__WEBPACK_IMPORTED_MODULE_1__["default"].data('questionCardContextMenu', function () {
+    return {
+      menuOpen: false,
+      questionUuid: null,
+      inTest: null,
+      correspondingButton: null,
+      handleIncomingEvent: function handleIncomingEvent(detail) {
+        var _this15 = this;
+
+        if (!this.menuOpen) return this.openMenu(detail);
+        this.closeMenu();
+        setTimeout(function () {
+          _this15.openMenu(detail);
+        }, 150);
+      },
+      openMenu: function openMenu(detail) {
+        this.questionUuid = detail.questionUuid;
+        this.inTest = detail.inTest;
+        this.correspondingButton = detail.button;
+        this.$root.style.top = detail.coords.top + 56 + 'px';
+        this.$root.style.left = detail.coords.left - 224 + 'px';
+        this.menuOpen = true;
+      },
+      closeMenu: function closeMenu() {
+        this.correspondingButton.dispatchEvent(new CustomEvent('close-menu'));
+        this.menuOpen = false;
+      }
+    };
+  });
   alpinejs__WEBPACK_IMPORTED_MODULE_1__["default"].directive('global', function (el, _ref2) {
     var expression = _ref2.expression;
     var f = new Function('_', '$data', '_.' + expression + ' = $data;return;');

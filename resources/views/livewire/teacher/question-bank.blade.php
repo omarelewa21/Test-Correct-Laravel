@@ -274,6 +274,7 @@
                         </span>
                         @endif
                     </x-grid>
+                    <x-question-card-context-menu/>
                 </div>
             </div>
         </div>

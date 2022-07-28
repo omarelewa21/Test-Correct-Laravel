@@ -220,11 +220,11 @@ class QuestionBank extends Component
                 $query->where('scope', '!=', 'cito')
                     ->orWhereNull('scope');
             })
-            ->when(!$this->inGroup, function($query) {
+            ->when(!$this->inGroup, function ($query) {
                 $query->where('is_subquestion', 0);
             })
             // strip GroupQuestions from result when inGroup is set to a guid;
-            ->when($this->inGroup, function($query){
+            ->when($this->inGroup, function ($query) {
                 $query->where('type', '!=', 'GroupQuestion');
             })
             ->orderby('created_at', 'desc')
@@ -353,5 +353,10 @@ class QuestionBank extends Component
     {
         $questionId = TestQuestion::whereUuid($testQuestionUuid)->withTrashed()->value('question_id');
         $this->removeQuestionFromTest($questionId);
+    }
+
+    public function openPreview($questionUuid, $inTest)
+    {
+        $this->emit('openModal', 'teacher.question-cms-preview-modal', ['uuid' => $questionUuid, 'inTest' => $inTest]);
     }
 }
