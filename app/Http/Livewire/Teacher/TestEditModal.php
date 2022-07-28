@@ -43,7 +43,6 @@ class TestEditModal extends ModalComponent
         ];
 
         $this->testForChangeAttributes = [
-                'test_kind_id'         => $test->test_kind_id,
                 'subject_id'           => $test->subject_id,
                 'education_level_id'   => $test->education_level_id,
                 'education_level_year' => $test->education_level_year,
