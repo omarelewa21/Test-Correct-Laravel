@@ -75,8 +75,7 @@
             }
         @endphp
         <x-input.group class="w-full" label="{{ __('cms.Omschrijving') }}" >
-            <textarea class="form-input resize-none" @isset($preview) disabled @endisset id="{{ $questionEditorId }}" name="{{ $questionEditorId }}" wire:model.debounce.1000ms="question.question" selid="question-input"></textarea>
-            <textarea class="form-input resize-none" x-init="{{ $initFunctionCall }}"  id="{{ $questionEditorId }}" name="{{ $questionEditorId }}" wire:model.debounce.1000ms="question.question"></textarea>
+            <textarea class="form-input resize-none" @isset($preview) disabled @endisset x-init="{{ $initFunctionCall }}"  id="{{ $questionEditorId }}" name="{{ $questionEditorId }}" wire:model.debounce.1000ms="question.question" selid="question-input"></textarea>
         </x-input.group>
     </div>
 
