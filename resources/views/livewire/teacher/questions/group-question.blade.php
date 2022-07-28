@@ -67,23 +67,19 @@
     </x-input.group>
 
     <div wire:ignore >
+        @php
+            if($allowWsc){
+                $initFunctionCall = "RichTextEditor.initClassicEditorForTeacherplayerWsc('".$questionEditorId."','".$lang."')";
+            }else{
+                $initFunctionCall = "RichTextEditor.initClassicEditorForTeacherplayer('".$questionEditorId."','".$lang."')";
+            }
+        @endphp
         <x-input.group class="w-full" label="{{ __('cms.Omschrijving') }}" >
             <textarea class="form-input resize-none" @isset($preview) disabled @endisset id="{{ $questionEditorId }}" name="{{ $questionEditorId }}" wire:model.debounce.1000ms="question.question" selid="question-input"></textarea>
+            <textarea class="form-input resize-none" x-init="{{ $initFunctionCall }}"  id="{{ $questionEditorId }}" name="{{ $questionEditorId }}" wire:model.debounce.1000ms="question.question"></textarea>
         </x-input.group>
     </div>
-    <script>
-        document.addEventListener("DOMContentLoaded", () => {
-            var editor = ClassicEditors['{{ $questionEditorId }}'];
-            if (editor) {
-                editor.destroy(true);
-            }
-            @if(Auth::user()->schoolLocation->allow_wsc)
-                RichTextEditor.initClassicEditorForTeacherplayerWsc('{{$questionEditorId}}','{{$lang}}');
-            @else
-                RichTextEditor.initClassicEditorForTeacherplayer('{{$questionEditorId}}');
-            @endif
-        });
-    </script>
+
 @endsection
 
 @section('upload-section-for-group-question')
