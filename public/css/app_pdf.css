@@ -6752,6 +6752,14 @@ video {
   --tw-text-opacity: 1;
   color: rgb(4 31 116 / var(--tw-text-opacity));
 }
+.\!text-white{
+  --tw-text-opacity: 1 !important;
+  color: rgb(255 255 255 / var(--tw-text-opacity)) !important;
+}
+.\!text-primary{
+  --tw-text-opacity: 1 !important;
+  color: rgb(0 77 245 / var(--tw-text-opacity)) !important;
+}
 .text-red-600{
   --tw-text-opacity: 1;
   color: rgb(220 38 38 / var(--tw-text-opacity));
@@ -6767,18 +6775,6 @@ video {
 .text-allred{
   --tw-text-opacity: 1;
   color: rgb(207 27 4 / var(--tw-text-opacity));
-}
-.\!text-white{
-  --tw-text-opacity: 1 !important;
-  color: rgb(255 255 255 / var(--tw-text-opacity)) !important;
-}
-.\!text-sysbase{
-  --tw-text-opacity: 1 !important;
-  color: rgb(4 31 116 / var(--tw-text-opacity)) !important;
-}
-.\!text-primary{
-  --tw-text-opacity: 1 !important;
-  color: rgb(0 77 245 / var(--tw-text-opacity)) !important;
 }
 .underline{
   -webkit-text-decoration-line: underline;
@@ -7420,10 +7416,6 @@ h2.student-testtake-answers-separator span{
   --tw-bg-opacity: 1;
   background-color: rgb(255 255 255 / var(--tw-bg-opacity));
 }
-.hover\:text-base:hover{
-  font-size: 1rem;
-  line-height: 1.5rem;
-}
 .hover\:font-bold:hover{
   font-weight: 700;
 }
@@ -7443,6 +7435,10 @@ h2.student-testtake-answers-separator span{
   --tw-text-opacity: 1;
   color: rgb(55 65 81 / var(--tw-text-opacity));
 }
+.hover\:\!text-primary:hover{
+  --tw-text-opacity: 1 !important;
+  color: rgb(0 77 245 / var(--tw-text-opacity)) !important;
+}
 .hover\:text-gray-500:hover{
   --tw-text-opacity: 1;
   color: rgb(107 114 128 / var(--tw-text-opacity));
@@ -7454,14 +7450,6 @@ h2.student-testtake-answers-separator span{
 .hover\:text-midgrey:hover{
   --tw-text-opacity: 1;
   color: rgb(146 157 175 / var(--tw-text-opacity));
-}
-.hover\:\!text-sysbase:hover{
-  --tw-text-opacity: 1 !important;
-  color: rgb(4 31 116 / var(--tw-text-opacity)) !important;
-}
-.hover\:\!text-primary:hover{
-  --tw-text-opacity: 1 !important;
-  color: rgb(0 77 245 / var(--tw-text-opacity)) !important;
 }
 .hover\:underline:hover{
   -webkit-text-decoration-line: underline;
