@@ -10,4 +10,6 @@ return [
     'ranking-question-explanation'         => 'Geef de juiste volgorde aan door nummers voor de vakken te zetten.',
     'matching-question-explanation'        => 'Verbind de vakken links en rechts door een lijn te tekenen.',
     'classify-question-explanation'        => 'Schrijf de nummers (met een komma separatie) van elke term, woord of zin uit de lijst in het juiste vak.',
+    'citation'                             => 'Bronvermelding',
+    'citation_text'                        => 'Een opsomming van de in dit examen gebruikte bronnen, zoals teksten en afbeeldingen, is te vinden in het bij dit examen behorende correctievoorschrift, dat na afloop van het examen wordt gepubliceerd.',
 ];

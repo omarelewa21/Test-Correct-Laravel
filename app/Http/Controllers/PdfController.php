@@ -5,6 +5,7 @@ namespace tcCore\Http\Controllers;
 use Bugsnag\BugsnagLaravel\Facades\Bugsnag;
 use DOMDocument;
 use Facade\FlareClient\Http\Response;
+use Faker\Provider\Uuid;
 use GuzzleHttp\Client;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -38,16 +39,27 @@ class PdfController extends Controller
         }
     }
 
-    public function HtmlToPdfFromString($html, ?Test $test = null)
+    public function HtmlToPdfFromString($html)
     {
         try {
             ini_set('max_execution_time', '90');
             $html = $this->base64ImgPaths($html);
             $html = $this->svgWirisFormulas($html);
-            if($test){
-                return $this->snappyToTestPrintPdfFromString($html, $test);
-            }
             return $this->snappyToPdfFromString($html);
+        }catch(\Exception $e){
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
+    }
+
+    public function createTestPrintPdf($html, $headerHtml = '<span></span>', $footerHtml = '<span></span>')
+    {
+        try {
+            ini_set('max_execution_time', '90');
+
+            $html = $this->base64ImgPaths($html);
+            $html = $this->svgWirisFormulas($html);
+            return $this->snappyToTestPrintPdf($html, $headerHtml, $footerHtml);
+
         }catch(\Exception $e){
             return response()->json(['error' => $e->getMessage()], 500);
         }
@@ -174,21 +186,26 @@ class PdfController extends Controller
 
     }
 
-    private function snappyToTestPrintPdfFromString($html, $test)
+    private function snappyToTestPrintPdf($html, $header, $footer)
     {
         if(config('app.url')=='https://testwelcome.test-correct.nl'){
             Storage::put('temp/result1.html',$html);
         }
 
-        $cover = (new Cover())->render();
-        $header = (new Header($test))->render();
-        $footer = (new Footer($test))->render();
+        $fileName = Uuid::uuid().'.pdf';
+        $disk = Storage::disk('temp_pdf');
+
+        $filePath = $disk->path($fileName);
+
         $output = \PDF::loadHtml($html)
-            ->setOption('cover', $cover)
             ->setOption('header-html', $header)
             ->setOption('footer-html', $footer);
 
-        return $output->download('file.pdf');
+        $output->save($filePath);
+
+        return $fileName;
+
+//        return $output->download('file.pdf');
     }
 
     private function svgWirisFormulas($html)

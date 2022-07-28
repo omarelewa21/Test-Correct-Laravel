@@ -6,15 +6,15 @@ use Illuminate\View\Component;
 
 class Footer extends Component
 {
-    public $title;
+    public $test;
 
     public function __construct($test)
     {
-        $this->title = $test->name;
+        $this->test = $test;
     }
 
     public function render()
     {
-        return view('components.test-print-pdf.footer')->with(['title' => $this->title]);
+        return view('components.test-print-pdf.footer')->with(['test' => $this->test]);
     }
 }

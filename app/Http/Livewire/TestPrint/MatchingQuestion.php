@@ -71,21 +71,19 @@ class MatchingQuestion extends Component
 
     private function reorderAnswerOptions()
     {
-//        dd($this->answerOptions->count(), $this->answerOptions);
-        //todo reorder answerOptions so the keys render like:
-        // 1 4
-        // 2 5
-        // 3
         $count = $this->answerOptions->count();
 
         $left = collect([]);
         $right = collect([]);
 
         $this->answerOptions->each(function ($item, $i) use ($count, &$left, &$right) {
-            return $i+1 <= (int)round($count / 2) ? ($left[(string)($i+1)] = $item) : ($right[(string)($i+1)] = $item);
+            $i+1 <= (int)round($count / 2)
+                ? ($left[] = $i+1)
+                : ($right[] = $i+1);
         });
-        dd($left, $right);
-        $this->answerOptions = $left->zip($right)->flatten()->filter();
-        dd($this->answerOptions);
+        $numbers = $left->zip($right)->flatten()->filter();
+        $this->answerOptions = $this->answerOptions->mapWithKeys(function ($option, $key) use ($numbers) {
+            return [$numbers[$key] . '.' => $option];
+        });
     }
 }

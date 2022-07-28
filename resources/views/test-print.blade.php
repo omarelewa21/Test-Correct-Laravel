@@ -1,14 +1,6 @@
 <x-layouts.pdf-test-print >
-    <div class="w-full flex flex-col mb-5 overview"
-         x-data="{marginTop: 0}"
-         x-on:unload="(function () {window.scrollTo(0, 0);})"
-         x-cloak
-    >
-
-        <div x-data="{showMe: true}"
-             x-show="showMe"
-             x-on:force-taken-away-blur.window="showMe = !$event.detail.shouldBlur;"
-             class="w-full space-y-8 mt-10" :style="calculateMarginTop()">
+    <div class="w-full flex flex-col mb-5 overview">
+        <div class="w-full space-y-8 mt-10" >
             @push('styling')
                 <style>
                     {!! $styling !!}
@@ -93,14 +85,21 @@
             @endforeach
         </div>
     </div>
-    @push('scripts')
-    <script>
-        function calculateMarginTop() {
-            var questionNav = document.getElementById('overviewQuestionNav').offsetHeight;
-            var shadow = 48;
-            var total = questionNav+shadow;
-            return 'margin-top:' + total +'px';
-        }
-    </script>
-    @endpush
+
+    <span id="citation" >
+        <div id="extraFooterLine" class="footer-line" style=""></div>
+        <table id="extraFooterTable" >
+            <tr>
+                <th>
+                    {{ __('test-pdf.citation') }}
+                </th>
+            </tr>
+            <tr>
+                <td>
+                    {{ __('test-pdf.citation_text') }}
+                </td>
+            </tr>
+        </table>
+    </span>
+
 </x-layouts.pdf-test-print>

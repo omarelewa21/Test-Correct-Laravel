@@ -10,4 +10,6 @@ return [
     'ranking-question-explanation'         => 'Indicate the correct order by putting numbers in front of the boxes.',
     'matching-question-explanation'        => 'Connect the boxes on the left and right by drawing a line.',
     'classify-question-explanation'        => 'Write the numbers (with a comma separation) of each term, word or sentence from the list in the appropriate box.',
+    'citation'                             => 'Citation',
+    'citation_text'                        => 'A list of the sources used in this examination, such as texts and illustrations, can be found in the correction instructions for this examination, which will be published after the examination.',
 ];

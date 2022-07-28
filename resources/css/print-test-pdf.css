@@ -162,10 +162,36 @@
     height: 560px;
 }
 
+.test-print-pdf .drawing-img-container {
+
+}
+.test-print-pdf .drawing-img-container img {
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.test-print-pdf .drawing-paper-container {
+
+}
+
 .test-print-pdf .paper-line {
     border-bottom: 2px dotted #c3d0ed;
     height: 35px;
 }
+
+.test-print-pdf .paper-line-wide {
+    height: 35px;
+    position: relative;
+}
+.test-print-pdf .paper-line-wide:after {
+    position: absolute;
+    bottom: 0px;
+    content: '.........................................................................................................................';
+    color: #c3d0ed;
+    letter-spacing: 3px;
+    word-break: none;
+}
+
 
 .test-print-pdf strong,
 .test-print-pdf b,
@@ -284,10 +310,6 @@
     width: 100%;
 }
 
-.test-print-pdf .matching-table {
-    border-spacing: 3rem 0rem;
-}
-
 .test-print-pdf .matching-textbox-left,
 .test-print-pdf .matching-textbox-right {
     border-radius: 10px;
@@ -316,11 +338,13 @@
 .test-print-pdf .matching-textbox-container-right {
     text-align: right;
     padding-bottom: 0.25rem;
+    padding-left: 50px
 }
 
 .test-print-pdf .matching-textbox-container-left {
     text-align: left;
     padding-bottom: 0.25rem;
+    padding-right: 50px;
 }
 
 .test-print-pdf .matching-dot-left,
@@ -371,4 +395,12 @@
     border: 2px dashed #c3d0ed;
     height: 6rem;
     border-radius: 10px;
+}
+
+#extraFooterTable th {
+    text-align: start;
+    line-height: 2rem;
+}
+#extraFooterTable th {
+    text-align: start;
 }

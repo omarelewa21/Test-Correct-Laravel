@@ -18,13 +18,13 @@
                     }
                 }
             }
-{{--            --}}{{-- adding 'Bronvermelding' makes all footers larger... this is a problem --}}
-{{--            if (vars['page'] == vars['topage']) {--}}
-{{--                document.getElementById('extraFooterLine').style.visibility = 'visible';--}}
-{{--                document.getElementById('extraFooterTable').style.visibility = 'visible';--}}
-{{--                document.getElementById('extraFooterLine').style.display = 'block';--}}
-{{--                document.getElementById('extraFooterTable').style.display = 'block';--}}
-{{--            }--}}
+            {{--            --}}{{-- adding 'Bronvermelding' makes all footers larger... this is a problem --}}
+            {{--            if (vars['page'] == vars['topage']) {--}}
+            {{--                document.getElementById('extraFooterLine').style.visibility = 'visible';--}}
+            {{--                document.getElementById('extraFooterTable').style.visibility = 'visible';--}}
+            {{--                document.getElementById('extraFooterLine').style.display = 'block';--}}
+            {{--                document.getElementById('extraFooterTable').style.display = 'block';--}}
+            {{--            }--}}
 
             document.getElementById('continue-reading').textContent = vars['page'] == vars['topage'] ? 'einde.' : 'lees verder';
         }

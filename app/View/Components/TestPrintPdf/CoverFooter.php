@@ -4,7 +4,7 @@ namespace tcCore\View\Components\TestPrintPdf;
 
 use Illuminate\View\Component;
 
-class Header extends Component
+class CoverFooter extends Component
 {
     public $test;
 
@@ -25,6 +25,6 @@ class Header extends Component
      */
     public function render()
     {
-        return view('components.test-print-pdf.header')->with('test', $this->test);
+        return view('components.test-print-pdf.cover-footer')->with(['test' => $this->test]);;
     }
 }

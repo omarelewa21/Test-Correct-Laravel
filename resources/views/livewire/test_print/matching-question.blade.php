@@ -15,7 +15,7 @@
         <div class="classify-answers-container">
             @foreach($answerOptions as $key => $answer)
                 <div class="classify-answers-sub">
-                    <span class="bold">{{$key}}.</span> {{$answer}}
+                    <span class="bold">{{$key}} {{$answer}}</span>
                 </div>
 
             @endforeach
@@ -37,41 +37,6 @@
                 </div>
             @endforeach
         </div>
-
-
-            {{--                        <div class="flex-wrap-pdf flex-col-pdf classify question-no-break-matching-option" style="margin-top: 40px;">--}}
-            {{--                            <div class="flex-row-pdf space-x-5 classified ">--}}
-            {{--                                @php $counter = 0; @endphp--}}
-            {{--                                @foreach ($question->matchingQuestionAnswers as $group)--}}
-            {{--                                    @if(  $group->correct_answer_id === null )--}}
-            {{--                                        @php $counter++; @endphp--}}
-            {{--                                        <x-dropzone type="classify" title="{{ $group->answer }}" wire:key="group-{{ $group->id }}"--}}
-            {{--                                                    wire:sortable.item="{{ $group->id }}">--}}
-            {{--                                            <div class="flex-pdf flex-col-pdf w-full dropzone-height" selid="drag-block-input" >--}}
-            {{--                                                @foreach($question->matchingQuestionAnswers as $option)--}}
-            {{--                                                    @if(  $option->correct_answer_id !== null )--}}
-            {{--                                                        @if($option->correct_answer_id == $group->id)--}}
-            {{--                                                            <div class="bg-light-grey base border-light-grey border-2--}}
-            {{--                                                                 rounded-10 inline-flex px-4 py-1.5 items-center justify-between drag-item bold font-size-18 pdf-80 pdf-minh-40"--}}
-            {{--                                                            >--}}
-            {{--                                                                <span class="mr-3 flex items-center pdf-align-center" >{{ $option->answer }}</span>--}}
-            {{--                                                                <div class="w-4">--}}
-            {{--                                                                    <x-icon.drag-pdf/>--}}
-            {{--                                                                </div>--}}
-            {{--                                                            </div>--}}
-            {{--                                                        @endif--}}
-            {{--                                                    @endif--}}
-            {{--                                                @endforeach--}}
-            {{--                                            </div>--}}
-            {{--                                        </x-dropzone>--}}
-            {{--                                        @if($counter %3 == 0)--}}
-            {{--                                            </div>--}}
-            {{--                                            <div class="flex-row-pdf space-x-5 classified">--}}
-            {{--                                        @endif--}}
-            {{--                                    @endif--}}
-            {{--                                @endforeach--}}
-            {{--                            </div>--}}
-            {{--                        </div>--}}
 
         @endif
         @if($question->subtype == 'Matching')
