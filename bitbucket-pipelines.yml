@@ -6,7 +6,7 @@ pipelines:
                   image: php:7.4-alpine
                   clone:
                       enabled: false
-                  deployment: testportal
+                  deployment: testwelcome
                   script:
                       - (umask  077 ; echo $TESTPORTAL_DEPLOYMENT_KEY_PRIVATE | base64 -d > ~/.ssh/tlc_rsa)
                       - (umask  077 ; echo $TLC_DEPLOY_PRIVATE_KEY | base64 -d > ~/.ssh/tlc_deploy)
@@ -25,7 +25,7 @@ pipelines:
                   image: php:7.4-alpine
                   clone:
                       enabled: false
-                  deployment: testportal
+                  deployment: stagewelcome
                   script:
                       - (umask  077 ; echo $TESTPORTAL_DEPLOYMENT_KEY_PRIVATE | base64 -d > ~/.ssh/tlc_rsa)
                       - (umask  077 ; echo $TLC_DEPLOY_PRIVATE_KEY | base64 -d > ~/.ssh/tlc_deploy)
