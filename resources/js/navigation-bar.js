@@ -75,15 +75,17 @@ document.addEventListener('alpine:init', () => {
                 tiles.style.setProperty('--top', '0px');
                 tiles.style.paddingLeft = '0px';
                 clearTimeout(this.hideTimeout);
+                this.$dispatch('tiles-hidden');
                 if(reset){
                     this.resetActiveState();
+                    this.$dispatch('tiles-shown');
                 }
             },timeout);
             // alert(this.$wire.activeRoute.main == '');
         },
         resetActiveState() {
             if (this.$wire.activeRoute.sub !== ''){
-                tiles.style.setProperty('--top', '98px');
+                tiles.style.setProperty('--top', '100px');
 
                 var activeTile = tiles.querySelector('.' + this.$wire.activeRoute.main);
                 activeTile.style.display = "flex";
@@ -98,7 +100,8 @@ document.addEventListener('alpine:init', () => {
         tilesBarShow() {
             clearTimeout(this.hideTimeout);
             tiles.style.paddingLeft = '0px';
-            tiles.style.setProperty('--top', '98px');
+            tiles.style.setProperty('--top', '100px');
+            this.$dispatch('tiles-shown');
         },
         userMenuShow() {
             clearTimeout(this.userMenuTimeout);
