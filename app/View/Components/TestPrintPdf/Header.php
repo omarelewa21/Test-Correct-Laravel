@@ -7,6 +7,7 @@ use Illuminate\View\Component;
 class Header extends Component
 {
     public $test;
+    public $testType;
 
     /**
      * Create a new component instance.
@@ -16,6 +17,13 @@ class Header extends Component
     public function __construct($test)
     {
         $this->test = $test;
+
+        if ($this->test->scope == 'exam') {
+            $this->testType = 'exam';
+        }
+        if ($this->test->scope == 'cito') {
+            $this->testType = 'cito';
+        }
     }
 
     /**
@@ -25,6 +33,9 @@ class Header extends Component
      */
     public function render()
     {
-        return view('components.test-print-pdf.header')->with('test', $this->test);
+        return view('components.test-print-pdf.header')->with([
+            'test'     => $this->test,
+            'testType' => $this->testType,
+        ]);
     }
 }

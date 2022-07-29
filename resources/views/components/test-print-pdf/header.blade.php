@@ -35,7 +35,7 @@
             {{ $test->name }}
         </td>
         <td class="" style="text-align:right">
-            {{__('test.toets')}} {{ $test->educationLevel->name }}
+            {{ __("test-pdf.".$testType) }} {{ $test->educationLevel->name }}
         </td>
     </tr>
     <tr>

@@ -190,6 +190,7 @@ class PdfController extends Controller
     {
         if(config('app.url')=='https://testwelcome.test-correct.nl'){
             Storage::put('temp/result1.html',$html);
+            Storage::put('temp/result1footer.html',$footer);
         }
 
         $fileName = Uuid::uuid().'.pdf';
@@ -204,8 +205,6 @@ class PdfController extends Controller
         $output->save($filePath);
 
         return $fileName;
-
-//        return $output->download('file.pdf');
     }
 
     private function svgWirisFormulas($html)

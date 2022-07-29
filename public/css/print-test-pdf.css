@@ -246,7 +246,7 @@
 
 .test-print-pdf * {
     font-family: Arial;
-    font-size: 14px;
+    font-size: 14pt;
 }
 
 .test-print-pdf .selection-answers-container {
@@ -403,7 +403,70 @@
     border-radius: 10px;
 }
 
-#extraFooterTable th {
+
+.test-print-pdf .footer-info-container .info-value {
+    font-weight: bold;
+}
+
+.test-print-pdf .footer-info-container {
+    display: block;
+    width: 100%;
+    height: 58px;
+    padding-top: 0.25rem;
+}
+.test-print-pdf .header-info-container {
+    display: block;
+    width: 100%;
+    padding-top: 0.25rem;
+}
+.test-print-pdf .header-info-container > div:nth-child(1) {
+    display: inline-block;
+}
+.test-print-pdf .header-info-container > div:nth-child(2){
+    display: inline-block;
+    width: 150px;
+    text-align: right;
+    float: right;
+}
+.test-print-pdf .footer-info-container > div {
+    display: inline-block;
+    min-width: 200px;
+}
+
+.test-print-pdf .footer-info-container > div:first-child,
+.test-print-pdf .footer-info-container > div:nth-child(2) {
+    width: 265px;
+    float: left;
+}
+.test-print-pdf .footer-info-container > div:nth-child(3) {
+    width: 190px;
+    float: left;
+}
+
+.test-print-pdf .footer-info-container > div:last-child {
+    min-width: 120px;
+    float: right;
+    margin-left: auto;
+}
+
+.test-print-pdf .cover-container-1 {
+    padding-top: 1rem;
+}
+
+.test-print-pdf .cover-container-1 > div{
+    font-size: 2rem;
+    font-weight: bold;
     line-height: 2rem;
-    text-align: start;
+}
+.test-print-pdf .cover-container-2  {
+    margin-top: 150px;
+    height: 200px;
+}
+
+.test-print-pdf .cover-container-3 {
+    height: 200px;
+    margin-top: 450px;
+}
+.test-print-pdf .cover-container-3 > div:first-child {
+    margin-bottom: 1rem;
 }

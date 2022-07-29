@@ -16,6 +16,16 @@ class CoverFooter extends Component
     public function __construct($test)
     {
         $this->test = $test;
+
+        $amountOfQuestions = collect($test->getAmountOfQuestions())->reduce(function ($carry, $item) {
+            return $carry + $item;
+        }, 0);
+
+        $this->data = [
+            'amountOfQuestions' => $amountOfQuestions,
+            'maxScore' => $this->test->maxScore(),
+            'weight' => 0, //todo implement for TestTake
+        ];
     }
 
     /**
@@ -25,6 +35,10 @@ class CoverFooter extends Component
      */
     public function render()
     {
-        return view('components.test-print-pdf.cover-footer')->with(['test' => $this->test]);;
+        return view('components.test-print-pdf.cover-footer')
+            ->with([
+                'test' => $this->test,
+                'data' => $this->data,
+            ]);
     }
 }

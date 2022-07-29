@@ -15,6 +15,7 @@ class Footer extends Component
 
     public function render()
     {
-        return view('components.test-print-pdf.footer')->with(['test' => $this->test]);
+        return view('components.test-print-pdf.footer')
+            ->with(['test' => $this->test]);
     }
 }

@@ -1,5 +1,6 @@
 <!DOCTYPE html>
-<html><head><script>
+<html><head>
+    {{--<script>
         function subst() {
             var vars = {};
             var query_strings_from_url = document.location.search.substring(1).split('&');
@@ -24,29 +25,33 @@
             //
             // document.getElementsByClassName('header-text')[0].style.fontFamily = "Nunito Bold";
         }
-    </script>
+    </script>--}}
     <link rel="stylesheet" href="file://{{ public_path('/css/app_pdf.css') }}">
     <link rel="stylesheet" href="file://{{ public_path('/css/print-test-pdf.css') }}">
 </head>
 <body class="test-print-pdf" style="border:0; margin: 0;" onload="subst()">
 <table class="header-table" style="width: 100%;">
     <tr>
-        <td class=" bold">
-            {{ $test->name }}
+        <td class=" bold" rowspan="2">
+            <img class="h-12" src="{{ asset('/img/mail/logo-test-correct.png') }}"
+                 alt="Test-Correct">
         </td>
         <td class="" style="text-align:right">
-            {{__('test.toets')}} {{ $test->educationLevel->name }}
+            {{ __("test-pdf.".$testType) }} {{ $test->educationLevel->name }}
         </td>
     </tr>
     <tr>
-        <td class="bold">
-            {{ $test->subject->name }}
-        </td>
         <td class="bold text-right">
             {{ $test->period->schoolYear->year }}
         </td>
     </tr>
 </table>
-<div class="header-line"></div>
-<span style="font-size: 4px; line-height: 4px;">&nbsp;</span>
+<div class="header-line mt-3"></div>
+
+<div class="header-info-container">
+    <div class="bold">{{ $test->subject->name }}</div>
+    <div>{{ $date }}</div>
+</div>
+
+<div class="header-line mt-2 mb-3"></div>
 </body></html>

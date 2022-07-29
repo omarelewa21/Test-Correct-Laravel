@@ -3,6 +3,7 @@
 namespace tcCore\Http\Controllers;
 
 use Carbon\Carbon;
+use iio\libmergepdf\Merger;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
@@ -43,27 +44,25 @@ class PrintTestController extends Controller
     {
         $disk = Storage::disk('temp_pdf');
 
-        //todo merge cover and mainPdf
+        $merger = new Merger;
+        $merger->addFile($disk->path($coverPdf));
+        $merger->addFile($disk->path($mainPdf));
 
-//        $disk->delete($coverPdf);
-//        $disk->delete($mainPdf);
+        $createdPdf = $merger->merge();
 
-        return $disk->get($mainPdf);
+        $disk->delete($coverPdf);
+        $disk->delete($mainPdf);
+
+        return $createdPdf;
     }
 
     private function generateCoverPdf()
     {
-        //todo save file as tempfile, merge with main pdf
-
-        $cover = (new Cover())->render();
+        $cover = (new Cover($this->test))->render();
         $header = (new CoverHeader($this->test))->render();
         $footer = (new CoverFooter($this->test))->render();
 
         return PdfController::createTestPrintPdf($cover, $header, $footer);
-//        return response()->make($coverPdf, 200, [
-//            'Content-Type'        => 'application/pdf',
-//            'Content-Disposition' => 'inline; filename="toets.pdf"'
-//        ]);
     }
 
     private function generateMainPdf()
@@ -86,10 +85,6 @@ class PrintTestController extends Controller
         $html = view('test-print', compact(['data', 'answers', 'nav', 'styling', 'test']))->render();
 
         return PdfController::createTestPrintPdf($html, $header, $footer);
-//        return response()->make(PdfController::createTestPrintPdf($html, $header, $footer), 200, [
-//            'Content-Type'        => 'application/pdf',
-//            'Content-Disposition' => 'inline; filename="toets.pdf"'
-//        ]);
     }
 
     public static function getData(Test $test)

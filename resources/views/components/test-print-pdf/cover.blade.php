@@ -5,10 +5,26 @@
     <link rel="stylesheet" href="file://{{ public_path('/css/print-test-pdf.css') }}">
 </head>
 
-<body class="test-print-pdf" style="background-color: #ff79c6 !important">
-<div style="background-color: #5cb85c">
-    help
+<body class="test-print-pdf" style="margin: 0; border: 0; ">
+<div class="cover-container-1" >
+    <div>{{ $test->name }}</div>
 </div>
-Cover
+
+<div class="cover-container-2">
+    @if($showExamAttachmentsText)
+    <div>{!!  __('test-pdf.cover explanation 1') !!}</div>
+    <div>{!! __('test-pdf.cover explanation 2') !!}</div>
+    @endif
+</div>
+
+<div class="cover-container-3">
+    <div>
+        {!! __('test-pdf.cover description text 1') !!}
+    </div>
+    <div>
+        {!! __('test-pdf.cover description text 2') !!}
+    </div>
+</div>
+
 </body>
 </html>
