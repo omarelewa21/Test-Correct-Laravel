@@ -32,6 +32,7 @@ class AppApi extends Controller
         $testTakeEvent = new TestTakeEvent();
         $testTakeEvent->setAttribute('test_take_event_type_id', $reasonId);
         $testTakeEvent->setAttribute('test_participant_id', $testParticipant->getKey());
+        $testTakeEvent->setAttribute('metadata', json_decode($request->metadata, true));
         $testParticipant->testTake->testTakeEvents()->save($testTakeEvent);
     }
 }
