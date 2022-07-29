@@ -1337,7 +1337,7 @@ class OpenShort extends Component implements QuestionCms
     public function saveIfDirty()
     {
         if ($this->isDirty()) {
-            $this->save();
+            $this->save(false);
         }
     }
 }
