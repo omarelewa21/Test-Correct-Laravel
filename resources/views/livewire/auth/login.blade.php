@@ -1,4 +1,4 @@
-<div>
+<div wire:init="dispatchGuestSuccessNotification">
     <div class="flex w-full items-start justify-center pt-7 pb-9">
         <a class="flex  w-36 md:w-44" href="https://test-correct.nl">
             <img class="" src="{{ asset('svg/logos/Logo-Test-Correct-2.svg') }}" alt="Test-Correct">
@@ -64,22 +64,22 @@
 
 
                                     <x-input.group class="mt-5" label="{{ __('auth.emailaddress') }}">
-                                        <x-input.text wire:model.debounce.300ms="forgotPasswordEmail"/>
+                                        <x-input.text selid="forgot-password-email" wire:model.debounce.300ms="forgotPasswordEmail"/>
                                     </x-input.group>
 
                                     <div class="flex w-full justify-self-end mt-auto">
                                         <x-button.text-button size="md"
                                                               class="flex w-1/2 mr-2 justify-end"
                                                               @click.prevent="active_overlay = ''"
-                                                              type="link">
+                                                              selid="forgot-password-cancel-btn">
                                             <span>{{__('auth.cancel')}}</span>
                                         </x-button.text-button>
                                         @if($forgotPasswordButtonDisabled)
-                                            <x-button.cta class="flex justify-center w-1/2" size="sm" disabled>
+                                            <x-button.cta selid="forgot-password-request-btn" class="flex justify-center w-1/2" size="sm" disabled>
                                                 <span>{{ __('auth.request_password_reset') }}</span>
                                             </x-button.cta>
                                         @else
-                                            <x-button.cta class="flex justify-center w-1/2" size="sm">
+                                            <x-button.cta selid="forgot-password-request-btn" class="flex justify-center w-1/2" size="sm">
                                                 <span>{{ __('auth.request_password_reset') }}</span>
                                             </x-button.cta>
                                         @endif
@@ -102,7 +102,7 @@
                                 <form wire:submit.prevent="login" action="#" method="POST" class="flex-col flex flex-1">
                                     <div class="flex flex-col space-y-4">
                                         <x-input.group label="{{ __('auth.emailaddress')}}" class="flex-1">
-                                            <x-input.text wire:model.lazy="username" autofocus></x-input.text>
+                                            <x-input.text selid="login-username" wire:model.lazy="username" autofocus></x-input.text>
                                         </x-input.group>
                                         <x-input.group label="{{ __('auth.password')}}" class="flex-1 relative">
                                             <div @mouseenter="hoverPassword = true"
@@ -119,6 +119,7 @@
                                                 </div>
                                             </div>
                                             <x-input.text wire:model.lazy="password"
+                                                          selid="login-password"
                                                           x-bind:type="showPassword ? 'text' : 'password'"
                                                           class="pr-12 overflow-ellipsis"
                                             >
@@ -259,7 +260,7 @@
                                         </div>
                                     @endif
                                     <div class="flex mt-auto pt-4">
-                                        <x-button.cta class="flex flex-grow justify-center" size="md">
+                                        <x-button.cta selid="login-btn" class="flex flex-grow justify-center" size="md">
                                             <span>{{ __('auth.log_in_verb') }}</span>
                                         </x-button.cta>
                                     </div>
@@ -272,14 +273,14 @@
                                       class="flex-col flex flex-1 justify-start">
                                     <div class="flex flex-col md:flex-row space-y-4 md:space-x-4 md:space-y-0">
                                         <x-input.group label="{{ __('auth.first_name')}}" class="w-full">
-                                            <x-input.text wire:model.lazy="firstName" autofocus></x-input.text>
+                                            <x-input.text selid="test-direct-firstname" wire:model.lazy="firstName" autofocus></x-input.text>
                                         </x-input.group>
                                         <x-input.group label="{{ __('auth.suffix')}}" class="w-28">
-                                            <x-input.text wire:model.lazy="suffix" autofocus></x-input.text>
+                                            <x-input.text selid="test-direct-suffix" wire:model.lazy="suffix" autofocus></x-input.text>
                                         </x-input.group>
                                     </div>
                                     <x-input.group label="{{ __('auth.last_name')}}" class="mt-4">
-                                        <x-input.text wire:model.lazy="lastName" autofocus></x-input.text>
+                                        <x-input.text selid="test-direct-lastname" wire:model.lazy="lastName" autofocus></x-input.text>
                                     </x-input.group>
                                     <div class="flex-1 ">
                                         <div class="mx-auto flex flex-col">
@@ -368,7 +369,7 @@
                                     </div>
 
                                     <div class="flex mt-auto pt-4">
-                                        <x-button.cta class="flex flex-grow justify-center" size="md">
+                                        <x-button.cta selid="test-direct-login-btn" class="flex flex-grow justify-center" size="md">
                                             <span>{{ __('auth.log_in_verb') }}</span>
                                         </x-button.cta>
                                     </div>
@@ -385,7 +386,7 @@
                             {{__('auth.do_you_have_an_entree_account')}}
                         </span>
                             </div>
-                            <x-button.primary type="link" class="" size="md"
+                            <x-button.primary type="link" class="" size="md" selid="entree-login-btn"
                                               href="{{ route('saml2_login', 'entree') }}">
                                 <x-icon.entreefederatie/>
                                 <span>{{ __('auth.login_with_entree') }}</span>
@@ -395,32 +396,23 @@
                     </div>
                 </div>
 
-            <div class="w-full flex flex-col items-center">
+            <div class="w-full flex flex items-center justify-center space-x-2">
                 <div class="flex flex-col md:flex-row items-center space-x-2">
-                    <span class="flex">
-                        {{__('auth.forgot_password_long')}}
-                    </span>
-                    <x-button.text-button class="order-1" size="sm"
+                    <x-button.text-button selid="login-forgot-password-btn" class="order-1" size="sm"
                                           wire:click.prevent="$set('active_overlay', 'send_reset_password')">
                         <span class="text-base">{{__('auth.forgot_password')}}</span>
                         <x-icon.arrow/>
                     </x-button.text-button>
                 </div>
                 <div class="flex flex-col md:flex-row items-center space-x-2">
-                    <span class="flex">
-                        {{__('auth.Maak account long')}}
-                    </span>
-                        <x-button.text-button class="order-1" size="sm"
+                        <x-button.text-button selid="login-create-account-btn" class="order-1" size="sm"
                                               @click="Livewire.emit('open-auth-modal')">
                             <span class="text-base">{{__('auth.Maak account')}}</span>
                             <x-icon.arrow/>
                         </x-button.text-button>
                 </div>
-                <div class="flex flex-col md:flex-row items-center space-x-2" browser>
-                    <span class="flex">
-                        {{__('auth.download_app_long')}}
-                    </span>
-                    <x-button.text-button size="sm" type="link" href="{{ $this->studentDownloadUrl }}">
+                <div class="flex flex-col md:flex-row items-center space-x-2" browser wire:ignore>
+                    <x-button.text-button selid="login-download-app-btn" size="sm" type="link" href="{{ $this->studentDownloadUrl }}">
                         <span class="text-base">{{__('auth.download')}}</span>
                         <x-icon.arrow/>
                     </x-button.text-button>
@@ -774,5 +766,5 @@
 
         <x-modal.auth-create-account maxWidth="lg" wire:model="showAuthModal"/>
     </div>
-    <x-login-notification :notificationTimeout="50000"/>
+    <x-login-notification />
 </div>
