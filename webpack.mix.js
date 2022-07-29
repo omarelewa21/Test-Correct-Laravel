@@ -16,6 +16,12 @@ const { execSync } = require('child_process');
 // mix.js('resources/js/app.js', 'public/js')
 //     .sass('resources/sass/app.scss', 'public/css');
 
+// mix.webpackConfig({
+//     stats: {
+//         children: true,
+//     }
+// })
+
 mix.postCss("resources/css/app.css", "public/css", [
     require("tailwindcss"),
 ]).postCss("resources/css/app_pdf.css", "public/css/", [

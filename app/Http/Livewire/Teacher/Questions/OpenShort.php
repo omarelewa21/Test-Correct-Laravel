@@ -591,7 +591,7 @@ class OpenShort extends Component implements QuestionCms
 
         if ($this->isPartOfGroupQuestion()) {
             $groupQuestionQuestion = GroupQuestionQuestion::whereUuid($this->groupQuestionQuestionId)->first();
-            $groupQuestionQuestionManager = GroupQuestionQuestionManager::getInstanceWithUuid($this->testQuestionId); //'577fa17d-68b7-4695-ace5-e14afd913757');
+            $groupQuestionQuestionManager = GroupQuestionQuestionManager::getInstanceWithUuid($this->testQuestionId);
 
             $response = (new GroupQuestionQuestionsController)->updateGeneric(
                 $groupQuestionQuestionManager,
@@ -1338,5 +1338,12 @@ class OpenShort extends Component implements QuestionCms
 
         $options = TemporaryLogin::buildValidOptionObject('page', 'tests/index');
         return Auth::user()->redirectToCakeWithTemporaryLogin($options);
+    }
+
+    public function saveIfDirty()
+    {
+        if ($this->isDirty()) {
+            $this->save(false);
+        }
     }
 }

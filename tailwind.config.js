@@ -35,6 +35,12 @@ module.exports = {
             borderWidth: {
                 '3': '3px',
                 '6': '6px',
+            },
+            width: {
+                '50': '12.5rem'
+            },
+            zIndex: {
+                '1': 1
             }
         },
         keyframes: {

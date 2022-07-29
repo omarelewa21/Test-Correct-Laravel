@@ -12,6 +12,7 @@
                 "
      title="{{ $question->typeName }}"
      style="max-width: 300px"
+     data-order-number="{{ $loop }}"
      @if($subQuestion)
         wire:sortable-group.item="{{ $question->uuid }}"
      @else
