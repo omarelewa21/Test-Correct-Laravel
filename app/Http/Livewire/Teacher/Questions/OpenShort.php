@@ -677,7 +677,7 @@ class OpenShort extends Component implements QuestionCms
             if ($this->isPartOfGroupQuestion()) {
                 $response = (new GroupAttachmentsController)
                     ->destroy(
-                        GroupQuestionQuestionManager::getInstanceWithUuid($this->testQuestionId),
+                        GroupQuestionQuestionManager::getInstanceWithUuid("{$this->testQuestionId}.{$this->groupQuestionQuestionId}"),
                         $attachment
                     );
             } else {
@@ -761,7 +761,7 @@ class OpenShort extends Component implements QuestionCms
         if ($this->isPartOfGroupQuestion()) {
             return (new GroupAttachmentsController)
                 ->store(
-                    GroupQuestionQuestionManager::getInstanceWithUuid($response->original->group_question_question_path),
+                    GroupQuestionQuestionManager::getInstanceWithUuid("{$response->original->group_question_question_path}.{$response->original->uuid}"),
                     $request
                 );
         }
@@ -874,8 +874,8 @@ class OpenShort extends Component implements QuestionCms
         if ($this->editModeForExistingQuestion()) {
             if ($this->isPartOfGroupQuestion()) {
                 $tq = GroupQuestionQuestion::whereUuid($this->groupQuestionQuestionId)->first();
-                $this->attachments = $tq->groupQuestion->attachments;
                 $q = $tq->question;
+                $this->attachments = $q->attachments;
             } else {
                 $tq = TestQuestion::whereUuid($this->testQuestionId)->first();
                 $q = $tq->question;

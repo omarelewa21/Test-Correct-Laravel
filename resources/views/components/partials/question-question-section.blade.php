@@ -1,4 +1,4 @@
-<x-upload.section uploadModel="uploads" :defaultFilepond="false" :multiple="true" :enableUpload="!$this->isPartOfGroupQuestion && !isset($this->isPreview)">
+<x-upload.section uploadModel="uploads" :defaultFilepond="false" :multiple="true" :enableUpload="!isset($this->isPreview)">
     <x-slot name="files">
         <div id="attachment-badges" class="flex flex-wrap" wire:key="attachment-section-{{$this->uniqueQuestionKey}}">
             @foreach($this->attachments as $attachment)
