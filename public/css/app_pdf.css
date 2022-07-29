@@ -5488,8 +5488,8 @@ video {
 .w-14{
   width: 3.5rem;
 }
-.min-w-\[90px\]{
-  min-width: 90px;
+.min-w-\[110px\]{
+  min-width: 110px;
 }
 .min-w-full{
   min-width: 100%;

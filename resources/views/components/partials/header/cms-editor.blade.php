@@ -20,7 +20,7 @@
     <div class="flex space-x-6 items-center">
         @if($this->withDrawer)
             <div class="flex min-w-max space-x-2">
-{{--                <span class="text-sm">{{ trans_choice('cms.vraag', $questionCount['regular']) }}, {{ trans_choice('cms.group-question-count', $questionCount['group']) }}</span>--}}
+                {{--                <span class="text-sm">{{ trans_choice('cms.vraag', $questionCount['regular']) }}, {{ trans_choice('cms.group-question-count', $questionCount['group']) }}</span>--}}
                 <span class="primary bg-white px-2 text-sm rounded-sm bold">BETA</span>
             </div>
 
@@ -29,7 +29,9 @@
                         let response = await $wire.getPdfUrl();
                         window.open(response, '_blank');
                     }
-                }">
+                }"
+                 @click="forceSyncEditors();$wire.saveIfDirty()"
+            >
                 <button @if($this->canDeleteTest)
                             @click="$dispatch('delete-modal', ['test', '{{ $this->testId }}'])"
                         @else
@@ -58,8 +60,7 @@
                 >
                     <x-icon.pdf-file color="currentColor"/>
                 </button>
-                <button disabled
-{{--                        wire:click="$emit('openModal','teacher.planning-modal', {{ json_encode(['testUuid' => $this->testId]) }}) "--}}
+                <button wire:click="$emit('openModal','teacher.planning-modal', {testUuid: '{{ $this->testId }}' })"
                         class="new-button button-cta w-10 disabled"
                         title="{{ __('teacher.Toets inplannen') }}"
                 >

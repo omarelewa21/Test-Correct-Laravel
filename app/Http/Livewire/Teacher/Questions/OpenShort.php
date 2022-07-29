@@ -1333,4 +1333,11 @@ class OpenShort extends Component implements QuestionCms
         $options = TemporaryLogin::buildValidOptionObject('page', 'tests/index');
         return Auth::user()->redirectToCakeWithTemporaryLogin($options);
     }
+
+    public function saveIfDirty()
+    {
+        if ($this->isDirty()) {
+            $this->save();
+        }
+    }
 }
