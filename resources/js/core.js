@@ -62,6 +62,27 @@ Core = {
 
         alert = true;
     },
+
+    lostFocusWithoutReporting: function (text) {
+        if (!isMakingTest()) {
+            return;
+        }
+
+        let testtakemanager = document.querySelector("[testtakemanager]");
+        if (testtakemanager != null) {
+            livewire
+                .find(testtakemanager.getAttribute("wire:id"))
+                .shouldFraudNotificationsBeShown()
+                .then(function (response) {
+                    if (response.shouldFraudNotificationsBeShown) {
+                        Notify.notify(text, "error");
+                    }
+                });
+        }
+
+        window.Livewire.emit("setFraudDetected");
+    },
+
     isIpad: function () {
         // var standalone = window.navigator.standalone,
         //     userAgent = window.navigator.userAgent.toLowerCase(),

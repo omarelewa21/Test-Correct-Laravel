@@ -4,8 +4,9 @@ namespace tcCore\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Session;
 
-class AppApiHandInRequest extends FormRequest
+class AppApiFraudEventRequest extends Request
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -27,8 +28,11 @@ class AppApiHandInRequest extends FormRequest
      */
     public function rules()
     {
+        $this->filterInput();
+
         return [
-            //
+            'reason' => 'required',
+            'metdata' => 'json'
         ];
     }
 }
