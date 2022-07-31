@@ -62,11 +62,6 @@ trait Archivable
         }
     }
 
-    public function archived_model()
-    {
-        return $this->hasOne('tcCore\ArchivedModel', 'archivable_model_id', 'id')->where('archivable_model_type', get_class($this));
-    }
-
     public function archiveForUser(User $user)
     {
         return ArchivedModel::archiveWithModelAndUser($this, $user);
