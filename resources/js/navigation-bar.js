@@ -72,7 +72,7 @@ document.addEventListener('alpine:init', () => {
         tilesBarHide(timeout = 1, reset = true) {
             this.hideTimeout = setTimeout(() => {
                 this.tileItemsHide();
-                tiles.style.setProperty('--top', '0px');
+                tiles.style.setProperty('--top', '50px');
                 tiles.style.paddingLeft = '0px';
                 clearTimeout(this.hideTimeout);
                 this.$dispatch('tiles-hidden');

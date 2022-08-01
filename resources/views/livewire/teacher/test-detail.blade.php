@@ -1,5 +1,5 @@
 <div id="test-detail"
-     class="flex flex-col relative w-full min-h-full bg-lightGrey border-secondary "
+     class="flex flex-col w-full min-h-full bg-lightGrey border-secondary "
      x-data="{groupDetail: null, bodyVisibility: true,  maxHeight: '100%'}"
      x-init="
      groupDetail = $el.querySelector('#groupdetail');
@@ -25,9 +25,9 @@
      "
      :style="`max-height: ${maxHeight}`"
 >
-    <div class="flex w-full border-b border-secondary pb-1">
+    <div class="flex w-full border-b border-secondary pb-1 sticky bg-lightGrey z-1 sticky-pseudo-bg" :style="{top: $root.offsetTop + 'px'}">
 
-        <div class="w-full max-w-screen-2xl px-10">
+        <div class="w-full max-w-screen-2xl px-10 z-1">
             <div class="flex w-full justify-between">
                 <div class="flex items-center space-x-2.5">
                     <x-button.back-round wire:click="redirectToTestOverview"/>

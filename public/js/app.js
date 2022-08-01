@@ -12904,7 +12904,7 @@ document.addEventListener('alpine:init', function () {
         this.hideTimeout = setTimeout(function () {
           _this2.tileItemsHide();
 
-          tiles.style.setProperty('--top', '0px');
+          tiles.style.setProperty('--top', '50px');
           tiles.style.paddingLeft = '0px';
           clearTimeout(_this2.hideTimeout);
 

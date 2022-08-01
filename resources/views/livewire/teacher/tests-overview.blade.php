@@ -18,7 +18,7 @@
      @question-removed.window="Notify.notify('Vraag verwijderd!')"
 >
 
-    <div class="border-b border-secondary sticky sticky-pseudo bg-lightGrey z-1"
+    <div class="border-b border-secondary sticky sticky-pseudo-bg bg-lightGrey z-1"
          style="transition: top 0.3s linear"
          :style="{top: document.getElementById('navigation-bar').scrollHeight + 'px'}"
          @tiles-hidden.window="$el.style.top = '100px'"

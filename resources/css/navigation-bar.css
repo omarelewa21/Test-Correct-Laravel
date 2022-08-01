@@ -96,7 +96,7 @@
     box-shadow: 0px 15px 20px rgba(0, 0, 0, 0.1);
     background-color: var(--blue-grey);
     z-index: 110;
-    transition: 0.5s linear;
+    transition: 0.3s linear;
 }
 
 .navigation-bar .menu-top .user-menu a,
@@ -206,7 +206,7 @@
 }
 
 .navigation-bar .tiles {
-    --top: 0px;
+    --top: 50px;
     position: absolute;
     display: flex;
     top: var(--top);
@@ -214,7 +214,7 @@
     width: 100%;
     background-color: white;
     z-index: -1;
-    transition: 0.5s linear;
+    transition: 0.3s linear;
     box-shadow: var(--main-shadow);
 }
 
@@ -248,7 +248,7 @@
     position: absolute;
 }
 
-.sticky-pseudo::before {
+.sticky-pseudo-bg::before {
     content: '';
     position: absolute;
     inset: 0;
