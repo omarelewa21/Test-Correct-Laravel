@@ -24,6 +24,7 @@
         }
      "
      :style="`max-height: ${maxHeight}`"
+     wire:init="handleReferrerActions()"
 >
     <div class="flex w-full border-b border-secondary pb-1 sticky bg-lightGrey z-1 sticky-pseudo-bg" :style="{top: $root.offsetTop + 'px'}">
 
