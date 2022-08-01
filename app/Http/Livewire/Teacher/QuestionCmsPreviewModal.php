@@ -2,6 +2,7 @@
 
 namespace tcCore\Http\Livewire\Teacher;
 
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 use LivewireUI\Modal\ModalComponent;
 use tcCore\Http\Helpers\BaseHelper;
@@ -61,6 +62,8 @@ class QuestionCmsPreviewModal extends ModalComponent implements QuestionCms
     public $attachments;
     public $authors;
     public $inTest = false;
+    public $lang = 'nl_NL';
+    public $allowWsc = false;
 
     protected static array $maxWidths = [
         'full' => 'modal-full-screen',
@@ -73,6 +76,7 @@ class QuestionCmsPreviewModal extends ModalComponent implements QuestionCms
     {
         $question = Question::whereUuid($uuid)->first();
         $this->inTest = $inTest;
+        $this->allowWsc = Auth::user()->schoolLocation->allow_wsc;
 
         $this->initializeComponent($question);
     }
@@ -168,6 +172,8 @@ class QuestionCmsPreviewModal extends ModalComponent implements QuestionCms
         $this->question['closeable'] = $question->closeable;
         $this->question['add_to_database'] = $question->add_to_database;
         $this->question['decimal_score'] = $question->decimal_score;
+        $this->question['lang'] = $this->lang = $question->lang ?? 'nl_NL';
+
         $this->initWithTags = $question->tags;
         $this->initWithTags->each(function ($tag) {
             $this->question['tags'][] = $tag->name;
@@ -250,5 +256,7 @@ class QuestionCmsPreviewModal extends ModalComponent implements QuestionCms
         $this->forceClose()->closeModal();
     }
 
-    public function setVideoTitle($videoUrl, $title) { }
+    public function setVideoTitle($videoUrl, $title)
+    {
+    }
 }
