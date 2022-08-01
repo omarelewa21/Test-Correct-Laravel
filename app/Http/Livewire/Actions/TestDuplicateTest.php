@@ -29,10 +29,8 @@ class TestDuplicateTest extends Component
             } catch (\Exception $e) {
                 return 'Error duplication failed';
             }
-            $this->dispatchBrowserEvent('notify', ['message' => __('general.duplication successful')]);
 
-            redirect()->to(route('teacher.test-detail', ['uuid' => $newTest->uuid]));
-
+            redirect()->to(route('teacher.test-detail', ['uuid' => $newTest->uuid, 'referrer' => 'copy']));
             return __('general.duplication successful');
         }
 

@@ -37,7 +37,7 @@ return [
     'Nationaal'                       => 'Nationaal',
     'Examens'                         => 'Examens',
     'searching'                       => 'Zoeken ...',
-    'duplication successful'          => 'Kopie aangemaakt',
+    'duplication successful'          => 'Kopie gemaakt',
     'create test'                     => 'Toets creëren',
     'Scholengemeenschap'              => 'Scholengemeenschap',
     'Actieve schoollocatie aangepast' => 'Actieve schoollocatie aangepast',

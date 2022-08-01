@@ -24,6 +24,7 @@
         }
      "
      :style="`max-height: ${maxHeight}`"
+     wire:init="handleReferrerActions()"
 >
     <div class="flex w-full border-b border-secondary pb-1">
         <div class="flex w-full justify-between">

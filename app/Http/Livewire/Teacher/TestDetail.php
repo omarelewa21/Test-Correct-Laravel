@@ -15,6 +15,9 @@ class TestDetail extends Component
     public $uuid;
     protected $test;
     public $groupQuestionDetail;
+    public $referrer = '';
+
+    protected $queryString = ['referrer' => ['except' => '']];
 
     protected $listeners = [
         'test-deleted'        => 'redirectToTestOverview',
@@ -79,4 +82,12 @@ class TestDetail extends Component
         $this->emit('openModal', 'teacher.question-detail-modal', ['questionUuid' => $questionUuid]);
     }
 
+    public function handleReferrerActions()
+    {
+        if (blank($this->referrer)) return;
+        if ($this->referrer === 'copy') {
+            $this->dispatchBrowserEvent('notify', ['message' => __('general.duplication successful')]);
+            $this->referrer = '';
+        }
+    }
 }
