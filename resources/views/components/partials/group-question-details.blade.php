@@ -18,7 +18,7 @@
             <x-icon.options/>
         </div>
     </div>
-    <div class="flex flex-col mx-8 overflow-auto pb-4">
+    <div class="w-full max-w-screen-2xl mx-auto px-10">
         <div class="py-6 flex w-full flex-col gap-2.5">
             <div class="flex w-full justify-between text-base">
                 <div class="flex gap-4">
