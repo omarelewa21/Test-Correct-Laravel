@@ -12,6 +12,7 @@ use tcCore\Http\Traits\TestTakeNavigationForController;
 use tcCore\Question;
 use tcCore\Test;
 use tcCore\TestParticipant;
+use tcCore\TestTake;
 use tcCore\User;
 use Facades\tcCore\Http\Controllers\PdfController;
 use tcCore\View\Components\TestPrintPdf\Cover;
@@ -24,7 +25,10 @@ class PrintTestController extends Controller
 {
     use TestTakeNavigationForController;
 
-    public function show(Test $test, Request $request)
+    private $test = null;
+    private $testTake = null;
+
+    public function showTest(Test $test, Request $request)
     {
         $this->test = $test;
 
@@ -39,6 +43,24 @@ class PrintTestController extends Controller
             'Content-Disposition' => 'inline; filename="toets.pdf"'
         ]);
     }
+
+    public function showTestTake(TestTake $testTake, Request $request)
+    {
+        $this->testTake = $testTake;
+        $this->test = $testTake->test;
+
+        $coverPdf = $this->generateCoverPdf($this->test);
+        $mainPdf = $this->generateMainPdf();
+
+        $mergedPdf = $this->mergePdfFiles($coverPdf, $mainPdf);
+
+
+        return response()->make($mergedPdf, 200, [
+            'Content-Type'        => 'application/pdf',
+            'Content-Disposition' => 'inline; filename="toets.pdf"'
+        ]);
+    }
+
 
     private function mergePdfFiles($coverPdf, $mainPdf)
     {
@@ -58,9 +80,13 @@ class PrintTestController extends Controller
 
     private function generateCoverPdf()
     {
+        $titleForPdfPage = __('Printversie toets:') . ' ' . $this->test->name . ' ' . Carbon::now()->format('d-m-Y H:i');
+        view()->share('titleForPdfPage', $titleForPdfPage);
+
         $cover = (new Cover($this->test))->render();
-        $header = (new CoverHeader($this->test))->render();
-        $footer = (new CoverFooter($this->test))->render();
+        $header = (new CoverHeader($this->test, $this->testTake))->render();
+        $footer = (new CoverFooter($this->test, $this->testTake))->render();
+        Storage::put('temp/coverfooter.html',$footer);
 
         return PdfController::createTestPrintPdf($cover, $header, $footer);
     }

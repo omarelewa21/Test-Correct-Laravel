@@ -88,7 +88,7 @@
 
     <span id="citation" >
         <div id="extraFooterLine" class="footer-line" style=""></div>
-        <table id="extraFooterTable" >
+        <table class="citation-table" >
             <tr>
                 <th>
                     {{ __('test-pdf.citation') }}

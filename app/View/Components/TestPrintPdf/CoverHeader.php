@@ -8,16 +8,19 @@ use Illuminate\View\Component;
 class CoverHeader extends Component
 {
     public $test;
+    public $testTake;
     public $testType = 'toets';
+    public $date = null;
 
     /**
      * Create a new component instance.
      *
      * @return void
      */
-    public function __construct($test)
+    public function __construct($test, $testTake = null)
     {
         $this->test = $test;
+        $this->testTake = $testTake;
 
         if ($this->test->scope == 'exam') {
             $this->testType = 'exam';
@@ -27,8 +30,11 @@ class CoverHeader extends Component
         }
 
         //todo change date to date of testTake
-        Carbon::setlocale(config('app.locale'));
-        $this->date = Carbon::now()->translatedFormat('l d F');
+        if($this->testTake){
+            Carbon::setlocale(config('app.locale'));
+            $this->date = $this->testTake->time_start->translatedFormat('l j F');
+        }
+
     }
 
     /**
@@ -43,6 +49,7 @@ class CoverHeader extends Component
                 'test'     => $this->test,
                 'testType' => $this->testType,
                 'date'     => $this->date,
+                'period'   => $this->testTake->period->name ?? $this->test->period->name ?? '',
             ]);
     }
 }

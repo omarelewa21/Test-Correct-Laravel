@@ -9,18 +9,22 @@
 <div class="footer-line"></div>
 
 <div class="footer-info-container">
+    @if($data['teacher'])
     <div class="">
         <div class="info-title">{{ __('test-pdf.teacher') }}</div>
-        <div class="info-value">{{ $test->author->name }}</div>
+        <div class="info-value">{{ $data['teacher'] }}</div>
     </div>
-    <div class="">
+    @endif
+    <div class="{{ $data['weight'] ? '' : 'info-extra-margin' }}">
         <div class="info-title">{{ __('test-pdf.max points') }}</div>
         <div class="info-value">{{ $data['maxScore'] }}</div>
     </div>
+    @if($data['weight'])
     <div class="">
         <div class="info-title">{{ __('test-pdf.weighting') }}</div>
         <div class="info-value">{{ $data['weight'] ?? '' }}</div>
     </div>
+    @endif
     <div class="">
         <div class="info-title">{{ __('test-pdf.number of questions') }}</div>
         <div class="info-value">{{ $data['amountOfQuestions'] }}</div>

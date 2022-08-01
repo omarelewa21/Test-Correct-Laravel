@@ -18,15 +18,13 @@
                     }
                 }
             }
-{{--            --}}{{-- adding 'Bronvermelding' makes all footers larger... this is a problem --}}
-{{--            if (vars['page'] == vars['topage']) {--}}
-{{--                document.getElementById('extraFooterLine').style.visibility = 'visible';--}}
-{{--                document.getElementById('extraFooterTable').style.visibility = 'visible';--}}
-{{--                document.getElementById('extraFooterLine').style.display = 'block';--}}
-{{--                document.getElementById('extraFooterTable').style.display = 'block';--}}
-{{--            }--}}
 
-            document.getElementById('continue-reading').textContent = vars['page'] == vars['topage'] ? 'einde.' : 'lees verder';
+            // document.getElementById('continue-reading').textContent = vars['page'] == vars['topage'] ? 'einde.' : 'lees verder';
+            if(vars['page'] == vars['topage']) {
+                document.getElementById('end-of-document').classList.remove('hidden')
+            } else {
+                document.getElementById('continue-reading').classList.remove('hidden')
+            }
         }
     </script>
     <link rel="stylesheet" href="file://{{ public_path('/css/app_pdf.css') }}">
@@ -35,21 +33,6 @@
 <body class="test-print-pdf" style="border:0; margin: 0;" onload="subst()">
 
 <span style="font-size: 7px">&nbsp;</span>
-{{--<div id="citation" >--}}
-{{--        <div id="extraFooterLine" class="footer-line" style="visibility: hidden; display: none;"></div>--}}
-{{--        <table id="extraFooterTable" style="visibility: hidden; display: none;">--}}
-{{--            <tr>--}}
-{{--                <th>--}}
-{{--                    {{ __('test-pdf.citation') }}--}}
-{{--                </th>--}}
-{{--            </tr>--}}
-{{--            <tr>--}}
-{{--                <td>--}}
-{{--                    {{ __('test-pdf.citation_text') }}--}}
-{{--                </td>--}}
-{{--            </tr>--}}
-{{--        </table>--}}
-{{--</div>--}}
 <div class="footer-line"></div>
 <table style="border:0; width: 100%;height: 20px; ">
     <tr>
@@ -63,8 +46,18 @@
         <td style="text-align: center; width: 33%">
             <span class="sitepage"></span> / <span class="sitepages"></span>
         </td>
-        <td style="text-align: right; width: 33%">
-            <span id="continue-reading"></span>
+        <td class="bold" style="text-align: right; width: 33%">
+            <span class="hidden" id="continue-reading">
+                {{ __('test-pdf.continue-reading') }}
+                <svg class="footer-icon-continue" width="9" height="13" xmlns="http://www.w3.org/2000/svg">
+                    <path stroke="#041f74" stroke-width="3" d="M1.5 1.5l5 5-5 5" fill="none" fill-rule="evenodd"
+                          stroke-linecap="round"/>
+                </svg>
+            </span>
+            <span class="hidden" id="end-of-document">
+                {{ __('test-pdf.end-of-document') }}
+                <span class="footer-icon-end"></span>
+            </span>
         </td>
     </tr>
 </table>

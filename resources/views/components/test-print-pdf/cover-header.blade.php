@@ -50,7 +50,12 @@
 
 <div class="header-info-container">
     <div class="bold">{{ $test->subject->name }}</div>
-    <div>{{ $date }}</div>
+    <div>
+        <span class="inline">{{ $period }}</span>
+        @if($date)
+        <span class="inline pl-3">{{ $date }}</span>
+        @endif
+    </div>
 </div>
 
 <div class="header-line mt-2 mb-3"></div>

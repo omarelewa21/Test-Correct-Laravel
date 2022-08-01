@@ -13,9 +13,10 @@ class CoverFooter extends Component
      *
      * @return void
      */
-    public function __construct($test)
+    public function __construct($test, $testTake = null)
     {
         $this->test = $test;
+        $this->testTake = $testTake;
 
         $amountOfQuestions = collect($test->getAmountOfQuestions())->reduce(function ($carry, $item) {
             return $carry + $item;
@@ -24,7 +25,8 @@ class CoverFooter extends Component
         $this->data = [
             'amountOfQuestions' => $amountOfQuestions,
             'maxScore' => $this->test->maxScore(),
-            'weight' => 0, //todo implement for TestTake
+            'weight' => $this->testTake->weight ?? 0,
+            'teacher' => $this->testTake->user->name ?? $this->test->author->name,
         ];
     }
 

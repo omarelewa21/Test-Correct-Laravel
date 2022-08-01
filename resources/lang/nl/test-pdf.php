@@ -23,4 +23,6 @@ return [
     'test'                                 => 'Toets',
     'exam'                                 => 'Examen',
     'cito'                                 => 'Cito toets',
+    'continue-reading'                     => 'lees verder',
+    'end-of-document'                      => 'einde',
 ];

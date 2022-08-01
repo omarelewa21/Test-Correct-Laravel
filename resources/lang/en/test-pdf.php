@@ -15,7 +15,7 @@ return [
     'teacher'                              => 'Teacher',
     'max points'                           => 'Max. Points',
     'weighting'                            => 'Weighting',
-    'number of questions'                  => 'Number of questions',
+    'number of questions'                  => 'Questions',
     'cover description text 1'             => 'For each question number, the number of points that can be obtained with a correct answer is indicated. Do not give more answers (sentences, reasons, examples, etc.) than are requested.',
     'cover description text 2'             => 'For example, if one sentence is asked and you answer with more than one sentence, only the first sentence is counted in the assessment.',
     'cover explanation 1'                  => 'This examination includes an appendix and an answer sheet.',
@@ -23,4 +23,6 @@ return [
     'test'                                 => 'Test',
     'exam'                                 => 'Exam',
     'cito'                                 => 'Cito test',
+    'continue-reading'                     => 'continue reading',
+    'end-of-document'                      => 'the end',
 ];
