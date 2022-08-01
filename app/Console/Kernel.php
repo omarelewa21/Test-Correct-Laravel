@@ -45,7 +45,7 @@ class Kernel extends ConsoleKernel
         $schedule->command('school_locations:add_new_period')
             ->monthlyOn(1,'06:00')
             ->when(function(){
-               return ((int) date('m') === 8);
+               return ((int) date('m') === 8); // only on the first of august
             });
 
 //        $schedule->command('school_locations:add_new_period')
