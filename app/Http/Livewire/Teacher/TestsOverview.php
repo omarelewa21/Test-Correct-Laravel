@@ -154,12 +154,9 @@ class TestsOverview extends Component
                     'author_id'            => [],
                     'base_subject_id'      => [],
                 ];
+                $this->filters[$tab] = array_merge($this->filters[$tab], auth()->user()->getSearchFilterDefaultsTeacher());
             });
         }
-
-
-        /** @TODO default search filter for teacher (is dirty now) */
-//        $this->filters = array_merge($this->filters, auth()->user()->getSearchFilterDefaultsTeacher());
     }
 
 
