@@ -42,7 +42,7 @@ class addPeriodAndSchoolYearToVoSchools extends Command
     public function handle()
     {
         $year = Date("Y");
-        $nextYear = $year++;
+        $nextYear = $year+1;
          SchoolLocation::NoActivePeriodAtDate($year.'-08-01')->activeOnly()->get()->each(function ($location) use($year, $nextYear){
             $user = $location->users()->first();
             if ($user == null) {
