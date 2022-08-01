@@ -12,13 +12,18 @@
          }
      }"
      wire:init="handleReferrerActions()"
-     class="flex flex-col relative w-full min-h-full bg-lightGrey border-t border-secondary overflow-auto mt-24"
+     class="flex flex-col  w-full min-h-full bg-lightGrey border-t border-secondary top-0"
      @checked="$event.detail ? checkedCount += 1 : checkedCount -= 1"
      @question-added.window="Notify.notify('Vraag toegevoegd!')"
      @question-removed.window="Notify.notify('Vraag verwijderd!')"
 >
-    <div class="flex w-full border-b border-secondary">
-        <div class="w-full max-w-5xl">
+
+    <div class="border-b border-secondary sticky sticky-pseudo-bg bg-lightGrey z-1"
+         style="transition: top 0.3s linear;top: 150px"
+         @tiles-hidden.window="$el.style.top = '100px'"
+         @tiles-shown.window="$el.style.top = '150px'"
+    >
+        <div class="w-full max-w-screen-2xl px-10">
             <div class="flex w-full space-x-4">
                 <div>
                     <div class="flex relative hover:text-primary cursor-pointer" @click="openTab = 'personal'">
@@ -65,8 +70,8 @@
             </div>
         </div>
     </div>
-    <div class="flex w-full">
-        <div class="w-full mx-auto divide-y divide-secondary">
+    <div class="flex w-full max-w-screen-2xl mx-auto  px-10">
+        <div class="w-full divide-y divide-secondary">
             {{-- Filters--}}
             <div class="flex flex-col py-4">
                 <div class="flex w-full mt-2">
@@ -198,20 +203,6 @@
 
             </div>
         </div>
-    </div>
-    <div class="hidden sticky h-0 bottom-20 ml-auto mr-4">
-        <div class="flex justify-end mb-2">
-            <span class="relative text-sm text-white rounded-full flex items-center justify-center main-shadow"
-                  :class="checkedCount > 0 ? 'bg-primary' : 'bg-midgrey'"
-                  style="min-width: 30px; height: 30px"
-            >
-                <span class="inline-flex -ml-px mt-px" x-text="checkedCount">0</span>
-            </span>
-        </div>
-        <x-button.cta class="main-shadow" @click="loading = !loading; $root.classList.toggle('loading')">
-            <x-icon.checkmark/>
-            <span>{{ __('cms.Toevoegen') }}</span>
-        </x-button.cta>
     </div>
     <livewire:teacher.test-delete-modal></livewire:teacher.test-delete-modal>
     <livewire:teacher.copy-test-from-schoollocation-modal></livewire:teacher.copy-test-from-schoollocation-modal>

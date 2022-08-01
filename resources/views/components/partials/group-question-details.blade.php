@@ -1,6 +1,8 @@
 <div>
-    <div class="sticky z-10 top-0 bg-lightGrey flex items-center justify-between px-8 py-1 border-b border-bluegrey">
-        <div class="flex items-center space-x-2.5">
+    <div class="sticky sticky-pseudo-bg z-10 top-0 bg-lightGrey flex items-center justify-between px-8 py-1 border-b border-bluegrey"
+         :style="{top: $root.offsetTop + 'px'}"
+    >
+        <div class="flex items-center space-x-2.5 z-1">
             <x-button.back-round @click="closeGroupDetail()"/>
             <div class="flex text-lg bold">
                 <span>{{ __('question.Vraaggroep') }}: {{ $name ?? '' }}</span>
