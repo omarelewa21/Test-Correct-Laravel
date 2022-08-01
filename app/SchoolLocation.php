@@ -93,7 +93,7 @@ class SchoolLocation extends BaseModel implements AccessCheckable
         'sso', 'sso_type', 'sso_active', 'lvs_authorization_key', 'school_language', 'company_id', 'allow_guest_accounts',
         'allow_new_student_environment', 'allow_new_question_editor',
         'keep_out_of_school_location_report',
-        'main_phonenumber','internetaddress', 'show_exam_material', 'show_cito_quick_test_start', 'show_test_correct_content'
+        'main_phonenumber','internetaddress', 'show_exam_material', 'show_cito_quick_test_start', 'show_national_item_bank'
     ];
 
     /**
@@ -1147,11 +1147,13 @@ class SchoolLocation extends BaseModel implements AccessCheckable
         return $query->whereNotIn('id',
             Period::where(function ($query) use ($date) {
                 return $query
-                    ->where('start_date', '>=', $date)
-                    ->orWhere('end_date', '>=', $date);
+                    ->where('start_date', '<=', $date)
+                    ->where('end_date', '>=', $date);
             })
                 ->join('school_years', 'school_year_id', 'school_years.id')
+                ->whereNull('school_years.deleted_at')
                 ->join('school_location_school_years', 'school_location_school_years.school_year_id', 'school_years.id')
+                ->whereNull('school_location_school_years.deleted_at')
                 ->select('school_location_id')
         );
     }
