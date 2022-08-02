@@ -1,13 +1,14 @@
-<x-layouts.pdf-test-print >
+<x-layouts.pdf-test-print>
     <div class="w-full flex flex-col mb-5 overview">
-        <div class="w-full space-y-8 mt-10" >
+        <div class="w-full space-y-8 mt-10">
             @push('styling')
                 <style>
                     {!! $styling !!}
                 </style>
             @endpush
+            @php $currentGroupQuestion = null; @endphp
             @foreach($data as  $key => $testQuestion)
-                    <div class="flex flex-col space-y-4">
+                <div class="flex flex-col space-y-4">
                     @if($testQuestion->type === 'MultipleChoiceQuestion' && $testQuestion->selectable_answers > 1 && $testQuestion->subtype != 'ARQ')
                         <livewire:test-print.multiple-select-question
                                 :question="$testQuestion"
@@ -80,15 +81,33 @@
                                 :test="$test"
                                 wire:key="'q-'.$testQuestion->uuid"
                         />
+                    @elseif($testQuestion->type === 'GroupQuestion' && $currentGroupQuestion !== $testQuestion->getKey())
+                        @php $currentGroupQuestion = $testQuestion->getKey() @endphp
+                        <livewire:test-print.group-question
+                                :question="$testQuestion"
+                                :group-start="true"
+                                wire:key="'q-'.$testQuestion->uuid"
+                        />
+                    @elseif($testQuestion->type === 'GroupQuestion' && $currentGroupQuestion === $testQuestion->getKey())
+                        <livewire:test-print.group-question
+                                :question="$testQuestion"
+                                :group-start="false"
+                                wire:key="'q-'.$testQuestion->uuid"
+                        />
+                    @endif
+                </div>
+                <div>
+                    @if($testQuestion->questionAttachments->isNotEmpty() && $currentGroupQuestion !== $testQuestion->getKey())
+                        <div style="background-color: #ff0000">Has Attachments</div>
                     @endif
                 </div>
             @endforeach
         </div>
     </div>
 
-    <span id="citation" >
+    <span id="citation">
         <div id="extraFooterLine" class="footer-line" style=""></div>
-        <table class="citation-table" >
+        <table class="citation-table">
             <tr>
                 <th>
                     {{ __('test-pdf.citation') }}

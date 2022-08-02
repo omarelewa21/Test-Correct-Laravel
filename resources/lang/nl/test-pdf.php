@@ -25,4 +25,9 @@ return [
     'cito'                                 => 'Cito toets',
     'continue-reading'                     => 'lees verder',
     'end-of-document'                      => 'einde',
+    'end-of-group-question'                => 'Einde',
+    'image'                                => 'Afbeelding',
+    'video'                                => 'Video',
+    'audio'                                => 'Geluidsfragment',
+    'audio_text'                           => 'Vraag je docent naar het geluidsfragment van deze vraag',
 ];

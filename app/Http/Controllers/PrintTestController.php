@@ -123,7 +123,7 @@ class PrintTestController extends Controller
                 return $testQuestion->question->groupQuestionQuestions->map(function ($item) use ($groupQuestion) {
                     $item->question->belongs_to_groupquestion_id = $groupQuestion->getKey();
                     return $item->question;
-                });
+                })->prepend($testQuestion->question)->add($testQuestion->question);
             }
             return collect([$testQuestion->question]);
         });

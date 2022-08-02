@@ -520,3 +520,66 @@
 .test-print-pdf table.matrix-table th:first-child {
     border: none !important;
 }
+
+.test-print-pdf .group-question-container > div:first-child {
+    background-color: #041f74;
+    border: 1px solid #041f74;
+    color: #ffffff;
+    border-radius: 10px;
+    text-align: center;
+    display: block;
+    font-size: 20pt;
+    height: 40px;
+}
+
+.test-print-pdf .group-question-container > div:nth-child(2) {
+    display: block;
+}
+
+.test-print-pdf .group-question-icon2,
+.test-print-pdf .group-question-icon1 {
+    display: inline-block;
+    float: left;
+    margin-left: 0.5rem;
+    margin-top: 0.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.test-print-pdf .group-question-description {
+    padding-top: 1rem;
+}
+
+.test-print-pdf .attachment-container {
+    vertical-align: top;
+}
+
+.test-print-pdf .attachment-container:nth-child(even) {
+    margin-left: 1rem;
+}
+
+.test-print-pdf .image-container {
+    page-break-inside: avoid;
+    margin-top: 1rem;
+    display: inline-block;
+}
+
+.test-print-pdf .image-container > div {
+    border: 1px solid black;
+    border-radius: 10px;
+    width: 400px
+}
+
+.test-print-pdf .image-container img {
+    margin-top: 0px;
+    margin-right: 0px;
+    margin-left: 0px;
+    margin-bottom: 0px;
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+    width: 400px;
+}
+.test-print-pdf .video-container,
+.test-print-pdf .audio-container {
+    width: 800px;
+
+}
