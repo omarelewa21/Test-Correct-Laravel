@@ -234,12 +234,11 @@
     <div class="px-6 py-4 flex justify-end w-full" style="box-shadow: 0 -3px 8px 0 rgba(4, 31, 116, 0.2);">
         <div class="flex space-x-2.5 items-center">
             @if($this->showPreviewButton)
-
-            <button class="new-button button-primary"
-                    wire:click="openPreviewMode()"
-            >
-                <x-icon.preview/>
-            </button>
+                <button class="new-button button-primary"
+                        wire:click="openPreviewMode()"
+                >
+                    <x-icon.preview/>
+                </button>
             @endif
             @if($this->inTest)
                 <span title="{{ __('cms.Deze vraag is aanwezig in de toets.') }}">

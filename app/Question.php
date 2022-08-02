@@ -1657,4 +1657,9 @@ class Question extends MtiBaseModel {
 //            return $testQuestion->question->id === $this->getKey() || $testQuestion->question->derived_question_id === $this->getKey();
 //        })->isNotEmpty();
     }
+
+    public function hasCmsPreview()
+    {
+        return !$this->isType('matrix');
+    }
 }
