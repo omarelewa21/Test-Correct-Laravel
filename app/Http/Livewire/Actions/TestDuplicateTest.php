@@ -11,9 +11,11 @@ class TestDuplicateTest extends Component
 
     public $uuid;
     public $variant;
+    public bool $showButton;
 
     public function mount($uuid, $variant='icon-button')
     {
+        $this->showButton = !Test::findByUuid($this->uuid)->isNationalItem();
         $this->uuid = $uuid;
         $this->variant = $variant;
     }

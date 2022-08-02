@@ -5,7 +5,6 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Str;
-use tcCore\Http\Controllers\AuthorsController;
 use tcCore\Http\Controllers\GroupQuestionQuestionsController;
 use tcCore\Http\Controllers\RequestController;
 use tcCore\Http\Controllers\TestQuestionsController;
@@ -30,6 +29,7 @@ class Test extends BaseModel
     use PublishesNationalItemBankAndExamTests;
     use UserContentAccessTrait;
 
+    const NATIONAL_ITEMBANK_SCOPES = ['cito', 'exam', 'ldt'];
 
     protected $casts = [
         'uuid' => EfficientUuid::class,
@@ -1090,5 +1090,10 @@ class Test extends BaseModel
             return ($testQuestion->question instanceof \tcCore\GroupQuestion && $testQuestion->question->isCarouselQuestion() && !$testQuestion->question->hasEqualScoresForSubQuestions());
         })->count();
         return $countCarouselQuestionWithToFewQuestions != 0;
+    }
+
+    public function isNationalItem()
+    {
+        return collect(Test::NATIONAL_ITEMBANK_SCOPES)->contains($this->scope);
     }
 }
