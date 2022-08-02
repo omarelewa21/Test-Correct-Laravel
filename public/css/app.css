@@ -6088,6 +6088,9 @@ video {
   max-width: -moz-max-content;
   max-width: max-content;
 }
+.max-w-screen-2xl{
+  max-width: 1536px;
+}
 .max-w-0{
   max-width: 0rem;
 }
@@ -6105,12 +6108,6 @@ video {
 }
 .max-w-7xl{
   max-width: 80rem;
-}
-.max-w-screen-2xl{
-  max-width: 1536px;
-}
-.max-w-5xl{
-  max-width: 64rem;
 }
 .flex-1{
   flex: 1 1 0%;
@@ -8933,11 +8930,6 @@ ul ul ul {
 
   .lg\:max-w-3xl{
     max-width: 48rem;
-  }
-
-
-  .lg\:max-w-7xl{
-    max-width: 80rem;
   }
 
 

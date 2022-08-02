@@ -23,7 +23,7 @@
          @tiles-hidden.window="$el.style.top = '100px'"
          @tiles-shown.window="$el.style.top = '150px'"
     >
-        <div class="w-full max-w-screen-2xl px-10">
+        <div class="w-full max-w-screen-2xl mx-auto px-10">
             <div class="flex w-full space-x-4">
                 <div>
                     <div class="flex relative hover:text-primary cursor-pointer" @click="openTab = 'personal'">
