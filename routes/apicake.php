@@ -55,6 +55,8 @@ Route::group(['middleware' => ['api', 'bindings']], function() {
 Route::group(['middleware' => ['api', 'dl', 'authorize', 'authorizeBinds', 'bindings']], function(){
     Route::post('/default_subjects_and_sections/import',[\tcCore\Http\Controllers\DefaultSubjectsAndSectionsController::class,'import'])->name('defaultSubjectsAndSections.import');
     Route::post('/school_school_locations/import',[\tcCore\Http\Controllers\SchoolAndSchoolLocationsImportController::class,'import'])->name('schoolAndSchoolLocations.import');
+    Route::put('/add_default_subjects_and_sections_to_school_location/{schoolLocation}',[\tcCore\Http\Controllers\SchoolLocationsController::class,'addDefaultSubjectsAndSections'])->name('schoolLocation.addDefaultSubjectsAndSections');
+
 
     Route::post('/temporary-login',[tcCore\Http\Controllers\TemporaryLoginController::class,'create'])->name('auth.temporary-login.create');
 

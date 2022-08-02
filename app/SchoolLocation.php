@@ -1069,11 +1069,19 @@ class SchoolLocation extends BaseModel implements AccessCheckable
         // add sections
         $list = [];
         $defaultSections->each(function(DefaultSection $ds) use (&$list){
-           $section = Section::create([
-              'name' => $ds->name,
-              'demo' => $ds->demo,
-           ]);
-           $list[$ds->getKey()] = $section->getKey();
+            if($schoolLocationSection = $this->schoolLocationSections->first(function(SchoolLocationSection $sls) use ($ds) {
+                    return Str::lower($sls->section->name) === Str::lower($ds->name);
+                })) {
+                $section = $schoolLocationSection->section;
+            } else {
+                $section = Section::create(
+                    [
+                        'name' => $ds->name,
+                        'demo' => $ds->demo,
+                    ]
+                );
+            }
+            $list[$ds->getKey()] = $section->getKey();
         });
 
         // add sections to schoollocation
@@ -1081,13 +1089,16 @@ class SchoolLocation extends BaseModel implements AccessCheckable
         $this->saveSections();
         // add subjects
         $defaultSubjects->each(function(DefaultSubject $ds) use ($list){
-           Subject::create([
-                'section_id' => $list[$ds->default_section_id],
-               'base_subject_id' => $ds->base_subject_id,
-               'name' => $ds->name,
-               'abbreviation' => $ds->abbreviation,
-               'demo' => $ds->demo,
-           ]);
+           Subject::updateOrCreate(
+                [
+                    'name' => $ds->name,
+               ],[
+                   'section_id' => $list[$ds->default_section_id],
+                   'base_subject_id' => $ds->base_subject_id,
+                   'abbreviation' => $ds->abbreviation,
+                   'demo' => $ds->demo,
+                ]
+           );
         });
     }
 
