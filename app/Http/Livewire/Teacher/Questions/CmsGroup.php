@@ -56,7 +56,7 @@ class CmsGroup extends CmsBase
         foreach ($this->questionProperties as $key => $val) {
             $this->instance->question[$key] = $q[$key];
         }
-
+        $this->instance->question['name'] = html_entity_decode($this->instance->question['name']);
         if ($this->instance->question['number_of_subquestions'] == null) {
             $this->instance->question['number_of_subquestions'] = 0;
         }

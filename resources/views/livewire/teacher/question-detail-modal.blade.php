@@ -4,13 +4,13 @@
             <div class="flex pr-2.5">
                 @if($question->type === 'GroupQuestion')
                     <h3 class="line-clamp-2 break-all min-h-[64px] @if(blank($question->name)) italic @endif"
-                        title="{{ $question->name }}">{{ filled($question->name) ? $question->name : __('question.no_question_text') }}</h3>
+                        title="{!! $question->name !!}">{!! filled($question->name) ? $question->name : __('question.no_question_text') !!} </h3>
                 @else
                     <h3 class="line-clamp-2 break-all min-h-[64px] @if(blank($question->title)) italic @endif"
                         title="{{ $question->title }}">{{ $question->title ?? __('question.no_question_text') }}</h3>
                 @endif
             </div>
-            <x-button.close wire:click="$emit('closeModal')"/>
+            <x-button.close class="relative -top-3 -right-3" wire:click="$emit('closeModal')"/>
         </div>
         <div class="flex w-full justify-between text-base mb-1">
             <div class="flex">

@@ -23,7 +23,7 @@ class GroupQuestionDetails extends Component
 
     public function __construct(GroupQuestion $groupQuestion, $context = 'question-bank')
     {
-        $this->name = $groupQuestion->name;
+        $this->name = html_entity_decode($groupQuestion->name);
         $this->subject = $groupQuestion->getQuestionInstance()->subject;
         $this->authors = $groupQuestion->getAuthorNamesCollection();
         $this->lastUpdated = Carbon::parse($groupQuestion->updated_at)->format('d/m/\'y');

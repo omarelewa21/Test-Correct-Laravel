@@ -9,14 +9,15 @@
          :class="expand ? 'rotate-svg-270' : 'rotate-svg-90'"
     >
         <x-icon.chevron class="mt-2 text-sysbase hover:text-primary"
-                        @click.stop="expand = !expand; setTimeout(() => {handleVerticalScroll($refs.container1);}, 210);"
+                        @click.stop="expand = !expand; setTimeout(() => {handleVerticalScroll($refs.home);}, 210);"
         />
         <span class="flex flex-1 flex-col truncate text-lg bold"
               :class="($root.querySelectorAll('.question-button.active').length > 0 && !expand) ? 'primary' : ''"
-              title="{{ $question->name }}"
+              title="{!! $question->name !!}"
               @click.stop="
                   $store.cms.processing = true;
                   $dispatch('store-current-question');
+                  $store.cms.scrollPos = document.querySelector('.drawer').scrollTop;
                   $wire.emitTo('teacher.questions.open-short','showQuestion',
                     {
                         'testQuestionUuid':'{{ $testQuestion ? $testQuestion->uuid : null }}',
@@ -26,7 +27,7 @@
                     })
                     "
         >
-            <span class="truncate">{{ $question->name }}</span>
+            <span class="truncate">{!! $question->name !!}</span>
             <div class="flex items-center justify-between">
                 <span class="note text-sm regular">{{ trans_choice('cms.vraag', $question->subQuestions->count()) }}</span>
                 @if($question->attachmentCount)

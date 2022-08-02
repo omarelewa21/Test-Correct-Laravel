@@ -1042,10 +1042,7 @@ class Test extends BaseModel
         return DB::query()
             ->selectRaw('id')
             ->fromSub(
-                $testQuestionsForTestQuery
-                    ->unionAll($groupQuestionQuestionsFromTestQuestionsQuery)
-//                    ->unionAll($groupQuestionQuestionsFromTestQuestionsQuery)
-                ,
+                $testQuestionsForTestQuery->unionAll($groupQuestionQuestionsFromTestQuestionsQuery),
                 'duplicateIds'
             )
             ->groupBy('id')

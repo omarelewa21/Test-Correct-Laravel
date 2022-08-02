@@ -6,6 +6,7 @@
                 loading = true;
                 if(typeof evt !== 'undefined') empty = false;
                 removeDrawingLegacy();
+                window.scrollTo({top: 0, behavior: 'smooth'});
            }
 
            loadingTimeout = (value) => {

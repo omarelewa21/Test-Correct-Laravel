@@ -20,7 +20,7 @@
     <div class="flex space-x-6 items-center">
         @if($this->withDrawer)
             <div class="flex min-w-max space-x-2">
-{{--                <span class="text-sm">{{ trans_choice('cms.vraag', $questionCount['regular']) }}, {{ trans_choice('cms.group-question-count', $questionCount['group']) }}</span>--}}
+                {{--                <span class="text-sm">{{ trans_choice('cms.vraag', $questionCount['regular']) }}, {{ trans_choice('cms.group-question-count', $questionCount['group']) }}</span>--}}
                 <span class="primary bg-white px-2 text-sm rounded-sm bold">BETA</span>
             </div>
 
@@ -29,39 +29,40 @@
                         let response = await $wire.getPdfUrl();
                         window.open(response, '_blank');
                     }
-                }">
+                }"
+                 @click="forceSyncEditors();$wire.saveIfDirty()"
+            >
                 <button @if($this->canDeleteTest)
                             @click="$dispatch('delete-modal', ['test', '{{ $this->testId }}'])"
                         @else
                             disabled
                         @endif
                         class="new-button button-primary w-10"
-                        title="{{ __('teacher.Toets verwijderen') }}"
+                        title="{{ __('cms.Verwijderen') }}"
                 >
                     <x-icon.trash/>
                 </button>
                 <button wire:click="$emit('openModal', 'teacher.test-edit-modal', {testUuid: '{{ $this->testId }}'})"
                         class="new-button button-primary w-10"
-                        title="{{ __('teacher.Toets instellingen') }}"
+                        title="{{ __('cms.Instellingen') }}"
                 >
                     <x-icon.settings/>
                 </button>
                 <button @click="window.open('{{ route('teacher.test-preview', ['test'=> $this->testId]) }}', '_blank')"
                         class="new-button button-primary w-10"
-                        title="{{ __('teacher.Toets voorbeeldweergave') }}"
+                        title="{{ __('cms.voorbeeld') }}"
                 >
                     <x-icon.preview/>
                 </button>
                 <button @click="toPdf()"
                         class="new-button button-primary w-10"
-                        title="{{ __('teacher.Toets PDF-weergave') }}"
+                        title="{{ __('cms.PDF maken') }}"
                 >
                     <x-icon.pdf-file color="currentColor"/>
                 </button>
-                <button disabled
-{{--                        wire:click="$emit('openModal','teacher.planning-modal', {{ json_encode(['testUuid' => $this->testId]) }}) "--}}
+                <button wire:click="$emit('openModal','teacher.planning-modal', {testUuid: '{{ $this->testId }}' })"
                         class="new-button button-cta w-10 disabled"
-                        title="{{ __('teacher.Toets inplannen') }}"
+                        title="{{ __('cms.Inplannen') }}"
                 >
                     <x-icon.schedule/>
                 </button>
