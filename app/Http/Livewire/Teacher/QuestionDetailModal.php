@@ -20,7 +20,7 @@ class QuestionDetailModal extends ModalComponent
     public function mount($questionUuid, $testUuid = null, $inTest = false)
     {
         $this->question = Question::whereUuid($questionUuid)->first();
-        $this->showPreviewButton = ($this->question->type !== 'MatrixQuestion');
+        $this->showPreviewButton = $this->question->hasCmsPreview();
         $this->authors = $this->question->getAuthorNamesCollection();
         $this->lastUpdated = Carbon::parse($this->question->updated_at)->format('d/m/\'y');
         $this->attachmentCount = $this->question->attachments()->count();

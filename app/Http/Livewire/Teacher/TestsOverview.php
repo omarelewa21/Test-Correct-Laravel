@@ -197,8 +197,7 @@ class TestsOverview extends Component
 
     private function filterSubjectsByTabName(string $tab)
     {
-        switch ($tab)
-        {
+        switch ($tab) {
             case 'cito':
                 return Subject::citoFiltered([], ['name' => 'asc']);
             case 'national':
@@ -268,6 +267,7 @@ class TestsOverview extends Component
                 'education_level_id'   => [],
                 'subject_id'           => [],
                 'author_id'            => [],
+                'base_subject_id'      => []
             ];
         });
         session(['tests-overview-filters' => $this->filters]);
