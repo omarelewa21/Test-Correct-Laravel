@@ -4,20 +4,21 @@
         wire:key="test_{{$test->uuid}}"
         x-ref="contextMenu"
         x-cloak
-        x-show="show"
+        x-show="showMenu"
         x-data = "{
             show: @entangle('displayMenu'),
-            posX: @js($x),
-            posY: @js($y),
+            showMenu: false,
+            posX: @js($left),
+            posY: @js($top),
             uuid: @js($test->uuid),
 
             init() {
-                $nextTick(() => {
-                    $refs.contextMenu.style.top = (this.posY + 36 ) + 'px';
-                    $refs.contextMenu.style.left = (this.posX - (this.$el.offsetWidth - 36)) + 'px';
-                })
+                $root.parentElement.style.top = (this.posY + 52 ) + 'px';
+                $root.parentElement.style.left = (this.posX - ($root.parentElement.scrollWidth + 12)) + 'px';
+                this.showMenu = true;
                 $watch('show', value => {
                     document.querySelector('#test-card-options-'+this.uuid).dispatchEvent(new CustomEvent('close-menu'))
+                    this.showMenu = false
                 });
             }
         }"

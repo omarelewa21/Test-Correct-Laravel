@@ -201,11 +201,12 @@
                 </x-grid>
                 {{ $results->links('components.partials.tc-paginator') }}
 
+                <livewire:teacher.tests-overview-context-menu></livewire:teacher.tests-overview-context-menu>
             </div>
         </div>
     </div>
     <livewire:teacher.test-delete-modal></livewire:teacher.test-delete-modal>
     <livewire:teacher.copy-test-from-schoollocation-modal></livewire:teacher.copy-test-from-schoollocation-modal>
     <x-notification/>
-    <livewire:teacher.tests-overview-context-menu></livewire:teacher.tests-overview-context-menu>
+
 </div>

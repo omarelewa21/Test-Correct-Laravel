@@ -15,6 +15,9 @@ class TestUpdateOrDuplicateConfirmModal extends ModalComponent
     public $request = [];
 
     public $displayValueRequiredMessage = false;
+    protected static array $maxWidths = [
+        'w-modal'  => 'max-w-modal',
+    ];
 
     public function mount($request, $testUuid)
     {
@@ -55,17 +58,17 @@ class TestUpdateOrDuplicateConfirmModal extends ModalComponent
 
     private function duplicate(Test $test)
     {
-
         $newTestName = $this->request['name'];
         unset($this->request['name']);
         $newTest = $test->userDuplicate($this->request, auth()->id());
         if(!stristr($newTest->name, $newTestName)){
            $newTest->name = $newTestName;
         }
+        /*We need to eager load the relation for the saved boot method to work for some reason. - RR*/
+        $newTest->load(['testQuestions', 'testQuestions.question']);
         $newTest->save();
         $this->forceClose()->closeModal();
         $this->emit('testSettingsUpdated', $this->request);
-
     }
 
     private function update(Test $test)
@@ -79,5 +82,10 @@ class TestUpdateOrDuplicateConfirmModal extends ModalComponent
     public function render()
     {
         return view('livewire.teacher.test-update-or-duplicate-confirm-modal');
+    }
+
+    public static function modalMaxWidth(): string
+    {
+        return 'w-modal';
     }
 }

@@ -1,12 +1,12 @@
-<x-modal-new>
+<x-modal.base-modal>
     <x-slot name="title">
-        {{__("teacher.Verbetering of nieuwe toets?")}}
+        <h2>{{__("teacher.Verbetering of nieuwe toets?")}}</h2>
     </x-slot>
-    <x-slot name="body">
+    <x-slot name="content">
         @if($displayValueRequiredMessage)
-            <div class="mt-1 text-red-500 text-sm">{{ __('Selecteer een waarde') }}</div>
+            <div class="mb-4 text-red-500 text-sm">{{ __('cms.Kies een waarde') }}</div>
         @endif
-        <div class="flex px-1" x-data="{
+        <div class="flex " x-data="{
                 value : @entangle('value'),
                 select: function(option) {
                     this.value = option;
@@ -14,55 +14,52 @@
                 selected: function(option){
                     return option === this.value;
                 },}">
-            <div name="block-container" class="grid grid-cols-2 pt-5">
-                <div class="col-span-2 mb-6">
+            <div name="block-container" class="grid gap-4 grid-cols-2">
+                <div class="col-span-2">
                     {{ __('teacher.Je hebt het vak, niveau en/of leerjaar van de toets aangepast.') }}
                 </div>
 
-                <button class="group-type mr-2 mb-2 "
-                        :class="selected('update') ? 'active' : 'hover:shadow-lg'"
+                <button class="test-change-option transition"
+                        :class="{'active': selected('update')}"
                         @click="select('update')"
-                        @isset($preview) disabled @endisset
                 >
                     <div class="flex">
                         <x-stickers.test-update/>
                     </div>
 
                     <div x-show="selected('update')">
-                        <x-icon.checkmark-circle class="absolute top-2 right-2 overflow-visible"/>
+                        <x-icon.checkmark class="absolute top-2 right-2 overflow-visible"/>
                     </div>
-                    <div class="-mt-1 ml-2.5 text-left">
-                        <span
-                            :class="selected('update') ? 'text-primary' : 'text-sysbase'">{{ __('cms.test_verbetering') }}</span>
+                    <div class="ml-2.5 text-left">
+                        <span class="text-base bold">{{ __('cms.test_verbetering') }}</span>
                         <p class="note text-sm">{{ __('cms.test_verbetering_omschrijving') }}</p>
                     </div>
                 </button>
 
-                <button class="group-type mb-2"
-                        :class="selected('duplicate') ? 'active' : 'hover:shadow-lg'"
+                <button class="test-change-option transition"
+                        :class="{'active': selected('duplicate')}"
                         @click="select('duplicate')"
-                        @isset($preview) disabled @endisset
                 >
                     <div>
                         <x-stickers.test-new/>
                     </div>
                     <div x-show="selected('duplicate')">
-                        <x-icon.checkmark-circle class="absolute top-2 right-2 overflow-visible"/>
+                        <x-icon.checkmark class="absolute top-2 right-2 overflow-visible"/>
                     </div>
-                    <div class="-mt-1 ml-2.5 text-left">
-                        <span
-                            :class="selected('duplicate') ? 'text-primary' : 'text-sysbase'">{{ __('cms.test_nieuw') }}</span>
+                    <div class="ml-2.5 text-left" >
+                        <span class="text-base bold">{{ __('cms.test_nieuw') }}</span>
                         <p class="note text-sm">{{ __('cms.test_nieuw_omschrijving') }}</p>
                     </div>
                 </button>
             </div>
+        </div>
     </x-slot>
     <x-slot name="footer">
         <div class="flex justify-end items-center">
-            <div class="mt-8 space-x-2.5">
+            <div class="flex gap-4">
                 <x-button.text-button wire:click="close">{{ __('teacher.Annuleer') }}</x-button.text-button>
                 <x-button.cta wire:click="submit">{{ __('Bevestigen') }}</x-button.cta>
             </div> {{-- 44vw depends on maxWidth 2xl... --}}
         </div>
     </x-slot>
-</x-modal-new>
+</x-modal.base-modal>
