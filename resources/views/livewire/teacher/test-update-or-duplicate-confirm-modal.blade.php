@@ -19,7 +19,7 @@
                     {{ __('teacher.Je hebt het vak, niveau en/of leerjaar van de toets aangepast.') }}
                 </div>
 
-                <button class="group-type mr-2 mb-2 "
+                <button class="group-type mr-2 mb-2  transition"
                         :class="selected('update') ? 'active' : 'hover:shadow-lg'"
                         @click="select('update')"
                         @isset($preview) disabled @endisset
@@ -38,7 +38,7 @@
                     </div>
                 </button>
 
-                <button class="group-type mb-2"
+                <button class="group-type mb-2 transition"
                         :class="selected('duplicate') ? 'active' : 'hover:shadow-lg'"
                         @click="select('duplicate')"
                         @isset($preview) disabled @endisset
