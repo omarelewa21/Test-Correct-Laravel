@@ -15,6 +15,9 @@ class TestUpdateOrDuplicateConfirmModal extends ModalComponent
     public $request = [];
 
     public $displayValueRequiredMessage = false;
+    protected static array $maxWidths = [
+        'w-modal'  => 'max-w-modal',
+    ];
 
     public function mount($request, $testUuid)
     {
@@ -79,5 +82,10 @@ class TestUpdateOrDuplicateConfirmModal extends ModalComponent
     public function render()
     {
         return view('livewire.teacher.test-update-or-duplicate-confirm-modal');
+    }
+
+    public static function modalMaxWidth(): string
+    {
+        return 'w-modal';
     }
 }

@@ -19,8 +19,9 @@ class TestsOverviewContextMenu extends Component
     protected $listeners = [
         'showMenu',
     ];
-    public $x;
-    public $y;
+
+    public $top;
+    public $left;
 
 
     public function showMenu($args)
@@ -29,8 +30,8 @@ class TestsOverviewContextMenu extends Component
         $this->openTab = $args['openTab'];
         $this->btnId = sprintf('test%s', $args['id']);
         $this->displayMenu = true;
-        $this->x = $args['x'];
-        $this->y = $args['y'];
+        $this->top = $args['top'];
+        $this->left = $args['left'];
     }
 
     public function render()
