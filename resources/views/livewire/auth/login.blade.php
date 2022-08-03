@@ -1,4 +1,8 @@
 <div wire:init="dispatchGuestSuccessNotification">
+    <div class="absolute right-4 top-4">
+        <x-button.close @click="Core.closeElectronApp()" electron/>
+        <x-button.close @click="Core.closeChromebookApp('{{ \tcCore\Http\Helpers\BaseHelper::getLoginUrl() }}')" size="sm" chromebook/>
+    </div>
     <div class="flex w-full items-start justify-center pt-7 pb-9">
         <a class="flex  w-36 md:w-44" href="https://test-correct.nl">
             <img class="" src="{{ asset('svg/logos/Logo-Test-Correct-2.svg') }}" alt="Test-Correct">
