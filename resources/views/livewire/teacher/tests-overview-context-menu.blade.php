@@ -17,14 +17,14 @@
                 this.$root.style.left = (detail.left - 224) + 'px';
                 this.correspondingButton = detail.button;
                 this.uuid = detail.testUuid;
-                let readyForShow = await this.$wire.setUuid(detail.testUuid);
+                let readyForShow = await this.$wire.setContextValues(detail.testUuid, detail.openTab);
                 if (readyForShow) this.showMenu = true;
             },
             closeMenu(clearUuid = true) {
                 this.correspondingButton.dispatchEvent(new CustomEvent('close-menu'));
                 this.showMenu = false;
                 if (clearUuid) {
-                    this.$wire.set('testUuid', '');
+                    this.$wire.clearContextValues();
                 }
             }
         }"
@@ -44,13 +44,21 @@
         <div wire:key="test-context-menu-buttons-{{ $testUuid }}"
              @click="closeMenu()"
         >
-            <livewire:actions.test-plan-test :uuid="$testUuid" variant="context-menu"/>
+            {{-- @TODO: Add order so the multiple conditionals can be removed--}}
+            @if($openTab !== 'school')
+                <livewire:actions.test-plan-test :uuid="$testUuid" variant="context-menu"/>
+            @endif
             <livewire:actions.test-duplicate-test :uuid="$testUuid" variant="context-menu"/>
-            <livewire:actions.test-make-pdf :uuid="$testUuid" variant="context-menu"/>
+            @if($openTab !== 'school')
+                <livewire:actions.test-make-pdf :uuid="$testUuid" variant="context-menu"/>
+            @endif
+
             <x-actions.test-open-preview :uuid="$testUuid" variant="context-menu"/>
-            <x-actions.test-open-edit :uuid="$testUuid" variant="context-menu"/>
-            <x-actions.test-open-settings :uuid="$testUuid" variant="context-menu"/>
-            <x-actions.test-delete :uuid="$testUuid" variant="context-menu"/>
+            @if($openTab !== 'school')
+                <x-actions.test-open-edit :uuid="$testUuid" variant="context-menu"/>
+                <x-actions.test-open-settings :uuid="$testUuid" variant="context-menu"/>
+                <x-actions.test-delete :uuid="$testUuid" variant="context-menu"/>
+            @endif
         </div>
     @endif
 </div>

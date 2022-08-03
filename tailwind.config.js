@@ -40,6 +40,9 @@ module.exports = {
             width: {
                 '50': '12.5rem'
             },
+            height: {
+                '12.5': '3.125rem'
+            },
             zIndex: {
                 '1': 1
             },

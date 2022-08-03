@@ -11,15 +11,22 @@ use tcCore\Test;
 class TestsOverviewContextMenu extends Component
 {
     public $testUuid = null;
+    public $openTab = null;
 
     public function render()
     {
         return view('livewire.teacher.tests-overview-context-menu');
     }
 
-    public function setUuid($uuid)
+    public function setContextValues($uuid, $tab)
     {
         $this->testUuid = $uuid;
+        $this->openTab = $tab;
         return true;
+    }
+
+    public function clearContextValues()
+    {
+        $this->reset();
     }
 }

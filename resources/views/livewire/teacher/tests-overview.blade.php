@@ -19,48 +19,53 @@
 >
     <div class="flex w-full border-b border-secondary">
         <div class="w-full max-w-5xl">
-            <div class="flex w-full space-x-4">
-                <div>
-                    <div class="flex relative hover:text-primary cursor-pointer" @click="openTab = 'personal'">
-                        <span class="bold pt-[0.9375rem] pb-[0.8125rem]"
+            <div class="flex w-full h-12.5">
+                <div class="flex items-center relative hover:text-primary hover:bg-primary/5 px-2 cursor-pointer transition" @click="openTab = 'personal'">
+                        <span class="bold "
                               :class="openTab === 'personal' ? 'primary' : '' ">{{ __('general.Persoonlijk') }}</span>
-                        <span class="absolute w-full bottom-0" style="height: 3px"
-                              :class="openTab === 'personal' ? 'bg-primary' : 'bg-transparent' "></span>
-                    </div>
+                    <span class="absolute w-[calc(100%-1rem)] bottom-0 left-2" style="height: 3px"
+                          :class="openTab === 'personal' ? 'bg-primary' : 'bg-transparent' "></span>
                 </div>
 
-                <div>
-                    {{--                    <div class="flex relative text-midgrey cursor-default">--}}
-                    <div class="flex relative hover:text-primary cursor-pointer" @click="openTab = 'school'">
-                        <span class="bold pt-[0.9375rem] pb-[0.8125rem]"
+
+                {{--                    <div class="flex relative text-midgrey cursor-default">--}}
+                <div class="flex items-center relative hover:text-primary hover:bg-primary/5 px-2 cursor-pointer transition" @click="openTab = 'school'">
+                        <span class="bold "
                               :class="openTab === 'school' ? 'primary' : '' ">{{ __('general.School') }}</span>
-                        <span class="absolute w-full bottom-0" style="height: 3px"
-                              :class="openTab === 'school' ? 'bg-primary' : 'bg-transparent' "></span>
-                    </div>
+                    <span class="absolute w-[calc(100%-1rem)] bottom-0 left-2" style="height: 3px"
+                          :class="openTab === 'school' ? 'bg-primary' : 'bg-transparent' "></span>
                 </div>
 
-                <div>
-                    <div class="flex relative cursor-default">
-                        {{--                    <div class="flex relative hover:text-primary cursor-pointer" @click="openTab = 3">--}}
-                        <span class="bold pt-[0.9375rem] pb-[0.8125rem]  "
-                              :class="openTab === 'umbrella' ? 'primary' : '' ">
-                            <span class="text-white  bg-mid-grey px-2 py-1 rounded-lg">{{ __('general.Scholengemeenschap') }}</span>
-                            </span>
-                        <span class="absolute w-full bottom-0" style="height: 3px"
-                              :class="openTab === 'umbrella' ? 'bg-primary' : 'bg-transparent' "></span>
-                    </div>
+
+                <div class="flex items-center relative cursor-default px-2">
+                    {{--                    <div class="a flex relative hover:text-primary hover:bg-primary/5 px-2 cursor-pointer group" @click="openTab = 3">--}}
+                    <span class="bold text-white bg-midgrey px-2 py-1 rounded-lg transition group-hover:bg-primary"
+                          :class="{'bg-primary' : openTab === 'umbrella' }"
+                    >
+                            {{ __('general.Scholengemeenschap') }}
+                        </span>
+                    <span class="absolute w-[calc(100%-1rem)] bottom-0 left-2" style="height: 3px"
+                          :class="openTab === 'umbrella' ? 'bg-primary' : 'bg-transparent' "></span>
                 </div>
 
                 @if(auth()->user()->schoolLocation->show_national_item_bank)
-                    <div>
-                        {{--                    <div class="flex relative cursor-default">--}}
-                        <div class="flex relative hover:text-primary cursor-pointer" @click="openTab = 'national'">
-                        <span class="bold pt-[0.9375rem] pb-[0.8125rem]  "
-                              :class="openTab === 'national' ? 'primary' : '' ">{{ __('general.Nationaal') }}</span>
-                            <span class="absolute w-full bottom-0" style="height: 3px"
-                                  :class="openTab === 'national' ? 'bg-primary' : 'bg-transparent' "></span>
-                        </div>
+
+                    <div class="flex items-center relative hover:text-primary hover:bg-primary/5 px-2 cursor-pointer group transition"
+                         @click="openTab = 'national'"
+                    >
+                        <span class="bold text-white bg-sysbase px-2 py-1 rounded-lg group-hover:bg-primary transition"
+                              :class="{'bg-primary' : openTab === 'national' }"
+                        >
+                            {{ __('general.Nationaal') }}
+                        </span>
+
+                        <span class="absolute w-[calc(100%-1rem)] bottom-0 left-2"
+                              style="height: 3px"
+                              :class="openTab === 'national' ? 'bg-primary' : 'bg-transparent' ">
+
+                            </span>
                     </div>
+
                 @endif
             </div>
         </div>
