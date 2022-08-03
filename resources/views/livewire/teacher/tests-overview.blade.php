@@ -57,15 +57,15 @@
                 </div>
 
                 @if(auth()->user()->schoolLocation->show_national_item_bank)
-                <div>
-{{--                    <div class="flex relative cursor-default">--}}
-                    <div class="flex relative hover:text-primary cursor-pointer" @click="openTab = 'national'">
+                    <div>
+                        {{--                    <div class="flex relative cursor-default">--}}
+                        <div class="flex relative hover:text-primary cursor-pointer" @click="openTab = 'national'">
                         <span class="bold pt-[0.9375rem] pb-[0.8125rem]  "
                               :class="openTab === 'national' ? 'primary' : '' ">{{ __('general.Nationaal') }}</span>
-                        <span class="absolute w-full bottom-0" style="height: 3px"
-                              :class="openTab === 'national' ? 'bg-primary' : 'bg-transparent' "></span>
+                            <span class="absolute w-full bottom-0" style="height: 3px"
+                                  :class="openTab === 'national' ? 'bg-primary' : 'bg-transparent' "></span>
+                        </div>
                     </div>
-                </div>
                 @endif
             </div>
         </div>
@@ -76,11 +76,13 @@
             <div class="flex flex-col py-4">
                 <div class="flex w-full mt-2">
                     <div class="relative w-full">
-                        <x-input.text class="w-full"
-                                      placeholder="Zoek..."
-                                      wire:model="filters.{{ $this->openTab }}.name"
-                        />
-                        <x-icon.search class="absolute right-0 -top-2"/>
+                        <x-input.group class="w-full">
+                            <x-input.text class="w-full"
+                                          placeholder="Zoek..."
+                                          wire:model="filters.{{ $this->openTab }}.name"
+                            />
+                            <x-icon.search class="absolute right-0 -top-2"/>
+                        </x-input.group>
                     </div>
                 </div>
                 <div class="flex flex-wrap w-full gap-2 mt-2">
@@ -124,7 +126,7 @@
                             wire:model="filters.{{ $this->openTab }}.education_level_id"
                             filterContainer="questionbank-{{ $this->openTab }}-active-filters"
                     />
-                    @if ($this->openTab !== 'personal')
+                    @if ($this->canFilterOnAuthors())
                         <x-input.choices-select
                                 wire:key="authors_{{ $this->openTab }}"
                                 :multiple="true"
@@ -170,16 +172,18 @@
             {{-- Content --}}
             <div class="flex flex-col pt-4 pb-16" style="min-height: 500px">
                 <div class="flex justify-between">
-                    <span class="note text-sm" wire:loading  wire:target="filters,clearFilters,$set">{{  __('general.searching') }}</span>
+                    <span class="note text-sm" wire:loading
+                          wire:target="filters,clearFilters,$set">{{  __('general.searching') }}</span>
 
                     <span class="note text-sm"
-                          wire:loading.remove  wire:target="filters,clearFilters,$set">{{  trans_choice('general.number-of-tests', $results->total(), ['count' => $results->total()]) }}</span>
+                          wire:loading.remove
+                          wire:target="filters,clearFilters,$set">{{  trans_choice('general.number-of-tests', $results->total(), ['count' => $results->total()]) }}</span>
                     <div class="flex space-x-2.5">
-{{--                        <x-button.primary--}}
-{{--                                wire:click="$emitTo('navigation-bar', 'redirectToCake', 'planned.my_tests.plan')">--}}
-{{--                            <x-icon.schedule/>--}}
-{{--                            <span>{{ __('cms.Inplannen') }}</span>--}}
-{{--                        </x-button.primary>--}}
+                        {{--                        <x-button.primary--}}
+                        {{--                                wire:click="$emitTo('navigation-bar', 'redirectToCake', 'planned.my_tests.plan')">--}}
+                        {{--                            <x-icon.schedule/>--}}
+                        {{--                            <span>{{ __('cms.Inplannen') }}</span>--}}
+                        {{--                        </x-button.primary>--}}
                         <x-button.cta wire:click="$emit('openModal', 'teacher.test-start-create-modal')">
                             <x-icon.plus/>
                             <span>{{ __('general.create test') }}</span>
@@ -196,7 +200,7 @@
                     @endforeach
 
                     @foreach($results as $test)
-                        <x-grid.test-card :test="$test" />
+                        <x-grid.test-card :test="$test"/>
                     @endforeach
                 </x-grid>
                 {{ $results->links('components.partials.tc-paginator') }}
