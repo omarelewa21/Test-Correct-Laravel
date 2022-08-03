@@ -5,10 +5,10 @@ namespace tcCore\Http\Controllers;
 use Bugsnag\BugsnagLaravel\Facades\Bugsnag;
 use DOMDocument;
 use Facade\FlareClient\Http\Response;
-use Faker\Provider\Uuid;
 use GuzzleHttp\Client;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Ramsey\Uuid\Uuid;
 use tcCore\Http\Helpers\PdfHelper;
 use tcCore\Http\Requests\HtmlToPdfRequest;
 use tcCore\Test;
@@ -193,7 +193,7 @@ class PdfController extends Controller
             Storage::put('temp/result1footer.html',$footer);
         }
 
-        $fileName = Uuid::uuid().'.pdf';
+        $fileName = Uuid::uuid4().'.pdf';
         $disk = Storage::disk('temp_pdf');
 
         $filePath = $disk->path($fileName);
