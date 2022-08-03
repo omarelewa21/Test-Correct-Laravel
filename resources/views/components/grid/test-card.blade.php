@@ -10,24 +10,25 @@
             title="{{ $test->name }}"
             style="color:inherit"
         >{{ $test->name ? $test->name : __('test.test_name') }}</h3>
-        <div class="relative -top-3" x-data="{
-                testOptionMenu: false
-                }"
+        <div class="relative -top-3" x-data="{ testOptionMenu: false }"
              id="test-card-options-{{ $test->uuid }}"
-             @close-menu="testOptionMenu = false;"
         >
             <button id="test{{ $test->id }}"
                     class="px-4 py-1.5 -mr-4 h-10 w-10 rounded-full hover:bg-primary/5 text-sysbase transition-all"
-                    :class="{'!bg-primary !text-white' : testOptionMenu === true}"
-                    @click.stop="testOptionMenu=!testOptionMenu;
-                                $event.target.dispatchEvent(new CustomEvent('context-menu-close', { bubbles: true }));
-                                $wire.openContextMenu({
+                    :class="{'option-menu-active !text-white hover:!text-primary': testOptionMenu }"
+                    @close-menu="testOptionMenu = false"
+                    @click.stop="
+                            testOptionMenu=!testOptionMenu;
+                            if (testOptionMenu) {
+                                $dispatch('test-card-context-menu-show', {
                                     top: $el.closest('.grid-card').offsetTop,
                                     left: $el.closest('.grid-card').offsetLeft + $el.closest('.grid-card').offsetWidth,
                                     testUuid: '{{ $test->uuid }}',
-                                    openTab: '{{ $this->openTab }}',
-                                    id: '{{ $test->id }}' }
-                                );
+                                    button: $el
+                                })
+                            } else {
+                                $dispatch('test-card-context-menu-close');
+                            }
                      "
             >
                 <x-icon.options class=""/>

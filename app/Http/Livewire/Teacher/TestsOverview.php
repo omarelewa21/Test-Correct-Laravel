@@ -248,15 +248,6 @@ class TestsOverview extends Component
         redirect()->to(route('teacher.test-detail', ['uuid' => $testUuid]));
     }
 
-    public function openContextMenu($args)
-    {
-        $this->emitTo(
-            'teacher.tests-overview-context-menu',
-            'showMenu',
-            $args
-        );
-    }
-
     public function clearFilters($tab = null)
     {
         $tabs = $tab ? [$tab] : $this->allowedTabs;

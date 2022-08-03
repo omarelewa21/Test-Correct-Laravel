@@ -5924,21 +5924,18 @@ document.addEventListener('alpine:init', function () {
       drawer: null,
       resizing: false,
       resizeTimout: null,
+      slides: ['home', 'type', 'newquestion', 'questionbank'],
+      activeSlide: null,
       init: function init() {
         var _this8 = this;
 
         this.slideWidth = this.$root.offsetWidth;
         this.drawer = this.$root.closest('.drawer');
+        this.setActiveSlideProperty(this.$root.scrollLeft);
         setTimeout(function () {
-          _this8.handleVerticalScroll(_this8.$root.firstElementChild); //To enable questionbank on startup :
-          // this.showQuestionBank();
-          // setTimeout(() => {
-          //     this.$refs.questionEditorSidebar.scrollTo({
-          //         left: this.$refs.questionEditorSidebar.scrollLeft - 300,
-          //         behavior: 'smooth'
-          //     });
-          // },1000)
+          _this8.handleVerticalScroll(_this8.$root.firstElementChild);
 
+          _this8.scrollActiveQuestionIntoView();
         }, 400);
       },
       next: function next(currentEl) {
@@ -5954,13 +5951,12 @@ document.addEventListener('alpine:init', function () {
       home: function home() {
         this.scroll(0);
         if (!this.$store.cms.emptyState) this.$dispatch('backdrop');
-        this.handleVerticalScroll(this.$refs.container1);
+        this.handleVerticalScroll(this.$refs.home);
       },
       scroll: function scroll(position) {
-        this.drawer.scrollTo({
-          top: 0,
-          behavior: 'smooth'
-        });
+        this.setActiveSlideProperty(position); // this.drawer.scrollTo({top: 0, behavior: 'smooth'});
+
+        this.scrollActiveQuestionIntoView();
         this.$refs.questionEditorSidebar.scrollTo({
           left: position >= 0 ? position : 0,
           behavior: 'smooth'
@@ -5970,6 +5966,7 @@ document.addEventListener('alpine:init', function () {
       handleVerticalScroll: function handleVerticalScroll(el) {
         var _this9 = this;
 
+        if (el.getAttribute('x-ref') !== this.activeSlide) return;
         this.$refs.questionEditorSidebar.style.minHeight = 'auto';
         this.$refs.questionEditorSidebar.style.height = 'auto';
 
@@ -5987,7 +5984,7 @@ document.addEventListener('alpine:init', function () {
         });
       },
       setNextSlide: function setNextSlide(toInsert) {
-        this.$root.insertBefore(toInsert, this.$root.querySelector('.slide-container[x-ref="container2"]').nextElementSibling);
+        this.$root.insertBefore(toInsert, this.$refs.type.nextElementSibling);
       },
       showNewQuestion: function showNewQuestion(container) {
         this.setNextSlide(this.$refs.newquestion);
@@ -6060,7 +6057,7 @@ document.addEventListener('alpine:init', function () {
           return;
         }
 
-        this.next(this.$refs.container1);
+        this.next(this.$refs.home);
       },
       backToQuestionOverview: function backToQuestionOverview(container) {
         this.prev(container);
@@ -6078,6 +6075,33 @@ document.addEventListener('alpine:init', function () {
             _this11.resizing = false;
           }, 500);
         }
+      },
+      scrollActiveQuestionIntoView: function scrollActiveQuestionIntoView() {
+        var _this12 = this;
+
+        var scrollTimeout = setTimeout(function () {
+          if (_this12.$refs.questionEditorSidebar.scrollLeft > 0) return;
+
+          var activeQuestion = _this12.$refs.home.querySelector('.question-button.question-active');
+
+          activeQuestion || (activeQuestion = _this12.$refs.home.querySelector('.group-active'));
+          if (activeQuestion === null) return;
+          var top = activeQuestion.getBoundingClientRect().top;
+          var screenWithMargin = window.screen.height - 200;
+
+          if (top >= screenWithMargin) {
+            _this12.drawer.scrollTo({
+              top: top - screenWithMargin / 2,
+              behavior: 'smooth'
+            });
+          }
+
+          clearTimeout(scrollTimeout);
+        }, 750);
+      },
+      setActiveSlideProperty: function setActiveSlideProperty(position) {
+        var index = position / this.slideWidth > 2 ? 3 : position / this.slideWidth;
+        this.activeSlide = this.slides[index];
       }
     };
   });
@@ -6093,19 +6117,19 @@ document.addEventListener('alpine:init', function () {
       init: function init() {
         var _window,
             _window$registeredEve,
-            _this12 = this;
+            _this13 = this;
 
         // some new fancy way of setting a value when undefined
         (_window$registeredEve = (_window = window).registeredEventHandlers) !== null && _window$registeredEve !== void 0 ? _window$registeredEve : _window.registeredEventHandlers = [];
         this.activeFiltersContainer = document.getElementById(filterContainer);
         this.multiple = multiple === 1;
         this.$nextTick(function () {
-          var choices = new (choices_js__WEBPACK_IMPORTED_MODULE_2___default())(_this12.$refs.select, _this12.config);
+          var choices = new (choices_js__WEBPACK_IMPORTED_MODULE_2___default())(_this13.$refs.select, _this13.config);
 
           var refreshChoices = function refreshChoices() {
-            var selection = _this12.multiple ? _this12.value : [_this12.value];
+            var selection = _this13.multiple ? _this13.value : [_this13.value];
             choices.clearStore();
-            choices.setChoices(_this12.options.map(function (_ref) {
+            choices.setChoices(_this13.options.map(function (_ref) {
               var value = _ref.value,
                   label = _ref.label;
               return {
@@ -6115,38 +6139,38 @@ document.addEventListener('alpine:init', function () {
               };
             }));
 
-            _this12.handleActiveFilters(choices.getValue());
+            _this13.handleActiveFilters(choices.getValue());
           };
 
           refreshChoices();
 
-          _this12.$refs.select.addEventListener('choice', function (event) {
-            if (_this12.value.includes(parseInt(event.detail.choice.value))) {
-              _this12.removeFilterItem(choices.getValue().find(function (value) {
+          _this13.$refs.select.addEventListener('choice', function (event) {
+            if (_this13.value.includes(parseInt(event.detail.choice.value))) {
+              _this13.removeFilterItem(choices.getValue().find(function (value) {
                 return value.value === event.detail.choice.value;
               }));
             }
           });
 
-          _this12.$refs.select.addEventListener('change', function () {
-            _this12.value = choices.getValue(true); // This causes 2 update calls:
+          _this13.$refs.select.addEventListener('change', function () {
+            _this13.value = choices.getValue(true); // This causes 2 update calls:
             // this.wireModel = this.value;
           });
 
-          var eventName = 'removeFrom' + _this12.$root.dataset.modelName;
+          var eventName = 'removeFrom' + _this13.$root.dataset.modelName;
 
           if (!window.registeredEventHandlers.includes(eventName)) {
             window.registeredEventHandlers.push(eventName);
             window.addEventListener(eventName, function (event) {
-              _this12.removeFilterItem(event.detail);
+              _this13.removeFilterItem(event.detail);
             });
           }
 
-          _this12.$watch('value', function () {
+          _this13.$watch('value', function () {
             return refreshChoices();
           });
 
-          _this12.$watch('options', function () {
+          _this13.$watch('options', function () {
             return refreshChoices();
           });
         });
@@ -6161,16 +6185,16 @@ document.addEventListener('alpine:init', function () {
         return "[data-filter=\"".concat(this.$root.dataset.modelName, "\"][data-filter-value=\"").concat(item, "\"]");
       },
       handleActiveFilters: function handleActiveFilters(choicesValues) {
-        var _this13 = this;
+        var _this14 = this;
 
         this.value.forEach(function (item) {
-          if (_this13.needsFilterPill(item)) {
+          if (_this14.needsFilterPill(item)) {
             var cItem = choicesValues.find(function (value) {
               return value.value === item;
             });
 
             if (typeof cItem !== 'undefined') {
-              _this13.createFilterPill(cItem);
+              _this14.createFilterPill(cItem);
             }
           }
         });
@@ -6192,6 +6216,35 @@ document.addEventListener('alpine:init', function () {
         var _this$activeFiltersCo;
 
         return (_this$activeFiltersCo = this.activeFiltersContainer.querySelector(this.getDataSelector(item))) === null || _this$activeFiltersCo === void 0 ? void 0 : _this$activeFiltersCo.remove();
+      }
+    };
+  });
+  alpinejs__WEBPACK_IMPORTED_MODULE_1__["default"].data('questionCardContextMenu', function () {
+    return {
+      menuOpen: false,
+      questionUuid: null,
+      inTest: null,
+      correspondingButton: null,
+      handleIncomingEvent: function handleIncomingEvent(detail) {
+        var _this15 = this;
+
+        if (!this.menuOpen) return this.openMenu(detail);
+        this.closeMenu();
+        setTimeout(function () {
+          _this15.openMenu(detail);
+        }, 150);
+      },
+      openMenu: function openMenu(detail) {
+        this.questionUuid = detail.questionUuid;
+        this.inTest = detail.inTest;
+        this.correspondingButton = detail.button;
+        this.$root.style.top = detail.coords.top + 56 + 'px';
+        this.$root.style.left = detail.coords.left - 224 + 'px';
+        this.menuOpen = true;
+      },
+      closeMenu: function closeMenu() {
+        this.correspondingButton.dispatchEvent(new CustomEvent('close-menu'));
+        this.menuOpen = false;
       }
     };
   });
@@ -6773,7 +6826,7 @@ window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
 window.Pusher = __webpack_require__(/*! pusher-js */ "./node_modules/pusher-js/dist/web/pusher.js");
 window.Echo = new laravel_echo__WEBPACK_IMPORTED_MODULE_0__["default"]({
   broadcaster: 'pusher',
-  key: "2149988ad52a600a2309",
+  key: "fc18ed69b446aeb8c8a5",
   cluster: "eu",
   forceTLS: true
 });
@@ -65569,19 +65622,6 @@ __webpack_require__.r(__webpack_exports__);
 
 /***/ }),
 
-/***/ "./resources/css/print-test-pdf.css":
-/*!******************************************!*\
-  !*** ./resources/css/print-test-pdf.css ***!
-  \******************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-// extracted by mini-css-extract-plugin
-
-
-/***/ }),
-
 /***/ "./node_modules/plyr/dist/plyr.min.js":
 /*!********************************************!*\
   !*** ./node_modules/plyr/dist/plyr.min.js ***!
@@ -75226,8 +75266,7 @@ module.exports = JSON.parse('{"name":"axios","version":"0.21.4","description":"P
 /******/ 		var installedChunks = {
 /******/ 			"/js/app": 0,
 /******/ 			"css/app": 0,
-/******/ 			"css/app_pdf": 0,
-/******/ 			"css/print-test-pdf": 0
+/******/ 			"css/app_pdf": 0
 /******/ 		};
 /******/ 		
 /******/ 		// no chunk on demand loading
@@ -75277,10 +75316,9 @@ module.exports = JSON.parse('{"name":"axios","version":"0.21.4","description":"P
 /******/ 	// startup
 /******/ 	// Load entry module and return exports
 /******/ 	// This entry module depends on other loaded chunks and execution need to be delayed
-/******/ 	__webpack_require__.O(undefined, ["css/app","css/app_pdf","css/print-test-pdf"], () => (__webpack_require__("./resources/js/app.js")))
-/******/ 	__webpack_require__.O(undefined, ["css/app","css/app_pdf","css/print-test-pdf"], () => (__webpack_require__("./resources/css/app.css")))
-/******/ 	__webpack_require__.O(undefined, ["css/app","css/app_pdf","css/print-test-pdf"], () => (__webpack_require__("./resources/css/app_pdf.css")))
-/******/ 	var __webpack_exports__ = __webpack_require__.O(undefined, ["css/app","css/app_pdf","css/print-test-pdf"], () => (__webpack_require__("./resources/css/print-test-pdf.css")))
+/******/ 	__webpack_require__.O(undefined, ["css/app","css/app_pdf"], () => (__webpack_require__("./resources/js/app.js")))
+/******/ 	__webpack_require__.O(undefined, ["css/app","css/app_pdf"], () => (__webpack_require__("./resources/css/app.css")))
+/******/ 	var __webpack_exports__ = __webpack_require__.O(undefined, ["css/app","css/app_pdf"], () => (__webpack_require__("./resources/css/app_pdf.css")))
 /******/ 	__webpack_exports__ = __webpack_require__.O(__webpack_exports__);
 /******/ 	
 /******/ })()

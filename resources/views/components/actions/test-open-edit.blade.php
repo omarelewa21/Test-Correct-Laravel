@@ -19,7 +19,7 @@
                 @click="window.open('{!! $url !!}', '_self')"
                 @click="$event.target.dispatchEvent(new CustomEvent('context-menu-close', { bubbles: true }));"
             >
-                <x-icon.edit/>
+                <span class="w-5 flex justify-center"><x-icon.edit/></span>
                 <span class="text-base bold inherit">{{ __('cms.Construeren') }}</span>
             </button>
         @endif
