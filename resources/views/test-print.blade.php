@@ -96,11 +96,6 @@
                         />
                     @endif
                 </div>
-                <div>
-                    @if($testQuestion->questionAttachments->isNotEmpty() && $currentGroupQuestion !== $testQuestion->getKey())
-                        <div style="background-color: #ff0000">Has Attachments</div>
-                    @endif
-                </div>
             @endforeach
         </div>
     </div>
