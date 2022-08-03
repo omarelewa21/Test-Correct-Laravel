@@ -18,7 +18,7 @@
                     class="flex items-center space-x-2 py-1 px-4 base hover:text-primary hover:bg-offwhite transition w-full"
                     wire:click="duplicateTest"
             >
-                <x-icon.copy/>
+                <span class="w-5 flex justify-center"><x-icon.copy/></span>
                 <span class="text-base bold inherit">{{ __('cms.Kopie maken') }}</span>
             </button>
         @endif

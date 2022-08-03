@@ -36,12 +36,15 @@
 .text-button:hover {
     color: var(--primary);
 }
+
 .text-button.text-button-hover-bg:hover {
     background: var(--primary-opacity-05);
 }
+
 .text-button:active {
     color: var(--primary);
 }
+
 .text-button.text-button-hover-bg:active {
     background: var(--primary-opacity-10);
 }
@@ -49,29 +52,31 @@
 .text-button:focus {
     outline: none;
 }
+
 .text-button > span {
     vertical-align: middle;
 }
+
 .text-button:disabled {
-    color: var(--mid-grey)!important;
-    cursor: default!important;
+    color: var(--mid-grey) !important;
+    cursor: default !important;
 }
 
 button.cta-button, a.cta-button {
     color: white;
-    background-color: rgba(58,183,83,1);
-    background-image: radial-gradient(ellipse farthest-side at 10% 10%,rgba(58,183,83,.5) 0,rgba(58,183,83,0) 100%);
+    background-color: rgba(58, 183, 83, 1);
+    background-image: radial-gradient(ellipse farthest-side at 10% 10%, rgba(58, 183, 83, .5) 0, rgba(58, 183, 83, 0) 100%);
     background-size: 0px 0px;
     background-repeat: no-repeat;
-    box-shadow: 0 1px 2px 1px rgba(0,0,0,.15);
-    transition: color 0.3s cubic-bezier(.215,.61,.355,1);
+    box-shadow: 0 1px 2px 1px rgba(0, 0, 0, .15);
+    transition: color 0.3s cubic-bezier(.215, .61, .355, 1);
 }
 
 button.cta-button:hover, a.cta-button:hover {
     background-color: rgb(60, 202, 86);
     background-size: 100% 100%;
-    box-shadow: 0 4px 10px 0 rgba(0,0,0,0.1);
-    transition: all 0.3s cubic-bezier(.215,.61,.355,1);
+    box-shadow: 0 4px 10px 0 rgba(0, 0, 0, 0.1);
+    transition: all 0.3s cubic-bezier(.215, .61, .355, 1);
 }
 
 button.cta-button:active, a.cta-button:active {
@@ -95,34 +100,38 @@ button.cta-button:disabled, a.cta-button:disabled {
     color: var(--mid-grey);
     box-shadow: none;
 }
+
 .primary-button.btn-disabled:hover {
     background: var(--light-grey);
     color: var(--mid-grey);
     box-shadow: none;
 }
+
 .primary-button.btn-disabled:focus {
     border: none;
 }
 
 .primary-button {
     color: white;
-    background-color: rgba(0,77,245,1);
-    background-image: radial-gradient(ellipse farthest-side at 10% 10%,rgba(0,77,245,.5) 0,rgba(0,77,245,0) 100%);
+    background-color: rgba(0, 77, 245, 1);
+    background-image: radial-gradient(ellipse farthest-side at 10% 10%, rgba(0, 77, 245, .5) 0, rgba(0, 77, 245, 0) 100%);
     background-size: 0px 0px;
     background-repeat: no-repeat;
-    box-shadow: 0 1px 2px 1px rgba(0,0,0,.15);
-    transition: color 0.3s cubic-bezier(.215,.61,.355,1);
+    box-shadow: 0 1px 2px 1px rgba(0, 0, 0, .15);
+    transition: color 0.3s cubic-bezier(.215, .61, .355, 1);
 }
 
 .primary-button:hover {
-    background-color: rgba(71,129,255,1);
+    background-color: rgba(71, 129, 255, 1);
     background-size: 100% 100%;
-    box-shadow: 0 4px 10px 0 rgba(0,0,0,0.1);
-    transition: all 0.3s cubic-bezier(.215,.61,.355,1);
+    box-shadow: 0 4px 10px 0 rgba(0, 0, 0, 0.1);
+    transition: all 0.3s cubic-bezier(.215, .61, .355, 1);
 }
+
 .primary-button:focus {
     outline: none;
 }
+
 .primary-button:active {
     outline: none;
 }
@@ -136,23 +145,23 @@ button.cta-button:disabled, a.cta-button:disabled {
 .secondary-button {
     color: var(--system-base);
     background-color: var(--blue-grey);
-    background-image: radial-gradient(ellipse farthest-side at 10% 10%,rgba(195,208,237,.5) 0,rgba(195,208,237,0) 100%);
+    background-image: radial-gradient(ellipse farthest-side at 10% 10%, rgba(195, 208, 237, .5) 0, rgba(195, 208, 237, 0) 100%);
     background-size: 0px 0px;
     background-repeat: no-repeat;
-    box-shadow: 0 1px 2px 1px rgba(0,0,0,.15);
-    transition: color 0.3s cubic-bezier(.215,.61,.355,1);
+    box-shadow: 0 1px 2px 1px rgba(0, 0, 0, .15);
+    transition: color 0.3s cubic-bezier(.215, .61, .355, 1);
 }
 
 .secondary-button:hover {
     background-color: rgb(203, 219, 253);
     background-size: 100% 100%;
-    box-shadow: 0 4px 10px 0 rgba(0,0,0,0.1);
-    transition: all 0.3s cubic-bezier(.215,.61,.355,1);
+    box-shadow: 0 4px 10px 0 rgba(0, 0, 0, 0.1);
+    transition: all 0.3s cubic-bezier(.215, .61, .355, 1);
 }
 
 .secondary-button:active {
     background: linear-gradient(90deg, rgba(239, 244, 254, 1) 0%, rgba(233, 239, 250, 1) 100%);
-    box-shadow: 0 4px 10px 0 rgba(0,0,0,0.1);
+    box-shadow: 0 4px 10px 0 rgba(0, 0, 0, 0.1);
 }
 
 .secondary-button:focus {
@@ -196,6 +205,7 @@ button.cta-button:disabled, a.cta-button:disabled {
 .dropdown-item:hover {
     background: var(--primary-opacity-05);
 }
+
 .dropdown-item:active {
     background: var(--primary-opacity-10);
 }
@@ -203,14 +213,17 @@ button.cta-button:disabled, a.cta-button:disabled {
 .action-icon-button {
     transition: 150ms ease-in-out;
 }
+
 .action-icon-button:hover {
     color: var(--primary);
     background: var(--primary-opacity-05);
 }
+
 .action-icon-button:active {
     color: var(--primary);
     background: var(--primary-opacity-10);
 }
+
 .action-icon-button.active {
     color: white;
     background: var(--primary);
@@ -221,7 +234,7 @@ button.cta-button:disabled, a.cta-button:disabled {
     --button-background-image: var(--button-gradient);
     --button-text: var(--white);
     --button-box-shadow: none;
-    --button-transition-time-effect: 0.3s cubic-bezier(.215,.61,.355,1);
+    --button-transition-time-effect: 0.3s cubic-bezier(.215, .61, .355, 1);
     --button-padding: 0 12px;
     --button-focus-border: 0 solid transparent;
     height: 40px;
@@ -232,7 +245,7 @@ button.cta-button:disabled, a.cta-button:disabled {
     color: var(--button-text);
     box-shadow: var(--button-box-shadow);
     transition: color var(--button-transition-time-effect),
-                box-shadow var(--button-transition-time-effect);
+    box-shadow var(--button-transition-time-effect);
     position: relative;
     z-index: 1;
     border: var(--button-focus-border);
@@ -240,6 +253,7 @@ button.cta-button:disabled, a.cta-button:disabled {
     align-items: center;
     justify-content: center;
 }
+
 .new-button::after {
     content: '';
     position: absolute;
@@ -259,22 +273,27 @@ button.cta-button:disabled, a.cta-button:disabled {
 .new-button:hover {
     --button-box-shadow: 0 3px 6px 0 rgba(4, 31, 116, 0.3);
 }
+
 .new-button:active {
     --button-box-shadow: 0 1px 3px 0 rgba(4, 31, 116, 0.4);
 }
+
 .new-button:focus {
     --button-focus-border: 2px solid #002096;
     --button-box-shadow: 0 3px 6px 0 rgba(4, 31, 116, 0.3);;
     --button-padding: 0 10px
 }
+
 .new-button > * {
     position: relative;
     z-index: 2;
 }
+
 .new-button.button-cta {
     --button-background-color: var(--cta-primary);
     --button-background-image: var(--cta-gradient);
 }
+
 .new-button.button-cta:focus {
     --button-focus-border: solid 2px var(--cta-primary-dark);;
 }
@@ -286,8 +305,7 @@ button.cta-button:disabled, a.cta-button:disabled {
 .new-button.button-cta:disabled,
 .new-button.button-cta:disabled:hover,
 .new-button.button-cta:disabled:focus,
-.new-button.button-cta:disabled:active
-{
+.new-button.button-cta:disabled:active {
     --button-background-color: var(--light-grey);
     --button-background-image: var(--mid-grey);
     --button-text: var(--mid-grey);
@@ -303,7 +321,10 @@ button.cta-button:disabled, a.cta-button:disabled {
     border: 1px solid var(--blue-grey);
     width: 308px;
     max-width: 308px;
-    transition: color .2s ease-in-out, background-color .2s ease-in-out;
+    transition: color .2s ease-in-out,
+    background-color .2s ease-in-out,
+    box-shadow .2s ease-in-out,
+    border-color .2s ease-in-out;
 }
 .group-type.active {
     padding: 19px 15px 9px 15px;
@@ -313,10 +334,32 @@ button.cta-button:disabled, a.cta-button:disabled {
     background-color: var(--off-white);
 }
 
+.test-change-option {
+    display: flex;
+    position: relative;
+    padding-block: 12px;
+    padding-inline: 24px 32px;
+    border-radius: 10px;
+    border: 2px solid var(--blue-grey);
+    transition: color .2s ease-in-out,
+    background-color .2s ease-in-out,
+    border-color .2s ease-in-out;
+}
+
+.test-change-option.active {
+    border-color: var(--primary);
+    color: var(--primary);
+    background-color: var(--off-white);
+}
+.test-change-option.active p {
+    color: var(--primary);
+}
+
 .back-round-button {
     transition: box-shadow 150ms ease,
-                color 150ms ease;
+    color 150ms ease;
 }
+
 .back-round-button:hover {
     box-shadow: 0 3px 6px 0 rgba(4, 31, 116, 0.3);
     color: var(--primary);
@@ -4803,6 +4846,9 @@ video {
 .top-0{
   top: 0px;
 }
+.-right-3{
+  right: -0.75rem;
+}
 .top-1\/2{
   top: 50%;
 }
@@ -4848,6 +4894,9 @@ video {
 .-right-px{
   right: -1px;
 }
+.-top-3{
+  top: -0.75rem;
+}
 .right-4{
   right: 1rem;
 }
@@ -4889,12 +4938,6 @@ video {
 }
 .-top-2{
   top: -0.5rem;
-}
-.-top-3{
-  top: -0.75rem;
-}
-.-right-3{
-  right: -0.75rem;
 }
 .bottom-8{
   bottom: 2rem;
@@ -5017,6 +5060,10 @@ video {
 .my-5{
   margin-top: 1.25rem;
   margin-bottom: 1.25rem;
+}
+.my-4{
+  margin-top: 1rem;
+  margin-bottom: 1rem;
 }
 .mb-4{
   margin-bottom: 1rem;
@@ -5519,6 +5566,9 @@ video {
 }
 .max-w-\[600px\]{
   max-width: 600px;
+}
+.max-w-modal{
+  max-width: 700px;
 }
 .max-w-2xl{
   max-width: 42rem;
@@ -6226,6 +6276,10 @@ video {
 .bg-white\/75{
   background-color: rgb(255 255 255 / 0.75);
 }
+.\!bg-primary{
+  --tw-bg-opacity: 1 !important;
+  background-color: rgb(0 77 245 / var(--tw-bg-opacity)) !important;
+}
 .bg-offwhite{
   --tw-bg-opacity: 1;
   background-color: rgb(249 250 255 / var(--tw-bg-opacity));
@@ -6370,13 +6424,13 @@ video {
   padding-top: 1.5rem;
   padding-bottom: 1.5rem;
 }
-.py-3{
-  padding-top: 0.75rem;
-  padding-bottom: 0.75rem;
-}
 .px-10{
   padding-left: 2.5rem;
   padding-right: 2.5rem;
+}
+.py-3{
+  padding-top: 0.75rem;
+  padding-bottom: 0.75rem;
 }
 .px-5{
   padding-left: 1.25rem;
@@ -6522,6 +6576,12 @@ video {
 .pl-6{
   padding-left: 1.5rem;
 }
+.pl-\[12px\]{
+  padding-left: 12px;
+}
+.pr-\[12px\]{
+  padding-right: 12px;
+}
 .pr-12{
   padding-right: 3rem;
 }
@@ -6588,11 +6648,11 @@ video {
 .pb-1{
   padding-bottom: 0.25rem;
 }
-.pl-\[12px\]{
-  padding-left: 12px;
+.pb-12{
+  padding-bottom: 3rem;
 }
-.pr-\[12px\]{
-  padding-right: 12px;
+.pb-14{
+  padding-bottom: 3.5rem;
 }
 .text-left{
   text-align: left;
@@ -6816,11 +6876,11 @@ video {
 .opacity-40{
   opacity: 0.4;
 }
-.opacity-50{
-  opacity: 0.5;
-}
 .opacity-20{
   opacity: 0.2;
+}
+.opacity-50{
+  opacity: 0.5;
 }
 .opacity-80{
   opacity: 0.8;
@@ -7416,6 +7476,9 @@ h2.student-testtake-answers-separator span{
   --tw-bg-opacity: 1;
   background-color: rgb(255 255 255 / var(--tw-bg-opacity));
 }
+.hover\:\!bg-primary\/5:hover{
+  background-color: rgb(0 77 245 / 0.05) !important;
+}
 .hover\:font-bold:hover{
   font-weight: 700;
 }
@@ -7458,6 +7521,11 @@ h2.student-testtake-answers-separator span{
 .hover\:shadow-md:hover{
   --tw-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
   --tw-shadow-colored: 0 4px 6px -1px var(--tw-shadow-color), 0 2px 4px -2px var(--tw-shadow-color);
+  box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow);
+}
+.hover\:shadow-lg:hover{
+  --tw-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+  --tw-shadow-colored: 0 10px 15px -3px var(--tw-shadow-color), 0 4px 6px -4px var(--tw-shadow-color);
   box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow);
 }
 .focus\:z-10:focus{

@@ -12,7 +12,7 @@
                 @click="$event.target.dispatchEvent(new CustomEvent('context-menu-close', { bubbles: true }));makePDF()"
                 wire:click="planTest"
         >
-            <x-icon.schedule/>
+            <span class="w-5 flex justify-center"><x-icon.schedule/></span>
             <span class="text-base bold inherit">{{ __('cms.Inplannen') }}</span>
         </button>
     @endif

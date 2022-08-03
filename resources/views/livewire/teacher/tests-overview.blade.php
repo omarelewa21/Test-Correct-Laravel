@@ -163,7 +163,7 @@
             </div>
 
             {{-- Content --}}
-            <div class="flex flex-col py-4" style="min-height: 500px">
+            <div class="flex flex-col pt-4 pb-16" style="min-height: 500px">
                 <div class="flex justify-between">
                     <span class="note text-sm" wire:loading  wire:target="filters,clearFilters,$set">{{  __('general.searching') }}</span>
 
@@ -181,7 +181,7 @@
                         </x-button.cta>
                     </div>
                 </div>
-                <x-grid class="mt-4">
+                <x-grid class="my-4">
                     @foreach(range(1, 6) as $value)
                         <x-grid.loading-card
                                 :delay="$value"
