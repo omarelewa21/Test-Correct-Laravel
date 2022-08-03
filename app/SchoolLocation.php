@@ -93,7 +93,8 @@ class SchoolLocation extends BaseModel implements AccessCheckable
         'sso', 'sso_type', 'sso_active', 'lvs_authorization_key', 'school_language', 'company_id', 'allow_guest_accounts',
         'allow_new_student_environment', 'allow_new_question_editor',
         'keep_out_of_school_location_report',
-        'main_phonenumber','internetaddress', 'show_exam_material', 'show_cito_quick_test_start', 'show_national_item_bank'
+        'main_phonenumber','internetaddress', 'show_exam_material', 'show_cito_quick_test_start', 'show_national_item_bank',
+        'allow_wsc', 'allow_writing_assignment',
     ];
 
     /**
