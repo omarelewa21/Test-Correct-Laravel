@@ -34,7 +34,7 @@ class OpenQuestion extends Question implements QuestionInterface {
      *
      * @var array
      */
-    protected $fillable = ['subtype', 'answer'];
+    protected $fillable = ['subtype', 'answer', 'spell_check_available'];
 
     /**
      * The attributes excluded from the model's JSON form.
@@ -47,6 +47,16 @@ class OpenQuestion extends Question implements QuestionInterface {
 //    {
 //        static::addGlobalScope(new RemoveUuidScope);
 //    }
+
+    public static function boot()
+    {
+        parent::boot();
+
+        static::saving(function (OpenQuestion $question) {
+            $question->spell_check_available = !!$question->spell_check_available;
+            return $question;
+        });
+    }
 
     public function question() {
 
