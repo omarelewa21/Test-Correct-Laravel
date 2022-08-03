@@ -60,6 +60,10 @@ return [
             'driver' => 'local',
             'root'   => storage_path().'/pdf_images',
         ],
+        'temp_pdf' => [
+            'driver' => 'local',
+            'root'   => storage_path().'/temp_pdf',
+        ],
         'cake' => [
             'driver' => 'local',
             'root' => env('CAKE_STORAGE_PATH', base_path().'/../testportal.test-correct/app/tmp/')

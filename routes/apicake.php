@@ -175,6 +175,7 @@ Route::group(['middleware' => ['api', 'dl', 'authorize', 'authorizeBinds', 'bind
 
 	Route::post('test/{test}/with_temporary_login',  'TestsController@withTemporaryLogin')->name('test.with_short_code');
     Route::post('test/answer_model/{test}/with_temporary_login',  'TestsController@answerModelwithTemporaryLogin')->name('test_answer_model.with_short_code');
+    Route::post('test/pdf/{test}/with_temporary_login',  'TestsController@pdfWithTemporaryLogin')->name('test_pdf.with_short_code');
 	Route::post('test_take/{test_take}/with_temporary_login',  'TestTakesController@withTemporaryLogin')->name('test_take.with_short_code');
     Route::post('test_take/answers/{test_take}/with_temporary_login',  'TestTakesController@AnswersWithTemporaryLogin')->name('test_take_answers.with_short_code');
 

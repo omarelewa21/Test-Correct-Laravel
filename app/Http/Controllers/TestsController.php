@@ -183,4 +183,22 @@ class TestsController extends Controller {
 
         return  response()->json($response);
     }
+
+    public function pdfWithTemporaryLogin(Test $test)
+    {
+        $response = new \stdClass;
+        $temporaryLogin = TemporaryLogin::createForUser(Auth()->user());
+
+        $relativeUrl = sprintf('%s?redirect=%s',
+            route('auth.temporary-login.redirect',[$temporaryLogin->uuid],false),
+            rawurlencode(route('teacher.preview.test', $test->uuid,false))
+        );
+        if(Str::startsWith($relativeUrl,'/')) {
+            $relativeUrl = Str::replaceFirst('/', '', $relativeUrl);
+        }
+
+        $response->url = sprintf('%s%s',config('app.base_url'),$relativeUrl);
+
+        return  response()->json($response);
+    }
 }

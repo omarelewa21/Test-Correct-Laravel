@@ -15,6 +15,7 @@ const { execSync } = require('child_process');
 
 // mix.js('resources/js/app.js', 'public/js')
 //     .sass('resources/sass/app.scss', 'public/css');
+const autoprefixer = require('autoprefixer');
 
 // mix.webpackConfig({
 //     stats: {
@@ -26,6 +27,10 @@ mix.postCss("resources/css/app.css", "public/css", [
     require("tailwindcss"),
 ]).postCss("resources/css/app_pdf.css", "public/css/", [
     require("tailwindcss"),
+]).postCss("resources/css/print-test-pdf.css", "public/css/", [
+    require("tailwindcss"), autoprefixer({overrideBrowserslist: [
+            "chrome 6", "safari 5.1"
+        ]})
 ]).js('resources/js/app.js', 'public/js');
 
 const wirisPath = "node_modules/@wiris/mathtype-ckeditor4";
