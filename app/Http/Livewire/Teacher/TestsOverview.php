@@ -154,7 +154,9 @@ class TestsOverview extends Component
                     'author_id'            => [],
                     'base_subject_id'      => [],
                 ];
-                $this->filters[$tab] = array_merge($this->filters[$tab], auth()->user()->getSearchFilterDefaultsTeacher());
+                if ($tab !== 'national') {
+                    $this->filters[$tab] = array_merge($this->filters[$tab], auth()->user()->getSearchFilterDefaultsTeacher());
+                }
             });
         }
     }
@@ -205,7 +207,7 @@ class TestsOverview extends Component
             case 'exams':
                 return Subject::examFiltered([], ['name' => 'asc']);
             default:
-                return Subject::filtered([], ['name' => 'asc']);
+                return Subject::filtered(['imp' => 0], ['name' => 'asc']);
         }
     }
 
@@ -289,5 +291,10 @@ class TestsOverview extends Component
             $this->emit('openModal', 'teacher.test-create-modal');
             $this->referrerAction = '';
         }
+    }
+
+    public function canFilterOnAuthors()
+    {
+        return !collect(['personal', 'national'])->contains($this->openTab);
     }
 }
