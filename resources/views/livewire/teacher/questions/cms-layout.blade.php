@@ -27,6 +27,14 @@
            removeDrawingLegacy = () => {
                 $root.querySelector('#drawing-question-tool-container')?.remove();
            }
+           changeEditorWscLanguage = (lang) => {
+                if (document.getElementById('{{ $this->questionEditorId }}')) {
+                    WebspellcheckerTlc.forTeacherQuestion(CKEDITOR.instances['{{ $this->questionEditorId }}'], lang);
+                }
+                if (document.getElementById('{{ $this->answerEditorId }}')) {
+                    WebspellcheckerTlc.forTeacherQuestion(CKEDITOR.instances['{{ $this->answerEditorId }}'], lang);
+                }
+           }
            forceSyncEditors = () => {
                 if (document.getElementById('{{ $this->questionEditorId }}')) {
                     $wire.sync('question.question', CKEDITOR.instances['{{ $this->questionEditorId }}'].getData());
@@ -123,7 +131,8 @@
                         </label>
                         <x-input.select
                                 wire:model.defer="question.lang"
-                                wire:key="score-component-{{ $this->uniqueQuestionKey }}"
+                                wire:key="wsc-language-component-{{ $this->uniqueQuestionKey }}"
+                                @change="changeEditorWscLanguage($event.target.value)"
                         >
                             <option value="nl_NL">{{ __('lang.nl_NL') }}</option>
                             <option value="en_GB">{{ __('lang.en_GB') }}</option>
@@ -371,7 +380,7 @@
                         @endif
 
                         @if($this->isSettingsGeneralPropertyVisible('autoCheckAnswer'))
-                            <x-input.toggle-row-with-title wire:model="question.auto_check_answer" {{-- todo: fix toggle for auto_check_answer--}}
+                            <x-input.toggle-row-with-title wire:model="question.auto_check_answer"
                                                            class="{{ $this->isSettingsGeneralPropertyDisabled('autoCheckAnswer') ? 'text-disabled' : '' }}"
                                                            :disabled="$this->isSettingsGeneralPropertyDisabled('autoCheckAnswer')"
                             >

@@ -10,6 +10,10 @@ class CmsWritingAssignment extends CmsBase
     public $settingsGeneralPropertiesVisibility = [
         'spellingCheckAvailableDuringAssessing' => true,
     ];
+    protected $questionOptions = [
+        'lang'                  => 'nl_NL',
+        'spell_check_available' => true,
+    ];
 
     public function getTranslationKey(): string
     {
@@ -23,11 +27,16 @@ class CmsWritingAssignment extends CmsBase
 
     public function preparePropertyBag()
     {
-        $questionOptions = [
-            'lang' => (Auth::user()->schoolLocation->school_language == 'nl') ? 'nl_NL' : 'en_GB',
-        ];
-        foreach ($questionOptions as $key => $value) {
+        $this->questionOptions['lang'] =  Auth::user()->schoolLocation->wsc_language;
+        foreach ($this->questionOptions as $key => $value) {
             $this->instance->question[$key] = $value;
+        }
+    }
+
+    public function initializePropertyBag($q)
+    {
+        foreach ($this->questionOptions as $key => $val) {
+            $this->instance->question[$key] = $q[$key];
         }
     }
 

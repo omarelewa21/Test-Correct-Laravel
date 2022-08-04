@@ -120,10 +120,16 @@ class SchoolLocation extends BaseModel implements AccessCheckable
     {
         if($this->school_language === 'en'){
             return 'eng';
-        } else if($this->school_language === 'nl') {
+        }
+        if($this->school_language === 'nl') {
             return 'nld';
         }
         return $this->school_language;
+    }
+
+    public function getWscLanguageAttribute()
+    {
+        return $this->school_language === 'nl' ? 'nl_NL' : 'en_GB';
     }
 
     public function fill(array $attributes)

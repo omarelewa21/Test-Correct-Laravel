@@ -13,6 +13,7 @@ class OpenQuestion extends Question implements QuestionInterface {
 
     protected $casts = [
         'uuid' => EfficientUuid::class,
+        'spell_check_available' => 'boolean',
     ];
 
     /**
