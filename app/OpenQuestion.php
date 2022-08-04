@@ -98,5 +98,12 @@ class OpenQuestion extends Question implements QuestionInterface {
         return false;
     }
 
+    public function getCaptionAttribute() {
+        if ($this->subtype === 'writing') {
+            return __('test_take.writing_assignment_question');
+        }
+
+        return parent::getCaptionAttribute();
+    }
 
 }
