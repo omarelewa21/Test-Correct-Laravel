@@ -202,6 +202,7 @@ class OpenShort extends Component implements QuestionCms
             'learning_goals'         => [],
             'test_id'                => '',
             'all_or_nothing'         => false,
+            'lang'                   => Auth::user()->schoolLocation->wscLanguage,
         ];
 
         $this->audioUploadOptions = [];
@@ -238,7 +239,7 @@ class OpenShort extends Component implements QuestionCms
         $this->uniqueQuestionKey = $this->testQuestionId . $this->groupQuestionQuestionId . $this->action . $this->questionEditorId;
         $this->duplicateQuestion = false;
         $this->canDeleteTest = false;
-        $this->lang = 'nl_NL';
+        $this->lang = Auth::user()->schoolLocation->wscLanguage;
     }
 
 
@@ -908,7 +909,7 @@ class OpenShort extends Component implements QuestionCms
             $this->question['add_to_database'] = $q->add_to_database;
             $this->question['discuss'] = $tq->discuss;
             $this->question['decimal_score'] = $q->decimal_score;
-            $this->question['lang'] = !is_null($q->lang) ? $q->lang : 'nl_NL';
+            $this->question['lang'] = !is_null($q->lang) ? $q->lang : Auth::user()->schoolLocation->wscLanguage;
 
             $this->lang = $this->question['lang'];
             $this->educationLevelId = $q->education_level_id;
