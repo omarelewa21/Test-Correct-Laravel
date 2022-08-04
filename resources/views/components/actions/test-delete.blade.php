@@ -1,4 +1,4 @@
-<div x-data="{}">
+<div {{ $attributes }} x-data="{}">
     @if($variant == 'icon-button')
         @if ($test->canDelete(auth()->user()))
 

@@ -1,4 +1,4 @@
-<div x-data="{
+<div class="{{ $class ?? '' }}" x-data="{
  makePDF: async function() {
                 let response = await $wire.getTemporaryLoginToPdfForTest();
                 window.open(response, '_blank');

@@ -11,10 +11,13 @@ class TestMakePdf extends Component
 {
     public $uuid;
     public $variant;
+    public string $class;
 
-    public function mount($uuid, $variant='icon-button') {
+    public function mount($uuid, $variant = 'icon-button', $class = '')
+    {
         $this->uuid = $uuid;
         $this->variant = $variant;
+        $this->class = $class;
     }
 
     public function render()

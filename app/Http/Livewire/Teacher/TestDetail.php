@@ -39,7 +39,7 @@ class TestDetail extends Component
                 'testQuestions.question',
                 'testQuestions.question.authors'
             ])
-            ->first();
+            ->firstOrFail();
     }
 
     public function getAmountOfQuestionsProperty()

@@ -1,4 +1,4 @@
-<div>
+<div {{ $attributes }}>
     @if($variant == 'icon-button')
         @if($test->canEdit(auth()->user()))
             <x-button.primary class="pl-[12px] pr-[12px]"

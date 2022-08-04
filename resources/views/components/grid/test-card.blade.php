@@ -24,7 +24,8 @@
                                     top: $el.closest('.grid-card').offsetTop,
                                     left: $el.closest('.grid-card').offsetLeft + $el.closest('.grid-card').offsetWidth,
                                     testUuid: '{{ $test->uuid }}',
-                                    button: $el
+                                    button: $el,
+                                    openTab: '{{ $this->openTab }}'
                                 })
                             } else {
                                 $dispatch('test-card-context-menu-close');
