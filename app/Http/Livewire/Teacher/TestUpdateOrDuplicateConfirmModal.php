@@ -2,7 +2,10 @@
 
 namespace tcCore\Http\Livewire\Teacher;
 
+use Illuminate\Support\Facades\Auth;
 use LivewireUI\Modal\ModalComponent;
+use tcCore\Http\Controllers\TestsController;
+use tcCore\Http\Requests\DuplicateTestRequest;
 use tcCore\Http\Traits\TestActions;
 use tcCore\Test;
 
@@ -16,7 +19,7 @@ class TestUpdateOrDuplicateConfirmModal extends ModalComponent
 
     public $displayValueRequiredMessage = false;
     protected static array $maxWidths = [
-        'w-modal'  => 'max-w-modal',
+        'w-modal' => 'max-w-modal',
     ];
 
     public function mount($request, $testUuid)
@@ -58,15 +61,20 @@ class TestUpdateOrDuplicateConfirmModal extends ModalComponent
 
     private function duplicate(Test $test)
     {
+        $testAttributes = $test->getAttributes();
         $newTestName = $this->request['name'];
+        unset($testAttributes['name']);
         unset($this->request['name']);
-        $newTest = $test->userDuplicate($this->request, auth()->id());
+
+        $newTest = $test->userDuplicate($testAttributes, Auth::id());
+
+        $newTest->load(['testQuestions']);
+        $newTest->fill($this->request)->save();
+
         if(!stristr($newTest->name, $newTestName)){
            $newTest->name = $newTestName;
+            $newTest->save();
         }
-        /*We need to eager load the relation for the saved boot method to work for some reason. - RR*/
-        $newTest->load(['testQuestions', 'testQuestions.question']);
-        $newTest->save();
         $this->forceClose()->closeModal();
         $this->emit('testSettingsUpdated', $this->request);
     }
