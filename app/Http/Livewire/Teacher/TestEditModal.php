@@ -86,4 +86,11 @@ class TestEditModal extends ModalComponent
     {
         return 'max-w-[600px]';
     }
+
+    public function updatingRequest($value, $name)
+    {
+        if ($name === 'education_level_id') {
+            $this->request['education_level_year'] = 1;
+        }
+    }
 }

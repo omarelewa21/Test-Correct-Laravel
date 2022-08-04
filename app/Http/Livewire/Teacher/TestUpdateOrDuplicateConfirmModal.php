@@ -3,9 +3,9 @@
 namespace tcCore\Http\Livewire\Teacher;
 
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Str;
+use Livewire\Livewire;
 use LivewireUI\Modal\ModalComponent;
-use tcCore\Http\Controllers\TestsController;
-use tcCore\Http\Requests\DuplicateTestRequest;
 use tcCore\Http\Traits\TestActions;
 use tcCore\Test;
 
@@ -75,8 +75,8 @@ class TestUpdateOrDuplicateConfirmModal extends ModalComponent
            $newTest->name = $newTestName;
             $newTest->save();
         }
-        $this->forceClose()->closeModal();
-        $this->emit('testSettingsUpdated', $this->request);
+
+        $this->exit($newTest->uuid);
     }
 
     private function update(Test $test)
@@ -95,5 +95,16 @@ class TestUpdateOrDuplicateConfirmModal extends ModalComponent
     public static function modalMaxWidth(): string
     {
         return 'w-modal';
+    }
+
+    private function exit($uuid)
+    {
+        $this->forceClose()->closeModal();
+
+        if(Str::contains(Livewire::originalUrl(), 'test-detail')) {
+            return $this->redirect(route('teacher.test-detail', $uuid));
+        }
+
+        $this->emit('testSettingsUpdated', $this->request);
     }
 }
