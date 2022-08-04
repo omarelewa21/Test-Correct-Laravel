@@ -1064,6 +1064,13 @@ class SchoolLocation extends BaseModel implements AccessCheckable
         $defaultSectionIds = $defaultSubjects->map(function(DefaultSubject $ds){
            return $ds->default_section_id;
         });
+
+        // all subjects of current school location
+        $sectionIdsFromSchoolLocationSections = $this->schoolLocationSections()->pluck('section_id');
+        // we need to check if all sections are not deleted as deletion is based on section and not school location section
+        $sectionIds = Section::whereIn('id',$sectionIdsFromSchoolLocationSections)->pluck('id');
+        $subjects = Subject::whereIn('section_id',$sectionIds)->pluck('name','id')->map(function($name,$id){return strtolower($name);})->flip();
+
         // get default sections
         $defaultSections = DefaultSection::whereIn('id',$defaultSectionIds)->get();
         // add sections
@@ -1087,15 +1094,19 @@ class SchoolLocation extends BaseModel implements AccessCheckable
         // add sections to schoollocation
         $this->sections = array_values($list);
         $this->saveSections();
+
+
+
         // add subjects
-        $defaultSubjects->each(function(DefaultSubject $ds) use ($list){
+        $defaultSubjects->each(function(DefaultSubject $ds) use ($list, $subjects){
             // NOTE Erik 20220803
             // used to be updateOrCreate, but for some reason both the updated_at and the created_at were adjusted and we don't want that as we want to be able to see from when a subject was
-            if(Subject::where('name',$ds->name)->where('section_id',$list[$ds->default_section_id])->count()){
-                Subject::where('name',$ds->name)->where('section_id',$list[$ds->default_section_id])->update([
-                    'base_subject_id' => $ds->base_subject_id,
-                    'abbreviation' => $ds->abbreviation,
-                    'demo' => $ds->demo,
+            if(array_key_exists(Str::lower($ds->name),$subjects)){
+                Subject::find($subjects[Str::lower($ds->name)])->update([
+                    'section_id' => $list[$ds->default_section_id],
+//                    'base_subject_id' => $ds->base_subject_id,
+//                    'abbreviation' => $ds->abbreviation,
+//                    'demo' => $ds->demo,
                 ]);
             } else {
                 Subject::create(
@@ -1103,8 +1114,8 @@ class SchoolLocation extends BaseModel implements AccessCheckable
                         'name' => $ds->name,
                         'section_id' => $list[$ds->default_section_id],
                         'base_subject_id' => $ds->base_subject_id,
-                        'abbreviation' => $ds->abbreviation,
-                        'demo' => $ds->demo,
+//                        'abbreviation' => $ds->abbreviation,
+//                        'demo' => $ds->demo,
                     ]
                 );
             }
