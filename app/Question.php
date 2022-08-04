@@ -76,7 +76,7 @@ class Question extends MtiBaseModel {
                             'all_or_nothing',
                             'fix_order',
                             'owner_id',
-                            'lang'
+                            'lang',
                             ];
 
     /**

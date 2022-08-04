@@ -27,6 +27,14 @@
            removeDrawingLegacy = () => {
                 $root.querySelector('#drawing-question-tool-container')?.remove();
            }
+           changeEditorWscLanguage = (lang) => {
+                if (document.getElementById('{{ $this->questionEditorId }}')) {
+                    WebspellcheckerTlc.forTeacherQuestion(CKEDITOR.instances['{{ $this->questionEditorId }}'], lang);
+                }
+                if (document.getElementById('{{ $this->answerEditorId }}')) {
+                    WebspellcheckerTlc.forTeacherQuestion(CKEDITOR.instances['{{ $this->answerEditorId }}'], lang);
+                }
+           }
            forceSyncEditors = () => {
                 if (document.getElementById('{{ $this->questionEditorId }}')) {
                     $wire.sync('question.question', CKEDITOR.instances['{{ $this->questionEditorId }}'].getData());
@@ -116,6 +124,25 @@
              selid="tabcontainer"
         >
             <div class="flex justify-end py-5">
+                @if($this->showLanguageSelector())
+                    <div class="flex items-center relative left-4 gap-4 mr-4">
+                        <label>
+                            {{ __('lang.language') }}
+                        </label>
+                        <x-input.select
+                                wire:model.defer="question.lang"
+                                wire:key="wsc-language-component-{{ $this->uniqueQuestionKey }}"
+                                @change="changeEditorWscLanguage($event.target.value)"
+                        >
+                            <option value="nl_NL">{{ __('lang.nl_NL') }}</option>
+                            <option value="en_GB">{{ __('lang.en_GB') }}</option>
+                            <option value="fr_FR">{{ __('lang.fr_FR') }}</option>
+                            <option value="de_DE">{{ __('lang.de_DE') }}</option>
+                            <option value="es_ES">{{ __('lang.es_ES') }}</option>
+                            <option value="it_IT">{{ __('lang.it_IT') }}</option>
+                        </x-input.select>
+                    </div>
+                @endif
                 @if($this->showQuestionScore())
                     <x-input.score wire:model.defer="question.score"
                                    wire:key="score-component-{{ $this->uniqueQuestionKey }}"
@@ -342,6 +369,16 @@
                             </x-input.toggle-row-with-title>
                         @endif
 
+                        @if($this->isSettingsGeneralPropertyVisible('spellingCheckAvailableDuringAssessing'))
+                            <x-input.toggle-row-with-title wire:model="question.spell_check_available"
+                                                           class="{{ $this->isSettingsGeneralPropertyDisabled('spellingCheckAvailableDuringAssessing') ? 'text-disabled' : '' }}"
+                                                           :disabled="$this->isSettingsGeneralPropertyDisabled('spellingCheckAvailableDuringAssessing')"
+                            >
+                                <x-icon.autocheck/>
+                                <span class="bold @if($this->isSettingsGeneralPropertyDisabled('spellingCheckAvailableDuringAssessing')) disabled @endif"> {{ __('cms.Taalcontrole beschikbaar tijdens nakijken') }}</span>
+                            </x-input.toggle-row-with-title>
+                        @endif
+
                         @if($this->isSettingsGeneralPropertyVisible('autoCheckAnswer'))
                             <x-input.toggle-row-with-title wire:model="question.auto_check_answer"
                                                            class="{{ $this->isSettingsGeneralPropertyDisabled('autoCheckAnswer') ? 'text-disabled' : '' }}"
@@ -521,37 +558,37 @@
             :item="strtolower($this->isGroupQuestion() ? __('cms.group-question') : __('drawing-modal.Vraag'))"
             :new="!$this->editModeForExistingQuestion()"/>
     @if(!$this->withDrawer)
-    <div class="question-editor-footer" x-data>
-        <div class="question-editor-footer-button-container">
+        <div class="question-editor-footer" x-data>
+            <div class="question-editor-footer-button-container">
 
-            <button
-                    type="button"
-                    class="button text-button button-md pr-4"
-                    wire:loading.attr="disabled"
-                    wire:click="returnToTestOverview();"
-                    selid="cancel-btn"
-            >
-                <span> {{ __("auth.cancel") }}</span>
-            </button>
+                <button
+                        type="button"
+                        class="button text-button button-md pr-4"
+                        wire:loading.attr="disabled"
+                        wire:click="returnToTestOverview();"
+                        selid="cancel-btn"
+                >
+                    <span> {{ __("auth.cancel") }}</span>
+                </button>
 
 
-            <button
-                    type="button"
-                    class="button cta-button button-sm save_button"
-                    wire:loading.attr="disabled"
-{{--                    wire:click="saveAndRefreshDrawer()"--}}
-                    @click="forceSyncEditors();$wire.saveAndRefreshDrawer()"
-                    x-data="{disabled: false}"
-                    x-init="$watch('$store.questionBank.active', value => disabled = value);"
-                    x-on:beforeunload.window="disabled = true"
-                    x-on:filepond-start.window="disabled = true"
-                    x-on:filepond-finished.window="disabled = false"
-                    :disabled="!!empty || disabled"
-                    selid="save-btn"
-            >
-                <span>{{ __("drawing-modal.Opslaan") }}</span>
-            </button>
+                <button
+                        type="button"
+                        class="button cta-button button-sm save_button"
+                        wire:loading.attr="disabled"
+                        {{--                    wire:click="saveAndRefreshDrawer()"--}}
+                        @click="forceSyncEditors();$wire.saveAndRefreshDrawer()"
+                        x-data="{disabled: false}"
+                        x-init="$watch('$store.questionBank.active', value => disabled = value);"
+                        x-on:beforeunload.window="disabled = true"
+                        x-on:filepond-start.window="disabled = true"
+                        x-on:filepond-finished.window="disabled = false"
+                        :disabled="!!empty || disabled"
+                        selid="save-btn"
+                >
+                    <span>{{ __("drawing-modal.Opslaan") }}</span>
+                </button>
+            </div>
         </div>
-    </div>
-        @endif
+    @endif
 </div>

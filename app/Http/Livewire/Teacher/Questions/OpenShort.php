@@ -98,8 +98,9 @@ class OpenShort extends Component implements QuestionCms
     ];
 
     protected $settingsGeneralPropertiesVisibility = [
-        'autoCheckAnswer'              => false,
-        'autoCheckAnswerCaseSensitive' => false
+        'autoCheckAnswer'                       => false,
+        'autoCheckAnswerCaseSensitive'          => false,
+        'spellingCheckAvailableDuringAssessing' => false,
     ];
 
     public $testName = 'test_name';
@@ -263,7 +264,7 @@ class OpenShort extends Component implements QuestionCms
             'showEmpty'             => 'showEmpty',
             'questionDeleted'       => '$refresh',
             'addQuestionFromDirty'  => 'addQuestionFromDirty',
-            'testSettingsUpdated' => 'handleUpdatedTestSettings'
+            'testSettingsUpdated'   => 'handleUpdatedTestSettings'
         ];
     }
 
@@ -482,6 +483,11 @@ class OpenShort extends Component implements QuestionCms
         return true;
     }
 
+    public function showLanguageSelector()
+    {
+        return $this->obj instanceof CmsWritingAssignment;
+    }
+
     private function saveNewQuestion()
     {
         Request::filter($this->question);
@@ -521,7 +527,7 @@ class OpenShort extends Component implements QuestionCms
     public function handleExternalUpdatedProperty(array $incomingData)
     {
         $property = array_keys($incomingData)[0];
-        if ($this->shouldUpdatePropertyFromExternalSource($incomingData, $property) ) {
+        if ($this->shouldUpdatePropertyFromExternalSource($incomingData, $property)) {
             $this->question[$property] = array_values($incomingData[$property]);
             $this->dirty = true;
         }
@@ -582,8 +588,8 @@ class OpenShort extends Component implements QuestionCms
 
     private function updateQuestion()
     {
-        if(!$this->dirty){
-            return Response::make('not dirty',304);
+        if (!$this->dirty) {
+            return Response::make('not dirty', 304);
         }
         $request = new CmsRequest();
         $request->merge($this->question);
@@ -902,7 +908,7 @@ class OpenShort extends Component implements QuestionCms
             $this->question['add_to_database'] = $q->add_to_database;
             $this->question['discuss'] = $tq->discuss;
             $this->question['decimal_score'] = $q->decimal_score;
-            $this->question['lang'] = !is_null($q->lang)?$q->lang:'nl_NL';
+            $this->question['lang'] = !is_null($q->lang) ? $q->lang : 'nl_NL';
 
             $this->lang = $this->question['lang'];
             $this->educationLevelId = $q->education_level_id;
