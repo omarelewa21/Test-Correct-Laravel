@@ -29,10 +29,10 @@
            }
            changeEditorWscLanguage = (lang) => {
                 if (document.getElementById('{{ $this->questionEditorId }}')) {
-                    WebspellcheckerTlc.forTeacherQuestion(CKEDITOR.instances['{{ $this->questionEditorId }}'], lang);
+                    WebspellcheckerTlc.lang(CKEDITOR.instances['{{ $this->questionEditorId }}'], lang);
                 }
                 if (document.getElementById('{{ $this->answerEditorId }}')) {
-                    WebspellcheckerTlc.forTeacherQuestion(CKEDITOR.instances['{{ $this->answerEditorId }}'], lang);
+                    WebspellcheckerTlc.lang(CKEDITOR.instances['{{ $this->answerEditorId }}'], lang);
                 }
            }
            forceSyncEditors = () => {
@@ -124,24 +124,24 @@
              selid="tabcontainer"
         >
             <div class="flex justify-end py-5">
-                @if($this->showLanguageSelector())
-                    <div class="flex items-center relative left-4 gap-4 mr-4">
-                        <label>
-                            {{ __('lang.language') }}
-                        </label>
-                        <x-input.select
-                                wire:model.defer="question.lang"
-                                wire:key="wsc-language-component-{{ $this->uniqueQuestionKey }}"
-                                @change="changeEditorWscLanguage($event.target.value)"
-                        >
-                            <option value="nl_NL">{{ __('lang.nl_NL') }}</option>
-                            <option value="en_GB">{{ __('lang.en_GB') }}</option>
-                            <option value="fr_FR">{{ __('lang.fr_FR') }}</option>
-                            <option value="de_DE">{{ __('lang.de_DE') }}</option>
-                            <option value="es_ES">{{ __('lang.es_ES') }}</option>
-                            <option value="it_IT">{{ __('lang.it_IT') }}</option>
-                        </x-input.select>
-                    </div>
+                @if(\Illuminate\Support\Facades\Auth::user()->schoolLocation->allow_wsc)
+                <div class="flex items-center relative left-4 gap-4 mr-4">
+                    <label>
+                        {{ __('lang.language') }}
+                    </label>
+                    <x-input.select
+                            wire:model.defer="question.lang"
+                            wire:key="wsc-language-component-{{ $this->uniqueQuestionKey }}"
+                            @change="changeEditorWscLanguage($event.target.value)"
+                    >
+                        <option value="nl_NL">{{ __('lang.nl_NL') }}</option>
+                        <option value="en_GB">{{ __('lang.en_GB') }}</option>
+                        <option value="fr_FR">{{ __('lang.fr_FR') }}</option>
+                        <option value="de_DE">{{ __('lang.de_DE') }}</option>
+                        <option value="es_ES">{{ __('lang.es_ES') }}</option>
+                        <option value="it_IT">{{ __('lang.it_IT') }}</option>
+                    </x-input.select>
+                </div>
                 @endif
                 @if($this->showQuestionScore())
                     <x-input.score wire:model.defer="question.score"
