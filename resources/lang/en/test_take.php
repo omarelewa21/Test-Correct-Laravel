@@ -25,6 +25,7 @@ return [
     'infoscreen_question'                          => 'Info screen',
     'info_screen_question_bottom_text'             => 'This is an information screen, no answer is required.',
     'open_question'                                => 'Open question',
+    'writing_assignment_question'                  => 'Writing assignment',
     'correct'                                      => 'Correct',
     'incorrect'                                    => 'Incorrect',
     'correct_reason'                               => 'Correct reason',
