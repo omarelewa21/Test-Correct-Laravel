@@ -1,5 +1,6 @@
 <?php namespace tcCore\Http\Controllers;
 
+use Bugsnag\BugsnagLaravel\Facades\Bugsnag;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Response;
@@ -131,9 +132,11 @@ class SchoolLocationsController extends Controller {
         try {
             $schoolLocation->addDefaultSectionsAndSubjects();
             return Response::make($schoolLocation);
-        } catch(\Throwable $e){
-            logger($e->getMessage());
-            return Response::make($e->getMessage(),500);
+        } catch(\Throwable $th){
+            logger('#### default sections and subjects error ####');
+            logger($th->getMessage());
+            Bugsnag::notifyException($th);
+            return Response::make($th->getMessage(),500);
         }
     }
 
