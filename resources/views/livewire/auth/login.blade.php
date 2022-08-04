@@ -1,4 +1,8 @@
 <div wire:init="dispatchGuestSuccessNotification">
+    <div class="absolute right-4 top-4">
+        <x-button.close @click="Core.closeElectronApp()" electron/>
+        <x-button.close @click="Core.closeChromebookApp('{{ \tcCore\Http\Helpers\BaseHelper::getLoginUrl() }}')" size="sm" chromebook/>
+    </div>
     <div class="flex w-full items-start justify-center pt-7 pb-9">
         <a class="flex  w-36 md:w-44" href="https://test-correct.nl">
             <img class="" src="{{ asset('svg/logos/Logo-Test-Correct-2.svg') }}" alt="Test-Correct">
@@ -396,22 +400,22 @@
                     </div>
                 </div>
 
-            <div class="w-full flex flex items-center justify-center space-x-2">
-                <div class="flex flex-col md:flex-row items-center space-x-2">
+            <div class="w-full flex flex-col md:flex-row items-center justify-center space-x-2">
+                <div>
                     <x-button.text-button selid="login-forgot-password-btn" class="order-1" size="sm"
                                           wire:click.prevent="$set('active_overlay', 'send_reset_password')">
                         <span class="text-base">{{__('auth.forgot_password')}}</span>
                         <x-icon.arrow/>
                     </x-button.text-button>
                 </div>
-                <div class="flex flex-col md:flex-row items-center space-x-2">
+                <div browser wire:ignore>
                         <x-button.text-button selid="login-create-account-btn" class="order-1" size="sm"
                                               @click="Livewire.emit('open-auth-modal')">
                             <span class="text-base">{{__('auth.Maak account')}}</span>
                             <x-icon.arrow/>
                         </x-button.text-button>
                 </div>
-                <div class="flex flex-col md:flex-row items-center space-x-2" browser wire:ignore>
+                <div browser wire:ignore>
                     <x-button.text-button selid="login-download-app-btn" size="sm" type="link" href="{{ $this->studentDownloadUrl }}">
                         <span class="text-base">{{__('auth.download')}}</span>
                         <x-icon.arrow/>
