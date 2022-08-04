@@ -43,22 +43,19 @@
     @if($testUuid)
         <div wire:key="test-context-menu-buttons-{{ $testUuid }}"
              @click="closeMenu()"
+             class="flex flex-col"
         >
-            {{-- @TODO: Add order so the multiple conditionals can be removed--}}
-            @if($openTab !== 'school')
-                <livewire:actions.test-plan-test :uuid="$testUuid" variant="context-menu"/>
-            @endif
-            <livewire:actions.test-duplicate-test :uuid="$testUuid" variant="context-menu"/>
-            @if($openTab !== 'school')
-                <livewire:actions.test-make-pdf :uuid="$testUuid" variant="context-menu"/>
+            @if($openTab !== 'umbrella')
+                <livewire:actions.test-plan-test :uuid="$testUuid" variant="context-menu" class="order-1"/>
+                <livewire:actions.test-make-pdf :uuid="$testUuid" variant="context-menu" class="order-3"/>
+                <x-actions.test-open-edit :uuid="$testUuid" variant="context-menu" class="order-5"/>
+                <x-actions.test-open-settings :uuid="$testUuid" variant="context-menu" class="order-6"/>
+                <x-actions.test-delete :uuid="$testUuid" variant="context-menu" class="order-7"/>
             @endif
 
-            <x-actions.test-open-preview :uuid="$testUuid" variant="context-menu"/>
-            @if($openTab !== 'school')
-                <x-actions.test-open-edit :uuid="$testUuid" variant="context-menu"/>
-                <x-actions.test-open-settings :uuid="$testUuid" variant="context-menu"/>
-                <x-actions.test-delete :uuid="$testUuid" variant="context-menu"/>
-            @endif
+            <livewire:actions.test-duplicate-test :uuid="$testUuid" variant="context-menu" class="order-2"/>
+            <x-actions.test-open-preview :uuid="$testUuid" variant="context-menu" class="order-4"/>
+
         </div>
     @endif
 </div>

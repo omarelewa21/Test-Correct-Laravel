@@ -1,4 +1,4 @@
-<div>
+<div class="{{ $class ?? '' }}">
     @if($showButton)
         @if ($variant == 'icon-button')
             <x-button.primary

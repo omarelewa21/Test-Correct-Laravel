@@ -1,4 +1,4 @@
-<div>
+<div class="{{ $class ?? '' }}">
     @if($variant == 'icon-button')
     <x-button.cta wire:click="planTest"
         title="{{ __('teacher.Inplannen') }}"

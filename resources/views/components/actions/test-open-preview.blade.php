@@ -1,4 +1,4 @@
-<div>
+<div {{ $attributes }}>
     @if($variant == 'icon-button')
         <x-button.primary class="pl-[12px] pr-[12px] "
                           @click="window.open('{!! $url !!}', '_blank')"

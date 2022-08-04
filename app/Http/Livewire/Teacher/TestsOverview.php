@@ -40,10 +40,18 @@ class TestsOverview extends Component
     ];
 
     private $allowedTabs = [
-        'school',
-        'national',
-        'personal',
+        'personal', /*Persoonlijk*/
+        'school', /*School / Schoollocatie*/
+        'umbrella', /*Scholengemeenschap*/
+        'national', /*Nationaal*/
     ];
+    private $defaultFilterTabs = [
+        'personal',
+        'school',
+    ];
+    private $publicTestsTabs = ['umbrella', 'national'];
+
+    public bool $hasSharedSections;
 
     public function render()
     {
@@ -87,6 +95,9 @@ class TestsOverview extends Component
                 break;
             case 'national':
                 $datasource = $this->getNationalDatasource();
+                break;
+            case 'umbrella':
+                $datasource = $this->getUmbrellaDatasource();
                 break;
             case 'personal':
             default :
@@ -135,8 +146,17 @@ class TestsOverview extends Component
             ->where('tests.author_id', auth()->user()->id)
             ->paginate(self::PER_PAGE);
 
-
         return $results;
+    }
+
+    private function getUmbrellaDatasource()
+    {
+        return Test::sharedSectionsFiltered(
+            $this->cleanFilterForSearch($this->filters['umbrella']),
+            $this->sorting
+        )
+            ->with('educationLevel', 'testKind', 'subject', 'author', 'author.school', 'author.schoolLocation')
+            ->paginate(self::PER_PAGE);
     }
 
 
@@ -154,7 +174,7 @@ class TestsOverview extends Component
                     'author_id'            => [],
                     'base_subject_id'      => [],
                 ];
-                if ($tab !== 'national') {
+                if ($this->tabNeedsDefaultFilters($tab)) {
                     $this->filters[$tab] = array_merge($this->filters[$tab], auth()->user()->getSearchFilterDefaultsTeacher());
                 }
             });
@@ -173,7 +193,7 @@ class TestsOverview extends Component
 
     public function getBasesubjectsProperty()
     {
-        if ($this->openTab === 'national') {
+        if ($this->isPublicTestTab($this->openTab)) {
             return $this->getBaseSubjectsOptions();
         }
         return [];
@@ -231,7 +251,11 @@ class TestsOverview extends Component
         if (auth()->user()->schoolLocation->allow_new_test_bank !== 1) {
             abort(403);
         }
+        if (!collect($this->allowedTabs)->contains($this->openTab)) {
+            abort(404);
+        }
         $this->setFilters();
+        $this->hasSharedSections = Auth::user()->hasSharedSections();
     }
 
     private function cleanFilterForSearch(array $filters)
@@ -296,5 +320,15 @@ class TestsOverview extends Component
     public function canFilterOnAuthors()
     {
         return !collect(['personal', 'national'])->contains($this->openTab);
+    }
+
+    private function tabNeedsDefaultFilters($tab)
+    {
+        return collect($this->defaultFilterTabs)->contains($tab);
+    }
+
+    public function isPublicTestTab($tab)
+    {
+        return collect($this->publicTestsTabs)->contains($tab);
     }
 }

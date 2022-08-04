@@ -50,4 +50,5 @@ return [
     'Periode'                         => 'Periode',
     'Leerjaar'                        => 'Leerjaar',
     'Laatst gewijzigd'                => 'Laatst gewijzigd',
+    'Categorie'                       => 'Categorie',
 ];
