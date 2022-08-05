@@ -1373,6 +1373,14 @@ class TestTakesController extends Controller {
 
     }
 
+    public function pdfWithTemporaryLogin(TestTake $testTake) {
+
+        $temporaryLogin = TemporaryLogin::createWithOptionsForUser('app_details', request()->get('app_details'), auth()->user());
+
+        return BaseHelper::createRedirectUrlWithTemporaryLoginUuid($temporaryLogin->uuid,route('teacher.preview.test_take_pdf', $testTake->uuid,false));
+
+    }
+
     public function AnswersWithTemporaryLogin(TestTake $testTake) {
 
         $temporaryLogin = TemporaryLogin::createWithOptionsForUser('app_details', request()->get('app_details'), auth()->user());

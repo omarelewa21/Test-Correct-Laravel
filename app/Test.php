@@ -1034,23 +1034,34 @@ class Test extends BaseModel
 
     public function hasDuplicateQuestions()
     {
-       return count($this->getDuplicateQuestionIds()) > 0;
+        return count($this->getDuplicateQuestionIds()) > 0;
     }
 
     public function hasToFewQuestionsInCarousel()
     {
         $this->load(['testQuestions', 'testQuestions.question']);
-        $countCarouselQuestionWithToFewQuestions = $this->testQuestions->filter(function($testQuestion) {
+        $countCarouselQuestionWithToFewQuestions = $this->testQuestions->filter(function ($testQuestion) {
             return ($testQuestion->question instanceof \tcCore\GroupQuestion && !$testQuestion->question->hasEnoughSubQuestionsAsCarousel());
         })->count();
         return $countCarouselQuestionWithToFewQuestions != 0;
     }
 
-    public function hasNotEqualScoresForSubQuestionsInCarousel(){
+    public function hasNotEqualScoresForSubQuestionsInCarousel()
+    {
         $this->load(['testQuestions', 'testQuestions.question']);
-        $countCarouselQuestionWithToFewQuestions = $this->testQuestions->filter(function($testQuestion) {
+        $countCarouselQuestionWithToFewQuestions = $this->testQuestions->filter(function ($testQuestion) {
             return ($testQuestion->question instanceof \tcCore\GroupQuestion && $testQuestion->question->isCarouselQuestion() && !$testQuestion->question->hasEqualScoresForSubQuestions());
         })->count();
         return $countCarouselQuestionWithToFewQuestions != 0;
+    }
+
+    public function getHasPdfAttachmentsAttribute(): bool
+    { //todo implement as check before downloading pdf attachments
+        return TestQuestion::select()
+            ->join('question_attachments', 'test_questions.question_id', '=', 'question_attachments.question_id')
+            ->join('attachments', 'question_attachments.attachment_id', '=', 'attachments.id')
+            ->where('test_questions.test_id', $this->getKey())
+            ->where('attachments.file_mime_type', 'application/pdf')
+            ->exists();
     }
 }

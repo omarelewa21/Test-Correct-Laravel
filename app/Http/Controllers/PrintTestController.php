@@ -43,14 +43,21 @@ class PrintTestController extends Controller
         return $this->createPdfDownload();
     }
 
+    public function showTestPdfAttachments(Test $test)
+    {
+        $this->test = $test;
+
+        return $this->createPdfAttachmentsDownload();
+    }
+
     private function createPdfDownload()
     {
-        $coverPdf = $this->generateCoverPdf($this->test);
+        $coverPdf = $this->generateCoverPdf();
         $mainPdf = $this->generateMainPdf();
 
         $mergedPdf = $this->mergePdfFiles($coverPdf, $mainPdf);
 
-        $titleForPdfPage = __('Printversie toets:') . ' ' . $this->test->name . ' ' . Carbon::now()->format('d-m-Y H:i');
+        $titleForPdfPage = __('test-pdf.printversion_test') . ' ' . $this->test->name . ' ' . Carbon::now()->format('d-m-Y H:i');
 
         return response()->make($mergedPdf, 200, [
             'Content-Type'        => 'application/pdf',
@@ -58,6 +65,17 @@ class PrintTestController extends Controller
         ]);
     }
 
+    private function createPdfAttachmentsDownload()
+    {
+        $pdf = $this->generatePdfAttachmentsPdf();
+
+        $titleForPdf = __('test-pdf.printversion_test_attachments') . ' ' . $this->test->name . ' ' . Carbon::now()->format('d-m-Y H:i');
+
+        return response()->make($pdf, 200, [
+            'Content-Type'        => 'application/pdf',
+            'Content-Disposition' => 'inline; filename="'.$titleForPdf.'.pdf"'
+        ]);
+    }
 
     private function mergePdfFiles($coverPdf, $mainPdf)
     {
@@ -73,6 +91,22 @@ class PrintTestController extends Controller
         $disk->delete($mainPdf);
 
         return $createdPdf;
+    }
+
+    private function generatePdfAttachmentsPdf()
+    {
+        $this->test;
+
+        $pdfAttachments = $this->getPdfAttachmentsFromTest();
+
+        if($pdfAttachments->isNotEmpty()) {
+            $merger = new Merger;
+            foreach($pdfAttachments as $attachment) {
+                $merger->addFile($attachment->getCurrentPath());
+            }
+            return $merger->merge();
+        }
+        return false;
     }
 
     private function generateCoverPdf()
@@ -100,7 +134,7 @@ class PrintTestController extends Controller
         // todo add check or failure when $current out of bounds $data;
         $styling = $this->getCustomStylingFromQuestions($data);
 
-        $titleForPdfPage = __('Printversie toets:') . ' ' . $this->test->name . ' ' . Carbon::now()->format('d-m-Y H:i');
+        $titleForPdfPage = __('test-pdf.printversion_test') . ' ' . $this->test->name . ' ' . Carbon::now()->format('d-m-Y H:i');
         view()->share('titleForPdfPage', $titleForPdfPage);
         ini_set('max_execution_time', '90');
         $html = view('test-print', compact(['data', 'answers', 'nav', 'styling', 'test', 'attachment_counters']))->render();
@@ -142,6 +176,21 @@ class PrintTestController extends Controller
             });
         });
         return $result;
+    }
+
+    private function getPdfAttachmentsFromTest()
+    {
+        $attachments = collect();
+
+        $this->test->testQuestions->sortBy('order')->each(function ($testQuestion) use (&$attachments) {
+            $testQuestion->question->loadRelated();
+            $testQuestion->question->attachments->each(function ($attachment) use (&$attachments)  {
+                if($attachment->getFileType() == 'pdf'){
+                    $attachments->add($attachment);
+                }
+            });
+        });
+        return $attachments;
     }
 
     private function getNavigationData($data)
