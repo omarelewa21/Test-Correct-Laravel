@@ -23,7 +23,7 @@ class QuestionCard extends Component
             return $author->getFullNameWithAbbreviatedFirstName();
         });
         $this->lastUpdated = Carbon::parse($question->updated_at)->format('d/m/\'y');
-        $this->attachmentCount = $question->attachments_count;
+        $this->attachmentCount = $question->attachments()->count();
         $this->order = $order;
     }
 
