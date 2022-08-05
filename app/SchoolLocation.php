@@ -1101,7 +1101,7 @@ class SchoolLocation extends BaseModel implements AccessCheckable
         $defaultSubjects->each(function(DefaultSubject $ds) use ($list, $subjects){
             // NOTE Erik 20220803
             // used to be updateOrCreate, but for some reason both the updated_at and the created_at were adjusted and we don't want that as we want to be able to see from when a subject was
-            if(array_key_exists(Str::lower($ds->name),$subjects)){
+            if(isset($subjects[Str::lower($ds->name)])){
                 Subject::find($subjects[Str::lower($ds->name)])->update([
                     'section_id' => $list[$ds->default_section_id],
 //                    'base_subject_id' => $ds->base_subject_id,
