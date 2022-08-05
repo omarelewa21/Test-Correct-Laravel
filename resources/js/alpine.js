@@ -358,6 +358,7 @@ document.addEventListener('alpine:init', () => {
                 this.handleVerticalScroll(this.$root.firstElementChild);
                 this.scrollActiveQuestionIntoView();
             }, 400);
+
         },
         next(currentEl) {
             const left = this.$refs.questionEditorSidebar.scrollLeft + this.slideWidth;
@@ -444,7 +445,6 @@ document.addEventListener('alpine:init', () => {
         addQuestionToGroup(uuid) {
             this.showAddQuestionSlide()
             this.$store.questionBank.inGroup = uuid;
-            this.$dispatch('backdrop');
         },
         addGroup(shouldCheckDirty = true) {
             if (this.emitAddToOpenShortIfNecessary(shouldCheckDirty, false, false)) {

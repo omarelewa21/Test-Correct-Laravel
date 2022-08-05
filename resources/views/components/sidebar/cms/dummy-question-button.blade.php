@@ -1,6 +1,6 @@
 @props(['loop' => 1])
 <div class="question-button dummy @if($this->type === 'GroupQuestion') group-question-questions @endif"
-     x-data="{mode: @entangle('action'), owner: @entangle('owner'), name: @entangle('newQuestionTypeName')}"
+     x-data="{mode: @entangle('action'), owner: @entangle('owner'), name: @entangle('newQuestionTypeName'), disabledSub: true}"
      x-show="mode === 'add' && owner === 'test'"
      x-cloak
      wire:key="dummy-{{ $loop.$this->owner }}"
@@ -32,7 +32,10 @@
     </div>
     @if($this->type === 'GroupQuestion')
         <div class="group-add-new relative hover:bg-primary/5 flex space-x-2.5 py-2 px-6 hover:text-primary cursor-pointer items-center"
-             @click="addSubQuestionToNewGroup()"
+             :class="{'!text-note hover:!bg-white hover:!text-note !cursor-default': disabledSub}"
+             @click="if (!disabledSub) addSubQuestionToNewGroup()"
+             @group-question-name-filled.window="console.log($event);disabledSub = false"
+             @group-question-name-empty.window="disabledSub = true"
         >
             <x-icon.plus-in-circle/>
             <span class="flex bold">{{ __('cms.Vraag toevoegen')}}</span>
