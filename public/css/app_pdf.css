@@ -1318,8 +1318,7 @@ input[type=number] {
     color: var(--primary);
 }
 
-#sidebar-carousel-container .group-add-new:hover,
-#sidebar-carousel-container .question-button:hover {
+#sidebar-carousel-container .question-button:not(.dummy):hover {
     background-color: var(--primary-opacity-05);
 }
 

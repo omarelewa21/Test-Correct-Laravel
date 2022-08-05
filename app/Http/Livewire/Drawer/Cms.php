@@ -46,6 +46,7 @@ class Cms extends Component
             'deleteQuestionByQuestionId' => 'deleteQuestionByQuestionId',
             'show-empty'                 => 'showEmpty',
             'addQuestionResponse'        => 'addQuestionResponse',
+            'newGroupId'                 => 'newGroupId',
         ];
     }
 
@@ -79,15 +80,15 @@ class Cms extends Component
         DB::beginTransaction();
         try {
             $test = Test::whereUuid($this->testId)->first();
-            if(!$test){
+            if (!$test) {
                 throw new \Exception('test could not be found');
             }
-            collect($data)->each(function($item) use ($test){
+            collect($data)->each(function ($item) use ($test) {
                 $question = Question::whereUuid($item['value'])->first();
-                if(!$question){
+                if (!$question) {
                     throw new \Exception('question could not be found');
                 }
-                TestQuestion::where('test_id',$test->getKey())->where('question_id',$question->getKey())->update(['order' => $item['order']]);
+                TestQuestion::where('test_id', $test->getKey())->where('question_id', $question->getKey())->update(['order' => $item['order']]);
             });
             DB::commit();
         } catch (\Throwable $e) {
@@ -102,7 +103,7 @@ class Cms extends Component
         $group = collect($data)->first();
 
         $groupQuestion = GroupQuestion::whereUuid($group['value'])->first();
-        if(!$groupQuestion){
+        if (!$groupQuestion) {
             $this->refreshDrawer();
             dd('could not find the group question');
         }
@@ -110,10 +111,10 @@ class Cms extends Component
         try {
             collect($group['items'])->each(function ($item) use ($groupQuestion) {
                 $question = Question::whereUuid($item['value'])->first();
-                if(!$question){
+                if (!$question) {
                     throw new \Exception('question could not be found');
                 }
-                GroupQuestionQuestion::where('group_question_id',$groupQuestion->getKey())->where('question_id',$question->getKey())->update(['order' => $item['order']]);
+                GroupQuestionQuestion::where('group_question_id', $groupQuestion->getKey())->where('question_id', $question->getKey())->update(['order' => $item['order']]);
             });
             DB::commit();
         } catch (\Throwable $e) {
@@ -399,5 +400,10 @@ class Cms extends Component
     private function setQuestionNameString($type, $subtype)
     {
         $this->newQuestionTypeName = $subtype === 'group' ? __('cms.group-question') : CmsFactory::findQuestionNameByTypes($type, $subtype);
+    }
+
+    public function newGroupId($uuid)
+    {
+        $this->groupId = $uuid;
     }
 }

@@ -174,6 +174,7 @@ return [
     'container_label_missing'                                                                => 'Container label missing, each container should have a label',
     'Deze vraag is aanwezig in de toets.'                                                    => 'This question is present in the test.',
     'duplicate_question_in_test'                                                             => 'This question is double in the test. Adjust the test to make planning possible.',
+    'duplicate_group_in_test'                                                                => 'This group is double in the test. Adjust the test to make planning possible.',
     'Construeren'                                                                            => 'Construct',
     'Deze vraag heeft geen tags'                                                             => 'This question has no tags.',
     'Vraag informatie'                                                                       => 'Question info'
