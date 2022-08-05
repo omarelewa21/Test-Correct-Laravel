@@ -1081,7 +1081,7 @@ class SchoolLocation extends BaseModel implements AccessCheckable
         // get default sections
         $defaultSections = DefaultSection::whereIn('id',$defaultSectionIds)->get();
         // add sections
-        $list = [];
+
         $defaultSections->each(function(DefaultSection $ds) use (&$list){
             if($schoolLocationSection = $this->schoolLocationSections->first(function(SchoolLocationSection $sls) use ($ds) {
                     return Str::lower(optional($sls->section)->name) === Str::lower($ds->name);
@@ -1099,7 +1099,7 @@ class SchoolLocation extends BaseModel implements AccessCheckable
         });
 
         // add sections to schoollocation
-        $this->sections = array_values($list);
+        $this->sections = array_merge(array_values($sectionIds->toArray()), array_values($list));
         $this->saveSections();
 
 
