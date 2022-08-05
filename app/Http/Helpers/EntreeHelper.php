@@ -482,6 +482,11 @@ class EntreeHelper
         return null;
     }
 
+    private function hasEmailAttribute()
+    {
+        return !!array_key_exists('mail',$this->attr);
+    }
+
     private function getFirstNameFromAttributes()
     {
         if (array_key_exists('givenName',
@@ -638,6 +643,17 @@ class EntreeHelper
     protected function isTeacherBasedOnAttributes()
     {
         return strtolower($this->getRoleFromAttributes()) == 'teacher';
+    }
+
+    public function redirectIfSmallSetAndSsoAvailable()
+    {
+        $this->setLocationWithSamlAttributes();
+        if (optional($this->location)->sso_active == 1 && !$this->hasEmailAttribute()) {
+            // we probably have a small set so go for the big set
+            // we need an url to go to samle login with setting for the big set
+            $url = route('saml2_login', ['idpName' => 'entree', 'set' => 'full']);
+            return $this->redirectToUrlAndExit($url);
+        }
     }
 
     public function redirectIfBrinNotSso()

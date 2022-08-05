@@ -182,7 +182,7 @@
                             <div class="flex mt-auto pt-4 justify-between">
                                 <div class="flex order-2 space-x-4">
                                     <x-button.primary type="link" class="bg-[#2e3192]" size="md"
-                                                      href="{{ route('saml2_login', 'entree') }}">
+                                                      href="{{ route('saml2_login', ['idpName' => 'entree']) }}">
                                         <x-icon.entreefederatie/>
                                         <span>{{ __('auth.login_with_entree') }}</span>
                                     </x-button.primary>
