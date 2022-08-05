@@ -88,6 +88,7 @@
                                        @mouseenter="handleVerticalScroll($el);"
                                        @continue-to-new-slide.window="$wire.removeDummy();showAddQuestionSlide(false)"
                                        @continue-to-add-group.window="addGroup(false)"
+                                       @scroll-dummy-into-view.window="scrollActiveQuestionIntoView()"
             >
                 <div wire:sortable="updateTestItemsOrder" wire:sortable-group="updateGroupItemsOrder" class="sortable-drawer divide-y divide-bluegrey pb-6" {{ $emptyStateActive ? 'hidden' : '' }} >
                     @php $loopIndex = 0; @endphp

@@ -5738,11 +5738,11 @@ video {
 .cursor-not-allowed{
   cursor: not-allowed;
 }
-.cursor-move{
-  cursor: move;
-}
 .\!cursor-default{
   cursor: default !important;
+}
+.cursor-move{
+  cursor: move;
 }
 .select-none{
   -webkit-user-select: none;
@@ -6774,13 +6774,13 @@ video {
   --tw-text-opacity: 1;
   color: rgb(37 99 235 / var(--tw-text-opacity));
 }
-.text-allred{
-  --tw-text-opacity: 1;
-  color: rgb(207 27 4 / var(--tw-text-opacity));
-}
 .\!text-note{
   --tw-text-opacity: 1 !important;
   color: rgb(107 119 137 / var(--tw-text-opacity)) !important;
+}
+.text-allred{
+  --tw-text-opacity: 1;
+  color: rgb(207 27 4 / var(--tw-text-opacity));
 }
 .underline{
   -webkit-text-decoration-line: underline;
@@ -7457,17 +7457,13 @@ h2.student-testtake-answers-separator span{
   --tw-text-opacity: 1;
   color: rgb(156 163 175 / var(--tw-text-opacity));
 }
-.hover\:text-midgrey:hover{
-  --tw-text-opacity: 1;
-  color: rgb(146 157 175 / var(--tw-text-opacity));
-}
-.hover\:text-note:hover{
-  --tw-text-opacity: 1;
-  color: rgb(107 119 137 / var(--tw-text-opacity));
-}
 .hover\:\!text-note:hover{
   --tw-text-opacity: 1 !important;
   color: rgb(107 119 137 / var(--tw-text-opacity)) !important;
+}
+.hover\:text-midgrey:hover{
+  --tw-text-opacity: 1;
+  color: rgb(146 157 175 / var(--tw-text-opacity));
 }
 .hover\:underline:hover{
   -webkit-text-decoration-line: underline;
