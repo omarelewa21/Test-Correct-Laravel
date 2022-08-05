@@ -44,6 +44,12 @@
 		"classmap": [
 			"database"
 		],
+		"exclude-from-classmap":[
+			"Aacotroneo\\Saml2\\Saml2Auth"
+		],
+		"files": [
+			"_overrides/Saml2Auth.php"
+		],
 		"psr-4": {
 			"tcCore\\": "app/"
 		}

@@ -118,6 +118,7 @@ class Saml2Controller extends Controller
         if(request()->get('entreeRegister')){
             $redirectTo = '/entreeRegister';
         }
+
         $saml2Auth->login($redirectTo, [], true);
     }
 

@@ -77,6 +77,10 @@ class EntreeHelper
         }
         $this->setLocationWithSamlAttributes();
 
+        if(config('entree.use_with_2_urls') && $url = $this->redirectIfSmallSetAndSsoAvailable(true)) {
+            return $url;
+        }
+
         $data = [
             'emailAddress' => $this->getEmailFromAttributes(),
             'role' => $this->getRoleFromAttributes(),
@@ -645,13 +649,13 @@ class EntreeHelper
         return strtolower($this->getRoleFromAttributes()) == 'teacher';
     }
 
-    public function redirectIfSmallSetAndSsoAvailable()
+    public function redirectIfSmallSetAndSsoAvailable($register = false)
     {
         $this->setLocationWithSamlAttributes();
         if (optional($this->location)->sso_active == 1 && !$this->hasEmailAttribute()) {
             // we probably have a small set so go for the big set
             // we need an url to go to samle login with setting for the big set
-            $url = route('saml2_login', ['idpName' => 'entree', 'set' => 'full']);
+            $url = route('saml2_login', ['idpName' => 'entree', 'set' => 'full','entreeRegister' => $register]);
             return $this->redirectToUrlAndExit($url);
         }
     }
