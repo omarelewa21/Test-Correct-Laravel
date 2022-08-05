@@ -23,6 +23,8 @@ class RankingQuestion extends Component
     public $answerStruct = [];
     public $answerText = [];
 
+    public $attachment_counters;
+
     public function mount()
     {
         foreach($this->question->rankingQuestionAnswers as $key => $value) {

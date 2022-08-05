@@ -46,6 +46,6 @@
         @endif
     </div>
     @if($groupStart && $question->questionAttachments)
-        <livewire:test-print.question-attachments :attachments="$question->attachments"/>
+        <livewire:test-print.question-attachments :attachments="$question->attachments" :attachment_counters="$this->attachment_counters"/>
     @endif
 </div>

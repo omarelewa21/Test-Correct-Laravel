@@ -7,6 +7,7 @@ use Livewire\Component;
 class QuestionAttachments extends Component
 {
     public $attachments;
+    public $attachment_counters;
 
     public function mount()
     {

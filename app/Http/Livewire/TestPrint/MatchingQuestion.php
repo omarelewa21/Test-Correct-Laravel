@@ -25,6 +25,7 @@ class MatchingQuestion extends Component
     public $answerStruct = [];
 
     public $shuffledAnswerSets;
+    public $attachment_counters;
 
     public function mount()
     {

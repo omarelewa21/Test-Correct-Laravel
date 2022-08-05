@@ -32,16 +32,7 @@ class PrintTestController extends Controller
     {
         $this->test = $test;
 
-        $coverPdf = $this->generateCoverPdf($test);
-        $mainPdf = $this->generateMainPdf();
-
-        $mergedPdf = $this->mergePdfFiles($coverPdf, $mainPdf);
-
-
-        return response()->make($mergedPdf, 200, [
-            'Content-Type'        => 'application/pdf',
-            'Content-Disposition' => 'inline; filename="toets.pdf"'
-        ]);
+        return $this->createPdfDownload();
     }
 
     public function showTestTake(TestTake $testTake, Request $request)
@@ -49,15 +40,21 @@ class PrintTestController extends Controller
         $this->testTake = $testTake;
         $this->test = $testTake->test;
 
+        return $this->createPdfDownload();
+    }
+
+    private function createPdfDownload()
+    {
         $coverPdf = $this->generateCoverPdf($this->test);
         $mainPdf = $this->generateMainPdf();
 
         $mergedPdf = $this->mergePdfFiles($coverPdf, $mainPdf);
 
+        $titleForPdfPage = __('Printversie toets:') . ' ' . $this->test->name . ' ' . Carbon::now()->format('d-m-Y H:i');
 
         return response()->make($mergedPdf, 200, [
             'Content-Type'        => 'application/pdf',
-            'Content-Disposition' => 'inline; filename="toets.pdf"'
+            'Content-Disposition' => 'inline; filename="'.$titleForPdfPage.'.pdf"'
         ]);
     }
 
@@ -80,9 +77,6 @@ class PrintTestController extends Controller
 
     private function generateCoverPdf()
     {
-        $titleForPdfPage = __('Printversie toets:') . ' ' . $this->test->name . ' ' . Carbon::now()->format('d-m-Y H:i');
-        view()->share('titleForPdfPage', $titleForPdfPage);
-
         $cover = (new Cover($this->test))->render();
         $header = (new CoverHeader($this->test, $this->testTake))->render();
         $footer = (new CoverFooter($this->test, $this->testTake))->render();
@@ -95,6 +89,7 @@ class PrintTestController extends Controller
     {
         $test = $this->test;
         $data = self::getData($this->test);
+        $attachment_counters = $this->createAttachmentCountersFromData($data);
         $answers = [];
 
         $footer = (new Footer($this->test))->render();
@@ -108,7 +103,7 @@ class PrintTestController extends Controller
         $titleForPdfPage = __('Printversie toets:') . ' ' . $this->test->name . ' ' . Carbon::now()->format('d-m-Y H:i');
         view()->share('titleForPdfPage', $titleForPdfPage);
         ini_set('max_execution_time', '90');
-        $html = view('test-print', compact(['data', 'answers', 'nav', 'styling', 'test']))->render();
+        $html = view('test-print', compact(['data', 'answers', 'nav', 'styling', 'test', 'attachment_counters']))->render();
 
         return PdfController::createTestPrintPdf($html, $header, $footer);
     }
@@ -127,7 +122,26 @@ class PrintTestController extends Controller
             }
             return collect([$testQuestion->question]);
         });
-//        });
+    }
+
+    private function createAttachmentCountersFromData($data)
+    {
+        $result = [
+            'image' => [],
+            'pdf' => [],
+            'audio' => [],
+            'video' => [],
+        ];
+        $data->each(function($question) use (&$result) {
+            $question->attachments->map(function ($attachment) use(&$result) {
+                $fileType = $attachment->getFileType();
+                if(!isset($result[$fileType][$attachment->getKey()])){
+                    $result[$fileType][$attachment->getKey()] = count($result[$fileType])+1;
+                }
+                return $attachment;
+            });
+        });
+        return $result;
     }
 
     private function getNavigationData($data)

@@ -19,6 +19,7 @@ class OpenQuestion extends Component
     public $number;
     public $answers;
     public $editorId;
+    public $attachment_counters;
 
     public function mount()
     {

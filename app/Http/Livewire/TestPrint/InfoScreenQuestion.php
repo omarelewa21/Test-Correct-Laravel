@@ -18,7 +18,7 @@ class InfoScreenQuestion extends Component
     public $number;
 
     public $answers;
-
+    public $attachment_counters;
 
     public function questionUpdated($uuid)
     {

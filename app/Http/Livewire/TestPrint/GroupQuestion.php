@@ -10,6 +10,7 @@ class GroupQuestion extends Component
     public $groupStart = false;
 
     public $description = '';
+    public $attachment_counters;
 
     public function render()
     {

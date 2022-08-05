@@ -30,6 +30,8 @@ class MultipleSelectQuestion extends Component
     public $charCounter = 0;
     public $characters;
 
+    public $attachment_counters;
+
     public function mount()
     {
         $this->question->multipleChoiceQuestionAnswers->each(function ($answers) use (&$map) {

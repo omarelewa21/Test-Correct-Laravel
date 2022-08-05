@@ -1,7 +1,7 @@
 @props([
 'question',
 'number',
-'pdf_type' => 'answer_model'
+'pdf_type' => 'test_print',
 ])
 
 <div class="test-print-pdf p-8 sm:p-10 content-section rs_readable page-no-break">
@@ -24,7 +24,7 @@
         </div>
     </div>
     @if($question->questionAttachments)
-        <livewire:test-print.question-attachments :attachments="$question->attachments"/>
+        <livewire:test-print.question-attachments :attachments="$question->attachments" :attachment_counters="$this->attachment_counters ?? []"/>
     @endif
 </div>
 

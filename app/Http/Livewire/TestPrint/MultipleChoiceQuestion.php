@@ -32,6 +32,8 @@ class MultipleChoiceQuestion extends Component
 
     public $answerText;
 
+    public $attachment_counters;
+
     public function mount()
     {
         $this->arqStructure = \tcCore\MultipleChoiceQuestion::getArqStructure();
