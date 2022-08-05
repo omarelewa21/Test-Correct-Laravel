@@ -1104,8 +1104,8 @@ class SchoolLocation extends BaseModel implements AccessCheckable
             if(isset($subjects[Str::lower($ds->name)])){
                 Subject::find($subjects[Str::lower($ds->name)])->update([
                     'section_id' => $list[$ds->default_section_id],
-//                    'base_subject_id' => $ds->base_subject_id,
-//                    'abbreviation' => $ds->abbreviation,
+                    'base_subject_id' => $ds->base_subject_id,
+                    'abbreviation' => $ds->abbreviation,
 //                    'demo' => $ds->demo,
                 ]);
             } else {
@@ -1114,8 +1114,8 @@ class SchoolLocation extends BaseModel implements AccessCheckable
                         'name' => $ds->name,
                         'section_id' => $list[$ds->default_section_id],
                         'base_subject_id' => $ds->base_subject_id,
-//                        'abbreviation' => $ds->abbreviation,
-//                        'demo' => $ds->demo,
+                        'abbreviation' => $ds->abbreviation,
+                        'demo' => $ds->demo,
                     ]
                 );
             }
