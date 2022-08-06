@@ -22,9 +22,9 @@
             <div x-show="answered" class="mt-3">
                 @if($answer != '')
                     @if($this->backgroundImage)
-                        <img class="absolute h-56" src="{{$this->backgroundImage}}" width="400">
+                        <img class="absolute height-240" src="{{$this->backgroundImage}}" width="400">
                     @endif
-                    <img id="drawnImage" class="relative border border-blue-grey rounded-10 @if($this->backgroundImage) h-56 @endif" width="400"
+                    <img id="drawnImage" class="relative border border-blue-grey rounded-10 @if($this->backgroundImage) height-240 @endif" width="400"
                          src="{{ route('student.drawing-question-answer',$answer, false) }}?{!! microtime(true) !!}"
                          alt="">
                 @endif
