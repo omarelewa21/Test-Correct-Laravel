@@ -60,7 +60,7 @@
                 >
                     <x-icon.pdf-file color="currentColor"/>
                 </button>
-                <button wire:click="$emit('openModal','teacher.planning-modal', {testUuid: '{{ $this->testId }}' })"
+                <button wire:click="planTest"
                         class="new-button button-cta w-10 disabled"
                         title="{{ __('cms.Inplannen') }}"
                 >

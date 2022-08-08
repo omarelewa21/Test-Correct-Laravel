@@ -1034,7 +1034,7 @@ class Test extends BaseModel
        return count($this->getDuplicateQuestionIds()) > 0;
     }
 
-    public function hasToFewQuestionsInCarousel()
+    public function hasTooFewQuestionsInCarousel()
     {
         $this->load(['testQuestions', 'testQuestions.question']);
         $countCarouselQuestionWithToFewQuestions = $this->testQuestions->filter(function($testQuestion) {
@@ -1049,5 +1049,10 @@ class Test extends BaseModel
             return ($testQuestion->question instanceof \tcCore\GroupQuestion && $testQuestion->question->isCarouselQuestion() && !$testQuestion->question->hasEqualScoresForSubQuestions());
         })->count();
         return $countCarouselQuestionWithToFewQuestions != 0;
+    }
+
+    public function meetsQuestionRequirementsForPlanning(): bool
+    {
+        return !!(!$this->hasDuplicateQuestions() && !$this->hasTooFewQuestionsInCarousel() && !$this->hasNotEqualScoresForSubQuestionsInCarousel());
     }
 }

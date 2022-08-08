@@ -26,6 +26,7 @@ use tcCore\Http\Requests\CreateAttachmentRequest;
 use tcCore\Http\Requests\CreateGroupQuestionQuestionRequest;
 use tcCore\Http\Requests\CreateTestQuestionRequest;
 use tcCore\Http\Requests\Request;
+use tcCore\Http\Traits\WithTestPlanning;
 use tcCore\Lib\GroupQuestionQuestion\GroupQuestionQuestionManager;
 use tcCore\Question;
 use tcCore\TemporaryLogin;
@@ -34,7 +35,7 @@ use tcCore\TestQuestion;
 
 class OpenShort extends Component implements QuestionCms
 {
-    use WithFileUploads;
+    use WithFileUploads, WithTestPlanning;
 
     public $showSelectionOptionsModal = false;
 
@@ -1342,5 +1343,10 @@ class OpenShort extends Component implements QuestionCms
         if ($this->isDirty()) {
             $this->save(false);
         }
+    }
+
+    public function planTest()
+    {
+        $this->planTestWithUuid($this->testId);
     }
 }
