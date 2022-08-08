@@ -1017,6 +1017,7 @@ class Test extends BaseModel
                 $groupQuestion->subQuestions = $groupQuestion->groupQuestionQuestions->map(function ($item) use ($groupQuestion) {
                     $item->question->belongs_to_groupquestion_id = $groupQuestion->getKey();
                     $item->question->groupQuestionQuestionUuid = $item->uuid;
+                    $item->question->attachmentCount = $item->question->attachments()->count();
                     return $item->question;
                 });
             }
