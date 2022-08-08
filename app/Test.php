@@ -1075,7 +1075,7 @@ class Test extends BaseModel
        return count($this->getDuplicateQuestionIds()) > 0;
     }
 
-    public function hasToFewQuestionsInCarousel()
+    public function hasTooFewQuestionsInCarousel()
     {
         $this->load(['testQuestions', 'testQuestions.question']);
         $countCarouselQuestionWithToFewQuestions = $this->testQuestions->filter(function($testQuestion) {
@@ -1095,5 +1095,10 @@ class Test extends BaseModel
     public function isNationalItem()
     {
         return collect(Test::NATIONAL_ITEMBANK_SCOPES)->contains($this->scope);
+    }
+
+    public function meetsQuestionRequirementsForPlanning(): bool
+    {
+        return !!(!$this->hasDuplicateQuestions() && !$this->hasTooFewQuestionsInCarousel() && !$this->hasNotEqualScoresForSubQuestionsInCarousel());
     }
 }

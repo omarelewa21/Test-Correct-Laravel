@@ -173,6 +173,7 @@ return [
     'container_label_missing'                                                                => 'Containerlabel ontbreekt, elke container moet een label hebben',
     'Deze vraag is aanwezig in de toets.'                                                    => 'Deze vraag is aanwezig in de toets.',
     'duplicate_question_in_test'                                                             => 'Deze vraag staat dubbel in de toets. Pas de toets aan om het inplannen mogelijk te maken.',
+    'duplicate_group_in_test'                                                                => 'Deze vraaggroep staat dubbel in de toets. Pas de toets aan om het inplannen mogelijk te maken.',
     'Construeren'                                                                            => 'Construeren',
     'Deze vraag heeft geen tags'                                                             => 'Deze vraag heeft geen tags',
     'test_verbetering'                                                                       => 'Toets verbetering',

@@ -26,6 +26,7 @@ use tcCore\Http\Requests\CreateAttachmentRequest;
 use tcCore\Http\Requests\CreateGroupQuestionQuestionRequest;
 use tcCore\Http\Requests\CreateTestQuestionRequest;
 use tcCore\Http\Requests\Request;
+use tcCore\Http\Traits\WithTestPlanning;
 use tcCore\Lib\GroupQuestionQuestion\GroupQuestionQuestionManager;
 use tcCore\Question;
 use tcCore\TemporaryLogin;
@@ -34,7 +35,7 @@ use tcCore\TestQuestion;
 
 class OpenShort extends Component implements QuestionCms
 {
-    use WithFileUploads;
+    use WithFileUploads, WithTestPlanning;
 
     public $showSelectionOptionsModal = false;
 
@@ -402,7 +403,7 @@ class OpenShort extends Component implements QuestionCms
 
     public function updated($name, $value)
     {
-        $method = 'updated' . ucfirst($name);
+        $method = 'updated' . Str::dotToPascal($name);
         if ($this->obj && method_exists($this->obj, $method)) {
             $this->obj->$method($value);
         }
@@ -1259,6 +1260,9 @@ class OpenShort extends Component implements QuestionCms
         $this->save(false);
 
         $data['group'] ? $this->dispatchBrowserEvent('continue-to-add-group') : $this->dispatchBrowserEvent('continue-to-new-slide');
+        if ($data['newSubQuestion']) {
+            $this->emitTo('drawer.cms', 'newGroupId', $this->testQuestionId);
+        }
     }
 
     public function getRulesForProvider()
@@ -1339,5 +1343,10 @@ class OpenShort extends Component implements QuestionCms
         if ($this->isDirty()) {
             $this->save(false);
         }
+    }
+
+    public function planTest()
+    {
+        $this->planTestWithUuid($this->testId);
     }
 }

@@ -14,7 +14,7 @@
     </x-slot>
     <x-slot name="footer">
         @if ($this->primaryAction)
-            <div class="flex justify-between w-full">
+            <div class="flex justify-end w-full gap-4">
                 <x-button.text-button wire:click="$emit('closeModal')">
                     <span>{{ __('modal.annuleren') }}</span>
                 </x-button.text-button>

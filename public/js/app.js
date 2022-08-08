@@ -6023,6 +6023,8 @@ document.addEventListener('alpine:init', function () {
             });
 
             _this10.$wire.emitTo('drawer.cms', 'refreshDrawer');
+
+            _this10.$dispatch('resize');
           }, 400);
 
           _this10.$wire.emitTo('drawer.cms', 'refreshDrawer');
@@ -6031,33 +6033,41 @@ document.addEventListener('alpine:init', function () {
       addQuestionToGroup: function addQuestionToGroup(uuid) {
         this.showAddQuestionSlide();
         this.$store.questionBank.inGroup = uuid;
-        this.$dispatch('backdrop');
       },
       addGroup: function addGroup() {
         var shouldCheckDirty = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : true;
-        this.$dispatch('store-current-question');
 
-        if (shouldCheckDirty && this.$store.cms.dirty) {
-          this.$wire.emitTo('teacher.questions.open-short', 'addQuestionFromDirty', {
-            'group': true
-          });
-          return;
+        if (this.emitAddToOpenShortIfNecessary(shouldCheckDirty, false, false)) {
+          this.$wire.addGroup();
         }
-
-        this.$wire.addGroup();
       },
       showAddQuestionSlide: function showAddQuestionSlide() {
         var shouldCheckDirty = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : true;
+
+        if (this.emitAddToOpenShortIfNecessary(shouldCheckDirty, false, false)) {
+          this.next(this.$refs.home);
+          this.$dispatch('backdrop');
+        }
+      },
+      addSubQuestionToNewGroup: function addSubQuestionToNewGroup() {
+        var shouldCheckDirty = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : true;
+        this.emitAddToOpenShortIfNecessary(shouldCheckDirty, false, true);
+      },
+      emitAddToOpenShortIfNecessary: function emitAddToOpenShortIfNecessary() {
+        var shouldCheckDirty = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : true;
+        var group = arguments.length > 1 ? arguments[1] : undefined;
+        var newSubQuestion = arguments.length > 2 ? arguments[2] : undefined;
         this.$dispatch('store-current-question');
 
         if (shouldCheckDirty && this.$store.cms.dirty) {
           this.$wire.emitTo('teacher.questions.open-short', 'addQuestionFromDirty', {
-            'group': false
+            group: group,
+            newSubQuestion: newSubQuestion
           });
-          return;
+          return false;
         }
 
-        this.next(this.$refs.home);
+        return true;
       },
       backToQuestionOverview: function backToQuestionOverview(container) {
         this.prev(container);

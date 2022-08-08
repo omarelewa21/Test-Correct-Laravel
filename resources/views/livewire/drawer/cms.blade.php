@@ -86,8 +86,9 @@
             <x-sidebar.slide-container class="pt-4 divide-y divide-bluegrey"
                                        x-ref="home"
                                        @mouseenter="handleVerticalScroll($el);"
-                                       @continue-to-new-slide.window="$store.cms.processing = true;$wire.removeDummy();showAddQuestionSlide(false)"
+                                       @continue-to-new-slide.window="$wire.removeDummy();showAddQuestionSlide(false)"
                                        @continue-to-add-group.window="addGroup(false)"
+                                       @scroll-dummy-into-view.window="scrollActiveQuestionIntoView()"
             >
                 <div wire:sortable="updateTestItemsOrder" wire:sortable-group="updateGroupItemsOrder" class="sortable-drawer divide-y divide-bluegrey pb-6" {{ $emptyStateActive ? 'hidden' : '' }} >
                     @php $loopIndex = 0; @endphp
@@ -139,7 +140,7 @@
                     {{ __('cms.Vraaggroep toevoegen') }}
                 </x-button.plus-circle>
 
-                <x-button.plus-circle @click.stop="showAddQuestionSlide();dispatchBackdrop()"
+                <x-button.plus-circle @click.stop="showAddQuestionSlide();"
                 >
                     {{__('cms.Vraag toevoegen')}}
                 </x-button.plus-circle>

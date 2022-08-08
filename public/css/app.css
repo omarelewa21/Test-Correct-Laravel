@@ -1422,8 +1422,7 @@ input[type=number] {
     color: var(--primary);
 }
 
-#sidebar-carousel-container .group-add-new:hover,
-#sidebar-carousel-container .question-button:hover {
+#sidebar-carousel-container .question-button:not(.dummy):hover {
     background-color: var(--primary-opacity-05);
 }
 
@@ -6363,6 +6362,9 @@ video {
 .cursor-not-allowed{
   cursor: not-allowed;
 }
+.\!cursor-default{
+  cursor: default !important;
+}
 .cursor-move{
   cursor: move;
 }
@@ -7396,6 +7398,10 @@ video {
   --tw-text-opacity: 1;
   color: rgb(37 99 235 / var(--tw-text-opacity));
 }
+.\!text-note{
+  --tw-text-opacity: 1 !important;
+  color: rgb(107 119 137 / var(--tw-text-opacity)) !important;
+}
 .text-allred{
   --tw-text-opacity: 1;
   color: rgb(207 27 4 / var(--tw-text-opacity));
@@ -8339,6 +8345,10 @@ ul ul ul {
   --tw-bg-opacity: 1;
   background-color: rgb(255 255 255 / var(--tw-bg-opacity));
 }
+.hover\:\!bg-white:hover{
+  --tw-bg-opacity: 1 !important;
+  background-color: rgb(255 255 255 / var(--tw-bg-opacity)) !important;
+}
 .hover\:font-bold:hover{
   font-weight: 700;
 }
@@ -8369,6 +8379,10 @@ ul ul ul {
 .hover\:text-gray-400:hover{
   --tw-text-opacity: 1;
   color: rgb(156 163 175 / var(--tw-text-opacity));
+}
+.hover\:\!text-note:hover{
+  --tw-text-opacity: 1 !important;
+  color: rgb(107 119 137 / var(--tw-text-opacity)) !important;
 }
 .hover\:text-midgrey:hover{
   --tw-text-opacity: 1;
