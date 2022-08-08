@@ -45,11 +45,14 @@ class Saml2Auth
 
         // START OVERRIDES
         if(config('entree.use_with_2_urls')) {
+            $idpIdentityAddOn = '_small';
             $urlVar = 'url_smallset';
             if(request()->get('set') === 'full'){
                 $urlVar = 'url_fullset';
+                $idpIdentityAddOn = '_full';
             }
             $config['idp']['singleSignOnService']['url'] = $config['idp']['singleSignOnService'][$urlVar];
+            $config['idp']['entityId'] = $config['idp']['entityId'] . $idpIdentityAddOn;
         }
         // END OVERRIDES
 
