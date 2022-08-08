@@ -5916,7 +5916,7 @@ document.addEventListener('alpine:init', function () {
         if (this.gridSvg !== '' && this.gridSvg !== '0.00') {
           makePreviewGrid(toolName.drawingApp, this.gridSvg);
         } else if (this.grid && this.grid !== '0') {
-          makePreviewGrid(toolName.drawingApp, 1 / parseInt(this.grid) * 5);
+          makePreviewGrid(toolName.drawingApp, 1 / parseInt(this.grid) * 14);
         }
       }
     };
@@ -9463,7 +9463,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid) 
       origin: {
         id: "grid-origin"
       },
-      size: 1 / parseInt(grid) * 5
+      size: 1 / parseInt(grid) * 14
     };
     return new _svgShape_js__WEBPACK_IMPORTED_MODULE_2__.Grid(0, props, UI.svgGridGroup, drawingApp, Canvas);
   }
