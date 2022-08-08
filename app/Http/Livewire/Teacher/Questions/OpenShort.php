@@ -259,7 +259,7 @@ class OpenShort extends Component implements QuestionCms
             'showEmpty'             => 'showEmpty',
             'questionDeleted'       => '$refresh',
             'addQuestionFromDirty'  => 'addQuestionFromDirty',
-            'testSettingsUpdated' => 'handleUpdatedTestSettings'
+            'testSettingsUpdated'   => 'handleUpdatedTestSettings'
         ];
     }
 
@@ -1292,7 +1292,7 @@ class OpenShort extends Component implements QuestionCms
 
     public function handleUpdatedTestSettings($settings)
     {
-        $this->testName = $settings['name'];
+        $this->testName = $settings['name'] ?? $this->testName;
     }
 
     public function getPdfUrl()
