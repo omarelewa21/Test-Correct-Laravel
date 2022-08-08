@@ -15,9 +15,6 @@ use tcCore\Mail\PasswordChanged;
 | contains the "web" middleware group. Now create something great!
 |
 */
-Route::get('/testtopdf/{test}', [\tcCore\Http\Controllers\PrintTestController::class, 'showTest']); /* for test purposes, remove after */
-Route::get('/testatopdf/{test}', [\tcCore\Http\Controllers\PrintTestController::class, 'showTestPdfAttachments']); /* for test purposes, remove after */
-Route::get('/testtaketopdf/{test_take}', [\tcCore\Http\Controllers\PrintTestController::class, 'showTestTake']); /* for test purposes, remove after */
 
 Route::get('/onboarding', tcCore\Http\Livewire\Onboarding::class)->name('onboarding.welcome');
 Route::get('/entree/onboarding', tcCore\Http\Livewire\EntreeOnboarding::class)->name('onboarding.welcome.entree');
