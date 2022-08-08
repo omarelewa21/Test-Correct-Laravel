@@ -47,8 +47,9 @@ class SchoolImportHelper
     }
 
 
-    public function handleImport()
+    public function handleImport($doValidationCheck = true)
     {
+
         DB::beginTransaction();
         try {
             if(!$this->path || !file_exists($this->path)){
@@ -60,7 +61,7 @@ class SchoolImportHelper
             GlobalStateHelper::getInstance()->setQueueAllowed(false);
             GlobalStateHelper::getInstance()->setPreventDemoEnvironmentCreationForSchoolLocation(true);
             $this->inform('Going to start with the file prep and validation of the data');
-            $this->prepareDataFromFile();
+            $this->prepareDataFromFile($doValidationCheck);
             $this->inform('done with the file preparation, up to set the user');
             $this->prepareUser();
             $this->inform('done with the user, next handle schools');
@@ -126,7 +127,11 @@ class SchoolImportHelper
         $data = $this->manifest->getTransformedSchools();
 
         $data->each(function($row){
-           if(!School::where('external_main_code',$row['external_main_code'])->exists()){
+           if($school = School::where('customer_code',$row['customer_code'])->exists()){
+               if($row['name'] !== '-') {
+                   $this->updateSchoolFromImport($school, (array)$row, $this->user);
+               }
+           } else {
                if($row['name'] !== '-') {
                    $this->createSchool((array)$row, $this->user);
                }
@@ -138,7 +143,7 @@ class SchoolImportHelper
     {
         $data = $this->manifest->getTransformedSchoolLocations();
         $data->each(function($row){
-            if(!SchoolLocation::where('external_main_code',$row['brin_nummer'])->where('external_sub_code',$row['locatie_brin_code_2_karakters_max'])->exists()) {
+            if(!SchoolLocation::where('external_main_code',$row['external_main_code'])->where('external_sub_code',$row['external_sub_code'])->exists()) {
                 if($row['name'] !== '-') {
                     $this->inform('dispatch school location '.$row['name'].' => memory '.$this->getMemorySize());
                     dispatch(new CreateSchoolLocationFromImport($row,$this->user));
@@ -148,9 +153,9 @@ class SchoolImportHelper
         });
     }
 
-    protected function prepareDataFromFile()
+    protected function prepareDataFromFile($doValidationCheck = true)
     {
-        $this->manifest = new ExcelSchoolImportManifest($this->path,$this);
+        $this->manifest = new ExcelSchoolImportManifest($this->path,$this, $doValidationCheck);
     }
 
     protected function cleanUmbrellaOrganization()
@@ -181,6 +186,37 @@ class SchoolImportHelper
             $data['umbrella_organization_id'] = $this->umbrellaOrganzationId;
         }
         return $this->createProperty(new School(),$data,$user);
+    }
+
+    protected function updateSchoolFromImport(School $school, $data, $user = null)
+    {
+        $this->schoolLocationId = null;
+        foreach($data as $key => $value){
+            if($value == '-'){
+                if($school->$key){
+                   continue;
+                }
+            }
+            if(property_exists($school,$key)) {
+                $school->$key = $value;
+            }
+        }
+        $school->save();
+    }
+
+    protected function updateSchoolLocationFromImport(SchoolLocation $schoolLocation, $data, $user = null)
+    {
+        foreach($data as $key => $value){
+            if($value == '-'){
+                if($schoolLocation->$key){
+                    continue;
+                }
+            }
+            if(property_exists($schoolLocation,$key)) {
+                $schoolLocation->$key = $value;
+            }
+        }
+        $schoolLocation->save();
     }
 
     public function createSchoolLocation($data, $user)
