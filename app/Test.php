@@ -1056,7 +1056,7 @@ class Test extends BaseModel
     }
 
     public function getHasPdfAttachmentsAttribute(): bool
-    { //todo implement as check before downloading pdf attachments
+    {
         return TestQuestion::select()
             ->join('question_attachments', 'test_questions.question_id', '=', 'question_attachments.question_id')
             ->join('attachments', 'question_attachments.attachment_id', '=', 'attachments.id')

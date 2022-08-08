@@ -93,6 +93,7 @@ class TestTakesController extends Controller {
                 foreach ($testTakes as $testTake) {
                     $test = $testTake->test;
                     if ($test instanceof Test) {
+                        $test->append('has_pdf_attachments');
                         $haveClasses = [];
                         foreach ($testTake->testParticipants as $testParticipant) {
                             $schoolClass = $testParticipant->schoolClass;
@@ -131,6 +132,8 @@ class TestTakesController extends Controller {
                 $ownTestParticipants = [];
                 foreach ($testTakes as $i => $testTake) {
                     $testTakeSchoolClasses[$i] = $testTake->schoolClasses()->get();
+
+                    $testTake->test->append('has_pdf_attachments');
 
                     if (is_array($request->get('with')) && in_array('participantStatus', $request->get('with'))) {
                         $testTakeTaken[$i] = 0;

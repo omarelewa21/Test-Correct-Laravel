@@ -61,7 +61,7 @@ class PrintTestController extends Controller
 
         return response()->make($mergedPdf, 200, [
             'Content-Type'        => 'application/pdf',
-            'Content-Disposition' => 'inline; filename="'.$titleForPdfPage.'.pdf"'
+            'Content-Disposition' => 'inline; filename="' . $titleForPdfPage . '.pdf"'
         ]);
     }
 
@@ -73,7 +73,7 @@ class PrintTestController extends Controller
 
         return response()->make($pdf, 200, [
             'Content-Type'        => 'application/pdf',
-            'Content-Disposition' => 'inline; filename="'.$titleForPdf.'.pdf"'
+            'Content-Disposition' => 'inline; filename="' . $titleForPdf . '.pdf"'
         ]);
     }
 
@@ -95,13 +95,15 @@ class PrintTestController extends Controller
 
     private function generatePdfAttachmentsPdf()
     {
-        $this->test;
+        if (!$this->test->hasPdfAttachments) {
+            return false;
+        }
 
         $pdfAttachments = $this->getPdfAttachmentsFromTest();
 
-        if($pdfAttachments->isNotEmpty()) {
+        if ($pdfAttachments->isNotEmpty()) {
             $merger = new Merger;
-            foreach($pdfAttachments as $attachment) {
+            foreach ($pdfAttachments as $attachment) {
                 $merger->addFile($attachment->getCurrentPath());
             }
             return $merger->merge();
@@ -114,7 +116,7 @@ class PrintTestController extends Controller
         $cover = (new Cover($this->test))->render();
         $header = (new CoverHeader($this->test, $this->testTake))->render();
         $footer = (new CoverFooter($this->test, $this->testTake))->render();
-        Storage::put('temp/coverfooter.html',$footer);
+        Storage::put('temp/coverfooter.html', $footer);
 
         return PdfController::createTestPrintPdf($cover, $header, $footer);
     }
@@ -162,15 +164,15 @@ class PrintTestController extends Controller
     {
         $result = [
             'image' => [],
-            'pdf' => [],
+            'pdf'   => [],
             'audio' => [],
             'video' => [],
         ];
-        $data->each(function($question) use (&$result) {
-            $question->attachments->map(function ($attachment) use(&$result) {
+        $data->each(function ($question) use (&$result) {
+            $question->attachments->map(function ($attachment) use (&$result) {
                 $fileType = $attachment->getFileType();
-                if(!isset($result[$fileType][$attachment->getKey()])){
-                    $result[$fileType][$attachment->getKey()] = count($result[$fileType])+1;
+                if (!isset($result[$fileType][$attachment->getKey()])) {
+                    $result[$fileType][$attachment->getKey()] = count($result[$fileType]) + 1;
                 }
                 return $attachment;
             });
@@ -184,8 +186,8 @@ class PrintTestController extends Controller
 
         $this->test->testQuestions->sortBy('order')->each(function ($testQuestion) use (&$attachments) {
             $testQuestion->question->loadRelated();
-            $testQuestion->question->attachments->each(function ($attachment) use (&$attachments)  {
-                if($attachment->getFileType() == 'pdf'){
+            $testQuestion->question->attachments->each(function ($attachment) use (&$attachments) {
+                if ($attachment->getFileType() == 'pdf') {
                     $attachments->add($attachment);
                 }
             });
