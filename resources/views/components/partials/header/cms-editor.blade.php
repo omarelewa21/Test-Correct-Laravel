@@ -60,12 +60,7 @@
                 >
                     <x-icon.pdf-file color="currentColor"/>
                 </button>
-                <button wire:click="planTest"
-                        class="new-button button-cta w-10 disabled"
-                        title="{{ __('cms.Inplannen') }}"
-                >
-                    <x-icon.schedule/>
-                </button>
+                <livewire:actions.test-plan-test variant="icon-button" :uuid="$this->testId"/>
             </div>
         @endif
     </div>

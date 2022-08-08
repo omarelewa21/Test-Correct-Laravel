@@ -1,14 +1,14 @@
-<x-modal-new force-close="true">
+<x-modal.base-modal>
     <x-slot name="title">
+        <h2>
         @if($this->title)
            {{ $this->title }}
-
-
         @elseif($this->type === 'warning')
             {{__("modal.warning")}}
         @endif
+        </h2>
     </x-slot>
-    <x-slot name="body">
+    <x-slot name="content">
         {{ $this->message }}
 
     </x-slot>
@@ -24,11 +24,11 @@
             </div>
         @else
             <div class="flex justify-end w-full">
-                <x-button.text-button wire:click="$emit('closeModal')">
+                <x-button.primary wire:click="$emit('closeModal')">
                     <span>{{ __('modal.annuleren') }}</span>
-                </x-button.text-button>
+                </x-button.primary>
             </div>
         @endif
     </x-slot>
 
-</x-modal-new>
+</x-modal.base-modal>

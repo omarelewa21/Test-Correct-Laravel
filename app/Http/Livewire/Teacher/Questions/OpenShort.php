@@ -4,7 +4,6 @@ namespace tcCore\Http\Livewire\Teacher\Questions;
 
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
@@ -26,7 +25,6 @@ use tcCore\Http\Requests\CreateAttachmentRequest;
 use tcCore\Http\Requests\CreateGroupQuestionQuestionRequest;
 use tcCore\Http\Requests\CreateTestQuestionRequest;
 use tcCore\Http\Requests\Request;
-use tcCore\Http\Traits\WithTestPlanning;
 use tcCore\Lib\GroupQuestionQuestion\GroupQuestionQuestionManager;
 use tcCore\Question;
 use tcCore\TemporaryLogin;
@@ -35,7 +33,7 @@ use tcCore\TestQuestion;
 
 class OpenShort extends Component implements QuestionCms
 {
-    use WithFileUploads, WithTestPlanning;
+    use WithFileUploads;
 
     public $showSelectionOptionsModal = false;
 
@@ -1343,10 +1341,5 @@ class OpenShort extends Component implements QuestionCms
         if ($this->isDirty()) {
             $this->save(false);
         }
-    }
-
-    public function planTest()
-    {
-        $this->planTestWithUuid($this->testId);
     }
 }
