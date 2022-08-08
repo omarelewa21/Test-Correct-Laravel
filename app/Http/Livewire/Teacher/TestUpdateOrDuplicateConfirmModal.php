@@ -71,12 +71,15 @@ class TestUpdateOrDuplicateConfirmModal extends ModalComponent
         $newTest->load(['testQuestions']);
         $newTest->fill($this->request)->save();
 
-        if(!stristr($newTest->name, $newTestName)){
-           $newTest->name = $newTestName;
+        if (!stristr($newTest->name, $newTestName)) {
+            $newTest->name = $this->request['name'] = $newTestName;
             $newTest->save();
         }
 
-        $this->exit($newTest->uuid);
+        $this->forceClose()->closeModal();
+
+        $this->redirect(route('teacher.test-detail', $newTest->uuid));
+        return true;
     }
 
     private function update(Test $test)
@@ -95,16 +98,5 @@ class TestUpdateOrDuplicateConfirmModal extends ModalComponent
     public static function modalMaxWidth(): string
     {
         return 'w-modal';
-    }
-
-    private function exit($uuid)
-    {
-        $this->forceClose()->closeModal();
-
-        if(Str::contains(Livewire::originalUrl(), 'test-detail')) {
-            return $this->redirect(route('teacher.test-detail', $uuid));
-        }
-
-        $this->emit('testSettingsUpdated', $this->request);
     }
 }
