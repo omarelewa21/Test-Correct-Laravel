@@ -10,6 +10,7 @@ use tcCore\Http\Helpers\BaseHelper;
 use tcCore\Http\Traits\TestTakeNavigationForController;
 use tcCore\TestParticipant;
 use tcCore\TestTake;
+use tcCore\TemporaryLogin;
 use tcCore\TestTake as Test;
 
 class TestTakeLaravelController extends Controller
@@ -176,5 +177,34 @@ class TestTakeLaravelController extends Controller
         return $data->map(function ($question) {
             return $question->getQuestionInstance()->styling;
         })->unique()->implode(' ');
+    }
+
+    /**
+     * Quick access to test take for Student, Teacher and Invigilator
+     * @param tcCore\TestTake $testTake
+     */
+    public function directLink(TestTake $testTake)
+    {   
+        if (!auth()->check()) {
+            session(['take' => $testTake->uuid]);
+            return redirect()->route('auth.login');
+        }
+
+        $user = auth()->user();
+        if($user->isA('student')){
+            return redirect()->route('student.waiting-room', ['take' => $testTake->uuid]);
+        }
+        if(($user->isA('teacher') && $testTake->user_id === $user->id) || $testTake->isInvigilator($user)) {
+            if($testTake->testTakeStatus->name == 'Taking test'){
+                $url = "test_takes/surveillance";
+            }else{
+                $url = sprintf("test_takes/view/%s", $testTake->uuid);
+            }
+
+            $options = TemporaryLogin::buildValidOptionObject('page', $url);
+            return $user->redirectToCakeWithTemporaryLogin($options);
+        }
+
+        abort(403, 'You does not affiliate to this test take, please contact test owner for that problem');             // User does not affiliate to this test take
     }
 }

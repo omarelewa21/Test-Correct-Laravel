@@ -25,6 +25,7 @@ use tcCore\LoginLog;
 use tcCore\SamlMessage;
 use tcCore\Services\EmailValidatorService;
 use tcCore\User;
+use tcCore\TestTake;
 
 class Login extends Component
 {
@@ -97,6 +98,8 @@ class Login extends Component
 
     public $schoolLocation;
 
+    public $take = null;
+
     public $studentDownloadUrl = 'https://www.test-correct.nl/student/';
 
     protected $listeners = ['open-auth-modal' => 'openAuthModal'];
@@ -119,6 +122,11 @@ class Login extends Component
     public function mount()
     {
         Auth::logout();
+
+        if(session()->has('take')){
+            $this->take = TestTake::whereUuid(session('take'))->with('testTakeCode')->first();
+        }
+        dd($this->take->toArray());
         session()->invalidate();
         session()->regenerateToken();
 
@@ -159,6 +167,10 @@ class Login extends Component
 
         AppVersionDetector::handleHeaderCheck();
         $this->doLoginProcedure();
+        
+        if($this->take){
+            return redirect()->route('take.directLink', ['test_take' => $this->take->uuid]);
+        }
 
         $user = auth()->user();
         if ($user->isA('Student') && $user->schoolLocation->allow_new_student_environment) {
