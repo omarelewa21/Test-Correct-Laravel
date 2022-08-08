@@ -751,6 +751,7 @@ class Question extends MtiBaseModel {
                         if (!$openQuestionDisabled) {
                             $query->orWhere(DB::raw('IFNULL(' . $openQuestion->getTable() . '.answer, \'\')'), 'LIKE', '%' . $v . '%');
                         }
+                        $query->orWhere('group_questions.name', 'like', '%' . $v . '%');
                     });
                 } else {
                     $tagId = array_search(strtolower($v), $tags);
@@ -760,6 +761,7 @@ class Question extends MtiBaseModel {
                             $query->orWhere(DB::raw('IFNULL(' . $openQuestion->getTable() . '.answer, \'\')'), 'LIKE', '%' . $v . '%');
                         }
                         $query->orWhere(DB::raw('IFNULL(tags.tags, \'\')'), 'LIKE', '% ' . $tagId . ' %');
+                        $query->orWhere('group_questions.name', 'like', '%' . $v . '%');
                     });
                 }
             }
@@ -769,6 +771,7 @@ class Question extends MtiBaseModel {
             } elseif ($openQuestionOnly && !array_key_exists('subtype', $filters)) {
                 $joins[] = 'openquestion';
             }
+            $joins[] = 'groupquestion';
         }
 
         foreach($filters as $key => $value) {
@@ -953,26 +956,30 @@ class Question extends MtiBaseModel {
 
         $joins = array_unique($joins);
         foreach($joins as $target) {
-            switch(strtolower($target)) {
+            switch (strtolower($target)) {
                 case 'tests':
                     $test = new Test();
-                    $query->join($test->getTable(), $test->getTable().'.'.$test->getKeyName(), '=', $this->getTable().'.test_id');
+                    $query->join($test->getTable(), $test->getTable() . '.' . $test->getKeyName(), '=', $this->getTable() . '.test_id');
                     break;
                 case 'matchingquestion':
                     $matchingQuestion = new MatchingQuestion();
-                    $query->join($matchingQuestion->getTable(), $matchingQuestion->getTable().'.'.$matchingQuestion->getKeyName(), '=', $this->getTable().'.'.$this->getKeyName());
+                    $query->join($matchingQuestion->getTable(), $matchingQuestion->getTable() . '.' . $matchingQuestion->getKeyName(), '=', $this->getTable() . '.' . $this->getKeyName());
                     break;
                 case 'multiplechoicequestion':
                     $multipleChoiceQuestion = new MultipleChoiceQuestion();
-                    $query->join($multipleChoiceQuestion->getTable(), $multipleChoiceQuestion->getTable().'.'.$multipleChoiceQuestion->getKeyName(), '=', $this->getTable().'.'.$this->getKeyName());
+                    $query->join($multipleChoiceQuestion->getTable(), $multipleChoiceQuestion->getTable() . '.' . $multipleChoiceQuestion->getKeyName(), '=', $this->getTable() . '.' . $this->getKeyName());
                     break;
                 case 'completionquestion':
                     $completionQuestion = new CompletionQuestion();
-                    $query->join($completionQuestion->getTable(), $completionQuestion->getTable().'.'.$completionQuestion->getKeyName(), '=', $this->getTable().'.'.$this->getKeyName());
+                    $query->join($completionQuestion->getTable(), $completionQuestion->getTable() . '.' . $completionQuestion->getKeyName(), '=', $this->getTable() . '.' . $this->getKeyName());
                     break;
                 case 'openquestion':
                     $openQuestion = new OpenQuestion();
-                    $query->join($openQuestion->getTable(), $openQuestion->getTable().'.'.$openQuestion->getKeyName(), '=', $this->getTable().'.'.$this->getKeyName());
+                    $query->join($openQuestion->getTable(), $openQuestion->getTable() . '.' . $openQuestion->getKeyName(), '=', $this->getTable() . '.' . $this->getKeyName());
+                    break;
+                case 'groupquestion':
+                    $groupQuestion = new GroupQuestion();
+                    $query->join($groupQuestion->getTable(), $groupQuestion->getTable() . '.' . $groupQuestion->getKeyName(), '=', $this->getTable() . '.' . $this->getKeyName());
                     break;
             }
         }
