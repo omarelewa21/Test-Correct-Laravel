@@ -1074,7 +1074,7 @@ class SchoolLocation extends BaseModel implements AccessCheckable
         // get default sections
         $defaultSections = DefaultSection::whereIn('id',$defaultSectionIds)->get();
         // add sections
-        $list = [];
+
         $defaultSections->each(function(DefaultSection $ds) use (&$list){
             if($schoolLocationSection = $this->schoolLocationSections->first(function(SchoolLocationSection $sls) use ($ds) {
                     return Str::lower(optional($sls->section)->name) === Str::lower($ds->name);
@@ -1092,7 +1092,7 @@ class SchoolLocation extends BaseModel implements AccessCheckable
         });
 
         // add sections to schoollocation
-        $this->sections = array_values($list);
+        $this->sections = array_merge(array_values($sectionIds->toArray()), array_values($list));
         $this->saveSections();
 
 
@@ -1101,11 +1101,11 @@ class SchoolLocation extends BaseModel implements AccessCheckable
         $defaultSubjects->each(function(DefaultSubject $ds) use ($list, $subjects){
             // NOTE Erik 20220803
             // used to be updateOrCreate, but for some reason both the updated_at and the created_at were adjusted and we don't want that as we want to be able to see from when a subject was
-            if(array_key_exists(Str::lower($ds->name),$subjects)){
+            if(isset($subjects[Str::lower($ds->name)])){
                 Subject::find($subjects[Str::lower($ds->name)])->update([
                     'section_id' => $list[$ds->default_section_id],
-//                    'base_subject_id' => $ds->base_subject_id,
-//                    'abbreviation' => $ds->abbreviation,
+                    'base_subject_id' => $ds->base_subject_id,
+                    'abbreviation' => $ds->abbreviation,
 //                    'demo' => $ds->demo,
                 ]);
             } else {
@@ -1114,8 +1114,8 @@ class SchoolLocation extends BaseModel implements AccessCheckable
                         'name' => $ds->name,
                         'section_id' => $list[$ds->default_section_id],
                         'base_subject_id' => $ds->base_subject_id,
-//                        'abbreviation' => $ds->abbreviation,
-//                        'demo' => $ds->demo,
+                        'abbreviation' => $ds->abbreviation,
+                        'demo' => $ds->demo,
                     ]
                 );
             }
