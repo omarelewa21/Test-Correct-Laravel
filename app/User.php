@@ -15,6 +15,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Str;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
@@ -50,6 +51,7 @@ use tcCore\Lib\User\Roles;
 use Dyrynda\Database\Casts\EfficientUuid;
 use Dyrynda\Database\Support\GeneratesUuid;
 use tcCore\Traits\UuidTrait;
+use Facades\tcCore\Http\Controllers\PreviewLaravelController;
 
 class User extends BaseModel implements AuthenticatableContract, CanResetPasswordContract, AccessCheckable
 {
@@ -1900,6 +1902,18 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
     public function canAccessBoundResource($request, Closure $next)
     {
         return $this->canAccess();
+    }
+
+    public function canUseTeacherCkEditorWithWebSpellChecker()
+    {
+        $notPreview = PreviewLaravelController::isNotPreview();
+        return ($this->isA('teacher')&&$this->schoolLocation->allow_wsc&&$notPreview);
+    }
+
+    public function canUseTeacherCkEditorWithoutWebSpellChecker()
+    {
+        $notPreview = PreviewLaravelController::isNotPreview();
+        return ($this->isA('teacher')&&!$this->schoolLocation->allow_wsc&&$notPreview);
     }
 
     public function getAccessDeniedResponse($request, Closure $next)
