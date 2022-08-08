@@ -228,9 +228,9 @@ class ExcelSchoolImportManifest
             $return['external_sub_code'] = substr($row['vestigingsnummer'],4,2);
             $return['school_id'] = School::where('external_main_code',$row['brin_nummer'])->value('id');
 
-            if($return['external_main_code'].$return['external_sub_code'] != $row['vestigingsnummer'] || $row['locatie_brin_code_2_karakters_max'] != $return['external_sub_code']) {
-                throw new SchoolAndSchoolLocationsImportException(sprintf('brin nummer (%s) icm locatie code (%s) komen niet overeen met de vestigingscode (%s) ##%s **%s', $return['external_main_code'], $return['locatie_brin_code_2_karakters_max'], $row['vestigingsnummer'], var_export($return, true), var_export($row, true)));
-            }
+//            if($return['external_main_code'].$return['external_sub_code'] != $row['vestigingsnummer'] || $row['locatie_brin_code_2_karakters_max'] != $return['external_sub_code']) {
+//                throw new SchoolAndSchoolLocationsImportException(sprintf('brin nummer (%s) icm locatie code (%s) komen niet overeen met de vestigingscode (%s) ##%s **%s', $return['external_main_code'], $row['locatie_brin_code_2_karakters_max'], $row['vestigingsnummer'], var_export($return, true), var_export($row, true)));
+//            }
         }
         return $return;
     }
