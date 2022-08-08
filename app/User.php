@@ -1906,12 +1906,14 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
 
     public function canUseTeacherCkEditorWithWebSpellChecker()
     {
+        return false; //for now
         $notPreview = PreviewLaravelController::isNotPreview();
         return ($this->isA('teacher')&&$this->schoolLocation->allow_wsc&&$notPreview);
     }
 
     public function canUseTeacherCkEditorWithoutWebSpellChecker()
     {
+        return false; //for now
         $notPreview = PreviewLaravelController::isNotPreview();
         return ($this->isA('teacher')&&!$this->schoolLocation->allow_wsc&&$notPreview);
     }
