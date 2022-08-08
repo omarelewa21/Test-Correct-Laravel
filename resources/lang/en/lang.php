@@ -6,5 +6,5 @@ return [
     'de_DE' => 'German',
     'es_ES' => 'Spanish',
     'it_IT' => 'Italian',
-    'language' => 'Spell checker language',
+    'language' => 'Language',
 ];

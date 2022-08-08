@@ -89,6 +89,7 @@ class OpenShort extends Component implements QuestionCms
     public $bloomWarningShown = false;
     public $millerWarningShown = false;
     public $lang = 'nl_NL';
+    public $testLang = null;
     public $allowWsc = false;
 
     protected $tags = [];
@@ -202,7 +203,7 @@ class OpenShort extends Component implements QuestionCms
             'learning_goals'         => [],
             'test_id'                => '',
             'all_or_nothing'         => false,
-            'lang'                   => Auth::user()->schoolLocation->wscLanguage,
+            'lang'                   => $this->testLang ?? Auth::user()->schoolLocation->wscLanguage,
         ];
 
         $this->audioUploadOptions = [];
@@ -239,7 +240,7 @@ class OpenShort extends Component implements QuestionCms
         $this->uniqueQuestionKey = $this->testQuestionId . $this->groupQuestionQuestionId . $this->action . $this->questionEditorId;
         $this->duplicateQuestion = false;
         $this->canDeleteTest = false;
-        $this->lang = Auth::user()->schoolLocation->wscLanguage;
+        $this->lang = $this->testLang ?? Auth::user()->schoolLocation->wscLanguage;
     }
 
 
@@ -311,6 +312,7 @@ class OpenShort extends Component implements QuestionCms
     {
         $this->resetQuestionProperties();
         $activeTest = Test::whereUuid($this->testId)->with('testAuthors', 'testAuthors.user')->first();
+        $this->testLang = $activeTest->lang;
         $this->canDeleteTest = $activeTest->canDelete(Auth::user());
         if (blank($this->type) && blank($this->subtype)) {
             $this->testName = $activeTest->name;
