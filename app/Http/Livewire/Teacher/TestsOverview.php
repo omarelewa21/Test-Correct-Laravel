@@ -2,16 +2,12 @@
 
 namespace tcCore\Http\Livewire\Teacher;
 
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 use Livewire\WithPagination;
 use tcCore\BaseSubject;
 use tcCore\EducationLevel;
 use tcCore\Http\Controllers\AuthorsController;
-use tcCore\Http\Controllers\SubjectsController;
-use tcCore\Http\Controllers\TemporaryLoginController;
-use tcCore\Http\Requests\DuplicateTestRequest;
 use tcCore\Subject;
 use tcCore\Test;
 
@@ -202,6 +198,7 @@ class TestsOverview extends Component
     private function getBaseSubjectsOptions()
     {
         return BaseSubject::nationalItemBankFiltered()
+            ->whereIn('id', Subject::filtered(['user_current' => Auth::id()], [])->pluck('base_subject_id'))
             ->get(['name', 'id'])
             ->map(function ($subject) {
                 return ['value' => (int)$subject->id, 'label' => $subject->name];
@@ -227,7 +224,7 @@ class TestsOverview extends Component
             case 'exams':
                 return Subject::examFiltered([], ['name' => 'asc']);
             default:
-                return Subject::filtered(['imp' => 0], ['name' => 'asc']);
+                return Subject::filtered(['imp' => 0, 'user_id' => Auth::id()], ['name' => 'asc']);
         }
     }
 
