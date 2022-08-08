@@ -51,7 +51,8 @@ class QuestionBank extends Component
         return [
             'testSettingsUpdated',
             'addQuestionFromDetail' => 'addQuestionToTest',
-            'questionDeleted'       => 'questionDeletedFromExternalComponent'
+            'questionDeleted'       => 'questionDeletedFromExternalComponent',
+            'newGroupId'            => 'newGroupId',
         ];
     }
 
@@ -358,5 +359,11 @@ class QuestionBank extends Component
     public function openPreview($questionUuid, $inTest)
     {
         $this->emit('openModal', 'teacher.question-cms-preview-modal', ['uuid' => $questionUuid, 'inTest' => $inTest]);
+    }
+
+    public function newGroupId($uuid)
+    {
+        $this->inGroup = $uuid;
+        $this->updatedInGroup($uuid);
     }
 }

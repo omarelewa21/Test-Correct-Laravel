@@ -450,7 +450,7 @@ document.addEventListener('alpine:init', () => {
             this.$store.questionBank.inGroup = uuid;
         },
         addGroup(shouldCheckDirty = true) {
-            if (this.emitAddToOpenShortIfNecessary(shouldCheckDirty, false, false)) {
+            if (this.emitAddToOpenShortIfNecessary(shouldCheckDirty, true, false)) {
                 this.$wire.addGroup();
             }
         },

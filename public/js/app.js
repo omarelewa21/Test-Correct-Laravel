@@ -6037,7 +6037,7 @@ document.addEventListener('alpine:init', function () {
       addGroup: function addGroup() {
         var shouldCheckDirty = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : true;
 
-        if (this.emitAddToOpenShortIfNecessary(shouldCheckDirty, false, false)) {
+        if (this.emitAddToOpenShortIfNecessary(shouldCheckDirty, true, false)) {
           this.$wire.addGroup();
         }
       },

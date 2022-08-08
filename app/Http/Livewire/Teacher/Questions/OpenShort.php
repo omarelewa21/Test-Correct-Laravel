@@ -1272,7 +1272,7 @@ class OpenShort extends Component implements QuestionCms
 
         $data['group'] ? $this->dispatchBrowserEvent('continue-to-add-group') : $this->dispatchBrowserEvent('continue-to-new-slide');
         if ($data['newSubQuestion']) {
-            $this->emitTo('drawer.cms', 'newGroupId', $this->testQuestionId);
+            $this->emit('newGroupId', $this->testQuestionId);
         }
     }
 
