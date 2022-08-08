@@ -48,13 +48,13 @@
                 >
                     <x-icon.settings/>
                 </button>
-                <button @click="window.open('{{ route('teacher.test-preview', ['test'=> $this->testId]) }}', '_blank')"
+                <button @click="setTimeout(() => {window.open('{{ route('teacher.test-preview', ['test'=> $this->testId]) }}', '_blank')}, 500)"
                         class="new-button button-primary w-10"
                         title="{{ __('cms.voorbeeld') }}"
                 >
                     <x-icon.preview/>
                 </button>
-                <button @click="toPdf()"
+                <button @click="setTimeout(() => {toPdf()}, 500)"
                         class="new-button button-primary w-10"
                         title="{{ __('cms.PDF maken') }}"
                 >
