@@ -78,6 +78,7 @@ class TestTakesController extends Controller {
                 $testTakeSchoolClasses = [];
                 foreach ($testTakes as $i => $testTake) {
                     $testTakeSchoolClasses[$i] = $testTake->schoolClasses()->get();
+                    $testTake->test->append('has_pdf_attachments');
                 }
 
                 $testTakes = $testTakes->toArray();
@@ -93,7 +94,7 @@ class TestTakesController extends Controller {
                 foreach ($testTakes as $testTake) {
                     $test = $testTake->test;
                     if ($test instanceof Test) {
-                        $test->append('has_pdf_attachments');
+                        $testTake->test->append('has_pdf_attachments');
                         $haveClasses = [];
                         foreach ($testTake->testParticipants as $testParticipant) {
                             $schoolClass = $testParticipant->schoolClass;
@@ -213,6 +214,7 @@ class TestTakesController extends Controller {
             'testParticipants',
             'testTakeCode'
         ]);
+        $testTake->test->append('has_pdf_attachments');
 
         $isInvigilator = false;
         $roles = $this->getUserRoles();

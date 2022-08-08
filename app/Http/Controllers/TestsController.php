@@ -96,6 +96,7 @@ class TestsController extends Controller {
 	{
 		$test->load('educationLevel', 'author', 'author.school', 'author.schoolLocation', 'subject', 'period', 'testKind','owner');
 		$test->append(    'has_duplicates');
+        $test->append('has_pdf_attachments');
 		return Response::make($test, 200);
 	}
 
