@@ -1031,9 +1031,9 @@ class OpenShort extends Component implements QuestionCms
         return !!($this->type === 'GroupQuestion');
     }
 
-    private function resolveOrderNumber()
+    public function resolveOrderNumber()
     {
-        if ($this->isGroupQuestion() || !$this->questionId || $this->emptyState) {
+        if ($this->isGroupQuestion() || $this->emptyState) {
             return 1;
         }
 
@@ -1049,7 +1049,7 @@ class OpenShort extends Component implements QuestionCms
                 ->orderBy('order', 'desc')->value('question_id');
             return isset($questionList[$lastQuestionIdInGroup]) ? $questionList[$lastQuestionIdInGroup] + 1 : 1;
         }
-        return count($questionList);
+        return count($questionList) + 1;
     }
 
     public function saveAndRefreshDrawer()
