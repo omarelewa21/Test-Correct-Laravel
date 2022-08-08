@@ -2,7 +2,9 @@
 
 namespace tcCore\Http\Livewire\Actions;
 
+use Illuminate\Support\Str;
 use Livewire\Component;
+use Livewire\Livewire;
 use tcCore\Test;
 
 class TestPlanTest extends Component
@@ -12,7 +14,7 @@ class TestPlanTest extends Component
     public $variant;
     public string $class;
 
-    public function mount($uuid, $variant='icon-button', $class = '')
+    public function mount($uuid, $variant = 'icon-button-with-text', $class = '')
     {
         $this->uuid = $uuid;
         $this->variant = $variant;
@@ -34,6 +36,10 @@ class TestPlanTest extends Component
         $primaryAction = false;
         $message = __('modal.cannot_schedule_test_full_not_author');
 
+        if ($this->isInCms()) {
+            $this->emitToAlertModal(__('modal.cannot_schedule_test_full_author'), false);
+            return true;
+        }
         if ($test->author->is(auth()->user())) {
             $primaryAction = route('teacher.question-editor',
                 [
@@ -49,14 +55,21 @@ class TestPlanTest extends Component
             $message = __('modal.cannot_schedule_test_full_author');
         }
 
-//        $mode = [
-//            'hasDuplicateQuestions' => $test->hasDuplicateQuestions() ,
-//            'hasToFewQuestionsInCarousel' => $test->hasToFewQuestionsInCarousel(),
-//            'hasEqualScoreForSubQuestions' => $test->hasEqualScoresForSubQuestions(),
-//        ];
-//
-//        $message = $message . print_r($mode, true);
+        $this->emitToAlertModal($message, $primaryAction);
+    }
 
+    private function isInCms(): bool
+    {
+        return Str::of(Livewire::originalUrl())->contains('question-editor');
+    }
+
+    /**
+     * @param $message
+     * @param $primaryAction
+     * @return void
+     */
+    private function emitToAlertModal($message, $primaryAction): void
+    {
         $this->emit(
             'openModal',
             'alert-modal', [

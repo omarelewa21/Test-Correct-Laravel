@@ -361,6 +361,7 @@ document.addEventListener('alpine:init', () => {
                 this.handleVerticalScroll(this.$root.firstElementChild);
                 this.scrollActiveQuestionIntoView();
             }, 400);
+
         },
         next(currentEl) {
             const left = this.$refs.questionEditorSidebar.scrollLeft + this.slideWidth;
@@ -434,12 +435,12 @@ document.addEventListener('alpine:init', () => {
                 this.drawer.classList.remove('fullscreen');
                 this.home();
                 // this.scroll(container.parentElement.firstElementChild.offsetWidth);
-
                 setTimeout(() => {
                     this.$root.querySelectorAll('.slide-container').forEach((slide) => {
                         slide.classList.remove('opacity-0')
                     })
                     this.$wire.emitTo('drawer.cms', 'refreshDrawer');
+                    this.$dispatch('resize');
                 }, 400)
                 this.$wire.emitTo('drawer.cms', 'refreshDrawer');
             })
@@ -447,24 +448,28 @@ document.addEventListener('alpine:init', () => {
         addQuestionToGroup(uuid) {
             this.showAddQuestionSlide()
             this.$store.questionBank.inGroup = uuid;
-            this.$dispatch('backdrop');
         },
         addGroup(shouldCheckDirty = true) {
-            this.$dispatch('store-current-question');
-            if (shouldCheckDirty && this.$store.cms.dirty) {
-                this.$wire.emitTo('teacher.questions.open-short', 'addQuestionFromDirty', {'group': true})
-                return;
+            if (this.emitAddToOpenShortIfNecessary(shouldCheckDirty, false, false)) {
+                this.$wire.addGroup();
             }
-            this.$wire.addGroup();
         },
         showAddQuestionSlide(shouldCheckDirty = true) {
+            if (this.emitAddToOpenShortIfNecessary(shouldCheckDirty, false, false)) {
+                this.next(this.$refs.home);
+                this.$dispatch('backdrop');
+            }
+        },
+        addSubQuestionToNewGroup(shouldCheckDirty = true) {
+            this.emitAddToOpenShortIfNecessary(shouldCheckDirty, false, true)
+        },
+        emitAddToOpenShortIfNecessary(shouldCheckDirty = true, group, newSubQuestion) {
             this.$dispatch('store-current-question');
             if (shouldCheckDirty && this.$store.cms.dirty) {
-                this.$wire.emitTo('teacher.questions.open-short', 'addQuestionFromDirty', {'group': false})
-                return;
+                this.$wire.emitTo('teacher.questions.open-short', 'addQuestionFromDirty', {group, newSubQuestion});
+                return false;
             }
-
-            this.next(this.$refs.home);
+            return true;
         },
         backToQuestionOverview(container) {
             this.prev(container);

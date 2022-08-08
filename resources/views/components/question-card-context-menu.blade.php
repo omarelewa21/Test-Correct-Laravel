@@ -11,6 +11,7 @@
      @question-card-context-menu-show.window="handleIncomingEvent($event.detail); "
      @question-card-context-menu-close.window="closeMenu(); "
      @click.outside="closeMenu()"
+     @click="closeMenu()"
 >
     <span></span>
     <button class="flex items-center space-x-2 py-1 px-4 base hover:text-primary hover:bg-offwhite transition w-full"

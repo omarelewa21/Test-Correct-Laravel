@@ -2,11 +2,8 @@
 
 namespace tcCore\Http\Livewire\Teacher;
 
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 use tcCore\GroupQuestion;
-use tcCore\Http\Controllers\TemporaryLoginController;
 use tcCore\Question;
 use tcCore\Test;
 

@@ -38,7 +38,7 @@
 
         <div class="flex items-start space-x-2.5 mt-2 text-sysbase">
             @if($double)
-                <div class="flex h-full rounded-md" title="{{ __('cms.duplicate_question_in_test') }}">
+                <div class="flex h-full rounded-md" title="{{ __('cms.duplicate_group_in_test') }}">
                     <x-icon.exclamation class="all-red"/>
                 </div>
             @elseif($question->isCarouselQuestion())

@@ -4,7 +4,6 @@ namespace tcCore\Http\Livewire\Teacher\Questions;
 
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
@@ -408,7 +407,7 @@ class OpenShort extends Component implements QuestionCms
 
     public function updated($name, $value)
     {
-        $method = 'updated' . ucfirst($name);
+        $method = 'updated' . Str::dotToPascal($name);
         if ($this->obj && method_exists($this->obj, $method)) {
             $this->obj->$method($value);
         }
@@ -1272,6 +1271,9 @@ class OpenShort extends Component implements QuestionCms
         $this->save(false);
 
         $data['group'] ? $this->dispatchBrowserEvent('continue-to-add-group') : $this->dispatchBrowserEvent('continue-to-new-slide');
+        if ($data['newSubQuestion']) {
+            $this->emitTo('drawer.cms', 'newGroupId', $this->testQuestionId);
+        }
     }
 
     public function getRulesForProvider()

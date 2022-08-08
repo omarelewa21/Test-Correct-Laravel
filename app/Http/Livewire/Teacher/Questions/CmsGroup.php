@@ -82,4 +82,10 @@ class CmsGroup extends CmsBase
     {
         return false;
     }
+
+    public function updatedQuestionName($value)
+    {
+        $event = filled($value) ? 'group-question-name-filled' : 'group-question-name-empty';
+        $this->instance->dispatchBrowserEvent($event);
+    }
 }
