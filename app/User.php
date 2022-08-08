@@ -2551,9 +2551,7 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
             ->get();
 
         return [
-            'subject_id' =>  $results->map(function ($result) {
-                return $result->subject_id;
-            })->unique()->values()->toArray(),
+            'subject_id' => Subject::filtered(['user_current' => Auth::id()], [])->pluck('id'),
             'education_level_id'   => $results->map(function ($result) {
                 return $result->education_level_id;
             })->unique()->values()->toArray(),
