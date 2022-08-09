@@ -1,5 +1,5 @@
 <div wire:init="dispatchGuestSuccessNotification">
-    <div class="absolute right-4 top-4">
+    <div class="absolute right-4 top-4" wire:ignore>
         <x-button.close @click="Core.closeElectronApp()" electron/>
         <x-button.close @click="Core.closeChromebookApp('{{ \tcCore\Http\Helpers\BaseHelper::getLoginUrl() }}')" size="sm" chromebook/>
     </div>
