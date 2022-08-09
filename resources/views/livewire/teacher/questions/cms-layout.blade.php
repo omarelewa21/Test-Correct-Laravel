@@ -125,7 +125,7 @@
         >
             <div class="flex justify-end py-5">
                 @if(\Illuminate\Support\Facades\Auth::user()->schoolLocation->allow_wsc)
-                <div class="flex items-center relative left-4 gap-4 mr-4">
+                <div class="flex items-center relative left-4 gap-4 mr-4" wire:key="lang-{{$question->lang ?? $question['lang']}}">
                     <label>
                         {{ __('lang.language') }}
                     </label>
