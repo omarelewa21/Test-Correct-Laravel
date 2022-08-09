@@ -116,7 +116,10 @@ class ExcelSchoolImportManifest
                     });
                     if ($fromDB) {
                         // if so do they have different external main codes
-                        if ($fromDB->external_main_code != $row['external_main_code'] && $fromDB->external_main_code != '' && null !== $fromDB->external_main_code) {
+                        $fromDBByExternalCode = $inDB->first(function($el) use ($row) {
+                            return Str::lower($el->external_main_code) === Str::lower($row['external_main_code']) && $el->external_main_code != '' && null != $el->external_main_code;
+                        });
+                        if (!$fromDBByExternalCode && ($fromDB->external_main_code != $row['external_main_code'] && $fromDB->external_main_code != '' && null !== $fromDB->external_main_code)) {
                             $this->addError(sprintf('We have different school brin fours (DB:%s => import:%s) for the same customer code %s %s', $fromDB->external_main_code, $row['external_main_code'], $fromDB->customer_code, $row['customer_code']));
                         }
                         $fromDBFound = true;
@@ -198,7 +201,10 @@ class ExcelSchoolImportManifest
                         return Str::lower($el->customer_code) === Str::lower($row['customer_code']);
                     });
                     if ($fromDB) {
-                        if ($fromDB->external_main_code != $row['external_main_code'] || $fromDB->external_sub_code != $row['external_sub_code']) {
+                        $fromDBByExternalCode = $inDB->first(function($el) use ($row) {
+                            return $el->external_main_code = $row['external_main_code'] && $el->external_sub_code = $row['external_sub_code'];
+                        });
+                        if (!$fromDBByExternalCode && ($fromDB->external_main_code != $row['external_main_code'] || $fromDB->external_sub_code != $row['external_sub_code'])) {
                             $this->addError(sprintf('We have different school location brins (DB:%s%S => import:%s%s) for the same customer code %s', $fromDB->external_main_code, $fromDB->external_sub_code, $row['external_main_code'], $row['external_sub_code'], $fromDB->customer_code));
                         }
                         $fromDBFound = true;
