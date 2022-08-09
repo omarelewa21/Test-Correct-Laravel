@@ -182,8 +182,8 @@
                         {{--                            <x-icon.schedule/>--}}
                         {{--                            <span>{{ __('cms.Inplannen') }}</span>--}}
                         {{--                        </x-button.primary>--}}
-                        <x-button.cta wire:click="$emit('openModal', 'teacher.test-start-create-modal')">
-                            <x-icon.plus/>
+                        <x-button.cta class="px-4" wire:click="$emit('openModal', 'teacher.test-start-create-modal')">
+                            <x-icon.plus-2/>
                             <span>{{ __('general.create test') }}</span>
                         </x-button.cta>
                     </div>
@@ -221,8 +221,6 @@
             <span>{{ __('cms.Toevoegen') }}</span>
         </x-button.cta>
     </div>
-    <livewire:teacher.test-delete-modal></livewire:teacher.test-delete-modal>
-    <livewire:teacher.copy-test-from-schoollocation-modal></livewire:teacher.copy-test-from-schoollocation-modal>
     <x-notification/>
 
 </div>

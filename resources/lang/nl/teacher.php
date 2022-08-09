@@ -41,7 +41,7 @@ return [
     'Toets inplannen'                                                                          => 'Toets inplannen',
     'Filters wissen'                                                                           => 'Filters wissen',
     'Vraag voorbeeld'                                                                          => 'Vraag voorbeeld',
-    'Test is verwijderd'                                                                       => 'Test is verwijderd',
+    'Test is verwijderd'                                                                       => 'Toets is verwijderd',
     'Verbetering of nieuwe toets?'                                                             => 'Verbetering of nieuwe toets?',
     'Verwijderen'                                                                              => 'Verwijderen',
     'Weet je zeker dat je deze toets wilt verwijderen? Deze actie kun je niet ongedaan maken.' => 'Weet je zeker dat je deze toets wilt verwijderen? Deze actie kun je niet ongedaan maken.',
