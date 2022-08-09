@@ -66,5 +66,6 @@
                 <span>Geen subvragen</span>
             @endforelse
         </x-grid>
+        <x-question-card-context-menu/>
     </div>
 </div>
