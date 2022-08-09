@@ -1,13 +1,7 @@
 <?php namespace tcCore;
 
-use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Queue;
 use tcCore\Http\Controllers\AuthorsController;
-use tcCore\Jobs\CountTeacherQuestions;
-use tcCore\Lib\Models\BaseModel;
-use Illuminate\Database\Eloquent\SoftDeletes;
 use tcCore\Lib\Models\CompositePrimaryKeyModel;
 use tcCore\Lib\Models\CompositePrimaryKeyModelSoftDeletes;
 
@@ -112,5 +106,25 @@ class TestAuthor extends CompositePrimaryKeyModel {
             }
         }
         return true;
+    }
+
+    public function scopeSchoolLocationAuthorUsers($query, $user)
+    {
+        return User::withTrashed()->whereIn('id', // find all users part of this selection
+            Teacher::withTrashed()->whereIn('subject_id', // find the teachers with these subjects
+                Subject::withTrashed()->whereIn('section_id', // get all subjects belonging to the section memberships
+                    $user->sections()->select('sections.id')->where('demo',0) // get section memberships of this teacher where section is not part of the demo environment
+                )->select('subjects.id')
+            )->select('teachers.user_id')
+        )->select('id','name_first','name_suffix','name', 'school_location_id')->groupBy('users.id');
+    }
+
+    public function scopeSchoolLocationAndSharedSectionsAuthorUsers($query, $user)
+    {
+        return User::withTrashed()->whereIn('id', // find all users part of this selection
+            Teacher::withTrashed()->whereIn('subject_id', // find the teachers with these subjects
+                $user->subjectsIncludingShared()->where('demo',0)->pluck('id')
+            )->select('teachers.user_id')
+        )->select('id','name_first','name_suffix','name','school_location_id')->groupBy('users.id');
     }
 }

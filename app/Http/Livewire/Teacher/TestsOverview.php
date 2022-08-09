@@ -7,9 +7,9 @@ use Livewire\Component;
 use Livewire\WithPagination;
 use tcCore\BaseSubject;
 use tcCore\EducationLevel;
-use tcCore\Http\Controllers\AuthorsController;
 use tcCore\Subject;
 use tcCore\Test;
+use tcCore\TestAuthor;
 
 class TestsOverview extends Component
 {
@@ -236,10 +236,20 @@ class TestsOverview extends Component
 
     public function getAuthorsProperty()
     {
-        return (new AuthorsController())->getBuilderWithAuthors()
+        return TestAuthor::when($this->openTab === 'umbrella', function ($query) {
+            return $query->schoolLocationAndSharedSectionsAuthorUsers(Auth::user());
+        }, function ($query) {
+            return $query->schoolLocationAuthorUsers(Auth::user());
+        })
+            ->get()
+            ->when($this->openTab === 'umbrella', function($users) {
+                return $users->reject(function($user) {
+                    return ($user->school_location_id === Auth::user()->school_location_id && $user->getKey() !== Auth::id());
+                });
+            })
             ->map(function ($author) {
                 return ['value' => $author->id, 'label' => trim($author->name_first . ' ' . $author->name)];
-            })->toArray();
+            })->values()->toArray();
     }
 
     public function mount()
@@ -312,7 +322,7 @@ class TestsOverview extends Component
             $this->referrerAction = '';
         }
         if ($this->referrerAction === 'test_deleted') {
-            $this->dispatchBrowserEvent('notify', ['message'=> __('teacher.Test is verwijderd')]);
+            $this->dispatchBrowserEvent('notify', ['message' => __('teacher.Test is verwijderd')]);
             $this->referrerAction = '';
         }
     }
