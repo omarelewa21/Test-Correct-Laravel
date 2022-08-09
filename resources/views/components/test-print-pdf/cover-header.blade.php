@@ -7,7 +7,7 @@
 <table class="header-table" style="width: 100%;">
     <tr>
         <td class=" bold" rowspan="2">
-            <img class="h-12" src="{{ asset('/img/mail/logo-test-correct.png') }}"
+            <img class="h-12" src="{{ public_path('/img/mail/logo-test-correct.png') }}"
                  alt="Test-Correct">
         </td>
         <td class="" style="text-align:right">

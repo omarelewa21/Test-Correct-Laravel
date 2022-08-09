@@ -116,7 +116,6 @@ class PrintTestController extends Controller
         $cover = (new Cover($this->test))->render();
         $header = (new CoverHeader($this->test, $this->testTake))->render();
         $footer = (new CoverFooter($this->test, $this->testTake))->render();
-        Storage::put('temp/coverfooter.html', $footer);
 
         return PdfController::createTestPrintPdf($cover, $header, $footer);
     }

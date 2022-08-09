@@ -90,6 +90,7 @@ class PdfController extends Controller
         foreach ($imgList as $imgNode){
             $this->getInlineImageBase64ImgPath($imgNode);
             $this->getImageLoadBase64ImgPath($imgNode);
+            $this->getAttachmentImageBase64ImgPath($imgNode);
             $imgNode->setAttribute('class','img-no-break img-pdf '.$imgNode->getAttribute('class'));
         }
         $html = $doc->saveHTML($doc->documentElement);
@@ -132,6 +133,22 @@ class PdfController extends Controller
             $baseName = $params['filename'];
             $diskName = 'cake';
             $prefix = 'questionanswers/';
+            $this->getBase64ImgPath($imgNode,$baseName,$diskName,$prefix);
+        }catch (\Throwable $th) {
+            Bugsnag::notifyException($th);
+            return;
+        }
+    }
+
+    private function getAttachmentImageBase64ImgPath($imgNode)
+    {
+        if(!stristr($imgNode->getAttribute('src'),'/attachments/')){
+            return;
+        }
+        try{
+            $baseName = pathinfo($imgNode->getAttribute('src'))['basename'];
+            $diskName = 'attachments';
+            $prefix = '';
             $this->getBase64ImgPath($imgNode,$baseName,$diskName,$prefix);
         }catch (\Throwable $th) {
             Bugsnag::notifyException($th);
@@ -188,10 +205,10 @@ class PdfController extends Controller
 
     private function snappyToTestPrintPdf($html, $header, $footer)
     {
-        if(config('app.url')=='https://testwelcome.test-correct.nl'){
-            Storage::put('temp/result1.html',$html);
-            Storage::put('temp/result1footer.html',$footer);
-        }
+//        if(config('app.url')=='https://testwelcome.test-correct.nl'){
+//            Storage::put('temp/result1.html',$html);
+//            Storage::put('temp/result1footer.html',$footer);
+//        }
 
         $fileName = Uuid::uuid().'.pdf';
         $disk = Storage::disk('temp_pdf');
