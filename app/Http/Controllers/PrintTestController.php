@@ -3,6 +3,7 @@
 namespace tcCore\Http\Controllers;
 
 use Carbon\Carbon;
+use iio\libmergepdf\Driver\TcpdiDriver;
 use iio\libmergepdf\Merger;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -81,7 +82,7 @@ class PrintTestController extends Controller
     {
         $disk = Storage::disk('temp_pdf');
 
-        $merger = new Merger;
+        $merger = new Merger(new TcpdiDriver());
         $merger->addFile($disk->path($coverPdf));
         $merger->addFile($disk->path($mainPdf));
 
@@ -102,7 +103,7 @@ class PrintTestController extends Controller
         $pdfAttachments = $this->getPdfAttachmentsFromTest();
 
         if ($pdfAttachments->isNotEmpty()) {
-            $merger = new Merger;
+            $merger = new Merger(new TcpdiDriver());
             foreach ($pdfAttachments as $attachment) {
                 $merger->addFile($attachment->getCurrentPath());
             }
