@@ -1,11 +1,12 @@
 <div class="{{ $class ?? '' }}">
     @if($variant == 'icon-button-with-text')
-    <x-button.cta wire:click="planTest"
-        title="{{ __('teacher.Inplannen') }}"
-    >
-        <x-icon.schedule/>
-        <span>{{ __('cms.Inplannen') }}</span>
-    </x-button.cta>
+        <x-button.cta wire:click="planTest"
+                      title="{{ __('teacher.Inplannen') }}"
+                      class="px-4"
+        >
+            <x-icon.schedule/>
+            <span>{{ __('cms.Inplannen') }}</span>
+        </x-button.cta>
     @elseif($variant == 'icon-button')
         <x-button.icon color="cta" wire:click="planTest" title="{{ __('teacher.Inplannen') }}">
             <x-icon.schedule/>

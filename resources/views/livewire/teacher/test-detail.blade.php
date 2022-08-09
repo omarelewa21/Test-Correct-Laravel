@@ -101,6 +101,4 @@
             @endif
         </div>
     </div>
-    <livewire:teacher.test-delete-modal></livewire:teacher.test-delete-modal>
-
 </div>

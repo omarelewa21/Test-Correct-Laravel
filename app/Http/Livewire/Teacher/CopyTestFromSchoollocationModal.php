@@ -4,19 +4,14 @@ namespace tcCore\Http\Livewire\Teacher;
 
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rule;
-use Livewire\Component;
+use LivewireUI\Modal\ModalComponent;
 use tcCore\Subject;
 use tcCore\Test;
 
-class CopyTestFromSchoollocationModal extends Component
+class CopyTestFromSchoollocationModal extends ModalComponent
 {
-    public $showModal = false;
-
     private $test;
-
     public $testUuid;
-
-    protected $listeners = ['showModal'];
 
     public $base_subject = '';
 
@@ -44,12 +39,11 @@ class CopyTestFromSchoollocationModal extends Component
         return $rules;
     }
 
-    public function showModal($testUuid)
+    public function mount($testUuid)
     {
-        $this->test = Test::whereUuid($testUuid)->first();
-        if ($this->test) { // ??
-            $this->testUuid = $this->test->uuid;
-        }
+        $this->testUuid = $testUuid;
+        $this->test = Test::whereUuid($testUuid)->firstOrFail();
+
         $this->request['name'] = $this->test->name;
 
         $this->base_subject = $this->test->subject->baseSubject->name;
@@ -58,8 +52,6 @@ class CopyTestFromSchoollocationModal extends Component
             auth()->user()
         )->pluck('name', 'id');
         $this->request['subject_id'] = $this->allowedSubjectsForExamnSubjects->keys()->first();
-
-        $this->showModal = true;
     }
 
     public function copy($testUuid)
@@ -72,7 +64,7 @@ class CopyTestFromSchoollocationModal extends Component
             return 'Error no test was found';
         }
 
-        if (! $test->canCopyFromSchool(auth()->user())) {
+        if (!$test->canCopyFromSchool(auth()->user())) {
             return 'Error duplication not allowed';
         }
 
@@ -88,9 +80,9 @@ class CopyTestFromSchoollocationModal extends Component
             return 'Error duplication failed';
         }
 
-        $this->dispatchBrowserEvent('notify', ['message' => __('general.duplication successful')]);
-        $this->showModal = false;
-        $this->emitTo('teacher.tests-overview', 'test-added');
+        $this->redirect(route('teacher.test-detail', $newTest->uuid , ['referrer' => 'copy']));
+        $this->forceClose()->closeModal();
+        return true;
     }
 
 

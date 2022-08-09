@@ -39,7 +39,7 @@ class TestDuplicateTest extends Component
         }
 
         if ($test->canCopyFromSchool(auth()->user())) {
-            $this->emitTo('teacher.copy-test-from-schoollocation-modal', 'showModal',  $test->uuid);
+            $this->emit('openModal', 'teacher.copy-test-from-schoollocation-modal',  ['testUuid' => $test->uuid]);
             return true;
         }
     }

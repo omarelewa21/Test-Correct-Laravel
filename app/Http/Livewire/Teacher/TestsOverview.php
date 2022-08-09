@@ -197,7 +197,9 @@ class TestsOverview extends Component
 
     private function getBaseSubjectsOptions()
     {
-        return BaseSubject::nationalItemBankFiltered()
+        return BaseSubject::when($this->openTab === 'national', function ($query) {
+                return $query->nationalItemBankFiltered();
+            })
             ->whereIn('id', Subject::filtered(['user_current' => Auth::id()], [])->pluck('base_subject_id'))
             ->get(['name', 'id'])
             ->map(function ($subject) {
@@ -310,6 +312,10 @@ class TestsOverview extends Component
 
         if ($this->referrerAction === 'create_test') {
             $this->emit('openModal', 'teacher.test-create-modal');
+            $this->referrerAction = '';
+        }
+        if ($this->referrerAction === 'test_deleted') {
+            $this->dispatchBrowserEvent('notify', ['message'=> __('teacher.Test is verwijderd')]);
             $this->referrerAction = '';
         }
     }
