@@ -153,7 +153,7 @@ class ExcelSchoolImportManifest
                     });
                     if ($fromDB) {
                         // if so do they have different customer codes
-                        if (Str::lower($fromDB->customer_code) != Str::lower($row['customer_code'])) {
+                        if (Str::lower($fromDB->customer_code) !== Str::lower($row['customer_code'])) {
                             $this->addError(sprintf('We have different school customer_codes (db:%s => import:%s) with the BRIN four %s', $fromDB->customer_code, $row['customer_code'], $row['external_main_code']));
                         }
                         // or different names
@@ -162,7 +162,7 @@ class ExcelSchoolImportManifest
                         }
 
                         $this->transformedSchools = $this->transformedSchools->reject(function ($row) use ($fromDB) {
-                            return $row['external_main_code'] == $fromDB->external_main_code;
+                            return Str::lower($row['external_main_code']) === Str::lower($fromDB->external_main_code);
                         });
                     }
                 }
@@ -204,9 +204,9 @@ class ExcelSchoolImportManifest
                     });
                     if ($fromDB) {
                         $fromDBByExternalCode = $inDB->first(function($el) use ($row) {
-                            return $el->external_main_code = $row['external_main_code'] && $el->external_sub_code = $row['external_sub_code'];
+                            return Str::lower($el->external_main_code) === Str::lower($row['external_main_code']) && Str::lower($el->external_sub_code) === Str::lower($row['external_sub_code']);
                         });
-                        if (!$fromDBByExternalCode && ($fromDB->external_main_code != $row['external_main_code'] || $fromDB->external_sub_code != $row['external_sub_code'])) {
+                        if (!$fromDBByExternalCode && (Str::lower($fromDB->external_main_code) !== Str::lower($row['external_main_code']) || Str::lower($fromDB->external_sub_code) !== Str::lower($row['external_sub_code']))) {
                             $this->addError(sprintf('We have different school location brins (DB:%s%S => import:%s%s) for the same customer code %s', $fromDB->external_main_code, $fromDB->external_sub_code, $row['external_main_code'], $row['external_sub_code'], $fromDB->customer_code));
                         }
                         $fromDBFound = true;
@@ -219,10 +219,10 @@ class ExcelSchoolImportManifest
             }
             if(!$fromDBFound){
                 $fromDBByExternalCode = $inDB->first(function($el) use ($row) {
-                    return $el->external_main_code = $row['external_main_code'] && $el->external_sub_code = $row['external_sub_code'];
+                    return Str::lower($el->external_main_code) === Str::lower($row['external_main_code']) && Str::lower($el->external_sub_code) === Str::lower($row['external_sub_code']);
                 });
                 if($fromDBByExternalCode){
-                    $this->addError(sprintf('%s We have a school with same external code (%s) but different customer code (DB:%s => import: %s)',self::FATAL_ERROR, $row['external_main_code']. $row['external_sub_code'], $fromDBByExternalCode->customer_code, $row['customer_code']));
+                    $this->addError(sprintf('%s We have a schoollocation with same external code (%s/%s) but different customer code (DB:%s => import: %s)',self::FATAL_ERROR, $row['external_main_code'], $row['external_sub_code'], $fromDBByExternalCode->customer_code, $row['customer_code']));
                 }
             }
             // check if external_main_code and external_sub_code are available
@@ -248,7 +248,7 @@ class ExcelSchoolImportManifest
                         }
 
                         $this->transformedSchoolLocations = $this->transformedSchoolLocations->reject(function ($row) use ($fromDB) {
-                            return $row['external_main_code'] == $fromDB->external_main_code && $row['external_sub_code'] == $fromDB->external_sub_code;
+                            return Str::lower($row['external_main_code']) === Str::lower($fromDB->external_main_code) && Str::lower($row['external_sub_code']) === Str::lower($fromDB->external_sub_code);
                         });
                     }
                 }
