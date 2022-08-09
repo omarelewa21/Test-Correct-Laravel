@@ -979,7 +979,7 @@ class Question extends MtiBaseModel {
                     break;
                 case 'groupquestion':
                     $groupQuestion = new GroupQuestion();
-                    $query->join($groupQuestion->getTable(), $groupQuestion->getTable() . '.' . $groupQuestion->getKeyName(), '=', $this->getTable() . '.' . $this->getKeyName());
+                    $query->leftJoin($groupQuestion->getTable(), $groupQuestion->getTable() . '.' . $groupQuestion->getKeyName(), '=', $this->getTable() . '.' . $this->getKeyName());
                     break;
             }
         }
