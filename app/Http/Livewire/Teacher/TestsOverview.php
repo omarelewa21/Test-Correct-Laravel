@@ -197,10 +197,7 @@ class TestsOverview extends Component
 
     private function getBaseSubjectsOptions()
     {
-        return BaseSubject::when($this->openTab === 'national', function ($query) {
-                return $query->nationalItemBankFiltered();
-            })
-            ->whereIn('id', Subject::filtered(['user_current' => Auth::id()], [])->pluck('base_subject_id'))
+        return BaseSubject::whereIn('id', Subject::filtered(['user_current' => Auth::id()], [])->pluck('base_subject_id'))
             ->get(['name', 'id'])
             ->map(function ($subject) {
                 return ['value' => (int)$subject->id, 'label' => $subject->name];
