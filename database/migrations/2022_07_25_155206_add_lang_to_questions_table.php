@@ -28,7 +28,7 @@ class AddLangToQuestionsTable extends Migration
     {
         Schema::table('questions', function(Blueprint $table)
         {
-            $table->drop('lang');
+            $table->dropColumn('lang');
         });
     }
 }

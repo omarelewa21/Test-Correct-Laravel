@@ -26,7 +26,7 @@ class AddLangToTestsTable extends Migration
     public function down()
     {
         Schema::table('tests', function (Blueprint $table) {
-            $table->drop('lang');
+            $table->dropColumn('lang');
         });
     }
 }
