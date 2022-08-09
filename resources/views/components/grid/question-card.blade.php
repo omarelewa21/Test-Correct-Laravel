@@ -23,6 +23,7 @@
             @endif
         </div>
         <div id="question-card-option-button-{{ $question->uuid }}"
+             wire:key="question-card-option-button-{{ $question->uuid }}"
              class="flex justify-center items-center w-10 h-10 absolute top-3 right-3 rounded-full hover:bg-primary/5 hover:text-primary text-sysbase"
              style="transition: background-color ease-in-out 100ms"
              :class="{'option-menu-active !text-white hover:!text-primary': menuOpen }"

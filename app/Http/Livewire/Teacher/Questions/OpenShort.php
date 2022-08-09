@@ -556,6 +556,9 @@ class OpenShort extends Component implements QuestionCms
             if ($this->referrer === 'teacher.tests') {
                 return redirect()->to(route($this->referrer));
             }
+            if ($this->referrer === 'teacher.test-detail') {
+                return redirect()->to(route($this->referrer, $this->testId));
+            }
         }
         $url = sprintf("tests/view/%s", $this->testId);
         if ($this->isPartOfGroupQuestion() && !$this->withDrawer) {
