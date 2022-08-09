@@ -46,10 +46,13 @@ class Saml2Auth
         // START OVERRIDES
         if(config('entree.use_with_2_urls')) {
             $spIdentityAddOn = '';
+            $assertionConsumerServiceAddOn = '';
             if(request()->get('set') === 'full'){
                 $spIdentityAddOn = '_full';
+                $assertionConsumerServiceAddOn = '?set=full';
             }
-            $config['sp']['entityId'] = $config['sp']['entityId'] . $spIdentityAddOn;
+            $config['sp']['entityId'] .= $spIdentityAddOn;
+            $config['sp']['assertionConsumerService']['url'] .= $assertionConsumerServiceAddOn;
         }
         // END OVERRIDES
 
