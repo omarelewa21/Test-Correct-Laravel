@@ -342,7 +342,7 @@ document.addEventListener('alpine:init', () => {
             if (this.gridSvg !== '' && this.gridSvg !== '0.00') {
                 makePreviewGrid(toolName.drawingApp, this.gridSvg);
             }else if(this.grid && this.grid !== '0'){
-                makePreviewGrid(toolName.drawingApp, 1/parseInt(this.grid) * 5);
+                makePreviewGrid(toolName.drawingApp, 1/parseInt(this.grid) * 14);
             }
         }
     }));
