@@ -51,6 +51,7 @@ class Saml2Auth
                 $urlVar = 'url_fullset';
                 $idpIdentityAddOn = '_full';
             }
+
             $config['idp']['singleSignOnService']['url'] = $config['idp']['singleSignOnService'][$urlVar];
             $config['idp']['entityId'] = $config['idp']['entityId'] . $idpIdentityAddOn;
         }
