@@ -252,8 +252,8 @@ jzwnvGSTRr4zLbXwz+RZmkre'
                 // De URL van het endpoint
 //                'url'     => 'https://aselect.entree.kennisnet.nl/openaselect/profiles/saml/sso/web',
                 'url'     => 'https://aselect-s.entree.kennisnet.nl/openaselect/profiles/saml/sso/web',
-                'url_smallset' => 'a',
-                'url_fullset' => 'b',
+                'url_smallset' => 'https://test-correct.nl/small',
+                'url_fullset' => 'https://test-correct.nl/full',
                 // SAML protocol binding dat gebruikt wordt om de requests naar Entree Federatie te versturen
                 'binding' => 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST',
             ),
