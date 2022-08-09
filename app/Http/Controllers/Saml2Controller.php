@@ -118,7 +118,12 @@ class Saml2Controller extends Controller
         if(request()->get('entreeRegister')){
             $redirectTo = '/entreeRegister';
         }
-        $saml2Auth->login($redirectTo, [], true);
+
+        $forceAuth = true;
+        if(config('entree.use_with_2_urls') && request()->get('set') === 'full'){
+            $forceAuth = false;
+        }
+        $saml2Auth->login($redirectTo, [], $forceAuth);
     }
 
     public function register()
