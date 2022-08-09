@@ -15,6 +15,7 @@ class DefaultSubject extends BaseModel
 {
 
     use UuidTrait;
+    use SoftDeletes;
 
     /**
      * The attributes that should be mutated to dates.
