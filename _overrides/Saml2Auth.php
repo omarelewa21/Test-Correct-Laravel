@@ -53,7 +53,7 @@ class Saml2Auth
             }
 
             $config['idp']['singleSignOnService']['url'] = $config['idp']['singleSignOnService'][$urlVar];
-            $config['idp']['entityId'] = $config['idp']['entityId'] . $idpIdentityAddOn;
+            $config['sp']['entityId'] = $config['idp']['sp'] . $idpIdentityAddOn;
         }
         // END OVERRIDES
 
