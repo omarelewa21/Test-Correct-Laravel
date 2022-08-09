@@ -276,7 +276,9 @@
                         </span>
                         @endif
                     </x-grid>
-                    <x-question-card-context-menu/>
+                    @if(!$this->groupQuestionDetail)
+                        <x-question-card-context-menu/>
+                    @endif
                 </div>
             </div>
         </div>

@@ -2,7 +2,9 @@
 
 namespace tcCore\View\Components\Actions;
 
+use Illuminate\Support\Str;
 use Illuminate\View\Component;
+use Livewire\Livewire;
 use tcCore\Test;
 
 class TestOpenEdit extends Component
@@ -40,7 +42,18 @@ class TestOpenEdit extends Component
             'action'     => 'edit',
             'owner'      => 'test',
             'withDrawer' => 'true',
-            'referrer'   => 'teacher.tests',
+            'referrer'   => $this->getReferrerRoute(),
         ]);
+    }
+
+    private function getReferrerRoute(): string
+    {
+        $currentUrl = Str::of(Livewire::originalUrl());
+
+        if ($currentUrl->contains(route('teacher.test-detail', false, false))) {
+            return 'teacher.test-detail';
+        }
+
+        return 'teacher.tests';
     }
 }
