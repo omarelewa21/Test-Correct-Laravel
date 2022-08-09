@@ -246,14 +246,12 @@ jzwnvGSTRr4zLbXwz+RZmkre'
         'idp'      => array(
             // De unieke identifier van Entree Federatie
 //            'entityId'            => 'https://aselect.entree.kennisnet.nl/',
-            'entityId'            => 'https://aselect-s.entree.kennisnet.nl/',
+            'entityId'            => config('entree.use_with_2_urls') ? 'https://engine.entree-s.kennisnet.nl/authentication/idp/metadata' : 'https://aselect-s.entree.kennisnet.nl/',
             // Endpoint van Entree Federatie waar de authenticatie requests naar toegestuurd worden
             'singleSignOnService' => array(
                 // De URL van het endpoint
 //                'url'     => 'https://aselect.entree.kennisnet.nl/openaselect/profiles/saml/sso/web',
-                'url'     => 'https://aselect-s.entree.kennisnet.nl/openaselect/profiles/saml/sso/web',
-                'url_smallset' => 'https://test-correct.nl/small',
-                'url_fullset' => 'https://test-correct.nl/full',
+                'url'     => config('entree.use_with_2_urls') ? 'https://engine.entree-s.kennisnet.nl/authentication/idp/single-sign-on' : 'https://aselect-s.entree.kennisnet.nl/openaselect/profiles/saml/sso/web',
                 // SAML protocol binding dat gebruikt wordt om de requests naar Entree Federatie te versturen
                 'binding' => 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST',
             ),
