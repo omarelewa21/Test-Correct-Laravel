@@ -29,7 +29,7 @@ class TestPlanTest extends Component
     public function planTest()
     {
         $test = Test::findByUuid($this->uuid);
-        if (!$test->hasDuplicateQuestions() && !$test->hasToFewQuestionsInCarousel() && !$test->hasNotEqualScoresForSubQuestionsInCarousel()) {
+        if ($test->meetsQuestionRequirementsForPlanning()) {
             $this->emit('openModal', 'teacher.planning-modal', ['testUuid' => $this->uuid]);
             return false;
         }
