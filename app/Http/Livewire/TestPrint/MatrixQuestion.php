@@ -26,6 +26,7 @@ class MatrixQuestion extends Component
     public $subQuestions;
     public $questionAnswers;
     public $answerStruct;
+    public $attachment_counters;
 
     public function mount()
     {

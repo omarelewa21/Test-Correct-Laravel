@@ -31,6 +31,7 @@ class DrawingQuestion extends Component
 
     public $additionalText;
     public $pngBase64;
+    public $attachment_counters;
 
     public function mount()
     {

@@ -15,8 +15,6 @@ use tcCore\Mail\PasswordChanged;
 | contains the "web" middleware group. Now create something great!
 |
 */
-Route::get('/testtopdf/{test}', [\tcCore\Http\Controllers\PrintTestController::class, 'showTest']); /* for test purposes, remove after */
-Route::get('/testtaketopdf/{test_take}', [\tcCore\Http\Controllers\PrintTestController::class, 'showTestTake']); /* for test purposes, remove after */
 
 Route::get('/onboarding', tcCore\Http\Livewire\Onboarding::class)->name('onboarding.welcome');
 Route::get('/entree/onboarding', tcCore\Http\Livewire\EntreeOnboarding::class)->name('onboarding.welcome.entree');
@@ -79,9 +77,11 @@ Route::middleware('auth')->group(function () {
         Route::get('/question-editor', tcCore\Http\Livewire\Teacher\Questions\OpenShort::class)->name('question-editor');
         Route::get('/tests', tcCore\Http\Livewire\Teacher\TestsOverview::class)->name('tests');
         Route::get('/test-detail/{uuid}', tcCore\Http\Livewire\Teacher\TestDetail::class)->name('test-detail');
-        Route::get('/preview/test/{test}', [tcCore\Http\Controllers\PrintTestController::class, 'showTest'])->name('preview.test');
         Route::get('/preview/answer_model/{test}', [tcCore\Http\Controllers\PreviewAnswerModelController::class, 'show'])->name('test-answer-model');
-        Route::get('/preview/test_take/{test_take}', [tcCore\Http\Controllers\PrintTestController::class, 'showTestTake'])->name('preview.test_take');
+        Route::get('/preview/test_take/{test_take}', [tcCore\Http\Controllers\PreviewTestTakeController::class, 'show'])->name('preview.test_take');
+        Route::get('/preview/pdf/test/{test}', [tcCore\Http\Controllers\PrintTestController::class, 'showTest'])->name('preview.test_pdf');
+        Route::get('/preview/pdf/test_take/{test_take}', [tcCore\Http\Controllers\PrintTestController::class, 'showTestTake'])->name('preview.test_take_pdf');
+        Route::get('/preview/pdf/test_attachments/{test}', [tcCore\Http\Controllers\PrintTestController::class, 'showTestPdfAttachments'])->name('preview.test_pdf_attachments');
 
     });
 

@@ -19,6 +19,7 @@ class OpenQuestion extends Component
     public $number;
     public $answers;
     public $editorId;
+    public $attachment_counters;
 
     public function mount()
     {
@@ -32,10 +33,10 @@ class OpenQuestion extends Component
 
     public function render()
     {
+        $this->question->caption = 'hello world';
         if ($this->question->subtype === 'short') {
             return view('livewire.test_print.open-question');
         }
-
         return view('livewire.test_print.open-medium-question');
     }
 

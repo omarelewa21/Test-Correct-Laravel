@@ -9,7 +9,7 @@ class CoverHeader extends Component
 {
     public $test;
     public $testTake;
-    public $testType = 'toets';
+    public $testType = 'test';
     public $date = null;
 
     /**

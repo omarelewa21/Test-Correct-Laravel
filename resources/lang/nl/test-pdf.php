@@ -30,4 +30,6 @@ return [
     'video'                                => 'Video',
     'audio'                                => 'Geluidsfragment',
     'audio_text'                           => 'Vraag je docent naar het geluidsfragment van deze vraag',
+    'printversion_test'                    => 'Printversie toets:',
+    'printversion_test_attachments'        => 'Printversie toets pdf-bijlagen:',
 ];

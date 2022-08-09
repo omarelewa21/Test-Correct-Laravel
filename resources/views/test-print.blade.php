@@ -15,6 +15,7 @@
                                 :number="++$key"
                                 :answers="$answers"
                                 :test="$test"
+                                :attachment_counters="$attachment_counters"
                                 wire:key="'q-'.$testQuestion->uuid'"
                         />
                     @elseif($testQuestion->type === 'MultipleChoiceQuestion')
@@ -23,6 +24,7 @@
                                 :number="++$key"
                                 :answers="$answers"
                                 :test="$test"
+                                :attachment_counters="$attachment_counters"
                                 wire:key="'q-'.$testQuestion->uuid'"
                         />
                     @elseif($testQuestion->type === 'OpenQuestion')
@@ -31,6 +33,7 @@
                                 :number="++$key"
                                 :answers="$answers"
                                 :test="$test"
+                                :attachment_counters="$attachment_counters"
                                 wire:key="'q-'.$testQuestion->uuid'"
                         />
                     @elseif($testQuestion->type === 'MatchingQuestion')
@@ -39,6 +42,7 @@
                                 :number="++$key"
                                 :answers="$answers"
                                 :test="$test"
+                                :attachment_counters="$attachment_counters"
                                 wire:key="'q-'.$testQuestion->uuid'"
                         />
                     @elseif($testQuestion->type === 'CompletionQuestion')
@@ -47,6 +51,7 @@
                                 :number="++$key"
                                 :answers="$answers"
                                 :test="$test"
+                                :attachment_counters="$attachment_counters"
                                 wire:key="'q-'.$testQuestion->uuid'"
                         />
                     @elseif($testQuestion->type === 'RankingQuestion')
@@ -63,6 +68,7 @@
                                 :number="++$key"
                                 :answers="$answers"
                                 :test="$test"
+                                :attachment_counters="$attachment_counters"
                                 wire:key="'q-'.$testQuestion->uuid"
                         />
                     @elseif($testQuestion->type === 'DrawingQuestion')
@@ -71,6 +77,7 @@
                                 :number="++$key"
                                 :answers="$answers"
                                 :test="$test"
+                                :attachment_counters="$attachment_counters"
                                 wire:key="'q-'.$testQuestion->uuid"
                         />
                     @elseif($testQuestion->type === 'MatrixQuestion')
@@ -79,6 +86,7 @@
                                 :number="++$key"
                                 :answers="$answers"
                                 :test="$test"
+                                :attachment_counters="$attachment_counters"
                                 wire:key="'q-'.$testQuestion->uuid"
                         />
                     @elseif($testQuestion->type === 'GroupQuestion' && $currentGroupQuestion !== $testQuestion->getKey())
@@ -86,12 +94,14 @@
                         <livewire:test-print.group-question
                                 :question="$testQuestion"
                                 :group-start="true"
+                                :attachment_counters="$attachment_counters"
                                 wire:key="'q-'.$testQuestion->uuid"
                         />
                     @elseif($testQuestion->type === 'GroupQuestion' && $currentGroupQuestion === $testQuestion->getKey())
                         <livewire:test-print.group-question
                                 :question="$testQuestion"
                                 :group-start="false"
+                                :attachment_counters="$attachment_counters"
                                 wire:key="'q-'.$testQuestion->uuid"
                         />
                     @endif

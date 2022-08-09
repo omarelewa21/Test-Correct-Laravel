@@ -49,16 +49,6 @@ class OpenQuestion extends Question implements QuestionInterface {
 //        static::addGlobalScope(new RemoveUuidScope);
 //    }
 
-    public static function boot()
-    {
-        parent::boot();
-
-        static::saving(function (OpenQuestion $question) {
-            $question->spell_check_available = !!$question->spell_check_available;
-            return $question;
-        });
-    }
-
     public function question() {
 
         return $this->belongsTo('tcCore\Question', $this->getKeyName());
@@ -105,5 +95,4 @@ class OpenQuestion extends Question implements QuestionInterface {
 
         return parent::getCaptionAttribute();
     }
-
 }

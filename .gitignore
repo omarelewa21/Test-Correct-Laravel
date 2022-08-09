@@ -35,3 +35,5 @@ storage/*/*/*
 LocalValetDriver.php
 /public/ckeditor/plugins/ckeditor_wiris/cache
 /public/ckeditor/plugins/ckeditor_wiris/formulas
+/public/ckeditor_png/plugins/ckeditor_wiris/cache
+/public/ckeditor_png/plugins/ckeditor_wiris/formulas

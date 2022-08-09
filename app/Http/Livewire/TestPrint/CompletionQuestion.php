@@ -22,6 +22,7 @@ class CompletionQuestion extends Component
     public $answerPlaceholdersList = [];
     public $answered;
     public $answers;
+    public $attachment_counters;
 
     public $number;
     public $searchPattern = "/\[(\d+)\]/i";
