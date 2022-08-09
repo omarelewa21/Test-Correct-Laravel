@@ -84,7 +84,7 @@ class ExcelSchoolImportManifest
 
     public function hasErrors()
     {
-        return !! count($this->errros);
+        return !! count($this->errors);
     }
 
     protected function checkSchoolsIntegrity($importer = null)
@@ -116,7 +116,7 @@ class ExcelSchoolImportManifest
                     });
                     if ($fromDB) {
                         // if so do they have different external main codes
-                        if ($fromDB->external_main_code != $row['external_main_code']) {
+                        if ($fromDB->external_main_code != $row['external_main_code'] && $fromDB->external_main_code != '' && null !== $fromDB->external_main_code) {
                             $this->addError(sprintf('We have different school brin fours (DB:%s => import:%s) for the same customer code %s %s', $fromDB->external_main_code, $row['external_main_code'], $fromDB->customer_code, $row['customer_code']));
                         }
                         $fromDBFound = true;
@@ -124,7 +124,7 @@ class ExcelSchoolImportManifest
                 }
                 if(!$fromDBFound){
                     $fromDBByExternalCode = $inDB->first(function($el) use ($row) {
-                        return Str::lower($el->external_main_code) === Str::lower($row['external_main_code']);
+                        return Str::lower($el->external_main_code) === Str::lower($row['external_main_code']) && $el->external_main_code != '' && null != $el->external_main_code;
                     });
                     if($fromDBByExternalCode){
                         throw new SchoolAndSchoolLocationsImportException(sprintf('We have a school with same external main code (%s) but different customer code (DB:%s => import: %s)',$row['external_main_code'], $fromDBByExternalCode->customer_code, $row['customer_code']));
@@ -148,7 +148,7 @@ class ExcelSchoolImportManifest
                     });
                     if ($fromDB) {
                         // if so do they have different customer codes
-                        if ($fromDB->customer_code != $row['customer_code']) {
+                        if (Str::lower($fromDB->customer_code) != Str::lower($row['customer_code'])) {
                             $this->addError(sprintf('We have different school customer_codes (db:%s => import:%s) with the BRIN four %s', $fromDB->customer_code, $row['customer_code'], $row['external_main_code']));
                         }
                         // or different names
