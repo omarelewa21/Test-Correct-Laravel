@@ -147,17 +147,34 @@ class PrintTestController extends Controller
     public static function getData(Test $test)
     {
         $test->load('testQuestions', 'testQuestions.question', 'testQuestions.question.attachments');
-        return $test->testQuestions->sortBy('order')->flatMap(function ($testQuestion) {
-            $testQuestion->question->loadRelated();
-            if ($testQuestion->question->type === 'GroupQuestion') {
-                $groupQuestion = $testQuestion->question;
-                return $testQuestion->question->groupQuestionQuestions->map(function ($item) use ($groupQuestion) {
-                    $item->question->belongs_to_groupquestion_id = $groupQuestion->getKey();
-                    return $item->question;
-                })->prepend($testQuestion->question)->add($testQuestion->question);
-            }
-            return collect([$testQuestion->question]);
-        });
+        return $test->testQuestions
+            ->sortBy('order')
+            ->when($test->shuffle, fn($testQuestions) => $testQuestions->shuffle()) //todo add ->shuffle() if test->shuffle == true?
+            ->flatMap(function ($testQuestion) {
+                $testQuestion->question->loadRelated();
+                if ($testQuestion->question->type === 'GroupQuestion') {
+                    $groupQuestion = $testQuestion->question;
+
+                    if ($testQuestion->question->groupquestion_type === 'carousel') {
+                        //filters questions to needed amount for carousel
+                        return collect($testQuestion->question->filterQuestionsForCarousel(
+                            $testQuestion->question->groupQuestionQuestions->map(function ($item) use ($groupQuestion) {
+                                $item->question->belongs_to_groupquestion_id = $groupQuestion->getKey();
+                                return $item->question;
+                            })->toArray())
+                        )->map(fn($item) => Question::find($item['id']))
+                            ->prepend($testQuestion->question)
+                            ->add($testQuestion->question);
+
+                    }
+
+                    return $testQuestion->question->groupQuestionQuestions->map(function ($item) use ($groupQuestion) {
+                        $item->question->belongs_to_groupquestion_id = $groupQuestion->getKey();
+                        return $item->question;
+                    })->prepend($testQuestion->question)->add($testQuestion->question);
+                }
+                return collect([$testQuestion->question]);
+            });
     }
 
     private function createAttachmentCountersFromData($data)
