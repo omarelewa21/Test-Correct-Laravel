@@ -100,11 +100,11 @@ class TestEditModal extends ModalComponent
     private function getRequestPropertiesForTest(Test $test): array
     {
         return [
-            'testKind' => $this->allowedTestKinds->contains($test->test_kind_id) ? $test->test_kind_id : $this->allowedTestKinds->first()->id,
-            'subject'  => $this->allowedSubjects->contains($test->subject_id) ? $test->subject_id : $this->allowedSubjects->first()->id,
-            'edLevel'  => $this->allowedEductionLevels->contains($test->education_level_id) ? $test->education_level_id : $this->allowedEductionLevels->first()->id,
-            'edYear'   => $this->allowedEductionLevels->contains($test->education_level_id) ? $test->education_level_year : 1,
-            'period'   => $this->allowedPeriods->contains($test->period_id) ? $test->period_id : $this->allowedPeriods->first()->id
+            $this->allowedTestKinds->contains($test->test_kind_id) ? $test->test_kind_id : $this->allowedTestKinds->first()->id,
+            $this->allowedSubjects->contains($test->subject_id) ? $test->subject_id : $this->allowedSubjects->first()->id,
+            $this->allowedEductionLevels->contains($test->education_level_id) ? $test->education_level_id : $this->allowedEductionLevels->first()->id,
+            $this->allowedEductionLevels->contains($test->education_level_id) ? $test->education_level_year : 1,
+            $this->allowedPeriods->contains($test->period_id) ? $test->period_id : $this->allowedPeriods->first()->id
         ];
     }
 }
