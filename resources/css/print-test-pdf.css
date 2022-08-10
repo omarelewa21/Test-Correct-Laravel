@@ -516,14 +516,7 @@
 }
 
 .test-print-pdf .group-question-container > div:first-child {
-    background-color: #041f74;
-    border: 1px solid #041f74;
-    color: #ffffff;
-    border-radius: 10px;
-    text-align: center;
-    display: block;
-    font-size: 20pt;
-    height: 40px;
+
 }
 
 .test-print-pdf .group-question-container > div:nth-child(2) {
@@ -541,6 +534,29 @@
 
 .test-print-pdf .group-question-description {
     padding-top: 1rem;
+}
+
+.test-print-pdf .group-question-name-container {
+    display: block;
+    vertical-align: center;
+    background-color: #041f74;
+    border: 1px solid #041f74;
+    color: #ffffff;
+    border-radius: 10px;
+    text-align: center;
+    /*display: block;*/
+    font-size: 20pt;
+    min-height: 40px;
+}
+
+.test-print-pdf .group-question-name {
+    font-size: 20pt;
+    white-space: break-spaces;
+    display: inline-block;
+    text-align: center;
+    min-width: 500px;
+    max-width: 700px ;
+    margin-right: 30px;
 }
 
 .test-print-pdf .attachment-container {
