@@ -5926,7 +5926,6 @@ document.addEventListener('alpine:init', function () {
       resizeTimout: null,
       slides: ['home', 'type', 'newquestion', 'questionbank'],
       activeSlide: null,
-      scrollTimeout: null,
       init: function init() {
         var _this8 = this;
 
@@ -5950,15 +5949,14 @@ document.addEventListener('alpine:init', function () {
         this.handleVerticalScroll(currentEl.previousElementSibling);
       },
       home: function home() {
-        var scrollActiveIntoView = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : true;
-        this.scroll(0, scrollActiveIntoView);
+        this.scroll(0);
         if (!this.$store.cms.emptyState) this.$dispatch('backdrop');
         this.handleVerticalScroll(this.$refs.home);
       },
       scroll: function scroll(position) {
-        var scrollActiveIntoView = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : true;
-        this.setActiveSlideProperty(position);
-        if (scrollActiveIntoView) this.scrollActiveQuestionIntoView();
+        this.setActiveSlideProperty(position); // this.drawer.scrollTo({top: 0, behavior: 'smooth'});
+
+        this.scrollActiveQuestionIntoView();
         this.$refs.questionEditorSidebar.scrollTo({
           left: position >= 0 ? position : 0,
           behavior: 'smooth'
@@ -6025,8 +6023,6 @@ document.addEventListener('alpine:init', function () {
             });
 
             _this10.$wire.emitTo('drawer.cms', 'refreshDrawer');
-
-            _this10.$dispatch('resize');
           }, 400);
 
           _this10.$wire.emitTo('drawer.cms', 'refreshDrawer');
@@ -6035,41 +6031,33 @@ document.addEventListener('alpine:init', function () {
       addQuestionToGroup: function addQuestionToGroup(uuid) {
         this.showAddQuestionSlide();
         this.$store.questionBank.inGroup = uuid;
+        this.$dispatch('backdrop');
       },
       addGroup: function addGroup() {
         var shouldCheckDirty = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : true;
-
-        if (this.emitAddToOpenShortIfNecessary(shouldCheckDirty, true, false)) {
-          this.$wire.addGroup();
-        }
-      },
-      showAddQuestionSlide: function showAddQuestionSlide() {
-        var shouldCheckDirty = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : true;
-
-        if (this.emitAddToOpenShortIfNecessary(shouldCheckDirty, false, false)) {
-          this.next(this.$refs.home);
-          this.$dispatch('backdrop');
-        }
-      },
-      addSubQuestionToNewGroup: function addSubQuestionToNewGroup() {
-        var shouldCheckDirty = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : true;
-        this.emitAddToOpenShortIfNecessary(shouldCheckDirty, false, true);
-      },
-      emitAddToOpenShortIfNecessary: function emitAddToOpenShortIfNecessary() {
-        var shouldCheckDirty = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : true;
-        var group = arguments.length > 1 ? arguments[1] : undefined;
-        var newSubQuestion = arguments.length > 2 ? arguments[2] : undefined;
         this.$dispatch('store-current-question');
 
         if (shouldCheckDirty && this.$store.cms.dirty) {
           this.$wire.emitTo('teacher.questions.open-short', 'addQuestionFromDirty', {
-            group: group,
-            newSubQuestion: newSubQuestion
+            'group': true
           });
-          return false;
+          return;
         }
 
-        return true;
+        this.$wire.addGroup();
+      },
+      showAddQuestionSlide: function showAddQuestionSlide() {
+        var shouldCheckDirty = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : true;
+        this.$dispatch('store-current-question');
+
+        if (shouldCheckDirty && this.$store.cms.dirty) {
+          this.$wire.emitTo('teacher.questions.open-short', 'addQuestionFromDirty', {
+            'group': false
+          });
+          return;
+        }
+
+        this.next(this.$refs.home);
       },
       backToQuestionOverview: function backToQuestionOverview(container) {
         this.prev(container);
@@ -6091,24 +6079,24 @@ document.addEventListener('alpine:init', function () {
       scrollActiveQuestionIntoView: function scrollActiveQuestionIntoView() {
         var _this12 = this;
 
-        if (this.activeSlide !== 'home') return;
-        clearTimeout(this.scrollTimeout);
-        this.scrollTimeout = setTimeout(function () {
+        var scrollTimeout = setTimeout(function () {
+          if (_this12.$refs.questionEditorSidebar.scrollLeft > 0) return;
+
           var activeQuestion = _this12.$refs.home.querySelector('.question-button.question-active');
 
           activeQuestion || (activeQuestion = _this12.$refs.home.querySelector('.group-active'));
-          if (activeQuestion === null) return clearTimeout(_this12.scrollTimeout);
+          if (activeQuestion === null) return;
           var top = activeQuestion.getBoundingClientRect().top;
-          var screenWithBottomMargin = window.screen.height - 200;
+          var screenWithMargin = window.screen.height - 200;
 
-          if (top >= screenWithBottomMargin) {
+          if (top >= screenWithMargin) {
             _this12.drawer.scrollTo({
-              top: top - screenWithBottomMargin / 2,
+              top: top - screenWithMargin / 2,
               behavior: 'smooth'
             });
           }
 
-          clearTimeout(_this12.scrollTimeout);
+          clearTimeout(scrollTimeout);
         }, 750);
       },
       setActiveSlideProperty: function setActiveSlideProperty(position) {
@@ -6324,6 +6312,8 @@ __webpack_require__(/*! ./flatpickr */ "./resources/js/flatpickr.js");
 __webpack_require__(/*! ./navigation-bar */ "./resources/js/navigation-bar.js");
 
 __webpack_require__(/*! ../../vendor/wire-elements/modal/resources/js/modal */ "./vendor/wire-elements/modal/resources/js/modal.js");
+
+__webpack_require__(/*! ./webspellchecker_tlc */ "./resources/js/webspellchecker_tlc.js");
 
 window.ClassicEditors = [];
 
@@ -6838,7 +6828,7 @@ window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
 window.Pusher = __webpack_require__(/*! pusher-js */ "./node_modules/pusher-js/dist/web/pusher.js");
 window.Echo = new laravel_echo__WEBPACK_IMPORTED_MODULE_0__["default"]({
   broadcaster: 'pusher',
-  key: "fc18ed69b446aeb8c8a5",
+  key: "2149988ad52a600a2309",
   cluster: "eu",
   forceTLS: true
 });
@@ -6927,6 +6917,23 @@ Core = {
 
     window.Livewire.emit('setFraudDetected');
     alert = true;
+  },
+  lostFocusWithoutReporting: function lostFocusWithoutReporting(text) {
+    if (!isMakingTest()) {
+      return;
+    }
+
+    var testtakemanager = document.querySelector("[testtakemanager]");
+
+    if (testtakemanager != null) {
+      livewire.find(testtakemanager.getAttribute("wire:id")).shouldFraudNotificationsBeShown().then(function (response) {
+        if (response.shouldFraudNotificationsBeShown) {
+          Notify.notify(text, "error");
+        }
+      });
+    }
+
+    window.Livewire.emit("setFraudDetected");
   },
   isIpad: function isIpad() {
     // var standalone = window.navigator.standalone,
@@ -10411,6 +10418,7 @@ var Layer = /*#__PURE__*/function (_sidebarComponent2) {
       layerGroup.id = this.props.id;
       var headerTitle = templateCopy.querySelector(".header-title");
       headerTitle.innerText = this.props.name;
+      headerTitle.setAttribute("selid", "header-".concat(this.props.id));
       headerTitle.setAttribute('data-layer', this.props.id);
       headerTitle.closest('.header-container').setAttribute('data-layer', this.props.id);
       this.header = templateCopy.querySelector(".header");
@@ -12896,18 +12904,22 @@ document.addEventListener('alpine:init', function () {
         this.hideTimeout = setTimeout(function () {
           _this2.tileItemsHide();
 
-          tiles.style.setProperty('--top', '0px');
+          tiles.style.setProperty('--top', '50px');
           tiles.style.paddingLeft = '0px';
           clearTimeout(_this2.hideTimeout);
 
+          _this2.$dispatch('tiles-hidden');
+
           if (reset) {
             _this2.resetActiveState();
+
+            _this2.$dispatch('tiles-shown');
           }
         }, timeout); // alert(this.$wire.activeRoute.main == '');
       },
       resetActiveState: function resetActiveState() {
         if (this.$wire.activeRoute.sub !== '') {
-          tiles.style.setProperty('--top', '98px');
+          tiles.style.setProperty('--top', '100px');
           var activeTile = tiles.querySelector('.' + this.$wire.activeRoute.main);
           activeTile.style.display = "flex"; //menu item
 
@@ -12921,7 +12933,8 @@ document.addEventListener('alpine:init', function () {
       tilesBarShow: function tilesBarShow() {
         clearTimeout(this.hideTimeout);
         tiles.style.paddingLeft = '0px';
-        tiles.style.setProperty('--top', '98px');
+        tiles.style.setProperty('--top', '100px');
+        this.$dispatch('tiles-shown');
       },
       userMenuShow: function userMenuShow() {
         var _this3 = this;
@@ -12996,11 +13009,13 @@ document.addEventListener('alpine:init', function () {
 
 Notify = {
   notify: function notify(message, initialType) {
+    var title = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
     var type = initialType ? initialType : 'info';
     window.dispatchEvent(new CustomEvent('notify', {
       detail: {
         message: message,
-        type: type
+        type: type,
+        title: title
       }
     }));
   }
@@ -13126,12 +13141,23 @@ RichTextEditor = {
     });
   },
   initCMS: function initCMS(editorId) {
+    var lang = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 'nl_NL';
+    var wsc = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
     var editor = CKEDITOR.instances[editorId];
 
     if (editor) {
       editor.destroy(true);
     }
 
+    if (wsc) {
+      CKEDITOR.disableAutoInline = true;
+      CKEDITOR.config.removePlugins = 'scayt,wsc';
+    }
+
+    CKEDITOR.on('instanceReady', function (event) {
+      var editor = event.editor;
+      WebspellcheckerTlc.forTeacherQuestion(editor, lang, wsc);
+    });
     CKEDITOR.replace(editorId, {});
     editor = CKEDITOR.instances[editorId];
     editor.on('change', function (e) {
@@ -13147,12 +13173,23 @@ RichTextEditor = {
     });
   },
   initSelectionCMS: function initSelectionCMS(editorId) {
+    var lang = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 'nl_NL';
+    var wsc = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
     var editor = CKEDITOR.instances[editorId];
 
     if (editor) {
       editor.destroy(true);
     }
 
+    if (wsc) {
+      CKEDITOR.disableAutoInline = true;
+      CKEDITOR.config.removePlugins = 'scayt,wsc';
+    }
+
+    CKEDITOR.on('instanceReady', function (event) {
+      var editor = event.editor;
+      WebspellcheckerTlc.forTeacherQuestion(editor, lang, wsc);
+    });
     CKEDITOR.replace(editorId, {
       extraPlugins: 'selection,simpleuploads,quicktable,ckeditor_wiris,autogrow,wordcount,notification',
       toolbar: [{
@@ -13180,12 +13217,23 @@ RichTextEditor = {
     });
   },
   initCompletionCMS: function initCompletionCMS(editorId) {
+    var lang = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 'nl_NL';
+    var wsc = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
     var editor = CKEDITOR.instances[editorId];
 
     if (editor) {
       editor.destroy(true);
     }
 
+    if (wsc) {
+      CKEDITOR.disableAutoInline = true;
+      CKEDITOR.config.removePlugins = 'scayt,wsc';
+    }
+
+    CKEDITOR.on('instanceReady', function (event) {
+      var editor = event.editor;
+      WebspellcheckerTlc.forTeacherQuestion(editor, lang, wsc);
+    });
     CKEDITOR.replace(editorId, {
       extraPlugins: 'completion,simpleuploads,quicktable,ckeditor_wiris,autogrow,wordcount,notification',
       toolbar: [{
@@ -13247,6 +13295,57 @@ RichTextEditor = {
         ReadspeakerTlc.ckeditor.addListenersForReadspeaker(editor, questionId, editorId);
         ReadspeakerTlc.ckeditor.disableContextMenuOnCkeditor();
       }
+    })["catch"](function (error) {
+      console.error(error);
+    });
+  },
+  initClassicEditorForTeacherplayerWsc: function initClassicEditorForTeacherplayerWsc(editorId, lang) {
+    var editor = ClassicEditors[editorId];
+
+    if (editor) {
+      editor.destroy(true);
+    }
+
+    return ClassicEditor.create(document.getElementById(editorId), {
+      autosave: {
+        waitingTime: 300,
+        save: function save(editor) {
+          editor.updateSourceElement();
+          editor.sourceElement.dispatchEvent(new Event('input'));
+        }
+      },
+      wproofreader: {
+        lang: lang,
+        serviceProtocol: 'https',
+        servicePort: '80',
+        serviceHost: 'testwsc.test-correct.nl',
+        servicePath: 'wscservice/api',
+        srcUrl: 'https://testwsc.test-correct.nl/wscservice/wscbundle/wscbundle.js'
+      }
+    }).then(function (editor) {
+      ClassicEditors[editorId] = editor;
+      WebspellcheckerTlc.lang(editor, lang); // WebspellcheckerTlc.setEditorToReadOnly(editor);
+    })["catch"](function (error) {
+      console.error(error);
+    });
+  },
+  initClassicEditorForTeacherplayer: function initClassicEditorForTeacherplayer(editorId) {
+    var editor = ClassicEditors[editorId];
+
+    if (editor) {
+      editor.destroy(true);
+    }
+
+    return ClassicEditor.create(document.getElementById(editorId), {
+      autosave: {
+        waitingTime: 300,
+        save: function save(editor) {
+          editor.updateSourceElement();
+          editor.sourceElement.dispatchEvent(new Event('input'));
+        }
+      }
+    }).then(function (editor) {
+      ClassicEditors[editorId] = editor;
     })["catch"](function (error) {
       console.error(error);
     });
@@ -13458,6 +13557,50 @@ function shouldSwipeDirectionBeReturned(target) {
   });
   return returnDirection;
 }
+
+/***/ }),
+
+/***/ "./resources/js/webspellchecker_tlc.js":
+/*!*********************************************!*\
+  !*** ./resources/js/webspellchecker_tlc.js ***!
+  \*********************************************/
+/***/ (() => {
+
+WebspellcheckerTlc = {
+  forTeacherQuestion: function forTeacherQuestion(editor, language) {
+    var wsc = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : true;
+
+    if (!wsc) {
+      return;
+    }
+
+    var instance = WEBSPELLCHECKER.init({
+      container: editor.window.getFrame() ? editor.window.getFrame().$ : editor.element.$,
+      spellcheckLang: language,
+      localization: 'nl'
+    });
+    instance.setLang(language);
+  },
+  lang: function lang(editor, language) {
+    var i = 0;
+    var timer = setInterval(function () {
+      ++i;
+      if (i === 50) clearInterval(timer);
+
+      if (typeof WEBSPELLCHECKER != "undefined") {
+        WEBSPELLCHECKER.getInstances().forEach(function (instance) {
+          instance.setLang(language);
+        });
+        clearInterval(timer);
+      }
+    }, 200);
+  },
+  setEditorToReadOnly: function setEditorToReadOnly(editor) {
+    setTimeout(function () {
+      editor.ui.view.editable.element.setAttribute('contenteditable', false);
+    }, 3000);
+  }
+};
 
 /***/ }),
 
@@ -65634,6 +65777,19 @@ __webpack_require__.r(__webpack_exports__);
 
 /***/ }),
 
+/***/ "./resources/css/print-test-pdf.css":
+/*!******************************************!*\
+  !*** ./resources/css/print-test-pdf.css ***!
+  \******************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+// extracted by mini-css-extract-plugin
+
+
+/***/ }),
+
 /***/ "./node_modules/plyr/dist/plyr.min.js":
 /*!********************************************!*\
   !*** ./node_modules/plyr/dist/plyr.min.js ***!
@@ -75278,7 +75434,8 @@ module.exports = JSON.parse('{"name":"axios","version":"0.21.4","description":"P
 /******/ 		var installedChunks = {
 /******/ 			"/js/app": 0,
 /******/ 			"css/app": 0,
-/******/ 			"css/app_pdf": 0
+/******/ 			"css/app_pdf": 0,
+/******/ 			"css/print-test-pdf": 0
 /******/ 		};
 /******/ 		
 /******/ 		// no chunk on demand loading
@@ -75328,9 +75485,10 @@ module.exports = JSON.parse('{"name":"axios","version":"0.21.4","description":"P
 /******/ 	// startup
 /******/ 	// Load entry module and return exports
 /******/ 	// This entry module depends on other loaded chunks and execution need to be delayed
-/******/ 	__webpack_require__.O(undefined, ["css/app","css/app_pdf"], () => (__webpack_require__("./resources/js/app.js")))
-/******/ 	__webpack_require__.O(undefined, ["css/app","css/app_pdf"], () => (__webpack_require__("./resources/css/app.css")))
-/******/ 	var __webpack_exports__ = __webpack_require__.O(undefined, ["css/app","css/app_pdf"], () => (__webpack_require__("./resources/css/app_pdf.css")))
+/******/ 	__webpack_require__.O(undefined, ["css/app","css/app_pdf","css/print-test-pdf"], () => (__webpack_require__("./resources/js/app.js")))
+/******/ 	__webpack_require__.O(undefined, ["css/app","css/app_pdf","css/print-test-pdf"], () => (__webpack_require__("./resources/css/app.css")))
+/******/ 	__webpack_require__.O(undefined, ["css/app","css/app_pdf","css/print-test-pdf"], () => (__webpack_require__("./resources/css/app_pdf.css")))
+/******/ 	var __webpack_exports__ = __webpack_require__.O(undefined, ["css/app","css/app_pdf","css/print-test-pdf"], () => (__webpack_require__("./resources/css/print-test-pdf.css")))
 /******/ 	__webpack_exports__ = __webpack_require__.O(__webpack_exports__);
 /******/ 	
 /******/ })()
