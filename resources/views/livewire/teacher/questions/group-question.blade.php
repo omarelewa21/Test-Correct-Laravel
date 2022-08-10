@@ -66,7 +66,7 @@
         </div>
     </x-input.group>
 
-    <div wire:ignore >
+{{--    <div wire:ignore >--}}
 {{--        @php--}}
 {{--            if($allowWsc){--}}
 {{--                $initFunctionCall = "RichTextEditor.initClassicEditorForTeacherplayerWsc('".$questionEditorId."','".$lang."')";--}}
@@ -84,9 +84,10 @@
                     editorId="{{ $questionEditorId }}"
                     type="cms"
                     :disabled="isset($preview)"
+                    :allowWsc="$allowWsc"
             />
         </x-input.group>
-    </div>
+{{--    </div>--}}
 
 @endsection
 
