@@ -13,7 +13,6 @@
                         <livewire:test-print.multiple-select-question
                                 :question="$testQuestion"
                                 :number="$questionFollowUpNumber++"
-                                :answers="$answers"
                                 :test="$test"
                                 :attachment_counters="$attachment_counters"
                                 wire:key="'q-'.$testQuestion->uuid'"
@@ -22,7 +21,6 @@
                         <livewire:test-print.multiple-choice-question
                                 :question="$testQuestion"
                                 :number="$questionFollowUpNumber++"
-                                :answers="$answers"
                                 :test="$test"
                                 :attachment_counters="$attachment_counters"
                                 wire:key="'q-'.$testQuestion->uuid'"
@@ -31,7 +29,6 @@
                         <livewire:test-print.open-question
                                 :question="$testQuestion"
                                 :number="$questionFollowUpNumber++"
-                                :answers="$answers"
                                 :test="$test"
                                 :attachment_counters="$attachment_counters"
                                 wire:key="'q-'.$testQuestion->uuid'"
@@ -40,7 +37,6 @@
                         <livewire:test-print.matching-question
                                 :question="$testQuestion"
                                 :number="$questionFollowUpNumber++"
-                                :answers="$answers"
                                 :test="$test"
                                 :attachment_counters="$attachment_counters"
                                 wire:key="'q-'.$testQuestion->uuid'"
@@ -49,7 +45,6 @@
                         <livewire:test-print.completion-question
                                 :question="$testQuestion"
                                 :number="$questionFollowUpNumber++"
-                                :answers="$answers"
                                 :test="$test"
                                 :attachment_counters="$attachment_counters"
                                 wire:key="'q-'.$testQuestion->uuid'"
@@ -58,7 +53,6 @@
                         <livewire:test-print.ranking-question
                                 :question="$testQuestion"
                                 :number="$questionFollowUpNumber++"
-                                :answers="$answers"
                                 :test="$test"
                                 wire:key="'q-'.$testQuestion->uuid'"
                         />
@@ -66,7 +60,6 @@
                         <livewire:test-print.info-screen-question
                                 :question="$testQuestion"
                                 :number="$questionFollowUpNumber++"
-                                :answers="$answers"
                                 :test="$test"
                                 :attachment_counters="$attachment_counters"
                                 wire:key="'q-'.$testQuestion->uuid"
@@ -75,7 +68,6 @@
                         <livewire:test-print.drawing-question
                                 :question="$testQuestion"
                                 :number="$questionFollowUpNumber++"
-                                :answers="$answers"
                                 :test="$test"
                                 :attachment_counters="$attachment_counters"
                                 wire:key="'q-'.$testQuestion->uuid"
@@ -84,7 +76,6 @@
                         <livewire:test-print.matrix-question
                                 :question="$testQuestion"
                                 :number="$questionFollowUpNumber++"
-                                :answers="$answers"
                                 :test="$test"
                                 :attachment_counters="$attachment_counters"
                                 wire:key="'q-'.$testQuestion->uuid"

@@ -30,6 +30,8 @@ return [
     'video'                                => 'Video',
     'audio'                                => 'Sound fragment',
     'audio_text'                           => 'Ask your teacher for the sound clip of this question',
+    'pdf'                                  => 'PDF',
+    'pdf_text'                             => 'The PDF attachment of this question has been provided to you separately by your teacher.',
     'printversion_test'                    => 'Printversion test:',
     'printversion_test_attachments'        => 'Printversion test pdf-attachments:',
 ];

@@ -1,4 +1,4 @@
-<x-partials.test-print-question-container :number="$number" :question="$question" :answer="$answer">
+<x-partials.test-print-question-container :number="$number" :question="$question">
 
     <div class="flex flex-1 flex-col space-y-2">
         <div class="flex flex-col space-y-3 children-block-pdf">

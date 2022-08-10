@@ -139,7 +139,7 @@ class PrintTestController extends Controller
         $titleForPdfPage = __('test-pdf.printversion_test') . ' ' . $this->test->name . ' ' . Carbon::now()->format('d-m-Y H:i');
         view()->share('titleForPdfPage', $titleForPdfPage);
         ini_set('max_execution_time', '90');
-        $html = view('test-print', compact(['data', 'answers', 'nav', 'styling', 'test', 'attachment_counters']))->render();
+        $html = view('test-print', compact(['data', 'nav', 'styling', 'test', 'attachment_counters']))->render();
 
         return PdfController::createTestPrintPdf($html, $header, $footer);
     }

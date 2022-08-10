@@ -587,19 +587,18 @@
     vertical-align: top;
 }
 
-.test-print-pdf .even-image-attachment {
+.test-print-pdf .even-attachment {
     margin-left: 1rem;
 }
 
 .test-print-pdf .image-container {
-    display: inline-block;
-    vertical-align: top;
+
 }
 
 .test-print-pdf .image-container > div {
     border: 1px solid black;
     border-radius: 10px;
-    width: 400px
+    width: 400px;
 }
 
 .test-print-pdf .image-container img {
@@ -614,13 +613,11 @@
 
 .test-print-pdf .image-container,
 .test-print-pdf .video-container,
+.test-print-pdf .pdf-container,
 .test-print-pdf .audio-container {
     margin-top: 1rem;
     page-break-inside: avoid;
-}
-
-.test-print-pdf .video-container,
-.test-print-pdf .audio-container {
-    width: 800px;
-
+    width: 400px;
+    display: inline-block;
+    vertical-align: top;
 }

@@ -24,8 +24,6 @@ class QuestionAttachments extends Component
         $this->attachments = $this->attachments->map(function ($attachment) {
             $attachment->filetype = $attachment->getFileType();
             return $attachment;
-        })->reject(function ($attachment) {
-            return $attachment->filetype == 'pdf';
-        })->sortBy('filetype');
+        });
     }
 }
