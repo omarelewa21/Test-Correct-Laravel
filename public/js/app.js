@@ -5926,6 +5926,7 @@ document.addEventListener('alpine:init', function () {
       resizeTimout: null,
       slides: ['home', 'type', 'newquestion', 'questionbank'],
       activeSlide: null,
+      scrollTimeout: null,
       init: function init() {
         var _this8 = this;
 
@@ -5949,14 +5950,15 @@ document.addEventListener('alpine:init', function () {
         this.handleVerticalScroll(currentEl.previousElementSibling);
       },
       home: function home() {
-        this.scroll(0);
+        var scrollActiveIntoView = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : true;
+        this.scroll(0, scrollActiveIntoView);
         if (!this.$store.cms.emptyState) this.$dispatch('backdrop');
         this.handleVerticalScroll(this.$refs.home);
       },
       scroll: function scroll(position) {
-        this.setActiveSlideProperty(position); // this.drawer.scrollTo({top: 0, behavior: 'smooth'});
-
-        this.scrollActiveQuestionIntoView();
+        var scrollActiveIntoView = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : true;
+        this.setActiveSlideProperty(position);
+        if (scrollActiveIntoView) this.scrollActiveQuestionIntoView();
         this.$refs.questionEditorSidebar.scrollTo({
           left: position >= 0 ? position : 0,
           behavior: 'smooth'
@@ -6089,24 +6091,24 @@ document.addEventListener('alpine:init', function () {
       scrollActiveQuestionIntoView: function scrollActiveQuestionIntoView() {
         var _this12 = this;
 
-        var scrollTimeout = setTimeout(function () {
-          if (_this12.$refs.questionEditorSidebar.scrollLeft > 0) return;
-
+        if (this.activeSlide !== 'home') return;
+        clearTimeout(this.scrollTimeout);
+        this.scrollTimeout = setTimeout(function () {
           var activeQuestion = _this12.$refs.home.querySelector('.question-button.question-active');
 
           activeQuestion || (activeQuestion = _this12.$refs.home.querySelector('.group-active'));
-          if (activeQuestion === null) return;
+          if (activeQuestion === null) return clearTimeout(_this12.scrollTimeout);
           var top = activeQuestion.getBoundingClientRect().top;
-          var screenWithMargin = window.screen.height - 200;
+          var screenWithBottomMargin = window.screen.height - 200;
 
-          if (top >= screenWithMargin) {
+          if (top >= screenWithBottomMargin) {
             _this12.drawer.scrollTo({
-              top: top - screenWithMargin / 2,
+              top: top - screenWithBottomMargin / 2,
               behavior: 'smooth'
             });
           }
 
-          clearTimeout(scrollTimeout);
+          clearTimeout(_this12.scrollTimeout);
         }, 750);
       },
       setActiveSlideProperty: function setActiveSlideProperty(position) {

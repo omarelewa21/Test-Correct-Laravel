@@ -6,7 +6,12 @@
            this.dummyVisible = this.mode === 'add' && this.owner === 'test';
         },
         init() {
-            this.$watch('dummyVisible', value => this.$dispatch('scroll-dummy-into-view'))
+            this.$watch('dummyVisible', value => {
+                if(!value) return;
+                this.$nextTick(() => {
+                    this.$dispatch('scroll-dummy-into-view')
+                })
+            });
         }
      }"
      x-show="dummyVisible"
