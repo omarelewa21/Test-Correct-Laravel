@@ -310,9 +310,9 @@ class OpenShort extends Component implements QuestionCms
     // @TODO is deze test uberhaupt onderdeel van deze test?
     public function mount()
     {
-        $this->resetQuestionProperties();
         $activeTest = Test::whereUuid($this->testId)->with('testAuthors', 'testAuthors.user')->first();
         $this->testLang = $activeTest->lang;
+        $this->resetQuestionProperties();
         $this->canDeleteTest = $activeTest->canDelete(Auth::user());
         if (blank($this->type) && blank($this->subtype)) {
             $this->testName = $activeTest->name;
@@ -484,11 +484,6 @@ class OpenShort extends Component implements QuestionCms
             return $this->obj->$method();
         }
         return true;
-    }
-
-    public function showLanguageSelector()
-    {
-        return $this->obj instanceof CmsWritingAssignment;
     }
 
     private function saveNewQuestion()
