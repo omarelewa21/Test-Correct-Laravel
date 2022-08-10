@@ -70,7 +70,7 @@ class ExcelSchoolImportManifest
         $this->checkSchoolsIntegrity($importer);
         $this->checkSchoolLocationsIntegrity($importer);
         if($this->hasErrors() && $doValidationCheck){
-            throw new SchoolAndSchoolLocationsImportException(implode(PHP_EOL,$this->getErrors()));
+            throw new SchoolAndSchoolLocationsImportException(json_encode($this->getErrors()));
         }
     }
 
@@ -161,9 +161,9 @@ class ExcelSchoolImportManifest
                             $this->addError(sprintf('We have different school names (db:%s => import:%s) with the BRIN four %s', $fromDB->name, $row['name'], $row['external_main_code']));
                         }
 
-                        $this->transformedSchools = $this->transformedSchools->reject(function ($row) use ($fromDB) {
-                            return Str::lower($row['external_main_code']) === Str::lower($fromDB->external_main_code);
-                        });
+//                        $this->transformedSchools = $this->transformedSchools->reject(function ($row) use ($fromDB) {
+//                            return Str::lower($row['external_main_code']) === Str::lower($fromDB->external_main_code);
+//                        });
                     }
                 }
             } else {
@@ -187,6 +187,7 @@ class ExcelSchoolImportManifest
             $importer->inform('going to check the integrity of the school locations');
         }
         $this->getTransformedSchoolLocations()->each(function($row, $key) use($inDB, &$externalMainCodesInImport,&$externalBRINInImport, &$customerCodesInImport, $importer){
+            $importer->inform('checking integrity of '.$row['name']);
             $fromDBFound = false;
             if($importer && method_exists($importer,'inform')){
                 $importer->inform('checking location '.$row['name']);
@@ -247,9 +248,9 @@ class ExcelSchoolImportManifest
                             $this->addError(sprintf('We have different school location names (db:%s => import:%s) with the BRIN %s-%s', $fromDB->name, $row['name'], $row['external_main_code'], $row['external_sub_code']));
                         }
 
-                        $this->transformedSchoolLocations = $this->transformedSchoolLocations->reject(function ($row) use ($fromDB) {
-                            return Str::lower($row['external_main_code']) === Str::lower($fromDB->external_main_code) && Str::lower($row['external_sub_code']) === Str::lower($fromDB->external_sub_code);
-                        });
+//                        $this->transformedSchoolLocations = $this->transformedSchoolLocations->reject(function ($row) use ($fromDB) {
+//                            return Str::lower($row['external_main_code']) === Str::lower($fromDB->external_main_code) && Str::lower($row['external_sub_code']) === Str::lower($fromDB->external_sub_code);
+//                        });
                     }
                 }
             } else {

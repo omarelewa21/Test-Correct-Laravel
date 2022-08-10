@@ -11,6 +11,7 @@ use tcCore\EducationLevel;
 use tcCore\ExcelSchoolImportManifest;
 use tcCore\Exceptions\SchoolAndSchoolLocationsImportException;
 use tcCore\Jobs\CreateSchoolLocationFromImport;
+use tcCore\Jobs\UpdateSchoolLocationFromImport;
 use tcCore\School;
 use tcCore\SchoolLocation;
 use tcCore\UmbrellaOrganization;
@@ -103,7 +104,7 @@ class SchoolImportHelper
     public function inform($info)
     {
         if($this->echoDetails){
-            echo $info.PHP_EOL;
+            echo ($info.PHP_EOL);
         }
     }
 
@@ -125,9 +126,8 @@ class SchoolImportHelper
     protected function handleSchools()
     {
         $data = $this->manifest->getTransformedSchools();
-
         $data->each(function($row){
-           if($school = School::where('customer_code',$row['customer_code'])->exists()){
+           if($school = School::where('customer_code',$row['customer_code'])->first()){
                if($row['name'] !== '-') {
                    $this->updateSchoolFromImport($school, (array)$row, $this->user);
                }
@@ -143,11 +143,14 @@ class SchoolImportHelper
     {
         $data = $this->manifest->getTransformedSchoolLocations();
         $data->each(function($row){
-            if(!SchoolLocation::where('external_main_code',$row['external_main_code'])->where('external_sub_code',$row['external_sub_code'])->exists()) {
-                if($row['name'] !== '-') {
-                    $this->inform('dispatch school location '.$row['name'].' => memory '.$this->getMemorySize());
-                    dispatch(new CreateSchoolLocationFromImport($row,$this->user));
+            if($row['name'] !== '-') {
+                if(!SchoolLocation::where('customer_code',$row['customer_code'])->exists()) {
+                    $this->inform('dispatch create school location '.$row['name'].' => memory '.$this->getMemorySize());
+                    CreateSchoolLocationFromImport::dispatch($row,$this->user);
 //                    $location = $this->createSchoolLocation($row, $this->user);
+                } else {
+                    $this->inform('dispatch update school location '.$row['name'].' => memory '.$this->getMemorySize());
+                    UpdateSchoolLocationFromImport::dispatch($row,$this->user);
                 }
             }
         });
@@ -193,7 +196,7 @@ class SchoolImportHelper
         $this->schoolLocationId = null;
         foreach($data as $key => $value){
             if($value == '-'){
-                if($school->$key){
+                if($school->$key != ''){
                    continue;
                 }
             }
@@ -204,17 +207,21 @@ class SchoolImportHelper
         $school->save();
     }
 
-    protected function updateSchoolLocationFromImport(SchoolLocation $schoolLocation, $data, $user = null)
+    public function updateSchoolLocationFromImport(SchoolLocation $schoolLocation, $data)
     {
         foreach($data as $key => $value){
             if($value == '-'){
-                if($schoolLocation->$key){
+                if($schoolLocation->$key != ''){
                     continue;
                 }
             }
-            if(property_exists($schoolLocation,$key)) {
+            if($schoolLocation->hasAttribute($key)) {
                 $schoolLocation->$key = $value;
             }
+        }
+        $schoolId = School::where('external_main_code',$data['brin_nummer'])->value('id');
+        if($schoolId){
+            $schoolLocation->school_id = $schoolId;
         }
         $schoolLocation->save();
     }
@@ -292,6 +299,13 @@ class SchoolImportHelper
 
         $data = $this->enhanceDataWithUser($data, $user);
         $class->fill($data);
+
+        if($class instanceof SchoolLocation){
+            $schoolId = School::where('external_main_code',$data['brin_nummer'])->value('id');
+            if($schoolId){
+                $class->school_id = $schoolId;
+            }
+        }
 
         if(!$class->save()){
             throw new SchoolAndSchoolLocationsImportException("Could not add the ".get_class($class)." with name ".$data['name']);
