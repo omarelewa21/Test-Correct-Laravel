@@ -4,6 +4,7 @@ namespace tcCore\View\Components\TestPrintPdf;
 
 use Carbon\Carbon;
 use Illuminate\View\Component;
+use tcCore\Lib\Repositories\PeriodRepository;
 
 class CoverHeader extends Component
 {
@@ -49,7 +50,7 @@ class CoverHeader extends Component
                 'test'     => $this->test,
                 'testType' => $this->testType,
                 'date'     => $this->date,
-                'period'   => $this->testTake->period->name ?? $this->test->period->name ?? '',
+                'period'   => PeriodRepository::getCurrentPeriod()->name ?? '',
             ]);
     }
 }

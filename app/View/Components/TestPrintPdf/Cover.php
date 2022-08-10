@@ -8,7 +8,7 @@ use tcCore\Test;
 class Cover extends Component
 {
     public $test;
-    public $showExamAttachmentsText = false;
+    public $attachmentsText = null;
 
     /**
      * Create a new component instance.
@@ -19,10 +19,11 @@ class Cover extends Component
     {
         $this->test = $test;
 
-        //todo logic when to show attachments informational text
-        //$this->showAttachmentsText = false;
-        if($this->test->scope == 'exam'){
-            $this->showExamAttachmentsText = true;
+        if($test->hasPdfAttachments && $this->test->scope == 'exam') {
+            $this->attachmentsText = __('test-pdf.cover exam attachments text');
+        }
+        elseif($test->hasPdfAttachments ) {
+            $this->attachmentsText = __('test-pdf.cover test attachments text');
         }
     }
 
@@ -36,7 +37,7 @@ class Cover extends Component
         return view('components.test-print-pdf.cover')
             ->with([
                 'test'                => $this->test,
-                'showExamAttachmentsText' => $this->showExamAttachmentsText,
+                'attachmentsText' => $this->attachmentsText,
             ]);
     }
 }
