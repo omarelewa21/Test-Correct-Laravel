@@ -4,6 +4,7 @@ namespace tcCore\Http\Livewire\Teacher\Questions;
 
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
@@ -303,8 +304,10 @@ class OpenShort extends Component implements QuestionCms
     // @TODO is deze test uberhaupt onderdeel van deze test?
     public function mount()
     {
+        $activeTest = Test::whereUuid($this->testId)->with('testAuthors', 'testAuthors.user')->firstOrFail();
+        Gate::authorize('isAuthorOfTest',[$activeTest]);
+
         $this->resetQuestionProperties();
-        $activeTest = Test::whereUuid($this->testId)->with('testAuthors', 'testAuthors.user')->first();
         $this->canDeleteTest = $activeTest->canDelete(Auth::user());
         if (blank($this->type) && blank($this->subtype)) {
             $this->testName = $activeTest->name;
