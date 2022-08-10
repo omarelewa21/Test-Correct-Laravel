@@ -2,6 +2,7 @@
 
 namespace tcCore\Http\Livewire\Teacher;
 
+use Illuminate\Support\Facades\Gate;
 use Livewire\Component;
 use tcCore\GroupQuestion;
 use tcCore\Question;
@@ -23,6 +24,9 @@ class TestDetail extends Component
 
     public function mount($uuid)
     {
+//        @TODO: Should this be implemented ?;
+//        Gate::authorize('canViewTestDetails',[Test::findByUuid($uuid)]);
+
         $this->uuid = $uuid;
     }
 

@@ -4,6 +4,7 @@ namespace tcCore\Http\Livewire\Teacher\Questions;
 
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
@@ -310,6 +311,8 @@ class OpenShort extends Component implements QuestionCms
     public function mount()
     {
         $activeTest = Test::whereUuid($this->testId)->with('testAuthors', 'testAuthors.user')->first();
+        Gate::authorize('isAuthorOfTest',[$activeTest]);
+
         $this->testLang = $activeTest->lang;
         $this->resetQuestionProperties();
         $this->canDeleteTest = $activeTest->canDelete(Auth::user());
