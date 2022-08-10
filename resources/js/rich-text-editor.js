@@ -33,6 +33,7 @@ RichTextEditor = {
         CKEDITOR.on('instanceReady', function(event) {
             var editor = event.editor;
             WebspellcheckerTlc.forTeacherQuestion(editor,lang,wsc);
+
         });
         CKEDITOR.replace(editorId, {});
         editor = CKEDITOR.instances[editorId];
@@ -60,6 +61,7 @@ RichTextEditor = {
         CKEDITOR.on('instanceReady', function(event) {
             var editor = event.editor;
             WebspellcheckerTlc.forTeacherQuestion(editor,lang,wsc);
+
         });
         CKEDITOR.replace(editorId, {
             extraPlugins: 'selection,simpleuploads,quicktable,ckeditor_wiris,autogrow,wordcount,notification',

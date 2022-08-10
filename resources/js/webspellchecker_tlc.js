@@ -4,12 +4,11 @@ WebspellcheckerTlc = {
             if(!wsc){
                 return;
             }
-            var instance = WEBSPELLCHECKER.init({
-                container: editor.window.getFrame() ? editor.window.getFrame().$ : editor.element.$,
-                spellcheckLang: language,
-                localization: 'nl'
+            WebspellcheckerTlc.initWsc(editor,language);
+            editor.on('resize', function (event) {
+                WebspellcheckerTlc.triggerWsc(editor,language);
             });
-            instance.setLang(language);
+            editor.focus();
         },
     lang: function(editor, language) {
         var i = 0;
@@ -26,6 +25,25 @@ WebspellcheckerTlc = {
     },
     setEditorToReadOnly: function(editor) {
         setTimeout(function(){editor.ui.view.editable.element.setAttribute('contenteditable',false)},3000);
+    },
+    triggerWsc: function(editor,language){
+        if(editor.element.$.parentNode.getElementsByClassName('wsc_badge').length==0){
+            WebspellcheckerTlc.initWsc(editor,language);
+        }
+    },
+    initWsc: function(editor,language){
+        setTimeout(function () {
+            var instance = WEBSPELLCHECKER.init({
+                container: editor.window.getFrame() ? editor.window.getFrame().$ : editor.element.$,
+                spellcheckLang: language,
+                localization: 'nl'
+            });
+            try {
+                instance.setLang(language);
+            }catch (e) {
+                console.dir(e);
+            }
+        }, 1000);
     }
 
 }

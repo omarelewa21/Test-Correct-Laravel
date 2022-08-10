@@ -6831,7 +6831,7 @@ window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
 window.Pusher = __webpack_require__(/*! pusher-js */ "./node_modules/pusher-js/dist/web/pusher.js");
 window.Echo = new laravel_echo__WEBPACK_IMPORTED_MODULE_0__["default"]({
   broadcaster: 'pusher',
-  key: "2149988ad52a600a2309",
+  key: "51d7221bf733999d7138",
   cluster: "eu",
   forceTLS: true
 });
@@ -13593,12 +13593,11 @@ WebspellcheckerTlc = {
       return;
     }
 
-    var instance = WEBSPELLCHECKER.init({
-      container: editor.window.getFrame() ? editor.window.getFrame().$ : editor.element.$,
-      spellcheckLang: language,
-      localization: 'nl'
+    WebspellcheckerTlc.initWsc(editor, language);
+    editor.on('resize', function (event) {
+      WebspellcheckerTlc.triggerWsc(editor, language);
     });
-    instance.setLang(language);
+    editor.focus();
   },
   lang: function lang(editor, language) {
     var i = 0;
@@ -13618,6 +13617,26 @@ WebspellcheckerTlc = {
     setTimeout(function () {
       editor.ui.view.editable.element.setAttribute('contenteditable', false);
     }, 3000);
+  },
+  triggerWsc: function triggerWsc(editor, language) {
+    if (editor.element.$.parentNode.getElementsByClassName('wsc_badge').length == 0) {
+      WebspellcheckerTlc.initWsc(editor, language);
+    }
+  },
+  initWsc: function initWsc(editor, language) {
+    setTimeout(function () {
+      var instance = WEBSPELLCHECKER.init({
+        container: editor.window.getFrame() ? editor.window.getFrame().$ : editor.element.$,
+        spellcheckLang: language,
+        localization: 'nl'
+      });
+
+      try {
+        instance.setLang(language);
+      } catch (e) {
+        console.dir(e);
+      }
+    }, 1000);
   }
 };
 
