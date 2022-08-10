@@ -25,7 +25,7 @@ class TestDetail extends Component
     public function mount($uuid)
     {
 //        @TODO: Should this be implemented ?;
-//        Gate::authorize('canViewTestDetails',[Test::findByUuid($uuid)]);
+        Gate::authorize('canViewTestDetails',[Test::findByUuid($uuid)]);
 
         $this->uuid = $uuid;
     }

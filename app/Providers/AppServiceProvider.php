@@ -69,7 +69,7 @@ class AppServiceProvider extends ServiceProvider {
             return $test->canEdit($user);
         });
         Gate::define('canViewTestDetails', function (User $user, Test $test) {
-            return $test->canEdit($user) || $test->isNationalItem() || $test->canCopyFromSchool($user);
+            return $test->canViewTestDetails($user);
         });
     }
 
