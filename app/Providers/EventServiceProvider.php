@@ -39,9 +39,7 @@ class EventServiceProvider extends ServiceProvider {
 
             $entreeHelper->blockIfReplayAttackDetected();
 
-            if(!config('entree.use_with_2_urls')) {
-                $entreeHelper->blockIfEckIdAttributeIsNotPresent();
-            }
+            $entreeHelper->blockIfEckIdAttributeIsNotPresent();
 
             $entreeHelper->handleIfRegistering();
 

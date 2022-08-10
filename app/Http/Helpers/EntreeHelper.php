@@ -652,7 +652,7 @@ class EntreeHelper
     public function redirectIfSmallSetAndSsoAvailable($register = false)
     {
         $this->setLocationWithSamlAttributes();
-        if (optional($this->location)->sso_active == 1 && !$this->hasEmailAttribute()) {
+        if (optional($this->location)->sso_active == 1 && request()->get('set') !== 'full') {
             // we probably have a small set so go for the big set
             // we need an url to go to samle login with setting for the big set
             $url = route('saml2_login', ['idpName' => 'entree', 'set' => 'full','entreeRegister' => $register]);

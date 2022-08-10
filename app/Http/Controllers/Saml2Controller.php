@@ -122,6 +122,7 @@ class Saml2Controller extends Controller
         $forceAuth = true;
         if(config('entree.use_with_2_urls') && request()->get('set') === 'full'){
             $forceAuth = false;
+            $redirectTo .= '?set=full';
         }
         $saml2Auth->login($redirectTo, [], $forceAuth);
     }
