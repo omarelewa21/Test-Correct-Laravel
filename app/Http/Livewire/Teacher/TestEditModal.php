@@ -31,28 +31,30 @@ class TestEditModal extends ModalComponent
         $this->allowedPeriods = $this->getAllowedPeriods();
         $this->allowedEductionLevels = $this->getAllowedEducationLevels();
 
+        [$testKind, $subject, $edLevel, $edYear, $period] = $this->getRequestPropertiesForTest($test);
         $this->request = [
             'name'                 => $test->name,
             'abbreviation'         => $test->abbreviation,
-            'test_kind_id'         => $this->allowedTestKinds->contains($test->test_kind_id) ? $test->test_kind_id : $this->allowedTestKinds->first()->id,
-            'subject_id'           => $this->allowedSubjects->contains($test->subject_id) ? $test->subject_id : $this->allowedSubjects->first()->id,
-            'education_level_id'   => $this->allowedEductionLevels->contains($test->education_level_id) ? $test->education_level_id : $this->allowedEductionLevels->first()->id,
-            'education_level_year' => $this->allowedEductionLevels->contains($test->education_level_id) ? $test->education_level_year : 1,
-            'period_id'            => $this->allowedPeriods->contains($test->period_id) ? $test->period_id : $this->allowedPeriods->first()->id,
+            'test_kind_id'         => $testKind,
+            'subject_id'           => $subject,
+            'education_level_id'   => $edLevel,
+            'education_level_year' => $edYear,
+            'period_id'            => $period,
             'shuffle'              => $test->shuffle,
             'introduction'         => $test->introduction,
         ];
-        logger($this->request);
+
         $this->testForChangeAttributes = [
-                'subject_id'           => $test->subject_id,
-                'education_level_id'   => $test->education_level_id,
-                'education_level_year' => $test->education_level_year,
-            ];
+            'subject_id'           => $test->subject_id,
+            'education_level_id'   => $test->education_level_id,
+            'education_level_year' => $test->education_level_year,
+        ];
     }
 
-    private function shouldPromptForDuplicateOrUpdateModal(){
+    private function shouldPromptForDuplicateOrUpdateModal(): bool
+    {
         $result = false;
-        foreach($this->testForChangeAttributes as $key => $value) {
+        foreach ($this->testForChangeAttributes as $key => $value) {
             if ($this->request[$key] !== $value) {
                 $result = true;
             }
@@ -61,13 +63,12 @@ class TestEditModal extends ModalComponent
     }
 
 
-
     public function submit()
     {
         $test = Test::whereUuid($this->testUuid)->firstOrFail();
         $this->validate();
 
-        if (!$this->shouldPromptForDuplicateOrUpdateModal()){
+        if (!$this->shouldPromptForDuplicateOrUpdateModal()) {
             $this->saveTest($test);
 
             $this->forceClose()->closeModal();
@@ -78,7 +79,8 @@ class TestEditModal extends ModalComponent
         $this->emit('openModal', 'teacher.test-update-or-duplicate-confirm-modal', ['request' => $this->request, 'testUuid' => $this->testUuid]);
     }
 
-    private function saveTest($test) {
+    private function saveTest($test)
+    {
         $test->fill($this->request);
         $test->save();
     }
@@ -95,20 +97,14 @@ class TestEditModal extends ModalComponent
         }
     }
 
-    private function matchCurrentTestWithAllowedAttributes(Test $test)
+    private function getRequestPropertiesForTest(Test $test): array
     {
-        if(!$this->allowedSubjects->contains($test->subject_id)){
-            return true;
-        }
-        if(!$this->allowedTestKinds->contains($test->test_kind_id)){
-            return true;
-        }
-        if(!$this->allowedPeriods->contains($test->period_id)){
-            return true;
-        }
-        if(!$this->allowedEductionLevels->contains($test->eduction_level_id)){
-            return true;
-        }
-        return false;
+        return [
+            'testKind' => $this->allowedTestKinds->contains($test->test_kind_id) ? $test->test_kind_id : $this->allowedTestKinds->first()->id,
+            'subject'  => $this->allowedSubjects->contains($test->subject_id) ? $test->subject_id : $this->allowedSubjects->first()->id,
+            'edLevel'  => $this->allowedEductionLevels->contains($test->education_level_id) ? $test->education_level_id : $this->allowedEductionLevels->first()->id,
+            'edYear'   => $this->allowedEductionLevels->contains($test->education_level_id) ? $test->education_level_year : 1,
+            'period'   => $this->allowedPeriods->contains($test->period_id) ? $test->period_id : $this->allowedPeriods->first()->id
+        ];
     }
 }
