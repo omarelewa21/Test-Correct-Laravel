@@ -76,17 +76,13 @@ jzwnvGSTRr4zLbXwz+RZmkre'
         // Metadata productie omgeving: https://hub.entree.kennisnet.nl/openaselect/profiles/saml/
         'idp'      => array(
             // De unieke identifier van Entree Federatie
-            'entityId'            => 'https://aselect.entree.kennisnet.nl/',
+            'entityId'            => config('entree.use_with_2_urls') ? 'https://engine.entree.kennisnet.nl/authentication/idp/metadata' : 'https://aselect.entree.kennisnet.nl/',
 //        'entityId'            => 'https://aselect-s.entree.kennisnet.nl/',
             // Endpoint van Entree Federatie waar de authenticatie requests naar toegestuurd worden
             'singleSignOnService' => array(
                 // De URL van het endpoint
-                'url'     => 'https://aselect.entree.kennisnet.nl/openaselect/profiles/saml/sso/web',
+                'url'     => config('entree.use_with_2_urls') ? 'https://engine.entree.kennisnet.nl/authentication/idp/single-sign-on' : 'https://aselect.entree.kennisnet.nl/openaselect/profiles/saml/sso/web',
 //            'url'     => 'https://aselect-s.entree.kennisnet.nl/openaselect/profiles/saml/sso/web',
-                // new setup uses small and full set of attributes. We always start with the small set
-                // and do a rerun with the full set if the school location has sso active
-                'url_smallset' => 'a',
-                'url_fullset' => 'b',
                 // SAML protocol binding dat gebruikt wordt om de requests naar Entree Federatie te versturen
                 'binding' => 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST',
             ),
@@ -121,7 +117,7 @@ jzwnvGSTRr4zLbXwz+RZmkre'
 //    ),
             // @@ Dit certificaat vervangen voor PRODUCTIE
             // https://hub.entree.kennisnet.nl/openaselect/profiles/saml/
-            'x509cert' => 'MIID0TCCArmgAwIBAgIESb+pqDANBgkqhkiG9w0BAQsFADCBmDELMAkGA1UEBhMCTkwxFTATBgNV
+            'x509cert' => config('entree.use_with_2_urls') ? 'MIID2TCCAsGgAwIBAgIUAdQ6NGBVlN63JPQZIhLt6Rji2I0wDQYJKoZIhvcNAQELBQAwfDELMAkGA1UEBhMCTkwxFTATBgNVBAgMDFp1aWQtSG9sbGFuZDETMBEGA1UEBwwKWm9ldGVybWVlcjEcMBoGA1UECgwTU3RpY2h0aW5nIEtlbm5pc25ldDEjMCEGA1UEAwwaZW5naW5lLmVudHJlZS5rZW5uaXNuZXQubmwwHhcNMjIwMjIyMTIwNTExWhcNMzIwMjIwMTIwNTExWjB8MQswCQYDVQQGEwJOTDEVMBMGA1UECAwMWnVpZC1Ib2xsYW5kMRMwEQYDVQQHDApab2V0ZXJtZWVyMRwwGgYDVQQKDBNTdGljaHRpbmcgS2VubmlzbmV0MSMwIQYDVQQDDBplbmdpbmUuZW50cmVlLmtlbm5pc25ldC5ubDCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBAM14q4VAp+UpUWtbSlLqMTVOq3HNZjS19C7Ut1rZn5/NCxGKrR89/GTgknjDqi6nUD9QtXlBWpcmtMSg7eNLGfqzuPqbPGDEBMX9uhbAZMwb7WErM0g4RSpaPdyRS9C5E5VkkynsRHNpP/y/Pi3ZI6dgVG2SbJniLOWrloetJp6iDpHEFJAwCNNEg/3xt2ndpVV0ZiLJKG1JusDt4ikVLOMTVkPj6Ki9H3FX+ejUqhKuOMPe7UvD2cAHmrOc+xcZMjiL3OBv/6eOsXm0P1XYnVGUB9Kgme4xkcc/rUuh8Sv364KQ5yXekQdTderQQScNxZpQ/RA9oHGqmjOjCNj5zS8CAwEAAaNTMFEwHQYDVR0OBBYEFF6cEiJ0nIG2aEDCyNXZ5m4xEfy8MB8GA1UdIwQYMBaAFF6cEiJ0nIG2aEDCyNXZ5m4xEfy8MA8GA1UdEwEB/wQFMAMBAf8wDQYJKoZIhvcNAQELBQADggEBAJp+OW7uChZGCDCRqTgp+O1akSkCTPIUPXnCBusIMlp73d2mfHvj5oHtbxq/cHE1fYpnez8ETeswLjmUpwGiSvbUqDq23X6pzj6I5QoR2DSrryLxeYThcuch+Q4AIl4Oms7HAwcgXFxH1tLuQM/NrZ9bGIS2b1Pa6LKKxjYwcgH6IU6A1N8A/82UYKhAoTGALVHc5hHrJLE5vy8VIIzn1BMWepi+qStVicrtXP/jSrT+c45R+u5nn2AEdUgZl2x+HH9WbK8zPf0ZuOMfd1FBW7yBtA56Mr4P61F2Ey0FttZIRhnt+5pGD2XtQMlwqilwSDVivKxPhgGuagGB2KieR7o=' : 'MIID0TCCArmgAwIBAgIESb+pqDANBgkqhkiG9w0BAQsFADCBmDELMAkGA1UEBhMCTkwxFTATBgNV
 BAgTDFp1aWQtSG9sbGFuZDETMBEGA1UEBxMKWm9ldGVybWVlcjEcMBoGA1UEChMTU3RpY2h0aW5n
 IEtlbm5pc25ldDEZMBcGA1UECxMQRW50cmVlIEZlZGVyYXRpZTEkMCIGA1UEAxMbYXNlbGVjdC5l
 bnRyZWUua2VubmlzbmV0Lm5sMB4XDTIyMDYzMDExMjYzNFoXDTI1MDYyOTExMjYzNFowgZgxCzAJ
