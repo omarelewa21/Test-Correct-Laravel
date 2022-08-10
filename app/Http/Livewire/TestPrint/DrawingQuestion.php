@@ -33,15 +33,34 @@ class DrawingQuestion extends Component
     public $pngBase64;
     public $attachment_counters;
 
+    public $oldDrawingQuestionGridHeight = null;
+    public $oldDrawingQuestionGridWidth = null;
+
     public function mount()
     {
-        $svgHelper = new SvgHelper($this->question['uuid']);
-        $this->pngBase64 = base64_encode($svgHelper->getQuestionModelPNG());
-        if(stristr($this->question->answer,'data:image/png;base64,')&&is_null($this->question['zoom_group'])){
-            $this->pngBase64 = str_replace('data:image/png;base64,','',$this->question->answer);
+        $this->pngBase64 = $this->setDrawingQuestionBase64Image();
+    }
+
+    private function setDrawingQuestionBase64Image()
+    {
+        if (is_null($this->question['zoom_group'])) {
+            if (!$this->question->getBackgroundImage() && $this->question->grid) {
+                $this->setUpOldDrawingQuestionGrid();
+            }
+            return $this->question->getBackgroundImage();
         }
-        if(!is_null($this->question->belongs_to_groupquestion_id)){
-            $this->question->groupQuestion = Question::find($this->question->belongs_to_groupquestion_id);
+        $svgHelper = new SvgHelper($this->question['uuid']);
+        return 'data:image/png;base64,' . base64_encode($svgHelper->getQuestionModelPNG());
+    }
+
+    private function setUpOldDrawingQuestionGrid()
+    {
+        $this->oldDrawingQuestionGridHeight = $this->question->grid;
+        if($this->question->grid <= 4) {
+            $this->oldDrawingQuestionGridWidth = $this->question->grid * 2;
+        }
+        else {
+            $this->oldDrawingQuestionGridWidth = ($this->question->grid * 2) + 1 ;
         }
     }
 
