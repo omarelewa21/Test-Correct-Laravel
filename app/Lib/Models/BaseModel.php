@@ -8,6 +8,11 @@ abstract class BaseModel extends Model {
 
     protected $exceptCloneModelOnly = [];
 
+    public function hasAttribute($attr)
+    {
+        return array_key_exists($attr, $this->attributes);
+    }
+
     public function cloneModelOnly(array $except = [])
     {
         $except = array_merge($except, $this->exceptCloneModelOnly);
