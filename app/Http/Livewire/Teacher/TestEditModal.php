@@ -3,7 +3,6 @@
 namespace tcCore\Http\Livewire\Teacher;
 
 use LivewireUI\Modal\ModalComponent;
-use tcCore\Http\Livewire\Teacher\Questions\OpenShort;
 use tcCore\Http\Traits\TestActions;
 use tcCore\Test;
 
@@ -15,6 +14,8 @@ class TestEditModal extends ModalComponent
     public $request;
 
     public $testForChangeAttributes;
+
+    public $placeholder = false;
 
     public function render()
     {
@@ -33,15 +34,15 @@ class TestEditModal extends ModalComponent
         $this->request = [
             'name'                 => $test->name,
             'abbreviation'         => $test->abbreviation,
-            'test_kind_id'         => $test->test_kind_id,
-            'subject_id'           => $test->subject_id,
-            'education_level_id'   => $test->education_level_id,
-            'education_level_year' => $test->education_level_year,
-            'period_id'            => $test->period_id,
+            'test_kind_id'         => $this->allowedTestKinds->contains($test->test_kind_id) ? $test->test_kind_id : $this->allowedTestKinds->first()->id,
+            'subject_id'           => $this->allowedSubjects->contains($test->subject_id) ? $test->subject_id : $this->allowedSubjects->first()->id,
+            'education_level_id'   => $this->allowedEductionLevels->contains($test->education_level_id) ? $test->education_level_id : $this->allowedEductionLevels->first()->id,
+            'education_level_year' => $this->allowedEductionLevels->contains($test->education_level_id) ? $test->education_level_year : 1,
+            'period_id'            => $this->allowedPeriods->contains($test->period_id) ? $test->period_id : $this->allowedPeriods->first()->id,
             'shuffle'              => $test->shuffle,
             'introduction'         => $test->introduction,
         ];
-
+        logger($this->request);
         $this->testForChangeAttributes = [
                 'subject_id'           => $test->subject_id,
                 'education_level_id'   => $test->education_level_id,
@@ -92,5 +93,22 @@ class TestEditModal extends ModalComponent
         if ($name === 'education_level_id') {
             $this->request['education_level_year'] = 1;
         }
+    }
+
+    private function matchCurrentTestWithAllowedAttributes(Test $test)
+    {
+        if(!$this->allowedSubjects->contains($test->subject_id)){
+            return true;
+        }
+        if(!$this->allowedTestKinds->contains($test->test_kind_id)){
+            return true;
+        }
+        if(!$this->allowedPeriods->contains($test->period_id)){
+            return true;
+        }
+        if(!$this->allowedEductionLevels->contains($test->eduction_level_id)){
+            return true;
+        }
+        return false;
     }
 }

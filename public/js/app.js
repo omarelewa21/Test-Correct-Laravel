@@ -5860,6 +5860,7 @@ document.addEventListener('alpine:init', function () {
       answerSvg: entanglements.answerSvg,
       questionSvg: entanglements.questionSvg,
       gridSvg: entanglements.gridSvg,
+      grid: entanglements.grid,
       isTeacher: isTeacher,
       toolName: null,
       isPreview: isPreview,
@@ -5872,7 +5873,7 @@ document.addEventListener('alpine:init', function () {
           delete window[this.toolName];
         }
 
-        var toolName = window[this.toolName] = initDrawingQuestion(this.$root, this.isTeacher, this.isPreview);
+        var toolName = window[this.toolName] = initDrawingQuestion(this.$root, this.isTeacher, this.isPreview, this.grid);
 
         if (this.isTeacher) {
           this.makeGridIfNecessary(toolName);
@@ -5914,6 +5915,8 @@ document.addEventListener('alpine:init', function () {
       makeGridIfNecessary: function makeGridIfNecessary(toolName) {
         if (this.gridSvg !== '' && this.gridSvg !== '0.00') {
           makePreviewGrid(toolName.drawingApp, this.gridSvg);
+        } else if (this.grid && this.grid !== '0') {
+          makePreviewGrid(toolName.drawingApp, 1 / parseInt(this.grid) * 14);
         }
       }
     };
@@ -7328,7 +7331,7 @@ function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
 
 
 
-window.initDrawingQuestion = function (rootElement, isTeacher, isPreview) {
+window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid) {
   var _this2 = this;
 
   /**
@@ -7389,6 +7392,10 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview) {
           if (drawingApp.firstInit) {
             makeGrid();
             updateMidPoint();
+          }
+
+          if (grid && grid !== '0') {
+            drawGridBackground(grid);
           }
 
           processGridToggleChange();
@@ -9519,6 +9526,18 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview) {
       size: drawingApp.isTeacher() ? UI.gridSize.value : drawingApp.params.gridSize
     };
     Canvas.layers.grid.shape = new _svgShape_js__WEBPACK_IMPORTED_MODULE_2__.Grid(0, props, UI.svgGridGroup, drawingApp, Canvas);
+  }
+
+  function drawGridBackground(grid) {
+    var props = {
+      group: {},
+      main: {},
+      origin: {
+        id: "grid-origin"
+      },
+      size: 1 / parseInt(grid) * 14
+    };
+    return new _svgShape_js__WEBPACK_IMPORTED_MODULE_2__.Grid(0, props, UI.svgGridGroup, drawingApp, Canvas);
   }
 
   function updateGridVisibility() {
