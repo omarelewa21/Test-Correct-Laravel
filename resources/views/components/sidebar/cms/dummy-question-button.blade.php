@@ -8,9 +8,9 @@
         init() {
             this.$watch('dummyVisible', value => {
                 if(!value) return;
-                this.$nextTick(() => {
+                setTimeout(() => {
                     this.$dispatch('scroll-dummy-into-view')
-                })
+                },300)
             });
         }
      }"
