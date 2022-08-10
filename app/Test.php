@@ -1040,4 +1040,16 @@ class Test extends BaseModel
     {
         return !!(!$this->hasDuplicateQuestions() && !$this->hasTooFewQuestionsInCarousel() && !$this->hasNotEqualScoresForSubQuestionsInCarousel());
     }
+
+    public function canViewTestDetails(User $user)
+    {
+        return $this->canEdit($user) ||
+            $this->isNationalItem() ||
+            $this->isFromSharedSchool($user);
+    }
+
+    private function isFromSharedSchool(User $user): bool
+    {
+        return $this->canCopyFromSchool($user) && BaseSubject::currentForAuthUser()->where('id', $this->subject()->pluck('base_subject_id'))->exists();
+    }
 }

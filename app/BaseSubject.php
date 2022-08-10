@@ -1,5 +1,6 @@
 <?php namespace tcCore;
 
+use Illuminate\Support\Facades\Auth;
 use tcCore\Lib\Models\BaseModel;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Dyrynda\Database\Casts\EfficientUuid;
@@ -120,5 +121,10 @@ class BaseSubject extends BaseModel {
                 ->distinct()
                 ->pluck('base_subject_id')
         );
+    }
+
+    public static function scopeCurrentForAuthUser($query)
+    {
+        return $query->whereIn('id', Subject::filtered(['user_current' => Auth::id()])->pluck('base_subject_id'));
     }
 }
