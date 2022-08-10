@@ -1317,7 +1317,7 @@ class OpenShort extends Component implements QuestionCms
 
     private function removeTest($uuid)
     {
-        $test = Test::whereUuid($uuid)->first();
+        $test = Test::whereUuid($uuid)->firstOrFail();
 
         if ($test->canDelete(Auth::user())) {
             $response = (new TestsController())->destroy($test);
