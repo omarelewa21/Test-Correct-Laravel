@@ -180,5 +180,13 @@ return [
     'test_verbetering_omschrijving'                                                          => 'De huidige toets en bijbehorende vraagitems worden aangepast',
     'test_nieuw_omschrijving'                                                                => 'De huidige toets en bijbehorende items worden gedupliceerd',
     'test_nieuw'                                                                             => 'Nieuwe toets maken',
-    'Vraag informatie'                                                                       => 'Vraag informatie'
+    'Vraag informatie'                                                                       => 'Vraag informatie',
+    'alle bijlagen'                                                                          => 'Alle bijlagen van de toets',
+    'antwoordmodellen'                                                                       => 'Antwoordmodellen',
+    'antwoordmodellen_omschrijving'                                                          => 'Alle antwoordmodellen van toetsvragen gebundeld',
+    'antwoorden'                                                                             => 'Antwoorden',
+    'antwoorden_omschrijving'                                                                => 'Alle antwoorden van studenten gebundeld',
+    'toets_pdf'                                                                              => 'Toets',
+    'toets_pdf_omschrijving'                                                                 => 'Toets met alle vragen. Bijv. voor afname op papier',
+    'pdf_exporteren'                                                                         => 'Exporteer PDF',
 ];
