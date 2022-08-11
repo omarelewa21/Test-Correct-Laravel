@@ -1032,7 +1032,7 @@ class Test extends BaseModel
     public function canViewTestDetails(User $user): bool
     {
         return $this->hasAuthor($user) ||
-            ($user->schooLocation->show_national_item_bank && $this->isNationalItemForMyBaseSubject()) ||
+            ($user->schoolLocation->show_national_item_bank && $this->isNationalItemForMyBaseSubject()) ||
             $this->isFromSharedSchool($user);
     }
 
