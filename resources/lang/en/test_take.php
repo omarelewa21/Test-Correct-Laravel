@@ -71,5 +71,6 @@ return [
     'Read_out_loud'                                => 'Read out loud',
     'sound_clip_played'                            => 'This sound fragment was only playable once and has already been played.',
     'only_playable_once_not_pausable'              => 'This sound clip cannot be paused and can only be played once.',
+    'test_take.directlink_auth_fail'               => 'You does not affiliate to this test take, please contact test owner for that problem'
 
 ];

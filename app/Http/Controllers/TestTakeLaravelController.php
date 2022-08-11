@@ -205,6 +205,6 @@ class TestTakeLaravelController extends Controller
             return $user->redirectToCakeWithTemporaryLogin($options);
         }
 
-        abort(403, 'You does not affiliate to this test take, please contact test owner for that problem');             // User does not affiliate to this test take
+        abort(403, __('test_take.directlink_auth_fail'));             // User does not affiliate to this test take
     }
 }

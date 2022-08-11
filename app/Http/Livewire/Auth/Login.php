@@ -126,7 +126,7 @@ class Login extends Component
         if(session()->has('take')){
             $this->take = TestTake::whereUuid(session('take'))->with('testTakeCode')->first();
         }
-        dd($this->take->toArray());
+
         session()->invalidate();
         session()->regenerateToken();
 
