@@ -200,7 +200,7 @@ class SchoolImportHelper
                    continue;
                 }
             }
-            if(property_exists($school,$key)) {
+            if($school->hasAttribute($key)) {
                 $school->$key = $value;
             }
         }
