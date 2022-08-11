@@ -1031,7 +1031,7 @@ class Test extends BaseModel
             ->exists();
     }
 
-    public function isNationalItem()
+    public function isNationalItem(): bool
     {
         return collect(Test::NATIONAL_ITEMBANK_SCOPES)->contains($this->scope);
     }
@@ -1041,15 +1041,29 @@ class Test extends BaseModel
         return !!(!$this->hasDuplicateQuestions() && !$this->hasTooFewQuestionsInCarousel() && !$this->hasNotEqualScoresForSubQuestionsInCarousel());
     }
 
-    public function canViewTestDetails(User $user)
+    public function canViewTestDetails(User $user): bool
     {
-        return $this->canEdit($user) ||
-            $this->isNationalItem() ||
+        return $this->hasAuthor($user) ||
+            ($user->schooLocation->show_national_item_bank && $this->isNationalItemForMyBaseSubject()) ||
             $this->isFromSharedSchool($user);
     }
 
     private function isFromSharedSchool(User $user): bool
     {
-        return $this->canCopyFromSchool($user) && BaseSubject::currentForAuthUser()->where('id', $this->subject()->pluck('base_subject_id'))->exists();
+        return $this->canCopyFromSchool($user) && $this->subjectIsInMyCurrentBaseSubjects();
+    }
+
+    public function hasAuthor(User $user): bool
+    {
+        return $this->author->is($user);
+    }
+
+    private function isNationalItemForMyBaseSubject(): bool
+    {
+        return $this->isNationalItem() && $this->subjectIsInMyCurrentBaseSubjects();
+    }
+    private function subjectIsInMyCurrentBaseSubjects(): bool
+    {
+        return BaseSubject::currentForAuthUser()->whereId($this->subject()->pluck('base_subject_id'))->exists();
     }
 }
