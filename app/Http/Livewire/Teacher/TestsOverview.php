@@ -122,7 +122,10 @@ class TestsOverview extends Component
     private function getNationalDatasource()
     {
         return Test::nationalItemBankFiltered(
-            $this->cleanFilterForSearch($this->filters['national']),
+            array_merge(
+                $this->cleanFilterForSearch($this->filters['national']),
+                ['base_subject_id' => BaseSubject::currentForAuthUser()->pluck('id')->toArray()]
+            ),
             $this->sorting
         )
             ->with('educationLevel', 'testKind', 'subject', 'author', 'author.school', 'author.schoolLocation')
@@ -242,8 +245,8 @@ class TestsOverview extends Component
             return $query->schoolLocationAuthorUsers(Auth::user());
         })
             ->get()
-            ->when($this->openTab === 'umbrella', function($users) {
-                return $users->reject(function($user) {
+            ->when($this->openTab === 'umbrella', function ($users) {
+                return $users->reject(function ($user) {
                     return ($user->school_location_id === Auth::user()->school_location_id && $user->getKey() !== Auth::id());
                 });
             })
