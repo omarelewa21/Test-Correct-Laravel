@@ -200,7 +200,7 @@ class SchoolImportHelper
                    continue;
                 }
             }
-            if(property_exists($school,$key)) {
+            if($school->hasAttribute($key)) {
                 $school->$key = $value;
             }
         }
@@ -301,9 +301,11 @@ class SchoolImportHelper
         $class->fill($data);
 
         if($class instanceof SchoolLocation){
-            $schoolId = School::where('external_main_code',$data['brin_nummer'])->value('id');
-            if($schoolId){
-                $class->school_id = $schoolId;
+            if($data['brin_nummer']) {
+                $schoolId = School::where('external_main_code', $data['brin_nummer'])->value('id');
+                if ($schoolId) {
+                    $class->school_id = $schoolId;
+                }
             }
         }
 

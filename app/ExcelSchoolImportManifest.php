@@ -124,6 +124,10 @@ class ExcelSchoolImportManifest
                         if (!$fromDBByExternalCode && ($fromDB->external_main_code != $row['external_main_code'] && $fromDB->external_main_code != '' && null !== $fromDB->external_main_code)) {
                             $this->addError(sprintf('We have different school brin fours (DB:%s => import:%s) for the same customer code %s %s', $fromDB->external_main_code, $row['external_main_code'], $fromDB->customer_code, $row['customer_code']));
                         }
+                        // or different names
+                        if ($fromDB->name != $row['name']) {
+                            $this->addError(sprintf('We have different school names (db:%s => import:%s) with the customer code %s', $fromDB->name, $row['name'], $row['customer_code']));
+                        }
                         $fromDBFound = true;
                     }
                 }
@@ -210,6 +214,10 @@ class ExcelSchoolImportManifest
                         if (!$fromDBByExternalCode && (Str::lower($fromDB->external_main_code) !== Str::lower($row['external_main_code']) || Str::lower($fromDB->external_sub_code) !== Str::lower($row['external_sub_code']))) {
                             $this->addError(sprintf('We have different school location brins (DB:%s%S => import:%s%s) for the same customer code %s', $fromDB->external_main_code, $fromDB->external_sub_code, $row['external_main_code'], $row['external_sub_code'], $fromDB->customer_code));
                         }
+                        // or different names
+                        if ($fromDB->name != $row['name']) {
+                            $this->addError(sprintf('We have different school location names (db:%s => import:%s) with the customer code %s', $fromDB->name, $row['name'], $row['customer_code']));
+                        }
                         $fromDBFound = true;
                     }
                 }
@@ -241,11 +249,11 @@ class ExcelSchoolImportManifest
                     if ($fromDB) {
                         // if so, do they have different customer codes
                         if ($fromDB->customer_code != $row['customer_code']) {
-                            $this->addError(sprintf('We have different school location customer_codes (db:%s => import:%s) with the BRIN %s-%s', $fromDB->customer_code, $row['customer_code'], $row['external_main_code'], $row['external_sub_code']));
+                            $this->addError(sprintf('We have different school location customer_codes (db:%s => import:%s) with the BRIN %s/%s', $fromDB->customer_code, $row['customer_code'], $row['external_main_code'], $row['external_sub_code']));
                         }
                         // or different names
                         if ($fromDB->name != $row['name']) {
-                            $this->addError(sprintf('We have different school location names (db:%s => import:%s) with the BRIN %s-%s', $fromDB->name, $row['name'], $row['external_main_code'], $row['external_sub_code']));
+                            $this->addError(sprintf('We have different school location names (db:%s => import:%s) with the BRIN %s/%s', $fromDB->name, $row['name'], $row['external_main_code'], $row['external_sub_code']));
                         }
 
 //                        $this->transformedSchoolLocations = $this->transformedSchoolLocations->reject(function ($row) use ($fromDB) {
