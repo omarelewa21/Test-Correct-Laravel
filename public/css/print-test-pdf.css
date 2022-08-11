@@ -627,4 +627,10 @@
     display: inline-block;
     vertical-align: top;
 }
-
+.test-print-pdf .image-container span,
+.test-print-pdf .video-container span,
+.test-print-pdf .pdf-container span,
+.test-print-pdf .audio-container span {
+    display: inline-block;
+    margin-top: 0.25rem;
+}

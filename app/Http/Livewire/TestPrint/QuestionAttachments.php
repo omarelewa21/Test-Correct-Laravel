@@ -11,7 +11,7 @@ class QuestionAttachments extends Component
 
     public function mount()
     {
-        $this->filterAndSortAttachments();
+        $this->prepareAttachments();
     }
 
     public function render()
@@ -19,7 +19,7 @@ class QuestionAttachments extends Component
         return view('livewire.test_print.question-attachments');
     }
 
-    private function filterAndSortAttachments()
+    private function prepareAttachments()
     {
         $this->attachments = $this->attachments->map(function ($attachment) {
             $attachment->filetype = $attachment->getFileType();
