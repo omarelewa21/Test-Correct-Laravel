@@ -7,6 +7,7 @@ use Livewire\Component;
 use Livewire\WithPagination;
 use tcCore\BaseSubject;
 use tcCore\EducationLevel;
+use tcCore\Http\Controllers\FileManagementUsersController;
 use tcCore\Subject;
 use tcCore\Test;
 use tcCore\TestAuthor;
@@ -69,13 +70,7 @@ class TestsOverview extends Component
     public function updatingOpenTab($value)
     {
         $this->resetPage();
-    }
-
-    public function setOpenTab($tab)
-    {
-        if (in_array($tab, $this->allowedTabs)) {
-            $this->openTab = $tab;
-        }
+        session(['tests-overview-active-tab' => $value]);
     }
 
     private function getDatasource()
@@ -265,6 +260,7 @@ class TestsOverview extends Component
         }
         $this->setFilters();
         $this->hasSharedSections = Auth::user()->hasSharedSections();
+        $this->openTab = session()->get('tests-overview-active-tab') ?? $this->openTab;
     }
 
     private function cleanFilterForSearch(array $filters)
@@ -330,18 +326,27 @@ class TestsOverview extends Component
         }
     }
 
-    public function canFilterOnAuthors()
+    public function canFilterOnAuthors(): bool
     {
         return !collect(['personal', 'national'])->contains($this->openTab);
     }
 
-    private function tabNeedsDefaultFilters($tab)
+    private function tabNeedsDefaultFilters($tab): bool
     {
         return collect($this->defaultFilterTabs)->contains($tab);
     }
 
-    public function isPublicTestTab($tab)
+    public function isPublicTestTab($tab): bool
     {
         return collect($this->publicTestsTabs)->contains($tab);
+    }
+
+    public function getMessageKey($resultsCount): string
+    {
+        if ($resultsCount > 0 || $this->hasActiveFilters()) {
+            return 'general.number-of-tests';
+        }
+
+        return 'general.number-of-tests-'.$this->openTab;
     }
 }
