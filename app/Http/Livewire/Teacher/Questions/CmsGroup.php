@@ -56,7 +56,7 @@ class CmsGroup extends CmsBase
         foreach ($this->questionProperties as $key => $val) {
             $this->instance->question[$key] = $q[$key];
         }
-
+        $this->instance->question['name'] = html_entity_decode($this->instance->question['name']);
         if ($this->instance->question['number_of_subquestions'] == null) {
             $this->instance->question['number_of_subquestions'] = 0;
         }
@@ -81,5 +81,11 @@ class CmsGroup extends CmsBase
     public function showQuestionScore()
     {
         return false;
+    }
+
+    public function updatedQuestionName($value)
+    {
+        $event = filled($value) ? 'group-question-name-filled' : 'group-question-name-empty';
+        $this->instance->dispatchBrowserEvent($event);
     }
 }

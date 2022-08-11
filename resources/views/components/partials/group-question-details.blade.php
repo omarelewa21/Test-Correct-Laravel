@@ -1,5 +1,5 @@
 <div>
-    <div class="flex items-center justify-between px-8 py-1 border-b border-bluegrey">
+    <div class="sticky z-10 top-0 bg-lightGrey flex items-center justify-between px-8 py-1 border-b border-bluegrey">
         <div class="flex items-center space-x-2.5">
             <x-button.back-round @click="closeGroupDetail()"/>
             <div class="flex text-lg bold">
@@ -16,7 +16,7 @@
             <x-icon.options/>
         </div>
     </div>
-    <div class="flex flex-col mx-8">
+    <div class="flex flex-col mx-8 overflow-auto pb-4">
         <div class="py-6 flex w-full flex-col gap-2.5">
             <div class="flex w-full justify-between text-base">
                 <div class="flex gap-4">
@@ -61,10 +61,11 @@
 
         <x-grid class="subquestion-grid w-full">
             @forelse($subQuestions as $sub)
-                <x-grid.question-card :question="$sub->question->getQuestionInstance()" :testUuid="$this->testId ?? null" :order="$loop->iteration"/>
+                <x-grid.question-card :question="$sub->question" :testUuid="$this->testId ?? null" :order="$loop->iteration"/>
             @empty
                 <span>Geen subvragen</span>
             @endforelse
         </x-grid>
+        <x-question-card-context-menu/>
     </div>
 </div>

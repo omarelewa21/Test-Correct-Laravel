@@ -494,6 +494,7 @@ input[type=number] {
     transform: scale(1);
 }
 
-.select-search.disabled {
-
+.form-input::placeholder {
+    font-size: 1rem;
+    color: var(--system-base);
 }

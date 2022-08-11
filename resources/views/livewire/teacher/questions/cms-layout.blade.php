@@ -6,6 +6,7 @@
                 loading = true;
                 if(typeof evt !== 'undefined') empty = false;
                 removeDrawingLegacy();
+                window.scrollTo({top: 0, behavior: 'smooth'});
            }
 
            loadingTimeout = (value) => {
@@ -190,7 +191,7 @@
 
                 @if($this->duplicateQuestion)
                     <div class="notification error stretched mt-4">
-                        <span class="title">{{ __('cms.duplicate_question_in_test') }}</span>
+                        <span class="title">{{ $this->isGroupQuestion() ? __('cms.duplicate_group_in_test') : __('cms.duplicate_question_in_test') }}</span>
                     </div>
                 @endif
             </div>

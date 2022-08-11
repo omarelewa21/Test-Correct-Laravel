@@ -2,34 +2,49 @@
 
 namespace tcCore\Http\Livewire\Teacher;
 
-use Livewire\Component;
+use Exception;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Str;
+use Livewire\Livewire;
+use LivewireUI\Modal\ModalComponent;
+use tcCore\Test;
 
-class TestDeleteModal extends Component
+class TestDeleteModal extends ModalComponent
 {
-    protected $listeners = ['displayModal'];
-
-    public $uuid = '';
-
-    public $showModal = false;
+    public string $uuid;
 
     public function render()
     {
-        return view('livewire.teacher.test-delete-modal')->with(['title'=> 'hier']);
+        return view('livewire.teacher.test-delete-modal');
     }
 
-    public function displayModal($testUuid)
+    public function mount($testUuid)
     {
         $this->uuid = $testUuid;
-
-        $this->showModal = true;
     }
 
+    /**
+     * @throws Exception
+     */
     public function deleteTest()
     {
-        // @TODO needs some rules if we can delete this test;
-        $test = \tcCore\Test::whereUuid($this->uuid)->delete();
+        $test = Test::whereUuid($this->uuid)->first();
 
-        $this->showModal = false;
-        $this->emitUp('test-deleted');
+        if (!$test->canDelete(Auth::user())) {
+            return false;
+        }
+
+        $test->delete();
+
+        $this->forceClose()->closeModal();
+
+        if (Str::of(Livewire::originalUrl())->contains(route('teacher.tests', false, false))) {
+            $this->emit('test-deleted');
+            $this->dispatchBrowserEvent('notify', ['message' => __('teacher.Test is verwijderd')]);
+            return true;
+        }
+
+        $this->redirect(route('teacher.tests', ['referrerAction' => 'test_deleted']));
+        return true;
     }
 }

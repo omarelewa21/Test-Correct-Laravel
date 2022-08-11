@@ -17,6 +17,12 @@ const { execSync } = require('child_process');
 //     .sass('resources/sass/app.scss', 'public/css');
 const autoprefixer = require('autoprefixer');
 
+// mix.webpackConfig({
+//     stats: {
+//         children: true,
+//     }
+// })
+
 mix.postCss("resources/css/app.css", "public/css", [
     require("tailwindcss"),
 ]).postCss("resources/css/app_pdf.css", "public/css/", [

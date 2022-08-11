@@ -30,7 +30,7 @@
             @else
                  wire:click="deleteQuestion('{{ $testQuestion->uuid }}')"
             @endif
-                @click.stop="options = false; $el.classList.add('hidden')"
+                @click.stop="options = false; $el.classList.add('hidden');$store.cms.scrollPos = document.querySelector('.drawer').scrollTop"
         >
             <x-icon.trash/>
             <span class="text-base bold inherit">{{ __('cms.Verwijderen') }}</span>
@@ -43,7 +43,7 @@
                     'questionUuid': '{{ $question->uuid }}',
                     'isSubQuestion': {{ $subQuestion ? 1 : 0 }},
                     'shouldSave': true
-                })"
+                });$store.cms.scrollPos = document.querySelector('.drawer').scrollTop"
         >
             <x-icon.edit/>
             <span class="text-base bold inherit">{{ __('cms.Wijzigen') }}</span>

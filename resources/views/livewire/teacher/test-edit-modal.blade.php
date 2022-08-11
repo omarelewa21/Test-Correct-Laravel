@@ -1,6 +1,6 @@
 <x-modal.base-modal>
     <x-slot name="title">
-        <h2>{{__("teacher.Gegevens wijzigen")}}</h2>
+        <h2>{{__("teacher.Toets instellingen")}}</h2>
     </x-slot>
 
     <x-slot name="content">
@@ -147,8 +147,8 @@
     </x-slot>
 
     <x-slot name="footer">
-        <div class="flex justify-between w-full">
-            <x-button.text-button wire:click="$emit('closeModal')">
+        <div class="flex gap-4 w-full">
+            <x-button.text-button wire:click="$emit('closeModal')" class="ml-auto">
                 <span>{{ __("teacher.Annuleer") }}</span>
             </x-button.text-button>
 

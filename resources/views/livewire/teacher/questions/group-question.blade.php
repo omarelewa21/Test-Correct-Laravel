@@ -28,7 +28,7 @@
         </div>
         <div class="flex flex-wrap">
             <button class="group-type mr-2 mb-2"
-                    :class="selected('standard') ? 'active' : ''"
+                    :class="selected('standard') ? 'active' : 'hover:shadow-lg'"
                     @click="select('standard')"
                     @isset($preview) disabled @endisset
             >
@@ -45,7 +45,7 @@
                 </div>
             </button>
             <button class="group-type mb-2"
-                    :class="selected('carousel') ? 'active' : ''"
+                    :class="selected('carousel') ? 'active' : 'hover:shadow-lg'"
                     @click="select('carousel')"
                     @isset($preview) disabled @endisset
             >

@@ -17,8 +17,10 @@
                 $el.scrollTo({top: 0, behavior: 'smooth'});
                 maxHeight = groupDetail.offsetHeight + 'px';
                 $nextTick(() => {
-                    setTimeout(() => bodyVisibility = false, 250);
-                    handleVerticalScroll($el.closest('.slide-container'));
+                    setTimeout(() => {
+                        bodyVisibility = false;
+                        handleVerticalScroll($el.closest('.slide-container'));
+                    }, 250);
                 })
 
             }
@@ -274,6 +276,9 @@
                         </span>
                         @endif
                     </x-grid>
+                    @if(!$this->groupQuestionDetail)
+                        <x-question-card-context-menu/>
+                    @endif
                 </div>
             </div>
         </div>

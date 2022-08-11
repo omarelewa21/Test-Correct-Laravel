@@ -12,7 +12,8 @@ class AlertModal extends ModalComponent
     public $primaryActionBtnLabel = false;
     public $title = false;
 
-    public function mount($message, $title, $primaryAction=false, $primaryActionBtnLabel = false, $type = 'warning') {
+    public function mount($message, $title, $primaryAction = false, $primaryActionBtnLabel = false, $type = 'warning')
+    {
         $this->message = $message;
         $this->title = $title;
         $this->type = $type;

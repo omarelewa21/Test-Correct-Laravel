@@ -4,7 +4,7 @@ namespace tcCore\Http\Livewire\Teacher\Questions;
 
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Redirect;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
@@ -260,7 +260,7 @@ class OpenShort extends Component implements QuestionCms
             'showEmpty'             => 'showEmpty',
             'questionDeleted'       => '$refresh',
             'addQuestionFromDirty'  => 'addQuestionFromDirty',
-            'testSettingsUpdated' => 'handleUpdatedTestSettings'
+            'testSettingsUpdated'   => 'handleUpdatedTestSettings'
         ];
     }
 
@@ -304,8 +304,10 @@ class OpenShort extends Component implements QuestionCms
     // @TODO is deze test uberhaupt onderdeel van deze test?
     public function mount()
     {
+        $activeTest = Test::whereUuid($this->testId)->with('testAuthors', 'testAuthors.user')->firstOrFail();
+        Gate::authorize('isAuthorOfTest',[$activeTest]);
+
         $this->resetQuestionProperties();
-        $activeTest = Test::whereUuid($this->testId)->with('testAuthors', 'testAuthors.user')->first();
         $this->canDeleteTest = $activeTest->canDelete(Auth::user());
         if (blank($this->type) && blank($this->subtype)) {
             $this->testName = $activeTest->name;
@@ -402,7 +404,7 @@ class OpenShort extends Component implements QuestionCms
 
     public function updated($name, $value)
     {
-        $method = 'updated' . ucfirst($name);
+        $method = 'updated' . Str::dotToPascal($name);
         if ($this->obj && method_exists($this->obj, $method)) {
             $this->obj->$method($value);
         }
@@ -544,6 +546,9 @@ class OpenShort extends Component implements QuestionCms
             if ($this->referrer === 'teacher.tests') {
                 return redirect()->to(route($this->referrer));
             }
+            if ($this->referrer === 'teacher.test-detail') {
+                return redirect()->to(route($this->referrer, $this->testId));
+            }
         }
         $url = sprintf("tests/view/%s", $this->testId);
         if ($this->isPartOfGroupQuestion() && !$this->withDrawer) {
@@ -587,7 +592,7 @@ class OpenShort extends Component implements QuestionCms
 
         if ($this->isPartOfGroupQuestion()) {
             $groupQuestionQuestion = GroupQuestionQuestion::whereUuid($this->groupQuestionQuestionId)->first();
-            $groupQuestionQuestionManager = GroupQuestionQuestionManager::getInstanceWithUuid($this->testQuestionId); //'577fa17d-68b7-4695-ace5-e14afd913757');
+            $groupQuestionQuestionManager = GroupQuestionQuestionManager::getInstanceWithUuid($this->testQuestionId);
 
             $response = (new GroupQuestionQuestionsController)->updateGeneric(
                 $groupQuestionQuestionManager,
@@ -1259,6 +1264,9 @@ class OpenShort extends Component implements QuestionCms
         $this->save(false);
 
         $data['group'] ? $this->dispatchBrowserEvent('continue-to-add-group') : $this->dispatchBrowserEvent('continue-to-new-slide');
+        if ($data['newSubQuestion']) {
+            $this->emitTo('drawer.cms', 'newGroupId', $this->testQuestionId);
+        }
     }
 
     public function getRulesForProvider()
@@ -1290,7 +1298,7 @@ class OpenShort extends Component implements QuestionCms
 
     public function handleUpdatedTestSettings($settings)
     {
-        $this->testName = $settings['name'];
+        $this->testName = $settings['name'] ?? $this->testName;
     }
 
     public function getPdfUrl()
@@ -1309,7 +1317,7 @@ class OpenShort extends Component implements QuestionCms
 
     private function removeTest($uuid)
     {
-        $test = Test::whereUuid($uuid)->first();
+        $test = Test::whereUuid($uuid)->firstOrFail();
 
         if ($test->canDelete(Auth::user())) {
             $response = (new TestsController())->destroy($test);
@@ -1332,5 +1340,12 @@ class OpenShort extends Component implements QuestionCms
 
         $options = TemporaryLogin::buildValidOptionObject('page', 'tests/index');
         return Auth::user()->redirectToCakeWithTemporaryLogin($options);
+    }
+
+    public function saveIfDirty()
+    {
+        if ($this->isDirty()) {
+            $this->save(false);
+        }
     }
 }

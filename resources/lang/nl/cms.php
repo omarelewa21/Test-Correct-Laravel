@@ -35,7 +35,7 @@ return [
     'delete'                                                                                 => 'Verwijderen',
     'delete_attachment_confirm_text'                                                         => 'Weet je zeker dat je deze bijlage wilt verwijderen? Je kunt deze actie niet ongedaan maken.',
     'delete_question_confirm_text'                                                           => 'Weet je zeker dat je deze vraag wilt verwijderen? Je kunt deze actie niet ongedaan maken.',
-    'delete_test_confirm_text'                                                               => 'Weet je zeker dat je deze toets wilt verwijderen? Je kunt deze actie niet ongedaan maken.',
+    'delete_test_confirm_text'                                                               => 'Weet je zeker dat je deze toets wilt verwijderen? Deze actie kun je niet ongedaan maken.',
     'Vraag verwijderen'                                                                      => 'Vraag verwijderen',
     'bijlage'                                                                                => ':count bijlage|:count bijlagen',
     'all_or_nothing_tooltip_text'                                                            => 'Wijs alleen punten toe als alle onderdelen goed beantwoord zijn',
@@ -173,6 +173,12 @@ return [
     'container_label_missing'                                                                => 'Containerlabel ontbreekt, elke container moet een label hebben',
     'Deze vraag is aanwezig in de toets.'                                                    => 'Deze vraag is aanwezig in de toets.',
     'duplicate_question_in_test'                                                             => 'Deze vraag staat dubbel in de toets. Pas de toets aan om het inplannen mogelijk te maken.',
+    'duplicate_group_in_test'                                                                => 'Deze vraaggroep staat dubbel in de toets. Pas de toets aan om het inplannen mogelijk te maken.',
     'Construeren'                                                                            => 'Construeren',
     'Deze vraag heeft geen tags'                                                             => 'Deze vraag heeft geen tags',
+    'test_verbetering'                                                                       => 'Toets verbetering',
+    'test_verbetering_omschrijving'                                                          => 'De huidige toets en bijbehorende vraagitems worden aangepast',
+    'test_nieuw_omschrijving'                                                                => 'De huidige toets en bijbehorende items worden gedupliceerd',
+    'test_nieuw'                                                                             => 'Nieuwe toets maken',
+    'Vraag informatie'                                                                       => 'Vraag informatie'
 ];

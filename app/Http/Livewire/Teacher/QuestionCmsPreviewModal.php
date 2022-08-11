@@ -4,6 +4,7 @@ namespace tcCore\Http\Livewire\Teacher;
 
 use Illuminate\Support\Str;
 use LivewireUI\Modal\ModalComponent;
+use tcCore\Http\Helpers\BaseHelper;
 use tcCore\Http\Helpers\QuestionHelper;
 use tcCore\Http\Interfaces\QuestionCms;
 use tcCore\Http\Livewire\Teacher\Questions\CmsFactory;
@@ -124,6 +125,11 @@ class QuestionCmsPreviewModal extends ModalComponent implements QuestionCms
         return 'full';
     }
 
+    public static function destroyOnClose(): bool
+    {
+        return BaseHelper::notProduction();
+    }
+
     /*
      * Helper methods
      */
@@ -173,7 +179,7 @@ class QuestionCmsPreviewModal extends ModalComponent implements QuestionCms
         $this->subjectId = $question->subject_id;
         $this->educationLevelId = $question->education_level_id;
 
-        $this->questionTitle = $question->isType('GroupQuestion') ? $question->name : $question->title;
+        $this->questionTitle = $question->isType('GroupQuestion') ? html_entity_decode($question->name) : $question->title;
         $this->questionType = $question->isType('GroupQuestion') ? __('question.Vraaggroep') : $question->typeName;
 
         $this->authors = $question->getAuthorNamesString();

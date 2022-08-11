@@ -10,7 +10,7 @@
      x-transition:leave-end="opacity-0 scale-90"
 {{--     wire:ignore.self--}}
 >
-    <div class="fixed inset-0 transform " x-on:click="show = false; console.log(show)">
+    <div class="fixed inset-0 transform " x-on:click="show = false;">
         <div class="absolute inset-0 bg-gray-500 opacity-75"></div>
     </div>
     <div class="flex w-full h-full items-center align-center">
