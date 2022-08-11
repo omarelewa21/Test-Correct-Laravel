@@ -389,6 +389,8 @@ class Cms extends Component
         } catch (\Exception $e) {
             $this->dispatchBrowserEvent('notify', ['message' => __('auth.something_went_wrong'), 'error']);
         }
+
+        $this->dispatchBrowserEvent('notify', ['message' => __('general.duplication successful')]);
     }
 
     private function getConnectionModel($testQuestionUuidForGroupQuestion)
