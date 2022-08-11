@@ -259,7 +259,7 @@ class OpenShort extends Component implements QuestionCms
             'showEmpty'             => 'showEmpty',
             'questionDeleted'       => '$refresh',
             'addQuestionFromDirty'  => 'addQuestionFromDirty',
-            'testSettingsUpdated' => 'handleUpdatedTestSettings'
+            'testSettingsUpdated'   => 'handleUpdatedTestSettings'
         ];
     }
 
@@ -397,6 +397,7 @@ class OpenShort extends Component implements QuestionCms
                 return $attachment->uuid;
             })->toArray();
         }
+        $this->isCloneRequest = false;
     }
 
     public function updated($name, $value)
@@ -516,7 +517,7 @@ class OpenShort extends Component implements QuestionCms
     public function handleExternalUpdatedProperty(array $incomingData)
     {
         $property = array_keys($incomingData)[0];
-        if ($this->shouldUpdatePropertyFromExternalSource($incomingData, $property) ) {
+        if ($this->shouldUpdatePropertyFromExternalSource($incomingData, $property)) {
             $this->question[$property] = array_values($incomingData[$property]);
             $this->dirty = true;
         }
@@ -577,8 +578,8 @@ class OpenShort extends Component implements QuestionCms
 
     private function updateQuestion()
     {
-        if(!$this->dirty){
-            return Response::make('not dirty',304);
+        if (!$this->dirty) {
+            return Response::make('not dirty', 304);
         }
         $request = new CmsRequest();
         $request->merge($this->question);
@@ -1105,6 +1106,7 @@ class OpenShort extends Component implements QuestionCms
             'groupQuestionQuestionId' => $this->groupQuestionQuestionId,
             'type'                    => $this->type,
             'subtype'                 => $this->subtype,
+            'isCloneRequest'          => $this->isCloneRequest,
         ]);
     }
 
@@ -1142,6 +1144,7 @@ class OpenShort extends Component implements QuestionCms
     private function handleQueryStringForExistingQuestion($args): void
     {
         $this->action = 'edit';
+        $this->isCloneRequest = false;
         $this->emptyState = false;
         $testQuestion = TestQuestion::whereUuid($args['testQuestionUuid'])->with('question')->first();
         if ($args['isSubQuestion']) {

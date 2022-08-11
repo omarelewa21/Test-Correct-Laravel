@@ -146,7 +146,7 @@ return [
     'Nieuwe creeren'                                                                         => 'Create new',
     'Wijzigen'                                                                               => 'Change',
     'Inplannen'                                                                              => 'Schedule',
-    'Kopie maken'                                                                            => 'Copy',
+    'Kopie maken'                                                                            => 'Create copy',
     'PDF maken'                                                                              => 'PDF',
     'voorbeeld'                                                                              => 'Preview',
     'vraag'                                                                                  => ':count question|:count questions',

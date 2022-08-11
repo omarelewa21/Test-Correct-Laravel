@@ -36,17 +36,20 @@
             <span class="text-base bold inherit">{{ __('cms.Verwijderen') }}</span>
         </div>
         <div class="flex items-center space-x-2 py-1 px-4 base hover:text-primary hover:bg-offwhite transition w-full"
-             title="{{ __('cms.Wijzigen') }}"
-             @click.stop="options = false;$wire.emitTo('teacher.questions.open-short','showQuestion',
-                {
-                    'testQuestionUuid':'{{ $testQuestion ? $testQuestion->uuid : null }}',
-                    'questionUuid': '{{ $question->uuid }}',
-                    'isSubQuestion': {{ $subQuestion ? 1 : 0 }},
-                    'shouldSave': true
-                });$store.cms.scrollPos = document.querySelector('.drawer').scrollTop"
+             title="{{ __('cms.Kopie maken') }}"
+             @click.stop="options = false;
+{{--                $wire.emitTo('teacher.questions.open-short','duplicateQuestion',--}}
+{{--                {--}}
+{{--                    'testQuestionUuid':'{{ $testQuestion ? $testQuestion->uuid : null }}',--}}
+{{--                    'questionUuid': '{{ $question->uuid }}',--}}
+{{--                    'isSubQuestion': {{ $subQuestion ? 1 : 0 }},--}}
+{{--                    'shouldSave': true,--}}
+{{--                })--}}
+                ;$store.cms.scrollPos = document.querySelector('.drawer').scrollTop"
+             wire:click="duplicateQuestion('{{ $question->uuid }}')"
         >
             <x-icon.edit/>
-            <span class="text-base bold inherit">{{ __('cms.Wijzigen') }}</span>
+            <span class="text-base bold inherit">{{ __('cms.Kopie maken') }}</span>
         </div>
     </div>
 </button>
