@@ -60,7 +60,7 @@ class QuestionBank extends Component
     {
         $this->itemsPerPage = QuestionBank::ITEM_INCREMENT;
         $this->setTestProperty();
-        $this->addedQuestionIds = $this->getQuestionIdsThatAreAlreadyInTest();
+        $this->setAddedQuestionIdsArray();
         $this->setFilters();
     }
 
@@ -365,5 +365,10 @@ class QuestionBank extends Component
     {
         $this->inGroup = $uuid;
         $this->updatedInGroup($uuid);
+    }
+
+    public function setAddedQuestionIdsArray(): void
+    {
+        $this->addedQuestionIds = $this->getQuestionIdsThatAreAlreadyInTest();
     }
 }

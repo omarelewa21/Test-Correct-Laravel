@@ -6,7 +6,8 @@
         groupDetail = $el.querySelector('#groupdetail');
         $watch('$store.questionBank.inGroup', value => inGroup = value);
         $watch('$store.questionBank.active', value => {
-           value ? $wire.render() : closeGroupDetail();
+           //if true, the wire method also makes the html rerender, but only calling the render didn't cut it
+           value ? $wire.setAddedQuestionIdsArray() : closeGroupDetail();
         });
         showGroupDetails = async (groupQuestionUuid, inTest = false) => {
             let readyForSlide = await $wire.showGroupDetails(groupQuestionUuid, inTest);
