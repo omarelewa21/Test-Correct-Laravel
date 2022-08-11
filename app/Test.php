@@ -959,6 +959,8 @@ class Test extends BaseModel
 
     public function canCopyFromSchool(User $user)
     {
+        if (!$this->owner->school) return false;
+
         return $this->canDuplicate() && $user->isAllowedSchool($this->owner->school);
     }
 
