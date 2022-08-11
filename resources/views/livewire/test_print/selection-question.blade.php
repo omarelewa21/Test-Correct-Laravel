@@ -4,14 +4,14 @@
             {{ __('test-pdf.selection-question-explanation') }}
         </div>
         <div class="mt-2">
-            @foreach($availableAnswersList as $tag_id => $answers) {{-- loop over all answer sets --}}
+            @foreach($availableAnswersList as $tag_id => $answers) {{-- loop over all answer sets --}} @dd($answers)
             <div class="selection-answers-container">
                 <span class="selection-answer-tag-id">{{ $tag_id }}.</span>
                 <div class="selection-answers-container-sub">
                     @foreach($answers as $letter => $answer)
                     <span class="selection-answers-container-sub-sub">
                         <span>{{$letter}}. </span>
-                        <span>{{$answer}}</span>
+                        <span>{!! $answer !!}</span>
                     </span>
                     @endforeach
                 </div>

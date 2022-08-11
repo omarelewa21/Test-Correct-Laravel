@@ -14,7 +14,7 @@
                     </div>
                     <div class="ranking-answer-textbox base "
                     >
-                        <span class="mr-3 flex items-center pdf-align-center" >{{ $answerText[$answer->value] }}</span>
+                        <span class="mr-3 flex items-center pdf-align-center" >{!! $answerText[$answer->value] !!}</span>
                     </div>
                 </div>
 

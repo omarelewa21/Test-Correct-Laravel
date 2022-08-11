@@ -2,7 +2,7 @@
 
     <div class="w-full overview" >
         <div class="italic">
-            <span>{!! __('test-pdf.ARQ_question_explanation') !!}</span>
+            <span>{!! __('test-pdf.true-false_question_explanation') !!}</span>
         </div>
         <div class="items-center" >
             <div class="flex-pdf question-no-break-true-false relative truefalse-container-parent" style="">
@@ -25,11 +25,6 @@
                                 <span>{!! $link->answer !!}</span> {{-- Juist / onjuist --}}
                             </label>
                         </div>
-
-{{--                        @if($loop->first)--}}
-{{--                            <div class="flex-pdf bg-off-white "--}}
-{{--                                 style="width: 1px; height: 30px; margin-top: 3px;position: relative;top:5px;"></div>--}}
-{{--                        @endif--}}
                     @endforeach
                 </div>
                 <div class="truefalse-text">

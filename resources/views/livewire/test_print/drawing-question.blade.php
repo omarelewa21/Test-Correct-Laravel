@@ -1,12 +1,19 @@
 <x-partials.test-print-question-container :number="$number" :question="$question">
 
     <div class="flex flex-1 flex-col space-y-2">
+        <div class="italic">
+            @if($question->attachments)
+                {{__('test-pdf.drawing_question_explanation')}}
+            @else
+                {{__('test-pdf.drawing_question_explanation_att')}}
+            @endif
+        </div>
         <div class="flex flex-col space-y-3 children-block-pdf">
             {!! $question->converted_question_html !!}
         </div>
         @if($pngBase64)
             <div class="mt-3 question-no-break-drawing drawing-img-container">
-                <img id="drawnImage" class="border border-blue-grey rounded-10" width="800"
+                <img id="drawnImage" class="border border-blue-grey rounded-10" width="965"
                      src="{{$pngBase64}}" alt="">
                 <span></span>
             </div>

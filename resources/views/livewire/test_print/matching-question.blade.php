@@ -15,7 +15,7 @@
         <div class="classify-answers-container">
             @foreach($answerOptions as $key => $answer)
                 <div class="classify-answers-sub">
-                    <span class="bold">{{$key}} {{$answer}}</span>
+                    <span class="bold">{{$key}} {!! $answer !!}</span>
                 </div>
 
             @endforeach
@@ -26,7 +26,7 @@
             @foreach($answerGroups as $group)
                 <div class="classify-group-block">
                     <div class="classify-group-title">
-                        {{$group}}
+                        {!! $group !!}
                     </div>
 
                         <div class="paper-text-area resize-none">
@@ -49,13 +49,13 @@
                             <tr>
                                 <td class="matching-textbox-container-left">
                                     <div class="matching-textbox-left">
-                                        {{$left}}
+                                        {!! $left !!}
                                         <span class="matching-dot-left"></span>
                                     </div>
                                 </td>
                                 <td class="matching-textbox-container-right">
                                     <div class="matching-textbox-right">
-                                        {{$right}}
+                                        {!! $right !!}
                                         <span class="matching-dot-right"></span>
                                     </div>
                                 </td>
