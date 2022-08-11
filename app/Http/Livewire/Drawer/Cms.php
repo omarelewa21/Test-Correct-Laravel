@@ -3,7 +3,6 @@
 namespace tcCore\Http\Livewire\Drawer;
 
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Str;
 use Livewire\Component;
 use tcCore\GroupQuestion;
 use tcCore\GroupQuestionQuestion;
@@ -256,7 +255,8 @@ class Cms extends Component
         }
 
         $this->dispatchBrowserEvent('question-change', ['new' => $question->uuid, 'old' => $this->testQuestionId]);
-        return $this->showQuestion($question->uuid, $question->question->uuid, false, false);
+        $this->showQuestion($question->uuid, $question->question->uuid, false, false);
+        return true;
     }
 
     public function refreshDrawer($arguments = [])
@@ -275,40 +275,6 @@ class Cms extends Component
             return $question->question_id == $questionId;
         })->first();
 
-//        if (!$testQuestion) {
-//            $testId = Test::whereUuid($this->testId)->value('id');
-//            $groupQuestionsInTest = GroupQuestionQuestion::select('uuid', 'question_id', 'group_question_id')
-//                ->whereIn(
-//                    'group_question_id',
-//                    TestQuestion::from('test_questions as tq')
-//                        ->select('q.id')
-//                        ->join('questions as q', 'tq.question_id', '=', 'q.id')
-//                        ->where('tq.test_id', '=', $testId)
-//                        ->where('q.type', '=', 'GroupQuestion')
-//                        ->whereNull('q.deleted_at')
-//                        ->withTrashed()
-//                )
-//                ->get()
-//                ->mapWithKeys(function ($groupQuestionQuestion) {
-//                    return [
-//                        $groupQuestionQuestion->question_id => [
-//                            'groupQuestionQuestionUuid' => $groupQuestionQuestion->uuid,
-//                            'groupQuestionId'           => $groupQuestionQuestion->group_question_id
-//                        ]
-//                    ];
-//                });
-//
-//            if ($groupQuestionQuestionData = $groupQuestionsInTest->get($questionId)) {
-//                $testQuestion = TestQuestion::where('question_id', $groupQuestionQuestionData['groupQuestionId'])
-//                                                ->where('test_id', $testId)
-//                                                ->value('uuid');
-//                $this->dispatchBrowserEvent('question-removed');
-//                return $this->deleteSubQuestion($groupQuestionQuestionData['groupQuestionQuestionUuid'], $testQuestion);
-//            }
-//
-//            $this->dispatchBrowserEvent('notify', ['message' => 'Er is iets mis gegaan met verwijderen van de vraag.', 'error']);
-//            return false;
-//        }
         $this->dispatchBrowserEvent('question-removed');
         $this->deleteQuestion($testQuestion->uuid);
     }
@@ -406,5 +372,34 @@ class Cms extends Component
     public function newGroupId($uuid)
     {
         $this->groupId = $uuid;
+    }
+
+    public function duplicateQuestion($questionUuid, $testQuestionUuidForGroupQuestion = null)
+    {
+        $questionToDuplicate = Question::whereUuid($questionUuid)->firstOrFail();
+
+        $newQuestion = $questionToDuplicate->makeClone();
+
+        try {
+            $this->getConnectionModel($testQuestionUuidForGroupQuestion)->create([
+                'question_id'       => $newQuestion->getKey(),
+                'maintain_position' => 0,
+                'discuss'           => 1
+            ]);
+        } catch (\Exception $e) {
+            $this->dispatchBrowserEvent('notify', ['message' => __('auth.something_went_wrong'), 'error']);
+        }
+    }
+
+    private function getConnectionModel($testQuestionUuidForGroupQuestion)
+    {
+        if ($testQuestionUuidForGroupQuestion) {
+            $groupQuestionId = TestQuestion::whereUuid($testQuestionUuidForGroupQuestion)->pluck('question_id')->first();
+            $connectionModel = GroupQuestion::whereId($groupQuestionId)->firstOrFail()->groupQuestionQuestions();
+        } else {
+            $connectionModel = Test::whereUuid($this->testId)->firstOrFail()->testQuestions();
+        }
+
+        return $connectionModel;
     }
 }

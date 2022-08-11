@@ -56,7 +56,7 @@
                     <x-icon.reorder/>
             </div>
             <div class="flex">
-                <x-sidebar.cms.question-options :testQuestion="$testQuestion" :question="$question" :subQuestion="false"/>
+                <x-sidebar.cms.question-options :testQuestion="$testQuestion" :question="$question" :subQuestion="false" :groupQuestion="true"/>
             </div>
         </div>
     </div>

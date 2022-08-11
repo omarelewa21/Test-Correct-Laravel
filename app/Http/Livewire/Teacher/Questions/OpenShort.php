@@ -408,6 +408,7 @@ class OpenShort extends Component implements QuestionCms
                 return $attachment->uuid;
             })->toArray();
         }
+        $this->isCloneRequest = false;
     }
 
     public function updated($name, $value)
@@ -1121,6 +1122,7 @@ class OpenShort extends Component implements QuestionCms
             'groupQuestionQuestionId' => $this->groupQuestionQuestionId,
             'type'                    => $this->type,
             'subtype'                 => $this->subtype,
+            'isCloneRequest'          => $this->isCloneRequest,
         ]);
     }
 
@@ -1158,6 +1160,7 @@ class OpenShort extends Component implements QuestionCms
     private function handleQueryStringForExistingQuestion($args): void
     {
         $this->action = 'edit';
+        $this->isCloneRequest = false;
         $this->emptyState = false;
         $testQuestion = TestQuestion::whereUuid($args['testQuestionUuid'])->with('question')->first();
         if ($args['isSubQuestion']) {
