@@ -2,16 +2,13 @@
 
 namespace tcCore\Http\Livewire\Drawer;
 
-use GuzzleHttp\Promise\Create;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Str;
 use Livewire\Component;
 use tcCore\GroupQuestion;
 use tcCore\GroupQuestionQuestion;
 use tcCore\Http\Controllers\GroupQuestionQuestionsController;
 use tcCore\Http\Controllers\TestQuestionsController;
 use tcCore\Http\Livewire\Teacher\Questions\CmsFactory;
-use tcCore\Http\Requests\CreateTestQuestionRequest;
 use tcCore\Lib\GroupQuestionQuestion\GroupQuestionQuestionManager;
 use tcCore\Question;
 use tcCore\Test;
@@ -376,17 +373,32 @@ class Cms extends Component
         $this->groupId = $uuid;
     }
 
-    public function duplicateQuestion($questionUuid)
+    public function duplicateQuestion($questionUuid, $testQuestionUuidForGroupQuestion = null)
     {
         $questionToDuplicate = Question::whereUuid($questionUuid)->firstOrFail();
-        $newQuestion = $questionToDuplicate->getClone();
 
-        $testQuestion = Test::whereUuid($this->testId)->firstOrFail()
-            ->testQuestions()
-            ->create([
+        $newQuestion = $questionToDuplicate->makeClone();
+
+        try {
+            $this->getConnectionModel($testQuestionUuidForGroupQuestion)->create([
                 'question_id'       => $newQuestion->getKey(),
                 'maintain_position' => 0,
                 'discuss'           => 1
             ]);
+        } catch (\Exception $e) {
+            $this->dispatchBrowserEvent('notify', ['message' => __('auth.something_went_wrong'), 'error']);
+        }
+    }
+
+    private function getConnectionModel($testQuestionUuidForGroupQuestion)
+    {
+        if ($testQuestionUuidForGroupQuestion) {
+            $groupQuestionId = TestQuestion::whereUuid($testQuestionUuidForGroupQuestion)->pluck('question_id')->first();
+            $connectionModel = GroupQuestion::whereId($groupQuestionId)->firstOrFail()->groupQuestionQuestions();
+        } else {
+            $connectionModel = Test::whereUuid($this->testId)->firstOrFail()->testQuestions();
+        }
+
+        return $connectionModel;
     }
 }

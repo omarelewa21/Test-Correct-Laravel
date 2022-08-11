@@ -1669,11 +1669,12 @@ class Question extends MtiBaseModel {
         return !$this->isType('matrix');
     }
 
-    public function getClone()
+    public function makeClone()
     {
         $newQuestion = $this->duplicate($this->getAttributes());
         $newQuestion->getQuestionInstance()->derived_question_id = null; //Clear derived question ID so it's a 'clean' copy;
         $newQuestion->save();
+
         return $newQuestion;
     }
 }
