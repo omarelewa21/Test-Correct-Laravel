@@ -1,9 +1,23 @@
 @props(['loop' => 1, 'testQuestionUuid' => ''])
 <div class="question-button group-dummy pl-6 pr-4"
-     x-data="{mode: @entangle('action'), owner: @entangle('owner'), name: @entangle('newQuestionTypeName'), groupId: '{{ $testQuestionUuid}}' }"
-     x-init=""
-     x-show="mode === 'add' && owner === 'group' && groupId === '{{ $this->testQuestionId}}'"
+     x-data="{mode: @entangle('action'), owner: @entangle('owner'), name: @entangle('newQuestionTypeName'), groupId: '{{ $testQuestionUuid }}',
+        groupDummyVisible: false,
+        shouldIBeVisible() {
+            this.groupDummyVisible = this.mode === 'add' && this.owner === 'group' && this.groupId === '{{ $this->testQuestionId }}';
+        },
+        init() {
+            this.$watch('groupDummyVisible', (value) => {
+                if(!value) return;
+                setTimeout(() => {
+                    this.$dispatch('scroll-dummy-into-view')
+                },300)
+            });
+        }
+     }"
+     x-show="groupDummyVisible"
      x-cloak
+     x-effect="shouldIBeVisible()"
+     :class="{'question-active': groupDummyVisible}"
      wire:key="dummy-{{ $loop.$testQuestionUuid.$this->testQuestionId }}"
 >
     <div class="flex items-center cursor-pointer bold py-2 hover:text-primary question-active"

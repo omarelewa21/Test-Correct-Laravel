@@ -28,8 +28,9 @@ class TestDeleteModal extends Component
     {
         // @TODO needs some rules if we can delete this test;
         $test = \tcCore\Test::whereUuid($this->uuid)->delete();
-
+        // @TODO redirect away if in test detail => gives 404 now
         $this->showModal = false;
         $this->emitUp('test-deleted');
+        $this->dispatchBrowserEvent('notify', ['message'=> __('teacher.Test is verwijderd')]);
     }
 }

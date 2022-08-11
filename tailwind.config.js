@@ -11,6 +11,7 @@ module.exports = {
         'xl:max-w-5xl',
         '2xl:max-w-6xl',
         'max-w-[600px]',
+        'max-w-modal',
         'mx-8'
     ],
     theme: {
@@ -35,6 +36,18 @@ module.exports = {
             borderWidth: {
                 '3': '3px',
                 '6': '6px',
+            },
+            width: {
+                '50': '12.5rem'
+            },
+            height: {
+                '12.5': '3.125rem'
+            },
+            zIndex: {
+                '1': 1
+            },
+            maxWidth: {
+                'modal': '700px'
             }
         },
         keyframes: {

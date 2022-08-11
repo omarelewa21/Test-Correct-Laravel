@@ -24,6 +24,7 @@
         }
      "
      :style="`max-height: ${maxHeight}`"
+     wire:init="handleReferrerActions()"
 >
     <div class="flex w-full border-b border-secondary pb-1">
         <div class="flex w-full justify-between">
@@ -55,70 +56,20 @@
 
     <div
             class="flex w-full justify-end mt-3 note text-sm space-x-2.5"
-            x-data = "{
 
-            makePDF: async function(uuid) {
-                this.show = false;
-                let response = await $wire.getTemporaryLoginToPdfForTest(uuid);
-                window.open(response, '_blank');
-            },
-             openPreview(url) {
-                this.show = false;
-                window.open(url, '_blank');
-            }
-        }"
+
     >
-        @if ($this->test->canDelete(auth()->user()))
-            <x-button.primary
-                    class="pl-[12px] pr-[12px]"
-                    wire:click="$emitTo('teacher.test-delete-modal', 'displayModal', '{{  $this->test->uuid }}')">
-                <x-icon.trash/>
-            </x-button.primary>
-        @else
-            <x-button.primary
-                    class="pl-[12px] pr-[12px] opacity-20 cursor-not-allowed">
-                <x-icon.trash/>
-            </x-button.primary>
-        @endif
-        @if($this->test->canEdit(auth()->user()))
-            <x-button.primary class="pl-[12px] pr-[12px]"
-                              wire:click="openTestInCMS">
-                <x-icon.edit/>
-            </x-button.primary>
-        @else
-            <x-button.primary class="pl-[12px] pr-[12px] opacity-20 cursor-not-allowed">
-                <x-icon.edit/>
-            </x-button.primary>
-        @endif
-            @if($this->test->canEdit(auth()->user()))
-                <x-button.primary class="pl-[12px] pr-[12px]"
-                                  wire:click="$emit('openModal', 'teacher.test-edit-modal', {{ json_encode(['testUuid' => $this->test->uuid ]) }})">
-                    <x-icon.settings/>
-                </x-button.primary>
-            @else
-                <x-button.primary class="pl-[12px] pr-[12px] opacity-20 cursor-not-allowed">
-                    <x-icon.settings/>
-                </x-button.primary>
-            @endif
+        <x-actions.test-delete :uuid="$this->test->uuid"/>
 
-        <x-button.primary class="pl-[12px] pr-[12px] "
-                          @click="openPreview('{{ route('teacher.test-preview', ['test'=> $this->uuid]) }}')"
-        >
-            <x-icon.preview/>
-        </x-button.primary>
-        <x-button.primary class="pl-[12px] pr-[12px] "
-                          @click="makePDF('{{ $this->uuid }}')"
-        >
-            <x-icon.pdf color="var(--off-white)"/>
-        </x-button.primary>
-        <x-button.primary class="pl-[12px] pr-[12px]"
-                          wire:click="duplicateTest">
-            <x-icon.copy/>
-        </x-button.primary>
-        <x-button.cta wire:click="planTest">
-            <x-icon.schedule/>
-            <span>{{ __('cms.Inplannen') }}</span>
-        </x-button.cta>
+        <x-actions.test-open-settings :uuid="$this->uuid"/>
+
+        <x-actions.test-open-edit :uuid="$this->uuid"/>
+
+        <x-actions.test-open-preview :uuid="$this->uuid"/>
+
+        <livewire:actions.test-make-pdf :uuid="$this->uuid"/>
+        <livewire:actions.test-duplicate-test :uuid="$this->uuid"/>
+        <livewire:actions.test-plan-test :uuid="$this->uuid"/>
     </div>
     <div class="flex w-full" x-show="bodyVisibility">
         <div class="w-full mx-auto divide-y divide-secondary">
@@ -129,7 +80,7 @@
                         <x-grid.loading-card :delay="$value"/>
                     @endforeach
 
-                    @foreach($this->test->testQuestions as $testQuestion)
+                    @foreach($this->test->testQuestions->sortBy('order') as $testQuestion)
                         {{--<x-grid.question-card :question="$testQuestion->question" />--}}
                         <x-grid.question-card-detail :testQuestion="$testQuestion"/>
                     @endforeach

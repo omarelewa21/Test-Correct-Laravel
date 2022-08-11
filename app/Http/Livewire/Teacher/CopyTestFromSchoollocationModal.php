@@ -46,8 +46,8 @@ class CopyTestFromSchoollocationModal extends Component
 
     public function showModal($testUuid)
     {
-        $this->test = \tcCore\Test::whereUuid($testUuid)->first();
-        if ($this->test) {
+        $this->test = Test::whereUuid($testUuid)->first();
+        if ($this->test) { // ??
             $this->testUuid = $this->test->uuid;
         }
         $this->request['name'] = $this->test->name;

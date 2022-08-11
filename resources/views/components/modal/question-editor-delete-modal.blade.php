@@ -29,7 +29,8 @@
          x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100"
          x-transition:leave-end="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95">
         <div class="px-2.5 flex justify-between items-center mt-2">
-            <h2>{{ __('cms.delete') }}</h2>
+            <h2 x-show="item !== 'test'">{{ __('cms.delete') }}</h2>
+            <h2 x-show="item === 'test'">{{ __('teacher.Toets verwijderen') }}</h2>
             <x-icon.close class="cursor-pointer hover:text-primary" @click="show = false"/>
         </div>
         <div class="divider mb-5 mt-2.5"></div>

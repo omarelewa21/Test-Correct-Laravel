@@ -4,7 +4,6 @@ namespace tcCore\Http\Livewire\Teacher\Questions;
 
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
@@ -402,7 +401,7 @@ class OpenShort extends Component implements QuestionCms
 
     public function updated($name, $value)
     {
-        $method = 'updated' . ucfirst($name);
+        $method = 'updated' . Str::dotToPascal($name);
         if ($this->obj && method_exists($this->obj, $method)) {
             $this->obj->$method($value);
         }
@@ -587,7 +586,7 @@ class OpenShort extends Component implements QuestionCms
 
         if ($this->isPartOfGroupQuestion()) {
             $groupQuestionQuestion = GroupQuestionQuestion::whereUuid($this->groupQuestionQuestionId)->first();
-            $groupQuestionQuestionManager = GroupQuestionQuestionManager::getInstanceWithUuid($this->testQuestionId); //'577fa17d-68b7-4695-ace5-e14afd913757');
+            $groupQuestionQuestionManager = GroupQuestionQuestionManager::getInstanceWithUuid($this->testQuestionId);
 
             $response = (new GroupQuestionQuestionsController)->updateGeneric(
                 $groupQuestionQuestionManager,
@@ -1019,9 +1018,9 @@ class OpenShort extends Component implements QuestionCms
         return !!($this->type === 'GroupQuestion');
     }
 
-    private function resolveOrderNumber()
+    public function resolveOrderNumber()
     {
-        if ($this->isGroupQuestion() || !$this->questionId || $this->emptyState) {
+        if ($this->isGroupQuestion() || $this->emptyState) {
             return 1;
         }
 
@@ -1037,7 +1036,7 @@ class OpenShort extends Component implements QuestionCms
                 ->orderBy('order', 'desc')->value('question_id');
             return isset($questionList[$lastQuestionIdInGroup]) ? $questionList[$lastQuestionIdInGroup] + 1 : 1;
         }
-        return count($questionList);
+        return count($questionList) + 1;
     }
 
     public function saveAndRefreshDrawer()
@@ -1259,6 +1258,9 @@ class OpenShort extends Component implements QuestionCms
         $this->save(false);
 
         $data['group'] ? $this->dispatchBrowserEvent('continue-to-add-group') : $this->dispatchBrowserEvent('continue-to-new-slide');
+        if ($data['newSubQuestion']) {
+            $this->emit('newGroupId', $this->testQuestionId);
+        }
     }
 
     public function getRulesForProvider()
@@ -1332,5 +1334,12 @@ class OpenShort extends Component implements QuestionCms
 
         $options = TemporaryLogin::buildValidOptionObject('page', 'tests/index');
         return Auth::user()->redirectToCakeWithTemporaryLogin($options);
+    }
+
+    public function saveIfDirty()
+    {
+        if ($this->isDirty()) {
+            $this->save(false);
+        }
     }
 }

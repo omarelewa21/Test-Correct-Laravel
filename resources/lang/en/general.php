@@ -50,4 +50,5 @@ return [
     'Actieve schoollocatie aangepast' => 'Changed active school location',
     'Leerjaar'                        => 'Level year',
     'Laatst gewijzigd'                => 'Last modified',
+    'Categorie'                       => 'Category',
 ];
