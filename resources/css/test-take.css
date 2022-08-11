@@ -86,7 +86,7 @@
 .sortable-fallback,
 .drag-item.draggable-source--is-dragging {
     background-color: white;
-    border-width: 2px!important;
+    border-width: 0.1875rem!important;
     border-style: dashed;
     border-color:  var(--blue-grey);
     opacity: 1!important;
@@ -94,31 +94,37 @@
 .sortable-chosen.sortable-ghost,
 .drag-item.draggable--over {
     background-color: var(--primary-light);;
-    border-width: 2px!important;
+    border-width: 0.1875rem!important;
     border-style: dashed;
     border-color:  var(--primary) !important;
     color: white;
+    opacity: .8;
+    border-radius: .25rem;
 }
 
 .draggable-container--over .drag-item.draggable-mirror {
     background-color: var(--primary-light);
-    border: 2px solid var(--primary);
+    border: 0.1875rem solid var(--primary);
     color: var(--primary);
     box-shadow: 0 3px 8px 0 rgba(77, 87, 143, 0.3);
 }
 .draggable-container--placed .drag-item.draggable-mirror {
     background-color: var(--primary);
-    border: 2px solid var(--primary);
+    border: 0.1875rem solid var(--primary);
     color: white;
     box-shadow: 0 3px 8px 0 rgba(77, 87, 143, 0.3);
 }
 
-
 .drag-item.draggable-mirror {
     background-color: var(--primary-light);
-    border: 2px solid var(--primary-light);
+    border: 0.1875rem solid var(--primary-light);
     color: var(--primary);
     box-shadow: 0 3px 8px 0 rgba(77, 87, 143, 0.3);
+}
+.drag-item.sortable-chosen.sortable-fallback.sortable-drag {
+    border-style: solid;
+    border-color: var(--primary);
+    border-radius: .25rem;
 }
 
 .cke_top, .cke_bottom {
