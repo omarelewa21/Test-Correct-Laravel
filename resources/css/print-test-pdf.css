@@ -164,6 +164,34 @@
     height: 560px;
 }
 
+.test-print-pdf .drawing-question-grid-table {
+    width: 965px;
+    height: 430px;
+    border-radius: 10px;
+    border: 3px solid #c3d0ed;
+    border-collapse: separate !important;
+}
+
+.test-print-pdf .drawing-question-grid-table tr {
+    border: none;
+}
+
+.test-print-pdf .drawing-question-grid-table td {
+    border: 1px dotted #c3d0ed;
+}
+.test-print-pdf .drawing-question-grid-table .grid-top-left {
+    border-top-left-radius: 10px;
+}
+.test-print-pdf .drawing-question-grid-table .grid-top-right {
+    border-top-right-radius: 10px;
+}
+.test-print-pdf .drawing-question-grid-table .grid-bottom-left {
+    border-bottom-left-radius: 10px;
+}
+.test-print-pdf .drawing-question-grid-table .grid-bottom-right {
+    border-bottom-right-radius: 10px;
+}
+
 .test-print-pdf .drawing-img-container {
 
 }
@@ -171,10 +199,6 @@
 .test-print-pdf .drawing-img-container img {
     margin-left: auto;
     margin-right: auto;
-}
-
-.test-print-pdf .drawing-paper-container {
-
 }
 
 .test-print-pdf .paper-line {
@@ -516,14 +540,7 @@
 }
 
 .test-print-pdf .group-question-container > div:first-child {
-    background-color: #041f74;
-    border: 1px solid #041f74;
-    color: #ffffff;
-    border-radius: 10px;
-    text-align: center;
-    display: block;
-    font-size: 20pt;
-    height: 40px;
+
 }
 
 .test-print-pdf .group-question-container > div:nth-child(2) {
@@ -543,23 +560,45 @@
     padding-top: 1rem;
 }
 
+.test-print-pdf .group-question-name-container {
+    display: block;
+    vertical-align: center;
+    background-color: #041f74;
+    border: 1px solid #041f74;
+    color: #ffffff;
+    border-radius: 10px;
+    text-align: center;
+    /*display: block;*/
+    font-size: 20pt;
+    min-height: 40px;
+}
+
+.test-print-pdf .group-question-name {
+    font-size: 20pt;
+    white-space: break-spaces;
+    display: inline-block;
+    text-align: center;
+    min-width: 500px;
+    max-width: 700px;
+    margin-right: 30px;
+}
+
 .test-print-pdf .attachment-container {
     vertical-align: top;
 }
 
-.test-print-pdf .even-image-attachment {
+.test-print-pdf .even-attachment {
     margin-left: 1rem;
 }
 
 .test-print-pdf .image-container {
-    display: inline-block;
-    vertical-align: top;
+
 }
 
 .test-print-pdf .image-container > div {
     border: 1px solid black;
     border-radius: 10px;
-    width: 400px
+    width: 400px;
 }
 
 .test-print-pdf .image-container img {
@@ -571,15 +610,21 @@
     border-top-right-radius: 10px;
     width: 400px;
 }
+
 .test-print-pdf .image-container,
 .test-print-pdf .video-container,
+.test-print-pdf .pdf-container,
 .test-print-pdf .audio-container {
     margin-top: 1rem;
     page-break-inside: avoid;
+    width: 400px;
+    display: inline-block;
+    vertical-align: top;
 }
-
-.test-print-pdf .video-container,
-.test-print-pdf .audio-container {
-    width: 800px;
-
+.test-print-pdf .image-container span,
+.test-print-pdf .video-container span,
+.test-print-pdf .pdf-container span,
+.test-print-pdf .audio-container span {
+    display: inline-block;
+    margin-top: 0.25rem;
 }

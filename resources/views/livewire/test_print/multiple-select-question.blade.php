@@ -1,4 +1,4 @@
-<x-partials.test-print-question-container :number="$number" :question="$question" :answer="$answer">
+<x-partials.test-print-question-container :number="$number" :question="$question">
         <div class="w-full">
             <div class="italic">
                 {{__('test-pdf.multiple_choice_question_explanation')}}

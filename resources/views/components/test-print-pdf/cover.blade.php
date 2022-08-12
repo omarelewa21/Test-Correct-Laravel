@@ -11,9 +11,8 @@
 </div>
 
 <div class="cover-container-2">
-    @if($showExamAttachmentsText)
-    <div>{!!  __('test-pdf.cover explanation 1') !!}</div>
-    <div>{!! __('test-pdf.cover explanation 2') !!}</div>
+    @if($attachmentsText)
+    <div>{{ $attachmentsText }}</div>
     @endif
 </div>
 

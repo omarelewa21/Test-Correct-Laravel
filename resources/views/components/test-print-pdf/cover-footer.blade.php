@@ -38,14 +38,8 @@
         </td>
     </tr>
     <tr>
-        <td style="text-align: left; width: 33%; ">
-
-        </td>
-        <td style="text-align: center; width: 33%">
+        <td colspan="3" style="text-align: center; width: 33%">
             <span id="Title"> {{ $test->name }} </span>
-        </td>
-        <td style="text-align: right; width: 33%">
-
         </td>
     </tr>
 </table>

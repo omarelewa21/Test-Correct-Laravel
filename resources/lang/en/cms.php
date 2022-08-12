@@ -183,5 +183,13 @@ return [
     'test_verbetering_omschrijving'                                                          => 'The current test and its siblings will be updated',
     'test_nieuw_omschrijving'                                                                => 'The current test and its siblings will be duplicated',
     'test_nieuw'                                                                             => 'Duplicate as new test',
-    'Vraag informatie'                                                                       => 'Question info'
+    'Vraag informatie'                                                                       => 'Question info',
+    'alle bijlagen'                                                                          => 'All attachments of the test',
+    'antwoordmodellen'                                                                       => 'Answermodels',
+    'antwoordmodellen_omschrijving'                                                          => 'All answermodels of the testquestions grouped',
+    'antwoorden'                                                                             => 'Answers',
+    'antwoorden_omschrijving'                                                                => 'All answers of students grouped',
+    'toets_pdf'                                                                              => 'Test',
+    'toets_pdf_omschrijving'                                                                 => 'Test with all questions. E.g. for taking on paper',
+    'pdf_exporteren'                                                                         => 'Export PDF',
 ];

@@ -1,4 +1,4 @@
-<x-partials.test-print-question-container :number="$number" :question="$question" :answer="$answer">
+<x-partials.test-print-question-container :number="$number" :question="$question">
     <div class="w-full">
         <div class="children-block-pdf"> {!! $question->converted_question_html  !!}</div>
         <div class="mt-4 flex">

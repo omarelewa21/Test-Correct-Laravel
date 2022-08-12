@@ -1,4 +1,4 @@
-<x-partials.test-print-question-container :number="$number" :question="$question" :answer="$answer">
+<x-partials.test-print-question-container :number="$number" :question="$question">
     <div class="">
         <div class="italic">
             {{__('test-pdf.ranking-question-explanation')}}
@@ -14,7 +14,7 @@
                     </div>
                     <div class="ranking-answer-textbox base "
                     >
-                        <span class="mr-3 flex items-center pdf-align-center" >{{ $answerText[$answer->value] }}</span>
+                        <span class="mr-3 flex items-center pdf-align-center" >{!! $answerText[$answer->value] !!}</span>
                     </div>
                 </div>
 

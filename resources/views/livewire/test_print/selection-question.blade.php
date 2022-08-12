@@ -11,7 +11,7 @@
                     @foreach($answers as $letter => $answer)
                     <span class="selection-answers-container-sub-sub">
                         <span>{{$letter}}. </span>
-                        <span>{{$answer}}</span>
+                        <span>{!! $answer !!}</span>
                     </span>
                     @endforeach
                 </div>

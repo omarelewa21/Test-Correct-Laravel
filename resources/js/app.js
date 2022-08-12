@@ -12,6 +12,7 @@ require('./flatpickr');
 require('./navigation-bar');
 require('../../vendor/wire-elements/modal/resources/js/modal');
 require('./webspellchecker_tlc');
+require('./pdf-download');
 
 
 window.ClassicEditors = [];

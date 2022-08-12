@@ -12,6 +12,7 @@ module.exports = {
         '2xl:max-w-6xl',
         'max-w-[600px]',
         'max-w-modal',
+        'max-w-[720px]',
         'mx-8'
     ],
     theme: {

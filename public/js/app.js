@@ -5860,7 +5860,6 @@ document.addEventListener('alpine:init', function () {
       answerSvg: entanglements.answerSvg,
       questionSvg: entanglements.questionSvg,
       gridSvg: entanglements.gridSvg,
-      grid: entanglements.grid,
       isTeacher: isTeacher,
       toolName: null,
       isPreview: isPreview,
@@ -5873,7 +5872,7 @@ document.addEventListener('alpine:init', function () {
           delete window[this.toolName];
         }
 
-        var toolName = window[this.toolName] = initDrawingQuestion(this.$root, this.isTeacher, this.isPreview, this.grid);
+        var toolName = window[this.toolName] = initDrawingQuestion(this.$root, this.isTeacher, this.isPreview);
 
         if (this.isTeacher) {
           this.makeGridIfNecessary(toolName);
@@ -5915,8 +5914,6 @@ document.addEventListener('alpine:init', function () {
       makeGridIfNecessary: function makeGridIfNecessary(toolName) {
         if (this.gridSvg !== '' && this.gridSvg !== '0.00') {
           makePreviewGrid(toolName.drawingApp, this.gridSvg);
-        } else if (this.grid && this.grid !== '0') {
-          makePreviewGrid(toolName.drawingApp, 1 / parseInt(this.grid) * 14);
         }
       }
     };
@@ -6026,6 +6023,8 @@ document.addEventListener('alpine:init', function () {
             });
 
             _this10.$wire.emitTo('drawer.cms', 'refreshDrawer');
+
+            _this10.$dispatch('resize');
           }, 400);
 
           _this10.$wire.emitTo('drawer.cms', 'refreshDrawer');
@@ -6034,33 +6033,41 @@ document.addEventListener('alpine:init', function () {
       addQuestionToGroup: function addQuestionToGroup(uuid) {
         this.showAddQuestionSlide();
         this.$store.questionBank.inGroup = uuid;
-        this.$dispatch('backdrop');
       },
       addGroup: function addGroup() {
         var shouldCheckDirty = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : true;
-        this.$dispatch('store-current-question');
 
-        if (shouldCheckDirty && this.$store.cms.dirty) {
-          this.$wire.emitTo('teacher.questions.open-short', 'addQuestionFromDirty', {
-            'group': true
-          });
-          return;
+        if (this.emitAddToOpenShortIfNecessary(shouldCheckDirty, false, false)) {
+          this.$wire.addGroup();
         }
-
-        this.$wire.addGroup();
       },
       showAddQuestionSlide: function showAddQuestionSlide() {
         var shouldCheckDirty = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : true;
+
+        if (this.emitAddToOpenShortIfNecessary(shouldCheckDirty, false, false)) {
+          this.next(this.$refs.home);
+          this.$dispatch('backdrop');
+        }
+      },
+      addSubQuestionToNewGroup: function addSubQuestionToNewGroup() {
+        var shouldCheckDirty = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : true;
+        this.emitAddToOpenShortIfNecessary(shouldCheckDirty, false, true);
+      },
+      emitAddToOpenShortIfNecessary: function emitAddToOpenShortIfNecessary() {
+        var shouldCheckDirty = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : true;
+        var group = arguments.length > 1 ? arguments[1] : undefined;
+        var newSubQuestion = arguments.length > 2 ? arguments[2] : undefined;
         this.$dispatch('store-current-question');
 
         if (shouldCheckDirty && this.$store.cms.dirty) {
           this.$wire.emitTo('teacher.questions.open-short', 'addQuestionFromDirty', {
-            'group': false
+            group: group,
+            newSubQuestion: newSubQuestion
           });
-          return;
+          return false;
         }
 
-        this.next(this.$refs.home);
+        return true;
       },
       backToQuestionOverview: function backToQuestionOverview(container) {
         this.prev(container);
@@ -6316,7 +6323,7 @@ __webpack_require__(/*! ./navigation-bar */ "./resources/js/navigation-bar.js");
 
 __webpack_require__(/*! ../../vendor/wire-elements/modal/resources/js/modal */ "./vendor/wire-elements/modal/resources/js/modal.js");
 
-__webpack_require__(/*! ./webspellchecker_tlc */ "./resources/js/webspellchecker_tlc.js");
+__webpack_require__(/*! ./pdf-download */ "./resources/js/pdf-download.js");
 
 window.ClassicEditors = [];
 
@@ -6921,23 +6928,6 @@ Core = {
     window.Livewire.emit('setFraudDetected');
     alert = true;
   },
-  lostFocusWithoutReporting: function lostFocusWithoutReporting(text) {
-    if (!isMakingTest()) {
-      return;
-    }
-
-    var testtakemanager = document.querySelector("[testtakemanager]");
-
-    if (testtakemanager != null) {
-      livewire.find(testtakemanager.getAttribute("wire:id")).shouldFraudNotificationsBeShown().then(function (response) {
-        if (response.shouldFraudNotificationsBeShown) {
-          Notify.notify(text, "error");
-        }
-      });
-    }
-
-    window.Livewire.emit("setFraudDetected");
-  },
   isIpad: function isIpad() {
     // var standalone = window.navigator.standalone,
     //     userAgent = window.navigator.userAgent.toLowerCase(),
@@ -7331,7 +7321,7 @@ function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
 
 
 
-window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid) {
+window.initDrawingQuestion = function (rootElement, isTeacher, isPreview) {
   var _this2 = this;
 
   /**
@@ -7392,10 +7382,6 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid) 
           if (drawingApp.firstInit) {
             makeGrid();
             updateMidPoint();
-          }
-
-          if (grid && grid !== '0') {
-            drawGridBackground(grid);
           }
 
           processGridToggleChange();
@@ -9528,18 +9514,6 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid) 
     Canvas.layers.grid.shape = new _svgShape_js__WEBPACK_IMPORTED_MODULE_2__.Grid(0, props, UI.svgGridGroup, drawingApp, Canvas);
   }
 
-  function drawGridBackground(grid) {
-    var props = {
-      group: {},
-      main: {},
-      origin: {
-        id: "grid-origin"
-      },
-      size: 1 / parseInt(grid) * 14
-    };
-    return new _svgShape_js__WEBPACK_IMPORTED_MODULE_2__.Grid(0, props, UI.svgGridGroup, drawingApp, Canvas);
-  }
-
   function updateGridVisibility() {
     var grid = Canvas.layers.grid;
     var shape = grid.shape;
@@ -10437,7 +10411,6 @@ var Layer = /*#__PURE__*/function (_sidebarComponent2) {
       layerGroup.id = this.props.id;
       var headerTitle = templateCopy.querySelector(".header-title");
       headerTitle.innerText = this.props.name;
-      headerTitle.setAttribute("selid", "header-".concat(this.props.id));
       headerTitle.setAttribute('data-layer', this.props.id);
       headerTitle.closest('.header-container').setAttribute('data-layer', this.props.id);
       this.header = templateCopy.querySelector(".header");
@@ -12923,22 +12896,18 @@ document.addEventListener('alpine:init', function () {
         this.hideTimeout = setTimeout(function () {
           _this2.tileItemsHide();
 
-          tiles.style.setProperty('--top', '50px');
+          tiles.style.setProperty('--top', '0px');
           tiles.style.paddingLeft = '0px';
           clearTimeout(_this2.hideTimeout);
 
-          _this2.$dispatch('tiles-hidden');
-
           if (reset) {
             _this2.resetActiveState();
-
-            _this2.$dispatch('tiles-shown');
           }
         }, timeout); // alert(this.$wire.activeRoute.main == '');
       },
       resetActiveState: function resetActiveState() {
         if (this.$wire.activeRoute.sub !== '') {
-          tiles.style.setProperty('--top', '100px');
+          tiles.style.setProperty('--top', '98px');
           var activeTile = tiles.querySelector('.' + this.$wire.activeRoute.main);
           activeTile.style.display = "flex"; //menu item
 
@@ -12952,8 +12921,7 @@ document.addEventListener('alpine:init', function () {
       tilesBarShow: function tilesBarShow() {
         clearTimeout(this.hideTimeout);
         tiles.style.paddingLeft = '0px';
-        tiles.style.setProperty('--top', '100px');
-        this.$dispatch('tiles-shown');
+        tiles.style.setProperty('--top', '98px');
       },
       userMenuShow: function userMenuShow() {
         var _this3 = this;
@@ -13028,15 +12996,27 @@ document.addEventListener('alpine:init', function () {
 
 Notify = {
   notify: function notify(message, initialType) {
-    var title = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
     var type = initialType ? initialType : 'info';
     window.dispatchEvent(new CustomEvent('notify', {
       detail: {
         message: message,
-        type: type,
-        title: title
+        type: type
       }
     }));
+  }
+};
+
+/***/ }),
+
+/***/ "./resources/js/pdf-download.js":
+/*!**************************************!*\
+  !*** ./resources/js/pdf-download.js ***!
+  \**************************************/
+/***/ (() => {
+
+PdfDownload = {
+  waitingScreenHtml: function waitingScreenHtml(translation) {
+    return "<html><head><style>" + "#animation {" + "background-image: url(/img/loading.gif);" + "}" + "</style></head>" + "<body style='background: url(/img/bg.png) right no-repeat #f5f5f5'>" + "<div style='display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh;'>" + "<div style='background-color: rgba(0,0,0,0.8); padding: 20px 20px 15px 20px; border-radius: 10px; margin-bottom: 1rem;'>" + "<div id='animation' style='width: 35px; height: 35px;'></div>" + "</div>" + "<span style='font-family: Nunito, sans-serif; font-size: 20pt;'>" + translation + "</span>" + "</div>" + "</body></html>";
   }
 };
 
@@ -13160,23 +13140,12 @@ RichTextEditor = {
     });
   },
   initCMS: function initCMS(editorId) {
-    var lang = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 'nl_NL';
-    var wsc = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
     var editor = CKEDITOR.instances[editorId];
 
     if (editor) {
       editor.destroy(true);
     }
 
-    if (wsc) {
-      CKEDITOR.disableAutoInline = true;
-      CKEDITOR.config.removePlugins = 'scayt,wsc';
-    }
-
-    CKEDITOR.on('instanceReady', function (event) {
-      var editor = event.editor;
-      WebspellcheckerTlc.forTeacherQuestion(editor, lang, wsc);
-    });
     CKEDITOR.replace(editorId, {});
     editor = CKEDITOR.instances[editorId];
     editor.on('change', function (e) {
@@ -13192,23 +13161,12 @@ RichTextEditor = {
     });
   },
   initSelectionCMS: function initSelectionCMS(editorId) {
-    var lang = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 'nl_NL';
-    var wsc = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
     var editor = CKEDITOR.instances[editorId];
 
     if (editor) {
       editor.destroy(true);
     }
 
-    if (wsc) {
-      CKEDITOR.disableAutoInline = true;
-      CKEDITOR.config.removePlugins = 'scayt,wsc';
-    }
-
-    CKEDITOR.on('instanceReady', function (event) {
-      var editor = event.editor;
-      WebspellcheckerTlc.forTeacherQuestion(editor, lang, wsc);
-    });
     CKEDITOR.replace(editorId, {
       extraPlugins: 'selection,simpleuploads,quicktable,ckeditor_wiris,autogrow,wordcount,notification',
       toolbar: [{
@@ -13236,23 +13194,12 @@ RichTextEditor = {
     });
   },
   initCompletionCMS: function initCompletionCMS(editorId) {
-    var lang = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 'nl_NL';
-    var wsc = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
     var editor = CKEDITOR.instances[editorId];
 
     if (editor) {
       editor.destroy(true);
     }
 
-    if (wsc) {
-      CKEDITOR.disableAutoInline = true;
-      CKEDITOR.config.removePlugins = 'scayt,wsc';
-    }
-
-    CKEDITOR.on('instanceReady', function (event) {
-      var editor = event.editor;
-      WebspellcheckerTlc.forTeacherQuestion(editor, lang, wsc);
-    });
     CKEDITOR.replace(editorId, {
       extraPlugins: 'completion,simpleuploads,quicktable,ckeditor_wiris,autogrow,wordcount,notification',
       toolbar: [{
@@ -13314,57 +13261,6 @@ RichTextEditor = {
         ReadspeakerTlc.ckeditor.addListenersForReadspeaker(editor, questionId, editorId);
         ReadspeakerTlc.ckeditor.disableContextMenuOnCkeditor();
       }
-    })["catch"](function (error) {
-      console.error(error);
-    });
-  },
-  initClassicEditorForTeacherplayerWsc: function initClassicEditorForTeacherplayerWsc(editorId, lang) {
-    var editor = ClassicEditors[editorId];
-
-    if (editor) {
-      editor.destroy(true);
-    }
-
-    return ClassicEditor.create(document.getElementById(editorId), {
-      autosave: {
-        waitingTime: 300,
-        save: function save(editor) {
-          editor.updateSourceElement();
-          editor.sourceElement.dispatchEvent(new Event('input'));
-        }
-      },
-      wproofreader: {
-        lang: lang,
-        serviceProtocol: 'https',
-        servicePort: '80',
-        serviceHost: 'testwsc.test-correct.nl',
-        servicePath: 'wscservice/api',
-        srcUrl: 'https://testwsc.test-correct.nl/wscservice/wscbundle/wscbundle.js'
-      }
-    }).then(function (editor) {
-      ClassicEditors[editorId] = editor;
-      WebspellcheckerTlc.lang(editor, lang); // WebspellcheckerTlc.setEditorToReadOnly(editor);
-    })["catch"](function (error) {
-      console.error(error);
-    });
-  },
-  initClassicEditorForTeacherplayer: function initClassicEditorForTeacherplayer(editorId) {
-    var editor = ClassicEditors[editorId];
-
-    if (editor) {
-      editor.destroy(true);
-    }
-
-    return ClassicEditor.create(document.getElementById(editorId), {
-      autosave: {
-        waitingTime: 300,
-        save: function save(editor) {
-          editor.updateSourceElement();
-          editor.sourceElement.dispatchEvent(new Event('input'));
-        }
-      }
-    }).then(function (editor) {
-      ClassicEditors[editorId] = editor;
     })["catch"](function (error) {
       console.error(error);
     });
@@ -13576,69 +13472,6 @@ function shouldSwipeDirectionBeReturned(target) {
   });
   return returnDirection;
 }
-
-/***/ }),
-
-/***/ "./resources/js/webspellchecker_tlc.js":
-/*!*********************************************!*\
-  !*** ./resources/js/webspellchecker_tlc.js ***!
-  \*********************************************/
-/***/ (() => {
-
-WebspellcheckerTlc = {
-  forTeacherQuestion: function forTeacherQuestion(editor, language) {
-    var wsc = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : true;
-
-    if (!wsc) {
-      return;
-    }
-
-    WebspellcheckerTlc.initWsc(editor, language);
-    editor.on('resize', function (event) {
-      WebspellcheckerTlc.triggerWsc(editor, language);
-    });
-    editor.focus();
-  },
-  lang: function lang(editor, language) {
-    var i = 0;
-    var timer = setInterval(function () {
-      ++i;
-      if (i === 50) clearInterval(timer);
-
-      if (typeof WEBSPELLCHECKER != "undefined") {
-        WEBSPELLCHECKER.getInstances().forEach(function (instance) {
-          instance.setLang(language);
-        });
-        clearInterval(timer);
-      }
-    }, 200);
-  },
-  setEditorToReadOnly: function setEditorToReadOnly(editor) {
-    setTimeout(function () {
-      editor.ui.view.editable.element.setAttribute('contenteditable', false);
-    }, 3000);
-  },
-  triggerWsc: function triggerWsc(editor, language) {
-    if (editor.element.$.parentNode.getElementsByClassName('wsc_badge').length == 0) {
-      WebspellcheckerTlc.initWsc(editor, language);
-    }
-  },
-  initWsc: function initWsc(editor, language) {
-    setTimeout(function () {
-      var instance = WEBSPELLCHECKER.init({
-        container: editor.window.getFrame() ? editor.window.getFrame().$ : editor.element.$,
-        spellcheckLang: language,
-        localization: 'nl'
-      });
-
-      try {
-        instance.setLang(language);
-      } catch (e) {
-        console.dir(e);
-      }
-    }, 1000);
-  }
-};
 
 /***/ }),
 

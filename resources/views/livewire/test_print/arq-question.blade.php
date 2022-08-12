@@ -1,4 +1,4 @@
-<x-partials.test-print-question-container :number="$number" :question="$question" :answer="$answer">
+<x-partials.test-print-question-container :number="$number" :question="$question">
 
     <div class="w-full space-y-3">
         <div class="italic">
@@ -12,8 +12,8 @@
                 <div>
                     <div class="text-base bold arq-title-container">
                         <span class="w-12">{{__('test_take.option')}}</span>
-                        <span class="w-32">{{__('test_take.thesis')}} 1</span>
-                        <span class="w-32">{{__('test_take.thesis')}} 2</span>
+                        <span style="width: 9rem;">{{__('test_take.thesis')}} 1</span>
+                        <span style="width: 9rem;">{{__('test_take.thesis')}} 2</span>
                         <span class="w-10">{{__('test_take.reason')}}</span>
                     </div>
                 </div>
@@ -34,20 +34,13 @@
                                         class="hidden"
                                         value="{{ $link->id }}"
                                 >
-                                {{--                                <span class="w-16 px-2 py-1 "--}}
-                                {{--                                      style="display:inline-block;">{{ __($this->arqStructure[$loopCount][0]) }}</span>--}}
                                 <span class="arq-text-container py-1 ">
                                    <span class="w-32"
-                                         style="display:inline-block;">{{ __($this->arqStructure[$loopCount][1]) }}</span>
+                                         style="width: 9rem; display:inline-block;">{{ __($this->arqStructure[$loopCount][1]) }}</span>
                                     <span class="w-32"
-                                          style="display:inline-block;">{{ __($this->arqStructure[$loopCount][2]) }}</span>
+                                          style="width: 9rem; display:inline-block;">{{ __($this->arqStructure[$loopCount][2]) }}</span>
                                     <span class="max-w-max">{{ __($this->arqStructure[$loopCount][3]) }}</span>
                                 </span>
-
-                                {{--                            <div class="ml-auto   {!! ($link->score>0) ? '' :'hidden' !!}" style="float:right;">--}}
-                                {{--                                <x-icon.checkmark-pdf ></x-icon.checkmark-pdf>--}}
-                                {{--                                {!! $link->score !!} pt--}}
-                                {{--                            </div>--}}
                             </label>
                         </div>
                     @endforeach

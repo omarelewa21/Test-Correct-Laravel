@@ -1,8 +1,8 @@
 <div style="padding-left: 32px; padding-right: 32px;">
     <div class="group-question-container">
         @if($groupStart)
-            <div>
-                <div class="group-question-icon1">
+            <div class="group-question-name-container">
+                <div class="group-question-icon1" >
                     <svg class='inline-block' width="21" height="21" xmlns="http://www.w3.org/2000/svg">
                         <g stroke="#ffffff" fill="none" fill-rule="evenodd" stroke-linecap="round" stroke-width="3"
                            transform="rotate(90 9.75 10.5) scale(1.5 1.5)">
@@ -12,7 +12,7 @@
 
                 </div>
 
-                <div style="display: inline-block; font-size: 20pt;">
+                <div class="group-question-name" >
                     {{ $question->name }}
                 </div>
             </div>
@@ -20,7 +20,7 @@
                 {!! $description !!}
             </div>
         @else
-            <div style="margin-bottom: 0.5rem">
+            <div class="group-question-name-container" style="margin-bottom: 0.5rem">
                 <div class="group-question-icon2" >
                     <svg xmlns="http://www.w3.org/2000/svg" width="21" height="22" viewBox="0 0 21 19">
                         <g fill="none" fill-rule="evenodd" stroke-linecap="round">
@@ -38,7 +38,7 @@
                     </svg>
                 </div>
 
-                <div style="display: inline-block; font-size: 20pt; ">
+                <div class="group-question-name" >
                     {{ __('test-pdf.end-of-group-question') }} {{ $question->name }}
                 </div>
             </div>

@@ -7,7 +7,7 @@ use Illuminate\View\Component;
 class Header extends Component
 {
     public $test;
-    public $testType;
+    public $testType = 'test';
 
     /**
      * Create a new component instance.
