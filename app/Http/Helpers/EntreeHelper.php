@@ -53,6 +53,8 @@ class EntreeHelper
 
     protected $emailMaybeEmpty = false;
 
+    protected $isRegistering = false;
+
     public function __construct($attr, $messageId)
     {
         $this->attr = $this->transformAttributesIfNeededAndReturn($attr);
@@ -77,7 +79,7 @@ class EntreeHelper
 
     public function handleIfRegistering()
     {
-        if($this->isRegistering()){
+        if(!$this->isRegistering()){
             return false;
         }
         $this->setLocationWithSamlAttributes();
