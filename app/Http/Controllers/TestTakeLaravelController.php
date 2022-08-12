@@ -195,10 +195,16 @@ class TestTakeLaravelController extends Controller
             return redirect()->route('student.waiting-room', ['take' => $testTake->uuid]);
         }
         if(($user->isA('teacher') && $testTake->user_id === $user->id) || $testTake->isInvigilator($user)) {
-            if($testTake->testTakeStatus->name == 'Taking test'){
+            if($testTake->testTakeStatus->name == 'Planned'){
+                $url = sprintf("test_takes/view/%s", $testTake->uuid);
+            }elseif($testTake->testTakeStatus->name == 'Taking test'){
                 $url = "test_takes/surveillance";
             }else{
-                $url = sprintf("test_takes/view/%s", $testTake->uuid);
+                if($testTake->user_id === $user->id){
+                    $url = sprintf("test_takes/view/%s", $testTake->uuid);
+                }else{
+                    $url = 'dashboard';
+                }
             }
 
             $options = TemporaryLogin::buildValidOptionObject('page', $url);

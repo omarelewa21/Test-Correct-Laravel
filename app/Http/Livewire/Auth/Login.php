@@ -124,7 +124,11 @@ class Login extends Component
         Auth::logout();
 
         if(session()->has('take')){
-            $this->take = TestTake::whereUuid(session('take'))->with('testTakeCode')->first();
+            $take = TestTake::whereUuid(session('take'))->with('testTakeCode')->first();
+            if($take->testTakeCode){
+                $this->testTakeCode = str_split($take->testTakeCode->code);
+            }
+            $this->take = $take->uuid;
         }
 
         session()->invalidate();
@@ -169,8 +173,8 @@ class Login extends Component
         $this->doLoginProcedure();
         
         if($this->take){
-            return redirect()->route('take.directLink', ['test_take' => $this->take->uuid]);
-        }
+            return redirect()->route('take.directLink', ['test_take' => $this->take]);
+        }   
 
         $user = auth()->user();
         if ($user->isA('Student') && $user->schoolLocation->allow_new_student_environment) {
