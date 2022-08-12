@@ -77,11 +77,10 @@ class EntreeHelper
 
     public function handleIfRegistering()
     {
-        if(!$this->isRegistering()){
+        if($this->isRegistering()){
             return false;
         }
         $this->setLocationWithSamlAttributes();
-
         if(config('entree.use_with_2_urls') && $url = $this->redirectIfSmallSetAndSsoAvailable(true)) {
             return $url;
         }
@@ -324,22 +323,13 @@ class EntreeHelper
 
     public function redirectIfBrinUnknown()
     {
-        if($this->isRegistering()){
-            $data = (object) [
-              'brin' => $this->getBrinFromAttributes()
-            ];
-            if($url = $this->handleIfRegisteringAndNoBrincode($data)){
-                return $url;
+        $this->setLocationWithSamlAttributes();
+        if ($this->location == null) {
+            $url = route('auth.login', ['tab' => 'login', 'entree_error_message' => 'auth.brin_not_found']);
+            if ($this->brinFourErrorDetected) {
+                $url = route('auth.login', ['tab' => 'login', 'entree_error_message' => 'auth.brin_four_detected']);
             }
-        } else {
-            $this->setLocationWithSamlAttributes();
-            if ($this->location == null) {
-                $url = route('auth.login', ['tab' => 'login', 'entree_error_message' => 'auth.brin_not_found']);
-                if ($this->brinFourErrorDetected) {
-                    $url = route('auth.login', ['tab' => 'login', 'entree_error_message' => 'auth.brin_four_detected']);
-                }
-                return $this->redirectToUrlAndExit($url);
-            }
+            return $this->redirectToUrlAndExit($url);
         }
         return $this->location;
     }
@@ -356,6 +346,14 @@ class EntreeHelper
             return true;
         }
         return false;
+    }
+
+    protected function getSchoolLocationsBasedOnSchoolIdAndActiveEntreeSSO($schoolId)
+    {
+        return SchoolLocation::where('school_id', $schoolId)
+            ->where('sso_type', SchoolLocation::SSO_ENTREE)
+            ->where('sso_active', 1)
+            ->get();
     }
 
     private function setLocationWithSamlAttributes()
@@ -386,10 +384,7 @@ class EntreeHelper
             $school = School::where('external_main_code', $external_main_code)->get();
             if ($school->count() === 1) {
                 $this->school = $school->first();
-                $locations = SchoolLocation::where('school_id', $school->first()->getKey())
-                    ->where('sso_type', SchoolLocation::SSO_ENTREE)
-                    ->where('sso_active', 1)
-                    ->get();
+                $locations = $this->getSchoolLocationsBasedOnSchoolIdAndActiveEntreeSSO($this->school->getKey());
                 if ($locations->count() > 0) {
                     if ($this->isTeacherBasedOnAttributes()) {
                         // teacher (later on there will be a match on role)
@@ -671,7 +666,16 @@ class EntreeHelper
     public function redirectIfSmallSetAndSsoAvailable($register = false)
     {
         $this->setLocationWithSamlAttributes();
-        if (optional($this->location)->sso_active == 1 && request()->get('set') !== 'full') {
+        $this->hasActiveEntreeSSOBasedOnSchool = false;
+        if($this->school){
+            $this->hasActiveEntreeSSOBasedOnSchool = !!($this->getSchoolLocationsBasedOnSchoolIdAndActiveEntreeSSO($this->school->getKey()));
+        }
+        if (request()->get('set') !== 'full'
+                && (
+                (optional($this->location)->sso_active == 1 && optional($this->location)->sso_type === SchoolLocation::SSO_ENTREE)
+                || $this->hasActiveEntreeSSOBasedOnSchool
+                )
+            ) {
             // we probably have a small set so go for the big set
             // we need an url to go to samle login with setting for the big set
             $url = route('saml2_login', ['idpName' => 'entree', 'set' => 'full','entreeRegister' => $register]);
