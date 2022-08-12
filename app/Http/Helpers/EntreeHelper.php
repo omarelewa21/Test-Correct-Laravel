@@ -681,7 +681,7 @@ class EntreeHelper
             // we probably have a small set so go for the big set
             // we need an url to go to samle login with setting for the big set
             $url = route('saml2_login', ['idpName' => 'entree', 'set' => 'full','entreeRegister' => $register]);
-            sleep(0.9);
+            sleep(2);
             return $this->redirectToUrlAndExit($url);
         }
     }
