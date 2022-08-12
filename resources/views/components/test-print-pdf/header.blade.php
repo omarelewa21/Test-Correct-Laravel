@@ -43,7 +43,7 @@
             {{ $test->subject->name }}
         </td>
         <td class="bold text-right" style="border: none !important; border-color: #ffffff;">
-            {{ $test->period->schoolYear->year }}
+            {{ \tcCore\Lib\Repositories\PeriodRepository::getCurrentPeriod()->schoolYear->year }}
         </td>
     </tr>
 </table>

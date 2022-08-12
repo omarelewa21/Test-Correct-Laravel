@@ -16,7 +16,7 @@
     </tr>
     <tr>
         <td class="bold text-right">
-            {{ $test->period->schoolYear->year }}
+            {{ \tcCore\Lib\Repositories\PeriodRepository::getCurrentPeriod()->schoolYear->year }}
         </td>
     </tr>
 </table>
