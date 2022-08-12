@@ -325,7 +325,7 @@ class SchoolImportHelper
 
     protected function enhanceDataWithUser($data, $user = null)
     {
-        if (!isset($data['user_id'])) {
+        if (!isset($data['user_id']) || $data['user_id'] === '' || $data['user_id'] === '-') {
             if(!$user){
                 throw new SchoolAndSchoolLocationsImportException("No user set to enhance the data");
             }
