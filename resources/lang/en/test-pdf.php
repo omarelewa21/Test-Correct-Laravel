@@ -38,4 +38,5 @@ return [
     'pdf_text'                             => 'The PDF attachment of this question has been provided to you separately by your teacher.',
     'printversion_test'                    => 'Printversion test:',
     'printversion_test_attachments'        => 'Printversion test pdf-attachments:',
+    'pdf_download_wait_text'               => 'Please wait for the pdf to load, it may take a while.',
 ];

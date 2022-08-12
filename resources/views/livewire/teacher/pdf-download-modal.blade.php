@@ -1,11 +1,47 @@
 <x-modal.base-modal x-data="{
                 value : null,
+                activateAttachmentsLink: '{{ $testHasPdfAttachments }}',
+                waitingScreenHtml: PdfDownload.waitingScreenHtml('{{ $translation }}'),
                 select: function(option) {
                     this.value = option;
                 },
                 selected: function(option){
                     return option === this.value;
-                },}">
+                },
+                export_pdf: function (value){
+                    if(!value){
+                        $wire.set('displayValueRequiredMessage', true);
+                        return;
+                    }
+                    switch(value) {
+                        case 'attachments':
+                            this.export_attachments();
+                            break;
+                        case 'testpdf':
+                            this.export_test_pdf();
+                            break;
+                        case 'answermodel':
+                            this.export_answer_model_pdf();
+                            break;
+                    }
+                    $wire.emit('closeModal');
+                },
+                export_attachments: async function (){
+                    let response = await $wire.getTemporaryLoginToPdfForTest();
+                    window.open(response, '_blank');
+                },
+                export_test_pdf: function () {
+                    var windowReference = window.open();
+                    windowReference.document.write(this.waitingScreenHtml);
+                    windowReference.location = '{{ route('teacher.preview.test_pdf', ['test' => $uuid]) }}';
+                },
+                export_answer_model_pdf: function () {
+                    var windowReference = window.open();
+                    windowReference.document.write(this.waitingScreenHtml);
+                    windowReference.location = '{{ route('teacher.test-answer-model', ['test' => $uuid]) }}';
+                },
+
+}">
     <x-slot name="title">
         <h2>{{__("teacher.Toets exporteren")}}</h2>
     </x-slot>
@@ -13,7 +49,7 @@
         @if($displayValueRequiredMessage)
             <div class="mb-4 text-red-500 text-sm">{{ __('cms.Kies een waarde') }}</div>
         @endif
-        <div class="flex " >
+        <div class="flex">
             <div name="block-container" class="grid gap-4 grid-cols-2">
                 <div class="col-span-2">
                     {{ __('teacher.Kies een of meerdere onderdelen') }}
@@ -37,16 +73,16 @@
                 </button>
 
                 <button class="test-change-option transition"
-                        :class="{'active': selected('attachments')}"
-                        @click="select('attachments')"
+                        :class="{'active': selected('attachments') && activateAttachmentsLink, 'opacity-25': ! activateAttachmentsLink }"
+                        @click="activateAttachmentsLink ? select('attachments') : ''"
                 >
                     <div>
                         <x-stickers.test-new/>
                     </div>
-                    <div x-show="selected('attachments')">
+                    <div x-show="selected('attachments') && activateAttachmentsLink">
                         <x-icon.checkmark class="absolute top-2 right-2 overflow-visible"/>
                     </div>
-                    <div class="ml-2.5 text-left" >
+                    <div class="ml-2.5 text-left">
                         <span class="text-base bold">{{ __('cms.bijlagen') }}</span>
                         <p class="note text-sm">{{ __('cms.alle bijlagen') }}</p>
                     </div>
@@ -62,23 +98,25 @@
                     <div x-show="selected('answermodel')">
                         <x-icon.checkmark class="absolute top-2 right-2 overflow-visible"/>
                     </div>
-                    <div class="ml-2.5 text-left" >
+                    <div class="ml-2.5 text-left">
                         <span class="text-base bold">{{ __('cms.antwoordmodellen') }}</span>
                         <p class="note text-sm">{{ __('cms.antwoordmodellen_omschrijving') }}</p>
                     </div>
                 </button>
 
-                <button class="test-change-option transition"
-                        :class="{'active': selected('studentanswers')}"
-                        @click="select('studentanswers')"
+                <button class="test-change-option transition opacity-25"
+                        {{-- (student-)Answers button/card is disabled, pdf doesnt exist yet --}}
+                        {{--     :class="{'active': selected('studentanswers')}"--}}
+                        {{--     @click="select('studentanswers')"--}}
                 >
                     <div>
                         <x-stickers.test-new/>
                     </div>
-                    <div x-show="selected('studentanswers')">
-                        <x-icon.checkmark class="absolute top-2 right-2 overflow-visible"/>
-                    </div>
-                    <div class="ml-2.5 text-left" >
+                    {{-- (student-)Answers button/card is disabled, pdf doesnt exist yet --}}
+                    {{--      <div x-show="selected('studentanswers')">--}}
+                    {{--           <x-icon.checkmark class="absolute top-2 right-2 overflow-visible"/>--}}
+                    {{--      </div>--}}
+                    <div class="ml-2.5 text-left">
                         <span class="text-base bold">{{ __('cms.antwoorden') }}</span>
                         <p class="note text-sm">{{ __('cms.antwoorden_omschrijving') }}</p>
                     </div>
@@ -90,8 +128,8 @@
         <div class="flex justify-end items-center">
             <div class="flex gap-4">
                 <x-button.text-button wire:click="close">{{ __('teacher.Annuleer') }}</x-button.text-button>
-                <x-button.cta @click="$wire.submit(value)" {{--wire:click="submit"--}}>{{ __('cms.pdf_exporteren') }}</x-button.cta>
-            </div> {{-- 44vw depends on maxWidth 2xl... --}}
+                <x-button.cta @click="export_pdf(value)">{{ __('cms.pdf_exporteren') }}</x-button.cta>
+            </div>
         </div>
     </x-slot>
 </x-modal.base-modal>

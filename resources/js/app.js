@@ -11,6 +11,7 @@ require('./attachment');
 require('./flatpickr');
 require('./navigation-bar');
 require('../../vendor/wire-elements/modal/resources/js/modal');
+require('./pdf-download');
 
 
 window.ClassicEditors = [];

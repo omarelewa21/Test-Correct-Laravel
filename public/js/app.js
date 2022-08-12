@@ -6323,6 +6323,8 @@ __webpack_require__(/*! ./navigation-bar */ "./resources/js/navigation-bar.js");
 
 __webpack_require__(/*! ../../vendor/wire-elements/modal/resources/js/modal */ "./vendor/wire-elements/modal/resources/js/modal.js");
 
+__webpack_require__(/*! ./pdf-download */ "./resources/js/pdf-download.js");
+
 window.ClassicEditors = [];
 
 addIdsToQuestionHtml = function addIdsToQuestionHtml() {
@@ -13001,6 +13003,20 @@ Notify = {
         type: type
       }
     }));
+  }
+};
+
+/***/ }),
+
+/***/ "./resources/js/pdf-download.js":
+/*!**************************************!*\
+  !*** ./resources/js/pdf-download.js ***!
+  \**************************************/
+/***/ (() => {
+
+PdfDownload = {
+  waitingScreenHtml: function waitingScreenHtml(translation) {
+    return "<html><head><style>" + "#animation {" + "background-image: url(/img/loading.gif);" + "}" + "</style></head>" + "<body style='background: url(/img/bg.png) right no-repeat #f5f5f5'>" + "<div style='display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh;'>" + "<div style='background-color: rgba(0,0,0,0.8); padding: 20px 20px 15px 20px; border-radius: 10px; margin-bottom: 1rem;'>" + "<div id='animation' style='width: 35px; height: 35px;'></div>" + "</div>" + "<span style='font-family: Nunito, sans-serif; font-size: 20pt;'>" + translation + "</span>" + "</div>" + "</body></html>";
   }
 };
 

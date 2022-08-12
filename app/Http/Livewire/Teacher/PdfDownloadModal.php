@@ -10,11 +10,15 @@ use tcCore\Test;
 
 class PdfDownloadModal extends ModalComponent
 {
-    public $selectedOption = null;
+    public string $waitingScreenHtml;
+    public string $translation;
+    public string $uuid;
+    public $test;
+    public bool $testHasPdfAttachments;
 
-    public $displayValueRequiredMessage = false;
+    public bool $displayValueRequiredMessage = false;
     protected static array $maxWidths = [
-        'w-modal'  => 'max-w-[720px]',
+        'w-modal' => 'max-w-[720px]',
     ];
 
     public static function modalMaxWidth(): string
@@ -26,33 +30,10 @@ class PdfDownloadModal extends ModalComponent
     {
         $this->uuid = $test;
         $this->test = Test::findByUuid($test);
-    }
 
-    public function submit($selectedOption)
-    {
-        $this->selectedOption = $selectedOption;
+        $this->testHasPdfAttachments = $this->test->hasPdfAttachments;
 
-        //todo
-        // handle choice of pdf download
-        switch($selectedOption) {
-            case 'testpdf':
-                //todo add some sort of waiting page / ajax or wait
-                return $this->redirectRoute('teacher.preview.test_pdf', ['test' => $this->uuid]);
-                break;
-            case 'attachments':
-                //todo add redirect to cake
-//                let response = await $wire.getTemporaryLoginToPdfForTest();
-//                window.open(response, '_blank');
-
-                break;
-            case 'answermodel':
-                //todo add some sort of waiting page / ajax or wait
-                return $this->redirectRoute('teacher.test-answer-model', ['test' => $this->uuid]);
-                break;
-            case 'studentanswers':
-                // doesnt exist yet.
-                break;
-        }
+        $this->setDownloadWaitingScreenHtml();
     }
 
     public function getTemporaryLoginToPdfForTest()
@@ -67,6 +48,13 @@ class PdfDownloadModal extends ModalComponent
         ]);
 
         return $controller->toCakeUrl($request);
+    }
+
+    public function setDownloadWaitingScreenHtml()
+    {
+        $this->translation = __('test-pdf.pdf_download_wait_text');
+
+        $this->waitingScreenHtml = "<html><body><div style=\"background-color: #ff0000;\">test</div></body> </html>";
     }
 
     public function render()
