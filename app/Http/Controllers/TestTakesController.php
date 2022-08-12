@@ -580,6 +580,8 @@ class TestTakesController extends Controller {
 
         $testTake['consists_only_closed_question'] = $test->hasOpenQuestion() ? false : true;
 
+        $testTake['writing_assignments_count'] = $test->getWritingAssignmentsCount();
+
         return Response::make($testTake, 200);
     }
 

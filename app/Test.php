@@ -795,6 +795,13 @@ class Test extends BaseModel
         });
     }
 
+    public function getWritingAssignmentsCount()
+    {
+        return collect(QuestionGatherer::getQuestionsOfTest($this->getKey(), true))->filter(function (Question $question) {
+            return $question instanceof OpenQuestion && $question->subtype === 'writing';
+        })->count();
+    }
+
     private function getQueryGetItemsFromSchoolLocationAuthoredByUser($user)
     {
         return sprintf('select distinct t2.id as t2_id  /* select all tests from schoollocation authored by user */
