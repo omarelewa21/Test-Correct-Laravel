@@ -70,9 +70,14 @@ class EntreeHelper
         return true;
     }
 
+    protected function isRegistering()
+    {
+        return (session()->get('entreeReason',false) === 'register');
+    }
+
     public function handleIfRegistering()
     {
-        if(session()->get('entreeReason',false) !== 'register'){
+        if(!$this->isRegistering()){
             return false;
         }
         $this->setLocationWithSamlAttributes();
@@ -228,9 +233,14 @@ class EntreeHelper
 
         // no brincode found
         if($exit) {
-            return $this->redirectToUrlAndExit($this->getOnboardingUrlWithOptionalMessage(__('onboarding-welcome.Je school is helaas nog niet bekend in Test-Correct. Vul dit formulier in om een account aan te maken')));
+            return $this->redirectIfUnknownBrinForRegistration();
         }
         return false;
+    }
+
+    protected function redirectIfUnknownBrinForRegistration()
+    {
+        return $this->redirectToUrlAndExit($this->getOnboardingUrlWithOptionalMessage(__('onboarding-welcome.Je school is helaas nog niet bekend in Test-Correct. Vul dit formulier in om een account aan te maken')));
     }
 
     protected function handleIfRegisteringAndNoEckId($data)
@@ -314,13 +324,22 @@ class EntreeHelper
 
     public function redirectIfBrinUnknown()
     {
-        $this->setLocationWithSamlAttributes();
-        if ($this->location == null) {
-            $url = route('auth.login', ['tab' => 'login', 'entree_error_message' => 'auth.brin_not_found']);
-            if ($this->brinFourErrorDetected) {
-                $url = route('auth.login', ['tab' => 'login', 'entree_error_message' => 'auth.brin_four_detected']);
+        if($this->isRegistering()){
+            $data = (object) [
+              'brin' => $this->getBrinFromAttributes()
+            ];
+            if($url = $this->handleIfRegisteringAndNoBrincode($data)){
+                return $url;
             }
-            return $this->redirectToUrlAndExit($url);
+        } else {
+            $this->setLocationWithSamlAttributes();
+            if ($this->location == null) {
+                $url = route('auth.login', ['tab' => 'login', 'entree_error_message' => 'auth.brin_not_found']);
+                if ($this->brinFourErrorDetected) {
+                    $url = route('auth.login', ['tab' => 'login', 'entree_error_message' => 'auth.brin_four_detected']);
+                }
+                return $this->redirectToUrlAndExit($url);
+            }
         }
         return $this->location;
     }
@@ -656,7 +675,7 @@ class EntreeHelper
             // we probably have a small set so go for the big set
             // we need an url to go to samle login with setting for the big set
             $url = route('saml2_login', ['idpName' => 'entree', 'set' => 'full','entreeRegister' => $register]);
-            sleep(0.3);
+            sleep(0.7);
             return $this->redirectToUrlAndExit($url);
         }
     }
