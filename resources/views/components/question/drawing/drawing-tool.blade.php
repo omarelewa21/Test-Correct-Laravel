@@ -160,12 +160,7 @@
         </button>
     </div>
     <div id="canvas-sidebar-container" class="overflow-hidden">
-        <article id="canvas" class="overflow-hidden">
-            @if($this->backgroundImage)
-                <div class="absolute w-3/4 h-full flex items-center">
-                    <img src="{{$this->backgroundImage}}" class="w-full">
-                </div>
-            @endif
+        <article id="canvas" x-ref="canvas_" class="overflow-hidden">
             <svg id="svg-canvas" x-ref="canvas" xmlns="http://www.w3.org/2000/svg" class="overflow-hidden">
                 <defs>
                     <marker id="svg-filled-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6"
@@ -182,6 +177,14 @@
                     </marker>
                 </defs>
                 <g id="svg-pan-zoom-group" transform="matrix(1 0 0 1 0 0)">
+                    @if($this->backgroundImage)
+                        <image href="{{$this->backgroundImage}}"
+                            :width="$refs.canvas_.offsetWidth * 3/4"
+                            :height="$refs.canvas_.offsetHeight"
+                            :x="-$refs.canvas_.offsetWidth/2"
+                            :y="-$refs.canvas_.offsetHeight/2"
+                        />
+                    @endif
                     <g id="svg-grid-group" stroke="var(--all-BlueGrey)" stroke-width="1"></g>
                     <g id="svg-question-group"></g>
                     <g id="svg-answer-group"></g>
