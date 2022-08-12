@@ -11,7 +11,6 @@ class CmsWritingAssignment extends CmsBase
         'spellingCheckAvailableDuringAssessing' => true,
     ];
     protected $questionOptions = [
-        'lang'                  => 'nl_NL',
         'spell_check_available' => true,
     ];
 
@@ -27,7 +26,6 @@ class CmsWritingAssignment extends CmsBase
 
     public function preparePropertyBag()
     {
-        $this->questionOptions['lang'] =  Auth::user()->schoolLocation->wsc_language;
         foreach ($this->questionOptions as $key => $value) {
             $this->instance->question[$key] = $value;
         }
