@@ -38,7 +38,6 @@ class ExcelSchoolImportManifest
         'Bezoekadres Stad' => 'visit_city',
         'Bezoekadres Land' => 'visit_country',
         'Hubspot ID' => 'company_id',
-        'Accountmanager' => 'user_id',
     ];
 
     protected $schoolTransformer = [
@@ -53,6 +52,7 @@ class ExcelSchoolImportManifest
         'factuuradres postcode' => 'invoice_postal',
         'factuuradres stad' => 'invoice_city',
         'factuuradres land' => 'invoice_country',
+        'Accountmanager' => 'user_id',
     ];
 
     protected $transformedSchoolLocations;
