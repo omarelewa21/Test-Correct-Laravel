@@ -41,13 +41,13 @@ class EventServiceProvider extends ServiceProvider {
 
             $entreeHelper->blockIfEckIdAttributeIsNotPresent();
 
+            $entreeHelper->handleIfRegistering();
+
             $entreeHelper->redirectIfBrinUnknown();
 
             if(config('entree.use_with_2_urls')) {
                 $entreeHelper->redirectIfSmallSetAndSsoAvailable();
             }
-
-            $entreeHelper->handleIfRegistering();
 
             $entreeHelper->redirectIfBrinNotSso();
 
