@@ -6915,11 +6915,11 @@ video {
 .opacity-50{
   opacity: 0.5;
 }
-.opacity-80{
-  opacity: 0.8;
-}
 .opacity-25{
   opacity: 0.25;
+}
+.opacity-80{
+  opacity: 0.8;
 }
 .shadow-xl{
   --tw-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);

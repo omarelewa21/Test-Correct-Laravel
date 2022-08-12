@@ -29,20 +29,20 @@
     <link rel="stylesheet" href="file://{{ public_path('/css/print-test-pdf.css') }}">
 </head>
 <body class="test-print-pdf" style="border:0; margin: 0;" onload="subst()">
-<table class="header-table" style="width: 100%;">
-    <tr>
-        <td class=" bold">
+<table class="header-table" style="width: 100%; border: none !important; border-color: #ffffff;">
+    <tr style="border: none !important; border-color: #ffffff;">
+        <td class=" bold" style="border: none !important; border-color: #ffffff;">
             {{ $test->name }}
         </td>
         <td class="" style="text-align:right">
             {{ __("test-pdf.".$testType) }} {{ $test->educationLevel->name }}
         </td>
     </tr>
-    <tr>
-        <td class="bold">
+    <tr style="border: none !important; border-color: #ffffff;">
+        <td class="bold" style="border: none !important; border-color: #ffffff;">
             {{ $test->subject->name }}
         </td>
-        <td class="bold text-right">
+        <td class="bold text-right" style="border: none !important; border-color: #ffffff;">
             {{ $test->period->schoolYear->year }}
         </td>
     </tr>
