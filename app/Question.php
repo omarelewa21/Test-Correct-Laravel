@@ -75,7 +75,8 @@ class Question extends MtiBaseModel {
                             'is_subquestion',
                             'all_or_nothing',
                             'fix_order',
-                            'owner_id'
+                            'owner_id',
+                            'lang',
                             ];
 
     /**
@@ -1655,5 +1656,10 @@ class Question extends MtiBaseModel {
 //        return $test->testQuestions->filter(function($testQuestion) {
 //            return $testQuestion->question->id === $this->getKey() || $testQuestion->question->derived_question_id === $this->getKey();
 //        })->isNotEmpty();
+    }
+
+    public function hasCmsPreview()
+    {
+        return !$this->isType('matrix');
     }
 }

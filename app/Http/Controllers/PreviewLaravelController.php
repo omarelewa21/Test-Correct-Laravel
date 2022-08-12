@@ -4,6 +4,7 @@ namespace tcCore\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Route;
 use tcCore\GroupQuestionQuestion;
 use tcCore\Http\Traits\TestTakeNavigationForController;
 use tcCore\Question;
@@ -59,6 +60,11 @@ class PreviewLaravelController extends Controller
                 return collect([$testQuestion->question]);
             });
 //        });
+    }
+
+    public function isNotPreview()
+    {
+        return (Route::currentRouteName()=='teacher.test-preview')?false:true;
     }
 
     private function getNavigationData($data)

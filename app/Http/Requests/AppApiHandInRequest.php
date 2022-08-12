@@ -4,7 +4,6 @@ namespace tcCore\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Session;
 
 class AppApiHandInRequest extends FormRequest
 {
@@ -18,8 +17,7 @@ class AppApiHandInRequest extends FormRequest
         return Auth::user() &&
             Auth::user()->isA('Student') &&
             $this->route('test_participant') &&
-            Auth::user()->id == $this->route('test_participant')->user_id &&
-            $this->route('test_participant')->isInBrowser() === false;
+            Auth::user()->id == $this->route('test_participant')->user_id;
     }
 
     /**

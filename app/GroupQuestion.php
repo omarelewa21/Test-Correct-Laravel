@@ -69,7 +69,21 @@ class GroupQuestion extends Question implements QuestionInterface {
                 continue;
             }
 
-            if ($ignore instanceof GroupQuestionQuestion && $ignore->getAttribute('group_question_id') == $groupQuestionQuestions->getAttribute('group_question_id') && $ignore->getAttribute('question_id') == $groupQuestionQuestions->getAttribute('question_id')) {
+            /*
+             * Replaced this conditional with the one below because the following scenario occured because of it:
+             *  Create a new group question;
+                Add an existing question twice;
+                Change the content of one of them;
+                Both of the (sub) question are removed, and only the changed one is duplicated and put back.
+
+                26-07-22 - RR
+            if ($ignore instanceof GroupQuestionQuestion &&
+                $ignore->getAttribute('group_question_id') == $groupQuestionQuestions->getAttribute('group_question_id') &&
+                $ignore->getAttribute('question_id') == $groupQuestionQuestions->getAttribute('question_id')
+            ) {
+                continue;
+            }*/
+            if ($ignore instanceof GroupQuestionQuestion && $ignore->getKey() == $groupQuestionQuestions->getKey()) {
                 continue;
             }
 

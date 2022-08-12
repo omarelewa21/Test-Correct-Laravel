@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 use Livewire\WithPagination;
+use tcCore\BaseSubject;
 use tcCore\EducationLevel;
 use tcCore\Http\Controllers\AuthorsController;
 use tcCore\Http\Controllers\SubjectsController;
@@ -40,8 +41,6 @@ class TestsOverview extends Component
 
     private $allowedTabs = [
         'school',
-        'exams',
-        'cito',
         'national',
         'personal',
     ];
@@ -86,13 +85,9 @@ class TestsOverview extends Component
             case 'school':
                 $datasource = $this->getSchoolDatasource();
                 break;
-            case 'exams':
-                $datasource = $this->getExamsDatasource();
-                break;
-            case 'cito':
-                $datasource = $this->getCitoDataSource();
-                break;
             case 'national':
+                $datasource = $this->getNationalDatasource();
+                break;
             case 'personal':
             default :
                 $datasource = $this->getPersonalDatasource();
@@ -116,10 +111,11 @@ class TestsOverview extends Component
 
     }
 
-    private function getExamsDatasource()
+
+    private function getNationalDatasource()
     {
-        return Test::examFiltered(
-            $this->cleanFilterForSearch($this->filters['exams']),
+        return Test::nationalItemBankFiltered(
+            $this->cleanFilterForSearch($this->filters['national']),
             $this->sorting
         )
             ->with('educationLevel', 'testKind', 'subject', 'author', 'author.school', 'author.schoolLocation')
@@ -143,17 +139,6 @@ class TestsOverview extends Component
         return $results;
     }
 
-    private function getCitoDataSource()
-    {
-        $results = Test::citoFiltered(
-            $this->cleanFilterForSearch($this->filters['cito']),
-            $this->sorting
-        )
-            ->with('educationLevel', 'testKind', 'subject', 'author', 'author.school', 'author.schoolLocation')
-            ->paginate(self::PER_PAGE);
-
-        return $results;
-    }
 
     private function setFilters()
     {
@@ -167,13 +152,11 @@ class TestsOverview extends Component
                     'education_level_id'   => [],
                     'subject_id'           => [],
                     'author_id'            => [],
+                    'base_subject_id'      => [],
                 ];
+                $this->filters[$tab] = array_merge($this->filters[$tab], auth()->user()->getSearchFilterDefaultsTeacher());
             });
         }
-
-
-        /** @TODO default search filter for teacher (is dirty now) */
-//        $this->filters = array_merge($this->filters, auth()->user()->getSearchFilterDefaultsTeacher());
     }
 
 
@@ -186,19 +169,44 @@ class TestsOverview extends Component
             });
     }
 
-    public function getSubjectsProperty()
+    public function getBasesubjectsProperty()
     {
-        return Subject::when($this->openTab === 'cito', function ($query) {
-            $query->citoFiltered([], ['name' => 'asc']);
-        })->when($this->openTab === 'exams', function ($query) {
-            $query->examFiltered([], ['name' => 'asc']);
-        }, function ($query) {
-            $query->filtered([], ['name' => 'asc']);
-        })
+        if ($this->openTab === 'national') {
+            return $this->getBaseSubjectsOptions();
+        }
+        return [];
+    }
+
+    private function getBaseSubjectsOptions()
+    {
+        return BaseSubject::nationalItemBankFiltered()
             ->get(['name', 'id'])
             ->map(function ($subject) {
                 return ['value' => (int)$subject->id, 'label' => $subject->name];
             })->toArray();
+    }
+
+    public function getSubjectsProperty()
+    {
+        return $this->filterSubjectsByTabName($this->openTab)
+            ->get(['name', 'id'])
+            ->map(function ($subject) {
+                return ['value' => (int)$subject->id, 'label' => $subject->name];
+            })->toArray();
+    }
+
+    private function filterSubjectsByTabName(string $tab)
+    {
+        switch ($tab) {
+            case 'cito':
+                return Subject::citoFiltered([], ['name' => 'asc']);
+            case 'national':
+                return Subject::nationalItemBankFiltered([], ['name' => 'asc']);
+            case 'exams':
+                return Subject::examFiltered([], ['name' => 'asc']);
+            default:
+                return Subject::filtered([], ['name' => 'asc']);
+        }
     }
 
     public function getEducationLevelYearProperty()
@@ -227,7 +235,7 @@ class TestsOverview extends Component
     private function cleanFilterForSearch(array $filters)
     {
         $searchFilter = [];
-        foreach (['name', 'education_level_year', 'education_level_id', 'subject_id', 'author_id'] as $filter) {
+        foreach (['name', 'education_level_year', 'education_level_id', 'subject_id', 'author_id', 'base_subject_id'] as $filter) {
             if (!empty($filters[$filter])) {
                 $searchFilter[$filter] = $filters[$filter];
             }
@@ -259,6 +267,7 @@ class TestsOverview extends Component
                 'education_level_id'   => [],
                 'subject_id'           => [],
                 'author_id'            => [],
+                'base_subject_id'      => []
             ];
         });
         session(['tests-overview-filters' => $this->filters]);
