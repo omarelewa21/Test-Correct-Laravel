@@ -38,6 +38,7 @@ class ExcelSchoolImportManifest
         'Bezoekadres Stad' => 'visit_city',
         'Bezoekadres Land' => 'visit_country',
         'Hubspot ID' => 'company_id',
+        'Accountmanager' => 'user_id',
     ];
 
     protected $schoolTransformer = [
