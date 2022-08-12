@@ -144,7 +144,7 @@ class ExcelSchoolImportManifest
                 $this->addError(sprintf('%s Missing customer code for %s',self::FATAL_ERROR, $row['name']));
             }
             // is the external main code set?
-            if($row['external_main_code']){
+            if($row['external_main_code'] && $row['external_main_code'] !== '-'){
                 // do we have one with the same extneral main code in the import
                 if(in_array($row['external_main_code'],$externalMainCodesInImport)){
                     $this->addError(sprintf('%s We have two schools in the import with the same BRIN four %s',self::FATAL_ERROR, $row['external_main_code']));
