@@ -100,7 +100,7 @@ class PrintTestController extends Controller
             return false;
         }
 
-        $pdfAttachments = $this->getPdfAttachmentsFromTest();
+        $pdfAttachments = $this->test->pdfAttachments;
 
         if ($pdfAttachments->isNotEmpty()) {
             $merger = new Merger(new TcpdiDriver());
@@ -195,21 +195,6 @@ class PrintTestController extends Controller
             });
         });
         return $result;
-    }
-
-    private function getPdfAttachmentsFromTest()
-    {
-        $attachments = collect();
-
-        $this->test->testQuestions->sortBy('order')->each(function ($testQuestion) use (&$attachments) {
-            $testQuestion->question->loadRelated();
-            $testQuestion->question->attachments->each(function ($attachment) use (&$attachments) {
-                if ($attachment->getFileType() == 'pdf') {
-                    $attachments->add($attachment);
-                }
-            });
-        });
-        return $attachments;
     }
 
     private function getNavigationData($data)

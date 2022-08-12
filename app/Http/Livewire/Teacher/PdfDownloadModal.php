@@ -50,7 +50,7 @@ class PdfDownloadModal extends ModalComponent
         return $controller->toCakeUrl($request);
     }
 
-    public function setDownloadWaitingScreenHtml()
+    private function setDownloadWaitingScreenHtml()
     {
         $this->translation = __('test-pdf.pdf_download_wait_text');
 
