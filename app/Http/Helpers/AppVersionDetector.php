@@ -89,10 +89,8 @@ class AppVersionDetector
                 "3.1.0",
             ],
             "needsUpdate" => [
-                "2.4.1",
             ],
             "needsUpdateDeadline" => [
-                "2.4.1" => "24 juli 2022",
             ],
         ],
         "ChromeOS" => [
@@ -141,10 +139,8 @@ class AppVersionDetector
                 "3.1.0",
             ],
             "needsUpdate" => [
-                "2.4.1",
             ],
             "needsUpdateDeadline" => [
-                "2.4.1" => "Juli 2022",
             ],
         ],
         "windowsElectron" => [
@@ -175,10 +171,8 @@ class AppVersionDetector
                 "3.3.0-beta.5",
             ],
             "needsUpdate" => [
-                "3.2.2",
             ],
             "needsUpdateDeadline" => [
-                "3.2.2" => "4 augustus 2022",
             ],
         ],
         "macosElectron" => [
@@ -209,10 +203,8 @@ class AppVersionDetector
                 "3.3.0-beta.5",
             ],
             "needsUpdate" => [
-                "3.2.2",
             ],
             "needsUpdateDeadline" => [
-                "3.2.2" => "4 augustus 2022",
             ],
         ]
     ];
