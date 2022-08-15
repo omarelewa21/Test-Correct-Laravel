@@ -5047,6 +5047,9 @@ video {
 .m-1{
   margin: 0.25rem;
 }
+.m-auto{
+  margin: auto;
+}
 .mx-8{
   margin-left: 2rem;
   margin-right: 2rem;

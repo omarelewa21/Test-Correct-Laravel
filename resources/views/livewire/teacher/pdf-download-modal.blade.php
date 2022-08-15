@@ -61,7 +61,7 @@
                         @click="select('testpdf')"
                 >
                     <div class="flex">
-                        <x-stickers.test-update/>
+                        <x-stickers.test-new/>{{--<x-stickers.test-update/>--}}
                     </div>
 
                     <div x-show="selected('testpdf')">

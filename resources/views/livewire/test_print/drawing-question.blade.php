@@ -12,8 +12,8 @@
             {!! $question->converted_question_html !!}
         </div>
         @if($pngBase64)
-            <div class="mt-3 question-no-break-drawing drawing-img-container">
-                <img id="drawnImage" class="border border-blue-grey rounded-10"
+            <div class="mt-3 question-no-break-drawing drawing-img-container border border-blue-grey rounded-10">
+                <img id="drawnImage" class=""
                      src="{{$pngBase64}}" alt="">
                 <span></span>
             </div>
