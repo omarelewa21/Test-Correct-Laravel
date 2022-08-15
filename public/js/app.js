@@ -9725,11 +9725,43 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview) {
       Canvas.layers.grid.shape.show();
     }
 
+    return handleMinPanGroupSizes(panGroupSize);
     return {
       x: panGroupSize.x,
       y: panGroupSize.y,
-      width: panGroupSize.width,
-      height: panGroupSize.height
+      width: panGroupSize.width > minPanGroupWidth ? panGroupSize.width : minPanGroupWidth,
+      height: panGroupSize.height > minPanGroupHeight ? panGroupSize.height : minPanGroupHeight
+    };
+  }
+
+  function handleMinPanGroupSizes(panGroupSize) {
+    var minPanGroupWidth = 820;
+    var minPanGroupHeight = 500;
+    var resultWidth;
+    var resultHeight;
+    var resultX;
+    var resultY;
+    resultWidth = panGroupSize.width;
+    resultX = panGroupSize.x;
+
+    if (panGroupSize.width < minPanGroupWidth) {
+      resultWidth = minPanGroupWidth;
+      resultX = panGroupSize.x - (minPanGroupWidth - panGroupSize.width) / 2;
+    }
+
+    resultHeight = panGroupSize.height;
+    resultY = panGroupSize.y;
+
+    if (panGroupSize.height < minPanGroupHeight) {
+      resultHeight = minPanGroupHeight;
+      resultY = panGroupSize.y - (minPanGroupHeight - panGroupSize.height) / 2;
+    }
+
+    return {
+      x: resultX,
+      y: resultY,
+      width: resultWidth,
+      height: resultHeight
     };
   }
 

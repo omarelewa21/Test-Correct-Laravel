@@ -12,14 +12,14 @@
             {!! $question->converted_question_html !!}
         </div>
         @if($pngBase64)
-            <div class="mt-3 question-no-break-drawing drawing-img-container">
-                <img id="drawnImage" class="border border-blue-grey rounded-10" width="965"
+            <div class="mt-3 question-no-break-drawing drawing-img-container border border-blue-grey rounded-10">
+                <img id="drawnImage" class=""
                      src="{{$pngBase64}}" alt="">
                 <span></span>
             </div>
         @else
             <div class="mt-3 question-no-break-drawing drawing-img-container">
-                    <table class="drawing-question-grid-table" style="width: 965px">
+                    <table class="drawing-question-grid-table">
                         @foreach(range(1, $oldDrawingQuestionGridHeight) as $row)
                             <tr>
                                 @foreach(range(1, $oldDrawingQuestionGridWidth) as $column)

@@ -165,8 +165,8 @@
 }
 
 .test-print-pdf .drawing-question-grid-table {
-    width: 965px;
-    height: 430px;
+    width: 820px;
+    height: 545px;
     border-radius: 10px;
     border: 3px solid #c3d0ed;
     border-collapse: separate !important;
@@ -193,13 +193,23 @@
 }
 
 .test-print-pdf .drawing-img-container {
-
+    width: 820px;
+    min-height: 500px;
+    display: block;
+    text-align: center;
+    padding: 0;
 }
 
 .test-print-pdf .drawing-img-container img {
-    margin-left: auto;
-    margin-right: auto;
+    margin-left: 0;
+    margin-right: 0;
+    max-width: 820px;
+    margin-top: 0;
+    margin-bottom: 0;
+    display: inline-block;
+    border-radius: 10px;
 }
+
 
 .test-print-pdf .paper-line {
     border-bottom: 2px dotted #c3d0ed;
@@ -214,7 +224,7 @@
 .test-print-pdf .paper-line-wide:after {
     position: absolute;
     bottom: 0px;
-    content: '.........................................................................................................................';
+    content: '....................................................................................................';
     color: #c3d0ed;
     letter-spacing: 3px;
     word-break: none;
@@ -627,4 +637,12 @@
 .test-print-pdf .audio-container span {
     display: inline-block;
     margin-top: 0.25rem;
+}
+
+.test-print-pdf table,
+.test-print-pdf tr,
+.test-print-pdf td,
+.test-print-pdf th {
+    border:none;
+    border-color: #ffffff;
 }

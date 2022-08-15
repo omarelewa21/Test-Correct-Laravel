@@ -15,7 +15,8 @@
                     }
                     switch(value) {
                         case 'attachments':
-                            this.export_attachments();
+                            $wire.emit('openModal', 'teacher.test-pdf-attachments-download-modal', {test: '9d4b1ace-d8ef-419f-a844-c295bbb9b5f4'});
+                            {{--this.export_attachments();--}}
                             break;
                         case 'testpdf':
                             this.export_test_pdf();
@@ -24,7 +25,7 @@
                             this.export_answer_model_pdf();
                             break;
                     }
-                    $wire.emit('closeModal');
+{{--                    $wire.emit('closeModal');--}}
                 },
                 export_attachments: async function (){
                     let response = await $wire.getTemporaryLoginToPdfForTest();
@@ -60,7 +61,7 @@
                         @click="select('testpdf')"
                 >
                     <div class="flex">
-                        <x-stickers.test-update/>
+                        <x-stickers.test-new/>{{--<x-stickers.test-update/>--}}
                     </div>
 
                     <div x-show="selected('testpdf')">
@@ -127,7 +128,7 @@
     <x-slot name="footer">
         <div class="flex justify-end items-center">
             <div class="flex gap-4">
-                <x-button.text-button wire:click="close">{{ __('teacher.Annuleer') }}</x-button.text-button>
+                <x-button.text-button wire:click="close">{{ __('modal.sluiten') }}</x-button.text-button>
                 <x-button.cta @click="export_pdf(value)">{{ __('cms.pdf_exporteren') }}</x-button.cta>
             </div>
         </div>

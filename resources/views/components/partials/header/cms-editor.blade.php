@@ -24,9 +24,8 @@
             </div>
 
             <div class="flex space-x-2" x-data="{
-                    toPdf: async () => {
-                        let response = await $wire.getPdfUrl();
-                        window.open(response, '_blank');
+                    toPdf: () => {
+                        $wire.emit('openModal', 'teacher.pdf-download-modal', {test: '{{ \tcCore\Test::whereUuid($this->testId)->first()->uuid}}'});
                     }
                 }"
                  @click="forceSyncEditors();$wire.saveIfDirty()"

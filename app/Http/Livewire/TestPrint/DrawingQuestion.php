@@ -55,7 +55,7 @@ class DrawingQuestion extends Component
 
     private function setUpOldDrawingQuestionGrid()
     {
-        $this->oldDrawingQuestionGridHeight = $this->question->grid;
+        $this->oldDrawingQuestionGridHeight = $this->question->grid * 1.5;
         if($this->question->grid <= 4) {
             $this->oldDrawingQuestionGridWidth = $this->question->grid * 2;
         }

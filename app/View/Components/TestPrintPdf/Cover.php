@@ -19,12 +19,22 @@ class Cover extends Component
     {
         $this->test = $test;
 
-        if($test->hasPdfAttachments && $this->test->scope == 'exam') {
-            $this->attachmentsText = __('test-pdf.cover exam attachments text');
+        $pdfAttachmentsCount = $this->test->pdfAttachments->count();
+
+        if ($pdfAttachmentsCount < 1) {
+            return;
         }
-        elseif($test->hasPdfAttachments ) {
-            $this->attachmentsText = __('test-pdf.cover test attachments text');
+        if ($pdfAttachmentsCount === 1) {
+            $this->attachmentsText = $this->test->scope == 'exam' ?
+                __('test-pdf.cover exam attachments singular') :
+                __('test-pdf.cover test attachments singular');
+            return;
         }
+
+        $this->attachmentsText = $this->test->scope == 'exam' ?
+            sprintf(__('test-pdf.cover exam attachments plural'), $pdfAttachmentsCount) :
+            sprintf(__('test-pdf.cover test attachments plural'), $pdfAttachmentsCount);
+
     }
 
     /**
@@ -36,7 +46,7 @@ class Cover extends Component
     {
         return view('components.test-print-pdf.cover')
             ->with([
-                'test'                => $this->test,
+                'test'            => $this->test,
                 'attachmentsText' => $this->attachmentsText,
             ]);
     }

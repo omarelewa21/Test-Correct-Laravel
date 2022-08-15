@@ -34,7 +34,7 @@
 
 <span style="font-size: 7px">&nbsp;</span>
 <div class="footer-line"></div>
-<table style="border:0; width: 100%;height: 20px; ">
+<table style="border:0; width: 100%;height: 20px; border-color: #ffffff">
     <tr>
         <td colspan="3" style="width: 10em">
         </td>

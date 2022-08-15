@@ -1040,6 +1040,22 @@ class Test extends BaseModel
             ->exists();
     }
 
+    public function getPdfAttachmentsAttribute()
+    {
+        $attachments = collect();
+
+        $this->testQuestions->sortBy('order')->each(function ($testQuestion) use (&$attachments) {
+            $testQuestion->question->loadRelated();
+            $testQuestion->question->attachments->each(function ($attachment) use (&$attachments) {
+                if ($attachment->getFileType() == 'pdf') {
+                    $attachments->add($attachment);
+                }
+            });
+        });
+        return $attachments;
+    }
+
+
     public function isNationalItem(): bool
     {
         return collect(Test::NATIONAL_ITEMBANK_SCOPES)->contains($this->scope);

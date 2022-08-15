@@ -4,19 +4,19 @@
     <link rel="stylesheet" href="file://{{ public_path('/css/print-test-pdf.css') }}">
 </head>
 <body class="test-print-pdf" style="border:0; margin: 0;" onload="subst()">
-<table class="header-table" style="width: 100%;">
-    <tr>
-        <td class=" bold" rowspan="2">
+<table class="header-table" style="width: 100%; border: none !important; border-color: white;">
+    <tr style="border: none !important; border-color: white;">
+        <td class=" bold" rowspan="2" style="border: none !important; border-color: white;">
             <img class="h-12" src="{{ public_path('/img/mail/logo-test-correct.png') }}"
                  alt="Test-Correct">
         </td>
-        <td class="" style="text-align:right">
+        <td class="" style="text-align:right; border: none !important; border-color: white;">
             {{ __("test-pdf.".$testType) }} {{ $test->educationLevel->name }}
         </td>
     </tr>
     <tr>
         <td class="bold text-right">
-            {{ $test->period->schoolYear->year }}
+            {{ \tcCore\Lib\Repositories\PeriodRepository::getCurrentPeriod()->schoolYear->year }}
         </td>
     </tr>
 </table>
