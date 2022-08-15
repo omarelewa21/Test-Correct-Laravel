@@ -44,13 +44,11 @@ class Saml2Auth
         $config = config('saml2.'.$idpName.'_idp_settings');
 
         // START OVERRIDES
-        if(config('entree.use_with_2_urls')) {
-            $spIdentityAddOn = '';
-            $assertionConsumerServiceAddOn = '';
-            if(request()->get('set') === 'full'){
-                $spIdentityAddOn = '_full';
-                $assertionConsumerServiceAddOn = '?set=full';
-            }
+        $set = request()->get('set');
+        if(config('entree.use_with_2_urls') || ($set === 'full' || $set === 'small')) {
+            $spIdentityAddOn = sprintf('_%s',$set);
+            $assertionConsumerServiceAddOn = sprintf('?set=%s',$set);
+
             $config['sp']['entityId'] .= $spIdentityAddOn;
             $config['sp']['assertionConsumerService']['url'] .= $assertionConsumerServiceAddOn;
         }
