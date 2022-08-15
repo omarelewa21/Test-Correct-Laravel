@@ -12,7 +12,7 @@
     @if(Auth::user()->schoolLocation->allow_wsc)
         <script>
             window.WEBSPELLCHECKER_CONFIG = {
-                "autoSearch": true,
+                "autoSearch": false,
                 "autoDestroy": true,
                 "autocorrect": true,
                 "autocomplete": true,
