@@ -251,7 +251,7 @@ class SchoolImportHelper
         if(Str::endsWith($niveauString,';')){
             $niveauString = substr($niveauString,0, -1);
         }
-        $separator = substr_count($niveauString,';') ? ';' : '/';
+        $separator = ';'; // as per ticket 2144 // substr_count($niveauString,';') ? ';' : '/';
 
         $niveaus = array_map('strtolower',explode($separator,$niveauString));
 
