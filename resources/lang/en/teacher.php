@@ -42,5 +42,5 @@ return [
     'Toets inplannen'                                  => 'Plan test',
     'Filters wissen'                                   => 'Delete filters',
     'Vraag voorbeeld'                                  => 'Question preview',
-
+    'test_take_planned'                                => 'Test :testName has been planned',
 ];

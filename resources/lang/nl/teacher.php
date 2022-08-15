@@ -41,4 +41,5 @@ return [
     'Toets inplannen'                                  => 'Toets inplannen',
     'Filters wissen'                                   => 'Filters wissen',
     'Vraag voorbeeld'                                  => 'Vraag voorbeeld',
+    'test_take_planned'                                => 'Toets :testName is ingepland',
 ];
