@@ -9,9 +9,9 @@ class AfterPlanningModal extends ModalComponent
 {
     public $testTake;
 
-    public function mount(TestTake $testTake)
+    public function mount($testTakeUuid)
     {
-        $this->testTake = $testTake->load('test');
+        $this->testTake = TestTake::whereUuid($testTakeUuid)->with('test')->first();
     }
 
     public function render()

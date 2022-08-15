@@ -42,4 +42,6 @@ return [
     'Filters wissen'                                   => 'Filters wissen',
     'Vraag voorbeeld'                                  => 'Vraag voorbeeld',
     'test_take_planned'                                => 'Toets :testName is ingepland',
+    'copyTestLink'                                     => 'Toetslink gekopieerd',
+    'goToPlannedTests'                                 => 'Direct naar ingeplande toets'
 ];

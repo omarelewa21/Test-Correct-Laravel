@@ -137,19 +137,14 @@ class PlanningModal extends ModalComponent
         $t->save();
 
         $this->dispatchBrowserEvent('notify', ['message' => __('teacher.testtake planned')]);
-        return $t;
-    }
 
-    private function afterPlanTest(TestTake $testTake)
-    {
-        $this->emit('openModal', 'teacher.after-planning-modal', [$testTake]);
+        $this->emit('openModal', 'teacher.after-planning-modal', ['testTakeUuid' => $t->uuid]);
     }
 
     public function planNext()
     {
         $testTake = $this->planTest();
         // $this->closeModal();
-        $this->afterPlanTest($testTake);
     }
 
     private function resetModalRequest()

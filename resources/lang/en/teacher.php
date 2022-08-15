@@ -43,4 +43,6 @@ return [
     'Filters wissen'                                   => 'Delete filters',
     'Vraag voorbeeld'                                  => 'Question preview',
     'test_take_planned'                                => 'Test :testName has been planned',
+    'copyTestLink'                                     => 'Copy test link',
+    'goToPlannedTests'                                 => 'Go to planned test'
 ];
