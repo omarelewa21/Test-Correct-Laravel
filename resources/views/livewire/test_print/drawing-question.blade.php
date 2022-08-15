@@ -13,7 +13,7 @@
         </div>
         @if($pngBase64)
             <div class="mt-3 question-no-break-drawing drawing-img-container">
-                <img id="drawnImage" class="border border-blue-grey rounded-10" width="965"
+                <img id="drawnImage" class="border border-blue-grey rounded-10"
                      src="{{$pngBase64}}" alt="">
                 <span></span>
             </div>

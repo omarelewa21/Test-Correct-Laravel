@@ -32,7 +32,9 @@
                 <div class="video-container {{($loop->even) ? 'even-attachment' : 'odd-attachment'}}">
 {{--                    <strong>{{ __('test-pdf.video') }} {{ $attachment_counters['video'][$attachment->getKey()] ?? '' }}</strong> <br>--}}
                     <strong>{{ __('test-pdf.attachment') }} {{ $index + 1 }}: {{ __('test-pdf.video') }}</strong> <br>
-                    <i>"{{ $attachment->title }}"</i> <br>
+                    @if($attachment->title)
+                        <i>"{{ $attachment->title }}"</i> <br>
+                    @endif
                     <span>{{ $attachment->link }}</span>
                 </div>
                 @break
