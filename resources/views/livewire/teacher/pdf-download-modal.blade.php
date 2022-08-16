@@ -15,8 +15,7 @@
                     }
                     switch(value) {
                         case 'attachments':
-                            $wire.emit('openModal', 'teacher.test-pdf-attachments-download-modal', {test: '9d4b1ace-d8ef-419f-a844-c295bbb9b5f4'});
-                            {{--this.export_attachments();--}}
+                            $wire.emit('openModal', 'teacher.test-pdf-attachments-download-modal', {test: '{{$uuid}}'});
                             break;
                         case 'testpdf':
                             this.export_test_pdf();
@@ -25,11 +24,6 @@
                             this.export_answer_model_pdf();
                             break;
                     }
-{{--                    $wire.emit('closeModal');--}}
-                },
-                export_attachments: async function (){
-                    let response = await $wire.getTemporaryLoginToPdfForTest();
-                    window.open(response, '_blank');
                 },
                 export_test_pdf: function () {
                     var windowReference = window.open();
