@@ -16,19 +16,21 @@
                 server: {
                     process:(fieldName, file, metadata, load, error, progress, abort, transfer, options) => {
                         var fileType = file.type.split('/').pop();
-                        if ($data.allowedTypes.includes(fileType)) {
-                            @this.upload('{{ $attributes->whereStartsWith('wire:model')->first() }}', file, (uploadedFilename) => {
-                                this.post.processedCount++
 
-                                if(this.post.processedCount === this.post.currentBatchLength) {
-                                    $dispatch('filepond-finished')
-                                    this.post.processedCount = 0;
-                                    this.post.currentBatchLength = 0;
-                                }
+                        if ($data.allowedTypes.includes(fileType)) {
+                            @this.upload(@js($attributes->whereStartsWith('wire:model')->first()), file, (uploadedFilename) => {
+
                             }, () => {
 
                             }, (event) => {
-
+                                if (event.detail.progress === 100) {
+                                    this.post.processedCount++;
+                                }
+                                if(this.post.processedCount === this.post.currentBatchLength) {
+                                    $nextTick(() => $dispatch('filepond-finished'));
+                                    this.post.processedCount = 0;
+                                    this.post.currentBatchLength = 0;
+                                }
                             })
                         } else {
                             Notify.notify('{{ __('cms.file type not allowed') }} {{ __('cms.bestand')}}: '+file.name, 'error');
