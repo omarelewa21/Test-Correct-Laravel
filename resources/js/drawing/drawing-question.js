@@ -1993,7 +1993,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid) 
             origin: {
                 id: "grid-origin",
             },
-            size: 1/parseInt(grid) * 14,
+            size: 1/parseInt(grid) * 5,
         }
         return new svgShape.Grid(0, props, UI.svgGridGroup, drawingApp, Canvas);
     }
