@@ -278,7 +278,11 @@ class SchoolImportHelper
                     }
                     continue;
                 }
-                throw new SchoolAndSchoolLocationsImportException('Education level not found `'.$niveau.'` ('.var_export($data,true).')');
+                $extra = '';
+                if(substr_count($niveau,'/')){
+                    $extra = ' Did you use a / instead of an ; to split the levels?';
+                }
+                throw new SchoolAndSchoolLocationsImportException('Education level not found `'.$niveau.'`.'.$extra.' ('.var_export($data,true).')');
             }
         }
         return $schoolLocationEducationLevelIds;

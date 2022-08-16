@@ -320,6 +320,7 @@ class ExcelSchoolImportManifest
 //                throw new SchoolAndSchoolLocationsImportException(sprintf('brin nummer (%s) icm locatie code (%s) komen niet overeen met de vestigingscode (%s) ##%s **%s', $return['external_main_code'], $row['locatie_brin_code_2_karakters_max'], $row['vestigingsnummer'], var_export($return, true), var_export($row, true)));
 //            }
         }
+        logger($return);
         return $return;
     }
 
