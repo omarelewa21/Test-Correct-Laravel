@@ -43,5 +43,6 @@ return [
     'Vraag voorbeeld'                                  => 'Vraag voorbeeld',
     'test_take_planned'                                => 'Toets :testName is ingepland',
     'copyTestLink'                                     => 'Toetslink gekopieerd',
-    'goToPlannedTests'                                 => 'Direct naar ingeplande toets'
+    'goToPlannedTests'                                 => 'Direct naar ingeplande toets',
+    'clipboard_copied'                                 => 'Toetslink gekopieerd',
 ];

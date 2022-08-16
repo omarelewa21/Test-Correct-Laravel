@@ -20,6 +20,7 @@
     },
     "dependencies": {
         "@alpinejs/intersect": "^3.9.6",
+        "@ryangjchandler/alpine-clipboard": "^2.2.0",
         "@wiris/mathtype-ckeditor4": "^7.26.1",
         "alpinejs": "^3.2.4",
         "choices.js": "^10.1.0",

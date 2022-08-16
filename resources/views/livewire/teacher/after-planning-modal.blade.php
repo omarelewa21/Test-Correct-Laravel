@@ -10,10 +10,10 @@
     <div class="divider mb-5 mt-2.5"></div>
 
     <div class="body1 mb-5 flex flex-col justify-items-center">
-        <x-button.secondary class="mt-6">
+        <x-button.secondary class="mt-6" x-clipboard='$wire.testTakeLink' @click="$dispatch('notify', {message: '{{__('teacher.clipboard_copied')}}' })">
             <span>{{__('teacher.copyTestLink')}}</span>
         </x-button.secondary>
-        <x-button.primary class="mt-6">
+        <x-button.primary class="mt-6" wire:click="toPlannedTest">
             <span>{{__('teacher.goToPlannedTests')}}</span>
         </x-button.primary>
     </div>

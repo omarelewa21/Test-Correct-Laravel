@@ -44,5 +44,6 @@ return [
     'Vraag voorbeeld'                                  => 'Question preview',
     'test_take_planned'                                => 'Test :testName has been planned',
     'copyTestLink'                                     => 'Copy test link',
-    'goToPlannedTests'                                 => 'Go to planned test'
+    'goToPlannedTests'                                 => 'Go to planned test',
+    'clipboard_copied'                                 => 'Test link has been copied to the clipboard',
 ];
