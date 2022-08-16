@@ -11,6 +11,8 @@ return [
     'Toetsafname ingepland.'                            => 'Test planned',
     'text_access_link'                                  => 'You can access the test using ',
     'this_link'                                         => 'this link',
+    'test_has_scheduled_for_invigilator'                => 'A test has been scheduled with you as an Invigilator',
+    'test_has_scheduled_for_teacher'                    => 'You scheduled a test',
 ];
 
 

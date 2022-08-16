@@ -55,6 +55,7 @@ class SendTestPlannedMail extends Job implements ShouldQueue
         }
 
         if ($testTake->testTakeStatus->name === 'Planned') {
+            // Send to students
             foreach($testTake->testParticipants as $testParticipant) {
                 if(null == $testParticipant->user || $testParticipant->user->shouldNotSendMail()) {
                     continue;
@@ -63,6 +64,18 @@ class SendTestPlannedMail extends Job implements ShouldQueue
                     $mail->to($testParticipant->user->username, $testParticipant->user->getNameFullAttribute())->subject(__('test_planned.Toetsafname ingepland.'));
                 });
             }
+            // Send to Invigilators
+            foreach($testTake->invigilators as $invigilator){
+                if($invigilator->user->username !== $testTake->user->username){
+                    $mailer->send('emails.teacher_test_planned', ['user' => $invigilator->user, 'testTake' => $testTake, 'directlink' => $directlink, 'is_invigilator' => true], function ($mail) use ($invigilator) {
+                        $mail->to($invigilator->user->username, $invigilator->user->getNameFullAttribute())->subject(__('test_planned.Toetsafname ingepland.'));
+                    });
+                }
+            }
+            // Send to test owner
+            $mailer->send('emails.teacher_test_planned', ['user' => $testTake->user, 'testTake' => $testTake, 'directlink' => $directlink, 'is_invigilator' => false], function ($mail) use ($testTake) {
+                $mail->to($testTake->user->username, $testTake->user->getNameFullAttribute())->subject(__('test_planned.Toetsafname ingepland.'));
+            });
         }
     }
 }
