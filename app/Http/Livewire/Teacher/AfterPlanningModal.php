@@ -9,7 +9,6 @@ use tcCore\TemporaryLogin;
 class AfterPlanningModal extends ModalComponent
 {
     public $testTake;
-
     public $testTakeLink;
 
     public function mount($testTakeUuid)

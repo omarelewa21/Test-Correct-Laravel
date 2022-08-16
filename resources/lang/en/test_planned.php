@@ -9,6 +9,8 @@ return [
     'Bereid je goed voor op deze toets. Succes'         => 'Prepare yourself well for this test. Good luck',
     'Test-Correct supportteam'                          => 'Test-Correct support team',
     'Toetsafname ingepland.'                            => 'Test planned',
+    'text_access_link'                                  => 'You can access the test using ',
+    'this_link'                                         => 'this link',
 ];
 
 

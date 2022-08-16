@@ -16,7 +16,6 @@ class SendTestPlannedMail extends Job implements ShouldQueue
 
     protected $testTakeId;
 
-
     /**
      * Create a new job instance.
      *
@@ -38,7 +37,8 @@ class SendTestPlannedMail extends Job implements ShouldQueue
     public function handle(Mailer $mailer)
     {
         try {
-            $testTake = TestTake::findOrFail($this->testTakeId);
+            $testTake   = TestTake::findOrFail($this->testTakeId);
+            $directlink = config('app.base_url') ."directlink/". $testTake->uuid;
         } catch (ModelNotFoundException $e) {
             return;
         }
@@ -59,7 +59,7 @@ class SendTestPlannedMail extends Job implements ShouldQueue
                 if(null == $testParticipant->user || $testParticipant->user->shouldNotSendMail()) {
                     continue;
                 }
-                $mailer->send('emails.test_planned', ['testParticipant' => $testParticipant], function ($mail) use ($testParticipant) {
+                $mailer->send('emails.test_planned', ['testParticipant' => $testParticipant, 'directlink' => $directlink], function ($mail) use ($testParticipant) {
                     $mail->to($testParticipant->user->username, $testParticipant->user->getNameFullAttribute())->subject(__('test_planned.Toetsafname ingepland.'));
                 });
             }
