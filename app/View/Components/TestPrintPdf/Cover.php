@@ -32,8 +32,8 @@ class Cover extends Component
         }
 
         $this->attachmentsText = $this->test->scope == 'exam' ?
-            sprintf(__('test-pdf.cover exam attachments plural'), $pdfAttachmentsCount) :
-            sprintf(__('test-pdf.cover test attachments plural'), $pdfAttachmentsCount);
+            __('test-pdf.cover exam attachments plural') :
+            __('test-pdf.cover test attachments plural');
 
     }
 
