@@ -7,7 +7,6 @@ use tcCore\Http\Helpers\SvgHelper;
 
 class CmsDrawing extends CmsBase
 {
-
     public function getTranslationKey(): string
     {
         return __('cms.drawing-question');
@@ -43,7 +42,6 @@ class CmsDrawing extends CmsBase
 
         $this->instance->question['uuid'] = $q['uuid'];
         $this->instance->question['temp_uuid'] = 'temp-'.$q['uuid'];
-        $this->instance->backgroundImage = $q->getBackgroundImage();
 
         if (filled($this->instance->question['zoom_group'])) {
             $this->setViewBox($this->instance->question['zoom_group']);
