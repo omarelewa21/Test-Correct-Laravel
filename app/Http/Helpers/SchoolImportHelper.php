@@ -209,6 +209,8 @@ class SchoolImportHelper
 
     public function updateSchoolLocationFromImport(SchoolLocation $schoolLocation, $data)
     {
+        $data = $this->transformDataForSchoolLocation($data);
+        $schoolLocation->fill($data);
         foreach($data as $key => $value){
             if($value == '-'){
                 if($schoolLocation->$key != ''){
