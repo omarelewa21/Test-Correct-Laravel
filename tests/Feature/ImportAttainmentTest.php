@@ -290,6 +290,24 @@ class ImportAttainmentTest extends TestCase
     }
 
     /** @test */
+    public function new_learning_goals_file_16_08_22_integrity_test()
+    {
+        $this->loginAdmin();
+        $this->inactivateAttainmentToMakeImportPossible();
+        $testXslx = __DIR__.'/../files/import_new_learning_goals_16_08_22.xlsx';
+        $this->learningGoalsXslxIntegrityTest($testXslx);
+    }
+
+    /** @test */
+    public function existing_attainments_file_16_08_22_integrity_test()
+    {
+        $this->loginAdmin();
+        $this->inactivateAttainmentToMakeImportPossible();
+        $testXslx = __DIR__.'/../files/import_existing_attainments_16_08_22.xlsx';
+        $this->importXslxIntegrityTest($testXslx);
+    }
+
+    /** @test */
     public function existing_attainments_file_08_11_21_vmbo_tl_bio_integrity_test()
     {
         $this->loginAdmin();
