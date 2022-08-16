@@ -177,21 +177,21 @@
                     </marker>
                 </defs>
                 <g id="svg-pan-zoom-group" transform="matrix(1 0 0 1 0 0)">
-                    @if($this->backgroundImage)
-                        <image href="{{$this->backgroundImage}}"
-                            :width="$refs.canvas_.offsetWidth * 3/4"
-                            :height="$refs.canvas_.offsetHeight"
-                            :x="-$refs.canvas_.offsetWidth/2"
-                            :y="-$refs.canvas_.offsetHeight/2"
-                        />
-                    @endif
                     <g id="svg-grid-group" stroke="var(--all-BlueGrey)" stroke-width="1"></g>
                     <g id="svg-question-group">
-                        @if($this->backgroundImage)
-                        <g class="shape draggable" id="image-1">
-                            <image href="{{$this->backgroundImage}}" width="787.6028739386022" height="861.3" identifier="d1471135-2eff-4469-a898-e4f158cfef57" class="main" x="-393.8014221191406" y="-430.6499938964844"></image><rect class="border" x="-398.8014221191406" y="-435.6499938964844" width="797.6028442382812" height="871.2999877929688" stroke="none" stroke-width="3" stroke-dasharray="4,5" fill="red" fill-opacity="0" opacity=""></rect><circle class="corner left-top" cx="-398.8014221191406" cy="-435.6499938964844" r="8px" stroke="var(--teacher-Primary)" stroke-width="2" fill="var(--all-OffWhite)" style="display: none;"></circle><circle class="corner left-bottom" cx="-398.8014221191406" cy="435.6499938964844" r="8px" stroke="var(--teacher-Primary)" stroke-width="2" fill="var(--all-OffWhite)" style="display: none;"></circle><circle class="corner right-bottom" cx="398.8014221191406" cy="435.6499938964844" r="8px" stroke="var(--teacher-Primary)" stroke-width="2" fill="var(--all-OffWhite)" style="display: none;"></circle><circle class="corner right-top" cx="398.8014221191406" cy="-435.6499938964844" r="8px" stroke="var(--teacher-Primary)" stroke-width="2" fill="var(--all-OffWhite)" style="display: none;"></circle></g>
+                            <g class="shape draggable" id="image-1">
+                                <image href="{{$this->backgroundImage}}"
+                                    :width="$refs.canvas_.offsetWidth * 3/4"
+                                    :height="$refs.canvas_.offsetHeight"
+                                    :x="-$refs.canvas_.offsetWidth/2"
+                                    :y="-$refs.canvas_.offsetHeight/2"
+                                />                                <rect class="border" x="-398.8014221191406" y="-435.6499938964844" width="797.6028442382812" height="871.2999877929688" stroke="none" stroke-width="3" stroke-dasharray="4,5" fill="red" fill-opacity="0" opacity=""></rect>
+                                <circle class="corner left-top" cx="-398.8014221191406" cy="-435.6499938964844" r="8px" stroke="var(--teacher-Primary)" stroke-width="2" fill="var(--all-OffWhite)" style="display: none;"></circle>
+                                <circle class="corner left-bottom" cx="-398.8014221191406" cy="435.6499938964844" r="8px" stroke="var(--teacher-Primary)" stroke-width="2" fill="var(--all-OffWhite)" style="display: none;"></circle>
+                                <circle class="corner right-bottom" cx="398.8014221191406" cy="435.6499938964844" r="8px" stroke="var(--teacher-Primary)" stroke-width="2" fill="var(--all-OffWhite)" style="display: none;"></circle>
+                                <circle class="corner right-top" cx="398.8014221191406" cy="-435.6499938964844" r="8px" stroke="var(--teacher-Primary)" stroke-width="2" fill="var(--all-OffWhite)" style="display: none;"></circle>
+                            </g>
                     </g>
-                        @endif
                     <g id="svg-answer-group"></g>
                 </g>
             </svg>
