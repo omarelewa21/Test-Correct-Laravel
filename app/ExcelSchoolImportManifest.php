@@ -62,7 +62,7 @@ class ExcelSchoolImportManifest
 
     protected $errors = [];
 
-    protected CONST FATAL_ERROR = "FATAL ERROR:";
+    public CONST FATAL_ERROR = "FATAL ERROR:";
 
     public function __construct($excelFile, $importer = null, $doValidationCheck = true)
     {
