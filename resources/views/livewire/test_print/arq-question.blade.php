@@ -12,8 +12,8 @@
                 <div>
                     <div class="text-base bold arq-title-container">
                         <span class="w-12">{{__('test_take.option')}}</span>
-                        <span style="width: 9rem;">{{__('test_take.thesis')}} 1</span>
-                        <span style="width: 9rem;">{{__('test_take.thesis')}} 2</span>
+                        <span style="width: 10rem; min-width: 9rem;">{{__('test_take.thesis')}} 1</span>
+                        <span style="width: 10rem; min-width: 9rem;">{{__('test_take.thesis')}} 2</span>
                         <span class="w-10">{{__('test_take.reason')}}</span>
                     </div>
                 </div>
@@ -36,9 +36,9 @@
                                 >
                                 <span class="arq-text-container py-1 ">
                                    <span class="w-32"
-                                         style="width: 9rem; display:inline-block;">{{ __($this->arqStructure[$loopCount][1]) }}</span>
+                                         style="width: 10rem; display:inline-block;">{{ __($this->arqStructure[$loopCount][1]) }}</span>
                                     <span class="w-32"
-                                          style="width: 9rem; display:inline-block;">{{ __($this->arqStructure[$loopCount][2]) }}</span>
+                                          style="width: 10rem; display:inline-block;">{{ __($this->arqStructure[$loopCount][2]) }}</span>
                                     <span class="max-w-max">{{ __($this->arqStructure[$loopCount][3]) }}</span>
                                 </span>
                             </label>
