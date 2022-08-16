@@ -23,8 +23,6 @@ class TestPdfAttachmentsDownloadModal extends ModalComponent
     public function mount($test)
     {
         $this->uuid = $test;
-        $this->test = Test::findByUuid($test);
-
 
     }
 
@@ -50,6 +48,8 @@ class TestPdfAttachmentsDownloadModal extends ModalComponent
 
     public function render()
     {
+        $this->test = Test::findByUuid($this->uuid);
+
         $this->getPdfAttachments();
 
         return view('livewire.teacher.test-pdf-attachments-download-modal');
