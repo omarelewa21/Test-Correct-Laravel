@@ -37,7 +37,6 @@ class DrawingQuestion extends Component
     public $answer_svg = null;
     public $question_svg = null;
     public $grid_svg = '0.00';
-    public $grid = '0';
     public $usesNewDrawingTool = false;
 
     public function mount()
@@ -49,7 +48,6 @@ class DrawingQuestion extends Component
         $this->question_svg = $svgHelper->getQuestionSvg($this->question);
 
         $this->grid_svg = $this->question->grid_svg;
-        $this->grid = $this->question->grid;
         $this->usesNewDrawingTool = Auth::user()->schoolLocation()->value('allow_new_drawing_question');
 
         $this->backgroundImage = $this->question->getBackgroundImage();

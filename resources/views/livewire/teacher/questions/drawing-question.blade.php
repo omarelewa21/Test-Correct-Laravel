@@ -17,8 +17,7 @@
                  {
                      answerSvg: @entangle('question.answer_svg'),
                      questionSvg: @entangle('question.question_svg'),
-                     gridSvg: @entangle('question.grid_svg'),
-                     grid: @entangle('question.grid')
+                     gridSvg: @entangle('question.grid_svg')
             },
             true
         )"

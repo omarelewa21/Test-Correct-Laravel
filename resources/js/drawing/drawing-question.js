@@ -4,7 +4,7 @@ import {UIElements, warningBox} from "./uiElements.js";
 import * as sidebar from "./sidebar.js";
 import {v4 as uuidv4} from 'uuid';
 
-window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid) {
+window.initDrawingQuestion = function (rootElement, isTeacher, isPreview) {
 
     /**
      * @typedef Cursor
@@ -65,9 +65,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid) 
                         makeGrid();
                         updateMidPoint();
                     }
-                    if(grid && grid !== '0'){
-                        drawGridBackground(parseInt(grid)/2);
-                    }
+
                     processGridToggleChange();
                     clearLayers();
                     retrieveSavedDrawingData();
@@ -1986,18 +1984,6 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid) 
         Canvas.layers.grid.shape = new svgShape.Grid(0, props, UI.svgGridGroup, drawingApp, Canvas);
     }
 
-    function drawGridBackground(grid) {
-        const props = {
-            group: {},
-            main: {},
-            origin: {
-                id: "grid-origin",
-            },
-            size: 1/parseInt(grid) * 5,
-        }
-        return new svgShape.Grid(0, props, UI.svgGridGroup, drawingApp, Canvas);
-    }
-
     function updateGridVisibility() {
         const grid = Canvas.layers.grid;
         const shape = grid.shape;
@@ -2303,7 +2289,7 @@ function clearPreviewGrid(rootElement) {
 window.makePreviewGrid = function (drawingApp, gridSvg) {
 
     const rootElement = drawingApp.params.root
-    
+
     clearPreviewGrid(rootElement);
 
     const props = {
