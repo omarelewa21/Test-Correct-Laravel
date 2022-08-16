@@ -46,6 +46,9 @@ class Saml2Auth
         // START OVERRIDES
         $set = request()->get('set');
         if(config('entree.use_with_2_urls') || ($set === 'full' || $set === 'small')) {
+            if(!$set){
+                $set = 'small';
+            }
             $spIdentityAddOn = sprintf('_%s',$set);
             $assertionConsumerServiceAddOn = sprintf('?set=%s',$set);
 
