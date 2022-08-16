@@ -82,13 +82,13 @@
              :class="{'!invisible': resizing}"
              @resize.window="handleResizing()"
         >
-            <x-sidebar.slide-container class="pt-4 divide-y divide-bluegrey"
+            <x-sidebar.slide-container class="divide-y divide-bluegrey"
                                        x-ref="container1"
                                        @mouseenter="handleVerticalScroll($el);"
                                        @continue-to-new-slide.window="$store.cms.processing = true;$wire.removeDummy();showAddQuestionSlide(false)"
                                        @continue-to-add-group.window="addGroup(false)"
             >
-                <div wire:sortable="updateTestItemsOrder" wire:sortable-group="updateGroupItemsOrder" class="sortable-drawer divide-y divide-bluegrey pb-6" {{ $emptyStateActive ? 'hidden' : '' }} >
+                <div wire:sortable="updateTestItemsOrder" wire:sortable-group="updateGroupItemsOrder" class="sortable-drawer divide-y divide-bluegrey pb-6 pt-4 " {{ $emptyStateActive ? 'hidden' : '' }} >
                     @php $loopIndex = 0; @endphp
                     @foreach($this->questionsInTest as $testQuestion)
                         @if($testQuestion->question->type === 'GroupQuestion')
