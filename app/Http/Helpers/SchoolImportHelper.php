@@ -282,7 +282,7 @@ class SchoolImportHelper
                 if(substr_count($niveau,'/')){
                     $extra = ' Did you use a / instead of an ; to split the levels?';
                 }
-                throw new SchoolAndSchoolLocationsImportException('Education level not found `'.$niveau.'`.'.$extra.' ('.var_export($data,true).')');
+                throw new SchoolAndSchoolLocationsImportException(sprintf('%sEducation level not found `%s`.%s (%s)',ExcelSchoolImportManifest::FATAL_ERROR, $niveau, $extra,var_export($data,true)));
             }
         }
         return $schoolLocationEducationLevelIds;
