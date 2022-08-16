@@ -249,11 +249,11 @@ class ExcelSchoolImportManifest
                     });
                     if ($fromDB) {
                         // if so, do they have different customer codes
-                        if ($fromDB->customer_code != $row['customer_code']) {
-                            $this->addError(sprintf('We have different school location customer_codes (db:%s => import:%s) with the BRIN %s/%s', $fromDB->customer_code, $row['customer_code'], $row['external_main_code'], $row['external_sub_code']));
+                        if ($fromDB->customer_code != $row['customer_code'] && null != $row['customer_code'] && $row['customer_code'] !== '') {
+                            $this->addError(sprintf('%s We have different school location customer_codes (db:%s => import:%s) with the BRIN %s/%s', self::FATAL_ERROR, $fromDB->customer_code, $row['customer_code'], $row['external_main_code'], $row['external_sub_code']));
                         }
                         // or different names
-                        if ($fromDB->name != $row['name']) {
+                        if ($fromDB->name != $row['name'] && null !== $row['name'] && $row['name'] !== '') {
                             $this->addError(sprintf('We have different school location names (db:%s => import:%s) with the BRIN %s/%s', $fromDB->name, $row['name'], $row['external_main_code'], $row['external_sub_code']));
                         }
 
