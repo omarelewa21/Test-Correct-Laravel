@@ -66,7 +66,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid) 
                         updateMidPoint();
                     }
                     if(grid && grid !== '0'){
-                        drawGridBackground(grid);
+                        drawGridBackground(parseInt(grid)/2);
                     }
                     processGridToggleChange();
                     clearLayers();

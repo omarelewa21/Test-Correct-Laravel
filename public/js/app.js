@@ -7409,7 +7409,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid) 
           }
 
           if (grid && grid !== '0') {
-            drawGridBackground(grid);
+            drawGridBackground(parseInt(grid) / 2);
           }
 
           processGridToggleChange();
