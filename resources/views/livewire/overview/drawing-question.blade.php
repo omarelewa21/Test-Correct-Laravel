@@ -5,11 +5,13 @@
             {!! $question->converted_question_html !!}
         </div>
         <div class="mt-3 flex flex-1 flex-col">
+            @if($this->backgroundImage)
+                <div class="absolute flex items-center">
+                    <img src="{{$this->backgroundImage}}" width="400">
+                </div>
+            @endif
             @if($answer != '')
-                @if($this->backgroundImage)
-                    <img class="absolute" src="{{$this->backgroundImage}}" width="400" :style="{height: $refs.drawnImage.offsetHeight + 'px'}">
-                @endif
-                <img id="drawnImage" x-ref="drawnImage" class="relative border border-blue-grey rounded-10" width="400"
+                <img id="drawnImage" class="relative border border-blue-grey rounded-10" width="400"
                      src="{{ route('student.drawing-question-answer',$answer) }}?{!! date('Ymdsi') !!}" alt="">
                 <span>{{ $additionalText }}</span>
             @else

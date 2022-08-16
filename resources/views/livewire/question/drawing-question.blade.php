@@ -20,15 +20,16 @@
             </div>
 
             <div x-show="answered" class="mt-3">
+                @if($this->backgroundImage)
+                    <div class="absolute flex items-center">
+                        <img src="{{$this->backgroundImage}}" width="400">
+                    </div>
+                @endif
+                
                 @if($answer != '')
-                    @if($this->backgroundImage)
-                        <img class="absolute" x-ref="backgroundImage" src="{{$this->backgroundImage}}" width="400" :style="{height: $refs.drawnImage.offsetHeight + 'px'}">
-                    @endif
-                    <img id="drawnImage" x-ref="drawnImage" class="relative border border-blue-grey rounded-10" width="400"
+                    <img id="drawnImage" class="relative border border-blue-grey rounded-10" width="400"
                          src="{{ route('student.drawing-question-answer',$answer, false) }}?{!! microtime(true) !!}"
-                         alt=""
-                         @change="$refs.backgroundImage.style.height= $refs.drawnImage.offsetHeight + 'px'"
-                         >
+                         alt="">
                 @endif
 
                 <span>{{ $additionalText }}</span>
