@@ -177,4 +177,5 @@ return [
     'Deze vraag heeft geen tags'                                                             => 'Deze vraag heeft geen tags',
     'Open vraag'                                                                             => 'Open vraag',
     'Open vraaggroep'                                                                        => 'Open vraaggroep',
+    'inklappen/uitklappen'                                                                   => 'Inklappen/uitklappen'
 ];

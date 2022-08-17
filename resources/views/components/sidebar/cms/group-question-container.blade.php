@@ -6,11 +6,12 @@
      title="{{ __('cms.Open vraaggroep') }}"
 >
     <div class="flex space-x-2 py-1.5 pl-6 pr-4 cursor-pointer group-question-title-container hover:bg-primary/5 hover:text-primary"
-         :class="expand ? 'rotate-svg-270' : 'rotate-svg-90'"
     >
-        <x-icon.chevron class="mt-2 text-sysbase hover:text-primary"
-                        @click.stop="expand = !expand; setTimeout(() => {handleVerticalScroll($refs.container1);}, 210);"
-        />
+        <span title="{{ __('cms.inklappen/uitklappen') }}" :class="expand ? 'rotate-svg-270' : 'rotate-svg-90'">
+            <x-icon.chevron class="mt-2 text-sysbase hover:text-primary z-1"
+                            @click.stop="expand = !expand; setTimeout(() => {handleVerticalScroll($refs.container1);}, 210);"
+            />
+        </span>
         <span class="flex flex-1 flex-col truncate text-lg bold"
               :class="($root.querySelectorAll('.question-button.active').length > 0 && !expand) ? 'primary' : ''"
               title="{{ $question->name }}"
@@ -51,11 +52,14 @@
                     </div>
                 @endif
             @endif
-            <div class="flex h-full rounded-md hover:text-primary reorder" wire:sortable.handle>
-                    <x-icon.reorder/>
+            <div class="flex h-full rounded-md hover:text-primary reorder"
+                 title="{{ __('sidebar.reorder') }}"
+                 wire:sortable.handle>
+                <x-icon.reorder/>
             </div>
             <div class="flex">
-                <x-sidebar.cms.question-options :testQuestion="$testQuestion" :question="$question" :subQuestion="false"/>
+                <x-sidebar.cms.question-options :testQuestion="$testQuestion" :question="$question"
+                                                :subQuestion="false"/>
             </div>
         </div>
     </div>

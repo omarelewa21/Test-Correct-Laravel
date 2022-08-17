@@ -178,4 +178,5 @@ return [
     'Deze vraag heeft geen tags'                                                             => 'This question has no tags.',
     'Open vraag'                                                                             => 'Open question',
     'Open vraaggroep'                                                                        => 'Open group',
+    'inklappen/uitklappen'                                                                   => 'Collapse/expand'
 ];
