@@ -4,6 +4,7 @@ namespace tcCore\Http\Helpers;
 
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use Ramsey\Uuid\Uuid;
 use tcCore\DrawingQuestion;
 
 class SvgHelper
@@ -55,25 +56,42 @@ class SvgHelper
         if ($this->getQuestionLayerFromSVG()) {
             return $this->getQuestionLayerFromSVG(true);
         }
-        /*
-         * 1. Is het een oude tekenvraag
-         * 2. Heeft het een achtergrond
-         * 3. Maak svg image
-         * 4. Merge die image in de question layer
-         * 5. return layer
-         * */
-        if ($q instanceof DrawingQuestion) {
-            if ($q->getBackgroundImage()) {
-                return $this->getEmptySVGWithBackgroundImage($q);
-            }
-            return $q->question_svg;
+
+        if ($q instanceof DrawingQuestion && $q->getBackgroundImage()) {
+            return $this->createQuestionLayerWithLegacyDrawingToolBackground($q);
         }
-        return $q['question_svg'];
+
+        return null;
     }
 
-    private function getEmptySVGWithBackgroundImage($q)
+    private function createQuestionLayerWithLegacyDrawingToolBackground($q)
     {
-        (new DomDocument)::loadXML($q->question_svg);
+        [$width, $height] = getimagesize($q->getCurrentBgPath());
+        $identifier = Uuid::uuid4();
+
+        $this->addImageToLayer('question', $identifier, $q->getCurrentBgPath());
+
+        $doc = (new \DOMDocument);
+
+        $groupElement = $doc->createElement('g');
+        $groupElement->setAttribute('class', 'shape draggable');
+        $groupElement->setAttribute('id', 'image-1');
+
+        $imageElement = $doc->createElement('image');
+        $imageElement->setAttribute('class', 'main');
+        $imageElement->setAttribute('href', $q->getBackgroundImage());
+        $imageElement->setAttribute('identifier', $identifier);
+        $imageElement->setAttribute('width', $width);
+        $imageElement->setAttribute('height', $height);
+        $imageElement->setAttribute('x', '-'.$width/2);
+        $imageElement->setAttribute('y', '-'.$height/2);
+
+        $groupElement->appendChild($imageElement);
+        $doc->appendChild($groupElement);
+
+        $layerHtml = $doc->saveHTML();
+
+        return base64_encode($layerHtml);
     }
 
     /**
