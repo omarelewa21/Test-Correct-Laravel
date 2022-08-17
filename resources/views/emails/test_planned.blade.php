@@ -12,6 +12,11 @@
     <strong>{{__("test_planned.this_link")}}</strong>
 </a>
 <br/>
+@if ($takeCode)
+    {{__('test_planned.take_code')}}: <strong>{{$takeCode}}</strong>
+    <br/>
+    <br/>
+@endif
 {{ __("test_planned.Bereid je goed voor op deze toets. Succes") }}!<br/>
 <br/>
 {{ __("test_planned.Test-Correct supportteam") }}

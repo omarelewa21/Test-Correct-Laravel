@@ -13,4 +13,5 @@ return [
     'this_link'                                         => 'deze link',
     'test_has_scheduled_for_invigilator'                => 'Er is een toets ingepland met jou als surveillant',
     'test_has_scheduled_for_teacher'                    => 'Je hebt een test gepland',
+    'take_code'                                         => 'Toetscode'
 ];

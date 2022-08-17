@@ -13,6 +13,7 @@ return [
     'this_link'                                         => 'this link',
     'test_has_scheduled_for_invigilator'                => 'A test has been scheduled with you as an Invigilator',
     'test_has_scheduled_for_teacher'                    => 'You scheduled a test',
+    'take_code'                                         => 'Test Code'
 ];
 
 
