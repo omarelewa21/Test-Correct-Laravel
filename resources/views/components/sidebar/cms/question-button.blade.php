@@ -1,6 +1,6 @@
 <div class="relative drag-item question-button flex items-center cursor-pointer bold py-2 bg-white transition-colors hover:text-primary pl-6 pr-4 {{ $active ? 'question-active' : '' }}"
      @click=""
-     title="{{ $question->typeName }}"
+     title="{{ __('cms.Open vraag') }}"
      style="max-width: 300px"
      @if($subQuestion)
         wire:sortable-group.item="{{ $question->uuid }}"
