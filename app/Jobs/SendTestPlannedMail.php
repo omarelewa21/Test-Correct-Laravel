@@ -39,6 +39,10 @@ class SendTestPlannedMail extends Job implements ShouldQueue
         try {
             $testTake   = TestTake::findOrFail($this->testTakeId);
             $directlink = config('app.base_url') ."directlink/". $testTake->uuid;
+            $takeCode = $testTake->testTakeCode;
+            if($takeCode){
+                $takeCode = $takeCode->prefix . '  ' . implode(' ', str_split($takeCode->code));
+            }
         } catch (ModelNotFoundException $e) {
             return;
         }
@@ -60,21 +64,27 @@ class SendTestPlannedMail extends Job implements ShouldQueue
                 if(null == $testParticipant->user || $testParticipant->user->shouldNotSendMail()) {
                     continue;
                 }
-                $mailer->send('emails.test_planned', ['testParticipant' => $testParticipant, 'directlink' => $directlink], function ($mail) use ($testParticipant) {
-                    $mail->to($testParticipant->user->username, $testParticipant->user->getNameFullAttribute())->subject(__('test_planned.Toetsafname ingepland.'));
+                $mailer->send('emails.test_planned',
+                    ['testParticipant' => $testParticipant, 'directlink' => $directlink, 'takeCode' => $takeCode],
+                    function ($mail) use ($testParticipant) {
+                        $mail->to($testParticipant->user->username, $testParticipant->user->getNameFullAttribute())->subject(__('test_planned.Toetsafname ingepland.'));
                 });
             }
             // Send to Invigilators
             foreach($testTake->invigilators as $invigilator){
                 if($invigilator->user->username !== $testTake->user->username){
-                    $mailer->send('emails.teacher_test_planned', ['user' => $invigilator->user, 'testTake' => $testTake, 'directlink' => $directlink, 'is_invigilator' => true], function ($mail) use ($invigilator) {
-                        $mail->to($invigilator->user->username, $invigilator->user->getNameFullAttribute())->subject(__('test_planned.Toetsafname ingepland.'));
+                    $mailer->send('emails.teacher_test_planned',
+                        ['user' => $invigilator->user, 'testTake' => $testTake, 'directlink' => $directlink, 'is_invigilator' => true, 'takeCode' => $takeCode],
+                        function ($mail) use ($invigilator) {
+                            $mail->to($invigilator->user->username, $invigilator->user->getNameFullAttribute())->subject(__('test_planned.Toetsafname ingepland.'));
                     });
                 }
             }
             // Send to test owner
-            $mailer->send('emails.teacher_test_planned', ['user' => $testTake->user, 'testTake' => $testTake, 'directlink' => $directlink, 'is_invigilator' => false], function ($mail) use ($testTake) {
-                $mail->to($testTake->user->username, $testTake->user->getNameFullAttribute())->subject(__('test_planned.Toetsafname ingepland.'));
+            $mailer->send('emails.teacher_test_planned',
+                ['user' => $testTake->user, 'testTake' => $testTake, 'directlink' => $directlink, 'is_invigilator' => false, 'takeCode' => $takeCode],
+                function ($mail) use ($testTake) {
+                    $mail->to($testTake->user->username, $testTake->user->getNameFullAttribute())->subject(__('test_planned.Toetsafname ingepland.'));
             });
         }
     }
