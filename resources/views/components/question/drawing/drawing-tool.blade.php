@@ -178,21 +178,7 @@
                 </defs>
                 <g id="svg-pan-zoom-group" transform="matrix(1 0 0 1 0 0)">
                     <g id="svg-grid-group" stroke="var(--all-BlueGrey)" stroke-width="1"></g>
-                    <g id="svg-question-group">
-                            <g class="shape draggable" id="image-1">
-                                <image href="{{$this->backgroundImage}}"
-                                    width="1014"
-                                    height="600"
-                                    x="-700"
-                                    y="-300"
-                                />                                
-                                {{-- <rect class="border" x="-398.8014221191406" y="-435.6499938964844" width="797.6028442382812" height="871.2999877929688" stroke="none" stroke-width="3" stroke-dasharray="4,5" fill="red" fill-opacity="0" opacity=""></rect> --}}
-                                {{-- <circle class="corner left-top" cx="-398.8014221191406" cy="-435.6499938964844" r="8px" stroke="var(--teacher-Primary)" stroke-width="2" fill="var(--all-OffWhite)" style="display: none;"></circle>
-                                <circle class="corner left-bottom" cx="-398.8014221191406" cy="435.6499938964844" r="8px" stroke="var(--teacher-Primary)" stroke-width="2" fill="var(--all-OffWhite)" style="display: none;"></circle>
-                                <circle class="corner right-bottom" cx="398.8014221191406" cy="435.6499938964844" r="8px" stroke="var(--teacher-Primary)" stroke-width="2" fill="var(--all-OffWhite)" style="display: none;"></circle>
-                                <circle class="corner right-top" cx="398.8014221191406" cy="-435.6499938964844" r="8px" stroke="var(--teacher-Primary)" stroke-width="2" fill="var(--all-OffWhite)" style="display: none;"></circle> --}}
-                            </g>
-                    </g>
+                    <g id="svg-question-group"></g>
                     <g id="svg-answer-group"></g>
                 </g>
             </svg>

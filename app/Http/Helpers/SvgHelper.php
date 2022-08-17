@@ -55,10 +55,25 @@ class SvgHelper
         if ($this->getQuestionLayerFromSVG()) {
             return $this->getQuestionLayerFromSVG(true);
         }
+        /*
+         * 1. Is het een oude tekenvraag
+         * 2. Heeft het een achtergrond
+         * 3. Maak svg image
+         * 4. Merge die image in de question layer
+         * 5. return layer
+         * */
         if ($q instanceof DrawingQuestion) {
+            if ($q->getBackgroundImage()) {
+                return $this->getEmptySVGWithBackgroundImage($q);
+            }
             return $q->question_svg;
         }
         return $q['question_svg'];
+    }
+
+    private function getEmptySVGWithBackgroundImage($q)
+    {
+        (new DomDocument)::loadXML($q->question_svg);
     }
 
     /**
