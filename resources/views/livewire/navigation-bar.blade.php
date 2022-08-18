@@ -141,17 +141,17 @@
             @if ($this->showSchoolSwitcher)
                 <a  id="user_school_locations" class="cursor-pointer" wire:click="$emit('openModal', 'teacher.schoollocation-switcher-modal')">{{ __('general.Wissel van school') }}</a>
             @endif
-            <a href="{{ route('auth.login') }}">{{__('Uitloggen')}}</a>
-            <a class="cursor-pointer" wire:click="cakeRedirect('update-password')">{{__('Wachtwoord wijzigen')}}</a>
-            <a href="https://support.test-correct.nl/knowledge" target="_blank">{{__('Supportpagina')}}</a>
-            <a class="cursor-pointer" wire:click="cakeRedirect('delay-auto-logout')">{{__('Automatisch uitloggen uitstellen')}}</a>
-            <a class="cursor-pointer" wire:click="cakeRedirect('tests.my_uploads_with_popup')">{{__('Uploaden toets')}}</a>
+            <a href="{{ route('auth.login') }}">{{__('navigation.logout')}}</a>
+            <a class="cursor-pointer" wire:click="cakeRedirect('update-password')">{{__('navigation.change_password')}}</a>
+            <a href="https://support.test-correct.nl/knowledge" target="_blank">{{__('navigation.support_page')}}</a>
+            <a class="cursor-pointer" wire:click="cakeRedirect('delay-auto-logout')">{{__('navigation.postpone_automatic_logout')}}</a>
+            <a class="cursor-pointer" wire:click="cakeRedirect('tests.my_uploads_with_popup')">{{__('navigation.upload_test')}}</a>
         </div>
         <div class="support-menu" x-ref="support_menu" x-cloak="" x-show="supportMenu" x-transition="" @click.outside="supportmenu = false">
-            <a class="cursor-pointer" wire:click="cakeRedirect('knowledge_base')">{{__('kennisbank')}}</a>
-            <a class="cursor-pointer" wire:click="cakeRedirect('webinar')">{{__('Webinar')}}</a>
-            <a href="mailto:{{ config('mail.from.address') }}">{{__('Email')}}</a>
-            <a class="cursor-pointer" wire:click="cakeRedirect('support_updates')">{{__('Updates & onderhoud')}}</a>
+            <a class="cursor-pointer" wire:click="cakeRedirect('knowledge_base')">{{__('navigation.knowledge_base')}}</a>
+            <a class="cursor-pointer" wire:click="cakeRedirect('webinar')">{{__('navigation.webinar')}}</a>
+            <a href="mailto:{{ config('mail.from.address') }}">{{__('navigation.email')}}</a>
+            <a class="cursor-pointer" wire:click="cakeRedirect('support_updates')">{{__('navigation.updates_maintenance')}}</a>
         </div>
     </div>
 
@@ -163,13 +163,13 @@
                       stroke-linecap="round"></path>
             </svg>
         </div>
-        <div class="menu-item" data-menu="dashboard" wire:click="cakeRedirect('dashboard')">{{__('Dashboard')}}</div>
-        <div class="menu-item has-items" data-menu="tests">{{__('Toetsen')}}</div>
-        <div class="menu-item has-items" data-menu="planned">{{__('Ingepland')}}</div>
-        <div class="menu-item has-items" data-menu="taken">{{__('Afgenomen')}}</div>
-        <div class="menu-item" data-menu="results" wire:click="cakeRedirect('results.rated')">{{__('Resultaten')}}</div>
-        <div class="menu-item has-items" data-menu="analyses">{{__('Analyses')}}</div>
-        <div class="menu-item has-items" data-menu="classes">{{__('Klassen')}}</div>
+        <div class="menu-item" data-menu="dashboard" wire:click="cakeRedirect('dashboard')">{{__('navigation.dashboard')}}</div>
+        <div class="menu-item has-items" data-menu="tests">{{__('navigation.tests')}}</div>
+        <div class="menu-item has-items" data-menu="planned">{{__('navigation.planned')}}</div>
+        <div class="menu-item has-items" data-menu="taken">{{__('navigation.taken')}}</div>
+        <div class="menu-item" data-menu="results" wire:click="cakeRedirect('results.rated')">{{__('navigation.results')}}</div>
+        <div class="menu-item has-items" data-menu="analyses">{{__('navigation.analyses')}}</div>
+        <div class="menu-item has-items" data-menu="classes">{{__('navigation.classes')}}</div>
         <div class="menu-scroll menu-scroll-right" x-ref="menu_scroll_right">
             <svg style="color:var(--white);" width="9" height="13" xmlns="http://www.w3.org/2000/svg">
                 <path stroke="currentColor" stroke-width="3" d="M1.5 1.5l5 5-5 5" fill="none" fill-rule="evenodd"
@@ -180,27 +180,27 @@
     </div>
     <div id="tiles" class="tiles" x-ref="tiles">
         <div class="tile-group tests">
-            <div class="tile-item create-test" wire:click="$emit('openModal', 'teacher.test-start-create-modal')">{{__('Toets creëren')}}</div>
-            <div class="tile-item test-bank" @click="window.open('{{ route('teacher.tests') }}','_self')">{{__('Toetsenbank')}}</div>
-            <div class="tile-item question-bank" wire:click="cakeRedirect('tests.question_bank')">{{__('Vragenbank')}}</div>
-            <div class="tile-item my-uploads" wire:click="cakeRedirect('tests.my_uploads')">{{__('Mijn uploads')}}</div>
+            <div class="tile-item create-test" wire:click="$emit('openModal', 'teacher.test-start-create-modal')">{{__('navigation.create_test')}}</div>
+            <div class="tile-item test-bank" @click="window.open('{{ route('teacher.tests') }}','_self')">{{__('navigation.test_bank')}}</div>
+            <div class="tile-item question-bank" wire:click="cakeRedirect('tests.question_bank')">{{__('navigation.question_bank')}}</div>
+            <div class="tile-item my-uploads" wire:click="cakeRedirect('tests.my_uploads')">{{__('navigation.my_uploads')}}</div>
         </div>
         <div class="tile-group planned">
-            <div class="tile-item planned-tests" wire:click="cakeRedirect('planned.my_tests')">{{__('Mijn ingeplande toetsen')}}</div>
-            <div class="tile-item invigilating" wire:click="cakeRedirect('planned.surveillance')"><span>{{__('Surveilleren')}}</span></div>
-            <div class="tile-item ongoing-assignments" wire:click="cakeRedirect('planned.assessment_open')">{{__('Lopende opdrachten')}}</div>
+            <div class="tile-item planned-tests" wire:click="cakeRedirect('planned.my_tests')">{{__('navigation.my_planned_tests')}}</div>
+            <div class="tile-item invigilating" wire:click="cakeRedirect('planned.surveillance')"><span>{{__('navigation.surveillance')}}</span></div>
+            <div class="tile-item ongoing-assignments" wire:click="cakeRedirect('planned.assessment_open')">{{__('navigation.open_assessments')}}</div>
         </div>
         <div class="tile-group taken">
-            <div class="tile-item my-taken-tests" wire:click="cakeRedirect('taken.test_taken')">{{__('Mijn afgenomen toetsen')}}</div>
-            <div class="tile-item normalizing" wire:click="cakeRedirect('taken.normalize_test')">{{__('Nakijken & normeren')}}</div>
+            <div class="tile-item my-taken-tests" wire:click="cakeRedirect('taken.test_taken')">{{__('navigation.my_taken_tests')}}</div>
+            <div class="tile-item normalizing" wire:click="cakeRedirect('taken.normalize_test')">{{__('navigation.check_standardize')}}</div>
         </div>
         <div class="tile-group analyses">
-            <div class="tile-item my-students" wire:click="cakeRedirect('analyses.students')">{{__('Mijn studenten')}}</div>
-            <div class="tile-item my-classes-analyses" wire:click="cakeRedirect('analyses.classes')">{{__('Mijn klassen')}}</div>
+            <div class="tile-item my-students" wire:click="cakeRedirect('analyses.students')">{{__('navigation.my_students')}}</div>
+            <div class="tile-item my-classes-analyses" wire:click="cakeRedirect('analyses.classes')">{{__('navigation.my_classes')}}</div>
         </div>
         <div class="tile-group classes">
-            <div class="tile-item my-classes-classes" wire:click="cakeRedirect('classes.my_classes')">{{__('Mijn klassen')}}</div>
-            <div class="tile-item my-schoollocations" wire:click="cakeRedirect('classes.my_schoollocation')">{{__('Mijn schoollocatie')}}</div>
+            <div class="tile-item my-classes-classes" wire:click="cakeRedirect('classes.my_classes')">{{__('navigation.my_classes')}}</div>
+            <div class="tile-item my-schoollocations" wire:click="cakeRedirect('classes.my_schoollocation')">{{__('navigation.my_schoollocation')}}</div>
         </div>
 
     </div>

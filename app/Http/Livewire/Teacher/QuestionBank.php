@@ -35,6 +35,10 @@ class QuestionBank extends Component
     public $addedQuestionIds = [];
     public $itemsPerPage;
 
+    public $sliderButtonOptions = [];
+    public $sliderButtonSelected = 1;
+    public $sliderButtonDisabled = true;
+
     public $inGroup = false;
 
     private $test;
@@ -61,6 +65,8 @@ class QuestionBank extends Component
         $this->setTestProperty();
         $this->addedQuestionIds = $this->getQuestionIdsThatAreAlreadyInTest();
         $this->setFilters();
+
+        $this->setSliderButtonOptions();
     }
 
     public function render()
@@ -353,5 +359,13 @@ class QuestionBank extends Component
     {
         $questionId = TestQuestion::whereUuid($testQuestionUuid)->withTrashed()->value('question_id');
         $this->removeQuestionFromTest($questionId);
+    }
+
+    public function setSliderButtonOptions()
+    {
+        $this->sliderButtonOptions = [
+            __('cms.Toetsenbank'),
+            __('cms.Vragenbank'),
+        ];
     }
 }

@@ -41,4 +41,12 @@ return [
     'Toets inplannen'                                  => 'Toets inplannen',
     'Filters wissen'                                   => 'Filters wissen',
     'Vraag voorbeeld'                                  => 'Vraag voorbeeld',
+    'Klassen'                                          => 'Klassen',
+    'subject'                                          => 'Vak',
+    'type'                                             => 'Type',
+    'test-type-Summatief'                              => 'Summatief',
+    'test-type-Formatief'                              => 'Formatief',
+    'test-type-Opdracht'                               => 'Opdracht',
+    'test-type-Oefentoets'                             => 'Oefentoets',
+
 ];

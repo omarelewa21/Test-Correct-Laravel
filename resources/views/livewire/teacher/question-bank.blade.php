@@ -44,8 +44,8 @@
             if (enableButton) button.disabled = false;
         }
         "
-     @question-added.window="Notify.notify('Vraag toegevoegd!');"
-     @question-removed.window="Notify.notify('Vraag verwijderd!')"
+     @question-added.window="Notify.notify('{{ __('cms.question_added') }}');"
+     @question-removed.window="Notify.notify('{{ __('cms.question_deleted') }}')"
 >
     <div class="flex w-full flex-col border-b border-secondary sticky top-0 z-[2]">
         <div class="py-2 px-6 flex w-full bg-white border-b border-secondary">
@@ -59,17 +59,9 @@
                     <span>{{ __('drawing-modal.Sluiten') }}</span>
                 </x-button.cta>
 
-                <div x-data="{active: 2}"
-                     class="text-toggle inline-flex border border-secondary bg-offwhite relative rounded-lg h-10 ">
-                            <span class="px-4 py-2 bold note cursor-default"
-                                  :class="{'primary': active === 1}">{{ __('cms.Toetsenbank') }}</span>
-                    <span @click="active = 2" class="px-4 py-2 bold"
-                          :class="{'primary': active === 2}">{{ __('cms.Vragenbank') }}</span>
+                <x-button.slider wire:model="sliderButtonSelected" :disabled="$sliderButtonDisabled"
+                        button-width="135px" :options="$sliderButtonOptions"></x-button.slider>
 
-                    <span class="active-border absolute -inset-px border-2 border-primary rounded-lg transition-all"
-                          :style="active === 1 ? 'left:0' : 'left:'+ $root.offsetWidth/2 +'px' "
-                    ></span>
-                </div>
             </div>
 
         </div>
@@ -147,7 +139,7 @@
                     <div class="flex w-full my-2">
                         <div class="relative w-full">
                             <x-input.text class="w-full"
-                                          placeholder="Zoek..."
+                                          placeholder="{{ __('cms.search_placeholder') }}"
                                           wire:model.debounce.300ms="filters.{{ $this->openTab }}.search"
                             />
                             <x-icon.search class="absolute right-0 -top-2"/>

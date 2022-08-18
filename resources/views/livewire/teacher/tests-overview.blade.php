@@ -14,8 +14,8 @@
      wire:init="handleReferrerActions()"
      class="flex flex-col relative w-full min-h-full bg-lightGrey border-t border-secondary overflow-auto mt-24"
      @checked="$event.detail ? checkedCount += 1 : checkedCount -= 1"
-     @question-added.window="Notify.notify('Vraag toegevoegd!')"
-     @question-removed.window="Notify.notify('Vraag verwijderd!')"
+     @question-added.window="Notify.notify('{{ __('cms.question_added') }}')"
+     @question-removed.window="Notify.notify('{{ __('cms.question_deleted') }}')"
 >
     <div class="flex w-full border-b border-secondary">
         <div class="w-full max-w-5xl">
@@ -93,7 +93,7 @@
                 <div class="flex w-full mt-2">
                     <div class="relative w-full">
                         <x-input.text class="w-full"
-                                      placeholder="Zoek..."
+                                      placeholder="{{ __('cms.search_placeholder') }}"
                                       wire:model="filters.{{ $this->openTab }}.name"
                         />
                         <x-icon.search class="absolute right-0 -top-2"/>
@@ -106,7 +106,7 @@
                             :multiple="true"
                             :options="$this->subjects"
                             :withSearch="true"
-                            placeholderText="Vak"
+                            placeholderText="{{ __('student.subject')}}"
                             wire:model="filters.{{ $this->openTab }}.subject_id"
                             filterContainer="questionbank-{{ $this->openTab }}-active-filters"
                     />
@@ -115,7 +115,7 @@
                             :multiple="true"
                             :options="$this->educationLevelYear"
                             :withSearch="true"
-                            placeholderText="Leerjaar"
+                            placeholderText="{{ __('general.Leerjaar')}}"
                             wire:model="filters.{{ $this->openTab }}.education_level_year"
                             filterContainer="questionbank-{{ $this->openTab }}-active-filters"
                     />
@@ -124,7 +124,7 @@
                             :multiple="true"
                             :options="$this->educationLevel"
                             :withSearch="true"
-                            placeholderText="{{ __('Niveau') }}"
+                            placeholderText="{{ __('general.Niveau') }}"
                             wire:model="filters.{{ $this->openTab }}.education_level_id"
                             filterContainer="questionbank-{{ $this->openTab }}-active-filters"
                     />
@@ -134,7 +134,7 @@
                                 :multiple="true"
                                 :options="$this->authors"
                                 :withSearch="true"
-                                placeholderText="{{ __('Auteurs') }}"
+                                placeholderText="{{ __('general.Auteurs') }}"
                                 wire:model="filters.{{ $this->openTab }}.author_id"
                                 filterContainer="questionbank-{{ $this->openTab }}-active-filters"
                         />

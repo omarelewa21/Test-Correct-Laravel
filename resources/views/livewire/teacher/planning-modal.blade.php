@@ -65,7 +65,7 @@
                     <x-input.choices-select :multiple="true"
                                             :options="$this->schoolClasses"
                                             :withSearch="true"
-                                            placeholderText="{!!  __('Klassen') !!}"
+                                            placeholderText="{!!  __('teacher.Klassen') !!}"
                                             wire:model="request.school_classes"
                                             filterContainer="selected_classes"
                                             id="teachers_and_classes"
