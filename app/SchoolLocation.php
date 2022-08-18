@@ -93,7 +93,8 @@ class SchoolLocation extends BaseModel implements AccessCheckable
         'sso', 'sso_type', 'sso_active', 'lvs_authorization_key', 'school_language', 'company_id', 'allow_guest_accounts',
         'allow_new_student_environment', 'allow_new_question_editor',
         'keep_out_of_school_location_report',
-        'main_phonenumber','internetaddress', 'show_exam_material', 'show_cito_quick_test_start', 'show_test_correct_content'
+        'main_phonenumber','internetaddress', 'show_exam_material', 'show_cito_quick_test_start', 'show_national_item_bank',
+        'allow_wsc', 'allow_writing_assignment',
     ];
 
     /**
@@ -119,10 +120,16 @@ class SchoolLocation extends BaseModel implements AccessCheckable
     {
         if($this->school_language === 'en'){
             return 'eng';
-        } else if($this->school_language === 'nl') {
+        }
+        if($this->school_language === 'nl') {
             return 'nld';
         }
         return $this->school_language;
+    }
+
+    public function getWscLanguageAttribute()
+    {
+        return $this->school_language === 'nl' ? 'nl_NL' : 'en_GB';
     }
 
     public function fill(array $attributes)
@@ -1064,30 +1071,61 @@ class SchoolLocation extends BaseModel implements AccessCheckable
         $defaultSectionIds = $defaultSubjects->map(function(DefaultSubject $ds){
            return $ds->default_section_id;
         });
+
+        // all subjects of current school location
+        $sectionIdsFromSchoolLocationSections = $this->schoolLocationSections()->pluck('section_id');
+        // we need to check if all sections are not deleted as deletion is based on section and not school location section
+        $sectionIds = Section::whereIn('id',$sectionIdsFromSchoolLocationSections)->pluck('id');
+        $subjects = Subject::whereIn('section_id',$sectionIds)->pluck('name','id')->map(function($name,$id){return strtolower($name);})->flip();
+
         // get default sections
         $defaultSections = DefaultSection::whereIn('id',$defaultSectionIds)->get();
         // add sections
-        $list = [];
+
         $defaultSections->each(function(DefaultSection $ds) use (&$list){
-           $section = Section::create([
-              'name' => $ds->name,
-              'demo' => $ds->demo,
-           ]);
-           $list[$ds->getKey()] = $section->getKey();
+            if($schoolLocationSection = $this->schoolLocationSections->first(function(SchoolLocationSection $sls) use ($ds) {
+                    return Str::lower(optional($sls->section)->name) === Str::lower($ds->name);
+                })) {
+                $section = $schoolLocationSection->section;
+            } else {
+                $section = Section::create(
+                    [
+                        'name' => $ds->name,
+                        'demo' => $ds->demo,
+                    ]
+                );
+            }
+            $list[$ds->getKey()] = $section->getKey();
         });
 
         // add sections to schoollocation
-        $this->sections = array_values($list);
+        $this->sections = array_merge(array_values($sectionIds->toArray()), array_values($list));
         $this->saveSections();
+
+
+
         // add subjects
-        $defaultSubjects->each(function(DefaultSubject $ds) use ($list){
-           Subject::create([
-                'section_id' => $list[$ds->default_section_id],
-               'base_subject_id' => $ds->base_subject_id,
-               'name' => $ds->name,
-               'abbreviation' => $ds->abbreviation,
-               'demo' => $ds->demo,
-           ]);
+        $defaultSubjects->each(function(DefaultSubject $ds) use ($list, $subjects){
+            // NOTE Erik 20220803
+            // used to be updateOrCreate, but for some reason both the updated_at and the created_at were adjusted and we don't want that as we want to be able to see from when a subject was
+            if(isset($subjects[Str::lower($ds->name)])){
+                Subject::find($subjects[Str::lower($ds->name)])->update([
+                    'section_id' => $list[$ds->default_section_id],
+                    'base_subject_id' => $ds->base_subject_id,
+                    'abbreviation' => $ds->abbreviation,
+//                    'demo' => $ds->demo,
+                ]);
+            } else {
+                Subject::create(
+                    [
+                        'name' => $ds->name,
+                        'section_id' => $list[$ds->default_section_id],
+                        'base_subject_id' => $ds->base_subject_id,
+                        'abbreviation' => $ds->abbreviation,
+                        'demo' => $ds->demo,
+                    ]
+                );
+            }
         });
     }
 
@@ -1147,11 +1185,13 @@ class SchoolLocation extends BaseModel implements AccessCheckable
         return $query->whereNotIn('id',
             Period::where(function ($query) use ($date) {
                 return $query
-                    ->where('start_date', '>=', $date)
-                    ->orWhere('end_date', '>=', $date);
+                    ->where('start_date', '<=', $date)
+                    ->where('end_date', '>=', $date);
             })
                 ->join('school_years', 'school_year_id', 'school_years.id')
+                ->whereNull('school_years.deleted_at')
                 ->join('school_location_school_years', 'school_location_school_years.school_year_id', 'school_years.id')
+                ->whereNull('school_location_school_years.deleted_at')
                 ->select('school_location_id')
         );
     }

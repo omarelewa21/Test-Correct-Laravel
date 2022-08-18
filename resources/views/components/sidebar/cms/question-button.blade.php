@@ -35,12 +35,10 @@
                     <span>{{ $question->typeName }}</span>
                     <div class="flex items-center space-x-2">
                         <span class="flex">{{ $question->score }}pt</span>
-                        @if($subQuestion === false)
-                            <div class="flex items-center space-x-1 @if($question->attachmentCount === 0) invisible @endif">
-                                <x-icon.attachment class="flex"/>
-                                <span class="flex">{{ $question->attachmentCount }}</span>
-                            </div>
-                        @endif
+                        <div class="flex items-center space-x-1 @if($question->attachmentCount === 0) invisible @endif">
+                            <x-icon.attachment class="flex"/>
+                            <span class="flex">{{ $question->attachmentCount }}</span>
+                        </div>
                     </div>
                 </div>
             </div>

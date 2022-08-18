@@ -1,6 +1,9 @@
 <?php
+
 namespace tcCore\Http\Middleware;
+
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken as Middleware;
+
 class VerifyCsrfToken extends Middleware
 {
     /**
@@ -17,6 +20,7 @@ class VerifyCsrfToken extends Middleware
     protected $except = [
         'livewire/message/preview*',
         'cms/ckeditor_upload/images*',
-        'appapi/test_participant/*/hand_in'
+        'appapi/test_participant/*/hand_in',
+        'appapi/test_participant/*/fraud_event'
     ];
 }

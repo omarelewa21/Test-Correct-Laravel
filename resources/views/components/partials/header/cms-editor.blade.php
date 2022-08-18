@@ -21,13 +21,11 @@
         @if($this->withDrawer)
             <div class="flex min-w-max space-x-2">
                 {{--                <span class="text-sm">{{ trans_choice('cms.vraag', $questionCount['regular']) }}, {{ trans_choice('cms.group-question-count', $questionCount['group']) }}</span>--}}
-                <span class="primary bg-white px-2 text-sm rounded-sm bold">BETA</span>
             </div>
 
             <div class="flex space-x-2" x-data="{
-                    toPdf: async () => {
-                        let response = await $wire.getPdfUrl();
-                        window.open(response, '_blank');
+                    toPdf: () => {
+                        $wire.emit('openModal', 'teacher.pdf-download-modal', {test: '{{ \tcCore\Test::whereUuid($this->testId)->first()->uuid}}'});
                     }
                 }"
                  @click="forceSyncEditors();$wire.saveIfDirty()"

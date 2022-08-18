@@ -350,6 +350,7 @@ document.addEventListener('alpine:init', () => {
         resizeTimout: null,
         slides: ['home', 'type', 'newquestion', 'questionbank'],
         activeSlide: null,
+        scrollTimeout: null,
         init() {
             this.slideWidth = this.$root.offsetWidth;
             this.drawer = this.$root.closest('.drawer');
@@ -370,15 +371,14 @@ document.addEventListener('alpine:init', () => {
             this.scroll(left);
             this.handleVerticalScroll(currentEl.previousElementSibling);
         },
-        home() {
-            this.scroll(0);
+        home(scrollActiveIntoView = true) {
+            this.scroll(0, scrollActiveIntoView);
             if (!this.$store.cms.emptyState) this.$dispatch('backdrop');
             this.handleVerticalScroll(this.$refs.home);
         },
-        scroll(position) {
+        scroll(position, scrollActiveIntoView = true) {
             this.setActiveSlideProperty(position)
-            // this.drawer.scrollTo({top: 0, behavior: 'smooth'});
-            this.scrollActiveQuestionIntoView();
+            if (scrollActiveIntoView) this.scrollActiveQuestionIntoView();
             this.$refs.questionEditorSidebar.scrollTo({
                 left: position >= 0 ? position : 0,
                 behavior: 'smooth'
@@ -447,7 +447,7 @@ document.addEventListener('alpine:init', () => {
             this.$store.questionBank.inGroup = uuid;
         },
         addGroup(shouldCheckDirty = true) {
-            if (this.emitAddToOpenShortIfNecessary(shouldCheckDirty, false, false)) {
+            if (this.emitAddToOpenShortIfNecessary(shouldCheckDirty, true, false)) {
                 this.$wire.addGroup();
             }
         },
@@ -484,20 +484,21 @@ document.addEventListener('alpine:init', () => {
             }
         },
         scrollActiveQuestionIntoView() {
-            let scrollTimeout = setTimeout(() => {
-                if (this.$refs.questionEditorSidebar.scrollLeft > 0) return;
-
+            if (this.activeSlide !== 'home') return;
+            clearTimeout(this.scrollTimeout);
+            this.scrollTimeout = setTimeout(() => {
                 let activeQuestion = this.$refs.home.querySelector('.question-button.question-active');
                 activeQuestion ||= this.$refs.home.querySelector('.group-active');
-                if (activeQuestion === null) return
+                if (activeQuestion === null) return clearTimeout(this.scrollTimeout);
 
                 const top = activeQuestion.getBoundingClientRect().top;
-                const screenWithMargin = (window.screen.height - 200);
-                if (top >= screenWithMargin) {
-                    this.drawer.scrollTo({top: (top - screenWithMargin / 2), behavior: 'smooth'});
+                const screenWithBottomMargin = (window.screen.height - 200);
+
+                if (top >= screenWithBottomMargin) {
+                    this.drawer.scrollTo({top: (top - screenWithBottomMargin / 2), behavior: 'smooth'});
                 }
 
-                clearTimeout(scrollTimeout);
+                clearTimeout(this.scrollTimeout);
             }, 750)
         },
         setActiveSlideProperty(position) {

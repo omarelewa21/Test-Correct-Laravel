@@ -1,12 +1,17 @@
 @props(['loop' => 1, 'testQuestionUuid' => ''])
 <div class="question-button group-dummy pl-6 pr-4"
-     x-data="{mode: @entangle('action'), owner: @entangle('owner'), name: @entangle('newQuestionTypeName'), groupId: '{{ $testQuestionUuid}}',
+     x-data="{mode: @entangle('action'), owner: @entangle('owner'), name: @entangle('newQuestionTypeName'), groupId: '{{ $testQuestionUuid }}',
         groupDummyVisible: false,
         shouldIBeVisible() {
-            this.groupDummyVisible = this.mode === 'add' && this.owner === 'group' && this.groupId === '{{ $this->testQuestionId}}';
+            this.groupDummyVisible = this.mode === 'add' && this.owner === 'group' && this.groupId === '{{ $this->testQuestionId }}';
         },
         init() {
-            this.$watch('groupDummyVisible', value => this.$dispatch('scroll-dummy-into-view'));
+            this.$watch('groupDummyVisible', (value) => {
+                if(!value) return;
+                setTimeout(() => {
+                    this.$dispatch('scroll-dummy-into-view')
+                },300)
+            });
         }
      }"
      x-show="groupDummyVisible"

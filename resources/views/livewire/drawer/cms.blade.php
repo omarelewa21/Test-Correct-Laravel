@@ -136,11 +136,11 @@
                      class="fixed inset-0 bg-white opacity-20"
                      style="width: var(--sidebar-width)"></div>
 
-                <x-button.plus-circle @click.stop="addGroup()">
+                <x-button.plus-circle @click.stop="addGroup()" selid="add-question-group-btn">
                     {{ __('cms.Vraaggroep toevoegen') }}
                 </x-button.plus-circle>
 
-                <x-button.plus-circle @click.stop="showAddQuestionSlide();"
+                <x-button.plus-circle @click.stop="showAddQuestionSlide()" selid="add-question-btn"
                 >
                     {{__('cms.Vraag toevoegen')}}
                 </x-button.plus-circle>
@@ -157,12 +157,12 @@
                     </div>
                 </div>
 
-                <x-button.plus-circle class="py-4" @click="showNewQuestion($refs.type)" wire:loading.class="pointer-events-none">
+                <x-button.plus-circle class="py-4" @click="showNewQuestion($refs.type)" wire:loading.class="pointer-events-none" selid="create-new-question-btn">
                     {{ __( 'cms.Nieuwe creeren' ) }}
                     <x-slot name="subtext">{{ __('cms.Stel een nieuwe vraag op') }}</x-slot>
                 </x-button.plus-circle>
 
-                <x-button.plus-circle class="py-4" @click="showQuestionBank()">
+                <x-button.plus-circle class="py-4" @click="showQuestionBank()" selid="add-existing-question-btn">
                     {{ __( 'cms.Bestaande toevoegen' ) }}
                     <x-slot name="subtext">{{ __('cms.Verken en kies uit vragenbank') }}</x-slot>
                 </x-button.plus-circle>

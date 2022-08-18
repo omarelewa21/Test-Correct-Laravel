@@ -2,6 +2,7 @@
 
 namespace tcCore\Http\Helpers;
 
+use http\Exception;
 use Illuminate\Support\Facades\DB;
 use tcCore\DefaultSection;
 use tcCore\DefaultSubject;
@@ -30,6 +31,8 @@ class DefaultSubjectsAndSectionsImportHelper
     {
         DB::beginTransaction();
         try {
+            DefaultSection::withTrashed()->forceDelete();
+            DefaultSubject::withTrashed()->forceDelete();
             $this->getDataFromFile();
             $this->checkDataIntegrity();
             $this->import();

@@ -88,6 +88,9 @@ class OpenShort extends Component implements QuestionCms
     public $rttiWarningShown = false;
     public $bloomWarningShown = false;
     public $millerWarningShown = false;
+    public $lang = 'nl_NL';
+    public $testLang = null;
+    public $allowWsc = false;
 
     protected $tags = [];
 
@@ -96,8 +99,9 @@ class OpenShort extends Component implements QuestionCms
     ];
 
     protected $settingsGeneralPropertiesVisibility = [
-        'autoCheckAnswer'              => false,
-        'autoCheckAnswerCaseSensitive' => false
+        'autoCheckAnswer'                       => false,
+        'autoCheckAnswerCaseSensitive'          => false,
+        'spellingCheckAvailableDuringAssessing' => false,
     ];
 
     public $testName = 'test_name';
@@ -199,6 +203,7 @@ class OpenShort extends Component implements QuestionCms
             'learning_goals'         => [],
             'test_id'                => '',
             'all_or_nothing'         => false,
+            'lang'                   => $this->testLang ?? Auth::user()->schoolLocation->wscLanguage,
         ];
 
         $this->audioUploadOptions = [];
@@ -235,6 +240,7 @@ class OpenShort extends Component implements QuestionCms
         $this->uniqueQuestionKey = $this->testQuestionId . $this->groupQuestionQuestionId . $this->action . $this->questionEditorId;
         $this->duplicateQuestion = false;
         $this->canDeleteTest = false;
+        $this->lang = $this->testLang ?? Auth::user()->schoolLocation->wscLanguage;
     }
 
 
@@ -304,9 +310,10 @@ class OpenShort extends Component implements QuestionCms
     // @TODO is deze test uberhaupt onderdeel van deze test?
     public function mount()
     {
-        $activeTest = Test::whereUuid($this->testId)->with('testAuthors', 'testAuthors.user')->firstOrFail();
+        $activeTest = Test::whereUuid($this->testId)->with('testAuthors', 'testAuthors.user')->first();
         Gate::authorize('isAuthorOfTest',[$activeTest]);
 
+        $this->testLang = $activeTest->lang;
         $this->resetQuestionProperties();
         $this->canDeleteTest = $activeTest->canDelete(Auth::user());
         if (blank($this->type) && blank($this->subtype)) {
@@ -316,6 +323,7 @@ class OpenShort extends Component implements QuestionCms
         $this->initializeContext($this->action, $this->type, $this->subtype, $activeTest);
         $this->obj = CmsFactory::create($this);
         $this->initializePropertyBag($activeTest);
+        $this->allowWsc = Auth::user()->schoolLocation->allow_wsc;
     }
 
     public function __call($method, $arguments = null)
@@ -400,6 +408,7 @@ class OpenShort extends Component implements QuestionCms
                 return $attachment->uuid;
             })->toArray();
         }
+        $this->isCloneRequest = false;
     }
 
     public function updated($name, $value)
@@ -519,7 +528,7 @@ class OpenShort extends Component implements QuestionCms
     public function handleExternalUpdatedProperty(array $incomingData)
     {
         $property = array_keys($incomingData)[0];
-        if ($this->shouldUpdatePropertyFromExternalSource($incomingData, $property) ) {
+        if ($this->shouldUpdatePropertyFromExternalSource($incomingData, $property)) {
             $this->question[$property] = array_values($incomingData[$property]);
             $this->dirty = true;
         }
@@ -583,8 +592,8 @@ class OpenShort extends Component implements QuestionCms
 
     private function updateQuestion()
     {
-        if(!$this->dirty){
-            return Response::make('not dirty',304);
+        if (!$this->dirty) {
+            return Response::make('not dirty', 304);
         }
         $request = new CmsRequest();
         $request->merge($this->question);
@@ -678,7 +687,7 @@ class OpenShort extends Component implements QuestionCms
             if ($this->isPartOfGroupQuestion()) {
                 $response = (new GroupAttachmentsController)
                     ->destroy(
-                        GroupQuestionQuestionManager::getInstanceWithUuid($this->testQuestionId),
+                        GroupQuestionQuestionManager::getInstanceWithUuid("{$this->testQuestionId}.{$this->groupQuestionQuestionId}"),
                         $attachment
                     );
             } else {
@@ -762,7 +771,7 @@ class OpenShort extends Component implements QuestionCms
         if ($this->isPartOfGroupQuestion()) {
             return (new GroupAttachmentsController)
                 ->store(
-                    GroupQuestionQuestionManager::getInstanceWithUuid($response->original->group_question_question_path),
+                    GroupQuestionQuestionManager::getInstanceWithUuid("{$response->original->group_question_question_path}.{$response->original->uuid}"),
                     $request
                 );
         }
@@ -875,8 +884,8 @@ class OpenShort extends Component implements QuestionCms
         if ($this->editModeForExistingQuestion()) {
             if ($this->isPartOfGroupQuestion()) {
                 $tq = GroupQuestionQuestion::whereUuid($this->groupQuestionQuestionId)->first();
-                $this->attachments = $tq->groupQuestion->attachments;
                 $q = $tq->question;
+                $this->attachments = $q->attachments;
             } else {
                 $tq = TestQuestion::whereUuid($this->testQuestionId)->first();
                 $q = $tq->question;
@@ -903,7 +912,9 @@ class OpenShort extends Component implements QuestionCms
             $this->question['add_to_database'] = $q->add_to_database;
             $this->question['discuss'] = $tq->discuss;
             $this->question['decimal_score'] = $q->decimal_score;
+            $this->question['lang'] = !is_null($q->lang) ? $q->lang : Auth::user()->schoolLocation->wscLanguage;
 
+            $this->lang = $this->question['lang'];
             $this->educationLevelId = $q->education_level_id;
             $this->rttiToggle = filled($this->question['rtti']);
             $this->bloomToggle = filled($this->question['bloom']);
@@ -1024,9 +1035,9 @@ class OpenShort extends Component implements QuestionCms
         return !!($this->type === 'GroupQuestion');
     }
 
-    private function resolveOrderNumber()
+    public function resolveOrderNumber()
     {
-        if ($this->isGroupQuestion() || !$this->questionId || $this->emptyState) {
+        if ($this->isGroupQuestion() || $this->emptyState) {
             return 1;
         }
 
@@ -1042,7 +1053,7 @@ class OpenShort extends Component implements QuestionCms
                 ->orderBy('order', 'desc')->value('question_id');
             return isset($questionList[$lastQuestionIdInGroup]) ? $questionList[$lastQuestionIdInGroup] + 1 : 1;
         }
-        return count($questionList);
+        return count($questionList) + 1;
     }
 
     public function saveAndRefreshDrawer()
@@ -1111,6 +1122,7 @@ class OpenShort extends Component implements QuestionCms
             'groupQuestionQuestionId' => $this->groupQuestionQuestionId,
             'type'                    => $this->type,
             'subtype'                 => $this->subtype,
+            'isCloneRequest'          => $this->isCloneRequest,
         ]);
     }
 
@@ -1148,6 +1160,7 @@ class OpenShort extends Component implements QuestionCms
     private function handleQueryStringForExistingQuestion($args): void
     {
         $this->action = 'edit';
+        $this->isCloneRequest = false;
         $this->emptyState = false;
         $testQuestion = TestQuestion::whereUuid($args['testQuestionUuid'])->with('question')->first();
         if ($args['isSubQuestion']) {
@@ -1265,7 +1278,7 @@ class OpenShort extends Component implements QuestionCms
 
         $data['group'] ? $this->dispatchBrowserEvent('continue-to-add-group') : $this->dispatchBrowserEvent('continue-to-new-slide');
         if ($data['newSubQuestion']) {
-            $this->emitTo('drawer.cms', 'newGroupId', $this->testQuestionId);
+            $this->emit('newGroupId', $this->testQuestionId);
         }
     }
 

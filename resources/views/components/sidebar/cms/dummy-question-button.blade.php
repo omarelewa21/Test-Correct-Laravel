@@ -6,7 +6,12 @@
            this.dummyVisible = this.mode === 'add' && this.owner === 'test';
         },
         init() {
-            this.$watch('dummyVisible', value => this.$dispatch('scroll-dummy-into-view'))
+            this.$watch('dummyVisible', value => {
+                if(!value) return;
+                setTimeout(() => {
+                    this.$dispatch('scroll-dummy-into-view')
+                },300)
+            });
         }
      }"
      x-show="dummyVisible"
@@ -41,10 +46,10 @@
         </div>
     </div>
     @if($this->type === 'GroupQuestion')
-        <div class="group-add-new relative hover:bg-primary/5 flex space-x-2.5 py-2 px-6 hover:text-primary cursor-pointer items-center"
+        <div class="group-add-new relative hover:bg-primary/5 flex space-x-2.5 py-2 px-6 text-sysbase hover:text-primary cursor-pointer items-center transition-colors"
              :class="{'!text-note hover:!bg-white hover:!text-note !cursor-default': disabledSub}"
              @click="if (!disabledSub) addSubQuestionToNewGroup()"
-             @group-question-name-filled.window="console.log($event);disabledSub = false"
+             @group-question-name-filled.window="disabledSub = false"
              @group-question-name-empty.window="disabledSub = true"
         >
             <x-icon.plus-in-circle/>

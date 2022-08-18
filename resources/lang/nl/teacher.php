@@ -39,6 +39,8 @@ return [
     'Toets voorbeeldweergave'                                                                  => 'Toets voorbeeldweergave',
     'Toets PDF-weergave'                                                                       => 'Toets PDF-weergave',
     'Toets inplannen'                                                                          => 'Toets inplannen',
+    'Toets exporteren'                                                                         => 'Toets exporteren',
+    'Toets pdf bijlage exporteren'                                                             => 'Toets pdf bijlage exporteren',
     'Filters wissen'                                                                           => 'Filters wissen',
     'Vraag voorbeeld'                                                                          => 'Vraag voorbeeld',
     'Test is verwijderd'                                                                       => 'Toets is verwijderd',
@@ -50,6 +52,8 @@ return [
     'Voorbeeld'                                                                                => 'Voorbeeld',
     'PDF maken'                                                                                => 'PDF maken',
     'Kopie maken'                                                                              => 'Kopie maken',
-    'Je hebt het vak, niveau en/of leerjaar van de toets aangepast.' => 'Je hebt het vak, niveau en/of leerjaar van de toets aangepast. Is deze verandering een verbetering
+    'Je hebt het vak, niveau en/of leerjaar van de toets aangepast.'                           => 'Je hebt het vak, niveau en/of leerjaar van de toets aangepast. Is deze verandering een verbetering
                     van de toets of is het een nieuwe toets?',
+    'Kies een of meerdere onderdelen'                                                          => 'Kies één onderdeel van de toets om te exporteren.',
+    'Kies een pdf attachment'                                                                  => 'Kies één pdf bijlage van de toets om te exporteren.',
 ];

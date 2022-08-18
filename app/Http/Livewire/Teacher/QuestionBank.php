@@ -51,7 +51,8 @@ class QuestionBank extends Component
         return [
             'testSettingsUpdated',
             'addQuestionFromDetail' => 'addQuestionToTest',
-            'questionDeleted'       => 'questionDeletedFromExternalComponent'
+            'questionDeleted'       => 'questionDeletedFromExternalComponent',
+            'newGroupId'            => 'newGroupId',
         ];
     }
 
@@ -59,7 +60,7 @@ class QuestionBank extends Component
     {
         $this->itemsPerPage = QuestionBank::ITEM_INCREMENT;
         $this->setTestProperty();
-        $this->addedQuestionIds = $this->getQuestionIdsThatAreAlreadyInTest();
+        $this->setAddedQuestionIdsArray();
         $this->setFilters();
     }
 
@@ -358,5 +359,16 @@ class QuestionBank extends Component
     public function openPreview($questionUuid, $inTest)
     {
         $this->emit('openModal', 'teacher.question-cms-preview-modal', ['uuid' => $questionUuid, 'inTest' => $inTest]);
+    }
+
+    public function newGroupId($uuid)
+    {
+        $this->inGroup = $uuid;
+        $this->updatedInGroup($uuid);
+    }
+
+    public function setAddedQuestionIdsArray(): void
+    {
+        $this->addedQuestionIds = $this->getQuestionIdsThatAreAlreadyInTest();
     }
 }

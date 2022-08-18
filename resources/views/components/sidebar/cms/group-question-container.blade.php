@@ -56,7 +56,7 @@
                     <x-icon.reorder/>
             </div>
             <div class="flex">
-                <x-sidebar.cms.question-options :testQuestion="$testQuestion" :question="$question" :subQuestion="false"/>
+                <x-sidebar.cms.question-options :testQuestion="$testQuestion" :question="$question" :subQuestion="false" :groupQuestion="true"/>
             </div>
         </div>
     </div>
@@ -69,6 +69,7 @@
         <div class="group-add-new relative flex space-x-2.5 py-2 px-6 hover:text-primary cursor-pointer items-center"
              @click="addQuestionToGroup('{{ $testQuestion->uuid }}')"
              wire:click="$set('groupId', '{{ $testQuestion->uuid }}')"
+             selid="add-question-to-group-{{$testQuestion->question->name}}-btn"
         >
             <x-icon.plus-in-circle/>
             <span class="flex bold">{{ __('cms.Vraag toevoegen')}}</span>

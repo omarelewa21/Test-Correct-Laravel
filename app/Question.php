@@ -75,7 +75,8 @@ class Question extends MtiBaseModel {
                             'is_subquestion',
                             'all_or_nothing',
                             'fix_order',
-                            'owner_id'
+                            'owner_id',
+                            'lang',
                             ];
 
     /**
@@ -979,7 +980,7 @@ class Question extends MtiBaseModel {
                     break;
                 case 'groupquestion':
                     $groupQuestion = new GroupQuestion();
-                    $query->join($groupQuestion->getTable(), $groupQuestion->getTable() . '.' . $groupQuestion->getKeyName(), '=', $this->getTable() . '.' . $this->getKeyName());
+                    $query->leftJoin($groupQuestion->getTable(), $groupQuestion->getTable() . '.' . $groupQuestion->getKeyName(), '=', $this->getTable() . '.' . $this->getKeyName());
                     break;
             }
         }
@@ -1667,5 +1668,14 @@ class Question extends MtiBaseModel {
     public function hasCmsPreview()
     {
         return !$this->isType('matrix');
+    }
+
+    public function makeClone()
+    {
+        $newQuestion = $this->duplicate($this->getAttributes());
+        $newQuestion->getQuestionInstance()->derived_question_id = null; //Clear derived question ID so it's a 'clean' copy;
+        $newQuestion->save();
+
+        return $newQuestion;
     }
 }

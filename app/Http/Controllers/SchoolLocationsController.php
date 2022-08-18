@@ -1,9 +1,11 @@
 <?php namespace tcCore\Http\Controllers;
 
+use Bugsnag\BugsnagLaravel\Facades\Bugsnag;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Response;
 use tcCore\Http\Requests\CreateSchoolLocationRequest;
+use tcCore\Http\Requests\SchoolLocationAddDefaultSubjectsAndSectionsRequest;
 use tcCore\Http\Requests\UpdateSchoolLocationRequest;
 use tcCore\School;
 use tcCore\SchoolLocation;
@@ -122,6 +124,19 @@ class SchoolLocationsController extends Controller {
             return Response::make($schoolLocation, 200);
         } else {
             return Response::make('Failed to delete school location', 500);
+        }
+    }
+
+    public function addDefaultSubjectsAndSections(SchoolLocationAddDefaultSubjectsAndSectionsRequest $request, SchoolLocation $schoolLocation)
+    {
+        try {
+            $schoolLocation->addDefaultSectionsAndSubjects();
+            return Response::make($schoolLocation);
+        } catch(\Throwable $th){
+            logger('#### default sections and subjects error ####');
+            logger($th->getMessage());
+            Bugsnag::notifyException($th);
+            return Response::make($th->getMessage(),500);
         }
     }
 

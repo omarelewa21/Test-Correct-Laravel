@@ -722,6 +722,13 @@ class Test extends BaseModel
         });
     }
 
+    public function getWritingAssignmentsCount()
+    {
+        return collect(QuestionGatherer::getQuestionsOfTest($this->getKey(), true))->filter(function (Question $question) {
+            return $question instanceof OpenQuestion && $question->subtype === 'writing';
+        })->count();
+    }
+
     private function getQueryGetItemsFromSchoolLocationAuthoredByUser($user)
     {
         return sprintf('select distinct t2.id as t2_id  /* select all tests from schoollocation authored by user */
@@ -954,6 +961,7 @@ class Test extends BaseModel
                 $groupQuestion->subQuestions = $groupQuestion->groupQuestionQuestions->map(function ($item) use ($groupQuestion) {
                     $item->question->belongs_to_groupquestion_id = $groupQuestion->getKey();
                     $item->question->groupQuestionQuestionUuid = $item->uuid;
+                    $item->question->attachmentCount = $item->question->attachments()->count();
                     return $item->question;
                 });
             }
@@ -1011,25 +1019,52 @@ class Test extends BaseModel
 
     public function hasDuplicateQuestions()
     {
-       return count($this->getDuplicateQuestionIds()) > 0;
+        return count($this->getDuplicateQuestionIds()) > 0;
     }
 
     public function hasTooFewQuestionsInCarousel()
     {
         $this->load(['testQuestions', 'testQuestions.question']);
-        $countCarouselQuestionWithToFewQuestions = $this->testQuestions->filter(function($testQuestion) {
+        $countCarouselQuestionWithToFewQuestions = $this->testQuestions->filter(function ($testQuestion) {
             return ($testQuestion->question instanceof \tcCore\GroupQuestion && !$testQuestion->question->hasEnoughSubQuestionsAsCarousel());
         })->count();
         return $countCarouselQuestionWithToFewQuestions != 0;
     }
 
-    public function hasNotEqualScoresForSubQuestionsInCarousel(){
+    public function hasNotEqualScoresForSubQuestionsInCarousel()
+    {
         $this->load(['testQuestions', 'testQuestions.question']);
-        $countCarouselQuestionWithToFewQuestions = $this->testQuestions->filter(function($testQuestion) {
+        $countCarouselQuestionWithToFewQuestions = $this->testQuestions->filter(function ($testQuestion) {
             return ($testQuestion->question instanceof \tcCore\GroupQuestion && $testQuestion->question->isCarouselQuestion() && !$testQuestion->question->hasEqualScoresForSubQuestions());
         })->count();
         return $countCarouselQuestionWithToFewQuestions != 0;
     }
+
+    public function getHasPdfAttachmentsAttribute(): bool
+    {
+        return TestQuestion::select()
+            ->join('question_attachments', 'test_questions.question_id', '=', 'question_attachments.question_id')
+            ->join('attachments', 'question_attachments.attachment_id', '=', 'attachments.id')
+            ->where('test_questions.test_id', $this->getKey())
+            ->where('attachments.file_mime_type', 'application/pdf')
+            ->exists();
+    }
+
+    public function getPdfAttachmentsAttribute()
+    {
+        $attachments = collect();
+
+        $this->testQuestions->sortBy('order')->each(function ($testQuestion) use (&$attachments) {
+            $testQuestion->question->loadRelated();
+            $testQuestion->question->attachments->each(function ($attachment) use (&$attachments) {
+                if ($attachment->getFileType() == 'pdf') {
+                    $attachments->add($attachment);
+                }
+            });
+        });
+        return $attachments;
+    }
+
 
     public function isNationalItem(): bool
     {
