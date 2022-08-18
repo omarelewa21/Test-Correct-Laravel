@@ -62,7 +62,7 @@ class SvgHelper
             return base64_encode(Str::of($bg)->append($this->getQuestionLayerFromSVG()));
         }
 
-        return null;
+        return Str::of($bg)->isEmpty() ? null : base64_encode($bg);
     }
 
     private function createQuestionLayerWithLegacyDrawingToolBackground($q)
