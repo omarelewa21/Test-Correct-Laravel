@@ -5860,7 +5860,6 @@ document.addEventListener('alpine:init', function () {
       answerSvg: entanglements.answerSvg,
       questionSvg: entanglements.questionSvg,
       gridSvg: entanglements.gridSvg,
-      grid: entanglements.grid,
       isTeacher: isTeacher,
       toolName: null,
       isPreview: isPreview,
@@ -5873,7 +5872,7 @@ document.addEventListener('alpine:init', function () {
           delete window[this.toolName];
         }
 
-        var toolName = window[this.toolName] = initDrawingQuestion(this.$root, this.isTeacher, this.isPreview, this.grid);
+        var toolName = window[this.toolName] = initDrawingQuestion(this.$root, this.isTeacher, this.isPreview);
 
         if (this.isTeacher) {
           this.makeGridIfNecessary(toolName);
@@ -5915,8 +5914,6 @@ document.addEventListener('alpine:init', function () {
       makeGridIfNecessary: function makeGridIfNecessary(toolName) {
         if (this.gridSvg !== '' && this.gridSvg !== '0.00') {
           makePreviewGrid(toolName.drawingApp, this.gridSvg);
-        } else if (this.grid && this.grid !== '0') {
-          makePreviewGrid(toolName.drawingApp, 1 / parseInt(this.grid) * 14);
         }
       }
     };
@@ -5929,6 +5926,7 @@ document.addEventListener('alpine:init', function () {
       resizeTimout: null,
       slides: ['home', 'type', 'newquestion', 'questionbank'],
       activeSlide: null,
+      scrollTimeout: null,
       init: function init() {
         var _this8 = this;
 
@@ -5952,14 +5950,15 @@ document.addEventListener('alpine:init', function () {
         this.handleVerticalScroll(currentEl.previousElementSibling);
       },
       home: function home() {
-        this.scroll(0);
+        var scrollActiveIntoView = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : true;
+        this.scroll(0, scrollActiveIntoView);
         if (!this.$store.cms.emptyState) this.$dispatch('backdrop');
         this.handleVerticalScroll(this.$refs.home);
       },
       scroll: function scroll(position) {
-        this.setActiveSlideProperty(position); // this.drawer.scrollTo({top: 0, behavior: 'smooth'});
-
-        this.scrollActiveQuestionIntoView();
+        var scrollActiveIntoView = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : true;
+        this.setActiveSlideProperty(position);
+        if (scrollActiveIntoView) this.scrollActiveQuestionIntoView();
         this.$refs.questionEditorSidebar.scrollTo({
           left: position >= 0 ? position : 0,
           behavior: 'smooth'
@@ -6040,7 +6039,7 @@ document.addEventListener('alpine:init', function () {
       addGroup: function addGroup() {
         var shouldCheckDirty = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : true;
 
-        if (this.emitAddToOpenShortIfNecessary(shouldCheckDirty, false, false)) {
+        if (this.emitAddToOpenShortIfNecessary(shouldCheckDirty, true, false)) {
           this.$wire.addGroup();
         }
       },
@@ -6092,24 +6091,24 @@ document.addEventListener('alpine:init', function () {
       scrollActiveQuestionIntoView: function scrollActiveQuestionIntoView() {
         var _this12 = this;
 
-        var scrollTimeout = setTimeout(function () {
-          if (_this12.$refs.questionEditorSidebar.scrollLeft > 0) return;
-
+        if (this.activeSlide !== 'home') return;
+        clearTimeout(this.scrollTimeout);
+        this.scrollTimeout = setTimeout(function () {
           var activeQuestion = _this12.$refs.home.querySelector('.question-button.question-active');
 
           activeQuestion || (activeQuestion = _this12.$refs.home.querySelector('.group-active'));
-          if (activeQuestion === null) return;
+          if (activeQuestion === null) return clearTimeout(_this12.scrollTimeout);
           var top = activeQuestion.getBoundingClientRect().top;
-          var screenWithMargin = window.screen.height - 200;
+          var screenWithBottomMargin = window.screen.height - 200;
 
-          if (top >= screenWithMargin) {
+          if (top >= screenWithBottomMargin) {
             _this12.drawer.scrollTo({
-              top: top - screenWithMargin / 2,
+              top: top - screenWithBottomMargin / 2,
               behavior: 'smooth'
             });
           }
 
-          clearTimeout(scrollTimeout);
+          clearTimeout(_this12.scrollTimeout);
         }, 750);
       },
       setActiveSlideProperty: function setActiveSlideProperty(position) {
@@ -6327,6 +6326,8 @@ __webpack_require__(/*! ./navigation-bar */ "./resources/js/navigation-bar.js");
 __webpack_require__(/*! ../../vendor/wire-elements/modal/resources/js/modal */ "./vendor/wire-elements/modal/resources/js/modal.js");
 
 __webpack_require__(/*! ./webspellchecker_tlc */ "./resources/js/webspellchecker_tlc.js");
+
+__webpack_require__(/*! ./pdf-download */ "./resources/js/pdf-download.js");
 
 window.ClassicEditors = [];
 
@@ -7341,7 +7342,7 @@ function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
 
 
 
-window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid) {
+window.initDrawingQuestion = function (rootElement, isTeacher, isPreview) {
   var _this2 = this;
 
   /**
@@ -7402,10 +7403,6 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid) 
           if (drawingApp.firstInit) {
             makeGrid();
             updateMidPoint();
-          }
-
-          if (grid && grid !== '0') {
-            drawGridBackground(grid);
           }
 
           processGridToggleChange();
@@ -9538,18 +9535,6 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid) 
     Canvas.layers.grid.shape = new _svgShape_js__WEBPACK_IMPORTED_MODULE_2__.Grid(0, props, UI.svgGridGroup, drawingApp, Canvas);
   }
 
-  function drawGridBackground(grid) {
-    var props = {
-      group: {},
-      main: {},
-      origin: {
-        id: "grid-origin"
-      },
-      size: 1 / parseInt(grid) * 14
-    };
-    return new _svgShape_js__WEBPACK_IMPORTED_MODULE_2__.Grid(0, props, UI.svgGridGroup, drawingApp, Canvas);
-  }
-
   function updateGridVisibility() {
     var grid = Canvas.layers.grid;
     var shape = grid.shape;
@@ -9761,11 +9746,43 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid) 
       Canvas.layers.grid.shape.show();
     }
 
+    return handleMinPanGroupSizes(panGroupSize);
     return {
       x: panGroupSize.x,
       y: panGroupSize.y,
-      width: panGroupSize.width,
-      height: panGroupSize.height
+      width: panGroupSize.width > minPanGroupWidth ? panGroupSize.width : minPanGroupWidth,
+      height: panGroupSize.height > minPanGroupHeight ? panGroupSize.height : minPanGroupHeight
+    };
+  }
+
+  function handleMinPanGroupSizes(panGroupSize) {
+    var minPanGroupWidth = 820;
+    var minPanGroupHeight = 500;
+    var resultWidth;
+    var resultHeight;
+    var resultX;
+    var resultY;
+    resultWidth = panGroupSize.width;
+    resultX = panGroupSize.x;
+
+    if (panGroupSize.width < minPanGroupWidth) {
+      resultWidth = minPanGroupWidth;
+      resultX = panGroupSize.x - (minPanGroupWidth - panGroupSize.width) / 2;
+    }
+
+    resultHeight = panGroupSize.height;
+    resultY = panGroupSize.y;
+
+    if (panGroupSize.height < minPanGroupHeight) {
+      resultHeight = minPanGroupHeight;
+      resultY = panGroupSize.y - (minPanGroupHeight - panGroupSize.height) / 2;
+    }
+
+    return {
+      x: resultX,
+      y: resultY,
+      width: resultWidth,
+      height: resultHeight
     };
   }
 
@@ -13052,6 +13069,20 @@ Notify = {
 
 /***/ }),
 
+/***/ "./resources/js/pdf-download.js":
+/*!**************************************!*\
+  !*** ./resources/js/pdf-download.js ***!
+  \**************************************/
+/***/ (() => {
+
+PdfDownload = {
+  waitingScreenHtml: function waitingScreenHtml(translation) {
+    return "<html><head><style>" + "#animation {" + "background-image: url(/img/loading.gif);" + "}" + "</style></head>" + "<body style='background: url(/img/bg.png) right no-repeat #f5f5f5'>" + "<div style='display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh;'>" + "<div style='background-color: rgba(0,0,0,0.8); padding: 20px 20px 15px 20px; border-radius: 10px; margin-bottom: 1rem;'>" + "<div id='animation' style='width: 35px; height: 35px;'></div>" + "</div>" + "<span style='font-family: Nunito, sans-serif; font-size: 20pt;'>" + translation + "</span>" + "</div>" + "</body></html>";
+  }
+};
+
+/***/ }),
+
 /***/ "./resources/js/readspeaker_app.js":
 /*!*****************************************!*\
   !*** ./resources/js/readspeaker_app.js ***!
@@ -13603,12 +13634,11 @@ WebspellcheckerTlc = {
       return;
     }
 
-    var instance = WEBSPELLCHECKER.init({
-      container: editor.window.getFrame() ? editor.window.getFrame().$ : editor.element.$,
-      spellcheckLang: language,
-      localization: 'nl'
+    WebspellcheckerTlc.initWsc(editor, language);
+    editor.on('resize', function (event) {
+      WebspellcheckerTlc.triggerWsc(editor, language);
     });
-    instance.setLang(language);
+    editor.focus();
   },
   lang: function lang(editor, language) {
     var i = 0;
@@ -13628,6 +13658,26 @@ WebspellcheckerTlc = {
     setTimeout(function () {
       editor.ui.view.editable.element.setAttribute('contenteditable', false);
     }, 3000);
+  },
+  triggerWsc: function triggerWsc(editor, language) {
+    if (editor.element.$.parentNode.getElementsByClassName('wsc_badge').length == 0) {
+      WebspellcheckerTlc.initWsc(editor, language);
+    }
+  },
+  initWsc: function initWsc(editor, language) {
+    setTimeout(function () {
+      var instance = WEBSPELLCHECKER.init({
+        container: editor.window.getFrame() ? editor.window.getFrame().$ : editor.element.$,
+        spellcheckLang: language,
+        localization: 'nl'
+      });
+
+      try {
+        instance.setLang(language);
+      } catch (e) {
+        console.dir(e);
+      }
+    }, 1000);
   }
 };
 

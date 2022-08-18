@@ -2660,9 +2660,6 @@ input[type=number] {
     border: 2px solid blue;
 }
 
-.height-240 {
-    height: 240px;
-}
 .ck-editor__editable_inline {
     min-height: 300px;
     font-family: Arial;
@@ -6157,6 +6154,9 @@ video {
 .max-w-modal{
   max-width: 700px;
 }
+.max-w-\[720px\]{
+  max-width: 720px;
+}
 .max-w-2xl{
   max-width: 42rem;
 }
@@ -7525,6 +7525,9 @@ video {
 }
 .opacity-20{
   opacity: 0.2;
+}
+.opacity-25{
+  opacity: 0.25;
 }
 .opacity-80{
   opacity: 0.8;
