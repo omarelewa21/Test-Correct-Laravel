@@ -18,7 +18,9 @@ class DeleteAttainmentQuery extends Migration
             $questionAttainment->delete();
         });
         $attainment = \tcCore\Attainment::find(6004);
-        $attainment->delete();
+        if($attainment){
+            $attainment->delete();
+        }
     }
 
     /**
@@ -29,11 +31,12 @@ class DeleteAttainmentQuery extends Migration
     public function down()
     {
         $attainment = \tcCore\Attainment::withTrashed()->find(6004);
-        $attainment->restore();
-        $questionAttainments = \tcCore\QuestionAttainment::withTrashed()->where('attainment_id',6004)->get();
-        $questionAttainments->each(function($questionAttainment){
-            $questionAttainment->restore();
-        });
-
+        if($attainment) {
+            $attainment->restore();
+            $questionAttainments = \tcCore\QuestionAttainment::withTrashed()->where('attainment_id', 6004)->get();
+            $questionAttainments->each(function ($questionAttainment) {
+                $questionAttainment->restore();
+            });
+        }
     }
 }
