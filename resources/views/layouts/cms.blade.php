@@ -18,11 +18,11 @@
                 "autocomplete": true,
                 "serviceProtocol": "https",
                 "servicePort": "80",
-                "serviceHost": "testwsc.test-correct.nl",
+                "serviceHost": "wsc.test-correct.nl",
                 "servicePath": "wscservice/api"
             }
         </script>
-        <script src="https://testwsc.test-correct.nl/wscservice/wscbundle/wscbundle.js"></script>
+        <script src="https://wsc.test-correct.nl/wscservice/wscbundle/wscbundle.js"></script>
     @endif
 @endpush
 </x-layouts.base>
