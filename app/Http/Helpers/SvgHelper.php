@@ -53,12 +53,13 @@ class SvgHelper
 
     public function getQuestionSvg($q)
     {
-        if ($this->getQuestionLayerFromSVG()) {
-            return $this->getQuestionLayerFromSVG(true);
+        $bg = "";
+        if ($q instanceof DrawingQuestion && $q->getBackgroundImage()) {
+            $bg = $this->createQuestionLayerWithLegacyDrawingToolBackground($q);
         }
 
-        if ($q instanceof DrawingQuestion && $q->getBackgroundImage()) {
-            return $this->createQuestionLayerWithLegacyDrawingToolBackground($q);
+        if ($this->getQuestionLayerFromSVG()) {
+            return base64_encode(Str::of($bg)->append($this->getQuestionLayerFromSVG()));
         }
 
         return null;
@@ -81,7 +82,7 @@ class SvgHelper
         $imageElement->setAttribute('class', 'main');
         $imageElement->setAttribute('href', $q->getBackgroundImage());
         $imageElement->setAttribute('identifier', $identifier);
-        $imageElement->setAttribute('width', $width);
+        $imageElement->setAttribute('width', $width * 5/6);
         $imageElement->setAttribute('height', $height);
         $imageElement->setAttribute('x', '-'.$width/2);
         $imageElement->setAttribute('y', '-'.$height/2);
@@ -91,7 +92,7 @@ class SvgHelper
 
         $layerHtml = $doc->saveHTML();
 
-        return base64_encode($layerHtml);
+        return $layerHtml;
     }
 
     /**

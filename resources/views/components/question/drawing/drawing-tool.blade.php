@@ -160,7 +160,7 @@
         </button>
     </div>
     <div id="canvas-sidebar-container" class="overflow-hidden">
-        <article id="canvas" x-ref="canvas_" class="overflow-hidden">
+        <article id="canvas" class="overflow-hidden">
             <svg id="svg-canvas" x-ref="canvas" xmlns="http://www.w3.org/2000/svg" class="overflow-hidden">
                 <defs>
                     <marker id="svg-filled-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6"

@@ -43,9 +43,7 @@ class DrawingQuestion extends Component
 
         if(!is_null($this->question->belongs_to_groupquestion_id)){
             $this->question->groupQuestion = Question::find($this->question->belongs_to_groupquestion_id);
-        }
-        
-        $this->backgroundImage = $this->question->getBackgroundImage();
+        }        
     }
 
     public function render()
