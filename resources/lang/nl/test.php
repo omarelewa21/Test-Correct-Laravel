@@ -1,4 +1,5 @@
 <?php
-return[
+return [
     'answer_model' => 'Antwoord model',
+    'toets'        => 'toets',
 ];

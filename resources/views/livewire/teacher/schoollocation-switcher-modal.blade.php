@@ -11,10 +11,11 @@
                                     multiple-choice-question transition ease-in-out duration-150 focus:outline-none
                                     justify-between {!! (auth()->user()->schoolLocation->uuid == $uuid) ? 'active' :'' !!}
                                    ">
-                    <div class="truncate" id="mc_c_answertext_{{$uuid}}" wire:key="text_{{$uuid}}" >{{ $schoolLocation }}</div>
-                    <div id="checkmark_{{ $uuid }}" wire:key="checkmark_{{$uuid}}" class="{!! (auth()->user()->schoolLocation->uuid == $uuid)  ? '' :'hidden' !!}">
-                        <x-icon.checkmark/>
-                    </div>
+                        <div class="truncate" id="mc_c_answertext_{{$uuid}}" wire:key="text_{{$uuid}}" >{{ $schoolLocation }}</div>
+                        <div id="checkmark_{{ $uuid }}" wire:key="checkmark_{{$uuid}}" class="{!! (auth()->user()->schoolLocation->uuid == $uuid)  ? '' :'hidden' !!}">
+                            <x-icon.checkmark/>
+                        </div>
+                    </label>
                 </div>
             @endforeach
         </div>

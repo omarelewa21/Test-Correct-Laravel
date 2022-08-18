@@ -1,16 +1,5 @@
 <div class="relative drag-item question-button flex items-center cursor-pointer bold py-2 bg-white transition-colors hover:text-primary pl-6 pr-4 {{ $active ? 'question-active' : '' }}"
-     @click=""
-     title="{{ __('cms.Open vraag') }}"
-     style="max-width: 300px"
-     @if($subQuestion)
-        wire:sortable-group.item="{{ $question->uuid }}"
-     @else
-        wire:sortable.item="{{ $question->uuid }}"
-     @endif
->
-    <div class="flex w-full"
-         @click="
-         $store.cms.processing = true;
+     @click="$store.cms.processing = true;
              $dispatch('store-current-question');
              $wire.emitTo('teacher.questions.open-short','showQuestion',
              {
@@ -20,8 +9,17 @@
                 'shouldSave': true
                 })
              $store.cms.scrollPos = document.querySelector('.drawer').scrollTop;
-         "
-    >
+                "
+     title="{{ __('cms.Open vraag') }}"
+     style="max-width: 300px"
+     data-order-number="{{ $loop }}"
+     @if($subQuestion)
+        wire:sortable-group.item="{{ $question->uuid }}"
+     @else
+        wire:sortable.item="{{ $question->uuid }}"
+     @endif
+>
+    <div class="flex w-full">
         <span class="rounded-full text-sm flex items-center justify-center border-3 relative px-1.5
               {{ $active ? 'text-white bg-primary border-primary ' : 'bg-transparent border-current' }}"
               style="min-width: 30px; height: 30px"
@@ -37,12 +35,10 @@
                     <span>{{ $question->typeName }}</span>
                     <div class="flex items-center space-x-2">
                         <span class="flex">{{ $question->score }}pt</span>
-                        @if($subQuestion === false)
-                            <div class="flex items-center space-x-1 @if($question->attachmentCount === 0) invisible @endif">
-                                <x-icon.attachment class="flex"/>
-                                <span class="flex">{{ $question->attachmentCount }}</span>
-                            </div>
-                        @endif
+                        <div class="flex items-center space-x-1 @if($question->attachmentCount === 0) invisible @endif">
+                            <x-icon.attachment class="flex"/>
+                            <span class="flex">{{ $question->attachmentCount }}</span>
+                        </div>
                     </div>
                 </div>
             </div>

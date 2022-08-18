@@ -33,7 +33,7 @@
     width: 100%;
     left: 0;
     display: flex;
-    justify-content: end;
+    justify-content: flex-end;
     z-index: 100;
 }
 
@@ -216,8 +216,7 @@
     color: var(--primary);
 }
 
-#sidebar-carousel-container .group-add-new:hover,
-#sidebar-carousel-container .question-button:hover {
+#sidebar-carousel-container .question-button:not(.dummy):hover {
     background-color: var(--primary-opacity-05);
 }
 

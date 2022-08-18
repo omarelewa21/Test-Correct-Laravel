@@ -1,22 +1,26 @@
 <div>
-    <div class="flex items-center justify-between px-8 py-1 border-b border-bluegrey">
-        <div class="flex items-center space-x-2.5">
-            <x-button.back-round @click="closeGroupDetail()"/>
-            <div class="flex text-lg bold">
-                <span>{{ __('question.Vraaggroep') }}: {{ $name ?? '' }}</span>
+    <div class="sticky sticky-pseudo-bg z-10 top-0 bg-lightGrey flex items-center px-8 py-1 border-b border-bluegrey"
+         :style="{top: $root.offsetTop + 'px'}"
+    >
+        <div class="w-full max-w-screen-2xl mx-auto px-10 z-1 flex items-center justify-between">
+            <div class="flex items-center space-x-2.5 z-1">
+                <x-button.back-round @click="closeGroupDetail()"/>
+                <div class="flex text-lg bold">
+                    <span>{{ __('question.Vraaggroep') }}: {{ $name ?? '' }}</span>
+                </div>
+            </div>
+
+            <div class="flex gap-4 note">
+                @if($closeable)
+                    <x-icon.locked class="text-sysbase"/>
+                @else
+                    <x-icon.unlocked class="note"/>
+                @endif
+                <x-icon.options/>
             </div>
         </div>
-
-        <div class="flex gap-4 note">
-            @if($closeable)
-            <x-icon.locked class="text-sysbase"/>
-            @else
-            <x-icon.unlocked class="note"/>
-                @endif
-            <x-icon.options/>
-        </div>
     </div>
-    <div class="flex flex-col mx-8">
+    <div class="w-full max-w-screen-2xl mx-auto px-10">
         <div class="py-6 flex w-full flex-col gap-2.5">
             <div class="flex w-full justify-between text-base">
                 <div class="flex gap-4">
@@ -46,25 +50,27 @@
                     <x-icon.preview/>
                 </button>
                 @if($inTest)
-                    <span wire:ignore wire:key="checked-for-{{ $uuid }}" title="{{ __('cms.Deze vraag is aanwezig in de toets.') }}">
+                    <span wire:ignore wire:key="checked-for-{{ $uuid }}"
+                          title="{{ __('cms.Deze vraag is aanwezig in de toets.') }}">
                         <x-icon.checkmark-circle color="var(--cta-primary)"/>
                     </span>
                 @endif
-                <x-button.cta x-data="{}" x-show="Alpine.store('questionBank').active" wire:click.stop="handleCheckboxClick('{{ $uuid }}')"
+                <x-button.cta x-data="{}" x-show="Alpine.store('questionBank').active"
+                              wire:click.stop="handleCheckboxClick('{{ $uuid }}')"
                               @click="$el.disabled = true">
                     <x-icon.plus-2/>
                     <span>{{ __('cms.Toevoegen') }}</span>
                 </x-button.cta>
             </div>
         </div>
-
-
         <x-grid class="subquestion-grid w-full">
             @forelse($subQuestions as $sub)
-                <x-grid.question-card :question="$sub->question->getQuestionInstance()" :testUuid="$this->testId ?? null" :order="$loop->iteration"/>
+                <x-grid.question-card :question="$sub->question" :testUuid="$this->testId ?? null"
+                                      :order="$loop->iteration"/>
             @empty
                 <span>Geen subvragen</span>
             @endforelse
         </x-grid>
+        <x-question-card-context-menu/>
     </div>
 </div>

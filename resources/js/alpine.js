@@ -348,21 +348,18 @@ document.addEventListener('alpine:init', () => {
         drawer: null,
         resizing: false,
         resizeTimout: null,
+        slides: ['home', 'type', 'newquestion', 'questionbank'],
+        activeSlide: null,
+        scrollTimeout: null,
         init() {
             this.slideWidth = this.$root.offsetWidth;
             this.drawer = this.$root.closest('.drawer');
+            this.setActiveSlideProperty(this.$root.scrollLeft);
             setTimeout(() => {
                 this.handleVerticalScroll(this.$root.firstElementChild);
-                //To enable questionbank on startup :
-                // this.showQuestionBank();
-                // setTimeout(() => {
-                //     this.$refs.questionEditorSidebar.scrollTo({
-                //         left: this.$refs.questionEditorSidebar.scrollLeft - 300,
-                //         behavior: 'smooth'
-                //     });
-                // },1000)
-
+                this.scrollActiveQuestionIntoView();
             }, 400);
+
         },
         next(currentEl) {
             const left = this.$refs.questionEditorSidebar.scrollLeft + this.slideWidth;
@@ -374,13 +371,14 @@ document.addEventListener('alpine:init', () => {
             this.scroll(left);
             this.handleVerticalScroll(currentEl.previousElementSibling);
         },
-        home() {
-            this.scroll(0);
+        home(scrollActiveIntoView = true) {
+            this.scroll(0, scrollActiveIntoView);
             if (!this.$store.cms.emptyState) this.$dispatch('backdrop');
-            this.handleVerticalScroll(this.$refs.container1);
+            this.handleVerticalScroll(this.$refs.home);
         },
-        scroll(position) {
-            this.drawer.scrollTo({top: 0, behavior: 'smooth'});
+        scroll(position, scrollActiveIntoView = true) {
+            this.setActiveSlideProperty(position)
+            if (scrollActiveIntoView) this.scrollActiveQuestionIntoView();
             this.$refs.questionEditorSidebar.scrollTo({
                 left: position >= 0 ? position : 0,
                 behavior: 'smooth'
@@ -388,6 +386,7 @@ document.addEventListener('alpine:init', () => {
             this.$store.cms.scrollPos = 0
         },
         handleVerticalScroll(el) {
+            if (el.getAttribute('x-ref') !== this.activeSlide) return;
 
             this.$refs.questionEditorSidebar.style.minHeight = 'auto';
             this.$refs.questionEditorSidebar.style.height = 'auto';
@@ -399,14 +398,13 @@ document.addEventListener('alpine:init', () => {
                 this.drawer.classList.add('overflow-hidden');
                 this.drawer.classList.remove('overflow-auto');
             }
-
             this.$nextTick(() => {
                 this.$refs.questionEditorSidebar.style.minHeight = this.drawer.offsetHeight + 'px';
                 this.$refs.questionEditorSidebar.style.height = el.offsetHeight + 'px';
             })
         },
         setNextSlide(toInsert) {
-            this.$root.insertBefore(toInsert, this.$root.querySelector('.slide-container[x-ref="container2"]').nextElementSibling);
+            this.$root.insertBefore(toInsert, this.$refs.type.nextElementSibling);
         },
         showNewQuestion(container) {
             this.setNextSlide(this.$refs.newquestion);
@@ -434,12 +432,12 @@ document.addEventListener('alpine:init', () => {
                 this.drawer.classList.remove('fullscreen');
                 this.home();
                 // this.scroll(container.parentElement.firstElementChild.offsetWidth);
-
                 setTimeout(() => {
                     this.$root.querySelectorAll('.slide-container').forEach((slide) => {
                         slide.classList.remove('opacity-0')
                     })
                     this.$wire.emitTo('drawer.cms', 'refreshDrawer');
+                    this.$dispatch('resize');
                 }, 400)
                 this.$wire.emitTo('drawer.cms', 'refreshDrawer');
             })
@@ -447,24 +445,28 @@ document.addEventListener('alpine:init', () => {
         addQuestionToGroup(uuid) {
             this.showAddQuestionSlide()
             this.$store.questionBank.inGroup = uuid;
-            this.$dispatch('backdrop');
         },
         addGroup(shouldCheckDirty = true) {
-            this.$dispatch('store-current-question');
-            if (shouldCheckDirty && this.$store.cms.dirty) {
-                this.$wire.emitTo('teacher.questions.open-short', 'addQuestionFromDirty', {'group': true})
-                return;
+            if (this.emitAddToOpenShortIfNecessary(shouldCheckDirty, true, false)) {
+                this.$wire.addGroup();
             }
-            this.$wire.addGroup();
         },
         showAddQuestionSlide(shouldCheckDirty = true) {
+            if (this.emitAddToOpenShortIfNecessary(shouldCheckDirty, false, false)) {
+                this.next(this.$refs.home);
+                this.$dispatch('backdrop');
+            }
+        },
+        addSubQuestionToNewGroup(shouldCheckDirty = true) {
+            this.emitAddToOpenShortIfNecessary(shouldCheckDirty, false, true)
+        },
+        emitAddToOpenShortIfNecessary(shouldCheckDirty = true, group, newSubQuestion) {
             this.$dispatch('store-current-question');
             if (shouldCheckDirty && this.$store.cms.dirty) {
-                this.$wire.emitTo('teacher.questions.open-short', 'addQuestionFromDirty', {'group': false})
-                return;
+                this.$wire.emitTo('teacher.questions.open-short', 'addQuestionFromDirty', {group, newSubQuestion});
+                return false;
             }
-
-            this.next(this.$refs.container1);
+            return true;
         },
         backToQuestionOverview(container) {
             this.prev(container);
@@ -480,6 +482,28 @@ document.addEventListener('alpine:init', () => {
                     this.resizing = false;
                 }, 500);
             }
+        },
+        scrollActiveQuestionIntoView() {
+            if (this.activeSlide !== 'home') return;
+            clearTimeout(this.scrollTimeout);
+            this.scrollTimeout = setTimeout(() => {
+                let activeQuestion = this.$refs.home.querySelector('.question-button.question-active');
+                activeQuestion ||= this.$refs.home.querySelector('.group-active');
+                if (activeQuestion === null) return clearTimeout(this.scrollTimeout);
+
+                const top = activeQuestion.getBoundingClientRect().top;
+                const screenWithBottomMargin = (window.screen.height - 200);
+
+                if (top >= screenWithBottomMargin) {
+                    this.drawer.scrollTo({top: (top - screenWithBottomMargin / 2), behavior: 'smooth'});
+                }
+
+                clearTimeout(this.scrollTimeout);
+            }, 750)
+        },
+        setActiveSlideProperty(position) {
+            let index = position / this.slideWidth > 2 ? 3 : position / this.slideWidth;
+            this.activeSlide = this.slides[index];
         }
     }));
     Alpine.data('choices', (wireModel, multiple, options, config, filterContainer) => ({
@@ -577,8 +601,35 @@ document.addEventListener('alpine:init', () => {
         clearFilterPill(item) {
             return this.activeFiltersContainer.querySelector(this.getDataSelector(item))?.remove();
         }
-
     }));
+
+    Alpine.data('questionCardContextMenu', () => ({
+        menuOpen: false,
+        questionUuid: null,
+        inTest: null,
+        correspondingButton: null,
+        handleIncomingEvent(detail) {
+            if (!this.menuOpen) return this.openMenu(detail);
+
+            this.closeMenu();
+            setTimeout(() => {
+                this.openMenu(detail);
+            }, 150);
+        },
+        openMenu(detail) {
+            this.questionUuid = detail.questionUuid;
+            this.inTest = detail.inTest;
+            this.correspondingButton = detail.button;
+            this.$root.style.top = (detail.coords.top + 56) + 'px';
+            this.$root.style.left = (detail.coords.left - 224) + 'px';
+            this.menuOpen = true
+        },
+        closeMenu() {
+            this.correspondingButton.dispatchEvent(new CustomEvent('close-menu'));
+            this.menuOpen = false
+        }
+    }));
+
 
     Alpine.directive('global', function (el, {expression}) {
         let f = new Function('_', '$data', '_.' + expression + ' = $data;return;');

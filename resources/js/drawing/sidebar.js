@@ -344,6 +344,7 @@ export class Layer extends sidebarComponent {
 
         const headerTitle = templateCopy.querySelector(".header-title");
         headerTitle.innerText = this.props.name;
+        headerTitle.setAttribute("selid", `header-${this.props.id}`)
         headerTitle.setAttribute('data-layer', this.props.id);
         headerTitle.closest('.header-container').setAttribute('data-layer', this.props.id);
 

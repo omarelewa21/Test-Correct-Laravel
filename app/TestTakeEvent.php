@@ -18,6 +18,7 @@ class TestTakeEvent extends BaseModel {
 
     protected $casts = [
         'uuid' => EfficientUuid::class,
+        'metadata' => 'array'
     ];
 
     /**
@@ -53,6 +54,36 @@ class TestTakeEvent extends BaseModel {
         parent::boot();
 
         static::saving(function(TestTakeEvent $testTakeEvent) {
+            if ($testTakeEvent->testTakeEventType->reason == "vm") {
+                try {
+                    $metadata = $testTakeEvent->metadata;
+                    switch ($metadata['software']) {
+                        case 0x15ad:
+                            $metadata['software'] = 'VMWare';
+                            break;
+                        case 0x0e0f:
+                            $metadata['software'] = 'VMWare';
+                            break;
+                        case 0x80ee:
+                            $metadata['software'] = 'Virtualbox';
+                            break;
+                        case 0x203a:
+                            $metadata['software'] = 'Parallels';
+                            break;
+                        case 0x46f4:
+                            $metadata['software'] = 'QEMU';
+                            break;
+                        default:
+                            $metadata['software'] = '???, vendor: ' . $metadata['software'];
+                            break;
+                    }
+                    $testTakeEvent->metadata = $metadata;
+                } catch (\Throwable $th) {
+                    Bugsnag::notifyException($th);
+                }
+
+            }
+
             if ($testTakeEvent->shouldIgnoreEventRegistration()) {
                 return false;
             }
