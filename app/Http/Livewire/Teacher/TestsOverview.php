@@ -13,6 +13,7 @@ use tcCore\Http\Controllers\TemporaryLoginController;
 use tcCore\Http\Requests\DuplicateTestRequest;
 use tcCore\Subject;
 use tcCore\Test;
+use tcCore\TemporaryLogin;
 
 class TestsOverview extends Component
 {
@@ -289,5 +290,12 @@ class TestsOverview extends Component
             $this->emit('openModal', 'teacher.test-create-modal');
             $this->referrerAction = '';
         }
+    }
+
+    public function toPlannedTest($takeUuid)
+    {
+        $url = sprintf("test_takes/view/%s", $takeUuid);
+        $options = TemporaryLogin::buildValidOptionObject('page', $url);
+        return auth()->user()->redirectToCakeWithTemporaryLogin($options);
     }
 }

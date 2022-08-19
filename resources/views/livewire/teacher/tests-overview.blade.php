@@ -225,5 +225,6 @@
     <livewire:teacher.test-delete-modal></livewire:teacher.test-delete-modal>
     <livewire:teacher.copy-test-from-schoollocation-modal></livewire:teacher.copy-test-from-schoollocation-modal>
     <x-notification/>
+    <x-after-planning-toast/>
     <livewire:teacher.tests-overview-context-menu></livewire:teacher.tests-overview-context-menu>
 </div>
