@@ -18,7 +18,7 @@ return [
     'Weet je zeker dat je deze test wilt verwijderen?' => 'Weet je zeker dat je deze test wilt verwijderen?',
     'toets aanmaken'                                   => 'Toets aanmaken',
     'naam toets'                                       => 'Naam toets',
-    'Afkorting (max 5)'                                => 'Afkorting (max 5)',
+    'Afkorting (max 5)'                                => 'Afkorting',
     "niveau"                                           => 'Niveau',
     'periode'                                          => 'Periode',
     'niveau-jaar'                                      => 'Niveau-jaar',
