@@ -835,7 +835,7 @@ class Test extends BaseModel
 
     public function getAuthorsAsStringAttribute()
     {
-        return $this->testAuthors()->get()->map(function ($author) {
+        return $this->getTestAuthorsWithMainAuthorFirst()->map(function ($author) {
             return implode(' ', array_filter([$author->user->name_first, $author->user->name_suffix, $author->user->name]));
         })->join(', ');
     }
@@ -844,7 +844,7 @@ class Test extends BaseModel
     {
         $authorsToShow = 2;
 
-        $names = $this->testAuthors()->get()->map(function ($author) {
+        $names = $this->getTestAuthorsWithMainAuthorFirst()->map(function ($author) {
             return implode(' ', array_filter([$author->user->name_first, $author->user->name_suffix, $author->user->name]));
         });
 
@@ -856,6 +856,16 @@ class Test extends BaseModel
         }
 
         return $return;
+    }
+
+    public function getTestAuthorsWithMainAuthorFirst()
+    {
+        return $this->testAuthors()
+            ->get()
+            ->sortByDesc(function ($author) {
+                return $author->user_id === $this->author_id ? 1 : 0 ;
+            })
+            ->values();
     }
 
     public function getQuestionOrderList()
