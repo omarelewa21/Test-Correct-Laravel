@@ -1581,7 +1581,7 @@ class Question extends MtiBaseModel {
 
     public function getAuthorNamesCollection()
     {
-        return $this->authors()->get(['id', 'name', 'name_first', 'name_suffix'])->map(function($author) {
+        return $this->getAuthorsWithMainFirst()->map(function($author) {
             return $author->getFullNameWithAbbreviatedFirstName();
         });
     }
@@ -1677,5 +1677,15 @@ class Question extends MtiBaseModel {
         $newQuestion->save();
 
         return $newQuestion;
+    }
+
+    public function getAuthorsWithMainFirst()
+    {
+        return $this->authors()
+            ->get()
+            ->sortByDesc(function ($author) {
+                return $author->user_id === $this->author_id ? 1 : 0 ;
+            })
+            ->values();
     }
 }
