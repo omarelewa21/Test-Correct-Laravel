@@ -191,26 +191,43 @@ class TestTakeLaravelController extends Controller
         }
 
         $user = auth()->user();
+        $toast = null;
+
         if($user->isA('student')){
+            // Student
             return redirect()->route('student.waiting-room', ['take' => $testTake->uuid]);
         }
-        if(($user->isA('teacher') && $testTake->user_id === $user->id) || $testTake->isInvigilator($user)) {
+
+        if($user->isA('teacher') && $testTake->user_id === $user->id){
+            // Owner of the test take
+            if($testTake->testTakeStatus->name == 'Taking test'){
+                $url = "test_takes/surveillance";
+            }else{
+                $url = sprintf("test_takes/view/%s", $testTake->uuid);
+            }
+        }
+        elseif($testTake->isInvigilator($user)){
+            // Invigilator
             if($testTake->testTakeStatus->name == 'Planned'){
                 $url = sprintf("test_takes/view/%s", $testTake->uuid);
             }elseif($testTake->testTakeStatus->name == 'Taking test'){
                 $url = "test_takes/surveillance";
             }else{
-                if($testTake->user_id === $user->id){
-                    $url = sprintf("test_takes/view/%s", $testTake->uuid);
-                }else{
-                    $url = 'dashboard';
-                }
+                $url = 'dashboard';
+                $toast = __('teacher.take_not_accessible_toast_for_invigilator', ['testName' => $testTake->test->name]);
             }
-
-            $options = TemporaryLogin::buildValidOptionObject('page', $url);
-            return $user->redirectToCakeWithTemporaryLogin($options);
+        }
+        else{
+            $url = 'dashboard';
+            $toast = __('teacher.test_not_found');
         }
 
-        abort(403, __('test_take.directlink_auth_fail'));             // User does not affiliate to this test take
+        if($toast){
+            $options = TemporaryLogin::buildValidOptionObject(['page', 'toast'], [$url, $toast]);
+        }else{
+            $options = TemporaryLogin::buildValidOptionObject('page', $url);
+        }
+
+        return $user->redirectToCakeWithTemporaryLogin($options);
     }
 }

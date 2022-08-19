@@ -60,4 +60,6 @@ return [
     'copyTestLink'                                                                             => 'Copy test link',
     'goToPlannedTests'                                                                         => 'Go to planned test',
     'clipboard_copied'                                                                         => 'Test link has been copied to the clipboard',
+    'take_not_accessible_toast_for_invigilator'                                                => 'The :testName test has been removed and can no longer be opened',
+    'test_not_found'                                                                           => 'test cannot be found.'
 ];

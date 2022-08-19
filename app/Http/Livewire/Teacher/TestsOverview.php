@@ -350,4 +350,11 @@ class TestsOverview extends Component
 
         return 'general.number-of-tests-'.$this->openTab;
     }
+
+    public function toPlannedTest($takeUuid)
+    {
+        $url = sprintf("test_takes/view/%s", $takeUuid);
+        $options = TemporaryLogin::buildValidOptionObject('page', $url);
+        return auth()->user()->redirectToCakeWithTemporaryLogin($options);
+    }
 }

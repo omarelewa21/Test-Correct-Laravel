@@ -60,4 +60,6 @@ return [
     'copyTestLink'                                                                             => 'Toetslink gekopieerd',
     'goToPlannedTests'                                                                         => 'Direct naar ingeplande toets',
     'clipboard_copied'                                                                         => 'Toetslink gekopieerd',
+    'take_not_accessible_toast_for_invigilator'                                                => 'De toets :testName is afgenomen en kan niet meer geopend worden',
+    'test_not_found'                                                                           => 'test kan niet worden gevonden.'
 ];
