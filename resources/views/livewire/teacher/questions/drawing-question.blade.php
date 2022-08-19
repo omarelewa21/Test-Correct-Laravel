@@ -5,6 +5,8 @@
             editorId="{{ $questionEditorId }}"
             type="cms"
             :disabled="isset($preview)"
+            lang="{{ $lang }}"
+            :allowWsc="$allowWsc"
     />
 @endsection
 

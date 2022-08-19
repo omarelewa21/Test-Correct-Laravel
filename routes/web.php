@@ -80,11 +80,15 @@ Route::middleware('auth')->group(function () {
         Route::get('/test-detail/{uuid}', tcCore\Http\Livewire\Teacher\TestDetail::class)->name('test-detail');
         Route::get('/preview/answer_model/{test}', [tcCore\Http\Controllers\PreviewAnswerModelController::class, 'show'])->name('test-answer-model');
         Route::get('/preview/test_take/{test_take}', [tcCore\Http\Controllers\PreviewTestTakeController::class, 'show'])->name('preview.test_take');
+        Route::get('/preview/pdf/test/{test}', [tcCore\Http\Controllers\PrintTestController::class, 'showTest'])->name('preview.test_pdf');
+        Route::get('/preview/pdf/test_take/{test_take}', [tcCore\Http\Controllers\PrintTestController::class, 'showTestTake'])->name('preview.test_take_pdf');
+        Route::get('/preview/pdf/test_attachments/{test}', [tcCore\Http\Controllers\PrintTestController::class, 'showTestPdfAttachments'])->name('preview.test_pdf_attachments');
 
     });
 
     Route::middleware(['dll', 'student'])->prefix('appapi')->name('appapi')->group(function() {
         Route::put('/test_participant/{test_participant}/hand_in', [tcCore\Http\Controllers\AppApi::class, 'handIn'])->name('appapi-hand-in');
+        Route::put('/test_participant/{test_participant}/fraud_event', [tcCore\Http\Controllers\AppApi::class, 'fraudEvent'])->name('appapi-fraud-event');
     });
 
     Route::get('/entree-link', tcCore\Http\Livewire\Auth\EntreeLink::class)->name('entree-link');

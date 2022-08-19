@@ -96,6 +96,7 @@ class TestsController extends Controller {
 	{
 		$test->load('educationLevel', 'author', 'author.school', 'author.schoolLocation', 'subject', 'period', 'testKind','owner');
 		$test->append(    'has_duplicates');
+        $test->append('has_pdf_attachments');
 		return Response::make($test, 200);
 	}
 
@@ -182,5 +183,18 @@ class TestsController extends Controller {
         $response->url = sprintf('%s%s',config('app.base_url'),$relativeUrl);
 
         return  response()->json($response);
+    }
+
+    public function pdfWithTemporaryLogin(Test $test)
+    {
+        $temporaryLogin = TemporaryLogin::createForUser(Auth()->user());
+
+        return BaseHelper::createRedirectUrlWithTemporaryLoginUuid($temporaryLogin->uuid,route('teacher.preview.test_pdf', $test->uuid,false));
+    }
+    public function pdfPdfAttachmentsWithTemporaryLogin(Test $test)
+    {
+        $temporaryLogin = TemporaryLogin::createForUser(Auth()->user());
+
+        return BaseHelper::createRedirectUrlWithTemporaryLoginUuid($temporaryLogin->uuid,route('teacher.preview.test_pdf_attachments', $test->uuid,false));
     }
 }

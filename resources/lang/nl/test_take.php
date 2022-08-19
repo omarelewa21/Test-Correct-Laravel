@@ -25,6 +25,8 @@ return [
     'infoscreen_question'                          => 'InfoScherm',
     'info_screen_question_bottom_text'             => 'Dit is een informatiescherm, een antwoord is niet nodig.',
     'open_question'                                => 'Open vraag',
+    'writing_assignment_question'                  => 'Schrijfopdracht',
+    'writing_assignment'                           => 'Schrijfopdracht',
     'correct'                                      => 'Juist',
     'incorrect'                                    => 'Onjuist',
     'correct_reason'                               => 'Correct reden',

@@ -2,8 +2,10 @@
 
 namespace tcCore\Http\Livewire\Teacher;
 
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 use LivewireUI\Modal\ModalComponent;
+use tcCore\Http\Helpers\BaseHelper;
 use tcCore\Http\Helpers\QuestionHelper;
 use tcCore\Http\Interfaces\QuestionCms;
 use tcCore\Http\Livewire\Teacher\Questions\CmsFactory;
@@ -60,6 +62,8 @@ class QuestionCmsPreviewModal extends ModalComponent implements QuestionCms
     public $attachments;
     public $authors;
     public $inTest = false;
+    public $lang = 'nl_NL';
+    public $allowWsc = false;
 
     protected static array $maxWidths = [
         'full' => 'modal-full-screen',
@@ -72,6 +76,7 @@ class QuestionCmsPreviewModal extends ModalComponent implements QuestionCms
     {
         $question = Question::whereUuid($uuid)->first();
         $this->inTest = $inTest;
+        $this->allowWsc = Auth::user()->schoolLocation->allow_wsc;
 
         $this->initializeComponent($question);
     }
@@ -124,6 +129,11 @@ class QuestionCmsPreviewModal extends ModalComponent implements QuestionCms
         return 'full';
     }
 
+    public static function destroyOnClose(): bool
+    {
+        return BaseHelper::notProduction();
+    }
+
     /*
      * Helper methods
      */
@@ -162,6 +172,8 @@ class QuestionCmsPreviewModal extends ModalComponent implements QuestionCms
         $this->question['closeable'] = $question->closeable;
         $this->question['add_to_database'] = $question->add_to_database;
         $this->question['decimal_score'] = $question->decimal_score;
+        $this->question['lang'] = $this->lang = $question->lang ?? 'nl_NL';
+
         $this->initWithTags = $question->tags;
         $this->initWithTags->each(function ($tag) {
             $this->question['tags'][] = $tag->name;
@@ -173,7 +185,7 @@ class QuestionCmsPreviewModal extends ModalComponent implements QuestionCms
         $this->subjectId = $question->subject_id;
         $this->educationLevelId = $question->education_level_id;
 
-        $this->questionTitle = $question->isType('GroupQuestion') ? $question->name : $question->title;
+        $this->questionTitle = $question->isType('GroupQuestion') ? html_entity_decode($question->name) : $question->title;
         $this->questionType = $question->isType('GroupQuestion') ? __('question.Vraaggroep') : $question->typeName;
 
         $this->authors = $question->getAuthorNamesString();
@@ -244,5 +256,7 @@ class QuestionCmsPreviewModal extends ModalComponent implements QuestionCms
         $this->forceClose()->closeModal();
     }
 
-    public function setVideoTitle($videoUrl, $title) { }
+    public function setVideoTitle($videoUrl, $title)
+    {
+    }
 }

@@ -2,6 +2,7 @@
 
 namespace tcCore\Http\Livewire\Teacher\Questions;
 
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 use tcCore\Http\Interfaces\QuestionCms;
 
@@ -35,7 +36,12 @@ class CmsFactory
         return [
             'InfoscreenQuestion'     => CmsInfoScreen::class,
             'RankingQuestion'        => CmsRanking::class,
-            'OpenQuestion'           => CmsOpen::class,
+            'OpenQuestion'           => [
+                'short'   => CmsOpen::class,
+                'medium'  => CmsOpen::class,
+                'long'    => CmsOpen::class,
+                'writing' => CmsWritingAssignment::class,
+            ],
             'DrawingQuestion'        => CmsDrawing::class,
             'GroupQuestion'          => CmsGroup::class,
             'MultipleChoiceQuestion' => [
@@ -56,7 +62,7 @@ class CmsFactory
 
     public static function questionTypes()
     {
-        return [
+        $questionTypes = [
             'open'   => [
                 [
                     'sticker'     => 'question-open',
@@ -148,6 +154,16 @@ class CmsFactory
                 ]
             ]
         ];
+        if (Auth::user()->schoolLocation->allow_writing_assignment) {
+            array_splice($questionTypes['open'], '2', 0, [[
+                'sticker'     => 'question-open',
+                'name'        => __('question.openquestionwriting'),
+                'description' => __('question.open-writing_description'),
+                'type'        => 'OpenQuestion',
+                'subtype'     => 'writing',
+            ]]);
+        }
+        return $questionTypes;
     }
 
     public static function findQuestionNameByTypes($type, $subtype)

@@ -1,7 +1,10 @@
 .navigation-bar {
+    --nav-bar-height: 50px;
     width: 100%;
-    position: fixed;
+    position: sticky;
     z-index: 10;
+    top: 0;
+    margin-bottom: var(--nav-bar-height);
 }
 
 .navigation-bar .logo svg {
@@ -24,9 +27,9 @@
 
 .navigation-bar .menu-top {
     background: white;
-    height: 50px;
+    height: var(--nav-bar-height);
     display: flex;
-    justify-content: end;
+    justify-content: flex-end;
     -webkit-justify-content: flex-end;
 }
 
@@ -86,14 +89,14 @@
     display: grid;
     overflow: hidden;
     gap: 5px;
-    top: 50px;
+    top: var(--nav-bar-height);
     right: 0px;
     width: 256px;
     padding: 15px;
     box-shadow: 0px 15px 20px rgba(0, 0, 0, 0.1);
     background-color: var(--blue-grey);
     z-index: 110;
-    transition: 0.5s ease-in-out;
+    transition: 0.3s linear;
 }
 
 .navigation-bar .menu-top .user-menu a,
@@ -203,17 +206,16 @@
 }
 
 .navigation-bar .tiles {
-    --top: 0px;
+    --top: 50px;
     position: absolute;
     display: flex;
     top: var(--top);
-    height: 50px;
+    height: var(--nav-bar-height);
     width: 100%;
     background-color: white;
     z-index: -1;
-    transition-delay: -2s ease-out;
-    transition: 0.5s ease-out;
-    box-shadow: 0px 2px 10px rgba(0, 0, 0, 0.4);
+    transition: 0.3s linear;
+    box-shadow: var(--main-shadow);
 }
 
 .navigation-bar .tiles .tile-group {
@@ -222,7 +224,7 @@
 
 .navigation-bar .tiles .tile-group .tile-item {
     width: auto;
-    height: 50px;
+    height: var(--nav-bar-height);
     text-align: center;
     margin: 0;
     padding: 13px 10px 10px 10px;
@@ -237,11 +239,19 @@
 
 .navigation-bar .tiles .tile-group .tile-item.tile-active::after {
     content: '';
-    bottom: 0px;
+    bottom: 0;
     background-color: var(--primary);
     width: 100%;
     height: 3px;
-    left: 0px;
+    left: 0;
     border-radius: 15px;
     position: absolute;
+}
+
+.sticky-pseudo-bg::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    top: -50px;
+    background-color: var(--light-grey);
 }
