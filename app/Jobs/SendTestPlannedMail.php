@@ -38,7 +38,6 @@ class SendTestPlannedMail extends Job implements ShouldQueue
     {
         try {
             $testTake   = TestTake::findOrFail($this->testTakeId);
-            $directlink = config('app.base_url') ."directlink/". $testTake->uuid;
             $takeCode = $testTake->testTakeCode;
             if($takeCode){
                 $takeCode = $takeCode->prefix . '  ' . implode(' ', str_split($takeCode->code));
@@ -65,7 +64,7 @@ class SendTestPlannedMail extends Job implements ShouldQueue
                     continue;
                 }
                 $mailer->send('emails.test_planned',
-                    ['testParticipant' => $testParticipant, 'directlink' => $directlink, 'takeCode' => $takeCode],
+                    ['testParticipant' => $testParticipant, 'directlink' => $testTake->directLink, 'takeCode' => $takeCode],
                     function ($mail) use ($testParticipant) {
                         $mail->to($testParticipant->user->username, $testParticipant->user->getNameFullAttribute())->subject(__('test_planned.Toetsafname ingepland.'));
                 });
@@ -74,7 +73,7 @@ class SendTestPlannedMail extends Job implements ShouldQueue
             foreach($testTake->invigilators as $invigilator){
                 if($invigilator->user->username !== $testTake->user->username){
                     $mailer->send('emails.teacher_test_planned',
-                        ['user' => $invigilator->user, 'testTake' => $testTake, 'directlink' => $directlink, 'is_invigilator' => true, 'takeCode' => $takeCode],
+                        ['user' => $invigilator->user, 'testTake' => $testTake, 'directlink' => $testTake->directLink, 'is_invigilator' => true, 'takeCode' => $takeCode],
                         function ($mail) use ($invigilator) {
                             $mail->to($invigilator->user->username, $invigilator->user->getNameFullAttribute())->subject(__('test_planned.Toetsafname ingepland.'));
                     });
@@ -82,7 +81,7 @@ class SendTestPlannedMail extends Job implements ShouldQueue
             }
             // Send to test owner
             $mailer->send('emails.teacher_test_planned',
-                ['user' => $testTake->user, 'testTake' => $testTake, 'directlink' => $directlink, 'is_invigilator' => false, 'takeCode' => $takeCode],
+                ['user' => $testTake->user, 'testTake' => $testTake, 'directlink' => $testTake->directLink, 'is_invigilator' => false, 'takeCode' => $takeCode],
                 function ($mail) use ($testTake) {
                     $mail->to($testTake->user->username, $testTake->user->getNameFullAttribute())->subject(__('test_planned.Toetsafname ingepland.'));
             });

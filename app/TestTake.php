@@ -83,7 +83,7 @@ class TestTake extends BaseModel
      */
     protected $schoolClasses;
 
-    protected $appends = ['exported_to_rtti_formated','invigilators_acceptable','invigilators_unacceptable_message'];
+    protected $appends = ['exported_to_rtti_formated','invigilators_acceptable','invigilators_unacceptable_message', 'directLink'];
 
     public static function boot()
     {
@@ -833,6 +833,10 @@ class TestTake extends BaseModel
             return __('De surveilant is niet langer actief binnen Test-Correct');
         }
         return _('Er is geen surveillant gekoppeld');
+    }
+
+    public function getDirectLinkAttribute(){
+        return config('app.base_url') ."directlink/". $this->uuid;
     }
 
     private function handleGuestAccountsStatus()

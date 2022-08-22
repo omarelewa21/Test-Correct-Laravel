@@ -152,7 +152,7 @@ class PlanningModal extends ModalComponent
         $this->dispatchBrowserEvent('after-planning-toast',
         [
             'message'   => __('teacher.test_take_planned', ['testName' => $take->test->name]),
-            'link'      => config('app.base_url') ."directlink/". $take->uuid,
+            'link'      => $take->directLink,
             'take'      => $take->uuid
         ]);
     }
