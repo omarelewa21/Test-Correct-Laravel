@@ -191,7 +191,7 @@ class TestTakeLaravelController extends Controller
         }
 
         $user = auth()->user();
-        $toast = null;
+        $notification = null;
 
         if($user->isA('student')){
             // Student
@@ -214,16 +214,16 @@ class TestTakeLaravelController extends Controller
                 $url = "test_takes/surveillance";
             }else{
                 $url = 'dashboard';
-                $toast = __('teacher.take_not_accessible_toast_for_invigilator', ['testName' => $testTake->test->name]);
+                $notification = __('teacher.take_not_accessible_toast_for_invigilator', ['testName' => $testTake->test->name]);
             }
         }
         else{
             $url = 'dashboard';
-            $toast = __('teacher.test_not_found');
+            $notification = __('teacher.test_not_found');
         }
 
-        if($toast){
-            $options = TemporaryLogin::buildValidOptionObject(['page', 'toast'], [$url, $toast]);
+        if($notification){
+            $options = TemporaryLogin::buildValidOptionObject(['page', 'notification'], [$url, $notification]);
         }else{
             $options = TemporaryLogin::buildValidOptionObject('page', $url);
         }
