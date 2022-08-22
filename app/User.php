@@ -1908,14 +1908,14 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
     {
         return false; //for now
         $notPreview = PreviewLaravelController::isNotPreview();
-        return ($this->isA('teacher')&&$this->schoolLocation->allow_wsc&&$notPreview);
+        return ($this->isA('teacher') && $this->schoolLocation->allow_wsc && $notPreview);
     }
 
     public function canUseTeacherCkEditorWithoutWebSpellChecker()
     {
         return false; //for now
         $notPreview = PreviewLaravelController::isNotPreview();
-        return ($this->isA('teacher')&&!$this->schoolLocation->allow_wsc&&$notPreview);
+        return ($this->isA('teacher') && !$this->schoolLocation->allow_wsc && $notPreview);
     }
 
     public function getAccessDeniedResponse($request, Closure $next)
@@ -2018,8 +2018,9 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
                 $schoolLocation->getKey());
     }
 
-    public function hasMultipleSchools() {
-        return !! ($this->allowedSchoolLocations->count() > 1);
+    public function hasMultipleSchools()
+    {
+        return !!($this->allowedSchoolLocations->count() > 1);
     }
 
     public function addSchoolLocation(SchoolLocation $schoolLocation)
@@ -2567,7 +2568,7 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
             ->get();
 
         return [
-            'subject_id' => Subject::filtered(['user_current' => Auth::id()], [])->pluck('id'),
+            'subject_id'           => Subject::filtered(['user_current' => Auth::id()], [])->pluck('id'),
             'education_level_id'   => $results->map(function ($result) {
                 return $result->education_level_id;
             })->unique()->values()->toArray(),
@@ -2579,7 +2580,7 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
 
     public function getFormalNameAttribute()
     {
-        return sprintf('%s.%s', substr($this->name_first,0,1), $this->name,);
+        return sprintf('%s.%s', substr($this->name_first, 0, 1), $this->name,);
     }
 
     public function getFormalNameWithCurrentSchoolLocationShortAttribute()
@@ -2595,6 +2596,22 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
     public function getFormalNameWithCurrentSchoolLocationAttribute()
     {
         return sprintf('%s(%s)', $this->formal_name, $this->schoolLocation->name);
+    }
+
+    public function scopeTeachersForStudent($query, User $student)
+    {
+        if (!$student->isA('student')) {
+            throw new \Exception('Not a valid student');
+        }
+
+        return $query->whereIn(
+            'id',
+            Student::select('teachers.user_id')
+                ->join('teachers', function ($join) use ($student) {
+                    $join->on('students.class_id', '=', 'teachers.class_id')
+                        ->where('students.user_id', '=', $student->id);
+                })
+        );
     }
 
 }

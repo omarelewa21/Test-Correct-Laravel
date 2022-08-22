@@ -146,5 +146,9 @@ class EducationLevel extends BaseModel {
         return $query;
     }
 
+    public static function yearsForStudent(User $student) {
+        return $student->studentSchoolClasses()->pluck('education_level_year')->unique();
+    }
+
 
 }

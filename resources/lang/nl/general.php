@@ -55,4 +55,5 @@ return [
     'Leerjaar'                        => 'Leerjaar',
     'Laatst gewijzigd'                => 'Laatst gewijzigd',
     'Categorie'                       => 'Categorie',
+    'Docent'                          => 'Docent',
 ];
