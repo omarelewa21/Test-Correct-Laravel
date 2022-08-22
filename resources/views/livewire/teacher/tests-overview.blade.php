@@ -70,6 +70,16 @@
                     </div>
 
                 @endif
+
+                @if(auth()->user()->schoolLocation->allow_creathlon)
+                    <div class="flex items-center relative hover:text-primary hover:bg-primary/5 px-2 cursor-pointer transition"
+                         @click="openTab = 'creathlon'">
+                        <span class="bold "
+                              :class="openTab === 'creathlon' ? 'primary' : '' ">{{ __('general.Creathlon') }}</span>
+                        <span class="absolute w-[calc(100%-1rem)] bottom-0 left-2" style="height: 3px"
+                              :class="openTab === 'creathlon' ? 'bg-primary' : 'bg-transparent' "></span>
+                    </div>
+                @endif
             </div>
         </div>
     </div>

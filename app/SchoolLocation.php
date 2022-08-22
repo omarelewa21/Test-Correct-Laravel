@@ -95,6 +95,7 @@ class SchoolLocation extends BaseModel implements AccessCheckable
         'keep_out_of_school_location_report',
         'main_phonenumber', 'internetaddress', 'show_exam_material', 'show_cito_quick_test_start', 'show_national_item_bank',
         'allow_wsc', 'allow_writing_assignment',
+        'allow_creathlon',
     ];
 
     /**
@@ -1226,13 +1227,21 @@ class SchoolLocation extends BaseModel implements AccessCheckable
         return $this->morphMany(FeatureSetting::class, 'settingable');
     }
 
-//    public function getAllowCreathlonAttribute()
-//    {
-//        return $this->featureSettings()->getFeatureSetting($this, 'allow_creathlon');
-//    }
-//
-//    public function setAllowCreathlonAttribute(bool $value)
-//    {
-//        $this->featureSettings()->setFeatureSetting($this, 'allow_creathlon', $value);
-//    }
+    public function setAllowCreathlonAttribute(bool $boolean)
+    {
+        return $this->featureSettings()->setSetting('allow_creathlon', $boolean);
+    }
+
+    public function getAllowCreathlonAttribute()
+    {
+        return $this->featureSettings()->getSetting('allow_creathlon');
+    }
+
+    public function getFeatureSettingsAttribute()
+    {
+        return $this->featureSettings()->getSettings()->mapWithKeys(function($item, $key) {
+            return [$item->title => $item->value];
+        });
+    }
+
 }

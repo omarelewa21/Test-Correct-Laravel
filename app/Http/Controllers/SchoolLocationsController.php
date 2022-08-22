@@ -80,6 +80,7 @@ class SchoolLocationsController extends Controller {
             $schoolLocation['sso_options'] = $schoolLocation->getSsoOptions();
             $schoolLocation['has_run_manual_import'] = $schoolLocation->hasRunManualImport();
         }
+        $schoolLocation->append('feature_settings');
         return Response::make($schoolLocation, 200);
     }
 
@@ -92,6 +93,7 @@ class SchoolLocationsController extends Controller {
      */
     public function update(SchoolLocation $schoolLocation, UpdateSchoolLocationRequest $request)
     {
+        logger($request);
         if($request->school_id != $schoolLocation->school_id){
             $schoolLocation->sharedSections()->detach();
             $schoolLocation->schoolLocationSections->each(function(SchoolLocationSection $sharedSection){

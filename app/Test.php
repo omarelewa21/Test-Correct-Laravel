@@ -365,6 +365,27 @@ class Test extends BaseModel
         );
     }
 
+    public function scopeCreathlonItemBankFiltered($query, $filters = [], $sorting = [])
+    {
+        $user = Auth::user();
+        $query->select();
+        $subjectIds = Subject::getSubjectsOfCustomSchoolForUser(config('custom.creathlon_school_customercode'), $user);
+        if (count($subjectIds) == 0) {
+            $query->where('tests.id', -1);
+            return $query;
+        }
+        $query->whereIn('subject_id', $subjectIds);
+        $query->where('scope', 'publs');
+        $query->where('published', true);
+        if (!array_key_exists('is_system_test', $filters)) {
+            $query->where('is_system_test', '=', 0);
+        }
+        $this->handleFilterParams($query, $filters);
+        $this->handleFilteredSorting($query, $sorting);
+
+        return $query;
+    }
+
     public function scopeSharedSectionsFiltered($query, $filters = [], $sorting = [])
     {
         $user = Auth::user();

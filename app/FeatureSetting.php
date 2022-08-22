@@ -16,22 +16,56 @@ class FeatureSetting extends Model
     //todo create trait to handle feature settings
     // can() ... creathlon etc. or something like that
 
-//    public function getFeatureSetting($model, string $title)
-//    {
-//        return (bool)$this->where('settingable_id', '=', $model->getKey())->where('title', '=', $title)->pluck('value')->first();
-//    }
-//
-//    public function setFeatureSetting($model, string $title, $value)
-//    {
-//        if(!$value){
-//            $this->where('settingable_id', '=', $model->getKey())->where('title', '=', $title)->delete();
-//        }
-//        $this->where('settingable_id', '=', $model->getKey())->where('title', '=', $title)->updateOrCreate([
-//            'title' => 'allow_creathlon'
-//        ], [
-//            'value' => $value,
-//        ]);
-//        return $value;
-//    }
+    public static function scopeGetSettings($query)
+    {
+        return $query->get(['title', 'value']);
+    }
 
+    /**
+     * Set Setting for a model instance:
+     * If setting doesn't exist, returns false.
+     * So updating to false means removing record.
+     */
+    public function scopeSetSetting($query, string $title, $value)
+    {
+        $settingableValues = collect($query->getBindings())->mapWithKeys(function($value, $key) {
+            return [class_exists($value) ? 'type' : 'id' => $value];
+        });
+
+        if (!$value) {
+            return $query
+                ->where('title', '=', $title)
+                ->where('settingable_id', '=', $settingableValues['id'])
+                ->where('settingable_type', '=', $settingableValues['type'])
+                ->delete();
+        }
+        return $query
+            ->updateOrCreate([
+            'title' => $title,
+            'settingable_id' => $settingableValues['id'],
+            'settingable_type' => $settingableValues['type'],
+        ], [
+            'value' => $value,
+        ]);
+    }
+
+    /**
+     * Set Setting for a model instance:
+     * If setting doesn't exist, returns false.
+     * So updating to false means removing record.
+     */
+    public function scopeGetSetting($query, $title)
+    {
+        $settingableValues = collect($query->getBindings())->mapWithKeys(function($value, $key) {
+            return [class_exists($value) ? 'type' : 'id' => $value];
+        });
+
+        return $query
+            ->where([
+            'title' => $title,
+            'settingable_id' => $settingableValues['id'],
+            'settingable_type' => $settingableValues['type'],
+        ])->pluck('value')
+            ->toArray();
+    }
 }

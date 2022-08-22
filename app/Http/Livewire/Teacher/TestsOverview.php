@@ -36,23 +36,35 @@ class TestsOverview extends Component
         'testSettingsUpdated' => '$refresh',
     ];
 
+    private $visibleTabs = [];
     private $allowedTabs = [
         'personal', /*Persoonlijk*/
         'school', /*School / Schoollocatie*/
         'umbrella', /*Scholengemeenschap*/
         'national', /*Nationaal*/
+        'creathlon',
     ];
     private $defaultFilterTabs = [
         'personal',
         'school',
     ];
-    private $publicTestsTabs = ['umbrella', 'national'];
+    private $publicTestsTabs = [
+        'umbrella',
+        'national',
+        'creathlon'
+    ];
+    private $cannotFilterOnAuthor = [
+        'personal',
+        'national',
+        'creathlon'
+    ];
 
     public bool $hasSharedSections;
 
     public function render()
     {
         $results = $this->getDatasource();
+        $this->setVisibleTabs();
 
         return view('livewire.teacher.tests-overview')->layout('layouts.app-teacher')->with(compact(['results']));
     }
@@ -90,6 +102,9 @@ class TestsOverview extends Component
             case 'umbrella':
                 $datasource = $this->getUmbrellaDatasource();
                 break;
+            case 'creathlon':
+                $datasource = $this->getUmbrellaDatasource();
+                break;
             case 'personal':
             default :
                 $datasource = $this->getPersonalDatasource();
@@ -116,11 +131,13 @@ class TestsOverview extends Component
 
     private function getNationalDatasource()
     {
+        $filters = $this->cleanFilterForSearch($this->filters['national']);
+        if (!isset($filters['base_subject_id'])) {
+            $filters['base_subject_id'] = BaseSubject::currentForAuthUser()->pluck('id')->toArray();
+        }
+
         return Test::nationalItemBankFiltered(
-            array_merge(
-                $this->cleanFilterForSearch($this->filters['national']),
-                ['base_subject_id' => BaseSubject::currentForAuthUser()->pluck('id')->toArray()]
-            ),
+            $filters,
             $this->sorting
         )
             ->with('educationLevel', 'testKind', 'subject', 'author', 'author.school', 'author.schoolLocation')
@@ -153,6 +170,18 @@ class TestsOverview extends Component
             ->paginate(self::PER_PAGE);
     }
 
+    private function getCreathlonDatasource()
+    {
+        return Test::creathlonItemBankFiltered(
+            array_merge(
+                $this->cleanFilterForSearch($this->filters['creathlon']),
+                ['base_subject_id' => BaseSubject::currentForAuthUser()->pluck('id')->toArray()]
+            ),
+            $this->sorting
+        )
+            ->with('educationLevel', 'testKind', 'subject', 'author', 'author.school', 'author.schoolLocation')
+            ->paginate(self::PER_PAGE);
+    }
 
     private function setFilters()
     {
@@ -328,7 +357,7 @@ class TestsOverview extends Component
 
     public function canFilterOnAuthors(): bool
     {
-        return !collect(['personal', 'national'])->contains($this->openTab);
+        return !collect($this->cannotFilterOnAuthor)->contains($this->openTab);
     }
 
     private function tabNeedsDefaultFilters($tab): bool
@@ -347,6 +376,11 @@ class TestsOverview extends Component
             return 'general.number-of-tests';
         }
 
-        return 'general.number-of-tests-'.$this->openTab;
+        return 'general.number-of-tests-' . $this->openTab;
+    }
+
+    private function setVisibleTabs()
+    {
+        $this->visibleTabs = [];
     }
 }
