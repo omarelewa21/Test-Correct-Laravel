@@ -2605,9 +2605,6 @@ input[type=number] {
     border: 2px solid blue;
 }
 
-.height-240 {
-    height: 240px;
-}
 .ck-editor__editable_inline {
     min-height: 300px;
     font-family: Arial;
