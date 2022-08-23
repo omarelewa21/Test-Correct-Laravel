@@ -17,6 +17,7 @@ use tcCore\Lib\Question\QuestionGatherer;
 use Dyrynda\Database\Casts\EfficientUuid;
 use Ramsey\Uuid\Uuid;
 use tcCore\Traits\PublishesNationalItemBankAndExamTests;
+use tcCore\Traits\PublishesTestsTrait;
 use tcCore\Traits\UuidTrait;
 use tcCore\Traits\UserContentAccessTrait;
 
@@ -26,7 +27,8 @@ class Test extends BaseModel
 
     use SoftDeletes;
     use UuidTrait;
-    use PublishesNationalItemBankAndExamTests;
+//    use PublishesNationalItemBankAndExamTests;
+    use PublishesTestsTrait;
     use UserContentAccessTrait;
 
     const NATIONAL_ITEMBANK_SCOPES = ['cito', 'exam', 'ldt'];
