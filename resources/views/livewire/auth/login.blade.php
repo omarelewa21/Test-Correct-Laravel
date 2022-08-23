@@ -409,8 +409,9 @@
                     </x-button.text-button>
                 </div>
                 <div browser wire:ignore>
+
                         <x-button.text-button selid="login-create-account-btn" class="order-1" size="sm"
-                                              @click="Livewire.emit('open-auth-modal')">
+                                              type="link" href="https://www.test-correct.nl/welcome">
                             <span class="text-base">{{__('auth.Maak account')}}</span>
                             <x-icon.arrow/>
                         </x-button.text-button>
