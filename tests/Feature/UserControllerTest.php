@@ -6,6 +6,7 @@ use Illuminate\Foundation\Testing\DatabaseMigrations;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Support\Facades\Hash;
 use tcCore\Exceptions\Handler;
+use tcCore\FactoryScenarios\FactoryScenarioTestTakeTaken;
 use tcCore\Http\Helpers\ActingAsHelper;
 use tcCore\User;
 use Tests\TestCase;
@@ -18,19 +19,19 @@ class UserControllerTest extends TestCase
     public function a_teacher_cannot_be_added_if_no_current_active_period()
     {
 //        $this->withoutExceptionHandling();
-        \tcCore\SchoolLocationSchoolYear::where('school_location_id',2)->orderby('created_at','desc')->first()->delete();
+        \tcCore\SchoolLocationSchoolYear::where('school_location_id', 2)->orderby('created_at', 'desc')->first()->delete();
 
-        $data =[
+        $data = [
             'school_location_id' => '2',
-            'name_first' => 'a',
-            'name_suffix' => '',
-            'name' => 'bc',
-            'abbreviation' => 'abcc',
-            'username' => 'abc@test-correct.nl',
-            'password' => 'aa',
-            'external_id' => 'abc',
-            'note' => '',
-            'user_roles' => [1],
+            'name_first'         => 'a',
+            'name_suffix'        => '',
+            'name'               => 'bc',
+            'abbreviation'       => 'abcc',
+            'username'           => 'abc@test-correct.nl',
+            'password'           => 'aa',
+            'external_id'        => 'abc',
+            'note'               => '',
+            'user_roles'         => [1],
         ];
 
         $response = $this->post(
@@ -57,7 +58,7 @@ class UserControllerTest extends TestCase
         $this->delete(
             route('user.destroy', ['user' => $student->uuid]),
             [
-                'user' => $student->username,
+                'user'         => $student->username,
                 'session_hash' => $student->session_hash,
             ]
         )->assertStatus(403);
@@ -88,16 +89,51 @@ class UserControllerTest extends TestCase
             route('user.update', [
                 'user' => $student->uuid]),
             [
-                'password_old' => $oldPassword,
-                'password' => $newPassword,
+                'password_old'     => $oldPassword,
+                'password'         => $newPassword,
                 'password_confirm' => $newPassword,
-                'user' => $student->username,
-                'session_hash' => $student->session_hash,
+                'user'             => $student->username,
+                'session_hash'     => $student->session_hash,
             ]
         );
 
         $this->assertTrue(
             Hash::check($newPassword, $student->fresh()->password)
         );
+    }
+
+    /** @test */
+    public function a_student_can_call_for_p_value_stats()
+    {
+        $this->withoutExceptionHandling();
+
+        $factory = \tcCore\FactoryScenarios\FactoryScenarioTestTakeRated::create($this->getTeacherOne());
+//        dd($factory->testTakeFactory->testTake->testParticipants);
+
+
+
+        $data = \tcCore\Lib\Repositories\PValueRepository::getPValuesForStudent($this->getStudentOne(), \tcCore\BaseSubject::find(1));
+        dd($data->developedAttainments->groupBy(function($pValue) {
+            return $pValue->base_subject_id;
+        })->map->avg(function($attainment) {
+            return $attainment->total_p_value;
+        }));
+
+
+
+//        $response = static::get(
+//            $this->authStudentOneGetRequest(
+//                'api-c/user/' . $this->getStudentOne()->uuid,
+//                $this->getStudentOneAuthRequestData([
+//                    "with" => [
+//                        "studentAverageGraph",
+//                        "studentSubjectAverages",
+//                        "testsParticipated"
+//                    ]
+//                ])
+//            )
+//        );
+//        dd(json_decode($response->getContent()));
+
     }
 }

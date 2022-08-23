@@ -5,9 +5,11 @@ namespace tcCore\Factories\Questions;
 use Carbon\Carbon;
 use Illuminate\Support\Collection;
 use Livewire\TemporaryUploadedFile;
+use tcCore\Attainment;
 use tcCore\Factories\Interfaces\FactoryQuestion as FactoryQuestionInterface;
 use tcCore\Http\Controllers\TestQuestions\AttachmentsController;
 use tcCore\Http\Requests\CreateAttachmentRequest;
+use tcCore\Subject;
 use tcCore\Test;
 use tcCore\TestQuestion;
 use tcCore\User;
@@ -44,10 +46,24 @@ abstract class FactoryQuestion implements FactoryQuestionInterface
         return $this;
     }
 
+    private function addRandomAttainmentsBySubject()
+    {
+        if ($this->questionProperties['attainments'] == []) {
+            return [
+                'attainments' => Attainment::where(
+                    'base_subject_id',
+                   $this->testModel->subject->base_subject_id
+                )->pluck('id')->random(2)->toArray()
+            ];
+        }
+        return [];
+    }
+
     public function store()
     {
         $this->questionProperties = array_merge(
             $this->questionProperties,
+            $this->addRandomAttainmentsBySubject(),
             ['test_id' => $this->testModel->id],
             $this->calculatedQuestionProperties(),
         );

@@ -194,11 +194,13 @@ class PValueRepository {
             $attainmentId = $attainment->getKey();
 
             if (array_key_exists($attainmentId, $attainmentStats)) {
-                $attainment->setAttribute('total_p_value', ($attainmentStats[$attainmentId]['total']['score'] / $attainmentStats[$attainmentId]['total']['maxScore']));
+                $value = $attainmentStats[$attainmentId]['total']['maxScore'] > 0 ? $attainmentStats[$attainmentId]['total']['score'] / $attainmentStats[$attainmentId]['total']['maxScore'] : 0;
+                $attainment->setAttribute('total_p_value', $value);
                 $attainment->setAttribute('total_p_value_count', $attainmentStats[$attainmentId]['total']['count']);
 
+                $value = $attainmentStats[$attainmentId]['current']['maxScore']? $attainmentStats[$attainmentId]['current']['score'] / $attainmentStats[$attainmentId]['current']['maxScore'] : 0;
                 if (array_key_exists('current', $attainmentStats[$attainmentId])) {
-                    $attainment->setAttribute('current_p_value', ($attainmentStats[$attainmentId]['current']['score'] / $attainmentStats[$attainmentId]['current']['maxScore']));
+                    $attainment->setAttribute('current_p_value', ($value));
                     $attainment->setAttribute('current_p_value_count', $attainmentStats[$attainmentId]['current']['count']);
                 }
             }
