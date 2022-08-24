@@ -213,17 +213,15 @@ class TestTakeLaravelController extends Controller
             }elseif($testTake->testTakeStatus->name == 'Taking test'){
                 $url = "test_takes/surveillance";
             }else{
-                $url = 'dashboard';
                 $notification = __('teacher.take_not_accessible_toast_for_invigilator', ['testName' => $testTake->test->name]);
             }
         }
         else{
-            $url = 'dashboard';
             $notification = __('teacher.test_not_found');
         }
 
         if($notification){
-            $options = TemporaryLogin::buildValidOptionObject(['page', 'notification'], [$url, $notification]);
+            $options = TemporaryLogin::buildValidOptionObject('notification', [$notification => 'info']);
         }else{
             $options = TemporaryLogin::buildValidOptionObject('page', $url);
         }
