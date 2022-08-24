@@ -155,7 +155,7 @@ class NationalItemBankSeeder extends Seeder
         ]);
 
 
-        BaseSubject::all()->each(function($baseSubject) use($teacherA,$teacherB,$class,$classB,$section,$periodLocationA) {
+        BaseSubject::where('name', 'NOT LIKE', '%CITO%')->each(function($baseSubject) use($teacherA,$teacherB,$class,$classB,$section,$periodLocationA) {
             $subject = Subject::create([	'name'=>$baseSubject->name,
                                             'section_id'=>$section->getKey(),
                                             'base_subject_id'=>$baseSubject->id
@@ -182,6 +182,11 @@ class NationalItemBankSeeder extends Seeder
                 'demo'=>false,
                 'scope'=>'ldt', //not finished: not_ldt, if finished: ldt
                 ]);
+            $test->testQuestions->each(function ($testQuestion) {
+                $question = $testQuestion->question->getQuestionInstance();
+                $question->setAttribute('question', "TBNI: $question->question");
+                $question->save();
+            });
             Auth::login($teacherA);
             $test->save();
         });
