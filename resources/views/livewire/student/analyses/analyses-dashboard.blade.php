@@ -73,5 +73,54 @@
 
         </div>
     </div>
+    <div>
+        <div id="pValueChart" style="width: 500px; height: 400px;"></div>
+        <script src="https://cdn.anychart.com/releases/8.11.0/js/anychart-base.min.js" type="text/javascript"></script>
+        <script>
+            anychart.onDocumentReady(function () {
+                var headers =  @js(array_keys($this->data)) ;
+                var values = @js(array_values($this->data));
+                var colors = ['red', 'orange', 'green'];
+                // create data set
+                var data = anychart.data.set([
+                    values
+                ]);
+
+                // create cartesian chart
+                var chart = anychart.cartesian();
+
+                // set chart title
+                chart.title(@js($title));
+
+                // create first series with mapped data and set it's name
+                headers.forEach((value,key) => {
+                    chart.column(
+                            data.mapAs({
+                                value: key
+                            })
+                        ).name(headers[key]);
+                });
+
+                for(var i=0; i < chart.getSeriesCount(); i++) {
+
+                    chart.getSeriesAt(i).fill(colors[i]).stroke(colors[i]);
+                }
+
+                // enable categorizedBySeries mode
+                chart.categorizedBySeries(true);
+                // enable chart legend
+                chart.legend(true);
+                // rotate xAxis labels;
+                var xAxisLabels = chart.xAxis().labels();
+                xAxisLabels.rotation(-60)
+                // set container id for the chart
+                chart.container('pValueChart');
+                // initiate chart drawing
+                chart.draw();
+            });
+        </script>
+    </div>
+
+
 
 </div>

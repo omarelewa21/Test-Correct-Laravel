@@ -18,6 +18,12 @@ class AnalysesDashboard extends Component
 
     public $filters = [];
 
+
+
+    public $title = 'Alaaf';
+
+
+
     public function mount()
     {
         $this->clearFilters();
@@ -50,8 +56,13 @@ class AnalysesDashboard extends Component
             );
     }
 
+    public function getDataProperty() {
+        return ['fire' => 707, 'water' => 157, 'earth' => 286];
+    }
+
     public function render()
     {
+
         return view('livewire.student.analyses.analyses-dashboard')->layout('layouts.student');;
     }
 

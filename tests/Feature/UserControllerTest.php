@@ -5,6 +5,7 @@ use Illuminate\Foundation\Testing\WithoutMiddleware;
 use Illuminate\Foundation\Testing\DatabaseMigrations;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Support\Facades\Hash;
+use tcCore\BaseSubject;
 use tcCore\Exceptions\Handler;
 use tcCore\FactoryScenarios\FactoryScenarioTestTakeTaken;
 use tcCore\Http\Helpers\ActingAsHelper;
@@ -111,14 +112,15 @@ class UserControllerTest extends TestCase
 //        dd($factory->testTakeFactory->testTake->testParticipants);
 
 
-
         $data = \tcCore\Lib\Repositories\PValueRepository::getPValuesForStudent($this->getStudentOne(), \tcCore\BaseSubject::find(1));
-        dd($data->developedAttainments->groupBy(function($pValue) {
-            return $pValue->base_subject_id;
-        })->map->avg(function($attainment) {
-            return $attainment->total_p_value;
-        }));
-
+        dd(
+            $data->developedAttainments->groupBy(function ($pValue) {
+                return $pValue->base_subject_id;
+            })->map->avg(function ($attainment) {
+                return $attainment->total_p_value;
+            })->mapWithKeys(fn($item, $key) => [BaseSubject::find($key)->name => $item])
+                ->toArray()
+        );
 
 
 //        $response = static::get(
