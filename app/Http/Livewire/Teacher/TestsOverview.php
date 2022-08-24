@@ -37,6 +37,7 @@ class TestsOverview extends Component
     ];
 
     private $visibleTabs = [];
+
     private $allowedTabs = [
         'personal', /*Persoonlijk*/
         'school', /*School / Schoollocatie*/
@@ -58,8 +59,6 @@ class TestsOverview extends Component
         'national',
         'creathlon'
     ];
-
-    public bool $hasSharedSections;
 
     public function render()
     {
@@ -103,7 +102,7 @@ class TestsOverview extends Component
                 $datasource = $this->getUmbrellaDatasource();
                 break;
             case 'creathlon':
-                $datasource = $this->getUmbrellaDatasource();
+                $datasource = $this->getCreathlonDatasource();
                 break;
             case 'personal':
             default :
@@ -172,11 +171,13 @@ class TestsOverview extends Component
 
     private function getCreathlonDatasource()
     {
+        $filters = $this->cleanFilterForSearch($this->filters['creathlon']);
+        if (!isset($filters['base_subject_id'])) {
+            $filters['base_subject_id'] = BaseSubject::currentForAuthUser()->pluck('id')->toArray();
+        }
+
         return Test::creathlonItemBankFiltered(
-            array_merge(
-                $this->cleanFilterForSearch($this->filters['creathlon']),
-                ['base_subject_id' => BaseSubject::currentForAuthUser()->pluck('id')->toArray()]
-            ),
+            $filters,
             $this->sorting
         )
             ->with('educationLevel', 'testKind', 'subject', 'author', 'author.school', 'author.schoolLocation')
@@ -242,16 +243,7 @@ class TestsOverview extends Component
 
     private function filterSubjectsByTabName(string $tab)
     {
-        switch ($tab) {
-            case 'cito':
-                return Subject::citoFiltered([], ['name' => 'asc']);
-            case 'national':
-                return Subject::nationalItemBankFiltered([], ['name' => 'asc']);
-            case 'exams':
-                return Subject::examFiltered([], ['name' => 'asc']);
-            default:
-                return Subject::filtered(['imp' => 0, 'user_id' => Auth::id()], ['name' => 'asc']);
-        }
+        return Subject::filtered(['imp' => 0, 'user_id' => Auth::id()], ['name' => 'asc']);
     }
 
     public function getEducationLevelYearProperty()
@@ -288,7 +280,6 @@ class TestsOverview extends Component
             abort(404);
         }
         $this->setFilters();
-        $this->hasSharedSections = Auth::user()->hasSharedSections();
         $this->openTab = session()->get('tests-overview-active-tab') ?? $this->openTab;
     }
 
@@ -381,6 +372,12 @@ class TestsOverview extends Component
 
     private function setVisibleTabs()
     {
-        $this->visibleTabs = [];
+        $this->visibleTabs = collect([])
+            ->when(auth()->user()->hasSharedSections(), fn($collection) => $collection->push('umbrella'))
+            ->when(auth()->user()->schoolLocation->show_national_item_bank, fn($collection) => $collection->push('national'))
+            ->when(
+                auth()->user()->schoolLocation->allow_creathlon && true, //CHECK IF USER HAS BASESUBJECTS THAT OVERLAP WITH CREATHLON (Base)SUBJECTS
+                fn($collection) => $collection->push('creathlon')
+            );
     }
 }

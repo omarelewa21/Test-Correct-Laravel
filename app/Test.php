@@ -377,7 +377,7 @@ class Test extends BaseModel
             return $query;
         }
         $query->whereIn('subject_id', $subjectIds);
-        $query->where('scope', 'publs');
+        $query->where('scope', 'published_creathlon');
         $query->where('published', true);
         if (!array_key_exists('is_system_test', $filters)) {
             $query->where('is_system_test', '=', 0);

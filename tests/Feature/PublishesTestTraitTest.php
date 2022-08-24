@@ -3,8 +3,8 @@
 namespace Tests\Feature;
 
 use Illuminate\Foundation\Testing\DatabaseTransactions;
-
 use Illuminate\Support\Facades\Auth;
+use Livewire\Livewire;
 use tcCore\Factories\Questions\FactoryQuestionOpenShort;
 use tcCore\Http\Controllers\AuthorsController;
 use tcCore\Subject;
@@ -14,6 +14,8 @@ use Tests\TestCase;
 
 class PublishesTestTraitTest extends TestCase
 {
+    use DatabaseTransactions;
+
     public $publish = [
         'CREATHLON'   => [
             'abbreviation' => 'PUBLS',
@@ -42,9 +44,6 @@ class PublishesTestTraitTest extends TestCase
             'scope'        => 'not_ldt',
         ],
     ];
-
-
-    use DatabaseTransactions;
 
     /**
      * @test
@@ -174,7 +173,10 @@ class PublishesTestTraitTest extends TestCase
         $this->assertEquals($valid_scope, $test->fresh()->scope); //scope stays unchanged
     }
 
-    // helper functions
+
+
+
+    // HELPER FUNCTIONS
 
     private function createTest($customerCode, bool $published = true): Test
     {
@@ -219,6 +221,8 @@ class PublishesTestTraitTest extends TestCase
 
         return $test;
     }
+
+    // DATASETS
 
     /**
      * @array["valid_customerCode" => ["valid_customerCode", "valid_abbreviation", "valid_scope"]]
