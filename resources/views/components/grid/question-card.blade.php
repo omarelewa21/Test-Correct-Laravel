@@ -89,7 +89,11 @@
                 @endif
                 <button x-show="Alpine.store('questionBank').active"
                         class="new-button button-primary w-10 items-center justify-center flex"
-                        @click.stop="addQuestionToTest($el, '{{ $question->uuid }}')"
+                        @if ($showQBankAddConfirmation)
+                            @click.stop="$wire.emit('openModal', 'teacher.q-bank-sub-q-confirmation-modal', {questionUuid: '{{  $question->uuid }}'})"
+                        @else
+                            @click.stop="addQuestionToTest($el, '{{ $question->uuid }}')"
+                        @endif
                 >
                     <x-icon.plus-2/>
                 </button>

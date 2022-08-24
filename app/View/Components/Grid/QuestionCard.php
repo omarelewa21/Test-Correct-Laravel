@@ -15,8 +15,9 @@ class QuestionCard extends Component
     public $tags;
     public $inTest = false;
     public $order;
+    public $showQBankAddConfirmation = false;
 
-    public function __construct($question, $order = null)
+    public function __construct($question, $order = null, $showQBankAddConfirmation=false)
     {
         $this->question = $question;
         $this->authors = $question->authors->map(function($author) {
@@ -25,6 +26,7 @@ class QuestionCard extends Component
         $this->lastUpdated = Carbon::parse($question->updated_at)->format('d/m/\'y');
         $this->attachmentCount = $question->attachments()->count();
         $this->order = $order;
+        $this->showQBankAddConfirmation = $showQBankAddConfirmation;
     }
 
     public function render(): View
