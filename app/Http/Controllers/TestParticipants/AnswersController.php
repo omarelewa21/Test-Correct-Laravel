@@ -166,7 +166,7 @@ class AnswersController extends Controller {
 			}
             if($request->mode === 'write') {
                 $answer->question_is_writing_assignment_with_spellcheck_available = $question->isWritingAssignmentWithSpellCheckAvailable();
-                $answer->lang = $question->lang || Auth::user()->schoolLocation->getWscLanguageAttribute();
+                $answer->lang = $question->lang ?: Auth::user()->schoolLocation->getWscLanguageAttribute();
             }
 			return response($answer, 200);
         }catch (Exception $e){
@@ -186,7 +186,7 @@ class AnswersController extends Controller {
             $fullAnswer = $answer->load('testParticipant', 'question');
             if($request->mode === 'write') {
                 $fullAnswer->question_is_writing_assignment = $answer->question->isWritingAssignment();
-                $fullAnswer->lang = $answer->question->lang || Auth::user()->schoolLocation->getWscLanguageAttribute();
+                $fullAnswer->lang = $answer->question->lang ?: Auth::user()->schoolLocation->getWscLanguageAttribute();
             }
 			return response($fullAnswer, 200);
         }catch (Exception $e){
