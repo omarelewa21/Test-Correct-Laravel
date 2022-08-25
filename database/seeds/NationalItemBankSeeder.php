@@ -155,33 +155,33 @@ class NationalItemBankSeeder extends Seeder
         ]);
 
 
-        BaseSubject::where('name', 'NOT LIKE', '%CITO%')->each(function($baseSubject) use($teacherA,$teacherB,$class,$classB,$section,$periodLocationA) {
-            $subject = Subject::create([	'name'=>$baseSubject->name,
-                                            'section_id'=>$section->getKey(),
-                                            'base_subject_id'=>$baseSubject->id
+        BaseSubject::/*where('name', 'NOT LIKE', '%CITO%')->*/each(function ($baseSubject) use ($teacherA, $teacherB, $class, $classB, $section, $periodLocationA) {
+            $subject = Subject::create(['name'            => $baseSubject->name,
+                                        'section_id'      => $section->getKey(),
+                                        'base_subject_id' => $baseSubject->id
             ]);
-            $teacher = Teacher::create([	'user_id'=>$teacherA->id,
-                                            'subject_id'=>$subject->id,
-                                            'class_id'=>$class->id
+            $teacher = Teacher::create(['user_id'    => $teacherA->id,
+                                        'subject_id' => $subject->id,
+                                        'class_id'   => $class->id
             ]);
-            $teacher = Teacher::create([	'user_id'=>$teacherB->id,
-                                            'subject_id'=>$subject->id,
-                                            'class_id'=>$classB->id
+            $teacher = Teacher::create(['user_id'    => $teacherB->id,
+                                        'subject_id' => $subject->id,
+                                        'class_id'   => $classB->id
             ]);
 
             $test = FactoryScenarioTestTestWithAllQuestionTypes::create("TBNI $subject->name", $teacherA)->getTestModel();
             $test->fill([
-                'subject_id'=>$subject->id,
-                'education_level_id'=>1,
-                'period_id'=>$periodLocationA->id,
-                'abbreviation'=>'LDT', //not finished: NOT_LDT, if finished: LDT
-                'introduction'=>'Beste docent,
+                'subject_id'             => $subject->id,
+                'education_level_id'     => 1,
+                'period_id'              => $periodLocationA->id,
+                'abbreviation'           => 'LDT', //not finished: NOT_LDT, if finished: LDT
+                'introduction'           => 'Beste docent,
 
                                    Dit is de test toets voor de nationale item bank.',
-                'is_open_source_content'=>false,
-                'demo'=>false,
-                'scope'=>'ldt', //not finished: not_ldt, if finished: ldt
-                ]);
+                'is_open_source_content' => false,
+                'demo'                   => false,
+                'scope'                  => 'ldt', //not finished: not_ldt, if finished: ldt
+            ]);
             $test->testQuestions->each(function ($testQuestion) {
                 $question = $testQuestion->question->getQuestionInstance();
                 $question->setAttribute('question', "TBNI: $question->question");

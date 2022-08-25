@@ -144,7 +144,12 @@ class QuestionBank extends Component
 
     public function handleCheckboxClick($questionUuid)
     {
-        return $this->addQuestionToTest(Question::whereUuid($questionUuid)->value('id'));
+        $question = Question::whereUuid($questionUuid)->firstOrFail();
+        if ($question->needsCleanCopy()) {
+            $question = $this->createCleanCopyToAddToTest($question);
+        }
+
+        return $this->addQuestionToTest($question->getKey());
     }
 
     public function addQuestionToTest($questionId)
@@ -214,8 +219,6 @@ class QuestionBank extends Component
 
     private function getQuestionsQuery()
     {
-        logger($this->getFilters());
-
         return $this->questionDataSource()
             ->when(!$this->inGroup, function ($query) {
                 $query->where('is_subquestion', 0);
@@ -390,5 +393,20 @@ class QuestionBank extends Component
             return Question::publishedFiltered($this->getFilters());
         }
         return Question::filtered($this->getFilters());
+    }
+
+    private function createCleanCopyToAddToTest(Question $question)
+    {
+        $newQuestion = $question->duplicate($question->getAttributes());
+        Question::whereId($newQuestion->getKey())->update([
+            'scope'                => null,
+            'derived_question_id'  => null,
+            'education_level_id'   => $this->test->education_level_id,
+            'education_level_year' => $this->test->education_level_year,
+            'subject_id'           => $this->test->subject_id,
+            'add_to_database'      => false
+        ]);
+
+        return $newQuestion;
     }
 }

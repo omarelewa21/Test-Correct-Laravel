@@ -1372,11 +1372,6 @@ class Question extends MtiBaseModel {
             ->where('test_questions.question_id', $this->getKey())
             ->orWhere('q.derived_question_id', $this->getKey())
             ->exists();
-
-//        $test->load('testQuestions:id,question_id', 'testQuestions.question:id,derived_question_id');
-//        return $test->testQuestions->filter(function($testQuestion) {
-//            return $testQuestion->question->id === $this->getKey() || $testQuestion->question->derived_question_id === $this->getKey();
-//        })->isNotEmpty();
     }
 
     public function hasCmsPreview()
@@ -1384,12 +1379,33 @@ class Question extends MtiBaseModel {
         return !$this->isType('matrix');
     }
 
-    public function makeClone()
+    public function attachToParentInTest($testUuid, $testQuestionUuidForGroupQuestion = null)
     {
-        $newQuestion = $this->duplicate($this->getAttributes());
-        $newQuestion->getQuestionInstance()->derived_question_id = null; //Clear derived question ID so it's a 'clean' copy;
-        $newQuestion->save();
+        $this->getConnectionModelToAttachTo($testUuid, $testQuestionUuidForGroupQuestion)->create([
+            'question_id'       => $this->getKey(),
+            'maintain_position' => 0,
+            'discuss'           => 1
+        ]);
+    }
 
-        return $newQuestion;
+    private function getConnectionModelToAttachTo($testUuid, $testQuestionUuidForGroupQuestion)
+    {
+        if ($testQuestionUuidForGroupQuestion) {
+            $groupQuestionId = TestQuestion::whereUuid($testQuestionUuidForGroupQuestion)->pluck('question_id')->first();
+            $connectionModel = GroupQuestion::whereId($groupQuestionId)->firstOrFail()->groupQuestionQuestions();
+        } else {
+            $connectionModel = Test::whereUuid($testUuid)->firstOrFail()->testQuestions();
+        }
+
+        return $connectionModel;
+    }
+
+    public function needsCleanCopy(): bool
+    {
+        return $this->isNationalItem();
+    }
+    public function isNationalItem(): bool
+    {
+        return collect(Test::NATIONAL_ITEMBANK_SCOPES)->contains($this->getQuestionInstance()->scope);
     }
 }

@@ -4,6 +4,7 @@ namespace Tests;
 
 use Illuminate\Foundation\Testing\TestCase as BaseTestCase;
 use tcCore\Http\Helpers\ActingAsHelper;
+use tcCore\Lib\Question\Factory;
 use tcCore\SchoolClass;
 use tcCore\Student;
 use tcCore\Teacher;
@@ -425,4 +426,31 @@ abstract class TestCase extends BaseTestCase
         return $user->refresh();
     }
 
+    public function createOpenQuestion(array $attributes = [])
+    {
+        $defaultAttributes = [
+            'subject_id'                => 1,
+            'education_level_id'        => 1,
+            'question'                  => '<p>hoi</p>',
+            'education_level_year'      => '1',
+            'score'                     => '1',
+            'owner_id'                  => '1',
+            'decimal_score'             => '0',
+            'note_type'                 => 'NONE',
+            'add_to_database'           => '1',
+            'is_subquestion'            => '0',
+            'is_open_source_content'    => '1',
+            'closeable'                 => '0',
+            'html_specialchars_encoded' => '0',
+            'all_or_nothing'            => '0',
+            'fix_order'                 => '0',
+            'answer'                    => '<p>doei</p>'
+        ];
+        $attributes = array_merge($defaultAttributes, $attributes);
+
+        $question = Factory::makeQuestion('OpenQuestion');
+        $question->fill($attributes);
+        $question->save();
+        return $question;
+    }
 }
