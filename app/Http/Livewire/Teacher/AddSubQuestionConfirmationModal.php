@@ -5,8 +5,9 @@ namespace tcCore\Http\Livewire\Teacher;
 use LivewireUI\Modal\ModalComponent;
 use tcCore\Question;
 
-class QBankSubQConfirmationModal extends ModalComponent
+class AddSubQuestionConfirmationModal extends ModalComponent
 {
+
     public int $questionId;
 
     public function mount($questionUuid)
@@ -21,6 +22,6 @@ class QBankSubQConfirmationModal extends ModalComponent
 
     public function render()
     {
-        return view('livewire.teacher.q-bank-sub-q-confirmation-modal');
+        return view('livewire.teacher.add-sub-question-confirmation-modal');
     }
 }

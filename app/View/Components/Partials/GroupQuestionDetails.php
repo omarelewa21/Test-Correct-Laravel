@@ -20,7 +20,7 @@ class GroupQuestionDetails extends Component
     public $closeable;
     public $inTest;
     public $context;
-    public $showQBankAddConfirmation = false;
+    public $showQuestionBankAddConfirmation = false;
 
     public function __construct(GroupQuestion $groupQuestion, $context = 'question-bank')
     {
@@ -36,7 +36,7 @@ class GroupQuestionDetails extends Component
         $this->inTest = $groupQuestion->inTest ?? false;
         $this->context = $context;
         if($context === 'question-bank' && ( !empty($groupQuestion->getQuestionInstance()->question) || $this->attachmentCount != 0 )){
-            $this->showQBankAddConfirmation = true;
+            $this->showQuestionBankAddConfirmation = true;
         }
     }
 

@@ -57,7 +57,7 @@ return [
     'Kies een of meerdere onderdelen'                                                          => 'Choose one aspect of the test to be exported.',
     'Kies een pdf attachment'                                                                  => 'Choose one pdf attachment of the test to be exported.',
     'Annuleer'                                                                                 => 'Cancel',
-    'QBank_subQ_confiramtion_title'                                                            => 'You are going to add a group question as a main question',
-    'QBank_subQ_confiramtion_text'                                                             => 'The group of this group question contains attachments and/or a description that can be important to answer the question. Are you sure you want to add this group question as main question',
+    'question_bank_add_confirmation_title'                                                            => 'You are going to add a group question as a main question',
+    'question_bank_add_confirmation_text'                                                             => 'The group of this group question contains attachments and/or a description that can be important to answer the question. Are you sure you want to add this group question as main question',
     'add'                                                                                      => 'Add',
 ];
