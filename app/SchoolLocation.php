@@ -1232,9 +1232,9 @@ class SchoolLocation extends BaseModel implements AccessCheckable
         return $this->featureSettings()->setSetting('allow_creathlon', $boolean);
     }
 
-    public function getAllowCreathlonAttribute()
+    public function getAllowCreathlonAttribute() : bool
     {
-        return $this->featureSettings()->getSetting('allow_creathlon');
+        return $this->featureSettings()->getSetting('allow_creathlon')->exists();
     }
 
     public function getFeatureSettingsAttribute()

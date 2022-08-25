@@ -1114,4 +1114,14 @@ class Test extends BaseModel
     {
         return BaseSubject::currentForAuthUser()->whereId($this->subject()->pluck('base_subject_id'))->exists();
     }
+
+    public static function publishedAvailableFromPublisher($publishedTestScope, User $user) : bool
+    {
+        return self::select('s.base_subject_id')
+            ->distinct()
+            ->join('subjects as s', 'tests.subject_id', '=', 's.id')
+            ->where('tests.scope', '=', $publishedTestScope)
+            ->whereIn('s.base_subject_id', Subject::filtered(['user_current' => $user->getKey()], [])->pluck('base_subject_id'))
+            ->exists('s.base_subject_id');
+    }
 }

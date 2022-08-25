@@ -22,9 +22,6 @@ trait PublishesTestsTrait
     private $publishesTestsScope = null;
     private $publishesTestsAuthor = null;
 
-    //old variables
-    private $testPublishingType = null;
-    private $testPublishingScope = null;
 
     private function getPublishesTestsTraitLookupTable()
     {
@@ -62,25 +59,6 @@ trait PublishesTestsTrait
 
         return true;
     }
-
-    //TODO Make test publishing dynamic.
-
-    // Main components of a Publishable test:
-    //  -- Abbreviation
-    //  -- Scope
-    //  -- author (of specific school from config, to set test author to) //$authorUser = AuthorsController::getNationalItemBankAuthor();
-
-    // step 1: determine school of test (or break)
-    // step 2: determine should publish or should unpublish
-    // step 3: handle publishing or unpublishing
-
-    //TODO make lookupTable with customer codes as key.
-
-    //TODO make or edit feature tests //TestPublishingTest
-
-    //Exam && NationalItemBank scopes:
-    //  finished/published:     EXAM/exam  vs  LDT/ldt  vs Creathlon vs unlimited more others...
-    //  not finished:           not_exam   vs  not_ldt
 
     private function handleTestPublishing(): void
     {

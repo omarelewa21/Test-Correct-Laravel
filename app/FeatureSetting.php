@@ -13,9 +13,6 @@ class FeatureSetting extends Model
         $this->morphTo();
     }
 
-    //todo create trait to handle feature settings
-    // can() ... creathlon etc. or something like that
-
     public static function scopeGetSettings($query)
     {
         return $query->get(['title', 'value']);
@@ -54,18 +51,18 @@ class FeatureSetting extends Model
      * If setting doesn't exist, returns false.
      * So updating to false means removing record.
      */
-    public function scopeGetSetting($query, $title)
+    public function scopeGetSetting($query, $title, $value = null)
     {
         $settingableValues = collect($query->getBindings())->mapWithKeys(function($value, $key) {
             return [class_exists($value) ? 'type' : 'id' => $value];
         });
 
         return $query
+            ->when(!is_null($value), fn($query) => $query->where(['value' => $value]))
             ->where([
             'title' => $title,
             'settingable_id' => $settingableValues['id'],
             'settingable_type' => $settingableValues['type'],
-        ])->pluck('value')
-            ->toArray();
+        ]);
     }
 }

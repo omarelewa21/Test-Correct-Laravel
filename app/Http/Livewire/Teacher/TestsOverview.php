@@ -3,14 +3,17 @@
 namespace tcCore\Http\Livewire\Teacher;
 
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Gate;
 use Livewire\Component;
 use Livewire\WithPagination;
 use tcCore\BaseSubject;
 use tcCore\EducationLevel;
 use tcCore\Http\Controllers\FileManagementUsersController;
+use tcCore\Http\Helpers\PublishedContentHelper;
 use tcCore\Subject;
 use tcCore\Test;
 use tcCore\TestAuthor;
+use tcCore\User;
 
 class TestsOverview extends Component
 {
@@ -30,13 +33,13 @@ class TestsOverview extends Component
 
     public $selected = [];
 
+    public $visibleTabs;
+
     protected $listeners = [
         'test-deleted'        => '$refresh',
         'test-added'          => '$refresh',
         'testSettingsUpdated' => '$refresh',
     ];
-
-    private $visibleTabs = [];
 
     private $allowedTabs = [
         'personal', /*Persoonlijk*/
@@ -63,7 +66,6 @@ class TestsOverview extends Component
     public function render()
     {
         $results = $this->getDatasource();
-        $this->setVisibleTabs();
 
         return view('livewire.teacher.tests-overview')->layout('layouts.app-teacher')->with(compact(['results']));
     }
@@ -281,6 +283,7 @@ class TestsOverview extends Component
         }
         $this->setFilters();
         $this->openTab = session()->get('tests-overview-active-tab') ?? $this->openTab;
+        $this->setVisibleTabs();
     }
 
     private function cleanFilterForSearch(array $filters)
@@ -372,12 +375,6 @@ class TestsOverview extends Component
 
     private function setVisibleTabs()
     {
-        $this->visibleTabs = collect([])
-            ->when(auth()->user()->hasSharedSections(), fn($collection) => $collection->push('umbrella'))
-            ->when(auth()->user()->schoolLocation->show_national_item_bank, fn($collection) => $collection->push('national'))
-            ->when(
-                auth()->user()->schoolLocation->allow_creathlon && true, //CHECK IF USER HAS BASESUBJECTS THAT OVERLAP WITH CREATHLON (Base)SUBJECTS
-                fn($collection) => $collection->push('creathlon')
-            );
+        $this->visibleTabs = PublishedContentHelper::canViewPublishers(Auth::user());
     }
 }
