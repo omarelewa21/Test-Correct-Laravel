@@ -7,11 +7,16 @@ use tcCore\Question;
 
 class QBankSubQConfirmationModal extends ModalComponent
 {
-    public string $questionId;
+    public int $questionId;
 
     public function mount($questionUuid)
     {
         $this->questionId = Question::whereUuid($questionUuid)->value('id');
+    }
+
+    public function addQuestionToTest()
+    {
+        $this->emit('addQuestionFromDetail', $this->questionId);
     }
 
     public function render()

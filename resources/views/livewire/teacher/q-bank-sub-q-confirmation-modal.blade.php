@@ -6,7 +6,7 @@
         x-data="{
             addQuestionToTest: (button) => {
                 button.disabled = true;
-                let close = $wire.emit('addQuestionFromDetail', {{$questionId}});
+                $wire.addQuestionToTest();
                 setTimeout(()=>{
                     $wire.emit('closeModal');
                }, 1000);
