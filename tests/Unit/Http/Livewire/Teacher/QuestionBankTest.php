@@ -156,10 +156,11 @@ class QuestionBankTest extends TestCase
 
         $this->assertEquals($questionToDuplicate->getQuestionInstance()->scope, 'ldt');
         $this->assertTrue(!!$questionToDuplicate->getQuestionInstance()->add_to_database);
-
+        $this->assertFalse(!!$questionToDuplicate->getQuestionInstance()->add_to_database_disabled);
 
         $this->assertNull($newQuestion->scope);
         $this->assertNull($newQuestion->derived_question_id);
         $this->assertFalse(!!$newQuestion->add_to_database);
+        $this->assertTrue(!!$newQuestion->add_to_database_disabled);
     }
 }

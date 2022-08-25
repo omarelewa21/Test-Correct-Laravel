@@ -399,12 +399,13 @@ class QuestionBank extends Component
     {
         $newQuestion = $question->duplicate($question->getAttributes());
         Question::whereId($newQuestion->getKey())->update([
-            'scope'                => null,
-            'derived_question_id'  => null,
-            'education_level_id'   => $this->test->education_level_id,
-            'education_level_year' => $this->test->education_level_year,
-            'subject_id'           => $this->test->subject_id,
-            'add_to_database'      => false
+            'scope'                    => null,
+            'derived_question_id'      => null,
+            'education_level_id'       => $this->test->education_level_id,
+            'education_level_year'     => $this->test->education_level_year,
+            'subject_id'               => $this->test->subject_id,
+            'add_to_database'          => false,
+            'add_to_database_disabled' => true,
         ]);
 
         return $newQuestion;

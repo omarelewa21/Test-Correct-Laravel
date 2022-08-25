@@ -24,8 +24,9 @@ class Question extends MtiBaseModel {
     use WithQuestionFilteredHelpers;
 
     protected $casts = [
-        'uuid' => EfficientUuid::class,
-        'all_or_nothing' => 'boolean',
+        'uuid'                     => EfficientUuid::class,
+        'all_or_nothing'           => 'boolean',
+        'add_to_database_disabled' => 'boolean',
     ];
 
     public $mtiBaseClass = 'tcCore\Question';
