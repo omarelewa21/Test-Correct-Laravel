@@ -57,7 +57,8 @@ class AnalysesDashboard extends Component
     }
 
     public function getDataProperty() {
-        return ['fire' => 707, 'water' => 157, 'earth' => 286];
+        auth()->user()->loadPValueStatsForAllSubjects();
+        return optional(auth()->user()->pValueStatsForAllSubjects)->toArray();
     }
 
     public function render()

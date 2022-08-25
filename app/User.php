@@ -44,6 +44,7 @@ use Illuminate\Auth\Passwords\CanResetPassword;
 use Illuminate\Contracts\Auth\Authenticatable as AuthenticatableContract;
 use Illuminate\Contracts\Auth\CanResetPassword as CanResetPasswordContract;
 use tcCore\Lib\Repositories\PeriodRepository;
+use tcCore\Lib\Repositories\PValueRepository;
 use tcCore\Lib\Repositories\StatisticsRepository;
 use tcCore\Lib\Repositories\SchoolYearRepository;
 use tcCore\Lib\User\Factory;
@@ -2612,6 +2613,21 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
                         ->where('students.user_id', '=', $student->id);
                 })
         );
+    }
+
+    public function loadPValueStatsForAllSubjects() {
+        $value = Subject::filterForStudent($this)->get()
+            ->map(fn ($subject) => PValueRepository::getPValuesForStudent($this,$subject))
+            ->map(fn ($user) => $user->developedAttainments)
+            ->flatten()
+            ->groupBy(fn ($attainment) =>  $attainment->base_subject_id)
+            ->map->avg(function ($attainment) {
+                return $attainment->total_p_value;
+            })->mapWithKeys(fn($item, $key) => [BaseSubject::find($key)->name => $item]);
+
+
+        $this->setRelation('pValueStatsForAllSubjects', $value);
+        return $this;
     }
 
 }

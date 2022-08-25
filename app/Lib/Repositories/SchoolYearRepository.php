@@ -38,17 +38,15 @@ class SchoolYearRepository
             ->get(['school_years.*']);
 
         if ($schoolYears->isEmpty()) {
-            $schoolYears = new Collection(
-                [
-                    SchoolYear::join('periods AS school_year_periods', 'school_year_periods.school_year_id', '=', 'school_years.id')
+                    return SchoolYear::join('periods AS school_year_periods', 'school_year_periods.school_year_id', '=', 'school_years.id')
                         ->join('periods', 'periods.school_year_id', '=', 'school_years.id')
                         ->join('ratings', 'periods.id', '=', 'ratings.period_id')
                         ->where('ratings.user_id', '=', $student->getKey())
                         ->groupBy('school_years.id')
                         ->orderByRaw('MAX(`school_year_periods`.`end_date`)', 'desc')
-                        ->first(['school_years.*'])
-                ]
-            );
+                        ->limit(1)
+                        ->get(['school_years.*']);
+
         }
 
         return $schoolYears;

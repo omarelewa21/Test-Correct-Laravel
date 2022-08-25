@@ -7,6 +7,7 @@ use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Support\Facades\Hash;
 use tcCore\BaseSubject;
 use tcCore\Exceptions\Handler;
+use tcCore\FactoryScenarios\FactoryScenarioTestTakeRated;
 use tcCore\FactoryScenarios\FactoryScenarioTestTakeTaken;
 use tcCore\Http\Helpers\ActingAsHelper;
 use tcCore\Lib\Repositories\PValueRepository;
@@ -106,24 +107,25 @@ class UserControllerTest extends TestCase
     }
 
     /** @test */
-    public function a_student_can_call_for_p_value_stats()
+    public function it_can_load_p_value_stats_by_subject_for_a_student()
     {
         $this->withoutExceptionHandling();
 
-        $factory = \tcCore\FactoryScenarios\FactoryScenarioTestTakeRated::create($this->getTeacherOne());
-//        dd($factory->testTakeFactory->testTake->testParticipants);
+        $factory = FactoryScenarioTestTakeRated::create($this->getTeacherOne());
+        $studentOne = $this->getStudentOne();
+        $this->assertEmpty($studentOne->pValueStatsForAllSubjects);
+        $studentOne->loadPValueStatsForAllSubjects();
+        $this->assertArrayHasKey('Nederlands', $studentOne->pValueStatsForAllSubjects);
+    }
 
-        $data = Subject::filterForStudent($this->getStudentOne())->get()
-            ->map(fn ($subject) => PValueRepository::getPValuesForStudent($this->getStudentOne(),$subject))
-            ->map(fn ($user) => $user->developedAttainments)
-            ->flatten()
-            ->groupBy(fn ($attainment) =>  $attainment->base_subject_id)
-            ->map->avg(function ($attainment) {
-                return $attainment->total_p_value;
-            })->mapWithKeys(fn($item, $key) => [BaseSubject::find($key)->name => $item])
-                ->toArray();
-        dd($data);
-
+    /** @test */
+    public function it_should_fail_when_load_is_called_without_Data_value_stats_by_subject_for_a_student()
+    {
+        $this->withoutExceptionHandling();
+        $studentOne = $this->getStudentOne();
+        $this->assertEmpty($studentOne->pValueStatsForAllSubjects);
+        $studentOne->loadPValueStatsForAllSubjects();
+    }
 
 
 //        $response = static::get(
@@ -139,6 +141,4 @@ class UserControllerTest extends TestCase
 //            )
 //        );
 //        dd(json_decode($response->getContent()));
-
-    }
 }
