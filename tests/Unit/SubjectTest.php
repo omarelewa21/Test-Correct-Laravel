@@ -35,7 +35,6 @@ class SubjectTest extends TestCase
 
         $this->assertCount(1, $set);
         $this->assertEquals('Nederlands', $set->first()->name);
-
     }
 
     /** @test */

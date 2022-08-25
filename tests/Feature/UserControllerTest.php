@@ -9,6 +9,8 @@ use tcCore\BaseSubject;
 use tcCore\Exceptions\Handler;
 use tcCore\FactoryScenarios\FactoryScenarioTestTakeTaken;
 use tcCore\Http\Helpers\ActingAsHelper;
+use tcCore\Lib\Repositories\PValueRepository;
+use tcCore\Subject;
 use tcCore\User;
 use Tests\TestCase;
 
@@ -111,16 +113,17 @@ class UserControllerTest extends TestCase
         $factory = \tcCore\FactoryScenarios\FactoryScenarioTestTakeRated::create($this->getTeacherOne());
 //        dd($factory->testTakeFactory->testTake->testParticipants);
 
-
-        $data = \tcCore\Lib\Repositories\PValueRepository::getPValuesForStudent($this->getStudentOne(), \tcCore\BaseSubject::find(1));
-        dd(
-            $data->developedAttainments->groupBy(function ($pValue) {
-                return $pValue->base_subject_id;
-            })->map->avg(function ($attainment) {
+        $data = Subject::filterForStudent($this->getStudentOne())->get()
+            ->map(fn ($subject) => PValueRepository::getPValuesForStudent($this->getStudentOne(),$subject))
+            ->map(fn ($user) => $user->developedAttainments)
+            ->flatten()
+            ->groupBy(fn ($attainment) =>  $attainment->base_subject_id)
+            ->map->avg(function ($attainment) {
                 return $attainment->total_p_value;
             })->mapWithKeys(fn($item, $key) => [BaseSubject::find($key)->name => $item])
-                ->toArray()
-        );
+                ->toArray();
+        dd($data);
+
 
 
 //        $response = static::get(
