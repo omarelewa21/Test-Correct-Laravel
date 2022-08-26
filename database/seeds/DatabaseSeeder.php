@@ -17,7 +17,9 @@ class DatabaseSeeder extends Seeder {
         $this->call(SwitchSchoolAccountTableSeeder::class);
         $this->call(CitoAccountSeeder::class);
         $this->call(ExamSchoolSeeder::class);
-        $this->call(NationalItemBankSeeder::class);
+//        Disabled the seeder because it takes about a minute. To run in manually:
+//        php artisan db:seed --class=NationalItemBankSeeder
+//        $this->call(NationalItemBankSeeder::class);
         $this->call(RegisterTestBankForSchoollocationsSeeder::class);
 	}
 }

@@ -5954,7 +5954,6 @@ document.addEventListener('alpine:init', function () {
         this.scroll(0, scrollActiveIntoView);
         if (!this.$store.cms.emptyState) this.$dispatch('backdrop');
         this.handleVerticalScroll(this.$refs.home);
-        this.$dispatch('closed-with-backdrop', false);
       },
       scroll: function scroll(position) {
         var scrollActiveIntoView = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : true;
@@ -6073,7 +6072,7 @@ document.addEventListener('alpine:init', function () {
         return true;
       },
       backToQuestionOverview: function backToQuestionOverview(container) {
-        this.home(false);
+        this.prev(container);
         this.$store.questionBank.inGroup = false;
       },
       handleResizing: function handleResizing() {
