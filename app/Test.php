@@ -9,6 +9,7 @@ use tcCore\Http\Controllers\GroupQuestionQuestionsController;
 use tcCore\Http\Controllers\RequestController;
 use tcCore\Http\Controllers\TestQuestionsController;
 use tcCore\Http\Helpers\DemoHelper;
+use tcCore\Http\Helpers\PublishedContentHelper;
 use tcCore\Jobs\CountTeacherTests;
 use tcCore\Lib\GroupQuestionQuestion\GroupQuestionQuestionManager;
 use tcCore\Lib\Models\BaseModel;
@@ -1094,6 +1095,7 @@ class Test extends BaseModel
         return $this->hasAuthor($user) ||
             $this->isFromSchoolAndSameSection($user) ||
             ($user->schoolLocation->show_national_item_bank && $this->isNationalItemForAllowedBaseSubject()) ||
+            $this->isFromAllowedTestPublisher($user) ||
             $this->isFromSharedSchoolAndAllowedBaseSubject($user);
     }
 
@@ -1133,5 +1135,12 @@ class Test extends BaseModel
             return $user->sections()->where('id', $this->subject->section_id)->exists();
         }
         return false;
+    }
+
+    private function isFromAllowedTestPublisher($user) : bool
+    {
+        return publishedContentHelper::canViewPublishers($user)
+            ->map(fn($publisher) => 'published_' . $publisher)
+            ->contains($this->scope);
     }
 }
