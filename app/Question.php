@@ -1566,7 +1566,9 @@ class Question extends MtiBaseModel {
 
     public function getTitleAttribute()
     {
-        return strip_tags(html_entity_decode($this->getQuestionHtml()));
+        $withMath = strip_tags(html_entity_decode($this->getQuestionHtml()),['math']);
+
+        return preg_replace('/<math(.*)<\/math>/i', '', $withMath);
     }
 
     public function getTypeNameAttribute()
