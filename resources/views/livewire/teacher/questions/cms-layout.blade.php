@@ -319,7 +319,7 @@
                             <x-input.toggle-row-with-title wire:model="question.add_to_database"
                                                            :toolTip="__('cms.make_public_tooltip_text')"
                                                            class="{{ $this->isSettingsGeneralPropertyDisabled('addToDatabase') ? 'text-disabled' : '' }}"
-                                                           :disabled="$this->isSettingsGeneralPropertyDisabled('addToDatabase')"
+                                                           :disabled="($question['add_to_database_disabled'] ?? false) || $this->isSettingsGeneralPropertyDisabled('addToDatabase')"
                                                            selid="open-source-switch"
                             >
                                 <x-icon.preview class="flex "></x-icon.preview>

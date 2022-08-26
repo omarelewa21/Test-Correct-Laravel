@@ -375,6 +375,7 @@ document.addEventListener('alpine:init', () => {
             this.scroll(0, scrollActiveIntoView);
             if (!this.$store.cms.emptyState) this.$dispatch('backdrop');
             this.handleVerticalScroll(this.$refs.home);
+            this.$dispatch('closed-with-backdrop', false);
         },
         scroll(position, scrollActiveIntoView = true) {
             this.setActiveSlideProperty(position)
@@ -469,7 +470,7 @@ document.addEventListener('alpine:init', () => {
             return true;
         },
         backToQuestionOverview(container) {
-            this.prev(container);
+            this.home(false);
             this.$store.questionBank.inGroup = false;
         },
         handleResizing() {

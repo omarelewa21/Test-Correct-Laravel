@@ -378,30 +378,15 @@ class Cms extends Component
     {
         $questionToDuplicate = Question::whereUuid($questionUuid)->firstOrFail();
 
-        $newQuestion = $questionToDuplicate->makeClone();
-
         try {
-            $this->getConnectionModel($testQuestionUuidForGroupQuestion)->create([
-                'question_id'       => $newQuestion->getKey(),
-                'maintain_position' => 0,
-                'discuss'           => 1
-            ]);
+            $newQuestion = $questionToDuplicate->duplicate($questionToDuplicate->getAttributes());
+            Question::whereId($newQuestion->getKey())->update(['derived_question_id'  => null]);
+            $newQuestion->attachToParentInTest($this->testId , $testQuestionUuidForGroupQuestion);
         } catch (\Exception $e) {
             $this->dispatchBrowserEvent('notify', ['message' => __('auth.something_went_wrong'), 'error']);
+            return false;
         }
 
         $this->dispatchBrowserEvent('notify', ['message' => __('general.duplication successful')]);
-    }
-
-    private function getConnectionModel($testQuestionUuidForGroupQuestion)
-    {
-        if ($testQuestionUuidForGroupQuestion) {
-            $groupQuestionId = TestQuestion::whereUuid($testQuestionUuidForGroupQuestion)->pluck('question_id')->first();
-            $connectionModel = GroupQuestion::whereId($groupQuestionId)->firstOrFail()->groupQuestionQuestions();
-        } else {
-            $connectionModel = Test::whereUuid($this->testId)->firstOrFail()->testQuestions();
-        }
-
-        return $connectionModel;
     }
 }
