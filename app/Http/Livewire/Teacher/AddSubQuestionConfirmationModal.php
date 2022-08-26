@@ -7,17 +7,11 @@ use tcCore\Question;
 
 class AddSubQuestionConfirmationModal extends ModalComponent
 {
-
-    public int $questionId;
+    public string $questionUuid;
 
     public function mount($questionUuid)
     {
-        $this->questionId = Question::whereUuid($questionUuid)->value('id');
-    }
-
-    public function addQuestionToTest()
-    {
-        $this->emit('addQuestionFromDetail', $this->questionId);
+        $this->questionUuid = $questionUuid;
     }
 
     public function render()

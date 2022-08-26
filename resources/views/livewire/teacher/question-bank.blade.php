@@ -46,7 +46,7 @@
             button.disabled = true;
             var enableButton = await $wire.handleCheckboxClick(questionUuid);
             if (enableButton) button.disabled = false;
-            
+            return true;
         }
         "
      @question-added.window="Notify.notify('Vraag toegevoegd!');"

@@ -6,19 +6,18 @@
     </x-slot>
     <x-slot name="footer">
         <div class="flex justify-end w-full gap-4"
-        x-data="{
-            addQuestionToTest: (button) => {
-                button.disabled = true;
-                $wire.addQuestionToTest();
-                setTimeout(()=>{
-                    $wire.emit('closeModal');
-               }, 1000);
-            }
-        }">
+            x-data="{
+                addToTest: async (button, questionUuid) => {
+                    let close = await addQuestionToTest(button, questionUuid);
+                    if(close) $wire.emit('closeModal');
+                }
+            }">
             <x-button.text-button wire:click="$emit('closeModal')"><span>{{ __('teacher.Annuleer') }}</span>
             </x-button.text-button>
 
-            <x-button.cta @click="addQuestionToTest($el)"><span>{{ __('teacher.add') }}</span></x-button.cta>
+            <x-button.cta @click="addToTest($el, '{{$questionUuid}}')">
+                <span>{{ __('teacher.add') }}</span>
+            </x-button.cta>
         </div>
     </x-slot>
 </x-modal.base-modal>
