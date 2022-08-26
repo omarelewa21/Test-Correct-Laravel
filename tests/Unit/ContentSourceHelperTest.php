@@ -4,12 +4,12 @@ namespace Tests\Unit;
 
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Support\Facades\Gate;
-use tcCore\Http\Helpers\PublishedContentHelper;
+use tcCore\Http\Helpers\ContentSourceHelper;
 use tcCore\SchoolLocation;
 use tcCore\User;
 use Tests\TestCase;
 
-class PublishedContentHelperTest extends TestCase
+class ContentSourceHelperTest extends TestCase
 {
     use DatabaseTransactions;
 
@@ -28,7 +28,7 @@ class PublishedContentHelperTest extends TestCase
         $this->assertTrue($user->hasSharedSections());
 
         //check if the Helper methods work
-        $this->assertTrue(PublishedContentHelper::canViewContent($user,$publisherName));
+        $this->assertTrue(ContentSourceHelper::canViewContent($user,$publisherName));
     }
 
     /**
@@ -48,7 +48,7 @@ class PublishedContentHelperTest extends TestCase
 
 
         //check if the Helper Methods work
-        $this->assertFalse(PublishedContentHelper::canViewContent($user, $publisherName));
+        $this->assertFalse(ContentSourceHelper::canViewContent($user, $publisherName));
 
     }
 

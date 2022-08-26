@@ -7,12 +7,14 @@ use tcCore\Subject;
 use tcCore\Test;
 use tcCore\User;
 
-class PublishedContentHelper
+class ContentSourceHelper
 {
-    public static function canViewPublishers(User $user)
+    public static function allAllowedForUser(User $user)
     {
-        return collect([])
-            ->when(self::canViewContent($user, 'umbrella'),
+        return collect([
+            'personal',
+            'school'
+        ])->when(self::canViewContent($user, 'umbrella'),
                 fn($collection) => $collection->push('umbrella')
             )->when(self::canViewContent($user, 'national'),
                 fn($collection) => $collection->push('national')
@@ -21,12 +23,18 @@ class PublishedContentHelper
             );
     }
 
-    public static function canViewContent(User $user, string $publisherName): bool
+    public static function canViewContent(User $user, string $contentSourceName): bool
     {
-        switch($publisherName)
+        switch($contentSourceName)
         {
+            case 'personal':
+            case 'school':
+                return true;
             case 'umbrella':
                 return $user->hasSharedSections();
+            case 'ldt':
+            case 'tbni':
+                $contentSourceName = 'national';
             case 'national':
                 return $user->schoolLocation->show_national_item_bank;
             case 'creathlon':
@@ -37,12 +45,12 @@ class PublishedContentHelper
         return false;
     }
 
-    public static function testsAvailable(string $publisherName, User $user)
+    public static function testsAvailable(string $contentSourceName, User $user)
     {
-        if(!in_array($publisherName, ['exam', 'cito', 'national'])){
-            $publishedTestScope = 'published_' . $publisherName;
+        if(!in_array($contentSourceName, ['exam', 'cito', 'national'])){
+            $publishedTestScope = 'published_' . $contentSourceName;
         }
-        if(in_array($publisherName, ['national', 'tbni'])){
+        if(in_array($contentSourceName, ['national', 'tbni'])){
             $publishedTestScope = 'ldt';
         }
 

@@ -9,7 +9,7 @@ use tcCore\Http\Controllers\GroupQuestionQuestionsController;
 use tcCore\Http\Controllers\RequestController;
 use tcCore\Http\Controllers\TestQuestionsController;
 use tcCore\Http\Helpers\DemoHelper;
-use tcCore\Http\Helpers\PublishedContentHelper;
+use tcCore\Http\Helpers\ContentSourceHelper;
 use tcCore\Jobs\CountTeacherTests;
 use tcCore\Lib\GroupQuestionQuestion\GroupQuestionQuestionManager;
 use tcCore\Lib\Models\BaseModel;
@@ -1139,7 +1139,7 @@ class Test extends BaseModel
 
     private function isFromAllowedTestPublisher($user) : bool
     {
-        return publishedContentHelper::canViewPublishers($user)
+        return ContentSourceHelper::canViewPublishers($user)
             ->map(fn($publisher) => 'published_' . $publisher)
             ->contains($this->scope);
     }

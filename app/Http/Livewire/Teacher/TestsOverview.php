@@ -9,15 +9,17 @@ use Livewire\WithPagination;
 use tcCore\BaseSubject;
 use tcCore\EducationLevel;
 use tcCore\Http\Controllers\FileManagementUsersController;
-use tcCore\Http\Helpers\PublishedContentHelper;
+use tcCore\Http\Helpers\ContentSourceHelper;
 use tcCore\Subject;
 use tcCore\Test;
 use tcCore\TestAuthor;
+use tcCore\Traits\ContentSourceTabsTrait;
 use tcCore\User;
 
 class TestsOverview extends Component
 {
     use WithPagination;
+    use ContentSourceTabsTrait;
 
     const PER_PAGE = 12;
 
@@ -27,40 +29,14 @@ class TestsOverview extends Component
 
     protected $queryString = ['openTab', 'referrerAction' => ['except' => '']];
 
-    public $openTab = 'personal';
-
     public $referrerAction = '';
 
     public $selected = [];
-
-    public $visibleTabs;
 
     protected $listeners = [
         'test-deleted'        => '$refresh',
         'test-added'          => '$refresh',
         'testSettingsUpdated' => '$refresh',
-    ];
-
-    private $allowedTabs = [
-        'personal', /*Persoonlijk*/
-        'school', /*School / Schoollocatie*/
-        'umbrella', /*Scholengemeenschap*/
-        'national', /*Nationaal*/
-        'creathlon',
-    ];
-    private $defaultFilterTabs = [
-        'personal',
-        'school',
-    ];
-    private $publicTestsTabs = [
-        'umbrella',
-        'national',
-        'creathlon'
-    ];
-    private $cannotFilterOnAuthor = [
-        'personal',
-        'national',
-        'creathlon'
     ];
 
     public function render()
@@ -78,12 +54,6 @@ class TestsOverview extends Component
     public function updatedFilters($value, $filter)
     {
         session(['tests-overview-filters' => $this->filters]);
-    }
-
-    public function updatingOpenTab($value)
-    {
-        $this->resetPage();
-        session(['tests-overview-active-tab' => $value]);
     }
 
     private function getDatasource()
@@ -278,12 +248,11 @@ class TestsOverview extends Component
         if (auth()->user()->schoolLocation->allow_new_test_bank !== 1) {
             abort(403);
         }
+        $this->openTab = session()->get('tests-overview-active-tab') ?? $this->openTab;
         if (!collect($this->allowedTabs)->contains($this->openTab)) {
             abort(404);
         }
         $this->setFilters();
-        $this->openTab = session()->get('tests-overview-active-tab') ?? $this->openTab;
-        $this->setVisibleTabs();
     }
 
     private function cleanFilterForSearch(array $filters)
@@ -351,17 +320,17 @@ class TestsOverview extends Component
 
     public function canFilterOnAuthors(): bool
     {
-        return !collect($this->cannotFilterOnAuthor)->contains($this->openTab);
+        return collect($this->canFilterOnAuthorTabs)->contains($this->openTab);
     }
 
     private function tabNeedsDefaultFilters($tab): bool
     {
-        return collect($this->defaultFilterTabs)->contains($tab);
+        return collect($this->schoolLocationInternalContentTabs)->contains($tab);
     }
 
     public function isPublicTestTab($tab): bool
     {
-        return collect($this->publicTestsTabs)->contains($tab);
+        return collect($this->schoolLocationExternalContentTabs)->contains($tab);
     }
 
     public function getMessageKey($resultsCount): string
@@ -371,10 +340,5 @@ class TestsOverview extends Component
         }
 
         return 'general.number-of-tests-' . $this->openTab;
-    }
-
-    private function setVisibleTabs()
-    {
-        $this->visibleTabs = PublishedContentHelper::canViewPublishers(Auth::user());
     }
 }

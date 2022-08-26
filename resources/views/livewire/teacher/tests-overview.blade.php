@@ -41,7 +41,7 @@
                     <span class="absolute w-[calc(100%-1rem)] bottom-0 left-2" style="height: 3px"
                           :class="openTab === 'school' ? 'bg-primary' : 'bg-transparent' "></span>
                 </div>
-                @if($visibleTabs->contains('umbrella'))
+                @if($allowedTabs->contains('umbrella'))
                     <div class="flex items-center relative hover:text-primary hover:bg-primary/5 px-2 cursor-pointer transition"
                          @click="openTab = 'umbrella'">
                         <span class="bold "
@@ -51,7 +51,7 @@
                     </div>
                 @endif
 
-                @if($visibleTabs->contains('national'))
+                @if($allowedTabs->contains('national'))
                     <div class="flex items-center relative hover:text-primary hover:bg-primary/5 px-2 cursor-pointer group transition"
                          @click="openTab = 'national'"
                     >
@@ -69,7 +69,7 @@
                     </div>
                 @endif
 
-                @if($visibleTabs->contains('creathlon'))
+                @if($allowedTabs->contains('creathlon'))
                     <div class="flex items-center relative hover:text-primary hover:bg-primary/5 px-2 cursor-pointer transition"
                          @click="openTab = 'creathlon'">
                         <span class="bold "
