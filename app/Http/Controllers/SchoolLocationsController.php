@@ -75,10 +75,11 @@ class SchoolLocationsController extends Controller {
     public function show(SchoolLocation $schoolLocation)
     {
         $schoolLocation->load('user', 'school', 'schoolLocationAddresses', 'schoolLocationAddresses.address', 'schoolLocationContacts', 'schoolLocationContacts.contact', 'licenses', 'educationLevels');
-        if(request()->has('withLvsAndSso')){
+        if(request()->has('withAvailableEditOptions')){
             $schoolLocation['lvs_options'] = $schoolLocation->getLvsOptions();
             $schoolLocation['sso_options'] = $schoolLocation->getSsoOptions();
             $schoolLocation['has_run_manual_import'] = $schoolLocation->hasRunManualImport();
+            $schoolLocation['license_types'] = $schoolLocation->getAvailableLicenseTypes();
         }
         return Response::make($schoolLocation, 200);
     }

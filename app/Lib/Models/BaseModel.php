@@ -2,6 +2,7 @@
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\DB;
 use tcCore\Lib\User\Roles;
 
 abstract class BaseModel extends Model {
@@ -82,5 +83,26 @@ abstract class BaseModel extends Model {
         foreach($wantedEntities as $entity) {
             $create($this, $entity);
         }
+    }
+
+    public static function getPossibleEnumValues($column){
+        //Create an instance of the model to be able to get the table name
+        $instance = new static;
+
+        //Get the enum column from the DB with the type;
+        $type = DB::select(
+            DB::raw(sprintf('SHOW COLUMNS FROM %s WHERE Field = "%s"', $instance->getTable(), $column ))
+        )[0]->Type;
+
+        //Strip the enum word + ()'s
+        preg_match('/^enum\((.*)\)$/', $type, $matches);
+
+        //Add the values to an array to return
+        $enum = array();
+        foreach(explode(',', $matches[1]) as $value){
+            $v = trim( $value, "'" );
+            $enum[] = $v;
+        }
+        return $enum;
     }
 }

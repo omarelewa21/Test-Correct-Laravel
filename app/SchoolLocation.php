@@ -94,7 +94,7 @@ class SchoolLocation extends BaseModel implements AccessCheckable
         'allow_new_student_environment', 'allow_new_question_editor',
         'keep_out_of_school_location_report',
         'main_phonenumber','internetaddress', 'show_exam_material', 'show_cito_quick_test_start', 'show_national_item_bank',
-        'allow_wsc', 'allow_writing_assignment',
+        'allow_wsc', 'allow_writing_assignment','license_type',
     ];
 
     /**
@@ -1218,5 +1218,10 @@ class SchoolLocation extends BaseModel implements AccessCheckable
     public function canUseCmsWithDrawer()
     {
         return $this->allow_cms_drawer && $this->allow_new_drawing_question;
+    }
+
+    public function getAvailableLicenseTypes()
+    {
+        return self::getPossibleEnumValues('license_type');
     }
 }
