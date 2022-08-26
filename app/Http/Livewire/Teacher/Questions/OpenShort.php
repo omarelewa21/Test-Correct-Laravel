@@ -182,28 +182,29 @@ class OpenShort extends Component implements QuestionCms
     private function resetQuestionProperties()
     {
         $this->question = [
-            'add_to_database'        => 1,
-            'answer'                 => '',
-            'bloom'                  => '',
-            'closeable'              => 0,
-            'decimal_score'          => 1,
-            'discuss'                => 1,
-            'maintain_position'      => 0,
-            'miller'                 => '',
-            'is_open_source_content' => 0,
-            'tags'                   => [],
-            'note_type'              => 'NONE',
-            'order'                  => 0,
-            'question'               => '',
-            'rtti'                   => '',
-            'score'                  => 1,
-            'subtype'                => '',
-            'type'                   => '',
-            'attainments'            => [],
-            'learning_goals'         => [],
-            'test_id'                => '',
-            'all_or_nothing'         => false,
-            'lang'                   => $this->testLang ?? Auth::user()->schoolLocation->wscLanguage,
+            'add_to_database'          => 1,
+            'answer'                   => '',
+            'bloom'                    => '',
+            'closeable'                => 0,
+            'decimal_score'            => 1,
+            'discuss'                  => 1,
+            'maintain_position'        => 0,
+            'miller'                   => '',
+            'is_open_source_content'   => 0,
+            'tags'                     => [],
+            'note_type'                => 'NONE',
+            'order'                    => 0,
+            'question'                 => '',
+            'rtti'                     => '',
+            'score'                    => 1,
+            'subtype'                  => '',
+            'type'                     => '',
+            'attainments'              => [],
+            'learning_goals'           => [],
+            'test_id'                  => '',
+            'all_or_nothing'           => false,
+            'lang'                     => $this->testLang ?? Auth::user()->schoolLocation->wscLanguage,
+            'add_to_database_disabled' => $this->testLang ?? Auth::user()->schoolLocation->wscLanguage,
         ];
 
         $this->audioUploadOptions = [];
@@ -910,6 +911,7 @@ class OpenShort extends Component implements QuestionCms
             $this->question['closeable'] = $q->closeable;
             $this->question['maintain_position'] = $tq->maintain_position;
             $this->question['add_to_database'] = $q->add_to_database;
+            $this->question['add_to_database_disabled'] = $q->add_to_database_disabled;
             $this->question['discuss'] = $tq->discuss;
             $this->question['decimal_score'] = $q->decimal_score;
             $this->question['lang'] = !is_null($q->lang) ? $q->lang : Auth::user()->schoolLocation->wscLanguage;
