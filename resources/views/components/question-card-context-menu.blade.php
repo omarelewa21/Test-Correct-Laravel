@@ -15,7 +15,7 @@
 >
     <span></span>
     <button class="flex items-center space-x-2 py-1 px-4 base hover:text-primary hover:bg-offwhite transition w-full"
-            @click="addQuestionToTest($el, questionUuid)"
+            @click="addQuestionToTest($el, questionUuid, showQuestionBankAddConfirmation)"
     >
         <span class="w-5 flex justify-center"><x-icon.plus-2/></span>
         <span class="bold">{{ __('cms.Toevoegen') }}</span>

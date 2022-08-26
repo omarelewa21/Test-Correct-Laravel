@@ -56,7 +56,7 @@ return [
                     van de toets of is het een nieuwe toets?',
     'Kies een of meerdere onderdelen'                                                          => 'Kies één onderdeel van de toets om te exporteren.',
     'Kies een pdf attachment'                                                                  => 'Kies één pdf bijlage van de toets om te exporteren.',
-    'question_bank_add_confirmation_title'                                                            => 'Je gaat een groepsvraag toevoegen als hoofdvraag. De groep bevat bijlages en/of een omschrijving',
-    'question_bank_add_confirmation_text'                                                             => 'De groep bevat bijlages en/of een omschrijving. Deze kunnen van belang zijn voor de vraag. Weet je zeker dat je deze groepsvraag als hoofdvraag wilt toevoegen',
+    'question_bank_add_confirmation_text'                                                            => 'Je gaat een groepsvraag toevoegen als hoofdvraag. De groep bevat bijlages en/of een omschrijving',
+    'question_bank_add_confirmation_sub_text'                                                             => 'De groep bevat bijlages en/of een omschrijving. Deze kunnen van belang zijn voor de vraag. Weet je zeker dat je deze groepsvraag als hoofdvraag wilt toevoegen',
     'add'                                                                                      => 'Toevoegen',
 ];

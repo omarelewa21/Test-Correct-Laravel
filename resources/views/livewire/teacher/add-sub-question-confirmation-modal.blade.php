@@ -1,6 +1,9 @@
 <x-modal.base-modal wire:model="showModal">
-    <x-slot name="title"><h2>{{ __('teacher.question_bank_add_confirmation_title') }}.</h2></x-slot>
-    <x-slot name="content">{{ __('teacher.question_bank_add_confirmation_text') }} ?</x-slot>
+    <x-slot name="title"><h2>{{__('student.warning')}}</h2></x-slot>
+    <x-slot name="content">
+        <span>{{ __('teacher.question_bank_add_confirmation_text') }}.</span> </br>
+        <span>{{ __('teacher.question_bank_add_confirmation_sub_text') }} ?</span>
+    </x-slot>
     <x-slot name="footer">
         <div class="flex justify-end w-full gap-4"
         x-data="{
