@@ -22,7 +22,7 @@ class MacrosServiceProvider extends ServiceProvider
 
         EloquentBuilder::macro('optionList', function () {
             return $this->get(['id', 'name'])->map(function ($value) {
-                return (object) ['id' => $value->id, 'value' => $value->name];
+                return (object) ['value' => $value->id, 'label' => $value->name];
             });
         });
 

@@ -49,6 +49,7 @@ abstract class FactoryQuestion implements FactoryQuestionInterface
         $this->questionProperties = array_merge(
             $this->questionProperties,
             ['test_id' => $this->testModel->id],
+            ['owner_id' => $this->testModel->owner_id],
             $this->calculatedQuestionProperties(),
         );
 
