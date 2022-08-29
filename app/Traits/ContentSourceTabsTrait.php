@@ -17,32 +17,14 @@ trait ContentSourceTabsTrait
         'umbrella'
     ];
 
-    public $traitMountFired = false;
-
     public $counterer = 0;
 
     public function updatingOpenTab($value)
     {
-        $this->abortIfNotAllowed($value);
+        $this->abortIfTabNotAllowed($value);
 
         $this->resetPage();
         session(['tests-overview-active-tab' => $value]);
-    }
-
-    /**
-     * Hydrate method for ContentSourceTrait
-     * - Is called before the mount method of the component, but after hydrating the properties.
-     * - using the trait-version of mount (mountContentSourceTrait) is not possible,
-     * - because it is called after the main mount, which is too late in the lifecycle
-     */
-    public function hydrateContentSourceTabsTrait()
-    {
-        if ($this->traitMountFired) {
-            return;
-        }
-        $this->traitMountFired = true;
-
-        $this->initialiseContentSourceTabs();
     }
 
     private function initialiseContentSourceTabs()
@@ -57,9 +39,13 @@ trait ContentSourceTabsTrait
         $this->schoolLocationExternalContentTabs = $this->allowedTabs->reject(function ($tabName) {
             return in_array($tabName, $this->schoolLocationInternalContentTabs);
         })->values();
+
+        $this->openTab = session()->get('tests-overview-active-tab') ?? $this->openTab;
+
+        $this->abortIfTabNotAllowed();
     }
 
-    private function abortIfNotAllowed($openTab = null): void
+    private function abortIfTabNotAllowed($openTab = null): void
     {
         if (!$this->allowedTabs->contains($openTab ?? $this->openTab)) {
             abort(404);

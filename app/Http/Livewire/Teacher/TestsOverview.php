@@ -245,13 +245,10 @@ class TestsOverview extends Component
 
     public function mount()
     {
-        if (auth()->user()->schoolLocation->allow_new_test_bank !== 1) {
-            abort(403);
-        }
-        $this->openTab = session()->get('tests-overview-active-tab') ?? $this->openTab;
-        if (!collect($this->allowedTabs)->contains($this->openTab)) {
-            abort(404);
-        }
+        $this->abortIfNewTestBankNotAllowed();
+
+        $this->initialiseContentSourceTabs(); //todo set session key to trait parameter
+
         $this->setFilters();
     }
 
@@ -340,5 +337,15 @@ class TestsOverview extends Component
         }
 
         return 'general.number-of-tests-' . $this->openTab;
+    }
+
+    /**
+     * @return void
+     */
+    public function abortIfNewTestBankNotAllowed(): void
+    {
+        if (auth()->user()->schoolLocation->allow_new_test_bank !== 1) {
+            abort(403);
+        }
     }
 }
