@@ -373,7 +373,7 @@ trait WithQuestionFilteredHelpers
     private function handlePublishedFilterParams(&$query, $filters = [])
     {
         $filters = collect($filters);
-        if($filters->isEmpty()) return $query->whereNotNull('scope'); //Get all questions with a scope
+        $query->where('scope', 'NOT LIKE', 'not_%'); //Get all questions with a published scope
 
         if ($filters->has('source') || $filters->has('base_subject_id')) {
             $this->addSourceFilterToPublishedQuery(
@@ -391,15 +391,23 @@ trait WithQuestionFilteredHelpers
 
     private function addSourceFilterToPublishedQuery(&$query, $source, $baseSubjectIds = [])
     {
-        $subjectsQuery = Subject::nationalItemBankFiltered();
         switch($source){
             case 'national':
+                $subjectsQuery = Subject::nationalItemBankFiltered();
+
+                $baseSubjectsToGetSubjectsFor = $this->getBaseSubjectsToFilterWith($baseSubjectIds);
+                $subjectsQuery->whereIn('base_subject_id', $baseSubjectsToGetSubjectsFor);
+                break;
+            case 'creathlon':
+                $subjectsQuery = Subject::creathlonFiltered();
+
                 $baseSubjectsToGetSubjectsFor = $this->getBaseSubjectsToFilterWith($baseSubjectIds);
                 $subjectsQuery->whereIn('base_subject_id', $baseSubjectsToGetSubjectsFor);
                 break;
             default:
                 break;
         }
+
 
         if ($subjectsIds = $subjectsQuery->pluck('id')) {
             return $query->whereIn('subject_id', $subjectsIds);

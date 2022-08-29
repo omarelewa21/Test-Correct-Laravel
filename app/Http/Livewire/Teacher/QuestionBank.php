@@ -17,9 +17,13 @@ use tcCore\Question;
 use tcCore\Subject;
 use tcCore\Test;
 use tcCore\TestQuestion;
+use tcCore\Traits\ContentSourceTabsTrait;
 
 class QuestionBank extends Component
 {
+    use ContentSourceTabsTrait;
+    const ACTIVE_TAB_SESSION_KEY = 'question-bank-active-tab';
+
     const ITEM_INCREMENT = 16;
 
     const SOURCE_PERSONAL = 'me';
@@ -27,7 +31,6 @@ class QuestionBank extends Component
 
     protected $queryString = ['testId', 'testQuestionId'];
 
-    public $openTab = 'personal';
     public $testId;
     public $testQuestionId;
 
@@ -42,21 +45,11 @@ class QuestionBank extends Component
 
     public $groupQuestionDetail;
 
-    private array $allowedTabs = [
-        'school_location',
-        'personal',
-        'national'
-    ];
-
-    public array $publicTabs = ['national'];
-    public array $privateTabs = ['personal', 'school_location'];
-    public bool $showNationalTab = false;
-
     protected function getListeners()
     {
         return [
             'testSettingsUpdated',
-            'addQuestionFromDetail' => 'addQuestionToTest',
+            'addQuestionFromDetail' => 'handleCheckboxClick',
             'questionDeleted'       => 'questionDeletedFromExternalComponent',
             'newGroupId'            => 'newGroupId',
         ];
@@ -64,11 +57,12 @@ class QuestionBank extends Component
 
     public function mount()
     {
+        $this->initialiseContentSourceTabs();
+
         $this->itemsPerPage = QuestionBank::ITEM_INCREMENT;
         $this->setTestProperty();
         $this->setAddedQuestionIdsArray();
         $this->setFilters();
-        $this->showNationalTab = auth()->user()->schoolLocation->show_national_item_bank;
     }
 
     public function render()
@@ -89,6 +83,9 @@ class QuestionBank extends Component
             })
             ->when($this->openTab === 'national', function ($filters) {
                 return $filters->merge(['source' => 'national']);
+            })
+            ->when($this->openTab === 'creathlon', function ($filters) {
+                return $filters->merge(['source' => 'creathlon']);
             })
             ->when((isset($this->filters[$this->openTab]['search']) && is_numeric($this->filters[$this->openTab]['search'])), function ($filters) {
                 unset($filters['search']);
@@ -371,15 +368,10 @@ class QuestionBank extends Component
 
     private function subjectFilterForTab($tab): array
     {
-        if ($tab === 'national') {
+        if ($this->isExternalContentTab($tab)) {
             return ['base_subject_id' => $this->test->subject()->pluck('base_subject_id')];
         }
         return ['subject_id' => [$this->test->subject_id]];
-    }
-
-    public function isPublicTab($tab = null): bool
-    {
-        return collect($this->publicTabs)->contains($tab ?? $this->openTab);
     }
 
     public function hasAuthorFilter($tab = null): bool
@@ -389,7 +381,7 @@ class QuestionBank extends Component
 
     private function questionDataSource()
     {
-        if ($this->openTab === 'national') {
+        if ($this->isExternalContentTab()) {
             return Question::publishedFiltered($this->getFilters());
         }
         return Question::filtered($this->getFilters());

@@ -20,6 +20,7 @@ class TestsOverview extends Component
 {
     use WithPagination;
     use ContentSourceTabsTrait;
+    const ACTIVE_TAB_SESSION_KEY = 'tests-overview-active-tab';
 
     const PER_PAGE = 12;
 
@@ -64,7 +65,7 @@ class TestsOverview extends Component
         }
 
         switch ($this->openTab) {
-            case 'school':
+            case 'school_location':
                 $datasource = $this->getSchoolDatasource();
                 break;
             case 'national':
@@ -89,7 +90,7 @@ class TestsOverview extends Component
     {
         return Test::filtered(
             array_merge(
-                $this->cleanFilterForSearch($this->filters['school']),
+                $this->cleanFilterForSearch($this->filters['school_location']),
                 ['owner_id' => auth()->user()->school_location_id]
             ),
             $this->sorting
@@ -189,7 +190,7 @@ class TestsOverview extends Component
 
     public function getBasesubjectsProperty()
     {
-        if ($this->isPublicTestTab($this->openTab)) {
+        if ($this->isExternalContentTab($this->openTab)) {
             return $this->getBaseSubjectsOptions();
         }
         return [];
@@ -247,7 +248,7 @@ class TestsOverview extends Component
     {
         $this->abortIfNewTestBankNotAllowed();
 
-        $this->initialiseContentSourceTabs(); //todo set session key to trait parameter
+        $this->initialiseContentSourceTabs();
 
         $this->setFilters();
     }
@@ -325,10 +326,6 @@ class TestsOverview extends Component
         return collect($this->schoolLocationInternalContentTabs)->contains($tab);
     }
 
-    public function isPublicTestTab($tab): bool
-    {
-        return collect($this->schoolLocationExternalContentTabs)->contains($tab);
-    }
 
     public function getMessageKey($resultsCount): string
     {

@@ -13,7 +13,7 @@ class ContentSourceHelper
     {
         return collect([
             'personal',
-            'school'
+            'school_location'
         ])->when(self::canViewContent($user, 'umbrella'),
                 fn($collection) => $collection->push('umbrella')
             )->when(self::canViewContent($user, 'national'),
@@ -28,7 +28,7 @@ class ContentSourceHelper
         switch($contentSourceName)
         {
             case 'personal':
-            case 'school':
+            case 'school_location':
                 return true;
             case 'umbrella':
                 return $user->hasSharedSections();

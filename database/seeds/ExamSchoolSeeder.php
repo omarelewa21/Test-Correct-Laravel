@@ -92,6 +92,8 @@ class ExamSchoolSeeder extends Seeder
             'school_locations' => [$locationA->getKey()],
         ]);
         $schoolYear->save();
+        $schoolYear->delete(); //prevents using demo schoolyear as active schoolyear and returning zero available subjects
+        $schoolYear = $locationA->schoolYears()->first();
 
         $periodLocationA = (new Period());
         $periodLocationA->fill([

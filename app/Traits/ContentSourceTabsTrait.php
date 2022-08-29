@@ -13,7 +13,7 @@ trait ContentSourceTabsTrait
     public $schoolLocationInternalContentTabs = [];
     public $schoolLocationExternalContentTabs = [];
     public $canFilterOnAuthorTabs = [
-        'school',
+        'school_location',
         'umbrella'
     ];
 
@@ -23,8 +23,10 @@ trait ContentSourceTabsTrait
     {
         $this->abortIfTabNotAllowed($value);
 
-        $this->resetPage();
-        session(['tests-overview-active-tab' => $value]);
+        if(method_exists($this, 'resetPage')){
+            $this->resetPage();
+        }
+        session([self::ACTIVE_TAB_SESSION_KEY => $value]);
     }
 
     private function initialiseContentSourceTabs()
@@ -33,14 +35,13 @@ trait ContentSourceTabsTrait
 
         $this->schoolLocationInternalContentTabs = [
             'personal',
-            'school',
+            'school_location',
         ];;
 
         $this->schoolLocationExternalContentTabs = $this->allowedTabs->reject(function ($tabName) {
             return in_array($tabName, $this->schoolLocationInternalContentTabs);
         })->values();
-
-        $this->openTab = session()->get('tests-overview-active-tab') ?? $this->openTab;
+        $this->openTab = session()->get(self::ACTIVE_TAB_SESSION_KEY) ?? $this->openTab;
 
         $this->abortIfTabNotAllowed();
     }
@@ -51,4 +52,10 @@ trait ContentSourceTabsTrait
             abort(404);
         }
     }
+
+    public function isExternalContentTab($tab = null): bool
+    {
+        return collect($this->schoolLocationExternalContentTabs)->contains($tab ?? $this->openTab);
+    }
+
 }

@@ -1403,7 +1403,7 @@ class Question extends MtiBaseModel {
 
     public function needsCleanCopy(): bool
     {
-        return $this->isNationalItem();
+        return $this->isNationalItem(); //TODO implement for creathlon & make dynamic
     }
     public function isNationalItem(): bool
     {

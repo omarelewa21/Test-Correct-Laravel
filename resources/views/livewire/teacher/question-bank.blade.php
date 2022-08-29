@@ -93,7 +93,7 @@
                         <span class="absolute w-[calc(100%-1rem)] bottom-0 left-2" style="height: 3px"
                               :class="openTab === 'school_location' ? 'bg-primary' : 'bg-transparent' "></span>
                     </div>
-                    @if($this->showNationalTab)
+                    @if($allowedTabs->contains('national'))
                         <div class="flex items-center relative hover:text-primary hover:bg-primary/5 px-2 cursor-pointer group transition"
                              @click="openTab = 'national'">
                             <span class="bold text-white bg-sysbase px-2 py-1 rounded-lg group-hover:bg-primary transition"
@@ -106,6 +106,15 @@
                                   style="height: 3px"
                                   :class="openTab === 'national' ? 'bg-primary' : 'bg-transparent' ">
                             </span>
+                        </div>
+                    @endif
+                    @if($allowedTabs->contains('creathlon'))
+                        <div class="flex items-center relative hover:text-primary hover:bg-primary/5 px-2 cursor-pointer transition"
+                             @click="openTab = 'creathlon'">
+                        <span class="bold "
+                              :class="openTab === 'creathlon' ? 'primary' : '' ">{{ __('general.Creathlon') }}</span>
+                            <span class="absolute w-[calc(100%-1rem)] bottom-0 left-2" style="height: 3px"
+                                  :class="openTab === 'creathlon' ? 'bg-primary' : 'bg-transparent' "></span>
                         </div>
                     @endif
                 </div>
@@ -143,7 +152,7 @@
                     </div>
                     <div class="flex w-full items-center">
                         <div class="flex flex-wrap w-full space-x-2 items-center" x-cloak>
-                            @if($this->isPublicTab())
+                            @if($this->isExternalContentTab())
                                 <x-input.choices-select :multiple="true"
                                                         :options="$this->baseSubjects"
                                                         :withSearch="true"
