@@ -55,7 +55,7 @@
                         @click="select('testpdf')"
                 >
                     <div class="flex">
-                        <x-stickers.test-new/>{{--<x-stickers.test-update/>--}}
+                        <x-stickers.test-export-questions/>
                     </div>
 
                     <div x-show="selected('testpdf')">
@@ -72,7 +72,7 @@
                         @click="activateAttachmentsLink ? select('attachments') : ''"
                 >
                     <div>
-                        <x-stickers.test-new/>
+                        <x-stickers.test-export-attachments/>
                     </div>
                     <div x-show="selected('attachments') && activateAttachmentsLink">
                         <x-icon.checkmark class="absolute top-2 right-2 overflow-visible"/>
@@ -88,7 +88,7 @@
                         @click="select('answermodel')"
                 >
                     <div>
-                        <x-stickers.test-new/>
+                        <x-stickers.test-export-answermodel/>
                     </div>
                     <div x-show="selected('answermodel')">
                         <x-icon.checkmark class="absolute top-2 right-2 overflow-visible"/>
@@ -105,7 +105,7 @@
                         {{--     @click="select('studentanswers')"--}}
                 >
                     <div>
-                        <x-stickers.test-new/>
+                        <x-stickers.test-export-answers/>
                     </div>
                     {{-- (student-)Answers button/card is disabled, pdf doesnt exist yet --}}
                     {{--      <div x-show="selected('studentanswers')">--}}
