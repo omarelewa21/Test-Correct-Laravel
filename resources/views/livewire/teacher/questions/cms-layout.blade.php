@@ -492,11 +492,11 @@
                             <div class="grid grid-cols-2 gap-x-6 mt-4">
                                 <livewire:attainment-manager :value="$question['attainments']"
                                                              :subject-id="$subjectId"
-                                                             :eduction-level-id="$educationLevelId"
+                                                             :education-level-id="$educationLevelId"
                                                              :key="'AT-'. $this->uniqueQuestionKey"/>
                                 <livewire:learning-goal-manager :value="$question['learning_goals']"
                                                                 :subject-id="$subjectId"
-                                                                :eduction-level-id="$educationLevelId"
+                                                                :education-level-id="$educationLevelId"
                                                                 :key="'LG-'. $this->uniqueQuestionKey "/>
 
                             </div>

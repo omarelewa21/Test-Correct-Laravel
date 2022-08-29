@@ -2,6 +2,7 @@
 
 namespace tcCore\Http\Livewire;
 
+use tcCore\EducationLevel;
 use tcCore\LearningGoal;
 
 class LearningGoalManager extends AttainmentManager
@@ -11,8 +12,12 @@ class LearningGoalManager extends AttainmentManager
 
     public function mount()
     {
+        if($this->educationLevelId) {
+            $this->attainmentEducationLevelId = (Educationlevel::find($this->educationLevelId))->attainment_education_level_id;
+        }
+
         $filter = [
-            'education_level_id' => $this->eductionLevelId,
+            'education_level_id' => $this->attainmentEducationLevelId,
             'subject_id'         => $this->subjectId,
             'status'             => 'ACTIVE',
         ];

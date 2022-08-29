@@ -313,17 +313,28 @@ class OpenShort extends Component implements QuestionCms
         $activeTest = Test::whereUuid($this->testId)->with('testAuthors', 'testAuthors.user')->first();
         Gate::authorize('isAuthorOfTest',[$activeTest]);
 
-        $this->testLang = $activeTest->lang;
-        $this->resetQuestionProperties();
-        $this->canDeleteTest = $activeTest->canDelete(Auth::user());
+        $this->initialize($activeTest);
+
         if (blank($this->type) && blank($this->subtype)) {
-            $this->testName = $activeTest->name;
             return $this->emptyState = true;
         }
+
         $this->initializeContext($this->action, $this->type, $this->subtype, $activeTest);
         $this->obj = CmsFactory::create($this);
         $this->initializePropertyBag($activeTest);
         $this->allowWsc = Auth::user()->schoolLocation->allow_wsc;
+    }
+
+    private function initialize($activeTest)
+    {
+        $this->testLang = $activeTest->lang;
+        $this->resetQuestionProperties();
+        $this->canDeleteTest = $activeTest->canDelete(Auth::user());
+
+        $this->testName = $activeTest->name;
+        $this->testAuthors = $activeTest->AuthorsAsString;
+        $this->subjectId = $activeTest->subject_id;
+        $this->educationLevelId = $activeTest->education_level_id;
     }
 
     public function __call($method, $arguments = null)
@@ -865,10 +876,7 @@ class OpenShort extends Component implements QuestionCms
         $this->answerEditorId = Str::uuid()->__toString();
         $this->questionEditorId = Str::uuid()->__toString();
 
-        $this->testName = $activeTest->name;
-        $this->testAuthors = $activeTest->AuthorsAsString;
-        $this->subjectId = $activeTest->subject_id;
-        $this->educationLevelId = $activeTest->education_level_id;
+
         $this->withRedirect = !(Auth::user()->schoolLocation->canUseCmsWithDrawer() && $this->withDrawer);
     }
 
