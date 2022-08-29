@@ -555,9 +555,13 @@ class UsersController extends Controller
         return false;
     }
 
-    public function getGeneralTermsLogForUser(User $user)
+    public function getTimeSensitiveUserRecords(User $user)
     {
-        return Response::make($user->generalTermsLog,200);
+        $records = [
+            'userGeneralTermsLog' => $user->generalTermsLog,
+            'trialPeriod' => $user->trialPeriod
+            ];
+        return Response::make($records,200);
     }
 
     public function setGeneralTermsLogAcceptedAtForUser(User $user)

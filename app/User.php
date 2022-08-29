@@ -1255,6 +1255,11 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
         return $this->hasOne(GeneralTermsLog::class, 'user_id');
     }
 
+    public function trialPeriod()
+    {
+        return $this->hasOne(TrialPeriod::class, 'user_id');
+    }
+
     public function getOnboardingWizardSteps()
     {
         $state = $this->onboardingWizardUserState;
@@ -2605,4 +2610,15 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
         return sprintf('%s(%s)', $this->formal_name, $this->schoolLocation->name);
     }
 
+    public function createTrialPeriodRecordIfRequired()
+    {
+        if ($this->isA('Teacher') && !$this->schoolLocation->hasTrialLicense()) {
+            return false;
+        }
+        if($this->trialPeriod()->exists()) {
+            return false;
+        }
+
+        return $this->trialPeriod()->create();
+    }
 }

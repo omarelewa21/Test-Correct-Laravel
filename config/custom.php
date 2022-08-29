@@ -21,4 +21,5 @@ return [
     'national_item_bank_school_author' => env('NATIONALITEMBANK_SCHOOL_AUTHOR','info+ontwikkelaar@test-correct.nl'),
     'examschool_customercode' => env('EXAMSCHOOL_CUSTOMERCODE','OPENSOURCE1'),
     'examschool_author' => env('EXAMSCHOOL_AUTOR','info+CEdocent@test-correct.nl'),
+    'default_trial_days' => env('DEFAULT_TRIAL_DAYS', 14),
 ];

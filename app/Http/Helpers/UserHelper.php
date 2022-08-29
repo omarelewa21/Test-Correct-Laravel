@@ -86,6 +86,7 @@ class UserHelper
 
         $user->makeOnboardWizardIfNeeded();
         $user->createGeneralTermsLogIfRequired();
+        $user->createTrialPeriodRecordIfRequired();
 
         $clone = $user->replicate();
         $clone->{$user->getKeyName()} = $user->getKey();

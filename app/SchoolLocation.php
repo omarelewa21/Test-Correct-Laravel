@@ -1215,17 +1215,17 @@ class SchoolLocation extends BaseModel implements AccessCheckable
         }
     }
 
-    public function canUseCmsWithDrawer()
+    public function canUseCmsWithDrawer(): bool
     {
         return $this->allow_cms_drawer && $this->allow_new_drawing_question;
     }
 
-    public static function getAvailableLicenseTypes()
+    public static function getAvailableLicenseTypes(): array
     {
         return self::getPossibleEnumValues('license_type');
     }
 
-    public function hasTrialLicense()
+    public function hasTrialLicense(): bool
     {
         return $this->license_type == 'TRIAL';
     }
