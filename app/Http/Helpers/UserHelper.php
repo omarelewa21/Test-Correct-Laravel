@@ -108,7 +108,7 @@ class UserHelper
         if($user->invited_by != null){
             if(!$user->emailDomainInviterAndInviteeAreEqual()) {
                 $schoolLocationId = SchoolHelper::getTempTeachersSchoolLocation()->getKey();
-                ActingAsHelper::getInstance()->setUser(SchoolHelper::getSomeTeacherBySchoolLocationId($schoolLocationId));
+                ActingAsHelper::getInstance()->setUser(SchoolHelper::getSomeTeacherOrSchoolManagerBySchoolLocationId($schoolLocationId));
                 $user->school_location_id = $schoolLocationId;
             }
         }
