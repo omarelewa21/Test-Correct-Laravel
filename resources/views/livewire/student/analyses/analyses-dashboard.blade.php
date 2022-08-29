@@ -11,18 +11,16 @@
     </div>
     {{-- Filters--}}
     <div class="flex flex-col pt-4 pb-2">
-
         <div class="flex w-full items-center">
-            <div class="flex flex-wrap w-full space-x-2 items-center" x-cloak>
+            <div class="flex flex-wrap  space-x-2 items-center" x-cloak>
                 <x-input.choices-select :multiple="true"
                                         :options="$this->educationLevelYears"
                                         :withSearch="true"
                                         placeholderText="{{ __('general.Leerjaar')}}"
-                                        wire:model="filters.subjects"
+                                        wire:model="filters.educationLevelYears"
                                         wire:key="filter_eduction_level_years"
                                         filterContainer="analyses-active-filters"
                 />
-
                 <x-input.choices-select :multiple="true"
                                         :options="$this->periods"
                                         :withSearch="true"
@@ -31,7 +29,6 @@
                                         wire:key="filter_periods"
                                         filterContainer="analyses-active-filters"
                 />
-
                 <x-input.choices-select :multiple="true"
                                         :options="$this->teachers"
                                         :withSearch="true"
@@ -40,15 +37,12 @@
                                         wire:key="filter_teacher"
                                         filterContainer="analyses-active-filters"
                 />
-
             </div>
-
 
             @if($this->hasActiveFilters())
                 <x-button.text-button class="ml-auto text-base"
                                       size="sm"
-                                      @click="$dispatch('enable-loading-grid');document.getElementById('analyses-active-filters').innerHTML = '';"
-                                      wire:click="clearFilters()"
+                                      @click="document.getElementById('analyses-active-filters').innerHTML = '';$wire.clearFilters()"
                 >
                     <span class="min-w-max">{{ __('teacher.Filters wissen') }}</span>
                     <x-icon.close-small/>
@@ -70,35 +64,43 @@
              wire:ignore
              class="flex flex-wrap gap-2 mt-2 relative"
         >
-
         </div>
+        <div class="hidden">{{ $this->data }}</div>
     </div>
     <div>
         <div id="pValueChart" style="width: 500px; height: 400px;"></div>
         <script src="https://cdn.anychart.com/releases/8.11.0/js/anychart-base.min.js" type="text/javascript"></script>
-        <script>
-            anychart.onDocumentReady(function () {
-                var headers =  @js(array_keys($this->data)) ;
-                var values = @js(array_values($this->data));
+        <div x-data="{
+
+
+            data:@entangle('dataValues'),
+            title: @entangle('title'),
+
+            renderGraph : function () {
+                 this.headers = this.data.map( pValue => pValue.subject);
+                 this.values = this.data.map( pValue => pValue.score);
+
+                 console.dir(this.values);
                 var colors = ['red', 'orange', 'green'];
-                // create data set
+
                 var data = anychart.data.set([
-                    values
+                    this.values
                 ]);
+
 
                 // create cartesian chart
                 var chart = anychart.cartesian();
 
                 // set chart title
-                chart.title(@js($title));
+                chart.title(this.title);
 
                 // create first series with mapped data and set it's name
-                headers.forEach((value,key) => {
+                this.headers.forEach((value,key) => {
                     chart.column(
                             data.mapAs({
                                 value: key
                             })
-                        ).name(headers[key]);
+                        ).name(this.headers[key]);
                 });
 
                 for(var i=0; i < chart.getSeriesCount(); i++) {
@@ -117,10 +119,16 @@
                 chart.container('pValueChart');
                 // initiate chart drawing
                 chart.draw();
-            });
-        </script>
-    </div>
+            },
 
+            init: function() {
+             this.renderGraph()
+             }
+             }"
+             x-on:filters-updated.window="renderGraph"
+        >
+        </div>
+    </div>
 
 
 </div>

@@ -532,6 +532,14 @@ class SchoolLocation extends BaseModel implements AccessCheckable
         $this->sections = null;
     }
 
+    public function getPeriods() {
+       return  Period::select('periods.*')
+            ->join('school_years', 'school_years.id', '=', 'periods.school_year_id')
+           ->join('school_location_school_years', function($join) {
+               $join->on('school_location_school_years.school_year_id', '=', 'school_years.id')
+                   ->where('school_location_id', $this->id);
+           })->distinct()->get();
+    }
 
     public function schoolLocationEducationLevels()
     {

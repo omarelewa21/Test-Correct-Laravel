@@ -11,18 +11,19 @@ use tcCore\FactoryScenarios\FactoryScenarioTestTakeRated;
 use tcCore\FactoryScenarios\FactoryScenarioTestTakeTaken;
 use tcCore\Http\Helpers\ActingAsHelper;
 use tcCore\Lib\Repositories\PValueRepository;
+use tcCore\Period;
 use tcCore\Subject;
 use tcCore\User;
 use Tests\TestCase;
 
 class UserControllerTest extends TestCase
 {
-    use DatabaseTransactions;
+//    use DatabaseTransactions;
 
     /** @test */
     public function a_teacher_cannot_be_added_if_no_current_active_period()
     {
-//        $this->withoutExceptionHandling();
+        $this->withoutExceptionHandling();
         \tcCore\SchoolLocationSchoolYear::where('school_location_id', 2)->orderby('created_at', 'desc')->first()->delete();
 
         $data = [
@@ -111,10 +112,11 @@ class UserControllerTest extends TestCase
     {
         $this->withoutExceptionHandling();
 
-        $factory = FactoryScenarioTestTakeRated::create($this->getTeacherOne());
+//        $factory = FactoryScenarioTestTakeRated::create($this->getTeacherOne());
         $studentOne = $this->getStudentOne();
         $this->assertEmpty($studentOne->pValueStatsForAllSubjects);
         $studentOne->loadPValueStatsForAllSubjects();
+        dd($studentOne->pValueStatsForAllSubjects);
         $this->assertArrayHasKey('Nederlands', $studentOne->pValueStatsForAllSubjects);
     }
 
@@ -125,6 +127,68 @@ class UserControllerTest extends TestCase
         $studentOne = $this->getStudentOne();
         $this->assertEmpty($studentOne->pValueStatsForAllSubjects);
         $studentOne->loadPValueStatsForAllSubjects();
+    }
+
+    /** @test */
+    public function it_can_report_p_values_for_a_student_by_subject()
+    {
+        $this->withoutExceptionHandling();
+        $studentOne = $this->getStudentOne();
+        $firstRecord = PValueRepository::getPValueForStudentBySubject($studentOne)->first();
+        $this->assertEquals('Nederlands', $firstRecord->subject);
+    }
+
+    /** @test */
+    public function it_can_report_p_values_for_a_student_by_subject_filtered_by_educationLevelYear()
+    {
+        $this->withoutExceptionHandling();
+        $studentOne = $this->getStudentOne();
+        $firstRecord = PValueRepository::getPValueForStudentBySubject(
+            $studentOne,
+            null,
+            collect([['id' => 1]]),
+            null,
+        )->first();
+        $this->assertEquals('Nederlands', $firstRecord->subject);
+
+        // test met een eductionLevelYear that doesnot exists;
+        $this->assertEmpty(
+            PValueRepository::getPValueForStudentBySubject(
+                $studentOne,
+                null,
+                collect([['id' => 2]]),
+                null,
+            )
+        );
+    }
+
+    /** @test */
+    public function it_can_report_p_values_for_a_student_by_subject_filtered_by_teacher()
+    {
+        $this->withoutExceptionHandling();
+        $studentOne = $this->getStudentOne();
+        $firstRecord = PValueRepository::getPValueForStudentBySubject(
+            $studentOne,
+            null,
+            null,
+            collect([$this->getTeacherOne()])
+        )->first();
+        $this->assertEquals('Nederlands', $firstRecord->subject);
+    }
+
+    /** @test */
+    public function it_can_report_p_values_for_a_student_by_subject_filtered_by_Period()
+    {
+        $this->withoutExceptionHandling();
+        $studentOne = $this->getStudentOne();
+        $firstRecord = PValueRepository::getPValueForStudentBySubject(
+            $studentOne,
+            Period::where('id', 1)->get(),
+            null,
+            null
+
+        )->first();
+        $this->assertEquals('Nederlands', $firstRecord->subject);
     }
 
 

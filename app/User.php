@@ -2625,7 +2625,6 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
                 return $attainment->total_p_value;
             })->mapWithKeys(fn($item, $key) => [BaseSubject::find($key)->name => $item]);
 
-
         $this->setRelation('pValueStatsForAllSubjects', $value);
         return $this;
     }
