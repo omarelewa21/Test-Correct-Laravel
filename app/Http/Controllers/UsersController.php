@@ -116,7 +116,7 @@ class UsersController extends Controller
         DB::beginTransaction();
         try {
             // get a corresponding teacher within the same new school location
-            $teacher = SchoolHelper::getSomeTeacherBySchoolLocationId($request->get('school_location_id'));
+            $teacher = SchoolHelper::getSomeTeacherOrSchoolManagerBySchoolLocationId($request->get('school_location_id'));
             if (null === $teacher) {
                 throw new \Exception(' target school must contain at least one teacher');
             }
