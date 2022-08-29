@@ -609,6 +609,7 @@ document.addEventListener('alpine:init', () => {
         questionUuid: null,
         inTest: null,
         correspondingButton: null,
+        showQuestionBankAddConfirmation: false,
         handleIncomingEvent(detail) {
             if (!this.menuOpen) return this.openMenu(detail);
 
@@ -621,6 +622,7 @@ document.addEventListener('alpine:init', () => {
             this.questionUuid = detail.questionUuid;
             this.inTest = detail.inTest;
             this.correspondingButton = detail.button;
+            this.showQuestionBankAddConfirmation = detail.showQuestionBankAddConfirmation;
             this.$root.style.top = (detail.coords.top + 56) + 'px';
             this.$root.style.left = (detail.coords.left - 224) + 'px';
             this.menuOpen = true

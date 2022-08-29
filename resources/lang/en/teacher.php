@@ -56,4 +56,8 @@ return [
     'Je hebt het vak, niveau en/of leerjaar van de toets aangepast.'                           => 'You have changed the subject level or level year for this this. Would you like to update the current test or would you like the changes to be saved in a duplicate.',
     'Kies een of meerdere onderdelen'                                                          => 'Choose one aspect of the test to be exported.',
     'Kies een pdf attachment'                                                                  => 'Choose one pdf attachment of the test to be exported.',
+    'Annuleer'                                                                                 => 'Cancel',
+    'question_bank_add_confirmation_text'                                                            => 'You are going to add a group question as a main question',
+    'question_bank_add_confirmation_sub_text'                                                             => 'The group of this group question contains attachments and/or a description that can be important to answer the question. Are you sure you want to add this group question as main question',
+    'add'                                                                                      => 'Add',
 ];
