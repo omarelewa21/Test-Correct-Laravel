@@ -1737,8 +1737,16 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
                         }
                     });
                     break;
+                case 'trial':
+                    $query->whereIn(
+                        'school_location_id',
+                        SchoolLocation::where('license_type', 'TRIAL')->pluck('id')
+                    );
+                    break;
                 case 'without_guests':
-                    $value == true ? $query->withoutGuests() : '';
+                    $query->when($value, function($query) {
+                        $query->withoutGuests();
+                    });
                     break;
                 default:
                     break;

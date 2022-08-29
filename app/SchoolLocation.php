@@ -1220,8 +1220,13 @@ class SchoolLocation extends BaseModel implements AccessCheckable
         return $this->allow_cms_drawer && $this->allow_new_drawing_question;
     }
 
-    public function getAvailableLicenseTypes()
+    public static function getAvailableLicenseTypes()
     {
         return self::getPossibleEnumValues('license_type');
+    }
+
+    public function hasTrialLicense()
+    {
+        return $this->license_type == 'TRIAL';
     }
 }

@@ -323,7 +323,7 @@ Route::group(['middleware' => ['api', 'dl', 'authorize', 'authorizeBinds', 'bind
 
 	Route::resource('school', 'SchoolsController', ['except' => ['create', 'edit']]);
     Route::get('school_location/is_allowed_new_player_access', 'SchoolLocationsController@isAllowedNewPlayerAccess')->name('school_location.is_allowed_new_player_access');
-    Route::get('school_location/get_lvs_and_sso_options', 'SchoolLocationsController@getLvsAndSsoOptions')->name('school_location.get_lvs_and_sso_options');
+    Route::get('school_location/get_available_school_location_options', 'SchoolLocationsController@getAvailableSchoolLocationOptions')->name('school_location.get_available_school_location_options');
     Route::get('school_location/{school_location_id}/get_lvs_type', 'SchoolLocationsController@getLvsType')->name('school_location.get_lvs_type');
     // School children
     Route::resource('school_location', 'SchoolLocationsController', ['except' => ['create', 'edit']]);
