@@ -75,7 +75,7 @@
                 />
                 <div class=" text-center justify-center">
                     <x-input.text class="w-12 text-center {{ $errorScoreClass }}"
-                                  wire:model="cmsPropertyBag.answerStruct.{{ $loop->index }}.score"
+                                  wire:model.debounce.250ms="cmsPropertyBag.answerStruct.{{ $loop->index }}.score"
                                   title="{{ $answer->score }}"
                                   type="number"
                                   :onlyInteger="true"
