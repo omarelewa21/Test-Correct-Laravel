@@ -280,13 +280,15 @@ class MagisterHelper
         $groepen = (object) $groepen;
 
         collect(['groep', 'samengestelde_groep'])->each(function ($prop) use ($groepen) {
-            collect($groepen->$prop)->each(function ($obj) use ($prop) {
-                UwlrSoapEntry::create([
-                    'uwlr_soap_result_id' => $this->resultIdentifier,
-                    'key'                 => $prop,
-                    'object'              => serialize($obj),
-                ]);
-            });
+            if(property_exists($groepen,$prop)) {
+                collect($groepen->$prop)->each(function ($obj) use ($prop) {
+                    UwlrSoapEntry::create([
+                        'uwlr_soap_result_id' => $this->resultIdentifier,
+                        'key' => $prop,
+                        'object' => serialize($obj),
+                    ]);
+                });
+            }
         });
     }
 
