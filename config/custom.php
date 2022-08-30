@@ -23,4 +23,6 @@ return [
     'creathlon_school_author' => env('CREATHLONITEMBANK_SCHOOL_AUTHOR','info+creathlonontwikkelaar@test-correct.nl'),
     'examschool_customercode' => env('EXAMSCHOOL_CUSTOMERCODE','OPENSOURCE1'),
     'examschool_author' => env('EXAMSCHOOL_AUTOR','info+CEdocent@test-correct.nl'),
+
+    'enable_additional_seeders' => env('ENABLE_ADDITIONAL_SEEDERS', true),
 ];

@@ -1,6 +1,7 @@
 <?php namespace tcCore;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Queue;
@@ -273,41 +274,21 @@ class Test extends BaseModel
         }
     }
 
-    public function scopeCitoFiltered($query, $filters = [], $sorting = [])
+    public function contentSourceFiltered($scopes, $customer_codes, $query, $filters = [], $sorting = [])
     {
         $user = Auth::user();
-//
-//        $citoSchool = SchoolLocation::where('customer_code', 'CITO-TOETSENOPMAAT')->first();
-//        $baseSubjectIds = $user->subjects()->pluck('base_subject_id')->unique();
 
-        $subjectIds = Subject::getSubjectsOfCustomSchoolForUser('CITO-TOETSENOPMAAT', $user); //user 1486 finds subject 20
+        $query->select();
+        $subjectIds = Subject::getSubjectsOfCustomSchoolForUser(Arr::wrap($customer_codes), $user);
 
-        $query->select(); //TODO REFACTOR CITO FILTERED TO QUERY VIA SCHOOL_LOCATION_SECTIONS
-        //TODO fix citoschool seeder ?? connect correct subjects to the teachers and tests
-
-//        if ($citoSchool) {
-//            $classIds = $citoSchool->schoolClasses()->pluck('id'); //user 1486 finds subject 20, 21, 31, 50. last three are in a section of school 1
-//            $tempSubjectIds = Teacher::whereIn('class_id', $classIds)
-//                ->join('school_classes', 'teachers.class_id', '=', 'school_classes.id')
-//                ->join('school_locations', function($join) use ($citoSchool) {
-//                    $join->on('school_locations.id', '=', 'school_classes.school_location_id')
-//                        ->where('school_location_id', $citoSchool->id);
-//                })
-//                ->pluck('subject_id')->unique();
-//            $baseSubjects = Subject::whereIn('id', $tempSubjectIds)->get();
-////            $baseSubjectIds = collect($baseSubjectIds);
-//            $subjectIds = $baseSubjects->whereIn('base_subject_id', $baseSubjectIds)->pluck('id')->unique()->toArray();
-//        } else { // slower but as a fallback in case there's no cito school
-//            $query->where('tests.id', -1);
-//            return $query;
-//        }
         if (count($subjectIds) == 0) {
             $query->where('tests.id', -1);
             return $query;
         }
         $query->whereIn('subject_id', $subjectIds);
-        $query->where('scope', 'cito');
-        $query->where(function ($q) use ($user) { //todo cito exclusive
+        $query->whereIn('scope', Arr::wrap($scopes));
+
+        $query->where(function ($q) use ($user) {
             return $q->where('published', true)
                 ->orWhere('author_id', $user->getKey());
         });
@@ -333,71 +314,40 @@ class Test extends BaseModel
         return $query;
     }
 
+    public function scopeCitoFiltered($query, $filters = [], $sorting = [])
+    {
+        return $this->contentSourceFiltered(
+            'cito',
+            'CITO-TOETSENOPMAAT',
+            $query, $filters, $sorting);
+    }
+
     public function scopeExamFiltered($query, $filters = [], $sorting = [])
     {
-        $user = Auth::user();
-        $query->select();
-        $subjectIds = Subject::getSubjectsOfCustomSchoolForUser(config('custom.examschool_customercode'), $user);
-        if (count($subjectIds) == 0) {
-            $query->where('tests.id', -1);
-            return $query;
-        }
-        $query->whereIn('subject_id', $subjectIds);
-        $query->where('scope', 'exam');
-        $query->where('published', true);
-        if (!array_key_exists('is_system_test', $filters)) {
-            $query->where('is_system_test', '=', 0);
-        }
-        $this->handleFilterParams($query, $filters);
-        $this->handleFilteredSorting($query, $sorting);
-
-        return $query;
+        return $this->contentSourceFiltered(
+            'exam',
+            config('custom.examschool_customercode'),
+            $query, $filters, $sorting);
     }
 
     public function scopeNationalItemBankFiltered($query, $filters = [], $sorting = [])
     {
-        $user = Auth::user();
-        $query->select();
-        $subjectIds = Subject::getSubjectsOfCustomSchoolForUser([
-            config('custom.national_item_bank_school_customercode'),
-            config('custom.examschool_customercode'),
-            'CITO-TOETSENOPMAAT',
-        ], $user);
-        if (count($subjectIds) == 0) {
-            $query->where('tests.id', -1);
-            return $query;
-        }
-        $query->whereIn('subject_id', $subjectIds);
-        $query->whereIn('scope', ['ldt', 'exam', 'cito']);
-        $query->where('published', true);
-        if (!array_key_exists('is_system_test', $filters)) {
-            $query->where('is_system_test', '=', 0);
-        }
-        $this->handleFilterParams($query, $filters);
-        $this->handleFilteredSorting($query, $sorting);
-
-        return $query;
+        return $this->contentSourceFiltered(
+            ['ldt', 'exam', 'cito'],
+            [
+                config('custom.national_item_bank_school_customercode'),
+                config('custom.examschool_customercode'),
+                'CITO-TOETSENOPMAAT',
+            ],
+            $query, $filters, $sorting);
     }
 
     public function scopeCreathlonItemBankFiltered($query, $filters = [], $sorting = [])
     {
-        $user = Auth::user();
-        $query->select();
-        $subjectIds = Subject::getSubjectsOfCustomSchoolForUser(config('custom.creathlon_school_customercode'), $user);
-        if (count($subjectIds) == 0) {
-            $query->where('tests.id', -1);
-            return $query;
-        }
-        $query->whereIn('subject_id', $subjectIds);
-        $query->where('scope', 'published_creathlon');
-        $query->where('published', true);
-        if (!array_key_exists('is_system_test', $filters)) {
-            $query->where('is_system_test', '=', 0);
-        }
-        $this->handleFilterParams($query, $filters);
-        $this->handleFilteredSorting($query, $sorting);
-
-        return $query;
+        return $this->contentSourceFiltered(
+            'published_creathlon',
+            config('custom.creathlon_school_customercode'),
+            $query, $filters, $sorting);
     }
 
     public function scopeSharedSectionsFiltered($query, $filters = [], $sorting = [])
@@ -1130,7 +1080,7 @@ class Test extends BaseModel
         return BaseSubject::currentForAuthUser()->whereId($this->subject()->pluck('base_subject_id'))->exists();
     }
 
-    public static function publishedAvailableFromPublisher($publishedTestScope, User $user) : bool
+    public static function publishedAvailableFromPublisher($publishedTestScope, User $user): bool
     {
         return self::select('s.base_subject_id')
             ->distinct()
@@ -1148,7 +1098,7 @@ class Test extends BaseModel
         return false;
     }
 
-    private function isFromAllowedTestPublisher($user) : bool
+    private function isFromAllowedTestPublisher($user): bool
     {
         return ContentSourceHelper::allAllowedForUser($user)
             ->map(fn($publisher) => 'published_' . $publisher)

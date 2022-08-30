@@ -3,10 +3,12 @@
 namespace Tests\Feature;
 
 use Illuminate\Foundation\Testing\DatabaseTransactions;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Livewire;
 use tcCore\Factories\Questions\FactoryQuestionOpenShort;
 use tcCore\Http\Controllers\AuthorsController;
+use tcCore\SchoolLocation;
 use tcCore\Subject;
 use tcCore\Test;
 use tcCore\User;
@@ -247,35 +249,5 @@ class PublishesTestTraitTest extends TestCase
     }
 
 
-    //temp
 
-    /** @test */
-    public function TestScopeRefactoring() //todo remove after refactoring TestNationalItemFiltered / CitoFiltered
-    {
-        $startCounts = [
-            "nationalCount"  => 8, //was 10, with 3 invalid subjects for cito, fixed one test/subject with basesubject 1 nederlands
-            "examCount"      => 4,
-            "citoCount"      => 3,
-            "creathlonCount" => 3,
-            "umbrellaCount"  => 0,
-        ];
-
-
-        Auth::loginUsingId(1486/*40325*/);
-        $counts = [
-            'nationalCount'  => Test::nationalItemBankFiltered()->count(),
-            'examCount'      => Test::examFiltered()->count(),
-            'citoCount'      => Test::citoFiltered()->count(),
-            'creathlonCount' => Test::creathlonItemBankFiltered()->count(),
-            'umbrellaCount'  => Test::sharedSectionsFiltered()->count(),
-        ];
-
-        foreach($counts as $key => $value){
-            if($startCounts[$key] !== $value){
-                $this->fail("$key: start value of {$startCounts[$key]}, is not the same as $value");
-            }
-            echo "$key: start value {$startCounts[$key]}, after refactoring $value \n";
-        }
-        $this->assertTrue(true);
-    }
 }

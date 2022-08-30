@@ -288,6 +288,16 @@ class Subject extends BaseModel implements AccessCheckable
 
     public static function getSubjectsOfCustomSchoolForUser($customerCodes, $user): array
     {
+        $userBaseSubjectIds = $user->subjects()->pluck('subjects.base_subject_id')->unique();
+
+        return SchoolLocation::whereIn('school_locations.customer_code', Arr::wrap($customerCodes))
+            ->join('school_location_sections', 'school_locations.id', '=', 'school_location_sections.school_location_id')
+            ->join('sections', 'school_location_sections.section_id', '=', 'sections.id')
+            ->join('subjects', 'subjects.section_id', '=', 'sections.id')
+            ->whereIn('subjects.base_subject_id', $userBaseSubjectIds)
+            ->distinct()
+            ->pluck('subjects.id')->toArray();
+
         $schools = SchoolLocation::whereIn('customer_code', Arr::wrap($customerCodes))->get();
 
         $baseSubjectIds = $user->subjects()->pluck('base_subject_id')->unique();
