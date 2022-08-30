@@ -60,4 +60,10 @@ return [
     'question_bank_add_confirmation_text'                                                            => 'You are going to add a group question as a main question',
     'question_bank_add_confirmation_sub_text'                                                             => 'The group of this group question contains attachments and/or a description that can be important to answer the question. Are you sure you want to add this group question as main question',
     'add'                                                                                      => 'Add',
+    'test_take_planned'                                                                        => 'Test :testName has been planned',
+    'copyTestLink'                                                                             => 'Copy test link',
+    'goToPlannedTests'                                                                         => 'Go to planned test',
+    'clipboard_copied'                                                                         => 'Test link has been copied to the clipboard',
+    'take_not_accessible_toast_for_invigilator'                                                => 'The :testName test has been removed and can no longer be opened',
+    'test_not_found'                                                                           => 'test cannot be found.'
 ];

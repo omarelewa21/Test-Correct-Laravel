@@ -210,5 +210,6 @@
         </div>
     </div>
     <x-notification/>
+    <x-after-planning-toast/>
 
 </div>

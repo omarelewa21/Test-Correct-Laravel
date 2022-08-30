@@ -84,6 +84,61 @@ module.exports = __webpack_require__(/*! regenerator-runtime */ "./node_modules/
 
 /***/ }),
 
+/***/ "./node_modules/@ryangjchandler/alpine-clipboard/src/index.js":
+/*!********************************************************************!*\
+  !*** ./node_modules/@ryangjchandler/alpine-clipboard/src/index.js ***!
+  \********************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+let onCopy = () => {}
+
+const copy = (target) => {
+    if (typeof target === 'function') {
+        target = target()
+    }
+
+    if (typeof target === 'object') {
+        target = JSON.stringify(target)
+    }
+
+    return window.navigator.clipboard.writeText(target)
+        .then(onCopy)
+}
+
+function Clipboard(Alpine) {
+    Alpine.magic('clipboard', () => {
+        return copy
+    })
+
+    Alpine.directive('clipboard', (el, { modifiers, expression }, { evaluateLater, cleanup }) => {
+        const getCopyContent = modifiers.includes('raw') ? c => c(expression) : evaluateLater(expression)
+        const clickHandler = () => getCopyContent(copy)
+
+        el.addEventListener('click', clickHandler)
+
+        cleanup(() => {
+            el.removeEventListener('click', clickHandler)
+        })
+    })
+}
+
+Clipboard.configure = (config) => {
+    if (config.hasOwnProperty('onCopy') && typeof config.onCopy === 'function') {
+        onCopy = config.onCopy
+    }
+
+    return Clipboard
+}
+
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (Clipboard);
+
+/***/ }),
+
 /***/ "./node_modules/alpinejs/dist/module.esm.js":
 /*!**************************************************!*\
   !*** ./node_modules/alpinejs/dist/module.esm.js ***!
@@ -5534,6 +5589,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var choices_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! choices.js */ "./node_modules/choices.js/public/assets/scripts/choices.js");
 /* harmony import */ var choices_js__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(choices_js__WEBPACK_IMPORTED_MODULE_2__);
 /* harmony import */ var _alpinejs_intersect__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! @alpinejs/intersect */ "./node_modules/@alpinejs/intersect/dist/module.esm.js");
+/* harmony import */ var _ryangjchandler_alpine_clipboard__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! @ryangjchandler/alpine-clipboard */ "./node_modules/@ryangjchandler/alpine-clipboard/src/index.js");
 
 
 function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { Promise.resolve(value).then(_next, _throw); } }
@@ -5543,6 +5599,8 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
 
 
+
+alpinejs__WEBPACK_IMPORTED_MODULE_1__["default"].plugin(_ryangjchandler_alpine_clipboard__WEBPACK_IMPORTED_MODULE_4__["default"]);
 window.Alpine = alpinejs__WEBPACK_IMPORTED_MODULE_1__["default"];
 alpinejs__WEBPACK_IMPORTED_MODULE_1__["default"].plugin(_alpinejs_intersect__WEBPACK_IMPORTED_MODULE_3__["default"]);
 document.addEventListener('alpine:init', function () {
@@ -6237,7 +6295,6 @@ document.addEventListener('alpine:init', function () {
       questionUuid: null,
       inTest: null,
       correspondingButton: null,
-      showQuestionBankAddConfirmation: false,
       handleIncomingEvent: function handleIncomingEvent(detail) {
         var _this15 = this;
 
@@ -6251,7 +6308,6 @@ document.addEventListener('alpine:init', function () {
         this.questionUuid = detail.questionUuid;
         this.inTest = detail.inTest;
         this.correspondingButton = detail.button;
-        this.showQuestionBankAddConfirmation = detail.showQuestionBankAddConfirmation;
         this.$root.style.top = detail.coords.top + 56 + 'px';
         this.$root.style.left = detail.coords.left - 224 + 'px';
         this.menuOpen = true;
@@ -6340,11 +6396,9 @@ addIdsToQuestionHtml = function addIdsToQuestionHtml() {
     questionContainers.forEach(function (item) {
       var decendents = item.querySelectorAll('*');
       decendents.forEach(function (decendent) {
-        if (decendent.tagName != 'MATH' && !decendent.closest('math')) {
-          decendent.id = 'questionhtml_' + id;
-          decendent.setAttribute('wire:key', 'questionhtml_' + id);
-          id += 1;
-        }
+        decendent.id = 'questionhtml_' + id;
+        decendent.setAttribute('wire:key', 'questionhtml_' + id);
+        id += 1;
       });
     });
   }, 1);
@@ -6846,7 +6900,7 @@ window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
 window.Pusher = __webpack_require__(/*! pusher-js */ "./node_modules/pusher-js/dist/web/pusher.js");
 window.Echo = new laravel_echo__WEBPACK_IMPORTED_MODULE_0__["default"]({
   broadcaster: 'pusher',
-  key: "fc18ed69b446aeb8c8a5",
+  key: "2149988ad52a600a2309",
   cluster: "eu",
   forceTLS: true
 });

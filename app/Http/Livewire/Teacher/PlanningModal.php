@@ -136,14 +136,25 @@ class PlanningModal extends ModalComponent
         $t->setAttribute('user_id', auth()->id());
         $t->save();
 
-        $this->dispatchBrowserEvent('notify', ['message' => __('teacher.testtake planned')]);
+        return $t;
     }
 
     public function planNext()
     {
-        $this->planTest();
+        $testTake = $this->planTest();
 
         $this->closeModal();
+        
+        $this->afterPlanningToast($testTake);
+    }
+
+    private function afterPlanningToast(TestTake $take){
+        $this->dispatchBrowserEvent('after-planning-toast',
+        [
+            'message'   => __('teacher.test_take_planned', ['testName' => $take->test->name]),
+            'link'      => $take->directLink,
+            'take'      => $take->uuid
+        ]);
     }
 
     private function resetModalRequest()
