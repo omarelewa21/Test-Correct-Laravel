@@ -13,6 +13,7 @@
                                class="w-full">
                     <div id="hidden_span_{{ $question->id }}"  class="hidden">{!! $this->answer !!}</div>
                     <x-input.textarea
+                            x-on:contextmenu="$event.preventDefault()"
                             id="textarea_{{ $question->id }}"
                             wire:key="textarea_{{ $question->id }}"
                             wire:model.lazy="answer"
