@@ -431,6 +431,7 @@ class SchoolLocation extends BaseModel implements AccessCheckable
                 (new DemoHelper())->changeDemoUsersAsSchoolLocationCustomerCodeChanged($schoolLocation,
                     $originalCustomerCode);
             }
+            $schoolLocation->handleLicenseTypeUpdate();
         });
 
         static::deleting(function (SchoolLocation $schoolLocation) {
@@ -1228,5 +1229,12 @@ class SchoolLocation extends BaseModel implements AccessCheckable
     public function hasTrialLicense(): bool
     {
         return $this->license_type == 'TRIAL';
+    }
+
+    private function handleLicenseTypeUpdate()
+    {
+        if ($this->getOriginal('license_type') !== $this->getAttribute('license_type') && $this->getAttribute('license_type') === 'CLIENT') {
+            TrialPeriod::whereIn('user_id', $this->users()->pluck('id'))->delete();
+        }
     }
 }

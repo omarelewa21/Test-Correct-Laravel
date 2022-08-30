@@ -2612,7 +2612,7 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
 
     public function createTrialPeriodRecordIfRequired()
     {
-        if ($this->isA('Teacher') && !$this->schoolLocation->hasTrialLicense()) {
+        if (!$this->isA('Teacher') || !$this->schoolLocation->hasTrialLicense()) {
             return false;
         }
         if($this->trialPeriod()->exists()) {

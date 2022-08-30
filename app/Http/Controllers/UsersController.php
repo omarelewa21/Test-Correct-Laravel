@@ -59,6 +59,9 @@ class UsersController extends Controller
         if (is_array($request->get('with')) && in_array('studentSchoolClasses', $request->get('with'))) {
             $users->with('studentSchoolClasses');
         }
+        if (is_array($request->get('with')) && in_array('trial_info', $request->get('with'))) {
+            $users->with('trialPeriod');
+        }
 
         switch (strtolower($request->get('mode', 'paginate'))) {
             case 'all':
@@ -257,7 +260,8 @@ class UsersController extends Controller
                             'teacher.subject',
                             'salesOrganization',
                             'school.schoolLocations',
-                            'schoolLocation'
+                            'schoolLocation',
+                            'trialPeriod'
                     );
 
         if (is_array($request->get('with')) && in_array('studentSubjectAverages', $request->get('with'))) {
@@ -599,5 +603,14 @@ class UsersController extends Controller
         }
 
         return Response($url, 200);
+    }
+
+    public function updateTrialDate(Request $request, User $user)
+    {
+        $user->trialPeriod()->update([
+            'trial_until' => Carbon::parse($request->get('date'))->startOfDay()
+        ]);
+
+        return Response::make($user, 200);
     }
 }
