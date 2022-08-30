@@ -4,6 +4,7 @@ namespace tcCore\Http\Helpers;
 
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use Ramsey\Uuid\Uuid;
 use tcCore\DrawingQuestion;
 
 class SvgHelper
@@ -52,13 +53,46 @@ class SvgHelper
 
     public function getQuestionSvg($q)
     {
+        $bg = "";
+        if ($q instanceof DrawingQuestion && $q->getBackgroundImage()) {
+            $bg = $this->createQuestionLayerWithLegacyDrawingToolBackground($q);
+        }
+
         if ($this->getQuestionLayerFromSVG()) {
-            return $this->getQuestionLayerFromSVG(true);
+            return base64_encode(Str::of($bg)->append($this->getQuestionLayerFromSVG()));
         }
-        if ($q instanceof DrawingQuestion) {
-            return $q->question_svg;
-        }
-        return $q['question_svg'];
+
+        return Str::of($bg)->isEmpty() ? null : base64_encode($bg);
+    }
+
+    private function createQuestionLayerWithLegacyDrawingToolBackground($q)
+    {
+        [$width, $height] = getimagesize($q->getCurrentBgPath());
+        $identifier = Uuid::uuid4();
+
+        $this->addImageToLayer('question', $identifier, $q->getCurrentBgPath());
+
+        $doc = (new \DOMDocument);
+
+        $groupElement = $doc->createElement('g');
+        $groupElement->setAttribute('class', 'shape draggable');
+        $groupElement->setAttribute('id', 'image-1');
+
+        $imageElement = $doc->createElement('image');
+        $imageElement->setAttribute('class', 'main');
+        $imageElement->setAttribute('href', $q->getBackgroundImage());
+        $imageElement->setAttribute('identifier', $identifier);
+        $imageElement->setAttribute('width', $width * 5/6);
+        $imageElement->setAttribute('height', $height);
+        $imageElement->setAttribute('x', '-'.$width/2);
+        $imageElement->setAttribute('y', '-'.$height/2);
+
+        $groupElement->appendChild($imageElement);
+        $doc->appendChild($groupElement);
+
+        $layerHtml = $doc->saveHTML();
+
+        return $layerHtml;
     }
 
     /**
