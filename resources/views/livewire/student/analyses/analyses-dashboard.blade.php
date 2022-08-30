@@ -80,8 +80,30 @@
                  this.headers = this.data.map( pValue => pValue.subject);
                  this.values = this.data.map( pValue => pValue.score);
 
-                 console.dir(this.values);
-                var colors = ['red', 'orange', 'green'];
+                var colors = [
+                    '#30BC51',
+                    '#5043F6',
+                    '#ECEE7D',
+                    '#6820CE',
+                    '#CB110E',
+                    '#F79D25',
+                    '#1B6112',
+                    '#43ACF5',
+                    '#E12576',
+                    '#24D2C5',
+                    '#30BC51',
+                    '#5043F6',
+                    '#E2DD10',
+                    '#6820CE',
+                    '#CB110E',
+                    '#1B6112',
+                    '#F79D25',
+                    '#43ACF5',
+                    '#E12374',
+                    '#24D2C5',
+                    '#30BC51',
+                    '#5043F6',
+                ];
 
                 var data = anychart.data.set([
                     this.values
@@ -103,9 +125,16 @@
                         ).name(this.headers[key]);
                 });
 
-                for(var i=0; i < chart.getSeriesCount(); i++) {
+                var colorIndex = 0;
 
-                    chart.getSeriesAt(i).fill(colors[i]).stroke(colors[i]);
+                for(var i=0; i < chart.getSeriesCount(); i++) {
+                    // reset the color index when color array out of bounds;
+                    if (color[colorIndex] === undefined) {
+                        colorIndex = 0;
+                    }
+
+                    chart.getSeriesAt(i).fill(colors[i]).stroke(colors[colorIndex]);
+                    colorIndex ++;
                 }
 
                 // enable categorizedBySeries mode
