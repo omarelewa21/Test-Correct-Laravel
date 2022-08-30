@@ -6237,6 +6237,7 @@ document.addEventListener('alpine:init', function () {
       questionUuid: null,
       inTest: null,
       correspondingButton: null,
+      showQuestionBankAddConfirmation: false,
       handleIncomingEvent: function handleIncomingEvent(detail) {
         var _this15 = this;
 
@@ -6250,6 +6251,7 @@ document.addEventListener('alpine:init', function () {
         this.questionUuid = detail.questionUuid;
         this.inTest = detail.inTest;
         this.correspondingButton = detail.button;
+        this.showQuestionBankAddConfirmation = detail.showQuestionBankAddConfirmation;
         this.$root.style.top = detail.coords.top + 56 + 'px';
         this.$root.style.left = detail.coords.left - 224 + 'px';
         this.menuOpen = true;
@@ -6844,7 +6846,7 @@ window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
 window.Pusher = __webpack_require__(/*! pusher-js */ "./node_modules/pusher-js/dist/web/pusher.js");
 window.Echo = new laravel_echo__WEBPACK_IMPORTED_MODULE_0__["default"]({
   broadcaster: 'pusher',
-  key: "51d7221bf733999d7138",
+  key: "2149988ad52a600a2309",
   cluster: "eu",
   forceTLS: true
 });

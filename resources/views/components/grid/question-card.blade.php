@@ -41,7 +41,9 @@
                         coords: {
                             top: $el.closest('.grid-card').offsetTop,
                             left: $el.closest('.grid-card').offsetLeft + $el.closest('.grid-card').offsetWidth
-                        }})
+                        },
+                        showQuestionBankAddConfirmation: '{{$showQuestionBankAddConfirmation}}'
+                    })
                     } else {
                         $dispatch('question-card-context-menu-close')
                     }
@@ -89,7 +91,7 @@
                 @endif
                 <button x-show="Alpine.store('questionBank').active"
                         class="new-button button-primary w-10 items-center justify-center flex"
-                        @click.stop="addQuestionToTest($el, '{{ $question->uuid }}')"
+                        @click.stop="addQuestionToTest($el, '{{ $question->uuid }}', '{{$showQuestionBankAddConfirmation}}')"
                 >
                     <x-icon.plus-2/>
                 </button>

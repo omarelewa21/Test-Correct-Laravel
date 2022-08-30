@@ -41,10 +41,12 @@
             }
 
         }
-        addQuestionToTest = async (button, questionUuid) => {
-            button.disabled = true
+        addQuestionToTest = async (button, questionUuid, showQuestionBankAddConfirmation=false) => {
+            if(showQuestionBankAddConfirmation) return $wire.emit('openModal', 'teacher.add-sub-question-confirmation-modal', {questionUuid: questionUuid});
+            button.disabled = true;
             var enableButton = await $wire.handleCheckboxClick(questionUuid);
             if (enableButton) button.disabled = false;
+            return true;
         }
         "
      @question-added.window="Notify.notify('Vraag toegevoegd!');"
