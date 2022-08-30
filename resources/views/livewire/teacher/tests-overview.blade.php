@@ -81,7 +81,7 @@
                     <div class="relative w-full">
                         <x-input.group class="w-full">
                             <x-input.text class="w-full"
-                                          placeholder="Zoek..."
+                                          placeholder="{{ __('cms.Search...') }}"
                                           wire:model="filters.{{ $this->openTab }}.name"
                             />
                             <x-icon.search class="absolute right-0 -top-2"/>

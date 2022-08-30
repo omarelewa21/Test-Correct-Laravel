@@ -191,4 +191,6 @@ return [
     'toets_pdf'                                                                              => 'Toets',
     'toets_pdf_omschrijving'                                                                 => 'Toets met alle vragen. Bijv. voor afname op papier',
     'pdf_exporteren'                                                                         => 'Exporteer PDF',
+
+    'Search...'                                                                              => 'Zoek...',
 ];

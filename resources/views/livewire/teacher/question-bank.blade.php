@@ -137,7 +137,7 @@
                     <div class="flex w-full my-2">
                         <div class="relative w-full">
                             <x-input.text class="w-full"
-                                          placeholder="Zoek..."
+                                          placeholder="{{ __('cms.Search...') }}"
                                           wire:model.debounce.300ms="filters.{{ $this->openTab }}.search"
                             />
                             <x-icon.search class="absolute right-0 -top-2"/>
