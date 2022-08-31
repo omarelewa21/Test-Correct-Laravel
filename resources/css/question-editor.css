@@ -329,4 +329,5 @@
 
 .firefox .drawer.overflow-auto #sidebar-content {
     margin-right: -6.5px;
+    overflow-x: none;
 }
