@@ -326,3 +326,7 @@
 #cms-preview .question-editor-preview-header {
     box-shadow: 0 3px 8px 0 rgba(4, 31, 116, 0.2);
 }
+
+.firefox .drawer.overflow-auto #sidebar-content {
+    margin-right: -6.5px;
+}

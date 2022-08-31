@@ -6844,7 +6844,7 @@ window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
 window.Pusher = __webpack_require__(/*! pusher-js */ "./node_modules/pusher-js/dist/web/pusher.js");
 window.Echo = new laravel_echo__WEBPACK_IMPORTED_MODULE_0__["default"]({
   broadcaster: 'pusher',
-  key: "51d7221bf733999d7138",
+  key: "2149988ad52a600a2309",
   cluster: "eu",
   forceTLS: true
 });
@@ -6891,6 +6891,7 @@ Core = {
     var isIOS = Core.detectIOS();
     var isAndroid = /Android/g.test(navigator.userAgent);
     var isChromebook = window.navigator.userAgent.indexOf('CrOS') > 0;
+    var isFirefox = window.navigator.userAgent.indexOf('Firefox') > -1;
 
     if (isIOS) {
       Core.isIpad();
@@ -6898,6 +6899,10 @@ Core = {
       Core.isAndroid();
     } else if (isChromebook) {
       Core.isChromebook();
+    }
+
+    if (isFirefox) {
+      Core.isFirefox();
     }
 
     Core.checkForElectron();
@@ -6976,6 +6981,9 @@ Core = {
   isChromebook: function isChromebook() {
     Core.inApp = true;
     Core.appType = 'chromebook';
+  },
+  isFirefox: function isFirefox() {
+    document.querySelector('body').classList.add('firefox');
   },
   detectIOS: function detectIOS() {
     var urlParams = new URLSearchParams(window.location.search);
