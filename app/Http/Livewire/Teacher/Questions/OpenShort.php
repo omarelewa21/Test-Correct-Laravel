@@ -88,6 +88,9 @@ class OpenShort extends Component implements QuestionCms
     public $rttiWarningShown = false;
     public $bloomWarningShown = false;
     public $millerWarningShown = false;
+    public $rttiOptions = [];
+    public $bloomOptions = [];
+    public $millerOptions = [];
     public $lang = 'nl_NL';
     public $testLang = null;
     public $allowWsc = false;
@@ -311,7 +314,9 @@ class OpenShort extends Component implements QuestionCms
     public function mount()
     {
         $activeTest = Test::whereUuid($this->testId)->with('testAuthors', 'testAuthors.user')->first();
-        Gate::authorize('isAuthorOfTest',[$activeTest]);
+        Gate::authorize('isAuthorOfTest', [$activeTest]);
+
+        $this->setTaxonomyOptions();
 
         $this->testLang = $activeTest->lang;
         $this->resetQuestionProperties();
@@ -1360,5 +1365,26 @@ class OpenShort extends Component implements QuestionCms
         if ($this->isDirty()) {
             $this->save(false);
         }
+    }
+
+    private function setTaxonomyOptions()
+    {
+        $this->rttiOptions = ['R', 'T1', 'T2', 'I'];
+
+        $this->bloomOptions = [
+            "Onthouden"  => __('cms.Onthouden'),
+            "Begrijpen"  => __('cms.Begrijpen'),
+            "Toepassen"  => __('cms.Toepassen'),
+            "Analyseren" => __('cms.Analyseren'),
+            "Evalueren"  => __('cms.Evalueren'),
+            "Creëren"    => __('cms.Creëren')
+        ];
+
+        $this->millerOptions = [
+            "Weten"      => __('cms.Weten'),
+            "Weten hoe"  => __('cms.Weten hoe'),
+            "Laten zien" => __('cms.Laten zien'),
+            "Doen"       => __('cms.Doen'),
+        ];
     }
 }
