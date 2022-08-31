@@ -75,6 +75,7 @@
         </div>
 
         <div id="sidebar-carousel-container"
+             selid="sidebar-question-list"
              x-data="questionEditorSidebar"
              x-ref="questionEditorSidebar"
              wire:ignore.self
