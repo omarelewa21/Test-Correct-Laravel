@@ -9,7 +9,7 @@ class FactoryScenarioTestTakeTaken extends FactoryScenarioTestTake
 
     protected function createFactoryTestTake()
     {
-        $testName = 'TestTake Taken with all question types';
+        $testName = $this->testName ?? 'TestTake Taken with all question types';
 
         $this->test = FactoryScenarioTestTestWithAllQuestionTypes::createTest($testName, $this->user);
 

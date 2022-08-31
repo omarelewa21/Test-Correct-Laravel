@@ -46,24 +46,61 @@ abstract class FactoryQuestion implements FactoryQuestionInterface
         return $this;
     }
 
-    private function addRandomAttainmentsBySubject()
+    public function addRandomAttainmentsBySubject()
     {
         if ($this->questionProperties['attainments'] == []) {
-            return [
+            $this->questionProperties = array_merge($this->questionProperties, [
                 'attainments' => Attainment::where(
                     'base_subject_id',
-                   $this->testModel->subject->base_subject_id
+                    $this->testModel->subject->base_subject_id
                 )->pluck('id')->random(2)->toArray()
-            ];
+            ]);
         }
-        return [];
+    }
+
+    public function addRandomTaxonomy($rtti = true, $miller = true, $bloom = true)
+    {
+        $rttiOptions = collect([
+            'R',
+            'T1',
+            'T2',
+            'I'
+        ]);
+        $bloomOptions = collect([
+            "Onthouden",
+            "Begrijpen",
+            "Toepassen",
+            "Analyseren",
+            "Evalueren",
+            "Creëren",
+        ]);
+        $millerOptions = collect([
+            "Weten",
+            "Weten hoe",
+            "Laten zien",
+            "Doen",
+        ]);
+        $taxonomy = [];
+        if ($this->questionProperties['rtti'] == "" && $rtti) {
+            $taxonomy['rtti'] = $rttiOptions->random();
+        }
+        if ($this->questionProperties['miller'] == "" && $miller) {
+            $taxonomy['miller'] = $millerOptions->random();
+        }
+        if ($this->questionProperties['bloom'] == "" && $bloom) {
+            $taxonomy['bloom'] = $bloomOptions->random();
+        }
+
+        $this->questionProperties = array_merge($this->questionProperties, $taxonomy);
     }
 
     public function store()
     {
+        $this->addRandomAttainmentsBySubject();
+        $this->addRandomTaxonomy();
+
         $this->questionProperties = array_merge(
             $this->questionProperties,
-            $this->addRandomAttainmentsBySubject(),
             ['test_id' => $this->testModel->id],
             $this->calculatedQuestionProperties(),
         );
