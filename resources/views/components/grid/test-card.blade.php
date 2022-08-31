@@ -6,7 +6,7 @@
      wire:target="filters,clearFilters,$set"
 >
     <div class="flex w-full justify-between mb-2 align-middle">
-        <h3 class="line-clamp-2 min-h-[64px] text-inherit @if(blank($test->name)) italic @endif"
+        <h3 class="line-clamp-2 word-break-words min-h-[64px] text-inherit @if(blank($test->name)) italic @endif"
             title="{{ $test->name }}"
             style="color:inherit"
         >{{ $test->name ? $test->name : __('test.test_name') }}</h3>
