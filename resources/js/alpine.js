@@ -603,6 +603,83 @@ document.addEventListener('alpine:init', () => {
         }
     }));
 
+    Alpine.data('expandableGraph', (id, subjectId, taxonomy) => (
+        {
+            data:false,
+            subjectId,
+            taxonomy,
+            containerId : 'chart-'+subjectId+'-'+taxonomy,
+            id,
+            init() {
+                if (this.expanded) {
+                    this.updateGraph()
+                }
+            },
+            async updateGraph() {
+                if (!this.data) {
+                    this.data = await this.$wire.getData(this.subjectId, this.taxonomy);
+                    this.renderGraph()
+                }
+            },
+            get expanded() {
+                return this.active === this.id
+            },
+            set expanded(value) {
+                if (value) {
+                    this.updateGraph()
+                }
+
+                this.active = value ? this.id: null
+            },
+            renderGraph: function () {
+                // create bar chart
+                var chart = anychart.bar();
+
+                // create area series with passed data
+                var series = chart.bar(this.data);
+                series.stroke(this.getColor()).fill(this.getColor())
+
+                var tooltip = series.tooltip()
+                tooltip.title(false)
+                    .separator(false)
+                    .position('right')
+                    .anchor('left-center')
+                    .offsetX(5)
+                    .offsetY(0)
+                    .background('#FFFFFF')
+                    .fontColor('#000000')
+                    .format(function () {
+                        return (
+                            'P ' + Math.abs(this.value).toLocaleString()
+
+                        );
+                    });
+
+
+                chart.tooltip().positionMode('point');
+                // set scale minimum
+                chart.xAxis().stroke('#041F74')
+                chart.xAxis().stroke('none')
+
+                // set container id for the chart
+                chart.container(this.containerId);
+                // initiate chart drawing
+                chart.draw();
+            },
+            getColor: function() {
+                if (this.taxonomy == 'Bloom') {
+                    return '#E2DD10';
+                }
+                if (this.taxonomy == 'Miller') {
+                    return '#5043F6';
+                }
+                return '#2EBC4F';
+            }
+        }
+
+
+    ));
+
     Alpine.data('questionCardContextMenu', () => ({
         menuOpen: false,
         questionUuid: null,

@@ -7,7 +7,7 @@ return [
     'kan je hierop reageren'                                                                                                                                                                                                               => 'you can respond to this',
     'Met een vriendelijke groet'                                                                                                                                                                                                           => 'Yours sincerely',
     'Test-Correct supportteam'                                                                                                                                                                                                             => 'Test-Correct support team',
-    'Op het verzoek van jouw school sturen we hierbij je inloggegevens van Test-Correct. Hiermee kun je inloggen om toetsen te maken'                                                                                                     => 'At the request of your school, we will send you login details of Test-Correct. With this you can log in to take tests',
+    'Op het verzoek van jouw school sturen we hierbij je inloggegevens van Test-Correct. Hiermee kun je inloggen om toetsen te maken'                                                                                                      => 'At the request of your school, we will send you login details of Test-Correct. With this you can log in to take tests',
     'Lees de onderstaande punten goed door voordat je de applicatie gaat downloaden'                                                                                                                                                       => 'Please read the points below carefully before downloading the application',
     'Om een toets in Test-Correct te maken, moet je de applicatie downloaden'                                                                                                                                                              => 'To take a test in Test-Correct, you have to download the application',
     'Klik hier'                                                                                                                                                                                                                            => 'Click here',
@@ -108,5 +108,7 @@ return [
     'teacher_introduction_not_available'      => 'Introduction not available',
     'teacher_introduction_not_available_long' => 'The introduction text for tests is only available when starting the test',
     'p waarde'                                => 'P value',
-    'top 3 vakken om aan te werken'           => 'Top 3 subjects to work on',
+    'top 3 vakken om aan te werken'           => '{0}No relevant data available for top vak|{1}Most important subject to work on|[2,*] Top :count subject to work on',
+    'Methode'                                 => 'method',
+    'Taxonomy'                                => 'Taxonomy',
 ];

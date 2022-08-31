@@ -205,4 +205,20 @@ class UserControllerTest extends TestCase
 //            )
 //        );
 //        dd(json_decode($response->getContent()));
+
+    /** @test */
+    public function it_can_show_a_miller_p_value_report_for_a_subject()
+    {
+        $studentOne = $this->getStudentOne();
+        $data = PValueRepository::getPValueForStudentForSubjectMiller(
+            $studentOne,
+            1,
+            null,
+            null,
+            null
+
+        );
+        dd($data);
+
+    }
 }

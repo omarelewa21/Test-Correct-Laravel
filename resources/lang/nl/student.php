@@ -146,5 +146,7 @@ return [
     'teacher_introduction_not_available'      => 'Introductie niet beschikbaar',
     'teacher_introduction_not_available_long' => 'De introductietekst voor de toets is alleen beschikbaar bij aanvang van de toets.',
     'p waarde'                                => 'P waarde',
-    'top 3 vakken om aan te werken'           => 'Top 3 vakken om aan te werken',
+    'top vakken om aan te werken'           => '{0}Geen relevante data beschikbaar voor top vak|{1}Top vak om aan te werken|[2,*] Top :count vakken om aan te werken',
+    'Methode'                                 => 'methode',
+    'Taxonomy'                                => 'Taxonomy',
 ];

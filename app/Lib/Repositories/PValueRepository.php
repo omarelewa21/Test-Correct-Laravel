@@ -365,12 +365,48 @@ class PValueRepository
             })
             ->when($periods->isNotEmpty(), fn($q) => $q->whereIn('p_values.period_id', $periods->pluck('id')))
             ->when($educationLevelYears->isNotEmpty(), fn($q) => $q->whereIn('education_level_year', $educationLevelYears->pluck('id')))
-            ->when($teachers->isNotEmpty(), function($q) use ($teachers) {
-               $q->join('p_value_users', 'p_value_users.p_value_id', '=', 'p_values.id')
-               ->whereIn('p_value_users.user_id', $teachers->pluck('id'));
+            ->when($teachers->isNotEmpty(), function ($q) use ($teachers) {
+                $q->join('p_value_users', 'p_value_users.p_value_id', '=', 'p_values.id')
+                    ->whereIn('p_value_users.user_id', $teachers->pluck('id'));
             })
             ->groupBy('subject_id')
             ->get();
+    }
+
+    public static function getPValueForStudentForSubjectMiller(User $user, $subject_id, $periods = null, $educationLevelYears = null, $teachers = null)
+    {
+        $result = [
+            'Weten'      => 0,
+            'Toepassen'  => 0,
+            'Laten zien' => 0,
+            'Doen'       => 0,
+        ];
+
+        $data = PValue::SelectRaw('avg(p_values.score/p_values.max_score) as score')
+            ->addSelect([
+                'questions.miller',
+            ])
+            ->join('p_value_attainments', 'p_values.id', '=', 'p_value_attainments.p_value_id')
+            ->join('test_participants', function ($join) use ($user) {
+                $join->on('p_values.test_participant_id', '=', 'test_participants.id')
+                    ->where('test_participants.user_id', '=', $user->getKey());
+            })
+            ->join('questions', 'p_values.question_id', 'questions.id')
+            ->when($periods, fn($q) => $q->whereIn('p_values.period_id', $periods->pluck('id')))
+            ->when($educationLevelYears, fn($q) => $q->whereIn('education_level_year', $educationLevelYears->pluck('id')))
+            ->when($teachers, function ($q) use ($teachers) {
+                $q->join('p_value_users', 'p_value_users.p_value_id', '=', 'p_values.id')
+                    ->whereIn('p_value_users.user_id', $teachers->pluck('id'));
+            })
+            ->where('p_values.subject_id', $subject_id)
+            ->where(fn($q) => $q->where('questions.miller', '<>', '')->orWhereNull('questions.miller'))
+            ->groupBy('questions.miller')
+            ->get();
+        foreach ($data as $row) {
+            $result[$row->miller] = $row->score;
+        }
+
+        return $result;
     }
 
 
