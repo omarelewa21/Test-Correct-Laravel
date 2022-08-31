@@ -19,7 +19,7 @@ class AnalysesDashboard extends Component
 
     public $filters = [];
 
-    public $title = 'me';
+    public $title = '';
 
     public $dataValues = [];
     public $dataKeys = [];

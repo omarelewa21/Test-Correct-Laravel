@@ -68,11 +68,16 @@
         <div class="hidden">{{ $this->data }}</div>
     </div>
     <div>
-        <div id="pValueChart" style="width: 500px; height: 400px;"></div>
-        <script src="https://cdn.anychart.com/releases/8.11.0/js/anychart-base.min.js" type="text/javascript"></script>
-        <div x-data="{
+        <x-content-section>
+            <x-slot name="title">
+                {{ __('student.p waarde') }}
+            </x-slot>
 
+            <div id="pValueChart" style="width: 500px; height: 400px;"></div>
 
+            <script src="https://cdn.anychart.com/releases/8.11.0/js/anychart-base.min.js"
+                    type="text/javascript"></script>
+            <div x-data="{
             data:@entangle('dataValues'),
             title: @entangle('title'),
 
@@ -129,7 +134,7 @@
 
                 for(var i=0; i < chart.getSeriesCount(); i++) {
                     // reset the color index when color array out of bounds;
-                    if (color[colorIndex] === undefined) {
+                    if (colors[colorIndex] === undefined) {
                         colorIndex = 0;
                     }
 
@@ -154,10 +159,283 @@
              this.renderGraph()
              }
              }"
-             x-on:filters-updated.window="renderGraph"
-        >
-        </div>
+                 x-on:filters-updated.window="renderGraph"
+            >
+            </div>
+        </x-content-section>
+
+        <BR/>
+
+        <x-content-section>
+            <x-slot name="title">
+                {{ __('student.top 3 vakken om aan te werken') }}
+            </x-slot>
+            <div class="flex">
+                <div x-data="{active:1}" class="md:w-1/3 mr-5">
+                    <div class="-ml-2 flex space-x-2 pb-2 border-b-3 border-transparent active  items-center question-indicator">
+                        <section
+                                class="question-number rounded-full text-center cursor-pointer flex items-center justify-center active"
+                        >
+                            <span class="align-middle px-1.5">1</span>
+                        </section>
+                        <div class="flex text-lg bold flex-grow border-b-3  border-sysbase ">Biologie</div>
+
+                    </div>
+                    <div x-data="{
+                    id: 1,
+                    get expanded() {
+                        return this.active === this.id
+                    },
+                    set expanded(value) {
+                        this.active = value ? this.id: null
+                    }
+                }"
+                         x-on:click="expanded = !expanded"
+                         class="cursor-pointer ml-10"
+                    >
+                    <span :class="{ 'rotate-svg-90' : expanded }">
+                        <x-icon.chevron></x-icon.chevron>
+                    </span>
+                        <span>Taxonomie RTTI methode</span>
+                        <div x-show="expanded"><h1>Grafiek</h1>
+
+                            <div id="barChart"></div>
+                        </div>
+                    </div>
+                    <div x-data="{
+                    id: 2,
+                    get expanded() {
+                        return this.active === this.id
+                    },
+                    set expanded(value) {
+                        this.active = value ? this.id: null
+                    }
+                }"
+                         x-on:click="expanded = !expanded"
+                         class="cursor-pointer ml-10"
+                    >
+                    <span :class="{ 'rotate-svg-90' : expanded }">
+                        <x-icon.chevron></x-icon.chevron>
+                    </span>
+                        <span>Taxonomie Bloom methode</span>
+                        <div x-show="expanded"><h1>Grafiek</h1></div>
+                    </div>
+                    <div x-data="{
+                    id: 3,
+                    get expanded() {
+                        return this.active === this.id
+                    },
+                    set expanded(value) {
+                        this.active = value ? this.id: null
+                    }
+                }" x-on:click="expanded = !expanded"
+                         class="cursor-pointer ml-10"
+                    >
+                   <span :class="{ 'rotate-svg-90' : expanded }">
+                        <x-icon.chevron></x-icon.chevron>
+                    </span>
+                        <span>Taxonomie Miller methode</span>
+                        <div x-show="expanded"><h1>Grafiek</h1></div>
+                    </div>
+                </div>
+
+                <div x-data="{active:null}" class="md:w-1/3 mr-5">
+                    <div class="-ml-2 flex space-x-2 pb-2 border-b-3 border-transparent active  items-center question-indicator">
+                        <section
+                                class="question-number rounded-full text-center cursor-pointer flex items-center justify-center active"
+                        >
+                            <span class="align-middle px-1.5">1</span>
+                        </section>
+                        <div class="flex text-lg bold flex-grow border-b-3  border-sysbase ">Biologie</div>
+
+                    </div>
+                    <div x-data="{
+                    id: 1,
+                    get expanded() {
+                        return this.active === this.id
+                    },
+                    set expanded(value) {
+                        this.active = value ? this.id: null
+                    }
+                }"
+                         x-on:click="expanded = !expanded"
+                         class="cursor-pointer ml-10"
+                    >
+                    <span :class="{ 'rotate-svg-90' : expanded }">
+                        <x-icon.chevron></x-icon.chevron>
+                    </span>
+                        <span>Taxonomie RTTI methode</span>
+                        <div x-show="expanded"><h1>Grafiek</h1></div>
+                    </div>
+                    <div x-data="{
+                    id: 2,
+                    get expanded() {
+                        return this.active === this.id
+                    },
+                    set expanded(value) {
+                        this.active = value ? this.id: null
+                    }
+                }"
+                         x-on:click="expanded = !expanded"
+                         class="cursor-pointer ml-10"
+                    >
+                    <span :class="{ 'rotate-svg-90' : expanded }">
+                        <x-icon.chevron></x-icon.chevron>
+                    </span>
+                        <span>Taxonomie Bloom methode</span>
+                        <div x-show="expanded"><h1>Grafiek</h1></div>
+                    </div>
+                    <div x-data="{
+                    id: 3,
+                    get expanded() {
+                        return this.active === this.id
+                    },
+                    set expanded(value) {
+                        this.active = value ? this.id: null
+                    }
+                }" x-on:click="expanded = !expanded"
+                         class="cursor-pointer ml-10"
+                    >
+                   <span :class="{ 'rotate-svg-90' : expanded }">
+                        <x-icon.chevron></x-icon.chevron>
+                    </span>
+                        <span>Taxonomie Miller methode</span>
+                        <div x-show="expanded"><h1>Grafiek</h1></div>
+                    </div>
+                </div>
+
+                <div x-data="{active:null}" class="md:w-1/3 mr-5">
+                    <div class="-ml-2 flex space-x-2 pb-2 border-b-3 border-transparent active  items-center question-indicator">
+                        <section
+                                class="question-number rounded-full text-center cursor-pointer flex items-center justify-center active"
+                        >
+                            <span class="align-middle px-1.5">1</span>
+                        </section>
+                        <div class="flex text-lg bold flex-grow border-b-3  border-sysbase ">Biologie</div>
+
+                    </div>
+                    <div x-data="{
+                    id: 1,
+                    get expanded() {
+                        return this.active === this.id
+                    },
+                    set expanded(value) {
+                        this.active = value ? this.id: null
+                    }
+                }"
+                         x-on:click="expanded = !expanded"
+                         class="cursor-pointer ml-10"
+                    >
+                    <span :class="{ 'rotate-svg-90' : expanded }">
+                        <x-icon.chevron></x-icon.chevron>
+                    </span>
+                        <span>Taxonomie RTTI methode</span>
+                        <div x-show="expanded"><h1>Grafiek</h1></div>
+                    </div>
+                    <div x-data="{
+                    id: 2,
+                    get expanded() {
+                        return this.active === this.id
+                    },
+                    set expanded(value) {
+                        this.active = value ? this.id: null
+                    }
+                }"
+                         x-on:click="expanded = !expanded"
+                         class="cursor-pointer ml-10"
+                    >
+                    <span :class="{ 'rotate-svg-90' : expanded }">
+                        <x-icon.chevron></x-icon.chevron>
+                    </span>
+                        <span>Taxonomie Bloom methode</span>
+                        <div x-show="expanded"><h1>Grafiek</h1></div>
+                    </div>
+                    <div x-data="{
+                    id: 3,
+                    get expanded() {
+                        return this.active === this.id
+                    },
+                    set expanded(value) {
+                        this.active = value ? this.id: null
+                    }
+                }" x-on:click="expanded = !expanded"
+                         class="cursor-pointer ml-10"
+                    >
+                   <span :class="{ 'rotate-svg-90' : expanded }">
+                        <x-icon.chevron></x-icon.chevron>
+                    </span>
+                        <span>Taxonomie Miller methode</span>
+                        <div x-show="expanded"><h1>Grafiek</h1></div>
+                    </div>
+                </div>
+
+
+            </div>
+
+
+        </x-content-section>
+
+
     </div>
+
+    <script>
+        anychart.onDocumentReady(function () {
+            var data = [
+                ['Reproductie', 0.39],
+                ['Toepassen 1', 0.54],
+                ['Toepassen 2', 0.2],
+                ['Inzicht', 0.1],
+            ];
+
+            // create bar chart
+            var chart = anychart.bar();
+
+            // turn on chart animation
+            //chart.padding([10, 40, 5, 20])
+            // set chart title text settings
+
+
+
+
+            // create area series with passed data
+            var series = chart.bar(data);
+            var tooltip = series
+                .tooltip()
+
+            series.stroke('#FF0000').fill('#FF0000')
+
+            tooltip.title(false)
+                .separator(false)
+                .position('right')
+                .anchor('left-center')
+                .offsetX(5)
+                .offsetY(0)
+                .background('#FFFFFF')
+                .fontColor('#000000')
+                .format(function () {
+                    return (
+                        'P ' + Math.abs(this.value).toLocaleString()
+
+                    );
+                });
+
+
+            chart.tooltip().positionMode('point');
+            // set scale minimum
+            chart.xAxis().stroke('#041F74')
+            chart.xAxis().stroke('none')
+
+            var yAxis = chart.yAxis()
+
+
+            // set container id for the chart
+            chart.container('barChart');
+            // initiate chart drawing
+            chart.draw();
+        });
+
+
+    </script>
 
 
 </div>

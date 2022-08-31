@@ -107,4 +107,6 @@ return [
     'your_grade'                              => 'Your grade',
     'teacher_introduction_not_available'      => 'Introduction not available',
     'teacher_introduction_not_available_long' => 'The introduction text for tests is only available when starting the test',
+    'p waarde'                                => 'P value',
+    'top 3 vakken om aan te werken'           => 'Top 3 subjects to work on',
 ];
