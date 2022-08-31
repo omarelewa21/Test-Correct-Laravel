@@ -11,7 +11,7 @@ class ConfigController extends Controller
     public function show(ShowGetConfigRequest $request)
     {
 
-        $allowed = ['shortcode.shortcode.redirect'];
+        $allowed = ['shortcode.shortcode.redirect', 'custom.default_trial_days'];
 
         if(in_array($request['laravel_config_variable'],$allowed))
         {
