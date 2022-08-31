@@ -1420,7 +1420,8 @@ class TestTakesController extends Controller {
             'schoolClass' => $className,
             'test'        => $testTake->test->name,
             'uuid'        => $testTake->uuid,
-            'code'        => $testTake->testTakeCode != null ? $testTake->testTakeCode->prefix . $testTake->testTakeCode->code : ''
+            'code'        => $testTake->testTakeCode != null ? $testTake->testTakeCode->prefix . $testTake->testTakeCode->code : '',
+            'directLink'  => $testTake->directLink
         ];
     }
 }

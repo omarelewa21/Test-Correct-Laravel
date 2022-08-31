@@ -77,4 +77,5 @@ return [
     'matrix_question'                              => 'Matrix',
     'attachment'                                   => 'Bijlage',
     'Read_out_loud'                                => 'Lees voor',
+    'test_take.directlink_auth_fail'               => 'U bent niet aangesloten bij deze test, neem contact op met de testeigenaar voor dat probleem'
 ];

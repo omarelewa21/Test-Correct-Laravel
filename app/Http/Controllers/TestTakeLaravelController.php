@@ -10,6 +10,7 @@ use tcCore\Http\Helpers\BaseHelper;
 use tcCore\Http\Traits\TestTakeNavigationForController;
 use tcCore\TestParticipant;
 use tcCore\TestTake;
+use tcCore\TemporaryLogin;
 use tcCore\TestTake as Test;
 
 class TestTakeLaravelController extends Controller
@@ -176,5 +177,55 @@ class TestTakeLaravelController extends Controller
         return $data->map(function ($question) {
             return $question->getQuestionInstance()->styling;
         })->unique()->implode(' ');
+    }
+
+    /**
+     * Quick access to test take for Student, Teacher and Invigilator
+     * @param tcCore\TestTake $testTake
+     */
+    public function directLink(TestTake $testTake)
+    {   
+        if (!auth()->check()) {
+            session(['take' => $testTake->uuid]);
+            return redirect()->route('auth.login');
+        }
+
+        $user = auth()->user();
+        $notification = null;
+
+        if($user->isA('student')){
+            // Student
+            return redirect()->route('student.waiting-room', ['take' => $testTake->uuid]);
+        }
+
+        if($user->isA('teacher') && $testTake->user_id === $user->id){
+            // Owner of the test take
+            if($testTake->testTakeStatus->name == 'Taking test'){
+                $url = "test_takes/surveillance";
+            }else{
+                $url = sprintf("test_takes/view/%s", $testTake->uuid);
+            }
+        }
+        elseif($testTake->isInvigilator($user)){
+            // Invigilator
+            if($testTake->testTakeStatus->name == 'Planned'){
+                $url = sprintf("test_takes/view/%s", $testTake->uuid);
+            }elseif($testTake->testTakeStatus->name == 'Taking test'){
+                $url = "test_takes/surveillance";
+            }else{
+                $notification = __('teacher.take_not_accessible_toast_for_invigilator', ['testName' => $testTake->test->name]);
+            }
+        }
+        else{
+            $notification = __('teacher.test_not_found');
+        }
+
+        if($notification){
+            $options = TemporaryLogin::buildValidOptionObject('notification', [$notification => 'info']);
+        }else{
+            $options = TemporaryLogin::buildValidOptionObject('page', $url);
+        }
+
+        return $user->redirectToCakeWithTemporaryLogin($options);
     }
 }

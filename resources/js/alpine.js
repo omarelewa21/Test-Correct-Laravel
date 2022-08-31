@@ -1,7 +1,9 @@
 import Alpine from 'alpinejs';
 import Choices from "choices.js";
 import Intersect from '@alpinejs/intersect';
+import Clipboard from "@ryangjchandler/alpine-clipboard";
 
+Alpine.plugin(Clipboard)
 window.Alpine = Alpine;
 Alpine.plugin(Intersect);
 

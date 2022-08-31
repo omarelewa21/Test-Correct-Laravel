@@ -10,6 +10,7 @@ use tcCore\EducationLevel;
 use tcCore\Http\Controllers\FileManagementUsersController;
 use tcCore\Subject;
 use tcCore\Test;
+use tcCore\TemporaryLogin;
 use tcCore\TestAuthor;
 
 class TestsOverview extends Component
@@ -348,5 +349,12 @@ class TestsOverview extends Component
         }
 
         return 'general.number-of-tests-'.$this->openTab;
+    }
+
+    public function toPlannedTest($takeUuid)
+    {
+        $url = sprintf("test_takes/view/%s", $takeUuid);
+        $options = TemporaryLogin::buildValidOptionObject('page', $url);
+        return auth()->user()->redirectToCakeWithTemporaryLogin($options);
     }
 }

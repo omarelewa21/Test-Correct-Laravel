@@ -172,7 +172,8 @@ class UwlrGrid extends Component
                 $r = (array) $obj;
             }
             $groepCollection = collect($this->activeResult['groep']);
-            $samengesteldeGroepCollection = collect($this->activeResult['samengestelde_groep']);
+            $samengesteldeGroep = (isset($this->activeResult['samengestelde_groep'])) ? $this->activeResult['samengestelde_groep'] : [];
+            $samengesteldeGroepCollection = collect($samengesteldeGroep);
             foreach ($r as $k => $value) {
                 if (in_array($k, ['groepen', 'groep', 'samengestelde_groepen'])) {
                     $r[$k] = (array) $r[$k];

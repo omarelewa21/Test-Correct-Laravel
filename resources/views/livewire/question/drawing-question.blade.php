@@ -21,7 +21,7 @@
 
             <div x-show="answered" class="mt-3">
                 @if($answer != '')
-                    <img id="drawnImage" class="border border-blue-grey rounded-10" width="400"
+                    <img id="drawnImage" class="relative border border-blue-grey rounded-10 @if($this->backgroundImage) height-240 @endif" width="400"
                          src="{{ route('student.drawing-question-answer',$answer, false) }}?{!! microtime(true) !!}"
                          alt="">
                 @endif
@@ -31,7 +31,7 @@
 
             @if($usesNewDrawingTool)
                 <div id="drawingTool{{ $this->number }}"
-                     x-data="drawingTool( {{ $this->number }}, { answerSvg: @entangle('answer_svg'), questionSvg: @entangle('question_svg'), gridSvg: @entangle('grid_svg')}, false )"
+                     x-data="drawingTool( {{ $this->number }}, { answerSvg: @entangle('answer_svg'), questionSvg: @entangle('question_svg'), gridSvg: @entangle('grid_svg'), grid: @entangle('grid')}, false )"
                      @close-drawing-tool="show = false"
                      class="mt-4"
                 >
