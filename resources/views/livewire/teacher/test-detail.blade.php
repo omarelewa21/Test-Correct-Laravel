@@ -94,9 +94,9 @@
         </div>
     </div>
     <x-notification/>
-    <div id="groupdetail" wire:ignore.self style="min-height: 100%;">
+    <div id="groupdetail" style="min-height: 100%; @if($this->groupQuestionDetail === null) display:none;@endif">
         <div class="">
-            @if($this->groupQuestionDetail != null)
+            @if($this->groupQuestionDetail !== null)
                 <x-partials.group-question-details :groupQuestion="$this->groupQuestionDetail" context="testdetail"/>
             @endif
         </div>
