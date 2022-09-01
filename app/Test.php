@@ -725,7 +725,7 @@ class Test extends BaseModel
     public function getWritingAssignmentsCount()
     {
         return collect(QuestionGatherer::getQuestionsOfTest($this->getKey(), true))->filter(function (Question $question) {
-            return $question instanceof OpenQuestion && $question->subtype === 'writing';
+            return $question->isWritingAssignment();
         })->count();
     }
 
