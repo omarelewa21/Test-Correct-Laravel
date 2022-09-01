@@ -209,8 +209,46 @@ class UserControllerTest extends TestCase
     /** @test */
     public function it_can_show_a_miller_p_value_report_for_a_subject()
     {
+        $factory = FactoryScenarioTestTakeRated::create($this->getTeacherOne());
+
         $studentOne = $this->getStudentOne();
         $data = PValueRepository::getPValueForStudentForSubjectMiller(
+            $studentOne,
+            1,
+            null,
+            null,
+            null
+
+        );
+        dd($data);
+
+    }
+
+    /** @test */
+    public function it_can_show_a_bloom_p_value_report_for_a_subject()
+    {
+      //  $factory = FactoryScenarioTestTakeRated::create($this->getTeacherOne());
+
+        $studentOne = $this->getStudentOne();
+        $data = PValueRepository::getPValueForStudentForSubjectBloom(
+            $studentOne,
+            1,
+            null,
+            null,
+            null
+
+        );
+        dd($data);
+
+    }
+
+    /** @test */
+    public function it_can_show_a_rtti_p_value_report_for_a_subject()
+    {
+        //  $factory = FactoryScenarioTestTakeRated::create($this->getTeacherOne());
+
+        $studentOne = $this->getStudentOne();
+        $data = PValueRepository::getPValueForStudentForSubjectRTTI(
             $studentOne,
             1,
             null,

@@ -56,6 +56,7 @@ abstract class FactoryQuestion implements FactoryQuestionInterface
                 )->pluck('id')->random(2)->toArray()
             ]);
         }
+        return $this;
     }
 
     public function addRandomTaxonomy($rtti = true, $miller = true, $bloom = true)
@@ -92,6 +93,8 @@ abstract class FactoryQuestion implements FactoryQuestionInterface
         }
 
         $this->questionProperties = array_merge($this->questionProperties, $taxonomy);
+
+        return $this;
     }
 
     public function store()
