@@ -145,8 +145,10 @@ return [
     'your_grade'                              => 'Jouw cijfer',
     'teacher_introduction_not_available'      => 'Introductie niet beschikbaar',
     'teacher_introduction_not_available_long' => 'De introductietekst voor de toets is alleen beschikbaar bij aanvang van de toets.',
-    'p waarde'                                => 'P waarde',
-    'top vakken om aan te werken'           => '{0}Geen relevante data beschikbaar voor top vak|{1}Top vak om aan te werken|[2,*] Top :count vakken om aan te werken',
+    'p waarde vakken'                         => 'P waarde vakken',
+    'p waarde leerdoelen'                     => 'P waarde leerdoelen',
+    'top vakken om aan te werken'             => '{0}Geen relevante data beschikbaar voor top vak|{1}Top vak om aan te werken|[2,*] Top :count vakken om aan te werken',
+    'top leerdoelen om aan te werken'         => '{0}Geen relevante data beschikbaar voor top leerdoel|{1}Top leerdoel om aan te werken|[2,*] Top :count leerdoelen om aan te werken',
     'Methode'                                 => 'methode',
     'Taxonomy'                                => 'Taxonomy',
 ];

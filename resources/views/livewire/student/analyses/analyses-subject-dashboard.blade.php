@@ -7,7 +7,7 @@
      wire:ignore.self
 >
     <div class="flex my-10">
-        <h1>{{ __('header.Analyses') }}</h1>
+        <h1>{{$subject->name}}</h1>
     </div>
     {{-- Filters--}}
     <div class="flex flex-col pt-4 pb-2">
@@ -70,7 +70,7 @@
     <div>
         <x-content-section>
             <x-slot name="title">
-                {{ __('student.p waarde vakken') }}
+                {{ __('student.p waarde leerdoelen') }}
             </x-slot>
 
             <div id="pValueChart" style="width: 500px; height: 400px;"></div>
@@ -167,10 +167,10 @@
 
         <x-content-section>
             <x-slot name="title">
-                {{ trans_choice('student.top vakken om aan te werken', count($this->topSubjects)) }}
+                {{ trans_choice('student.top leerdoelen om aan te werken', count($this->topAttainments)) }}
             </x-slot>
             <div class="flex" wire:ignore>
-                @foreach($this->topSubjects as $subjectId => $subject)
+                @foreach($this->topAttainments as $attainmentId => $attainment)
                     <div x-data="{active:false}" class="md:w-1/3 mr-5">
                         <div class="-ml-2 flex space-x-2 pb-2 border-b-3 border-transparent active  items-center question-indicator">
                             <section
@@ -178,12 +178,12 @@
                             >
                                 <span class="align-middle px-1.5">{{ $loop->iteration }}</span>
                             </section>
-                            <div class="flex text-lg bold flex-grow border-b-3  border-sysbase ">{{ $subject }}</div>
+                            <div class="flex text-lg bold flex-grow border-b-3  border-sysbase ">{{ $attainment }}</div>
 
                         </div>
                         @foreach($this->taxonomies as $key=> $taxonomy)
                             <div
-                                    x-data="expandableGraph({{ $key }}, '{{ $subjectId }}', '{{ $taxonomy }}')"
+                                    x-data="expandableGraph({{ $key }}, '{{ $attainmentId }}', '{{ $taxonomy }}')"
                                     x-on:click="expanded = !expanded"
                                     class="cursor-pointer ml-10"
                             >
@@ -192,7 +192,7 @@
                             </span>
                                 <span>{{ __('student.Taxonomy') }} {{ $taxonomy }} {{__('student.Methode') }}</span>
                                 <div x-show="expanded">
-                                    <div wire:loading wire:target="getData({{ $subjectId }}, '{{ $taxonomy }}')">loading</div>
+                                    <div wire:loading wire:target="getData({{ $attainmentId }}, '{{ $taxonomy }}')">loading</div>
                                     <div :id="containerId"></div>
                                 </div>
                             </div>

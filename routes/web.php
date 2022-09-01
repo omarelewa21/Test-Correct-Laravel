@@ -69,6 +69,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/test-takes', tcCore\Http\Livewire\Student\TestTakes::class)->name('test-takes');
         Route::get('/waiting-room', tcCore\Http\Livewire\Student\WaitingRoom::class)->name('waiting-room');
         Route::get('/analyses', tcCore\Http\Livewire\Student\Analyses\AnalysesDashboard::class)->name('analyses.show');
+        Route::get('/analyses/subject/{subject}', tcCore\Http\Livewire\Student\Analyses\AnalysesSubjectDashboard::class)->name('analyses.subject.show');
     });
 
     Route::middleware(['dll', 'teacher'])->prefix('teacher')->name('teacher.')->group(function () {

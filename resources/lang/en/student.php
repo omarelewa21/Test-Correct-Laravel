@@ -107,8 +107,10 @@ return [
     'your_grade'                              => 'Your grade',
     'teacher_introduction_not_available'      => 'Introduction not available',
     'teacher_introduction_not_available_long' => 'The introduction text for tests is only available when starting the test',
-    'p waarde'                                => 'P value',
-    'top 3 vakken om aan te werken'           => '{0}No relevant data available for top vak|{1}Most important subject to work on|[2,*] Top :count subject to work on',
+    'p waarde vakken'                         => 'P value subjects',
+    'p waarde leerdoelen'                     => 'P value Attainments',
+    'top vakken om aan te werken'             => '{0}No relevant data available for top subjects|{1}Most important subject to work on|[2,*] Top :count subjects to work on',
+    'top leerdoelen om aan te werken'         => '{0}No relevant data available for top attainments|{1}Most important attainment to work on|[2,*] Top :count attainments to work on',
     'Methode'                                 => 'method',
     'Taxonomy'                                => 'Taxonomy',
 ];

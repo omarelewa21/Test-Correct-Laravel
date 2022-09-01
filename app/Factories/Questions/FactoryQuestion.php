@@ -9,6 +9,10 @@ use tcCore\Attainment;
 use tcCore\Factories\Interfaces\FactoryQuestion as FactoryQuestionInterface;
 use tcCore\Http\Controllers\TestQuestions\AttachmentsController;
 use tcCore\Http\Requests\CreateAttachmentRequest;
+use tcCore\Lib\Repositories\PValueRepository;
+use tcCore\Lib\Repositories\PValueTaxonomyBloomRepository;
+use tcCore\Lib\Repositories\PValueTaxonomyMillerRepository;
+use tcCore\Lib\Repositories\PValueTaxonomyRTTIRepository;
 use tcCore\Subject;
 use tcCore\Test;
 use tcCore\TestQuestion;
@@ -61,35 +65,15 @@ abstract class FactoryQuestion implements FactoryQuestionInterface
 
     public function addRandomTaxonomy($rtti = true, $miller = true, $bloom = true)
     {
-        $rttiOptions = collect([
-            'R',
-            'T1',
-            'T2',
-            'I'
-        ]);
-        $bloomOptions = collect([
-            "Onthouden",
-            "Begrijpen",
-            "Toepassen",
-            "Analyseren",
-            "Evalueren",
-            "Creëren",
-        ]);
-        $millerOptions = collect([
-            "Weten",
-            "Weten hoe",
-            "Laten zien",
-            "Doen",
-        ]);
         $taxonomy = [];
         if ($this->questionProperties['rtti'] == "" && $rtti) {
-            $taxonomy['rtti'] = $rttiOptions->random();
+            $taxonomy['rtti'] = collect(PValueTaxonomyRTTIRepository::OPTIONS)->random();
         }
         if ($this->questionProperties['miller'] == "" && $miller) {
-            $taxonomy['miller'] = $millerOptions->random();
+            $taxonomy['miller'] = collect(PValueTaxonomyMillerRepository::OPTIONS)->random();
         }
         if ($this->questionProperties['bloom'] == "" && $bloom) {
-            $taxonomy['bloom'] = $bloomOptions->random();
+            $taxonomy['bloom'] = collect(PValueTaxonomyBloomRepository::OPTIONS)->random();
         }
 
         $this->questionProperties = array_merge($this->questionProperties, $taxonomy);

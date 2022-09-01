@@ -603,12 +603,12 @@ document.addEventListener('alpine:init', () => {
         }
     }));
 
-    Alpine.data('expandableGraph', (id, subjectId, taxonomy) => (
+    Alpine.data('expandableGraph', (id, modelId, taxonomy) => (
         {
             data:false,
-            subjectId,
+            modelId,
             taxonomy,
-            containerId : 'chart-'+subjectId+'-'+taxonomy,
+            containerId : 'chart-'+modelId+'-'+taxonomy,
             id,
             init() {
                 if (this.expanded) {
@@ -617,7 +617,7 @@ document.addEventListener('alpine:init', () => {
             },
             async updateGraph() {
                 if (!this.data) {
-                    this.data = await this.$wire.getData(this.subjectId, this.taxonomy);
+                    this.data = await this.$wire.getData(this.modelId, this.taxonomy);
                     this.renderGraph()
                 }
             },

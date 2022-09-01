@@ -3,17 +3,19 @@
 namespace tcCore\Http\Livewire\Student\Analyses;
 
 use Livewire\Component;
+use tcCore\Attainment;
 use tcCore\EducationLevel;
 use tcCore\Lib\Repositories\PValueRepository;
 use tcCore\Lib\Repositories\PValueTaxonomyBloomRepository;
 use tcCore\Lib\Repositories\PValueTaxonomyMillerRepository;
 use tcCore\Lib\Repositories\PValueTaxonomyRTTIRepository;
 use tcCore\Period;
+use tcCore\Subject;
 use tcCore\User;
-use function view;
 
-class AnalysesDashboard extends Component
+class AnalysesSubjectDashboard extends Component
 {
+
     public $educationLevelYears = [];
 
     public $periods = [];
@@ -27,9 +29,10 @@ class AnalysesDashboard extends Component
     public $dataValues = [];
     public $dataKeys = [];
 
-    private $topSubjects = [
-        11 => 'Biology',
-        1 => 'Nederlands',
+    private $topAttainments = [
+        3 => 'Schrijfvaardigheid',
+        5 => 'Literatuur',
+        6 => 'Oriëntatie op studie en beroep',
     ];
 
     private $taxonomies = [
@@ -38,25 +41,10 @@ class AnalysesDashboard extends Component
         'Bloom',
     ];
 
-    public function getData($subjectId, $taxonomy)
+    public function mount(Subject $subject)
     {
-        switch ($taxonomy) {
-            case 'Miller':
-                return $this->getMillerDataForSubject($subjectId);
-                break;
-            case 'RTTI':
-                return $this->getRTTIDataForSubject($subjectId);
-                break;
-            case 'Bloom':
-                return $this->getBloomDataForSubject($subjectId);
-                break;
-        }
-       // abort(403);
-    }
+        $this->subject = $subject;
 
-
-    public function mount()
-    {
         $this->clearFilters();
         $this->periods = auth()->user()->schoolLocation->getPeriods()
             ->map(fn($period) => [
@@ -87,6 +75,29 @@ class AnalysesDashboard extends Component
         $this->getDataProperty();
     }
 
+    public function render()
+    {
+        $this->dispatchBrowserEvent('filters-updated');
+        return view('livewire.student.analyses.analyses-subject-dashboard')->layout('layouts.student');
+    }
+
+    public function getData($attainmentId, $taxonomy)
+    {
+        switch ($taxonomy) {
+            case 'Miller':
+                return $this->getMillerDataForAttainment($attainmentId);
+                break;
+            case 'RTTI':
+                return $this->getRTTIDataForAttainment($attainmentId);
+                break;
+            case 'Bloom':
+                return $this->getBloomDataForAttainment($attainmentId);
+                break;
+        }
+        // abort(403);
+    }
+
+
     public function getDataProperty()
     {
         $result = PValueRepository::getPValueForStudentBySubject(
@@ -104,12 +115,6 @@ class AnalysesDashboard extends Component
         return $result;
     }
 
-    public function render()
-    {
-        $this->dispatchBrowserEvent('filters-updated');//, ['newName' => $value]);
-        return view('livewire.student.analyses.analyses-dashboard')->layout('layouts.student');;
-    }
-
     public function hasActiveFilters()
     {
         return collect($this->filters)->flatten()->isNotEmpty();
@@ -125,18 +130,18 @@ class AnalysesDashboard extends Component
         ];
     }
 
-    private function getMillerDataForSubject($subjectId)
+    private function getMillerDataForAttainment($attainmentId)
     {
-        return PValueTaxonomyMillerRepository::getPValueForStudentForSubject(auth()->user(), $subjectId);
+        return PValueTaxonomyMillerRepository::getPValueForStudentForAttainment(auth()->user(), $attainmentId);
     }
 
-    private function getRTTIDataForSubject($subjectId)
+    private function getRTTIDataForAttainment($attainmentId)
     {
-        return PValueTaxonomyRTTIRepository::getPValueForStudentForSubject(auth()->user(), $subjectId);
+        return PValueTaxonomyRTTIRepository::getPValueForStudentForAttainment(auth()->user(), $attainmentId);
     }
 
-    private function getBloomDataForSubject($subjectId)
+    private function getBloomDataForAttainment($attainmentId)
     {
-        return PValueTaxonomyBloomRepository::getPValueForStudentForSubject(auth()->user(), $subjectId);
+        return PValueTaxonomyBloomRepository::getPValueForStudentForAttainment(auth()->user(), $attainmentId);
     }
 }

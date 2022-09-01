@@ -317,4 +317,8 @@ class Subject extends BaseModel implements AccessCheckable
         return $query->filtered(['base_subject_id' => $baseSubject->id, 'user_id' => $forUser->id], []);
     }
 
+    public function getRouteKeyName()
+    {
+        return 'uuid';
+    }
 }

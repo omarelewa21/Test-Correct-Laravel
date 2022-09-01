@@ -10,6 +10,7 @@ use tcCore\User;
 
 class PValueRepository
 {
+
     public static function getPValuesForQuestion($dottedQuestionId)
     {
         return PValue::select(
@@ -363,112 +364,13 @@ class PValueRepository
                 $join->on('p_values.test_participant_id', '=', 'test_participants.id')
                     ->where('test_participants.user_id', '=', $user->getKey());
             })
-            ->when($periods->isNotEmpty(), fn($q) => $q->whereIn('p_values.period_id', $periods->pluck('id')))
-            ->when($educationLevelYears->isNotEmpty(), fn($q) => $q->whereIn('education_level_year', $educationLevelYears->pluck('id')))
-            ->when($teachers->isNotEmpty(), function ($q) use ($teachers) {
-                $q->join('p_value_users', 'p_value_users.p_value_id', '=', 'p_values.id')
-                    ->whereIn('p_value_users.user_id', $teachers->pluck('id'));
-            })
-            ->groupBy('subject_id')
-            ->get();
-    }
-
-    public static function getPValueForStudentForSubjectMiller(User $user, $subject_id, $periods = null, $educationLevelYears = null, $teachers = null)
-    {
-        return self::transformDataToStruct(
-            self::getPValueForStudentForSubjectTaxonomy($user, 'miller', $subject_id, $periods = null, $educationLevelYears = null, $teachers = null),
-            [
-                'Weten'      => ['score' => 0, 'count' => 0],
-                'Toepassen'  => ['score' => 0, 'count' => 0],
-                'Laten zien' => ['score' => 0, 'count' => 0],
-                'Doen'       => ['score' => 0, 'count' => 0],
-            ]
-        );
-    }
-
-    public static function getPValueForStudentForSubjectBloom(User $user, $subject_id, $periods = null, $educationLevelYears = null, $teachers = null)
-    {
-        return self::transformDataToStruct(
-            self::getPValueForStudentForSubjectTaxonomy($user, 'bloom', $subject_id, $periods = null, $educationLevelYears = null, $teachers = null),
-            [
-                'Onthouden'  => ['score' => 0, 'count' => 0],
-                'Begrijpen'  => ['score' => 0, 'count' => 0],
-                'Toepassen'  => ['score' => 0, 'count' => 0],
-                'Analyseren' => ['score' => 0, 'count' => 0],
-                'Evalueren'  => ['score' => 0, 'count' => 0],
-                'Creëren'    => ['score' => 0, 'count' => 0],
-            ]
-        );
-    }
-
-    public static function getPValueForStudentForSubjectRTTI(User $user, $subject_id, $periods = null, $educationLevelYears = null, $teachers = null)
-    {
-        return self::transformDataToStruct(
-            self::getPValueForStudentForSubjectTaxonomy($user, 'rtti', $subject_id, $periods = null, $educationLevelYears = null, $teachers = null),
-            [
-                'R' => ['score' => 0, 'count' => 0],
-                'T1'=> ['score' => 0, 'count' => 0],
-                'T2'  => ['score' => 0, 'count' => 0],
-                'I' => ['score' => 0, 'count' => 0],
-            ]
-        );
-    }
-
-    private static function transformDataToStruct($data, $struct)
-    {
-        foreach ($data as $row) {
-            $struct[$row->taxonomy] = [
-                'score' => $row->score,
-                'count' => $row->cnt,
-            ];
-        }
-
-        $result = [];
-        foreach ($struct as $taxononomy => $scoreAndCount) {
-            $result[] = [
-                $taxononomy,
-                $scoreAndCount['score'],
-                $scoreAndCount['count']
-            ];
-        }
-
-        return $result;
-    }
-
-    private static function getPValueForStudentForSubjectTaxonomy(User $user, $taxonomy, $subject_id, $periods = null, $educationLevelYears = null, $teachers = null)
-    {
-        abort_if(!in_array($taxonomy, ['miller', 'bloom', 'rtti']),
-            404,
-            sprintf('%s::%s was called with invalid taxonomy: %s', __CLASS__, __METHOD__, $taxonomy)
-        );
-
-        return PValue::selectRaw(
-            sprintf('
-                avg(p_values.score/p_values.max_score) as score,
-                count(questions.%s) as cnt, 
-                questions.%s as taxonomy',
-                $taxonomy,
-                $taxonomy
-            )
-        )
-            ->join('p_value_attainments', 'p_values.id', '=', 'p_value_attainments.p_value_id')
-            ->join('test_participants', function ($join) use ($user) {
-                $join->on('p_values.test_participant_id', '=', 'test_participants.id')
-                    ->where('test_participants.user_id', '=', $user->getKey());
-            })
-            ->join('questions', 'p_values.question_id', 'questions.id')
             ->when($periods, fn($q) => $q->whereIn('p_values.period_id', $periods->pluck('id')))
             ->when($educationLevelYears, fn($q) => $q->whereIn('education_level_year', $educationLevelYears->pluck('id')))
             ->when($teachers, function ($q) use ($teachers) {
                 $q->join('p_value_users', 'p_value_users.p_value_id', '=', 'p_values.id')
                     ->whereIn('p_value_users.user_id', $teachers->pluck('id'));
             })
-            ->where('p_values.subject_id', $subject_id)
-            ->where(function ($query) use ($taxonomy) {
-                $query->where(sprintf('questions.%s', $taxonomy), '<>', '')
-                    ->orWhereNull(sprintf('questions.%s', $taxonomy));
-            })
-            ->groupBy(sprintf('questions.%s', $taxonomy))
+            ->groupBy('subject_id')
             ->get();
     }
 }
