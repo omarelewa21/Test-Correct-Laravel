@@ -6947,6 +6947,7 @@ Core = {
     var isIOS = Core.detectIOS();
     var isAndroid = /Android/g.test(navigator.userAgent);
     var isChromebook = window.navigator.userAgent.indexOf('CrOS') > 0;
+    var isFirefox = window.navigator.userAgent.indexOf('Firefox') > -1;
 
     if (isIOS) {
       Core.isIpad();
@@ -6954,6 +6955,10 @@ Core = {
       Core.isAndroid();
     } else if (isChromebook) {
       Core.isChromebook();
+    }
+
+    if (isFirefox) {
+      Core.isFirefox();
     }
 
     Core.checkForElectron();
@@ -7032,6 +7037,9 @@ Core = {
   isChromebook: function isChromebook() {
     Core.inApp = true;
     Core.appType = 'chromebook';
+  },
+  isFirefox: function isFirefox() {
+    document.querySelector('body').classList.add('firefox');
   },
   detectIOS: function detectIOS() {
     var urlParams = new URLSearchParams(window.location.search);
