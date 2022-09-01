@@ -22,11 +22,11 @@ return [
 
     'change_password' => 'Wachtwoord wijzigen',
 
-    'Toetsen' => 'Tests',
-    'Ingepland' => 'Planned',
-    'Afgenomen' => 'Taken tests',
-    'Resultaten' => 'Results',
-    'Klassen' => 'School classes',
+    'Toetsen' => 'Toetsen',
+    'Ingepland' => 'Ingepland',
+    'Afgenomen' => 'Afgenomen',
+    'Resultaten' => 'Resultaten',
+    'Klassen' => 'Klassen',
 
 
     'Toets creëren' => 'Toets creëren',
