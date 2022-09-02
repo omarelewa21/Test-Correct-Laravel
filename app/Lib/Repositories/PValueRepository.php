@@ -353,24 +353,66 @@ class PValueRepository
         return $teacher;
     }
 
-    public static function getPValueForStudentBySubject(User $user, $periods = null, $educationLevelYears = null, $teachers = null)
+    public static function getPValueForStudentBySubject(User $user, $periods, $educationLevelYears, $teachers)
     {
         return PValue::SelectRaw('avg(score/max_score) as score')
             ->addSelect([
-                'subject' => Subject::select('name')->whereColumn('id', 'p_values.subject_id')->limit(1)
+                'serie' => Subject::select('name')->whereColumn('id', 'p_values.subject_id')->limit(1)
+            ])
+            ->join('test_participants', function ($join) use ($user) {
+                $join->on('p_values.test_participant_id', '=', 'test_participants.id')
+                    ->where('test_participants.user_id', '=', $user->getKey());
+            })
+            ->when($periods->isNotEmpty(), fn($q) => $q->whereIn('p_values.period_id', $periods->pluck('id')))
+            ->when($educationLevelYears->isNotEmpty(), fn($q) => $q->whereIn('education_level_year', $educationLevelYears->pluck('id')))
+            ->when($teachers->isNotEmpty(), function ($q) use ($teachers) {
+                $q->join('p_value_users', 'p_value_users.p_value_id', '=', 'p_values.id')
+                    ->whereIn('p_value_users.user_id', $teachers->pluck('id'));
+            })
+            ->groupBy('subject_id')
+            ->get();
+    }
+
+    public static function getPValuePerAttainmentForStudent(User $user, $periods, $educationLevelYears, $teachers)
+    {
+        return PValue::SelectRaw('avg(score/max_score) as score')
+            ->addSelect([
+                'serie' => Attainment::select('description')->whereColumn('id', 'p_value_attainments.attainment_id')->limit(1)
             ])
             ->join('p_value_attainments', 'p_values.id', '=', 'p_value_attainments.p_value_id')
             ->join('test_participants', function ($join) use ($user) {
                 $join->on('p_values.test_participant_id', '=', 'test_participants.id')
                     ->where('test_participants.user_id', '=', $user->getKey());
             })
-            ->when($periods, fn($q) => $q->whereIn('p_values.period_id', $periods->pluck('id')))
-            ->when($educationLevelYears, fn($q) => $q->whereIn('education_level_year', $educationLevelYears->pluck('id')))
-            ->when($teachers, function ($q) use ($teachers) {
+            ->when($periods->isNotEmpty(), fn($q) => $q->whereIn('p_values.period_id', $periods->pluck('id')))
+            ->when($educationLevelYears->isNotEmpty(), fn($q) => $q->whereIn('education_level_year', $educationLevelYears->pluck('id')))
+            ->when($teachers->isNotEmpty(), function ($q) use ($teachers) {
                 $q->join('p_value_users', 'p_value_users.p_value_id', '=', 'p_values.id')
                     ->whereIn('p_value_users.user_id', $teachers->pluck('id'));
             })
-            ->groupBy('subject_id')
+            ->groupBy('attainment_id')
+            ->get();
+    }
+
+    public static function getPValuePerSubAttainmentForStudentAndAttainment(User $user, Attainment $attainment, $periods, $educationLevelYears, $teachers)
+    {
+        return PValue::SelectRaw('avg(score/max_score) as score')
+            ->addSelect([
+                'serie' => Attainment::select('description')->whereColumn('id', 'p_value_attainments.attainment_id')->limit(1)
+            ])
+            ->join('p_value_attainments', 'p_values.id', '=', 'p_value_attainments.p_value_id')
+            ->join('test_participants', function ($join) use ($user) {
+                $join->on('p_values.test_participant_id', '=', 'test_participants.id')
+                    ->where('test_participants.user_id', '=', $user->getKey());
+            })
+            ->when($periods->isNotEmpty(), fn($q) => $q->whereIn('p_values.period_id', $periods->pluck('id')))
+            ->when($educationLevelYears->isNotEmpty(), fn($q) => $q->whereIn('education_level_year', $educationLevelYears->pluck('id')))
+            ->when($teachers->isNotEmpty(), function ($q) use ($teachers) {
+                $q->join('p_value_users', 'p_value_users.p_value_id', '=', 'p_values.id')
+                    ->whereIn('p_value_users.user_id', $teachers->pluck('id'));
+            })
+            ->whereIn('p_value_attainments.attainment_id', Attainment::where('attainment_id', $attainment->getKey())->pluck('id')->toArray())
+            ->groupBy('attainment_id')
             ->get();
     }
 }

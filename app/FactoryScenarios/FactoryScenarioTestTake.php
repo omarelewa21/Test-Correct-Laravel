@@ -3,6 +3,7 @@
 namespace tcCore\FactoryScenarios;
 
 use tcCore\Factories\FactoryTestTake;
+use tcCore\Test;
 use tcCore\TestTake;
 use tcCore\User;
 
@@ -16,23 +17,27 @@ abstract class FactoryScenarioTestTake
     /**
      * Set-up a scenario in the Database for testing
      */
-    public static function create(User $user = null, ?string $testName = null) : FactoryScenarioTestTake
+    public static function create(User $user = null, ?string $testName = null, ?Test $test = null) : FactoryScenarioTestTake
     {
         $factory = new static;
 
-        $factory->testName = $testName;
         $factory->user = $user;
+        $factory->testName = $testName ?? $factory::DEFAULT_TEST_NAME;
+        $factory->test = $test ?? FactoryScenarioTestTestWithAllQuestionTypes::createTest($testName, $factory->user);
+
         $factory->testTakeFactory = $factory->createFactoryTestTake();
 
         return $factory;
     }
 
-    public static function createTestTake(User $user = null, ?string $testName = null) : TestTake
+    public static function createTestTake(User $user = null, ?string $testName = null, ?Test $test = null) : TestTake
     {
         $factory = new static;
 
-        $factory->testName = $testName;
         $factory->user = $user;
+        $factory->testName = $testName;
+        $factory->test = $test ?? FactoryScenarioTestTestWithAllQuestionTypes::createTest($testName, $factory->user);
+
         return $factory->createFactoryTestTake()->testTake;
     }
 

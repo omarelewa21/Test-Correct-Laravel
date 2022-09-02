@@ -6,13 +6,10 @@ use tcCore\Factories\FactoryTestTake;
 
 class FactoryScenarioTestTakeTakenTwoQuestions extends FactoryScenarioTestTake
 {
+    const DEFAULT_TEST_NAME = 'TestTake Taken with two questions';
 
     protected function createFactoryTestTake()
     {
-        $testName = 'TestTake Taken with two questions';
-
-        $this->test = FactoryScenarioTestTestWithTwoQuestions::createTest($testName, $this->user);
-
         return FactoryTestTake::create($this->test, $this->user)
             ->addFirstSchoolClassAsParticipants()
             ->setStatusTakingTest()

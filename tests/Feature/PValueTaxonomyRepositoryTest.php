@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use Illuminate\Foundation\Testing\DatabaseTransactions;
+use tcCore\Attainment;
 use tcCore\BaseSubject;
 use tcCore\Lib\Repositories\PValueRepository;
 use tcCore\Lib\Repositories\PValueTaxonomyBloomRepository;
@@ -26,9 +27,9 @@ class PValueTaxonomyRepositoryTest extends TestCase
         $data = PValueTaxonomyBloomRepository::getPValueForStudentForSubject(
             $studentOne,
             1,
-            null,
-            null,
-            null
+            collect(),
+            collect(),
+            collect()
 
         );
 
@@ -58,9 +59,9 @@ class PValueTaxonomyRepositoryTest extends TestCase
         $data = PValueTaxonomyMillerRepository::getPValueForStudentForSubject(
             $studentOne,
             1,
-            null,
-            null,
-            null
+            collect(),
+            collect(),
+            collect()
 
         );
 
@@ -79,9 +80,9 @@ class PValueTaxonomyRepositoryTest extends TestCase
         $data = PValueTaxonomyRTTIRepository::getPValueForStudentForSubject(
             $studentOne,
             1,
-            null,
-            null,
-            null
+            collect(),
+            collect(),
+            collect()
 
         );
 
@@ -98,18 +99,20 @@ class PValueTaxonomyRepositoryTest extends TestCase
 
         $studentOne = $this->getStudentOne();
 
-        $attainment_id = PValueAttainment::whereIn('attainment_id', range(1,6))
-            ->groupBy('attainment_id')
-            ->selectRaw('attainment_id, count(attainment_id) as count')
+
+        $attainment_id = PValueAttainment::whereIn('p_value_attainments.attainment_id',
+            Attainment::where('base_subject_id', 1)->whereNull('attainment_id')->select('id'))
+            ->groupBy('p_value_attainments.attainment_id')
+            ->selectRaw('p_value_attainments.attainment_id, count(p_value_attainments.attainment_id) as count')
             ->orderByDesc('count')
             ->first()->attainment_id;
 
         $data = PValueTaxonomyRTTIRepository::getPValueForStudentForAttainment(
             $studentOne,
             $attainment_id,
-            null,
-            null,
-            null
+            collect(),
+            collect(),
+            collect()
 
         );
         $this->assertEquals(count(PValueTaxonomyRTTIRepository::OPTIONS), collect($data)->count());

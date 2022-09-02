@@ -3,42 +3,30 @@
 namespace tcCore\Http\Livewire\Student\Analyses;
 
 use Livewire\Component;
-use tcCore\Attainment;
 use tcCore\EducationLevel;
 use tcCore\Lib\Repositories\PValueRepository;
 use tcCore\Lib\Repositories\PValueTaxonomyBloomRepository;
 use tcCore\Lib\Repositories\PValueTaxonomyMillerRepository;
 use tcCore\Lib\Repositories\PValueTaxonomyRTTIRepository;
 use tcCore\Period;
-use tcCore\Subject;
 use tcCore\User;
+use function view;
 
-class AnalysesSubjectDashboard extends AnalysesDashboard
+class AnalysesOverviewDashboard extends AnalysesDashboard
 {
-    public $subject;
-
     protected $topItems = [
-        3 => 'Schrijfvaardigheid',
-        5 => 'Literatuur',
-        6 => 'Oriëntatie op studie en beroep',
+        11 => 'Biology',
+        1  => 'Nederlands',
     ];
 
-    public function mount(?Subject $subject = null)
+    public function mount()
     {
         parent::mount();
-
-        $this->subject = $subject;
-    }
-
-    public function render()
-    {
-        $this->dispatchBrowserEvent('filters-updated');
-        return view('livewire.student.analyses.analyses-subject-dashboard')->layout('layouts.student');
     }
 
     public function getDataProperty()
     {
-        $result = PValueRepository::getPValuePerAttainmentForStudent(
+        $result = PValueRepository::getPValueForStudentBySubject(
             auth()->user(),
             $this->getPeriodsByFilterValues(),
             $this->getEducationLevelYearsByFilterValues(),
@@ -46,40 +34,45 @@ class AnalysesSubjectDashboard extends AnalysesDashboard
         );
         //($result->toArray());//;->mapWithKey(fn($value, $key) => [$value->subject => $value->score]));
 
-
         $this->dataValues = ($result->toArray());
 //        $this->dataKeys = array_keys($result);
 //
         return $result;
     }
 
-
-    protected function getMillerData($attainmentId)
+    public function render()
     {
-        return PValueTaxonomyMillerRepository::getPValueForStudentForAttainment(auth()->user(),
-            $attainmentId,
-            $this->getPeriodsByFilterValues(),
-            $this->getEducationLevelYearsByFilterValues(),
-            $this->getTeachersByFilterValues());
+        $this->dispatchBrowserEvent('filters-updated');//, ['newName' => $value]);
+        return view('livewire.student.analyses.analyses-overview-dashboard')->layout('layouts.student');;
     }
 
-    protected function getRTTIData($attainmentId)
+    protected function getMillerData($subjectId)
     {
-        return PValueTaxonomyRTTIRepository::getPValueForStudentForAttainment(auth()->user(),
-            $attainmentId,
-            $this->getPeriodsByFilterValues(),
-            $this->getEducationLevelYearsByFilterValues(),
-            $this->getTeachersByFilterValues());
-    }
-
-    protected function getBloomData($attainmentId)
-    {
-        return PValueTaxonomyBloomRepository::getPValueForStudentForAttainment(
+        return PValueTaxonomyMillerRepository::getPValueForStudentForSubject(
             auth()->user(),
-            $attainmentId,
+            $subjectId,
             $this->getPeriodsByFilterValues(),
             $this->getEducationLevelYearsByFilterValues(),
             $this->getTeachersByFilterValues());
     }
 
+    protected function getRTTIData($subjectId)
+    {
+        return PValueTaxonomyRTTIRepository::getPValueForStudentForSubject(
+            auth()->user(),
+            $subjectId,
+            $this->getPeriodsByFilterValues(),
+            $this->getEducationLevelYearsByFilterValues(),
+            $this->getTeachersByFilterValues());
+    }
+
+    protected function getBloomData($subjectId)
+    {
+        return PValueTaxonomyBloomRepository::getPValueForStudentForSubject(
+            auth()->user(),
+            $subjectId,
+            $this->getPeriodsByFilterValues(),
+            $this->getEducationLevelYearsByFilterValues(),
+            $this->getTeachersByFilterValues());
+    }
 }

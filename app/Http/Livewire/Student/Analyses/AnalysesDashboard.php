@@ -12,7 +12,7 @@ use tcCore\Period;
 use tcCore\User;
 use function view;
 
-class AnalysesDashboard extends Component
+abstract class AnalysesDashboard extends Component
 {
     public $educationLevelYears = [];
 
@@ -27,37 +27,68 @@ class AnalysesDashboard extends Component
     public $dataValues = [];
     public $dataKeys = [];
 
-    private $topSubjects = [
-        11 => 'Biology',
-        1 => 'Nederlands',
-    ];
+    protected $topItems; //todo generate Top Items with a algorithm
 
-    private $taxonomies = [
+    protected $taxonomies = [
         'Miller',
         'RTTI',
         'Bloom',
     ];
 
-    public function getData($subjectId, $taxonomy)
-    {
-        switch ($taxonomy) {
-            case 'Miller':
-                return $this->getMillerDataForSubject($subjectId);
-                break;
-            case 'RTTI':
-                return $this->getRTTIDataForSubject($subjectId);
-                break;
-            case 'Bloom':
-                return $this->getBloomDataForSubject($subjectId);
-                break;
-        }
-       // abort(403);
-    }
+    abstract public function getDataProperty();
 
+    abstract public function render();
+
+    abstract protected function getMillerData($modelId);
+
+    abstract protected function getRTTIData($modelId);
+
+    abstract protected function getBloomData($modelId);
 
     public function mount()
     {
         $this->clearFilters();
+
+        $this->getFilterOptionsData();
+
+        $this->getDataProperty();
+    }
+
+    public function getData($subjectId, $taxonomy)
+    {
+        switch ($taxonomy) {
+            case 'Miller':
+                return $this->getMillerData($subjectId);
+                break;
+            case 'RTTI':
+                return $this->getRTTIData($subjectId);
+                break;
+            case 'Bloom':
+                return $this->getBloomData($subjectId);
+                break;
+        }
+        // abort(403);
+    }
+
+    public function hasActiveFilters()
+    {
+        return collect($this->filters)->flatten()->isNotEmpty();
+    }
+
+    public function clearFilters()
+    {
+        $this->filters = [
+            'educationLevelYears' => [],
+            'periods'             => [],
+            'teachers'            => [],
+        ];
+    }
+
+    /**
+     * @return void
+     */
+    public function getFilterOptionsData(): void
+    {
         $this->periods = auth()->user()->schoolLocation->getPeriods()
             ->map(fn($period) => [
                 'value' => $period->id,
@@ -83,60 +114,20 @@ class AnalysesDashboard extends Component
                     ];
                 }
             );
-
-        $this->getDataProperty();
     }
 
-    public function getDataProperty()
+    protected function getPeriodsByFilterValues()
     {
-        $result = PValueRepository::getPValueForStudentBySubject(
-            auth()->user(),
-            Period::whereIn('id', $this->filters['periods'])->get('id'),
-            collect($this->filters['educationLevelYears'])->map(fn($levelYear) => ['id' => $levelYear]),
-            User::whereIn('id', $this->filters['teachers'])->get('id')
-        );
-        //($result->toArray());//;->mapWithKey(fn($value, $key) => [$value->subject => $value->score]));
-
-
-        $this->dataValues = ($result->toArray());
-//        $this->dataKeys = array_keys($result);
-//
-        return $result;
+        return Period::whereIn('id', $this->filters['periods'])->get('id');
     }
 
-    public function render()
+    protected function getEducationLevelYearsByFilterValues()
     {
-        $this->dispatchBrowserEvent('filters-updated');//, ['newName' => $value]);
-        return view('livewire.student.analyses.analyses-dashboard')->layout('layouts.student');;
+        return collect($this->filters['educationLevelYears'])->map(fn($levelYear) => ['id' => $levelYear]);
     }
 
-    public function hasActiveFilters()
+    protected function getTeachersByFilterValues()
     {
-        return collect($this->filters)->flatten()->isNotEmpty();
-    }
-
-
-    public function clearFilters()
-    {
-        $this->filters = [
-            'educationLevelYears' => [],
-            'periods'             => [],
-            'teachers'            => [],
-        ];
-    }
-
-    private function getMillerDataForSubject($subjectId)
-    {
-        return PValueTaxonomyMillerRepository::getPValueForStudentForSubject(auth()->user(), $subjectId);
-    }
-
-    private function getRTTIDataForSubject($subjectId)
-    {
-        return PValueTaxonomyRTTIRepository::getPValueForStudentForSubject(auth()->user(), $subjectId);
-    }
-
-    private function getBloomDataForSubject($subjectId)
-    {
-        return PValueTaxonomyBloomRepository::getPValueForStudentForSubject(auth()->user(), $subjectId);
+        return User::whereIn('id', $this->filters['teachers'])->get('id');
     }
 }

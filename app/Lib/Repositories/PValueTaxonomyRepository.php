@@ -50,18 +50,18 @@ abstract class PValueTaxonomyRepository
         return collect($options)->mapWithKeys(fn($value) => [$value => ['score' => 0, 'count' => 0]])->toArray();
     }
 
-    public static function getPValueForStudentForAttainment(User $user, $attainment_id, $periods = null, $educationLevelYears = null, $teachers = null)
+    public static function getPValueForStudentForAttainment(User $user, $attainment_id, $periods, $educationLevelYears, $teachers)
     {
         return self::fillTaxonomyResponseWithData(
-            self::getPValueForStudentForAttainmentTaxonomy($user, static::DATABASE_FIELD, $attainment_id, $periods = null, $educationLevelYears = null, $teachers = null),
+            self::getPValueForStudentForAttainmentTaxonomy($user, static::DATABASE_FIELD, $attainment_id, $periods, $educationLevelYears, $teachers),
             self::createEmptyTaxonomyResponse(static::OPTIONS)
         );
     }
 
-    public static function getPValueForStudentForSubject(User $user, $subject_id, $periods = null, $educationLevelYears = null, $teachers = null)
+    public static function getPValueForStudentForSubject(User $user, $subject_id, $periods, $educationLevelYears, $teachers)
     {
         return self::fillTaxonomyResponseWithData(
-            self::getPValueForStudentForSubjectTaxonomy($user, static::DATABASE_FIELD, $subject_id, $periods = null, $educationLevelYears = null, $teachers = null),
+            self::getPValueForStudentForSubjectTaxonomy($user, static::DATABASE_FIELD, $subject_id, $periods, $educationLevelYears, $teachers),
             self::createEmptyTaxonomyResponse(static::OPTIONS)
         );
     }
@@ -96,9 +96,9 @@ abstract class PValueTaxonomyRepository
                     ->where('test_participants.user_id', '=', $user->getKey());
             })
             ->join('questions', 'p_values.question_id', 'questions.id')
-            ->when($periods, fn($q) => $q->whereIn('p_values.period_id', $periods->pluck('id')))
-            ->when($educationLevelYears, fn($q) => $q->whereIn('education_level_year', $educationLevelYears->pluck('id')))
-            ->when($teachers, function ($q) use ($teachers) {
+            ->when($periods->isNotEmpty(), fn($q) => $q->whereIn('p_values.period_id', $periods->pluck('id')))
+            ->when($educationLevelYears->isNotEmpty(), fn($q) => $q->whereIn('education_level_year', $educationLevelYears->pluck('id')))
+            ->when($teachers->isNotEmpty(), function ($q) use ($teachers) {
                 $q->join('p_value_users', 'p_value_users.p_value_id', '=', 'p_values.id')
                     ->whereIn('p_value_users.user_id', $teachers->pluck('id'));
             })

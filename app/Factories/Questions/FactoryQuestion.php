@@ -53,11 +53,25 @@ abstract class FactoryQuestion implements FactoryQuestionInterface
     public function addRandomAttainmentsBySubject()
     {
         if ($this->questionProperties['attainments'] == []) {
+            $attainments = [];
+            $attainments[] = $randomAttainmentForBaseSubject = Attainment::where(
+                'base_subject_id',
+                $this->testModel->subject->base_subject_id
+            )->whereNull('attainment_id')
+                ->where('education_level_id', $this->testModel->education_level_id)
+                ->pluck('id')
+                ->random();
+
+            $subattainment = Attainment::where('attainment_id', $randomAttainmentForBaseSubject)
+                ->pluck('id')
+                ->whenNotEmpty(fn($q) => $q->random(1))
+                ->first();
+            if($subattainment){
+                $attainments[] = $subattainment;
+            }
+
             $this->questionProperties = array_merge($this->questionProperties, [
-                'attainments' => Attainment::where(
-                    'base_subject_id',
-                    $this->testModel->subject->base_subject_id
-                )->pluck('id')->random(2)->toArray()
+                'attainments' => $attainments
             ]);
         }
         return $this;

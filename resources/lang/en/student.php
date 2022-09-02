@@ -108,9 +108,11 @@ return [
     'teacher_introduction_not_available'      => 'Introduction not available',
     'teacher_introduction_not_available_long' => 'The introduction text for tests is only available when starting the test',
     'p waarde vakken'                         => 'P value subjects',
-    'p waarde leerdoelen'                     => 'P value Attainments',
+    'p waarde leerdoelen'                     => 'P value attainments',
+    'p waarde subleerdoelen'                  => 'P value sub-attainments',
     'top vakken om aan te werken'             => '{0}No relevant data available for top subjects|{1}Most important subject to work on|[2,*] Top :count subjects to work on',
     'top leerdoelen om aan te werken'         => '{0}No relevant data available for top attainments|{1}Most important attainment to work on|[2,*] Top :count attainments to work on',
+    'top subleerdoelen om aan te werken'      => '{0}No relevant data available for top sub-attainments|{1}Most important sub-attainment to work on|[2,*] Top :count sub-attainments to work on',
     'Methode'                                 => 'method',
     'Taxonomy'                                => 'Taxonomy',
 ];

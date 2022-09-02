@@ -13,27 +13,27 @@ use tcCore\Period;
 use tcCore\Subject;
 use tcCore\User;
 
-class AnalysesSubjectDashboard extends AnalysesDashboard
+class AnalysesAttainmentDashboard extends AnalysesDashboard
 {
-    public $subject;
+    public $attainment;
 
     protected $topItems = [
-        3 => 'Schrijfvaardigheid',
-        5 => 'Literatuur',
-        6 => 'Oriëntatie op studie en beroep',
+        410 => 'Literaire ontwikkeling',
+        411 => 'Literaire begrippen',
+        412 => 'Literatuurgeschiedenis',
     ];
 
-    public function mount(?Subject $subject = null)
+    public function mount(?Attainment $attainment = null)
     {
         parent::mount();
 
-        $this->subject = $subject;
+        $this->attainment = $attainment;
     }
 
     public function render()
     {
         $this->dispatchBrowserEvent('filters-updated');
-        return view('livewire.student.analyses.analyses-subject-dashboard')->layout('layouts.student');
+        return view('livewire.student.analyses.analyses-attainment-dashboard')->layout('layouts.student');
     }
 
     public function getDataProperty()

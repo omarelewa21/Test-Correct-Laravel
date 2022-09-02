@@ -147,8 +147,10 @@ return [
     'teacher_introduction_not_available_long' => 'De introductietekst voor de toets is alleen beschikbaar bij aanvang van de toets.',
     'p waarde vakken'                         => 'P waarde vakken',
     'p waarde leerdoelen'                     => 'P waarde leerdoelen',
+    'p waarde subleerdoelen'                  => 'P waarde subleerdoelen',
     'top vakken om aan te werken'             => '{0}Geen relevante data beschikbaar voor top vak|{1}Top vak om aan te werken|[2,*] Top :count vakken om aan te werken',
     'top leerdoelen om aan te werken'         => '{0}Geen relevante data beschikbaar voor top leerdoel|{1}Top leerdoel om aan te werken|[2,*] Top :count leerdoelen om aan te werken',
+    'top subleerdoelen om aan te werken'      => '{0}Geen relevante data beschikbaar voor top subleerdoel|{1}Top subleerdoel om aan te werken|[2,*] Top :count subleerdoelen om aan te werken',
     'Methode'                                 => 'methode',
-    'Taxonomy'                                => 'Taxonomy',
+    'Taxonomy'                                => 'Taxonomie',
 ];
