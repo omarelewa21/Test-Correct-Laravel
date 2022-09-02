@@ -123,7 +123,7 @@
              @opentab.window="openTab = $event.detail; window.scrollTo({top: 0, behavior: 'smooth'})"
              selid="tabcontainer"
         >
-            <div class="flex justify-end py-5">
+            <div class="flex justify-end py-5" wire:ignore>
                 @if(\Illuminate\Support\Facades\Auth::user()->schoolLocation->allow_wsc)
                 <div class="flex items-center relative left-4 gap-4 mr-4" wire:ignore wire:key="wsc-language-component-{{ $this->uniqueQuestionKey }}-{{$question['lang']}}" >
                     <label>
@@ -131,7 +131,7 @@
                     </label>
                     <x-input.select
                             wire:model="question.lang"
-                            @change="changeEditorWscLanguage($event.target.value); console.log($event);"
+                            @change="changeEditorWscLanguage($event.target.value);"
                     >
                         <option value="nl_NL">{{ __('lang.nl_NL') }}</option>
                         <option value="en_GB">{{ __('lang.en_GB') }}</option>

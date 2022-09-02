@@ -444,6 +444,14 @@ class Question extends MtiBaseModel {
         return $question->scope === 'cito';
     }
 
+    public function isWritingAssignment() {
+        return $this instanceof OpenQuestion && $this->subtype === 'writing';
+    }
+
+    public function isWritingAssignmentWithSpellCheckAvailable() {
+        return $this instanceof OpenQuestion && $this->subtype === 'writing' && $this->spell_check_available;
+    }
+
     public function isDirtyAttainments() {
         return $this->isDirtyAttainmentsGeneric('attainments','questionAttainments');
         if ($this->attainments === null) {

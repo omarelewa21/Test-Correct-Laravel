@@ -6338,11 +6338,9 @@ addIdsToQuestionHtml = function addIdsToQuestionHtml() {
     questionContainers.forEach(function (item) {
       var decendents = item.querySelectorAll('*');
       decendents.forEach(function (decendent) {
-        if (decendent.tagName != 'MATH' && !decendent.closest('math')) {
-          decendent.id = 'questionhtml_' + id;
-          decendent.setAttribute('wire:key', 'questionhtml_' + id);
-          id += 1;
-        }
+        decendent.id = 'questionhtml_' + id;
+        decendent.setAttribute('wire:key', 'questionhtml_' + id);
+        id += 1;
       });
     });
   }, 1);
@@ -6844,7 +6842,7 @@ window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
 window.Pusher = __webpack_require__(/*! pusher-js */ "./node_modules/pusher-js/dist/web/pusher.js");
 window.Echo = new laravel_echo__WEBPACK_IMPORTED_MODULE_0__["default"]({
   broadcaster: 'pusher',
-  key: "51d7221bf733999d7138",
+  key: "fc18ed69b446aeb8c8a5",
   cluster: "eu",
   forceTLS: true
 });
