@@ -1,6 +1,6 @@
 <?php
 
-namespace tcCore\Http\Traits;
+namespace tcCore\Http\Traits\Modal;
 
 use Illuminate\Support\Facades\Auth;
 use tcCore\EducationLevel;
@@ -21,9 +21,8 @@ trait TestActions
 
     protected function rules()
     {
-        //@TODO: Check if this also works when implemented for create modal - RR
         return [
-            'request.name'                 => 'required|min:3|unique:tests,name,'. Test::whereUuid($this->testUuid)->value('id') .',id,author_id,' . Auth::id() . ',deleted_at,NULL,is_system_test,0',
+            'request.name'                 => $this->getNameRulesDependingOnAction(),
             'request.abbreviation'         => 'required|max:5',
             'request.test_kind_id'         => ['required', 'integer', $this->getAllowedTestKindsRule()],
             'request.subject_id'           => ['required', 'integer', $this->getAllowedSubjectsRule()],
@@ -64,11 +63,10 @@ trait TestActions
 
     public function getMaxEducationLevelYearProperty()
     {
-        $maxYears = 6;
         if ($this->request['education_level_id']) {
-            return $this->allowedEductionLevels->where('id', $this->request['education_level_id'])->first()->max_years;
+            $maxYears = $this->allowedEductionLevels->where('id', $this->request['education_level_id'])->first()->max_years;
         }
-        return $maxYears;
+        return $maxYears ?? 6;
     }
 
     private function getAllowedSubjectsRule(): string
@@ -99,4 +97,13 @@ trait TestActions
             })->join(',');
     }
 
+    private function getNameRulesDependingOnAction()
+    {
+        $rules = 'required|min:3|unique:tests,name';
+        if (isset($this->testUuid)) {
+            $rules = 'required|min:3|unique:tests,name,'. Test::whereUuid($this->testUuid)->value('id') .',id,author_id,' . Auth::id() . ',deleted_at,NULL,is_system_test,0';
+        }
+
+        return $rules;
+    }
 }

@@ -99,10 +99,11 @@
                     <div class="input-group mb-4 sm:mb-0 flex-auto border-t ">
                         <x-input.toggle-row-with-title wire:model="request.allow_inbrowser_testing"
                                                        :toolTip="__('teacher.inbrowser_testing_tooltip')"
-                                                       class="flex-row-reverse"
+
 
                         >
-                            <span class="bold"> <x-icon.preview/>{{ __('teacher.Browsertoetsen toestaan') }} </span>
+                            <x-icon.web/>
+                            <span class="bold">{{ __('teacher.Browsertoetsen toestaan') }} </span>
                         </x-input.toggle-row-with-title>
                     </div>
 
@@ -115,7 +116,8 @@
                                                            :tooltipAlwaysLeft="true"
 
                             >
-                                <span class="bold">  <x-icon.preview/>{{ __('teacher.Test-Direct toestaan') }} </span>
+                                <x-icon.test-direct/>
+                                <span class="bold">{{ __('teacher.Test-Direct toestaan') }} </span>
                             </x-input.toggle-row-with-title>
                         @endif
                     </div>
