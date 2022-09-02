@@ -112,9 +112,7 @@ class EducationLevel extends BaseModel {
                                 if (is_array($value)) {
                                     $query->whereIn('user_id', $value);
                                 } else {
-                                    if( !User::whereId($value)->value('is_examcoordinator') ){
-                                        $query->where('user_id', '=', $value);
-                                    }
+                                    $query->where('user_id', '=', $value);
                                 }
                             })
                                 ->where('deleted_at', null);
