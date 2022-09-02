@@ -97,24 +97,32 @@ class EducationLevel extends BaseModel {
 
     public function scopeFiltered($query, $filters = [], $sorting = [])
     {
+        $user = auth()->user();
         foreach($filters as $key => $value) {
             switch($key) {
                 case 'user_id':
-                    $query->whereIn('id', function ($query) use ($value) {
-                        $query->select('education_level_id')
-                            ->from(with(new SchoolClass())->getTable())
-                            ->whereIn('id', function ($query) use ($value) {
-                            $query->select('class_id')
-                                ->from(with(new Teacher())->getTable())
+                    if( !$user->is_examcoordinator || ($user->is_examcoordinator && $user->exam_coordinator_schedule_for === 'NONE') ){
+                        $query->whereIn('id', function ($query) use ($value) {
+                            $query->select('education_level_id')
+                                ->from(with(new SchoolClass())->getTable())
+                                ->whereIn('id', function ($query) use ($value) {
+                                $query->select('class_id')
+                                    ->from(with(new Teacher())->getTable())
+                                    ->where('deleted_at', null);
+                                if (is_array($value)) {
+                                    $query->whereIn('user_id', $value);
+                                } else {
+                                    if( !User::whereId($value)->value('is_examcoordinator') ){
+                                        $query->where('user_id', '=', $value);
+                                    }
+                                }
+                            })
                                 ->where('deleted_at', null);
-                            if (is_array($value)) {
-                                $query->whereIn('user_id', $value);
-                            } else {
-                                $query->where('user_id', '=', $value);
-                            }
-                        })
-                            ->where('deleted_at', null);
-                    });
+                        });
+                    }else{
+                        $this->filterForExamcoordinator($query, $user);
+                    }
+                    
                     break;
             }
         }
@@ -146,5 +154,26 @@ class EducationLevel extends BaseModel {
         return $query;
     }
 
-
+    private function filterForExamcoordinator($query, User $user)
+    {
+        switch ($user->exam_coordinator_schedule_for) {
+            case 'SCHOOL_LOCATION':
+                $classIds = $user->schoolLocation->schoolClasses()->pluck('id')->toArray();
+                break;
+            case 'SCHOOL':
+                $classIds = $user->schoolLocation->school->schoolLocations()
+                                ->join('school_classes', 'school_classes.school_location_id', 'school_locations.id')
+                                ->select('school_classes.id')->pluck('id')->toArray();
+                break;
+            default:
+                $classIds = [];
+                break;
+        }
+        return $query->whereIn('id', function ($query) use ($classIds) {
+            $query->select('education_level_id')
+                ->from(with(new SchoolClass())->getTable())
+                ->whereIn('id', $classIds)
+                ->where('deleted_at', null);
+        });
+    }
 }

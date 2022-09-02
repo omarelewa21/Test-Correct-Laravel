@@ -64,7 +64,7 @@ class TestTake extends BaseModel
      *
      * @var array
      */
-    protected $fillable = ['test_id', 'test_take_status_id', 'period_id', 'retake', 'retake_test_take_id', 'time_start', 'time_end', 'location', 'weight', 'note', 'invigilator_note', 'show_results', 'discussion_type', 'is_rtti_test_take', 'exported_to_rtti', 'allow_inbrowser_testing', 'guest_accounts', 'skipped_discussion'];
+    protected $fillable = ['test_id', 'test_take_status_id', 'period_id', 'retake', 'retake_test_take_id', 'time_start', 'time_end', 'location', 'weight', 'note', 'invigilator_note', 'show_results', 'discussion_type', 'is_rtti_test_take', 'exported_to_rtti', 'allow_inbrowser_testing', 'guest_accounts', 'skipped_discussion', 'scheduled_by'];
 
     /**
      * The attributes excluded from the model's JSON form.
@@ -326,6 +326,7 @@ class TestTake extends BaseModel
             if($testTake->school_location_id === null) {
                 $testTake->school_location_id = Auth::user()->school_location_id;
             }
+            $testTake->scheduled_by = auth()->id();
         });
 
         static::created(function (TestTake $testTake) {

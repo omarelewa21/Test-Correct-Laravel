@@ -327,7 +327,7 @@ Route::group(['middleware' => ['api', 'dl', 'authorize', 'authorizeBinds', 'bind
     Route::get('school_location/{school_location_id}/get_lvs_type', 'SchoolLocationsController@getLvsType')->name('school_location.get_lvs_type');
     // School children
     Route::resource('school_location', 'SchoolLocationsController', ['except' => ['create', 'edit']]);
-
+    Route::get('school_location/{id}/get_by_id', 'SchoolLocationsController@showById')->name('school_location.showById');
     // School location children
     Route::resource('school_location.school_class', 'SchoolLocations\SchoolClassesController', ['except' => ['create', 'edit']]);
     Route::resource('school_location.school_location_ip', 'SchoolLocations\SchoolLocationIpsController', ['except' => ['create', 'edit']]);

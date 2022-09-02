@@ -296,9 +296,10 @@ class SchoolClass extends BaseModel implements AccessCheckable
     public function scopeFiltered($query, $filters = [], $sorting = [])
     {
         $roles = Roles::getUserRoles();
+        $user = auth()->user();
         if (!in_array('Administrator', $roles)) {
-            $query->where(function ($query) use ($roles) {
-                $userId = Auth::user()->getKey();
+            $query->where(function ($query) use ($roles, $user) {
+                $userId = $user->getKey();
 
                 if (in_array('Account manager', $roles) || in_array('School manager', $roles)) {
                     $query->orWhereIn('school_location_id', function ($query) {
@@ -308,9 +309,15 @@ class SchoolClass extends BaseModel implements AccessCheckable
                 }
 
                 if (in_array('Teacher', $roles)) {
-                    $query->orWhereIn($this->getTable() . '.id', function ($query) use ($userId) {
-                        $query->select('class_id')->from(with(new Teacher())->getTable())->whereNull('deleted_at')->where('user_id', $userId);
-                    });
+                    if( !$user->is_examcoordinator || ($user->is_examcoordinator && $user->exam_coordinator_schedule_for === 'NONE') ){
+                        $query->orWhereIn($this->getTable() . '.id', function ($query) use ($userId) {
+                            $query->select('class_id')->from(with(new Teacher())->getTable())->whereNull('deleted_at');
+                                $query->where('user_id', $userId);
+                        });
+                    }else{
+                        $this->filterForExamcoordinator($query, $user);
+                    }
+                    
                 }
 
                 if (in_array('Mentor', $roles)) {
@@ -513,5 +520,24 @@ class SchoolClass extends BaseModel implements AccessCheckable
     public function scopeWithGuestClasses($query)
     {
         return $query->where('guest_class', 1);
+    }
+
+    private function filterForExamcoordinator($query, User $user)
+    {
+        switch ($user->exam_coordinator_schedule_for) {
+            case 'SCHOOL_LOCATION':
+                $classIds = $user->schoolLocation->schoolClasses()->where('guest_class', 0)->pluck('id')->toArray();
+                break;
+            case 'SCHOOL':
+                $classIds = $user->schoolLocation->school->schoolLocations()
+                                ->join('school_classes', 'school_classes.school_location_id', 'school_locations.id')
+                                ->where('school_classes.guest_class', 0)
+                                ->select('school_classes.id')->pluck('id')->toArray();
+                break;
+            default:
+                $classIds = [];
+                break;
+        }
+        return $query->orWhereIn(self::getTable() . '.id', $classIds);
     }
 }
