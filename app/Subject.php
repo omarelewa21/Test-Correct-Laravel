@@ -267,7 +267,7 @@ class Subject extends BaseModel implements AccessCheckable
                 $subjectIds = [];
                 break;
         }
-        return $query->whereIn('id', $subjectIds);
+        return $query->whereIn('id', $subjectIds)->where('demo', 0);
     }
 
     private function getAvailableSubjectsForSchoolLocation(SchoolLocation $schoolLocation)

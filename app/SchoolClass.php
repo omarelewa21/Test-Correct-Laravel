@@ -538,6 +538,6 @@ class SchoolClass extends BaseModel implements AccessCheckable
                 $classIds = [];
                 break;
         }
-        return $query->orWhereIn(self::getTable() . '.id', $classIds);
+        return $query->orWhereIn(self::getTable() . '.id', $classIds)->where('demo', 0);
     }
 }
