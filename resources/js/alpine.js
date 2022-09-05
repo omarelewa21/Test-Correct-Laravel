@@ -351,6 +351,8 @@ document.addEventListener('alpine:init', () => {
         slides: ['home', 'type', 'newquestion', 'questionbank'],
         activeSlide: null,
         scrollTimeout: null,
+        pollingInterval: 2500, // Milliseconds;
+        awaitUpdating: false, // Milliseconds;
         init() {
             this.slideWidth = this.$root.offsetWidth;
             this.drawer = this.$root.closest('.drawer');
@@ -359,7 +361,7 @@ document.addEventListener('alpine:init', () => {
                 this.handleVerticalScroll(this.$root.firstElementChild);
                 this.scrollActiveQuestionIntoView();
             }, 400);
-
+            this.poll(this.pollingInterval);
         },
         next(currentEl) {
             const left = this.$refs.questionEditorSidebar.scrollLeft + this.slideWidth;
@@ -380,10 +382,7 @@ document.addEventListener('alpine:init', () => {
         scroll(position, scrollActiveIntoView = true) {
             this.setActiveSlideProperty(position)
             if (scrollActiveIntoView) this.scrollActiveQuestionIntoView();
-            this.$refs.questionEditorSidebar.scrollTo({
-                left: position >= 0 ? position : 0,
-                behavior: 'smooth'
-            });
+            this.$refs.questionEditorSidebar.scrollTo(this.getScrollToProperties(position));
             this.$store.cms.scrollPos = 0
         },
         handleVerticalScroll(el) {
@@ -409,14 +408,18 @@ document.addEventListener('alpine:init', () => {
         },
         showNewQuestion(container) {
             this.setNextSlide(this.$refs.newquestion);
-            this.next(container);
+            this.$nextTick(() => {
+                this.next(container);
+            });
         },
         showQuestionBank() {
             this.setNextSlide(this.$refs.questionbank);
-            this.drawer.classList.add('fullscreen');
-            const boundingRect = this.$refs.questionbank.getBoundingClientRect();
-            this.scroll(boundingRect.x + boundingRect.width);
-            this.$store.questionBank.active = true;
+            this.$nextTick(() => {
+                this.drawer.classList.add('fullscreen');
+                const boundingRect = this.$refs.questionbank.getBoundingClientRect();
+                this.scroll(boundingRect.x + boundingRect.width);
+                this.$store.questionBank.active = true;
+            });
         },
         hideQuestionBank() {
             this.$root.querySelectorAll('.slide-container').forEach((slide) => {
@@ -505,6 +508,27 @@ document.addEventListener('alpine:init', () => {
         setActiveSlideProperty(position) {
             let index = position / this.slideWidth > 2 ? 3 : position / this.slideWidth;
             this.activeSlide = this.slides[index];
+        },
+        poll(interval) {
+            setTimeout(() =>{
+                let el = this.$root.querySelector(`[x-ref="${this.activeSlide}"]`);
+                if(el !== null) this.handleVerticalScroll(el);
+                this.poll(interval);
+            }, interval)
+        },
+        getScrollToProperties(position) {
+            let safariAgent = navigator.userAgent.indexOf('Safari') > -1;
+            let chromeAgent = navigator.userAgent.indexOf('Chrome') > -1;
+            if ((chromeAgent) && (safariAgent)) safariAgent = false;
+
+            let scrollToSettings = {
+                left: position >= 0 ? position : 0,
+            }
+            /* RR: Smooth scrolling breaks entirely on Safari 15.4 so I only add it in non-safari browsers just so it doesn't break anything..*/
+            if (!safariAgent) {
+                scrollToSettings.behavior = 'smooth';
+            }
+            return scrollToSettings;
         }
     }));
     Alpine.data('choices', (wireModel, multiple, options, config, filterContainer) => ({
