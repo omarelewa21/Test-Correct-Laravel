@@ -1,9 +1,9 @@
 <div x-data="{openTab: @entangle('openTab')}">
     <x-menu.tab.container>
-        <x-menu.tab.item tab="personal" menu="openTab">
+        <x-menu.tab.item tab="taken" menu="openTab">
             {{ __('general.Mijn afgenomen toetsen') }}
         </x-menu.tab.item>
-        <x-menu.tab.item tab="school" menu="openTab">
+        <x-menu.tab.item tab="norm" menu="openTab">
             {{ __('general.Nakijken en normeren') }}
         </x-menu.tab.item>
     </x-menu.tab.container>
@@ -24,15 +24,15 @@
                     </div>
                 </div>
                 <div class="flex flex-wrap w-full gap-2 mt-2">
-{{--                    <x-input.choices-select--}}
-{{--                            wire:key="education_level_year_{{ $this->openTab }}"--}}
-{{--                            :multiple="true"--}}
-{{--                            :options="$this->educationLevelYear"--}}
-{{--                            :withSearch="true"--}}
-{{--                            placeholderText="{{ __('general.Leerjaar') }}"--}}
-{{--                            wire:model="filters.{{ $this->openTab }}.education_level_year"--}}
-{{--                            filterContainer="questionbank-{{ $this->openTab }}-active-filters"--}}
-{{--                    />--}}
+                    <x-input.choices-select
+                            wire:key="SchoolClasses_{{ $this->openTab }}"
+                            :multiple="true"
+                            :options="$this->schoolClasses"
+                            :withSearch="true"
+                            placeholderText="{{ __('header.Klassen') }}"
+                            wire:model="filters.{{ $this->openTab }}.classes"
+                            filterContainer="test-take-overview-{{ $this->openTab }}-active-filters"
+                    />
 
 {{--                    @if($this->hasActiveFilters())--}}
 {{--                        <x-button.text-button class="ml-auto text-base"--}}
@@ -55,16 +55,10 @@
 {{--                        </x-button.text-button>--}}
 {{--                    @endif--}}
                 </div>
-                <div id="questionbank-{{ $this->openTab }}-active-filters"
-                     wire:ignore
-
-                     x-data=""
-                     :class="($el.childElementCount !== 1) ? 'mt-2' : ''"
-                     class="flex flex-wrap gap-2"
-                >
+                <div id="test-take-overview-{{ $this->openTab }}-active-filters" wire:ignore>
                 </div>
             </div>
-
+            @json($this->schoolClasses)
             {{-- Content --}}
             <div class="flex flex-col pt-4 pb-16" style="min-height: 500px">
                 <div class="flex justify-between">
@@ -74,7 +68,8 @@
                     <span class="note text-sm"
                           wire:loading.remove
                           wire:target="filters,clearFilters,$set">
-                        {{ trans_choice($this->getMessageKey($results->total()), $results->total(), ['count' => $results->total()]) }}
+                            {{ $this->takenTestTakes->total() ?? 'geen' }} resultaten
+                        {{--{{ trans_choice($this->getMessageKey($this->takenTestTakes->total()), $this->takenTestTakes->total(), ['count' => $this->takenTestTakes->total()]) }}--}}
                     </span>
                     <div class="flex space-x-2.5">
                         <x-button.cta class="px-4" wire:click="$emit('openModal', 'teacher.test-start-create-modal')">
@@ -92,11 +87,11 @@
                         />
                     @endforeach
 
-                    @foreach($results as $test)
-                        <x-grid.test-card :test="$test"/>
+                    @foreach($this->takenTestTakes as $testTake)
+                        <x-grid.test-take-card :testTake="$testTake"/>
                     @endforeach
                 </x-grid>
-                {{ $results->links('components.partials.tc-paginator') }}
+                {{ $this->takenTestTakes->links('components.partials.tc-paginator') }}
 
                 <livewire:teacher.tests-overview-context-menu/>
             </div>

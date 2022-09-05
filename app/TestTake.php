@@ -1160,4 +1160,15 @@ class TestTake extends BaseModel
         return $this->test->maxScore($ignoreQuestions);
     }
 
+    public function scopeWithCardAttributes($query, $attributes = null)
+    {
+        $attributes ??= [
+            'test:id,name,subject_id,abbreviation',
+            'test.subject:id,name',
+            'testParticipants:id,user_id,test_take_status_id',
+            'testParticipants.schoolClass:id,name',
+        ];
+
+        return $query->with($attributes);
+    }
 }

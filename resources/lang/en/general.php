@@ -59,4 +59,5 @@ return [
     'Categorie'                       => 'Category',
     'Nakijken en normeren'            => 'Assess & set norm',
     'Mijn afgenomen toetsen'          => 'My given tests',
+    'Kopie'                           => 'Copy',
 ];
