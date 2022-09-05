@@ -352,7 +352,6 @@ document.addEventListener('alpine:init', () => {
         activeSlide: null,
         scrollTimeout: null,
         pollingInterval: 2500, // Milliseconds;
-        awaitUpdating: false, // Milliseconds;
         init() {
             this.slideWidth = this.$root.offsetWidth;
             this.drawer = this.$root.closest('.drawer');
