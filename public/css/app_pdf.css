@@ -1480,6 +1480,10 @@ input[type=number] {
     box-shadow: 0 3px 8px 0 rgba(4, 31, 116, 0.2);
 }
 
+.firefox .drawer.overflow-auto #sidebar-content {
+    margin-right: -6.5px;
+    overflow-x: none;
+}
 /*!
  * FilePond 4.30.3
  * Licensed under MIT, https://opensource.org/licenses/MIT/
@@ -5658,6 +5662,12 @@ video {
 }
 .max-w-7xl{
   max-width: 80rem;
+}
+.max-w-\[120px\]{
+  max-width: 120px;
+}
+.max-w-\[100px\]{
+  max-width: 100px;
 }
 .flex-1{
   flex: 1 1 0%;
