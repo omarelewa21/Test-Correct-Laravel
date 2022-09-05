@@ -55,4 +55,6 @@ return [
     'Leerjaar'                        => 'Level year',
     'Laatst gewijzigd'                => 'Last modified',
     'Categorie'                       => 'Category',
+    'Nakijken en normeren'            => 'Assess & set norm',
+    'Mijn afgenomen toetsen'          => 'My given tests',
 ];
