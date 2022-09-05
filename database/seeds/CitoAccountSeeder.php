@@ -28,6 +28,9 @@ class CitoAccountSeeder extends Seeder
             return;
         }
 
+        $this->generateCitoSchoolWithTests();
+        return;
+
         // maak een scholengemeenschap (table schools)
         $comprehensiveSchool = \tcCore\School::create([
             'customer_code'   => 'CITO-TOETSENOPMAAT',
@@ -173,24 +176,24 @@ class CitoAccountSeeder extends Seeder
             'gender'             => 'Male',
         ]);
         
-		collect([
-			'CITO-Economie',
-			'CITO-Natuurkunde',
-			'CITO-WiskundeA',
-			'CITO-Nask1',
-			'CITO-Nask2',
-			'CITO-Aardrijkskunde',
-			'CITO-Biologie',
-			'CITO-Geschiedenis',
-			'CITO-Scheikunde',
-			'CITO-Wiskunde',
-			'CITO-WiskundeB',
-		])->each(function($subjectName) {
-			BaseSubject::create(['name'=>$subjectName]);
-		});
-		BaseSubject::all()->each(function($baseSubject) use($teacherA,$teacherB,$class,$classB,$periodLocationB) {
+//		collect([
+//			'CITO-Economie',
+//			'CITO-Natuurkunde',
+//			'CITO-WiskundeA',
+//			'CITO-Nask1',
+//			'CITO-Nask2',
+//			'CITO-Aardrijkskunde',
+//			'CITO-Biologie',
+//			'CITO-Geschiedenis',
+//			'CITO-Scheikunde',
+//			'CITO-Wiskunde',
+//			'CITO-WiskundeB',
+//		])->each(function($subjectName) {
+//			BaseSubject::create(['name'=>$subjectName]);
+//		});
+		BaseSubject::all()->each(function($baseSubject) use($teacherA,$teacherB,$class,$classB,$periodLocationB, $section) {
 			$subject = Subject::create([	'name'=>$baseSubject->name,
-								'section_id'=>1,
+								'section_id'=> $section->getKey(),
 								'base_subject_id'=>$baseSubject->id	
 						]);
 			$teacher = Teacher::create([	'user_id'=>$teacherA->id,
@@ -229,6 +232,48 @@ Dit is de test toets voor de cito.',
 
 
         
+    }
+
+    public function generateCitoSchoolWithTests()
+    {
+        $factoryScenarioSchool = \tcCore\FactoryScenarios\FactoryScenarioSchoolCito::create();
+        $school_location = $factoryScenarioSchool->school->schoolLocations()->where('customer_code', 'CITO-TOETSENOPMAAT')->first();
+
+        $primaryTestAuthor = $school_location->users()->where('username', 'teacher-cito@test-correct.nl')->first();
+        $secondaryTestAuthor = $school_location->users()->where('username', 'teacher-cito-b@test-correct.nl')->first();
+
+        $collection = $school_location->schoolLocationSections->where('demo', false)->first()->section->subjects->split(2);
+
+        $firstHalf = $collection[0];
+        $secondHalf = $collection[1];
+
+        $firstHalf->each(function ($subject) use ($primaryTestAuthor) {
+            \tcCore\Factories\FactoryTest::create($primaryTestAuthor)
+                ->setProperties([
+                    'name'               => 'test-' . $subject->name,
+                    'subject_id'         => $subject->id,
+                    'abbreviation'       => 'CITO',
+                    'scope'              => 'cito',
+                    'education_level_id' => '1',
+                ])
+                ->addQuestions([
+                    \tcCore\Factories\Questions\FactoryQuestionOpenShort::create(),
+                ]);
+        });
+        $secondHalf->each(function ($subject) use ($secondaryTestAuthor) {
+            \tcCore\Factories\FactoryTest::create($secondaryTestAuthor)
+                ->setProperties([
+                    'name'               => 'test-' . $subject->name,
+                    'subject_id'         => $subject->id,
+                    'abbreviation'       => 'CITO',
+                    'scope'              => 'cito',
+                    'education_level_id' => '1',
+                ])
+                ->addQuestions([
+                    \tcCore\Factories\Questions\FactoryQuestionOpenShort::create(),
+                ]);
+        });
+
     }
 
 }

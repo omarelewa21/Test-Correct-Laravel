@@ -4,11 +4,11 @@ use Dyrynda\Database\Casts\EfficientUuid;
 use Exception;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Ramsey\Uuid\Uuid;
 use tcCore\Exceptions\QuestionException;
 use tcCore\Http\Helpers\DemoHelper;
+use tcCore\Http\Traits\WithQuestionFilteredHelpers;
 use tcCore\Lib\Models\MtiBaseModel;
 use tcCore\Scopes\QuestionAttainmentScope;
 use tcCore\Services\QuestionHtmlConverter;
@@ -21,10 +21,12 @@ class Question extends MtiBaseModel {
     use UuidTrait;
     use ExamSchoolQuestionTrait;
     use UserContentAccessTrait;
+    use WithQuestionFilteredHelpers;
 
     protected $casts = [
-        'uuid' => EfficientUuid::class,
-        'all_or_nothing' => 'boolean',
+        'uuid'                     => EfficientUuid::class,
+        'all_or_nothing'           => 'boolean',
+        'add_to_database_disabled' => 'boolean',
     ];
 
     public $mtiBaseClass = 'tcCore\Question';
@@ -420,12 +422,6 @@ class Question extends MtiBaseModel {
 
     protected function isClosedQuestion()
     {
-//        $question = $this;
-//        if (get_class($question) !== 'tcCore\Question') {
-//            $question = $this->getQuestionInstance();
-//        }
-//
-//        return $question->scope === 'cito';
         return $this->isCitoQuestion();
     }
 
@@ -695,304 +691,23 @@ class Question extends MtiBaseModel {
     {
         $user = Auth::user();
         $query = $this->differentScenariosAndDemo($query,$filters);
-        $joins = [];
 
-        // Have to apply search filter first due to subquery left join with parameters
-        if (array_key_exists('search', $filters)) {
-            $value = $filters['search'];
+        [$query, $joins] = $this->handleSearchFilters($query, $filters);
 
-            // Decide whenever open question table has to be searched/joined
-            if (array_key_exists('type', $filters)) {
-                if (is_array($filters['type'])) {
-                    $types = array_map('strtolower', $filters['type']);
-                } else {
-                    $types = strtolower($filters['type']);
-                }
+        $this->handleFilterParams($query, $user, $filters);
+        $this->handleFilteredSorting($query, $sorting);
+        $this->handleQueryJoins($query, array_unique($joins));
 
-                if ((is_array($types) && in_array('openquestion', $types) && count($types) === 1) || (!is_array($types) && $types == 'openquestion')) {
-                    $openQuestionOnly = true;
-                } else {
-                    $openQuestionOnly = false;
-                }
+        return $query;
+    }
 
-                if ((is_array($types) && !in_array('openquestion', $types)) || (!is_array($types) && $types !== 'openquestion')) {
-                    $openQuestionDisabled = true;
-                } else {
-                    $openQuestionDisabled = false;
-                }
-            } else {
-                $openQuestionOnly = false;
-                $openQuestionDisabled = false;
-            }
+    public function scopePublishedFiltered($query, $filters = [], $sorting = [])
+    {
+        [$query, $joins] = $this->handleSearchFilters($query, $filters);
 
-            if (!$openQuestionDisabled) {
-                $openQuestion = new OpenQuestion();
-            } else {
-                $openQuestion = null;
-            }
-
-            if (!is_array($value)) {
-                $value = [$value];
-            }
-
-            // Join tags
-            $tags = Tag::whereIn('name', $value)->pluck('name', 'id')->all();
-            if ($tags) {
-                $tags = array_map('strtolower', $tags);
-                $subQuery = TagRelation::where('tag_relation_type', '=','tcCore\Question')
-                    ->whereIn('tag_id', array_keys($tags))
-                    ->select([
-                        'tag_relation_id',
-                        DB::raw('CONCAT(\' \', GROUP_CONCAT(tag_id SEPARATOR \' \'), \' \') as tags')
-                    ])
-                    ->groupBy('tag_relation_id');
-
-                $query->leftJoinSub($subQuery, 'tags', function($join) {
-                    $join->on('tags.tag_relation_id', '=', $this->getTable() . '.' . $this->getKeyName());
-                });
-            }
-
-            // Search terms + tags
-            foreach ($value as $v) {
-                if(!in_array(strtolower($v), $tags)) {
-                    $query->where(function ($query) use ($v, $openQuestionDisabled, $openQuestion) {
-                        $query->where('question', 'LIKE', '%' . $v . '%');
-                        if (!$openQuestionDisabled) {
-                            $query->orWhere(DB::raw('IFNULL(' . $openQuestion->getTable() . '.answer, \'\')'), 'LIKE', '%' . $v . '%');
-                        }
-                        $query->orWhere('group_questions.name', 'like', '%' . $v . '%');
-                    });
-                } else {
-                    $tagId = array_search(strtolower($v), $tags);
-                    $query->where(function ($query) use ($v, $openQuestionDisabled, $openQuestion, $tagId) {
-                        $query->where('question', 'LIKE', '%' . $v . '%');
-                        if (!$openQuestionDisabled) {
-                            $query->orWhere(DB::raw('IFNULL(' . $openQuestion->getTable() . '.answer, \'\')'), 'LIKE', '%' . $v . '%');
-                        }
-                        $query->orWhere(DB::raw('IFNULL(tags.tags, \'\')'), 'LIKE', '% ' . $tagId . ' %');
-                        $query->orWhere('group_questions.name', 'like', '%' . $v . '%');
-                    });
-                }
-            }
-
-            if (!$openQuestionOnly && !array_key_exists('subtype', $filters) && !$openQuestionDisabled) {
-                $query->leftJoin($openQuestion->getTable(), $openQuestion->getTable() . '.' . $openQuestion->getKeyName(), '=', $this->getTable() . '.' . $this->getKeyName());
-            } elseif ($openQuestionOnly && !array_key_exists('subtype', $filters)) {
-                $joins[] = 'openquestion';
-            }
-            $joins[] = 'groupquestion';
-        }
-
-        foreach($filters as $key => $value) {
-            switch($key) {
-                case 'base_subject_id':
-
-                    if(isset($filters['source'])){
-                        switch($filters['source']){
-                            case 'schoolLocation': // only my colleages and me
-                                if(is_array($value)) {
-                                    $subjectIds = $user->subjects()->whereIn('base_subject_id', $value);
-                                } else {
-                                    $subjectIds = $user->subjects()->where('base_subject_id','=',$value);
-                                }
-                                $subjectIds = $subjectIds->pluck('id');
-                                $query->whereIn('subject_id',$subjectIds);
-                                break;
-                            case 'school': //  shared sections
-                                if(is_array($value)) {
-                                    $subjectIds = $user->subjectsOnlyShared()->whereIn('base_subject_id', $value);
-                                } else {
-                                    $subjectIds = $user->subjectsOnlyShared()->where('base_subject_id','=',$value);
-                                }
-                                $subjectIds = $subjectIds->pluck('id');
-                                $query->whereIn('subject_id',$subjectIds);
-                                break;
-                            default:
-                                if(is_array($value)) {
-                                    $subjectIds = $user->subjectsIncludingShared()->whereIn('base_subject_id', $value);
-                                } else {
-                                    $subjectIds = $user->subjectsIncludingShared()->where('base_subject_id','=',$value);
-                                }
-                                $subjectIds = $subjectIds->pluck('id');
-                                $query->whereIn('subject_id',$subjectIds);
-                                break;
-                        }
-                    } else {
-                        if(is_array($value)) {
-                            $subjectIds = $user->subjectsIncludingShared()->whereIn('base_subject_id', $value);
-                        } else {
-                            $subjectIds = $user->subjectsIncludingShared()->where('base_subject_id','=',$value);
-                        }
-                        $subjectIds = $subjectIds->pluck('id');
-                        $query->whereIn('subject_id',$subjectIds);
-                    }
-
-                    break;
-                case 'source':
-                    if(isset($filters['base_subject_id'])){
-                        // we don't have to do anything, cause here above already caught;
-                    } else {
-                        switch($filters['source']){
-                            case 'me': // i need to be the author
-                                $query->join('question_authors','questions.id','=','question_authors.question_id')
-                                    ->where('question_authors.user_id','=',$user->getKey());
-                                break;
-                            case 'schoolLocation': // only my colleages and me
-                                $query->whereIn('subject_id',$user->subjects()->pluck('id'));
-                                $query->where($this->table.'.owner_id', Auth::user()->school_location_id);
-                                break;
-                            case 'school': //  shared sections
-                                $query->whereIn('subject_id',$user->subjectsOnlyShared()->pluck('id'));
-                                break;
-                            default:
-                                $query->whereIn('subject_id',$user->subjectsIncludingShared()->pluck('id'));
-                                break;
-                        }
-                    }
-                    break;
-                case 'id':
-                    if (is_array($value)) {
-                        $query->whereIn($this->table.'.id', $value);
-                    } else {
-                        $query->where($this->table.'.id', '=', $value);
-                    }
-                    break;
-                case 'subject_id':
-                    if (is_array($value)) {
-                        $query->whereIn('subject_id', $value);
-                    } else {
-                        $query->where('subject_id', '=', $value);
-                    }
-                    break;
-                case 'education_level_id':
-                    if (is_array($value)) {
-                        $query->whereIn('education_level_id', $value);
-                    } else {
-                        $query->where('education_level_id', '=', $value);
-                    }
-                    break;
-                case 'education_level_year':
-                    if (is_array($value)) {
-                        $query->whereIn('education_level_year', $value);
-                    } else {
-                        $query->where('education_level_year', '=', $value);
-                    }
-                    break;
-                case 'type':
-                    if (is_array($value)) {
-                        $filters['type'] = array_map('strtolower', $filters['type']);
-                        $query->whereIn('type', $value);
-                    } else {
-                        $filters['type'] = strtolower($filters['type']);
-                        $query->where('type', '=', $value);
-                    }
-                    break;
-                case 'subtype':
-                    $joinTable = null;
-                    if (is_array($filters['type']) && in_array($filters['type'], array('matchingquestion', 'multiplechoicequestion', 'completionquestion', 'openquestion'))) {
-                        break;
-                    }
-
-                    switch(strtolower($filters['type'])) {
-                        case 'matchingquestion':
-                        case 'multiplechoicequestion':
-                        case 'completionquestion':
-                        case 'openquestion':
-                            $joinTable = $filters['type'];
-                            break;
-                    }
-
-                    if ($joinTable !== null) {
-                        $joins[] = $joinTable;
-                    } else {
-                        break;
-                    }
-
-                    if (is_array($value)) {
-                        $query->whereIn('subtype', $value);
-                    }elseif(strtolower($value) == 'long'){
-                        $query->where('subtype', '=', 'long')->orWhere('subtype', '=', 'medium');
-                    } else {
-                        $query->where('subtype', '=', $value);
-                    }
-                    break;
-                case 'question':
-                    $query->where('question', 'LIKE', '%'.$value.'%');
-                    break;
-                case 'add_to_database':
-                    $query->where('add_to_database', '=', $value);
-                    break;
-                case 'is_subquestion':
-                    $query->where('is_subquestion', '=', $value);
-                    break;
-                case 'without_groups':
-                    $query->where('type', '!=', 'GroupQuestion');
-                    break;
-                case 'author_id':
-                   if (is_array($value)) {
-                       $query->join('question_authors','questions.id','=','question_authors.question_id')
-                           ->whereIn('question_authors.user_id',$value);
-                    } else {
-                       $query->join('question_authors','questions.id','=','question_authors.question_id')
-                           ->where('question_authors.user_id','=',$value);
-                    }
-                    break;
-            }
-        }
-
-        foreach($sorting as $key => $value) {
-            switch(strtolower($value)) {
-                case 'id':
-                case 'type':
-                case 'question':
-                    $key = $value;
-                    $value = 'asc';
-                    break;
-                case 'asc':
-                case 'desc':
-                    break;
-                default:
-                    $value = 'asc';
-            }
-            switch(strtolower($key)) {
-                case 'id':
-                case 'type':
-                case 'question':
-                    $query->orderBy($key, $value);
-                    break;
-            }
-        }
-
-        $joins = array_unique($joins);
-        foreach($joins as $target) {
-            switch (strtolower($target)) {
-                case 'tests':
-                    $test = new Test();
-                    $query->join($test->getTable(), $test->getTable() . '.' . $test->getKeyName(), '=', $this->getTable() . '.test_id');
-                    break;
-                case 'matchingquestion':
-                    $matchingQuestion = new MatchingQuestion();
-                    $query->join($matchingQuestion->getTable(), $matchingQuestion->getTable() . '.' . $matchingQuestion->getKeyName(), '=', $this->getTable() . '.' . $this->getKeyName());
-                    break;
-                case 'multiplechoicequestion':
-                    $multipleChoiceQuestion = new MultipleChoiceQuestion();
-                    $query->join($multipleChoiceQuestion->getTable(), $multipleChoiceQuestion->getTable() . '.' . $multipleChoiceQuestion->getKeyName(), '=', $this->getTable() . '.' . $this->getKeyName());
-                    break;
-                case 'completionquestion':
-                    $completionQuestion = new CompletionQuestion();
-                    $query->join($completionQuestion->getTable(), $completionQuestion->getTable() . '.' . $completionQuestion->getKeyName(), '=', $this->getTable() . '.' . $this->getKeyName());
-                    break;
-                case 'openquestion':
-                    $openQuestion = new OpenQuestion();
-                    $query->join($openQuestion->getTable(), $openQuestion->getTable() . '.' . $openQuestion->getKeyName(), '=', $this->getTable() . '.' . $this->getKeyName());
-                    break;
-                case 'groupquestion':
-                    $groupQuestion = new GroupQuestion();
-                    $query->leftJoin($groupQuestion->getTable(), $groupQuestion->getTable() . '.' . $groupQuestion->getKeyName(), '=', $this->getTable() . '.' . $this->getKeyName());
-                    break;
-            }
-        }
-
+        $this->handlePublishedFilterParams($query, $filters);
+        $this->handleFilteredSorting($query, $sorting);
+        $this->handleQueryJoins($query, array_unique($joins));
         return $query;
     }
 
@@ -1666,11 +1381,6 @@ class Question extends MtiBaseModel {
             ->where('test_questions.question_id', $this->getKey())
             ->orWhere('q.derived_question_id', $this->getKey())
             ->exists();
-
-//        $test->load('testQuestions:id,question_id', 'testQuestions.question:id,derived_question_id');
-//        return $test->testQuestions->filter(function($testQuestion) {
-//            return $testQuestion->question->id === $this->getKey() || $testQuestion->question->derived_question_id === $this->getKey();
-//        })->isNotEmpty();
     }
 
     public function hasCmsPreview()
@@ -1678,12 +1388,33 @@ class Question extends MtiBaseModel {
         return !$this->isType('matrix');
     }
 
-    public function makeClone()
+    public function attachToParentInTest($testUuid, $testQuestionUuidForGroupQuestion = null)
     {
-        $newQuestion = $this->duplicate($this->getAttributes());
-        $newQuestion->getQuestionInstance()->derived_question_id = null; //Clear derived question ID so it's a 'clean' copy;
-        $newQuestion->save();
+        $this->getConnectionModelToAttachTo($testUuid, $testQuestionUuidForGroupQuestion)->create([
+            'question_id'       => $this->getKey(),
+            'maintain_position' => 0,
+            'discuss'           => 1
+        ]);
+    }
 
-        return $newQuestion;
+    private function getConnectionModelToAttachTo($testUuid, $testQuestionUuidForGroupQuestion)
+    {
+        if ($testQuestionUuidForGroupQuestion) {
+            $groupQuestionId = TestQuestion::whereUuid($testQuestionUuidForGroupQuestion)->pluck('question_id')->first();
+            $connectionModel = GroupQuestion::whereId($groupQuestionId)->firstOrFail()->groupQuestionQuestions();
+        } else {
+            $connectionModel = Test::whereUuid($testUuid)->firstOrFail()->testQuestions();
+        }
+
+        return $connectionModel;
+    }
+
+    public function needsCleanCopy(): bool
+    {
+        return $this->isNationalItem(); //TODO implement for creathlon & make dynamic
+    }
+    public function isNationalItem(): bool
+    {
+        return collect(Test::NATIONAL_ITEMBANK_SCOPES)->contains($this->getQuestionInstance()->scope);
     }
 }

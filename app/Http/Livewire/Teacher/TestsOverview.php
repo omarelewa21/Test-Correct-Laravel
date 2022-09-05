@@ -3,18 +3,24 @@
 namespace tcCore\Http\Livewire\Teacher;
 
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Gate;
 use Livewire\Component;
 use Livewire\WithPagination;
 use tcCore\BaseSubject;
 use tcCore\EducationLevel;
 use tcCore\Http\Controllers\FileManagementUsersController;
+use tcCore\Http\Helpers\ContentSourceHelper;
 use tcCore\Subject;
 use tcCore\Test;
 use tcCore\TestAuthor;
+use tcCore\Traits\ContentSourceTabsTrait;
+use tcCore\User;
 
 class TestsOverview extends Component
 {
     use WithPagination;
+    use ContentSourceTabsTrait;
+    const ACTIVE_TAB_SESSION_KEY = 'tests-overview-active-tab';
 
     const PER_PAGE = 12;
 
@@ -23,8 +29,6 @@ class TestsOverview extends Component
     private $sorting = ['id' => 'desc'];
 
     protected $queryString = ['openTab', 'referrerAction' => ['except' => '']];
-
-    public $openTab = 'personal';
 
     public $referrerAction = '';
 
@@ -35,20 +39,6 @@ class TestsOverview extends Component
         'test-added'          => '$refresh',
         'testSettingsUpdated' => '$refresh',
     ];
-
-    private $allowedTabs = [
-        'personal', /*Persoonlijk*/
-        'school', /*School / Schoollocatie*/
-        'umbrella', /*Scholengemeenschap*/
-        'national', /*Nationaal*/
-    ];
-    private $defaultFilterTabs = [
-        'personal',
-        'school',
-    ];
-    private $publicTestsTabs = ['umbrella', 'national'];
-
-    public bool $hasSharedSections;
 
     public function render()
     {
@@ -67,12 +57,6 @@ class TestsOverview extends Component
         session(['tests-overview-filters' => $this->filters]);
     }
 
-    public function updatingOpenTab($value)
-    {
-        $this->resetPage();
-        session(['tests-overview-active-tab' => $value]);
-    }
-
     private function getDatasource()
     {
         try { // added for compatibility with mariadb
@@ -81,7 +65,7 @@ class TestsOverview extends Component
         }
 
         switch ($this->openTab) {
-            case 'school':
+            case 'school_location':
                 $datasource = $this->getSchoolDatasource();
                 break;
             case 'national':
@@ -89,6 +73,9 @@ class TestsOverview extends Component
                 break;
             case 'umbrella':
                 $datasource = $this->getUmbrellaDatasource();
+                break;
+            case 'creathlon':
+                $datasource = $this->getCreathlonDatasource();
                 break;
             case 'personal':
             default :
@@ -103,7 +90,7 @@ class TestsOverview extends Component
     {
         return Test::filtered(
             array_merge(
-                $this->cleanFilterForSearch($this->filters['school']),
+                $this->cleanFilterForSearch($this->filters['school_location']),
                 ['owner_id' => auth()->user()->school_location_id]
             ),
             $this->sorting
@@ -116,11 +103,13 @@ class TestsOverview extends Component
 
     private function getNationalDatasource()
     {
+        $filters = $this->cleanFilterForSearch($this->filters['national']);
+        if (!isset($filters['base_subject_id'])) {
+            $filters['base_subject_id'] = BaseSubject::currentForAuthUser()->pluck('id')->toArray();
+        }
+
         return Test::nationalItemBankFiltered(
-            array_merge(
-                $this->cleanFilterForSearch($this->filters['national']),
-                ['base_subject_id' => BaseSubject::currentForAuthUser()->pluck('id')->toArray()]
-            ),
+            $filters,
             $this->sorting
         )
             ->with('educationLevel', 'testKind', 'subject', 'author', 'author.school', 'author.schoolLocation')
@@ -153,6 +142,20 @@ class TestsOverview extends Component
             ->paginate(self::PER_PAGE);
     }
 
+    private function getCreathlonDatasource()
+    {
+        $filters = $this->cleanFilterForSearch($this->filters['creathlon']);
+        if (!isset($filters['base_subject_id'])) {
+            $filters['base_subject_id'] = BaseSubject::currentForAuthUser()->pluck('id')->toArray();
+        }
+
+        return Test::creathlonItemBankFiltered(
+            $filters,
+            $this->sorting
+        )
+            ->with('educationLevel', 'testKind', 'subject', 'author', 'author.school', 'author.schoolLocation')
+            ->paginate(self::PER_PAGE);
+    }
 
     private function setFilters()
     {
@@ -187,7 +190,7 @@ class TestsOverview extends Component
 
     public function getBasesubjectsProperty()
     {
-        if ($this->isPublicTestTab($this->openTab)) {
+        if ($this->isExternalContentTab($this->openTab)) {
             return $this->getBaseSubjectsOptions();
         }
         return [];
@@ -213,16 +216,7 @@ class TestsOverview extends Component
 
     private function filterSubjectsByTabName(string $tab)
     {
-        switch ($tab) {
-            case 'cito':
-                return Subject::citoFiltered([], ['name' => 'asc']);
-            case 'national':
-                return Subject::nationalItemBankFiltered([], ['name' => 'asc']);
-            case 'exams':
-                return Subject::examFiltered([], ['name' => 'asc']);
-            default:
-                return Subject::filtered(['imp' => 0, 'user_id' => Auth::id()], ['name' => 'asc']);
-        }
+        return Subject::filtered(['imp' => 0, 'user_id' => Auth::id()], ['name' => 'asc']);
     }
 
     public function getEducationLevelYearProperty()
@@ -252,15 +246,11 @@ class TestsOverview extends Component
 
     public function mount()
     {
-        if (auth()->user()->schoolLocation->allow_new_test_bank !== 1) {
-            abort(403);
-        }
-        if (!collect($this->allowedTabs)->contains($this->openTab)) {
-            abort(404);
-        }
+        $this->abortIfNewTestBankNotAllowed();
+
+        $this->initialiseContentSourceTabs();
+
         $this->setFilters();
-        $this->hasSharedSections = Auth::user()->hasSharedSections();
-        $this->openTab = session()->get('tests-overview-active-tab') ?? $this->openTab;
     }
 
     private function cleanFilterForSearch(array $filters)
@@ -328,18 +318,14 @@ class TestsOverview extends Component
 
     public function canFilterOnAuthors(): bool
     {
-        return !collect(['personal', 'national'])->contains($this->openTab);
+        return collect($this->canFilterOnAuthorTabs)->contains($this->openTab);
     }
 
     private function tabNeedsDefaultFilters($tab): bool
     {
-        return collect($this->defaultFilterTabs)->contains($tab);
+        return collect($this->schoolLocationInternalContentTabs)->contains($tab);
     }
 
-    public function isPublicTestTab($tab): bool
-    {
-        return collect($this->publicTestsTabs)->contains($tab);
-    }
 
     public function getMessageKey($resultsCount): string
     {
@@ -347,6 +333,16 @@ class TestsOverview extends Component
             return 'general.number-of-tests';
         }
 
-        return 'general.number-of-tests-'.$this->openTab;
+        return 'general.number-of-tests-' . $this->openTab;
+    }
+
+    /**
+     * @return void
+     */
+    public function abortIfNewTestBankNotAllowed(): void
+    {
+        if (auth()->user()->schoolLocation->allow_new_test_bank !== 1) {
+            abort(403);
+        }
     }
 }

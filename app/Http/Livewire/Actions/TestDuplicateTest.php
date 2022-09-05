@@ -11,15 +11,17 @@ class TestDuplicateTest extends Component
 
     public $uuid;
     public $variant;
-    public bool $showButton;
     public string $class;
+    public bool $disabled;
 
     public function mount($uuid, $variant='icon-button', $class = '')
     {
-        $this->showButton = !Test::findByUuid($this->uuid)->isNationalItem();
+        $test = Test::findByUuid($this->uuid);
+
         $this->uuid = $uuid;
         $this->variant = $variant;
         $this->class = $class;
+        $this->disabled = !($test->canCopy(auth()->user()) || $test->canCopyFromSchool(auth()->user()));
     }
 
 
