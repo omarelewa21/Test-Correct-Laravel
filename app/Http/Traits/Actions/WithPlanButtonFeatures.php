@@ -6,7 +6,7 @@ use tcCore\Test;
 
 trait WithPlanButtonFeatures
 {
-    public function planTest()
+    private function planTest()
     {
         $test = Test::findByUuid($this->uuid);
         $questionCount = $test->getQuestionCount();

@@ -18,7 +18,7 @@ class TestMakePdf extends TestAction
         $this->disabled = !Test::findByUuid($uuid)->canEdit(Auth::user());
     }
 
-    public function getTemporaryLoginToPdfForTest()
+    public function handle()
     {
         $controller = new TemporaryLoginController();
         $request = new Request();

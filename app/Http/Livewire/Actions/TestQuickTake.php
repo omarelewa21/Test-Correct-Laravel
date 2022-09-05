@@ -19,4 +19,9 @@ class TestQuickTake extends TestAction
 
         $this->disabled = Test::select(['id','test_kind_id'])->whereUuid($uuid)->firstOrFail()->isAssignment();
     }
+
+    public function handle()
+    {
+        $this->planTest();
+    }
 }

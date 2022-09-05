@@ -17,7 +17,7 @@ class TestDuplicateTest extends TestAction
     }
 
 
-    public function duplicateTest()
+    public function handle()
     {
         $test = Test::findByUuid($this->uuid);
 

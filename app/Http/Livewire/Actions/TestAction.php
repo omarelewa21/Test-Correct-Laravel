@@ -12,7 +12,7 @@ abstract class TestAction extends Component
     public $class;
     public $variant;
 
-    public function mount($uuid, $variant = 'icon-button', $class)
+    public function mount($uuid, $variant, $class)
     {
         $this->uuid = $uuid;
         $this->class = $class;
@@ -24,6 +24,8 @@ abstract class TestAction extends Component
         $templateName = Str::kebab(class_basename(get_called_class()));
         return view('livewire.actions.'.$templateName);
     }
+
+    public abstract function handle();
 
     protected function isInCms(): bool
     {

@@ -18,4 +18,9 @@ class TestPlanTest extends TestAction
     {
         parent::mount($uuid, $variant, $class);
     }
+
+    public function handle()
+    {
+        $this->planTest();
+    }
 }
