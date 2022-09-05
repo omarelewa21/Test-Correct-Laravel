@@ -2,18 +2,10 @@
 
 namespace tcCore\Http\Livewire\Teacher;
 
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Route;
-use Livewire\Component;
 use LivewireUI\Modal\ModalComponent;
-use tcCore\EducationLevel;
-use tcCore\Http\Controllers\TemporaryLoginController;
 use tcCore\Http\Traits\Modal\TestActions;
-use tcCore\Period;
-use tcCore\Subject;
 use tcCore\Test;
-use tcCore\TestKind;
 
 class TestCreateModal extends ModalComponent
 {
