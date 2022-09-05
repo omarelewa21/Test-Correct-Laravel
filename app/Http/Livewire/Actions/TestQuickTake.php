@@ -13,10 +13,10 @@ class TestQuickTake extends TestAction
 
     public bool $disabled;
 
-    public function mount($uuid, $variant = 'icon-button', $class)
+    public function mount($uuid, $variant = 'icon-button', $class = '')
     {
         parent::mount($uuid, $variant, $class);
 
-        $this->disabled = Test::select(['id','test_kind_id'])->whereUuid($uuid)->first()->isAssignment();
+        $this->disabled = Test::select(['id','test_kind_id'])->whereUuid($uuid)->firstOrFail()->isAssignment();
     }
 }

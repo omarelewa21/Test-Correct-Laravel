@@ -9,17 +9,23 @@ trait WithPlanButtonFeatures
     public function planTest()
     {
         $test = Test::findByUuid($this->uuid);
-        if ($test->meetsQuestionRequirementsForPlanning()) {
+        $questionCount = $test->getQuestionCount();
+        if ($test->meetsQuestionRequirementsForPlanning() && $questionCount > 0) {
             $this->emit('openModal', $this->modalName, ['testUuid' => $this->uuid]);
             return false;
         }
-        $primaryAction = false;
-        $message = __('modal.cannot_schedule_test_full_not_author');
 
+        if (!$questionCount) {
+            $this->emitToAlertModal(__('modal.cannot_schedule_no_questions'), false);
+            return true;
+        }
         if ($this->isInCms()) {
             $this->emitToAlertModal(__('modal.cannot_schedule_test_full_author'), false);
             return true;
         }
+
+        $primaryAction = false;
+        $message = __('modal.cannot_schedule_test_full_not_author');
         if ($test->author->is(auth()->user())) {
             $primaryAction = route('teacher.question-editor',
                 [
