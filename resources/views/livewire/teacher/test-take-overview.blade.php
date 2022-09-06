@@ -43,18 +43,24 @@
                             filterContainer="test-take-overview-{{ $this->openTab }}-active-filters"
                     />
 
-                    <x-input.group class="flex flex-1" label="{{ __('teacher.Datum') }}">
-                        <x-input.datepicker wire:model="filters.{{ $this->openTab }}.time_start_from" locale="nl"/>
+                    <x-input.group>
+                        <x-input.datepicker class="bg-offwhite"
+                                            wire:model="filters.{{ $this->openTab }}.time_start_from"
+                                            locale="{{ app()->getLocale() }}"
+                                            placeholder="{{ __('teacher.Datum') }}"/>
                     </x-input.group>
 
-                    <x-input.group class="flex flex-1" label="{{ __('teacher.Datum tot') }}">
-                        <x-input.datepicker wire:model="filters.{{ $this->openTab }}.time_start_to" locale="nl"/>
+                    <x-input.group>
+                        <x-input.datepicker class="bg-offwhite"
+                                            wire:model="filters.{{ $this->openTab }}.time_start_to"
+                                            locale="{{ app()->getLocale() }}"
+                                            placeholder="{{ __('teacher.Datum tot') }}"/>
                     </x-input.group>
 
                     @if($this->hasActiveFilters())
                         <x-button.text-button class="ml-auto text-base"
                                               size="sm"
-                                              @click="$dispatch('enable-loading-grid');document.getElementById('questionbank-{{ $this->openTab }}-active-filters').innerHTML = '';"
+                                              @click="$dispatch('enable-loading-grid');document.getElementById('test-take-overview-{{ $this->openTab }}-active-filters').innerHTML = '';"
                                               wire:click="clearFilters('{{ $this->openTab }}')"
                                               wire:key="clearfilters-{{ $this->openTab }}"
                         >
@@ -87,12 +93,6 @@
                             {{ $this->takenTestTakes->total() ?? 'geen' }} resultaten
                         {{--{{ trans_choice($this->getMessageKey($this->takenTestTakes->total()), $this->takenTestTakes->total(), ['count' => $this->takenTestTakes->total()]) }}--}}
                     </span>
-                    <div class="flex space-x-2.5">
-                        <x-button.cta class="px-4" wire:click="$emit('openModal', 'teacher.test-start-create-modal')">
-                            <x-icon.plus-2/>
-                            <span>{{ __('general.create test') }}</span>
-                        </x-button.cta>
-                    </div>
                 </div>
                 <x-grid class="my-4">
                     @foreach(range(1, 6) as $value)

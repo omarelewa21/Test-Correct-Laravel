@@ -7,6 +7,7 @@ document.addEventListener('alpine:init', () => {
         mode: mode,
         locale: locale,
         minDate: minDate,
+        picker: null,
         init() {
 
             // if(this.mode == 'range'){
@@ -14,7 +15,7 @@ document.addEventListener('alpine:init', () => {
             // } else {
             //     this.value = this.wireModel;
             // }
-            let picker = flatpickr(this.$refs.datepickr, {
+            this.picker = flatpickr(this.$refs.datepickr, {
                 locale: this.locale,
                 minDate: minDate == 'today' ? 'today' : false,
                 mode: this.mode,
@@ -24,6 +25,9 @@ document.addEventListener('alpine:init', () => {
                    this.wireModel = this.value = this.mode == 'range' ? dateString.split(' t/m ') : dateString; //split t/m or to
                 }
             })
+        },
+        clearPicker() {
+            this.picker.setDate('', false);
         }
     }));
 

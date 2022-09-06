@@ -6338,9 +6338,11 @@ addIdsToQuestionHtml = function addIdsToQuestionHtml() {
     questionContainers.forEach(function (item) {
       var decendents = item.querySelectorAll('*');
       decendents.forEach(function (decendent) {
-        decendent.id = 'questionhtml_' + id;
-        decendent.setAttribute('wire:key', 'questionhtml_' + id);
-        id += 1;
+        if (decendent.tagName != 'MATH' && !decendent.closest('math')) {
+          decendent.id = 'questionhtml_' + id;
+          decendent.setAttribute('wire:key', 'questionhtml_' + id);
+          id += 1;
+        }
       });
     });
   }, 1);
@@ -12556,6 +12558,7 @@ document.addEventListener('alpine:init', function () {
       mode: mode,
       locale: locale,
       minDate: minDate,
+      picker: null,
       init: function init() {
         var _this = this;
 
@@ -12564,7 +12567,7 @@ document.addEventListener('alpine:init', function () {
         // } else {
         //     this.value = this.wireModel;
         // }
-        var picker = (0,flatpickr__WEBPACK_IMPORTED_MODULE_0__["default"])(this.$refs.datepickr, {
+        this.picker = (0,flatpickr__WEBPACK_IMPORTED_MODULE_0__["default"])(this.$refs.datepickr, {
           locale: this.locale,
           minDate: minDate == 'today' ? 'today' : false,
           mode: this.mode,
@@ -12574,6 +12577,9 @@ document.addEventListener('alpine:init', function () {
             _this.wireModel = _this.value = _this.mode == 'range' ? dateString.split(' t/m ') : dateString; //split t/m or to
           }
         });
+      },
+      clearPicker: function clearPicker() {
+        this.picker.setDate('', false);
       }
     };
   });

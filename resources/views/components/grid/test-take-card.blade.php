@@ -44,6 +44,7 @@
             <span class="note">{{ __('test-take.Afgenomen op') }}:</span>
             <span class="note">{{ Carbon\Carbon::parse($testTake->time_start)->format('d/m/\'y') }}</span>
         </div>
+        @json($questions)
     </div>
     <div class="flex w-full justify-between text-base">
         <div>

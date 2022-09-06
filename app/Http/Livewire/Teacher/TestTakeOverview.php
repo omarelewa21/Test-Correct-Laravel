@@ -30,9 +30,7 @@ class TestTakeOverview extends Component
 
     protected $queryString = ['openTab'];
 
-    /*
-     * Component lifecycle hooks
-     */
+    /* Component lifecycle hooks */
     public function mount($stage)
     {
         if (!collect(self::STAGES)->has($stage) || !collect(self::TABS)->contains($this->openTab)) {
@@ -54,13 +52,9 @@ class TestTakeOverview extends Component
             $value = Carbon::parse($value)->format('Y-m-d');
         }
     }
-    /*
-     * End Component lifecycle hooks
-     */
+    /* End Component lifecycle hooks */
 
-    /*
-     * Computed properties
-     */
+    /* Computed properties */
     public function getTakenTestTakesProperty()
     {
         return $this->testTakes->paginate(self::PER_PAGE);
@@ -95,13 +89,9 @@ class TestTakeOverview extends Component
             ->distinct()
             ->optionList();
     }
-    /*
-     * End Computed properties
-     */
+    /* End Computed properties */
 
-    /*
-     * Filter methods
-     */
+    /* Filter methods */
     private function getFilters()
     {
         return collect($this->filters[$this->openTab])->reject(function ($filter) {
@@ -124,14 +114,13 @@ class TestTakeOverview extends Component
 
     public function hasActiveFilters()
     {
-        return $this->getFilters()->isNotEmpty();
+        return $this->getFilters()->except('test_take_status_id')->isNotEmpty();
     }
 
     public function clearFilters($tab = null)
     {
+        $this->dispatchBrowserEvent('clear-flatpickr');
         return $this->setFilters();
     }
-    /*
-     *  End Filter methods
-     */
+    /*  End Filter methods */
 }
