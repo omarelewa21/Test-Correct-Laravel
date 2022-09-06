@@ -33,12 +33,11 @@
             >
                 <x-icon.options class=""/>
             </button>
-
         </div>
     </div>
     <div class="flex w-full justify-between text-base mb-1">
         <div>
-            <span class="bold">{{ $testTake->test->subject->name }}</span>
+            <span class="bold">{!! $testTake->test->subject->name  !!}</span>
             <span class="italic">{{ $testTake->test->abbreviation }}</span>
         </div>
         <div class="text-sm">

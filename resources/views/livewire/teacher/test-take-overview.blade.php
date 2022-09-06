@@ -30,35 +30,51 @@
                             :options="$this->schoolClasses"
                             :withSearch="true"
                             placeholderText="{{ __('header.Klassen') }}"
-                            wire:model="filters.{{ $this->openTab }}.classes"
+                            wire:model="filters.{{ $this->openTab }}.school_class_id"
+                            filterContainer="test-take-overview-{{ $this->openTab }}-active-filters"
+                    />
+                    <x-input.choices-select
+                            wire:key="subjects_{{ $this->openTab }}"
+                            :multiple="true"
+                            :options="$this->subjects"
+                            :withSearch="true"
+                            placeholderText="{{ __('toetsenbakker_toetsinvite.Vak') }}"
+                            wire:model="filters.{{ $this->openTab }}.subject_id"
                             filterContainer="test-take-overview-{{ $this->openTab }}-active-filters"
                     />
 
-{{--                    @if($this->hasActiveFilters())--}}
-{{--                        <x-button.text-button class="ml-auto text-base"--}}
-{{--                                              size="sm"--}}
-{{--                                              @click="$dispatch('enable-loading-grid');document.getElementById('questionbank-{{ $this->openTab }}-active-filters').innerHTML = '';"--}}
-{{--                                              wire:click="clearFilters('{{ $this->openTab }}')"--}}
-{{--                                              wire:key="clearfilters-{{ $this->openTab }}"--}}
-{{--                        >--}}
-{{--                            <span class="min-w-max">{{ __('teacher.Filters wissen') }}</span>--}}
-{{--                            <x-icon.close-small/>--}}
-{{--                        </x-button.text-button>--}}
-{{--                    @else--}}
-{{--                        <x-button.text-button class="ml-auto text-base disabled"--}}
-{{--                                              size="sm"--}}
-{{--                                              disabled--}}
-{{--                                              wire:key="clearfilters-disabled-{{ $this->openTab }}"--}}
-{{--                        >--}}
-{{--                            <span class="min-w-max">{{ __('teacher.Filters wissen') }}</span>--}}
-{{--                            <x-icon.close-small/>--}}
-{{--                        </x-button.text-button>--}}
-{{--                    @endif--}}
+                    <x-input.group class="flex flex-1" label="{{ __('teacher.Datum') }}">
+                        <x-input.datepicker wire:model="filters.{{ $this->openTab }}.time_start_from" locale="nl"/>
+                    </x-input.group>
+
+                    <x-input.group class="flex flex-1" label="{{ __('teacher.Datum tot') }}">
+                        <x-input.datepicker wire:model="filters.{{ $this->openTab }}.time_start_to" locale="nl"/>
+                    </x-input.group>
+
+                    @if($this->hasActiveFilters())
+                        <x-button.text-button class="ml-auto text-base"
+                                              size="sm"
+                                              @click="$dispatch('enable-loading-grid');document.getElementById('questionbank-{{ $this->openTab }}-active-filters').innerHTML = '';"
+                                              wire:click="clearFilters('{{ $this->openTab }}')"
+                                              wire:key="clearfilters-{{ $this->openTab }}"
+                        >
+                            <span class="min-w-max">{{ __('teacher.Filters wissen') }}</span>
+                            <x-icon.close-small/>
+                        </x-button.text-button>
+                    @else
+                        <x-button.text-button class="ml-auto text-base disabled"
+                                              size="sm"
+                                              disabled
+                                              wire:key="clearfilters-disabled-{{ $this->openTab }}"
+                        >
+                            <span class="min-w-max">{{ __('teacher.Filters wissen') }}</span>
+                            <x-icon.close-small/>
+                        </x-button.text-button>
+                    @endif
                 </div>
                 <div id="test-take-overview-{{ $this->openTab }}-active-filters" wire:ignore>
                 </div>
             </div>
-            @json($this->schoolClasses)
             {{-- Content --}}
             <div class="flex flex-col pt-4 pb-16" style="min-height: 500px">
                 <div class="flex justify-between">

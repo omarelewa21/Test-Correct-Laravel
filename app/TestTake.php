@@ -7,10 +7,12 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Queue;
+use LaravelIdea\Helper\tcCore\_IH_SchoolClass_QB;
 use Ramsey\Uuid\Uuid;
 use tcCore\Events\InbrowserTestingUpdatedForTestParticipant;
 use tcCore\Events\NewTestTakeGraded;
 use tcCore\Events\NewTestTakeReviewable;
+use tcCore\Events\TestParticipantEvent;
 use tcCore\Events\TestTakeOpenForInteraction;
 use tcCore\Events\TestTakeShowResultsChanged;
 use tcCore\Http\Helpers\DemoHelper;
@@ -412,13 +414,21 @@ class TestTake extends BaseModel
 
     public function schoolClasses()
     {
-        $id = $this->getKey();
-        return SchoolClass::withTrashed()->select()->whereIn('id', function ($query) use ($id) {
-            $query->select('school_class_id')
-                ->from(with(new TestParticipant())->getTable())
-                ->where('test_take_id', $id)
-                ->where('deleted_at', null);
-        });
+        return TestTake::schoolClassesQuery()->where('test_participants.test_take_id', $this->getKey());
+    }
+
+    public static function schoolClassesForMultiple($testTakeIds)
+    {
+        return TestTake::schoolClassesQuery()->whereIn('test_participants.test_take_id', $testTakeIds);
+    }
+
+    public function scopeSchoolClassesQuery()
+    {
+        return SchoolClass::select(['school_classes.*'])
+            ->join('test_participants', 'test_participants.school_class_id', '=', 'school_classes.id')
+            ->whereNull('test_participants.deleted_at')
+            ->withTrashed()
+            ->distinct();
     }
 
     public function invigilators()
@@ -694,27 +704,20 @@ class TestTake extends BaseModel
                     $query->where('weight', '=', $value);
                     break;
                 case 'subject_id':
-                    $query->whereIn( $this->getTable() . '.id',
-                                    function ($query) use ($value)
-                                    {
-                                        $testTable = with(new Test())->getTable();
-                                        $query
-                                            ->select($this->getTable().'.id')
-                                            ->from($this->getTable())
-                                            ->join($testTable, $testTable . '.id', '=', $this->getTable() . '.test_id')
-                                            ->whereNull($testTable.'.deleted_at')
-                                            ->where(
-                                                    function($query) use ($value, $testTable)
-                                                    {
-                                                        $query->where(
-                                                                        function($query) use ($testTable, $value)
-                                                                        {
-                                                                            $query->where($testTable . '.subject_id', $value);
-                                                                        }
-                                                                    );
-                                                    }
-                                                );
-                                    });
+                    $query->whereIn(
+                        $this->getTable() . '.id',
+                        function($query) use ($value) {
+                            $query->select(['test_takes.id'])
+                                ->from($this->getTable())
+                                ->join('tests', 'tests.id', '=', 'test_takes.test_id')
+                                ->when(is_array($value),
+                                    fn($query) => $query->whereIn('tests.subject_id', $value),
+                                    fn($query) => $query->where('tests.subject_id', $value)
+                                )
+                                ->whereNull('tests.deleted_at')
+                                ->distinct();
+                        }
+                    );
                     break;
             }
         }
