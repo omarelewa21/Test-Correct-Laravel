@@ -30,10 +30,10 @@
 
         <div class="w-full max-w-screen-2xl mx-auto px-10 z-1">
             <div class="flex w-full justify-between">
-                <div class="flex items-center space-x-2.5">
-                    <x-button.back-round wire:click="redirectToTestOverview"/>
-                    <div class="flex text-lg bold">
-                        <span>{{ __('Toets') }}: {{ $this->test->name }}</span>
+                <div class="flex items-center space-x-2.5 w-full">
+                    <x-button.back-round class="shrink-0" wire:click="redirectToTestOverview"/>
+                    <div class="flex text-lg bold w-[calc(100%-50px)]">
+                        <span class="truncate ">{{ __('Toets') }}: {{ $this->test->name }}</span>
                     </div>
                 </div>
 

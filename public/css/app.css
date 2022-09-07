@@ -1535,6 +1535,9 @@ input[type=number] {
     box-shadow: 0 3px 8px 0 rgba(4, 31, 116, 0.2);
 }
 
+.word-break-words {
+    word-break: break-word;
+}
 /*!
  * FilePond 4.30.3
  * Licensed under MIT, https://opensource.org/licenses/MIT/
@@ -6119,6 +6122,9 @@ video {
 .w-14{
   width: 3.5rem;
 }
+.w-\[calc\(100\%-50px\)\]{
+  width: calc(100% - 50px);
+}
 .min-w-\[110px\]{
   min-width: 110px;
 }
@@ -6201,6 +6207,12 @@ video {
 .max-w-7xl{
   max-width: 80rem;
 }
+.max-w-\[120px\]{
+  max-width: 120px;
+}
+.max-w-\[100px\]{
+  max-width: 100px;
+}
 .flex-1{
   flex: 1 1 0%;
 }
@@ -6215,6 +6227,9 @@ video {
 }
 .shrink{
   flex-shrink: 1;
+}
+.shrink-0{
+  flex-shrink: 0;
 }
 .flex-grow{
   flex-grow: 1;

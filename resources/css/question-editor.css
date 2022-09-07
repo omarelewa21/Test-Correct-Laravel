@@ -331,3 +331,6 @@
     margin-right: -6.5px;
     overflow-x: none;
 }
+.word-break-words {
+    word-break: break-word;
+}

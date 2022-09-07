@@ -3,10 +3,10 @@
         <div class="flex w-full justify-between mb-2">
             <div class="flex pr-2.5">
                 @if($question->type === 'GroupQuestion')
-                    <h3 class="line-clamp-2 break-all min-h-[64px] @if(blank($question->name)) italic @endif"
+                    <h3 class="line-clamp-2 word-break-words min-h-[64px] @if(blank($question->name)) italic @endif"
                         title="{!! $question->name !!}">{!! filled($question->name) ? $question->name : __('question.no_question_text') !!} </h3>
                 @else
-                    <h3 class="line-clamp-2 break-all min-h-[64px] @if(blank($question->title)) italic @endif"
+                    <h3 class="line-clamp-2 word-break-words min-h-[64px] @if(blank($question->title)) italic @endif"
                         title="{{ $question->title }}">{{ $question->title ?? __('question.no_question_text') }}</h3>
                 @endif
             </div>
