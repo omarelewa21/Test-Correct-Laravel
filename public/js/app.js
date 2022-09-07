@@ -6231,12 +6231,96 @@ document.addEventListener('alpine:init', function () {
       }
     };
   });
-  alpinejs__WEBPACK_IMPORTED_MODULE_1__["default"].data('expandableGraph', function (id, subjectId, taxonomy) {
+  alpinejs__WEBPACK_IMPORTED_MODULE_1__["default"].data('analysesSubjectsGraph', function (data) {
+    return {
+      data: data,
+      colors: ['#30BC51', '#5043F6', '#ECEE7D', '#6820CE', '#CB110E', '#F79D25', '#1B6112', '#43ACF5', '#E12576', '#24D2C5'],
+      renderGraph: function renderGraph() {
+        var chart = anychart.column();
+        var series = chart.column(this.data);
+        var palette = anychart.palettes.rangeColors().items(this.colors); //.distinctColors();
+
+        for (var i = 0; series.getPoint(i).exists(); i++) {
+          series.getPoint(i).set("fill", palette.itemAt(i));
+        }
+
+        series.selected().fill("#444");
+        series.stroke(null);
+        var legend = chart.legend(); // enable legend
+
+        legend.enabled(true); // set source of legend items
+
+        legend.itemsSourceMode("categories");
+        legend.itemsFormatter(function (items) {
+          for (var i = 0; i < items.length; i++) {
+            items[i].iconType = "square";
+            items[i].iconFill = palette.itemAt([i]);
+            items[i].iconEnabled = true;
+          }
+
+          return items;
+        });
+        legend.listen("legendItemMouseOver", function (event) {
+          // get item's index
+          var index = event["itemIndex"]; // enable the hover state of the series
+
+          series.getPoint(index).hovered(true);
+        });
+        legend.listen("legendItemMouseOut", function (event) {
+          // get item's index
+          var index = event["itemIndex"]; // disable the hover state of the series
+
+          series.getPoint(index).hovered(false);
+        });
+        legend.listen("legendItemClick", function (event) {
+          // get item's index
+          var index = event["itemIndex"]; // disable the hover state of the series
+
+          series.getPoint(index).selected(!series.getPoint(index).selected());
+          legend.itemsFormatter(function (items) {
+            for (var i = 0; i < items.length; i++) {
+              items[i].iconType = "square";
+              if (series.getPoint(i).selected()) items[i].iconFill = "#444";else items[i].iconFill = palette.itemAt([i]);
+              items[i].iconEnabled = true;
+            }
+
+            return items;
+          });
+        });
+        chart.listen("pointsSelect", function () {
+          legend.itemsFormatter(function (items) {
+            for (var i = 0; i < items.length; i++) {
+              items[i].iconType = "square";
+              if (series.getPoint(i).selected()) items[i].iconFill = "#444";else items[i].iconFill = palette.itemAt([i]);
+              items[i].iconEnabled = true;
+            }
+
+            return items;
+          });
+        });
+        chart.listen("pointsSelect", function (e) {
+          window.open(e.point.get('link'), '_self');
+        });
+        chart.interactivity("by-x"); // rotate xAxis labels;
+
+        var xAxisLabels = chart.xAxis().labels();
+        xAxisLabels.rotation(-60); // set container id for the chart
+
+        chart.container('pValueChart'); // initiate chart drawing
+
+        chart.draw();
+      },
+      init: function init() {
+        this.renderGraph();
+      }
+    };
+  });
+  alpinejs__WEBPACK_IMPORTED_MODULE_1__["default"].data('expandableGraph', function (id, modelId, taxonomy) {
     return {
       data: false,
-      subjectId: subjectId,
+      modelId: modelId,
       taxonomy: taxonomy,
-      containerId: 'chart-' + subjectId + '-' + taxonomy,
+      containerId: 'chart-' + modelId + '-' + taxonomy,
       id: id,
       init: function init() {
         if (this.expanded) {
@@ -6257,7 +6341,7 @@ document.addEventListener('alpine:init', function () {
                   }
 
                   _context2.next = 3;
-                  return _this15.$wire.getData(_this15.subjectId, _this15.taxonomy);
+                  return _this15.$wire.getData(_this15.modelId, _this15.taxonomy);
 
                 case 3:
                   _this15.data = _context2.sent;

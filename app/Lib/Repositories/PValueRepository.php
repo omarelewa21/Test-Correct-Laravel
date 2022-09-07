@@ -357,7 +357,8 @@ class PValueRepository
     {
         return PValue::SelectRaw('avg(score/max_score) as score')
             ->addSelect([
-                'serie' => Subject::select('name')->whereColumn('id', 'p_values.subject_id')->limit(1)
+                'serie' => Subject::select('name')->whereColumn('id', 'p_values.subject_id')->limit(1),
+                'subject_id' => 'p_values.subject_id',
             ])
             ->join('test_participants', function ($join) use ($user) {
                 $join->on('p_values.test_participant_id', '=', 'test_participants.id')

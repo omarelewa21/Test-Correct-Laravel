@@ -9,6 +9,7 @@ use tcCore\Lib\Repositories\PValueTaxonomyBloomRepository;
 use tcCore\Lib\Repositories\PValueTaxonomyMillerRepository;
 use tcCore\Lib\Repositories\PValueTaxonomyRTTIRepository;
 use tcCore\Period;
+use tcCore\Subject;
 use tcCore\User;
 use function view;
 
@@ -34,9 +35,14 @@ class AnalysesOverviewDashboard extends AnalysesDashboard
         );
         //($result->toArray());//;->mapWithKey(fn($value, $key) => [$value->subject => $value->score]));
 
-        $this->dataValues = ($result->toArray());
-//        $this->dataKeys = array_keys($result);
-//
+        $this->dataValues = $result->map(function ($pValue) {
+            return (object)[
+                'x'     => $pValue->serie,
+                'value' => $pValue->score,
+                'link'  => route('student.analyses.subject.show', Subject::find($pValue->subject_id)->uuid),
+            ];
+        })->toArray();
+
         return $result;
     }
 
