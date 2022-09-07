@@ -204,7 +204,7 @@ class OpenShort extends Component implements QuestionCms
             'test_id'                  => '',
             'all_or_nothing'           => false,
             'lang'                     => $this->testLang ?? Auth::user()->schoolLocation->wscLanguage,
-            'add_to_database_disabled' => $this->testLang ?? Auth::user()->schoolLocation->wscLanguage,
+            'add_to_database_disabled' => 0,
         ];
 
         $this->audioUploadOptions = [];
