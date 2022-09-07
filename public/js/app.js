@@ -6231,32 +6231,88 @@ document.addEventListener('alpine:init', function () {
       }
     };
   });
-  alpinejs__WEBPACK_IMPORTED_MODULE_1__["default"].data('questionCardContextMenu', function () {
+  alpinejs__WEBPACK_IMPORTED_MODULE_1__["default"].data('contextMenuButton', function (context, uuid, contextData) {
     return {
       menuOpen: false,
-      questionUuid: null,
+      uuid: uuid,
+      contextData: contextData,
+      context: context,
+      gridCard: null,
+      showEvent: context + '-context-menu-show',
+      closeEvent: context + '-context-menu-close',
+      init: function init() {
+        this.gridCard = this.$root.closest('.grid-card');
+      },
+      handle: function handle() {
+        this.menuOpen = !this.menuOpen;
+
+        if (this.menuOpen) {
+          this.$dispatch(this.showEvent, {
+            uuid: this.uuid,
+            button: this.$root,
+            coords: {
+              top: this.gridCard.offsetTop,
+              left: this.gridCard.offsetLeft + this.gridCard.offsetWidth
+            },
+            contextData: this.contextData
+          });
+        } else {
+          this.$dispatch(this.closeEvent);
+        }
+      },
+      closeMenu: function closeMenu() {
+        this.menuOpen = false;
+      }
+    };
+  });
+  alpinejs__WEBPACK_IMPORTED_MODULE_1__["default"].data('contextMenuHandler', function () {
+    return {
+      contextMenuOpen: false,
+      uuid: null,
       inTest: null,
       correspondingButton: null,
       handleIncomingEvent: function handleIncomingEvent(detail) {
         var _this15 = this;
 
-        if (!this.menuOpen) return this.openMenu(detail);
+        if (!this.contextMenuOpen) return this.openMenu(detail);
         this.closeMenu();
         setTimeout(function () {
           _this15.openMenu(detail);
         }, 150);
       },
       openMenu: function openMenu(detail) {
-        this.questionUuid = detail.questionUuid;
-        this.inTest = detail.inTest;
-        this.correspondingButton = detail.button;
-        this.$root.style.top = detail.coords.top + 56 + 'px';
-        this.$root.style.left = detail.coords.left - 224 + 'px';
-        this.menuOpen = true;
+        var _this16 = this;
+
+        return _asyncToGenerator( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default().mark(function _callee2() {
+          var readyForShow;
+          return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default().wrap(function _callee2$(_context2) {
+            while (1) {
+              switch (_context2.prev = _context2.next) {
+                case 0:
+                  _this16.uuid = detail.uuid;
+                  _this16.inTest = detail.inTest;
+                  _this16.correspondingButton = detail.button;
+                  _this16.$root.style.top = detail.coords.top + 56 + 'px';
+                  _this16.$root.style.left = detail.coords.left - 224 + 'px';
+                  _context2.next = 7;
+                  return _this16.$wire.setContextValues(_this16.uuid, detail.contextData);
+
+                case 7:
+                  readyForShow = _context2.sent;
+                  if (readyForShow) _this16.contextMenuOpen = true;
+                  _this16.contextMenuOpen = true;
+
+                case 10:
+                case "end":
+                  return _context2.stop();
+              }
+            }
+          }, _callee2);
+        }))();
       },
       closeMenu: function closeMenu() {
         this.correspondingButton.dispatchEvent(new CustomEvent('close-menu'));
-        this.menuOpen = false;
+        this.contextMenuOpen = false;
       }
     };
   });

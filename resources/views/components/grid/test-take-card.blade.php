@@ -38,17 +38,19 @@
     <div class="flex w-full justify-between text-base mb-1">
         <div>
             <span class="bold">{!! $testTake->test->subject->name  !!}</span>
-            <span class="italic">{{ $testTake->test->abbreviation }}</span>
+            <span class="italic">{{ trans_choice('cms.vraag', $testTake->test->question_count) }}</span>
         </div>
         <div class="text-sm">
             <span class="note">{{ __('test-take.Afgenomen op') }}:</span>
             <span class="note">{{ Carbon\Carbon::parse($testTake->time_start)->format('d/m/\'y') }}</span>
         </div>
-        @json($questions)
     </div>
     <div class="flex w-full justify-between text-base">
         <div>
-            <span>autheur</span>
+            <span class="">{{ $author }}</span>
+        </div>
+        <div class="text-sm">
+            <span class="note ">{{ $schoolClasses }}</span>
         </div>
     </div>
 </div>

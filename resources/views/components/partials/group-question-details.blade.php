@@ -71,6 +71,6 @@
                 <span>Geen subvragen</span>
             @endforelse
         </x-grid>
-        <x-question-card-context-menu/>
+        <livewire:context-menu.question-card>
     </div>
 </div>

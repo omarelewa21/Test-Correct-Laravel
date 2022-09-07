@@ -307,7 +307,6 @@ class QuestionBank extends Component
             'teacher.question-detail-modal',
             [
                 'questionUuid' => $questionUuid,
-                'testUuid'     => $this->testId,
                 'inTest'       => $inTest
             ]
         );

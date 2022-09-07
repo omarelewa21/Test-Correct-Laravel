@@ -414,21 +414,12 @@ class TestTake extends BaseModel
 
     public function schoolClasses()
     {
-        return TestTake::schoolClassesQuery()->where('test_participants.test_take_id', $this->getKey());
+        return SchoolClass::fromTestTakes($this->getKey());
     }
 
     public static function schoolClassesForMultiple($testTakeIds)
     {
-        return TestTake::schoolClassesQuery()->whereIn('test_participants.test_take_id', $testTakeIds);
-    }
-
-    public function scopeSchoolClassesQuery()
-    {
-        return SchoolClass::select(['school_classes.*'])
-            ->join('test_participants', 'test_participants.school_class_id', '=', 'school_classes.id')
-            ->whereNull('test_participants.deleted_at')
-            ->withTrashed()
-            ->distinct();
+        return SchoolClass::fromTestTakes($testTakeIds);
     }
 
     public function invigilators()
@@ -706,17 +697,17 @@ class TestTake extends BaseModel
                 case 'subject_id':
                     $query->whereIn(
                         $this->getTable() . '.id',
-                        function($query) use ($value) {
-                            $query->select(['test_takes.id'])
-                                ->from($this->getTable())
-                                ->join('tests', 'tests.id', '=', 'test_takes.test_id')
-                                ->when(is_array($value),
-                                    fn($query) => $query->whereIn('tests.subject_id', $value),
-                                    fn($query) => $query->where('tests.subject_id', $value)
-                                )
-                                ->whereNull('tests.deleted_at')
-                                ->distinct();
-                        }
+                        TestTake::distinctTestTakesFromTests()
+                            ->when(is_int($value),
+                                fn($query) => $query->where('tests.subject_id', $value),
+                                fn($query) => $query->whereIn('tests.subject_id', $value)
+                            )
+                    );
+                    break;
+                case 'test_name':
+                    $query->whereIn(
+                        $this->getTable() . '.id',
+                        TestTake::distinctTestTakesFromTests()->where('tests.name', 'LIKE', "%$value%")
                     );
                     break;
             }
@@ -1165,13 +1156,22 @@ class TestTake extends BaseModel
 
     public function scopeWithCardAttributes($query, $attributes = null)
     {
-        $attributes ??= [
-            'test:id,name,subject_id,abbreviation',
-            'test.subject:id,name',
-            'testParticipants:id,user_id,test_take_status_id',
-            'testParticipants.schoolClass:id,name',
-        ];
+        return $query
+            ->with(['test' => fn($query) => $query->withCount('testQuestions')])
+            ->with([
+                'user:id,name,name_first,name_suffix',
+                'test.subject:id,name',
+                'testParticipants:id,user_id,test_take_id,test_take_status_id,school_class_id',
+                'testParticipants.schoolClass:id,name',
+            ]);
+    }
 
-        return $query->with($attributes);
+    public static function distinctTestTakesFromTests()
+    {
+        return TestTake::withoutGlobalScope(ArchivedScope::class)
+            ->select(['test_takes.id'])
+            ->join('tests', 'tests.id', '=', 'test_takes.test_id')
+            ->whereNull('tests.deleted_at')
+            ->distinct();
     }
 }

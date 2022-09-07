@@ -7,12 +7,17 @@ use Illuminate\View\Component;
 class TestTakeCard extends Component
 {
     public $testTake;
-    public $questions;
+    public $author;
+    public $schoolClasses;
 
-    public function __construct($testTake)
+    public function __construct($testTake, $schoolClasses)
     {
         $this->testTake = $testTake;
-        $this->questions = $testTake->test->getQuestionCount();
+        $this->author = $testTake->user->getFullNameWithAbbreviatedFirstName();
+        $this->schoolClasses = $schoolClasses->map(function ($class) {
+                return $class->label;
+            })
+            ->join(', ');
     }
 
     public function render(): string

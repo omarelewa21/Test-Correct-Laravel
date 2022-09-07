@@ -8,6 +8,7 @@ use Livewire\Component;
 use Livewire\WithPagination;
 use tcCore\SchoolClass;
 use tcCore\SchoolLocation;
+use tcCore\Scopes\ArchivedScope;
 use tcCore\Subject;
 use tcCore\TestTake;
 use tcCore\TestTakeStatus;
@@ -18,8 +19,9 @@ class TestTakeOverview extends Component
 
     const STAGES = [
         'planned' => [TestTakeStatus::STATUS_PLANNED],
-        'taken'  => [TestTakeStatus::STATUS_TAKEN, TestTakeStatus::STATUS_DISCUSSING],
-        'review' => [TestTakeStatus::STATUS_DISCUSSED, TestTakeStatus::STATUS_RATED],
+        'taken'   => [TestTakeStatus::STATUS_TAKEN, TestTakeStatus::STATUS_DISCUSSING],
+        'norm'    => [TestTakeStatus::STATUS_DISCUSSED],
+        'review'  => [TestTakeStatus::STATUS_RATED],
     ];
     const TABS = ['taken', 'norm'];
     const PER_PAGE = 12;
@@ -33,9 +35,7 @@ class TestTakeOverview extends Component
     /* Component lifecycle hooks */
     public function mount($stage)
     {
-        if (!collect(self::STAGES)->has($stage) || !collect(self::TABS)->contains($this->openTab)) {
-            abort(404);
-        }
+        $this->abortIfUnauthorized($stage);
 
         $this->setFilters();
         $this->stage = $stage;
@@ -48,9 +48,12 @@ class TestTakeOverview extends Component
 
     public function updatingFilters(&$value, $name)
     {
-        if (Str::contains($name, 'time_start_from') || Str::contains($name, 'time_start_to')) {
-            $value = Carbon::parse($value)->format('Y-m-d');
-        }
+        $this->resetPage();
+        $value = $this->parseDateIfNecessary($name, $value);
+    }
+    public function updatedOpenTab()
+    {
+        $this->resetPage();
     }
     /* End Component lifecycle hooks */
 
@@ -67,49 +70,56 @@ class TestTakeOverview extends Component
 
     public function getBaseTakesProperty()
     {
+        /* The user-unfiltered results to build subjects and schoolclasses filters with; */
         return TestTake::filtered([
-            'test_take_status_id' => [6, 7],
+            'test_take_status_id' => $this->getTestTakeStatusForFilter($this->openTab),
             'archived'            => 0,
         ], [])
-            ->get(['id', 'take_id']);
+            ->withoutGlobalScope(ArchivedScope::class)
+            ->get(['id', 'test_id']);
     }
 
     public function getSchoolClassesProperty()
     {
-        return TestTake::schoolClassesForMultiple($this->baseTakes->pluck('id'))
-            ->withoutGuestClasses()
-            ->optionList();
+        return TestTake::schoolClassesForMultiple($this->baseTakes->pluck('id'))->optionList();
     }
 
     public function getSubjectsProperty()
     {
-        return Subject::select(['subjects.id', 'subjects.name'])
-            ->join('tests', 'tests.subject_id', '=', 'subjects.id')
-            ->whereIn('tests.id', $this->baseTakes->pluck('test_id'))
-            ->distinct()
-            ->optionList();
+        return Subject::fromTests($this->baseTakes->pluck('test_id'))->optionList();
+    }
+
+    public function getTestTakesWithSchoolClassesProperty()
+    {
+        return $this->takenTestTakes->each(function ($take) {
+            $classes = $take->testParticipants->map(function ($participant) {
+                return $participant->school_class_id;
+            })->unique();
+
+            $take->schoolClasses = $this->schoolClasses->whereIn('value', $classes);
+        });
     }
     /* End Computed properties */
 
     /* Filter methods */
     private function getFilters()
     {
-        return collect($this->filters[$this->openTab])->reject(function ($filter) {
-            return empty($filter);
-        });
+        return collect($this->filters[$this->openTab])->reject(fn($filter) => empty($filter));
     }
 
     private function setFilters()
     {
-        $this->filters['taken'] = [
-            'test_take_status_id' => [6, 7],
-            'archived'            => 0,
-            'name'                => '',
-            'school_class_id'     => [],
-            'subject_id'          => [],
-            'time_start_from'     => '',
-            'time_start_to'       => '',
-        ];
+        collect(self::TABS)->each(function ($tab) {
+            $this->filters[$tab] = [
+                'test_take_status_id' => $this->getTestTakeStatusForFilter($tab),
+                'archived'            => 0,
+                'test_name'           => '',
+                'school_class_id'     => [],
+                'subject_id'          => [],
+                'time_start_from'     => '',
+                'time_start_to'       => '',
+            ];
+        });
     }
 
     public function hasActiveFilters()
@@ -119,8 +129,44 @@ class TestTakeOverview extends Component
 
     public function clearFilters($tab = null)
     {
-        $this->dispatchBrowserEvent('clear-flatpickr');
+        $this->dispatchBrowserEvent('clear-datepicker');
         return $this->setFilters();
     }
+
+    private function getTestTakeStatusForFilter($tab)
+    {
+        return self::STAGES[$tab] ?? [6];
+    }
     /*  End Filter methods */
+
+    /*  Helper methods */
+    /**
+     * @param $stage
+     * @return void
+     */
+    private function abortIfUnauthorized($stage): void
+    {
+        if (!collect(self::STAGES)->has($stage) || !collect(self::TABS)->contains($this->openTab)) {
+            abort(404);
+        }
+    }
+
+    /**
+     * @param $name
+     * @param $value
+     * @return mixed|string
+     */
+    private function parseDateIfNecessary($name, $value)
+    {
+        if (Str::contains($name, 'time_start_from') || Str::contains($name, 'time_start_to')) {
+            $value = Carbon::parse($value)->format('Y-m-d');
+        }
+        return $value;
+    }
+
+    public function getSchoolClassesWithoutGuestClasses()
+    {
+        return $this->schoolClasses->reject(fn($class) => $class->label === __('school_classes.guest_accounts'));
+    }
+    /* End Helper methods */
 }

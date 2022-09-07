@@ -13,7 +13,7 @@
                 '{{$minDate}}'
              )
     "
-     x-on:clear-flatpickr.window="clearPicker"
+     x-on:clear-datepicker.window="clearPicker"
 >
     <input placeholder="{{ $placeholder }}" style="min-width: 170px" type="text" x-ref="datepickr" class="datepicker pl-4 w-full form-input {{$multiple ? 'range' : 'single'}}">
     <div class="absolute right-2 top-1 h-[32px] w-[24px] flex items-center pointer-events-none">

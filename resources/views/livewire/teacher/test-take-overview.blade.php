@@ -1,5 +1,7 @@
-<div x-data="{openTab: @entangle('openTab')}">
-    <x-menu.tab.container>
+<div x-data="{openTab: @entangle('openTab')}"
+     class="relative top-0"
+>
+    <x-menu.tab.container :sticky="true">
         <x-menu.tab.item tab="taken" menu="openTab">
             {{ __('general.Mijn afgenomen toetsen') }}
         </x-menu.tab.item>
@@ -17,7 +19,7 @@
                         <x-input.group class="w-full">
                             <x-input.text class="w-full"
                                           placeholder="{{ __('cms.Search...') }}"
-                                          wire:model="filters.{{ $this->openTab }}.name"
+                                          wire:model="filters.{{ $this->openTab }}.test_name"
                             />
                             <x-icon.search class="absolute right-0 -top-2"/>
                         </x-input.group>
@@ -27,7 +29,7 @@
                     <x-input.choices-select
                             wire:key="SchoolClasses_{{ $this->openTab }}"
                             :multiple="true"
-                            :options="$this->schoolClasses"
+                            :options="$this->getSchoolClassesWithoutGuestClasses()"
                             :withSearch="true"
                             placeholderText="{{ __('header.Klassen') }}"
                             wire:model="filters.{{ $this->openTab }}.school_class_id"
@@ -78,7 +80,7 @@
                         </x-button.text-button>
                     @endif
                 </div>
-                <div id="test-take-overview-{{ $this->openTab }}-active-filters" wire:ignore>
+                <div id="test-take-overview-{{ $this->openTab }}-active-filters" class="flex flex-wrap gap-2 mt-2" wire:ignore>
                 </div>
             </div>
             {{-- Content --}}
@@ -103,8 +105,8 @@
                         />
                     @endforeach
 
-                    @foreach($this->takenTestTakes as $testTake)
-                        <x-grid.test-take-card :testTake="$testTake"/>
+                    @foreach($this->testTakesWithSchoolClasses as $testTake)
+                        <x-grid.test-take-card :testTake="$testTake" :schoolClasses="$testTake->schoolClasses"/>
                     @endforeach
                 </x-grid>
                 {{ $this->takenTestTakes->links('components.partials.tc-paginator') }}

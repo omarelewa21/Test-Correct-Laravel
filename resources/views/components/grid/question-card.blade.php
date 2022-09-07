@@ -27,25 +27,9 @@
              class="flex justify-center items-center w-10 h-10 absolute top-3 right-3 rounded-full hover:bg-primary/5 hover:text-primary text-sysbase"
              style="transition: background-color ease-in-out 100ms"
              :class="{'option-menu-active !text-white hover:!text-primary': menuOpen }"
-             x-data="{
-                    menuOpen: false,
-                    mouseOver: false,
-                    questionUuid: '{{ $question->uuid }}',
-                    inTest: @js($this->isQuestionInTest($question->id) || $this->isQuestionInTest($question->derived_question_id))
-                 }"
-             @close-menu="menuOpen = false"
-             @click.stop="
-                    menuOpen = !menuOpen;
-                    if(menuOpen) {
-                        $dispatch('question-card-context-menu-show', {questionUuid, inTest, button: $el,
-                        coords: {
-                            top: $el.closest('.grid-card').offsetTop,
-                            left: $el.closest('.grid-card').offsetLeft + $el.closest('.grid-card').offsetWidth
-                        }})
-                    } else {
-                        $dispatch('question-card-context-menu-close')
-                    }
-                    "
+             x-data="contextMenuButton('question-card',@js($question->uuid), {inTest: @js($this->isQuestionInTest($question->id) || $this->isQuestionInTest($question->derived_question_id)) })"
+             @close-menu="closeMenu()"
+             @click.stop="handle()"
         >
             <x-icon.options/>
         </div>

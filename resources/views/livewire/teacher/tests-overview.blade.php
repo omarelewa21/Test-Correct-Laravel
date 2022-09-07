@@ -17,9 +17,7 @@
      @question-added.window="Notify.notify('Vraag toegevoegd!')"
      @question-removed.window="Notify.notify('Vraag verwijderd!')"
 >
-    <x-menu.tab.container style="transition: top 0.3s linear;top: 150px"
-                          x-on:tiles-hidden.window="$el.style.top = '100px'"
-                          x-on:tiles-shown.window="$el.style.top = '150px'">
+    <x-menu.tab.container :sticky="true">
         <x-menu.tab.item tab="personal" menu="openTab">
             {{ __('general.Persoonlijk') }}
         </x-menu.tab.item>
