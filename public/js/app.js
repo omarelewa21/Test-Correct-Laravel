@@ -6236,9 +6236,20 @@ document.addEventListener('alpine:init', function () {
       data: data,
       colors: ['#30BC51', '#5043F6', '#ECEE7D', '#6820CE', '#CB110E', '#F79D25', '#1B6112', '#43ACF5', '#E12576', '#24D2C5'],
       renderGraph: function renderGraph() {
-        var chart = anychart.column();
+        var chart = anychart.column(); //
+        // this.data = [
+        //     {x:'a', value: 10, link: 'me'},
+        //     {x:'b', value: 10, link: 'me'},
+        //     {x:'c', value: 10, link: 'me'},
+        //     {x:'d', value: 10, link: 'me'},
+        //     {x:'e', value: 10, link: 'me'},
+        //     {x:'f', value: 10, link: 'me'},
+        //     {x:'g', value: 10, link: 'me'}
+        // ];
+
         var series = chart.column(this.data);
-        var palette = anychart.palettes.rangeColors().items(this.colors); //.distinctColors();
+        var palette = anychart.palettes.distinctColors();
+        palette.items(this.colors);
 
         for (var i = 0; series.getPoint(i).exists(); i++) {
           series.getPoint(i).set("fill", palette.itemAt(i));
@@ -6305,6 +6316,91 @@ document.addEventListener('alpine:init', function () {
 
         var xAxisLabels = chart.xAxis().labels();
         xAxisLabels.rotation(-60); // set container id for the chart
+
+        chart.container('pValueChart'); // initiate chart drawing
+
+        chart.draw();
+      },
+      init: function init() {
+        this.renderGraph();
+      }
+    };
+  });
+  alpinejs__WEBPACK_IMPORTED_MODULE_1__["default"].data('analysesAttainmentsGraph', function (data) {
+    return {
+      data: data,
+      colors: ['#30BC51', '#5043F6', '#ECEE7D', '#6820CE', '#CB110E', '#F79D25', '#1B6112', '#43ACF5', '#E12576', '#24D2C5'],
+      renderGraph: function renderGraph() {
+        var chart = anychart.column();
+        var series = chart.column(this.data);
+        var palette = anychart.palettes.distinctColors();
+        palette.items(this.colors);
+
+        for (var i = 0; series.getPoint(i).exists(); i++) {
+          series.getPoint(i).set("fill", palette.itemAt(i));
+        }
+
+        series.selected().fill("#444");
+        series.stroke(null);
+        var legend = chart.legend(); // enable legend
+
+        legend.enabled(true); // set source of legend items
+
+        legend.itemsSourceMode("categories");
+        legend.itemsFormatter(function (items) {
+          for (var i = 0; i < items.length; i++) {
+            items[i].iconType = "square";
+            items[i].iconFill = palette.itemAt([i]);
+            items[i].iconEnabled = true;
+          }
+
+          return items;
+        });
+        chart.tooltip().format("leerdoel: {%categoryName} \n: {%text}");
+        legend.listen("legendItemMouseOver", function (event) {
+          // get item's index
+          var index = event["itemIndex"]; // enable the hover state of the series
+
+          series.getPoint(index).hovered(true);
+        });
+        legend.listen("legendItemMouseOut", function (event) {
+          // get item's index
+          var index = event["itemIndex"]; // disable the hover state of the series
+
+          series.getPoint(index).hovered(false);
+        });
+        legend.listen("legendItemClick", function (event) {
+          // get item's index
+          var index = event["itemIndex"]; // disable the hover state of the series
+
+          series.getPoint(index).selected(!series.getPoint(index).selected());
+          legend.itemsFormatter(function (items) {
+            for (var i = 0; i < items.length; i++) {
+              items[i].iconType = "square";
+              if (series.getPoint(i).selected()) items[i].iconFill = "#444";else items[i].iconFill = palette.itemAt([i]);
+              items[i].iconEnabled = true;
+            }
+
+            return items;
+          });
+        });
+        chart.listen("pointsSelect", function () {
+          legend.itemsFormatter(function (items) {
+            for (var i = 0; i < items.length; i++) {
+              items[i].iconType = "square";
+              if (series.getPoint(i).selected()) items[i].iconFill = "#444";else items[i].iconFill = palette.itemAt([i]);
+              items[i].iconEnabled = true;
+            }
+
+            return items;
+          });
+        });
+        chart.listen("pointsSelect", function (e) {
+          window.open(e.point.get('link'), '_self');
+        });
+        chart.interactivity("by-x"); // rotate xAxis labels;
+
+        var xAxisLabels = chart.xAxis().labels(); // set container id for the chart
 
         chart.container('pValueChart'); // initiate chart drawing
 

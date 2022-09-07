@@ -74,11 +74,7 @@
             </x-slot>
 
             <div id="pValueChart" style="width: 500px; height: 400px;"></div>
-
-            <div x-data="analysesSubjectsGraph( @entangle('dataValues') )"
-                 x-on:filters-updated.window="renderGraph"
-            >
-            </div>
+                @yield('analyses.p-values-graph')
         </x-content-section>
 
         <BR/>

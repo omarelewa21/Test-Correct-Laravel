@@ -8,6 +8,13 @@
     {{ __('student.p waarde vakken') }}
 @endsection
 
+@section('analyses.p-values-graph')
+    <div x-data="analysesSubjectsGraph( @entangle('dataValues') )"
+         x-on:filters-updated.window="renderGraph"
+    >
+    </div>
+@endsection
+
 @section('analyses.top-items.title')
     {{ trans_choice('student.top vakken om aan te werken', count($this->topItems)) }}
 @endsection

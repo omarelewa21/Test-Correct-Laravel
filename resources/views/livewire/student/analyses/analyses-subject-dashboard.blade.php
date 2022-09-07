@@ -8,6 +8,13 @@
     {{ __('student.p waarde leerdoelen') }}
 @endsection
 
+@section('analyses.p-values-graph')
+    <div x-data="analysesAttainmentsGraph( @entangle('dataValues') )"
+         x-on:filters-updated.window="renderGraph"
+    >
+    </div>
+@endsection
+
 @section('analyses.top-items.title')
     {{ trans_choice('student.top leerdoelen om aan te werken', count($this->topItems)) }}
 @endsection

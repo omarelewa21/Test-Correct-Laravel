@@ -48,7 +48,7 @@ class AnalysesOverviewDashboard extends AnalysesDashboard
 
     public function render()
     {
-        $this->dispatchBrowserEvent('filters-updated');//, ['newName' => $value]);
+//        $this->dispatchBrowserEvent('filters-updated');//, ['newName' => $value]);
         return view('livewire.student.analyses.analyses-overview-dashboard')->layout('layouts.student');;
     }
 

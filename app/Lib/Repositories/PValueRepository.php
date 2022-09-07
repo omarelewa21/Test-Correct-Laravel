@@ -378,7 +378,8 @@ class PValueRepository
     {
         return PValue::SelectRaw('avg(score/max_score) as score')
             ->addSelect([
-                'serie' => Attainment::select('description')->whereColumn('id', 'p_value_attainments.attainment_id')->limit(1)
+                'serie' => Attainment::select('description')->whereColumn('id', 'p_value_attainments.attainment_id')->limit(1),
+                'attainment_id' => 'p_value_attainments.attainment_id',
             ])
             ->join('p_value_attainments', 'p_values.id', '=', 'p_value_attainments.p_value_id')
             ->join('test_participants', function ($join) use ($user) {

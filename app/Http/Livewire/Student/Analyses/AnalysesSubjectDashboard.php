@@ -44,10 +44,20 @@ class AnalysesSubjectDashboard extends AnalysesDashboard
             $this->getEducationLevelYearsByFilterValues(),
             $this->getTeachersByFilterValues()
         );
+
+        $this->dataValues = $result->map(function ($pValue, $key) {
+            return (object)[
+                'x'     => $key+1,
+                'value' => $pValue->score > 0 ? $pValue->score : 0,
+                'text'  => $pValue->serie,
+                'link'  => route('student.analyses.attainment.show', Attainment::find($pValue->attainment_id)->uuid),
+            ];
+        })->toArray();
+
+//        dd($this->dataValues[20]);
         //($result->toArray());//;->mapWithKey(fn($value, $key) => [$value->subject => $value->score]));
 
-
-        $this->dataValues = ($result->toArray());
+//        $this->dataValues = ($result->toArray());
 //        $this->dataKeys = array_keys($result);
 //
         return $result;
