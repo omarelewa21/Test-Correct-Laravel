@@ -94,7 +94,7 @@ class SchoolLocation extends BaseModel implements AccessCheckable
         'allow_new_student_environment', 'allow_new_question_editor',
         'keep_out_of_school_location_report',
         'main_phonenumber','internetaddress', 'show_exam_material', 'show_cito_quick_test_start', 'show_national_item_bank',
-        'allow_wsc', 'allow_writing_assignment',
+        'allow_wsc', 'allow_writing_assignment','license_type',
     ];
 
     /**
@@ -431,6 +431,7 @@ class SchoolLocation extends BaseModel implements AccessCheckable
                 (new DemoHelper())->changeDemoUsersAsSchoolLocationCustomerCodeChanged($schoolLocation,
                     $originalCustomerCode);
             }
+            $schoolLocation->handleLicenseTypeUpdate();
         });
 
         static::deleting(function (SchoolLocation $schoolLocation) {
@@ -1223,8 +1224,25 @@ class SchoolLocation extends BaseModel implements AccessCheckable
         }
     }
 
-    public function canUseCmsWithDrawer()
+    public function canUseCmsWithDrawer(): bool
     {
         return $this->allow_cms_drawer && $this->allow_new_drawing_question;
+    }
+
+    public static function getAvailableLicenseTypes(): array
+    {
+        return self::getPossibleEnumValues('license_type');
+    }
+
+    public function hasTrialLicense(): bool
+    {
+        return $this->license_type == 'TRIAL';
+    }
+
+    private function handleLicenseTypeUpdate()
+    {
+        if ($this->getOriginal('license_type') !== $this->getAttribute('license_type') && $this->getAttribute('license_type') === 'CLIENT') {
+            TrialPeriod::whereIn('user_id', $this->users()->pluck('id'))->delete();
+        }
     }
 }

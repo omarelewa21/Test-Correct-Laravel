@@ -8,17 +8,14 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Facades\Response;
-use PHPUnit\Util\Exception;
 use tcCore\BaseSubject;
 use tcCore\EmailConfirmation;
 use tcCore\Http\Helpers\ActingAsHelper;
 use tcCore\Http\Helpers\BaseHelper;
-use tcCore\Http\Helpers\DemoHelper;
 use tcCore\Http\Helpers\UserHelper;
 use tcCore\Http\Requests;
 use tcCore\Http\Requests\AllowOnlyAsTeacherRequest;
@@ -29,26 +26,16 @@ use tcCore\Http\Requests\UserMoveSchoolLocationRequest;
 use tcCore\Http\Traits\UserNotificationForController;
 use tcCore\Jobs\SendOnboardingWelcomeMail;
 use tcCore\Jobs\SendWelcomeMail;
-use tcCore\Jobs\SetSchoolYearForDemoClassToCurrent;
 use tcCore\Lib\Repositories\AverageRatingRepository;
 use tcCore\Lib\Repositories\PValueRepository;
 use tcCore\Lib\Repositories\TeacherRepository;
 use tcCore\Lib\User\Factory;
-use tcCore\LoginLog;
-use tcCore\Mail\PasswordChanged;
-use tcCore\Mail\PasswordChangedSelf;
-use tcCore\OnboardingWizardUserStep;
-use tcCore\QtiModels\ResourceImport;
-use tcCore\Scopes\RemoveUuidScope;
 use tcCore\Subject;
 use tcCore\TemporaryLogin;
-use tcCore\TestTakeStatus;
 use tcCore\User;
 use tcCore\Http\Requests\CreateUserRequest;
 use tcCore\Http\Requests\UpdateUserRequest;
 use tcCore\Http\Helpers\SchoolHelper;
-use tcCore\School;
-use tcCore\SchoolClass;
 use tcCore\UserRole;
 
 class UsersController extends Controller
@@ -71,6 +58,9 @@ class UsersController extends Controller
 
         if (is_array($request->get('with')) && in_array('studentSchoolClasses', $request->get('with'))) {
             $users->with('studentSchoolClasses');
+        }
+        if (is_array($request->get('with')) && in_array('trial_info', $request->get('with'))) {
+            $users->with('trialPeriod');
         }
 
         switch (strtolower($request->get('mode', 'paginate'))) {
@@ -270,7 +260,8 @@ class UsersController extends Controller
                             'teacher.subject',
                             'salesOrganization',
                             'school.schoolLocations',
-                            'schoolLocation'
+                            'schoolLocation',
+                            'trialPeriod'
                     );
 
         if (is_array($request->get('with')) && in_array('studentSubjectAverages', $request->get('with'))) {
@@ -568,9 +559,13 @@ class UsersController extends Controller
         return false;
     }
 
-    public function getGeneralTermsLogForUser(User $user)
+    public function getTimeSensitiveUserRecords(User $user)
     {
-        return Response::make($user->generalTermsLog,200);
+        $records = [
+            'userGeneralTermsLog' => $user->generalTermsLog,
+            'trialPeriod' => $user->trialPeriod
+            ];
+        return Response::make($records,200);
     }
 
     public function setGeneralTermsLogAcceptedAtForUser(User $user)
@@ -608,5 +603,14 @@ class UsersController extends Controller
         }
 
         return Response($url, 200);
+    }
+
+    public function updateTrialDate(Request $request, User $user)
+    {
+        $user->trialPeriod()->update([
+            'trial_until' => Carbon::parse($request->get('date'))->startOfDay()
+        ]);
+
+        return Response::make($user, 200);
     }
 }

@@ -28,7 +28,14 @@ class SchoolLocationsController extends Controller {
                 return Response::make($schoolLocations->get(), 200);
                 break;
             case 'list':
-                return Response::make($schoolLocations->pluck('name', 'id'), 200);
+                $locations = $schoolLocations->get(['name', 'id', 'license_type'])->mapWithKeys(function($location) use ($request) {
+                    $name = $location->name;
+                    if($request->has('with_trial_notation') && $location->hasTrialLicense()) {
+                        $name = sprintf('%s (%s)', $name, __('school_location.TRIAL'));
+                    }
+                    return [$location->id => $name];
+                });
+                return Response::make($locations, 200);
                 break;
             //list-uuid instead of replacing list for backwards compatibility
             case 'list-uuid':
@@ -75,10 +82,11 @@ class SchoolLocationsController extends Controller {
     public function show(SchoolLocation $schoolLocation)
     {
         $schoolLocation->load('user', 'school', 'schoolLocationAddresses', 'schoolLocationAddresses.address', 'schoolLocationContacts', 'schoolLocationContacts.contact', 'licenses', 'educationLevels');
-        if(request()->has('withLvsAndSso')){
+        if(request()->has('withAvailableEditOptions')){
             $schoolLocation['lvs_options'] = $schoolLocation->getLvsOptions();
             $schoolLocation['sso_options'] = $schoolLocation->getSsoOptions();
             $schoolLocation['has_run_manual_import'] = $schoolLocation->hasRunManualImport();
+            $schoolLocation['license_types'] = SchoolLocation::getAvailableLicenseTypes();
         }
         return Response::make($schoolLocation, 200);
     }
@@ -148,15 +156,14 @@ class SchoolLocationsController extends Controller {
         );
     }
 
-    public function getLvsAndSsoOptions()
+    public function getAvailableSchoolLocationOptions()
     {
-        $lvs_options = ['lvs' => SchoolLocation::getLvsOptions()];
-        $sso_options = ['sso' => SchoolLocation::getSsoOptions()];
-
-        return Response::make(
-            $lvs_options+$sso_options,
-            200
-        );
+        $options = [
+            'lvs'           => SchoolLocation::getLvsOptions(),
+            'sso'           => SchoolLocation::getSsoOptions(),
+            'license_types' => SchoolLocation::getAvailableLicenseTypes()
+        ];
+        return Response::make($options, 200);
     }
     public function getLvsType($schoolLocationId)
     {

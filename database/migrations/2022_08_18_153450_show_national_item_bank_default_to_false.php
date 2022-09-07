@@ -13,9 +13,11 @@ class ShowNationalItemBankDefaultToFalse extends Migration
      */
     public function up()
     {
-        Schema::table('school_locations', function (Blueprint $table) {
-            $table->dropColumn('show_national_item_bank');
-        });
+        if(Schema::hasColumn('school_locations','show_national_item_bank')) {
+            Schema::table('school_locations', function (Blueprint $table) {
+                $table->dropColumn('show_national_item_bank');
+            });
+        }
         Schema::table('school_locations', function (Blueprint $table) {
             $table->boolean('show_national_item_bank')->default(false);
         });
@@ -28,9 +30,11 @@ class ShowNationalItemBankDefaultToFalse extends Migration
      */
     public function down()
     {
-        Schema::table('school_locations', function (Blueprint $table) {
-            $table->dropColumn('show_national_item_bank');
-        });
+        if(Schema::hasColumn('school_locations','show_national_item_bank')) {
+            Schema::table('school_locations', function (Blueprint $table) {
+                $table->dropColumn('show_national_item_bank');
+            });
+        }
         Schema::table('school_locations', function (Blueprint $table) {
             $table->boolean('show_national_item_bank')->default(true);
         });
