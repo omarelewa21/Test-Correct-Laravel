@@ -41,8 +41,7 @@ class SchoolHelper
 
     public static function getTempTeachersSchoolLocation()
     {
-        $customerCode = BaseHelper::notProduction() ? 'OUD TC-tijdelijke-docentaccounts' : 'TC-tijdelijke-docentaccounts';
-        return SchoolLocation::where('customer_code',$customerCode)->first();
+        return SchoolLocation::where('customer_code','OUD TC-tijdelijke-docentaccounts')->orWhere('customer_code','TC-tijdelijke-docentaccounts')->first();
     }
 
     public static function denyIfTempTeacher() {
