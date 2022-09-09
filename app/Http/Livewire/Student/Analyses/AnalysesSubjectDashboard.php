@@ -47,19 +47,18 @@ class AnalysesSubjectDashboard extends AnalysesDashboard
 
         $this->dataValues = $result->map(function ($pValue, $key) {
             return (object)[
-                'x'     => $key+1,
-                'value' => $pValue->score > 0 ? $pValue->score : 0,
-                'text'  => $pValue->serie,
-                'link'  => route('student.analyses.attainment.show', Attainment::find($pValue->attainment_id)->uuid),
+                'x'       => $key + 1,
+                'title'   => __('student.leerdoel', ['number' => $key + 1]),
+                'count'   => $pValue->cnt,
+                'value'   => number_format(($pValue->score > 0 ? $pValue->score : 0), 2),
+                'text'    => $pValue->serie,
+                'basedOn' => trans_choice('student.attainment_tooltip_title', $pValue->cnt, [
+                    'basedOn' => $pValue->cnt
+                ]),
+                'link'    => route('student.analyses.attainment.show', Attainment::find($pValue->attainment_id)->uuid),
             ];
         })->toArray();
 
-//        dd($this->dataValues[20]);
-        //($result->toArray());//;->mapWithKey(fn($value, $key) => [$value->subject => $value->score]));
-
-//        $this->dataValues = ($result->toArray());
-//        $this->dataKeys = array_keys($result);
-//
         return $result;
     }
 
@@ -92,4 +91,8 @@ class AnalysesSubjectDashboard extends AnalysesDashboard
             $this->getTeachersByFilterValues());
     }
 
+    public function redirectBack()
+    {
+        return redirect(route('student.analyses.show'));
+    }
 }

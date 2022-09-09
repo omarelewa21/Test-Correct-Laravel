@@ -153,4 +153,7 @@ return [
     'top subleerdoelen om aan te werken'      => '{0}Geen relevante data beschikbaar voor top subleerdoel|{1}Top subleerdoel om aan te werken|[2,*] Top :count subleerdoelen om aan te werken',
     'Methode'                                 => 'methode',
     'Taxonomy'                                => 'Taxonomie',
+    'attainment_tooltip_title'                => '{0}Geen relevante data beschikbaar|{1}o.b.v. 1 vraag|[2,*]o.b.v. :basedOn vragen',
+    'leerdoel'                                => 'leerdoel :number',
+    'subleerdoel'                             => 'Subleerdoel :number',
 ];

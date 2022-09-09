@@ -1,3 +1,4 @@
+@yield('analyses.header.title')
 <div id="dashboard-body"
      class="px-4 lg:px-8 xl:px-24 relative w-full pb-10"
      x-data="{}"
@@ -6,9 +7,7 @@
      x-on:resize.window.debounce.200ms="addRelativePaddingToBody('dashboard-body')"
      wire:ignore.self
 >
-    <div class="flex my-10">
-        <h1>@yield('analyses.header.title')</h1>
-    </div>
+
     {{-- Filters--}}
     <div class="flex flex-col pt-4 pb-2">
         <div class="flex w-full items-center">
@@ -73,7 +72,7 @@
                 @yield('analyses.p-values-per-item.title')
             </x-slot>
 
-            <div id="pValueChart" style="width: 500px; height: 400px;"></div>
+            <div id="pValueChart" style="width: 900px; height: 400px;"></div>
                 @yield('analyses.p-values-graph')
         </x-content-section>
 

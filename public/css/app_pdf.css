@@ -4975,6 +4975,12 @@ video {
 .top-\[var\(--header-height\)\]{
   top: var(--header-height);
 }
+.top-20{
+  top: 5rem;
+}
+.top-\[225px\]{
+  top: 225px;
+}
 .isolate{
   isolation: isolate;
 }

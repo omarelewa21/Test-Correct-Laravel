@@ -115,4 +115,7 @@ return [
     'top subleerdoelen om aan te werken'      => '{0}No relevant data available for top sub-attainments|{1}Most important sub-attainment to work on|[2,*] Top :count sub-attainments to work on',
     'Methode'                                 => 'method',
     'Taxonomy'                                => 'Taxonomy',
+    'attainment_tooltip_title'                => '{0}No relevant data available|{1}based on 1 question[2,*]based on :basedOn questions',
+    'leerdoel'                                => 'Attainment :number',
+    'subleerdoel'                             => 'Sub attainment :number',
 ];

@@ -376,7 +376,7 @@ class PValueRepository
 
     public static function getPValuePerAttainmentForStudent(User $user, $periods, $educationLevelYears, $teachers)
     {
-        return PValue::SelectRaw('avg(score/max_score) as score')
+        return PValue::SelectRaw('avg(score/max_score) as score')->selectRaw('count(attainment_id) as cnt')
             ->addSelect([
                 'serie' => Attainment::select('description')->whereColumn('id', 'p_value_attainments.attainment_id')->limit(1),
                 'attainment_id' => 'p_value_attainments.attainment_id',
@@ -413,7 +413,7 @@ class PValueRepository
                 $q->join('p_value_users', 'p_value_users.p_value_id', '=', 'p_values.id')
                     ->whereIn('p_value_users.user_id', $teachers->pluck('id'));
             })
-            ->whereIn('p_value_attainments.attainment_id', Attainment::where('attainment_id', $attainment->getKey())->pluck('id')->toArray())
+            ->whereIn('p_value_attainments.attainment_id', Attainment::where('attainment_id', $attainment->getKey())->pluck('id'))
             ->groupBy('attainment_id')
             ->get();
     }

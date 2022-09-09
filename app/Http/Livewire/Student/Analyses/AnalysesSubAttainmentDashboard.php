@@ -13,7 +13,7 @@ use tcCore\Period;
 use tcCore\Subject;
 use tcCore\User;
 
-class AnalysesAttainmentDashboard extends AnalysesDashboard
+class AnalysesSubAttainmentDashboard extends AnalysesDashboard
 {
     public $attainment;
 
@@ -33,7 +33,7 @@ class AnalysesAttainmentDashboard extends AnalysesDashboard
     public function render()
     {
         $this->dispatchBrowserEvent('filters-updated');
-        return view('livewire.student.analyses.analyses-attainment-dashboard')->layout('layouts.student');
+        return view('livewire.student.analyses.analyses-sub-attainment-dashboard')->layout('layouts.student');
     }
 
     public function getDataProperty()
@@ -94,12 +94,6 @@ class AnalysesAttainmentDashboard extends AnalysesDashboard
             $this->getPeriodsByFilterValues(),
             $this->getEducationLevelYearsByFilterValues(),
             $this->getTeachersByFilterValues());
-    }
-
-    public function redirectBack()
-    {
-        dd($this->attainment);
-        return redirect(route('student.analyses.subject.show', Subject::find($this->attainment->subject_id)->uuid));
     }
 
 }
