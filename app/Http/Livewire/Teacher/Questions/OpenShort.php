@@ -750,6 +750,7 @@ class OpenShort extends Component implements QuestionCms
             $video = ['id' => Uuid::uuid4()->toString(), 'link' => $link];
             $this->videos[] = $video;
             $this->sortOrderAttachments[] = $video['id'];
+            $this->dirty = true;
             return $this->attachmentsCount++;
         }
 

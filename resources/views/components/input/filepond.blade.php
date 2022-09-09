@@ -17,33 +17,38 @@
                     process:(fieldName, file, metadata, load, error, progress, abort, transfer, options) => {
                         var fileType = file.type.split('/').pop();
                         if ($data.allowedTypes.includes(fileType)) {
-                            @this.upload('{{ $attributes->whereStartsWith('wire:model')->first() }}', file, (uploadedFilename) => {
-                                this.post.processedCount++
+                            @this.upload(@js($attributes->whereStartsWith('wire:model')->first()), file, (uploadedFilename) => {
 
-                                if(this.post.processedCount === this.post.currentBatchLength) {
-                                    $dispatch('filepond-finished')
-                                    this.post.processedCount = 0;
-                                    this.post.currentBatchLength = 0;
-                                }
                             }, () => {
 
                             }, (event) => {
-
+                                if (event.detail.progress === 100) {
+                                    this.post.processedCount++;
+                                }
+                                if(this.post.processedCount === this.post.currentBatchLength) {
+                                    $nextTick(() => $dispatch('filepond-finished'));
+                                    this.post.processedCount = 0;
+                                    this.post.currentBatchLength = 0;
+                                }
                             })
                         } else {
                             Notify.notify('{{ __('cms.file type not allowed') }} {{ __('cms.bestand')}}: '+file.name, 'error');
                         }
-
                     },
                     revert: (filename, load) => {
                         @this.removeUpload('{{ $attributes->whereStartsWith('wire:model')->first() }}', filename, load)
                     },
 
                 },
+                oninitfile: (file) => {
+                   this.post.currentBatchLength++;
+                },
                 onprocessfilestart: (file) => {
+                    $dispatch('filepond-start');
                     let dummy = document.querySelector('#attachment-badges > #dummy');
                     dummy.querySelector('span').innerHTML = file.filename;
                 },
+
                 onerror: (error, file, status) => {
                     if (error.main === 'File is too large' ) {
                         Notify.notify('{{ __('cms.File too large, max file size') }}', 'error');
@@ -57,7 +62,6 @@
                 for (var i = 0; i < event.detail.dataTransfer.items.length; i++) {
                    files.push(event.detail.dataTransfer.items[i].getAsFile());
                 }
-                this.post.currentBatchLength = files.length;
                 this.post.addFiles(files);
                 $dispatch('filepond-start');
         }

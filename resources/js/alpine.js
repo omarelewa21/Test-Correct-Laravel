@@ -280,6 +280,7 @@ document.addEventListener('alpine:init', () => {
         },
         setIndex() {
             const parent = this.$root.parentElement;
+            if(parent === null) return;
             this.index = Array.prototype.indexOf.call(parent.children, this.$el) + 1;
         }
     }));
