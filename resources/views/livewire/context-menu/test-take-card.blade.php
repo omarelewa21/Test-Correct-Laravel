@@ -5,7 +5,7 @@
         <x-slot name="text">{{ __('test-take.Open') }}</x-slot>
     </x-menu.context-menu.button>
 
-    <x-menu.context-menu.button>
+    <x-menu.context-menu.button wire:click="studentAnswersPdf">
         <x-slot name="icon"><x-icon.pdf-file/></x-slot>
         <x-slot name="text">{{ __('test-take.Antwoord PDF') }}</x-slot>
     </x-menu.context-menu.button>
@@ -16,7 +16,7 @@
     </x-menu.context-menu.button>
 
     <x-menu.context-menu.button wire:click="archive">
-        <x-slot name="icon"><x-icon.plus-2/></x-slot>
+        <x-slot name="icon"><x-icon.archive/></x-slot>
         <x-slot name="text">{{ __('test-take.Archiveren') }}</x-slot>
     </x-menu.context-menu.button>
 
