@@ -4,8 +4,9 @@
     'small' => false,
     'tooltipAlwaysLeft' => false,
     'checked' => false,
+    'containerClass' => '',
 ])
-<div class="border-b flex w-full justify-between items-center pt-2.5 pb-[11px]" style="border-color:inherit">
+<div class="border-b flex w-full justify-between items-center pt-2.5 pb-[11px] border-inherit {{ $containerClass }}">
     <div {{ $attributes->merge(['class' => 'flex items-center space-x-2.5 text-base']) }}>
         {{ $slot }}
     </div>

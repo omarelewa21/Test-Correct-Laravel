@@ -192,6 +192,6 @@ return [
     'toets_pdf'                                                                              => 'Test',
     'toets_pdf_omschrijving'                                                                 => 'Test with all questions. E.g. for taking on paper',
     'pdf_exporteren'                                                                         => 'Export PDF',
-
     'Search...'                                                                              => 'Search...',
+    'Direct afnemen'                                                                         => 'Quick start',
 ];
