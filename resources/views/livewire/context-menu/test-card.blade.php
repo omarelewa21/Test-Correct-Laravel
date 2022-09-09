@@ -1,4 +1,4 @@
-<x-context-menu-base context="test-card">
+<x-menu.context-menu.base context="test-card">
     @if($testUuid)
         <div wire:key="test-context-menu-buttons-{{ $testUuid }}"
              class="flex flex-col"
@@ -16,4 +16,4 @@
 
         </div>
     @endif
-</x-context-menu-base>
+</x-menu.context-menu.base>

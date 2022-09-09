@@ -640,6 +640,8 @@ document.addEventListener('alpine:init', () => {
         uuid: null,
         inTest: null,
         correspondingButton: null,
+        menuOffsetMarginTop: 56,
+        menuOffsetMarginLeft: 224,
         handleIncomingEvent(detail) {
             if (!this.contextMenuOpen) return this.openMenu(detail);
 
@@ -652,8 +654,8 @@ document.addEventListener('alpine:init', () => {
             this.uuid = detail.uuid;
             this.inTest = detail.inTest;
             this.correspondingButton = detail.button;
-            this.$root.style.top = (detail.coords.top + 56) + 'px';
-            this.$root.style.left = (detail.coords.left - 224) + 'px';
+            this.$root.style.top = (detail.coords.top + this.menuOffsetMarginTop) + 'px';
+            this.$root.style.left = (detail.coords.left - this.menuOffsetMarginLeft) + 'px';
 
             let readyForShow = await this.$wire.setContextValues(this.uuid, detail.contextData);
             if (readyForShow) this.contextMenuOpen = true;

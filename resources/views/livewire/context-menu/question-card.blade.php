@@ -1,23 +1,19 @@
-<x-context-menu-base context="question-card">
+<x-menu.context-menu.base context="question-card">
     <span></span>
     @if($this->isInCms())
-    <button class="flex items-center space-x-2 py-1 px-4 base hover:text-primary hover:bg-offwhite transition w-full"
-            @click="addQuestionToTest($el, uuid)"
-    >
-        <span class="w-5 flex justify-center"><x-icon.plus-2/></span>
-        <span class="bold">{{ __('cms.Toevoegen') }}</span>
-    </button>
+    <x-menu.context-menu.button x-on:click="addQuestionToTest($el, uuid)">
+        <x-slot name="icon"><x-icon.plus-2/></x-slot>
+        <x-slot name="text">{{ __('cms.Toevoegen') }}</x-slot>
+    </x-menu.context-menu.button>
     @endif
-    <button class="flex items-center space-x-2 py-1 px-4 base hover:text-primary hover:bg-offwhite transition w-full"
-            @click="$wire.emit('openModal', 'teacher.question-detail-modal', {questionUuid: uuid, inTest})"
-    >
-        <span class="w-5 flex justify-center"><x-icon.settings/></span>
-        <span class="bold">{{ __('cms.Instellingen') }}</span>
-    </button>
-    <button class="flex items-center space-x-2 py-1 px-4 base hover:text-primary hover:bg-offwhite transition w-full"
-            @click="$wire.emit('openModal', 'teacher.question-cms-preview-modal', {uuid: uuid, inTest})"
-    >
-        <span class="w-5 flex justify-center"><x-icon.preview/></span>
-        <span class="bold">{{ __('cms.voorbeeld') }}</span>
-    </button>
-</x-context-menu-base>
+
+    <x-menu.context-menu.button x-on:click="$wire.emit('openModal', 'teacher.question-detail-modal', {questionUuid: uuid, inTest})">
+        <x-slot name="icon"><x-icon.settings/></x-slot>
+        <x-slot name="text">{{ __('cms.Instellingen') }}</x-slot>
+    </x-menu.context-menu.button>
+
+    <x-menu.context-menu.button x-on:click="$wire.emit('openModal', 'teacher.question-cms-preview-modal', {uuid: uuid, inTest})">
+        <x-slot name="icon"><x-icon.preview/></x-slot>
+        <x-slot name="text">{{ __('cms.voorbeeld') }}</x-slot>
+    </x-menu.context-menu.button>
+</x-menu.context-menu.base>

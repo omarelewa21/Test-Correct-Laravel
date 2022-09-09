@@ -6271,6 +6271,8 @@ document.addEventListener('alpine:init', function () {
       uuid: null,
       inTest: null,
       correspondingButton: null,
+      menuOffsetMarginTop: 56,
+      menuOffsetMarginLeft: 224,
       handleIncomingEvent: function handleIncomingEvent(detail) {
         var _this15 = this;
 
@@ -6292,8 +6294,8 @@ document.addEventListener('alpine:init', function () {
                   _this16.uuid = detail.uuid;
                   _this16.inTest = detail.inTest;
                   _this16.correspondingButton = detail.button;
-                  _this16.$root.style.top = detail.coords.top + 56 + 'px';
-                  _this16.$root.style.left = detail.coords.left - 224 + 'px';
+                  _this16.$root.style.top = detail.coords.top + _this16.menuOffsetMarginTop + 'px';
+                  _this16.$root.style.left = detail.coords.left - _this16.menuOffsetMarginLeft + 'px';
                   _context2.next = 7;
                   return _this16.$wire.setContextValues(_this16.uuid, detail.contextData);
 

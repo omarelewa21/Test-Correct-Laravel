@@ -14,4 +14,8 @@ return [
     'De toets is ingenomen door de docent, je kunt daardoor niet verder werken. Sluit de toets.'                                  => 'The test has been taken by the teacher, so you cannot continue working. Close the test.',
     'you are currently offline and therefore you can not save your answers. Please restore your internet connection and continue' => 'you are currently offline and therefore you can not save your answers. Please restore your internet connection and continue',
     'Afgenomen op'                                                                                                                => 'Taken on',
+    'Open'                                                                                                                        => 'Open',
+    'Antwoord PDF'                                                                                                                => 'Answer PDF',
+    'Direct nakijken'                                                                                                             => 'Straight to scoring',
+    'Archiveren'                                                                                                                  => 'Archive',
 ];

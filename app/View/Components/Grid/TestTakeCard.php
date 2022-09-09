@@ -14,10 +14,7 @@ class TestTakeCard extends Component
     {
         $this->testTake = $testTake;
         $this->author = $testTake->user->getFullNameWithAbbreviatedFirstName();
-        $this->schoolClasses = $schoolClasses->map(function ($class) {
-                return $class->label;
-            })
-            ->join(', ');
+        $this->schoolClasses = $schoolClasses->map(fn($class) => $class->label)->join(', ');
     }
 
     public function render(): string

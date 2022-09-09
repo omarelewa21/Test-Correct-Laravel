@@ -1,6 +1,6 @@
 <div {{ $attributes->merge(['class' => 'grid-card bg-white p-6 rounded-10 card-shadow hover:text-primary cursor-pointer']) }}
      wire:key="test-take-{{ $testTake->uuid }}"
-{{--     wire:click="openTestDetail('{{ $testTake->uuid }}')"--}}
+     wire:click="openTestTakeDetail('{{ $testTake->uuid }}')"
      wire:loading.class="hidden"
      wire:target="filters,clearFilters,$set"
 >
@@ -9,31 +9,11 @@
             title="{{ $testTake->test->name }}"
             style="color:inherit"
         >{{ $testTake->test->name ?? __('test.test_name') }}</h3>
-        <div class="relative -top-3" x-data="{ testOptionMenu: false }"
-             id="test-card-options-{{ $testTake->uuid }}"
-        >
-            <button id="test{{ $testTake->id }}"
-                    class="px-4 py-1.5 -mr-4 h-10 w-10 rounded-full hover:bg-primary/5 text-sysbase transition-all"
-                    :class="{'option-menu-active !text-white hover:!text-primary': testOptionMenu }"
-                    @close-menu="testOptionMenu = false"
-                    @click.stop="
-                            testOptionMenu=!testOptionMenu;
-                            if (testOptionMenu) {
-                                $dispatch('test-card-context-menu-show', {
-                                    top: $el.closest('.grid-card').offsetTop,
-                                    left: $el.closest('.grid-card').offsetLeft + $el.closest('.grid-card').offsetWidth,
-                                    testUuid: '{{ $testTake->uuid }}',
-                                    button: $el,
-                                    openTab: '{{ $this->openTab }}'
-                                })
-                            } else {
-                                $dispatch('test-card-context-menu-close');
-                            }
-                     "
-            >
-                <x-icon.options class=""/>
-            </button>
-        </div>
+        <x-button.options id="test-take-card-{{ $testTake->uuid }}"
+                          context="test-take-card"
+                          :uuid="$testTake->uuid"
+
+        />
     </div>
     <div class="flex w-full justify-between text-base mb-1">
         <div>

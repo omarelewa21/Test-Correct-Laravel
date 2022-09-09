@@ -168,5 +168,10 @@ class TestTakeOverview extends Component
     {
         return $this->schoolClasses->reject(fn($class) => $class->label === __('school_classes.guest_accounts'));
     }
+
+    public function openTestTakeDetail($testTakeUuid)
+    {
+        return TestTake::redirectToDetailPage($testTakeUuid);
+    }
     /* End Helper methods */
 }

@@ -6,8 +6,8 @@
          wire:click="openDetail('{{ $question->uuid }}', @js($this->isQuestionInTest($question->id) || $this->isQuestionInTest($question->derived_question_id)))"
         @endif
 >
-    <div class="flex w-full justify-between mb-2 pr-10">
-        <div class="flex gap-2.5">
+    <div class="flex w-full justify-between mb-2">
+        <div class="flex gap-2.5 pr-2">
             @if($order)
                 <span class="rounded-full border-current text-sm flex items-center justify-center border-3 relative px-1.5 min-w-[30px] h-[30px]"
                       style="">
@@ -15,24 +15,18 @@
                 </span>
             @endif
             @if($question->isType('GroupQuestion'))
-                <h3 class="line-clamp-2 break-all min-h-[64px] @if(blank($question->name)) italic @endif"
+                <h3 class="line-clamp-2 break-all min-h-[64px]  @if(blank($question->name)) italic @endif"
                     title="{!! $question->name !!}">{!! filled($question->name) ? $question->name : __('question.no_question_text') !!}</h3>
             @else
                 <h3 class="line-clamp-2 break-all min-h-[64px] @if(blank($question->title)) italic @endif"
                     title="{{ $question->title }}">{{ $question->title ?? __('question.no_question_text') }}</h3>
             @endif
         </div>
-        <div id="question-card-option-button-{{ $question->uuid }}"
-             wire:key="question-card-option-button-{{ $question->uuid }}"
-             class="flex justify-center items-center w-10 h-10 absolute top-3 right-3 rounded-full hover:bg-primary/5 hover:text-primary text-sysbase"
-             style="transition: background-color ease-in-out 100ms"
-             :class="{'option-menu-active !text-white hover:!text-primary': menuOpen }"
-             x-data="contextMenuButton('question-card',@js($question->uuid), {inTest: @js($this->isQuestionInTest($question->id) || $this->isQuestionInTest($question->derived_question_id)) })"
-             @close-menu="closeMenu()"
-             @click.stop="handle()"
-        >
-            <x-icon.options/>
-        </div>
+        <x-button.options id="question-card-option-button-{{ $question->uuid }}"
+                          :uuid="$question->uuid"
+                          context="question-card"
+                          contextDataJson="{inTest: {{ ($this->isQuestionInTest($question->id) || $this->isQuestionInTest($question->derived_question_id)) ? 1 : 0 }} }"
+        />
     </div>
     <div class="flex w-full justify-between text-base mb-1">
         <div class="flex gap-5">

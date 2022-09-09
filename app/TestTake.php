@@ -1174,4 +1174,12 @@ class TestTake extends BaseModel
             ->whereNull('tests.deleted_at')
             ->distinct();
     }
+
+    public static function redirectToDetailPage($testTakeUuid)
+    {
+        $detailUrl = sprintf('test_takes/view/%s', $testTakeUuid);
+        $temporaryLogin = TemporaryLogin::createWithOptionsForUser('page', $detailUrl, auth()->user());
+
+        return redirect($temporaryLogin->createCakeUrl());
+    }
 }

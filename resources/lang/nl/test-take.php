@@ -15,4 +15,8 @@ return [
     'you are currently offline and therefore you can not save your answers. Please restore your internet connection and continue' => 'Je bent momenteel offline en kan daardoor je antwoord niet opslaan. Herstel je internet connectie en het antwoord wordt alsnog opgeslagen zodat je weer verder kunt.',
     'your connection is back online'                                                                                              => 'Je verbinding is weer online',
     'Afgenomen op'                                                                                                                => 'Afgenomen op',
+    'Open'                                                                                                                        => 'Open',
+    'Antwoord PDF'                                                                                                                => 'Antwoord PDF',
+    'Direct nakijken'                                                                                                             => 'Direct nakijken',
+    'Archiveren'                                                                                                                  => 'Archiveren',
 ];

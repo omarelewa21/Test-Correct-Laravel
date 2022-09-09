@@ -167,7 +167,7 @@
                 </x-grid>
                 {{ $results->links('components.partials.tc-paginator') }}
 
-                <livewire:teacher.tests-overview-context-menu/>
+                <livewire:context-menu.test-card/>
             </div>
         </div>
     </div>

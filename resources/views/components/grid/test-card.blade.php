@@ -10,15 +10,11 @@
             title="{{ $test->name }}"
             style="color:inherit"
         >{{ $test->name ? $test->name : __('test.test_name') }}</h3>
-        <div class="relative -top-3"
-             id="test-card-options-{{ $test->uuid }}"
-        >
-            <x-button.context-menu id="test{{ $test->id }}"
+            <x-button.options id="test{{ $test->id }}"
                                    context="test-card"
                                    :uuid="$test->uuid"
                                    contextDataJson="{openTab: '{{ $this->openTab }}' }"
             />
-        </div>
     </div>
     <div class="flex w-full justify-between text-base mb-1">
         <div>
