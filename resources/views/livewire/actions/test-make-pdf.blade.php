@@ -16,7 +16,7 @@
         @else
             <x-button.primary
                     class="w-10 p-0 items-center justify-center"
-                    @click="makePDF()"
+                    x-on:click="makePDF()"
                     title="{{ __('teacher.PDF maken') }}"
             >
                 <x-icon.pdf-file color="var(--off-white)"/>

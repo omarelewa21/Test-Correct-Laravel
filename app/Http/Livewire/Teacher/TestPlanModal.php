@@ -40,6 +40,8 @@ class TestPlanModal extends ModalComponent
                 'label' => collect([$invigilator->name_first, $invigilator->name])->join(' ')
             ];
         })->values()->toArray();
+
+        $this->resetModalRequest();
     }
 
     protected function rules()
@@ -126,5 +128,31 @@ class TestPlanModal extends ModalComponent
     public function render()
     {
         return view('livewire.teacher.test-plan-modal');
+    }
+
+    private function resetModalRequest()
+    {
+        $this->selectedClassesContainerId = 'selected_classes' . $this->test->getKey();
+        $this->selectedInvigilatorsContrainerId = 'selected_invigilator' . $this->test->getKey();
+
+        $this->request = [];
+
+        $this->request['visible'] = 1;
+        $this->request['date'] = now()->format('d-m-Y');
+        if ($this->isAssessmentType()) {
+            $this->request['time_end'] = now()->endOfDay();
+        }
+        $this->request['period_id'] = $this->allowedPeriods->first()->getKey();
+        $this->request['invigilators'] = [auth()->id()];
+        $this->request['weight'] = 5;
+        $this->request['test_id'] = $this->test->getKey();
+        $this->request['allow_inbrowser_testing'] = $this->isAssessmentType() ? 1 : 0;
+        $this->request['invigilator_note'] = '';
+        $this->request['test_kind_id'] = 3;
+
+        $this->request['retake'] = 0;
+        $this->request['guest_accounts'] = 0;
+        $this->request['school_classes'] = [];
+        $this->request['invigilators'] = [auth()->id()];
     }
 }

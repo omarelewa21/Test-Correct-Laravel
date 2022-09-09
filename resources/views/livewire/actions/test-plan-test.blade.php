@@ -1,6 +1,6 @@
 <div class="{{ $class ?? '' }}">
     @if($variant == 'icon-button-with-text')
-        <x-button.cta wire:click="planTest"
+        <x-button.cta wire:click="handle"
                       title="{{ __('teacher.Inplannen') }}"
                       class="px-4"
         >
