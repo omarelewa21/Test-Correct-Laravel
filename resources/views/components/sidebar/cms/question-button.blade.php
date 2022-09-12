@@ -10,7 +10,7 @@
                 })
              $store.cms.scrollPos = document.querySelector('.drawer').scrollTop;
                 "
-     title="{{ $question->typeName }}"
+     title="{{ __('cms.Open vraag') }}"
      style="max-width: 300px"
      data-order-number="{{ $loop }}"
      @if($subQuestion)

@@ -193,4 +193,7 @@ return [
     'pdf_exporteren'                                                                         => 'Exporteer PDF',
     'Search...'                                                                              => 'Zoek...',
     'Direct afnemen'                                                                         => 'Direct afnemen',
+    'Open vraag'                                                                             => 'Open vraag',
+    'Open vraaggroep'                                                                        => 'Open vraaggroep',
+    'inklappen/uitklappen'                                                                   => 'Inklappen/uitklappen'
 ];

@@ -220,12 +220,15 @@
     background-color: var(--primary-opacity-05);
 }
 
+#sidebar-carousel-container .group-question-questions {
+    --line-color-between-questions: var(--system-base);
+}
 #sidebar-carousel-container .group-question-questions .question-button:not(:last-child, :first-child) span.rounded-full::before {
     content: '';
     position: absolute;
     height: 30px;
     width: 3px;
-    background: var(--system-base);
+    background: var(--line-color-between-questions);
     top: -33px;
 }
 
@@ -234,7 +237,7 @@
     position: absolute;
     height: 30px;
     width: 1px;
-    border-left: dashed 3px var(--system-base);
+    border-left: dashed 3px var(--line-color-between-questions);
     left: 38px;
     top: -50%;
 }

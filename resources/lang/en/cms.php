@@ -194,4 +194,7 @@ return [
     'pdf_exporteren'                                                                         => 'Export PDF',
     'Search...'                                                                              => 'Search...',
     'Direct afnemen'                                                                         => 'Quick start',
+    'Open vraag'                                                                             => 'Open question',
+    'Open vraaggroep'                                                                        => 'Open group',
+    'inklappen/uitklappen'                                                                   => 'Collapse/expand'
 ];
