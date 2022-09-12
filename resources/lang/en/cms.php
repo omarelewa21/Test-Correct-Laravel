@@ -196,7 +196,7 @@ return [
     'Direct afnemen'                                                                         => 'Quick start',
     'Open vraag'                                                                             => 'Open question',
     'Open vraaggroep'                                                                        => 'Open group',
-    'inklappen/uitklappen'                                                                   => 'Collapse/expand'
+    'inklappen/uitklappen'                                                                   => 'Collapse/expand',
     'search_placeholder'                                                                     => 'Search...',
     'no_statistics_available'                                                                => 'No statistics available',
     'p_value_statistics'                                                                     => 'P-Value statistics',
