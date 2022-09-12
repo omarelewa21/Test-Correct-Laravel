@@ -1079,26 +1079,36 @@ class Test extends BaseModel
     public function canViewTestDetails(User $user): bool
     {
         return $this->hasAuthor($user) ||
-            ($user->schoolLocation->show_national_item_bank && $this->isNationalItemForMyBaseSubject()) ||
-            $this->isFromSharedSchool($user);
+            $this->isFromSchoolAndSameSection($user) ||
+            ($user->schoolLocation->show_national_item_bank && $this->isNationalItemForAllowedBaseSubject()) ||
+            $this->isFromSharedSchoolAndAllowedBaseSubject($user);
     }
 
-    private function isFromSharedSchool(User $user): bool
+    private function isFromSharedSchoolAndAllowedBaseSubject(User $user): bool
     {
-        return $this->canCopyFromSchool($user) && $this->subjectIsInMyCurrentBaseSubjects();
+        return $this->canCopyFromSchool($user) && $this->subjectIsInCurrentBaseSubjects();
     }
 
     public function hasAuthor(User $user): bool
     {
-        return $this->author->is($user);
+        return $this->testAuthors()->whereUserId($user->getKey())->exists();
     }
 
-    private function isNationalItemForMyBaseSubject(): bool
+    private function isNationalItemForAllowedBaseSubject(): bool
     {
-        return $this->isNationalItem() && $this->subjectIsInMyCurrentBaseSubjects();
+        return $this->isNationalItem() && $this->subjectIsInCurrentBaseSubjects();
     }
-    private function subjectIsInMyCurrentBaseSubjects(): bool
+
+    private function subjectIsInCurrentBaseSubjects(): bool
     {
         return BaseSubject::currentForAuthUser()->whereId($this->subject()->pluck('base_subject_id'))->exists();
+    }
+
+    private function isFromSchoolAndSameSection($user): bool
+    {
+        if ($this->owner_id === $user->school_location_id) {
+            return $user->sections()->where('id', $this->subject->section_id)->exists();
+        }
+        return false;
     }
 }
