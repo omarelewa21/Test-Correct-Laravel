@@ -1,6 +1,7 @@
 import Alpine from 'alpinejs';
 import Choices from "choices.js";
 import Intersect from '@alpinejs/intersect';
+import {content} from "../../tailwind.config";
 
 window.Alpine = Alpine;
 Alpine.plugin(Intersect);
@@ -826,7 +827,6 @@ document.addEventListener('alpine:init', () => {
                 chart.draw();
             },
 
-
             init() {
                 this.renderGraph()
             },
@@ -842,42 +842,44 @@ document.addEventListener('alpine:init', () => {
                     // get the data for the current point
                     var dataRow = data[e.pointIndex];
 
-                    while (contentElement.firstChild) {
-                        contentElement.firstChild.remove()
+                    if (contentElement) {
+                        while (contentElement.firstChild) {
+                            contentElement.firstChild.remove()
+                        }
+                        const attainmentHeader = document.createElement("h5");
+                        attainmentHeader.style.color = 'var(--system-base)'
+                        attainmentHeader.appendChild(document.createTextNode(dataRow.title));
+                        contentElement.appendChild(attainmentHeader);
+
+                        const scoreElement = document.createElement("h2");
+                        scoreElement.style.color = 'var(--system-base)'
+                        scoreElement.appendChild(document.createTextNode(`P ${dataRow.value}`));
+                        contentElement.appendChild(scoreElement);
+
+                        const basedOnElement = document.createElement("p");
+                        basedOnElement.style.color = 'var(--system-base)'
+                        basedOnElement.appendChild(document.createTextNode(dataRow.basedOn));
+                        contentElement.appendChild(basedOnElement);
+
+                        const detailElement = document.createElement("p");
+                        detailElement.style.whiteSpace = 'nowrap'
+                        detailElement.style.color = 'var(--system-base)';
+                        detailElement.style.fontWeight = '900';
+                        detailElement.appendChild(document.createTextNode("Bekijk analyse!! "));
+
+                        const iconElement = document.createElement('img');
+                        iconElement.src = '/svg/icons/arrow-small.svg';
+                        iconElement.style.display = 'inline-block'
+                        detailElement.appendChild(iconElement)
+                        contentElement.appendChild(detailElement);
+
+                        const AttainmentTexElement = document.createElement("p");
+                        AttainmentTexElement.style.color = 'var(--system-base)'
+                        AttainmentTexElement.appendChild(
+                            document.createTextNode(dataRow.text)
+                        );
+                        contentElement.appendChild(AttainmentTexElement);
                     }
-                    const attainmentHeader = document.createElement("h5");
-                    attainmentHeader.style.color = 'var(--system-base)'
-                    attainmentHeader.appendChild(document.createTextNode(dataRow.title));
-                    contentElement.appendChild(attainmentHeader);
-
-                    const scoreElement = document.createElement("h2");
-                    scoreElement.style.color = 'var(--system-base)'
-                    scoreElement.appendChild(document.createTextNode(`P ${dataRow.value}`));
-                    contentElement.appendChild(scoreElement);
-
-                    const basedOnElement = document.createElement("p");
-                    basedOnElement.style.color = 'var(--system-base)'
-                    basedOnElement.appendChild(document.createTextNode(dataRow.basedOn));
-                    contentElement.appendChild(basedOnElement);
-
-                    const detailElement = document.createElement("p");
-                    detailElement.style.whiteSpace = 'nowrap'
-                    detailElement.style.color = 'var(--system-base)';
-                    detailElement.style.fontWeight = '900';
-                    detailElement.appendChild(document.createTextNode("Bekijk analyse!! "));
-
-                    const iconElement = document.createElement('img');
-                    iconElement.src = '/svg/icons/arrow-small.svg';
-                    iconElement.style.display = 'inline-block'
-                    detailElement.appendChild(iconElement)
-                    contentElement.appendChild(detailElement);
-
-                    const AttainmentTexElement = document.createElement("p");
-                    AttainmentTexElement.style.color = 'var(--system-base)'
-                    AttainmentTexElement.appendChild(
-                        document.createTextNode(dataRow.text)
-                    );
-                    contentElement.appendChild(AttainmentTexElement);
                 });
 
 

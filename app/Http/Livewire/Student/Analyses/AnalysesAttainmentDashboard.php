@@ -65,9 +65,7 @@ class AnalysesAttainmentDashboard extends AnalysesDashboard
                 'link'    => route('student.analyses.subattainment.show', Attainment::find($pValue->attainment_id)->uuid),
             ];
         })->toArray();
-//        $this->dataKeys = array_keys($result);
 
-//
         return $result;
     }
 

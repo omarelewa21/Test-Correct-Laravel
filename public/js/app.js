@@ -84,6 +84,67 @@ module.exports = __webpack_require__(/*! regenerator-runtime */ "./node_modules/
 
 /***/ }),
 
+/***/ "./node_modules/@tailwindcss/line-clamp/src/index.js":
+/*!***********************************************************!*\
+  !*** ./node_modules/@tailwindcss/line-clamp/src/index.js ***!
+  \***********************************************************/
+/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
+
+const plugin = __webpack_require__(/*! tailwindcss/plugin */ "./node_modules/tailwindcss/plugin.js")
+
+const baseStyles = {
+  overflow: 'hidden',
+  display: '-webkit-box',
+  '-webkit-box-orient': 'vertical',
+}
+
+const lineClamp = plugin(
+  function ({ matchUtilities, addUtilities, theme, variants, e }) {
+    const values = theme('lineClamp')
+
+    matchUtilities(
+      {
+        'line-clamp': (value) => ({
+          ...baseStyles,
+          '-webkit-line-clamp': `${value}`,
+        }),
+      },
+      { values }
+    )
+
+    addUtilities(
+      [
+        {
+          '.line-clamp-none': {
+            '-webkit-line-clamp': 'unset',
+          },
+        },
+      ],
+      variants('lineClamp')
+    )
+  },
+  {
+    theme: {
+      lineClamp: {
+        1: '1',
+        2: '2',
+        3: '3',
+        4: '4',
+        5: '5',
+        6: '6',
+      },
+    },
+    variants: {
+      lineClamp: ['responsive'],
+    },
+  }
+)
+
+module.exports = lineClamp
+
+
+/***/ }),
+
 /***/ "./node_modules/alpinejs/dist/module.esm.js":
 /*!**************************************************!*\
   !*** ./node_modules/alpinejs/dist/module.esm.js ***!
@@ -5534,11 +5595,14 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var choices_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! choices.js */ "./node_modules/choices.js/public/assets/scripts/choices.js");
 /* harmony import */ var choices_js__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(choices_js__WEBPACK_IMPORTED_MODULE_2__);
 /* harmony import */ var _alpinejs_intersect__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! @alpinejs/intersect */ "./node_modules/@alpinejs/intersect/dist/module.esm.js");
+/* harmony import */ var _tailwind_config__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../../tailwind.config */ "./tailwind.config.js");
+/* harmony import */ var _tailwind_config__WEBPACK_IMPORTED_MODULE_4___default = /*#__PURE__*/__webpack_require__.n(_tailwind_config__WEBPACK_IMPORTED_MODULE_4__);
 
 
 function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { Promise.resolve(value).then(_next, _throw); } }
 
 function _asyncToGenerator(fn) { return function () { var self = this, args = arguments; return new Promise(function (resolve, reject) { var gen = fn.apply(self, args); function _next(value) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "next", value); } function _throw(err) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "throw", err); } _next(undefined); }); }; }
+
 
 
 
@@ -6420,36 +6484,38 @@ document.addEventListener('alpine:init', function () {
           // get the data for the current point
           var dataRow = data[e.pointIndex];
 
-          while (contentElement.firstChild) {
-            contentElement.firstChild.remove();
-          }
+          if (contentElement) {
+            while (contentElement.firstChild) {
+              contentElement.firstChild.remove();
+            }
 
-          var attainmentHeader = document.createElement("h5");
-          attainmentHeader.style.color = 'var(--system-base)';
-          attainmentHeader.appendChild(document.createTextNode(dataRow.title));
-          contentElement.appendChild(attainmentHeader);
-          var scoreElement = document.createElement("h2");
-          scoreElement.style.color = 'var(--system-base)';
-          scoreElement.appendChild(document.createTextNode("P ".concat(dataRow.value)));
-          contentElement.appendChild(scoreElement);
-          var basedOnElement = document.createElement("p");
-          basedOnElement.style.color = 'var(--system-base)';
-          basedOnElement.appendChild(document.createTextNode(dataRow.basedOn));
-          contentElement.appendChild(basedOnElement);
-          var detailElement = document.createElement("p");
-          detailElement.style.whiteSpace = 'nowrap';
-          detailElement.style.color = 'var(--system-base)';
-          detailElement.style.fontWeight = '900';
-          detailElement.appendChild(document.createTextNode("Bekijk analyse!! "));
-          var iconElement = document.createElement('img');
-          iconElement.src = '/svg/icons/arrow-small.svg';
-          iconElement.style.display = 'inline-block';
-          detailElement.appendChild(iconElement);
-          contentElement.appendChild(detailElement);
-          var AttainmentTexElement = document.createElement("p");
-          AttainmentTexElement.style.color = 'var(--system-base)';
-          AttainmentTexElement.appendChild(document.createTextNode(dataRow.text));
-          contentElement.appendChild(AttainmentTexElement);
+            var attainmentHeader = document.createElement("h5");
+            attainmentHeader.style.color = 'var(--system-base)';
+            attainmentHeader.appendChild(document.createTextNode(dataRow.title));
+            contentElement.appendChild(attainmentHeader);
+            var scoreElement = document.createElement("h2");
+            scoreElement.style.color = 'var(--system-base)';
+            scoreElement.appendChild(document.createTextNode("P ".concat(dataRow.value)));
+            contentElement.appendChild(scoreElement);
+            var basedOnElement = document.createElement("p");
+            basedOnElement.style.color = 'var(--system-base)';
+            basedOnElement.appendChild(document.createTextNode(dataRow.basedOn));
+            contentElement.appendChild(basedOnElement);
+            var detailElement = document.createElement("p");
+            detailElement.style.whiteSpace = 'nowrap';
+            detailElement.style.color = 'var(--system-base)';
+            detailElement.style.fontWeight = '900';
+            detailElement.appendChild(document.createTextNode("Bekijk analyse!! "));
+            var iconElement = document.createElement('img');
+            iconElement.src = '/svg/icons/arrow-small.svg';
+            iconElement.style.display = 'inline-block';
+            detailElement.appendChild(iconElement);
+            contentElement.appendChild(detailElement);
+            var AttainmentTexElement = document.createElement("p");
+            AttainmentTexElement.style.color = 'var(--system-base)';
+            AttainmentTexElement.appendChild(document.createTextNode(dataRow.text));
+            contentElement.appendChild(AttainmentTexElement);
+          }
         });
         chart.tooltip().onDomReady(function (e) {
           this.parentElement.style.border = '1px solid var(--blue-grey)';
@@ -14005,6 +14071,85 @@ WebspellcheckerTlc = {
       }
     }, 1000);
   }
+};
+
+/***/ }),
+
+/***/ "./tailwind.config.js":
+/*!****************************!*\
+  !*** ./tailwind.config.js ***!
+  \****************************/
+/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
+
+module.exports = {
+  content: ['./vendor/wire-elements/modal/resources/views/*.blade.php', './resources/**/*.{blade.php,js}'],
+  safelist: ['sm:w-full', 'sm:max-w-md', 'md:max-w-xl', 'lg:max-w-3xl', 'xl:max-w-5xl', '2xl:max-w-6xl', 'max-w-[600px]', 'max-w-modal', 'max-w-[720px]', 'mx-8'],
+  theme: {
+    extend: {
+      colors: {
+        primary: '#004df5',
+        secondary: '#CEDAF3',
+        sysbase: '#041f74',
+        bluegrey: '#c3d0ed',
+        offwhite: '#f9faff',
+        allred: '#cf1b04',
+        cta: '#3ab753',
+        ctamiddark: '#27973D',
+        ctadark: '#006314',
+        midgrey: '#929DAF',
+        student: '#ECDB00',
+        lightgreen: '#95cd3e',
+        orange: '#eca000',
+        note: '#6b7789',
+        lightGrey: '#F0F2F5'
+      },
+      borderWidth: {
+        '3': '3px',
+        '6': '6px'
+      },
+      width: {
+        '50': '12.5rem'
+      },
+      height: {
+        '12.5': '3.125rem'
+      },
+      zIndex: {
+        '1': 1
+      },
+      maxWidth: {
+        'modal': '700px'
+      }
+    },
+    keyframes: {
+      knightrider: {
+        '0%': {
+          left: '0'
+        },
+        '50%': {
+          left: '85%'
+        },
+        '100%': {
+          left: '0'
+        }
+      },
+      borderPulse: {
+        '0%': {
+          'border-color': 'rgba(255,255,255, 1)'
+        },
+        '50%': {
+          'border-color': 'rgba(255,255,255, .2)'
+        },
+        '100%': {
+          'border-color': 'rgba(255,255,255, 1)'
+        }
+      }
+    },
+    animation: {
+      'knightrider': 'knightrider 2s ease infinite',
+      'borderpulse': 'borderPulse 3s ease infinite'
+    }
+  },
+  plugins: [__webpack_require__(/*! @tailwindcss/line-clamp */ "./node_modules/@tailwindcss/line-clamp/src/index.js")]
 };
 
 /***/ }),
@@ -75533,6 +75678,81 @@ Sortable.mount(Remove, Revert);
 
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (Sortable);
 
+
+
+/***/ }),
+
+/***/ "./node_modules/tailwindcss/lib/public/create-plugin.js":
+/*!**************************************************************!*\
+  !*** ./node_modules/tailwindcss/lib/public/create-plugin.js ***!
+  \**************************************************************/
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({
+    value: true
+}));
+exports["default"] = void 0;
+var _createPlugin = _interopRequireDefault(__webpack_require__(/*! ../util/createPlugin */ "./node_modules/tailwindcss/lib/util/createPlugin.js"));
+function _interopRequireDefault(obj) {
+    return obj && obj.__esModule ? obj : {
+        default: obj
+    };
+}
+var _default = _createPlugin.default;
+exports["default"] = _default;
+
+
+/***/ }),
+
+/***/ "./node_modules/tailwindcss/lib/util/createPlugin.js":
+/*!***********************************************************!*\
+  !*** ./node_modules/tailwindcss/lib/util/createPlugin.js ***!
+  \***********************************************************/
+/***/ ((__unused_webpack_module, exports) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({
+    value: true
+}));
+exports["default"] = void 0;
+function createPlugin(plugin, config) {
+    return {
+        handler: plugin,
+        config
+    };
+}
+createPlugin.withOptions = function(pluginFunction, configFunction = ()=>({})) {
+    const optionsFunction = function(options) {
+        return {
+            __options: options,
+            handler: pluginFunction(options),
+            config: configFunction(options)
+        };
+    };
+    optionsFunction.__isOptionsFunction = true;
+    // Expose plugin dependencies so that `object-hash` returns a different
+    // value if anything here changes, to ensure a rebuild is triggered.
+    optionsFunction.__pluginFunction = pluginFunction;
+    optionsFunction.__configFunction = configFunction;
+    return optionsFunction;
+};
+var _default = createPlugin;
+exports["default"] = _default;
+
+
+/***/ }),
+
+/***/ "./node_modules/tailwindcss/plugin.js":
+/*!********************************************!*\
+  !*** ./node_modules/tailwindcss/plugin.js ***!
+  \********************************************/
+/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
+
+let createPlugin = __webpack_require__(/*! ./lib/public/create-plugin */ "./node_modules/tailwindcss/lib/public/create-plugin.js")
+module.exports = (createPlugin.__esModule ? createPlugin : { default: createPlugin }).default
 
 
 /***/ }),
