@@ -5927,6 +5927,8 @@ document.addEventListener('alpine:init', function () {
       slides: ['home', 'type', 'newquestion', 'questionbank'],
       activeSlide: null,
       scrollTimeout: null,
+      pollingInterval: 2500, // Milliseconds;
+      awaitUpdating: false,
       init: function init() {
         var _this8 = this;
 
@@ -5938,6 +5940,7 @@ document.addEventListener('alpine:init', function () {
 
           _this8.scrollActiveQuestionIntoView();
         }, 400);
+        this.poll(this.pollingInterval);
       },
       next: function next(currentEl) {
         var left = this.$refs.questionEditorSidebar.scrollLeft + this.slideWidth;
@@ -5954,15 +5957,13 @@ document.addEventListener('alpine:init', function () {
         this.scroll(0, scrollActiveIntoView);
         if (!this.$store.cms.emptyState) this.$dispatch('backdrop');
         this.handleVerticalScroll(this.$refs.home);
+        this.$dispatch('closed-with-backdrop', false);
       },
       scroll: function scroll(position) {
         var scrollActiveIntoView = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : true;
         this.setActiveSlideProperty(position);
         if (scrollActiveIntoView) this.scrollActiveQuestionIntoView();
-        this.$refs.questionEditorSidebar.scrollTo({
-          left: position >= 0 ? position : 0,
-          behavior: 'smooth'
-        });
+        this.$refs.questionEditorSidebar.scrollTo(this.getScrollToProperties(position));
         this.$store.cms.scrollPos = 0;
       },
       handleVerticalScroll: function handleVerticalScroll(el) {
@@ -5989,18 +5990,29 @@ document.addEventListener('alpine:init', function () {
         this.$root.insertBefore(toInsert, this.$refs.type.nextElementSibling);
       },
       showNewQuestion: function showNewQuestion(container) {
+        var _this10 = this;
+
         this.setNextSlide(this.$refs.newquestion);
-        this.next(container);
+        this.$nextTick(function () {
+          _this10.next(container);
+        });
       },
       showQuestionBank: function showQuestionBank() {
+        var _this11 = this;
+
         this.setNextSlide(this.$refs.questionbank);
-        this.drawer.classList.add('fullscreen');
-        var boundingRect = this.$refs.questionbank.getBoundingClientRect();
-        this.scroll(boundingRect.x + boundingRect.width);
-        this.$store.questionBank.active = true;
+        this.$nextTick(function () {
+          _this11.drawer.classList.add('fullscreen');
+
+          var boundingRect = _this11.$refs.questionbank.getBoundingClientRect();
+
+          _this11.scroll(boundingRect.x + boundingRect.width);
+
+          _this11.$store.questionBank.active = true;
+        });
       },
       hideQuestionBank: function hideQuestionBank() {
-        var _this10 = this;
+        var _this12 = this;
 
         this.$root.querySelectorAll('.slide-container').forEach(function (slide) {
           slide.classList.add('opacity-0');
@@ -6014,22 +6026,22 @@ document.addEventListener('alpine:init', function () {
         }
 
         this.$nextTick(function () {
-          _this10.drawer.classList.remove('fullscreen');
+          _this12.drawer.classList.remove('fullscreen');
 
-          _this10.home(); // this.scroll(container.parentElement.firstElementChild.offsetWidth);
+          _this12.home(); // this.scroll(container.parentElement.firstElementChild.offsetWidth);
 
 
           setTimeout(function () {
-            _this10.$root.querySelectorAll('.slide-container').forEach(function (slide) {
+            _this12.$root.querySelectorAll('.slide-container').forEach(function (slide) {
               slide.classList.remove('opacity-0');
             });
 
-            _this10.$wire.emitTo('drawer.cms', 'refreshDrawer');
+            _this12.$wire.emitTo('drawer.cms', 'refreshDrawer');
 
-            _this10.$dispatch('resize');
+            _this12.$dispatch('resize');
           }, 400);
 
-          _this10.$wire.emitTo('drawer.cms', 'refreshDrawer');
+          _this12.$wire.emitTo('drawer.cms', 'refreshDrawer');
         });
       },
       addQuestionToGroup: function addQuestionToGroup(uuid) {
@@ -6072,48 +6084,74 @@ document.addEventListener('alpine:init', function () {
         return true;
       },
       backToQuestionOverview: function backToQuestionOverview(container) {
-        this.prev(container);
+        this.home(false);
         this.$store.questionBank.inGroup = false;
       },
       handleResizing: function handleResizing() {
-        var _this11 = this;
+        var _this13 = this;
 
         clearTimeout(this.resizeTimout);
 
         if (this.$store.questionBank.active) {
           if (!this.resizing) this.resizing = true;
           this.resizeTimout = setTimeout(function () {
-            _this11.$root.scrollLeft = _this11.$refs.questionbank.offsetLeft;
-            _this11.resizing = false;
+            _this13.$root.scrollLeft = _this13.$refs.questionbank.offsetLeft;
+            _this13.resizing = false;
           }, 500);
         }
       },
       scrollActiveQuestionIntoView: function scrollActiveQuestionIntoView() {
-        var _this12 = this;
+        var _this14 = this;
 
         if (this.activeSlide !== 'home') return;
         clearTimeout(this.scrollTimeout);
         this.scrollTimeout = setTimeout(function () {
-          var activeQuestion = _this12.$refs.home.querySelector('.question-button.question-active');
+          var activeQuestion = _this14.$refs.home.querySelector('.question-button.question-active');
 
-          activeQuestion || (activeQuestion = _this12.$refs.home.querySelector('.group-active'));
-          if (activeQuestion === null) return clearTimeout(_this12.scrollTimeout);
+          activeQuestion || (activeQuestion = _this14.$refs.home.querySelector('.group-active'));
+          if (activeQuestion === null) return clearTimeout(_this14.scrollTimeout);
           var top = activeQuestion.getBoundingClientRect().top;
           var screenWithBottomMargin = window.screen.height - 200;
 
           if (top >= screenWithBottomMargin) {
-            _this12.drawer.scrollTo({
+            _this14.drawer.scrollTo({
               top: top - screenWithBottomMargin / 2,
               behavior: 'smooth'
             });
           }
 
-          clearTimeout(_this12.scrollTimeout);
+          clearTimeout(_this14.scrollTimeout);
         }, 750);
       },
       setActiveSlideProperty: function setActiveSlideProperty(position) {
         var index = position / this.slideWidth > 2 ? 3 : position / this.slideWidth;
         this.activeSlide = this.slides[index];
+      },
+      poll: function poll(interval) {
+        var _this15 = this;
+
+        setTimeout(function () {
+          var el = _this15.$root.querySelector("[x-ref=\"".concat(_this15.activeSlide, "\"]"));
+
+          if (el !== null) _this15.handleVerticalScroll(el);
+
+          _this15.poll(interval);
+        }, interval);
+      },
+      getScrollToProperties: function getScrollToProperties(position) {
+        var safariAgent = navigator.userAgent.indexOf('Safari') > -1;
+        var chromeAgent = navigator.userAgent.indexOf('Chrome') > -1;
+        if (chromeAgent && safariAgent) safariAgent = false;
+        var scrollToSettings = {
+          left: position >= 0 ? position : 0
+        };
+        /* RR: Smooth scrolling breaks entirely on Safari 15.4 so I only add it in non-safari browsers just so it doesn't break anything ...*/
+
+        if (!safariAgent) {
+          scrollToSettings.behavior = 'smooth';
+        }
+
+        return scrollToSettings;
       }
     };
   });
@@ -6129,19 +6167,19 @@ document.addEventListener('alpine:init', function () {
       init: function init() {
         var _window,
             _window$registeredEve,
-            _this13 = this;
+            _this16 = this;
 
         // some new fancy way of setting a value when undefined
         (_window$registeredEve = (_window = window).registeredEventHandlers) !== null && _window$registeredEve !== void 0 ? _window$registeredEve : _window.registeredEventHandlers = [];
         this.activeFiltersContainer = document.getElementById(filterContainer);
         this.multiple = multiple === 1;
         this.$nextTick(function () {
-          var choices = new (choices_js__WEBPACK_IMPORTED_MODULE_2___default())(_this13.$refs.select, _this13.config);
+          var choices = new (choices_js__WEBPACK_IMPORTED_MODULE_2___default())(_this16.$refs.select, _this16.config);
 
           var refreshChoices = function refreshChoices() {
-            var selection = _this13.multiple ? _this13.value : [_this13.value];
+            var selection = _this16.multiple ? _this16.value : [_this16.value];
             choices.clearStore();
-            choices.setChoices(_this13.options.map(function (_ref) {
+            choices.setChoices(_this16.options.map(function (_ref) {
               var value = _ref.value,
                   label = _ref.label;
               return {
@@ -6151,38 +6189,38 @@ document.addEventListener('alpine:init', function () {
               };
             }));
 
-            _this13.handleActiveFilters(choices.getValue());
+            _this16.handleActiveFilters(choices.getValue());
           };
 
           refreshChoices();
 
-          _this13.$refs.select.addEventListener('choice', function (event) {
-            if (_this13.value.includes(parseInt(event.detail.choice.value))) {
-              _this13.removeFilterItem(choices.getValue().find(function (value) {
+          _this16.$refs.select.addEventListener('choice', function (event) {
+            if (_this16.value.includes(parseInt(event.detail.choice.value))) {
+              _this16.removeFilterItem(choices.getValue().find(function (value) {
                 return value.value === event.detail.choice.value;
               }));
             }
           });
 
-          _this13.$refs.select.addEventListener('change', function () {
-            _this13.value = choices.getValue(true); // This causes 2 update calls:
+          _this16.$refs.select.addEventListener('change', function () {
+            _this16.value = choices.getValue(true); // This causes 2 update calls:
             // this.wireModel = this.value;
           });
 
-          var eventName = 'removeFrom' + _this13.$root.dataset.modelName;
+          var eventName = 'removeFrom' + _this16.$root.dataset.modelName;
 
           if (!window.registeredEventHandlers.includes(eventName)) {
             window.registeredEventHandlers.push(eventName);
             window.addEventListener(eventName, function (event) {
-              _this13.removeFilterItem(event.detail);
+              _this16.removeFilterItem(event.detail);
             });
           }
 
-          _this13.$watch('value', function () {
+          _this16.$watch('value', function () {
             return refreshChoices();
           });
 
-          _this13.$watch('options', function () {
+          _this16.$watch('options', function () {
             return refreshChoices();
           });
         });
@@ -6197,16 +6235,16 @@ document.addEventListener('alpine:init', function () {
         return "[data-filter=\"".concat(this.$root.dataset.modelName, "\"][data-filter-value=\"").concat(item, "\"]");
       },
       handleActiveFilters: function handleActiveFilters(choicesValues) {
-        var _this14 = this;
+        var _this17 = this;
 
         this.value.forEach(function (item) {
-          if (_this14.needsFilterPill(item)) {
+          if (_this17.needsFilterPill(item)) {
             var cItem = choicesValues.find(function (value) {
               return value.value === item;
             });
 
             if (typeof cItem !== 'undefined') {
-              _this14.createFilterPill(cItem);
+              _this17.createFilterPill(cItem);
             }
           }
         });
@@ -6238,12 +6276,12 @@ document.addEventListener('alpine:init', function () {
       inTest: null,
       correspondingButton: null,
       handleIncomingEvent: function handleIncomingEvent(detail) {
-        var _this15 = this;
+        var _this18 = this;
 
         if (!this.menuOpen) return this.openMenu(detail);
         this.closeMenu();
         setTimeout(function () {
-          _this15.openMenu(detail);
+          _this18.openMenu(detail);
         }, 150);
       },
       openMenu: function openMenu(detail) {
@@ -6338,11 +6376,9 @@ addIdsToQuestionHtml = function addIdsToQuestionHtml() {
     questionContainers.forEach(function (item) {
       var decendents = item.querySelectorAll('*');
       decendents.forEach(function (decendent) {
-        if (decendent.tagName != 'MATH' && !decendent.closest('math')) {
-          decendent.id = 'questionhtml_' + id;
-          decendent.setAttribute('wire:key', 'questionhtml_' + id);
-          id += 1;
-        }
+        decendent.id = 'questionhtml_' + id;
+        decendent.setAttribute('wire:key', 'questionhtml_' + id);
+        id += 1;
       });
     });
   }, 1);
@@ -6844,7 +6880,7 @@ window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
 window.Pusher = __webpack_require__(/*! pusher-js */ "./node_modules/pusher-js/dist/web/pusher.js");
 window.Echo = new laravel_echo__WEBPACK_IMPORTED_MODULE_0__["default"]({
   broadcaster: 'pusher',
-  key: "2149988ad52a600a2309",
+  key: "fc18ed69b446aeb8c8a5",
   cluster: "eu",
   forceTLS: true
 });
@@ -6891,7 +6927,6 @@ Core = {
     var isIOS = Core.detectIOS();
     var isAndroid = /Android/g.test(navigator.userAgent);
     var isChromebook = window.navigator.userAgent.indexOf('CrOS') > 0;
-    var isFirefox = window.navigator.userAgent.indexOf('Firefox') > -1;
 
     if (isIOS) {
       Core.isIpad();
@@ -6899,10 +6934,6 @@ Core = {
       Core.isAndroid();
     } else if (isChromebook) {
       Core.isChromebook();
-    }
-
-    if (isFirefox) {
-      Core.isFirefox();
     }
 
     Core.checkForElectron();
@@ -6981,9 +7012,6 @@ Core = {
   isChromebook: function isChromebook() {
     Core.inApp = true;
     Core.appType = 'chromebook';
-  },
-  isFirefox: function isFirefox() {
-    document.querySelector('body').classList.add('firefox');
   },
   detectIOS: function detectIOS() {
     var urlParams = new URLSearchParams(window.location.search);
