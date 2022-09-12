@@ -1182,4 +1182,18 @@ class TestTake extends BaseModel
 
         return redirect($temporaryLogin->createCakeUrl());
     }
+
+    public function getParticipantTakenStats()
+    {
+        $this->loadMissing('testParticipants');
+        return [
+            'taken'    => $this->testParticipants->filter(function ($participant) {
+                return TestTakeStatus::testTakenStatusses()->contains($participant->test_take_status_id);
+            })->count(),
+
+            'notTaken' => $this->testParticipants->filter(function ($participant) {
+                return !TestTakeStatus::testTakenStatusses()->contains($participant->test_take_status_id);
+            })->count(),
+        ];
+    }
 }

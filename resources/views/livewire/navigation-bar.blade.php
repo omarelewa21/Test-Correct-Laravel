@@ -166,7 +166,7 @@
         <div class="menu-item" data-menu="dashboard" wire:click="cakeRedirect('dashboard')">{{__('header.Dashboard')}}</div>
         <div class="menu-item has-items" data-menu="tests">{{__('header.Toetsen')}}</div>
         <div class="menu-item has-items" data-menu="planned">{{__('header.Ingepland')}}</div>
-        <div class="menu-item has-items" data-menu="taken">{{__('header.Afgenomen')}}</div>
+        <div class="menu-item" data-menu="taken" @click="window.open('{{ route('teacher.test-takes','taken') }}', '_self')">{{__('header.Afgenomen')}}</div>
         <div class="menu-item" data-menu="results" wire:click="cakeRedirect('results.rated')">{{__('header.Resultaten')}}</div>
         <div class="menu-item has-items" data-menu="analyses">{{__('header.Analyses')}}</div>
         <div class="menu-item has-items" data-menu="classes">{{__('header.Klassen')}}</div>
@@ -190,7 +190,7 @@
             <div class="tile-item invigilating" wire:click="cakeRedirect('planned.surveillance')"><span>{{__('header.Surveilleren')}}</span></div>
             <div class="tile-item ongoing-assignments" wire:click="cakeRedirect('planned.assessment_open')">{{__('header.Lopende opdrachten')}}</div>
         </div>
-        <div class="tile-group taken">
+        <div class="tile-group ">
             <div class="tile-item my-taken-tests" @click="window.open('{{ route('teacher.test-takes','taken') }}', '_self')">{{__('header.Mijn afgenomen toetsen')}}</div>
             <div class="tile-item normalizing" wire:click="cakeRedirect('taken.normalize_test')">{{__('header.Nakijken & normeren')}}</div>
         </div>

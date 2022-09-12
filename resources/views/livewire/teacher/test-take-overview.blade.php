@@ -1,4 +1,8 @@
 <div x-data="{openTab: @entangle('openTab')}"
+     x-init="
+        /* This hook is present to keep the sticky page menu okay after a dom change */
+        Livewire.hook('message.processed', (message, component) => $dispatch('tiles-hidden'));
+        "
      class="relative top-0"
 >
     <x-menu.tab.container :sticky="true">
@@ -15,8 +19,8 @@
             {{-- Filters--}}
             <div class="flex flex-col py-4">
                 <div class="flex w-full mt-2">
-                    <div class="relative w-full">
-                        <x-input.group class="w-full">
+                    <div class="flex relative w-full gap-2.5">
+                        <x-input.group class="flex flex-1 relwative">
                             <x-input.text class="w-full"
                                           placeholder="{{ __('cms.Search...') }}"
                                           wire:model="filters.{{ $this->openTab }}.test_name"
@@ -26,6 +30,18 @@
                     </div>
                 </div>
                 <div class="flex flex-wrap w-full gap-2 mt-2">
+                    <div class="pl-1">
+                        <x-input.toggle-row-with-title wire:click="$toggle('filters.{{ $this->openTab }}.archived')"
+                                                       :checked="$this->filters[$this->openTab]['archived']"
+                                                       :small="true"
+                                                       class="pr-2"
+                                                       title="{{ __('test-take.Inclusief gearchiveerde toetsen') }}"
+                        >
+                            <x-icon.archive class="scale-[1.375]"/>
+                        </x-input.toggle-row-with-title>
+                    </div>
+
+
                     <x-input.choices-select
                             wire:key="SchoolClasses_{{ $this->openTab }}"
                             :multiple="true"
@@ -46,14 +62,14 @@
                     />
 
                     <x-input.group>
-                        <x-input.datepicker class="bg-offwhite"
+                        <x-input.datepicker class="bg-offwhite w-[170px]"
                                             wire:model="filters.{{ $this->openTab }}.time_start_from"
                                             locale="{{ app()->getLocale() }}"
                                             placeholder="{{ __('teacher.Datum') }}"/>
                     </x-input.group>
 
                     <x-input.group>
-                        <x-input.datepicker class="bg-offwhite"
+                        <x-input.datepicker class="bg-offwhite w-[170px]"
                                             wire:model="filters.{{ $this->openTab }}.time_start_to"
                                             locale="{{ app()->getLocale() }}"
                                             placeholder="{{ __('teacher.Datum tot') }}"/>
@@ -87,11 +103,11 @@
             <div class="flex flex-col pt-4 pb-16" style="min-height: 500px">
                 <div class="flex justify-between">
                     <span class="note text-sm" wire:loading
-                          wire:target="filters,clearFilters,$set">{{  __('general.searching') }}</span>
+                          wire:target="filters,clearFilters,$set,$toggle">{{  __('general.searching') }}</span>
 
                     <span class="note text-sm"
                           wire:loading.remove
-                          wire:target="filters,clearFilters,$set">
+                          wire:target="filters,clearFilters,$set,$toggle">
                             {{ $this->takenTestTakes->total() ?? 'geen' }} resultaten
                         {{--{{ trans_choice($this->getMessageKey($this->takenTestTakes->total()), $this->takenTestTakes->total(), ['count' => $this->takenTestTakes->total()]) }}--}}
                     </span>
@@ -101,12 +117,14 @@
                         <x-grid.loading-card
                                 :delay="$value"
                                 wire:loading.class.remove="hidden"
-                                wire:target="filters,clearFilters,$set"
+                                wire:target="filters,clearFilters,$set,$toggle"
                         />
                     @endforeach
 
                     @foreach($this->testTakesWithSchoolClasses as $testTake)
-                        <x-grid.test-take-card :testTake="$testTake" :schoolClasses="$testTake->schoolClasses"/>
+                        <x-grid.test-take-card :testTake="$testTake"
+                                               :schoolClasses="$testTake->schoolClasses"
+                        />
                     @endforeach
                 </x-grid>
                 {{ $this->takenTestTakes->links('components.partials.tc-paginator') }}

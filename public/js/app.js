@@ -12953,6 +12953,10 @@ document.addEventListener('alpine:init', function () {
         }
 
         if (this.$wire.activeRoute.main !== '') {
+          console.log(27);
+          this.$nextTick(function () {
+            return _this.$dispatch('tiles-hidden');
+          });
           this.activeMenuItem = this.bottom.querySelector('[data-menu="' + this.$wire.activeRoute.main + '"]');
           this.activeMenuItem.classList.add('button-active');
         }
@@ -13023,7 +13027,13 @@ document.addEventListener('alpine:init', function () {
           if (reset) {
             _this2.resetActiveState();
 
-            _this2.$dispatch('tiles-shown');
+            _this2.shouldDispatchTilesEvent();
+
+            if (_this2.shouldDispatchTilesEvent()) {
+              console.log(87);
+
+              _this2.$dispatch('tiles-shown');
+            }
           }
         }, timeout); // alert(this.$wire.activeRoute.main == '');
       },
@@ -13044,6 +13054,7 @@ document.addEventListener('alpine:init', function () {
         clearTimeout(this.hideTimeout);
         tiles.style.paddingLeft = '0px';
         tiles.style.setProperty('--top', '100px');
+        console.log(111);
         this.$dispatch('tiles-shown');
       },
       userMenuShow: function userMenuShow() {
@@ -13104,6 +13115,13 @@ document.addEventListener('alpine:init', function () {
           top: 0,
           behavior: 'smooth'
         });
+      },
+      shouldDispatchTilesEvent: function shouldDispatchTilesEvent() {
+        return !Array.from(this.menuButtonsWithoutItems).map(function (item) {
+          return item.dataset.menu;
+        }).filter(function (n) {
+          return n;
+        }).includes(this.activeMenuItem.dataset.menu);
       }
     };
   });

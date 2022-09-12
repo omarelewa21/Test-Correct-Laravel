@@ -6,9 +6,6 @@ use Carbon\Carbon;
 use Illuminate\Support\Str;
 use Livewire\Component;
 use Livewire\WithPagination;
-use tcCore\SchoolClass;
-use tcCore\SchoolLocation;
-use tcCore\Scopes\ArchivedScope;
 use tcCore\Subject;
 use tcCore\TestTake;
 use tcCore\TestTakeStatus;
@@ -51,6 +48,7 @@ class TestTakeOverview extends Component
         $this->resetPage();
         $value = $this->parseDateIfNecessary($name, $value);
     }
+
     public function updatedOpenTab()
     {
         $this->resetPage();
@@ -65,7 +63,9 @@ class TestTakeOverview extends Component
 
     public function getTestTakesProperty()
     {
-        return TestTake::filtered($this->getFilters(), ['time_start' => 'desc'])->withCardAttributes();
+        return TestTake::filtered($this->getFilters(), ['time_start' => 'desc'])
+            ->filterByArchived(['archived' => $this->getArchivedFilter()])
+            ->withCardAttributes();
     }
 
     public function getBaseTakesProperty()
@@ -73,9 +73,9 @@ class TestTakeOverview extends Component
         /* The user-unfiltered results to build subjects and schoolclasses filters with; */
         return TestTake::filtered([
             'test_take_status_id' => $this->getTestTakeStatusForFilter($this->openTab),
-            'archived'            => 0,
+            'archived'            => $this->getArchivedFilter(),
         ], [])
-            ->withoutGlobalScope(ArchivedScope::class)
+            ->filterByArchived(['archived' => $this->getArchivedFilter()])
             ->get(['id', 'test_id']);
     }
 
@@ -112,7 +112,7 @@ class TestTakeOverview extends Component
         collect(self::TABS)->each(function ($tab) {
             $this->filters[$tab] = [
                 'test_take_status_id' => $this->getTestTakeStatusForFilter($tab),
-                'archived'            => 0,
+                'archived'            => false,
                 'test_name'           => '',
                 'school_class_id'     => [],
                 'subject_id'          => [],
@@ -136,6 +136,11 @@ class TestTakeOverview extends Component
     private function getTestTakeStatusForFilter($tab)
     {
         return self::STAGES[$tab] ?? [6];
+    }
+
+    private function getArchivedFilter(): int
+    {
+        return $this->filters[$this->openTab]['archived'] ? 1 : 0;
     }
     /*  End Filter methods */
 

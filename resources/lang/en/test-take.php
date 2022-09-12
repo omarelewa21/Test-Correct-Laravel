@@ -18,4 +18,7 @@ return [
     'Antwoord PDF'                                                                                                                => 'Answer PDF',
     'Direct nakijken'                                                                                                             => 'Straight to scoring',
     'Archiveren'                                                                                                                  => 'Archive',
+    'Inclusief gearchiveerde toetsen'                                                                                             => 'Include archived tests',
+    'Gearchiveerde'                                                                                                               => 'Archived',
+    'Studenten aanwezig/afwezig'                                                                                                  => 'Students present/absent',
 ];

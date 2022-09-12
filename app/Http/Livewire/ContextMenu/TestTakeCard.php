@@ -10,10 +10,16 @@ use tcCore\TestTakeStatus;
 class TestTakeCard extends ContextMenuComponent
 {
     public $uuid = null;
+    public $testTakeStatusId;
+    public $isArchived = false;
 
     public function setContextValues($uuid, $contextData): bool
     {
         $this->uuid = $uuid;
+
+        $take = TestTake::whereUuid($uuid)->get(['test_take_status_id'])->first();
+        $this->testTakeStatusId = $take->test_take_status_id;
+        $this->isArchived = $take->archived;
 
         return true;
     }
@@ -59,5 +65,17 @@ class TestTakeCard extends ContextMenuComponent
 
         $this->redirect($temporaryLogin->createCakeUrl());
         return;
+    }
+    public function hasAnswerPdfOption():bool
+    {
+        return collect([TestTakeStatus::STATUS_TAKEN,TestTakeStatus::STATUS_DISCUSSING])->contains($this->testTakeStatusId);
+    }
+    public function hasSkipDiscussing():bool
+    {
+        return collect([TestTakeStatus::STATUS_TAKEN])->contains($this->testTakeStatusId);
+    }
+    public function hasArchiveOption():bool
+    {
+        return !$this->isArchived;
     }
 }
