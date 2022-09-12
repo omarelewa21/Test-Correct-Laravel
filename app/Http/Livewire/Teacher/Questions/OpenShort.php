@@ -1346,8 +1346,8 @@ class OpenShort extends Component implements QuestionCms
     private function returnToTestsList()
     {
         if ($this->referrer) {
-            if ($this->referrer === 'teacher.tests') {
-                return redirect()->to(route($this->referrer));
+            if (in_array($this->referrer,['teacher.tests', 'teacher.test-detail'])) {
+                return redirect()->to(route('teacher.tests'));
             }
         }
 
