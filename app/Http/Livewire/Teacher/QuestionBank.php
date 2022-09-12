@@ -36,6 +36,10 @@ class QuestionBank extends Component
     public $addedQuestionIds = [];
     public $itemsPerPage;
 
+    public $sliderButtonOptions = [];
+    public $sliderButtonSelected = 1;
+    public $sliderButtonDisabled = true;
+
     public $inGroup = false;
 
     private $test;
@@ -69,6 +73,8 @@ class QuestionBank extends Component
         $this->setAddedQuestionIdsArray();
         $this->setFilters();
         $this->showNationalTab = auth()->user()->schoolLocation->show_national_item_bank;
+
+        $this->setSliderButtonOptions();
     }
 
     public function render()
@@ -409,5 +415,13 @@ class QuestionBank extends Component
         ]);
 
         return $newQuestion;
+    }
+
+    public function setSliderButtonOptions()
+    {
+        $this->sliderButtonOptions = [
+            __('cms.Toetsenbank'),
+            __('cms.Vragenbank'),
+        ];
     }
 }

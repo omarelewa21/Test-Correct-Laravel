@@ -14,8 +14,8 @@
      wire:init="handleReferrerActions()"
      class="flex flex-col  w-full min-h-full bg-lightGrey border-t border-secondary top-0"
      @checked="$event.detail ? checkedCount += 1 : checkedCount -= 1"
-     @question-added.window="Notify.notify('Vraag toegevoegd!')"
-     @question-removed.window="Notify.notify('Vraag verwijderd!')"
+     @question-added.window="Notify.notify('{{ __('cms.question_added') }}')"
+     @question-removed.window="Notify.notify('{{ __('cms.question_deleted') }}')"
 >
 
     <div class="border-b border-secondary sticky sticky-pseudo-bg bg-lightGrey z-1"

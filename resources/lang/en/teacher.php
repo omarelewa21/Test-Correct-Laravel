@@ -65,5 +65,13 @@ return [
     'goToPlannedTests'                                                                         => 'Go to planned test',
     'clipboard_copied'                                                                         => 'Test link has been copied to the clipboard',
     'take_not_accessible_toast_for_invigilator'                                                => 'The :testName test has been removed and can no longer be opened',
-    'test_not_found'                                                                           => 'test cannot be found.'
+    'test_not_found'                                                                           => 'test cannot be found.',
+    'Klassen'                                          => 'Classes',
+    'subject'                                          => 'Subject',
+    'type'                                             => 'Type',
+    'test-type-Summatief'                              => 'Summative',
+    'test-type-Formatief'                              => 'Formative',
+    'test-type-Opdracht'                               => 'Assignment',
+    'test-type-Oefentoets'                             => 'Pratice test',
+
 ];

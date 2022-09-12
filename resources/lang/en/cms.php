@@ -89,8 +89,8 @@ return [
     'Deze vraaggroep niet shuffelen'                                                         => 'Don\'t shuffle this group',
     'Bespreken in de klas'                                                                   => 'Discuss in class',
     'Notities toestaan'                                                                      => 'Allow notes',
-    'Halve puntenbeoordeling mogelijk'                                                       => 'Allow halve points review',
     'Taalcontrole beschikbaar tijdens nakijken'                                              => 'Spelling and grammar check available during assessing answers',
+    'Halve puntenbeoordeling mogelijk'                                                       => 'Allow half points review',
     'Automatisch nakijken'                                                                   => 'Automatic review',
     'Hoofdletter gevoelig nakijken'                                                          => 'Case sensitive review',
     'Taxonomie'                                                                              => 'Taxonomy',
@@ -197,4 +197,18 @@ return [
     'Open vraag'                                                                             => 'Open question',
     'Open vraaggroep'                                                                        => 'Open group',
     'inklappen/uitklappen'                                                                   => 'Collapse/expand'
+    'search_placeholder'                                                                     => 'Search...',
+    'no_statistics_available'                                                                => 'No statistics available',
+    'p_value_statistics'                                                                     => 'P-Value statistics',
+    'question_added'                                                                         => 'Question added!',
+    'question_deleted'                                                                       => 'Question deleted!',
+    'select_a_value'                                                                         => 'Select a value',
+    "create_test_how_title"                                                                  => "How do you want to create a test?",
+    "upload_test"                                                                            => "Upload test",
+    "digitize_test"                                                                          => "Have an existing test digitised",
+    "supply_test_as"                                                                         => "Please provide as:<br>PDF, Word, Wintoets",
+    "construct_test"                                                                         => "Construct a test",
+    "create_your_own_test"                                                                   => "Get started with creating your own test",
+    "setup_your_own_test"                                                                    => "Set up your test with question groups and questions",
+
 ];

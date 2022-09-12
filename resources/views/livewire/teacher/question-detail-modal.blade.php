@@ -69,7 +69,7 @@
             </div>
         </div>
         <div>
-            <x-divider-with-title title="Instellingen"/>
+            <x-divider-with-title title="{{ __('cms.Instellingen') }}"/>
             <div>
                 <x-input.toggle-row-with-title :small="true" :disabled="true"
                                                :toolTip="__('cms.close_after_answer_tooltip_text')"
@@ -145,18 +145,18 @@
             </div>
         </div>
         <div>
-            <x-divider-with-title class="-mt-px" title="P-Waarde statistieken"/>
+            <x-divider-with-title class="-mt-px" title="{{ __('cms.p_value_statistics') }}"/>
             <div class="py-3">
                 @forelse($pValues as $pValue)
                     <x-pvalues-small :pValue="$pValue"/>
                 @empty
-                    <span class="note text-sm">Geen statistieken beschikbaar</span>
+                    <span class="note text-sm">{{ __('cms.no_statistics_available') }}</span>
                 @endforelse
             </div>
         </div>
 
         <div>
-            <x-divider-with-title title="Taxonomie"/>
+            <x-divider-with-title title="{{ __('cms.Taxonomie') }}"/>
             <div class=""
                  x-data="{rtti: @js($question->rtti), bloom: @js($question->bloom), miller: @js($question->miller) }"
             >

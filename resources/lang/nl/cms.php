@@ -196,4 +196,17 @@ return [
     'Open vraag'                                                                             => 'Open vraag',
     'Open vraaggroep'                                                                        => 'Open vraaggroep',
     'inklappen/uitklappen'                                                                   => 'Inklappen/uitklappen'
+    'search_placeholder'                                                                     => 'Zoek...',
+    'no_statistics_available'                                                                => 'Geen statistieken beschikbaar',
+    'p_value_statistics'                                                                     => 'P-Waarde statistieken',
+    'question_added'                                                                         => 'Vraag toegevoegd!',
+    'question_deleted'                                                                       => 'Vraag verwijderd!',
+    'select_a_value'                                                                         => 'Selecteer een waarde',
+    "create_test_how_title"                                                                  => "Hoe wil je een toets creëren?",
+    "upload_test"                                                                            => "Toets uploaden",
+    "digitize_test"                                                                          => "Laat een bestaande toets digitaliseren",
+    "supply_test_as"                                                                         => "Gelieve aan te leveren als:<br>PDF, Word, Wintoets",
+    "construct_test"                                                                         => "Toets Construeren",
+    "create_your_own_test"                                                                   => "Ga zelf aan de slag met het maken van een toets",
+    "setup_your_own_test"                                                                    => "Stel jouw toets in en zet jouw toets op met vraaggroepen en vragen",
 ];

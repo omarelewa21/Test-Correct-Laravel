@@ -1,7 +1,8 @@
 @props([
-'label' => 'Label',
+'label' => null,
 'options',
 'buttonWidth' => '105px',
+'disabled' => false,
 ])
 <div wire:ignore
      class="flex flex-col"
@@ -12,9 +13,8 @@
          sources: @js($options),
          init(){
             this.$el.querySelector('.group').firstElementChild.classList.add('text-primary');
-
-            if(this.value !== '' && Object.keys(this.sources).includes(this.value)){
-                this.activateButton(this.$el.querySelector('[data-id=\'' + this.value + '\' ').parentElement);
+            if(this.value !== '' && Object.keys(this.sources).includes(String(this.value))){
+                this.activateButton(this.$el.querySelector('[data-id=\'' + this.value + '\']').parentElement);
             } else {
                 this.value = this.$el.querySelector('.group').firstElementChild.dataset.id;
             }
@@ -38,15 +38,17 @@
          }
      }"
 >
+    @if($label)
     <label :for="$id('slider-button')">
         {{$label}}
     </label>
+    @endif
     <div class="relative">
-        <div :id="$id('slider-button')" class="flex">
+        <div :id="$id('slider-button')" class="flex note">
             @foreach($options as $id => $button)
                 <div style="width: {{$buttonWidth}}"
-                     class="group flex items-center justify-center h-10 bg-off-white bold text-sysbase cursor-pointer border-blue-grey border-t border-b first:border-l last:border-r first:rounded-l-lg last:rounded-r-lg  "
-                     @click="clickButton($el)"
+                     class="group flex items-center justify-center h-10 bg-off-white bold note cursor-pointer border-blue-grey border-t border-b first:border-l last:border-r first:rounded-l-lg last:rounded-r-lg  "
+                     @if(!$disabled) @click="clickButton($el)" @endif
                 >
                     <span data-id="{{$id}}"
                           class="inline-flex justify-center w-full px-3 border-r border-blue-grey group-last:border-r-0 pointer-events-none"
