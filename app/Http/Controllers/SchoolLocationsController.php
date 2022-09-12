@@ -163,10 +163,4 @@ class SchoolLocationsController extends Controller {
         $lvsType = [SchoolLocation::whereUuid($schoolLocationId)->value('lvs_type')];
         return Response::make($lvsType, 200);
     }
-
-    public function showById($id)
-    {
-        $schoolLocation = SchoolLocation::findOrFail($id);
-        return $this->show($schoolLocation);
-    }
 }
