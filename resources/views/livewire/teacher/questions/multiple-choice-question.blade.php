@@ -28,17 +28,18 @@
     <div class="flex w-full mt-4">{{ __('cms.MultipleChoice Question Uitleg Text') }}</div>
     <div class="flex flex-col space-y-2 w-full mt-4"
          @if(!isset($preview)) wire:sortable="__call('updateMCOrder')" @endif
-         x-data="{addPointsPosition: () => $refs.punten.style.left = ($el.querySelector('input').offsetWidth+10) +'px'}"
+         x-data="{addPointsPosition: () => $refs.punten.style.right = (102 - $refs.punten.offsetWidth) +'px'}"
          x-init="addPointsPosition()"
          @tabchange.window="setTimeout(() => addPointsPosition(), 100)"
          @resize.window.debounce.100ms="addPointsPosition()"
     >
         <div class="flex px-0 py-0 border-0 bg-system-white justify-between relative">
-            <div class="">{{ __('cms.Antwoord') }}</div>
-            <div wire:ignore.self x-ref="punten" class="absolute">{{ __('cms.Punten') }}</div>
+            <div class="bold text-base">{{ __('cms.Antwoord') }}</div>
+            <div wire:ignore.self x-ref="punten" class="absolute bold text-base">{{ __('cms.Punten') }}</div>
         </div>
         @php
             $disabledClass = "icon disabled cursor-not-allowed";
+            $showInputField = !(isset($preview) && isset($this->isCito) && $this->isCito === true);
             if($this->__call('canDelete')) {
                 $disabledClass = "";
             }
@@ -64,15 +65,20 @@
                          :useHandle="true"
                          :keepWidth="true"
                          class="flex px-0 py-0 border-0 bg-system-white regular"
-                         slotClasses="w-full space-x-2.5"
+                         slotClasses="w-full space-x-2.5 justify-between"
                          sortIcon="reorder"
                          dragIconClasses="cursor-move {{ isset($preview) ? 'text-midgrey hover:text-midgrey' : '' }}"
+                         alignItems="{{ $showInputField ? 'center' : 'start' }}"
             >
-                <x-input.text class="w-full  {{ $errorAnswerClass }} "
-                              wire:model.lazy="cmsPropertyBag.answerStruct.{{ $loop->index }}.answer"
-                              selid="answer-field"
-                              :disabled="isset($preview)"
-                />
+                @if($showInputField)
+                    <x-input.text class="w-full  {{ $errorAnswerClass }} "
+                                  wire:model.lazy="cmsPropertyBag.answerStruct.{{ $loop->index }}.answer"
+                                  selid="answer-field"
+                                  :disabled="isset($preview)"
+                    />
+                @else
+                    <span>{!! $answer->answer !!}</span>
+                @endif
                 <div class=" text-center justify-center">
                     <x-input.text class="w-12 text-center {{ $errorScoreClass }}"
                                   wire:model.debounce.250ms="cmsPropertyBag.answerStruct.{{ $loop->index }}.score"
@@ -83,7 +89,7 @@
                                   :disabled="isset($preview)"
                     />
                 </div>
-                <x-slot name="after">
+                <x-slot name="after" >
                     @isset($preview)
                         <x-icon.remove class="mx-2 w-4 mid-grey"/>
                     @else
