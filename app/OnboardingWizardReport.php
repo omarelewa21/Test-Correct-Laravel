@@ -228,7 +228,7 @@ ORDER BY t2.displayorder,
             OnboardingWizardReport::truncate();
         }
 
-        User::whereIn('id', Teacher::pluck('user_id'))
+        User::whereIn('id', Teacher::pluck('user_id')->unique())
             ->where('demo', 0)
             ->each(function ($teacher) {
                 
