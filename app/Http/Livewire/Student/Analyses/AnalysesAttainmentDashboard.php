@@ -17,6 +17,10 @@ class AnalysesAttainmentDashboard extends AnalysesDashboard
 {
     public $attainment;
 
+    public $subject;
+
+    protected $queryString = 'subject';
+
     protected $topItems = [
         410 => 'Literaire ontwikkeling',
         411 => 'Literaire begrippen',
@@ -98,8 +102,6 @@ class AnalysesAttainmentDashboard extends AnalysesDashboard
 
     public function redirectBack()
     {
-        dd($this->attainment);
-        return redirect(route('student.analyses.subject.show', Subject::find($this->attainment->subject_id)->uuid));
+        return redirect(route('student.analyses.subject.show', $this->subject));
     }
-
 }

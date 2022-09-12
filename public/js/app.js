@@ -6348,11 +6348,13 @@ document.addEventListener('alpine:init', function () {
         legend.enabled(true); // set source of legend items
 
         legend.itemsSourceMode("categories");
+        var _data = this.data;
         legend.itemsFormatter(function (items) {
           for (var i = 0; i < items.length; i++) {
             items[i].iconType = "square";
             items[i].iconFill = palette.itemAt([i]);
             items[i].iconEnabled = true;
+            items[i].text = _data[i].title;
           }
 
           return items;
@@ -6438,7 +6440,7 @@ document.addEventListener('alpine:init', function () {
           detailElement.style.whiteSpace = 'nowrap';
           detailElement.style.color = 'var(--system-base)';
           detailElement.style.fontWeight = '900';
-          detailElement.appendChild(document.createTextNode("Bekijk analyse "));
+          detailElement.appendChild(document.createTextNode("Bekijk analyse!! "));
           var iconElement = document.createElement('img');
           iconElement.src = '/svg/icons/arrow-small.svg';
           iconElement.style.display = 'inline-block';

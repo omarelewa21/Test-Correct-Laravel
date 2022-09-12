@@ -43,19 +43,22 @@ class AnalysesSubjectDashboard extends AnalysesDashboard
             $this->getPeriodsByFilterValues(),
             $this->getEducationLevelYearsByFilterValues(),
             $this->getTeachersByFilterValues()
-        );
+        );;
 
         $this->dataValues = $result->map(function ($pValue, $key) {
             return (object)[
                 'x'       => $key + 1,
-                'title'   => __('student.leerdoel', ['number' => $key + 1]),
+                'title'   => ucfirst(__('student.leerdoel', ['number' => $key + 1])),
                 'count'   => $pValue->cnt,
                 'value'   => number_format(($pValue->score > 0 ? $pValue->score : 0), 2),
                 'text'    => $pValue->serie,
                 'basedOn' => trans_choice('student.attainment_tooltip_title', $pValue->cnt, [
                     'basedOn' => $pValue->cnt
                 ]),
-                'link'    => route('student.analyses.attainment.show', Attainment::find($pValue->attainment_id)->uuid),
+                'link'    => route('student.analyses.attainment.show', [
+                    'attainment' => Attainment::find($pValue->attainment_id)->uuid,
+                    'subject' => $this->subject->uuid
+                ]),
             ];
         })->toArray();
 

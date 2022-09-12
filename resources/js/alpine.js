@@ -755,11 +755,13 @@ document.addEventListener('alpine:init', () => {
                 // set source of legend items
                 legend.itemsSourceMode("categories");
 
+                var _data = this.data;
                 legend.itemsFormatter(function (items) {
                     for (var i = 0; i < items.length; i++) {
                         items[i].iconType = "square";
                         items[i].iconFill = palette.itemAt([i]);
                         items[i].iconEnabled = true;
+                        items[i].text = _data[i].title;
                     }
                     return items;
                 });
@@ -830,7 +832,6 @@ document.addEventListener('alpine:init', () => {
             },
 
             initTooltips(chart, data) {
-
                 chart.tooltip().useHtml(true);
                 chart.tooltip().title(false)
                 chart.tooltip().separator(false)
@@ -844,8 +845,6 @@ document.addEventListener('alpine:init', () => {
                     while (contentElement.firstChild) {
                         contentElement.firstChild.remove()
                     }
-
-
                     const attainmentHeader = document.createElement("h5");
                     attainmentHeader.style.color = 'var(--system-base)'
                     attainmentHeader.appendChild(document.createTextNode(dataRow.title));
@@ -865,7 +864,7 @@ document.addEventListener('alpine:init', () => {
                     detailElement.style.whiteSpace = 'nowrap'
                     detailElement.style.color = 'var(--system-base)';
                     detailElement.style.fontWeight = '900';
-                    detailElement.appendChild(document.createTextNode("Bekijk analyse "));
+                    detailElement.appendChild(document.createTextNode("Bekijk analyse!! "));
 
                     const iconElement = document.createElement('img');
                     iconElement.src = '/svg/icons/arrow-small.svg';
@@ -879,7 +878,6 @@ document.addEventListener('alpine:init', () => {
                         document.createTextNode(dataRow.text)
                     );
                     contentElement.appendChild(AttainmentTexElement);
-
                 });
 
 
