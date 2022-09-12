@@ -111,7 +111,7 @@ return [
         'pass_mark' => [
             'between' => 'The Cesuur must have a value between :min and :max .'
         ],
-        'exam_coordinator_schedule_for' => [
+        'is_examcoordinator_for' => [
             'required'  => 'please choose one of classes options that exam coordinator can schedule exams for.',
             'in'        => 'please choose one of classes options that exam coordinator can schedule exams for.'
         ],

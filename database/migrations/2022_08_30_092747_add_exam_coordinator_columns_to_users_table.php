@@ -15,7 +15,7 @@ class AddExamCoordinatorColumnsToUsersTable extends Migration
     {
         Schema::table('users', function (Blueprint $table) {
             $table->boolean('is_examcoordinator')->default(false);
-            $table->enum('exam_coordinator_schedule_for', ['NONE', 'SCHOOL_LOCATION', 'SCHOOL'])->nullable();
+            $table->enum('is_examcoordinator_for', ['NONE', 'SCHOOL_LOCATION', 'SCHOOL'])->nullable();
         });
     }
 
@@ -28,7 +28,7 @@ class AddExamCoordinatorColumnsToUsersTable extends Migration
     {
         Schema::table('users', function (Blueprint $table) {
             $table->dropColumn('is_examcoordinator');
-            $table->dropColumn('exam_coordinator_schedule_for');
+            $table->dropColumn('is_examcoordinator_for');
         });
     }
 }

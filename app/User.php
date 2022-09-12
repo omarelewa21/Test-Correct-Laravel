@@ -95,7 +95,7 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
     protected $fillable = [
         'sales_organization_id', 'school_id', 'school_location_id', 'username', 'name_first', 'name_suffix', 'name',
         'password', 'external_id', 'gender', 'time_dispensation', 'text2speech', 'abbreviation', 'note', 'demo',
-        'invited_by', 'account_verified', 'test_take_code_id', 'guest', 'send_welcome_email', 'is_examcoordinator', 'exam_coordinator_schedule_for'
+        'invited_by', 'account_verified', 'test_take_code_id', 'guest', 'send_welcome_email', 'is_examcoordinator', 'is_examcoordinator_for'
     ];
 
 
@@ -2306,6 +2306,20 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
         }
 
         return $this->schoolLocation->school->is($user->schoolLocation->school);
+    }
+
+    public function isValidExamCoordinator($checkIfGlobal=true)
+    {
+        if(!$this->is_examcoordinator || is_null($this->is_examcoordinator_for)){
+            return false;
+        }
+
+        if($checkIfGlobal){
+            // Check if exam coordinator has access to classes in school or school location
+            return $this->is_examcoordinator_for !== 'NONE';
+        }
+
+        return true;
     }
 
     public function removeEckId()

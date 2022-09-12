@@ -121,7 +121,9 @@ class Subject extends BaseModel implements AccessCheckable
         foreach ($filters as $key => $value) {
             switch ($key) {
                 case 'user_id':
-                    if( !$user->is_examcoordinator || ($user->is_examcoordinator && $user->exam_coordinator_schedule_for === 'NONE') ){
+                    if( $user->isValidExamCoordinator() ){
+                        $this->filterForExamcoordinator($query, $user);
+                    }else{
                         $query->whereIn('id', function ($query) use ($value) {
                             $query->select('subject_id')
                                 ->from(with(new Teacher())->getTable())
@@ -132,8 +134,6 @@ class Subject extends BaseModel implements AccessCheckable
                                 $query->where('user_id', '=', $value);
                             }
                         });
-                    }else{
-                        $this->filterForExamcoordinator($query, $user);
                     }
                     
                     break;
@@ -146,7 +146,9 @@ class Subject extends BaseModel implements AccessCheckable
                     }
                     break;
                 case 'user_current':                    
-                    if( !$user->is_examcoordinator || ($user->is_examcoordinator && $user->exam_coordinator_schedule_for === 'NONE') ){
+                    if( $user->isValidExamCoordinator() ){
+                        $this->filterForExamcoordinator($query, $user);
+                    }else{
                         $schoolYear = SchoolYearRepository::getCurrentSchoolYear();
                         $query->whereIn('id', function ($query) use ($value, $schoolYear, $user) {
                                 $query->select('subject_id')
@@ -161,8 +163,6 @@ class Subject extends BaseModel implements AccessCheckable
                                 }
                             }
                         );
-                    }else{
-                        $this->filterForExamcoordinator($query, $user);
                     }                    
                     break;
                 case 'show_in_onboarding' :
@@ -249,7 +249,7 @@ class Subject extends BaseModel implements AccessCheckable
 
     private function filterForExamcoordinator($query, User $user)
     {
-        switch ($user->exam_coordinator_schedule_for) {
+        switch ($user->is_examcoordinator_for) {
             case 'SCHOOL_LOCATION':
                 $subjectIds = $user->schoolLocation->schoolLocationSections()
                                 ->join('sections', 'school_location_sections.section_id', 'sections.id')

@@ -101,7 +101,9 @@ class EducationLevel extends BaseModel {
         foreach($filters as $key => $value) {
             switch($key) {
                 case 'user_id':
-                    if( !$user->is_examcoordinator || ($user->is_examcoordinator && $user->exam_coordinator_schedule_for === 'NONE') ){
+                    if( $user->isValidExamCoordinator() ){
+                        $this->filterForExamcoordinator($query, $user);
+                    }else{
                         $query->whereIn('id', function ($query) use ($value) {
                             $query->select('education_level_id')
                                 ->from(with(new SchoolClass())->getTable())
@@ -117,8 +119,6 @@ class EducationLevel extends BaseModel {
                             })
                                 ->where('deleted_at', null);
                         });
-                    }else{
-                        $this->filterForExamcoordinator($query, $user);
                     }
                     
                     break;
@@ -154,7 +154,7 @@ class EducationLevel extends BaseModel {
 
     private function filterForExamcoordinator($query, User $user)
     {
-        switch ($user->exam_coordinator_schedule_for) {
+        switch ($user->is_examcoordinator_for) {
             case 'SCHOOL_LOCATION':
                 $classIds = $user->schoolLocation->schoolClasses()->pluck('id')->toArray();
                 break;

@@ -155,7 +155,7 @@ return [
         'pass_mark' => [
             'between' => 'De Cesuur dient tussen de :min en de :max te liggen.'
         ],
-        'exam_coordinator_schedule_for' => [
+        'is_examcoordinator_for' => [
             'required'  => 'kies een van de lesopties waarvoor de examencoördinator examens kan plannen.',
             'in'        => 'kies een van de lesopties waarvoor de examencoördinator examens kan plannen.'
         ],

@@ -86,7 +86,7 @@ class PlanningModal extends ModalComponent
             }
         }
 
-        if($user->is_examcoordinator && empty($this->request['owner_id'])){
+        if($user->isValidExamCoordinator(false) && empty($this->request['owner_id'])){
             $rules['request.owner_id'] = 'required';
         }
 
@@ -137,7 +137,7 @@ class PlanningModal extends ModalComponent
             $t->setAttribute('test_take_status_id', TestTakeStatus::STATUS_TAKING_TEST);
         }
 
-        if(auth()->user()->is_examcoordinator && array_key_exists('owner_id', $this->request)){
+        if($user->isValidExamCoordinator(false)){
             $t->setAttribute('user_id', $this->request['owner_id']);
         }else{
             $t->setAttribute('user_id', auth()->id());

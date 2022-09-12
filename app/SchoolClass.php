@@ -309,13 +309,13 @@ class SchoolClass extends BaseModel implements AccessCheckable
                 }
 
                 if (in_array('Teacher', $roles)) {
-                    if( !$user->is_examcoordinator || ($user->is_examcoordinator && $user->exam_coordinator_schedule_for === 'NONE') ){
+                    if( $user->isValidExamCoordinator() ){
+                        $this->filterForExamcoordinator($query, $user);
+                    }else{
                         $query->orWhereIn($this->getTable() . '.id', function ($query) use ($userId) {
                             $query->select('class_id')->from(with(new Teacher())->getTable())->whereNull('deleted_at');
                                 $query->where('user_id', $userId);
                         });
-                    }else{
-                        $this->filterForExamcoordinator($query, $user);
                     }
                     
                 }
@@ -524,7 +524,7 @@ class SchoolClass extends BaseModel implements AccessCheckable
 
     private function filterForExamcoordinator($query, User $user)
     {
-        switch ($user->exam_coordinator_schedule_for) {
+        switch ($user->is_examcoordinator_for) {
             case 'SCHOOL_LOCATION':
                 $classIds = $user->schoolLocation->schoolClasses()->where('guest_class', 0)->pluck('id')->toArray();
                 break;
