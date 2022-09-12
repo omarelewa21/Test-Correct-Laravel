@@ -410,7 +410,7 @@
                 </div>
                 <div browser wire:ignore>
                         <x-button.text-button selid="login-create-account-btn" class="order-1" size="sm"
-                                              type="link" href="https://test-correct.nl/welcome">
+                                              type="link" href="https://www.test-correct.nl/welcome">
                             <span class="text-base">{{__('auth.Maak account')}}</span>
                             <x-icon.arrow/>
                         </x-button.text-button>
