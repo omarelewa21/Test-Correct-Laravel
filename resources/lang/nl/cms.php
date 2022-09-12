@@ -195,7 +195,7 @@ return [
     'Direct afnemen'                                                                         => 'Direct afnemen',
     'Open vraag'                                                                             => 'Open vraag',
     'Open vraaggroep'                                                                        => 'Open vraaggroep',
-    'inklappen/uitklappen'                                                                   => 'Inklappen/uitklappen'
+    'inklappen/uitklappen'                                                                   => 'Inklappen/uitklappen',
     'search_placeholder'                                                                     => 'Zoek...',
     'no_statistics_available'                                                                => 'Geen statistieken beschikbaar',
     'p_value_statistics'                                                                     => 'P-Waarde statistieken',
