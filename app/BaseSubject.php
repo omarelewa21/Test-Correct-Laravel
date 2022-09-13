@@ -129,7 +129,7 @@ class BaseSubject extends BaseModel {
     // 20220913 By Erik maybe not as the scopeCurrentForAuthUser is also checking the current school period so that one might even be the better one, more restrictive
     public static function getIdsForUserInCurrentSchoolLocation(User $user) : array
     {
-        return $user->subjectsInCurrentLocation()->pluck('base_subject_id')->unique();
+        return $user->subjectsInCurrentLocation()->pluck('base_subject_id')->unique()->toArray();
     }
 
 }
