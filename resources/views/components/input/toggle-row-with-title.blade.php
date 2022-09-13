@@ -5,8 +5,12 @@
     'tooltipAlwaysLeft' => false,
     'checked' => false,
     'containerClass' => '',
+    'error' => false
 ])
-<div class="border-b flex w-full justify-between items-center pt-2.5 pb-[11px] border-inherit {{ $containerClass }}">
+@php
+    $borderColor = $error ? 'border-red-500' : 'border-inherit'
+@endphp
+<div class="border-b flex w-full justify-between items-center pt-2.5 pb-[11px] {{ $borderColor }} {{ $containerClass }}">
     <div {{ $attributes->merge(['class' => 'flex items-center space-x-2.5 text-base']) }}>
         {{ $slot }}
     </div>

@@ -56,4 +56,6 @@ return [
     'Je hebt het vak, niveau en/of leerjaar van de toets aangepast.'                           => 'You have changed the subject level or level year for this this. Would you like to update the current test or would you like the changes to be saved in a duplicate.',
     'Kies een of meerdere onderdelen'                                                          => 'Choose one aspect of the test to be exported.',
     'Kies een pdf attachment'                                                                  => 'Choose one pdf attachment of the test to be exported.',
+    'notify_students'                                                                          => 'Inform students',
+    'notify_students_tooltip'                                                                  => 'Inform students about this test.',
 ];

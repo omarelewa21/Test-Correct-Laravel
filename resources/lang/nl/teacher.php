@@ -56,4 +56,6 @@ return [
                     van de toets of is het een nieuwe toets?',
     'Kies een of meerdere onderdelen'                                                          => 'Kies één onderdeel van de toets om te exporteren.',
     'Kies een pdf attachment'                                                                  => 'Kies één pdf bijlage van de toets om te exporteren.',
+    'notify_students'                                                                          => 'Leerlingen informeren',
+    'notify_students_tooltip'                                                                  => 'Leerlingen via mail informeren over deze toetsafname.',
 ];

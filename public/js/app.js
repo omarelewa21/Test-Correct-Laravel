@@ -5927,8 +5927,8 @@ document.addEventListener('alpine:init', function () {
       slides: ['home', 'type', 'newquestion', 'questionbank'],
       activeSlide: null,
       scrollTimeout: null,
-      pollingInterval: 2500, // Milliseconds;
-      awaitUpdating: false,
+      pollingInterval: 2500,
+      // Milliseconds;
       init: function init() {
         var _this8 = this;
 
@@ -6145,7 +6145,7 @@ document.addEventListener('alpine:init', function () {
         var scrollToSettings = {
           left: position >= 0 ? position : 0
         };
-        /* RR: Smooth scrolling breaks entirely on Safari 15.4 so I only add it in non-safari browsers just so it doesn't break anything ...*/
+        /* RR: Smooth scrolling breaks entirely on Safari 15.4 so I only add it in non-safari browsers just so it doesn't break anything..*/
 
         if (!safariAgent) {
           scrollToSettings.behavior = 'smooth';
@@ -6929,6 +6929,7 @@ Core = {
     var isIOS = Core.detectIOS();
     var isAndroid = /Android/g.test(navigator.userAgent);
     var isChromebook = window.navigator.userAgent.indexOf('CrOS') > 0;
+    var isFirefox = window.navigator.userAgent.indexOf('Firefox') > -1;
 
     if (isIOS) {
       Core.isIpad();
@@ -6936,6 +6937,10 @@ Core = {
       Core.isAndroid();
     } else if (isChromebook) {
       Core.isChromebook();
+    }
+
+    if (isFirefox) {
+      Core.isFirefox();
     }
 
     Core.checkForElectron();
@@ -7014,6 +7019,9 @@ Core = {
   isChromebook: function isChromebook() {
     Core.inApp = true;
     Core.appType = 'chromebook';
+  },
+  isFirefox: function isFirefox() {
+    document.querySelector('body').classList.add('firefox');
   },
   detectIOS: function detectIOS() {
     var urlParams = new URLSearchParams(window.location.search);

@@ -47,11 +47,12 @@ class TestPlanModal extends ModalComponent
     protected function rules()
     {
         $rules = [
-            'request.date'           => 'required',
-            'request.time_end'       => 'sometimes',
-            'request.weight'         => 'required',
-            'request.period_id'      => 'required',
-            'request.school_classes' => 'required',
+            'request.date'            => 'required',
+            'request.time_end'        => 'sometimes',
+            'request.weight'          => 'required',
+            'request.period_id'       => 'required',
+            'request.school_classes'  => 'required',
+            'request.notify_students' => 'required|boolean',
         ];
 
         if ($this->isAssessmentType()) {
@@ -154,5 +155,6 @@ class TestPlanModal extends ModalComponent
         $this->request['guest_accounts'] = 0;
         $this->request['school_classes'] = [];
         $this->request['invigilators'] = [auth()->id()];
+        $this->request['notify_students'] = true;
     }
 }
