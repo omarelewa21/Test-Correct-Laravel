@@ -191,4 +191,6 @@ return [
     'toets_pdf'                                                                              => 'Toets',
     'toets_pdf_omschrijving'                                                                 => 'Toets met alle vragen. Bijv. voor afname op papier',
     'pdf_exporteren'                                                                         => 'Exporteer PDF',
+    'attachment_uploading_message'                                                           => 'We zijn de bijlage(n) aan het verwerken',
+    'one_moment_please'                                                                      => 'Een moment geduld a.u.b.',
 ];

@@ -192,4 +192,6 @@ return [
     'toets_pdf'                                                                              => 'Test',
     'toets_pdf_omschrijving'                                                                 => 'Test with all questions. E.g. for taking on paper',
     'pdf_exporteren'                                                                         => 'Export PDF',
+    'attachment_uploading_message'                                                           => 'We\'re processing the attachment(s).',
+    'one_moment_please'                                                                      => 'One moment please  ',
 ];
