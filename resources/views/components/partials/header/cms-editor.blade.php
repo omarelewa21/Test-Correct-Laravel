@@ -58,6 +58,7 @@
                 >
                     <x-icon.pdf-file color="currentColor"/>
                 </button>
+                <livewire:actions.test-quick-take variant="icon-button" :uuid="$this->testId"/>
                 <livewire:actions.test-plan-test variant="icon-button" :uuid="$this->testId"/>
             </div>
         @endif

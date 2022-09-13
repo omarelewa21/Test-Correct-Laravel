@@ -7,7 +7,7 @@
         <div class="flex flex-col gap-4">
             <div class="data | flex flex-col gap-x-4 gap-y-2.5">
                 <div class="flex w-full gap-4">
-                    <x-input.group class="flex-1" :label="__('cms.Toets')">
+                    <x-input.group class="flex-1" :label="__('teacher.Naam toets of opdracht')">
                         <x-input.text class="w-full" wire:model="testName" title="{{ $testName }}" :disabled="true"/>
                     </x-input.group>
                     {{--                </div>--}}

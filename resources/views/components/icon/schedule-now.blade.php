@@ -1,5 +1,4 @@
 <svg {{ $attributes }} width="16px" height="16px" viewBox="0 0 16 16" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-    <title>icons/schedule-now blue</title>
     <g id="icons/schedule-now-blue" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd" stroke-linecap="round">
         <line x1="4.5" y1="1.5" x2="4.5" y2="3.5" id="Path" stroke="currentColor" stroke-width="3"></line>
         <line x1="10.5" y1="1.5" x2="10.5" y2="3.5" id="Path" stroke="currentColor" stroke-width="3"></line>
