@@ -156,9 +156,10 @@ return [
     'attainment_tooltip_title'                => '{0}Geen relevante data beschikbaar|{1}o.b.v. 1 vraag|[2,*]o.b.v. :basedOn vragen',
     'leerdoel met nummer'                     => 'leerdoel :number',
     'leerdoel'                                => 'leerdoel',
-    'subleerdoel met nummer'                             => 'Subleerdoel :number',
+    'subleerdoel met nummer'                  => 'Subleerdoel :number',
     'subleerdoel'                             => 'subleerdoel',
     'description'                             => 'Omschrijving',
     'eindterm'                                => 'eindterm',
-    'p waarde subsubleerdoelen' => 'P Waarde subsubleerdoelen',
+    'p waarde subsubleerdoelen'               => 'P Waarde subsubleerdoelen',
+    'obv count questions'                     => "{0}Geen relevante data|{1}o.b.v 1 vraag|[2,*]obv :count vragen",
 ];

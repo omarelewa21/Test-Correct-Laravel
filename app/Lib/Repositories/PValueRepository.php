@@ -355,6 +355,7 @@ class PValueRepository
     public static function getPValueForStudentBySubject(User $user, $periods, $educationLevelYears, $teachers)
     {
         return PValue::SelectRaw('avg(score/max_score) as score')
+            ->selectRaw('count(subject_id) as cnt')
             ->addSelect([
                 'serie' => Subject::select('name')->whereColumn('id', 'p_values.subject_id')->limit(1),
                 'subject_id' => 'p_values.subject_id',
