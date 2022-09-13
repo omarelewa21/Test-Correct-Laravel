@@ -3,17 +3,24 @@
 namespace tcCore\Http\Livewire\Student\Analyses;
 
 use Livewire\Component;
+use tcCore\Attainment;
 use tcCore\EducationLevel;
 use tcCore\Lib\Repositories\PValueRepository;
 use tcCore\Lib\Repositories\PValueTaxonomyBloomRepository;
 use tcCore\Lib\Repositories\PValueTaxonomyMillerRepository;
 use tcCore\Lib\Repositories\PValueTaxonomyRTTIRepository;
 use tcCore\Period;
+use tcCore\Subject;
 use tcCore\User;
-use function view;
 
-abstract class AnalysesDashboard extends Component
+class AnalysesSubSubAttainmentDashboard extends Component
 {
+    public $subject;
+
+    protected $queryString = ['subject'];
+
+    public $attainment;
+
     public $educationLevelYears = [];
 
     public $periods = [];
@@ -22,57 +29,22 @@ abstract class AnalysesDashboard extends Component
 
     public $filters = [];
 
-    public $title = '';
-
-    public $dataValues = [];
-    public $dataKeys = [];
-
-    protected $topItems; //todo generate Top Items with a algorithm
-
-    protected $taxonomies = [
-        'Miller',
-        'RTTI',
-        'Bloom',
-    ];
-
-    abstract public function getDataProperty();
-
-    abstract public function render();
-
-    abstract protected function getMillerData($modelId);
-
-    abstract protected function getRTTIData($modelId);
-
-    abstract protected function getBloomData($modelId);
-
-    public function mount()
-    {
-        $this->clearFilters();
-
-        $this->getFilterOptionsData();
-
-        $this->getDataProperty();
-    }
-
-    public function getData($subjectId, $taxonomy)
-    {
-        switch ($taxonomy) {
-            case 'Miller':
-                return $this->getMillerData($subjectId);
-                break;
-            case 'RTTI':
-                return $this->getRTTIData($subjectId);
-                break;
-            case 'Bloom':
-                return $this->getBloomData($subjectId);
-                break;
-        }
-        // abort(403);
-    }
-
     public function hasActiveFilters()
     {
         return collect($this->filters)->flatten()->isNotEmpty();
+    }
+
+    public function mount(?Attainment $attainment = null)
+    {
+        $this->attainment = $attainment;
+        $this->clearFilters();
+        $this->getFilterOptionsData();
+    }
+
+    public function render()
+    {
+        $this->dispatchBrowserEvent('filters-updated');
+        return view('livewire.student.analyses.analyses-sub-sub-attainment-dashboard')->layout('layouts.student');
     }
 
     public function clearFilters()
@@ -116,18 +88,12 @@ abstract class AnalysesDashboard extends Component
             );
     }
 
-    protected function getPeriodsByFilterValues()
+    public function redirectBack()
     {
-        return Period::whereIn('id', $this->filters['periods'])->get('id');
+        return redirect(route('student.analyses.attainment.show', [
+            'attainment' => $this->attainment->attainment->uuid,
+            'subject'    => $this->subject,
+        ]));
     }
 
-    protected function getEducationLevelYearsByFilterValues()
-    {
-        return collect($this->filters['educationLevelYears'])->map(fn($levelYear) => ['id' => $levelYear]);
-    }
-
-    protected function getTeachersByFilterValues()
-    {
-        return User::whereIn('id', $this->filters['teachers'])->get('id');
-    }
 }

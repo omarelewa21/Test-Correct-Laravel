@@ -38,6 +38,11 @@ abstract class TestCase extends BaseTestCase
     const USER_STUDENT_ONE = 's1@test-correct.nl';
     const USER_STUDENT_TWO = 's2@test-correct.nl';
 
+    public function login(User $user){
+        $this->actingAs($user);
+        session()->put('session_hash', $user->session_hash);
+    }
+
     public static function getTeacherOne(){
         return  User::where('username', '=', static::USER_TEACHER)->first();
     }

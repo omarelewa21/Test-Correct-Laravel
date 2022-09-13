@@ -630,6 +630,385 @@ document.addEventListener('alpine:init', () => {
         }
     }));
 
+    Alpine.data('analysesSubjectsGraph', (data) => ({
+            data,
+            colors: [
+                '#30BC51',
+                '#5043F6',
+                '#ECEE7D',
+                '#6820CE',
+                '#CB110E',
+                '#F79D25',
+                '#1B6112',
+                '#43ACF5',
+                '#E12576',
+                '#24D2C5',
+            ],
+            renderGraph() {
+                var chart = anychart.column();
+                //
+                // this.data = [
+                //     {x:'a', value: 10, link: 'me'},
+                //     {x:'b', value: 10, link: 'me'},
+                //     {x:'c', value: 10, link: 'me'},
+                //     {x:'d', value: 10, link: 'me'},
+                //     {x:'e', value: 10, link: 'me'},
+                //     {x:'f', value: 10, link: 'me'},
+                //     {x:'g', value: 10, link: 'me'}
+                // ];
+                var series = chart.column(this.data);
+                var palette = anychart.palettes.distinctColors();
+                palette.items(this.colors);
+
+                for (var i = 0; series.getPoint(i).exists(); i++)
+                    series.getPoint(i).set("fill", palette.itemAt(i));
+
+                series.selected().fill("#444");
+                series.stroke(null);
+
+                var legend = chart.legend();
+                // enable legend
+                legend.enabled(true);
+                // set source of legend items
+                legend.itemsSourceMode("categories");
+
+                legend.itemsFormatter(function (items) {
+                    for (var i = 0; i < items.length; i++) {
+                        items[i].iconType = "square";
+                        items[i].iconFill = palette.itemAt([i]);
+                        items[i].iconEnabled = true;
+                    }
+                    return items;
+                });
+
+                legend.listen("legendItemMouseOver", function (event) {
+                    // get item's index
+                    var index = event["itemIndex"];
+                    // enable the hover state of the series
+                    series.getPoint(index).hovered(true);
+                });
+                legend.listen("legendItemMouseOut", function (event) {
+                    // get item's index
+                    var index = event["itemIndex"];
+                    // disable the hover state of the series
+                    series.getPoint(index).hovered(false);
+                });
+
+                legend.listen("legendItemClick", function (event) {
+                    // get item's index
+                    var index = event["itemIndex"];
+                    // disable the hover state of the series
+                    series.getPoint(index).selected(!series.getPoint(index).selected());
+                    legend.itemsFormatter(function (items) {
+                        for (var i = 0; i < items.length; i++) {
+                            items[i].iconType = "square";
+                            if (series.getPoint(i).selected())
+                                items[i].iconFill = "#444";
+                            else
+                                items[i].iconFill = palette.itemAt([i]);
+                            items[i].iconEnabled = true;
+                        }
+                        return items;
+                    });
+                });
+
+                chart.listen("pointsSelect", function () {
+                    legend.itemsFormatter(function (items) {
+                        for (var i = 0; i < items.length; i++) {
+                            items[i].iconType = "square";
+                            if (series.getPoint(i).selected())
+                                items[i].iconFill = "#444";
+                            else
+                                items[i].iconFill = palette.itemAt([i]);
+                            items[i].iconEnabled = true;
+                        }
+                        return items;
+                    });
+                });
+
+                chart.listen("pointsSelect", function (e) {
+                    window.open(e.point.get('link'), '_self');
+                });
+
+                chart.interactivity("by-x");
+
+                // rotate xAxis labels;
+                var xAxisLabels = chart.xAxis().labels();
+                xAxisLabels.rotation(-60)
+                // set container id for the chart
+                chart.container('pValueChart');
+                // initiate chart drawing
+                chart.draw();
+            },
+
+
+            init() {
+                this.renderGraph()
+            }
+        }
+    ));
+
+    Alpine.data('analysesAttainmentsGraph', (data) => ({
+            data,
+            colors: [
+                '#30BC51',
+                '#5043F6',
+                '#ECEE7D',
+                '#6820CE',
+                '#CB110E',
+                '#F79D25',
+                '#1B6112',
+                '#43ACF5',
+                '#E12576',
+                '#24D2C5',
+            ],
+            renderGraph() {
+                var chart = anychart.column();
+                var series = chart.column(this.data);
+                var palette = anychart.palettes.distinctColors();
+                palette.items(this.colors);
+
+                for (var i = 0; series.getPoint(i).exists(); i++)
+                    series.getPoint(i).set("fill", palette.itemAt(i));
+
+                series.selected().fill("#444");
+                series.stroke(null);
+
+                this.initTooltips(chart, this.data);
+
+                var legend = chart.legend();
+                // enable legend
+                legend.enabled(true);
+                // set source of legend items
+                legend.itemsSourceMode("categories");
+
+                var _data = this.data;
+                legend.itemsFormatter(function (items) {
+                    for (var i = 0; i < items.length; i++) {
+                        items[i].iconType = "square";
+                        items[i].iconFill = palette.itemAt([i]);
+                        items[i].iconEnabled = true;
+                        items[i].text = _data[i].title;
+                    }
+                    return items;
+                });
+
+
+                legend.listen("legendItemMouseOver", function (event) {
+                    // get item's index
+                    var index = event["itemIndex"];
+                    // enable the hover state of the series
+                    series.getPoint(index).hovered(true);
+                });
+                legend.listen("legendItemMouseOut", function (event) {
+                    // get item's index
+                    var index = event["itemIndex"];
+                    // disable the hover state of the series
+                    series.getPoint(index).hovered(false);
+                });
+
+                legend.listen("legendItemClick", function (event) {
+                    // get item's index
+                    var index = event["itemIndex"];
+                    // disable the hover state of the series
+                    series.getPoint(index).selected(!series.getPoint(index).selected());
+                    legend.itemsFormatter(function (items) {
+                        for (var i = 0; i < items.length; i++) {
+                            items[i].iconType = "square";
+                            if (series.getPoint(i).selected())
+                                items[i].iconFill = "#444";
+                            else
+                                items[i].iconFill = palette.itemAt([i]);
+                            items[i].iconEnabled = true;
+                        }
+                        return items;
+                    });
+                });
+
+                chart.listen("pointsSelect", function () {
+                    legend.itemsFormatter(function (items) {
+                        for (var i = 0; i < items.length; i++) {
+                            items[i].iconType = "square";
+                            if (series.getPoint(i).selected())
+                                items[i].iconFill = "#444";
+                            else
+                                items[i].iconFill = palette.itemAt([i]);
+                            items[i].iconEnabled = true;
+                        }
+                        return items;
+                    });
+                });
+
+                chart.listen("pointsSelect", function (e) {
+                    window.open(e.point.get('link'), '_self');
+                });
+
+                chart.interactivity("by-x");
+
+                // rotate xAxis labels;
+                var xAxisLabels = chart.xAxis().labels();
+                // set container id for the chart
+                chart.container('pValueChart');
+                // initiate chart drawing
+                chart.draw();
+            },
+
+            init() {
+                this.renderGraph()
+            },
+
+            initTooltips(chart, data) {
+                chart.tooltip().useHtml(true);
+                chart.tooltip().title(false)
+                chart.tooltip().separator(false)
+
+                var contentElement = null;
+
+                chart.listen("pointMouseOver", function (e) {
+                    // get the data for the current point
+                    var dataRow = data[e.pointIndex];
+
+                    if (contentElement) {
+                        while (contentElement.firstChild) {
+                            contentElement.firstChild.remove()
+                        }
+                        const attainmentHeader = document.createElement("h5");
+                        attainmentHeader.style.color = 'var(--system-base)'
+                        attainmentHeader.appendChild(document.createTextNode(dataRow.title));
+                        contentElement.appendChild(attainmentHeader);
+
+                        const scoreElement = document.createElement("h2");
+                        scoreElement.style.color = 'var(--system-base)'
+                        scoreElement.appendChild(document.createTextNode(`P ${dataRow.value}`));
+                        contentElement.appendChild(scoreElement);
+
+                        const basedOnElement = document.createElement("p");
+                        basedOnElement.style.color = 'var(--system-base)'
+                        basedOnElement.appendChild(document.createTextNode(dataRow.basedOn));
+                        contentElement.appendChild(basedOnElement);
+
+                        const detailElement = document.createElement("p");
+                        detailElement.style.whiteSpace = 'nowrap'
+                        detailElement.style.color = 'var(--system-base)';
+                        detailElement.style.fontWeight = '900';
+                        detailElement.appendChild(document.createTextNode("Bekijk analyse!! "));
+
+                        const iconElement = document.createElement('img');
+                        iconElement.src = '/svg/icons/arrow-small.svg';
+                        iconElement.style.display = 'inline-block'
+                        detailElement.appendChild(iconElement)
+                        contentElement.appendChild(detailElement);
+
+                        const AttainmentTexElement = document.createElement("p");
+                        AttainmentTexElement.style.color = 'var(--system-base)'
+                        AttainmentTexElement.appendChild(
+                            document.createTextNode(dataRow.text)
+                        );
+                        contentElement.appendChild(AttainmentTexElement);
+                    }
+                });
+
+
+                chart.tooltip().onDomReady(function (e) {
+                    this.parentElement.style.border = '1px solid var(--blue-grey)';
+
+                    this.parentElement.style.background = '#FFFFFF';
+                    this.parentElement.style.opacity = '0.8';
+                    contentElement = this.contentElement;
+
+                    // console.dir([
+                    //  this.parentElement,
+                    //  this.titleElement,
+                    //  this.separatorElement,
+                    //  this.contentElement
+                    // ]);
+                });
+
+                /* prevent the content of the contentElement div
+                from being overridden by the default formatter */
+                chart.tooltip().onBeforeContentChange(function () {
+                    return false;
+                });
+            }
+        }
+    ));
+
+
+    Alpine.data('expandableGraph', (id, modelId, taxonomy) => (
+        {
+            data: false,
+            modelId,
+            taxonomy,
+            containerId: 'chart-' + modelId + '-' + taxonomy,
+            id,
+            init() {
+                if (this.expanded) {
+                    this.updateGraph()
+                }
+            },
+            async updateGraph() {
+                if (!this.data) {
+                    this.data = await this.$wire.getData(this.modelId, this.taxonomy);
+                    this.renderGraph()
+                }
+            },
+            get expanded() {
+                return this.active === this.id
+            },
+            set expanded(value) {
+                if (value) {
+                    this.updateGraph()
+                }
+
+                this.active = value ? this.id : null
+            },
+            renderGraph: function () {
+                // create bar chart
+                var chart = anychart.bar();
+
+                // create area series with passed data
+                var series = chart.bar(this.data);
+                series.stroke(this.getColor()).fill(this.getColor())
+
+                var tooltip = series.tooltip()
+                tooltip.title(false)
+                    .separator(false)
+                    .position('right')
+                    .anchor('left-center')
+                    .offsetX(5)
+                    .offsetY(0)
+                    .background('#FFFFFF')
+                    .fontColor('#000000')
+                    .format(function () {
+                        return (
+                            'P ' + Math.abs(this.value).toLocaleString()
+
+                        );
+                    });
+
+
+                chart.tooltip().positionMode('point');
+                // set scale minimum
+                chart.xAxis().stroke('#041F74')
+                chart.xAxis().stroke('none')
+
+                // set container id for the chart
+                chart.container(this.containerId);
+                // initiate chart drawing
+                chart.draw();
+            },
+            getColor: function () {
+                if (this.taxonomy == 'Bloom') {
+                    return '#E2DD10';
+                }
+                if (this.taxonomy == 'Miller') {
+                    return '#5043F6';
+                }
+                return '#2EBC4F';
+            }
+        }
+    ));
+
     Alpine.data('questionCardContextMenu', () => ({
         menuOpen: false,
         questionUuid: null,

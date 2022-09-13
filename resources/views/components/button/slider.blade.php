@@ -5,7 +5,7 @@
 'disabled' => false,
 ])
 <div wire:ignore
-     class="flex flex-col"
+     {{ $attributes->merge(['class' => '']) }}
      x-id="['slider-button']"
      x-data="{
          buttonPosition: '0px',
@@ -39,9 +39,9 @@
      }"
 >
     @if($label)
-    <label :for="$id('slider-button')">
-        {{$label}}
-    </label>
+        <label :for="$id('slider-button')">
+            {{$label}}
+        </label>
     @endif
     <div class="relative">
         <div :id="$id('slider-button')" class="flex note">
@@ -53,8 +53,7 @@
                     <span data-id="{{$id}}"
                           class="inline-flex justify-center w-full px-3 border-r border-blue-grey group-last:border-r-0 pointer-events-none"
                     >
-                        {{$button}}
-                    </span>
+                        {{$button}}                    </span>
                 </div>
             @endforeach
         </div>

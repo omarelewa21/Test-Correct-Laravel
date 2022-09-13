@@ -19,6 +19,7 @@ class Subject extends BaseModel implements AccessCheckable
     use SoftDeletes;
     use UuidTrait;
 
+    const NOT_ALLOWED_FOR_TEACHER_EXCEPTION_MSG = 'Not allowed For teacher';
     protected $casts = [
         'uuid' => EfficientUuid::class,
     ];
@@ -197,6 +198,17 @@ class Subject extends BaseModel implements AccessCheckable
         return $query;
     }
 
+    public function scopeFilterForStudent($query, User $user) {
+        if (!$user->isA('student')){
+            throw new \Exception(self::NOT_ALLOWED_FOR_TEACHER_EXCEPTION_MSG);
+        }
+
+        $subQuery = Teacher::select('subject_id')->whereIn('class_id', Student::select('class_id')->where('user_id', $user->getKey()));
+
+        return $query->whereIn('id', $subQuery);
+
+    }
+
     public function scopeCitoFiltered($query, $filters = [], $sorting = [])
     {
         $citoSchool = SchoolLocation::where('customer_code', 'CITO-TOETSENOPMAAT')->first();
@@ -305,5 +317,8 @@ class Subject extends BaseModel implements AccessCheckable
         return $query->filtered(['base_subject_id' => $baseSubject->id, 'user_id' => $forUser->id], []);
     }
 
-
+    public function getRouteKeyName()
+    {
+        return 'uuid';
+    }
 }

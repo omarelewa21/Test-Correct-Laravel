@@ -18,7 +18,7 @@ abstract class FactoryScenarioTest
     public static function create(string $testName = null, User $user = null) : FactoryScenarioTest
     {
         $factory = new static;
-        $factory->user = $user;
+        $factory->user = $user ?? User::find(1486);
         $factory->testName = $testName;
         $factory->testFactory = $factory->createFactoryTest();
 

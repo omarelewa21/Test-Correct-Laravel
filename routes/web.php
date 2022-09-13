@@ -69,6 +69,11 @@ Route::middleware('auth')->group(function () {
         Route::get('/dashboard/logout', [tcCore\Http\Livewire\Student\Dashboard::class, 'logout'])->name('dashboard.logout');
         Route::get('/test-takes', tcCore\Http\Livewire\Student\TestTakes::class)->name('test-takes');
         Route::get('/waiting-room', tcCore\Http\Livewire\Student\WaitingRoom::class)->name('waiting-room');
+        Route::get('/analyses', tcCore\Http\Livewire\Student\Analyses\AnalysesOverviewDashboard::class)->name('analyses.show');
+        Route::get('/analyses/subject/{subject}', tcCore\Http\Livewire\Student\Analyses\AnalysesSubjectDashboard::class)->name('analyses.subject.show');
+        Route::get('/analyses/attainment/{attainment}', tcCore\Http\Livewire\Student\Analyses\AnalysesAttainmentDashboard::class)->name('analyses.attainment.show');
+        Route::get('/analyses/sub-attainment/{attainment}', tcCore\Http\Livewire\Student\Analyses\AnalysesSubAttainmentDashboard::class)->name('analyses.subattainment.show');
+        Route::get('/analyses/sub-sub-attainment/{attainment}', tcCore\Http\Livewire\Student\Analyses\AnalysesSubSubAttainmentDashboard::class)->name('analyses.subsubattainment.show');
     });
 
     Route::middleware(['dll', 'teacher'])->prefix('teacher')->name('teacher.')->group(function () {
