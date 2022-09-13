@@ -6376,9 +6376,11 @@ addIdsToQuestionHtml = function addIdsToQuestionHtml() {
     questionContainers.forEach(function (item) {
       var decendents = item.querySelectorAll('*');
       decendents.forEach(function (decendent) {
-        decendent.id = 'questionhtml_' + id;
-        decendent.setAttribute('wire:key', 'questionhtml_' + id);
-        id += 1;
+        if (decendent.tagName != 'MATH' && !decendent.closest('math')) {
+          decendent.id = 'questionhtml_' + id;
+          decendent.setAttribute('wire:key', 'questionhtml_' + id);
+          id += 1;
+        }
       });
     });
   }, 1);
