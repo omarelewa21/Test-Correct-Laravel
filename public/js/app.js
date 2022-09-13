@@ -6314,6 +6314,15 @@ document.addEventListener('alpine:init', function () {
         var series = chart.column(this.data);
         var palette = anychart.palettes.distinctColors();
         palette.items(this.colors);
+        var yScale = chart.yScale();
+        yScale.minimum(0);
+        yScale.maximum(1.00);
+        yScale.ticks().interval(0.25);
+        chart.yAxis(0).labels().format(function () {
+          return this.value == 0 ? 'P 0' : this.value.toFixed(2);
+        });
+        chart.yGrid().enabled(true);
+        chart.xAxis(0).labels().fontWeight("bold").fontColor('#041f74').rotation(-60);
 
         for (var i = 0; series.getPoint(i).exists(); i++) {
           series.getPoint(i).set("fill", palette.itemAt(i));
@@ -6321,6 +6330,7 @@ document.addEventListener('alpine:init', function () {
 
         series.selected().fill("#444");
         series.stroke(null);
+        this.initTooltips(chart, this.data);
         var legend = chart.legend(); // enable legend
 
         legend.enabled(true); // set source of legend items
@@ -6331,6 +6341,8 @@ document.addEventListener('alpine:init', function () {
             items[i].iconType = "square";
             items[i].iconFill = palette.itemAt([i]);
             items[i].iconEnabled = true;
+            items[i].fontWeight = 'bold';
+            items[i].fontColor = '#041f74';
           }
 
           return items;
@@ -6375,15 +6387,67 @@ document.addEventListener('alpine:init', function () {
         });
         chart.listen("pointsSelect", function (e) {
           window.open(e.point.get('link'), '_self');
-        });
-        chart.interactivity("by-x"); // rotate xAxis labels;
-
-        var xAxisLabels = chart.xAxis().labels();
-        xAxisLabels.rotation(-60); // set container id for the chart
+        }); // // set container id for the chart
 
         chart.container('pValueChart'); // initiate chart drawing
 
         chart.draw();
+      },
+      initTooltips: function initTooltips(chart, data) {
+        chart.tooltip().useHtml(true);
+        chart.tooltip().title(false);
+        chart.tooltip().separator(false);
+        var contentElement = null;
+        chart.listen("pointMouseOver", function (e) {
+          // get the data for the current point
+          var dataRow = data[e.pointIndex];
+
+          if (contentElement) {
+            while (contentElement.firstChild) {
+              contentElement.firstChild.remove();
+            }
+
+            var attainmentHeader = document.createElement("h5");
+            attainmentHeader.style.color = 'var(--system-base)';
+            attainmentHeader.appendChild(document.createTextNode(dataRow.title));
+            contentElement.appendChild(attainmentHeader);
+            var scoreElement = document.createElement("h2");
+            scoreElement.style.color = 'var(--system-base)';
+            scoreElement.appendChild(document.createTextNode("P ".concat(dataRow.value)));
+            contentElement.appendChild(scoreElement);
+            var basedOnElement = document.createElement("p");
+            basedOnElement.style.color = 'var(--system-base)';
+            basedOnElement.appendChild(document.createTextNode(dataRow.basedOn));
+            contentElement.appendChild(basedOnElement);
+            var detailElement = document.createElement("p");
+            detailElement.style.whiteSpace = 'nowrap';
+            detailElement.style.color = 'var(--system-base)';
+            detailElement.style.fontWeight = '900';
+            detailElement.appendChild(document.createTextNode("Bekijk analyse"));
+            var iconElement = document.createElement('img');
+            iconElement.src = '/svg/icons/arrow-small.svg';
+            iconElement.style.display = 'inline-block';
+            detailElement.appendChild(iconElement);
+            contentElement.appendChild(detailElement);
+          }
+        });
+        chart.tooltip().onDomReady(function (e) {
+          this.parentElement.style.border = '1px solid var(--blue-grey)';
+          this.parentElement.style.background = '#FFFFFF';
+          this.parentElement.style.opacity = '0.8';
+          contentElement = this.contentElement; // console.dir([
+          //  this.parentElement,
+          //  this.titleElement,
+          //  this.separatorElement,
+          //  this.contentElement
+          // ]);
+        });
+        /* prevent the content of the contentElement div
+        from being overridden by the default formatter */
+
+        chart.tooltip().onBeforeContentChange(function () {
+          return false;
+        });
       },
       init: function init() {
         this.renderGraph();

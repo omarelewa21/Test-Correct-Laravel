@@ -38,7 +38,9 @@ class AnalysesOverviewDashboard extends AnalysesDashboard
         $this->dataValues = $result->map(function ($pValue) {
             return (object)[
                 'x'     => $pValue->serie,
-                'value' => $pValue->score,
+                'title' => $pValue->serie,
+                'basedOn' => trans_choice('student.obv count questions', $pValue->cnt),
+                'value' => number_format(($pValue->score > 0 ? $pValue->score : 0), 2),
                 'link'  => route('student.analyses.subject.show', Subject::find($pValue->subject_id)->uuid),
             ];
         })->toArray();
