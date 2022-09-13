@@ -495,7 +495,6 @@ class UsersController extends Controller
         try {
             $users = collect($request->all()['data'])->map(function ($row) use ($defaultData,$type) {
                 $attributes = array_merge($row, $defaultData);
-                logger($attributes);
 
                 $user = User::where('username', $attributes['username'])->first();
                 if ($user) {
