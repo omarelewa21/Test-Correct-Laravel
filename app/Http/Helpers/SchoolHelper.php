@@ -19,13 +19,13 @@ use tcCore\User;
 class SchoolHelper
 {
 
-    public static function getSomeTeacherBySchoolLocationId($schoolLocationId)
+    public static function getSomeTeacherOrSchoolManagerBySchoolLocationId($schoolLocationId)
     {
         return User::query()->select('users.*')->join('user_roles', function($join){
             $join->on('users.id', '=', 'user_roles.user_id');
-            $join->where('user_roles.role_id', '=', 1);
+            $join->whereIn('user_roles.role_id', [1,6]);
             $join->whereNull('user_roles.deleted_at');
-        })->where('school_location_id', $schoolLocationId)->first();
+        })->where('school_location_id', $schoolLocationId)->orderBy('created_at','asc')->orderBy('id','asc')->first();
     }
 
     public static function getBaseDemoSchoolUser()

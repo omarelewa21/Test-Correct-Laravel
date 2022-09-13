@@ -116,12 +116,12 @@ class UsersController extends Controller
         DB::beginTransaction();
         try {
             // get a corresponding teacher within the same new school location
-            $teacher = SchoolHelper::getSomeTeacherBySchoolLocationId($request->get('school_location_id'));
-            if (null === $teacher) {
+            $teacherOrSchoolManager = SchoolHelper::getSomeTeacherOrSchoolManagerBySchoolLocationId($request->get('school_location_id'));
+            if (null === $teacherOrSchoolManager) {
                 throw new \Exception(' target school must contain at least one teacher');
             }
 
-            ActingAsHelper::getInstance()->setUser($teacher);
+            ActingAsHelper::getInstance()->setUser($teacherOrSchoolManager);
 
             $userFactory = new Factory(new User());
             $newUser = $userFactory->generate(

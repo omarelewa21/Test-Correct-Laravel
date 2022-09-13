@@ -31,6 +31,9 @@ class MagisterHelper
 
     private $resultIdentifier = null;
 
+    private $brinCode;
+    private $dependanceCode;
+
     public function __construct($isTestSet = false)
     {
         $this->isTestSet = $isTestSet;
@@ -130,7 +133,7 @@ class MagisterHelper
         $stream = $response->getBody();
         $stream->rewind();
         $instance = new self($isTestSet);
-
+        $instance->setBrin($brinCode,$dependanceCode);
         $instance->string = $stream->getContents();
 
         $instance->searchParams = [
@@ -145,6 +148,12 @@ class MagisterHelper
         return $instance;
     }
 
+
+    public function setBrin($brinCode,$dependanceCode)
+    {
+        $this->brinCode = $brinCode;
+        $this->dependanceCode = $dependanceCode;
+    }
 
     public function getResult1()
     {
@@ -271,13 +280,15 @@ class MagisterHelper
         $groepen = (object) $groepen;
 
         collect(['groep', 'samengestelde_groep'])->each(function ($prop) use ($groepen) {
-            collect($groepen->$prop)->each(function ($obj) use ($prop) {
-                UwlrSoapEntry::create([
-                    'uwlr_soap_result_id' => $this->resultIdentifier,
-                    'key'                 => $prop,
-                    'object'              => serialize($obj),
-                ]);
-            });
+            if(property_exists($groepen,$prop)) {
+                collect($groepen->$prop)->each(function ($obj) use ($prop) {
+                    UwlrSoapEntry::create([
+                        'uwlr_soap_result_id' => $this->resultIdentifier,
+                        'key' => $prop,
+                        'object' => serialize($obj),
+                    ]);
+                });
+            }
         });
     }
 
@@ -317,8 +328,14 @@ class MagisterHelper
             $result['groep'][] = $this->cleanKeys($groep);
         }
 
-        foreach ($groepen[$this->getOption(['lesamengestelde_groep', 'samengestelde_groep'])] as $sGroep) {
-            $result['samengestelde_groep'][] = $this->cleanKeys($sGroep);
+        $option = $this->getOption(['lesamengestelde_groep', 'samengestelde_groep']);
+        if(isset($groepen[$option])) {
+            foreach ($groepen[$option] as $sGroep) {
+                $result['samengestelde_groep'][] = $this->cleanKeys($sGroep);
+            }
+        } else {
+            logger(sprintf('no samengestelde groep found in parse lesgroepen for %s-%s',$this->brinCode, $this->dependanceCode));
+            logger('keys are '.implode(', ',array_keys($groepen)));
         }
 
         return $result;

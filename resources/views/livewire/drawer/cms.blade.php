@@ -16,9 +16,6 @@
                 }
             }
         }
-        dispatchBackdrop = () => {
-            if(!emptyStateActive) $dispatch('backdrop');
-        }
         $watch('emptyStateActive', (value) => {
             backdrop = value
             $store.cms.emptyState = value
@@ -40,6 +37,7 @@
      @first-question-of-test-added.window="$wire.showFirstQuestionOfTest(); emptyStateActive = false; $nextTick(() => backdrop = true)"
      @hide-backdrop-if-active.window="if(backdrop) backdrop = false"
      @scroll="$store.cms.scrollPos = $el.scrollTop;"
+     @closed-with-backdrop.window="$root.dataset.closedWithBackdrop = $event.detail"
      wire:ignore.self
      wire:init="handleCmsInit()"
 >
@@ -90,7 +88,7 @@
                                        @continue-to-add-group.window="addGroup(false)"
                                        @scroll-dummy-into-view.window="scrollActiveQuestionIntoView()"
             >
-                <div wire:sortable="updateTestItemsOrder" wire:sortable-group="updateGroupItemsOrder" class="sortable-drawer divide-y divide-bluegrey pb-6" {{ $emptyStateActive ? 'hidden' : '' }} >
+                <div wire:sortable="updateTestItemsOrder" class="sortable-drawer divide-y divide-bluegrey pb-6" {{ $emptyStateActive ? 'hidden' : '' }} >
                     @php $loopIndex = 0; @endphp
                     @foreach($this->questionsInTest as $testQuestion)
                         @if($testQuestion->question->type === 'GroupQuestion')
@@ -150,7 +148,7 @@
             <x-sidebar.slide-container class="divide-y divide-bluegrey" x-ref="type" @mouseenter="handleVerticalScroll($el);">
                 <div class="py-2 px-5 flex">
                     <div class="flex items-center space-x-2.5">
-                        <x-button.back-round @click="backToQuestionOverview($refs.type);dispatchBackdrop()"
+                        <x-button.back-round @click="backToQuestionOverview($refs.type);"
                                              wire:click="$set('groupId', null)"
                         />
                         <span class="bold text-lg">{{ __('cms.Vraag toevoegen') }}</span>
