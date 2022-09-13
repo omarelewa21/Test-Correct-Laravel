@@ -61,9 +61,9 @@
                                 </x-table.cell>
                                 <x-table.cell buttonCell class="text-right">
 {{--                                    @if($testTake->test_take_status_id == \tcCore\TestTakeStatus::STATUS_DISCUSSING)--}}
-                                        <x-button.cta wire:click="redirectToWaitingRoom('{!!$testTake->uuid !!}')">{{__("student.Bespreken")}}</x-button.cta>
+                                        <x-button.cta selid="dashboard-start-take-button" wire:click="redirectToWaitingRoom('{!!$testTake->uuid !!}')">{{__("student.Bespreken")}}</x-button.cta>
 {{--                                    @else--}}
-{{--                                        <x-button.cta disabled>{{__("student.Bespreken")}}</x-button.cta>--}}
+{{--                                        <x-button.cta selid="dashboard-start-take-button" disabled>{{__("student.Bespreken")}}</x-button.cta>--}}
 {{--                                    @endif--}}
                                 </x-table.cell>
                             </x-table.row>

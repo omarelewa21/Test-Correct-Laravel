@@ -3,8 +3,9 @@
     <span class="note text-sm uppercase text-center py-1">{{ __('cms.open-questions') }}</span>
     @foreach($questionTypes['open'] as $question)
         <div wire:click="addQuestion('{{ $question['type'] }}', '{{ $question['subtype'] }}')"
-             @click="home;$store.cms.loading = true; $dispatch('new-question-added')"
+             @click="home(false);$store.cms.loading = true; $dispatch('new-question-added')"
              class="add-question-card cursor-pointer py-4 px-6 flex space-x-4 items-center text-sm"
+             selid="add-{{$question['type']}}-{{$question['subtype']}}-question-btn"
         >
             <div>
                 @if($question['sticker'] === 'question-open')
@@ -28,8 +29,9 @@
     <span class="note text-sm uppercase text-center py-1">{{ __('cms.closed-questions') }}</span>
     @foreach($questionTypes['closed'] as $question)
         <div wire:click="addQuestion('{{ $question['type']}}', '{{ $question['subtype'] }}')"
-             @click="home;$store.cms.loading = true; $dispatch('new-question-added')"
+             @click="home(false);$store.cms.loading = true; $dispatch('new-question-added')"
              class="add-question-card cursor-pointer py-4 px-6 flex space-x-4 items-center text-sm"
+             selid="add-{{$question['type']}}-{{$question['subtype']}}-question-btn"
         >
             <div>
                 @if($question['sticker'] === 'question-multiple-choice')
@@ -61,8 +63,9 @@
     <span class="note text-sm uppercase text-center py-1">{{ __('cms.extra') }}</span>
     @foreach($questionTypes['extra'] as $question)
         <div wire:click="addQuestion('{{ $question['type']}}', '{{ $question['subtype'] }}')"
-             @click="home;$store.cms.loading = true; $dispatch('new-question-added')"
+             @click="home(false);$store.cms.loading = true; $dispatch('new-question-added')"
              class="add-question-card cursor-pointer py-4 px-6 flex space-x-4 items-center text-sm"
+             selid="add-{{$question['type']}}-{{$question['subtype']}}-question-btn"
         >
             <div>
                 <x-stickers.question-infoscreen/>

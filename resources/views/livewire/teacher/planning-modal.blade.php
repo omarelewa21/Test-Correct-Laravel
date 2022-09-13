@@ -1,6 +1,6 @@
 <x-modal-new>
     <x-slot name="title">
-        <span>{{ __('teacher.Inplannen') }}</span>
+        <span>{{ __('teacher.Toets inplannen') }}</span>
     </x-slot>
     <x-slot name="body">
         <div class="email-section mb-4 w-full">

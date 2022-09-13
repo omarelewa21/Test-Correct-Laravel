@@ -199,40 +199,53 @@ class Subject extends BaseModel implements AccessCheckable
 
     public function scopeCitoFiltered($query, $filters = [], $sorting = [])
     {
-        $user = Auth::user();
-
         $citoSchool = SchoolLocation::where('customer_code', 'CITO-TOETSENOPMAAT')->first();
-        $baseSubjectIds = $user->subjects()->pluck('base_subject_id')->unique();
-        if ($citoSchool) {
-            $classIds = $citoSchool->schoolClasses()->pluck('id');
-            $tempSubjectIds = Teacher::whereIn('class_id', $classIds)->pluck('subject_id')->unique();
-            $baseSubjects = Subject::whereIn('id', $tempSubjectIds)->get();
-            $subjectIds = $baseSubjects->whereIn('base_subject_id', $baseSubjectIds)->pluck('id')->unique()->toArray();
-        } else { // slower but as a fallback in case there's no cito school
-            $query->where('subjects.id', -1);
-            return $query;
-        }
-        $query->whereIn('id', $subjectIds);
-        return $query;
+
+        return $this->filterByUserAndSchoolLocation($query, $citoSchool);
     }
 
     public function scopeExamFiltered($query, $filters = [], $sorting = [])
     {
-        $user = Auth::user();
-
         $examSchool = SchoolLocation::where('customer_code', config('custom.examschool_customercode'))->first();
-        $baseSubjectIds = $user->subjects()->pluck('base_subject_id')->unique();
-        if ($examSchool) {
-            $classIds = $examSchool->schoolClasses()->pluck('id');
-            $tempSubjectIds = Teacher::whereIn('class_id', $classIds)->pluck('subject_id')->unique();
-            $baseSubjects = Subject::whereIn('id', $tempSubjectIds)->get();
-            $subjectIds = $baseSubjects->whereIn('base_subject_id', $baseSubjectIds)->pluck('id')->unique()->toArray();
-        } else { // slower but as a fallback in case there's no cito school
+
+        return $this->filterByUserAndSchoolLocation($query, $examSchool);
+    }
+
+    public function scopeNationalItemBankFiltered($query, $filters = [], $sorting = [])
+    {
+        $nationalItemBankSchool = SchoolLocation::where('customer_code', config('custom.national_item_bank_school_customercode'))->first();
+
+        return $this->filterByUserAndSchoolLocation($query, $nationalItemBankSchool);
+    }
+
+    private function filterByUserAndSchoolLocation($query, $schoolLocation)
+    {
+        if (!$schoolLocation) { // slower but as a fallback in case there's no cito school
             $query->where('subjects.id', -1);
             return $query;
         }
+
+        $user = Auth::user();
+
+        $subjectIds = $this->getAvailableSubjectsForSchoolLocation($schoolLocation)
+            ->whereIn('base_subject_id', $this->getBaseSubjectsForUser($user))
+            ->pluck('id')
+            ->unique()
+            ->toArray();
+
         $query->whereIn('id', $subjectIds);
         return $query;
+    }
+
+    private function getAvailableSubjectsForSchoolLocation(SchoolLocation $schoolLocation)
+    {
+        return $this->whereIn('id', Teacher::whereIn('class_id', $schoolLocation->schoolClasses()->pluck('id')
+        )->pluck('subject_id')->unique())->get();
+    }
+
+    private function getBaseSubjectsForUser(User $user)
+    {
+        return $user->subjects()->pluck('base_subject_id')->unique();
     }
 
     public function canAccess()
@@ -287,11 +300,10 @@ class Subject extends BaseModel implements AccessCheckable
         });
     }
 
-    public function scopeAllowedSubjectsByBaseSubjectForUser($query, BaseSubject $baseSubject, User $forUser) {
+    public function scopeAllowedSubjectsByBaseSubjectForUser($query, BaseSubject $baseSubject, User $forUser)
+    {
         return $query->filtered(['base_subject_id' => $baseSubject->id, 'user_id' => $forUser->id], []);
     }
-
-
 
 
 }

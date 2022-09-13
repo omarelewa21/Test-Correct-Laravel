@@ -6,7 +6,8 @@
         groupDetail = $el.querySelector('#groupdetail');
         $watch('$store.questionBank.inGroup', value => inGroup = value);
         $watch('$store.questionBank.active', value => {
-           value ? $wire.render() : closeGroupDetail();
+           //if true, the wire method also makes the html rerender, but only calling the render didn't cut it
+           value ? $wire.setAddedQuestionIdsArray() : closeGroupDetail();
         });
         showGroupDetails = async (groupQuestionUuid, inTest = false) => {
             let readyForSlide = await $wire.showGroupDetails(groupQuestionUuid, inTest);
@@ -17,8 +18,10 @@
                 $el.scrollTo({top: 0, behavior: 'smooth'});
                 maxHeight = groupDetail.offsetHeight + 'px';
                 $nextTick(() => {
-                    setTimeout(() => bodyVisibility = false, 250);
-                    handleVerticalScroll($el.closest('.slide-container'));
+                    setTimeout(() => {
+                        bodyVisibility = false;
+                        handleVerticalScroll($el.closest('.slide-container'));
+                    }, 250);
                 })
 
             }
@@ -139,7 +142,7 @@
                     <div class="flex w-full my-2">
                         <div class="relative w-full">
                             <x-input.text class="w-full"
-                                          placeholder="{{ __('cms.search_placeholder') }}"
+                                          placeholder="{{ __('cms.Search...') }}"
                                           wire:model.debounce.300ms="filters.{{ $this->openTab }}.search"
                             />
                             <x-icon.search class="absolute right-0 -top-2"/>
@@ -266,6 +269,9 @@
                         </span>
                         @endif
                     </x-grid>
+                    @if(!$this->groupQuestionDetail)
+                        <x-question-card-context-menu/>
+                    @endif
                 </div>
             </div>
         </div>

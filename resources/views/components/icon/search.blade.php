@@ -10,7 +10,7 @@
             </feMerge>
         </filter>
     </defs>
-    <g filter="url(#k1duvetmfa)" transform="translate(-1099 -118)" stroke="#041F74" fill="none" fill-rule="evenodd">
+    <g filter="url(#k1duvetmfa)" transform="translate(-1099 -118)" stroke="currentColor" fill="none" fill-rule="evenodd">
         <g transform="translate(1115 134)">
             <path stroke-width="3" stroke-linecap="round" d="m15.88 15.88 6.559 6.558"/>
             <circle stroke-width="2" cx="9.5" cy="9.5" r="8.5"/>

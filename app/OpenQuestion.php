@@ -13,6 +13,7 @@ class OpenQuestion extends Question implements QuestionInterface {
 
     protected $casts = [
         'uuid' => EfficientUuid::class,
+        'spell_check_available' => 'boolean',
     ];
 
     /**
@@ -34,7 +35,7 @@ class OpenQuestion extends Question implements QuestionInterface {
      *
      * @var array
      */
-    protected $fillable = ['subtype', 'answer'];
+    protected $fillable = ['subtype', 'answer', 'spell_check_available'];
 
     /**
      * The attributes excluded from the model's JSON form.
@@ -87,5 +88,11 @@ class OpenQuestion extends Question implements QuestionInterface {
         return false;
     }
 
+    public function getCaptionAttribute() {
+        if ($this->subtype === 'writing') {
+            return __('test_take.writing_assignment_question');
+        }
 
+        return parent::getCaptionAttribute();
+    }
 }

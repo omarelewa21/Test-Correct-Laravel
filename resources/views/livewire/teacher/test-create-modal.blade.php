@@ -1,8 +1,8 @@
-<x-modal-new force-close="true">
+<x-modal.base-modal force-close="true">
         <x-slot name="title">
-                {{__("teacher.toets aanmaken")}}
+                <h2>{{__("teacher.toets aanmaken")}}</h2>
         </x-slot>
-        <x-slot name="body">
+        <x-slot name="content">
             <div class="flex-grow">
                 <div class="email-section mb-4 w-full">
                     <div class="mb-4">
@@ -157,5 +157,5 @@
                 </x-button.cta>
             </div>
         </x-slot>
-</x-modal-new>
+</x-modal.base-modal>
 

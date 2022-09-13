@@ -45,6 +45,10 @@ class EventServiceProvider extends ServiceProvider {
 
             $entreeHelper->redirectIfBrinUnknown();
 
+            if(config('entree.use_with_2_urls')) {
+                $entreeHelper->redirectIfSmallSetAndSsoAvailable();
+            }
+
             $entreeHelper->redirectIfBrinNotSso();
 
             $entreeHelper->blockIfSchoolLvsActiveNoMailNotAllowedWhenMailAttributeIsNotPresent();

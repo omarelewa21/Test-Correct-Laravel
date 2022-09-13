@@ -55,7 +55,8 @@ class QuestionBank extends Component
         return [
             'testSettingsUpdated',
             'addQuestionFromDetail' => 'addQuestionToTest',
-            'questionDeleted'       => 'questionDeletedFromExternalComponent'
+            'questionDeleted'       => 'questionDeletedFromExternalComponent',
+            'newGroupId'            => 'newGroupId',
         ];
     }
 
@@ -63,7 +64,7 @@ class QuestionBank extends Component
     {
         $this->itemsPerPage = QuestionBank::ITEM_INCREMENT;
         $this->setTestProperty();
-        $this->addedQuestionIds = $this->getQuestionIdsThatAreAlreadyInTest();
+        $this->setAddedQuestionIdsArray();
         $this->setFilters();
 
         $this->setSliderButtonOptions();
@@ -226,11 +227,11 @@ class QuestionBank extends Component
                 $query->where('scope', '!=', 'cito')
                     ->orWhereNull('scope');
             })
-            ->when(!$this->inGroup, function($query) {
+            ->when(!$this->inGroup, function ($query) {
                 $query->where('is_subquestion', 0);
             })
             // strip GroupQuestions from result when inGroup is set to a guid;
-            ->when($this->inGroup, function($query){
+            ->when($this->inGroup, function ($query) {
                 $query->where('type', '!=', 'GroupQuestion');
             })
             ->orderby('created_at', 'desc')
@@ -257,7 +258,7 @@ class QuestionBank extends Component
             "group_question_id" => $this->inGroup,
             "order"             => 0,
             "maintain_position" => 0,
-            "discuss"           => 0,
+            "discuss"           => 1,
             "closeable"         => 0,
             "question_id"       => $questionId,
             "owner_id"          => $this->inGroup
@@ -367,5 +368,21 @@ class QuestionBank extends Component
             __('cms.Toetsenbank'),
             __('cms.Vragenbank'),
         ];
+    }
+
+    public function openPreview($questionUuid, $inTest)
+    {
+        $this->emit('openModal', 'teacher.question-cms-preview-modal', ['uuid' => $questionUuid, 'inTest' => $inTest]);
+    }
+
+    public function newGroupId($uuid)
+    {
+        $this->inGroup = $uuid;
+        $this->updatedInGroup($uuid);
+    }
+
+    public function setAddedQuestionIdsArray(): void
+    {
+        $this->addedQuestionIds = $this->getQuestionIdsThatAreAlreadyInTest();
     }
 }

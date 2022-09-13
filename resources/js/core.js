@@ -16,12 +16,17 @@ Core = {
         let isAndroid = /Android/g.test(navigator.userAgent);
         let isChromebook = window.navigator.userAgent.indexOf('CrOS') > 0;
 
+        let isFirefox = window.navigator.userAgent.indexOf('Firefox') > -1;
+
         if (isIOS) {
             Core.isIpad();
         } else if (isAndroid) {
             Core.isAndroid();
         } else if (isChromebook) {
             Core.isChromebook();
+        }
+        if (isFirefox) {
+            Core.isFirefox();
         }
 
         Core.checkForElectron();
@@ -62,6 +67,27 @@ Core = {
 
         alert = true;
     },
+
+    lostFocusWithoutReporting: function (text) {
+        if (!isMakingTest()) {
+            return;
+        }
+
+        let testtakemanager = document.querySelector("[testtakemanager]");
+        if (testtakemanager != null) {
+            livewire
+                .find(testtakemanager.getAttribute("wire:id"))
+                .shouldFraudNotificationsBeShown()
+                .then(function (response) {
+                    if (response.shouldFraudNotificationsBeShown) {
+                        Notify.notify(text, "error");
+                    }
+                });
+        }
+
+        window.Livewire.emit("setFraudDetected");
+    },
+
     isIpad: function () {
         // var standalone = window.navigator.standalone,
         //     userAgent = window.navigator.userAgent.toLowerCase(),
@@ -90,6 +116,9 @@ Core = {
     isChromebook: function () {
         Core.inApp = true;
         Core.appType = 'chromebook';
+    },
+    isFirefox: function () {
+        document.querySelector('body').classList.add('firefox');
     },
     detectIOS: function () {
         let urlParams = new URLSearchParams(window.location.search);

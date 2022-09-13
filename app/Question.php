@@ -75,7 +75,8 @@ class Question extends MtiBaseModel {
                             'is_subquestion',
                             'all_or_nothing',
                             'fix_order',
-                            'owner_id'
+                            'owner_id',
+                            'lang',
                             ];
 
     /**
@@ -443,6 +444,14 @@ class Question extends MtiBaseModel {
         return $question->scope === 'cito';
     }
 
+    public function isWritingAssignment() {
+        return $this instanceof OpenQuestion && $this->subtype === 'writing';
+    }
+
+    public function isWritingAssignmentWithSpellCheckAvailable() {
+        return $this instanceof OpenQuestion && $this->subtype === 'writing' && $this->spell_check_available;
+    }
+
     public function isDirtyAttainments() {
         return $this->isDirtyAttainmentsGeneric('attainments','questionAttainments');
         if ($this->attainments === null) {
@@ -751,6 +760,7 @@ class Question extends MtiBaseModel {
                         if (!$openQuestionDisabled) {
                             $query->orWhere(DB::raw('IFNULL(' . $openQuestion->getTable() . '.answer, \'\')'), 'LIKE', '%' . $v . '%');
                         }
+                        $query->orWhere('group_questions.name', 'like', '%' . $v . '%');
                     });
                 } else {
                     $tagId = array_search(strtolower($v), $tags);
@@ -760,6 +770,7 @@ class Question extends MtiBaseModel {
                             $query->orWhere(DB::raw('IFNULL(' . $openQuestion->getTable() . '.answer, \'\')'), 'LIKE', '%' . $v . '%');
                         }
                         $query->orWhere(DB::raw('IFNULL(tags.tags, \'\')'), 'LIKE', '% ' . $tagId . ' %');
+                        $query->orWhere('group_questions.name', 'like', '%' . $v . '%');
                     });
                 }
             }
@@ -769,6 +780,7 @@ class Question extends MtiBaseModel {
             } elseif ($openQuestionOnly && !array_key_exists('subtype', $filters)) {
                 $joins[] = 'openquestion';
             }
+            $joins[] = 'groupquestion';
         }
 
         foreach($filters as $key => $value) {
@@ -953,26 +965,30 @@ class Question extends MtiBaseModel {
 
         $joins = array_unique($joins);
         foreach($joins as $target) {
-            switch(strtolower($target)) {
+            switch (strtolower($target)) {
                 case 'tests':
                     $test = new Test();
-                    $query->join($test->getTable(), $test->getTable().'.'.$test->getKeyName(), '=', $this->getTable().'.test_id');
+                    $query->join($test->getTable(), $test->getTable() . '.' . $test->getKeyName(), '=', $this->getTable() . '.test_id');
                     break;
                 case 'matchingquestion':
                     $matchingQuestion = new MatchingQuestion();
-                    $query->join($matchingQuestion->getTable(), $matchingQuestion->getTable().'.'.$matchingQuestion->getKeyName(), '=', $this->getTable().'.'.$this->getKeyName());
+                    $query->join($matchingQuestion->getTable(), $matchingQuestion->getTable() . '.' . $matchingQuestion->getKeyName(), '=', $this->getTable() . '.' . $this->getKeyName());
                     break;
                 case 'multiplechoicequestion':
                     $multipleChoiceQuestion = new MultipleChoiceQuestion();
-                    $query->join($multipleChoiceQuestion->getTable(), $multipleChoiceQuestion->getTable().'.'.$multipleChoiceQuestion->getKeyName(), '=', $this->getTable().'.'.$this->getKeyName());
+                    $query->join($multipleChoiceQuestion->getTable(), $multipleChoiceQuestion->getTable() . '.' . $multipleChoiceQuestion->getKeyName(), '=', $this->getTable() . '.' . $this->getKeyName());
                     break;
                 case 'completionquestion':
                     $completionQuestion = new CompletionQuestion();
-                    $query->join($completionQuestion->getTable(), $completionQuestion->getTable().'.'.$completionQuestion->getKeyName(), '=', $this->getTable().'.'.$this->getKeyName());
+                    $query->join($completionQuestion->getTable(), $completionQuestion->getTable() . '.' . $completionQuestion->getKeyName(), '=', $this->getTable() . '.' . $this->getKeyName());
                     break;
                 case 'openquestion':
                     $openQuestion = new OpenQuestion();
-                    $query->join($openQuestion->getTable(), $openQuestion->getTable().'.'.$openQuestion->getKeyName(), '=', $this->getTable().'.'.$this->getKeyName());
+                    $query->join($openQuestion->getTable(), $openQuestion->getTable() . '.' . $openQuestion->getKeyName(), '=', $this->getTable() . '.' . $this->getKeyName());
+                    break;
+                case 'groupquestion':
+                    $groupQuestion = new GroupQuestion();
+                    $query->leftJoin($groupQuestion->getTable(), $groupQuestion->getTable() . '.' . $groupQuestion->getKeyName(), '=', $this->getTable() . '.' . $this->getKeyName());
                     break;
             }
         }
@@ -1655,5 +1671,19 @@ class Question extends MtiBaseModel {
 //        return $test->testQuestions->filter(function($testQuestion) {
 //            return $testQuestion->question->id === $this->getKey() || $testQuestion->question->derived_question_id === $this->getKey();
 //        })->isNotEmpty();
+    }
+
+    public function hasCmsPreview()
+    {
+        return !$this->isType('matrix');
+    }
+
+    public function makeClone()
+    {
+        $newQuestion = $this->duplicate($this->getAttributes());
+        $newQuestion->getQuestionInstance()->derived_question_id = null; //Clear derived question ID so it's a 'clean' copy;
+        $newQuestion->save();
+
+        return $newQuestion;
     }
 }

@@ -50,7 +50,7 @@ class SchoolAndSchoolLocationsImportController extends Controller
         try {
             $helper->setFilePath($filePath);
             $excelFile = null;
-            $helper->handleImport();
+            $helper->handleImport( ! $request->get('skipCheck',false));
         } catch(\Exception $e){
             return response()->json(['error' => $e->getMessage()], 500);
         }

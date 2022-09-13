@@ -4,13 +4,13 @@
             <div class="flex pr-2.5">
                 @if($question->type === 'GroupQuestion')
                     <h3 class="line-clamp-2 break-all min-h-[64px] @if(blank($question->name)) italic @endif"
-                        title="{{ $question->name }}">{{ filled($question->name) ? $question->name : __('question.no_question_text') }}</h3>
+                        title="{!! $question->name !!}">{!! filled($question->name) ? $question->name : __('question.no_question_text') !!} </h3>
                 @else
                     <h3 class="line-clamp-2 break-all min-h-[64px] @if(blank($question->title)) italic @endif"
                         title="{{ $question->title }}">{{ $question->title ?? __('question.no_question_text') }}</h3>
                 @endif
             </div>
-            <x-button.close wire:click="$emit('closeModal')"/>
+            <x-button.close class="relative -top-3 -right-3" wire:click="$emit('closeModal')"/>
         </div>
         <div class="flex w-full justify-between text-base mb-1">
             <div class="flex">
@@ -233,11 +233,13 @@
     </div>
     <div class="px-6 py-4 flex justify-end w-full" style="box-shadow: 0 -3px 8px 0 rgba(4, 31, 116, 0.2);">
         <div class="flex space-x-2.5 items-center">
-            <button class="new-button button-primary"
-                    wire:click="openPreviewMode()"
-            >
-                <x-icon.preview/>
-            </button>
+            @if($this->showPreviewButton)
+                <button class="new-button button-primary"
+                        wire:click="openPreviewMode()"
+                >
+                    <x-icon.preview/>
+                </button>
+            @endif
             @if($this->inTest)
                 <span title="{{ __('cms.Deze vraag is aanwezig in de toets.') }}">
                     <x-icon.checkmark-circle color="var(--cta-primary)"/>
