@@ -133,11 +133,14 @@
 #sidebar-carousel-container .sortable-nogo.group-active .group-question-questions .primary {
     --line-color-between-questions: var(--mid-grey)!important;
     color: var(--line-color-between-questions)!important;
-    pointer-events: none;
 }
 #sidebar-carousel-container .sortable-nogo .group-question-questions .bg-primary {
     background-color: var(--line-color-between-questions);
     border-color: var(--line-color-between-questions);
+}
+#sidebar-carousel-container .sortable-nogo :is(.question-button:not(.dummy), .reorder, .group-question-title-container):hover {
+    background-color: initial!important;
+    color: inherit!important;
 }
 
 .sortable-drawer .sortable-drag{
