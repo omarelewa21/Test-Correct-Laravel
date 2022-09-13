@@ -33,9 +33,10 @@ trait ContentSourceTabsTrait
     {
         $this->openTab = session()->get(self::ACTIVE_TAB_SESSION_KEY) ?? $this->openTab;
 
+        $this->allowedTabs = ContentSourceHelper::allAllowedForUser(Auth::user());
+
         $this->abortIfTabNotAllowed();
 
-        $this->allowedTabs = ContentSourceHelper::allAllowedForUser(Auth::user());
 
         $this->schoolLocationInternalContentTabs = [
             'personal',
