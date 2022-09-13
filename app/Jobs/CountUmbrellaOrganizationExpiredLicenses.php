@@ -37,8 +37,6 @@ class CountUmbrellaOrganizationExpiredLicenses extends Job implements ShouldQueu
     {
         $count = $this->umbrellaOrganization->schools()->sum('count_expired_licenses');
 
-        Log::debug('Umbrella Organization #' . $this->umbrellaOrganization->getKey() . ' -> count_expired_licenses: ' . $count);
-
         $this->umbrellaOrganization->setAttribute('count_expired_licenses', $count);
         $this->umbrellaOrganization->save();
     }

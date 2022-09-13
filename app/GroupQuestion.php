@@ -312,7 +312,6 @@ class GroupQuestion extends Question implements QuestionInterface {
     }
 
     public function gatherAffectedTests($ignoreGroupQuestions = [], $ignoreTests = []) {
-        Log::debug('Gathering affected metadata for group-question #'.$this->getKey());
         QuestionGatherer::invalidateGroupQuestionCache($this);
 
         $groupQuestionId = $this->getKey();

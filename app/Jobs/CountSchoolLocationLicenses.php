@@ -38,8 +38,6 @@ class CountSchoolLocationLicenses extends Job implements ShouldQueue
     {
         $count = $this->schoolLocation->licenses()->sum('amount');
 
-        Log::debug('Schoollocation #'.$this->schoolLocation->getKey().' -> count_licenses: '.$count);
-
         $this->schoolLocation->setAttribute('count_licenses', $count);
         $this->schoolLocation->save();
     }
