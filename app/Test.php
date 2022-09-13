@@ -279,7 +279,7 @@ class Test extends BaseModel
         $user = Auth::user();
 
         $query->select();
-        $subjectIds = Subject::getSubjectsOfCustomSchoolForUser(Arr::wrap($customer_codes), $user);
+        $subjectIds = Subject::getSubjectsOfSchoolLocationByCustomerCodesAndUser(Arr::wrap($customer_codes), $user);
 
         if (count($subjectIds) == 0) {
             $query->where('tests.id', -1);

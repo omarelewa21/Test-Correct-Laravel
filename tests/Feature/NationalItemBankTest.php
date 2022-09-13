@@ -111,7 +111,7 @@ class NationalItemBankTest extends TestCase
     {
         \Auth::login(self::getTeacherOne());
 
-        $subjects = Subject::getSubjectsOfCustomSchoolForUser('TBNI', User::find(1486));
+        $subjects = Subject::getSubjectsOfSchoolLocationByCustomerCodesAndUser('TBNI', User::find(1486));
 
         $this->assertGreaterThan(0, count($subjects));
     }

@@ -202,14 +202,14 @@ class Subject extends BaseModel implements AccessCheckable
     {
         $citoSchool = SchoolLocation::where('customer_code', 'CITO-TOETSENOPMAAT')->first();
 
-        return $this->filterByUserAndSchoolLocation($query, $citoSchool);
+        return $this->filterByUserAndSchoolLocation($query, Auth::user(), $citoSchool);
     }
 
     public function scopeExamFiltered($query, $filters = [], $sorting = [])
     {
         $examSchool = SchoolLocation::where('customer_code', config('custom.examschool_customercode'))->first();
 
-        return $this->filterByUserAndSchoolLocation($query, $examSchool);
+        return $this->filterByUserAndSchoolLocation($query, Auth::user(), $examSchool);
     }
 
     public function scopeNationalItemBankFiltered($query, $filters = [], $sorting = [])
@@ -220,17 +220,17 @@ class Subject extends BaseModel implements AccessCheckable
             SchoolLocation::where('customer_code', 'CITO-TOETSENOPMAAT')->first(),
         ];
 
-        return $this->filterByUserAndSchoolLocation($query, $nationalItemBankSchools);
+        return $this->filterByUserAndSchoolLocation($query, Auth::user(), $nationalItemBankSchools);
     }
 
     public function scopeCreathlonFiltered($query, $filters = [], $sorting = [])
     {
         $creathlonSchoolLocation = SchoolLocation::where('customer_code', config('custom.creathlon_school_customercode'))->first();
 
-        return $this->filterByUserAndSchoolLocation($query, $creathlonSchoolLocation);
+        return $this->filterByUserAndSchoolLocation($query, Auth::user(), $creathlonSchoolLocation);
     }
 
-    private function filterByUserAndSchoolLocation($query, $schoolLocations)
+    private function filterByUserAndSchoolLocation($query, User $user, $schoolLocations)
     {
         if (!$schoolLocations) { // slower but as a fallback in case there's no cito school
             $query->where('subjects.id', -1);
@@ -243,7 +243,7 @@ class Subject extends BaseModel implements AccessCheckable
 
         foreach ($schoolLocations as $schoolLocation) {
             $subjectIds = array_merge($subjectIds, $this->getAvailableSubjectsForSchoolLocation($schoolLocation)
-                ->whereIn('base_subject_id', $this->getBaseSubjectsForUser(Auth::user()))
+                ->whereIn('base_subject_id', $this->getBaseSubjectsForUser($user))
                 ->pluck('id')
                 ->unique()
                 ->toArray()
@@ -285,7 +285,7 @@ class Subject extends BaseModel implements AccessCheckable
         throw new AccessDeniedHttpException('Access to subject denied');
     }
 
-    public static function getSubjectsOfCustomSchoolForUser($customerCodes, $user): array
+    public static function getSubjectsOfSchoolLocationByCustomerCodesAndUser($customerCodes, User $user): array
     {
         $userBaseSubjectIds = $user->subjects()->pluck('subjects.base_subject_id')->unique();
 

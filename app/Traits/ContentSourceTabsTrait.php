@@ -31,6 +31,10 @@ trait ContentSourceTabsTrait
 
     private function initialiseContentSourceTabs()
     {
+        $this->openTab = session()->get(self::ACTIVE_TAB_SESSION_KEY) ?? $this->openTab;
+
+        $this->abortIfTabNotAllowed();
+
         $this->allowedTabs = ContentSourceHelper::allAllowedForUser(Auth::user());
 
         $this->schoolLocationInternalContentTabs = [
@@ -41,9 +45,6 @@ trait ContentSourceTabsTrait
         $this->schoolLocationExternalContentTabs = $this->allowedTabs->reject(function ($tabName) {
             return in_array($tabName, $this->schoolLocationInternalContentTabs);
         })->values();
-        $this->openTab = session()->get(self::ACTIVE_TAB_SESSION_KEY) ?? $this->openTab;
-
-        $this->abortIfTabNotAllowed();
     }
 
     private function abortIfTabNotAllowed($openTab = null): void
