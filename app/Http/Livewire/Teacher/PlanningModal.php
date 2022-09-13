@@ -137,7 +137,7 @@ class PlanningModal extends ModalComponent
             $t->setAttribute('test_take_status_id', TestTakeStatus::STATUS_TAKING_TEST);
         }
 
-        if($user->isValidExamCoordinator(false)){
+        if(auth()->user()->isValidExamCoordinator(false)){
             $t->setAttribute('user_id', $this->request['owner_id']);
         }else{
             $t->setAttribute('user_id', auth()->id());
