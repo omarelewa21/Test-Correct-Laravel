@@ -243,7 +243,7 @@ class Subject extends BaseModel implements AccessCheckable
 
         foreach ($schoolLocations as $schoolLocation) {
             $subjectIds = array_merge($subjectIds, $this->getAvailableSubjectsForSchoolLocation($schoolLocation)
-                ->whereIn('base_subject_id', $this->getBaseSubjectsForUser($user))
+                ->whereIn('base_subject_id', $this->getBaseSubjectIdsForUserInCurrentSchoolLocation($user))
                 ->pluck('id')
                 ->unique()
                 ->toArray()
@@ -260,9 +260,9 @@ class Subject extends BaseModel implements AccessCheckable
         )->pluck('subject_id')->unique())->get();
     }
 
-    private function getBaseSubjectsForUser(User $user)
+    private function getBaseSubjectIdsForUserInCurrentSchoolLocation(User $user)
     {
-        return $user->subjects()->pluck('base_subject_id')->unique();
+        return $user->subjectsInCurrentLocation()->pluck('base_subject_id')->unique();
     }
 
     public function canAccess()
@@ -285,9 +285,9 @@ class Subject extends BaseModel implements AccessCheckable
         throw new AccessDeniedHttpException('Access to subject denied');
     }
 
-    public static function getSubjectsOfSchoolLocationByCustomerCodesAndUser($customerCodes, User $user): array
+    public static function getSubjectIdsOfSchoolLocationByCustomerCodesAndUser($customerCodes, User $user): array
     {
-        $userBaseSubjectIds = $user->subjects()->pluck('subjects.base_subject_id')->unique();
+        $userBaseSubjectIds = (new self)->getBaseSubjectIdsForUserInCurrentSchoolLocation($user);
 
         return SchoolLocation::whereIn('school_locations.customer_code', Arr::wrap($customerCodes))
             ->join('school_location_sections', 'school_locations.id', '=', 'school_location_sections.school_location_id')
@@ -297,13 +297,13 @@ class Subject extends BaseModel implements AccessCheckable
             ->distinct()
             ->pluck('subjects.id')->toArray();
 
-        $schools = SchoolLocation::whereIn('customer_code', Arr::wrap($customerCodes))->get();
+        $schoolLocations = SchoolLocation::whereIn('customer_code', Arr::wrap($customerCodes))->get();
 
         $baseSubjectIds = $user->subjects()->pluck('base_subject_id')->unique();
 
         $subjectIds = collect([]);
 
-        foreach($schools as $school_location)
+        foreach($schoolLocations as $school_location)
         {
             $subjects = collect([]);
             foreach ($school_location->schoolLocationSections as $schoolLocationSection) {

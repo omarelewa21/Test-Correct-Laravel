@@ -1033,6 +1033,12 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
         $this->studentParentsOf = null;
     }
 
+    public function scopeSubjectsInCurrentLocation($query)
+    {
+        $schoolLocationSectionIds = $this->schoolLocation->schoolLocationSections()->pluck('section_id');
+        return $this->subjects()->whereIn('section_id',$schoolLocationSectionIds);
+    }
+
     public function subjects($query = null)
     {
         $userId = $this->getKey();
