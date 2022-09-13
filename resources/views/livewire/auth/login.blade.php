@@ -129,6 +129,7 @@
                                             >
                                             </x-input.text>
                                         </x-input.group>
+                                        <x-partials.test-take-code :label="__('auth.test_code_quick_access')"/>
                                     </div>
 
                                     <div class="hidden">
