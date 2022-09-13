@@ -1,13 +1,14 @@
 <div class="w-full">
     @yield('analyses.header.title')
     <div id="dashboard-body"
-         class="px-4 lg:px-8 xl:px-24 relative w-full pb-10"
+         class="px-10 relative w-full pb-10"
          x-data="{}"
          x-init="addRelativePaddingToBody('dashboard-body'); makeHeaderMenuActive('student-header-dashboard');"
          x-cloak
          x-on:resize.window.debounce.200ms="addRelativePaddingToBody('dashboard-body')"
          wire:ignore.self
     >
+        @yield('analyses.page.title')
 
         {{-- Filters--}}
         <div class="flex flex-col pt-4 pb-2">
@@ -65,20 +66,17 @@
                  class="flex flex-wrap gap-2 mt-2 relative"
             >
             </div>
-            <div class="hidden">{{ $this->data }}</div>
+
         </div>
         <div>
-            <x-content-section>
-                <x-slot name="title">
-                    @yield('analyses.p-values-per-item.title')
-                </x-slot>
+            @yield('analyses.attainment.description')
+            @yield('analyses.p-values-graph')
 
-                <div id="pValueChart" style="width: 900px; height: 400px;"></div>
-                @yield('analyses.p-values-graph')
-            </x-content-section>
+
+
 
             <BR/>
-
+ @if (false)
             <x-content-section>
                 <x-slot name="title">
                     @yield('analyses.top-items.title')
@@ -117,6 +115,7 @@
                     @endforeach
                 </div>
             </x-content-section>
+     @endif
         </div>
     </div>
 </div>

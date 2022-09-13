@@ -15,25 +15,18 @@ use tcCore\User;
 
 class AnalysesSubAttainmentDashboard extends AnalysesDashboard
 {
+    public $subject;
+
+    protected $queryString = ['subject'];
+
     public $attainment;
 
-    protected $topItems = [
-        410 => 'Literaire ontwikkeling',
-        411 => 'Literaire begrippen',
-        412 => 'Literatuurgeschiedenis',
-    ];
 
     public function mount(?Attainment $attainment = null)
     {
-        parent::mount();
-
         $this->attainment = $attainment;
-    }
-
-    public function render()
-    {
-        $this->dispatchBrowserEvent('filters-updated');
-        return view('livewire.student.analyses.analyses-sub-attainment-dashboard')->layout('layouts.student');
+        $this->clearFilters();
+        $this->getFilterOptionsData();
     }
 
     public function getDataProperty()
@@ -45,8 +38,6 @@ class AnalysesSubAttainmentDashboard extends AnalysesDashboard
             $this->getEducationLevelYearsByFilterValues(),
             $this->getTeachersByFilterValues()
         );
-        //($result->toArray());//;->mapWithKey(fn($value, $key) => [$value->subject => $value->score]));
-
 
         $this->dataValues = $result->map(function ($pValue, $key) {
             return (object)[
@@ -58,15 +49,21 @@ class AnalysesSubAttainmentDashboard extends AnalysesDashboard
                 'basedOn' => trans_choice('student.attainment_tooltip_title', $pValue->cnt, [
                     'basedOn' => $pValue->cnt
                 ]),
-                'link'    => route('student.analyses.subattainment.show', Attainment::find($pValue->attainment_id)->uuid),
+                'link'    => route('student.analyses.subsubattainment.show', [
+                    'attainment' => Attainment::find($pValue->attainment_id)->uuid,
+                    'subject'    => $this->subject,
+                ]),
             ];
         })->toArray();
-//        $this->dataKeys = array_keys($result);
 
-//
         return $result;
     }
 
+    public function render()
+    {
+        $this->dispatchBrowserEvent('filters-updated');
+        return view('livewire.student.analyses.analyses-sub-attainment-dashboard')->layout('layouts.student');
+    }
 
     protected function getMillerData($attainmentId)
     {
@@ -96,4 +93,8 @@ class AnalysesSubAttainmentDashboard extends AnalysesDashboard
             $this->getTeachersByFilterValues());
     }
 
+    public function redirectBack()
+    {
+        return redirect(route('student.analyses.attainment.show', $this->subject));
+    }
 }

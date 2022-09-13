@@ -116,6 +116,11 @@ return [
     'Methode'                                 => 'method',
     'Taxonomy'                                => 'Taxonomy',
     'attainment_tooltip_title'                => '{0}No relevant data available|{1}based on 1 question[2,*]based on :basedOn questions',
-    'leerdoel'                                => 'Attainment :number',
+    'leerdoel met nummer'                     => 'Learning goal :number',
+    'leerdoel'                                  => 'learning goal',
     'subleerdoel'                             => 'Sub attainment :number',
+    'description'                             => 'Description',
+    'eindterm'                                => 'attainment',
+    'eindterm met nummer'                     => 'attainment :number',
+    'p waarde subsubleerdoelen' => 'P Value sub sub learning goals',
 ];

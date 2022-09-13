@@ -62,7 +62,10 @@ class AnalysesAttainmentDashboard extends AnalysesDashboard
                 'basedOn' => trans_choice('student.attainment_tooltip_title', $pValue->cnt, [
                     'basedOn' => $pValue->cnt
                 ]),
-                'link'    => route('student.analyses.subattainment.show', Attainment::find($pValue->attainment_id)->uuid),
+                'link'    => route('student.analyses.subattainment.show', [
+                    'attainment' => Attainment::find($pValue->attainment_id)->uuid,
+                    'subject'    => $this->subject,
+                ]),
             ];
         })->toArray();
 

@@ -1,18 +1,24 @@
 @extends('livewire.student.analyses.analyses-dashboard')
 
-@section('analyses.header.title')
-    {{ __('header.Analyses') }}
+@section('analyses.page.title')
+         <h1 class="pt-10"> {{ __('header.Analyses') }} </h1>
 @endsection
 
-@section('analyses.p-values-per-item.title')
-    {{ __('student.p waarde vakken') }}
-@endsection
 
 @section('analyses.p-values-graph')
-    <div x-data="analysesSubjectsGraph( @entangle('dataValues') )"
-         x-on:filters-updated.window="renderGraph"
-    >
-    </div>
+    <x-content-section>
+        <x-slot name="title">
+            <div class="hidden">{{ $this->data }}</div>
+            {{ __('student.p waarde vakken') }}
+        </x-slot>
+
+        <div id="pValueChart" style="width: 900px; height: 400px;"></div>
+        <div x-data="analysesSubjectsGraph( @entangle('dataValues') )"
+             x-on:filters-updated.window="renderGraph"
+        >
+        </div>
+    </x-content-section>
+
 @endsection
 
 @section('analyses.top-items.title')

@@ -17,11 +17,22 @@ class AnalysesSubjectDashboard extends AnalysesDashboard
 {
     public $subject;
 
-    protected $topItems = [
-        3 => 'Schrijfvaardigheid',
-        5 => 'Literatuur',
-        6 => 'Oriëntatie op studie en beroep',
-    ];
+    public $attainmentMode;
+
+
+
+    public function getAttainmentModeOptionsProperty() {
+        return [
+            ucfirst(__('student.eindterm')),
+            ucfirst(__('student.leerdoel')),
+        ];
+    }
+
+//    protected $topItems = [
+//        3 => 'Schrijfvaardigheid',
+//        5 => 'Literatuur',
+//        6 => 'Oriëntatie op studie en beroep',
+//    ];
 
     public function mount(?Subject $subject = null)
     {
@@ -48,7 +59,7 @@ class AnalysesSubjectDashboard extends AnalysesDashboard
         $this->dataValues = $result->map(function ($pValue, $key) {
             return (object)[
                 'x'       => $key + 1,
-                'title'   => ucfirst(__('student.leerdoel', ['number' => $key + 1])),
+                'title'   => ucfirst(__('student.leerdoel met nummer', ['number' => $key + 1])),
                 'count'   => $pValue->cnt,
                 'value'   => number_format(($pValue->score > 0 ? $pValue->score : 0), 2),
                 'text'    => $pValue->serie,

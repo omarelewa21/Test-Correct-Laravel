@@ -154,6 +154,11 @@ return [
     'Methode'                                 => 'methode',
     'Taxonomy'                                => 'Taxonomie',
     'attainment_tooltip_title'                => '{0}Geen relevante data beschikbaar|{1}o.b.v. 1 vraag|[2,*]o.b.v. :basedOn vragen',
-    'leerdoel'                                => 'leerdoel :number',
-    'subleerdoel'                             => 'Subleerdoel :number',
+    'leerdoel met nummer'                     => 'leerdoel :number',
+    'leerdoel'                                => 'leerdoel',
+    'subleerdoel met nummer'                             => 'Subleerdoel :number',
+    'subleerdoel'                             => 'subleerdoel',
+    'description'                             => 'Omschrijving',
+    'eindterm'                                => 'eindterm',
+    'p waarde subsubleerdoelen' => 'P Waarde subsubleerdoelen',
 ];

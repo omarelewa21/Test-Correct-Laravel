@@ -5796,6 +5796,9 @@ video {
 .mr-5{
   margin-right: 1.25rem;
 }
+.mb-10{
+  margin-bottom: 2.5rem;
+}
 .ml-1{
   margin-left: 0.25rem;
 }
@@ -6172,9 +6175,6 @@ video {
 .max-w-sm{
   max-width: 24rem;
 }
-.max-w-screen-2xl{
-  max-width: 1536px;
-}
 .max-w-xl{
   max-width: 36rem;
 }
@@ -6188,6 +6188,9 @@ video {
   max-width: -webkit-max-content;
   max-width: -moz-max-content;
   max-width: max-content;
+}
+.max-w-screen-2xl{
+  max-width: 1536px;
 }
 .max-w-0{
   max-width: 0rem;
@@ -6954,6 +6957,10 @@ video {
 }
 .bg-white\/20{
   background-color: rgb(255 255 255 / 0.2);
+}
+.bg-purple-900{
+  --tw-bg-opacity: 1;
+  background-color: rgb(88 28 135 / var(--tw-bg-opacity));
 }
 .bg-opacity-0{
   --tw-bg-opacity: 0;
