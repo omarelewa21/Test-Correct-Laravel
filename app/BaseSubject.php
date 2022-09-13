@@ -119,8 +119,17 @@ class BaseSubject extends BaseModel {
         );
     }
 
+
     public static function scopeCurrentForAuthUser($query)
     {
         return $query->whereIn('id', Subject::filtered(['user_current' => Auth::id()])->pluck('base_subject_id'));
     }
+
+    // shouldn't this method be used for the scopeCurrentForAuthUser ???
+    // 20220913 By Erik
+    public static function getIdsForUserInCurrentSchoolLocation(User $user) : array
+    {
+        return $user->subjectsInCurrentLocation()->pluck('base_subject_id')->unique();
+    }
+
 }

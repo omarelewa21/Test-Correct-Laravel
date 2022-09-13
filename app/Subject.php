@@ -243,7 +243,7 @@ class Subject extends BaseModel implements AccessCheckable
 
         foreach ($schoolLocations as $schoolLocation) {
             $subjectIds = array_merge($subjectIds, $this->getAvailableSubjectsForSchoolLocation($schoolLocation)
-                ->whereIn('base_subject_id', $this->getBaseSubjectIdsForUserInCurrentSchoolLocation($user))
+                ->whereIn('base_subject_id', BaseSubject::getIdsForUserInCurrentSchoolLocation($user))
                 ->pluck('id')
                 ->unique()
                 ->toArray()
@@ -260,12 +260,7 @@ class Subject extends BaseModel implements AccessCheckable
         )->pluck('subject_id')->unique())->get();
     }
 
-    private function getBaseSubjectIdsForUserInCurrentSchoolLocation(User $user)
-    {
-        return $user->subjectsInCurrentLocation()->pluck('base_subject_id')->unique();
-    }
-
-    public function canAccess()
+     public function canAccess()
     {
         $roles = Roles::getUserRoles();
         if (in_array('Administrator', $roles)) {
@@ -287,7 +282,7 @@ class Subject extends BaseModel implements AccessCheckable
 
     public static function getSubjectIdsOfSchoolLocationByCustomerCodesAndUser($customerCodes, User $user): array
     {
-        $userBaseSubjectIds = (new self)->getBaseSubjectIdsForUserInCurrentSchoolLocation($user);
+        $userBaseSubjectIds = BaseSubject::getIdsForUserInCurrentSchoolLocation($user);
 
         return SchoolLocation::whereIn('school_locations.customer_code', Arr::wrap($customerCodes))
             ->join('school_location_sections', 'school_locations.id', '=', 'school_location_sections.school_location_id')
