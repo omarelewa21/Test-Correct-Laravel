@@ -8,8 +8,14 @@
                 <span>{{ __('header.Analyses') }} <x-icon.chevron-small opacity="1"></x-icon.chevron-small> {{ \tcCore\Subject::whereUuid($subject)->first()->name }} <x-icon.chevron-small opacity="1"></x-icon.chevron-small> {{ __('student.leerdoel met nummer', ['number' => 4]) }}</span>
             </div>
         </div>
-        <x-button.primary class="bg-purple-900">Exporteren</x-button.primary>
     </x-sticky-page-title>
+@endsection
+
+@section('analyses.page.title')
+    <div class="flex pt-5 justify-between">
+        <h1 class="flex pt-5"> {{ $attainment }} </h1>
+        <x-button.primary class="hidden bg-purple-900 flex">Exporteren</x-button.primary>
+    </div>
 @endsection
 
 @section('analyses.p-values-graph')

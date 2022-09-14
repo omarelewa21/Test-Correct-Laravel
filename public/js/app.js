@@ -6300,17 +6300,7 @@ document.addEventListener('alpine:init', function () {
       data: data,
       colors: ['#30BC51', '#5043F6', '#ECEE7D', '#6820CE', '#CB110E', '#F79D25', '#1B6112', '#43ACF5', '#E12576', '#24D2C5'],
       renderGraph: function renderGraph() {
-        var chart = anychart.column(); //
-        // this.data = [
-        //     {x:'a', value: 10, link: 'me'},
-        //     {x:'b', value: 10, link: 'me'},
-        //     {x:'c', value: 10, link: 'me'},
-        //     {x:'d', value: 10, link: 'me'},
-        //     {x:'e', value: 10, link: 'me'},
-        //     {x:'f', value: 10, link: 'me'},
-        //     {x:'g', value: 10, link: 'me'}
-        // ];
-
+        var chart = anychart.column();
         var series = chart.column(this.data);
         var palette = anychart.palettes.distinctColors();
         palette.items(this.colors);
@@ -6463,6 +6453,15 @@ document.addEventListener('alpine:init', function () {
         var series = chart.column(this.data);
         var palette = anychart.palettes.distinctColors();
         palette.items(this.colors);
+        var yScale = chart.yScale();
+        yScale.minimum(0);
+        yScale.maximum(1.00);
+        yScale.ticks().interval(0.25);
+        chart.yAxis(0).labels().format(function () {
+          return this.value == 0 ? 'P 0' : this.value.toFixed(2);
+        });
+        chart.yGrid().enabled(true);
+        chart.xAxis(0).labels().fontWeight("bold").fontColor('#041f74');
 
         for (var i = 0; series.getPoint(i).exists(); i++) {
           series.getPoint(i).set("fill", palette.itemAt(i));
@@ -6483,6 +6482,8 @@ document.addEventListener('alpine:init', function () {
             items[i].iconFill = palette.itemAt([i]);
             items[i].iconEnabled = true;
             items[i].text = _data[i].title;
+            items[i].fontWeight = 'bold';
+            items[i].fontColor = '#041f74';
           }
 
           return items;
@@ -6528,9 +6529,7 @@ document.addEventListener('alpine:init', function () {
         chart.listen("pointsSelect", function (e) {
           window.open(e.point.get('link'), '_self');
         });
-        chart.interactivity("by-x"); // rotate xAxis labels;
-
-        var xAxisLabels = chart.xAxis().labels(); // set container id for the chart
+        chart.interactivity("by-x"); // set container id for the chart
 
         chart.container('pValueChart'); // initiate chart drawing
 

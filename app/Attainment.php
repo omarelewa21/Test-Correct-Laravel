@@ -1,5 +1,6 @@
 <?php namespace tcCore;
 
+use Illuminate\Support\Facades\DB;
 use tcCore\Lib\Models\BaseModel;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Dyrynda\Database\Casts\EfficientUuid;
@@ -7,7 +8,8 @@ use Dyrynda\Database\Support\GeneratesUuid;
 use tcCore\Scopes\AttainmentScope;
 use tcCore\Traits\UuidTrait;
 
-class Attainment extends BaseModel {
+class Attainment extends BaseModel
+{
 
     use SoftDeletes;
     use UuidTrait;
@@ -58,36 +60,41 @@ class Attainment extends BaseModel {
     /**
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
-    public function baseSubject() {
+    public function baseSubject()
+    {
         return $this->belongsTo('tcCore\BaseSubject');
     }
 
     /**
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
-    public function educationLevel() {
+    public function educationLevel()
+    {
         return $this->belongsTo('tcCore\EducationLevel');
     }
 
     /**
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
-    public function attainment() {
+    public function attainment()
+    {
         return $this->belongsTo('tcCore\Attainment');
     }
 
-    public function questionAttainments() {
+    public function questionAttainments()
+    {
         return $this->hasMany('tcCore\QuestionAttainment', 'attainment_id');
     }
 
-    public function questions() {
+    public function questions()
+    {
         return $this->belongsToMany('tcCore\Question', 'question_attainments')->withPivot([$this->getCreatedAtColumn(), $this->getUpdatedAtColumn(), $this->getDeletedAtColumn()])->wherePivot($this->getDeletedAtColumn(), null);
     }
 
     public function scopeFiltered($query, $filters = [], $sorting = [])
     {
-        foreach($filters as $key => $value) {
-            switch($key) {
+        foreach ($filters as $key => $value) {
+            switch ($key) {
                 case 'status':
                     if (is_array($value)) {
                         $query->whereIn('status', $value);
@@ -125,7 +132,7 @@ class Attainment extends BaseModel {
         }
 
         //Todo: More sorting
-        foreach($sorting as $key => $value) {
+        foreach ($sorting as $key => $value) {
             switch (strtolower($value)) {
                 case 'id':
                 case 'code':
@@ -160,4 +167,24 @@ class Attainment extends BaseModel {
     {
         return 'uuid';
     }
+
+    public function getNameAttribute()
+    {
+        return DB::Select(
+            DB::raw('
+                SELECT vlg FROM
+                (
+                    SELECT *, @row_number := @row_number + 1  as vlg from  ' . $this->getTable() . ', 
+                    (select @row_number := 0) as x 
+                    WHERE base_subject_id = ' . $this->base_subject_id . '
+                        AND attainment_id = ' . $this->attainment_id . ' 
+                        AND is_learning_goal = ' . $this->is_learning_goal . '
+                        AND education_level_id = ' . $this->education_level_id . ' 
+                    ORDER BY base_subject_id, education_level_id, is_learning_goal) as t
+                    WHERE t.id = ' . $this->getKey()
+                 )
+        )[0]->vlg;
+    }
+
+
 }
