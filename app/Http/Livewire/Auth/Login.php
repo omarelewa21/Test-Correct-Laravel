@@ -27,6 +27,7 @@ use tcCore\SamlMessage;
 use tcCore\Services\EmailValidatorService;
 use tcCore\User;
 use tcCore\TestTake;
+use tcCore\TestTakeCode;
 
 class Login extends Component
 {
@@ -175,9 +176,9 @@ class Login extends Component
         AppVersionDetector::handleHeaderCheck();
         $this->doLoginProcedure();
         
-        if($this->take){
-            return redirect()->route('take.directLink', ['test_take' => $this->take]);
-        }   
+        if($this->checkIfShouldRedirectToTestTake()){
+            return;
+        };
 
         $user = auth()->user();
         if ($user->isA('Student') && $user->schoolLocation->allow_new_student_environment) {
@@ -625,5 +626,22 @@ class Login extends Component
                 'message' => __('passwords.reset'),
             ]
         );
+    }
+
+    private function checkIfShouldRedirectToTestTake()
+    {
+        if($this->take){
+            return redirect()->route('take.directLink', ['test_take' => $this->take]);
+        }
+
+        if(count($this->testTakeCode) !== 0){
+            $code = implode('', $this->testTakeCode);
+            $testTakeCode = TestTakeCode::where('code', $code)->with('testTake')->first();
+            if(is_null($testTakeCode)){
+                return false;
+            }
+            return redirect()->route('take.directLink', ['test_take' => $testTakeCode->testTake->uuid]);
+        }
+        return false;
     }
 }

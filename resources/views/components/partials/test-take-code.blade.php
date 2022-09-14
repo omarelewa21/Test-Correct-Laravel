@@ -1,5 +1,7 @@
+@props(['label' => __('student.fill_in_test_code_from_teacher') ])
+
 <div class="flex flex-col space-y-2 pt-4 test-take-code-component">
-    <span x-ref="textCodeLabel">{{ __('student.fill_in_test_code_from_teacher') }}</span>
+    <span x-ref="textCodeLabel">{{ $label }}</span>
     <div class="flex items-center space-x-2">
         <x-input.group>
             <x-input.text class="w-12 text-center disabled" disabled value="AA"/>
