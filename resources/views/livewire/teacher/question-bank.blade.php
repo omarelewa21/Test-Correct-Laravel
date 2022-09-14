@@ -234,7 +234,7 @@
                             <x-grid.loading-card :delay="$value"/>
                         @endforeach
                     </x-grid>
-                    <x-grid class="mt-4" x-show="!filterLoading" x-cloak>
+                    <x-grid class="mt-4" x-show="!filterLoading" x-cloak selid="question-bank-list">
                         @foreach($this->questions as $question)
                             <x-grid.question-card :question="$question"/>
                         @endforeach

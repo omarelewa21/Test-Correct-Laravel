@@ -1,4 +1,4 @@
-<div {{ $attributes->merge(['class' => 'grid-card bg-white p-6 rounded-10 card-shadow hover:text-primary cursor-pointer relative']) }}
+<div {{ $attributes->merge(['class' => 'grid-card bg-white p-6 rounded-10 card-shadow hover:text-primary cursor-pointer relative', 'selid' => 'existing-question']) }}
      wire:key="questioncard-{{ $question->getQuestionInstance()->uuid }}"
      @if($question->isType('GroupQuestion'))
          @click="showGroupDetails('{{ $question->uuid }}', @js($inTest));"
