@@ -222,4 +222,6 @@ return [
     "construct_test"                                                                         => "Toets Construeren",
     "create_your_own_test"                                                                   => "Ga zelf aan de slag met het maken van een toets",
     "setup_your_own_test"                                                                    => "Stel jouw toets in en zet jouw toets op met vraaggroepen en vragen",
+    'attachment_uploading_message'                                                           => 'We zijn de bijlage(n) aan het verwerken',
+    'one_moment_please'                                                                      => 'Een moment geduld a.u.b.',
 ];

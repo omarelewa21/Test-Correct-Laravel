@@ -89,8 +89,8 @@ return [
     'Deze vraaggroep niet shuffelen'                                                         => 'Don\'t shuffle this group',
     'Bespreken in de klas'                                                                   => 'Discuss in class',
     'Notities toestaan'                                                                      => 'Allow notes',
+    'Halve puntenbeoordeling mogelijk'                                                       => 'Allow halve points review',
     'Taalcontrole beschikbaar tijdens nakijken'                                              => 'Spelling and grammar check available during assessing answers',
-    'Halve puntenbeoordeling mogelijk'                                                       => 'Allow half points review',
     'Automatisch nakijken'                                                                   => 'Automatic review',
     'Hoofdletter gevoelig nakijken'                                                          => 'Case sensitive review',
     'Taxonomie'                                                                              => 'Taxonomy',
@@ -224,4 +224,6 @@ return [
     "create_your_own_test"                                                                   => "Get started with creating your own test",
     "setup_your_own_test"                                                                    => "Set up your test with question groups and questions",
 
+    'attachment_uploading_message'                                                           => 'We\'re processing the attachment(s).',
+    'one_moment_please'                                                                      => 'One moment please  ',
 ];

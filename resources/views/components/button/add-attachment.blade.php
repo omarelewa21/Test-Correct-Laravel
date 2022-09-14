@@ -1,4 +1,5 @@
 <div x-data="{
+        showButton:true,
         base: true,
         open: false,
         url: false,
@@ -11,10 +12,13 @@
                 this.open = true;
             }
         }"
+     x-show="showButton"
      class="flex rounded-10 items-center transition ease-out duration-500"
      :class="open || url ? 'border-bluegrey border' : '' "
      style="max-width: 600px;"
      @click.outside="base = true; open = false; url = false;"
+     @filepond-start.window="showButton = false;"
+     @filepond-finished.window="showButton = true;"
 >
     <div>
         <div x-show="base"
