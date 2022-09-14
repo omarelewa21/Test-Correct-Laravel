@@ -634,7 +634,7 @@ class Login extends Component
             return redirect()->route('take.directLink', ['test_take' => $this->take]);
         }
 
-        if(count($this->testTakeCode) !== 0){
+        if($this->isTestTakeCodeCorrectFormat()){
             $code = implode('', $this->testTakeCode);
             $testTakeCode = TestTakeCode::where('code', $code)->with('testTake')->first();
             if(is_null($testTakeCode)){
