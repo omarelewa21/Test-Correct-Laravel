@@ -42,7 +42,8 @@ class TestTake extends BaseModel
     use Archivable;
 
     protected $casts = [
-        'uuid' => EfficientUuid::class,
+        'uuid'            => EfficientUuid::class,
+        'notify_students' => 'boolean',
     ];
 
     /**
@@ -64,7 +65,7 @@ class TestTake extends BaseModel
      *
      * @var array
      */
-    protected $fillable = ['test_id', 'test_take_status_id', 'period_id', 'retake', 'retake_test_take_id', 'time_start', 'time_end', 'location', 'weight', 'note', 'invigilator_note', 'show_results', 'discussion_type', 'is_rtti_test_take', 'exported_to_rtti', 'allow_inbrowser_testing', 'guest_accounts', 'skipped_discussion'];
+    protected $fillable = ['test_id', 'test_take_status_id', 'period_id', 'retake', 'retake_test_take_id', 'time_start', 'time_end', 'location', 'weight', 'note', 'invigilator_note', 'show_results', 'discussion_type', 'is_rtti_test_take', 'exported_to_rtti', 'allow_inbrowser_testing', 'guest_accounts', 'skipped_discussion', 'notify_students'];
 
     /**
      * The attributes excluded from the model's JSON form.
@@ -333,7 +334,8 @@ class TestTake extends BaseModel
             if ($testTake->schoolClasses !== null) {
                 $testTake->saveSchoolClassTestTakeParticipants();
             }
-            if(GlobalStateHelper::getInstance()->isQueueAllowed()) {
+            if($testTake->notify_students && GlobalStateHelper::getInstance()->isQueueAllowed()) {
+                logger('lekker mailen');
                 Queue::later(300, new SendTestPlannedMail($testTake->getKey()));
             }
         });

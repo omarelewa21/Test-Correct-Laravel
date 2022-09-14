@@ -74,4 +74,6 @@ return [
     'test-type-Opdracht'                               => 'Assignment',
     'test-type-Oefentoets'                             => 'Pratice test',
 
+    'notify_students'                                                                          => 'Inform students',
+    'notify_students_tooltip'                                                                  => 'Inform students about this test.',
 ];

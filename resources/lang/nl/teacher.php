@@ -73,4 +73,6 @@ return [
     'test-type-Opdracht'                               => 'Opdracht',
     'test-type-Oefentoets'                             => 'Oefentoets',
 
+    'notify_students'                                                                          => 'Leerlingen informeren',
+    'notify_students_tooltip'                                                                  => 'Leerlingen via mail informeren over deze toetsafname.',
 ];

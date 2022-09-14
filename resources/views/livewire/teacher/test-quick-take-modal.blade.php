@@ -35,11 +35,11 @@
                     <div id="selected_classes" wire:ignore class="flex flex-wrap gap-2 self-end relative -top-0.5 mt-6" style=""></div>
                 </div>
             </div>
-            <div class="toggles | flex flex-col lg:flex-row lg:gap-4 ">
+            <div class="toggles | flex flex-col lg:flex-row lg:gap-x-4 flex-wrap">
                 <x-input.toggle-row-with-title wire:model="testTake.allow_inbrowser_testing"
                                                :toolTip="__('teacher.inbrowser_testing_tooltip')"
                                                :disabled="$this->isAssessmentType()"
-                                               containerClass="border-t"
+                                               containerClass="border-t w-full lg:w-[calc(50%-0.5rem)]"
                 >
                     <x-icon.web/>
                     <span class="bold">{{ __('teacher.Browsertoetsen toestaan') }} </span>
@@ -47,10 +47,18 @@
                 <x-input.toggle-row-with-title wire:model="testTake.guest_accounts"
                                                :toolTip="__('teacher.guest_accounts_tooltip')"
                                                :tooltipAlwaysLeft="true"
-                                               containerClass="lg:border-t"
+                                               containerClass="lg:border-t w-full lg:w-[calc(50%-0.5rem)]"
                 >
                     <x-icon.test-direct/>
                     <span class="bold">{{ __('teacher.Test-Direct toestaan') }} </span>
+                </x-input.toggle-row-with-title>
+
+                <x-input.toggle-row-with-title wire:model="testTake.notify_students"
+                                               :toolTip="__('teacher.notify_students_tooltip')"
+                                               containerClass="border-t-0 w-full lg:w-[calc(50%-0.5rem)]"
+                >
+                    <x-icon.send-mail/>
+                    <span class="bold">{{ __('teacher.notify_students') }} </span>
                 </x-input.toggle-row-with-title>
             </div>
 

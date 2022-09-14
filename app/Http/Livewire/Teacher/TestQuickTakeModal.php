@@ -46,6 +46,7 @@ class TestQuickTakeModal extends ModalComponent
                 'testTake.weight'                  => 'required|numeric',
                 'testTake.allow_inbrowser_testing' => 'required|boolean',
                 'testTake.guest_accounts'          => 'required|boolean',
+                'testTake.notify_students'         => 'required|boolean',
             ];
     }
 
@@ -69,6 +70,7 @@ class TestQuickTakeModal extends ModalComponent
         $this->testTake->weight = 5;
         $this->testTake->allow_inbrowser_testing = $this->isAssessmentType();
         $this->testTake->guest_accounts = false;
+        $this->testTake->notify_students = false;
     }
 
     public function hydrate()
@@ -106,7 +108,7 @@ class TestQuickTakeModal extends ModalComponent
         $this->testTake->uuid = Uuid::uuid4();
 
         $this->testTake->fill([
-            'invigilators' => [auth()->id()],
+            'invigilators'   => [auth()->id()],
             'school_classes' => $this->selectedClasses
         ]);
     }
