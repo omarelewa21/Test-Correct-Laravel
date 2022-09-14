@@ -58,7 +58,7 @@
         </div>
         <div class="flex space-x-2.5">
             @if($question->isType('GroupQuestion'))
-                <span class="note flex items-center space-x-1 text-sm">{{ trans_choice('cms.vraag', ['count' => $question->getQuestionCount()]) }}</span>
+                <span class="note flex items-center space-x-1 text-sm">{{ trans_choice('cms.vraag', $question->getQuestionCount()) }}</span>
             @endif
             @if($attachmentCount)
                 <span class="note flex items-center space-x-1 text-sm">
