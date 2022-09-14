@@ -62,4 +62,10 @@
             </div>
         @endif
     </div>
+    <div class="absolute inset-0 z-50"
+         x-data="{headerLoadingOverlay: false}"
+         x-show="headerLoadingOverlay"
+         @filepond-start.window="headerLoadingOverlay = true;"
+         @filepond-finished.window="headerLoadingOverlay = false;"
+    ></div>
 </div>
