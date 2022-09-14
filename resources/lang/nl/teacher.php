@@ -18,7 +18,7 @@ return [
     'Weet je zeker dat je deze test wilt verwijderen?'                                         => 'Weet je zeker dat je deze test wilt verwijderen?',
     'toets aanmaken'                                                                           => 'Toets aanmaken',
     'naam toets'                                                                               => 'Naam toets',
-    'Afkorting (max 5)'                                                                        => 'Afkorting (max 5)',
+    'Afkorting (max 5)'                                                                        => 'Afkorting',
     "niveau"                                                                                   => 'Niveau',
     'periode'                                                                                  => 'Periode',
     'niveau-jaar'                                                                              => 'Niveau-jaar',
@@ -75,4 +75,11 @@ return [
 
     'notify_students'                                                                          => 'Leerlingen informeren',
     'notify_students_tooltip'                                                                  => 'Leerlingen via mail informeren over deze toetsafname.',
+    'Klassen'                                                                                  => 'Klassen',
+    'subject'                                                                                  => 'Vak',
+    'type'                                                                                     => 'Type',
+    'test-type-Summatief'                                                                      => 'Summatief',
+    'test-type-Formatief'                                                                      => 'Formatief',
+    'test-type-Opdracht'                                                                       => 'Opdracht',
+    'test-type-Oefentoets'                                                                     => 'Oefentoets',
 ];

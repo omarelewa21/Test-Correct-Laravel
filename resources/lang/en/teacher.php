@@ -18,7 +18,7 @@ return [
     'Weet je zeker dat je deze test wilt verwijderen?'                                         => 'Are you sure you want to delete this test?',
     'toets aanmaken'                                                                           => 'Create test',
     'naam toets'                                                                               => 'Test title',
-    'Afkorting (max 5)'                                                                        => 'Abbreviation (max 5)',
+    'Afkorting (max 5)'                                                                        => 'Abbreviation',
     "niveau"                                                                                   => 'Level',
     'education_level_year'                                                                     => 'Education level year',
     'periode'                                                                                  => 'Period',
@@ -76,4 +76,11 @@ return [
 
     'notify_students'                                                                          => 'Inform students',
     'notify_students_tooltip'                                                                  => 'Inform students about this test.',
+    'Klassen'                                                                                  => 'Classes',
+    'subject'                                                                                  => 'Subject',
+    'type'                                                                                     => 'Type',
+    'test-type-Summatief'                                                                      => 'Summative',
+    'test-type-Formatief'                                                                      => 'Formative',
+    'test-type-Opdracht'                                                                       => 'Assignment',
+    'test-type-Oefentoets'                                                                     => 'Pratice test',
 ];
