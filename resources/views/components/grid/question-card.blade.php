@@ -26,8 +26,8 @@
                           :uuid="$question->uuid"
                           context="question-card"
                           contextDataJson="{
-                          inTest: {{ ($this->isQuestionInTest($question->id) || $this->isQuestionInTest($question->derived_question_id)) ? 1 : 0 }},
-                          showQuestionBankAddConfirmation: '{{$showQuestionBankAddConfirmation}}'
+                              inTest: {{ ($this->isQuestionInTest($question->id) || $this->isQuestionInTest($question->derived_question_id)) ? 1 : 0 }},
+                              showQuestionBankAddConfirmation: {{ $showQuestionBankAddConfirmation ? 'true' : 'false' }}
                           }"
         />
     </div>

@@ -662,7 +662,7 @@ document.addEventListener('alpine:init', () => {
     Alpine.data('contextMenuHandler', () => ({
         contextMenuOpen: false,
         uuid: null,
-        inTest: null,
+        contextData: null,
         correspondingButton: null,
         menuOffsetMarginTop: 56,
         menuOffsetMarginLeft: 224,
@@ -676,12 +676,12 @@ document.addEventListener('alpine:init', () => {
         },
         async openMenu(detail) {
             this.uuid = detail.uuid;
-            this.inTest = detail.inTest;
             this.correspondingButton = detail.button;
+            this.contextData = detail.contextData;
             this.$root.style.top = (detail.coords.top + this.menuOffsetMarginTop) + 'px';
             this.$root.style.left = (detail.coords.left - this.menuOffsetMarginLeft) + 'px';
 
-            let readyForShow = await this.$wire.setContextValues(this.uuid, detail.contextData);
+            let readyForShow = await this.$wire.setContextValues(this.uuid, this.contextData);
             if (readyForShow) this.contextMenuOpen = true;
             this.contextMenuOpen = true
         },

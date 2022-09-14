@@ -6135,6 +6135,9 @@ video {
 .w-\[44vw\]{
   width: 44vw;
 }
+.w-\[170px\]{
+  width: 170px;
+}
 .w-32{
   width: 8rem;
 }
@@ -6143,9 +6146,6 @@ video {
 }
 .w-14{
   width: 3.5rem;
-}
-.w-\[170px\]{
-  width: 170px;
 }
 .min-w-\[110px\]{
   min-width: 110px;
