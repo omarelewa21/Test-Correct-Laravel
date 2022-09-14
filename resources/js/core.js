@@ -16,12 +16,17 @@ Core = {
         let isAndroid = /Android/g.test(navigator.userAgent);
         let isChromebook = window.navigator.userAgent.indexOf('CrOS') > 0;
 
+        let isFirefox = window.navigator.userAgent.indexOf('Firefox') > -1;
+
         if (isIOS) {
             Core.isIpad();
         } else if (isAndroid) {
             Core.isAndroid();
         } else if (isChromebook) {
             Core.isChromebook();
+        }
+        if (isFirefox) {
+            Core.isFirefox();
         }
 
         Core.checkForElectron();
@@ -111,6 +116,9 @@ Core = {
     isChromebook: function () {
         Core.inApp = true;
         Core.appType = 'chromebook';
+    },
+    isFirefox: function () {
+        document.querySelector('body').classList.add('firefox');
     },
     detectIOS: function () {
         let urlParams = new URLSearchParams(window.location.search);

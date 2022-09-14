@@ -25,7 +25,10 @@
         <x-button.options id="question-card-option-button-{{ $question->uuid }}"
                           :uuid="$question->uuid"
                           context="question-card"
-                          contextDataJson="{inTest: {{ ($this->isQuestionInTest($question->id) || $this->isQuestionInTest($question->derived_question_id)) ? 1 : 0 }} }"
+                          contextDataJson="{
+                          inTest: {{ ($this->isQuestionInTest($question->id) || $this->isQuestionInTest($question->derived_question_id)) ? 1 : 0 }},
+                          showQuestionBankAddConfirmation: '{{$showQuestionBankAddConfirmation}}'
+                          }"
         />
     </div>
     <div class="flex w-full justify-between text-base mb-1">
@@ -67,7 +70,7 @@
                 @endif
                 <button x-show="Alpine.store('questionBank').active"
                         class="new-button button-primary w-10 items-center justify-center flex"
-                        @click.stop="addQuestionToTest($el, '{{ $question->uuid }}')"
+                        @click.stop="addQuestionToTest($el, '{{ $question->uuid }}', '{{$showQuestionBankAddConfirmation}}')"
                 >
                     <x-icon.plus-2/>
                 </button>
