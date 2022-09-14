@@ -1,6 +1,7 @@
 <?php namespace tcCore;
 
 use Closure;
+use Illuminate\Support\Arr;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use tcCore\Http\Helpers\DemoHelper;
 use tcCore\Lib\Models\AccessCheckable;
@@ -213,37 +214,53 @@ class Subject extends BaseModel implements AccessCheckable
     {
         $citoSchool = SchoolLocation::where('customer_code', 'CITO-TOETSENOPMAAT')->first();
 
-        return $this->filterByUserAndSchoolLocation($query, $citoSchool);
+        return $this->filterByUserAndSchoolLocation($query, Auth::user(), $citoSchool);
     }
 
     public function scopeExamFiltered($query, $filters = [], $sorting = [])
     {
         $examSchool = SchoolLocation::where('customer_code', config('custom.examschool_customercode'))->first();
 
-        return $this->filterByUserAndSchoolLocation($query, $examSchool);
+        return $this->filterByUserAndSchoolLocation($query, Auth::user(), $examSchool);
     }
 
     public function scopeNationalItemBankFiltered($query, $filters = [], $sorting = [])
     {
-        $nationalItemBankSchool = SchoolLocation::where('customer_code', config('custom.national_item_bank_school_customercode'))->first();
+        $nationalItemBankSchools = [
+            SchoolLocation::where('customer_code', config('custom.national_item_bank_school_customercode'))->first(),
+            SchoolLocation::where('customer_code', config('custom.examschool_customercode'))->first(),
+            SchoolLocation::where('customer_code', 'CITO-TOETSENOPMAAT')->first(),
+        ];
 
-        return $this->filterByUserAndSchoolLocation($query, $nationalItemBankSchool);
+        return $this->filterByUserAndSchoolLocation($query, Auth::user(), $nationalItemBankSchools);
     }
 
-    private function filterByUserAndSchoolLocation($query, $schoolLocation)
+    public function scopeCreathlonFiltered($query, $filters = [], $sorting = [])
     {
-        if (!$schoolLocation) { // slower but as a fallback in case there's no cito school
+        $creathlonSchoolLocation = SchoolLocation::where('customer_code', config('custom.creathlon_school_customercode'))->first();
+
+        return $this->filterByUserAndSchoolLocation($query, Auth::user(), $creathlonSchoolLocation);
+    }
+
+    private function filterByUserAndSchoolLocation($query, User $user, $schoolLocations)
+    {
+        if (!$schoolLocations) { // slower but as a fallback in case there's no cito school
             $query->where('subjects.id', -1);
             return $query;
         }
 
-        $user = Auth::user();
+        $schoolLocations = Arr::wrap($schoolLocations);
 
-        $subjectIds = $this->getAvailableSubjectsForSchoolLocation($schoolLocation)
-            ->whereIn('base_subject_id', $this->getBaseSubjectsForUser($user))
-            ->pluck('id')
-            ->unique()
-            ->toArray();
+        $subjectIds = [];
+
+        foreach ($schoolLocations as $schoolLocation) {
+            $subjectIds = array_merge($subjectIds, $this->getAvailableSubjectsForSchoolLocation($schoolLocation)
+                ->whereIn('base_subject_id', BaseSubject::getIdsForUserInCurrentSchoolLocation($user))
+                ->pluck('id')
+                ->unique()
+                ->toArray()
+            );
+        }
 
         $query->whereIn('id', $subjectIds);
         return $query;
@@ -255,12 +272,7 @@ class Subject extends BaseModel implements AccessCheckable
         )->pluck('subject_id')->unique())->get();
     }
 
-    private function getBaseSubjectsForUser(User $user)
-    {
-        return $user->subjects()->pluck('base_subject_id')->unique();
-    }
-
-    public function canAccess()
+     public function canAccess()
     {
         $roles = Roles::getUserRoles();
         if (in_array('Administrator', $roles)) {
@@ -280,19 +292,33 @@ class Subject extends BaseModel implements AccessCheckable
         throw new AccessDeniedHttpException('Access to subject denied');
     }
 
-    public static function getSubjectsOfCustomSchoolForUser($customerCode, $user): array
+    public static function getSubjectIdsOfSchoolLocationByCustomerCodesAndUser($customerCodes, User $user): array
     {
-        $school = SchoolLocation::where('customer_code', $customerCode)->first();
+        $userBaseSubjectIds = BaseSubject::getIdsForUserInCurrentSchoolLocation($user);
+
+        return SchoolLocation::whereIn('school_locations.customer_code', Arr::wrap($customerCodes))
+            ->join('school_location_sections', 'school_locations.id', '=', 'school_location_sections.school_location_id')
+            ->join('sections', 'school_location_sections.section_id', '=', 'sections.id')
+            ->join('subjects', 'subjects.section_id', '=', 'sections.id')
+            ->whereIn('subjects.base_subject_id', $userBaseSubjectIds)
+            ->distinct()
+            ->pluck('subjects.id')->toArray();
+
+        $schoolLocations = SchoolLocation::whereIn('customer_code', Arr::wrap($customerCodes))->get();
+
         $baseSubjectIds = $user->subjects()->pluck('base_subject_id')->unique();
 
-        if ($school) {
+        $subjectIds = collect([]);
+
+        foreach($schoolLocations as $school_location)
+        {
             $subjects = collect([]);
-            foreach ($school->schoolLocationSections as $schoolLocationSection) {
+            foreach ($school_location->schoolLocationSections as $schoolLocationSection) {
                 $subjects = $subjects->merge($schoolLocationSection->subjects);
             }
-            return $subjects->whereIn('base_subject_id', $baseSubjectIds)->pluck('id')->unique()->toArray();
+            $subjectIds = $subjectIds->merge($subjects->whereIn('base_subject_id', $baseSubjectIds)->pluck('id')->unique()->toArray());
         }
-        return [];
+        return $subjectIds->toArray();
     }
 
     public static function boot()

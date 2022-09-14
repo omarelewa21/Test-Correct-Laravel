@@ -111,7 +111,7 @@ class NationalItemBankTest extends TestCase
     {
         \Auth::login(self::getTeacherOne());
 
-        $subjects = Subject::getSubjectsOfCustomSchoolForUser('TBNI', User::find(1486));
+        $subjects = Subject::getSubjectIdsOfSchoolLocationByCustomerCodesAndUser('TBNI', User::find(1486));
 
         $this->assertGreaterThan(0, count($subjects));
     }
@@ -330,6 +330,7 @@ class NationalItemBankTest extends TestCase
         $finishedPublishedTest = $this->createExamTest(null, true);
         $this->assertEquals('EXAM', $finishedPublishedTest->abbreviation);
         $this->assertEquals('exam', $finishedPublishedTest->scope);
+        $this->assertEquals('exam', $finishedPublishedTest->testQuestions->first()->question->scope);
 
         $finishedPublishedTest->abbreviation = 'ELSE';
         $finishedPublishedTest->save();

@@ -130,7 +130,6 @@ class CreateUserEduIxRequest extends Request
         } catch (Exception $e) {
             $validator->errors()->add('edu_ix_organisation_id', $e->getMessage());
         }
-        Log::info('no Error in EduixServiceFromRequest');
     }
 
 }

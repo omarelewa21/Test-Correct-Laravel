@@ -42,7 +42,7 @@ class QuestionDetailModal extends ModalComponent
 
     public function addQuestion()
     {
-        $this->emitTo(QuestionBank::class, 'addQuestionFromDetail', $this->question->id);
+        $this->emitTo(QuestionBank::class, 'addQuestionFromDetail', $this->question->uuid);
         $this->closeModal();
     }
 

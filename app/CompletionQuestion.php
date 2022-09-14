@@ -472,7 +472,6 @@ class CompletionQuestion extends Question implements QuestionInterface
         $questionData = $qHelper->getQuestionStringAndAnswerDetailsForSavingCompletionQuestion($questionString, true);
 
         foreach($questionData['answers'] as $answer){
-            logger($answer);
             if(trim($answer['answer']) == ''){
                 if (request()->input('subtype') === 'completion') {
                     $validator->errors()->add($fieldPreFix . 'question', 'U dient één woord tussen vierkante haakjes te plaatsen.');

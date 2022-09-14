@@ -39,8 +39,6 @@ class CountTeacherTests extends Job implements ShouldQueue
         //$count = $this->user->tests()->notDemo()->where('is_system_test', 0)->count();
         $count = OnboardingWizardReport::getTestsCreatedAmount($this->user);
 
-        Log::debug('Teacher #' . $this->user->getKey() . ' -> count_tests: ' . $count);
-
         $this->user->setAttribute('count_tests', $count);
         $this->user->save();
     }

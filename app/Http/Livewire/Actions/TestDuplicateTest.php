@@ -9,11 +9,14 @@ use tcCore\Test;
 class TestDuplicateTest extends TestAction
 {
     public bool $showButton;
+    public bool $disabled;
 
     public function mount($uuid, $variant='icon-button', $class = '')
     {
         parent::mount($uuid, $variant, $class);
-        $this->showButton = !Test::findByUuid($this->uuid)->isNationalItem();
+        $test = Test::findByUuid($this->uuid);
+        $this->showButton = !$test->isNationalItem();
+        $this->disabled = !($test->canCopy(auth()->user()) || $test->canCopyFromSchool(auth()->user()));
     }
 
 

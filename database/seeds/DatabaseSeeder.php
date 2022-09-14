@@ -15,11 +15,13 @@ class DatabaseSeeder extends Seeder {
 		$this->call('EanCodeTableSeeder');
 		$this->call('SearchFilterTableSeeder');
         $this->call(SwitchSchoolAccountTableSeeder::class);
-        $this->call(CitoAccountSeeder::class);
-        $this->call(ExamSchoolSeeder::class);
-//        Disabled the seeder because it takes about a minute. To run in manually:
-//        php artisan db:seed --class=NationalItemBankSeeder
-//        $this->call(NationalItemBankSeeder::class);
+        if(config('custom.enable_additional_seeders'))
+        {
+            $this->call(CitoAccountSeeder::class);
+            $this->call(ExamSchoolSeeder::class);
+            $this->call(CreathlonItemBankSeeder::class);
+            $this->call(NationalItemBankSeeder::class);
+        }
         $this->call(RegisterTestBankForSchoollocationsSeeder::class);
 	}
 }

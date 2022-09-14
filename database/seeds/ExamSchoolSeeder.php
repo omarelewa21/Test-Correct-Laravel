@@ -92,6 +92,8 @@ class ExamSchoolSeeder extends Seeder
             'school_locations' => [$locationA->getKey()],
         ]);
         $schoolYear->save();
+        $schoolYear->delete(); //prevents using demo schoolyear as active schoolyear and returning zero available subjects
+        $schoolYear = $locationA->schoolYears()->first();
 
         $periodLocationA = (new Period());
         $periodLocationA->fill([
@@ -159,11 +161,11 @@ class ExamSchoolSeeder extends Seeder
 								'section_id'=>$section->getKey(),
 								'base_subject_id'=>$baseSubject->id	
 						]);
-			$teacher = Teacher::create([	'user_id'=>$teacherA->id,
+			Teacher::create([	'user_id'=>$teacherA->id,
 											'subject_id'=>$subject->id,
 											'class_id'=>$class->id
 										]);
-			$teacher = Teacher::create([	'user_id'=>$teacherB->id,
+			Teacher::create([	'user_id'=>$teacherB->id,
 											'subject_id'=>$subject->id,
 											'class_id'=>$classB->id
 										]);
@@ -174,7 +176,7 @@ class ExamSchoolSeeder extends Seeder
                                   'period_id'=>$periodLocationA->id,
                                   'test_kind_id'=>3,
                                   'name'=>'test examen '.$subject->name,
-                                  'abbreviation'=>'NOT_EXAM',
+                                  'abbreviation'=>'EXAM',
                                   'education_level_year'=>1,
                                   'status'=>1,
                                   'introduction'=>'Beste docent,
@@ -185,11 +187,11 @@ class ExamSchoolSeeder extends Seeder
                                   'question_count'=>0,
                                   'is_open_source_content'=>false,
                                   'demo'=>false,
-                                  'scope'=>'not_exam',
+                                  'scope'=>'exam',
                                   'published'=>'1',
                             ]);
-            $test->setAttribute('author_id', $teacherB->id);
-            $test->setAttribute('owner_id', $teacherB->school_location_id);
+            $test->setAttribute('author_id', $teacherA->id);
+            $test->setAttribute('owner_id', $teacherA->school_location_id);
             $test->save();
         });
 

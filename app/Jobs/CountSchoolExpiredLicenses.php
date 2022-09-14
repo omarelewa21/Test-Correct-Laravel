@@ -37,8 +37,6 @@ class CountSchoolExpiredLicenses extends Job implements ShouldQueue
     {
         $count = $this->school->schoolLocations()->sum('count_expired_licenses');
 
-        Log::debug('School #' . $this->school->getKey() . ' -> count_expired_licenses: ' . $count);
-
         $this->school->setAttribute('count_expired_licenses', $count);
         $this->school->save();
     }

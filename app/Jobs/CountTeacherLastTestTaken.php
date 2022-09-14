@@ -60,8 +60,6 @@ class CountTeacherLastTestTaken extends Job implements ShouldQueue
             ->join('tests', 'tests.id', '=', 'test_takes.test_id')
             ->join('test_participants', 'test_participants.test_take_id', '=', 'test_takes.id')->max('test_takes.time_start');
 
-        Log::debug('Teacher #' . $user->getKey() . ' -> count_last_test_taken: ' . $count);
-
         $this->user->setAttribute('count_last_test_taken', $count);
         $this->user->save();
     }
