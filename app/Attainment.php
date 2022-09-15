@@ -170,7 +170,7 @@ class Attainment extends BaseModel
 
     public function getNameAttribute()
     {
-        return DB::Select(
+        $orderNumber = DB::Select(
             DB::raw('
                 SELECT vlg FROM
                 (
@@ -184,6 +184,12 @@ class Attainment extends BaseModel
                     WHERE t.id = ' . $this->getKey()
                  )
         )[0]->vlg;
+
+        if ($this->is_learning_goal == 1) {
+            return __('student.leerdoel met nummer', ['number' => $orderNumber]);
+        }
+
+        return __('student.eindterm met nummer', ['number' => $orderNumber]);
     }
 
 
