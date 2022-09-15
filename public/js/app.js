@@ -5860,6 +5860,7 @@ document.addEventListener('alpine:init', function () {
       answerSvg: entanglements.answerSvg,
       questionSvg: entanglements.questionSvg,
       gridSvg: entanglements.gridSvg,
+      grid: entanglements.grid,
       isTeacher: isTeacher,
       toolName: null,
       isPreview: isPreview,
@@ -5872,7 +5873,7 @@ document.addEventListener('alpine:init', function () {
           delete window[this.toolName];
         }
 
-        var toolName = window[this.toolName] = initDrawingQuestion(this.$root, this.isTeacher, this.isPreview);
+        var toolName = window[this.toolName] = initDrawingQuestion(this.$root, this.isTeacher, this.isPreview, this.grid);
 
         if (this.isTeacher) {
           this.makeGridIfNecessary(toolName);
@@ -5914,6 +5915,8 @@ document.addEventListener('alpine:init', function () {
       makeGridIfNecessary: function makeGridIfNecessary(toolName) {
         if (this.gridSvg !== '' && this.gridSvg !== '0.00') {
           makePreviewGrid(toolName.drawingApp, this.gridSvg);
+        } else if (this.grid && this.grid !== '0') {
+          makePreviewGrid(toolName.drawingApp, 1 / parseInt(this.grid) * 5);
         }
       }
     };
@@ -6338,11 +6341,9 @@ addIdsToQuestionHtml = function addIdsToQuestionHtml() {
     questionContainers.forEach(function (item) {
       var decendents = item.querySelectorAll('*');
       decendents.forEach(function (decendent) {
-        if (decendent.tagName != 'MATH' && !decendent.closest('math')) {
-          decendent.id = 'questionhtml_' + id;
-          decendent.setAttribute('wire:key', 'questionhtml_' + id);
-          id += 1;
-        }
+        decendent.id = 'questionhtml_' + id;
+        decendent.setAttribute('wire:key', 'questionhtml_' + id);
+        id += 1;
       });
     });
   }, 1);
@@ -6844,7 +6845,7 @@ window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
 window.Pusher = __webpack_require__(/*! pusher-js */ "./node_modules/pusher-js/dist/web/pusher.js");
 window.Echo = new laravel_echo__WEBPACK_IMPORTED_MODULE_0__["default"]({
   broadcaster: 'pusher',
-  key: "2149988ad52a600a2309",
+  key: "51d7221bf733999d7138",
   cluster: "eu",
   forceTLS: true
 });
@@ -6891,7 +6892,6 @@ Core = {
     var isIOS = Core.detectIOS();
     var isAndroid = /Android/g.test(navigator.userAgent);
     var isChromebook = window.navigator.userAgent.indexOf('CrOS') > 0;
-    var isFirefox = window.navigator.userAgent.indexOf('Firefox') > -1;
 
     if (isIOS) {
       Core.isIpad();
@@ -6899,10 +6899,6 @@ Core = {
       Core.isAndroid();
     } else if (isChromebook) {
       Core.isChromebook();
-    }
-
-    if (isFirefox) {
-      Core.isFirefox();
     }
 
     Core.checkForElectron();
@@ -6981,9 +6977,6 @@ Core = {
   isChromebook: function isChromebook() {
     Core.inApp = true;
     Core.appType = 'chromebook';
-  },
-  isFirefox: function isFirefox() {
-    document.querySelector('body').classList.add('firefox');
   },
   detectIOS: function detectIOS() {
     var urlParams = new URLSearchParams(window.location.search);
@@ -7352,7 +7345,7 @@ function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
 
 
 
-window.initDrawingQuestion = function (rootElement, isTeacher, isPreview) {
+window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid) {
   var _this2 = this;
 
   /**
@@ -7413,6 +7406,10 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview) {
           if (drawingApp.firstInit) {
             makeGrid();
             updateMidPoint();
+          }
+
+          if (grid && grid !== '0') {
+            drawGridBackground(grid);
           }
 
           processGridToggleChange();
@@ -9543,6 +9540,18 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview) {
       size: drawingApp.isTeacher() ? UI.gridSize.value : drawingApp.params.gridSize
     };
     Canvas.layers.grid.shape = new _svgShape_js__WEBPACK_IMPORTED_MODULE_2__.Grid(0, props, UI.svgGridGroup, drawingApp, Canvas);
+  }
+
+  function drawGridBackground(grid) {
+    var props = {
+      group: {},
+      main: {},
+      origin: {
+        id: "grid-origin"
+      },
+      size: 1 / parseInt(grid) * 5
+    };
+    return new _svgShape_js__WEBPACK_IMPORTED_MODULE_2__.Grid(0, props, UI.svgGridGroup, drawingApp, Canvas);
   }
 
   function updateGridVisibility() {
