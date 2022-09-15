@@ -392,7 +392,7 @@
                         </span>
                             </div>
                             <x-button.primary type="link" class="" size="md" selid="entree-login-btn"
-                                              href="{{ route('saml2_login', 'entree') }}">
+                                              href="{{ route('saml2_login', ['entree','directlink' => $take]) }}">
                                 <x-icon.entreefederatie/>
                                 <span>{{ __('auth.login_with_entree') }}</span>
                             </x-button.primary>
