@@ -291,6 +291,7 @@ document.addEventListener('alpine:init', () => {
         answerSvg: entanglements.answerSvg,
         questionSvg: entanglements.questionSvg,
         gridSvg: entanglements.gridSvg,
+        grid: entanglements.grid,
         isTeacher: isTeacher,
         toolName: null,
         isPreview: isPreview,
@@ -299,8 +300,8 @@ document.addEventListener('alpine:init', () => {
             if (Object.getOwnPropertyNames(window).includes(this.toolName)) {
                 delete window[this.toolName];
             }
-            const toolName = window[this.toolName] = initDrawingQuestion(this.$root, this.isTeacher, this.isPreview);
-
+            const toolName = window[this.toolName] = initDrawingQuestion(this.$root, this.isTeacher, this.isPreview, this.grid);
+            
             if (this.isTeacher) {
                 this.makeGridIfNecessary(toolName);
             }
@@ -343,6 +344,8 @@ document.addEventListener('alpine:init', () => {
         makeGridIfNecessary(toolName) {
             if (this.gridSvg !== '' && this.gridSvg !== '0.00') {
                 makePreviewGrid(toolName.drawingApp, this.gridSvg);
+            }else if(this.grid && this.grid !== '0'){
+                makePreviewGrid(toolName.drawingApp, 1/parseInt(this.grid) * 5);
             }
         }
     }));
