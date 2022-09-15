@@ -176,7 +176,7 @@ trait PublishesTestsTrait
     {
         $questions->each(function ($question) {
             $question->setAttribute('scope', $this->publishesTestsScope);
-            $question->owner_id = $this->publishesTestsAuthor->getKey();
+            $question->author_id = $this->publishesTestsAuthor->getKey();
             $question->save();
             QuestionAuthor::where('question_id',$question->getKey())->delete(); // we don't want to show the old author as it is a toetsenbakker probably
             QuestionAuthor::addAuthorToQuestion($question, $this->publishesTestsAuthor->getKey());
