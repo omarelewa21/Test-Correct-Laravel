@@ -170,6 +170,9 @@ trait PublishesTestsTrait
             return $testQuestion->question->getQuestionInstance();
         });
         $this->publishTestQuestions($questions);
+        $this->author_id = $this->publishesTestsAuthor->getKey();
+        TestAuthor::where('test_id',$this->getKey())->delete(); // we don't want to show the old author as it is a toetsenbakker probably
+        TestAuthor::addAuthorToTest($this, $this->publishesTestsAuthor->getKey());
     }
 
     private function publishTestQuestions($questions): void
