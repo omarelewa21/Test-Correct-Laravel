@@ -130,4 +130,5 @@ trait WithPreviewAttachments
         return 'question';
     }
 
+    public function registerExpirationTime() {}
 }
