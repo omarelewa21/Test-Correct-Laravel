@@ -7,10 +7,12 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Queue;
+use LaravelIdea\Helper\tcCore\_IH_SchoolClass_QB;
 use Ramsey\Uuid\Uuid;
 use tcCore\Events\InbrowserTestingUpdatedForTestParticipant;
 use tcCore\Events\NewTestTakeGraded;
 use tcCore\Events\NewTestTakeReviewable;
+use tcCore\Events\TestParticipantEvent;
 use tcCore\Events\TestTakeOpenForInteraction;
 use tcCore\Events\TestTakeShowResultsChanged;
 use tcCore\Http\Helpers\DemoHelper;
@@ -414,13 +416,12 @@ class TestTake extends BaseModel
 
     public function schoolClasses()
     {
-        $id = $this->getKey();
-        return SchoolClass::withTrashed()->select()->whereIn('id', function ($query) use ($id) {
-            $query->select('school_class_id')
-                ->from(with(new TestParticipant())->getTable())
-                ->where('test_take_id', $id)
-                ->where('deleted_at', null);
-        });
+        return SchoolClass::fromTestTakes($this->getKey());
+    }
+
+    public static function schoolClassesForMultiple($testTakeIds)
+    {
+        return SchoolClass::fromTestTakes($testTakeIds);
     }
 
     public function invigilators()
@@ -696,27 +697,20 @@ class TestTake extends BaseModel
                     $query->where('weight', '=', $value);
                     break;
                 case 'subject_id':
-                    $query->whereIn( $this->getTable() . '.id',
-                                    function ($query) use ($value)
-                                    {
-                                        $testTable = with(new Test())->getTable();
-                                        $query
-                                            ->select($this->getTable().'.id')
-                                            ->from($this->getTable())
-                                            ->join($testTable, $testTable . '.id', '=', $this->getTable() . '.test_id')
-                                            ->whereNull($testTable.'.deleted_at')
-                                            ->where(
-                                                    function($query) use ($value, $testTable)
-                                                    {
-                                                        $query->where(
-                                                                        function($query) use ($testTable, $value)
-                                                                        {
-                                                                            $query->where($testTable . '.subject_id', $value);
-                                                                        }
-                                                                    );
-                                                    }
-                                                );
-                                    });
+                    $query->whereIn(
+                        $this->getTable() . '.id',
+                        TestTake::distinctTestTakesFromTests()
+                            ->when(is_int($value),
+                                fn($query) => $query->where('tests.subject_id', $value),
+                                fn($query) => $query->whereIn('tests.subject_id', $value)
+                            )
+                    );
+                    break;
+                case 'test_name':
+                    $query->whereIn(
+                        $this->getTable() . '.id',
+                        TestTake::distinctTestTakesFromTests()->where('tests.name', 'LIKE', "%$value%")
+                    );
                     break;
             }
         }
@@ -1166,4 +1160,46 @@ class TestTake extends BaseModel
         return $this->test->maxScore($ignoreQuestions);
     }
 
+    public function scopeWithCardAttributes($query, $attributes = null)
+    {
+        return $query
+            ->with(['test' => fn($query) => $query->withCount('testQuestions')])
+            ->with([
+                'user:id,name,name_first,name_suffix',
+                'test.subject:id,name',
+                'testParticipants:id,user_id,test_take_id,test_take_status_id,school_class_id',
+                'testParticipants.schoolClass:id,name',
+            ]);
+    }
+
+    public static function distinctTestTakesFromTests()
+    {
+        return TestTake::withoutGlobalScope(ArchivedScope::class)
+            ->select(['test_takes.id'])
+            ->join('tests', 'tests.id', '=', 'test_takes.test_id')
+            ->whereNull('tests.deleted_at')
+            ->distinct();
+    }
+
+    public static function redirectToDetailPage($testTakeUuid)
+    {
+        $detailUrl = sprintf('test_takes/view/%s', $testTakeUuid);
+        $temporaryLogin = TemporaryLogin::createWithOptionsForUser('page', $detailUrl, auth()->user());
+
+        return redirect($temporaryLogin->createCakeUrl());
+    }
+
+    public function getParticipantTakenStats()
+    {
+        $this->loadMissing('testParticipants');
+        return [
+            'taken'    => $this->testParticipants->filter(function ($participant) {
+                return TestTakeStatus::testTakenStatusses()->contains($participant->test_take_status_id);
+            })->count(),
+
+            'notTaken' => $this->testParticipants->filter(function ($participant) {
+                return !TestTakeStatus::testTakenStatusses()->contains($participant->test_take_status_id);
+            })->count(),
+        ];
+    }
 }

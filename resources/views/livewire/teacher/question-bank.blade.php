@@ -277,7 +277,7 @@
                         @endif
                     </x-grid>
                     @if(!$this->groupQuestionDetail)
-                        <x-question-card-context-menu/>
+                        <livewire:context-menu.question-card>
                     @endif
                 </div>
             </div>

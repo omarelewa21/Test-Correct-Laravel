@@ -58,4 +58,7 @@ return [
     'Laatst gewijzigd'                => 'Laatst gewijzigd',
     'Categorie'                       => 'Categorie',
     'Docent'                          => 'Docent',
+    'Nakijken en normeren'            => 'Nakijken & normeren',
+    'Mijn afgenomen toetsen'          => 'Mijn afgenomen toetsen',
+    'Kopie'                           => 'Kopie',
 ];

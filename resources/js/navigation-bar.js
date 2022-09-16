@@ -23,7 +23,9 @@ document.addEventListener('alpine:init', () => {
                 let activeTileItem = navBar.querySelector('.' + this.$wire.activeRoute.sub);
                 activeTileItem.classList.add('tile-active');
             }
-            if (this.$wire.activeRoute.main !== ''){
+            if (this.$wire.activeRoute.main !== '') {
+                console.log(27)
+                this.$nextTick(() => this.$dispatch('tiles-hidden'));
                 this.activeMenuItem = this.bottom.querySelector('[data-menu="' + this.$wire.activeRoute.main + '"]');
                 this.activeMenuItem.classList.add('button-active');
             }
@@ -31,7 +33,7 @@ document.addEventListener('alpine:init', () => {
 
             this.menuButtonsWithItems.forEach(element => {
                 element.addEventListener('mouseover', (event) => {
-                    if(this.activeMenuItem) {
+                    if (this.activeMenuItem) {
                         this.activeMenuItem.classList.remove('button-active');
                     }
                     this.tileItemsHide();
@@ -43,7 +45,7 @@ document.addEventListener('alpine:init', () => {
             });
             this.bottom.querySelectorAll('div:not(.has-items)').forEach(element => element.addEventListener('mouseover', (event) => {
                 this.tilesBarHide(0, false);
-                if(this.activeMenuItem){
+                if (this.activeMenuItem) {
                     this.activeMenuItem.classList.remove('button-active');
                 }
             }));
@@ -64,9 +66,11 @@ document.addEventListener('alpine:init', () => {
             });
 
         },
-        tileItemsHide(){
+        tileItemsHide() {
             this.menuButtonsWithItems.forEach(element => {
-                tiles.querySelectorAll('.tile-group').forEach(tilegroup => { tilegroup.style.display = 'none';});
+                tiles.querySelectorAll('.tile-group').forEach(tilegroup => {
+                    tilegroup.style.display = 'none';
+                });
             });
         },
         tilesBarHide(timeout = 1, reset = true) {
@@ -76,15 +80,19 @@ document.addEventListener('alpine:init', () => {
                 tiles.style.paddingLeft = '0px';
                 clearTimeout(this.hideTimeout);
                 this.$dispatch('tiles-hidden');
-                if(reset){
+                if (reset) {
                     this.resetActiveState();
-                    this.$dispatch('tiles-shown');
+                    this.shouldDispatchTilesEvent()
+                    if (this.shouldDispatchTilesEvent()) {
+                        console.log(87)
+                        this.$dispatch('tiles-shown');
+                    }
                 }
-            },timeout);
+            }, timeout);
             // alert(this.$wire.activeRoute.main == '');
         },
         resetActiveState() {
-            if (this.$wire.activeRoute.sub !== ''){
+            if (this.$wire.activeRoute.sub !== '') {
                 tiles.style.setProperty('--top', '100px');
 
                 var activeTile = tiles.querySelector('.' + this.$wire.activeRoute.main);
@@ -93,7 +101,7 @@ document.addEventListener('alpine:init', () => {
                 //menu item
                 this.setPaddingForActiveTileGroupByMenuItem(this.activeMenuItem);
             }
-            if (this.activeMenuItem){
+            if (this.activeMenuItem) {
                 this.activeMenuItem.classList.add('button-active');
             }
         },
@@ -101,36 +109,37 @@ document.addEventListener('alpine:init', () => {
             clearTimeout(this.hideTimeout);
             tiles.style.paddingLeft = '0px';
             tiles.style.setProperty('--top', '100px');
+            console.log(111)
             this.$dispatch('tiles-shown');
         },
         userMenuShow() {
             clearTimeout(this.userMenuTimeout);
-            if(this.userMenu === false){
+            if (this.userMenu === false) {
                 this.userMenu = true;
                 this.userMenuTimeout = setTimeout(() => {
                     this.userMenu = false;
-                },5000);
+                }, 5000);
             } else {
                 this.userMenu = false;
             }
         },
         supportMenuShow() {
             clearTimeout(this.supportMenuTimeout);
-            if(this.supportMenu === false){
+            if (this.supportMenu === false) {
                 this.supportMenu = true;
                 this.supportMenuTimeout = setTimeout(() => {
                     this.supportMenu = false;
-                },5000);
+                }, 5000);
             } else {
                 this.supportMenu = false;
             }
         },
-        setPaddingForActiveTileGroupByMenuItem (menuItem) {
+        setPaddingForActiveTileGroupByMenuItem(menuItem) {
             var menuItem = menuItem;
             var tileGroup = tiles.querySelector('.' + menuItem.dataset.menu);
             var minimalPadding = this.bottom.querySelector('.menu-item:nth-child(2)').offsetLeft;
             var maximalPadding = tiles.offsetWidth - tileGroup.offsetWidth;
-            var calculatedPadding =  menuItem.getBoundingClientRect().right - (menuItem.offsetWidth / 2) - (tileGroup.offsetWidth / 2);
+            var calculatedPadding = menuItem.getBoundingClientRect().right - (menuItem.offsetWidth / 2) - (tileGroup.offsetWidth / 2);
 
             if (calculatedPadding < minimalPadding) {
                 return tiles.style.paddingLeft = minimalPadding + 'px';
@@ -141,10 +150,16 @@ document.addEventListener('alpine:init', () => {
             tiles.style.paddingLeft = calculatedPadding + 'px';
         },
         menuBottomScrollRight() {
-            this.bottom.scrollBy({ left: 150, top: 0, behavior: 'smooth'});
+            this.bottom.scrollBy({left: 150, top: 0, behavior: 'smooth'});
         },
         menuBottomScrollLeft() {
-            this.bottom.scrollBy({ left: -150, top: 0, behavior: 'smooth'});
+            this.bottom.scrollBy({left: -150, top: 0, behavior: 'smooth'});
         },
+        shouldDispatchTilesEvent() {
+            return !Array.from(this.menuButtonsWithoutItems)
+                .map(item => item.dataset.menu)
+                .filter(n => n)
+                .includes(this.activeMenuItem.dataset.menu);
+        }
     }));
 });

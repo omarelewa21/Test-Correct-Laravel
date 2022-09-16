@@ -90,6 +90,7 @@
                             <x-grid.question-card-detail :testQuestion="$testQuestion"/>
                         @endforeach
                     </x-grid>
+                    <livewire:context-menu.question-card/>
                 </div>
             </div>
         </div>

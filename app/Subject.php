@@ -347,4 +347,13 @@ class Subject extends BaseModel implements AccessCheckable
     {
         return 'uuid';
     }
+    public function scopeFromTests($query, $testIds)
+    {
+        return $query->whereIn(
+            'id',
+            Test::select('subject_id')->whereIn('id', collect($testIds))
+        )
+            ->distinct();
+    }
+
 }

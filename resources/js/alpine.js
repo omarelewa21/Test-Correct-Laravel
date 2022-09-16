@@ -1090,32 +1090,68 @@ document.addEventListener('alpine:init', () => {
         }
     ));
 
-    Alpine.data('questionCardContextMenu', () => ({
+
+    Alpine.data('contextMenuButton', (context,uuid, contextData) => ({
         menuOpen: false,
-        questionUuid: null,
-        inTest: null,
+        uuid,
+        contextData,
+        context,
+        gridCard: null,
+        showEvent: context+'-context-menu-show',
+        closeEvent: context+'-context-menu-close',
+        init() {
+            this.gridCard = this.$root.closest('.grid-card');
+        },
+        handle() {
+            this.menuOpen = !this.menuOpen;
+            if(this.menuOpen) {
+                this.$dispatch(this.showEvent, {
+                    uuid: this.uuid,
+                    button: this.$root,
+                    coords: {
+                        top: this.gridCard.offsetTop,
+                        left: this.gridCard.offsetLeft + this.gridCard.offsetWidth
+                    },
+                    contextData: this.contextData
+                })
+            } else {
+                this.$dispatch(this.closeEvent)
+            }
+        },
+        closeMenu() {
+            this.menuOpen = false;
+        }
+    }));
+
+    Alpine.data('contextMenuHandler', () => ({
+        contextMenuOpen: false,
+        uuid: null,
+        contextData: null,
         correspondingButton: null,
-        showQuestionBankAddConfirmation: false,
+        menuOffsetMarginTop: 56,
+        menuOffsetMarginLeft: 224,
         handleIncomingEvent(detail) {
-            if (!this.menuOpen) return this.openMenu(detail);
+            if (!this.contextMenuOpen) return this.openMenu(detail);
 
             this.closeMenu();
             setTimeout(() => {
                 this.openMenu(detail);
             }, 150);
         },
-        openMenu(detail) {
-            this.questionUuid = detail.questionUuid;
-            this.inTest = detail.inTest;
+        async openMenu(detail) {
+            this.uuid = detail.uuid;
             this.correspondingButton = detail.button;
-            this.showQuestionBankAddConfirmation = detail.showQuestionBankAddConfirmation;
-            this.$root.style.top = (detail.coords.top + 56) + 'px';
-            this.$root.style.left = (detail.coords.left - 224) + 'px';
-            this.menuOpen = true
+            this.contextData = detail.contextData;
+            this.$root.style.top = (detail.coords.top + this.menuOffsetMarginTop) + 'px';
+            this.$root.style.left = (detail.coords.left - this.menuOffsetMarginLeft) + 'px';
+
+            let readyForShow = await this.$wire.setContextValues(this.uuid, this.contextData);
+            if (readyForShow) this.contextMenuOpen = true;
+            this.contextMenuOpen = true
         },
         closeMenu() {
             this.correspondingButton.dispatchEvent(new CustomEvent('close-menu'));
-            this.menuOpen = false
+            this.contextMenuOpen = false
         }
     }));
 

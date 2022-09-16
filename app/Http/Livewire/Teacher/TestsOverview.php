@@ -3,19 +3,15 @@
 namespace tcCore\Http\Livewire\Teacher;
 
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Gate;
 use Livewire\Component;
 use Livewire\WithPagination;
 use tcCore\BaseSubject;
 use tcCore\EducationLevel;
-use tcCore\Http\Controllers\FileManagementUsersController;
-use tcCore\Http\Helpers\ContentSourceHelper;
 use tcCore\Subject;
 use tcCore\Test;
 use tcCore\TemporaryLogin;
 use tcCore\TestAuthor;
 use tcCore\Traits\ContentSourceTabsTrait;
-use tcCore\User;
 
 class TestsOverview extends Component
 {
