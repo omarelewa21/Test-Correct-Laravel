@@ -101,4 +101,5 @@
             @endif
         </div>
     </div>
+    <x-after-planning-toast/>
 </div>
