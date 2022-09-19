@@ -80,7 +80,6 @@ trait PublishesTestsTrait
         if ($this->initPublishesTestTraitProperties() === false) {
             return;
         }
-
         if ($this->shouldPublishTestQuestions()) {
             $this->publishQuestionsOfTest();
             return;
@@ -170,10 +169,13 @@ trait PublishesTestsTrait
             return $testQuestion->question->getQuestionInstance();
         });
         $this->publishTestQuestions($questions);
-        $this->author_id = $this->publishesTestsAuthor->getKey();
-        $this->save();
-        TestAuthor::where('test_id',$this->getKey())->delete(); // we don't want to show the old author as it is a toetsenbakker probably
-        TestAuthor::addAuthorToTest($this, $this->publishesTestsAuthor->getKey());
+
+        if ($this->author_id != $this->publishesTestsAuthor->getKey()) {
+            $this->author_id = $this->publishesTestsAuthor->getKey();
+            $this->save();
+            TestAuthor::where('test_id', $this->getKey())->delete(); // we don't want to show the old author as it is a toetsenbakker probably
+            TestAuthor::addAuthorToTest($this, $this->publishesTestsAuthor->getKey());
+        }
     }
 
     private function publishTestQuestions($questions): void
@@ -181,7 +183,7 @@ trait PublishesTestsTrait
         $questions->each(function ($question) {
             $question->setAttribute('scope', $this->publishesTestsScope);
             $question->save();
-            QuestionAuthor::where('question_id',$question->getKey())->delete(); // we don't want to show the old author as it is a toetsenbakker probably
+            QuestionAuthor::where('question_id', $question->getKey())->delete(); // we don't want to show the old author as it is a toetsenbakker probably
             QuestionAuthor::addAuthorToQuestion($question, $this->publishesTestsAuthor->getKey());
             if ($question->type == 'GroupQuestion') {
                 $this->GroupQuestionRecursive($question, 'publishTestQuestions');
