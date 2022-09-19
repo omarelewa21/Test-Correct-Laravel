@@ -17,9 +17,11 @@ class AddAttainmentEducationLevelIdToEducationLevels extends Migration
     {
         DB::beginTransaction();
         try {
-            Schema::table('education_levels', function (Blueprint $table) {
-                $table->integer('attainment_education_level_id')->nullable();
-            });
+            if (Schema::hasColumn('education_levels', 'attainment_education_level_id')) {
+                Schema::table('education_levels', function (Blueprint $table) {
+                    $table->integer('attainment_education_level_id')->nullable();
+                });
+            }
             \DB::statement('UPDATE education_levels SET attainment_education_level_id = id where attainment_education_level_id is null');
             $havoId = EducationLevel::where('name','Havo')->value('id');
             EducationLevel::where('name','Havo/VWO')->update(['attainment_education_level_id' => $havoId]);
