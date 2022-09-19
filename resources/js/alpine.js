@@ -649,16 +649,6 @@ document.addEventListener('alpine:init', () => {
             ],
             renderGraph() {
                 var chart = anychart.column();
-                //
-                // this.data = [
-                //     {x:'a', value: 10, link: 'me'},
-                //     {x:'b', value: 10, link: 'me'},
-                //     {x:'c', value: 10, link: 'me'},
-                //     {x:'d', value: 10, link: 'me'},
-                //     {x:'e', value: 10, link: 'me'},
-                //     {x:'f', value: 10, link: 'me'},
-                //     {x:'g', value: 10, link: 'me'}
-                // ];
                 var series = chart.column(this.data);
                 var palette = anychart.palettes.distinctColors();
                 palette.items(this.colors);
@@ -802,7 +792,6 @@ document.addEventListener('alpine:init', () => {
                 });
                 chart.tooltip().onDomReady(function (e) {
                     this.parentElement.style.border = '1px solid var(--blue-grey)';
-
                     this.parentElement.style.background = '#FFFFFF';
                     this.parentElement.style.opacity = '0.8';
                     contentElement = this.contentElement;
@@ -849,6 +838,21 @@ document.addEventListener('alpine:init', () => {
                 var palette = anychart.palettes.distinctColors();
                 palette.items(this.colors);
 
+                var yScale = chart.yScale();
+                yScale.minimum(0)
+                yScale.maximum(1.00)
+                yScale.ticks().interval(0.25)
+                chart.yAxis(0).labels().format(function () {
+                    return this.value == 0 ? 'P 0' : this.value.toFixed(2);
+                })
+
+                chart.yGrid().enabled(true);
+                chart.xAxis(0).labels()
+                    .fontWeight("bold")
+                    .fontColor('#041f74')
+
+
+
                 for (var i = 0; series.getPoint(i).exists(); i++)
                     series.getPoint(i).set("fill", palette.itemAt(i));
 
@@ -870,6 +874,8 @@ document.addEventListener('alpine:init', () => {
                         items[i].iconFill = palette.itemAt([i]);
                         items[i].iconEnabled = true;
                         items[i].text = _data[i].title;
+                        items[i].fontWeight = 'bold';
+                        items[i].fontColor = '#041f74';
                     }
                     return items;
                 });
@@ -926,8 +932,6 @@ document.addEventListener('alpine:init', () => {
 
                 chart.interactivity("by-x");
 
-                // rotate xAxis labels;
-                var xAxisLabels = chart.xAxis().labels();
                 // set container id for the chart
                 chart.container('pValueChart');
                 // initiate chart drawing
