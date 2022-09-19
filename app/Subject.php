@@ -229,7 +229,7 @@ class Subject extends BaseModel implements AccessCheckable
         $nationalItemBankSchools = [
             SchoolLocation::where('customer_code', config('custom.national_item_bank_school_customercode'))->first(),
             SchoolLocation::where('customer_code', config('custom.examschool_customercode'))->first(),
-            SchoolLocation::where('customer_code', 'CITO-TOETSENOPMAAT')->first(),
+//            SchoolLocation::where('customer_code', 'CITO-TOETSENOPMAAT')->first(),
         ];
 
         return $this->filterByUserAndSchoolLocation($query, Auth::user(), $nationalItemBankSchools);
