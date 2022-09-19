@@ -57,7 +57,7 @@ return [
     'Kies een of meerdere onderdelen'                                                          => 'Kies één onderdeel van de toets om te exporteren.',
     'Kies een pdf attachment'                                                                  => 'Kies één pdf bijlage van de toets om te exporteren.',
     'test_take_planned'                                                                        => 'Toets :testName is ingepland',
-    'copyTestLink'                                                                             => 'Toetslink gekopieerd',
+    'copyTestLink'                                                                             => 'Kopieer toetslink',
     'goToPlannedTests'                                                                         => 'Direct naar ingeplande toets',
     'clipboard_copied'                                                                         => 'Toetslink gekopieerd',
     'take_not_accessible_toast_for_invigilator'                                                => 'De toets :testName is afgenomen en kan niet meer geopend worden',

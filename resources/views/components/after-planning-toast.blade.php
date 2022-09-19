@@ -1,7 +1,7 @@
 @props(['notificationTimeout' => 10000])
 <div
     x-data="{
-        message: null,
+        message: 'sadasdsadsads',
         take: null,
         link: null
     }"
@@ -46,17 +46,20 @@
                             </button>
                         </div>
                     </div>
-
-                    <div class="flex flex-col justify-items-center">
-                        <span class="mt-6 text-center cursor-pointer hover-weight-600" 
-                            x-clipboard='link'
-                            @click="message=null; $dispatch('notify', {message: '{{__('teacher.clipboard_copied')}}' })"
-                        >
+                    <div class="grid grid-cols-6 gap-4">
+                        <div class="col-start-2 col-span-4">
+                            <span class="cursor-pointer underline hover-light-color text-sm leading-5 font-medium" 
+                                    x-clipboard='link'
+                                    @click="message=null; $dispatch('notify', {message: '{{__('teacher.clipboard_copied')}}' })"
+                            >
                             {{__('teacher.copyTestLink')}}
-                        </span>
-                        <span class="mt-4 text-center cursor-pointer hover-weight-600" @click="message=null; $wire.toPlannedTest(take)">
-                            {{__('teacher.goToPlannedTests')}} >>
-                        </span>
+                            </span>
+                        </div>
+                        <div class="col-start-2 col-span-4">
+                            <span class="cursor-pointer underline hover-light-color text-sm leading-5 font-medium" @click="message=null; $wire.toPlannedTest(take)">
+                                {{__('teacher.goToPlannedTests')}}
+                            </span>
+                        </div>
                     </div>
                 </div>
             </div>

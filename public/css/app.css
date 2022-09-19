@@ -697,6 +697,10 @@ button.cta-button:disabled, a.cta-button:disabled {
 .Wirisformula {
     display: inline;
 }
+
+.hover-light-color:hover {
+    
+}
 .form-input {
     padding: 0 10px 0 10px;
     height: 40px;
