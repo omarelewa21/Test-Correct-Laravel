@@ -156,6 +156,8 @@ trait PublishesTestsTrait
     {
         $this->setAttribute('scope', $this->publishesTestsScope);
         $this->setAttribute('author_id', $this->publishesTestsAuthor->getKey());
+        TestAuthor::where('test_id', $this->getKey())->delete(); // we don't want to show the old author as it is a toetsenbakker probably
+        TestAuthor::addAuthorToTest($this, $this->publishesTestsAuthor->getKey());
     }
 
     private function unpublishTest(): void
