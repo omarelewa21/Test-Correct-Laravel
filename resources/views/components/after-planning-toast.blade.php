@@ -46,20 +46,26 @@
                             </button>
                         </div>
                     </div>
-                    <div class="grid grid-cols-6 gap-4">
-                        <div class="col-start-2 col-span-4">
-                            <span class="cursor-pointer underline hover-light-color text-sm leading-5 font-medium" 
+                    <div class="flex items-center mt-3">
+                        <div class="flex-shrink-0 w-6"></div>
+                        <div class="ml-3 w-0 flex-1 pt-0.5">
+                            <p class="cursor-pointer underline hover-light-color text-sm leading-5 font-medium" 
                                     x-clipboard='link'
                                     @click="message=null; $dispatch('notify', {message: '{{__('teacher.clipboard_copied')}}' })"
                             >
                             {{__('teacher.copyTestLink')}}
-                            </span>
+                            </p>
                         </div>
-                        <div class="col-start-2 col-span-4">
-                            <span class="cursor-pointer underline hover-light-color text-sm leading-5 font-medium" @click="message=null; $wire.toPlannedTest(take)">
+                        <div class="ml-4 flex-shrink-0 flex"></div>
+                    </div>
+                    <div class="flex items-center mt-2">
+                        <div class="flex-shrink-0 w-6"></div>
+                        <div class="ml-3 w-0 flex-1 pt-0.5">
+                            <p class="cursor-pointer underline hover-light-color text-sm leading-5 font-medium" @click="message=null; $wire.toPlannedTest(take)">
                                 {{__('teacher.goToPlannedTests')}}
-                            </span>
+                            </p>
                         </div>
+                        <div class="ml-4 flex-shrink-0 flex"></div>
                     </div>
                 </div>
             </div>
