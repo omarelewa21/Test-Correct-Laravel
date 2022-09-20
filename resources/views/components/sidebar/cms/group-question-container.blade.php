@@ -1,4 +1,5 @@
 <div x-data="{expand: true}"
+     selid="group-question-{{$testQuestion->question->name}}"
      class="drag-item flex flex-col py-1.5 draggable-group {{ ($this->testQuestionId == $testQuestion->uuid) ? 'group-active' : '' }}"
      style="max-width: 300px"
      wire:key="group-{{ $testQuestion->uuid }}"

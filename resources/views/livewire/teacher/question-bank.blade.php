@@ -55,12 +55,12 @@
     <div class="flex w-full flex-col border-b border-secondary sticky top-0 z-[2]">
         <div class="py-2 px-6 flex w-full bg-white border-b border-secondary">
             <div class="flex items-center space-x-2.5">
-                <x-button.back-round @click="hideQuestionBank();"/>
+                <x-button.back-round @click="hideQuestionBank();" selid="question-bank-back-btn"/>
                 <span class="bold text-lg cursor-default">{{ __('cms.Bestaande vraag toevoegen') }}</span>
             </div>
 
             <div class="flex ml-auto items-center space-x-2.5">
-                <x-button.cta @click="hideQuestionBank();">
+                <x-button.cta @click="hideQuestionBank();" selid="close-question-bank-btn">
                     <span>{{ __('drawing-modal.Sluiten') }}</span>
                 </x-button.cta>
 
@@ -235,7 +235,7 @@
                             <x-grid.loading-card :delay="$value"/>
                         @endforeach
                     </x-grid>
-                    <x-grid class="mt-4" x-show="!filterLoading" x-cloak>
+                    <x-grid class="mt-4" x-show="!filterLoading" x-cloak selid="question-bank-list">
                         @foreach($this->questions as $question)
                             <x-grid.question-card :question="$question"/>
                         @endforeach

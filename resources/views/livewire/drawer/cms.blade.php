@@ -1,5 +1,6 @@
 <div cms-drawer
      class="drawer flex z-[20]"
+     selid="question-drawer"
      x-init="
         collapse = window.innerWidth < 1000;
         if (emptyStateActive) {
@@ -75,6 +76,7 @@
         </div>
 
         <div id="sidebar-carousel-container"
+             selid="sidebar-question-list"
              x-data="questionEditorSidebar"
              x-ref="questionEditorSidebar"
              wire:ignore.self

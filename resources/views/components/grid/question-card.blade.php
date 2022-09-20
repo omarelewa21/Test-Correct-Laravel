@@ -1,4 +1,4 @@
-<div {{ $attributes->merge(['class' => 'grid-card bg-white p-6 rounded-10 card-shadow hover:text-primary cursor-pointer relative']) }}
+<div {{ $attributes->merge(['class' => 'grid-card bg-white p-6 rounded-10 card-shadow hover:text-primary cursor-pointer relative', 'selid' => 'existing-question']) }}
      wire:key="questioncard-{{ $question->getQuestionInstance()->uuid }}"
      @if($question->isType('GroupQuestion'))
          @click="showGroupDetails('{{ $question->uuid }}', @js($inTest));"
@@ -69,6 +69,7 @@
                     </span>
                 @endif
                 <button x-show="Alpine.store('questionBank').active"
+                        selid="existing-question-add-btn"
                         class="new-button button-primary w-10 items-center justify-center flex"
                         @click.stop="addQuestionToTest($el, '{{ $question->uuid }}', '{{$showQuestionBankAddConfirmation}}')"
                 >
