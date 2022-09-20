@@ -78,6 +78,7 @@ class TestTakesController extends Controller {
                 $testTakeSchoolClasses = [];
                 foreach ($testTakes as $i => $testTake) {
                     $testTakeSchoolClasses[$i] = $testTake->schoolClasses()->get();
+                    $testTake->test->append('has_pdf_attachments');
                 }
 
                 $testTakes = $testTakes->toArray();
@@ -93,6 +94,7 @@ class TestTakesController extends Controller {
                 foreach ($testTakes as $testTake) {
                     $test = $testTake->test;
                     if ($test instanceof Test) {
+                        $testTake->test->append('has_pdf_attachments');
                         $haveClasses = [];
                         foreach ($testTake->testParticipants as $testParticipant) {
                             $schoolClass = $testParticipant->schoolClass;
@@ -131,6 +133,8 @@ class TestTakesController extends Controller {
                 $ownTestParticipants = [];
                 foreach ($testTakes as $i => $testTake) {
                     $testTakeSchoolClasses[$i] = $testTake->schoolClasses()->get();
+
+                    $testTake->test->append('has_pdf_attachments');
 
                     if (is_array($request->get('with')) && in_array('participantStatus', $request->get('with'))) {
                         $testTakeTaken[$i] = 0;
@@ -210,6 +214,7 @@ class TestTakesController extends Controller {
             'testParticipants',
             'testTakeCode'
         ]);
+        $testTake->test->append('has_pdf_attachments');
 
         $isInvigilator = false;
         $roles = $this->getUserRoles();
@@ -579,6 +584,8 @@ class TestTakesController extends Controller {
         $testTake['school_classes'] = $schoolClasses;
 
         $testTake['consists_only_closed_question'] = $test->hasOpenQuestion() ? false : true;
+
+        $testTake['writing_assignments_count'] = $test->getWritingAssignmentsCount();
 
         return Response::make($testTake, 200);
     }
@@ -1370,6 +1377,14 @@ class TestTakesController extends Controller {
         $temporaryLogin = TemporaryLogin::createWithOptionsForUser('app_details', request()->get('app_details'), auth()->user());
 
         return BaseHelper::createRedirectUrlWithTemporaryLoginUuid($temporaryLogin->uuid,route('student.test-take-laravel', $testTake->uuid,false));
+
+    }
+
+    public function pdfWithTemporaryLogin(TestTake $testTake) {
+
+        $temporaryLogin = TemporaryLogin::createWithOptionsForUser('app_details', request()->get('app_details'), auth()->user());
+
+        return BaseHelper::createRedirectUrlWithTemporaryLoginUuid($temporaryLogin->uuid,route('teacher.preview.test_take_pdf', $testTake->uuid,false));
 
     }
 

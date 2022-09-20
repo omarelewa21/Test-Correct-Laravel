@@ -5,6 +5,8 @@
             editorId="{{ $questionEditorId }}"
             type="cms"
             :disabled="isset($preview)"
+            lang="{{ $lang }}"
+            :allowWsc="$allowWsc"
     />
 @endsection
 
@@ -15,8 +17,7 @@
                  {
                      answerSvg: @entangle('question.answer_svg'),
                      questionSvg: @entangle('question.question_svg'),
-                     gridSvg: @entangle('question.grid_svg'),
-                     grid: @entangle('question.grid')
+                     gridSvg: @entangle('question.grid_svg')
             },
             true
         )"
@@ -68,18 +69,12 @@
                 </div>
             @else
                 <div class="absolute top-0 left-0 w-full h-full">
-                    @if($this->backgroundImage)
-                        <div class="absolute w-full h-full flex items-center">
-                            <img src="{{$this->backgroundImage}}" class="w-full">
-                        </div>
-                    @endif
-                    
                     <svg viewBox="{{ $this->cmsPropertyBag['viewBox'] ?? '0 0 0 0' }}"
-                        @viewbox-changed.window="makeGridIfNecessary(window[toolName])"
-                        id="preview-svg"
-                        class="relative w-full h-full"
-                        xmlns="http://www.w3.org/2000/svg"
-                        style="--cursor-type-locked:var(--cursor-crosshair); --cursor-type-draggable:var(--cursor-crosshair);">
+                         @viewbox-changed.window="makeGridIfNecessary(window[toolName])"
+                         id="preview-svg"
+                         class="w-full h-full"
+                         xmlns="http://www.w3.org/2000/svg"
+                         style="--cursor-type-locked:var(--cursor-crosshair); --cursor-type-draggable:var(--cursor-crosshair);">
                         <g wire:ignore id="grid-preview-svg" stroke="var(--all-BlueGrey)" stroke-width="1"></g>
                         <g class="question-svg" x-html="atob(questionSvg)"></g>
                         <g class="answer-svg" x-html="atob(answerSvg)"></g>

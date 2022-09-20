@@ -7,7 +7,7 @@
     'hasErrors' => false,
  ])
 <div class="{{ $hasErrors ? 'has-error' : ''  }}">
-    <div wire:ignore
+    <div wire:ignore x-cloak
          {{ $attributes->wire('key') ? 'wire:key="'. $attributes->wire('key')->value. '"' : '' }}
          x-data="choices(@entangle($attributes->wire('model')),
                     {{ $multiple ? 1 : 0 }},

@@ -73,7 +73,7 @@
             <div x-cloak
                  x-show="options"
                  x-ref="optionscontainer"
-                 class="absolute right-0 top-10 bg-white py-2 main-shadow rounded-10 w-72 z-10"
+                 class="absolute right-0 top-10 bg-white py-2 main-shadow rounded-10 w-72 z-20"
                  @click.outside="options=false"
                  x-transition:enter="transition ease-out origin-top-right duration-200"
                  x-transition:enter-start="opacity-0 transform scale-90"

@@ -66,8 +66,13 @@
     color: var(--primary);
 }
 
+.custom-choices .choices__inner .choices__input::placeholder {
+    font-size: 1rem;
+    color: var(--system-base);
+}
+
 .custom-choices .choices__inner .choices__input {
-    margin-bottom: 1px;
+    margin-bottom: 0;
 }
 .custom-choices .choices__list .choices__input {
     border: 1px solid var(--system-secondary);

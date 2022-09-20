@@ -55,6 +55,8 @@ Route::group(['middleware' => ['api', 'bindings']], function() {
 Route::group(['middleware' => ['api', 'dl', 'authorize', 'authorizeBinds', 'bindings']], function(){
     Route::post('/default_subjects_and_sections/import',[\tcCore\Http\Controllers\DefaultSubjectsAndSectionsController::class,'import'])->name('defaultSubjectsAndSections.import');
     Route::post('/school_school_locations/import',[\tcCore\Http\Controllers\SchoolAndSchoolLocationsImportController::class,'import'])->name('schoolAndSchoolLocations.import');
+    Route::put('/add_default_subjects_and_sections_to_school_location/{schoolLocation}',[\tcCore\Http\Controllers\SchoolLocationsController::class,'addDefaultSubjectsAndSections'])->name('schoolLocation.addDefaultSubjectsAndSections');
+
 
     Route::post('/temporary-login',[tcCore\Http\Controllers\TemporaryLoginController::class,'create'])->name('auth.temporary-login.create');
 
@@ -173,7 +175,10 @@ Route::group(['middleware' => ['api', 'dl', 'authorize', 'authorizeBinds', 'bind
 
 	Route::post('test/{test}/with_temporary_login',  'TestsController@withTemporaryLogin')->name('test.with_short_code');
     Route::post('test/answer_model/{test}/with_temporary_login',  'TestsController@answerModelwithTemporaryLogin')->name('test_answer_model.with_short_code');
+    Route::post('test/pdf/{test}/with_temporary_login',  'TestsController@pdfWithTemporaryLogin')->name('test_pdf.with_short_code');
+    Route::post('test/pdf-attachments/{test}/with_temporary_login',  'TestsController@pdfPdfAttachmentsWithTemporaryLogin')->name('test_pdf_attachments.with_short_code');
 	Route::post('test_take/{test_take}/with_temporary_login',  'TestTakesController@withTemporaryLogin')->name('test_take.with_short_code');
+	Route::post('test_take/pdf/{test_take}/with_temporary_login',  'TestTakesController@pdfWithTemporaryLogin')->name('test_take_pdf.with_short_code');
     Route::post('test_take/answers/{test_take}/with_temporary_login',  'TestTakesController@AnswersWithTemporaryLogin')->name('test_take_answers.with_short_code');
 
 	// Test take children
@@ -260,7 +265,6 @@ Route::group(['middleware' => ['api', 'dl', 'authorize', 'authorizeBinds', 'bind
     Route::get('question/inlineimage/{image}',['uses' => 'QuestionsController@inlineimage']);
     Route::get('/drawing-question/{answerUuid}/given-answer-png', [tcCore\Http\Controllers\QuestionsController::class, 'getDrawingQuestionGivenAnswerPng'])->name('api-c.drawing-question.givenanswerpng');
     Route::get('/drawing-question/{drawingQuestion}/correction-model', [tcCore\Http\Controllers\QuestionsController::class, 'drawingQuestionCorrectionModelPng'])->name('api-c.drawing-question.correction-model');
-    Route::get('/drawing-question/{drawing_question}/background-image', [tcCore\Http\Controllers\QuestionsController::class, 'getDrawingQuestionBackgroundImageUpdated'])->name('api-c.drawing-question.background-image');
 
     Route::resource('attainment', 'AttainmentsController', ['only' => ['index', 'show']]);
 

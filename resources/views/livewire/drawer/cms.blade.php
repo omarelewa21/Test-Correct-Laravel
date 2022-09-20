@@ -16,9 +16,6 @@
                 }
             }
         }
-        dispatchBackdrop = () => {
-            if(!emptyStateActive) $dispatch('backdrop');
-        }
         $watch('emptyStateActive', (value) => {
             backdrop = value
             $store.cms.emptyState = value
@@ -31,7 +28,7 @@
      "
      x-data="{loadingOverlay: false, collapse: false, backdrop: false, emptyStateActive: @entangle('emptyStateActive')}"
      x-cloak
-     x-effect="handleLoading(); $el.scrollTop = $store.cms.scrollPos;"
+     x-effect="handleLoading(); "{{--$el.scrollTop = $store.cms.scrollPos;" --}}
      :class="{'collapsed': collapse}"
      @backdrop="backdrop = !backdrop"
      @processing-end.window="$store.cms.processing = false;"
@@ -39,6 +36,8 @@
      @filepond-finished.window="loadingOverlay = false;"
      @first-question-of-test-added.window="$wire.showFirstQuestionOfTest(); emptyStateActive = false; $nextTick(() => backdrop = true)"
      @hide-backdrop-if-active.window="if(backdrop) backdrop = false"
+     @scroll="$store.cms.scrollPos = $el.scrollTop;"
+     @closed-with-backdrop.window="$root.dataset.closedWithBackdrop = $event.detail"
      wire:ignore.self
      wire:init="handleCmsInit()"
 >
@@ -83,12 +82,13 @@
              @resize.window="handleResizing()"
         >
             <x-sidebar.slide-container class="pt-4 divide-y divide-bluegrey"
-                                       x-ref="container1"
+                                       x-ref="home"
                                        @mouseenter="handleVerticalScroll($el);"
-                                       @continue-to-new-slide.window="$store.cms.processing = true;$wire.removeDummy();showAddQuestionSlide(false)"
+                                       @continue-to-new-slide.window="$wire.removeDummy();showAddQuestionSlide(false)"
                                        @continue-to-add-group.window="addGroup(false)"
+                                       @scroll-dummy-into-view.window="scrollActiveQuestionIntoView()"
             >
-                <div wire:sortable="updateTestItemsOrder" wire:sortable-group="updateGroupItemsOrder" class="sortable-drawer divide-y divide-bluegrey pb-6" {{ $emptyStateActive ? 'hidden' : '' }} >
+                <div wire:sortable="updateTestItemsOrder" class="sortable-drawer divide-y divide-bluegrey pb-6" {{ $emptyStateActive ? 'hidden' : '' }} >
                     @php $loopIndex = 0; @endphp
                     @foreach($this->questionsInTest as $testQuestion)
                         @if($testQuestion->question->type === 'GroupQuestion')
@@ -105,7 +105,7 @@
                                                                    :subQuestion="true"
                                                                    :activeTestQuestion="$this->testQuestionId"
                                                                    :activeGQQ="$this->groupQuestionQuestionId"
-                                                                   :double="$this->duplicateQuestions->contains($question->id)"
+                                                                   :double="$this->duplicateQuestions->contains($question->id) || $this->duplicateQuestions->contains($testQuestion->question->id)"
                                     />
                                 @endforeach
                                 <x-sidebar.cms.dummy-group-question-button :testQuestionUuid="$testQuestion->uuid" :loop="$loopIndex"/>
@@ -134,33 +134,33 @@
                      class="fixed inset-0 bg-white opacity-20"
                      style="width: var(--sidebar-width)"></div>
 
-                <x-button.plus-circle @click.stop="addGroup()">
+                <x-button.plus-circle @click.stop="addGroup()" selid="add-question-group-btn">
                     {{ __('cms.Vraaggroep toevoegen') }}
                 </x-button.plus-circle>
 
-                <x-button.plus-circle @click.stop="showAddQuestionSlide();dispatchBackdrop()"
+                <x-button.plus-circle @click.stop="showAddQuestionSlide()" selid="add-question-btn"
                 >
                     {{__('cms.Vraag toevoegen')}}
                 </x-button.plus-circle>
-                <span></span>
+                <span id="c1-bottom-spacer"></span>
             </x-sidebar.slide-container>
 
-            <x-sidebar.slide-container class="divide-y divide-bluegrey" x-ref="container2" @mouseenter="handleVerticalScroll($el);">
+            <x-sidebar.slide-container class="divide-y divide-bluegrey" x-ref="type" @mouseenter="handleVerticalScroll($el);">
                 <div class="py-2 px-5 flex">
                     <div class="flex items-center space-x-2.5">
-                        <x-button.back-round @click="backToQuestionOverview($refs.container2);dispatchBackdrop()"
+                        <x-button.back-round @click="backToQuestionOverview($refs.type);"
                                              wire:click="$set('groupId', null)"
                         />
                         <span class="bold text-lg">{{ __('cms.Vraag toevoegen') }}</span>
                     </div>
                 </div>
 
-                <x-button.plus-circle class="py-4" @click="showNewQuestion($refs.container2)">
+                <x-button.plus-circle class="py-4" @click="showNewQuestion($refs.type)" wire:loading.class="pointer-events-none" selid="create-new-question-btn">
                     {{ __( 'cms.Nieuwe creeren' ) }}
                     <x-slot name="subtext">{{ __('cms.Stel een nieuwe vraag op') }}</x-slot>
                 </x-button.plus-circle>
 
-                <x-button.plus-circle class="py-4" @click="showQuestionBank()">
+                <x-button.plus-circle class="py-4" @click="showQuestionBank()" selid="add-existing-question-btn">
                     {{ __( 'cms.Bestaande toevoegen' ) }}
                     <x-slot name="subtext">{{ __('cms.Verken en kies uit vragenbank') }}</x-slot>
                 </x-button.plus-circle>

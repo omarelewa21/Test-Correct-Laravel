@@ -8,8 +8,13 @@ use Facade\FlareClient\Http\Response;
 use GuzzleHttp\Client;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Ramsey\Uuid\Uuid;
 use tcCore\Http\Helpers\PdfHelper;
 use tcCore\Http\Requests\HtmlToPdfRequest;
+use tcCore\Test;
+use tcCore\View\Components\TestPrintPdf\Cover;
+use tcCore\View\Components\TestPrintPdf\Footer;
+use tcCore\View\Components\TestPrintPdf\Header;
 
 class PdfController extends Controller
 {
@@ -46,6 +51,20 @@ class PdfController extends Controller
         }
     }
 
+    public function createTestPrintPdf($html, $headerHtml = '<span></span>', $footerHtml = '<span></span>')
+    {
+        try {
+            ini_set('max_execution_time', '90');
+
+            $html = $this->base64ImgPaths($html);
+            $html = $this->svgWirisFormulas($html);
+            return $this->snappyToTestPrintPdf($html, $headerHtml, $footerHtml);
+
+        }catch(\Exception $e){
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
+    }
+
     public function getSetting($setting)
     {
         $allowed = ['storage_path'];
@@ -71,6 +90,7 @@ class PdfController extends Controller
         foreach ($imgList as $imgNode){
             $this->getInlineImageBase64ImgPath($imgNode);
             $this->getImageLoadBase64ImgPath($imgNode);
+            $this->getAttachmentImageBase64ImgPath($imgNode);
             $imgNode->setAttribute('class','img-no-break img-pdf '.$imgNode->getAttribute('class'));
         }
         $html = $doc->saveHTML($doc->documentElement);
@@ -120,6 +140,22 @@ class PdfController extends Controller
         }
     }
 
+    private function getAttachmentImageBase64ImgPath($imgNode)
+    {
+        if(!stristr($imgNode->getAttribute('src'),'/attachments/')){
+            return;
+        }
+        try{
+            $baseName = pathinfo($imgNode->getAttribute('src'))['basename'];
+            $diskName = 'attachments';
+            $prefix = '';
+            $this->getBase64ImgPath($imgNode,$baseName,$diskName,$prefix);
+        }catch (\Throwable $th) {
+            Bugsnag::notifyException($th);
+            return;
+        }
+    }
+
     private function getBase64ImgPath($imgNode,$baseName,$diskName,$prefix='')
     {
         $base64 = $this->getCompressedImage($diskName,$prefix, $baseName, $imgNode);
@@ -158,16 +194,34 @@ class PdfController extends Controller
 
     private function snappyToPdfFromString($html)
     {
-
 //        if(config('app.url')=='https://testwelcome.test-correct.nl'){
 //            Storage::put('temp/result1.html',$html);
 //        }
 
-
         $output = \PDF::loadHtml($html)->setOption('header-html', resource_path('pdf_templates/header.html'))->setOption('footer-html', resource_path('pdf_templates/footer.html'));
         return $output->download('file.pdf');
 
+    }
 
+    private function snappyToTestPrintPdf($html, $header, $footer)
+    {
+//        if(config('app.url')=='https://testwelcome.test-correct.nl'){
+//            Storage::put('temp/result1.html',$html);
+//            Storage::put('temp/result1footer.html',$footer);
+//        }
+
+        $fileName = Uuid::uuid4().'.pdf';
+        $disk = Storage::disk('temp_pdf');
+
+        $filePath = $disk->path($fileName);
+
+        $output = \PDF::loadHtml($html)
+            ->setOption('header-html', $header)
+            ->setOption('footer-html', $footer);
+
+        $output->save($filePath);
+
+        return $fileName;
     }
 
     private function svgWirisFormulas($html)
@@ -265,19 +319,22 @@ class PdfController extends Controller
             'centerbaseline' => false,
             'dpi' => 120,
         ];
-        $createPath = sprintf('http://127.0.0.1/%s/plugins/ckeditor_wiris/integration/createimage.php',$folder);
-        $path = sprintf('http://127.0.0.1/%s/plugins/ckeditor_wiris/integration/showimage.php',$folder);
-        if(stristr(config('app.base_url'),'correct.test')){
-            $createPath = sprintf('http://testwelcome.test-correct.test/%s/plugins/ckeditor_wiris/integration/createimage.php',$folder);
-            $path = sprintf('http://testwelcome.test-correct.test/%s/plugins/ckeditor_wiris/integration/showimage.php',$folder);
-        }
+
         try {
-            $client = new Client(['headers' => ['host' => 'welcome.test-correct.nl']]);
+            $createPath = sprintf('http://127.0.0.1/%s/plugins/ckeditor_wiris/integration/createimage.php',$folder);
+            $path = sprintf('http://127.0.0.1/%s/plugins/ckeditor_wiris/integration/showimage.php',$folder);
+            if(stristr(config('app.base_url'),'correct.test')){
+                $createPath = sprintf('http://testwelcome.test-correct.test/%s/plugins/ckeditor_wiris/integration/createimage.php',$folder);
+                $path = sprintf('http://testwelcome.test-correct.test/%s/plugins/ckeditor_wiris/integration/showimage.php',$folder);
+            }
+            $headers =  ['host' => trim(str_replace('https://','',str_replace('http://','',config('app.base_url'))),'/')];
+
+            $client = new Client();
             $res = $client->request('POST', $createPath, [
                 'form_params' => $data,
                 'verify' => false,
-                'headers' => ['host' => 'welcome.test-correct.nl'],
-                ]);
+                'headers' => $headers
+            ]);
             $formulaUrl = $res->getBody()->getContents();
             $components = parse_url($formulaUrl);
             parse_str($components['query'], $results);
@@ -290,14 +347,9 @@ class PdfController extends Controller
                 'version' => '7.26.0.1439',
                 'dpi' => 120,
             ];
-            $res = $client->request('GET', $path, [
-                'query' => $data1,
-                'headers' => ['host' => 'welcome.test-correct.nl'],
-            ]);
+            $res = $client->request('GET', $path, ['query' => $data1,'headers' => $headers]);
             $res = $client->request('POST', $path, [
-                'form_params' => $data,
-                'headers' => ['host' => 'welcome.test-correct.nl'],
-            ]);
+                'form_params' => $data,'headers' => $headers]);
 
         } catch (\GuzzleHttp\Exception\RequestException $e) {
             if ($e->hasResponse()) {

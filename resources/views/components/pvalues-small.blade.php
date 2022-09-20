@@ -9,8 +9,8 @@
          indicatorLeft: ({{ $pValue->p_value }} / 0.80 * 100) + '%'
      }"
 >
-    <div class="flex items-center min-w-[90px]">
-        <span class="note text-sm">{{ $pValue->educationLevel->name ??  __('general.unavailable') }}:</span>
+    <div class="flex items-center min-w-[110px]">
+        <span class="note text-sm">{{ $pValue->education_level_year }} {{ $pValue->educationLevel->name ??  __('general.unavailable') }}:</span>
     </div>
     <div class="flex items-center">
         <span class="text-sm">

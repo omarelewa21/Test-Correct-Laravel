@@ -38,7 +38,6 @@ class DrawingQuestion extends Component
     public $answer_svg = null;
     public $question_svg = null;
     public $grid_svg = '0.00';
-    public $grid = '0';
 
     public $usesNewDrawingTool = false;
 
@@ -58,7 +57,6 @@ class DrawingQuestion extends Component
         $this->question_svg = $svgHelper->getQuestionSvg($this->question);
 
         $this->grid_svg = $this->question->grid_svg;
-        $this->grid = $this->question->grid;
         $this->backgroundImage = $this->question->getBackgroundImage();
 
         $answer = Answer::where('id', $this->answers[$this->question->uuid]['id'])
@@ -76,7 +74,7 @@ class DrawingQuestion extends Component
             }
         }
 
-        $this->usesNewDrawingTool = Auth::user()->schoolLocation()->value('allow_new_drawing_question');
+        $this->usesNewDrawingTool = Auth::user()->schoolLocation()->value('allow_new_drawing_question') && (blank($this->question->bg_name) && empty($this->question->grid));
     }
 
     private function getQuestionSvg(SvgHelper $svgHelper, $q)

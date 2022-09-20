@@ -24,6 +24,9 @@ class ExamSchoolSeeder extends Seeder
     {
         \tcCore\Http\Helpers\ActingAsHelper::getInstance()->reset();
 
+        if(User::where('username', 'info+CEdocent@test-correct.nl')->exists()){
+            return;
+        }
 
         // maak een scholengemeenschap (table schools)
         $comprehensiveSchool = \tcCore\School::create([

@@ -76,12 +76,12 @@ jzwnvGSTRr4zLbXwz+RZmkre'
         // Metadata productie omgeving: https://hub.entree.kennisnet.nl/openaselect/profiles/saml/
         'idp'      => array(
             // De unieke identifier van Entree Federatie
-            'entityId'            => 'https://aselect.entree.kennisnet.nl/',
+            'entityId'            => config('entree.use_with_2_urls') ? 'https://engine.entree.kennisnet.nl/authentication/idp/metadata' : 'https://aselect.entree.kennisnet.nl/',
 //        'entityId'            => 'https://aselect-s.entree.kennisnet.nl/',
             // Endpoint van Entree Federatie waar de authenticatie requests naar toegestuurd worden
             'singleSignOnService' => array(
                 // De URL van het endpoint
-                'url'     => 'https://aselect.entree.kennisnet.nl/openaselect/profiles/saml/sso/web',
+                'url'     => config('entree.use_with_2_urls') ? 'https://engine.entree.kennisnet.nl/authentication/idp/single-sign-on' : 'https://aselect.entree.kennisnet.nl/openaselect/profiles/saml/sso/web',
 //            'url'     => 'https://aselect-s.entree.kennisnet.nl/openaselect/profiles/saml/sso/web',
                 // SAML protocol binding dat gebruikt wordt om de requests naar Entree Federatie te versturen
                 'binding' => 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST',
@@ -117,7 +117,7 @@ jzwnvGSTRr4zLbXwz+RZmkre'
 //    ),
             // @@ Dit certificaat vervangen voor PRODUCTIE
             // https://hub.entree.kennisnet.nl/openaselect/profiles/saml/
-            'x509cert' => 'MIID0TCCArmgAwIBAgIESb+pqDANBgkqhkiG9w0BAQsFADCBmDELMAkGA1UEBhMCTkwxFTATBgNV
+            'x509cert' => config('entree.use_with_2_urls') ? 'MIID2TCCAsGgAwIBAgIUAdQ6NGBVlN63JPQZIhLt6Rji2I0wDQYJKoZIhvcNAQELBQAwfDELMAkGA1UEBhMCTkwxFTATBgNVBAgMDFp1aWQtSG9sbGFuZDETMBEGA1UEBwwKWm9ldGVybWVlcjEcMBoGA1UECgwTU3RpY2h0aW5nIEtlbm5pc25ldDEjMCEGA1UEAwwaZW5naW5lLmVudHJlZS5rZW5uaXNuZXQubmwwHhcNMjIwMjIyMTIwNTExWhcNMzIwMjIwMTIwNTExWjB8MQswCQYDVQQGEwJOTDEVMBMGA1UECAwMWnVpZC1Ib2xsYW5kMRMwEQYDVQQHDApab2V0ZXJtZWVyMRwwGgYDVQQKDBNTdGljaHRpbmcgS2VubmlzbmV0MSMwIQYDVQQDDBplbmdpbmUuZW50cmVlLmtlbm5pc25ldC5ubDCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBAM14q4VAp+UpUWtbSlLqMTVOq3HNZjS19C7Ut1rZn5/NCxGKrR89/GTgknjDqi6nUD9QtXlBWpcmtMSg7eNLGfqzuPqbPGDEBMX9uhbAZMwb7WErM0g4RSpaPdyRS9C5E5VkkynsRHNpP/y/Pi3ZI6dgVG2SbJniLOWrloetJp6iDpHEFJAwCNNEg/3xt2ndpVV0ZiLJKG1JusDt4ikVLOMTVkPj6Ki9H3FX+ejUqhKuOMPe7UvD2cAHmrOc+xcZMjiL3OBv/6eOsXm0P1XYnVGUB9Kgme4xkcc/rUuh8Sv364KQ5yXekQdTderQQScNxZpQ/RA9oHGqmjOjCNj5zS8CAwEAAaNTMFEwHQYDVR0OBBYEFF6cEiJ0nIG2aEDCyNXZ5m4xEfy8MB8GA1UdIwQYMBaAFF6cEiJ0nIG2aEDCyNXZ5m4xEfy8MA8GA1UdEwEB/wQFMAMBAf8wDQYJKoZIhvcNAQELBQADggEBAJp+OW7uChZGCDCRqTgp+O1akSkCTPIUPXnCBusIMlp73d2mfHvj5oHtbxq/cHE1fYpnez8ETeswLjmUpwGiSvbUqDq23X6pzj6I5QoR2DSrryLxeYThcuch+Q4AIl4Oms7HAwcgXFxH1tLuQM/NrZ9bGIS2b1Pa6LKKxjYwcgH6IU6A1N8A/82UYKhAoTGALVHc5hHrJLE5vy8VIIzn1BMWepi+qStVicrtXP/jSrT+c45R+u5nn2AEdUgZl2x+HH9WbK8zPf0ZuOMfd1FBW7yBtA56Mr4P61F2Ey0FttZIRhnt+5pGD2XtQMlwqilwSDVivKxPhgGuagGB2KieR7o=' : 'MIID0TCCArmgAwIBAgIESb+pqDANBgkqhkiG9w0BAQsFADCBmDELMAkGA1UEBhMCTkwxFTATBgNV
 BAgTDFp1aWQtSG9sbGFuZDETMBEGA1UEBxMKWm9ldGVybWVlcjEcMBoGA1UEChMTU3RpY2h0aW5n
 IEtlbm5pc25ldDEZMBcGA1UECxMQRW50cmVlIEZlZGVyYXRpZTEkMCIGA1UEAxMbYXNlbGVjdC5l
 bnRyZWUua2VubmlzbmV0Lm5sMB4XDTIyMDYzMDExMjYzNFoXDTI1MDYyOTExMjYzNFowgZgxCzAJ
@@ -242,19 +242,19 @@ jzwnvGSTRr4zLbXwz+RZmkre'
         'idp'      => array(
             // De unieke identifier van Entree Federatie
 //            'entityId'            => 'https://aselect.entree.kennisnet.nl/',
-            'entityId'            => 'https://aselect-s.entree.kennisnet.nl/',
+            'entityId'            => config('entree.use_with_2_urls') ? 'https://engine.entree-s.kennisnet.nl/authentication/idp/metadata' : 'https://aselect-s.entree.kennisnet.nl/',
             // Endpoint van Entree Federatie waar de authenticatie requests naar toegestuurd worden
             'singleSignOnService' => array(
                 // De URL van het endpoint
 //                'url'     => 'https://aselect.entree.kennisnet.nl/openaselect/profiles/saml/sso/web',
-                'url'     => 'https://aselect-s.entree.kennisnet.nl/openaselect/profiles/saml/sso/web',
+                'url'     => config('entree.use_with_2_urls') ? 'https://engine.entree-s.kennisnet.nl/authentication/idp/single-sign-on' : 'https://aselect-s.entree.kennisnet.nl/openaselect/profiles/saml/sso/web',
                 // SAML protocol binding dat gebruikt wordt om de requests naar Entree Federatie te versturen
                 'binding' => 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST',
             ),
             // De public key in de metadata van Entree Federatie, te vinden in de metadata onder het onderdeel IDPSSODescriptor / X509Certificate.
             // @@ Dit certificaat vervangen voor TESTING
             // https://hub-s.entree.kennisnet.nl/openaselect/profiles/saml/
-            'x509cert'            => 'MIIF4TCCA8mgAwIBAgIEXXr4LzANBgkqhkiG9w0BAQsFADCBoDELMAkGA1UEBhMCTkwxFTATBgNV
+            'x509cert'            => config('entree.use_with_2_urls') ? 'MIID3TCCAsWgAwIBAgIUdzuUMExjcJhUNfPwjPIBOmU6zKIwDQYJKoZIhvcNAQELBQAwfjELMAkGA1UEBhMCTkwxFTATBgNVBAgMDFp1aWQtSG9sbGFuZDETMBEGA1UEBwwKWm9ldGVybWVlcjEcMBoGA1UECgwTU3RpY2h0aW5nIEtlbm5pc25ldDElMCMGA1UEAwwcZW5naW5lLmVudHJlZS1zLmtlbm5pc25ldC5ubDAeFw0yMjAyMjMxNTU1MThaFw0zMjAyMjExNTU1MThaMH4xCzAJBgNVBAYTAk5MMRUwEwYDVQQIDAxadWlkLUhvbGxhbmQxEzARBgNVBAcMClpvZXRlcm1lZXIxHDAaBgNVBAoME1N0aWNodGluZyBLZW5uaXNuZXQxJTAjBgNVBAMMHGVuZ2luZS5lbnRyZWUtcy5rZW5uaXNuZXQubmwwggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQCkzrbtoUvD0yBA6dFUlJauTBPkFNa492H8bQgqCQwNq+O4sZyJxQDqHlgTqBeCHFoI6q9HyiyauQ4Cskn16SI7nKmVdAnnzbPbv0+bKGg1RBsyx4gUuxiH6W7X0xfkje++eKyCEdTHw8v6RtKOflboDYNgJUkBreqAdsqb148WEaN8hqe6II6W60hJmeviFYoh69Pqx3qNiZ5shdFGxdITekyAfdUkdvyJKuiVaLAH2x8T2RK/OWGaTtyZOelaC6UkaTxAkHwkiCdAqc7y8QtcgBQVGpMYEYjunA8f9RUvmaOW8UhWgNRKzqa+jvD4N8PmxXIvKQxSqnmDf2Ih3lqJAgMBAAGjUzBRMB0GA1UdDgQWBBTY22MincDheeAjZ05vwPU8uTYiHDAfBgNVHSMEGDAWgBTY22MincDheeAjZ05vwPU8uTYiHDAPBgNVHRMBAf8EBTADAQH/MA0GCSqGSIb3DQEBCwUAA4IBAQAhQwKVSTOYOSz4qXsSvHiYuiDwNIeM3zQEmD6WQy2bdANXuI59WyUvC1t83+yZihakaCd3ayQRU7RiNBu/Sa+sPS3CK/pO4GvQEi6BCpsuk4siiHhZcQthquNKywlEzRgtDQX7vEm6Kt3dySYrn14Tx39aPjKOr37o/HQ28necub4xnRwjWFfHblNuUHz2jr6p0GW20THA0utGrYM3cR3rKEsebvLfq9e31Wzd1lLKu08CgKPBDO9VZ1SvAuRJ10IUgyYp5vejZCcSYqlrS00FJoz6jbbTjxBPB0JesgtwS54xTsh7yfMP0uae0R9azjSkvnuIsW5pda7B8cH7zz5R' : 'MIIF4TCCA8mgAwIBAgIEXXr4LzANBgkqhkiG9w0BAQsFADCBoDELMAkGA1UEBhMCTkwxFTATBgNV
 BAgTDFp1aWQtSG9sbGFuZDETMBEGA1UEBxMKWm9ldGVybWVlcjEcMBoGA1UEChMTU3RpY2h0aW5n
 IEtlbm5pc25ldDEZMBcGA1UECxMQRW50cmVlIEZlZGVyYXRpZTEsMCoGA1UEAxMjYXNlbGVjdC5z
 dGFnaW5nLmVudHJlZS5rZW5uaXNuZXQubmwwHhcNMTcwNzI0MTMzMTEwWhcNMjIwOTAxMTMzMTEw

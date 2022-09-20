@@ -21,7 +21,7 @@
 
             @if($usesNewDrawingTool)
                 <div id="drawingTool{{ $this->number }}"
-                     x-data="drawingTool( {{ $this->number }}, { answerSvg: @entangle('answer_svg'), questionSvg: @entangle('question_svg'), gridSvg: @entangle('grid_svg'), grid: @entangle('grid')}, false, true )"
+                     x-data="drawingTool( {{ $this->number }}, { answerSvg: @entangle('answer_svg'), questionSvg: @entangle('question_svg'), gridSvg: @entangle('grid_svg')}, false, true )"
                      @close-drawing-tool="show = false"
                      class="mt-4 preview"
                 >

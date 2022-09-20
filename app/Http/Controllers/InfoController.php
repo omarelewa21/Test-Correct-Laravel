@@ -115,24 +115,27 @@ class InfoController extends Controller
         $dom = new DOMDocument();
         $dom->loadHTML($content, LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD);
         $imgs = $dom->getElementsByTagName('img');
+        try {
+            foreach($imgs as $img) {
+                $src = $img->getAttribute('src');
+                $url_arr = parse_url($src);
 
-        foreach($imgs as $img) {
-            $src = $img->getAttribute('src');
-            $url_arr = parse_url($src);
+                if($url_arr['host'] !== request()->getHost()){                          // continue if saved image domain !=  test-correct.{env_type}
+                    parse_str($url_arr['query'], $query);
+                    $filename = $query['filename'];
+                    if(Storage::disk('cake')->exists('questionanswers/' . $filename)){                                          // check image file exists in cake
+                        $contents = Storage::disk('cake')->get('questionanswers/' . $filename);                                 // get image content
 
-            if($url_arr['host'] !== request()->getHost()){                          // continue if saved image domain !=  test-correct.{env_type}
-                parse_str($url_arr['query'], $query);
-                $filename = $query['filename'];
-                if(Storage::disk('cake')->exists('questionanswers/' . $filename)){                                          // check image file exists in cake
-                    $contents = Storage::disk('cake')->get('questionanswers/' . $filename);                                 // get image content
-
-                    if(Storage::disk('inline_images')->put($filename, $contents)){                                          // if storing to laravel succeeds
-                        Storage::disk('cake')->delete('questionanswers/' . $filename);                                      // delete file in cake
-                        $img->setAttribute('src', config('app.base_url') . 'infos/inline-image/'. $filename);   // reference laravel path in img src
+                        if(Storage::disk('inline_images')->put($filename, $contents)){                                          // if storing to laravel succeeds
+                            Storage::disk('cake')->delete('questionanswers/' . $filename);                                      // delete file in cake
+                            $img->setAttribute('src', config('app.base_url') . 'infos/inline-image/'. $filename);   // reference laravel path in img src
+                        }
                     }
                 }
             }
+        } catch (\Exception $e) {
         }
+
         $html = $dom->saveHTML();
         return $html;
     }
