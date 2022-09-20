@@ -1243,7 +1243,7 @@ class SchoolLocation extends BaseModel implements AccessCheckable
     private function handleLicenseTypeUpdate()
     {
         if ($this->getOriginal('license_type') !== $this->getAttribute('license_type') && $this->getAttribute('license_type') === 'CLIENT') {
-            TrialPeriod::whereIn('user_id', $this->users()->pluck('id'))->delete();
+            TrialPeriod::where('school_location_id',$this->getKey())->delete();
         }
     }
 
