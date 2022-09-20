@@ -635,7 +635,7 @@ class Login extends Component
     private function checkIfShouldRedirectToTestTake()
     {
         if($this->take){
-            return redirect()->route('take.directLink', ['test_take' => $this->take]);
+            return redirect()->route('take.directLink', ['testTakeUuid' => $this->take]);
         }
 
         if($this->isTestTakeCodeCorrectFormat()){
@@ -644,7 +644,7 @@ class Login extends Component
             if(is_null($testTakeCode)){
                 return false;
             }
-            return redirect()->route('take.directLink', ['test_take' => $testTakeCode->testTake->uuid]);
+            return redirect()->route('take.directLink', ['testTakeUuid' => $testTakeCode->testTake->uuid]);
         }
         return false;
     }

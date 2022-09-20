@@ -12,6 +12,7 @@ use tcCore\TestParticipant;
 use tcCore\TestTake;
 use tcCore\TemporaryLogin;
 use tcCore\TestTake as Test;
+use Ramsey\Uuid\Uuid;
 
 class TestTakeLaravelController extends Controller
 {
@@ -183,16 +184,23 @@ class TestTakeLaravelController extends Controller
      * Quick access to test take for Student, Teacher and Invigilator
      * @param tcCore\TestTake $testTake
      */
-    public function directLink(TestTake $testTake)
-    {   
+    public function directLink($testTakeUuid)
+    {
+        $notification=null;
+        $url=null;
+
+        if(!UUid::isValid($testTakeUuid) || TestTake::whereUuid($testTakeUuid)->doesntExist()){
+            $notification = __('teacher.test_not_found');
+            return $this->redirectToCorrectTakePage($notification);
+        }
+        
+        $testTake = TestTake::whereUuid($testTakeUuid)->first();
         if (!auth()->check()) {
             session(['take' => $testTake->uuid]);
             return redirect()->route('auth.login');
         }
 
         $user = auth()->user();
-        $notification = null;
-
         if($user->isA('student')){
             // Student
             return redirect()->route('student.waiting-room', ['take' => $testTake->uuid]);
@@ -205,8 +213,7 @@ class TestTakeLaravelController extends Controller
             }else{
                 $url = sprintf("test_takes/view/%s", $testTake->uuid);
             }
-        }
-        elseif($testTake->isInvigilator($user)){
+        }elseif($testTake->isInvigilator($user)){
             // Invigilator
             if($testTake->testTakeStatus->name == 'Planned'){
                 $url = sprintf("test_takes/view/%s", $testTake->uuid);
@@ -215,17 +222,24 @@ class TestTakeLaravelController extends Controller
             }else{
                 $notification = __('teacher.take_not_accessible_toast_for_invigilator', ['testName' => $testTake->test->name]);
             }
-        }
-        else{
+        }else{
             $notification = __('teacher.test_not_found');
         }
 
+        return $this->redirectToCorrectTakePage($notification, $url);
+    }
+
+    private function redirectToCorrectTakePage($notification=null, $url=null){
         if($notification){
             $options = TemporaryLogin::buildValidOptionObject('notification', [$notification => 'info']);
         }else{
             $options = TemporaryLogin::buildValidOptionObject('page', $url);
         }
 
-        return $user->redirectToCakeWithTemporaryLogin($options);
+        if (auth()->check()) {
+            return auth()->user()->redirectToCakeWithTemporaryLogin($options);
+        }else{
+            return redirect()->route('auth.login');
+        }
     }
 }
