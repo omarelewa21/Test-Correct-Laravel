@@ -841,7 +841,7 @@ class TestTake extends BaseModel
 
     private function handleGuestAccountsStatus()
     {
-        if ($this->guest_accounts && $this->testTakeCode()->count() === 0) {
+        if ($this->testTakeCode()->count() === 0) {
             $this->testTakeCode()->create();
             SchoolClass::createGuestClassForTestTake($this);
         }

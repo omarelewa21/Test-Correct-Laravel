@@ -314,6 +314,11 @@
                                             <span class="title">{{ $message }}</span>
                                         </div>
                                         @enderror
+                                        @error('guest_account_not_allowed')
+                                        <div class="notification error stretched mt-4">
+                                            <span class="title">{{ $message }}</span>
+                                        </div>
+                                        @enderror
                                         @error('empty_guest_first_name')
                                         <div class="notification error stretched mt-4">
                                             <span class="title">{{ $message }}</span>

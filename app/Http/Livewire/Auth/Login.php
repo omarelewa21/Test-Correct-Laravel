@@ -210,6 +210,10 @@ class Login extends Component
             return $this->addError('no_test_found_with_code', __('auth.no_test_found_with_code'));
         }
 
+        if (!$testTakeCode->testTake->guest_accounts){
+            return $this->addError('guest_account_not_allowed', __('auth.guest_account_not_allowed'));
+        }
+
         AppVersionDetector::handleHeaderCheck();
 
         $error = $testCodeHelper->handleGuestLogin($this->gatherGuestData(), $testTakeCode);
