@@ -408,6 +408,16 @@ class Question extends MtiBaseModel {
             }
         }
 
+        if($this->questionAttainments){
+            $params = $this->questionAttainments->map(function ($questionAttainment) use ($question) {
+                $questionAttainment->question_id = $question->getKey();
+                return $questionAttainment->toArray();
+            });
+            $question->questionAttainments()->createMany($params);
+        }
+
+
+
         return $question;
     }
 
