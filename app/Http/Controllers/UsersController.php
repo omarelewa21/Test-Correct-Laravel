@@ -32,6 +32,7 @@ use tcCore\Lib\Repositories\TeacherRepository;
 use tcCore\Lib\User\Factory;
 use tcCore\Subject;
 use tcCore\TemporaryLogin;
+use tcCore\TrialPeriod;
 use tcCore\User;
 use tcCore\Http\Requests\CreateUserRequest;
 use tcCore\Http\Requests\UpdateUserRequest;
@@ -562,7 +563,7 @@ class UsersController extends Controller
     {
         $records = [
             'userGeneralTermsLog' => $user->generalTermsLog,
-            'trialPeriod' => $user->trialPeriod
+            'trialPeriod' => $user->trialPeriodWithSchoolLocationCheck
             ];
         return Response::make($records,200);
     }
@@ -606,9 +607,12 @@ class UsersController extends Controller
 
     public function updateTrialDate(Request $request, User $user)
     {
-        $user->trialPeriod()->update([
-            'trial_until' => Carbon::parse($request->get('date'))->startOfDay()
-        ]);
+        $tp = TrialPeriod::whereUuid($request->get('user_trial_period_uuid'))->get();
+        if($tp->count()) {
+            $tp->first()->update([
+                'trial_until' => Carbon::parse($request->get('date'))->startOfDay()
+            ]);
+        }
 
         return Response::make($user, 200);
     }
