@@ -11,6 +11,7 @@ use tcCore\Factories\FactorySchoolLocation;
 use tcCore\Factories\FactorySchoolYear;
 use tcCore\Factories\FactorySection;
 use tcCore\Factories\FactoryUser;
+use tcCore\Lib\Repositories\SchoolYearRepository;
 use tcCore\School;
 use tcCore\SchoolLocation;
 use tcCore\User;
@@ -48,7 +49,7 @@ class FactoryScenarioSchoolCito extends FactoryScenarioSchool
     public static function create()
     {
         $factory = new static;
-        if(SchoolLocation::where('name', $factory->schoolName)->exists()){
+        if (SchoolLocation::where('name', $factory->schoolName)->exists()) {
             throw new \Exception('Cito school allready exists');
         }
 
@@ -61,8 +62,7 @@ class FactoryScenarioSchoolCito extends FactoryScenarioSchool
             ->addEducationlevels([1, 2, 3])
             ->schoolLocation;
 
-        //create school year and full year period for the current year
-        $schoolYearLocation = FactorySchoolYear::create($schoolLocation, (int)Carbon::today()->format('Y'))
+        $schoolYearLocation = FactorySchoolYear::create($schoolLocation, (int)Carbon::today()->format('Y'), true)
             ->addPeriodFullYear()
             ->schoolYear;
 
@@ -70,25 +70,25 @@ class FactoryScenarioSchoolCito extends FactoryScenarioSchool
         $sectionFactory = FactorySection::create($schoolLocation, $factory->sectionName);
 
         BaseSubject::where('name', 'NOT LIKE', '%CITO%')->each(function ($baseSubject) use ($sectionFactory) {
-            $sectionFactory->addSubject($baseSubject, 'cito-'.$baseSubject->name);
+            $sectionFactory->addSubject($baseSubject, 'cito-' . $baseSubject->name);
         });
 
         $section = $sectionFactory->section;
 
         //create cito official author user and a secondary teacher in the correct school
         $citoAuthor = FactoryUser::createTeacher($schoolLocation, false, [
-            'username' => $factory->teacherOneUsername,
-            'name_first'         => 'Teacher',
-            'name_suffix'        => '',
-            'name'               => 'Teacher Cito',
-            'abbreviation'       => 'TCA',
+            'username'     => $factory->teacherOneUsername,
+            'name_first'   => 'Teacher',
+            'name_suffix'  => '',
+            'name'         => 'Teacher Cito',
+            'abbreviation' => 'TCA',
         ])->user;
         $citoAuthorB = FactoryUser::createTeacher($schoolLocation, false, [
-            'username' => $factory->teacherTwoUsername,
-            'name_first'         => 'Teacher',
-            'name_suffix'        => '',
-            'name'               => 'Teacher Cito B',
-            'abbreviation'       => 'TCB',
+            'username'     => $factory->teacherTwoUsername,
+            'name_first'   => 'Teacher',
+            'name_suffix'  => '',
+            'name'         => 'Teacher Cito B',
+            'abbreviation' => 'TCB',
         ])->user;
 
         //create school class with teacher and students records, add the teacher-user, create student-users

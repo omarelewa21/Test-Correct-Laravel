@@ -178,7 +178,6 @@ class PublishesTestTraitTest extends TestCase
             ->keys()
             ->random(); //wrong customer code, but it is a publishable school_location
         $wrongAuthTeacher = AuthorsController::getPublishableAuthorByCustomerCode($wrongCustomerCode);
-        dump($wrongCustomerCode);
         Auth::login($wrongAuthTeacher);
 
         $test = $this->createTest($valid_customerCode, false);

@@ -46,7 +46,7 @@ class CreathlonItemBankSeeder extends Seeder
         $collection = $school->schoolLocations->first()->schoolLocationSections->where('demo', false)->first()->section->subjects->split(2);
 
         $firstHalf = $collection[0];
-        $secondHalf = $collection[1];
+        $secondHalf = $collection[1] ?? collect();
 
 
         $firstHalf->each(function ($subject) use ($primaryTestAuthor) {
