@@ -1,4 +1,5 @@
 {
+<<<<<<< Updated upstream
     "/js/app.js": "/js/app.js?id=a8e6a7254f8677422caf",
     "/css/app.css": "/css/app.css?id=c0de52f107237ca1bed2",
     "/css/app_pdf.css": "/css/app_pdf.css?id=9a6253496cd63750ad78",
@@ -13,4 +14,20 @@
     "/js/readspeaker_tlc.js": "/js/readspeaker_tlc.js?id=f226cbc2b9b71ed0b870",
     "/css/rs_tlc.css": "/css/rs_tlc.css?id=4fd16ff4391e17a35053",
     "/css/rs_tlc_pdf.css": "/css/rs_tlc_pdf.css?id=283c8e099b8252c0a463"
+=======
+    "/js/app.js": "/js/app.js",
+    "/css/app.css": "/css/app.css",
+    "/css/app_pdf.css": "/css/app_pdf.css",
+    "/css/print-test-pdf.css": "/css/print-test-pdf.css",
+    "/ckeditor/plugins/ckeditor_wiris/plugin.js": "/ckeditor/plugins/ckeditor_wiris/plugin.js",
+    "/ckeditor/plugins/ckeditor_wiris/icons/cas.png": "/ckeditor/plugins/ckeditor_wiris/icons/cas.png",
+    "/ckeditor/plugins/ckeditor_wiris/icons/chem.png": "/ckeditor/plugins/ckeditor_wiris/icons/chem.png",
+    "/ckeditor/plugins/ckeditor_wiris/icons/formula.png": "/ckeditor/plugins/ckeditor_wiris/icons/formula.png",
+    "/js/ckeditor.js": "/js/ckeditor.js",
+    "/js/ckeditor_teacher.js": "/js/ckeditor_teacher.js",
+    "/js/ckeditor_teacher_wsc.js": "/js/ckeditor_teacher_wsc.js",
+    "/js/readspeaker_tlc.js": "/js/readspeaker_tlc.js",
+    "/css/rs_tlc.css": "/css/rs_tlc.css",
+    "/css/rs_tlc_pdf.css": "/css/rs_tlc_pdf.css"
+>>>>>>> Stashed changes
 }
