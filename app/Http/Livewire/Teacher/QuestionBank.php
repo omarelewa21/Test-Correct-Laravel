@@ -22,6 +22,7 @@ use tcCore\Traits\ContentSourceTabsTrait;
 class QuestionBank extends Component
 {
     use ContentSourceTabsTrait;
+
     const ACTIVE_TAB_SESSION_KEY = 'question-bank-active-tab';
 
     const ITEM_INCREMENT = 16;
@@ -148,7 +149,12 @@ class QuestionBank extends Component
     {
         $question = Question::whereUuid($questionUuid)->firstOrFail();
         if ($question->needsCleanCopy()) {
-            $question = $this->createCleanCopyToAddToTest($question);
+            $question = $question->createCleanCopy(
+                $this->test->education_level_id,
+                $this->test->education_level_year,
+                $this->test->subject_id,
+                auth()->user()
+            );
         }
 
         return $this->addQuestionToTest($question->getKey());
@@ -391,21 +397,7 @@ class QuestionBank extends Component
         return Question::filtered($this->getFilters());
     }
 
-    private function createCleanCopyToAddToTest(Question $question)
-    {
-        $newQuestion = $question->duplicate($question->getAttributes());
-        Question::whereId($newQuestion->getKey())->update([
-            'scope'                    => null,
-            'derived_question_id'      => null,
-            'education_level_id'       => $this->test->education_level_id,
-            'education_level_year'     => $this->test->education_level_year,
-            'subject_id'               => $this->test->subject_id,
-            'add_to_database'          => false,
-            'add_to_database_disabled' => true,
-        ]);
 
-        return $newQuestion;
-    }
 
     public function setSliderButtonOptions()
     {
