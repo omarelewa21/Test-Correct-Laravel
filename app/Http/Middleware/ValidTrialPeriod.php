@@ -11,7 +11,7 @@ class ValidTrialPeriod
 {
     public function handle(Request $request, Closure $next)
     {
-        if (Auth::user()->trialPeriod()->exists() && Auth::user()->trialPeriod->trial_until->isBefore(Carbon::now())) {
+        if (Auth::user()->trialPeriodWithSchoolLocationCheck()->exists() && Auth::user()->trialPeriodWithSchoolLocationCheck->trial_until->isBefore(Carbon::now())) {
             return Auth::user()->redirectToCakeWithTemporaryLogin();
         }
 
