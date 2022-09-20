@@ -8,6 +8,7 @@ use Illuminate\Routing\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Str;
+use tcCore\SamlMessage;
 
 class Saml2Controller extends Controller
 {
@@ -54,9 +55,7 @@ class Saml2Controller extends Controller
 
         $redirectUrl = $user->getIntendedUrl();
 
-        if(Str::contains($redirectUrl,'entreeRegister')){
-            session(['entreeReason' => 'register']);
-        }
+        $this->handleDetails($redirectUrl);
 
         $redirectUrl = config('saml2_settings.loginRoute');
 
@@ -67,6 +66,31 @@ class Saml2Controller extends Controller
         } else {
 
             return redirect(config('saml2_settings.loginRoute'));
+        }
+    }
+
+    private function handleDetails($redirectUrl)
+    {
+        $sessionAr = [];
+        if(Str::contains($redirectUrl,'entreeRegister')){
+            $sessionAr['entreeReason'] = 'register';
+        }
+
+        $parsedUrlAr = parse_url($redirectUrl);
+        if(isset($parsedUrlAr['query'])){
+            parse_str($parsedUrlAr['query'], $queryAr);
+            if(isset($queryAr['mId'])){
+                $messages = SamlMessage::whereUuid($queryAr['mId'])->get();
+                if($messages->count()){
+                    $message = $messages->first();
+                    if(optional($message->data)->url){
+                        $sessionAr['finalRedirectTo'] = $message->data->url;
+                    }
+                }
+            }
+        }
+        if(count($sessionAr)){
+            session($sessionAr);
         }
     }
 
@@ -127,7 +151,25 @@ class Saml2Controller extends Controller
             }
             $redirectTo .= '?set='.$set;
         }
+
+        $redirectTo = $this->handleCollectionOfNeededData($redirectTo);
+
         $saml2Auth->login($redirectTo, [], $forceAuth);
+    }
+
+    protected function handleCollectionOfNeededData(string $redirectTo) : string
+    {
+        if($directLink = request()->get('directlink')){
+            $message = SamlMessage::create([
+                'message_id' => 'not needed',
+                'eck_id' => 'not needed',
+                'data' => (object) ['url' => route('take.directLink', ['testTakeUuid' => $directlink])],
+            ]);
+            $redirectTo .= (Str::contains($redirectTo,'?')) ? '&' : '?' . 'mId='.$message->uuid;
+        } else if($mId = request()->get('mId')){
+            $redirectTo .= (Str::contains($redirectTo,'?')) ? '&' : '?' . 'mId='.$mId;
+        }
+        return $redirectTo;
     }
 
     public function register()

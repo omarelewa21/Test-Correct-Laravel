@@ -320,7 +320,7 @@ class TestTake extends BaseModel
             }
 
             $testTake->handleInbrowserTestingChangesForParticipants();
-            $testTake->handleGuestAccountsStatus();
+            $testTake->createTestTakeCodeIfNeeded();
             $testTake->handleShowResultChanges();
             $testTake->updateGuestRatingVisibilityWindow();
         });
@@ -835,11 +835,10 @@ class TestTake extends BaseModel
         return config('app.base_url') ."directlink/". $this->uuid;
     }
 
-    private function handleGuestAccountsStatus()
+    private function createTestTakeCodeIfNeeded()
     {
-        if ($this->guest_accounts && $this->testTakeCode()->count() === 0) {
+        if ($this->testTakeCode()->count() === 0) {
             $this->testTakeCode()->create();
-            SchoolClass::createGuestClassForTestTake($this);
         }
     }
 

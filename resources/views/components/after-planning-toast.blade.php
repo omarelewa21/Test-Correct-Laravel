@@ -46,26 +46,29 @@
                             </button>
                         </div>
                     </div>
-
-                    <div class="flex flex-col justify-items-center">
-                        <span class="mt-6 text-center cursor-pointer hover-weight-600" 
-                            x-clipboard='link'
-                            @click="message=null; $dispatch('notify', {message: '{{__('teacher.clipboard_copied')}}' })"
-                        >
+                    <div class="flex items-center mt-3">
+                        <div class="flex-shrink-0 w-6"></div>
+                        <div class="ml-3 w-0 flex-1 pt-0.5">
+                            <p class="cursor-pointer underline hover-light-color text-sm leading-5 font-medium hover-weight-600:hover" 
+                                    x-clipboard='link'
+                                    @click="message=null; $dispatch('notify', {message: '{{__('teacher.clipboard_copied')}}' })"
+                            >
                             {{__('teacher.copyTestLink')}}
-                        </span>
-                        <span class="mt-4 text-center cursor-pointer hover-weight-600" @click="message=null; $wire.toPlannedTest(take)">
-                            {{__('teacher.goToPlannedTests')}} >>
-                        </span>
+                            </p>
+                        </div>
+                        <div class="ml-4 flex-shrink-0 flex"></div>
+                    </div>
+                    <div class="flex items-center mt-2">
+                        <div class="flex-shrink-0 w-6"></div>
+                        <div class="ml-3 w-0 flex-1 pt-0.5">
+                            <p class="cursor-pointer underline hover-light-color text-sm leading-5 font-medium hover-weight-600:hover" @click="message=null; $wire.toPlannedTest(take)">
+                                {{__('teacher.goToPlannedTests')}}
+                            </p>
+                        </div>
+                        <div class="ml-4 flex-shrink-0 flex"></div>
                     </div>
                 </div>
             </div>
         </div>
     </template>
 </div>
-
-<style>
-    .hover-weight-600:hover {
-        font-weight: 600
-    }
-</style>

@@ -60,10 +60,11 @@ return [
     'question_bank_add_confirmation_sub_text'                                                  => 'De groep bevat bijlages en/of een omschrijving. Deze kunnen van belang zijn voor de vraag. Weet je zeker dat je deze groepsvraag als hoofdvraag wilt toevoegen',
     'add'                                                                                      => 'Toevoegen',
     'test_take_planned'                                                                        => 'Toets :testName is ingepland',
-    'copyTestLink'                                                                             => 'Toetslink gekopieerd',
+    'copyTestLink'                                                                             => 'Kopieer toetslink',
     'goToPlannedTests'                                                                         => 'Direct naar ingeplande toets',
     'clipboard_copied'                                                                         => 'Toetslink gekopieerd',
     'take_not_accessible_toast_for_invigilator'                                                => 'De toets :testName is afgenomen en kan niet meer geopend worden',
+    'test_not_found'                                                                           => 'De toetscode kan niet gevonden worden.'
     'test_not_found'                                                                           => 'test kan niet worden gevonden.',
     'Klassen'                                          => 'Klassen',
     'subject'                                          => 'Vak',

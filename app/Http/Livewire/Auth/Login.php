@@ -210,6 +210,10 @@ class Login extends Component
             return $this->addError('no_test_found_with_code', __('auth.no_test_found_with_code'));
         }
 
+        if (!$testTakeCode->testTake->guest_accounts){
+            return $this->addError('guest_account_not_allowed', __('auth.guest_account_not_allowed'));
+        }
+
         AppVersionDetector::handleHeaderCheck();
 
         $error = $testCodeHelper->handleGuestLogin($this->gatherGuestData(), $testTakeCode);
@@ -631,7 +635,7 @@ class Login extends Component
     private function checkIfShouldRedirectToTestTake()
     {
         if($this->take){
-            return redirect()->route('take.directLink', ['test_take' => $this->take]);
+            return redirect()->route('take.directLink', ['testTakeUuid' => $this->take]);
         }
 
         if($this->isTestTakeCodeCorrectFormat()){
@@ -640,7 +644,7 @@ class Login extends Component
             if(is_null($testTakeCode)){
                 return false;
             }
-            return redirect()->route('take.directLink', ['test_take' => $testTakeCode->testTake->uuid]);
+            return redirect()->route('take.directLink', ['testTakeUuid' => $testTakeCode->testTake->uuid]);
         }
         return false;
     }
