@@ -1257,7 +1257,7 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
 
     public function trialPeriod()
     {
-        return $this->hasOne(TrialPeriod::class, 'user_id');
+        return $this->hasOne(TrialPeriod::class, 'user_id')->where('school_location_id',$this->school_location_id);
     }
 
     public function getOnboardingWizardSteps()
@@ -2619,6 +2619,9 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
             return false;
         }
 
-        return $this->trialPeriod()->create();
+        return $this->trialPeriod()->create([
+            'user_id' => $this->getKey(),
+            'school_locataion_id' => $this->school_location_id,
+        ]);
     }
 }

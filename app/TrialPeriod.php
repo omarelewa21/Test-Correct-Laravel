@@ -15,7 +15,7 @@ class TrialPeriod extends Model
     protected $casts = ['uuid' => EfficientUuid::class];
 
     protected $dates = ['created_at','updated_at', 'deleted_at', 'trial_until'];
-    protected $fillable = ['user_id', 'trial_until'];
+    protected $fillable = ['user_id', 'trial_until','school_location_id'];
 
     protected static function boot()
     {
