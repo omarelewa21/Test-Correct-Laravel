@@ -6,9 +6,6 @@
         </div>
         <div class="mt-3 flex flex-1 flex-col">
             @if($answer != '')
-                @if($this->backgroundImage)
-                    <img class="absolute height-240" src="{{$this->backgroundImage}}" width="400">
-                @endif
                 <img id="drawnImage" class="relative border border-blue-grey rounded-10 @if($this->backgroundImage) height-240 @endif" width="400"
                      src="{{ route('student.drawing-question-answer',$answer) }}?{!! date('Ymdsi') !!}" alt="">
                 <span>{{ $additionalText }}</span>
