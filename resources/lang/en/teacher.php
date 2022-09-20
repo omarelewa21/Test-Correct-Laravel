@@ -13,7 +13,6 @@ return [
     'Notities voor Surveillant'                                                                => 'Notes for invigilator',
     'Volgende Inplannen'                                                                       => 'Plan next',
     'Verwijder'                                                                                => 'Delete',
-    'Annuleer'                                                                                 => 'Annuleer',
     'Verwijder test'                                                                           => 'Delete test',
     'Weet je zeker dat je deze test wilt verwijderen?'                                         => 'Are you sure you want to delete this test?',
     'toets aanmaken'                                                                           => 'Create test',
@@ -76,11 +75,4 @@ return [
 
     'notify_students'                                                                          => 'Inform students',
     'notify_students_tooltip'                                                                  => 'Inform students about this test.',
-    'Klassen'                                                                                  => 'Classes',
-    'subject'                                                                                  => 'Subject',
-    'type'                                                                                     => 'Type',
-    'test-type-Summatief'                                                                      => 'Summative',
-    'test-type-Formatief'                                                                      => 'Formative',
-    'test-type-Opdracht'                                                                       => 'Assignment',
-    'test-type-Oefentoets'                                                                     => 'Pratice test',
 ];

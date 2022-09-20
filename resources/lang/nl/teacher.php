@@ -64,8 +64,7 @@ return [
     'goToPlannedTests'                                                                         => 'Direct naar ingeplande toets',
     'clipboard_copied'                                                                         => 'Toetslink gekopieerd',
     'take_not_accessible_toast_for_invigilator'                                                => 'De toets :testName is afgenomen en kan niet meer geopend worden',
-    'test_not_found'                                                                           => 'De toetscode kan niet gevonden worden.'
-    'test_not_found'                                                                           => 'test kan niet worden gevonden.',
+    'test_not_found'                                                                           => 'De toetscode kan niet gevonden worden.',
     'Klassen'                                          => 'Klassen',
     'subject'                                          => 'Vak',
     'type'                                             => 'Type',
@@ -76,11 +75,4 @@ return [
 
     'notify_students'                                                                          => 'Leerlingen informeren',
     'notify_students_tooltip'                                                                  => 'Leerlingen via mail informeren over deze toetsafname.',
-    'Klassen'                                                                                  => 'Klassen',
-    'subject'                                                                                  => 'Vak',
-    'type'                                                                                     => 'Type',
-    'test-type-Summatief'                                                                      => 'Summatief',
-    'test-type-Formatief'                                                                      => 'Formatief',
-    'test-type-Opdracht'                                                                       => 'Opdracht',
-    'test-type-Oefentoets'                                                                     => 'Oefentoets',
 ];
