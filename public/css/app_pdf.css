@@ -642,10 +642,6 @@ button.cta-button:disabled, a.cta-button:disabled {
 .Wirisformula {
     display: inline;
 }
-
-.hover-light-color:hover {
-    
-}
 .form-input {
     padding: 0 10px 0 10px;
     height: 40px;
@@ -5139,8 +5135,8 @@ video {
 .ml-4{
   margin-left: 1rem;
 }
-.mt-4{
-  margin-top: 1rem;
+.mt-3{
+  margin-top: 0.75rem;
 }
 .mt-2\.5{
   margin-top: 0.625rem;
@@ -5162,6 +5158,9 @@ video {
 }
 .mb-1{
   margin-bottom: 0.25rem;
+}
+.mt-4{
+  margin-top: 1rem;
 }
 .mr-4{
   margin-right: 1rem;
@@ -5219,9 +5218,6 @@ video {
 }
 .ml-6{
   margin-left: 1.5rem;
-}
-.mt-3{
-  margin-top: 0.75rem;
 }
 .mb-6{
   margin-bottom: 1.5rem;
@@ -5941,9 +5937,6 @@ video {
 }
 .justify-between{
   justify-content: space-between;
-}
-.justify-items-center{
-  justify-items: center;
 }
 .gap-6{
   gap: 1.5rem;
