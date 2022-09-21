@@ -40,12 +40,12 @@ class TestPlanModal extends ModalComponent
                 'label' => collect([$invigilator->name_first, $invigilator->name])->join(' ')
             ];
         })->values()->toArray();
-
         $this->resetModalRequest();
     }
 
     protected function rules()
     {
+        $user = auth()->user();
         $rules = [
             'request.date'            => 'required',
             'request.time_end'        => 'sometimes',
@@ -59,11 +59,15 @@ class TestPlanModal extends ModalComponent
             $rules['request.time_end'] = 'required';
         }
 
-        if (auth()->user()->schoollocation->allow_guest_accounts) {
+        if ($user->schoollocation->allow_guest_accounts) {
             $rules['request.school_classes'] = 'sometimes';
             if (!empty(request()->get('request.guest_accounts'))) {
                 $rules['request.guest_accounts'] = 'required|in:1';
             }
+        }
+
+        if($user->isValidExamCoordinator(false) && empty($this->request['owner_id'])){
+            $rules['request.owner_id'] = 'required';
         }
 
         return $rules;
@@ -113,7 +117,12 @@ class TestPlanModal extends ModalComponent
             $t->setAttribute('test_take_status_id', TestTakeStatus::STATUS_TAKING_TEST);
         }
 
-        $t->setAttribute('user_id', auth()->id());
+        if(auth()->user()->isValidExamCoordinator(false)){
+            $t->setAttribute('user_id', $this->request['owner_id']);
+        }else{
+            $t->setAttribute('user_id', auth()->id());
+        }
+
         $t->save();
 
         return $t;
@@ -124,7 +133,7 @@ class TestPlanModal extends ModalComponent
         $testTake = $this->planTest();
 
         $this->closeModal();
-        
+
         $this->afterPlanningToast($testTake);
     }
 
@@ -160,6 +169,8 @@ class TestPlanModal extends ModalComponent
         $this->request['test_id'] = $this->test->getKey();
         $this->request['allow_inbrowser_testing'] = $this->isAssessmentType() ? 1 : 0;
         $this->request['invigilator_note'] = '';
+        $this->request['owner_id'] = auth()->id();
+        $this->request['scheduled_by'] = auth()->id();
         $this->request['test_kind_id'] = 3;
 
         $this->request['retake'] = 0;
