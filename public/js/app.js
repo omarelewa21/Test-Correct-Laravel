@@ -5864,7 +5864,6 @@ document.addEventListener('alpine:init', function () {
       isTeacher: isTeacher,
       toolName: null,
       isPreview: isPreview,
-      isOldDrawing: entanglements.isOldDrawing,
       init: function init() {
         var _this7 = this;
 

@@ -292,7 +292,6 @@ document.addEventListener('alpine:init', () => {
         isTeacher: isTeacher,
         toolName: null,
         isPreview: isPreview,
-        isOldDrawing: entanglements.isOldDrawing,
         init() {
             this.toolName = `drawingTool_${questionId}`;
             if (Object.getOwnPropertyNames(window).includes(this.toolName)) {

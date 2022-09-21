@@ -10,6 +10,10 @@
     />
 @endsection
 
+@php
+    $isOldDrawing = $this->isOldDrawingQuestion();
+@endphp
+
 @section('question-cms-answer')
     <div id="drawing-question-tool-container"
             x-data="drawingTool(
@@ -17,8 +21,7 @@
                  {
                      answerSvg: @entangle('question.answer_svg'),
                      questionSvg: @entangle('question.question_svg'),
-                     gridSvg: @entangle('question.grid_svg'),
-                     isOldDrawing: @entangle('isOldDrawingQuestion')
+                     gridSvg: @entangle('question.grid_svg')
             },
             true
         )"
@@ -32,24 +35,23 @@
                     <span>{{ __('cms.Tekening aanpassen') }}</span>
                 </x-button.primary>
             @else
-                <template x-if="isOldDrawing">
-                    <x-button.primary wire:loading.attr="disabled" @click="showWarning = !showWarning" x-cloak selid="draw-answer">
+                @if ($isOldDrawing)
+                    <x-button.primary wire:loading.attr="disabled" @click="showWarning = !showWarning" selid="draw-answer">
                         <x-icon.edit/>
                         <span>{{ __('cms.Tekening aanpassen') }}</span>
                     </x-button.primary>
-                </template>
-                <template x-if="!isOldDrawing">
+                @else
                     <x-button.primary wire:loading.attr="disabled" wire:target="handleUpdateDrawingData" x-cloak x-show="answerSvg !== ''" @click="show = !show" selid="draw-answer">
                         <x-icon.edit/>
                         <span>{{ __('cms.Tekening aanpassen') }}</span>
                     </x-button.primary>
-                </template>
+                @endif
             @endisset
         </div>
 
         <div class="flex flex-1 min-h-[500px] w-full border border-bluegrey rounded-10 mt-4 items-center justify-center relative overflow-auto drawing-tool-preview">
 
-            @if($this->isOldDrawingQuestion())
+            @if($isOldDrawing)
                 <div>
                     <div class="absolute top-0 left-0 w-full h-full">
                         <img class="object-cover" src="{{ $this->question['answer'] }}" alt="">
@@ -109,7 +111,7 @@
             @endif
 
         </div>
-        @if($this->isOldDrawingQuestion() && !isset($preview))
+        @if($isOldDrawing && !isset($preview))
             <x-modal.question-editor-old-drawing-override/>
         @endif
         <x-modal.question-editor-drawing-modal/>

@@ -59,7 +59,6 @@ class CmsDrawing extends CmsBase
         $this->instance->question['question_correction_model'] = '';
         $this->instance->question['uuid'] = (string)Str::uuid();
         $this->instance->question['temp_uuid'] = 'temp-'.$this->instance->question['uuid'];
-        $this->instance->isOldDrawingQuestion = $this->isOldDrawingQuestion();
     }
 
     public function handleUpdateDrawingData($data)
