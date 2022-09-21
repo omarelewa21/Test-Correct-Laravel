@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
+use tcCore\Http\Helpers\SvgHelper;
 use tcCore\Http\Requests\UpdateTestQuestionRequest;
 use tcCore\Lib\Question\QuestionInterface;
 use Dyrynda\Database\Casts\EfficientUuid;
@@ -187,11 +188,14 @@ class DrawingQuestion extends Question implements QuestionInterface {
 
         $question->fill($attributes);
 
-        $question->setAttribute('uuid', Uuid::uuid4());
+        $newQuestionUuid = Uuid::uuid4();
+        $question->setAttribute('uuid', $newQuestionUuid);
 
         if ($question->save() === false) {
             return false;
         }
+
+        (new SvgHelper($this->uuid))->rename($newQuestionUuid);
 
         if (File::exists($this->getCurrentBgPath())) {
             File::copy($this->getCurrentBgPath(), $question->getCurrentBgPath());

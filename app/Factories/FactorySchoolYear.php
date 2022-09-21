@@ -6,6 +6,8 @@ use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use tcCore\Factories\Traits\DoWhileLoggedInTrait;
 use tcCore\Factories\Traits\RandomCharactersGeneratable;
+use tcCore\Http\Helpers\ActingAsHelper;
+use tcCore\Lib\Repositories\SchoolYearRepository;
 use tcCore\Period;
 use tcCore\SchoolLocation;
 use tcCore\SchoolYear;
@@ -17,13 +19,19 @@ class FactorySchoolYear
 
     public SchoolYear $schoolYear;
 
-    public static function create(SchoolLocation $schoolLocation, int $year)
+    public static function create(SchoolLocation $schoolLocation, int $year, $doNotCreateIfCurrentSchoolYearExists = false)
     {
         $factory = new static;
+        ActingAsHelper::getInstance()->setUser($schoolLocation->users->first());
+//dd($schoolLocation->users->first());
+        if ($doNotCreateIfCurrentSchoolYearExists && SchoolYearRepository::getCurrentSchoolYear()) {
+            $factory->schoolYear = SchoolYearRepository::getCurrentSchoolYear();
+        }
+        if (!isset($factory->schoolYear) || is_null($factory->schoolYear)) {
+            $factory->schoolYear = new SchoolYear(['year' => $year]);
 
-        $factory->schoolYear = new SchoolYear(['year' => $year]);
-
-        $schoolLocation->schoolYears()->save($factory->schoolYear);
+            $schoolLocation->schoolYears()->save($factory->schoolYear);
+        }
 
         return $factory;
     }
@@ -64,8 +72,10 @@ class FactorySchoolYear
 
         return $this;
     }
-    public function addFourQuarterYearPeriods(array $periodNames = ['Q1','Q2','Q3','Q4']){
-        if(count($periodNames) !== 4){
+
+    public function addFourQuarterYearPeriods(array $periodNames = ['Q1', 'Q2', 'Q3', 'Q4'])
+    {
+        if (count($periodNames) !== 4) {
             throw new \Exception('please supply precisely four period names, one for each quarter of the year.');
         }
 
@@ -73,7 +83,7 @@ class FactorySchoolYear
 
         $date = Carbon::create($year)->startOfYear();
 
-        foreach($periodNames as $periodName){
+        foreach ($periodNames as $periodName) {
 
             $period = new Period([
                 'name'       => $periodName,
@@ -86,8 +96,6 @@ class FactorySchoolYear
                 $this->schoolYear->periods()->save($period);
             }, $this->schoolYear->schoolLocations()->first()->users->first());
         }
-
-
 
 
         return $this;

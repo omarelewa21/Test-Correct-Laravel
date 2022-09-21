@@ -59,7 +59,7 @@ class FactoryScenarioSchoolCreathlon extends FactoryScenarioSchool
             ->schoolLocation;
 
         //create school year and full year period for the current year
-        $schoolYearLocation = FactorySchoolYear::create($schoolLocation, (int)Carbon::today()->format('Y'))
+        $schoolYearLocation = FactorySchoolYear::create($schoolLocation, (int)Carbon::today()->format('Y'), true)
             ->addPeriodFullYear()
             ->schoolYear;
 

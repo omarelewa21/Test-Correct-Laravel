@@ -22,28 +22,34 @@ class PublishesTestTraitTest extends TestCase
         'CREATHLON'   => [
             'abbreviation' => 'PUBLS',
             'scope'        => 'published_creathlon',
+            'toetsen_bakker'=> 'info+creathlonontwikkelaarB@test-correct.nl',
         ],
         'OPENSOURCE1' => [
             'abbreviation' => 'EXAM',
             'scope'        => 'exam',
+            'toetsen_bakker'=> 'info+CEdocent-b@test-correct.nl',
         ],
         'TBNI'        => [
             'abbreviation' => 'LDT',
             'scope'        => 'ldt',
+            'toetsen_bakker'=> 'info+ontwikkelaar-b@test-correct.nl',
         ],
     ];
     public $unpublish = [
         'CREATHLON'   => [
             'abbreviation' => 'ELSE',
             'scope'        => 'not_published_creathlon',
+            'toetsen_bakker'=> 'info+creathlonontwikkelaarB@test-correct.nl',
         ],
         'OPENSOURCE1' => [
             'abbreviation' => 'ELSE',
             'scope'        => 'not_exam',
+            'toetsen_bakker'=> 'info+CEdocent-b@test-correct.nl',
         ],
         'TBNI'        => [
             'abbreviation' => 'ELSE',
             'scope'        => 'not_ldt',
+            'toetsen_bakker'=> 'info+ontwikkelaar-b@test-correct.nl',
         ],
     ];
 
@@ -51,13 +57,40 @@ class PublishesTestTraitTest extends TestCase
      * @test
      * @dataProvider validPublishDataSet
      */
-    public function can_publish_test($valid_customerCode, $valid_abbreviation, $valid_scope)
+    public function can_publish_test($valid_customerCode, $valid_abbreviation, $valid_scope, $toetsen_bakker_username)
     {
-        Auth::login(AuthorsController::getPublishableAuthorByCustomerCode($valid_customerCode));
+        $this->skipUnavailableCustomerCode($valid_customerCode);
+
+        Auth::login(User::whereUsername($toetsen_bakker_username)->first());
 
         $test = $this->createTest($valid_customerCode, false);
         $this->assertNotEquals($valid_abbreviation, $test->abbreviation);
         $this->assertEquals('not_' . $valid_scope, $test->scope);
+        $test->abbreviation = $valid_abbreviation;
+        $test->save();
+
+        $this->assertEquals($valid_abbreviation, $test->fresh()->abbreviation);
+        $this->assertEquals($valid_scope, $test->fresh()->scope);
+    }
+
+    /**
+     * @test
+     * @dataProvider validPublishDataSet
+     */
+    public function can_publish_test_and_change_the_author_to_the_correct_author_in_two_places($valid_customerCode, $valid_abbreviation, $valid_scope, $toetsen_bakker_username)
+    {
+        $this->skipUnavailableCustomerCode($valid_customerCode);
+
+        Auth::login(User::whereUsername($toetsen_bakker_username)->first());
+        $publishedTestsAuthorUsername = AuthorsController::getPublishableAuthorByCustomerCode($valid_customerCode);
+
+        $test = $this->createTest($valid_customerCode, false);
+        $this->assertNotEquals($valid_abbreviation, $test->abbreviation);
+        $this->assertEquals('not_' . $valid_scope, $test->scope);
+
+        $this->assertCount(1, $test->testAuthors);
+        $this->assertEquals($toetsen_bakker_username, $test->testAuthors->first()->user->username);
+        $this->assertNotEquals($publishedTestsAuthorUsername, $test->testAuthors->first()->user->username);
 
         $test->abbreviation = $valid_abbreviation;
         $test->save();
@@ -70,8 +103,10 @@ class PublishesTestTraitTest extends TestCase
      * @test
      * @dataProvider validUnpublishDataSet
      */
-    public function can_unpublish_test($valid_customerCode, $invalid_abbreviation, $invalid_scope)
+    public function can_unpublish_test($valid_customerCode, $invalid_abbreviation, $invalid_scope, $toetsen_bakker_username)
     {
+        $this->skipUnavailableCustomerCode($valid_customerCode);
+
         Auth::login(AuthorsController::getPublishableAuthorByCustomerCode($valid_customerCode));
 
         $test = $this->createTest($valid_customerCode, true);
@@ -91,6 +126,8 @@ class PublishesTestTraitTest extends TestCase
      */
     public function can_publish_test_questions($valid_customerCode, $valid_abbreviation, $valid_scope)
     {
+        $this->skipUnavailableCustomerCode($valid_customerCode);
+
         Auth::login(AuthorsController::getPublishableAuthorByCustomerCode($valid_customerCode));
 
         $test = $this->createTest($valid_customerCode, false);
@@ -111,6 +148,8 @@ class PublishesTestTraitTest extends TestCase
      */
     public function can_unpublish_test_questions($valid_customerCode, $invalid_abbreviation, $invalid_scope)
     {
+        $this->skipUnavailableCustomerCode($valid_customerCode);
+
         Auth::login(AuthorsController::getPublishableAuthorByCustomerCode($valid_customerCode));
 
         $test = $this->createTest($valid_customerCode, true);
@@ -132,6 +171,8 @@ class PublishesTestTraitTest extends TestCase
      */
     public function cannot_publish_test_in_wrong_publishable_schoollocation($valid_customerCode, $valid_abbreviation, $valid_scope)
     {
+        $this->skipUnavailableCustomerCode($valid_customerCode);
+
         $wrongCustomerCode = collect($this->publish)
             ->reject(fn($i, $customerCode) => $customerCode == $valid_customerCode)
             ->keys()
@@ -156,6 +197,8 @@ class PublishesTestTraitTest extends TestCase
      */
     public function cannot_unpublish_test($valid_customerCode, $valid_abbreviation, $valid_scope)
     {
+        $this->skipUnavailableCustomerCode($valid_customerCode);
+
         $wrongCustomerCode = collect($this->publish)
             ->reject(fn($i, $customerCode) => $customerCode == $valid_customerCode)
             ->keys()
@@ -181,7 +224,9 @@ class PublishesTestTraitTest extends TestCase
     private function createTest($customerCode, bool $published = true): Test
     {
 
-        $teacher = AuthorsController::getPublishableAuthorByCustomerCode($customerCode);
+        $teacher = $published
+            ? AuthorsController::getPublishableAuthorByCustomerCode($customerCode)
+            : User::whereUsername($this->publish[$customerCode]['toetsen_bakker'])->first();
 
         $abbreviation = $published ? $this->publish[$customerCode]['abbreviation'] : $this->unpublish[$customerCode]['abbreviation'];
         $scope = $published ? $this->publish[$customerCode]['scope'] : $this->unpublish[$customerCode]['scope'];
@@ -222,6 +267,29 @@ class PublishesTestTraitTest extends TestCase
         return $test;
     }
 
+    protected function skipUnavailableCustomerCode($customerCode)
+    {
+        if(AuthorsController::getPublishableAuthorByCustomerCode($customerCode) == null) {
+            $this->markTestSkipped('no author available for customer code: '. $customerCode);
+
+
+
+        }
+        if (isset($this->publish['CREATHLON']) && AuthorsController::getPublishableAuthorByCustomerCode('CREATHLON') == null) {
+            unset($this->publish['CREATHLON']);
+            unset($this->unpublish['CREATHLON']);
+        }
+        if (isset($this->publish['OPENSOURCE1']) && AuthorsController::getPublishableAuthorByCustomerCode('OPENSOURCE1') == null) {
+            unset($this->publish['OPENSOURCE1']);
+            unset($this->unpublish['OPENSOURCE1']);
+        }
+        if (isset($this->publish['TBNI']) && AuthorsController::getPublishableAuthorByCustomerCode('TBNI') == null) {
+            unset($this->publish['TBNI']);
+            unset($this->unpublish['TBNI']);
+        }
+        return;
+    }
+
     // DATASETS
 
     /**
@@ -231,7 +299,7 @@ class PublishesTestTraitTest extends TestCase
     {
         $array = [];
         foreach ($this->publish as $key => $value) {
-            $array[$key] = [$key, $value['abbreviation'], $value['scope']];
+            $array[$key] = [$key, $value['abbreviation'], $value['scope'], $value['toetsen_bakker']];
         }
         return $array;
     }
@@ -243,7 +311,7 @@ class PublishesTestTraitTest extends TestCase
     {
         $array = [];
         foreach ($this->unpublish as $key => $value) {
-            $array[$key] = [$key, $value['abbreviation'], $value['scope']];
+            $array[$key] = [$key, $value['abbreviation'], $value['scope'], $value['toetsen_bakker']];
         }
         return $array;
     }
