@@ -2,35 +2,22 @@
 
 namespace tcCore\View\Components\Actions;
 
-use Illuminate\View\Component;
+use Auth;
 use tcCore\Test;
 
-class TestOpenPreview extends Component
+class TestOpenPreview extends TestActionComponent
 {
-    public $test;
-    public $variant;
     public $url;
 
-    /**
-     * Create a new component instance.
-     *
-     * @return void
-     */
-    public function __construct($uuid, $variant='icon-button')
+    public function __construct($uuid, $variant = 'icon-button')
     {
-        $this->test = Test::findByUuid($uuid);
-        $this->variant = $variant;
+        parent::__construct($uuid, $variant);
 
-        $this->url = route('teacher.test-preview', ['test'=> $uuid]);
+        $this->url = route('teacher.test-preview', ['test' => $uuid]);
     }
 
-    /**
-     * Get the view / contents that represent the component.
-     *
-     * @return \Illuminate\View\View|string
-     */
-    public function render()
+    protected function getDisabledValue(): bool
     {
-        return view('components.actions.test-open-preview');
+        return Auth::user()->isValidExamCoordinator();
     }
 }

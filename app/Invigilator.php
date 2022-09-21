@@ -1,12 +1,13 @@
 <?php namespace tcCore;
 
+use Illuminate\Support\Facades\DB;
 use tcCore\Lib\Models\CompositePrimaryKeyModel;
 use tcCore\Lib\Models\CompositePrimaryKeyModelSoftDeletes;
 use Dyrynda\Database\Casts\EfficientUuid;
-use Dyrynda\Database\Support\GeneratesUuid;
 use tcCore\Traits\UuidTrait;
 
-class Invigilator extends CompositePrimaryKeyModel {
+class Invigilator extends CompositePrimaryKeyModel
+{
 
     use CompositePrimaryKeyModelSoftDeletes;
     use UuidTrait;
@@ -50,13 +51,23 @@ class Invigilator extends CompositePrimaryKeyModel {
      */
     protected $hidden = [];
 
-    public function testTake() {
+    public function testTake()
+    {
         return $this->belongsTo('tcCore\TestTake');
     }
 
-    public function user() {
+    public function user()
+    {
         return $this->belongsTo('tcCore\User');
     }
 
-
+    public static function getInvigilatorUsersForSchoolLocation(SchoolLocation $schoolLocation)
+    {
+        return User::whereIn(
+            'id',
+            DB::table('school_location_user')
+                ->select('user_id')
+                ->where('school_location_id', $schoolLocation->getKey())
+        );
+    }
 }

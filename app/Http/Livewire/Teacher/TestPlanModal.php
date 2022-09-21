@@ -2,13 +2,14 @@
 
 namespace tcCore\Http\Livewire\Teacher;
 
+use Auth;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Validator;
 use LivewireUI\Modal\ModalComponent;
-use tcCore\Http\Controllers\InvigilatorsController;
 use tcCore\Http\Controllers\TemporaryLoginController;
 use tcCore\Http\Traits\Modal\WithPlanningFeatures;
+use tcCore\Invigilator;
 use tcCore\Period;
 use tcCore\TestTake;
 use tcCore\TestTakeStatus;
@@ -33,13 +34,9 @@ class TestPlanModal extends ModalComponent
         $this->test = \tcCore\Test::whereUuid($testUuid)->first();
 
         $this->allowedPeriods = Period::filtered(['current_school_year' => true])->get();
-
-        $this->allowedInvigilators = InvigilatorsController::getInvigilatorList()->map(function ($invigilator) {
-            return [
-                'value' => $invigilator->id,
-                'label' => collect([$invigilator->name_first, $invigilator->name])->join(' ')
-            ];
-        })->values()->toArray();
+        $this->allowedInvigilators = Invigilator::getInvigilatorUsersForSchoolLocation(Auth::user()->schoolLocation)
+            ->get()
+            ->map(fn ($invigilator) => ['value' => $invigilator->id, 'label' => $invigilator->name_full]);
         $this->resetModalRequest();
     }
 

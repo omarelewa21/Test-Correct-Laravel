@@ -18,7 +18,7 @@
      @question-removed.window="Notify.notify('{{ __('cms.question_deleted') }}')"
 >
     <x-menu.tab.container :sticky="true">
-        <x-menu.tab.item tab="personal" menu="openTab">
+        <x-menu.tab.item tab="personal" menu="openTab" :when="!$this->isExamCoordinator">
             {{ __('general.Persoonlijk') }}
         </x-menu.tab.item>
         <x-menu.tab.item tab="school_location" menu="openTab">

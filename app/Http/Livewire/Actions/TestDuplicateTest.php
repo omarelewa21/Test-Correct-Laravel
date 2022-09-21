@@ -3,22 +3,17 @@
 namespace tcCore\Http\Livewire\Actions;
 
 use Illuminate\Support\Facades\Auth;
-use Livewire\Component;
 use tcCore\Test;
 
 class TestDuplicateTest extends TestAction
 {
     public bool $showButton;
-    public bool $disabled;
 
     public function mount($uuid, $variant='icon-button', $class = '')
     {
         parent::mount($uuid, $variant, $class);
-        $test = Test::findByUuid($this->uuid);
-        $this->showButton = !$test->isNationalItem();
-        $this->disabled = !($test->canCopy(auth()->user()) || $test->canCopyFromSchool(auth()->user()));
+        $this->showButton = !$this->test->isNationalItem();
     }
-
 
     public function handle()
     {
@@ -39,5 +34,15 @@ class TestDuplicateTest extends TestAction
             $this->emit('openModal', 'teacher.copy-test-from-schoollocation-modal',  ['testUuid' => $test->uuid]);
             return true;
         }
+    }
+
+    protected function getDisabledValue(): bool
+    {
+        $disabled = false;
+        if (!$this->test->canCopy(auth()->user())) $disabled = true;
+        if (!$this->test->canCopyFromSchool(auth()->user())) $disabled = true;
+        if (auth()->user()->isValidExamCoordinator()) $disabled = true;
+
+        return $disabled;
     }
 }

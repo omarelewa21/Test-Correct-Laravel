@@ -36,6 +36,7 @@ class TestsOverview extends Component
         'test-added'          => '$refresh',
         'testSettingsUpdated' => '$refresh',
     ];
+    public $isExamCoordinator;
 
     public function render()
     {
@@ -243,8 +244,9 @@ class TestsOverview extends Component
 
     public function mount()
     {
-        $this->abortIfNewTestBankNotAllowed();
+        $this->isExamCoordinator = Auth::user()->isValidExamCoordinator();
 
+        $this->abortIfNewTestBankNotAllowed();
         $this->initialiseContentSourceTabs();
 
         $this->setFilters();

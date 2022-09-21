@@ -5919,7 +5919,6 @@ document.addEventListener('alpine:init', function () {
       answerSvg: entanglements.answerSvg,
       questionSvg: entanglements.questionSvg,
       gridSvg: entanglements.gridSvg,
-      grid: entanglements.grid,
       isTeacher: isTeacher,
       toolName: null,
       isPreview: isPreview,
@@ -5972,10 +5971,19 @@ document.addEventListener('alpine:init', function () {
         }
       },
       makeGridIfNecessary: function makeGridIfNecessary(toolName) {
+        var gridSize = false;
+
         if (this.gridSvg !== '' && this.gridSvg !== '0.00') {
-          makePreviewGrid(toolName.drawingApp, this.gridSvg);
+          gridSize = this.gridSvg;
         } else if (this.grid && this.grid !== '0') {
-          makePreviewGrid(toolName.drawingApp, 1 / parseInt(this.grid) * 14);
+          gridSize = 1 / parseInt(this.grid) * 14;
+        }
+
+        if (gridSize) {
+          makePreviewGrid(toolName.drawingApp, gridSize);
+          setTimeout(function () {
+            makePreviewGrid(toolName.drawingApp, gridSize);
+          }, 2000);
         }
       }
     };
@@ -7393,7 +7401,7 @@ window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
 window.Pusher = __webpack_require__(/*! pusher-js */ "./node_modules/pusher-js/dist/web/pusher.js");
 window.Echo = new laravel_echo__WEBPACK_IMPORTED_MODULE_0__["default"]({
   broadcaster: 'pusher',
-  key: "51d7221bf733999d7138",
+  key: "fc18ed69b446aeb8c8a5",
   cluster: "eu",
   forceTLS: true
 });
@@ -13468,7 +13476,6 @@ document.addEventListener('alpine:init', function () {
         }
 
         if (this.$wire.activeRoute.main !== '') {
-          console.log(27);
           this.$nextTick(function () {
             return _this.$dispatch('tiles-hidden');
           });
@@ -13545,8 +13552,6 @@ document.addEventListener('alpine:init', function () {
             _this2.shouldDispatchTilesEvent();
 
             if (_this2.shouldDispatchTilesEvent()) {
-              console.log(87);
-
               _this2.$dispatch('tiles-shown');
             }
           }
@@ -13569,7 +13574,6 @@ document.addEventListener('alpine:init', function () {
         clearTimeout(this.hideTimeout);
         tiles.style.paddingLeft = '0px';
         tiles.style.setProperty('--top', '100px');
-        console.log(111);
         this.$dispatch('tiles-shown');
       },
       userMenuShow: function userMenuShow() {

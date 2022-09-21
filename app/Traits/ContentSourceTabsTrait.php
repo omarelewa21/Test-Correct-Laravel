@@ -7,7 +7,7 @@ use tcCore\Http\Helpers\ContentSourceHelper;
 
 trait ContentSourceTabsTrait
 {
-    public $openTab = 'personal';
+    public $openTab = '';
 
     public $allowedTabs = [];
     public $schoolLocationInternalContentTabs = [];
@@ -31,7 +31,7 @@ trait ContentSourceTabsTrait
 
     private function initialiseContentSourceTabs()
     {
-        $this->openTab = session()->get(self::ACTIVE_TAB_SESSION_KEY) ?? $this->openTab;
+        $this->openTab = $this->getDefaultOpenTab();
 
         $this->allowedTabs = ContentSourceHelper::allAllowedForUser(Auth::user());
 
@@ -58,6 +58,17 @@ trait ContentSourceTabsTrait
     public function isExternalContentTab($tab = null): bool
     {
         return collect($this->schoolLocationExternalContentTabs)->contains($tab ?? $this->openTab);
+    }
+
+    private function getDefaultOpenTab(): string
+    {
+        if (session()->has(self::ACTIVE_TAB_SESSION_KEY)) {
+            return session()->get(self::ACTIVE_TAB_SESSION_KEY);
+        }
+        if ($this->isExamCoordinator) {
+            return 'school_location';
+        }
+        return 'personal';
     }
 
 }

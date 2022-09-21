@@ -395,19 +395,22 @@ class Test extends BaseModel
         $query->select();
 
         if (in_array('Teacher', $roles)) {
-            $subject = (new DemoHelper())->getDemoSectionForSchoolLocation($user->getAttribute('school_location_id'));
-            $query->join($this->switchScopeFilteredSubQueryForDifferentScenarios($user, $subject), function ($join) {
-                $join->on('tests.id', '=', 't1.t2_id');
-            });
-
-            if (!is_null($subject)) {
-                $query->where(function ($q) use ($user, $subject) {
-                    $q->where(function ($query) use ($user, $subject) {
-                        $query->where('tests.subject_id', $subject->getKey())->where('tests.author_id', $user->getKey());
-                    })->orWhere('tests.subject_id', '<>', $subject->getKey());
+            if ($user->isValidExamCoordinator()) {
+                $this->handleExamCoordinatorFilter($query, $user);
+            } else {
+                $subject = (new DemoHelper())->getDemoSectionForSchoolLocation($user->getAttribute('school_location_id'));
+                $query->join($this->switchScopeFilteredSubQueryForDifferentScenarios($user, $subject), function ($join) {
+                    $join->on('tests.id', '=', 't1.t2_id');
                 });
-            }
 
+                if (!is_null($subject)) {
+                    $query->where(function ($q) use ($user, $subject) {
+                        $q->where(function ($query) use ($user, $subject) {
+                            $query->where('tests.subject_id', $subject->getKey())->where('tests.author_id', $user->getKey());
+                        })->orWhere('tests.subject_id', '<>', $subject->getKey());
+                    });
+                }
+            }
         }
 
         if (!array_key_exists('is_system_test', $filters)) {
@@ -1116,5 +1119,21 @@ class Test extends BaseModel
         return ContentSourceHelper::allAllowedForUser($user)
             ->map(fn($publisher) => 'published_' . $publisher)
             ->contains($this->scope);
+    }
+
+    private function handleExamCoordinatorFilter(&$query, $user)
+    {
+        if ($user->is_examcoordinator_for === 'SCHOOL_LOCATION') {
+            return $query->where('owner_id', $user->school_location_id);
+        }
+
+        if ($user->is_examcoordinator_for === 'SCHOOL') {
+            return $query->whereIn(
+                'owner_id',
+                SchoolLocation::select('id')
+                    ->where('school_id', $user->schoolLocation->school_id)
+            );
+        }
+        return $query;
     }
 }

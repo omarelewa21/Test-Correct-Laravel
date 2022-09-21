@@ -414,6 +414,7 @@ class SchoolClass extends BaseModel implements AccessCheckable
             switch (strtolower($key)) {
                 case 'id':
                 case 'name':
+                case 'school_location_id':
                     $query->orderBy($key, $value);
                     break;
             }

@@ -60,6 +60,24 @@
                     </div>
                 </div>
             </div>
+                @if (auth()->user()->is_examcoordinator)
+                    <div class="input-section" x-data>
+                        <div class="name flex">
+                            <label for="owner_id">{{ __('plan-test-take.test_owner') }}</label>
+                        </div>
+                        <div class="name flex mb-4">
+                            <x-input.select
+                                    wire:model="request.owner_id"
+                                    id="owner_id"
+
+                            >
+                                @foreach($allowedInvigilators as $teacher)
+                                    <option value="{{ $teacher['value'] }}">{!! $teacher['label'] !!}</option>
+                                @endforeach
+                            </x-input.select>
+                        </div>
+                    </div>
+                @endif
             <div class="input-section" x-data>
                 <div class="name flex">
                     <label for="teachers_and_classes">{{ __('Klassen') }}</label>
@@ -78,26 +96,6 @@
 
                 </div>
             </div>
-
-            @if (auth()->user()->is_examcoordinator)
-                <div class="input-section" x-data>
-                    <div class="name flex">
-                        <label for="owner_id">{{ __('plan-test-take.test_owner') }}</label>
-                    </div>
-                    <div class="name flex mb-4">
-                        <x-input.select
-                                    wire:model="request.owner_id"
-                                    id="owner_id"
-
-                            >
-                                @foreach($allowedInvigilators as $teacher)
-                                    <option value="{{ $teacher['value'] }}">{!! $teacher['label'] !!}</option>
-                                @endforeach
-                            </x-input.select>
-                    </div>
-                </div>
-            @endif
-
             <div class="input-section" x-data>
                 <div class="name flex">
                     <label for="choices_invigilators">{{ __('Surveillanten') }}</label>
