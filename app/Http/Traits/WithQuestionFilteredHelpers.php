@@ -328,8 +328,9 @@ trait WithQuestionFilteredHelpers
      * @param array $joins
      * @return array
      */
-    private function getJoinsFromOpenQuestionSearch(&$query, bool $openQuestionOnly, $filters, bool $openQuestionDisabled, ?OpenQuestion $openQuestion, array $joins): array
+    private function getJoinsFromOpenQuestionSearch(&$query, bool $openQuestionOnly, $filters, bool $openQuestionDisabled, ?OpenQuestion $openQuestion): array
     {
+        $joins = [];
         if (!$openQuestionOnly && !array_key_exists('subtype', $filters) && !$openQuestionDisabled) {
             $query->leftJoin($openQuestion->getTable(), $openQuestion->getTable() . '.' . $openQuestion->getKeyName(), '=', $this->getTable() . '.' . $this->getKeyName());
         } elseif ($openQuestionOnly && !array_key_exists('subtype', $filters)) {
@@ -365,7 +366,7 @@ trait WithQuestionFilteredHelpers
         // Search terms + tags
         $this->handleSearchWithTextAndTags($query, $searchValue, $tags, $openQuestionDisabled, $openQuestion);
 
-        $joins = $this->getJoinsFromOpenQuestionSearch($query, $openQuestionOnly, $filters, $openQuestionDisabled, $openQuestion, $joins);
+        $joins = $this->getJoinsFromOpenQuestionSearch($query, $openQuestionOnly, $filters, $openQuestionDisabled, $openQuestion);
 
         return [$query, $joins];
     }
