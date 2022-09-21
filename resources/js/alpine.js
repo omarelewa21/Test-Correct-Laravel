@@ -340,6 +340,9 @@ document.addEventListener('alpine:init', () => {
         makeGridIfNecessary(toolName) {
             if (this.gridSvg !== '' && this.gridSvg !== '0.00') {
                 makePreviewGrid(toolName.drawingApp, this.gridSvg);
+                setTimeout(() => {
+                    makePreviewGrid(toolName.drawingApp, this.gridSvg);
+                }, 2000)
             }
         }
     }));

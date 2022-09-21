@@ -5912,8 +5912,13 @@ document.addEventListener('alpine:init', function () {
         }
       },
       makeGridIfNecessary: function makeGridIfNecessary(toolName) {
+        var _this8 = this;
+
         if (this.gridSvg !== '' && this.gridSvg !== '0.00') {
           makePreviewGrid(toolName.drawingApp, this.gridSvg);
+          setTimeout(function () {
+            makePreviewGrid(toolName.drawingApp, _this8.gridSvg);
+          }, 2000);
         }
       }
     };
@@ -5928,15 +5933,15 @@ document.addEventListener('alpine:init', function () {
       activeSlide: null,
       scrollTimeout: null,
       init: function init() {
-        var _this8 = this;
+        var _this9 = this;
 
         this.slideWidth = this.$root.offsetWidth;
         this.drawer = this.$root.closest('.drawer');
         this.setActiveSlideProperty(this.$root.scrollLeft);
         setTimeout(function () {
-          _this8.handleVerticalScroll(_this8.$root.firstElementChild);
+          _this9.handleVerticalScroll(_this9.$root.firstElementChild);
 
-          _this8.scrollActiveQuestionIntoView();
+          _this9.scrollActiveQuestionIntoView();
         }, 400);
       },
       next: function next(currentEl) {
@@ -5966,7 +5971,7 @@ document.addEventListener('alpine:init', function () {
         this.$store.cms.scrollPos = 0;
       },
       handleVerticalScroll: function handleVerticalScroll(el) {
-        var _this9 = this;
+        var _this10 = this;
 
         if (el.getAttribute('x-ref') !== this.activeSlide) return;
         this.$refs.questionEditorSidebar.style.minHeight = 'auto';
@@ -5981,8 +5986,8 @@ document.addEventListener('alpine:init', function () {
         }
 
         this.$nextTick(function () {
-          _this9.$refs.questionEditorSidebar.style.minHeight = _this9.drawer.offsetHeight + 'px';
-          _this9.$refs.questionEditorSidebar.style.height = el.offsetHeight + 'px';
+          _this10.$refs.questionEditorSidebar.style.minHeight = _this10.drawer.offsetHeight + 'px';
+          _this10.$refs.questionEditorSidebar.style.height = el.offsetHeight + 'px';
         });
       },
       setNextSlide: function setNextSlide(toInsert) {
@@ -6000,7 +6005,7 @@ document.addEventListener('alpine:init', function () {
         this.$store.questionBank.active = true;
       },
       hideQuestionBank: function hideQuestionBank() {
-        var _this10 = this;
+        var _this11 = this;
 
         this.$root.querySelectorAll('.slide-container').forEach(function (slide) {
           slide.classList.add('opacity-0');
@@ -6014,22 +6019,22 @@ document.addEventListener('alpine:init', function () {
         }
 
         this.$nextTick(function () {
-          _this10.drawer.classList.remove('fullscreen');
+          _this11.drawer.classList.remove('fullscreen');
 
-          _this10.home(); // this.scroll(container.parentElement.firstElementChild.offsetWidth);
+          _this11.home(); // this.scroll(container.parentElement.firstElementChild.offsetWidth);
 
 
           setTimeout(function () {
-            _this10.$root.querySelectorAll('.slide-container').forEach(function (slide) {
+            _this11.$root.querySelectorAll('.slide-container').forEach(function (slide) {
               slide.classList.remove('opacity-0');
             });
 
-            _this10.$wire.emitTo('drawer.cms', 'refreshDrawer');
+            _this11.$wire.emitTo('drawer.cms', 'refreshDrawer');
 
-            _this10.$dispatch('resize');
+            _this11.$dispatch('resize');
           }, 400);
 
-          _this10.$wire.emitTo('drawer.cms', 'refreshDrawer');
+          _this11.$wire.emitTo('drawer.cms', 'refreshDrawer');
         });
       },
       addQuestionToGroup: function addQuestionToGroup(uuid) {
@@ -6076,39 +6081,39 @@ document.addEventListener('alpine:init', function () {
         this.$store.questionBank.inGroup = false;
       },
       handleResizing: function handleResizing() {
-        var _this11 = this;
+        var _this12 = this;
 
         clearTimeout(this.resizeTimout);
 
         if (this.$store.questionBank.active) {
           if (!this.resizing) this.resizing = true;
           this.resizeTimout = setTimeout(function () {
-            _this11.$root.scrollLeft = _this11.$refs.questionbank.offsetLeft;
-            _this11.resizing = false;
+            _this12.$root.scrollLeft = _this12.$refs.questionbank.offsetLeft;
+            _this12.resizing = false;
           }, 500);
         }
       },
       scrollActiveQuestionIntoView: function scrollActiveQuestionIntoView() {
-        var _this12 = this;
+        var _this13 = this;
 
         if (this.activeSlide !== 'home') return;
         clearTimeout(this.scrollTimeout);
         this.scrollTimeout = setTimeout(function () {
-          var activeQuestion = _this12.$refs.home.querySelector('.question-button.question-active');
+          var activeQuestion = _this13.$refs.home.querySelector('.question-button.question-active');
 
-          activeQuestion || (activeQuestion = _this12.$refs.home.querySelector('.group-active'));
-          if (activeQuestion === null) return clearTimeout(_this12.scrollTimeout);
+          activeQuestion || (activeQuestion = _this13.$refs.home.querySelector('.group-active'));
+          if (activeQuestion === null) return clearTimeout(_this13.scrollTimeout);
           var top = activeQuestion.getBoundingClientRect().top;
           var screenWithBottomMargin = window.screen.height - 200;
 
           if (top >= screenWithBottomMargin) {
-            _this12.drawer.scrollTo({
+            _this13.drawer.scrollTo({
               top: top - screenWithBottomMargin / 2,
               behavior: 'smooth'
             });
           }
 
-          clearTimeout(_this12.scrollTimeout);
+          clearTimeout(_this13.scrollTimeout);
         }, 750);
       },
       setActiveSlideProperty: function setActiveSlideProperty(position) {
@@ -6129,19 +6134,19 @@ document.addEventListener('alpine:init', function () {
       init: function init() {
         var _window,
             _window$registeredEve,
-            _this13 = this;
+            _this14 = this;
 
         // some new fancy way of setting a value when undefined
         (_window$registeredEve = (_window = window).registeredEventHandlers) !== null && _window$registeredEve !== void 0 ? _window$registeredEve : _window.registeredEventHandlers = [];
         this.activeFiltersContainer = document.getElementById(filterContainer);
         this.multiple = multiple === 1;
         this.$nextTick(function () {
-          var choices = new (choices_js__WEBPACK_IMPORTED_MODULE_2___default())(_this13.$refs.select, _this13.config);
+          var choices = new (choices_js__WEBPACK_IMPORTED_MODULE_2___default())(_this14.$refs.select, _this14.config);
 
           var refreshChoices = function refreshChoices() {
-            var selection = _this13.multiple ? _this13.value : [_this13.value];
+            var selection = _this14.multiple ? _this14.value : [_this14.value];
             choices.clearStore();
-            choices.setChoices(_this13.options.map(function (_ref) {
+            choices.setChoices(_this14.options.map(function (_ref) {
               var value = _ref.value,
                   label = _ref.label;
               return {
@@ -6151,38 +6156,38 @@ document.addEventListener('alpine:init', function () {
               };
             }));
 
-            _this13.handleActiveFilters(choices.getValue());
+            _this14.handleActiveFilters(choices.getValue());
           };
 
           refreshChoices();
 
-          _this13.$refs.select.addEventListener('choice', function (event) {
-            if (_this13.value.includes(parseInt(event.detail.choice.value))) {
-              _this13.removeFilterItem(choices.getValue().find(function (value) {
+          _this14.$refs.select.addEventListener('choice', function (event) {
+            if (_this14.value.includes(parseInt(event.detail.choice.value))) {
+              _this14.removeFilterItem(choices.getValue().find(function (value) {
                 return value.value === event.detail.choice.value;
               }));
             }
           });
 
-          _this13.$refs.select.addEventListener('change', function () {
-            _this13.value = choices.getValue(true); // This causes 2 update calls:
+          _this14.$refs.select.addEventListener('change', function () {
+            _this14.value = choices.getValue(true); // This causes 2 update calls:
             // this.wireModel = this.value;
           });
 
-          var eventName = 'removeFrom' + _this13.$root.dataset.modelName;
+          var eventName = 'removeFrom' + _this14.$root.dataset.modelName;
 
           if (!window.registeredEventHandlers.includes(eventName)) {
             window.registeredEventHandlers.push(eventName);
             window.addEventListener(eventName, function (event) {
-              _this13.removeFilterItem(event.detail);
+              _this14.removeFilterItem(event.detail);
             });
           }
 
-          _this13.$watch('value', function () {
+          _this14.$watch('value', function () {
             return refreshChoices();
           });
 
-          _this13.$watch('options', function () {
+          _this14.$watch('options', function () {
             return refreshChoices();
           });
         });
@@ -6197,16 +6202,16 @@ document.addEventListener('alpine:init', function () {
         return "[data-filter=\"".concat(this.$root.dataset.modelName, "\"][data-filter-value=\"").concat(item, "\"]");
       },
       handleActiveFilters: function handleActiveFilters(choicesValues) {
-        var _this14 = this;
+        var _this15 = this;
 
         this.value.forEach(function (item) {
-          if (_this14.needsFilterPill(item)) {
+          if (_this15.needsFilterPill(item)) {
             var cItem = choicesValues.find(function (value) {
               return value.value === item;
             });
 
             if (typeof cItem !== 'undefined') {
-              _this14.createFilterPill(cItem);
+              _this15.createFilterPill(cItem);
             }
           }
         });
@@ -6238,12 +6243,12 @@ document.addEventListener('alpine:init', function () {
       inTest: null,
       correspondingButton: null,
       handleIncomingEvent: function handleIncomingEvent(detail) {
-        var _this15 = this;
+        var _this16 = this;
 
         if (!this.menuOpen) return this.openMenu(detail);
         this.closeMenu();
         setTimeout(function () {
-          _this15.openMenu(detail);
+          _this16.openMenu(detail);
         }, 150);
       },
       openMenu: function openMenu(detail) {
@@ -6842,7 +6847,7 @@ window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
 window.Pusher = __webpack_require__(/*! pusher-js */ "./node_modules/pusher-js/dist/web/pusher.js");
 window.Echo = new laravel_echo__WEBPACK_IMPORTED_MODULE_0__["default"]({
   broadcaster: 'pusher',
-  key: "2149988ad52a600a2309",
+  key: "51d7221bf733999d7138",
   cluster: "eu",
   forceTLS: true
 });
