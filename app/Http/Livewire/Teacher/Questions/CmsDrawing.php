@@ -59,6 +59,7 @@ class CmsDrawing extends CmsBase
         $this->instance->question['question_correction_model'] = '';
         $this->instance->question['uuid'] = (string)Str::uuid();
         $this->instance->question['temp_uuid'] = 'temp-'.$this->instance->question['uuid'];
+        $this->instance->isOldDrawingQuestion = $this->isOldDrawingQuestion();
     }
 
     public function handleUpdateDrawingData($data)
@@ -166,5 +167,14 @@ class CmsDrawing extends CmsBase
         }
 
         return $this->instance->question['uuid'];
+    }
+
+    public function clearQuestionBag(){
+        $this->instance->question['answer_svg'] = '';
+        $this->instance->question['question_svg'] = '';
+        $this->instance->question['grid_svg'] = '0.00';
+        $this->instance->question['zoom_group'] = '';
+        $this->instance->question['question_preview'] = '';
+        $this->instance->question['question_correction_model'] = '';
     }
 }

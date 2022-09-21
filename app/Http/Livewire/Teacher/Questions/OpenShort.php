@@ -1361,4 +1361,11 @@ class OpenShort extends Component implements QuestionCms
             $this->save(false);
         }
     }
+
+    public function clearQuestionBag(){
+        if ($this->obj && method_exists($this->obj, 'clearQuestionBag')) {
+            $this->obj->clearQuestionBag();
+        }
+        return true;
+    }
 }

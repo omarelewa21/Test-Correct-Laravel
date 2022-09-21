@@ -5856,6 +5856,7 @@ document.addEventListener('alpine:init', function () {
     var isPreview = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : false;
     return {
       show: false,
+      showWarning: false,
       questionId: questionId,
       answerSvg: entanglements.answerSvg,
       questionSvg: entanglements.questionSvg,
@@ -5863,6 +5864,7 @@ document.addEventListener('alpine:init', function () {
       isTeacher: isTeacher,
       toolName: null,
       isPreview: isPreview,
+      isOldDrawing: entanglements.isOldDrawing,
       init: function init() {
         var _this7 = this;
 

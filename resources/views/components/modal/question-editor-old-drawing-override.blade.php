@@ -1,5 +1,17 @@
 <div id="old-drawing-question-modal"
      class="fixed inset-0 overflow-y-auto px-4 py-6 sm:px-0 z-[101]"
+     x-data="{
+        openEditorWithClearSlate: async (button) => {
+            button.disabled = true
+            var clear = await $wire.clearQuestionBag();
+            if (clear){
+                showWarning = false;
+                show = true;
+            }else{
+                button.disabled = false;
+            }
+        }
+     }"
      x-show="showWarning"
      x-cloak
      x-transition:enter="ease-out duration-100"
@@ -40,7 +52,7 @@
                         <x-icon.chevron/>
                         <span>{{ __('auth.cancel') }}</span>
                     </x-button.text-button>
-                    <x-button.primary @click="showWarning = false;show = true;">
+                    <x-button.primary @click="openEditorWithClearSlate($el)">
                         <span>{{ __('auth.continue') }}</span>
                     </x-button.primary>
                 </div>

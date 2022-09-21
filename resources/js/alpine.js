@@ -284,6 +284,7 @@ document.addEventListener('alpine:init', () => {
 
     Alpine.data('drawingTool', (questionId, entanglements, isTeacher, isPreview = false) => ({
         show: false,
+        showWarning: false,
         questionId: questionId,
         answerSvg: entanglements.answerSvg,
         questionSvg: entanglements.questionSvg,
@@ -291,6 +292,7 @@ document.addEventListener('alpine:init', () => {
         isTeacher: isTeacher,
         toolName: null,
         isPreview: isPreview,
+        isOldDrawing: entanglements.isOldDrawing,
         init() {
             this.toolName = `drawingTool_${questionId}`;
             if (Object.getOwnPropertyNames(window).includes(this.toolName)) {
