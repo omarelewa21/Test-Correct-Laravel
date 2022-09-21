@@ -425,7 +425,6 @@ class Question extends MtiBaseModel
                 $question->tags()->attach($tags);
             }
         }
-
         if($this->questionAttainments){
             $params = $this->questionAttainments->map(function ($questionAttainment) use ($question) {
                 $questionAttainment->question_id = $question->getKey();
@@ -433,6 +432,15 @@ class Question extends MtiBaseModel
             });
             $question->questionAttainments()->createMany($params);
         }
+
+        if ($this->questionLearningGoals) {
+            $params = $this->questionLearningGoals->map(function ($questionlearningGoal) use ($question) {
+                $questionlearningGoal->question_id = $question->getKey();
+                return $questionlearningGoal->toArray();
+            });
+            $question->questionAttainments()->createMany($params);
+        }
+
 
 
 
