@@ -457,8 +457,10 @@ class Test extends BaseModel
         if (!array_key_exists('name', $attributes)) {
             $copy = 1;
             $names = static::where('author_id', $authorId)->where('name', 'LIKE', 'Kopie #% ' . $this->getAttribute('name'))->pluck('name')->all();
-            while (in_array('Kopie #' . $copy . ' ' . $this->getAttribute('name'), $names)) {
-                $copy++;
+            if(count($names)) {
+                while (in_array('Kopie #' . $copy . ' ' . $this->getAttribute('name'), $names) && $copy < 100) {
+                    $copy++;
+                }
             }
             $attributes['name'] = 'Kopie #' . $copy . ' ' . $this->getAttribute('name');
         }

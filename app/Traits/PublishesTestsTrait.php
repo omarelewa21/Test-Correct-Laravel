@@ -22,6 +22,18 @@ trait PublishesTestsTrait
     private $publishesTestsScope = null;
     private $publishesTestsAuthor = null;
 
+    private $preventLoopWhilePublishing = false;
+
+
+    private function getPreventLoopWhilePublishing()
+    {
+        return $this->preventLoopWhilePublishing;
+    }
+
+    private function setPreventLoopWhilePublishing(bool $bool)
+    {
+        $this->preventLoopWhilePublishing = !! $bool;
+    }
 
     private function getPublishesTestsTraitLookupTable()
     {
@@ -166,14 +178,18 @@ trait PublishesTestsTrait
 
     private function publishQuestionsOfTest(): void
     {
-        $questions = $this->testQuestions->map(function ($testQuestion) {
-            return $testQuestion->question->getQuestionInstance();
-        });
-        $this->publishTestQuestions($questions);
-        $this->author_id = $this->publishesTestsAuthor->getKey();
-        $this->save();
-        TestAuthor::where('test_id',$this->getKey())->delete(); // we don't want to show the old author as it is a toetsenbakker probably
-        TestAuthor::addAuthorToTest($this, $this->publishesTestsAuthor->getKey());
+        if($this->getPreventLoopWhilePublishing()) {
+            $questions = $this->testQuestions->map(function ($testQuestion) {
+                return $testQuestion->question->getQuestionInstance();
+            });
+            $this->publishTestQuestions($questions);
+            $this->author_id = $this->publishesTestsAuthor->getKey();
+            $this->setPreventLoopWhilePublishing(true);
+            $this->save();
+            $this->setPreventLoopWhilePublishing(false);
+            TestAuthor::where('test_id', $this->getKey())->delete(); // we don't want to show the old author as it is a toetsenbakker probably
+            TestAuthor::addAuthorToTest($this, $this->publishesTestsAuthor->getKey());
+        }
     }
 
     private function publishTestQuestions($questions): void
