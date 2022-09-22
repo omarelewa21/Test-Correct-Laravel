@@ -4,15 +4,15 @@
              class="flex flex-col"
         >
             @if($openTab !== 'umbrella')
-                <livewire:actions.test-plan-test :uuid="$testUuid" variant="context-menu" class="order-1"/>
-                <livewire:actions.test-quick-take :uuid="$testUuid" variant="context-menu" class="order-2"/>
-                <livewire:actions.test-make-pdf :uuid="$testUuid" variant="context-menu" class="order-4"/>
+                <livewire:actions.test-plan-test :wire:key="'plan-test-'.$testUuid" :uuid="$testUuid" variant="context-menu" class="order-1"/>
+                <livewire:actions.test-quick-take :wire:key="'quick-take-'.$testUuid" :uuid="$testUuid" variant="context-menu" class="order-2"/>
+                <livewire:actions.test-make-pdf :wire:key="'make-pdf-'.$testUuid" :uuid="$testUuid" variant="context-menu" class="order-4"/>
                 <x-actions.test-open-edit :uuid="$testUuid" variant="context-menu" class="order-6"/>
                 <x-actions.test-open-settings :uuid="$testUuid" variant="context-menu" class="order-7"/>
                 <x-actions.test-delete :uuid="$testUuid" variant="context-menu" class="order-8"/>
             @endif
 
-            <livewire:actions.test-duplicate-test :uuid="$testUuid" variant="context-menu" class="order-3"/>
+            <livewire:actions.test-duplicate-test :wire:key="'duplicate-test-'.$testUuid" :uuid="$testUuid" variant="context-menu" class="order-3"/>
             <x-actions.test-open-preview :uuid="$testUuid" variant="context-menu" class="order-5"/>
 
         </div>
