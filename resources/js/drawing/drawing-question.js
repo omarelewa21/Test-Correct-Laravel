@@ -912,7 +912,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview) {
     function decodeSvgLayerFromBase64String(layerData) {
         if (layerData.data.startsWith("data:image/png;base64")) {
             // made with old tool, load as image
-            const parentID = `question`;
+            const parentID = layerData.name;
             const shapeID = "image-1";
             const newShape = makeNewSvgShapeWithSidebarEntry(
                 "image",

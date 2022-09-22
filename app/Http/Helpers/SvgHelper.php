@@ -70,6 +70,7 @@ class SvgHelper
         [$width, $height] = getimagesize($q->getCurrentBgPath());
         $identifier = Uuid::uuid4();
 
+        // Todo => delete previous images exists in the question folder
         $this->addImageToLayer('question', $identifier, $q->getCurrentBgPath());
 
         $doc = (new \DOMDocument);

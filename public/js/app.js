@@ -5856,7 +5856,6 @@ document.addEventListener('alpine:init', function () {
     var isPreview = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : false;
     return {
       show: false,
-      showWarning: false,
       questionId: questionId,
       answerSvg: entanglements.answerSvg,
       questionSvg: entanglements.questionSvg,
@@ -8315,7 +8314,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview) {
   function decodeSvgLayerFromBase64String(layerData) {
     if (layerData.data.startsWith("data:image/png;base64")) {
       // made with old tool, load as image
-      var parentID = "question";
+      var parentID = layerData.name;
       var shapeID = "image-1";
       var newShape = makeNewSvgShapeWithSidebarEntry("image", {
         group: {},

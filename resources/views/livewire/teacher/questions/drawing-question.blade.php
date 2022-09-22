@@ -10,10 +10,6 @@
     />
 @endsection
 
-@php
-    $isOldDrawing = $this->isOldDrawingQuestion();
-@endphp
-
 @section('question-cms-answer')
     <div id="drawing-question-tool-container"
             x-data="drawingTool(
@@ -35,24 +31,17 @@
                     <span>{{ __('cms.Tekening aanpassen') }}</span>
                 </x-button.primary>
             @else
-                @if ($isOldDrawing)
-                    <x-button.primary wire:loading.attr="disabled" @click="showWarning = !showWarning" selid="draw-answer">
-                        <x-icon.edit/>
-                        <span>{{ __('cms.Tekening aanpassen') }}</span>
-                    </x-button.primary>
-                @else
-                    <x-button.primary wire:loading.attr="disabled" wire:target="handleUpdateDrawingData" x-cloak x-show="answerSvg !== ''" @click="show = !show" selid="draw-answer">
-                        <x-icon.edit/>
-                        <span>{{ __('cms.Tekening aanpassen') }}</span>
-                    </x-button.primary>
-                @endif
+                <x-button.primary wire:loading.attr="disabled" wire:target="handleUpdateDrawingData" x-cloak x-show="answerSvg !== ''" @click="show = !show" selid="draw-answer">
+                    <x-icon.edit/>
+                    <span>{{ __('cms.Tekening aanpassen') }}</span>
+                </x-button.primary>
             @endisset
         </div>
 
         <div class="flex flex-1 min-h-[500px] w-full border border-bluegrey rounded-10 mt-4 items-center justify-center relative overflow-auto drawing-tool-preview">
 
-            @if($isOldDrawing)
-                <div>
+            @if($this->isOldDrawingQuestion())
+                <div x-data="{showWarning: false}">
                     <div class="absolute top-0 left-0 w-full h-full">
                         <img class="object-cover" src="{{ $this->question['answer'] }}" alt="">
                     </div>
@@ -74,6 +63,9 @@
                             <p class="text-note text-sm text-center mt-4">{{ __('cms.waarschuwing_aanpassen_oude_tekenvraag') }} </p>
                         </div>
                     </div>
+                    @if(!isset($preview))
+                        <x-modal.question-editor-old-drawing-override/>
+                    @endif
                 </div>
             @else
                 <div class="absolute top-0 left-0 w-full h-full">
@@ -111,9 +103,6 @@
             @endif
 
         </div>
-        @if($isOldDrawing && !isset($preview))
-            <x-modal.question-editor-old-drawing-override/>
-        @endif
         <x-modal.question-editor-drawing-modal/>
     </div>
 @endsection

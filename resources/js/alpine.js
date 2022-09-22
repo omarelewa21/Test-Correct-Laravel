@@ -284,7 +284,6 @@ document.addEventListener('alpine:init', () => {
 
     Alpine.data('drawingTool', (questionId, entanglements, isTeacher, isPreview = false) => ({
         show: false,
-        showWarning: false,
         questionId: questionId,
         answerSvg: entanglements.answerSvg,
         questionSvg: entanglements.questionSvg,

@@ -42,7 +42,6 @@ class CmsDrawing extends CmsBase
 
         $this->instance->question['uuid'] = $q['uuid'];
         $this->instance->question['temp_uuid'] = 'temp-'.$q['uuid'];
-//        $this->instance->backgroundImage = $q->getBackgroundImage();
 
         if (filled($this->instance->question['zoom_group'])) {
             $this->setViewBox($this->instance->question['zoom_group']);
@@ -142,6 +141,9 @@ class CmsDrawing extends CmsBase
 
     private function getAnswerSvg(SvgHelper $svgHelper, $q)
     {
+        if($this->isOldDrawingQuestion()){
+            return $q['answer'];
+        }
         if ($svgHelper->getAnswerLayerFromSVG()) {
             return $svgHelper->getAnswerLayerFromSVG(true);
         }
