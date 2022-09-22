@@ -82,6 +82,8 @@ class UserHelper
 
         $user->setAttribute('hasSharedSections',$user->hasSharedSections());
 
+        $user->setAttribute('isExamCoordinator', $user->isValidExamCoordinator());
+
         $user->setAttribute('temporaryLoginOptions', TemporaryLogin::getOptionsForUser($user));
 
         $user->makeOnboardWizardIfNeeded();

@@ -60,14 +60,4 @@ class Invigilator extends CompositePrimaryKeyModel
     {
         return $this->belongsTo('tcCore\User');
     }
-
-    public static function getInvigilatorUsersForSchoolLocation(SchoolLocation $schoolLocation)
-    {
-        return User::whereIn(
-            'id',
-            DB::table('school_location_user')
-                ->select('user_id')
-                ->where('school_location_id', $schoolLocation->getKey())
-        );
-    }
 }

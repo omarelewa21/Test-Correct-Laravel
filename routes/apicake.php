@@ -300,6 +300,7 @@ Route::group(['middleware' => ['api', 'dl', 'authorize', 'authorizeBinds', 'bind
     Route::resource('teacher', 'TeachersController', ['except' => ['create', 'edit']]);
 
     Route::post('/teacher/import/schoollocation','TeachersController@import')->name('teacher.import');
+    Route::get('/teacher/school_location_teacher_users/{school_location}','TeachersController@getSchoolLocationTeacherUser')->name('teacher.school-location-teacher-users');
 
     Route::post('/attainments/import','AttainmentImportController@import')->name('attainment.import');
     Route::post('/attainments_cito/import','AttainmentCitoImportController@import')->name('attainment_cito.import');

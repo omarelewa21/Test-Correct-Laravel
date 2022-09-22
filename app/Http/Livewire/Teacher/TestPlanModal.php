@@ -9,8 +9,8 @@ use Illuminate\Validation\Validator;
 use LivewireUI\Modal\ModalComponent;
 use tcCore\Http\Controllers\TemporaryLoginController;
 use tcCore\Http\Traits\Modal\WithPlanningFeatures;
-use tcCore\Invigilator;
 use tcCore\Period;
+use tcCore\Teacher;
 use tcCore\TestTake;
 use tcCore\TestTakeStatus;
 
@@ -34,9 +34,9 @@ class TestPlanModal extends ModalComponent
         $this->test = \tcCore\Test::whereUuid($testUuid)->first();
 
         $this->allowedPeriods = Period::filtered(['current_school_year' => true])->get();
-        $this->allowedInvigilators = Invigilator::getInvigilatorUsersForSchoolLocation(Auth::user()->schoolLocation)
+        $this->allowedInvigilators = Teacher::getTeacherUsersForSchoolLocation(Auth::user()->schoolLocation)
             ->get()
-            ->map(fn ($invigilator) => ['value' => $invigilator->id, 'label' => $invigilator->name_full]);
+            ->map(fn ($teacher) => ['value' => $teacher->id, 'label' => $teacher->name_full]);
         $this->resetModalRequest();
     }
 

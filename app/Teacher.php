@@ -2,6 +2,7 @@
 
 use Doctrine\DBAL\Query\QueryBuilder;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Queue;
 use tcCore\Jobs\PValues\UpdatePValueUsers;
 use tcCore\Lib\Models\BaseModel;
@@ -181,5 +182,17 @@ class Teacher extends BaseModel {
                 ];
             });
 
+    }
+
+    public static function getTeacherUsersForSchoolLocation(SchoolLocation $schoolLocation)
+    {
+        return User::leftJoin('user_roles', 'users.id', '=', 'user_roles.user_id')
+            ->whereIn(
+                'id',
+                DB::table('school_location_user')
+                    ->select('user_id')
+                    ->where('school_location_id', $schoolLocation->getKey())
+            )
+            ->where('user_roles.role_id', Role::TEACHER);
     }
 }
