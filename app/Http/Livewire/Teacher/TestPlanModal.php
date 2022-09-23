@@ -173,7 +173,12 @@ class TestPlanModal extends ModalComponent
         $this->request['retake'] = 0;
         $this->request['guest_accounts'] = 0;
         $this->request['school_classes'] = [];
-        $this->request['invigilators'] = [auth()->id()];
+        $this->request['invigilators'] = $this->defaultInvigilator();
         $this->request['notify_students'] = true;
+    }
+
+    private function defaultInvigilator(): array
+    {
+        return [Auth::user()->isValidExamCoordinator() ? $this->test->author_id : Auth::id()];
     }
 }

@@ -50,8 +50,6 @@ class QuestionBank extends Component
 
     public $groupQuestionDetail;
 
-    public $isExamCoordinator = false;
-
     protected function getListeners()
     {
         return [

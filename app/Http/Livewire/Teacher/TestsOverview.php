@@ -36,7 +36,6 @@ class TestsOverview extends Component
         'test-added'          => '$refresh',
         'testSettingsUpdated' => '$refresh',
     ];
-    public $isExamCoordinator;
 
     public function render()
     {

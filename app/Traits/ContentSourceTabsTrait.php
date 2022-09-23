@@ -65,7 +65,7 @@ trait ContentSourceTabsTrait
         if (session()->has(self::ACTIVE_TAB_SESSION_KEY)) {
             return session()->get(self::ACTIVE_TAB_SESSION_KEY);
         }
-        if ($this->isExamCoordinator) {
+        if (Auth::user()->isValidExamCoordinator()) {
             return 'school_location';
         }
         return 'personal';

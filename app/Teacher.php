@@ -186,7 +186,8 @@ class Teacher extends BaseModel {
 
     public static function getTeacherUsersForSchoolLocation(SchoolLocation $schoolLocation)
     {
-        return User::leftJoin('user_roles', 'users.id', '=', 'user_roles.user_id')
+        return User::select('users.*')
+            ->leftJoin('user_roles', 'users.id', '=', 'user_roles.user_id')
             ->whereIn(
                 'id',
                 DB::table('school_location_user')
