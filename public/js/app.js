@@ -5919,7 +5919,6 @@ document.addEventListener('alpine:init', function () {
       answerSvg: entanglements.answerSvg,
       questionSvg: entanglements.questionSvg,
       gridSvg: entanglements.gridSvg,
-      grid: entanglements.grid,
       isTeacher: isTeacher,
       toolName: null,
       isPreview: isPreview,
@@ -5972,10 +5971,19 @@ document.addEventListener('alpine:init', function () {
         }
       },
       makeGridIfNecessary: function makeGridIfNecessary(toolName) {
+        var gridSize = false;
+
         if (this.gridSvg !== '' && this.gridSvg !== '0.00') {
-          makePreviewGrid(toolName.drawingApp, this.gridSvg);
+          gridSize = this.gridSvg;
         } else if (this.grid && this.grid !== '0') {
-          makePreviewGrid(toolName.drawingApp, 1 / parseInt(this.grid) * 14);
+          gridSize = 1 / parseInt(this.grid) * 14;
+        }
+
+        if (gridSize) {
+          makePreviewGrid(toolName.drawingApp, gridSize);
+          setTimeout(function () {
+            makePreviewGrid(toolName.drawingApp, gridSize);
+          }, 2000);
         }
       }
     };
