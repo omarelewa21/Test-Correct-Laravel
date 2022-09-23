@@ -662,14 +662,8 @@ class EntreeHelper
     protected function handleEndRedirect($options = [])
     {
         // check if there is a data collection which needds to be checked
-        if($mId = request()->get('mId')){
-            $samlMessage = SamlMessage::whereUuid($mId)->first();
-            if($samlMessage){
-                $data = (array) $samlMessage->data;
-                if(isset($data['url'])){
-                    return $this->redirectToUrlAndExit($data['url']);
-                }
-            }
+        if($url = request()->session()->pull('finalRedirectTo',false)){
+            return $this->redirectToUrlAndExit($url);
         }
 
         // if student get url to redirect

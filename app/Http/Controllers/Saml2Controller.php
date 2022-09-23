@@ -169,6 +169,7 @@ class Saml2Controller extends Controller
         } else if($mId = request()->get('mId')){
             $redirectTo .= (Str::contains($redirectTo,'?')) ? '&' : '?' . 'mId='.$mId;
         }
+        logger($redirectTo);
         return $redirectTo;
     }
 
