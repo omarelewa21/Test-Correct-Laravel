@@ -362,7 +362,12 @@ class Test extends BaseModel
         $query->select();
 
         if (count($sharedSectionIds) > 0) {
-            $subjectIds = Subject::whereIn('section_id', $sharedSectionIds)->whereIn('base_subject_id', $baseSubjectIds)->pluck('id')->unique();
+            $subjectIds = Subject::whereIn('section_id', $sharedSectionIds)
+                ->when(!$user->isValidExamCoordinator(), function($query) use ($baseSubjectIds) {
+                    $query->whereIn('base_subject_id', $baseSubjectIds)->pluck('id')->unique();
+                })
+                ->pluck('id')
+                ->unique();;
         } else {
             $query->where('tests.id', -1);
             return $query;
