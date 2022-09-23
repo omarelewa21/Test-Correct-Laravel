@@ -163,7 +163,7 @@ class Saml2Controller extends Controller
             $message = SamlMessage::create([
                 'message_id' => 'not needed',
                 'eck_id' => 'not needed',
-                'data' => (object) ['url' => route('take.directLink', ['testTakeUuid' => $directlink])],
+                'data' => (object) ['url' => route('take.directLink', ['testTakeUuid' => $directLink])],
             ]);
             $redirectTo .= (Str::contains($redirectTo,'?')) ? '&' : '?' . 'mId='.$message->uuid;
         } else if($mId = request()->get('mId')){
