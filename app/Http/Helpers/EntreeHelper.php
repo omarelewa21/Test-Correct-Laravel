@@ -648,15 +648,33 @@ class EntreeHelper
         if ($this->laravelUser) {
             // return true is hier waarschijnlijk voldoende omdat je dan via scenario 1 wordt ingelogged;
             $this->handleUpdateUserWithSamlAttributes();
-            // if student get url to redirect
-            // redirect naar splash screen
-            $url = $this->laravelUser->getRedirectUrlSplashOrStartAndLoginIfNeeded();
-            return $this->redirectToUrlAndExit($url);
+
+            return $this->handleEndRedirect();
+
         }
-// redirect to maak koppelingscherm;
+        // redirect to maak koppelingscherm;
 
         $message = $this->createSamlMessage();
         $url = route('auth.login', ['tab' => 'entree', 'uuid' => $message->uuid]);
+        return $this->redirectToUrlAndExit($url);
+    }
+
+    protected function handleEndRedirect($options = [])
+    {
+        // check if there is a data collection which needds to be checked
+        if($mId = request()->get('mId')){
+            $samlMessage = SamlMessage::whereUuid($mId)->first();
+            if($samlMessage){
+                $data = (array) $samlMessage->data;
+                if(isset($data['url'])){
+                    return $this->redirectToUrlAndExit($data['url']);
+                }
+            }
+        }
+
+        // if student get url to redirect
+        // redirect naar splash screen
+        $url = $this->laravelUser->getRedirectUrlSplashOrStartAndLoginIfNeeded($options);
         return $this->redirectToUrlAndExit($url);
     }
 
@@ -811,10 +829,8 @@ class EntreeHelper
         }
 
         $this->handleUpdateUserWithSamlAttributes();
-        // if student redirect to splash screen
-        $url = $this->laravelUser->getRedirectUrlSplashOrStartAndLoginIfNeeded($options);
-        return $this->redirectToUrlAndExit($url);
 
+        return $this->handleEndRedirect($options);
     }
 
     public function handleScenario2IfAddressIsKnownInOtherAccount()
