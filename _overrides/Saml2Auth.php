@@ -54,6 +54,10 @@ class Saml2Auth
 
             $config['sp']['entityId'] .= $spIdentityAddOn;
             $config['sp']['assertionConsumerService']['url'] .= $assertionConsumerServiceAddOn;
+
+            if($mId = request()->get('mId')){
+                $config['sp']['assertionConsumerService']['url'] .= '&mId='.$mId;
+            }
         }
         // END OVERRIDES
 
