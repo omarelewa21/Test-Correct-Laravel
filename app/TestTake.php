@@ -116,8 +116,8 @@ class TestTake extends BaseModel
             }
 
             if (Uuid::isValid($testTake->user_id)) {
-                $testTake->user_id = User::whereUuid($testTake->user_id)->value('id');
-                logger($testTake->user_id);
+                $newUserId = User::whereUuid($testTake->user_id)->value('id');
+                $testTake->user_id = $newUserId ?? $testTake->getOriginal('user_id');
             }
             return true;
         });

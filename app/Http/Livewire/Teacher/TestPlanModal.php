@@ -166,7 +166,7 @@ class TestPlanModal extends ModalComponent
         $this->request['test_id'] = $this->test->getKey();
         $this->request['allow_inbrowser_testing'] = $this->isAssessmentType() ? 1 : 0;
         $this->request['invigilator_note'] = '';
-        $this->request['owner_id'] = auth()->id();
+        $this->request['owner_id'] = $this->test->author_id;
         $this->request['scheduled_by'] = auth()->id();
         $this->request['test_kind_id'] = 3;
 
