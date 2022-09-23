@@ -662,7 +662,7 @@ class EntreeHelper
     protected function handleEndRedirect($options = [])
     {
         // check if there is a data collection which needds to be checked
-        if($url = session('finalRedirectTo',false)){
+        if($url = session()->get('finalRedirectTo',false)){
             return $this->redirectToUrlAndExit($url);
         }
 
