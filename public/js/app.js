@@ -5590,6 +5590,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var choices_js__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(choices_js__WEBPACK_IMPORTED_MODULE_2__);
 /* harmony import */ var _alpinejs_intersect__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! @alpinejs/intersect */ "./node_modules/@alpinejs/intersect/dist/module.esm.js");
 /* harmony import */ var _ryangjchandler_alpine_clipboard__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! @ryangjchandler/alpine-clipboard */ "./node_modules/@ryangjchandler/alpine-clipboard/src/index.js");
+function _typeof(obj) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (obj) { return typeof obj; } : function (obj) { return obj && "function" == typeof Symbol && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }, _typeof(obj); }
+
 
 
 function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { Promise.resolve(value).then(_next, _throw); } }
@@ -6249,7 +6251,8 @@ document.addEventListener('alpine:init', function () {
           var refreshChoices = function refreshChoices() {
             var selection = _this16.multiple ? _this16.value : [_this16.value];
             choices.clearStore();
-            choices.setChoices(_this16.options.map(function (_ref) {
+            var options = _typeof(_this16.options) === 'object' ? Object.values(_this16.options) : _this16.options;
+            choices.setChoices(options.map(function (_ref) {
               var value = _ref.value,
                   label = _ref.label;
               return {
@@ -7401,7 +7404,7 @@ window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
 window.Pusher = __webpack_require__(/*! pusher-js */ "./node_modules/pusher-js/dist/web/pusher.js");
 window.Echo = new laravel_echo__WEBPACK_IMPORTED_MODULE_0__["default"]({
   broadcaster: 'pusher',
-  key: "51d7221bf733999d7138",
+  key: "fc18ed69b446aeb8c8a5",
   cluster: "eu",
   forceTLS: true
 });
@@ -13143,17 +13146,15 @@ document.addEventListener('alpine:init', function () {
       init: function init() {
         var _this = this;
 
-        // if(this.mode == 'range'){
-        //     this.value = ['{{$defaultDate}}', '{{$defaultDateTo}}'];
-        // } else {
-        //     this.value = this.wireModel;
-        // }
         this.picker = (0,flatpickr__WEBPACK_IMPORTED_MODULE_0__["default"])(this.$refs.datepickr, {
           locale: this.locale,
           minDate: minDate == 'today' ? 'today' : false,
           mode: this.mode,
           defaultDate: this.wireModel,
-          dateFormat: "d-m-Y",
+          // The displayed format is humanreadable, the used date is Y-m-d formatted;
+          altInput: true,
+          altFormat: "d-m-Y",
+          dateFormat: "Y-m-d",
           onChange: function onChange(date, dateString) {
             _this.wireModel = _this.value = _this.mode == 'range' ? dateString.split(' t/m ') : dateString; //split t/m or to
           }

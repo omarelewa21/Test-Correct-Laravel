@@ -30,7 +30,7 @@
                     </div>
                 </div>
                 <div class="flex flex-wrap w-full gap-2 mt-2">
-                    <div class="pl-1">
+                    <div class="pl-1 border-transparent">
                         <x-input.toggle-row-with-title wire:click="$toggle('filters.{{ $this->openTab }}.archived')"
                                                        :checked="$this->filters[$this->openTab]['archived']"
                                                        :small="true"
@@ -64,6 +64,7 @@
                     <x-input.group>
                         <x-input.datepicker class="bg-offwhite w-[170px]"
                                             wire:model="filters.{{ $this->openTab }}.time_start_from"
+                                            wire:key="time_start_from.{{ $this->openTab }}"
                                             locale="{{ app()->getLocale() }}"
                                             placeholder="{{ __('teacher.Datum') }}"/>
                     </x-input.group>
@@ -71,6 +72,7 @@
                     <x-input.group>
                         <x-input.datepicker class="bg-offwhite w-[170px]"
                                             wire:model="filters.{{ $this->openTab }}.time_start_to"
+                                            wire:key="time_start_to.{{ $this->openTab }}"
                                             locale="{{ app()->getLocale() }}"
                                             placeholder="{{ __('teacher.Datum tot') }}"/>
                     </x-input.group>
