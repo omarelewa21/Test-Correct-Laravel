@@ -673,15 +673,15 @@ class EntreeHelper
 
     protected function handleEndRedirect($options = [])
     {
+        // make sure the standard procedure is first handled before possible final redirect.
+        $url = $this->laravelUser->getRedirectUrlSplashOrStartAndLoginIfNeeded($options);
+
         // check if there is a data collection which needds to be checked
         if($this->finalRedirectTo){
             logger('final url found '.$this->finalRedirectTo);
-            return $this->redirectToUrlAndExit($this->finalRedirectTo);
+            $url = $this->finalRedirectTo;
         }
 
-        // if student get url to redirect
-        // redirect naar splash screen
-        $url = $this->laravelUser->getRedirectUrlSplashOrStartAndLoginIfNeeded($options);
         return $this->redirectToUrlAndExit($url);
     }
 
