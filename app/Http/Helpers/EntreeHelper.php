@@ -680,6 +680,7 @@ class EntreeHelper
         if($this->finalRedirectTo){
             logger('final url found '.$this->finalRedirectTo);
             $url = $this->finalRedirectTo;
+            sleep(1);
         }
 
         return $this->redirectToUrlAndExit($url);
