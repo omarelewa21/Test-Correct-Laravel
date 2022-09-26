@@ -53,12 +53,21 @@ class EntreeHelper
 
     protected $emailMaybeEmpty = false;
 
-    protected $isRegistering = false;
+    protected $entreeReason;
+    protected $finalRedirectTo;
 
     public function __construct($attr, $messageId)
     {
         $this->attr = $this->transformAttributesIfNeededAndReturn($attr);
         $this->messageId = $messageId;
+
+        $this->retrieveDataFromSession();
+    }
+
+    private function retrieveDataFromSession()
+    {
+        $this->entreeReason = session()->get('entreeReason');
+        $this->finalRedirectTo = session()->get('finalRedirectTo');
     }
 
     public static function initAndHandleFromRegisterWithEntreeAndTUser(User $user, $attr)
@@ -74,7 +83,7 @@ class EntreeHelper
 
     protected function isRegistering()
     {
-        return (session()->get('entreeReason',false) === 'register');
+        return ($this->entreeReason === 'register');
     }
 
     public function handleIfRegistering()
@@ -662,7 +671,7 @@ class EntreeHelper
     protected function handleEndRedirect($options = [])
     {
         // check if there is a data collection which needds to be checked
-        if($url = session()->get('finalRedirectTo',false)){
+        if($url = $this->finalRedirectTo){
             return $this->redirectToUrlAndExit($url);
         }
 
