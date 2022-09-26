@@ -672,9 +672,9 @@ class EntreeHelper
     protected function handleEndRedirect($options = [])
     {
         // check if there is a data collection which needds to be checked
-        if($url = $this->finalRedirectTo){
-            logger('final url found '.$url);
-            return $this->redirectToUrlAndExit($url);
+        if($this->finalRedirectTo){
+            logger('final url found '.$this->finalRedirectTo);
+            return $this->redirectToUrlAndExit($this->finalRedirectTo);
         }
 
         // if student get url to redirect
