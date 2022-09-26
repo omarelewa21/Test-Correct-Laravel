@@ -1262,12 +1262,12 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
         return $this->hasOne(GeneralTermsLog::class, 'user_id');
     }
 
-    public function trialPeriod()
+    public function trialPeriods()
     {
-        return $this->hasOne(TrialPeriod::class, 'user_id');
+        return $this->hasMany(TrialPeriod::class, 'user_id');
     }
 
-    public function trialPeriodWithSchoolLocationCheck()
+    public function trialPeriodsWithSchoolLocationCheck()
     {
         return $this->hasOne(TrialPeriod::class, 'user_id')->where('school_location_id',$this->school_location_id);
     }
@@ -2667,13 +2667,12 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
         if (!$this->isA('Teacher') || !$this->schoolLocation->hasTrialLicense()) {
             return false;
         }
-        if($this->trialPeriodWithSchoolLocationCheck()->exists()) {
+        if($this->trialPeriodsWithSchoolLocationCheck()->exists()) {
             return false;
         }
 
-        return $this->trialPeriod()->create([
-            'user_id' => $this->getKey(),
-            'school_location_id' => $this->school_location_id,
+        return $this->trialPeriods()->create([
+            'school_location_id' => $this->school_location_id
         ]);
     }
 }

@@ -30,4 +30,9 @@ class TrialPeriod extends Model
     {
         return $this->belongsTo(User::class, 'user_id');
     }
+
+    public function schoolLocation()
+    {
+        return $this->belongsTo(SchoolLocation::class, 'school_location_id');
+    }
 }

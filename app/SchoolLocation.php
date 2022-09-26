@@ -520,6 +520,11 @@ class SchoolLocation extends BaseModel implements AccessCheckable
         return $this->belongsToMany(SchoolYear::class, 'school_location_school_years', 'school_location_id');
     }
 
+    public function trialPeriods()
+    {
+        return $this->hasMany(TrialPeriod::class, 'school_location_id');
+    }
+
     protected function saveSections()
     {
         $schoolLocationSections = $this->schoolLocationSections()->withTrashed()->get();

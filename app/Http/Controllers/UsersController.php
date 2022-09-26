@@ -61,7 +61,7 @@ class UsersController extends Controller
             $users->with('studentSchoolClasses');
         }
         if (is_array($request->get('with')) && in_array('trial_info', $request->get('with'))) {
-            $users->with('trialPeriod');
+            $users->with(['trialPeriods','trialPeriods.schoolLocation:id,name']);
         }
 
         switch (strtolower($request->get('mode', 'paginate'))) {
