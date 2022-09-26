@@ -89,6 +89,7 @@ class Saml2Controller extends Controller
                     if(optional($message->data)->url){
                         logger('final redirect to '.$message->data->url);
                         $sessionAr['finalRedirectTo'] = $message->data->url;
+                        $sessionAr['mId'] = $queryAr['mId'];
                     }
                 }
             }

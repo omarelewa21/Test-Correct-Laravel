@@ -55,6 +55,7 @@ class EntreeHelper
 
     protected $entreeReason;
     protected $finalRedirectTo;
+    protected $mId;
 
     public function __construct($attr, $messageId)
     {
@@ -68,6 +69,7 @@ class EntreeHelper
     {
         $this->entreeReason = session()->get('entreeReason');
         $this->finalRedirectTo = session()->get('finalRedirectTo');
+        $this->mId = session()->get('mId');
         logger('final redirect to inside the entree helper '.$this->finalRedirectTo);
     }
 
@@ -703,7 +705,7 @@ class EntreeHelper
             ) {
             // we probably have a small set so go for the big set
             // we need an url to go to samle login with setting for the big set
-            $url = route('saml2_login', ['idpName' => 'entree', 'set' => 'full','entreeRegister' => $register]);
+            $url = route('saml2_login', ['idpName' => 'entree', 'set' => 'full','entreeRegister' => $register, 'mId' => $this->mId]);
             sleep(2);
             return $this->redirectToUrlAndExit($url);
         }
