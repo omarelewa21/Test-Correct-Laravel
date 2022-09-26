@@ -2278,16 +2278,7 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
             }
         }
 //        }
-        $options = $this->addFinalRedirectToIfNeeded($options);
         return $this->getTemporaryCakeLoginUrl($options);
-    }
-
-    private function addFinalRedirectToIfNeeded($options)
-    {
-        if(session('finalRedirectTo')){
-            $options['finalRedirectTo'] = session('finalRedirectTo');
-        }
-        return $options;
     }
 
     public function loginThisUser()
