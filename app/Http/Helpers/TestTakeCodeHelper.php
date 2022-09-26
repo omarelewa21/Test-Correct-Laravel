@@ -46,6 +46,9 @@ class TestTakeCodeHelper extends BaseHelper
 
         $schoolClass = SchoolClass::whereTestTakeId($testTake->getKey())->first();
         if (!$schoolClass) {
+            if(null === ActingAsHelper::getInstance()->getUser()){
+                ActingAsHelper::getInstance()->setUser($guestUser);
+            }
             $schoolClass = SchoolClass::createGuestClassForTestTake($testTake);
         }
 
