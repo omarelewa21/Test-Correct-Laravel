@@ -26,7 +26,7 @@ class Handler extends ExceptionHandler
         ModelNotFoundException::class,
         ValidationException::class,
         DeploymentMaintenanceException::class,
-        CleanExitException::class,
+        CleanRedirectException::class,
     ];
 
     /**
@@ -66,8 +66,8 @@ class Handler extends ExceptionHandler
             );
 
             throw new HttpResponseException(new Response($e), 422);
-        } else if($e instanceof CleanExitException){
-            // we don't do anything
+        } else if($e instanceof CleanRedirectException){
+            return response()->redirectTo($e->url);
         } else {
             return parent::render($request, $e);
         }

@@ -14,7 +14,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
-use tcCore\Exceptions\CleanExitException;
+use tcCore\Exceptions\CleanRedirectException;
 use tcCore\Exceptions\RedirectAndExitException;
 use tcCore\Lib\Repositories\SchoolYearRepository;
 use tcCore\SamlMessage;
@@ -1006,7 +1006,7 @@ class EntreeHelper
             return redirect()->to($url);
         }
         redirect()->away($url);
-        throw new CleanExitException();
+        throw new CleanRedirectException();
     }
 
     public function setLaravelUser(): void
