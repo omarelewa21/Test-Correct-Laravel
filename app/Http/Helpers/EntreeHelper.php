@@ -1005,7 +1005,7 @@ class EntreeHelper
         if($this->context === 'livewire'){
             return redirect()->to($url);
         }
-        header('location: '.$url);
+        redirect()->away($url);
         throw new CleanExitException();
     }
 
