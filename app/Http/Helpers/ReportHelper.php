@@ -427,4 +427,12 @@ class ReportHelper
 
         return $builder->count();
     }
+
+    public function dateTrialPeriodEnds()
+    {
+        if($trialPeriod = $this->reference->trialPeriodWithSchoolLocationCheck) {
+            return $trialPeriod->trial_until;
+        }
+        return null;
+    }
 }
