@@ -71,7 +71,6 @@ class EntreeHelper
         $this->entreeReason = session()->get('entreeReason');
         $this->finalRedirectTo = session()->get('finalRedirectTo');
         $this->mId = session()->get('mId');
-        logger('final redirect to inside the entree helper '.$this->finalRedirectTo);
     }
 
     public static function initAndHandleFromRegisterWithEntreeAndTUser(User $user, $attr)
@@ -679,9 +678,7 @@ class EntreeHelper
 
         // check if there is a data collection which needds to be checked
         if($this->finalRedirectTo){
-            logger('final url found '.$this->finalRedirectTo);
             $url = $this->finalRedirectTo;
-            sleep(1);
         }
 
         return $this->redirectToUrlAndExit($url);
