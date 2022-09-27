@@ -7,6 +7,7 @@
                 if(typeof evt !== 'undefined') empty = false;
                 removeDrawingLegacy();
                 window.scrollTo({top: 0, behavior: 'smooth'});
+                $store.cms.dirty = false;
            }
 
            loadingTimeout = (value) => {
