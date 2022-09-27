@@ -76,18 +76,14 @@ class Saml2Controller extends Controller
             $sessionAr['entreeReason'] = 'register';
         }
 
-        logger('intended redirect url '.$redirectUrl);
         $parsedUrlAr = parse_url($redirectUrl);
         if(isset($parsedUrlAr['query'])){
-            logger('query part '.$parsedUrlAr['query']);
             parse_str($parsedUrlAr['query'], $queryAr);
             if(isset($queryAr['mId'])){
-                logger('mid '.$queryAr['mId']);
                 $messages = SamlMessage::whereUuid($queryAr['mId'])->get();
                 if($messages->count()){
                     $message = $messages->first();
                     if(optional($message->data)->url){
-                        logger('final redirect to '.$message->data->url);
                         $sessionAr['finalRedirectTo'] = $message->data->url;
                         $sessionAr['mId'] = $queryAr['mId'];
                     }
@@ -174,7 +170,7 @@ class Saml2Controller extends Controller
         } else if($mId = request()->get('mId')){
             $redirectTo .= (Str::contains($redirectTo,'?') ? '&' : '?') . 'mId='.$mId;
         }
-        logger('inside handle Collection of Needed data url: '.$redirectTo);
+
         return $redirectTo;
     }
 
