@@ -26,6 +26,7 @@ class Handler extends ExceptionHandler
         ModelNotFoundException::class,
         ValidationException::class,
         DeploymentMaintenanceException::class,
+        CleanExitException::class,
     ];
 
     /**
@@ -50,7 +51,7 @@ class Handler extends ExceptionHandler
      */
     public function render($request, Throwable $e)
     {
-        if($e instanceof DeploymentMaintenanceException) {
+        if ($e instanceof DeploymentMaintenanceException) {
             if ($request->expectsJson()) {
                 return response()->json(['error' => strip_tags($e->getMessage())], 503);
             } else {
@@ -65,6 +66,8 @@ class Handler extends ExceptionHandler
             );
 
             throw new HttpResponseException(new Response($e), 422);
+        } else if($e instanceof CleanExitException){
+            // we don't do anything
         } else {
             return parent::render($request, $e);
         }
