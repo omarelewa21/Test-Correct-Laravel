@@ -67,7 +67,8 @@ class Handler extends ExceptionHandler
 
             throw new HttpResponseException(new Response($e), 422);
         } else if($e instanceof CleanRedirectException){
-            return response()->redirectTo($e->url);
+            return response()
+                ->view('clean-redirect', ['url' => $e->url], 301);
         } else {
             return parent::render($request, $e);
         }
