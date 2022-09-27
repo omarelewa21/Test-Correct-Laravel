@@ -2273,7 +2273,6 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
                 $options = [
                     'internal_page' => '/users/student_splash',
                 ];
-                $options = $this->addFinalRedirectToIfNeeded($options);
                 return $this->getTemporaryCakeLoginUrl($options);
             }
         }
