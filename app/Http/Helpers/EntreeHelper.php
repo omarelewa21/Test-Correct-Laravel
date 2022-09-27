@@ -1005,8 +1005,8 @@ class EntreeHelper
         if($this->context === 'livewire'){
             return redirect()->to($url);
         }
-        redirect()->away($url);
-        throw new CleanRedirectException();
+
+        throw new CleanRedirectException($url);
     }
 
     public function setLaravelUser(): void
