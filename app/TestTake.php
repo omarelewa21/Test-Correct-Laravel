@@ -1208,6 +1208,6 @@ class TestTake extends BaseModel
 
     public function getScheduledByUserNameAttribute()
     {
-        return User::select(['id', 'name', 'name_suffix', 'name_first'])->whereId($this->scheduled_by)->first()->name_full;
+        return optional(User::select(['id', 'name', 'name_suffix', 'name_first'])->whereId($this->scheduled_by)->first())->name_full;
     }
 }
