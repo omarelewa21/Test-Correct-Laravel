@@ -262,7 +262,7 @@ class UsersController extends Controller
                             'salesOrganization',
                             'school.schoolLocations',
                             'schoolLocation',
-                            'trialPeriod'
+                            'trialPeriods'
                     );
 
         if (is_array($request->get('with')) && in_array('studentSubjectAverages', $request->get('with'))) {
