@@ -2,22 +2,17 @@
 
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Queue;
-use LaravelIdea\Helper\tcCore\_IH_SchoolClass_QB;
 use Ramsey\Uuid\Uuid;
 use tcCore\Events\InbrowserTestingUpdatedForTestParticipant;
 use tcCore\Events\NewTestTakeGraded;
 use tcCore\Events\NewTestTakeReviewable;
-use tcCore\Events\TestParticipantEvent;
 use tcCore\Events\TestTakeOpenForInteraction;
 use tcCore\Events\TestTakeShowResultsChanged;
 use tcCore\Http\Helpers\DemoHelper;
 use tcCore\Http\Helpers\GlobalStateHelper;
-use tcCore\Http\Helpers\TestTakeCodeHelper;
 use tcCore\Jobs\CountTeacherLastTestTaken;
 use tcCore\Jobs\CountTeacherTestDiscussed;
 use tcCore\Jobs\CountTeacherTestTaken;
@@ -30,11 +25,9 @@ use tcCore\Jobs\SendExceptionMail;
 use tcCore\Lib\Repositories\SchoolYearRepository;
 use tcCore\Lib\TestParticipant\Factory;
 use Dyrynda\Database\Casts\EfficientUuid;
-use Dyrynda\Database\Support\GeneratesUuid;
 use tcCore\Scopes\ArchivedScope;
 use tcCore\Traits\Archivable;
 use tcCore\Traits\UuidTrait;
-use Illuminate\Support\Str;
 
 class TestTake extends BaseModel
 {
@@ -1180,10 +1173,9 @@ class TestTake extends BaseModel
             ->distinct();
     }
 
-    public static function redirectToDetailPage($testTakeUuid)
+    public static function redirectToDetail($testTakeUuid, $returnRoute = '')
     {
         $detailUrl = sprintf('test_takes/view/%s', $testTakeUuid);
-        $returnRoute = route('teacher.test-takes', ['stage' => 'taken'], false);
         $temporaryLogin = TemporaryLogin::createWithOptionsForUser(['page', 'return_route'], [$detailUrl, $returnRoute], auth()->user());
 
         return redirect($temporaryLogin->createCakeUrl());
