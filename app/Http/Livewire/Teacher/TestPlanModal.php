@@ -156,7 +156,7 @@ class TestPlanModal extends ModalComponent
         $this->request = [];
 
         $this->request['visible'] = 1;
-        $this->request['date'] = now()->format('d-m-Y');
+        $this->request['date'] = now()->format('Y-m-d');
         if ($this->isAssessmentType()) {
             $this->request['time_end'] = now()->endOfDay();
         }

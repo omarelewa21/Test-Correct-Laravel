@@ -46,7 +46,6 @@ class TestTakeOverview extends Component
     public function updatingFilters(&$value, $name)
     {
         $this->resetPage();
-        $value = $this->parseDateIfNecessary($name, $value);
     }
 
     public function updatedOpenTab()
@@ -130,7 +129,15 @@ class TestTakeOverview extends Component
     public function clearFilters($tab = null)
     {
         $this->dispatchBrowserEvent('clear-datepicker');
-        return $this->setFilters();
+        return $this->filters[$tab ?? $this->openTab] = [
+            'test_take_status_id' => $this->getTestTakeStatusForFilter($tab),
+            'archived'            => false,
+            'test_name'           => '',
+            'school_class_id'     => [],
+            'subject_id'          => [],
+            'time_start_from'     => '',
+            'time_start_to'       => '',
+        ];
     }
 
     private function getTestTakeStatusForFilter($tab)
@@ -156,22 +163,9 @@ class TestTakeOverview extends Component
         }
     }
 
-    /**
-     * @param $name
-     * @param $value
-     * @return mixed|string
-     */
-    private function parseDateIfNecessary($name, $value)
-    {
-        if (Str::contains($name, 'time_start_from') || Str::contains($name, 'time_start_to')) {
-            $value = Carbon::parse($value)->format('Y-m-d');
-        }
-        return $value;
-    }
-
     public function getSchoolClassesWithoutGuestClasses()
     {
-        return $this->schoolClasses->reject(fn($class) => $class->label === __('school_classes.guest_accounts'));
+        return $this->schoolClasses->reject(fn($class) => $class->label === __('school_classes.guest_accounts'))->toArray();
     }
 
     public function openTestTakeDetail($testTakeUuid)

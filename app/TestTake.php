@@ -1177,7 +1177,8 @@ class TestTake extends BaseModel
     public static function redirectToDetailPage($testTakeUuid)
     {
         $detailUrl = sprintf('test_takes/view/%s', $testTakeUuid);
-        $temporaryLogin = TemporaryLogin::createWithOptionsForUser('page', $detailUrl, auth()->user());
+        $returnRoute = route('teacher.test-takes', ['stage' => 'taken'], false);
+        $temporaryLogin = TemporaryLogin::createWithOptionsForUser(['page', 'return_route'], [$detailUrl, $returnRoute], auth()->user());
 
         return redirect($temporaryLogin->createCakeUrl());
     }

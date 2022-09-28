@@ -657,3 +657,8 @@ ul ul ul {
     background-color: var(--primary-opacity-05);
     color: var(--system-base);
 }
+
+.grid .grid-card.archived span,
+.grid .grid-card.archived h3 {
+    color: var(--note)!important;
+}
