@@ -300,6 +300,7 @@ Route::group(['middleware' => ['api', 'dl', 'authorize', 'authorizeBinds', 'bind
     Route::resource('teacher', 'TeachersController', ['except' => ['create', 'edit']]);
 
     Route::post('/teacher/import/schoollocation','TeachersController@import')->name('teacher.import');
+    Route::get('/teacher/school_location_teacher_users/{school_location}','TeachersController@getSchoolLocationTeacherUser')->name('teacher.school-location-teacher-users');
 
     Route::post('/attainments/import','AttainmentImportController@import')->name('attainment.import');
     Route::post('/attainments_cito/import','AttainmentCitoImportController@import')->name('attainment_cito.import');
@@ -328,7 +329,7 @@ Route::group(['middleware' => ['api', 'dl', 'authorize', 'authorizeBinds', 'bind
     Route::get('school_location/{school_location_id}/get_lvs_type', 'SchoolLocationsController@getLvsType')->name('school_location.get_lvs_type');
     // School children
     Route::resource('school_location', 'SchoolLocationsController', ['except' => ['create', 'edit']]);
-
+    Route::get('school_location/{id}/get_by_id', 'SchoolLocationsController@showById')->name('school_location.showById');
     // School location children
     Route::resource('school_location.school_class', 'SchoolLocations\SchoolClassesController', ['except' => ['create', 'edit']]);
     Route::resource('school_location.school_location_ip', 'SchoolLocations\SchoolLocationIpsController', ['except' => ['create', 'edit']]);

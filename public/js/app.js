@@ -7401,7 +7401,7 @@ window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
 window.Pusher = __webpack_require__(/*! pusher-js */ "./node_modules/pusher-js/dist/web/pusher.js");
 window.Echo = new laravel_echo__WEBPACK_IMPORTED_MODULE_0__["default"]({
   broadcaster: 'pusher',
-  key: "51d7221bf733999d7138",
+  key: "fc18ed69b446aeb8c8a5",
   cluster: "eu",
   forceTLS: true
 });
@@ -13476,7 +13476,6 @@ document.addEventListener('alpine:init', function () {
         }
 
         if (this.$wire.activeRoute.main !== '') {
-          console.log(27);
           this.$nextTick(function () {
             return _this.$dispatch('tiles-hidden');
           });
@@ -13553,8 +13552,6 @@ document.addEventListener('alpine:init', function () {
             _this2.shouldDispatchTilesEvent();
 
             if (_this2.shouldDispatchTilesEvent()) {
-              console.log(87);
-
               _this2.$dispatch('tiles-shown');
             }
           }
@@ -13577,7 +13574,6 @@ document.addEventListener('alpine:init', function () {
         clearTimeout(this.hideTimeout);
         tiles.style.paddingLeft = '0px';
         tiles.style.setProperty('--top', '100px');
-        console.log(111);
         this.$dispatch('tiles-shown');
       },
       userMenuShow: function userMenuShow() {

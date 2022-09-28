@@ -2,14 +2,15 @@
 
 namespace tcCore\Http\Livewire\Teacher;
 
+use Auth;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Validator;
 use LivewireUI\Modal\ModalComponent;
-use tcCore\Http\Controllers\InvigilatorsController;
 use tcCore\Http\Controllers\TemporaryLoginController;
 use tcCore\Http\Traits\Modal\WithPlanningFeatures;
 use tcCore\Period;
+use tcCore\Teacher;
 use tcCore\TestTake;
 use tcCore\TestTakeStatus;
 
@@ -33,19 +34,15 @@ class TestPlanModal extends ModalComponent
         $this->test = \tcCore\Test::whereUuid($testUuid)->first();
 
         $this->allowedPeriods = Period::filtered(['current_school_year' => true])->get();
-
-        $this->allowedInvigilators = InvigilatorsController::getInvigilatorList()->map(function ($invigilator) {
-            return [
-                'value' => $invigilator->id,
-                'label' => collect([$invigilator->name_first, $invigilator->name])->join(' ')
-            ];
-        })->values()->toArray();
-
+        $this->allowedInvigilators = Teacher::getTeacherUsersForSchoolLocation(Auth::user()->schoolLocation)
+            ->get()
+            ->map(fn ($teacher) => ['value' => $teacher->id, 'label' => $teacher->name_full]);
         $this->resetModalRequest();
     }
 
     protected function rules()
     {
+        $user = auth()->user();
         $rules = [
             'request.date'            => 'required',
             'request.time_end'        => 'sometimes',
@@ -59,11 +56,15 @@ class TestPlanModal extends ModalComponent
             $rules['request.time_end'] = 'required';
         }
 
-        if (auth()->user()->schoollocation->allow_guest_accounts) {
+        if ($user->schoollocation->allow_guest_accounts) {
             $rules['request.school_classes'] = 'sometimes';
             if (!empty(request()->get('request.guest_accounts'))) {
                 $rules['request.guest_accounts'] = 'required|in:1';
             }
+        }
+
+        if($user->isValidExamCoordinator(false) && empty($this->request['owner_id'])){
+            $rules['request.owner_id'] = 'required';
         }
 
         return $rules;
@@ -113,7 +114,12 @@ class TestPlanModal extends ModalComponent
             $t->setAttribute('test_take_status_id', TestTakeStatus::STATUS_TAKING_TEST);
         }
 
-        $t->setAttribute('user_id', auth()->id());
+        if(auth()->user()->isValidExamCoordinator(false)){
+            $t->setAttribute('user_id', $this->request['owner_id']);
+        }else{
+            $t->setAttribute('user_id', auth()->id());
+        }
+
         $t->save();
 
         return $t;
@@ -124,7 +130,7 @@ class TestPlanModal extends ModalComponent
         $testTake = $this->planTest();
 
         $this->closeModal();
-        
+
         $this->afterPlanningToast($testTake);
     }
 
@@ -160,12 +166,19 @@ class TestPlanModal extends ModalComponent
         $this->request['test_id'] = $this->test->getKey();
         $this->request['allow_inbrowser_testing'] = $this->isAssessmentType() ? 1 : 0;
         $this->request['invigilator_note'] = '';
+        $this->request['owner_id'] = $this->test->author_id;
+        $this->request['scheduled_by'] = auth()->id();
         $this->request['test_kind_id'] = 3;
 
         $this->request['retake'] = 0;
         $this->request['guest_accounts'] = 0;
         $this->request['school_classes'] = [];
-        $this->request['invigilators'] = [auth()->id()];
+        $this->request['invigilators'] = $this->defaultInvigilator();
         $this->request['notify_students'] = true;
+    }
+
+    private function defaultInvigilator(): array
+    {
+        return [Auth::user()->isValidExamCoordinator() ? $this->test->author_id : Auth::id()];
     }
 }

@@ -123,16 +123,21 @@ class Subject extends BaseModel implements AccessCheckable
         foreach ($filters as $key => $value) {
             switch ($key) {
                 case 'user_id':
-                    $query->whereIn('id', function ($query) use ($value) {
-                        $query->select('subject_id')
-                            ->from(with(new Teacher())->getTable())
-                            ->whereNull('deleted_at');
-                        if (is_array($value)) {
-                            $query->whereIn('user_id', $value);
-                        } else {
-                            $query->where('user_id', '=', $value);
-                        }
-                    });
+                    if( $user->isValidExamCoordinator() ){
+                        $this->filterForExamcoordinator($query, $user);
+                    }else{
+                        $query->whereIn('id', function ($query) use ($value) {
+                            $query->select('subject_id')
+                                ->from(with(new Teacher())->getTable())
+                                ->whereNull('deleted_at');
+                            if (is_array($value)) {
+                                $query->whereIn('user_id', $value);
+                            } else {
+                                $query->where('user_id', '=', $value);
+                            }
+                        });
+                    }
+                    
                     break;
                 case 'demo' :
                     $query->where('demo', $value);
@@ -142,20 +147,25 @@ class Subject extends BaseModel implements AccessCheckable
                         $query->where('abbreviation', '<>', 'imp');
                     }
                     break;
-                case 'user_current':
-                    $schoolYear = SchoolYearRepository::getCurrentSchoolYear();
-                    $query->whereIn('id', function ($query) use ($value, $schoolYear) {
-                        $query->select('subject_id')
-                            ->from(with(new Teacher())->getTable())
-                            ->whereNull('teachers.deleted_at')
-                            ->leftJoin('school_classes', 'school_classes.id', '=', 'teachers.class_id')
-                            ->where('school_classes.school_year_id', $schoolYear->getKey());
-                        if (is_array($value)) {
-                            $query->whereIn('user_id', $value);
-                        } else {
-                            $query->where('user_id', '=', $value);
-                        }
-                    });
+                case 'user_current':                    
+                    if( $user->isValidExamCoordinator() ){
+                        $this->filterForExamcoordinator($query, $user);
+                    }else{
+                        $schoolYear = SchoolYearRepository::getCurrentSchoolYear();
+                        $query->whereIn('id', function ($query) use ($value, $schoolYear, $user) {
+                                $query->select('subject_id')
+                                ->from(with(new Teacher())->getTable())
+                                ->whereNull('teachers.deleted_at')
+                                ->leftJoin('school_classes', 'school_classes.id', '=', 'teachers.class_id')
+                                ->where('school_classes.school_year_id', $schoolYear->getKey());
+                                if (is_array($value)) {
+                                    $query->whereIn('user_id', $value);
+                                } else {
+                                    $query->where('user_id', '=', $value);
+                                }
+                            }
+                        );
+                    }                    
                     break;
                 case 'show_in_onboarding' :
                     $query->whereNotIn('base_subject_id', function ($query) use ($value) {
@@ -264,6 +274,29 @@ class Subject extends BaseModel implements AccessCheckable
 
         $query->whereIn('id', $subjectIds);
         return $query;
+    }
+
+    private function filterForExamcoordinator($query, User $user)
+    {
+        switch ($user->is_examcoordinator_for) {
+            case 'SCHOOL_LOCATION':
+                $subjectIds = $user->schoolLocation->schoolLocationSections()
+                                ->join('sections', 'school_location_sections.section_id', 'sections.id')
+                                ->join('subjects', 'subjects.section_id', 'sections.id')
+                                ->select('subjects.id', 'subjects.name')->groupBy('subjects.name')->pluck('id')->toArray();
+                break;
+            case 'SCHOOL':
+                $subjectIds = $user->schoolLocation->school->schoolLocations()
+                                ->join('school_location_sections', 'school_location_sections.school_location_id', 'school_locations.id')
+                                ->join('sections', 'school_location_sections.section_id', 'sections.id')
+                                ->join('subjects', 'subjects.section_id', 'sections.id')
+                                ->select('subjects.id', 'subjects.name')->groupBy('subjects.name')->pluck('id')->toArray();
+                break;
+            default:
+                $subjectIds = [];
+                break;
+        }
+        return $query->whereIn('id', $subjectIds)->where('demo', 0);
     }
 
     private function getAvailableSubjectsForSchoolLocation(SchoolLocation $schoolLocation)

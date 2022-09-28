@@ -33,6 +33,7 @@ use tcCore\TestTakeStatus;
 use tcCore\TestQuestion;
 use tcCore\Exports\TestTakesExport;
 use \stdClass;
+use tcCore\User;
 
 class TestTakesController extends Controller {
 
@@ -153,6 +154,10 @@ class TestTakesController extends Controller {
                             }
                         }
                     }
+
+                    if (filled($testTake->scheduled_by)) {
+                        $testTake->append('scheduled_by_user_name');
+                    }
                 }
 
                 $testTakes = $testTakes->toArray();
@@ -234,6 +239,9 @@ class TestTakesController extends Controller {
                     break;
                 }
             }
+        }
+        if (filled($testTake->scheduled_by)) {
+            $testTake->append('scheduled_by_user_name');
         }
 
         if ($isInvigilator && is_array($request->get('with')) && in_array('participantStatus', $request->get('with'))) {
