@@ -28,7 +28,18 @@
     <div class="flex w-full mt-4">{{ __('cms.MultipleChoice Question Uitleg Text') }}</div>
     <div class="flex flex-col space-y-2 w-full mt-4"
          @if(!isset($preview)) wire:sortable="__call('updateMCOrder')" @endif
-         x-data="{addPointsPosition: () => $refs.punten.style.right = (102 - $refs.punten.offsetWidth) +'px'}"
+         x-data="{
+            addPointsPosition: () => $refs.punten.style.right = (102 - $refs.punten.offsetWidth) +'px',
+            syncInputValue: (property, value) => {
+                    if($store.cms.dirty) {
+                        getClosestLivewireComponentByAttribute(
+                            document.querySelector('#cms'),
+                            'cms'
+                        )
+                        .sync(property, value)
+                    }
+                }
+            }"
          x-init="addPointsPosition()"
          @tabchange.window="setTimeout(() => addPointsPosition(), 100)"
          @resize.window.debounce.100ms="addPointsPosition()"
@@ -81,12 +92,18 @@
                 @endif
                 <div class=" text-center justify-center">
                     <x-input.text class="w-12 text-center {{ $errorScoreClass }}"
-                                  wire:model.debounce.250ms="cmsPropertyBag.answerStruct.{{ $loop->index }}.score"
+                                  wire:model.defer="cmsPropertyBag.answerStruct.{{ $loop->index }}.score"
+                                  wire:key="cmsPropertyBag.answerStruct.{{ $answer->id }}"
                                   title="{{ $answer->score }}"
                                   type="number"
                                   :onlyInteger="true"
                                   selid="score-field"
                                   :disabled="isset($preview)"
+
+                                  x-on:focusin="$el.value = (parseInt($el.value) === 0 ? '' : $el.value)"
+                                  x-on:focusout="$el.value = ($el.value === '' ? 0 : parseInt($el.value))"
+                                  x-on:change="if(!$store.cms.dirty) $store.cms.dirty = true"
+                                  x-on:store-current-question.window="syncInputValue('cmsPropertyBag.answerStruct.{{ $loop->index }}.score', $el.value)"
                     />
                 </div>
                 <x-slot name="after" >
