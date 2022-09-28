@@ -232,9 +232,7 @@ ORDER BY t2.displayorder,
         User::whereIn('id', Teacher::pluck('user_id')->unique())
             ->where('demo', 0)
             ->each(function ($teacher) {
-                logger('kaas');
                 if ($teacher->isA('teacher')) {
-                    logger('kaas2');
                     dispatch((new UpdateOnboardingWizardReportRecord($teacher)));
 //                    \tcCore\OnboardingWizardReport::updateForUser($teacher);
                 };
