@@ -990,6 +990,13 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
         });
     }
 
+    public function getTeacherSchoolClassIds()
+    {
+        return Teacher::where('user_id', $this->getKey())
+            ->where('deleted_at', null)
+            ->pluck('class_id');
+    }
+
     public function studentParents()
     {
         return $this->hasMany('tcCore\StudentParent');
