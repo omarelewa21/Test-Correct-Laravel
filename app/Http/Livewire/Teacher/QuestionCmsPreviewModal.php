@@ -52,6 +52,7 @@ class QuestionCmsPreviewModal extends ModalComponent implements QuestionCms
     public int $educationLevelId;
     public int $questionId;
     public string $questionTitle;
+    public bool $isCito = false;
 
     public bool $showSelectionOptionsModal = false;
 
@@ -148,6 +149,7 @@ class QuestionCmsPreviewModal extends ModalComponent implements QuestionCms
         $this->answerEditorId = Str::uuid()->__toString();
         $this->questionEditorId = Str::uuid()->__toString();
         $this->uniqueQuestionKey = $question->uuid;
+        $this->isCito = $question->isCitoQuestion();
 
         $this->obj = CmsFactory::create($this);
 

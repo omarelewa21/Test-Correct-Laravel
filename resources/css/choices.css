@@ -23,6 +23,11 @@
     transition: border 150ms ease, background-color 150ms ease;
     cursor: pointer;
 }
+
+.custom-choices .choices .choices__inner:hover {
+    --choices-border-color: var(--primary);
+}
+
 .custom-choices.has-item {
     --choices-border-color: var(--primary);
     --choices-background: var(--primary-opacity-05);
@@ -41,6 +46,9 @@
     box-shadow: none;
 }
 
+.short-list.custom-choices .choices__list.choices__list--dropdown {
+    max-height: 150px;
+}
 .custom-choices .choices__list.choices__list--dropdown {
     display: flex;
     flex-direction: column;

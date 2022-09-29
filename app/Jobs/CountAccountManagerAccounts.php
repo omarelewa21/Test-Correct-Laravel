@@ -47,8 +47,6 @@ class CountAccountManagerAccounts extends Job implements ShouldQueue
 
         $count += SchoolLocation::where('user_id', $this->user->getKey())->whereNotIn('school_id', $schoolIds)->count();
 
-        Log::debug('Accountmanager #' . $this->user->getKey() . ' -> count_accounts: ' . $count);
-
         $this->user->setAttribute('count_accounts', $count);
         $this->user->save();
     }

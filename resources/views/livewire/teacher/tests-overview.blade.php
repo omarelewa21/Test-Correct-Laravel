@@ -14,65 +14,27 @@
      wire:init="handleReferrerActions()"
      class="flex flex-col  w-full min-h-full bg-lightGrey border-t border-secondary top-0"
      @checked="$event.detail ? checkedCount += 1 : checkedCount -= 1"
-     @question-added.window="Notify.notify('Vraag toegevoegd!')"
-     @question-removed.window="Notify.notify('Vraag verwijderd!')"
+     @question-added.window="Notify.notify('{{ __('cms.question_added') }}')"
+     @question-removed.window="Notify.notify('{{ __('cms.question_deleted') }}')"
 >
+    <x-menu.tab.container :sticky="true">
+        <x-menu.tab.item tab="personal" menu="openTab">
+            {{ __('general.Persoonlijk') }}
+        </x-menu.tab.item>
+        <x-menu.tab.item tab="school_location" menu="openTab">
+            {{ __('general.School') }}
+        </x-menu.tab.item>
+        <x-menu.tab.item tab="umbrella" menu="openTab" :when="$allowedTabs->contains('umbrella')">
+            {{ __('general.Scholengemeenschap') }}
+        </x-menu.tab.item>
+        <x-menu.tab.item tab="national" menu="openTab" :highlight="true" :when="$allowedTabs->contains('national')">
+            {{ __('general.Nationaal') }}
+        </x-menu.tab.item>
+        <x-menu.tab.item tab="creathlon" menu="openTab" :highlight="true" :when="$allowedTabs->contains('creathlon')">
+            {{ __('general.Creathlon') }}
+        </x-menu.tab.item>
+    </x-menu.tab.container>
 
-    <div class="border-b border-secondary sticky sticky-pseudo-bg bg-lightGrey z-1"
-         style="transition: top 0.3s linear;top: 150px"
-         @tiles-hidden.window="$el.style.top = '100px'"
-         @tiles-shown.window="$el.style.top = '150px'"
-    >
-        <div class="w-full max-w-screen-2xl mx-auto px-10">
-            <div class="flex w-full h-12.5">
-                <div class="flex items-center relative hover:text-primary hover:bg-primary/5 px-2 cursor-pointer transition"
-                     @click="openTab = 'personal'">
-                        <span class="bold "
-                              :class="openTab === 'personal' ? 'primary' : '' ">{{ __('general.Persoonlijk') }}</span>
-                    <span class="absolute w-[calc(100%-1rem)] bottom-0 left-2" style="height: 3px"
-                          :class="openTab === 'personal' ? 'bg-primary' : 'bg-transparent' "></span>
-                </div>
-
-
-                <div class="flex items-center relative hover:text-primary hover:bg-primary/5 px-2 cursor-pointer transition"
-                     @click="openTab = 'school'">
-                        <span class="bold "
-                              :class="openTab === 'school' ? 'primary' : '' ">{{ __('general.School') }}</span>
-                    <span class="absolute w-[calc(100%-1rem)] bottom-0 left-2" style="height: 3px"
-                          :class="openTab === 'school' ? 'bg-primary' : 'bg-transparent' "></span>
-                </div>
-                @if($hasSharedSections)
-                    <div class="flex items-center relative hover:text-primary hover:bg-primary/5 px-2 cursor-pointer transition"
-                         @click="openTab = 'umbrella'">
-                        <span class="bold "
-                              :class="openTab === 'umbrella' ? 'primary' : '' ">{{ __('general.Scholengemeenschap') }}</span>
-                        <span class="absolute w-[calc(100%-1rem)] bottom-0 left-2" style="height: 3px"
-                              :class="openTab === 'umbrella' ? 'bg-primary' : 'bg-transparent' "></span>
-                    </div>
-                @endif
-
-                @if(auth()->user()->schoolLocation->show_national_item_bank)
-
-                    <div class="flex items-center relative hover:text-primary hover:bg-primary/5 px-2 cursor-pointer group transition"
-                         @click="openTab = 'national'"
-                    >
-                        <span class="bold text-white bg-sysbase px-2 py-1 rounded-lg group-hover:bg-primary transition"
-                              :class="{'bg-primary' : openTab === 'national' }"
-                        >
-                            {{ __('general.Nationaal') }}
-                        </span>
-
-                        <span class="absolute w-[calc(100%-1rem)] bottom-0 left-2"
-                              style="height: 3px"
-                              :class="openTab === 'national' ? 'bg-primary' : 'bg-transparent' ">
-
-                            </span>
-                    </div>
-
-                @endif
-            </div>
-        </div>
-    </div>
     <div class="flex w-full max-w-screen-2xl mx-auto  px-10">
         <div class="w-full divide-y divide-secondary">
             {{-- Filters--}}
@@ -90,7 +52,7 @@
                 </div>
                 <div class="flex flex-wrap w-full gap-2 mt-2">
 
-                    @if ($this->isPublicTestTab($this->openTab))
+                    @if ($this->isExternalContentTab())
                         <x-input.choices-select
                                 wire:key="base_subject_{{ $this->openTab }}"
                                 :multiple="true"
@@ -205,10 +167,10 @@
                 </x-grid>
                 {{ $results->links('components.partials.tc-paginator') }}
 
-                <livewire:teacher.tests-overview-context-menu></livewire:teacher.tests-overview-context-menu>
+                <livewire:context-menu.test-card/>
             </div>
         </div>
     </div>
     <x-notification/>
-
+    <x-after-planning-toast/>
 </div>

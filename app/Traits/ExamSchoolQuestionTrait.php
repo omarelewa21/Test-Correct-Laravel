@@ -52,7 +52,7 @@ trait ExamSchoolQuestionTrait {
         return true;
     }
 
-    public function hasNonPublishableExamSubject():bool
+    private function hasNonPublishableExamSubject():bool
     {
         if($this->getQuestionInstance()->subject->name=='TLC Toetsenbakken'){
             return true;
@@ -63,7 +63,7 @@ trait ExamSchoolQuestionTrait {
         return false;
     }
 
-    public function hasNonPublishableExamSubjectDemo():bool
+    private function hasNonPublishableExamSubjectDemo():bool
     {
         if($this->getQuestionInstance()->subject->name=='Demovak'){
             return true;

@@ -1,4 +1,4 @@
-<div {{ $attributes->merge(['class' => 'grid-card bg-white p-6 rounded-10 card-shadow hover:text-primary cursor-pointer']) }}
+<div {{ $attributes->merge(['class' => 'grid-card bg-white p-6 rounded-10 card-shadow hover:text-primary cursor-pointer relative']) }}
      wire:key="questioncard-{{ $question->uuid }}"
      @if($question->isType('GroupQuestion'))
          @click.stop="showGroupDetails('{{ $question->uuid }}')"
@@ -10,7 +10,7 @@
         <div class="flex items-start gap-2.5 pr-2.5">
             @if($question->isType('GroupQuestion'))
                 <x-icon.chevron class="mt-2.5"/>
-                <h3 class="line-clamp-2 min-h-[64px] @if(blank($question->name)) italic @endif"
+                <h3 class="line-clamp-2 word-break-words min-h-[64px] @if(blank($question->name)) italic @endif"
                     title="{{ $question->name }}">
                     {{ $question->name ?? __('question.no_question_text') }}
                 </h3>
@@ -19,7 +19,7 @@
                       style="">
                     <span class="mt-px bold">{{ $testQuestion->order }}</span>
                 </span>
-                <h3 class="line-clamp-2 min-h-[64px] @if(blank($question->title)) italic @endif"
+                <h3 class="line-clamp-2 word-break-words min-h-[64px] @if(blank($question->title)) italic @endif"
                     title="{{ $question->title }}">
                     {{ $question->title ?? __('question.no_question_text') }}
                 </h3>
@@ -27,7 +27,37 @@
 
         </div>
         <div class="flex flex-col">
-            <x-icon.options class="ml-auto"/>
+
+            <div id="question-card-option-button-{{ $question->uuid }}"
+                 wire:key="question-card-option-button-{{ $question->uuid }}"
+                 class="flex justify-center items-center w-10 h-10 absolute top-3 right-3 rounded-full hover:bg-primary/5 hover:text-primary text-sysbase"
+                 style="transition: background-color ease-in-out 100ms"
+                 :class="{'option-menu-active !text-white hover:!text-primary': menuOpen }"
+                 x-data="{
+                    menuOpen: false,
+                    uuid: '{{ $question->uuid }}',
+                 }"
+                 @close-menu="menuOpen = false"
+                 @click.stop="
+                    menuOpen = !menuOpen;
+                    if(menuOpen) {
+                        $dispatch('question-card-context-menu-show', {
+                            uuid,
+                            button: $el,
+                            coords: {
+                                top: $el.closest('.grid-card').offsetTop,
+                                left: $el.closest('.grid-card').offsetLeft + $el.closest('.grid-card').offsetWidth
+                            },
+                            contextData: {}
+                        })
+                    } else {
+                        $dispatch('question-card-context-menu-close')
+                    }
+                    "
+            >
+                <x-icon.options/>
+            </div>
+
             @if($testQuestion->closeable)
                 <x-icon.locked class="mt-auto mb-2"/>
             @else

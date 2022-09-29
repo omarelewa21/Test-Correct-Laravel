@@ -3,6 +3,7 @@
         <button class="flex items-center justify-center rounded-full bg-white/20 w-10 h-10 rotate-svg-180 hover:scale-105 transition-transform"
                 wire:click="saveAndRedirect"
                 @click="$dispatch('store-current-question');"
+                selid="back-btn"
         >
             <x-icon.arrow/>
         </button>
@@ -58,8 +59,15 @@
                 >
                     <x-icon.pdf-file color="currentColor"/>
                 </button>
+                <livewire:actions.test-quick-take variant="icon-button" :uuid="$this->testId"/>
                 <livewire:actions.test-plan-test variant="icon-button" :uuid="$this->testId"/>
             </div>
         @endif
     </div>
+    <div class="absolute inset-0 z-50"
+         x-data="{headerLoadingOverlay: false}"
+         x-show="headerLoadingOverlay"
+         @filepond-start.window="headerLoadingOverlay = true;"
+         @filepond-finished.window="headerLoadingOverlay = false;"
+    ></div>
 </div>

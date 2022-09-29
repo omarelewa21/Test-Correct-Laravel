@@ -65,11 +65,11 @@
                     <x-input.choices-select :multiple="true"
                                             :options="$this->schoolClasses"
                                             :withSearch="true"
-                                            placeholderText="{!!  __('Klassen') !!}"
+                                            placeholderText="{!!  __('teacher.Klassen') !!}"
                                             wire:model="request.school_classes"
                                             filterContainer="selected_classes"
                                             id="teachers_and_classes"
-                                            hasErrors="{{ $errors->has('request.schoolClasses') ? 'true': '' }}"
+                                            hasErrors="{{ $this->getErrorBag()->has('request.school_classes') ? 'true': '' }}"
                     />
                     <div id="selected_classes" wire:ignore class="space-x-4 ml-4"></div>
 
@@ -93,34 +93,33 @@
                 </div>
             </div>
             <div class="input-section">
-                <div class="name flex mb-4 space-x-4">
+                <div class="toggles | flex flex-col lg:flex-row lg:gap-x-4 flex-wrap mb-4">
+                    <x-input.toggle-row-with-title wire:model="request.allow_inbrowser_testing"
+                                                   :toolTip="__('teacher.inbrowser_testing_tooltip')"
+                                                   :disabled="$this->isAssessmentType()"
+                                                   containerClass="border-t w-full lg:w-[calc(50%-0.5rem)]"
+                    >
+                        <x-icon.web/>
+                        <span class="bold">{{ __('teacher.Browsertoetsen toestaan') }} </span>
+                    </x-input.toggle-row-with-title>
+                    <x-input.toggle-row-with-title wire:model="request.guest_accounts"
+                                                   :toolTip="__('teacher.guest_accounts_tooltip')"
+                                                   :tooltipAlwaysLeft="true"
+                                                   containerClass="lg:border-t w-full lg:w-[calc(50%-0.5rem)]"
+                                                   :error="$this->getErrorBag()->has('request.school_classes')"
+                    >
+                        <x-icon.test-direct/>
+                        <span class="bold">{{ __('teacher.Test-Direct toestaan') }} </span>
+                    </x-input.toggle-row-with-title>
 
-                    @if(! $this->isAssessmentType())
-                    <div class="input-group mb-4 sm:mb-0 flex-auto border-t ">
-                        <x-input.toggle-row-with-title wire:model="request.allow_inbrowser_testing"
-                                                       :toolTip="__('teacher.inbrowser_testing_tooltip')"
-                                                       class="flex-row-reverse"
-
-                        >
-                            <span class="bold"> <x-icon.preview/>{{ __('teacher.Browsertoetsen toestaan') }} </span>
-                        </x-input.toggle-row-with-title>
-                    </div>
-
-                    @endif
-
-                    <div class="input-group mb-4 sm:mb-0 flex-auto border-t @error('request.school_classes') border-red-500 @enderror">
-                        @if(auth()->user()->schoollocation->allow_guest_accounts)
-                            <x-input.toggle-row-with-title wire:model="request.guest_accounts"
-                                                           :toolTip="__('teacher.guest_accounts_tooltip')"
-                                                           :tooltipAlwaysLeft="true"
-
-                            >
-                                <span class="bold">  <x-icon.preview/>{{ __('teacher.Test-Direct toestaan') }} </span>
-                            </x-input.toggle-row-with-title>
-                        @endif
-                    </div>
+                    <x-input.toggle-row-with-title wire:model="request.notify_students"
+                                                   :toolTip="__('teacher.notify_students_tooltip')"
+                                                   containerClass="border-t-0 w-full lg:w-[calc(50%-0.5rem)]"
+                    >
+                        <x-icon.send-mail/>
+                        <span class="bold">{{ __('teacher.notify_students') }} </span>
+                    </x-input.toggle-row-with-title>
                 </div>
-
             </div>
             <div class="input-section">
                 <div class="name flex mb-4 space-x-4">

@@ -1,4 +1,4 @@
-<div {{ $attributes->merge(['class' => 'grid-card bg-white p-6 rounded-10 card-shadow hover:text-primary cursor-pointer relative']) }}
+<div {{ $attributes->merge(['class' => 'grid-card bg-white p-6 rounded-10 card-shadow hover:text-primary cursor-pointer relative', 'selid' => 'existing-question']) }}
      wire:key="questioncard-{{ $question->getQuestionInstance()->uuid }}"
      @if($question->isType('GroupQuestion'))
          @click="showGroupDetails('{{ $question->uuid }}', @js($inTest));"
@@ -6,8 +6,8 @@
          wire:click="openDetail('{{ $question->uuid }}', @js($this->isQuestionInTest($question->id) || $this->isQuestionInTest($question->derived_question_id)))"
         @endif
 >
-    <div class="flex w-full justify-between mb-2 pr-10">
-        <div class="flex gap-2.5">
+    <div class="flex w-full justify-between mb-2">
+        <div class="flex gap-2.5 pr-2">
             @if($order)
                 <span class="rounded-full border-current text-sm flex items-center justify-center border-3 relative px-1.5 min-w-[30px] h-[30px]"
                       style="">
@@ -15,40 +15,21 @@
                 </span>
             @endif
             @if($question->isType('GroupQuestion'))
-                <h3 class="line-clamp-2 break-all min-h-[64px] @if(blank($question->name)) italic @endif"
+                <h3 class="line-clamp-2 word-break-words min-h-[64px] @if(blank($question->name)) italic @endif"
                     title="{!! $question->name !!}">{!! filled($question->name) ? $question->name : __('question.no_question_text') !!}</h3>
             @else
-                <h3 class="line-clamp-2 break-all min-h-[64px] @if(blank($question->title)) italic @endif"
+                <h3 class="line-clamp-2 word-break-words min-h-[64px] @if(blank($question->title)) italic @endif"
                     title="{{ $question->title }}">{{ $question->title ?? __('question.no_question_text') }}</h3>
             @endif
         </div>
-        <div id="question-card-option-button-{{ $question->uuid }}"
-             wire:key="question-card-option-button-{{ $question->uuid }}"
-             class="flex justify-center items-center w-10 h-10 absolute top-3 right-3 rounded-full hover:bg-primary/5 hover:text-primary text-sysbase"
-             style="transition: background-color ease-in-out 100ms"
-             :class="{'option-menu-active !text-white hover:!text-primary': menuOpen }"
-             x-data="{
-                    menuOpen: false,
-                    mouseOver: false,
-                    questionUuid: '{{ $question->uuid }}',
-                    inTest: @js($this->isQuestionInTest($question->id) || $this->isQuestionInTest($question->derived_question_id))
-                 }"
-             @close-menu="menuOpen = false"
-             @click.stop="
-                    menuOpen = !menuOpen;
-                    if(menuOpen) {
-                        $dispatch('question-card-context-menu-show', {questionUuid, inTest, button: $el,
-                        coords: {
-                            top: $el.closest('.grid-card').offsetTop,
-                            left: $el.closest('.grid-card').offsetLeft + $el.closest('.grid-card').offsetWidth
-                        }})
-                    } else {
-                        $dispatch('question-card-context-menu-close')
-                    }
-                    "
-        >
-            <x-icon.options/>
-        </div>
+        <x-button.options id="question-card-option-button-{{ $question->uuid }}"
+                          :uuid="$question->uuid"
+                          context="question-card"
+                          contextDataJson="{
+                              inTest: {{ ($this->isQuestionInTest($question->id) || $this->isQuestionInTest($question->derived_question_id)) ? 1 : 0 }},
+                              showQuestionBankAddConfirmation: {{ $showQuestionBankAddConfirmation ? 'true' : 'false' }}
+                          }"
+        />
     </div>
     <div class="flex w-full justify-between text-base mb-1">
         <div class="flex gap-5">
@@ -88,8 +69,9 @@
                     </span>
                 @endif
                 <button x-show="Alpine.store('questionBank').active"
+                        selid="existing-question-add-btn"
                         class="new-button button-primary w-10 items-center justify-center flex"
-                        @click.stop="addQuestionToTest($el, '{{ $question->uuid }}')"
+                        @click.stop="addQuestionToTest($el, '{{ $question->uuid }}', '{{$showQuestionBankAddConfirmation}}')"
                 >
                     <x-icon.plus-2/>
                 </button>

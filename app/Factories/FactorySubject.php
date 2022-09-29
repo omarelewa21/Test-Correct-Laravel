@@ -32,8 +32,7 @@ class FactorySubject
     {
         $SubjectFactory = new self;
         $SubjectFactory->user = $user;
-
-        return $SubjectFactory->getValidSubjects()->first();
+        return $SubjectFactory->getValidSubjects()->where('name', '<>', 'Demovak')->first();
     }
 
     public static function getRandomSubjectForUser(User $user)

@@ -4,8 +4,8 @@
 namespace tcCore\Http\Traits;
 
 
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
-use tcCore\Answer;
 use tcCore\Attachment;
 
 trait WithAttachments
@@ -24,11 +24,13 @@ trait WithAttachments
     public $currentTimes = [];
     public $playedOnce = [];
     public $playedTotalAudio = [];
+    public $reinitializedTimeoutData;
 
     public function mountWithAttachments()
     {
         $this->answerId = $this->answers[$this->question->uuid]['uuid'];
         $this->question->loadMissing('attachments');
+        $this->checkAttachmentTimeoutInSession();
     }
 
     public function showAttachment($attachment)
@@ -189,4 +191,41 @@ trait WithAttachments
         return 'w-5/6 lg:w-4/6';
     }
 
+    private function checkAttachmentTimeoutInSession()
+    {
+        if ($expirationInfo = session()->get('question_timeout_expiration_info'.$this->answerId, null)) {
+            $expirationTimeLeft = Carbon::parse($expirationInfo['expires']);
+
+            if($expirationTimeLeft->isBefore(Carbon::now())) {
+                session()->forget('question_timeout_expiration_info'.$this->answerId);
+                $this->closeQuestion();
+                return false;
+            }
+
+            $this->blockAttachments = true;
+            $this->reinitializedTimeoutData = [
+                'timeout' => $expirationInfo['timeoutInSeconds'],
+                'timeLeft' => $expirationTimeLeft->diffInSeconds(Carbon::now()),
+                'attachment' => $expirationInfo['attachmentId'],
+            ];
+        }
+        return true;
+    }
+
+    public function registerExpirationTime($attachmentId)
+    {
+        $this->blockAttachments = true;
+
+        $expirationTime = Carbon::now()->addSeconds($this->timeout);
+        $uuid = $this->answerId;
+
+        session()->put(
+            'question_timeout_expiration_info'.$uuid,
+            [
+                'expires' => $expirationTime,
+                'timeoutInSeconds' => $this->timeout,
+                'attachmentId' => $attachmentId,
+            ]
+        );
+    }
 }

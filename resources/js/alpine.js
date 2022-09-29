@@ -1,7 +1,9 @@
 import Alpine from 'alpinejs';
 import Choices from "choices.js";
 import Intersect from '@alpinejs/intersect';
+import Clipboard from "@ryangjchandler/alpine-clipboard";
 
+Alpine.plugin(Clipboard)
 window.Alpine = Alpine;
 Alpine.plugin(Intersect);
 
@@ -278,6 +280,7 @@ document.addEventListener('alpine:init', () => {
         },
         setIndex() {
             const parent = this.$root.parentElement;
+            if(parent === null) return;
             this.index = Array.prototype.indexOf.call(parent.children, this.$el) + 1;
         }
     }));
@@ -296,7 +299,7 @@ document.addEventListener('alpine:init', () => {
             if (Object.getOwnPropertyNames(window).includes(this.toolName)) {
                 delete window[this.toolName];
             }
-            const toolName = window[this.toolName] = initDrawingQuestion(this.$root, this.isTeacher, this.isPreview);
+            const toolName = window[this.toolName] = initDrawingQuestion(this.$root, this.isTeacher, this.isPreview, this.grid);
 
             if (this.isTeacher) {
                 this.makeGridIfNecessary(toolName);
@@ -338,8 +341,19 @@ document.addEventListener('alpine:init', () => {
             }
         },
         makeGridIfNecessary(toolName) {
+            let gridSize = false;
+
             if (this.gridSvg !== '' && this.gridSvg !== '0.00') {
-                makePreviewGrid(toolName.drawingApp, this.gridSvg);
+                gridSize = this.gridSvg;
+
+            }else if(this.grid && this.grid !== '0'){
+                gridSize =  1/parseInt(this.grid) * 14;
+            }
+            if (gridSize) {
+                makePreviewGrid(toolName.drawingApp, gridSize);
+                setTimeout(() => {
+                    makePreviewGrid(toolName.drawingApp, gridSize);
+                }, 2000)
             }
         }
     }));
@@ -627,30 +641,529 @@ document.addEventListener('alpine:init', () => {
         }
     }));
 
-    Alpine.data('questionCardContextMenu', () => ({
+    Alpine.data('analysesSubjectsGraph', (data) => ({
+            data,
+            colors: [
+                '#30BC51',
+                '#5043F6',
+                '#ECEE7D',
+                '#6820CE',
+                '#CB110E',
+                '#F79D25',
+                '#1B6112',
+                '#43ACF5',
+                '#E12576',
+                '#24D2C5',
+            ],
+            renderGraph() {
+                var chart = anychart.column();
+                var series = chart.column(this.data);
+                var palette = anychart.palettes.distinctColors();
+                palette.items(this.colors);
+
+                var yScale = chart.yScale();
+                yScale.minimum(0)
+                yScale.maximum(1.00)
+                yScale.ticks().interval(0.25)
+                chart.yAxis(0).labels().format(function () {
+                    return this.value == 0 ? 'P 0' : this.value.toFixed(2);
+                })
+
+                chart.yGrid().enabled(true);
+                chart.xAxis(0).labels()
+                    .fontWeight("bold")
+                    .fontColor('#041f74')
+                    .rotation(-60)
+
+                for (var i = 0; series.getPoint(i).exists(); i++)
+                    series.getPoint(i).set("fill", palette.itemAt(i));
+
+                series.selected().fill("#444");
+                series.stroke(null);
+
+                this.initTooltips(chart, this.data);
+
+                var legend = chart.legend();
+                // enable legend
+                legend.enabled(true);
+                // set source of legend items
+                legend.itemsSourceMode("categories");
+
+                legend.itemsFormatter(function (items) {
+                    for (var i = 0; i < items.length; i++) {
+                        items[i].iconType = "square";
+                        items[i].iconFill = palette.itemAt([i]);
+                        items[i].iconEnabled = true;
+                        items[i].fontWeight = 'bold';
+                        items[i].fontColor = '#041f74';
+                    }
+                    return items;
+                });
+
+                legend.listen("legendItemMouseOver", function (event) {
+                    // get item's index
+                    var index = event["itemIndex"];
+                    // enable the hover state of the series
+                    series.getPoint(index).hovered(true);
+                });
+                legend.listen("legendItemMouseOut", function (event) {
+                    // get item's index
+                    var index = event["itemIndex"];
+                    // disable the hover state of the series
+                    series.getPoint(index).hovered(false);
+                });
+
+                legend.listen("legendItemClick", function (event) {
+                    // get item's index
+                    var index = event["itemIndex"];
+                    // disable the hover state of the series
+                    series.getPoint(index).selected(!series.getPoint(index).selected());
+                    legend.itemsFormatter(function (items) {
+                        for (var i = 0; i < items.length; i++) {
+                            items[i].iconType = "square";
+                            if (series.getPoint(i).selected())
+                                items[i].iconFill = "#444";
+                            else
+                                items[i].iconFill = palette.itemAt([i]);
+                            items[i].iconEnabled = true;
+                        }
+                        return items;
+                    });
+                });
+
+                chart.listen("pointsSelect", function () {
+                    legend.itemsFormatter(function (items) {
+                        for (var i = 0; i < items.length; i++) {
+                            items[i].iconType = "square";
+                            if (series.getPoint(i).selected())
+                                items[i].iconFill = "#444";
+                            else
+                                items[i].iconFill = palette.itemAt([i]);
+                            items[i].iconEnabled = true;
+                        }
+                        return items;
+                    });
+                });
+
+                chart.listen("pointsSelect", function (e) {
+                    window.open(e.point.get('link'), '_self');
+                });
+
+                // // set container id for the chart
+                chart.container('pValueChart');
+                // initiate chart drawing
+                chart.draw();
+            },
+
+            initTooltips(chart, data) {
+                chart.tooltip().useHtml(true);
+                chart.tooltip().title(false)
+                chart.tooltip().separator(false)
+
+                var contentElement = null;
+
+                chart.listen("pointMouseOver", function (e) {
+                    // get the data for the current point
+                    var dataRow = data[e.pointIndex];
+
+                    if (contentElement) {
+                        while (contentElement.firstChild) {
+                            contentElement.firstChild.remove()
+                        }
+                        const attainmentHeader = document.createElement("h5");
+                        attainmentHeader.style.color = 'var(--system-base)'
+                        attainmentHeader.appendChild(document.createTextNode(dataRow.title));
+                        contentElement.appendChild(attainmentHeader);
+
+                        const scoreElement = document.createElement("h2");
+                        scoreElement.style.color = 'var(--system-base)'
+                        scoreElement.appendChild(document.createTextNode(`P ${dataRow.value}`));
+                        contentElement.appendChild(scoreElement);
+
+                        const basedOnElement = document.createElement("p");
+                        basedOnElement.style.color = 'var(--system-base)'
+                        basedOnElement.appendChild(document.createTextNode(dataRow.basedOn));
+                        contentElement.appendChild(basedOnElement);
+
+                        const detailElement = document.createElement("p");
+                        detailElement.style.whiteSpace = 'nowrap'
+                        detailElement.style.color = 'var(--system-base)';
+                        detailElement.style.fontWeight = '900';
+                        detailElement.appendChild(document.createTextNode("Bekijk analyse"));
+
+                        const iconElement = document.createElement('img');
+                        iconElement.src = '/svg/icons/arrow-small.svg';
+                        iconElement.style.display = 'inline-block'
+                        detailElement.appendChild(iconElement)
+                        contentElement.appendChild(detailElement);
+                    }
+                });
+                chart.tooltip().onDomReady(function (e) {
+                    this.parentElement.style.border = '1px solid var(--blue-grey)';
+                    this.parentElement.style.background = '#FFFFFF';
+                    this.parentElement.style.opacity = '0.8';
+                    contentElement = this.contentElement;
+
+                    // console.dir([
+                    //  this.parentElement,
+                    //  this.titleElement,
+                    //  this.separatorElement,
+                    //  this.contentElement
+                    // ]);
+                });
+
+                /* prevent the content of the contentElement div
+                from being overridden by the default formatter */
+                chart.tooltip().onBeforeContentChange(function () {
+                    return false;
+                });
+            },
+
+
+            init() {
+                this.renderGraph()
+            }
+        }
+    ));
+
+    Alpine.data('analysesAttainmentsGraph', (data) => ({
+            data,
+            colors: [
+                '#30BC51',
+                '#5043F6',
+                '#ECEE7D',
+                '#6820CE',
+                '#CB110E',
+                '#F79D25',
+                '#1B6112',
+                '#43ACF5',
+                '#E12576',
+                '#24D2C5',
+            ],
+            renderGraph() {
+                var chart = anychart.column();
+                var series = chart.column(this.data);
+                var palette = anychart.palettes.distinctColors();
+                palette.items(this.colors);
+
+                var yScale = chart.yScale();
+                yScale.minimum(0)
+                yScale.maximum(1.00)
+                yScale.ticks().interval(0.25)
+                chart.yAxis(0).labels().format(function () {
+                    return this.value == 0 ? 'P 0' : this.value.toFixed(2);
+                })
+
+                chart.yGrid().enabled(true);
+                chart.xAxis(0).labels()
+                    .fontWeight("bold")
+                    .fontColor('#041f74')
+
+
+
+                for (var i = 0; series.getPoint(i).exists(); i++)
+                    series.getPoint(i).set("fill", palette.itemAt(i));
+
+                series.selected().fill("#444");
+                series.stroke(null);
+
+                this.initTooltips(chart, this.data);
+
+                var legend = chart.legend();
+                // enable legend
+                legend.enabled(true);
+                // set source of legend items
+                legend.itemsSourceMode("categories");
+
+                var _data = this.data;
+                legend.itemsFormatter(function (items) {
+                    for (var i = 0; i < items.length; i++) {
+                        items[i].iconType = "square";
+                        items[i].iconFill = palette.itemAt([i]);
+                        items[i].iconEnabled = true;
+                        items[i].text = _data[i].title;
+                        items[i].fontWeight = 'bold';
+                        items[i].fontColor = '#041f74';
+                    }
+                    return items;
+                });
+
+
+                legend.listen("legendItemMouseOver", function (event) {
+                    // get item's index
+                    var index = event["itemIndex"];
+                    // enable the hover state of the series
+                    series.getPoint(index).hovered(true);
+                });
+                legend.listen("legendItemMouseOut", function (event) {
+                    // get item's index
+                    var index = event["itemIndex"];
+                    // disable the hover state of the series
+                    series.getPoint(index).hovered(false);
+                });
+
+                legend.listen("legendItemClick", function (event) {
+                    // get item's index
+                    var index = event["itemIndex"];
+                    // disable the hover state of the series
+                    series.getPoint(index).selected(!series.getPoint(index).selected());
+                    legend.itemsFormatter(function (items) {
+                        for (var i = 0; i < items.length; i++) {
+                            items[i].iconType = "square";
+                            if (series.getPoint(i).selected())
+                                items[i].iconFill = "#444";
+                            else
+                                items[i].iconFill = palette.itemAt([i]);
+                            items[i].iconEnabled = true;
+                        }
+                        return items;
+                    });
+                });
+
+                chart.listen("pointsSelect", function () {
+                    legend.itemsFormatter(function (items) {
+                        for (var i = 0; i < items.length; i++) {
+                            items[i].iconType = "square";
+                            if (series.getPoint(i).selected())
+                                items[i].iconFill = "#444";
+                            else
+                                items[i].iconFill = palette.itemAt([i]);
+                            items[i].iconEnabled = true;
+                        }
+                        return items;
+                    });
+                });
+
+                chart.listen("pointsSelect", function (e) {
+                    window.open(e.point.get('link'), '_self');
+                });
+
+                chart.interactivity("by-x");
+
+                // set container id for the chart
+                chart.container('pValueChart');
+                // initiate chart drawing
+                chart.draw();
+            },
+
+            init() {
+                this.renderGraph()
+            },
+
+            initTooltips(chart, data) {
+                chart.tooltip().useHtml(true);
+                chart.tooltip().title(false)
+                chart.tooltip().separator(false)
+
+                var contentElement = null;
+
+                chart.listen("pointMouseOver", function (e) {
+                    // get the data for the current point
+                    var dataRow = data[e.pointIndex];
+
+                    if (contentElement) {
+                        while (contentElement.firstChild) {
+                            contentElement.firstChild.remove()
+                        }
+                        const attainmentHeader = document.createElement("h5");
+                        attainmentHeader.style.color = 'var(--system-base)'
+                        attainmentHeader.appendChild(document.createTextNode(dataRow.title));
+                        contentElement.appendChild(attainmentHeader);
+
+                        const scoreElement = document.createElement("h2");
+                        scoreElement.style.color = 'var(--system-base)'
+                        scoreElement.appendChild(document.createTextNode(`P ${dataRow.value}`));
+                        contentElement.appendChild(scoreElement);
+
+                        const basedOnElement = document.createElement("p");
+                        basedOnElement.style.color = 'var(--system-base)'
+                        basedOnElement.appendChild(document.createTextNode(dataRow.basedOn));
+                        contentElement.appendChild(basedOnElement);
+
+                        const detailElement = document.createElement("p");
+                        detailElement.style.whiteSpace = 'nowrap'
+                        detailElement.style.color = 'var(--system-base)';
+                        detailElement.style.fontWeight = '900';
+                        detailElement.appendChild(document.createTextNode("Bekijk analyse!! "));
+
+                        const iconElement = document.createElement('img');
+                        iconElement.src = '/svg/icons/arrow-small.svg';
+                        iconElement.style.display = 'inline-block'
+                        detailElement.appendChild(iconElement)
+                        contentElement.appendChild(detailElement);
+
+                        const AttainmentTexElement = document.createElement("p");
+                        AttainmentTexElement.style.color = 'var(--system-base)'
+                        AttainmentTexElement.appendChild(
+                            document.createTextNode(dataRow.text)
+                        );
+                        contentElement.appendChild(AttainmentTexElement);
+                    }
+                });
+
+
+                chart.tooltip().onDomReady(function (e) {
+                    this.parentElement.style.border = '1px solid var(--blue-grey)';
+
+                    this.parentElement.style.background = '#FFFFFF';
+                    this.parentElement.style.opacity = '0.8';
+                    contentElement = this.contentElement;
+
+                    // console.dir([
+                    //  this.parentElement,
+                    //  this.titleElement,
+                    //  this.separatorElement,
+                    //  this.contentElement
+                    // ]);
+                });
+
+                /* prevent the content of the contentElement div
+                from being overridden by the default formatter */
+                chart.tooltip().onBeforeContentChange(function () {
+                    return false;
+                });
+            }
+        }
+    ));
+
+
+    Alpine.data('expandableGraph', (id, modelId, taxonomy) => (
+        {
+            data: false,
+            modelId,
+            taxonomy,
+            containerId: 'chart-' + modelId + '-' + taxonomy,
+            id,
+            init() {
+                if (this.expanded) {
+                    this.updateGraph()
+                }
+            },
+            async updateGraph() {
+                if (!this.data) {
+                    this.data = await this.$wire.getData(this.modelId, this.taxonomy);
+                    this.renderGraph()
+                }
+            },
+            get expanded() {
+                return this.active === this.id
+            },
+            set expanded(value) {
+                if (value) {
+                    this.updateGraph()
+                }
+
+                this.active = value ? this.id : null
+            },
+            renderGraph: function () {
+                // create bar chart
+                var chart = anychart.bar();
+
+                // create area series with passed data
+                var series = chart.bar(this.data);
+                series.stroke(this.getColor()).fill(this.getColor())
+
+                var tooltip = series.tooltip()
+                tooltip.title(false)
+                    .separator(false)
+                    .position('right')
+                    .anchor('left-center')
+                    .offsetX(5)
+                    .offsetY(0)
+                    .background('#FFFFFF')
+                    .fontColor('#000000')
+                    .format(function () {
+                        return (
+                            'P ' + Math.abs(this.value).toLocaleString()
+
+                        );
+                    });
+
+
+                chart.tooltip().positionMode('point');
+                // set scale minimum
+                chart.xAxis().stroke('#041F74')
+                chart.xAxis().stroke('none')
+
+                // set container id for the chart
+                chart.container(this.containerId);
+                // initiate chart drawing
+                chart.draw();
+            },
+            getColor: function () {
+                if (this.taxonomy == 'Bloom') {
+                    return '#E2DD10';
+                }
+                if (this.taxonomy == 'Miller') {
+                    return '#5043F6';
+                }
+                return '#2EBC4F';
+            }
+        }
+    ));
+
+
+    Alpine.data('contextMenuButton', (context,uuid, contextData) => ({
         menuOpen: false,
-        questionUuid: null,
-        inTest: null,
+        uuid,
+        contextData,
+        context,
+        gridCard: null,
+        showEvent: context+'-context-menu-show',
+        closeEvent: context+'-context-menu-close',
+        init() {
+            this.gridCard = this.$root.closest('.grid-card');
+        },
+        handle() {
+            this.menuOpen = !this.menuOpen;
+            if(this.menuOpen) {
+                this.$dispatch(this.showEvent, {
+                    uuid: this.uuid,
+                    button: this.$root,
+                    coords: {
+                        top: this.gridCard.offsetTop,
+                        left: this.gridCard.offsetLeft + this.gridCard.offsetWidth
+                    },
+                    contextData: this.contextData
+                })
+            } else {
+                this.$dispatch(this.closeEvent)
+            }
+        },
+        closeMenu() {
+            this.menuOpen = false;
+        }
+    }));
+
+    Alpine.data('contextMenuHandler', () => ({
+        contextMenuOpen: false,
+        uuid: null,
+        contextData: null,
         correspondingButton: null,
+        menuOffsetMarginTop: 56,
+        menuOffsetMarginLeft: 224,
         handleIncomingEvent(detail) {
-            if (!this.menuOpen) return this.openMenu(detail);
+            if (!this.contextMenuOpen) return this.openMenu(detail);
 
             this.closeMenu();
             setTimeout(() => {
                 this.openMenu(detail);
             }, 150);
         },
-        openMenu(detail) {
-            this.questionUuid = detail.questionUuid;
-            this.inTest = detail.inTest;
+        async openMenu(detail) {
+            this.uuid = detail.uuid;
             this.correspondingButton = detail.button;
-            this.$root.style.top = (detail.coords.top + 56) + 'px';
-            this.$root.style.left = (detail.coords.left - 224) + 'px';
-            this.menuOpen = true
+            this.contextData = detail.contextData;
+            this.$root.style.top = (detail.coords.top + this.menuOffsetMarginTop) + 'px';
+            this.$root.style.left = (detail.coords.left - this.menuOffsetMarginLeft) + 'px';
+
+            let readyForShow = await this.$wire.setContextValues(this.uuid, this.contextData);
+            if (readyForShow) this.contextMenuOpen = true;
+            this.contextMenuOpen = true
         },
         closeMenu() {
             this.correspondingButton.dispatchEvent(new CustomEvent('close-menu'));
-            this.menuOpen = false
+            this.contextMenuOpen = false
         }
     }));
 

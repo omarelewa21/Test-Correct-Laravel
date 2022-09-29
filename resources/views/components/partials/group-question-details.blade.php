@@ -66,11 +66,11 @@
         <x-grid class="subquestion-grid w-full">
             @forelse($subQuestions as $sub)
                 <x-grid.question-card :question="$sub->question" :testUuid="$this->testId ?? null"
-                                      :order="$loop->iteration"/>
+                                      :order="$loop->iteration" :showQuestionBankAddConfirmation="$showQuestionBankAddConfirmation"/>
             @empty
                 <span>Geen subvragen</span>
             @endforelse
         </x-grid>
-        <x-question-card-context-menu/>
+        <livewire:context-menu.question-card>
     </div>
 </div>

@@ -24,8 +24,9 @@ class NavigationBarHelper
             'planned.invigilating' => ['main' => 'planned', 'sub' => 'invigilating'],
             'planned.ongoing-assignments' => ['main' => 'planned', 'sub' => 'ongoing-assignments'],
 
-            'taken.my-taken-tests' => ['main' => 'taken', 'sub' => 'my-taken-tests'],
-            'taken.normalizing' => ['main' => 'taken', 'sub' => 'normalizing'],
+//            'teacher.test-takes' => ['main' => 'taken', 'sub' => 'my-taken-tests'],
+//            'taken.normalizing' => ['main' => 'taken', 'sub' => 'normalizing'],
+            'teacher.test-takes' => ['main' => 'taken', 'sub' => ''],
 
             'results' => ['main' => 'results', 'sub' => ''],
 

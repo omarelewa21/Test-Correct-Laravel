@@ -4,6 +4,7 @@ namespace tcCore\Http\Livewire\Teacher;
 
 use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
+use tcCore\BaseSubject;
 use tcCore\EducationLevel;
 use tcCore\GroupQuestion;
 use tcCore\Http\Controllers\AuthorsController;
@@ -16,9 +17,14 @@ use tcCore\Question;
 use tcCore\Subject;
 use tcCore\Test;
 use tcCore\TestQuestion;
+use tcCore\Traits\ContentSourceTabsTrait;
 
 class QuestionBank extends Component
 {
+    use ContentSourceTabsTrait;
+
+    const ACTIVE_TAB_SESSION_KEY = 'question-bank-active-tab';
+
     const ITEM_INCREMENT = 16;
 
     const SOURCE_PERSONAL = 'me';
@@ -26,7 +32,6 @@ class QuestionBank extends Component
 
     protected $queryString = ['testId', 'testQuestionId'];
 
-    public $openTab = 'personal';
     public $testId;
     public $testQuestionId;
 
@@ -35,22 +40,21 @@ class QuestionBank extends Component
     public $addedQuestionIds = [];
     public $itemsPerPage;
 
+    public $sliderButtonOptions = [];
+    public $sliderButtonSelected = 1;
+    public $sliderButtonDisabled = true;
+
     public $inGroup = false;
 
     private $test;
 
     public $groupQuestionDetail;
 
-    private $allowedTabs = [
-        'school_location',
-        'personal',
-    ];
-
     protected function getListeners()
     {
         return [
             'testSettingsUpdated',
-            'addQuestionFromDetail' => 'addQuestionToTest',
+            'addQuestionFromDetail' => 'handleCheckboxClick',
             'questionDeleted'       => 'questionDeletedFromExternalComponent',
             'newGroupId'            => 'newGroupId',
         ];
@@ -58,10 +62,13 @@ class QuestionBank extends Component
 
     public function mount()
     {
+        $this->initialiseContentSourceTabs();
+
         $this->itemsPerPage = QuestionBank::ITEM_INCREMENT;
         $this->setTestProperty();
         $this->setAddedQuestionIdsArray();
         $this->setFilters();
+        $this->setSliderButtonOptions();
     }
 
     public function render()
@@ -80,6 +87,12 @@ class QuestionBank extends Component
             ->when($this->openTab === 'school_location', function ($filters) {
                 return $filters->merge(['source' => 'schoolLocation']);
             })
+            ->when($this->openTab === 'national', function ($filters) {
+                return $filters->merge(['source' => 'national']);
+            })
+            ->when($this->openTab === 'creathlon', function ($filters) {
+                return $filters->merge(['source' => 'creathlon']);
+            })
             ->when((isset($this->filters[$this->openTab]['search']) && is_numeric($this->filters[$this->openTab]['search'])), function ($filters) {
                 unset($filters['search']);
                 return $filters->merge(['id' => $this->filters[$this->openTab]['search']]);
@@ -89,29 +102,17 @@ class QuestionBank extends Component
 
     public function getSubjectsProperty()
     {
-        return Subject::filtered(['user_id' => Auth::id()], ['name' => 'asc'])
-            ->with('baseSubject')
-            ->get()
-            ->map(function ($subject) {
-                return [
-                    'value' => $subject->getKey(),
-                    'label' => $subject->name
-                ];
-            })
-            ->toArray();
+        return Subject::filtered(['user_id' => Auth::id()], ['name' => 'asc'])->optionList();
+    }
+
+    public function getBaseSubjectsProperty()
+    {
+        return BaseSubject::currentForAuthUser()->optionList();
     }
 
     public function getEducationLevelProperty()
     {
-        return EducationLevel::filtered(['user_id' => Auth::id()])
-            ->get()
-            ->map(function ($edLevel) {
-                return [
-                    'value' => $edLevel->getKey(),
-                    'label' => $edLevel->name
-                ];
-            })
-            ->toArray();
+        return EducationLevel::filtered(['user_id' => Auth::id()])->optionList();
     }
 
     public function getEducationLevelYearProperty()
@@ -146,7 +147,17 @@ class QuestionBank extends Component
 
     public function handleCheckboxClick($questionUuid)
     {
-        return $this->addQuestionToTest(Question::whereUuid($questionUuid)->value('id'));
+        $question = Question::whereUuid($questionUuid)->firstOrFail();
+        if ($question->needsCleanCopy()) {
+            $question = $question->createCleanCopy(
+                $this->test->education_level_id,
+                $this->test->education_level_year,
+                $this->test->subject_id,
+                auth()->user()
+            );
+        }
+
+        return $this->addQuestionToTest($question->getKey());
     }
 
     public function addQuestionToTest($questionId)
@@ -216,16 +227,10 @@ class QuestionBank extends Component
 
     private function getQuestionsQuery()
     {
-        return Question::filtered($this->getFilters())
-            ->where(function ($query) {
-                $query->where('scope', '!=', 'cito')
-                    ->orWhereNull('scope');
-            })
+        return $this->questionDataSource()
             ->when(!$this->inGroup, function ($query) {
                 $query->where('is_subquestion', 0);
-            })
-            // strip GroupQuestions from result when inGroup is set to a guid;
-            ->when($this->inGroup, function ($query) {
+            }, function ($query) {
                 $query->where('type', '!=', 'GroupQuestion');
             })
             ->orderby('created_at', 'desc')
@@ -281,14 +286,13 @@ class QuestionBank extends Component
     private function setFilters()
     {
         collect($this->allowedTabs)->each(function ($tab) {
-            $this->filters[$tab] = [
-                'search'               => '',
-                'subject_id'           => [$this->test->subject_id],
-                'education_level_year' => [$this->test->education_level_year],
-                'education_level_id'   => [$this->test->education_level_id],
-                'without_groups'       => '',
-                'author_id'            => []
-            ];
+            $this->filters[$tab] = $this->subjectFilterForTab($tab) + [
+                    'search'               => '',
+                    'education_level_year' => [$this->test->education_level_year],
+                    'education_level_id'   => [$this->test->education_level_id],
+                    'without_groups'       => '',
+                    'author_id'            => []
+                ];
         });
     }
 
@@ -297,10 +301,11 @@ class QuestionBank extends Component
         $tabs = $tab ? [$tab] : $this->allowedTabs;
         return collect($tabs)->each(function ($tab) {
             $this->filters[$tab] = [
-                'name'                 => '',
+                'search'               => '',
                 'education_level_year' => [],
                 'education_level_id'   => [],
                 'subject_id'           => [],
+                'base_subject_id'      => [],
                 'author_id'            => [],
             ];
         });
@@ -313,7 +318,6 @@ class QuestionBank extends Component
             'teacher.question-detail-modal',
             [
                 'questionUuid' => $questionUuid,
-                'testUuid'     => $this->testId,
                 'inTest'       => $inTest
             ]
         );
@@ -370,5 +374,36 @@ class QuestionBank extends Component
     public function setAddedQuestionIdsArray(): void
     {
         $this->addedQuestionIds = $this->getQuestionIdsThatAreAlreadyInTest();
+    }
+
+    private function subjectFilterForTab($tab): array
+    {
+        if ($this->isExternalContentTab($tab)) {
+            return ['base_subject_id' => $this->test->subject()->pluck('base_subject_id')];
+        }
+        return ['subject_id' => [$this->test->subject_id]];
+    }
+
+    public function hasAuthorFilter($tab = null): bool
+    {
+        return collect(['school_location'])->contains($tab ?? $this->openTab);
+    }
+
+    private function questionDataSource()
+    {
+        if ($this->isExternalContentTab()) {
+            return Question::publishedFiltered($this->getFilters());
+        }
+        return Question::filtered($this->getFilters());
+    }
+
+
+
+    public function setSliderButtonOptions()
+    {
+        $this->sliderButtonOptions = [
+            __('cms.Toetsenbank'),
+            __('cms.Vragenbank'),
+        ];
     }
 }

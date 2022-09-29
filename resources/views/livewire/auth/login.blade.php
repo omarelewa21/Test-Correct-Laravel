@@ -129,6 +129,7 @@
                                             >
                                             </x-input.text>
                                         </x-input.group>
+                                        <x-partials.test-take-code :label="__('auth.test_code_quick_access')"/>
                                     </div>
 
                                     <div class="hidden">
@@ -313,6 +314,11 @@
                                             <span class="title">{{ $message }}</span>
                                         </div>
                                         @enderror
+                                        @error('guest_account_not_allowed')
+                                        <div class="notification error stretched mt-4">
+                                            <span class="title">{{ $message }}</span>
+                                        </div>
+                                        @enderror
                                         @error('empty_guest_first_name')
                                         <div class="notification error stretched mt-4">
                                             <span class="title">{{ $message }}</span>
@@ -391,7 +397,7 @@
                         </span>
                             </div>
                             <x-button.primary type="link" class="" size="md" selid="entree-login-btn"
-                                              href="{{ route('saml2_login', 'entree') }}">
+                                              href="{{ route('saml2_login', ['entree','directlink' => $take]) }}">
                                 <x-icon.entreefederatie/>
                                 <span>{{ __('auth.login_with_entree') }}</span>
                             </x-button.primary>
@@ -410,7 +416,7 @@
                 </div>
                 <div browser wire:ignore>
                         <x-button.text-button selid="login-create-account-btn" class="order-1" size="sm"
-                                              @click="Livewire.emit('open-auth-modal')">
+                                              type="link" href="https://www.test-correct.nl/welcome">
                             <span class="text-base">{{__('auth.Maak account')}}</span>
                             <x-icon.arrow/>
                         </x-button.text-button>

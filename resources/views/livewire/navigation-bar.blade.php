@@ -194,6 +194,10 @@
             <div class="tile-item my-taken-tests" wire:click="cakeRedirect('taken.test_taken')">{{__('header.Mijn afgenomen toetsen')}}</div>
             <div class="tile-item normalizing" wire:click="cakeRedirect('taken.normalize_test')">{{__('header.Nakijken & normeren')}}</div>
         </div>
+        <div class="tile-group ">
+            <div class="tile-item my-taken-tests" @click="window.open('{{ route('teacher.test-takes','taken') }}', '_self')">{{__('header.Mijn afgenomen toetsen')}}</div>
+            <div class="tile-item normalizing" wire:click="cakeRedirect('taken.normalize_test')">{{__('header.Nakijken & normeren')}}</div>
+        </div>
         <div class="tile-group analyses">
             <div class="tile-item my-students" wire:click="cakeRedirect('analyses.students')">{{__('header.Mijn studenten')}}</div>
             <div class="tile-item my-classes-analyses" wire:click="cakeRedirect('analyses.classes')">{{__('header.Mijn klassen')}}</div>

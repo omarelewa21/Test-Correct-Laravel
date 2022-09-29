@@ -1,5 +1,6 @@
 <div cms-drawer
      class="drawer flex z-[20]"
+     selid="question-drawer"
      x-init="
         collapse = window.innerWidth < 1000;
         if (emptyStateActive) {
@@ -75,20 +76,21 @@
         </div>
 
         <div id="sidebar-carousel-container"
+             selid="sidebar-question-list"
              x-data="questionEditorSidebar"
              x-ref="questionEditorSidebar"
              wire:ignore.self
              :class="{'!invisible': resizing}"
              @resize.window="handleResizing()"
         >
-            <x-sidebar.slide-container class="pt-4 divide-y divide-bluegrey"
+            <x-sidebar.slide-container class="divide-y divide-bluegrey"
                                        x-ref="home"
                                        @mouseenter="handleVerticalScroll($el);"
                                        @continue-to-new-slide.window="$wire.removeDummy();showAddQuestionSlide(false)"
                                        @continue-to-add-group.window="addGroup(false)"
                                        @scroll-dummy-into-view.window="scrollActiveQuestionIntoView()"
             >
-                <div wire:sortable="updateTestItemsOrder" class="sortable-drawer divide-y divide-bluegrey pb-6" {{ $emptyStateActive ? 'hidden' : '' }} >
+                <div wire:sortable="updateTestItemsOrder" class="sortable-drawer divide-y divide-bluegrey pb-6 pt-4" {{ $emptyStateActive ? 'hidden' : '' }} >
                     @php $loopIndex = 0; @endphp
                     @foreach($this->questionsInTest as $testQuestion)
                         @if($testQuestion->question->type === 'GroupQuestion')

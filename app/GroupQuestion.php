@@ -51,6 +51,7 @@ class GroupQuestion extends Question implements QuestionInterface {
     public function duplicate(array $attributes, $ignore = null, $callbacks = true) {
         $question = $this->replicate();
 
+
         $question->parentInstance = $this->parentInstance->duplicate($attributes);
         if ($question->parentInstance === false) {
             return false;
@@ -86,7 +87,6 @@ class GroupQuestion extends Question implements QuestionInterface {
             if ($ignore instanceof GroupQuestionQuestion && $ignore->getKey() == $groupQuestionQuestions->getKey()) {
                 continue;
             }
-
             if ($groupQuestionQuestions->duplicate($question, [], false) === false) {
                 return false;
             }
@@ -312,7 +312,6 @@ class GroupQuestion extends Question implements QuestionInterface {
     }
 
     public function gatherAffectedTests($ignoreGroupQuestions = [], $ignoreTests = []) {
-        Log::debug('Gathering affected metadata for group-question #'.$this->getKey());
         QuestionGatherer::invalidateGroupQuestionCache($this);
 
         $groupQuestionId = $this->getKey();

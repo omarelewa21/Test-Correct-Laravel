@@ -8,15 +8,14 @@ use Illuminate\Validation\Validator;
 use LivewireUI\Modal\ModalComponent;
 use tcCore\Http\Controllers\InvigilatorsController;
 use tcCore\Http\Controllers\TemporaryLoginController;
-use tcCore\SchoolClass;
-use tcCore\Test;
+use tcCore\Http\Traits\Modal\WithPlanningFeatures;
 use tcCore\Period;
 use tcCore\TestTake;
 use tcCore\TestTakeStatus;
 
-class PlanningModal extends ModalComponent
+class TestPlanModal extends ModalComponent
 {
-    protected $listeners = ['showModal'];
+    use WithPlanningFeatures;
 
     public $test;
 
@@ -26,34 +25,14 @@ class PlanningModal extends ModalComponent
 
     public $request = ['date' => '', 'schoolClasses' => [], 'invigilators' => []];
 
-    public $schoolClasses = [];
-
-
     public $selectedClassesContainerId;
     public $selectedInvigilatorsContrainerId;
-
-    public function isAssessmentType()
-    {
-        return $this->test->isAssignment();
-    }
 
     public function mount($testUuid)
     {
         $this->test = \tcCore\Test::whereUuid($testUuid)->first();
 
         $this->allowedPeriods = Period::filtered(['current_school_year' => true])->get();
-        $this->schoolClasses = SchoolClass::filtered(
-            [
-                'user_id' => auth()->id(),
-                'current' => true,
-            ],
-            []
-        )
-            ->get(['id', 'name'])
-            ->map(function ($item) {
-                return ['value' => (int)$item->id, 'label' => $item->name];
-            })->toArray();
-        $this->resetModalRequest();
 
         $this->allowedInvigilators = InvigilatorsController::getInvigilatorList()->map(function ($invigilator) {
             return [
@@ -68,11 +47,12 @@ class PlanningModal extends ModalComponent
     protected function rules()
     {
         $rules = [
-            'request.date'           => 'required',
-            'request.time_end'       => 'sometimes',
-            'request.weight'         => 'required',
-            'request.period_id'      => 'required',
-            'request.school_classes' => 'required',
+            'request.date'            => 'required',
+            'request.time_end'        => 'sometimes',
+            'request.weight'          => 'required',
+            'request.period_id'       => 'required',
+            'request.school_classes'  => 'required',
+            'request.notify_students' => 'required|boolean',
         ];
 
         if ($this->isAssessmentType()) {
@@ -136,14 +116,30 @@ class PlanningModal extends ModalComponent
         $t->setAttribute('user_id', auth()->id());
         $t->save();
 
-        $this->dispatchBrowserEvent('notify', ['message' => __('teacher.testtake planned')]);
+        return $t;
     }
 
     public function planNext()
     {
-        $this->planTest();
+        $testTake = $this->planTest();
 
         $this->closeModal();
+        
+        $this->afterPlanningToast($testTake);
+    }
+
+    private function afterPlanningToast(TestTake $take){
+        $this->dispatchBrowserEvent('after-planning-toast',
+        [
+            'message'   => __('teacher.test_take_planned', ['testName' => $take->test->name]),
+            'link'      => $take->directLink,
+            'take'      => $take->uuid
+        ]);
+    }
+
+    public function render()
+    {
+        return view('livewire.teacher.test-plan-modal');
     }
 
     private function resetModalRequest()
@@ -170,10 +166,6 @@ class PlanningModal extends ModalComponent
         $this->request['guest_accounts'] = 0;
         $this->request['school_classes'] = [];
         $this->request['invigilators'] = [auth()->id()];
-    }
-
-    public function render()
-    {
-        return view('livewire.teacher.planning-modal');
+        $this->request['notify_students'] = true;
     }
 }
