@@ -8524,6 +8524,21 @@ ul ul ul {
     background-color: var(--primary-opacity-05);
     color: var(--system-base);
 }
+
+.logout-progress-bar {
+    width: 70%;
+    background-color: white;
+    border: 1px solid var(--light-grey);
+    height: 1rem;border-radius:4px;
+    overflow: hidden;
+    display:block
+}
+.logout-progress-bar span {
+    display:block;
+    background-color: var(--cta-primary);
+    height: 1rem;
+    transition:width 0.25s
+}
 .first\:rounded-l-lg:first-child{
   border-top-left-radius: 0.5rem;
   border-bottom-left-radius: 0.5rem;
@@ -9333,4 +9348,3 @@ ul ul ul {
     max-width: 72rem;
   }
 }
-

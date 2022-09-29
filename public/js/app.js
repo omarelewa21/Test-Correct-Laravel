@@ -7401,7 +7401,7 @@ window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
 window.Pusher = __webpack_require__(/*! pusher-js */ "./node_modules/pusher-js/dist/web/pusher.js");
 window.Echo = new laravel_echo__WEBPACK_IMPORTED_MODULE_0__["default"]({
   broadcaster: 'pusher',
-  key: "51d7221bf733999d7138",
+  key: "2149988ad52a600a2309",
   cluster: "eu",
   forceTLS: true
 });
@@ -7669,6 +7669,42 @@ Core = {
   changeAppTypeToIos: function changeAppTypeToIos() {
     Core.appType = 'ios';
     Core.disableDeviceSpecificFeature();
+  },
+
+  /**
+   * Waits an interval time before logging user out
+   * @param boolean firstLoad
+   * @param int secondsBeforeTeacherLogout - default 15 min
+   */
+  startUserLogoutInterval: function startUserLogoutInterval() {
+    var firstLoad = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : false;
+    var secondsBeforeTeacherLogout = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 15 * 60;
+    var inactive = 0;
+    document.addEventListener('mouseover', function () {
+      return inactive = 0;
+    });
+    document.addEventListener('keydown', function () {
+      return inactive = 0;
+    });
+
+    var startInterval = function startInterval() {
+      var userLogoutInterval = setInterval(function () {
+        inactive++;
+
+        if (inactive >= secondsBeforeTeacherLogout) {
+          clearInterval(userLogoutInterval);
+          Livewire.emit("openModal", "open-user-logout-warning-modal");
+        }
+      }, 1000);
+    };
+
+    if (firstLoad) {
+      window.onload = function () {
+        return startInterval();
+      };
+    } else {
+      startInterval();
+    }
   }
 };
 

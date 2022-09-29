@@ -61,6 +61,11 @@
     readspeakerLoadCore();
 </script>
 @endif
+@if (!is_null(Auth::user()) && Auth::user()->isA('teacher'))
+<script>
+    Core.startUserLogoutInterval(true);
+</script>
+@endif
 @stack('scripts')
 <script>
     Alpine.start();
