@@ -26,6 +26,8 @@ use tcCore\LoginLog;
 use tcCore\SamlMessage;
 use tcCore\Services\EmailValidatorService;
 use tcCore\User;
+use tcCore\TestTake;
+use tcCore\TestTakeCode;
 
 class Login extends Component
 {
@@ -100,6 +102,8 @@ class Login extends Component
 
     public $schoolLocation;
 
+    public $take = null;
+
     public $studentDownloadUrl = 'https://www.test-correct.nl/student/';
 
     protected $listeners = ['open-auth-modal' => 'openAuthModal', 'password_reset' => 'passwordReset'];
@@ -122,6 +126,15 @@ class Login extends Component
     public function mount()
     {
         Auth::logout();
+
+        if(session()->has('take')){
+            $take = TestTake::whereUuid(session('take'))->with('testTakeCode')->first();
+            if($take->testTakeCode){
+                $this->testTakeCode = str_split($take->testTakeCode->code);
+            }
+            $this->take = $take->uuid;
+        }
+
         session()->invalidate();
         session()->regenerateToken();
 
@@ -162,6 +175,10 @@ class Login extends Component
 
         AppVersionDetector::handleHeaderCheck();
         $this->doLoginProcedure();
+        
+        if($this->checkIfShouldRedirectToTestTake()){
+            return;
+        };
 
         $user = auth()->user();
         if ($user->isA('Student') && $user->schoolLocation->allow_new_student_environment) {
@@ -191,6 +208,10 @@ class Login extends Component
         $testTakeCode = $testCodeHelper->getTestTakeCodeIfExists($this->testTakeCode);
         if (!$testTakeCode) {
             return $this->addError('no_test_found_with_code', __('auth.no_test_found_with_code'));
+        }
+
+        if (!$testTakeCode->testTake->guest_accounts){
+            return $this->addError('guest_account_not_allowed', __('auth.guest_account_not_allowed'));
         }
 
         AppVersionDetector::handleHeaderCheck();
@@ -609,5 +630,22 @@ class Login extends Component
                 'message' => __('passwords.reset'),
             ]
         );
+    }
+
+    private function checkIfShouldRedirectToTestTake()
+    {
+        if($this->take){
+            return redirect()->route('take.directLink', ['testTakeUuid' => $this->take]);
+        }
+
+        if($this->isTestTakeCodeCorrectFormat()){
+            $code = implode('', $this->testTakeCode);
+            $testTakeCode = TestTakeCode::where('code', $code)->with('testTake')->first();
+            if(is_null($testTakeCode)){
+                return false;
+            }
+            return redirect()->route('take.directLink', ['testTakeUuid' => $testTakeCode->testTake->uuid]);
+        }
+        return false;
     }
 }

@@ -670,7 +670,7 @@ class EntreeHelper
         $this->setLocationWithSamlAttributes();
         $this->hasActiveEntreeSSOBasedOnSchool = false;
         if($this->school){
-            $this->hasActiveEntreeSSOBasedOnSchool = !!($this->getSchoolLocationsBasedOnSchoolIdAndActiveEntreeSSO($this->school->getKey()));
+            $this->hasActiveEntreeSSOBasedOnSchool = !!($this->getSchoolLocationsBasedOnSchoolIdAndActiveEntreeSSO($this->school->getKey())->count());
         }
         if (request()->get('set') !== 'full'
                 && (

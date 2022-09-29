@@ -33,8 +33,7 @@ class FactoryUserTest extends TestCase
 
         $userFactory1 = FactoryUser::createTeacher($schoolLocation);
         $userFactory2 = FactoryUser::createTeacher($schoolLocation);
-
-        $createdUsers = $schoolLocation->users->filter(function($user) {
+        $createdUsers = $schoolLocation->fresh()->users->filter(function($user) {
             return $user->roles()->get()->contains(1) && $user->demo == 0;
         });
 
@@ -164,7 +163,7 @@ class FactoryUserTest extends TestCase
         $userFactory1 = FactoryUser::createStudent($schoolLocation);
         $userFactory2 = FactoryUser::createStudent($schoolLocation);
 
-        $createdUsers = $schoolLocation->users->filter(function($user) {
+        $createdUsers = $schoolLocation->fresh()->users->filter(function($user) {
             return $user->roles()->get()->contains(3) && $user->demo == 0;
         });
 

@@ -9,6 +9,11 @@ return [
     'Bereid je goed voor op deze toets. Succes'         => 'Prepare yourself well for this test. Good luck',
     'Test-Correct supportteam'                          => 'Test-Correct support team',
     'Toetsafname ingepland.'                            => 'Test planned',
+    'text_access_link'                                  => 'You can open the test with this link ',
+    'this_link'                                         => 'this link',
+    'test_has_scheduled_for_invigilator'                => 'A test has been scheduled with you as an Invigilator',
+    'test_has_scheduled_for_teacher'                    => 'You scheduled a test',
+    'take_code'                                         => 'or by entering the following test code in the login screen:'
 ];
 
 

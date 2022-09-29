@@ -1,0 +1,21 @@
+.card-tag {
+    --card-tag-text-color: var(--cta-primary);
+    --card-tag-border-color: var(--cta-primary);
+    --card-tag-background-color: rgba(var(--cta-primary-rgb), .1);
+
+    padding: 6px 8px;
+    border-radius: 4px;
+    border: solid 1px;
+    border-color: var(--card-tag-border-color);
+    background-color: var(--card-tag-background-color);
+    color: var(--card-tag-text-color)!important;
+    font-size:10px;
+    font-family: Nunito Bold, sans-serif;
+    text-transform: uppercase;
+}
+
+.card-tag.grey {
+    --card-tag-text-color: var(--note);
+    --card-tag-border-color: var(--mid-grey);
+    --card-tag-background-color: rgba(var(--mid-grey-rgb), .1);
+}

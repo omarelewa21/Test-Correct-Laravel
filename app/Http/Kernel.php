@@ -12,6 +12,7 @@ use tcCore\Http\Middleware\LocaleMiddleware;
 use tcCore\Http\Middleware\Logging;
 use tcCore\Http\Middleware\RequestLogger;
 use tcCore\Http\Middleware\TestTakeForceTakenAwayCheck;
+use tcCore\Http\Middleware\ValidTrialPeriod;
 use tcCore\Http\Middleware\TrustProxies;
 
 class Kernel extends HttpKernel
@@ -51,7 +52,6 @@ class Kernel extends HttpKernel
         'authorizeBinds'        => 'tcCore\Http\Middleware\AuthorizeBinds',
         'cakeLaravelFilter'     => 'tcCore\Http\Middleware\CakeLaravelFilter',
         'auth.temp'             => AuthenticateWithTemporaryLogin::class,
-        'teacher'               => AuthenticatedAsTeacher::class,
         'deploymentMaintenance' => CheckForDeploymentMaintenance::class,
         'student'               => AuthenticatedAsStudent::class,
         'forceTaken'            => TestTakeForceTakenAwayCheck::class,
@@ -75,8 +75,12 @@ class Kernel extends HttpKernel
             \Illuminate\Routing\Middleware\SubstituteBindings::class,
             LocaleMiddleware::class,
             CheckForDeploymentMaintenance::class,
-            AppDetection::class
+            AppDetection::class,
         ],
+        'teacher' => [
+            AuthenticatedAsTeacher::class,
+            ValidTrialPeriod::class,
+        ]
     ];
 
 }

@@ -6,12 +6,10 @@ use tcCore\Factories\FactoryTestTake;
 
 class FactoryScenarioTestTakePlanned extends FactoryScenarioTestTake
 {
+    const DEFAULT_TEST_NAME = "TestTake 'Planned' with all question types";
+
     protected function createFactoryTestTake()
     {
-        $testName = "TestTake 'Planned' with all question types";
-
-        $this->test = FactoryScenarioTestTestWithAllQuestionTypes::createTest($testName, $this->user);
-
         return FactoryTestTake::create($this->test, $this->user)->addFirstSchoolClassAsParticipants();
     }
 }

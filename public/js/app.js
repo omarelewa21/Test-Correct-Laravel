@@ -84,6 +84,61 @@ module.exports = __webpack_require__(/*! regenerator-runtime */ "./node_modules/
 
 /***/ }),
 
+/***/ "./node_modules/@ryangjchandler/alpine-clipboard/src/index.js":
+/*!********************************************************************!*\
+  !*** ./node_modules/@ryangjchandler/alpine-clipboard/src/index.js ***!
+  \********************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+let onCopy = () => {}
+
+const copy = (target) => {
+    if (typeof target === 'function') {
+        target = target()
+    }
+
+    if (typeof target === 'object') {
+        target = JSON.stringify(target)
+    }
+
+    return window.navigator.clipboard.writeText(target)
+        .then(onCopy)
+}
+
+function Clipboard(Alpine) {
+    Alpine.magic('clipboard', () => {
+        return copy
+    })
+
+    Alpine.directive('clipboard', (el, { modifiers, expression }, { evaluateLater, cleanup }) => {
+        const getCopyContent = modifiers.includes('raw') ? c => c(expression) : evaluateLater(expression)
+        const clickHandler = () => getCopyContent(copy)
+
+        el.addEventListener('click', clickHandler)
+
+        cleanup(() => {
+            el.removeEventListener('click', clickHandler)
+        })
+    })
+}
+
+Clipboard.configure = (config) => {
+    if (config.hasOwnProperty('onCopy') && typeof config.onCopy === 'function') {
+        onCopy = config.onCopy
+    }
+
+    return Clipboard
+}
+
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (Clipboard);
+
+/***/ }),
+
 /***/ "./node_modules/alpinejs/dist/module.esm.js":
 /*!**************************************************!*\
   !*** ./node_modules/alpinejs/dist/module.esm.js ***!
@@ -5534,6 +5589,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var choices_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! choices.js */ "./node_modules/choices.js/public/assets/scripts/choices.js");
 /* harmony import */ var choices_js__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(choices_js__WEBPACK_IMPORTED_MODULE_2__);
 /* harmony import */ var _alpinejs_intersect__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! @alpinejs/intersect */ "./node_modules/@alpinejs/intersect/dist/module.esm.js");
+/* harmony import */ var _ryangjchandler_alpine_clipboard__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! @ryangjchandler/alpine-clipboard */ "./node_modules/@ryangjchandler/alpine-clipboard/src/index.js");
 
 
 function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { Promise.resolve(value).then(_next, _throw); } }
@@ -5543,6 +5599,8 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
 
 
+
+alpinejs__WEBPACK_IMPORTED_MODULE_1__["default"].plugin(_ryangjchandler_alpine_clipboard__WEBPACK_IMPORTED_MODULE_4__["default"]);
 window.Alpine = alpinejs__WEBPACK_IMPORTED_MODULE_1__["default"];
 alpinejs__WEBPACK_IMPORTED_MODULE_1__["default"].plugin(_alpinejs_intersect__WEBPACK_IMPORTED_MODULE_3__["default"]);
 document.addEventListener('alpine:init', function () {
@@ -5848,6 +5906,7 @@ document.addEventListener('alpine:init', function () {
       },
       setIndex: function setIndex() {
         var parent = this.$root.parentElement;
+        if (parent === null) return;
         this.index = Array.prototype.indexOf.call(parent.children, this.$el) + 1;
       }
     };
@@ -5872,7 +5931,7 @@ document.addEventListener('alpine:init', function () {
           delete window[this.toolName];
         }
 
-        var toolName = window[this.toolName] = initDrawingQuestion(this.$root, this.isTeacher, this.isPreview);
+        var toolName = window[this.toolName] = initDrawingQuestion(this.$root, this.isTeacher, this.isPreview, this.grid);
 
         if (this.isTeacher) {
           this.makeGridIfNecessary(toolName);
@@ -5912,8 +5971,19 @@ document.addEventListener('alpine:init', function () {
         }
       },
       makeGridIfNecessary: function makeGridIfNecessary(toolName) {
+        var gridSize = false;
+
         if (this.gridSvg !== '' && this.gridSvg !== '0.00') {
-          makePreviewGrid(toolName.drawingApp, this.gridSvg);
+          gridSize = this.gridSvg;
+        } else if (this.grid && this.grid !== '0') {
+          gridSize = 1 / parseInt(this.grid) * 14;
+        }
+
+        if (gridSize) {
+          makePreviewGrid(toolName.drawingApp, gridSize);
+          setTimeout(function () {
+            makePreviewGrid(toolName.drawingApp, gridSize);
+          }, 2000);
         }
       }
     };
@@ -6269,32 +6339,481 @@ document.addEventListener('alpine:init', function () {
       }
     };
   });
-  alpinejs__WEBPACK_IMPORTED_MODULE_1__["default"].data('questionCardContextMenu', function () {
+  alpinejs__WEBPACK_IMPORTED_MODULE_1__["default"].data('analysesSubjectsGraph', function (data) {
     return {
-      menuOpen: false,
-      questionUuid: null,
-      inTest: null,
-      correspondingButton: null,
-      handleIncomingEvent: function handleIncomingEvent(detail) {
+      data: data,
+      colors: ['#30BC51', '#5043F6', '#ECEE7D', '#6820CE', '#CB110E', '#F79D25', '#1B6112', '#43ACF5', '#E12576', '#24D2C5'],
+      renderGraph: function renderGraph() {
+        var chart = anychart.column();
+        var series = chart.column(this.data);
+        var palette = anychart.palettes.distinctColors();
+        palette.items(this.colors);
+        var yScale = chart.yScale();
+        yScale.minimum(0);
+        yScale.maximum(1.00);
+        yScale.ticks().interval(0.25);
+        chart.yAxis(0).labels().format(function () {
+          return this.value == 0 ? 'P 0' : this.value.toFixed(2);
+        });
+        chart.yGrid().enabled(true);
+        chart.xAxis(0).labels().fontWeight("bold").fontColor('#041f74').rotation(-60);
+
+        for (var i = 0; series.getPoint(i).exists(); i++) {
+          series.getPoint(i).set("fill", palette.itemAt(i));
+        }
+
+        series.selected().fill("#444");
+        series.stroke(null);
+        this.initTooltips(chart, this.data);
+        var legend = chart.legend(); // enable legend
+
+        legend.enabled(true); // set source of legend items
+
+        legend.itemsSourceMode("categories");
+        legend.itemsFormatter(function (items) {
+          for (var i = 0; i < items.length; i++) {
+            items[i].iconType = "square";
+            items[i].iconFill = palette.itemAt([i]);
+            items[i].iconEnabled = true;
+            items[i].fontWeight = 'bold';
+            items[i].fontColor = '#041f74';
+          }
+
+          return items;
+        });
+        legend.listen("legendItemMouseOver", function (event) {
+          // get item's index
+          var index = event["itemIndex"]; // enable the hover state of the series
+
+          series.getPoint(index).hovered(true);
+        });
+        legend.listen("legendItemMouseOut", function (event) {
+          // get item's index
+          var index = event["itemIndex"]; // disable the hover state of the series
+
+          series.getPoint(index).hovered(false);
+        });
+        legend.listen("legendItemClick", function (event) {
+          // get item's index
+          var index = event["itemIndex"]; // disable the hover state of the series
+
+          series.getPoint(index).selected(!series.getPoint(index).selected());
+          legend.itemsFormatter(function (items) {
+            for (var i = 0; i < items.length; i++) {
+              items[i].iconType = "square";
+              if (series.getPoint(i).selected()) items[i].iconFill = "#444";else items[i].iconFill = palette.itemAt([i]);
+              items[i].iconEnabled = true;
+            }
+
+            return items;
+          });
+        });
+        chart.listen("pointsSelect", function () {
+          legend.itemsFormatter(function (items) {
+            for (var i = 0; i < items.length; i++) {
+              items[i].iconType = "square";
+              if (series.getPoint(i).selected()) items[i].iconFill = "#444";else items[i].iconFill = palette.itemAt([i]);
+              items[i].iconEnabled = true;
+            }
+
+            return items;
+          });
+        });
+        chart.listen("pointsSelect", function (e) {
+          window.open(e.point.get('link'), '_self');
+        }); // // set container id for the chart
+
+        chart.container('pValueChart'); // initiate chart drawing
+
+        chart.draw();
+      },
+      initTooltips: function initTooltips(chart, data) {
+        chart.tooltip().useHtml(true);
+        chart.tooltip().title(false);
+        chart.tooltip().separator(false);
+        var contentElement = null;
+        chart.listen("pointMouseOver", function (e) {
+          // get the data for the current point
+          var dataRow = data[e.pointIndex];
+
+          if (contentElement) {
+            while (contentElement.firstChild) {
+              contentElement.firstChild.remove();
+            }
+
+            var attainmentHeader = document.createElement("h5");
+            attainmentHeader.style.color = 'var(--system-base)';
+            attainmentHeader.appendChild(document.createTextNode(dataRow.title));
+            contentElement.appendChild(attainmentHeader);
+            var scoreElement = document.createElement("h2");
+            scoreElement.style.color = 'var(--system-base)';
+            scoreElement.appendChild(document.createTextNode("P ".concat(dataRow.value)));
+            contentElement.appendChild(scoreElement);
+            var basedOnElement = document.createElement("p");
+            basedOnElement.style.color = 'var(--system-base)';
+            basedOnElement.appendChild(document.createTextNode(dataRow.basedOn));
+            contentElement.appendChild(basedOnElement);
+            var detailElement = document.createElement("p");
+            detailElement.style.whiteSpace = 'nowrap';
+            detailElement.style.color = 'var(--system-base)';
+            detailElement.style.fontWeight = '900';
+            detailElement.appendChild(document.createTextNode("Bekijk analyse"));
+            var iconElement = document.createElement('img');
+            iconElement.src = '/svg/icons/arrow-small.svg';
+            iconElement.style.display = 'inline-block';
+            detailElement.appendChild(iconElement);
+            contentElement.appendChild(detailElement);
+          }
+        });
+        chart.tooltip().onDomReady(function (e) {
+          this.parentElement.style.border = '1px solid var(--blue-grey)';
+          this.parentElement.style.background = '#FFFFFF';
+          this.parentElement.style.opacity = '0.8';
+          contentElement = this.contentElement; // console.dir([
+          //  this.parentElement,
+          //  this.titleElement,
+          //  this.separatorElement,
+          //  this.contentElement
+          // ]);
+        });
+        /* prevent the content of the contentElement div
+        from being overridden by the default formatter */
+
+        chart.tooltip().onBeforeContentChange(function () {
+          return false;
+        });
+      },
+      init: function init() {
+        this.renderGraph();
+      }
+    };
+  });
+  alpinejs__WEBPACK_IMPORTED_MODULE_1__["default"].data('analysesAttainmentsGraph', function (data) {
+    return {
+      data: data,
+      colors: ['#30BC51', '#5043F6', '#ECEE7D', '#6820CE', '#CB110E', '#F79D25', '#1B6112', '#43ACF5', '#E12576', '#24D2C5'],
+      renderGraph: function renderGraph() {
+        var chart = anychart.column();
+        var series = chart.column(this.data);
+        var palette = anychart.palettes.distinctColors();
+        palette.items(this.colors);
+        var yScale = chart.yScale();
+        yScale.minimum(0);
+        yScale.maximum(1.00);
+        yScale.ticks().interval(0.25);
+        chart.yAxis(0).labels().format(function () {
+          return this.value == 0 ? 'P 0' : this.value.toFixed(2);
+        });
+        chart.yGrid().enabled(true);
+        chart.xAxis(0).labels().fontWeight("bold").fontColor('#041f74');
+
+        for (var i = 0; series.getPoint(i).exists(); i++) {
+          series.getPoint(i).set("fill", palette.itemAt(i));
+        }
+
+        series.selected().fill("#444");
+        series.stroke(null);
+        this.initTooltips(chart, this.data);
+        var legend = chart.legend(); // enable legend
+
+        legend.enabled(true); // set source of legend items
+
+        legend.itemsSourceMode("categories");
+        var _data = this.data;
+        legend.itemsFormatter(function (items) {
+          for (var i = 0; i < items.length; i++) {
+            items[i].iconType = "square";
+            items[i].iconFill = palette.itemAt([i]);
+            items[i].iconEnabled = true;
+            items[i].text = _data[i].title;
+            items[i].fontWeight = 'bold';
+            items[i].fontColor = '#041f74';
+          }
+
+          return items;
+        });
+        legend.listen("legendItemMouseOver", function (event) {
+          // get item's index
+          var index = event["itemIndex"]; // enable the hover state of the series
+
+          series.getPoint(index).hovered(true);
+        });
+        legend.listen("legendItemMouseOut", function (event) {
+          // get item's index
+          var index = event["itemIndex"]; // disable the hover state of the series
+
+          series.getPoint(index).hovered(false);
+        });
+        legend.listen("legendItemClick", function (event) {
+          // get item's index
+          var index = event["itemIndex"]; // disable the hover state of the series
+
+          series.getPoint(index).selected(!series.getPoint(index).selected());
+          legend.itemsFormatter(function (items) {
+            for (var i = 0; i < items.length; i++) {
+              items[i].iconType = "square";
+              if (series.getPoint(i).selected()) items[i].iconFill = "#444";else items[i].iconFill = palette.itemAt([i]);
+              items[i].iconEnabled = true;
+            }
+
+            return items;
+          });
+        });
+        chart.listen("pointsSelect", function () {
+          legend.itemsFormatter(function (items) {
+            for (var i = 0; i < items.length; i++) {
+              items[i].iconType = "square";
+              if (series.getPoint(i).selected()) items[i].iconFill = "#444";else items[i].iconFill = palette.itemAt([i]);
+              items[i].iconEnabled = true;
+            }
+
+            return items;
+          });
+        });
+        chart.listen("pointsSelect", function (e) {
+          window.open(e.point.get('link'), '_self');
+        });
+        chart.interactivity("by-x"); // set container id for the chart
+
+        chart.container('pValueChart'); // initiate chart drawing
+
+        chart.draw();
+      },
+      init: function init() {
+        this.renderGraph();
+      },
+      initTooltips: function initTooltips(chart, data) {
+        chart.tooltip().useHtml(true);
+        chart.tooltip().title(false);
+        chart.tooltip().separator(false);
+        var contentElement = null;
+        chart.listen("pointMouseOver", function (e) {
+          // get the data for the current point
+          var dataRow = data[e.pointIndex];
+
+          if (contentElement) {
+            while (contentElement.firstChild) {
+              contentElement.firstChild.remove();
+            }
+
+            var attainmentHeader = document.createElement("h5");
+            attainmentHeader.style.color = 'var(--system-base)';
+            attainmentHeader.appendChild(document.createTextNode(dataRow.title));
+            contentElement.appendChild(attainmentHeader);
+            var scoreElement = document.createElement("h2");
+            scoreElement.style.color = 'var(--system-base)';
+            scoreElement.appendChild(document.createTextNode("P ".concat(dataRow.value)));
+            contentElement.appendChild(scoreElement);
+            var basedOnElement = document.createElement("p");
+            basedOnElement.style.color = 'var(--system-base)';
+            basedOnElement.appendChild(document.createTextNode(dataRow.basedOn));
+            contentElement.appendChild(basedOnElement);
+            var detailElement = document.createElement("p");
+            detailElement.style.whiteSpace = 'nowrap';
+            detailElement.style.color = 'var(--system-base)';
+            detailElement.style.fontWeight = '900';
+            detailElement.appendChild(document.createTextNode("Bekijk analyse!! "));
+            var iconElement = document.createElement('img');
+            iconElement.src = '/svg/icons/arrow-small.svg';
+            iconElement.style.display = 'inline-block';
+            detailElement.appendChild(iconElement);
+            contentElement.appendChild(detailElement);
+            var AttainmentTexElement = document.createElement("p");
+            AttainmentTexElement.style.color = 'var(--system-base)';
+            AttainmentTexElement.appendChild(document.createTextNode(dataRow.text));
+            contentElement.appendChild(AttainmentTexElement);
+          }
+        });
+        chart.tooltip().onDomReady(function (e) {
+          this.parentElement.style.border = '1px solid var(--blue-grey)';
+          this.parentElement.style.background = '#FFFFFF';
+          this.parentElement.style.opacity = '0.8';
+          contentElement = this.contentElement; // console.dir([
+          //  this.parentElement,
+          //  this.titleElement,
+          //  this.separatorElement,
+          //  this.contentElement
+          // ]);
+        });
+        /* prevent the content of the contentElement div
+        from being overridden by the default formatter */
+
+        chart.tooltip().onBeforeContentChange(function () {
+          return false;
+        });
+      }
+    };
+  });
+  alpinejs__WEBPACK_IMPORTED_MODULE_1__["default"].data('expandableGraph', function (id, modelId, taxonomy) {
+    return {
+      data: false,
+      modelId: modelId,
+      taxonomy: taxonomy,
+      containerId: 'chart-' + modelId + '-' + taxonomy,
+      id: id,
+      init: function init() {
+        if (this.expanded) {
+          this.updateGraph();
+        }
+      },
+      updateGraph: function updateGraph() {
         var _this18 = this;
 
-        if (!this.menuOpen) return this.openMenu(detail);
+        return _asyncToGenerator( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default().mark(function _callee2() {
+          return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default().wrap(function _callee2$(_context2) {
+            while (1) {
+              switch (_context2.prev = _context2.next) {
+                case 0:
+                  if (_this18.data) {
+                    _context2.next = 5;
+                    break;
+                  }
+
+                  _context2.next = 3;
+                  return _this18.$wire.getData(_this18.modelId, _this18.taxonomy);
+
+                case 3:
+                  _this18.data = _context2.sent;
+
+                  _this18.renderGraph();
+
+                case 5:
+                case "end":
+                  return _context2.stop();
+              }
+            }
+          }, _callee2);
+        }))();
+      },
+
+      get expanded() {
+        return this.active === this.id;
+      },
+
+      set expanded(value) {
+        if (value) {
+          this.updateGraph();
+        }
+
+        this.active = value ? this.id : null;
+      },
+
+      renderGraph: function renderGraph() {
+        // create bar chart
+        var chart = anychart.bar(); // create area series with passed data
+
+        var series = chart.bar(this.data);
+        series.stroke(this.getColor()).fill(this.getColor());
+        var tooltip = series.tooltip();
+        tooltip.title(false).separator(false).position('right').anchor('left-center').offsetX(5).offsetY(0).background('#FFFFFF').fontColor('#000000').format(function () {
+          return 'P ' + Math.abs(this.value).toLocaleString();
+        });
+        chart.tooltip().positionMode('point'); // set scale minimum
+
+        chart.xAxis().stroke('#041F74');
+        chart.xAxis().stroke('none'); // set container id for the chart
+
+        chart.container(this.containerId); // initiate chart drawing
+
+        chart.draw();
+      },
+      getColor: function getColor() {
+        if (this.taxonomy == 'Bloom') {
+          return '#E2DD10';
+        }
+
+        if (this.taxonomy == 'Miller') {
+          return '#5043F6';
+        }
+
+        return '#2EBC4F';
+      }
+    };
+  });
+  alpinejs__WEBPACK_IMPORTED_MODULE_1__["default"].data('contextMenuButton', function (context, uuid, contextData) {
+    return {
+      menuOpen: false,
+      uuid: uuid,
+      contextData: contextData,
+      context: context,
+      gridCard: null,
+      showEvent: context + '-context-menu-show',
+      closeEvent: context + '-context-menu-close',
+      init: function init() {
+        this.gridCard = this.$root.closest('.grid-card');
+      },
+      handle: function handle() {
+        this.menuOpen = !this.menuOpen;
+
+        if (this.menuOpen) {
+          this.$dispatch(this.showEvent, {
+            uuid: this.uuid,
+            button: this.$root,
+            coords: {
+              top: this.gridCard.offsetTop,
+              left: this.gridCard.offsetLeft + this.gridCard.offsetWidth
+            },
+            contextData: this.contextData
+          });
+        } else {
+          this.$dispatch(this.closeEvent);
+        }
+      },
+      closeMenu: function closeMenu() {
+        this.menuOpen = false;
+      }
+    };
+  });
+  alpinejs__WEBPACK_IMPORTED_MODULE_1__["default"].data('contextMenuHandler', function () {
+    return {
+      contextMenuOpen: false,
+      uuid: null,
+      contextData: null,
+      correspondingButton: null,
+      menuOffsetMarginTop: 56,
+      menuOffsetMarginLeft: 224,
+      handleIncomingEvent: function handleIncomingEvent(detail) {
+        var _this19 = this;
+
+        if (!this.contextMenuOpen) return this.openMenu(detail);
         this.closeMenu();
         setTimeout(function () {
-          _this18.openMenu(detail);
+          _this19.openMenu(detail);
         }, 150);
       },
       openMenu: function openMenu(detail) {
-        this.questionUuid = detail.questionUuid;
-        this.inTest = detail.inTest;
-        this.correspondingButton = detail.button;
-        this.$root.style.top = detail.coords.top + 56 + 'px';
-        this.$root.style.left = detail.coords.left - 224 + 'px';
-        this.menuOpen = true;
+        var _this20 = this;
+
+        return _asyncToGenerator( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default().mark(function _callee3() {
+          var readyForShow;
+          return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default().wrap(function _callee3$(_context3) {
+            while (1) {
+              switch (_context3.prev = _context3.next) {
+                case 0:
+                  _this20.uuid = detail.uuid;
+                  _this20.correspondingButton = detail.button;
+                  _this20.contextData = detail.contextData;
+                  _this20.$root.style.top = detail.coords.top + _this20.menuOffsetMarginTop + 'px';
+                  _this20.$root.style.left = detail.coords.left - _this20.menuOffsetMarginLeft + 'px';
+                  _context3.next = 7;
+                  return _this20.$wire.setContextValues(_this20.uuid, _this20.contextData);
+
+                case 7:
+                  readyForShow = _context3.sent;
+                  if (readyForShow) _this20.contextMenuOpen = true;
+                  _this20.contextMenuOpen = true;
+
+                case 10:
+                case "end":
+                  return _context3.stop();
+              }
+            }
+          }, _callee3);
+        }))();
       },
       closeMenu: function closeMenu() {
         this.correspondingButton.dispatchEvent(new CustomEvent('close-menu'));
-        this.menuOpen = false;
+        this.contextMenuOpen = false;
       }
     };
   });
@@ -7390,7 +7909,7 @@ function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
 
 
 
-window.initDrawingQuestion = function (rootElement, isTeacher, isPreview) {
+window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid) {
   var _this2 = this;
 
   /**
@@ -7451,6 +7970,10 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview) {
           if (drawingApp.firstInit) {
             makeGrid();
             updateMidPoint();
+          }
+
+          if (grid && grid !== '0') {
+            drawGridBackground(grid);
           }
 
           processGridToggleChange();
@@ -9581,6 +10104,18 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview) {
       size: drawingApp.isTeacher() ? UI.gridSize.value : drawingApp.params.gridSize
     };
     Canvas.layers.grid.shape = new _svgShape_js__WEBPACK_IMPORTED_MODULE_2__.Grid(0, props, UI.svgGridGroup, drawingApp, Canvas);
+  }
+
+  function drawGridBackground(grid) {
+    var props = {
+      group: {},
+      main: {},
+      origin: {
+        id: "grid-origin"
+      },
+      size: 1 / parseInt(grid) * 14
+    };
+    return new _svgShape_js__WEBPACK_IMPORTED_MODULE_2__.Grid(0, props, UI.svgGridGroup, drawingApp, Canvas);
   }
 
   function updateGridVisibility() {
@@ -12604,6 +13139,7 @@ document.addEventListener('alpine:init', function () {
       mode: mode,
       locale: locale,
       minDate: minDate,
+      picker: null,
       init: function init() {
         var _this = this;
 
@@ -12612,7 +13148,7 @@ document.addEventListener('alpine:init', function () {
         // } else {
         //     this.value = this.wireModel;
         // }
-        var picker = (0,flatpickr__WEBPACK_IMPORTED_MODULE_0__["default"])(this.$refs.datepickr, {
+        this.picker = (0,flatpickr__WEBPACK_IMPORTED_MODULE_0__["default"])(this.$refs.datepickr, {
           locale: this.locale,
           minDate: minDate == 'today' ? 'today' : false,
           mode: this.mode,
@@ -12622,6 +13158,9 @@ document.addEventListener('alpine:init', function () {
             _this.wireModel = _this.value = _this.mode == 'range' ? dateString.split(' t/m ') : dateString; //split t/m or to
           }
         });
+      },
+      clearPicker: function clearPicker() {
+        this.picker.setDate('', false);
       }
     };
   });
@@ -12937,6 +13476,10 @@ document.addEventListener('alpine:init', function () {
         }
 
         if (this.$wire.activeRoute.main !== '') {
+          console.log(27);
+          this.$nextTick(function () {
+            return _this.$dispatch('tiles-hidden');
+          });
           this.activeMenuItem = this.bottom.querySelector('[data-menu="' + this.$wire.activeRoute.main + '"]');
           this.activeMenuItem.classList.add('button-active');
         }
@@ -13007,7 +13550,13 @@ document.addEventListener('alpine:init', function () {
           if (reset) {
             _this2.resetActiveState();
 
-            _this2.$dispatch('tiles-shown');
+            _this2.shouldDispatchTilesEvent();
+
+            if (_this2.shouldDispatchTilesEvent()) {
+              console.log(87);
+
+              _this2.$dispatch('tiles-shown');
+            }
           }
         }, timeout); // alert(this.$wire.activeRoute.main == '');
       },
@@ -13028,6 +13577,7 @@ document.addEventListener('alpine:init', function () {
         clearTimeout(this.hideTimeout);
         tiles.style.paddingLeft = '0px';
         tiles.style.setProperty('--top', '100px');
+        console.log(111);
         this.$dispatch('tiles-shown');
       },
       userMenuShow: function userMenuShow() {
@@ -13088,6 +13638,13 @@ document.addEventListener('alpine:init', function () {
           top: 0,
           behavior: 'smooth'
         });
+      },
+      shouldDispatchTilesEvent: function shouldDispatchTilesEvent() {
+        return !Array.from(this.menuButtonsWithoutItems).map(function (item) {
+          return item.dataset.menu;
+        }).filter(function (n) {
+          return n;
+        }).includes(this.activeMenuItem.dataset.menu);
       }
     };
   });

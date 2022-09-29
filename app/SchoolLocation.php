@@ -49,15 +49,15 @@ class SchoolLocation extends BaseModel implements AccessCheckable
     const SSO_ENTREE = 'Entreefederatie';
 
     protected $casts = [
-        'uuid'                    => EfficientUuid::class,
-        'allow_inbrowser_testing' => 'boolean',
-        'intense'                 => 'boolean',
-        'lvs'                     => 'boolean',
-        'lvs_active'              => 'boolean',
-        'sso'                     => 'boolean',
-        'sso_active'              => 'boolean',
+        'uuid'                       => EfficientUuid::class,
+        'allow_inbrowser_testing'    => 'boolean',
+        'intense'                    => 'boolean',
+        'lvs'                        => 'boolean',
+        'lvs_active'                 => 'boolean',
+        'sso'                        => 'boolean',
+        'sso_active'                 => 'boolean',
         'lvs_active_no_mail_allowed' => 'boolean',
-        'school_language'         => 'string',
+        'school_language'            => 'string',
     ];
 
     /**
@@ -94,7 +94,7 @@ class SchoolLocation extends BaseModel implements AccessCheckable
         'allow_new_student_environment', 'allow_new_question_editor',
         'keep_out_of_school_location_report',
         'main_phonenumber','internetaddress', 'show_exam_material', 'show_cito_quick_test_start', 'show_national_item_bank',
-        'allow_wsc', 'allow_writing_assignment',
+        'allow_wsc', 'allow_writing_assignment','license_type','allow_creathlon',
     ];
 
     /**
@@ -118,10 +118,10 @@ class SchoolLocation extends BaseModel implements AccessCheckable
 
     public function getSchoolLanguageCakeAttribute()
     {
-        if($this->school_language === 'en'){
+        if ($this->school_language === 'en') {
             return 'eng';
         }
-        if($this->school_language === 'nl') {
+        if ($this->school_language === 'nl') {
             return 'nld';
         }
         return $this->school_language;
@@ -400,19 +400,19 @@ class SchoolLocation extends BaseModel implements AccessCheckable
                 $schoolLocation->saveOtherContacts();
             }
 
-            if(isset($schoolLocation->created) && $schoolLocation->created){
+            if (isset($schoolLocation->created) && $schoolLocation->created) {
                 $origAuthUser = Auth::user();
-                if(SchoolLocationSection::where('school_location_id',$schoolLocation->getKey())->count() <= 1) { // demo could be there
+                if (SchoolLocationSection::where('school_location_id', $schoolLocation->getKey())->count() <= 1) { // demo could be there
                     $user = $schoolLocation->addDefaultSchoolManagerIfNeeded();
-                    if($user){
+                    if ($user) {
                         Auth::login($user);
                     }
                     $schoolLocation = $schoolLocation->addSchoolLocationExtras();
                 }
-                if(GlobalStateHelper::getInstance()->hasPreventDemoEnvironmentCreationForSchoolLocation() === false) {
+                if (GlobalStateHelper::getInstance()->hasPreventDemoEnvironmentCreationForSchoolLocation() === false) {
                     (new DemoHelper())->createDemoPartsForSchool($schoolLocation);
                 }
-                if($origAuthUser){
+                if ($origAuthUser) {
                     Auth::login($origAuthUser);
                 }
             }
@@ -431,6 +431,7 @@ class SchoolLocation extends BaseModel implements AccessCheckable
                 (new DemoHelper())->changeDemoUsersAsSchoolLocationCustomerCodeChanged($schoolLocation,
                     $originalCustomerCode);
             }
+            $schoolLocation->handleLicenseTypeUpdate();
         });
 
         static::deleting(function (SchoolLocation $schoolLocation) {
@@ -456,14 +457,14 @@ class SchoolLocation extends BaseModel implements AccessCheckable
             $nextYear = $year;
             $year--;
         }
-        $userId = User::where('school_location_id',$this->getKey())->value('id');
-        if($userId){
+        $userId = User::where('school_location_id', $this->getKey())->value('id');
+        if ($userId) {
             Auth::loginUsingId($userId);
         }
         $this
             ->addSchoolYearAndPeriod($year, '01-08-' . $year, '31-07-' . $nextYear)
             ->addDefaultSectionsAndSubjects("VO");
-        if($origAuthUser){
+        if ($origAuthUser) {
             Auth::login($origAuthUser);
         } else {
             Auth::logout();
@@ -532,6 +533,14 @@ class SchoolLocation extends BaseModel implements AccessCheckable
         $this->sections = null;
     }
 
+    public function getPeriods() {
+       return  Period::select('periods.*')
+            ->join('school_years', 'school_years.id', '=', 'periods.school_year_id')
+           ->join('school_location_school_years', function($join) {
+               $join->on('school_location_school_years.school_year_id', '=', 'school_years.id')
+                   ->where('school_location_id', $this->id);
+           })->distinct()->get();
+    }
 
     public function schoolLocationEducationLevels()
     {
@@ -1039,12 +1048,12 @@ class SchoolLocation extends BaseModel implements AccessCheckable
         $userFactory = new Factory(new User());
         $user = $userFactory->generate(
             [
-                'account_verified' => Carbon::now(),
-                'name' => sprintf('TLC schoolbeheerder %s',$this->customer_code),
-                'name_first' => '',
-                'username' => sprintf('info+%sSchoolbeheerder@test-correct.nl',$this->customer_code),
+                'account_verified'   => Carbon::now(),
+                'name'               => sprintf('TLC schoolbeheerder %s', $this->customer_code),
+                'name_first'         => '',
+                'username'           => sprintf('info+%sSchoolbeheerder@test-correct.nl', $this->customer_code),
                 'send_welcome_email' => 1,
-                'user_roles' => [6],
+                'user_roles'         => [6],
                 'school_location_id' => $this->getKey(),
             ]
         );
@@ -1064,28 +1073,30 @@ class SchoolLocation extends BaseModel implements AccessCheckable
     public function addDefaultSubjectsAndSectionsBasedOnEducationLevels($educationLevels)
     {
         // get default subjects
-        $defaultSubjects = DefaultSubject::where(function($query) use ($educationLevels){
-           $this->buildEducationLevelQueryLikeStatement($query, $educationLevels);
+        $defaultSubjects = DefaultSubject::where(function ($query) use ($educationLevels) {
+            $this->buildEducationLevelQueryLikeStatement($query, $educationLevels);
         })->get();
 
-        $defaultSectionIds = $defaultSubjects->map(function(DefaultSubject $ds){
-           return $ds->default_section_id;
+        $defaultSectionIds = $defaultSubjects->map(function (DefaultSubject $ds) {
+            return $ds->default_section_id;
         });
 
         // all subjects of current school location
         $sectionIdsFromSchoolLocationSections = $this->schoolLocationSections()->pluck('section_id');
         // we need to check if all sections are not deleted as deletion is based on section and not school location section
-        $sectionIds = Section::whereIn('id',$sectionIdsFromSchoolLocationSections)->pluck('id');
-        $subjects = Subject::whereIn('section_id',$sectionIds)->pluck('name','id')->map(function($name,$id){return strtolower($name);})->flip();
+        $sectionIds = Section::whereIn('id', $sectionIdsFromSchoolLocationSections)->pluck('id');
+        $subjects = Subject::whereIn('section_id', $sectionIds)->pluck('name', 'id')->map(function ($name, $id) {
+            return strtolower($name);
+        })->flip();
 
         // get default sections
-        $defaultSections = DefaultSection::whereIn('id',$defaultSectionIds)->get();
+        $defaultSections = DefaultSection::whereIn('id', $defaultSectionIds)->get();
         // add sections
 
-        $defaultSections->each(function(DefaultSection $ds) use (&$list){
-            if($schoolLocationSection = $this->schoolLocationSections->first(function(SchoolLocationSection $sls) use ($ds) {
-                    return Str::lower(optional($sls->section)->name) === Str::lower($ds->name);
-                })) {
+        $defaultSections->each(function (DefaultSection $ds) use (&$list) {
+            if ($schoolLocationSection = $this->schoolLocationSections->first(function (SchoolLocationSection $sls) use ($ds) {
+                return Str::lower(optional($sls->section)->name) === Str::lower($ds->name);
+            })) {
                 $section = $schoolLocationSection->section;
             } else {
                 $section = Section::create(
@@ -1103,42 +1114,41 @@ class SchoolLocation extends BaseModel implements AccessCheckable
         $this->saveSections();
 
 
-
         // add subjects
-        $defaultSubjects->each(function(DefaultSubject $ds) use ($list, $subjects){
+        $defaultSubjects->each(function (DefaultSubject $ds) use ($list, $subjects) {
             // NOTE Erik 20220803
             // used to be updateOrCreate, but for some reason both the updated_at and the created_at were adjusted and we don't want that as we want to be able to see from when a subject was
-            if(isset($subjects[Str::lower($ds->name)])){
+            if (isset($subjects[Str::lower($ds->name)])) {
                 Subject::find($subjects[Str::lower($ds->name)])->update([
-                    'section_id' => $list[$ds->default_section_id],
+                    'section_id'      => $list[$ds->default_section_id],
                     'base_subject_id' => $ds->base_subject_id,
-                    'abbreviation' => $ds->abbreviation,
+                    'abbreviation'    => $ds->abbreviation,
 //                    'demo' => $ds->demo,
                 ]);
             } else {
                 Subject::create(
                     [
-                        'name' => $ds->name,
-                        'section_id' => $list[$ds->default_section_id],
+                        'name'            => $ds->name,
+                        'section_id'      => $list[$ds->default_section_id],
                         'base_subject_id' => $ds->base_subject_id,
-                        'abbreviation' => $ds->abbreviation,
-                        'demo' => $ds->demo,
+                        'abbreviation'    => $ds->abbreviation,
+                        'demo'            => $ds->demo,
                     ]
                 );
             }
         });
     }
 
-    protected function buildEducationLevelQueryLikeStatement($query,$educationLevels)
+    protected function buildEducationLevelQueryLikeStatement($query, $educationLevels)
     {
         $first = true;
-        $educationLevels->each(function(EducationLevel $el) use ($query, &$first){
-           if($first){
-               $query->where('education_levels','like','%'.$el->name.'%');
-               $first = false;
-           } else {
-               $query->orwhere('education_levels','like','%'.$el->name.'%');
-           }
+        $educationLevels->each(function (EducationLevel $el) use ($query, &$first) {
+            if ($first) {
+                $query->where('education_levels', 'like', '%' . $el->name . '%');
+                $first = false;
+            } else {
+                $query->orwhere('education_levels', 'like', '%' . $el->name . '%');
+            }
         });
     }
 
@@ -1209,14 +1219,54 @@ class SchoolLocation extends BaseModel implements AccessCheckable
     {
         if ($this->canSendSamlNoMailAddressInRequestDetectedMail() && $this->lvs_active_no_mail_allowed == false) {
             Mail::to('support@test-correct.nl')
-                ->send(new SendSamlNoMailAddressInRequestDetectedMail($this->name,sprintf('Waarschuwing gebruiker van %s probeert in te loggen via Entree zonder emailadres.', $this->name)));
+                ->send(new SendSamlNoMailAddressInRequestDetectedMail($this->name, sprintf('Waarschuwing gebruiker van %s probeert in te loggen via Entree zonder emailadres.', $this->name)));
             $this->no_mail_request_detected = now();
             $this->save();
         }
     }
 
-    public function canUseCmsWithDrawer()
+    public function canUseCmsWithDrawer(): bool
     {
         return $this->allow_cms_drawer && $this->allow_new_drawing_question;
     }
+
+    public static function getAvailableLicenseTypes(): array
+    {
+        return self::getPossibleEnumValues('license_type');
+    }
+
+    public function hasTrialLicense(): bool
+    {
+        return $this->license_type == 'TRIAL';
+    }
+
+    private function handleLicenseTypeUpdate()
+    {
+        if ($this->getOriginal('license_type') !== $this->getAttribute('license_type') && $this->getAttribute('license_type') === 'CLIENT') {
+            TrialPeriod::where('school_location_id',$this->getKey())->delete();
+        }
+    }
+
+    public function featureSettings()  //todo place into a trait, with abilities (can do this, or that)
+    {
+        return $this->morphMany(FeatureSetting::class, 'settingable');
+    }
+
+    public function setAllowCreathlonAttribute(bool $boolean)
+    {
+        return $this->featureSettings()->setSetting('allow_creathlon', $boolean);
+    }
+
+    public function getAllowCreathlonAttribute() : bool
+    {
+        return $this->featureSettings()->getSetting('allow_creathlon')->exists();
+    }
+
+    public function getFeatureSettingsAttribute()
+    {
+        return $this->featureSettings()->getSettings()->mapWithKeys(function($item, $key) {
+            return [$item->title => $item->value];
+        });
+    }
+
 }

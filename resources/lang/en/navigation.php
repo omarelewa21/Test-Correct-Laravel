@@ -1,8 +1,34 @@
 <?php
-	return [
-			'Toets inleveren' => 'Hand in test',
-
-			'Weet je zeker dat je de toets wilt inleveren?' => 'Are you sure you want to hand in the test?',
-
-			'Inleveren' => 'Hand in'
+return [
+    'Toets inleveren'                               => 'Hand in test',
+    'Weet je zeker dat je de toets wilt inleveren?' => 'Are you sure you want to hand in the test?',
+    'Inleveren'                                     => 'Hand in',
+    'logout'                                        => 'Logout',
+    'change_password'                               => 'Change password',
+    'support_page'                                  => 'Support page',
+    'postpone_automatic_logout'                     => 'Defer automatic logout',
+    'upload_test'                                   => 'Upload key',
+    'knowledge_base'                                => 'Knowledge Base',
+    'webinar'                                       => 'Webinar',
+    'email'                                         => 'Email',
+    'updates_maintenance'                           => 'Updates & Maintenance',
+    'dashboard'                                     => 'Dashboard',
+    'tests'                                         => 'Tests',
+    'planned'                                       => 'Scheduled',
+    'taken'                                         => 'Taken tests',
+    'results'                                       => 'Results',
+    'analyses'                                      => 'Analyses',
+    'classes'                                       => 'Classes',
+    'create_test'                                   => 'Create tests',
+    'test_bank'                                     => 'Test bank',
+    'question_bank'                                 => 'Question bank',
+    'my_uploads'                                    => 'My uploads',
+    'my_planned_tests'                              => 'My scheduled tests',
+    'surveillance'                                  => 'Surveillance',
+    'open_assessments'                              => 'Current assignments',
+    'my_taken_tests'                                => 'My tests taken',
+    'check_standardize'                             => 'Checking & grading',
+    'my_students'                                   => 'My students',
+    'my_classes'                                    => 'My classes',
+    'my_schoollocation'                             => 'My school location',
 ];

@@ -3,6 +3,7 @@
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Auth;
 use tcCore\BaseSubject;
+use tcCore\FactoryScenarios\FactoryScenarioTestTestWithAllQuestionTypes;
 use tcCore\Lib\User\Factory;
 use tcCore\Period;
 use tcCore\SchoolYear;
@@ -90,11 +91,13 @@ class NationalItemBankSeeder extends Seeder
             'school_locations' => [$locationA->getKey()],
         ]);
         $schoolYear->save();
+        $schoolYear->delete();
+        $schoolYear = $locationA->schoolYears()->first();
 
         $periodLocationA = (new Period());
         $periodLocationA->fill([
             'school_year_id'     => $schoolYear->getKey(),
-            'name'               => 'huidige voor MS A',
+            'name'               => 'TBNI Period',
             'school_location_id' => $locationA->getKey(),
             'start_date'         => \Carbon\Carbon::now()->subMonths(6),
             'end_date'           => \Carbon\Carbon::now()->addMonths(6),
@@ -152,46 +155,40 @@ class NationalItemBankSeeder extends Seeder
         ]);
 
 
-        BaseSubject::all()->each(function($baseSubject) use($teacherA,$teacherB,$class,$classB,$section,$periodLocationA) {
-            $subject = Subject::create([	'name'=>$baseSubject->name,
-                                            'section_id'=>$section->getKey(),
-                                            'base_subject_id'=>$baseSubject->id
+        BaseSubject::/*where('name', 'NOT LIKE', '%CITO%')->*/each(function ($baseSubject) use ($teacherA, $teacherB, $class, $classB, $section, $periodLocationA) {
+            $subject = Subject::create(['name'            => $baseSubject->name,
+                                        'section_id'      => $section->getKey(),
+                                        'base_subject_id' => $baseSubject->id
             ]);
-            $teacher = Teacher::create([	'user_id'=>$teacherA->id,
-                                            'subject_id'=>$subject->id,
-                                            'class_id'=>$class->id
+            $teacher = Teacher::create(['user_id'    => $teacherA->id,
+                                        'subject_id' => $subject->id,
+                                        'class_id'   => $class->id
             ]);
-            $teacher = Teacher::create([	'user_id'=>$teacherB->id,
-                                            'subject_id'=>$subject->id,
-                                            'class_id'=>$classB->id
+            $teacher = Teacher::create(['user_id'    => $teacherB->id,
+                                        'subject_id' => $subject->id,
+                                        'class_id'   => $classB->id
             ]);
 
-            $test = new Test([
-                'subject_id'=>$subject->id,
-                'education_level_id'=>1,
-                'period_id'=>$periodLocationA->id,
-                'test_kind_id'=>3,
-                'name'=>'test toets nationale item bank '.$subject->name,
-                'abbreviation'=>'NOT_LDT', //not finished: NOT_LDT, if finished: LDT
-                'education_level_year'=>1,
-                'status'=>1,
-                'introduction'=>'Beste docent,
+            $test = FactoryScenarioTestTestWithAllQuestionTypes::create("TBNI $subject->name", $teacherA)->getTestModel();
+            $test->fill([
+                'subject_id'             => $subject->id,
+                'education_level_id'     => 1,
+                'period_id'              => $periodLocationA->id,
+                'abbreviation'           => 'LDT', //not finished: NOT_LDT, if finished: LDT
+                'introduction'           => 'Beste docent,
 
                                    Dit is de test toets voor de nationale item bank.',
-                'shuffle'=>false,
-                'is_system_test'=>false,
-                'question_count'=>0,
-                'is_open_source_content'=>false,
-                'demo'=>false,
-                'scope'=>'not_ldt', //not finished: not_ldt, if finished: ldt
-                'published'=>'1',
+                'is_open_source_content' => false,
+                'demo'                   => false,
+                'scope'                  => 'ldt', //not finished: not_ldt, if finished: ldt
             ]);
-            $test->setAttribute('author_id', $teacherB->id);
-            $test->setAttribute('owner_id', $teacherB->school_location_id);
+            $test->testQuestions->each(function ($testQuestion) {
+                $question = $testQuestion->question->getQuestionInstance();
+                $question->setAttribute('question', "TBNI: $question->question");
+                $question->save();
+            });
+            Auth::login($teacherA);
             $test->save();
         });
-
-
-
     }
 }

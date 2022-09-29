@@ -46,8 +46,6 @@ class CountSchoolLocationStudents extends Job implements ShouldQueue
             })->whereNull('deleted_at');
         })->whereNull('school_id')->count();
 
-        Log::debug('Schoollocation #' . $this->schoolLocation->getKey() . ' -> count_students: ' . $count);
-
         $this->schoolLocation->setAttribute('count_students', $count);
 
         $countText2Speech = $this->schoolLocation->users()
@@ -61,8 +59,6 @@ class CountSchoolLocationStudents extends Job implements ShouldQueue
             ->whereNull('school_id')
             ->where('text2speech', '=', 1)
             ->count();
-
-        Log::debug('Schoollocation #' . $this->schoolLocation->getKey() . ' -> count_text2speech: ' . $countText2Speech);
 
         $this->schoolLocation->setAttribute('count_text2speech', $countText2Speech);
 

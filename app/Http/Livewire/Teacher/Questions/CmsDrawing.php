@@ -38,6 +38,7 @@ class CmsDrawing extends CmsBase
         $this->instance->question['answer_svg'] = $this->getAnswerSvg($svgHelper, $q);
         $this->instance->question['question_svg'] = $svgHelper->getQuestionSvg($q);
         $this->instance->question['grid_svg'] = $q['grid_svg'];
+        $this->instance->question['grid'] = $q['grid'];
         $this->instance->question['zoom_group'] = $this->getViewBox($svgHelper, $q);
 
         $this->instance->question['uuid'] = $q['uuid'];
@@ -58,6 +59,7 @@ class CmsDrawing extends CmsBase
         $this->instance->question['question_correction_model'] = '';
         $this->instance->question['uuid'] = (string)Str::uuid();
         $this->instance->question['temp_uuid'] = 'temp-'.$this->instance->question['uuid'];
+        $this->instance->backgroundImage = null; 
     }
 
     public function handleUpdateDrawingData($data)

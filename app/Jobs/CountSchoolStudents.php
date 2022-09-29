@@ -47,8 +47,6 @@ class CountSchoolStudents extends Job implements ShouldQueue
 
         $count += $this->school->schoolLocations()->sum('count_students');
 
-        Log::debug('School #'.$this->school->getKey().' -> count_students: '.$count);
-
         $this->school->setAttribute('count_students', $count);
 
 
@@ -64,8 +62,6 @@ class CountSchoolStudents extends Job implements ShouldQueue
                 ->count();
 
         $countText2Speech = $this->school->schoolLocations()->sum('count_text2speech');
-
-        Log::debug('School #'.$this->school->getKey().' -> count_text2speech: '.$countText2Speech);
 
         $this->school->setAttribute('count_text2speech', $countText2Speech);
         

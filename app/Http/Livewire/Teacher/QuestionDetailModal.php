@@ -17,7 +17,7 @@ class QuestionDetailModal extends ModalComponent
     public $inTest = false;
     public $showPreviewButton;
 
-    public function mount($questionUuid, $testUuid = null, $inTest = false)
+    public function mount($questionUuid, $inTest = false)
     {
         $this->question = Question::whereUuid($questionUuid)->first();
         $this->showPreviewButton = $this->question->hasCmsPreview();
@@ -42,7 +42,7 @@ class QuestionDetailModal extends ModalComponent
 
     public function addQuestion()
     {
-        $this->emitTo(QuestionBank::class, 'addQuestionFromDetail', $this->question->id);
+        $this->emitTo(QuestionBank::class, 'addQuestionFromDetail', $this->question->uuid);
         $this->closeModal();
     }
 

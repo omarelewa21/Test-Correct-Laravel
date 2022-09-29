@@ -88,6 +88,9 @@ class OpenShort extends Component implements QuestionCms
     public $rttiWarningShown = false;
     public $bloomWarningShown = false;
     public $millerWarningShown = false;
+    public $rttiOptions = [];
+    public $bloomOptions = [];
+    public $millerOptions = [];
     public $lang = 'nl_NL';
     public $testLang = null;
     public $allowWsc = false;
@@ -182,28 +185,29 @@ class OpenShort extends Component implements QuestionCms
     private function resetQuestionProperties()
     {
         $this->question = [
-            'add_to_database'        => 1,
-            'answer'                 => '',
-            'bloom'                  => '',
-            'closeable'              => 0,
-            'decimal_score'          => 1,
-            'discuss'                => 1,
-            'maintain_position'      => 0,
-            'miller'                 => '',
-            'is_open_source_content' => 0,
-            'tags'                   => [],
-            'note_type'              => 'NONE',
-            'order'                  => 0,
-            'question'               => '',
-            'rtti'                   => '',
-            'score'                  => 1,
-            'subtype'                => '',
-            'type'                   => '',
-            'attainments'            => [],
-            'learning_goals'         => [],
-            'test_id'                => '',
-            'all_or_nothing'         => false,
-            'lang'                   => $this->testLang ?? Auth::user()->schoolLocation->wscLanguage,
+            'add_to_database'          => 1,
+            'answer'                   => '',
+            'bloom'                    => '',
+            'closeable'                => 0,
+            'decimal_score'            => 1,
+            'discuss'                  => 1,
+            'maintain_position'        => 0,
+            'miller'                   => '',
+            'is_open_source_content'   => 0,
+            'tags'                     => [],
+            'note_type'                => 'NONE',
+            'order'                    => 0,
+            'question'                 => '',
+            'rtti'                     => '',
+            'score'                    => 1,
+            'subtype'                  => '',
+            'type'                     => '',
+            'attainments'              => [],
+            'learning_goals'           => [],
+            'test_id'                  => '',
+            'all_or_nothing'           => false,
+            'lang'                     => $this->testLang ?? Auth::user()->schoolLocation->wscLanguage,
+            'add_to_database_disabled' => 0,
         ];
 
         $this->audioUploadOptions = [];
@@ -311,19 +315,32 @@ class OpenShort extends Component implements QuestionCms
     public function mount()
     {
         $activeTest = Test::whereUuid($this->testId)->with('testAuthors', 'testAuthors.user')->first();
-        Gate::authorize('isAuthorOfTest',[$activeTest]);
+        Gate::authorize('isAuthorOfTest', [$activeTest]);
 
-        $this->testLang = $activeTest->lang;
-        $this->resetQuestionProperties();
-        $this->canDeleteTest = $activeTest->canDelete(Auth::user());
+        $this->setTaxonomyOptions();
+
+        $this->initialize($activeTest);
+
         if (blank($this->type) && blank($this->subtype)) {
-            $this->testName = $activeTest->name;
             return $this->emptyState = true;
         }
+
         $this->initializeContext($this->action, $this->type, $this->subtype, $activeTest);
         $this->obj = CmsFactory::create($this);
         $this->initializePropertyBag($activeTest);
         $this->allowWsc = Auth::user()->schoolLocation->allow_wsc;
+    }
+
+    private function initialize($activeTest)
+    {
+        $this->testLang = $activeTest->lang;
+        $this->resetQuestionProperties();
+        $this->canDeleteTest = $activeTest->canDelete(Auth::user());
+
+        $this->testName = $activeTest->name;
+        $this->testAuthors = $activeTest->AuthorsAsString;
+        $this->subjectId = $activeTest->subject_id;
+        $this->educationLevelId = $activeTest->education_level_id;
     }
 
     public function __call($method, $arguments = null)
@@ -733,6 +750,7 @@ class OpenShort extends Component implements QuestionCms
             $video = ['id' => Uuid::uuid4()->toString(), 'link' => $link];
             $this->videos[] = $video;
             $this->sortOrderAttachments[] = $video['id'];
+            $this->dirty = true;
             return $this->attachmentsCount++;
         }
 
@@ -865,10 +883,7 @@ class OpenShort extends Component implements QuestionCms
         $this->answerEditorId = Str::uuid()->__toString();
         $this->questionEditorId = Str::uuid()->__toString();
 
-        $this->testName = $activeTest->name;
-        $this->testAuthors = $activeTest->AuthorsAsString;
-        $this->subjectId = $activeTest->subject_id;
-        $this->educationLevelId = $activeTest->education_level_id;
+
         $this->withRedirect = !(Auth::user()->schoolLocation->canUseCmsWithDrawer() && $this->withDrawer);
     }
 
@@ -910,6 +925,7 @@ class OpenShort extends Component implements QuestionCms
             $this->question['closeable'] = $q->closeable;
             $this->question['maintain_position'] = $tq->maintain_position;
             $this->question['add_to_database'] = $q->add_to_database;
+            $this->question['add_to_database_disabled'] = $q->add_to_database_disabled;
             $this->question['discuss'] = $tq->discuss;
             $this->question['decimal_score'] = $q->decimal_score;
             $this->question['lang'] = !is_null($q->lang) ? $q->lang : Auth::user()->schoolLocation->wscLanguage;
@@ -1346,8 +1362,8 @@ class OpenShort extends Component implements QuestionCms
     private function returnToTestsList()
     {
         if ($this->referrer) {
-            if ($this->referrer === 'teacher.tests') {
-                return redirect()->to(route($this->referrer));
+            if (in_array($this->referrer,['teacher.tests', 'teacher.test-detail'])) {
+                return redirect()->to(route('teacher.tests'));
             }
         }
 
@@ -1367,5 +1383,26 @@ class OpenShort extends Component implements QuestionCms
             $this->obj->clearQuestionBag();
         }
         return true;
+    }
+
+    private function setTaxonomyOptions()
+    {
+        $this->rttiOptions = ['R', 'T1', 'T2', 'I'];
+
+        $this->bloomOptions = [
+            "Onthouden"  => __('cms.Onthouden'),
+            "Begrijpen"  => __('cms.Begrijpen'),
+            "Toepassen"  => __('cms.Toepassen'),
+            "Analyseren" => __('cms.Analyseren'),
+            "Evalueren"  => __('cms.Evalueren'),
+            "Creëren"    => __('cms.Creëren')
+        ];
+
+        $this->millerOptions = [
+            "Weten"      => __('cms.Weten'),
+            "Weten hoe"  => __('cms.Weten hoe'),
+            "Laten zien" => __('cms.Laten zien'),
+            "Doen"       => __('cms.Doen'),
+        ];
     }
 }

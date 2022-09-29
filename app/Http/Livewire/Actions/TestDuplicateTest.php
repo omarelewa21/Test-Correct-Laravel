@@ -6,24 +6,21 @@ use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 use tcCore\Test;
 
-class TestDuplicateTest extends Component
+class TestDuplicateTest extends TestAction
 {
-
-    public $uuid;
-    public $variant;
     public bool $showButton;
-    public string $class;
+    public bool $disabled;
 
     public function mount($uuid, $variant='icon-button', $class = '')
     {
-        $this->showButton = !Test::findByUuid($this->uuid)->isNationalItem();
-        $this->uuid = $uuid;
-        $this->variant = $variant;
-        $this->class = $class;
+        parent::mount($uuid, $variant, $class);
+        $test = Test::findByUuid($this->uuid);
+        $this->showButton = !$test->isNationalItem();
+        $this->disabled = !($test->canCopy(auth()->user()) || $test->canCopyFromSchool(auth()->user()));
     }
 
 
-    public function duplicateTest()
+    public function handle()
     {
         $test = Test::findByUuid($this->uuid);
 
@@ -42,10 +39,5 @@ class TestDuplicateTest extends Component
             $this->emit('openModal', 'teacher.copy-test-from-schoollocation-modal',  ['testUuid' => $test->uuid]);
             return true;
         }
-    }
-
-    public function render()
-    {
-        return view('livewire.actions.test-duplicate-test');
     }
 }

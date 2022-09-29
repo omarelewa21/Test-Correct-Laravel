@@ -10,8 +10,10 @@ namespace Tests\Unit;
 
 use Illuminate\Support\Facades\DB;
 use tcCore\ArchivedModel;
+use tcCore\SchoolClass;
 use tcCore\Test;
 use tcCore\TestKind;
+use tcCore\TestParticipant;
 use tcCore\TestTake;
 use tcCore\TestTakeStatus;
 use tcCore\User;
@@ -489,7 +491,33 @@ class TestTakesTest extends TestCase
         $this->assertCount(21, TestTake::timeStartExpired()->get());
     }
 
+    /** @test */
+    public function it_should_return_same_school_classes_before_and_after_refactoring()
+    {
+        $testTake = $this->getTeacherOne()->testTakes->last();
 
+        $id = $testTake->getKey();
+        $old = SchoolClass::withTrashed()->select()->whereIn('id', function ($query) use ($id) {
+            $query->select('school_class_id')
+                ->from(with(new TestParticipant())->getTable())
+                ->where('test_take_id', $id)
+                ->where('deleted_at', null);
+        });
+
+        $new = $testTake->schoolClasses();
+
+        $this->assertEquals($old->get(), $new->get());
+    }
+
+    /** @test */
+    public function it_should_be_possible_to_get_school_classes_from_multiple_test_takes()
+    {
+        $testTakeIds = $this->getTeacherOne()->testTakes->pluck('id');
+
+        $schoolClasses = TestTake::schoolClassesForMultiple($testTakeIds)->pluck('name');
+
+        $this->assertNotEmpty($schoolClasses);
+    }
 
 
 

@@ -234,4 +234,9 @@ class QuestionsController extends Controller
         abort(404);
 
     }
+
+    public function getDrawingQuestionBackgroundImageUpdated(DrawingQuestion $drawingQuestion)
+    {
+        return response($drawingQuestion->getBackgroundImage());
+    }
 }

@@ -37,6 +37,7 @@ class DrawingQuestion extends Component
     public $answer_svg = null;
     public $question_svg = null;
     public $grid_svg = '0.00';
+    public $grid = '0';
     public $usesNewDrawingTool = false;
 
     public function mount()
