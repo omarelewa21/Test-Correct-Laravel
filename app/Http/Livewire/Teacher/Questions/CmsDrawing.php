@@ -61,6 +61,7 @@ class CmsDrawing extends CmsBase
         $this->instance->question['uuid'] = (string)Str::uuid();
         $this->instance->question['temp_uuid'] = 'temp-'.$this->instance->question['uuid'];
         $this->instance->backgroundImage = null;
+        $this->instance->isOldDrawing = $this->isOldDrawingQuestion();
     }
 
     public function handleUpdateDrawingData($data)
@@ -70,6 +71,7 @@ class CmsDrawing extends CmsBase
         $this->instance->question['grid_svg'] = $data['grid_size'];
         $this->instance->question['zoom_group'] = $data['svg_zoom_group'];
         $this->instance->question['svg_date_updated'] = now();
+        $this->instance->isOldDrawing = $this->isOldDrawingQuestion();
 
         $this->setViewBox($data['svg_zoom_group']);
 

@@ -1,14 +1,14 @@
 <div id="old-drawing-question-modal"
      class="fixed inset-0 overflow-y-auto px-4 py-6 sm:px-0 z-[101]"
      x-data="{
-        openEditor: async (button, clearSlate) => {
+        openEditor: async (button) => {
             let openDrawingTool = () => {
                 showWarning = false;
                 show = true;
             }
             if(!clearSlate) return openDrawingTool();
             button.disabled = true
-            var clear = await $wire.clearQuestionBag();
+            let clear = await $wire.clearQuestionBag();
             if (clear) return openDrawingTool();
             button.disabled = false;
         }
@@ -53,7 +53,7 @@
                         <x-icon.chevron/>
                         <span>{{ __('auth.cancel') }}</span>
                     </x-button.text-button>
-                    <x-button.primary @click="openEditor($el, clearSlate)">
+                    <x-button.primary @click="openEditor($el)">
                         <span>{{ __('auth.continue') }}</span>
                     </x-button.primary>
                 </div>
