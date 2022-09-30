@@ -291,6 +291,8 @@ document.addEventListener('alpine:init', () => {
         answerSvg: entanglements.answerSvg,
         questionSvg: entanglements.questionSvg,
         gridSvg: entanglements.gridSvg,
+        showWarning: false,
+        clearSlate: false,
         isTeacher: isTeacher,
         toolName: null,
         isPreview: isPreview,

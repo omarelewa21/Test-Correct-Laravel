@@ -32,17 +32,24 @@
                     <span>{{ __('cms.Tekening aanpassen') }}</span>
                 </x-button.primary>
             @else
-                <x-button.primary wire:loading.attr="disabled" wire:target="handleUpdateDrawingData" x-cloak x-show="answerSvg !== ''" @click="show = !show" selid="draw-answer">
-                    <x-icon.edit/>
-                    <span>{{ __('cms.Tekening aanpassen') }}</span>
-                </x-button.primary>
+                @if($isOldDrawing)
+                    <x-button.primary wire:loading.attr="disabled" wire:target="handleUpdateDrawingData" x-cloak @click="showWarning = !showWarning; clearSlate = false" selid="draw-answer">
+                        <x-icon.edit/>
+                        <span>{{ __('cms.Tekening aanpassen') }}</span>
+                    </x-button.primary>
+                @else
+                    <x-button.primary wire:loading.attr="disabled" wire:target="handleUpdateDrawingData" x-cloak x-show="answerSvg !== ''" @click="show = !show" selid="draw-answer">
+                        <x-icon.edit/>
+                        <span>{{ __('cms.Tekening aanpassen') }}</span>
+                    </x-button.primary>
+                @endif
             @endisset
         </div>
 
         <div class="flex flex-1 min-h-[500px] w-full border border-bluegrey rounded-10 mt-4 items-center justify-center relative overflow-auto drawing-tool-preview">
 
-            @if($this->isOldDrawingQuestion())
-                <div x-data="{showWarning: false}">
+            @if($isOldDrawing)
+                <div>
                     <div class="absolute top-0 left-0 w-full h-full">
                         <img class="object-cover" src="{{ $this->question['answer'] }}" alt="">
                     </div>
@@ -56,17 +63,14 @@
                                 <span>{{ __('cms.Tekening maken') }}</span>
                             </x-button.primary>
                             @else
-                                <x-button.primary @click="showWarning = !showWarning" selid="draw-answer">
+                                <x-button.primary @click="showWarning = !showWarning; clearSlate = true" selid="draw-answer">
                                     <x-icon.edit/>
                                     <span>{{ __('cms.Tekening maken') }}</span>
                                 </x-button.primary>
                             @endisset
-                            <p class="text-note text-sm text-center mt-4">{{ __('cms.waarschuwing_aanpassen_oude_tekenvraag') }} </p>
+                            {{-- <p class="text-note text-sm text-center mt-4">{{ __('cms.waarschuwing_aanpassen_oude_tekenvraag') }} </p> --}}
                         </div>
                     </div>
-                    @if(!isset($preview))
-                        <x-modal.question-editor-old-drawing-override/>
-                    @endif
                 </div>
             @else
                 <div class="absolute top-0 left-0 w-full h-full">
@@ -104,6 +108,9 @@
             @endif
 
         </div>
+        @if($isOldDrawing && !isset($preview))
+            <x-modal.question-editor-old-drawing-override/>
+        @endif
         <x-modal.question-editor-drawing-modal/>
     </div>
 @endsection
