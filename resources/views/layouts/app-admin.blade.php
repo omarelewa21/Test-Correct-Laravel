@@ -15,6 +15,9 @@
             @if(Auth::user()->isA('Account manager'))
                 @include('components.partials.header.accountmanager')
             @endif
+            @if(Auth::user()->isA('Administrator'))
+                @include('components.partials.header.administrator')
+            @endif
         </div>
         <div class="user flex flex-wrap items-center ml-auto space-x-6">
             @if(Auth::user()->isA('Teacher'))

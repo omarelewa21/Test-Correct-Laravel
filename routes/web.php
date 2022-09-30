@@ -95,6 +95,19 @@ Route::middleware('auth')->group(function () {
         Route::post('/ckeditor_upload/{type}', [tcCore\Http\Controllers\CkeditorImageController::class, 'store'])->name('upload');
         Route::get('/ckeditor_upload/{filename}', [tcCore\Http\Controllers\CkeditorImageController::class, 'show'])->name('upload.get');
     });
+
+    Route::middleware(['dll', 'account_manager'])->prefix('account-manager')->name('account-manager.')->group(function () {
+        // route school_locations account manager screen //todo remove comment
+        Route::get('/school-locations', \tcCore\Http\Livewire\SchoolLocationsGrid::class)->name('school-locations');
+        // todo add route school admin screen (scholengemeenschap)
+    });
+
+    Route::middleware(['dll', 'administrator'])->prefix('admin')->name('admin.')->group(function () {
+        // route school_locations admin screen //todo remove comment
+        Route::get('/school-locations', \tcCore\Http\Livewire\SchoolLocationsGrid::class)->name('school-locations');
+        // todo add route school admin screen (scholengemeenschap)
+    });
+
     if (\tcCore\Http\Helpers\BaseHelper::notProduction()) {
         Route::get('/preview_password_changed_mail', [tcCore\Http\Controllers\PreviewMailController::class, 'passwordChanged'])->name('PasswordChangedMail');
         Route::get('/preview_password_changed_self_mail', [tcCore\Http\Controllers\PreviewMailController::class, 'passwordChangedSelf'])->name('PasswordChangedSelf');
