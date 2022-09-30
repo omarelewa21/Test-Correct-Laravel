@@ -133,7 +133,7 @@ class TestPlanModal extends ModalComponent
         [
             'message'   => __('teacher.test_take_planned', ['testName' => $take->test->name]),
             'link'      => $take->directLink,
-            'take'      => $take->uuid
+            'takeUuid'  => $take->uuid
         ]);
     }
 

@@ -2,13 +2,13 @@
 <div
     x-data="{
         message: null,
-        take: null,
+        takeUuid: null,
         link: null
     }"
     @after-planning-toast.window="
         message = $event.detail.message;
         link=$event.detail.link;
-        take=$event.detail.take;
+        takeUuid=$event.detail.takeUuid;
         setTimeout(() => { message=null }, {{ $notificationTimeout }});"
     class="fixed inset-0 flex flex-col items-end justify-center px-4 py-6 pointer-events-none sm:p-6 sm:justify-start space-y-4"
     style="z-index:1000"
@@ -61,7 +61,7 @@
                     <div class="flex items-center mt-2">
                         <div class="flex-shrink-0 w-6"></div>
                         <div class="ml-3 w-0 flex-1 pt-0.5">
-                            <p class="cursor-pointer underline hover-light-color text-sm leading-5 font-medium hover-weight-600:hover" @click="message=null; $wire.toPlannedTest(take)">
+                            <p class="cursor-pointer underline hover-light-color text-sm leading-5 font-medium hover-weight-600:hover" @click="message=null; $wire.toPlannedTest(takeUuid)">
                                 {{__('teacher.goToPlannedTests')}}
                             </p>
                         </div>

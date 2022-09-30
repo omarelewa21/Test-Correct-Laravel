@@ -127,12 +127,12 @@ class Login extends Component
     {
         Auth::logout();
 
-        if(session()->has('take')){
-            $take = TestTake::whereUuid(session('take'))->with('testTakeCode')->first();
+        if(session()->has('takeUuid')){
+            $take = TestTake::whereUuid(session('takeUuid'))->with('testTakeCode')->first();
             if($take->testTakeCode){
                 $this->testTakeCode = str_split($take->testTakeCode->code);
             }
-            $this->take = $take->uuid;
+            $this->takeUuid = $take->uuid;
         }
 
         session()->invalidate();
@@ -634,8 +634,8 @@ class Login extends Component
 
     private function checkIfShouldRedirectToTestTake()
     {
-        if($this->take){
-            return redirect()->route('take.directLink', ['testTakeUuid' => $this->take]);
+        if($this->takeUuid){
+            return redirect()->route('take.directLink', ['testTakeUuid' => $this->takeUuid]);
         }
 
         if($this->isTestTakeCodeCorrectFormat()){
