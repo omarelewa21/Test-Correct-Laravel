@@ -430,7 +430,7 @@ class ReportHelper
 
     public function dateTrialPeriodEnds()
     {
-        if($trialPeriod = $this->reference->trialPeriodWithSchoolLocationCheck) {
+        if($trialPeriod = $this->reference->trialPeriodsWithSchoolLocationCheck) {
             return $trialPeriod->trial_until;
         }
         return null;

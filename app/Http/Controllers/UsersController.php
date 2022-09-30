@@ -563,7 +563,7 @@ class UsersController extends Controller
     {
         $records = [
             'userGeneralTermsLog' => $user->generalTermsLog,
-            'trialPeriod' => $user->trialPeriodWithSchoolLocationCheck
+            'trialPeriod' => $user->trialPeriodsWithSchoolLocationCheck
             ];
         return Response::make($records,200);
     }
