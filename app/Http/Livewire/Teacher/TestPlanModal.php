@@ -129,11 +129,13 @@ class TestPlanModal extends ModalComponent
     }
 
     private function afterPlanningToast(TestTake $take){
+        $testKind = $take->test->testKind->name;
         $this->dispatchBrowserEvent('after-planning-toast',
         [
-            'message'   => __('teacher.test_take_planned', ['testName' => $take->test->name]),
+            'message'   => __($testKind == 'Opdracht' ? 'teacher.test_take_assignment_planned' : 'teacher.test_take_planned', ['testName' => $take->test->name]),
             'link'      => $take->directLink,
-            'takeUuid'  => $take->uuid
+            'takeUuid'  => $take->uuid,
+            'testKind'  => $testKind
         ]);
     }
 
