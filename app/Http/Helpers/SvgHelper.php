@@ -96,6 +96,38 @@ class SvgHelper
         return $layerHtml;
     }
 
+    public function createِAnswerLayerForOldQuestion(DrawingQuestion $q)
+    {
+        [$width, $height] = getimagesize($q->answer);
+        $identifier = Uuid::uuid4();
+
+        // Todo => delete previous images exists in the question folder
+        $this->addImageToLayer('answer', $identifier, $q->answer);
+
+        $doc = (new \DOMDocument);
+
+        $groupElement = $doc->createElement('g');
+        $groupElement->setAttribute('class', 'shape draggable');
+        $groupElement->setAttribute('id', 'image-1');
+
+        $imageElement = $doc->createElement('image');
+        $imageElement->setAttribute('class', 'main');
+        $imageElement->setAttribute('href', $q->answer);
+        $imageElement->setAttribute('identifier', $identifier);
+        $imageElement->setAttribute('width', $width * 5/6);
+        $imageElement->setAttribute('height', $height);
+        $imageElement->setAttribute('x', '-'.$width/2);
+        $imageElement->setAttribute('y', '-'.$height/2);
+
+        $groupElement->appendChild($imageElement);
+        $doc->appendChild($groupElement);
+
+        $layerHtml = $doc->saveHTML();
+
+        return base64_encode($layerHtml);
+    }
+
+
     /**
      * @return void
      */
@@ -288,6 +320,14 @@ class SvgHelper
                 throw new Exception(sprintf('File not found [%s].', $path));
             }
             $image = $this->getCompressedImage($path, $node->getAttribute('identifier'));
+
+            // if($this->isOldDrawing()){
+            //     foreach($node->attributes as $k=>$val){
+            //         $k != 'href' ? dd($val) : '';
+            //     }
+            // }else{
+            //     $image = $this->getCompressedImage($path, $node->getAttribute('identifier'));
+            // }
             $node->setAttribute('href', $image);//'data:' . mime_content_type($image) . ';base64,' . base64_encode($image));
         });
         return substr(substr($doc->saveXML(), 28), 0, -8);
@@ -478,6 +518,20 @@ class SvgHelper
         list($x, $y, $width, $height) = sscanf($this->getViewBox(), '%s %s %s %s');
 
         return ['w' => $width, 'h' => $height];
+    }
+
+    private function isOldDrawing()
+    {
+        if(Str::contains($this->uuid, 'temp')){
+            $questionUuid = Str::after($this->uuid, 'temp-');
+        }else{
+            $questionUuid = $this->uuid;
+        }
+        if(DrawingQuestion::whereUuid($questionUuid)->exists()){
+            $question = DrawingQuestion::whereUuid($questionUuid)->first();
+            return filled($question->answer) && blank($question->zoom_group);
+        }
+        return false;
     }
 
     public function delete()
