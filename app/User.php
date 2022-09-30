@@ -25,6 +25,7 @@ use tcCore\Http\Helpers\DemoHelper;
 use tcCore\Http\Helpers\ImportHelper;
 use tcCore\Http\Helpers\GlobalStateHelper;
 use tcCore\Http\Helpers\SchoolHelper;
+use tcCore\Http\Helpers\UserHelper;
 use tcCore\Jobs\CountSchoolActiveTeachers;
 use tcCore\Jobs\CountSchoolLocationActiveTeachers;
 use tcCore\Jobs\CountSchoolLocationQuestions;
@@ -2675,15 +2676,29 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
 
     public function createTrialPeriodRecordIfRequired()
     {
-        if (!$this->isA('Teacher') || !$this->schoolLocation->hasTrialLicense()) {
-            return false;
-        }
-        if($this->trialPeriodsWithSchoolLocationCheck()->exists()) {
+        if (!$this->isA('Teacher')) {
             return false;
         }
 
-        return $this->trialPeriods()->create([
-            'school_location_id' => $this->school_location_id
-        ]);
+        return $this->allowedSchoolLocations->each(function($location) {
+            if(!$location->hasTrialLicense() || $this->trialPeriods()->withSchoolLocation($location)->exists()) {
+                return true;
+            }
+
+            return $this->trialPeriods()->create([
+                'school_location_id' => $location->getKey()
+            ]);
+        });
+    }
+
+    public function canHaveGeneralText2SpeechPrice()
+    {
+        $roles = Roles::getUserRoles($this);
+        foreach ($roles as $role) {
+            if (in_array($role, UserHelper::TEXT2SPEECH_PRICE_ROLES)) {
+                return true;
+            }
+        }
+        return false;
     }
 }

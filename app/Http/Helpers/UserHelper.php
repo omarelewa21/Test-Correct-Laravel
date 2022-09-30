@@ -29,7 +29,7 @@ use tcCore\User;
 class UserHelper
 {
 
-    protected $text2speechPriceRoles = ['Teacher','Administrator','School manager','School management','Mentor'];
+    const TEXT2SPEECH_PRICE_ROLES = ['Teacher','Administrator','School manager','School management','Mentor'];
 
     public static function logout()
     {
@@ -60,43 +60,11 @@ class UserHelper
             $schoolLocation->append('featureSettings');
         }
 
-        $hidden = $user->getHidden();
+        $hidden = self::getHiddenUserProperties($user);
+        self::setAdditionalUserAttributes($user);
+        self::handleTeacherEnvironment($user);
 
-        if (($key = array_search('api_key', $hidden)) !== false) {
-            unset($hidden[$key]);
-        }
-        if (($key = array_search('session_hash', $hidden)) !== false) {
-            unset($hidden[$key]);
-        }
-
-        if($user->isA('teacher')){
-            (new DemoHelper())->createDemoForTeacherIfNeeded($user);
-            dispatch(new SetSchoolYearForDemoClassToCurrent($user->schoolLocation));
-        }
-
-        if($this->canHaveGeneralText2SpeechPrice($user)){
-            $user->setAttribute('general_text2speech_price',config('custom.text2speech.price'));
-        }
-        $user->setAttribute('isToetsenbakker',$user->isToetsenbakker());
-
-        $user->setAttribute('hasCitoToetsen',$user->hasCitoToetsen());
-
-        $user->setAttribute('hasSharedSections',$user->hasSharedSections());
-
-        $user->setAttribute('isExamCoordinator', $user->isValidExamCoordinator());
-
-        $user->setAttribute('temporaryLoginOptions', TemporaryLogin::getOptionsForUser($user));
-
-        $user->makeOnboardWizardIfNeeded();
-        $user->createGeneralTermsLogIfRequired();
-        $user->createTrialPeriodRecordIfRequired();
-
-        $clone = $user->replicate();
-        $clone->{$user->getKeyName()} = $user->getKey();
-        $clone->setHidden($hidden);
-
-        $clone->logins = $user->getLoginLogCount();
-        $clone->is_temp_teacher = $user->getIsTempTeacher();
+        $clone = $this->getUserClone($user, $hidden);
         LoginLog::create(['user_id' => $user->getKey()]);
         if($ip) {
             FailedLogin::solveForUsernameAndIp($user->username, $ip);
@@ -127,13 +95,68 @@ class UserHelper
         }
     }
 
-    protected function canHaveGeneralText2SpeechPrice($user){
-        $roles = Roles::getUserRoles($user);
-        foreach($roles as $role){
-            if(in_array($role,$this->text2speechPriceRoles)) {
-                return true;
-            }
+    /**
+     * @param $user
+     * @return mixed
+     */
+    private function getHiddenUserProperties($user)
+    {
+        $hidden = $user->getHidden();
+
+        if (($key = array_search('api_key', $hidden)) !== false) {
+            unset($hidden[$key]);
         }
-        return false;
+        if (($key = array_search('session_hash', $hidden)) !== false) {
+            unset($hidden[$key]);
+        }
+        return $hidden;
+    }
+
+    public static function setAdditionalUserAttributes(User $user)
+    {
+        if ($user->canHaveGeneralText2SpeechPrice()) {
+            $user->setAttribute('general_text2speech_price', config('custom.text2speech.price'));
+        }
+        $user->setAttribute('isToetsenbakker', $user->isToetsenbakker());
+
+        $user->setAttribute('hasCitoToetsen', $user->hasCitoToetsen());
+
+        $user->setAttribute('hasSharedSections', $user->hasSharedSections());
+
+        $user->setAttribute('isExamCoordinator', $user->isValidExamCoordinator());
+
+        $user->setAttribute('temporaryLoginOptions', TemporaryLogin::getOptionsForUser($user));
+    }
+
+    /**
+     * @param $user
+     * @return void
+     */
+    public static function handleTeacherEnvironment($user): void
+    {
+        if(!$user->isA('teacher')) return;
+
+//        (new DemoHelper())->createDemoForTeacherIfNeeded($user, true);
+
+        $user->makeOnboardWizardIfNeeded();
+
+        $user->createGeneralTermsLogIfRequired();
+        $user->createTrialPeriodRecordIfRequired();
+    }
+
+    /**
+     * @param $user
+     * @param $hidden
+     * @return mixed
+     */
+    public static function getUserClone($user, $hidden)
+    {
+        $clone = $user->replicate();
+        $clone->{$user->getKeyName()} = $user->getKey();
+        $clone->setHidden($hidden);
+
+        $clone->logins = $user->getLoginLogCount();
+        $clone->is_temp_teacher = $user->getIsTempTeacher();
+        return $clone;
     }
 }

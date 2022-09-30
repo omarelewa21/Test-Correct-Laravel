@@ -35,4 +35,9 @@ class TrialPeriod extends Model
     {
         return $this->belongsTo(SchoolLocation::class, 'school_location_id');
     }
+
+    public function scopeWithSchoolLocation($query, SchoolLocation $schoolLocation)
+    {
+        return $query->where('school_location_id', $schoolLocation->getKey());
+    }
 }
