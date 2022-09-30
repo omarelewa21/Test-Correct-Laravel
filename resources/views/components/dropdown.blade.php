@@ -11,7 +11,8 @@
 @props([
     'label' => '',
     'button' => 'dropdown-button',
-    'labelstyle' => ''
+    'labelstyle' => '',
+    'dropdownwidth' => null,
 ])
 
 <div x-data="{ open: false }" @keydown.window.escape="open = false" @click.outside="open = false"
@@ -28,7 +29,7 @@
         </span>
     </div>
 
-    <div x-show="open" style="display: none;" x-description="Dropdown panel, show/hide based on dropdown state."
+    <div x-show="open" style="display: none; {{ $dropdownwidth ? 'width: '.$dropdownwidth : '' }}" x-description="Dropdown panel, show/hide based on dropdown state."
          x-transition:enter="transition ease-out duration-100" x-transition:enter-start="transform opacity-0 scale-95"
          x-transition:enter-end="transform opacity-100 scale-100" x-transition:leave="transition ease-in duration-75"
          x-transition:leave-start="transform opacity-100 scale-100"

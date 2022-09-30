@@ -746,6 +746,27 @@ class SchoolLocation extends BaseModel implements AccessCheckable
 
         foreach ($filters as $key => $value) {
             switch ($key) {
+                case 'id':
+                    $query->where('school_locations.id', '=', $value);
+                    break;
+                case 'customer_code':
+                    $query->where('school_locations.customer_code', 'LIKE', '%' . $value . '%');
+                    break;
+                case 'name':
+                    $query->where('school_locations.name', 'LIKE', '%' . $value . '%');
+                    break;
+                case 'school_name':
+                    $query->where('schools.name', 'LIKE', '%' . $value . '%');
+                    break;
+                case 'external_main_code':
+                    $query->where('school_locations.external_main_code', '=', $value);
+                    break;
+                case 'lvs_type':
+                    $query->where('school_locations.lvs_type', '=', $value);
+                    break;
+                case 'sso_type':
+                    $query->where('school_locations.sso_type', '=', $value);
+                    break;
                 default:
                     break;
             }
