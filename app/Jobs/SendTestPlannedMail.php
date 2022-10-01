@@ -39,6 +39,7 @@ class SendTestPlannedMail extends Job implements ShouldQueue
         try {
             $testTake   = TestTake::findOrFail($this->testTakeId);
             $takeCode = $testTake->testTakeCode;
+            $is_assessment = ($testTake->test->test_kind_id == TestKind::ASSESSMENT_TYPE);
             if($takeCode){
                 $takeCode = $takeCode->prefix . '  ' . implode(' ', str_split($takeCode->code));
             }
@@ -46,7 +47,7 @@ class SendTestPlannedMail extends Job implements ShouldQueue
             return;
         }
 
-        if ($testTake->testTakeStatus->name === 'Taking test' && $testTake->test->test_kind_id == TestKind::ASSESSMENT_TYPE) {
+        if ($testTake->testTakeStatus->name === 'Taking test' && $is_assessment) {
             foreach($testTake->testParticipants as $testParticipant) {
                 if(null == $testParticipant->user || $testParticipant->user->shouldNotSendMail()) {
                     continue;
@@ -64,18 +65,18 @@ class SendTestPlannedMail extends Job implements ShouldQueue
                     continue;
                 }
                 $mailer->send('emails.test_planned',
-                    ['testParticipant' => $testParticipant, 'directlink' => $testTake->directLink, 'takeCode' => $takeCode],
+                    ['testParticipant' => $testParticipant, 'directlink' => $testTake->directLink, 'takeCode' => $takeCode, 'is_assessment' => $is_assessment],
                     function ($mail) use ($testParticipant) {
-                        $mail->to($testParticipant->user->username, $testParticipant->user->getNameFullAttribute())->subject(__('test_planned.Toetsafname ingepland.'));
+                        $mail->to($testParticipant->user->username, $testParticipant->user->getNameFullAttribute())->subject( $is_assessment ? __('test_planned.assignment_planned') : __('test_planned.Toetsafname ingepland.'));
                 });
             }
             // Send to Invigilators
             foreach($testTake->invigilators as $invigilator){
                 if($invigilator->user->username !== $testTake->user->username){
                     $mailer->send('emails.teacher_test_planned',
-                        ['user' => $invigilator->user, 'testTake' => $testTake, 'directlink' => $testTake->directLink, 'is_invigilator' => true, 'takeCode' => $takeCode],
+                        ['user' => $invigilator->user, 'testTake' => $testTake, 'directlink' => $testTake->directLink, 'is_invigilator' => true, 'takeCode' => $takeCode, 'is_assessment' => $is_assessment],
                         function ($mail) use ($invigilator) {
-                            $mail->to($invigilator->user->username, $invigilator->user->getNameFullAttribute())->subject(__('test_planned.Toetsafname ingepland.'));
+                            $mail->to($invigilator->user->username, $invigilator->user->getNameFullAttribute())->subject($is_assessment ? __('test_planned.assignment_planned') : __('test_planned.Toetsafname ingepland.'));
                     });
                 }
             }
