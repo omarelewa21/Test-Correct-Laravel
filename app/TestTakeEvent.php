@@ -177,10 +177,13 @@ class TestTakeEvent extends BaseModel {
 
     public static function hasFraudBeenDetectedForParticipant($participantId)
     {
+        // Only returns true if the fraud should also be visible to the student.
+        // There are situations where the fraud should only be visible to the teacher, which are not included in this function
         return !!self::leftJoin('test_take_event_types', 'test_take_events.test_take_event_type_id', '=', 'test_take_event_types.id')
             ->where('confirmed', 0)
             ->where('test_participant_id', $participantId)
             ->where('requires_confirming', 1)
+            ->where('show_alarm_to_student', 1)
             ->count();
     }
 
