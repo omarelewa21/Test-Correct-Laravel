@@ -66,7 +66,7 @@ return [
     'go_to_planned_test'                                                                       => 'Go to planned test',
     'go_to_assignment_surveillance'                                                            => 'Go to assignment surveillance',
     'clipboard_copied'                                                                         => 'Test link has been copied to the clipboard',
-    'assignment_clipboard_copied'                                                              => 'Assignment link has been copied to the clipboard',
+    'assignment_clipboard_copied'                                                              => 'Assignment link copied',
     'take_not_accessible_toast_for_invigilator'                                                => 'The :testName test has been removed and can no longer be opened',
     'test_not_found'                                                                           => 'test cannot be found.',
     'Klassen'                                          => 'Classes',

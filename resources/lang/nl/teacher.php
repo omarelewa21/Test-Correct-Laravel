@@ -66,7 +66,7 @@ return [
     'go_to_planned_test'                                                                       => 'Direct naar ingeplande toets',
     'go_to_assignment_surveillance'                                                            => 'Direct naar opdracht surveilleren',
     'clipboard_copied'                                                                         => 'Toetslink gekopieerd',
-    'assignment_clipboard_copied'                                                              => 'Opdrachtlink is gekopieerd naar het klembord',
+    'assignment_clipboard_copied'                                                              => 'Opdrachtlink gekopieerd',
     'take_not_accessible_toast_for_invigilator'                                                => 'De toets :testName is afgenomen en kan niet meer geopend worden',
     'test_not_found'                                                                           => 'De toetscode kan niet gevonden worden.',
     'Klassen'                                          => 'Klassen',
