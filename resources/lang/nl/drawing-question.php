@@ -14,8 +14,6 @@
 		'Antwoord tekenen' => 'Antwoord tekenen',
 
 		'Stel de opmaak in voordat je het object tekent' => 'Stel de opmaak in voordat je het object tekent',
-
-		'old-drawing-override-title' => ''
 ];
 ?>
 			

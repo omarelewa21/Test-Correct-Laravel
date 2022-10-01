@@ -44,4 +44,6 @@ return [
     'Centreren'                          => 'Center',
     'Vraag'                              => 'Question',
     'Save no answers yet confirm text'   => 'You did not add any answer objects, are you sure you want to close?',
+    'old-drawing-override-title' 	     => 'Old drawing question',
+	'old-drawing-override-body'		     => 'This drawing question has been made in the old drawing editor. If you continue, the answer layes has to be redrawn in the new drawing editor.',
 ];

@@ -40,13 +40,13 @@
          x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100"
          x-transition:leave-end="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95">
         <div class="px-2.5 flex justify-between items-center mt-2">
-            <h2>{{ __('cms.delete') }}</h2>
+            <h2>{{ __('drawing-modal.old-drawing-override-title') }}</h2>
             <x-icon.close class="cursor-pointer hover:text-primary" @click="showWarning = false"/>
         </div>
         <div class="divider mb-5 mt-2.5"></div>
         <div class="flex flex-1 h-full w-full px-2.5 body1 mb-5 space-x-2.5 ">
             <div class="flex flex-1 flex-col ">
-                <span>{{ __('cms.drawing-question-override-old-drawing') }}</span>
+                <span>{{ __('drawing-modal.old-drawing-override-body') }}</span>
 
                 <div class="flex w-full justify-end mt-4 space-x-4">
                     <x-button.text-button class="rotate-svg-180" @click="showWarning = false">
