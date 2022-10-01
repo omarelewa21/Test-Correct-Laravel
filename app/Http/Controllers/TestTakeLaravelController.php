@@ -194,7 +194,7 @@ class TestTakeLaravelController extends Controller
             return $this->redirectToCorrectTakePage($notification);
         }
 
-        $testTake = TestTake::whereUuid($testTakeUuid)->with('test', 'test.testKind', 'testTakeStatus')->first();
+        $testTake = TestTake::whereUuid($testTakeUuid)->with('test', 'testTakeStatus')->first();
         if (!auth()->check()) {
             session(['take' => $testTake->uuid]);
             return redirect()->route('auth.login');
@@ -220,7 +220,7 @@ class TestTakeLaravelController extends Controller
         $notification=null;
         $url=null;
 
-        if($testTake->test->testKind->name == 'Opdracht'){
+        if($testTake->isAssessmentType()){
             // is assignment
             if($testTake->testTakeStatus->name == 'Taking test' || $testTake->testTakeStatus->name == 'Planned'){
                 $url = sprintf("test_takes/assessment_open_teacher/%s", $testTake->uuid);
@@ -241,7 +241,7 @@ class TestTakeLaravelController extends Controller
         $notification=null;
         $url=null;
 
-        if($testTake->test->testKind->name == 'Opdracht'){
+        if($testTake->isAssessmentType()){
             // is assignment
             if($testTake->testTakeStatus->name == 'Taking test' || $testTake->testTakeStatus->name == 'Planned'){
                 $url = sprintf("test_takes/assessment_open_teacher/%s", $testTake->uuid);

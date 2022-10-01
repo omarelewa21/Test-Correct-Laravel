@@ -39,7 +39,7 @@ class SendTestPlannedMail extends Job implements ShouldQueue
         try {
             $testTake   = TestTake::findOrFail($this->testTakeId);
             $takeCode = $testTake->testTakeCode;
-            $is_assessment = ($testTake->test->test_kind_id == TestKind::ASSESSMENT_TYPE);
+            $is_assessment = $testTake->isAssessmentType();
             if($takeCode){
                 $takeCode = $takeCode->prefix . '  ' . implode(' ', str_split($takeCode->code));
             }

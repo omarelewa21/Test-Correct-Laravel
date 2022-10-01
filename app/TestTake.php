@@ -1201,4 +1201,9 @@ class TestTake extends BaseModel
             })->count(),
         ];
     }
+
+    public function isAssessmentType()
+    {
+        return $this->test->test_kind_id == TestKind::ASSESSMENT_TYPE;
+    }
 }

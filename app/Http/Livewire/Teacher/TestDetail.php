@@ -96,8 +96,8 @@ class TestDetail extends Component
 
     public function toPlannedTest($takeUuid)
     {
-        $testTake = TestTake::whereUuid($takeUuid)->with('test.testKind')->first();
-        if($testTake->test->testKind->name == 'Opdracht'){
+        $testTake = TestTake::whereUuid($takeUuid)->first();
+        if($testTake->isAssessmentType()){
             $url = sprintf("test_takes/assessment_open_teacher/%s", $takeUuid);
         }else{
             $url = sprintf("test_takes/view/%s", $takeUuid);

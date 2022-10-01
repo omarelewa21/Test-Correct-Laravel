@@ -4,13 +4,13 @@
         message: null,
         takeUuid: null,
         link: null,
-        testKind: null,
+        is_assessment: null,
     }"
     @after-planning-toast.window="
         message = $event.detail.message;
         link=$event.detail.link;
         takeUuid=$event.detail.takeUuid;
-        testKind=$event.detail.testKind;
+        is_assessment=$event.detail.is_assessment;
         setTimeout(() => { message=null }, {{ $notificationTimeout }});"
     class="fixed inset-0 flex flex-col items-end justify-center px-4 py-6 pointer-events-none sm:p-6 sm:justify-start space-y-4"
     style="z-index:1000"
@@ -53,8 +53,8 @@
                         <div class="ml-3 w-0 flex-1 pt-0.5">
                             <p class="cursor-pointer underline hover-light-color text-sm leading-5 font-medium hover-weight-600:hover" 
                                     x-clipboard='link'
-                                    @click="message=null; $dispatch('notify', {message: testKind == 'Opdracht' ? '{{__("teacher.assignment_clipboard_copied")}}' : '{{__("teacher.clipboard_copied")}}' })"
-                                    x-text="testKind == 'Opdracht' ? '{{__("teacher.copy_assignment_link")}}' : '{{__("teacher.copy_test_link")}}'"
+                                    @click="message=null; $dispatch('notify', {message: is_assessment ? '{{__("teacher.assignment_clipboard_copied")}}' : '{{__("teacher.clipboard_copied")}}' })"
+                                    x-text="is_assessment ? '{{__("teacher.copy_assignment_link")}}' : '{{__("teacher.copy_test_link")}}'"
                             >
                         </div>
                         <div class="ml-4 flex-shrink-0 flex"></div>
@@ -64,7 +64,7 @@
                         <div class="ml-3 w-0 flex-1 pt-0.5">
                             <p class="cursor-pointer underline hover-light-color text-sm leading-5 font-medium hover-weight-600:hover"
                                 @click="message=null; $wire.toPlannedTest(takeUuid)"
-                                x-text="testKind == 'Opdracht' ? '{{__("teacher.go_to_assignment_surveillance")}}' : '{{__("teacher.go_to_planned_test")}}'"
+                                x-text="is_assessment ? '{{__("teacher.go_to_assignment_surveillance")}}' : '{{__("teacher.go_to_planned_test")}}'"
                             >
                             </p>
                         </div>
