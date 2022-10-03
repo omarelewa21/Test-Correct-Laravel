@@ -24,5 +24,6 @@ return [
     'examschool_customercode' => env('EXAMSCHOOL_CUSTOMERCODE','OPENSOURCE1'),
     'examschool_author' => env('EXAMSCHOOL_AUTOR','info+CEdocent@test-correct.nl'),
     'default_trial_days' => env('DEFAULT_TRIAL_DAYS', 14),
+    'default_general_terms_days' => env('DEFAULT_GENERAL_TERMS_DAYS',14),
     'enable_additional_seeders' => env('ENABLE_ADDITIONAL_SEEDERS', true),
 ];
