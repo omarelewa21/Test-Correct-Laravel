@@ -1,23 +1,20 @@
 module.exports = {
-    mode: 'jit',
-    purge: {
-        content: [
-            './vendor/wire-elements/modal/resources/views/*.blade.php',
-            './resources/**/*.blade.php',
-            './resources/**/*.js',
-            './resources/**/*.vue',
-        ],
-        safelist: [
-            'sm:w-full',
-            'sm:max-w-md',
-            'md:max-w-xl',
-            'lg:max-w-3xl',
-            'xl:max-w-5xl',
-            '2xl:max-w-6xl',
-            'max-w-[600px]'
-        ]
-    },
-    darkMode: false, // or 'media' or 'class'
+    content: [
+        './vendor/wire-elements/modal/resources/views/*.blade.php',
+        './resources/**/*.{blade.php,js}',
+    ],
+    safelist: [
+        'sm:w-full',
+        'sm:max-w-md',
+        'md:max-w-xl',
+        'lg:max-w-3xl',
+        'xl:max-w-5xl',
+        '2xl:max-w-6xl',
+        'max-w-[600px]',
+        'max-w-modal',
+        'max-w-[720px]',
+        'mx-8'
+    ],
     theme: {
         extend: {
             colors: {
@@ -40,6 +37,18 @@ module.exports = {
             borderWidth: {
                 '3': '3px',
                 '6': '6px',
+            },
+            width: {
+                '50': '12.5rem'
+            },
+            height: {
+                '12.5': '3.125rem'
+            },
+            zIndex: {
+                '1': 1
+            },
+            maxWidth: {
+                'modal': '700px'
             }
         },
         keyframes: {
@@ -58,9 +67,6 @@ module.exports = {
             'knightrider': 'knightrider 2s ease infinite',
             'borderpulse': 'borderPulse 3s ease infinite'
         }
-    },
-    variants: {
-        extend: {},
     },
     plugins: [
         require('@tailwindcss/line-clamp')

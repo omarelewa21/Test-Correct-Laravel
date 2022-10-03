@@ -37,8 +37,6 @@ class CountUmbrellaOrganizationTeachers extends Job implements ShouldQueue
     {
         $count = $this->umbrellaOrganization->schools()->sum('count_teachers');
 
-        Log::debug('Umbrella Organization #' . $this->umbrellaOrganization->getKey() . ' -> count_teachers: ' . $count);
-
         $this->umbrellaOrganization->setAttribute('count_teachers', $count);
         $this->umbrellaOrganization->save();
     }

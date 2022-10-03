@@ -15,6 +15,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Str;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
@@ -43,6 +44,7 @@ use Illuminate\Auth\Passwords\CanResetPassword;
 use Illuminate\Contracts\Auth\Authenticatable as AuthenticatableContract;
 use Illuminate\Contracts\Auth\CanResetPassword as CanResetPasswordContract;
 use tcCore\Lib\Repositories\PeriodRepository;
+use tcCore\Lib\Repositories\PValueRepository;
 use tcCore\Lib\Repositories\StatisticsRepository;
 use tcCore\Lib\Repositories\SchoolYearRepository;
 use tcCore\Lib\User\Factory;
@@ -50,6 +52,7 @@ use tcCore\Lib\User\Roles;
 use Dyrynda\Database\Casts\EfficientUuid;
 use Dyrynda\Database\Support\GeneratesUuid;
 use tcCore\Traits\UuidTrait;
+use Facades\tcCore\Http\Controllers\PreviewLaravelController;
 
 class User extends BaseModel implements AuthenticatableContract, CanResetPasswordContract, AccessCheckable
 {
@@ -1031,6 +1034,12 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
         $this->studentParentsOf = null;
     }
 
+    public function scopeSubjectsInCurrentLocation($query)
+    {
+        $schoolLocationSectionIds = $this->schoolLocation->schoolLocationSections()->pluck('section_id');
+        return $this->subjects()->whereIn('section_id',$schoolLocationSectionIds);
+    }
+
     public function subjects($query = null)
     {
         $userId = $this->getKey();
@@ -1253,6 +1262,16 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
         return $this->hasOne(GeneralTermsLog::class, 'user_id');
     }
 
+    public function trialPeriod()
+    {
+        return $this->hasOne(TrialPeriod::class, 'user_id');
+    }
+
+    public function trialPeriodWithSchoolLocationCheck()
+    {
+        return $this->hasOne(TrialPeriod::class, 'user_id')->where('school_location_id',$this->school_location_id);
+    }
+
     public function getOnboardingWizardSteps()
     {
         $state = $this->onboardingWizardUserState;
@@ -1328,6 +1347,14 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
     public function isInExamSchool(): bool
     {
         if (optional($this->schoolLocation)->customer_code == config('custom.examschool_customercode')) {
+            return true;
+        }
+        return false;
+    }
+
+    public function isInNationalItemBankSchool(): bool
+    {
+        if (optional($this->schoolLocation)->customer_code == config('custom.national_item_bank_school_customercode')) {
             return true;
         }
         return false;
@@ -1727,8 +1754,16 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
                         }
                     });
                     break;
+                case 'trial':
+                    $query->whereIn(
+                        'school_location_id',
+                        SchoolLocation::where('license_type', 'TRIAL')->pluck('id')
+                    );
+                    break;
                 case 'without_guests':
-                    $value == true ? $query->withoutGuests() : '';
+                    $query->when($value, function($query) {
+                        $query->withoutGuests();
+                    });
                     break;
                 default:
                     break;
@@ -1894,6 +1929,20 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
         return $this->canAccess();
     }
 
+    public function canUseTeacherCkEditorWithWebSpellChecker()
+    {
+        return false; //for now
+        $notPreview = PreviewLaravelController::isNotPreview();
+        return ($this->isA('teacher') && $this->schoolLocation->allow_wsc && $notPreview);
+    }
+
+    public function canUseTeacherCkEditorWithoutWebSpellChecker()
+    {
+        return false; //for now
+        $notPreview = PreviewLaravelController::isNotPreview();
+        return ($this->isA('teacher') && !$this->schoolLocation->allow_wsc && $notPreview);
+    }
+
     public function getAccessDeniedResponse($request, Closure $next)
     {
         throw new AccessDeniedHttpException('Access to user denied');
@@ -1994,8 +2043,9 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
                 $schoolLocation->getKey());
     }
 
-    public function hasMultipleSchools() {
-        return !! ($this->allowedSchoolLocations->count() > 1);
+    public function hasMultipleSchools()
+    {
+        return !!($this->allowedSchoolLocations->count() > 1);
     }
 
     public function addSchoolLocation(SchoolLocation $schoolLocation)
@@ -2223,12 +2273,21 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
                 $options = [
                     'internal_page' => '/users/student_splash',
                 ];
+                $options = $this->addFinalRedirectToIfNeeded($options);
                 return $this->getTemporaryCakeLoginUrl($options);
             }
         }
 //        }
-
+        $options = $this->addFinalRedirectToIfNeeded($options);
         return $this->getTemporaryCakeLoginUrl($options);
+    }
+
+    private function addFinalRedirectToIfNeeded($options)
+    {
+        if(session('finalRedirectTo')){
+            $options['finalRedirectTo'] = session('finalRedirectTo');
+        }
+        return $options;
     }
 
     public function loginThisUser()
@@ -2543,9 +2602,7 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
             ->get();
 
         return [
-            'subject_id' =>  $results->map(function ($result) {
-                return $result->subject_id;
-            })->unique()->values()->toArray(),
+            'subject_id'           => Subject::filtered(['user_current' => Auth::id()], [])->pluck('id'),
             'education_level_id'   => $results->map(function ($result) {
                 return $result->education_level_id;
             })->unique()->values()->toArray(),
@@ -2557,7 +2614,7 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
 
     public function getFormalNameAttribute()
     {
-        return sprintf('%s.%s', substr($this->name_first,0,1), $this->name,);
+        return sprintf('%s.%s', substr($this->name_first, 0, 1), $this->name,);
     }
 
     public function getFormalNameWithCurrentSchoolLocationShortAttribute()
@@ -2575,4 +2632,48 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
         return sprintf('%s(%s)', $this->formal_name, $this->schoolLocation->name);
     }
 
+    public function scopeTeachersForStudent($query, User $student)
+    {
+        if (!$student->isA('student')) {
+            throw new \Exception('Not a valid student');
+        }
+
+        return $query->whereIn(
+            'id',
+            Student::select('teachers.user_id')
+                ->join('teachers', function ($join) use ($student) {
+                    $join->on('students.class_id', '=', 'teachers.class_id')
+                        ->where('students.user_id', '=', $student->id);
+                })
+        );
+    }
+
+    public function loadPValueStatsForAllSubjects() {
+        $value = Subject::filterForStudent($this)->get()
+            ->map(fn ($subject) => PValueRepository::getPValuesForStudent($this,$subject))
+            ->map(fn ($user) => $user->developedAttainments)
+            ->flatten()
+            ->groupBy(fn ($attainment) =>  $attainment->base_subject_id)
+            ->map->avg(function ($attainment) {
+                return $attainment->total_p_value;
+            })->mapWithKeys(fn($item, $key) => [BaseSubject::find($key)->name => $item]);
+
+        $this->setRelation('pValueStatsForAllSubjects', $value);
+        return $this;
+    }
+
+    public function createTrialPeriodRecordIfRequired()
+    {
+        if (!$this->isA('Teacher') || !$this->schoolLocation->hasTrialLicense()) {
+            return false;
+        }
+        if($this->trialPeriodWithSchoolLocationCheck()->exists()) {
+            return false;
+        }
+
+        return $this->trialPeriod()->create([
+            'user_id' => $this->getKey(),
+            'school_location_id' => $this->school_location_id,
+        ]);
+    }
 }

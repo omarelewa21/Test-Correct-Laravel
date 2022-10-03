@@ -236,6 +236,11 @@ class Answer extends BaseModel
         return 'drawing_question_answers/' . $this->uuid;
     }
 
+    public function getDrawingStoragePathPng()
+    {
+        return sprintf('%s.png', $this->getDrawingStoragePath());
+    }
+
     public static function updateJson($answerId, $json)
     {
         Answer::whereId($answerId)->update(['json' => $json, 'done' => 1]);

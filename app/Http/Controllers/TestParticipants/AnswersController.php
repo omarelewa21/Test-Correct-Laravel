@@ -2,9 +2,11 @@
 
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Facades\Storage;
 use tcCore\Http\Helpers\BaseHelper;
+use tcCore\Http\Livewire\Teacher\Questions\OpenShort;
 use tcCore\Http\Requests;
 use tcCore\Http\Controllers\Controller;
 use tcCore\Answer;
@@ -162,6 +164,10 @@ class AnswersController extends Controller {
 					return $q->inRandomOrder()->take(3);						// Getting all feedback to show for reading (limit 3)
 				}]);
 			}
+            if($request->mode === 'write') {
+                $answer->question_is_writing_assignment_with_spellcheck_available = $question->isWritingAssignmentWithSpellCheckAvailable();
+                $answer->lang = $question->lang ?: Auth::user()->schoolLocation->getWscLanguageAttribute();
+            }
 			return response($answer, 200);
         }catch (Exception $e){
             return response($e->getMessage(), 500);
@@ -177,7 +183,12 @@ class AnswersController extends Controller {
 			}else{
 				$answer->load('feedback');
 			}
-			return response($answer->load('testParticipant', 'question'), 200);
+            $fullAnswer = $answer->load('testParticipant', 'question');
+            if($request->mode === 'write') {
+                $fullAnswer->question_is_writing_assignment = $answer->question->isWritingAssignment();
+                $fullAnswer->lang = $answer->question->lang ?: Auth::user()->schoolLocation->getWscLanguageAttribute();
+            }
+			return response($fullAnswer, 200);
         }catch (Exception $e){
             return response($e->getMessage(), 500);
         }

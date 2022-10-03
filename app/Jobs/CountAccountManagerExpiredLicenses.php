@@ -60,8 +60,6 @@ class CountAccountManagerExpiredLicenses extends Job implements ShouldQueue
             $count += $schoolLocation->getAttribute('count_expired_licenses');
         }
 
-        Log::debug('Accountmanager #' . $this->user->getKey() . ' -> count_expired_licenses: ' . $count);
-
         $this->user->setAttribute('count_expired_licenses', $count);
         $this->user->save();
     }

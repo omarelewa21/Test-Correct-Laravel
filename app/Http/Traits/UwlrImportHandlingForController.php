@@ -11,6 +11,12 @@ use tcCore\SchoolClassImportLog;
 trait UwlrImportHandlingForController
 {
 
+    // info for ticket 2325
+    // the school class import log needs a where statement where checked_by_teacher_id is not null, as well as the or wherenot null checked_by_admin
+    // AND class_id in one of your classes. But not the checked_by_teacher_id being you
+    // same for the school class
+    // problem is that if one starts with the validation someone else can't finish it and that gives misleading messages
+
     protected function setClassesVisibleAndFinalizeImport($user)
     {
         if ($user->isA('teacher')) {

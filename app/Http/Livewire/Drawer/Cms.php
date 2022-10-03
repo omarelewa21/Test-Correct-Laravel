@@ -3,7 +3,6 @@
 namespace tcCore\Http\Livewire\Drawer;
 
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Str;
 use Livewire\Component;
 use tcCore\GroupQuestion;
 use tcCore\GroupQuestionQuestion;
@@ -46,6 +45,7 @@ class Cms extends Component
             'deleteQuestionByQuestionId' => 'deleteQuestionByQuestionId',
             'show-empty'                 => 'showEmpty',
             'addQuestionResponse'        => 'addQuestionResponse',
+            'newGroupId'                 => 'newGroupId',
         ];
     }
 
@@ -79,15 +79,15 @@ class Cms extends Component
         DB::beginTransaction();
         try {
             $test = Test::whereUuid($this->testId)->first();
-            if(!$test){
+            if (!$test) {
                 throw new \Exception('test could not be found');
             }
-            collect($data)->each(function($item) use ($test){
+            collect($data)->each(function ($item) use ($test) {
                 $question = Question::whereUuid($item['value'])->first();
-                if(!$question){
+                if (!$question) {
                     throw new \Exception('question could not be found');
                 }
-                TestQuestion::where('test_id',$test->getKey())->where('question_id',$question->getKey())->update(['order' => $item['order']]);
+                TestQuestion::where('test_id', $test->getKey())->where('question_id', $question->getKey())->update(['order' => $item['order']]);
             });
             DB::commit();
         } catch (\Throwable $e) {
@@ -102,7 +102,7 @@ class Cms extends Component
         $group = collect($data)->first();
 
         $groupQuestion = GroupQuestion::whereUuid($group['value'])->first();
-        if(!$groupQuestion){
+        if (!$groupQuestion) {
             $this->refreshDrawer();
             dd('could not find the group question');
         }
@@ -110,10 +110,10 @@ class Cms extends Component
         try {
             collect($group['items'])->each(function ($item) use ($groupQuestion) {
                 $question = Question::whereUuid($item['value'])->first();
-                if(!$question){
+                if (!$question) {
                     throw new \Exception('question could not be found');
                 }
-                GroupQuestionQuestion::where('group_question_id',$groupQuestion->getKey())->where('question_id',$question->getKey())->update(['order' => $item['order']]);
+                GroupQuestionQuestion::where('group_question_id', $groupQuestion->getKey())->where('question_id', $question->getKey())->update(['order' => $item['order']]);
             });
             DB::commit();
         } catch (\Throwable $e) {
@@ -175,6 +175,7 @@ class Cms extends Component
                 $groupQuestion->subQuestions = $groupQuestion->groupQuestionQuestions->map(function ($item) use ($groupQuestion) {
                     $item->question->belongs_to_groupquestion_id = $groupQuestion->getKey();
                     $item->question->groupQuestionQuestionUuid = $item->uuid;
+                    $item->question->attachmentCount = $item->question->attachments()->count();
                     return $item->question;
                 });
             }
@@ -200,6 +201,7 @@ class Cms extends Component
         $this->findOutHowToRedirectButFirstExecuteCallback($testQuestionUuid, function () use ($testQuestionUuid) {
             $response = (new TestQuestionsController)->destroy($this->questionsInTest->firstWhere('uuid', $testQuestionUuid));
         });
+        $this->emit('questionDeleted', $testQuestionUuid);
     }
 
     public function findOutHowToRedirectButFirstExecuteCallback($testQuestionUuid, $callback = null)
@@ -253,7 +255,8 @@ class Cms extends Component
         }
 
         $this->dispatchBrowserEvent('question-change', ['new' => $question->uuid, 'old' => $this->testQuestionId]);
-        return $this->showQuestion($question->uuid, $question->question->uuid, false, false);
+        $this->showQuestion($question->uuid, $question->question->uuid, false, false);
+        return true;
     }
 
     public function refreshDrawer($arguments = [])
@@ -272,40 +275,6 @@ class Cms extends Component
             return $question->question_id == $questionId;
         })->first();
 
-//        if (!$testQuestion) {
-//            $testId = Test::whereUuid($this->testId)->value('id');
-//            $groupQuestionsInTest = GroupQuestionQuestion::select('uuid', 'question_id', 'group_question_id')
-//                ->whereIn(
-//                    'group_question_id',
-//                    TestQuestion::from('test_questions as tq')
-//                        ->select('q.id')
-//                        ->join('questions as q', 'tq.question_id', '=', 'q.id')
-//                        ->where('tq.test_id', '=', $testId)
-//                        ->where('q.type', '=', 'GroupQuestion')
-//                        ->whereNull('q.deleted_at')
-//                        ->withTrashed()
-//                )
-//                ->get()
-//                ->mapWithKeys(function ($groupQuestionQuestion) {
-//                    return [
-//                        $groupQuestionQuestion->question_id => [
-//                            'groupQuestionQuestionUuid' => $groupQuestionQuestion->uuid,
-//                            'groupQuestionId'           => $groupQuestionQuestion->group_question_id
-//                        ]
-//                    ];
-//                });
-//
-//            if ($groupQuestionQuestionData = $groupQuestionsInTest->get($questionId)) {
-//                $testQuestion = TestQuestion::where('question_id', $groupQuestionQuestionData['groupQuestionId'])
-//                                                ->where('test_id', $testId)
-//                                                ->value('uuid');
-//                $this->dispatchBrowserEvent('question-removed');
-//                return $this->deleteSubQuestion($groupQuestionQuestionData['groupQuestionQuestionUuid'], $testQuestion);
-//            }
-//
-//            $this->dispatchBrowserEvent('notify', ['message' => 'Er is iets mis gegaan met verwijderen van de vraag.', 'error']);
-//            return false;
-//        }
         $this->dispatchBrowserEvent('question-removed');
         $this->deleteQuestion($testQuestion->uuid);
     }
@@ -342,6 +311,9 @@ class Cms extends Component
 
     public function showEmpty()
     {
+        $this->type = '';
+        $this->subtype = '';
+        $this->action = 'add';
         $this->emptyStateActive = true;
         $this->emitTo('teacher.questions.open-short', 'showEmpty');
     }
@@ -367,6 +339,9 @@ class Cms extends Component
 
     public function removeDummy()
     {
+        if ($this->action !== 'add') {
+            return true;
+        }
         if ($this->questionsInTest->count() > 0) {
             if ($this->owner === 'group') {
                 $testQuestion = $this->questionsInTest->where('uuid', $this->testQuestionId)->first();
@@ -392,5 +367,26 @@ class Cms extends Component
     private function setQuestionNameString($type, $subtype)
     {
         $this->newQuestionTypeName = $subtype === 'group' ? __('cms.group-question') : CmsFactory::findQuestionNameByTypes($type, $subtype);
+    }
+
+    public function newGroupId($uuid)
+    {
+        $this->groupId = $uuid;
+    }
+
+    public function duplicateQuestion($questionUuid, $testQuestionUuidForGroupQuestion = null)
+    {
+        $questionToDuplicate = Question::whereUuid($questionUuid)->firstOrFail();
+
+        try {
+            $newQuestion = $questionToDuplicate->duplicate($questionToDuplicate->getAttributes());
+            Question::whereId($newQuestion->getKey())->update(['derived_question_id'  => null]);
+            $newQuestion->attachToParentInTest($this->testId , $testQuestionUuidForGroupQuestion);
+        } catch (\Exception $e) {
+            $this->dispatchBrowserEvent('notify', ['message' => __('auth.something_went_wrong'), 'error']);
+            return false;
+        }
+
+        $this->dispatchBrowserEvent('notify', ['message' => __('general.duplication successful')]);
     }
 }

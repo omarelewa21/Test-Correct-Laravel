@@ -1,9 +1,12 @@
-@extends('livewire.teacher.questions.cms-layout')
+@extends($preview ?? 'livewire.teacher.questions.cms-layout')
 @section('question-cms-question')
     <x-input.rich-textarea
             wire:model.debounce.1000ms="question.question"
             editorId="{{ $questionEditorId }}"
             type="cms"
+            :disabled="isset($preview)"
+            lang="{{ $lang }}"
+            :allowWsc="$allowWsc"
     />
 @endsection
 
@@ -33,11 +36,12 @@
                         <div class="flex flex-1">{{ __($arq[3]) }}</div>
                         <div class="w-14" >
                             <x-input.text class="w-12 text-center"
-                                          wire:model="cmsPropertyBag.answerStruct.{{ $key }}.score"
+                                          wire:model.debounce.250ms="cmsPropertyBag.answerStruct.{{ $key }}.score"
                                           title="{{ $this->cmsPropertyBag['answerStruct'][$key]['score'] }}"
                                           type="number"
                                           :onlyInteger="true"
                                           selid="score-field"
+                                          :disabled="isset($preview)"
                             />
                         </div>
                     </div>

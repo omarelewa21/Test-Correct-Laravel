@@ -4,7 +4,19 @@
 ])
 <div x-cloak
      x-data="{ showMe: false, progressBar: false, startTime: 0, endTime: 1, progress: 0 }"
-     x-init="$watch('showMe', () => { if(showMe) { $dispatch('visible-component', {el: $el});} })"
+     x-init="
+        $watch('showMe', () => {
+            if(showMe) {
+                $dispatch('visible-component', {el: $el});
+                return;
+            }
+         })
+         @if(isset($this->reinitializedTimeoutData) && !empty($this->reinitializedTimeoutData))
+             $nextTick(() => {
+                $el.dispatchEvent(new CustomEvent('start-timeout', {detail: @js($this->reinitializedTimeoutData)} ));
+             });
+         @endif
+     "
      x-show="showMe"
      x-on:current-updated.window="
         showMe = ({{ $number }} == $event.detail.current);
@@ -33,20 +45,22 @@
         }
     "
      x-on:start-timeout="
-             $wire.set('blockAttachments',true);
-             progressBar = true;
-             startTime = $event.detail.timeout;
-             progress = startTime;
+                progressBar = true;
+                startTime = $event.detail.timeout;
+                if ($event.detail.timeLeft) {
+                    progress = $event.detail.timeLeft;
+                }else{
+                    $wire.registerExpirationTime($event.detail.attachment);
+                    progress = startTime;
+                }
 
              var timer = setInterval(function () {
-                progress = startTime - endTime;
-                endTime += 1;
+                progress -= 1;
 
                 if(progress === 0) {
                     showMe ? $wire.closeQuestion({{ $number+1 }}) : $wire.closeQuestion();
                     clearInterval(timer);
                     progressBar = false;
-                    endTime = 1;
                 }
              }, 1000);
          "
@@ -54,7 +68,6 @@
      x-on:force-taken-away-blur.window="$el.style.opacity = $event.detail.shouldBlur ? 0 : 1 ;"
      questionComponent
      :class="{ 'rs_readable': showMe }"
-
 >
     <div class="flex justify-end space-x-4 mt-6">
         @if(!$this->closed )

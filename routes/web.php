@@ -1,9 +1,6 @@
 <?php
 
-use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Route;
-use tcCore\Mail\PasswordChanged;
-
 
 /*
 |--------------------------------------------------------------------------
@@ -25,7 +22,7 @@ Route::get('/', tcCore\Http\Livewire\Onboarding::class);
 Route::get('/password-reset', tcCore\Http\Livewire\PasswordReset::class)->name('password.reset');
 Route::post('/send_password_reset', [tcCore\Http\Controllers\Auth\PasswordController::class, 'sendPasswordReset']);
 
-Route::get('/entree/register',[tcCore\Http\Controllers\Saml2Controller::class,'register'])->name('entree.register');
+Route::get('/entree/register', [tcCore\Http\Controllers\Saml2Controller::class, 'register'])->name('entree.register');
 
 Route::get('/login', tcCore\Http\Livewire\Auth\Login::class)->name('auth.login');
 
@@ -37,19 +34,19 @@ Route::get('/uwlr', tcCore\Http\Livewire\UwlrGrid::class)->name('uwlr.grid');
 Route::get('/ckeditor/plugins/ckeditor_wiris/integration/configurationjs', [\tcCore\Http\Controllers\WirisIntegrationController::class, 'configurationjs']);
 Route::post('integration/configurationjs', [\tcCore\Http\Controllers\WirisIntegrationController::class, 'configurationjs']);
 Route::get('/get_app_version', [\tcCore\Http\Helpers\AppVersionDetector::class, 'getAppVersion']);
+Route::get('/directlink/{testTakeUuid}', [\tcCore\Http\Controllers\TestTakeLaravelController::class, 'directLink'])->name('take.directLink');
 
-if(\tcCore\Http\Helpers\BaseHelper::notProduction()) {
-    Route::get('entree/testSession',\tcCore\Http\Controllers\EntreeTestSession::class);
+if (\tcCore\Http\Helpers\BaseHelper::notProduction()) {
+    Route::get('entree/testSession', \tcCore\Http\Controllers\EntreeTestSession::class);
 }
 
 Route::middleware(['auth.temp'])->group(function () {
-    Route::get('/redirect-with-temporary-login/{temporary_login}',[tcCore\Http\Controllers\TemporaryLoginController::class,'redirect'])->name('auth.temporary-login.redirect');
+    Route::get('/redirect-with-temporary-login/{temporary_login}', [tcCore\Http\Controllers\TemporaryLoginController::class, 'redirect'])->name('auth.temporary-login.redirect');
 });
 
 Route::middleware('auth')->group(function () {
-
-    Route::get('/temporary-login-to-cake',[tcCore\Http\Controllers\TemporaryLoginController::class,'toCake'])->name('auth.temporary-login.to-cake');
-
+    Route::get('/temporary-login-to-cake', [tcCore\Http\Controllers\TemporaryLoginController::class, 'toCake'])->name('auth.temporary-login.to-cake');
+    Route::get('/entree-link', tcCore\Http\Livewire\Auth\EntreeLink::class)->name('entree-link');
     Route::get('/questions/inlineimage/{image}', [tcCore\Http\Controllers\QuestionsController::class, 'inlineImageLaravel'])->name('inline-image');
     Route::get('/drawing-question/{drawingQuestion}/{identifier}/answer', [tcCore\Http\Controllers\QuestionsController::class, 'drawingQuestionAnswerBackgroundImage'])->name('drawing-question.background-answer-svg');
     Route::get('/drawing-question/{drawingQuestion}/{identifier}/question', [tcCore\Http\Controllers\QuestionsController::class, 'drawingQuestionQuestionBackgroundImage'])->name('drawing-question.background-question-svg');
@@ -63,11 +60,15 @@ Route::middleware('auth')->group(function () {
         Route::get('/attachment/pdf/{attachment}/{answer}', [tcCore\Http\Controllers\PdfAttachmentsLaravelController::class, 'show'])->name('question-pdf-attachment-show');
         Route::get('/drawing_question_answers/{answer}', [tcCore\Http\Controllers\DrawingQuestionLaravelController::class, 'show'])->name('drawing-question-answer');
         Route::get('/dashboard', tcCore\Http\Livewire\Student\Dashboard::class)->name('dashboard');
-        Route::get('/splash',\tcCore\Http\Livewire\Student\Splash::class)->name('splash');
-
+        Route::get('/splash', \tcCore\Http\Livewire\Student\Splash::class)->name('splash');
         Route::get('/dashboard/logout', [tcCore\Http\Livewire\Student\Dashboard::class, 'logout'])->name('dashboard.logout');
         Route::get('/test-takes', tcCore\Http\Livewire\Student\TestTakes::class)->name('test-takes');
         Route::get('/waiting-room', tcCore\Http\Livewire\Student\WaitingRoom::class)->name('waiting-room');
+        Route::get('/analyses', tcCore\Http\Livewire\Student\Analyses\AnalysesOverviewDashboard::class)->name('analyses.show');
+        Route::get('/analyses/subject/{subject}', tcCore\Http\Livewire\Student\Analyses\AnalysesSubjectDashboard::class)->name('analyses.subject.show');
+        Route::get('/analyses/attainment/{attainment}', tcCore\Http\Livewire\Student\Analyses\AnalysesAttainmentDashboard::class)->name('analyses.attainment.show');
+        Route::get('/analyses/sub-attainment/{attainment}', tcCore\Http\Livewire\Student\Analyses\AnalysesSubAttainmentDashboard::class)->name('analyses.subattainment.show');
+        Route::get('/analyses/sub-sub-attainment/{attainment}', tcCore\Http\Livewire\Student\Analyses\AnalysesSubSubAttainmentDashboard::class)->name('analyses.subsubattainment.show');
     });
 
     Route::middleware(['dll', 'teacher'])->prefix('teacher')->name('teacher.')->group(function () {
@@ -79,21 +80,22 @@ Route::middleware('auth')->group(function () {
         Route::get('/test-detail/{uuid}', tcCore\Http\Livewire\Teacher\TestDetail::class)->name('test-detail');
         Route::get('/preview/answer_model/{test}', [tcCore\Http\Controllers\PreviewAnswerModelController::class, 'show'])->name('test-answer-model');
         Route::get('/preview/test_take/{test_take}', [tcCore\Http\Controllers\PreviewTestTakeController::class, 'show'])->name('preview.test_take');
-
+        Route::get('/preview/pdf/test/{test}', [tcCore\Http\Controllers\PrintTestController::class, 'showTest'])->name('preview.test_pdf');
+        Route::get('/preview/pdf/test_take/{test_take}', [tcCore\Http\Controllers\PrintTestController::class, 'showTestTake'])->name('preview.test_take_pdf');
+        Route::get('/preview/pdf/test_attachments/{test}', [tcCore\Http\Controllers\PrintTestController::class, 'showTestPdfAttachments'])->name('preview.test_pdf_attachments');
+        Route::get('/test_takes/{stage}', \tcCore\Http\Livewire\Teacher\TestTakeOverview::class)->name('test-takes');
     });
 
-    Route::middleware(['dll', 'student'])->prefix('appapi')->name('appapi')->group(function() {
+    Route::middleware(['dll', 'student'])->prefix('appapi')->name('appapi')->group(function () {
         Route::put('/test_participant/{test_participant}/hand_in', [tcCore\Http\Controllers\AppApi::class, 'handIn'])->name('appapi-hand-in');
         Route::put('/test_participant/{test_participant}/fraud_event', [tcCore\Http\Controllers\AppApi::class, 'fraudEvent'])->name('appapi-fraud-event');
     });
-
-    Route::get('/entree-link', tcCore\Http\Livewire\Auth\EntreeLink::class)->name('entree-link');
 
     Route::middleware(['dll', 'teacher'])->prefix('cms')->name('cms.')->group(function () {
         Route::post('/ckeditor_upload/{type}', [tcCore\Http\Controllers\CkeditorImageController::class, 'store'])->name('upload');
         Route::get('/ckeditor_upload/{filename}', [tcCore\Http\Controllers\CkeditorImageController::class, 'show'])->name('upload.get');
     });
-    if(\tcCore\Http\Helpers\BaseHelper::notProduction()) {
+    if (\tcCore\Http\Helpers\BaseHelper::notProduction()) {
         Route::get('/preview_password_changed_mail', [tcCore\Http\Controllers\PreviewMailController::class, 'passwordChanged'])->name('PasswordChangedMail');
         Route::get('/preview_password_changed_self_mail', [tcCore\Http\Controllers\PreviewMailController::class, 'passwordChangedSelf'])->name('PasswordChangedSelf');
     }

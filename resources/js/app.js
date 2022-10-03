@@ -11,6 +11,8 @@ require('./attachment');
 require('./flatpickr');
 require('./navigation-bar');
 require('../../vendor/wire-elements/modal/resources/js/modal');
+require('./webspellchecker_tlc');
+require('./pdf-download');
 
 
 window.ClassicEditors = [];
@@ -22,9 +24,11 @@ addIdsToQuestionHtml = function () {
         questionContainers.forEach(function (item) {
             let decendents = item.querySelectorAll('*');
             decendents.forEach(function (decendent) {
-                decendent.id = 'questionhtml_' + id;
-                decendent.setAttribute('wire:key', 'questionhtml_' + id);
-                id += 1;
+                if(decendent.tagName != 'MATH' && !decendent.closest('math')) {
+                    decendent.id = 'questionhtml_' + id;
+                    decendent.setAttribute('wire:key', 'questionhtml_' + id);
+                    id += 1;
+                }
             })
         })
     }, 1);

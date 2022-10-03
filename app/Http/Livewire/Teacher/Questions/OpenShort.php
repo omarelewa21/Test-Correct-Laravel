@@ -4,7 +4,8 @@ namespace tcCore\Http\Livewire\Teacher\Questions;
 
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Redirect;
+use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
@@ -20,7 +21,7 @@ use tcCore\Http\Controllers\TestQuestions\AttachmentsController;
 use tcCore\Http\Controllers\TestQuestionsController;
 use tcCore\Http\Controllers\TestsController;
 use tcCore\Http\Helpers\QuestionHelper;
-use tcCore\Http\Livewire\Preview\DrawingQuestion;
+use tcCore\Http\Interfaces\QuestionCms;
 use tcCore\Http\Requests\CreateAttachmentRequest;
 use tcCore\Http\Requests\CreateGroupQuestionQuestionRequest;
 use tcCore\Http\Requests\CreateTestQuestionRequest;
@@ -31,7 +32,7 @@ use tcCore\TemporaryLogin;
 use tcCore\Test;
 use tcCore\TestQuestion;
 
-class OpenShort extends Component
+class OpenShort extends Component implements QuestionCms
 {
     use WithFileUploads;
 
@@ -87,6 +88,12 @@ class OpenShort extends Component
     public $rttiWarningShown = false;
     public $bloomWarningShown = false;
     public $millerWarningShown = false;
+    public $rttiOptions = [];
+    public $bloomOptions = [];
+    public $millerOptions = [];
+    public $lang = 'nl_NL';
+    public $testLang = null;
+    public $allowWsc = false;
 
     protected $tags = [];
 
@@ -95,8 +102,9 @@ class OpenShort extends Component
     ];
 
     protected $settingsGeneralPropertiesVisibility = [
-        'autoCheckAnswer'              => false,
-        'autoCheckAnswerCaseSensitive' => false
+        'autoCheckAnswer'                       => false,
+        'autoCheckAnswerCaseSensitive'          => false,
+        'spellingCheckAvailableDuringAssessing' => false,
     ];
 
     public $testName = 'test_name';
@@ -177,27 +185,29 @@ class OpenShort extends Component
     private function resetQuestionProperties()
     {
         $this->question = [
-            'add_to_database'        => 1,
-            'answer'                 => '',
-            'bloom'                  => '',
-            'closeable'              => 0,
-            'decimal_score'          => 1,
-            'discuss'                => 1,
-            'maintain_position'      => 0,
-            'miller'                 => '',
-            'is_open_source_content' => 0,
-            'tags'                   => [],
-            'note_type'              => 'NONE',
-            'order'                  => 0,
-            'question'               => '',
-            'rtti'                   => '',
-            'score'                  => 1,
-            'subtype'                => '',
-            'type'                   => '',
-            'attainments'            => [],
-            'learning_goals'         => [],
-            'test_id'                => '',
-            'all_or_nothing'         => false,
+            'add_to_database'          => 1,
+            'answer'                   => '',
+            'bloom'                    => '',
+            'closeable'                => 0,
+            'decimal_score'            => 1,
+            'discuss'                  => 1,
+            'maintain_position'        => 0,
+            'miller'                   => '',
+            'is_open_source_content'   => 0,
+            'tags'                     => [],
+            'note_type'                => 'NONE',
+            'order'                    => 0,
+            'question'                 => '',
+            'rtti'                     => '',
+            'score'                    => 1,
+            'subtype'                  => '',
+            'type'                     => '',
+            'attainments'              => [],
+            'learning_goals'           => [],
+            'test_id'                  => '',
+            'all_or_nothing'           => false,
+            'lang'                     => $this->testLang ?? Auth::user()->schoolLocation->wscLanguage,
+            'add_to_database_disabled' => 0,
         ];
 
         $this->audioUploadOptions = [];
@@ -234,6 +244,7 @@ class OpenShort extends Component
         $this->uniqueQuestionKey = $this->testQuestionId . $this->groupQuestionQuestionId . $this->action . $this->questionEditorId;
         $this->duplicateQuestion = false;
         $this->canDeleteTest = false;
+        $this->lang = $this->testLang ?? Auth::user()->schoolLocation->wscLanguage;
     }
 
 
@@ -259,7 +270,7 @@ class OpenShort extends Component
             'showEmpty'             => 'showEmpty',
             'questionDeleted'       => '$refresh',
             'addQuestionFromDirty'  => 'addQuestionFromDirty',
-            'testSettingsUpdated' => 'handleUpdatedTestSettings'
+            'testSettingsUpdated'   => 'handleUpdatedTestSettings'
         ];
     }
 
@@ -303,16 +314,33 @@ class OpenShort extends Component
     // @TODO is deze test uberhaupt onderdeel van deze test?
     public function mount()
     {
-        $this->resetQuestionProperties();
         $activeTest = Test::whereUuid($this->testId)->with('testAuthors', 'testAuthors.user')->first();
-        $this->canDeleteTest = $activeTest->canDelete(Auth::user());
+        Gate::authorize('isAuthorOfTest', [$activeTest]);
+
+        $this->setTaxonomyOptions();
+
+        $this->initialize($activeTest);
+
         if (blank($this->type) && blank($this->subtype)) {
-            $this->testName = $activeTest->name;
             return $this->emptyState = true;
         }
+
         $this->initializeContext($this->action, $this->type, $this->subtype, $activeTest);
         $this->obj = CmsFactory::create($this);
         $this->initializePropertyBag($activeTest);
+        $this->allowWsc = Auth::user()->schoolLocation->allow_wsc;
+    }
+
+    private function initialize($activeTest)
+    {
+        $this->testLang = $activeTest->lang;
+        $this->resetQuestionProperties();
+        $this->canDeleteTest = $activeTest->canDelete(Auth::user());
+
+        $this->testName = $activeTest->name;
+        $this->testAuthors = $activeTest->AuthorsAsString;
+        $this->subjectId = $activeTest->subject_id;
+        $this->educationLevelId = $activeTest->education_level_id;
     }
 
     public function __call($method, $arguments = null)
@@ -397,11 +425,12 @@ class OpenShort extends Component
                 return $attachment->uuid;
             })->toArray();
         }
+        $this->isCloneRequest = false;
     }
 
     public function updated($name, $value)
     {
-        $method = 'updated' . ucfirst($name);
+        $method = 'updated' . Str::dotToPascal($name);
         if ($this->obj && method_exists($this->obj, $method)) {
             $this->obj->$method($value);
         }
@@ -516,7 +545,7 @@ class OpenShort extends Component
     public function handleExternalUpdatedProperty(array $incomingData)
     {
         $property = array_keys($incomingData)[0];
-        if ($this->shouldUpdatePropertyFromExternalSource($incomingData, $property) ) {
+        if ($this->shouldUpdatePropertyFromExternalSource($incomingData, $property)) {
             $this->question[$property] = array_values($incomingData[$property]);
             $this->dirty = true;
         }
@@ -542,6 +571,9 @@ class OpenShort extends Component
         if ($this->referrer) {
             if ($this->referrer === 'teacher.tests') {
                 return redirect()->to(route($this->referrer));
+            }
+            if ($this->referrer === 'teacher.test-detail') {
+                return redirect()->to(route($this->referrer, $this->testId));
             }
         }
         $url = sprintf("tests/view/%s", $this->testId);
@@ -577,13 +609,16 @@ class OpenShort extends Component
 
     private function updateQuestion()
     {
+        if (!$this->dirty) {
+            return Response::make('not dirty', 304);
+        }
         $request = new CmsRequest();
         $request->merge($this->question);
         $request->filterInput();
 
         if ($this->isPartOfGroupQuestion()) {
             $groupQuestionQuestion = GroupQuestionQuestion::whereUuid($this->groupQuestionQuestionId)->first();
-            $groupQuestionQuestionManager = GroupQuestionQuestionManager::getInstanceWithUuid($this->testQuestionId); //'577fa17d-68b7-4695-ace5-e14afd913757');
+            $groupQuestionQuestionManager = GroupQuestionQuestionManager::getInstanceWithUuid($this->testQuestionId);
 
             $response = (new GroupQuestionQuestionsController)->updateGeneric(
                 $groupQuestionQuestionManager,
@@ -669,7 +704,7 @@ class OpenShort extends Component
             if ($this->isPartOfGroupQuestion()) {
                 $response = (new GroupAttachmentsController)
                     ->destroy(
-                        GroupQuestionQuestionManager::getInstanceWithUuid($this->testQuestionId),
+                        GroupQuestionQuestionManager::getInstanceWithUuid("{$this->testQuestionId}.{$this->groupQuestionQuestionId}"),
                         $attachment
                     );
             } else {
@@ -715,6 +750,7 @@ class OpenShort extends Component
             $video = ['id' => Uuid::uuid4()->toString(), 'link' => $link];
             $this->videos[] = $video;
             $this->sortOrderAttachments[] = $video['id'];
+            $this->dirty = true;
             return $this->attachmentsCount++;
         }
 
@@ -753,7 +789,7 @@ class OpenShort extends Component
         if ($this->isPartOfGroupQuestion()) {
             return (new GroupAttachmentsController)
                 ->store(
-                    GroupQuestionQuestionManager::getInstanceWithUuid($response->original->group_question_question_path),
+                    GroupQuestionQuestionManager::getInstanceWithUuid("{$response->original->group_question_question_path}.{$response->original->uuid}"),
                     $request
                 );
         }
@@ -812,28 +848,6 @@ class OpenShort extends Component
         $this->dirty = true;
     }
 
-    public function decodeCompletionTags($question)
-    {
-        if (!$question->completionQuestionAnswers) {
-            return $question->getQuestionHtml();
-        }
-
-        $tags = [];
-        $question->completionQuestionAnswers->each(function ($tag) use (&$tags) {
-            $tags[$tag['tag']][] = $tag['answer'];
-        });
-
-        $searchPattern = '/\[([0-9]+)\]/i';
-        $replacementFunction = function ($matches) use ($question, $tags) {
-            $tag_id = $matches[1]; // the completion_question_answers list is 1 based
-            if (isset($tags[$tag_id])) {
-                return sprintf('[%s]', implode('|', $tags[$tag_id]));
-            }
-        };
-
-        return preg_replace_callback($searchPattern, $replacementFunction, $question->getQuestionHtml());
-    }
-
     public function isPartOfGroupQuestion(): bool
     {
         return $this->isPartOfGroupQuestion;
@@ -869,10 +883,7 @@ class OpenShort extends Component
         $this->answerEditorId = Str::uuid()->__toString();
         $this->questionEditorId = Str::uuid()->__toString();
 
-        $this->testName = $activeTest->name;
-        $this->testAuthors = $activeTest->AuthorsAsString;
-        $this->subjectId = $activeTest->subject_id;
-        $this->educationLevelId = $activeTest->education_level_id;
+
         $this->withRedirect = !(Auth::user()->schoolLocation->canUseCmsWithDrawer() && $this->withDrawer);
     }
 
@@ -888,8 +899,8 @@ class OpenShort extends Component
         if ($this->editModeForExistingQuestion()) {
             if ($this->isPartOfGroupQuestion()) {
                 $tq = GroupQuestionQuestion::whereUuid($this->groupQuestionQuestionId)->first();
-                $this->attachments = $tq->groupQuestion->attachments;
                 $q = $tq->question;
+                $this->attachments = $q->attachments;
             } else {
                 $tq = TestQuestion::whereUuid($this->testQuestionId)->first();
                 $q = $tq->question;
@@ -914,9 +925,12 @@ class OpenShort extends Component
             $this->question['closeable'] = $q->closeable;
             $this->question['maintain_position'] = $tq->maintain_position;
             $this->question['add_to_database'] = $q->add_to_database;
+            $this->question['add_to_database_disabled'] = $q->add_to_database_disabled;
             $this->question['discuss'] = $tq->discuss;
             $this->question['decimal_score'] = $q->decimal_score;
+            $this->question['lang'] = !is_null($q->lang) ? $q->lang : Auth::user()->schoolLocation->wscLanguage;
 
+            $this->lang = $this->question['lang'];
             $this->educationLevelId = $q->education_level_id;
             $this->rttiToggle = filled($this->question['rtti']);
             $this->bloomToggle = filled($this->question['bloom']);
@@ -942,28 +956,7 @@ class OpenShort extends Component
 
     private function validateVideoLink($link)
     {
-        return !!$this->getVideoHost($link);
-    }
-
-    private function getVideoHost($link)
-    {
-        $youtube = collect(['youtube.com', 'youtu.be']);
-        $vimeo = collect(['vimeo.com']);
-        $host = null;
-
-        $youtube->each(function ($opt) use ($link, &$host) {
-            if (Str::contains($link, $opt)) {
-                $host = 'youtube';
-            }
-        });
-
-        $vimeo->each(function ($opt) use ($link, &$host) {
-            if (Str::contains($link, $opt)) {
-                $host = 'vimeo';
-            }
-        });
-
-        return $host;
+        return !!$this->obj->getVideoHost($link);
     }
 
     private function checkTaxonomyValues()
@@ -1058,9 +1051,9 @@ class OpenShort extends Component
         return !!($this->type === 'GroupQuestion');
     }
 
-    private function resolveOrderNumber()
+    public function resolveOrderNumber()
     {
-        if ($this->isGroupQuestion() || !$this->questionId || $this->emptyState) {
+        if ($this->isGroupQuestion() || $this->emptyState) {
             return 1;
         }
 
@@ -1076,7 +1069,7 @@ class OpenShort extends Component
                 ->orderBy('order', 'desc')->value('question_id');
             return isset($questionList[$lastQuestionIdInGroup]) ? $questionList[$lastQuestionIdInGroup] + 1 : 1;
         }
-        return count($questionList);
+        return count($questionList) + 1;
     }
 
     public function saveAndRefreshDrawer()
@@ -1145,20 +1138,13 @@ class OpenShort extends Component
             'groupQuestionQuestionId' => $this->groupQuestionQuestionId,
             'type'                    => $this->type,
             'subtype'                 => $this->subtype,
+            'isCloneRequest'          => $this->isCloneRequest,
         ]);
     }
 
     public function getAmountOfQuestionsProperty()
     {
-        $groupQ = 0;
-        $test = Test::whereUuid($this->testId)->first();
-        $test->testQuestions->map(function ($tq) use (&$groupQ) {
-            if ($tq->question->type === 'GroupQuestion') {
-                $groupQ++;
-            }
-        });
-
-        return ['regular' => $test->getQuestionCount(), 'group' => $groupQ];
+        return Test::whereUuid($this->testId)->first()->getAmountOfQuestions();
     }
 
     private function testHasNoQuestions()
@@ -1174,7 +1160,7 @@ class OpenShort extends Component
 
     public function saveAndRedirect()
     {
-        if (!$this->editModeForExistingQuestion() && $this->isDirty()) {
+        if ($this->isDirty()) {
             if ($this->completedMandatoryFields()) {
                 return $this->save();
             }
@@ -1190,6 +1176,7 @@ class OpenShort extends Component
     private function handleQueryStringForExistingQuestion($args): void
     {
         $this->action = 'edit';
+        $this->isCloneRequest = false;
         $this->emptyState = false;
         $testQuestion = TestQuestion::whereUuid($args['testQuestionUuid'])->with('question')->first();
         if ($args['isSubQuestion']) {
@@ -1306,6 +1293,9 @@ class OpenShort extends Component
         $this->save(false);
 
         $data['group'] ? $this->dispatchBrowserEvent('continue-to-add-group') : $this->dispatchBrowserEvent('continue-to-new-slide');
+        if ($data['newSubQuestion']) {
+            $this->emit('newGroupId', $this->testQuestionId);
+        }
     }
 
     public function getRulesForProvider()
@@ -1337,7 +1327,7 @@ class OpenShort extends Component
 
     public function handleUpdatedTestSettings($settings)
     {
-        $this->testName = $settings['name'];
+        $this->testName = $settings['name'] ?? $this->testName;
     }
 
     public function getPdfUrl()
@@ -1356,7 +1346,7 @@ class OpenShort extends Component
 
     private function removeTest($uuid)
     {
-        $test = Test::whereUuid($uuid)->first();
+        $test = Test::whereUuid($uuid)->firstOrFail();
 
         if ($test->canDelete(Auth::user())) {
             $response = (new TestsController())->destroy($test);
@@ -1372,12 +1362,40 @@ class OpenShort extends Component
     private function returnToTestsList()
     {
         if ($this->referrer) {
-            if ($this->referrer === 'teacher.tests') {
-                return redirect()->to(route($this->referrer));
+            if (in_array($this->referrer,['teacher.tests', 'teacher.test-detail'])) {
+                return redirect()->to(route('teacher.tests'));
             }
         }
 
         $options = TemporaryLogin::buildValidOptionObject('page', 'tests/index');
         return Auth::user()->redirectToCakeWithTemporaryLogin($options);
+    }
+
+    public function saveIfDirty()
+    {
+        if ($this->isDirty()) {
+            $this->save(false);
+        }
+    }
+
+    private function setTaxonomyOptions()
+    {
+        $this->rttiOptions = ['R', 'T1', 'T2', 'I'];
+
+        $this->bloomOptions = [
+            "Onthouden"  => __('cms.Onthouden'),
+            "Begrijpen"  => __('cms.Begrijpen'),
+            "Toepassen"  => __('cms.Toepassen'),
+            "Analyseren" => __('cms.Analyseren'),
+            "Evalueren"  => __('cms.Evalueren'),
+            "Creëren"    => __('cms.Creëren')
+        ];
+
+        $this->millerOptions = [
+            "Weten"      => __('cms.Weten'),
+            "Weten hoe"  => __('cms.Weten hoe'),
+            "Laten zien" => __('cms.Laten zien'),
+            "Doen"       => __('cms.Doen'),
+        ];
     }
 }

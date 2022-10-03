@@ -8,8 +8,13 @@ use Facade\FlareClient\Http\Response;
 use GuzzleHttp\Client;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Ramsey\Uuid\Uuid;
 use tcCore\Http\Helpers\PdfHelper;
 use tcCore\Http\Requests\HtmlToPdfRequest;
+use tcCore\Test;
+use tcCore\View\Components\TestPrintPdf\Cover;
+use tcCore\View\Components\TestPrintPdf\Footer;
+use tcCore\View\Components\TestPrintPdf\Header;
 
 class PdfController extends Controller
 {
@@ -23,18 +28,41 @@ class PdfController extends Controller
      */
     public function HtmlToPdf(HtmlToPdfRequest $request)
     {
-//        return $this->wkhtmlToPdf($request);
-        $html = $this->base64ImgPaths($request->get('html'));
-        $html = $this->svgWirisFormulas($html);
-        $output = PdfHelper::HtmlToPdf($html);
-        return response($output);
+        try {
+            ini_set('max_execution_time', '90');
+            $html = $this->base64ImgPaths($request->get('html'));
+            $html = $this->svgWirisFormulas($html);
+            $output = PdfHelper::HtmlToPdf($html);
+            return response($output);
+        }catch(\Exception $e){
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
     }
 
     public function HtmlToPdfFromString($html)
     {
-        $html = $this->base64ImgPaths($html);
-        $html = $this->svgWirisFormulas($html);
-        return $this->snappyToPdfFromString($html);
+        try {
+            ini_set('max_execution_time', '90');
+            $html = $this->base64ImgPaths($html);
+            $html = $this->svgWirisFormulas($html);
+            return $this->snappyToPdfFromString($html);
+        }catch(\Exception $e){
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
+    }
+
+    public function createTestPrintPdf($html, $headerHtml = '<span></span>', $footerHtml = '<span></span>')
+    {
+        try {
+            ini_set('max_execution_time', '90');
+
+            $html = $this->base64ImgPaths($html);
+            $html = $this->svgWirisFormulas($html);
+            return $this->snappyToTestPrintPdf($html, $headerHtml, $footerHtml);
+
+        }catch(\Exception $e){
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
     }
 
     public function getSetting($setting)
@@ -62,6 +90,8 @@ class PdfController extends Controller
         foreach ($imgList as $imgNode){
             $this->getInlineImageBase64ImgPath($imgNode);
             $this->getImageLoadBase64ImgPath($imgNode);
+            $this->getAttachmentImageBase64ImgPath($imgNode);
+            $imgNode->setAttribute('class','img-no-break img-pdf '.$imgNode->getAttribute('class'));
         }
         $html = $doc->saveHTML($doc->documentElement);
         return $html;
@@ -86,6 +116,9 @@ class PdfController extends Controller
             $this->getBase64ImgPath($imgNode,$baseName,$diskName);
         }catch (\Throwable $th) {
             Bugsnag::notifyException($th);
+            $imgNode->setAttribute('width',20);
+            $imgNode->setAttribute('height',20);
+            $imgNode->setAttribute('src', public_path('svg/icons/warning.svg'));
             return;
         }
     }
@@ -100,6 +133,22 @@ class PdfController extends Controller
             $baseName = $params['filename'];
             $diskName = 'cake';
             $prefix = 'questionanswers/';
+            $this->getBase64ImgPath($imgNode,$baseName,$diskName,$prefix);
+        }catch (\Throwable $th) {
+            Bugsnag::notifyException($th);
+            return;
+        }
+    }
+
+    private function getAttachmentImageBase64ImgPath($imgNode)
+    {
+        if(!stristr($imgNode->getAttribute('src'),'/attachments/')){
+            return;
+        }
+        try{
+            $baseName = pathinfo($imgNode->getAttribute('src'))['basename'];
+            $diskName = 'attachments';
+            $prefix = '';
             $this->getBase64ImgPath($imgNode,$baseName,$diskName,$prefix);
         }catch (\Throwable $th) {
             Bugsnag::notifyException($th);
@@ -145,44 +194,42 @@ class PdfController extends Controller
 
     private function snappyToPdfFromString($html)
     {
-        //dump($html);
-//        file_put_contents(storage_path('temp/result1.html'),$html);
-//        $html = file_get_contents(storage_path('temp/result1.html'));
+//        if(config('app.url')=='https://testwelcome.test-correct.nl'){
+//            Storage::put('temp/result1.html',$html);
+//        }
 
         $output = \PDF::loadHtml($html)->setOption('header-html', resource_path('pdf_templates/header.html'))->setOption('footer-html', resource_path('pdf_templates/footer.html'));
         return $output->download('file.pdf');
-        return new Response(
-            $output,
-            200,
-            array(
-                'Content-Type'          => 'application/pdf',
-                'Content-Disposition'   => 'attachment; filename="file.pdf"'
-            )
-        );
-        $pdf = new Pdf($options);
-        $pdf->addPage($html);
-        $outputPath = storage_path('temp/result1.pdf');
-        $pdf->saveAs($outputPath);
-        $output = $pdf->toString();
-        return $output;
 
+    }
+
+    private function snappyToTestPrintPdf($html, $header, $footer)
+    {
+//        if(config('app.url')=='https://testwelcome.test-correct.nl'){
+//            Storage::put('temp/result1.html',$html);
+//            Storage::put('temp/result1footer.html',$footer);
+//        }
+
+        $fileName = Uuid::uuid4().'.pdf';
+        $disk = Storage::disk('temp_pdf');
+
+        $filePath = $disk->path($fileName);
+
+        $output = \PDF::loadHtml($html)
+            ->setOption('header-html', $header)
+            ->setOption('footer-html', $footer);
+
+        $output->save($filePath);
+
+        return $fileName;
     }
 
     private function svgWirisFormulas($html)
     {
-        $internalErrors = libxml_use_internal_errors(true);
-        $doc = new DOMDocument('1.0', 'UTF-8');
-        $doc->loadHTML($html);
-        libxml_use_internal_errors($internalErrors);
-        $mathList = $doc->getElementsByTagName('math');
-        foreach ($mathList as $mathNode) {
-            try {
-                $this->replaceMathNodeWithSvg($mathNode, $doc);
-            } catch (\Throwable $th) {
-                Bugsnag::notifyException($th);
-            }
+
+        while($this->hasMathTag($html)){
+            $html = $this->replaceMathTagInHtml($html);
         }
-        $html = $doc->saveHTML($doc->documentElement);
         return $html;
     }
 
@@ -190,7 +237,7 @@ class PdfController extends Controller
     {
         try {
             $mathNodeString = $doc->saveHtml($mathNode);
-            $img = $this->getWirisSvgImg($mathNodeString, $doc);
+            $img = $this->getWirisPngImg($mathNodeString, $doc);
             $mathNode->parentNode->replaceChild($img, $mathNode);
         } catch (\Throwable $th) {
             Bugsnag::notifyException($th);
@@ -199,50 +246,116 @@ class PdfController extends Controller
     }
 
 
-    private function getWirisSvgImg($mml, $doc)
+    private function getWirisPngImg($mml, $doc)
     {
+        $json = $this->getWirisPngFromService($mml);
+        $img = $doc->createElement('img');
+        $img->setAttribute('width', $json['result']['width']);
+        $img->setAttribute('height', $json['result']['height']);
+        //$src = sprintf('data:image/png;base64,%s', rawurlencode($json['result']['content']));
+        $src = sprintf('data:image/png;base64,%s', $json['result']['content']);
+        $img->setAttribute('src', $src);
+        $img->setAttribute('style', 'max-width: none; display: inline-block;');
+        return $img;
+    }
+
+    private function getWirisPngImgString($mml)
+    {
+        $json = $this->getWirisPngFromService($mml);
+        $width = $json['result']['width'];
+        $height = $json['result']['height'];
+        $src = sprintf('data:image/png;base64,%s', $json['result']['content']);
+        return sprintf('<img src="%s" height="%s" width="%s" style="max-width: none; display: inline-block;">',$src,$height,$width);
+    }
+
+    private function getWirisSvgImgString($mml)
+    {
+        $json = $this->getWirisSvgFromService($mml);
+        $width = $json['result']['width'];
+        $height = $json['result']['height'];
+        $src = sprintf('data:image/svg+xml;charset=utf8,%s', rawurlencode($json['result']['content']));
+        return sprintf('<img src="%s" height="%s" width="%s" style="max-width: none; display: inline-block;">',$src,$height,$width);
+    }
+
+
+    private function hasMathTag($html)
+    {
+        if(strpos($html,'<math')>-1){
+            return true;
+        }
+        return false;
+    }
+
+    private function replaceMathTagInHtml($html)
+    {
+        $start = strpos($html,'<math');
+        $end = strpos($html,'</math>')+7;
+        $length = $end - $start;
+        $mml = substr($html,$start,$length);
+        $imgString = $this->getWirisPngImgString($mml);
+        return str_replace($mml,$imgString,$html);
+    }
+
+    private function getWirisPngFromService($mml)
+    {
+        return $this->getWirisImageFromService($mml,'png');
+    }
+
+    private function getWirisSvgFromService($mml)
+    {
+        return $this->getWirisImageFromService($mml,'svg');
+    }
+
+    private function getWirisImageFromService($mml,$type = 'png')
+    {
+        $folder = 'ckeditor';
+        if($type == 'png'){
+            $folder = 'ckeditor_png';
+        }
         $data = [
             'mml' => $mml,
             'lang' => 'en-gb',
             'metrics' => true,
             'centerbaseline' => false,
-
+            'dpi' => 120,
         ];
-        $createPath = 'http://127.0.0.1/ckeditor/plugins/ckeditor_wiris/integration/createimage.php';
-        $path = 'http://127.0.0.1/ckeditor/plugins/ckeditor_wiris/integration/showimage.php';
-        if(stristr(config('app.base_url'),'correct.test')){
-            $createPath = 'https://testwelcome.test-correct.nl/ckeditor/plugins/ckeditor_wiris/integration/createimage.php';
-            $path = 'https://testwelcome.test-correct.nl/ckeditor/plugins/ckeditor_wiris/integration/showimage.php';
+
+        try {
+            $createPath = sprintf('http://127.0.0.1/%s/plugins/ckeditor_wiris/integration/createimage.php',$folder);
+            $path = sprintf('http://127.0.0.1/%s/plugins/ckeditor_wiris/integration/showimage.php',$folder);
+            if(stristr(config('app.base_url'),'correct.test')){
+                $createPath = sprintf('http://testwelcome.test-correct.test/%s/plugins/ckeditor_wiris/integration/createimage.php',$folder);
+                $path = sprintf('http://testwelcome.test-correct.test/%s/plugins/ckeditor_wiris/integration/showimage.php',$folder);
+            }
+            $headers =  ['host' => trim(str_replace('https://','',str_replace('http://','',config('app.base_url'))),'/')];
+
+            $client = new Client();
+            $res = $client->request('POST', $createPath, [
+                'form_params' => $data,
+                'verify' => false,
+                'headers' => $headers
+            ]);
+            $formulaUrl = $res->getBody()->getContents();
+            $components = parse_url($formulaUrl);
+            parse_str($components['query'], $results);
+            $formula = $results['formula'];
+            $data1 = [
+                'lang' => 'en-gb',
+                'metrics' => true,
+                'centerbaseline' => false,
+                'formula' => $formula,
+                'version' => '7.26.0.1439',
+                'dpi' => 120,
+            ];
+            $res = $client->request('GET', $path, ['query' => $data1,'headers' => $headers]);
+            $res = $client->request('POST', $path, [
+                'form_params' => $data,'headers' => $headers]);
+
+        } catch (\GuzzleHttp\Exception\RequestException $e) {
+            if ($e->hasResponse()) {
+                Bugsnag::notifyException($e);
+            }
         }
-
-
-
-        $client = new Client();
-        $res = $client->request('POST', $createPath, [
-            'form_params' => $data,
-            'verify' => false]);
-        $formulaUrl = $res->getBody()->getContents();
-
-        $components = parse_url($formulaUrl);
-        parse_str($components['query'], $results);
-        $formula = $results['formula'];
-        $data1 = [
-            'lang' => 'en-gb',
-            'metrics' => true,
-            'centerbaseline' => false,
-            'formula' => $formula,
-            'version' => '7.26.0.1439',
-        ];
-        $res = $client->request('GET', $path, ['query' => $data1]);
-        $res = $client->request('POST', $path, [
-            'form_params' => $data]);
-        $json = json_decode($res->getBody()->getContents(), true);
-        $img = $doc->createElement('img');
-        $img->setAttribute('width', $json['result']['width']);
-        $img->setAttribute('height', $json['result']['height']);
-        $src = sprintf('data:image/svg+xml;charset=utf8,%s', rawurlencode($json['result']['content']));
-        $img->setAttribute('src', $src);
-        $img->setAttribute('style', 'max-width: none; vertical-align: -4px;');
-        return $img;
+        return json_decode($res->getBody()->getContents(), true);
     }
 }

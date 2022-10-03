@@ -1,8 +1,8 @@
-<x-modal-new force-close="true">
+<x-modal.base-modal force-close="true">
         <x-slot name="title">
-                {{__("teacher.toets aanmaken")}}
+                <h2>{{__("teacher.toets aanmaken")}}</h2>
         </x-slot>
-        <x-slot name="body">
+        <x-slot name="content">
             <div class="flex-grow">
                 <div class="email-section mb-4 w-full">
                     <div class="mb-4">
@@ -23,7 +23,7 @@
                                     wire:model="request.test_kind_id"
                             >
                                 @foreach($allowedTestKinds as $type)
-                                    <option value="{{ $type->id }}">{{ $type->name }}</option>
+                                    <option value="{{ $type->id }}">{{ __('teacher.test-type-'.$type->name) }}</option>
                                 @endforeach
                             </x-input.select>
                             <label for="type"
@@ -40,7 +40,7 @@
                                 @endforeach
                             </x-input.select>
                             <label for="test_kind"
-                                   class="transition ease-in-out duration-150">{{ __("Vak") }}</label>
+                                   class="transition ease-in-out duration-150">{{ __("teacher.subject") }}</label>
                         </div>
                         <div class="input-group mb-4 sm:mb-0 flex-1">
                             <input id="name"
@@ -157,5 +157,5 @@
                 </x-button.cta>
             </div>
         </x-slot>
-</x-modal-new>
+</x-modal.base-modal>
 

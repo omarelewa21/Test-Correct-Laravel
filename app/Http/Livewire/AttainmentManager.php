@@ -4,6 +4,7 @@ namespace tcCore\Http\Livewire;
 
 use Livewire\Component;
 use tcCore\Attainment;
+use tcCore\EducationLevel;
 
 class AttainmentManager extends Component
 {
@@ -23,14 +24,23 @@ class AttainmentManager extends Component
 
     public $subjectId;
 
-    public $eductionLevelId;
+    public $educationLevelId;
+
+    public $attainmentEducationLevelId;
 
     public $type = 'attainments';
 
+    public $disabled = false;
+
     public function mount()
     {
+        if($this->educationLevelId) {
+            $this->attainmentEducationLevelId = (Educationlevel::find($this->educationLevelId))->attainment_education_level_id;
+            logger(' attainment education level id '.$this->attainmentEducationLevelId.' => '.$this->educationLevelId);
+        }
+
         $filter = [
-            'education_level_id' => $this->eductionLevelId,
+            'education_level_id' => $this->attainmentEducationLevelId,
             'subject_id'         => $this->subjectId,
             'status'             => 'ACTIVE',
         ];

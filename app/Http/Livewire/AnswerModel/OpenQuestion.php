@@ -5,11 +5,12 @@ namespace tcCore\Http\Livewire\AnswerModel;
 use Livewire\Component;
 use tcCore\Answer;
 use tcCore\Http\Traits\WithCloseable;
+use tcCore\Http\Traits\WithGroups;
 use tcCore\Question;
 
 class OpenQuestion extends Component
 {
-    use WithCloseable;
+    use WithCloseable, WithGroups;
 
     protected $listeners = ['questionUpdated' => 'questionUpdated'];
     public $answer = '';

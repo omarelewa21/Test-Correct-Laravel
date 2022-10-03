@@ -4,24 +4,15 @@ namespace tcCore\Http\Livewire\Teacher\Questions;
 
 use Illuminate\Support\Str;
 use tcCore\Http\Helpers\SvgHelper;
-use tcCore\Question;
 
-class CmsDrawing
+class CmsDrawing extends CmsBase
 {
-    private $instance;
-    public $requiresAnswer = true;
-
-    public function __construct(OpenShort $instance)
-    {
-        $this->instance = $instance;
-    }
-
-    public function getTranslationKey()
+    public function getTranslationKey(): string
     {
         return __('cms.drawing-question');
     }
 
-    public function getTemplate()
+    public function getTemplate(): string
     {
         return 'drawing-question';
     }
@@ -47,10 +38,12 @@ class CmsDrawing
         $this->instance->question['answer_svg'] = $this->getAnswerSvg($svgHelper, $q);
         $this->instance->question['question_svg'] = $svgHelper->getQuestionSvg($q);
         $this->instance->question['grid_svg'] = $q['grid_svg'];
+        $this->instance->question['grid'] = $q['grid'];
         $this->instance->question['zoom_group'] = $this->getViewBox($svgHelper, $q);
 
         $this->instance->question['uuid'] = $q['uuid'];
         $this->instance->question['temp_uuid'] = 'temp-'.$q['uuid'];
+//        $this->instance->backgroundImage = $q->getBackgroundImage();
 
         if (filled($this->instance->question['zoom_group'])) {
             $this->setViewBox($this->instance->question['zoom_group']);
@@ -67,6 +60,7 @@ class CmsDrawing
         $this->instance->question['question_correction_model'] = '';
         $this->instance->question['uuid'] = (string)Str::uuid();
         $this->instance->question['temp_uuid'] = 'temp-'.$this->instance->question['uuid'];
+        $this->instance->backgroundImage = null; 
     }
 
     public function handleUpdateDrawingData($data)
@@ -166,9 +160,13 @@ class CmsDrawing
 
     public function drawingToolName()
     {
-        if ($this->instance->action == 'edit') {
-            return $this->instance->groupQuestionQuestionId === '' ? $this->instance->testQuestionId : $this->instance->groupQuestionQuestionId;
+        if ($this->instance instanceof OpenShort) {
+            if ($this->instance->action == 'edit') {
+                return $this->instance->groupQuestionQuestionId === '' ? $this->instance->testQuestionId : $this->instance->groupQuestionQuestionId;
+            }
+            return $this->instance->questionEditorId;
         }
-        return $this->instance->questionEditorId;
+
+        return $this->instance->question['uuid'];
     }
 }

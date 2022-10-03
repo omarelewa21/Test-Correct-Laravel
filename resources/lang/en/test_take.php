@@ -20,17 +20,20 @@ return [
     'ranking_question'                             => 'Ranking question',
     'multiple_choice_question_arq'                 => 'ARQ',
     'drawing_question'                             => 'Drawing question',
-    'completion_question_multi'                    => '$$',
-    'completion_question'                          => ')(',
+    'completion_question_multi'                    => 'Selection question',
+    'completion_question'                          => 'Completion question',
     'infoscreen_question'                          => 'Info screen',
     'info_screen_question_bottom_text'             => 'This is an information screen, no answer is required.',
     'open_question'                                => 'Open question',
+    'writing_assignment_question'                  => 'Writing assignment',
     'correct'                                      => 'Correct',
     'incorrect'                                    => 'Incorrect',
     'correct_reason'                               => 'Correct reason',
     'incorrect_reason'                             => 'Incorrect reason',
     'not_applicable'                               => 'Not applicable',
+    'back_to_questions'                            => 'Back to answer questions',
     'next'                                         => 'Next &raquo;',
+    'adjust_answer'                                => 'Modify answer',
     'previous_question'                            => 'Previous question',
     'next_question'                                => 'Next question',
     'turn_in'                                      => 'Turn in',
@@ -70,6 +73,7 @@ return [
     'attachment'                                   => 'Attachment',
     'Read_out_loud'                                => 'Read out loud',
     'sound_clip_played'                            => 'This sound fragment was only playable once and has already been played.',
-    'only_playable_once_not_pausable'              => 'This sound clip cannot be paused and can only be played once.'
+    'only_playable_once_not_pausable'              => 'This sound clip cannot be paused and can only be played once.',
+    'test_take.directlink_auth_fail'               => 'You does not affiliate to this test take, please contact test owner for that problem'
 
 ];

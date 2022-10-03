@@ -101,13 +101,22 @@ class QuestionsController extends Controller
 
     public function inlineImageLaravel(Request $request, $image)
     {
-        if (Storage::disk('cake')->exists("questionanswers/$image")) {
-            $path = Storage::disk('cake')->path("questionanswers/$image");
+
+        $questionAnswersImage = $image;
+        if(!Storage::disk('cake')->exists("questionanswers/$image")){
+            $questionAnswersImage = urldecode($questionAnswersImage);
+        }
+        if (Storage::disk('cake')->exists("questionanswers/$questionAnswersImage")) {
+            $path = Storage::disk('cake')->path("questionanswers/$questionAnswersImage");
             return Response::file($path);
         }
 
-        if (Storage::disk('inline_images')->exists($image)) {
-            $path = Storage::disk('inline_images')->path($image);
+        $inlineImage = $image;
+        if(!Storage::disk('inline_images')->exists($inlineImage)){
+            $inlineImage = urldecode($inlineImage);
+        }
+        if (Storage::disk('inline_images')->exists($inlineImage)) {
+            $path = Storage::disk('inline_images')->path($inlineImage);
             return Response::file($path);
         }
 
@@ -224,5 +233,10 @@ class QuestionsController extends Controller
         }
         abort(404);
 
+    }
+
+    public function getDrawingQuestionBackgroundImageUpdated(DrawingQuestion $drawingQuestion)
+    {
+        return response($drawingQuestion->getBackgroundImage());
     }
 }

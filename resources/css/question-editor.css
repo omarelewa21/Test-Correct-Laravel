@@ -33,7 +33,7 @@
     width: 100%;
     left: 0;
     display: flex;
-    justify-content: end;
+    justify-content: flex-end;
     z-index: 100;
 }
 
@@ -134,7 +134,7 @@
     position: sticky;
     top: var(--header-height);
     width: var(--sidebar-width);
-    height: calc(100vh - var(--header-height) * 2);
+    height: calc(100vh - var(--header-height));
     background-color: white;
     box-shadow: var(--main-shadow);
     z-index: 1;
@@ -216,17 +216,19 @@
     color: var(--primary);
 }
 
-#sidebar-carousel-container .group-add-new:hover,
-#sidebar-carousel-container .question-button:hover {
+#sidebar-carousel-container .question-button:not(.dummy):hover {
     background-color: var(--primary-opacity-05);
 }
 
+#sidebar-carousel-container .group-question-questions {
+    --line-color-between-questions: var(--system-base);
+}
 #sidebar-carousel-container .group-question-questions .question-button:not(:last-child, :first-child) span.rounded-full::before {
     content: '';
     position: absolute;
     height: 30px;
     width: 3px;
-    background: var(--system-base);
+    background: var(--line-color-between-questions);
     top: -33px;
 }
 
@@ -235,7 +237,7 @@
     position: absolute;
     height: 30px;
     width: 1px;
-    border-left: dashed 3px var(--system-base);
+    border-left: dashed 3px var(--line-color-between-questions);
     left: 38px;
     top: -50%;
 }
@@ -310,4 +312,28 @@
     left: 0;
     top: 50%;
     transform: translate(-50%, -50%) rotate(45deg);
+}
+
+#groupdetail {
+    position: absolute;
+    left: 100%;
+    min-height: calc(100vh - var(--header-height) - 58px );
+    height: max-content;
+    width: 100%;
+    background-color: var(--light-grey);
+    z-index: 3;
+    transition: left ease-in-out 300ms;
+    padding-bottom: 2rem;
+}
+
+#cms-preview .question-editor-preview-header {
+    box-shadow: 0 3px 8px 0 rgba(4, 31, 116, 0.2);
+}
+
+.firefox .drawer.overflow-auto #sidebar-content {
+    margin-right: -6.5px;
+    overflow-x: none;
+}
+.word-break-words {
+    word-break: break-word;
 }

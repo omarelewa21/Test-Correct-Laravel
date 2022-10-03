@@ -5,6 +5,8 @@ namespace Tests\Unit\FactoryTests\ScenarioFactory;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Foundation\Testing\WithFaker;
 use tcCore\Attachment;
+use tcCore\FactoryScenarios\FactoryScenarioTestBiologie;
+use tcCore\FactoryScenarios\FactoryScenarioTestScheikunde;
 use tcCore\FactoryScenarios\FactoryScenarioTestTestWithAllQuestionTypes;
 use tcCore\FactoryScenarios\FactoryScenarioTestTestWithOpenShortQuestion;
 use tcCore\FactoryScenarios\FactoryScenarioTestTestWithTwoQuestions;
@@ -102,5 +104,27 @@ class FactoryScenarioTestTest extends TestCase
         $this->assertEquals('Test for bug #1', $testModel->name);
         $this->assertEquals('Test for bug #2', $testScenarioFactory->getTestModel()->name);
         $this->assertEquals($startCountTest + 2, Test::count());
+    }
+    /** @test */
+    public function can_create_test_scenario_with_a_specific_subject_biologie()
+    {
+        $startCountTest = Test::count();
+
+        $testModel = FactoryScenarioTestBiologie::createTest();
+
+        $this->assertEquals($startCountTest + 1, Test::count());
+        $this->assertEquals(1, $testModel->subject->section_id);
+        $this->assertEquals("Biologie", $testModel->subject->name);
+    }
+    /** @test */
+    public function can_create_test_scenario_with_a_specific_subject_scheikunde()
+    {
+        $startCountTest = Test::count();
+
+        $testModel = FactoryScenarioTestScheikunde::createTest();
+
+        $this->assertEquals($startCountTest + 1, Test::count());
+        $this->assertEquals(1, $testModel->subject->section_id);
+        $this->assertEquals("Scheikunde", $testModel->subject->name);
     }
 }

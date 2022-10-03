@@ -2,33 +2,32 @@
 
 namespace tcCore\Http\Livewire\Teacher;
 
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 use Livewire\WithPagination;
+use tcCore\BaseSubject;
 use tcCore\EducationLevel;
-use tcCore\Http\Controllers\AuthorsController;
-use tcCore\Http\Controllers\SubjectsController;
-use tcCore\Http\Controllers\TemporaryLoginController;
-use tcCore\Http\Requests\DuplicateTestRequest;
 use tcCore\Subject;
 use tcCore\Test;
+use tcCore\TemporaryLogin;
+use tcCore\TestAuthor;
+use tcCore\Traits\ContentSourceTabsTrait;
 
 class TestsOverview extends Component
 {
     use WithPagination;
+    use ContentSourceTabsTrait;
+    const ACTIVE_TAB_SESSION_KEY = 'tests-overview-active-tab';
 
     const PER_PAGE = 12;
 
-
     public $filters = [];
-
 
     private $sorting = ['id' => 'desc'];
 
-    protected $queryString = ['openTab'];
+    protected $queryString = ['openTab', 'referrerAction' => ['except' => '']];
 
-    public $openTab = 'personal';
+    public $referrerAction = '';
 
     public $selected = [];
 
@@ -37,15 +36,6 @@ class TestsOverview extends Component
         'test-added'          => '$refresh',
         'testSettingsUpdated' => '$refresh',
     ];
-
-    private $allowedTabs = [
-        'school',
-        'exams',
-        'cito',
-        'national',
-        'personal',
-    ];
-
 
     public function render()
     {
@@ -59,9 +49,9 @@ class TestsOverview extends Component
         $this->resetPage();
     }
 
-    public function updatingOpenTab($value)
+    public function updatedFilters($value, $filter)
     {
-        $this->resetPage();
+        session(['tests-overview-filters' => $this->filters]);
     }
 
     private function getDatasource()
@@ -72,16 +62,18 @@ class TestsOverview extends Component
         }
 
         switch ($this->openTab) {
-            case 'school':
+            case 'school_location':
                 $datasource = $this->getSchoolDatasource();
                 break;
-            case 'exams':
-                $datasource = $this->getExamsDatasource();
-                break;
-            case 'cito':
-                $datasource = $this->getCitoDataSource();
-                break;
             case 'national':
+                $datasource = $this->getNationalDatasource();
+                break;
+            case 'umbrella':
+                $datasource = $this->getUmbrellaDatasource();
+                break;
+            case 'creathlon':
+                $datasource = $this->getCreathlonDatasource();
+                break;
             case 'personal':
             default :
                 $datasource = $this->getPersonalDatasource();
@@ -95,7 +87,7 @@ class TestsOverview extends Component
     {
         return Test::filtered(
             array_merge(
-                $this->cleanFilterForSearch($this->filters['school']),
+                $this->cleanFilterForSearch($this->filters['school_location']),
                 ['owner_id' => auth()->user()->school_location_id]
             ),
             $this->sorting
@@ -105,10 +97,16 @@ class TestsOverview extends Component
 
     }
 
-    private function getExamsDatasource()
+
+    private function getNationalDatasource()
     {
-        return Test::examFiltered(
-            $this->cleanFilterForSearch($this->filters['exams']),
+        $filters = $this->cleanFilterForSearch($this->filters['national']);
+        if (!isset($filters['base_subject_id'])) {
+            $filters['base_subject_id'] = BaseSubject::currentForAuthUser()->pluck('id')->toArray();
+        }
+
+        return Test::nationalItemBankFiltered(
+            $filters,
             $this->sorting
         )
             ->with('educationLevel', 'testKind', 'subject', 'author', 'author.school', 'author.schoolLocation')
@@ -128,85 +126,53 @@ class TestsOverview extends Component
             ->where('tests.author_id', auth()->user()->id)
             ->paginate(self::PER_PAGE);
 
-
         return $results;
     }
 
-    private function getCitoDataSource()
+    private function getUmbrellaDatasource()
     {
-        $results = Test::citoFiltered(
-            $this->cleanFilterForSearch($this->filters['cito']),
+        return Test::sharedSectionsFiltered(
+            $this->cleanFilterForSearch($this->filters['umbrella']),
             $this->sorting
         )
             ->with('educationLevel', 'testKind', 'subject', 'author', 'author.school', 'author.schoolLocation')
             ->paginate(self::PER_PAGE);
+    }
 
-        return $results;
+    private function getCreathlonDatasource()
+    {
+        $filters = $this->cleanFilterForSearch($this->filters['creathlon']);
+        if (!isset($filters['base_subject_id'])) {
+            $filters['base_subject_id'] = BaseSubject::currentForAuthUser()->pluck('id')->toArray();
+        }
+
+        return Test::creathlonItemBankFiltered(
+            $filters,
+            $this->sorting
+        )
+            ->with('educationLevel', 'testKind', 'subject', 'author', 'author.school', 'author.schoolLocation')
+            ->paginate(self::PER_PAGE);
     }
 
     private function setFilters()
     {
-        collect($this->allowedTabs)->each(function ($tab) {
-            $this->filters[$tab] = [
-                'name'                 => '',
-                'education_level_year' => [],
-                'education_level_id'   => [],
-                'subject_id'           => [],
-                'author_id'            => [],
-            ];
-        });
-
-
-        /** @TODO default search filter for teacher (is dirty now) */
-//        $this->filters = array_merge($this->filters, auth()->user()->getSearchFilterDefaultsTeacher());
-    }
-
-    public function duplicateTest($testUuid)
-    {
-        // @TODO only duplicate when allowed?
-
-        $test = Test::whereUuid($testUuid)->first();
-        if ($test == null) {
-            return 'Error no test was found';
+        if (session()->has('tests-overview-filters'))
+            $this->filters = session()->get('tests-overview-filters');
+        else {
+            collect($this->allowedTabs)->each(function ($tab) {
+                $this->filters[$tab] = [
+                    'name'                 => '',
+                    'education_level_year' => [],
+                    'education_level_id'   => [],
+                    'subject_id'           => [],
+                    'author_id'            => [],
+                    'base_subject_id'      => [],
+                ];
+                if ($this->tabNeedsDefaultFilters($tab)) {
+                    $this->filters[$tab] = array_merge($this->filters[$tab], auth()->user()->getSearchFilterDefaultsTeacher());
+                }
+            });
         }
-
-        if (!$test->canCopy(auth()->user())) {
-            return 'Error duplication not allowed';
-        }
-
-
-        try {
-            $newTest = $test->userDuplicate([], Auth::id());
-        } catch (\Exception $e) {
-            return 'Error duplication failed';
-        }
-
-        return __('general.duplication successful');
-    }
-
-    public function openEdit($testUuid)
-    {
-        $this->redirect(route('teacher.question-editor', [
-            'testId'     => $testUuid,
-            'action'     => 'edit',
-            'owner'      => 'test',
-            'withDrawer' => 'true',
-            'referrer'   => 'teacher.tests',
-        ]));
-    }
-
-    public function getTemporaryLoginToPdfForTest($testUuid)
-    {
-        $controller = new TemporaryLoginController();
-        $request = new Request();
-        $request->merge([
-            'options' => [
-                'page'        => sprintf('/tests/view/%s', $testUuid),
-                'page_action' => sprintf("Loading.show();Popup.load('/tests/pdf_showPDFAttachment/%s', 1000);", $testUuid),
-            ],
-        ]);
-
-        return $controller->toCakeUrl($request);
     }
 
 
@@ -219,19 +185,35 @@ class TestsOverview extends Component
             });
     }
 
-    public function getSubjectsProperty()
+    public function getBasesubjectsProperty()
     {
-        return Subject::when($this->openTab === 'cito', function ($query) {
-            $query->citoFiltered([], ['name' => 'asc']);
-        })->when($this->openTab === 'exams', function ($query) {
-            $query->examFiltered([], ['name' => 'asc']);
-        }, function ($query) {
-            $query->filtered([], ['name' => 'asc']);
-        })
+        if ($this->isExternalContentTab($this->openTab)) {
+            return $this->getBaseSubjectsOptions();
+        }
+        return [];
+    }
+
+    private function getBaseSubjectsOptions()
+    {
+        return BaseSubject::whereIn('id', Subject::filtered(['user_current' => Auth::id()], [])->pluck('base_subject_id'))
             ->get(['name', 'id'])
             ->map(function ($subject) {
                 return ['value' => (int)$subject->id, 'label' => $subject->name];
             })->toArray();
+    }
+
+    public function getSubjectsProperty()
+    {
+        return $this->filterSubjectsByTabName($this->openTab)
+            ->get(['name', 'id'])
+            ->map(function ($subject) {
+                return ['value' => (int)$subject->id, 'label' => $subject->name];
+            })->toArray();
+    }
+
+    private function filterSubjectsByTabName(string $tab)
+    {
+        return Subject::filtered(['imp' => 0, 'user_id' => Auth::id()], ['name' => 'asc']);
     }
 
     public function getEducationLevelYearProperty()
@@ -243,24 +225,35 @@ class TestsOverview extends Component
 
     public function getAuthorsProperty()
     {
-        return (new AuthorsController())->getBuilderWithAuthors()
+        return TestAuthor::when($this->openTab === 'umbrella', function ($query) {
+            return $query->schoolLocationAndSharedSectionsAuthorUsers(Auth::user());
+        }, function ($query) {
+            return $query->schoolLocationAuthorUsers(Auth::user());
+        })
+            ->get()
+            ->when($this->openTab === 'umbrella', function ($users) {
+                return $users->reject(function ($user) {
+                    return ($user->school_location_id === Auth::user()->school_location_id && $user->getKey() !== Auth::id());
+                });
+            })
             ->map(function ($author) {
                 return ['value' => $author->id, 'label' => trim($author->name_first . ' ' . $author->name)];
-            })->toArray();
+            })->values()->toArray();
     }
 
     public function mount()
     {
-        if (auth()->user()->schoolLocation->allow_new_test_bank !== 1) {
-            abort(403);
-        }
+        $this->abortIfNewTestBankNotAllowed();
+
+        $this->initialiseContentSourceTabs();
+
         $this->setFilters();
     }
 
     private function cleanFilterForSearch(array $filters)
     {
         $searchFilter = [];
-        foreach (['name', 'education_level_year', 'education_level_id', 'subject_id', 'author_id'] as $filter) {
+        foreach (['name', 'education_level_year', 'education_level_id', 'subject_id', 'author_id', 'base_subject_id'] as $filter) {
             if (!empty($filters[$filter])) {
                 $searchFilter[$filter] = $filters[$filter];
             }
@@ -268,7 +261,92 @@ class TestsOverview extends Component
         return $searchFilter;
     }
 
-    public function openTestDetail($testUuid) {
-//        redirect()->to(route('teacher.test-detail', ['uuid' => $testUuid]));
+    public function openTestDetail($testUuid)
+    {
+        redirect()->to(route('teacher.test-detail', ['uuid' => $testUuid]));
+    }
+
+    public function clearFilters($tab = null)
+    {
+        $tabs = $tab ? [$tab] : $this->allowedTabs;
+        collect($tabs)->each(function ($tab) {
+            $this->filters[$tab] = [
+                'name'                 => '',
+                'education_level_year' => [],
+                'education_level_id'   => [],
+                'subject_id'           => [],
+                'author_id'            => [],
+                'base_subject_id'      => []
+            ];
+        });
+        session(['tests-overview-filters' => $this->filters]);
+    }
+
+    public function hasActiveFilters(): bool
+    {
+        return collect($this->filters[$this->openTab])
+            ->when($this->openTab === 'personal', function ($collection) {
+                return $collection->except('author_id');
+            })
+            ->whenEmpty(function ($collection) {
+                return false;
+            }, function ($collection) {
+                return $collection->filter(function ($filter) {
+                    return filled($filter);
+                })->isNotEmpty();
+            });
+    }
+
+    public function handleReferrerActions()
+    {
+        if (!$this->referrerAction) {
+            return true;
+        }
+
+        if ($this->referrerAction === 'create_test') {
+            $this->emit('openModal', 'teacher.test-create-modal');
+            $this->referrerAction = '';
+        }
+        if ($this->referrerAction === 'test_deleted') {
+            $this->dispatchBrowserEvent('notify', ['message' => __('teacher.Test is verwijderd')]);
+            $this->referrerAction = '';
+        }
+    }
+
+    public function canFilterOnAuthors(): bool
+    {
+        return collect($this->canFilterOnAuthorTabs)->contains($this->openTab);
+    }
+
+    private function tabNeedsDefaultFilters($tab): bool
+    {
+        return collect($this->schoolLocationInternalContentTabs)->contains($tab);
+    }
+
+
+    public function getMessageKey($resultsCount): string
+    {
+        if ($resultsCount > 0 || $this->hasActiveFilters()) {
+            return 'general.number-of-tests';
+        }
+
+        return 'general.number-of-tests-' . $this->openTab;
+    }
+
+    /**
+     * @return void
+     */
+    public function abortIfNewTestBankNotAllowed(): void
+    {
+        if (auth()->user()->schoolLocation->allow_new_test_bank !== 1) {
+            abort(403);
+        }
+    }
+
+    public function toPlannedTest($takeUuid)
+    {
+        $url = sprintf("test_takes/view/%s", $takeUuid);
+        $options = TemporaryLogin::buildValidOptionObject('page', $url);
+        return auth()->user()->redirectToCakeWithTemporaryLogin($options);
     }
 }

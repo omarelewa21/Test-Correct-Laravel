@@ -25,6 +25,8 @@ return [
     'infoscreen_question'                          => 'InfoScherm',
     'info_screen_question_bottom_text'             => 'Dit is een informatiescherm, een antwoord is niet nodig.',
     'open_question'                                => 'Open vraag',
+    'writing_assignment_question'                  => 'Schrijfopdracht',
+    'writing_assignment'                           => 'Schrijfopdracht',
     'correct'                                      => 'Juist',
     'incorrect'                                    => 'Onjuist',
     'correct_reason'                               => 'Correct reden',
@@ -74,5 +76,6 @@ return [
     'time_left_to_answer_after_closing_attachment' => 'Je hebt :timeout seconden om de vraag te beantwoorden na het sluiten van de bijlage.',
     'matrix_question'                              => 'Matrix',
     'attachment'                                   => 'Bijlage',
-    'Read_out_loud'                                    => 'Lees voor',
+    'Read_out_loud'                                => 'Lees voor',
+    'test_take.directlink_auth_fail'               => 'U bent niet aangesloten bij deze test, neem contact op met de testeigenaar voor dat probleem'
 ];

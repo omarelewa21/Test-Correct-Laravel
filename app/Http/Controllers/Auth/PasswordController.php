@@ -42,7 +42,7 @@ class PasswordController extends Controller {
             $token = Password::getRepository()->create($user);
 
 //            $url = $request->get('url', null);
-            $url = sprintf('%spassword-reset/?token=%%s',config('app.base_url'));
+            $url = sprintf('%slogin/?active_overlay=reset_password&token=%%s',config('app.base_url'));
             $urlLogin = BaseHelper::getLoginUrl();
 
 			try {

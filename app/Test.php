@@ -6,11 +6,11 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Str;
-use tcCore\Http\Controllers\AuthorsController;
 use tcCore\Http\Controllers\GroupQuestionQuestionsController;
 use tcCore\Http\Controllers\RequestController;
 use tcCore\Http\Controllers\TestQuestionsController;
 use tcCore\Http\Helpers\DemoHelper;
+use tcCore\Http\Helpers\ContentSourceHelper;
 use tcCore\Jobs\CountTeacherTests;
 use tcCore\Lib\GroupQuestionQuestion\GroupQuestionQuestionManager;
 use tcCore\Lib\Models\BaseModel;
@@ -18,7 +18,8 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use tcCore\Lib\Question\QuestionGatherer;
 use Dyrynda\Database\Casts\EfficientUuid;
 use Ramsey\Uuid\Uuid;
-use tcCore\Traits\ExamSchoolTestTrait;
+use tcCore\Traits\PublishesNationalItemBankAndExamTests;
+use tcCore\Traits\PublishesTestsTrait;
 use tcCore\Traits\UuidTrait;
 use tcCore\Traits\UserContentAccessTrait;
 
@@ -28,9 +29,10 @@ class Test extends BaseModel
 
     use SoftDeletes;
     use UuidTrait;
-    use ExamSchoolTestTrait;
+    use PublishesTestsTrait;
     use UserContentAccessTrait;
 
+    const NATIONAL_ITEMBANK_SCOPES = ['cito', 'exam', 'ldt'];
 
     protected $casts = [
         'uuid' => EfficientUuid::class,
@@ -81,10 +83,11 @@ class Test extends BaseModel
             if ((count($dirty) > 1 && array_key_exists('system_test_id', $dirty)) || (count($dirty) > 0 && !array_key_exists('system_test_id', $dirty)) && !$test->getAttribute('is_system_test')) {
                 $test->setAttribute('system_test_id', null);
             }
-            $test->handleExamPublishingTest();
+
         });
 
         static::saved(function (Test $test) {
+            $test->handleTestPublishing(); // moved from saving as there is no id yet, which is needed to populate the test_authors table
             $dirty = $test->getDirty();
             if ($test->isDirty(['subject_id', 'education_level_id', 'education_level_year'])) {
                 $testQuestions = $test->testQuestions;
@@ -118,8 +121,9 @@ class Test extends BaseModel
                     }
                 }
             }
-            $test->handleExamPublishingQuestionsOfTest();
+            $test->handlePublishingQuestionsOfTest();
             TestAuthor::addExamAuthorToTest($test);
+            TestAuthor::addNationalItemBankAuthorToTest($test);
         });
 
         static::deleted(function (Test $test) {
@@ -271,28 +275,20 @@ class Test extends BaseModel
         }
     }
 
-    public function scopeCitoFiltered($query, $filters = [], $sorting = [])
+    public function contentSourceFiltered($scopes, $customer_codes, $query, $filters = [], $sorting = [])
     {
         $user = Auth::user();
 
-        $citoSchool = SchoolLocation::where('customer_code', 'CITO-TOETSENOPMAAT')->first();
-        $baseSubjectIds = $user->subjects()->pluck('base_subject_id')->unique();
-
         $query->select();
+        $subjectIds = Subject::getSubjectIdsOfSchoolLocationByCustomerCodesAndUser(Arr::wrap($customer_codes), $user);
 
-        if ($citoSchool) {
-            $classIds = $citoSchool->schoolClasses()->pluck('id');
-            $tempSubjectIds = Teacher::whereIn('class_id', $classIds)->pluck('subject_id')->unique();
-            $baseSubjects = Subject::whereIn('id', $tempSubjectIds)->get();
-//            $baseSubjectIds = collect($baseSubjectIds);
-            $subjectIds = $baseSubjects->whereIn('base_subject_id', $baseSubjectIds)->pluck('id')->unique()->toArray();
-        } else { // slower but as a fallback in case there's no cito school
+        if (count($subjectIds) == 0) {
             $query->where('tests.id', -1);
             return $query;
         }
-
         $query->whereIn('subject_id', $subjectIds);
-        $query->where('scope', 'cito');
+        $query->whereIn('scope', Arr::wrap($scopes));
+
         $query->where(function ($q) use ($user) {
             return $q->where('published', true)
                 ->orWhere('author_id', $user->getKey());
@@ -302,73 +298,7 @@ class Test extends BaseModel
             $query->where('is_system_test', '=', 0);
         }
 
-        foreach ($filters as $key => $value) {
-            switch ($key) {
-                case 'nameOrAbbreviation':
-                    $query->where(function ($query) use ($value) {
-                        $query->where('name', 'LIKE', '%' . $value . '%')->orWhere('abbreviation', 'LIKE', '%' . $value . '%');
-                    });
-                    break;
-                case 'name':
-                    $query->where('name', 'LIKE', '%' . $value . '%');
-                    break;
-                case 'abbreviation':
-                    $query->where('abbreviation', 'LIKE', '%' . $value . '%');
-                    break;
-                case 'subject_id':
-                    if (is_array($value)) {
-                        $query->whereIn('subject_id', $value);
-                    } else {
-                        $query->where('subject_id', '=', $value);
-                    }
-                    break;
-                case 'education_level_id':
-                    if (is_array($value)) {
-                        $query->whereIn('education_level_id', $value);
-                    } else {
-                        $query->where('education_level_id', '=', $value);
-                    }
-                    break;
-                case 'education_level_year':
-                    $query->where('education_level_year', '=', $value);
-                    break;
-                case 'period_id':
-                    if (is_array($value)) {
-                        $query->whereIn('period_id', $value);
-                    } else {
-                        $query->where('period_id', '=', $value);
-                    }
-                    break;
-                case 'test_kind_id':
-                    if (is_array($value)) {
-                        $query->whereIn('test_kind_id', $value);
-                    } else {
-                        $query->where('test_kind_id', '=', $value);
-                    }
-                    break;
-                case 'status':
-                    $query->where('status', $value);
-                    break;
-                case 'created_at_start':
-                    $query->where('created_at', '>=', $value);
-                    break;
-                case 'created_at_end':
-                    $query->where('created_at', '<=', $value);
-                    break;
-                case 'is_system_test':
-                    $query->where('is_system_test', '=', $value);
-                    break;
-                case 'author_id':
-                    if (is_array($value)) {
-                        $query->whereIn('author_id', $value);
-                    } else {
-                        $query->where('author_id', '=', $value);
-                    }
-                    break;
-            }
-        }
-
-
+        $this->handleFilterParams($query, $filters);
         $this->handleFilteredSorting($query, $sorting);
 
         if ($user->isA('teacher')) {
@@ -385,25 +315,40 @@ class Test extends BaseModel
         return $query;
     }
 
+    public function scopeCitoFiltered($query, $filters = [], $sorting = [])
+    {
+        return $this->contentSourceFiltered(
+            'cito',
+            'CITO-TOETSENOPMAAT',
+            $query, $filters, $sorting);
+    }
+
     public function scopeExamFiltered($query, $filters = [], $sorting = [])
     {
-        $user = Auth::user();
-        $query->select();
-        $subjectIds = Subject::getSubjectsOfCustomSchoolForUser(config('custom.examschool_customercode'), $user);
-        if (count($subjectIds) == 0) {
-            $query->where('tests.id', -1);
-            return $query;
-        }
-        $query->whereIn('subject_id', $subjectIds);
-        $query->where('scope', 'exam');
-        $query->where('published', true);
-        if (!array_key_exists('is_system_test', $filters)) {
-            $query->where('is_system_test', '=', 0);
-        }
-        $this->handleFilterParams($query, $filters);
-        $this->handleFilteredSorting($query, $sorting);
+        return $this->contentSourceFiltered(
+            'exam',
+            config('custom.examschool_customercode'),
+            $query, $filters, $sorting);
+    }
 
-        return $query;
+    public function scopeNationalItemBankFiltered($query, $filters = [], $sorting = [])
+    {
+        return $this->contentSourceFiltered(
+            ['ldt', 'exam', 'cito'],
+            [
+                config('custom.national_item_bank_school_customercode'),
+                config('custom.examschool_customercode'),
+                'CITO-TOETSENOPMAAT',
+            ],
+            $query, $filters, $sorting);
+    }
+
+    public function scopeCreathlonItemBankFiltered($query, $filters = [], $sorting = [])
+    {
+        return $this->contentSourceFiltered(
+            'published_creathlon',
+            config('custom.creathlon_school_customercode'),
+            $query, $filters, $sorting);
     }
 
     public function scopeSharedSectionsFiltered($query, $filters = [], $sorting = [])
@@ -513,8 +458,10 @@ class Test extends BaseModel
         if (!array_key_exists('name', $attributes)) {
             $copy = 1;
             $names = static::where('author_id', $authorId)->where('name', 'LIKE', 'Kopie #% ' . $this->getAttribute('name'))->pluck('name')->all();
-            while (in_array('Kopie #' . $copy . ' ' . $this->getAttribute('name'), $names)) {
-                $copy++;
+            if(count($names)) {
+                while (in_array('Kopie #' . $copy . ' ' . $this->getAttribute('name'), $names) && $copy < 100) {
+                    $copy++;
+                }
             }
             $attributes['name'] = 'Kopie #' . $copy . ' ' . $this->getAttribute('name');
         }
@@ -695,6 +642,13 @@ class Test extends BaseModel
                         $query->where('tests.subject_id', '=', $value);
                     }
                     break;
+                case 'base_subject_id':
+                    if (is_array($value)) {
+                        $query->whereIn('tests.subject_id', Subject::whereIn('base_subject_id', $value)->pluck('id'));
+                    } else {
+                        $query->whereIn('tests.subject_id', Subject::where('base_subject_id', $value)->pluck('id'));
+                    }
+                    break;
                 case 'education_level_id':
                     if (is_array($value)) {
                         $query->whereIn('education_level_id', $value);
@@ -754,6 +708,13 @@ class Test extends BaseModel
         return !!collect(QuestionGatherer::getQuestionsOfTest($this->getKey(), true))->search(function (Question $question) {
             return !$question->canCheckAnswer();
         });
+    }
+
+    public function getWritingAssignmentsCount()
+    {
+        return collect(QuestionGatherer::getQuestionsOfTest($this->getKey(), true))->filter(function (Question $question) {
+            return $question->isWritingAssignment();
+        })->count();
     }
 
     private function getQueryGetItemsFromSchoolLocationAuthoredByUser($user)
@@ -855,13 +816,14 @@ class Test extends BaseModel
         return $this->test_kind_id == TestKind::ASSESSMENT_TYPE;
     }
 
-    public function getAuthorsAsString(){
+    public function getAuthorsAsString()
+    {
         return $this->authorsAsString;
     }
 
     public function getAuthorsAsStringAttribute()
     {
-        return $this->testAuthors()->get()->map(function ($author) {
+        return $this->getTestAuthorsWithMainAuthorFirst()->map(function ($author) {
             return implode(' ', array_filter([$author->user->name_first, $author->user->name_suffix, $author->user->name]));
         })->join(', ');
     }
@@ -870,7 +832,7 @@ class Test extends BaseModel
     {
         $authorsToShow = 2;
 
-        $names = $this->testAuthors()->get()->map(function ($author) {
+        $names = $this->getTestAuthorsWithMainAuthorFirst()->map(function ($author) {
             return implode(' ', array_filter([$author->user->name_first, $author->user->name_suffix, $author->user->name]));
         });
 
@@ -882,6 +844,16 @@ class Test extends BaseModel
         }
 
         return $return;
+    }
+
+    public function getTestAuthorsWithMainAuthorFirst()
+    {
+        return $this->testAuthors()
+            ->get()
+            ->sortByDesc(function ($author) {
+                return $author->user_id === $this->author_id ? 1 : 0 ;
+            })
+            ->values();
     }
 
     public function getQuestionOrderList()
@@ -977,6 +949,7 @@ class Test extends BaseModel
                 $groupQuestion->subQuestions = $groupQuestion->groupQuestionQuestions->map(function ($item) use ($groupQuestion) {
                     $item->question->belongs_to_groupquestion_id = $groupQuestion->getKey();
                     $item->question->groupQuestionQuestionUuid = $item->uuid;
+                    $item->question->attachmentCount = $item->question->attachments()->count();
                     return $item->question;
                 });
             }
@@ -991,36 +964,157 @@ class Test extends BaseModel
 
     public function canCopyFromSchool(User $user)
     {
+        if (!$this->owner->school) return false;
+
         return $this->canDuplicate() && $user->isAllowedSchool($this->owner->school);
     }
 
     public function getDuplicateQuestionIds()
     {
-        $ids = DB::select('
-            select id
-                from (
-                select
-                  question_id as id
-                  from
-                  `test_questions`
-                where
-                  `test_id` = ?  and `deleted_at` is null
-                Union  all
-                  select question_id as id from group_question_questions where group_question_id in(
-                  select question_id from test_questions where test_id = ? and deleted_at is null
-                  ) and deleted_at is null
+        $testQuestionsForTestQuery = TestQuestion::select('question_id as id')->whereTestId($this->getKey());
+        $groupQuestionQuestionsFromTestQuestionsQuery = GroupQuestionQuestion::select('question_id as id')->whereIn('group_question_id', $testQuestionsForTestQuery);
 
+        return DB::query()
+            ->selectRaw('id')
+            ->fromSub(
+                $testQuestionsForTestQuery->unionAll($groupQuestionQuestionsFromTestQuestionsQuery),
+                'duplicateIds'
+            )
+            ->groupBy('id')
+            ->havingCount('id', '>', 1)
+            ->pluck('id');
+    }
 
-                )as t
-                 group by
-                  `id`
+    public function getAmountOfQuestions()
+    {
+        $groupQ = $this->testQuestions()
+            ->select('id')
+            ->withCount(['question' => function ($query) {
+                $query->where('type', '=', 'GroupQuestion');
+            }])
+            ->get()
+            ->sum(function ($testQuestion) {
+                return $testQuestion->question_count;
+            });
 
-                having
-                  COUNT(id) > 1
-        ', [$this->getKey(), $this->getKey()]);
+        return ['regular' => $this->getQuestionCount(), 'group' => $groupQ];
+    }
 
-        return collect($ids)->map(function($id) {
-            return $id->id;
+    public static function findByUuid($uuid)
+    {
+        return self::whereUuid($uuid)->first();
+    }
+
+    public function hasDuplicateQuestions()
+    {
+        return count($this->getDuplicateQuestionIds()) > 0;
+    }
+
+    public function hasTooFewQuestionsInCarousel()
+    {
+        $this->load(['testQuestions', 'testQuestions.question']);
+        $countCarouselQuestionWithToFewQuestions = $this->testQuestions->filter(function ($testQuestion) {
+            return ($testQuestion->question instanceof \tcCore\GroupQuestion && !$testQuestion->question->hasEnoughSubQuestionsAsCarousel());
+        })->count();
+        return $countCarouselQuestionWithToFewQuestions != 0;
+    }
+
+    public function hasNotEqualScoresForSubQuestionsInCarousel()
+    {
+        $this->load(['testQuestions', 'testQuestions.question']);
+        $countCarouselQuestionWithToFewQuestions = $this->testQuestions->filter(function ($testQuestion) {
+            return ($testQuestion->question instanceof \tcCore\GroupQuestion && $testQuestion->question->isCarouselQuestion() && !$testQuestion->question->hasEqualScoresForSubQuestions());
+        })->count();
+        return $countCarouselQuestionWithToFewQuestions != 0;
+    }
+
+    public function getHasPdfAttachmentsAttribute(): bool
+    {
+        return TestQuestion::select()
+            ->join('question_attachments', 'test_questions.question_id', '=', 'question_attachments.question_id')
+            ->join('attachments', 'question_attachments.attachment_id', '=', 'attachments.id')
+            ->where('test_questions.test_id', $this->getKey())
+            ->where('attachments.file_mime_type', 'application/pdf')
+            ->exists();
+    }
+
+    public function getPdfAttachmentsAttribute()
+    {
+        $attachments = collect();
+
+        $this->testQuestions->sortBy('order')->each(function ($testQuestion) use (&$attachments) {
+            $testQuestion->question->loadRelated();
+            $testQuestion->question->attachments->each(function ($attachment) use (&$attachments) {
+                if ($attachment->getFileType() == 'pdf') {
+                    $attachments->add($attachment);
+                }
+            });
         });
+        return $attachments;
+    }
+
+
+    public function isNationalItem(): bool
+    {
+        return collect(Test::NATIONAL_ITEMBANK_SCOPES)->contains($this->scope);
+    }
+
+    public function meetsQuestionRequirementsForPlanning(): bool
+    {
+        return !!(!$this->hasDuplicateQuestions() && !$this->hasTooFewQuestionsInCarousel() && !$this->hasNotEqualScoresForSubQuestionsInCarousel());
+    }
+
+    public function canViewTestDetails(User $user): bool
+    {
+        return $this->hasAuthor($user) ||
+            $this->isFromSchoolAndSameSection($user) ||
+            ($user->schoolLocation->show_national_item_bank && $this->isNationalItemForAllowedBaseSubject()) ||
+            $this->isFromAllowedTestPublisher($user) ||
+            $this->isFromSharedSchoolAndAllowedBaseSubject($user);
+    }
+
+    private function isFromSharedSchoolAndAllowedBaseSubject(User $user): bool
+    {
+        return $this->canCopyFromSchool($user) && $this->subjectIsInCurrentBaseSubjects();
+    }
+
+    public function hasAuthor(User $user): bool
+    {
+        return $this->testAuthors()->whereUserId($user->getKey())->exists();
+    }
+
+    private function isNationalItemForAllowedBaseSubject(): bool
+    {
+        return $this->isNationalItem() && $this->subjectIsInCurrentBaseSubjects();
+    }
+
+    private function subjectIsInCurrentBaseSubjects(): bool
+    {
+        return BaseSubject::currentForAuthUser()->whereId($this->subject()->pluck('base_subject_id'))->exists();
+    }
+
+    public static function publishedAvailableFromPublisher($publishedTestScope, User $user): bool
+    {
+        return self::select('s.base_subject_id')
+            ->distinct()
+            ->join('subjects as s', 'tests.subject_id', '=', 's.id')
+            ->where('tests.scope', '=', $publishedTestScope)
+            ->whereIn('s.base_subject_id', Subject::filtered(['user_current' => $user->getKey()], [])->pluck('base_subject_id'))
+            ->exists('s.base_subject_id');
+    }
+
+    private function isFromSchoolAndSameSection($user): bool
+    {
+        if ($this->owner_id === $user->school_location_id) {
+            return $user->sections()->where('id', $this->subject->section_id)->exists();
+        }
+        return false;
+    }
+
+    private function isFromAllowedTestPublisher($user): bool
+    {
+        return ContentSourceHelper::allAllowedForUser($user)
+            ->map(fn($publisher) => 'published_' . $publisher)
+            ->contains($this->scope);
     }
 }

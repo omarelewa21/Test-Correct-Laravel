@@ -4,6 +4,8 @@
         @click.stop="options = true"
         @keydown.escape.stop="options = false"
         x-cloak
+        title="{{ __('sidebar.options') }}"
+        selid="question-more-options-btn"
 >
     <div x-show="options" @click.stop="options=false" class="fixed inset-0 cursor-default z-10"
          style="width: var(--sidebar-width)"></div>
@@ -23,29 +25,32 @@
          x-transition:leave-end="opacity-0 transform scale-90"
     >
         <div class="flex items-center space-x-2 py-1 px-4 base hover:text-primary hover:bg-offwhite transition w-full"
+             selid="delete-question-btn"
              title="{{ __('cms.Verwijderen') }}"
              @if($subQuestion)
                  wire:click="deleteSubQuestion('{{ $question->groupQuestionQuestionUuid }}', '{{ $testQuestion->uuid }}')"
             @else
                  wire:click="deleteQuestion('{{ $testQuestion->uuid }}')"
             @endif
-                @click.stop="options = false; $el.classList.add('hidden')"
+                @click.stop="options = false; $el.classList.add('hidden');$store.cms.scrollPos = document.querySelector('.drawer').scrollTop"
         >
             <x-icon.trash/>
             <span class="text-base bold inherit">{{ __('cms.Verwijderen') }}</span>
         </div>
-        <div class="flex items-center space-x-2 py-1 px-4 base hover:text-primary hover:bg-offwhite transition w-full"
-             title="{{ __('cms.Wijzigen') }}"
-             @click.stop="options = false;$wire.emitTo('teacher.questions.open-short','showQuestion',
-                {
-                    'testQuestionUuid':'{{ $testQuestion ? $testQuestion->uuid : null }}',
-                    'questionUuid': '{{ $question->uuid }}',
-                    'isSubQuestion': {{ $subQuestion ? 1 : 0 }},
-                    'shouldSave': true
-                })"
-        >
-            <x-icon.edit/>
-            <span class="text-base bold inherit">{{ __('cms.Wijzigen') }}</span>
-        </div>
+        @if(!$groupQuestion)
+            <div class="flex items-center space-x-2 py-1 px-4 base hover:text-primary hover:bg-offwhite transition w-full"
+                 title="{{ __('cms.Kopie maken') }}"
+                 selid="copy-question-btn"
+                 @click.stop="options = false; $store.cms.scrollPos = document.querySelector('.drawer').scrollTop"
+                 @if($subQuestion)
+                 wire:click="duplicateQuestion('{{ $question->uuid }}', '{{ $testQuestion->uuid }}')"
+                 @else
+                 wire:click="duplicateQuestion('{{ $question->uuid }}')"
+                 @endif
+            >
+                <x-icon.edit/>
+                <span class="text-base bold inherit">{{ __('cms.Kopie maken') }}</span>
+            </div>
+        @endif
     </div>
 </button>

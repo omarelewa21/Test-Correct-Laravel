@@ -54,7 +54,7 @@ class EducationLevel extends BaseModel {
     }
 
     public function attainments() {
-        return $this->hasMany('tcCore\Attainment');
+        return $this->hasMany('tcCore\Attainment',null,'attainment_education_level_id');
     }
 
     public function pValue() {
@@ -74,6 +74,12 @@ class EducationLevel extends BaseModel {
         {
             if ($educationLevel->schoolLocations !== null) {
                 $educationLevel->saveSchoolLocations();
+            }
+
+            $educationLevel->refresh();
+            if(null === $educationLevel->attainment_education_level_id){
+                $educationLevel->attainment_education_level_id = $educationLevel->getKey();
+                $educationLevel->save();
             }
         });
     }
@@ -144,6 +150,10 @@ class EducationLevel extends BaseModel {
         }
 
         return $query;
+    }
+
+    public static function yearsForStudent(User $student) {
+        return $student->studentSchoolClasses()->pluck('education_level_year')->unique();
     }
 
 

@@ -1,18 +1,16 @@
 <div class="">
     <div class="px-6 pb-4 pt-6 main-shadow">
         <div class="flex w-full justify-between mb-2">
-            <div class="flex">
+            <div class="flex pr-2.5">
                 @if($question->type === 'GroupQuestion')
-                    <h3 class="line-clamp-2 break-all min-h-[64px] @if(blank($question->name)) italic @endif"
-                        title="{{ $question->name }}">{{ filled($question->name) ? $question->name : __('question.no_question_text') }}</h3>
+                    <h3 class="line-clamp-2 word-break-words min-h-[64px] @if(blank($question->name)) italic @endif"
+                        title="{!! $question->name !!}">{!! filled($question->name) ? $question->name : __('question.no_question_text') !!} </h3>
                 @else
-                    <h3 class="line-clamp-2 break-all min-h-[64px] @if(blank($question->title)) italic @endif"
+                    <h3 class="line-clamp-2 word-break-words min-h-[64px] @if(blank($question->title)) italic @endif"
                         title="{{ $question->title }}">{{ $question->title ?? __('question.no_question_text') }}</h3>
                 @endif
             </div>
-            <div class="flex">
-                <x-icon.close class="hover:text-primary cursor-pointer" wire:click="$emit('closeModal')"/>
-            </div>
+            <x-button.close class="relative -top-3 -right-3" wire:click="$emit('closeModal')"/>
         </div>
         <div class="flex w-full justify-between text-base mb-1">
             <div class="flex">
@@ -20,7 +18,7 @@
                 <span>{!! optional($question->subject)->name ?? __('general.unavailable') !!}</span>
             </div>
             <div class="text-sm">
-                <span class="note">Laatst gewijzigd:</span>
+                <span class="note">{{ __('general.Laatst gewijzigd') }}:</span>
                 <span class="note">{{ $lastUpdated }}</span>
             </div>
         </div>
@@ -71,7 +69,7 @@
             </div>
         </div>
         <div>
-            <x-divider-with-title title="Instellingen"/>
+            <x-divider-with-title title="{{ __('cms.Instellingen') }}"/>
             <div>
                 <x-input.toggle-row-with-title :small="true" :disabled="true"
                                                :toolTip="__('cms.close_after_answer_tooltip_text')"
@@ -147,18 +145,18 @@
             </div>
         </div>
         <div>
-            <x-divider-with-title class="-mt-px" title="P-Waarde statistieken"/>
+            <x-divider-with-title class="-mt-px" title="{{ __('cms.p_value_statistics') }}"/>
             <div class="py-3">
                 @forelse($pValues as $pValue)
                     <x-pvalues-small :pValue="$pValue"/>
                 @empty
-                    <span class="note text-sm">Geen statistieken beschikbaar</span>
+                    <span class="note text-sm">{{ __('cms.no_statistics_available') }}</span>
                 @endforelse
             </div>
         </div>
 
         <div>
-            <x-divider-with-title title="Taxonomie"/>
+            <x-divider-with-title title="{{ __('cms.Taxonomie') }}"/>
             <div class=""
                  x-data="{rtti: @js($question->rtti), bloom: @js($question->bloom), miller: @js($question->miller) }"
             >
@@ -235,18 +233,19 @@
     </div>
     <div class="px-6 py-4 flex justify-end w-full" style="box-shadow: 0 -3px 8px 0 rgba(4, 31, 116, 0.2);">
         <div class="flex space-x-2.5 items-center">
-            <button class="new-button button-primary"
-                    disabled
-                    title="{{ __('general.Later beschikbaar') }}"
-            >
-                <x-icon.preview/>
-            </button>
+            @if($this->showPreviewButton)
+                <button class="new-button button-primary"
+                        wire:click="openPreviewMode()"
+                >
+                    <x-icon.preview/>
+                </button>
+            @endif
             @if($this->inTest)
                 <span title="{{ __('cms.Deze vraag is aanwezig in de toets.') }}">
                     <x-icon.checkmark-circle color="var(--cta-primary)"/>
                 </span>
             @endif
-            <button class="new-button button-cta w-10 items-center justify-center flex"
+            <button x-data="{}" x-cloak x-show="Alpine.store('questionBank').active" class="new-button button-primary w-10 items-center justify-center flex"
                     wire:click.stop="addQuestion"
                     @click="$el.disabled = true"
             >

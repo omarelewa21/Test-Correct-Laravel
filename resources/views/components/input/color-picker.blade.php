@@ -3,6 +3,7 @@
 <div x-data="{
     isOpen: false,
     colorSelected: '#000000',
+    showX: false,
     colors: [
         '#16465a', '#002f7a', '#240075', '#3e005c', '#52001c', '#6a1500',  '#592500', '#5d4500', '#646200', '#334400', '#164401', '#00341d',
         '#265f76', '#003995', '#3300a8', '#55007f', '#700027', '#8d1c00',  '#783200', '#7d5d00', '#848100', '#425800', '#1e5f00', '#004f2c',
@@ -16,6 +17,7 @@
         '#000000', '#222222', '#454545', '#616161', '#808080', '#9a9a9a',  '#bebebe', '#d6d6d6', '#ebebeb', '#f1f1f1', '#f8f8f8', '#ffffff',
     ]}"
     x-cloak
+    x-effect="$refs.canvas.style.pointerEvents = isOpen ? 'none' : 'initial'"
 >
     <div class="max-w-sm">
         <div class="mb-5">
@@ -24,8 +26,11 @@
                 <!-- Selector Input -->
                     <div
                         title="{{$title}}"
-                        class="{{$id}} cursor-pointer bg-white"
+                        class="color-pallete cursor-pointer bg-white @if($name === 'line-color') add-border @endif"
                         @click="isOpen = !isOpen"
+                        @mouseover="showX = true"
+                        @mouseleave="showX = false"
+                        :class="isOpen && 'outline'"
                     >
                         <input
                             id="{{$id}}"
@@ -34,8 +39,22 @@
                             class="cursor-pointer"
                             type="button"
                             :value="`${colorSelected}`"
-                            :style="`background: ${colorSelected}; color: ${colorSelected};`"
+                            @if($name === "stroke-color")
+                                :style="`border-color: ${colorSelected}`"
+                            @else
+                                :style="`background: ${colorSelected}; color: ${colorSelected};`"
+                            @endif
                             >
+
+                            <svg
+                                x-show="isOpen && showX"
+                                class="pallete-x-button inline-block absolute"
+                                width="14" height="14" xmlns="http://www.w3.org/2000/svg"
+                            >
+                                <g class="stroke-current" fill="none" fill-rule="evenodd" stroke-linecap="round" stroke-width="3">
+                                    <path d="M1.5 12.5l11-11M12.5 12.5l-11-11"></path>
+                                </g>
+                            </svg>
                     </div>
 
                 <!-- Color Palette Container  -->
@@ -57,14 +76,14 @@
                                         <template x-if="colorSelected === color">
                                             <div
                                             class="inline-flex rounded colorPickButton-selected"
-                                            :style="`background: ${color}; outline: 2px solid blue;`"
+                                            :style="`background: ${color}; outline: 3px solid blue;`"
                                             />
                                         </template>
 
                                         <template x-if="colorSelected != color">
                                             <div
-                                            @click="colorSelected = color"
-                                            @keydown.enter="colorSelected = color"
+                                            @click="colorSelected = color; @if($name === 'fill-color') setSliderColor($refs.slider, colorSelected) @endif"
+                                            @keydown.enter="colorSelected = color; @if($name === 'fill-color') setSliderColor($refs.slider, colorSelected) @endif"
                                             role="checkbox" tabindex="0"
                                             :aria-checked="colorSelected"
                                             class="inline-flex rounded colorPickButton"

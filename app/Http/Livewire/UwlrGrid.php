@@ -172,13 +172,18 @@ class UwlrGrid extends Component
                 $r = (array) $obj;
             }
             $groepCollection = collect($this->activeResult['groep']);
-            $samengesteldeGroepCollection = collect($this->activeResult['samengestelde_groep']);
+            $samengesteldeGroep = (isset($this->activeResult['samengestelde_groep'])) ? $this->activeResult['samengestelde_groep'] : [];
+            $samengesteldeGroepCollection = collect($samengesteldeGroep);
             foreach ($r as $k => $value) {
                 if (in_array($k, ['groepen', 'groep', 'samengestelde_groepen'])) {
+                    $r[$k] = (array) $r[$k];
                    if ($k == 'groep') {
-                       $r[$k] = (array) $r[$k];
+
                        $currentGroepKey = $r[$k]['key'];
                        $groep = $groepCollection->first(function($groep) use ($currentGroepKey) {
+                           if(is_object($groep)){
+                               $groep = (array) $groep;
+                           }
                            return $groep['key'] === $currentGroepKey;
                        });
                        $r[$k] = $groep['naam'];
@@ -233,11 +238,15 @@ class UwlrGrid extends Component
 
     protected function hasSamengesteldeGroepInGroepen($data)
     {
+        if(is_object($data)){
+            return property_exists($data,'samengestelde_groep') && !empty($data->samengestelde_groep);
+        }
         return array_key_exists('samengestelde_groep',$data);
     }
 
     protected function getGroepenKeys($data)
     {
+        $data = (array) $data;
         if($this->hasSamengesteldeGroepInGroepen($data)){
             $returnData = [];
             foreach($data['samengestelde_groep'] as $gData){

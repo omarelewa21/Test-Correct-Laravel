@@ -36,7 +36,7 @@ class CompletionQuestion extends Component
             $tag_id = $matches[1] - 1; // the completion_question_answers list is 1 based but the inputs need to be 0 based
 
             return sprintf(
-                '<input spellcheck="false" wire:model.lazy="answer.%d" class="form-input mb-2 truncate text-center overflow-ellipsis" type="text" id="%s" style="width: 120px" x-ref="%s" @blur="$refs.%s.scrollLeft = 0" @input="$event.target.setAttribute(\'title\', $event.target.value);" wire:key="%s"/>',
+                '<input x-on:contextmenu="$event.preventDefault()" spellcheck="false" wire:model.lazy="answer.%d" class="form-input mb-2 truncate text-center overflow-ellipsis" type="text" id="%s" style="width: 120px" x-ref="%s" @blur="$refs.%s.scrollLeft = 0" @input="$event.target.setAttribute(\'title\', $event.target.value);" wire:key="%s"/>',
                 $tag_id,
                 'answer_' . $tag_id .'_'.$this->question->getKey(),
                 'comp_answer_' . $tag_id,

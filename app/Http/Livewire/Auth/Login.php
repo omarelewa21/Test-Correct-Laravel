@@ -5,6 +5,7 @@ namespace tcCore\Http\Livewire\Auth;
 use Bugsnag\BugsnagLaravel\Facades\Bugsnag;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Crypt;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Facades\Session;
@@ -25,6 +26,8 @@ use tcCore\LoginLog;
 use tcCore\SamlMessage;
 use tcCore\Services\EmailValidatorService;
 use tcCore\User;
+use tcCore\TestTake;
+use tcCore\TestTakeCode;
 
 class Login extends Component
 {
@@ -45,9 +48,11 @@ class Login extends Component
 
     public $requireCaptcha = false;
     public $testTakeCode = [];
+    public $guest_message_shown = 0;
 
     protected $queryString = [
         'tab'                  => ['except' => 'login'],
+        'active_overlay'       => ['except' => ''],
         'login_tab'            => ['except' => 1],
         'uuid'                 => ['except' => ''],
         'entree_error_message' => ['except' => ''],
@@ -76,7 +81,7 @@ class Login extends Component
     public $showGuestSuccess = false;
 
 //    public $loginTab = true;
-//    public $forgotPasswordTab = false;
+    public $active_overlay = '';
 //    public $entreeTab = false;
 
     public $showTestCode = false;
@@ -97,9 +102,11 @@ class Login extends Component
 
     public $schoolLocation;
 
+    public $take = null;
+
     public $studentDownloadUrl = 'https://www.test-correct.nl/student/';
 
-    protected $listeners = ['open-auth-modal' => 'openAuthModal'];
+    protected $listeners = ['open-auth-modal' => 'openAuthModal', 'password_reset' => 'passwordReset'];
 
     protected $rules = [
         'username' => 'required|email',
@@ -119,6 +126,15 @@ class Login extends Component
     public function mount()
     {
         Auth::logout();
+
+        if(session()->has('take')){
+            $take = TestTake::whereUuid(session('take'))->with('testTakeCode')->first();
+            if($take->testTakeCode){
+                $this->testTakeCode = str_split($take->testTakeCode->code);
+            }
+            $this->take = $take->uuid;
+        }
+
         session()->invalidate();
         session()->regenerateToken();
 
@@ -159,6 +175,10 @@ class Login extends Component
 
         AppVersionDetector::handleHeaderCheck();
         $this->doLoginProcedure();
+        
+        if($this->checkIfShouldRedirectToTestTake()){
+            return;
+        };
 
         $user = auth()->user();
         if ($user->isA('Student') && $user->schoolLocation->allow_new_student_environment) {
@@ -190,6 +210,10 @@ class Login extends Component
             return $this->addError('no_test_found_with_code', __('auth.no_test_found_with_code'));
         }
 
+        if (!$testTakeCode->testTake->guest_accounts){
+            return $this->addError('guest_account_not_allowed', __('auth.guest_account_not_allowed'));
+        }
+
         AppVersionDetector::handleHeaderCheck();
 
         $error = $testCodeHelper->handleGuestLogin($this->gatherGuestData(), $testTakeCode);
@@ -201,7 +225,7 @@ class Login extends Component
     public function render()
     {
         return view('livewire.auth.login')
-            ->layout('layouts.auth');
+            ->layout('layouts.base');
     }
 
     public function goToPasswordReset()
@@ -275,11 +299,13 @@ class Login extends Component
 
     public function sendForgotPasswordEmail()
     {
+        $this->active_overlay = '';
+        $this->login_tab = 1;
         $this->entree_error_message = '';
         $user = User::whereUsername($this->forgotPasswordEmail)->first();
         if ($user) {
             $token = Password::getRepository()->create($user);
-            $url = sprintf('%spassword-reset/?token=%%s', config('app.base_url'));
+            $url = sprintf('%slogin/?active_overlay=reset_password&token=%%s', config('app.base_url'));
             $urlLogin = route('auth.login');
 
             try {
@@ -578,5 +604,48 @@ class Login extends Component
         $this->guest_message_type = '';
         $this->showGuestError = false;
         $this->showGuestSuccess = false;
+    }
+
+    public function dispatchGuestSuccessNotification()
+    {
+        if($this->showGuestSuccess){
+            $this->dispatchBrowserEvent('notify',
+                [
+                    'type' => 'guest_success',
+                    'title' => __('auth.'.$this->guest_message),
+                    'message' => __('auth.'.$this->guest_message.'_sub'),
+                ]
+            );
+        }
+    }
+
+    public function passwordReset()
+    {
+        $this->active_overlay = '';
+
+        $this->dispatchBrowserEvent('notify',
+            [
+                'type' => 'guest_success',
+                'title' => __('passwords.reset_title'),
+                'message' => __('passwords.reset'),
+            ]
+        );
+    }
+
+    private function checkIfShouldRedirectToTestTake()
+    {
+        if($this->take){
+            return redirect()->route('take.directLink', ['testTakeUuid' => $this->take]);
+        }
+
+        if($this->isTestTakeCodeCorrectFormat()){
+            $code = implode('', $this->testTakeCode);
+            $testTakeCode = TestTakeCode::where('code', $code)->with('testTake')->first();
+            if(is_null($testTakeCode)){
+                return false;
+            }
+            return redirect()->route('take.directLink', ['testTakeUuid' => $testTakeCode->testTake->uuid]);
+        }
+        return false;
     }
 }

@@ -1,4 +1,4 @@
-<div id="cms" class="flex flex-1"
+<div cms id="cms" class="flex flex-1"
      x-data="{loading: @entangle('loading'), empty: {{ $this->emptyState ? 1 : 0 }}, dirty: @entangle('dirty') }"
      x-init="
            handleQuestionChange = (evt) => {
@@ -6,6 +6,7 @@
                 loading = true;
                 if(typeof evt !== 'undefined') empty = false;
                 removeDrawingLegacy();
+                window.scrollTo({top: 0, behavior: 'smooth'});
            }
 
            loadingTimeout = (value) => {
@@ -26,6 +27,14 @@
            removeDrawingLegacy = () => {
                 $root.querySelector('#drawing-question-tool-container')?.remove();
            }
+           changeEditorWscLanguage = (lang) => {
+                if (document.getElementById('{{ $this->questionEditorId }}')) {
+                    WebspellcheckerTlc.lang(CKEDITOR.instances['{{ $this->questionEditorId }}'], lang);
+                }
+                if (document.getElementById('{{ $this->answerEditorId }}')) {
+                    WebspellcheckerTlc.lang(CKEDITOR.instances['{{ $this->answerEditorId }}'], lang);
+                }
+           }
            forceSyncEditors = () => {
                 if (document.getElementById('{{ $this->questionEditorId }}')) {
                     $wire.sync('question.question', CKEDITOR.instances['{{ $this->questionEditorId }}'].getData());
@@ -44,16 +53,16 @@
      questionComponent
 >
     <x-partials.header.cms-editor :testName="$testName" :questionCount="$this->amountOfQuestions"/>
-    <div class="question-editor-content w-full max-w-7xl mx-auto relative"
+    <div class="question-editor-content w-full relative"
          wire:key="container-{{ $this->uniqueQuestionKey }}"
          {{--         :class="{'opacity-0': $store.cms.loading || empty, 'opacity-50': $store.cms.processing && !loading}"--}}
          style="opacity: 0; transition: opacity .3s ease-in"
-         :style="{'opacity': ($store.cms.loading || !!empty) ? 0 : ($store.cms.processing) ? 0 : 1}"
+         :style="{'opacity': ($store.cms.loading || $store.cms.emptyState) ? 0 : ($store.cms.processing) ? 0 : 1}"
          x-ref="editorcontainer"
          wire:ignore.self
     >
 
-        <div class="flex w-full flex-col">
+        <div class="flex w-full flex-col sticky top-[var(--header-height)] bg-lightGrey z-10">
             <div class="flex w-full border-b border-secondary mt-2.5 py-2.5">
                 <div class="flex w-full items-center px-4 sm:px-6 lg:px-8 justify-between">
                     <div class="flex items-center">
@@ -107,7 +116,39 @@
                     </div>
                 </div>
             </div>
-            <div class="px-4 sm:px-6 lg:px-8 ">
+        </div>
+        <div class="flex flex-col flex-1 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto"
+             x-data="{openTab: 1}"
+             x-init="$watch('openTab', value => { value === 1 ? $dispatch('tabchange') : '';})"
+             @opentab.window="openTab = $event.detail; window.scrollTo({top: 0, behavior: 'smooth'})"
+             selid="tabcontainer"
+        >
+            <div class="flex justify-end py-5" wire:ignore>
+                @if(\Illuminate\Support\Facades\Auth::user()->schoolLocation->allow_wsc)
+                <div class="flex items-center relative left-4 gap-4 mr-4" wire:ignore wire:key="wsc-language-component-{{ $this->uniqueQuestionKey }}-{{$question['lang']}}" >
+                    <label>
+                        {{ __('lang.language') }}
+                    </label>
+                    <x-input.select
+                            wire:model="question.lang"
+                            @change="changeEditorWscLanguage($event.target.value);"
+                    >
+                        <option value="nl_NL">{{ __('lang.nl_NL') }}</option>
+                        <option value="en_GB">{{ __('lang.en_GB') }}</option>
+                        <option value="fr_FR">{{ __('lang.fr_FR') }}</option>
+                        <option value="de_DE">{{ __('lang.de_DE') }}</option>
+                        <option value="es_ES">{{ __('lang.es_ES') }}</option>
+                        <option value="it_IT">{{ __('lang.it_IT') }}</option>
+                    </x-input.select>
+                </div>
+                @endif
+                @if($this->showQuestionScore())
+                    <x-input.score wire:model.defer="question.score"
+                                   wire:key="score-component-{{ $this->uniqueQuestionKey }}"
+                    />
+                @endif
+            </div>
+            <div class="{{ $this->getErrorBag()->isEmpty() ? 'mb-4' : '' }}">
                 @error('question.name')
                 <div class="notification error stretched mt-4">
                     <span class="title">{{ $message }}</span>
@@ -176,25 +217,10 @@
 
                 @if($this->duplicateQuestion)
                     <div class="notification error stretched mt-4">
-                        <span class="title">{{ __('cms.duplicate_question_in_test') }}</span>
+                        <span class="title">{{ $this->isGroupQuestion() ? __('cms.duplicate_group_in_test') : __('cms.duplicate_question_in_test') }}</span>
                     </div>
                 @endif
             </div>
-            <div class="flex justify-end px-4 sm:px-6 lg:px-8 py-5">
-                @if($this->showQuestionScore())
-                    <x-input.score wire:model.defer="question.score"
-                                   wire:key="score-component-{{ $this->uniqueQuestionKey }}"
-                    />
-                @endif
-            </div>
-
-        </div>
-        <div class="flex flex-col flex-1 px-4 sm:px-6 lg:px-8"
-             x-data="{openTab: 1}"
-             x-init="$watch('openTab', value => { value === 1 ? $dispatch('tabchange') : '';})"
-             @opentab.window="openTab = $event.detail; window.scrollTo({top: 0, behavior: 'smooth'})"
-             selid="tabcontainer"
-        >
             <div class="flex w-full space-x-6 mb-5 border-b border-secondary max-h-[50px]" selid="tabs">
                 <div :class="{'border-b-2 border-primary -mb-px primary' : openTab === 1}" selid="tab-question">
                     <x-button.text-button
@@ -236,8 +262,6 @@
                     <x-partials.group-question-basic-section/>
 
                     @yield('upload-section-for-group-question')
-                @elseif($this->isPartOfGroupQuestion())
-                    <x-partials.group-question-question-section/>
                 @else
                     <x-partials.question-question-section/>
                 @endif
@@ -295,7 +319,7 @@
                             <x-input.toggle-row-with-title wire:model="question.add_to_database"
                                                            :toolTip="__('cms.make_public_tooltip_text')"
                                                            class="{{ $this->isSettingsGeneralPropertyDisabled('addToDatabase') ? 'text-disabled' : '' }}"
-                                                           :disabled="$this->isSettingsGeneralPropertyDisabled('addToDatabase')"
+                                                           :disabled="($question['add_to_database_disabled'] ?? false) || $this->isSettingsGeneralPropertyDisabled('addToDatabase')"
                                                            selid="open-source-switch"
                             >
                                 <x-icon.preview class="flex "></x-icon.preview>
@@ -309,7 +333,7 @@
                                                            :disabled="$this->isSettingsGeneralPropertyDisabled('maintainPosition')"
                             >
                                 <x-icon.shuffle-off/>
-                                <span class="bold"> {{ __('cms.Deze vraag niet shuffelen') }}</span>
+                                <span class="bold"> {{ $this->isGroupQuestion() ? __('cms.Deze vraaggroep niet shuffelen') : __('cms.Deze vraag niet shuffelen') }}</span>
                             </x-input.toggle-row-with-title>
                         @endif
 
@@ -341,6 +365,16 @@
                             >
                                 <x-icon.half-points/>
                                 <span class="bold @if($this->isSettingsGeneralPropertyDisabled('decimalOption')) disabled @endif"> {{ __('cms.Halve puntenbeoordeling mogelijk') }}</span>
+                            </x-input.toggle-row-with-title>
+                        @endif
+
+                        @if($this->isSettingsGeneralPropertyVisible('spellingCheckAvailableDuringAssessing'))
+                            <x-input.toggle-row-with-title wire:model="question.spell_check_available"
+                                                           class="{{ $this->isSettingsGeneralPropertyDisabled('spellingCheckAvailableDuringAssessing') ? 'text-disabled' : '' }}"
+                                                           :disabled="$this->isSettingsGeneralPropertyDisabled('spellingCheckAvailableDuringAssessing')"
+                            >
+                                <x-icon.autocheck/>
+                                <span class="bold @if($this->isSettingsGeneralPropertyDisabled('spellingCheckAvailableDuringAssessing')) disabled @endif"> {{ __('cms.Taalcontrole beschikbaar tijdens nakijken') }}</span>
                             </x-input.toggle-row-with-title>
                         @endif
 
@@ -392,7 +426,7 @@
                                     <span class="bold">RTTI {{ __('cms.methode') }}</span>
                                 </x-input.toggle-row-with-title>
                                 <div x-show="rtti" class="flex flex-col gap-2.5 mt-2.5">
-                                    @foreach(['R'  , 'T1' , 'T2' , 'I'] as $value)
+                                    @foreach($this->rttiOptions as $value)
                                         <label class="radio-custom">
                                             <input wire:key="{{ $value }}"
                                                    name="rtti"
@@ -412,14 +446,14 @@
                                     <span class="bold">BLOOM {{ __('cms.methode') }}</span>
                                 </x-input.toggle-row-with-title>
                                 <div x-show="bloom" class="flex flex-col gap-2.5 mt-2.5">
-                                    @foreach([ __('cms.Onthouden'), __('cms.Begrijpen'), __('cms.Toepassen'), __('cms.Analyseren'), __('cms.Evalueren'), __('cms.Creëren')] as $value)
+                                    @foreach($this->bloomOptions as $value => $translation)
                                         <label class="radio-custom">
                                             <input wire:key="{{ $value }}"
                                                    name="bloom"
                                                    type="radio"
                                                    wire:model.defer="question.bloom"
                                                    value="{{ $value }}"/>
-                                            <span class="ml-2.5">{{ __($value) }}</span>
+                                            <span class="ml-2.5">{{ $translation  }}</span>
                                         </label>
                                     @endforeach
                                 </div>
@@ -432,14 +466,14 @@
                                     <span class="bold">Miller {{ __('cms.methode') }}</span>
                                 </x-input.toggle-row-with-title>
                                 <div x-show="miller" class="flex flex-col gap-2.5 mt-2.5">
-                                    @foreach([ __('cms.Weten'), __('cms.Weten hoe'), __('cms.Laten zien'), __('cms.Doen'),] as $value)
+                                    @foreach($this->millerOptions as $value => $translation)
                                         <label class="radio-custom">
                                             <input wire:key="{{ $value }}"
                                                    name="miller"
                                                    type="radio"
                                                    wire:model.defer="question.miller"
                                                    value="{{ $value }}"/>
-                                            <span class="ml-2.5">{{ __($value) }}</span>
+                                            <span class="ml-2.5">{{ $translation }}</span>
                                         </label>
                                     @endforeach
                                 </div>
@@ -458,11 +492,11 @@
                             <div class="grid grid-cols-2 gap-x-6 mt-4">
                                 <livewire:attainment-manager :value="$question['attainments']"
                                                              :subject-id="$subjectId"
-                                                             :eduction-level-id="$educationLevelId"
+                                                             :education-level-id="$educationLevelId"
                                                              :key="'AT-'. $this->uniqueQuestionKey"/>
                                 <livewire:learning-goal-manager :value="$question['learning_goals']"
                                                                 :subject-id="$subjectId"
-                                                                :eduction-level-id="$educationLevelId"
+                                                                :education-level-id="$educationLevelId"
                                                                 :key="'LG-'. $this->uniqueQuestionKey "/>
 
                             </div>
@@ -522,36 +556,38 @@
     <x-modal.question-editor-dirty-question-modal
             :item="strtolower($this->isGroupQuestion() ? __('cms.group-question') : __('drawing-modal.Vraag'))"
             :new="!$this->editModeForExistingQuestion()"/>
-    <div class="question-editor-footer" x-data>
-        <div class="question-editor-footer-button-container">
+    @if(!$this->withDrawer)
+        <div class="question-editor-footer" x-data>
+            <div class="question-editor-footer-button-container">
 
-            <button
-                    type="button"
-                    class="button text-button button-md pr-4"
-                    wire:loading.attr="disabled"
-                    wire:click="returnToTestOverview();"
-                    selid="cancel-btn"
-            >
-                <span> {{ __("auth.cancel") }}</span>
-            </button>
+                <button
+                        type="button"
+                        class="button text-button button-md pr-4"
+                        wire:loading.attr="disabled"
+                        wire:click="returnToTestOverview();"
+                        selid="cancel-btn"
+                >
+                    <span> {{ __("auth.cancel") }}</span>
+                </button>
 
 
-            <button
-                    type="button"
-                    class="button cta-button button-sm save_button"
-                    wire:loading.attr="disabled"
-{{--                    wire:click="saveAndRefreshDrawer()"--}}
-                    @click="forceSyncEditors();$wire.saveAndRefreshDrawer()"
-                    x-data="{disabled: false}"
-                    x-init="$watch('$store.questionBank.active', value => disabled = value);"
-                    x-on:beforeunload.window="disabled = true"
-                    x-on:filepond-start.window="disabled = true"
-                    x-on:filepond-finished.window="disabled = false"
-                    :disabled="!!empty || disabled"
-                    selid="save-btn"
-            >
-                <span>{{ __("drawing-modal.Opslaan") }}</span>
-            </button>
+                <button
+                        type="button"
+                        class="button cta-button button-sm save_button"
+                        wire:loading.attr="disabled"
+                        {{--                    wire:click="saveAndRefreshDrawer()"--}}
+                        @click="forceSyncEditors();$wire.saveAndRefreshDrawer()"
+                        x-data="{disabled: false}"
+                        x-init="$watch('$store.questionBank.active', value => disabled = value);"
+                        x-on:beforeunload.window="disabled = true"
+                        x-on:filepond-start.window="disabled = true"
+                        x-on:filepond-finished.window="disabled = false"
+                        :disabled="!!empty || disabled"
+                        selid="save-btn"
+                >
+                    <span>{{ __("drawing-modal.Opslaan") }}</span>
+                </button>
+            </div>
         </div>
-    </div>
+    @endif
 </div>

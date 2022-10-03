@@ -16,7 +16,7 @@ class RefreshDatabase extends Command
      *
      * @var string
      */
-    protected $signature = 'test:refreshdb {--file=}';
+    protected $signature = 'test:refreshdb {--file=} {--allow-all}';
 
     /**
      * The console command description.
@@ -76,13 +76,36 @@ class RefreshDatabase extends Command
                 break;
         }
 
-
         $this->addMigrations();
 
         $this->addRequiredDatabaseData();
 
         $this->runseeder();
 
+        if ($this->option('allow-all')) {
+            $this->grantSchoolLocationAllPermissions();
+        }
+
         $this->info('refresh database complete');
+    }
+
+    protected function grantSchoolLocationAllPermissions()
+    {
+        DB::table('school_locations')->update([
+            'allow_cms_drawer' => 1,
+            'allow_new_drawing_question' => 1,
+            'allow_guest_accounts' => 1,
+            'allow_new_player_access' => 1,
+            'allow_new_student_environment' => 1,
+            'allow_inbrowser_testing' => 1,
+            'allow_new_test_bank' => 1,
+            'allow_wsc' => 1,
+            'allow_writing_assignment' => 1,
+            'show_exam_material' => 1,
+            'show_cito_quick_test_start' => 1,
+            'show_national_item_bank' => 1,
+        ]);
+
+        $this->info('granted all school locations all permissions');
     }
 }

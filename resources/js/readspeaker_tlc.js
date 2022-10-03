@@ -375,6 +375,7 @@ ReadspeakerTlc = function(){
             hidden_div.classList.add('form-input');
             hidden_div.classList.add('overflow-ellipsis');
             hidden_div.classList.add('rs-click-listen');
+            hidden_div.classList.add('prevent-select');
             hidden_div.setAttribute('wire:ignore','');
             textarea.parentNode.insertBefore(hidden_div,textarea);
             textarea.classList.add('hidden');
@@ -428,6 +429,7 @@ ReadspeakerTlc = function(){
             readable_div.classList.add('rs-shadow-select-popup');
             readable_div.classList.add('overflow-ellipsis');
             readable_div.classList.add('rs-click-listen');
+            readable_div.classList.add('prevent-select');
             return readable_div;
         }
         function createHiddenDivsForSelects(containerId)
@@ -478,6 +480,7 @@ ReadspeakerTlc = function(){
             hidden_div.classList.add('form-input');
             hidden_div.classList.add('overflow-ellipsis');
             hidden_div.classList.add('readspeaker_readable_element');
+            hidden_div.classList.add('prevent-select');
             element.classList.add('hidden');
             element.classList.add('rs_skip');
             element.classList.add('readspeaker_hidden_element');
@@ -579,6 +582,7 @@ ReadspeakerTlc = function(){
             hidden_div.classList.add('rs-shadow-input');
             hidden_div.classList.add('form-input');
             hidden_div.classList.add('overflow-ellipsis');
+            hidden_div.classList.add('prevent-select');
             obj.classList.add('hidden');
             obj.classList.add('readspeaker_hidden_element');
             var container = obj.closest('.completion-question-container');

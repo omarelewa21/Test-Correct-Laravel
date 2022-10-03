@@ -10,7 +10,10 @@
                 })
              $store.cms.scrollPos = document.querySelector('.drawer').scrollTop;
                 "
+     title="{{ __('cms.Open vraag') }}"
      style="max-width: 300px"
+     data-order-number="{{ $loop }}"
+     selid="question-list-entry"
      @if($subQuestion)
         wire:sortable-group.item="{{ $question->uuid }}"
      @else
@@ -30,15 +33,13 @@
                       style="{{ $double ? 'max-width: 145px; width: 145px' : 'max-width: 160px; width: 160px' }}"
                       title="{{ $question->title }}">{{ $question->title }}</span>
                 <div class="flex note text-sm regular justify-between">
-                    <span>{{ $question->typeName }}</span>
+                    <span class="truncate max-w-[100px]">{{ $question->typeName }}</span>
                     <div class="flex items-center space-x-2">
                         <span class="flex">{{ $question->score }}pt</span>
-                        @if($subQuestion === false)
-                            <div class="flex items-center space-x-1 @if($question->attachmentCount === 0) invisible @endif">
-                                <x-icon.attachment class="flex"/>
-                                <span class="flex">{{ $question->attachmentCount }}</span>
-                            </div>
-                        @endif
+                        <div class="flex items-center space-x-1 @if($question->attachmentCount === 0) invisible @endif">
+                            <x-icon.attachment class="flex"/>
+                            <span class="flex">{{ $question->attachmentCount }}</span>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -48,7 +49,7 @@
                         <x-icon.exclamation class="all-red"/>
                     </div>
                 @endif
-                <div class="flex h-full rounded-md hover:text-primary reorder" @if($subQuestion) wire:sortable-group.handle @else wire:sortable.handle @endif>
+                <div class="flex h-full rounded-md hover:text-primary reorder" @if($subQuestion) wire:sortable-group.handle @else wire:sortable.handle @endif title="{{ __('sidebar.reorder') }}">
                     <x-icon.reorder/>
                 </div>
                 <div class="flex">

@@ -2,15 +2,9 @@
 
 namespace tcCore\Http\Controllers;
 
-use Bugsnag\BugsnagLaravel\Facades\Bugsnag;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Response;
-use tcCore\Http\Helpers\BaseHelper;
-use tcCore\Subject;
-use tcCore\Teacher;
-use tcCore\Test;
+use tcCore\TestAuthor;
 use tcCore\User;
 
 class AuthorsController extends Controller
@@ -33,27 +27,43 @@ class AuthorsController extends Controller
 
     public static function getCentraalExamenAuthor()
     {
-         return User::where('username', config('custom.examschool_author'))->first();
+        return User::where('username', config('custom.examschool_author'))->first();
+    }
+
+    public static function getNationalItemBankAuthor()
+    {
+        return User::where('username', config('custom.national_item_bank_school_author'))->first();
+    }
+
+    public static function getPublishableAuthorByCustomerCode($customerCode)
+    {
+        $lookupTable = (new self)->getPublishableAuthorCustomerCodesAndUsernames();
+
+        $username = $lookupTable[$customerCode] ?? false;
+
+        if(!$username){
+            return false;
+        }
+        return User::where('username', $username)->first();
+    }
+
+    private function getPublishableAuthorCustomerCodesAndUsernames()
+    {
+        return [
+            config('custom.examschool_customercode')                => config('custom.examschool_author'),
+            config('custom.national_item_bank_school_customercode') => config('custom.national_item_bank_school_author'),
+            config('custom.creathlon_school_customercode')          => config('custom.creathlon_school_author'),
+        ];
     }
 
     private function getBuilderForOwnSubjects($user)
     {
-        return User::withTrashed()->whereIn('id', // find all users part of this selection
-            Teacher::withTrashed()->whereIn('subject_id', // find the teachers with these subjects
-                Subject::withTrashed()->whereIn('section_id', // get all subjects belonging to the section memberships
-                    $user->sections()->select('sections.id')->where('demo',0) // get section memberships of this teacher where section is not part of the demo environment
-                )->select('subjects.id')
-            )->select('teachers.user_id')
-        )->select('id','name_first','name_suffix','name')->groupBy('users.id');
+        return TestAuthor::schoolLocationAuthorUsers($user);
     }
 
     private function getBuilderForOwnSubjectsAndSharedSections($user)
     {
-        return User::withTrashed()->whereIn('id', // find all users part of this selection
-            Teacher::withTrashed()->whereIn('subject_id', // find the teachers with these subjects
-                $user->subjectsIncludingShared()->where('demo',0)->pluck('id')
-            )->select('teachers.user_id')
-        )->select('id','name_first','name_suffix','name')->groupBy('users.id');
+        return TestAuthor::schoolLocationAndSharedSectionsAuthorUsers($user);
     }
 
 }

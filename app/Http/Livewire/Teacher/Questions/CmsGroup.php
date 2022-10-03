@@ -2,13 +2,10 @@
 
 namespace tcCore\Http\Livewire\Teacher\Questions;
 
-use Illuminate\Support\Str;
 use tcCore\GroupQuestion;
 
-class CmsGroup
+class CmsGroup extends CmsBase
 {
-    private $instance;
-
     public $requiresAnswer = false;
 
     private $questionProperties = [
@@ -37,18 +34,12 @@ class CmsGroup
         ];
     }
 
-
-    public function __construct(OpenShort $instance)
-    {
-        $this->instance = $instance;
-    }
-
-    public function getTranslationKey()
+    public function getTranslationKey(): string
     {
         return __('cms.group-question');
     }
 
-    public function getTemplate()
+    public function getTemplate(): string
     {
         return 'group-question';
     }
@@ -65,7 +56,7 @@ class CmsGroup
         foreach ($this->questionProperties as $key => $val) {
             $this->instance->question[$key] = $q[$key];
         }
-
+        $this->instance->question['name'] = html_entity_decode($this->instance->question['name']);
         if ($this->instance->question['number_of_subquestions'] == null) {
             $this->instance->question['number_of_subquestions'] = 0;
         }
@@ -90,5 +81,11 @@ class CmsGroup
     public function showQuestionScore()
     {
         return false;
+    }
+
+    public function updatedQuestionName($value)
+    {
+        $event = filled($value) ? 'group-question-name-filled' : 'group-question-name-empty';
+        $this->instance->dispatchBrowserEvent($event);
     }
 }
