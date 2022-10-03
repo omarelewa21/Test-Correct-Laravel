@@ -2486,7 +2486,7 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
         );
     }
 
-    public function generalTermsValidationHasExpired()
+    private function generalTermsValidationHasExpired()
     {
         return $this->generalTermsLog->created_at->startOfDay()->addDays(config('custom.default_general_terms_days'))->isBefore(Carbon::now()->startOfDay());
     }
