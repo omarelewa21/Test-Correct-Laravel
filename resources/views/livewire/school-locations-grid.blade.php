@@ -1,40 +1,83 @@
-<div class="mt-10 flex-1 " id="school-locations-grid">
+<div class="mt-10 flex-1 " id="school-locations-grid" x-data="">
     <div class="flex flex-1 justify-between">
-        <div><h1>Schoollocaties</h1></div> {{-- todo translation--}}
+        <div><h1>{{ __('school_location.school_locations') }}</h1></div>
         <div class="flex-shrink-0">
             @if(Auth::user()->isA('Administrator'))
-                {{-- link to cake, new school_location --}}
-                <x-button.cta class="" wire:click="addNewSchoolLocation">{{ __('school_location.new-school-location') }}</x-button.cta> {{-- todo translation--}}
+                <x-button.cta class="" wire:click="addNewSchoolLocation">{{ __('school_location.new-school-location') }}</x-button.cta>
             @endif
-                <x-dropdown label="{{__('school_location.filter')}}" dropdownwidth="400px">
-                    <div class="grid grid-cols-2 px-4 py-2 items-center">
-                        <label for="customer_code">{{ __('school_location.customer_code') }}</label>
-                        <x-input.text id="customer_code" title="{{ __('school_location.customer_code') }}" wire:model="filters.customer_code"></x-input.text>
-                    </div>
-                    <div class="grid grid-cols-2 px-4 py-2 items-center">
-                        <label for="customer_code">{{ __('school_location.school') }}</label>
-                        <x-input.text id="school" title="{{ __('school_location.school') }}" wire:model="filters.name"></x-input.text>
-                    </div>
-                    <div class="grid grid-cols-2 px-4 py-2 items-center">
-                        <label for="umbrella_school">{{ __('school_location.umbrella_school') }}</label>
-                        <x-input.text id="umbrella_school" title="{{ __('school_location.umbrella_school') }}" wire:model="filters.school_name"></x-input.text>
-                    </div>
-                    <div class="grid grid-cols-2 px-4 py-2 items-center">
-                        <label for="customer">{{ __('school_location.customer') }}</label>
-                        <x-input.text id="customer" title="{{ __('school_location.customer') }}" wire:model="filters.id">
-                            {{-- todo input select --}}
-                        </x-input.text>
-                    </div>
-{{--                    <x-dropdown.item--}}
-{{--                            onclick="">--}}
-{{--                        gello--}}
-{{--                    </x-dropdown.item>--}}
-{{--                    <x-dropdown.item--}}
-{{--                            onclick="">--}}
-{{--                        gello2--}}
-{{--                    </x-dropdown.item>--}}
-                </x-dropdown>
         </div>
+
+    </div>
+    <div class="flex flex-col py-4">
+        <div class="flex w-full mt-2">
+            <div class="relative w-full">
+                <x-input.group class="w-full">
+                    <x-input.text class="w-full"
+                                  placeholder="{{ __('cms.Search...') }}"
+                                  wire:model="filters.combined_search"
+                    />
+                    <x-icon.search class="absolute right-0 -top-2"/>
+                </x-input.group>
+            </div>
+        </div>
+        <div class="flex flex-wrap w-full gap-2 mt-2">
+
+            <x-input.choices-select
+                    wire:key="school_location_license_type"
+                    :multiple="true"
+                    :options="$this->licenseTypes"
+                    :withSearch="true"
+                    placeholderText="{{ __('school_location.CLIENT') }}"
+                    wire:model="filters.license_type"
+                    filterContainer="school-locations-grid-active-filters"
+            />
+            <x-input.choices-select
+                    wire:key="school_location_lvs_active"
+                    :multiple="true"
+                    :options="$this->yesOrNo"
+                    :withSearch="true"
+                    placeholderText="{{ __('school_location.lvs') }}"
+                    wire:model="filters.lvs_active"
+                    filterContainer="school-locations-grid-active-filters"
+            />
+            <x-input.choices-select
+                    wire:key="school_location_sso_active"
+                    :multiple="true"
+                    :options="$this->yesOrNo"
+                    :withSearch="true"
+                    placeholderText="{{ __('school_location.sso') }}"
+                    wire:model="filters.sso_active"
+                    filterContainer="school-locations-grid-active-filters"
+            />
+            @if($this->hasActiveFilters())
+                <x-button.text-button class="ml-auto text-base"
+                                      size="sm"
+                                      @click="document.getElementById('school-locations-grid-active-filters').innerHTML = '';"
+                                      wire:click="clearFilters()"
+                                      wire:key="clearfilters"
+                >
+                    <span class="min-w-max">{{ __('teacher.Filters wissen') }}</span>
+                    <x-icon.close-small/>
+                </x-button.text-button>
+            @else
+                <x-button.text-button class="ml-auto text-base disabled"
+                                      size="sm"
+                                      disabled
+                                      wire:key="clearfilters-disabled"
+                >
+                    <span class="min-w-max">{{ __('teacher.Filters wissen') }}</span>
+                    <x-icon.close-small/>
+                </x-button.text-button>
+            @endif
+        </div>
+        <div id="school-locations-grid-active-filters"
+             wire:ignore
+             x-data=""
+             :class="($el.childElementCount !== 1) ? 'mt-2' : ''"
+             class="flex flex-wrap gap-2"
+        >
+        </div>
+
     </div>
 
     @if (session()->has('error'))
@@ -43,77 +86,62 @@
         </div>
     @endif
 
-    <div class="content-section mt-10 flex-1 p-8" x-data="{}">
+    <div class="content-section flex-1 p-8" x-data="{}">
 
         <div class="flex space-x-4 mt-4">
             <x-table>
                 <x-slot name="head">
-                    {{-- Klantcode | School | Gemeenschap | Stad | BRIN | LVS | SSO | Licenties | Geactiveerd | Vraagitems | (actions) --}}
                     <x-table.heading
                             :sortable="true"
-                            :direction="$this->orderByColumnName == 'school_locations.customer_code' ? $this->orderByDirection : null"
-                            wire:click="setOrderByColumnAndDirection('school_locations.customer_code')">
-                        Klantcode
+                            :direction="$this->orderByColumnName == 'customer_code' ? $this->orderByDirection : null"
+                            wire:click="setOrderByColumnAndDirection('customer_code')">
+                        {{ __('school_location.customer_code') }}
                     </x-table.heading>
                     <x-table.heading
                             :sortable="true"
-                            :direction="$this->orderByColumnName == 'school_locations.name' ? $this->orderByDirection : null"
-                            wire:click="setOrderByColumnAndDirection('school_locations.name')">
-                        School
+                            :direction="$this->orderByColumnName == 'name' ? $this->orderByDirection : null"
+                            wire:click="setOrderByColumnAndDirection('name')">
+                        {{ __('school_location.school') }}
                     </x-table.heading>
                     <x-table.heading
                             :sortable="true"
-                            :direction="$this->orderByColumnName == 'schools.name' ? $this->orderByDirection : null"
-                            wire:click="setOrderByColumnAndDirection('schools.name')">
-                        Gemeenschap
+                            :direction="$this->orderByColumnName == 'school_name' ? $this->orderByDirection : null"
+                            wire:click="setOrderByColumnAndDirection('school_name')">
+                        {{ __('school_location.umbrella_school') }}
                     </x-table.heading>
                     <x-table.heading
                             :sortable="true"
-                            :direction="$this->orderByColumnName == 'school_locations.main_city' ? $this->orderByDirection : null"
-                            wire:click="setOrderByColumnAndDirection('school_locations.main_city')">
-                        Stad
+                            :direction="$this->orderByColumnName == 'main_city' ? $this->orderByDirection : null"
+                            wire:click="setOrderByColumnAndDirection('main_city')">
+                        {{ __('school_location.main_city') }}
                     </x-table.heading>
                     <x-table.heading
                             :sortable="true"
-                            :direction="$this->orderByColumnName == 'school_locations.external_main_code' ? $this->orderByDirection : null"
+                            :direction="$this->orderByColumnName == 'external_main_code' ? $this->orderByDirection : null"
                             wire:click="setOrderByColumnAndDirection('external_main_code')">
                         BRIN
                     </x-table.heading>
                     <x-table.heading
                             :sortable="true"
-                            :direction="$this->orderByColumnName == 'school_locations.lvs_type' ? $this->orderByDirection : null"
-                            wire:click="setOrderByColumnAndDirection('school_locations.lvs_type')">
+                            :direction="$this->orderByColumnName == 'lvs_active' ? $this->orderByDirection : null"
+                            wire:click="setOrderByColumnAndDirection('lvs_active')">
                         LVS
                     </x-table.heading>
                     <x-table.heading
                             :sortable="true"
-                            :direction="$this->orderByColumnName == 'school_locations.sso_type' ? $this->orderByDirection : null"
-                            wire:click="setOrderByColumnAndDirection('school_locations.sso_type')">
+                            :direction="$this->orderByColumnName == 'sso_active' ? $this->orderByDirection : null"
+                            wire:click="setOrderByColumnAndDirection('sso_active')">
                         SSO
                     </x-table.heading>
                     <x-table.heading
                             :sortable="true"
-                            :direction="$this->orderByColumnName == 'school_locations.count_active_licenses' ? $this->orderByDirection : null"
-                            wire:click="setOrderByColumnAndDirection('school_locations.count_active_licenses')"
+                            :direction="$this->orderByColumnName == 'count_questions' ? $this->orderByDirection : null"
+                            wire:click="setOrderByColumnAndDirection('count_questions')"
                             width="75px">
-                        Licenties
+                        {{ __('school_location.question_items') }}
                     </x-table.heading>
                     <x-table.heading
-                            :sortable="true"
-                            :direction="$this->orderByColumnName == 'school_locations.count_students' ? $this->orderByDirection : null"
-                            wire:click="setOrderByColumnAndDirection('school_locations.count_students')"
-                            width="75px">
-                        Geactiveerd
-                    </x-table.heading>
-                    <x-table.heading
-                            :sortable="true"
-                            :direction="$this->orderByColumnName == 'school_locations.count_questions' ? $this->orderByDirection : null"
-                            wire:click="setOrderByColumnAndDirection('school_locations.count_questions')"
-                            width="75px">
-                        Vraagitems
-                    </x-table.heading>
-                    <x-table.heading
-                            width="75px">
+                            width="{{ Auth::user()->isA('administrator') ? '100px' : '75px' }}">
                         &nbsp;
                     </x-table.heading>
 
@@ -121,14 +149,6 @@
                 <x-slot name="body">
 
                     @foreach($this->schoolLocations as $schoolLocation)
-                        @php
-                            if($schoolLocation->count_active_licenses > 0) {
-                                $percentage = round((100 / $schoolLocation->count_active_licenses) * $schoolLocation->count_students);
-                            }else{
-                                $percentage = '0';
-                            }
-                        @endphp
-
 
                         <x-table.row>
                             <x-table.cell :slim="true" :with-tooltip="true">
@@ -144,27 +164,41 @@
                                 {{ $schoolLocation->main_city }}
                             </x-table.cell>
                             <x-table.cell :slim="true" :with-tooltip="true">
-                                {{ $schoolLocation->external_main_code . ' / ' . $schoolLocation->external_sub_code }}
+                                {{ $schoolLocation->external_main_code . ' ' . $schoolLocation->external_sub_code }}
                             </x-table.cell>
                             <x-table.cell :slim="true" :with-tooltip="true">
-                                {{ $schoolLocation->lvs_type }}
+                                {{ $schoolLocation->lvs_active ? __('general.yes') : __('general.no') }}
                             </x-table.cell>
                             <x-table.cell :slim="true" :with-tooltip="true">
-                                {{ $schoolLocation->sso_type }}
-                            </x-table.cell>
-                            <x-table.cell :slim="true" :with-tooltip="true">
-                                {{ $schoolLocation->count_active_licenses }}
-                            </x-table.cell>
-                            <x-table.cell :slim="true" :with-tooltip="true">
-                                {{ $schoolLocation->count_students . " (" . $percentage . "%)" }}
+                                {{ $schoolLocation->sso_active ? __('general.yes') : __('general.no') }}
                             </x-table.cell>
                             <x-table.cell :slim="true" :with-tooltip="true">
                                 {{ $schoolLocation->count_questions }}
                             </x-table.cell>
                             <x-table.cell :slim="true" :button-cell="true">
-                                        <x-button.text-button size="sm"
-                                                wire:click="">Open {{-- todo translation--}}
-                                        </x-button.text-button>
+                                @if($administrator)
+                                    <x-dropdown :chevron="false" style="z-index: unset !important;">
+                                        <x-slot name="label">
+                                            <x-icon.options/>
+                                        </x-slot>
+                                        <x-dropdown.item wire:click="editSchoolLocation('{{$schoolLocation->uuid}}')">
+                                            <div class="flex items-center space-x-2">
+                                                <x-icon.edit/>
+                                                <span>{{__('school_location.edit')}}</span>
+                                            </div>
+                                        </x-dropdown.item>
+                                        <x-dropdown.item wire:click="deleteSchoolLocation('{{$schoolLocation->uuid}}')">
+                                            <div class="flex items-center space-x-2">
+                                                <x-icon.remove/>
+                                                <span>{{__('school_location.delete')}}</span>
+                                            </div>
+                                        </x-dropdown.item>
+                                    </x-dropdown>
+                                @endif
+                                <x-button.text-button size="sm"
+                                    wire:click="viewSchoolLocation('{{$schoolLocation->uuid}}')">
+                                    Open
+                                </x-button.text-button>
                             </x-table.cell>
                         </x-table.row>
                     @endforeach
@@ -180,22 +214,3 @@
         <x-slot name="testTakeManager">&nbsp;</x-slot>
     </div>
 </div>
-
-{{-- Grid current vs new: --}}
-{{-- Klantcode | School | Gemeenschap | Stad | Licenties | Geactiveerd | Vraagitems | (actions) --}}
-{{-- Klantcode | School | Gemeenschap | Stad | BRIN | LVS | SSO | Licenties | Geactiveerd | Vraagitems | (actions) --}}
-
-{{-- Sort and Filter. sort all columns, filter not all--}}
-{{-- Klantcode, School, Gemeenschap, Klant*, Brin*, LVS*, SSO*  *is selectbox--}}
-
-{{-- todo: administrator can create new school on this screen, account manager can't --}}
-{{-- on cake side: Popup.load('/school_locations/add', 1100); --}}
-
-{{-- actions--}}
-{{-- always (admin & account manager): folder icon button
-        Navigation.load('/school_locations/view/<?=getUUID($school_location, 'get'); //REDIRECT TO VIEW PAGE IN CAKE
---}}
-{{-- if administrator (in dropdown menu)
-        Popup.load('/school_locations/edit/<?=getUUID($school_location, 'get');?>', 1100);  //REDIRECT TO EDIT PAGE IN CAKE
-        SchoolLocation.delete(<?=getUUID($school_location, 'getQuoted');  //DELETE CAN BE DONE IN LARAVEL?
---}}

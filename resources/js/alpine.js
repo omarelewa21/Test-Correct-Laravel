@@ -577,7 +577,8 @@ document.addEventListener('alpine:init', () => {
                 refreshChoices()
 
                 this.$refs.select.addEventListener('choice', (event) => {
-                    if (this.value.includes(parseInt(event.detail.choice.value))) {
+                    let eventValue = isNaN(parseInt(event.detail.choice.value)) ? event.detail.choice.value : parseInt(event.detail.choice.value);
+                    if (this.value.includes(eventValue)) {
                         this.removeFilterItem(choices.getValue().find(value => value.value === event.detail.choice.value));
                     }
                 })

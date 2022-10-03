@@ -37,7 +37,9 @@
         <x-icon.chevron-small class="absolute right-4 top-1/2 -translate-y-1/2 rotate-90 pointer-events-none" opacity="1"/>
     </div>
     <template id="filter-pill-template" class="hidden">
-        <button class="space-x-2" @click="$dispatch('removeFrom'+$el.dataset.filter, {value: parseInt($el.dataset.filterValue)}); $el.remove();">
+        <button class="space-x-2" @click="$dispatch('removeFrom'+$el.dataset.filter, {
+            value: isNaN(parseInt($el.dataset.filterValue)) ? $el.dataset.filterValue : parseInt($el.dataset.filterValue)
+        }); $el.remove();">
             <span class="flex"></span>
             <x-icon.close-small/>
         </button>

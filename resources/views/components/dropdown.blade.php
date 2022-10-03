@@ -13,10 +13,11 @@
     'button' => 'dropdown-button',
     'labelstyle' => '',
     'dropdownwidth' => null,
+    'chevron' => true,
 ])
 
 <div x-data="{ open: false }" @keydown.window.escape="open = false" @click.outside="open = false"
-     class="relative inline-block text-left z-10">
+     class="relative inline-block text-left z-10" style="{{$attributes->get('style')}}">
     <div>
         <span class="rounded-md">
             <button @click="open = !open" type="button"
@@ -24,7 +25,9 @@
                     :class="{primary: open}"
                     id="options-menu" aria-haspopup="true" x-bind:aria-expanded="open" aria-expanded="true">
                 <span class="align-middle">{{ $label }}</span>
-                <x-icon.chevron></x-icon.chevron>
+                @if($chevron)
+                    <x-icon.chevron></x-icon.chevron>
+                @endif
             </button>
         </span>
     </div>
