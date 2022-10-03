@@ -10,9 +10,10 @@
                 {{ __('saml_no_mailaddress_in_request_detected.is daarom geblocked.') }}</p>
             <p>{{ __('saml_no_mailaddress_in_request_detected.Als je niet weet wat je moet doen neem dan contact op met Martin, Erik of Carlo.') }} </p>
             <p>
-                <pre>
-                {!! var_export($attr,true) !!}
-                </pre>
+
+                @foreach($attr as $key => $value)
+                    {{ $key }} => @if(is_array($value)) {{ $value[0] }} @else {{ $value }}<br/>
+                @endforeach
             </p>
 
             {{ __('saml_no_mailaddress_in_request_detected.Met vriendelijke groet,') }}<BR>
