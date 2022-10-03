@@ -11,10 +11,10 @@ return [
     'Toetsafname ingepland.'                            => 'Toetsafname ingepland.',
     'assignment_planned'                                => 'Opdracht gepland.',
     'text_access_link'                                  => 'Je kunt de toets openen met ',
-    'assginment_text_access_link'                       => 'Je kunt de opdracht openen met ',
+    'assignment_text_access_link'                       => 'Je kunt de opdracht openen met ',
     'this_link'                                         => 'deze link',
     'test_has_scheduled_for_invigilator'                => 'Er is een toets ingepland met jou als surveillant',
     'test_has_scheduled_for_teacher'                    => 'Je hebt een test gepland',
-    'take_code'                                         => ' of door de volgende toets code in te vullen in het logincherm: ',
+    'test_take_code'                                    => ' of door de volgende toets code in te vullen in het logincherm: ',
     'assignment_take_code'                              => ' of door de volgende opdrachtcode in te vullen in het logincherm: ',
 ];
