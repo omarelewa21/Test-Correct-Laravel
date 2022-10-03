@@ -497,7 +497,7 @@ class EntreeHelper
         if (array_key_exists('mail',$this->attr)
             && $this->attr['mail'][0]
             && Str::contains($this->attr['mail'][0],'@')
-            && $this->attr['mail'][0] !== 'fakeEmail@test-correct.nl') {
+            && $this->attr['mail'][0] !== 'fakeemail@test-correct.nl') {
             return $this->attr['mail'][0];
         }
         return null;
@@ -505,7 +505,7 @@ class EntreeHelper
 
     private function hasEmailAttribute()
     {
-        return !!array_key_exists('mail',$this->attr);
+        return !!$this->getEmailFromAttributes();
     }
 
     private function getFirstNameFromAttributes()
@@ -566,7 +566,7 @@ class EntreeHelper
         return SamlMessage::create([
             'message_id' => $this->messageId,
             'eck_id' => Crypt::encryptString($this->getEckIdFromAttributes()),
-            'email' => $this->attr['mail'][0],
+            'email' => $this->getEmailFromAttributes(),
         ]);
     }
 
@@ -949,8 +949,8 @@ class EntreeHelper
     private function handleUpdateUserWithSamlAttributes(): void
     {
         $emailFromEntree = false;
-        if (array_key_exists('mail', $this->attr) && is_array($this->attr['mail'])) {
-            $emailFromEntree = array_pop($this->attr['mail']);
+        if ($this->getEmailFromAttributes()) {
+            $emailFromEntree = $this->getEmailFromAttributes();
         }
 
         if ($emailFromEntree) {
@@ -1034,7 +1034,7 @@ class EntreeHelper
         $this->emailMaybeEmpty = optional($this->location)->lvs_active_no_mail_allowed;
         $this->validateAttributes();
 
-        if (!$this->emailMaybeEmpty && empty($this->getEmailFromAttributes())) {
+        if (!$this->emailMaybeEmpty && !($this->getEmailFromAttributes())) {
             $url = route('auth.login',
                 [
                     'tab' => 'login',
@@ -1048,7 +1048,7 @@ class EntreeHelper
     public function redirectIfNoMailPresentScenario()
     {
         $userFromSamlRequest = User::findByEckId($this->getEckIdFromAttributes())->first();
-        if ($this->emailMaybeEmpty && empty($this->getEmailFromAttributes()) && optional($userFromSamlRequest)->hasImportMailAddress()) {
+        if ($this->emailMaybeEmpty && !($this->getEmailFromAttributes()) && optional($userFromSamlRequest)->hasImportMailAddress()) {
             $samlMessage = $this->createSamlMessageWithEmptyEmail();
 
             $url = route('auth.login', [
