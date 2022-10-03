@@ -496,7 +496,8 @@ class EntreeHelper
     {
         if (array_key_exists('mail',$this->attr)
             && $this->attr['mail'][0]
-            && Str::contains($this->attr['mail'][0],'@')) {
+            && Str::contains($this->attr['mail'][0],'@')
+            && $this->attr['mail'][0] !== 'fakeEmail@test-correct.nl') {
             return $this->attr['mail'][0];
         }
         return null;
@@ -590,8 +591,7 @@ class EntreeHelper
             throw new \Exception('no eckId found in saml request');
         }
 
-        if (!$this->emailMaybeEmpty && (!array_key_exists('mail', $this->attr) || !array_key_exists(0,
-                    $this->attr['mail']))) {
+        if (!$this->emailMaybeEmpty && !$this->getEmailFromAttributes()) {
             logger('No mail found');
             logger('==== credentials ====');
             $attr = $this->attr;
