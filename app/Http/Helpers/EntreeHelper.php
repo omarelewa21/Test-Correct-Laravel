@@ -611,7 +611,7 @@ class EntreeHelper
             logger($attr);
             logger('=======');
 
-            optional($this->location)->sendSamlNoMailAddresInRequestDetectedMailIfAppropriate();
+            optional($this->location)->sendSamlNoMailAddresInRequestDetectedMailIfAppropriate($attr);
 
 //            throw new \Exception('no mail found in saml request');
         }

@@ -9,6 +9,11 @@
                 {{ __('saml_no_mailaddress_in_request_detected.Entreekoppeling zonder emailadres. Deze school staat niet gemarkeerd als lvs_active_no_mail_allowed en') }}
                 {{ __('saml_no_mailaddress_in_request_detected.is daarom geblocked.') }}</p>
             <p>{{ __('saml_no_mailaddress_in_request_detected.Als je niet weet wat je moet doen neem dan contact op met Martin, Erik of Carlo.') }} </p>
+            <p>
+                <pre>
+                {!! var_export($attr,true) !!}
+                </pre>
+            </p>
 
             {{ __('saml_no_mailaddress_in_request_detected.Met vriendelijke groet,') }}<BR>
             {{ __('saml_no_mailaddress_in_request_detected.Tech,') }}<BR>
