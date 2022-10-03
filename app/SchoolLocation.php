@@ -1217,6 +1217,7 @@ class SchoolLocation extends BaseModel implements AccessCheckable
             return true;
         }
 
+        return true; // always as we have some issues with Groevenbeek and we want all the requests
         return ($this->no_mail_request_detected->diffInHours(now()) > 23);
     }
 
