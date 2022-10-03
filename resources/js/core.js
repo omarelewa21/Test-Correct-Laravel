@@ -8,7 +8,7 @@ Core = {
     inApp: false,
     appType: '',
     inactive: 0,
-    secondsBeforeStudentLogout: 60 * 60,
+    secondsBeforeStudentLogout: 60 * 60 * 2,
     devices: ['browser', 'electron', 'ios', 'chromebook'],
 
     init: function () {
