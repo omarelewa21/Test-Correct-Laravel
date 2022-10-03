@@ -595,6 +595,7 @@ class EntreeHelper
             logger('No mail found');
             logger('==== credentials ====');
             $attr = $this->attr;
+            $attr['eckId last chars'] = substr($attr['eckId'][0],-5);
             unset($attr['eckId']);
             logger($attr);
             logger('=======');
