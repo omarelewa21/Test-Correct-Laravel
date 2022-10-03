@@ -12,7 +12,7 @@
             <p>
 
                 @foreach($attr as $key => $value)
-                    {{ $key }} => @if(is_array($value)) {{ $value[0] }} @else {{ $value }}<br/>
+                    {{ $key }} => @if(is_array($value)) {{ $value[0] }} @else {{ $value }} @endif<br/>
                 @endforeach
             </p>
 
