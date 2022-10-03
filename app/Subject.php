@@ -389,4 +389,13 @@ class Subject extends BaseModel implements AccessCheckable
             ->distinct();
     }
 
+    public static function getIdsForContentSource(User $user, array $customer_codes)
+    {
+        if($user->isValidExamCoordinator()) {
+            //This returns a queryBuilder for efficiency purposes.
+            return Subject::select('id')->whereIn('base_subject_id', BaseSubject::select('id')->distinct());
+        }
+
+        return Subject::getSubjectIdsOfSchoolLocationByCustomerCodesAndUser(Arr::wrap($customer_codes), $user);
+    }
 }

@@ -795,6 +795,10 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
                     }
                 }
             }
+
+            if($user->isA('Teacher')) {
+                $user->handleExamCoordinatorChange();
+            }
         });
 
         static::deleted(function (User $user) {
@@ -2689,5 +2693,15 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
             'user_id' => $this->getKey(),
             'school_location_id' => $this->school_location_id,
         ]);
+    }
+
+    private function handleExamCoordinatorChange()
+    {
+        // if nothing changed, continue;
+        if (($this->getAttribute('is_examcoordinator') === $this->getOriginal('is_examcoordinator')) && ($this->getAttribute('is_examcoordinator_for') === $this->getOriginal('is_examcoordinator_for'))) {
+            return true;
+        }
+
+
     }
 }
