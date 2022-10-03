@@ -1,5 +1,5 @@
 <div class="flex flex-col pb-5 pt-8 px-5 sm:px-10 bg-white rounded-10 overflow-hidden shadow-xl transform transition-all sm:w-full"
-    x-data="{ logoutWarningTimer: 30, extendTime: 2*60*60, countDownWidth:100, logoutCountdownInterval:null }"
+    x-data="{ logoutWarningTimer: 30, extendTime: 3*60*60, countDownWidth:100, logoutCountdownInterval:null }"
 >
     <div class="flex justify-between items-center">
         <h2>{{ __('modal.logout_warning_title') }}</h2>
