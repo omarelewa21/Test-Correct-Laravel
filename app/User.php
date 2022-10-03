@@ -2475,6 +2475,22 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
         return $this;
     }
 
+    public function hasNeedsToAcceptGeneralTerms()
+    {
+        return (
+            $this->isA('teacher')
+            && $this->hasNoActiveLicense()
+            && $this->generalTermsLog()->count() == 1
+            && null == $this->generalTermsLog->accepted_at
+            && $this->generalTermsValidationHasExpired()
+        );
+    }
+
+    public function generalTermsValidationHasExpired()
+    {
+        return $this->generalTermsLog->created_at->startOfDay()->addDays(config('custom.default_general_terms_days'))->isBefore(Carbon::now()->startOfDay());
+    }
+
     public function createGeneralTermsLogIfRequired()
     {
         if ($this->isA('teacher') && $this->hasNoActiveLicense() && $this->generalTermsLog()->count() == 0) {

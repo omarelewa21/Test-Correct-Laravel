@@ -12,6 +12,7 @@ use tcCore\Http\Middleware\LocaleMiddleware;
 use tcCore\Http\Middleware\Logging;
 use tcCore\Http\Middleware\RequestLogger;
 use tcCore\Http\Middleware\TestTakeForceTakenAwayCheck;
+use tcCore\Http\Middleware\ValidGeneralTerms;
 use tcCore\Http\Middleware\ValidTrialPeriod;
 use tcCore\Http\Middleware\TrustProxies;
 
@@ -80,6 +81,7 @@ class Kernel extends HttpKernel
         'teacher' => [
             AuthenticatedAsTeacher::class,
             ValidTrialPeriod::class,
+            ValidGeneralTerms::class,
         ]
     ];
 
