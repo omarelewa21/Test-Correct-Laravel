@@ -38,7 +38,7 @@ Core = {
         Core.appType === '' ? Core.enableBrowserFeatures() : Core.enableAppFeatures(Core.appType);
     },
     lostFocus: function (reason) {
-        if (!isMakingTest()) {
+        if (!isMakingTest() || Core.appType == 'electron') {
             return;
         }
 
@@ -64,8 +64,6 @@ Core = {
         }
 
         window.Livewire.emit('setFraudDetected');
-
-        alert = true;
     },
 
     lostFocusWithoutReporting: function (text) {
