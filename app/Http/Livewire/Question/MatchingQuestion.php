@@ -49,12 +49,11 @@ class MatchingQuestion extends Component
         $this->answer = $answer;
     }
 
-    private function matchingUpdateValueOrder($dbstring, $value){
+    private function matchingUpdateValueOrder($dbstring, $values){
         $databaseStruct = json_decode(
             Answer::find($this->answers[$this->question->uuid]['id'])->json,
             true);
-
-        foreach ($value as $key => $value) {
+        foreach ($values as $key => $value) {
             if ($value['value'] == 'startGroep') {
                 $value['value'] = '';
             }
@@ -71,14 +70,8 @@ class MatchingQuestion extends Component
                         $dbstring[$items['value']] = $value['value'];    // set new key to value
                     }else{
                         // value exists in database
-                        if($prevStoredKeyInDatabase == $prevStoredKeyInDbstring){
-                            // stored key in dbstring == stored key in database =>
-                            $dbstring[$prevStoredKeyInDbstring] = '';                 // set previous key in dbstring to empty string
-                            $dbstring[$items['value']] = $value['value'];             // set new key to value
-                        }else{
-                            $dbstring[$prevStoredKeyInDbstring] = $value['value']; // set previous key in dbstring to value
-                            $dbstring[$items['value']] = '';                       // set new key to empty string
-                        }
+                        $dbstring[$prevStoredKeyInDbstring] = $value['value']; // set previous key in dbstring to value
+                        $dbstring[$items['value']] = '';                       // set new key to empty string
                     }
                 }else{
                     // value is not previously stored in dbstring
@@ -89,14 +82,14 @@ class MatchingQuestion extends Component
         return $dbstring;
     }
 
-    public function updateOrder($value)
+    public function updateOrder($values)
     {
         $dbstring = [];
         if(Str::lower($this->question->subtype)  == "matching"){
-            $dbstring = $this->matchingUpdateValueOrder($dbstring, $value);
+            $dbstring = $this->matchingUpdateValueOrder($dbstring, $values);
         }
         else{
-            foreach ($value as $key => $value) {
+            foreach ($values as $key => $value) {
                 if ($value['value'] == 'startGroep') {
                     $value['value'] = '';
                 }

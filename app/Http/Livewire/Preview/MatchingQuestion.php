@@ -38,8 +38,8 @@ class MatchingQuestion extends Component
         $this->shuffledAnswers = $this->question->matchingQuestionAnswers->shuffle();
     }
 
-    private function matchingUpdateValueOrder($dbstring, $value){
-        foreach ($value as $key => $value) {
+    private function matchingUpdateValueOrder($dbstring, $values){
+        foreach ($values as $key => $value) {
             if ($value['value'] == 'startGroep') {
                 $value['value'] = '';
             }
@@ -56,14 +56,8 @@ class MatchingQuestion extends Component
                         $dbstring[$items['value']] = $value['value'];    // set new key to value
                     }else{
                         // value exists in AnswerStruct
-                        if($prevStoredKeyInAnswerStruct == $prevStoredKeyInDbstring){
-                            // stored key in dbstring == stored key in AnswerStruct =>
-                            $dbstring[$prevStoredKeyInDbstring] = '';                 // set previous key in dbstring to empty string
-                            $dbstring[$items['value']] = $value['value'];             // set new key to value 
-                        }else{
-                            $dbstring[$prevStoredKeyInDbstring] = $value['value']; // set previous key in dbstring to value 
-                            $dbstring[$items['value']] = '';                       // set new key to empty string
-                        }
+                        $dbstring[$prevStoredKeyInDbstring] = $value['value'];                 // set previous key in dbstring to empty string
+                        $dbstring[$items['value']] = '';             // set new key to value
                     }
                 }else{
                     // value is not previously stored in dbstring
@@ -75,14 +69,14 @@ class MatchingQuestion extends Component
     }
 
 
-    public function updateOrder($value)
+    public function updateOrder($values)
     {
         $dbstring = [];
         if(Str::lower($this->question->subtype) == "matching"){
-            $dbstring = $this->matchingUpdateValueOrder($dbstring, $value);
+            $dbstring = $this->matchingUpdateValueOrder($dbstring, $values);
         }
         else{
-            foreach ($value as $key => $value) {
+            foreach ($values as $key => $value) {
                 if ($value['value'] == 'startGroep') {
                     $value['value'] = '';
                 }
