@@ -34,6 +34,7 @@ return [
     'number-of-tests-national'        => '{0} Voor jouw vakken hebben wij nog onvoldoende kwalitatieve content beschikbaar|{1} :count toets gevonden|[2,*] :count toetsen gevonden',
     'number-of-tests-personal'        => '{0} Je hebt nog geen toetsen aangemaakt. Klik op "Toets creëren" om je eerste toets te maken.|{1} :count toets gevonden|[2,*] :count toetsen gevonden',
     'number-of-tests-school'          => '{0} Geen toetsen gevonden|{1} :count toets gevonden|[2,*] :count toetsen gevonden',
+    'number-of-tests-school_location' => '{0} Geen toetsen gevonden|{1} :count toets gevonden|[2,*] :count toetsen gevonden',
     'number-of-tests-umbrella'        => '{0} Er zijn geen gedeelde items beschikbaar binnen je scholengemeenschap voor jouw vakken.|{1} :count toets gevonden|[2,*] :count toetsen gevonden',
     'number-of-tests-creathlon'       => '{0} Voor jouw vakken hebben wij nog onvoldoende kwalitatieve content beschikbaar|{1} :count toets gevonden|[2,*] :count toetsen gevonden',
     'cito-snelstart'                  => 'Cito Snelstart',

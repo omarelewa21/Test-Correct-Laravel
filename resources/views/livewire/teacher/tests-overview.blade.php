@@ -91,17 +91,6 @@
                             wire:model="filters.{{ $this->openTab }}.education_level_id"
                             filterContainer="questionbank-{{ $this->openTab }}-active-filters"
                     />
-
-                        <x-input.choices-select
-                                wire:key="string_values_{{ $this->openTab }}"
-                                :multiple="true"
-                                :options="$this->stringValues"
-                                :withSearch="true"
-                                placeholderText="{{ __('kaas') }}"
-                                wire:model="filters.{{ $this->openTab }}.string_values"
-                                filterContainer="questionbank-{{ $this->openTab }}-active-filters"
-                        />
-
                     @if ($this->canFilterOnAuthors())
                         <x-input.choices-select
                                 wire:key="authors_{{ $this->openTab }}"

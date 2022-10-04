@@ -398,4 +398,34 @@ class Subject extends BaseModel implements AccessCheckable
 
         return Subject::getSubjectIdsOfSchoolLocationByCustomerCodesAndUser(Arr::wrap($customer_codes), $user);
     }
+
+    public static function getIdsForSharedSections(User $user)
+    {
+        if ($user->isSchoolExamCoordinator()) {
+            return Subject::select(['id'])
+                ->whereIn(
+                    'section_id',
+                    SchoolLocationSection::whereIn(
+                        'school_location_id',
+                        $user->allowedSchoolLocations()->select(['id'])
+                    )->select('section_id')
+                );
+        }
+
+        if ($user->schoolLocation->sharedSections()->exists()) {
+            $sharedSectionIdsQuery = $user->schoolLocation->sharedSections()->select(['id']);
+            $baseSubjectIdsQuery = $user->subjects()->select(['base_subject_id']);
+
+            return Subject::select(['id'])
+                ->whereIn(
+                    'section_id',
+                    $sharedSectionIdsQuery
+                )
+                ->when(!$user->isValidExamCoordinator(), function ($query) use ($baseSubjectIdsQuery) {
+                    $query->whereIn('base_subject_id', $baseSubjectIdsQuery)->pluck('id')->unique();
+                });
+        }
+
+        return false;
+    }
 }

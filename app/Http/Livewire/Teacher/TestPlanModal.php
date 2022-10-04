@@ -166,19 +166,32 @@ class TestPlanModal extends ModalComponent
         $this->request['test_id'] = $this->test->getKey();
         $this->request['allow_inbrowser_testing'] = $this->isAssessmentType() ? 1 : 0;
         $this->request['invigilator_note'] = '';
-        $this->request['owner_id'] = $this->test->author_id;
         $this->request['scheduled_by'] = auth()->id();
         $this->request['test_kind_id'] = 3;
 
         $this->request['retake'] = 0;
         $this->request['guest_accounts'] = 0;
         $this->request['school_classes'] = [];
-        $this->request['invigilators'] = $this->defaultInvigilator();
         $this->request['notify_students'] = true;
+
+        $this->request['invigilators'] = [$this->defaultInvigilator()];
+        $this->request['owner_id'] = $this->defaultInvigilator();
     }
 
-    private function defaultInvigilator(): array
+    private function defaultInvigilator(): int
     {
-        return [Auth::user()->isValidExamCoordinator() ? $this->test->author_id : Auth::id()];
+        if($this->authorOfTestIsAnAllowedInvigilator()) {
+            return Auth::user()->isValidExamCoordinator() ? $this->test->author_id : Auth::id();
+        }
+        
+        return $this->allowedInvigilators->first()['value'];
+    }
+
+    /**
+     * @return bool
+     */
+    private function authorOfTestIsAnAllowedInvigilator(): bool
+    {
+        return $this->allowedInvigilators->contains(fn($user) => $user['value'] === $this->test->author_id);
     }
 }

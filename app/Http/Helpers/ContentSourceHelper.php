@@ -31,7 +31,7 @@ class ContentSourceHelper
             case 'school_location':
                 return true;
             case 'umbrella':
-                return $user->hasSharedSections();
+                return $user->hasSharedSections() || $user->isSchoolExamCoordinator();
             case 'ldt':
             case 'tbni':
                 $contentSourceName = 'national';
