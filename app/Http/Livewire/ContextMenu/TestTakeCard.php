@@ -66,17 +66,7 @@ class TestTakeCard extends ContextMenuComponent
 
     public function studentAnswersPdf()
     {
-        $pageUrl = sprintf('test_takes/view/%s', $this->uuid);
-        $action = sprintf('Popup.load("/test_takes/answers_preview/%s", 1000)', $this->uuid);
-        /*'Popup.showPreviewTestTakeAnswers('7849c0e4-d9cf-4c97-8275-4acc0072da9b')'*/
-        $temporaryLogin = TemporaryLogin::createWithOptionsForUser(
-            ['page', 'page_action'],
-            [$pageUrl, $action],
-            auth()->user()
-        );
-
-        $this->redirect($temporaryLogin->createCakeUrl());
-        return;
+        return redirect()->route('teacher.preview.test_take', ['test_take' => $this->uuid]);
     }
 
     public function hasAnswerPdfOption(): bool
