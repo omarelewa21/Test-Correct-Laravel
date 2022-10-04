@@ -753,10 +753,10 @@ class SchoolLocation extends BaseModel implements AccessCheckable
                 case 'combined_search':
                     $query->when($value, function ($query, $value) {
                         return $query->where(function ($query) use ($value) {
-                            $query->where('customer_code', 'LIKE', "%" . $value . "%")
-                                ->orWhere('name', 'like', "%" . $value . "%")
+                            $query->where('customer_code', 'LIKE', "%$value%")
+                                ->orWhere('name', 'like', "%$value%")
                                 ->orWhere('school_id',
-                                    School::where('schools.name', 'LIKE', '%' . $value . '%')
+                                    School::where('schools.name', 'LIKE', "%$value%")
                                         ->pluck('id')
                                         ->whenEmpty(fn() => null))
                                 ->orWhereRaw("TRIM(CONCAT_WS(' ', COALESCE(external_main_code,''), COALESCE(external_sub_code,''))) LIKE '%$value%'");

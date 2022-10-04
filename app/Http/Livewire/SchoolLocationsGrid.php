@@ -3,6 +3,7 @@
 namespace tcCore\Http\Livewire;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 use Livewire\Component;
@@ -103,34 +104,58 @@ class SchoolLocationsGrid extends Component
             ->layout('layouts.app-admin');
     }
 
-    public function addNewSchoolLocation()
+    protected function getCakeUrlString(string $cakePage, ?string $uuid = null)
     {
-        $controller = new TemporaryLoginController();
-        $request = new Request();
-        $request->merge([
-            'options' => [
-                'page'        => '/school_locations/',
+        $lookUpArray = [
+            'school_location.new' => [
+                'page'        => '/',
                 'page_action' => "Loading.show();Popup.load('/school_locations/add', 1100);",
             ],
-        ]);
+            'school_location.view' => [
+                'page'        => '/',
+                'page_action' => sprintf("Navigation.load('/school_locations/view/%s')", $uuid)
+            ],
+            'school_location.edit' => [
+                'page'        => '/',
+                'page_action' => sprintf("Navigation.load('/school_locations/edit/%s')", $uuid)
+            ],
+            'school_location.delete' => [
+                'page'        => '/',
+                'page_action' => "SchoolLocation.delete('$uuid', 0)"
+            ]
+        ];
 
-        return $this->redirect($controller->toCakeUrl($request));
+        return $lookUpArray[$cakePage] ?? false;
+    }
+
+    protected function createCakeUrl(string $cakeRouteName, ?string $uuid = null)
+    {
+        $cakeAddress = $this->getCakeUrlString($cakeRouteName, $uuid);
+
+        $controller = new TemporaryLoginController();
+        $request = new Request();
+
+        if (!is_array($cakeAddress)) {
+            $cakeAddress = [
+                'page'        => '/',
+                'page_action' => "Navigation.load('$cakeAddress')"
+            ];
+        }
+
+        $request->merge([
+            'options' => $cakeAddress,
+        ]);
+        return $controller->toCakeUrl($request);
+    }
+
+    public function addNewSchoolLocation()
+    {
+        return $this->redirect($this->createCakeUrl('school_location.new'));
     }
 
     public function viewSchoolLocation($uuid)
     {
-        $cakeAddress = sprintf('/school_locations/view/%s', $uuid);
-
-        $controller = new TemporaryLoginController();
-        $request = new Request();
-        $request->merge([
-            'options' => [
-                'page'        => '/',
-                'page_action' => "Navigation.load('$cakeAddress')"
-            ]
-        ]);
-
-        return $this->redirect($controller->toCakeUrl($request));
+       return $this->redirect($this->createCakeUrl('school_location.view', $uuid));
     }
 
     public function editSchoolLocation($uuid)
@@ -138,18 +163,7 @@ class SchoolLocationsGrid extends Component
         if (!$this->administrator) {
             return;
         }
-        $cakeAddress = sprintf('/school_locations/edit/%s', $uuid);
-
-        $controller = new TemporaryLoginController();
-        $request = new Request();
-        $request->merge([
-            'options' => [
-                'page'        => '/',
-                'page_action' => "Navigation.load('$cakeAddress')"
-            ]
-        ]);
-
-        return $this->redirect($controller->toCakeUrl($request));
+        return $this->redirect($this->createCakeUrl('school_location.edit', $uuid));
     }
 
     public function deleteSchoolLocation($uuid)
@@ -157,17 +171,7 @@ class SchoolLocationsGrid extends Component
         if (!$this->administrator) {
             return;
         }
-
-        $controller = new TemporaryLoginController();
-        $request = new Request();
-        $request->merge([
-            'options' => [
-                'page'        => '/school_locations/',
-                'page_action' => "SchoolLocation.delete('$uuid')"
-            ]
-        ]);
-
-        return $this->redirect($controller->toCakeUrl($request));
+        return $this->redirect($this->createCakeUrl('school_location.delete',$uuid));
     }
 
     public function setOrderByColumnAndDirection($columnName)
