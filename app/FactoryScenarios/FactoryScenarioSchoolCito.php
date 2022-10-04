@@ -93,6 +93,7 @@ class FactoryScenarioSchoolCito extends FactoryScenarioSchool
 
         //create school class with teacher and students records, add the teacher-user, create student-users
         $schoolClassLocation = FactorySchoolClass::create($schoolYearLocation, 1, $factory->schoolClassName)
+            ->addTeacher($citoAuthor, $section->subjects()->first())
             ->addTeacher($citoAuthorB, $section->subjects()->first())
             ->addStudent(FactoryUser::createStudent($schoolLocation)->user)
             ->addStudent(FactoryUser::createStudent($schoolLocation)->user)
