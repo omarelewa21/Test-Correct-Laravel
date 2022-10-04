@@ -2,17 +2,16 @@
 
 namespace tcCore\Http\Livewire\Teacher;
 
-use Carbon\Carbon;
-use Illuminate\Support\Str;
 use Livewire\Component;
 use Livewire\WithPagination;
+use tcCore\Http\Traits\WithTestTakeInteractions;
 use tcCore\Subject;
 use tcCore\TestTake;
 use tcCore\TestTakeStatus;
 
 class TestTakeOverview extends Component
 {
-    use WithPagination;
+    use WithPagination, WithTestTakeInteractions;
 
     const STAGES = [
         'planned' => [TestTakeStatus::STATUS_PLANNED],
@@ -22,9 +21,11 @@ class TestTakeOverview extends Component
     ];
     const TABS = ['taken', 'norm'];
     const PER_PAGE = 12;
+    const ACTIVE_TAB_SESSION_KEY = 'test-take-overview-open-tab';
+    const DEFAULT_OPEN_TAB = 'taken';
 
     public string $stage;
-    public $openTab = 'taken';
+    public $openTab = self::DEFAULT_OPEN_TAB;
     public $filters = [];
 
     protected $queryString = ['openTab'];
@@ -33,7 +34,7 @@ class TestTakeOverview extends Component
     public function mount($stage)
     {
         $this->abortIfUnauthorized($stage);
-
+        $this->setOpenTab();
         $this->setFilters();
         $this->stage = $stage;
     }
@@ -51,6 +52,7 @@ class TestTakeOverview extends Component
     public function updatedOpenTab()
     {
         $this->resetPage();
+        session()->put(self::ACTIVE_TAB_SESSION_KEY, $this->openTab);
     }
     /* End Component lifecycle hooks */
 
@@ -168,9 +170,9 @@ class TestTakeOverview extends Component
         return $this->schoolClasses->reject(fn($class) => $class->label === __('school_classes.guest_accounts'))->toArray();
     }
 
-    public function openTestTakeDetail($testTakeUuid)
+    private function setOpenTab()
     {
-        return TestTake::redirectToDetailPage($testTakeUuid);
+        $this->openTab = session(self::ACTIVE_TAB_SESSION_KEY, self::DEFAULT_OPEN_TAB);
     }
     /* End Helper methods */
 }

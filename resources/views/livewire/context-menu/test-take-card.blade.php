@@ -1,6 +1,6 @@
 <x-menu.context-menu.base context="test-take-card">
 
-    <x-menu.context-menu.button wire:click="openTestTakeDetail">
+    <x-menu.context-menu.button wire:click="openTestTake">
         <x-slot name="icon"><x-icon.arrow/></x-slot>
         <x-slot name="text">{{ __('test-take.Open') }}</x-slot>
     </x-menu.context-menu.button>
