@@ -230,6 +230,8 @@ ORDER BY t2.displayorder,
 
         User::whereIn('id', Teacher::pluck('user_id')->unique())
             ->where('demo', 0)
+            ->where('username', 'not like', '%@teachandlearncompany.com')
+            ->where('username', 'not like', '%@test-correct.nl')
             ->each(function ($teacher) {
                 
                 if ($teacher->isA('teacher')) {
