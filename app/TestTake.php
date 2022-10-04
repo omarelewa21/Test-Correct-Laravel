@@ -343,7 +343,6 @@ class TestTake extends BaseModel
                 $testTake->saveSchoolClassTestTakeParticipants();
             }
             if($testTake->notify_students && GlobalStateHelper::getInstance()->isQueueAllowed()) {
-                logger('lekker mailen');
                 Queue::later(300, new SendTestPlannedMail($testTake->getKey()));
             }
         });
