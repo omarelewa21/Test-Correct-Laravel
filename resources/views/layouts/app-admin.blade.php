@@ -22,6 +22,12 @@
         <div class="user flex flex-wrap items-center ml-auto space-x-6">
             @if(Auth::user()->isA('Teacher'))
                 <span class="bold">{{ Auth::user()->getNameFullAttribute() }}</span>
+            @elseif(Auth::user()->isA('Administrator') || Auth::user()->isA('account manager'))
+                <x-dropdown label="{{ Auth::user()->getNameFullAttribute() ?: Auth::user()->name }}">
+                    <x-dropdown.item onclick="Livewire.emit('logout')">
+                        {{ __("auth.logout") }}
+                    </x-dropdown.item>
+                </x-dropdown>
             @else
             <x-dropdown label="{{ Auth::user()->getNameFullAttribute() }}">
                 <x-dropdown.item onclick="livewire.find(document.querySelector('[testtakemanager]').getAttribute('wire:id')).call('turnInModal')">

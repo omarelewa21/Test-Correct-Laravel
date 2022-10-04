@@ -10,15 +10,14 @@ use Livewire\Component;
 use Livewire\WithPagination;
 use tcCore\Http\Controllers\TemporaryLoginController;
 use tcCore\School;
-use tcCore\SchoolLocation;
 use tcCore\Traits\CanLogout;
 
-class SchoolLocationsGrid extends Component
+class SchoolsGrid extends Component
 {
     use WithPagination;
     use CanLogout;
 
-    protected $schoolLocations;
+    protected $schools;
     public $orderByColumnName = 'id';
     public $orderByDirection = 'desc';
     public $filters = [];
@@ -31,18 +30,15 @@ class SchoolLocationsGrid extends Component
 
     public function updatedFilters($value, $filter)
     {
-        session(['school-locations-grid-filters' => $this->filters]);
+        session(['schools-grid-filters' => $this->filters]);
     }
 
     public function clearFilters()
     {
         $this->filters = [
-            'combined_search' => '',
-            'license_type'    => [],
-            'lvs_active'      => [],
-            'sso_active'      => [],
+            'combined_admin_grid_search' => '',
         ];
-        session(['school-locations-grid-filters' => $this->filters]);
+        session(['schools-grid-filters' => $this->filters]);
     }
 
     public function hasActiveFilters(): bool
@@ -52,14 +48,11 @@ class SchoolLocationsGrid extends Component
 
     private function setFilters()
     {
-        if (session()->has('school-locations-grid-filters'))
-            $this->filters = session()->get('school-locations-grid-filters');
+        if (session()->has('schools-grid-filters'))
+            $this->filters = session()->get('schools-grid-filters');
         else {
             $this->filters = [
-                'combined_search' => '',
-                'license_type'    => [],
-                'lvs_active'      => [],
-                'sso_active'      => [],
+                'combined_admin_grid_search' => '',
             ];
         }
     }
@@ -67,29 +60,13 @@ class SchoolLocationsGrid extends Component
     private function cleanFilterForSearch(array $filters)
     {
         $searchFilter = [];
-        foreach (['combined_search', 'license_type', 'lvs_active', 'sso_active'] as $filter) {
+        foreach (['combined_admin_grid_search'] as $filter) {
             if (empty($filters[$filter])) {
                 continue;
             }
             $searchFilter[$filter] = $filters[$filter];
         }
         return $searchFilter;
-    }
-
-    public function getLicenseTypesProperty()
-    {
-        return collect(['client', 'trial'])
-            ->map(function ($option, $key) {
-                return ['value' => Str::upper($option) /*$key*/, 'label' => __('school_location.' . Str::upper($option))];
-            })->toArray();
-    }
-
-    public function getYesOrNoProperty()
-    {
-        return collect(['no', 'yes'])
-            ->map(function ($option, $key) {
-                return ['value' => $key, 'label' => __("general.$option")];
-            })->toArray();
     }
 
     public function mount()
@@ -100,30 +77,30 @@ class SchoolLocationsGrid extends Component
 
     public function render()
     {
-        $this->getFilteredAndSortedSchoolLocations();
+        $this->getFilteredAndSortedSchools();
 
-        return view('livewire.school-locations-grid')
+        return view('livewire.schools-grid')
             ->layout('layouts.app-admin');
     }
 
     protected function getCakeUrlString(string $cakePage, ?string $uuid = null)
     {
         $lookUpArray = [
-            'school_location.new' => [
+            'school.new' => [
                 'page'        => '/',
-                'page_action' => "Loading.show();Popup.load('/school_locations/add', 1100);",
+                'page_action' => "Loading.show();Popup.load('/schools/add', 1100);",
             ],
-            'school_location.view' => [
+            'school.view' => [
                 'page'        => '/',
-                'page_action' => sprintf("Navigation.load('/school_locations/view/%s')", $uuid)
+                'page_action' => sprintf("Navigation.load('/schools/view/%s')", $uuid)
             ],
-            'school_location.edit' => [
+            'school.edit' => [
                 'page'        => '/',
-                'page_action' => sprintf("Navigation.load('/school_locations/edit/%s')", $uuid)
+                'page_action' => sprintf("Navigation.load('/schools/edit/%s')", $uuid)
             ],
-            'school_location.delete' => [
+            'school.delete' => [
                 'page'        => '/',
-                'page_action' => "SchoolLocation.delete('$uuid', 0)"
+                'page_action' => "School.delete('$uuid', 0)"
             ]
         ];
 
@@ -150,30 +127,30 @@ class SchoolLocationsGrid extends Component
         return $controller->toCakeUrl($request);
     }
 
-    public function addNewSchoolLocation()
+    public function addNewSchool()
     {
-        return $this->redirect($this->createCakeUrl('school_location.new'));
+        return $this->redirect($this->createCakeUrl('school.new'));
     }
 
-    public function viewSchoolLocation($uuid)
+    public function viewSchool($uuid)
     {
-       return $this->redirect($this->createCakeUrl('school_location.view', $uuid));
+       return $this->redirect($this->createCakeUrl('school.view', $uuid));
     }
 
-    public function editSchoolLocation($uuid)
+    public function editSchool($uuid)
     {
         if (!$this->administrator) {
             return;
         }
-        return $this->redirect($this->createCakeUrl('school_location.edit', $uuid));
+        return $this->redirect($this->createCakeUrl('school.edit', $uuid));
     }
 
-    public function deleteSchoolLocation($uuid)
+    public function deleteSchool($uuid)
     {
         if (!$this->administrator) {
             return;
         }
-        return $this->redirect($this->createCakeUrl('school_location.delete',$uuid));
+        return $this->redirect($this->createCakeUrl('school.delete',$uuid));
     }
 
     public function setOrderByColumnAndDirection($columnName)
@@ -186,12 +163,12 @@ class SchoolLocationsGrid extends Component
         $this->orderByDirection = 'asc';
     }
 
-    protected function getFilteredAndSortedSchoolLocations()
+    protected function getFilteredAndSortedSchools()
     {
-        $this->schoolLocations = SchoolLocation::filtered(
+        $this->schools = School::filtered(
             $this->cleanFilterForSearch($this->filters),
             [$this->orderByColumnName => $this->orderByDirection]
-        )->with('school')
-            ->paginate(15, ['school_locations.*']);
+        )->with('umbrellaOrganization')
+            ->paginate(15, ['schools.*']);
     }
 }

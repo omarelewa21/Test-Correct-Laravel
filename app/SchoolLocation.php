@@ -758,7 +758,7 @@ class SchoolLocation extends BaseModel implements AccessCheckable
                                 ->orWhere('school_id',
                                     School::where('schools.name', 'LIKE', "%$value%")
                                         ->pluck('id')
-                                        ->whenEmpty(fn() => null))
+                                        ->whenEmpty(fn() => false))
                                 ->orWhereRaw("TRIM(CONCAT_WS(' ', COALESCE(external_main_code,''), COALESCE(external_sub_code,''))) LIKE '%$value%'");
                         });
                     });

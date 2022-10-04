@@ -97,15 +97,13 @@ Route::middleware('auth')->group(function () {
     });
 
     Route::middleware(['dll', 'account_manager'])->prefix('account-manager')->name('account-manager.')->group(function () {
-        // route school_locations account manager screen //todo remove comment
         Route::get('/school-locations', \tcCore\Http\Livewire\SchoolLocationsGrid::class)->name('school-locations');
-        // todo add route school admin screen (scholengemeenschap)
+        Route::get('/schools', \tcCore\Http\Livewire\SchoolsGrid::class)->name('schools');
     });
 
     Route::middleware(['dll', 'administrator'])->prefix('admin')->name('admin.')->group(function () {
-        // route school_locations admin screen //todo remove comment
         Route::get('/school-locations', \tcCore\Http\Livewire\SchoolLocationsGrid::class)->name('school-locations');
-        // todo add route school admin screen (scholengemeenschap)
+        Route::get('/schools', \tcCore\Http\Livewire\SchoolsGrid::class)->name('schools');
     });
 
     if (\tcCore\Http\Helpers\BaseHelper::notProduction()) {
