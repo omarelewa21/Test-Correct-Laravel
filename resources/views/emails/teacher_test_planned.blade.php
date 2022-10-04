@@ -13,12 +13,12 @@
 {{ __("test_planned.Op") }} {{ DateTime::createFromFormat('Y-m-d H:i:s', $testTake->time_start)->format('d-m-Y') }}  {{__('test_planned.wordt de toets')}}  "{{ $testTake->test->name }}" {{ __('test_planned.van het vak') }} {{ $testTake->test->subject->name }} {{ __("test_planned.afgenomen") }}.<br/>
 <br/>
 
-{{ __("test_planned.text_access_link") }}
+{{ $is_assessment ? __("test_planned.assignment_text_access_link") : __("test_planned.text_access_link") }}
 <a href="{{$directlink}}">
     <strong>{{__("test_planned.this_link")}}</strong>
 </a>
 @if ($takeCode)
-    {{__('test_planned.take_code')}}: <strong>{{$takeCode}}</strong>
+    {{$is_assessment ? __('test_planned.assignment_take_code') : __('test_planned.test_take_code')}}: <strong>{{$takeCode}}</strong>
 @endif
 <br/>
 <br/>

@@ -1211,4 +1211,9 @@ class TestTake extends BaseModel
     {
         return optional(User::select(['id', 'name', 'name_suffix', 'name_first'])->whereId($this->scheduled_by)->first())->name_full;
     }
+
+    public function isAssessmentType()
+    {
+        return $this->test->test_kind_id == TestKind::ASSESSMENT_TYPE;
+    }
 }
