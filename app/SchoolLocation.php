@@ -4,6 +4,7 @@ use Carbon\Carbon;
 use Closure;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Bus\DispatchesJobs;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
@@ -93,8 +94,8 @@ class SchoolLocation extends BaseModel implements AccessCheckable
         'sso', 'sso_type', 'sso_active', 'lvs_authorization_key', 'school_language', 'company_id', 'allow_guest_accounts',
         'allow_new_student_environment', 'allow_new_question_editor',
         'keep_out_of_school_location_report',
-        'main_phonenumber','internetaddress', 'show_exam_material', 'show_cito_quick_test_start', 'show_national_item_bank',
-        'allow_wsc', 'allow_writing_assignment','license_type','allow_creathlon','allow_new_taken_tests_page',
+        'main_phonenumber', 'internetaddress', 'show_exam_material', 'show_cito_quick_test_start', 'show_national_item_bank',
+        'allow_wsc', 'allow_writing_assignment', 'license_type', 'allow_creathlon', 'allow_new_taken_tests_page',
     ];
 
     /**
@@ -538,13 +539,14 @@ class SchoolLocation extends BaseModel implements AccessCheckable
         $this->sections = null;
     }
 
-    public function getPeriods() {
-       return  Period::select('periods.*')
+    public function getPeriods()
+    {
+        return Period::select('periods.*')
             ->join('school_years', 'school_years.id', '=', 'periods.school_year_id')
-           ->join('school_location_school_years', function($join) {
-               $join->on('school_location_school_years.school_year_id', '=', 'school_years.id')
-                   ->where('school_location_id', $this->id);
-           })->distinct()->get();
+            ->join('school_location_school_years', function ($join) {
+                $join->on('school_location_school_years.school_year_id', '=', 'school_years.id')
+                    ->where('school_location_id', $this->id);
+            })->distinct()->get();
     }
 
     public function schoolLocationEducationLevels()
@@ -751,6 +753,34 @@ class SchoolLocation extends BaseModel implements AccessCheckable
 
         foreach ($filters as $key => $value) {
             switch ($key) {
+                case 'id':
+                    $query->where('school_locations.id', '=', $value);
+                    break;
+                case 'combined_search':
+                    $query->when($value, function ($query, $value) {
+                        return $query->where(function ($query) use ($value) {
+                            $query->where('customer_code', 'LIKE', "%$value%")
+                                ->orWhere('name', 'like', "%$value%")
+                                ->orWhere('school_id',
+                                    School::where('schools.name', 'LIKE', "%$value%")
+                                        ->pluck('id')
+                                        ->whenEmpty(fn() => false))
+                                ->orWhereRaw("TRIM(CONCAT_WS(' ', COALESCE(external_main_code,''), COALESCE(external_sub_code,''))) LIKE '%$value%'");
+                        });
+                    });
+                    break;
+                case 'name':
+                    $query->where('school_locations.name', 'LIKE', '%' . $value . '%');
+                    break;
+                case 'license_type':
+                    $query->whereIn('school_locations.license_type', Arr::wrap($value));
+                    break;
+                case 'lvs_active':
+                    $query->whereIn('school_locations.lvs_active', Arr::wrap($value));
+                    break;
+                case 'sso_active':
+                    $query->whereIn('school_locations.sso_active', Arr::wrap($value));
+                    break;
                 default:
                     break;
             }
@@ -772,7 +802,22 @@ class SchoolLocation extends BaseModel implements AccessCheckable
             switch (strtolower($key)) {
                 case 'id':
                 case 'name':
+                case 'customer_code':
+                case 'main_city':
+                case 'external_main_code':
+                case 'lvs_active':
+                case 'sso_active':
+                case 'count_questions':
                     $query->orderBy($key, $value);
+                    break;
+                case 'school_name':
+                    $query->orderBy(
+                        School::select('schools.name')
+                            ->whereColumn('schools.id', 'school_locations.school_id')
+                            ->orderBy('schools.name', $value)
+                            ->take(1),
+                        $value
+                    );
                     break;
             }
         }
@@ -1248,8 +1293,8 @@ class SchoolLocation extends BaseModel implements AccessCheckable
 
     private function handleLicenseTypeUpdate()
     {
-        if ($this->getOriginal('license_type') !== $this->getAttribute('license_type') && $this->getAttribute('license_type') === 'CLIENT') {
-            TrialPeriod::where('school_location_id',$this->getKey())->delete();
+        if ($this->isDirty('license_type') && $this->license_type === 'CLIENT') {
+            TrialPeriod::where('school_location_id', $this->getKey())->delete();
         }
     }
 
@@ -1263,16 +1308,16 @@ class SchoolLocation extends BaseModel implements AccessCheckable
         return $this->featureSettings()->setSetting('allow_creathlon', $boolean);
     }
 
-    public function getAllowCreathlonAttribute() : bool
+    public function getAllowCreathlonAttribute(): bool
     {
         return $this->featureSettings()->getSetting('allow_creathlon')->exists();
     }
 
     public function getFeatureSettingsAttribute()
     {
-        return $this->featureSettings()->getSettings()->mapWithKeys(function($item, $key) {
-            return [$item->title => $item->value];
-        });
+        return $this->featureSettings()
+            ->getSettings()
+            ->mapWithKeys(fn($item) => [$item->title => $item->value]);
     }
 
     public function setAllowNewTakenTestsPageAttribute(bool $boolean)
@@ -1280,7 +1325,7 @@ class SchoolLocation extends BaseModel implements AccessCheckable
         return $this->featureSettings()->setSetting('allow_new_taken_tests_page', $boolean);
     }
 
-    public function getAllowNewTakenTestsPageAttribute() : bool
+    public function getAllowNewTakenTestsPageAttribute(): bool
     {
         return $this->featureSettings()->getSetting('allow_new_taken_tests_page')->exists();
     }

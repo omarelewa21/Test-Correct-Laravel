@@ -61,4 +61,6 @@ return [
     'Nakijken en normeren'            => 'Assess & set norm',
     'Mijn afgenomen toetsen'          => 'My given tests',
     'Kopie'                           => 'Copy',
+    'yes'                             => 'Yes',
+    'no'                              => 'No',
 ];

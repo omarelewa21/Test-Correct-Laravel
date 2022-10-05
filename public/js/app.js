@@ -6265,7 +6265,9 @@ document.addEventListener('alpine:init', function () {
           refreshChoices();
 
           _this16.$refs.select.addEventListener('choice', function (event) {
-            if (_this16.value.includes(parseInt(event.detail.choice.value))) {
+            var eventValue = isNaN(parseInt(event.detail.choice.value)) ? event.detail.choice.value : parseInt(event.detail.choice.value);
+
+            if (_this16.value.includes(eventValue)) {
               _this16.removeFilterItem(choices.getValue().find(function (value) {
                 return value.value === event.detail.choice.value;
               }));

@@ -61,4 +61,6 @@ return [
     'Nakijken en normeren'            => 'Nakijken & normeren',
     'Mijn afgenomen toetsen'          => 'Mijn afgenomen toetsen',
     'Kopie'                           => 'Kopie',
+    'yes'                             => 'Ja',
+    'no'                              => 'Nee',
 ];
