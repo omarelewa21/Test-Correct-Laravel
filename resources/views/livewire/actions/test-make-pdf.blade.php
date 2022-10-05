@@ -1,7 +1,7 @@
 <div class="{{ $class ?? '' }}"
      x-data="{
          makePDF: function() {
-                        $wire.emit('openModal', 'teacher.pdf-download-modal', {test: '{{$uuid}}'});
+                        $wire.emit('openModal', 'teacher.pdf-download-modal', {uuid: '{{$uuid}}'});
                     }
         }"
 >

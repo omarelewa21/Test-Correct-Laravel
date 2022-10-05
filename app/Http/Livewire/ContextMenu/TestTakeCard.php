@@ -66,7 +66,7 @@ class TestTakeCard extends ContextMenuComponent
 
     public function studentAnswersPdf()
     {
-        return redirect()->route('teacher.preview.test_take', ['test_take' => $this->uuid]);
+        $this->emit('openModal','teacher.pdf-download-modal', ['uuid' => $this->uuid, 'testTake' => true]);
     }
 
     public function hasAnswerPdfOption(): bool
