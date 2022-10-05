@@ -47,4 +47,5 @@
 			'test_owner' => 'Test owner',
 
 			'owner_id_missing'	=> 'Choose an owner for the test',
+            'plan_test_for'	=> 'Planning test for',
 ];

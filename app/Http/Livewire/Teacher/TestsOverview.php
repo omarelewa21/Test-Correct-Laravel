@@ -81,7 +81,18 @@ class TestsOverview extends Component
                 break;
 
         }
-        return $datasource;
+        return $datasource
+            ->with([
+                'educationLevel',
+                'testKind',
+                'subject',
+                'author',
+                'author.school',
+                'author.schoolLocation',
+                'testAuthors:test_id,user_id',
+                'testAuthors.user:id,name,name_first,name_suffix',
+            ])
+            ->paginate(self::PER_PAGE);
     }
 
     private function getSchoolDatasource()
@@ -92,42 +103,27 @@ class TestsOverview extends Component
                 ['owner_id' => auth()->user()->school_location_id]
             ),
             $this->sorting
-        )
-            ->with('educationLevel', 'testKind', 'subject', 'author', 'author.school', 'author.schoolLocation')
-            ->paginate(self::PER_PAGE);
-
+        );
     }
 
 
     private function getNationalDatasource()
     {
-        $filters = $this->cleanFilterForSearch($this->filters['national']);
-        if (!isset($filters['base_subject_id'])) {
-            $filters['base_subject_id'] = BaseSubject::currentForAuthUser()->pluck('id')->toArray();
-        }
-
         return Test::nationalItemBankFiltered(
-            $filters,
+            $this->getContentSourceFilters('national'),
             $this->sorting
-        )
-            ->with('educationLevel', 'testKind', 'subject', 'author', 'author.school', 'author.schoolLocation')
-            ->paginate(self::PER_PAGE);
-
+        );
     }
 
     private function getPersonalDatasource()
     {
         $this->filters['personal']['author_id'] = auth()->id();
 
-        $results = Test::filtered(
+        return Test::filtered(
             $this->cleanFilterForSearch($this->filters['personal']),
             $this->sorting
         )
-            ->with('educationLevel', 'testKind', 'subject', 'author', 'author.school', 'author.schoolLocation')
-            ->where('tests.author_id', auth()->user()->id)
-            ->paginate(self::PER_PAGE);
-
-        return $results;
+            ->where('tests.author_id', auth()->user()->id);
     }
 
     private function getUmbrellaDatasource()
@@ -135,24 +131,15 @@ class TestsOverview extends Component
         return Test::sharedSectionsFiltered(
             $this->cleanFilterForSearch($this->filters['umbrella']),
             $this->sorting
-        )
-            ->with('educationLevel', 'testKind', 'subject', 'author', 'author.school', 'author.schoolLocation')
-            ->paginate(self::PER_PAGE);
+        );
     }
 
     private function getCreathlonDatasource()
     {
-        $filters = $this->cleanFilterForSearch($this->filters['creathlon']);
-        if (!isset($filters['base_subject_id'])) {
-            $filters['base_subject_id'] = BaseSubject::currentForAuthUser()->pluck('id')->toArray();
-        }
-
         return Test::creathlonItemBankFiltered(
-            $filters,
+            $this->getContentSourceFilters('creathlon'),
             $this->sorting
-        )
-            ->with('educationLevel', 'testKind', 'subject', 'author', 'author.school', 'author.schoolLocation')
-            ->paginate(self::PER_PAGE);
+        );
     }
 
     private function setFilters()
@@ -196,20 +183,18 @@ class TestsOverview extends Component
 
     private function getBaseSubjectsOptions()
     {
+        if (Auth::user()->isValidExamCoordinator()) {
+            return BaseSubject::optionList();
+        }
+
         return BaseSubject::whereIn('id', Subject::filtered(['user_current' => Auth::id()], [])->pluck('base_subject_id'))
-            ->get(['name', 'id'])
-            ->map(function ($subject) {
-                return ['value' => (int)$subject->id, 'label' => $subject->name];
-            })->toArray();
+            ->optionList();
     }
 
     public function getSubjectsProperty()
     {
         return $this->filterSubjectsByTabName($this->openTab)
-            ->get(['name', 'id'])
-            ->map(function ($subject) {
-                return ['value' => (int)$subject->id, 'label' => $subject->name];
-            })->toArray();
+            ->optionList();
     }
 
     private function filterSubjectsByTabName(string $tab)
@@ -354,5 +339,17 @@ class TestsOverview extends Component
         }
         $options = TemporaryLogin::buildValidOptionObject('page', $url);
         return auth()->user()->redirectToCakeWithTemporaryLogin($options);
+    }
+
+    /**
+     * @return array
+     */
+    private function getContentSourceFilters($tab): array
+    {
+        $filters = $this->cleanFilterForSearch($this->filters[$tab]);
+        if (!isset($filters['base_subject_id']) && !Auth::user()->isValidExamCoordinator()) {
+            $filters['base_subject_id'] = BaseSubject::currentForAuthUser()->pluck('id')->toArray();
+        }
+        return $filters;
     }
 }

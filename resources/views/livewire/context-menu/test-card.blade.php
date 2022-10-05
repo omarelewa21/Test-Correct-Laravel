@@ -3,7 +3,7 @@
         <div wire:key="test-context-menu-buttons-{{ $testUuid }}"
              class="flex flex-col"
         >
-        @if($openTab !== 'umbrella')
+        @if($showNonPublicItems)
             <livewire:actions.test-plan-test :wire:key="'plan-test-'.$testUuid" :uuid="$testUuid" variant="context-menu" class="order-1"/>
             <livewire:actions.test-quick-take :wire:key="'quick-take-'.$testUuid" :uuid="$testUuid" variant="context-menu" class="order-2"/>
             <livewire:actions.test-make-pdf :wire:key="'make-pdf-'.$testUuid" :uuid="$testUuid" variant="context-menu" class="order-4"/>

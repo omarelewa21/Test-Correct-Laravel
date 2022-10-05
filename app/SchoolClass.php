@@ -525,20 +525,8 @@ class SchoolClass extends BaseModel implements AccessCheckable
 
     private function filterForExamcoordinator($query, User $user)
     {
-        switch ($user->is_examcoordinator_for) {
-            case 'SCHOOL_LOCATION':
-                $classIds = $user->schoolLocation->schoolClasses()->where('guest_class', 0)->pluck('id')->toArray();
-                break;
-            case 'SCHOOL':
-                $classIds = $user->schoolLocation->school->schoolLocations()
-                                ->join('school_classes', 'school_classes.school_location_id', 'school_locations.id')
-                                ->where('school_classes.guest_class', 0)
-                                ->select('school_classes.id')->pluck('id')->toArray();
-                break;
-            default:
-                $classIds = [];
-                break;
-        }
+        $classIds = SchoolClass::select(['id'])->where('school_location_id', $user->school_location_id)->withoutGuestClasses();
+
         return $query->orWhereIn(self::getTable() . '.id', $classIds)->where('demo', 0);
     }
 

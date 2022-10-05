@@ -63,13 +63,12 @@
                 @if (auth()->user()->is_examcoordinator)
                     <div class="input-section" x-data>
                         <div class="name flex">
-                            <label for="owner_id">{{ __('plan-test-take.test_owner') }}</label>
+                            <label for="owner_id">{{ __('plan-test-take.plan_test_for') }}:</label>
                         </div>
                         <div class="name flex mb-4">
                             <x-input.select
                                     wire:model="request.owner_id"
                                     id="owner_id"
-
                             >
                                 @foreach($allowedInvigilators as $teacher)
                                     <option value="{{ $teacher['value'] }}">{!! $teacher['label'] !!}</option>

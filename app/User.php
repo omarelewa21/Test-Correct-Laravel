@@ -4,7 +4,6 @@ use Bugsnag\BugsnagLaravel\Facades\Bugsnag;
 use Carbon\Carbon;
 use Closure;
 use Illuminate\Auth\Authenticatable;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\Access\Authorizable;
 use Illuminate\Support\Facades\Auth;
@@ -15,7 +14,6 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Str;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
@@ -30,12 +28,9 @@ use tcCore\Jobs\CountSchoolActiveTeachers;
 use tcCore\Jobs\CountSchoolLocationActiveTeachers;
 use tcCore\Jobs\CountSchoolLocationQuestions;
 use tcCore\Jobs\CountSchoolLocationStudents;
-use tcCore\Jobs\CountSchoolLocationTeachers;
 use tcCore\Jobs\CountSchoolLocationTests;
 use tcCore\Jobs\CountSchoolLocationTestsTaken;
 use tcCore\Jobs\CountSchoolQuestions;
-use tcCore\Jobs\CountSchoolStudents;
-use tcCore\Jobs\CountSchoolTeachers;
 use tcCore\Jobs\CountSchoolTests;
 use tcCore\Jobs\CountSchoolTestsTaken;
 use tcCore\Jobs\SendOnboardingWelcomeMail;
@@ -51,7 +46,7 @@ use tcCore\Lib\Repositories\SchoolYearRepository;
 use tcCore\Lib\User\Factory;
 use tcCore\Lib\User\Roles;
 use Dyrynda\Database\Casts\EfficientUuid;
-use Dyrynda\Database\Support\GeneratesUuid;
+use tcCore\Traits\ExamCoordinator;
 use tcCore\Traits\UuidTrait;
 use Facades\tcCore\Http\Controllers\PreviewLaravelController;
 
@@ -61,7 +56,8 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
     use Authenticatable,
         SoftDeletes,
         Authorizable,
-        CanResetPassword;
+        CanResetPassword,
+        ExamCoordinator;
     use UuidTrait;
 
     const MIN_PASSWORD_LENGTH = 8;
@@ -561,18 +557,14 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
         });
 
         static::saving(function (User $user) {
-            if ($user->getAttribute('school_id') !== $user->getOriginal('school_id') || $user->getAttribute('school_location_id') !== $user->getOriginal('school_location_id')) {
-                if ($user->studentSchoolClasses === null) {
-                    $user->studentSchoolClasses = array();
-                }
+            if ($user->isDirty(['school_id', 'school_location_id'])) {
+                $user->studentSchoolClasses ??= [];
+                $user->managerSchoolClasses ??= [];
+                $user->mentorSchoolClasses ??= [];
+            }
 
-                if ($user->managerSchoolClasses === null) {
-                    $user->managerSchoolClasses = array();
-                }
-
-                if ($user->mentorSchoolClasses === null) {
-                    $user->mentorSchoolClasses = array();
-                }
+            if($user->isA('Teacher')) {
+                $user->handleExamCoordinatorChange();
             }
         });
 
@@ -2057,7 +2049,6 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
     {
         if (!$this->allowedSchoolLocations->contains($schoolLocation)) {
             $this->allowedSchoolLocations()
-//            ->syncWithoutDetaching([$schoolLocation->id,  ['external_id' =>  $this->external_id]]);
                 ->attach($schoolLocation->id, ['external_id' => $this->user_table_external_id]);
             return true;
         }
@@ -2336,20 +2327,6 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
         }
 
         return $this->schoolLocation->school->is($user->schoolLocation->school);
-    }
-
-    public function isValidExamCoordinator($checkIfGlobal=true)
-    {
-        if(!$this->is_examcoordinator || is_null($this->is_examcoordinator_for)){
-            return false;
-        }
-
-        if($checkIfGlobal){
-            // Check if exam coordinator has access to classes in school or school location
-            return $this->is_examcoordinator_for !== 'NONE';
-        }
-
-        return true;
     }
 
     public function removeEckId()

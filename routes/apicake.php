@@ -249,6 +249,7 @@ Route::group(['middleware' => ['api', 'dl', 'authorize', 'authorizeBinds', 'bind
     Route::put('/school_class/update_with_education_levels_for_cluster_classes', 'SchoolClassesController@updateWithEducationLevelsForClusterClasses')->name('school_classes.update_with_education_levels_for_cluster_classes');
 
     Route::get('school_class/list', ['as' => 'school_class.list', 'uses' => 'SchoolClassesController@lists']);
+    Route::get('school_class/forUser/{user}', 'SchoolClassesController@showForUser')->name('school_classes.for_user');
     Route::resource('school_class', 'SchoolClassesController', ['except' => ['create', 'edit']]);
 
     Route::delete('school_class_mentor/{schoolClass}/{userUuid}','SchoolClassesController@deleteMentor')->name('school_class_mentor.delete');

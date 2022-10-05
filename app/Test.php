@@ -280,12 +280,12 @@ class Test extends BaseModel
         $user = Auth::user();
 
         $query->select();
-        $subjectIds = Subject::getSubjectIdsOfSchoolLocationByCustomerCodesAndUser(Arr::wrap($customer_codes), $user);
-
-        if (count($subjectIds) == 0) {
+        $subjectIds = Subject::getIdsForContentSource($user, $customer_codes);
+        if (is_array($subjectIds) && count($subjectIds) == 0) {
             $query->where('tests.id', -1);
             return $query;
         }
+
         $query->whereIn('subject_id', $subjectIds);
         $query->whereIn('scope', Arr::wrap($scopes));
 
@@ -355,20 +355,8 @@ class Test extends BaseModel
     {
         $user = Auth::user();
 
-        $sharedSectionIds = $user->schoolLocation->sharedSections()->pluck('id')->unique();
-        $baseSubjectIds = $user->subjects()->pluck('base_subject_id')->unique();
-        $subjectIds = [];
-
-        $query->select();
-
-        if (count($sharedSectionIds) > 0) {
-            $subjectIds = Subject::whereIn('section_id', $sharedSectionIds)
-                ->when(!$user->isValidExamCoordinator(), function($query) use ($baseSubjectIds) {
-                    $query->whereIn('base_subject_id', $baseSubjectIds)->pluck('id')->unique();
-                })
-                ->pluck('id')
-                ->unique();;
-        } else {
+        $subjectIds = Subject::getIdsForSharedSections($user);
+        if (!$subjectIds) {
             $query->where('tests.id', -1);
             return $query;
         }
@@ -856,8 +844,8 @@ class Test extends BaseModel
 
     public function getTestAuthorsWithMainAuthorFirst()
     {
-        return $this->testAuthors()
-            ->get()
+        $this->loadMissing(['testAuthors', 'testAuthors.user']);
+        return $this->testAuthors
             ->sortByDesc(function ($author) {
                 return $author->user_id === $this->author_id ? 1 : 0 ;
             })
