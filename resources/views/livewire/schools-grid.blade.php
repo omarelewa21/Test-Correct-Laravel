@@ -2,7 +2,7 @@
     <div class="flex flex-1 justify-between">
         <div><h1>{{ __('school.schools') }}</h1></div>
         <div class="flex-shrink-0">
-            @if(Auth::user()->isA('Administrator'))
+            @if($administrator)
                 <x-button.cta class="" wire:click="addNewSchool">{{ __('school.new-school') }}</x-button.cta>
             @endif
         </div>
@@ -98,11 +98,11 @@
                             :sortable="true"
                             :direction="$this->orderByColumnName == 'count_questions' ? $this->orderByDirection : null"
                             wire:click="setOrderByColumnAndDirection('count_questions')"
-                            width="132px">
+                            width="152px">
                         {{ __('school.question_items') }}
                     </x-table.heading>
                     <x-table.heading
-                            width="{{ Auth::user()->isA('administrator') ? '100px' : '75px' }}">
+                            width="{{ $administrator ? '100px' : '75px' }}">
                         &nbsp;
                     </x-table.heading>
 

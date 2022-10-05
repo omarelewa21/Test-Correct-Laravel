@@ -9,6 +9,7 @@ use Illuminate\Support\Str;
 use Livewire\Component;
 use Livewire\WithPagination;
 use tcCore\Http\Controllers\TemporaryLoginController;
+use tcCore\Http\Helpers\CakeRedirectHelper;
 use tcCore\School;
 use tcCore\SchoolLocation;
 use tcCore\Traits\CanLogout;
@@ -23,6 +24,11 @@ class SchoolLocationsGrid extends Component
     public $orderByDirection = 'desc';
     public $filters = [];
     public bool $administrator;
+
+    public function updatingAdministrator($value)
+    {
+        throw new \Exception('Manually updating the administrator property is not allowed.');
+    }
 
     public function updatingFilters($value, $filter)
     {
@@ -106,58 +112,14 @@ class SchoolLocationsGrid extends Component
             ->layout('layouts.app-admin');
     }
 
-    protected function getCakeUrlString(string $cakePage, ?string $uuid = null)
-    {
-        $lookUpArray = [
-            'school_location.new' => [
-                'page'        => '/',
-                'page_action' => "Loading.show();Popup.load('/school_locations/add', 1100);",
-            ],
-            'school_location.view' => [
-                'page'        => '/',
-                'page_action' => sprintf("Navigation.load('/school_locations/view/%s')", $uuid)
-            ],
-            'school_location.edit' => [
-                'page'        => '/',
-                'page_action' => sprintf("Navigation.load('/school_locations/edit/%s')", $uuid)
-            ],
-            'school_location.delete' => [
-                'page'        => '/',
-                'page_action' => "SchoolLocation.delete('$uuid', 0)"
-            ]
-        ];
-
-        return $lookUpArray[$cakePage] ?? false;
-    }
-
-    protected function createCakeUrl(string $cakeRouteName, ?string $uuid = null)
-    {
-        $cakeAddress = $this->getCakeUrlString($cakeRouteName, $uuid);
-
-        $controller = new TemporaryLoginController();
-        $request = new Request();
-
-        if (!is_array($cakeAddress)) {
-            $cakeAddress = [
-                'page'        => '/',
-                'page_action' => "Navigation.load('$cakeAddress')"
-            ];
-        }
-
-        $request->merge([
-            'options' => $cakeAddress,
-        ]);
-        return $controller->toCakeUrl($request);
-    }
-
     public function addNewSchoolLocation()
     {
-        return $this->redirect($this->createCakeUrl('school_location.new'));
+        return CakeRedirectHelper::redirectToCake('school_location.new');
     }
 
     public function viewSchoolLocation($uuid)
     {
-       return $this->redirect($this->createCakeUrl('school_location.view', $uuid));
+        return CakeRedirectHelper::redirectToCake('school_location.view', $uuid);
     }
 
     public function editSchoolLocation($uuid)
@@ -165,7 +127,7 @@ class SchoolLocationsGrid extends Component
         if (!$this->administrator) {
             return;
         }
-        return $this->redirect($this->createCakeUrl('school_location.edit', $uuid));
+        return CakeRedirectHelper::redirectToCake('school_location.edit', $uuid);
     }
 
     public function deleteSchoolLocation($uuid)
@@ -173,7 +135,7 @@ class SchoolLocationsGrid extends Component
         if (!$this->administrator) {
             return;
         }
-        return $this->redirect($this->createCakeUrl('school_location.delete',$uuid));
+        return CakeRedirectHelper::redirectToCake('school_location.delete', $uuid);
     }
 
     public function setOrderByColumnAndDirection($columnName)

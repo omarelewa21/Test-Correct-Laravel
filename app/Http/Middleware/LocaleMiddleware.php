@@ -31,7 +31,7 @@ class LocaleMiddleware
     {
         $locale = $this->browserLanguage();
         if ($user = Auth::user()){
-            $locale = optional($user->schoolLocation)->school_language;
+            $locale = optional($user->schoolLocation)->school_language ?? $locale;
         }
 
         if (!in_array(strtolower($locale), ['en', 'nl'])) {
