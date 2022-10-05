@@ -2,7 +2,7 @@
 return [
     'Terug'                                => 'Back',
     'cancel'                               => 'Cancel',
-    'annuleren'                            => 'Annuleren',
+    'annuleren'                            => 'Cancel',
     'warning'                              => 'Warning',
     'sluiten'                              => 'Close',
     'close'                                => 'Close',

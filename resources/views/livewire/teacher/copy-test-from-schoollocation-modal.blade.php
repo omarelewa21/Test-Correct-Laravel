@@ -30,8 +30,8 @@
     </x-slot>
     <x-slot name="footer">
         <div class="flex justify-end w-full gap-4">
-            <x-button.text-button wire:click="$set('showModal', false)">
-                <span>{{__('Annuleren')}}</span>
+            <x-button.text-button wire:click="closeModal">
+                <span>{{__('modal.annuleren')}}</span>
             </x-button.text-button>
             <x-button.cta wire:click="copy('{{ $this->testUuid }}')">
                 <x-icon.checkmark/>
