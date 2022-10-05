@@ -52,7 +52,7 @@ class SendTestPlannedMail extends Job implements ShouldQueue
                 if(null == $testParticipant->user || $testParticipant->user->shouldNotSendMail()) {
                     continue;
                 }
-                $mailer->send('emails.assignment_planned', ['testParticipant' => $testParticipant], function ($mail) use ($testParticipant) {
+                $mailer->send('emails.assignment_planned', ['testParticipant' => $testParticipant, 'directlink' => $testTake->directLink, 'takeCode' => $takeCode], function ($mail) use ($testParticipant) {
                     $mail->to($testParticipant->user->username, $testParticipant->user->getNameFullAttribute())->subject(__('assignment_planned.Opdracht ingepland.'));
                 });
             }
