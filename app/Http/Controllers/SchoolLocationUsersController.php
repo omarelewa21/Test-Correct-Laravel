@@ -37,6 +37,7 @@ class SchoolLocationUsersController extends Controller {
         }
 
         $user = Auth::user()->schoolLocation()->associate($schoolLocation);
+        $user->createTrialPeriodRecordIfRequired();
         $user->save();
 
         return $user->refresh()->allowedSchoolLocations->map(function($location) {

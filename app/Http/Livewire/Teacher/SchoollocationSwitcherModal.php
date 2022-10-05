@@ -23,6 +23,7 @@ class SchoollocationSwitcherModal extends ModalComponent
         }
 
         $user->schoolLocation()->associate($schoolLocation);
+        $user->createTrialPeriodRecordIfRequired();
         $user->save();
         $this->dispatchBrowserEvent('notify', ['message' => __('general.Actieve schoollocatie aangepast')]);
         return $user->redirectToCakeWithTemporaryLogin();
