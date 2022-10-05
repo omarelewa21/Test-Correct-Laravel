@@ -13,15 +13,16 @@ use tcCore\Http\Helpers\CakeRedirectHelper;
 use tcCore\School;
 use tcCore\SchoolLocation;
 use tcCore\Traits\CanLogout;
+use tcCore\Traits\CanOrderGrid;
 
 class SchoolLocationsGrid extends Component
 {
     use WithPagination;
     use CanLogout;
+    use CanOrderGrid;
 
     protected $schoolLocations;
-    public $orderByColumnName = 'id';
-    public $orderByDirection = 'desc';
+
     public $filters = [];
     public bool $administrator;
 
@@ -58,15 +59,10 @@ class SchoolLocationsGrid extends Component
 
     private function setFilters()
     {
-        if (session()->has('school-locations-grid-filters'))
+        if (session()->has('school-locations-grid-filters')) {
             $this->filters = session()->get('school-locations-grid-filters');
-        else {
-            $this->filters = [
-                'combined_search' => '',
-                'license_type'    => [],
-                'lvs_active'      => [],
-                'sso_active'      => [],
-            ];
+        } else {
+            $this->clearFilters();
         }
     }
 
@@ -124,29 +120,19 @@ class SchoolLocationsGrid extends Component
 
     public function editSchoolLocation($uuid)
     {
-        if (!$this->administrator) {
-            return;
+        if ($this->administrator) {
+            return CakeRedirectHelper::redirectToCake('school_location.edit', $uuid);
         }
-        return CakeRedirectHelper::redirectToCake('school_location.edit', $uuid);
     }
 
     public function deleteSchoolLocation($uuid)
     {
-        if (!$this->administrator) {
-            return;
+        if ($this->administrator) {
+            return CakeRedirectHelper::redirectToCake('school_location.delete', $uuid);
         }
-        return CakeRedirectHelper::redirectToCake('school_location.delete', $uuid);
     }
 
-    public function setOrderByColumnAndDirection($columnName)
-    {
-        if ($this->orderByColumnName === $columnName) {
-            $this->orderByDirection = $this->orderByDirection == 'asc' ? 'desc' : 'asc';
-            return;
-        }
-        $this->orderByColumnName = $columnName;
-        $this->orderByDirection = 'asc';
-    }
+
 
     protected function getFilteredAndSortedSchoolLocations()
     {

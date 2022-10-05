@@ -57,9 +57,9 @@ class Kernel extends HttpKernel
         'deploymentMaintenance' => CheckForDeploymentMaintenance::class,
         'student'               => AuthenticatedAsStudent::class,
         'forceTaken'            => TestTakeForceTakenAwayCheck::class,
-        'guest_choice'          => GuestChoice::class,
+        'guestChoice'           => GuestChoice::class,
         'throttle'              => \Illuminate\Routing\Middleware\ThrottleRequests::class,
-        'account_manager'       => AuthenticatedAsAccountManager::class,
+        'accountManager'        => AuthenticatedAsAccountManager::class,
         'administrator'         => AuthenticatedAsAdministrator::class,
     ];
 

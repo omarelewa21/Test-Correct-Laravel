@@ -16,7 +16,7 @@
         $buttonCell = $slim ? 'py-0.5 overflow-ellipsis overflow-hidden' : 'py-5 overflow-ellipsis overflow-hidden';
     }
 @endphp
-<td {{ $attributes->merge(['class' => 'px-3 whitespace-nowrap max-w-0 '.$buttonCell ]) }}
+<td {{ $attributes->merge(['class' => 'px-3 whitespace-nowrap max-w-0 ' . $buttonCell ]) }}
     @if($withTooltip) title="{{ $slot }}" @endif
 >
     {{ $slot }}

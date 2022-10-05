@@ -4,6 +4,7 @@ use Carbon\Carbon;
 use Closure;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Bus\DispatchesJobs;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
@@ -767,25 +768,13 @@ class SchoolLocation extends BaseModel implements AccessCheckable
                     $query->where('school_locations.name', 'LIKE', '%' . $value . '%');
                     break;
                 case 'license_type':
-                    if (is_array($value)) {
-                        $query->whereIn('school_locations.license_type', $value);
-                    } else {
-                        $query->where('school_locations.license_type', '=', $value);
-                    }
+                    $query->whereIn('school_locations.license_type', Arr::wrap($value));
                     break;
                 case 'lvs_active':
-                    if (is_array($value)) {
-                        $query->whereIn('school_locations.lvs_active', $value);
-                    } else {
-                        $query->where('school_locations.lvs_active', '=', (bool)$value);
-                    }
+                    $query->whereIn('school_locations.lvs_active', Arr::wrap($value));
                     break;
                 case 'sso_active':
-                    if (is_array($value)) {
-                        $query->whereIn('school_locations.sso_active', $value);
-                    } else {
-                        $query->where('school_locations.sso_active', '=', (bool)$value);
-                    }
+                    $query->whereIn('school_locations.sso_active', Arr::wrap($value));
                     break;
                 default:
                     break;

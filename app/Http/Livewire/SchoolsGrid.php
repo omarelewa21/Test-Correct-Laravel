@@ -12,15 +12,17 @@ use tcCore\Http\Controllers\TemporaryLoginController;
 use tcCore\Http\Helpers\CakeRedirectHelper;
 use tcCore\School;
 use tcCore\Traits\CanLogout;
+use tcCore\Traits\CanOrderGrid;
 
 class SchoolsGrid extends Component
 {
     use WithPagination;
     use CanLogout;
+    use CanOrderGrid;
 
     protected $schools;
-    public $orderByColumnName = 'id';
-    public $orderByDirection = 'desc';
+
+
     public $filters = [];
     public bool $administrator;
 
@@ -54,12 +56,10 @@ class SchoolsGrid extends Component
 
     private function setFilters()
     {
-        if (session()->has('schools-grid-filters'))
+        if (session()->has('schools-grid-filters')) {
             $this->filters = session()->get('schools-grid-filters');
-        else {
-            $this->filters = [
-                'combined_admin_grid_search' => '',
-            ];
+        } else {
+            $this->clearFilters();
         }
     }
 
@@ -91,7 +91,9 @@ class SchoolsGrid extends Component
 
     public function addNewSchool()
     {
-        return CakeRedirectHelper::redirectToCake('school.new');
+        if ($this->administrator) {
+            return CakeRedirectHelper::redirectToCake('school.new');
+        }
     }
 
     public function viewSchool($uuid)
@@ -101,28 +103,16 @@ class SchoolsGrid extends Component
 
     public function editSchool($uuid)
     {
-        if (!$this->administrator) {
-            return;
+        if ($this->administrator) {
+            return CakeRedirectHelper::redirectToCake('school.edit', $uuid);
         }
-        return CakeRedirectHelper::redirectToCake('school.edit', $uuid);
     }
 
     public function deleteSchool($uuid)
     {
-        if (!$this->administrator) {
-            return;
+        if ($this->administrator) {
+            return CakeRedirectHelper::redirectToCake('school.delete', $uuid);
         }
-        return CakeRedirectHelper::redirectToCake('school.delete', $uuid);
-    }
-
-    public function setOrderByColumnAndDirection($columnName)
-    {
-        if ($this->orderByColumnName === $columnName) {
-            $this->orderByDirection = $this->orderByDirection == 'asc' ? 'desc' : 'asc';
-            return;
-        }
-        $this->orderByColumnName = $columnName;
-        $this->orderByDirection = 'asc';
     }
 
     protected function getFilteredAndSortedSchools()

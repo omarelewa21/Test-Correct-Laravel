@@ -12,18 +12,17 @@ class AuthenticatedAsAccountManager
     /**
      * Handle an incoming request.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \Closure  $next
+     * @param \Illuminate\Http\Request $request
+     * @param \Closure $next
      * @return mixed
      */
     public function handle($request, Closure $next)
     {
-        if (optional(Auth::user())->isA('Account Manager')){
+        if (optional(Auth::user())->isA('Account Manager')) {
             return $next($request);
         }
-        /** @TODO should redirect to a dashboard page, but this is currently not available. */
-        if (Livewire::isLivewireRequest()) {
-            return abort(401,'Unauthorized');
+        if(Livewire::isLivewireRequest()){
+            return abort(401, 'Unauthorized');
         }
         return redirect(BaseHelper::getLoginUrl());
     }

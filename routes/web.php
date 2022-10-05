@@ -79,6 +79,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/tests', tcCore\Http\Livewire\Teacher\TestsOverview::class)->name('tests');
         Route::get('/test-detail/{uuid}', tcCore\Http\Livewire\Teacher\TestDetail::class)->name('test-detail');
         Route::get('/preview/answer_model/{test}', [tcCore\Http\Controllers\PreviewAnswerModelController::class, 'show'])->name('test-answer-model');
+        // @TODO PreviewTestTakeController printsTestTakeWithStudentAnswers this should be renamed;
         Route::get('/preview/test_take/{test_take}', [tcCore\Http\Controllers\PreviewTestTakeController::class, 'show'])->name('preview.test_take');
         Route::get('/preview/pdf/test/{test}', [tcCore\Http\Controllers\PrintTestController::class, 'showTest'])->name('preview.test_pdf');
         Route::get('/preview/pdf/test_take/{test_take}', [tcCore\Http\Controllers\PrintTestController::class, 'showTestTake'])->name('preview.test_take_pdf');
@@ -96,7 +97,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/ckeditor_upload/{filename}', [tcCore\Http\Controllers\CkeditorImageController::class, 'show'])->name('upload.get');
     });
 
-    Route::middleware(['dll', 'account_manager'])->prefix('account-manager')->name('account-manager.')->group(function () {
+    Route::middleware(['dll', 'accountManager'])->prefix('account-manager')->name('account-manager.')->group(function () {
         Route::get('/school-locations', \tcCore\Http\Livewire\SchoolLocationsGrid::class)->name('school-locations');
         Route::get('/schools', \tcCore\Http\Livewire\SchoolsGrid::class)->name('schools');
     });
@@ -115,7 +116,7 @@ Route::middleware(['guest', 'auth.temp'])->group(function () {
     Route::get('/show-test-with-temporary-login/{test}/{temporary_login}', [tcCore\Http\Controllers\TemporaryLoginController::class, 'teacherPreview'])->name('auth.teacher.show-test-with-short-code');
     Route::get('/start-test-take-with-temporary-login/{test_take}/{temporary_login}', [tcCore\Http\Controllers\TemporaryLoginController::class, 'studentPlayer'])->name('auth.login_test_take_with_short_code');
 });
-Route::middleware(['guest_choice'])->group(function () {
+Route::middleware(['guestChoice'])->group(function () {
     Route::get('/guest-choice', tcCore\Http\Livewire\Student\GuestUserChoosingPage::class)->name('guest-choice');
     Route::get('/guest-graded-overview', tcCore\Http\Livewire\Student\GuestGradedOverview::class)->name('guest-graded-overview');
 });
