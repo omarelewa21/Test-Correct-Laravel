@@ -1258,6 +1258,13 @@ class SchoolLocation extends BaseModel implements AccessCheckable
         return $this->morphMany(FeatureSetting::class, 'settingable');
     }
 
+    public function getFeatureSettingsAttribute()
+    {
+        return $this->featureSettings()->getSettings()->mapWithKeys(function($item, $key) {
+            return [$item->title => $item->value];
+        });
+    }
+
     public function setAllowCreathlonAttribute(bool $boolean)
     {
         return $this->featureSettings()->setSetting('allow_creathlon', $boolean);
@@ -1268,11 +1275,14 @@ class SchoolLocation extends BaseModel implements AccessCheckable
         return $this->featureSettings()->getSetting('allow_creathlon')->exists();
     }
 
-    public function getFeatureSettingsAttribute()
+    public function setAllowAnalysesAttribute(bool $boolean)
     {
-        return $this->featureSettings()->getSettings()->mapWithKeys(function($item, $key) {
-            return [$item->title => $item->value];
-        });
+        return $this->featureSettings()->setSetting('allow_analyses', $boolean);
+    }
+
+    public function getAllowAnalysesAttribute() : bool
+    {
+        return $this->featureSettings()->getSetting('allow_analyses')->exists();
     }
 
     public function setAllowNewTakenTestsPageAttribute(bool $boolean)

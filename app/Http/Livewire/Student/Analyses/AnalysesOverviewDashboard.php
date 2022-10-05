@@ -33,6 +33,7 @@ class AnalysesOverviewDashboard extends AnalysesDashboard
             $this->getEducationLevelYearsByFilterValues(),
             $this->getTeachersByFilterValues()
         );
+
         //($result->toArray());//;->mapWithKey(fn($value, $key) => [$value->subject => $value->score]));
 
         $this->dataValues = $result->map(function ($pValue) {
@@ -50,7 +51,7 @@ class AnalysesOverviewDashboard extends AnalysesDashboard
 
     public function render()
     {
-//        $this->dispatchBrowserEvent('filters-updated');//, ['newName' => $value]);
+        $this->dispatchBrowserEvent('filters-updated');//, ['newName' => $value]);
         return view('livewire.student.analyses.analyses-overview-dashboard')->layout('layouts.student');;
     }
 

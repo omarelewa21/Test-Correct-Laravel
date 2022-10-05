@@ -4,14 +4,16 @@ namespace Tests\Feature;
 
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use tcCore\Attainment;
+use tcCore\FactoryScenarios\FactoryScenarioTestTakeRated;
 use tcCore\Lib\Repositories\PValueRepository;
-use tcCore\Lib\Repositories\PValueTaxonomyRepository;
 use tcCore\Period;
+use tcCore\Subject;
+use tcCore\User;
 use Tests\TestCase;
 
 class PValueRepositoryTest extends TestCase
 {
-    use DatabaseTransactions;
+//    use DatabaseTransactions;
 
 
     /** @test */
@@ -122,10 +124,29 @@ class PValueRepositoryTest extends TestCase
             $studentOne,
             collect(),
             collect(),
-            collect()
-
+            collect(),
+            Subject::find(1),
+           false
         );
         $this->assertCount(1, $pValuesPerAttainment->filter(fn($q) => $q->serie === 'Schrijfvaardigheid'));
+        $this->assertCount(41, $pValuesPerAttainment);
+    }
+
+    /** @test */
+    public function it_can_report_p_values_for_a_student_per_learning_goal()
+    {
+        $this->withoutExceptionHandling();
+        $studentOne = $this->getStudentOne();
+        $pValuesPerAttainment = PValueRepository::getPValuePerAttainmentForStudent(
+            $studentOne,
+            collect(),
+            collect(),
+            collect(),
+            Subject::find(1),
+           true
+        );
+
+        $this->assertCount(0, $pValuesPerAttainment);
     }
 
     /** @test */
@@ -141,6 +162,7 @@ class PValueRepositoryTest extends TestCase
             collect(),
             collect(),
             collect()
+
 
         );
         $this->assertGreaterThanOrEqual(1, $pValuesPerAttainment->filter(function($query) {
