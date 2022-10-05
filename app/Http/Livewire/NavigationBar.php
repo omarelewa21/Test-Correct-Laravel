@@ -3,23 +3,32 @@
 namespace tcCore\Http\Livewire;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 use tcCore\Http\Controllers\TemporaryLoginController;
 use tcCore\Http\Helpers\NavigationBarHelper;
+use tcCore\Http\Traits\WithTeacherMenu;
 
 class NavigationBar extends Component
 {
+    use WithTeacherMenu;
+
     public $activeRoute;
 
     protected $listeners = ['redirectToCake' => 'cakeRedirect'];
 
     public $showSchoolSwitcher = false;
+    public $menus = [];
+    public $tileGroups = [];
 
     public function mount()
     {
         $this->activeRoute = NavigationBarHelper::getActiveRoute();
         $this->showSchoolSwitcher = Auth::user()->hasMultipleSchools();
+        $this->menus = $this->menus();
+        $this->tileGroups = $this->tiles();
+        $this->handleMenuFilters();
     }
 
     public function render()
@@ -106,5 +115,71 @@ class NavigationBar extends Component
         ]);
 
         return $controller->toCakeUrl($request);
+    }
+
+    public function laravelRedirect($route)
+    {
+        return redirect($route);
+    }
+
+    public function getMenuAction($menu): string
+    {
+        if (!property_exists($menu, 'action')) return '';
+
+        $actionParameters = collect(Arr::wrap($menu->action->parameters))
+            ->map(fn($item) => is_string($item) ? '\'' . $item . '\'' : $item)
+            ->join(',');
+
+        return sprintf('%s:click=%s(%s)',
+            $menu->action->directive,
+            $menu->action->method,
+            $actionParameters
+        );
+    }
+
+    private function filterMenuForExamCoordinator()
+    {
+        $notAllowed = [
+            'menus' => [
+                'taken',
+                'classes',
+                'analyses',
+                'results',
+            ],
+            'tiles' => [
+                'tests'   => ['my-uploads'],
+                'planned' => ['invigilating', 'ongoing-assignments'],
+            ]
+        ];
+
+        $this->filterMenu($notAllowed);
+    }
+
+    private function filterMenu($notAllowed)
+    {
+        if (isset($notAllowed['menus'])) {
+            $this->menus = $this->menus->reject(function ($menuData, $menuName) use ($notAllowed) {
+                return collect($notAllowed['menus'])->contains($menuName);
+            });
+        }
+
+        if (isset($notAllowed['tiles'])) {
+            $this->tileGroups = $this->tileGroups->mapWithKeys(function ($tileGroupData, $tileGroupName) use ($notAllowed) {
+                if (collect($notAllowed['tiles'])->has($tileGroupName)) {
+                    $tileGroupData = collect($tileGroupData)->reject(function ($value, $key) use ($notAllowed, $tileGroupName) {
+                        return collect($notAllowed['tiles'][$tileGroupName])->contains($key);
+                    });
+                }
+
+                return [$tileGroupName => $tileGroupData];
+            });
+        }
+    }
+
+    private function handleMenuFilters()
+    {
+        if (Auth::user()->isValidExamCoordinator()) {
+            $this->filterMenuForExamCoordinator();
+        }
     }
 }
