@@ -170,25 +170,40 @@ class Attainment extends BaseModel
 
     public function getNameAttribute()
     {
-        $attaimentIdWhereClause = 'AND attainment_id is NULL';
-        if ($this->attainment_id) {
-            $attaimentIdWhereClause = sprintf('AND attainment_id = %d',  $this->attainment_id);
-        }
+        $found = false;
+        $orderNumber = Attainment::withoutGlobalScope(AttainmentScope::class)
+            ->where([
+                ['base_subject_id', $this->base_subject_id],
+                ['is_learning_goal', $this->is_learning_goal],
+                ['education_level_id', $this->education_level_id],
+            ])->when(is_null($this->attainment_id),
+                fn($query) => $query->whereNull('attainment_id'),
+                fn($query) => $query->where('attainment_id', $this->attainment_id)
+            )->orderByRaw('base_subject_id, education_level_id, is_learning_goal')
+            ->get()
+            ->filter(function ($value) use (&$found) {
+                if ($found) return false;
+                $found = ($this->id == $value->id);
+                return true;
+            })->count();
 
-        $orderNumber = DB::Select(
-            DB::raw('
-                SELECT vlg FROM
-                (
-                    SELECT *, @row_number := @row_number + 1  as vlg from  ' . $this->getTable() . ', 
-                    (select @row_number := 0) as x 
-                    WHERE base_subject_id = ' . $this->base_subject_id . '
-                        '. $attaimentIdWhereClause .'  
-                        AND is_learning_goal = ' . $this->is_learning_goal . '
-                        AND education_level_id = ' . $this->education_level_id . ' 
-                    ORDER BY base_subject_id, education_level_id, is_learning_goal) as t
-                    WHERE t.id = ' . $this->getKey()
-                 )
-        )[0]->vlg;
+
+// Solution not working online in php (works directly on the sql client
+// Illuminate\Database\QueryException with message 'SQLSTATE[42000]: Syntax error or access violation: 1064 Routing query to backend failed.
+//        $orderNumber = DB::Select(
+//            DB::raw('
+//                SELECT vlg FROM
+//                (
+//                    SELECT *, @row_number := @row_number + 1  as vlg from  ' . $this->getTable() . ',
+//                    (select @row_number := 0) as x
+//                    WHERE base_subject_id = ' . $this->base_subject_id . '
+//                        '. $attaimentIdWhereClause .'
+//                        AND is_learning_goal = ' . $this->is_learning_goal . '
+//                        AND education_level_id = ' . $this->education_level_id . '
+//                    ORDER BY base_subject_id, education_level_id, is_learning_goal) as t
+//                    WHERE t.id = ' . $this->getKey()
+//                 )
+//        )[0]->vlg;
 
         if ($this->is_learning_goal == 1) {
             return __('student.leerdoel met nummer', ['number' => $orderNumber]);
