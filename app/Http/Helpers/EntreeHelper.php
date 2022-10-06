@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
+use tcCore\Exceptions\CleanRedirectException;
 use tcCore\Exceptions\RedirectAndExitException;
 use tcCore\Lib\Repositories\SchoolYearRepository;
 use tcCore\SamlMessage;
@@ -53,12 +54,23 @@ class EntreeHelper
 
     protected $emailMaybeEmpty = false;
 
-    protected $isRegistering = false;
+    protected $entreeReason;
+    protected $finalRedirectTo;
+    protected $mId;
 
     public function __construct($attr, $messageId)
     {
         $this->attr = $this->transformAttributesIfNeededAndReturn($attr);
         $this->messageId = $messageId;
+
+        $this->retrieveDataFromSession();
+    }
+
+    private function retrieveDataFromSession()
+    {
+        $this->entreeReason = session()->get('entreeReason');
+        $this->finalRedirectTo = session()->get('finalRedirectTo');
+        $this->mId = session()->get('mId');
     }
 
     public static function initAndHandleFromRegisterWithEntreeAndTUser(User $user, $attr)
@@ -74,7 +86,7 @@ class EntreeHelper
 
     protected function isRegistering()
     {
-        return (session()->get('entreeReason',false) === 'register');
+        return ($this->entreeReason === 'register');
     }
 
     public function handleIfRegistering()
@@ -649,15 +661,27 @@ class EntreeHelper
         if ($this->laravelUser) {
             // return true is hier waarschijnlijk voldoende omdat je dan via scenario 1 wordt ingelogged;
             $this->handleUpdateUserWithSamlAttributes();
-            // if student get url to redirect
-            // redirect naar splash screen
-            $url = $this->laravelUser->getRedirectUrlSplashOrStartAndLoginIfNeeded();
-            return $this->redirectToUrlAndExit($url);
+
+            return $this->handleEndRedirect();
+
         }
-// redirect to maak koppelingscherm;
+        // redirect to maak koppelingscherm;
 
         $message = $this->createSamlMessage();
         $url = route('auth.login', ['tab' => 'entree', 'uuid' => $message->uuid]);
+        return $this->redirectToUrlAndExit($url);
+    }
+
+    protected function handleEndRedirect($options = [])
+    {
+        // make sure the standard procedure is first handled before possible final redirect.
+        $url = $this->laravelUser->getRedirectUrlSplashOrStartAndLoginIfNeeded($options);
+
+        // check if there is a data collection which needds to be checked
+        if($this->finalRedirectTo){
+            $url = $this->finalRedirectTo;
+        }
+
         return $this->redirectToUrlAndExit($url);
     }
 
@@ -681,7 +705,7 @@ class EntreeHelper
             ) {
             // we probably have a small set so go for the big set
             // we need an url to go to samle login with setting for the big set
-            $url = route('saml2_login', ['idpName' => 'entree', 'set' => 'full','entreeRegister' => $register]);
+            $url = route('saml2_login', ['idpName' => 'entree', 'set' => 'full','entreeRegister' => $register, 'mId' => $this->mId]);
             sleep(2);
             return $this->redirectToUrlAndExit($url);
         }
@@ -812,10 +836,8 @@ class EntreeHelper
         }
 
         $this->handleUpdateUserWithSamlAttributes();
-        // if student redirect to splash screen
-        $url = $this->laravelUser->getRedirectUrlSplashOrStartAndLoginIfNeeded($options);
-        return $this->redirectToUrlAndExit($url);
 
+        return $this->handleEndRedirect($options);
     }
 
     public function handleScenario2IfAddressIsKnownInOtherAccount()
@@ -981,8 +1003,8 @@ class EntreeHelper
         if($this->context === 'livewire'){
             return redirect()->to($url);
         }
-        header('location: '.$url);
-        exit;
+
+        throw new CleanRedirectException($url);
     }
 
     public function setLaravelUser(): void

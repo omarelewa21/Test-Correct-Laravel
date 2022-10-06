@@ -254,7 +254,7 @@ class QuestionCmsPreviewModal extends ModalComponent implements QuestionCms
      */
     public function addQuestion()
     {
-        $this->emitTo(QuestionBank::class, 'addQuestionFromDetail', $this->questionModel->id);
+        $this->emitTo(QuestionBank::class, 'addQuestionFromDetail', $this->questionModel->uuid);
         $this->forceClose()->closeModal();
     }
 

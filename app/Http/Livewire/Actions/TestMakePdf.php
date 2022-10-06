@@ -10,12 +10,9 @@ use tcCore\Test;
 
 class TestMakePdf extends TestAction
 {
-    public bool $disabled;
-
     public function mount($uuid, $variant = 'icon-button', $class = '')
     {
         parent::mount($uuid, $variant, $class);
-        $this->disabled = !Test::findByUuid($uuid)->canEdit(Auth::user());
     }
 
     public function handle()
@@ -30,5 +27,10 @@ class TestMakePdf extends TestAction
         ]);
 
         return $controller->toCakeUrl($request);
+    }
+
+    protected function getDisabledValue(): bool
+    {
+        return !$this->test->canEdit(Auth::user()) || Auth::user()->isValidExamCoordinator();
     }
 }

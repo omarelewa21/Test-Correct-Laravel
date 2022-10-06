@@ -21,6 +21,7 @@ class VerifyCsrfToken extends Middleware
         'livewire/message/preview*',
         'cms/ckeditor_upload/images*',
         'appapi/test_participant/*/hand_in',
-        'appapi/test_participant/*/fraud_event'
+        'appapi/test_participant/*/fraud_event',
+        'saml2/*',
     ];
 }

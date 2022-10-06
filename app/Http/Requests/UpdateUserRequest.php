@@ -79,6 +79,9 @@ class UpdateUserRequest extends Request {
             $extra_rule['external_id'] = new SchoolLocationUserExternalIdUpdate($this->schoolLocation,$this->user);
         }
 
+		if($this->has('is_examcoordinator') && $this->is_examcoordinator == 1){
+			$extra_rule['is_examcoordinator_for'] = 'required|in:NONE,SCHOOL,SCHOOL_LOCATION';
+		}
 
         $rules = collect([
             'username' => 'sometimes,required|email|unique:users,username,'.$this->user->getKey().','.$this->user->getKeyName().',deleted_at,NULL',
@@ -92,7 +95,8 @@ class UpdateUserRequest extends Request {
             'api_key' => '',
             'external_id' => '',
             'gender' => '',
-            'abbreviation' => ''
+            'abbreviation' => '',
+			'is_examcoordinator' => 'boolean'
         ]);
 
         $mergedRules = $rules;
@@ -229,6 +233,10 @@ class UpdateUserRequest extends Request {
 						}
 					}
 				}
+			}
+
+			if(!array_key_exists('is_examcoordinator', $data) || $data['is_examcoordinator'] == 0){
+				$data['is_examcoordinator_for'] = NULL;
 			}
 
 			$this->merge($data);

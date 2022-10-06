@@ -7,12 +7,14 @@
 
 <div wire:ignore
      {{ $attributes->merge(['class' => 'inline-flex rounded-10 relative', 'style' => 'max-width: 100%;']) }}
-     x-data="flatpickr(@entangle($attributes->wire('model')),
+     x-data="flatpickr(
+                @entangle($attributes->wire('model')),
                 '{{$multiple ? 'range' : 'single' }}',
                 '{{$locale}}',
                 '{{$minDate}}'
              )
     "
+
      x-on:clear-datepicker.window="clearPicker"
 >
     <input placeholder="{{ $placeholder }}" style="min-width: 170px" type="text" x-ref="datepickr" class="datepicker pl-4 w-full form-input {{$multiple ? 'range' : 'single'}}">

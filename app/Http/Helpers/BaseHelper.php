@@ -46,6 +46,10 @@ class BaseHelper
 
         $sessionHash = $user->generateSessionHash();
         $user->setSessionHash($sessionHash);
+
+        UserHelper::setAdditionalUserAttributes($user);
+        UserHelper::handleTeacherEnvironment($user);
+
         LoginLog::create(['user_id' => $user->getKey()]);
         AppVersionInfo::createFromSession();
         FailedLogin::solveForUsernameAndIp($user->username, request()->ip());
