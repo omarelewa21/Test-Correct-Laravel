@@ -2670,11 +2670,10 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
             return false;
         }
 
-        return $this->allowedSchoolLocations->each(function($location) {
+        return $this->allowedSchoolLocations()->each(function($location) {
             if(!$location->hasTrialLicense() || $this->trialPeriods()->withSchoolLocation($location)->exists()) {
                 return true;
             }
-
             return $this->trialPeriods()->create([
                 'school_location_id' => $location->getKey()
             ]);
