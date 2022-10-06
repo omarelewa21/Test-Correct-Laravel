@@ -355,7 +355,7 @@ class PValueRepository
 
     public static function getPValueForStudentBySubject(User $user, $periods, $educationLevelYears, $teachers)
     {
-        return PValue::SelectRaw('avg(score/max_score) as score')
+        $pValueQuery = PValue::SelectRaw('avg(score/max_score) as score')
             ->selectRaw('count(subject_id) as cnt')
             ->addSelect([
                 'serie'      => Subject::select('name')->whereColumn('id', 'p_values.subject_id')->limit(1),
@@ -371,7 +371,14 @@ class PValueRepository
                 $q->join('p_value_users', 'p_value_users.p_value_id', '=', 'p_values.id')
                     ->whereIn('p_value_users.user_id', $teachers->pluck('id'));
             })
-            ->groupBy('subject_id')
+            ->groupBy('subject_id');
+
+        return Subject::filterForStudent($user)
+            ->selectRaw('t2.*, subjects.id, subjects.name')
+            ->leftJoinSub($pValueQuery, 't2', function ($join) {
+                $join->on('subjects.id', '=', 't2.subject_id');
+            })
+            ->orderByRaw('subjects.name')
             ->get();
     }
 

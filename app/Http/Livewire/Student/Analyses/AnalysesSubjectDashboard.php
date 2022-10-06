@@ -78,8 +78,8 @@ class AnalysesSubjectDashboard extends AnalysesDashboard
                 'count'   => $pValue->cnt,
                 'value'   => number_format(($pValue->score > 0 ? $pValue->score : 0), 2),
                 'text'    => $pValue->serie,
-                'basedOn' => trans_choice('student.attainment_tooltip_title', $pValue->cnt, [
-                    'basedOn' => $pValue->cnt
+                'basedOn' => trans_choice('student.attainment_tooltip_title', $pValue->cnt ?? 0 , [
+                    'basedOn' => $pValue->cnt ?? 0
                 ]),
                 'link'    => $link,
             ];

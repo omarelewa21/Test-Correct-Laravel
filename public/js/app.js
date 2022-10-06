@@ -6456,16 +6456,19 @@ document.addEventListener('alpine:init', function () {
             basedOnElement.style.color = 'var(--system-base)';
             basedOnElement.appendChild(document.createTextNode(dataRow.basedOn));
             contentElement.appendChild(basedOnElement);
-            var detailElement = document.createElement("p");
-            detailElement.style.whiteSpace = 'nowrap';
-            detailElement.style.color = 'var(--system-base)';
-            detailElement.style.fontWeight = '900';
-            detailElement.appendChild(document.createTextNode("Bekijk analyse"));
-            var iconElement = document.createElement('img');
-            iconElement.src = '/svg/icons/arrow-small.svg';
-            iconElement.style.display = 'inline-block';
-            detailElement.appendChild(iconElement);
-            contentElement.appendChild(detailElement);
+
+            if (dataRow.link != false) {
+              var detailElement = document.createElement("p");
+              detailElement.style.whiteSpace = 'nowrap';
+              detailElement.style.color = 'var(--system-base)';
+              detailElement.style.fontWeight = '900';
+              detailElement.appendChild(document.createTextNode("Bekijk analyse"));
+              var iconElement = document.createElement('img');
+              iconElement.src = '/svg/icons/arrow-small.svg';
+              iconElement.style.display = 'inline-block';
+              detailElement.appendChild(iconElement);
+              contentElement.appendChild(detailElement);
+            }
           }
         });
         chart.tooltip().onDomReady(function (e) {
@@ -6611,20 +6614,23 @@ document.addEventListener('alpine:init', function () {
             basedOnElement.style.color = 'var(--system-base)';
             basedOnElement.appendChild(document.createTextNode(dataRow.basedOn));
             contentElement.appendChild(basedOnElement);
-            var detailElement = document.createElement("p");
-            detailElement.style.whiteSpace = 'nowrap';
-            detailElement.style.color = 'var(--system-base)';
-            detailElement.style.fontWeight = '900';
-            detailElement.appendChild(document.createTextNode("Bekijk analyse!! "));
-            var iconElement = document.createElement('img');
-            iconElement.src = '/svg/icons/arrow-small.svg';
-            iconElement.style.display = 'inline-block';
-            detailElement.appendChild(iconElement);
-            contentElement.appendChild(detailElement);
-            var AttainmentTexElement = document.createElement("p");
-            AttainmentTexElement.style.color = 'var(--system-base)';
-            AttainmentTexElement.appendChild(document.createTextNode(dataRow.text));
-            contentElement.appendChild(AttainmentTexElement);
+
+            if (dataRow.text != null) {
+              var detailElement = document.createElement("p");
+              detailElement.style.whiteSpace = 'nowrap';
+              detailElement.style.color = 'var(--system-base)';
+              detailElement.style.fontWeight = '900';
+              detailElement.appendChild(document.createTextNode("Bekijk analyse "));
+              var iconElement = document.createElement('img');
+              iconElement.src = '/svg/icons/arrow-small.svg';
+              iconElement.style.display = 'inline-block';
+              detailElement.appendChild(iconElement);
+              contentElement.appendChild(detailElement);
+              var AttainmentTexElement = document.createElement("p");
+              AttainmentTexElement.style.color = 'var(--system-base)';
+              AttainmentTexElement.appendChild(document.createTextNode(dataRow.text));
+              contentElement.appendChild(AttainmentTexElement);
+            }
           }
         });
         chart.tooltip().onDomReady(function (e) {

@@ -4,8 +4,13 @@ namespace Tests\Feature;
 
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use tcCore\Attainment;
+use tcCore\BaseSubject;
+use tcCore\Factories\FactorySchoolClass;
+use tcCore\Factories\FactorySection;
+use tcCore\Factories\FactoryUser;
 use tcCore\FactoryScenarios\FactoryScenarioTestTakeRated;
 use tcCore\Lib\Repositories\PValueRepository;
+use tcCore\Lib\Repositories\SchoolYearRepository;
 use tcCore\Period;
 use tcCore\Subject;
 use tcCore\User;
@@ -27,6 +32,35 @@ class PValueRepositoryTest extends TestCase
         $studentOne->loadPValueStatsForAllSubjects();
 //        dd($studentOne->pValueStatsForAllSubjects);
         $this->assertArrayHasKey('Nederlands', $studentOne->pValueStatsForAllSubjects);
+    }
+
+    /** @test */
+    public function if_a_students_gets_a_new_subject_it_should_also_see_that_subject_in_the_subject_graph()
+    {
+        $this->withoutExceptionHandling();
+
+//        $factory = FactoryScenarioTestTakeRated::create($this->getTeacherOne());
+        $studentOne = $this->getStudentOne();
+
+        $pValues = PValueRepository::getPValueForStudentBySubject(
+            $studentOne,
+            collect(),
+            collect(),
+            collect(),
+        );
+
+        $this->assertCount(1, $pValues);
+
+        $this->createBiologySectionWithClassForStudentOneAndTeacherOneInCurrentSchoolYear();
+
+        $pValuesWithBiology = PValueRepository::getPValueForStudentBySubject(
+            $studentOne,
+            collect(),
+            collect(),
+            collect(),
+        );
+
+        $this->assertCount(2,  $pValuesWithBiology);
     }
 
     /** @test */
@@ -162,11 +196,27 @@ class PValueRepositoryTest extends TestCase
             collect(),
             collect(),
             collect()
-
-
         );
         $this->assertGreaterThanOrEqual(1, $pValuesPerAttainment->filter(function($query) {
             return in_array($query->serie, ['Literaire ontwikkeling', 'Literaire begrippen', 'Literatuurgeschiedenis']);
         })->count());
+    }
+
+    private function createBiologySectionWithClassForStudentOneAndTeacherOneInCurrentSchoolYear()
+    {
+        // creeer een sectie in de huidige schoollocatie voor het vak biologie;
+        $this->actingAs($this->getStudentOne());
+        $schoolYearLocation = SchoolYearRepository::getCurrentSchoolYear();
+
+        $sectionFactory = FactorySection::create($this->getStudentOne()->schoolLocation, 'Biologie Sectie voor school 1');
+        $sectionFactory->addSubject(
+            BaseSubject::where('name', 'biologie')->first(),
+            'Biologie'
+        );
+
+        FactorySchoolClass::create($schoolYearLocation, 1, 'biologie_klas')
+            ->addTeacher($this->getTeacherOne(), $sectionFactory->section->subjects()->where('name', 'biologie')->first())
+            ->addStudent($this->getStudentOne());
+
     }
 }
