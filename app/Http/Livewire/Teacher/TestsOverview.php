@@ -123,7 +123,7 @@ class TestsOverview extends Component
             $this->cleanFilterForSearch($this->filters['personal']),
             $this->sorting
         )
-            ->where('tests.author_id', auth()->user()->id);
+            ->where('tests.author_id', auth()->id());
     }
 
     private function getUmbrellaDatasource()
@@ -241,10 +241,12 @@ class TestsOverview extends Component
     {
         $searchFilter = [];
         foreach (['name', 'education_level_year', 'education_level_id', 'subject_id', 'author_id', 'base_subject_id'] as $filter) {
-            if (!empty($filters[$filter])) {
+            // should be an array or string, but in cse of a collection we need to check it is not an empty collection
+            if (!empty($filters[$filter]) && (is_object($filters[$filter]) ? count($filters[$filter]) > 0 : false)) {
                 $searchFilter[$filter] = $filters[$filter];
             }
         }
+
         return $searchFilter;
     }
 
