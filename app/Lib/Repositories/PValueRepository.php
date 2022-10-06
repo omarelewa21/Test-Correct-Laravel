@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\DB;
 use tcCore\Attainment;
 use tcCore\BaseSubject;
 use tcCore\PValue;
+use tcCore\Scopes\AttainmentScope;
 use tcCore\Subject;
 use tcCore\User;
 
@@ -354,10 +355,10 @@ class PValueRepository
 
     public static function getPValueForStudentBySubject(User $user, $periods, $educationLevelYears, $teachers)
     {
-        return PValue::SelectRaw('avg(score/max_score) as score')
+        $pValueQuery = PValue::SelectRaw('avg(score/max_score) as score')
             ->selectRaw('count(subject_id) as cnt')
             ->addSelect([
-                'serie' => Subject::select('name')->whereColumn('id', 'p_values.subject_id')->limit(1),
+                'serie'      => Subject::select('name')->whereColumn('id', 'p_values.subject_id')->limit(1),
                 'subject_id' => 'p_values.subject_id',
             ])
             ->join('test_participants', function ($join) use ($user) {
@@ -370,16 +371,29 @@ class PValueRepository
                 $q->join('p_value_users', 'p_value_users.p_value_id', '=', 'p_values.id')
                     ->whereIn('p_value_users.user_id', $teachers->pluck('id'));
             })
-            ->groupBy('subject_id')
+            ->groupBy('subject_id');
+
+        return Subject::filterForStudent($user)
+            ->selectRaw('t2.*, subjects.id, subjects.name')
+            ->leftJoinSub($pValueQuery, 't2', function ($join) {
+                $join->on('subjects.id', '=', 't2.subject_id');
+            })
+            ->orderByRaw('subjects.name')
             ->get();
     }
 
-    public static function getPValuePerAttainmentForStudent(User $user, $periods, $educationLevelYears, $teachers)
+    public static function getPValuePerAttainmentForStudent(User $user, $periods, $educationLevelYears, $teachers, Subject $subject, $isLearningGoal = false)
     {
-        return PValue::SelectRaw('avg(score/max_score) as score')
+        $forSubject = $subject->id;
+
+        $pValueQuery = PValue::SelectRaw('avg(score/max_score) as score')
             ->selectRaw('count(attainment_id) as cnt')
             ->addSelect([
-                'serie' => Attainment::select('description')->whereColumn('id', 'p_value_attainments.attainment_id')->limit(1),
+                'serie'         => Attainment::withoutGlobalScope(AttainmentScope::class)
+                    ->select('description')
+                    ->where('is_learning_goal', $isLearningGoal)
+                    ->whereColumn('id', 'p_value_attainments.attainment_id')
+                    ->limit(1),
                 'attainment_id' => 'p_value_attainments.attainment_id',
             ])
             ->join('p_value_attainments', 'p_values.id', '=', 'p_value_attainments.p_value_id')
@@ -393,7 +407,16 @@ class PValueRepository
                 $q->join('p_value_users', 'p_value_users.p_value_id', '=', 'p_values.id')
                     ->whereIn('p_value_users.user_id', $teachers->pluck('id'));
             })
-            ->groupBy('attainment_id')
+            ->groupBy('attainment_id');
+
+        return Attainment::withoutGlobalScope(AttainmentScope::class)
+            ->selectRaw('t2.*, attainments.id')
+            ->leftJoinSub($pValueQuery, 't2', function ($join) {
+                $join->on('attainments.id', '=', 't2.attainment_id');
+            })->whereIn('base_subject_id', Subject::select('base_subject_id')->where('id', $forSubject))
+            ->whereNull('attainments.attainment_id')
+            ->where('is_learning_goal', $isLearningGoal)
+            ->orderByRaw('is_learning_goal, education_level_id, attainments.code, attainments.subcode')
             ->get();
     }
 
@@ -402,7 +425,7 @@ class PValueRepository
         return PValue::SelectRaw('avg(score/max_score) as score')
             ->selectRaw('count(attainment_id) as cnt')
             ->addSelect([
-                'serie' => Attainment::select('description')->whereColumn('id', 'p_value_attainments.attainment_id')->limit(1),
+                'serie'         => Attainment::select('description')->whereColumn('id', 'p_value_attainments.attainment_id')->limit(1),
                 'attainment_id' => 'p_value_attainments.attainment_id',
             ])
             ->join('p_value_attainments', 'p_values.id', '=', 'p_value_attainments.p_value_id')

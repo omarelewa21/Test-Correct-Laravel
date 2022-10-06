@@ -5,7 +5,7 @@
         <div class="flex items-center gap-4 ">
             <x-button.back-round wire:click="redirectBack"/>
             <div class="flex text-lg bold">
-                <span>{{ __('header.Analyses') }} <x-icon.chevron-small opacity="1"></x-icon.chevron-small> {{ \tcCore\Subject::whereUuid($subject)->first()->name }} <x-icon.chevron-small opacity="1"></x-icon.chevron-small> {{ __('student.leerdoel met nummer', ['number' => 4]) }}</span>
+                <span>{{ __('header.Analyses') }} <x-icon.chevron-small opacity="1"></x-icon.chevron-small> {{ \tcCore\Subject::whereUuid($subject)->first()->name }} <x-icon.chevron-small opacity="1"></x-icon.chevron-small> {{ $attainment->name }}</span>
             </div>
         </div>
     </x-sticky-page-title>
