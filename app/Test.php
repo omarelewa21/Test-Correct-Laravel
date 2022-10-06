@@ -764,7 +764,7 @@ class Test extends BaseModel
                                                             t9.school_location_id = %d
                                                             ) as s2
                                                     on t2.subject_id = s2.subject_id
-                                            where t2.demo = false',
+                                            where t2.demo = 0',
             $user->id,
             $user->school_location_id
         );
@@ -799,7 +799,7 @@ class Test extends BaseModel
                                                             t10.school_location_id = %d
                                                         ) as s2
                                                     on t2.subject_id = s2.subject_id
-                                            where test_authors.user_id = %d and t2.demo = false',
+                                            where test_authors.user_id = %d and t2.demo = 0',
             $user->id,
             $user->school_location_id,
             $user->id
