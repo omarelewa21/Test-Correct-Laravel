@@ -8525,6 +8525,11 @@ ul ul ul {
     color: var(--system-base);
 }
 
+.grid .grid-card.archived span,
+.grid .grid-card.archived h3 {
+    color: var(--note)!important;
+}
+
 .logout-progress-bar {
     width: 70%;
     background-color: white;

@@ -787,17 +787,19 @@ document.addEventListener('alpine:init', () => {
                         basedOnElement.appendChild(document.createTextNode(dataRow.basedOn));
                         contentElement.appendChild(basedOnElement);
 
-                        const detailElement = document.createElement("p");
-                        detailElement.style.whiteSpace = 'nowrap'
-                        detailElement.style.color = 'var(--system-base)';
-                        detailElement.style.fontWeight = '900';
-                        detailElement.appendChild(document.createTextNode("Bekijk analyse"));
+                        if (dataRow.link != false) {
+                            const detailElement = document.createElement("p");
+                            detailElement.style.whiteSpace = 'nowrap'
+                            detailElement.style.color = 'var(--system-base)';
+                            detailElement.style.fontWeight = '900';
+                            detailElement.appendChild(document.createTextNode("Bekijk analyse"));
 
-                        const iconElement = document.createElement('img');
-                        iconElement.src = '/svg/icons/arrow-small.svg';
-                        iconElement.style.display = 'inline-block'
-                        detailElement.appendChild(iconElement)
-                        contentElement.appendChild(detailElement);
+                            const iconElement = document.createElement('img');
+                            iconElement.src = '/svg/icons/arrow-small.svg';
+                            iconElement.style.display = 'inline-block'
+                            detailElement.appendChild(iconElement)
+                            contentElement.appendChild(detailElement);
+                        }
                     }
                 });
                 chart.tooltip().onDomReady(function (e) {
@@ -982,24 +984,26 @@ document.addEventListener('alpine:init', () => {
                         basedOnElement.appendChild(document.createTextNode(dataRow.basedOn));
                         contentElement.appendChild(basedOnElement);
 
-                        const detailElement = document.createElement("p");
-                        detailElement.style.whiteSpace = 'nowrap'
-                        detailElement.style.color = 'var(--system-base)';
-                        detailElement.style.fontWeight = '900';
-                        detailElement.appendChild(document.createTextNode("Bekijk analyse!! "));
+                        if (dataRow.text != null) {
+                            const detailElement = document.createElement("p");
+                            detailElement.style.whiteSpace = 'nowrap'
+                            detailElement.style.color = 'var(--system-base)';
+                            detailElement.style.fontWeight = '900';
+                            detailElement.appendChild(document.createTextNode("Bekijk analyse "));
 
-                        const iconElement = document.createElement('img');
-                        iconElement.src = '/svg/icons/arrow-small.svg';
-                        iconElement.style.display = 'inline-block'
-                        detailElement.appendChild(iconElement)
-                        contentElement.appendChild(detailElement);
+                            const iconElement = document.createElement('img');
+                            iconElement.src = '/svg/icons/arrow-small.svg';
+                            iconElement.style.display = 'inline-block'
+                            detailElement.appendChild(iconElement)
+                            contentElement.appendChild(detailElement);
 
-                        const AttainmentTexElement = document.createElement("p");
-                        AttainmentTexElement.style.color = 'var(--system-base)'
-                        AttainmentTexElement.appendChild(
-                            document.createTextNode(dataRow.text)
-                        );
-                        contentElement.appendChild(AttainmentTexElement);
+                            const AttainmentTexElement = document.createElement("p");
+                            AttainmentTexElement.style.color = 'var(--system-base)'
+                            AttainmentTexElement.appendChild(
+                                document.createTextNode(dataRow.text)
+                            );
+                            contentElement.appendChild(AttainmentTexElement);
+                        }
                     }
                 });
 

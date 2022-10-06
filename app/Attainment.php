@@ -170,6 +170,11 @@ class Attainment extends BaseModel
 
     public function getNameAttribute()
     {
+        $attaimentIdWhereClause = 'AND attainment_id is NULL';
+        if ($this->attainment_id) {
+            $attaimentIdWhereClause = sprintf('AND attainment_id = %d',  $this->attainment_id);
+        }
+
         $orderNumber = DB::Select(
             DB::raw('
                 SELECT vlg FROM
@@ -177,7 +182,7 @@ class Attainment extends BaseModel
                     SELECT *, @row_number := @row_number + 1  as vlg from  ' . $this->getTable() . ', 
                     (select @row_number := 0) as x 
                     WHERE base_subject_id = ' . $this->base_subject_id . '
-                        AND attainment_id = ' . $this->attainment_id . ' 
+                        '. $attaimentIdWhereClause .'  
                         AND is_learning_goal = ' . $this->is_learning_goal . '
                         AND education_level_id = ' . $this->education_level_id . ' 
                     ORDER BY base_subject_id, education_level_id, is_learning_goal) as t

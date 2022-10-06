@@ -5590,6 +5590,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var choices_js__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(choices_js__WEBPACK_IMPORTED_MODULE_2__);
 /* harmony import */ var _alpinejs_intersect__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! @alpinejs/intersect */ "./node_modules/@alpinejs/intersect/dist/module.esm.js");
 /* harmony import */ var _ryangjchandler_alpine_clipboard__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! @ryangjchandler/alpine-clipboard */ "./node_modules/@ryangjchandler/alpine-clipboard/src/index.js");
+function _typeof(obj) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (obj) { return typeof obj; } : function (obj) { return obj && "function" == typeof Symbol && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }, _typeof(obj); }
+
 
 
 function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { Promise.resolve(value).then(_next, _throw); } }
@@ -6249,7 +6251,8 @@ document.addEventListener('alpine:init', function () {
           var refreshChoices = function refreshChoices() {
             var selection = _this16.multiple ? _this16.value : [_this16.value];
             choices.clearStore();
-            choices.setChoices(_this16.options.map(function (_ref) {
+            var options = _typeof(_this16.options) === 'object' ? Object.values(_this16.options) : _this16.options;
+            choices.setChoices(options.map(function (_ref) {
               var value = _ref.value,
                   label = _ref.label;
               return {
@@ -6455,16 +6458,19 @@ document.addEventListener('alpine:init', function () {
             basedOnElement.style.color = 'var(--system-base)';
             basedOnElement.appendChild(document.createTextNode(dataRow.basedOn));
             contentElement.appendChild(basedOnElement);
-            var detailElement = document.createElement("p");
-            detailElement.style.whiteSpace = 'nowrap';
-            detailElement.style.color = 'var(--system-base)';
-            detailElement.style.fontWeight = '900';
-            detailElement.appendChild(document.createTextNode("Bekijk analyse"));
-            var iconElement = document.createElement('img');
-            iconElement.src = '/svg/icons/arrow-small.svg';
-            iconElement.style.display = 'inline-block';
-            detailElement.appendChild(iconElement);
-            contentElement.appendChild(detailElement);
+
+            if (dataRow.link != false) {
+              var detailElement = document.createElement("p");
+              detailElement.style.whiteSpace = 'nowrap';
+              detailElement.style.color = 'var(--system-base)';
+              detailElement.style.fontWeight = '900';
+              detailElement.appendChild(document.createTextNode("Bekijk analyse"));
+              var iconElement = document.createElement('img');
+              iconElement.src = '/svg/icons/arrow-small.svg';
+              iconElement.style.display = 'inline-block';
+              detailElement.appendChild(iconElement);
+              contentElement.appendChild(detailElement);
+            }
           }
         });
         chart.tooltip().onDomReady(function (e) {
@@ -6610,20 +6616,23 @@ document.addEventListener('alpine:init', function () {
             basedOnElement.style.color = 'var(--system-base)';
             basedOnElement.appendChild(document.createTextNode(dataRow.basedOn));
             contentElement.appendChild(basedOnElement);
-            var detailElement = document.createElement("p");
-            detailElement.style.whiteSpace = 'nowrap';
-            detailElement.style.color = 'var(--system-base)';
-            detailElement.style.fontWeight = '900';
-            detailElement.appendChild(document.createTextNode("Bekijk analyse!! "));
-            var iconElement = document.createElement('img');
-            iconElement.src = '/svg/icons/arrow-small.svg';
-            iconElement.style.display = 'inline-block';
-            detailElement.appendChild(iconElement);
-            contentElement.appendChild(detailElement);
-            var AttainmentTexElement = document.createElement("p");
-            AttainmentTexElement.style.color = 'var(--system-base)';
-            AttainmentTexElement.appendChild(document.createTextNode(dataRow.text));
-            contentElement.appendChild(AttainmentTexElement);
+
+            if (dataRow.text != null) {
+              var detailElement = document.createElement("p");
+              detailElement.style.whiteSpace = 'nowrap';
+              detailElement.style.color = 'var(--system-base)';
+              detailElement.style.fontWeight = '900';
+              detailElement.appendChild(document.createTextNode("Bekijk analyse "));
+              var iconElement = document.createElement('img');
+              iconElement.src = '/svg/icons/arrow-small.svg';
+              iconElement.style.display = 'inline-block';
+              detailElement.appendChild(iconElement);
+              contentElement.appendChild(detailElement);
+              var AttainmentTexElement = document.createElement("p");
+              AttainmentTexElement.style.color = 'var(--system-base)';
+              AttainmentTexElement.appendChild(document.createTextNode(dataRow.text));
+              contentElement.appendChild(AttainmentTexElement);
+            }
           }
         });
         chart.tooltip().onDomReady(function (e) {
@@ -7403,7 +7412,7 @@ window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
 window.Pusher = __webpack_require__(/*! pusher-js */ "./node_modules/pusher-js/dist/web/pusher.js");
 window.Echo = new laravel_echo__WEBPACK_IMPORTED_MODULE_0__["default"]({
   broadcaster: 'pusher',
-  key: "2149988ad52a600a2309",
+  key: "51d7221bf733999d7138",
   cluster: "eu",
   forceTLS: true
 });
@@ -7444,7 +7453,7 @@ Core = {
   inApp: false,
   appType: '',
   inactive: 0,
-  secondsBeforeStudentLogout: 60 * 60,
+  secondsBeforeStudentLogout: 60 * 60 * 3,
   devices: ['browser', 'electron', 'ios', 'chromebook'],
   init: function init() {
     var isIOS = Core.detectIOS();
@@ -7471,7 +7480,7 @@ Core = {
     Core.appType === '' ? Core.enableBrowserFeatures() : Core.enableAppFeatures(Core.appType);
   },
   lostFocus: function lostFocus(reason) {
-    if (!isMakingTest()) {
+    if (!isMakingTest() || Core.appType == 'electron') {
       return;
     }
 
@@ -7496,7 +7505,6 @@ Core = {
     }
 
     window.Livewire.emit('setFraudDetected');
-    alert = true;
   },
   lostFocusWithoutReporting: function lostFocusWithoutReporting(text) {
     if (!isMakingTest()) {
@@ -13181,17 +13189,15 @@ document.addEventListener('alpine:init', function () {
       init: function init() {
         var _this = this;
 
-        // if(this.mode == 'range'){
-        //     this.value = ['{{$defaultDate}}', '{{$defaultDateTo}}'];
-        // } else {
-        //     this.value = this.wireModel;
-        // }
         this.picker = (0,flatpickr__WEBPACK_IMPORTED_MODULE_0__["default"])(this.$refs.datepickr, {
           locale: this.locale,
           minDate: minDate == 'today' ? 'today' : false,
           mode: this.mode,
           defaultDate: this.wireModel,
-          dateFormat: "d-m-Y",
+          // The displayed format is humanreadable, the used date is Y-m-d formatted;
+          altInput: true,
+          altFormat: "d-m-Y",
+          dateFormat: "Y-m-d",
           onChange: function onChange(date, dateString) {
             _this.wireModel = _this.value = _this.mode == 'range' ? dateString.split(' t/m ') : dateString; //split t/m or to
           }
@@ -13514,7 +13520,6 @@ document.addEventListener('alpine:init', function () {
         }
 
         if (this.$wire.activeRoute.main !== '') {
-          console.log(27);
           this.$nextTick(function () {
             return _this.$dispatch('tiles-hidden');
           });
@@ -13591,8 +13596,6 @@ document.addEventListener('alpine:init', function () {
             _this2.shouldDispatchTilesEvent();
 
             if (_this2.shouldDispatchTilesEvent()) {
-              console.log(87);
-
               _this2.$dispatch('tiles-shown');
             }
           }
@@ -13615,7 +13618,6 @@ document.addEventListener('alpine:init', function () {
         clearTimeout(this.hideTimeout);
         tiles.style.paddingLeft = '0px';
         tiles.style.setProperty('--top', '100px');
-        console.log(111);
         this.$dispatch('tiles-shown');
       },
       userMenuShow: function userMenuShow() {
