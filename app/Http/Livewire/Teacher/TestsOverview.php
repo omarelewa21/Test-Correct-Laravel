@@ -2,6 +2,7 @@
 
 namespace tcCore\Http\Livewire\Teacher;
 
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 use Livewire\WithPagination;
@@ -239,15 +240,9 @@ class TestsOverview extends Component
 
     private function cleanFilterForSearch(array $filters)
     {
-        $searchFilter = [];
-        foreach (['name', 'education_level_year', 'education_level_id', 'subject_id', 'author_id', 'base_subject_id'] as $filter) {
-            // should be an array or string, but in cse of a collection we need to check it is not an empty collection
-            if (!empty($filters[$filter]) && (is_object($filters[$filter]) ? count($filters[$filter]) > 0 : false)) {
-                $searchFilter[$filter] = $filters[$filter];
-            }
-        }
-
-        return $searchFilter;
+        return collect($filters)->reject(function ($filter) {
+            return $filter instanceof Collection ? $filter->isEmpty() : empty($filter);
+        })->toArray();
     }
 
     public function openTestDetail($testUuid)
