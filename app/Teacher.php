@@ -186,7 +186,7 @@ class Teacher extends BaseModel {
 
     public static function getTeacherUsersForSchoolLocation(SchoolLocation $schoolLocation)
     {
-        return User::select('users.*')
+        $sql = User::select('users.*')
             ->leftJoin('user_roles', 'users.id', '=', 'user_roles.user_id')
             ->whereIn(
                 'id',
@@ -194,6 +194,8 @@ class Teacher extends BaseModel {
                     ->select('user_id')
                     ->where('school_location_id', $schoolLocation->getKey())
             )
-            ->where('user_roles.role_id', Role::TEACHER);
+            ->where('user_roles.role_id', Role::TEACHER)
+            ->where('users.is_examcoordinator', 0);
+        return $sql;
     }
 }

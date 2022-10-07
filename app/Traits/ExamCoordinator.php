@@ -39,15 +39,15 @@ trait ExamCoordinator
     {
         if ($scope === 'NONE') {
             $this->setAttribute('is_examcoordinator', 0);
-            $this->removeSchoolLocationsButTheOneFromSchoolManager($schoolManager);
+            $this->removeSchoolLocationsExceptTheOneFromSchoolManager($schoolManager);
         }
 
         if ($scope === 'SCHOOL_LOCATION') {
-            $this->removeSchoolLocationsButTheOneFromSchoolManager($schoolManager);
+            $this->removeSchoolLocationsExceptTheOneFromSchoolManager($schoolManager);
         }
 
         if ($scope === 'SCHOOL') {
-            $school = School::whereId($schoolManager->schoolLocation->school_id)->with('schoolLocations')->first();
+            $school = $schoolManager->schoolLocation->school->with('schoolLocations')->first();
 
             $school->schoolLocations->each(function ($location) {
                 $this->addSchoolLocation($location);
@@ -70,7 +70,7 @@ trait ExamCoordinator
      * @param User $schoolManager
      * @return void
      */
-    private function removeSchoolLocationsButTheOneFromSchoolManager(User $schoolManager): void
+    private function removeSchoolLocationsExceptTheOneFromSchoolManager(User $schoolManager): void
     {
         $schoolManagerLocation = $schoolManager->schoolLocation;
         if ($this->hasMultipleSchoolLocations()) {
