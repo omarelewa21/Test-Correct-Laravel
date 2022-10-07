@@ -414,8 +414,7 @@ class TestTake extends BaseModel
 
     public static function schoolClassesForMultiple($testTakeIds)
     {
-        $return = SchoolClass::fromTestTakes($testTakeIds);
-        return $return;
+        return SchoolClass::fromTestTakes($testTakeIds);
     }
 
     public function invigilators()
