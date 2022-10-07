@@ -43,7 +43,7 @@ class AnalysesOverviewDashboard extends AnalysesDashboard
 
 
             return (object)[
-                'x'       => $pValue->name,
+                'x'       => htmlspecialchars_decode($pValue->name),
                 'title'   => $pValue->name,
                 'basedOn' => trans_choice('student.obv count questions', $pValue->cnt?? 0),
                 'value'   => number_format(($pValue->score > 0 ? $pValue->score : 0), 2),
