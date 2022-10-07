@@ -81,6 +81,7 @@ class AttachmentsController extends Controller {
             $questionAttachment = new QuestionAttachment();
             $questionAttachment->setAttribute('question_id', $question->getKey());
             $questionAttachment->setAttribute('attachment_id', $attachment->getKey());
+            $questionAttachment->setAttribute('options', $request->json($attachment->getAttribute('file_name')));
 
             if($questionAttachment->save()) {
                 $attachment->setAttribute('group_question_question_path', '');

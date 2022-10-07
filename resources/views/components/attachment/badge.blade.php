@@ -98,7 +98,7 @@
                                 @else
                                     <x-input.toggle
                                             @change="$wire.handleAttachmentSettingChange({'play_once': $event.target.checked ? '1' : '0'}, '{{ $attachment->uuid }}')"
-                                            :checked="optional(json_decode($attachment->json))->play_once === '1'"
+                                            :checked="$attachment->hasSetting('play_once', $this->questionId) === '1'"
                                     />
                                 @endif
                             </div>
@@ -117,7 +117,7 @@
                                 @else
                                     <x-input.toggle
                                             @change="$wire.handleAttachmentSettingChange({'pausable': $event.target.checked ? '1' : '0'}, '{{ $attachment->uuid }}')"
-                                            :checked="optional(json_decode($attachment->json))->pausable === '1'"
+                                            :checked="$attachment->hasSetting('pausable', $this->questionId) === '1'"
                                     />
                                 @endif
                             </div>
@@ -145,7 +145,7 @@
                                             class="w-24 pr-10 text-base"
                                             placeholder="250"
                                             @change="$wire.handleAttachmentSettingChange({'timeout': $event.target.value}, '{{ $attachment->uuid }}')"
-                                            :value="optional(json_decode($attachment->json))->timeout"
+                                            :value="$attachment->hasSetting('timeout', $this->questionId)"
                                     />
                                 @endif
                                 <span class="audio-seconds-input"></span>
