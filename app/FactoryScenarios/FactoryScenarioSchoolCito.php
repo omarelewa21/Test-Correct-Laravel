@@ -91,14 +91,15 @@ class FactoryScenarioSchoolCito extends FactoryScenarioSchool
             'abbreviation' => 'TCB',
         ])->user;
 
+        //TODO: Refactor this into a reusable portion of code --RR
         //create school class with teacher and students records, add the teacher-user, create student-users
-        $schoolClassLocation = FactorySchoolClass::create($schoolYearLocation, 1, $factory->schoolClassName)
-            ->addTeacher($citoAuthor, $section->subjects()->first())
-            ->addTeacher($citoAuthorB, $section->subjects()->first())
-            ->addStudent(FactoryUser::createStudent($schoolLocation)->user)
-            ->addStudent(FactoryUser::createStudent($schoolLocation)->user)
-            ->addStudent(FactoryUser::createStudent($schoolLocation)->user);
-
+        collect([$citoAuthor, $citoAuthorB])->each(function ($author) use ($section, $schoolLocation, $factory, $schoolYearLocation) {
+            $schoolClassLocation = FactorySchoolClass::create($schoolYearLocation, 1, $factory->schoolClassName)
+                ->addTeacher($author, $section->subjects()->first())
+                ->addStudent(FactoryUser::createStudent($schoolLocation)->user)
+                ->addStudent(FactoryUser::createStudent($schoolLocation)->user)
+                ->addStudent(FactoryUser::createStudent($schoolLocation)->user);
+        });
         $factory->school = $school->refresh();
         $factory->schools->add($school);
 
