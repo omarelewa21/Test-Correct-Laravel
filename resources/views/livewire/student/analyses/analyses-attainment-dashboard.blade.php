@@ -13,7 +13,7 @@
 
 @section('analyses.page.title')
     <div class="flex pt-5 justify-between">
-        <h1 class="flex pt-5"> {{ $attainment }} </h1>
+        <h1 class="flex pt-5"> {{ $attainment->name }} </h1>
         <x-button.primary class="hidden bg-purple-900 flex">Exporteren</x-button.primary>
     </div>
 @endsection
