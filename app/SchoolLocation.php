@@ -2,9 +2,6 @@
 
 use Carbon\Carbon;
 use Closure;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Foundation\Bus\DispatchesJobs;
-use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
@@ -35,7 +32,6 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use tcCore\Lib\User\Factory;
 use tcCore\Lib\User\Roles;
 use Dyrynda\Database\Casts\EfficientUuid;
-use Dyrynda\Database\Support\GeneratesUuid;
 use tcCore\Mail\SendSamlNoMailAddressInRequestDetectedMail;
 use tcCore\Traits\UuidTrait;
 
@@ -95,7 +91,7 @@ class SchoolLocation extends BaseModel implements AccessCheckable
         'allow_new_student_environment', 'allow_new_question_editor',
         'keep_out_of_school_location_report',
         'main_phonenumber', 'internetaddress', 'show_exam_material', 'show_cito_quick_test_start', 'show_national_item_bank',
-        'allow_wsc', 'allow_writing_assignment', 'license_type', 'allow_creathlon', 'allow_new_taken_tests_page',
+        'allow_wsc', 'allow_writing_assignment', 'license_type', 'allow_creathlon', 'allow_new_taken_tests_page', 'allow_analyses',
     ];
 
     /**
@@ -1305,7 +1301,7 @@ class SchoolLocation extends BaseModel implements AccessCheckable
 
     public function getFeatureSettingsAttribute()
     {
-        return $this->featureSettings()->getSettings()->mapWithKeys(function($item, $key) {
+        return $this->featureSettings()->getSettings()->mapWithKeys(function($item) {
             return [$item->title => $item->value];
         });
     }
