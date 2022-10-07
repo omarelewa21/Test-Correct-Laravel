@@ -4,7 +4,7 @@ import {UIElements, warningBox} from "./uiElements.js";
 import * as sidebar from "./sidebar.js";
 import {v4 as uuidv4} from 'uuid';
 
-window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid) {
+window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, isOldDrawing) {
 
     /**
      * @typedef Cursor
@@ -44,6 +44,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid) 
             root: rootElement,
             isTeacher: isTeacher && !isPreview,
             isPreview: isPreview,
+            isOldDrawing:isOldDrawing,
             hiddenLayersCount: 0
         },
         firstInit: true,
@@ -659,6 +660,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid) 
                     callback: () => {
                         const currentFactor = Canvas.params.zoomFactor,
                             newFactor = checkZoomFactorBounds(currentFactor + zoomParams.STEP);
+                        console.log(newFactor, typeof newFactor);
                         updateZoomInputValue(newFactor);
                         zoom(newFactor);
                     }
@@ -1023,6 +1025,9 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid) 
                 !(!drawingApp.isTeacher() && layerName === "question")
             );
             Canvas.layers[layerName].shapes[shapeID] = newShape;
+            if(drawingApp.params.isOldDrawing && layerName === "question"){
+                adjustZoomLevelBasedOnQuestionImage(newShape.svg);
+            }
             newShape.svg.addHighlightEvents();
         }
         UI.svgLayerToRender.innerHTML = "";
@@ -1037,6 +1042,17 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid) 
         if (element.nodeName === "TEXT" && !attributes["data-textcontent"])
             attributes["data-textcontent"] = element.textContent;
         return attributes;
+    }
+
+    function adjustZoomLevelBasedOnQuestionImage(svg){
+        let boundaries = svg.getElemBoundaries();
+        console.log(boundaries.width);
+        if(boundaries.width >= 400 && boundaries.width < 600){
+
+        }else if(boundaries.width >= 600){
+            updateZoomInputValue(1.5);
+            zoom(1.5);
+        }
     }
 
     function calculateCanvasBounds() {
