@@ -518,7 +518,7 @@ class SchoolClass extends BaseModel implements AccessCheckable
     public function scopeFromTestTakes($query, $testTakeIds)
     {
         return $query->whereIn(
-            'id',
+            'school_classes.id',
             TestParticipant::select('school_class_id')
                 ->when(
                     is_int($testTakeIds),
