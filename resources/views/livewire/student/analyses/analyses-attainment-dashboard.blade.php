@@ -31,7 +31,6 @@
         >
         </div>
     </x-content-section>
-
 @endsection
 
 
