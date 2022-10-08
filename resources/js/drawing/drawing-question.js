@@ -77,6 +77,11 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
 
                     drawingApp.firstInit = false;
                     clearInterval(pollingFunction);
+                    if(Canvas.params.initialZoomLevel != 1){
+                        updateZoomInputValue(Canvas.params.initialZoomLevel);
+                        zoom(Canvas.params.initialZoomLevel);
+                        panDrawingCenterToScreenCenter();
+                    }
                 }
             });
 
@@ -188,6 +193,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
                 },
                 domMatrix: new DOMMatrix(),
                 zoomFactor: 1,
+                initialZoomLevel: 1,
             },
             element: UI.svgCanvas,
             layers: {},
@@ -660,7 +666,6 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
                     callback: () => {
                         const currentFactor = Canvas.params.zoomFactor,
                             newFactor = checkZoomFactorBounds(currentFactor + zoomParams.STEP);
-                        console.log(newFactor, typeof newFactor);
                         updateZoomInputValue(newFactor);
                         zoom(newFactor);
                     }
@@ -1047,11 +1052,14 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
     function adjustZoomLevelBasedOnQuestionImage(svg){
         let boundaries = svg.getElemBoundaries();
         console.log(boundaries.width);
-        if(boundaries.width >= 400 && boundaries.width < 600){
-
-        }else if(boundaries.width >= 600){
-            updateZoomInputValue(1.5);
-            zoom(1.5);
+        if(boundaries.width < 400){
+            Canvas.params.initialZoomLevel = 1.75;
+        }else if(boundaries.width >= 400 && boundaries.width < 600){
+            Canvas.params.initialZoomLevel = 1.5;
+        }else if(boundaries.width >= 600 && boundaries.width < 840){
+            Canvas.params.initialZoomLevel = 1.25;
+        }else{
+            Canvas.params.initialZoomLevel = 1;
         }
     }
 
