@@ -243,8 +243,9 @@ class TestsOverview extends Component
 
     public function mount()
     {
-        $this->abortIfNewTestBankNotAllowed();
+        $this->isExamCoordinator = Auth::user()->isValidExamCoordinator();
 
+        $this->abortIfNewTestBankNotAllowed();
         $this->initialiseContentSourceTabs();
 
         $this->setFilters();
@@ -320,9 +321,8 @@ class TestsOverview extends Component
 
     private function tabNeedsDefaultFilters($tab): bool
     {
-        return collect($this->schoolLocationInternalContentTabs)->contains($tab);
+        return collect($this->schoolLocationInternalContentTabs)->contains($tab) && !Auth::user()->isValidExamCoordinator();
     }
-
 
     public function getMessageKey($resultsCount): string
     {

@@ -33,7 +33,16 @@ class TestTakeCard extends ContextMenuComponent
     {
         TestTake::whereUuid($this->uuid)->firstOrFail()->archiveForUser(Auth::user());
 
-        $this->dispatchBrowserEvent('notify', ['message' => 'gearchiveerd']);
+        $this->dispatchBrowserEvent('notify', ['message' => __('test-take.Gearchiveerd')]);
+        $this->dispatchBrowserEvent($this->uuid.'-archived');
+    }
+
+    public function unarchive()
+    {
+        TestTake::whereUuid($this->uuid)->firstOrFail()->unArchiveForUser(Auth::user());
+
+        $this->dispatchBrowserEvent('notify', ['message' => __('test-take.Gedearchiveerd')]);
+        $this->dispatchBrowserEvent($this->uuid.'-unarchived');
     }
 
     public function skipDiscussing()
@@ -56,7 +65,7 @@ class TestTakeCard extends ContextMenuComponent
     {
         $pageUrl = sprintf('test_takes/view/%s', $this->uuid);
         $action = sprintf('Popup.load("/test_takes/answers_preview/%s", 1000)', $this->uuid);
-
+        /*'Popup.showPreviewTestTakeAnswers('7849c0e4-d9cf-4c97-8275-4acc0072da9b')'*/
         $temporaryLogin = TemporaryLogin::createWithOptionsForUser(
             ['page', 'page_action'],
             [$pageUrl, $action ],
@@ -68,7 +77,7 @@ class TestTakeCard extends ContextMenuComponent
     }
     public function hasAnswerPdfOption():bool
     {
-        return collect([TestTakeStatus::STATUS_TAKEN,TestTakeStatus::STATUS_DISCUSSING])->contains($this->testTakeStatusId);
+        return true; //collect([TestTakeStatus::STATUS_TAKEN,TestTakeStatus::STATUS_DISCUSSING])->contains($this->testTakeStatusId);
     }
     public function hasSkipDiscussing():bool
     {
@@ -77,5 +86,9 @@ class TestTakeCard extends ContextMenuComponent
     public function hasArchiveOption():bool
     {
         return !$this->isArchived;
+    }
+    public function hasUnarchiveOption():bool
+    {
+        return $this->isArchived;
     }
 }

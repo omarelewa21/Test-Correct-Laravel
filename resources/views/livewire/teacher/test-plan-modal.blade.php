@@ -15,6 +15,9 @@
                     @error('request.date')
                     <div class="title">{{ $message }}</div>
                     @enderror
+                    @error('request.owner_id')
+                    <div class="title">{{ $message }}</div>
+                    @enderror
                 </div>
             @endif
             <div class="mb-4">
@@ -26,13 +29,13 @@
                 <div class="name flex mb-4 flex-wrap gap-4">
                     <div class="flex flex-1 space-x-4">
                         <x-input.group class="flex flex-1" label="{{ __('teacher.Datum') }}">
-                            <x-input.datepicker wire:model="request.date" locale="nl" min-date="today"/>
+                            <x-input.datepicker wire:model="request.date" locale="nl" minDate="today"/>
                         </x-input.group>
 
 
                         @if ($this->isAssessmentType())
                             <x-input.group class="flex flex-1" label="{{ __('teacher.Datum tot') }}">
-                                <x-input.datepicker wire:model="request.time_end" locale="nl" min-date="today"/>
+                                <x-input.datepicker wire:model="request.time_end" locale="nl" minDate="today"/>
                             </x-input.group>
                         @endif
                     </div>
@@ -57,6 +60,24 @@
                     </div>
                 </div>
             </div>
+                @if (auth()->user()->is_examcoordinator)
+                    <div class="input-section" x-data>
+                        <div class="name flex">
+                            <label for="owner_id">{{ __('plan-test-take.test_owner') }}</label>
+                        </div>
+                        <div class="name flex mb-4">
+                            <x-input.select
+                                    wire:model="request.owner_id"
+                                    id="owner_id"
+
+                            >
+                                @foreach($allowedInvigilators as $teacher)
+                                    <option value="{{ $teacher['value'] }}">{!! $teacher['label'] !!}</option>
+                                @endforeach
+                            </x-input.select>
+                        </div>
+                    </div>
+                @endif
             <div class="input-section" x-data>
                 <div class="name flex">
                     <label for="teachers_and_classes">{{ __('Klassen') }}</label>

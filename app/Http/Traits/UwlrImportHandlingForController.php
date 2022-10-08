@@ -7,6 +7,7 @@ use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use tcCore\SchoolClass;
 use tcCore\SchoolClassImportLog;
+use tcCore\User;
 
 trait UwlrImportHandlingForController
 {
@@ -17,13 +18,20 @@ trait UwlrImportHandlingForController
     // same for the school class
     // problem is that if one starts with the validation someone else can't finish it and that gives misleading messages
 
-    protected function setClassesVisibleAndFinalizeImport($user)
+    protected function setClassesVisibleAndFinalizeImport(User $user)
     {
+        $classIds = $user->getTeacherSchoolClassIds();
+        if(!$classIds->count()){
+            return true;
+        }
         if ($user->isA('teacher')) {
-            SchoolClassImportLog::where(function ($query) use ($user) {
-                $query->where('checked_by_teacher_id', $user->getKey())
+            SchoolClassImportLog::where(function ($query){
+                $query->whereNotNull('checked_by_teacher_id')
                     ->orWhereNotNull('checked_by_admin');
-            })->update([
+            })
+                ->whereIn('class_id',$classIds->toArray())
+                ->whereNull('finalized')
+                ->update([
                 'finalized' => Carbon::now()
             ]);
         }
@@ -32,10 +40,11 @@ trait UwlrImportHandlingForController
             ->where('visible', 0)
             ->whereIn('id',
                 SchoolClassImportLog::whereNotNull('finalized')
-                    ->where(function ($query) use ($user) {
-                        $query->where('checked_by_teacher_id', $user->getKey())
+                    ->where(function ($query) {
+                        $query->whereNotNull('checked_by_teacher_id')
                             ->orWhereNotNull('checked_by_admin');
                     })
+                    ->whereIn('class_id',$classIds->toArray())
                     ->pluck('class_id')
             )
             ->update([

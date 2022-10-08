@@ -8539,6 +8539,10 @@ ul ul ul {
     height: 1rem;
     transition:width 0.25s
 }
+.grid .grid-card.archived span,
+.grid .grid-card.archived h3 {
+    color: var(--note)!important;
+}
 .first\:rounded-l-lg:first-child{
   border-top-left-radius: 0.5rem;
   border-bottom-left-radius: 0.5rem;
@@ -9348,3 +9352,4 @@ ul ul ul {
     max-width: 72rem;
   }
 }
+

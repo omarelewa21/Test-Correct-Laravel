@@ -23,4 +23,9 @@ class TestPlanTest extends TestAction
     {
         $this->planTest();
     }
+
+    protected function getDisabledValue()
+    {
+        return false;
+    }
 }

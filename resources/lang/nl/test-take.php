@@ -19,7 +19,9 @@ return [
     'Antwoord PDF'                                                                                                                => 'Antwoord PDF',
     'Direct nakijken'                                                                                                             => 'Direct nakijken',
     'Archiveren'                                                                                                                  => 'Archiveren',
+    'Dearchiveren'                                                                                                                => 'Dearchiveren',
     'Inclusief gearchiveerde toetsen'                                                                                             => 'Inclusief gearchiveerde toetsen',
     'Gearchiveerd'                                                                                                                => 'Gearchiveerd',
+    'Gedearchiveerd'                                                                                                              => 'Gedearchiveerd',
     'Studenten aanwezig/afwezig'                                                                                                  => 'Studenten aanwezig/afwezig',
 ];

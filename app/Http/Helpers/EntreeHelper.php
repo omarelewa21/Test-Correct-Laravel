@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
+use tcCore\Exceptions\CleanRedirectException;
 use tcCore\Exceptions\RedirectAndExitException;
 use tcCore\Lib\Repositories\SchoolYearRepository;
 use tcCore\SamlMessage;
@@ -53,12 +54,23 @@ class EntreeHelper
 
     protected $emailMaybeEmpty = false;
 
-    protected $isRegistering = false;
+    protected $entreeReason;
+    protected $finalRedirectTo;
+    protected $mId;
 
     public function __construct($attr, $messageId)
     {
         $this->attr = $this->transformAttributesIfNeededAndReturn($attr);
         $this->messageId = $messageId;
+
+        $this->retrieveDataFromSession();
+    }
+
+    private function retrieveDataFromSession()
+    {
+        $this->entreeReason = session()->get('entreeReason');
+        $this->finalRedirectTo = session()->get('finalRedirectTo');
+        $this->mId = session()->get('mId');
     }
 
     public static function initAndHandleFromRegisterWithEntreeAndTUser(User $user, $attr)
@@ -74,7 +86,7 @@ class EntreeHelper
 
     protected function isRegistering()
     {
-        return (session()->get('entreeReason',false) === 'register');
+        return ($this->entreeReason === 'register');
     }
 
     public function handleIfRegistering()
@@ -496,7 +508,8 @@ class EntreeHelper
     {
         if (array_key_exists('mail',$this->attr)
             && $this->attr['mail'][0]
-            && Str::contains($this->attr['mail'][0],'@')) {
+            && Str::contains($this->attr['mail'][0],'@')
+            && $this->attr['mail'][0] !== 'fakeemail@test-correct.nl') {
             return $this->attr['mail'][0];
         }
         return null;
@@ -504,7 +517,7 @@ class EntreeHelper
 
     private function hasEmailAttribute()
     {
-        return !!array_key_exists('mail',$this->attr);
+        return !!$this->getEmailFromAttributes();
     }
 
     private function getFirstNameFromAttributes()
@@ -565,7 +578,7 @@ class EntreeHelper
         return SamlMessage::create([
             'message_id' => $this->messageId,
             'eck_id' => Crypt::encryptString($this->getEckIdFromAttributes()),
-            'email' => $this->attr['mail'][0],
+            'email' => $this->getEmailFromAttributes(),
         ]);
     }
 
@@ -590,16 +603,16 @@ class EntreeHelper
             throw new \Exception('no eckId found in saml request');
         }
 
-        if (!$this->emailMaybeEmpty && (!array_key_exists('mail', $this->attr) || !array_key_exists(0,
-                    $this->attr['mail']))) {
+        if (!$this->emailMaybeEmpty && !$this->getEmailFromAttributes()) {
             logger('No mail found');
             logger('==== credentials ====');
             $attr = $this->attr;
+            $attr['eckId last chars'] = substr($attr['eckId'][0],-5);
             unset($attr['eckId']);
             logger($attr);
             logger('=======');
 
-            optional($this->location)->sendSamlNoMailAddresInRequestDetectedMailIfAppropriate();
+            optional($this->location)->sendSamlNoMailAddresInRequestDetectedMailIfAppropriate($attr);
 
 //            throw new \Exception('no mail found in saml request');
         }
@@ -648,15 +661,27 @@ class EntreeHelper
         if ($this->laravelUser) {
             // return true is hier waarschijnlijk voldoende omdat je dan via scenario 1 wordt ingelogged;
             $this->handleUpdateUserWithSamlAttributes();
-            // if student get url to redirect
-            // redirect naar splash screen
-            $url = $this->laravelUser->getRedirectUrlSplashOrStartAndLoginIfNeeded();
-            return $this->redirectToUrlAndExit($url);
+
+            return $this->handleEndRedirect();
+
         }
-// redirect to maak koppelingscherm;
+        // redirect to maak koppelingscherm;
 
         $message = $this->createSamlMessage();
         $url = route('auth.login', ['tab' => 'entree', 'uuid' => $message->uuid]);
+        return $this->redirectToUrlAndExit($url);
+    }
+
+    protected function handleEndRedirect($options = [])
+    {
+        // make sure the standard procedure is first handled before possible final redirect.
+        $url = $this->laravelUser->getRedirectUrlSplashOrStartAndLoginIfNeeded($options);
+
+        // check if there is a data collection which needds to be checked
+        if($this->finalRedirectTo){
+            $url = $this->finalRedirectTo;
+        }
+
         return $this->redirectToUrlAndExit($url);
     }
 
@@ -680,7 +705,7 @@ class EntreeHelper
             ) {
             // we probably have a small set so go for the big set
             // we need an url to go to samle login with setting for the big set
-            $url = route('saml2_login', ['idpName' => 'entree', 'set' => 'full','entreeRegister' => $register]);
+            $url = route('saml2_login', ['idpName' => 'entree', 'set' => 'full','entreeRegister' => $register, 'mId' => $this->mId]);
             sleep(2);
             return $this->redirectToUrlAndExit($url);
         }
@@ -811,10 +836,8 @@ class EntreeHelper
         }
 
         $this->handleUpdateUserWithSamlAttributes();
-        // if student redirect to splash screen
-        $url = $this->laravelUser->getRedirectUrlSplashOrStartAndLoginIfNeeded($options);
-        return $this->redirectToUrlAndExit($url);
 
+        return $this->handleEndRedirect($options);
     }
 
     public function handleScenario2IfAddressIsKnownInOtherAccount()
@@ -949,8 +972,8 @@ class EntreeHelper
     private function handleUpdateUserWithSamlAttributes(): void
     {
         $emailFromEntree = false;
-        if (array_key_exists('mail', $this->attr) && is_array($this->attr['mail'])) {
-            $emailFromEntree = array_pop($this->attr['mail']);
+        if ($this->getEmailFromAttributes()) {
+            $emailFromEntree = $this->getEmailFromAttributes();
         }
 
         if ($emailFromEntree) {
@@ -980,8 +1003,8 @@ class EntreeHelper
         if($this->context === 'livewire'){
             return redirect()->to($url);
         }
-        header('location: '.$url);
-        exit;
+
+        throw new CleanRedirectException($url);
     }
 
     public function setLaravelUser(): void
@@ -1034,7 +1057,7 @@ class EntreeHelper
         $this->emailMaybeEmpty = optional($this->location)->lvs_active_no_mail_allowed;
         $this->validateAttributes();
 
-        if (!$this->emailMaybeEmpty && empty($this->getEmailFromAttributes())) {
+        if (!$this->emailMaybeEmpty && !($this->getEmailFromAttributes())) {
             $url = route('auth.login',
                 [
                     'tab' => 'login',
@@ -1048,7 +1071,7 @@ class EntreeHelper
     public function redirectIfNoMailPresentScenario()
     {
         $userFromSamlRequest = User::findByEckId($this->getEckIdFromAttributes())->first();
-        if ($this->emailMaybeEmpty && empty($this->getEmailFromAttributes()) && optional($userFromSamlRequest)->hasImportMailAddress()) {
+        if ($this->emailMaybeEmpty && !($this->getEmailFromAttributes()) && optional($userFromSamlRequest)->hasImportMailAddress()) {
             $samlMessage = $this->createSamlMessageWithEmptyEmail();
 
             $url = route('auth.login', [

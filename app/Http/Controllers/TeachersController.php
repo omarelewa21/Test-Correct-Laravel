@@ -14,6 +14,7 @@ use tcCore\Http\Traits\UwlrImportHandlingForController;
 use tcCore\Lib\User\Factory;
 use tcCore\SchoolClass;
 use tcCore\SchoolClassImportLog;
+use tcCore\SchoolLocation;
 use tcCore\Subject;
 use tcCore\Teacher;
 use tcCore\Http\Requests\CreateTeacherRequest;
@@ -304,4 +305,12 @@ class TeachersController extends Controller
 
     }
 
+    public function getSchoolLocationTeacherUser(Request $request, SchoolLocation $schoolLocation)
+    {
+        $teacherUsers = Teacher::getTeacherUsersForSchoolLocation($schoolLocation)
+            ->get(['id','uuid', 'name', 'name_suffix', 'name_first'])
+            ->each(fn($user) => $user->append('name_full'));
+
+        return Response::make($teacherUsers, 200);
+    }
 }

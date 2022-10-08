@@ -24,7 +24,6 @@ document.addEventListener('alpine:init', () => {
                 activeTileItem.classList.add('tile-active');
             }
             if (this.$wire.activeRoute.main !== '') {
-                console.log(27)
                 this.$nextTick(() => this.$dispatch('tiles-hidden'));
                 this.activeMenuItem = this.bottom.querySelector('[data-menu="' + this.$wire.activeRoute.main + '"]');
                 this.activeMenuItem.classList.add('button-active');
@@ -84,7 +83,6 @@ document.addEventListener('alpine:init', () => {
                     this.resetActiveState();
                     this.shouldDispatchTilesEvent()
                     if (this.shouldDispatchTilesEvent()) {
-                        console.log(87)
                         this.$dispatch('tiles-shown');
                     }
                 }
@@ -109,7 +107,6 @@ document.addEventListener('alpine:init', () => {
             clearTimeout(this.hideTimeout);
             tiles.style.paddingLeft = '0px';
             tiles.style.setProperty('--top', '100px');
-            console.log(111)
             this.$dispatch('tiles-shown');
         },
         userMenuShow() {

@@ -2,6 +2,8 @@
 
 namespace tcCore\Http\Helpers;
 
+use Illuminate\Support\Facades\Gate;
+
 class NavigationBarHelper
 {
     /**
@@ -24,10 +26,6 @@ class NavigationBarHelper
             'planned.invigilating' => ['main' => 'planned', 'sub' => 'invigilating'],
             'planned.ongoing-assignments' => ['main' => 'planned', 'sub' => 'ongoing-assignments'],
 
-//            'teacher.test-takes' => ['main' => 'taken', 'sub' => 'my-taken-tests'],
-//            'taken.normalizing' => ['main' => 'taken', 'sub' => 'normalizing'],
-            'teacher.test-takes' => ['main' => 'taken', 'sub' => ''],
-
             'results' => ['main' => 'results', 'sub' => ''],
 
             'analyses.my-students' => ['main' => 'analyses', 'sub' => 'my-students'],
@@ -36,6 +34,15 @@ class NavigationBarHelper
             'classes.my-classes-classes' => ['main' => 'classes', 'sub' => 'my-classes-classes'],
             'classes.my-schoollocations' => ['main' => 'classes', 'sub' => 'my-schoollocations'],
         ];
+
+        if (Gate::allows('useNewTakenTestsOverview')) {
+            $lookUpTable = array_merge($lookUpTable, ['teacher.test-takes' => ['main' => 'taken', 'sub' => '']]);
+        } else {
+            $lookUpTable = array_merge($lookUpTable, [
+                'taken.my-taken-tests' => ['main' => 'taken', 'sub' => 'my-taken-tests'],
+                'taken.normalizing' => ['main' => 'taken', 'sub' => 'normalizing'],
+            ]);
+        }
 
         if (isset($lookUpTable[\Route::currentRouteName()])) {
             return $lookUpTable[\Route::currentRouteName()];

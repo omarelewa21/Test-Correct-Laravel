@@ -42,5 +42,9 @@
 
 			'Standaard' => 'Standard',
 
-			'Volgende' => 'Next one'
+			'Volgende' => 'Next one',
+
+			'test_owner' => 'Test owner',
+
+			'owner_id_missing'	=> 'Choose an owner for the test',
 ];

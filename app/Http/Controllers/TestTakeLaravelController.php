@@ -195,12 +195,12 @@ class TestTakeLaravelController extends Controller
         }
         
         $testTake = TestTake::whereUuid($testTakeUuid)->first();
-        if (!auth()->check()) {
+        $user = Auth::user();
+        if (!$user) {
             session(['take' => $testTake->uuid]);
             return redirect()->route('auth.login');
         }
 
-        $user = auth()->user();
         if($user->isA('student')){
             // Student
             return redirect()->route('student.waiting-room', ['take' => $testTake->uuid]);
