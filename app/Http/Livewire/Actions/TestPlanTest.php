@@ -2,11 +2,8 @@
 
 namespace tcCore\Http\Livewire\Actions;
 
-use Illuminate\Support\Str;
-use Livewire\Component;
-use Livewire\Livewire;
+use Illuminate\Support\Facades\Auth;
 use tcCore\Http\Traits\Actions\WithPlanButtonFeatures;
-use tcCore\Test;
 
 class TestPlanTest extends TestAction
 {
@@ -26,6 +23,6 @@ class TestPlanTest extends TestAction
 
     protected function getDisabledValue()
     {
-        return false;
+        return $this->test->owner_id !== Auth::user()->school_location_id;
     }
 }
