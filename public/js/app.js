@@ -8999,18 +8999,18 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
   }
 
   function adjustZoomLevelBasedOnQuestionImage(svg) {
-    var boundaries = svg.getElemBoundaries();
-    console.log(boundaries.width);
-
-    if (boundaries.width < 400) {
-      Canvas.params.initialZoomLevel = 1.75;
-    } else if (boundaries.width >= 400 && boundaries.width < 600) {
-      Canvas.params.initialZoomLevel = 1.5;
-    } else if (boundaries.width >= 600 && boundaries.width < 840) {
-      Canvas.params.initialZoomLevel = 1.25;
-    } else {
-      Canvas.params.initialZoomLevel = 1;
-    }
+    /* let boundaries = svg.getElemBoundaries();
+     console.log(boundaries.width);
+     if(boundaries.width < 400){
+         Canvas.params.initialZoomLevel = 1.75;
+     }else if(boundaries.width >= 400 && boundaries.width < 600){
+         Canvas.params.initialZoomLevel = 1.5;
+     }else if(boundaries.width >= 600 && boundaries.width < 840){
+         Canvas.params.initialZoomLevel = 1.25;
+     }else{
+         Canvas.params.initialZoomLevel = 1;
+     } */
+    fitDrawingToScreen();
   }
 
   function calculateCanvasBounds() {

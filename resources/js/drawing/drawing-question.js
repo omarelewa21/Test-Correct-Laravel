@@ -1050,7 +1050,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
     }
 
     function adjustZoomLevelBasedOnQuestionImage(svg){
-        let boundaries = svg.getElemBoundaries();
+       /* let boundaries = svg.getElemBoundaries();
         console.log(boundaries.width);
         if(boundaries.width < 400){
             Canvas.params.initialZoomLevel = 1.75;
@@ -1060,7 +1060,8 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
             Canvas.params.initialZoomLevel = 1.25;
         }else{
             Canvas.params.initialZoomLevel = 1;
-        }
+        } */
+        fitDrawingToScreen();
     }
 
     function calculateCanvasBounds() {
