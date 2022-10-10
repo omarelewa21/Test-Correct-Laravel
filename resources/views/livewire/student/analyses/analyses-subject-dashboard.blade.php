@@ -20,6 +20,48 @@
 @endsection
 
 @section('analyses.p-values-graph')
+    <x-content-section class="mb-8 w-full">
+        <x-slot name="title">
+            {{ __('student.Algemeen') }}
+        </x-slot>
+        <div class="flex flex-row">
+
+            <div class="md:w-1/3 mr-5">
+                <div>{{ __('student.aantal toetsen gemaakt')}} <span class="bold">{{ $generalStats['test']['count'] }}</span></div>
+                <div>
+                    {{ __('student.gemiddelde p-waarde o.b.v. aantal vragen', ['count'=> $generalStats['test']['countQuestions']]) }}
+                    <span class="bold"> P {{ $generalStats['test']['averagePValue'] }} </span>
+                </div>
+                <div>{{ __('student.gemiddeld cijfer') }}</div>
+                <div>
+                    <x-mark-badge :rating="$generalStats['test']['averageMark']"></x-mark-badge>
+                    <span class="bold">{{ __('student.Bekijk cijferlijst') }}</span>
+                    <x-icon.arrow />
+                </div>
+            </div>
+            <div class="md:w-1/3 mr-5">
+
+                <div>{{ __('student.aantal opdrachten gemaakt')}} <span class="bold">{{ $generalStats['assesment']['count'] }}</span></div>
+                <div>
+                    {{ __('student.gemiddelde p-waarde o.b.v. aantal vragen', ['count'=> $generalStats['assesment']['countQuestions']]) }}
+                    <span class="bold"> P {{ $generalStats['assesment']['averagePValue'] }} </span>
+                </div>
+                <div>{{ __('student.gemiddeld cijfer') }}</div>
+                <div>
+                    <x-mark-badge :rating="$generalStats['assesment']['averageMark']"></x-mark-badge>
+                    <span class="bold">{{ __('student.Bekijk cijferlijst') }}</span>
+                    <x-icon.arrow />
+                </div>
+
+            </div>
+            <div class="md:w-1/3 mr-5">
+                Kolom 3
+            </div>
+        </div>
+
+
+    </x-content-section>
+
     <div class="flex justify-between mb-5">
         <h1 class="flex">Overzicht P-waardes</h1>
         <div class="flex">
@@ -31,6 +73,9 @@
             ></x-button.slider>
         </div>
     </div>
+
+
+
     <x-content-section>
         <x-slot name="title">
             <div class="hidden">{{ $this->data }}</div>
