@@ -390,10 +390,10 @@ class School extends BaseModel implements AccessCheckable {
                         return $query->where(function ($query) use ($value) {
                             $query->where('customer_code', 'LIKE', "%$value%")
                                 ->orWhere('name', 'like', "%$value%")
-                                ->orWhere('umbrella_organization_id',
+                                ->orWhereIn('umbrella_organization_id',
                                     UmbrellaOrganization::where('umbrella_organizations.name', 'LIKE', "%$value%")
-                                        ->pluck('id')
-                                        ->whenEmpty(fn() => false))
+                                        ->select('id')
+                                )
                                 ->orWhere('external_main_code', 'like', "%$value%");
                         });
                     });

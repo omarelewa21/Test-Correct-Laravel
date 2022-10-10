@@ -158,7 +158,6 @@ $struct = [
 
 
         <x-slot name="footerbuttons">&nbsp;</x-slot>
-        <x-slot name="testTakeManager">&nbsp;</x-slot>
     </div>
     <x-modal wire:model="showImportModal" maxWidth="7xl">
         <x-slot name="title">Import</x-slot>
