@@ -317,7 +317,7 @@ class EntreeHelper
     {
         $this->logger(sprintf('entering %s method: %s (line %d)',__FILE__,__METHOD__,__LINE__));
         $loggerAttr = $attr;
-        $loggerAttr['eckId'] = (isset($loggerAttr['eckId'])) ? substr($loggerAttr['eckId'],-5) : '';
+        $loggerAttr['eckId'] = (isset($loggerAttr['eckId'])) ? substr($loggerAttr['eckId'][0],-5) : '';
         $this->logger(json_encode($loggerAttr));
 
         // we may get employee, then we transfer it to teacher
