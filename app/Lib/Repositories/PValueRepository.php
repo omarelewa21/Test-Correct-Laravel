@@ -353,6 +353,21 @@ class PValueRepository
         return $teacher;
     }
 
+    /**
+     * @param User $user
+     * @param $periods
+     * @param $educationLevelYears
+     * @param $teachers
+     * @return mixed
+     *
+     * @TODO Hieraan moet nog toegevoegd
+     * wel zien alle subjects waarvoor ik niet meer in een klas zit maar wel data heb
+     * niet zien alle subjects waarvoor ik niet meer in de klas zit en ook geen data heb;
+     * Niet meer in klas betekend 1 of meerdere deleted_at gevuld in students, teachers of school_classes
+     *
+     * verder wil ik de x-as de subjects beperken op het aantal geselecteerde periodes.
+     * Indien je niks kiest dan krijg je default het huidige schooljaar
+     */
     public static function getPValueForStudentBySubject(User $user, $periods, $educationLevelYears, $teachers)
     {
         $pValueQuery = PValue::SelectRaw('avg(score/max_score) as score')
