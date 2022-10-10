@@ -26,6 +26,10 @@ class SchoolLocationsGrid extends Component
     public $filters = [];
     public bool $administrator;
 
+    protected $listeners = [
+        'school_location_deleted' => '$refresh',
+    ];
+
     public function updatingAdministrator($value)
     {
         throw new \Exception('Manually updating the administrator property is not allowed.');
@@ -129,8 +133,6 @@ class SchoolLocationsGrid extends Component
     {
         if ($this->administrator) {
             $this->emit('openModal', 'school-location-delete-modal', ['schoolLocationUuid' => $uuid]);
-            return;
-            return CakeRedirectHelper::redirectToCake('school_location.delete', $uuid);
         }
     }
 
