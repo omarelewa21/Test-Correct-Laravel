@@ -2025,9 +2025,7 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
 
     public function isAllowedSchool(School $school)
     {
-        return !!$this->allowedSchoolLocations->first(function (SchoolLocation $sl) use ($school) {
-            return $sl->school == $school;
-        });
+        return $this->allowedSchoolLocations()->where('school_id', $school->getKey())->exists();
     }
 
     public function allowedSchoolLocations()
