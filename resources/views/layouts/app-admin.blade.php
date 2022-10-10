@@ -28,12 +28,6 @@
                         {{ __("auth.logout") }}
                     </x-dropdown.item>
                 </x-dropdown>
-            @else
-            <x-dropdown label="{{ Auth::user()->getNameFullAttribute() }}">
-                <x-dropdown.item onclick="livewire.find(document.querySelector('[testtakemanager]').getAttribute('wire:id')).call('turnInModal')">
-                    {{ __("app.Inleveren") }}
-                </x-dropdown.item>
-            </x-dropdown>
             @endif
         </div>
     </header>
@@ -41,11 +35,12 @@
     <main class="flex flex-1 items-stretch mx-8 xl:mx-28 m-foot-head">
         {{ $slot }}
     </main>
-    <footer class="footer px-8 xl:px-28 flex content-center fixed w-full bottom-0 z-10">
+    @isset($footerbuttons)
+        <footer class="footer px-8 xl:px-28 flex content-center fixed w-full bottom-0 z-10">
 
-        <div class="flex items-center ml-auto space-x-6">
-            {{ $footerbuttons }}
-        </div>
-    </footer>
-    {{ $testTakeManager }}
+            <div class="flex items-center ml-auto space-x-6">
+                {{ $footerbuttons }}
+            </div>
+        </footer>
+    @endisset
 </x-layouts.base>

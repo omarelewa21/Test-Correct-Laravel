@@ -757,10 +757,10 @@ class SchoolLocation extends BaseModel implements AccessCheckable
                         return $query->where(function ($query) use ($value) {
                             $query->where('customer_code', 'LIKE', "%$value%")
                                 ->orWhere('name', 'like', "%$value%")
-                                ->orWhere('school_id',
+                                ->orWhereIn('school_id',
                                     School::where('schools.name', 'LIKE', "%$value%")
-                                        ->pluck('id')
-                                        ->whenEmpty(fn() => false))
+                                        ->select('id')
+                                )
                                 ->orWhereRaw("TRIM(CONCAT_WS(' ', COALESCE(external_main_code,''), COALESCE(external_sub_code,''))) LIKE '%$value%'");
                         });
                     });

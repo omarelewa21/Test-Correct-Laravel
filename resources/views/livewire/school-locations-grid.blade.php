@@ -210,7 +210,5 @@
             {{ $this->schoolLocations->links('components.partials.tc-paginator') }}
         </div>
 
-        <x-slot name="footerbuttons">&nbsp;</x-slot>
-        <x-slot name="testTakeManager">&nbsp;</x-slot>
     </div>
 </div>
