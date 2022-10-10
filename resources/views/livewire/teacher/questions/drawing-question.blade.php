@@ -69,7 +69,6 @@
                                     <span>{{ __('cms.Tekening maken') }}</span>
                                 </x-button.primary>
                             @endisset
-                            {{-- <p class="text-note text-sm text-center mt-4">{{ __('cms.waarschuwing_aanpassen_oude_tekenvraag') }} </p> --}}
                         </div>
                     </div>
                 </div>

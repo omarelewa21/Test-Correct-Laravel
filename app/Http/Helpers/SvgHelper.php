@@ -83,10 +83,10 @@ class SvgHelper
         $imageElement->setAttribute('class', 'main');
         $imageElement->setAttribute('href', $q->getBackgroundImage());
         $imageElement->setAttribute('identifier', $identifier);
-        $imageElement->setAttribute('width', $width * 5/6);
+        $imageElement->setAttribute('width', $width * 5 / 6);
         $imageElement->setAttribute('height', $height);
-        $imageElement->setAttribute('x', '-'.$width/2);
-        $imageElement->setAttribute('y', '-'.$height/2);
+        $imageElement->setAttribute('x', '-' . $width / 2);
+        $imageElement->setAttribute('y', '-' . $height / 2);
 
         $groupElement->appendChild($imageElement);
         $doc->appendChild($groupElement);
@@ -114,10 +114,10 @@ class SvgHelper
         $imageElement->setAttribute('class', 'main');
         $imageElement->setAttribute('href', $q->answer);
         $imageElement->setAttribute('identifier', $identifier);
-        $imageElement->setAttribute('width', $width * 5/6);
+        $imageElement->setAttribute('width', $width * 5 / 6);
         $imageElement->setAttribute('height', $height);
-        $imageElement->setAttribute('x', '-'.$width/2);
-        $imageElement->setAttribute('y', '-'.$height/2);
+        $imageElement->setAttribute('x', '-' . $width / 2);
+        $imageElement->setAttribute('y', '-' . $height / 2);
 
         $groupElement->appendChild($imageElement);
         $doc->appendChild($groupElement);
@@ -142,7 +142,7 @@ class SvgHelper
 
         if (strstr($this->uuid, 'temp-')) {
             $folderName = str_replace('temp-', '', $this->uuid);
-            if ($this->disk->exists($folderName)){
+            if ($this->disk->exists($folderName)) {
 
                 foreach ($this->disk->allFiles($folderName) as $fileOrDirectory) {
                     $destination = str_replace($folderName, $this->uuid, $fileOrDirectory);
@@ -320,16 +320,9 @@ class SvgHelper
                 throw new Exception(sprintf('File not found [%s].', $path));
             }
             $image = $this->getCompressedImage($path, $node->getAttribute('identifier'));
-
-            // if($this->isOldDrawing()){
-            //     foreach($node->attributes as $k=>$val){
-            //         $k != 'href' ? dd($val) : '';
-            //     }
-            // }else{
-            //     $image = $this->getCompressedImage($path, $node->getAttribute('identifier'));
-            // }
             $node->setAttribute('href', $image);//'data:' . mime_content_type($image) . ';base64,' . base64_encode($image));
         });
+
         return substr(substr($doc->saveXML(), 28), 0, -8);
     }
 
@@ -344,8 +337,8 @@ class SvgHelper
 
         $widthAndHeight = $this->getArrayWidthAndHeight();
 
-        $height = (float) $widthAndHeight['h'];
-        $width = (float) $widthAndHeight['w'];
+        $height = (float)$widthAndHeight['h'];
+        $width = (float)$widthAndHeight['w'];
 
         if ($width > 800) {
             $width = 800;
@@ -356,9 +349,8 @@ class SvgHelper
         }
 
 
-
-        $widthAndHeight['h'] = (string) $height;
-        $widthAndHeight['w'] =  (string) $width;
+        $widthAndHeight['h'] = (string)$height;
+        $widthAndHeight['w'] = (string)$width;
 
         return $server->getImageAsBase64($file, $widthAndHeight + ['fm' => 'jpg', 'q' => '25',]);
     }
@@ -522,15 +514,16 @@ class SvgHelper
 
     private function isOldDrawing()
     {
-        if(Str::contains($this->uuid, 'temp')){
+        if (Str::contains($this->uuid, 'temp')) {
             $questionUuid = Str::after($this->uuid, 'temp-');
-        }else{
+        } else {
             $questionUuid = $this->uuid;
         }
-        if(DrawingQuestion::whereUuid($questionUuid)->exists()){
+        if (DrawingQuestion::whereUuid($questionUuid)->exists()) {
             $question = DrawingQuestion::whereUuid($questionUuid)->first();
             return filled($question->answer) && blank($question->zoom_group);
         }
+
         return false;
     }
 
