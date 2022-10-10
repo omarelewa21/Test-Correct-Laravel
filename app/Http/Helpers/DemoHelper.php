@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\DB;
 use tcCore\Answer;
 use tcCore\BaseSubject;
 use tcCore\EducationLevel;
+use tcCore\Jobs\SetSchoolYearForDemoClassToCurrent;
 use tcCore\Lib\Repositories\PeriodRepository;
 use tcCore\Lib\Repositories\SchoolYearRepository;
 use tcCore\Lib\User\Factory;
@@ -140,7 +141,7 @@ class DemoHelper
         }
     }
 
-    public function createDemoForTeacherIfNeeded(User $user)
+    public function createDemoForTeacherIfNeeded(User $user, $dispatchSchoolYearEvent = false)
     {
         if (!$this->hasTeacherDemoSetup($user)) {
             $this->createDemoForSchoolLocationIfNeeded($user->schoolLocation);
@@ -148,6 +149,9 @@ class DemoHelper
             if ($schoolYear !== null) {
                 $this->prepareDemoForNewTeacher($user->schoolLocation, $schoolYear, $user);
             }
+        }
+        if ($dispatchSchoolYearEvent) {
+            dispatch(new SetSchoolYearForDemoClassToCurrent($user->schoolLocation));
         }
     }
 

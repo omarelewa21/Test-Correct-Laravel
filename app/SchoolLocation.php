@@ -94,7 +94,7 @@ class SchoolLocation extends BaseModel implements AccessCheckable
         'allow_new_student_environment', 'allow_new_question_editor',
         'keep_out_of_school_location_report',
         'main_phonenumber','internetaddress', 'show_exam_material', 'show_cito_quick_test_start', 'show_national_item_bank',
-        'allow_wsc', 'allow_writing_assignment','license_type','allow_creathlon',
+        'allow_wsc', 'allow_writing_assignment','license_type','allow_creathlon','allow_new_taken_tests_page',
     ];
 
     /**
@@ -518,6 +518,11 @@ class SchoolLocation extends BaseModel implements AccessCheckable
     public function schoolYears()
     {
         return $this->belongsToMany(SchoolYear::class, 'school_location_school_years', 'school_location_id');
+    }
+
+    public function trialPeriods()
+    {
+        return $this->hasMany(TrialPeriod::class, 'school_location_id');
     }
 
     protected function saveSections()
@@ -1212,14 +1217,15 @@ class SchoolLocation extends BaseModel implements AccessCheckable
             return true;
         }
 
+        return true; // always as we have some issues with Groevenbeek and we want all the requests
         return ($this->no_mail_request_detected->diffInHours(now()) > 23);
     }
 
-    public function sendSamlNoMailAddresInRequestDetectedMailIfAppropriate()
+    public function sendSamlNoMailAddresInRequestDetectedMailIfAppropriate($attr = [])
     {
         if ($this->canSendSamlNoMailAddressInRequestDetectedMail() && $this->lvs_active_no_mail_allowed == false) {
             Mail::to('support@test-correct.nl')
-                ->send(new SendSamlNoMailAddressInRequestDetectedMail($this->name, sprintf('Waarschuwing gebruiker van %s probeert in te loggen via Entree zonder emailadres.', $this->name)));
+                ->send(new SendSamlNoMailAddressInRequestDetectedMail($this->name, sprintf('Waarschuwing gebruiker van %s probeert in te loggen via Entree zonder emailadres.', $this->name), $attr));
             $this->no_mail_request_detected = now();
             $this->save();
         }
@@ -1267,6 +1273,16 @@ class SchoolLocation extends BaseModel implements AccessCheckable
         return $this->featureSettings()->getSettings()->mapWithKeys(function($item, $key) {
             return [$item->title => $item->value];
         });
+    }
+
+    public function setAllowNewTakenTestsPageAttribute(bool $boolean)
+    {
+        return $this->featureSettings()->setSetting('allow_new_taken_tests_page', $boolean);
+    }
+
+    public function getAllowNewTakenTestsPageAttribute() : bool
+    {
+        return $this->featureSettings()->getSetting('allow_new_taken_tests_page')->exists();
     }
 
 }

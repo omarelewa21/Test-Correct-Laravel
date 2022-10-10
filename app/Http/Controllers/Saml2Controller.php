@@ -85,6 +85,7 @@ class Saml2Controller extends Controller
                     $message = $messages->first();
                     if(optional($message->data)->url){
                         $sessionAr['finalRedirectTo'] = $message->data->url;
+                        $sessionAr['mId'] = $queryAr['mId'];
                     }
                 }
             }
@@ -165,10 +166,11 @@ class Saml2Controller extends Controller
                 'eck_id' => 'not needed',
                 'data' => (object) ['url' => route('take.directLink', ['testTakeUuid' => $directLink])],
             ]);
-            $redirectTo .= (Str::contains($redirectTo,'?')) ? '&' : '?' . 'mId='.$message->uuid;
+            $redirectTo .= (Str::contains($redirectTo,'?') ? '&' : '?') . 'mId='.$message->uuid;
         } else if($mId = request()->get('mId')){
-            $redirectTo .= (Str::contains($redirectTo,'?')) ? '&' : '?' . 'mId='.$mId;
+            $redirectTo .= (Str::contains($redirectTo,'?') ? '&' : '?') . 'mId='.$mId;
         }
+
         return $redirectTo;
     }
 

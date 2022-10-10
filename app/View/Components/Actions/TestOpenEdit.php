@@ -3,36 +3,16 @@
 namespace tcCore\View\Components\Actions;
 
 use Illuminate\Support\Str;
-use Illuminate\View\Component;
 use Livewire\Livewire;
-use tcCore\Test;
 
-class TestOpenEdit extends Component
+class TestOpenEdit extends TestActionComponent
 {
-    public $test;
-    public $variant;
     public $url;
-    /**
-     * Create a new component instance.
-     *
-     * @return void
-     */
-    public function __construct($uuid, $variant='icon-button')
-    {
-        $this->test = Test::findByUuid($uuid);
-        $this->variant = $variant;
 
+    public function __construct($uuid, $variant = 'icon-button')
+    {
+        parent::__construct($uuid, $variant);
         $this->generateEditUrl();
-    }
-
-    /**
-     * Get the view / contents that represent the component.
-     *
-     * @return \Illuminate\View\View|string
-     */
-    public function render()
-    {
-        return view('components.actions.test-open-edit');
     }
 
     public function generateEditUrl()
@@ -55,5 +35,10 @@ class TestOpenEdit extends Component
         }
 
         return 'teacher.tests';
+    }
+
+    protected function getDisabledValue(): bool
+    {
+        return !$this->test->canEdit(auth()->user()) || auth()->user()->isValidExamCoordinator();
     }
 }

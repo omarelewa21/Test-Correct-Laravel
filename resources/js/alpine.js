@@ -567,8 +567,9 @@ document.addEventListener('alpine:init', () => {
 
                 let refreshChoices = () => {
                     let selection = this.multiple ? this.value : [this.value]
-                    choices.clearStore()
-                    choices.setChoices(this.options.map(({value, label}) => ({
+                    choices.clearStore();
+                    let options = typeof this.options === 'object' ? Object.values(this.options) : this.options;
+                    choices.setChoices(options.map(({value, label}) => ({
                         value,
                         label,
                         selected: selection.includes(value)

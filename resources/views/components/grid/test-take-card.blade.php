@@ -3,6 +3,10 @@
      wire:click="openTestTakeDetail('{{ $testTake->uuid }}')"
      wire:loading.class="hidden"
      wire:target="filters,clearFilters,$set,$toggle"
+     x-data="{ archived: @js($archived) }"
+     x-on:{{ $testTake->uuid }}-archived.window="archived = true"
+     x-on:{{ $testTake->uuid }}-unarchived.window="archived = false"
+     x-bind:class="{ 'archived': archived }"
 >
     <div class="flex w-full justify-between mb-2 align-middle">
         <h3 class="line-clamp-2 min-h-[64px] text-inherit @if(blank($testTake->test->name)) italic @endif"
@@ -19,9 +23,7 @@
             <span class="bold">{!! $testTake->test->subject->name  !!}</span>
             <span class="italic">{{ trans_choice('cms.vraag', $testTake->test->question_count) }}</span>
             @if($withParticipantStats)
-                <span class="cursor-default" title="{{ __('test-take.Studenten aanwezig/afwezig') }}">
-                    <span class="text-cta">{{ $participantsTaken }}</span>/{{ $participantsNotTaken }}
-                </span>
+                <span class="cursor-default" title="{{ __('test-take.Studenten aanwezig/afwezig') }}">{{ $participantsTaken }}/{{ $participantsNotTaken }}</span>
             @endif
         </div>
         <div class="text-sm">
@@ -36,9 +38,7 @@
         <div class="text-sm">
             <span class="note ">{{ $schoolClasses }}</span>
 
-            @if($archived)
-                <span class="card-tag grey">{{ __('test-take.Gearchiveerd') }}</span>
-            @endif
+            <span x-show="archived" x-cloak class="card-tag grey">{{ __('test-take.Gearchiveerd') }}</span>
         </div>
     </div>
 </div>

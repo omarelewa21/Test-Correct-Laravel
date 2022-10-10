@@ -22,5 +22,11 @@
         <x-slot name="text">{{ __('test-take.Archiveren') }}</x-slot>
     </x-menu.context-menu.button>
     @endif
+    @if($this->hasUnarchiveOption())
+        <x-menu.context-menu.button wire:click="unarchive">
+            <x-slot name="icon"><x-icon.archive/></x-slot>
+            <x-slot name="text">{{ __('test-take.Dearchiveren') }}</x-slot>
+        </x-menu.context-menu.button>
+    @endif
 
 </x-menu.context-menu.base>

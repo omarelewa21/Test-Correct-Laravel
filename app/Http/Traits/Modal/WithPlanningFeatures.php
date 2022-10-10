@@ -10,8 +10,10 @@ trait WithPlanningFeatures
     {
         return SchoolClass::filtered(
             ['user_id' => auth()->id(), 'current' => true,],
-            [])
-            ->optionList();
+            ['school_location_id' => 'asc']
+        )
+            ->get(['id', 'name', 'school_location_id'])
+            ->map(fn ($class) => ['value' => $class->id, 'label' => $class->name]);
     }
 
     public function isAssessmentType()

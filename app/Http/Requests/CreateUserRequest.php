@@ -51,6 +51,9 @@ class CreateUserRequest extends Request {
                     }
                 }];
             $extra_rule['external_id'] = new SchoolLocationUserExternalId($this->schoolLocation,$data['username']);
+            if($this->has('is_examcoordinator') && $this->is_examcoordinator == 1){
+                $extra_rule['is_examcoordinator_for'] = 'required|in:NONE,SCHOOL,SCHOOL_LOCATION';
+            }
         }
 		$rules = collect([
 			'username' => ['required','email','unique:users,username,NULL,'.(new User())->getKeyName().',deleted_at,NULL',new EmailDns],
@@ -63,7 +66,8 @@ class CreateUserRequest extends Request {
 			'api_key' => '',
 			'external_id' => '',
 			'gender' => '',
-			'abbreviation' => ''
+			'abbreviation' => '',
+            'is_examcoordinator' => 'boolean'
 		]);
 
 
@@ -196,6 +200,10 @@ class CreateUserRequest extends Request {
                     }
                 }
             }
+        }
+
+        if(!array_key_exists('is_examcoordinator', $data) || $data['is_examcoordinator'] == 0){
+            $data['is_examcoordinator_for'] = NULL;
         }
 
         $this->merge($data);
