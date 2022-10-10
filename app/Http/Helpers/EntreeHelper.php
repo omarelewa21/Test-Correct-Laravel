@@ -66,6 +66,11 @@ class EntreeHelper
         $this->retrieveDataFromSession();
     }
 
+    public function logger($data)
+    {
+        logger($data);
+    }
+
     private function retrieveDataFromSession()
     {
         $this->entreeReason = session()->get('entreeReason');
