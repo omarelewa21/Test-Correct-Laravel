@@ -297,6 +297,10 @@ class svgShape {
         this.drawingApp.bindEventListeners(settings, this);
     }
 
+    getElemBoundaries() {
+        return this.mainElement.getBoundingBox();
+    }
+
     highlight() {
         this.showBorderElement();
     }

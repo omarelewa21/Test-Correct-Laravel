@@ -5921,6 +5921,9 @@ document.addEventListener('alpine:init', function () {
       answerSvg: entanglements.answerSvg,
       questionSvg: entanglements.questionSvg,
       gridSvg: entanglements.gridSvg,
+      isOldDrawing: entanglements.isOldDrawing,
+      showWarning: false,
+      clearSlate: false,
       isTeacher: isTeacher,
       toolName: null,
       isPreview: isPreview,
@@ -5933,7 +5936,7 @@ document.addEventListener('alpine:init', function () {
           delete window[this.toolName];
         }
 
-        var toolName = window[this.toolName] = initDrawingQuestion(this.$root, this.isTeacher, this.isPreview, this.grid);
+        var toolName = window[this.toolName] = initDrawingQuestion(this.$root, this.isTeacher, this.isPreview, this.grid, this.isOldDrawing);
 
         if (this.isTeacher) {
           this.makeGridIfNecessary(toolName);
@@ -7959,7 +7962,7 @@ function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
 
 
 
-window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid) {
+window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, isOldDrawing) {
   var _this2 = this;
 
   /**
@@ -8000,6 +8003,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid) 
       root: rootElement,
       isTeacher: isTeacher && !isPreview,
       isPreview: isPreview,
+      isOldDrawing: isOldDrawing,
       hiddenLayersCount: 0
     },
     firstInit: true,
@@ -8032,6 +8036,12 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid) 
           Canvas.setCurrentLayer(Canvas.params.currentLayer);
           drawingApp.firstInit = false;
           clearInterval(pollingFunction);
+
+          if (Canvas.params.initialZoomLevel != 1) {
+            updateZoomInputValue(Canvas.params.initialZoomLevel);
+            zoom(Canvas.params.initialZoomLevel);
+            panDrawingCenterToScreenCenter();
+          }
         }
       });
       setCorrectZIndex();
@@ -8154,7 +8164,8 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid) 
           }
         },
         domMatrix: new DOMMatrix(),
-        zoomFactor: 1
+        zoomFactor: 1,
+        initialZoomLevel: 1
       },
       element: UI.svgCanvas,
       layers: {},
@@ -8887,7 +8898,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid) 
   function decodeSvgLayerFromBase64String(layerData) {
     if (layerData.data.startsWith("data:image/png;base64")) {
       // made with old tool, load as image
-      var parentID = "question";
+      var parentID = layerData.name;
       var shapeID = "image-1";
       var newShape = makeNewSvgShapeWithSidebarEntry("image", {
         group: {},
@@ -9000,6 +9011,11 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid) 
             shapeType = shapeID.substring(0, shapeID.indexOf("-"));
         var newShape = makeNewSvgShapeWithSidebarEntry(shapeType, props, layerName, true, !(!drawingApp.isTeacher() && layerName === "question"));
         Canvas.layers[layerName].shapes[shapeID] = newShape;
+
+        if (drawingApp.params.isOldDrawing && layerName === "question") {
+          fitDrawingToScreen();
+        }
+
         newShape.svg.addHighlightEvents();
       }
     } catch (err) {
@@ -12647,6 +12663,11 @@ var svgShape = /*#__PURE__*/function () {
         }
       }];
       this.drawingApp.bindEventListeners(settings, this);
+    }
+  }, {
+    key: "getElemBoundaries",
+    value: function getElemBoundaries() {
+      return this.mainElement.getBoundingBox();
     }
   }, {
     key: "highlight",

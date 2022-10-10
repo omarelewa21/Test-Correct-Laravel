@@ -44,4 +44,6 @@ return [
     'Centreren'                          => 'Centreren',
     'Vraag'                              => 'Vraag',
     'Save no answers yet confirm text'   => 'Je hebt nog geen antwoordmodel getekend. Weet je zeker dat je wilt afsluiten?',
+    'old-drawing-override-title' 	     => 'Oude tekenvraag',
+	'old-drawing-override-body'		     => 'De tekenvraag is in de oude tekeneditor gemaakt. Als je verder gaat, dient de antwoordlaag van de tekenvraag opnieuw gemaakt te worden in de nieuwe editor.',
 ];

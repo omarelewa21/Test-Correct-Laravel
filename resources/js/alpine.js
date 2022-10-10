@@ -291,6 +291,9 @@ document.addEventListener('alpine:init', () => {
         answerSvg: entanglements.answerSvg,
         questionSvg: entanglements.questionSvg,
         gridSvg: entanglements.gridSvg,
+        isOldDrawing: entanglements.isOldDrawing,
+        showWarning: false,
+        clearSlate: false,
         isTeacher: isTeacher,
         toolName: null,
         isPreview: isPreview,
@@ -299,7 +302,7 @@ document.addEventListener('alpine:init', () => {
             if (Object.getOwnPropertyNames(window).includes(this.toolName)) {
                 delete window[this.toolName];
             }
-            const toolName = window[this.toolName] = initDrawingQuestion(this.$root, this.isTeacher, this.isPreview, this.grid);
+            const toolName = window[this.toolName] = initDrawingQuestion(this.$root, this.isTeacher, this.isPreview, this.grid, this.isOldDrawing);
 
             if (this.isTeacher) {
                 this.makeGridIfNecessary(toolName);
