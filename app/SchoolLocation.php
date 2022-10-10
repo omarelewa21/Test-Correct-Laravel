@@ -418,6 +418,10 @@ class SchoolLocation extends BaseModel implements AccessCheckable
         });
 
         static::deleted(function (SchoolLocation $schoolLocation) {
+            $schoolLocation->sharedSections()->detach();
+            foreach($schoolLocation->schoolLocationSections()->get() as $sharedSection){
+                SchoolLocationSharedSection::where('section_id', $sharedSection->section_id)->delete();
+            }
             $schoolLocation->dispatchJobs(true);
         });
 
@@ -1334,6 +1338,11 @@ class SchoolLocation extends BaseModel implements AccessCheckable
     public function getAllowNewTakenTestsPageAttribute() : bool
     {
         return $this->featureSettings()->getSetting('allow_new_taken_tests_page')->exists();
+    }
+
+    public function canDelete(User $user)
+    {
+        return $user->isA('Administrator');
     }
 
 }

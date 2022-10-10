@@ -620,5 +620,8 @@ class School extends BaseModel implements AccessCheckable {
         }
     }
 
-
+    public function canDelete(User $user)
+    {
+        return $user->isA('Administrator');
+    }
 }

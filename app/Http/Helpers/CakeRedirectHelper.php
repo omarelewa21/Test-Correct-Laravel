@@ -89,8 +89,8 @@ class CakeRedirectHelper
                 'page_action' => sprintf("Navigation.load('/school_locations/view/%s')", $this->uuid)
             ],
             'school_location.edit'   => [
-                'page'        => '/',
-                'page_action' => sprintf("Navigation.load('/school_locations/edit/%s')", $this->uuid)
+                'page'        => sprintf("/school_locations/view/%s", $this->uuid),
+                'page_action' => sprintf("Popup.load('/school_locations/edit/%s', 1100)", $this->uuid)
             ],
             'school_location.delete' => [
                 'page'        => '/',
@@ -106,7 +106,7 @@ class CakeRedirectHelper
                 'page_action' => sprintf("Navigation.load('/schools/view/%s')", $this->uuid)
             ],
             'school.edit'   => [
-                'page'        => '/',
+                'page'        => sprintf("/schools/view/%s", $this->uuid),
                 'page_action' => sprintf("Navigation.load('/schools/edit/%s')", $this->uuid)
             ],
             'school.delete' => [
