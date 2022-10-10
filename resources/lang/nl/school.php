@@ -10,7 +10,7 @@ return [
     'question_items'      => 'Vraag items',
     'edit'                => 'Aanpassen',
     'delete'              => 'Verwijderen',
-    'schools'             => 'Scholen',
+    'schools'             => 'Scholengemeenschap',
     'end_customer'        => 'Geen, gemeenschap is eindklant',
     'has_been_deleted'    => 'De school is verwijderd',
     'delete_school'       => 'Verwijder School',

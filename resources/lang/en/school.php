@@ -10,7 +10,7 @@ return [
     'question_items'      => 'question items',
     'edit'                => 'Edit',
     'delete'              => 'Delete',
-    'schools'             => 'Schools',
+    'schools'             => 'Organization',
     'end_customer'        => 'None, community is end customer',
     'has_been_deleted'    => 'The school has been deleted',
     'delete_school'       => 'Delete school',
