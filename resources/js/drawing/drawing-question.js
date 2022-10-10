@@ -1031,7 +1031,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
             );
             Canvas.layers[layerName].shapes[shapeID] = newShape;
             if(drawingApp.params.isOldDrawing && layerName === "question"){
-                adjustZoomLevelBasedOnQuestionImage(newShape.svg);
+                fitDrawingToScreen();
             }
             newShape.svg.addHighlightEvents();
         }
@@ -1047,21 +1047,6 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
         if (element.nodeName === "TEXT" && !attributes["data-textcontent"])
             attributes["data-textcontent"] = element.textContent;
         return attributes;
-    }
-
-    function adjustZoomLevelBasedOnQuestionImage(svg){
-       /* let boundaries = svg.getElemBoundaries();
-        console.log(boundaries.width);
-        if(boundaries.width < 400){
-            Canvas.params.initialZoomLevel = 1.75;
-        }else if(boundaries.width >= 400 && boundaries.width < 600){
-            Canvas.params.initialZoomLevel = 1.5;
-        }else if(boundaries.width >= 600 && boundaries.width < 840){
-            Canvas.params.initialZoomLevel = 1.25;
-        }else{
-            Canvas.params.initialZoomLevel = 1;
-        } */
-        fitDrawingToScreen();
     }
 
     function calculateCanvasBounds() {
