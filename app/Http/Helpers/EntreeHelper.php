@@ -310,6 +310,11 @@ class EntreeHelper
 
     protected function transformAttributesIfNeededAndReturn($attr)
     {
+        $this->logger(sprintf('entering %s method: %s (line %d)',__FILE__,__METHOD__,__LINE__));
+        $loggerAttr = $attr;
+        $loggerAttr['eckId'] = (isseet($loggerAttr['eckId'])) ? substr($loggerAttr['eckId'],-5) : '';
+        $this->logger(json_encode($loggerAttr));
+
         // we may get employee, then we transfer it to teacher
         if (array_key_exists('eduPersonAffiliation', $attr) && in_array(strtolower($attr['eduPersonAffiliation'][0]),
                 $this->rolesToTransformToTeacher)) {
