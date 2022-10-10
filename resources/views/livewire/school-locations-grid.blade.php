@@ -158,7 +158,7 @@
                                 {{ $schoolLocation->name }}
                             </x-table.cell>
                             <x-table.cell :slim="true" :with-tooltip="true">
-                                {{ $schoolLocation->school->name }}
+                                {{ optional($schoolLocation->school)->name }}
                             </x-table.cell>
                             <x-table.cell :slim="true" :with-tooltip="true">
                                 {{ $schoolLocation->main_city }}
