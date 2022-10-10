@@ -41,6 +41,7 @@ class PValueRepositoryTest extends TestCase
 
 //        $factory = FactoryScenarioTestTakeRated::create($this->getTeacherOne());
         $studentOne = $this->getStudentOne();
+        $this->actingAs($studentOne);
 
         $pValues = PValueRepository::getPValueForStudentBySubject(
             $studentOne,
