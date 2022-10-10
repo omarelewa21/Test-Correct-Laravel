@@ -37,10 +37,10 @@
     </main>
     @isset($footerbuttons)
         <footer class="footer px-8 xl:px-28 flex content-center fixed w-full bottom-0 z-10">
-
             <div class="flex items-center ml-auto space-x-6">
                 {{ $footerbuttons }}
             </div>
         </footer>
     @endisset
+    @livewire('livewire-ui-modal')
 </x-layouts.base>

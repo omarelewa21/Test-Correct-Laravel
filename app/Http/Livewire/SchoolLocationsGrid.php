@@ -128,6 +128,8 @@ class SchoolLocationsGrid extends Component
     public function deleteSchoolLocation($uuid)
     {
         if ($this->administrator) {
+            $this->emit('openModal', 'school-location-delete-modal', ['schoolLocationUuid' => $uuid]);
+            return;
             return CakeRedirectHelper::redirectToCake('school_location.delete', $uuid);
         }
     }

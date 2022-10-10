@@ -187,7 +187,7 @@
                                                 <span>{{__('school_location.edit')}}</span>
                                             </div>
                                         </x-dropdown.item>
-                                        <x-dropdown.item wire:click="deleteSchoolLocation('{{$schoolLocation->uuid}}')">
+                                        <x-dropdown.item wire:click="deleteSchoolLocation('{{$schoolLocation->uuid}}')" @click="open = false">
                                             <div class="flex items-center space-x-2">
                                                 <x-icon.remove/>
                                                 <span>{{__('school_location.delete')}}</span>

@@ -127,10 +127,6 @@ class SchoolLocationsController extends Controller {
     public function destroy(SchoolLocation $schoolLocation)
     {
         if ($schoolLocation->delete()) {
-            $schoolLocation->sharedSections()->detach();
-            foreach($schoolLocation->schoolLocationSections()->get() as $sharedSection){
-                SchoolLocationSharedSection::where('section_id', $sharedSection->section_id)->delete();
-            }
             return Response::make($schoolLocation, 200);
         } else {
             return Response::make('Failed to delete school location', 500);

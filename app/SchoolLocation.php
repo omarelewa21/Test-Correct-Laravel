@@ -422,6 +422,10 @@ class SchoolLocation extends BaseModel implements AccessCheckable
         });
 
         static::deleted(function (SchoolLocation $schoolLocation) {
+            $schoolLocation->sharedSections()->detach();
+            foreach($schoolLocation->schoolLocationSections()->get() as $sharedSection){
+                SchoolLocationSharedSection::where('section_id', $sharedSection->section_id)->delete();
+            }
             $schoolLocation->dispatchJobs(true);
         });
 
@@ -1312,6 +1316,11 @@ class SchoolLocation extends BaseModel implements AccessCheckable
         return $this->featureSettings()->getSettings()->mapWithKeys(function ($item, $key) {
             return [$item->title => $item->value];
         });
+    }
+
+    public function canDelete(User $user)
+    {
+        return $user->isA('Administrator');
     }
 
 }
