@@ -66,7 +66,7 @@ class EntreeHelper
         $this->retrieveDataFromSession();
     }
 
-    public function logger($data)
+    protected function logger($data)
     {
         logger($data);
     }
