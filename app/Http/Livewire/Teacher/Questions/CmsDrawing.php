@@ -146,9 +146,6 @@ class CmsDrawing extends CmsBase
 
     private function getAnswerSvg(SvgHelper $svgHelper, $q)
     {
-        if($this->isOldDrawingQuestion()){
-            return $svgHelper->createِAnswerLayerForOldQuestion($q);
-        }
         if ($svgHelper->getAnswerLayerFromSVG()) {
             return $svgHelper->getAnswerLayerFromSVG(true);
         }
