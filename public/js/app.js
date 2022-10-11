@@ -7690,8 +7690,8 @@ Core = {
 
   /**
    * Waits an interval time before logging user out
-   * @param boolean firstLoad
-   * @param int secondsBeforeTeacherLogout - default 15 min
+   * @param {boolean} firstLoad
+   * @param {int} secondsBeforeTeacherLogout - default 15 min
    */
   startUserLogoutInterval: function startUserLogoutInterval() {
     var firstLoad = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : false;

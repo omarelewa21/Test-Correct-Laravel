@@ -238,8 +238,8 @@ Core = {
     },
     /**
      * Waits an interval time before logging user out
-     * @param boolean firstLoad
-     * @param int secondsBeforeTeacherLogout - default 15 min
+     * @param {boolean} firstLoad
+     * @param {int} secondsBeforeTeacherLogout - default 15 min
      */
     startUserLogoutInterval(firstLoad=false, secondsBeforeTeacherLogout=15*60){
         let inactive = 0;
