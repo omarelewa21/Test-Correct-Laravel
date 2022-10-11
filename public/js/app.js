@@ -5921,6 +5921,7 @@ document.addEventListener('alpine:init', function () {
       answerSvg: entanglements.answerSvg,
       questionSvg: entanglements.questionSvg,
       gridSvg: entanglements.gridSvg,
+      grid: entanglements.grid,
       isOldDrawing: entanglements.isOldDrawing,
       showWarning: false,
       clearSlate: false,
@@ -5980,8 +5981,6 @@ document.addEventListener('alpine:init', function () {
 
         if (this.gridSvg !== '' && this.gridSvg !== '0.00') {
           gridSize = this.gridSvg;
-        } else if (this.grid && this.grid !== '0') {
-          gridSize = 1 / parseInt(this.grid) * 14;
         }
 
         if (gridSize) {
@@ -10134,7 +10133,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
       },
       size: 1 / parseInt(grid) * 14
     };
-    return new _svgShape_js__WEBPACK_IMPORTED_MODULE_2__.Grid(0, props, UI.svgGridGroup, drawingApp, Canvas);
+    new _svgShape_js__WEBPACK_IMPORTED_MODULE_2__.Grid(0, props, UI.svgGridGroup, drawingApp, Canvas);
   }
 
   function updateGridVisibility() {
