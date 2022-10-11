@@ -426,7 +426,7 @@ class Question extends MtiBaseModel
             }
         }
 
-        collect(['attainments', 'learingGoals'])->each(fn($relation) => $this->addCurrentQuestionRelationToNewQuestion($question, $relation));
+        collect(['attainments', 'learningGoals'])->each(fn($relation) => $this->addCurrentQuestionRelationToNewQuestion($question, $relation));
 
         return $question;
     }
