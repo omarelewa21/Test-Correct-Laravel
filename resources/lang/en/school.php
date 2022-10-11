@@ -7,7 +7,7 @@ return [
     'organization'        => 'Organization',
     'main_city'           => 'City',
     'main_external_code'  => 'BRIN',
-    'question_items'      => 'question items',
+    'question_items'      => 'Question items',
     'edit'                => 'Edit',
     'delete'              => 'Delete',
     'schools'             => 'Organization',

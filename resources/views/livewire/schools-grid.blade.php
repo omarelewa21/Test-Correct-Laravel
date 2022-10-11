@@ -98,7 +98,7 @@
                             :sortable="true"
                             :direction="$this->orderByColumnName == 'count_questions' ? $this->orderByDirection : null"
                             wire:click="setOrderByColumnAndDirection('count_questions')"
-                            width="152px">
+                            width="155px">
                         {{ __('school.question_items') }}
                     </x-table.heading>
                     <x-table.heading
