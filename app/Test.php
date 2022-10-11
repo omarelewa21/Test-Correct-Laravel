@@ -1141,4 +1141,11 @@ class Test extends BaseModel
         }
         return $query;
     }
+
+    public function canPlan(User $user)
+    {
+        /* You can't plan tests from shared sections, you first need to copy them */
+        $umbrellaIds = $user->allowedSchoolLocations()->pluck('id')->reject(fn($locationId) => $locationId === $user->school_location_id);
+        return !$umbrellaIds->contains($this->owner_id);
+    }
 }

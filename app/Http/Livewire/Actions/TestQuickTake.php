@@ -4,7 +4,6 @@ namespace tcCore\Http\Livewire\Actions;
 
 use Auth;
 use tcCore\Http\Traits\Actions\WithPlanButtonFeatures;
-use tcCore\Test;
 
 class TestQuickTake extends TestAction
 {
@@ -24,6 +23,6 @@ class TestQuickTake extends TestAction
 
     protected function getDisabledValue()
     {
-        return $this->test->isAssignment() || Auth::user()->isValidExamCoordinator() || $this->test->owner_id !== Auth::user()->school_location_id;
+        return $this->test->isAssignment() || Auth::user()->isValidExamCoordinator() || !$this->test->canPlan(Auth::user());
     }
 }

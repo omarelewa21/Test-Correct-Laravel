@@ -23,6 +23,6 @@ class TestPlanTest extends TestAction
 
     protected function getDisabledValue()
     {
-        return $this->test->owner_id !== Auth::user()->school_location_id;
+        return !$this->test->canPlan(Auth::user());
     }
 }
