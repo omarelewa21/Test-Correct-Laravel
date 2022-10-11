@@ -22,6 +22,7 @@ class TestTakeOverview extends Component
     const TABS = ['taken', 'norm'];
     const PER_PAGE = 12;
     const ACTIVE_TAB_SESSION_KEY = 'test-take-overview-open-tab';
+    const FILTERS_SESSION_KEY = 'test-take-overview-filters';
     const DEFAULT_OPEN_TAB = 'taken';
 
     public string $stage;
@@ -47,6 +48,11 @@ class TestTakeOverview extends Component
     public function updatingFilters(&$value, $name)
     {
         $this->resetPage();
+    }
+
+    public function updatedFilters($value, $filter)
+    {
+        session([self::FILTERS_SESSION_KEY => $this->filters]);
     }
 
     public function updatedOpenTab()
@@ -110,17 +116,21 @@ class TestTakeOverview extends Component
 
     private function setFilters()
     {
-        collect(self::TABS)->each(function ($tab) {
-            $this->filters[$tab] = [
-                'test_take_status_id' => $this->getTestTakeStatusForFilter($tab),
-                'archived'            => false,
-                'test_name'           => '',
-                'school_class_id'     => [],
-                'subject_id'          => [],
-                'time_start_from'     => '',
-                'time_start_to'       => '',
-            ];
-        });
+        if (session()->has(self::FILTERS_SESSION_KEY))
+            $this->filters = session()->get(self::FILTERS_SESSION_KEY);
+        else {
+            collect(self::TABS)->each(function ($tab) {
+                $this->filters[$tab] = [
+                    'test_take_status_id' => $this->getTestTakeStatusForFilter($tab),
+                    'archived'            => false,
+                    'test_name'           => '',
+                    'school_class_id'     => [],
+                    'subject_id'          => [],
+                    'time_start_from'     => '',
+                    'time_start_to'       => '',
+                ];
+            });
+        }
     }
 
     public function hasActiveFilters()
@@ -140,6 +150,7 @@ class TestTakeOverview extends Component
             'time_start_from'     => '',
             'time_start_to'       => '',
         ];
+        session([self::FILTERS_SESSION_KEY => $this->filters]);
     }
 
     private function getTestTakeStatusForFilter($tab)
