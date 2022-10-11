@@ -13,7 +13,7 @@ return [
     'sso'                    => 'SSO',
     'licenses'               => 'Licenses',
     'activated'              => 'Activated',
-    'question_items'         => 'question items',
+    'question_items'         => 'Question items',
     'filter'                 => 'filter',
     'edit'                   => 'Edit',
     'delete'                 => 'Delete',

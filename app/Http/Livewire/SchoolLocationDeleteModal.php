@@ -38,6 +38,8 @@ class SchoolLocationDeleteModal extends ModalComponent
         $this->forceClose()->closeModal();
 
         $this->dispatchBrowserEvent('notify', ['message' => __('school_location.has_been_deleted')]);
+        $this->emit('school_location_deleted');
+
         return true;
     }
 }

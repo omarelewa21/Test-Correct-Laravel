@@ -21,10 +21,13 @@ class SchoolsGrid extends Component
     use CanOrderGrid;
 
     protected $schools;
-
-
     public $filters = [];
     public bool $administrator;
+
+    protected $listeners = [
+        'school_deleted' => '$refresh',
+    ];
+
 
     public function updatingAdministrator($value)
     {
@@ -112,8 +115,6 @@ class SchoolsGrid extends Component
     {
         if ($this->administrator) {
             $this->emit('openModal', 'school-delete-modal', ['schoolUuid' => $uuid]);
-            return;
-            return CakeRedirectHelper::redirectToCake('school.delete', $uuid);
         }
     }
 
