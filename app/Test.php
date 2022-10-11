@@ -466,7 +466,19 @@ class Test extends BaseModel
             $attributes['name'] = 'Kopie #' . $copy . ' ' . $this->getAttribute('name');
         }
 
-        return $this->duplicate($attributes, $authorId);
+        $subjectId = false;
+        if (isset($attributes['subject_id'])) {
+            $subjectId = $attributes['subject_id'];
+            unset($attributes['subject_id']);
+        }
+
+        $test = $this->duplicate($attributes, $authorId);
+
+        if ($subjectId) {
+            $test->refresh()->subject_id = $subjectId;
+            $test->save();
+        }
+        return $test;
     }
 
     public function duplicate(array $attributes, $authorId = null, callable $callable = null)
