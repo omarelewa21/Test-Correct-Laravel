@@ -293,7 +293,7 @@
                                 />
                                 <livewire:learning-goal-manager :value="$question['learning_goals']"
                                                                 :subject-id="$subjectId"
-                                                                :eduction-level-id="$educationLevelId"
+                                                                :education-level-id="$educationLevelId"
                                                                 :key="'LG-'. $this->uniqueQuestionKey "
                                                                 :disabled="true"
                                 />
