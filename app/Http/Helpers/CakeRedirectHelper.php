@@ -107,7 +107,7 @@ class CakeRedirectHelper
             ],
             'school.edit'   => [
                 'page'        => sprintf("/schools/view/%s", $this->uuid),
-                'page_action' => sprintf("Navigation.load('/schools/edit/%s')", $this->uuid)
+                'page_action' => sprintf("Popup.load('/schools/edit/%s', 800)", $this->uuid)
             ],
             'school.delete' => [
                 'page'        => '/',
