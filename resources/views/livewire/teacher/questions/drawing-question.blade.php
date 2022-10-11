@@ -54,23 +54,6 @@
                     <div class="absolute top-0 left-0 w-full h-full">
                         <img class="object-cover" src="{{ $this->question['answer'] }}" alt="">
                     </div>
-
-                    <div class="max-w-2xl z-0  p-8 flex flex-col items-center justify-center relative rounded-10 overflow-auto">
-                        <div class="absolute bg-white opacity-80 w-full h-full"></div>
-                        <div class="z-0 flex flex-col items-center justify-center">
-                            @isset($preview)
-                            <x-button.primary class="disabled" disabled selid="draw-answer">
-                                <x-icon.edit/>
-                                <span>{{ __('cms.Tekening maken') }}</span>
-                            </x-button.primary>
-                            @else
-                                <x-button.primary @click="showWarning = !showWarning; clearSlate = true" selid="draw-answer">
-                                    <x-icon.edit/>
-                                    <span>{{ __('cms.Tekening maken') }}</span>
-                                </x-button.primary>
-                            @endisset
-                        </div>
-                    </div>
                 </div>
             @else
                 <div class="absolute top-0 left-0 w-full h-full">
