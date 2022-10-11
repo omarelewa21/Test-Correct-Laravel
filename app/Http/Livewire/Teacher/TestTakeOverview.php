@@ -88,7 +88,18 @@ class TestTakeOverview extends Component
 
     public function getSchoolClassesProperty()
     {
-        return TestTake::schoolClassesForMultiple($this->baseTakes->pluck('id'))->leftJoin('school_years','school_classes.school_year_id','school_years.id')->optionList(['school_classes.id as id', 'school_classes.name as name','school_years.year as school_years_year'],function($value){ return sprintf('%s (%s)',$value->name,$value->school_years_year);});
+        return TestTake::schoolClassesForMultiple($this->baseTakes->pluck('id'))
+            ->withoutGuestClasses()
+            ->leftJoin('school_years','school_classes.school_year_id','school_years.id')
+            ->optionList([
+                    'school_classes.id as id',
+                    'school_classes.name as name',
+                    'school_years.year as school_years_year'
+            ],
+                function($value){
+                    return sprintf('%s (%s)',$value->name,$value->school_years_year);
+                }
+            );
     }
 
     public function getSubjectsProperty()
