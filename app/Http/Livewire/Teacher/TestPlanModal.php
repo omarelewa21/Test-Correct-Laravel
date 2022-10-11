@@ -178,12 +178,16 @@ class TestPlanModal extends ModalComponent
         $this->request['owner_id'] = $this->defaultInvigilator();
     }
 
-    private function defaultInvigilator(): int
+    private function defaultInvigilator()
     {
-        if($this->authorOfTestIsAnAllowedInvigilator()) {
-            return Auth::user()->isValidExamCoordinator() ? $this->test->author_id : Auth::id();
+        if (!Auth::user()->isValidExamCoordinator()) {
+            return Auth::id();
         }
-        
+
+        if($this->authorOfTestIsAnAllowedInvigilator()) {
+            return $this->test->author_id;
+        }
+
         return $this->allowedInvigilators->first()['value'];
     }
 

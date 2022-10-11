@@ -3,13 +3,19 @@
 namespace tcCore\Http\Livewire\Teacher;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 use LivewireUI\Modal\ModalComponent;
 use tcCore\Http\Controllers\TemporaryLoginController;
 
 class TestStartCreateModal extends ModalComponent
 {
-
+    public function mount()
+    {
+        if (Auth::user()->isValidExamCoordinator()) {
+            abort(403);
+        }
+    }
 
     public function goToCreateTest()
     {

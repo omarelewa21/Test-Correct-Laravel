@@ -17,6 +17,9 @@ class TestCreateModal extends ModalComponent
 
     public function mount()
     {
+        if (Auth::user()->isValidExamCoordinator()) {
+            abort(403);
+        }
         $this->allowedSubjects = $this->getAllowedSubjects();
         $this->allowedTestKinds = $this->getAllowedTestKinds();
         $this->allowedPeriods = $this->getAllowedPeriods();

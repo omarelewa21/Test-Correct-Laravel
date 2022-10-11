@@ -5,7 +5,8 @@ use tcCore\Http\Controllers\AuthorsController;
 use tcCore\Lib\Models\CompositePrimaryKeyModel;
 use tcCore\Lib\Models\CompositePrimaryKeyModelSoftDeletes;
 
-class TestAuthor extends CompositePrimaryKeyModel {
+class TestAuthor extends CompositePrimaryKeyModel
+{
 
     use CompositePrimaryKeyModelSoftDeletes;
 
@@ -50,49 +51,54 @@ class TestAuthor extends CompositePrimaryKeyModel {
 
     }
 
-    public function test() {
+    public function test()
+    {
         return $this->belongsTo(Test::class);
     }
 
-    public function user() {
+    public function user()
+    {
         return $this->belongsTo(User::class)->withTrashed();
     }
 
-    public static function addAuthorToTest(Test $test, $userId) {
-        return self::addOrRestoreAuthor($test,$userId);
+    public static function addAuthorToTest(Test $test, $userId)
+    {
+        return self::addOrRestoreAuthor($test, $userId);
     }
 
-    public static function addExamAuthorToTest(Test $test) {
+    public static function addExamAuthorToTest(Test $test)
+    {
 
-        if(!optional(Auth::user())->isInExamSchool()){
+        if (!optional(Auth::user())->isInExamSchool()) {
             return false;
         }
-        if($test->scope!='exam'){
+        if ($test->scope != 'exam') {
             return false;
         }
-        $test->testAuthors->each(function ($testAuthor){
+        $test->testAuthors->each(function ($testAuthor) {
             $testAuthor->delete();
         });
         $examAuthorUser = AuthorsController::getCentraalExamenAuthor();
-        return self::addOrRestoreAuthor($test,$examAuthorUser->getKey());
+        return self::addOrRestoreAuthor($test, $examAuthorUser->getKey());
     }
 
-    public static function addNationalItemBankAuthorToTest(Test $test) {
+    public static function addNationalItemBankAuthorToTest(Test $test)
+    {
 
-        if(!optional(Auth::user())->isInNationalItemBankSchool()){
+        if (!optional(Auth::user())->isInNationalItemBankSchool()) {
             return false;
         }
-        if($test->scope!='ldt'){
+        if ($test->scope != 'ldt') {
             return false;
         }
-        $test->testAuthors->each(function ($testAuthor){
+        $test->testAuthors->each(function ($testAuthor) {
             $testAuthor->delete();
         });
         $nationalItemBankAuthorUser = AuthorsController::getNationalItemBankAuthor();
-        return self::addOrRestoreAuthor($test,$nationalItemBankAuthorUser->getKey());
+        return self::addOrRestoreAuthor($test, $nationalItemBankAuthorUser->getKey());
     }
 
-    private static function addOrRestoreAuthor($test,$userId)
+    private static function addOrRestoreAuthor($test, $userId)
     {
         $testAuthor = static::withTrashed()->where('user_id', $userId)->where('test_id', $test->getKey())->first();
         if ($testAuthor === null) {
@@ -101,7 +107,7 @@ class TestAuthor extends CompositePrimaryKeyModel {
                 return false;
             }
         } else {
-            if(!$testAuthor->restore()) {
+            if (!$testAuthor->restore()) {
                 return false;
             }
         }
@@ -110,21 +116,31 @@ class TestAuthor extends CompositePrimaryKeyModel {
 
     public function scopeSchoolLocationAuthorUsers($query, $user)
     {
+        if ($user->isValidExamCoordinator()) {
+            return User::withTrashed()->whereIn(
+                'id',
+                Teacher::withTrashed()->select('user_id')
+                    ->join('school_classes', 'school_classes.id', '=', 'teachers.class_id')
+                    ->where('school_location_id', $user->school_location_id)
+            )
+                ->select('id', 'name_first', 'name_suffix', 'name', 'school_location_id')->groupBy('users.id');;
+        }
+
         return User::withTrashed()->whereIn('id', // find all users part of this selection
             Teacher::withTrashed()->whereIn('subject_id', // find the teachers with these subjects
                 Subject::withTrashed()->whereIn('section_id', // get all subjects belonging to the section memberships
-                    $user->sections()->select('sections.id')->where('demo',0) // get section memberships of this teacher where section is not part of the demo environment
+                    $user->sections()->select('sections.id')->where('demo', 0) // get section memberships of this teacher where section is not part of the demo environment
                 )->select('subjects.id')
             )->select('teachers.user_id')
-        )->select('id','name_first','name_suffix','name', 'school_location_id')->groupBy('users.id');
+        )->select('id', 'name_first', 'name_suffix', 'name', 'school_location_id')->groupBy('users.id');
     }
 
     public function scopeSchoolLocationAndSharedSectionsAuthorUsers($query, $user)
     {
         return User::withTrashed()->whereIn('id', // find all users part of this selection
             Teacher::withTrashed()->whereIn('subject_id', // find the teachers with these subjects
-                $user->subjectsIncludingShared()->where('demo',0)->pluck('id')
+                $user->subjectsIncludingShared()->where('demo', 0)->pluck('id')
             )->select('teachers.user_id')
-        )->select('id','name_first','name_suffix','name','school_location_id')->groupBy('users.id');
+        )->select('id', 'name_first', 'name_suffix', 'name', 'school_location_id')->groupBy('users.id');
     }
 }
