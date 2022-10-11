@@ -2005,7 +2005,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
             },
             size: 1/parseInt(grid) * 14,
         }
-        return new svgShape.Grid(0, props, UI.svgGridGroup, drawingApp, Canvas);
+        new svgShape.Grid(0, props, UI.svgGridGroup, drawingApp, Canvas);
     }
 
     function updateGridVisibility() {

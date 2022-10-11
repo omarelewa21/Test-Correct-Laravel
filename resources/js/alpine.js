@@ -291,6 +291,7 @@ document.addEventListener('alpine:init', () => {
         answerSvg: entanglements.answerSvg,
         questionSvg: entanglements.questionSvg,
         gridSvg: entanglements.gridSvg,
+        grid: entanglements.grid,
         isOldDrawing: entanglements.isOldDrawing,
         showWarning: false,
         clearSlate: false,
@@ -349,8 +350,6 @@ document.addEventListener('alpine:init', () => {
             if (this.gridSvg !== '' && this.gridSvg !== '0.00') {
                 gridSize = this.gridSvg;
 
-            }else if(this.grid && this.grid !== '0'){
-                gridSize =  1/parseInt(this.grid) * 14;
             }
             if (gridSize) {
                 makePreviewGrid(toolName.drawingApp, gridSize);
