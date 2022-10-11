@@ -26,34 +26,47 @@
         </x-slot>
         <div class="flex flex-row">
 
-            <div class="md:w-1/3 mr-5">
-                <div>{{ __('student.aantal toetsen gemaakt')}} <span class="bold">{{ $generalStats['test']['count'] }}</span></div>
-                <div>
-                    {{ __('student.gemiddelde p-waarde o.b.v. aantal vragen', ['count'=> $generalStats['test']['countQuestions']]) }}
-                    <span class="bold"> P {{ $generalStats['test']['averagePValue'] }} </span>
+            <div class="md:w-1/3 mr-5 gap-4 flex flex-col">
+                <div class="flex flex-col">
+                    <span>{{ __('student.aantal toetsen gemaakt')}}</span>
+                    <span class="bold">{{ $generalStats['tests_taken'] }}</span>
                 </div>
-                <div>{{ __('student.gemiddeld cijfer') }}</div>
-                <div>
-                    <x-mark-badge :rating="$generalStats['test']['averageMark']"></x-mark-badge>
-                    <span class="bold">{{ __('student.Bekijk cijferlijst') }}</span>
-                    <x-icon.arrow />
+                <div class="flex flex-col">
+                    <span>{{ __('student.gemiddelde p-waarde') }}</span>
+                    <span>{{ __('student.o.b.v. aantal vragen', ['count'=> $generalStats['tests_questions']]) }}<span class="bold"> P {{ number_format($generalStats['tests_pvalue_average'], 2) }} </span></span>
+                </div>
+                <div class="flex flex-col">
+                    <div>{{ __('student.gemiddeld cijfer') }}</div>
+                    <div>
+                        <x-mark-badge :rating="$generalStats['tests_rating_average']"></x-mark-badge>
+                        <x-button.text-button type="link" size="sm">
+                            <span class="bold">{{ __('student.Bekijk cijferlijst') }}</span>
+                            <x-icon.arrow />
+                        </x-button.text-button>
+                    </div>
                 </div>
             </div>
-            <div class="md:w-1/3 mr-5">
-
-                <div>{{ __('student.aantal opdrachten gemaakt')}} <span class="bold">{{ $generalStats['assesment']['count'] }}</span></div>
-                <div>
-                    {{ __('student.gemiddelde p-waarde o.b.v. aantal vragen', ['count'=> $generalStats['assesment']['countQuestions']]) }}
-                    <span class="bold"> P {{ $generalStats['assesment']['averagePValue'] }} </span>
+            <div class="md:w-1/3 mr-5 gap-4 flex flex-col">
+                <div class="flex flex-col">
+                    <span>{{ __('student.aantal toetsen gemaakt')}}</span>
+                    <span class="bold">{{ $generalStats['assignments_taken'] }}</span>
                 </div>
-                <div>{{ __('student.gemiddeld cijfer') }}</div>
-                <div>
-                    <x-mark-badge :rating="$generalStats['assesment']['averageMark']"></x-mark-badge>
-                    <span class="bold">{{ __('student.Bekijk cijferlijst') }}</span>
-                    <x-icon.arrow />
+                <div class="flex flex-col">
+                    <span>{{ __('student.gemiddelde p-waarde') }}</span>
+                    <span>{{ __('student.o.b.v. aantal vragen', ['count'=> $generalStats['assignments_questions']]) }}<span class="bold"> P {{ number_format($generalStats['assignments_pvalue_average'], 2) }} </span></span>
                 </div>
-
+                <div class="flex flex-col">
+                    <div>{{ __('student.gemiddeld cijfer') }}</div>
+                    <div>
+                        <x-mark-badge :rating="$generalStats['assignments_rating_average']"></x-mark-badge>
+                        <x-button.text-button type="link" size="sm">
+                            <span class="bold">{{ __('student.Bekijk cijferlijst') }}</span>
+                            <x-icon.arrow />
+                        </x-button.text-button>
+                    </div>
+                </div>
             </div>
+
             <div class="md:w-1/3 mr-5">
                 Kolom 3
             </div>
@@ -82,7 +95,7 @@
             {{ __('student.p waarde leerdoelen') }}
         </x-slot>
 
-        <div id="pValueChart" style="width: 900px; height: 400px;"></div>
+        <div id="pValueChart" style="height: 400px;"></div>
         <div x-data="analysesAttainmentsGraph( @entangle('dataValues') )"
              x-on:filters-updated.window="renderGraph"
         >

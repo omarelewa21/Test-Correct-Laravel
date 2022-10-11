@@ -1,18 +1,18 @@
 <?php namespace tcCore;
 
 use Closure;
+use Dyrynda\Database\Casts\EfficientUuid;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Auth;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
+use tcCore\Http\Helpers\AnalysesSubjectHelper;
 use tcCore\Http\Helpers\DemoHelper;
 use tcCore\Lib\Models\AccessCheckable;
 use tcCore\Lib\Models\BaseModel;
-use Illuminate\Database\Eloquent\SoftDeletes;
 use tcCore\Lib\Repositories\SchoolYearRepository;
 use tcCore\Lib\User\Roles;
-use Dyrynda\Database\Casts\EfficientUuid;
-use Dyrynda\Database\Support\GeneratesUuid;
 use tcCore\Traits\UuidTrait;
-use Illuminate\Support\Facades\Auth;
 
 class Subject extends BaseModel implements AccessCheckable
 {

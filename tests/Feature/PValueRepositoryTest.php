@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use Carbon\Carbon;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use tcCore\Attainment;
 use tcCore\BaseSubject;
@@ -39,8 +40,9 @@ class PValueRepositoryTest extends TestCase
     {
         $this->withoutExceptionHandling();
 
-//        $factory = FactoryScenarioTestTakeRated::create($this->getTeacherOne());
+        $factory = FactoryScenarioTestTakeRated::create($this->getTeacherOne(), 'PValueTest'. Carbon::now()->microsecond());
         $studentOne = $this->getStudentOne();
+        $this->actingAs($studentOne);
 
         $pValues = PValueRepository::getPValueForStudentBySubject(
             $studentOne,
