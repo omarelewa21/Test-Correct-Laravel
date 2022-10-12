@@ -6279,8 +6279,7 @@ document.addEventListener('alpine:init', function () {
 
           _this16.$refs.select.addEventListener('change', function () {
             if (!Array.isArray(_this16.value)) return;
-            _this16.value = choices.getValue(true); // This causes 2 update calls:
-            // this.wireModel = this.value;
+            _this16.value = choices.getValue(true);
           });
 
           var eventName = 'removeFrom' + _this16.$root.dataset.modelName;

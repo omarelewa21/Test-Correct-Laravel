@@ -117,13 +117,11 @@ class TestAuthor extends CompositePrimaryKeyModel
     public function scopeSchoolLocationAuthorUsers($query, $user)
     {
         if ($user->isValidExamCoordinator()) {
-            return User::withTrashed()->whereIn(
-                'id',
-                Teacher::withTrashed()->select('user_id')
-                    ->join('school_classes', 'school_classes.id', '=', 'teachers.class_id')
-                    ->where('school_location_id', $user->school_location_id)
-            )
-                ->select('id', 'name_first', 'name_suffix', 'name', 'school_location_id')->groupBy('users.id');;
+            return User::select(['id', 'name_first', 'name_suffix', 'name', 'school_location_id'])
+                ->whereIn(
+                    'id',
+                    Test::select('author_id')->whereOwnerId($user->school_location_id)
+                );
         }
 
         return User::withTrashed()->whereIn('id', // find all users part of this selection
