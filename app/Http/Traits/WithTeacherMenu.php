@@ -138,7 +138,7 @@ trait WithTeacherMenu
             'action' => [
                 'directive'  => 'wire',
                 'method'     => 'cakeRedirect',
-                'parameters' => 'taken'
+                'parameters' => 'taken.test_taken'
             ]
         ];
         $tiles['normalizing'] = [
