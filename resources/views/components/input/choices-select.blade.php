@@ -18,7 +18,7 @@
                         placeholderValue: '{{ $placeholderText }}',
                         searchPlaceholderValue: '{{ __('Zoek') }}...',
                         itemSelectText: '',
-                        removeItemButton: true,
+                        removeItemButton: {{ $multiple ? 1 : 0 }},
                         renderSelectedChoices: 'always',
                         resetScrollPosition: false,
                         fuseOptions:{

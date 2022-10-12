@@ -4,7 +4,9 @@ use Carbon\Carbon;
 use Closure;
 
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Str;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
@@ -389,6 +391,24 @@ class SchoolClass extends BaseModel implements AccessCheckable
                     break;
                 case 'without_guest_classes':
                     $query->withoutGuestClasses();
+                    break;
+                case 'subject_id':
+                    $query->whereIn('id',
+                        DB::table('school_classes as sc2')
+                            ->select('sc2.id')
+                            ->join('teachers', 'teachers.class_id', '=', 'sc2.id')
+                            ->where('teachers.subject_id', $value)
+                    );
+                case 'base_subject_id':
+                    $query->whereIn('id',
+                        DB::table('school_classes as sc2')
+                            ->select('sc2.id')
+                            ->join('teachers', 'teachers.class_id', '=', 'sc2.id')
+                            ->whereIn(
+                                'teachers.subject_id',
+                                Subject::select('id')->whereBaseSubjectId($value)
+                            )
+                    );
                     break;
                 default:
                     break;

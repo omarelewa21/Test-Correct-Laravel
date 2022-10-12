@@ -8,6 +8,9 @@
     padding-right: 1px;
     margin-bottom: 0;
 }
+.custom-choices .choices[data-type*=select-one]::after {
+    display: none;
+}
 
 .custom-choices .choices .choices__inner {
     border-color: var(--choices-border-color);

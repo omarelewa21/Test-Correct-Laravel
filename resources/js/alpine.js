@@ -581,14 +581,17 @@ document.addEventListener('alpine:init', () => {
 
                 this.$refs.select.addEventListener('choice', (event) => {
                     let eventValue = isNaN(parseInt(event.detail.choice.value)) ? event.detail.choice.value : parseInt(event.detail.choice.value);
+                    if (!Array.isArray(this.value)) {
+                        this.value = eventValue;
+                        return;
+                    }
                     if (this.value.includes(eventValue)) {
                         this.removeFilterItem(choices.getValue().find(value => value.value === event.detail.choice.value));
                     }
                 })
                 this.$refs.select.addEventListener('change', () => {
-                    this.value = choices.getValue(true)
-                    // This causes 2 update calls:
-                    // this.wireModel = this.value;
+                    if (!Array.isArray(this.value)) return;
+                    this.value = choices.getValue(true);
                 })
 
                 let eventName = 'removeFrom' + this.$root.dataset.modelName;
@@ -605,6 +608,7 @@ document.addEventListener('alpine:init', () => {
         },
 
         removeFilterItem(item) {
+            if (!Array.isArray(this.value)) return;
             this.value = this.wireModel = this.value.filter(itemValue => itemValue !== item.value);
             this.clearFilterPill(item.value);
         },
@@ -614,6 +618,7 @@ document.addEventListener('alpine:init', () => {
         },
 
         handleActiveFilters(choicesValues) {
+            if (!Array.isArray(this.value)) return;
             this.value.forEach(item => {
                 if (this.needsFilterPill(item)) {
                     const cItem = choicesValues.find(value => value.value === item);

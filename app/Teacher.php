@@ -9,10 +9,12 @@ use tcCore\Lib\Models\BaseModel;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Dyrynda\Database\Casts\EfficientUuid;
 use Dyrynda\Database\Support\GeneratesUuid;
+use tcCore\Lib\Repositories\SchoolYearRepository;
 use tcCore\Traits\UuidTrait;
 
 
-class Teacher extends BaseModel {
+class Teacher extends BaseModel
+{
 
     use SoftDeletes;
     use UuidTrait;
@@ -55,51 +57,57 @@ class Teacher extends BaseModel {
         parent::boot();
 
 
-        static::created(function(Teacher $teacher) {
+        static::created(function (Teacher $teacher) {
             Queue::push(new UpdatePValueUsers($teacher->getAttribute('class_id'), $teacher->getAttribute('subject_id'), $teacher->getAttribute('user_id'), null, null, null));
         });
 
-        static::updated(function(Teacher $teacher) {
+        static::updated(function (Teacher $teacher) {
             if ($teacher->getAttribute('class_id') != $teacher->getOriginal('class_id') || $teacher->getAttribute('subject_id') != $teacher->getOriginal('subject_id') || $teacher->getAttribute('user_id') != $teacher->getOriginal('user_id')) {
                 Queue::push(new UpdatePValueUsers($teacher->getAttribute('class_id'), $teacher->getAttribute('subject_id'), $teacher->getAttribute('user_id'), $teacher->getOriginal('class_id'), $teacher->getOriginal('subject_id'), $teacher->getOriginal('user_id')));
             }
         });
 
-        static::deleted(function(Teacher $teacher) {
+        static::deleted(function (Teacher $teacher) {
             Queue::push(new UpdatePValueUsers(null, null, null, $teacher->getOriginal('class_id'), $teacher->getOriginal('subject_id'), $teacher->getOriginal('user_id')));
         });
     }
 
-    public function user() {
+    public function user()
+    {
         return $this->belongsTo('tcCore\User');
     }
 
-    public function schoolClass() {
+    public function schoolClass()
+    {
         return $this->belongsTo('tcCore\SchoolClass', 'class_id');
     }
 
-    public function schoolClassWithoutVisibleOnlyScope() {
+    public function schoolClassWithoutVisibleOnlyScope()
+    {
         return $this->belongsTo('tcCore\SchoolClass', 'class_id')->withoutGlobalScope("visibleOnly");
     }
 
-    public function subject() {
+    public function subject()
+    {
         return $this->belongsTo('tcCore\Subject');
     }
 
-    public function tests() {
-        return $this->hasMany(Test::class,'author_id','user_id');
+    public function tests()
+    {
+        return $this->hasMany(Test::class, 'author_id', 'user_id');
     }
 
     public function scopeCurrentSchoolLocation($query)
     {
-        $schoolClasses = SchoolClass::where('school_location_id',Auth::user()->school_location_id)->get()->pluck('id');
-        return $query->whereIn('class_id',$schoolClasses);
+        $schoolClasses = SchoolClass::where('school_location_id', Auth::user()->school_location_id)->get()->pluck('id');
+        return $query->whereIn('class_id', $schoolClasses);
     }
 
 
-    public function scopeFiltered($query, $filters = [], $sorting = []) {
-        foreach($filters as $key => $value) {
-            switch($key) {
+    public function scopeFiltered($query, $filters = [], $sorting = [])
+    {
+        foreach ($filters as $key => $value) {
+            switch ($key) {
                 case 'id':
                     if (is_array($value)) {
                         $query->whereIn('id', $value);
@@ -131,7 +139,7 @@ class Teacher extends BaseModel {
             }
         }
 
-        foreach($sorting as $key => $value) {
+        foreach ($sorting as $key => $value) {
             switch (strtolower($value)) {
                 case 'id':
                     $key = $value;
@@ -184,18 +192,47 @@ class Teacher extends BaseModel {
 
     }
 
+    public static function getTeacherUsersForSchoolLocationBySubjectInCurrentYear(SchoolLocation $schoolLocation, $subjectId)
+    {
+        return self::getTeacherUsersForSchoolLocation($schoolLocation)
+            ->where(function ($query) use ($subjectId) {
+                $query->where(
+                    'teachers.subject_id',
+                    $subjectId
+                )->whereIn(
+                    'teachers.class_id',
+                    SchoolClass::select('id')->whereSchoolYearId(SchoolYearRepository::getCurrentSchoolYear()->getKey())
+                );
+            });
+
+    }
+
+    public static function getTeacherUsersForSchoolLocationByBaseSubjectInCurrentYear(SchoolLocation $schoolLocation, $baseSubjectId)
+    {
+        return self::getTeacherUsersForSchoolLocation($schoolLocation)->where(function ($query) use ($baseSubjectId) {
+            $query->whereIn(
+                'teachers.subject_id',
+                Subject::select('id')->whereBaseSubjectId($baseSubjectId)
+            )->whereIn(
+                'teachers.class_id',
+                SchoolClass::select('id')->whereSchoolYearId(SchoolYearRepository::getCurrentSchoolYear()->getKey())
+            );
+        });
+    }
+
     public static function getTeacherUsersForSchoolLocation(SchoolLocation $schoolLocation)
     {
-        $sql = User::select('users.*')
+        return User::distinct()
+            ->select('users.*')
+            ->join('teachers', 'users.id', '=', 'teachers.user_id')
             ->leftJoin('user_roles', 'users.id', '=', 'user_roles.user_id')
             ->whereIn(
-                'id',
+                'users.id',
                 DB::table('school_location_user')
                     ->select('user_id')
                     ->where('school_location_id', $schoolLocation->getKey())
             )
             ->where('user_roles.role_id', Role::TEACHER)
             ->where('users.is_examcoordinator', 0);
-        return $sql;
     }
 }

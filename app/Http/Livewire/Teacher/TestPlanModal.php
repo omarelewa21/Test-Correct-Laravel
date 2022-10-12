@@ -10,6 +10,7 @@ use LivewireUI\Modal\ModalComponent;
 use tcCore\Http\Controllers\TemporaryLoginController;
 use tcCore\Http\Traits\Modal\WithPlanningFeatures;
 use tcCore\Period;
+use tcCore\Subject;
 use tcCore\Teacher;
 use tcCore\TestTake;
 use tcCore\TestTakeStatus;
@@ -34,9 +35,7 @@ class TestPlanModal extends ModalComponent
         $this->test = \tcCore\Test::whereUuid($testUuid)->first();
 
         $this->allowedPeriods = Period::filtered(['current_school_year' => true])->get();
-        $this->allowedInvigilators = Teacher::getTeacherUsersForSchoolLocation(Auth::user()->schoolLocation)
-            ->get()
-            ->map(fn ($teacher) => ['value' => $teacher->id, 'label' => $teacher->name_full]);
+        $this->allowedInvigilators = $this->getAllowedInvigilators();
         $this->resetModalRequest();
     }
 
@@ -50,6 +49,7 @@ class TestPlanModal extends ModalComponent
             'request.period_id'       => 'required',
             'request.school_classes'  => 'required',
             'request.notify_students' => 'required|boolean',
+            'request.invigilators'    => 'required|min:1|array',
         ];
 
         if ($this->isAssessmentType()) {
@@ -63,11 +63,16 @@ class TestPlanModal extends ModalComponent
             }
         }
 
-        if($user->isValidExamCoordinator(false) && empty($this->request['owner_id'])){
+        if ($user->isValidExamCoordinator(false) && empty($this->request['owner_id'])) {
             $rules['request.owner_id'] = 'required';
         }
 
         return $rules;
+    }
+
+    protected function getMessages()
+    {
+        return ['request.invigilators.required' => __('validation.invigilator_required')];
     }
 
 
@@ -114,9 +119,9 @@ class TestPlanModal extends ModalComponent
             $t->setAttribute('test_take_status_id', TestTakeStatus::STATUS_TAKING_TEST);
         }
 
-        if(auth()->user()->isValidExamCoordinator(false)){
+        if (auth()->user()->isValidExamCoordinator(false)) {
             $t->setAttribute('user_id', $this->request['owner_id']);
-        }else{
+        } else {
             $t->setAttribute('user_id', auth()->id());
         }
 
@@ -134,14 +139,15 @@ class TestPlanModal extends ModalComponent
         $this->afterPlanningToast($testTake);
     }
 
-    private function afterPlanningToast(TestTake $testTake){
+    private function afterPlanningToast(TestTake $testTake)
+    {
         $this->dispatchBrowserEvent('after-planning-toast',
-        [
-            'message'       => __($testTake->isAssessmentType() ? 'teacher.test_take_assignment_planned' : 'teacher.test_take_planned', ['testName' => $testTake->test->name]),
-            'link'          => $testTake->directLink,
-            'takeUuid'      => $testTake->uuid,
-            'is_assessment' => $testTake->isAssessmentType()
-        ]);
+            [
+                'message'       => __($testTake->isAssessmentType() ? 'teacher.test_take_assignment_planned' : 'teacher.test_take_planned', ['testName' => $testTake->test->name]),
+                'link'          => $testTake->directLink,
+                'takeUuid'      => $testTake->uuid,
+                'is_assessment' => $testTake->isAssessmentType()
+            ]);
     }
 
     public function render()
@@ -175,16 +181,24 @@ class TestPlanModal extends ModalComponent
         $this->request['school_classes'] = [];
         $this->request['notify_students'] = true;
 
-        $this->request['invigilators'] = [$this->defaultInvigilator()];
-        $this->request['owner_id'] = $this->defaultInvigilator();
+        $this->request['invigilators'] = $this->defaultInvigilator();
+        $this->request['owner_id'] = $this->defaultOwner();
     }
 
-    private function defaultInvigilator(): int
+    private function defaultInvigilator(): array
     {
-        if($this->authorOfTestIsAnAllowedInvigilator()) {
-            return Auth::user()->isValidExamCoordinator() ? $this->test->author_id : Auth::id();
+        return Auth::user()->isValidExamCoordinator() ? [] : [Auth::id()];
+    }
+
+    private function defaultOwner(): int
+    {
+        if (!Auth::user()->isValidExamCoordinator()) {
+            return Auth::id();
         }
-        
+        if ($this->authorOfTestIsAnAllowedInvigilator()) {
+            return $this->test->author_id;
+        }
+
         return $this->allowedInvigilators->first()['value'];
     }
 
@@ -194,5 +208,18 @@ class TestPlanModal extends ModalComponent
     private function authorOfTestIsAnAllowedInvigilator(): bool
     {
         return $this->allowedInvigilators->contains(fn($user) => $user['value'] === $this->test->author_id);
+    }
+
+
+    private function getAllowedInvigilators()
+    {
+        /*TODO: Fix this check for published items */
+        if (filled($this->test->scope)) {
+            $query = Teacher::getTeacherUsersForSchoolLocationByBaseSubjectInCurrentYear(Auth::user()->schoolLocation, $this->test->subject()->value('base_subject_id'));
+        } else {
+            $query = Teacher::getTeacherUsersForSchoolLocationBySubjectInCurrentYear(Auth::user()->schoolLocation, $this->test->subject_id);
+        }
+
+        return $query->get()->map(fn($teacher) => ['value' => $teacher->id, 'label' => $teacher->name_full]);
     }
 }
