@@ -552,10 +552,8 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
             // Dit zorgt ervoor dat er dus geen school_location_user records werden aangemaakt;
             // Uitzoeken -- RR 12-10-2022
 //            if ($user->isA('teacher') && !is_null($user->school_location_id)) {
-            if ($user->roles()->first()->getKey() === Role::TEACHER && !is_null($user->school_location_id)) {
-                if ($schoolLocation = SchoolLocation::find($user->school_location_id)) {
-                    $user->addSchoolLocation($schoolLocation);
-                }
+            if ($user->roles()->first()->getKey() === Role::TEACHER) {
+                $user->handleSchoolLocationsForNewTeacher();
             }
 
         });
@@ -2671,5 +2669,20 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
             'user_id' => $this->getKey(),
             'school_location_id' => $this->school_location_id,
         ]);
+    }
+
+    private function handleSchoolLocationsForNewTeacher()
+    {
+        if ($schoolLocation = SchoolLocation::find($this->school_location_id)) {
+            $this->addSchoolLocation($schoolLocation);
+
+//            if ($this->isSchoolExamCoordinator()) {
+//                if ($schoolId = $schoolLocation->school_id) {
+//                    $locations = SchoolLocation::whereSchoolId($schoolId)->get();
+//
+//
+//                }
+//            }
+        }
     }
 }
