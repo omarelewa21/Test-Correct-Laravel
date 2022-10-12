@@ -287,10 +287,13 @@ export class Entry extends sidebarComponent {
     }
 
     disable() {
-        for (const btn of Object.values(this.btns)) {
-            btn.disabled = true;
+        try {
+            for (const btn of Object.values(this.btns)) {
+                btn.disabled = true;
+            }
+            this.entryContainer.draggable = false;
+        } catch (error) {
         }
-        this.entryContainer.draggable = false;
     }
 
     enable() {
@@ -584,7 +587,11 @@ export class Layer extends sidebarComponent {
             if (!confirm(`Alle vormen op deze laag (${this.props.name}) verwijderen?`)) return;
         }
         Object.values(this.shapes).forEach((shape) => {
-            shape.sidebar.remove();
+            try {
+                shape.sidebar.remove();
+            } catch (error) {
+                return;
+            }
         });
         this.shapes = {};
         this.svg.innerHTML = '';
