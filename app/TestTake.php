@@ -464,7 +464,7 @@ class TestTake extends BaseModel
             ['userId' => $userToCheck->getKey(), 'testTakeId' => $this->getKey()]
         ));
 
-        return ($value > 0 && $userToCheck->hasAccessToTest($this->test)) || $this->isInvigilator($userToCheck) || $this->isScheduledByUser($userToCheck);
+        return ($value > 0 && $userToCheck->hasAccessToTest($this->test)) || $this->isInvigilator($userToCheck) || $this->isScheduledByUser($userToCheck) || $this->isTakeOwner($userToCheck);
     }
 
     public function fill(array $attributes)
@@ -1210,4 +1210,17 @@ class TestTake extends BaseModel
     {
         return optional(User::select(['id', 'name', 'name_suffix', 'name_first'])->whereId($this->scheduled_by)->first())->name_full;
     }
+<<<<<<< Updated upstream
+=======
+
+    public function isAssessmentType()
+    {
+        return $this->test->test_kind_id == TestKind::ASSESSMENT_TYPE;
+    }
+
+    public function isTakeOwner(User $user): bool
+    {
+        return $this->user_id === $user->getKey();
+    }
+>>>>>>> Stashed changes
 }
