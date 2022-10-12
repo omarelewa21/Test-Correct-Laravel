@@ -36,7 +36,7 @@ trait WithTeacherMenu
             'action'   => [
                 'directive'  => 'wire',
                 'method'     => 'cakeRedirect',
-                'parameters' => 'results'
+                'parameters' => 'results.rated'
             ]
         ];
         $menus['analyses'] = [
