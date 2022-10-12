@@ -73,7 +73,7 @@ class NavigationBar extends Component
                 'results',
             ],
             'tiles' => [
-                'tests'   => ['my-uploads'],
+                'tests'   => ['my-uploads','question-bank','create-test'],
                 'planned' => ['invigilating', 'ongoing-assignments'],
             ]
         ];
