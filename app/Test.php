@@ -1128,18 +1128,7 @@ class Test extends BaseModel
 
     private function handleExamCoordinatorFilter(&$query, $user)
     {
-        if ($user->is_examcoordinator_for === 'SCHOOL_LOCATION') {
-            return $query->where('owner_id', $user->school_location_id);
-        }
-
-        if ($user->is_examcoordinator_for === 'SCHOOL') {
-            return $query->whereIn(
-                'owner_id',
-                SchoolLocation::select('id')
-                    ->where('school_id', $user->schoolLocation->school_id)
-            );
-        }
-        return $query;
+        return $query->where('owner_id', $user->school_location_id);
     }
 
     public function canPlan(User $user)
