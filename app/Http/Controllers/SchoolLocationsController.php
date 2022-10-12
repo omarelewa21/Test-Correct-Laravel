@@ -101,7 +101,7 @@ class SchoolLocationsController extends Controller {
      */
     public function update(SchoolLocation $schoolLocation, UpdateSchoolLocationRequest $request)
     {
-        if($request->school_id != $schoolLocation->school_id){
+        if($request->has('school_id') && $request->school_id != $schoolLocation->school_id){
             $schoolLocation->sharedSections()->detach();
             $schoolLocation->schoolLocationSections->each(function(SchoolLocationSection $sharedSection){
                 SchoolLocationSharedSection::where('section_id', $sharedSection->section_id)->delete();
