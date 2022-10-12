@@ -11033,12 +11033,14 @@ var Entry = /*#__PURE__*/function (_sidebarComponent) {
   }, {
     key: "disable",
     value: function disable() {
-      for (var _i = 0, _Object$values = Object.values(this.btns); _i < _Object$values.length; _i++) {
-        var btn = _Object$values[_i];
-        btn.disabled = true;
-      }
+      try {
+        for (var _i = 0, _Object$values = Object.values(this.btns); _i < _Object$values.length; _i++) {
+          var btn = _Object$values[_i];
+          btn.disabled = true;
+        }
 
-      this.entryContainer.draggable = false;
+        this.entryContainer.draggable = false;
+      } catch (error) {}
     }
   }, {
     key: "enable",
@@ -11387,7 +11389,11 @@ var Layer = /*#__PURE__*/function (_sidebarComponent2) {
       }
 
       Object.values(this.shapes).forEach(function (shape) {
-        shape.sidebar.remove();
+        try {
+          shape.sidebar.remove();
+        } catch (error) {
+          return;
+        }
       });
       this.shapes = {};
       this.svg.innerHTML = '';
