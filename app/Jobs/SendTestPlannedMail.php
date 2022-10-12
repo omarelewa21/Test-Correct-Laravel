@@ -66,7 +66,7 @@ class SendTestPlannedMail extends Job implements ShouldQueue
                 }
                 $mailer->send('emails.test_planned',
                     ['testParticipant' => $testParticipant, 'directlink' => $testTake->directLink, 'takeCode' => $takeCode, 'is_assessment' => $is_assessment],
-                    function ($mail) use ($testParticipant) {
+                    function ($mail) use ($testParticipant, $is_assessment) {
                         $mail->to($testParticipant->user->username, $testParticipant->user->getNameFullAttribute())->subject( $is_assessment ? __('test_planned.assignment_planned') : __('test_planned.Toetsafname ingepland.'));
                 });
             }
@@ -75,7 +75,7 @@ class SendTestPlannedMail extends Job implements ShouldQueue
                 if($invigilator->user->username !== $testTake->user->username){
                     $mailer->send('emails.teacher_test_planned',
                         ['user' => $invigilator->user, 'testTake' => $testTake, 'directlink' => $testTake->directLink, 'is_invigilator' => true, 'takeCode' => $takeCode, 'is_assessment' => $is_assessment],
-                        function ($mail) use ($invigilator) {
+                        function ($mail) use ($invigilator, $is_assessment) {
                             $mail->to($invigilator->user->username, $invigilator->user->getNameFullAttribute())->subject($is_assessment ? __('test_planned.assignment_planned') : __('test_planned.Toetsafname ingepland.'));
                     });
                 }
