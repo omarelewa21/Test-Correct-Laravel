@@ -577,14 +577,17 @@ document.addEventListener('alpine:init', () => {
                 refreshChoices()
 
                 this.$refs.select.addEventListener('choice', (event) => {
+                    if (!Array.isArray(this.value)) {
+                        this.value = event.detail.choice.value;
+                        return;
+                    }
                     if (this.value.includes(parseInt(event.detail.choice.value))) {
                         this.removeFilterItem(choices.getValue().find(value => value.value === event.detail.choice.value));
                     }
                 })
                 this.$refs.select.addEventListener('change', () => {
-                    this.value = choices.getValue(true)
-                    // This causes 2 update calls:
-                    // this.wireModel = this.value;
+                    if (!Array.isArray(this.value)) return;
+                    this.value = choices.getValue(true);
                 })
 
                 let eventName = 'removeFrom' + this.$root.dataset.modelName;
@@ -601,6 +604,7 @@ document.addEventListener('alpine:init', () => {
         },
 
         removeFilterItem(item) {
+            if (!Array.isArray(this.value)) return;
             this.value = this.wireModel = this.value.filter(itemValue => itemValue !== item.value);
             this.clearFilterPill(item.value);
         },
@@ -610,6 +614,7 @@ document.addEventListener('alpine:init', () => {
         },
 
         handleActiveFilters(choicesValues) {
+            if (!Array.isArray(this.value)) return;
             this.value.forEach(item => {
                 if (this.needsFilterPill(item)) {
                     const cItem = choicesValues.find(value => value.value === item);

@@ -4,20 +4,13 @@
     </x-slot>
     <x-slot name="body">
         <div class="email-section mb-4 w-full">
-            @if($errors->count())
-                <div class="notification stretched error mt-4">
-                    @error('request.school_classes')
-                    <div class="title">{{ $message }}</div>
-                    @enderror
-                    @error('request.weight')
-                    <div class="title">{{ $message }}</div>
-                    @enderror
-                    @error('request.date')
-                    <div class="title">{{ $message }}</div>
-                    @enderror
-                    @error('request.owner_id')
-                    <div class="title">{{ $message }}</div>
-                    @enderror
+            @if($errors->isNotEmpty())
+                <div class="flex flex-col gap-2.5 w-full">
+                    @foreach($errors->all() as $error)
+                        <div class="notification error stretched w-full">
+                            <span class="title">{{ $error }}</span>
+                        </div>
+                    @endforeach
                 </div>
             @endif
             <div class="mb-4">
@@ -63,17 +56,19 @@
                 @if (auth()->user()->is_examcoordinator)
                     <div class="input-section" x-data>
                         <div class="name flex">
-                            <label for="owner_id">{{ __('plan-test-take.plan_test_for') }}:</label>
+                            <label for="choices_invigilators">{{ __('plan-test-take.plan_test_for') }}</label>
                         </div>
                         <div class="name flex mb-4">
-                            <x-input.select
-                                    wire:model="request.owner_id"
-                                    id="owner_id"
-                            >
-                                @foreach($allowedInvigilators as $teacher)
-                                    <option value="{{ $teacher['value'] }}">{!! $teacher['label'] !!}</option>
-                                @endforeach
-                            </x-input.select>
+                            <x-input.choices-select :multiple="false"
+                                                    :options="$this->allowedInvigilators"
+                                                    :withSearch="true"
+                                                    placeholderText="{{ __('plan-test-take.plan_test_for') }}"
+                                                    wire:model="request.owner_id"
+                                                    filterContainer="selected_owner"
+                                                    id="choices_owner"
+                            />
+
+                            <div id="selected_owner" wire:ignore class="space-x-4 ml-4"></div>
                         </div>
                     </div>
                 @endif
@@ -107,6 +102,7 @@
                                             wire:model="request.invigilators"
                                             filterContainer="selected_invigilators"
                                             id="choices_invigilators"
+                                            hasErrors="{{ $this->getErrorBag()->has('request.invigilators') ? 'true': '' }}"
                     />
 
                     <div id="selected_invigilators" wire:ignore class="space-x-4 ml-4"></div>

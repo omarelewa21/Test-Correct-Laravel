@@ -6265,6 +6265,11 @@ document.addEventListener('alpine:init', function () {
           refreshChoices();
 
           _this16.$refs.select.addEventListener('choice', function (event) {
+            if (!Array.isArray(_this16.value)) {
+              _this16.value = event.detail.choice.value;
+              return;
+            }
+
             if (_this16.value.includes(parseInt(event.detail.choice.value))) {
               _this16.removeFilterItem(choices.getValue().find(function (value) {
                 return value.value === event.detail.choice.value;
@@ -6273,6 +6278,7 @@ document.addEventListener('alpine:init', function () {
           });
 
           _this16.$refs.select.addEventListener('change', function () {
+            if (!Array.isArray(_this16.value)) return;
             _this16.value = choices.getValue(true); // This causes 2 update calls:
             // this.wireModel = this.value;
           });
@@ -6296,6 +6302,7 @@ document.addEventListener('alpine:init', function () {
         });
       },
       removeFilterItem: function removeFilterItem(item) {
+        if (!Array.isArray(this.value)) return;
         this.value = this.wireModel = this.value.filter(function (itemValue) {
           return itemValue !== item.value;
         });
@@ -6307,6 +6314,7 @@ document.addEventListener('alpine:init', function () {
       handleActiveFilters: function handleActiveFilters(choicesValues) {
         var _this17 = this;
 
+        if (!Array.isArray(this.value)) return;
         this.value.forEach(function (item) {
           if (_this17.needsFilterPill(item)) {
             var cItem = choicesValues.find(function (value) {
