@@ -31,7 +31,7 @@ class InvigilatorsController extends Controller
 
     public static function getInvigilatorList()
     {
-        $fields = ['id', 'name_first', 'name_suffix', 'name','uuid'];
+        $fields = ['users.id as id', 'name_first', 'name_suffix', 'name'];
 
         $query = Teacher::getTeacherUsersForSchoolLocationInCurrentYear(Auth::user()->schoolLocation);
 
@@ -68,7 +68,7 @@ class InvigilatorsController extends Controller
 //                DB::table('school_location_user')->select('user_id')->where('school_location_id', $user['school_location_id']))
 //        );
 
-        return $query->get($fields)->keyBy('id');
+        return $query->select($fields)->get($fields)->keyBy('id');
     }
 
 }
