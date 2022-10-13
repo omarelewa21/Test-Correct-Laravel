@@ -44,6 +44,7 @@ trait ExamCoordinator
 
         if ($scope === 'SCHOOL_LOCATION') {
             $this->removeSchoolLocationsExceptTheOneFromSchoolManager($schoolManager);
+            $this->addSchoolLocation($schoolManager->schoolLocation);
         }
 
         if ($scope === 'SCHOOL') {
