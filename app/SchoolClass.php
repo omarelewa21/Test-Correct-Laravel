@@ -399,6 +399,7 @@ class SchoolClass extends BaseModel implements AccessCheckable
                             ->join('teachers', 'teachers.class_id', '=', 'sc2.id')
                             ->where('teachers.subject_id', $value)
                     );
+                    break;
                 case 'base_subject_id':
                     $query->whereIn('id',
                         DB::table('school_classes as sc2')
