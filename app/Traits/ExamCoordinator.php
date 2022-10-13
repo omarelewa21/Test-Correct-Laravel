@@ -18,14 +18,14 @@ trait ExamCoordinator
 
         $schoolManager = Auth::user();
 
-        if ($this->isDirty('is_examcoordinator')) {
+        if ($this->isDirty('is_examcoordinator') || $this->wasRecentlyCreated) {
             if (!(!!$this->getAttribute('is_examcoordinator'))) {
                 $this->setAttribute('is_examcoordinator_for', 'NONE');
             }
             // Doe iets met de waarde?
         }
 
-        if ($this->isDirty('is_examcoordinator') || $this->isDirty('is_examcoordinator_for')) {
+        if ($this->isDirty('is_examcoordinator') || $this->isDirty('is_examcoordinator_for') || ($this->wasRecentlyCreated && $this->getAttribute('is_examcoordinator'))) {
             $this->handleExamCoordinatorForScopeChange($schoolManager, $this->getAttribute('is_examcoordinator_for'));
         }
     }
@@ -40,17 +40,19 @@ trait ExamCoordinator
         if ($scope === 'NONE') {
             $this->setAttribute('is_examcoordinator', 0);
             $this->removeSchoolLocationsExceptTheOneFromSchoolManager($schoolManager);
+            $this->refresh();
+            $this->addSchoolLocation($schoolManager->schoolLocation);
         }
 
         if ($scope === 'SCHOOL_LOCATION') {
             $this->removeSchoolLocationsExceptTheOneFromSchoolManager($schoolManager);
+            $this->refresh();
             $this->addSchoolLocation($schoolManager->schoolLocation);
         }
 
         if ($scope === 'SCHOOL') {
-            $schoolLocations = $schoolManager->schoolLocation->school->schoolLocations;
-
-            $schoolLocations->each(function ($location) {
+            $this->refresh();
+            $schoolManager->schoolLocation->school->schoolLocations->each(function ($location) {
                 $this->addSchoolLocation($location);
             });
         }

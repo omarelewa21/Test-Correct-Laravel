@@ -564,7 +564,9 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
                 $user->managerSchoolClasses ??= [];
                 $user->mentorSchoolClasses ??= [];
             }
+        });
 
+        static::saved(function(User $user){
             if($user->isA('Teacher')) {
                 $user->handleExamCoordinatorChange();
             }
