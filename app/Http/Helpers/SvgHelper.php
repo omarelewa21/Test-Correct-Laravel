@@ -83,9 +83,9 @@ class SvgHelper
         $imageElement->setAttribute('class', 'main');
         $imageElement->setAttribute('href', $q->getBackgroundImage());
         $imageElement->setAttribute('identifier', $identifier);
-        $imageElement->setAttribute('width', $width * 5 / 6);
+        $imageElement->setAttribute('width', $width);
         $imageElement->setAttribute('height', $height);
-        $imageElement->setAttribute('x', '-' . $width / 2);
+        $imageElement->setAttribute('x', '-' . $width / 1.5);
         $imageElement->setAttribute('y', '-' . $height / 2);
 
         $groupElement->appendChild($imageElement);
