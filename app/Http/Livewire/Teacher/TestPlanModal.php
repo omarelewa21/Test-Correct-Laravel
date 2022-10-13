@@ -37,7 +37,7 @@ class TestPlanModal extends ModalComponent
 
         $this->allowedPeriods = Period::filtered(['current_school_year' => true])->get();
         $this->allowedInvigilators = $this->getAllowedInvigilators();
-        $this->allowedInvigilators = $this->getAllowedTeachers();
+        $this->allowedTeachers = $this->getAllowedTeachers();
         $this->resetModalRequest();
     }
 
@@ -169,7 +169,7 @@ class TestPlanModal extends ModalComponent
             $this->request['time_end'] = now()->endOfDay();
         }
         $this->request['period_id'] = $this->allowedPeriods->first()->getKey();
-        $this->request['invigilators'] = [auth()->id()];
+//        $this->request['invigilators'] = [auth()->id()];
         $this->request['weight'] = 5;
         $this->request['test_id'] = $this->test->getKey();
         $this->request['allow_inbrowser_testing'] = $this->isAssessmentType() ? 1 : 0;
