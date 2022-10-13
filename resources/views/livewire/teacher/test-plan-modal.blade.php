@@ -60,7 +60,7 @@
                         </div>
                         <div class="name flex mb-4">
                             <x-input.choices-select :multiple="false"
-                                                    :options="$this->allowedInvigilators"
+                                                    :options="$this->allowedTeachers"
                                                     :withSearch="true"
                                                     placeholderText="{{ __('plan-test-take.plan_test_for') }}"
                                                     wire:model="request.owner_id"

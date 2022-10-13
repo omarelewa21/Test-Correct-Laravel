@@ -24,6 +24,7 @@ class TestPlanModal extends ModalComponent
     public $allowedPeriods;
 
     public $allowedInvigilators = [];
+    public $allowedTeachers = [];
 
     public $request = ['date' => '', 'schoolClasses' => [], 'invigilators' => []];
 
@@ -36,6 +37,7 @@ class TestPlanModal extends ModalComponent
 
         $this->allowedPeriods = Period::filtered(['current_school_year' => true])->get();
         $this->allowedInvigilators = $this->getAllowedInvigilators();
+        $this->allowedInvigilators = $this->getAllowedTeachers();
         $this->resetModalRequest();
     }
 
@@ -209,15 +211,28 @@ class TestPlanModal extends ModalComponent
         return $this->allowedInvigilators->contains(fn($user) => $user['value'] === $this->test->author_id);
     }
 
-
-    private function getAllowedInvigilators()
+    private function getAllowedTeachers()
     {
-        /*TODO: Fix this check for published items */
+//        /*TODO: Fix this check for published items */
         if (filled($this->test->scope)) {
             $query = Teacher::getTeacherUsersForSchoolLocationByBaseSubjectInCurrentYear(Auth::user()->schoolLocation, $this->test->subject()->value('base_subject_id'));
         } else {
             $query = Teacher::getTeacherUsersForSchoolLocationBySubjectInCurrentYear(Auth::user()->schoolLocation, $this->test->subject_id);
         }
+
+        return $query->get()->map(fn($teacher) => ['value' => $teacher->id, 'label' => $teacher->name_full]);
+    }
+
+    private function getAllowedInvigilators()
+    {
+        // invigilators shouldn't be restricted to subject, those users could get to the test anyway
+        $query = Teacher::getTeacherUsersForSchoolLocationInCurrentYear(Auth::user()->schoolLocation);
+//        /*TODO: Fix this check for published items */
+//        if (filled($this->test->scope)) {
+//            $query = Teacher::getTeacherUsersForSchoolLocationByBaseSubjectInCurrentYear(Auth::user()->schoolLocation, $this->test->subject()->value('base_subject_id'));
+//        } else {
+//            $query = Teacher::getTeacherUsersForSchoolLocationBySubjectInCurrentYear(Auth::user()->schoolLocation, $this->test->subject_id);
+//        }
 
         return $query->get()->map(fn($teacher) => ['value' => $teacher->id, 'label' => $teacher->name_full]);
     }

@@ -192,6 +192,18 @@ class Teacher extends BaseModel
 
     }
 
+    public static function getTeacherUsersForSchoolLocationInCurrentYear(SchoolLocation $schoolLocation)
+    {
+        return self::getTeacherUsersForSchoolLocation($schoolLocation)
+            ->where(function ($query){
+                $query->whereIn(
+                    'teachers.class_id',
+                    SchoolClass::select('id')->whereSchoolYearId(SchoolYearRepository::getCurrentSchoolYear()->getKey())->whereDemo(0)
+                );
+            });
+
+    }
+
     public static function getTeacherUsersForSchoolLocationBySubjectInCurrentYear(SchoolLocation $schoolLocation, $subjectId)
     {
         return self::getTeacherUsersForSchoolLocation($schoolLocation)
@@ -201,7 +213,7 @@ class Teacher extends BaseModel
                     $subjectId
                 )->whereIn(
                     'teachers.class_id',
-                    SchoolClass::select('id')->whereSchoolYearId(SchoolYearRepository::getCurrentSchoolYear()->getKey())
+                    SchoolClass::select('id')->whereSchoolYearId(SchoolYearRepository::getCurrentSchoolYear()->getKey())->whereDemo(0)
                 );
             });
 
