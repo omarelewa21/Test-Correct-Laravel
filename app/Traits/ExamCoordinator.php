@@ -25,7 +25,7 @@ trait ExamCoordinator
             // Doe iets met de waarde?
         }
 
-        if ($this->isDirty('is_examcoordinator_for')) {
+        if ($this->isDirty('is_examcoordinator') || $this->isDirty('is_examcoordinator_for')) {
             $this->handleExamCoordinatorForScopeChange($schoolManager, $this->getAttribute('is_examcoordinator_for'));
         }
     }
@@ -44,12 +44,13 @@ trait ExamCoordinator
 
         if ($scope === 'SCHOOL_LOCATION') {
             $this->removeSchoolLocationsExceptTheOneFromSchoolManager($schoolManager);
+            $this->addSchoolLocation($schoolManager->schoolLocation);
         }
 
         if ($scope === 'SCHOOL') {
-            $school = $schoolManager->schoolLocation->school->with('schoolLocations')->first();
+            $schoolLocations = $schoolManager->schoolLocation->school->schoolLocations;
 
-            $school->schoolLocations->each(function ($location) {
+            $schoolLocations->each(function ($location) {
                 $this->addSchoolLocation($location);
             });
         }
