@@ -747,7 +747,9 @@ document.addEventListener('alpine:init', () => {
                 });
 
                 chart.listen("pointsSelect", function (e) {
-                    window.open(e.point.get('link'), '_self');
+                    if (e.point.get('link')) {
+                        window.open(e.point.get('link'), '_self');
+                    }
                 });
 
                 // // set container id for the chart
@@ -938,7 +940,9 @@ document.addEventListener('alpine:init', () => {
                 });
 
                 chart.listen("pointsSelect", function (e) {
-                    window.open(e.point.get('link'), '_self');
+                    if (e.point.get('link')) {
+                        window.open(e.point.get('link'), '_self');
+                    }
                 });
 
                 chart.interactivity("by-x");

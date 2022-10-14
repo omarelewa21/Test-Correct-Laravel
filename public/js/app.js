@@ -6423,7 +6423,9 @@ document.addEventListener('alpine:init', function () {
           });
         });
         chart.listen("pointsSelect", function (e) {
-          window.open(e.point.get('link'), '_self');
+          if (e.point.get('link')) {
+            window.open(e.point.get('link'), '_self');
+          }
         }); // // set container id for the chart
 
         chart.container('pValueChart'); // initiate chart drawing
@@ -6577,7 +6579,9 @@ document.addEventListener('alpine:init', function () {
           });
         });
         chart.listen("pointsSelect", function (e) {
-          window.open(e.point.get('link'), '_self');
+          if (e.point.get('link')) {
+            window.open(e.point.get('link'), '_self');
+          }
         });
         chart.interactivity("by-x"); // set container id for the chart
 
