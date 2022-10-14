@@ -27,7 +27,7 @@
         <div class="flex flex-row">
 
             @foreach(['tests', 'assignments'] as $kind)
-                <div class="md:w-1/3 mr-5 gap-4 flex flex-col" x-data="{pValue: {{ number_format($generalStats[$kind.'_pvalue_average'], 2)  }} }">
+                <div class="flex-1 gap-4 flex flex-col" x-data="{pValue: {{ number_format($generalStats[$kind.'_pvalue_average'], 2)  }} }">
                     <div class="flex flex-col">
                         <span>{{ __('student.aantal '. $kind. ' gemaakt')}}</span>
                         <span class="bold">{{ $generalStats[$kind.'_taken'] }}</span>
