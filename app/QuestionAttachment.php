@@ -104,8 +104,8 @@ class QuestionAttachment extends CompositePrimaryKeyModel {
     public function getJsonPropertyValue($propertyName)
     {
         $json = null;
-        if ($this->json) {
-            $json = json_decode($this->json);
+        if ($this->options) {
+            $json = json_decode($this->options);
         }
 
         if ($json != null && property_exists($json, $propertyName)) {
