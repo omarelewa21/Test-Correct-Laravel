@@ -129,4 +129,9 @@ class AnalysesSubjectDashboard extends AnalysesDashboard
     {
         return redirect(route('student.analyses.show'));
     }
+
+    public function showGrades()
+    {
+        return redirect(route('student.test-takes', ['tab' => 'graded']));
+    }
 }
