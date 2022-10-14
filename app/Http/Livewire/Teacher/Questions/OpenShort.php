@@ -664,7 +664,6 @@ class OpenShort extends Component implements QuestionCms
 
         $questionAttachment->update(['options' => json_encode($json)]);
 
-//        $attachment->save();
         $attachment->load(['questionAttachments']);
     }
 
