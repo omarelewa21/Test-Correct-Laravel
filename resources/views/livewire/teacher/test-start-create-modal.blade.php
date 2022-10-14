@@ -1,6 +1,6 @@
 <x-modal-new>
     <x-slot name="title">
-        {{__("Hoe wil je een toets creëren?")}}
+        {{__("cms.create_test_how_title")}}
     </x-slot>
     <x-slot name="body">
         <div class="flex px-1">
@@ -70,12 +70,11 @@
                         </svg>
 
                     </div>
-                    <h4 class="w-full text-center leading-8">{{__("Toets Construeren")}}</h4>
-                    <div class="w-full text-center">{{__("Ga zelf aan de slag met het maken van een toets")}}</div>
-                    <small class="w-full text-center mb-4 mt-3">{{__("Stel jouw toets in en zet jouw toets op met vraaggroepen en
-                        vragen")}}</small>
+                    <h4 class="w-full text-center leading-8">{{__("cms.construct_test")}}</h4>
+                    <div class="w-full text-center">{{__("cms.create_your_own_test")}}</div>
+                    <small class="w-full text-center mb-4 mt-3">{{__("cms.setup_your_own_test")}}</small>
                     <div class="w-full text-center">
-                        <x-button.cta wire:click="$emit('openModal', 'teacher.test-create-modal')">{{__("Toets Construeren")}}</x-button.cta>
+                        <x-button.cta wire:click="$emit('openModal', 'teacher.test-create-modal')">{{__("cms.construct_test")}}</x-button.cta>
                     </div>
                 </div>
 
@@ -131,14 +130,13 @@
                         </svg>
 
                     </div>
-                    <h4 class="w-full text-center leading-8">{{__("Toets uploaden")}}</h4>
-                    <subtitle class="w-full text-center">{{__("Laat een bestaande toets digitaliseren")}}</subtitle>
-                    <small class="w-full text-center mb-4 mt-3">{{__("Gelieve aan te leveren als:")}}
-                        <br> {{__("PDF, Word, Wintoets")}}</small>
+                    <h4 class="w-full text-center leading-8">{{__("cms.upload_test")}}</h4>
+                    <subtitle class="w-full text-center">{{__("cms.digitize_test")}}</subtitle>
+                    <small class="w-full text-center mb-4 mt-3">{!! __("cms.supply_test_as")!!}</small>
                     <div class="w-full text-center"
 
                     >
-                        <x-button.cta wire:click="goToUploadTest()">{{__("Toets uploaden")}}</x-button.cta>
+                        <x-button.cta wire:click="goToUploadTest()">{{__("cms.upload_test")}}</x-button.cta>
                     </div>
                 </div>
 

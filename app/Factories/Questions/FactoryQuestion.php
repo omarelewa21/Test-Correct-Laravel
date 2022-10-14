@@ -5,9 +5,15 @@ namespace tcCore\Factories\Questions;
 use Carbon\Carbon;
 use Illuminate\Support\Collection;
 use Livewire\TemporaryUploadedFile;
+use tcCore\Attainment;
 use tcCore\Factories\Interfaces\FactoryQuestion as FactoryQuestionInterface;
 use tcCore\Http\Controllers\TestQuestions\AttachmentsController;
 use tcCore\Http\Requests\CreateAttachmentRequest;
+use tcCore\Lib\Repositories\PValueRepository;
+use tcCore\Lib\Repositories\PValueTaxonomyBloomRepository;
+use tcCore\Lib\Repositories\PValueTaxonomyMillerRepository;
+use tcCore\Lib\Repositories\PValueTaxonomyRTTIRepository;
+use tcCore\Subject;
 use tcCore\Test;
 use tcCore\TestQuestion;
 use tcCore\User;
@@ -44,11 +50,66 @@ abstract class FactoryQuestion implements FactoryQuestionInterface
         return $this;
     }
 
+    public function addRandomAttainmentsBySubject()
+    {
+        if ($this->questionProperties['attainments'] == []) {
+            $attainments = [];
+            $randomAttainmentForBaseSubject = Attainment::where(
+                'base_subject_id',
+                $this->testModel->subject->base_subject_id
+            )->whereNull('attainment_id')
+                ->where('education_level_id', $this->testModel->education_level_id)
+                ->pluck('id')
+                ->whenNotEmpty(fn($q) => $q->random(1))
+                ->first();
+
+            if ($randomAttainmentForBaseSubject) {
+                $attainments[] = $randomAttainmentForBaseSubject;
+
+
+                $subattainment = Attainment::where('attainment_id', $randomAttainmentForBaseSubject)
+                    ->pluck('id')
+                    ->whenNotEmpty(fn($q) => $q->random(1))
+                    ->first();
+                if ($subattainment) {
+                    $attainments[] = $subattainment;
+                }
+
+                $this->questionProperties = array_merge($this->questionProperties, [
+                    'attainments' => $attainments
+                ]);
+            }
+        }
+        return $this;
+    }
+
+    public function addRandomTaxonomy($rtti = true, $miller = true, $bloom = true)
+    {
+        $taxonomy = [];
+        if ($this->questionProperties['rtti'] == "" && $rtti) {
+            $taxonomy['rtti'] = collect(PValueTaxonomyRTTIRepository::OPTIONS)->random();
+        }
+        if ($this->questionProperties['miller'] == "" && $miller) {
+            $taxonomy['miller'] = collect(PValueTaxonomyMillerRepository::OPTIONS)->random();
+        }
+        if ($this->questionProperties['bloom'] == "" && $bloom) {
+            $taxonomy['bloom'] = collect(PValueTaxonomyBloomRepository::OPTIONS)->random();
+        }
+
+        $this->questionProperties = array_merge($this->questionProperties, $taxonomy);
+
+        return $this;
+    }
+
     public function store()
     {
+//        $this->addRandomAttainmentsBySubject();
+        $this->addRandomTaxonomy();
+
         $this->questionProperties = array_merge(
             $this->questionProperties,
             ['test_id' => $this->testModel->id],
+            ['owner_id' => $this->testModel->owner_id],
             $this->calculatedQuestionProperties(),
         );
 

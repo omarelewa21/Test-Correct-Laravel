@@ -38,8 +38,8 @@ class OnboardingWizardReport extends Model
             'last_test_created_date'                      => self::getLastTestCreatedDate($user),
             'user_created_at'                             => $user->created_at,
             'user_last_login'                             => $user->last_login,
-            'school_location_name'                        => ($user->schoolLocation) ? $user->schoolLocation->name : sprintf('SCHOOLLOCATIE VERWIJDERD: %s',$user->schoolLocation()->withTrashed()->first()->name),
-            'school_location_customer_code'               => ($user->schoolLocation) ? $user->schoolLocation->customer_code : sprintf('SCHOOLLOCATIE VERWIJDERD: %s',$user->schoolLocation()->withTrashed()->first()->customer_code),
+            'school_location_name'                        => ($user->schoolLocation) ? $user->schoolLocation->name : sprintf('SCHOOLLOCATIE VERWIJDERD: %s', $user->schoolLocation()->withTrashed()->first()->name),
+            'school_location_customer_code'               => ($user->schoolLocation) ? $user->schoolLocation->customer_code : sprintf('SCHOOLLOCATIE VERWIJDERD: %s', $user->schoolLocation()->withTrashed()->first()->customer_code),
             'test_items_created_amount'                   => $helper->nrAddedQuestionItems(0),//self::getTestItemsCreatedAmount($user),
             'tests_created_amount'                        => self::getTestsCreatedAmount($user),
             'first_test_planned_date'                     => self::getFirstTestPlannedDate($user),
@@ -76,47 +76,48 @@ class OnboardingWizardReport extends Model
             'nr_uploaded_test_files_30'                   => $helper->nrUploadedTestFiles(30),
             'nr_uploaded_test_files_60'                   => $helper->nrUploadedTestFiles(60),
             'nr_uploaded_test_files_90'                   => $helper->nrUploadedTestFiles(90),
-            'nr_uploaded_test_files_365'                   => $helper->nrUploadedTestFiles(365),
+            'nr_uploaded_test_files_365'                  => $helper->nrUploadedTestFiles(365),
             'nr_uploaded_test_files_total'                => $helper->nrUploadedTestFiles(0),
             'nr_added_question_items_7'                   => $helper->nrAddedQuestionItems(7),
             'nr_added_question_items_30'                  => $helper->nrAddedQuestionItems(30),
             'nr_added_question_items_60'                  => $helper->nrAddedQuestionItems(60),
             'nr_added_question_items_90'                  => $helper->nrAddedQuestionItems(90),
-            'nr_added_question_items_365'                  => $helper->nrAddedQuestionItems(365),
+            'nr_added_question_items_365'                 => $helper->nrAddedQuestionItems(365),
             'nr_added_question_items_total'               => $helper->nrAddedQuestionItems(0),
             'nr_uploaded_classes_7'                       => $helper->nrUploadedClassFiles(7),
             'nr_uploaded_classes_30'                      => $helper->nrUploadedClassFiles(30),
-            'nr_uploaded_classes_60'                       => $helper->nrUploadedClassFiles(60),
+            'nr_uploaded_classes_60'                      => $helper->nrUploadedClassFiles(60),
             'nr_uploaded_classes_90'                      => $helper->nrUploadedClassFiles(90),
-            'nr_uploaded_classes_365'                      => $helper->nrUploadedClassFiles(365),
+            'nr_uploaded_classes_365'                     => $helper->nrUploadedClassFiles(365),
             'nr_uploaded_classes_total'                   => $helper->nrUploadedClassFiles(0),
             'nr_tests_taken_7'                            => $helper->nrTestsTaken(7), // 3.a.1
             'nr_tests_taken_30'                           => $helper->nrTestsTaken(30), // 3.a.1
             'nr_tests_taken_60'                           => $helper->nrTestsTaken(60), // 3.a.1
             'nr_tests_taken_90'                           => $helper->nrTestsTaken(90), // 3.a.1
-            'nr_tests_taken_365'                           => $helper->nrTestsTaken(365), // 3.a.1
+            'nr_tests_taken_365'                          => $helper->nrTestsTaken(365), // 3.a.1
             'nr_test_taken_total'                         => self::getTestsTakenAmount($user), // 3.a.2
 //            'nr_tests_checked_7'                          => $helper->nrTestsChecked(7), // 3.a.1
 //            'nr_tests_checked_30'                         => $helper->nrTestsChecked(30), // 3.a.1
 //            'nr_tests_checked_60'                         => $helper->nrTestsChecked(60), // 3.a.1
 //            'nr_tests_checked_90'                         => $helper->nrTestsChecked(90), // 3.a.1
-//            'nr_tests_checked_365'                         => $helper->nrTestsChecked(365), // 3.a.1
+//            'nr_tests_checked_365'                        => $helper->nrTestsChecked(365), // 3.a.1
 //            'nr_tests_checked_total'                      => $helper->nrTestsChecked(0), // 3.a.2
             'nr_tests_rated_7'                            => $helper->nrTestsRated(7), // 3.a.1
             'nr_tests_rated_30'                           => $helper->nrTestsRated(30), // 3.a.1
             'nr_tests_rated_60'                           => $helper->nrTestsRated(60), // 3.a.1
             'nr_tests_rated_90'                           => $helper->nrTestsRated(90), // 3.a.1
-            'nr_tests_rated_365'                           => $helper->nrTestsRated(365), // 3.a.1
+            'nr_tests_rated_365'                          => $helper->nrTestsRated(365), // 3.a.1
             'nr_tests_rated_total'                        => $helper->nrTestsRated(0), // 3.a.2
-            'nr_colearning_sessions_7'                    => $helper->nrColearningSessions( 7), // 3.a.1
+            'nr_colearning_sessions_7'                    => $helper->nrColearningSessions(7), // 3.a.1
             'nr_colearning_sessions_30'                   => $helper->nrColearningSessions(30), // 3.a.1
             'nr_colearning_sessions_60'                   => $helper->nrColearningSessions(60), // 3.a.1
             'nr_colearning_sessions_90'                   => $helper->nrColearningSessions(90), // 3.a.1
-            'nr_colearning_sessions_365'                   => $helper->nrColearningSessions(365), // 3.a.1
+            'nr_colearning_sessions_365'                  => $helper->nrColearningSessions(365), // 3.a.1
             'nr_colearning_sessions_total'                => $helper->nrColearningSessions(0), // 3.a.2
-            'accepted_general_terms'                => $helper->dateGeneralTermsAccepted(), // 3.a.2
+            'accepted_general_terms'                      => $helper->dateGeneralTermsAccepted(), // 3.a.2
+            'trial_period_end'                            => $helper->dateTrialPeriodEnds(), // 3.a.2
         ];
-        
+
         self::updateOrCreate([
             'user_id' => $user->getKey(),
         ], $updated_data_array);
@@ -230,8 +231,9 @@ ORDER BY t2.displayorder,
 
         User::whereIn('id', Teacher::pluck('user_id')->unique())
             ->where('demo', 0)
+            ->where('username', 'not like', '%@teachandlearncompany.com')
+            ->where('username', 'not like', '%@test-correct.nl')
             ->each(function ($teacher) {
-                
                 if ($teacher->isA('teacher')) {
                     dispatch((new UpdateOnboardingWizardReportRecord($teacher)));
 //                    \tcCore\OnboardingWizardReport::updateForUser($teacher);

@@ -4,6 +4,7 @@ namespace tcCore\Console\Commands;
 
 use Carbon\Carbon;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Hash;
 use tcCore\Log;
 use tcCore\User;
 
@@ -15,7 +16,7 @@ class SetPasswordsForSobit extends Command
      *
      * @var string
      */
-    protected $signature = 'sobit:pw';
+    protected $signature = 'sobit:pw {--password=}';
 
     /**
      * The console command description.
@@ -43,6 +44,11 @@ class SetPasswordsForSobit extends Command
     {
         if(substr_count(env('URL_LOGIN'),'test-correct.test') < 1){
             $this->error('You can not set the passwords other than local');
+            exit;
+        }
+
+        if($this->option('password')){
+            \DB::table('users')->update(['password' => Hash::make($this->option('password'))]);
             exit;
         }
 

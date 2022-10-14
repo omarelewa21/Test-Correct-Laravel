@@ -3,10 +3,10 @@
         <div class="flex w-full justify-between mb-2">
             <div class="flex pr-2.5">
                 @if($question->type === 'GroupQuestion')
-                    <h3 class="line-clamp-2 break-all min-h-[64px] @if(blank($question->name)) italic @endif"
+                    <h3 class="line-clamp-2 word-break-words min-h-[64px] @if(blank($question->name)) italic @endif"
                         title="{!! $question->name !!}">{!! filled($question->name) ? $question->name : __('question.no_question_text') !!} </h3>
                 @else
-                    <h3 class="line-clamp-2 break-all min-h-[64px] @if(blank($question->title)) italic @endif"
+                    <h3 class="line-clamp-2 word-break-words min-h-[64px] @if(blank($question->title)) italic @endif"
                         title="{{ $question->title }}">{{ $question->title ?? __('question.no_question_text') }}</h3>
                 @endif
             </div>
@@ -69,7 +69,7 @@
             </div>
         </div>
         <div>
-            <x-divider-with-title title="Instellingen"/>
+            <x-divider-with-title title="{{ __('cms.Instellingen') }}"/>
             <div>
                 <x-input.toggle-row-with-title :small="true" :disabled="true"
                                                :toolTip="__('cms.close_after_answer_tooltip_text')"
@@ -145,18 +145,18 @@
             </div>
         </div>
         <div>
-            <x-divider-with-title class="-mt-px" title="P-Waarde statistieken"/>
+            <x-divider-with-title class="-mt-px" title="{{ __('cms.p_value_statistics') }}"/>
             <div class="py-3">
                 @forelse($pValues as $pValue)
                     <x-pvalues-small :pValue="$pValue"/>
                 @empty
-                    <span class="note text-sm">Geen statistieken beschikbaar</span>
+                    <span class="note text-sm">{{ __('cms.no_statistics_available') }}</span>
                 @endforelse
             </div>
         </div>
 
         <div>
-            <x-divider-with-title title="Taxonomie"/>
+            <x-divider-with-title title="{{ __('cms.Taxonomie') }}"/>
             <div class=""
                  x-data="{rtti: @js($question->rtti), bloom: @js($question->bloom), miller: @js($question->miller) }"
             >

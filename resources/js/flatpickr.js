@@ -7,23 +7,24 @@ document.addEventListener('alpine:init', () => {
         mode: mode,
         locale: locale,
         minDate: minDate,
+        picker: null,
         init() {
-
-            // if(this.mode == 'range'){
-            //     this.value = ['{{$defaultDate}}', '{{$defaultDateTo}}'];
-            // } else {
-            //     this.value = this.wireModel;
-            // }
-            let picker = flatpickr(this.$refs.datepickr, {
+            this.picker = flatpickr(this.$refs.datepickr, {
                 locale: this.locale,
                 minDate: minDate == 'today' ? 'today' : false,
                 mode: this.mode,
                 defaultDate: this.wireModel,
-                dateFormat: "d-m-Y",
+                // The displayed format is humanreadable, the used date is Y-m-d formatted;
+                altInput: true,
+                altFormat: "d-m-Y",
+                dateFormat: "Y-m-d",
                 onChange: (date, dateString) => {
                    this.wireModel = this.value = this.mode == 'range' ? dateString.split(' t/m ') : dateString; //split t/m or to
                 }
             })
+        },
+        clearPicker() {
+            this.picker.setDate('', false);
         }
     }));
 

@@ -5,28 +5,65 @@ use Illuminate\Foundation\Testing\WithoutMiddleware;
 use Illuminate\Foundation\Testing\DatabaseMigrations;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Support\Facades\Hash;
+use tcCore\BaseSubject;
 use tcCore\Exceptions\Handler;
+use tcCore\FactoryScenarios\FactoryScenarioTestTakeRated;
+use tcCore\FactoryScenarios\FactoryScenarioTestTakeTaken;
+use tcCore\Http\Helpers\ActingAsHelper;
+use tcCore\Lib\Repositories\PValueRepository;
+use tcCore\Period;
+use tcCore\Subject;
 use tcCore\User;
 use Tests\TestCase;
 
 class UserControllerTest extends TestCase
 {
-    use DatabaseTransactions;
+//    use DatabaseTransactions;
+
+    /** @test */
+    public function a_teacher_cannot_be_added_if_no_current_active_period()
+    {
+        $this->withoutExceptionHandling();
+        \tcCore\SchoolLocationSchoolYear::where('school_location_id', 2)->orderby('created_at', 'desc')->first()->delete();
+
+        $data = [
+            'school_location_id' => '2',
+            'name_first'         => 'a',
+            'name_suffix'        => '',
+            'name'               => 'bc',
+            'abbreviation'       => 'abcc',
+            'username'           => 'abc@test-correct.nl',
+            'password'           => 'aa',
+            'external_id'        => 'abc',
+            'note'               => '',
+            'user_roles'         => [1],
+        ];
+
+        $response = $this->post(
+            route('user.store'),
+            static::getRttiSchoolbeheerderAuthRequestData($data)
+        );
+
+        $response->assertStatus(422);
+        $rData = $response->decodeResponseJson();
+        $this->assertEquals('U kunt een docent pas aanmaken nadat u een actuele periode heeft aangemaakt. Dit doet u door als schoolbeheerder in het menu Database -> Schooljaren een schooljaar aan te maken met een periode die in de huidige periode valt.',
+            $rData['errors']['user_roles'][0]);
+
+    }
 
     /** @test */
     public function a_student_cannot_delete_his_own_account()
     {
-//        $this->disableExceptionHandling();
-        $student = User::find(1483);
-        $this->assertTrue($student->hasRole('student'));
+        ActingAsHelper::getInstance()->reset();
 
-//        dd(route('user.destroy'));
-
+//        $this->withoutExceptionHandling();
+        $student = $this->getStudentOne();
+        $this->assertTrue($student->isA('student'));
 
         $this->delete(
-            route('user.destroy', ['user' => $student->getKey()]),
+            route('user.destroy', ['user' => $student->uuid]),
             [
-                'user' => $student->username,
+                'user'         => $student->username,
                 'session_hash' => $student->session_hash,
             ]
         )->assertStatus(403);
@@ -38,7 +75,7 @@ class UserControllerTest extends TestCase
     /** @test */
     public function a_student_can_update_his_own_password()
     {
-        $this->disableExceptionHandling();
+        $this->withoutExceptionHandling();
         $student = User::find(1483);
         $oldPassword = 'm.dehoogh@31.com';
         $student->setAttribute('password', \Hash::make($oldPassword));
@@ -55,13 +92,13 @@ class UserControllerTest extends TestCase
 
         $this->put(
             route('user.update', [
-                'user' => $student->getKey()]),
+                'user' => $student->uuid]),
             [
-                'password_old' => $oldPassword,
-                'password' => $newPassword,
+                'password_old'     => $oldPassword,
+                'password'         => $newPassword,
                 'password_confirm' => $newPassword,
-                'user' => $student->username,
-                'session_hash' => $student->session_hash,
+                'user'             => $student->username,
+                'session_hash'     => $student->session_hash,
             ]
         );
 
@@ -70,53 +107,5 @@ class UserControllerTest extends TestCase
         );
     }
 
-    /** @test */
-    public function a_teacher_cannot_be_added_if_no_current_active_period()
-    {
-//        $this->disableExceptionHandling();
-        \tcCore\SchoolLocationSchoolYear::where('school_location_id',2)->orderby('created_at','desc')->first()->delete();
 
-        $data =[
-            'school_location_id' => '2',
-            'name_first' => 'a',
-            'name_suffix' => '',
-            'name' => 'bc',
-            'abbreviation' => 'abcc',
-            'username' => 'abc@test-correct.nl',
-            'password' => 'aa',
-            'external_id' => 'abc',
-            'note' => '',
-            'user_roles' => [1],
-        ];
-
-        $response = $this->post(
-            '/user',
-            static::getRttiSchoolbeheerderAuthRequestData($data)
-        );
-        $response->assertStatus(422);
-        $rData = $response->decodeResponseJson();
-        $this->assertEquals('U kunt een docent pas aanmaken nadat u een actuele periode heeft aangemaakt. Dit doet u door als schoolbeheerder in het menu Database -> Schooljaren een schooljaar aan te maken met een periode die in de huidige periode valt.',
-            $rData['errors']['user_roles'][0]);
-
-    }
-
-    protected function disableExceptionHandling()
-    {
-        $this->app->instance(ExceptionHandler::class, new class extends Handler
-        {
-            public function __construct()
-            {
-            }
-
-            public function report(Exception $e)
-            {
-                // no-op
-            }
-
-            public function render($request, Exception $e)
-            {
-                throw $e;
-            }
-        });
-    }
 }

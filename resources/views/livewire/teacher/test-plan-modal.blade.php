@@ -4,17 +4,13 @@
     </x-slot>
     <x-slot name="body">
         <div class="email-section mb-4 w-full">
-            @if($errors->count())
-                <div class="notification stretched error mt-4">
-                    @error('request.school_classes')
-                    <div class="title">{{ $message }}</div>
-                    @enderror
-                    @error('request.weight')
-                    <div class="title">{{ $message }}</div>
-                    @enderror
-                    @error('request.date')
-                    <div class="title">{{ $message }}</div>
-                    @enderror
+            @if($errors->isNotEmpty())
+                <div class="flex flex-col gap-2.5 w-full">
+                    @foreach($errors->all() as $error)
+                        <div class="notification error stretched w-full">
+                            <span class="title">{{ $error }}</span>
+                        </div>
+                    @endforeach
                 </div>
             @endif
             <div class="mb-4">
@@ -26,13 +22,13 @@
                 <div class="name flex mb-4 flex-wrap gap-4">
                     <div class="flex flex-1 space-x-4">
                         <x-input.group class="flex flex-1" label="{{ __('teacher.Datum') }}">
-                            <x-input.datepicker wire:model="request.date" locale="nl" min-date="today"/>
+                            <x-input.datepicker wire:model="request.date" locale="nl" minDate="today"/>
                         </x-input.group>
 
 
                         @if ($this->isAssessmentType())
                             <x-input.group class="flex flex-1" label="{{ __('teacher.Datum tot') }}">
-                                <x-input.datepicker wire:model="request.time_end" locale="nl" min-date="today"/>
+                                <x-input.datepicker wire:model="request.time_end" locale="nl" minDate="today"/>
                             </x-input.group>
                         @endif
                     </div>
@@ -57,6 +53,25 @@
                     </div>
                 </div>
             </div>
+                @if (auth()->user()->is_examcoordinator)
+                    <div class="input-section" x-data>
+                        <div class="name flex">
+                            <label for="choices_invigilators">{{ __('plan-test-take.plan_test_for') }}</label>
+                        </div>
+                        <div class="name flex mb-4">
+                            <x-input.choices-select :multiple="false"
+                                                    :options="$this->allowedTeachers"
+                                                    :withSearch="true"
+                                                    placeholderText="{{ __('plan-test-take.plan_test_for') }}"
+                                                    wire:model="request.owner_id"
+                                                    filterContainer="selected_owner"
+                                                    id="choices_owner"
+                            />
+
+                            <div id="selected_owner" wire:ignore class="space-x-4 ml-4"></div>
+                        </div>
+                    </div>
+                @endif
             <div class="input-section" x-data>
                 <div class="name flex">
                     <label for="teachers_and_classes">{{ __('Klassen') }}</label>
@@ -65,11 +80,11 @@
                     <x-input.choices-select :multiple="true"
                                             :options="$this->schoolClasses"
                                             :withSearch="true"
-                                            placeholderText="{!!  __('Klassen') !!}"
+                                            placeholderText="{!!  __('teacher.Klassen') !!}"
                                             wire:model="request.school_classes"
                                             filterContainer="selected_classes"
                                             id="teachers_and_classes"
-                                            hasErrors="{{ $errors->has('request.schoolClasses') ? 'true': '' }}"
+                                            hasErrors="{{ $this->getErrorBag()->has('request.school_classes') ? 'true': '' }}"
                     />
                     <div id="selected_classes" wire:ignore class="space-x-4 ml-4"></div>
 
@@ -87,40 +102,40 @@
                                             wire:model="request.invigilators"
                                             filterContainer="selected_invigilators"
                                             id="choices_invigilators"
+                                            hasErrors="{{ $this->getErrorBag()->has('request.invigilators') ? 'true': '' }}"
                     />
 
                     <div id="selected_invigilators" wire:ignore class="space-x-4 ml-4"></div>
                 </div>
             </div>
             <div class="input-section">
-                <div class="name flex mb-4 space-x-4">
+                <div class="toggles | flex flex-col lg:flex-row lg:gap-x-4 flex-wrap mb-4">
+                    <x-input.toggle-row-with-title wire:model="request.allow_inbrowser_testing"
+                                                   :toolTip="__('teacher.inbrowser_testing_tooltip')"
+                                                   :disabled="$this->isAssessmentType()"
+                                                   containerClass="border-t w-full lg:w-[calc(50%-0.5rem)]"
+                    >
+                        <x-icon.web/>
+                        <span class="bold">{{ __('teacher.Browsertoetsen toestaan') }} </span>
+                    </x-input.toggle-row-with-title>
+                    <x-input.toggle-row-with-title wire:model="request.guest_accounts"
+                                                   :toolTip="__('teacher.guest_accounts_tooltip')"
+                                                   :tooltipAlwaysLeft="true"
+                                                   containerClass="lg:border-t w-full lg:w-[calc(50%-0.5rem)]"
+                                                   :error="$this->getErrorBag()->has('request.school_classes')"
+                    >
+                        <x-icon.test-direct/>
+                        <span class="bold">{{ __('teacher.Test-Direct toestaan') }} </span>
+                    </x-input.toggle-row-with-title>
 
-                    @if(! $this->isAssessmentType())
-                    <div class="input-group mb-4 sm:mb-0 flex-auto border-t ">
-                        <x-input.toggle-row-with-title wire:model="request.allow_inbrowser_testing"
-                                                       :toolTip="__('teacher.inbrowser_testing_tooltip')"
-                                                       class="flex-row-reverse"
-
-                        >
-                            <span class="bold"> <x-icon.preview/>{{ __('teacher.Browsertoetsen toestaan') }} </span>
-                        </x-input.toggle-row-with-title>
-                    </div>
-
-                    @endif
-
-                    <div class="input-group mb-4 sm:mb-0 flex-auto border-t @error('request.school_classes') border-red-500 @enderror">
-                        @if(auth()->user()->schoollocation->allow_guest_accounts)
-                            <x-input.toggle-row-with-title wire:model="request.guest_accounts"
-                                                           :toolTip="__('teacher.guest_accounts_tooltip')"
-                                                           :tooltipAlwaysLeft="true"
-
-                            >
-                                <span class="bold">  <x-icon.preview/>{{ __('teacher.Test-Direct toestaan') }} </span>
-                            </x-input.toggle-row-with-title>
-                        @endif
-                    </div>
+                    <x-input.toggle-row-with-title wire:model="request.notify_students"
+                                                   :toolTip="__('teacher.notify_students_tooltip')"
+                                                   containerClass="border-t-0 w-full lg:w-[calc(50%-0.5rem)]"
+                    >
+                        <x-icon.send-mail/>
+                        <span class="bold">{{ __('teacher.notify_students') }} </span>
+                    </x-input.toggle-row-with-title>
                 </div>
-
             </div>
             <div class="input-section">
                 <div class="name flex mb-4 space-x-4">

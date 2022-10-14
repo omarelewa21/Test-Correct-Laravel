@@ -7,6 +7,7 @@
                 if(typeof evt !== 'undefined') empty = false;
                 removeDrawingLegacy();
                 window.scrollTo({top: 0, behavior: 'smooth'});
+                $store.cms.dirty = false;
            }
 
            loadingTimeout = (value) => {
@@ -299,7 +300,7 @@
                             <div class="border-b flex w-full justify-between items-center py-2">
                                 <div class="flex items-center space-x-2.5">
                                     <span class="bold text-base">{{ __('cms.auteur(s)') }}</span>
-                                    <span class="ml-10 text-base">{{ $testAuthors }}</span>
+                                    <span class="ml-10 text-base">{{ $authors }}</span>
                                 </div>
                             </div>
                         @endif
@@ -319,7 +320,7 @@
                             <x-input.toggle-row-with-title wire:model="question.add_to_database"
                                                            :toolTip="__('cms.make_public_tooltip_text')"
                                                            class="{{ $this->isSettingsGeneralPropertyDisabled('addToDatabase') ? 'text-disabled' : '' }}"
-                                                           :disabled="$this->isSettingsGeneralPropertyDisabled('addToDatabase')"
+                                                           :disabled="($question['add_to_database_disabled'] ?? false) || $this->isSettingsGeneralPropertyDisabled('addToDatabase')"
                                                            selid="open-source-switch"
                             >
                                 <x-icon.preview class="flex "></x-icon.preview>
@@ -426,7 +427,7 @@
                                     <span class="bold">RTTI {{ __('cms.methode') }}</span>
                                 </x-input.toggle-row-with-title>
                                 <div x-show="rtti" class="flex flex-col gap-2.5 mt-2.5">
-                                    @foreach(['R'  , 'T1' , 'T2' , 'I'] as $value)
+                                    @foreach($this->rttiOptions as $value)
                                         <label class="radio-custom">
                                             <input wire:key="{{ $value }}"
                                                    name="rtti"
@@ -446,14 +447,14 @@
                                     <span class="bold">BLOOM {{ __('cms.methode') }}</span>
                                 </x-input.toggle-row-with-title>
                                 <div x-show="bloom" class="flex flex-col gap-2.5 mt-2.5">
-                                    @foreach([ __('cms.Onthouden'), __('cms.Begrijpen'), __('cms.Toepassen'), __('cms.Analyseren'), __('cms.Evalueren'), __('cms.Creëren')] as $value)
+                                    @foreach($this->bloomOptions as $value => $translation)
                                         <label class="radio-custom">
                                             <input wire:key="{{ $value }}"
                                                    name="bloom"
                                                    type="radio"
                                                    wire:model.defer="question.bloom"
                                                    value="{{ $value }}"/>
-                                            <span class="ml-2.5">{{ __($value) }}</span>
+                                            <span class="ml-2.5">{{ $translation  }}</span>
                                         </label>
                                     @endforeach
                                 </div>
@@ -466,14 +467,14 @@
                                     <span class="bold">Miller {{ __('cms.methode') }}</span>
                                 </x-input.toggle-row-with-title>
                                 <div x-show="miller" class="flex flex-col gap-2.5 mt-2.5">
-                                    @foreach([ __('cms.Weten'), __('cms.Weten hoe'), __('cms.Laten zien'), __('cms.Doen'),] as $value)
+                                    @foreach($this->millerOptions as $value => $translation)
                                         <label class="radio-custom">
                                             <input wire:key="{{ $value }}"
                                                    name="miller"
                                                    type="radio"
                                                    wire:model.defer="question.miller"
                                                    value="{{ $value }}"/>
-                                            <span class="ml-2.5">{{ __($value) }}</span>
+                                            <span class="ml-2.5">{{ $translation }}</span>
                                         </label>
                                     @endforeach
                                 </div>
@@ -492,11 +493,11 @@
                             <div class="grid grid-cols-2 gap-x-6 mt-4">
                                 <livewire:attainment-manager :value="$question['attainments']"
                                                              :subject-id="$subjectId"
-                                                             :eduction-level-id="$educationLevelId"
+                                                             :education-level-id="$educationLevelId"
                                                              :key="'AT-'. $this->uniqueQuestionKey"/>
                                 <livewire:learning-goal-manager :value="$question['learning_goals']"
                                                                 :subject-id="$subjectId"
-                                                                :eduction-level-id="$educationLevelId"
+                                                                :education-level-id="$educationLevelId"
                                                                 :key="'LG-'. $this->uniqueQuestionKey "/>
 
                             </div>
@@ -536,7 +537,7 @@
                                     <div class="flex items-center space-x-2.5">
                                         <div class="flex items-center space-x-2.5">
                                             <span class="bold text-base">{{ __('cms.auteur(s)') }}</span>
-                                            <span class="ml-10 text-base">{{ $testAuthors }}</span>
+                                            <span class="ml-10 text-base">{{ $authors }}</span>
                                         </div>
                                     </div>
                                 </div>

@@ -3,10 +3,8 @@
 namespace tcCore\Http\Livewire\Teacher;
 
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Str;
-use Livewire\Livewire;
 use LivewireUI\Modal\ModalComponent;
-use tcCore\Http\Traits\TestActions;
+use tcCore\Http\Traits\Modal\TestActions;
 use tcCore\Test;
 
 class TestUpdateOrDuplicateConfirmModal extends ModalComponent

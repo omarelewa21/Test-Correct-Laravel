@@ -80,7 +80,7 @@ return [
     'no_eck_id_attribute_found_in_saml_request_school_location_does_not_support_login_without_email' => 'Geen eckid gevonden in saml bericht, neem contact op met de helpdesk.',
     'no_email_found_in_entree'                                                                       => 'Geen e-mailadres gekoppeld aan Entree Federatie',
     'no_email_found_in_entree_long'                                                                  => 'Wij konden geen e-mailadres vinden met een Test-Correct account bij dit Entree Federatie account. Maak alsnog de koppeling.',
-    'no_mail_attribute_found_in_saml_request_school_location_does_not_support_login_without_email'   => 'We hebben geen ARP-formulier beschikbaar voor jouw school, maar je kan wel inloggen met je gebruikersnaam en wachtwoord.',
+    'no_mail_attribute_found_in_saml_request_school_location_does_not_support_login_without_email'   => 'Geen mail gevonden in saml bericht, neem contact op met de helpdesk.',
     'no_saml_message_found'                                                                          => 'Er is een fout opgetreden, log eerst in met Entree (geen saml bericht gedetecteerd)',
     'Oplossingen'                                                                                    => 'Oplossingen',
     'Over Ons'                                                                                       => 'Over Ons',
@@ -145,4 +145,6 @@ return [
     'newPassword.min'                                                                                => 'Je nieuwe wachtwoord is niet lang genoeg',
     'newPassword.regex'                                                                              => 'Je nieuwe wachtwoord voldoet niet aan het verplichte patroon',
     'passwords_dont_match'                                                                           => 'Het opgegeven huidige wachtwoord is incorrect',
+    'test_code_quick_access'                                                                         => 'Vul de testcode in als deze bestaat om snel toegang te krijgen tot een test',
+    'guest_account_not_allowed'                                                                      => 'gastaccounts zijn niet toegestaan voor deze test',
 ];

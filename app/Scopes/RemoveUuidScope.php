@@ -17,7 +17,6 @@ class RemoveUuidScope implements Scope
      */
     public function apply(Builder $builder, Model $model)
     {
-        logger(get_class($model));
         $builder->select([$model->getKeyName()]+$model->getFillable());
 
     }

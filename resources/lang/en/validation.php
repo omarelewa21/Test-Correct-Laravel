@@ -108,9 +108,13 @@ return [
             'between' => 'The N term must have a value between :min and :max .'
         ],
 
-        'pass_mark' => [
+        'pass_mark'              => [
             'between' => 'The Cesuur must have a value between :min and :max .'
-        ]
+        ],
+        'is_examcoordinator_for' => [
+            'required' => 'please choose one of classes options that exam coordinator can schedule exams for.',
+            'in'       => 'please choose one of classes options that exam coordinator can schedule exams for.'
+        ],
     ],
 
     /*
@@ -133,7 +137,7 @@ return [
 
     'school_class_or_guest_accounts_required' => 'Select a school class or the guest account option.',
     'test name'                               => 'test name',
-    'unique_test_name' => 'The given test name is already in use. Please enter a unique test name.',
+    'unique_test_name'                        => 'The given test name is already in use. Please enter a unique test name.',
 
-
+    'invigilator_required' => 'It is required to choose an invigilator.',
 ];

@@ -8,27 +8,14 @@ use Livewire\Component;
 use tcCore\Http\Controllers\TemporaryLoginController;
 use tcCore\Test;
 
-class TestMakePdf extends Component
+class TestMakePdf extends TestAction
 {
-    public $uuid;
-    public $variant;
-    public string $class;
-    public bool $disabled;
-
     public function mount($uuid, $variant = 'icon-button', $class = '')
     {
-        $this->uuid = $uuid;
-        $this->variant = $variant;
-        $this->class = $class;
-        $this->disabled = !Test::findByUuid($uuid)->canEdit(Auth::user());
+        parent::mount($uuid, $variant, $class);
     }
 
-    public function render()
-    {
-        return view('livewire.actions.test-make-pdf');
-    }
-
-    public function getTemporaryLoginToPdfForTest()
+    public function handle()
     {
         $controller = new TemporaryLoginController();
         $request = new Request();
@@ -40,5 +27,10 @@ class TestMakePdf extends Component
         ]);
 
         return $controller->toCakeUrl($request);
+    }
+
+    protected function getDisabledValue(): bool
+    {
+        return !$this->test->canEdit(Auth::user()) && !Auth::user()->isValidExamCoordinator();
     }
 }

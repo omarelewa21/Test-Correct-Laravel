@@ -5,6 +5,7 @@
 @import url("components/table.css");
 @import url("components/plyr.css");
 @import url("components/modal.css");
+@import url("components/grid.css");
 @import url("test-take.css");
 @import url("forms.css");
 @import url("pages.css");
@@ -32,7 +33,7 @@
     --primary-rgb: 0, 77, 245;
     --primary-opacity-10: rgba(0, 77, 245, 0.1);
     --primary-opacity-05: rgba(0, 77, 245, 0.05);
-    --primary-light: #e6edfa;
+    --primary-light: #F5F7FF;
     --teacher-primary: #004df5;
     --teacher-primary-light: #4781ff;
     --secondary: #ECDB00;
@@ -620,18 +621,6 @@ ul ul ul {
     content: ' ';
 }
 
-.sortable-nogo {
-    background: rgb(255,209,218);
-}
-.sortable-nogo * {
-    color: grey !important;
-}
-
-.sortable-drawer .sortable-drag{
-    background-color: rgba(255,255,255,1)  !important;
-    opacity: 0;
-}
-
 .draggable-mirror.sub-item-with-connecting-line::before,
 .sortable-grab.sub-item-with-connecting-line::before{
     display:none;
@@ -667,4 +656,23 @@ ul ul ul {
 .grid-card .option-menu-active:hover {
     background-color: var(--primary-opacity-05);
     color: var(--system-base);
+}
+
+.logout-progress-bar {
+    width: 70%;
+    background-color: white;
+    border: 1px solid var(--light-grey);
+    height: 1rem;border-radius:4px;
+    overflow: hidden;
+    display:block
+}
+.logout-progress-bar span {
+    display:block;
+    background-color: var(--cta-primary);
+    height: 1rem;
+    transition:width 0.25s
+}
+.grid .grid-card.archived span,
+.grid .grid-card.archived h3 {
+    color: var(--note)!important;
 }

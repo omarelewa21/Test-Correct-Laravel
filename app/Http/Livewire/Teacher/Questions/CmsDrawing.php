@@ -38,10 +38,12 @@ class CmsDrawing extends CmsBase
         $this->instance->question['answer_svg'] = $this->getAnswerSvg($svgHelper, $q);
         $this->instance->question['question_svg'] = $svgHelper->getQuestionSvg($q);
         $this->instance->question['grid_svg'] = $q['grid_svg'];
+        $this->instance->question['grid'] = $q['grid'];
         $this->instance->question['zoom_group'] = $this->getViewBox($svgHelper, $q);
 
         $this->instance->question['uuid'] = $q['uuid'];
         $this->instance->question['temp_uuid'] = 'temp-'.$q['uuid'];
+        $this->instance->isOldDrawing = $this->isOldDrawingQuestion();
 
         if (filled($this->instance->question['zoom_group'])) {
             $this->setViewBox($this->instance->question['zoom_group']);
@@ -58,6 +60,8 @@ class CmsDrawing extends CmsBase
         $this->instance->question['question_correction_model'] = '';
         $this->instance->question['uuid'] = (string)Str::uuid();
         $this->instance->question['temp_uuid'] = 'temp-'.$this->instance->question['uuid'];
+        $this->instance->backgroundImage = null;
+        $this->instance->isOldDrawing = $this->isOldDrawingQuestion();
     }
 
     public function handleUpdateDrawingData($data)
@@ -67,6 +71,7 @@ class CmsDrawing extends CmsBase
         $this->instance->question['grid_svg'] = $data['grid_size'];
         $this->instance->question['zoom_group'] = $data['svg_zoom_group'];
         $this->instance->question['svg_date_updated'] = now();
+        $this->instance->isOldDrawing = $this->isOldDrawingQuestion();
 
         $this->setViewBox($data['svg_zoom_group']);
 
@@ -165,5 +170,14 @@ class CmsDrawing extends CmsBase
         }
 
         return $this->instance->question['uuid'];
+    }
+
+    public function clearQuestionBag(){
+        $this->instance->question['answer_svg'] = '';
+        $this->instance->question['question_svg'] = '';
+        $this->instance->question['grid_svg'] = '0.00';
+        $this->instance->question['zoom_group'] = '';
+        $this->instance->question['question_preview'] = '';
+        $this->instance->question['question_correction_model'] = '';
     }
 }

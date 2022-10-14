@@ -49,8 +49,6 @@ class CountSchoolLocationActiveTeachers extends Job implements ShouldQueue
             })->whereNull('deleted_at');
         })->whereNull('school_id')->where('count_last_test_taken', '>=', $date->format('Y-m-d'))->count();
 
-        Log::debug('Schoollocation #'.$this->schoolLocation->getKey().' -> count_active_teachers: '.$count);
-
         $this->schoolLocation->setAttribute('count_active_teachers', $count);
         $this->schoolLocation->save();
     }

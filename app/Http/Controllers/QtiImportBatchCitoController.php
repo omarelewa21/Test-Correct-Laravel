@@ -403,14 +403,12 @@ class QtiImportBatchCitoController extends Controller
             $dirNumber = false;
 
             foreach (scandir($this->packageDir . '/zipdir') as $fileOrDir) {
-                logger([$fileOrDir, is_dir($fileOrDir)]);
                 if ($fileOrDir !== '.' && $fileOrDir !== '..' && is_dir($this->packageDir . '/zipdir/' . $fileOrDir)) {
                     $dirNumber = $fileOrDir;
                 }
             }
 
             if ($dirNumber === false) {
-                logger(scandir($this->packageDir . '/zipdir'));
                 throw new \Exception('Couldnt find correct zipdir for test: ' . $testFromIterator['test']);
             }
 

@@ -249,6 +249,7 @@ Route::group(['middleware' => ['api', 'dl', 'authorize', 'authorizeBinds', 'bind
     Route::put('/school_class/update_with_education_levels_for_cluster_classes', 'SchoolClassesController@updateWithEducationLevelsForClusterClasses')->name('school_classes.update_with_education_levels_for_cluster_classes');
 
     Route::get('school_class/list', ['as' => 'school_class.list', 'uses' => 'SchoolClassesController@lists']);
+    Route::get('school_class/forUser/{user}', 'SchoolClassesController@showForUser')->name('school_classes.for_user');
     Route::resource('school_class', 'SchoolClassesController', ['except' => ['create', 'edit']]);
 
     Route::delete('school_class_mentor/{schoolClass}/{userUuid}','SchoolClassesController@deleteMentor')->name('school_class_mentor.delete');
@@ -265,6 +266,7 @@ Route::group(['middleware' => ['api', 'dl', 'authorize', 'authorizeBinds', 'bind
     Route::get('question/inlineimage/{image}',['uses' => 'QuestionsController@inlineimage']);
     Route::get('/drawing-question/{answerUuid}/given-answer-png', [tcCore\Http\Controllers\QuestionsController::class, 'getDrawingQuestionGivenAnswerPng'])->name('api-c.drawing-question.givenanswerpng');
     Route::get('/drawing-question/{drawingQuestion}/correction-model', [tcCore\Http\Controllers\QuestionsController::class, 'drawingQuestionCorrectionModelPng'])->name('api-c.drawing-question.correction-model');
+    Route::get('/drawing-question/{drawing_question}/background-image', [tcCore\Http\Controllers\QuestionsController::class, 'getDrawingQuestionBackgroundImageUpdated'])->name('api-c.drawing-question.background-image');
 
     Route::resource('attainment', 'AttainmentsController', ['only' => ['index', 'show']]);
 
@@ -281,7 +283,7 @@ Route::group(['middleware' => ['api', 'dl', 'authorize', 'authorizeBinds', 'bind
     Route::post('user/toggle_account_verified/{user}', ['as' => 'user.toggle_account_verified', 'uses' => 'UsersController@toggleAccountVerified']);
     Route::post('/user/import/{type}','UsersController@import')->name('user.import');
 
-    Route::get('/user/{user}/general_terms_log','UsersController@getGeneralTermsLogForUser')->name('user.getGeneralTermsLogForUser');
+    Route::get('/user/{user}/time_sensitive_records','UsersController@getTimeSensitiveUserRecords')->name('user.getTimeSensitiveUserRecords');
     Route::put('/user/{user}/general_terms_accepted','UsersController@setGeneralTermsLogAcceptedAtForUser')->name('user.setGeneralTermsLogAcceptedAtForUser');
 
     Route::get('/user/{user}/return_to_laravel_url','UsersController@getReturnToLaravelUrl')->name('user.getReturnToLaravelUrl');
@@ -299,6 +301,7 @@ Route::group(['middleware' => ['api', 'dl', 'authorize', 'authorizeBinds', 'bind
     Route::resource('teacher', 'TeachersController', ['except' => ['create', 'edit']]);
 
     Route::post('/teacher/import/schoollocation','TeachersController@import')->name('teacher.import');
+    Route::get('/teacher/school_location_teacher_users/{school_location}','TeachersController@getSchoolLocationTeacherUser')->name('teacher.school-location-teacher-users');
 
     Route::post('/attainments/import','AttainmentImportController@import')->name('attainment.import');
     Route::post('/attainments_cito/import','AttainmentCitoImportController@import')->name('attainment_cito.import');
@@ -323,11 +326,11 @@ Route::group(['middleware' => ['api', 'dl', 'authorize', 'authorizeBinds', 'bind
 
 	Route::resource('school', 'SchoolsController', ['except' => ['create', 'edit']]);
     Route::get('school_location/is_allowed_new_player_access', 'SchoolLocationsController@isAllowedNewPlayerAccess')->name('school_location.is_allowed_new_player_access');
-    Route::get('school_location/get_lvs_and_sso_options', 'SchoolLocationsController@getLvsAndSsoOptions')->name('school_location.get_lvs_and_sso_options');
+    Route::get('school_location/get_available_school_location_options', 'SchoolLocationsController@getAvailableSchoolLocationOptions')->name('school_location.get_available_school_location_options');
     Route::get('school_location/{school_location_id}/get_lvs_type', 'SchoolLocationsController@getLvsType')->name('school_location.get_lvs_type');
     // School children
     Route::resource('school_location', 'SchoolLocationsController', ['except' => ['create', 'edit']]);
-
+    Route::get('school_location/{id}/get_by_id', 'SchoolLocationsController@showById')->name('school_location.showById');
     // School location children
     Route::resource('school_location.school_class', 'SchoolLocations\SchoolClassesController', ['except' => ['create', 'edit']]);
     Route::resource('school_location.school_location_ip', 'SchoolLocations\SchoolLocationIpsController', ['except' => ['create', 'edit']]);
@@ -404,5 +407,5 @@ Route::group(['middleware' => ['api', 'dl', 'authorize', 'authorizeBinds', 'bind
     Route::put('support/register_take_over/{user}','SupportTakeOverLogController@store')->name('support_take_over_log.store');
     Route::get('support/show/{user}','SupportTakeOverLogController@show')->name('support_take_over_log.show');
     Route::get('support/index','SupportTakeOverLogController@index')->name('support_take_over_log.index');
-    
+    Route::post('/user/{user}/update_trial_date','UsersController@updateTrialDate')->name('user.update_trial_date');
 });

@@ -58,8 +58,6 @@ class CountAccountManagerActiveLicenses extends Job implements ShouldQueue
             $count += $schoolLocation->getAttribute('count_active_licenses');
         }
 
-        Log::debug('Accountmanager #' . $this->user->getKey() . ' -> count_active_licenses: ' . $count);
-
         $this->user->setAttribute('count_active_licenses', $count);
         $this->user->save();
     }

@@ -1,6 +1,6 @@
 <div {{ $attributes }}>
     @if($variant == 'icon-button')
-        @if($test->canEdit(auth()->user()))
+        @if(!$disabled)
             <x-button.primary class="w-10 p-0 items-center justify-center"
                               title="{{ __('teacher.Instellingen') }}"
                               wire:click="$emit('openModal', 'teacher.test-edit-modal', {{ json_encode(['testUuid' => $test->uuid ]) }})">
@@ -12,10 +12,8 @@
             </x-button.primary>
         @endif
     @elseif($variant == 'context-menu')
-        @if( $test->canEdit(auth()->user()))
-            <button
-                    class="flex items-center space-x-2 py-1 px-4 base hover:text-primary hover:bg-offwhite transition w-full"
-                    @click="$event.target.dispatchEvent(new CustomEvent('context-menu-close', { bubbles: true }));"
+        @if( !$disabled)
+            <button class="flex items-center space-x-2 py-1 px-4 base hover:text-primary hover:bg-offwhite transition w-full"
                     wire:click="$emit('openModal', 'teacher.test-edit-modal', {{ json_encode(['testUuid' => $test->uuid ]) }})"
             >
                 <span class="w-5 flex justify-center"><x-icon.settings/></span>

@@ -135,7 +135,7 @@ class SurveillanceController extends Controller
 
     private function transformForService(TestTake $testTake)
     {
-        $testTake->schoolClasses()->get('uuid')->each(function ($schoolClass) use ($testTake) {
+        $testTake->schoolClasses()->get(['uuid', 'id'])->each(function ($schoolClass) use ($testTake) {
             $progress = 0;
             $key = sprintf('%s_%s', $schoolClass->id, $testTake->id);
 

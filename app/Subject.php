@@ -1,6 +1,7 @@
 <?php namespace tcCore;
 
 use Closure;
+use Illuminate\Support\Arr;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use tcCore\Http\Helpers\DemoHelper;
 use tcCore\Lib\Models\AccessCheckable;
@@ -19,6 +20,7 @@ class Subject extends BaseModel implements AccessCheckable
     use SoftDeletes;
     use UuidTrait;
 
+    const NOT_ALLOWED_FOR_TEACHER_EXCEPTION_MSG = 'Not allowed For teacher';
     protected $casts = [
         'uuid' => EfficientUuid::class,
     ];
@@ -121,16 +123,21 @@ class Subject extends BaseModel implements AccessCheckable
         foreach ($filters as $key => $value) {
             switch ($key) {
                 case 'user_id':
-                    $query->whereIn('id', function ($query) use ($value) {
-                        $query->select('subject_id')
-                            ->from(with(new Teacher())->getTable())
-                            ->whereNull('deleted_at');
-                        if (is_array($value)) {
-                            $query->whereIn('user_id', $value);
-                        } else {
-                            $query->where('user_id', '=', $value);
-                        }
-                    });
+                    if ($user->isValidExamCoordinator()) {
+                        $this->filterForExamcoordinator($query, $user);
+                    } else {
+                        $query->whereIn('id', function ($query) use ($value) {
+                            $query->select('subject_id')
+                                ->from(with(new Teacher())->getTable())
+                                ->whereNull('deleted_at');
+                            if (is_array($value)) {
+                                $query->whereIn('user_id', $value);
+                            } else {
+                                $query->where('user_id', '=', $value);
+                            }
+                        });
+                    }
+
                     break;
                 case 'demo' :
                     $query->where('demo', $value);
@@ -141,19 +148,24 @@ class Subject extends BaseModel implements AccessCheckable
                     }
                     break;
                 case 'user_current':
-                    $schoolYear = SchoolYearRepository::getCurrentSchoolYear();
-                    $query->whereIn('id', function ($query) use ($value, $schoolYear) {
-                        $query->select('subject_id')
-                            ->from(with(new Teacher())->getTable())
-                            ->whereNull('teachers.deleted_at')
-                            ->leftJoin('school_classes', 'school_classes.id', '=', 'teachers.class_id')
-                            ->where('school_classes.school_year_id', $schoolYear->getKey());
-                        if (is_array($value)) {
-                            $query->whereIn('user_id', $value);
-                        } else {
-                            $query->where('user_id', '=', $value);
+                    if ($user->isValidExamCoordinator()) {
+                        $this->filterForExamcoordinator($query, $user);
+                    } else {
+                        $schoolYear = SchoolYearRepository::getCurrentSchoolYear();
+                        $query->whereIn('id', function ($query) use ($value, $schoolYear, $user) {
+                            $query->select('subject_id')
+                                ->from(with(new Teacher())->getTable())
+                                ->whereNull('teachers.deleted_at')
+                                ->leftJoin('school_classes', 'school_classes.id', '=', 'teachers.class_id')
+                                ->where('school_classes.school_year_id', $schoolYear->getKey());
+                            if (is_array($value)) {
+                                $query->whereIn('user_id', $value);
+                            } else {
+                                $query->where('user_id', '=', $value);
+                            }
                         }
-                    });
+                        );
+                    }
                     break;
                 case 'show_in_onboarding' :
                     $query->whereNotIn('base_subject_id', function ($query) use ($value) {
@@ -197,55 +209,130 @@ class Subject extends BaseModel implements AccessCheckable
         return $query;
     }
 
+    public function scopeFilterForStudent($query, User $user)
+    {
+        if (!$user->isA('student')) {
+            throw new \Exception(self::NOT_ALLOWED_FOR_TEACHER_EXCEPTION_MSG);
+        }
+
+        $subQuery = Teacher::select('subject_id')
+            ->whereIn(
+                'class_id',
+                Student::select('class_id')->where('user_id', $user->getKey()
+                )
+            );
+
+        return $query->whereIn('id', $subQuery);
+    }
+
+    public function scopeFilterForStudentCurrentSchoolYear($query, User $user)
+    {
+        if (!$user->isA('student')) {
+            throw new \Exception(self::NOT_ALLOWED_FOR_TEACHER_EXCEPTION_MSG);
+        }
+
+        $subQuery = [];
+
+        if ($currentSchoolYear = SchoolYearRepository::getCurrentSchoolYear()) {
+            $subQuery =
+                SchoolClass::select('subject_id')
+                    ->join('teachers', 'school_classes.id', '=', 'teachers.class_id')
+                    ->join('students', 'school_classes.id', '=', 'students.class_id')
+                    ->where('students.user_id', $user->getKey())
+                    ->where('school_year_id', $currentSchoolYear->getKey());
+
+        }
+
+
+
+        return $query->whereIn('id', $subQuery);
+
+
+    }
+
     public function scopeCitoFiltered($query, $filters = [], $sorting = [])
     {
         $citoSchool = SchoolLocation::where('customer_code', 'CITO-TOETSENOPMAAT')->first();
 
-        return $this->filterByUserAndSchoolLocation($query, $citoSchool);
+        return $this->filterByUserAndSchoolLocation($query, Auth::user(), $citoSchool);
     }
 
     public function scopeExamFiltered($query, $filters = [], $sorting = [])
     {
         $examSchool = SchoolLocation::where('customer_code', config('custom.examschool_customercode'))->first();
 
-        return $this->filterByUserAndSchoolLocation($query, $examSchool);
+        return $this->filterByUserAndSchoolLocation($query, Auth::user(), $examSchool);
     }
 
     public function scopeNationalItemBankFiltered($query, $filters = [], $sorting = [])
     {
-        $nationalItemBankSchool = SchoolLocation::where('customer_code', config('custom.national_item_bank_school_customercode'))->first();
+        $nationalItemBankSchools = [
+            SchoolLocation::where('customer_code', config('custom.national_item_bank_school_customercode'))->first(),
+            SchoolLocation::where('customer_code', config('custom.examschool_customercode'))->first(),
+//            SchoolLocation::where('customer_code', 'CITO-TOETSENOPMAAT')->first(),
+        ];
 
-        return $this->filterByUserAndSchoolLocation($query, $nationalItemBankSchool);
+        return $this->filterByUserAndSchoolLocation($query, Auth::user(), $nationalItemBankSchools);
     }
 
-    private function filterByUserAndSchoolLocation($query, $schoolLocation)
+    public function scopeCreathlonFiltered($query, $filters = [], $sorting = [])
     {
-        if (!$schoolLocation) { // slower but as a fallback in case there's no cito school
+        $creathlonSchoolLocation = SchoolLocation::where('customer_code', config('custom.creathlon_school_customercode'))->first();
+
+        return $this->filterByUserAndSchoolLocation($query, Auth::user(), $creathlonSchoolLocation);
+    }
+
+    private function filterByUserAndSchoolLocation($query, User $user, $schoolLocations)
+    {
+        if (!$schoolLocations) { // slower but as a fallback in case there's no cito school
             $query->where('subjects.id', -1);
             return $query;
         }
 
-        $user = Auth::user();
+        $schoolLocations = Arr::wrap($schoolLocations);
 
-        $subjectIds = $this->getAvailableSubjectsForSchoolLocation($schoolLocation)
-            ->whereIn('base_subject_id', $this->getBaseSubjectsForUser($user))
-            ->pluck('id')
-            ->unique()
-            ->toArray();
+        $subjectIds = [];
+
+        foreach ($schoolLocations as $schoolLocation) {
+            $subjectIds = array_merge($subjectIds, $this->getAvailableSubjectsForSchoolLocation($schoolLocation)
+                ->whereIn('base_subject_id', BaseSubject::getIdsForUserInCurrentSchoolLocation($user))
+                ->pluck('id')
+                ->unique()
+                ->toArray()
+            );
+        }
 
         $query->whereIn('id', $subjectIds);
         return $query;
+    }
+
+    private function filterForExamcoordinator($query, User $user)
+    {
+        switch ($user->is_examcoordinator_for) {
+            case 'SCHOOL_LOCATION':
+                $subjectIds = $user->schoolLocation->schoolLocationSections()
+                    ->join('sections', 'school_location_sections.section_id', 'sections.id')
+                    ->join('subjects', 'subjects.section_id', 'sections.id')
+                    ->select('subjects.id', 'subjects.name')->groupBy('subjects.name')->pluck('id')->toArray();
+                break;
+            case 'SCHOOL':
+                $subjectIds = $user->schoolLocation->school->schoolLocations()
+                    ->join('school_location_sections', 'school_location_sections.school_location_id', 'school_locations.id')
+                    ->join('sections', 'school_location_sections.section_id', 'sections.id')
+                    ->join('subjects', 'subjects.section_id', 'sections.id')
+                    ->select('subjects.id', 'subjects.name')->groupBy('subjects.name')->pluck('id')->toArray();
+                break;
+            default:
+                $subjectIds = [];
+                break;
+        }
+        return $query->whereIn('id', $subjectIds)->where('demo', 0);
     }
 
     private function getAvailableSubjectsForSchoolLocation(SchoolLocation $schoolLocation)
     {
         return $this->whereIn('id', Teacher::whereIn('class_id', $schoolLocation->schoolClasses()->pluck('id')
         )->pluck('subject_id')->unique())->get();
-    }
-
-    private function getBaseSubjectsForUser(User $user)
-    {
-        return $user->subjects()->pluck('base_subject_id')->unique();
     }
 
     public function canAccess()
@@ -268,19 +355,32 @@ class Subject extends BaseModel implements AccessCheckable
         throw new AccessDeniedHttpException('Access to subject denied');
     }
 
-    public static function getSubjectsOfCustomSchoolForUser($customerCode, $user): array
+    public static function getSubjectIdsOfSchoolLocationByCustomerCodesAndUser($customerCodes, User $user): array
     {
-        $school = SchoolLocation::where('customer_code', $customerCode)->first();
+        $userBaseSubjectIds = BaseSubject::getIdsForUserInCurrentSchoolLocation($user);
+
+        return SchoolLocation::whereIn('school_locations.customer_code', Arr::wrap($customerCodes))
+            ->join('school_location_sections', 'school_locations.id', '=', 'school_location_sections.school_location_id')
+            ->join('sections', 'school_location_sections.section_id', '=', 'sections.id')
+            ->join('subjects', 'subjects.section_id', '=', 'sections.id')
+            ->whereIn('subjects.base_subject_id', $userBaseSubjectIds)
+            ->distinct()
+            ->pluck('subjects.id')->toArray();
+
+        $schoolLocations = SchoolLocation::whereIn('customer_code', Arr::wrap($customerCodes))->get();
+
         $baseSubjectIds = $user->subjects()->pluck('base_subject_id')->unique();
 
-        if ($school) {
+        $subjectIds = collect([]);
+
+        foreach ($schoolLocations as $school_location) {
             $subjects = collect([]);
-            foreach ($school->schoolLocationSections as $schoolLocationSection) {
+            foreach ($school_location->schoolLocationSections as $schoolLocationSection) {
                 $subjects = $subjects->merge($schoolLocationSection->subjects);
             }
-            return $subjects->whereIn('base_subject_id', $baseSubjectIds)->pluck('id')->unique()->toArray();
+            $subjectIds = $subjectIds->merge($subjects->whereIn('base_subject_id', $baseSubjectIds)->pluck('id')->unique()->toArray());
         }
-        return [];
+        return $subjectIds->toArray();
     }
 
     public static function boot()
@@ -305,5 +405,46 @@ class Subject extends BaseModel implements AccessCheckable
         return $query->filtered(['base_subject_id' => $baseSubject->id, 'user_id' => $forUser->id], []);
     }
 
+    public function getRouteKeyName()
+    {
+        return 'uuid';
+    }
 
+    public function scopeFromTests($query, $testIds)
+    {
+        return $query->whereIn(
+            'id',
+            Test::select('subject_id')->whereIn('id', collect($testIds))
+        )
+            ->distinct();
+    }
+
+    public static function getIdsForContentSource(User $user, array $customer_codes)
+    {
+        if ($user->isValidExamCoordinator()) {
+            //This returns a queryBuilder for efficiency purposes.
+            return Subject::select('id')->whereIn('base_subject_id', BaseSubject::select('id')->distinct());
+        }
+
+        return Subject::getSubjectIdsOfSchoolLocationByCustomerCodesAndUser(Arr::wrap($customer_codes), $user);
+    }
+
+    public static function getIdsForSharedSections(User $user)
+    {
+        if ($user->schoolLocation->sharedSections()->exists()) {
+            $sharedSectionIdsQuery = $user->schoolLocation->sharedSections()->select(['id']);
+            $baseSubjectIdsQuery = $user->subjects()->select(['base_subject_id']);
+
+            return Subject::select(['id'])
+                ->whereIn(
+                    'section_id',
+                    $sharedSectionIdsQuery
+                )
+                ->when(!$user->isValidExamCoordinator(), function ($query) use ($baseSubjectIdsQuery) {
+                    $query->whereIn('base_subject_id', $baseSubjectIdsQuery)->pluck('id')->unique();
+                });
+        }
+
+        return false;
+    }
 }

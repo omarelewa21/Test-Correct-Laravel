@@ -58,8 +58,6 @@ class CountAccountManagerStudents extends Job implements ShouldQueue
             $count += $schoolLocation->getAttribute('count_students');
         }
 
-        Log::debug('Accountmanager #'.$this->user->getKey().' -> count_students: '.$count);
-
         $this->user->setAttribute('count_students', $count);
         $this->user->save();
     }

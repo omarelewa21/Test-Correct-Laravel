@@ -36,7 +36,7 @@
                         <div class="flex flex-1">{{ __($arq[3]) }}</div>
                         <div class="w-14" >
                             <x-input.text class="w-12 text-center"
-                                          wire:model="cmsPropertyBag.answerStruct.{{ $key }}.score"
+                                          wire:model.debounce.250ms="cmsPropertyBag.answerStruct.{{ $key }}.score"
                                           title="{{ $this->cmsPropertyBag['answerStruct'][$key]['score'] }}"
                                           type="number"
                                           :onlyInteger="true"

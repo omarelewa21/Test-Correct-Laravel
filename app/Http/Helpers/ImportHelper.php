@@ -235,7 +235,7 @@ class ImportHelper
 
         $unit = array('b', 'kb', 'mb', 'gb', 'tb', 'pb');
         $usage = @round($size / pow(1024, ($i = floor(log($size, 1024)))), 2).' '.$unit[$i];
-        logger(sprintf('[%s of %s] usage [%s] [%s seconds] [%d cacheHits] ', $line, $this->csv_data_lines, $usage,
+        $this->importLog(sprintf('[%s of %s] usage [%s] [%s seconds] [%d cacheHits] ', $line, $this->csv_data_lines, $usage,
             time() - $this->startTime, $this->cacheHit));
     }
 
@@ -254,8 +254,7 @@ class ImportHelper
         $allClasses = [];
         $this->errorMessages = [];
 
-        $this->importLog('----- '.$this->csv_data_lines.' data lines in input file');
-        logger(sprintf('Total of %d lines to handle', $this->csv_data_lines));
+        $this->importLog(sprintf('Total of %d lines to handle', $this->csv_data_lines));
 
 
         try {
@@ -264,7 +263,6 @@ class ImportHelper
                     $column_index = array_flip($row);
                 } else {
 
-                    $this->importLog('Processing line '.$index);
                     $this->logMemoryUsage($index);
                     $this->updateUwlrSoapResultProgress($index);
 
@@ -809,7 +807,7 @@ class ImportHelper
         if (!App::runningUnitTests()) {
             DB::commit();
         }
-        logger(sprintf('DONE [%s seconds] [%d cacheHits] ', time() - $this->startTime, $this->cacheHit));
+        $this->importLog(sprintf('DONE [%s seconds] [%d cacheHits] ', time() - $this->startTime, $this->cacheHit));
 
         $this->importLog('import done');
 
@@ -1704,7 +1702,7 @@ class ImportHelper
         $key = implode('-', $args);
         if (array_key_exists($entity, $this->cache) && array_key_exists($key, $this->cache[$entity])) {
             $this->cacheHit++;
-//            logger(sprintf('retrieved from cache %s %s', $entity, $key ));
+//            $this->importLog(sprintf('retrieved from cache %s %s', $entity, $key ));
             return $this->cache[$entity][$key];
         }
         if ($value = $callable()) {

@@ -117,7 +117,6 @@ class AttainmentCitoImportController extends Controller {
             $return = sprintf('%s<br/><span style="font-color:red">De volgende vragen konden niet gevonden worden %s</span>',$return,implode(', ',$notFound));
         }
         if(count($itemIdsNoAttainment)){
-            logger('ready to add the items no attainment found');
 
             $items = Question::whereIn('id',array_keys($itemIdsNoAttainment))->select(['id','external_id'])->get()->map(function($q) {
                return sprintf('cito item %s (interne id %s)',$q->external_id,$q->id);

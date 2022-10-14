@@ -15,6 +15,8 @@ use tcCore\Factories\FactorySchoolYear;
 use tcCore\Factories\FactorySection;
 use tcCore\Factories\FactoryTest;
 use tcCore\FactoryScenarios\FactoryScenarioSchool001;
+use tcCore\FactoryScenarios\FactoryScenarioSchoolCito;
+use tcCore\FactoryScenarios\FactoryScenarioSchoolCreathlon;
 use tcCore\FactoryScenarios\FactoryScenarioSchoolRandomComplex;
 use tcCore\FactoryScenarios\FactoryScenarioSchoolSimple;
 use tcCore\FactoryScenarios\FactoryScenarioTestTakeAllStatuses;
@@ -186,6 +188,93 @@ class FactoryScenarioSchoolTest extends TestCase
                 $this->assertGreaterThan(0, $schoolClass->students->count());
             });
         });
+    }
+
+    /** @test */
+    public function can_create_cito_scenario()
+    {
+        $startCounts = [
+            'schoolManager'  => User::count(),
+            'school'         => School::count(),
+            'schoolLocation' => SchoolLocation::count(),
+        ];
+
+        $factoryScenarioSchool = FactoryScenarioSchoolCito::create();
+
+        $school = $factoryScenarioSchool->schools->first();
+
+
+        $this->assertGreaterThan($startCounts['schoolManager'], User::count());
+        $this->assertGreaterThan($startCounts['school'], School::count());
+        $this->assertGreaterThan($startCounts['schoolLocation'], SchoolLocation::count());
+
+        $school->schoolLocations->each(function ($schoolLocation) {
+            $this->assertGreaterThan(0, $schoolLocation->schoolLocationSections->count());
+            $this->assertGreaterThan(0, $schoolLocation->educationLevels->count());
+            $this->assertGreaterThan(0, $schoolLocation->schoolYears->count());
+            $this->assertGreaterThan(0, $schoolLocation->schoolClasses->count());
+            $schoolLocation->schoolYears->each(function ($schoolYear) {
+                $this->assertGreaterThan(0, $schoolYear->periods->count());
+            });
+            $schoolLocation->schoolClasses->each(function ($schoolClass) {
+                $this->assertGreaterThan(0, $schoolClass->teacher->count());
+                $this->assertGreaterThan(0, $schoolClass->students->count());
+            });
+        });
+    }
+
+    /** @test */
+    public function can_create_creathlon_scenario()
+    {
+        $startCounts = [
+            'schoolManager'  => User::count(),
+            'school'         => School::count(),
+            'schoolLocation' => SchoolLocation::count(),
+        ];
+
+        $factoryScenarioSchool = FactoryScenarioSchoolCreathlon::create();
+
+        $school = $factoryScenarioSchool->schools->first();
+
+
+        $this->assertGreaterThan($startCounts['schoolManager'], User::count());
+        $this->assertGreaterThan($startCounts['school'], School::count());
+        $this->assertGreaterThan($startCounts['schoolLocation'], SchoolLocation::count());
+
+        $school->schoolLocations->each(function ($schoolLocation) {
+            $this->assertGreaterThan(0, $schoolLocation->schoolLocationSections->count());
+            $this->assertGreaterThan(0, $schoolLocation->educationLevels->count());
+            $this->assertGreaterThan(0, $schoolLocation->schoolYears->count());
+            $this->assertGreaterThan(0, $schoolLocation->schoolClasses->count());
+            $schoolLocation->schoolYears->each(function ($schoolYear) {
+                $this->assertGreaterThan(0, $schoolYear->periods->count());
+            });
+            $schoolLocation->schoolClasses->each(function ($schoolClass) {
+                $this->assertGreaterThan(0, $schoolClass->teacher->count());
+                $this->assertGreaterThan(0, $schoolClass->students->count());
+            });
+        });
+    }
+
+    /** @test */
+    public function can_run_seeder_with_creathlon_scenario()
+    {
+        if (User::where('username', 'info+creathlonontwikkelaar@test-correct.nl')->exists()) {
+            $this->markTestSkipped('creathlon school location allready exists, seeder did not run');
+            return;
+        }
+
+        $schoolLocationCount = Test::count();
+        $testCount = Test::count();
+
+        (new \CreathlonItemBankSeeder)->run('CreathlonItemBankSeeder');
+
+        $newSchoolLocationCount = Test::count();
+        $newTestCount = Test::count();
+
+        $this->assertGreaterThan($testCount, $newTestCount);
+        $this->assertGreaterThan($schoolLocationCount, $newSchoolLocationCount);
+
     }
 
     /** @test */

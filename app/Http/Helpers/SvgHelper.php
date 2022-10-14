@@ -4,6 +4,7 @@ namespace tcCore\Http\Helpers;
 
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use Ramsey\Uuid\Uuid;
 use tcCore\DrawingQuestion;
 
 class SvgHelper
@@ -52,14 +53,80 @@ class SvgHelper
 
     public function getQuestionSvg($q)
     {
+        $bg = "";
+        if ($q instanceof DrawingQuestion && $q->getBackgroundImage()) {
+            $bg = $this->createQuestionLayerWithLegacyDrawingToolBackground($q);
+        }
+
         if ($this->getQuestionLayerFromSVG()) {
-            return $this->getQuestionLayerFromSVG(true);
+            return base64_encode(Str::of($bg)->append($this->getQuestionLayerFromSVG()));
         }
-        if ($q instanceof DrawingQuestion) {
-            return $q->question_svg;
-        }
-        return $q['question_svg'];
+
+        return Str::of($bg)->isEmpty() ? null : base64_encode($bg);
     }
+
+    private function createQuestionLayerWithLegacyDrawingToolBackground($q)
+    {
+        [$width, $height] = getimagesize($q->getCurrentBgPath());
+        $identifier = Uuid::uuid4();
+
+        // Todo => delete previous images exists in the question folder
+        $this->addImageToLayer('question', $identifier, $q->getCurrentBgPath());
+
+        $doc = (new \DOMDocument);
+
+        $groupElement = $doc->createElement('g');
+        $groupElement->setAttribute('class', 'shape draggable');
+        $groupElement->setAttribute('id', 'image-1');
+
+        $imageElement = $doc->createElement('image');
+        $imageElement->setAttribute('class', 'main');
+        $imageElement->setAttribute('href', $q->getBackgroundImage());
+        $imageElement->setAttribute('identifier', $identifier);
+        $imageElement->setAttribute('width', $width * 5 / 6);
+        $imageElement->setAttribute('height', $height);
+        $imageElement->setAttribute('x', '-' . $width / 2);
+        $imageElement->setAttribute('y', '-' . $height / 2);
+
+        $groupElement->appendChild($imageElement);
+        $doc->appendChild($groupElement);
+
+        $layerHtml = $doc->saveHTML();
+
+        return $layerHtml;
+    }
+
+    public function createِAnswerLayerForOldQuestion(DrawingQuestion $q)
+    {
+        [$width, $height] = getimagesize($q->answer);
+        $identifier = Uuid::uuid4();
+
+        // Todo => delete previous images exists in the question folder
+        $this->addImageToLayer('answer', $identifier, $q->answer);
+
+        $doc = (new \DOMDocument);
+
+        $groupElement = $doc->createElement('g');
+        $groupElement->setAttribute('class', 'shape draggable');
+        $groupElement->setAttribute('id', 'image-1');
+
+        $imageElement = $doc->createElement('image');
+        $imageElement->setAttribute('class', 'main');
+        $imageElement->setAttribute('href', $q->answer);
+        $imageElement->setAttribute('identifier', $identifier);
+        $imageElement->setAttribute('width', $width * 5 / 6);
+        $imageElement->setAttribute('height', $height);
+        $imageElement->setAttribute('x', '-' . $width / 2);
+        $imageElement->setAttribute('y', '-' . $height / 2);
+
+        $groupElement->appendChild($imageElement);
+        $doc->appendChild($groupElement);
+
+        $layerHtml = $doc->saveHTML();
+
+        return base64_encode($layerHtml);
+    }
+
 
     /**
      * @return void
@@ -75,7 +142,7 @@ class SvgHelper
 
         if (strstr($this->uuid, 'temp-')) {
             $folderName = str_replace('temp-', '', $this->uuid);
-            if ($this->disk->exists($folderName)){
+            if ($this->disk->exists($folderName)) {
 
                 foreach ($this->disk->allFiles($folderName) as $fileOrDirectory) {
                     $destination = str_replace($folderName, $this->uuid, $fileOrDirectory);
@@ -255,6 +322,7 @@ class SvgHelper
             $image = $this->getCompressedImage($path, $node->getAttribute('identifier'));
             $node->setAttribute('href', $image);//'data:' . mime_content_type($image) . ';base64,' . base64_encode($image));
         });
+
         return substr(substr($doc->saveXML(), 28), 0, -8);
     }
 
@@ -269,8 +337,8 @@ class SvgHelper
 
         $widthAndHeight = $this->getArrayWidthAndHeight();
 
-        $height = (float) $widthAndHeight['h'];
-        $width = (float) $widthAndHeight['w'];
+        $height = (float)$widthAndHeight['h'];
+        $width = (float)$widthAndHeight['w'];
 
         if ($width > 800) {
             $width = 800;
@@ -281,9 +349,8 @@ class SvgHelper
         }
 
 
-
-        $widthAndHeight['h'] = (string) $height;
-        $widthAndHeight['w'] =  (string) $width;
+        $widthAndHeight['h'] = (string)$height;
+        $widthAndHeight['w'] = (string)$width;
 
         return $server->getImageAsBase64($file, $widthAndHeight + ['fm' => 'jpg', 'q' => '25',]);
     }
@@ -443,6 +510,21 @@ class SvgHelper
         list($x, $y, $width, $height) = sscanf($this->getViewBox(), '%s %s %s %s');
 
         return ['w' => $width, 'h' => $height];
+    }
+
+    private function isOldDrawing()
+    {
+        if (Str::contains($this->uuid, 'temp')) {
+            $questionUuid = Str::after($this->uuid, 'temp-');
+        } else {
+            $questionUuid = $this->uuid;
+        }
+        if (DrawingQuestion::whereUuid($questionUuid)->exists()) {
+            $question = DrawingQuestion::whereUuid($questionUuid)->first();
+            return filled($question->answer) && blank($question->zoom_group);
+        }
+
+        return false;
     }
 
     public function delete()

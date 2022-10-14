@@ -14,11 +14,13 @@ use tcCore\Http\Traits\UwlrImportHandlingForController;
 use tcCore\Lib\User\Factory;
 use tcCore\SchoolClass;
 use tcCore\SchoolClassImportLog;
+use tcCore\SchoolLocation;
 use tcCore\Subject;
 use tcCore\Teacher;
 use tcCore\Http\Requests\CreateTeacherRequest;
 use tcCore\Http\Requests\UpdateTeacherRequest;
 use tcCore\TeacherImportLog;
+use tcCore\TestTake;
 use tcCore\User;
 
 class TeachersController extends Controller
@@ -304,4 +306,26 @@ class TeachersController extends Controller
 
     }
 
+    public function getSchoolLocationTeacherUser(Request $request, SchoolLocation $schoolLocation)
+    {
+        $test = $this->getTestFromTestTakeWithSubjectAndScope($request->get('testTakeUuid'));
+
+        if (filled($test->scope)) {
+            $query = Teacher::getTeacherUsersForSchoolLocationByBaseSubjectInCurrentYear(Auth::user()->schoolLocation, $test->subject->base_subject_id);
+        } else {
+            $query = Teacher::getTeacherUsersForSchoolLocationBySubjectInCurrentYear(Auth::user()->schoolLocation, $test->subject_id);
+        }
+
+        $teacherUsers = $query->get(['id','uuid', 'name', 'name_suffix', 'name_first'])->each(fn($user) => $user->append('name_full'));
+
+        return Response::make($teacherUsers, 200);
+    }
+
+    private function getTestFromTestTakeWithSubjectAndScope($testTakeUuid) {
+        return TestTake::whereUuid($testTakeUuid)
+            ->select(['id', 'test_id'])
+            ->with(['test:id,subject_id,scope', 'test.subject:id,base_subject_id'])
+            ->firstOrFail()
+            ->test;
+    }
 }

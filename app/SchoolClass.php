@@ -4,7 +4,9 @@ use Carbon\Carbon;
 use Closure;
 
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Str;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
@@ -296,9 +298,10 @@ class SchoolClass extends BaseModel implements AccessCheckable
     public function scopeFiltered($query, $filters = [], $sorting = [])
     {
         $roles = Roles::getUserRoles();
+        $user = auth()->user();
         if (!in_array('Administrator', $roles)) {
-            $query->where(function ($query) use ($roles) {
-                $userId = Auth::user()->getKey();
+            $query->where(function ($query) use ($roles, $user) {
+                $userId = $user->getKey();
 
                 if (in_array('Account manager', $roles) || in_array('School manager', $roles)) {
                     $query->orWhereIn('school_location_id', function ($query) {
@@ -308,9 +311,15 @@ class SchoolClass extends BaseModel implements AccessCheckable
                 }
 
                 if (in_array('Teacher', $roles)) {
-                    $query->orWhereIn($this->getTable() . '.id', function ($query) use ($userId) {
-                        $query->select('class_id')->from(with(new Teacher())->getTable())->whereNull('deleted_at')->where('user_id', $userId);
-                    });
+                    if( $user->isValidExamCoordinator() ){
+                        $this->filterForExamcoordinator($query, $user);
+                    }else{
+                        $query->orWhereIn($this->getTable() . '.id', function ($query) use ($userId) {
+                            $query->select('class_id')->from(with(new Teacher())->getTable())->whereNull('deleted_at');
+                                $query->where('user_id', $userId);
+                        });
+                    }
+
                 }
 
                 if (in_array('Mentor', $roles)) {
@@ -383,6 +392,25 @@ class SchoolClass extends BaseModel implements AccessCheckable
                 case 'without_guest_classes':
                     $query->withoutGuestClasses();
                     break;
+                case 'subject_id':
+                    $query->whereIn('id',
+                        DB::table('school_classes as sc2')
+                            ->select('sc2.id')
+                            ->join('teachers', 'teachers.class_id', '=', 'sc2.id')
+                            ->where('teachers.subject_id', $value)
+                    );
+                    break;
+                case 'base_subject_id':
+                    $query->whereIn('id',
+                        DB::table('school_classes as sc2')
+                            ->select('sc2.id')
+                            ->join('teachers', 'teachers.class_id', '=', 'sc2.id')
+                            ->whereIn(
+                                'teachers.subject_id',
+                                Subject::select('id')->whereBaseSubjectId($value)
+                            )
+                    );
+                    break;
                 default:
                     break;
             }
@@ -407,6 +435,7 @@ class SchoolClass extends BaseModel implements AccessCheckable
             switch (strtolower($key)) {
                 case 'id':
                 case 'name':
+                case 'school_location_id':
                     $query->orderBy($key, $value);
                     break;
             }
@@ -513,5 +542,27 @@ class SchoolClass extends BaseModel implements AccessCheckable
     public function scopeWithGuestClasses($query)
     {
         return $query->where('guest_class', 1);
+    }
+
+    private function filterForExamcoordinator($query, User $user)
+    {
+        $classIds = SchoolClass::select(['id'])->where('school_location_id', $user->school_location_id)->withoutGuestClasses();
+
+        return $query->orWhereIn(self::getTable() . '.id', $classIds)->where('demo', 0);
+    }
+
+    public function scopeFromTestTakes($query, $testTakeIds)
+    {
+        return $query->whereIn(
+            'school_classes.id',
+            TestParticipant::select('school_class_id')
+                ->when(
+                    is_int($testTakeIds),
+                    fn($query) => $query->where('test_take_id', $testTakeIds),
+                    fn($query) => $query->whereIn('test_take_id', collect($testTakeIds))
+                )
+        )
+            ->withTrashed()
+            ->distinct();
     }
 }

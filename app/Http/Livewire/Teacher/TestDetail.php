@@ -7,6 +7,8 @@ use Livewire\Component;
 use tcCore\GroupQuestion;
 use tcCore\Question;
 use tcCore\Test;
+use tcCore\TestTake;
+use tcCore\TemporaryLogin;
 
 class TestDetail extends Component
 {
@@ -90,5 +92,17 @@ class TestDetail extends Component
             $this->dispatchBrowserEvent('notify', ['message' => __('general.duplication successful')]);
             $this->referrer = '';
         }
+    }
+
+    public function toPlannedTest($takeUuid)
+    {
+        $testTake = TestTake::whereUuid($takeUuid)->first();
+        if($testTake->isAssessmentType()){
+            $url = sprintf("test_takes/assessment_open_teacher/%s", $takeUuid);
+        }else{
+            $url = sprintf("test_takes/view/%s", $takeUuid);
+        }
+        $options = TemporaryLogin::buildValidOptionObject('page', $url);
+        return auth()->user()->redirectToCakeWithTemporaryLogin($options);
     }
 }

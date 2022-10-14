@@ -71,6 +71,10 @@ class AppServiceProvider extends ServiceProvider {
         Gate::define('canViewTestDetails', function (User $user, Test $test) {
             return $test->canViewTestDetails($user);
         });
+
+        Gate::define('useNewTakenTestsOverview', function (User $user) {
+            return $user->schoolLocation->allowNewTakenTestsPage;
+        });
     }
 
 }

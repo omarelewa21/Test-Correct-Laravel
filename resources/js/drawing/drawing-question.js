@@ -4,7 +4,7 @@ import {UIElements, warningBox} from "./uiElements.js";
 import * as sidebar from "./sidebar.js";
 import {v4 as uuidv4} from 'uuid';
 
-window.initDrawingQuestion = function (rootElement, isTeacher, isPreview) {
+window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, isOldDrawing) {
 
     /**
      * @typedef Cursor
@@ -44,6 +44,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview) {
             root: rootElement,
             isTeacher: isTeacher && !isPreview,
             isPreview: isPreview,
+            isOldDrawing:isOldDrawing,
             hiddenLayersCount: 0
         },
         firstInit: true,
@@ -65,7 +66,9 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview) {
                         makeGrid();
                         updateMidPoint();
                     }
-
+                    if(grid && grid !== '0'){
+                        drawGridBackground(grid);
+                    }
                     processGridToggleChange();
                     clearLayers();
                     retrieveSavedDrawingData();
@@ -74,6 +77,11 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview) {
 
                     drawingApp.firstInit = false;
                     clearInterval(pollingFunction);
+                    if(Canvas.params.initialZoomLevel != 1){
+                        updateZoomInputValue(Canvas.params.initialZoomLevel);
+                        zoom(Canvas.params.initialZoomLevel);
+                        panDrawingCenterToScreenCenter();
+                    }
                 }
             });
 
@@ -185,6 +193,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview) {
                 },
                 domMatrix: new DOMMatrix(),
                 zoomFactor: 1,
+                initialZoomLevel: 1,
             },
             element: UI.svgCanvas,
             layers: {},
@@ -912,7 +921,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview) {
     function decodeSvgLayerFromBase64String(layerData) {
         if (layerData.data.startsWith("data:image/png;base64")) {
             // made with old tool, load as image
-            const parentID = `question`;
+            const parentID = layerData.name;
             const shapeID = "image-1";
             const newShape = makeNewSvgShapeWithSidebarEntry(
                 "image",
@@ -1021,6 +1030,9 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview) {
                 !(!drawingApp.isTeacher() && layerName === "question")
             );
             Canvas.layers[layerName].shapes[shapeID] = newShape;
+            if(drawingApp.params.isOldDrawing && layerName === "question"){
+                fitDrawingToScreen();
+            }
             newShape.svg.addHighlightEvents();
         }
         UI.svgLayerToRender.innerHTML = "";
@@ -1984,6 +1996,18 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview) {
         Canvas.layers.grid.shape = new svgShape.Grid(0, props, UI.svgGridGroup, drawingApp, Canvas);
     }
 
+    function drawGridBackground(grid) {
+        const props = {
+            group: {},
+            main: {},
+            origin: {
+                id: "grid-origin",
+            },
+            size: 1/parseInt(grid) * 14,
+        }
+        new svgShape.Grid(0, props, UI.svgGridGroup, drawingApp, Canvas);
+    }
+
     function updateGridVisibility() {
         const grid = Canvas.layers.grid;
         const shape = grid.shape;
@@ -2289,7 +2313,7 @@ function clearPreviewGrid(rootElement) {
 window.makePreviewGrid = function (drawingApp, gridSvg) {
 
     const rootElement = drawingApp.params.root
-
+    
     clearPreviewGrid(rootElement);
 
     const props = {
