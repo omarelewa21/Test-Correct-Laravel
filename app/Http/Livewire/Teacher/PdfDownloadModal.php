@@ -7,14 +7,16 @@ use LivewireUI\Modal\ModalComponent;
 use tcCore\Http\Controllers\PrintTestController;
 use tcCore\Http\Controllers\TemporaryLoginController;
 use tcCore\Test;
+use tcCore\TestTake;
 
 class PdfDownloadModal extends ModalComponent
 {
     public string $waitingScreenHtml;
     public string $translation;
-    public string $uuid;
     public $test;
+    public $testTake;
     public bool $testHasPdfAttachments;
+    public bool $testTakeHasAnswers = false;
 
     public bool $displayValueRequiredMessage = false;
     protected static array $maxWidths = [
@@ -26,10 +28,16 @@ class PdfDownloadModal extends ModalComponent
         return 'w-modal';
     }
 
-    public function mount($test)
+    public function mount($uuid, bool $testTake = false)
     {
-        $this->uuid = $test;
-        $this->test = Test::findByUuid($test);
+        if ($testTake) {
+            $this->testTake = TestTake::whereUuid($uuid)->first();
+            $this->test = $this->testTake->test;
+            $this->testTakeHasAnswers = ((bool)$this->testTake->testParticipants()->count());
+            //$this->testTake->test_take_status_id >= 8; //only show if testTake discussed or Rated? or just if it has answers?
+        } else {
+            $this->test = Test::findByUuid($uuid);
+        }
 
         $this->testHasPdfAttachments = $this->test->hasPdfAttachments;
 
@@ -42,8 +50,8 @@ class PdfDownloadModal extends ModalComponent
         $request = new Request();
         $request->merge([
             'options' => [
-                'page'        => sprintf('/tests/view/%s', $this->uuid),
-                'page_action' => sprintf("Loading.show();Popup.load('/tests/pdf_showPDFAttachment/%s', 1000);", $this->uuid),
+                'page'        => sprintf('/tests/view/%s', $this->test->uuid),
+                'page_action' => sprintf("Loading.show();Popup.load('/tests/pdf_showPDFAttachment/%s', 1000);", $this->test->uuid),
             ],
         ]);
 

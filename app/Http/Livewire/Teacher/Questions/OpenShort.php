@@ -1378,6 +1378,13 @@ class OpenShort extends Component implements QuestionCms
         }
     }
 
+    public function clearQuestionBag(){
+        if ($this->obj && method_exists($this->obj, 'clearQuestionBag')) {
+            $this->obj->clearQuestionBag();
+        }
+        return true;
+    }
+
     private function setTaxonomyOptions()
     {
         $this->rttiOptions = ['R', 'T1', 'T2', 'I'];

@@ -3,6 +3,8 @@
 
 use Illuminate\Foundation\Http\Kernel as HttpKernel;
 use tcCore\Http\Middleware\AppDetection;
+use tcCore\Http\Middleware\AuthenticatedAsAccountManager;
+use tcCore\Http\Middleware\AuthenticatedAsAdministrator;
 use tcCore\Http\Middleware\AuthenticatedAsTeacher;
 use tcCore\Http\Middleware\AuthenticatedAsStudent;
 use tcCore\Http\Middleware\AuthenticateWithTemporaryLogin;
@@ -56,8 +58,10 @@ class Kernel extends HttpKernel
         'deploymentMaintenance' => CheckForDeploymentMaintenance::class,
         'student'               => AuthenticatedAsStudent::class,
         'forceTaken'            => TestTakeForceTakenAwayCheck::class,
-        'guest_choice'          => GuestChoice::class,
+        'guestChoice'           => GuestChoice::class,
         'throttle'              => \Illuminate\Routing\Middleware\ThrottleRequests::class,
+        'accountManager'        => AuthenticatedAsAccountManager::class,
+        'administrator'         => AuthenticatedAsAdministrator::class,
     ];
 
     /**
@@ -66,7 +70,7 @@ class Kernel extends HttpKernel
      * @var array
      */
     protected $middlewareGroups = [
-        'web' => [
+        'web'     => [
             \tcCore\Http\Middleware\EncryptCookies::class,
             \Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse::class,
             \Illuminate\Session\Middleware\StartSession::class,

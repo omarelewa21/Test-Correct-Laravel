@@ -103,7 +103,7 @@ abstract class FactoryQuestion implements FactoryQuestionInterface
 
     public function store()
     {
-        $this->addRandomAttainmentsBySubject();
+//        $this->addRandomAttainmentsBySubject();
         $this->addRandomTaxonomy();
 
         $this->questionProperties = array_merge(

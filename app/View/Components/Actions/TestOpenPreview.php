@@ -18,6 +18,6 @@ class TestOpenPreview extends TestActionComponent
 
     protected function getDisabledValue(): bool
     {
-        return Auth::user()->isValidExamCoordinator();
+        return false;
     }
 }

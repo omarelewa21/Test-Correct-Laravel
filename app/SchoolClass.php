@@ -4,7 +4,9 @@ use Carbon\Carbon;
 use Closure;
 
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Str;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
@@ -390,6 +392,25 @@ class SchoolClass extends BaseModel implements AccessCheckable
                 case 'without_guest_classes':
                     $query->withoutGuestClasses();
                     break;
+                case 'subject_id':
+                    $query->whereIn('id',
+                        DB::table('school_classes as sc2')
+                            ->select('sc2.id')
+                            ->join('teachers', 'teachers.class_id', '=', 'sc2.id')
+                            ->where('teachers.subject_id', $value)
+                    );
+                    break;
+                case 'base_subject_id':
+                    $query->whereIn('id',
+                        DB::table('school_classes as sc2')
+                            ->select('sc2.id')
+                            ->join('teachers', 'teachers.class_id', '=', 'sc2.id')
+                            ->whereIn(
+                                'teachers.subject_id',
+                                Subject::select('id')->whereBaseSubjectId($value)
+                            )
+                    );
+                    break;
                 default:
                     break;
             }
@@ -525,27 +546,15 @@ class SchoolClass extends BaseModel implements AccessCheckable
 
     private function filterForExamcoordinator($query, User $user)
     {
-        switch ($user->is_examcoordinator_for) {
-            case 'SCHOOL_LOCATION':
-                $classIds = $user->schoolLocation->schoolClasses()->where('guest_class', 0)->pluck('id')->toArray();
-                break;
-            case 'SCHOOL':
-                $classIds = $user->schoolLocation->school->schoolLocations()
-                                ->join('school_classes', 'school_classes.school_location_id', 'school_locations.id')
-                                ->where('school_classes.guest_class', 0)
-                                ->select('school_classes.id')->pluck('id')->toArray();
-                break;
-            default:
-                $classIds = [];
-                break;
-        }
+        $classIds = SchoolClass::select(['id'])->where('school_location_id', $user->school_location_id)->withoutGuestClasses();
+
         return $query->orWhereIn(self::getTable() . '.id', $classIds)->where('demo', 0);
     }
 
     public function scopeFromTestTakes($query, $testTakeIds)
     {
         return $query->whereIn(
-            'id',
+            'school_classes.id',
             TestParticipant::select('school_class_id')
                 ->when(
                     is_int($testTakeIds),

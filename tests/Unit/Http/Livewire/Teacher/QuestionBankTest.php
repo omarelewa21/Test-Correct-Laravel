@@ -4,9 +4,11 @@ namespace Tests\Unit\Http\Livewire\Teacher;
 
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Livewire\Livewire;
+use tcCore\Attainment;
 use tcCore\Exceptions\QuestionException;
 use tcCore\Http\Livewire\Teacher\QuestionBank;
 use tcCore\Question;
+use tcCore\QuestionAttainment;
 use tcCore\Test;
 use Tests\TestCase;
 
@@ -59,15 +61,15 @@ class QuestionBankTest extends TestCase
         $this->assertEquals($questions->count(), $cleanDBExpectedCount);
     }
 
-    public function test_question_scope_published_filtered_returns_national_dataset_without_filters_for_d1()
-    {
-        $this->actingAs($this->getTeacherOne());
-        $cleanDBExpectedCount = Question::whereIn('scope', Test::NATIONAL_ITEMBANK_SCOPES)->count();
-
-        $questions = Question::publishedFiltered();
-
-        $this->assertEquals($questions->count(), $cleanDBExpectedCount);
-    }
+//    public function test_question_scope_published_filtered_returns_national_dataset_without_filters_for_d1()
+//    {
+//        $this->actingAs($this->getTeacherOne());
+//        $cleanDBExpectedCount = Question::whereIn('scope', Test::NATIONAL_ITEMBANK_SCOPES)->count();
+//
+//        $questions = Question::publishedFiltered();
+//
+//        $this->assertEquals($questions->count(), $cleanDBExpectedCount);
+//    }
 
     public function test_question_scope_published_filtered_throws_exception_when_filtering_on_base_subject_id_that_is_not_in_current_school_year_for_d1()
     {
@@ -162,5 +164,46 @@ class QuestionBankTest extends TestCase
         $this->assertNull($newQuestion->derived_question_id);
         $this->assertFalse(!!$newQuestion->add_to_database);
         $this->assertTrue(!!$newQuestion->add_to_database_disabled);
+    }
+
+    public function test_question_added_from_national_tab_creates_clean_copy_of_question_with_attainments()
+    {
+        //Base setup
+        $this->actingAs($this->getTeacherOne());
+        $test = Test::find(3);
+
+        //Get Question and Attainment to add to question
+        $nationalItemBankFilters = [
+            'base_subject_id' => [1],
+            'source'          => 'national',
+        ];
+        $nationalItemBankQuestion = Question::publishedFiltered($nationalItemBankFilters)->where('type', '<>', 'InfoscreenQuestion')->first();
+        $baseSubjectId = $nationalItemBankQuestion->subject()->value('base_subject_id');
+        $attainmentToAdd = Attainment::where('base_subject_id', $baseSubjectId)->first();
+
+        //Verify the question has no attainments yet
+        $this->assertNull(QuestionAttainment::whereQuestionId($nationalItemBankQuestion->getKey())->first()); ;
+
+        //Attach the attainment to the question
+        $nationalItemBankQuestion->questionAttainments()->create([
+            'attainment_id' => $attainmentToAdd->getKey()
+        ]);
+
+        //Verify the question now has the attainment attached
+        $this->assertNotNull(QuestionAttainment::whereQuestionId($nationalItemBankQuestion->getKey())->first()); ;
+        $this->assertNotEmpty($nationalItemBankQuestion->getQuestionInstance()->attainments);
+        $this->assertEquals($nationalItemBankQuestion->getQuestionInstance()->attainments->first()->getKey(), $attainmentToAdd->getKey());
+
+        //Duplicate the question via the QuestionBank
+        Livewire::withQueryParams(['testId' => $test->uuid, 'testQuestionId' => ''])
+            ->test(QuestionBank::class)
+            ->call('handleCheckboxClick', $nationalItemBankQuestion->getQuestionInstance()->uuid)
+            ->assertDispatchedBrowserEvent('question-added');
+
+        $newQuestion = Question::latest()->first();
+
+        //Verify the new question has the attainment aswel;
+        $this->assertNotEmpty($newQuestion->getQuestionInstance()->attainments);
+        $this->assertEquals($newQuestion->getQuestionInstance()->attainments->first()->getKey(), $attainmentToAdd->getKey());
     }
 }

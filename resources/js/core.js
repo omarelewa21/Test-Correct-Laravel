@@ -38,7 +38,7 @@ Core = {
         Core.appType === '' ? Core.enableBrowserFeatures() : Core.enableAppFeatures(Core.appType);
     },
     lostFocus: function (reason) {
-        if (!isMakingTest() || Core.appType == 'electron') {
+        if (!isMakingTest()) {
             return;
         }
 
@@ -238,8 +238,8 @@ Core = {
     },
     /**
      * Waits an interval time before logging user out
-     * @param boolean firstLoad
-     * @param int secondsBeforeTeacherLogout - default 15 min
+     * @param {boolean} firstLoad
+     * @param {int} secondsBeforeTeacherLogout - default 15 min
      */
     startUserLogoutInterval(firstLoad=false, secondsBeforeTeacherLogout=15*60){
         let inactive = 0;
@@ -274,7 +274,9 @@ function checkPageFocus() {
     if (!parent.skip) {
         if (!document.hasFocus()) {
             if (!notifsent) {  // checks for the notifcation if it is already sent to the teacher
-                Core.lostFocus('lost-focus');
+                if (Core.appType != 'electron') {
+                    Core.lostFocus('lost-focus');
+                }
                 notifsent = true;
             }
         } else {

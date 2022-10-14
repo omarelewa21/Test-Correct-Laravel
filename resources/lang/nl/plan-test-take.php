@@ -47,4 +47,6 @@
 			'test_owner' => 'Testeigenaar',
 
 			'owner_id_missing'	=> 'Kies een eigenaar voor de test',
+			'plan_test_for'	=> 'Plan toets in voor',
+
 ];

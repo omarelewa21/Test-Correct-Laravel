@@ -85,7 +85,6 @@
     @endif
 
     <x-slot name="footerbuttons">&nbsp;</x-slot>
-    <x-slot name="testTakeManager">&nbsp;</x-slot>
 
     <style>
         .lds-hourglass {

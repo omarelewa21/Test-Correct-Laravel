@@ -34,6 +34,7 @@ return [
     'number-of-tests-national'        => '{0} No tests found|{1} :count test found|[2,*] :count tests found',
     'number-of-tests-personal'        => '{0} No tests found|{1} :count test found|[2,*] :count tests found',
     'number-of-tests-school'          => '{0} No tests found|{1} :count test found|[2,*] :count tests found',
+    'number-of-tests-school_location' => '{0} No tests found|{1} :count test found|[2,*] :count tests found',
     'number-of-tests-umbrella'        => '{0} No tests found|{1} :count test found|[2,*] :count tests found',
     'number-of-tests-creathlon'       => '{0} No tests found|{1} :count test found|[2,*] :count tests found',
     'cito-snelstart'                  => 'Cito Fast start',
@@ -61,4 +62,6 @@ return [
     'Nakijken en normeren'            => 'Assess & set norm',
     'Mijn afgenomen toetsen'          => 'My given tests',
     'Kopie'                           => 'Copy',
+    'yes'                             => 'Yes',
+    'no'                              => 'No',
 ];

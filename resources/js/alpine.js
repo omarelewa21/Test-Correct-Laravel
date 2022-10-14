@@ -291,6 +291,10 @@ document.addEventListener('alpine:init', () => {
         answerSvg: entanglements.answerSvg,
         questionSvg: entanglements.questionSvg,
         gridSvg: entanglements.gridSvg,
+        grid: entanglements.grid,
+        isOldDrawing: entanglements.isOldDrawing,
+        showWarning: false,
+        clearSlate: false,
         isTeacher: isTeacher,
         toolName: null,
         isPreview: isPreview,
@@ -299,7 +303,7 @@ document.addEventListener('alpine:init', () => {
             if (Object.getOwnPropertyNames(window).includes(this.toolName)) {
                 delete window[this.toolName];
             }
-            const toolName = window[this.toolName] = initDrawingQuestion(this.$root, this.isTeacher, this.isPreview, this.grid);
+            const toolName = window[this.toolName] = initDrawingQuestion(this.$root, this.isTeacher, this.isPreview, this.grid, this.isOldDrawing);
 
             if (this.isTeacher) {
                 this.makeGridIfNecessary(toolName);
@@ -346,8 +350,6 @@ document.addEventListener('alpine:init', () => {
             if (this.gridSvg !== '' && this.gridSvg !== '0.00') {
                 gridSize = this.gridSvg;
 
-            }else if(this.grid && this.grid !== '0'){
-                gridSize =  1/parseInt(this.grid) * 14;
             }
             if (gridSize) {
                 makePreviewGrid(toolName.drawingApp, gridSize);
@@ -578,14 +580,18 @@ document.addEventListener('alpine:init', () => {
                 refreshChoices()
 
                 this.$refs.select.addEventListener('choice', (event) => {
-                    if (this.value.includes(parseInt(event.detail.choice.value))) {
+                    let eventValue = isNaN(parseInt(event.detail.choice.value)) ? event.detail.choice.value : parseInt(event.detail.choice.value);
+                    if (!Array.isArray(this.value)) {
+                        this.value = eventValue;
+                        return;
+                    }
+                    if (this.value.includes(eventValue)) {
                         this.removeFilterItem(choices.getValue().find(value => value.value === event.detail.choice.value));
                     }
                 })
                 this.$refs.select.addEventListener('change', () => {
-                    this.value = choices.getValue(true)
-                    // This causes 2 update calls:
-                    // this.wireModel = this.value;
+                    if (!Array.isArray(this.value)) return;
+                    this.value = choices.getValue(true);
                 })
 
                 let eventName = 'removeFrom' + this.$root.dataset.modelName;
@@ -602,6 +608,7 @@ document.addEventListener('alpine:init', () => {
         },
 
         removeFilterItem(item) {
+            if (!Array.isArray(this.value)) return;
             this.value = this.wireModel = this.value.filter(itemValue => itemValue !== item.value);
             this.clearFilterPill(item.value);
         },
@@ -611,6 +618,7 @@ document.addEventListener('alpine:init', () => {
         },
 
         handleActiveFilters(choicesValues) {
+            if (!Array.isArray(this.value)) return;
             this.value.forEach(item => {
                 if (this.needsFilterPill(item)) {
                     const cItem = choicesValues.find(value => value.value === item);

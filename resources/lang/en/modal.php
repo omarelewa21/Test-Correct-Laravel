@@ -2,7 +2,7 @@
 return [
     'Terug'                                => 'Back',
     'cancel'                               => 'Cancel',
-    'annuleren'                            => 'Annuleren',
+    'annuleren'                            => 'Cancel',
     'warning'                              => 'Warning',
     'sluiten'                              => 'Close',
     'close'                                => 'Close',
@@ -12,6 +12,6 @@ return [
     'cannot_schedule_test_full_author'     => 'This test can not be scheduled because of one or more problems that have to be sorted out first. Please resolve the problems by editing the test.',
     'cannot_schedule_no_questions'         => 'This test can not be scheduled because it contains no questions. First add questions before planning the test.',
     'logout_warning_title'                 => 'Attention! You will automatically be logged out',
-    'logout_warning_text'                  => 'To guarantee the security of your account, you will automatically be logged out of Test-Correct after 15 minutes of inactivity. Do you want to extend your session by 2 hours?',
+    'logout_warning_text'                  => 'You have been inactive on Test-Correct for a long time and will be automatically logged out in 30 seconds to guarantee the security of your account. Do you want to extend your session by 15 minutes?',
     'extend_session'                       => 'Extend session',
 ];
