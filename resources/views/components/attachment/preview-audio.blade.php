@@ -31,7 +31,7 @@
         document.querySelector('#player'),
         @this,
         '{{$attachment->uuid}}',
-        '{!! $attachment->json !!}',
+        '{!! $this->questionAttachment->options !!}',
         true,
         'preview'
     );

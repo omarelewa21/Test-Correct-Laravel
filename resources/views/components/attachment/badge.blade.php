@@ -98,7 +98,7 @@
                                 @else
                                     <x-input.toggle
                                             @change="$wire.handleAttachmentSettingChange({'play_once': $event.target.checked ? '1' : '0'}, '{{ $attachment->uuid }}')"
-                                            :checked="$attachment->hasSetting('play_once', $this->questionId) === '1'"
+                                            :checked="(bool)$attachment->hasSetting('play_once', $this->questionId)"
                                     />
                                 @endif
                             </div>
@@ -117,7 +117,7 @@
                                 @else
                                     <x-input.toggle
                                             @change="$wire.handleAttachmentSettingChange({'pausable': $event.target.checked ? '1' : '0'}, '{{ $attachment->uuid }}')"
-                                            :checked="$attachment->hasSetting('pausable', $this->questionId) === '1'"
+                                            :checked="(bool)$attachment->hasSetting('pausable', $this->questionId)"
                                     />
                                 @endif
                             </div>

@@ -31,8 +31,8 @@
         document.querySelector('#player-{{ $attachment->uuid }}'),
         @this,
         '{{$attachment->uuid}}',
-        '{!! $attachment->json !!}',
-        '{{true}}'
+        '{!! $this->questionAttachment->options !!}',
+        '{{$this->questionAttachment->audioCanBePlayedAgain()}}'
     );
 
     player.on('loadeddata', ()=> {
