@@ -1758,7 +1758,11 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
                     });
                     break;
                 case 'trial':
-                    $query->whereIn('id', TrialPeriod::select(['user_id']));
+//                    $query->whereIn('id', TrialPeriod::select(['user_id']));
+                    $query->whereIn(
+                        'school_location_id',
+                        SchoolLocation::where('license_type', 'TRIAL')->select('id')
+                    );
                     break;
                 case 'without_guests':
                     $query->when($value, function($query) {
