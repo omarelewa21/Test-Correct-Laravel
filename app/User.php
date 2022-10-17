@@ -565,6 +565,10 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
                 $user->managerSchoolClasses ??= [];
                 $user->mentorSchoolClasses ??= [];
             }
+
+            if($user->isDirty(['is_examcoordinator', 'is_examcoordinator_for'])) {
+                $user->setAttribute('session_hash', '');
+            }
         });
 
         static::saved(function(User $user){
