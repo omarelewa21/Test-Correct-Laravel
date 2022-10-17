@@ -535,7 +535,7 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
             if ($user->userRoles !== null) {
                 $user->saveUserRoles();
             }
-            if ($user->isA('teacher') && $user->demo == false) {
+            if ($user->roles()->first()->getKey() === Role::TEACHER && $user->demo == false) {
                 $schoolYear = SchoolYearRepository::getCurrentSchoolYear();
                 if (null === $schoolYear) {
                     $user->forceDelete();

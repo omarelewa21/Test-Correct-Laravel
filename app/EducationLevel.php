@@ -165,24 +165,11 @@ class EducationLevel extends BaseModel {
 
     private function filterForExamcoordinator($query, User $user)
     {
-        switch ($user->is_examcoordinator_for) {
-            case 'SCHOOL_LOCATION':
-                $classIds = $user->schoolLocation->schoolClasses()->pluck('id')->toArray();
-                break;
-            case 'SCHOOL':
-                $classIds = $user->schoolLocation->school->schoolLocations()
-                                ->join('school_classes', 'school_classes.school_location_id', 'school_locations.id')
-                                ->select('school_classes.id')->pluck('id')->toArray();
-                break;
-            default:
-                $classIds = [];
-                break;
-        }
-        return $query->whereIn('id', function ($query) use ($classIds) {
-            $query->select('education_level_id')
-                ->from(with(new SchoolClass())->getTable())
-                ->whereIn('id', $classIds)
-                ->where('deleted_at', null);
-        });
+        $classIdsQuery = $user->schoolLocation->schoolClasses()->select('id');
+
+        return $query->whereIn(
+            'id',
+            SchoolClass::select('education_level_id')->whereIn('id', $classIdsQuery)
+        );
     }
 }

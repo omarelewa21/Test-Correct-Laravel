@@ -308,24 +308,11 @@ class Subject extends BaseModel implements AccessCheckable
 
     private function filterForExamcoordinator($query, User $user)
     {
-        switch ($user->is_examcoordinator_for) {
-            case 'SCHOOL_LOCATION':
-                $subjectIds = $user->schoolLocation->schoolLocationSections()
-                    ->join('sections', 'school_location_sections.section_id', 'sections.id')
-                    ->join('subjects', 'subjects.section_id', 'sections.id')
-                    ->select('subjects.id', 'subjects.name')->groupBy('subjects.name')->pluck('id')->toArray();
-                break;
-            case 'SCHOOL':
-                $subjectIds = $user->schoolLocation->school->schoolLocations()
-                    ->join('school_location_sections', 'school_location_sections.school_location_id', 'school_locations.id')
-                    ->join('sections', 'school_location_sections.section_id', 'sections.id')
-                    ->join('subjects', 'subjects.section_id', 'sections.id')
-                    ->select('subjects.id', 'subjects.name')->groupBy('subjects.name')->pluck('id')->toArray();
-                break;
-            default:
-                $subjectIds = [];
-                break;
-        }
+        $subjectIds = $user->schoolLocation->schoolLocationSections()
+            ->join('sections', 'school_location_sections.section_id', 'sections.id')
+            ->join('subjects', 'subjects.section_id', 'sections.id')
+            ->select('subjects.id');
+
         return $query->whereIn('id', $subjectIds)->where('demo', 0);
     }
 
