@@ -194,27 +194,61 @@ class TestTakeLaravelController extends Controller
             return $this->redirectToCorrectTakePage($notification);
         }
         
-        $testTake = TestTake::whereUuid($testTakeUuid)->first();
+        $user = Auth::user();
+        $testTake = TestTake::whereUuid($testTakeUuid)->with('test', 'testTakeStatus')->first();
         if (!auth()->check()) {
             session(['take' => $testTake->uuid]);
             return redirect()->route('auth.login');
         }
 
-        $user = auth()->user();
         if($user->isA('student')){
             // Student
             return redirect()->route('student.waiting-room', ['take' => $testTake->uuid]);
         }
 
         if($user->isA('teacher') && $testTake->user_id === $user->id){
-            // Owner of the test take
+            return $this->redirectTakeOwner($testTake);
+        }elseif($testTake->isInvigilator($user)){
+            return $this->redirectTakeInvigilator($testTake);
+        }else{
+            $notification = __('teacher.test_not_found');
+            return $this->redirectToCorrectTakePage($notification, $url);
+        }
+    }
+
+    private function redirectTakeOwner(TestTake $testTake){
+        $notification=null;
+        $url=null;
+
+        if($testTake->isAssessmentType()){
+            // is assignment
+            if($testTake->testTakeStatus->name == 'Taking test' || $testTake->testTakeStatus->name == 'Planned'){
+                $url = sprintf("test_takes/assessment_open_teacher/%s", $testTake->uuid);
+            }else{
+                $url = sprintf("test_takes/view/%s", $testTake->uuid);
+            }
+        }else{
             if($testTake->testTakeStatus->name == 'Taking test'){
                 $url = "test_takes/surveillance";
             }else{
                 $url = sprintf("test_takes/view/%s", $testTake->uuid);
             }
-        }elseif($testTake->isInvigilator($user)){
-            // Invigilator
+        }
+        return $this->redirectToCorrectTakePage($notification, $url);
+    }
+
+    private function redirectTakeInvigilator(TestTake $testTake){
+        $notification=null;
+        $url=null;
+
+        if($testTake->isAssessmentType()){
+            // is assignment
+            if($testTake->testTakeStatus->name == 'Taking test' || $testTake->testTakeStatus->name == 'Planned'){
+                $url = sprintf("test_takes/assessment_open_teacher/%s", $testTake->uuid);
+            }else{
+                $notification = __('teacher.take_not_accessible_toast_for_invigilator', ['testName' => $testTake->test->name]);
+            }
+        }else{
             if($testTake->testTakeStatus->name == 'Planned'){
                 $url = sprintf("test_takes/view/%s", $testTake->uuid);
             }elseif($testTake->testTakeStatus->name == 'Taking test'){
@@ -222,10 +256,7 @@ class TestTakeLaravelController extends Controller
             }else{
                 $notification = __('teacher.take_not_accessible_toast_for_invigilator', ['testName' => $testTake->test->name]);
             }
-        }else{
-            $notification = __('teacher.test_not_found');
         }
-
         return $this->redirectToCorrectTakePage($notification, $url);
     }
 

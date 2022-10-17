@@ -2,6 +2,7 @@
 
 namespace tcCore\Http\Livewire\Teacher;
 
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 use Livewire\WithPagination;
@@ -9,6 +10,7 @@ use tcCore\BaseSubject;
 use tcCore\EducationLevel;
 use tcCore\Subject;
 use tcCore\Test;
+use tcCore\TestTake;
 use tcCore\TemporaryLogin;
 use tcCore\TestAuthor;
 use tcCore\Traits\ContentSourceTabsTrait;
@@ -122,7 +124,7 @@ class TestsOverview extends Component
             $this->cleanFilterForSearch($this->filters['personal']),
             $this->sorting
         )
-            ->where('tests.author_id', auth()->user()->id);
+            ->where('tests.author_id', auth()->id());
     }
 
     private function getUmbrellaDatasource()
@@ -238,13 +240,9 @@ class TestsOverview extends Component
 
     private function cleanFilterForSearch(array $filters)
     {
-        $searchFilter = [];
-        foreach (['name', 'education_level_year', 'education_level_id', 'subject_id', 'author_id', 'base_subject_id'] as $filter) {
-            if (!empty($filters[$filter])) {
-                $searchFilter[$filter] = $filters[$filter];
-            }
-        }
-        return $searchFilter;
+        return collect($filters)->reject(function ($filter) {
+            return $filter instanceof Collection ? $filter->isEmpty() : empty($filter);
+        })->toArray();
     }
 
     public function openTestDetail($testUuid)
@@ -330,7 +328,12 @@ class TestsOverview extends Component
 
     public function toPlannedTest($takeUuid)
     {
-        $url = sprintf("test_takes/view/%s", $takeUuid);
+        $testTake = TestTake::whereUuid($takeUuid)->first();
+        if($testTake->isAssessmentType()){
+            $url = sprintf("test_takes/assessment_open_teacher/%s", $takeUuid);
+        }else{
+            $url = sprintf("test_takes/view/%s", $takeUuid);
+        }
         $options = TemporaryLogin::buildValidOptionObject('page', $url);
         return auth()->user()->redirectToCakeWithTemporaryLogin($options);
     }

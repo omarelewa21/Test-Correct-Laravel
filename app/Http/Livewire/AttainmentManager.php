@@ -36,7 +36,6 @@ class AttainmentManager extends Component
     {
         if($this->educationLevelId) {
             $this->attainmentEducationLevelId = (Educationlevel::find($this->educationLevelId))->attainment_education_level_id;
-            logger(' attainment education level id '.$this->attainmentEducationLevelId.' => '.$this->educationLevelId);
         }
 
         $filter = [

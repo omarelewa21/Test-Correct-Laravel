@@ -21,10 +21,21 @@ class AnalysesSubAttainmentDashboard extends AnalysesDashboard
 
     public $attainment;
 
+    public $attainmentOrderNumber = 0;
+
+    public $parentAttainmentOrderNumber = 0;
 
     public function mount(?Attainment $attainment = null)
     {
         $this->attainment = $attainment;
+        if ($this->attainment) {
+            $this->attainmentOrderNumber = $this->attainment->getOrderNumber();
+            if ($this->attainment->attainment) {
+                $this->parentAttainmentOrderNumber = $this->attainment->attainment->getOrderNumber();
+            }
+        }
+
+
         $this->clearFilters();
         $this->getFilterOptionsData();
     }

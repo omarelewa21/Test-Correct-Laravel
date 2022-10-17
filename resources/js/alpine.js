@@ -291,6 +291,10 @@ document.addEventListener('alpine:init', () => {
         answerSvg: entanglements.answerSvg,
         questionSvg: entanglements.questionSvg,
         gridSvg: entanglements.gridSvg,
+        grid: entanglements.grid,
+        isOldDrawing: entanglements.isOldDrawing,
+        showWarning: false,
+        clearSlate: false,
         isTeacher: isTeacher,
         toolName: null,
         isPreview: isPreview,
@@ -299,7 +303,7 @@ document.addEventListener('alpine:init', () => {
             if (Object.getOwnPropertyNames(window).includes(this.toolName)) {
                 delete window[this.toolName];
             }
-            const toolName = window[this.toolName] = initDrawingQuestion(this.$root, this.isTeacher, this.isPreview, this.grid);
+            const toolName = window[this.toolName] = initDrawingQuestion(this.$root, this.isTeacher, this.isPreview, this.grid, this.isOldDrawing);
 
             if (this.isTeacher) {
                 this.makeGridIfNecessary(toolName);
@@ -346,8 +350,6 @@ document.addEventListener('alpine:init', () => {
             if (this.gridSvg !== '' && this.gridSvg !== '0.00') {
                 gridSize = this.gridSvg;
 
-            }else if(this.grid && this.grid !== '0'){
-                gridSize =  1/parseInt(this.grid) * 14;
             }
             if (gridSize) {
                 makePreviewGrid(toolName.drawingApp, gridSize);
@@ -564,8 +566,9 @@ document.addEventListener('alpine:init', () => {
 
                 let refreshChoices = () => {
                     let selection = this.multiple ? this.value : [this.value]
-                    choices.clearStore()
-                    choices.setChoices(this.options.map(({value, label}) => ({
+                    choices.clearStore();
+                    let options = typeof this.options === 'object' ? Object.values(this.options) : this.options;
+                    choices.setChoices(options.map(({value, label}) => ({
                         value,
                         label,
                         selected: selection.includes(value)
@@ -577,11 +580,12 @@ document.addEventListener('alpine:init', () => {
                 refreshChoices()
 
                 this.$refs.select.addEventListener('choice', (event) => {
+                    let eventValue = isNaN(parseInt(event.detail.choice.value)) ? event.detail.choice.value : parseInt(event.detail.choice.value);
                     if (!Array.isArray(this.value)) {
-                        this.value = event.detail.choice.value;
+                        this.value = eventValue;
                         return;
                     }
-                    if (this.value.includes(parseInt(event.detail.choice.value))) {
+                    if (this.value.includes(eventValue)) {
                         this.removeFilterItem(choices.getValue().find(value => value.value === event.detail.choice.value));
                     }
                 })
@@ -751,7 +755,9 @@ document.addEventListener('alpine:init', () => {
                 });
 
                 chart.listen("pointsSelect", function (e) {
-                    window.open(e.point.get('link'), '_self');
+                    if (e.point.get('link')) {
+                        window.open(e.point.get('link'), '_self');
+                    }
                 });
 
                 // // set container id for the chart
@@ -790,17 +796,19 @@ document.addEventListener('alpine:init', () => {
                         basedOnElement.appendChild(document.createTextNode(dataRow.basedOn));
                         contentElement.appendChild(basedOnElement);
 
-                        const detailElement = document.createElement("p");
-                        detailElement.style.whiteSpace = 'nowrap'
-                        detailElement.style.color = 'var(--system-base)';
-                        detailElement.style.fontWeight = '900';
-                        detailElement.appendChild(document.createTextNode("Bekijk analyse"));
+                        if (dataRow.link != false) {
+                            const detailElement = document.createElement("p");
+                            detailElement.style.whiteSpace = 'nowrap'
+                            detailElement.style.color = 'var(--system-base)';
+                            detailElement.style.fontWeight = '900';
+                            detailElement.appendChild(document.createTextNode("Bekijk analyse"));
 
-                        const iconElement = document.createElement('img');
-                        iconElement.src = '/svg/icons/arrow-small.svg';
-                        iconElement.style.display = 'inline-block'
-                        detailElement.appendChild(iconElement)
-                        contentElement.appendChild(detailElement);
+                            const iconElement = document.createElement('img');
+                            iconElement.src = '/svg/icons/arrow-small.svg';
+                            iconElement.style.display = 'inline-block'
+                            detailElement.appendChild(iconElement)
+                            contentElement.appendChild(detailElement);
+                        }
                     }
                 });
                 chart.tooltip().onDomReady(function (e) {
@@ -940,7 +948,9 @@ document.addEventListener('alpine:init', () => {
                 });
 
                 chart.listen("pointsSelect", function (e) {
-                    window.open(e.point.get('link'), '_self');
+                    if (e.point.get('link')) {
+                        window.open(e.point.get('link'), '_self');
+                    }
                 });
 
                 chart.interactivity("by-x");
@@ -985,24 +995,26 @@ document.addEventListener('alpine:init', () => {
                         basedOnElement.appendChild(document.createTextNode(dataRow.basedOn));
                         contentElement.appendChild(basedOnElement);
 
-                        const detailElement = document.createElement("p");
-                        detailElement.style.whiteSpace = 'nowrap'
-                        detailElement.style.color = 'var(--system-base)';
-                        detailElement.style.fontWeight = '900';
-                        detailElement.appendChild(document.createTextNode("Bekijk analyse!! "));
+                        if (dataRow.text != null) {
+                            const detailElement = document.createElement("p");
+                            detailElement.style.whiteSpace = 'nowrap'
+                            detailElement.style.color = 'var(--system-base)';
+                            detailElement.style.fontWeight = '900';
+                            detailElement.appendChild(document.createTextNode("Bekijk analyse "));
 
-                        const iconElement = document.createElement('img');
-                        iconElement.src = '/svg/icons/arrow-small.svg';
-                        iconElement.style.display = 'inline-block'
-                        detailElement.appendChild(iconElement)
-                        contentElement.appendChild(detailElement);
+                            const iconElement = document.createElement('img');
+                            iconElement.src = '/svg/icons/arrow-small.svg';
+                            iconElement.style.display = 'inline-block'
+                            detailElement.appendChild(iconElement)
+                            contentElement.appendChild(detailElement);
 
-                        const AttainmentTexElement = document.createElement("p");
-                        AttainmentTexElement.style.color = 'var(--system-base)'
-                        AttainmentTexElement.appendChild(
-                            document.createTextNode(dataRow.text)
-                        );
-                        contentElement.appendChild(AttainmentTexElement);
+                            const AttainmentTexElement = document.createElement("p");
+                            AttainmentTexElement.style.color = 'var(--system-base)'
+                            AttainmentTexElement.appendChild(
+                                document.createTextNode(dataRow.text)
+                            );
+                            contentElement.appendChild(AttainmentTexElement);
+                        }
                     }
                 });
 

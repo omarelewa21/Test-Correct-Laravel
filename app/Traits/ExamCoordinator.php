@@ -12,7 +12,7 @@ trait ExamCoordinator
     private function handleExamCoordinatorChange()
     {
         // Only schoolmanagers can make the change - Different place?
-        if (!Auth::user()->isA('School manager')) {
+        if (!optional(Auth::user())->isA('School manager')) {
             return true;
         }
 

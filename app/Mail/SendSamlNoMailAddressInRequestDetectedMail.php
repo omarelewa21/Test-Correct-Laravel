@@ -14,17 +14,19 @@ class SendSamlNoMailAddressInRequestDetectedMail extends Mailable
     public $schoolName;
     public $timeDetected;
     public $subject;
+    public $attr;
 
     /**
      * Create a new message instance.
      *
      * @return void
      */
-    public function __construct($schoolName, $subject)
+    public function __construct($schoolName, $subject, $attr = [])
     {
         $this->schoolName = $schoolName;
         $this->timeDetected = now();
         $this->subject = $subject;
+        $this->attr = $attr;
     }
 
     /**

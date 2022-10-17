@@ -72,7 +72,7 @@ class OpenShort extends Component implements QuestionCms
 
     public $withDrawer = false;
 
-    public $testAuthors = '';
+    public $authors = '';
 
     public $pValues = [];
 
@@ -222,7 +222,7 @@ class OpenShort extends Component implements QuestionCms
 
         $this->isPartOfGroupQuestion = false;
 
-        $this->testAuthors = '';
+        $this->authors = '';
 
         $this->pValues = [];
 
@@ -338,7 +338,6 @@ class OpenShort extends Component implements QuestionCms
         $this->canDeleteTest = $activeTest->canDelete(Auth::user());
 
         $this->testName = $activeTest->name;
-        $this->testAuthors = $activeTest->AuthorsAsString;
         $this->subjectId = $activeTest->subject_id;
         $this->educationLevelId = $activeTest->education_level_id;
     }
@@ -947,6 +946,7 @@ class OpenShort extends Component implements QuestionCms
             }
 
             $this->duplicateQuestion = $activeTest->getDuplicateQuestionIds()->contains($this->questionId);
+            $this->authors = $q->getAuthorNamesString();
         }
 
         if ($this->obj && method_exists($this->obj, 'createAnswerStruct')) {
@@ -1376,6 +1376,13 @@ class OpenShort extends Component implements QuestionCms
         if ($this->isDirty()) {
             $this->save(false);
         }
+    }
+
+    public function clearQuestionBag(){
+        if ($this->obj && method_exists($this->obj, 'clearQuestionBag')) {
+            $this->obj->clearQuestionBag();
+        }
+        return true;
     }
 
     private function setTaxonomyOptions()

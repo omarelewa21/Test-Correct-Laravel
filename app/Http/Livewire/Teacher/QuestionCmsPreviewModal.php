@@ -95,7 +95,7 @@ class QuestionCmsPreviewModal extends ModalComponent implements QuestionCms
             return view('livewire.teacher.questions.' . $this->obj->getTemplate(), ['preview' => 'livewire.teacher.question-cms-preview-modal']);
         }
 
-        throw new \Exception('Je hebt iets gefaald.');
+        throw new \Exception('Template not found for the question preview.');
     }
 
     public function __call($method, $arguments = null)
@@ -254,7 +254,7 @@ class QuestionCmsPreviewModal extends ModalComponent implements QuestionCms
      */
     public function addQuestion()
     {
-        $this->emitTo(QuestionBank::class, 'addQuestionFromDetail', $this->questionModel->id);
+        $this->emitTo(QuestionBank::class, 'addQuestionFromDetail', $this->questionModel->uuid);
         $this->forceClose()->closeModal();
     }
 

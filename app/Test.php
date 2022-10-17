@@ -280,7 +280,7 @@ class Test extends BaseModel
         $user = Auth::user();
 
         $query->select();
-        $subjectIds = Subject::getIdsForContentSource($user, $customer_codes);
+        $subjectIds = Subject::getIdsForContentSource($user, Arr::wrap($customer_codes));
         if (is_array($subjectIds) && count($subjectIds) == 0) {
             $query->where('tests.id', -1);
             return $query;
@@ -462,7 +462,19 @@ class Test extends BaseModel
             $attributes['name'] = 'Kopie #' . $copy . ' ' . $this->getAttribute('name');
         }
 
-        return $this->duplicate($attributes, $authorId);
+        $subjectId = false;
+        if (isset($attributes['subject_id'])) {
+            $subjectId = $attributes['subject_id'];
+            unset($attributes['subject_id']);
+        }
+
+        $test = $this->duplicate($attributes, $authorId);
+
+        if ($subjectId) {
+            $test->refresh()->subject_id = $subjectId;
+            $test->save();
+        }
+        return $test;
     }
 
     public function duplicate(array $attributes, $authorId = null, callable $callable = null)
@@ -764,7 +776,7 @@ class Test extends BaseModel
                                                             t9.school_location_id = %d
                                                             ) as s2
                                                     on t2.subject_id = s2.subject_id
-                                            where t2.demo = false',
+                                            where t2.demo = 0',
             $user->id,
             $user->school_location_id
         );
@@ -799,7 +811,7 @@ class Test extends BaseModel
                                                             t10.school_location_id = %d
                                                         ) as s2
                                                     on t2.subject_id = s2.subject_id
-                                            where test_authors.user_id = %d and t2.demo = false',
+                                            where test_authors.user_id = %d and t2.demo = 0',
             $user->id,
             $user->school_location_id,
             $user->id
@@ -1117,5 +1129,11 @@ class Test extends BaseModel
     private function handleExamCoordinatorFilter(&$query, $user)
     {
         return $query->where('owner_id', $user->school_location_id);
+    }
+
+    public function canPlan(User $user)
+    {
+        /* You can't plan tests from shared sections, you first need to copy them */
+        return !$user->schoolLocation->sharedSections->contains($this->subject->section);
     }
 }

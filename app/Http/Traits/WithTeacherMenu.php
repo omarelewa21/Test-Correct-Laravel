@@ -27,13 +27,8 @@ trait WithTeacherMenu
             'title'    => __('header.Ingepland'),
         ];
         $menus['taken'] = [
-            'hasItems' => false,
+            'hasItems' => true,
             'title'    => __('header.Afgenomen'),
-            'action'   => [
-                'directive'  => 'wire',
-                'method'     => 'cakeRedirect',
-                'parameters' => 'taken'
-            ]
         ];
         $menus['results'] = [
             'hasItems' => false,
@@ -41,7 +36,7 @@ trait WithTeacherMenu
             'action'   => [
                 'directive'  => 'wire',
                 'method'     => 'cakeRedirect',
-                'parameters' => 'results'
+                'parameters' => 'results.rated'
             ]
         ];
         $menus['analyses'] = [
@@ -142,8 +137,8 @@ trait WithTeacherMenu
             'title'  => __('header.Mijn afgenomen toetsen'),
             'action' => [
                 'directive'  => 'wire',
-                'method'     => 'laravelRedirect',
-                'parameters' => route('teacher.test-takes', 'taken')
+                'method'     => 'cakeRedirect',
+                'parameters' => 'taken.test_taken'
             ]
         ];
         $tiles['normalizing'] = [

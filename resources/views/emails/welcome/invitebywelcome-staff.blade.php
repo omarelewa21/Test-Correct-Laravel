@@ -4,7 +4,7 @@
     @php
         $name = $user->name_first;
         if(strlen($name) == 1
-            || (strlen($name) == 2 && $name{1} === '.')){
+            || (strlen($name) == 2 && $name[1] === '.')){
                 $name = sprintf('%s %s %s',$name,$user->name_suffix,$user->name);
         }
 

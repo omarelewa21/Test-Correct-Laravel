@@ -61,7 +61,7 @@ class UsersController extends Controller
             $users->with('studentSchoolClasses');
         }
         if (is_array($request->get('with')) && in_array('trial_info', $request->get('with'))) {
-            $users->with('trialPeriod');
+            $users->with(['trialPeriods','trialPeriods.schoolLocation:id,name']);
         }
 
         switch (strtolower($request->get('mode', 'paginate'))) {
@@ -262,7 +262,7 @@ class UsersController extends Controller
                             'salesOrganization',
                             'school.schoolLocations',
                             'schoolLocation',
-                            'trialPeriod'
+                            'trialPeriods'
                     );
 
         if (is_array($request->get('with')) && in_array('studentSubjectAverages', $request->get('with'))) {
@@ -563,7 +563,7 @@ class UsersController extends Controller
     {
         $records = [
             'userGeneralTermsLog' => $user->generalTermsLog,
-            'trialPeriod' => $user->trialPeriodWithSchoolLocationCheck
+            'trialPeriod' => $user->trialPeriodsWithSchoolLocationCheck
             ];
         return Response::make($records,200);
     }

@@ -7,6 +7,7 @@
                 if(typeof evt !== 'undefined') empty = false;
                 removeDrawingLegacy();
                 window.scrollTo({top: 0, behavior: 'smooth'});
+                $store.cms.dirty = false;
            }
 
            loadingTimeout = (value) => {
@@ -299,7 +300,7 @@
                             <div class="border-b flex w-full justify-between items-center py-2">
                                 <div class="flex items-center space-x-2.5">
                                     <span class="bold text-base">{{ __('cms.auteur(s)') }}</span>
-                                    <span class="ml-10 text-base">{{ $testAuthors }}</span>
+                                    <span class="ml-10 text-base">{{ $authors }}</span>
                                 </div>
                             </div>
                         @endif
@@ -536,7 +537,7 @@
                                     <div class="flex items-center space-x-2.5">
                                         <div class="flex items-center space-x-2.5">
                                             <span class="bold text-base">{{ __('cms.auteur(s)') }}</span>
-                                            <span class="ml-10 text-base">{{ $testAuthors }}</span>
+                                            <span class="ml-10 text-base">{{ $authors }}</span>
                                         </div>
                                     </div>
                                 </div>

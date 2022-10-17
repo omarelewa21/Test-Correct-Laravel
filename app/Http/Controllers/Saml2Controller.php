@@ -12,6 +12,11 @@ use tcCore\SamlMessage;
 
 class Saml2Controller extends Controller
 {
+    private function logger($data)
+    {
+        logger($data);
+    }
+
     /**
      * Generate local sp metadata.
      *
@@ -35,6 +40,8 @@ class Saml2Controller extends Controller
      */
     public function acs(Saml2Auth $saml2Auth, $idpName)
     {
+        $this->logger(sprintf('entering %s method: %s (line %d)',__FILE__,__METHOD__,__LINE__));
+
         $errors = $saml2Auth->acs();
 
         if (!empty($errors)) {
@@ -43,6 +50,7 @@ class Saml2Controller extends Controller
                 $saml2Auth->getLastErrorReason().PHP_EOL.
                 'All errors: '. PHP_EOL .
                 json_encode($errors['error']);
+            $this->logger('with errors '.$message);
             Bugsnag::notifyException(new \Exception($message));
 //            logger()->error('Saml2 error_detail', ['error' => $saml2Auth->getLastErrorReason()]);
             session()->flash('saml2_error_detail', [$saml2Auth->getLastErrorReason()]);
@@ -54,6 +62,7 @@ class Saml2Controller extends Controller
         $user = $saml2Auth->getSaml2User();
 
         $redirectUrl = $user->getIntendedUrl();
+        $this->logger('intended url '.$redirectUrl);
 
         $this->handleDetails($redirectUrl);
 
@@ -71,6 +80,7 @@ class Saml2Controller extends Controller
 
     private function handleDetails($redirectUrl)
     {
+        $this->logger(sprintf('entering %s method: %s (line %d)',__FILE__,__METHOD__,__LINE__));
         $sessionAr = [];
         if(Str::contains($redirectUrl,'entreeRegister')){
             $sessionAr['entreeReason'] = 'register';
@@ -85,6 +95,7 @@ class Saml2Controller extends Controller
                     $message = $messages->first();
                     if(optional($message->data)->url){
                         $sessionAr['finalRedirectTo'] = $message->data->url;
+                        $sessionAr['mId'] = $queryAr['mId'];
                     }
                 }
             }
@@ -137,6 +148,7 @@ class Saml2Controller extends Controller
      */
     public function login(Saml2Auth $saml2Auth)
     {
+        $this->logger(sprintf('entering %s method: %s (line %d)',__FILE__,__METHOD__,__LINE__));
         // todo set forceAuthn to dynamic in App op true;
         $redirectTo = config('saml2_settings.loginRoute');
         if(request()->get('entreeRegister')){
@@ -159,16 +171,18 @@ class Saml2Controller extends Controller
 
     protected function handleCollectionOfNeededData(string $redirectTo) : string
     {
+        $this->logger(sprintf('entering %s method: %s (line %d)',__FILE__,__METHOD__,__LINE__));
         if($directLink = request()->get('directlink')){
             $message = SamlMessage::create([
                 'message_id' => 'not needed',
                 'eck_id' => 'not needed',
-                'data' => (object) ['url' => route('take.directLink', ['testTakeUuid' => $directlink])],
+                'data' => (object) ['url' => route('take.directLink', ['testTakeUuid' => $directLink])],
             ]);
-            $redirectTo .= (Str::contains($redirectTo,'?')) ? '&' : '?' . 'mId='.$message->uuid;
+            $redirectTo .= (Str::contains($redirectTo,'?') ? '&' : '?') . 'mId='.$message->uuid;
         } else if($mId = request()->get('mId')){
-            $redirectTo .= (Str::contains($redirectTo,'?')) ? '&' : '?' . 'mId='.$mId;
+            $redirectTo .= (Str::contains($redirectTo,'?') ? '&' : '?') . 'mId='.$mId;
         }
+
         return $redirectTo;
     }
 

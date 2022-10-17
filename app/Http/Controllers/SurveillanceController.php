@@ -138,7 +138,6 @@ class SurveillanceController extends Controller
         $testTake->schoolClasses()->get(['uuid', 'id'])->each(function ($schoolClass) use ($testTake) {
             $progress = 0;
             $key = sprintf('%s_%s', $schoolClass->id, $testTake->id);
-            logger([$schoolClass->id, $this->schoolClassProgress]);
 
             if (array_key_exists($key, $this->schoolClassProgress) && count($this->schoolClassProgress[$key]) > 0) {
 

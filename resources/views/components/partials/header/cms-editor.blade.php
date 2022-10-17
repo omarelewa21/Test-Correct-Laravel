@@ -26,7 +26,7 @@
 
             <div class="flex space-x-2" x-data="{
                     toPdf: () => {
-                        $wire.emit('openModal', 'teacher.pdf-download-modal', {test: '{{ \tcCore\Test::whereUuid($this->testId)->first()->uuid}}'});
+                        $wire.emit('openModal', 'teacher.pdf-download-modal', {uuid: '{{ \tcCore\Test::whereUuid($this->testId)->first()->uuid}}'});
                     }
                 }"
                  @click="forceSyncEditors();$wire.saveIfDirty()"

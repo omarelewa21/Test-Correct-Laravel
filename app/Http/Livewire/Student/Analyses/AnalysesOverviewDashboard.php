@@ -33,15 +33,21 @@ class AnalysesOverviewDashboard extends AnalysesDashboard
             $this->getEducationLevelYearsByFilterValues(),
             $this->getTeachersByFilterValues()
         );
-        //($result->toArray());//;->mapWithKey(fn($value, $key) => [$value->subject => $value->score]));
 
         $this->dataValues = $result->map(function ($pValue) {
+
+            $link = false;
+            if ($pValue->subject_id) {
+                $link = route('student.analyses.subject.show', Subject::find($pValue->subject_id)->uuid);
+            }
+
+
             return (object)[
-                'x'     => $pValue->serie,
-                'title' => $pValue->serie,
-                'basedOn' => trans_choice('student.obv count questions', $pValue->cnt),
-                'value' => number_format(($pValue->score > 0 ? $pValue->score : 0), 2),
-                'link'  => route('student.analyses.subject.show', Subject::find($pValue->subject_id)->uuid),
+                'x'       => htmlspecialchars_decode($pValue->name),
+                'title'   => $pValue->name,
+                'basedOn' => trans_choice('student.obv count questions', $pValue->cnt?? 0),
+                'value'   => number_format(($pValue->score > 0 ? $pValue->score : 0), 2),
+                'link'    => $link,
             ];
         })->toArray();
 
@@ -50,7 +56,7 @@ class AnalysesOverviewDashboard extends AnalysesDashboard
 
     public function render()
     {
-//        $this->dispatchBrowserEvent('filters-updated');//, ['newName' => $value]);
+        $this->dispatchBrowserEvent('filters-updated');//, ['newName' => $value]);
         return view('livewire.student.analyses.analyses-overview-dashboard')->layout('layouts.student');;
     }
 

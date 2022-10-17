@@ -23,6 +23,7 @@ use tcCore\Http\Helpers\DemoHelper;
 use tcCore\Http\Helpers\ImportHelper;
 use tcCore\Http\Helpers\GlobalStateHelper;
 use tcCore\Http\Helpers\SchoolHelper;
+use tcCore\Http\Helpers\UserHelper;
 use tcCore\Jobs\CountSchoolActiveTeachers;
 use tcCore\Jobs\CountSchoolLocationActiveTeachers;
 use tcCore\Jobs\CountSchoolLocationQuestions;
@@ -987,6 +988,13 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
         });
     }
 
+    public function getTeacherSchoolClassIds()
+    {
+        return Teacher::where('user_id', $this->getKey())
+            ->where('deleted_at', null)
+            ->pluck('class_id');
+    }
+
     public function studentParents()
     {
         return $this->hasMany('tcCore\StudentParent');
@@ -1259,12 +1267,12 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
         return $this->hasOne(GeneralTermsLog::class, 'user_id');
     }
 
-    public function trialPeriod()
+    public function trialPeriods()
     {
-        return $this->hasOne(TrialPeriod::class, 'user_id');
+        return $this->hasMany(TrialPeriod::class, 'user_id');
     }
 
-    public function trialPeriodWithSchoolLocationCheck()
+    public function trialPeriodsWithSchoolLocationCheck()
     {
         return $this->hasOne(TrialPeriod::class, 'user_id')->where('school_location_id',$this->school_location_id);
     }
@@ -1752,10 +1760,7 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
                     });
                     break;
                 case 'trial':
-                    $query->whereIn(
-                        'school_location_id',
-                        SchoolLocation::where('license_type', 'TRIAL')->pluck('id')
-                    );
+                    $query->whereIn('id', TrialPeriod::select(['user_id']));
                     break;
                 case 'without_guests':
                     $query->when($value, function($query) {
@@ -2024,9 +2029,7 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
 
     public function isAllowedSchool(School $school)
     {
-        return !!$this->allowedSchoolLocations->first(function (SchoolLocation $sl) use ($school) {
-            return $sl->school == $school;
-        });
+        return $this->allowedSchoolLocations()->where('school_id', $school->getKey())->exists();
     }
 
     public function allowedSchoolLocations()
@@ -2152,7 +2155,7 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
 
     public function hasIncompleteImport($withFinalizedCheck = true)
     {
-        if (!$this->schoolLocation->lvs_type) { // not lvs_active any more as active means that it will be taken along with the daily checks cron import
+        if (!optional($this->schoolLocation)->lvs_type) { // not lvs_active any more as active means that it will be taken along with the daily checks cron import
             return false;
         }
 
@@ -2269,21 +2272,11 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
                 $options = [
                     'internal_page' => '/users/student_splash',
                 ];
-                $options = $this->addFinalRedirectToIfNeeded($options);
                 return $this->getTemporaryCakeLoginUrl($options);
             }
         }
 //        }
-        $options = $this->addFinalRedirectToIfNeeded($options);
         return $this->getTemporaryCakeLoginUrl($options);
-    }
-
-    private function addFinalRedirectToIfNeeded($options)
-    {
-        if(session('finalRedirectTo')){
-            $options['finalRedirectTo'] = session('finalRedirectTo');
-        }
-        return $options;
     }
 
     public function loginThisUser()
@@ -2459,6 +2452,22 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
         return $this;
     }
 
+    public function hasNeedsToAcceptGeneralTerms()
+    {
+        return (
+            $this->isA('teacher')
+            && $this->hasNoActiveLicense()
+            && $this->generalTermsLog()->count() == 1
+            && null == $this->generalTermsLog->accepted_at
+            && $this->generalTermsValidationHasExpired()
+        );
+    }
+
+    private function generalTermsValidationHasExpired()
+    {
+        return $this->generalTermsLog->created_at->startOfDay()->addDays(config('custom.default_general_terms_days'))->isBefore(Carbon::now()->startOfDay());
+    }
+
     public function createGeneralTermsLogIfRequired()
     {
         if ($this->isA('teacher') && $this->hasNoActiveLicense() && $this->generalTermsLog()->count() == 0) {
@@ -2598,7 +2607,7 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
             ->get();
 
         return [
-            'subject_id'           => Subject::filtered(['user_current' => Auth::id()], [])->pluck('id'),
+            'subject_id'           => Subject::filtered(['user_current' => Auth::id()], [])->pluck('id')->toArray(),
             'education_level_id'   => $results->map(function ($result) {
                 return $result->education_level_id;
             })->unique()->values()->toArray(),
@@ -2660,17 +2669,29 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
 
     public function createTrialPeriodRecordIfRequired()
     {
-        if (!$this->isA('Teacher') || !$this->schoolLocation->hasTrialLicense()) {
-            return false;
-        }
-        if($this->trialPeriodWithSchoolLocationCheck()->exists()) {
+        if (!$this->isA('Teacher')) {
             return false;
         }
 
-        return $this->trialPeriod()->create([
-            'user_id' => $this->getKey(),
-            'school_location_id' => $this->school_location_id,
-        ]);
+        return $this->allowedSchoolLocations()->each(function($location) {
+            if(!$location->hasTrialLicense() || $this->trialPeriods()->withSchoolLocation($location)->exists()) {
+                return true;
+            }
+            return $this->trialPeriods()->create([
+                'school_location_id' => $location->getKey()
+            ]);
+        });
+    }
+
+    public function canHaveGeneralText2SpeechPrice()
+    {
+        $roles = Roles::getUserRoles($this);
+        foreach ($roles as $role) {
+            if (in_array($role, UserHelper::TEXT2SPEECH_PRICE_ROLES)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private function handleSchoolLocationsForNewTeacher()

@@ -154,7 +154,6 @@ class Answers2019Controller extends Controller
                         ]);
                     }
                 } else {
-                    logger(sprintf('geen numeric value for take_question_index %s', $request->input('take_question_index')));
                     $response = json_encode([
                         'success' => true,
                         'status' => 'done',
