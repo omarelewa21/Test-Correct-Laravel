@@ -65,7 +65,7 @@ class TestPlanModal extends ModalComponent
             }
         }
 
-        if ($user->isValidExamCoordinator(false) && empty($this->request['owner_id'])) {
+        if ($user->isValidExamCoordinator() && empty($this->request['owner_id'])) {
             $rules['request.owner_id'] = 'required';
         }
 
@@ -121,11 +121,8 @@ class TestPlanModal extends ModalComponent
             $t->setAttribute('test_take_status_id', TestTakeStatus::STATUS_TAKING_TEST);
         }
 
-        if (auth()->user()->isValidExamCoordinator(false)) {
-            $t->setAttribute('user_id', $this->request['owner_id']);
-        } else {
-            $t->setAttribute('user_id', auth()->id());
-        }
+        $testTakeOwner = Auth::user()->isValidExamCoordinator() ? $this->request['owner_id'] : Auth::id();
+        $t->setAttribute('user_id', $testTakeOwner);
 
         $t->save();
 
@@ -228,13 +225,6 @@ class TestPlanModal extends ModalComponent
     {
         // invigilators shouldn't be restricted to subject, those users could get to the test anyway
         $query = Teacher::getTeacherUsersForSchoolLocationInCurrentYear(Auth::user()->schoolLocation);
-//        /*TODO: Fix this check for published items */
-//        if (filled($this->test->scope)) {
-//            $query = Teacher::getTeacherUsersForSchoolLocationByBaseSubjectInCurrentYear(Auth::user()->schoolLocation, $this->test->subject()->value('base_subject_id'));
-//        } else {
-//            $query = Teacher::getTeacherUsersForSchoolLocationBySubjectInCurrentYear(Auth::user()->schoolLocation, $this->test->subject_id);
-//        }
-
         return $query->get()->map(fn($teacher) => ['value' => $teacher->id, 'label' => $teacher->name_full]);
     }
 }

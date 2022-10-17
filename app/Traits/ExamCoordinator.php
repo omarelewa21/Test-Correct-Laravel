@@ -91,18 +91,9 @@ trait ExamCoordinator
         $this->setAttribute('school_location_id', $schoolManagerLocation->getKey());
     }
 
-    public function isValidExamCoordinator($checkIfGlobal = true)
+    public function isValidExamCoordinator()
     {
-        if (!$this->is_examcoordinator || is_null($this->is_examcoordinator_for)) {
-            return false;
-        }
-
-        if ($checkIfGlobal) {
-            // Check if exam coordinator has access to classes in school or school location
-            return $this->is_examcoordinator_for !== 'NONE';
-        }
-
-        return true;
+        return $this->is_examcoordinator && $this->is_examcoordinator_for !== null && $this->is_examcoordinator_for !== 'NONE';
     }
 
     public function isSchoolExamCoordinator()
