@@ -47,7 +47,7 @@ class SetPasswordsForSobit extends Command
             exit;
         }
 
-        if($this->hasOption('password')){
+        if($this->option('password')){
             \DB::table('users')->update(['password' => Hash::make($this->option('password'))]);
             exit;
         }

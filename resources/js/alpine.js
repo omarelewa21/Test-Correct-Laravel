@@ -580,14 +580,18 @@ document.addEventListener('alpine:init', () => {
                 refreshChoices()
 
                 this.$refs.select.addEventListener('choice', (event) => {
-                    if (this.value.includes(parseInt(event.detail.choice.value))) {
+                    let eventValue = isNaN(parseInt(event.detail.choice.value)) ? event.detail.choice.value : parseInt(event.detail.choice.value);
+                    if (!Array.isArray(this.value)) {
+                        this.value = eventValue;
+                        return;
+                    }
+                    if (this.value.includes(eventValue)) {
                         this.removeFilterItem(choices.getValue().find(value => value.value === event.detail.choice.value));
                     }
                 })
                 this.$refs.select.addEventListener('change', () => {
-                    this.value = choices.getValue(true)
-                    // This causes 2 update calls:
-                    // this.wireModel = this.value;
+                    if (!Array.isArray(this.value)) return;
+                    this.value = choices.getValue(true);
                 })
 
                 let eventName = 'removeFrom' + this.$root.dataset.modelName;
@@ -604,6 +608,7 @@ document.addEventListener('alpine:init', () => {
         },
 
         removeFilterItem(item) {
+            if (!Array.isArray(this.value)) return;
             this.value = this.wireModel = this.value.filter(itemValue => itemValue !== item.value);
             this.clearFilterPill(item.value);
         },
@@ -613,6 +618,7 @@ document.addEventListener('alpine:init', () => {
         },
 
         handleActiveFilters(choicesValues) {
+            if (!Array.isArray(this.value)) return;
             this.value.forEach(item => {
                 if (this.needsFilterPill(item)) {
                     const cItem = choicesValues.find(value => value.value === item);
@@ -749,7 +755,9 @@ document.addEventListener('alpine:init', () => {
                 });
 
                 chart.listen("pointsSelect", function (e) {
-                    window.open(e.point.get('link'), '_self');
+                    if (e.point.get('link')) {
+                        window.open(e.point.get('link'), '_self');
+                    }
                 });
 
                 // // set container id for the chart
@@ -788,17 +796,19 @@ document.addEventListener('alpine:init', () => {
                         basedOnElement.appendChild(document.createTextNode(dataRow.basedOn));
                         contentElement.appendChild(basedOnElement);
 
-                        const detailElement = document.createElement("p");
-                        detailElement.style.whiteSpace = 'nowrap'
-                        detailElement.style.color = 'var(--system-base)';
-                        detailElement.style.fontWeight = '900';
-                        detailElement.appendChild(document.createTextNode("Bekijk analyse"));
+                        if (dataRow.link != false) {
+                            const detailElement = document.createElement("p");
+                            detailElement.style.whiteSpace = 'nowrap'
+                            detailElement.style.color = 'var(--system-base)';
+                            detailElement.style.fontWeight = '900';
+                            detailElement.appendChild(document.createTextNode("Bekijk analyse"));
 
-                        const iconElement = document.createElement('img');
-                        iconElement.src = '/svg/icons/arrow-small.svg';
-                        iconElement.style.display = 'inline-block'
-                        detailElement.appendChild(iconElement)
-                        contentElement.appendChild(detailElement);
+                            const iconElement = document.createElement('img');
+                            iconElement.src = '/svg/icons/arrow-small.svg';
+                            iconElement.style.display = 'inline-block'
+                            detailElement.appendChild(iconElement)
+                            contentElement.appendChild(detailElement);
+                        }
                     }
                 });
                 chart.tooltip().onDomReady(function (e) {
@@ -938,7 +948,9 @@ document.addEventListener('alpine:init', () => {
                 });
 
                 chart.listen("pointsSelect", function (e) {
-                    window.open(e.point.get('link'), '_self');
+                    if (e.point.get('link')) {
+                        window.open(e.point.get('link'), '_self');
+                    }
                 });
 
                 chart.interactivity("by-x");
@@ -983,24 +995,26 @@ document.addEventListener('alpine:init', () => {
                         basedOnElement.appendChild(document.createTextNode(dataRow.basedOn));
                         contentElement.appendChild(basedOnElement);
 
-                        const detailElement = document.createElement("p");
-                        detailElement.style.whiteSpace = 'nowrap'
-                        detailElement.style.color = 'var(--system-base)';
-                        detailElement.style.fontWeight = '900';
-                        detailElement.appendChild(document.createTextNode("Bekijk analyse!! "));
+                        if (dataRow.text != null) {
+                            const detailElement = document.createElement("p");
+                            detailElement.style.whiteSpace = 'nowrap'
+                            detailElement.style.color = 'var(--system-base)';
+                            detailElement.style.fontWeight = '900';
+                            detailElement.appendChild(document.createTextNode("Bekijk analyse "));
 
-                        const iconElement = document.createElement('img');
-                        iconElement.src = '/svg/icons/arrow-small.svg';
-                        iconElement.style.display = 'inline-block'
-                        detailElement.appendChild(iconElement)
-                        contentElement.appendChild(detailElement);
+                            const iconElement = document.createElement('img');
+                            iconElement.src = '/svg/icons/arrow-small.svg';
+                            iconElement.style.display = 'inline-block'
+                            detailElement.appendChild(iconElement)
+                            contentElement.appendChild(detailElement);
 
-                        const AttainmentTexElement = document.createElement("p");
-                        AttainmentTexElement.style.color = 'var(--system-base)'
-                        AttainmentTexElement.appendChild(
-                            document.createTextNode(dataRow.text)
-                        );
-                        contentElement.appendChild(AttainmentTexElement);
+                            const AttainmentTexElement = document.createElement("p");
+                            AttainmentTexElement.style.color = 'var(--system-base)'
+                            AttainmentTexElement.appendChild(
+                                document.createTextNode(dataRow.text)
+                            );
+                            contentElement.appendChild(AttainmentTexElement);
+                        }
                     }
                 });
 

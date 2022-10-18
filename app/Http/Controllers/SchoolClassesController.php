@@ -304,4 +304,17 @@ class SchoolClassesController extends Controller
             $schoolClass->importLog()->save($importLog);
         }
     }
+
+    public function showForUser(User $user, Request $request)
+    {
+        if ($user->isA('Teacher')) {
+            return Response::make($user->teacherSchoolClasses()->get());
+        }
+
+        if ($user->isA('Student')) {
+            return Response::make($user->studentSchoolClasses()->get());
+        }
+
+        return Response::make('No classes for user.', 404);
+    }
 }

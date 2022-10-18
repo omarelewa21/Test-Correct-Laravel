@@ -53,6 +53,10 @@ class Header extends Component
 
     public function analyses()
     {
+        if (auth()->user()->schoolLocation->allow_analyses) {
+            return redirect(route('student.analyses.show'));
+        }
+
         $temporaryLogin = TemporaryLogin::createWithOptionsForUser('page', '/analyses/student/'.Auth::user()->uuid, Auth::user());
 
         return redirect($temporaryLogin->createCakeUrl());

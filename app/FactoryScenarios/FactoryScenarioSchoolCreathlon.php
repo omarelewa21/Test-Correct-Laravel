@@ -89,11 +89,14 @@ class FactoryScenarioSchoolCreathlon extends FactoryScenarioSchool
         ])->user;
 
         //create school class with teacher and students records, add the teacher-user, create student-users
-        $schoolClassLocation = FactorySchoolClass::create($schoolYearLocation, 1, $factory->schoolClassName)
-            ->addTeacher($creathlonAuthorB, $section->subjects()->first())
-            ->addStudent(FactoryUser::createStudent($schoolLocation)->user)
-            ->addStudent(FactoryUser::createStudent($schoolLocation)->user)
-            ->addStudent(FactoryUser::createStudent($schoolLocation)->user);
+
+        collect([$creathlonAuthor, $creathlonAuthorB])->each(function($author) use ($section, $schoolLocation, $factory, $schoolYearLocation) {
+            $schoolClassLocation = FactorySchoolClass::create($schoolYearLocation, 1, $factory->schoolClassName)
+                ->addTeacher($author, $section->subjects()->first())
+                ->addStudent(FactoryUser::createStudent($schoolLocation)->user)
+                ->addStudent(FactoryUser::createStudent($schoolLocation)->user)
+                ->addStudent(FactoryUser::createStudent($schoolLocation)->user);
+        });
 
         $factory->school = $school->refresh();
         $factory->schools->add($school);

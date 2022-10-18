@@ -5,6 +5,7 @@ namespace tcCore\Http\Livewire\Teacher;
 use Illuminate\Support\Facades\Auth;
 use LivewireUI\Modal\ModalComponent;
 use tcCore\Http\Traits\Modal\TestActions;
+use tcCore\Period;
 use tcCore\Test;
 
 class TestCreateModal extends ModalComponent
@@ -17,6 +18,9 @@ class TestCreateModal extends ModalComponent
 
     public function mount()
     {
+        if (Auth::user()->isValidExamCoordinator()) {
+            abort(403);
+        }
         $this->allowedSubjects = $this->getAllowedSubjects();
         $this->allowedTestKinds = $this->getAllowedTestKinds();
         $this->allowedPeriods = $this->getAllowedPeriods();
@@ -29,7 +33,7 @@ class TestCreateModal extends ModalComponent
             'subject_id'           => $this->allowedSubjects->first()->id,
             'education_level_id'   => $this->allowedEductionLevels->first()->id,
             'education_level_year' => 1,
-            'period_id'            => $this->allowedPeriods->first()->id,
+            'period_id'            => Period::filtered(['current_school_year' => true])->first()->id ?? $this->allowedPeriods->first()->id,
             'shuffle'              => 0,
             'introduction'         => '',
         ];

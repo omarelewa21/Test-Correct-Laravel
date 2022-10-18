@@ -6270,7 +6270,14 @@ document.addEventListener('alpine:init', function () {
           refreshChoices();
 
           _this16.$refs.select.addEventListener('choice', function (event) {
-            if (_this16.value.includes(parseInt(event.detail.choice.value))) {
+            var eventValue = isNaN(parseInt(event.detail.choice.value)) ? event.detail.choice.value : parseInt(event.detail.choice.value);
+
+            if (!Array.isArray(_this16.value)) {
+              _this16.value = eventValue;
+              return;
+            }
+
+            if (_this16.value.includes(eventValue)) {
               _this16.removeFilterItem(choices.getValue().find(function (value) {
                 return value.value === event.detail.choice.value;
               }));
@@ -6278,8 +6285,8 @@ document.addEventListener('alpine:init', function () {
           });
 
           _this16.$refs.select.addEventListener('change', function () {
-            _this16.value = choices.getValue(true); // This causes 2 update calls:
-            // this.wireModel = this.value;
+            if (!Array.isArray(_this16.value)) return;
+            _this16.value = choices.getValue(true);
           });
 
           var eventName = 'removeFrom' + _this16.$root.dataset.modelName;
@@ -6301,6 +6308,7 @@ document.addEventListener('alpine:init', function () {
         });
       },
       removeFilterItem: function removeFilterItem(item) {
+        if (!Array.isArray(this.value)) return;
         this.value = this.wireModel = this.value.filter(function (itemValue) {
           return itemValue !== item.value;
         });
@@ -6312,6 +6320,7 @@ document.addEventListener('alpine:init', function () {
       handleActiveFilters: function handleActiveFilters(choicesValues) {
         var _this17 = this;
 
+        if (!Array.isArray(this.value)) return;
         this.value.forEach(function (item) {
           if (_this17.needsFilterPill(item)) {
             var cItem = choicesValues.find(function (value) {
@@ -6425,7 +6434,9 @@ document.addEventListener('alpine:init', function () {
           });
         });
         chart.listen("pointsSelect", function (e) {
-          window.open(e.point.get('link'), '_self');
+          if (e.point.get('link')) {
+            window.open(e.point.get('link'), '_self');
+          }
         }); // // set container id for the chart
 
         chart.container('pValueChart'); // initiate chart drawing
@@ -6458,16 +6469,19 @@ document.addEventListener('alpine:init', function () {
             basedOnElement.style.color = 'var(--system-base)';
             basedOnElement.appendChild(document.createTextNode(dataRow.basedOn));
             contentElement.appendChild(basedOnElement);
-            var detailElement = document.createElement("p");
-            detailElement.style.whiteSpace = 'nowrap';
-            detailElement.style.color = 'var(--system-base)';
-            detailElement.style.fontWeight = '900';
-            detailElement.appendChild(document.createTextNode("Bekijk analyse"));
-            var iconElement = document.createElement('img');
-            iconElement.src = '/svg/icons/arrow-small.svg';
-            iconElement.style.display = 'inline-block';
-            detailElement.appendChild(iconElement);
-            contentElement.appendChild(detailElement);
+
+            if (dataRow.link != false) {
+              var detailElement = document.createElement("p");
+              detailElement.style.whiteSpace = 'nowrap';
+              detailElement.style.color = 'var(--system-base)';
+              detailElement.style.fontWeight = '900';
+              detailElement.appendChild(document.createTextNode("Bekijk analyse"));
+              var iconElement = document.createElement('img');
+              iconElement.src = '/svg/icons/arrow-small.svg';
+              iconElement.style.display = 'inline-block';
+              detailElement.appendChild(iconElement);
+              contentElement.appendChild(detailElement);
+            }
           }
         });
         chart.tooltip().onDomReady(function (e) {
@@ -6576,7 +6590,9 @@ document.addEventListener('alpine:init', function () {
           });
         });
         chart.listen("pointsSelect", function (e) {
-          window.open(e.point.get('link'), '_self');
+          if (e.point.get('link')) {
+            window.open(e.point.get('link'), '_self');
+          }
         });
         chart.interactivity("by-x"); // set container id for the chart
 
@@ -6613,20 +6629,23 @@ document.addEventListener('alpine:init', function () {
             basedOnElement.style.color = 'var(--system-base)';
             basedOnElement.appendChild(document.createTextNode(dataRow.basedOn));
             contentElement.appendChild(basedOnElement);
-            var detailElement = document.createElement("p");
-            detailElement.style.whiteSpace = 'nowrap';
-            detailElement.style.color = 'var(--system-base)';
-            detailElement.style.fontWeight = '900';
-            detailElement.appendChild(document.createTextNode("Bekijk analyse!! "));
-            var iconElement = document.createElement('img');
-            iconElement.src = '/svg/icons/arrow-small.svg';
-            iconElement.style.display = 'inline-block';
-            detailElement.appendChild(iconElement);
-            contentElement.appendChild(detailElement);
-            var AttainmentTexElement = document.createElement("p");
-            AttainmentTexElement.style.color = 'var(--system-base)';
-            AttainmentTexElement.appendChild(document.createTextNode(dataRow.text));
-            contentElement.appendChild(AttainmentTexElement);
+
+            if (dataRow.text != null) {
+              var detailElement = document.createElement("p");
+              detailElement.style.whiteSpace = 'nowrap';
+              detailElement.style.color = 'var(--system-base)';
+              detailElement.style.fontWeight = '900';
+              detailElement.appendChild(document.createTextNode("Bekijk analyse "));
+              var iconElement = document.createElement('img');
+              iconElement.src = '/svg/icons/arrow-small.svg';
+              iconElement.style.display = 'inline-block';
+              detailElement.appendChild(iconElement);
+              contentElement.appendChild(detailElement);
+              var AttainmentTexElement = document.createElement("p");
+              AttainmentTexElement.style.color = 'var(--system-base)';
+              AttainmentTexElement.appendChild(document.createTextNode(dataRow.text));
+              contentElement.appendChild(AttainmentTexElement);
+            }
           }
         });
         chart.tooltip().onDomReady(function (e) {
@@ -7499,7 +7518,6 @@ Core = {
     }
 
     window.Livewire.emit('setFraudDetected');
-    alert = true;
   },
   lostFocusWithoutReporting: function lostFocusWithoutReporting(text) {
     if (!isMakingTest()) {
@@ -7674,6 +7692,42 @@ Core = {
   changeAppTypeToIos: function changeAppTypeToIos() {
     Core.appType = 'ios';
     Core.disableDeviceSpecificFeature();
+  },
+
+  /**
+   * Waits an interval time before logging user out
+   * @param {boolean} firstLoad
+   * @param {int} secondsBeforeTeacherLogout - default 15 min
+   */
+  startUserLogoutInterval: function startUserLogoutInterval() {
+    var firstLoad = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : false;
+    var secondsBeforeTeacherLogout = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 15 * 60;
+    var inactive = 0;
+    document.addEventListener('mouseover', function () {
+      return inactive = 0;
+    });
+    document.addEventListener('keydown', function () {
+      return inactive = 0;
+    });
+
+    var startInterval = function startInterval() {
+      var userLogoutInterval = setInterval(function () {
+        inactive++;
+
+        if (inactive >= secondsBeforeTeacherLogout) {
+          clearInterval(userLogoutInterval);
+          Livewire.emit("openModal", "open-user-logout-warning-modal");
+        }
+      }, 1000);
+    };
+
+    if (firstLoad) {
+      window.onload = function () {
+        return startInterval();
+      };
+    } else {
+      startInterval();
+    }
   }
 };
 
@@ -7688,7 +7742,10 @@ function checkPageFocus() {
     if (!document.hasFocus()) {
       if (!notifsent) {
         // checks for the notifcation if it is already sent to the teacher
-        Core.lostFocus('lost-focus');
+        if (Core.appType != 'electron') {
+          Core.lostFocus('lost-focus');
+        }
+
         notifsent = true;
       }
     } else {

@@ -20,7 +20,7 @@ class DatabaseSeeder extends Seeder {
             $this->call(CitoAccountSeeder::class);
             $this->call(ExamSchoolSeeder::class);
             $this->call(CreathlonItemBankSeeder::class);
-            $this->call(NationalItemBankSeeder::class);
+//            $this->call(NationalItemBankSeeder::class);
         }
         $this->call(RegisterTestBankForSchoollocationsSeeder::class);
 	}

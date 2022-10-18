@@ -48,5 +48,8 @@ class AuthenticateWithTemporaryLogin
         collect($options->app_details)->each(function ($detail, $key) {
             session()->put($key, $detail);
         });
+        if(property_exists($options, 'extensionTime')){
+            session()->put('extensionTime', $options->extensionTime);
+        }
     }
 }

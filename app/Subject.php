@@ -123,9 +123,9 @@ class Subject extends BaseModel implements AccessCheckable
         foreach ($filters as $key => $value) {
             switch ($key) {
                 case 'user_id':
-                    if( $user->isValidExamCoordinator() ){
+                    if ($user->isValidExamCoordinator()) {
                         $this->filterForExamcoordinator($query, $user);
-                    }else{
+                    } else {
                         $query->whereIn('id', function ($query) use ($value) {
                             $query->select('subject_id')
                                 ->from(with(new Teacher())->getTable())
@@ -137,7 +137,7 @@ class Subject extends BaseModel implements AccessCheckable
                             }
                         });
                     }
-                    
+
                     break;
                 case 'demo' :
                     $query->where('demo', $value);
@@ -147,25 +147,25 @@ class Subject extends BaseModel implements AccessCheckable
                         $query->where('abbreviation', '<>', 'imp');
                     }
                     break;
-                case 'user_current':                    
-                    if( $user->isValidExamCoordinator() ){
+                case 'user_current':
+                    if ($user->isValidExamCoordinator()) {
                         $this->filterForExamcoordinator($query, $user);
-                    }else{
+                    } else {
                         $schoolYear = SchoolYearRepository::getCurrentSchoolYear();
                         $query->whereIn('id', function ($query) use ($value, $schoolYear, $user) {
-                                $query->select('subject_id')
+                            $query->select('subject_id')
                                 ->from(with(new Teacher())->getTable())
                                 ->whereNull('teachers.deleted_at')
                                 ->leftJoin('school_classes', 'school_classes.id', '=', 'teachers.class_id')
                                 ->where('school_classes.school_year_id', $schoolYear->getKey());
-                                if (is_array($value)) {
-                                    $query->whereIn('user_id', $value);
-                                } else {
-                                    $query->where('user_id', '=', $value);
-                                }
+                            if (is_array($value)) {
+                                $query->whereIn('user_id', $value);
+                            } else {
+                                $query->where('user_id', '=', $value);
                             }
+                        }
                         );
-                    }                    
+                    }
                     break;
                 case 'show_in_onboarding' :
                     $query->whereNotIn('base_subject_id', function ($query) use ($value) {
@@ -209,14 +209,44 @@ class Subject extends BaseModel implements AccessCheckable
         return $query;
     }
 
-    public function scopeFilterForStudent($query, User $user) {
-        if (!$user->isA('student')){
+    public function scopeFilterForStudent($query, User $user)
+    {
+        if (!$user->isA('student')) {
             throw new \Exception(self::NOT_ALLOWED_FOR_TEACHER_EXCEPTION_MSG);
         }
 
-        $subQuery = Teacher::select('subject_id')->whereIn('class_id', Student::select('class_id')->where('user_id', $user->getKey()));
+        $subQuery = Teacher::select('subject_id')
+            ->whereIn(
+                'class_id',
+                Student::select('class_id')->where('user_id', $user->getKey()
+                )
+            );
 
         return $query->whereIn('id', $subQuery);
+    }
+
+    public function scopeFilterForStudentCurrentSchoolYear($query, User $user)
+    {
+        if (!$user->isA('student')) {
+            throw new \Exception(self::NOT_ALLOWED_FOR_TEACHER_EXCEPTION_MSG);
+        }
+
+        $subQuery = [];
+
+        if ($currentSchoolYear = SchoolYearRepository::getCurrentSchoolYear()) {
+            $subQuery =
+                SchoolClass::select('subject_id')
+                    ->join('teachers', 'school_classes.id', '=', 'teachers.class_id')
+                    ->join('students', 'school_classes.id', '=', 'students.class_id')
+                    ->where('students.user_id', $user->getKey())
+                    ->where('school_year_id', $currentSchoolYear->getKey());
+
+        }
+
+
+
+        return $query->whereIn('id', $subQuery);
+
 
     }
 
@@ -281,16 +311,16 @@ class Subject extends BaseModel implements AccessCheckable
         switch ($user->is_examcoordinator_for) {
             case 'SCHOOL_LOCATION':
                 $subjectIds = $user->schoolLocation->schoolLocationSections()
-                                ->join('sections', 'school_location_sections.section_id', 'sections.id')
-                                ->join('subjects', 'subjects.section_id', 'sections.id')
-                                ->select('subjects.id', 'subjects.name')->groupBy('subjects.name')->pluck('id')->toArray();
+                    ->join('sections', 'school_location_sections.section_id', 'sections.id')
+                    ->join('subjects', 'subjects.section_id', 'sections.id')
+                    ->select('subjects.id', 'subjects.name')->groupBy('subjects.name')->pluck('id')->toArray();
                 break;
             case 'SCHOOL':
                 $subjectIds = $user->schoolLocation->school->schoolLocations()
-                                ->join('school_location_sections', 'school_location_sections.school_location_id', 'school_locations.id')
-                                ->join('sections', 'school_location_sections.section_id', 'sections.id')
-                                ->join('subjects', 'subjects.section_id', 'sections.id')
-                                ->select('subjects.id', 'subjects.name')->groupBy('subjects.name')->pluck('id')->toArray();
+                    ->join('school_location_sections', 'school_location_sections.school_location_id', 'school_locations.id')
+                    ->join('sections', 'school_location_sections.section_id', 'sections.id')
+                    ->join('subjects', 'subjects.section_id', 'sections.id')
+                    ->select('subjects.id', 'subjects.name')->groupBy('subjects.name')->pluck('id')->toArray();
                 break;
             default:
                 $subjectIds = [];
@@ -305,7 +335,7 @@ class Subject extends BaseModel implements AccessCheckable
         )->pluck('subject_id')->unique())->get();
     }
 
-     public function canAccess()
+    public function canAccess()
     {
         $roles = Roles::getUserRoles();
         if (in_array('Administrator', $roles)) {
@@ -343,8 +373,7 @@ class Subject extends BaseModel implements AccessCheckable
 
         $subjectIds = collect([]);
 
-        foreach($schoolLocations as $school_location)
-        {
+        foreach ($schoolLocations as $school_location) {
             $subjects = collect([]);
             foreach ($school_location->schoolLocationSections as $schoolLocationSection) {
                 $subjects = $subjects->merge($schoolLocationSection->subjects);
@@ -380,6 +409,7 @@ class Subject extends BaseModel implements AccessCheckable
     {
         return 'uuid';
     }
+
     public function scopeFromTests($query, $testIds)
     {
         return $query->whereIn(
@@ -389,4 +419,32 @@ class Subject extends BaseModel implements AccessCheckable
             ->distinct();
     }
 
+    public static function getIdsForContentSource(User $user, array $customer_codes)
+    {
+        if ($user->isValidExamCoordinator()) {
+            //This returns a queryBuilder for efficiency purposes.
+            return Subject::select('id')->whereIn('base_subject_id', BaseSubject::select('id')->distinct());
+        }
+
+        return Subject::getSubjectIdsOfSchoolLocationByCustomerCodesAndUser(Arr::wrap($customer_codes), $user);
+    }
+
+    public static function getIdsForSharedSections(User $user)
+    {
+        if ($user->schoolLocation->sharedSections()->exists()) {
+            $sharedSectionIdsQuery = $user->schoolLocation->sharedSections()->select(['id']);
+            $baseSubjectIdsQuery = $user->subjects()->select(['base_subject_id']);
+
+            return Subject::select(['id'])
+                ->whereIn(
+                    'section_id',
+                    $sharedSectionIdsQuery
+                )
+                ->when(!$user->isValidExamCoordinator(), function ($query) use ($baseSubjectIdsQuery) {
+                    $query->whereIn('base_subject_id', $baseSubjectIdsQuery)->pluck('id')->unique();
+                });
+        }
+
+        return false;
+    }
 }

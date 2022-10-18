@@ -152,12 +152,12 @@ return [
             'between' => 'De N-term dient tussen de :min en de :max te liggen.'
         ],
 
-        'pass_mark' => [
+        'pass_mark'              => [
             'between' => 'De Cesuur dient tussen de :min en de :max te liggen.'
         ],
         'is_examcoordinator_for' => [
-            'required'  => 'kies een van de lesopties waarvoor de examencoördinator examens kan plannen.',
-            'in'        => 'kies een van de lesopties waarvoor de examencoördinator examens kan plannen.'
+            'required' => 'kies een van de lesopties waarvoor de examencoördinator examens kan plannen.',
+            'in'       => 'kies een van de lesopties waarvoor de examencoördinator examens kan plannen.'
         ],
     ],
 
@@ -182,4 +182,5 @@ return [
     'school_class_or_guest_accounts_required' => 'Selecteer een klas of Test-direct toestaan.',
     'test name'                               => 'Naam toets',
     'unique_test_name'                        => 'De gekozen naam is al in gebruik. Gebruik een unieke naam',
+    'invigilator_required'                    => 'Het is verplicht om een surveillant te kiezen',
 ];

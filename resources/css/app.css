@@ -658,6 +658,20 @@ ul ul ul {
     color: var(--system-base);
 }
 
+.logout-progress-bar {
+    width: 70%;
+    background-color: white;
+    border: 1px solid var(--light-grey);
+    height: 1rem;border-radius:4px;
+    overflow: hidden;
+    display:block
+}
+.logout-progress-bar span {
+    display:block;
+    background-color: var(--cta-primary);
+    height: 1rem;
+    transition:width 0.25s
+}
 .grid .grid-card.archived span,
 .grid .grid-card.archived h3 {
     color: var(--note)!important;

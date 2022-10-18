@@ -61,6 +61,11 @@
     readspeakerLoadCore();
 </script>
 @endif
+@if (!is_null(Auth::user()) && Auth::user()->isA('teacher'))
+<script>
+    Core.startUserLogoutInterval(true, {{session('extensionTime', 15*60)}}) // session check if extensionTime exists, else => session time will be 15 min
+</script>
+@endif
 @stack('scripts')
 <script>
     Alpine.start();

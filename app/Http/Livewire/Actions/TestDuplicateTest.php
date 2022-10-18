@@ -38,11 +38,11 @@ class TestDuplicateTest extends TestAction
 
     protected function getDisabledValue(): bool
     {
-        $disabled = false;
-        if (!$this->test->canCopy(auth()->user())) $disabled = true;
-        if (!$this->test->canCopyFromSchool(auth()->user())) $disabled = true;
-        if (auth()->user()->isValidExamCoordinator()) $disabled = true;
+        if (auth()->user()->isValidExamCoordinator()) {
+            return true;
+        }
 
-        return $disabled;
+        $enabled = $this->test->canCopy(auth()->user()) || $this->test->canCopyFromSchool(auth()->user());
+        return !$enabled;
     }
 }

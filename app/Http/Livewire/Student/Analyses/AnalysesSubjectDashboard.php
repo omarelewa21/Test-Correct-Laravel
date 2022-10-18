@@ -10,6 +10,7 @@ use tcCore\Lib\Repositories\PValueTaxonomyBloomRepository;
 use tcCore\Lib\Repositories\PValueTaxonomyMillerRepository;
 use tcCore\Lib\Repositories\PValueTaxonomyRTTIRepository;
 use tcCore\Period;
+use tcCore\Scopes\AttainmentScope;
 use tcCore\Subject;
 use tcCore\User;
 
@@ -19,9 +20,11 @@ class AnalysesSubjectDashboard extends AnalysesDashboard
 
     public $attainmentMode;
 
+    public $generalStats = [];
 
 
-    public function getAttainmentModeOptionsProperty() {
+    public function getAttainmentModeOptionsProperty()
+    {
         return [
             ucfirst(__('student.eindterm')),
             ucfirst(__('student.leerdoel')),
@@ -39,6 +42,25 @@ class AnalysesSubjectDashboard extends AnalysesDashboard
         parent::mount();
 
         $this->subject = $subject;
+
+        $this->setGeneralStats();
+    }
+
+    private function setGeneralStats() {
+        $this->generalStats = [
+            'test' => [
+                'count'          => 5,
+                'countQuestions' => 34,
+                'averagePValue'  => 0.85,
+                'averageMark'    => 8.5,
+            ],
+            'assesment' => [
+                'count'          => 5,
+                'countQuestions' => 34,
+                'averagePValue'  => 0.85,
+                'averageMark'    => 4.5,
+            ],
+        ];
     }
 
     public function render()
@@ -53,23 +75,34 @@ class AnalysesSubjectDashboard extends AnalysesDashboard
             auth()->user(),
             $this->getPeriodsByFilterValues(),
             $this->getEducationLevelYearsByFilterValues(),
-            $this->getTeachersByFilterValues()
+            $this->getTeachersByFilterValues(),
+            $this->subject,
+            $this->attainmentMode,
         );;
 
         $this->dataValues = $result->map(function ($pValue, $key) {
+            $link = false;
+            if ($pValue->attainment_id) {
+                $link = route('student.analyses.attainment.show', [
+                    'attainment' => Attainment::withoutGlobalScope(AttainmentScope::class)->find($pValue->attainment_id)->uuid,
+                    'subject'    => $this->subject->uuid
+                ]);
+            }
+
+            $attainmentTranslationLabel = $this->attainmentMode
+                ? __('student.leerdoel met nummer', ['number' => $key + 1])
+                : __('student.eindterm met nummer', ['number' => $key + 1]);
+
             return (object)[
                 'x'       => $key + 1,
-                'title'   => ucfirst(__('student.leerdoel met nummer', ['number' => $key + 1])),
+                'title'   => ucfirst($attainmentTranslationLabel),
                 'count'   => $pValue->cnt,
                 'value'   => number_format(($pValue->score > 0 ? $pValue->score : 0), 2),
                 'text'    => $pValue->serie,
-                'basedOn' => trans_choice('student.attainment_tooltip_title', $pValue->cnt, [
-                    'basedOn' => $pValue->cnt
+                'basedOn' => trans_choice('student.attainment_tooltip_title', $pValue->cnt ?? 0, [
+                    'basedOn' => $pValue->cnt ?? 0
                 ]),
-                'link'    => route('student.analyses.attainment.show', [
-                    'attainment' => Attainment::find($pValue->attainment_id)->uuid,
-                    'subject' => $this->subject->uuid
-                ]),
+                'link'    => $link,
             ];
         })->toArray();
 

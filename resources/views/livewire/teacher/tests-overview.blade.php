@@ -145,12 +145,14 @@
                           wire:target="filters,clearFilters,$set">
                         {{ trans_choice($this->getMessageKey($results->total()), $results->total(), ['count' => $results->total()]) }}
                     </span>
-                    <div class="flex space-x-2.5">
-                        <x-button.cta class="px-4" wire:click="$emit('openModal', 'teacher.test-start-create-modal')">
-                            <x-icon.plus-2/>
-                            <span>{{ __('general.create test') }}</span>
-                        </x-button.cta>
-                    </div>
+                    @if(!auth()->user()->isValidExamCoordinator())
+                        <div class="flex space-x-2.5">
+                            <x-button.cta class="px-4" wire:click="$emit('openModal', 'teacher.test-start-create-modal')">
+                                <x-icon.plus-2/>
+                                <span>{{ __('general.create test') }}</span>
+                            </x-button.cta>
+                        </div>
+                    @endif
                 </div>
                 <x-grid class="my-4">
                     @foreach(range(1, 6) as $value)

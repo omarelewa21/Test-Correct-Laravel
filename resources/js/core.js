@@ -64,8 +64,6 @@ Core = {
         }
 
         window.Livewire.emit('setFraudDetected');
-
-        alert = true;
     },
 
     lostFocusWithoutReporting: function (text) {
@@ -237,6 +235,32 @@ Core = {
     {
         Core.appType = 'ios'
         Core.disableDeviceSpecificFeature();
+    },
+    /**
+     * Waits an interval time before logging user out
+     * @param {boolean} firstLoad
+     * @param {int} secondsBeforeTeacherLogout - default 15 min
+     */
+    startUserLogoutInterval(firstLoad=false, secondsBeforeTeacherLogout=15*60){
+        let inactive = 0;
+        document.addEventListener('mouseover', () => inactive = 0);
+        document.addEventListener('keydown', () => inactive = 0);
+
+        let startInterval = () => {
+            let userLogoutInterval = setInterval(()=> {
+                inactive++;
+                if (inactive >= secondsBeforeTeacherLogout) {
+                    clearInterval(userLogoutInterval);
+                    Livewire.emit("openModal", "open-user-logout-warning-modal");
+                }
+            }, 1000);
+        }
+
+        if(firstLoad){
+            window.onload = () => startInterval();
+        }else{
+            startInterval();
+        }
     }
 }
 
@@ -250,7 +274,9 @@ function checkPageFocus() {
     if (!parent.skip) {
         if (!document.hasFocus()) {
             if (!notifsent) {  // checks for the notifcation if it is already sent to the teacher
-                Core.lostFocus('lost-focus');
+                if (Core.appType != 'electron') {
+                    Core.lostFocus('lost-focus');
+                }
                 notifsent = true;
             }
         } else {

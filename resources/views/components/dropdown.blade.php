@@ -11,11 +11,13 @@
 @props([
     'label' => '',
     'button' => 'dropdown-button',
-    'labelstyle' => ''
+    'labelstyle' => '',
+    'dropdownwidth' => null,
+    'chevron' => true,
 ])
 
 <div x-data="{ open: false }" @keydown.window.escape="open = false" @click.outside="open = false"
-     class="relative inline-block text-left z-10">
+     class="relative inline-block text-left z-10" style="{{$attributes->get('style')}}">
     <div>
         <span class="rounded-md">
             <button @click="open = !open" type="button"
@@ -23,12 +25,14 @@
                     :class="{primary: open}"
                     id="options-menu" aria-haspopup="true" x-bind:aria-expanded="open" aria-expanded="true">
                 <span class="align-middle">{{ $label }}</span>
-                <x-icon.chevron></x-icon.chevron>
+                @if($chevron)
+                    <x-icon.chevron></x-icon.chevron>
+                @endif
             </button>
         </span>
     </div>
 
-    <div x-show="open" style="display: none;" x-description="Dropdown panel, show/hide based on dropdown state."
+    <div x-show="open" style="display: none; {{ $dropdownwidth ? 'width: '.$dropdownwidth : '' }}" x-description="Dropdown panel, show/hide based on dropdown state."
          x-transition:enter="transition ease-out duration-100" x-transition:enter-start="transform opacity-0 scale-95"
          x-transition:enter-end="transform opacity-100 scale-100" x-transition:leave="transition ease-in duration-75"
          x-transition:leave-start="transform opacity-100 scale-100"

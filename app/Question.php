@@ -425,24 +425,8 @@ class Question extends MtiBaseModel
                 $question->tags()->attach($tags);
             }
         }
-        if($this->questionAttainments){
-            $params = $this->questionAttainments->map(function ($questionAttainment) use ($question) {
-                $questionAttainment->question_id = $question->getKey();
-                return $questionAttainment->toArray();
-            });
-            $question->questionAttainments()->createMany($params);
-        }
 
-        if ($this->questionLearningGoals) {
-            $params = $this->questionLearningGoals->map(function ($questionlearningGoal) use ($question) {
-                $questionlearningGoal->question_id = $question->getKey();
-                return $questionlearningGoal->toArray();
-            });
-            $question->questionAttainments()->createMany($params);
-        }
-
-
-
+        collect(['attainments', 'learningGoals'])->each(fn($relation) => $this->addCurrentQuestionRelationToNewQuestion($question, $relation));
 
         return $question;
     }
@@ -1483,8 +1467,6 @@ class Question extends MtiBaseModel
         return collect(Test::NATIONAL_ITEMBANK_SCOPES)->contains($this->getQuestionInstance()->scope);
     }
 
-
-
     public function createCleanCopy($education_level_id, $education_level_year, $subject_id, User $forUser)
     {
         $newQuestion = $this->duplicate($this->getAttributes());
@@ -1521,5 +1503,18 @@ class Question extends MtiBaseModel
                 return $author->user_id === $this->author_id ? 1 : 0;
             })
             ->values();
+    }
+
+    private function addCurrentQuestionRelationToNewQuestion(Question $question, $relationName)
+    {
+        $pivotTable = 'question'.Str::ucfirst($relationName);
+
+        if($this->$pivotTable && $question->$pivotTable()->doesntExist()){
+            $params = $this->$pivotTable->map(function ($relation) use ($question) {
+                $relation->question_id = $question->getKey();
+                return $relation->toArray();
+            });
+            $question->$pivotTable()->createMany($params);
+        }
     }
 }

@@ -54,25 +54,31 @@ abstract class FactoryQuestion implements FactoryQuestionInterface
     {
         if ($this->questionProperties['attainments'] == []) {
             $attainments = [];
-            $attainments[] = $randomAttainmentForBaseSubject = Attainment::where(
+            $randomAttainmentForBaseSubject = Attainment::where(
                 'base_subject_id',
                 $this->testModel->subject->base_subject_id
             )->whereNull('attainment_id')
                 ->where('education_level_id', $this->testModel->education_level_id)
                 ->pluck('id')
-                ->random();
-
-            $subattainment = Attainment::where('attainment_id', $randomAttainmentForBaseSubject)
-                ->pluck('id')
                 ->whenNotEmpty(fn($q) => $q->random(1))
                 ->first();
-            if($subattainment){
-                $attainments[] = $subattainment;
-            }
 
-            $this->questionProperties = array_merge($this->questionProperties, [
-                'attainments' => $attainments
-            ]);
+            if ($randomAttainmentForBaseSubject) {
+                $attainments[] = $randomAttainmentForBaseSubject;
+
+
+                $subattainment = Attainment::where('attainment_id', $randomAttainmentForBaseSubject)
+                    ->pluck('id')
+                    ->whenNotEmpty(fn($q) => $q->random(1))
+                    ->first();
+                if ($subattainment) {
+                    $attainments[] = $subattainment;
+                }
+
+                $this->questionProperties = array_merge($this->questionProperties, [
+                    'attainments' => $attainments
+                ]);
+            }
         }
         return $this;
     }
@@ -97,7 +103,7 @@ abstract class FactoryQuestion implements FactoryQuestionInterface
 
     public function store()
     {
-        $this->addRandomAttainmentsBySubject();
+//        $this->addRandomAttainmentsBySubject();
         $this->addRandomTaxonomy();
 
         $this->questionProperties = array_merge(
