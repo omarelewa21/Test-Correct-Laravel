@@ -423,6 +423,11 @@ class TestTake extends BaseModel
         return SchoolClass::fromTestTakes($testTakeIds);
     }
 
+    public function schoolLocation()
+    {
+        return $this->belongsTo(SchoolLocation::class);
+    }
+
     public function invigilators()
     {
         return $this->hasMany('tcCore\Invigilator');
@@ -438,26 +443,10 @@ class TestTake extends BaseModel
 
     public function isAllowedToView(User $userToCheck)
     {
-
-        $value = count(DB::select("select
-        `test_take_id`
-      from
-        `test_participants`
-      where
-        deleted_at is null AND
-        `school_class_id` in (
-            select
-            `class_id`
-          from
-            `teachers`
-          where
-            `user_id` = :userId AND
-            deleted_at is null
-        ) and test_take_id = :testTakeId",
-            ['userId' => $userToCheck->getKey(), 'testTakeId' => $this->getKey()]
-        ));
-
-        return ($value > 0 && $userToCheck->hasAccessToTest($this->test)) || $this->isInvigilator($userToCheck) || $this->isScheduledByUser($userToCheck) || $this->isTakeOwner($userToCheck);
+        return ($this->hasParticipantsThatUserTeaches($userToCheck) && $userToCheck->hasAccessToTest($this->test))
+            || $this->isInvigilator($userToCheck)
+            || ($this->isScheduledByUser($userToCheck) || ($userToCheck->isValidExamCoordinator() && $this->school_location_id === $userToCheck->school_location_id))
+            || $this->isTakeOwner($userToCheck);
     }
 
     public function fill(array $attributes)
@@ -1213,8 +1202,18 @@ class TestTake extends BaseModel
 
     private function hasRatedTestTakesFilter($filters): bool
     {
-        if(!isset($filters['test_take_status_id'])) return false;
+        if (!isset($filters['test_take_status_id'])) return false;
 
-        return $filters['test_take_status_id'] == (string) TestTakeStatus::STATUS_RATED;
+        return $filters['test_take_status_id'] == (string)TestTakeStatus::STATUS_RATED;
+    }
+
+    private function hasParticipantsThatUserTeaches(User $user): bool
+    {
+        return TestParticipant::select('test_take_id')
+            ->whereIn('school_class_id',
+                Teacher::select('class_id')->whereUserId($user->getKey())
+            )
+            ->whereTestTakeId($this->getKey())
+            ->exists();
     }
 }

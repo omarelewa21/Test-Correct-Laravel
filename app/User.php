@@ -2702,14 +2702,6 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
     {
         if ($schoolLocation = SchoolLocation::find($this->school_location_id)) {
             $this->addSchoolLocation($schoolLocation);
-
-//            if ($this->isSchoolExamCoordinator()) {
-//                if ($schoolId = $schoolLocation->school_id) {
-//                    $locations = SchoolLocation::whereSchoolId($schoolId)->get();
-//
-//
-//                }
-//            }
         }
     }
 }

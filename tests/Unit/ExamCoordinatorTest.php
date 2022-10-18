@@ -3,14 +3,9 @@
 namespace Tests\Unit;
 
 use Illuminate\Foundation\Testing\DatabaseTransactions;
-use Illuminate\Support\Facades\DB;
-use Livewire\Livewire;
+use tcCore\FactoryScenarios\FactoryScenarioTestBiologie;
 use tcCore\FactoryScenarios\FactoryScenarioTestTakeRated;
-use tcCore\FactoryScenarios\FactoryScenarioTestTakeTaken;
-use tcCore\Http\Controllers\TestTakesController;
-use tcCore\Http\Livewire\Teacher\TestsOverview;
 use tcCore\School;
-use tcCore\Scopes\ArchivedScope;
 use tcCore\TestTake;
 use tcCore\TestTakeStatus;
 use tcCore\User;
@@ -248,15 +243,20 @@ class ExamCoordinatorTest extends TestCase
     }
 
     /** @test */
-    public function can_open_taken_test_as_exam_coordinator()
+    public function can_open_taken_test_take_of_unrelated_subject_and_teacher()
     {
         $this->actingAs($this->d1);
-        $testTake = TestTake::where('test_take_status_id', (string)TestTakeStatus::STATUS_RATED)
-            ->belongsToSchoolLocation($this->d1)
-            ->where('user_id', '<>', $this->d1->getKey())
-            ->first();
+        $biologieToets = FactoryScenarioTestBiologie::createTest();
+        $testTake = FactoryScenarioTestTakeRated::createTestTake($this->d1,'kaas', $biologieToets);
 
-        FactoryScenarioTestTakeRated::create();
-        dd($this->get(self::authTeacherOneGetRequest('api-c/test_take/'.$testTake->uuid)));
+        $this->assertFalse($testTake->isAllowedToView($this->d2));
+
+        $this->setTeacherAsSchoolExamCoordinator($this->d2)->assertSuccessful();
+        $this->d2->refresh();
+        $this->d2->schoolLocation()->associate($testTake->schoolLocation);
+
+        $this->assertTrue($this->d2->isValidExamCoordinator());
+        $this->assertEquals($this->d2->schoolLocation, $testTake->schoolLocation);
+        $this->assertTrue($testTake->isAllowedToView($this->d2));
     }
 }
