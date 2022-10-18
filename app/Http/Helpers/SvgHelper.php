@@ -85,8 +85,9 @@ class SvgHelper
         $imageElement->setAttribute('identifier', $identifier);
         $imageElement->setAttribute('width', $width);
         $imageElement->setAttribute('height', $height);
-        $imageElement->setAttribute('x', '-' . $width / 1.5);
-        $imageElement->setAttribute('y', '-' . $height / 2);
+
+        $imageElement->setAttribute('y', '-' . $height / 2);          // height/2  => to centralize the image y value so that the center of the image is at the center of the drawing tool
+        $imageElement->setAttribute('x', '-' . $width / 1.5);         // width/1.5 => because there is a sidebar in the drawing tool, then, value should be less than 2 to avoid image under sidebar
 
         $groupElement->appendChild($imageElement);
         $doc->appendChild($groupElement);
