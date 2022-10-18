@@ -2,17 +2,15 @@
 
 namespace tcCore\Http\Livewire\Student\Analyses;
 
-use Livewire\Component;
+use Illuminate\Support\Facades\Auth;
 use tcCore\Attainment;
-use tcCore\EducationLevel;
+use tcCore\Http\Helpers\AnalysesSubjectHelper;
 use tcCore\Lib\Repositories\PValueRepository;
 use tcCore\Lib\Repositories\PValueTaxonomyBloomRepository;
 use tcCore\Lib\Repositories\PValueTaxonomyMillerRepository;
 use tcCore\Lib\Repositories\PValueTaxonomyRTTIRepository;
-use tcCore\Period;
 use tcCore\Scopes\AttainmentScope;
 use tcCore\Subject;
-use tcCore\User;
 
 class AnalysesSubjectDashboard extends AnalysesDashboard
 {
@@ -46,21 +44,10 @@ class AnalysesSubjectDashboard extends AnalysesDashboard
         $this->setGeneralStats();
     }
 
-    private function setGeneralStats() {
-        $this->generalStats = [
-            'test' => [
-                'count'          => 5,
-                'countQuestions' => 34,
-                'averagePValue'  => 0.85,
-                'averageMark'    => 8.5,
-            ],
-            'assesment' => [
-                'count'          => 5,
-                'countQuestions' => 34,
-                'averagePValue'  => 0.85,
-                'averageMark'    => 4.5,
-            ],
-        ];
+    private function setGeneralStats()
+    {
+        $analysesHelper = new AnalysesSubjectHelper($this->subject, Auth::user());
+        $this->generalStats = (array) $analysesHelper->getAll();
     }
 
     public function render()
@@ -141,5 +128,10 @@ class AnalysesSubjectDashboard extends AnalysesDashboard
     public function redirectBack()
     {
         return redirect(route('student.analyses.show'));
+    }
+
+    public function showGrades()
+    {
+        return redirect(route('student.test-takes', ['tab' => 'graded']));
     }
 }
