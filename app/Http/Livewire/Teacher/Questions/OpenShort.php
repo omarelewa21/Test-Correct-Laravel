@@ -26,6 +26,7 @@ use tcCore\Http\Requests\CreateAttachmentRequest;
 use tcCore\Http\Requests\CreateGroupQuestionQuestionRequest;
 use tcCore\Http\Requests\CreateTestQuestionRequest;
 use tcCore\Http\Requests\Request;
+use tcCore\Http\Traits\WithQueryStringSyncing;
 use tcCore\Lib\GroupQuestionQuestion\GroupQuestionQuestionManager;
 use tcCore\Question;
 use tcCore\TemporaryLogin;
@@ -34,7 +35,7 @@ use tcCore\TestQuestion;
 
 class OpenShort extends Component implements QuestionCms
 {
-    use WithFileUploads;
+    use WithFileUploads,WithQueryStringSyncing;
 
     public $showSelectionOptionsModal = false;
 
@@ -98,7 +99,7 @@ class OpenShort extends Component implements QuestionCms
     protected $tags = [];
 
     protected $queryString = [
-        'action', 'type', 'subtype', 'testId', 'testQuestionId', 'groupQuestionQuestionId', 'owner', 'isCloneRequest', 'withDrawer' => ['except' => false], 'referrer' => ['except' => false],
+        'action', 'type', 'subtype' => ['as' => 'st'], 'testId', 'testQuestionId', 'groupQuestionQuestionId', 'owner', 'isCloneRequest', 'withDrawer' => ['except' => false], 'referrer' => ['except' => false],
     ];
 
     protected $settingsGeneralPropertiesVisibility = [
@@ -256,9 +257,7 @@ class OpenShort extends Component implements QuestionCms
         return false;
     }
 
-    protected function getListeners()
-    {
-        return [
+    protected $listeners = [
             'new-tags-for-question' => 'handleExternalUpdatedProperty',
             'updated-attainment'    => 'handleExternalUpdatedProperty',
             'updated-learning-goal' => 'handleExternalUpdatedProperty',
@@ -272,7 +271,7 @@ class OpenShort extends Component implements QuestionCms
             'addQuestionFromDirty'  => 'addQuestionFromDirty',
             'testSettingsUpdated'   => 'handleUpdatedTestSettings'
         ];
-    }
+
 
     public function handleUpdateDrawingData($data)
     {
@@ -316,7 +315,7 @@ class OpenShort extends Component implements QuestionCms
     {
         $activeTest = Test::whereUuid($this->testId)->with('testAuthors', 'testAuthors.user')->first();
         Gate::authorize('isAuthorOfTest', [$activeTest]);
-
+        $this->isChild = false;
         $this->setTaxonomyOptions();
 
         $this->initialize($activeTest);
@@ -1130,16 +1129,7 @@ class OpenShort extends Component implements QuestionCms
 
     private function refreshDrawer()
     {
-        $this->emitTo('drawer.cms', 'refreshDrawer', [
-            'testQuestionId'          => $this->testQuestionId,
-            'action'                  => $this->action,
-            'owner'                   => $this->owner,
-            'testId'                  => $this->testId,
-            'groupQuestionQuestionId' => $this->groupQuestionQuestionId,
-            'type'                    => $this->type,
-            'subtype'                 => $this->subtype,
-            'isCloneRequest'          => $this->isCloneRequest,
-        ]);
+        $this->emitTo('drawer.cms', 'refreshDrawer', []);
     }
 
     public function getAmountOfQuestionsProperty()
