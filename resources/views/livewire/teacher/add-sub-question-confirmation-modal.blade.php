@@ -9,7 +9,7 @@
             x-data="{
                 addToTest: async (button, questionUuid) => {
                     let close = await addQuestionToTest(button, questionUuid);
-                    if(close) $wire.emit('closeModal');
+                    if(close) $wire.emit('closeModal', {force: true, skipPreviousModals: true});
                 }
             }">
             <x-button.text-button wire:click="$emit('closeModal')"><span>{{ __('teacher.Annuleer') }}</span>
