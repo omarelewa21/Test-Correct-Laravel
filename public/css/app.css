@@ -8528,11 +8528,6 @@ ul ul ul {
     color: var(--system-base);
 }
 
-.grid .grid-card.archived span,
-.grid .grid-card.archived h3 {
-    color: var(--note)!important;
-}
-
 .logout-progress-bar {
     width: 70%;
     background-color: white;
@@ -8546,6 +8541,10 @@ ul ul ul {
     background-color: var(--cta-primary);
     height: 1rem;
     transition:width 0.25s
+}
+.grid .grid-card.archived span,
+.grid .grid-card.archived h3 {
+    color: var(--note)!important;
 }
 .first\:rounded-l-lg:first-child{
   border-top-left-radius: 0.5rem;
@@ -9356,3 +9355,4 @@ ul ul ul {
     max-width: 72rem;
   }
 }
+

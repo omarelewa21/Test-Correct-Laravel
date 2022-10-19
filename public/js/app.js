@@ -5590,6 +5590,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var choices_js__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(choices_js__WEBPACK_IMPORTED_MODULE_2__);
 /* harmony import */ var _alpinejs_intersect__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! @alpinejs/intersect */ "./node_modules/@alpinejs/intersect/dist/module.esm.js");
 /* harmony import */ var _ryangjchandler_alpine_clipboard__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! @ryangjchandler/alpine-clipboard */ "./node_modules/@ryangjchandler/alpine-clipboard/src/index.js");
+function _typeof(obj) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (obj) { return typeof obj; } : function (obj) { return obj && "function" == typeof Symbol && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }, _typeof(obj); }
+
 
 
 function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { Promise.resolve(value).then(_next, _throw); } }
@@ -5919,6 +5921,10 @@ document.addEventListener('alpine:init', function () {
       answerSvg: entanglements.answerSvg,
       questionSvg: entanglements.questionSvg,
       gridSvg: entanglements.gridSvg,
+      grid: entanglements.grid,
+      isOldDrawing: entanglements.isOldDrawing,
+      showWarning: false,
+      clearSlate: false,
       isTeacher: isTeacher,
       toolName: null,
       isPreview: isPreview,
@@ -5931,7 +5937,7 @@ document.addEventListener('alpine:init', function () {
           delete window[this.toolName];
         }
 
-        var toolName = window[this.toolName] = initDrawingQuestion(this.$root, this.isTeacher, this.isPreview, this.grid);
+        var toolName = window[this.toolName] = initDrawingQuestion(this.$root, this.isTeacher, this.isPreview, this.grid, this.isOldDrawing);
 
         if (this.isTeacher) {
           this.makeGridIfNecessary(toolName);
@@ -5975,8 +5981,6 @@ document.addEventListener('alpine:init', function () {
 
         if (this.gridSvg !== '' && this.gridSvg !== '0.00') {
           gridSize = this.gridSvg;
-        } else if (this.grid && this.grid !== '0') {
-          gridSize = 1 / parseInt(this.grid) * 14;
         }
 
         if (gridSize) {
@@ -6249,7 +6253,8 @@ document.addEventListener('alpine:init', function () {
           var refreshChoices = function refreshChoices() {
             var selection = _this16.multiple ? _this16.value : [_this16.value];
             choices.clearStore();
-            choices.setChoices(_this16.options.map(function (_ref) {
+            var options = _typeof(_this16.options) === 'object' ? Object.values(_this16.options) : _this16.options;
+            choices.setChoices(options.map(function (_ref) {
               var value = _ref.value,
                   label = _ref.label;
               return {
@@ -6265,12 +6270,14 @@ document.addEventListener('alpine:init', function () {
           refreshChoices();
 
           _this16.$refs.select.addEventListener('choice', function (event) {
+            var eventValue = isNaN(parseInt(event.detail.choice.value)) ? event.detail.choice.value : parseInt(event.detail.choice.value);
+
             if (!Array.isArray(_this16.value)) {
-              _this16.value = event.detail.choice.value;
+              _this16.value = eventValue;
               return;
             }
 
-            if (_this16.value.includes(parseInt(event.detail.choice.value))) {
+            if (_this16.value.includes(eventValue)) {
               _this16.removeFilterItem(choices.getValue().find(function (value) {
                 return value.value === event.detail.choice.value;
               }));
@@ -6427,7 +6434,9 @@ document.addEventListener('alpine:init', function () {
           });
         });
         chart.listen("pointsSelect", function (e) {
-          window.open(e.point.get('link'), '_self');
+          if (e.point.get('link')) {
+            window.open(e.point.get('link'), '_self');
+          }
         }); // // set container id for the chart
 
         chart.container('pValueChart'); // initiate chart drawing
@@ -6460,16 +6469,19 @@ document.addEventListener('alpine:init', function () {
             basedOnElement.style.color = 'var(--system-base)';
             basedOnElement.appendChild(document.createTextNode(dataRow.basedOn));
             contentElement.appendChild(basedOnElement);
-            var detailElement = document.createElement("p");
-            detailElement.style.whiteSpace = 'nowrap';
-            detailElement.style.color = 'var(--system-base)';
-            detailElement.style.fontWeight = '900';
-            detailElement.appendChild(document.createTextNode("Bekijk analyse"));
-            var iconElement = document.createElement('img');
-            iconElement.src = '/svg/icons/arrow-small.svg';
-            iconElement.style.display = 'inline-block';
-            detailElement.appendChild(iconElement);
-            contentElement.appendChild(detailElement);
+
+            if (dataRow.link != false) {
+              var detailElement = document.createElement("p");
+              detailElement.style.whiteSpace = 'nowrap';
+              detailElement.style.color = 'var(--system-base)';
+              detailElement.style.fontWeight = '900';
+              detailElement.appendChild(document.createTextNode("Bekijk analyse"));
+              var iconElement = document.createElement('img');
+              iconElement.src = '/svg/icons/arrow-small.svg';
+              iconElement.style.display = 'inline-block';
+              detailElement.appendChild(iconElement);
+              contentElement.appendChild(detailElement);
+            }
           }
         });
         chart.tooltip().onDomReady(function (e) {
@@ -6578,7 +6590,9 @@ document.addEventListener('alpine:init', function () {
           });
         });
         chart.listen("pointsSelect", function (e) {
-          window.open(e.point.get('link'), '_self');
+          if (e.point.get('link')) {
+            window.open(e.point.get('link'), '_self');
+          }
         });
         chart.interactivity("by-x"); // set container id for the chart
 
@@ -6615,20 +6629,23 @@ document.addEventListener('alpine:init', function () {
             basedOnElement.style.color = 'var(--system-base)';
             basedOnElement.appendChild(document.createTextNode(dataRow.basedOn));
             contentElement.appendChild(basedOnElement);
-            var detailElement = document.createElement("p");
-            detailElement.style.whiteSpace = 'nowrap';
-            detailElement.style.color = 'var(--system-base)';
-            detailElement.style.fontWeight = '900';
-            detailElement.appendChild(document.createTextNode("Bekijk analyse!! "));
-            var iconElement = document.createElement('img');
-            iconElement.src = '/svg/icons/arrow-small.svg';
-            iconElement.style.display = 'inline-block';
-            detailElement.appendChild(iconElement);
-            contentElement.appendChild(detailElement);
-            var AttainmentTexElement = document.createElement("p");
-            AttainmentTexElement.style.color = 'var(--system-base)';
-            AttainmentTexElement.appendChild(document.createTextNode(dataRow.text));
-            contentElement.appendChild(AttainmentTexElement);
+
+            if (dataRow.text != null) {
+              var detailElement = document.createElement("p");
+              detailElement.style.whiteSpace = 'nowrap';
+              detailElement.style.color = 'var(--system-base)';
+              detailElement.style.fontWeight = '900';
+              detailElement.appendChild(document.createTextNode("Bekijk analyse "));
+              var iconElement = document.createElement('img');
+              iconElement.src = '/svg/icons/arrow-small.svg';
+              iconElement.style.display = 'inline-block';
+              detailElement.appendChild(iconElement);
+              contentElement.appendChild(detailElement);
+              var AttainmentTexElement = document.createElement("p");
+              AttainmentTexElement.style.color = 'var(--system-base)';
+              AttainmentTexElement.appendChild(document.createTextNode(dataRow.text));
+              contentElement.appendChild(AttainmentTexElement);
+            }
           }
         });
         chart.tooltip().onDomReady(function (e) {
@@ -7408,7 +7425,7 @@ window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
 window.Pusher = __webpack_require__(/*! pusher-js */ "./node_modules/pusher-js/dist/web/pusher.js");
 window.Echo = new laravel_echo__WEBPACK_IMPORTED_MODULE_0__["default"]({
   broadcaster: 'pusher',
-  key: "fc18ed69b446aeb8c8a5",
+  key: "2149988ad52a600a2309",
   cluster: "eu",
   forceTLS: true
 });
@@ -7449,7 +7466,7 @@ Core = {
   inApp: false,
   appType: '',
   inactive: 0,
-  secondsBeforeStudentLogout: 60 * 60,
+  secondsBeforeStudentLogout: 60 * 60 * 3,
   devices: ['browser', 'electron', 'ios', 'chromebook'],
   init: function init() {
     var isIOS = Core.detectIOS();
@@ -7501,7 +7518,6 @@ Core = {
     }
 
     window.Livewire.emit('setFraudDetected');
-    alert = true;
   },
   lostFocusWithoutReporting: function lostFocusWithoutReporting(text) {
     if (!isMakingTest()) {
@@ -7676,6 +7692,42 @@ Core = {
   changeAppTypeToIos: function changeAppTypeToIos() {
     Core.appType = 'ios';
     Core.disableDeviceSpecificFeature();
+  },
+
+  /**
+   * Waits an interval time before logging user out
+   * @param {boolean} firstLoad
+   * @param {int} secondsBeforeTeacherLogout - default 15 min
+   */
+  startUserLogoutInterval: function startUserLogoutInterval() {
+    var firstLoad = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : false;
+    var secondsBeforeTeacherLogout = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 15 * 60;
+    var inactive = 0;
+    document.addEventListener('mouseover', function () {
+      return inactive = 0;
+    });
+    document.addEventListener('keydown', function () {
+      return inactive = 0;
+    });
+
+    var startInterval = function startInterval() {
+      var userLogoutInterval = setInterval(function () {
+        inactive++;
+
+        if (inactive >= secondsBeforeTeacherLogout) {
+          clearInterval(userLogoutInterval);
+          Livewire.emit("openModal", "open-user-logout-warning-modal");
+        }
+      }, 1000);
+    };
+
+    if (firstLoad) {
+      window.onload = function () {
+        return startInterval();
+      };
+    } else {
+      startInterval();
+    }
   }
 };
 
@@ -7690,7 +7742,10 @@ function checkPageFocus() {
     if (!document.hasFocus()) {
       if (!notifsent) {
         // checks for the notifcation if it is already sent to the teacher
-        Core.lostFocus('lost-focus');
+        if (Core.appType != 'electron') {
+          Core.lostFocus('lost-focus');
+        }
+
         notifsent = true;
       }
     } else {
@@ -7916,7 +7971,7 @@ function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
 
 
 
-window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid) {
+window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, isOldDrawing) {
   var _this2 = this;
 
   /**
@@ -7957,6 +8012,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid) 
       root: rootElement,
       isTeacher: isTeacher && !isPreview,
       isPreview: isPreview,
+      isOldDrawing: isOldDrawing,
       hiddenLayersCount: 0
     },
     firstInit: true,
@@ -7989,6 +8045,12 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid) 
           Canvas.setCurrentLayer(Canvas.params.currentLayer);
           drawingApp.firstInit = false;
           clearInterval(pollingFunction);
+
+          if (Canvas.params.initialZoomLevel != 1) {
+            updateZoomInputValue(Canvas.params.initialZoomLevel);
+            zoom(Canvas.params.initialZoomLevel);
+            panDrawingCenterToScreenCenter();
+          }
         }
       });
       setCorrectZIndex();
@@ -8111,7 +8173,8 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid) 
           }
         },
         domMatrix: new DOMMatrix(),
-        zoomFactor: 1
+        zoomFactor: 1,
+        initialZoomLevel: 1
       },
       element: UI.svgCanvas,
       layers: {},
@@ -8844,7 +8907,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid) 
   function decodeSvgLayerFromBase64String(layerData) {
     if (layerData.data.startsWith("data:image/png;base64")) {
       // made with old tool, load as image
-      var parentID = "question";
+      var parentID = layerData.name;
       var shapeID = "image-1";
       var newShape = makeNewSvgShapeWithSidebarEntry("image", {
         group: {},
@@ -8957,6 +9020,11 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid) 
             shapeType = shapeID.substring(0, shapeID.indexOf("-"));
         var newShape = makeNewSvgShapeWithSidebarEntry(shapeType, props, layerName, true, !(!drawingApp.isTeacher() && layerName === "question"));
         Canvas.layers[layerName].shapes[shapeID] = newShape;
+
+        if (drawingApp.params.isOldDrawing && layerName === "question") {
+          fitDrawingToScreen();
+        }
+
         newShape.svg.addHighlightEvents();
       }
     } catch (err) {
@@ -10122,7 +10190,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid) 
       },
       size: 1 / parseInt(grid) * 14
     };
-    return new _svgShape_js__WEBPACK_IMPORTED_MODULE_2__.Grid(0, props, UI.svgGridGroup, drawingApp, Canvas);
+    new _svgShape_js__WEBPACK_IMPORTED_MODULE_2__.Grid(0, props, UI.svgGridGroup, drawingApp, Canvas);
   }
 
   function updateGridVisibility() {
@@ -10975,12 +11043,14 @@ var Entry = /*#__PURE__*/function (_sidebarComponent) {
   }, {
     key: "disable",
     value: function disable() {
-      for (var _i = 0, _Object$values = Object.values(this.btns); _i < _Object$values.length; _i++) {
-        var btn = _Object$values[_i];
-        btn.disabled = true;
-      }
+      try {
+        for (var _i = 0, _Object$values = Object.values(this.btns); _i < _Object$values.length; _i++) {
+          var btn = _Object$values[_i];
+          btn.disabled = true;
+        }
 
-      this.entryContainer.draggable = false;
+        this.entryContainer.draggable = false;
+      } catch (error) {}
     }
   }, {
     key: "enable",
@@ -11329,7 +11399,11 @@ var Layer = /*#__PURE__*/function (_sidebarComponent2) {
       }
 
       Object.values(this.shapes).forEach(function (shape) {
-        shape.sidebar.remove();
+        try {
+          shape.sidebar.remove();
+        } catch (error) {
+          return;
+        }
       });
       this.shapes = {};
       this.svg.innerHTML = '';
@@ -12606,6 +12680,11 @@ var svgShape = /*#__PURE__*/function () {
       this.drawingApp.bindEventListeners(settings, this);
     }
   }, {
+    key: "getElemBoundaries",
+    value: function getElemBoundaries() {
+      return this.mainElement.getBoundingBox();
+    }
+  }, {
     key: "highlight",
     value: function highlight() {
       this.showBorderElement();
@@ -13150,17 +13229,15 @@ document.addEventListener('alpine:init', function () {
       init: function init() {
         var _this = this;
 
-        // if(this.mode == 'range'){
-        //     this.value = ['{{$defaultDate}}', '{{$defaultDateTo}}'];
-        // } else {
-        //     this.value = this.wireModel;
-        // }
         this.picker = (0,flatpickr__WEBPACK_IMPORTED_MODULE_0__["default"])(this.$refs.datepickr, {
           locale: this.locale,
           minDate: minDate == 'today' ? 'today' : false,
           mode: this.mode,
           defaultDate: this.wireModel,
-          dateFormat: "d-m-Y",
+          // The displayed format is humanreadable, the used date is Y-m-d formatted;
+          altInput: true,
+          altFormat: "d-m-Y",
+          dateFormat: "Y-m-d",
           onChange: function onChange(date, dateString) {
             _this.wireModel = _this.value = _this.mode == 'range' ? dateString.split(' t/m ') : dateString; //split t/m or to
           }

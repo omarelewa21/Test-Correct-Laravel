@@ -16,6 +16,7 @@ trait WithAttachments
     public $audioCloseWarning = false;
     public $pressedPlays = [];
     public $timeout;
+    public $questionId;
     public $answerId;
     public $attachmentType = '';
     public $positionTop;
@@ -38,7 +39,14 @@ trait WithAttachments
     public function booted()
     {
         if($this->attachment) {
-            $this->questionAttachment = $this->attachment->questionAttachments->where('question_id', $this->question->getKey())->first();
+            $type = $this->attachmentBelongsToTypeQuestion($this->attachment);
+
+            $id = $this->question->id;
+            if($type=='group') {
+                $id = $this->group->id;
+            }
+
+            $this->questionAttachment = $this->attachment->questionAttachments->where('question_id', $id)->first();
         }
     }
 
@@ -48,7 +56,12 @@ trait WithAttachments
             return;
         }
         $this->attachment = Attachment::whereUuid($attachment)->first();
-        $this->questionAttachment = $this->attachment->questionAttachments->where('question_id', $this->question->id)->first();
+        $type = $this->attachmentBelongsToTypeQuestion($this->attachment);
+        $this->questionId = $this->question->id;
+        if($type=='group'){
+            $this->questionId = $this->group->id;
+        }
+        $this->questionAttachment = $this->attachment->questionAttachments->where('question_id', $this->questionId)->first();
         $this->timeout = $this->questionAttachment->audioTimeoutTime();
         $this->attachmentType = $this->getAttachmentType($this->attachment);
     }
@@ -237,5 +250,17 @@ trait WithAttachments
                 'attachmentId' => $attachmentId,
             ]
         );
+    }
+
+    private function attachmentBelongsToTypeQuestion($attachment)
+    {
+        if(is_null($this->group)){
+            return 'question';
+        }
+        $questions = $attachment->questions()->where('question_id',$this->group->getKey());
+        if($questions->count()>0){
+            return 'group';
+        }
+        return 'question';
     }
 }
