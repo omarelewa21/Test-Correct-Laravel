@@ -7,10 +7,12 @@ namespace tcCore\Http\Traits;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use tcCore\Attachment;
+use tcCore\QuestionAttachment;
 
 trait WithAttachments
 {
     public $attachment;
+    protected $questionAttachment;
     public $audioCloseWarning = false;
     public $pressedPlays = [];
     public $timeout;
@@ -33,13 +35,21 @@ trait WithAttachments
         $this->checkAttachmentTimeoutInSession();
     }
 
+    public function booted()
+    {
+        if($this->attachment) {
+            $this->questionAttachment = $this->attachment->questionAttachments->where('question_id', $this->question->getKey())->first();
+        }
+    }
+
     public function showAttachment($attachment)
     {
         if($this->audioCloseWarning){
             return;
         }
         $this->attachment = Attachment::whereUuid($attachment)->first();
-        $this->timeout = $this->attachment->audioTimeoutTime();
+        $this->questionAttachment = $this->attachment->questionAttachments->where('question_id', $this->question->id)->first();
+        $this->timeout = $this->questionAttachment->audioTimeoutTime();
         $this->attachmentType = $this->getAttachmentType($this->attachment);
     }
 
@@ -47,7 +57,7 @@ trait WithAttachments
     {
         if (optional($this->attachment)->file_mime_type == 'audio/mpeg') {
             if ($this->audioHasTimerAndIsStartedAndNotFinished()&& !$this->audioCloseWarning){
-                if ($this->attachment->audioIsPausable()) {
+                if ($this->questionAttachment->audioIsPausable()) {
                     $this->dispatchBrowserEvent('pause-audio-player');
                 }
                 $this->audioCloseWarning = true;
@@ -55,13 +65,13 @@ trait WithAttachments
             }
 
             if ($this->audioOnlyPlayOnceAndIsStartedAndNotFinished() && !$this->audioCloseWarning) {
-                if (!$this->attachment->audioIsPausable()) {
+                if (!$this->questionAttachment->audioIsPausable()) {
                     $this->audioCloseWarning = true;
                     return;
                 }
             }
 
-            if ($this->audioCloseWarning&&$this->attachment->audioOnlyPlayOnce()) {
+            if ($this->audioCloseWarning&&$this->questionAttachment->audioOnlyPlayOnce()) {
                 $this->audioIsPlayedOnce();
             }
 
@@ -75,14 +85,14 @@ trait WithAttachments
             }
         }
 
-
+        $this->questionAttachment = null;
         $this->attachment = null;
     }
 
     public function audioIsPlayedOnce()
     {
         $this->playedOnce[] = $this->attachment->uuid;
-        $this->attachment->audioIsPlayedOnce();
+        $this->questionAttachment->audioIsPlayedOnce();
     }
 
     public function audioStoreCurrentTime($attachmentUuid, $currentTime)
@@ -138,26 +148,26 @@ trait WithAttachments
 
     private function audioOnlyPlayOnceAndIsStartedAndNotFinished()
     {
-        return $this->attachment->audioOnlyPlayOnce()
+        return $this->questionAttachment->audioOnlyPlayOnce()
             && $this->audioCanBePlayedAgain()
-            && ($this->attachment->audioHasCurrentTime()
+            && ($this->questionAttachment->audioHasCurrentTime()
                 || $this->playStarted());
     }
 
     private function audioHasTimerAndIsStartedAndNotFinished()
     {
-        return $this->attachment->hasAudioTimeout()
+        return $this->questionAttachment->hasAudioTimeout()
                 && !$this->totalAudioPlayed()
-                && ($this->attachment->audioHasCurrentTime()
+                && ($this->questionAttachment->audioHasCurrentTime()
                 || $this->playStarted());
     }
 
     private function audioCanBePlayedAgain()
     {
-        if(!$this->attachment->audioCanBePlayedAgain()){
+        if(!$this->questionAttachment->audioCanBePlayedAgain()){
             return false;
         }
-        if(in_array($this->attachment->uuid, $this->playedOnce)){
+        if(in_array($this->questionAttachment->uuid, $this->playedOnce)){
             return false;
         }
         return true;

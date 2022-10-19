@@ -1,13 +1,13 @@
 
 <div class="flex flex-col w-full justify-center items-center bg-white space-y-3 rounded-10" selid="audio-attachment">
     <div class="text-center w-3/4">
-        @if(!$attachment->audioCanBePlayedAgain())
+        @if(!$this->questionAttachment->audioCanBePlayedAgain())
             <h5>{{__('test_take.sound_clip_played')}}</h5>
-        @elseif($attachment->audioOnlyPlayOnce() && !$attachment->audioIsPausable())
+        @elseif($this->questionAttachment->audioOnlyPlayOnce() && !$this->questionAttachment->audioIsPausable())
             <h5>{{__('test_take.only_playable_once_not_pausable')}}</h5>
-        @elseif($attachment->audioOnlyPlayOnce())
+        @elseif($this->questionAttachment->audioOnlyPlayOnce())
             <h5>{{__('test_take.only_playable_once')}}</h5>
-        @elseif(!$attachment->audioIsPausable())
+        @elseif(!$this->questionAttachment->audioIsPausable())
             <h5>{{__('test_take.cannot_pause_sound_clip')}}</h5>
         @else
             <h5>{{__('test_take.sound_clip')}}</h5>
@@ -31,8 +31,8 @@
         document.querySelector('#player-{{ $attachment->uuid }}'),
         @this,
         '{{$attachment->uuid}}',
-        '{!! $attachment->json !!}',
-        '{{$attachment->audioCanBePlayedAgain() ? true : false}}'
+        '{!! $this->questionAttachment->options !!}',
+        '{{$this->questionAttachment->audioCanBePlayedAgain()}}'
     );
 
     player.on('loadeddata', ()=> {
