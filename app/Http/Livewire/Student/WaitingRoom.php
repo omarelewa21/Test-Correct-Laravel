@@ -158,6 +158,10 @@ class WaitingRoom extends Component
 
     public function startDiscussing()
     {
+        if(Auth::user()->schoolLocation->allow_new_co_learning){
+            return redirect('/student/co-learning/' . $this->take);
+        }
+
         $url = 'test_takes/discuss/' . $this->take;
         $options = TemporaryLogin::buildValidOptionObject('page', $url);
 

@@ -94,7 +94,7 @@ class SchoolLocation extends BaseModel implements AccessCheckable
         'allow_new_student_environment', 'allow_new_question_editor',
         'keep_out_of_school_location_report',
         'main_phonenumber', 'internetaddress', 'show_exam_material', 'show_cito_quick_test_start', 'show_national_item_bank',
-        'allow_wsc', 'allow_writing_assignment', 'license_type', 'allow_creathlon', 'allow_new_taken_tests_page', 'allow_analyses',
+        'allow_wsc', 'allow_writing_assignment', 'license_type', 'allow_creathlon', 'allow_new_taken_tests_page', 'allow_analyses', 'allow_new_co_learning',
     ];
 
     /**
@@ -1341,6 +1341,16 @@ class SchoolLocation extends BaseModel implements AccessCheckable
     public function getAllowNewTakenTestsPageAttribute() : bool
     {
         return $this->featureSettings()->getSetting('allow_new_taken_tests_page')->exists();
+    }
+
+    public function setAllowNewCoLearningAttribute(bool $boolean)
+    {
+        return $this->featureSettings()->setSetting('allow_new_co_learning', $boolean);
+    }
+
+    public function getAllowNewCoLearningAttribute() : bool
+    {
+        return $this->featureSettings()->getSetting('allow_new_co_learning')->exists();
     }
 
     public function canDelete(User $user)
