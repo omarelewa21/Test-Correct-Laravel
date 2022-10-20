@@ -46,6 +46,10 @@ abstract class TestCase extends BaseTestCase
     public static function getTeacherOne(){
         return  User::where('username', '=', static::USER_TEACHER)->first();
     }
+    public static function getTeacherTwo(): User
+    {
+        return  User::where('username', '=', static::USER_TEACHER_TWO)->first();
+    }
     public static function getStudentOne(){
         return  User::where('username', '=', static::USER_STUDENT_ONE)->first();
     }

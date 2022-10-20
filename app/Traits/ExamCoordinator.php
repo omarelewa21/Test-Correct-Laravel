@@ -3,7 +3,6 @@
 namespace tcCore\Traits;
 
 use Illuminate\Support\Facades\Auth;
-use tcCore\School;
 use tcCore\SchoolLocation;
 use tcCore\User;
 
@@ -56,8 +55,6 @@ trait ExamCoordinator
                 $this->addSchoolLocation($location);
             });
         }
-
-        $this->setAttribute('session_hash', '');
     }
 
     /**
