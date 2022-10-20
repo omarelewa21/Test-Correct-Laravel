@@ -555,6 +555,22 @@ class Test extends BaseModel
     {
         return $this->getDuplicateQuestionIds()->isNotEmpty();
     }
+    
+    public function getTotalScore()
+    {
+        $this->load(['testQuestions', 'testQuestions.question']);
+        $totalScore = 0;
+        foreach ($this->testQuestions as $testQuestion) {
+            if (null !== $testQuestion->question) {
+                if($testQuestion->question->isType('GroupQuestion')){
+                    $totalScore += $testQuestion->question->total_score ?? 0;
+                } else {
+                    $totalScore += $testQuestion->question->score ?? 0;
+                }
+            }
+        }
+        return $totalScore;
+    }
 
     public function getQuestionCount()
     {
