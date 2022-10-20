@@ -22,7 +22,14 @@ trait WithPreviewAttachments
     public function booted()
     {
         if($this->attachment) {
-            $this->questionAttachment = $this->attachment->questionAttachments->where('question_id', $this->question->getKey())->first();
+            $type = $this->attachmentBelongsToTypeQuestion($this->attachment);
+
+            $id = $this->question->id;
+            if($type=='group') {
+                $id = $this->group->id;
+            }
+
+            $this->questionAttachment = $this->attachment->questionAttachments->where('question_id', $id)->first();
         }
     }
 
@@ -34,11 +41,15 @@ trait WithPreviewAttachments
         $this->attachment = Attachment::whereUuid($attachmentUuid)->first();
         $attachment = $this->attachment;
         $type = $this->attachmentBelongsToTypeQuestion($attachment);
+
         $this->questionId = $this->question->uuid;
+        $id = $this->question->id;
         if($type=='group'){
             $this->questionId = $this->group->uuid;
+            $id = $this->group->id;
         }
-        $this->questionAttachment = $this->attachment->questionAttachments->where('question_id', $this->question->id)->first();
+
+        $this->questionAttachment = $this->attachment->questionAttachments->where('question_id', $id)->first();
         $this->timeout = $this->questionAttachment->audioTimeoutTime();
         $this->attachmentType = $this->getAttachmentType($attachment);
     }
