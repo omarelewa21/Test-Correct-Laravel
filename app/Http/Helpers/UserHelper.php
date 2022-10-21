@@ -57,7 +57,6 @@ class UserHelper
         if($schoolLocation = $user->schoolLocation) {
             session()->put('locale', $schoolLocation->school_language);
             app()->setLocale(session('locale'));
-            $schoolLocation->append('featureSettings');
         }
 
         $hidden = self::getHiddenUserProperties($user);
