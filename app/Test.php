@@ -190,7 +190,7 @@ class Test extends BaseModel
      */
     public function subject()
     {
-        return $this->belongsTo('tcCore\Subject');
+        return $this->belongsTo('tcCore\Subject')->withTrashed();
     }
 
     /**
@@ -756,8 +756,8 @@ class Test extends BaseModel
                                                 left join school_location_sections as t9
                                                     on t9.section_id = sections.id
                                             where
-                                                subjects.deleted_at is null
-                                                and
+                                                /*subjects.deleted_at is null
+                                                and*/
                                                 t9.school_location_id = %d
                                                         ) as s2
                                                     on t2.subject_id = s2.subject_id
@@ -783,8 +783,8 @@ class Test extends BaseModel
                                                             left join teachers
                                                                 on subjects.id = teachers.subject_id
                                                         where
-                                                            subjects.deleted_at is null
-                                                                and
+                                                            /*subjects.deleted_at is null
+                                                                and*/
                                                             teachers.user_id = %d
                                                                 and
                                                             teachers.deleted_at is null
