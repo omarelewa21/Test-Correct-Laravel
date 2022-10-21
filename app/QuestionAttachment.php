@@ -95,10 +95,7 @@ class QuestionAttachment extends CompositePrimaryKeyModel
 
     public function hasAudioTimeout()
     {
-        if ($this->audioTimeoutTime() > 0) {
-            return true;
-        }
-        return false;
+        return ($this->audioTimeoutTime() > 0);
     }
 
     public function getJsonPropertyValueBool($propertyName)
