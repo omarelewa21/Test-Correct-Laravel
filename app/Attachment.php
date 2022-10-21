@@ -300,14 +300,14 @@ class Attachment extends BaseModel
         return $host;
     }
 
-    public function hasSetting($setting, $questionId) {
+    public function getSetting($setting, $questionId) {
         $this->loadMissing('questionAttachments');
         $questionAttachment = $this->questionAttachments->where('question_id', $questionId)->first();
         $options = json_decode($questionAttachment->options);
+
         if($options != null && property_exists($options, $setting)) {
             return $options->$setting;
-        } else {
-            return false;
         }
+        return false;
     }
 }

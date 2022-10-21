@@ -105,7 +105,7 @@ trait WithPreviewAttachments
 
     private function audioIsPlayedAndCanBePlayedAgain()
     {
-        return $this->questionAttachment->audioOnlyPlayOnce()
+        return $this->questionAttachment->audioIsOnlyPlayableOnce()
             && $this->questionAttachment->audioCanBePlayedAgain()
             && ($this->questionAttachment->audioHasCurrentTime()
                 || $this->pressedPlay);
