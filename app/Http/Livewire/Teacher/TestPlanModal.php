@@ -74,9 +74,11 @@ class TestPlanModal extends ModalComponent
 
     protected function getMessages()
     {
-        return ['request.invigilators.required' => __('validation.invigilator_required')];
+        return [
+            'request.invigilators.required' => __('validation.invigilator_required'),
+            'request.school_classes.required' => __('validation.school_class_or_guest_accounts_required')
+        ];
     }
-
 
     public function plan()
     {
@@ -96,7 +98,6 @@ class TestPlanModal extends ModalComponent
 
         redirect($controller->toCakeUrl($request));
     }
-
 
     private function planTest()
     {
