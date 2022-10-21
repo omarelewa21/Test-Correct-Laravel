@@ -6115,6 +6115,9 @@ video {
 .min-h-\[500px\]{
   min-height: 500px;
 }
+.min-h-\[32px\]{
+  min-height: 32px;
+}
 .w-full{
   width: 100%;
 }
@@ -6252,6 +6255,9 @@ video {
 .w-14{
   width: 3.5rem;
 }
+.w-\[70px\]{
+  width: 70px;
+}
 .min-w-\[110px\]{
   min-width: 110px;
 }
@@ -6280,6 +6286,9 @@ video {
 }
 .min-w-\[163px\]{
   min-width: 163px;
+}
+.min-w-\[32px\]{
+  min-width: 32px;
 }
 .max-w-\[600px\]{
   max-width: 600px;
@@ -7119,6 +7128,14 @@ video {
   --tw-bg-opacity: 1;
   background-color: rgb(88 28 135 / var(--tw-bg-opacity));
 }
+.bg-cta{
+  --tw-bg-opacity: 1;
+  background-color: rgb(58 183 83 / var(--tw-bg-opacity));
+}
+.bg-ctadark{
+  --tw-bg-opacity: 1;
+  background-color: rgb(0 99 20 / var(--tw-bg-opacity));
+}
 .bg-opacity-0{
   --tw-bg-opacity: 0;
 }
@@ -7299,6 +7316,10 @@ video {
 .py-\[70px\]{
   padding-top: 70px;
   padding-bottom: 70px;
+}
+.px-0\.5{
+  padding-left: 0.125rem;
+  padding-right: 0.125rem;
 }
 .pt-4{
   padding-top: 1rem;
@@ -8528,11 +8549,6 @@ ul ul ul {
     color: var(--system-base);
 }
 
-.grid .grid-card.archived span,
-.grid .grid-card.archived h3 {
-    color: var(--note)!important;
-}
-
 .logout-progress-bar {
     width: 70%;
     background-color: white;
@@ -8546,6 +8562,10 @@ ul ul ul {
     background-color: var(--cta-primary);
     height: 1rem;
     transition:width 0.25s
+}
+.grid .grid-card.archived span,
+.grid .grid-card.archived h3 {
+    color: var(--note)!important;
 }
 .first\:rounded-l-lg:first-child{
   border-top-left-radius: 0.5rem;
@@ -9356,3 +9376,4 @@ ul ul ul {
     max-width: 72rem;
   }
 }
+

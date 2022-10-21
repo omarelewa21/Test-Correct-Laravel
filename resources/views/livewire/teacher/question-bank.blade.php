@@ -53,23 +53,6 @@
      @question-removed.window="Notify.notify('{{ __('cms.question_deleted') }}')"
 >
     <div class="flex w-full flex-col border-b border-secondary sticky top-0 z-[2]">
-        <div class="py-2 px-6 flex w-full bg-white border-b border-secondary">
-            <div class="flex items-center space-x-2.5">
-                <x-button.back-round @click="hideQuestionBank();" selid="question-bank-back-btn"/>
-                <span class="bold text-lg cursor-default">{{ __('cms.Bestaande vraag toevoegen') }}</span>
-            </div>
-
-            <div class="flex ml-auto items-center space-x-2.5">
-                <x-button.cta @click="hideQuestionBank();" selid="close-question-bank-btn">
-                    <span>{{ __('drawing-modal.Sluiten') }}</span>
-                </x-button.cta>
-
-                <x-button.slider wire:model="sliderButtonSelected" :disabled="$sliderButtonDisabled"
-                        button-width="135px" :options="$sliderButtonOptions"></x-button.slider>
-
-            </div>
-
-        </div>
         <div class="flex w-full bg-lightGrey">
             <div class="w-full   mx-auto">
                 <div class="flex w-full mx-8 max-w-max h-12.5">

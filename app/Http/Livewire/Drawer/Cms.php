@@ -9,7 +9,6 @@ use tcCore\GroupQuestionQuestion;
 use tcCore\Http\Controllers\GroupQuestionQuestionsController;
 use tcCore\Http\Controllers\TestQuestionsController;
 use tcCore\Http\Livewire\Teacher\Questions\CmsFactory;
-use tcCore\Http\Traits\WithQueryStringSyncing;
 use tcCore\Lib\GroupQuestionQuestion\GroupQuestionQuestionManager;
 use tcCore\Question;
 use tcCore\Test;
@@ -17,8 +16,7 @@ use tcCore\TestQuestion;
 
 class Cms extends Component
 {
-    use WithQueryStringSyncing;
-    protected $queryString = ['testId', 'testQuestionId', 'groupQuestionQuestionId', 'action', 'owner', 'type', 'subtype' => ['as' => 'st']];
+    protected $queryString = ['testId', 'testQuestionId', 'groupQuestionQuestionId', 'action', 'owner', 'type', 'subtype'];
 
     /* Querystring parameters*/
     public $testId = '';
@@ -38,15 +36,22 @@ class Cms extends Component
 
     public $duplicateQuestions;
 
-    protected $listeners = [
-        'refreshDrawer'              => 'refreshDrawer',
-        'refreshSelf'                => '$refresh',
-        'deleteQuestion'             => 'deleteQuestion',
-        'deleteQuestionByQuestionId' => 'deleteQuestionByQuestionId',
-        'show-empty'                 => 'showEmpty',
-        'addQuestionResponse'        => 'addQuestionResponse',
-        'newGroupId'                 => 'newGroupId',
-    ];
+    public $sliderButtonOptions = [];
+    public $sliderButtonSelected = 'questions';
+    public $sliderButtonDisabled = false;
+
+    protected function getListeners()
+    {
+        return [
+            'refreshDrawer'              => 'refreshDrawer',
+            'refreshSelf'                => '$refresh',
+            'deleteQuestion'             => 'deleteQuestion',
+            'deleteQuestionByQuestionId' => 'deleteQuestionByQuestionId',
+            'show-empty'                 => 'showEmpty',
+            'addQuestionResponse'        => 'addQuestionResponse',
+            'newGroupId'                 => 'newGroupId',
+        ];
+    }
 
     public function mount()
     {
@@ -61,6 +66,7 @@ class Cms extends Component
         if ($this->action === 'add') {
             $this->setQuestionNameString($this->type, $this->subtype);
         }
+        $this->setSliderButtonOptions();
     }
 
     public function booted()
@@ -241,7 +247,7 @@ class Cms extends Component
         }
 
         $this->navigateToQuestion($questionToNavigateTo);
-//        $this->emitSelf('refreshDrawer');
+        $this->emitSelf('refreshDrawer');
     }
 
     private function navigateToQuestion($question = null)
@@ -260,11 +266,11 @@ class Cms extends Component
 
     public function refreshDrawer($arguments = [])
     {
-//        collect($arguments)->each(function ($item, $key) {
-//            if (property_exists($this, $key)) {
-//                $this->$key = $item;
-//            }
-//        });
+        collect($arguments)->each(function ($item, $key) {
+            if (property_exists($this, $key)) {
+                $this->$key = $item;
+            }
+        });
 //        $this->emitSelf('refreshSelf');
     }
 
@@ -387,5 +393,13 @@ class Cms extends Component
         }
 
         $this->dispatchBrowserEvent('notify', ['message' => __('general.duplication successful')]);
+    }
+
+    private function setSliderButtonOptions()
+    {
+        $this->sliderButtonOptions = [
+            'tests' => __('cms.Toetsenbank'),
+            'questions' => __('cms.Vragenbank'),
+        ];
     }
 }
