@@ -84,7 +84,7 @@ trait WithAttachments
                 }
             }
 
-            if ($this->audioCloseWarning&&$this->questionAttachment->audioOnlyPlayOnce()) {
+            if ($this->audioCloseWarning&&$this->questionAttachment->audioIsOnlyPlayableOnce()) {
                 $this->audioIsPlayedOnce();
             }
 
@@ -161,7 +161,7 @@ trait WithAttachments
 
     private function audioOnlyPlayOnceAndIsStartedAndNotFinished()
     {
-        return $this->questionAttachment->audioOnlyPlayOnce()
+        return $this->questionAttachment->audioIsOnlyPlayableOnce()
             && $this->audioCanBePlayedAgain()
             && ($this->questionAttachment->audioHasCurrentTime()
                 || $this->playStarted());
