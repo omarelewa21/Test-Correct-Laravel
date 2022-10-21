@@ -180,13 +180,13 @@ class TestPlanModal extends ModalComponent
         $this->request['school_classes'] = [];
         $this->request['notify_students'] = true;
 
-        $this->request['invigilators'] = $this->defaultInvigilator();
+        $this->request['invigilators'] = [$this->defaultInvigilator()];
         $this->request['owner_id'] = $this->defaultOwner();
     }
 
-    private function defaultInvigilator(): array
+    private function defaultInvigilator(): int
     {
-        return Auth::user()->isValidExamCoordinator() ? [] : [Auth::id()];
+        return Auth::user()->isValidExamCoordinator() ? $this->defaultOwner() : Auth::id();
     }
 
     private function defaultOwner(): int
@@ -198,7 +198,7 @@ class TestPlanModal extends ModalComponent
             return $this->test->author_id;
         }
 
-        return $this->allowedInvigilators->first()['value'];
+        return $this->allowedTeachers->sortBy('label')->first()['value'];
     }
 
     /**

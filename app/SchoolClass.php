@@ -398,6 +398,7 @@ class SchoolClass extends BaseModel implements AccessCheckable
                             ->select('sc2.id')
                             ->join('teachers', 'teachers.class_id', '=', 'sc2.id')
                             ->where('teachers.subject_id', $value)
+                            ->whereNull('teachers.deleted_at')
                     );
                     break;
                 case 'base_subject_id':
@@ -409,6 +410,7 @@ class SchoolClass extends BaseModel implements AccessCheckable
                                 'teachers.subject_id',
                                 Subject::select('id')->whereBaseSubjectId($value)
                             )
+                            ->whereNull('teachers.deleted_at')
                     );
                     break;
                 default:
