@@ -67,7 +67,7 @@ class SchoolLocation extends BaseModel implements AccessCheckable
      */
     protected $dates = ['deleted_at', 'no_mail_request_detected'];
 
-    protected $appends = ['school_language_cake', 'featureSettings'];
+    protected $appends = ['school_language_cake', 'feature_settings'];
 
     /**
      * The database table used by the model.
