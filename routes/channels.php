@@ -26,6 +26,7 @@ Broadcast::channel('TestTake.{testTakeUuid}', function () {
     return true;
 });
 Broadcast::channel('TestParticipant.{testParticipantUuid}', function ($user, $testParticipantUuid) {
+    dd($testParticipantUserUuid);
     $testParticipantUserUuid = \tcCore\TestParticipant::whereUuid($testParticipantUuid)->value('user_id');
     return $testParticipantUserUuid === $user->getKey();
 });

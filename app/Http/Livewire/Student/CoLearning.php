@@ -2,9 +2,11 @@
 
 namespace tcCore\Http\Livewire\Student;
 
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Response;
 use Livewire\Component;
 use tcCore\AnswerRating;
+use tcCore\Http\Controllers\AnswerRatingsController;
 use tcCore\TestTake;
 
 class CoLearning extends Component
@@ -16,9 +18,17 @@ class CoLearning extends Component
 
     protected $answerRating = null;
 
+    protected function getListeners()
+    {
+        return [
+            'echo-private:TestParticipant.' . $this->testParticipant->uuid . ',.question' => 'dd', //.send, the dot is necessary
+        ];
+    }
+
     public function mount(TestTake $test_take)
     {
         $this->testTake = $test_take;
+        $this->testParticipant = $test_take->testParticipants->where('user_id', auth()->id())->first();
     }
 
     public function render()
@@ -55,65 +65,19 @@ class CoLearning extends Component
 
         $this->answerRating = null;
 
-        $mode = 'first';
-        $with = ['questions'];
-        $filters = [
-            "discussing_at_test_take_id" => $this->testTake->uuid,//"8287df51-f800-42c1-a9f6-77aace840eef",
-            "rated"                      => "0",
+        $params = [
+            'mode' => 'first',
+            'with' => ['questions'],
+            'filter' => [
+                "discussing_at_test_take_id" => $this->testTake->uuid,//"8287df51-f800-42c1-a9f6-77aace840eef",
+                "rated"                      => "0",
+            ],
         ];
 
-        $answerRatings = AnswerRating::filtered($filters, [])->with('answer');
+        $request = new Request();
+        $request->merge($params);
 
-        if (is_array($with) && in_array('questions', $with)) {
-            $answerRatings->with(['answer.question', 'answer.answerParentQuestions', 'answer.answerParentQuestions.groupQuestion']);
-        } else {
-            $answerRatings->with(['answer.question','answer.testparticipant']);
-        }
-
-        switch(strtolower($mode)) {
-//            case 'all':
-//                $answerRatings = $answerRatings->get();
-//                if (is_array($request->get('with')) && in_array('questions', $request->get('with'))) {
-//                    foreach ($answerRatings as $answerRating) {
-//                        $answerRating->answer->question->loadRelated();
-//                    }
-//                }
-//                return Response::make($answerRatings, 200);
-//                break;
-            case 'first':
-                $answerRatingCount = $answerRatings->count();
-                $answerRating = $answerRatings->first();
-
-                if ($answerRating !== null) {
-                    if ($answerRatingCount > 1) {
-                        $answerRating->setAttribute('has_next', true);
-                    } else {
-                        $answerRating->setAttribute('has_next', false);
-                    }
-
-                    if (is_array($with) && in_array('questions', $with)) {
-                        $answerRating->answer->question->loadRelated();
-                    }
-                    return $answerRating;
-//                    return Response::make($answerRatings, 200);
-                } else {
-                    //todo ??
-//                    return Response::make(['has_next' => false], 200);
-                }
-                break;
-//            case 'list':
-//                return Response::make($answerRatings->pluck('answer_id', 'id'), 200);
-//                break;
-//            case 'paginate':
-//            default:
-//                $answerRatings = $answerRatings->paginate(15);
-//                if (is_array($request->get('with')) && in_array('questions', $request->get('with'))) {
-//                    foreach ($answerRatings as $answerRating) {
-//                        $answerRating->answer->question->loadRelated();
-//                    }
-//                }
-//                return Response::make($answerRatings, 200);
-//                break;
-        }
+        $response = (new AnswerRatingsController())->indexFromWithin($request);
+        return $response->getOriginalContent();
     }
 }

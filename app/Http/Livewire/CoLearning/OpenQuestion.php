@@ -16,20 +16,26 @@ class OpenQuestion extends Component
     public $answer = '';
     public $answered;
     public $question;
-    public $number;
-    public $answers;
-    public $editorId;
+    public $questionNumber;
+    public $answerNumber;
+
+    public $answerRating;
 
     public function mount()
     {
-        $this->editorId = 'editor_'.$this->question->id;
+        $this->question = $this->answerRating->answer->question;
+        $this->answered = $this->answerRating->answer->isAnswered;
 
-        $temp = (array) json_decode($this->answers[$this->question->uuid]['answer']);
+
+        $temp = (array) json_decode($this->answerRating->answer->json);
         if (key_exists('value', $temp)) {
             $this->answer = $temp['value'];
         }
-
-        $this->answered = $this->answers[$this->question->uuid]['answered'];
+        $this->answer = '
+        Lorem ipsum dolor sit amet, consectetur adipisicing elit. Aliquam architecto assumenda delectus deleniti incidunt inventore mollitia, nihil pariatur quam suscipit! Autem est mollitia nobis obcaecati praesentium quo quod sapiente ullam!
+        Lorem ipsum dolor sit amet, consectetur adipisicing elit. Aliquam architecto assumenda delectus deleniti incidunt inventore mollitia, nihil pariatur quam suscipit! Autem est mollitia nobis obcaecati praesentium quo quod sapiente ullam!
+        Lorem ipsum dolor sit amet, consectetur adipisicing elit. Aliquam architecto assumenda delectus deleniti incidunt inventore mollitia, nihil pariatur quam suscipit! Autem est mollitia nobis obcaecati praesentium quo quod sapiente ullam!
+        ';
 
         if(!is_null($this->question->belongs_to_groupquestion_id)){
             $this->question->groupQuestion = Question::find($this->question->belongs_to_groupquestion_id);
