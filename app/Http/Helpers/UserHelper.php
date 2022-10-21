@@ -44,7 +44,7 @@ class UserHelper
     public function handleAfterLoginValidation($user, $throughTempLogin = false, $ip = false)
     {
         $user->setAttribute('session_hash', $user->generateSessionHash());
-        if((bool) $user->demo === true){
+        if((bool) $user->demo){
             $user->demoRestrictionOverrule = true;
         }
         $user->save();
@@ -54,10 +54,9 @@ class UserHelper
             return \Response::make("NEEDS_LOGIN_ENTREE",403);
         }
 
-        if($schoolLocation = $user->schoolLocation) {
-            session()->put('locale', $schoolLocation->school_language);
+        if($user->schoolLocation) {
+            session()->put('locale', $user->schoolLocation->school_language);
             app()->setLocale(session('locale'));
-            $schoolLocation->append('featureSettings');
         }
 
         $hidden = self::getHiddenUserProperties($user);
