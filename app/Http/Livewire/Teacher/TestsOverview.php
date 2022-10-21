@@ -86,7 +86,7 @@ class TestsOverview extends Component
             ->with([
                 'educationLevel',
                 'testKind',
-                'subject' => fn ($query) => $query->withTrashed(),
+                'subject',
                 'author',
                 'author.school',
                 'author.schoolLocation',
