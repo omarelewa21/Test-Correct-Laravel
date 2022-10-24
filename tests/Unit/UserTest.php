@@ -325,4 +325,18 @@ class UserTest extends TestCase
         $user = User::find($umbrellaOrganisation->user_id);
         $this->assertNotNull($user);
     }
+
+    /** @test */
+    public function scope_filtered_with_trial_periods_works_for_teachers_who_have_a_trial_school_as_non_active_school()
+    {
+        $this->actingAs(User::find(519));
+        SchoolLocation::whereId(7)->update(['license_type' => SchoolLocation::LICENSE_TYPE_TRIAL]);
+        SchoolLocation::whereId(8)->update(['license_type' => SchoolLocation::LICENSE_TYPE_CLIENT]);
+
+        $filter = ['trial' => 1, 'role'  => 1];
+        $userSchoolLocations = User::filtered($filter, [])->pluck('school_location_id');
+
+        $this->assertContains(7, $userSchoolLocations);
+        $this->assertContains(8, $userSchoolLocations);
+    }
 }

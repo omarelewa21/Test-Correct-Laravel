@@ -47,6 +47,8 @@ class SchoolLocation extends BaseModel implements AccessCheckable
     const LVS_MAGISTER = 'Magister';
     const LVS_SOMTODAY = 'SOMTODAY';
     const SSO_ENTREE = 'Entreefederatie';
+    const LICENSE_TYPE_TRIAL = 'TRIAL';
+    const LICENSE_TYPE_CLIENT = 'CLIENT';
 
     protected $casts = [
         'uuid'                       => EfficientUuid::class,
