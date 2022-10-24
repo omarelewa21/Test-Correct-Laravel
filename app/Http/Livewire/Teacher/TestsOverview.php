@@ -17,27 +17,39 @@ use tcCore\Traits\ContentSourceTabsTrait;
 
 class TestsOverview extends Component
 {
-    use WithPagination;
-    use ContentSourceTabsTrait;
+    use WithPagination, ContentSourceTabsTrait;
+
     const ACTIVE_TAB_SESSION_KEY = 'tests-overview-active-tab';
-
     const PER_PAGE = 12;
-
-    public $filters = [];
+    const AVAILABLE_MODES = ['cms', 'page'];
 
     private $sorting = ['id' => 'desc'];
+    protected $queryString = [
+        'openTab'        => ['as' => 'to_tab'],
+        'referrerAction' => ['except' => '', 'as' => 'to_ra']
+    ];
 
-    protected $queryString = ['openTab', 'referrerAction' => ['except' => '']];
-
+    public $filters = [];
     public $referrerAction = '';
-
     public $selected = [];
+    public $mode;
 
     protected $listeners = [
         'test-deleted'        => '$refresh',
         'test-added'          => '$refresh',
         'testSettingsUpdated' => '$refresh',
     ];
+
+    public function mount()
+    {
+        $this->isExamCoordinator = Auth::user()->isValidExamCoordinator();
+        $this->setOverviewMode();
+        $this->abortIfNewTestBankNotAllowed();
+        $this->abortIfModeNotAllowed();
+        $this->initialiseContentSourceTabs();
+
+        $this->setFilters();
+    }
 
     public function render()
     {
@@ -228,16 +240,6 @@ class TestsOverview extends Component
             })->values()->toArray();
     }
 
-    public function mount()
-    {
-        $this->isExamCoordinator = Auth::user()->isValidExamCoordinator();
-
-        $this->abortIfNewTestBankNotAllowed();
-        $this->initialiseContentSourceTabs();
-
-        $this->setFilters();
-    }
-
     private function cleanFilterForSearch(array $filters)
     {
         return collect($filters)->reject(function ($filter) {
@@ -329,9 +331,9 @@ class TestsOverview extends Component
     public function toPlannedTest($takeUuid)
     {
         $testTake = TestTake::whereUuid($takeUuid)->first();
-        if($testTake->isAssessmentType()){
+        if ($testTake->isAssessmentType()) {
             $url = sprintf("test_takes/assessment_open_teacher/%s", $takeUuid);
-        }else{
+        } else {
             $url = sprintf("test_takes/view/%s", $takeUuid);
         }
         $options = TemporaryLogin::buildValidOptionObject('page', $url);
@@ -348,5 +350,20 @@ class TestsOverview extends Component
             $filters['base_subject_id'] = BaseSubject::currentForAuthUser()->pluck('id')->toArray();
         }
         return $filters;
+    }
+
+    private function abortIfModeNotAllowed()
+    {
+        if (!collect(self::AVAILABLE_MODES)->contains($this->mode)) {
+            abort(404);
+        }
+    }
+
+    private function setOverviewMode()
+    {
+        if ($this->mode === 'cms') return;
+        if (\Livewire::originalUrl() === route('teacher.tests')) {
+            $this->mode = 'page';
+        }
     }
 }

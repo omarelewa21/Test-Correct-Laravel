@@ -179,7 +179,9 @@
                 <span></span>
             </x-sidebar.slide-container>
             <x-sidebar.slide-container x-ref="questionbank" @mouseenter="handleVerticalScroll($el);"
-                                       x-on:click="handleSliderClick($event)">
+                                       x-on:click="handleSliderClick($event)"
+                                       style="max-height: calc(100vh - var(--header-height))"
+            >
                 <div class="py-2 px-6 flex w-full bg-white">
                     <div class="flex items-center space-x-2.5">
                         <x-button.back-round @click="hideQuestionBank();" selid="question-bank-back-btn"/>
@@ -201,15 +203,13 @@
 
                 </div>
 
-                <div wire:key="selected-tab-{{ $sliderButtonSelected ? '1' : '0' }}">
-                    <div x-cloak x-show="showBank === 'tests'">
-                        <div class="bg-allred">
-                            <span>Be like water</span>
-                        </div>
+                <div class="flex flex-1 w-full" wire:key="selected-tab-{{ $sliderButtonSelected }}">
+                    <div class="w-full flex flex-1" x-cloak x-show="showBank === 'tests'">
+                        <livewire:teacher.tests-overview :testId="$this->testId" :cms="true" mode="cms"/>
                     </div>
 
-                    <div x-cloak x-show="showBank === 'questions'">
-                        <livewire:teacher.question-bank :testId="$this->testId"/>
+                    <div class="w-full flex flex-1" x-cloak x-show="showBank === 'questions'">
+                        <livewire:teacher.question-bank :testId="$this->testId" mode="cms"/>
                     </div>
                 </div>
             </x-sidebar.slide-container>

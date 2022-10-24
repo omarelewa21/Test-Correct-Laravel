@@ -17,7 +17,7 @@
      @question-added.window="Notify.notify('{{ __('cms.question_added') }}')"
      @question-removed.window="Notify.notify('{{ __('cms.question_deleted') }}')"
 >
-    <x-menu.tab.container :sticky="true">
+    <x-menu.tab.container :sticky="$this->mode !== 'cms'">
         <x-menu.tab.item tab="personal" menu="openTab" :when="!$this->isExamCoordinator">
             {{ __('general.Persoonlijk') }}
         </x-menu.tab.item>

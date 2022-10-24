@@ -44,7 +44,7 @@
         </label>
     @endif
     <div class="relative">
-        <div :id="$id('slider-button')" class="flex note">
+        <div x-bind:id="$id('slider-button')" class="flex note">
             @foreach($options as $id => $button)
                 <div style="width: {{$buttonWidth}}"
                      class="slider-option group flex items-center justify-center h-10 bg-off-white bold note cursor-pointer border-blue-grey border-t border-b first:border-l last:border-r first:rounded-l-lg last:rounded-r-lg  "

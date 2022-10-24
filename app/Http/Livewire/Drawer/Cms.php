@@ -55,6 +55,7 @@ class Cms extends Component
 
     public function mount()
     {
+        $this->setSliderButtonOptions();
         if (blank($this->type) && blank($this->subtype)) {
             if ($this->testQuestions->count() === 0) {
                 $this->emptyStateActive = true;
@@ -66,7 +67,6 @@ class Cms extends Component
         if ($this->action === 'add') {
             $this->setQuestionNameString($this->type, $this->subtype);
         }
-        $this->setSliderButtonOptions();
     }
 
     public function booted()
