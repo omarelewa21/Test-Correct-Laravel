@@ -1293,7 +1293,12 @@ class SchoolLocation extends BaseModel implements AccessCheckable
 
     public function hasTrialLicense(): bool
     {
-        return $this->license_type == 'TRIAL';
+        return $this->license_type === self::LICENSE_TYPE_TRIAL;
+    }
+
+    public function hasClientLicense(): bool
+    {
+        return $this->license_type === self::LICENSE_TYPE_CLIENT;
     }
 
     private function handleLicenseTypeUpdate()

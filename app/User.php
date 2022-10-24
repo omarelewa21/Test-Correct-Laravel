@@ -2711,4 +2711,14 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
 //            }
         }
     }
+
+    public function getTrialSchoolLocationIfNotActive()
+    {
+        if ($this->schoolLocation->hasClientLicense()) {
+            $this->trialSchoolLocation = $this->allowedSchoolLocations()
+                ->where('license_type', SchoolLocation::LICENSE_TYPE_TRIAL)
+                ->select(['id', 'name', 'license_type'])
+                ->first();
+        }
+    }
 }
