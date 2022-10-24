@@ -61,7 +61,7 @@ class UsersController extends Controller
             $users->with('studentSchoolClasses');
         }
         if (is_array($request->get('with')) && in_array('trial_info', $request->get('with'))) {
-            $users = $users->with(['schoolLocation:id,name,license_type,uuid', 'trialPeriods', 'trialPeriods.schoolLocation:id,name']);
+            $users = $users->with(['trialPeriods', 'trialPeriods.schoolLocation:id,name']);
         }
 
         switch (strtolower($request->get('mode', 'paginate'))) {
@@ -83,8 +83,7 @@ class UsersController extends Controller
                 }
                 if (is_array($request->get('with')) && in_array('trial_info', $request->get('with'))) {
                     $users->each(function ($user) {
-                        if (filled($user->trialPeriod)) return true;
-                        return $user->getTrialSchoolLocationIfNotActive();
+                        return $user->trialSchoolLocations = $user->getTrialSchoolLocations();
                     });
                 }
                 $users->transform(function (User $u) {
