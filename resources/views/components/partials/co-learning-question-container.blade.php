@@ -17,8 +17,8 @@
             <x-icon.locked class="ml-2"/>
         @endif
 
-        <h4 class="inline-block ml-2">  {{__('Answer')}} {{ $this->answerNumber }}:</h4>
-        <h1 class="inline-block ml-2 mr-6" selid="questiontitle"> {!! __($question->caption) !!}</h1>
+        <h4 class="inline-block ml-2">  {{__('co-learning.answer')}} {{ $this->answerNumber }}:</h4>
+        <h1 class="inline-block ml-2 mr-6" selid="questiontitle"> {!! __('co-learning.'.$question->type.($question->subtype ? '-'.$question->subtype : '')) !!}</h1>
         <h4 class="inline-block">max. {{ $question->score }} pt</h4>
         @if($this->group)
             <h1  class="inline-flex ml-2">{{ $this->group->name }}</h1>
@@ -49,7 +49,7 @@
             </div>
         @endif
     </div>
-    <div class="absolute w-0 h-full left-0 top-0 border-yellow-300 border-4 rounded-10"></div>
+    <div class="absolute w-0 h-full left-0 top-0 border-student border-4 rounded-10"></div>
     <div x-on:contextmenu="$event.preventDefault()" class="absolute z-10 w-full h-full left-0 top-0"></div>
 </div>
 

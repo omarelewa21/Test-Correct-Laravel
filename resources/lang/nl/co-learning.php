@@ -12,4 +12,12 @@ return [
     'complete'             => 'Afronden',
     'wait_for_teacher'     => 'Wacht op docent tot de volgende vraag besproken wordt',
     'all_questions_scored' => 'Je hebt alle vragen beoordeeld. Je kan de CO-Learning sessie afronden',
+    'co_learning'          => 'CO-Learning',
+
+    'OpenQuestion-short'   => 'Open kort',
+    'OpenQuestion-medium'  => 'Open lang',
+    'OpenQuestion-long'    => 'Open lang',
+    'OpenQuestion-writing' => 'Schrijfopdracht',
+    'RankingQuestion'      => 'Rangschik vraag',
+    'DrawingQuestion'      => 'Tekenen',
 ];

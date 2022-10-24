@@ -31,11 +31,7 @@ class OpenQuestion extends Component
         if (key_exists('value', $temp)) {
             $this->answer = $temp['value'];
         }
-        $this->answer = '
-        Lorem ipsum dolor sit amet, consectetur adipisicing elit. Aliquam architecto assumenda delectus deleniti incidunt inventore mollitia, nihil pariatur quam suscipit! Autem est mollitia nobis obcaecati praesentium quo quod sapiente ullam!
-        Lorem ipsum dolor sit amet, consectetur adipisicing elit. Aliquam architecto assumenda delectus deleniti incidunt inventore mollitia, nihil pariatur quam suscipit! Autem est mollitia nobis obcaecati praesentium quo quod sapiente ullam!
-        Lorem ipsum dolor sit amet, consectetur adipisicing elit. Aliquam architecto assumenda delectus deleniti incidunt inventore mollitia, nihil pariatur quam suscipit! Autem est mollitia nobis obcaecati praesentium quo quod sapiente ullam!
-        ';
+
 
         if(!is_null($this->question->belongs_to_groupquestion_id)){
             $this->question->groupQuestion = Question::find($this->question->belongs_to_groupquestion_id);
