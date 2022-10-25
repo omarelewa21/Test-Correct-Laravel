@@ -1,23 +1,16 @@
 <div id="testbank"
      x-data="{
-        openTab: @entangle('openTab'),
-         checkedCount: 0,
-         loading: false,
-         activateCard: (current) => {
-            document.querySelectorAll('.grid-card').forEach(el => {
-                el == current
-                ? el.classList.add('text-primary')
-                : el.classList.remove('text-primary');
-            });
-         }
+        openTab: $wire.entangle('openTab')
      }"
      wire:init="handleReferrerActions()"
-     class="flex flex-col  w-full min-h-full bg-lightGrey border-t border-secondary top-0"
-     @checked="$event.detail ? checkedCount += 1 : checkedCount -= 1"
+     class="flex flex-col w-full min-h-full bg-lightGrey border-t border-secondary @if($this->mode === 'cms') overflow-auto overflow-x-hidden relative @else top-0 @endif "
      @question-added.window="Notify.notify('{{ __('cms.question_added') }}')"
      @question-removed.window="Notify.notify('{{ __('cms.question_deleted') }}')"
+     @if($this->mode === 'cms')
+     style="max-height: calc(100vh - var(--header-height))"
+     @endif
 >
-    <x-menu.tab.container :sticky="$this->mode !== 'cms'">
+    <x-menu.tab.container :tileEvents="$this->mode !== 'cms'" >
         <x-menu.tab.item tab="personal" menu="openTab" :when="!$this->isExamCoordinator">
             {{ __('general.Persoonlijk') }}
         </x-menu.tab.item>

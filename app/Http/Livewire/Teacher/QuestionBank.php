@@ -30,7 +30,7 @@ class QuestionBank extends Component
     const SOURCE_PERSONAL = 'me';
     const SOURCE_SCHOOL = '';
 
-    protected $queryString = ['testId', 'testQuestionId'];
+    protected $queryString = ['testId', 'testQuestionId', 'openTab' => ['as' => 'qb_ot']];
 
     public $testId;
     public $testQuestionId;

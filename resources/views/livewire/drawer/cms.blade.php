@@ -182,7 +182,7 @@
                                        x-on:click="handleSliderClick($event)"
                                        style="max-height: calc(100vh - var(--header-height))"
             >
-                <div class="py-2 px-6 flex w-full bg-white">
+                <div class="py-2 px-6 flex w-full bg-white z-10">
                     <div class="flex items-center space-x-2.5">
                         <x-button.back-round @click="hideQuestionBank();" selid="question-bank-back-btn"/>
                         <span class="bold text-lg cursor-default">{{ __('cms.Bestaande vraag toevoegen') }}</span>
@@ -198,9 +198,7 @@
                                          :disabled="$sliderButtonDisabled"
                                          :options="$sliderButtonOptions"
                         />
-
                     </div>
-
                 </div>
 
                 <div class="flex flex-1 w-full" wire:key="selected-tab-{{ $sliderButtonSelected }}">
