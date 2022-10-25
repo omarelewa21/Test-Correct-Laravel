@@ -47,6 +47,8 @@ class SchoolLocation extends BaseModel implements AccessCheckable
     const LVS_MAGISTER = 'Magister';
     const LVS_SOMTODAY = 'SOMTODAY';
     const SSO_ENTREE = 'Entreefederatie';
+    const LICENSE_TYPE_TRIAL = 'TRIAL';
+    const LICENSE_TYPE_CLIENT = 'CLIENT';
 
     protected $casts = [
         'uuid'                       => EfficientUuid::class,
@@ -1291,7 +1293,12 @@ class SchoolLocation extends BaseModel implements AccessCheckable
 
     public function hasTrialLicense(): bool
     {
-        return $this->license_type == 'TRIAL';
+        return $this->license_type === self::LICENSE_TYPE_TRIAL;
+    }
+
+    public function hasClientLicense(): bool
+    {
+        return $this->license_type === self::LICENSE_TYPE_CLIENT;
     }
 
     private function handleLicenseTypeUpdate()

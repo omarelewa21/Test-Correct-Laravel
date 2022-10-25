@@ -1764,10 +1764,11 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
                     });
                     break;
                 case 'trial':
-//                    $query->whereIn('id', TrialPeriod::select(['user_id']));
                     $query->whereIn(
-                        'school_location_id',
-                        SchoolLocation::where('license_type', 'TRIAL')->select('id')
+                        'id',
+                        SchoolLocationUser::select('school_location_user.user_id')
+                            ->join('school_locations', 'school_locations.id', '=', 'school_location_user.school_location_id')
+                            ->where('school_locations.license_type', SchoolLocation::LICENSE_TYPE_TRIAL)
                     );
                     break;
                 case 'without_guests':
@@ -2707,5 +2708,13 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
         if ($schoolLocation = SchoolLocation::find($this->school_location_id)) {
             $this->addSchoolLocation($schoolLocation);
         }
+    }
+
+    public function getTrialSchoolLocations()
+    {
+        return $this->allowedSchoolLocations()
+            ->where('license_type', SchoolLocation::LICENSE_TYPE_TRIAL)
+            ->select(['id', 'name', 'license_type', 'uuid'])
+            ->get();
     }
 }
