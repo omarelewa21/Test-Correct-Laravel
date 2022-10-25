@@ -67,12 +67,26 @@ class SvgHelper
 
     private function createQuestionLayerWithLegacyDrawingToolBackground($q)
     {
-        [$width, $height] = getimagesize($q->getCurrentBgPath());
-        $identifier = Uuid::uuid4();
+        $dir = Storage::disk(self::DISK)->path('') . $this->getQuestionFolder();
+        $image_exists = false;
+        if(is_readable($dir) && count(scandir($dir)) > 2){
+            foreach(scandir($dir) as $file){
+                if(Uuid::isValid($file)){
+                    [$width, $height] = getimagesize($dir.'/'.$file);
+                    $identifier = $file;
+                    $image_exists = true;
+                    break;
+                }
+            }
+        }
+        if(!$image_exists){
+            [$width, $height] = getimagesize($q->getCurrentBgPath());
+            $identifier = Uuid::uuid4();
 
-        // Todo => delete previous images exists in the question folder
-        $this->addImageToLayer('question', $identifier, $q->getCurrentBgPath());
-
+            // Todo => delete previous images exists in the question folder
+            $this->addImageToLayer('question', $identifier, $q->getCurrentBgPath());
+        }
+        
         $doc = (new \DOMDocument);
 
         $groupElement = $doc->createElement('g');
