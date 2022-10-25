@@ -686,9 +686,9 @@ class TestTake extends BaseModel
                     $query->whereIn(
                         $this->getTable() . '.id',
                         TestTake::distinctTestTakesFromTests()
-                            ->when(is_int($value),
-                                fn($query) => $query->where('tests.subject_id', $value),
-                                fn($query) => $query->whereIn('tests.subject_id', $value)
+                            ->when(is_array($value),
+                                fn($query) => $query->whereIn('tests.subject_id', $value),
+                                fn($query) => $query->where('tests.subject_id', $value)
                             )
                     );
                     break;
