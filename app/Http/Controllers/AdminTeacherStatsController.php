@@ -19,6 +19,8 @@ class AdminTeacherStatsController extends Controller {
 	    $teachers = Teacher::with('user')->get();
 	    $teacherUsers = Teacher::with('user')->get()->map(function($t) {
             return $t->user;
+        })->filter(function($t){
+            return null !== $t;
         });
 
 
