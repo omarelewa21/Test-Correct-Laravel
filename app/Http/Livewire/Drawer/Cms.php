@@ -9,6 +9,7 @@ use tcCore\GroupQuestionQuestion;
 use tcCore\Http\Controllers\GroupQuestionQuestionsController;
 use tcCore\Http\Controllers\TestQuestionsController;
 use tcCore\Http\Livewire\Teacher\Questions\CmsFactory;
+use tcCore\Http\Traits\WithQueryStringSyncing;
 use tcCore\Lib\GroupQuestionQuestion\GroupQuestionQuestionManager;
 use tcCore\Question;
 use tcCore\Test;
@@ -16,7 +17,16 @@ use tcCore\TestQuestion;
 
 class Cms extends Component
 {
-    protected $queryString = ['testId', 'testQuestionId', 'groupQuestionQuestionId', 'action', 'owner', 'type', 'subtype'];
+    use WithQueryStringSyncing;
+    protected $queryString = [
+        'testId',
+        'testQuestionId',
+        'groupQuestionQuestionId',
+        'action',
+        'owner',
+        'type',
+        'subtype' => ['as' => 'st']
+    ];
 
     /* Querystring parameters*/
     public $testId = '';

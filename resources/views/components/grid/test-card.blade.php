@@ -1,6 +1,10 @@
 <div {{ $attributes->merge(['class' => 'grid-card bg-white p-6 rounded-10 card-shadow hover:text-primary cursor-pointer']) }}
-     wire:key="questioncard-{{ $test->uuid }}"
+     wire:key="testcard-{{ $test->uuid }}"
+     @if($mode === 'cms')
+         x-on:click="showQuestionsOfTest('{{ $test->uuid }}')"
+     @else
      wire:click="openTestDetail('{{ $test->uuid }}')"
+     @endif
      wire:loading.class="hidden"
      wire:target="filters,clearFilters,$set"
 >

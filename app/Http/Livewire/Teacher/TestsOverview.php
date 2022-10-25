@@ -21,7 +21,6 @@ class TestsOverview extends Component
 
     const ACTIVE_TAB_SESSION_KEY = 'tests-overview-active-tab';
     const PER_PAGE = 12;
-    const AVAILABLE_MODES = ['cms', 'page'];
 
     private $sorting = ['id' => 'desc'];
     protected $queryString = [
@@ -43,9 +42,7 @@ class TestsOverview extends Component
     public function mount()
     {
         $this->isExamCoordinator = Auth::user()->isValidExamCoordinator();
-        $this->setOverviewMode();
         $this->abortIfNewTestBankNotAllowed();
-        $this->abortIfModeNotAllowed();
         $this->initialiseContentSourceTabs();
 
         $this->setFilters();
@@ -68,7 +65,7 @@ class TestsOverview extends Component
         session(['tests-overview-filters' => $this->filters]);
     }
 
-    private function getDatasource()
+    protected function getDatasource()
     {
         try { // added for compatibility with mariadb
             \DB::select(\DB::raw("set session optimizer_switch='condition_fanout_filter=off';"));
@@ -350,20 +347,5 @@ class TestsOverview extends Component
             $filters['base_subject_id'] = BaseSubject::currentForAuthUser()->pluck('id')->toArray();
         }
         return $filters;
-    }
-
-    private function abortIfModeNotAllowed()
-    {
-        if (!collect(self::AVAILABLE_MODES)->contains($this->mode)) {
-            abort(404);
-        }
-    }
-
-    private function setOverviewMode()
-    {
-        if ($this->mode === 'cms') return;
-        if (\Livewire::originalUrl() === route('teacher.tests')) {
-            $this->mode = 'page';
-        }
     }
 }

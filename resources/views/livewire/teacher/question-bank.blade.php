@@ -1,6 +1,12 @@
 <div id="question-bank"
      class="flex flex-col relative w-full min-h-full bg-lightGrey border-t border-secondary overflow-auto overflow-x-hidden"
-     x-data="{questionBankOpenTab: @entangle('openTab'), inGroup: @entangle('inGroup'), groupDetail: null, bodyVisibility: true,  maxHeight: 'calc(100vh - var(--header-height))'}"
+     x-data="{
+        questionBankOpenTab: @entangle('openTab'),
+        inGroup: @entangle('inGroup'),
+        groupDetail: null,
+        bodyVisibility: true,
+        maxHeight: 'calc(100vh - var(--header-height))'
+        }"
      :style="`max-height: ${maxHeight}`"
      x-init="
         groupDetail = $el.querySelector('#groupdetail');
@@ -23,7 +29,6 @@
                         handleVerticalScroll($el.closest('.slide-container'));
                     }, 250);
                 })
-
             }
         }
 
@@ -59,10 +64,10 @@
         <x-menu.tab.item tab="school_location" menu="questionBankOpenTab" >
             {{ __('general.School') }}
         </x-menu.tab.item>
-        <x-menu.tab.item tab="national" menu="openTab" :highlight="true" :when="$allowedTabs->contains('national')">
+        <x-menu.tab.item tab="national" menu="questionBankOpenTab" :highlight="true" :when="$allowedTabs->contains('national')">
             {{ __('general.Nationaal') }}
         </x-menu.tab.item>
-        <x-menu.tab.item tab="creathlon" menu="openTab" :highlight="true" :when="$allowedTabs->contains('creathlon')">
+        <x-menu.tab.item tab="creathlon" menu="questionBankOpenTab" :highlight="true" :when="$allowedTabs->contains('creathlon')">
             {{ __('general.Creathlon') }}
         </x-menu.tab.item>
     </x-menu.tab.container>

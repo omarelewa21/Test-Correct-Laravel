@@ -12,6 +12,7 @@ use tcCore\Http\Controllers\GroupQuestionQuestionsController;
 use tcCore\Http\Controllers\TestQuestionsController;
 use tcCore\Http\Requests\CreateGroupQuestionQuestionRequest;
 use tcCore\Http\Requests\CreateTestQuestionRequest;
+use tcCore\Http\Traits\WithQueryStringSyncing;
 use tcCore\Lib\GroupQuestionQuestion\GroupQuestionQuestionManager;
 use tcCore\Question;
 use tcCore\Subject;
@@ -21,7 +22,7 @@ use tcCore\Traits\ContentSourceTabsTrait;
 
 class QuestionBank extends Component
 {
-    use ContentSourceTabsTrait;
+    use ContentSourceTabsTrait, WithQueryStringSyncing;
 
     const ACTIVE_TAB_SESSION_KEY = 'question-bank-active-tab';
 

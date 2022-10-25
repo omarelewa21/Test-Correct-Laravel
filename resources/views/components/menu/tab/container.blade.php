@@ -1,9 +1,9 @@
-@props(['tileEvents' => false])
+@props(['withTileEvents' => false])
 @php
-    $stickyClasses = $tileEvents ? 'sticky-pseudo-bg' : 'top-0';
+    $stickyClasses = $withTileEvents ? 'sticky-pseudo-bg' : 'top-0';
 @endphp
 <div {{ $attributes->merge(['class' => 'border-b border-secondary sticky bg-lightGrey z-1 ' . $stickyClasses]) }}
-     @if($tileEvents)
+     @if($withTileEvents)
          style="transition: top 0.3s linear;top: 150px"
          x-on:tiles-hidden.window="$el.style.top = '100px'"
          x-on:tiles-shown.window="$el.style.top = '150px'"
