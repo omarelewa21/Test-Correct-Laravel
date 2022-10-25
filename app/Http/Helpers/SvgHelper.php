@@ -67,12 +67,8 @@ class SvgHelper
 
     private function createQuestionLayerWithLegacyDrawingToolBackground($q)
     {
-        [$width, $height] = getimagesize($q->getCurrentBgPath());
-        $identifier = Uuid::uuid4();
-
-        // Todo => delete previous images exists in the question folder
-        $this->addImageToLayer('question', $identifier, $q->getCurrentBgPath());
-
+        [$width, $height, $identifier] = $this->getOldDrawingQuestionLayerData($q);
+        
         $doc = (new \DOMDocument);
 
         $groupElement = $doc->createElement('g');
@@ -85,8 +81,9 @@ class SvgHelper
         $imageElement->setAttribute('identifier', $identifier);
         $imageElement->setAttribute('width', $width);
         $imageElement->setAttribute('height', $height);
-        $imageElement->setAttribute('x', '-' . $width / 1.5);
-        $imageElement->setAttribute('y', '-' . $height / 2);
+
+        $imageElement->setAttribute('y', '-' . $height / 2);          // height/2  => to centralize the image y value so that the center of the image is at the center of the drawing tool
+        $imageElement->setAttribute('x', '-' . $width / 1.5);         // width/1.5 => because there is a sidebar in the drawing tool, then, value should be less than 2 to avoid image under sidebar
 
         $groupElement->appendChild($imageElement);
         $doc->appendChild($groupElement);
@@ -94,6 +91,33 @@ class SvgHelper
         $layerHtml = $doc->saveHTML();
 
         return $layerHtml;
+    }
+
+    private function getOldDrawingQuestionLayerData($q){
+        $dir = sprintf('%s/%s', Storage::disk(self::DISK)->path(''), $this->getQuestionFolder());
+        
+        $image_exists = false;
+        if(is_readable($dir) && count(scandir($dir)) > 2){
+            // if image exists in question folder, then retreive the image data
+            foreach(scandir($dir) as $file){
+                if(Uuid::isValid($file)){
+                    [$width, $height] = getimagesize(sprintf('%s/%s', $dir, $file));
+                    $identifier = $file;
+                    $image_exists = true;
+                    break;
+                }
+            }
+        }
+        if(!$image_exists){
+            // if image doesn't exist in question folder, then create a new question image
+            [$width, $height] = getimagesize($q->getCurrentBgPath());
+            $identifier = Uuid::uuid4();
+
+            // Todo => delete previous images exists in the question folder
+            $this->addImageToLayer('question', $identifier, $q->getCurrentBgPath());
+        }
+
+        return [$width, $height, $identifier];
     }
 
     public function createِAnswerLayerForOldQuestion(DrawingQuestion $q)

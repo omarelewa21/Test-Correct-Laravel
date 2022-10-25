@@ -8012,7 +8012,6 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
       root: rootElement,
       isTeacher: isTeacher && !isPreview,
       isPreview: isPreview,
-      isOldDrawing: isOldDrawing,
       hiddenLayersCount: 0
     },
     firstInit: true,
@@ -8036,7 +8035,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
           }
 
           if (grid && grid !== '0') {
-            drawGridBackground(grid);
+            drawGridBackground();
           }
 
           processGridToggleChange();
@@ -9021,7 +9020,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
         var newShape = makeNewSvgShapeWithSidebarEntry(shapeType, props, layerName, true, !(!drawingApp.isTeacher() && layerName === "question"));
         Canvas.layers[layerName].shapes[shapeID] = newShape;
 
-        if (drawingApp.params.isOldDrawing && layerName === "question") {
+        if (isOldDrawing && layerName === "question") {
           fitDrawingToScreen();
         }
 
@@ -10181,16 +10180,24 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
     Canvas.layers.grid.shape = new _svgShape_js__WEBPACK_IMPORTED_MODULE_2__.Grid(0, props, UI.svgGridGroup, drawingApp, Canvas);
   }
 
-  function drawGridBackground(grid) {
+  function drawGridBackground() {
     var props = {
       group: {},
       main: {},
       origin: {
         id: "grid-origin"
       },
-      size: 1 / parseInt(grid) * 14
+      size: getAdjustedGridValue()
     };
-    new _svgShape_js__WEBPACK_IMPORTED_MODULE_2__.Grid(0, props, UI.svgGridGroup, drawingApp, Canvas);
+    Canvas.layers.bgGrid = new _svgShape_js__WEBPACK_IMPORTED_MODULE_2__.Grid(0, props, UI.svgGridGroup, drawingApp, Canvas);
+  }
+
+  function getAdjustedGridValue() {
+    if (grid && grid !== '0') {
+      return 1 / parseInt(grid) * 14;
+    }
+
+    return 0;
   }
 
   function updateGridVisibility() {
@@ -10209,6 +10216,10 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
     if (valueWithinBounds(UI.gridSize)) {
       drawingApp.params.gridSize = UI.gridSize.value;
       Canvas.layers.grid.shape.update();
+
+      if (Canvas.layers.bgGrid) {
+        Canvas.layers.bgGrid.update(getAdjustedGridValue());
+      }
     }
   }
 
@@ -13004,8 +13015,8 @@ var Grid = /*#__PURE__*/function (_Path) {
     }
   }, {
     key: "update",
-    value: function update() {
-      var size = this.drawingApp.params.gridSize;
+    value: function update(gridSize) {
+      var size = gridSize ? gridSize : this.drawingApp.params.gridSize;
       this.setDAttributes(this.calculateDAttributeForGrid(size), this.calculateDAttributeForOrigin(size));
     }
   }, {
