@@ -10,7 +10,7 @@ class Header extends Component
 
     public function back()
     {
-        return back();
+        return redirect()->route('student.test-takes', ['tab' => 'discuss']);
     }
 
     public function render()

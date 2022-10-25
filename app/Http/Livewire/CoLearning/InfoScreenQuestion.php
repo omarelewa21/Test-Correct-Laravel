@@ -9,7 +9,7 @@ use tcCore\Http\Traits\WithCloseable;
 use tcCore\Http\Traits\WithGroups;
 use tcCore\Question;
 
-class OpenQuestion extends Component
+class InfoScreenQuestion extends Component
 {
     use WithCloseable, WithGroups;
 
@@ -20,6 +20,7 @@ class OpenQuestion extends Component
     public $answer = '';
     public $answered;
     public $question;
+
     public $questionNumber;
     public $answerNumber;
 
@@ -33,22 +34,7 @@ class OpenQuestion extends Component
 
     public function initializeComponent($data = null)
     {
-        if(isset($data)) {
-            $this->answerRatingId = $data[0];
-            $this->questionNumber = $data[1];
-            $this->answerNumber = $data[2];
-        }
-
-        $this->answerRating = AnswerRating::find($this->answerRatingId);
-
-        $this->question = $this->answerRating->answer->question;
-        $this->answered = $this->answerRating->answer->isAnswered;
-
-
-        $temp = (array) json_decode($this->answerRating->answer->json);
-        if (key_exists('value', $temp)) {
-            $this->answer = $temp['value'];
-        }
+        $this->answered = true;
 
 
         if(!is_null($this->question->belongs_to_groupquestion_id)){
@@ -58,7 +44,7 @@ class OpenQuestion extends Component
 
     public function render()
     {
-        return view('livewire.co-learning.open-question');
+        return view('livewire.co-learning.info-screen-question');
     }
 
     public function isQuestionFullyAnswered(): bool

@@ -15,7 +15,6 @@
                 <x-icon.checkmark></x-icon.checkmark>
             </x-button.student>
         </div>
-
     </div>
 </header>
 {{-- #e7d401 --}}

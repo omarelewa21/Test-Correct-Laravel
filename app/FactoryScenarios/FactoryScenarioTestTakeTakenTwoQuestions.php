@@ -17,4 +17,9 @@ class FactoryScenarioTestTakeTakenTwoQuestions extends FactoryScenarioTestTake
             ->fillTestParticipantsAnswers()
             ->setStatusTaken();
     }
+
+    protected function createTest()
+    {
+        return FactoryScenarioTestTestWithTwoQuestions::createTest($this->testName, $this->user);
+    }
 }
