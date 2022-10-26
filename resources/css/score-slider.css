@@ -21,6 +21,7 @@
     visibility: hidden;
     border: 1px solid #ffffff00;
     background-color: #ffffff00;
+    pointer-events: none;
 }
 
 
@@ -38,4 +39,5 @@
 .score-slider-input.hide-thumb::-moz-range-thumb {
     visibility: hidden;
     display: none;
+    pointer-events: none;
 }

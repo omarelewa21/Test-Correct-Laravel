@@ -15,16 +15,20 @@ class CoLearning extends Component
 {
     public ?TestTake $testTake;
     public bool $nextAnswerAvailable = false;
+    public bool $previousAnswerAvailable = false;
     public ?int $rating = null;
     public int $maxRating;
 
     public bool $informationScreenQuestion = false;
-    public bool $studentFinishedScreen = false;
+    public bool $studentWaitForTeacher = false;
 
     public string $testName = 'test;';
 
     protected $answerRating = null;
+    protected $answerRatings = null;
     public $answerRatingId;
+
+    protected $queryString = ['answerRatingId'];
 
     public int $numberOfQuestions;
     public int $questionFollowUpNumber = 0;
@@ -34,21 +38,29 @@ class CoLearning extends Component
     /**
      * @return void
      */
-    public function getLastUpdatedAnswerRatingForUser(): bool
+    public function setActiveAnswerRating($navigateDirection): void
     {
-        $this->answerRating = AnswerRating::filtered([
-            'user_id'                    => auth()->user()->uuid,
-            "discussing_at_test_take_id" => $this->testTake->uuid
-        ])
-            ->orderByDesc('updated_at')
-            ->first();
-        if (!$this->answerRating instanceof AnswerRating) {
-            return false;
+        if(isset($this->answerRatingId)){
+            if($navigateDirection == 'next' && $this->nextAnswerAvailable) {
+                $this->answerRating = $this->answerRatings->filter(fn($ar) => $ar->getKey() > $this->answerRatingId)->first();
+                $this->answerRatingId = $this->answerRating->getKey();
+                return;
+            }
+            if($navigateDirection == 'previous' && $this->previousAnswerAvailable) {
+                $this->answerRating = $this->answerRatings->filter(fn($ar) => $ar->getKey() < $this->answerRatingId)->last();
+                $this->answerRatingId = $this->answerRating->getKey();
+                return;
+            }
+
+            if(isset($this->answerRatingId) && $this->answerRatings->map->id->contains($this->answerRatingId)){
+                $this->answerRating = $this->answerRatings->where('id', $this->answerRatingId)->first();
+                return;
+            }
         }
-        if (!is_null($this->answerRating->rating)) {
-            $this->rating = $this->answerRating->rating;
-        }
-        return true;
+        $this->answerRating = $this->answerRatings->first();
+        $this->answerRatingId = $this->answerRating->getKey();
+
+
     }
 
     protected function getListeners()
@@ -68,10 +80,7 @@ class CoLearning extends Component
         $this->testTake = $test_take;
         $this->testParticipant = $test_take->testParticipants->where('user_id', auth()->id())->first();
 
-        if ($this->getNextAnswerRating()) {
-            $this->getQuestionAnsAnswerNavigationData();
-        }
-
+        $this->getAnswerRatings();
     }
 
     public function render()
@@ -79,6 +88,8 @@ class CoLearning extends Component
         if (is_null($this->answerRating)) {
             $this->answerRating = AnswerRating::find($this->answerRatingId);
         }
+
+        $this->studentWaitForTeacher = $this->shouldShowWaitForTeacherNotification();
 
         return view('livewire.student.co-learning')
             ->layout('layouts.co-learning');
@@ -89,7 +100,6 @@ class CoLearning extends Component
         $this->updateAnswerRating();
     }
 
-    //todo implement or remove
     public function updateAnswerRating()
     {
         if ($this->rating < 0 || $this->rating > $this->maxRating) {
@@ -105,55 +115,39 @@ class CoLearning extends Component
         return $this->dispatchBrowserEvent('notify', ['message' => __('co-learning.wait_for_teacher'), 'type' => 'error']);
     }
 
+
+    /**
+     * TODO
+     *  in mount get answerRatings, set Active AnswerRating
+     *  then, introduce two methods to navigate between answerRatings
+     *  * nextAnswerRating()
+     *  * previousAnswerRating()
+     */
+
+
+    public function goToPreviousAnswerRating()
+    {
+        if(!$this->previousAnswerAvailable){
+            return;
+        }
+        $this->getAnswerRatings('previous');
+
+        //todo emit to livewire component to refresh data
+        $this->emit('getNextAnswerRating', [$this->answerRatingId, $this->questionFollowUpNumber, $this->answerFollowUpNumber]);
+    }
+
     public function goToNextAnswerRating()
     {
-        if (!$this->nextAnswerAvailable) {
+        if(!$this->nextAnswerAvailable){
             return $this->sendWaitForTeacherNotification();
         }
-        $this->getNextAnswerRating();
-    }
 
-    public function getNextAnswerRating()
-    {
-        $params = [
-            'mode'   => 'first',
-            'with'   => ['questions'],
-            'filter' => [
-                "discussing_at_test_take_id" => $this->testTake->uuid,//"8287df51-f800-42c1-a9f6-77aace840eef",
-                "rated"                      => "0",
-            ],
-        ];
-
-        $request = new Request();
-        $request->merge($params);
-
-        $response = (new AnswerRatingsController())->indexFromWithin($request);
-        $this->answerRating = $response->getOriginalContent();
-
-        if (!$this->answerRating instanceof AnswerRating) {
-            if ($this->testTake->discussingQuestion->type === 'InfoscreenQuestion') {
-                $this->informationScreenQuestion = true;
-                $this->getQuestionAnsAnswerNavigationData();
-                return false;
-            }
-            if (!$this->getLastUpdatedAnswerRatingForUser()) {
-                $this->studentFinishedScreen = true;
-                return false;
-            }
-        }
-
-        $this->answerRatingId = $this->answerRating->getKey();
-        $this->nextAnswerAvailable = (bool)optional($this->answerRating)->has_next ?: false;
-        $this->maxRating = $this->answerRating->answer->question->score;
-        $this->answerRating->refresh();
-
-        $this->getQuestionAnsAnswerNavigationData();
+        $this->getAnswerRatings('next');
 
         $this->emit('getNextAnswerRating', [$this->answerRatingId, $this->questionFollowUpNumber, $this->answerFollowUpNumber]);
-
     }
 
-    protected function getQuestionAnsAnswerNavigationData()
+    protected function getQuestionAndAnswerNavigationData()
     {
         $testTakeQuestionsCollection = TestTakeLaravelController::getData(null, $this->testTake);
         $currentQuestionId = $this->testTake->discussingQuestion->getKey();
@@ -168,14 +162,11 @@ class CoLearning extends Component
             return $carry;
         }, 0);
 
-        $answersForUserAndCurrentQuestion = AnswerRating::filtered(['user_id' => auth()->user()->uuid])->get()
-            ->filter(function ($answerRating) use ($currentQuestionId) {
-                return $answerRating->answer->question->id == $currentQuestionId && $answerRating->test_take_id == $this->testTake->id;
-            })->map->answer;
+        $answersForUserAndCurrentQuestion = $this->answerRatings->map->answer;
 
-        $this->numberOfAnswers = $answersForUserAndCurrentQuestion->count();
+        $this->numberOfAnswers = $this->answerRatings->count();
 
-        if($this->numberOfAnswers != 0){
+        if ($this->numberOfAnswers != 0) {
             $answersForUserAndCurrentQuestion->reduce(function ($carry, $answer) {
                 $carry++;
                 if ($answer->id == $this->answerRating->answer->id) {
@@ -184,7 +175,46 @@ class CoLearning extends Component
                 return $carry;
             }, 0);
         }
+        //todo (check if) set answerFollowUpNumber to 1 if nothing found? (when at infoscreenQuestion)
+    }
 
+    protected function getAnswerRatings($navigateDirection = null)
+    {
+        $params = [
+            'mode'   => 'all',
+            'with'   => ['questions'],
+            'filter' => [
+                "discussing_at_test_take_id" => $this->testTake->uuid,//"8287df51-f800-42c1-a9f6-77aace840eef",
+//                "rated"                      => "0",
+            ],
+            'order' => ['id' => 'asc'] //make sure order of answerRatings is allways the same
+        ];
+
+        $request = new Request();
+        $request->merge($params);
+
+        $response = (new AnswerRatingsController())->indexFromWithin($request);
+        $this->answerRatings = $response->getOriginalContent()->keyBy('id');
+        //    386 => tcCore\AnswerRating {#2539 ▶}
+        //    391 => tcCore\AnswerRating {#2574 ▶}
+
+
+        $this->setActiveAnswerRating($navigateDirection);
+        $this->rating = $this->answerRating->rating;
+
+        $this->previousAnswerAvailable = $this->answerRatings->filter(fn($ar) => $ar->getKey() < $this->answerRatingId)->count() > 0;
+        $this->nextAnswerAvailable = $this->answerRatings->filter(fn($ar) => $ar->getKey() > $this->answerRatingId)->count() > 0;
+
+        $this->getQuestionAndAnswerNavigationData();
+
+        if (!$this->answerRating instanceof AnswerRating) {
+            if ($this->testTake->discussingQuestion->type === 'InfoscreenQuestion') {
+                $this->informationScreenQuestion = true;
+                return false;
+            }
+        }
+        $this->maxRating = $this->answerRating->answer->question->score;
+        $this->answerRating->refresh();
     }
 
     public function redirectToTestTakesInReview()
@@ -194,6 +224,13 @@ class CoLearning extends Component
 
     public function getCannotViewFooterInformationProperty()
     {
-        return ($this->informationScreenQuestion || $this->studentFinishedScreen);
+        return ($this->informationScreenQuestion);
+    }
+
+    private function shouldShowWaitForTeacherNotification(): bool
+    {
+//        return !$this->answerRatings->map->rating->contains(null); //show on both answerRatings after both are rated
+
+        return (!$this->nextAnswerAvailable && isset($this->rating)); //show on last answerRating after both are rated
     }
 }

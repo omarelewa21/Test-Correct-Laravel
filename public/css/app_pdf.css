@@ -5072,6 +5072,9 @@ video {
 .-left-px{
   left: -1px;
 }
+.top-\[95px\]{
+  top: 95px;
+}
 .-right-1{
   right: -0.25rem;
 }
@@ -5098,6 +5101,9 @@ video {
 }
 .top-\[var\(--header-height\)\]{
   top: var(--header-height);
+}
+.top-\[93px\]{
+  top: 93px;
 }
 .isolate{
   isolation: isolate;
@@ -7059,6 +7065,9 @@ video {
 }
 .leading-8{
   line-height: 2rem;
+}
+.leading-7{
+  line-height: 1.75rem;
 }
 .text-gray-700{
   --tw-text-opacity: 1;
