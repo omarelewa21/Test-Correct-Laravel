@@ -2,7 +2,9 @@
 
 namespace Tests\Unit\Scopes;
 
+use tcCore\Attainment;
 use tcCore\EducationLevel;
+use tcCore\LearningGoal;
 use tcCore\User;
 use Tests\TestCase;
 
@@ -23,5 +25,15 @@ class EductionLevelYearForStudentTest extends TestCase
                 return 1 == $year;
             })
         );
+    }
+
+    /** @test */
+    public function it_should_return_attainment_when_bovenbouw()
+    {
+        $this->assertEquals(
+            LearningGoal::TYPE,
+            EducationLevel::getAttainmentType($this->getStudentOne())
+        );
+
     }
 }

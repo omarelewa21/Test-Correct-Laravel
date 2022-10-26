@@ -34,7 +34,6 @@ class FactoryScenarioSchoolPValue extends FactoryScenarioSchool
 
     protected $schoolClassName;
 
-
     /**
      * Create a complete school scenario with the bare necessities
      * 1 school, 1 school location

@@ -14,6 +14,8 @@ class Attainment extends BaseModel
     use SoftDeletes;
     use UuidTrait;
 
+    const TYPE = 'ATTAINMENT';
+
     protected $casts = [
         'uuid' => EfficientUuid::class,
     ];
