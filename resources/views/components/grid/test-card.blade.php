@@ -16,7 +16,7 @@
             <x-button.options id="test{{ $test->id }}"
                                    context="test-card"
                                    :uuid="$test->uuid"
-                                   contextDataJson="{openTab: '{{ $this->openTab }}' }"
+                                   contextDataJson="{openTab: '{{ $this->openTab }}', mode: '{{ $mode }}' }"
             />
     </div>
     <div class="flex w-full justify-between text-base mb-1">

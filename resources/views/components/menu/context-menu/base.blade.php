@@ -1,5 +1,5 @@
 @props(['context'])
-<div id="question-card-context-menu"
+<div id="context-menu-base"
      class="absolute w-50 bg-white py-2 main-shadow rounded-10 z-1"
      x-data="contextMenuHandler()"
      x-show="contextMenuOpen"

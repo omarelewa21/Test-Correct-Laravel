@@ -28,7 +28,8 @@
             if (!event.target.classList.contains('slider-option')) {
                 return
             }
-            showBank = event.target.firstElementChild.dataset.id;
+            document.querySelectorAll('.option-menu-active').forEach((el) => $dispatch(el.getAttribute('context')+'-context-menu-close') );
+            $nextTick(() => showBank = event.target.firstElementChild.dataset.id);
         }
 
 
@@ -193,7 +194,7 @@
                             <span>{{ __('drawing-modal.Sluiten') }}</span>
                         </x-button.cta>
 
-                        <x-button.slider wire:model="sliderButtonSelected"
+                        <x-button.slider wire:model.debounce.300ms="sliderButtonSelected"
                                          button-width="135px"
                                          :disabled="$sliderButtonDisabled"
                                          :options="$sliderButtonOptions"
