@@ -14,6 +14,7 @@
         <div class="flex flex-col pt-4 pb-2">
             <div class="flex w-full items-center">
                 <div class="flex flex-wrap  space-x-2 items-center" x-cloak>
+
                     <x-input.choices-select :multiple="true"
                                             :options="$this->educationLevelYears"
                                             :withSearch="true"
