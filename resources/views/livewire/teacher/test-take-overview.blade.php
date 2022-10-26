@@ -5,7 +5,7 @@
         "
      class="relative top-0"
 >
-    <x-menu.tab.container :sticky="true">
+    <x-menu.tab.container :withTileEvents="true">
         <x-menu.tab.item tab="taken" menu="openTab">
             {{ __('general.Mijn afgenomen toetsen') }}
         </x-menu.tab.item>
