@@ -15,6 +15,8 @@ class AdminTeacherStatsController extends Controller {
 	 */
 	public function index(IndexAdminTeacherStatsRequest $request)
 	{
+        abort(404);
+        /*This code is no longer used, and incredibly inefficient. This route should never be called*/
 
 	    $teachers = Teacher::with('user')->get();
 	    $teacherUsers = Teacher::with('user')->get()->map(function($t) {
