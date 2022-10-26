@@ -5,7 +5,7 @@ use Ramsey\Uuid\Uuid;
 use tcCore\Http\Helpers\ActingAsHelper;
 use tcCore\Http\Helpers\SchoolHelper;
 use tcCore\Lib\Repositories\SchoolYearRepository;
-
+use tcCore\Role;
 use tcCore\Rules\EmailDns;
 use tcCore\Rules\SchoolLocationUserExternalId;
 use tcCore\Rules\SchoolLocationUserName;
@@ -16,15 +16,17 @@ use tcCore\User;
 
 class CreateUserRequest extends Request {
 
-    protected $schoolLocation;
-	/**
-	 * Determine if the user is authorized to make this request.
-	 *
-	 * @return bool
-	 */
+    protected $schoolLocationId;
+
+    /**
+     * Determine if the user is authorized to make this request.
+     *
+     * @return bool
+     * @throws \Exception
+     */
 	public function authorize()
-	{
-        $this->schoolLocation = Auth::user()->school_location_id;
+    {
+        $this->setSchoolLocationForRequest();
 		return true;
 	}
 
@@ -39,19 +41,20 @@ class CreateUserRequest extends Request {
         $extra_rule = [];
         $data = request()->all();
 
-        if(isset($data['user_roles']) && collect($data['user_roles'])->contains(function($val){return $val == 1;}) && isset($data['username'])){
-            $extra_rule['username'] = [  'required',
+        if ($this->userToCreateIsATeacherAndHasUsername($data)) {
+            $extra_rule['username'] = [
+                'required',
                 'email:rfc,filter',
-                new SchoolLocationUserName($this->schoolLocation,$data['username']),
-                new UsernameUniqueSchool($this->schoolLocation,'teacher'),
+                new SchoolLocationUserName($this->schoolLocationId, $data['username']),
+                new UsernameUniqueSchool($this->schoolLocationId, 'teacher'),
                 new EmailDns,
                 function ($attribute, $value, $fail) {
                     if (!filter_var($value, FILTER_VALIDATE_EMAIL)) {
                         return $fail(sprintf('The user email address contains international characters  (%s).', $value));
                     }
                 }];
-            $extra_rule['external_id'] = new SchoolLocationUserExternalId($this->schoolLocation,$data['username']);
-            if($this->has('is_examcoordinator') && $this->is_examcoordinator == 1){
+            $extra_rule['external_id'] = new SchoolLocationUserExternalId($this->schoolLocationId, $data['username']);
+            if ($this->has('is_examcoordinator') && $this->is_examcoordinator == 1) {
                 $extra_rule['is_examcoordinator_for'] = 'required|in:NONE,SCHOOL,SCHOOL_LOCATION';
             }
         }
@@ -219,5 +222,28 @@ class CreateUserRequest extends Request {
 	{
 		return $this->all();
 	}
+
+    /**
+     * @param array $data
+     * @return bool
+     */
+    private function userToCreateIsATeacherAndHasUsername(array $data): bool
+    {
+        return (isset($data['user_roles']) && collect($data['user_roles'])->contains(Role::TEACHER)) && isset($data['username']);
+    }
+
+    private function setSchoolLocationForRequest(): void
+    {
+        if (Auth::user()->isA('Administrator')) {
+            if (!request()->has('school_location_id')) {
+                throw new \Exception('Administrator provided no school_location_id for the creation of a user.');
+            }
+
+            $this->schoolLocationId = request()->get('school_location_id');
+            return;
+        }
+
+        $this->schoolLocationId = Auth::user()->school_location_id;
+    }
 
 }
