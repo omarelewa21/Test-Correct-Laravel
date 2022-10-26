@@ -2717,4 +2717,10 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
             ->select(['id', 'name', 'license_type', 'uuid'])
             ->get();
     }
+
+    public function getDefaultAttainmentMode() {
+//        SchoolClass::where('user_id', $this->id)
+
+        return 'LEARNING_GOAL';
+    }
 }

@@ -243,4 +243,16 @@ class PValueRepositoryTest extends TestCase
         FactoryScenarioSchoolPValue::create();
     }
 
+   /** @test */
+   public function p_value_student_one_is_an_attainmentMode_student()
+   {
+       $this->assertEquals(
+           'ATTAINMENT',
+           User::where('username', 'student_p_value_1@sobit.nl')->first()->getDefaultAttainmentMode()
+       );
+
+   }
+
+
+
 }
