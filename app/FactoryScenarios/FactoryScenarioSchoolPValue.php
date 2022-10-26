@@ -10,9 +10,17 @@ use tcCore\Factories\FactorySchoolClass;
 use tcCore\Factories\FactorySchoolLocation;
 use tcCore\Factories\FactorySchoolYear;
 use tcCore\Factories\FactorySection;
+use tcCore\Factories\FactoryTest;
+use tcCore\Factories\FactoryTestParticipant;
+use tcCore\Factories\FactoryTestTake;
 use tcCore\Factories\FactoryUser;
+use tcCore\Factories\Questions\FactoryQuestionMultipleChoiceTrueFalse;
+use tcCore\Factories\Questions\FactoryQuestionOpenShort;
 use tcCore\School;
 use tcCore\SchoolLocation;
+use tcCore\Scopes\ArchivedScope;
+use tcCore\Teacher;
+use tcCore\Test;
 
 class FactoryScenarioSchoolPValue extends FactoryScenarioSchool
 {
@@ -47,45 +55,103 @@ class FactoryScenarioSchoolPValue extends FactoryScenarioSchool
         $school = FactorySchool::create('PValueSchool')->school;
         //create school location, add educationLevels VWO, Gymnasium, Havo
         $schoolLocation = FactorySchoolLocation::create($school, 'PValueSchoolLocation')->addEducationlevels([
-            1, 2, 3, 4, 5, 6
+            1, // alleen vwo
         ])->schoolLocation;
+
+        $schoolLocation->allow_analyses = true;
         //create school year and full year period for the current year
-        foreach (range(0, 5) as $year) {
-            $schoolYearLocation = FactorySchoolYear::create($schoolLocation, (int) Carbon::today()
+
+        $schoolLocation->schoolYears()->delete();
+
+
+        $schoolYearLocations = collect(range(0, 5))->map(function ($year) use ($schoolLocation) {
+            $year = (int)Carbon::today()
                 ->subYear($year)
-                ->format('Y'))
-                ->addPeriodFullYear()->schoolYear;
-        }
+                ->format('Y');
+            return FactorySchoolYear::create($schoolLocation, $year)
+                ->addPeriodFullYear('Period ' . $year)->schoolYear;
+        });
+
+
         //create section and subject
         $desiredSections = [
-            1, // 'Nederlands',
-            24,// 'Duits',
-            23, //'Frans',
-            11, //Biologie,
-            9, //'Natuurkunde',
-            5, //'Wiskunde A',
-            22, //'Engels',
+            ['base_subject_id' => 1, 'name' => 'Nederlands'],
+            ['base_subject_id' => 24, 'name' => 'Duits'],
+            ['base_subject_id' => 23, 'name' => 'Frans'],
+//            ['base_subject_id' => 11, 'name' => 'Biologie'],
+//            ['base_subject_id' => 9, 'name' => 'Natuurkunde'],
+//            ['base_subject_id' => 5, 'name' => 'Wiskunde A'],
+//            ['base_subject_id' => 22, 'name' => 'Engels'],
         ];
-
-        $teacherSchoolLocation = FactoryUser::createTeacher($schoolLocation, false)->user;
-        $teacherSchoolLocation = FactoryUser::createTeacher($schoolLocation, false)->user;
-        $teacherSchoolLocation = FactoryUser::createTeacher($schoolLocation, false)->user;
-
-        foreach ($desiredSections as $base_subject_id) {
-            $baseSubject = BaseSubject::find($base_subject_id);
+        $teachers = [];
+        $sections = [];
+// maak de secties aan;
+        foreach ($desiredSections as $sectionStruct) {
+            $baseSubject = BaseSubject::find($sectionStruct['base_subject_id']);
             $section = FactorySection::create($schoolLocation, $baseSubject->name)
                 ->addSubject($baseSubject, $baseSubject->name)->section;
+            $teachers[$sectionStruct['name']] = FactoryUser::createTeacher($schoolLocation, false, ['name' => 'teacher_' . $sectionStruct['name']])->user;
+            $sections[$sectionStruct['name']] = $section;
         }
 
+        $students = collect([
+            'student_p_value_1@sobit.nl',
+            'student_p_value_2@sobit.nl',
+            'student_p_value_3@sobit.nl',
+        ])->map(function ($username) use ($schoolLocation) {
+            return FactoryUser::createStudent($schoolLocation, ['username' => $username])->user;
+        });
 
-        //create teacher user
 
         //create school class with teacher and students records, add the teacher-user, create student-users
-        $schoolClassLocation = FactorySchoolClass::create($schoolYearLocation, 1, $factory->schoolClassName)
-            ->addTeacher($teacherSchoolLocation, $section->subjects()->first())
-            ->addStudent(FactoryUser::createStudent($schoolLocation)->user)
-            ->addStudent(FactoryUser::createStudent($schoolLocation)->user)
-            ->addStudent(FactoryUser::createStudent($schoolLocation)->user);
+        foreach ($schoolYearLocations as $key => $schoolYearLocation) {
+            $schoolClass = FactorySchoolClass::create(
+                $schoolYearLocation,
+                1,
+                sprintf('klas  %s', $schoolYearLocation->year),
+                ['education_level_year' => 6 - $key]
+            );
+            foreach ($desiredSections as $desiredSection) {
+                $schoolClass->addTeacher($teachers[$desiredSection['name']], $sections[$desiredSection['name']]->subjects()->first());
+
+            }
+            foreach ($students as $student) {
+                $schoolClass->addStudent($student);
+            }
+        }
+
+        Teacher::whereIn('user_id', collect($teachers)->map(fn($user) => $user->id))
+            ->with(['subject', 'schoolClass', 'schoolClass.schoolYear', 'user'])
+            ->get()
+            ->each(function ($teacher) {
+                $testName = sprintf('%s %s', $teacher->schoolClass->schoolYear->year, $teacher->subject->name);
+                auth()->login($teacher->user);
+                $test = FactoryTest::create($teacher->user)
+                    ->setProperties([
+                        'name'       => $testName,
+                        'subject_id' => $teacher->subject_id
+                    ])
+                    ->addQuestions([
+                        FactoryQuestionOpenShort::create(),
+                        FactoryQuestionMultipleChoiceTrueFalse::create(),
+                    ])->getTestModel();
+
+                ArchivedScope::$skipScope = true;
+
+                FactoryTestTake::create($test, $teacher->user)
+                    ->addParticipants([
+                        FactoryTestParticipant::makeForAllUsersInClass($teacher->class_id)
+                    ])
+                    ->setStatusTakingTest()
+                    ->setTestParticipantsTakingTest()
+                    ->fillTestParticipantsAnswers()
+                    ->setStatusTaken()
+                    ->setStatusDiscussing()
+                    ->addTeacherAnswerRatings()
+                    ->setNormalizedScores()
+                    ->setStatusRated();
+            });
+
 
         $factory->school = $school->refresh();
         $factory->schools->add($school);
@@ -96,8 +162,8 @@ class FactoryScenarioSchoolPValue extends FactoryScenarioSchool
     protected function generateUniqueSchoolName()
     {
         for ($i = 1; $i < 20; $i++) {
-            $uniqueSchoolName = $this->schoolName.sprintf("%03d", $i);
-            $uniqueSchoolLocationName = $this->schoolLocationName.sprintf("%03d", $i);
+            $uniqueSchoolName = $this->schoolName . sprintf("%03d", $i);
+            $uniqueSchoolLocationName = $this->schoolLocationName . sprintf("%03d", $i);
             if (!School::where('name', $uniqueSchoolName)->count() && !SchoolLocation::where('name',
                     $uniqueSchoolLocationName)) {
                 $this->schoolName = $uniqueSchoolName;

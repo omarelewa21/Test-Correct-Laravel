@@ -20,7 +20,7 @@ use Tests\TestCase;
 
 class PValueRepositoryTest extends TestCase
 {
-    use DatabaseTransactions;
+//    use DatabaseTransactions;
 
 
     /** @test */
