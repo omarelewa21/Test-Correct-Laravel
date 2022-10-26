@@ -1128,7 +1128,16 @@ class OpenShort extends Component implements QuestionCms
 
     private function refreshDrawer()
     {
-        $this->emitTo('drawer.cms', 'refreshDrawer', []);
+        $this->emitTo('drawer.cms', 'refreshDrawer', [
+            'testQuestionId'          => $this->testQuestionId,
+            'action'                  => $this->action,
+            'owner'                   => $this->owner,
+            'testId'                  => $this->testId,
+            'groupQuestionQuestionId' => $this->groupQuestionQuestionId,
+            'type'                    => $this->type,
+            'subtype'                 => $this->subtype,
+            'isCloneRequest'          => $this->isCloneRequest,
+        ]);
     }
 
     public function getAmountOfQuestionsProperty()
