@@ -25,7 +25,7 @@ class Cms extends Component
         'action',
         'owner',
         'type',
-        'subtype' => ['as' => 'st']
+        'subtype',
     ];
 
     /* Querystring parameters*/
