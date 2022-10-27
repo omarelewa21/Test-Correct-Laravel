@@ -99,7 +99,7 @@ class OpenShort extends Component implements QuestionCms
     protected $tags = [];
 
     protected $queryString = [
-        'action', 'type', 'subtype' => ['as' => 'st'], 'testId', 'testQuestionId', 'groupQuestionQuestionId', 'owner', 'isCloneRequest', 'withDrawer' => ['except' => false], 'referrer' => ['except' => false],
+        'action', 'type', 'subtype', 'testId', 'testQuestionId', 'groupQuestionQuestionId', 'owner', 'isCloneRequest', 'withDrawer' => ['except' => false], 'referrer' => ['except' => false],
     ];
 
     protected $settingsGeneralPropertiesVisibility = [
