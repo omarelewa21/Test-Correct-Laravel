@@ -152,7 +152,7 @@ class TestsOverview extends Component
         );
     }
 
-    private function setFilters()
+    protected function setFilters()
     {
         if (session()->has('tests-overview-filters'))
             $this->filters = session()->get('tests-overview-filters');
@@ -167,7 +167,7 @@ class TestsOverview extends Component
                     'base_subject_id'      => [],
                 ];
                 if ($this->tabNeedsDefaultFilters($tab)) {
-                    $this->filters[$tab] = array_merge($this->filters[$tab], auth()->user()->getSearchFilterDefaultsTeacher());
+                    $this->mergeFiltersWithDefaults($tab);
                 }
             });
         }
@@ -301,7 +301,7 @@ class TestsOverview extends Component
         return collect($this->canFilterOnAuthorTabs)->contains($this->openTab);
     }
 
-    private function tabNeedsDefaultFilters($tab): bool
+    protected function tabNeedsDefaultFilters($tab): bool
     {
         return collect($this->schoolLocationInternalContentTabs)->contains($tab) && !Auth::user()->isValidExamCoordinator();
     }
@@ -337,9 +337,6 @@ class TestsOverview extends Component
         return auth()->user()->redirectToCakeWithTemporaryLogin($options);
     }
 
-    /**
-     * @return array
-     */
     private function getContentSourceFilters($tab): array
     {
         $filters = $this->cleanFilterForSearch($this->filters[$tab]);
@@ -347,5 +344,10 @@ class TestsOverview extends Component
             $filters['base_subject_id'] = BaseSubject::currentForAuthUser()->pluck('id')->toArray();
         }
         return $filters;
+    }
+
+    protected function mergeFiltersWithDefaults($tab): void
+    {
+        $this->filters[$tab] = array_merge($this->filters[$tab], auth()->user()->getSearchFilterDefaultsTeacher());
     }
 }

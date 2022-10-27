@@ -26,19 +26,20 @@
      "
      :style="`max-height: ${maxHeight}`"
      @empty($this->mode)
-     wire:init="handleReferrerActions()"
-     @endempty
+         wire:init="handleReferrerActions()"
+        @endempty
 >
-    <div class="flex w-full border-b border-secondary pb-1 sticky bg-lightGrey z-1 sticky-pseudo-bg" :style="{top: $root.offsetTop + 'px'}">
+    <div class="flex w-full border-b border-secondary pb-1 sticky bg-lightGrey z-1 sticky-pseudo-bg"
+         :style="{top: $root.offsetTop + 'px'}">
 
         <div class="w-full max-w-screen-2xl mx-auto px-10 z-1">
             <div class="flex w-full justify-between">
                 <div class="flex items-center space-x-2.5 w-full">
                     @empty($this->mode)
-                    <x-button.back-round class="shrink-0" wire:click="redirectToTestOverview"/>
+                        <x-button.back-round class="shrink-0" wire:click="redirectToTestOverview"/>
                     @endempty
                     @if(isset($this->mode) && $this->mode === 'cms')
-                    <x-button.back-round class="shrink-0" x-on:click="closeTestSlide"/>
+                        <x-button.back-round class="shrink-0" x-on:click="closeTestSlide"/>
                     @endif
                     <div class="flex text-lg bold w-[calc(100%-50px)]">
                         <span class="truncate ">{{ __('Toets') }}: {{ $this->test->name }}</span>
@@ -66,17 +67,17 @@
             </div>
         </div>
         @empty($this->mode)
-        <div class="flex w-full justify-end mt-3 note text-sm space-x-2.5">
-            <x-actions.test-delete :uuid="$this->test->uuid"/>
-            <x-actions.test-open-settings :uuid="$this->uuid"/>
-            <x-actions.test-open-edit :uuid="$this->uuid"/>
-            <x-actions.test-open-preview :uuid="$this->uuid"/>
+            <div class="flex w-full justify-end mt-3 note text-sm space-x-2.5">
+                <x-actions.test-delete :uuid="$this->test->uuid"/>
+                <x-actions.test-open-settings :uuid="$this->uuid"/>
+                <x-actions.test-open-edit :uuid="$this->uuid"/>
+                <x-actions.test-open-preview :uuid="$this->uuid"/>
 
-            <livewire:actions.test-make-pdf :uuid="$this->uuid"/>
-            <livewire:actions.test-duplicate-test :uuid="$this->uuid"/>
-            <livewire:actions.test-quick-take :uuid="$this->uuid"/>
-            <livewire:actions.test-plan-test :uuid="$this->uuid"/>
-        </div>
+                <livewire:actions.test-make-pdf :uuid="$this->uuid"/>
+                <livewire:actions.test-duplicate-test :uuid="$this->uuid"/>
+                <livewire:actions.test-quick-take :uuid="$this->uuid"/>
+                <livewire:actions.test-plan-test :uuid="$this->uuid"/>
+            </div>
         @endempty
         <div class="flex w-full" x-show="bodyVisibility">
             <div class="w-full mx-auto divide-y divide-secondary">
@@ -89,7 +90,7 @@
 
                         @foreach($this->test->testQuestions->sortBy('order') as $testQuestion)
                             {{--<x-grid.question-card :question="$testQuestion->question" />--}}
-                            <x-grid.question-card-detail :testQuestion="$testQuestion"/>
+                            <x-grid.question-card-detail :testQuestion="$testQuestion" :mode="$this->mode ?? 'page'"/>
                         @endforeach
                     </x-grid>
                     <livewire:context-menu.question-card/>
@@ -101,7 +102,8 @@
     <div id="groupdetail" style="min-height: 100%; @if($this->groupQuestionDetail === null) display:none;@endif">
         <div class="">
             @if($this->groupQuestionDetail !== null)
-                <x-partials.group-question-details :groupQuestion="$this->groupQuestionDetail" context="testdetail"/>
+                <x-partials.group-question-details :groupQuestion="$this->groupQuestionDetail"
+                                                   :context="$this->mode === 'cms'? 'question-bank':'testdetail'"/>
             @endif
         </div>
     </div>
