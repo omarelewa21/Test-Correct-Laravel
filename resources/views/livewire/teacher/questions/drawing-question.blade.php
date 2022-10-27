@@ -50,14 +50,14 @@
 
         <div class="flex flex-1 min-h-[500px] w-full border border-bluegrey rounded-10 mt-4 items-center justify-center relative overflow-auto drawing-tool-preview">
 
-            <template x-if="isOldDrawing">
+            <div x-show="isOldDrawing">
                 <div>
                     <div class="absolute top-0 left-0 w-full h-full">
                         <img class="object-cover" src="{{ $this->question['answer'] }}" alt="">
                     </div>
                 </div>
-            </template>
-            <template x-if="!isOldDrawing">
+            </div>
+            <div x-show="!isOldDrawing">
                 <div class="absolute top-0 left-0 w-full h-full">
                     <svg viewBox="{{ $this->cmsPropertyBag['viewBox'] ?? '0 0 0 0' }}"
                          @viewbox-changed.window="makeGridIfNecessary(window[toolName])"
@@ -90,7 +90,7 @@
                         @endif
                     </div>
                 </div>
-            </template>
+            </div>
 
         </div>
         @if($isOldDrawing && !isset($preview))
