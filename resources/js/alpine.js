@@ -350,6 +350,8 @@ document.addEventListener('alpine:init', () => {
             if (this.gridSvg !== '' && this.gridSvg !== '0.00') {
                 gridSize = this.gridSvg;
 
+            }else if(!this.isOldDrawing && (this.grid && this.grid !== '0') ){
+                gridSize = 1/parseInt(this.grid) * 14;    // This calculation is based on try and change to reach the closest formula that makes grid visualization same as old drawing
             }
             if (gridSize) {
                 makePreviewGrid(toolName.drawingApp, gridSize);
