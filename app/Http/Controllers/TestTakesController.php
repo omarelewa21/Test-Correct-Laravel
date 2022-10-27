@@ -730,8 +730,11 @@ class TestTakesController extends Controller {
                             $testParticipant->setAttribute('answer_id', null);
                             $testParticipant->save();
                         }
-                        CoLearningNextQuestion::dispatch($testParticipant->uuid);
+
                     }
+                }
+                foreach ($testTake->testParticipants as $testParticipant) {
+                    CoLearningNextQuestion::dispatch($testParticipant->uuid);
                 }
             }
 

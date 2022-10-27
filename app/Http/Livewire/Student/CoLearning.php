@@ -35,24 +35,28 @@ class CoLearning extends Component
     public int $numberOfAnswers;
     public int $answerFollowUpNumber = 0;
 
+    public $yesno = null;
+
     /**
      * @return void
      */
     public function setActiveAnswerRating($navigateDirection): void
     {
-        if(isset($this->answerRatingId)){
-            if($navigateDirection == 'next' && $this->nextAnswerAvailable) {
+        //check if answerRatingId is valid? if answerRatings->contains the id?
+
+        if (isset($this->answerRatingId)) {
+            if ($navigateDirection == 'next' && $this->nextAnswerAvailable) {
                 $this->answerRating = $this->answerRatings->filter(fn($ar) => $ar->getKey() > $this->answerRatingId)->first();
                 $this->answerRatingId = $this->answerRating->getKey();
                 return;
             }
-            if($navigateDirection == 'previous' && $this->previousAnswerAvailable) {
+            if ($navigateDirection == 'previous' && $this->previousAnswerAvailable) {
                 $this->answerRating = $this->answerRatings->filter(fn($ar) => $ar->getKey() < $this->answerRatingId)->last();
                 $this->answerRatingId = $this->answerRating->getKey();
                 return;
             }
 
-            if(isset($this->answerRatingId) && $this->answerRatings->map->id->contains($this->answerRatingId)){
+            if (isset($this->answerRatingId) && $this->answerRatings->map->id->contains($this->answerRatingId)) {
                 $this->answerRating = $this->answerRatings->where('id', $this->answerRatingId)->first();
                 return;
             }
@@ -66,7 +70,7 @@ class CoLearning extends Component
     protected function getListeners()
     {
         return [
-            'echo-private:TestParticipant.' . $this->testParticipant->uuid . ',.CoLearningNextQuestion'   => 'getNextAnswerRating',
+            'echo-private:TestParticipant.' . $this->testParticipant->uuid . ',.CoLearningNextQuestion'   => 'goToNextQuestion',
             'echo-private:TestParticipant.' . $this->testParticipant->uuid . ',.CoLearningForceTakenAway' => 'redirectToTestTakesInReview', //.action, the dot is necessary
             'UpdateAnswerRating'                                                                          => 'updateAnswerRating'
         ];
@@ -88,8 +92,6 @@ class CoLearning extends Component
         if (is_null($this->answerRating)) {
             $this->answerRating = AnswerRating::find($this->answerRatingId);
         }
-
-        $this->studentWaitForTeacher = $this->shouldShowWaitForTeacherNotification();
 
         return view('livewire.student.co-learning')
             ->layout('layouts.co-learning');
@@ -115,19 +117,9 @@ class CoLearning extends Component
         return $this->dispatchBrowserEvent('notify', ['message' => __('co-learning.wait_for_teacher'), 'type' => 'error']);
     }
 
-
-    /**
-     * TODO
-     *  in mount get answerRatings, set Active AnswerRating
-     *  then, introduce two methods to navigate between answerRatings
-     *  * nextAnswerRating()
-     *  * previousAnswerRating()
-     */
-
-
     public function goToPreviousAnswerRating()
     {
-        if(!$this->previousAnswerAvailable){
+        if (!$this->previousAnswerAvailable) {
             return;
         }
         $this->getAnswerRatings('previous');
@@ -138,11 +130,15 @@ class CoLearning extends Component
 
     public function goToNextAnswerRating()
     {
-        if(!$this->nextAnswerAvailable){
-            return $this->sendWaitForTeacherNotification();
-        }
-
         $this->getAnswerRatings('next');
+
+        $this->emit('getNextAnswerRating', [$this->answerRatingId, $this->questionFollowUpNumber, $this->answerFollowUpNumber]);
+    }
+
+    public function goToNextQuestion()
+    {
+        logger('pusher aangekomen');
+        $this->getAnswerRatings();
 
         $this->emit('getNextAnswerRating', [$this->answerRatingId, $this->questionFollowUpNumber, $this->answerFollowUpNumber]);
     }
@@ -151,6 +147,8 @@ class CoLearning extends Component
     {
         $testTakeQuestionsCollection = TestTakeLaravelController::getData(null, $this->testTake);
         $currentQuestionId = $this->testTake->discussingQuestion->getKey();
+
+        //todo remove not discussed closed questions from count and followupnumber
 
         $this->numberOfQuestions = $testTakeQuestionsCollection->count();
 
@@ -161,6 +159,12 @@ class CoLearning extends Component
             }
             return $carry;
         }, 0);
+
+        if ($this->informationScreenQuestion) {
+            $this->numberOfAnswers = 1;
+            $this->answerFollowUpNumber = 1;
+            return;
+        }
 
         $answersForUserAndCurrentQuestion = $this->answerRatings->map->answer;
 
@@ -175,7 +179,6 @@ class CoLearning extends Component
                 return $carry;
             }, 0);
         }
-        //todo (check if) set answerFollowUpNumber to 1 if nothing found? (when at infoscreenQuestion)
     }
 
     protected function getAnswerRatings($navigateDirection = null)
@@ -184,10 +187,10 @@ class CoLearning extends Component
             'mode'   => 'all',
             'with'   => ['questions'],
             'filter' => [
-                "discussing_at_test_take_id" => $this->testTake->uuid,//"8287df51-f800-42c1-a9f6-77aace840eef",
+                "discussing_at_test_take_id" => $this->testTake->uuid,
 //                "rated"                      => "0",
             ],
-            'order' => ['id' => 'asc'] //make sure order of answerRatings is allways the same
+            'order'  => ['id' => 'asc'] //make sure order of answerRatings is allways the same
         ];
 
         $request = new Request();
@@ -198,23 +201,31 @@ class CoLearning extends Component
         //    386 => tcCore\AnswerRating {#2539 ▶}
         //    391 => tcCore\AnswerRating {#2574 ▶}
 
+        if ($this->answerRatings->isNotEmpty()) {
+            $this->informationScreenQuestion = false;
 
-        $this->setActiveAnswerRating($navigateDirection);
-        $this->rating = $this->answerRating->rating;
+            $this->setActiveAnswerRating($navigateDirection);
+            $this->rating = $this->answerRating->rating;
 
-        $this->previousAnswerAvailable = $this->answerRatings->filter(fn($ar) => $ar->getKey() < $this->answerRatingId)->count() > 0;
-        $this->nextAnswerAvailable = $this->answerRatings->filter(fn($ar) => $ar->getKey() > $this->answerRatingId)->count() > 0;
+            $this->previousAnswerAvailable = $this->answerRatings->filter(fn($ar) => $ar->getKey() < $this->answerRatingId)->count() > 0;
+            $this->nextAnswerAvailable = $this->answerRatings->filter(fn($ar) => $ar->getKey() > $this->answerRatingId)->count() > 0;
+
+            $this->studentWaitForTeacher = $this->shouldShowWaitForTeacherNotification();
+
+            $this->maxRating = $this->answerRating->answer->question->score;
+
+            $this->answerRating->refresh();
+
+
+        }
+        if ($this->testTake->discussingQuestion->type === 'InfoscreenQuestion') {
+            $this->informationScreenQuestion = true;
+            $this->studentWaitForTeacher = true;
+        }
+
 
         $this->getQuestionAndAnswerNavigationData();
 
-        if (!$this->answerRating instanceof AnswerRating) {
-            if ($this->testTake->discussingQuestion->type === 'InfoscreenQuestion') {
-                $this->informationScreenQuestion = true;
-                return false;
-            }
-        }
-        $this->maxRating = $this->answerRating->answer->question->score;
-        $this->answerRating->refresh();
     }
 
     public function redirectToTestTakesInReview()
@@ -229,8 +240,7 @@ class CoLearning extends Component
 
     private function shouldShowWaitForTeacherNotification(): bool
     {
-//        return !$this->answerRatings->map->rating->contains(null); //show on both answerRatings after both are rated
-
-        return (!$this->nextAnswerAvailable && isset($this->rating)); //show on last answerRating after both are rated
+        return !$this->answerRatings->map->rating->contains(null); //show on both answerRatings after both are rated
+//        return (!$this->nextAnswerAvailable && isset($this->rating)); //show on last answerRating after both are rated
     }
 }

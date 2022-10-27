@@ -6668,6 +6668,48 @@ document.addEventListener('alpine:init', function () {
       }
     };
   });
+  alpinejs__WEBPACK_IMPORTED_MODULE_1__["default"].data('sliderToggle', function (model, sources) {
+    return {
+      buttonPosition: '0px',
+      value: model,
+      sources: sources,
+      handle: null,
+      init: function init() {
+        this.handle = this.$el.querySelector('.slider-button-handle');
+
+        if (this.value === null) {
+          return;
+        }
+
+        this.handle.classList.remove('hidden');
+        this.$el.querySelector('.group').firstElementChild.classList.add('text-primary');
+
+        if (this.value !== '' && Object.keys(this.sources).includes(String(this.value))) {
+          this.activateButton(this.$el.querySelector('[data-id=\'' + this.value + '\']').parentElement);
+        } else {
+          this.value = this.$el.querySelector('.group').firstElementChild.dataset.id;
+        }
+      },
+      clickButton: function clickButton(target) {
+        this.activateButton(target);
+        this.value = target.firstElementChild.dataset.id;
+      },
+      hoverButton: function hoverButton(target) {
+        this.activateButton(target);
+      },
+      activateButton: function activateButton(target) {
+        this.resetButtons(target);
+        this.buttonPosition = target.offsetLeft + 'px';
+        target.firstElementChild.classList.add('text-primary');
+      },
+      resetButtons: function resetButtons(target) {
+        this.handle.classList.remove('hidden');
+        Array.from(target.parentElement.children).forEach(function (button) {
+          button.firstElementChild.classList.remove('text-primary');
+        });
+      }
+    };
+  });
   alpinejs__WEBPACK_IMPORTED_MODULE_1__["default"].data('expandableGraph', function (id, modelId, taxonomy) {
     return {
       data: false,

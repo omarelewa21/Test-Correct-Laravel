@@ -25,9 +25,9 @@
 
     <div class="flex relative w-[250px] h-12">
         <div class="flex w-full h-full justify-between items-center space-x-1 pl-[18px] pr-[12px]">
-            <template x-for="value in maxScore">
+            <template x-for="scoreOption in maxScore">
                 <div class="rounded-10 h-3 min-w-6 flex-grow border "
-                     :class="value <= score ? 'bg-primary border-primary' : 'bg-offwhite border-secondary'"
+                     :class="scoreOption <= score ? 'bg-primary border-primary' : 'bg-offwhite border-secondary'"
                 ></div>
             </template>
         </div>

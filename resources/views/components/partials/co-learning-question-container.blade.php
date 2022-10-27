@@ -55,6 +55,6 @@
         @endif
     </div>
     <div class="absolute w-0 h-full left-0 top-0 border-student border-4 rounded-10"></div>
-    <div x-on:contextmenu="$event.preventDefault()" class="absolute z-10 w-full h-full left-0 top-0"></div>
+{{--    <div x-on:contextmenu="$event.preventDefault()" class="absolute z-10 w-full h-full left-0 top-0"></div>--}}
 </div>
 

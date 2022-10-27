@@ -15,12 +15,12 @@ return [
     'all_questions_scored' => 'Je hebt alle vragen beoordeeld. Je kan de CO-Learning sessie afronden',
     'co_learning'          => 'CO-Learning',
 
-    'OpenQuestion-short'      => 'Open kort',
-    'OpenQuestion-medium'     => 'Open lang',
-    'OpenQuestion-long'       => 'Open lang',
-    'OpenQuestion-writing'    => 'Schrijfopdracht',
-    'RankingQuestion'         => 'Rangschik vraag',
-    'DrawingQuestion'         => 'Tekenen',
-    'InfoscreenQuestion-info' => 'Infoscherm',
+    'OpenQuestion-short'            => 'Open kort',
+    'OpenQuestion-medium'           => 'Open lang',
+    'OpenQuestion-long'             => 'Open lang',
+    'OpenQuestion-writing'          => 'Schrijfopdracht',
+    'DrawingQuestion'               => 'Tekenen',
+    'InfoscreenQuestion-info'       => 'Infoscherm',
+    'CompletionQuestion-completion' => 'Gatentekst',
 
 ];
