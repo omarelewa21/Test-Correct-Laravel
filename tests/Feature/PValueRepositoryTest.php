@@ -9,6 +9,7 @@ use tcCore\BaseSubject;
 use tcCore\Factories\FactorySchoolClass;
 use tcCore\Factories\FactorySection;
 use tcCore\Factories\FactoryUser;
+use tcCore\FactoryScenarios\FactoryScenarioSchoolPValue;
 use tcCore\FactoryScenarios\FactoryScenarioTestTakeRated;
 use tcCore\Lib\Repositories\PValueRepository;
 use tcCore\Lib\Repositories\SchoolYearRepository;
@@ -26,20 +27,29 @@ class PValueRepositoryTest extends TestCase
     public function it_can_load_p_value_stats_by_subject_for_a_student()
     {
         $this->withoutExceptionHandling();
-
-//        $factory = FactoryScenarioTestTakeRated::create($this->getTeacherOne());
         $studentOne = $this->getStudentOne();
-        $this->assertEmpty($studentOne->pValueStatsForAllSubjects);
-        $studentOne->loadPValueStatsForAllSubjects();
-//        dd($studentOne->pValueStatsForAllSubjects);
-        $this->assertArrayHasKey('Nederlands', $studentOne->pValueStatsForAllSubjects);
+        $this->actingAs($studentOne);
+
+        $factory = FactoryScenarioTestTakeRated::create($this->getTeacherOne());
+
+
+        $pValues = PValueRepository::getPValueForStudentBySubject(
+            $studentOne,
+            collect([]),
+            collect([]),
+            collect([])
+        );
+
+        $pValue = $pValues->first(fn($pValue) => $pValue['name'] === 'Nederlands');
+
+
+        $this->assertEquals(1, $pValue['id']);
     }
 
     /** @test */
     public function if_a_students_gets_a_new_subject_it_should_also_see_that_subject_in_the_subject_graph()
     {
         $this->withoutExceptionHandling();
-
         $factory = FactoryScenarioTestTakeRated::create($this->getTeacherOne(), 'PValueTest'. Carbon::now()->microsecond());
         $studentOne = $this->getStudentOne();
         $this->actingAs($studentOne);
@@ -79,6 +89,7 @@ class PValueRepositoryTest extends TestCase
     {
         $this->withoutExceptionHandling();
         $studentOne = $this->getStudentOne();
+        $factory = FactoryScenarioTestTakeRated::create($this->getTeacherOne(), 'PValueTest'. Carbon::now()->microsecond());
         $firstRecord = PValueRepository::getPValueForStudentBySubject($studentOne, collect(), collect(), collect())->first();
         $this->assertEquals('Nederlands', $firstRecord->serie);
     }
@@ -88,6 +99,7 @@ class PValueRepositoryTest extends TestCase
     {
         $this->withoutExceptionHandling();
         $studentOne = $this->getStudentOne();
+        $factory = FactoryScenarioTestTakeRated::create($this->getTeacherOne(), 'PValueTest'. Carbon::now()->microsecond());
         $firstRecord = PValueRepository::getPValueForStudentBySubject(
             $studentOne,
             collect(),
@@ -112,6 +124,7 @@ class PValueRepositoryTest extends TestCase
     {
         $this->withoutExceptionHandling();
         $studentOne = $this->getStudentOne();
+        $factory = FactoryScenarioTestTakeRated::create($this->getTeacherOne(), 'PValueTest'. Carbon::now()->microsecond());
         $firstRecord = PValueRepository::getPValueForStudentBySubject(
             $studentOne,
             collect(),
@@ -126,6 +139,7 @@ class PValueRepositoryTest extends TestCase
     {
         $this->withoutExceptionHandling();
         $studentOne = $this->getStudentOne();
+        $factory = FactoryScenarioTestTakeRated::create($this->getTeacherOne(), 'PValueTest'. Carbon::now()->microsecond());
         $firstRecord = PValueRepository::getPValueForStudentBySubject(
             $studentOne,
             Period::where('id', 1)->get(),
@@ -156,6 +170,7 @@ class PValueRepositoryTest extends TestCase
     {
         $this->withoutExceptionHandling();
         $studentOne = $this->getStudentOne();
+        $factory = FactoryScenarioTestTakeRated::create($this->getTeacherOne(), 'PValueTest'. Carbon::now()->microsecond());
         $pValuesPerAttainment = PValueRepository::getPValuePerAttainmentForStudent(
             $studentOne,
             collect(),
@@ -190,6 +205,7 @@ class PValueRepositoryTest extends TestCase
     {
         $this->withoutExceptionHandling();
         $studentOne = $this->getStudentOne();
+        $factory = FactoryScenarioTestTakeRated::create($this->getTeacherOne(), 'PValueTest'. Carbon::now()->microsecond());
         $attainment = Attainment::find(5); //Literatuur (id: 5) has sub-attainments 410, 411, 412
 
         $pValuesPerAttainment = PValueRepository::getPValuePerSubAttainmentForStudentAndAttainment(
@@ -221,4 +237,22 @@ class PValueRepositoryTest extends TestCase
             ->addStudent($this->getStudentOne());
 
     }
+
+    /** @test */
+    public function scenario(){
+        FactoryScenarioSchoolPValue::create();
+    }
+
+   /** @test */
+   public function p_value_student_one_is_an_attainmentMode_student()
+   {
+       $this->assertEquals(
+           'ATTAINMENT',
+           User::where('username', 'student_p_value_1@sobit.nl')->first()->getDefaultAttainmentMode()
+       );
+
+   }
+
+
+
 }

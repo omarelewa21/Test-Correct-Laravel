@@ -24,8 +24,8 @@ class AnalysesSubjectDashboard extends AnalysesDashboard
     public function getAttainmentModeOptionsProperty()
     {
         return [
-            ucfirst(__('student.eindterm')),
-            ucfirst(__('student.leerdoel')),
+            'ATTAINMENT'    => ucfirst(__('student.eindterm')),
+            'LEARNING_GOAL' => ucfirst(__('student.leerdoel')),
         ];
     }
 
@@ -41,19 +41,26 @@ class AnalysesSubjectDashboard extends AnalysesDashboard
 
         $this->subject = $subject;
 
+        $this->attainmentMode = auth()->user()->getDefaultAttainmentMode();
+
         $this->setGeneralStats();
     }
 
     private function setGeneralStats()
     {
         $analysesHelper = new AnalysesSubjectHelper($this->subject, Auth::user());
-        $this->generalStats = (array) $analysesHelper->getAll();
+        $this->generalStats = (array)$analysesHelper->getAll();
     }
 
     public function render()
     {
         $this->dispatchBrowserEvent('filters-updated');
         return view('livewire.student.analyses.analyses-subject-dashboard')->layout('layouts.student');
+    }
+
+    private function attainmentModeIsLearningGoal()
+    {
+        return $this->attainmentMode == 'LEARNING_GOAL' ? 1 : 0;
     }
 
     public function getDataProperty()
@@ -64,7 +71,7 @@ class AnalysesSubjectDashboard extends AnalysesDashboard
             $this->getEducationLevelYearsByFilterValues(),
             $this->getTeachersByFilterValues(),
             $this->subject,
-            $this->attainmentMode,
+            $this->attainmentModeIsLearningGoal(),
         );;
 
         $this->dataValues = $result->map(function ($pValue, $key) {
@@ -76,7 +83,7 @@ class AnalysesSubjectDashboard extends AnalysesDashboard
                 ]);
             }
 
-            $attainmentTranslationLabel = $this->attainmentMode
+            $attainmentTranslationLabel = $this->attainmentMode == 'LEARNING_GOAL'
                 ? __('student.leerdoel met nummer', ['number' => $key + 1])
                 : __('student.eindterm met nummer', ['number' => $key + 1]);
 

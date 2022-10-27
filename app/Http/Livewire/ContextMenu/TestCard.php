@@ -8,6 +8,7 @@ class TestCard extends ContextMenuComponent
 {
     public $testUuid = null;
     public $openTab = null;
+    public $mode = null;
 
     public $showNonPublicItems;
 
@@ -15,6 +16,7 @@ class TestCard extends ContextMenuComponent
     {
         $this->testUuid = $uuid;
         $this->openTab = $contextData['openTab'];
+        $this->mode = $contextData['mode'] ?? 'page';
         $this->showNonPublicItems = $this->getShowNonPublicItemsValue();
 
         return true;

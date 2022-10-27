@@ -55,7 +55,6 @@ class DatabaseImport
             );
         }
 
-
         $process = Process::fromShellCommandline($command);
         $process->run();
     }

@@ -9,6 +9,7 @@ use tcCore\GroupQuestionQuestion;
 use tcCore\Http\Controllers\GroupQuestionQuestionsController;
 use tcCore\Http\Controllers\TestQuestionsController;
 use tcCore\Http\Livewire\Teacher\Questions\CmsFactory;
+use tcCore\Http\Traits\WithQueryStringSyncing;
 use tcCore\Lib\GroupQuestionQuestion\GroupQuestionQuestionManager;
 use tcCore\Question;
 use tcCore\Test;
@@ -16,7 +17,16 @@ use tcCore\TestQuestion;
 
 class Cms extends Component
 {
-    protected $queryString = ['testId', 'testQuestionId', 'groupQuestionQuestionId', 'action', 'owner', 'type', 'subtype'];
+    use WithQueryStringSyncing;
+    protected $queryString = [
+        'testId',
+        'testQuestionId',
+        'groupQuestionQuestionId',
+        'action',
+        'owner',
+        'type',
+        'subtype' => ['as' => 'st']
+    ];
 
     /* Querystring parameters*/
     public $testId = '';
@@ -36,6 +46,10 @@ class Cms extends Component
 
     public $duplicateQuestions;
 
+    public $sliderButtonOptions = [];
+    public $sliderButtonSelected = 'questions';
+    public $sliderButtonDisabled = false;
+
     protected function getListeners()
     {
         return [
@@ -51,6 +65,7 @@ class Cms extends Component
 
     public function mount()
     {
+        $this->setSliderButtonOptions();
         if (blank($this->type) && blank($this->subtype)) {
             if ($this->testQuestions->count() === 0) {
                 $this->emptyStateActive = true;
@@ -266,7 +281,7 @@ class Cms extends Component
                 $this->$key = $item;
             }
         });
-        $this->emitSelf('refreshSelf');
+//        $this->emitSelf('refreshSelf');
     }
 
     public function deleteQuestionByQuestionId($questionId)
@@ -388,5 +403,13 @@ class Cms extends Component
         }
 
         $this->dispatchBrowserEvent('notify', ['message' => __('general.duplication successful')]);
+    }
+
+    private function setSliderButtonOptions()
+    {
+        $this->sliderButtonOptions = [
+            'tests' => __('cms.Toetsenbank'),
+            'questions' => __('cms.Vragenbank'),
+        ];
     }
 }

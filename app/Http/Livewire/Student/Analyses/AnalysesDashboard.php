@@ -110,7 +110,7 @@ abstract class AnalysesDashboard extends Component
                 function ($year) {
                     return [
                         'value' => $year,
-                        'label' => $year,
+                        'label' => (string) $year,
                     ];
                 }
             );

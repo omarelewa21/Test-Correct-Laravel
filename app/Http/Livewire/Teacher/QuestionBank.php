@@ -12,6 +12,7 @@ use tcCore\Http\Controllers\GroupQuestionQuestionsController;
 use tcCore\Http\Controllers\TestQuestionsController;
 use tcCore\Http\Requests\CreateGroupQuestionQuestionRequest;
 use tcCore\Http\Requests\CreateTestQuestionRequest;
+use tcCore\Http\Traits\WithQueryStringSyncing;
 use tcCore\Lib\GroupQuestionQuestion\GroupQuestionQuestionManager;
 use tcCore\Question;
 use tcCore\Subject;
@@ -21,7 +22,7 @@ use tcCore\Traits\ContentSourceTabsTrait;
 
 class QuestionBank extends Component
 {
-    use ContentSourceTabsTrait;
+    use ContentSourceTabsTrait, WithQueryStringSyncing;
 
     const ACTIVE_TAB_SESSION_KEY = 'question-bank-active-tab';
 
@@ -30,7 +31,7 @@ class QuestionBank extends Component
     const SOURCE_PERSONAL = 'me';
     const SOURCE_SCHOOL = '';
 
-    protected $queryString = ['testId', 'testQuestionId'];
+    protected $queryString = ['testId', 'testQuestionId', 'openTab' => ['as' => 'qb_ot']];
 
     public $testId;
     public $testQuestionId;
@@ -40,13 +41,11 @@ class QuestionBank extends Component
     public $addedQuestionIds = [];
     public $itemsPerPage;
 
-    public $sliderButtonOptions = [];
-    public $sliderButtonSelected = 1;
-    public $sliderButtonDisabled = true;
-
     public $inGroup = false;
 
     private $test;
+
+    public $active;
 
     public $groupQuestionDetail;
 
@@ -68,7 +67,6 @@ class QuestionBank extends Component
         $this->setTestProperty();
         $this->setAddedQuestionIdsArray();
         $this->setFilters();
-        $this->setSliderButtonOptions();
     }
 
     public function render()
@@ -395,15 +393,5 @@ class QuestionBank extends Component
             return Question::publishedFiltered($this->getFilters());
         }
         return Question::filtered($this->getFilters());
-    }
-
-
-
-    public function setSliderButtonOptions()
-    {
-        $this->sliderButtonOptions = [
-            __('cms.Toetsenbank'),
-            __('cms.Vragenbank'),
-        ];
     }
 }

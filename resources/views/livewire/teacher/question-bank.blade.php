@@ -1,6 +1,12 @@
 <div id="question-bank"
      class="flex flex-col relative w-full min-h-full bg-lightGrey border-t border-secondary overflow-auto overflow-x-hidden"
-     x-data="{openTab: @entangle('openTab'), inGroup: @entangle('inGroup'), groupDetail: null, bodyVisibility: true,  maxHeight: 'calc(100vh - var(--header-height))'}"
+     x-data="{
+        questionBankOpenTab: @entangle('openTab'),
+        inGroup: @entangle('inGroup'),
+        groupDetail: null,
+        bodyVisibility: true,
+        maxHeight: 'calc(100vh - var(--header-height))'
+        }"
      :style="`max-height: ${maxHeight}`"
      x-init="
         groupDetail = $el.querySelector('#groupdetail');
@@ -23,7 +29,6 @@
                         handleVerticalScroll($el.closest('.slide-container'));
                     }, 250);
                 })
-
             }
         }
 
@@ -52,69 +57,22 @@
      @question-added.window="Notify.notify('{{ __('cms.question_added') }}');"
      @question-removed.window="Notify.notify('{{ __('cms.question_deleted') }}')"
 >
-    <div class="flex w-full flex-col border-b border-secondary sticky top-0 z-[2]">
-        <div class="py-2 px-6 flex w-full bg-white border-b border-secondary">
-            <div class="flex items-center space-x-2.5">
-                <x-button.back-round @click="hideQuestionBank();" selid="question-bank-back-btn"/>
-                <span class="bold text-lg cursor-default">{{ __('cms.Bestaande vraag toevoegen') }}</span>
-            </div>
+    <x-menu.tab.container >
+        <x-menu.tab.item tab="personal" menu="questionBankOpenTab" >
+            {{ __('general.Persoonlijk') }}
+        </x-menu.tab.item>
+        <x-menu.tab.item tab="school_location" menu="questionBankOpenTab" >
+            {{ __('general.School') }}
+        </x-menu.tab.item>
+        <x-menu.tab.item tab="national" menu="questionBankOpenTab" :highlight="true" :when="$allowedTabs->contains('national')">
+            {{ __('general.Nationaal') }}
+        </x-menu.tab.item>
+        <x-menu.tab.item tab="creathlon" menu="questionBankOpenTab" :highlight="true" :when="$allowedTabs->contains('creathlon')">
+            {{ __('general.Creathlon') }}
+        </x-menu.tab.item>
+    </x-menu.tab.container>
 
-            <div class="flex ml-auto items-center space-x-2.5">
-                <x-button.cta @click="hideQuestionBank();" selid="close-question-bank-btn">
-                    <span>{{ __('drawing-modal.Sluiten') }}</span>
-                </x-button.cta>
 
-                <x-button.slider wire:model="sliderButtonSelected" :disabled="$sliderButtonDisabled"
-                        button-width="135px" :options="$sliderButtonOptions"></x-button.slider>
-
-            </div>
-
-        </div>
-        <div class="flex w-full bg-lightGrey">
-            <div class="w-full   mx-auto">
-                <div class="flex w-full mx-8 max-w-max h-12.5">
-                    <div class="flex items-center relative hover:text-primary hover:bg-primary/5 px-2 cursor-pointer transition"
-                         @click="openTab = 'personal'">
-                        <span class="bold "
-                              :class="openTab === 'personal' ? 'primary' : '' ">{{ __('general.Persoonlijk') }}</span>
-                        <span class="absolute w-[calc(100%-1rem)] bottom-0 left-2" style="height: 3px"
-                              :class="openTab === 'personal' ? 'bg-primary' : 'bg-transparent' "></span>
-                    </div>
-                    <div class="flex items-center relative hover:text-primary hover:bg-primary/5 px-2 cursor-pointer transition"
-                         @click="openTab = 'school_location'">
-                        <span class="bold "
-                              :class="openTab === 'school_location' ? 'primary' : '' ">{{ __('general.School') }}</span>
-                        <span class="absolute w-[calc(100%-1rem)] bottom-0 left-2" style="height: 3px"
-                              :class="openTab === 'school_location' ? 'bg-primary' : 'bg-transparent' "></span>
-                    </div>
-                    @if($allowedTabs->contains('national'))
-                        <div class="flex items-center relative hover:text-primary hover:bg-primary/5 px-2 cursor-pointer group transition"
-                             @click="openTab = 'national'">
-                            <span class="bold text-white bg-sysbase px-2 py-1 rounded-lg group-hover:bg-primary transition"
-                                  :class="{'bg-primary' : openTab === 'national' }"
-                            >
-                                {{ __('general.Nationaal') }}
-                            </span>
-
-                            <span class="absolute w-[calc(100%-1rem)] bottom-0 left-2"
-                                  style="height: 3px"
-                                  :class="openTab === 'national' ? 'bg-primary' : 'bg-transparent' ">
-                            </span>
-                        </div>
-                    @endif
-                    @if($allowedTabs->contains('creathlon'))
-                        <div class="flex items-center relative hover:text-primary hover:bg-primary/5 px-2 cursor-pointer transition"
-                             @click="openTab = 'creathlon'">
-                        <span class="bold "
-                              :class="openTab === 'creathlon' ? 'primary' : '' ">{{ __('general.Creathlon') }}</span>
-                            <span class="absolute w-[calc(100%-1rem)] bottom-0 left-2" style="height: 3px"
-                                  :class="openTab === 'creathlon' ? 'bg-primary' : 'bg-transparent' "></span>
-                        </div>
-                    @endif
-                </div>
-            </div>
-        </div>
-    </div>
     <div class="flex w-full main" x-show="bodyVisibility" x-cloak>
         <div class="w-full  mx-auto divide-y divide-secondary">
             <div class="mx-8"

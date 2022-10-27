@@ -4,7 +4,7 @@
          @click="showGroupDetails('{{ $question->uuid }}', @js($inTest));"
      @else
          wire:click="openDetail('{{ $question->uuid }}', @js($this->isQuestionInTest($question->id) || $this->isQuestionInTest($question->derived_question_id)))"
-        @endif
+     @endif
 >
     <div class="flex w-full justify-between mb-2">
         <div class="flex gap-2.5 pr-2">
