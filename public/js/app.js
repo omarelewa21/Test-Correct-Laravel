@@ -5981,6 +5981,8 @@ document.addEventListener('alpine:init', function () {
 
         if (this.gridSvg !== '' && this.gridSvg !== '0.00') {
           gridSize = this.gridSvg;
+        } else if (!this.isOldDrawing && this.grid && this.grid !== '0') {
+          gridSize = 1 / parseInt(this.grid) * 14; // This calculation is based on try and change to reach the closest formula that makes grid visualization same as old drawing
         }
 
         if (gridSize) {
@@ -10194,7 +10196,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
 
   function getAdjustedGridValue() {
     if (grid && grid !== '0') {
-      return 1 / parseInt(grid) * 14;
+      return 1 / parseInt(grid) * 14; // This calculation is based on try and change to reach the closest formula that makes grid visualization same as old drawing
     }
 
     return 0;
