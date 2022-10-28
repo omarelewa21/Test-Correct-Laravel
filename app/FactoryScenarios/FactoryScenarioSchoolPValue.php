@@ -34,7 +34,6 @@ class FactoryScenarioSchoolPValue extends FactoryScenarioSchool
 
     protected $schoolClassName;
 
-
     /**
      * Create a complete school scenario with the bare necessities
      * 1 school, 1 school location
@@ -60,9 +59,8 @@ class FactoryScenarioSchoolPValue extends FactoryScenarioSchool
 
         $schoolLocation->allow_analyses = true;
         //create school year and full year period for the current year
-
+        // vernietig alle schooljaren zodat de demo schooljaar niet interfereerd;
         $schoolLocation->schoolYears()->delete();
-
 
         $schoolYearLocations = collect(range(0, 5))->map(function ($year) use ($schoolLocation) {
             $year = (int)Carbon::today()
@@ -121,7 +119,7 @@ class FactoryScenarioSchoolPValue extends FactoryScenarioSchool
         }
 
         Teacher::whereIn('user_id', collect($teachers)->map(fn($user) => $user->id))
-            ->with(['subject', 'schoolClass', 'schoolClass.schoolYear', 'user'])
+            ->with(['subject', 'schoolClass', 'schoolClass.schoolYear', 'schoolClass.schoolYear.periods', 'user'])
             ->get()
             ->each(function ($teacher) {
                 $testName = sprintf('%s %s', $teacher->schoolClass->schoolYear->year, $teacher->subject->name);
@@ -139,6 +137,7 @@ class FactoryScenarioSchoolPValue extends FactoryScenarioSchool
                 ArchivedScope::$skipScope = true;
 
                 FactoryTestTake::create($test, $teacher->user)
+                    ->setProperties(['period_id' => $teacher->schoolClass->schoolYear->periods->first()->id])
                     ->addParticipants([
                         FactoryTestParticipant::makeForAllUsersInClass($teacher->class_id)
                     ])

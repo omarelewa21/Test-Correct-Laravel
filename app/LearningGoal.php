@@ -11,6 +11,8 @@ class LearningGoal extends Attainment {
     use SoftDeletes;
     use UuidTrait;
 
+    const TYPE = 'LEARNING_GOAL';
+
 
 
     public static function boot()

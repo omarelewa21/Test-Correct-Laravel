@@ -4,7 +4,9 @@ namespace tcCore\Http\Livewire\Student\Analyses;
 
 use Illuminate\Support\Facades\Auth;
 use tcCore\Attainment;
+use tcCore\EducationLevel;
 use tcCore\Http\Helpers\AnalysesSubjectHelper;
+use tcCore\LearningGoal;
 use tcCore\Lib\Repositories\PValueRepository;
 use tcCore\Lib\Repositories\PValueTaxonomyBloomRepository;
 use tcCore\Lib\Repositories\PValueTaxonomyMillerRepository;
@@ -24,9 +26,14 @@ class AnalysesSubjectDashboard extends AnalysesDashboard
     public function getAttainmentModeOptionsProperty()
     {
         return [
-            'ATTAINMENT'    => ucfirst(__('student.eindterm')),
-            'LEARNING_GOAL' => ucfirst(__('student.leerdoel')),
+            Attainment::TYPE   => ucfirst(__('student.eindterm')),
+            LearningGoal::TYPE => ucfirst(__('student.leerdoel')),
         ];
+    }
+
+    private function setDefaultAttainmentMode()
+    {
+        return EducationLevel::getAttainmentType(auth()->user());
     }
 
 //    protected $topItems = [
@@ -41,7 +48,7 @@ class AnalysesSubjectDashboard extends AnalysesDashboard
 
         $this->subject = $subject;
 
-        $this->attainmentMode = auth()->user()->getDefaultAttainmentMode();
+        $this->setDefaultAttainmentMode();
 
         $this->setGeneralStats();
     }
@@ -78,7 +85,9 @@ class AnalysesSubjectDashboard extends AnalysesDashboard
             $link = false;
             if ($pValue->attainment_id) {
                 $link = route('student.analyses.attainment.show', [
-                    'attainment' => Attainment::withoutGlobalScope(AttainmentScope::class)->find($pValue->attainment_id)->uuid,
+                    'attainment' => Attainment::withoutGlobalScope(AttainmentScope::class)
+                        ->find($pValue->attainment_id)
+                        ->uuid,
                     'subject'    => $this->subject->uuid
                 ]);
             }

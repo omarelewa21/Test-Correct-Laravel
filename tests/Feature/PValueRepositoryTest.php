@@ -250,7 +250,6 @@ class PValueRepositoryTest extends TestCase
            'ATTAINMENT',
            User::where('username', 'student_p_value_1@sobit.nl')->first()->getDefaultAttainmentMode()
        );
-
    }
 
 
