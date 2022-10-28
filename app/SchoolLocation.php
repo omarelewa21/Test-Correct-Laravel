@@ -551,7 +551,7 @@ class SchoolLocation extends BaseModel implements AccessCheckable
             ->join('school_location_school_years', function ($join) {
                 $join->on('school_location_school_years.school_year_id', '=', 'school_years.id')
                     ->where('school_location_id', $this->id);
-            })->distinct()->get();
+            })->distinct()->whereNull('school_years.deleted_at')->get();
     }
 
     public function schoolLocationEducationLevels()
