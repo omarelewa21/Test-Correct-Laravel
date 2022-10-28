@@ -203,19 +203,19 @@ class EducationLevel extends BaseModel
 
     public static function getAttainmentType(User $user)
     {
-        return $user->studentSchoolClasses()->with('EducationLevel')->get()
+        return $user->studentSchoolClasses()->get()
             ->map(function ($schoolClass) {
                 return (object) [
                     'educationLevel' => $schoolClass->educationLevel->name,
                     'attainmentType' => $schoolClass->educationLevel->getType($schoolClass),
                 ];
-            })->sortBy(fn($item) => $item->attainmentType == LearningGoal::TYPE ? 0 : 1)
+            })->sortBy(fn($item) => $item->attainmentType == LearningGoal::TYPE ? 1 : 0)
             ->first()
             ->attainmentType;
     }
 
     private function getType($schoolClass)
     {
-        return $this->min_attainment_year >= $schoolClass->education_level_year ? Attainment::TYPE : LearningGoal::TYPE;
+        return $this->min_attainment_year <= $schoolClass->education_level_year ? Attainment::TYPE : LearningGoal::TYPE;
     }
 }
