@@ -16,6 +16,8 @@ class TestDetail extends Component
     protected $test;
     public $groupQuestionDetail;
     public $referrer = '';
+    public $mode;
+    public $context = 'testdetail';
 
     protected $queryString = ['referrer' => ['except' => '']];
 
@@ -30,6 +32,7 @@ class TestDetail extends Component
         Gate::authorize('canViewTestDetails',[Test::findByUuid($uuid)]);
 
         $this->uuid = $uuid;
+        $this->setContext();
     }
 
     public function booted()
@@ -104,5 +107,12 @@ class TestDetail extends Component
         }
         $options = TemporaryLogin::buildValidOptionObject('page', $url);
         return auth()->user()->redirectToCakeWithTemporaryLogin($options);
+    }
+
+    private function setContext()
+    {
+        if (isset($this->mode) && $this->mode === 'cms') {
+            $this->context = 'question-bank';
+        }
     }
 }
