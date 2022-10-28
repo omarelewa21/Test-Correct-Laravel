@@ -74,5 +74,6 @@ trait ContentSourceTabsTrait
         if (!isset($this->excludeTabs)) return;
 
         $this->allowedTabs = $this->allowedTabs->reject(fn($tab) => collect($this->excludeTabs)->contains($tab));
+
     }
 }
