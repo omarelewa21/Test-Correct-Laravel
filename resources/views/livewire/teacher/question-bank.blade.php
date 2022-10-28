@@ -74,8 +74,8 @@
 
 
     <div class="flex w-full main" x-show="bodyVisibility" x-cloak>
-        <div class="w-full  mx-auto divide-y divide-secondary">
-            <div class="mx-8"
+        <div class="w-full  mx-auto ">
+            <div class="mx-8 divide-y divide-secondary"
                  x-data="{filterLoading: false}"
                  x-init="
                         Livewire.hook('message.sent', (message, component) => {
@@ -92,7 +92,7 @@
                  @enable-loading-grid.window="filterLoading = true;"
             >
                 {{-- Filters--}}
-                <div class="flex flex-col pt-4 pb-2">
+                <div class="flex flex-col py-4">
                     <div class="flex w-full my-2">
                         <div class="relative w-full">
                             <x-input.text class="w-full"
@@ -124,19 +124,19 @@
                                 />
                             @endif
                             <x-input.choices-select :multiple="true"
-                                                    :options="$this->educationLevel"
-                                                    :withSearch="true"
-                                                    placeholderText="{{ __('general.Niveau')}}"
-                                                    wire:model="filters.{{ $this->openTab }}.education_level_id"
-                                                    wire:key="education_level_id_{{ $this->openTab }}"
-                                                    filterContainer="questionbank-{{ $this->openTab }}-active-filters"
-                            />
-                            <x-input.choices-select :multiple="true"
                                                     :options="$this->educationLevelYear"
                                                     :withSearch="true"
                                                     placeholderText="{{ __('general.Leerjaar')}}"
                                                     wire:model="filters.{{ $this->openTab }}.education_level_year"
                                                     wire:key="education_level_year_{{ $this->openTab }}"
+                                                    filterContainer="questionbank-{{ $this->openTab }}-active-filters"
+                            />
+                            <x-input.choices-select :multiple="true"
+                                                    :options="$this->educationLevel"
+                                                    :withSearch="true"
+                                                    placeholderText="{{ __('general.Niveau')}}"
+                                                    wire:model="filters.{{ $this->openTab }}.education_level_id"
+                                                    wire:key="education_level_id_{{ $this->openTab }}"
                                                     filterContainer="questionbank-{{ $this->openTab }}-active-filters"
                             />
                             @if($this->hasAuthorFilter())
@@ -190,7 +190,7 @@
 
                     <x-grid class="mt-4" x-show="filterLoading" x-cloak>
                         @foreach(range(1,6) as $value)
-                            <x-grid.loading-card :delay="$value"/>
+                            <x-grid.loading-card :delay="$value" x-show="filterLoading"/>
                         @endforeach
                     </x-grid>
                     <x-grid class="mt-4" x-show="!filterLoading" x-cloak selid="question-bank-list">

@@ -22,5 +22,9 @@ class BladeServiceProvider extends ServiceProvider
         Blade::if('teacher', function () {
             return Auth::user()->isA('teacher');
         });
+
+        Blade::if('notempty', function ($value) {
+            return !empty($value);
+        });
     }
 }

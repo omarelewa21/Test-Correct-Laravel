@@ -17,8 +17,6 @@ trait ContentSourceTabsTrait
         'umbrella'
     ];
 
-    public $counterer = 0;
-
     public function updatingOpenTab($value)
     {
         $this->abortIfTabNotAllowed($value);
@@ -36,7 +34,7 @@ trait ContentSourceTabsTrait
         $this->allowedTabs = ContentSourceHelper::allAllowedForUser(Auth::user());
 
         $this->abortIfTabNotAllowed();
-
+        $this->rejectExcludedTabs();
 
         $this->schoolLocationInternalContentTabs = [
             'personal',
@@ -71,4 +69,11 @@ trait ContentSourceTabsTrait
         return 'personal';
     }
 
+    private function rejectExcludedTabs()
+    {
+        if (!isset($this->excludeTabs)) return;
+
+        $this->allowedTabs = $this->allowedTabs->reject(fn($tab) => collect($this->excludeTabs)->contains($tab));
+
+    }
 }
