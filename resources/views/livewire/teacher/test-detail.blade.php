@@ -103,7 +103,7 @@
         <div class="">
             @if($this->groupQuestionDetail !== null)
                 <x-partials.group-question-details :groupQuestion="$this->groupQuestionDetail"
-                                                   :context="$this->mode === 'cms'? 'question-bank':'testdetail'"/>
+                                                   :context="$this->context"/>
             @endif
         </div>
     </div>

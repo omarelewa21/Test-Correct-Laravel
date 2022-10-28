@@ -1,8 +1,10 @@
 <div>
-    <div class="sticky sticky-pseudo-bg z-10 top-0 bg-lightGrey flex items-center px-8 py-1 border-b border-bluegrey"
+    <div class="sticky @if($context !== 'question-bank') sticky-pseudo-bg @endif z-10 top-0 bg-lightGrey flex items-center px-8 py-1 border-b border-bluegrey"
+         @if($context !== 'question-bank')
          :style="{top: $root.offsetTop + 'px'}"
+         @endif
     >
-        <div class="w-full max-w-screen-2xl mx-auto px-10 z-1 flex items-center justify-between">
+        <div class="w-full max-w-screen-2xl mx-auto @if($context !== 'question-bank') px-10 @endif z-1 flex items-center justify-between">
             <div class="flex items-center space-x-2.5 z-1">
                 <x-button.back-round @click="closeGroupDetail()"/>
                 <div class="flex text-lg bold">

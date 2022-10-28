@@ -526,8 +526,10 @@ document.addEventListener('alpine:init', () => {
         },
         poll(interval) {
             setTimeout(() =>{
-                let el = this.$root.querySelector(`[x-ref="${this.activeSlide}"]`);
-                if(el !== null) this.handleVerticalScroll(el);
+                if(this.activeSlide !== 'questionbank') {
+                    let el = this.$root.querySelector(`[x-ref="${this.activeSlide}"]`);
+                    if (el !== null) this.handleVerticalScroll(el);
+                }
                 this.poll(interval);
             }, interval)
         },

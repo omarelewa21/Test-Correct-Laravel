@@ -105,8 +105,14 @@
 
 @push('scripts')
     <script>
-        document.querySelector('.save_button').addEventListener('click', function(){
-            @this.set("{!!  $attributes->wire('model') !!}", CKEDITOR.instances['{{$editorId}}'].getData())
-        });
+        if(typeof saveButton === 'undefined') {
+            let saveButton = document.querySelector('.save_button')
+            if(saveButton) {
+                saveButton.addEventListener('click', function () {
+                    @this.
+                    set("{!!  $attributes->wire('model') !!}", CKEDITOR.instances['{{$editorId}}'].getData())
+                });
+            }
+        }
     </script>
 @endpush

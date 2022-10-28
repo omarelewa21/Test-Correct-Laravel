@@ -7393,9 +7393,6 @@ video {
 .pr-12{
   padding-right: 3rem;
 }
-.pr-2\.5{
-  padding-right: 0.625rem;
-}
 .pl-7{
   padding-left: 1.75rem;
 }
@@ -7455,6 +7452,9 @@ video {
 }
 .pt-16{
   padding-top: 4rem;
+}
+.pr-2\.5{
+  padding-right: 0.625rem;
 }
 .pl-1{
   padding-left: 0.25rem;

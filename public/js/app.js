@@ -6205,9 +6205,11 @@ document.addEventListener('alpine:init', function () {
         var _this15 = this;
 
         setTimeout(function () {
-          var el = _this15.$root.querySelector("[x-ref=\"".concat(_this15.activeSlide, "\"]"));
+          if (_this15.activeSlide !== 'questionbank') {
+            var el = _this15.$root.querySelector("[x-ref=\"".concat(_this15.activeSlide, "\"]"));
 
-          if (el !== null) _this15.handleVerticalScroll(el);
+            if (el !== null) _this15.handleVerticalScroll(el);
+          }
 
           _this15.poll(interval);
         }, interval);
