@@ -180,11 +180,9 @@ class EducationLevel extends BaseModel
 
     private function filterForExamcoordinator($query, User $user)
     {
-        $classIdsQuery = $user->schoolLocation->schoolClasses()->select('id');
-
         return $query->whereIn(
             'id',
-            SchoolClass::select('education_level_id')->whereIn('id', $classIdsQuery)
+            $user->schoolLocation->schoolClasses()->select('education_level_id')
         );
     }
 
