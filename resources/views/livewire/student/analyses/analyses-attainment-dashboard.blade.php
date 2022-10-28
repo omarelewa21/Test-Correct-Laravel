@@ -33,7 +33,9 @@
             {{ __('student.p waarde subleerdoelen') }}
         </x-slot>
 
-        <div id="pValueChart" style="height: 400px;"></div>
+        <div id="pValueChart" style="height: 400px;" class="relative">
+            <x-empty-graph></x-empty-graph>
+        </div>
         <div x-data="analysesAttainmentsGraph( @entangle('dataValues') )"
              x-on:filters-updated.window="renderGraph"
         >
