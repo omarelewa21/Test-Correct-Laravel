@@ -9,11 +9,7 @@
             <h1>{{ $testName }}</h1>
         </div>
         <div class="flex">
-            {{-- "afronden" button --}}
-            <x-button.student>
-                <span>Afronden</span>
-                <x-icon.checkmark></x-icon.checkmark>
-            </x-button.student>
+
         </div>
     </div>
 </header>

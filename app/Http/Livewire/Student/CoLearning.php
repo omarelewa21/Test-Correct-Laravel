@@ -16,11 +16,14 @@ class CoLearning extends Component
     public ?TestTake $testTake;
     public bool $nextAnswerAvailable = false;
     public bool $previousAnswerAvailable = false;
-    public ?int $rating = null;
+    public $rating = null; //float or int
     public int $maxRating;
+
+    public $questionAllowsDecimalScore = false;
 
     public bool $informationScreenQuestion = false;
     public bool $studentWaitForTeacher = false;
+    public bool $finishCoLearningButtonEnabled = false;
 
     public string $testName = 'test;';
 
@@ -34,8 +37,6 @@ class CoLearning extends Component
     public int $questionFollowUpNumber = 0;
     public int $numberOfAnswers;
     public int $answerFollowUpNumber = 0;
-
-    public $yesno = null;
 
     /**
      * @return void
@@ -64,7 +65,21 @@ class CoLearning extends Component
         $this->answerRating = $this->answerRatings->first();
         $this->answerRatingId = $this->answerRating->getKey();
 
+    }
 
+    /**
+     * @return void
+     */
+    public function checkIfStudentCanFinishCoLearning(): void
+    {
+        if (
+            $this->numberOfQuestions === $this->questionFollowUpNumber &&
+            $this->studentWaitForTeacher
+        ) {
+            $this->finishCoLearningButtonEnabled = true;
+            return;
+        }
+        $this->finishCoLearningButtonEnabled = false;
     }
 
     protected function getListeners()
@@ -72,7 +87,7 @@ class CoLearning extends Component
         return [
             'echo-private:TestParticipant.' . $this->testParticipant->uuid . ',.CoLearningNextQuestion'   => 'goToNextQuestion',
             'echo-private:TestParticipant.' . $this->testParticipant->uuid . ',.CoLearningForceTakenAway' => 'redirectToTestTakesInReview', //.action, the dot is necessary
-            'UpdateAnswerRating'                                                                          => 'updateAnswerRating'
+            'UpdateAnswerRating'                                                                          => 'updateAnswerRating',
         ];
     }
 
@@ -99,17 +114,27 @@ class CoLearning extends Component
 
     public function updatedRating()
     {
-        $this->updateAnswerRating();
-    }
-
-    public function updateAnswerRating()
-    {
         if ($this->rating < 0 || $this->rating > $this->maxRating) {
             throw new \Exception('Supplied rating is out of bounds.');
         }
         $this->answerRating = AnswerRating::find($this->answerRatingId);
 
         $this->answerRating->update(['rating' => $this->rating]);
+
+        $this->checkIfStudentCanFinishCoLearning(); //todo does not update / render the button
+    }
+
+    public function updateAnswerRating($amountChecked, $amountPossibleOptions)
+    {
+        if ($this->questionAllowsDecimalScore) {
+            $this->rating = $this->maxRating / $amountPossibleOptions * $amountChecked;
+        } else {
+            $this->rating = round($this->maxRating / $amountPossibleOptions * $amountChecked);
+        }
+
+        $this->updatedRating();
+
+        $this->dispatchBrowserEvent('updated-score', ['score' => $this->rating]);
     }
 
     public function sendWaitForTeacherNotification()
@@ -124,7 +149,6 @@ class CoLearning extends Component
         }
         $this->getAnswerRatings('previous');
 
-        //todo emit to livewire component to refresh data
         $this->emit('getNextAnswerRating', [$this->answerRatingId, $this->questionFollowUpNumber, $this->answerFollowUpNumber]);
     }
 
@@ -137,7 +161,6 @@ class CoLearning extends Component
 
     public function goToNextQuestion()
     {
-        logger('pusher aangekomen');
         $this->getAnswerRatings();
 
         $this->emit('getNextAnswerRating', [$this->answerRatingId, $this->questionFollowUpNumber, $this->answerFollowUpNumber]);
@@ -179,6 +202,8 @@ class CoLearning extends Component
                 return $carry;
             }, 0);
         }
+
+        $this->checkIfStudentCanFinishCoLearning();
     }
 
     protected function getAnswerRatings($navigateDirection = null)
@@ -205,7 +230,10 @@ class CoLearning extends Component
             $this->informationScreenQuestion = false;
 
             $this->setActiveAnswerRating($navigateDirection);
-            $this->rating = $this->answerRating->rating;
+
+            $this->questionAllowsDecimalScore = (bool)$this->answerRating->answer->question->decimal_score;
+
+            $this->rating = $this->questionAllowsDecimalScore ? $this->answerRating->rating : (int)$this->answerRating->rating;
 
             $this->previousAnswerAvailable = $this->answerRatings->filter(fn($ar) => $ar->getKey() < $this->answerRatingId)->count() > 0;
             $this->nextAnswerAvailable = $this->answerRatings->filter(fn($ar) => $ar->getKey() > $this->answerRatingId)->count() > 0;

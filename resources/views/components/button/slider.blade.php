@@ -3,6 +3,7 @@
 'options',
 'buttonWidth' => '105px',
 'disabled' => false,
+'disabledStyling' => false,
 'useNamedSlots' => false,
 ])
 <div wire:ignore
@@ -22,7 +23,9 @@
         <div :id="$id('slider-button')" class="flex note">
             @foreach($options as $id => $button)
                 <div style="width: {{$buttonWidth}}"
-                     class="group flex items-center justify-center h-10 bg-off-white bold note cursor-pointer border-blue-grey border-t border-b first:border-l last:border-r first:rounded-l-lg last:rounded-r-lg  "
+                     class="group flex items-center justify-center h-10 bold note border-blue-grey border-t border-b first:border-l last:border-r first:rounded-l-lg last:rounded-r-lg
+                     {{ $disabledStyling ? 'bg-white opacity-70' : 'bg-off-white cursor-pointer'}}
+                     "
                      @if(!$disabled) @click="clickButton($el)" @endif
                 >
                     <span data-id="{{$id}}"

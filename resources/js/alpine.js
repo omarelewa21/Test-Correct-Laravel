@@ -1055,7 +1055,6 @@ document.addEventListener('alpine:init', () => {
                 if(this.value === null){
                     return;
                 }
-                this.handle.classList.remove('hidden');
                 this.$el.querySelector('.group').firstElementChild.classList.add('text-primary');
                 if(this.value !== '' && Object.keys(this.sources).includes(String(this.value))){
                     this.activateButton(this.$el.querySelector('[data-id=\'' + this.value + '\']').parentElement);
@@ -1074,9 +1073,9 @@ document.addEventListener('alpine:init', () => {
                 this.resetButtons(target)
                 this.buttonPosition = target.offsetLeft + 'px';
                 target.firstElementChild.classList.add('text-primary');
+                this.handle.classList.remove('hidden');
             },
             resetButtons(target) {
-                this.handle.classList.remove('hidden');
                 Array.from(target.parentElement.children).forEach(button => {
                     button.firstElementChild.classList.remove('text-primary');
                 });

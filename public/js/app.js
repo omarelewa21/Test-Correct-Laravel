@@ -6681,7 +6681,6 @@ document.addEventListener('alpine:init', function () {
           return;
         }
 
-        this.handle.classList.remove('hidden');
         this.$el.querySelector('.group').firstElementChild.classList.add('text-primary');
 
         if (this.value !== '' && Object.keys(this.sources).includes(String(this.value))) {
@@ -6701,9 +6700,9 @@ document.addEventListener('alpine:init', function () {
         this.resetButtons(target);
         this.buttonPosition = target.offsetLeft + 'px';
         target.firstElementChild.classList.add('text-primary');
+        this.handle.classList.remove('hidden');
       },
       resetButtons: function resetButtons(target) {
-        this.handle.classList.remove('hidden');
         Array.from(target.parentElement.children).forEach(function (button) {
           button.firstElementChild.classList.remove('text-primary');
         });

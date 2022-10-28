@@ -5102,6 +5102,9 @@ video {
 .top-\[var\(--header-height\)\]{
   top: var(--header-height);
 }
+.bottom-4{
+  bottom: 1rem;
+}
 .isolate{
   isolation: isolate;
 }
@@ -5395,6 +5398,9 @@ video {
 }
 .-mt-1{
   margin-top: -0.25rem;
+}
+.mt-\[70px\]{
+  margin-top: 70px;
 }
 .block{
   display: block;
@@ -6624,6 +6630,10 @@ video {
 .stroke-current{
   stroke: currentColor;
 }
+.object-contain{
+  -o-object-fit: contain;
+     object-fit: contain;
+}
 .object-cover{
   -o-object-fit: cover;
      object-fit: cover;
@@ -7204,6 +7214,9 @@ video {
 }
 .opacity-80{
   opacity: 0.8;
+}
+.opacity-70{
+  opacity: 0.7;
 }
 .shadow-xl{
   --tw-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);

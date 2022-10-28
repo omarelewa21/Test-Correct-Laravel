@@ -14,6 +14,8 @@ return [
     'wait_for_teacher'     => 'Wait for the teacher to go to the next question',
     'all_questions_scored' => 'You have scored all the questions. You can now complete the CO-Learning session',
     'co_learning'          => 'CO-Learning',
+    'view_larger'          => 'View larger',
+    'finish'               => 'Finish',
 
     'OpenQuestion-short'            => 'Open short',
     'OpenQuestion-medium'           => 'Open extended',

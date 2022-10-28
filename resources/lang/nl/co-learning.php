@@ -14,6 +14,9 @@ return [
     'wait_for_teacher'     => 'Wacht op de docent tot de volgende vraag besproken wordt',
     'all_questions_scored' => 'Je hebt alle vragen beoordeeld. Je kan de CO-Learning sessie afronden',
     'co_learning'          => 'CO-Learning',
+    'view_larger'          => 'Vergroot',
+    'finish'               => 'Afronden',
+
 
     'OpenQuestion-short'            => 'Open kort',
     'OpenQuestion-medium'           => 'Open lang',

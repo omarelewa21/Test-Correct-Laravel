@@ -2,69 +2,78 @@
 
 namespace tcCore\Http\Livewire\CoLearning;
 
+use Illuminate\Support\Str;
 use Livewire\Component;
 use tcCore\Answer;
+use tcCore\Http\Livewire\Student\CoLearning;
 
 class CompletionQuestion extends CoLearningQuestion
 {
-    public $ratings = [
-        null,null,null,null,null
-    ];
+    const SEARCH_PATTERN = "/\[([0-9]+)\]/i";
 
-    public $searchPattern = "/\[([0-9]+)\]/i";
+    public array $answerOptions;
+    public int $answerOptionsAmount;
+
     public $questionTextPartials;
-    public $finalQuestionTextPartial;
+    public $QuestionTextPartialFinal;
 
-    //temp
-    public $yesno;
 
     public function render()
     {
         return view('livewire.co-learning.completion-question');
     }
 
+    public function updatedAnswerOptions()
+    {
+        $this->emit( 'UpdateAnswerRating', $this->answerOptionsChecked, $this->answerOptionsAmount);
+    }
+
     public function isQuestionFullyAnswered(): bool
     {
-        //todo implement check
-        return true;
+        return collect($this->answer)->count() === $this->answerOptionsAmount;
     }
 
     protected function handleGetAnswerData()
     {
-        //todo implement
-        // I need to know:
-        //  * what are the answers
-        //  * are they answered or not
-        //  * how many answerOptions are there
         $answer = Answer::find(494);
-        $this->answer = (array) json_decode($answer->json);
+//        $this->answer = (array) json_decode($answer->json);
+        $this->answer = (array) json_decode($this->answerRating->answer->json);
 
-//        $this->answer = (array) json_decode($this->answerRating->answer->json);
-        // 0 => "deels"
-        //  1 => "beantwo" ( 2 was not answered, so is missing/not set )
-        //  3 => "oors"
-        //  4 => "vijf"
-//        dd($this->answerRating->answer->question->converted_question_html);
+        $question_text = $this->cleanQuestionText($this->answerRating->answer->question->converted_question_html);
+//        $question_text = $this->cleanQuestionText($answer->question->converted_question_html);
 
-        $question_text = $answer->question->converted_question_html;
+        $this->questionTextPartials = collect(explode('(##)',preg_replace(self::SEARCH_PATTERN, '(##)', $question_text)));
+        $this->QuestionTextPartialFinal = $this->questionTextPartials->pop();
 
-//        $replacementFunction = function ($matches) {
-//            $tag_id = $matches[1] - 1; // the completion_question_answers list is 1 based but the inputs need to be 0 based
-//
-//            return sprintf(
-//                '<x-button.true-false-toggle wireModel="ratings.%d" ></x-button.true-false-toggle>',
-//                $tag_id
-//            );
-//        };
+        $this->answerOptionsAmount = $this->questionTextPartials->count();
 
-        $this->questionTextPartials = collect(explode('(##)',preg_replace($this->searchPattern, '(##)', $question_text)));
-        $this->finalQuestionTextPartial =$this->questionTextPartials->pop();
+        for($i = 0; $i < $this->answerOptionsAmount; $i++){
+            $this->answerOptions[] = [
+                'rating' => null,
+                'answered' => isset($this->answer[$i]),
+                'answer' => $this->answer[$i] ?? '......',
+            ];
+        }
 
+    }
 
+    public function getAnswerOptionsCheckedProperty()
+    {
+        return collect($this->answerOptions)->reduce(function ($carry, $answerOption) {
+            $carry += $answerOption['rating'] === '1' ? 1 : 0;
+            return $carry;
+        }, 0);
+    }
 
-//        dd($this->questionTextPartials, $this->finalQuestionTextPartial);
-
-        return;
-        $this->answer = 'todo';
+    private function cleanQuestionText(string $questionText){
+        return Str::replaceLast(
+            '</p>',
+            ' ',
+            Str::replaceFirst(
+                '<p>',
+                '',
+                $questionText
+            )
+        );
     }
 }

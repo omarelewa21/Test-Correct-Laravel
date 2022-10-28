@@ -1,7 +1,8 @@
 @props([
     'maxScore',
     'score',
-    'modelName'
+    'modelName',
+    'decimals' => false,
 ])
 <div
         x-data="{
@@ -18,6 +19,7 @@
                 $wire.sync(modelName, value);
            }, 1000)
         })"
+        x-on:updated-score.window="score = $event.detail.score"
         {{ $attributes->except('wire:model')->merge(['class'=>'flex w-fit justify-between items-center space-x-4']) }}
 >
 

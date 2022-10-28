@@ -46,7 +46,7 @@
             <span class="ml-2">{{ __('co-learning.wait_for_teacher') }}</span>
         </div>
     @endif
-
+    {{ $rating }}
     <footer class="footer px-8 flex content-center justify-between fixed w-full bottom-0 left-0 z-10">
         @if(!$this->informationScreenQuestion)
             <div class="flex content-center justify-between" wire:key="ar-{{$this->answerRatingId}}">
@@ -77,6 +77,12 @@
                     </x-button.primary>
                 @endif
             @endif
+            {{-- @todo finish colearning button (CTA) --}}
+            @if($finishCoLearningButtonEnabled) {{-- if all answers of the last question have been answered... show finish Co-Learning button --}}
+                <x-button.cta>{{ __('co-learning.finish') }}</x-button.cta>
+            @endif
+
+
         </div>
     </footer>
 
