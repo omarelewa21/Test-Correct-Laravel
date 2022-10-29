@@ -42,8 +42,14 @@ class SchoolClassesController extends Controller
         $schoolClasses = SchoolClass::filtered(
             $request->get('filter', []),
             $request->get('order', [])
-        )
-            ->with(
+        )->withCount('studentUsers');
+
+        if($request->has('for_classes_overview') && $request->for_classes_overview){
+            $schoolClasses->with(['mentorUsers' => function($query){
+                $query->limit(1);
+            }]);
+        }else{
+            $schoolClasses->with(
                 'schoolLocation',
                 'educationLevel',
                 'mentorUsers',
@@ -52,6 +58,7 @@ class SchoolClassesController extends Controller
                 'educationLevel',
                 'schoolYear'
             );
+        }
         switch (strtolower($request->get('mode', 'paginate'))) {
             case 'all':
                 $schoolClasses = $schoolClasses->get();
