@@ -46,11 +46,18 @@
             <span class="ml-2">{{ __('co-learning.wait_for_teacher') }}</span>
         </div>
     @endif
-    {{ $rating }}
+
+    {{ $rating }} {{-- Todo remove echo --}}
     <footer class="footer px-8 flex content-center justify-between fixed w-full bottom-0 left-0 z-10">
         @if(!$this->informationScreenQuestion)
             <div class="flex content-center justify-between" wire:key="ar-{{$this->answerRatingId}}">
-                <x-input.score-slider class="" model-name="rating" :max-score="$maxRating" :score="$rating"/>
+                <x-input.score-slider class=""
+                                      model-name="rating"
+                                      :max-score="$maxRating"
+                                      :score="$rating"
+                                      :allow-half-points="$questionAllowsDecimalScore"
+                                      :continuous-score-slider="$continuousScoreSlider"
+                />
             </div>
         @else
             <div></div>

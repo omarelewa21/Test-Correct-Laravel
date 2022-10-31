@@ -9,11 +9,11 @@
 .score-slider-input::-webkit-slider-thumb {
     -webkit-appearance: none;
     appearance: none;
-    width: 25px;
-    height: 25px;
+    width: 1.5rem;
+    height: 1.5rem;
     border-radius: 9999px;
-    border: 2px solid var(--primary);
-    background: #4781ff22;
+    border: 0.125rem solid #4781FF;
+    background: rgba(71,129,255,0.5);
     cursor: pointer;
 }
 
@@ -26,11 +26,11 @@
 
 
 .score-slider-input::-moz-range-thumb {
-    width: 25px;
-    height: 25px;
+    width: 1.5rem;
+    height: 1.5rem;
     border-radius: 9999px;
-    border: 2px solid var(--primary);
-    background: #4781ff22;
+    border: 0.125rem solid #4781FF;
+    background: rgba(71,129,255,0.5);
     cursor: pointer;
     visibility: initial;
     pointer-events: all;

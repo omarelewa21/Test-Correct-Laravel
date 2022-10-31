@@ -82,6 +82,25 @@ class CoLearning extends Component
         $this->finishCoLearningButtonEnabled = false;
     }
 
+
+    public function setRatingProperties(): void
+    {
+        $this->maxRating = $this->answerRating->answer->question->score;
+
+        $this->questionAllowsDecimalScore = (bool)$this->answerRating->answer->question->decimal_score;
+
+        if ($this->questionAllowsDecimalScore && $this->maxRating > 7) {
+            $this->continuousScoreSlider = true;
+        } elseif (!$this->questionAllowsDecimalScore && $this->maxRating > 15) {
+            $this->continuousScoreSlider = true;
+        } else {
+            $this->continuousScoreSlider = false;
+        }
+
+        $this->rating = $this->questionAllowsDecimalScore ? $this->answerRating->rating : (int)$this->answerRating->rating;
+
+    }
+
     protected function getListeners()
     {
         return [
@@ -114,8 +133,11 @@ class CoLearning extends Component
 
     public function updatedRating()
     {
-        if ($this->rating < 0 || $this->rating > $this->maxRating) {
-            throw new \Exception('Supplied rating is out of bounds.');
+        if ((int)$this->rating < 0) {
+            $this->rating = 0;
+        }
+        if ((int)$this->rating > $this->maxRating) {
+            $this->rating = $this->maxRating;
         }
         $this->answerRating = AnswerRating::find($this->answerRatingId);
 
@@ -231,16 +253,12 @@ class CoLearning extends Component
 
             $this->setActiveAnswerRating($navigateDirection);
 
-            $this->questionAllowsDecimalScore = (bool)$this->answerRating->answer->question->decimal_score;
-
-            $this->rating = $this->questionAllowsDecimalScore ? $this->answerRating->rating : (int)$this->answerRating->rating;
-
             $this->previousAnswerAvailable = $this->answerRatings->filter(fn($ar) => $ar->getKey() < $this->answerRatingId)->count() > 0;
             $this->nextAnswerAvailable = $this->answerRatings->filter(fn($ar) => $ar->getKey() > $this->answerRatingId)->count() > 0;
 
             $this->studentWaitForTeacher = $this->shouldShowWaitForTeacherNotification();
 
-            $this->maxRating = $this->answerRating->answer->question->score;
+            $this->setRatingProperties();
 
             $this->answerRating->refresh();
 

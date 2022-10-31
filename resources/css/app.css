@@ -677,3 +677,8 @@ ul ul ul {
 .grid .grid-card.archived h3 {
     color: var(--note)!important;
 }
+
+.co-learning-break {
+    flex-basis: 100%;
+    height: 0px;
+}
