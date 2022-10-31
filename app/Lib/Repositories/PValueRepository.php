@@ -440,7 +440,7 @@ class PValueRepository
         return PValue::SelectRaw('avg(score/max_score) as score')
             ->selectRaw('count(attainment_id) as cnt')
             ->addSelect([
-                'serie'         => Attainment::select('description')->whereColumn('id', 'p_value_attainments.attainment_id')->limit(1),
+                'serie'         => Attainment::withoutGlobalScope(AttainmentScope::class)->select('description')->whereColumn('id', 'p_value_attainments.attainment_id')->limit(1),
                 'attainment_id' => 'p_value_attainments.attainment_id',
             ])
             ->join('p_value_attainments', 'p_values.id', '=', 'p_value_attainments.p_value_id')
