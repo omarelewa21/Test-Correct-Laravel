@@ -66,7 +66,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/waiting-room', tcCore\Http\Livewire\Student\WaitingRoom::class)->name('waiting-room');
         Route::get('/analyses', tcCore\Http\Livewire\Student\Analyses\AnalysesOverviewDashboard::class)->name('analyses.show');
         Route::get('/analyses/subject/{subject}', tcCore\Http\Livewire\Student\Analyses\AnalysesSubjectDashboard::class)->name('analyses.subject.show');
-        Route::get('/analyses/attainment/{attainment}', tcCore\Http\Livewire\Student\Analyses\AnalysesAttainmentDashboard::class)->name('analyses.attainment.show');
+        Route::get('/analyses/attainment/{attainmentuuid}', tcCore\Http\Livewire\Student\Analyses\AnalysesAttainmentDashboard::class)->name('analyses.attainment.show');
         Route::get('/analyses/sub-attainment/{attainment}', tcCore\Http\Livewire\Student\Analyses\AnalysesSubAttainmentDashboard::class)->name('analyses.subattainment.show');
         Route::get('/analyses/sub-sub-attainment/{attainment}', tcCore\Http\Livewire\Student\Analyses\AnalysesSubSubAttainmentDashboard::class)->name('analyses.subsubattainment.show');
     });

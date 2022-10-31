@@ -30,11 +30,11 @@ class AnalysesAttainmentDashboard extends AnalysesDashboard
         412 => 'Literatuurgeschiedenis',
     ];
 
-    public function mount($attainment = null)
+    public function mount($attainmentuuid = null)
     {
         parent::mount();
 
-        $this->attainment = Attainment::withoutGlobalScope(AttainmentScope::class)->whereUuid($attainment)->first();
+        $this->attainment = Attainment::withoutGlobalScope(AttainmentScope::class)->whereUuid($attainmentuuid)->first();
     }
 
     public function render()
