@@ -19,6 +19,8 @@ class AnalysesAttainmentDashboard extends AnalysesDashboard
 
     public $subject;
 
+    public $showEmptyStateForPValueGraph = false;
+
     protected $queryString = 'subject';
 
     protected $topItems = [
@@ -51,6 +53,7 @@ class AnalysesAttainmentDashboard extends AnalysesDashboard
         );
         //($result->toArray());//;->mapWithKey(fn($value, $key) => [$value->subject => $value->score]));
 
+        $this->showEmptyStateForPValueGraph = $result->count() === 0;
 
         $this->dataValues = $result->map(function ($pValue, $key) {
             return (object)[

@@ -6,13 +6,16 @@ use Illuminate\View\Component;
 
 class EmptyGraph extends Component
 {
+    public $show = false;
+
     /**
      * Create a new component instance.
      *
      * @return void
      */
-    public function __construct()
+    public function __construct($show = false)
     {
+        $this->show = $show;
         //
     }
 
