@@ -96,7 +96,9 @@
             {{ __('student.p waarde leerdoelen') }}
         </x-slot>
 
-        <div id="pValueChart" style="height: 400px;"></div>
+        <div id="pValueChart" style="height: 400px;">
+            <x-empty-graph :show="$this->showEmptyStateForPValueGraph"></x-empty-graph>
+        </div>
         <div x-data="analysesAttainmentsGraph( @entangle('dataValues') )"
              x-on:filters-updated.window="renderGraph"
         >

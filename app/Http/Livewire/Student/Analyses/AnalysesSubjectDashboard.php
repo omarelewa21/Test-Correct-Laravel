@@ -79,7 +79,9 @@ class AnalysesSubjectDashboard extends AnalysesDashboard
             $this->getTeachersByFilterValues(),
             $this->subject,
             $this->attainmentModeIsLearningGoal(),
-        );;
+        );
+
+        $this->showEmptyStateForPValueGraph = $result->count() === 0;
 
         $this->dataValues = $result->map(function ($pValue, $key) {
             $link = false;
@@ -91,7 +93,6 @@ class AnalysesSubjectDashboard extends AnalysesDashboard
                     'subject'    => $this->subject->uuid
                 ]);
             }
-
             $attainmentTranslationLabel = $this->attainmentMode == 'LEARNING_GOAL'
                 ? __('student.leerdoel met nummer', ['number' => $key + 1])
                 : __('student.eindterm met nummer', ['number' => $key + 1]);

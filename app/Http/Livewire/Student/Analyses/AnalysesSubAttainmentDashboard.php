@@ -17,6 +17,8 @@ class AnalysesSubAttainmentDashboard extends AnalysesDashboard
 {
     public $subject;
 
+    public $showEmptyStateForPValueGraph = false;
+
     protected $queryString = ['subject'];
 
     public $attainment;
@@ -49,6 +51,8 @@ class AnalysesSubAttainmentDashboard extends AnalysesDashboard
             $this->getEducationLevelYearsByFilterValues(),
             $this->getTeachersByFilterValues()
         );
+
+        $this->showEmptyStateForPValueGraph = $result->count() === 0;
 
         $this->dataValues = $result->map(function ($pValue, $key) {
             return (object)[

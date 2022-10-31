@@ -5981,8 +5981,6 @@ document.addEventListener('alpine:init', function () {
 
         if (this.gridSvg !== '' && this.gridSvg !== '0.00') {
           gridSize = this.gridSvg;
-        } else if (this.isOldDrawing == false && this.grid && this.grid !== '0') {
-          gridSize = 1 / parseInt(this.grid) * 14; // This calculation is based on try and change to reach the closest formula that makes grid visualization same as old drawing
         }
 
         if (gridSize) {
@@ -6207,11 +6205,9 @@ document.addEventListener('alpine:init', function () {
         var _this15 = this;
 
         setTimeout(function () {
-          if (_this15.activeSlide !== 'questionbank') {
-            var el = _this15.$root.querySelector("[x-ref=\"".concat(_this15.activeSlide, "\"]"));
+          var el = _this15.$root.querySelector("[x-ref=\"".concat(_this15.activeSlide, "\"]"));
 
-            if (el !== null) _this15.handleVerticalScroll(el);
-          }
+          if (el !== null) _this15.handleVerticalScroll(el);
 
           _this15.poll(interval);
         }, interval);
@@ -7429,7 +7425,7 @@ window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
 window.Pusher = __webpack_require__(/*! pusher-js */ "./node_modules/pusher-js/dist/web/pusher.js");
 window.Echo = new laravel_echo__WEBPACK_IMPORTED_MODULE_0__["default"]({
   broadcaster: 'pusher',
-  key: "2149988ad52a600a2309",
+  key: "51d7221bf733999d7138",
   cluster: "eu",
   forceTLS: true
 });
@@ -8016,6 +8012,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
       root: rootElement,
       isTeacher: isTeacher && !isPreview,
       isPreview: isPreview,
+      isOldDrawing: isOldDrawing,
       hiddenLayersCount: 0
     },
     firstInit: true,
@@ -8039,7 +8036,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
           }
 
           if (grid && grid !== '0') {
-            drawGridBackground();
+            drawGridBackground(grid);
           }
 
           processGridToggleChange();
@@ -9024,7 +9021,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
         var newShape = makeNewSvgShapeWithSidebarEntry(shapeType, props, layerName, true, !(!drawingApp.isTeacher() && layerName === "question"));
         Canvas.layers[layerName].shapes[shapeID] = newShape;
 
-        if (isOldDrawing && layerName === "question") {
+        if (drawingApp.params.isOldDrawing && layerName === "question") {
           fitDrawingToScreen();
         }
 
@@ -10184,24 +10181,16 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
     Canvas.layers.grid.shape = new _svgShape_js__WEBPACK_IMPORTED_MODULE_2__.Grid(0, props, UI.svgGridGroup, drawingApp, Canvas);
   }
 
-  function drawGridBackground() {
+  function drawGridBackground(grid) {
     var props = {
       group: {},
       main: {},
       origin: {
         id: "grid-origin"
       },
-      size: getAdjustedGridValue()
+      size: 1 / parseInt(grid) * 14
     };
-    Canvas.layers.bgGrid = new _svgShape_js__WEBPACK_IMPORTED_MODULE_2__.Grid(0, props, UI.svgGridGroup, drawingApp, Canvas);
-  }
-
-  function getAdjustedGridValue() {
-    if (grid && grid !== '0') {
-      return 1 / parseInt(grid) * 14; // This calculation is based on try and change to reach the closest formula that makes grid visualization same as old drawing
-    }
-
-    return 0;
+    new _svgShape_js__WEBPACK_IMPORTED_MODULE_2__.Grid(0, props, UI.svgGridGroup, drawingApp, Canvas);
   }
 
   function updateGridVisibility() {
@@ -10220,10 +10209,6 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
     if (valueWithinBounds(UI.gridSize)) {
       drawingApp.params.gridSize = UI.gridSize.value;
       Canvas.layers.grid.shape.update();
-
-      if (Canvas.layers.bgGrid) {
-        Canvas.layers.bgGrid.update(getAdjustedGridValue());
-      }
     }
   }
 
@@ -13019,8 +13004,8 @@ var Grid = /*#__PURE__*/function (_Path) {
     }
   }, {
     key: "update",
-    value: function update(gridSize) {
-      var size = gridSize ? gridSize : this.drawingApp.params.gridSize;
+    value: function update() {
+      var size = this.drawingApp.params.gridSize;
       this.setDAttributes(this.calculateDAttributeForGrid(size), this.calculateDAttributeForOrigin(size));
     }
   }, {

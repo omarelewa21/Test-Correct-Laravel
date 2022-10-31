@@ -1250,6 +1250,8 @@ input[type=number] {
 .pvalue-indicator {
     --pvalue-indicator-width: 3px;
     --pvalue-indicator-height: 1rem;
+    --pvalue-indicator-ball-width: 7px;
+    --pvalue-indicator-ball-left: 2px;
     height: var(--pvalue-indicator-height);
     width: var(--pvalue-indicator-width);
     position: absolute;
@@ -1264,8 +1266,6 @@ input[type=number] {
 }
 
 .pvalue-indicator:before {
-    --pvalue-indicator-ball-width: 7px;
-    --pvalue-indicator-ball-left: 2px;
     content: '';
     background: var(--system-base);
     width: var(--pvalue-indicator-ball-width);
@@ -5075,14 +5075,14 @@ video {
 .z-40{
   z-index: 40;
 }
+.z-20{
+  z-index: 20;
+}
 .z-50{
   z-index: 50;
 }
 .z-1{
   z-index: 1;
-}
-.z-20{
-  z-index: 20;
 }
 .z-0{
   z-index: 0;
@@ -5537,6 +5537,9 @@ video {
 .min-h-screen{
   min-height: 100vh;
 }
+.min-h-\[32px\]{
+  min-height: 32px;
+}
 .min-h-\[64px\]{
   min-height: 64px;
 }
@@ -5575,6 +5578,9 @@ video {
 }
 .w-56{
   width: 14rem;
+}
+.w-\[500px\]{
+  width: 500px;
 }
 .w-1\/6{
   width: 16.666667%;
@@ -5686,8 +5692,17 @@ video {
 .w-50{
   width: 12.5rem;
 }
+.w-\[70px\]{
+  width: 70px;
+}
 .w-14{
   width: 3.5rem;
+}
+.w-\[550px\]{
+  width: 550px;
+}
+.min-w-\[32px\]{
+  min-width: 32px;
 }
 .min-w-\[110px\]{
   min-width: 110px;
@@ -6556,6 +6571,14 @@ video {
   --tw-bg-opacity: 1;
   background-color: rgb(88 28 135 / var(--tw-bg-opacity));
 }
+.bg-cta{
+  --tw-bg-opacity: 1;
+  background-color: rgb(58 183 83 / var(--tw-bg-opacity));
+}
+.bg-ctadark{
+  --tw-bg-opacity: 1;
+  background-color: rgb(0 99 20 / var(--tw-bg-opacity));
+}
 .bg-opacity-0{
   --tw-bg-opacity: 0;
 }
@@ -6737,6 +6760,10 @@ video {
   padding-top: 70px;
   padding-bottom: 70px;
 }
+.px-0\.5{
+  padding-left: 0.125rem;
+  padding-right: 0.125rem;
+}
 .pt-4{
   padding-top: 1rem;
 }
@@ -6833,6 +6860,9 @@ video {
 .pr-12{
   padding-right: 3rem;
 }
+.pr-2\.5{
+  padding-right: 0.625rem;
+}
 .pl-7{
   padding-left: 1.75rem;
 }
@@ -6893,9 +6923,6 @@ video {
 .pt-16{
   padding-top: 4rem;
 }
-.pr-2\.5{
-  padding-right: 0.625rem;
-}
 .pl-1{
   padding-left: 0.25rem;
 }
@@ -6954,6 +6981,10 @@ video {
 }
 .text-\[32px\]{
   font-size: 32px;
+}
+.text-2xl{
+  font-size: 1.5rem;
+  line-height: 2rem;
 }
 .font-medium{
   font-weight: 500;
