@@ -830,7 +830,7 @@ class EntreeHelper
         }
 
         if (null == $this->laravelUser) {
-            return true;//$this->redirectIfNoUserWasFoundForEckId(); // removed otherwise never gona get a scenario5 and no user is catched later on as well
+            return true;//$this->redirectIfNoUserWasFoundForEckId();
         }
 
         if (optional($this->laravelUser)->isA($this->getRoleFromAttributes())) {
