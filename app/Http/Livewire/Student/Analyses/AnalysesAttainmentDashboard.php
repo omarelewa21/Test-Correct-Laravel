@@ -67,7 +67,7 @@ class AnalysesAttainmentDashboard extends AnalysesDashboard
                     'basedOn' => $pValue->cnt
                 ]),
                 'link'    => route('student.analyses.subattainment.show', [
-                    'attainment' => Attainment::find($pValue->attainment_id)->uuid,
+                    'attainment' => Attainment::withoutGlobalScope(AttainmentScope::class)->find($pValue->attainment_id)->uuid,
                     'subject'    => $this->subject,
                 ]),
             ];
