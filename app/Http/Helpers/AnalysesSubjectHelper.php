@@ -3,6 +3,7 @@
 namespace tcCore\Http\Helpers;
 
 use Illuminate\Support\Facades\DB;
+use tcCore\Answer;
 use tcCore\PValue;
 use tcCore\Question;
 use tcCore\Rating;
@@ -63,8 +64,13 @@ class AnalysesSubjectHelper
 
     private function questionCount(bool $assignment)
     {
-        return TestQuestion::selectRaw('count(*)')
-            ->whereIn('test_id', $this->testAndTestTakesQuery($assignment)->select('tests.id'));
+        return Answer::selectRaw('count(*)')
+            ->whereIn(
+                'test_participant_id',
+                TestParticipant::selectRaw('id')
+                    ->whereIn('test_take_id', $this->testAndTestTakesQuery($assignment)->select('test_takes.id'))
+                    ->whereUserId($this->user->getKey())
+            );
     }
 
     private function averagePValue(bool $assignment)
