@@ -454,7 +454,7 @@ class PValueRepository
                 $q->join('p_value_users', 'p_value_users.p_value_id', '=', 'p_values.id')
                     ->whereIn('p_value_users.user_id', $teachers->pluck('id'));
             })
-            ->whereIn('p_value_attainments.attainment_id', Attainment::where('attainment_id', $attainment->getKey())->pluck('id'))
+            ->whereIn('p_value_attainments.attainment_id', Attainment::withoutGlobalScope(AttainmentScope::class)->where('attainment_id', $attainment->getKey())->pluck('id'))
             ->groupBy('attainment_id')
             ->get();
     }
