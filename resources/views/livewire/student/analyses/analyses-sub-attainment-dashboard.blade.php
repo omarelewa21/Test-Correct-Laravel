@@ -29,7 +29,7 @@
             {{ __('student.p waarde subsubleerdoelen') }}
         </x-slot>
 
-        <div id="pValueChart" style="height: 400px;">
+        <div id="pValueChart" style="height: 400px;" class="relative">
             <x-empty-graph :show="$this->showEmptyStateForPValueGraph"></x-empty-graph>
         </div>
         <div x-data="analysesAttainmentsGraph( @entangle('dataValues') )"

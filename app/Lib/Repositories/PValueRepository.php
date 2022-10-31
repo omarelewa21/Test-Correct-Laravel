@@ -424,7 +424,7 @@ class PValueRepository
             })
             ->groupBy('attainment_id');
 
-        return Attainment::withoutGlobalScope(AttainmentScope::class)
+        $qb =  Attainment::withoutGlobalScope(AttainmentScope::class)
             ->selectRaw('t2.*, attainments.id')
             ->leftJoinSub($pValueQuery, 't2', function ($join) {
                 $join->on('attainments.id', '=', 't2.attainment_id');
@@ -432,7 +432,8 @@ class PValueRepository
             ->whereNull('attainments.attainment_id')
             ->where('is_learning_goal', $isLearningGoal)
             ->orderByRaw('is_learning_goal, education_level_id, attainments.code, attainments.subcode')
-            ->get();
+            ;
+        dd([$qb->toSql(), $qb->getBindings()]);
     }
 
     public static function getPValuePerSubAttainmentForStudentAndAttainment(User $user, Attainment $attainment, $periods, $educationLevelYears, $teachers)
