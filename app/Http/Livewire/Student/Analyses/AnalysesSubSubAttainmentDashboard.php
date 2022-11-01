@@ -40,7 +40,6 @@ class AnalysesSubSubAttainmentDashboard extends Component
     public $parentParentAttainment;
 
 
-
     public function hasActiveFilters()
     {
         return collect($this->filters)->flatten()->isNotEmpty();
@@ -111,7 +110,7 @@ class AnalysesSubSubAttainmentDashboard extends Component
                 function ($year) {
                     return [
                         'value' => $year,
-                        'label' => (string) $year,
+                        'label' => (string)$year,
                     ];
                 }
             );
@@ -119,9 +118,12 @@ class AnalysesSubSubAttainmentDashboard extends Component
 
     public function redirectBack()
     {
-        return redirect(route('student.analyses.attainment.show', [
-            'attainment' => $this->attainment->attainment->uuid,
-            'subject'    => $this->subject,
-        ]));
+        return redirect(
+            route('student.analyses.subattainment.show', [
+                    'baseAttainment' => $this->parentAttainment->uuid,
+                    'subject'        => $this->subject
+                ]
+            )
+        );
     }
 }
