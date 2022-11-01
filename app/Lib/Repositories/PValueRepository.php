@@ -403,14 +403,7 @@ class PValueRepository
 
         $pValueQuery = PValue::SelectRaw('avg(score/max_score) as score')
             ->selectRaw('count(attainment_id) as cnt')
-            ->addSelect([
-                'serie'         => Attainment::withoutGlobalScope(AttainmentScope::class)
-                    ->select('description')
-                    ->where('is_learning_goal', $isLearningGoal)
-                    ->whereColumn('id', 'p_value_attainments.attainment_id')
-                    ->limit(1),
-                'attainment_id' => 'p_value_attainments.attainment_id',
-            ])
+            ->addSelect(['attainment_id' => 'p_value_attainments.attainment_id'])
             ->join('p_value_attainments', 'p_values.id', '=', 'p_value_attainments.p_value_id')
             ->join('test_participants', function ($join) use ($user) {
                 $join->on('p_values.test_participant_id', '=', 'test_participants.id')
@@ -425,7 +418,7 @@ class PValueRepository
             ->groupBy('attainment_id');
 
         return Attainment::withoutGlobalScope(AttainmentScope::class)
-            ->selectRaw('t2.*, attainments.id')
+            ->selectRaw('t2.*, attainments.id, attainments.description')
             ->leftJoinSub($pValueQuery, 't2', function ($join) {
                 $join->on('attainments.id', '=', 't2.attainment_id');
             })->whereIn('base_subject_id', Subject::select('base_subject_id')->where('id', $forSubject))
