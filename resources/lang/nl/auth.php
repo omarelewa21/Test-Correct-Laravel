@@ -107,6 +107,7 @@ return [
     'suffix'                                                                                         => 'Tussenvoegsel',
     'test_code_invalid'                                                                              => 'Toetscode is niet geldig',
     'user_not_in_same_school'                                                                        => 'Je bent in Test-Correct niet gekoppeld aan de gekozen schoollocatie. Kies de juiste schoollocatie',
+    'user_not_in_same_school_please_contact_helpdesk'                                                => 'Je bent in Test-Correct niet gekoppeld aan de gekozen schoollocatie. Neem contact op met de helpdesk',
     'who_are_you'                                                                                    => 'Wie ben je?',
     'login_as_student'                                                                               => 'Inloggen als student',
 //    'should_first_login_using_entree'                   => 'Je gegevens zijn nog niet gecontroleerd log de eerste keer in via Entree',
