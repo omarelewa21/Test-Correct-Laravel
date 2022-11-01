@@ -30,7 +30,11 @@
     <x-content-section>
         <x-slot name="title">
             <div class="hidden">{{ $this->data }}</div>
-            {{ __('student.p waarde subleerdoelen') }}
+            @if ($attainment->is_learning_goal == 1)
+                {{__('student.p waarde subleerdoelen') }}
+            @else
+                {{__('student.p waarde subeindtermen') }}
+            @endif
         </x-slot>
 
         <div id="pValueChart" style="height: 400px;" class="relative">

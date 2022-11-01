@@ -4,6 +4,7 @@ namespace tcCore\Http\Livewire\Student\Analyses;
 
 use Livewire\Component;
 use tcCore\Attainment;
+use tcCore\BaseAttainment;
 use tcCore\EducationLevel;
 use tcCore\Lib\Repositories\PValueRepository;
 use tcCore\Lib\Repositories\PValueTaxonomyBloomRepository;
@@ -27,16 +28,16 @@ class AnalysesSubAttainmentDashboard extends AnalysesDashboard
 
     public $parentAttainmentOrderNumber = 0;
 
-    public function mount(?Attainment $attainment = null)
+    public function mount(?BaseAttainment $baseAttainment = null)
     {
-        $this->attainment = $attainment;
+        $this->attainment = $baseAttainment;
         if ($this->attainment) {
             $this->attainmentOrderNumber = $this->attainment->getOrderNumber();
+//            dd($this->attainmentOrderNumber);
             if ($this->attainment->attainment) {
                 $this->parentAttainmentOrderNumber = $this->attainment->attainment->getOrderNumber();
             }
         }
-
 
         $this->clearFilters();
         $this->getFilterOptionsData();
@@ -55,19 +56,25 @@ class AnalysesSubAttainmentDashboard extends AnalysesDashboard
         $this->showEmptyStateForPValueGraph = $result->count() === 0;
 
         $this->dataValues = $result->map(function ($pValue, $key) {
+            $link = false;
+            if ($pValue->attainment_id) {
+                $link = route('student.analyses.subsubattainment.show', [
+                    'baseAttainment' => BaseAttainment::find($pValue->attainment_id)->uuid,
+                    'subject'    => $this->subject,
+                ]);
+            }
+
+
             return (object)[
                 'x'       => $key + 1,
-                'title'   => __('student.subleerdoel', ['number' => $key + 1]),
+                'title'   => $this->attainment->getSubSubNameWithNumber($key + 1),
                 'count'   => $pValue->cnt,
                 'value'   => number_format(($pValue->score > 0 ? $pValue->score : 0), 2),
                 'text'    => $pValue->serie,
                 'basedOn' => trans_choice('student.attainment_tooltip_title', $pValue->cnt, [
                     'basedOn' => $pValue->cnt
                 ]),
-                'link'    => route('student.analyses.subsubattainment.show', [
-                    'attainment' => Attainment::find($pValue->attainment_id)->uuid,
-                    'subject'    => $this->subject,
-                ]),
+                'link'    => $link,
             ];
         })->toArray();
 
@@ -110,6 +117,14 @@ class AnalysesSubAttainmentDashboard extends AnalysesDashboard
 
     public function redirectBack()
     {
-        return redirect(route('student.analyses.attainment.show', $this->subject));
+        $parentAttainment  = BaseAttainment::find($this->attainment->attainment_id);
+
+        return redirect(
+            route(
+                'student.analyses.attainment.show',
+                ['baseAttainment' => $parentAttainment->uuid,
+                'subject' => $this->subject]
+            )
+        );
     }
 }
