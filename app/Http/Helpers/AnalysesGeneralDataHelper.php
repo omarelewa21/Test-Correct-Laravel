@@ -135,13 +135,13 @@ class AnalysesGeneralDataHelper
     private function takenTestsForAttainment($assignment)
     {
         return $this->joinedPvalueQueryForAttainment($assignment)
-            ->selectRaw('count(*)');
+            ->selectRaw('count(distinct test_takes.id)');
     }
 
     private function questionCountForAttainment($assignment)
     {
         return $this->joinedPvalueQueryForAttainment($assignment)
-            ->selectRaw('count(p_values.question_id)');
+            ->selectRaw('count(distinct p_values.question_id)');
     }
 
     private function averagePvalueForAttainment($assignment)
