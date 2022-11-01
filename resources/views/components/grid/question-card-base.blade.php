@@ -1,9 +1,9 @@
 <div {{ $attributes->merge(['class' => 'grid-card bg-white p-6 rounded-10 card-shadow hover:text-primary cursor-pointer relative', 'selid' => 'existing-question']) }}
      wire:key="questioncard-{{ $question->getQuestionInstance()->uuid }}"
      @if($question->isType('GroupQuestion'))
-         @click="showGroupDetails('{{ $question->uuid }}', @js($inTest));"
+         x-on:click="showGroupDetails('{{ $question->uuid }}', @js($inTest) )"
      @else
-         wire:click="openDetail('{{ $question->uuid }}', @js($this->isQuestionInTest($question->id) || $this->isQuestionInTest($question->derived_question_id)))"
+         wire:click="openDetail('{{ $question->uuid }}', @js($inTest) )"
      @endif
 >
     <div class="flex w-full justify-between mb-2">
@@ -29,7 +29,7 @@
                               :uuid="$question->uuid"
                               context="question-card"
                               contextDataJson="{
-                                  inTest: {{ ($this->isQuestionInTest($question->id) || $this->isQuestionInTest($question->derived_question_id)) ? 1 : 0 }},
+                                  inTest: {{ $inTest ? 1 : 0 }},
                                   showQuestionBankAddConfirmation: {{ $showQuestionBankAddConfirmation ? 'true' : 'false' }}
                               }"
             />
@@ -70,7 +70,7 @@
                 <span class="note text-sm">{{ $question->isType('GroupQuestion') ?  $question->total_score ?? 0 : $question->score ?? 0 }}pt.</span>
             </div>
             <div class="flex space-x-2.5 items-center" wire:key="is_present_{{ $question->id }}">
-                @if($this->isQuestionInTest($question->id) || $this->isQuestionInTest($question->derived_question_id))
+                @if($inTest)
                     <span title="{{ __('cms.Deze vraag is aanwezig in de toets.') }}">
                         <x-icon.checkmark-circle color="var(--cta-primary)"/>
                     </span>
@@ -79,7 +79,7 @@
                         x-cloak
                         selid="existing-question-add-btn"
                         class="new-button button-primary w-10 items-center justify-center flex"
-                        @click.stop="addQuestionToTest($el, '{{ $question->uuid }}', '{{$showQuestionBankAddConfirmation}}')"
+                        x-on:click.stop="addQuestionToTest($el, '{{ $question->uuid }}', '{{$showQuestionBankAddConfirmation}}')"
                 >
                     <x-icon.plus-2/>
                 </button>

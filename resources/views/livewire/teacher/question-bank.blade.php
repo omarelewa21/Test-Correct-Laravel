@@ -195,7 +195,7 @@
                     </x-grid>
                     <x-grid class="mt-4" x-show="!filterLoading" x-cloak selid="question-bank-list">
                         @foreach($this->questions as $question)
-                            <x-grid.question-card :question="$question"/>
+                            <x-grid.question-card :question="$question" :inTest="$this->isQuestionInTest($question->id) || $this->isQuestionInTest($question->derived_question_id)"/>
                         @endforeach
 
                         @if($this->questions->count() && $this->questions->count() != $this->resultCount)
