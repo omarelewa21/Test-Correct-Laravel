@@ -10,6 +10,7 @@ use tcCore\Lib\Repositories\PValueTaxonomyBloomRepository;
 use tcCore\Lib\Repositories\PValueTaxonomyMillerRepository;
 use tcCore\Lib\Repositories\PValueTaxonomyRTTIRepository;
 use tcCore\Period;
+use tcCore\Scopes\AttainmentScope;
 use tcCore\Subject;
 use tcCore\User;
 
@@ -29,11 +30,11 @@ class AnalysesAttainmentDashboard extends AnalysesDashboard
         412 => 'Literatuurgeschiedenis',
     ];
 
-    public function mount(?Attainment $attainment = null)
+    public function mount($attainmentuuid = null)
     {
         parent::mount();
 
-        $this->attainment = $attainment;
+        $this->attainment = Attainment::withoutGlobalScope(AttainmentScope::class)->whereUuid($attainmentuuid)->first();
     }
 
     public function render()
@@ -66,7 +67,7 @@ class AnalysesAttainmentDashboard extends AnalysesDashboard
                     'basedOn' => $pValue->cnt
                 ]),
                 'link'    => route('student.analyses.subattainment.show', [
-                    'attainment' => Attainment::find($pValue->attainment_id)->uuid,
+                    'attainment' => Attainment::withoutGlobalScope(AttainmentScope::class)->find($pValue->attainment_id)->uuid,
                     'subject'    => $this->subject,
                 ]),
             ];

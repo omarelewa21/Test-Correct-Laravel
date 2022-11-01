@@ -33,7 +33,7 @@ class AnalysesSubjectDashboard extends AnalysesDashboard
 
     private function setDefaultAttainmentMode()
     {
-        return EducationLevel::getAttainmentType(auth()->user());
+        $this->attainmentMode = EducationLevel::getAttainmentType(auth()->user());
     }
 
 //    protected $topItems = [

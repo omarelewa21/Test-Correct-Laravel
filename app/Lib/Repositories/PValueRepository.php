@@ -440,7 +440,7 @@ class PValueRepository
         return PValue::SelectRaw('avg(score/max_score) as score')
             ->selectRaw('count(attainment_id) as cnt')
             ->addSelect([
-                'serie'         => Attainment::select('description')->whereColumn('id', 'p_value_attainments.attainment_id')->limit(1),
+                'serie'         => Attainment::withoutGlobalScope(AttainmentScope::class)->select('description')->whereColumn('id', 'p_value_attainments.attainment_id')->limit(1),
                 'attainment_id' => 'p_value_attainments.attainment_id',
             ])
             ->join('p_value_attainments', 'p_values.id', '=', 'p_value_attainments.p_value_id')
@@ -454,7 +454,7 @@ class PValueRepository
                 $q->join('p_value_users', 'p_value_users.p_value_id', '=', 'p_values.id')
                     ->whereIn('p_value_users.user_id', $teachers->pluck('id'));
             })
-            ->whereIn('p_value_attainments.attainment_id', Attainment::where('attainment_id', $attainment->getKey())->pluck('id'))
+            ->whereIn('p_value_attainments.attainment_id', Attainment::withoutGlobalScope(AttainmentScope::class)->where('attainment_id', $attainment->getKey())->pluck('id'))
             ->groupBy('attainment_id')
             ->get();
     }
