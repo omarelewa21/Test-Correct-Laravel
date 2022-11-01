@@ -49,7 +49,7 @@ class CompletionQuestion extends CoLearningQuestion
 
     public function getAnswerOptionsCheckedProperty()
     {
-        return collect($this->answerOptions)->reduce(function ($carry, $answerOption) {
+        return collect($this->answerOptions[$this->answerRatingId])->reduce(function ($carry, $answerOption) {
             $carry += $answerOption['rating'] === '1' ? 1 : 0;
             return $carry;
         }, 0);
@@ -60,7 +60,7 @@ class CompletionQuestion extends CoLearningQuestion
         $this->answerOptionsAmount = $this->questionTextPartials->count();
 
         for ($i = 0; $i < $this->answerOptionsAmount; $i++) {
-            $this->answerOptions[] = [
+            $this->answerOptions[$this->answerRatingId][] = [
                 'rating'   => null,
                 'answered' => isset($this->answer[$i]),
                 'answer'   => $this->answer[$i] ?? '......',

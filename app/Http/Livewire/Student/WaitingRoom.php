@@ -158,7 +158,7 @@ class WaitingRoom extends Component
 
     public function startDiscussing()
     {
-        if(Auth::user()->schoolLocation->allow_new_co_learning){
+        if($this->waitingTestTake->discussion_type == 'OPEN_ONLY' && Auth::user()->schoolLocation->allow_new_co_learning){
             return redirect('/student/co-learning/' . $this->take);
         }
 

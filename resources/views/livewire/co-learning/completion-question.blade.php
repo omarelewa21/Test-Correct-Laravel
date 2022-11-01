@@ -5,12 +5,12 @@
             <div class="flex items-start flex-wrap co-learning-completion">
                 @foreach($questionTextPartials as $answerIndex => $textPartialArray)
                     @foreach($textPartialArray as $textPartial){!!$textPartial!!}@endforeach
-                        <div class="flex flex-col mx-2 mb-1">
+                        <div class="flex flex-col mx-2 mb-1" wire:key="answerIndex-{{$answerRatingId}}-{{$answerIndex}}">
                             <span class="bold w-full flex justify-center mb-1">
-                            {!! $this->answerOptions[$answerIndex]['answer'] !!}
+                            {!! $this->answerOptions[$answerRatingId][$answerIndex]['answer'] !!}
                             </span>
-                            <x-button.true-false-toggle wireModel="answerOptions.{{ $answerIndex }}.rating"
-                                                        disabled="{{ !$this->answerOptions[$answerIndex]['answered'] }}"
+                            <x-button.true-false-toggle wireModel="answerOptions.{{$answerRatingId}}.{{ $answerIndex }}.rating"
+                                                        disabled="{{ !$this->answerOptions[$this->answerRatingId][$answerIndex]['answered'] }}"
                             ></x-button.true-false-toggle>
                         </div>
                 @endforeach

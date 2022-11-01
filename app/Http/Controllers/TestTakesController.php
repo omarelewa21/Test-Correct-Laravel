@@ -733,8 +733,10 @@ class TestTakesController extends Controller {
 
                     }
                 }
-                foreach ($testTake->testParticipants as $testParticipant) {
-                    CoLearningNextQuestion::dispatch($testParticipant->uuid);
+                if(auth()->user()->schoolLocation->allow_new_co_learning) {
+                    foreach ($testTake->testParticipants as $testParticipant) {
+                        CoLearningNextQuestion::dispatch($testParticipant->uuid);
+                    }
                 }
             }
 
@@ -1287,14 +1289,14 @@ class TestTakesController extends Controller {
             $this->closeNonTimeDispensation($testTake, $request);
 
         } else {
-            logger($request->get('test_take_status_id') == 8);
-            logger(!$request->get('skipped_discussion'));
             $testTake->fill($request->all());
 
             if ($testTake->save() !== false) {
                 $this->hydrateTestTakeWithHasNextQuestionAttribute($testTake);
 
-                $this->handleCoLearningForceTakeAway($testTake, $request);
+                if(auth()->user()->schoolLocation->allow_new_co_learning){
+                    $this->handleCoLearningForceTakeAway($testTake, $request);
+                }
 
                 return Response::make($testTake, 200);
             } else {

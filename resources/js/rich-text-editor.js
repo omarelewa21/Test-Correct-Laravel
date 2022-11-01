@@ -21,6 +21,41 @@ RichTextEditor = {
             });
     },
 
+    initStudentCoLearning: function (editorId,lang= 'nl_NL',wsc = false) {
+        var editor = CKEDITOR.instances[editorId];
+        if (editor) {
+            editor.destroy(true)
+        }
+        if(wsc){
+            CKEDITOR.disableAutoInline = true;
+            CKEDITOR.config.removePlugins = 'scayt,wsc';
+        }
+        CKEDITOR.on('instanceReady', function(event) {
+            var editor = event.editor;
+            WebspellcheckerTlc.forTeacherQuestion(editor,lang,wsc);
+        });
+        CKEDITOR.replace(editorId, {
+            removePlugins: 'pastefromword,pastefromgdocs,advanced,simpleuploads,dropoff,copyformatting,image,pastetext,uploadwidget,uploadimage,elementspath',
+            extraPlugins: 'blockimagepaste,quicktable,ckeditor_wiris,autogrow,wordcount,notification',
+            wordcount: {
+                showWordCount: true,
+                showParagraphs: false,
+                showCharCount: true,
+            },
+            // toolbar: []
+        });
+        CKEDITOR.config.wordCount = {
+            showWordCount: true,
+            showParagraphs: false,
+            showCharCount: true,
+        }
+        editor = CKEDITOR.instances[editorId];
+        editor.on('change', function (e) {
+            RichTextEditor.sendInputEventToEditor(editorId, e);
+        });
+
+    },
+
     initCMS: function (editorId,lang= 'nl_NL',wsc = false) {
         var editor = CKEDITOR.instances[editorId];
         if (editor) {

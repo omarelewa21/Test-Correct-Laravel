@@ -13926,6 +13926,44 @@ RichTextEditor = {
       RichTextEditor.sendInputEventToEditor(editorId, e);
     });
   },
+  initStudentCoLearning: function initStudentCoLearning(editorId) {
+    var lang = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 'nl_NL';
+    var wsc = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
+    var editor = CKEDITOR.instances[editorId];
+
+    if (editor) {
+      editor.destroy(true);
+    }
+
+    if (wsc) {
+      CKEDITOR.disableAutoInline = true;
+      CKEDITOR.config.removePlugins = 'scayt,wsc';
+    }
+
+    CKEDITOR.on('instanceReady', function (event) {
+      var editor = event.editor;
+      WebspellcheckerTlc.forTeacherQuestion(editor, lang, wsc);
+    });
+    CKEDITOR.replace(editorId, {
+      removePlugins: 'pastefromword,pastefromgdocs,advanced,simpleuploads,dropoff,copyformatting,image,pastetext,uploadwidget,uploadimage,elementspath',
+      extraPlugins: 'blockimagepaste,quicktable,ckeditor_wiris,autogrow,wordcount,notification',
+      wordcount: {
+        showWordCount: true,
+        showParagraphs: false,
+        showCharCount: true
+      } // toolbar: []
+
+    });
+    CKEDITOR.config.wordCount = {
+      showWordCount: true,
+      showParagraphs: false,
+      showCharCount: true
+    };
+    editor = CKEDITOR.instances[editorId];
+    editor.on('change', function (e) {
+      RichTextEditor.sendInputEventToEditor(editorId, e);
+    });
+  },
   initCMS: function initCMS(editorId) {
     var lang = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 'nl_NL';
     var wsc = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
