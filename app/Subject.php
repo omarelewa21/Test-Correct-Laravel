@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
-use tcCore\Http\Helpers\AnalysesSubjectHelper;
+use tcCore\Http\Helpers\AnalysesGeneralDataHelper;
 use tcCore\Http\Helpers\DemoHelper;
 use tcCore\Lib\Models\AccessCheckable;
 use tcCore\Lib\Models\BaseModel;

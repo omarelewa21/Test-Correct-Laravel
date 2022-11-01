@@ -14,6 +14,7 @@ use tcCore\Period;
 use tcCore\Scopes\AttainmentScope;
 use tcCore\Subject;
 use tcCore\User;
+use tcCore\Http\Helpers\AnalysesGeneralDataHelper;
 
 class AnalysesAttainmentDashboard extends AnalysesDashboard
 {
@@ -30,11 +31,14 @@ class AnalysesAttainmentDashboard extends AnalysesDashboard
         411 => 'Literaire begrippen',
         412 => 'Literatuurgeschiedenis',
     ];
+    public $generalStats = [];
 
-    public function mount(BaseAttainment $baseAttainment=null)
+    public function mount(?BaseAttainment $baseAttainment=null)
     {
         $this->attainment = $baseAttainment;
         parent::mount();
+
+        $this->setGeneralStats();
     }
 
     public function render()
@@ -116,4 +120,11 @@ class AnalysesAttainmentDashboard extends AnalysesDashboard
     {
         return redirect(route('student.analyses.subject.show', $this->subject));
     }
+
+    private function setGeneralStats()
+    {
+        $analysesHelper = new AnalysesGeneralDataHelper(Auth::user());
+        $this->generalStats = (array)$analysesHelper->getAllForAttainment($this->attainment);
+    }
+
 }

@@ -6,7 +6,7 @@ use Illuminate\Support\Facades\Auth;
 use tcCore\Attainment;
 use tcCore\BaseAttainment;
 use tcCore\EducationLevel;
-use tcCore\Http\Helpers\AnalysesSubjectHelper;
+use tcCore\Http\Helpers\AnalysesGeneralDataHelper;
 use tcCore\LearningGoal;
 use tcCore\Lib\Repositories\PValueRepository;
 use tcCore\Lib\Repositories\PValueTaxonomyBloomRepository;
@@ -64,8 +64,8 @@ class AnalysesSubjectDashboard extends AnalysesDashboard
 
     private function setGeneralStats()
     {
-        $analysesHelper = new AnalysesSubjectHelper($this->subject, Auth::user());
-        $this->generalStats = (array)$analysesHelper->getAll();
+        $analysesHelper = new AnalysesGeneralDataHelper(Auth::user());
+        $this->generalStats = (array)$analysesHelper->getAllForSubject($this->subject);
     }
 
     public function render()

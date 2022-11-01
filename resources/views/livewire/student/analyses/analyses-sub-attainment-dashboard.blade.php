@@ -29,6 +29,9 @@
 @endsection
 
 @section('analyses.p-values-graph')
+    <div class="flex justify-between mb-5">
+        <h2 class="flex">{{ __('student.overzicht p-waardes') }}</h2>
+    </div>
     <x-content-section>
         <x-slot name="title">
             <div class="hidden">{{ $this->data }}</div>
@@ -54,13 +57,22 @@
 @endsection
 
 @section('analyses.attainment.description')
-    <div class="border-t border-secondary pt-10 mb-10">
-        <h4>{{ __('student.description') }}</h4>
+    <div class="py-4 text-lg">
+        <span class="bold">{{ __('student.description') }}</span>
         <div>{{ $this->attainment->description }}</div>
     </div>
 @endsection
 
+@section('analyses.general-data')
+    <x-content-section class="mb-8 w-full">
+        <x-slot name="title">
+            {{ __('student.Algemeen') }}
+        </x-slot>
 
+        <div class="flex flex-row">
+            <x-partials.analyses-general-data :generalStats="$generalStats"/>
+        </div>
+    </x-content-section>
 
-
-
+    <div class="divider my-6"></div>
+@endsection

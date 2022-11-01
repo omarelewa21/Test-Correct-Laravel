@@ -179,4 +179,5 @@ return [
     'aantal opdrachten gemaakt'                             => 'Aantal opdrachten gemaakt',
     'analyses_graph_empty_state_no_results'                 => "Geen resultaten om weer te geven",
     'analyses_graph_empty_state_no_eidtermen_of_leerdoelen' => 'Je hebt geen toetsen gemaakt voor dit vak, of de toetsvragen zijn niet gekoppeld aan leerdoelen of eindtermen',
+    'overzicht p-waardes'                                   => 'Overzicht P waardes',
 ];

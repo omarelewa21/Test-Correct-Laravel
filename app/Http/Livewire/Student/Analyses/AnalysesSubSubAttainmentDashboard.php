@@ -2,9 +2,11 @@
 
 namespace tcCore\Http\Livewire\Student\Analyses;
 
+use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 use tcCore\Attainment;
 use tcCore\EducationLevel;
+use tcCore\Http\Helpers\AnalysesGeneralDataHelper;
 use tcCore\Lib\Repositories\PValueRepository;
 use tcCore\Lib\Repositories\PValueTaxonomyBloomRepository;
 use tcCore\Lib\Repositories\PValueTaxonomyMillerRepository;
@@ -29,6 +31,8 @@ class AnalysesSubSubAttainmentDashboard extends Component
 
     public $filters = [];
 
+    public $generalStats = [];
+
     public function hasActiveFilters()
     {
         return collect($this->filters)->flatten()->isNotEmpty();
@@ -39,6 +43,8 @@ class AnalysesSubSubAttainmentDashboard extends Component
         $this->attainment = $attainment;
         $this->clearFilters();
         $this->getFilterOptionsData();
+
+        $this->setGeneralStats();
     }
 
     public function render()
@@ -96,4 +102,9 @@ class AnalysesSubSubAttainmentDashboard extends Component
         ]));
     }
 
+    private function setGeneralStats()
+    {
+        $analysesHelper = new AnalysesGeneralDataHelper(Auth::user());
+        $this->generalStats = (array)$analysesHelper->getAllForAttainment($this->attainment);
+    }
 }

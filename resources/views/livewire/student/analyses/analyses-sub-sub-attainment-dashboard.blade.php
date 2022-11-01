@@ -17,12 +17,24 @@
 @endsection
 
 @section('analyses.attainment.description')
-    <div class="border-t border-secondary">
-        <h4>{{ __('student.description') }}</h4>
+    <div class="py-4 text-lg">
+        <span class="bold">{{ __('student.description') }}</span>
         <div>{{ $this->attainment->description }}</div>
     </div>
 @endsection
+@section('analyses.general-data')
+    <x-content-section class="mb-8 w-full">
+        <x-slot name="title">
+            {{ __('student.Algemeen') }}
+        </x-slot>
 
+        <div class="flex flex-row">
+            <x-partials.analyses-general-data :generalStats="$generalStats"/>
+        </div>
+    </x-content-section>
+
+    <div class="divider my-6"></div>
+@endsection
 
 
 

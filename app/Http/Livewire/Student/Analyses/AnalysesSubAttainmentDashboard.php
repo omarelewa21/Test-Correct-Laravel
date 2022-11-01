@@ -2,17 +2,15 @@
 
 namespace tcCore\Http\Livewire\Student\Analyses;
 
-use Livewire\Component;
+use Illuminate\Support\Facades\Auth;
 use tcCore\Attainment;
 use tcCore\BaseAttainment;
 use tcCore\EducationLevel;
+use tcCore\Http\Helpers\AnalysesGeneralDataHelper;
 use tcCore\Lib\Repositories\PValueRepository;
 use tcCore\Lib\Repositories\PValueTaxonomyBloomRepository;
 use tcCore\Lib\Repositories\PValueTaxonomyMillerRepository;
 use tcCore\Lib\Repositories\PValueTaxonomyRTTIRepository;
-use tcCore\Period;
-use tcCore\Subject;
-use tcCore\User;
 
 class AnalysesSubAttainmentDashboard extends AnalysesDashboard
 {
@@ -28,6 +26,8 @@ class AnalysesSubAttainmentDashboard extends AnalysesDashboard
 
     public $parentAttainmentOrderNumber = 0;
 
+    public $generalStats = [];
+
     public function mount(?BaseAttainment $baseAttainment = null)
     {
         $this->attainment = $baseAttainment;
@@ -41,6 +41,8 @@ class AnalysesSubAttainmentDashboard extends AnalysesDashboard
 
         $this->clearFilters();
         $this->getFilterOptionsData();
+
+        $this->setGeneralStats();
     }
 
     public function getDataProperty()
@@ -127,4 +129,11 @@ class AnalysesSubAttainmentDashboard extends AnalysesDashboard
             )
         );
     }
+
+    private function setGeneralStats()
+    {
+        $analysesHelper = new AnalysesGeneralDataHelper(Auth::user());
+        $this->generalStats = (array)$analysesHelper->getAllForAttainment($this->attainment);
+    }
+
 }

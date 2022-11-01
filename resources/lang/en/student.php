@@ -140,4 +140,5 @@ return [
     'aantal opdrachten gemaakt'                             => 'Count assesments done',
     'analyses_graph_empty_state_no_eidtermen_of_leerdoelen' => "You don't have any test takes for this subject, or t",
     'analyses_graph_empty_state_no_results'                 => 'No results available',
+    'overzicht p-waardes'                                   => 'Overview P values',
 ];
