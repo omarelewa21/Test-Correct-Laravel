@@ -5489,12 +5489,6 @@ video {
   bottom: -0.5rem;
   left: -0.5rem;
 }
-.-inset-4{
-  top: -1rem;
-  right: -1rem;
-  bottom: -1rem;
-  left: -1rem;
-}
 .inset-y-0{
   top: 0px;
   bottom: 0px;
@@ -7106,9 +7100,6 @@ video {
   --tw-bg-opacity: 1;
   background-color: rgb(243 244 246 / var(--tw-bg-opacity));
 }
-.bg-white\/10{
-  background-color: rgb(255 255 255 / 0.1);
-}
 .bg-cta{
   --tw-bg-opacity: 1;
   background-color: rgb(58 183 83 / var(--tw-bg-opacity));
@@ -7148,12 +7139,6 @@ video {
 .bg-purple-900{
   --tw-bg-opacity: 1;
   background-color: rgb(88 28 135 / var(--tw-bg-opacity));
-}
-.bg-bluegrey\/10{
-  background-color: rgb(195 208 237 / 0.1);
-}
-.bg-bluegrey\/50{
-  background-color: rgb(195 208 237 / 0.5);
 }
 .bg-opacity-0{
   --tw-bg-opacity: 0;

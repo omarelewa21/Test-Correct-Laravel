@@ -69,7 +69,6 @@ class AnalysesSubjectDashboard extends AnalysesDashboard
 
     public function render()
     {
-        $this->setGeneralStats();
         $this->dispatchBrowserEvent('filters-updated');
         return view('livewire.student.analyses.analyses-subject-dashboard')->layout('layouts.student');
     }
@@ -109,7 +108,7 @@ class AnalysesSubjectDashboard extends AnalysesDashboard
                 'title'   => ucfirst($attainmentTranslationLabel),
                 'count'   => $pValue->cnt,
                 'value'   => number_format(($pValue->score > 0 ? $pValue->score : 0), 2),
-                'text'    => $pValue->serie,
+                'text'    => $pValue->description,
                 'basedOn' => trans_choice('student.attainment_tooltip_title', $pValue->cnt ?? 0, [
                     'basedOn' => $pValue->cnt ?? 0
                 ]),
