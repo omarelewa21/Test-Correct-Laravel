@@ -1326,6 +1326,8 @@ input[type=number] {
 .pvalue-indicator {
     --pvalue-indicator-width: 3px;
     --pvalue-indicator-height: 1rem;
+    --pvalue-indicator-ball-width: 7px;
+    --pvalue-indicator-ball-left: 2px;
     height: var(--pvalue-indicator-height);
     width: var(--pvalue-indicator-width);
     position: absolute;
@@ -1340,8 +1342,6 @@ input[type=number] {
 }
 
 .pvalue-indicator:before {
-    --pvalue-indicator-ball-width: 7px;
-    --pvalue-indicator-ball-left: 2px;
     content: '';
     background: var(--system-base);
     width: var(--pvalue-indicator-ball-width);
@@ -1587,7 +1587,7 @@ input[type=number] {
     transform: translate(-50%, -50%) rotate(45deg);
 }
 
-#groupdetail {
+#groupdetail, #test-question-slide {
     position: absolute;
     left: 100%;
     min-height: calc(100vh - var(--header-height) - 58px );
@@ -5605,9 +5605,6 @@ video {
 .-right-1{
   right: -0.25rem;
 }
-.left-2{
-  left: 0.5rem;
-}
 .bottom-8{
   bottom: 2rem;
 }
@@ -5619,6 +5616,9 @@ video {
 }
 .-top-0{
   top: -0px;
+}
+.left-2{
+  left: 0.5rem;
 }
 .top-20{
   top: 5rem;
@@ -5638,14 +5638,14 @@ video {
 .z-40{
   z-index: 40;
 }
+.z-20{
+  z-index: 20;
+}
 .z-50{
   z-index: 50;
 }
 .z-1{
   z-index: 1;
-}
-.z-20{
-  z-index: 20;
 }
 .z-0{
   z-index: 0;
@@ -5661,9 +5661,6 @@ video {
 }
 .z-\[20\]{
   z-index: 20;
-}
-.z-\[2\]{
-  z-index: 2;
 }
 .order-2{
   order: 2;
@@ -6064,9 +6061,6 @@ video {
 .h-28{
   height: 7rem;
 }
-.h-12\.5{
-  height: 3.125rem;
-}
 .h-\[275px\]{
   height: 275px;
 }
@@ -6075,6 +6069,9 @@ video {
 }
 .h-\[78px\]{
   height: 78px;
+}
+.h-12\.5{
+  height: 3.125rem;
 }
 .max-h-\[210px\]{
   max-height: 210px;
@@ -6099,6 +6096,9 @@ video {
 }
 .min-h-screen{
   min-height: 100vh;
+}
+.min-h-\[32px\]{
+  min-height: 32px;
 }
 .min-h-\[64px\]{
   min-height: 64px;
@@ -6138,6 +6138,9 @@ video {
 }
 .w-56{
   width: 14rem;
+}
+.w-\[550px\]{
+  width: 550px;
 }
 .w-1\/6{
   width: 16.666667%;
@@ -6225,9 +6228,6 @@ video {
 .w-80{
   width: 20rem;
 }
-.w-\[calc\(100\%-1rem\)\]{
-  width: calc(100% - 1rem);
-}
 .w-\[14px\]{
   width: 14px;
 }
@@ -6249,8 +6249,17 @@ video {
 .w-50{
   width: 12.5rem;
 }
+.w-\[calc\(100\%-1rem\)\]{
+  width: calc(100% - 1rem);
+}
+.w-\[70px\]{
+  width: 70px;
+}
 .w-14{
   width: 3.5rem;
+}
+.min-w-\[32px\]{
+  min-width: 32px;
 }
 .min-w-\[110px\]{
   min-width: 110px;
@@ -7101,16 +7110,16 @@ video {
   --tw-bg-opacity: 1;
   background-color: rgb(46 49 146 / var(--tw-bg-opacity));
 }
-.bg-transparent{
-  background-color: transparent;
+.bg-bluegrey{
+  --tw-bg-opacity: 1;
+  background-color: rgb(195 208 237 / var(--tw-bg-opacity));
 }
 .bg-sysbase{
   --tw-bg-opacity: 1;
   background-color: rgb(4 31 116 / var(--tw-bg-opacity));
 }
-.bg-bluegrey{
-  --tw-bg-opacity: 1;
-  background-color: rgb(195 208 237 / var(--tw-bg-opacity));
+.bg-transparent{
+  background-color: transparent;
 }
 .bg-white\/20{
   background-color: rgb(255 255 255 / 0.2);
@@ -7118,6 +7127,14 @@ video {
 .bg-purple-900{
   --tw-bg-opacity: 1;
   background-color: rgb(88 28 135 / var(--tw-bg-opacity));
+}
+.bg-cta{
+  --tw-bg-opacity: 1;
+  background-color: rgb(58 183 83 / var(--tw-bg-opacity));
+}
+.bg-ctadark{
+  --tw-bg-opacity: 1;
+  background-color: rgb(0 99 20 / var(--tw-bg-opacity));
 }
 .bg-opacity-0{
   --tw-bg-opacity: 0;
@@ -7300,6 +7317,10 @@ video {
   padding-top: 70px;
   padding-bottom: 70px;
 }
+.px-0\.5{
+  padding-left: 0.125rem;
+  padding-right: 0.125rem;
+}
 .pt-4{
   padding-top: 1rem;
 }
@@ -7396,9 +7417,6 @@ video {
 .pr-12{
   padding-right: 3rem;
 }
-.pr-2\.5{
-  padding-right: 0.625rem;
-}
 .pl-7{
   padding-left: 1.75rem;
 }
@@ -7459,6 +7477,9 @@ video {
 .pt-16{
   padding-top: 4rem;
 }
+.pr-2\.5{
+  padding-right: 0.625rem;
+}
 .pl-1{
   padding-left: 0.25rem;
 }
@@ -7492,6 +7513,10 @@ video {
 .text-sm{
   font-size: 0.875rem;
   line-height: 1.25rem;
+}
+.text-2xl{
+  font-size: 1.5rem;
+  line-height: 2rem;
 }
 .text-base{
   font-size: 1rem;
@@ -8528,11 +8553,6 @@ ul ul ul {
     color: var(--system-base);
 }
 
-.grid .grid-card.archived span,
-.grid .grid-card.archived h3 {
-    color: var(--note)!important;
-}
-
 .logout-progress-bar {
     width: 70%;
     background-color: white;
@@ -8546,6 +8566,10 @@ ul ul ul {
     background-color: var(--cta-primary);
     height: 1rem;
     transition:width 0.25s
+}
+.grid .grid-card.archived span,
+.grid .grid-card.archived h3 {
+    color: var(--note)!important;
 }
 .first\:rounded-l-lg:first-child{
   border-top-left-radius: 0.5rem;
@@ -9356,3 +9380,4 @@ ul ul ul {
     max-width: 72rem;
   }
 }
+
