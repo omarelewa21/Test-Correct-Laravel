@@ -4,7 +4,9 @@ namespace tcCore\Http\Livewire\Student\Analyses;
 
 use Livewire\Component;
 use tcCore\Attainment;
+use tcCore\BaseAttainment;
 use tcCore\EducationLevel;
+use tcCore\Http\Traits\WithAnalysesGeneralData;
 use tcCore\Lib\Repositories\PValueRepository;
 use tcCore\Lib\Repositories\PValueTaxonomyBloomRepository;
 use tcCore\Lib\Repositories\PValueTaxonomyMillerRepository;
@@ -15,6 +17,10 @@ use tcCore\User;
 
 class AnalysesSubSubAttainmentDashboard extends Component
 {
+    use WithAnalysesGeneralData;
+
+    const FILTER_SESSION_KEY = 'STUDENT_ANALYSES_FILTER';
+
     public $subject;
 
     protected $queryString = ['subject'];
@@ -29,16 +35,36 @@ class AnalysesSubSubAttainmentDashboard extends Component
 
     public $filters = [];
 
+    public $parentAttainment;
+
+    public $parentParentAttainment;
+
+
     public function hasActiveFilters()
     {
         return collect($this->filters)->flatten()->isNotEmpty();
     }
 
-    public function mount(?Attainment $attainment = null)
+    public function mount(?BaseAttainment $baseAttainment = null)
     {
-        $this->attainment = $attainment;
-        $this->clearFilters();
+        $this->attainment = $baseAttainment;
+        $this->parentAttainment = BaseAttainment::find($this->attainment->attainment_id);
+        $this->parentParentAttainment = BaseAttainment::find($this->parentAttainment->attainment_id);
+
+        $this->setFilters();
         $this->getFilterOptionsData();
+    }
+
+    public function updatedFilters()
+    {
+        session([self::FILTER_SESSION_KEY => $this->filters]);
+    }
+
+    private function setFilters()
+    {
+        session()->has(self::FILTER_SESSION_KEY)
+            ? $this->filters = session()->get(self::FILTER_SESSION_KEY)
+            : $this->clearFilters();
     }
 
     public function render()
@@ -54,6 +80,8 @@ class AnalysesSubSubAttainmentDashboard extends Component
             'periods'             => [],
             'teachers'            => [],
         ];
+
+        session([self::FILTER_SESSION_KEY => $this->filters]);
     }
 
     /**
@@ -82,7 +110,7 @@ class AnalysesSubSubAttainmentDashboard extends Component
                 function ($year) {
                     return [
                         'value' => $year,
-                        'label' => (string) $year,
+                        'label' => (string)$year,
                     ];
                 }
             );
@@ -90,10 +118,12 @@ class AnalysesSubSubAttainmentDashboard extends Component
 
     public function redirectBack()
     {
-        return redirect(route('student.analyses.attainment.show', [
-            'attainment' => $this->attainment->attainment->uuid,
-            'subject'    => $this->subject,
-        ]));
+        return redirect(
+            route('student.analyses.subattainment.show', [
+                    'baseAttainment' => $this->parentAttainment->uuid,
+                    'subject'        => $this->subject
+                ]
+            )
+        );
     }
-
 }
