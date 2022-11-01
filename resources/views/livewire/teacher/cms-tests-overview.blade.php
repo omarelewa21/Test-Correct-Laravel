@@ -53,7 +53,7 @@
     <div id="test-question-slide" wire:ignore.self>
         <div class=" mx-auto">
             @if($this->testUuid)
-                <livewire:teacher.cms-test-detail :uuid="$this->testUuid"/>
+                <livewire:teacher.cms-test-detail :uuid="$this->testUuid" :cmsTestUuid="$this->cmsTestUuid"/>
             @endif
         </div>
     </div>
