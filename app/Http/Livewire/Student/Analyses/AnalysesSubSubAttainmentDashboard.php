@@ -5,6 +5,7 @@ namespace tcCore\Http\Livewire\Student\Analyses;
 use Livewire\Component;
 use tcCore\Attainment;
 use tcCore\EducationLevel;
+use tcCore\Http\Traits\WithAnalysesGeneralData;
 use tcCore\Lib\Repositories\PValueRepository;
 use tcCore\Lib\Repositories\PValueTaxonomyBloomRepository;
 use tcCore\Lib\Repositories\PValueTaxonomyMillerRepository;
@@ -15,6 +16,8 @@ use tcCore\User;
 
 class AnalysesSubSubAttainmentDashboard extends Component
 {
+    use WithAnalysesGeneralData;
+
     public $subject;
 
     protected $queryString = ['subject'];
@@ -28,6 +31,7 @@ class AnalysesSubSubAttainmentDashboard extends Component
     public $teachers = [];
 
     public $filters = [];
+
 
     public function hasActiveFilters()
     {
@@ -95,5 +99,4 @@ class AnalysesSubSubAttainmentDashboard extends Component
             'subject'    => $this->subject,
         ]));
     }
-
 }

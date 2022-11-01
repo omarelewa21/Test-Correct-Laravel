@@ -11,7 +11,7 @@
         @yield('analyses.page.title')
 
         {{-- Filters--}}
-        <div class="flex flex-col pt-4 pb-2">
+        <div class="flex flex-col pt-4 pb-2 mb-4 border-b border-secondary">
             <div class="flex w-full items-center">
                 <div class="flex flex-wrap  space-x-2 items-center" x-cloak>
 
@@ -69,8 +69,10 @@
             </div>
 
         </div>
+
         <div>
             @yield('analyses.attainment.description')
+            @yield('analyses.general-data')
             @yield('analyses.p-values-graph')
 
 

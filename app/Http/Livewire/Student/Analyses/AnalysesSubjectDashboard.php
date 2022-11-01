@@ -4,8 +4,10 @@ namespace tcCore\Http\Livewire\Student\Analyses;
 
 use Illuminate\Support\Facades\Auth;
 use tcCore\Attainment;
+use tcCore\BaseAttainment;
 use tcCore\EducationLevel;
-use tcCore\Http\Helpers\AnalysesSubjectHelper;
+use tcCore\Http\Helpers\AnalysesGeneralDataHelper;
+use tcCore\Http\Traits\WithAnalysesGeneralData;
 use tcCore\LearningGoal;
 use tcCore\Lib\Repositories\PValueRepository;
 use tcCore\Lib\Repositories\PValueTaxonomyBloomRepository;
@@ -16,11 +18,11 @@ use tcCore\Subject;
 
 class AnalysesSubjectDashboard extends AnalysesDashboard
 {
+    use WithAnalysesGeneralData;
+
     public $subject;
 
     public $attainmentMode;
-
-    public $generalStats = [];
 
 
     public function getAttainmentModeOptionsProperty()
@@ -33,7 +35,15 @@ class AnalysesSubjectDashboard extends AnalysesDashboard
 
     private function setDefaultAttainmentMode()
     {
-        $this->attainmentMode = EducationLevel::getAttainmentType(auth()->user());
+        if (session()->has('STUDENT_ANALYSES_ATTAINMENT_MODE')) {
+            $this->attainmentMode = session()->get('STUDENT_ANALYSES_ATTAINMENT_MODE');
+        } else {
+            $this->attainmentMode = EducationLevel::getAttainmentType(auth()->user());
+        }
+    }
+
+    public function updatedAttainmentMode($value) {
+        session(['STUDENT_ANALYSES_ATTAINMENT_MODE' =>  $value]);
     }
 
 //    protected $topItems = [
@@ -49,18 +59,17 @@ class AnalysesSubjectDashboard extends AnalysesDashboard
         $this->subject = $subject;
 
         $this->setDefaultAttainmentMode();
-
-        $this->setGeneralStats();
     }
 
     private function setGeneralStats()
     {
-        $analysesHelper = new AnalysesSubjectHelper($this->subject, Auth::user());
-        $this->generalStats = (array)$analysesHelper->getAll();
+        $analysesHelper = new AnalysesGeneralDataHelper(Auth::user());
+        $this->generalStats = (array)$analysesHelper->getAllForSubject($this->subject, $this->filters);
     }
 
     public function render()
     {
+        $this->setGeneralStats();
         $this->dispatchBrowserEvent('filters-updated');
         return view('livewire.student.analyses.analyses-subject-dashboard')->layout('layouts.student');
     }
@@ -87,9 +96,7 @@ class AnalysesSubjectDashboard extends AnalysesDashboard
             $link = false;
             if ($pValue->attainment_id) {
                 $link = route('student.analyses.attainment.show', [
-                    'attainment' => Attainment::withoutGlobalScope(AttainmentScope::class)
-                        ->find($pValue->attainment_id)
-                        ->uuid,
+                    'baseAttainment' => BaseAttainment::find($pValue->attainment_id)->uuid,
                     'subject'    => $this->subject->uuid
                 ]);
             }
