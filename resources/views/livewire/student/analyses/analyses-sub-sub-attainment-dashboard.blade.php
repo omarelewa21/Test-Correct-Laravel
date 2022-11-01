@@ -5,10 +5,26 @@
         <div class="flex items-center gap-4 ">
             <x-button.back-round wire:click="redirectBack"/>
             <div class="flex text-lg bold">
-                <span>Analyses > {{ \tcCore\Subject::whereUuid($this->subject)->first()->name }} > Leerdoel 4 > Sub Leerdoel 4 > Sub Sub leerdoel 4</span>
+                <span>
+                    <a href="{{ route('student.analyses.show') }}">{{ __('header.Analyses') }}</a>
+                    <x-icon.chevron-small opacity="1"></x-icon.chevron-small>
+                    <a href="{{ route('student.analyses.subject.show', $subject) }}">
+                        {!!  \tcCore\Subject::whereUuid($subject)->first()->name !!}
+                    </a>
+                    <x-icon.chevron-small opacity="1"></x-icon.chevron-small>
+                    <a href="{{ route('student.analyses.subattainment.show', ['baseAttainment' => $parentParentAttainment->uuid, 'subject' => $subject]) }}">
+                      {{ $parentParentAttainment->name }}
+                    </a>
+                    <x-icon.chevron-small opacity="1"></x-icon.chevron-small>
+                     <a href="{{ route('student.analyses.subattainment.show', ['baseAttainment' => $parentAttainment->uuid, 'subject' => $subject]) }}">
+                    {{ $parentAttainment->getSubNameWithNumber($parentAttainment->getOrderNumber()) }}
+                     </a>
+                     <x-icon.chevron-small opacity="1"></x-icon.chevron-small>
+                    {{ $attainment->getSubSubNameWithNumber($attainment->getOrderNumber()) }}
+                </span>
             </div>
         </div>
-        <x-button.primary class="bg-purple-900">Exporteren</x-button.primary>
+
     </x-sticky-page-title>
 @endsection
 

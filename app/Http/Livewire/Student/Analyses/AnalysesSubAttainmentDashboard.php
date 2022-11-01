@@ -32,6 +32,7 @@ class AnalysesSubAttainmentDashboard extends AnalysesDashboard
     public function mount(?BaseAttainment $baseAttainment = null)
     {
         $this->attainment = $baseAttainment;
+        parent::mount();
         if ($this->attainment) {
             $this->attainmentOrderNumber = $this->attainment->getOrderNumber();
 //            dd($this->attainmentOrderNumber);
@@ -40,7 +41,7 @@ class AnalysesSubAttainmentDashboard extends AnalysesDashboard
             }
         }
 
-        $this->clearFilters();
+
         $this->getFilterOptionsData();
     }
 
