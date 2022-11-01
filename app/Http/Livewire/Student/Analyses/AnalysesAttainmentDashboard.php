@@ -2,10 +2,10 @@
 
 namespace tcCore\Http\Livewire\Student\Analyses;
 
-use Livewire\Component;
 use tcCore\Attainment;
 use tcCore\BaseAttainment;
 use tcCore\EducationLevel;
+use tcCore\Http\Traits\WithAnalysesGeneralData;
 use tcCore\Lib\Repositories\PValueRepository;
 use tcCore\Lib\Repositories\PValueTaxonomyBloomRepository;
 use tcCore\Lib\Repositories\PValueTaxonomyMillerRepository;
@@ -14,10 +14,11 @@ use tcCore\Period;
 use tcCore\Scopes\AttainmentScope;
 use tcCore\Subject;
 use tcCore\User;
-use tcCore\Http\Helpers\AnalysesGeneralDataHelper;
 
 class AnalysesAttainmentDashboard extends AnalysesDashboard
 {
+    use WithAnalysesGeneralData;
+
     public $attainment;
 
     public $subject;
@@ -31,14 +32,11 @@ class AnalysesAttainmentDashboard extends AnalysesDashboard
         411 => 'Literaire begrippen',
         412 => 'Literatuurgeschiedenis',
     ];
-    public $generalStats = [];
 
     public function mount(?BaseAttainment $baseAttainment=null)
     {
         $this->attainment = $baseAttainment;
         parent::mount();
-
-        $this->setGeneralStats();
     }
 
     public function render()
@@ -120,11 +118,4 @@ class AnalysesAttainmentDashboard extends AnalysesDashboard
     {
         return redirect(route('student.analyses.subject.show', $this->subject));
     }
-
-    private function setGeneralStats()
-    {
-        $analysesHelper = new AnalysesGeneralDataHelper(Auth::user());
-        $this->generalStats = (array)$analysesHelper->getAllForAttainment($this->attainment);
-    }
-
 }

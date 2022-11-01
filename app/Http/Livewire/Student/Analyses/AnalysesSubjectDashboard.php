@@ -7,6 +7,7 @@ use tcCore\Attainment;
 use tcCore\BaseAttainment;
 use tcCore\EducationLevel;
 use tcCore\Http\Helpers\AnalysesGeneralDataHelper;
+use tcCore\Http\Traits\WithAnalysesGeneralData;
 use tcCore\LearningGoal;
 use tcCore\Lib\Repositories\PValueRepository;
 use tcCore\Lib\Repositories\PValueTaxonomyBloomRepository;
@@ -17,11 +18,11 @@ use tcCore\Subject;
 
 class AnalysesSubjectDashboard extends AnalysesDashboard
 {
+    use WithAnalysesGeneralData;
+
     public $subject;
 
     public $attainmentMode;
-
-    public $generalStats = [];
 
 
     public function getAttainmentModeOptionsProperty()
@@ -58,18 +59,17 @@ class AnalysesSubjectDashboard extends AnalysesDashboard
         $this->subject = $subject;
 
         $this->setDefaultAttainmentMode();
-
-        $this->setGeneralStats();
     }
 
     private function setGeneralStats()
     {
         $analysesHelper = new AnalysesGeneralDataHelper(Auth::user());
-        $this->generalStats = (array)$analysesHelper->getAllForSubject($this->subject);
+        $this->generalStats = (array)$analysesHelper->getAllForSubject($this->subject, $this->filters);
     }
 
     public function render()
     {
+        $this->setGeneralStats();
         $this->dispatchBrowserEvent('filters-updated');
         return view('livewire.student.analyses.analyses-subject-dashboard')->layout('layouts.student');
     }
