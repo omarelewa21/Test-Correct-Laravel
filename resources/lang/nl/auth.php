@@ -146,5 +146,5 @@ return [
     'newPassword.regex'                                                                              => 'Je nieuwe wachtwoord voldoet niet aan het verplichte patroon',
     'passwords_dont_match'                                                                           => 'Het opgegeven huidige wachtwoord is incorrect',
     'test_code_quick_access'                                                                         => 'Vul de testcode in als deze bestaat om snel toegang te krijgen tot een test',
-    'guest_account_not_allowed'                                                                      => 'gastaccounts zijn niet toegestaan voor deze test',
+    'guest_account_not_allowed'                                                                      => 'Inloggen met Test-Direct niet toegestaan"/"Logging in with Test-direct not allowed',
 ];
