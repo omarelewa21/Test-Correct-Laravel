@@ -13,6 +13,7 @@ use tcCore\Http\Controllers\TestQuestionsController;
 use tcCore\Http\Requests\CreateGroupQuestionQuestionRequest;
 use tcCore\Http\Requests\CreateTestQuestionRequest;
 use tcCore\Http\Traits\WithQueryStringSyncing;
+use tcCore\Http\Traits\WithTestAwarenessProperties;
 use tcCore\Lib\GroupQuestionQuestion\GroupQuestionQuestionManager;
 use tcCore\Question;
 use tcCore\Subject;
@@ -22,7 +23,7 @@ use tcCore\Traits\ContentSourceTabsTrait;
 
 class QuestionBank extends Component
 {
-    use ContentSourceTabsTrait, WithQueryStringSyncing;
+    use ContentSourceTabsTrait, WithQueryStringSyncing, WithTestAwarenessProperties;
 
     const ACTIVE_TAB_SESSION_KEY = 'question-bank-active-tab';
 
@@ -38,12 +39,11 @@ class QuestionBank extends Component
 
     public $filters = [];
 
-    public $addedQuestionIds = [];
     public $itemsPerPage;
 
     public $inGroup = false;
 
-    private $test;
+    protected $test;
 
     public $active;
 
@@ -177,28 +177,11 @@ class QuestionBank extends Component
         return true;
     }
 
-    private function getQuestionIdsThatAreAlreadyInTest()
-    {
-        $questionIdList = optional($this->test)->getQuestionOrderList() ?? [];
-        if (!$this->test) {
-            return $questionIdList;
-        }
-
-        return $questionIdList + $this->test->testQuestions->map(function ($testQ) {
-                return $testQ->question()->where('type', 'GroupQuestion')->value('id');
-            })->filter()->flip()->toArray();
-    }
-
     private function removeQuestionFromTest($questionId)
     {
         $this->addedQuestionIds = collect($this->addedQuestionIds)->reject(function ($index, $id) use ($questionId) {
             return $id == $questionId;
         });
-    }
-
-    public function isQuestionInTest($questionId)
-    {
-        return isset($this->addedQuestionIds[$questionId]);
     }
 
     public function showMore()

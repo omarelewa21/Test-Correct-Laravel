@@ -2,29 +2,26 @@
 
 namespace tcCore\Http\Livewire\Teacher;
 
-use tcCore\Test;
-use tcCore\TestQuestion;
+use tcCore\Http\Traits\WithTestAwarenessProperties;
 
 class CmsTestDetail extends TestDetail
 {
+    use WithTestAwarenessProperties;
+
     public $mode = 'cms';
     public $cmsTestUuid;
 
-    public $questionsInTest = [];
+    protected $queryString = [];
 
     public function mount($uuid)
     {
         parent::mount($uuid);
 
-        $this->questionsInTest = TestQuestion::whereIn(
-                'test_id',
-                Test::whereUuid($this->cmsTestUuid)->select('id')
-            )
-            ->pluck('question_id');
+        $this->addedQuestionIds = $this->getQuestionIdsThatAreAlreadyInTest($this->cmsTestUuid);
     }
 
-    public function testContainsQuestion($questionId)
+    public function handleReferrerActions()
     {
-        return $this->questionsInTest->contains($questionId);
+
     }
 }
