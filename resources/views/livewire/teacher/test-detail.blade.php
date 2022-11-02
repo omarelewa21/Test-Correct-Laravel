@@ -26,8 +26,9 @@
      "
      :style="`max-height: ${maxHeight}`"
      @empty($this->mode)
-         wire:init="handleReferrerActions()"
-        @endempty
+        wire:init="handleReferrerActions()"
+        x-on:question-added.window="$wire.updateQuestionsInTest()"
+     @endempty
 >
     <div class="flex w-full border-b border-secondary pb-1 sticky bg-lightGrey z-1 sticky-pseudo-bg"
          :style="{top: $root.offsetTop + 'px'}">

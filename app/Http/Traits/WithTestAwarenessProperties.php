@@ -14,9 +14,21 @@ trait WithTestAwarenessProperties
         'testQuestions.question:id,type,derived_question_id'
     ];
 
+    public function setAddedQuestionIdsArray($test = null): void
+    {
+        $this->addedQuestionIds = $this->getQuestionIdsThatAreAlreadyInTest($test);
+    }
+
+    protected function removeQuestionFromTest($questionId)
+    {
+        $this->addedQuestionIds = collect($this->addedQuestionIds)->reject(function ($index, $id) use ($questionId) {
+            return $id == $questionId;
+        });
+    }
+
     protected function getQuestionIdsThatAreAlreadyInTest($testParameter = null)
     {
-        $test = $this->getTestModelByParameter($testParameter);
+        $test = $this->getTestModel($testParameter);
 
         $questionIdList = $test->getQuestionOrderList() ?? [];
 
@@ -30,18 +42,31 @@ trait WithTestAwarenessProperties
         return isset($this->addedQuestionIds[$question->id]) || isset($this->addedQuestionIds[$question->derived_question_id]);
     }
 
+
+    private function getTestModel($testParameter = null)
+    {
+        if ($testParameter) {
+            return $this->getTestModelByParameter($testParameter);
+        }
+
+        if (property_exists($this, 'test')) {
+            if ($this->test instanceof Test) {
+                $this->test->loadMissing($this->testRelations);
+                return $this->test;
+            }
+        }
+
+        throw new \Exception('No test provided to check if question is present.');
+    }
+
     /**
      * @throws \Exception
      */
-    private function getTestModelByParameter($testParameter = null)
+    private function getTestModelByParameter($testParameter)
     {
-        if (property_exists($this, 'test') && $this->test instanceof Test) {
-            $this->test->loadMissing($this->testRelations);
-            return $this->test;
-        }
-
-        if (!$testParameter) {
-            throw new \Exception('No test provided to check if question is present.');
+        if ($testParameter instanceof Test) {
+            $testParameter->loadMissing($this->testRelations);
+            return $testParameter;
         }
 
         if (Uuid::isValid($testParameter)) {
@@ -50,9 +75,6 @@ trait WithTestAwarenessProperties
                 ->first();
         }
 
-        if ($testParameter instanceof Test) {
-            $testParameter->loadMissing($this->testRelations);
-            return $testParameter;
-        }
+        throw new \Exception('Cannot resolve Test with given parameter.');
     }
 }

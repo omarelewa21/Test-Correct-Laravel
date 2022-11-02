@@ -13,15 +13,24 @@ class CmsTestDetail extends TestDetail
 
     protected $queryString = [];
 
+    protected function getListeners()
+    {
+        return $this->listeners + ['updateQuestionsInTest'];
+    }
+
     public function mount($uuid)
     {
         parent::mount($uuid);
-
-        $this->addedQuestionIds = $this->getQuestionIdsThatAreAlreadyInTest($this->cmsTestUuid);
+        $this->setAddedQuestionIdsArray($this->cmsTestUuid);
     }
 
     public function handleReferrerActions()
     {
 
+    }
+
+    public function updateQuestionsInTest()
+    {
+        $this->setAddedQuestionIdsArray($this->cmsTestUuid);
     }
 }
