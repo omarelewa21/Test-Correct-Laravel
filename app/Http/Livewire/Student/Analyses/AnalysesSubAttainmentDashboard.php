@@ -72,7 +72,7 @@ class AnalysesSubAttainmentDashboard extends AnalysesDashboard
                 'title'   => $this->attainment->getSubSubNameWithNumber($key + 1),
                 'count'   => $pValue->cnt,
                 'value'   => number_format(($pValue->score > 0 ? $pValue->score : 0), 2),
-                'text'    => $pValue->serie,
+                'text'    => $pValue->description,
                 'basedOn' => trans_choice('student.attainment_tooltip_title', $pValue->cnt, [
                     'basedOn' => $pValue->cnt
                 ]),
