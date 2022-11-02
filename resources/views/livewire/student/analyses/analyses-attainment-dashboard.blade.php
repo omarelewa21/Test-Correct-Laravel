@@ -28,7 +28,7 @@
 
 @section('analyses.p-values-graph')
     <div class="flex justify-between mb-5">
-        <h2 class="flex">{{ __('student.overzicht p-waardes') }}</h2>
+        <h2 class="flex">{{ __('student.overzicht p-waardes') }} @js($this->showEmptyStateForPValueGraph) </h2>
     </div>
     <x-content-section>
         <x-slot name="title">

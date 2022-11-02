@@ -54,7 +54,7 @@ class AnalysesAttainmentDashboard extends AnalysesDashboard
             $this->getEducationLevelYearsByFilterValues(),
             $this->getTeachersByFilterValues()
         );
-        //($result->toArray());//;->mapWithKey(fn($value, $key) => [$value->subject => $value->score]));
+       ;//;->mapWithKey(fn($value, $key) => [$value->subject => $value->score]));
 
         $this->showEmptyStateForPValueGraph = $result->count() === 0;
 
