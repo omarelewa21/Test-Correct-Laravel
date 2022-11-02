@@ -9,8 +9,10 @@ use tcCore\AnswerRating;
 use tcCore\Http\Controllers\AnswerRatingsController;
 use tcCore\Http\Controllers\TestTakeLaravelController;
 use tcCore\Http\Livewire\CoLearning\OpenQuestion;
+use tcCore\TestParticipant;
 use tcCore\TestQuestion;
 use tcCore\TestTake;
+use tcCore\TestTakeStatus;
 
 class CoLearning extends Component
 {
@@ -30,7 +32,7 @@ class CoLearning extends Component
 
     public string $testName = 'test;';
 
-    protected $answerRating = null;
+    public $answerRating = null;
     protected $answerRatings = null;
     public $answerRatingId;
 
@@ -52,15 +54,19 @@ class CoLearning extends Component
 
     public function mount(TestTake $test_take)
     {
-        if ($test_take->test_take_status_id !== 7) {
+        if ($test_take->test_take_status_id !== TestTakeStatus::STATUS_DISCUSSING) {
             return redirect()->route('student.test-takes', ['tab' => 'discuss']);
-        }
+        } //todo refactor to method
+
         $this->testTake = $test_take;
-        $this->testParticipant = $test_take->testParticipants->where('user_id', auth()->id())->first();
+        $this->testParticipant = $this->testTake->testParticipants()
+            ->where('user_id', auth()->id())
+            ->first();
         $this->discussOpenQuestionsOnly = $this->testTake->discussion_type === 'OPEN_ONLY' ? true : false;
 
         if (!$this->coLearningFinished) {
             $this->getAnswerRatings();
+            $this->setRatingProperties();
         }
     }
 
@@ -110,6 +116,7 @@ class CoLearning extends Component
     public function goToNextQuestion()
     {
         $this->getAnswerRatings();
+        $this->setRatingProperties();
 
         $this->emit('getNextAnswerRating', [$this->answerRatingId, $this->questionFollowUpNumber, $this->answerFollowUpNumber]);
     }
@@ -120,12 +127,12 @@ class CoLearning extends Component
 
         $this->questionAllowsDecimalScore = (bool)$this->answerRating->answer->question->decimal_score;
 
+        $this->continuousScoreSlider = false; //todo refactor to method?
         if ($this->questionAllowsDecimalScore && $this->maxRating > 7) {
             $this->continuousScoreSlider = true;
-        } elseif (!$this->questionAllowsDecimalScore && $this->maxRating > 15) {
+        }
+        if (!$this->questionAllowsDecimalScore && $this->maxRating > 15) {
             $this->continuousScoreSlider = true;
-        } else {
-            $this->continuousScoreSlider = false;
         }
 
         $this->rating = $this->questionAllowsDecimalScore ? $this->answerRating->rating : (int)$this->answerRating->rating;
@@ -168,7 +175,7 @@ class CoLearning extends Component
 
     protected function getQuestionAndAnswerNavigationData()
     {
-        $testTakeQuestionsCollection = TestTakeLaravelController::getData(null, $this->testTake, true);
+        $testTakeQuestionsCollection = TestTakeLaravelController::getData(null, $this->testTake);
         $currentQuestionId = $this->testTake->discussingQuestion->getKey();
 
         $this->numberOfQuestions = $testTakeQuestionsCollection->reduce(function ($carry, $question) use ($currentQuestionId) {
@@ -231,8 +238,6 @@ class CoLearning extends Component
             $this->nextAnswerAvailable = $this->answerRatings->filter(fn($ar) => $ar->getKey() > $this->answerRatingId)->count() > 0;
 
             $this->waitForTeacherNotificationEnabled = $this->shouldShowWaitForTeacherNotification();
-
-            $this->setRatingProperties();
 
             $this->answerRating->refresh();
 

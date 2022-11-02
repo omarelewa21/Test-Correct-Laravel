@@ -21,7 +21,7 @@
                     "servicePort": "80",
                     "serviceHost": "wsc.test-correct.nl",
                     "servicePath": "wscservice/api",
-                    // "enableBadgeButton":false
+                    "enableBadgeButton":false
                 }
             </script>
             <script src="https://wsc.test-correct.nl/wscservice/wscbundle/wscbundle.js"></script>

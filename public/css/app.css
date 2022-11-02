@@ -4841,6 +4841,10 @@ input.datepicker {
     display: none;
     pointer-events: none;
 }
+.cke .cke_top,
+.cke .cke_bottom {
+    display: none !important;
+}
 /*
 ! tailwindcss v3.1.4 | MIT License | https://tailwindcss.com
 */
@@ -5981,6 +5985,9 @@ video {
 .mt-12{
   margin-top: 3rem;
 }
+.ml-1{
+  margin-left: 0.25rem;
+}
 .-mt-4{
   margin-top: -1rem;
 }
@@ -6010,9 +6017,6 @@ video {
 }
 .mb-10{
   margin-bottom: 2.5rem;
-}
-.ml-1{
-  margin-left: 0.25rem;
 }
 .mr-0\.5{
   margin-right: 0.125rem;

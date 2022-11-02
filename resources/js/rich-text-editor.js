@@ -36,13 +36,13 @@ RichTextEditor = {
         });
         CKEDITOR.replace(editorId, {
             removePlugins: 'pastefromword,pastefromgdocs,advanced,simpleuploads,dropoff,copyformatting,image,pastetext,uploadwidget,uploadimage,elementspath',
-            extraPlugins: 'blockimagepaste,quicktable,ckeditor_wiris,autogrow,wordcount,notification',
+            extraPlugins: 'quicktable,ckeditor_wiris,autogrow,wordcount,notification',
             wordcount: {
                 showWordCount: true,
                 showParagraphs: false,
                 showCharCount: true,
             },
-            // toolbar: []
+            toolbar: []
         });
         CKEDITOR.config.wordCount = {
             showWordCount: true,
@@ -52,6 +52,16 @@ RichTextEditor = {
         editor = CKEDITOR.instances[editorId];
         editor.on('change', function (e) {
             RichTextEditor.sendInputEventToEditor(editorId, e);
+        });
+        editor.on('instanceReady', function (e) {
+            document.getElementById('word-count-'+editorId).textContent = editor.wordCount.wordCount;
+            document.getElementById('char-count-'+editorId).textContent = editor.wordCount.charCount;
+            window.addEventListener('wsc-problems-count-updated-'+editorId, (e) => {
+                document.getElementById('problem-count-'+editorId).textContent = e.detail.problemsCount;
+            });
+            document.getElementById('cke_wordcount_'+editorId).classList.add('hidden');
+            document.querySelector('.cke_top').style.display = 'none !important';
+            document.querySelector('.cke_bottom').style.display = 'none !important';
         });
 
     },

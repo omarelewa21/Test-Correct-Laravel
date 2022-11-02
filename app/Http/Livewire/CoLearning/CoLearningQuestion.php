@@ -11,7 +11,7 @@ use tcCore\Question;
 
 abstract class CoLearningQuestion extends Component
 {
-    use WithCloseable, WithGroups;
+//    use WithCloseable, WithGroups;
 
     public $answer = null;
     public $answered;

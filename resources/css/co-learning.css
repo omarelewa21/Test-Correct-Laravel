@@ -1,0 +1,4 @@
+.cke .cke_top,
+.cke .cke_bottom {
+    display: none !important;
+}
