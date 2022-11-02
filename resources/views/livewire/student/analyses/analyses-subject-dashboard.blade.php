@@ -24,10 +24,15 @@
         <x-slot name="title">
             {{ __('student.Algemeen') }}
         </x-slot>
-
+        @if ($this->showEmptyStateForGeneralStats())
+            <div class="flex flex-row min-h-[300px] relative">
+                <x-empty-graph show="true"></x-empty-graph>
+            </div>
+        @else
         <div class="flex flex-row">
-            <x-partials.analyses-general-data :generalStats="$generalStats"/>
+                <x-partials.analyses-general-data :generalStats="$generalStats"/>
         </div>
+        @endif
     </x-content-section>
 
     <div class="divider my-6"></div>

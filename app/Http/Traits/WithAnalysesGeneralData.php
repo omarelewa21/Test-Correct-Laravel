@@ -21,7 +21,7 @@ trait WithAnalysesGeneralData
         $analysesHelper = new AnalysesGeneralDataHelper(Auth::user());
 
         $entity = ($this instanceof AnalysesSubjectDashboard) ? 'subject' : 'attainment';
-        $method = 'getAllFor'.Str::ucfirst($entity);
+        $method = 'getAllFor' . Str::ucfirst($entity);
 
         $this->generalStats = (array)$analysesHelper->$method($this->$entity, $this->filters);
     }
@@ -31,5 +31,10 @@ trait WithAnalysesGeneralData
         if (Str::startsWith($name, 'filters.')) {
             $this->setGeneralStats();
         }
+    }
+
+    public function showEmptyStateForGeneralStats()
+    {
+        return $this->generalStats['tests_taken'] == 0 && $this->generalStats['assignments_taken'] == 0;
     }
 }
