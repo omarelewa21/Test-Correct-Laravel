@@ -78,11 +78,6 @@ class TestDetail extends Component
         $this->reset('groupQuestionDetail');
     }
 
-    public function isQuestionInTest()
-    {
-        return false;
-    }
-
     public function openDetail($questionUuid, $inTest = false)
     {
         $this->emit('openModal', 'teacher.question-detail-modal', ['questionUuid' => $questionUuid, 'inTest' => $inTest]);

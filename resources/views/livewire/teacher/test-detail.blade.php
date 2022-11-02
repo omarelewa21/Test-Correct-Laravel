@@ -90,10 +90,9 @@
                         @endforeach
 
                         @foreach($this->test->testQuestions->sortBy('order') as $testQuestion)
-
                             <x-grid.question-card-detail :testQuestion="$testQuestion"
                                                          :mode="$this->mode ?? 'page'"
-                                                         :inTest="$this->testContainsQuestion($testQuestion->question_id)"
+                                                         :inTest="$this->testContainsQuestion($testQuestion->question)"
                             />
                         @endforeach
                     </x-grid>
