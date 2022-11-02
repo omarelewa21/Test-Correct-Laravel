@@ -3,36 +3,31 @@
 ])
 
 @foreach(['tests', 'assignments'] as $kind)
-    <div class="flex-1 gap-4 flex flex-col"
-         x-data="{pValue: {{ number_format($generalStats[$kind.'_pvalue_average'], 2)  }} }"
-    >
+    <div class="flex-1 gap-4 flex flex-col">
         <div class="flex flex-col">
             <span>{{ __('student.aantal '. $kind. ' gemaakt')}}</span>
-            <span class="bold">{{ $generalStats[$kind.'_taken'] }}</span>
+            @if( $generalStats[$kind.'_taken'] == 0)
+                <span class="bold note">{{ $generalStats[$kind.'_taken'] }}</span>
+            @else
+                <span class="bold">{{ $generalStats[$kind.'_taken'] }}</span>
+            @endif
         </div>
         <div class="flex flex-col">
             <span>{{ __('student.gemiddelde p-waarde') }}</span>
             <div class="inline-block">
-                            <span>
-                                {{ __('student.o.b.v. aantal vragen', ['count'=> $generalStats[$kind.'_questions']]) }}
-                                <span class="bold px-0.5">P {{ number_format($generalStats[$kind.'_pvalue_average'], 2) }}</span>
-                            </span>
-                <div class="inline-flex relative">
-                                <span x-show="pValue" class="pvalue-indicator"
-                                      style="--pvalue-indicator-ball-left: -2px"
-                                      :style="{'left': `${pValue * 100}%`}"
-                                ></span>
-                    <div class="inline-flex rounded-md overflow-hidden w-[70px] h-2.5">
-                        <span class="flex-1 inline-flex bg-allred"></span>
-                        <span class="flex-1 inline-flex bg-orange"></span>
-                        <span class="flex-1 inline-flex bg-student"></span>
-                        <span class="flex-1 inline-flex bg-lightgreen"></span>
-                        <span class="flex-1 inline-flex bg-cta"></span>
-                        <span class="flex-1 inline-flex bg-ctamiddark"></span>
-                        <span class="flex-1 inline-flex bg-ctadark"></span>
-                    </div>
-                </div>
-                <span class="note text-xs">1.00</span>
+                @if( $generalStats[$kind.'_taken'] == 0)
+                    <span class="note">
+                        {{  __('student.o.b.v. aantal vragen', ['count'=> 0]) }}
+                        <span class="bold px-0.5 note">P -.-- </span>
+                    </span>
+                @else
+                    <span>
+                        {{ __('student.o.b.v. aantal vragen', ['count'=> $generalStats[$kind.'_questions']]) }}
+                        <span class="bold px-0.5">P {{ number_format($generalStats[$kind.'_pvalue_average'], 2) }}</span>
+                    </span>
+                @endif
+                <x-user-p-value-indicator :p-value="$generalStats[$kind.'_pvalue_average']"
+                                          disabled="{!! (bool) ($generalStats[$kind.'_taken'] == 0) !!}"></x-user-p-value-indicator>
             </div>
         </div>
         <div class="flex flex-col">
