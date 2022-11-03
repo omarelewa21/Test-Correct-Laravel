@@ -173,15 +173,9 @@ class QuestionBank extends Component
         if ($response->getStatusCode() == 200) {
             $this->addedQuestionIds[json_decode($response->getContent())->question_id] = 0;
             $this->dispatchBrowserEvent('question-added');
+            $this->emit('updateQuestionsInTest');
         }
         return true;
-    }
-
-    private function removeQuestionFromTest($questionId)
-    {
-        $this->addedQuestionIds = collect($this->addedQuestionIds)->reject(function ($index, $id) use ($questionId) {
-            return $id == $questionId;
-        });
     }
 
     public function showMore()
@@ -350,11 +344,6 @@ class QuestionBank extends Component
     {
         $this->inGroup = $uuid;
         $this->updatedInGroup($uuid);
-    }
-
-    public function setAddedQuestionIdsArray(): void
-    {
-        $this->addedQuestionIds = $this->getQuestionIdsThatAreAlreadyInTest();
     }
 
     private function subjectFilterForTab($tab): array
