@@ -86,7 +86,7 @@ return [
 	*/
     /** uncomment driver when migrating to 6.x or higher */
     'failed' => [
-//        'driver' => env('QUEUE_FAILED_DRIVER', 'database'),
+        'driver' => env('QUEUE_FAILED_DRIVER', 'database-uuids'),
         'database' => env('DB_CONNECTION', 'mysql'),
         'table' => 'failed_jobs',
     ],
