@@ -259,7 +259,10 @@ class FactoryTestTake
 
     public function setStatusDiscussing(bool $openQuestionsOnly = true)
     {
-        $this->setProperties(['discussion_type' => ($openQuestionsOnly ? 'OPEN_ONLY' : 'ALL')]);
+        $this->setProperties([
+            'discussion_type' => ($openQuestionsOnly ? 'OPEN_ONLY' : 'ALL'),
+            'discussing_question_id' => $this->test->testQuestions->sortBy('order', 'asc')->first()->question_id,
+        ]);
         $this->setStatus(7);
         return $this;
     }

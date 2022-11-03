@@ -36,10 +36,9 @@
                     </span>
                 </div>
                 <div class="w-full flex justify-center items-center mt-12 mb-4">
-
-                    {{-- Placeholder for 300x300 image (to be supplied) --}}
-                    <img src="{{ asset('./svg/stickers/completed.svg') }}" width="300px" height="300px">
-
+                    <div class="w-[300px] h-[300px]">
+                        <x-animations.co-learning-completed/>
+                    </div>
                 </div>
             </div>
 

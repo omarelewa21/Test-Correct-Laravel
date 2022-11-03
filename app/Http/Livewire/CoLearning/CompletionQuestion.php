@@ -26,7 +26,8 @@ class CompletionQuestion extends CoLearningQuestion
 
     public function updatedAnswerOptions()
     {
-        $this->emit('UpdateAnswerRating', $this->answerOptionsChecked, $this->answerOptionsAmount);
+        $this->emit('UpdateAnswerRating', $this->answerOptionsChecked, 3);
+//        $this->emit('UpdateAnswerRating', $this->answerOptionsChecked, $this->answerOptionsAmount);
     }
 
     public function isQuestionFullyAnswered(): bool

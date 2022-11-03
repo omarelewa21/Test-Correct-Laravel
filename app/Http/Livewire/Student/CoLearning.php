@@ -23,14 +23,12 @@ class CoLearning extends Component
     public $rating = null; //float or int depending on $questionAllowsDecimalScore
     public int $maxRating;
 
-    public $questionAllowsDecimalScore = false;
+    public $allowRatingWithHalfPoints = false;
 
     public bool $noAnswerRatingAvailableForCurrentScreen = false;
     public bool $waitForTeacherNotificationEnabled = false;
     public bool $finishCoLearningButtonEnabled = false;
     public bool $coLearningFinished = false;
-
-    public string $testName = 'test;';
 
     public $answerRating = null;
     protected $answerRatings = null;
@@ -54,11 +52,10 @@ class CoLearning extends Component
 
     public function mount(TestTake $test_take)
     {
-        if ($test_take->test_take_status_id !== TestTakeStatus::STATUS_DISCUSSING) {
-            return redirect()->route('student.test-takes', ['tab' => 'discuss']);
-        } //todo refactor to method
-
         $this->testTake = $test_take;
+
+        $this->redirectIfNotStatusDiscussing();
+
         $this->testParticipant = $this->testTake->testParticipants()
             ->where('user_id', auth()->id())
             ->first();
@@ -66,7 +63,7 @@ class CoLearning extends Component
 
         if (!$this->coLearningFinished) {
             $this->getAnswerRatings();
-            $this->setRatingProperties();
+            $this->setQuestionRatingProperties();
         }
     }
 
@@ -85,18 +82,16 @@ class CoLearning extends Component
         return redirect()->route('student.test-takes', ['tab' => 'review']);
     }
 
-    public function goToFinishedCoLearningPage()
+    public function goToFinishedCoLearningPage(): void
     {
         $this->coLearningFinished = true;
 
         $this->waitForTeacherNotificationEnabled = false;
         $this->answerRatingId = null;
         $this->answerRating = null;
-
-        //todo set all answerRating properties etc to null/false?
     }
 
-    public function goToPreviousAnswerRating()
+    public function goToPreviousAnswerRating(): void
     {
         if (!$this->previousAnswerAvailable) {
             return;
@@ -106,40 +101,22 @@ class CoLearning extends Component
         $this->emit('getNextAnswerRating', [$this->answerRatingId, $this->questionFollowUpNumber, $this->answerFollowUpNumber]);
     }
 
-    public function goToNextAnswerRating()
+    public function goToNextAnswerRating(): void
     {
         $this->getAnswerRatings('next');
 
         $this->emit('getNextAnswerRating', [$this->answerRatingId, $this->questionFollowUpNumber, $this->answerFollowUpNumber]);
     }
 
-    public function goToNextQuestion()
+    public function goToNextQuestion(): void
     {
         $this->getAnswerRatings();
-        $this->setRatingProperties();
+        $this->setQuestionRatingProperties();
 
         $this->emit('getNextAnswerRating', [$this->answerRatingId, $this->questionFollowUpNumber, $this->answerFollowUpNumber]);
     }
 
-    public function setRatingProperties(): void
-    {
-        $this->maxRating = $this->answerRating->answer->question->score;
-
-        $this->questionAllowsDecimalScore = (bool)$this->answerRating->answer->question->decimal_score;
-
-        $this->continuousScoreSlider = false; //todo refactor to method?
-        if ($this->questionAllowsDecimalScore && $this->maxRating > 7) {
-            $this->continuousScoreSlider = true;
-        }
-        if (!$this->questionAllowsDecimalScore && $this->maxRating > 15) {
-            $this->continuousScoreSlider = true;
-        }
-
-        $this->rating = $this->questionAllowsDecimalScore ? $this->answerRating->rating : (int)$this->answerRating->rating;
-
-    }
-
-    public function updatedRating()
+    public function updatedRating(): void
     {
         if ((int)$this->rating < 0) {
             $this->rating = 0;
@@ -151,13 +128,12 @@ class CoLearning extends Component
 
         $this->answerRating->update(['rating' => $this->rating]);
 
-        // $this->answerRatings is missing here...
-        $this->checkIfStudentCanFinishCoLearning(); //todo does not update / render the button
+        $this->checkIfStudentCanFinishCoLearning();
     }
 
-    public function updateAnswerRating($amountChecked, $amountPossibleOptions)
+    public function updateAnswerRating(int $amountChecked, int $amountPossibleOptions)
     {
-        if ($this->questionAllowsDecimalScore) {
+        if ($this->allowRatingWithHalfPoints) {
             $this->rating = $this->maxRating / $amountPossibleOptions * $amountChecked;
         } else {
             $this->rating = round($this->maxRating / $amountPossibleOptions * $amountChecked);
@@ -168,18 +144,25 @@ class CoLearning extends Component
         $this->dispatchBrowserEvent('updated-score', ['score' => $this->rating]);
     }
 
-//    public function sendWaitForTeacherNotification()
-//    {
-//        return $this->dispatchBrowserEvent('notify', ['message' => __('co-learning.wait_for_teacher'), 'type' => 'error']);
-//    }
+    private function setQuestionRatingProperties(): void
+    {
+        $this->maxRating = $this->answerRating->answer->question->score;
 
-    protected function getQuestionAndAnswerNavigationData()
+        $this->setWhichScoreSliderShouldBeShown();
+    }
+
+    private function setWhichScoreSliderShouldBeShown(): void
+    {
+        $this->allowRatingWithHalfPoints = (bool)$this->answerRating->answer->question->decimal_score;
+    }
+
+    private function getQuestionAndAnswerNavigationData(): void
     {
         $testTakeQuestionsCollection = TestTakeLaravelController::getData(null, $this->testTake);
         $currentQuestionId = $this->testTake->discussingQuestion->getKey();
 
         $this->numberOfQuestions = $testTakeQuestionsCollection->reduce(function ($carry, $question) use ($currentQuestionId) {
-            if($this->discussOpenQuestionsOnly && !$question->discuss){
+            if ($this->discussOpenQuestionsOnly && !$question->discuss) {
                 return $carry;
             }
             $carry++;
@@ -212,7 +195,7 @@ class CoLearning extends Component
         $this->checkIfStudentCanFinishCoLearning();
     }
 
-    protected function getAnswerRatings($navigateDirection = null)
+    private function getAnswerRatings($navigateDirection = null): void
     {
         $params = [
             'mode'   => 'all',
@@ -234,6 +217,12 @@ class CoLearning extends Component
 
             $this->setActiveAnswerRating($navigateDirection);
 
+            if ($this->answerRating->rating === null) {
+                $this->rating = null;
+            } else {
+                $this->rating = $this->allowRatingWithHalfPoints ? $this->answerRating->rating : (int)$this->answerRating->rating;
+            }
+
             $this->previousAnswerAvailable = $this->answerRatings->filter(fn($ar) => $ar->getKey() < $this->answerRatingId)->count() > 0;
             $this->nextAnswerAvailable = $this->answerRatings->filter(fn($ar) => $ar->getKey() > $this->answerRatingId)->count() > 0;
 
@@ -251,7 +240,7 @@ class CoLearning extends Component
 
     }
 
-    protected function checkIfStudentCanFinishCoLearning(): void
+    private function checkIfStudentCanFinishCoLearning(): void
     {
         if (
             $this->numberOfQuestions === $this->questionFollowUpNumber &&
@@ -263,7 +252,7 @@ class CoLearning extends Component
         $this->finishCoLearningButtonEnabled = false;
     }
 
-    protected function setActiveAnswerRating($navigateDirection): void
+    private function setActiveAnswerRating(?string $navigateDirection): void
     {
         if (isset($this->answerRatingId)) {
             if ($navigateDirection == 'next' && $this->nextAnswerAvailable) {
@@ -298,5 +287,12 @@ class CoLearning extends Component
         }
 
         return (!$this->nextAnswerAvailable && isset($this->rating)); //show on last answerRating after both are rated
+    }
+
+    private function redirectIfNotStatusDiscussing()
+    {
+        if ($this->testTake->test_take_status_id !== TestTakeStatus::STATUS_DISCUSSING) {
+            return redirect()->route('student.test-takes', ['tab' => 'discuss']);
+        }
     }
 }

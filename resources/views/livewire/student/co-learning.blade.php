@@ -64,8 +64,7 @@
                                               model-name="rating"
                                               :max-score="$maxRating"
                                               :score="$rating"
-                                              :allow-half-points="$questionAllowsDecimalScore"
-                                              :continuous-score-slider="$continuousScoreSlider"
+                                              :allow-half-points="$allowRatingWithHalfPoints"
                         />
                     </div>
                 @endif
@@ -75,10 +74,17 @@
                 <span><b class="bold">{{ __('co-learning.question') }} {{$this->questionFollowUpNumber}}</b>/{{$this->numberOfQuestions}}</span>
 
                 @if($previousAnswerAvailable)
-                    <x-button.primary class="rotate-svg-180" wire:click="goToPreviousAnswerRating()">
-                        <x-icon.arrow class=""/>
-                        <span>{{ __('co-learning.previous_answer') }}</span>
-                    </x-button.primary>
+                    @if(isset($this->rating) && !is_null($rating))
+                        <x-button.primary class="rotate-svg-180" wire:click="goToPreviousAnswerRating()">
+                            <x-icon.arrow class=""/>
+                            <span>{{ __('co-learning.previous_answer') }}</span>
+                        </x-button.primary>
+                    @else
+                        <x-button.primary class="rotate-svg-180" wire:click="goToPreviousAnswerRating()" disabled>
+                            <x-icon.arrow class=""/>
+                            <span>{{ __('co-learning.previous_answer') }}</span>
+                        </x-button.primary>
+                    @endif
                 @elseif($nextAnswerAvailable)
                     @if(isset($this->rating) && !is_null($rating))
                         <x-button.primary wire:click="goToNextAnswerRating()">
