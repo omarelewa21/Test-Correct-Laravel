@@ -31,6 +31,7 @@
         <h2 class="flex">{{ __('student.overzicht p-waardes') }}</h2>
     </div>
     <x-content-section>
+
         <x-slot name="title">
             <div class="hidden">{{ $this->data }}</div>
             @if ($attainment->is_learning_goal == 1)

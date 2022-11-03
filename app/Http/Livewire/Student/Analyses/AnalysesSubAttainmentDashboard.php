@@ -55,7 +55,7 @@ class AnalysesSubAttainmentDashboard extends AnalysesDashboard
             $this->getTeachersByFilterValues()
         );
 
-        $this->showEmptyStateForPValueGraph = $result->count() === 0;
+        $this->showEmptyStateForPValueGraph = $result->filter(fn($item) => !is_null($item['score']))->isEmpty();
 
         $this->dataValues = $result->map(function ($pValue, $key) {
             $link = false;
@@ -65,7 +65,6 @@ class AnalysesSubAttainmentDashboard extends AnalysesDashboard
                     'subject'    => $this->subject,
                 ]);
             }
-
 
             return (object)[
                 'x'       => $key + 1,
