@@ -6,7 +6,7 @@
     >
         <div class="w-full max-w-screen-2xl mx-auto @if($context !== 'question-bank') px-10 @endif z-1 flex items-center justify-between">
             <div class="flex items-center space-x-2.5 z-1">
-                <x-button.back-round @click="closeGroupDetail()"/>
+                <x-button.back-round x-on:click="$el.closest('[group-container]').dispatchEvent(new CustomEvent('close-group-details'));"/>
                 <div class="flex text-lg bold">
                     <span>{{ __('question.Vraaggroep') }}: {{ $name ?? '' }}</span>
                 </div>

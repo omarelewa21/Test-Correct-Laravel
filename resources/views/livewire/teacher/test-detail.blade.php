@@ -3,8 +3,8 @@
      x-data="{groupDetail: null, bodyVisibility: true,  maxHeight: '100%'}"
      x-init="
      groupDetail = $el.querySelector('#groupdetail');
-     showGroupDetails = async (groupQuestionUuid) => {
-            let readyForSlide = await $wire.showGroupDetails(groupQuestionUuid);
+     showGroupDetails = async (groupQuestionUuid, inTest) => {
+            let readyForSlide = await $wire.showGroupDetails(groupQuestionUuid, inTest);
 
             if (readyForSlide) {
                 groupDetail.style.left = 0;
@@ -28,11 +28,14 @@
      @empty($this->mode)
         wire:init="handleReferrerActions()"
      @endempty
+     group-container
+     x-on:show-group-details="showGroupDetails($event.detail.questionUuid, $event.detail.inTest );"
+     x-on:close-group-details="closeGroupDetail()"
 >
     <div class="flex w-full border-b border-secondary pb-1 sticky bg-lightGrey z-1 sticky-pseudo-bg"
          :style="{top: $root.offsetTop + 'px'}">
 
-        <div class="w-full max-w-screen-2xl mx-auto px-10 z-1">
+        <div class="w-full max-w-screen-2xl mx-auto px-10 z-1 py-1">
             <div class="flex w-full justify-between">
                 <div class="flex items-center space-x-2.5 w-full">
                     @empty($this->mode)

@@ -13,9 +13,9 @@
         $watch('$store.questionBank.inGroup', value => inGroup = value);
         $watch('$store.questionBank.active', value => {
            //if true, the wire method also makes the html rerender, but only calling the render didn't cut it
-           value ? $wire.setAddedQuestionIdsArray() : closeGroupDetail();
+           value ? $wire.setAddedQuestionIdsArray() : closeGroupDetailQb();
         });
-        showGroupDetails = async (groupQuestionUuid, inTest = false) => {
+        showGroupDetailsQb = async (groupQuestionUuid, inTest = false) => {
             let readyForSlide = await $wire.showGroupDetails(groupQuestionUuid, inTest);
 
             if (readyForSlide) {
@@ -32,7 +32,7 @@
             }
         }
 
-        closeGroupDetail = () => {
+        closeGroupDetailQb = () => {
             if (!bodyVisibility) {
                 bodyVisibility = true;
                 maxHeight = 'calc(100vh - var(--header-height))';
@@ -56,6 +56,9 @@
         "
      @question-added.window="Notify.notify('{{ __('cms.question_added') }}');"
      @question-removed.window="Notify.notify('{{ __('cms.question_deleted') }}')"
+     group-container
+     x-on:show-group-details="showGroupDetailsQb($event.detail.questionUuid, $event.detail.inTest );"
+     x-on:close-group-details="closeGroupDetailQb()"
 >
     <x-menu.tab.container >
         <x-menu.tab.item tab="personal" menu="questionBankOpenTab" >
@@ -195,7 +198,7 @@
                     </x-grid>
                     <x-grid class="mt-4" x-show="!filterLoading" x-cloak selid="question-bank-list">
                         @foreach($this->questions as $question)
-                            <x-grid.question-card :question="$question" :inTest="$this->testContainsQuestion($question)"/>
+                            <x-grid.question-card :question="$question" :inTest="$this->testContainsQuestion($question)" context="question-bank"/>
                         @endforeach
 
                         @if($this->questions->count() && $this->questions->count() != $this->resultCount)
