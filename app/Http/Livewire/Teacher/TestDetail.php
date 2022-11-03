@@ -78,14 +78,9 @@ class TestDetail extends Component
         $this->reset('groupQuestionDetail');
     }
 
-    public function isQuestionInTest()
+    public function openDetail($questionUuid, $inTest = false)
     {
-        return false;
-    }
-
-    public function openDetail($questionUuid)
-    {
-        $this->emit('openModal', 'teacher.question-detail-modal', ['questionUuid' => $questionUuid]);
+        $this->emit('openModal', 'teacher.question-detail-modal', ['questionUuid' => $questionUuid, 'inTest' => $inTest]);
     }
 
     public function handleReferrerActions()
@@ -114,5 +109,10 @@ class TestDetail extends Component
         if (isset($this->mode) && $this->mode === 'cms') {
             $this->context = 'question-bank';
         }
+    }
+
+    public function testContainsQuestion($questionId)
+    {
+        return false;
     }
 }

@@ -26,8 +26,8 @@
      "
      :style="`max-height: ${maxHeight}`"
      @empty($this->mode)
-         wire:init="handleReferrerActions()"
-        @endempty
+        wire:init="handleReferrerActions()"
+     @endempty
 >
     <div class="flex w-full border-b border-secondary pb-1 sticky bg-lightGrey z-1 sticky-pseudo-bg"
          :style="{top: $root.offsetTop + 'px'}">
@@ -90,8 +90,10 @@
                         @endforeach
 
                         @foreach($this->test->testQuestions->sortBy('order') as $testQuestion)
-                            {{--<x-grid.question-card :question="$testQuestion->question" />--}}
-                            <x-grid.question-card-detail :testQuestion="$testQuestion" :mode="$this->mode ?? 'page'"/>
+                            <x-grid.question-card-detail :testQuestion="$testQuestion"
+                                                         :mode="$this->mode ?? 'page'"
+                                                         :inTest="$this->testContainsQuestion($testQuestion->question)"
+                            />
                         @endforeach
                     </x-grid>
                     <livewire:context-menu.question-card/>

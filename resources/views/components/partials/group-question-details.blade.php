@@ -67,8 +67,12 @@
         </div>
         <x-grid class="subquestion-grid w-full">
             @forelse($subQuestions as $sub)
-                <x-grid.question-card :question="$sub->question" :testUuid="$this->testId ?? null"
-                                      :order="$loop->iteration" :showQuestionBankAddConfirmation="$showQuestionBankAddConfirmation"/>
+                <x-grid.question-card :question="$sub->question"
+                                      :testUuid="$this->testId ?? null"
+                                      :order="$loop->iteration"
+                                      :showQuestionBankAddConfirmation="$showQuestionBankAddConfirmation"
+                                      :inTest="$this->testContainsQuestion($sub->question)"
+                />
             @empty
                 <span>Geen subvragen</span>
             @endforelse

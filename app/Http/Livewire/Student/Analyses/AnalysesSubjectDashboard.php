@@ -24,6 +24,8 @@ class AnalysesSubjectDashboard extends AnalysesDashboard
 
     public $attainmentMode;
 
+    public $showEmptyStateForPValueGraph = false;
+
 
     public function getAttainmentModeOptionsProperty()
     {
@@ -89,7 +91,7 @@ class AnalysesSubjectDashboard extends AnalysesDashboard
             $this->attainmentModeIsLearningGoal(),
         );
 
-        $this->showEmptyStateForPValueGraph = $result->count() === 0;
+        $this->showEmptyStateForPValueGraph = $result->filter(fn($item) => !is_null($item['score']))->isEmpty();
 
         $this->dataValues = $result->map(function ($pValue, $key) {
             $link = false;

@@ -55,7 +55,7 @@ class AnalysesSubAttainmentDashboard extends AnalysesDashboard
             $this->getTeachersByFilterValues()
         );
 
-        $this->showEmptyStateForPValueGraph = $result->count() === 0;
+        $this->showEmptyStateForPValueGraph = $result->filter(fn($item) => !is_null($item['score']))->isEmpty();
 
         $this->dataValues = $result->map(function ($pValue, $key) {
             $link = false;
@@ -66,13 +66,12 @@ class AnalysesSubAttainmentDashboard extends AnalysesDashboard
                 ]);
             }
 
-
             return (object)[
                 'x'       => $key + 1,
                 'title'   => $this->attainment->getSubSubNameWithNumber($key + 1),
                 'count'   => $pValue->cnt,
                 'value'   => number_format(($pValue->score > 0 ? $pValue->score : 0), 2),
-                'text'    => $pValue->serie,
+                'text'    => $pValue->description,
                 'basedOn' => trans_choice('student.attainment_tooltip_title', $pValue->cnt, [
                     'basedOn' => $pValue->cnt
                 ]),

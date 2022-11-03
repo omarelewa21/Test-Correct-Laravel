@@ -31,6 +31,7 @@
         <h2 class="flex">{{ __('student.overzicht p-waardes') }}</h2>
     </div>
     <x-content-section>
+
         <x-slot name="title">
             <div class="hidden">{{ $this->data }}</div>
             @if ($attainment->is_learning_goal == 1)
@@ -63,9 +64,15 @@
             {{ __('student.Algemeen') }}
         </x-slot>
 
-        <div class="flex flex-row">
-            <x-partials.analyses-general-data :generalStats="$generalStats"/>
-        </div>
+        @if ($this->showEmptyStateForGeneralStats())
+            <div class="flex flex-row min-h-[300px] relative">
+                <x-empty-graph show="true"></x-empty-graph>
+            </div>
+        @else
+            <div class="flex flex-row">
+                <x-partials.analyses-general-data :generalStats="$generalStats"/>
+            </div>
+        @endif
     </x-content-section>
 
     <div class="divider my-6"></div>
