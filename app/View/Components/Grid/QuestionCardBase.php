@@ -15,8 +15,9 @@ class QuestionCardBase extends Component
     public $inTest = false;
     public $order;
     public $showQuestionBankAddConfirmation = false;
+    public $context;
 
-    public function __construct($question, $order = null, $showQuestionBankAddConfirmation = false, $inTest = false)
+    public function __construct($question, $order = null, $showQuestionBankAddConfirmation = false, $inTest = false, $context = 'test-detail')
     {
         $this->question = $question;
         $this->authors = $question->authors->map(function ($author) {
@@ -27,6 +28,7 @@ class QuestionCardBase extends Component
         $this->order = $order;
         $this->showQuestionBankAddConfirmation = $showQuestionBankAddConfirmation;
         $this->inTest = $inTest;
+        $this->context = $context;
     }
 
     public function render(): View
