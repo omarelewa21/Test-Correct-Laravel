@@ -28,9 +28,10 @@
 
 @section('analyses.p-values-graph')
     <div class="flex justify-between mb-5">
-        <h2 class="flex">{{ __('student.overzicht p-waardes') }} @js($this->showEmptyStateForPValueGraph) </h2>
+        <h2 class="flex">{{ __('student.overzicht p-waardes') }}</h2>
     </div>
     <x-content-section>
+
         <x-slot name="title">
             <div class="hidden">{{ $this->data }}</div>
             @if ($attainment->is_learning_goal == 1)

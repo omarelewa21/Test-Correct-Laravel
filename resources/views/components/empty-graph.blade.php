@@ -1,16 +1,6 @@
 @if($show)
-    <div>
-        <div class=" absolute inset-0 flex justify-center" width="100%" height="100%">
-            <div class="block w-[550px]">
-                <p class="text-center text-2xl mb-2">
-                    {{ __('student.analyses_graph_empty_state_no_results') }}
-                </p>
-                <p class="text-center">
-                    {{ __('student.analyses_graph_empty_state_no_eidtermen_of_leerdoelen') }}
-                </p>
-            </div>
-        </div>
-        <div class="absolute inset-0 flex   mb-5 ">
+    <div class="z-1 absolute inset-0 mb-[60px]">
+        <div class="absolute inset-0 flex">
             <svg width="100%" viewBox="0 0 460 270" version="1.1" xmlns="http://www.w3.org/2000/svg"
                  xmlns:xlink="http://www.w3.org/1999/xlink">
                 <title>illustrations/emptyStates/Analyses/empty-state-Geen-leerdoelen-gekoppeld-aan-resultaten/L
@@ -274,6 +264,16 @@
                     </g>
                 </g>
             </svg>
+        </div>
+        <div class=" absolute inset-0 flex justify-center" width="100%" height="100%">
+            <div class="block w-[550px] mt-10">
+                <p class="text-center text-2xl mb-2">
+                    {{ __('student.analyses_graph_empty_state_no_results') }}
+                </p>
+                <p class="text-center">
+                    {{ __('student.analyses_graph_empty_state_no_eidtermen_of_leerdoelen') }}
+                </p>
+            </div>
         </div>
     </div>
 @endif
