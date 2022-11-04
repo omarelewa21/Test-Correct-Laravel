@@ -56,7 +56,7 @@ class CreateTellATeacherRequest extends Request
 
                 if (!filter_var($value, FILTER_VALIDATE_EMAIL)) {
 
-                    return $fail(sprintf('The email address contains international characters.', $value));
+                    return $fail(sprintf('The email address %s contains international characters.', $value));
 
                 }
             }],

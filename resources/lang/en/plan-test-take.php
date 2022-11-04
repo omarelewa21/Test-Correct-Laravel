@@ -4,8 +4,6 @@
 
 			'Uitloggen' => 'Log out',
 
-			'Geplande toetsen' => 'Scheduled tests',
-
 			'Te bespreken' => 'To discuss',
 
 			'Inzien' => 'View',

@@ -128,5 +128,4 @@ return [
     'guest_account_not_allowed'                               => 'guest accounts are not allowed for this test',
     'user_not_in_same_school'                                 => 'Within Test-Correct you are not found for this school location. Please choose the correct location',
     'user_not_in_same_school_please_contact_helpdesk'                                                => 'Within Test-Correct you are not found for this school location. Please get in contact with support',
-    'user_not_in_same_school_please_contact_helpdesk'                                                => 'Within Test-Correct you are not found for this school location. Please get in contact with support',
 ];

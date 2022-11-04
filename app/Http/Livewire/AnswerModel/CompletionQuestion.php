@@ -27,17 +27,17 @@ class CompletionQuestion extends Component
     public function mount()
     {
         $this->question->completionQuestionAnswers->each(function ($answer) {
-            if($answer->correct){
+            if ($answer->correct) {
                 $this->answerStruct[$answer->tag] = $answer->answer;
                 return true;
             }
-            if(!array_key_exists($answer->tag,$this->answerStruct)){
+            if (!array_key_exists($answer->tag, $this->answerStruct)) {
                 $this->answerStruct[$answer->tag] = '';
             }
         });
 
 
-        if(!is_null($this->question->belongs_to_groupquestion_id)){
+        if (!is_null($this->question->belongs_to_groupquestion_id)) {
             $this->question->groupQuestion = Question::find($this->question->belongs_to_groupquestion_id);
         }
     }
@@ -58,10 +58,6 @@ class CompletionQuestion extends Component
 
     private function multiHelper($question)
     {
-        if (empty($answerJson)) {
-            $answerJson = [];
-        }
-
         $question_text = $question->converted_question_html;
 
 
@@ -75,7 +71,7 @@ class CompletionQuestion extends Component
             $this->searchPattern,
             function ($matches) use ($tags) {
                 $answers = $tags[$matches[1]];
-                return $this->getOption($answers,$this->answerStruct[$matches[1]]);
+                return $this->getOption($answers, $this->answerStruct[$matches[1]]);
             },
             $question_text
         );
@@ -83,12 +79,12 @@ class CompletionQuestion extends Component
         return $question_text;
     }
 
-    private function getOption($answers,$correct)
+    private function getOption($answers, $correct)
     {
         return collect($answers)->map(function ($option, $key) use ($correct) {
-            if(trim($option)==trim($correct)){
-                $check = sprintf('<img class="icon_checkmark_pdf no-margin" src="data:image/svg+xml;charset=utf8,%s" >',$this->getEncodedCheckmarkSvg());
-                return sprintf('<span class="overflow-ellipsis rounded-10 pdf-answer-model-select" >%s %s</span>', $option,$check);
+            if (trim($option) == trim($correct)) {
+                $check = sprintf('<img class="icon_checkmark_pdf no-margin" src="data:image/svg+xml;charset=utf8,%s" >', $this->getEncodedCheckmarkSvg());
+                return sprintf('<span class="overflow-ellipsis rounded-10 pdf-answer-model-select" >%s %s</span>', $option, $check);
             }
             return '';
         })->join('');
