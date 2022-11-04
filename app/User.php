@@ -566,15 +566,7 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
                 $user->mentorSchoolClasses ??= [];
             }
 
-            if ($user->isDirty(['password'])) {
-                if(request()->json("user") !== $user->username) {
-                    $user->force_password_change = 1;
-                } else {
-                    if($user->force_password_change) {
-                        $user->force_password_change = 0;
-                    }
-                }
-            }
+            $this->setForcePasswordChangeIfRequired($user);
 
             if($user->isA('Teacher')) {
                 $user->handleExamCoordinatorChange();
@@ -2715,5 +2707,17 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
 //                }
 //            }
         }
+    }
+
+    private function setForcePasswordChangeIfRequired(User $user): void
+    {
+        if (!$user->isDirty(['password'])) {
+            return;
+        }
+        if(request() && request()->json("user") && (request()->json("user") !== $user->username)) {
+            $user->force_password_change = 1;
+            return;
+        }
+        $user->force_password_change = 0;
     }
 }
