@@ -568,10 +568,8 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
 
             if ($user->isDirty(['password'])) {
                 if(request()->json("user") !== $user->username) {
-                    dump("Het was iemand anders!");
                     $user->force_password_change = 1;
                 } else {
-                    dump("Ik was het zelf!");
                     if($user->force_password_change) {
                         $user->force_password_change = 0;
                     }
