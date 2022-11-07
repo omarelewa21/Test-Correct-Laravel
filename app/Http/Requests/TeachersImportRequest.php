@@ -116,6 +116,7 @@ class TeachersImportRequest extends Request {
      *
      * @param \Illuminate\Validation\Validator $validator
      * @return void
+     * @noinspection UnsupportedStringOffsetOperationsInspection
      */
     public function withValidator($validator) {
         $validator->after(function ($validator) {

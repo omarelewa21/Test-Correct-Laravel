@@ -211,6 +211,7 @@ abstract class CompositePrimaryKeyModel extends BaseModel {
      *
      * @param  array  $except
      * @return \Illuminate\Database\Eloquent\Model
+     * @noinspection UnsupportedStringOffsetOperationsInspection
      */
     public function replicate(array $except = null)
     {
