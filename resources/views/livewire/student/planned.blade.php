@@ -67,7 +67,7 @@
                                     class="text-right hidden lg:table-cell">{{ $testTake->weight }}
                             </x-table.cell>
                             <x-table.cell>
-                                <x-partials.test-take-type-label type="{{ $testTake->retake }}"/>
+                                <x-partials.test-take-type-label :type="$testTake->retake"/>
                             </x-table.cell>
                             <x-table.cell buttonCell class="text-right">
                                 <x-partials.start-take-button :timeStart="$testTake->time_start"
