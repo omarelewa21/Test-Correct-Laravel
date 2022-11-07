@@ -34,14 +34,12 @@
           class="mr-3 flex {{ $attributes->get('slotClasses') }} {{ $alignClass }}">{!! $slot !!}</span>
     @if($after)
         <div class="flex space-x-2.5 pdf-100 items-center {{ $alignItems == 'start' ? 'mt-1.5' : '' }}">
-            @endif
+    @endif
             <div id="icon_{{ $attributes->get('id') }}" class="w-4 pdf-80 {{ $attributes->get('dragClasses') }}">
                 @if($sortIcon == 'reorder')
                     @if($useHandle)
                         <x-icon.reorder wire:sortable.handle id="grab_{{ $attributes->get('id') }}"
-                                @class([$attributes->get('dragIconClasses', 'pointer-hand')])
-
-{{ $attributes->get('dragIconClasses') }}"
+                                        class="{{ $attributes->get('dragIconClasses') }}"
                         ></x-icon.reorder>
                     @else
                         <x-icon.reorder id="grab_{{ $attributes->get('id') }}"
@@ -59,8 +57,8 @@
                 @endif
             </div>
 
-            @if($after)
-                {{ $after }}
+    @if($after)
+        {{ $after }}
         </div>
     @endif
 </div>
