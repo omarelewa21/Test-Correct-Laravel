@@ -39,7 +39,9 @@
                 @if($sortIcon == 'reorder')
                     @if($useHandle)
                         <x-icon.reorder wire:sortable.handle id="grab_{{ $attributes->get('id') }}"
-                                class="{{ $attributes->get('dragIconClasses') }}"
+                                @class([$attributes->get('dragIconClasses', 'pointer-hand')])
+
+{{ $attributes->get('dragIconClasses') }}"
                         ></x-icon.reorder>
                     @else
                         <x-icon.reorder id="grab_{{ $attributes->get('id') }}"

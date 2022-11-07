@@ -83,7 +83,11 @@ class Info extends Model
     public function saveRoleInfo($data)
     {
         $data = (object) $data;
-        $this->for_all = !!$data->for_all;
+
+        $this->for_all = false;
+        if (property_exists($data, 'for_all')) {
+            $this->for_all = !!$data->for_all;
+        }
         if ($data->status !== self::ACTIVE){
             $this->status = self::INACTIVE;
         }
