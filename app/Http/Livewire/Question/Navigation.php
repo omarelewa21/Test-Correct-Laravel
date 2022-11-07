@@ -110,7 +110,7 @@ class Navigation extends Component
 
     public function updateQuestionIndicatorColor($questionNumber)
     {
-        $newNav = $this->nav->map(function (&$item, $key) use ($questionNumber) {
+        $newNav = $this->nav->map(function ($item, $key) use ($questionNumber) {
             if ($key + 1 == $questionNumber) {
                 $item['answered'] = true;
                 return $item;
