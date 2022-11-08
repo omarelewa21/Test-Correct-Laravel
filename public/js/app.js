@@ -5981,6 +5981,8 @@ document.addEventListener('alpine:init', function () {
 
         if (this.gridSvg !== '' && this.gridSvg !== '0.00') {
           gridSize = this.gridSvg;
+        } else if (this.isOldDrawing == false && this.grid && this.grid !== '0') {
+          gridSize = 1 / parseInt(this.grid) * 14; // This calculation is based on try and change to reach the closest formula that makes grid visualization same as old drawing
         }
 
         if (gridSize) {
@@ -6205,9 +6207,11 @@ document.addEventListener('alpine:init', function () {
         var _this15 = this;
 
         setTimeout(function () {
-          var el = _this15.$root.querySelector("[x-ref=\"".concat(_this15.activeSlide, "\"]"));
+          if (_this15.activeSlide !== 'questionbank') {
+            var el = _this15.$root.querySelector("[x-ref=\"".concat(_this15.activeSlide, "\"]"));
 
-          if (el !== null) _this15.handleVerticalScroll(el);
+            if (el !== null) _this15.handleVerticalScroll(el);
+          }
 
           _this15.poll(interval);
         }, interval);
@@ -7426,6 +7430,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var filepond_plugin_file_validate_size__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(filepond_plugin_file_validate_size__WEBPACK_IMPORTED_MODULE_1__);
 /* harmony import */ var _smoothscroll_polyfill__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./smoothscroll-polyfill */ "./resources/js/smoothscroll-polyfill.js");
 /* harmony import */ var _smoothscroll_polyfill__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(_smoothscroll_polyfill__WEBPACK_IMPORTED_MODULE_2__);
+/* provided dependency */ var process = __webpack_require__(/*! process/browser.js */ "./node_modules/process/browser.js");
 window._ = __webpack_require__(/*! lodash */ "./node_modules/lodash/lodash.js");
 /**
  * We'll load the axios HTTP library which allows us to easily issue requests
@@ -7445,7 +7450,7 @@ window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
 window.Pusher = __webpack_require__(/*! pusher-js */ "./node_modules/pusher-js/dist/web/pusher.js");
 window.Echo = new laravel_echo__WEBPACK_IMPORTED_MODULE_0__["default"]({
   broadcaster: 'pusher',
-  key: "51d7221bf733999d7138",
+  key: "fc18ed69b446aeb8c8a5",
   cluster: "eu",
   forceTLS: true
 });
@@ -7456,6 +7461,9 @@ FilePond.registerPlugin((filepond_plugin_file_validate_size__WEBPACK_IMPORTED_MO
 
 
 _smoothscroll_polyfill__WEBPACK_IMPORTED_MODULE_2___default().polyfill();
+anychart.onDocumentLoad(function () {
+  anychart.licenseKey(process.env.MIX_ANYCHART_LICENSE_KEY);
+});
 
 /***/ }),
 
@@ -8032,7 +8040,6 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
       root: rootElement,
       isTeacher: isTeacher && !isPreview,
       isPreview: isPreview,
-      isOldDrawing: isOldDrawing,
       hiddenLayersCount: 0
     },
     firstInit: true,
@@ -8056,7 +8063,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
           }
 
           if (grid && grid !== '0') {
-            drawGridBackground(grid);
+            drawGridBackground();
           }
 
           processGridToggleChange();
@@ -9041,7 +9048,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
         var newShape = makeNewSvgShapeWithSidebarEntry(shapeType, props, layerName, true, !(!drawingApp.isTeacher() && layerName === "question"));
         Canvas.layers[layerName].shapes[shapeID] = newShape;
 
-        if (drawingApp.params.isOldDrawing && layerName === "question") {
+        if (isOldDrawing && layerName === "question") {
           fitDrawingToScreen();
         }
 
@@ -10201,16 +10208,24 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
     Canvas.layers.grid.shape = new _svgShape_js__WEBPACK_IMPORTED_MODULE_2__.Grid(0, props, UI.svgGridGroup, drawingApp, Canvas);
   }
 
-  function drawGridBackground(grid) {
+  function drawGridBackground() {
     var props = {
       group: {},
       main: {},
       origin: {
         id: "grid-origin"
       },
-      size: 1 / parseInt(grid) * 14
+      size: getAdjustedGridValue()
     };
-    new _svgShape_js__WEBPACK_IMPORTED_MODULE_2__.Grid(0, props, UI.svgGridGroup, drawingApp, Canvas);
+    Canvas.layers.bgGrid = new _svgShape_js__WEBPACK_IMPORTED_MODULE_2__.Grid(0, props, UI.svgGridGroup, drawingApp, Canvas);
+  }
+
+  function getAdjustedGridValue() {
+    if (grid && grid !== '0') {
+      return 1 / parseInt(grid) * 14; // This calculation is based on try and change to reach the closest formula that makes grid visualization same as old drawing
+    }
+
+    return 0;
   }
 
   function updateGridVisibility() {
@@ -10229,6 +10244,10 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
     if (valueWithinBounds(UI.gridSize)) {
       drawingApp.params.gridSize = UI.gridSize.value;
       Canvas.layers.grid.shape.update();
+
+      if (Canvas.layers.bgGrid) {
+        Canvas.layers.bgGrid.update(getAdjustedGridValue());
+      }
     }
   }
 
@@ -13024,8 +13043,8 @@ var Grid = /*#__PURE__*/function (_Path) {
     }
   }, {
     key: "update",
-    value: function update() {
-      var size = this.drawingApp.params.gridSize;
+    value: function update(gridSize) {
+      var size = gridSize ? gridSize : this.drawingApp.params.gridSize;
       this.setDAttributes(this.calculateDAttributeForGrid(size), this.calculateDAttributeForOrigin(size));
     }
   }, {
@@ -13782,7 +13801,7 @@ Notify = {
 
 PdfDownload = {
   waitingScreenHtml: function waitingScreenHtml(translation) {
-    return "<html><head><style>" + "#animation {" + "background-image: url(/img/loading.gif);" + "}" + "</style></head>" + "<body style='background: url(/img/bg.png) right no-repeat #f5f5f5'>" + "<div style='display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh;'>" + "<div style='background-color: rgba(0,0,0,0.8); padding: 20px 20px 15px 20px; border-radius: 10px; margin-bottom: 1rem;'>" + "<div id='animation' style='width: 35px; height: 35px;'></div>" + "</div>" + "<span style='font-family: Nunito, sans-serif; font-size: 20pt;'>" + translation + "</span>" + "</div>" + "</body></html>";
+    return "<html><head><style>" + "#animation {" + "background-image: url(/img/loading.gif);" + "}" + "</style></head>" + "<body style='background: #f5f5f5'>" + "<div style='display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh;'>" + "<div style='background-color: rgba(0,0,0,0.8); padding: 20px 20px 15px 20px; border-radius: 10px; margin-bottom: 1rem;'>" + "<div id='animation' style='width: 35px; height: 35px;'></div>" + "</div>" + "<span style='font-family: Nunito, sans-serif; font-size: 20pt;'>" + translation + "</span>" + "</div>" + "</body></html>";
   }
 };
 
