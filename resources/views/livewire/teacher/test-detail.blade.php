@@ -70,8 +70,9 @@
             </div>
         </div>
         <div class="flex w-full justify-between mt-1 note text-sm">
-            <div class="flex">
-                <span class="text-sm">{{ trans_choice('cms.vraag', $this->amountOfQuestions['regular']) }}, {{ trans_choice('cms.group-question-count', $this->amountOfQuestions['group']) }}</span>
+            <div class="flex space-x-2.5">
+                <div class="text-sm">{{ trans_choice('cms.vraag', $this->amountOfQuestions['regular']) }}, {{ trans_choice('cms.group-question-count', $this->amountOfQuestions['group']) }}</div>
+                <div class="bold">{{ $this->test->getTotalScore() }}pt.</div>
             </div>
         </div>
         @empty($this->mode)

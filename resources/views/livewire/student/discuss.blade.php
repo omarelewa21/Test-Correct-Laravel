@@ -57,7 +57,7 @@
                                         class="text-right hidden lg:table-cell">{{ $testTake->weight }}
                                 </x-table.cell>
                                 <x-table.cell>
-                                    <x-partials.test-take-type-label type="{{ $testTake->retake }}"/>
+                                    <x-partials.test-take-type-label :type="$testTake->retake"/>
                                 </x-table.cell>
                                 <x-table.cell buttonCell class="text-right">
 {{--                                    @if($testTake->test_take_status_id == \tcCore\TestTakeStatus::STATUS_DISCUSSING)--}}

@@ -89,7 +89,7 @@ class SchoolClassesStudentImportRequest extends Request
             'data.*.gender' => 'sometimes',
             'data.*.school_class_name' => [$school_class_name_rule, function ($attribute, $value, $fail) {
                 if ($this->classDoesNotExist($value)) {
-                    return $fail(sprintf('school_class_name not found.', $attribute));
+                    return $fail(sprintf('school_class_name %s not found.', $attribute));
                 }
             }]
         ]);

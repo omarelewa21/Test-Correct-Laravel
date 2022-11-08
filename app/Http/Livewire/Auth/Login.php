@@ -193,8 +193,6 @@ class Login extends Component
 
     public function guestLogin()
     {
-
-
         if (!$this->filledInNecessaryGuestInformation()) {
             return false;
         }
@@ -206,7 +204,7 @@ class Login extends Component
         $testCodeHelper = new TestTakeCodeHelper();
 
         $testTakeCode = $testCodeHelper->getTestTakeCodeIfExists($this->testTakeCode);
-        if (!$testTakeCode) {
+        if (!$testTakeCode || !$testTakeCode->testTake) {
             return $this->addError('no_test_found_with_code', __('auth.no_test_found_with_code'));
         }
 

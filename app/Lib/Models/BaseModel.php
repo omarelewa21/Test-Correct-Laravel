@@ -14,6 +14,16 @@ abstract class BaseModel extends Model {
         return array_key_exists($attr, $this->attributes);
     }
 
+    /**
+     * Save model without triggering observers on model
+     */
+    public function saveQuietly(array $options = [])
+    {
+        return static::withoutEvents(function () use ($options) {
+            return $this->save($options);
+        });
+    }
+
     public function cloneModelOnly(array $except = [])
     {
         $except = array_merge($except, $this->exceptCloneModelOnly);

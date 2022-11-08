@@ -350,6 +350,8 @@ document.addEventListener('alpine:init', () => {
             if (this.gridSvg !== '' && this.gridSvg !== '0.00') {
                 gridSize = this.gridSvg;
 
+            }else if(this.isOldDrawing == false && (this.grid && this.grid !== '0') ){
+                gridSize = 1/parseInt(this.grid) * 14;    // This calculation is based on try and change to reach the closest formula that makes grid visualization same as old drawing
             }
             if (gridSize) {
                 makePreviewGrid(toolName.drawingApp, gridSize);
@@ -692,7 +694,7 @@ document.addEventListener('alpine:init', () => {
                 series.selected().fill("#444");
                 series.stroke(null);
 
-                this.initTooltips(chart, this.data);
+                this.initTooltips(chart, this.data, series);
 
                 var legend = chart.legend();
                 // enable legend
@@ -768,63 +770,67 @@ document.addEventListener('alpine:init', () => {
                 chart.draw();
             },
 
-            initTooltips(chart, data) {
+            initTooltips(chart, data, series) {
                 chart.tooltip().useHtml(true);
                 chart.tooltip().title(false)
                 chart.tooltip().separator(false)
+                series.tooltip().enabled(false)
+                let contentElement = null;
+                let dataRow = null;
 
-                var contentElement = null;
-
+                chart.listen("pointMouseOver", (e) => series.tooltip().enabled(false) );
                 chart.listen("pointMouseOver", function (e) {
                     // get the data for the current point
-                    var dataRow = data[e.pointIndex];
+                    dataRow = data[e.pointIndex];
+                    series.tooltip().enabled(true)
 
                     if (contentElement) {
-                        while (contentElement.firstChild) {
-                            contentElement.firstChild.remove()
-                        }
-                        const attainmentHeader = document.createElement("h5");
-                        attainmentHeader.style.color = 'var(--system-base)'
-                        attainmentHeader.appendChild(document.createTextNode(dataRow.title));
-                        contentElement.appendChild(attainmentHeader);
-
-                        const scoreElement = document.createElement("h2");
-                        scoreElement.style.color = 'var(--system-base)'
-                        scoreElement.appendChild(document.createTextNode(`P ${dataRow.value}`));
-                        contentElement.appendChild(scoreElement);
-
-                        const basedOnElement = document.createElement("p");
-                        basedOnElement.style.color = 'var(--system-base)'
-                        basedOnElement.appendChild(document.createTextNode(dataRow.basedOn));
-                        contentElement.appendChild(basedOnElement);
-
-                        if (dataRow.link != false) {
-                            const detailElement = document.createElement("p");
-                            detailElement.style.whiteSpace = 'nowrap'
-                            detailElement.style.color = 'var(--system-base)';
-                            detailElement.style.fontWeight = '900';
-                            detailElement.appendChild(document.createTextNode("Bekijk analyse"));
-
-                            const iconElement = document.createElement('img');
-                            iconElement.src = '/svg/icons/arrow-small.svg';
-                            iconElement.style.display = 'inline-block'
-                            detailElement.appendChild(iconElement)
-                            contentElement.appendChild(detailElement);
-                        }
+                        fillTooltipHtml()
                     }
                 });
+                function fillTooltipHtml() {
+                    if (!dataRow) return;
+
+                    while (contentElement.firstChild) {
+                        contentElement.firstChild.remove()
+                    }
+                    const attainmentHeader = document.createElement("h5");
+                    attainmentHeader.style.color = 'var(--system-base)'
+                    attainmentHeader.appendChild(document.createTextNode(dataRow.title));
+                    contentElement.appendChild(attainmentHeader);
+
+                    const scoreElement = document.createElement("h2");
+                    scoreElement.style.color = 'var(--system-base)'
+                    scoreElement.appendChild(document.createTextNode(`P ${dataRow.value}`));
+                    contentElement.appendChild(scoreElement);
+
+                    const basedOnElement = document.createElement("p");
+                    basedOnElement.style.color = 'var(--system-base)'
+                    basedOnElement.appendChild(document.createTextNode(dataRow.basedOn));
+                    contentElement.appendChild(basedOnElement);
+
+                    if (dataRow.link != false) {
+                        const detailElement = document.createElement("p");
+                        detailElement.style.whiteSpace = 'nowrap'
+                        detailElement.style.color = 'var(--system-base)';
+                        detailElement.style.fontWeight = '900';
+                        detailElement.appendChild(document.createTextNode("Bekijk analyse"));
+
+                        const iconElement = document.createElement('img');
+                        iconElement.src = '/svg/icons/arrow-small.svg';
+                        iconElement.style.display = 'inline-block'
+                        detailElement.appendChild(iconElement)
+                        contentElement.appendChild(detailElement);
+                    }
+                }
                 chart.tooltip().onDomReady(function (e) {
                     this.parentElement.style.border = '1px solid var(--blue-grey)';
                     this.parentElement.style.background = '#FFFFFF';
                     this.parentElement.style.opacity = '0.8';
                     contentElement = this.contentElement;
 
-                    // console.dir([
-                    //  this.parentElement,
-                    //  this.titleElement,
-                    //  this.separatorElement,
-                    //  this.contentElement
-                    // ]);
+                    fillTooltipHtml();
+
                 });
 
                 /* prevent the content of the contentElement div
@@ -882,7 +888,7 @@ document.addEventListener('alpine:init', () => {
                 series.selected().fill("#444");
                 series.stroke(null);
 
-                this.initTooltips(chart, this.data);
+                this.initTooltips(chart, this.data, series);
 
                 var legend = chart.legend();
                 // enable legend
@@ -967,73 +973,82 @@ document.addEventListener('alpine:init', () => {
                 this.renderGraph()
             },
 
-            initTooltips(chart, data) {
+            initTooltips(chart, data, series) {
                 chart.tooltip().useHtml(true);
                 chart.tooltip().title(false)
                 chart.tooltip().separator(false)
+                series.tooltip().enabled(false)
 
-                var contentElement = null;
+                let contentElement = null;
+                let dataRow = null
+
+                chart.listen("pointMouseOut", (e) => series.tooltip().enabled(false) );
+
+                function fillTooltipHtml() {
+                    if (!dataRow) return;
+
+                    while (contentElement.firstChild) {
+                        contentElement.firstChild.remove()
+                    }
+                    const attainmentHeader = document.createElement("h5");
+                    attainmentHeader.style.color = 'var(--system-base)'
+                    attainmentHeader.appendChild(document.createTextNode(dataRow.title));
+                    contentElement.appendChild(attainmentHeader);
+
+                    const scoreElement = document.createElement("h2");
+                    scoreElement.style.color = 'var(--system-base)'
+                    scoreElement.appendChild(document.createTextNode(`P ${dataRow.value}`));
+                    contentElement.appendChild(scoreElement);
+
+                    const basedOnElement = document.createElement("p");
+                    basedOnElement.style.color = 'var(--system-base)'
+                    basedOnElement.appendChild(document.createTextNode(dataRow.basedOn));
+                    contentElement.appendChild(basedOnElement);
+
+                    if (dataRow.count !== null) {
+                        const detailElement = document.createElement("p");
+                        detailElement.style.whiteSpace = 'nowrap'
+                        detailElement.style.color = 'var(--system-base)';
+                        detailElement.style.fontWeight = '900';
+                        detailElement.appendChild(document.createTextNode("Bekijk analyse "));
+
+                        const iconElement = document.createElement('img');
+                        iconElement.src = '/svg/icons/arrow-small.svg';
+                        iconElement.style.display = 'inline-block'
+                        detailElement.appendChild(iconElement)
+                        contentElement.appendChild(detailElement);
+                    }
+
+                    const AttainmentTexElement = document.createElement("p");
+                    AttainmentTexElement.style.color = 'var(--system-base)'
+                    AttainmentTexElement.appendChild(
+                        document.createTextNode(dataRow.text)
+                    );
+                    contentElement.appendChild(AttainmentTexElement);
+
+                }
 
                 chart.listen("pointMouseOver", function (e) {
                     // get the data for the current point
-                    var dataRow = data[e.pointIndex];
+                    series.tooltip().enabled(true)
 
-                    if (contentElement) {
-                        while (contentElement.firstChild) {
-                            contentElement.firstChild.remove()
-                        }
-                        const attainmentHeader = document.createElement("h5");
-                        attainmentHeader.style.color = 'var(--system-base)'
-                        attainmentHeader.appendChild(document.createTextNode(dataRow.title));
-                        contentElement.appendChild(attainmentHeader);
-
-                        const scoreElement = document.createElement("h2");
-                        scoreElement.style.color = 'var(--system-base)'
-                        scoreElement.appendChild(document.createTextNode(`P ${dataRow.value}`));
-                        contentElement.appendChild(scoreElement);
-
-                        const basedOnElement = document.createElement("p");
-                        basedOnElement.style.color = 'var(--system-base)'
-                        basedOnElement.appendChild(document.createTextNode(dataRow.basedOn));
-                        contentElement.appendChild(basedOnElement);
-
-                        if (dataRow.text != null) {
-                            const detailElement = document.createElement("p");
-                            detailElement.style.whiteSpace = 'nowrap'
-                            detailElement.style.color = 'var(--system-base)';
-                            detailElement.style.fontWeight = '900';
-                            detailElement.appendChild(document.createTextNode("Bekijk analyse "));
-
-                            const iconElement = document.createElement('img');
-                            iconElement.src = '/svg/icons/arrow-small.svg';
-                            iconElement.style.display = 'inline-block'
-                            detailElement.appendChild(iconElement)
-                            contentElement.appendChild(detailElement);
-
-                            const AttainmentTexElement = document.createElement("p");
-                            AttainmentTexElement.style.color = 'var(--system-base)'
-                            AttainmentTexElement.appendChild(
-                                document.createTextNode(dataRow.text)
-                            );
-                            contentElement.appendChild(AttainmentTexElement);
-                        }
+                    dataRow = data[e.pointIndex];
+                    console.log(dataRow);
+                    if (contentElement){
+                        fillTooltipHtml()
                     }
+
                 });
 
 
                 chart.tooltip().onDomReady(function (e) {
                     this.parentElement.style.border = '1px solid var(--blue-grey)';
-
                     this.parentElement.style.background = '#FFFFFF';
                     this.parentElement.style.opacity = '0.8';
                     contentElement = this.contentElement;
 
-                    // console.dir([
-                    //  this.parentElement,
-                    //  this.titleElement,
-                    //  this.separatorElement,
-                    //  this.contentElement
-                    // ]);
+                    fillTooltipHtml();
+
                 });
 
                 /* prevent the content of the contentElement div

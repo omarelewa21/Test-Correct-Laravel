@@ -10,6 +10,8 @@ use Illuminate\Support\Facades\DB;
 
 class ArchivedScope implements Scope
 {
+    public static $skipScope = false;
+
     /**
      * Apply the scope to a given Eloquent query builder.
      *
@@ -19,6 +21,9 @@ class ArchivedScope implements Scope
      */
     public function apply(Builder $builder, Model $model)
     {
+        if (self::$skipScope) {
+            return;
+        }
         if($builder->getQuery()->columns == '') {
             $builder->addSelect(sprintf('%s.*', $model->getTable()));
         }

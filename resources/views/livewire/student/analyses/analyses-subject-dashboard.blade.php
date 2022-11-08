@@ -5,7 +5,7 @@
         <div class="flex items-center gap-4 ">
             <x-button.back-round wire:click="redirectBack"/>
             <div class="flex text-lg bold ">
-                <span>{{  __('header.Analyses') }} <x-icon.chevron-small opacity="1"></x-icon.chevron-small> {{$subject->name}} </span>
+                <span>{{  __('header.Analyses') }} <x-icon.chevron-small opacity="1"></x-icon.chevron-small> {!! $subject->name !!} </span>
             </div>
         </div>
 
@@ -19,51 +19,28 @@
     </div>
 @endsection
 
-@section('analyses.p-values-graph')
+@section('analyses.general-data')
     <x-content-section class="mb-8 w-full">
         <x-slot name="title">
             {{ __('student.Algemeen') }}
         </x-slot>
+        @if ($this->showEmptyStateForGeneralStats())
+            <div class="flex flex-row min-h-[300px] relative">
+                <x-empty-graph show="true"></x-empty-graph>
+            </div>
+        @else
         <div class="flex flex-row">
-
-            <div class="md:w-1/3 mr-5">
-                <div>{{ __('student.aantal toetsen gemaakt')}} <span class="bold">{{ $generalStats['test']['count'] }}</span></div>
-                <div>
-                    {{ __('student.gemiddelde p-waarde o.b.v. aantal vragen', ['count'=> $generalStats['test']['countQuestions']]) }}
-                    <span class="bold"> P {{ $generalStats['test']['averagePValue'] }} </span>
-                </div>
-                <div>{{ __('student.gemiddeld cijfer') }}</div>
-                <div>
-                    <x-mark-badge :rating="$generalStats['test']['averageMark']"></x-mark-badge>
-                    <span class="bold">{{ __('student.Bekijk cijferlijst') }}</span>
-                    <x-icon.arrow />
-                </div>
-            </div>
-            <div class="md:w-1/3 mr-5">
-
-                <div>{{ __('student.aantal opdrachten gemaakt')}} <span class="bold">{{ $generalStats['assesment']['count'] }}</span></div>
-                <div>
-                    {{ __('student.gemiddelde p-waarde o.b.v. aantal vragen', ['count'=> $generalStats['assesment']['countQuestions']]) }}
-                    <span class="bold"> P {{ $generalStats['assesment']['averagePValue'] }} </span>
-                </div>
-                <div>{{ __('student.gemiddeld cijfer') }}</div>
-                <div>
-                    <x-mark-badge :rating="$generalStats['assesment']['averageMark']"></x-mark-badge>
-                    <span class="bold">{{ __('student.Bekijk cijferlijst') }}</span>
-                    <x-icon.arrow />
-                </div>
-
-            </div>
-            <div class="md:w-1/3 mr-5">
-                Kolom 3
-            </div>
+                <x-partials.analyses-general-data :generalStats="$generalStats"/>
         </div>
-
-
+        @endif
     </x-content-section>
 
+    <div class="divider my-6"></div>
+@endsection
+
+@section('analyses.p-values-graph')
     <div class="flex justify-between mb-5">
-        <h1 class="flex">Overzicht P-waardes</h1>
+        <h2 class="flex">{{ __('student.overzicht p-waardes') }}</h2>
         <div class="flex">
             <x-button.slider
                     class="flex gap-2 items-center"
@@ -82,7 +59,9 @@
             {{ __('student.p waarde leerdoelen') }}
         </x-slot>
 
-        <div id="pValueChart" style="width: 900px; height: 400px;"></div>
+        <div id="pValueChart" style="height: 400px;" class="relative">
+            <x-empty-graph :show="$this->showEmptyStateForPValueGraph"></x-empty-graph>
+        </div>
         <div x-data="analysesAttainmentsGraph( @entangle('dataValues') )"
              x-on:filters-updated.window="renderGraph"
         >

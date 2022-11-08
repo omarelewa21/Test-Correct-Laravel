@@ -31,7 +31,7 @@ class ChangeQuestionWithinQuestionGroupTest extends TestCase
     public function a_teacher_can_change_the_order_of_the_questions_in_a_group()
     {
         // first add an extra question to group nr 5;
-        $response = $this->post(
+        $this->post(
             'group_question_question/5',
             static::getTeacherOneAuthRequestData(
                 $this->getOpenQuestionAttributes()

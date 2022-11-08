@@ -1,1 +1,0 @@
-{"result":{"text":"a over b square root of 34 bevelled 2 over 3 end root root index 26 of A 1 squared space 2 subscript 3"},"status":"ok"}

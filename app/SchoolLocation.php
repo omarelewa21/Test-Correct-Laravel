@@ -47,6 +47,8 @@ class SchoolLocation extends BaseModel implements AccessCheckable
     const LVS_MAGISTER = 'Magister';
     const LVS_SOMTODAY = 'SOMTODAY';
     const SSO_ENTREE = 'Entreefederatie';
+    const LICENSE_TYPE_TRIAL = 'TRIAL';
+    const LICENSE_TYPE_CLIENT = 'CLIENT';
 
     protected $casts = [
         'uuid'                       => EfficientUuid::class,
@@ -67,7 +69,7 @@ class SchoolLocation extends BaseModel implements AccessCheckable
      */
     protected $dates = ['deleted_at', 'no_mail_request_detected'];
 
-    protected $appends = ['school_language_cake'];
+    protected $appends = ['school_language_cake', 'feature_settings'];
 
     /**
      * The database table used by the model.
@@ -549,7 +551,7 @@ class SchoolLocation extends BaseModel implements AccessCheckable
             ->join('school_location_school_years', function ($join) {
                 $join->on('school_location_school_years.school_year_id', '=', 'school_years.id')
                     ->where('school_location_id', $this->id);
-            })->distinct()->get();
+            })->distinct()->whereNull('school_years.deleted_at')->get();
     }
 
     public function schoolLocationEducationLevels()
@@ -1146,6 +1148,7 @@ class SchoolLocation extends BaseModel implements AccessCheckable
         $defaultSections = DefaultSection::whereIn('id', $defaultSectionIds)->get();
         // add sections
 
+        $list = [];
         $defaultSections->each(function (DefaultSection $ds) use (&$list) {
             if ($schoolLocationSection = $this->schoolLocationSections->first(function (SchoolLocationSection $sls) use ($ds) {
                 return Str::lower(optional($sls->section)->name) === Str::lower($ds->name);
@@ -1163,7 +1166,7 @@ class SchoolLocation extends BaseModel implements AccessCheckable
         });
 
         // add sections to schoollocation
-        $this->sections = array_merge(array_values($sectionIds->toArray()), array_values($list));
+        $this->sections = array_merge(array_values($sectionIds->toArray() ?? []), array_values($list));
         $this->saveSections();
 
 
@@ -1291,7 +1294,12 @@ class SchoolLocation extends BaseModel implements AccessCheckable
 
     public function hasTrialLicense(): bool
     {
-        return $this->license_type == 'TRIAL';
+        return $this->license_type === self::LICENSE_TYPE_TRIAL;
+    }
+
+    public function hasClientLicense(): bool
+    {
+        return $this->license_type === self::LICENSE_TYPE_CLIENT;
     }
 
     private function handleLicenseTypeUpdate()

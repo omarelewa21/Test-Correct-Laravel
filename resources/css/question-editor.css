@@ -54,6 +54,8 @@
 .pvalue-indicator {
     --pvalue-indicator-width: 3px;
     --pvalue-indicator-height: 1rem;
+    --pvalue-indicator-ball-width: 7px;
+    --pvalue-indicator-ball-left: 2px;
     height: var(--pvalue-indicator-height);
     width: var(--pvalue-indicator-width);
     position: absolute;
@@ -68,8 +70,6 @@
 }
 
 .pvalue-indicator:before {
-    --pvalue-indicator-ball-width: 7px;
-    --pvalue-indicator-ball-left: 2px;
     content: '';
     background: var(--system-base);
     width: var(--pvalue-indicator-ball-width);

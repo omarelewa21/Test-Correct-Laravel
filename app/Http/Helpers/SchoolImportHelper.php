@@ -264,9 +264,9 @@ class SchoolImportHelper
                 $niveau = 'mavo/havo';
             }
             else if($niveau === 'vbo'){
-                foreach(['vmbo-tl', 'vmbo-bb', 'vmbo-kb', 'lwoo'] as $niveau){
-                    if(isset($levels[$niveau])) {
-                        $schoolLocationEducationLevelIds[] = $levels[$niveau];
+                foreach(['vmbo-tl', 'vmbo-bb', 'vmbo-kb', 'lwoo'] as $value){
+                    if(isset($levels[$value])) {
+                        $schoolLocationEducationLevelIds[] = $levels[$value];
                     }
                 }
                 continue;

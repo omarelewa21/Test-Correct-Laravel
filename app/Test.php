@@ -190,7 +190,7 @@ class Test extends BaseModel
      */
     public function subject()
     {
-        return $this->belongsTo('tcCore\Subject');
+        return $this->belongsTo('tcCore\Subject')->withTrashed();
     }
 
     /**
@@ -555,6 +555,22 @@ class Test extends BaseModel
     {
         return $this->getDuplicateQuestionIds()->isNotEmpty();
     }
+    
+    public function getTotalScore()
+    {
+        $this->load(['testQuestions', 'testQuestions.question']);
+        $totalScore = 0;
+        foreach ($this->testQuestions as $testQuestion) {
+            if (null !== $testQuestion->question) {
+                if($testQuestion->question->isType('GroupQuestion')){
+                    $totalScore += $testQuestion->question->total_score ?? 0;
+                } else {
+                    $totalScore += $testQuestion->question->score ?? 0;
+                }
+            }
+        }
+        return $totalScore;
+    }
 
     public function getQuestionCount()
     {
@@ -740,8 +756,8 @@ class Test extends BaseModel
                                                 left join school_location_sections as t9
                                                     on t9.section_id = sections.id
                                             where
-                                                subjects.deleted_at is null
-                                                and
+                                                /*subjects.deleted_at is null
+                                                and*/
                                                 t9.school_location_id = %d
                                                         ) as s2
                                                     on t2.subject_id = s2.subject_id
@@ -767,8 +783,8 @@ class Test extends BaseModel
                                                             left join teachers
                                                                 on subjects.id = teachers.subject_id
                                                         where
-                                                            subjects.deleted_at is null
-                                                                and
+                                                            /*subjects.deleted_at is null
+                                                                and*/
                                                             teachers.user_id = %d
                                                                 and
                                                             teachers.deleted_at is null
@@ -1078,7 +1094,8 @@ class Test extends BaseModel
             $this->isFromSchoolAndSameSection($user) ||
             ($user->schoolLocation->show_national_item_bank && $this->isNationalItemForAllowedBaseSubject()) ||
             $this->isFromAllowedTestPublisher($user) ||
-            $this->isFromSharedSchoolAndAllowedBaseSubject($user);
+            $this->isFromSharedSchoolAndAllowedBaseSubject($user) ||
+            $this->canBeAccessedByExamCoordinator($user);
     }
 
     private function isFromSharedSchoolAndAllowedBaseSubject(User $user): bool
@@ -1131,9 +1148,16 @@ class Test extends BaseModel
         return $query->where('owner_id', $user->school_location_id);
     }
 
-    public function canPlan(User $user)
+    public function canPlan(User $user): bool
     {
         /* You can't plan tests from shared sections, you first need to copy them */
         return !$user->schoolLocation->sharedSections->contains($this->subject->section);
+    }
+
+    private function canBeAccessedByExamCoordinator(User $user): bool
+    {
+        if (!$user->isValidExamCoordinator()) return false;
+
+        return $this->owner_id === $user->school_location_id;
     }
 }

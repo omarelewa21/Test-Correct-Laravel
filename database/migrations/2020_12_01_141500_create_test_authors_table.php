@@ -2,6 +2,7 @@
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
 class CreateTestAuthorsTable extends Migration
@@ -13,9 +14,7 @@ class CreateTestAuthorsTable extends Migration
      */
     public function up()
     {
-        \DB::beginTransaction();
         try {
-            $this->down();
             Schema::create('test_authors', function (Blueprint $table) {
                 $table->integer('test_id');
                 $table->integer('user_id');
@@ -30,9 +29,7 @@ class CreateTestAuthorsTable extends Migration
                     'test_id' => $test->getKey()
                 ]);
             });
-            \DB::commit();
         } catch (Throwable $e){
-            \DB::rollback();
             Throw $e;
         }
     }

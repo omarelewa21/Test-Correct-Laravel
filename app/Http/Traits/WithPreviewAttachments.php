@@ -5,10 +5,12 @@ namespace tcCore\Http\Traits;
 
 use tcCore\Attachment;
 use tcCore\Http\Requests\Request;
+use tcCore\QuestionAttachment;
 
 trait WithPreviewAttachments
 {
     public $attachment;
+    protected $questionAttachment;
     public $audioCloseWarning = false;
     public $pressedPlay = false;
     public $timeout;
@@ -16,6 +18,20 @@ trait WithPreviewAttachments
     public $attachmentType = '';
     public $blockAttachments = false;
     public $currentTimes = [];
+
+    public function booted()
+    {
+        if($this->attachment) {
+            $type = $this->attachmentBelongsToTypeQuestion($this->attachment);
+
+            $id = $this->question->id;
+            if($type=='group') {
+                $id = $this->group->id;
+            }
+
+            $this->questionAttachment = $this->attachment->questionAttachments->where('question_id', $id)->first();
+        }
+    }
 
     public function showAttachment($attachmentUuid)
     {
@@ -25,11 +41,16 @@ trait WithPreviewAttachments
         $this->attachment = Attachment::whereUuid($attachmentUuid)->first();
         $attachment = $this->attachment;
         $type = $this->attachmentBelongsToTypeQuestion($attachment);
+
         $this->questionId = $this->question->uuid;
+        $id = $this->question->id;
         if($type=='group'){
             $this->questionId = $this->group->uuid;
+            $id = $this->group->id;
         }
-        $this->timeout = $this->attachment->audioTimeoutTime();
+
+        $this->questionAttachment = $this->attachment->questionAttachments->where('question_id', $id)->first();
+        $this->timeout = $this->questionAttachment->audioTimeoutTime();
         $this->attachmentType = $this->getAttachmentType($attachment);
     }
 
@@ -37,7 +58,7 @@ trait WithPreviewAttachments
     {
         if (optional($this->attachment)->file_mime_type == 'audio/mpeg') {
             if ($this->audioIsPlayedAndCanBePlayedAgain() && !$this->audioCloseWarning) {
-                if (!$this->attachment->audioIsPausable()) {
+                if (!$this->questionAttachment->audioIsPausable()) {
                     $this->audioCloseWarning = true;
                     return;
                 }
@@ -46,7 +67,7 @@ trait WithPreviewAttachments
             $this->dispatchBrowserEvent('pause-audio-player');
 
             if ($this->audioCloseWarning) {
-                $this->attachment->audioIsPlayedOnce();
+                $this->questionAttachment->audioIsPlayedOnce();
                 $this->audioCloseWarning = false;
             }
             if ($this->timeout != null) {
@@ -55,6 +76,7 @@ trait WithPreviewAttachments
             }
         }
 
+        $this->questionAttachment = null;
         $this->attachment = null;
     }
 
@@ -83,9 +105,9 @@ trait WithPreviewAttachments
 
     private function audioIsPlayedAndCanBePlayedAgain()
     {
-        return $this->attachment->audioOnlyPlayOnce()
-            && $this->attachment->audioCanBePlayedAgain()
-            && ($this->attachment->audioHasCurrentTime()
+        return $this->questionAttachment->audioIsOnlyPlayableOnce()
+            && $this->questionAttachment->audioCanBePlayedAgain()
+            && ($this->questionAttachment->audioHasCurrentTime()
                 || $this->pressedPlay);
     }
 

@@ -18,8 +18,6 @@
 
 			'Bezoek de kennisbank' => 'Bezoek de kennisbank',
 
-			'Geplande toetsen' => 'Geplande toetsen',
-
 			'Toets' => 'Toets',
 
 			'Vragen' => 'Vragen',

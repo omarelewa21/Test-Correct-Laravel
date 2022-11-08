@@ -180,6 +180,9 @@ class BaseHelper
         $answer = str_replace('&lt;','<',$answer);
         $answer = str_replace('&gt;','>',$answer);
         $answer = str_replace('&amp;','&',$answer);
+        $answer = htmlentities($answer, null, 'utf-8');
+        $answer = str_replace("&nbsp;", ' ', $answer);
+
         return $answer;
     }
 

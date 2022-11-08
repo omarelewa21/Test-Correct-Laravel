@@ -14,6 +14,8 @@ class Attainment extends BaseModel
     use SoftDeletes;
     use UuidTrait;
 
+    const TYPE = 'ATTAINMENT';
+
     protected $casts = [
         'uuid' => EfficientUuid::class,
     ];
@@ -206,7 +208,7 @@ class Attainment extends BaseModel
             ])->when(is_null($this->attainment_id),
                 fn($query) => $query->whereNull('attainment_id'),
                 fn($query) => $query->where('attainment_id', $this->attainment_id)
-            )->orderByRaw('base_subject_id, education_level_id, is_learning_goal')
+            )->orderByRaw(' is_learning_goal, education_level_id, code, subcode')
             ->get()
             ->filter(function ($value) use (&$found) {
                 if ($found) return false;

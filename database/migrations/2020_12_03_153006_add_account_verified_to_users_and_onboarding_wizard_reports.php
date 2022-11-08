@@ -14,7 +14,6 @@ class AddAccountVerifiedToUsersAndOnboardingWizardReports extends Migration
      */
     public function up()
     {
-        DB::beginTransaction();
         try {
             Schema::table('users', function (Blueprint $table) {
                 $table->dateTime('account_verified')->nullable();
@@ -25,9 +24,8 @@ class AddAccountVerifiedToUsersAndOnboardingWizardReports extends Migration
             Schema::table('onboarding_wizard_reports', function (Blueprint $table) {
                 $table->dateTime('account_verified')->nullable();
             });
-            DB::commit();
         } catch(Throwable $e) {
-            DB::rollback();
+            Throw $e;
         }
 
     }
@@ -39,7 +37,6 @@ class AddAccountVerifiedToUsersAndOnboardingWizardReports extends Migration
      */
     public function down()
     {
-        DB::beginTransaction();
         try {
             Schema::table('users', function (Blueprint $table) {
                 $table->dropColumn('account_verified');
@@ -49,9 +46,8 @@ class AddAccountVerifiedToUsersAndOnboardingWizardReports extends Migration
                 $table->dropColumn('account_verified');
             });
 
-            DB::commit();
         } catch(Throwable $e) {
-            DB::rollback();
+            Throw $e;
         }
     }
 }
