@@ -1,19 +1,13 @@
 <?php
 
-class IntIter {
-	public function __construct($min, $max) {
+class com_wiris_util_json_parser_ExtractedString {
+	public function __construct($sourceEnd, $str) {
 		if(!php_Boot::$skip_constructor) {
-		$this->min = $min;
-		$this->max = $max;
+		$this->sourceEnd = $sourceEnd;
+		$this->str = $str;
 	}}
-	public function next() {
-		return $this->min++;
-	}
-	public function hasNext() {
-		return $this->min < $this->max;
-	}
-	public $max;
-	public $min;
+	public $str;
+	public $sourceEnd;
 	public function __call($m, $a) {
 		if(isset($this->$m) && is_callable($this->$m))
 			return call_user_func_array($this->$m, $a);
@@ -24,5 +18,5 @@ class IntIter {
 		else
 			throw new HException('Unable to call «'.$m.'»');
 	}
-	function __toString() { return 'IntIter'; }
+	function __toString() { return 'com.wiris.util.json.parser.ExtractedString'; }
 }

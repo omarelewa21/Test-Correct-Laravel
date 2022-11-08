@@ -1587,7 +1587,7 @@ input[type=number] {
     transform: translate(-50%, -50%) rotate(45deg);
 }
 
-#groupdetail {
+#groupdetail, #test-question-slide {
     position: absolute;
     left: 100%;
     min-height: calc(100vh - var(--header-height) - 58px );
@@ -5605,9 +5605,6 @@ video {
 .-right-1{
   right: -0.25rem;
 }
-.left-2{
-  left: 0.5rem;
-}
 .bottom-8{
   bottom: 2rem;
 }
@@ -5619,6 +5616,9 @@ video {
 }
 .-top-0{
   top: -0px;
+}
+.left-2{
+  left: 0.5rem;
 }
 .top-20{
   top: 5rem;
@@ -5804,8 +5804,8 @@ video {
 .mt-1\.5{
   margin-top: 0.375rem;
 }
-.mb-\[60\]{
-  margin-bottom: 60;
+.mb-\[60px\]{
+  margin-bottom: 60px;
 }
 .mb-2{
   margin-bottom: 0.5rem;
@@ -5926,9 +5926,6 @@ video {
 }
 .-mt-1{
   margin-top: -0.25rem;
-}
-.mb-\[60px\]{
-  margin-bottom: 60px;
 }
 .block{
   display: block;
@@ -6071,9 +6068,6 @@ video {
 .h-28{
   height: 7rem;
 }
-.h-12\.5{
-  height: 3.125rem;
-}
 .h-\[275px\]{
   height: 275px;
 }
@@ -6082,6 +6076,9 @@ video {
 }
 .h-\[78px\]{
   height: 78px;
+}
+.h-12\.5{
+  height: 3.125rem;
 }
 .max-h-\[210px\]{
   max-height: 210px;
@@ -6244,9 +6241,6 @@ video {
 .w-80{
   width: 20rem;
 }
-.w-\[calc\(100\%-1rem\)\]{
-  width: calc(100% - 1rem);
-}
 .w-\[14px\]{
   width: 14px;
 }
@@ -6267,6 +6261,9 @@ video {
 }
 .w-50{
   width: 12.5rem;
+}
+.w-\[calc\(100\%-1rem\)\]{
+  width: calc(100% - 1rem);
 }
 .w-14{
   width: 3.5rem;
@@ -7151,16 +7148,16 @@ video {
   --tw-bg-opacity: 1;
   background-color: rgb(46 49 146 / var(--tw-bg-opacity));
 }
-.bg-transparent{
-  background-color: transparent;
+.bg-bluegrey{
+  --tw-bg-opacity: 1;
+  background-color: rgb(195 208 237 / var(--tw-bg-opacity));
 }
 .bg-sysbase{
   --tw-bg-opacity: 1;
   background-color: rgb(4 31 116 / var(--tw-bg-opacity));
 }
-.bg-bluegrey{
-  --tw-bg-opacity: 1;
-  background-color: rgb(195 208 237 / var(--tw-bg-opacity));
+.bg-transparent{
+  background-color: transparent;
 }
 .bg-white\/20{
   background-color: rgb(255 255 255 / 0.2);
@@ -7450,9 +7447,6 @@ video {
 .pr-12{
   padding-right: 3rem;
 }
-.pr-2\.5{
-  padding-right: 0.625rem;
-}
 .pl-7{
   padding-left: 1.75rem;
 }
@@ -7512,6 +7506,9 @@ video {
 }
 .pt-16{
   padding-top: 4rem;
+}
+.pr-2\.5{
+  padding-right: 0.625rem;
 }
 .pl-1{
   padding-left: 0.25rem;
