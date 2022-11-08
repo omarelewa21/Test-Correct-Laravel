@@ -5,6 +5,7 @@ namespace tcCore\Http\Livewire\Teacher;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 use LivewireUI\Modal\ModalComponent;
+use tcCore\GroupQuestionQuestion;
 use tcCore\Http\Helpers\BaseHelper;
 use tcCore\Http\Helpers\QuestionHelper;
 use tcCore\Http\Interfaces\QuestionCms;
@@ -254,6 +255,15 @@ class QuestionCmsPreviewModal extends ModalComponent implements QuestionCms
      */
     public function addQuestion()
     {
+        //if subquestion, and groupQuestion->question not empty or attachments
+        if($this->questionModel->is_subquestion) {
+            $groupQuestion = GroupQuestionQuestion::where('question_id', $this->questionModel->id)->first()->groupQuestion;
+            if (!empty($groupQuestion->getQuestionInstance()->question) || $this->attachmentCount > 0) {
+                $this->emit('openModal', 'teacher.add-sub-question-confirmation-modal', ['questionUuid' => $this->questionModel->uuid]);
+                return;
+            }
+        }
+
         $this->emitTo(QuestionBank::class, 'addQuestionFromDetail', $this->questionModel->uuid);
         $this->forceClose()->closeModal();
     }

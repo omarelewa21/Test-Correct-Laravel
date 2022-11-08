@@ -27,13 +27,23 @@
 @endsection
 
 @section('analyses.p-values-graph')
+    <div class="flex justify-between mb-5">
+        <h2 class="flex">{{ __('student.overzicht p-waardes') }}</h2>
+    </div>
     <x-content-section>
+
         <x-slot name="title">
             <div class="hidden">{{ $this->data }}</div>
-            {{ __('student.p waarde subleerdoelen') }}
+            @if ($attainment->is_learning_goal == 1)
+                {{__('student.p waarde subleerdoelen') }}
+            @else
+                {{__('student.p waarde subeindtermen') }}
+            @endif
         </x-slot>
 
-        <div id="pValueChart" style="width: 900px; height: 400px;"></div>
+        <div id="pValueChart" style="height: 400px;" class="relative">
+            <x-empty-graph :show="$this->showEmptyStateForPValueGraph"></x-empty-graph>
+        </div>
         <div x-data="analysesAttainmentsGraph( @entangle('dataValues') )"
              x-on:filters-updated.window="renderGraph"
         >
@@ -41,6 +51,32 @@
     </x-content-section>
 @endsection
 
+@section('analyses.attainment.description')
+    <div class="py-4 text-lg">
+        <span class="bold">{{ __('student.description') }}</span>
+        <div>{{ $this->attainment->description }}</div>
+    </div>
+@endsection
+
+@section('analyses.general-data')
+    <x-content-section class="mb-8 w-full">
+        <x-slot name="title">
+            {{ __('student.Algemeen') }}
+        </x-slot>
+
+        @if ($this->showEmptyStateForGeneralStats())
+            <div class="flex flex-row min-h-[300px] relative">
+                <x-empty-graph show="true"></x-empty-graph>
+            </div>
+        @else
+            <div class="flex flex-row">
+                <x-partials.analyses-general-data :generalStats="$generalStats"/>
+            </div>
+        @endif
+    </x-content-section>
+
+    <div class="divider my-6"></div>
+@endsection
 
 @section('analyses.top-items.title')
     {{ trans_choice('student.top subleerdoelen om aan te werken', count($this->topItems)) }}

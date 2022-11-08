@@ -25,6 +25,7 @@ class AnalysesOverviewDashboard extends AnalysesDashboard
         parent::mount();
     }
 
+
     public function getDataProperty()
     {
         $result = PValueRepository::getPValueForStudentBySubject(
@@ -41,10 +42,9 @@ class AnalysesOverviewDashboard extends AnalysesDashboard
                 $link = route('student.analyses.subject.show', Subject::find($pValue->subject_id)->uuid);
             }
 
-
             return (object)[
                 'x'       => htmlspecialchars_decode($pValue->name),
-                'title'   => $pValue->name,
+                'title'   =>  htmlspecialchars_decode($pValue->name),
                 'basedOn' => trans_choice('student.obv count questions', $pValue->cnt?? 0),
                 'value'   => number_format(($pValue->score > 0 ? $pValue->score : 0), 2),
                 'link'    => $link,

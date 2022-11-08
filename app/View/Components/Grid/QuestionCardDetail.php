@@ -2,25 +2,20 @@
 
 namespace tcCore\View\Components\Grid;
 
-use Illuminate\View\Component;
+use Illuminate\View\View;
 
-class QuestionCardDetail extends Component
+class QuestionCardDetail extends QuestionCardBase
 {
-    public $question;
     public $testQuestion;
-    public $authors;
-    public $attachmentCount;
 
-    public function __construct($testQuestion)
+    public function __construct($testQuestion, $mode = 'page', $inTest = false)
     {
         $this->testQuestion = $testQuestion;
-        $this->question = $testQuestion->question;
-        $this->authors = $this->question->getAuthorNamesCollection();
-        $this->attachmentCount = $this->question->attachments()->count();
+        parent::__construct($testQuestion->question, $testQuestion->order, false, $inTest);
     }
 
-    public function render(): string
+    public function render(): View
     {
-        return 'components.grid.question-card-detail';
+        return view('components.grid.question-card-detail');
     }
 }

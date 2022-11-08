@@ -69,7 +69,7 @@ class CakeRedirectHelper
             ],
             'knowledge_base'              => [
                 'page'        => '/',
-                'page_action' => "Popup.showExternalPage('https://support.test-correct.nl')",
+                'page_action' => "Popup.showExternalPage('https://support.test-correct.nl/knowledge')",
             ],
             'webinar'                     => [
                 'page'        => '/',

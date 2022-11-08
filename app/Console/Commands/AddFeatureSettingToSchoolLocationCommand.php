@@ -16,6 +16,7 @@ class AddFeatureSettingToSchoolLocationCommand extends Command
     private $settingTitles = [
         'allow_creathlon',
         'allow_new_taken_tests_page',
+        'allow_analyses',
     ];
 
     public function handle()

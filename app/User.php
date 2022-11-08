@@ -535,7 +535,7 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
             if ($user->userRoles !== null) {
                 $user->saveUserRoles();
             }
-            if ($user->isA('teacher') && $user->demo == false) {
+            if ($user->roles()->first()->getKey() === Role::TEACHER && $user->demo == false) {
                 $schoolYear = SchoolYearRepository::getCurrentSchoolYear();
                 if (null === $schoolYear) {
                     $user->forceDelete();
@@ -566,6 +566,12 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
                 $user->mentorSchoolClasses ??= [];
             }
 
+            if($user->isDirty(['is_examcoordinator', 'is_examcoordinator_for'])) {
+                $user->setAttribute('session_hash', '');
+            }
+        });
+
+        static::saved(function(User $user){
             if($user->isA('Teacher')) {
                 $user->handleExamCoordinatorChange();
             }
@@ -1758,7 +1764,12 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
                     });
                     break;
                 case 'trial':
-                    $query->whereIn('id', TrialPeriod::select(['user_id']));
+                    $query->whereIn(
+                        'id',
+                        SchoolLocationUser::select('school_location_user.user_id')
+                            ->join('school_locations', 'school_locations.id', '=', 'school_location_user.school_location_id')
+                            ->where('school_locations.license_type', SchoolLocation::LICENSE_TYPE_TRIAL)
+                    );
                     break;
                 case 'without_guests':
                     $query->when($value, function($query) {
@@ -2698,14 +2709,20 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
     {
         if ($schoolLocation = SchoolLocation::find($this->school_location_id)) {
             $this->addSchoolLocation($schoolLocation);
-
-//            if ($this->isSchoolExamCoordinator()) {
-//                if ($schoolId = $schoolLocation->school_id) {
-//                    $locations = SchoolLocation::whereSchoolId($schoolId)->get();
-//
-//
-//                }
-//            }
         }
+    }
+
+    public function getTrialSchoolLocations()
+    {
+        return $this->allowedSchoolLocations()
+            ->where('license_type', SchoolLocation::LICENSE_TYPE_TRIAL)
+            ->select(['id', 'name', 'license_type', 'uuid'])
+            ->get();
+    }
+
+    public function getDefaultAttainmentMode() {
+//        SchoolClass::where('user_id', $this->id)
+
+        return 'LEARNING_GOAL';
     }
 }

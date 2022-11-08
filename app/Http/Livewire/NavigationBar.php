@@ -70,7 +70,7 @@ class NavigationBar extends Component
                 'taken',
                 'classes',
                 'analyses',
-                'results',
+//                'results',
             ],
             'tiles' => [
                 'tests'   => ['my-uploads','question-bank','create-test'],

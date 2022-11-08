@@ -12,6 +12,8 @@ use tcCore\Http\Controllers\GroupQuestionQuestionsController;
 use tcCore\Http\Controllers\TestQuestionsController;
 use tcCore\Http\Requests\CreateGroupQuestionQuestionRequest;
 use tcCore\Http\Requests\CreateTestQuestionRequest;
+use tcCore\Http\Traits\WithQueryStringSyncing;
+use tcCore\Http\Traits\WithTestAwarenessProperties;
 use tcCore\Lib\GroupQuestionQuestion\GroupQuestionQuestionManager;
 use tcCore\Question;
 use tcCore\Subject;
@@ -21,7 +23,7 @@ use tcCore\Traits\ContentSourceTabsTrait;
 
 class QuestionBank extends Component
 {
-    use ContentSourceTabsTrait;
+    use ContentSourceTabsTrait, WithQueryStringSyncing, WithTestAwarenessProperties;
 
     const ACTIVE_TAB_SESSION_KEY = 'question-bank-active-tab';
 
@@ -30,23 +32,20 @@ class QuestionBank extends Component
     const SOURCE_PERSONAL = 'me';
     const SOURCE_SCHOOL = '';
 
-    protected $queryString = ['testId', 'testQuestionId'];
+    protected $queryString = ['testId', 'testQuestionId', 'openTab' => ['as' => 'qb_ot']];
 
     public $testId;
     public $testQuestionId;
 
     public $filters = [];
 
-    public $addedQuestionIds = [];
     public $itemsPerPage;
-
-    public $sliderButtonOptions = [];
-    public $sliderButtonSelected = 1;
-    public $sliderButtonDisabled = true;
 
     public $inGroup = false;
 
-    private $test;
+    protected $test;
+
+    public $active;
 
     public $groupQuestionDetail;
 
@@ -68,7 +67,6 @@ class QuestionBank extends Component
         $this->setTestProperty();
         $this->setAddedQuestionIdsArray();
         $this->setFilters();
-        $this->setSliderButtonOptions();
     }
 
     public function render()
@@ -175,32 +173,9 @@ class QuestionBank extends Component
         if ($response->getStatusCode() == 200) {
             $this->addedQuestionIds[json_decode($response->getContent())->question_id] = 0;
             $this->dispatchBrowserEvent('question-added');
+            $this->emit('updateQuestionsInTest');
         }
         return true;
-    }
-
-    private function getQuestionIdsThatAreAlreadyInTest()
-    {
-        $questionIdList = optional($this->test)->getQuestionOrderList() ?? [];
-        if (!$this->test) {
-            return $questionIdList;
-        }
-
-        return $questionIdList + $this->test->testQuestions->map(function ($testQ) {
-                return $testQ->question()->where('type', 'GroupQuestion')->value('id');
-            })->filter()->flip()->toArray();
-    }
-
-    private function removeQuestionFromTest($questionId)
-    {
-        $this->addedQuestionIds = collect($this->addedQuestionIds)->reject(function ($index, $id) use ($questionId) {
-            return $id == $questionId;
-        });
-    }
-
-    public function isQuestionInTest($questionId)
-    {
-        return isset($this->addedQuestionIds[$questionId]);
     }
 
     public function showMore()
@@ -371,11 +346,6 @@ class QuestionBank extends Component
         $this->updatedInGroup($uuid);
     }
 
-    public function setAddedQuestionIdsArray(): void
-    {
-        $this->addedQuestionIds = $this->getQuestionIdsThatAreAlreadyInTest();
-    }
-
     private function subjectFilterForTab($tab): array
     {
         if ($this->isExternalContentTab($tab)) {
@@ -395,15 +365,5 @@ class QuestionBank extends Component
             return Question::publishedFiltered($this->getFilters());
         }
         return Question::filtered($this->getFilters());
-    }
-
-
-
-    public function setSliderButtonOptions()
-    {
-        $this->sliderButtonOptions = [
-            __('cms.Toetsenbank'),
-            __('cms.Vragenbank'),
-        ];
     }
 }

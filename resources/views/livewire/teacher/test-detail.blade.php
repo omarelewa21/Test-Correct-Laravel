@@ -3,8 +3,8 @@
      x-data="{groupDetail: null, bodyVisibility: true,  maxHeight: '100%'}"
      x-init="
      groupDetail = $el.querySelector('#groupdetail');
-     showGroupDetails = async (groupQuestionUuid) => {
-            let readyForSlide = await $wire.showGroupDetails(groupQuestionUuid);
+     showGroupDetails = async (groupQuestionUuid, inTest) => {
+            let readyForSlide = await $wire.showGroupDetails(groupQuestionUuid, inTest);
 
             if (readyForSlide) {
                 groupDetail.style.left = 0;
@@ -22,16 +22,28 @@
             maxHeight = groupDetail.style.left = '100%';
             $nextTick(() => $wire.clearGroupDetails() );
         }
+        $nextTick(() => $dispatch('test-questions-ready'));
      "
      :style="`max-height: ${maxHeight}`"
-     wire:init="handleReferrerActions()"
+     @empty($this->mode)
+        wire:init="handleReferrerActions()"
+     @endempty
+     group-container
+     x-on:show-group-details="showGroupDetails($event.detail.questionUuid, $event.detail.inTest );"
+     x-on:close-group-details="closeGroupDetail()"
 >
-    <div class="flex w-full border-b border-secondary pb-1 sticky bg-lightGrey z-1 sticky-pseudo-bg" :style="{top: $root.offsetTop + 'px'}">
+    <div class="flex w-full border-b border-secondary pb-1 sticky bg-lightGrey z-1 sticky-pseudo-bg"
+         :style="{top: $root.offsetTop + 'px'}">
 
-        <div class="w-full max-w-screen-2xl mx-auto px-10 z-1">
+        <div class="w-full max-w-screen-2xl mx-auto px-10 z-1 py-1">
             <div class="flex w-full justify-between">
                 <div class="flex items-center space-x-2.5 w-full">
-                    <x-button.back-round class="shrink-0" wire:click="redirectToTestOverview"/>
+                    @empty($this->mode)
+                        <x-button.back-round class="shrink-0" wire:click="redirectToTestOverview"/>
+                    @endempty
+                    @if(isset($this->mode) && $this->mode === 'cms')
+                        <x-button.back-round class="shrink-0" x-on:click="closeTestSlide"/>
+                    @endif
                     <div class="flex text-lg bold w-[calc(100%-50px)]">
                         <span class="truncate ">{{ __('Toets') }}: {{ $this->test->name }}</span>
                     </div>
@@ -53,29 +65,24 @@
             </div>
         </div>
         <div class="flex w-full justify-between mt-1 note text-sm">
-            <div class="flex">
-                <span class="text-sm">{{ trans_choice('cms.vraag', $this->amountOfQuestions['regular']) }}, {{ trans_choice('cms.group-question-count', $this->amountOfQuestions['group']) }}</span>
+            <div class="flex space-x-2.5">
+                <div class="text-sm">{{ trans_choice('cms.vraag', $this->amountOfQuestions['regular']) }}, {{ trans_choice('cms.group-question-count', $this->amountOfQuestions['group']) }}</div>
+                <div class="bold">{{ $this->test->getTotalScore() }}pt.</div>
             </div>
         </div>
+        @empty($this->mode)
+            <div class="flex w-full justify-end mt-3 note text-sm space-x-2.5">
+                <x-actions.test-delete :uuid="$this->test->uuid"/>
+                <x-actions.test-open-settings :uuid="$this->uuid"/>
+                <x-actions.test-open-edit :uuid="$this->uuid"/>
+                <x-actions.test-open-preview :uuid="$this->uuid"/>
 
-        <div
-                class="flex w-full justify-end mt-3 note text-sm space-x-2.5"
-
-
-        >
-            <x-actions.test-delete :uuid="$this->test->uuid"/>
-
-            <x-actions.test-open-settings :uuid="$this->uuid"/>
-
-            <x-actions.test-open-edit :uuid="$this->uuid"/>
-
-            <x-actions.test-open-preview :uuid="$this->uuid"/>
-
-            <livewire:actions.test-make-pdf :uuid="$this->uuid"/>
-            <livewire:actions.test-duplicate-test :uuid="$this->uuid"/>
-            <livewire:actions.test-quick-take :uuid="$this->uuid"/>
-            <livewire:actions.test-plan-test :uuid="$this->uuid"/>
-        </div>
+                <livewire:actions.test-make-pdf :uuid="$this->uuid"/>
+                <livewire:actions.test-duplicate-test :uuid="$this->uuid"/>
+                <livewire:actions.test-quick-take :uuid="$this->uuid"/>
+                <livewire:actions.test-plan-test :uuid="$this->uuid"/>
+            </div>
+        @endempty
         <div class="flex w-full" x-show="bodyVisibility">
             <div class="w-full mx-auto divide-y divide-secondary">
                 {{-- Content --}}
@@ -86,8 +93,10 @@
                         @endforeach
 
                         @foreach($this->test->testQuestions->sortBy('order') as $testQuestion)
-                            {{--<x-grid.question-card :question="$testQuestion->question" />--}}
-                            <x-grid.question-card-detail :testQuestion="$testQuestion"/>
+                            <x-grid.question-card-detail :testQuestion="$testQuestion"
+                                                         :mode="$this->mode ?? 'page'"
+                                                         :inTest="$this->testContainsQuestion($testQuestion->question)"
+                            />
                         @endforeach
                     </x-grid>
                     <livewire:context-menu.question-card/>
@@ -99,7 +108,8 @@
     <div id="groupdetail" style="min-height: 100%; @if($this->groupQuestionDetail === null) display:none;@endif">
         <div class="">
             @if($this->groupQuestionDetail !== null)
-                <x-partials.group-question-details :groupQuestion="$this->groupQuestionDetail" context="testdetail"/>
+                <x-partials.group-question-details :groupQuestion="$this->groupQuestionDetail"
+                                                   :context="$this->context"/>
             @endif
         </div>
     </div>
