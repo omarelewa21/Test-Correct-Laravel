@@ -84,13 +84,6 @@ class Info extends Model
     {
         $data = (object) $data;
 
-        $this->for_all = false;
-        if (property_exists($data, 'for_all')) {
-            $this->for_all = !!$data->for_all;
-        }
-        if ($data->status !== self::ACTIVE){
-            $this->status = self::INACTIVE;
-        }
         if(property_exists($data,'roles') && $data->roles){
             $this->roles()->sync($data->roles);
         }
