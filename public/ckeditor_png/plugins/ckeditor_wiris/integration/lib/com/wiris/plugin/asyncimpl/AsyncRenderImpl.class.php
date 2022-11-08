@@ -63,6 +63,7 @@ class com_wiris_plugin_asyncimpl_AsyncRenderImpl implements com_wiris_plugin_asy
 			}
 		}
 		$store = $this->plugin->getStorageAndCache();
+		$bs = null;
 		$bs = $store->retreiveData($digest, "png");
 		if($bs === null) {
 			{
