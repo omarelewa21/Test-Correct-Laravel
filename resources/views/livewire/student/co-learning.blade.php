@@ -14,16 +14,18 @@
                             :question="$this->testTake->discussingQuestion"
                             :questionNumber="$questionFollowUpNumber"
                             :answerNumber="$answerFollowUpNumber"
+                            wire:key="q-{{$testTake->discussingQuestion->uuid}}"
                     />
                 </div>
             @else
-                <div class="w-full" wire:key="ar-{{$this->answerRating->getKey()}}">
+                <div class="w-full">
                     @switch($this->answerRating->answer->question->type)
                         @case('CompletionQuestion')
                             <livewire:co-learning.completion-question
                                     :answerRatingId="$this->answerRating->getKey()"
                                     :questionNumber="$questionFollowUpNumber"
                                     :answerNumber="$answerFollowUpNumber"
+                                    :wire:key="'ar-'. $this->answerRating->getKey()"
                             />
                             @break
                         @case('DrawingQuestion')
@@ -31,6 +33,7 @@
                                     :answerRatingId="$this->answerRating->getKey()"
                                     :questionNumber="$questionFollowUpNumber"
                                     :answerNumber="$answerFollowUpNumber"
+                                    :wire:key="'ar-'. $this->answerRating->getKey()"
                             />
                             @break
                         @case('OpenQuestion')
@@ -38,6 +41,7 @@
                                     :answerRatingId="$this->answerRating->getKey()"
                                     :questionNumber="$questionFollowUpNumber"
                                     :answerNumber="$answerFollowUpNumber"
+                                    :wire:key="'ar-'. $this->answerRating->getKey()"
                             />
                             @break
                         @default

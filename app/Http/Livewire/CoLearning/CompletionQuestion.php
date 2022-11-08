@@ -12,6 +12,8 @@ class CompletionQuestion extends CoLearningQuestion
 {
     const SEARCH_PATTERN = "/\[([0-9]+)\]/i";
 
+    const SESSION_KEY = 'co-learning-completion-question-answer-options';
+
     public array $answerOptions;
     public int $answerOptionsAmount;
 
@@ -26,8 +28,8 @@ class CompletionQuestion extends CoLearningQuestion
 
     public function updatedAnswerOptions()
     {
-        $this->emit('UpdateAnswerRating', $this->answerOptionsChecked, 3);
-//        $this->emit('UpdateAnswerRating', $this->answerOptionsChecked, $this->answerOptionsAmount);
+        $this->writeAnswerOptionsToSession();
+        $this->emit('UpdateAnswerRating', $this->answerOptionsChecked, $this->answerOptionsAmount);
     }
 
     public function isQuestionFullyAnswered(): bool
@@ -60,13 +62,33 @@ class CompletionQuestion extends CoLearningQuestion
     {
         $this->answerOptionsAmount = $this->questionTextPartials->count();
 
-        for ($i = 0; $i < $this->answerOptionsAmount; $i++) {
+        $this->getAnswerOptionsFromSession();
+
+        for ($index = 0; $index < $this->answerOptionsAmount; $index++) {
+            if (isset($this->answerOptions[$this->answerRatingId]) &&
+                collect($this->answerOptions[$this->answerRatingId])->count() === $this->answerOptionsAmount
+            ) {
+                break;
+            }
             $this->answerOptions[$this->answerRatingId][] = [
                 'rating'   => null,
-                'answered' => isset($this->answer[$i]),
-                'answer'   => $this->answer[$i] ?? '......',
+                'answered' => isset($this->answer[$index]),
+                'answer'   => $this->answer[$index] ?? '......',
             ];
         }
+        $this->writeAnswerOptionsToSession();
+    }
+
+    private function getAnswerOptionsFromSession()
+    {
+        if (session()->has(static::SESSION_KEY)) {
+            $this->answerOptions = session()->get(static::SESSION_KEY);
+        }
+    }
+
+    private function writeAnswerOptionsToSession()
+    {
+        session([static::SESSION_KEY => $this->answerOptions]);
     }
 
     private function explodeQuestionTextPartialIntoWordsAndHtmlTags($partial): \Illuminate\Support\Collection

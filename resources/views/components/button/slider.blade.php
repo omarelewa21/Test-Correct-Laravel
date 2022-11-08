@@ -7,7 +7,7 @@
 'useNamedSlots' => false,
 ])
 <div wire:ignore
-     {{ $attributes->merge(['class' => '']) }}
+     {{ $attributes->merge(['class' => ''])->except('wire:model') }}
      x-id="['slider-button']"
      x-data="sliderToggle(
          @entangle($attributes->wire('model')),
