@@ -55,6 +55,7 @@ class CmsDrawing extends CmsBase
         $this->instance->question['answer_svg'] = '';
         $this->instance->question['question_svg'] = '';
         $this->instance->question['grid_svg'] = '0.00';
+        $this->instance->question['grid'] = '0';
         $this->instance->question['zoom_group'] = '';
         $this->instance->question['question_preview'] = '';
         $this->instance->question['question_correction_model'] = '';

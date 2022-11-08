@@ -168,6 +168,7 @@ trait PublishesTestsTrait
     private function unpublishTest(): void
     {
         $this->setAttribute('scope', 'not_' . $this->publishesTestsScope);
+        $this->saveQuietly();
     }
 
     private function publishQuestionsOfTest(): void

@@ -61,7 +61,7 @@ class UsersController extends Controller
             $users->with('studentSchoolClasses');
         }
         if (is_array($request->get('with')) && in_array('trial_info', $request->get('with'))) {
-            $users->with(['trialPeriods','trialPeriods.schoolLocation:id,name']);
+            $users = $users->with(['trialPeriods', 'trialPeriods.schoolLocation:id,name']);
         }
 
         switch (strtolower($request->get('mode', 'paginate'))) {
@@ -80,6 +80,11 @@ class UsersController extends Controller
                 $users = $users->paginate(15);
                 if (is_array($request->get('with')) && in_array('studentSubjectAverages', $request->get('with'))) {
                     AverageRatingRepository::getSubjectAveragesOfStudents($users);
+                }
+                if (is_array($request->get('with')) && in_array('trial_info', $request->get('with'))) {
+                    $users->each(function ($user) {
+                        return $user->trialSchoolLocations = $user->getTrialSchoolLocations();
+                    });
                 }
                 $users->transform(function (User $u) {
                     $u->is_temp_teacher = $u->getIsTempTeacher();

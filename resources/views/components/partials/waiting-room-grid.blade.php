@@ -50,7 +50,7 @@
     </div>
     <div class="flex flex-col space-y-2">
         <span>{{ __('student.type') }}</span>
-        <x-partials.test-take-type-label type="{{ $waitingTestTake->retake }}"/>
+        <x-partials.test-take-type-label :type="$waitingTestTake->retake"/>
     </div>
 
 </div>

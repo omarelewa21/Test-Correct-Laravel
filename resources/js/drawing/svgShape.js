@@ -542,8 +542,8 @@ export class Grid extends Path {
         this.origin.setAttribute("d", dOrigin);
     }
 
-    update() {
-        const size = this.drawingApp.params.gridSize;
+    update(gridSize) {
+        const size = gridSize ? gridSize : this.drawingApp.params.gridSize;
         this.setDAttributes(
             this.calculateDAttributeForGrid(size),
             this.calculateDAttributeForOrigin(size)

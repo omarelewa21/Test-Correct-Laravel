@@ -50,10 +50,6 @@ class CompletionQuestion extends Component
 
     private function multiHelper($question)
     {
-        if (empty($answerJson)) {
-            $answerJson = [];
-        }
-
         $question_text = $question->converted_question_html;
 
 

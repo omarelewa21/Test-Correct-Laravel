@@ -16,7 +16,9 @@ class QuestionHtmlConverter
         $cleanedHtml = $this->filterMathMLTags($html);
 
         $this->dom = new \DOMDocument();
-        @$this->dom->loadHTML($cleanedHtml);
+        if ($cleanedHtml) {
+            @$this->dom->loadHTML($cleanedHtml);
+        }
     }
 
     public function convertImageSourcesWithPatternToNamedRoute($routeName, $pattern)

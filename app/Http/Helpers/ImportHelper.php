@@ -239,6 +239,7 @@ class ImportHelper
             time() - $this->startTime, $this->cacheHit));
     }
 
+    /** @noinspection UnsupportedStringOffsetOperationsInspection */
     public function process()
     {
 

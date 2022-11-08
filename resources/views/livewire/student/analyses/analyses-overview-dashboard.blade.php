@@ -12,7 +12,7 @@
             {{ __('student.p waarde vakken') }}
         </x-slot>
 
-        <div id="pValueChart" style="width: 900px; height: 400px;"></div>
+        <div id="pValueChart" style="height: 400px;"></div>
         <div x-data="analysesSubjectsGraph( @entangle('dataValues') )"
              x-on:filters-updated.window="renderGraph"
         >

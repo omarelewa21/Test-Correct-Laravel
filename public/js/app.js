@@ -5981,6 +5981,8 @@ document.addEventListener('alpine:init', function () {
 
         if (this.gridSvg !== '' && this.gridSvg !== '0.00') {
           gridSize = this.gridSvg;
+        } else if (this.isOldDrawing == false && this.grid && this.grid !== '0') {
+          gridSize = 1 / parseInt(this.grid) * 14; // This calculation is based on try and change to reach the closest formula that makes grid visualization same as old drawing
         }
 
         if (gridSize) {
@@ -6205,9 +6207,11 @@ document.addEventListener('alpine:init', function () {
         var _this15 = this;
 
         setTimeout(function () {
-          var el = _this15.$root.querySelector("[x-ref=\"".concat(_this15.activeSlide, "\"]"));
+          if (_this15.activeSlide !== 'questionbank') {
+            var el = _this15.$root.querySelector("[x-ref=\"".concat(_this15.activeSlide, "\"]"));
 
-          if (el !== null) _this15.handleVerticalScroll(el);
+            if (el !== null) _this15.handleVerticalScroll(el);
+          }
 
           _this15.poll(interval);
         }, interval);
@@ -6378,7 +6382,7 @@ document.addEventListener('alpine:init', function () {
 
         series.selected().fill("#444");
         series.stroke(null);
-        this.initTooltips(chart, this.data);
+        this.initTooltips(chart, this.data, series);
         var legend = chart.legend(); // enable legend
 
         legend.enabled(true); // set source of legend items
@@ -6443,57 +6447,66 @@ document.addEventListener('alpine:init', function () {
 
         chart.draw();
       },
-      initTooltips: function initTooltips(chart, data) {
+      initTooltips: function initTooltips(chart, data, series) {
         chart.tooltip().useHtml(true);
         chart.tooltip().title(false);
         chart.tooltip().separator(false);
+        series.tooltip().enabled(false);
         var contentElement = null;
+        var dataRow = null;
+        chart.listen("pointMouseOver", function (e) {
+          return series.tooltip().enabled(false);
+        });
         chart.listen("pointMouseOver", function (e) {
           // get the data for the current point
-          var dataRow = data[e.pointIndex];
+          dataRow = data[e.pointIndex];
+          series.tooltip().enabled(true);
 
           if (contentElement) {
-            while (contentElement.firstChild) {
-              contentElement.firstChild.remove();
-            }
-
-            var attainmentHeader = document.createElement("h5");
-            attainmentHeader.style.color = 'var(--system-base)';
-            attainmentHeader.appendChild(document.createTextNode(dataRow.title));
-            contentElement.appendChild(attainmentHeader);
-            var scoreElement = document.createElement("h2");
-            scoreElement.style.color = 'var(--system-base)';
-            scoreElement.appendChild(document.createTextNode("P ".concat(dataRow.value)));
-            contentElement.appendChild(scoreElement);
-            var basedOnElement = document.createElement("p");
-            basedOnElement.style.color = 'var(--system-base)';
-            basedOnElement.appendChild(document.createTextNode(dataRow.basedOn));
-            contentElement.appendChild(basedOnElement);
-
-            if (dataRow.link != false) {
-              var detailElement = document.createElement("p");
-              detailElement.style.whiteSpace = 'nowrap';
-              detailElement.style.color = 'var(--system-base)';
-              detailElement.style.fontWeight = '900';
-              detailElement.appendChild(document.createTextNode("Bekijk analyse"));
-              var iconElement = document.createElement('img');
-              iconElement.src = '/svg/icons/arrow-small.svg';
-              iconElement.style.display = 'inline-block';
-              detailElement.appendChild(iconElement);
-              contentElement.appendChild(detailElement);
-            }
+            fillTooltipHtml();
           }
         });
+
+        function fillTooltipHtml() {
+          if (!dataRow) return;
+
+          while (contentElement.firstChild) {
+            contentElement.firstChild.remove();
+          }
+
+          var attainmentHeader = document.createElement("h5");
+          attainmentHeader.style.color = 'var(--system-base)';
+          attainmentHeader.appendChild(document.createTextNode(dataRow.title));
+          contentElement.appendChild(attainmentHeader);
+          var scoreElement = document.createElement("h2");
+          scoreElement.style.color = 'var(--system-base)';
+          scoreElement.appendChild(document.createTextNode("P ".concat(dataRow.value)));
+          contentElement.appendChild(scoreElement);
+          var basedOnElement = document.createElement("p");
+          basedOnElement.style.color = 'var(--system-base)';
+          basedOnElement.appendChild(document.createTextNode(dataRow.basedOn));
+          contentElement.appendChild(basedOnElement);
+
+          if (dataRow.link != false) {
+            var detailElement = document.createElement("p");
+            detailElement.style.whiteSpace = 'nowrap';
+            detailElement.style.color = 'var(--system-base)';
+            detailElement.style.fontWeight = '900';
+            detailElement.appendChild(document.createTextNode("Bekijk analyse"));
+            var iconElement = document.createElement('img');
+            iconElement.src = '/svg/icons/arrow-small.svg';
+            iconElement.style.display = 'inline-block';
+            detailElement.appendChild(iconElement);
+            contentElement.appendChild(detailElement);
+          }
+        }
+
         chart.tooltip().onDomReady(function (e) {
           this.parentElement.style.border = '1px solid var(--blue-grey)';
           this.parentElement.style.background = '#FFFFFF';
           this.parentElement.style.opacity = '0.8';
-          contentElement = this.contentElement; // console.dir([
-          //  this.parentElement,
-          //  this.titleElement,
-          //  this.separatorElement,
-          //  this.contentElement
-          // ]);
+          contentElement = this.contentElement;
+          fillTooltipHtml();
         });
         /* prevent the content of the contentElement div
         from being overridden by the default formatter */
@@ -6532,7 +6545,7 @@ document.addEventListener('alpine:init', function () {
 
         series.selected().fill("#444");
         series.stroke(null);
-        this.initTooltips(chart, this.data);
+        this.initTooltips(chart, this.data, series);
         var legend = chart.legend(); // enable legend
 
         legend.enabled(true); // set source of legend items
@@ -6603,108 +6616,78 @@ document.addEventListener('alpine:init', function () {
       init: function init() {
         this.renderGraph();
       },
-      initTooltips: function initTooltips(chart, data) {
+      initTooltips: function initTooltips(chart, data, series) {
         chart.tooltip().useHtml(true);
         chart.tooltip().title(false);
         chart.tooltip().separator(false);
+        series.tooltip().enabled(false);
         var contentElement = null;
+        var dataRow = null;
+        chart.listen("pointMouseOut", function (e) {
+          return series.tooltip().enabled(false);
+        });
+
+        function fillTooltipHtml() {
+          if (!dataRow) return;
+
+          while (contentElement.firstChild) {
+            contentElement.firstChild.remove();
+          }
+
+          var attainmentHeader = document.createElement("h5");
+          attainmentHeader.style.color = 'var(--system-base)';
+          attainmentHeader.appendChild(document.createTextNode(dataRow.title));
+          contentElement.appendChild(attainmentHeader);
+          var scoreElement = document.createElement("h2");
+          scoreElement.style.color = 'var(--system-base)';
+          scoreElement.appendChild(document.createTextNode("P ".concat(dataRow.value)));
+          contentElement.appendChild(scoreElement);
+          var basedOnElement = document.createElement("p");
+          basedOnElement.style.color = 'var(--system-base)';
+          basedOnElement.appendChild(document.createTextNode(dataRow.basedOn));
+          contentElement.appendChild(basedOnElement);
+
+          if (dataRow.count !== null) {
+            var detailElement = document.createElement("p");
+            detailElement.style.whiteSpace = 'nowrap';
+            detailElement.style.color = 'var(--system-base)';
+            detailElement.style.fontWeight = '900';
+            detailElement.appendChild(document.createTextNode("Bekijk analyse "));
+            var iconElement = document.createElement('img');
+            iconElement.src = '/svg/icons/arrow-small.svg';
+            iconElement.style.display = 'inline-block';
+            detailElement.appendChild(iconElement);
+            contentElement.appendChild(detailElement);
+          }
+
+          var AttainmentTexElement = document.createElement("p");
+          AttainmentTexElement.style.color = 'var(--system-base)';
+          AttainmentTexElement.appendChild(document.createTextNode(dataRow.text));
+          contentElement.appendChild(AttainmentTexElement);
+        }
+
         chart.listen("pointMouseOver", function (e) {
           // get the data for the current point
-          var dataRow = data[e.pointIndex];
+          series.tooltip().enabled(true);
+          dataRow = data[e.pointIndex];
+          console.log(dataRow);
 
           if (contentElement) {
-            while (contentElement.firstChild) {
-              contentElement.firstChild.remove();
-            }
-
-            var attainmentHeader = document.createElement("h5");
-            attainmentHeader.style.color = 'var(--system-base)';
-            attainmentHeader.appendChild(document.createTextNode(dataRow.title));
-            contentElement.appendChild(attainmentHeader);
-            var scoreElement = document.createElement("h2");
-            scoreElement.style.color = 'var(--system-base)';
-            scoreElement.appendChild(document.createTextNode("P ".concat(dataRow.value)));
-            contentElement.appendChild(scoreElement);
-            var basedOnElement = document.createElement("p");
-            basedOnElement.style.color = 'var(--system-base)';
-            basedOnElement.appendChild(document.createTextNode(dataRow.basedOn));
-            contentElement.appendChild(basedOnElement);
-
-            if (dataRow.text != null) {
-              var detailElement = document.createElement("p");
-              detailElement.style.whiteSpace = 'nowrap';
-              detailElement.style.color = 'var(--system-base)';
-              detailElement.style.fontWeight = '900';
-              detailElement.appendChild(document.createTextNode("Bekijk analyse "));
-              var iconElement = document.createElement('img');
-              iconElement.src = '/svg/icons/arrow-small.svg';
-              iconElement.style.display = 'inline-block';
-              detailElement.appendChild(iconElement);
-              contentElement.appendChild(detailElement);
-              var AttainmentTexElement = document.createElement("p");
-              AttainmentTexElement.style.color = 'var(--system-base)';
-              AttainmentTexElement.appendChild(document.createTextNode(dataRow.text));
-              contentElement.appendChild(AttainmentTexElement);
-            }
+            fillTooltipHtml();
           }
         });
         chart.tooltip().onDomReady(function (e) {
           this.parentElement.style.border = '1px solid var(--blue-grey)';
           this.parentElement.style.background = '#FFFFFF';
           this.parentElement.style.opacity = '0.8';
-          contentElement = this.contentElement; // console.dir([
-          //  this.parentElement,
-          //  this.titleElement,
-          //  this.separatorElement,
-          //  this.contentElement
-          // ]);
+          contentElement = this.contentElement;
+          fillTooltipHtml();
         });
         /* prevent the content of the contentElement div
         from being overridden by the default formatter */
 
         chart.tooltip().onBeforeContentChange(function () {
           return false;
-        });
-      }
-    };
-  });
-  alpinejs__WEBPACK_IMPORTED_MODULE_1__["default"].data('sliderToggle', function (model, sources) {
-    return {
-      buttonPosition: '0px',
-      value: model,
-      sources: sources,
-      handle: null,
-      init: function init() {
-        this.handle = this.$el.querySelector('.slider-button-handle');
-
-        if (this.value === null) {
-          return;
-        }
-
-        this.$el.querySelector('.group').firstElementChild.classList.add('text-primary');
-
-        if (this.value !== '' && Object.keys(this.sources).includes(String(this.value))) {
-          this.activateButton(this.$el.querySelector('[data-id=\'' + this.value + '\']').parentElement);
-        } else {
-          this.value = this.$el.querySelector('.group').firstElementChild.dataset.id;
-        }
-      },
-      clickButton: function clickButton(target) {
-        this.activateButton(target);
-        this.value = target.firstElementChild.dataset.id;
-      },
-      hoverButton: function hoverButton(target) {
-        this.activateButton(target);
-      },
-      activateButton: function activateButton(target) {
-        this.resetButtons(target);
-        this.buttonPosition = target.offsetLeft + 'px';
-        target.firstElementChild.classList.add('text-primary');
-        this.handle.classList.remove('hidden');
-      },
-      resetButtons: function resetButtons(target) {
-        Array.from(target.parentElement.children).forEach(function (button) {
-          button.firstElementChild.classList.remove('text-primary');
         });
       }
     };
@@ -7447,6 +7430,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var filepond_plugin_file_validate_size__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(filepond_plugin_file_validate_size__WEBPACK_IMPORTED_MODULE_1__);
 /* harmony import */ var _smoothscroll_polyfill__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./smoothscroll-polyfill */ "./resources/js/smoothscroll-polyfill.js");
 /* harmony import */ var _smoothscroll_polyfill__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(_smoothscroll_polyfill__WEBPACK_IMPORTED_MODULE_2__);
+/* provided dependency */ var process = __webpack_require__(/*! process/browser.js */ "./node_modules/process/browser.js");
 window._ = __webpack_require__(/*! lodash */ "./node_modules/lodash/lodash.js");
 /**
  * We'll load the axios HTTP library which allows us to easily issue requests
@@ -7477,6 +7461,9 @@ FilePond.registerPlugin((filepond_plugin_file_validate_size__WEBPACK_IMPORTED_MO
 
 
 _smoothscroll_polyfill__WEBPACK_IMPORTED_MODULE_2___default().polyfill();
+anychart.onDocumentLoad(function () {
+  anychart.licenseKey(process.env.MIX_ANYCHART_LICENSE_KEY);
+});
 
 /***/ }),
 
@@ -8053,7 +8040,6 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
       root: rootElement,
       isTeacher: isTeacher && !isPreview,
       isPreview: isPreview,
-      isOldDrawing: isOldDrawing,
       hiddenLayersCount: 0
     },
     firstInit: true,
@@ -8077,7 +8063,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
           }
 
           if (grid && grid !== '0') {
-            drawGridBackground(grid);
+            drawGridBackground();
           }
 
           processGridToggleChange();
@@ -9062,7 +9048,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
         var newShape = makeNewSvgShapeWithSidebarEntry(shapeType, props, layerName, true, !(!drawingApp.isTeacher() && layerName === "question"));
         Canvas.layers[layerName].shapes[shapeID] = newShape;
 
-        if (drawingApp.params.isOldDrawing && layerName === "question") {
+        if (isOldDrawing && layerName === "question") {
           fitDrawingToScreen();
         }
 
@@ -10222,16 +10208,24 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
     Canvas.layers.grid.shape = new _svgShape_js__WEBPACK_IMPORTED_MODULE_2__.Grid(0, props, UI.svgGridGroup, drawingApp, Canvas);
   }
 
-  function drawGridBackground(grid) {
+  function drawGridBackground() {
     var props = {
       group: {},
       main: {},
       origin: {
         id: "grid-origin"
       },
-      size: 1 / parseInt(grid) * 14
+      size: getAdjustedGridValue()
     };
-    new _svgShape_js__WEBPACK_IMPORTED_MODULE_2__.Grid(0, props, UI.svgGridGroup, drawingApp, Canvas);
+    Canvas.layers.bgGrid = new _svgShape_js__WEBPACK_IMPORTED_MODULE_2__.Grid(0, props, UI.svgGridGroup, drawingApp, Canvas);
+  }
+
+  function getAdjustedGridValue() {
+    if (grid && grid !== '0') {
+      return 1 / parseInt(grid) * 14; // This calculation is based on try and change to reach the closest formula that makes grid visualization same as old drawing
+    }
+
+    return 0;
   }
 
   function updateGridVisibility() {
@@ -10250,6 +10244,10 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
     if (valueWithinBounds(UI.gridSize)) {
       drawingApp.params.gridSize = UI.gridSize.value;
       Canvas.layers.grid.shape.update();
+
+      if (Canvas.layers.bgGrid) {
+        Canvas.layers.bgGrid.update(getAdjustedGridValue());
+      }
     }
   }
 
@@ -13045,8 +13043,8 @@ var Grid = /*#__PURE__*/function (_Path) {
     }
   }, {
     key: "update",
-    value: function update() {
-      var size = this.drawingApp.params.gridSize;
+    value: function update(gridSize) {
+      var size = gridSize ? gridSize : this.drawingApp.params.gridSize;
       this.setDAttributes(this.calculateDAttributeForGrid(size), this.calculateDAttributeForOrigin(size));
     }
   }, {
@@ -13803,7 +13801,7 @@ Notify = {
 
 PdfDownload = {
   waitingScreenHtml: function waitingScreenHtml(translation) {
-    return "<html><head><style>" + "#animation {" + "background-image: url(/img/loading.gif);" + "}" + "</style></head>" + "<body style='background: url(/img/bg.png) right no-repeat #f5f5f5'>" + "<div style='display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh;'>" + "<div style='background-color: rgba(0,0,0,0.8); padding: 20px 20px 15px 20px; border-radius: 10px; margin-bottom: 1rem;'>" + "<div id='animation' style='width: 35px; height: 35px;'></div>" + "</div>" + "<span style='font-family: Nunito, sans-serif; font-size: 20pt;'>" + translation + "</span>" + "</div>" + "</body></html>";
+    return "<html><head><style>" + "#animation {" + "background-image: url(/img/loading.gif);" + "}" + "</style></head>" + "<body style='background: #f5f5f5'>" + "<div style='display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh;'>" + "<div style='background-color: rgba(0,0,0,0.8); padding: 20px 20px 15px 20px; border-radius: 10px; margin-bottom: 1rem;'>" + "<div id='animation' style='width: 35px; height: 35px;'></div>" + "</div>" + "<span style='font-family: Nunito, sans-serif; font-size: 20pt;'>" + translation + "</span>" + "</div>" + "</body></html>";
   }
 };
 
@@ -13924,54 +13922,6 @@ RichTextEditor = {
     });
     CKEDITOR.instances[editorId].on('change', function (e) {
       RichTextEditor.sendInputEventToEditor(editorId, e);
-    });
-  },
-  initStudentCoLearning: function initStudentCoLearning(editorId) {
-    var lang = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 'nl_NL';
-    var wsc = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
-    var editor = CKEDITOR.instances[editorId];
-
-    if (editor) {
-      editor.destroy(true);
-    }
-
-    if (wsc) {
-      CKEDITOR.disableAutoInline = true;
-      CKEDITOR.config.removePlugins = 'scayt,wsc';
-    }
-
-    CKEDITOR.on('instanceReady', function (event) {
-      var editor = event.editor;
-      WebspellcheckerTlc.forTeacherQuestion(editor, lang, wsc);
-    });
-    CKEDITOR.replace(editorId, {
-      removePlugins: 'pastefromword,pastefromgdocs,advanced,simpleuploads,dropoff,copyformatting,image,pastetext,uploadwidget,uploadimage,elementspath',
-      extraPlugins: 'quicktable,ckeditor_wiris,autogrow,wordcount,notification',
-      wordcount: {
-        showWordCount: true,
-        showParagraphs: false,
-        showCharCount: true
-      },
-      toolbar: []
-    });
-    CKEDITOR.config.wordCount = {
-      showWordCount: true,
-      showParagraphs: false,
-      showCharCount: true
-    };
-    editor = CKEDITOR.instances[editorId];
-    editor.on('change', function (e) {
-      RichTextEditor.sendInputEventToEditor(editorId, e);
-    });
-    editor.on('instanceReady', function (e) {
-      document.getElementById('word-count-' + editorId).textContent = editor.wordCount.wordCount;
-      document.getElementById('char-count-' + editorId).textContent = editor.wordCount.charCount;
-      window.addEventListener('wsc-problems-count-updated-' + editorId, function (e) {
-        document.getElementById('problem-count-' + editorId).textContent = e.detail.problemsCount;
-      });
-      document.getElementById('cke_wordcount_' + editorId).classList.add('hidden');
-      document.querySelector('.cke_top').style.display = 'none !important';
-      document.querySelector('.cke_bottom').style.display = 'none !important';
     });
   },
   initCMS: function initCMS(editorId) {
@@ -14444,13 +14394,6 @@ WebspellcheckerTlc = {
         container: editor.window.getFrame() ? editor.window.getFrame().$ : editor.element.$,
         spellcheckLang: language,
         localization: 'nl'
-      });
-      instance.subscribe('problemCheckEnded', function (event) {
-        window.dispatchEvent(new CustomEvent('wsc-problems-count-updated-' + editor.name, {
-          detail: {
-            problemsCount: instance.getProblemsCount()
-          }
-        }));
       });
 
       try {

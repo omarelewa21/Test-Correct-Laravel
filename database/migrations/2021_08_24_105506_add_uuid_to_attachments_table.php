@@ -13,19 +13,11 @@ class AddUuidToAttachmentsTable extends Migration
      */
     public function up()
     {
-
-        DB::beginTransaction();
-        try {
-            DB::statement('ALTER TABLE attachments ADD uuid binary(16)');
-            \tcCore\Attachment::all()->each(function($attachment) {
-                $attachment->uuid = $attachment->resolveUuid();
-                $attachment->save();
-            });
-        } catch (Exception $e) {
-            DB::rollBack();
-        }
-        DB::commit();
-
+        DB::statement('ALTER TABLE attachments ADD uuid binary(16)');
+        \tcCore\Attachment::all()->each(function ($attachment) {
+            $attachment->uuid = $attachment->resolveUuid();
+            $attachment->save();
+        });
     }
 
     /**

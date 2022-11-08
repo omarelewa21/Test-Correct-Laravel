@@ -14,6 +14,8 @@ use function view;
 
 abstract class AnalysesDashboard extends Component
 {
+    const FILTER_SESSION_KEY = 'STUDENT_ANALYSES_FILTER';
+
     public $educationLevelYears = [];
 
     public $periods = [];
@@ -47,11 +49,24 @@ abstract class AnalysesDashboard extends Component
 
     public function mount()
     {
-        $this->clearFilters();
+        $this->setFilters();
 
         $this->getFilterOptionsData();
 
         $this->getDataProperty();
+    }
+
+    public function updatedFilters()
+    {
+        session([self::FILTER_SESSION_KEY => $this->filters]);
+    }
+
+    private function setFilters()
+    {
+        session()->has(self::FILTER_SESSION_KEY)
+            ? $this->filters = session()->get(self::FILTER_SESSION_KEY)
+            : $this->clearFilters();
+
     }
 
     public function getData($subjectId, $taxonomy)
@@ -82,6 +97,8 @@ abstract class AnalysesDashboard extends Component
             'periods'             => [],
             'teachers'            => [],
         ];
+
+        session([self::FILTER_SESSION_KEY => $this->filters]);
     }
 
     /**
@@ -110,7 +127,7 @@ abstract class AnalysesDashboard extends Component
                 function ($year) {
                     return [
                         'value' => $year,
-                        'label' => $year,
+                        'label' => (string)$year,
                     ];
                 }
             );

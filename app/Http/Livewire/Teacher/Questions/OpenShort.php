@@ -26,6 +26,7 @@ use tcCore\Http\Requests\CreateAttachmentRequest;
 use tcCore\Http\Requests\CreateGroupQuestionQuestionRequest;
 use tcCore\Http\Requests\CreateTestQuestionRequest;
 use tcCore\Http\Requests\Request;
+use tcCore\Http\Traits\WithQueryStringSyncing;
 use tcCore\Lib\GroupQuestionQuestion\GroupQuestionQuestionManager;
 use tcCore\Question;
 use tcCore\TemporaryLogin;
@@ -34,7 +35,7 @@ use tcCore\TestQuestion;
 
 class OpenShort extends Component implements QuestionCms
 {
-    use WithFileUploads;
+    use WithFileUploads,WithQueryStringSyncing;
 
     public $showSelectionOptionsModal = false;
 
@@ -123,7 +124,7 @@ class OpenShort extends Component implements QuestionCms
     /**
      * @var CmsInfoScreen|CmsMultipleChoice|CmsOpen|CmsRanking|CmsTrueFalse|null
      */
-    private $obj;
+    private $obj = '';
 
     public $sortOrderAttachments = [];
 
@@ -256,9 +257,7 @@ class OpenShort extends Component implements QuestionCms
         return false;
     }
 
-    protected function getListeners()
-    {
-        return [
+    protected $listeners = [
             'new-tags-for-question' => 'handleExternalUpdatedProperty',
             'updated-attainment'    => 'handleExternalUpdatedProperty',
             'updated-learning-goal' => 'handleExternalUpdatedProperty',
@@ -272,7 +271,7 @@ class OpenShort extends Component implements QuestionCms
             'addQuestionFromDirty'  => 'addQuestionFromDirty',
             'testSettingsUpdated'   => 'handleUpdatedTestSettings'
         ];
-    }
+
 
     public function handleUpdateDrawingData($data)
     {
@@ -316,7 +315,7 @@ class OpenShort extends Component implements QuestionCms
     {
         $activeTest = Test::whereUuid($this->testId)->with('testAuthors', 'testAuthors.user')->first();
         Gate::authorize('isAuthorOfTest', [$activeTest]);
-
+        $this->isChild = false;
         $this->setTaxonomyOptions();
 
         $this->initialize($activeTest);
@@ -469,7 +468,7 @@ class OpenShort extends Component implements QuestionCms
         }
 
         $method = 'showStatistics';
-        if (method_exists($this->obj, $method)) {
+        if ($this->obj && method_exists($this->obj, $method)) {
             return $this->obj->$method();
         }
         return true;
@@ -499,7 +498,7 @@ class OpenShort extends Component implements QuestionCms
     public function showQuestionScore()
     {
         $method = 'showQuestionScore';
-        if (method_exists($this->obj, $method)) {
+        if ($this->obj && method_exists($this->obj, $method)) {
             return $this->obj->$method();
         }
         return true;
@@ -673,13 +672,14 @@ class OpenShort extends Component implements QuestionCms
     public function handleAttachmentSettingChange($data, $attachmentUuid)
     {
         $attachment = $this->attachments->where('uuid', $attachmentUuid)->first();
+        $questionAttachment = $attachment->questionAttachments->where('question_id', $this->questionId)->first();
 
-        $currentJson = json_decode($attachment->json, true);
-        $json = array_merge($currentJson, $data);
+        $currentJson = json_decode($questionAttachment->options, true);
+        $json = array_merge($currentJson ?? [], $data);
 
-        $attachment->json = json_encode($json);
+        $questionAttachment->update(['options' => json_encode($json)]);
 
-        $attachment->save();
+        $attachment->load(['questionAttachments']);
     }
 
     public function handleUploadSettingChange($setting, $value, $attachmentName)
@@ -898,13 +898,11 @@ class OpenShort extends Component implements QuestionCms
         if ($this->editModeForExistingQuestion()) {
             if ($this->isPartOfGroupQuestion()) {
                 $tq = GroupQuestionQuestion::whereUuid($this->groupQuestionQuestionId)->first();
-                $q = $tq->question;
-                $this->attachments = $q->attachments;
             } else {
                 $tq = TestQuestion::whereUuid($this->testQuestionId)->first();
-                $q = $tq->question;
-                $this->attachments = $q->attachments;
             }
+            $q = $tq->question;
+            $this->attachments = $q->attachments()->with('questionAttachments')->get();
 
             $q = (new QuestionHelper())->getTotalQuestion($q->question);
             $this->pValues = $q->getQuestionInstance()->getRelation('pValue');

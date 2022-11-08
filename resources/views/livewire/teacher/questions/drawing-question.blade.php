@@ -33,29 +33,31 @@
                     <span>{{ __('cms.Tekening aanpassen') }}</span>
                 </x-button.primary>
             @else
-                @if($isOldDrawing)
+                <div x-show="isOldDrawing">
                     <x-button.primary wire:loading.attr="disabled" wire:target="handleUpdateDrawingData" x-cloak @click="showWarning = !showWarning; clearSlate = false" selid="draw-answer">
                         <x-icon.edit/>
                         <span>{{ __('cms.Tekening aanpassen') }}</span>
                     </x-button.primary>
-                @else
+                </div>
+                <div x-show="!isOldDrawing">
                     <x-button.primary wire:loading.attr="disabled" wire:target="handleUpdateDrawingData" x-cloak x-show="answerSvg !== ''" @click="show = !show" selid="draw-answer">
                         <x-icon.edit/>
                         <span>{{ __('cms.Tekening aanpassen') }}</span>
                     </x-button.primary>
-                @endif
+                </div>
             @endisset
         </div>
 
         <div class="flex flex-1 min-h-[500px] w-full border border-bluegrey rounded-10 mt-4 items-center justify-center relative overflow-auto drawing-tool-preview">
 
-            @if($isOldDrawing)
+            <div x-show="isOldDrawing">
                 <div>
                     <div class="absolute top-0 left-0 w-full h-full">
                         <img class="object-cover" src="{{ $this->question['answer'] }}" alt="">
                     </div>
                 </div>
-            @else
+            </div>
+            <div x-show="!isOldDrawing">
                 <div class="absolute top-0 left-0 w-full h-full">
                     <svg viewBox="{{ $this->cmsPropertyBag['viewBox'] ?? '0 0 0 0' }}"
                          @viewbox-changed.window="makeGridIfNecessary(window[toolName])"
@@ -88,7 +90,7 @@
                         @endif
                     </div>
                 </div>
-            @endif
+            </div>
 
         </div>
         @if($isOldDrawing && !isset($preview))

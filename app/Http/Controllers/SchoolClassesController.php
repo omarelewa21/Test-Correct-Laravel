@@ -2,24 +2,18 @@
 
 namespace tcCore\Http\Controllers;
 
-use Carbon\Carbon;
-use Composer\Package\Package;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Response;
-use tcCore\EducationLevel;
-use tcCore\Http\Requests;
+use tcCore\Http\Requests\IndexSchoolClassRequest;
 use tcCore\Http\Requests\UpdateWithEducationLevelsForClusterClassesRequest;
 use tcCore\Http\Requests\UpdateWithEducationLevelsForMainClassesRequest;
 use tcCore\Http\Traits\UwlrImportHandlingForController;
 use tcCore\Lib\Repositories\AverageRatingRepository;
 use tcCore\Lib\Repositories\SchoolClassRepository;
-use tcCore\Lib\Repositories\SchoolYearRepository;
-use tcCore\School;
 use tcCore\SchoolClass;
-use tcCore\Http\Controllers\Controller;
 use tcCore\Http\Requests\CreateSchoolClassRequest;
 use tcCore\Http\Requests\UpdateSchoolClassRequest;
 use tcCore\Http\Helpers\SchoolHelper;
@@ -29,13 +23,13 @@ use tcCore\User;
 class SchoolClassesController extends Controller
 {
     use UwlrImportHandlingForController;
+    
     /**
      * Display a listing of the school classes.
-     * @param SchoolLocation $schoolLocation
-     * @param Request $request
-     * @return
+     * @param IndexSchoolClassRequest $request
+     * @return \Illuminate\Http\Response
      */
-    public function index(Requests\IndexSchoolClassRequest $request)
+    public function index(IndexSchoolClassRequest $request)
     {
         SchoolHelper::denyIfTempTeacher();
 
@@ -46,12 +40,23 @@ class SchoolClassesController extends Controller
             ->with(
                 'schoolLocation',
                 'educationLevel',
+                'educationLevel',
+                'schoolYear'
+            )
+            ->withCount('studentUsers');
+
+        if($request->has('for_classes_overview') && $request->for_classes_overview){
+            $schoolClasses->with(['mentorUsers' => function($query){
+                $query->limit(1);
+            }]);
+        }else{
+            $schoolClasses->with(
                 'mentorUsers',
                 'managerUsers',
                 'studentUsers',
-                'educationLevel',
-                'schoolYear'
             );
+        }
+        
         switch (strtolower($request->get('mode', 'paginate'))) {
             case 'all':
                 $schoolClasses = $schoolClasses->get();

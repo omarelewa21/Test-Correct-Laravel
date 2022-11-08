@@ -27,7 +27,7 @@ class CompletionQuestion extends Component
     public function mount()
     {
         $this->answer = (array)json_decode($this->answers[$this->question->uuid]['answer']);
-        foreach($this->answer as $key => $val){
+        foreach ($this->answer as $key => $val) {
             $this->answer[$key] = BaseHelper::transformHtmlCharsReverse($val);
         }
     }
@@ -38,7 +38,7 @@ class CompletionQuestion extends Component
 
         $data = $this->answer;
 
-        if($this->isOfType('completion')){
+        if ($this->isOfType('completion')) {
             $value = BaseHelper::transformHtmlChars($value);
             $data[$field] = $value;
         }
@@ -57,10 +57,10 @@ class CompletionQuestion extends Component
         $searchPattern = "/\[([0-9]+)\]/i";
         $replacementFunction = function ($matches) use ($question) {
             $tag_id = $matches[1] - 1; // the completion_question_answers list is 1 based but the inputs need to be 0 based
-            $events = sprintf('@blur="$refs.%s.scrollLeft = 0" @input="$event.target.setAttribute(\'title\', $event.target.value);"','comp_answer_' . $tag_id);
+            $events = sprintf('@blur="$refs.%s.scrollLeft = 0" @input="$event.target.setAttribute(\'title\', $event.target.value);"', 'comp_answer_' . $tag_id);
             $rsSpan = '';
-            if(Auth::user()->text2speech){
-                $events = sprintf('@focus="handleTextBoxFocusForReadspeaker(event,\'%s\')" @blur="$refs.%s.scrollLeft = 0;handleTextBoxBlurForReadspeaker(event,\'%s\')" @input="$event.target.setAttribute(\'title\', $event.target.value);"',$question->getKey(),'comp_answer_' . $tag_id,$question->getKey());
+            if (Auth::user()->text2speech) {
+                $events = sprintf('@focus="handleTextBoxFocusForReadspeaker(event,\'%s\')" @blur="$refs.%s.scrollLeft = 0;handleTextBoxBlurForReadspeaker(event,\'%s\')" @input="$event.target.setAttribute(\'title\', $event.target.value);"', $question->getKey(), 'comp_answer_' . $tag_id, $question->getKey());
                 $rsSpan = '<span wire:ignore class="rs_placeholder"></span>';
             }
             return sprintf(
@@ -79,10 +79,6 @@ class CompletionQuestion extends Component
 
     private function multiHelper($question)
     {
-        if (empty($answerJson)) {
-            $answerJson = [];
-        }
-
         $question_text = $question->converted_question_html;
 
 
@@ -95,7 +91,7 @@ class CompletionQuestion extends Component
 
         $question_text = preg_replace_callback(
             '/\[([0-9]+)\]/i',
-            function ($matches) use ($tags, $isCitoQuestion,$question) {
+            function ($matches) use ($tags, $isCitoQuestion, $question) {
                 $tag_id = $matches[1] - 1;
                 $answers = $tags[$matches[1]];
                 $keys = array_keys($answers);
@@ -112,8 +108,8 @@ class CompletionQuestion extends Component
                 $answers = $random;
                 $events = '@change="$event.target.setAttribute(\'title\', $event.target.value);"';
                 $rsSpan = '';
-                if(Auth::user()->text2speech){
-                    $events = sprintf('@change="$event.target.setAttribute(\'title\', $event.target.value);" @focus="rsFocusSelect(event,\'%s\',\'%s\')" @blur="rsBlurSelect(event,\'%s\')"','comp_answer_' . $tag_id,$question->getKey(),$question->getKey());
+                if (Auth::user()->text2speech) {
+                    $events = sprintf('@change="$event.target.setAttribute(\'title\', $event.target.value);" @focus="rsFocusSelect(event,\'%s\',\'%s\')" @blur="rsBlurSelect(event,\'%s\')"', 'comp_answer_' . $tag_id, $question->getKey(), $question->getKey());
                     $rsSpan = '<span wire:ignore class="rs_placeholder"></span>';
                 }
                 return sprintf('<span class="completion-response-object-container"><select wire:model="answer.%s" class="form-input text-base max-w-full overflow-ellipsis overflow-hidden rs_clicklistenexclude"  %s selid="testtake-select" x-ref="%s">%s</select>%s</span>',

@@ -10,6 +10,7 @@ use tcCore\Address;
 use tcCore\Answer;
 use tcCore\Attachment;
 use tcCore\Attainment;
+use tcCore\BaseAttainment;
 use tcCore\BaseSubject;
 use tcCore\CompletionQuestion;
 use tcCore\Contact;
@@ -475,6 +476,10 @@ class RouteServiceProvider extends ServiceProvider
 
         Route::bind('attainment', function($item) {
             return Attainment::whereUuid($item)->firstOrFail();
+        });
+
+        Route::bind('baseAttainment', function($item) {
+            return BaseAttainment::whereUuid($item)->firstOrFail();
         });
 
         Route::bind('attachment', function($item) {

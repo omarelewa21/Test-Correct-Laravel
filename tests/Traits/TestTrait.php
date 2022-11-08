@@ -26,7 +26,6 @@ trait TestTrait
             'is_open_source_content' => '1',
             'introduction'           => 'Hello this is the intro txt',
             "school_classes"         => ["1"],
-            'subject_id'             => '1',
         ], $overrides);
     }
 
@@ -145,8 +144,8 @@ trait TestTrait
                                                 return $groupTestQuestion->question;
                                             });
         $questionArray = [];
-        foreach ($groupQuestions as $key => $groupQuestion) {
-            foreach ($groupQuestion->groupQuestionQuestions as $key => $groupQuestionQuestion) {
+        foreach ($groupQuestions as $groupQuestion) {
+            foreach ($groupQuestion->groupQuestionQuestions as $groupQuestionQuestion) {
                 $questionArray[] = $groupQuestionQuestion->question_id;
             }
         }

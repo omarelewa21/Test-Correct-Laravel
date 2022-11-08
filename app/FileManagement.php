@@ -253,7 +253,7 @@ class FileManagement extends BaseModel {
             // we want to order by filemanagementstatus displayorder, but as it has the same fieldnames as file_managements table
             // we can't use a join. Therefor we first get all the statusIds in the correct order and then order by them
             $statusIds = FileManagementStatus::orderBy('displayorder')->pluck('id')->toArray();
-            $query->orderByRaw('FIELD(file_management_status_id,' . implode(',', $statusIds) . ')', 'asc');
+            $query->orderByRaw('FIELD(file_management_status_id,' . implode(',', $statusIds) . ')');
         }
 
         if(!$sortingFound){
