@@ -13800,11 +13800,13 @@ document.addEventListener('alpine:init', function () {
         });
       },
       shouldDispatchTilesEvent: function shouldDispatchTilesEvent() {
+        var _this$activeMenuItem;
+
         return !Array.from(this.menuButtonsWithoutItems).map(function (item) {
           return item.dataset.menu;
         }).filter(function (n) {
           return n;
-        }).includes(this.activeMenuItem.dataset.menu);
+        }).includes((_this$activeMenuItem = this.activeMenuItem) === null || _this$activeMenuItem === void 0 ? void 0 : _this$activeMenuItem.dataset.menu);
       }
     };
   });
