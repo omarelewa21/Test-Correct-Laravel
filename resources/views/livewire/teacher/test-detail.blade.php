@@ -1,26 +1,29 @@
 <div id="test-detail"
      class="flex flex-col w-full min-h-full bg-lightGrey border-secondary "
-     x-data="{groupDetail: null, bodyVisibility: true,  maxHeight: '100%'}"
+     x-data="{groupDetail: null, groupDetailActive: false, testDetailBodyVisibility: true,  maxHeight: '100%'}"
      x-init="
      groupDetail = $el.querySelector('#groupdetail');
      showGroupDetails = async (groupQuestionUuid, inTest) => {
             let readyForSlide = await $wire.showGroupDetails(groupQuestionUuid, inTest);
 
             if (readyForSlide) {
-                groupDetail.style.left = 0;
+                groupDetailActive = true;
                 document.documentElement.scrollTo({top: 0, behavior: 'smooth'});
                 maxHeight = groupDetail.offsetHeight + 'px';
                 $nextTick(() => {
-                    setTimeout(() => bodyVisibility = false, 250);
+                    setTimeout(() => testDetailBodyVisibility = false, 250);
                 })
 
             }
         }
 
         closeGroupDetail = () => {
-            bodyVisibility = true;
-            maxHeight = groupDetail.style.left = '100%';
-            $nextTick(() => $wire.clearGroupDetails() );
+            if(!testDetailBodyVisibility) {
+                testDetailBodyVisibility = true;
+                groupDetailActive = false;
+                maxHeight = groupDetail.style.left = '100%';
+                $nextTick(() => $wire.clearGroupDetails() );
+            }
         }
         $nextTick(() => $dispatch('test-questions-ready'));
      "
@@ -31,6 +34,7 @@
      group-container
      x-on:show-group-details="showGroupDetails($event.detail.questionUuid, $event.detail.inTest );"
      x-on:close-group-details="closeGroupDetail()"
+     wire:key="test-detail-{{ $this->uuid }}"
 >
     <div class="flex w-full border-b border-secondary pb-1 sticky bg-lightGrey z-1 sticky-pseudo-bg"
          :style="{top: $root.offsetTop + 'px'}">
@@ -46,6 +50,7 @@
                     @endif
                     <div class="flex text-lg bold w-[calc(100%-50px)]">
                         <span class="truncate ">{{ __('Toets') }}: {{ $this->test->name }}</span>
+                        @js(empty($this->groupQuestionDetail))
                     </div>
                 </div>
 
@@ -82,7 +87,7 @@
                 <livewire:actions.test-plan-test :uuid="$this->uuid"/>
             </div>
         @endempty
-        <div class="flex w-full" x-show="bodyVisibility">
+        <div class="flex w-full" x-show="testDetailBodyVisibility">
             <div class="w-full mx-auto divide-y divide-secondary">
                 {{-- Content --}}
                 <div class="flex flex-col py-4" style="min-height: 500px">
@@ -104,8 +109,8 @@
         </div>
     </div>
     <x-notification/>
-    <div id="groupdetail" style="min-height: 100%; @if($this->groupQuestionDetail === null) display:none;@endif">
-        <div class="">
+    <div id="groupdetail" :style="{'left': groupDetailActive ? '0' : '100%'}">
+        <div>
             @if($this->groupQuestionDetail !== null)
                 <x-partials.group-question-details :groupQuestion="$this->groupQuestionDetail"
                                                    :context="$this->context"/>

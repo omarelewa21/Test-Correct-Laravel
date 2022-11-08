@@ -7272,6 +7272,32 @@ livewireMessageContainsModelName = function livewireMessageContainsModelName(mes
   })[0];
 };
 
+questionCardOpenDetailsModal = function questionCardOpenDetailsModal(questionUuid, inTest) {
+  Livewire.emit('openModal', 'teacher.question-detail-modal', {
+    questionUuid: questionUuid,
+    inTest: inTest
+  });
+};
+
+questionCardOpenGroup = function questionCardOpenGroup(element, questionUuid, inTest) {
+  element.closest('[group-container]').dispatchEvent(new CustomEvent('show-group-details', {
+    detail: {
+      questionUuid: questionUuid,
+      inTest: inTest
+    }
+  }));
+};
+
+addQuestionToTestFromTestCard = function addQuestionToTestFromTestCard(button, questionUuid, showQuestionBankAddConfirmation) {
+  document.querySelector('#question-bank').dispatchEvent(new CustomEvent('add-question-to-test', {
+    detail: {
+      button: button,
+      questionUuid: questionUuid,
+      showQuestionBankAddConfirmation: showQuestionBankAddConfirmation
+    }
+  }));
+};
+
 /***/ }),
 
 /***/ "./resources/js/attachment.js":
