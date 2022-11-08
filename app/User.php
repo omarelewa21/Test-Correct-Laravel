@@ -2522,7 +2522,9 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
         return $query->select('users.uuid', 'users.name', 'users.name_first', 'users.name_suffix', 'test_participants.rating')
             ->guests()
             ->leftJoin('test_participants', 'test_participants.user_id', '=', 'users.id')
-            ->where('test_participants.test_take_id', $testTake->getKey());
+            ->leftJoin('test_takes', 'test_takes.id', '=', 'test_participants.test_take_id')
+            ->where('test_participants.test_take_id', $testTake->getKey())
+            ->where('test_takes.hide_grades','=','0');
 //            ->where('test_participants.available_for_guests', true);
     }
 

@@ -38,10 +38,11 @@ use tcCore\Http\Requests\CreateUserRequest;
 use tcCore\Http\Requests\UpdateUserRequest;
 use tcCore\Http\Helpers\SchoolHelper;
 use tcCore\UserRole;
+use tcCore\Http\Traits\WithStudentTestTakes;
 
 class UsersController extends Controller
 {
-    use UserNotificationForController;
+    use UserNotificationForController,WithStudentTestTakes;
 
     /**
      * Display a listing of the users.
@@ -269,6 +270,10 @@ class UsersController extends Controller
             AverageRatingRepository::getSubjectAveragesOfStudents(Collection::make([$user]));
         }
 
+       /*  if(is_array($request->get('with')) && in_array('teststaked', $request->get('with'))){
+            $this->getRatingsForStudent(null, 5, 'test_takes.updated_at', 'desc', false);
+        } */
+
         if (is_array($request->get('with')) && (in_array('studentAverageGraph', $request->get('with')) || array_key_exists('studentAverageGraph', $request->get('with')))) {
             $baseSubjectOrSubject = null;
             $scorePercentage = false;
@@ -316,7 +321,7 @@ class UsersController extends Controller
 
         if (is_array($request->get('with')) && in_array('testsParticipated', $request->get('with'))) {
             $user->load(['testParticipants' => function ($query) {
-                $query->select(['test_participants.*', 'test_takes.uuid as test_take_uuid', 'test_takes.time_start', 'test_takes.test_take_status_id AS test_take_test_take_status_id', 'tests.name'])->join('test_takes', 'test_participants.test_take_id', '=', 'test_takes.id')->join('tests', 'test_takes.test_id', '=', 'tests.id')->orderBy('test_takes.time_start', 'DESC');
+                $query->select(['test_participants.*', 'test_takes.uuid as test_take_uuid', 'test_takes.time_start', 'test_takes.test_take_status_id AS test_take_test_take_status_id', 'tests.name'])->join('test_takes', 'test_participants.test_take_id', '=', 'test_takes.id')->join('tests', 'test_takes.test_id', '=', 'tests.id')->where('test_takes.hide_grades','=',0)->orderBy('test_takes.time_start', 'DESC');
             }]);
 
         }

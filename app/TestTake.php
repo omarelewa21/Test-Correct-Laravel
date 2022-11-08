@@ -60,7 +60,7 @@ class TestTake extends BaseModel
      *
      * @var array
      */
-    protected $fillable = ['test_id', 'test_take_status_id', 'period_id', 'retake', 'retake_test_take_id', 'time_start', 'time_end', 'location', 'weight', 'note', 'invigilator_note', 'show_results', 'discussion_type', 'is_rtti_test_take', 'exported_to_rtti', 'allow_inbrowser_testing', 'guest_accounts', 'skipped_discussion', 'notify_students', 'user_id', 'scheduled_by'];
+    protected $fillable = ['test_id', 'test_take_status_id', 'period_id', 'retake', 'retake_test_take_id', 'time_start', 'time_end', 'location', 'weight', 'note', 'invigilator_note', 'show_results', 'discussion_type', 'is_rtti_test_take', 'exported_to_rtti', 'allow_inbrowser_testing', 'guest_accounts', 'skipped_discussion', 'notify_students', 'user_id', 'scheduled_by','hide_grades'];
 
     /**
      * The attributes excluded from the model's JSON form.
@@ -854,8 +854,24 @@ class TestTake extends BaseModel
             ->join('tests', 'test_takes.test_id', '=', 'tests.id')
             ->join('subjects', 'tests.subject_id', '=', 'subjects.id')
             ->where('test_takes.id', $testTakeId)
+            //->where('test_takes.hide_grades','=',0)
+            //->makeHidden(['test_takes.hide_grades'])
             ->first();
     }
+    
+    /* public static function getOverview($testTakeId)
+    {
+        if (Uuid::isValid($testTakeId)) {
+            $testTakeId = TestTake::whereUuid($testTakeId)->value('id');
+        }
+        return TestTake::select('test_takes.*', 'subjects.name as subject_name', 'tests.name as test_name')
+            ->join('tests', 'test_takes.test_id', '=', 'tests.id')
+            ->join('subjects', 'tests.subject_id', '=', 'subjects.id')
+            ->where('test_takes.id', $testTakeId)
+            ->where('test_takes.hide_grades','=',0)
+            //->makeHidden(['test_takes.hide_grades'])
+            ->first();
+    } */
 
     private function updateGuestAvailabilityForParticipantsOnStatusChange()
     {
