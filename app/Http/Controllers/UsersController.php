@@ -38,11 +38,10 @@ use tcCore\Http\Requests\CreateUserRequest;
 use tcCore\Http\Requests\UpdateUserRequest;
 use tcCore\Http\Helpers\SchoolHelper;
 use tcCore\UserRole;
-use tcCore\Http\Traits\WithStudentTestTakes;
 
 class UsersController extends Controller
 {
-    use UserNotificationForController,WithStudentTestTakes;
+    use UserNotificationForController;
 
     /**
      * Display a listing of the users.
@@ -274,10 +273,6 @@ class UsersController extends Controller
         if (is_array($request->get('with')) && in_array('studentSubjectAverages', $request->get('with'))) {
             AverageRatingRepository::getSubjectAveragesOfStudents(Collection::make([$user]));
         }
-
-       /*  if(is_array($request->get('with')) && in_array('teststaked', $request->get('with'))){
-            $this->getRatingsForStudent(null, 5, 'test_takes.updated_at', 'desc', false);
-        } */
 
         if (is_array($request->get('with')) && (in_array('studentAverageGraph', $request->get('with')) || array_key_exists('studentAverageGraph', $request->get('with')))) {
             $baseSubjectOrSubject = null;

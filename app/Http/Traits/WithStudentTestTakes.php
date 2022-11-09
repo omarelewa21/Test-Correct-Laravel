@@ -55,7 +55,7 @@ trait WithStudentTestTakes
             ->select('test_takes.*', 'tests.name as test_name', 'subjects.name as subject_name')
             ->leftJoin('tests', 'tests.id', '=', 'test_takes.test_id')
             ->leftJoin('subjects', 'tests.subject_id', '=', 'subjects.id')
-            ->where('test_takes.hide_grades','=',0);
+            ->where('test_takes.hide_grades',0);
 
         return $paginateBy ? $ratedTakesQuery->orderBy($orderColumn, $orderDirection)->paginate($paginateBy) : $ratedTakesQuery->take($amount)->get();
     }

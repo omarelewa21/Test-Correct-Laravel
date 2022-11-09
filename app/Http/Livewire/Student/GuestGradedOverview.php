@@ -20,7 +20,6 @@ class GuestGradedOverview extends Component
     public $testTake;
     public $guestList = [];
     public $participatingClasses = [];
-    public $test;
 
     public function mount()
     {
@@ -40,7 +39,6 @@ class GuestGradedOverview extends Component
     public function render()
     {
         $this->testTake = TestTake::getTestTakeWithSubjectNameAndTestName($this->take);
-        //$this->testTake = $this->testTake->makeHidden(['hide_grades']);
         return view('livewire.student.guest-graded-overview')->layout('layouts.auth');
     }
 
