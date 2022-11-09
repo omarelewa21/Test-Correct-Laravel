@@ -36,7 +36,7 @@
      "
      x-data="{loadingOverlay: false, collapse: false, backdrop: false, emptyStateActive: @entangle('emptyStateActive'), showBank: @js($sliderButtonSelected)}"
      x-cloak
-     x-effect="handleLoading(); " {{--$el.scrollTop = $store.cms.scrollPos;" --}}
+     x-effect="handleLoading();"
      :class="{'collapsed': collapse}"
      @backdrop="backdrop = !backdrop"
      @processing-end.window="$store.cms.processing = false;"
@@ -64,9 +64,6 @@
             <div x-show="emptyStateActive"
                  x-cloak
                  class="empty-state-popover py-4 px-6">
-                {{--                <div class="absolute right-2 top-1 cursor-pointer" >--}}
-                {{--                    <x-icon.close-small/>--}}
-                {{--                </div>--}}
                 <span class="regular text-base">{{ __('cms.begin_with_making_a_question') }}</span>
             </div>
         </div>

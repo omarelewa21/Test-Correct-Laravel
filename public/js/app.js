@@ -6046,8 +6046,11 @@ document.addEventListener('alpine:init', function () {
         var _this9 = this;
 
         if (el.getAttribute('x-ref') !== this.activeSlide) return;
-        this.$refs.questionEditorSidebar.style.minHeight = 'auto';
-        this.$refs.questionEditorSidebar.style.height = 'auto';
+
+        if (!this.$store.questionBank.active) {
+          this.$refs.questionEditorSidebar.style.minHeight = 'auto';
+          this.$refs.questionEditorSidebar.style.height = 'auto';
+        }
 
         if (el.offsetHeight > this.drawer.offsetHeight) {
           this.drawer.classList.add('overflow-auto');
@@ -6121,8 +6124,8 @@ document.addEventListener('alpine:init', function () {
         });
       },
       addQuestionToGroup: function addQuestionToGroup(uuid) {
-        this.showAddQuestionSlide();
         this.$store.questionBank.inGroup = uuid;
+        this.showAddQuestionSlide(true, false);
       },
       addGroup: function addGroup() {
         var shouldCheckDirty = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : true;
@@ -6133,8 +6136,10 @@ document.addEventListener('alpine:init', function () {
       },
       showAddQuestionSlide: function showAddQuestionSlide() {
         var shouldCheckDirty = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : true;
+        var clearGroupUuid = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : true;
 
         if (this.emitAddToOpenShortIfNecessary(shouldCheckDirty, false, false)) {
+          if (clearGroupUuid) this.$store.questionBank.inGroup = false;
           this.next(this.$refs.home);
           this.$dispatch('backdrop');
         }
@@ -6152,7 +6157,8 @@ document.addEventListener('alpine:init', function () {
         if (shouldCheckDirty && this.$store.cms.dirty) {
           this.$wire.emitTo('teacher.questions.open-short', 'addQuestionFromDirty', {
             group: group,
-            newSubQuestion: newSubQuestion
+            newSubQuestion: newSubQuestion,
+            groupUuid: this.$store.questionBank.inGroup
           });
           return false;
         }
@@ -7476,7 +7482,7 @@ window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
 window.Pusher = __webpack_require__(/*! pusher-js */ "./node_modules/pusher-js/dist/web/pusher.js");
 window.Echo = new laravel_echo__WEBPACK_IMPORTED_MODULE_0__["default"]({
   broadcaster: 'pusher',
-  key: "662d128370816e2bbb66",
+  key: "fc18ed69b446aeb8c8a5",
   cluster: "eu",
   forceTLS: true
 });

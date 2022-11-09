@@ -66,7 +66,7 @@
         </div>
     </div>
     <div class="w-full relative overflow-hidden transition-all max-h-0 duration-200 group-question-questions"
-         :style="expand ? 'max-height:' + $el.scrollHeight + 'px' : ''"
+         :style="expand ? 'max-height:' + ($el.scrollHeight+20) + 'px' : ''"
          wire:sortable-group.item-group="{{ $question->uuid }}"
     >
         {{ $slot }}
