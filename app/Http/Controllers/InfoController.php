@@ -64,7 +64,7 @@ class InfoController extends Controller
         }
         $info->fill($data->all());
         $info->save();
-        $info->saveRoleInfo($request->validated('roles'));
+        $info->saveRoleInfo($request->validated());
         return Response::make($info,200);
     }
 
@@ -82,7 +82,7 @@ class InfoController extends Controller
             ]);
         }
         $info = Info::create($data->all());
-        $info->saveRoleInfo($request->validated('roles'));
+        $info->saveRoleInfo($request->validated());
         return Response::make($info,200);
     }
 
