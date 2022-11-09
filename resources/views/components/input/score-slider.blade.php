@@ -29,13 +29,9 @@
            if(value <= 0) {
             score = value = 0;
            }
-           if(allowHalfPoints) {
-                score = value = Math.round(value);
-           }
-           {{-- only accept half points? --}}
-{{--           if(value % 0.5){--}}
-{{--            score = Math.round(value);--}}
-{{--           }--}}
+
+           score = value = allowHalfPoints ? Math.round(value*2)/2 : Math.round(value)
+
            if(timeOut){
                 clearTimeout(timeOut);
            }

@@ -9,7 +9,7 @@
                                        lang="{{$question->lang}}"
                 ></x-input.rich-textarea>
             </x-input.group>
-            <div class="flex justify-between">
+            <div class="flex justify-between" wire:ignore>
                 <div class="flex space-x-2 text-midgrey">
                     <div>
                         <span class="mr-1">Woorden: </span>

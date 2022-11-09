@@ -14005,10 +14005,16 @@ RichTextEditor = {
       RichTextEditor.sendInputEventToEditor(editorId, e);
     });
     editor.on('instanceReady', function (e) {
-      document.getElementById('word-count-' + editorId).textContent = editor.wordCount.wordCount;
-      document.getElementById('char-count-' + editorId).textContent = editor.wordCount.charCount;
+      setTimeout(function () {
+        document.getElementById('word-count-' + editorId).textContent = editor.wordCount.wordCount;
+        document.getElementById('char-count-' + editorId).textContent = editor.wordCount.charCount;
+      }, 300);
       window.addEventListener('wsc-problems-count-updated-' + editorId, function (e) {
-        document.getElementById('problem-count-' + editorId).textContent = e.detail.problemsCount;
+        var problemCountSpan = document.getElementById('problem-count-' + editorId);
+
+        if (problemCountSpan) {
+          problemCountSpan.textContent = e.detail.problemsCount;
+        }
       });
       document.getElementById('cke_wordcount_' + editorId).classList.add('hidden');
       document.querySelector('.cke_top').style.display = 'none !important';
