@@ -85,7 +85,7 @@
                                             @endif
                                         </x-table.cell>
                                         <x-table.cell>
-                                            <x-partials.test-take-type-label type="{{ $testTake->retake }}"/>
+                                            <x-partials.test-take-type-label :type="$testTake->retake"/>
                                         </x-table.cell>
                                         <x-table.cell class="text-right" buttonCell>
                                             <x-partials.start-take-button :timeStart="$testTake->time_start"
@@ -140,7 +140,7 @@
                                             @endif
                                         </x-table.cell>
                                         <x-table.cell>
-                                            <x-partials.test-take-type-label type="{{ $testTake->retake }}"/>
+                                            <x-partials.test-take-type-label :type="$testTake->retake"/>
                                         </x-table.cell>
                                         <x-table.cell class="text-right">
                                             @if($testTake->testParticipants->first()->rating)

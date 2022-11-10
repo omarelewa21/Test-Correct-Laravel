@@ -1,5 +1,7 @@
 <?php
 
+namespace Database\Seeders;
+
 use Illuminate\Database\Seeder;
 use Illuminate\Database\Eloquent\Model;
 
@@ -12,8 +14,8 @@ class DatabaseSeeder extends Seeder {
 	 */
 	public function run()
 	{
-		$this->call('EanCodeTableSeeder');
-		$this->call('SearchFilterTableSeeder');
+		$this->call(EanCodeTableSeeder::class);
+		$this->call(SearchFilterTableSeeder::class);
         $this->call(SwitchSchoolAccountTableSeeder::class);
         if(config('custom.enable_additional_seeders'))
         {

@@ -46,32 +46,39 @@ return [
 		'local' => [
 			'driver' => 'local',
 			'root'   => storage_path().'/app',
+            'throw' => true,
 		],
         'inline_images' => [
             'driver' => 'local',
             'root'   => storage_path().'/inlineimages',
+            'throw' => true,
         ],
 
         'attachments' => [
             'driver' => 'local',
             'root'   => storage_path().'/attachments',
+            'throw' => true,
         ],
         'pdf_images' => [
             'driver' => 'local',
             'root'   => storage_path().'/pdf_images',
+            'throw' => true,
         ],
         'temp_pdf' => [
             'driver' => 'local',
             'root'   => storage_path().'/temp_pdf',
+            'throw' => true,
         ],
         'cake' => [
             'driver' => 'local',
-            'root' => env('CAKE_STORAGE_PATH', base_path().'/../testportal.test-correct/app/tmp/')
+            'root' => env('CAKE_STORAGE_PATH', base_path().'/../testportal.test-correct/app/tmp/'),
+            'throw' => true,
         ],
 
         \tcCore\Http\Helpers\SvgHelper::DISK => [
             'driver' => 'local',
             'root'   => storage_path('drawing-question-svg'),
+            'throw' => true,
         ],
 
 		's3' => [

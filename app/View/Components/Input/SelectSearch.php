@@ -14,11 +14,12 @@ class SelectSearch extends Component
     public $level;
     public $disabled;
 
-    public function __construct($placeholder = null,
-                                $emptyOptionsMessage = null,
-                                $name,
-                                $level = null,
-                                $disabled = false)
+    public function __construct(
+        $name,
+        $placeholder = null,
+        $emptyOptionsMessage = null,
+        $level = null,
+        $disabled = false)
     {
         $this->placeholder = $placeholder ?? __('Kies een waarde');
         $this->emptyOptionsMessage = $emptyOptionsMessage ?? __('Geen resultaat gevonden');

@@ -124,7 +124,7 @@ class OpenShort extends Component implements QuestionCms
     /**
      * @var CmsInfoScreen|CmsMultipleChoice|CmsOpen|CmsRanking|CmsTrueFalse|null
      */
-    private $obj;
+    private $obj = '';
 
     public $sortOrderAttachments = [];
 
@@ -468,7 +468,7 @@ class OpenShort extends Component implements QuestionCms
         }
 
         $method = 'showStatistics';
-        if (method_exists($this->obj, $method)) {
+        if ($this->obj && method_exists($this->obj, $method)) {
             return $this->obj->$method();
         }
         return true;
@@ -498,7 +498,7 @@ class OpenShort extends Component implements QuestionCms
     public function showQuestionScore()
     {
         $method = 'showQuestionScore';
-        if (method_exists($this->obj, $method)) {
+        if ($this->obj && method_exists($this->obj, $method)) {
             return $this->obj->$method();
         }
         return true;

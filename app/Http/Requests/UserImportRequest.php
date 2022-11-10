@@ -115,7 +115,7 @@ class UserImportRequest extends Request {
             if (request()->type == 'teacher') {
                 $this->usernameExternalIdCombinationUnique($validator);
             }
-            $data = $this->request->get('data');
+            $data = $this->request->all('data');
             $dataCollection = collect(request('data'));
             $unique = collect(request('data'))->unique();
             if ($unique->count() < $dataCollection->count()) {

@@ -19,7 +19,6 @@ return [
     'back_to_make_choice'                                                                            => 'Terug naar keuze maken',
     'brin_four_detected'                                                                             => 'Uw Entree account bevat een 4 cijferige brincode. We kunnen uw account niet aan een schoollocatie linken, neem contact op met de helpdesk.',
     'brin_not_found'                                                                                 => 'Je school is niet aangesloten bij Test-Correct',
-    'cancel'                                                                                         => 'Annuleren',
     'choose_this_if_you_already_have_an_account'                                                     => 'Kies deze optie als je reeds een account hebt gemaakt bij Test-Correct',
     'choose_this_if_you_have_no_account'                                                             => 'Kies deze optie als je nog geen account hebt gemaakt bij Test-Correct',
     'congratulations_linked'                                                                         => 'Gefeliciteerd! Je bent gekoppeld',

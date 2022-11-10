@@ -135,12 +135,12 @@ class ExcelAttainmentCitoManifest
             'kb' => 6,
             'gl/tl' => 4,
         ];
-        foreach($this->transformArrayStructureToArray($level) as $level) {
-            $level = trim($level);
-            if (!array_key_exists($level, $ar)) {
-                throw new \Exception(sprintf('Expected level %s unknown in class %s', $level, __CLASS__));
+        foreach($this->transformArrayStructureToArray($level) as $value) {
+            $value = trim($value);
+            if (!array_key_exists($value, $ar)) {
+                throw new \Exception(sprintf('Expected level %s unknown in class %s', $value, __CLASS__));
             }
-            $levels[] = $ar[$level];
+            $levels[] = $ar[$value];
         }
         return $levels;
     }

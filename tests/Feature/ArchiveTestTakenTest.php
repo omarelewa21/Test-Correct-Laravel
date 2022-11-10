@@ -105,11 +105,11 @@ class ArchiveTestTakenTest extends TestCase
 
         $uuid = $list[0]['uuid'];
 
-        $response = $this->put(
+        $this->put(
             route('test_take.archive', $uuid),
             $this->getTeacherOneAuthRequestData()
         )->assertSuccessful();
-        $response = $this->put(
+        $this->put(
             route('test_take.archive', $uuid),
             $this->getTeacherOneAuthRequestData()
         )->assertSuccessful();

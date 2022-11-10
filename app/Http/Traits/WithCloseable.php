@@ -58,7 +58,7 @@ trait WithCloseable
 
         $listOfQToRefresh = [];
         $q = 0;
-        $newAnswers = collect($this->answers)->map(function (&$answer) use ($groupId,&$listOfQToRefresh, &$q) {
+        $newAnswers = collect($this->answers)->map(function ($answer) use ($groupId,&$listOfQToRefresh, &$q) {
             $q++;
             if ($answer['group_id'] === $groupId) {
                 Answer::whereId($answer['id'])->update(['closed_group' => 1]);
