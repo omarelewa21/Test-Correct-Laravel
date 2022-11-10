@@ -100,6 +100,7 @@ Route::middleware('auth')->group(function () {
     Route::middleware(['dll', 'accountManager'])->prefix('account-manager')->name('account-manager.')->group(function () {
         Route::get('/school-locations', \tcCore\Http\Livewire\SchoolLocationsGrid::class)->name('school-locations');
         Route::get('/schools', \tcCore\Http\Livewire\SchoolsGrid::class)->name('schools');
+        Route::get('/file-management/testuploads', \tcCore\Http\Livewire\FileManagement\TestUploadsOverview::class)->name('file-management.testuploads');
     });
 
     Route::middleware(['dll', 'administrator'])->prefix('admin')->name('admin.')->group(function () {

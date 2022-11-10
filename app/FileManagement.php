@@ -1,22 +1,19 @@
 <?php namespace tcCore;
 
-use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Str;
 use tcCore\Http\Helpers\SchoolHelper;
-use tcCore\Jobs\PValues\UpdatePValueUsers;
 use tcCore\Lib\Models\BaseModel;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Dyrynda\Database\Casts\EfficientUuid;
-use Dyrynda\Database\Support\GeneratesUuid;
 use tcCore\Traits\UuidTrait;
 
-class FileManagement extends BaseModel {
+class FileManagement extends BaseModel
+{
+    const TYPE_TEST_UPLOAD = 'testupload';
 
     public $incrementing = false;
-    protected $keyType = 'string';
 
     use SoftDeletes;
     use UuidTrait;
@@ -102,8 +99,14 @@ class FileManagement extends BaseModel {
         return $this->belongsTo('tcCore\SchoolLocation', 'school_location_id');
     }
 
-    public function handler() {
-        return $this->belongsTo('tcCore\User','handledby');
+    public function handler()
+    {
+        return $this->belongsTo('tcCore\User', 'handledby');
+    }
+
+    public function teacher()
+    {
+        return $this->belongsTo('tcCore\User','user_id');
     }
 
     public function status(){
@@ -148,7 +151,7 @@ class FileManagement extends BaseModel {
     protected function handleFilters($query,$filters = [])
     {
         foreach($filters as $key => $val){
-            $methodName = sprintf('handleFilter%s',Str::ucfirst(Str::camel($key)));
+            $methodName = sprintf('handleFilter%s', Str::pascal($key));
             if(method_exists($this,$methodName)){
                 $this->$methodName($query,$val);
             } else {
@@ -341,5 +344,30 @@ class FileManagement extends BaseModel {
             ->where('id','<>',0)
             ->orderBy('max_years','asc')
             ->orderBy('name','asc');
+    }
+
+    protected function handleFilterSearch($query, $value)
+    {
+        $query->where(function($query) use ($value) {
+            $query->where('school_locations.name', 'like', '%' . $value . '%')
+                ->orWhere('file_managements.subject','like', '%' . $value . '%')
+                ->orWhere('file_managements.name','like', '%' . $value . '%');
+        });
+
+    }
+
+
+
+    public function redirectToDetail()
+    {
+
+        dd($this);
+        $temporaryLogin = TemporaryLogin::createWithOptionsForUser(
+            'page',
+            'file_management/view_testupload/' . $this->uuid,
+            Auth::user()
+        );
+
+        return redirect($temporaryLogin->createCakeUrl());
     }
 }

@@ -1,15 +1,9 @@
 <x-layouts.base>
-    <header class="header top-0 px-8 xl:px-28 flex flex-wrap content-center fixed w-full z-20 @if(\tcCore\Http\Helpers\GlobalStateHelper::getInstance()->hasActiveMaintenance()) maintenance-header-bg @endif @if(\tcCore\Http\Helpers\GlobalStateHelper::getInstance()->isOnDeploymentTesting()) deployment-testing-marker @endif">
+    <header class="header top-0 px-8 xl:px-28 flex flex-wrap content-center fixed w-full main-shadow z-20 @if(\tcCore\Http\Helpers\GlobalStateHelper::getInstance()->hasActiveMaintenance()) maintenance-header-bg @endif @if(\tcCore\Http\Helpers\GlobalStateHelper::getInstance()->isOnDeploymentTesting()) deployment-testing-marker @endif">
         <a class="mr-4 flex" href="#">
-            <img class="" src="/svg/logos/Logo-Test-Correct-2.svg"
+            <img class="" src="{{ asset('/svg/logos/Logo-Test-Correct-2.svg') }}"
                  alt="Test-Correct">
         </a>
-{{--        <div class="flex items-center">--}}
-{{--            <x-button.text-button type="link" href="{{ config('app.url_login') }}" class="rotate-svg-180">--}}
-{{--                <x-icon.arrow/>--}}
-{{--                <span>Terugknop (Naar portal, opnieuw inloggen?)</span>--}}
-{{--            </x-button.text-button>--}}
-{{--        </div>--}}
 
         <div class="flex space-x-6 items-center">
             @if(Auth::user()->isA('Account manager'))
