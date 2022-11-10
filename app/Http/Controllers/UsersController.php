@@ -321,7 +321,7 @@ class UsersController extends Controller
 
         if (is_array($request->get('with')) && in_array('testsParticipated', $request->get('with'))) {
             $user->load(['testParticipants' => function ($query) {
-                $query->select(['test_participants.*', 'test_takes.uuid as test_take_uuid', 'test_takes.time_start', 'test_takes.test_take_status_id AS test_take_test_take_status_id', 'tests.name'])->join('test_takes', 'test_participants.test_take_id', '=', 'test_takes.id')->join('tests', 'test_takes.test_id', '=', 'tests.id')->where('test_takes.show_grades', 1)->orderBy('test_takes.time_start', 'DESC');
+                $query->select(['test_participants.*', 'test_takes.uuid as test_take_uuid', 'test_takes.time_start', 'test_takes.test_take_status_id AS test_take_test_take_status_id', 'tests.name', 'test_takes.show_grades as show_grade'])->join('test_takes', 'test_participants.test_take_id', '=', 'test_takes.id')->join('tests', 'test_takes.test_id', '=', 'tests.id')->orderBy('test_takes.time_start', 'DESC');
             }]);
 
         }
