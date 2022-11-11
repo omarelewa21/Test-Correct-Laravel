@@ -1,7 +1,7 @@
 <div class="flex flex-col pt-4 pb-16" style="min-height: 500px">
     <div class="flex justify-between">
-                    <span class="note text-sm" wire:loading
-                          wire:target="filters,clearFilters,$set">{{  __('general.searching') }}</span>
+        <span class="note text-sm" wire:loading
+              wire:target="filters,clearFilters,$set">{{  __('general.searching') }}</span>
 
         <span class="note text-sm"
               wire:loading.remove

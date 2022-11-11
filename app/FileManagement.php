@@ -1,5 +1,6 @@
 <?php namespace tcCore;
 
+use Carbon\Carbon;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
@@ -27,7 +28,7 @@ class FileManagement extends BaseModel
      *
      * @var array
      */
-    protected $dates = ['deleted_at', 'created_at','updated_at','invited_at'];
+    protected $dates = ['deleted_at', 'created_at','updated_at','invited_at', 'planned_at'];
 
     /**
      * The database table used by the model.
@@ -42,7 +43,7 @@ class FileManagement extends BaseModel
      * @var array
      */
     protected $fillable = ['type','id','user_id','school_location_id','file_management_status_id','handledby','notes','name','origname','typedetails','parent_id','archived','form_id',
-                            'class','subject','education_level_year','education_level_id','test_name','test_kind_id','orig_filenames'];
+                            'class','subject','education_level_year','education_level_id','test_name','test_kind_id','orig_filenames','test_builder_code','planned_at','subject_id'];
 
     /**
      * The attributes excluded from the model's JSON form.
@@ -55,6 +56,12 @@ class FileManagement extends BaseModel
     {
         parent::boot();
 
+        static::saving(function (FileManagement $fileManagement) {
+            if(filled($fileManagement->test_builder_code) && str()->length($fileManagement->test_builder_code) > 4)
+            {
+                throw new \Exception('Toetsenbakkercode mag niet langer zijn dan 4');
+            }
+        });
 //        static::created(function (FileManagement $fileManagement) {
 //            $fileManagement->refresh());
 //            FileManagementStatusLog::create([
@@ -115,6 +122,10 @@ class FileManagement extends BaseModel
 
     public function children(){
         return $this->hasMany('tcCore\FileManagement','parent_id');
+    }
+
+    public function subject(){
+        return $this->belongsTo(Subject::class, 'subject_id');
     }
 
     public function scopeFiltered($query, $user, $filters = [], $sorting = [])
@@ -351,17 +362,13 @@ class FileManagement extends BaseModel
         $query->where(function($query) use ($value) {
             $query->where('school_locations.name', 'like', '%' . $value . '%')
                 ->orWhere('file_managements.subject','like', '%' . $value . '%')
-                ->orWhere('file_managements.name','like', '%' . $value . '%');
+                ->orWhere('file_managements.name','like', '%' . $value . '%')
+                ->orWhere('file_managements.test_builder_code','like', '%' . $value . '%');
         });
-
     }
-
-
 
     public function redirectToDetail()
     {
-
-        dd($this);
         $temporaryLogin = TemporaryLogin::createWithOptionsForUser(
             'page',
             'file_management/view_testupload/' . $this->uuid,
@@ -369,5 +376,38 @@ class FileManagement extends BaseModel
         );
 
         return redirect($temporaryLogin->createCakeUrl());
+    }
+
+    protected function handleFilterPlannedAtStart($query,$val)
+    {
+        $query->where('file_managements.planned_at','>=',$val);
+    }
+
+    protected function handleFilterPlannedAtEnd($query,$val)
+    {
+        $val = Str::replaceFirst(' 00:00:00',' 23:59:59', $val);
+        $query->where('file_managements.planned_at','<=',$val);
+    }
+
+    protected function handleFilterBaseSubjects($query, $val)
+    {
+        $query->whereIn(
+            'subject_id',
+            Subject::whereIn('base_subject_id', Arr::wrap($val))->select('id')
+        );
+    }
+
+    public function getDisplayDateAttribute(): string
+    {
+        return $this->planned_at
+            ? $this->planned_at->toFormattedDateString()
+            : $this->created_at->toFormattedDateString();
+    }
+
+    public function getSubjectNameAttribute(): string
+    {
+        return $this->subject_id
+            ? $this->subject()->value('name')
+            : $this->subject;
     }
 }

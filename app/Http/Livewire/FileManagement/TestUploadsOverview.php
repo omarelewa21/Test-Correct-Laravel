@@ -5,6 +5,7 @@ namespace tcCore\Http\Livewire\FileManagement;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 use Livewire\WithPagination;
+use tcCore\BaseSubject;
 use tcCore\FileManagement;
 use tcCore\FileManagementStatus;
 use tcCore\User;
@@ -62,14 +63,20 @@ class TestUploadsOverview extends Component
         return FileManagementStatus::optionList();
     }
 
+    public function getBaseSubjectsProperty()
+    {
+        return BaseSubject::optionList();
+    }
+
     private function setFilters(): void
     {
         $this->filters = [
             'search'           => '',
             'teacherid'        => [],
             'status_ids'       => [],
-            'created_at_start' => '',
-            'created_at_end'   => '',
+            'planned_at_start' => '',
+            'planned_at_end'   => '',
+            'base_subjects'    => [],
         ];
     }
 
