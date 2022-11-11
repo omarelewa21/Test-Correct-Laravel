@@ -370,8 +370,8 @@ class FileManagement extends BaseModel
     public function redirectToDetail()
     {
         $temporaryLogin = TemporaryLogin::createWithOptionsForUser(
-            'page',
-            'file_management/view_testupload/' . $this->uuid,
+            ['page', 'return_route'],
+            ['file_management/view_testupload/' . $this->uuid, route('account-manager.file-management.testuploads', [],false)],
             Auth::user()
         );
 
@@ -409,5 +409,22 @@ class FileManagement extends BaseModel
         return $this->subject_id
             ? $this->subject()->value('name')
             : $this->subject;
+    }
+
+    protected function handleSortingPlannedAt($query,$dir)
+    {
+        $query->orderBy('file_managements.planned_at', $dir);
+    }
+    protected function handleSortingSchoolLocationName($query,$dir)
+    {
+        $query->orderBy('school_locations.name', $dir);
+    }
+    protected function handleSortingTestBuilder($query,$dir)
+    {
+        $query->orderBy('file_managements.test_builder_code', $dir);
+    }
+    protected function handleFilterTestBuilders($query, $val)
+    {
+        $query->whereIn('file_managements.test_builder_code', Arr::wrap($val));
     }
 }

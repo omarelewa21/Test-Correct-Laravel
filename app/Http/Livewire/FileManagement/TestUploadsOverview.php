@@ -3,18 +3,20 @@
 namespace tcCore\Http\Livewire\FileManagement;
 
 use Illuminate\Support\Facades\Auth;
-use Livewire\Component;
 use Livewire\WithPagination;
 use tcCore\BaseSubject;
 use tcCore\FileManagement;
 use tcCore\FileManagementStatus;
+use tcCore\Http\Livewire\Overview\OverviewComponent;
+use tcCore\Http\Traits\WithOverviewFilters;
+use tcCore\Http\Traits\WithSorting;
 use tcCore\User;
 
-class TestUploadsOverview extends Component
+class TestUploadsOverview extends OverviewComponent
 {
-    use WithPagination;
+    use WithPagination, WithSorting, WithOverviewFilters;
 
-    const PER_PAGE = 12;
+    const PER_PAGE = 15;
 
     public array $filters;
 
@@ -38,7 +40,7 @@ class TestUploadsOverview extends Component
         return FileManagement::filtered(
             Auth::user(),
             $this->getCleanFilters() + ['type' => FileManagement::TYPE_TEST_UPLOAD],
-            ['id' => 'desc']
+            [$this->sortField => $this->sortDirection]
         )
             ->with([
                 'status:id,name,colorcode',
@@ -68,15 +70,38 @@ class TestUploadsOverview extends Component
         return BaseSubject::optionList();
     }
 
+    public function getHandlersProperty()
+    {
+        return User::whereIn(
+            'id',
+            FileManagement::select('handledby')->distinct()
+        )
+            ->get()
+            ->map(function (User $user) {
+                return ['value' => $user->getKey(), 'label' => $user->name_full];
+            });
+    }
+
+    public function getTestBuildersProperty()
+    {
+        return FileManagement::select('test_builder_code')
+            ->whereNotNull('test_builder_code')
+            ->distinct()
+            ->get()
+            ->map(fn ($builder) => ['value' => $builder->test_builder_code, 'label' => $builder->test_builder_code]);
+    }
+
     private function setFilters(): void
     {
         $this->filters = [
-            'search'           => '',
-            'teacherid'        => [],
-            'status_ids'       => [],
-            'planned_at_start' => '',
-            'planned_at_end'   => '',
-            'base_subjects'    => [],
+            'search'            => '',
+            'teacherid'         => [],
+            'status_ids'        => [],
+            'planned_at_start'  => '',
+            'planned_at_end'    => '',
+            'base_subjects'     => [],
+            'handlerid'         => [],
+            'test_builders' => [],
         ];
     }
 

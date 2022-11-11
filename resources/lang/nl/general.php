@@ -66,5 +66,8 @@ return [
     'no'                              => 'Nee',
     'vanaf'                           => 'Vanaf',
     'van'                             => 'Van',
-    'tot'                             => 'tot',
+    'tot'                             => 'Tot',
+    'Behandelaar'                     => 'Behandelaar',
+    'Toetsenbakker'                   => 'Toetsenbakker',
+    'afname'                          => 'Afname',
 ];
