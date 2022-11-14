@@ -1,6 +1,6 @@
 <x-layouts.base>
     @if(Auth::user()->isA('Administrator'))
-    <header class="header top-0 px-8 xl:px-28 flex flex-wrap content-center fixed w-full main-shadow z-20 @if(\tcCore\Http\Helpers\GlobalStateHelper::getInstance()->hasActiveMaintenance()) maintenance-header-bg @endif @if(\tcCore\Http\Helpers\GlobalStateHelper::getInstance()->isOnDeploymentTesting()) deployment-testing-marker @endif">
+    <header class="header top-0 px-8 flex flex-wrap content-center sticky w-full main-shadow z-20 @if(\tcCore\Http\Helpers\GlobalStateHelper::getInstance()->hasActiveMaintenance()) maintenance-header-bg @endif @if(\tcCore\Http\Helpers\GlobalStateHelper::getInstance()->isOnDeploymentTesting()) deployment-testing-marker @endif">
         <a class="mr-4 flex" href="#">
             <img class="" src="{{ asset('/svg/logos/Logo-Test-Correct-2.svg') }}"
                  alt="Test-Correct">
