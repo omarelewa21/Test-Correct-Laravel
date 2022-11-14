@@ -2,10 +2,12 @@ import Alpine from 'alpinejs';
 import Choices from "choices.js";
 import Intersect from '@alpinejs/intersect';
 import Clipboard from "@ryangjchandler/alpine-clipboard";
+import collapse from "@alpinejs/collapse";
 
-Alpine.plugin(Clipboard)
 window.Alpine = Alpine;
+Alpine.plugin(Clipboard)
 Alpine.plugin(Intersect);
+Alpine.plugin(collapse);
 
 document.addEventListener('alpine:init', () => {
     Alpine.data('questionIndicator', () => ({
@@ -1199,6 +1201,19 @@ document.addEventListener('alpine:init', () => {
             this.correspondingButton.dispatchEvent(new CustomEvent('close-menu'));
             this.contextMenuOpen = false
         }
+    }));
+
+    Alpine.data('accordionBlock', (key) => ({
+        id: null,
+        init() {
+            this.id = this.containerId+'-'+key;
+        },
+        get expanded() {
+            return this.active === this.id
+        },
+        set expanded(value) {
+            this.active = value ? this.id : null
+        },
     }));
 
 

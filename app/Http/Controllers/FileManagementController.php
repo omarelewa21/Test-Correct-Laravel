@@ -95,13 +95,9 @@ class FileManagementController extends Controller
         DB::beginTransaction();
         try {
             if ($request->isForm()) {
-
                 $result = $this->handleFormSubmission($schoolLocation, $request, $form_id);
-
             } else {
-
                 $result = $this->handleFileUpload($request, $schoolLocation, $form_id);
-
             }
         } catch (\Exception $e) {
 
