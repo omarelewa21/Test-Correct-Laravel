@@ -5,7 +5,7 @@
          x-data="{
         openTab: $wire.entangle('openTab'),
         testQuestionSlide: null,
-        bodyVisibility: true,
+        overviewBodyVisibility: true,
         maxHeight: 'calc(100vh - var(--header-height))'
      }"
          x-init="
@@ -18,14 +18,14 @@
             maxHeight = testQuestionSlide.offsetHeight + 'px';
             $nextTick(() => {
                 setTimeout(() => {
-                    bodyVisibility = false;
+                    overviewBodyVisibility = false;
                     handleVerticalScroll($el.closest('.slide-container'));
                 }, 250);
             })
         };
        closeTestSlide = () => {
-            if (!bodyVisibility) {
-                bodyVisibility = true;
+            if (!overviewBodyVisibility) {
+                overviewBodyVisibility = true;
                 maxHeight = 'calc(100vh - var(--header-height))';
                 testQuestionSlide.style.left = '100%';
                 $nextTick(() => {
@@ -45,7 +45,7 @@
     >
 @endsection
 @section('cms-js-properties')
-    x-show="bodyVisibility"
+    x-show="overviewBodyVisibility"
     x-cloak
 @endsection
 

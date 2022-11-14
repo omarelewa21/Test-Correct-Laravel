@@ -405,8 +405,10 @@ document.addEventListener('alpine:init', () => {
         handleVerticalScroll(el) {
             if (el.getAttribute('x-ref') !== this.activeSlide) return;
 
-            this.$refs.questionEditorSidebar.style.minHeight = 'auto';
-            this.$refs.questionEditorSidebar.style.height = 'auto';
+            if(!this.$store.questionBank.active) {
+                this.$refs.questionEditorSidebar.style.minHeight = 'auto';
+                this.$refs.questionEditorSidebar.style.height = 'auto';
+            }
 
             if (el.offsetHeight > this.drawer.offsetHeight) {
                 this.drawer.classList.add('overflow-auto');
@@ -464,16 +466,17 @@ document.addEventListener('alpine:init', () => {
             })
         },
         addQuestionToGroup(uuid) {
-            this.showAddQuestionSlide()
             this.$store.questionBank.inGroup = uuid;
+            this.showAddQuestionSlide(true, false)
         },
         addGroup(shouldCheckDirty = true) {
             if (this.emitAddToOpenShortIfNecessary(shouldCheckDirty, true, false)) {
                 this.$wire.addGroup();
             }
         },
-        showAddQuestionSlide(shouldCheckDirty = true) {
+        showAddQuestionSlide(shouldCheckDirty = true, clearGroupUuid = true) {
             if (this.emitAddToOpenShortIfNecessary(shouldCheckDirty, false, false)) {
+                if(clearGroupUuid) this.$store.questionBank.inGroup = false;
                 this.next(this.$refs.home);
                 this.$dispatch('backdrop');
             }
@@ -484,7 +487,7 @@ document.addEventListener('alpine:init', () => {
         emitAddToOpenShortIfNecessary(shouldCheckDirty = true, group, newSubQuestion) {
             this.$dispatch('store-current-question');
             if (shouldCheckDirty && this.$store.cms.dirty) {
-                this.$wire.emitTo('teacher.questions.open-short', 'addQuestionFromDirty', {group, newSubQuestion});
+                this.$wire.emitTo('teacher.questions.open-short', 'addQuestionFromDirty', {group, newSubQuestion, groupUuid: this.$store.questionBank.inGroup});
                 return false;
             }
             return true;

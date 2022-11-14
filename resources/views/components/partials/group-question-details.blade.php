@@ -1,4 +1,4 @@
-<div>
+<div wire:key="group-question-detail-{{ $context }}-{{ $uuid }}">
     <div class="sticky @if($context !== 'question-bank') sticky-pseudo-bg @endif z-10 top-0 bg-lightGrey flex items-center px-8 py-1 border-b border-bluegrey"
          @if($context !== 'question-bank')
          :style="{top: $root.offsetTop + 'px'}"
@@ -57,9 +57,9 @@
                         <x-icon.checkmark-circle color="var(--cta-primary)"/>
                     </span>
                 @endif
-                <x-button.cta x-data="{}" x-show="Alpine.store('questionBank').active"
-                              wire:click.stop="handleCheckboxClick('{{ $uuid }}')"
-                              @click="$el.disabled = true">
+                <x-button.cta x-data="{}"
+                              x-show="Alpine.store('questionBank').active"
+                              x-on:click.stop="addQuestionToTestFromTestCard($el, '{{ $uuid }}', false );$el.disabled = true">
                     <x-icon.plus-2/>
                     <span>{{ __('cms.Toevoegen') }}</span>
                 </x-button.cta>
@@ -77,6 +77,6 @@
                 <span>Geen subvragen</span>
             @endforelse
         </x-grid>
-        <livewire:context-menu.question-card>
+        <livewire:context-menu.question-card/>
     </div>
 </div>
