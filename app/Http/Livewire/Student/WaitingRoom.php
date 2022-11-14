@@ -10,6 +10,7 @@ use Livewire\Component;
 use Ramsey\Uuid\Uuid;
 use tcCore\Http\Helpers\AllowedAppType;
 use tcCore\Http\Helpers\AppVersionDetector;
+use tcCore\Http\Livewire\CoLearning\CompletionQuestion;
 use tcCore\Http\Traits\WithStudentAppVersionHandling;
 use tcCore\Http\Traits\WithStudentTestTakes;
 use tcCore\TemporaryLogin;
@@ -159,6 +160,7 @@ class WaitingRoom extends Component
     public function startDiscussing()
     {
         if($this->waitingTestTake->discussion_type == 'OPEN_ONLY' && Auth::user()->schoolLocation->allow_new_co_learning){
+            $this->destroyExistingCoLearningCompletionQuestionSession();
             return redirect('/student/co-learning/' . $this->take);
         }
 
@@ -166,6 +168,13 @@ class WaitingRoom extends Component
         $options = TemporaryLogin::buildValidOptionObject('page', $url);
 
         Auth::user()->redirectToCakeWithTemporaryLogin($options);
+    }
+
+    public function destroyExistingCoLearningCompletionQuestionSession()
+    {
+        if(session()->has(CompletionQuestion::SESSION_KEY)){
+            session()->forget(CompletionQuestion::SESSION_KEY);
+        }
     }
 
     public function startReview()

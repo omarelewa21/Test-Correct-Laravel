@@ -8,6 +8,7 @@ use Livewire\Component;
 use tcCore\AnswerRating;
 use tcCore\Http\Controllers\AnswerRatingsController;
 use tcCore\Http\Controllers\TestTakeLaravelController;
+use tcCore\Http\Livewire\CoLearning\CompletionQuestion;
 use tcCore\Http\Livewire\CoLearning\OpenQuestion;
 use tcCore\TestParticipant;
 use tcCore\TestQuestion;
@@ -82,9 +83,18 @@ class CoLearning extends Component
         return redirect()->route('student.test-takes', ['tab' => 'review']);
     }
 
+    public function destroyCompletionQuestionSession()
+    {
+        if(session()->has(CompletionQuestion::SESSION_KEY)){
+            session()->forget(CompletionQuestion::SESSION_KEY);
+        }
+    }
+
     public function goToFinishedCoLearningPage(): void
     {
         $this->coLearningFinished = true;
+
+        $this->destroyCompletionQuestionSession();
 
         $this->waitForTeacherNotificationEnabled = false;
         $this->answerRatingId = null;
@@ -121,12 +131,10 @@ class CoLearning extends Component
         if ((int)$this->rating < 0) {
             $this->rating = 0;
         }
-        if ((int)$this->rating > $this->maxRating) {
+        if ((int)$this->rating >= $this->maxRating) {
             $this->rating = $this->maxRating;
         }
-        $this->answerRating = AnswerRating::find($this->answerRatingId);
-
-        $this->answerRating->update(['rating' => $this->rating]);
+        AnswerRating::whereId($this->answerRatingId)->update(['rating' => $this->rating]);
 
         $this->checkIfStudentCanFinishCoLearning();
     }
