@@ -8,6 +8,7 @@ use Illuminate\Support\Str;
 use tcCore\GroupQuestionQuestion;
 use tcCore\Http\Helpers\BaseHelper;
 use tcCore\Http\Traits\TestTakeNavigationForController;
+use tcCore\Http\Traits\WithStudentTestTakes;
 use tcCore\TestParticipant;
 use tcCore\TestTake;
 use tcCore\TemporaryLogin;
@@ -17,6 +18,7 @@ use Ramsey\Uuid\Uuid;
 class TestTakeLaravelController extends Controller
 {
     use TestTakeNavigationForController;
+    use WithStudentTestTakes;
 
     public function overview(TestTake $testTake, Request $request)
     {
@@ -112,23 +114,6 @@ class TestTakeLaravelController extends Controller
         return $result;
     }
 
-    public static function getData($testParticipant, $testTake)
-    {
-        return cache()->remember('data_test_take_' . $testTake->getKey(), now()->addMinutes(60), function () use ($testTake) {
-            $testTake->load('test', 'test.testQuestions', 'test.testQuestions.question', 'test.testQuestions.question.attachments');
-            return $testTake->test->testQuestions->flatMap(function ($testQuestion) {
-                $testQuestion->question->loadRelated();
-                if ($testQuestion->question->type === 'GroupQuestion') {
-                    $groupQuestion = $testQuestion->question;
-                    return $testQuestion->question->groupQuestionQuestions->map(function ($item) use($groupQuestion){
-                        $item->question->belongs_to_groupquestion_id = $groupQuestion->getKey();
-                        return $item->question;
-                    });
-                }
-                return collect([$testQuestion->question]);
-            });
-        });
-    }
 
     /**
      * @param $data

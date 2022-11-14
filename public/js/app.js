@@ -6692,6 +6692,47 @@ document.addEventListener('alpine:init', function () {
       }
     };
   });
+  alpinejs__WEBPACK_IMPORTED_MODULE_1__["default"].data('sliderToggle', function (model, sources) {
+    return {
+      buttonPosition: '0px',
+      value: model,
+      sources: sources,
+      handle: null,
+      init: function init() {
+        this.handle = this.$el.querySelector('.slider-button-handle');
+
+        if (this.value === null) {
+          return;
+        }
+
+        this.$el.querySelector('.group').firstElementChild.classList.add('text-primary');
+
+        if (this.value !== '' && Object.keys(this.sources).includes(String(this.value))) {
+          this.activateButton(this.$el.querySelector('[data-id=\'' + this.value + '\']').parentElement);
+        } else {
+          this.value = this.$el.querySelector('.group').firstElementChild.dataset.id;
+        }
+      },
+      clickButton: function clickButton(target) {
+        this.activateButton(target);
+        this.value = target.firstElementChild.dataset.id;
+      },
+      hoverButton: function hoverButton(target) {
+        this.activateButton(target);
+      },
+      activateButton: function activateButton(target) {
+        this.resetButtons(target);
+        this.buttonPosition = target.offsetLeft + 'px';
+        target.firstElementChild.classList.add('text-primary');
+        this.handle.classList.remove('hidden');
+      },
+      resetButtons: function resetButtons(target) {
+        Array.from(target.parentElement.children).forEach(function (button) {
+          button.firstElementChild.classList.remove('text-primary');
+        });
+      }
+    };
+  });
   alpinejs__WEBPACK_IMPORTED_MODULE_1__["default"].data('expandableGraph', function (id, modelId, taxonomy) {
     return {
       data: false,
@@ -13759,11 +13800,13 @@ document.addEventListener('alpine:init', function () {
         });
       },
       shouldDispatchTilesEvent: function shouldDispatchTilesEvent() {
+        var _this$activeMenuItem;
+
         return !Array.from(this.menuButtonsWithoutItems).map(function (item) {
           return item.dataset.menu;
         }).filter(function (n) {
           return n;
-        }).includes(this.activeMenuItem.dataset.menu);
+        }).includes((_this$activeMenuItem = this.activeMenuItem) === null || _this$activeMenuItem === void 0 ? void 0 : _this$activeMenuItem.dataset.menu);
       }
     };
   });
@@ -13922,6 +13965,60 @@ RichTextEditor = {
     });
     CKEDITOR.instances[editorId].on('change', function (e) {
       RichTextEditor.sendInputEventToEditor(editorId, e);
+    });
+  },
+  initStudentCoLearning: function initStudentCoLearning(editorId) {
+    var lang = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 'nl_NL';
+    var wsc = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
+    var editor = CKEDITOR.instances[editorId];
+
+    if (editor) {
+      editor.destroy(true);
+    }
+
+    if (wsc) {
+      CKEDITOR.disableAutoInline = true;
+      CKEDITOR.config.removePlugins = 'scayt,wsc';
+    }
+
+    CKEDITOR.on('instanceReady', function (event) {
+      var editor = event.editor;
+      WebspellcheckerTlc.forTeacherQuestion(editor, lang, wsc);
+    });
+    CKEDITOR.replace(editorId, {
+      removePlugins: 'pastefromword,pastefromgdocs,advanced,simpleuploads,dropoff,copyformatting,image,pastetext,uploadwidget,uploadimage,elementspath',
+      extraPlugins: 'quicktable,ckeditor_wiris,autogrow,wordcount,notification',
+      wordcount: {
+        showWordCount: true,
+        showParagraphs: false,
+        showCharCount: true
+      },
+      toolbar: []
+    });
+    CKEDITOR.config.wordCount = {
+      showWordCount: true,
+      showParagraphs: false,
+      showCharCount: true
+    };
+    editor = CKEDITOR.instances[editorId];
+    editor.on('change', function (e) {
+      RichTextEditor.sendInputEventToEditor(editorId, e);
+    });
+    editor.on('instanceReady', function (e) {
+      setTimeout(function () {
+        document.getElementById('word-count-' + editorId).textContent = editor.wordCount.wordCount;
+        document.getElementById('char-count-' + editorId).textContent = editor.wordCount.charCount;
+      }, 300);
+      window.addEventListener('wsc-problems-count-updated-' + editorId, function (e) {
+        var problemCountSpan = document.getElementById('problem-count-' + editorId);
+
+        if (problemCountSpan) {
+          problemCountSpan.textContent = e.detail.problemsCount;
+        }
+      });
+      document.getElementById('cke_wordcount_' + editorId).classList.add('hidden');
+      document.querySelector('.cke_top').style.display = 'none !important';
+      document.querySelector('.cke_bottom').style.display = 'none !important';
     });
   },
   initCMS: function initCMS(editorId) {
@@ -14394,6 +14491,13 @@ WebspellcheckerTlc = {
         container: editor.window.getFrame() ? editor.window.getFrame().$ : editor.element.$,
         spellcheckLang: language,
         localization: 'nl'
+      });
+      instance.subscribe('problemCheckEnded', function (event) {
+        window.dispatchEvent(new CustomEvent('wsc-problems-count-updated-' + editor.name, {
+          detail: {
+            problemsCount: instance.getProblemsCount()
+          }
+        }));
       });
 
       try {

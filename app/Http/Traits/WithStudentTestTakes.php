@@ -121,9 +121,11 @@ trait WithStudentTestTakes
                     $groupQuestion = $testQuestion->question;
                     return $testQuestion->question->groupQuestionQuestions->map(function ($item) use($groupQuestion){
                         $item->question->belongs_to_groupquestion_id = $groupQuestion->getKey();
+                        $item->question->discuss = $item->discuss;
                         return $item->question;
                     });
                 }
+                $testQuestion->question->discuss = $testQuestion->discuss;
                 return collect([$testQuestion->question]);
             });
         });

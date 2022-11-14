@@ -1061,6 +1061,44 @@ document.addEventListener('alpine:init', () => {
     ));
 
 
+    Alpine.data('sliderToggle', (model, sources) => (
+        {
+            buttonPosition: '0px',
+            value: model,
+            sources: sources,
+            handle: null,
+            init(){
+                this.handle = this.$el.querySelector('.slider-button-handle');
+                if(this.value === null){
+                    return;
+                }
+                this.$el.querySelector('.group').firstElementChild.classList.add('text-primary');
+                if(this.value !== '' && Object.keys(this.sources).includes(String(this.value))){
+                    this.activateButton(this.$el.querySelector('[data-id=\'' + this.value + '\']').parentElement);
+                } else {
+                    this.value = this.$el.querySelector('.group').firstElementChild.dataset.id;
+                }
+            },
+            clickButton(target){
+                this.activateButton(target);
+                this.value = target.firstElementChild.dataset.id;
+            },
+            hoverButton(target){
+                this.activateButton(target)
+            },
+            activateButton(target){
+                this.resetButtons(target)
+                this.buttonPosition = target.offsetLeft + 'px';
+                target.firstElementChild.classList.add('text-primary');
+                this.handle.classList.remove('hidden');
+            },
+            resetButtons(target) {
+                Array.from(target.parentElement.children).forEach(button => {
+                    button.firstElementChild.classList.remove('text-primary');
+                });
+            }
+        }));
+
     Alpine.data('expandableGraph', (id, modelId, taxonomy) => (
         {
             data: false,
