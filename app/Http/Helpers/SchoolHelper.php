@@ -41,7 +41,18 @@ class SchoolHelper
 
     public static function getTempTeachersSchoolLocation()
     {
-        return SchoolLocation::where('customer_code','OUD TC-tijdelijke-docentaccounts')->orWhere('customer_code','TC-tijdelijke-docentaccounts')->first();
+        return SchoolLocation::where('customer_code','OUD TC-tijdelijke-docentaccounts')
+            ->orWhere('customer_code','TC-tijdelijke-docentaccounts')
+            ->orderBy('id')
+            ->first();
+    }
+
+    public static function isTempTeachersSchoolLocation(SchoolLocation $schoolLocation)
+    {
+        return in_array($schoolLocation->customer_code, [
+            'OUD TC-tijdelijke-docentaccounts',
+            'TC-tijdelijke-docentaccounts',
+        ]);
     }
 
     public static function denyIfTempTeacher() {

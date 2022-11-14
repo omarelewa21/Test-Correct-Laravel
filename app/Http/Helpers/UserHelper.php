@@ -135,9 +135,11 @@ class UserHelper
     {
         if(!$user->isA('teacher')) return;
 
-//        (new DemoHelper())->createDemoForTeacherIfNeeded($user, true);
+        ActingAsHelper::getInstance()->setUser($user);
+        (new DemoHelper())->createDemoForTeacherIfNeeded($user, true);
 
-        $user->makeOnboardWizardIfNeeded();
+        //14nov22 disabled onboardingWizard creation, was already disabled in view
+//        $user->makeOnboardWizardIfNeeded();
 
         $user->createGeneralTermsLogIfRequired();
         $user->createTrialPeriodRecordIfRequired();
