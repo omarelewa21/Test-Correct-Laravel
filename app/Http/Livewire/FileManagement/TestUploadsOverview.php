@@ -3,43 +3,38 @@
 namespace tcCore\Http\Livewire\FileManagement;
 
 use Illuminate\Support\Facades\Auth;
-use Livewire\WithPagination;
 use tcCore\BaseSubject;
 use tcCore\FileManagement;
 use tcCore\FileManagementStatus;
 use tcCore\Http\Livewire\Overview\OverviewComponent;
-use tcCore\Http\Traits\WithOverviewFilters;
 use tcCore\Http\Traits\WithSorting;
 use tcCore\User;
 
 class TestUploadsOverview extends OverviewComponent
 {
-    use WithPagination, WithSorting, WithOverviewFilters;
+    use WithSorting;
 
-    const PER_PAGE = 15;
-
-    public array $filters;
-
-    public function mount()
-    {
-        $this->setFilters();
-    }
+    protected array $filterableAttributes = [
+        'search'           => '',
+        'teacherid'        => [],
+        'status_ids'       => [],
+        'planned_at_start' => '',
+        'planned_at_end'   => '',
+        'base_subjects'    => [],
+        'handlerid'        => [],
+        'test_builders'    => [],
+    ];
 
     public function render()
     {
         return view('livewire.file-management.test-uploads-overview')->layout('layouts.app-admin');
     }
 
-    public function updatingFilters($value, $filter)
-    {
-        $this->resetPage();
-    }
-
     public function getTestUploadsProperty()
     {
         return FileManagement::filtered(
             Auth::user(),
-            $this->getCleanFilters() + ['type' => FileManagement::TYPE_TEST_UPLOAD],
+            $this->getCleanFilterForSearch() + ['type' => FileManagement::TYPE_TEST_UPLOAD],
             [$this->sortField => $this->sortDirection]
         )
             ->with([
@@ -88,37 +83,13 @@ class TestUploadsOverview extends OverviewComponent
             ->whereNotNull('test_builder_code')
             ->distinct()
             ->get()
-            ->map(fn ($builder) => ['value' => $builder->test_builder_code, 'label' => $builder->test_builder_code]);
-    }
-
-    private function setFilters(): void
-    {
-        $this->filters = [
-            'search'            => '',
-            'teacherid'         => [],
-            'status_ids'        => [],
-            'planned_at_start'  => '',
-            'planned_at_end'    => '',
-            'base_subjects'     => [],
-            'handlerid'         => [],
-            'test_builders' => [],
-        ];
-    }
-
-    private function getCleanFilters(): array
-    {
-        return collect($this->filters)->reject(fn($value) => blank($value))->toArray();
+            ->map(fn($builder) => ['value' => $builder->test_builder_code, 'label' => $builder->test_builder_code]);
     }
 
     public function clearFilters(): void
     {
+        parent::clearFilters();
         $this->dispatchBrowserEvent('clear-datepicker');
-        $this->setFilters();
-    }
-
-    public function hasActiveFilters(): bool
-    {
-        return !empty($this->getCleanFilters());
     }
 
     public function openDetail(FileManagement $file)
