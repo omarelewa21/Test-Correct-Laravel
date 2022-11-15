@@ -11,6 +11,7 @@ namespace tcCore\Http\Helpers;
 
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
 use tcCore\Answer;
 use tcCore\BaseSubject;
@@ -23,13 +24,14 @@ use tcCore\Lib\Repositories\SchoolYearRepository;
 use tcCore\Lib\User\Factory;
 use tcCore\Lib\User\Roles;
 use tcCore\LoginLog;
+use tcCore\Student;
 use tcCore\TemporaryLogin;
 use tcCore\User;
 
 class UserHelper
 {
 
-    const TEXT2SPEECH_PRICE_ROLES = ['Teacher','Administrator','School manager','School management','Mentor'];
+    const TEXT2SPEECH_PRICE_ROLES = ['Teacher', 'Administrator', 'School manager', 'School management', 'Mentor'];
 
     public static function logout()
     {
@@ -44,17 +46,17 @@ class UserHelper
     public function handleAfterLoginValidation($user, $throughTempLogin = false, $ip = false)
     {
         $user->setAttribute('session_hash', $user->generateSessionHash());
-        if((bool) $user->demo){
+        if ((bool)$user->demo) {
             $user->demoRestrictionOverrule = true;
         }
         $user->save();
         $user->load('roles');
 
-        if(($user->isA('teacher') || $user->isA('student')) && !$throughTempLogin && EntreeHelper::shouldPromptForEntree($user)){
-            return \Response::make("NEEDS_LOGIN_ENTREE",403);
+        if (($user->isA('teacher') || $user->isA('student')) && !$throughTempLogin && EntreeHelper::shouldPromptForEntree($user)) {
+            return \Response::make("NEEDS_LOGIN_ENTREE", 403);
         }
 
-        if($user->schoolLocation) {
+        if ($user->schoolLocation) {
             session()->put('locale', $user->schoolLocation->school_language);
             app()->setLocale(session('locale'));
         }
@@ -65,19 +67,20 @@ class UserHelper
 
         $clone = $this->getUserClone($user, $hidden);
         LoginLog::create(['user_id' => $user->getKey()]);
-        if($ip) {
+        if ($ip) {
             FailedLogin::solveForUsernameAndIp($user->username, $ip);
         }
         return new JsonResponse($clone);
     }
 
-    public function createUserFromData($data){
+    public function createUserFromData($data)
+    {
         $userFactory = new Factory(new User());
 
-        $user = $userFactory->generate($data,true);
+        $user = $userFactory->generate($data, true);
 
-        if($user->invited_by != null){
-            if(!$user->emailDomainInviterAndInviteeAreEqual()) {
+        if ($user->invited_by != null) {
+            if (!$user->emailDomainInviterAndInviteeAreEqual()) {
                 $schoolLocationId = SchoolHelper::getTempTeachersSchoolLocation()->getKey();
                 ActingAsHelper::getInstance()->setUser(SchoolHelper::getSomeTeacherOrSchoolManagerBySchoolLocationId($schoolLocationId));
                 $user->school_location_id = $schoolLocationId;
@@ -133,7 +136,7 @@ class UserHelper
      */
     public static function handleTeacherEnvironment($user): void
     {
-        if(!$user->isA('teacher')) return;
+        if (!$user->isA('teacher')) return;
 
 //        (new DemoHelper())->createDemoForTeacherIfNeeded($user, true);
 
@@ -157,5 +160,58 @@ class UserHelper
         $clone->logins = $user->getLoginLogCount();
         $clone->is_temp_teacher = $user->getIsTempTeacher();
         return $clone;
+    }
+
+    public static function resetPasswordToExternalIdForClassIds($classIds = null)
+    {
+        if(null === $classIds){
+            return;
+        }
+        $classIds = Arr::wrap($classIds);
+        $results = (object) [
+          'success' => [],
+          'error' => []
+        ];
+        User::whereIn('id',Student::whereClassId($classIds)->select('user_id'))
+            ->get()
+            ->each(function (User $user) use($results){
+                if(app()->runningInConsole()) {
+                    echo 'userFound ' . $user->username . PHP_EOL;
+                }
+                if(!$user->isA('student')){
+                    if(app()->runningInConsole()) {
+                        echo 'not a student ' . PHP_EOL;
+                    }
+                    $results->error[] = $user->username;
+                    return;
+                }
+                $externalId = null;
+                if($user->external_id){
+                    if(app()->runningInConsole()) {
+                        echo 'externalId found  ' . $user->external_id . PHP_EOL;
+                    }
+                    $externalId = $user->external_id;
+                } else {
+                   list($_externalId,$domain) = explode('@',$user->username);
+                   if(is_numeric($_externalId)){
+                       $externalId = $_externalId;
+                       if(app()->runningInConsole()) {
+                           echo 'externalId found through username ' . $externalId . PHP_EOL;
+                       }
+                   } else {
+                       if(app()->runningInConsole()) {
+                           echo 'externalId not found through email ' . PHP_EOL;
+                       }
+                       $results->error[] = $user->username;
+                       return;
+                   }
+                }
+                $results->success[] = $user->username;
+                User::whereId($user->getKey())->update(['password' => bcrypt($externalId)]);
+                if(app()->runningInConsole()) {
+                    echo 'password set for  ' . $user->username . ' => ' . $externalId . PHP_EOL;
+                }
+            });
+        return $results;
     }
 }
