@@ -7,7 +7,6 @@ use tcCore\Http\Traits\WithCloseable;
 use tcCore\Http\Traits\WithNotepad;
 use tcCore\Http\Traits\WithPreviewAttachments;
 use tcCore\Http\Traits\WithPreviewGroups;
-use tcCore\Http\Traits\WithQuestionTimer;
 
 class InfoScreenQuestion extends Component
 {
@@ -24,7 +23,7 @@ class InfoScreenQuestion extends Component
 
     public function render()
     {
-        return view('livewire.preview.info-screen-question');
+        return view('livewire.questions.preview.info-screen-question');
     }
 
     public function markAsSeen($questionUuid)

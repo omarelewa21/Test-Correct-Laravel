@@ -51,7 +51,7 @@ class MatchingQuestion extends Component
 
     public function render()
     {
-        return view('livewire.overview.matching-question');
+        return view('livewire.questions.overview.matching-question');
     }
 
     public function isQuestionFullyAnswered(): bool

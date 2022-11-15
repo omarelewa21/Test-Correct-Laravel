@@ -59,11 +59,11 @@ class MultipleChoiceQuestion extends Component
     public function render()
     {
         if ($this->question->subtype == 'ARQ') {
-            return view('livewire.preview.arq-question');
+            return view('livewire.questions.preview.arq-question');
         } elseif ($this->question->subtype == 'TrueFalse') {
-            return view('livewire.preview.true-false-question');
+            return view('livewire.questions.preview.true-false-question');
         }
 
-        return view('livewire.preview.multiple-choice-question');
+        return view('livewire.questions.preview.multiple-choice-question');
     }
 }

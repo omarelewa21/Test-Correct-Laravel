@@ -47,7 +47,7 @@ class RankingQuestion extends Component
 
     public function render()
     {
-        return view('livewire.preview.ranking-question');
+        return view('livewire.questions.preview.ranking-question');
     }
 
     public function updateOrder($value)

@@ -106,6 +106,6 @@ class CompletionQuestion extends Component
             throw new \Exception ('unknown type');
         }
 
-        return view('livewire.preview.completion-question', ['html' => $html]);
+        return view('livewire.questions.preview.completion-question', ['html' => $html]);
     }
 }

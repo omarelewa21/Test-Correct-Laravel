@@ -53,7 +53,7 @@ class Navigation extends Component
 
     public function render()
     {
-        return view('livewire.preview.navigation');
+        return view('livewire.questions.preview.navigation');
     }
 
     private function getDetailsFirstQuestion()

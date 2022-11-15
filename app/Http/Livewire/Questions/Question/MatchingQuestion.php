@@ -110,7 +110,7 @@ class MatchingQuestion extends Component
 
     public function render()
     {
-        return view('livewire.question.matching-question');
+        return view('livewire.questions.question.matching-question');
     }
 
 }

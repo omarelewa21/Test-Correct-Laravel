@@ -26,6 +26,6 @@ class ArqQuestion extends Component
     public function render()
     {
         $question = Question::whereUuid($this->uuid)->first();
-        return view('livewire.question.arq-question');
+        return view('livewire.questions.question.arq-question');
     }
 }
