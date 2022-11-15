@@ -7,6 +7,7 @@ use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Response;
+use tcCore\Http\Helpers\UserHelper;
 use tcCore\Http\Requests\IndexSchoolClassRequest;
 use tcCore\Http\Requests\UpdateWithEducationLevelsForClusterClassesRequest;
 use tcCore\Http\Requests\UpdateWithEducationLevelsForMainClassesRequest;
@@ -321,5 +322,18 @@ class SchoolClassesController extends Controller
         }
 
         return Response::make('No classes for user.', 404);
+    }
+
+    public function resetPasswords(Request $request, SchoolClass $class)
+    {
+        $authorized = ( Auth::user()->isA('School manager') || Auth::user()->isA('School management') );
+
+        if (!$authorized) {
+            abort(403);
+        }
+
+        $results = UserHelper::resetPasswordToExternalIdForClassIds($class->getKey());
+
+        return Response::json($results, 200);
     }
 }
