@@ -20,6 +20,7 @@ abstract class PValueTaxonomyRepository
     public static function getPValueForStudentForAttainmentTaxonomy(User $user, $taxonomy, $attainment_id, $periods = null, $educationLevelYears = null, $teachers = null)
     {
         return self::getPValueForStudentTaxonomy($taxonomy, $user, $periods, $educationLevelYears, $teachers)
+            ->join('p_value_attainments', 'p_values.id', '=', 'p_value_attainments.p_value_id')
             ->where('p_value_attainments.attainment_id', $attainment_id)
             ->get();
     }
@@ -90,7 +91,7 @@ abstract class PValueTaxonomyRepository
                 $taxonomy
             )
         )
-            ->join('p_value_attainments', 'p_values.id', '=', 'p_value_attainments.p_value_id')
+
             ->join('test_participants', function ($join) use ($user) {
                 $join->on('p_values.test_participant_id', '=', 'test_participants.id')
                     ->where('test_participants.user_id', '=', $user->getKey());

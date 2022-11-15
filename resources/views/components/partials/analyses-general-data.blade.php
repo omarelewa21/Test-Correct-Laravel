@@ -43,3 +43,25 @@
         </div>
     </div>
 @endforeach
+<div class="flex-1 gap-4 flex flex-col">
+    <div class="flex flex-col" wire:ignore>
+        @foreach($this->taxonomies as $key=> $taxonomy)
+            <div
+                    x-data="expandableGraphForGeneral({{ $key }}, '{{ $this->subject->id }}', '{{ $taxonomy }}')"
+                    x-on:click="expanded = !expanded"
+                    class="cursor-pointer ml-10"
+            >
+                            <span :class="{ 'rotate-svg-90' : expanded }">
+                                <x-icon.chevron></x-icon.chevron>
+                            </span>
+                <span>{{ __('student.Taxonomy') }} {{ $taxonomy }} {{__('student.Methode') }}</span>
+                <div x-show="expanded">
+                    <div wire:loading wire:target="getDataForGeneralGraph('{{ $this->subject->id }}', '{{ $taxonomy }}')">
+                        loading
+                    </div>
+                    <div :id="containerId"></div>
+                </div>
+            </div>
+        @endforeach
+    </div>
+</div>

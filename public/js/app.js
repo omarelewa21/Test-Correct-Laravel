@@ -6778,6 +6778,92 @@ document.addEventListener('alpine:init', function () {
       }
     };
   });
+  alpinejs__WEBPACK_IMPORTED_MODULE_1__["default"].data('expandableGraphForGeneral', function (id, modelId, taxonomy) {
+    return {
+      data: false,
+      modelId: modelId,
+      taxonomy: taxonomy,
+      containerId: 'chart-' + modelId + '-' + taxonomy,
+      id: id,
+      init: function init() {
+        if (this.expanded) {
+          this.updateGraph();
+        }
+      },
+      updateGraph: function updateGraph() {
+        var _this19 = this;
+
+        return _asyncToGenerator( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default().mark(function _callee3() {
+          return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default().wrap(function _callee3$(_context3) {
+            while (1) {
+              switch (_context3.prev = _context3.next) {
+                case 0:
+                  if (_this19.data) {
+                    _context3.next = 5;
+                    break;
+                  }
+
+                  _context3.next = 3;
+                  return _this19.$wire.getDataForGeneralGraph(_this19.modelId, _this19.taxonomy);
+
+                case 3:
+                  _this19.data = _context3.sent;
+
+                  _this19.renderGraph();
+
+                case 5:
+                case "end":
+                  return _context3.stop();
+              }
+            }
+          }, _callee3);
+        }))();
+      },
+
+      get expanded() {
+        return this.active === this.id;
+      },
+
+      set expanded(value) {
+        if (value) {
+          this.updateGraph();
+        }
+
+        this.active = value ? this.id : null;
+      },
+
+      renderGraph: function renderGraph() {
+        // create bar chart
+        var chart = anychart.bar(); // create area series with passed data
+
+        var series = chart.bar(this.data);
+        series.stroke(this.getColor()).fill(this.getColor());
+        var tooltip = series.tooltip();
+        tooltip.title(false).separator(false).position('right').anchor('left-center').offsetX(5).offsetY(0).background('#FFFFFF').fontColor('#000000').format(function () {
+          return 'P ' + Math.abs(this.value).toLocaleString();
+        });
+        chart.tooltip().positionMode('point'); // set scale minimum
+
+        chart.xAxis().stroke('#041F74');
+        chart.xAxis().stroke('none'); // set container id for the chart
+
+        chart.container(this.containerId); // initiate chart drawing
+
+        chart.draw();
+      },
+      getColor: function getColor() {
+        if (this.taxonomy == 'Bloom') {
+          return '#E2DD10';
+        }
+
+        if (this.taxonomy == 'Miller') {
+          return '#5043F6';
+        }
+
+        return '#2EBC4F';
+      }
+    };
+  });
   alpinejs__WEBPACK_IMPORTED_MODULE_1__["default"].data('contextMenuButton', function (context, uuid, contextData) {
     return {
       menuOpen: false,
@@ -6821,42 +6907,42 @@ document.addEventListener('alpine:init', function () {
       menuOffsetMarginTop: 56,
       menuOffsetMarginLeft: 224,
       handleIncomingEvent: function handleIncomingEvent(detail) {
-        var _this19 = this;
+        var _this20 = this;
 
         if (!this.contextMenuOpen) return this.openMenu(detail);
         this.closeMenu();
         setTimeout(function () {
-          _this19.openMenu(detail);
+          _this20.openMenu(detail);
         }, 150);
       },
       openMenu: function openMenu(detail) {
-        var _this20 = this;
+        var _this21 = this;
 
-        return _asyncToGenerator( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default().mark(function _callee3() {
+        return _asyncToGenerator( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default().mark(function _callee4() {
           var readyForShow;
-          return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default().wrap(function _callee3$(_context3) {
+          return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default().wrap(function _callee4$(_context4) {
             while (1) {
-              switch (_context3.prev = _context3.next) {
+              switch (_context4.prev = _context4.next) {
                 case 0:
-                  _this20.uuid = detail.uuid;
-                  _this20.correspondingButton = detail.button;
-                  _this20.contextData = detail.contextData;
-                  _this20.$root.style.top = detail.coords.top + _this20.menuOffsetMarginTop + 'px';
-                  _this20.$root.style.left = detail.coords.left - _this20.menuOffsetMarginLeft + 'px';
-                  _context3.next = 7;
-                  return _this20.$wire.setContextValues(_this20.uuid, _this20.contextData);
+                  _this21.uuid = detail.uuid;
+                  _this21.correspondingButton = detail.button;
+                  _this21.contextData = detail.contextData;
+                  _this21.$root.style.top = detail.coords.top + _this21.menuOffsetMarginTop + 'px';
+                  _this21.$root.style.left = detail.coords.left - _this21.menuOffsetMarginLeft + 'px';
+                  _context4.next = 7;
+                  return _this21.$wire.setContextValues(_this21.uuid, _this21.contextData);
 
                 case 7:
-                  readyForShow = _context3.sent;
-                  if (readyForShow) _this20.contextMenuOpen = true;
-                  _this20.contextMenuOpen = true;
+                  readyForShow = _context4.sent;
+                  if (readyForShow) _this21.contextMenuOpen = true;
+                  _this21.contextMenuOpen = true;
 
                 case 10:
                 case "end":
-                  return _context3.stop();
+                  return _context4.stop();
               }
             }
-          }, _callee3);
+          }, _callee4);
         }))();
       },
       closeMenu: function closeMenu() {
@@ -7450,7 +7536,7 @@ window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
 window.Pusher = __webpack_require__(/*! pusher-js */ "./node_modules/pusher-js/dist/web/pusher.js");
 window.Echo = new laravel_echo__WEBPACK_IMPORTED_MODULE_0__["default"]({
   broadcaster: 'pusher',
-  key: "662d128370816e2bbb66",
+  key: "51d7221bf733999d7138",
   cluster: "eu",
   forceTLS: true
 });

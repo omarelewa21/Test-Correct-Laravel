@@ -26,6 +26,11 @@ class AnalysesSubjectDashboard extends AnalysesDashboard
 
     public $showEmptyStateForPValueGraph = false;
 
+    protected $taxonomies = [
+        'Miller',
+        'RTTI',
+        'Bloom',
+    ];
 
     public function getAttainmentModeOptionsProperty()
     {
@@ -61,6 +66,22 @@ class AnalysesSubjectDashboard extends AnalysesDashboard
         $this->subject = $subject;
 
         $this->setDefaultAttainmentMode();
+    }
+
+    public function getDataForGeneralGraph($subjectId, $taxonomy)
+    {
+        switch ($taxonomy) {
+            case 'Miller':
+                return $this->getMillerSubjectData($subjectId);
+                break;
+            case 'RTTI':
+                return $this->getRTTISubjectData($subjectId);
+                break;
+            case 'Bloom':
+                return $this->getBloomSubjectData($subjectId);
+                break;
+        }
+        // abort(403);
     }
 
     private function setGeneralStats()
@@ -145,6 +166,34 @@ class AnalysesSubjectDashboard extends AnalysesDashboard
         return PValueTaxonomyBloomRepository::getPValueForStudentForAttainment(
             auth()->user(),
             $attainmentId,
+            $this->getPeriodsByFilterValues(),
+            $this->getEducationLevelYearsByFilterValues(),
+            $this->getTeachersByFilterValues());
+    }
+
+    protected function getMillerSubjectData($subjectId)
+    {
+        return PValueTaxonomyMillerRepository::getPValueForStudentForSubject(auth()->user(),
+            $subjectId,
+            $this->getPeriodsByFilterValues(),
+            $this->getEducationLevelYearsByFilterValues(),
+            $this->getTeachersByFilterValues());
+    }
+
+    protected function getRTTISubjectData($subjectId)
+    {
+        return PValueTaxonomyRTTIRepository::getPValueForStudentForSubject(auth()->user(),
+            $subjectId,
+            $this->getPeriodsByFilterValues(),
+            $this->getEducationLevelYearsByFilterValues(),
+            $this->getTeachersByFilterValues());
+    }
+
+    protected function getBloomSubjectData($subjectId)
+    {
+        return PValueTaxonomyBloomRepository::getPValueForStudentForSubject(
+            auth()->user(),
+            $subjectId,
             $this->getPeriodsByFilterValues(),
             $this->getEducationLevelYearsByFilterValues(),
             $this->getTeachersByFilterValues());
