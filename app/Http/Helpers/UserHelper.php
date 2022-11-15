@@ -11,6 +11,7 @@ namespace tcCore\Http\Helpers;
 
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
 use tcCore\Answer;
 use tcCore\BaseSubject;
@@ -166,6 +167,7 @@ class UserHelper
         if(null === $classIds){
             return;
         }
+        $classIds = Arr::wrap($classIds);
         $results = (object) [
           'success' => [],
           'error' => []
