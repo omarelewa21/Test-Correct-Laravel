@@ -8,16 +8,17 @@
 -- Purchase here: https://tailwindui.com/
 --}}
 
-@props(['buttonCell' => null, 'withTooltip' => false, 'slim' => false])
-@php
-    if($buttonCell) {
-        $buttonCell = $slim ? 'py-0.5' : 'py-2';
-    } else {
-        $buttonCell = $slim ? 'py-0.5 overflow-ellipsis overflow-hidden' : 'py-5 overflow-ellipsis overflow-hidden';
-    }
-@endphp
-<td {{ $attributes->merge(['class' => 'px-3 whitespace-nowrap max-w-0 ' . $buttonCell ]) }}
+@props(['buttonCell' => false, 'withTooltip' => false, 'slim' => false])
+<td {{ $attributes->except('class') }}
     @if($withTooltip) title="{{ $slot }}" @endif
+    @class([
+        $attributes->get('class'),
+        'px-3 whitespace-nowrap max-w-0',
+        'overflow-ellipsis overflow-hidden' => !$buttonCell,
+        'py-0.5' => $buttonCell && $slim,
+        'py-2.5' => !$buttonCell && $slim,
+        'py-5' => !$buttonCell && !$slim,
+    ])
 >
     {{ $slot }}
 </td>

@@ -2,21 +2,16 @@
 
 namespace tcCore\Http\Livewire;
 
-use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
 use Livewire\Component;
-use tcCore\Http\Controllers\TemporaryLoginController;
 use tcCore\Http\Helpers\CakeRedirectHelper;
 use tcCore\Http\Helpers\NavigationBarHelper;
-use tcCore\Http\Traits\WithTeacherMenu;
 
-class NavigationBar extends Component
+abstract class NavigationBar extends Component
 {
-    use WithTeacherMenu;
-
-    public $activeRoute;
+    public  $activeRoute;
 
     protected $listeners = ['redirectToCake' => 'cakeRedirect'];
 
@@ -57,8 +52,8 @@ class NavigationBar extends Component
             ->join(',');
 
         return sprintf('%s:click=%s(%s)',
-            $menu->action->directive,
-            $menu->action->method,
+            $menu->action->directive ?? 'wire',
+            $menu->action->method ?? 'laravelRedirect',
             $actionParameters
         );
     }

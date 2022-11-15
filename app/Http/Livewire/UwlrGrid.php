@@ -264,6 +264,6 @@ class UwlrGrid extends Component
     public function render()
     {
         return view('livewire.uwlr-grid')
-            ->layout('layouts.app-admin');;
+            ->layout('layouts.app-admin');
     }
 }
