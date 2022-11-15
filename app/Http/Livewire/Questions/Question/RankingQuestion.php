@@ -67,7 +67,7 @@ class RankingQuestion extends Component
     public function render()
     {
         $this->dispatchDragItemWidth();
-        return view('livewire.question.ranking-question');
+        return view('livewire.questions.question.ranking-question');
     }
 
     public function createAnswerStruct()

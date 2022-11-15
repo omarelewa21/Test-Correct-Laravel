@@ -26,6 +26,6 @@ class InfoScreenQuestion extends Component
 
     public function render()
     {
-        return view('livewire.overview.info-screen-question');
+        return view('livewire.questions.overview.info-screen-question');
     }
 }

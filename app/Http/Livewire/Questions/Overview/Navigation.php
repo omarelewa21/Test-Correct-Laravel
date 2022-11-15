@@ -30,7 +30,7 @@ class Navigation extends Component
 
     public function render()
     {
-        return view('livewire.question.navigation');
+        return view('livewire.questions.question.navigation');
     }
 
     public function goToQuestion($question)

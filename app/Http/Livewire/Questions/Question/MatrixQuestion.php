@@ -37,7 +37,7 @@ class MatrixQuestion extends Component
 
     public function render()
     {
-        return view('livewire.question.matrix-question');
+        return view('livewire.questions.question.matrix-question');
     }
 
     public function updatingAnswer($value)

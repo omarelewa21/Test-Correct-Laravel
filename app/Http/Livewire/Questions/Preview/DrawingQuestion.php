@@ -61,7 +61,7 @@ class DrawingQuestion extends Component
 
     public function render()
     {
-        return view('livewire.preview.drawing-question');
+        return view('livewire.questions.preview.drawing-question');
     }
 
 

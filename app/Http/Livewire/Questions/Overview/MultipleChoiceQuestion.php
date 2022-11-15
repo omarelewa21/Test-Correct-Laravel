@@ -82,13 +82,13 @@ class MultipleChoiceQuestion extends Component
     public function render()
     {
         if ($this->question->subtype == 'ARQ') {
-            return view('livewire.overview.arq-question');
+            return view('livewire.questions.overview.arq-question');
         } elseif ($this->question->subtype == 'TrueFalse') {
-            return view('livewire.overview.true-false-question');
+            return view('livewire.questions.overview.true-false-question');
 
         }
 
-        return view('livewire.overview.multiple-choice-question');
+        return view('livewire.questions.overview.multiple-choice-question');
     }
 
     public function isQuestionFullyAnswered(): bool

@@ -57,7 +57,7 @@ class MultipleSelectQuestion extends Component
 
     public function render()
     {
-        return view('livewire.overview.multiple-select-question');
+        return view('livewire.questions.overview.multiple-select-question');
     }
 
     public function isQuestionFullyAnswered(): bool

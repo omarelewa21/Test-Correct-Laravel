@@ -53,7 +53,7 @@ class RankingQuestion extends Component
 
     public function render()
     {
-        return view('livewire.overview.ranking-question');
+        return view('livewire.questions.overview.ranking-question');
     }
 
     public function isQuestionFullyAnswered(): bool

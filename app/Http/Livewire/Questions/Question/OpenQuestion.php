@@ -45,9 +45,9 @@ class OpenQuestion extends Component
     public function render()
     {
         if ($this->question->subtype === 'short') {
-            return view('livewire.question.open-question');
+            return view('livewire.questions.question.open-question');
         }
 
-        return view('livewire.question.open-medium-question');
+        return view('livewire.questions.question.open-medium-question');
     }
 }

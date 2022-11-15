@@ -32,7 +32,7 @@ class InfoScreenQuestion extends Component
 
     public function render()
     {
-        return view('livewire.question.info-screen-question');
+        return view('livewire.questions.question.info-screen-question');
     }
 
     public function markAsSeen($questionUuid)

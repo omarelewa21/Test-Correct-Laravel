@@ -111,7 +111,7 @@ class DrawingQuestion extends Component
 
     public function render()
     {
-        return view('livewire.question.drawing-question');
+        return view('livewire.questions.question.drawing-question');
     }
 
     private function saveImageAndReturnUrl($image)

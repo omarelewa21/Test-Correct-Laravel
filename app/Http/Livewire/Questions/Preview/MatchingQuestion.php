@@ -91,7 +91,7 @@ class MatchingQuestion extends Component
 
     public function render()
     {
-        return view('livewire.preview.matching-question');
+        return view('livewire.questions.preview.matching-question');
     }
 
 }

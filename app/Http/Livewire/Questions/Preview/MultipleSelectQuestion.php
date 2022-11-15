@@ -64,6 +64,6 @@ class MultipleSelectQuestion extends Component
 
     public function render()
     {
-        return view('livewire.preview.multiple-select-question');
+        return view('livewire.questions.preview.multiple-select-question');
     }
 }
