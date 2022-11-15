@@ -50,7 +50,6 @@
                     @endif
                     <div class="flex text-lg bold w-[calc(100%-50px)]">
                         <span class="truncate ">{{ __('Toets') }}: {{ $this->test->name }}</span>
-                        @js(empty($this->groupQuestionDetail))
                     </div>
                 </div>
 
@@ -110,7 +109,7 @@
         </div>
     </div>
     <x-notification/>
-    <div id="groupdetail" :style="{'left': groupDetailActive ? '0' : '100%'}">
+    <div id="groupdetail" :style="{'left': groupDetailActive ? '0' : '100%'}" style="@if($this->groupQuestionDetail === null) display:none;@endif">
         <div>
             @if($this->groupQuestionDetail !== null)
                 <x-partials.group-question-details :groupQuestion="$this->groupQuestionDetail"
