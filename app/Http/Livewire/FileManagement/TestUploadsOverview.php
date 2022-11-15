@@ -6,7 +6,7 @@ use Illuminate\Support\Facades\Auth;
 use tcCore\BaseSubject;
 use tcCore\FileManagement;
 use tcCore\FileManagementStatus;
-use tcCore\Http\Livewire\Overview\OverviewComponent;
+use tcCore\Http\Livewire\OverviewComponent;
 use tcCore\Http\Traits\WithSorting;
 use tcCore\User;
 

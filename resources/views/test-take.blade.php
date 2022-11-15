@@ -7,7 +7,7 @@
         @if($testParticipant->intense)
             <livewire:student.intense-observer :deviceId="$testParticipant->user_id" :sessionId="$testParticipant->id"></livewire:student.intense-observer>
         @endif
-        <livewire:questions.question.navigation  :nav="$nav" :testTakeUuid="$uuid"/>
+        <livewire:question.navigation  :nav="$nav" :testTakeUuid="$uuid"/>
 
 
         <div class="test-take-questions">
@@ -19,63 +19,63 @@
             @foreach($data as  $key => $testQuestion)
                 <div selid="testtake-question">
                     @if($testQuestion->type === 'MultipleChoiceQuestion' && $testQuestion->selectable_answers > 1 && $testQuestion->subtype != 'ARQ')
-                        <livewire:questions.question.multiple-select-question
+                        <livewire:question.multiple-select-question
                             :question="$testQuestion"
                             :number="++$key"
                             :answers="$answers"
                             wire:key="'q-'.$testQuestion->uuid'"
                         />
                     @elseif($testQuestion->type === 'MultipleChoiceQuestion')
-                        <livewire:questions.question.multiple-choice-question
+                        <livewire:question.multiple-choice-question
                             :question="$testQuestion"
                             :number="++$key"
                             :answers="$answers"
                             wire:key="'q-'.$testQuestion->uuid'"
                         />
                     @elseif($testQuestion->type === 'OpenQuestion')
-                        <livewire:questions.question.open-question
+                        <livewire:question.open-question
                             :question="$testQuestion"
                             :number="++$key"
                             :answers="$answers"
                             wire:key="'q-'.$testQuestion->uuid'q-'"
                         />
                     @elseif($testQuestion->type === 'MatchingQuestion')
-                        <livewire:questions.question.matching-question
+                        <livewire:question.matching-question
                             :question="$testQuestion"
                             :number="++$key"
                             :answers="$answers"
                             wire:key="'q-'.$testQuestion->uuid'"
                         />
                     @elseif($testQuestion->type === 'CompletionQuestion')
-                        <livewire:questions.question.completion-question
+                        <livewire:question.completion-question
                             :question="$testQuestion"
                             :number="++$key"
                             :answers="$answers"
                             wire:key="'q-'.$testQuestion->uuid'"
                         />
                     @elseif($testQuestion->type === 'RankingQuestion')
-                        <livewire:questions.question.ranking-question
+                        <livewire:question.ranking-question
                             :question="$testQuestion"
                             :number="++$key"
                             :answers="$answers"
                             wire:key="'q-'.$testQuestion->uuid'"
                         />
                     @elseif($testQuestion->type === 'InfoscreenQuestion')
-                        <livewire:questions.question.info-screen-question
+                        <livewire:question.info-screen-question
                             :question="$testQuestion"
                             :number="++$key"
                             :answers="$answers"
                             wire:key="'q-'.$testQuestion->uuid"
                         />
                     @elseif($testQuestion->type === 'DrawingQuestion')
-                        <livewire:questions.question.drawing-question
+                        <livewire:question.drawing-question
                             :question="$testQuestion"
                             :number="++$key"
                             :answers="$answers"
                             wire:key="'q-'.$testQuestion->uuid"
                         />
                     @elseif($testQuestion->type === 'MatrixQuestion')
-                        <livewire:questions.question.matrix-question
+                        <livewire:question.matrix-question
                             :question="$testQuestion"
                             :number="++$key"
                             :answers="$answers"
