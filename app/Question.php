@@ -28,6 +28,7 @@ class Question extends MtiBaseModel
         'uuid'                     => EfficientUuid::class,
         'all_or_nothing'           => 'boolean',
         'add_to_database_disabled' => 'boolean',
+        'draft'                    => 'boolean',
     ];
 
     public $mtiBaseClass = 'tcCore\Question';
@@ -80,6 +81,7 @@ class Question extends MtiBaseModel
         'fix_order',
         'owner_id',
         'lang',
+        'draft',
     ];
 
     /**

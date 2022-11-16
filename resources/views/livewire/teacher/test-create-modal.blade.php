@@ -7,10 +7,10 @@
                 <div class="email-section mb-4 w-full">
                     <div class="mb-4">
                         <div class="input-group w-full">
-                            <input id="username" wire:model.lazy="request.name"
+                            <input id="testname" wire:model.lazy="request.name"
                                    class="form-input @error('request.name') border-red @enderror"
                                    autofocus>
-                            <label for="username"
+                            <label for="testname"
                                    class="transition ease-in-out duration-150">{{ __("teacher.naam toets") }}</label>
                         </div>
                     </div>

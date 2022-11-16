@@ -23,6 +23,7 @@ class TestQuickTake extends TestAction
 
     protected function getDisabledValue()
     {
-        return $this->test->isAssignment() || Auth::user()->isValidExamCoordinator() || !$this->test->canPlan(Auth::user());
+        logger('go go ');
+        return $this->test->isAssignment() || Auth::user()->isValidExamCoordinator() || !$this->test->canPlan(Auth::user()) || $this->test->isDraft();
     }
 }

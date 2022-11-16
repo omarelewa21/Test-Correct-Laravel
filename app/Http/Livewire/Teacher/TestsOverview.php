@@ -37,6 +37,7 @@ class TestsOverview extends Component
         'test-deleted'        => '$refresh',
         'test-added'          => '$refresh',
         'testSettingsUpdated' => '$refresh',
+        'test-updated'        => '$refresh',
     ];
 
     public function mount()

@@ -46,7 +46,6 @@ class TestCreateModal extends ModalComponent
         $test->setAttribute('author_id', Auth::id());
         $test->setAttribute('owner_id', Auth::user()->school_location_id);
         $test->save();
-        $this->showModal = false;
 
         redirect(
             route('teacher.question-editor',

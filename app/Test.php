@@ -35,7 +35,8 @@ class Test extends BaseModel
     const NATIONAL_ITEMBANK_SCOPES = ['cito', 'exam', 'ldt'];
 
     protected $casts = [
-        'uuid' => EfficientUuid::class,
+        'uuid'  => EfficientUuid::class,
+        'draft' => 'boolean',
     ];
 
     /**
@@ -58,7 +59,7 @@ class Test extends BaseModel
      *
      * @var array
      */
-    protected $fillable = ['subject_id', 'education_level_id', 'period_id', 'test_kind_id', 'name', 'abbreviation', 'education_level_year', 'kind', 'status', 'introduction', 'shuffle', 'is_open_source_content', 'demo', 'metadata', 'external_id', 'scope', 'published'];
+    protected $fillable = ['subject_id', 'education_level_id', 'period_id', 'test_kind_id', 'name', 'abbreviation', 'education_level_year', 'kind', 'status', 'introduction', 'shuffle', 'is_open_source_content', 'demo', 'metadata', 'external_id', 'scope', 'published', 'draft'];
 
     /**
      * The attributes excluded from the model's JSON form.
@@ -1159,5 +1160,20 @@ class Test extends BaseModel
         if (!$user->isValidExamCoordinator()) return false;
 
         return $this->owner_id === $user->school_location_id;
+    }
+
+    public function isDraft(): bool
+    {
+        return $this->draft;
+    }
+
+    public function isPublished(): bool
+    {
+        return !$this->isDraft();
+    }
+    public function publish(): Test
+    {
+        $this->draft = false;
+        return $this;
     }
 }
