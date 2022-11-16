@@ -24,41 +24,13 @@
                 {{--                <span class="text-sm">{{ trans_choice('cms.vraag', $questionCount['regular']) }}, {{ trans_choice('cms.group-question-count', $questionCount['group']) }}</span>--}}
             </div>
 
-            <div class="flex space-x-2" x-data="{
-                    toPdf: () => {
-                        $wire.emit('openModal', 'teacher.pdf-download-modal', {uuid: '{{ \tcCore\Test::whereUuid($this->testId)->first()->uuid}}'});
-                    }
-                }"
+            <div class="flex space-x-2" x-data
                  @click="forceSyncEditors();$wire.saveIfDirty()"
             >
-                <button @if($this->canDeleteTest)
-                            @click="$dispatch('delete-modal', ['test', '{{ $this->testId }}'])"
-                        @else
-                            disabled
-                        @endif
-                        class="new-button button-primary w-10"
-                        title="{{ __('cms.Verwijderen') }}"
-                >
-                    <x-icon.trash/>
-                </button>
-                <button wire:click="$emit('openModal', 'teacher.test-edit-modal', {testUuid: '{{ $this->testId }}'})"
-                        class="new-button button-primary w-10"
-                        title="{{ __('cms.Instellingen') }}"
-                >
-                    <x-icon.settings/>
-                </button>
-                <button @click="setTimeout(() => {window.open('{{ route('teacher.test-preview', ['test'=> $this->testId]) }}', '_blank')}, 500)"
-                        class="new-button button-primary w-10"
-                        title="{{ __('cms.voorbeeld') }}"
-                >
-                    <x-icon.preview/>
-                </button>
-                <button @click="setTimeout(() => {toPdf()}, 500)"
-                        class="new-button button-primary w-10"
-                        title="{{ __('cms.PDF maken') }}"
-                >
-                    <x-icon.pdf-file color="currentColor"/>
-                </button>
+                <x-actions.test-delete variant="icon-button" :uuid="$this->testId"/>
+                <x-actions.test-open-settings variant="icon-button" :uuid="$this->testId"/>
+                <x-actions.test-open-preview variant="icon-button" :uuid="$this->testId"/>
+                <livewire:actions.test-make-pdf variant="icon-button" :uuid="$this->testId"/>
                 <livewire:actions.test-quick-take variant="icon-button" :uuid="$this->testId"/>
                 <livewire:actions.test-plan-test variant="icon-button" :uuid="$this->testId"/>
             </div>

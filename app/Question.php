@@ -14,6 +14,7 @@ use tcCore\Scopes\QuestionAttainmentScope;
 use tcCore\Services\QuestionHtmlConverter;
 use tcCore\Traits\ExamSchoolQuestionTrait;
 use tcCore\Traits\UserContentAccessTrait;
+use tcCore\Traits\UserPublishing;
 use tcCore\Traits\UuidTrait;
 
 class Question extends MtiBaseModel
@@ -23,6 +24,7 @@ class Question extends MtiBaseModel
     use ExamSchoolQuestionTrait;
     use UserContentAccessTrait;
     use WithQuestionFilteredHelpers;
+    use UserPublishing;
 
     protected $casts = [
         'uuid'                     => EfficientUuid::class,

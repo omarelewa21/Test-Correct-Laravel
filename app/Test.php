@@ -20,6 +20,7 @@ use Dyrynda\Database\Casts\EfficientUuid;
 use Ramsey\Uuid\Uuid;
 use tcCore\Traits\PublishesNationalItemBankAndExamTests;
 use tcCore\Traits\PublishesTestsTrait;
+use tcCore\Traits\UserPublishing;
 use tcCore\Traits\UuidTrait;
 use tcCore\Traits\UserContentAccessTrait;
 
@@ -31,6 +32,7 @@ class Test extends BaseModel
     use UuidTrait;
     use PublishesTestsTrait;
     use UserContentAccessTrait;
+    use UserPublishing;
 
     const NATIONAL_ITEMBANK_SCOPES = ['cito', 'exam', 'ldt'];
 
@@ -84,44 +86,15 @@ class Test extends BaseModel
             if ((count($dirty) > 1 && array_key_exists('system_test_id', $dirty)) || (count($dirty) > 0 && !array_key_exists('system_test_id', $dirty)) && !$test->getAttribute('is_system_test')) {
                 $test->setAttribute('system_test_id', null);
             }
+            if($test->isDirty('draft') && $test->isDraft() ) {
+
+            }
 
         });
 
         static::saved(function (Test $test) {
-            $test->handleTestPublishing(); // moved from saving as there is no id yet, which is needed to populate the test_authors table
-            $dirty = $test->getDirty();
-            if ($test->isDirty(['subject_id', 'education_level_id', 'education_level_year'])) {
-                $testQuestions = $test->testQuestions;
-                foreach ($testQuestions as $testQuestion) {
-                    if (($testQuestion->question->subject_id == $test->subject_id) &&
-                        ($testQuestion->question->education_level_id == $test->education_level_id) &&
-                        ($testQuestion->question->education_level_year == $test->education_level_year)
-                    ) {
-                        continue;
-                    }
-                    $request = new Request();
-                    $params = [
-                        'session_hash'         => Auth::user()->session_hash,
-                        'user'                 => Auth::user()->username,
-                        'id'                   => $testQuestion->id,
-                        'subject_id'           => $test->subject_id,
-                        'education_level_id'   => $test->education_level_id,
-                        'education_level_year' => $test->education_level_year
-                    ];
-                    $testQuestionQuestionId = $testQuestion->question->id;
-                    $request->merge($params);
-                    $response = (new TestQuestionsController())->updateFromWithin($testQuestion, $request);
-                    if ($testQuestion->question->type == 'GroupQuestion') {
-                        $testQuestion = $testQuestion->fresh();
-                        $groupQuestionQuestionManager = GroupQuestionQuestionManager::getInstanceWithUuid($testQuestion->uuid);
-                        foreach ($testQuestion->question->groupQuestionQuestions as $groupQuestionQuestion) {
-                            $request = new Request();
-                            $request->merge($params);
-                            $response = (new GroupQuestionQuestionsController())->updateFromWithin($groupQuestionQuestionManager, $groupQuestionQuestion, $request);
-                        }
-                    }
-                }
-            }
+            $test->handleTestPublishing();
+            $test->forwardPropertyChangesToDependentModels();
             $test->handlePublishingQuestionsOfTest();
             TestAuthor::addExamAuthorToTest($test);
             TestAuthor::addNationalItemBankAuthorToTest($test);
@@ -1162,18 +1135,52 @@ class Test extends BaseModel
         return $this->owner_id === $user->school_location_id;
     }
 
-    public function isDraft(): bool
+    /**
+     * @return void
+     */
+    private function forwardPropertyChangesToDependentModels(): void
     {
-        return $this->draft;
+        if ($this->isDirty(['subject_id', 'education_level_id', 'education_level_year', 'draft'])) {
+            $testQuestions = $this->testQuestions;
+            foreach ($testQuestions as $testQuestion) {
+                if ($this->propertiesAreInSyncWithQuestion($testQuestion->question)) {
+                    continue;
+                }
+                $request = new Request();
+                $params = [
+                    'session_hash'         => Auth::user()->session_hash,
+                    'user'                 => Auth::user()->username,
+                    'id'                   => $testQuestion->id,
+                    'subject_id'           => $this->subject_id,
+                    'education_level_id'   => $this->education_level_id,
+                    'education_level_year' => $this->education_level_year,
+                    'draft'                => $this->draft,
+                ];
+                $testQuestionQuestionId = $testQuestion->question->id;
+                $request->merge($params);
+                $response = (new TestQuestionsController())->updateFromWithin($testQuestion, $request);
+                if ($testQuestion->question->type == 'GroupQuestion') {
+                    $testQuestion = $testQuestion->fresh();
+                    $groupQuestionQuestionManager = GroupQuestionQuestionManager::getInstanceWithUuid($testQuestion->uuid);
+                    foreach ($testQuestion->question->groupQuestionQuestions as $groupQuestionQuestion) {
+                        $request = new Request();
+                        $request->merge($params);
+                        $response = (new GroupQuestionQuestionsController())->updateFromWithin($groupQuestionQuestionManager, $groupQuestionQuestion, $request);
+                    }
+                }
+            }
+        }
     }
 
-    public function isPublished(): bool
+    /**
+     * @param $question
+     * @return bool
+     */
+    private function propertiesAreInSyncWithQuestion($question): bool
     {
-        return !$this->isDraft();
-    }
-    public function publish(): Test
-    {
-        $this->draft = false;
-        return $this;
+        return ($question->subject_id == $this->subject_id) &&
+            ($question->education_level_id == $this->education_level_id) &&
+            ($question->education_level_year == $this->education_level_year) &&
+            ($question->draft == $this->draft);
     }
 }
