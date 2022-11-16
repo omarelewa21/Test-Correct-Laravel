@@ -58,6 +58,11 @@ class TestsOverview extends Component
         $this->gotoPage($this->page);
     }
 
+    public function updatedPage()
+    {
+        session([self::PAGE_NUMBER_KEY => $this->page]);
+    }
+    
     public function render()
     {
         $results = $this->getDatasource();
