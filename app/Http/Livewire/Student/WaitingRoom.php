@@ -22,6 +22,7 @@ use tcCore\TestTakeStatus;
 class WaitingRoom extends Component
 {
     use WithStudentTestTakes;
+    const PAGE_NUMBER_KEY = 'student-page-number';
 
     protected function getListeners()
     {
@@ -61,6 +62,7 @@ class WaitingRoom extends Component
     public $appNeedsUpdate;
     public $appNeedsUpdateDeadline;
     public $appStatus;
+    public $page;
 
     public function mount()
     {
@@ -80,7 +82,7 @@ class WaitingRoom extends Component
 
         $this->testTakeStatusStage = $this->waitingTestTake->determineTestTakeStage();
         $this->participatingClasses = $this->getParticipatingClasses($this->waitingTestTake);
-
+        $this->page = session()->get(self::PAGE_NUMBER_KEY);
         $this->participantAppCheck();
     }
 

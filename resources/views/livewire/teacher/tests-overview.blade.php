@@ -3,7 +3,8 @@
 @section('container')
     <div id="testbank"
          x-data="{
-            openTab: $wire.entangle('openTab')
+            openTab: $wire.entangle('openTab'),
+            page: $wire.entangle('page')
          }"
          wire:init="handleReferrerActions()"
          class="flex flex-col w-full min-h-full bg-lightGrey border-t border-secondary top-0"

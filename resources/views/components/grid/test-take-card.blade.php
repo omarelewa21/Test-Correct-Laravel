@@ -1,6 +1,6 @@
 <div {{ $attributes->merge(['class' => 'grid-card bg-white p-6 rounded-10 card-shadow hover:text-primary cursor-pointer']) }}
      wire:key="test-take-{{ $testTake->uuid }}"
-     wire:click="openTestTakeDetail('{{ $testTake->uuid }}')"
+     wire:click="openTestTakeDetail('{{ $testTake->uuid }}', '{{ $this->page }}')"
      wire:loading.class="hidden"
      wire:target="filters,clearFilters,$set,$toggle"
      x-data="{ archived: @js($archived) }"

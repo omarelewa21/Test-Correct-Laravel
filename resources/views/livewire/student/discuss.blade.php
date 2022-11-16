@@ -2,7 +2,9 @@
     <div>
         <h1>{{ __('student.tests_to_discuss') }}</h1>
     </div>
-    <div class="content-section p-8 relative flex" wire:init="loadTestTakesToDiscuss">
+    <div class="content-section p-8 relative flex" wire:init="loadTestTakesToDiscuss" x-data="{
+            page: $wire.entangle('page')
+         }">
         <x-loading/>
         @if($readyToLoad)
             @if($testTakes->count() == 0)

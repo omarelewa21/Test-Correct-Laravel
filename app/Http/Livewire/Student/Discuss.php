@@ -16,9 +16,14 @@ use Illuminate\Support\Facades\DB;
 class Discuss extends Component
 {
     use WithPagination, WithStudentTestTakes, WithSorting;
+    const PAGE_NUMBER_KEY = 'student-page-number';
 
     public $readyToLoad;
     public $paginateBy = 10;
+
+    protected $queryString = [
+    'page' => ['except' => '', 'as' => 'page']
+    ];
 
     protected function getListeners()
     {
@@ -31,12 +36,27 @@ class Discuss extends Component
     {
         $this->sortField = 'test_takes.time_start';
         $this->sortDirection = 'DESC';
+        $this->setPageNumber();
     }
 
+    private function setPageNumber()
+    {
+        $page = request()->get('page');
+        session()->put(self::PAGE_NUMBER_KEY, $page);
+        $this->gotoPage($page);
+    }
+
+    public function updatedPage()
+    {
+        session([self::PAGE_NUMBER_KEY => $this->page]);
+    }
+    
     public function render()
     {
+
         return view('livewire.student.discuss', [
-            'testTakes' => $this->readyToLoad ? $this->getTestTakesToDiscuss($this->sortField, $this->sortDirection) : collect()
+            'testTakes' => $this->readyToLoad ? $this->getTestTakesToDiscuss($this->sortField, $this->sortDirection) : collect(),
+            'page'=>$this->page
         ]);
     }
 

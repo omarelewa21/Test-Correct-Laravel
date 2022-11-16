@@ -2,7 +2,9 @@
     <div>
         <h1>{{ __('student.upcoming_tests') }}</h1>
     </div>
-    <div class="content-section p-8 relative">
+    <div class="content-section p-8 relative" x-data="{
+            page: $wire.entangle('page')
+         }">
         <x-loading/>
         @if($testTakes->count() == 0)
             <p>{{ __('student.no_upcoming_tests') }}</p>

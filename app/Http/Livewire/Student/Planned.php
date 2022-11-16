@@ -12,8 +12,13 @@ use tcCore\Http\Traits\WithStudentTestTakes;
 class Planned extends Component
 {
     use WithPagination, WithStudentTestTakes, WithSorting;
+    const PAGE_NUMBER_KEY = 'student-page-number';
 
     private $testTakes;
+
+    protected $queryString = [
+    'page' => ['except' => '', 'as' => 'page']
+    ];
 
     protected function getListeners()
     {
@@ -26,12 +31,25 @@ class Planned extends Component
     {
         $this->sortField = 'test_takes.time_start';
         $this->sortDirection = 'ASC';
+        $this->setPageNumber();
     }
 
+    private function setPageNumber()
+    {
+        $page = request()->get('page');
+        $this->page = $page;
+        $this->gotoPage($page);
+    }
+
+    public function updatedPage()
+    {
+        session([self::PAGE_NUMBER_KEY => $this->page]);
+    }
     public function render()
     {
         return view('livewire.student.planned', [
-            'testTakes' => $this->getSchedueledTestTakesForStudent(null, 6, $this->sortField, $this->sortDirection)
+            'testTakes' => $this->getSchedueledTestTakesForStudent(null, 6, $this->sortField, $this->sortDirection),
+            'page' => $this->page
         ]);
     }
 }
