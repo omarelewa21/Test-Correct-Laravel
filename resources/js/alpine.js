@@ -1143,6 +1143,7 @@ document.addEventListener('alpine:init', () => {
             taxonomy,
             containerId: 'chart-' + modelId + '-' + taxonomy,
             id,
+            showEmptyState: false,
             init() {
                 if (this.expanded) {
                     this.updateGraph()
@@ -1150,7 +1151,8 @@ document.addEventListener('alpine:init', () => {
             },
             async updateGraph() {
                 if (!this.data) {
-                    this.data = await this.$wire.getDataForGeneralGraph(this.modelId, this.taxonomy);
+                    [this.showEmptyState, this.data] = await this.$wire.getDataForGeneralGraph(this.modelId, this.taxonomy);
+
                     this.renderGraph()
                 }
             },
@@ -1169,6 +1171,11 @@ document.addEventListener('alpine:init', () => {
                 var chart = anychart.bar();
 
                 // create area series with passed data
+                // let forGraph = JSON.parse(JSON.stringify(this.data))
+                // delete forGraph.showEmptyState;
+                // console.dir(forGraph)
+
+
                 var series = chart.bar(this.data);
                 series.stroke(this.getColor()).fill(this.getColor())
 

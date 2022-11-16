@@ -105,7 +105,7 @@ abstract class PValueTaxonomyRepository
             })
             ->where(function ($query) use ($taxonomy) {
                 $query->where(sprintf('questions.%s', $taxonomy), '<>', '')
-                    ->orWhereNull(sprintf('questions.%s', $taxonomy));
+                    ->orWhereNotNull(sprintf('questions.%s', $taxonomy));
             })
             ->groupBy(sprintf('questions.%s', $taxonomy));
     }

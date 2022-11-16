@@ -32,6 +32,8 @@ class AnalysesSubjectDashboard extends AnalysesDashboard
         'Bloom',
     ];
 
+    public $taxonomyIdentifier;
+
     public function getAttainmentModeOptionsProperty()
     {
         return [
@@ -64,6 +66,8 @@ class AnalysesSubjectDashboard extends AnalysesDashboard
         parent::mount();
 
         $this->subject = $subject;
+
+        $this->taxonomyIdentifier = $this->subject->id;
 
         $this->setDefaultAttainmentMode();
     }
@@ -100,6 +104,8 @@ class AnalysesSubjectDashboard extends AnalysesDashboard
     {
         return $this->attainmentMode == 'LEARNING_GOAL' ? 1 : 0;
     }
+
+
 
     public function getDataProperty()
     {

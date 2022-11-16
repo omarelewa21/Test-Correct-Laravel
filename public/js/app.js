@@ -5590,6 +5590,18 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var choices_js__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(choices_js__WEBPACK_IMPORTED_MODULE_2__);
 /* harmony import */ var _alpinejs_intersect__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! @alpinejs/intersect */ "./node_modules/@alpinejs/intersect/dist/module.esm.js");
 /* harmony import */ var _ryangjchandler_alpine_clipboard__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! @ryangjchandler/alpine-clipboard */ "./node_modules/@ryangjchandler/alpine-clipboard/src/index.js");
+function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _unsupportedIterableToArray(arr, i) || _nonIterableRest(); }
+
+function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
+
+function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen); }
+
+function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) { arr2[i] = arr[i]; } return arr2; }
+
+function _iterableToArrayLimit(arr, i) { var _i = arr == null ? null : typeof Symbol !== "undefined" && arr[Symbol.iterator] || arr["@@iterator"]; if (_i == null) return; var _arr = []; var _n = true; var _d = false; var _s, _e; try { for (_i = _i.call(arr); !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"] != null) _i["return"](); } finally { if (_d) throw _e; } } return _arr; }
+
+function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
+
 function _typeof(obj) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (obj) { return typeof obj; } : function (obj) { return obj && "function" == typeof Symbol && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }, _typeof(obj); }
 
 
@@ -6785,6 +6797,7 @@ document.addEventListener('alpine:init', function () {
       taxonomy: taxonomy,
       containerId: 'chart-' + modelId + '-' + taxonomy,
       id: id,
+      showEmptyState: false,
       init: function init() {
         if (this.expanded) {
           this.updateGraph();
@@ -6794,12 +6807,14 @@ document.addEventListener('alpine:init', function () {
         var _this19 = this;
 
         return _asyncToGenerator( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default().mark(function _callee3() {
+          var _yield$_this19$$wire$, _yield$_this19$$wire$2;
+
           return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default().wrap(function _callee3$(_context3) {
             while (1) {
               switch (_context3.prev = _context3.next) {
                 case 0:
                   if (_this19.data) {
-                    _context3.next = 5;
+                    _context3.next = 8;
                     break;
                   }
 
@@ -6807,11 +6822,14 @@ document.addEventListener('alpine:init', function () {
                   return _this19.$wire.getDataForGeneralGraph(_this19.modelId, _this19.taxonomy);
 
                 case 3:
-                  _this19.data = _context3.sent;
+                  _yield$_this19$$wire$ = _context3.sent;
+                  _yield$_this19$$wire$2 = _slicedToArray(_yield$_this19$$wire$, 2);
+                  _this19.showEmptyState = _yield$_this19$$wire$2[0];
+                  _this19.data = _yield$_this19$$wire$2[1];
 
                   _this19.renderGraph();
 
-                case 5:
+                case 8:
                 case "end":
                   return _context3.stop();
               }
@@ -6835,6 +6853,9 @@ document.addEventListener('alpine:init', function () {
       renderGraph: function renderGraph() {
         // create bar chart
         var chart = anychart.bar(); // create area series with passed data
+        // let forGraph = JSON.parse(JSON.stringify(this.data))
+        // delete forGraph.showEmptyState;
+        // console.dir(forGraph)
 
         var series = chart.bar(this.data);
         series.stroke(this.getColor()).fill(this.getColor());

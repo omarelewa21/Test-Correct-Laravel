@@ -39,6 +39,14 @@ class AnalysesSubSubAttainmentDashboard extends Component
 
     public $parentParentAttainment;
 
+    protected $taxonomies = [
+        'Miller',
+        'RTTI',
+        'Bloom',
+    ];
+
+    public $taxonomyIdentifier;
+
 
     public function hasActiveFilters()
     {
@@ -48,6 +56,7 @@ class AnalysesSubSubAttainmentDashboard extends Component
     public function mount(?BaseAttainment $baseAttainment = null)
     {
         $this->attainment = $baseAttainment;
+        $this->taxonomyIdentifier = $this->attainment->id;
         $this->parentAttainment = BaseAttainment::find($this->attainment->attainment_id);
         $this->parentParentAttainment = BaseAttainment::find($this->parentAttainment->attainment_id);
 
@@ -116,6 +125,26 @@ class AnalysesSubSubAttainmentDashboard extends Component
             );
     }
 
+    public function getDataForGeneralGraph($subjectId, $taxonomy)
+    {
+        switch ($taxonomy) {
+            case 'Miller':
+                $data = $this->getMillerAttainmentData($subjectId);
+                break;
+            case 'RTTI':
+                $data = $this->getRTTIAttainmentData($subjectId);
+                break;
+            case 'Bloom':
+                $data = $this->getBloomAttainmentData($subjectId);
+                break;
+        }
+
+            return [
+                $showEmptyState = collect($data)->filter(fn($item) => $item[1] > 0)->isEmpty(),
+                $data
+            ];
+    }
+
     public function redirectBack()
     {
         return redirect(
@@ -125,5 +154,48 @@ class AnalysesSubSubAttainmentDashboard extends Component
                 ]
             )
         );
+    }
+
+    protected function getMillerAttainmentData($subjectId)
+    {
+        return PValueTaxonomyMillerRepository::getPValueForStudentForAttainment(auth()->user(),
+            $subjectId,
+            $this->getPeriodsByFilterValues(),
+            $this->getEducationLevelYearsByFilterValues(),
+            $this->getTeachersByFilterValues());
+    }
+
+    protected function getRTTIAttainmentData($subjectId)
+    {
+        return PValueTaxonomyRTTIRepository::getPValueForStudentForAttainment(auth()->user(),
+            $subjectId,
+            $this->getPeriodsByFilterValues(),
+            $this->getEducationLevelYearsByFilterValues(),
+            $this->getTeachersByFilterValues());
+    }
+
+    protected function getBloomAttainmentData($subjectId)
+    {
+        return PValueTaxonomyBloomRepository::getPValueForStudentForAttainment(
+            auth()->user(),
+            $subjectId,
+            $this->getPeriodsByFilterValues(),
+            $this->getEducationLevelYearsByFilterValues(),
+            $this->getTeachersByFilterValues());
+    }
+
+    protected function getPeriodsByFilterValues()
+    {
+        return Period::whereIn('id', $this->filters['periods'])->get('id');
+    }
+
+    protected function getEducationLevelYearsByFilterValues()
+    {
+        return collect($this->filters['educationLevelYears'])->map(fn($levelYear) => ['id' => $levelYear]);
+    }
+
+    protected function getTeachersByFilterValues()
+    {
+        return User::whereIn('id', $this->filters['teachers'])->get('id');
     }
 }

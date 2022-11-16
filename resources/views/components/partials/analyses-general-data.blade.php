@@ -47,7 +47,7 @@
     <div class="flex flex-col" wire:ignore>
         @foreach($this->taxonomies as $key=> $taxonomy)
             <div
-                    x-data="expandableGraphForGeneral({{ $key }}, '{{ $this->subject->id }}', '{{ $taxonomy }}')"
+                    x-data="expandableGraphForGeneral({{ $key }}, '{{ $this->taxonomyIdentifier}}', '{{ $taxonomy }}')"
                     x-on:click="expanded = !expanded"
                     class="cursor-pointer ml-10"
             >
@@ -56,10 +56,14 @@
                             </span>
                 <span>{{ __('student.Taxonomy') }} {{ $taxonomy }} {{__('student.Methode') }}</span>
                 <div x-show="expanded">
-                    <div wire:loading wire:target="getDataForGeneralGraph('{{ $this->subject->id }}', '{{ $taxonomy }}')">
+                    <div wire:loading wire:target="getDataForGeneralGraph('{{ $this->taxonomyIdentifier }}', '{{ $taxonomy }}')">
                         loading
                     </div>
-                    <div :id="containerId"></div>
+                    <div :id="containerId">
+                        <div x-show="showEmptyState" class="relative">
+                        <x-empty-graph :show="true"></x-empty-graph>
+                        </div>
+                    </div>
                 </div>
             </div>
         @endforeach
