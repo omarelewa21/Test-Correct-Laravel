@@ -23,7 +23,7 @@
         <div :id="$id('slider-button')" class="flex note">
             @foreach($options as $id => $button)
                 <div style="width: {{$buttonWidth}}"
-                     class="group flex items-center justify-center h-10 bold note border-blue-grey border-t border-b first:border-l last:border-r first:rounded-l-lg last:rounded-r-lg
+                     class="slider-option group flex items-center justify-center h-10 bold note border-blue-grey border-t border-b first:border-l last:border-r first:rounded-l-lg last:rounded-r-lg
                      {{ $disabledStyling ? 'bg-white opacity-70' : 'bg-off-white cursor-pointer'}}
                      "
                      @if(!$disabled) @click="clickButton($el)" @endif
