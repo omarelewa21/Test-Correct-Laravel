@@ -21,14 +21,22 @@ class SchoolLocationsGrid extends Component
     use CanLogout;
     use CanOrderGrid;
 
+    const PAGE_NUMBER_KEY = 'school-grid-page-number';
+
     protected $schoolLocations;
 
     public $filters = [];
+    public $pageNumber;
     public bool $administrator;
 
     protected $listeners = [
         'school_location_deleted' => '$refresh',
     ];
+
+    public function updatedPage()
+    {
+        session([self::PAGE_NUMBER_KEY => $this->page]);
+    }
 
     public function updatingAdministrator($value)
     {
@@ -102,6 +110,7 @@ class SchoolLocationsGrid extends Component
     {
         $this->administrator = Auth::user()->isA('administrator');
         $this->setFilters();
+        $this->setPageNumber();
     }
 
     public function render()
@@ -119,7 +128,7 @@ class SchoolLocationsGrid extends Component
 
     public function viewSchoolLocation($uuid)
     {
-        return CakeRedirectHelper::redirectToCake('school_location.view', $uuid);
+        return CakeRedirectHelper::redirectToCake('school_location.view', $uuid, $this->page);
     }
 
     public function editSchoolLocation($uuid)
@@ -145,5 +154,12 @@ class SchoolLocationsGrid extends Component
             [$this->orderByColumnName => $this->orderByDirection]
         )->with('school')
             ->paginate(15, ['school_locations.*']);
+    }
+
+    private function setPageNumber()
+    {
+        $this->page = request()->get('page');
+        session()->put(self::PAGE_NUMBER_KEY, $this->page);
+        $this->gotoPage($this->page);
     }
 }
