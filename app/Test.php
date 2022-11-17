@@ -1030,7 +1030,7 @@ class Test extends BaseModel
 
     public static function findByUuid($uuid)
     {
-        return self::whereUuid($uuid)->first();
+        return self::whereUuid($uuid)->firstOrFail();
     }
 
     public function hasDuplicateQuestions()

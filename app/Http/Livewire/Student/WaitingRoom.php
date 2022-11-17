@@ -154,7 +154,7 @@ class WaitingRoom extends Component
             ->join('tests', 'test_takes.test_id', '=', 'tests.id')
             ->join('subjects', 'tests.subject_id', '=', 'subjects.id')
             ->where('test_takes.id', TestTake::whereUuid($this->take)->value('id'))
-            ->first();
+            ->firstOrFail();
     }
 
     public function startDiscussing()
