@@ -129,16 +129,18 @@ class CmsMultipleChoice extends CmsBase
 
     public function delete($id)
     {
-
         if (!$this->canDelete()) {
             return;
         }
 
-        $this->instance->cmsPropertyBag['answerStruct'] = array_values(collect($this->instance->cmsPropertyBag['answerStruct'])->filter(function (
-            $answer
-        ) use ($id) {
-            return $answer['id'] != $id;
-        })->toArray());
+        $this->instance->cmsPropertyBag['answerStruct'] = array_values(
+            collect($this->instance->cmsPropertyBag['answerStruct'])
+                ->filter(function ($answer) use ($id) {
+                    $answerId = is_array($answer) ? $answer['id'] : $answer->id;
+                    return $answerId != $id;
+                }
+                )->toArray()
+        );
 
         if (self::MIN_ANSWER_COUNT < $this->instance->cmsPropertyBag['answerCount']) {
             $this->instance->cmsPropertyBag['answerCount']--;
