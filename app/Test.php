@@ -18,7 +18,6 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use tcCore\Lib\Question\QuestionGatherer;
 use Dyrynda\Database\Casts\EfficientUuid;
 use Ramsey\Uuid\Uuid;
-use tcCore\Traits\PublishesNationalItemBankAndExamTests;
 use tcCore\Traits\PublishesTestsTrait;
 use tcCore\Traits\UserPublishing;
 use tcCore\Traits\UuidTrait;
@@ -75,6 +74,10 @@ class Test extends BaseModel
     public static function boot()
     {
         parent::boot();
+
+        static::creating(function (Test $test) {
+            $test->draft = true;
+        });
 
         static::created(function (Test $test) {
             TestAuthor::addAuthorToTest($test, $test->author_id);
@@ -262,6 +265,7 @@ class Test extends BaseModel
 
         $query->whereIn('subject_id', $subjectIds);
         $query->whereIn('scope', Arr::wrap($scopes));
+        $query->published();
 
         $query->where(function ($q) use ($user) {
             return $q->where('published', true)
@@ -337,6 +341,7 @@ class Test extends BaseModel
 
         $query->whereIn('subject_id', $subjectIds);
         $query->where('published', true);
+        $query->where('draft', false);
 
         if (!array_key_exists('is_system_test', $filters)) {
             $query->where('is_system_test', '=', 0);
@@ -349,6 +354,12 @@ class Test extends BaseModel
         $query->where('demo', 0);
 
         return $query;
+    }
+
+    public function scopeSchoolFiltered($query, $filters = [], $sorting = [])
+    {
+        return $query->filtered($filters, $sorting)
+            ->published();
     }
 
     public function scopeFiltered($query, $filters = [], $sorting = [])
@@ -696,6 +707,9 @@ class Test extends BaseModel
                     break;
                 case 'owner_id':
                     $query->where('tests.owner_id', '=', $value);
+                    break;
+                case 'draft':
+                    $query->where('tests.draft', '=', $value);
                     break;
             }
         }
@@ -1182,5 +1196,15 @@ class Test extends BaseModel
             ($question->education_level_id == $this->education_level_id) &&
             ($question->education_level_year == $this->education_level_year) &&
             ($question->draft == $this->draft);
+    }
+
+    public function scopeDraft($query)
+    {
+        return $query->where('draft', true);
+    }
+
+    public function scopePublished($query)
+    {
+        return $query->where('draft', false);
     }
 }

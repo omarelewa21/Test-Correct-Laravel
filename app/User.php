@@ -47,6 +47,7 @@ use tcCore\Lib\User\Factory;
 use tcCore\Lib\User\Roles;
 use Dyrynda\Database\Casts\EfficientUuid;
 use tcCore\Traits\ExamCoordinator;
+use tcCore\Traits\FeatureSettings;
 use tcCore\Traits\UuidTrait;
 use Facades\tcCore\Http\Controllers\PreviewLaravelController;
 
@@ -57,8 +58,9 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
         SoftDeletes,
         Authorizable,
         CanResetPassword,
-        ExamCoordinator;
-    use UuidTrait;
+        ExamCoordinator,
+        UuidTrait,
+        FeatureSettings;
 
     const MIN_PASSWORD_LENGTH = 8;
 
@@ -2722,5 +2724,15 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
 //        SchoolClass::where('user_id', $this->id)
 
         return 'LEARNING_GOAL';
+    }
+
+    public function setHasPublishedTestAttribute(bool $boolean)
+    {
+        return $this->featureSettings()->setSetting('has_published_test', $boolean);
+    }
+
+    public function getHasPublishedTestAttribute() : bool
+    {
+        return $this->featureSettings()->getSetting('has_published_test')->exists();
     }
 }

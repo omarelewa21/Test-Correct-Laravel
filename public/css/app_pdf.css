@@ -14,6 +14,9 @@
     outline: none;
 }
 
+.button-xs {
+    min-height: auto;
+}
 .button-sm {
     min-height: 40px;
 }
@@ -6085,14 +6088,14 @@ video {
 .gap-5{
   gap: 1.25rem;
 }
+.gap-1{
+  gap: 0.25rem;
+}
 .gap-\[15px\]{
   gap: 15px;
 }
 .gap-0{
   gap: 0px;
-}
-.gap-1{
-  gap: 0.25rem;
 }
 .gap-y-4{
   row-gap: 1rem;

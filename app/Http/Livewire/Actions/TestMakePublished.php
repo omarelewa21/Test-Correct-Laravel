@@ -2,10 +2,6 @@
 
 namespace tcCore\Http\Livewire\Actions;
 
-use Auth;
-use tcCore\Http\Traits\Actions\WithPlanButtonFeatures;
-use tcCore\Test;
-
 class TestMakePublished extends TestAction
 {
     public function mount($uuid, $variant = 'icon-button-with-text', $class = '')
@@ -15,8 +11,7 @@ class TestMakePublished extends TestAction
 
     public function handle()
     {
-        Test::findByUuid($this->uuid)->publish()->save();
-        $this->emit('test-updated');
+        $this->emit('openModal', 'teacher.publish-test-modal', ['testUuid' => $this->uuid]);
     }
 
     protected function getDisabledValue()

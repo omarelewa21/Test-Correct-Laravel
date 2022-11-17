@@ -83,7 +83,7 @@ class QuestionBank extends Component
                 return $filters->merge(['source' => 'me']);
             })
             ->when($this->openTab === 'school_location', function ($filters) {
-                return $filters->merge(['source' => 'schoolLocation']);
+                return $filters->merge(['source' => 'schoolLocation', 'draft' => false]);
             })
             ->when($this->openTab === 'national', function ($filters) {
                 return $filters->merge(['source' => 'national']);
@@ -362,7 +362,7 @@ class QuestionBank extends Component
     private function questionDataSource()
     {
         if ($this->isExternalContentTab()) {
-            return Question::publishedFiltered($this->getFilters());
+            return Question::publishedFiltered($this->getFilters())->published();
         }
         return Question::filtered($this->getFilters());
     }

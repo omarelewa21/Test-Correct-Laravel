@@ -1521,4 +1521,14 @@ class Question extends MtiBaseModel
             $question->$pivotTable()->createMany($params);
         }
     }
+
+    public function scopeDraft($query)
+    {
+        return $query->where('draft', true);
+    }
+
+    public function scopePublished($query)
+    {
+        return $query->where('draft', false);
+    }
 }
