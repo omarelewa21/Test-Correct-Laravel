@@ -4,9 +4,9 @@
             <x-input.group for="me" class="w-full disabled mt-4" >
                 <x-input.rich-textarea wire:model.debounce.1000ms="answer"
                                        :editor-id="$answerRatingId"
-                                       :allow-wsc="true"
+                                       :allow-wsc="$webSpellChecker"
                                        type="student-co-learning"
-                                       lang="{{$question->lang}}"
+                                       lang="{{$question->lang ?? 'nl_NL'}}"
                 ></x-input.rich-textarea>
             </x-input.group>
             <div class="flex justify-between" wire:ignore>
@@ -20,10 +20,12 @@
                         <span id="char-count-{{$answerRatingId}}" class="min-w-[1rem]">&nbsp;</span>
                     </div>
                 </div>
+                @if($webSpellChecker)
                 <div class="text-midgrey">
                     <span id="problem-count-{{$answerRatingId}}"></span>
                     <span class="ml-1">Taalfouten</span>
                 </div>
+                @endif
             </div>
         </div>
     </div>

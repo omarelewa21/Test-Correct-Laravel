@@ -7,7 +7,7 @@
         </div>
 
         <h3 class="line-clamp-1 break-all px-2.5">
-            TITLE
+            {{__('co-learning.DrawingQuestion')}}
         </h3>
 
         <div class="flex ml-auto items-center space-x-2.5">
@@ -18,7 +18,7 @@
     <div class="pt-[70px] w-full mx-auto h-full relative" wire:ignore.self>
 
         <img src="{{$this->imgSrc}}"
-             class="border border-blue-grey rounded-10 w-full bg-white h-full">
+             class="border border-blue-grey rounded-10 w-full bg-white">
 
     </div>
 </div>

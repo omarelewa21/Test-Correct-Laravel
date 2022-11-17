@@ -13993,6 +13993,7 @@ RichTextEditor = {
         showParagraphs: false,
         showCharCount: true
       },
+      autoGrow_maxHeight: 0,
       toolbar: []
     });
     CKEDITOR.config.wordCount = {
