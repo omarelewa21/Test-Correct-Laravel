@@ -4841,8 +4841,8 @@ input.datepicker {
     display: none;
     pointer-events: none;
 }
-.cke .cke_top,
-.cke .cke_bottom {
+#co-learning-page .cke .cke_top,
+#co-learning-page .cke .cke_bottom {
     display: none !important;
 }
 /*
