@@ -1471,7 +1471,7 @@ class Question extends MtiBaseModel
         return collect(Test::NATIONAL_ITEMBANK_SCOPES)->contains($this->getQuestionInstance()->scope);
     }
 
-    public function createCleanCopy($education_level_id, $education_level_year, $subject_id, User $forUser)
+    public function createCleanCopy($education_level_id, $education_level_year, $subject_id, $draft, User $forUser)
     {
         $newQuestion = $this->duplicate($this->getAttributes());
 
@@ -1481,6 +1481,7 @@ class Question extends MtiBaseModel
         $newQuestionInstance->education_level_id = $education_level_id;
         $newQuestionInstance->education_level_year = $education_level_year;
         $newQuestionInstance->subject_id = $subject_id;
+        $newQuestionInstance->draft = $draft;
         $newQuestionInstance->add_to_database = false;
         $newQuestionInstance->add_to_database_disabled = true;
         $newQuestionInstance->save();
@@ -1490,7 +1491,7 @@ class Question extends MtiBaseModel
         if ($newQuestion->type == 'GroupQuestion') {
             foreach ($newQuestion->groupQuestionQuestions as $key => $groupQuestionQuestion) {
                 $oldQuestionInGroup = $groupQuestionQuestion->question;
-                $newQuestionInGroup = $oldQuestionInGroup->createCleanCopy($education_level_id, $education_level_year, $subject_id, $forUser);
+                $newQuestionInGroup = $oldQuestionInGroup->createCleanCopy($education_level_id, $education_level_year, $subject_id, $draft, $forUser);
                 $groupQuestionQuestion->question_id = $newQuestionInGroup->id;
                 $groupQuestionQuestion->save();
             }

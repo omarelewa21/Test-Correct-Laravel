@@ -43,6 +43,11 @@
                     </div>
                 </div>
             </div>
+            @if($question->draft)
+                <span class="text-midgrey">D</span>
+            @else
+                <span class="text-cta">P</span>
+            @endif
             <div class="flex items-start space-x-2.5 mt-1 text-sysbase">
                 @if($double)
                     <div class="flex h-full rounded-md" title="{{ __('cms.duplicate_question_in_test') }}">

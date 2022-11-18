@@ -151,6 +151,7 @@ class QuestionBank extends Component
                 $this->test->education_level_id,
                 $this->test->education_level_year,
                 $this->test->subject_id,
+                $this->test->draft,
                 auth()->user()
             );
         }
@@ -235,7 +236,8 @@ class QuestionBank extends Component
             "discuss"           => 1,
             "closeable"         => 0,
             "question_id"       => $questionId,
-            "owner_id"          => $this->inGroup
+            "owner_id"          => $this->inGroup,
+            'draft'             => $this->test->draft,
         ];
 
         $gqqm = GroupQuestionQuestionManager::getInstanceWithUuid($this->inGroup);
@@ -253,6 +255,7 @@ class QuestionBank extends Component
             'discuss'           => 1,
             'closeable'         => 0,
             'question_id'       => $questionId,
+            'draft'             => $this->test->draft,
         ];
 
         return (new TestQuestionsController)->store(new CreateTestQuestionRequest($requestParams));

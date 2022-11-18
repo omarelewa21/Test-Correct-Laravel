@@ -50,7 +50,7 @@
             </x-button.text-button>
 
             <x-button.cta wire:click="handle()">
-                <x-icon.preview/>
+                <x-icon.publish/>
                 <span>{{ __('test.publish') }}</span>
             </x-button.cta>
         </div>
