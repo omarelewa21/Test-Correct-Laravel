@@ -53,21 +53,24 @@
     <x-slot name="testName">{{ $testTake->test->name }}</x-slot>
 
     @if(!$coLearningFinished && $waitForTeacherNotificationEnabled)
-        <div class="fixed z-50 right-1/2 translate-x-1/2 top-[93px] px-2 shadow border informational rounded leading-7 bold flex items-center">
+        <div class="fixed  right-1/2 translate-x-1/2 top-[93px] px-2 shadow border informational rounded leading-7 bold flex items-center">
             <x-icon.time-dispensation/>
             <span class="ml-2">{{ __('co-learning.wait_for_teacher') }}</span>
         </div>
     @endif
-    <footer class="footer px-8 flex content-center justify-between fixed w-full bottom-0 left-0 z-10">
+        <footer class="footer px-8 flex content-center justify-between fixed w-full bottom-0 left-0 z-10">
         @if(!$coLearningFinished)
             <div class="flex">
                 @if(!$this->noAnswerRatingAvailableForCurrentScreen)
-                    <div class="flex content-center justify-between" wire:key="ar-{{$this->answerRatingId}}">
+                    <div class="flex content-center justify-between"
+                         wire:key="ar-{{$this->answerRatingId}}"
+                    >
                         <x-input.score-slider class=""
                                               model-name="rating"
                                               :max-score="$maxRating"
                                               :score="$rating"
                                               :allow-half-points="$allowRatingWithHalfPoints"
+                                              :disabled="!$this->answerRating->answer->isAnswered"
                         />
                     </div>
                 @endif

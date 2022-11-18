@@ -208,7 +208,7 @@ class CoLearning extends Component
         $currentQuestionId = $this->testTake->discussingQuestion->getKey();
 
         $this->numberOfQuestions = $testTakeQuestionsCollection->reduce(function ($carry, $question) use ($currentQuestionId) {
-            if ($this->discussOpenQuestionsOnly && !$question->discuss) {
+            if ($this->discussOpenQuestionsOnly && $question->canCheckAnswer()) { //question canCheckAnswer === 'Closed question'
                 return $carry;
             }
             $carry++;
