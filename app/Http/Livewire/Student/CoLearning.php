@@ -17,6 +17,8 @@ use tcCore\TestTakeStatus;
 
 class CoLearning extends Component
 {
+    const SESSION_KEY = 'co-learning-answer-options';
+
     public ?TestTake $testTake;
     public bool $discussOpenQuestionsOnly = false;
     public bool $nextAnswerAvailable = false;
@@ -30,6 +32,8 @@ class CoLearning extends Component
     public bool $waitForTeacherNotificationEnabled = false;
     public bool $finishCoLearningButtonEnabled = false;
     public bool $coLearningFinished = false;
+
+    public bool $scoreHasBeenManuallyChanged = false;
 
     public $answerRating = null;
     protected $answerRatings = null;
@@ -74,6 +78,8 @@ class CoLearning extends Component
             $this->answerRating = AnswerRating::find($this->answerRatingId);
         }
 
+        $this->waitForTeacherNotificationEnabled = $this->shouldShowWaitForTeacherNotification();
+
         return view('livewire.student.co-learning')
             ->layout('layouts.co-learning');
     }
@@ -83,9 +89,27 @@ class CoLearning extends Component
         return redirect()->route('student.test-takes', ['tab' => 'review']);
     }
 
+    public function getEnableNextQuestionButtonProperty(): bool
+    {
+        switch ($this->answerRating->answer->question->type) {
+            case 'CompletionQuestion':
+                $data = $this->getAnswerOptionsFromSession();
+                if ($data && isset($data['counts'])) {
+                    $statement1 = (isset($this->rating) && !is_null($this->rating));
+
+                    $statement2 = $data['counts']['amountCheckable'] === $data['counts']['amountChecked'];
+
+                    return $statement1 && $statement2;
+                }
+
+            default:
+                return (isset($this->rating) && !is_null($this->rating));
+        }
+    }
+
     public function destroyCompletionQuestionSession()
     {
-        if(session()->has(CompletionQuestion::SESSION_KEY)){
+        if (session()->has(CompletionQuestion::SESSION_KEY)) {
             session()->forget(CompletionQuestion::SESSION_KEY);
         }
     }
@@ -126,7 +150,34 @@ class CoLearning extends Component
         $this->emit('getNextAnswerRating', [$this->answerRatingId, $this->questionFollowUpNumber, $this->answerFollowUpNumber]);
     }
 
+    /**
+     * Updated Rating WireModel Lifecycle Hook
+     * @return void
+     */
     public function updatedRating(): void
+    {
+        $this->handleUpdatingRating();
+
+        $this->writeToSessionThatScoreHasBeenManuallyChanged();
+    }
+
+    /**
+     * Update Rating from emit of child livewire Question component
+     */
+    public function updateAnswerRating(int $score, int $maxScore): void
+    {
+        if ($this->allowRatingWithHalfPoints) {
+            $this->rating = $this->maxRating / $maxScore * $score;
+        } else {
+            $this->rating = round($this->maxRating / $maxScore * $score);
+        }
+
+        $this->handleUpdatingRating();
+
+        $this->dispatchBrowserEvent('updated-score', ['score' => $this->rating]);
+    }
+
+    private function handleUpdatingRating()
     {
         if ((int)$this->rating < 0) {
             $this->rating = 0;
@@ -137,19 +188,6 @@ class CoLearning extends Component
         AnswerRating::whereId($this->answerRatingId)->update(['rating' => $this->rating]);
 
         $this->checkIfStudentCanFinishCoLearning();
-    }
-
-    public function updateAnswerRating(int $amountChecked, int $amountPossibleOptions)
-    {
-        if ($this->allowRatingWithHalfPoints) {
-            $this->rating = $this->maxRating / $amountPossibleOptions * $amountChecked;
-        } else {
-            $this->rating = round($this->maxRating / $amountPossibleOptions * $amountChecked);
-        }
-
-        $this->updatedRating();
-
-        $this->dispatchBrowserEvent('updated-score', ['score' => $this->rating]);
     }
 
     private function setQuestionRatingProperties(): void
@@ -224,6 +262,9 @@ class CoLearning extends Component
             $this->noAnswerRatingAvailableForCurrentScreen = false;
 
             $this->setActiveAnswerRating($navigateDirection);
+            $this->setWhichScoreSliderShouldBeShown();
+
+            $this->setScoreHasBeenManuallyChanged();
 
             if ($this->answerRating->rating === null) {
                 $this->rating = null;
@@ -302,5 +343,36 @@ class CoLearning extends Component
         if ($this->testTake->test_take_status_id !== TestTakeStatus::STATUS_DISCUSSING) {
             return redirect()->route('student.test-takes', ['tab' => 'discuss']);
         }
+    }
+
+    private function getAnswerOptionsFromSession(): array|false
+    {
+        if (session()->has(static::SESSION_KEY)) {
+            if (isset(session()->get(static::SESSION_KEY)[$this->answerRatingId])) {
+                return session()->get(static::SESSION_KEY)[$this->answerRatingId];
+            }
+        }
+        return false;
+    }
+
+    private function writeToSessionThatScoreHasBeenManuallyChanged()
+    {
+        if (session()->has(static::SESSION_KEY)) {
+            if (isset(session()->get(static::SESSION_KEY)[$this->answerRatingId])) {
+                $sessionData = session()->get(static::SESSION_KEY)[$this->answerRatingId];
+                $sessionData['scoreManuallyChanged'] = true;
+
+                session([static::SESSION_KEY => $sessionData]);
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private function setScoreHasBeenManuallyChanged() : void
+    {
+        $data = $this->getAnswerOptionsFromSession();
+
+        $this->scoreHasBeenManuallyChanged = isset($data['scoreManuallyChanged']) ? true : false;
     }
 }
