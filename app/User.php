@@ -566,7 +566,7 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
                 $user->mentorSchoolClasses ??= [];
             }
 
-            $this->setForcePasswordChangeIfRequired($user);
+            $user->setForcePasswordChangeIfRequired($user);
 
             if($user->isA('Teacher')) {
                 $user->handleExamCoordinatorChange();
@@ -2711,10 +2711,12 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
 
     private function setForcePasswordChangeIfRequired(User $user): void
     {
+        if (app()->runningInConsole()) return;
         if (!$user->isDirty(['password'])) {
             return;
         }
-        if(request() && request()->json("user") && (request()->json("user") !== $user->username)) {
+
+        if(Auth::id() && Auth::id() !== $user->id) {
             $user->force_password_change = 1;
             return;
         }
