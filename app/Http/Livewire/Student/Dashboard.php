@@ -83,4 +83,11 @@ class Dashboard extends Component
         $temporaryLogin = TemporaryLogin::createWithOptionsForUser('page', '/messages', Auth::user());
         return redirect($temporaryLogin->createCakeUrl());
     }
+
+    public function checkIfPasswordNeedsChanging()
+    {
+        if(Auth::user()->force_password_change) {
+            $this->emit('openModal', 'force-password-change-modal');
+        }
+    }
 }

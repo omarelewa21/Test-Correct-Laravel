@@ -12,4 +12,5 @@
             Echo.connector.pusher.config.auth.headers['X-CSRF-TOKEN'] = '{{ csrf_token() }}'
         </script>
     @endpush
+    @livewire('livewire-ui-modal')
 </x-layouts.base>
