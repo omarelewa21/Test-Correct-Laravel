@@ -64,7 +64,7 @@ class UwlrFetcher extends Component
         $this->setSearchFields();
         $this->setSchoolYears();
 
-        if($this->uwlrDatasource[$this->currentSource]['school_year'] != 0) {
+        if($this->uwlrDatasource[$this->currentSource]['school_year']) {
             $this->schoolYear = $this->uwlrDatasource[$this->currentSource]['school_year'];
         }
     }
@@ -125,6 +125,7 @@ class UwlrFetcher extends Component
 
     public function fetch()
     {
+
         try {
             set_time_limit(0);
             $helper = $this->getHelper();
