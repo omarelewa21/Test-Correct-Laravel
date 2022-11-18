@@ -1,4 +1,4 @@
-<div class="flex flex-col w-full pt-12">
+<div id="co-learning-page" class="flex flex-col w-full pt-12">
 
     @if($this->coLearningFinished)
         <div class="flex flex-col w-full" wire:key="co-learning-finished">
