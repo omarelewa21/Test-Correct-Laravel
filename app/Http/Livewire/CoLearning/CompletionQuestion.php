@@ -12,7 +12,7 @@ class CompletionQuestion extends CoLearningQuestion
 {
     const SEARCH_PATTERN = "/\[([0-9]+)\]/i";
 
-    const SESSION_KEY = 'co-learning-completion-question-answer-options';
+    const SESSION_KEY = 'co-learning-answer-options';
 
     public array $answerOptions;
     public int $answerOptionsAmount;
@@ -28,8 +28,17 @@ class CompletionQuestion extends CoLearningQuestion
 
     public function updatedAnswerOptions()
     {
+
+        $this->answerOptions[$this->answerRatingId]['counts'] = [
+            'score'           => $this->answerOptionsScore,
+            'maxScore'        => $this->answerOptionsAmount,
+            'amountCheckable' => $this->checkableAnswerOptionsAmount,
+            'amountChecked'   => $this->checkedAnswerOptionsTrueOrFalseAmount,
+        ];
+
         $this->writeAnswerOptionsToSession();
-        $this->emit('UpdateAnswerRating', $this->answerOptionsChecked, $this->answerOptionsAmount);
+
+        $this->emit('UpdateAnswerRating', $this->answerOptionsScore, $this->answerOptionsAmount);
     }
 
     public function isQuestionFullyAnswered(): bool
@@ -50,10 +59,26 @@ class CompletionQuestion extends CoLearningQuestion
         $this->createAnswerOptionsDataStructure();
     }
 
-    public function getAnswerOptionsCheckedProperty()
+    public function getAnswerOptionsScoreProperty()
     {
-        return collect($this->answerOptions[$this->answerRatingId])->reduce(function ($carry, $answerOption) {
+        return collect($this->answerOptions[$this->answerRatingId]['answerOptions'])->reduce(function ($carry, $answerOption) {
             $carry += $answerOption['rating'] === '1' ? 1 : 0;
+            return $carry;
+        }, 0);
+    }
+
+    public function getCheckableAnswerOptionsAmountProperty()
+    {
+        return collect($this->answerOptions[$this->answerRatingId]['answerOptions'])->reduce(function ($carry, $answerOption) {
+            $carry += $answerOption['answer'] !== null ? 1 : 0;
+            return $carry;
+        }, 0);
+    }
+
+    public function getCheckedAnswerOptionsTrueOrFalseAmountProperty()
+    {
+        return collect($this->answerOptions[$this->answerRatingId]['answerOptions'])->reduce(function ($carry, $answerOption) {
+            $carry += $answerOption['rating'] !== null ? 1 : 0;
             return $carry;
         }, 0);
     }
@@ -65,15 +90,15 @@ class CompletionQuestion extends CoLearningQuestion
         $this->getAnswerOptionsFromSession();
 
         for ($index = 0; $index < $this->answerOptionsAmount; $index++) {
-            if (isset($this->answerOptions[$this->answerRatingId]) &&
-                collect($this->answerOptions[$this->answerRatingId])->count() === $this->answerOptionsAmount
+            if (isset($this->answerOptions[$this->answerRatingId]['answerOptions']) &&
+                collect($this->answerOptions[$this->answerRatingId]['answerOptions'])->count() === $this->answerOptionsAmount
             ) {
                 break;
             }
-            $this->answerOptions[$this->answerRatingId][] = [
+            $this->answerOptions[$this->answerRatingId]['answerOptions'][] = [
                 'rating'   => null,
                 'answered' => isset($this->answer[$index]),
-                'answer'   => $this->answer[$index] ?? '......',
+                'answer'   => $this->answer[$index] ?? null, //todo replace ... with null and placeholder to bladefile.
             ];
         }
         $this->writeAnswerOptionsToSession();

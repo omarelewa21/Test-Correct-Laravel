@@ -52,13 +52,12 @@
     @endif
     <x-slot name="testName">{{ $testTake->test->name }}</x-slot>
 
-    @if(!$finishCoLearningButtonEnabled && $waitForTeacherNotificationEnabled)
-        <div class="absolute right-1/2 translate-x-1/2 top-[93px] px-2 shadow border informational rounded leading-7 bold flex items-center">
+    @if(!$coLearningFinished && $waitForTeacherNotificationEnabled)
+        <div class="fixed z-50 right-1/2 translate-x-1/2 top-[93px] px-2 shadow border informational rounded leading-7 bold flex items-center">
             <x-icon.time-dispensation/>
             <span class="ml-2">{{ __('co-learning.wait_for_teacher') }}</span>
         </div>
     @endif
-
     <footer class="footer px-8 flex content-center justify-between fixed w-full bottom-0 left-0 z-10">
         @if(!$coLearningFinished)
             <div class="flex">
@@ -78,19 +77,12 @@
                 <span><b class="bold">{{ __('co-learning.question') }} {{$this->questionFollowUpNumber}}</b>/{{$this->numberOfQuestions}}</span>
 
                 @if($previousAnswerAvailable)
-                    @if(isset($this->rating) && !is_null($rating))
-                        <x-button.primary class="rotate-svg-180" wire:click="goToPreviousAnswerRating()">
-                            <x-icon.arrow class=""/>
-                            <span>{{ __('co-learning.previous_answer') }}</span>
-                        </x-button.primary>
-                    @else
-                        <x-button.primary class="rotate-svg-180" wire:click="goToPreviousAnswerRating()" disabled>
-                            <x-icon.arrow class=""/>
-                            <span>{{ __('co-learning.previous_answer') }}</span>
-                        </x-button.primary>
-                    @endif
+                    <x-button.primary class="rotate-svg-180" wire:click="goToPreviousAnswerRating()">
+                        <x-icon.arrow class=""/>
+                        <span>{{ __('co-learning.previous_answer') }}</span>
+                    </x-button.primary>
                 @elseif($nextAnswerAvailable)
-                    @if(isset($this->rating) && !is_null($rating))
+                    @if($this->enableNextQuestionButton)
                         <x-button.primary wire:click="goToNextAnswerRating()">
                             <span>{{ __('co-learning.next_answer') }}</span>
                             <x-icon.arrow/>
