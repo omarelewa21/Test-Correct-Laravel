@@ -4,6 +4,7 @@
     'modelName',
     'allowHalfPoints' => true,
     'continuousScoreSlider' => false,
+    'disabled' => false
 ])
 @php
     if ($allowHalfPoints && $maxScore > 7) {
@@ -21,8 +22,13 @@
         maxScore: {{ $maxScore }},
         timeOut: null,
         allowHalfPoints: @js($allowHalfPoints),
+        disabled: @js($disabled)
         }"
      x-init="$watch('score', (value) => {
+           if(disabled){
+               return;
+           }
+
            if(value >= maxScore){
             score = value = maxScore;
            }
@@ -42,7 +48,7 @@
 
         "
      x-on:updated-score.window="score = $event.detail.score"
-        {{ $attributes->except('wire:model')->merge(['class'=>'flex w-fit justify-between items-center space-x-4']) }}
+        {{ $attributes->except('wire:model')->merge(['class'=>'flex w-fit justify-between items-center space-x-4 relative '.($disabled ? 'opacity-50': '')]) }}
 >
 
     <span class="bold mb-1">{{ __('Score') }}</span>
@@ -95,4 +101,8 @@
     <input class="w-16 h-10 border border-blue-grey bg-offwhite flex items-center justify-center rounded-10 text-center"
            x-model="score" type="number" max="{{$maxScore}}" min="0" onclick="this.select()"
     >
+
+    @if($disabled)
+        <div class="absolute w-full h-full z-10 "></div>
+    @endif
 </div>

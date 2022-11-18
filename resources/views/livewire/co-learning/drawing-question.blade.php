@@ -10,7 +10,7 @@
             @if($answered)
                 <img src="{{$this->imgSrc}}" class="border border-blue-grey rounded-10 w-fit {{--object-contain h-full--}}">
                 <div class="absolute bottom-4 right-4">
-                    <x-button.secondary wire:click="$emit('openModal', 'co-learning.drawing-question-preview-modal', ['{{$this->imgSrc}}'])">
+                    <x-button.secondary wire:click="$emit('openModal', 'co-learning.drawing-question-preview-modal', ['{{$this->answerRating->answer->getKey()}}'])">
                         <x-icon.screen-expand/>
                         <span>{{ __('co-learning.view_larger') }}</span>
                     </x-button.secondary>
