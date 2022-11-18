@@ -474,9 +474,13 @@ document.addEventListener('alpine:init', () => {
                 this.$wire.addGroup();
             }
         },
-        showAddQuestionSlide(shouldCheckDirty = true, clearGroupUuid = true) {
+        async showAddQuestionSlide(shouldCheckDirty = true, clearGroupUuid = true) {
             if (this.emitAddToOpenShortIfNecessary(shouldCheckDirty, false, false)) {
-                if(clearGroupUuid) this.$store.questionBank.inGroup = false;
+                if(clearGroupUuid) {
+                    let questionBankLivewireComponent =  Livewire.find(this.drawer.querySelector('#question-bank').getAttribute('wire:id'))
+                    await questionBankLivewireComponent.clearInGroupProperty();
+                    this.$store.questionBank.inGroup = false;
+                }
                 this.next(this.$refs.home);
                 this.$dispatch('backdrop');
             }

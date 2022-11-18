@@ -146,7 +146,7 @@
                     {{ __('cms.Vraaggroep toevoegen') }}
                 </x-button.plus-circle>
 
-                <x-button.plus-circle @click.stop="showAddQuestionSlide()" selid="add-question-btn"
+                <x-button.plus-circle @click.stop="showAddQuestionSlide(true, true)" selid="add-question-btn"
                 >
                     {{__('cms.Vraag toevoegen')}}
                 </x-button.plus-circle>
