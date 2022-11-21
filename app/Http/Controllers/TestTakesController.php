@@ -424,6 +424,10 @@ class TestTakesController extends Controller {
                                         $ratedAnswerRatingsPerTestParticipant[$testParticipantId] = 0;
                                     }
 
+                                    if(!$answer->is_answered) {
+                                        break; //new co learning, if answer is not answered, don't count it. it doesn't need to be rated during co-learning
+                                    }
+
                                     $activeAnswerRatingsPerTestParticipant[$testParticipantId] ++;
                                     if ($answerRating->getAttribute('rating') != null) {
                                         $ratedAnswerRatingsPerTestParticipant[$testParticipantId] ++;
