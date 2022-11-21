@@ -21,7 +21,7 @@ class SchoolLocationsGrid extends Component
     use CanLogout;
     use CanOrderGrid;
 
-    const PAGE_NUMBER_KEY = 'school-grid-page-number';
+    const PAGE_NUMBER_SESSION_KEY = 'school-grid-page-number';
 
     protected $schoolLocations;
 
@@ -35,7 +35,7 @@ class SchoolLocationsGrid extends Component
 
     public function updatedPage()
     {
-        session([self::PAGE_NUMBER_KEY => $this->page]);
+        session([self::PAGE_NUMBER_SESSION_KEY => $this->page]);
     }
 
     public function updatingAdministrator($value)
@@ -159,7 +159,7 @@ class SchoolLocationsGrid extends Component
     private function setPageNumber()
     {
         $this->page = request()->get('page');
-        session()->put(self::PAGE_NUMBER_KEY, $this->page);
+        session()->put(self::PAGE_NUMBER_SESSION_KEY, $this->page);
         $this->gotoPage($this->page);
     }
 }

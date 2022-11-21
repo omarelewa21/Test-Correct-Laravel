@@ -13,12 +13,8 @@ use tcCore\User;
 class Graded extends Component
 {
     use WithPagination, WithStudentTestTakes, WithSorting;
-    const PAGE_NUMBER_KEY = 'student-page-number';
 
     public $readyToLoad;
-    protected $queryString = [
-    'page' => ['except' => '', 'as' => 'page']
-    ];
     protected function getListeners()
     {
         return [
@@ -30,26 +26,12 @@ class Graded extends Component
     {
         $this->sortField = 'test_takes.updated_at';
         $this->sortDirection = 'desc';
-        $this->setPageNumber();
-    }
-
-    private function setPageNumber()
-    {
-        $page = request()->get('page');
-        $this->page = $page;
-        $this->gotoPage($page);
-    }
-
-    public function updatedPage()
-    {
-        session([self::PAGE_NUMBER_KEY => $this->page]);
     }
     
     public function render()
     {
         return view('livewire.student.graded', [
-            'testTakes' => $this->readyToLoad ? $this->getRatingsForStudent(null, 10, $this->sortField, $this->sortDirection) : collect(),
-            'page' =>$this->page
+            'testTakes' => $this->readyToLoad ? $this->getRatingsForStudent(null, 10, $this->sortField, $this->sortDirection) : collect()
         ]);
     }
 

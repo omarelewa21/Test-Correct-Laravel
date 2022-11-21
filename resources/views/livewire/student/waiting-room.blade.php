@@ -35,8 +35,7 @@
             <div class="flex flex-col space-y-4 transition-all duration-500">
                 <div>
                     @if(!Auth::user()->guest)
-                        <x-button.text-button class="rotate-svg-180" type="link"
-                                              href="{{ route('student.test-takes', ['tab' => $this->testTakeStatusStage, 'page'=>$this->page]) }}">
+                        <x-button.text-button class="rotate-svg-180"  wire:click="returnToTestTake" >
                             <x-icon.arrow/>
                             <span class="text-[32px]" selid="waiting-screen-title">{{ $waitingTestTake->test_name }}</span>
                         </x-button.text-button>

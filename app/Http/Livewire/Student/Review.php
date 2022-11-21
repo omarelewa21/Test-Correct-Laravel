@@ -15,14 +15,10 @@ use tcCore\TestTakeStatus;
 class Review extends Component
 {
     use WithPagination, WithStudentTestTakes, WithSorting;
-    const PAGE_NUMBER_KEY = 'student-page-number';
-
+   
     public $readyToLoad;
     public $paginateBy = 10;
 
-    protected $queryString = [
-    'page' => ['except' => '', 'as' => 'page']
-    ];
 
     protected function getListeners()
     {
@@ -35,26 +31,12 @@ class Review extends Component
     {
         $this->sortField = 'test_takes.time_start';
         $this->sortDirection = 'DESC';
-        $this->setPageNumber();
-    }
-
-    private function setPageNumber()
-    {
-        $page = request()->get('page');
-        $this->page = $page;
-        $this->gotoPage($page);
-    }
-
-    public function updatedPage()
-    {
-        session([self::PAGE_NUMBER_KEY => $this->page]);
     }
 
     public function render()
     {
         return view('livewire.student.review', [
-            'testTakes' => $this->readyToLoad ? $this->getTestTakesToReview($this->sortField, $this->sortDirection) : collect(),
-            'page' =>$this->page
+            'testTakes' => $this->readyToLoad ? $this->getTestTakesToReview($this->sortField, $this->sortDirection) : collect()
         ]);
     }
 

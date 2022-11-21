@@ -22,7 +22,7 @@ use tcCore\TestTakeStatus;
 class WaitingRoom extends Component
 {
     use WithStudentTestTakes;
-    const PAGE_NUMBER_KEY = 'student-page-number';
+    const PAGE_NUMBER_SESSION_KEY = 'student-page-number';
 
     protected function getListeners()
     {
@@ -62,7 +62,7 @@ class WaitingRoom extends Component
     public $appNeedsUpdate;
     public $appNeedsUpdateDeadline;
     public $appStatus;
-    public $page;
+    public $previousURL;
 
     public function mount()
     {
@@ -82,8 +82,8 @@ class WaitingRoom extends Component
 
         $this->testTakeStatusStage = $this->waitingTestTake->determineTestTakeStage();
         $this->participatingClasses = $this->getParticipatingClasses($this->waitingTestTake);
-        $this->page = session()->get(self::PAGE_NUMBER_KEY);
         $this->participantAppCheck();
+        $this->previousURL =  url()->previous();
     }
 
     public function render()
@@ -238,6 +238,11 @@ class WaitingRoom extends Component
             return __('student.test_already_taken');
         }
         return __('student.wait_for_test_take');
+    }
+
+    public function returnToTestTake()
+    {
+        redirect($this->previousURL);
     }
 
     /**

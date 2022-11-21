@@ -21,14 +21,12 @@ class TestsOverview extends Component
     use WithPagination, ContentSourceTabsTrait;
 
     const ACTIVE_TAB_SESSION_KEY = 'tests-overview-active-tab';
-    const PAGE_NUMBER_KEY = 'overview-page-number';
     const PER_PAGE = 12;
 
     private $sorting = ['id' => 'desc'];
     protected $queryString = [
         'openTab'        => ['as' => 'to_tab'],
-        'referrerAction' => ['except' => '', 'as' => 'to_ra'],
-        'page' => ['except' => '', 'as' => 'page']
+        'referrerAction' => ['except' => '', 'as' => 'to_ra']
     ];
 
     public $filters = [];
@@ -47,20 +45,7 @@ class TestsOverview extends Component
         $this->isExamCoordinator = Auth::user()->isValidExamCoordinator();
         $this->abortIfNewTestBankNotAllowed();
         $this->initialiseContentSourceTabs();
-        $this->setPageNumber();
         $this->setFilters();
-    }
-
-    private function setPageNumber()
-    {
-        $page = request()->get('page');
-        $this->page = session()->has(self::PAGE_NUMBER_KEY)?session()->get(self::PAGE_NUMBER_KEY):session()->put(self::PAGE_NUMBER_KEY, $page); 
-        $this->gotoPage($this->page);
-    }
-
-    public function updatedPage()
-    {
-        session([self::PAGE_NUMBER_KEY => $this->page]);
     }
     
     public function render()

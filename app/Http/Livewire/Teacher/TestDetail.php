@@ -18,6 +18,7 @@ class TestDetail extends Component
     public $referrer = '';
     public $mode;
     public $context = 'testdetail';
+    public $previousURL ;
 
     protected $queryString = ['referrer' => ['except' => '']];
 
@@ -32,6 +33,7 @@ class TestDetail extends Component
         Gate::authorize('canViewTestDetails',[Test::findByUuid($uuid)]);
 
         $this->uuid = $uuid;
+        $this->previousURL = url()->previous();
         $this->setContext();
     }
 
@@ -60,7 +62,7 @@ class TestDetail extends Component
 
     public function redirectToTestOverview()
     {
-        redirect()->to(route('teacher.tests'));
+        redirect($this->previousURL);
     }
 
     public function showGroupDetails($groupUuid)
