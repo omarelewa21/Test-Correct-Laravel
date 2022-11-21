@@ -12,7 +12,6 @@ use tcCore\Http\Traits\WithStudentTestTakes;
 class Planned extends Component
 {
     use WithPagination, WithStudentTestTakes, WithSorting;
-    const PAGE_NUMBER_KEY = 'student-page-number';
 
     private $testTakes;
 
