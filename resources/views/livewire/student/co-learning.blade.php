@@ -1,4 +1,7 @@
-<div id="co-learning-page" class="flex flex-col w-full pt-12">
+<div id="co-learning-page"
+     class="flex flex-col w-full pt-12"
+     wire:poll.keep-alive.15000ms="updateHeartbeat()"
+>
 
     @if($this->coLearningFinished)
         <div class="flex flex-col w-full" wire:key="co-learning-finished">
