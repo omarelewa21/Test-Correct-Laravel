@@ -3,16 +3,13 @@
 namespace tcCore\Http\Livewire\Student\Analyses;
 
 use Livewire\Component;
-use tcCore\Attainment;
 use tcCore\BaseAttainment;
 use tcCore\EducationLevel;
 use tcCore\Http\Traits\WithAnalysesGeneralData;
-use tcCore\Lib\Repositories\PValueRepository;
 use tcCore\Lib\Repositories\PValueTaxonomyBloomRepository;
 use tcCore\Lib\Repositories\PValueTaxonomyMillerRepository;
 use tcCore\Lib\Repositories\PValueTaxonomyRTTIRepository;
 use tcCore\Period;
-use tcCore\Subject;
 use tcCore\User;
 
 class AnalysesSubSubAttainmentDashboard extends Component
@@ -40,9 +37,9 @@ class AnalysesSubSubAttainmentDashboard extends Component
     public $parentParentAttainment;
 
     protected $taxonomies = [
-        'Miller',
-        'RTTI',
-        'Bloom',
+        ['name' => 'Miller', 'height' => '150px'],
+        ['name' => 'RTTI', 'height' => '150px'],
+        ['name' => 'Bloom', 'height' => '200px'],
     ];
 
     public $taxonomyIdentifier;
@@ -139,10 +136,26 @@ class AnalysesSubSubAttainmentDashboard extends Component
                 break;
         }
 
+        return [
+            $showEmptyState = collect($data)->filter(fn($item) => $item[1] > 0)->isEmpty(),
+            $this->transformForGraph($data)
+        ];
+    }
+
+    private function transformForGraph($data)
+    {
+        return collect($data)->map(function ($item) {
             return [
-                $showEmptyState = collect($data)->filter(fn($item) => $item[1] > 0)->isEmpty(),
-                $data
+                'x'       => $item[0],
+                'value'   => $item[1],
+                'tooltip' => trans_choice(
+                    'student.tooltip_taxonomy_graph',
+                    $item[2], [
+                    'count_questions' => $item[2],
+                    'p_value'         => number_format($item[1], 2),
+                ])
             ];
+        });
     }
 
     public function redirectBack()
