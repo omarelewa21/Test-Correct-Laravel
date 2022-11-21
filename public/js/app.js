@@ -7687,7 +7687,7 @@ window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
 window.Pusher = __webpack_require__(/*! pusher-js */ "./node_modules/pusher-js/dist/web/pusher.js");
 window.Echo = new laravel_echo__WEBPACK_IMPORTED_MODULE_0__["default"]({
   broadcaster: 'pusher',
-  key: "fc18ed69b446aeb8c8a5",
+  key: "662d128370816e2bbb66",
   cluster: "eu",
   forceTLS: true
 });
@@ -14187,16 +14187,12 @@ RichTextEditor = {
       wordcount: {
         showWordCount: true,
         showParagraphs: false,
-        showCharCount: true
+        showCharCount: true,
+        countSpacesAsChars: true
       },
       autoGrow_maxHeight: 0,
       toolbar: []
     });
-    CKEDITOR.config.wordCount = {
-      showWordCount: true,
-      showParagraphs: false,
-      showCharCount: true
-    };
     editor = CKEDITOR.instances[editorId];
     editor.on('change', function (e) {
       RichTextEditor.sendInputEventToEditor(editorId, e);
