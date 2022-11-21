@@ -22,7 +22,7 @@ class TestTakeOverview extends Component
     const TABS = ['taken', 'norm'];
     const PER_PAGE = 12;
     const ACTIVE_TAB_SESSION_KEY = 'test-take-overview-open-tab';
-    const PAGE_NUMBER_KEY = 'test-take-overview-open-page';
+    const PAGE_NUMBER_SESSION_KEY = 'test-take-overview-open-page';
     const FILTERS_SESSION_KEY = 'test-take-overview-filters';
     const DEFAULT_OPEN_TAB = 'taken';
 
@@ -44,7 +44,7 @@ class TestTakeOverview extends Component
 
     public function updatedPage()
     {
-        session([self::PAGE_NUMBER_KEY => $this->page]);
+        session([self::PAGE_NUMBER_SESSION_KEY => $this->page]);
     }
 
     public function render()
