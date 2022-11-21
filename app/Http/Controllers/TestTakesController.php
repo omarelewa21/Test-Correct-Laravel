@@ -424,6 +424,10 @@ class TestTakesController extends Controller {
                                         $ratedAnswerRatingsPerTestParticipant[$testParticipantId] = 0;
                                     }
 
+                                    if(!$answer->is_answered) {
+                                        break; //new co learning, if answer is not answered, don't count it. it doesn't need to be rated during co-learning
+                                    }
+
                                     $activeAnswerRatingsPerTestParticipant[$testParticipantId] ++;
                                     if ($answerRating->getAttribute('rating') != null) {
                                         $ratedAnswerRatingsPerTestParticipant[$testParticipantId] ++;
@@ -481,6 +485,8 @@ class TestTakesController extends Controller {
                     if (array_key_exists($testParticipant->getKey(), $ratedAnswerRatingsPerTestParticipant)) {
                         $testParticipant->setAttribute('answer_rated', $ratedAnswerRatingsPerTestParticipant[$testParticipant->getKey()]);
                     }
+                    // if in new co-learning no answers have been given, student gets a red circle at the teacher screen, because he/she cant rate any answerRatings.
+                    //todo override 'answer_to_rate' and 'answer_rated' when the question wasnt answered
 
                     if (array_key_exists($testParticipant->getKey(), $testParticipantAbnormalities)) {
                         $testParticipant->setAttribute('abnormalities', $testParticipantAbnormalities[$testParticipant->getKey()]);

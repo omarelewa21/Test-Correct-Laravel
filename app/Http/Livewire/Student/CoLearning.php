@@ -43,7 +43,10 @@ class CoLearning extends Component
     protected $answerRatings = null;
     public $answerRatingId;
 
-    protected $queryString = ['answerRatingId', 'coLearningFinished'];
+    protected $queryString = [
+        'answerRatingId' => ['as' => 'e'],
+        'coLearningFinished' => ['except' => false, 'as' => 'b']
+    ];
 
     public int $numberOfQuestions;
     public int $questionFollowUpNumber = 0;
@@ -99,6 +102,10 @@ class CoLearning extends Component
 
     public function getEnableNextQuestionButtonProperty(): bool
     {
+        if(!$this->answerRating->answer->isAnswered){
+            return true;
+        }
+
         switch ($this->answerRating->answer->question->type) {
             case 'CompletionQuestion':
                 $data = $this->getAnswerOptionsFromSession();
