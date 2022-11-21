@@ -1380,6 +1380,11 @@ class TestTakesController extends Controller {
         return $testTake->unArchiveForUser(Auth::user());
     }
 
+    public function updateStatusToDiscussed(TestTake $testTake)
+    {
+        return  $testTake->updateToDiscussed(Auth::user());
+    }
+
     public function withTemporaryLogin(TestTake $testTake) {
 
         $temporaryLogin = TemporaryLogin::createWithOptionsForUser('app_details', request()->get('app_details'), auth()->user());

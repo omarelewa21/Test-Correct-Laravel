@@ -1080,6 +1080,12 @@ class TestTake extends BaseModel
         $this->save();
     }
 
+    public function updateToDiscussed()
+    {
+        $this->test_take_status_id = TestTakeStatus::STATUS_DISCUSSED;
+        $this->save();
+    }
+
     public static function isJoined($query, $table)
     {
         $joins = $query->getQuery()->joins;

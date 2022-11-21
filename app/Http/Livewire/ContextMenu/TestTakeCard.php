@@ -12,6 +12,7 @@ class TestTakeCard extends ContextMenuComponent
 {
     use WithTestTakeInteractions;
 
+    const TAKEN_TAB = 'taken';
     public $uuid = null;
     public $testTakeStatusId;
     public $isArchived = false;
@@ -87,5 +88,14 @@ class TestTakeCard extends ContextMenuComponent
     public function hasUnarchiveOption(): bool
     {
         return $this->isArchived;
+    }
+
+    public function updateStatusToTaken()
+    {
+        $testTake = TestTake::whereUuid($this->uuid)->firstOrFail();
+        $testTake->updateToTaken();
+        $this->dispatchBrowserEvent('notify', ['message' => __('test-take.Gedearchiveerd')]);
+        
+        redirect(route('teacher.test-takes', self::TAKEN_TAB));
     }
 }
