@@ -2,10 +2,14 @@
 
 namespace tcCore\Http\Livewire\Student;
 
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Response;
 use Livewire\Component;
 use tcCore\AnswerRating;
+use tcCore\Events\CoLearningForceTakenAway;
+use tcCore\Events\CoLearningNextQuestion;
+use tcCore\Events\CoLearningPresence;
 use tcCore\Http\Controllers\AnswerRatingsController;
 use tcCore\Http\Controllers\TestTakeLaravelController;
 use tcCore\Http\Livewire\CoLearning\CompletionQuestion;
@@ -45,13 +49,15 @@ class CoLearning extends Component
     public int $questionFollowUpNumber = 0;
     public int $numberOfAnswers;
     public int $answerFollowUpNumber = 0;
+    public $testParticipant;
 
     protected function getListeners()
     {
         return [
-            'echo-private:TestParticipant.' . $this->testParticipant->uuid . ',.CoLearningNextQuestion'   => 'goToNextQuestion',
-            'echo-private:TestParticipant.' . $this->testParticipant->uuid . ',.CoLearningForceTakenAway' => 'redirectToTestTakesInReview', //.action, the dot is necessary
-            'UpdateAnswerRating'                                                                          => 'updateAnswerRating',
+            CoLearningForceTakenAway::channelSignature($this->testParticipant->uuid) => 'redirectToTestTakesInReview',
+            CoLearningNextQuestion::channelSignature($this->testParticipant->uuid)   => 'goToNextQuestion',
+            CoLearningPresence::channelSignature($this->testTake->uuid)              => 'updateHeartbeat',
+            'UpdateAnswerRating'                                                     => 'updateAnswerRating',
         ];
     }
 
@@ -369,10 +375,15 @@ class CoLearning extends Component
         return false;
     }
 
-    private function setScoreHasBeenManuallyChanged() : void
+    private function setScoreHasBeenManuallyChanged(): void
     {
         $data = $this->getAnswerOptionsFromSession();
 
         $this->scoreHasBeenManuallyChanged = isset($data['scoreManuallyChanged']) ? true : false;
+    }
+
+    public function updateHeartbeat()
+    {
+        return $this->testParticipant->setAttribute('heartbeat_at', Carbon::now())->save();
     }
 }
