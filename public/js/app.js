@@ -6682,7 +6682,6 @@ document.addEventListener('alpine:init', function () {
           // get the data for the current point
           series.tooltip().enabled(true);
           dataRow = data[e.pointIndex];
-          console.log(dataRow);
 
           if (contentElement) {
             fillTooltipHtml();
@@ -6852,18 +6851,22 @@ document.addEventListener('alpine:init', function () {
 
       renderGraph: function renderGraph() {
         // create bar chart
-        var chart = anychart.bar(); // create area series with passed data
-        // let forGraph = JSON.parse(JSON.stringify(this.data))
-        // delete forGraph.showEmptyState;
-        // console.dir(forGraph)
+        var chart = anychart.bar(); // let data = this.data.map((item)=> {
+        //     return {
+        //         x: item[0],
+        //         value: item[1],
+        //         tooltip: item[2]
+        //     }
+        // })
 
         var series = chart.bar(this.data);
         series.stroke(this.getColor()).fill(this.getColor());
         var tooltip = series.tooltip();
-        tooltip.title(false).separator(false).position('right').anchor('left-center').offsetX(5).offsetY(0).background('#FFFFFF').fontColor('#000000').format(function () {
-          return 'P ' + Math.abs(this.value).toLocaleString();
-        });
+        tooltip.title(false).separator(false).position('right').anchor('left-center').offsetX(5).offsetY(0).background('#FFFFFF').fontColor('#000000').format("{%tooltip}");
         chart.tooltip().positionMode('point'); // set scale minimum
+
+        chart.yScale().minimum(0);
+        chart.yScale().maximum(1); // chart.xScale()//.maximum(100)
 
         chart.xAxis().stroke('#041F74');
         chart.xAxis().stroke('none'); // set container id for the chart

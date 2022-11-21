@@ -2,30 +2,14 @@
 
 namespace tcCore\Http\Livewire\Student\Analyses;
 
-use Livewire\Component;
-use tcCore\EducationLevel;
 use tcCore\Lib\Repositories\PValueRepository;
 use tcCore\Lib\Repositories\PValueTaxonomyBloomRepository;
 use tcCore\Lib\Repositories\PValueTaxonomyMillerRepository;
 use tcCore\Lib\Repositories\PValueTaxonomyRTTIRepository;
-use tcCore\Period;
 use tcCore\Subject;
-use tcCore\User;
-use function view;
 
 class AnalysesOverviewDashboard extends AnalysesDashboard
 {
-    protected $topItems = [
-        11 => 'Biology',
-        1  => 'Nederlands',
-    ];
-
-    public function mount()
-    {
-        parent::mount();
-    }
-
-
     public function getDataProperty()
     {
         $result = PValueRepository::getPValueForStudentBySubject(
