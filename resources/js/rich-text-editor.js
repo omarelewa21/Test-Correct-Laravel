@@ -41,15 +41,11 @@ RichTextEditor = {
                 showWordCount: true,
                 showParagraphs: false,
                 showCharCount: true,
+                countSpacesAsChars: true,
             },
             autoGrow_maxHeight: 0,
             toolbar: []
         });
-        CKEDITOR.config.wordCount = {
-            showWordCount: true,
-            showParagraphs: false,
-            showCharCount: true,
-        }
         editor = CKEDITOR.instances[editorId];
         editor.on('change', function (e) {
             RichTextEditor.sendInputEventToEditor(editorId, e);
