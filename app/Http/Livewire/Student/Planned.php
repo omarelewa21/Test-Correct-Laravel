@@ -16,10 +16,6 @@ class Planned extends Component
 
     private $testTakes;
 
-    protected $queryString = [
-    'page' => ['except' => '', 'as' => 'page']
-    ];
-
     protected function getListeners()
     {
         return [
