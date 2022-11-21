@@ -6166,16 +6166,16 @@ video {
 .h-\[333px\]{
   height: 333px;
 }
+.h-\[300px\]{
+  height: 300px;
+}
+.h-\[var\(--header-height\)\]{
+  height: var(--header-height);
+}
 .h-fit{
   height: -webkit-fit-content;
   height: -moz-fit-content;
   height: fit-content;
-}
-.h-\[300px\]{
-  height: 300px;
-}
-.h-\[85px\]{
-  height: 85px;
 }
 .h-screen{
   height: 100vh;
@@ -7325,10 +7325,6 @@ video {
 }
 .stroke-current{
   stroke: currentColor;
-}
-.object-contain{
-  -o-object-fit: contain;
-     object-fit: contain;
 }
 .object-cover{
   -o-object-fit: cover;

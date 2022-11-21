@@ -22,33 +22,39 @@
                 </div>
             @else
                 <div class="w-full">
-                    @switch($this->answerRating->answer->question->type)
-                        @case('CompletionQuestion')
-                            <livewire:co-learning.completion-question
-                                    :answerRatingId="$this->answerRating->getKey()"
-                                    :questionNumber="$questionFollowUpNumber"
-                                    :answerNumber="$answerFollowUpNumber"
-                                    :wire:key="'ar-'. $this->answerRating->getKey()"
+                    <livewire:is :component="$this->questionComponentName"
+                            :answerRatingId="$this->answerRating->getKey()"
+                            :questionNumber="$questionFollowUpNumber"
+                            :answerNumber="$answerFollowUpNumber"
+                            :wire:key="'ar-'. $this->answerRating->getKey()"
                             />
-                            @break
-                        @case('DrawingQuestion')
-                            <livewire:co-learning.drawing-question
-                                    :answerRatingId="$this->answerRating->getKey()"
-                                    :questionNumber="$questionFollowUpNumber"
-                                    :answerNumber="$answerFollowUpNumber"
-                                    :wire:key="'ar-'. $this->answerRating->getKey()"
-                            />
-                            @break
-                        @case('OpenQuestion')
-                            <livewire:co-learning.open-question
-                                    :answerRatingId="$this->answerRating->getKey()"
-                                    :questionNumber="$questionFollowUpNumber"
-                                    :answerNumber="$answerFollowUpNumber"
-                                    :wire:key="'ar-'. $this->answerRating->getKey()"
-                            />
-                            @break
-                        @default
-                    @endswitch
+{{--                    @switch($this->answerRating->answer->question->type)--}}
+{{--                        @case('CompletionQuestion')--}}
+{{--                            <livewire:co-learning.completion-question--}}
+{{--                                    :answerRatingId="$this->answerRating->getKey()"--}}
+{{--                                    :questionNumber="$questionFollowUpNumber"--}}
+{{--                                    :answerNumber="$answerFollowUpNumber"--}}
+{{--                                    :wire:key="'ar-'. $this->answerRating->getKey()"--}}
+{{--                            />--}}
+{{--                            @break--}}
+{{--                        @case('DrawingQuestion')--}}
+{{--                            <livewire:co-learning.drawing-question--}}
+{{--                                    :answerRatingId="$this->answerRating->getKey()"--}}
+{{--                                    :questionNumber="$questionFollowUpNumber"--}}
+{{--                                    :answerNumber="$answerFollowUpNumber"--}}
+{{--                                    :wire:key="'ar-'. $this->answerRating->getKey()"--}}
+{{--                            />--}}
+{{--                            @break--}}
+{{--                        @case('OpenQuestion')--}}
+{{--                            <livewire:co-learning.open-question--}}
+{{--                                    :answerRatingId="$this->answerRating->getKey()"--}}
+{{--                                    :questionNumber="$questionFollowUpNumber"--}}
+{{--                                    :answerNumber="$answerFollowUpNumber"--}}
+{{--                                    :wire:key="'ar-'. $this->answerRating->getKey()"--}}
+{{--                            />--}}
+{{--                            @break--}}
+{{--                        @default--}}
+{{--                    @endswitch--}}
                 </div>
             @endif
         </div>
@@ -56,7 +62,7 @@
     <x-slot name="testName">{{ $testTake->test->name }}</x-slot>
 
     @if(!$coLearningFinished && $waitForTeacherNotificationEnabled)
-        <div class="fixed  right-1/2 translate-x-1/2 top-[93px] px-2 shadow border informational rounded leading-7 bold flex items-center">
+        <div class="fixed min-w-max right-1/2 translate-x-1/2 top-[93px] px-2 shadow border informational rounded leading-7 bold flex items-center">
             <x-icon.time-dispensation/>
             <span class="ml-2">{{ __('co-learning.wait_for_teacher') }}</span>
         </div>

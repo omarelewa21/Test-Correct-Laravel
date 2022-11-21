@@ -386,4 +386,9 @@ class CoLearning extends Component
     {
         return $this->testParticipant->setAttribute('heartbeat_at', Carbon::now())->save();
     }
+
+    public function getQuestionComponentNameProperty(): string
+    {
+        return str($this->answerRating->answer->question->type)->kebab()->prepend('co-learning.')->value;
+    }
 }

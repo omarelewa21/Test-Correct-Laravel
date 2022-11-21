@@ -17,7 +17,7 @@
 
 <div wire:ignore
      x-data="{
-        score: @js($score ?? 0),
+        score: @js($score ?? null),
         modelName: '{{$modelName}}',
         maxScore: {{ $maxScore }},
         timeOut: null,
@@ -91,7 +91,7 @@
             </div>
             <div class="w-full absolute top-0 left-0  flex items-center h-full">
                 <input type="range" min="0" max="{{$maxScore}}" :step="allowHalfPoints ? 0.5 : 1"
-                       class="score-slider-input w-full" value="null" x-model="score"
+                       class="score-slider-input w-full" x-model="score"
                                                :class="{'hide-thumb': score === null}"
                 >
             </div>
