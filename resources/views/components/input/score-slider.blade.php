@@ -22,10 +22,12 @@
         maxScore: {{ $maxScore }},
         timeOut: null,
         allowHalfPoints: @js($allowHalfPoints),
-        disabled: @js($disabled)
+        disabled: @js($disabled),
+        skipSync: false
         }"
-     x-init="$watch('score', (value) => {
-           if(disabled){
+     x-init="$watch('score', (value, oldValue) => {
+           if(disabled || value === oldValue || skipSync){
+                skipSync = false;
                return;
            }
 
@@ -47,7 +49,7 @@
         });
 
         "
-     x-on:updated-score.window="score = $event.detail.score"
+     x-on:updated-score.window="skipSync = true; score = $event.detail.score"
         {{ $attributes->except('wire:model')->merge(['class'=>'flex w-fit justify-between items-center space-x-4 relative '.($disabled ? 'opacity-50': '')]) }}
 >
 

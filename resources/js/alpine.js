@@ -1069,10 +1069,12 @@ document.addEventListener('alpine:init', () => {
             handle: null,
             init(){
                 this.handle = this.$el.querySelector('.slider-button-handle');
+                console.log([this.value ]);
                 if(this.value === null){
                     return;
                 }
                 this.$el.querySelector('.group').firstElementChild.classList.add('text-primary');
+
                 if(this.value !== '' && Object.keys(this.sources).includes(String(this.value))){
                     this.activateButton(this.$el.querySelector('[data-id=\'' + this.value + '\']').parentElement);
                 } else {

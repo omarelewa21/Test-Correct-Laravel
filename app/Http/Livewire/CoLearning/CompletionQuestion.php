@@ -38,7 +38,7 @@ class CompletionQuestion extends CoLearningQuestion
 
         $this->writeAnswerOptionsToSession();
 
-        $this->emit('UpdateAnswerRating', $this->answerOptionsScore, $this->answerOptionsAmount);
+        $this->emit('UpdateAnswerRating', $this->answerOptions[$this->answerRatingId]['counts']);
     }
 
     public function isQuestionFullyAnswered(): bool
@@ -89,16 +89,15 @@ class CompletionQuestion extends CoLearningQuestion
 
         $this->getAnswerOptionsFromSession();
 
+        if ($this->answerOptionsFromSessionAreOk()) {
+            return;
+        }
+
         for ($index = 0; $index < $this->answerOptionsAmount; $index++) {
-            if (isset($this->answerOptions[$this->answerRatingId]['answerOptions']) &&
-                collect($this->answerOptions[$this->answerRatingId]['answerOptions'])->count() === $this->answerOptionsAmount
-            ) {
-                break;
-            }
             $this->answerOptions[$this->answerRatingId]['answerOptions'][] = [
                 'rating'   => null,
                 'answered' => isset($this->answer[$index]),
-                'answer'   => $this->answer[$index] ?? null, //todo replace ... with null and placeholder to bladefile.
+                'answer'   => $this->answer[$index] ?? null,
             ];
         }
         $this->writeAnswerOptionsToSession();
@@ -168,5 +167,14 @@ class CompletionQuestion extends CoLearningQuestion
 
                 return $stringPartialsArray;
             });
+    }
+
+    /**
+     * @return bool
+     */
+    private function answerOptionsFromSessionAreOk(): bool
+    {
+        return isset($this->answerOptions[$this->answerRatingId]['answerOptions']) &&
+            collect($this->answerOptions[$this->answerRatingId]['answerOptions'])->count() === $this->answerOptionsAmount;
     }
 }
