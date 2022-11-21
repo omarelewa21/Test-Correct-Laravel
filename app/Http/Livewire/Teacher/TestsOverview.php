@@ -14,7 +14,6 @@ use tcCore\TestTake;
 use tcCore\TemporaryLogin;
 use tcCore\TestAuthor;
 use tcCore\Traits\ContentSourceTabsTrait;
-use Illuminate\Pagination\Paginator;
 
 class TestsOverview extends Component
 {
