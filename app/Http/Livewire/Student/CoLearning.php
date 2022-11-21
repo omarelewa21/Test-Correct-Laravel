@@ -50,6 +50,7 @@ class CoLearning extends Component
     public int $numberOfAnswers;
     public int $answerFollowUpNumber = 0;
     public $testParticipant;
+    public $answerOptions;
 
     protected function getListeners()
     {
@@ -70,12 +71,13 @@ class CoLearning extends Component
         $this->testParticipant = $this->testTake->testParticipants()
             ->where('user_id', auth()->id())
             ->first();
-        $this->discussOpenQuestionsOnly = $this->testTake->discussion_type === 'OPEN_ONLY' ? true : false;
+        $this->discussOpenQuestionsOnly = $this->testTake->discussion_type === 'OPEN_ONLY';
 
         if (!$this->coLearningFinished) {
             $this->getAnswerRatings();
             $this->setQuestionRatingProperties();
         }
+        $this->updateHeartbeat(false);
     }
 
     public function render()
@@ -101,15 +103,15 @@ class CoLearning extends Component
             case 'CompletionQuestion':
                 $data = $this->getAnswerOptionsFromSession();
                 if ($data && isset($data['counts'])) {
-                    $statement1 = (isset($this->rating) && !is_null($this->rating));
+                    $statement1 = isset($this->rating);
 
                     $statement2 = $data['counts']['amountCheckable'] === $data['counts']['amountChecked'];
 
-                    return $statement1 && $statement2;
+                    return ($statement1 && $statement2) || isset($data['scoreManuallyChanged']);
                 }
 
             default:
-                return (isset($this->rating) && !is_null($this->rating));
+                return isset($this->rating);
         }
     }
 
@@ -170,12 +172,12 @@ class CoLearning extends Component
     /**
      * Update Rating from emit of child livewire Question component
      */
-    public function updateAnswerRating(int $score, int $maxScore): void
+    public function updateAnswerRating($answerOptions): void
     {
         if ($this->allowRatingWithHalfPoints) {
-            $this->rating = $this->maxRating / $maxScore * $score;
+            $this->rating = $this->maxRating / $answerOptions['maxScore'] * $answerOptions['score'];
         } else {
-            $this->rating = round($this->maxRating / $maxScore * $score);
+            $this->rating = round($this->maxRating / $answerOptions['maxScore'] * $answerOptions['score']);
         }
 
         $this->handleUpdatingRating();
@@ -270,8 +272,6 @@ class CoLearning extends Component
             $this->setActiveAnswerRating($navigateDirection);
             $this->setWhichScoreSliderShouldBeShown();
 
-            $this->setScoreHasBeenManuallyChanged();
-
             if ($this->answerRating->rating === null) {
                 $this->rating = null;
             } else {
@@ -365,8 +365,8 @@ class CoLearning extends Component
     {
         if (session()->has(static::SESSION_KEY)) {
             if (isset(session()->get(static::SESSION_KEY)[$this->answerRatingId])) {
-                $sessionData = session()->get(static::SESSION_KEY)[$this->answerRatingId];
-                $sessionData['scoreManuallyChanged'] = true;
+                $sessionData = session()->get(static::SESSION_KEY);
+                $sessionData[$this->answerRatingId]['scoreManuallyChanged'] = true;
 
                 session([static::SESSION_KEY => $sessionData]);
                 return true;
@@ -375,15 +375,12 @@ class CoLearning extends Component
         return false;
     }
 
-    private function setScoreHasBeenManuallyChanged(): void
+    public function updateHeartbeat($skipRender = true)
     {
-        $data = $this->getAnswerOptionsFromSession();
+        if ($skipRender) {
+            $this->skipRender();
+        }
 
-        $this->scoreHasBeenManuallyChanged = isset($data['scoreManuallyChanged']) ? true : false;
-    }
-
-    public function updateHeartbeat()
-    {
         return $this->testParticipant->setAttribute('heartbeat_at', Carbon::now())->save();
     }
 
