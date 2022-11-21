@@ -6,11 +6,13 @@ use Bugsnag\BugsnagLaravel\Facades\Bugsnag;
 use Illuminate\Support\Facades\Storage;
 use Livewire\Component;
 use tcCore\AnswerRating;
+use tcCore\Http\Helpers\SvgHelper;
 use tcCore\Question;
 
 class DrawingQuestion extends CoLearningQuestion
 {
     public $imgSrc = '';
+    public $imageDimensions = ['width' => null, 'height' => null];
 
     public function render()
     {
@@ -23,42 +25,35 @@ class DrawingQuestion extends CoLearningQuestion
 
     protected function handleGetAnswerData()
     {
-        if ($this->answerRating->answer->json) {
-            $this->answer = json_decode($this->answerRating->answer->json)->answer;
-            $this->additionalText = json_decode($this->answerRating->answer->json)->additional_text;
+        $answer = $this->answerRating->answer;
+        if ($answer->json) {
+            $this->answer = json_decode($answer->json)->answer;
+            $this->additionalText = json_decode($answer->json)->additional_text;
         }
-        if(!$this->answered){
+        if (!$this->answered) {
             return;
         }
-        try {
-            if($this->handleDrawingQuestionWithPngExtension($this->answerRating->answer)){
-                return true;
-            }
-            $this->handleDrawingQuestionWithoutPngExtension($this->answerRating->answer);
-        }catch (\Exception $e){
-            Bugsnag::notifyException($e);
-            $this->imgSrc = '';
-        }
+
+        $this->setImageDimensions($answer);
+        $this->imgSrc = route('student.drawing-question-answer', $answer->uuid);
     }
 
-    private function handleDrawingQuestionWithPngExtension($answer) // new Drawing question
+    private function setImageDimensions($answer)
     {
-        try {
-            $png = Storage::get($answer->getDrawingStoragePathPng());
-            $this->imgSrc = "data:image/png;base64," . base64_encode($png);
-            return true;
-        } catch (\Exception $exception) {
-            return false;
+        if ($this->question->isOldDrawingQuestion()) {
+            return;
         }
+
+        $this->imageDimensions = $answer->getViewBoxDimensionsFromSvg();
     }
 
-    private function handleDrawingQuestionWithoutPngExtension($answer) // old Drawing question
+    public function imageWidth(): string
     {
-        $file = Storage::get($answer->getDrawingStoragePath());
-        if (substr($file, 0, 4) === '<svg') {
-            throw new \Exception(sprintf('answer of old drawing question with id:%d has svg as drawingStoragePath',$answer->getKey()));
-        } else {
-            $this->imgSrc = "data:image/png;base64," . base64_encode(file_get_contents($file));
-        }
+        return $this->imageDimensions['width'] ? $this->imageDimensions['width'].'px' : '100%';
+    }
+
+    public function imageHeight(): string
+    {
+        return ($this->imageDimensions['height'] ?: '500') . 'px';
     }
 }
