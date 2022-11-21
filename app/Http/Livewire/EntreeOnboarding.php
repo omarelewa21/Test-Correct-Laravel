@@ -23,6 +23,7 @@ use tcCore\Http\Requests\Request;
 use tcCore\Jobs\SendOnboardingWelcomeMail;
 use tcCore\Lib\Repositories\SchoolYearRepository;
 use tcCore\Lib\User\Factory;
+use tcCore\Mail\TeacherRegisteredEntree;
 use tcCore\SamlMessage;
 use tcCore\School;
 use tcCore\SchoolClass;
@@ -35,7 +36,7 @@ use tcCore\Teacher;
 use tcCore\TemporaryLogin;
 use tcCore\User;
 
-class EntreeOnboarding extends Onboarding
+class   EntreeOnboarding extends Onboarding
 {
     public $saml_id;
     public $registration;
@@ -369,6 +370,7 @@ class EntreeOnboarding extends Onboarding
 
                 try {
                     Mail::to($this->registration->username)->queue(new SendOnboardingWelcomeMail($user,'',$this->hasFixedEmail));
+                    Mail::to('support@test-correct.nl')->queue(new TeacherRegisteredEntree($user));
                 } catch (\Throwable $th) {
                     Bugsnag::notifyException($th);
                 }
