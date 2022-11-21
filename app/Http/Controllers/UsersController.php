@@ -351,7 +351,7 @@ class UsersController extends Controller
 
         if ($request->has('password')) {
             Log::stack(['loki'])->info("updateStudent@UsersController.php password reset");
-            $user->setAttribute('password', \Hash::make($request->get('password')));
+            $user->setAttribute('password', $request->get('password'));
             $this->sendPasswordChangedMail($user);
         }
 
@@ -376,7 +376,7 @@ class UsersController extends Controller
 
         if ($request->filled('password')) {
             Log::stack(['loki'])->info("updatePasswordForUser@UsersController.php password reset");
-            $user->setAttribute('password', \Hash::make($request->get('password')));
+            $user->setAttribute('password', $request->get('password'));
             $this->sendPasswordChangedMail($user);
         }
 
@@ -405,7 +405,7 @@ class UsersController extends Controller
 
         if ($request->filled('password')) {
             Log::stack(['loki'])->info("update@UsersController.php password reset");
-            $user->setAttribute('password', \Hash::make($request->get('password')));
+            $user->setAttribute('password', $request->get('password'));
             $this->sendPasswordChangedMail($user);
         }
 
