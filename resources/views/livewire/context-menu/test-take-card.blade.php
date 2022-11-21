@@ -12,7 +12,7 @@
             </x-menu.context-menu.button>
             <x-menu.context-menu.button wire:click="updateStatusToTaken">
                 <x-slot name="icon"><x-icon.archive/></x-slot>
-                <x-slot name="text">{{ __('test-take.Change to taken') }}</x-slot>
+                <x-slot name="text">{{ __('test-take.Teurg naar afgenomen') }}</x-slot>
             </x-menu.context-menu.button>
         @endif
         @if($this->hasSkipDiscussing())
