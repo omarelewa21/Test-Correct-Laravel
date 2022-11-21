@@ -44,10 +44,20 @@
     </div>
 @endforeach
 <div class="flex-1 gap-4 flex flex-col">
-    <div class="flex flex-col" wire:ignore>
+    <div class="flex flex-col" wire:ignore x-data="{
+        active:false,
+         async init() {
+           let ready = await $wire.getFirstActiveForGeneralGraphTaxonomy();
+                if (ready !== false) {
+                  $dispatch('active-changed', { id: ready })
+                }
+            }
+         }"
+    >
         @foreach($this->taxonomies as $key=> $taxonomy)
             <div
                     x-data="expandableGraphForGeneral({{ $key }}, '{{ $this->taxonomyIdentifier}}', '{{ $taxonomy['name'] }}')"
+                    x-on:active-changed.window="if (id === $event.detail.id)  { expanded = true}"
                     x-on:click="expanded = !expanded"
                     class="cursor-pointer ml-10"
             >
@@ -56,12 +66,13 @@
                             </span>
                 <span>{{ __('student.Taxonomy') }} {{ $taxonomy['name'] }} {{__('student.Methode') }}</span>
                 <div x-show="expanded">
-                    <div wire:loading wire:target="getDataForGeneralGraph('{{ $this->taxonomyIdentifier }}', '{{ $taxonomy['name'] }}')">
+                    <div wire:loading
+                         wire:target="getDataForGeneralGraph('{{ $this->taxonomyIdentifier }}', '{{ $taxonomy['name'] }}')">
                         loading
                     </div>
                     <div :id="containerId" style="height: {{ $taxonomy['height'] }}">
                         <div x-show="showEmptyState" class="relative">
-                        <x-empty-taxonomy-graph></x-empty-taxonomy-fgraph>
+                            <x-empty-taxonomy-graph></x-empty-taxonomy-graph>
                         </div>
                     </div>
                 </div>

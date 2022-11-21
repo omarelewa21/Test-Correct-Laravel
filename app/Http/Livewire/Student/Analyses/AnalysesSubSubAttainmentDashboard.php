@@ -211,4 +211,15 @@ class AnalysesSubSubAttainmentDashboard extends Component
     {
         return User::whereIn('id', $this->filters['teachers'])->get('id');
     }
+
+    public function getFirstActiveForGeneralGraphTaxonomy()
+    {
+        foreach($this->taxonomies as $key => $taxonomy ) {
+            $data = $this->getDataForGeneralGraph($this->taxonomyIdentifier, $taxonomy['name']);
+            if (!$data[0]) {
+                return  $key;
+            }
+        }
+        return false;
+    }
 }
