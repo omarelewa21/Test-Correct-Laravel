@@ -11,8 +11,8 @@
                 <x-slot name="text">{{ __('test-take.Antwoord PDF') }}</x-slot>
             </x-menu.context-menu.button>
             <x-menu.context-menu.button wire:click="updateStatusToTaken">
-                <x-slot name="icon"><x-icon.archive/></x-slot>
-                <x-slot name="text">{{ __('test-take.Teurg naar afgenomen') }}</x-slot>
+                <x-slot name="icon"><x-icon.arrow/></x-slot>
+                <x-slot name="text">{{ __('test-take.Terug naar afgenomen') }}</x-slot>
             </x-menu.context-menu.button>
         @endif
         @if($this->hasSkipDiscussing())
