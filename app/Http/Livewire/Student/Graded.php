@@ -15,6 +15,7 @@ class Graded extends Component
     use WithPagination, WithStudentTestTakes, WithSorting;
 
     public $readyToLoad;
+    
     protected function getListeners()
     {
         return [

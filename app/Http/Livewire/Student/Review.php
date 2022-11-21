@@ -19,7 +19,6 @@ class Review extends Component
     public $readyToLoad;
     public $paginateBy = 10;
 
-
     protected function getListeners()
     {
         return [
