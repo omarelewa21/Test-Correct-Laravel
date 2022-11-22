@@ -263,9 +263,7 @@ class DemoHelper
     protected function notInTemporaryTeacherSchoolLocation(SchoolLocation $schoolLocation)
     {
         // only create demo environment if teacher is in temporary teacher school location
-        if (!SchoolHelper::isTempTeachersSchoolLocation($schoolLocation)) {
-            return;
-        }
+        return !SchoolHelper::isTempTeachersSchoolLocation($schoolLocation);
     }
 
     protected function createDemoPartsForSchool(SchoolLocation $schoolLocation)
