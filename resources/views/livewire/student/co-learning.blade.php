@@ -15,7 +15,7 @@
                 <div class="w-full">
                     <livewire:co-learning.info-screen-question
                             :question="$this->testTake->discussingQuestion"
-                            :questionNumber="$questionFollowUpNumber"
+                            :questionNumber="$questionOrderNumber"
                             :answerNumber="$answerFollowUpNumber"
                             wire:key="q-{{$testTake->discussingQuestion->uuid}}"
                     />
@@ -24,7 +24,7 @@
                 <div class="w-full">
                     <livewire:is :component="$this->questionComponentName"
                             :answerRatingId="$this->answerRating->getKey()"
-                            :questionNumber="$questionFollowUpNumber"
+                            :questionNumber="$questionOrderNumber"
                             :answerNumber="$answerFollowUpNumber"
                             :wire:key="'ar-'. $this->answerRating->getKey()"
                             />
