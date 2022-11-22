@@ -1,9 +1,21 @@
 .score-slider-input {
     -webkit-appearance: none;
     width: 100%;
-    height: 25px;
+    height: 32px;
     background-color: #ffffff00;
     cursor: pointer;
+}
+
+.score-slider-input::-webkit-slider-runnable-track {
+    background: transparent;
+    color: transparent;
+}
+
+.score-slider-input::-moz-range-track {
+    background: transparent;
+    color: transparent;
+    width: 100%;
+    height: 32px;
 }
 
 .score-slider-input::-webkit-slider-thumb {
@@ -13,8 +25,60 @@
     height: 1.5rem;
     border-radius: 9999px;
     border: 0.125rem solid #4781FF;
-    background: rgba(71,129,255,0.5);
+    background: rgba(71, 129, 255, 0.5);
     cursor: pointer;
+    pointer-events: all;
+}
+
+.score-slider-input::-moz-range-thumb {
+    visibility: initial;
+    width: 1.5rem;
+    height: 1.5rem;
+    border-radius: 9999px;
+    border: 0.125rem solid #4781FF;
+    background: rgba(71, 129, 255, 0.5);
+    cursor: pointer;
+    pointer-events: all;
+}
+
+.score-slider-input::-ms-thumb {
+    visibility: initial;
+    width: 1.5rem;
+    height: 1.5rem;
+    border-radius: 9999px;
+    border: 0.125rem solid #4781FF;
+    background: rgba(71, 129, 255, 0.5);
+    cursor: pointer;
+    pointer-events: all;
+}
+
+.score-slider-input:focus::-ms-thumb {
+    width: 2rem;
+    height: 2rem;
+}
+
+.score-slider-input:focus::-moz-range-thumb {
+    width: 2rem;
+    height: 2rem;
+}
+
+.score-slider-input:focus::-webkit-slider-thumb {
+    width: 2rem;
+    height: 2rem;
+}
+
+.score-slider-input.hide-thumb::-ms-thumb {
+    visibility: hidden;
+    border: 1px solid #ffffff00;
+    background-color: #ffffff00;
+    pointer-events: none;
+}
+
+.score-slider-input.hide-thumb::-moz-range-thumb {
+    visibility: hidden;
+    border: 1px solid #ffffff00;
+    background-color: #ffffff00;
+    pointer-events: none;
 }
 
 .score-slider-input.hide-thumb::-webkit-slider-thumb {
@@ -24,20 +88,20 @@
     pointer-events: none;
 }
 
-
-.score-slider-input::-moz-range-thumb {
-    width: 1.5rem;
-    height: 1.5rem;
-    border-radius: 9999px;
-    border: 0.125rem solid #4781FF;
-    background: rgba(71,129,255,0.5);
+/* ms */
+.score-slider-input::-ms-track {
+    width: 100%;
+    height: 32px;
     cursor: pointer;
-    visibility: initial;
-    pointer-events: all;
+    background: transparent;
+    border-color: transparent;
+    color: transparent;
 }
 
-.score-slider-input.hide-thumb::-moz-range-thumb {
-    visibility: hidden;
-    display: none;
-    pointer-events: none;
+.score-slider-input::-ms-fill-lower {
+    background: transparent;
+}
+
+.score-slider-input::-ms-fill-upper {
+    background: transparent;
 }
