@@ -26,9 +26,10 @@
        }
 @endphp
 
-<div class="ckeditor-error rounded-10 @error($attributes->wire('model')->value) border border-allred @enderror" selid="ckeditor">
+<div class="ckeditor-error rounded-10 @error($attributes->wire('model')->value) border border-allred @enderror">
     <div wire:ignore>
         <textarea
+            selid="ckeditor"
             {{ $attributes->merge(['class' => 'form-input resize-none']) }}
             x-data="{}" x-init="{{ $initFunctionCall }}"
             id="{{ $editorId }}"
