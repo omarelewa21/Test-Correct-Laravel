@@ -4798,7 +4798,8 @@ input.datepicker {
     top: -50px;
     background-color: var(--light-grey);
 }
-.score-slider-input {
+/* general score slider input css */
+.score-slider-container .score-slider-input {
     -webkit-appearance: none;
     width: 100%;
     height: 32px;
@@ -4806,19 +4807,43 @@ input.datepicker {
     cursor: pointer;
 }
 
-.score-slider-input::-webkit-slider-runnable-track {
-    background: transparent;
+/* score slider track */
+.score-slider-container .score-slider-input::-webkit-slider-runnable-track {
+    background-color: transparent;
     color: transparent;
 }
 
-.score-slider-input::-moz-range-track {
-    background: transparent;
+.score-slider-container .score-slider-input::-moz-range-track {
+    background-color: transparent;
     color: transparent;
     width: 100%;
     height: 32px;
 }
+.score-slider-container .score-slider-input::-moz-range-progress {
+    background-color: transparent;
+    color: transparent;
+}
 
-.score-slider-input::-webkit-slider-thumb {
+
+.score-slider-container .score-slider-input::-ms-track {
+    width: 100%;
+    height: 32px;
+    cursor: pointer;
+    background: transparent;
+    border-color: transparent;
+    color: transparent;
+}
+
+.score-slider-container .score-slider-input::-ms-fill-lower {
+    background: transparent;
+}
+
+.score-slider-container .score-slider-input::-ms-fill-upper {
+    background: transparent;
+}
+
+/* score slider thumb*/
+.score-slider-container .score-slider-input::-webkit-slider-thumb {
     -webkit-appearance: none;
     appearance: none;
     width: 1.5rem;
@@ -4830,7 +4855,7 @@ input.datepicker {
     pointer-events: all;
 }
 
-.score-slider-input::-moz-range-thumb {
+.score-slider-container .score-slider-input::-moz-range-thumb {
     visibility: initial;
     width: 1.5rem;
     height: 1.5rem;
@@ -4841,7 +4866,7 @@ input.datepicker {
     pointer-events: all;
 }
 
-.score-slider-input::-ms-thumb {
+.score-slider-container .score-slider-input::-ms-thumb {
     visibility: initial;
     width: 1.5rem;
     height: 1.5rem;
@@ -4852,59 +4877,54 @@ input.datepicker {
     pointer-events: all;
 }
 
-.score-slider-input:focus::-ms-thumb {
+/* focus score slider thumb */
+.score-slider-container .score-slider-input:focus::-ms-thumb {
     width: 2rem;
     height: 2rem;
 }
 
-.score-slider-input:focus::-moz-range-thumb {
+.score-slider-container .score-slider-input:focus::-moz-range-thumb {
     width: 2rem;
     height: 2rem;
 }
 
-.score-slider-input:focus::-webkit-slider-thumb {
+.score-slider-container .score-slider-input:focus::-webkit-slider-thumb {
     width: 2rem;
     height: 2rem;
 }
+/* hover score slider thumb */
+.score-slider-container .score-slider-input:hover::-moz-range-thumb {
+    background: rgba(71, 129, 255, 0.5);
+}
+.score-slider-container .score-slider-input:hover::-webkit-slider-thumb {
+    background: rgba(71, 129, 255, 0.5);
+}
+.score-slider-container .score-slider-input:hover::-ms-thumb {
+    background: rgba(71, 129, 255, 0.5);
+}
 
-.score-slider-input.hide-thumb::-ms-thumb {
+/* score slider hidden thumb */
+.score-slider-container .score-slider-input.hide-thumb::-ms-thumb {
     visibility: hidden;
     border: 1px solid #ffffff00;
     background-color: #ffffff00;
     pointer-events: none;
 }
 
-.score-slider-input.hide-thumb::-moz-range-thumb {
+.score-slider-container .score-slider-input.hide-thumb::-moz-range-thumb {
     visibility: hidden;
     border: 1px solid #ffffff00;
     background-color: #ffffff00;
     pointer-events: none;
 }
 
-.score-slider-input.hide-thumb::-webkit-slider-thumb {
+.score-slider-container .score-slider-input.hide-thumb::-webkit-slider-thumb {
     visibility: hidden;
     border: 1px solid #ffffff00;
     background-color: #ffffff00;
     pointer-events: none;
 }
 
-/* ms */
-.score-slider-input::-ms-track {
-    width: 100%;
-    height: 32px;
-    cursor: pointer;
-    background: transparent;
-    border-color: transparent;
-    color: transparent;
-}
-
-.score-slider-input::-ms-fill-lower {
-    background: transparent;
-}
-
-.score-slider-input::-ms-fill-upper {
-    background: transparent;
-}
 #co-learning-page .cke .cke_top,
 #co-learning-page .cke .cke_bottom {
     display: none !important;
