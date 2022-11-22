@@ -14,9 +14,9 @@ class TeacherRegisteredEntree extends Mailable
 {
     use Queueable, SerializesModels;
 
-    public object $user;
+    public User $user;
 
-    public object $school;
+    public object $schoolLocation;
 
     public object $subjects;
 
@@ -25,11 +25,9 @@ class TeacherRegisteredEntree extends Mailable
      *
      * @return void
      */
-    public function __construct(User $user)
+    public function __construct($userId)
     {
-        $this->user = $user;
-        $this->subjects = $this->user->subjects()->get();
-        $this->school = $this->user->schoolLocation()->get()->first()->school()->get()->first();
+        $this->user = User::find($userId);
     }
 
     /**
@@ -39,6 +37,8 @@ class TeacherRegisteredEntree extends Mailable
      */
     public function build()
     {
+        $this->subjects = $this->user->subjects()->get();
+        $this->schoolLocation = $this->user->schoolLocation()->get()->first();
         return $this->view('emails.teacher_registered_entree');//->from($this->demo->username);
     }
 }

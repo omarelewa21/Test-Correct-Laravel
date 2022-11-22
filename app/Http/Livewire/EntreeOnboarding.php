@@ -370,7 +370,7 @@ class   EntreeOnboarding extends Onboarding
 
                 try {
                     Mail::to($this->registration->username)->queue(new SendOnboardingWelcomeMail($user,'',$this->hasFixedEmail));
-                    Mail::to('support@test-correct.nl')->queue(new TeacherRegisteredEntree($user));
+                    Mail::to(config('mail.from')['address'])->queue(new TeacherRegisteredEntree($user->getKey()));
                 } catch (\Throwable $th) {
                     Bugsnag::notifyException($th);
                 }

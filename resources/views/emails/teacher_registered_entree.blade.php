@@ -10,7 +10,7 @@
             <table>
                 <tr>
                     <td>{{ __("teacher_registered_entree.School naam") }}</td>
-                    <td>{{ $school->name }}</td>
+                    <td>{{ $schoolLocation->name }}</td>
                 </tr>
                 <tr>
                     <td>{{ __("teacher_registered_entree.Aanhef") }}</td>
