@@ -25,6 +25,7 @@
             <div class="menu-item {{ $menuData->hasItems ? 'has-items' : '' }}"
                  data-menu="{{ $menuName }}"
                  {{ $this->getMenuAction($menuData) }}
+                 selid="{{$menuName}}-menu-btn"
             >
                 {{ $menuData->title }}
             </div>
@@ -40,7 +41,7 @@
         @foreach($tileGroups as $groupName => $group)
             <div class="tile-group {{ $groupName }}">
                 @foreach($group as $tileName => $tileData)
-                    <div class="tile-item {{ $tileName }}" {{ $this->getMenuAction($tileData) }}>
+                    <div class="tile-item {{ $tileName }}" selid="{{$tileName}}-menu-sub-btn" {{ $this->getMenuAction($tileData) }}>
                         {{ $tileData->title }}
                     </div>
                 @endforeach
