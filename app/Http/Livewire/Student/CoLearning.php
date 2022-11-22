@@ -48,10 +48,14 @@ class CoLearning extends Component
         'coLearningFinished' => ['except' => false, 'as' => 'b']
     ];
 
+    public array $questionOrderList;
+
     public int $numberOfQuestions;
-    public int $questionFollowUpNumber = 0;
+    public int $questionFollowUpNumber = 0; //with or without Closed questions
+    public int $questionOrderNumber; //with all questions
     public int $numberOfAnswers;
     public int $answerFollowUpNumber = 0;
+
     public $testParticipant;
     public $answerOptions;
 
@@ -68,6 +72,7 @@ class CoLearning extends Component
     public function mount(TestTake $test_take)
     {
         $this->testTake = $test_take;
+        $this->questionOrderList = $this->testTake->test->getQuestionOrderList();
 
         $this->redirectIfNotStatusDiscussing();
 
@@ -219,8 +224,11 @@ class CoLearning extends Component
 
     private function getQuestionAndAnswerNavigationData(): void
     {
+
         $testTakeQuestionsCollection = TestTakeLaravelController::getData(null, $this->testTake);
         $currentQuestionId = $this->testTake->discussingQuestion->getKey();
+
+        $this->questionOrderNumber = $this->questionOrderList[$currentQuestionId];
 
         $this->numberOfQuestions = $testTakeQuestionsCollection->reduce(function ($carry, $question) use ($currentQuestionId) {
             if ($this->discussOpenQuestionsOnly && $question->canCheckAnswer()) { //question canCheckAnswer === 'Closed question'

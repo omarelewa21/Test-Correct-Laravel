@@ -1069,7 +1069,6 @@ document.addEventListener('alpine:init', () => {
             handle: null,
             init(){
                 this.handle = this.$el.querySelector('.slider-button-handle');
-                console.log([this.value ]);
                 if(this.value === null){
                     return;
                 }
