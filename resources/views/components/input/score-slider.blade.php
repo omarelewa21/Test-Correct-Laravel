@@ -50,7 +50,7 @@
 
         "
      x-on:updated-score.window="skipSync = true; score = $event.detail.score"
-        {{ $attributes->except('wire:model')->merge(['class'=>'flex w-fit justify-between items-center space-x-4 relative '.($disabled ? 'opacity-50': '')]) }}
+        {{ $attributes->except('wire:model')->merge(['class'=>'flex score-slider-container w-fit justify-between items-center space-x-4 relative '.($disabled ? 'opacity-50': '')]) }}
 >
 
     <span class="bold mb-1">{{ __('Score') }}</span>
