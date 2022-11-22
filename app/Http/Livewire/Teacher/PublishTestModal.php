@@ -10,6 +10,7 @@ class PublishTestModal extends ModalComponent
 {
     public $testUuid;
     public $showInfo;
+    public $knowledgebankUrl = 'https://support.test-correct.nl/knowledge/publiceren';
 
     public function mount($testUuid)
     {

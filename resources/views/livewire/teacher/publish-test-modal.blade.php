@@ -10,10 +10,10 @@
                         <x-button.text-button class="text-base"
                                               size="xs"
                                               type="link"
-                                              href="https://support.test-correct.nl/knowledge"
+                                              href="{{ $knowledgebankUrl }}"
                                               target="_blank"
                         >
-                            <span>Lees meer</span>
+                            <span>{{ __('general.Lees meer') }}</span>
                             <x-icon.arrow-small/>
                         </x-button.text-button>
                     </div>
@@ -28,13 +28,13 @@
                 <div class="title">{{ __('test.publish_test_explanation_title') }}</div>
                 <div class="body">
                     <span>{{ __('test.publish_test_explanation') }}</span>
-                    <x-button.text-button class="text-sm primary hover:text-sysbase"
+                    <x-button.text-button class="text-sm primary hover:underline"
                                           size="xs"
                                           type="link"
-                                          href="https://support.test-correct.nl/knowledge"
+                                          href="{{ $knowledgebankUrl }}"
                                           target="_blank"
                     >
-                        <span>Lees meer</span>
+                        <span>{{ __('general.Lees meer') }}</span>
                         <x-icon.arrow-small/>
                     </x-button.text-button>
                 </div>

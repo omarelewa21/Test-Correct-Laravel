@@ -11,7 +11,7 @@
                       max="9" maxlength="1" wire:model.defer="testTakeCode.0"
                       x-ref="testCode_1"
                       x-on:input="testCodeInput($el)"
-
+                      x-on:paste.prevent="handlePaste($event, $el)"
         />
         <x-input.text class="w-10 text-center test-code" type="number"
                       max="9" maxlength="1" wire:model.defer="testTakeCode.1"
@@ -74,6 +74,24 @@
                     previousInput = previousInput.previousElementSibling;
                 }
                 previousInput.select();
+            }
+
+            function handlePaste(event, element) {
+                if(element !== element.parentElement.querySelector('.test-code')) {
+                    return;
+                }
+
+                let pasteData = event.clipboardData.getData('text');
+                if(pasteData.length === 8 && pasteData.startsWith('AA')) {
+                    pasteData = pasteData.slice(2);
+                }
+                if (pasteData.length === 6 && Number.isInteger(parseInt(pasteData))) {
+                    let children = Array.from(element.parentElement.querySelectorAll('.test-code'));
+                    let digits = (""+pasteData).split("");
+
+                    children.forEach((child, index) => child.value = digits[index]);
+                    children[children.length-1].focus();
+                }
             }
         </script>
     @endpush

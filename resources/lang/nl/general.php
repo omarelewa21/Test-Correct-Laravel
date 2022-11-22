@@ -64,4 +64,5 @@ return [
     'Kopie'                           => 'Kopie',
     'yes'                             => 'Ja',
     'no'                              => 'Nee',
+    'Lees meer'                       => 'Lees meer',
 ];
