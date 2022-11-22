@@ -71,14 +71,12 @@
                              :class="scoreOption <= score ? 'bg-primary border-primary' : 'border-bluegrey bg-offwhite'">
                             <div class="rounded-10 h-3 min-w-[1rem] flex-grow -mt-[1px] -ml-[1px]"
                                  :class="scoreOption-0.5 <= score ? 'border bg-primary border-primary' : 'opacity-100'"
-                                 x-on:click="score = scoreOption-0.5"
                             ></div>
                             <div class="h-[0.375rem] w-[0.375rem] rounded-full absolute bottom-1/2 translate-y-1/2 right-1/2 translate-x-1/2 "
                                  :class="scoreOption <= score ? 'bg-teacherPrimaryLight' : 'bg-system-secondary'"
-                                 x-on:click="score = scoreOption-0.5"></div>
+                            ></div>
                             <div class="rounded-10 h-3 min-w-[1rem] flex-grow -mt-[1px]"
                                  :class="scoreOption <= score ? 'border bg-primary border-primary' : 'opacity-100'"
-                                 x-on:click="score = scoreOption"
                             ></div>
                         </div>
 
@@ -94,7 +92,8 @@
             <div class="w-full absolute top-0 left-0  flex items-center h-full">
                 <input type="range" min="0" max="{{$maxScore}}" :step="allowHalfPoints ? 0.5 : 1"
                        class="score-slider-input w-full" x-model="score"
-                                               :class="{'hide-thumb': score === null}"
+                       :class="{'hide-thumb': score === null}"
+                       x-on:click="score === null ? score = maxScore/2 : ''"
                 >
             </div>
         @endif
