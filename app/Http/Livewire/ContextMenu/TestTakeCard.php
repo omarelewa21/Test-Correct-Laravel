@@ -94,7 +94,7 @@ class TestTakeCard extends ContextMenuComponent
     {
         $testTake = TestTake::whereUuid($this->uuid)->firstOrFail();
         $testTake->updateToTaken();
-        $this->dispatchBrowserEvent('notify', ['message' => __('test_take.Terug naar afgenomen')]);
+        $this->dispatchBrowserEvent('notify', ['message' => __('test_take.update_to_taken')]);
         $this->emit('update-test-take-overview');
     }
 }
