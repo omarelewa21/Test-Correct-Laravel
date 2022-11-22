@@ -1077,6 +1077,7 @@ class TestTake extends BaseModel
     public function updateToTaken()
     {
         $this->test_take_status_id = TestTakeStatus::STATUS_TAKEN;
+        $this->discussing_question_id = null;
         $this->save();
     }
 
