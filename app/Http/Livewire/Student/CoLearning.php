@@ -348,15 +348,20 @@ class CoLearning extends Component
 
     private function shouldShowWaitForTeacherNotification(): bool
     {
-        if (isset($this->answerRatings)) {
-            return !$this->answerRatings->map->rating->contains(null); //show on both answerRatings after both are rated
-        }
-
         if ($this->waitForTeacherNotificationEnabled) {
-            return true; // when updating answerRating, 'answerRatings'  is not available...
+            return true;
         }
 
-        return (!$this->nextAnswerAvailable && isset($this->rating)); //show on last answerRating after both are rated
+        if (isset($this->answerRatings)) {
+            return $this->answerRatings->reduce(function ($carry, $answerRating) {
+                    if($answerRating->rating === null && $answerRating->answer->isAnswered) {
+                        $carry = false;
+                    }
+                    return $carry;
+            }, true);
+        }
+
+        return (!$this->nextAnswerAvailable && isset($this->rating));
     }
 
     private function redirectIfNotStatusDiscussing()
