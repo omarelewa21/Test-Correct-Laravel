@@ -36,7 +36,7 @@ use tcCore\Teacher;
 use tcCore\TemporaryLogin;
 use tcCore\User;
 
-class   EntreeOnboarding extends Onboarding
+class EntreeOnboarding extends Onboarding
 {
     public $saml_id;
     public $registration;
@@ -116,7 +116,7 @@ class   EntreeOnboarding extends Onboarding
                 'registration.name_suffix'      => 'sometimes',
             ]);
 
-            if(!$this->hasFixedEmail){
+            if (!$this->hasFixedEmail) {
 
             }
 
@@ -221,8 +221,8 @@ class   EntreeOnboarding extends Onboarding
                 $this->btnStepOneDisabledCheck();
             }
         }
-        if(null === $user){
-            $this->hasFixedEmail = (bool) $this->entreeData->data->emailAddress;
+        if (null === $user) {
+            $this->hasFixedEmail = (bool)$this->entreeData->data->emailAddress;
         }
 
         return true;
@@ -320,7 +320,7 @@ class   EntreeOnboarding extends Onboarding
                 );
                 $this->userUuid = $user->uuid;
                 $user->eckid = Crypt::decryptString($this->entreeData->data->encryptedEckId);
-                if($this->hasFixedEmail){
+                if ($this->hasFixedEmail) {
                     $user->account_verified = Carbon::now();
                 }
                 $user->save();
@@ -349,7 +349,7 @@ class   EntreeOnboarding extends Onboarding
                                 'school_location_id'              => $schoolLocation->getKey(),
                                 'education_level_id'              => $slEl->education_level_id,
                                 'school_year_id'                  => $currentSchoolYearId,
-                                'name'                            => sprintf('entree_registration_class_locationid_%s_userid_%s_elid_%s', $schoolLocation->getKey(),$user->getKey(), $slEl->education_level_id),
+                                'name'                            => sprintf('entree_registration_class_locationid_%s_userid_%s_elid_%s', $schoolLocation->getKey(), $user->getKey(), $slEl->education_level_id),
                                 'education_level_year'            => 1,
                                 'is_main_school_class'            => 0,
                                 'do_not_overwrite_from_interface' => 0,
@@ -369,8 +369,8 @@ class   EntreeOnboarding extends Onboarding
                 }
 
                 try {
-                    Mail::to($this->registration->username)->queue(new SendOnboardingWelcomeMail($user,'',$this->hasFixedEmail));
-                    Mail::to(config('mail.from')['address'])->queue(new TeacherRegisteredEntree($user->getKey()));
+                    Mail::to($this->registration->username)->queue(new SendOnboardingWelcomeMail($user, '', $this->hasFixedEmail));
+                    Mail::to(config('mail.from.address'))->queue(new TeacherRegisteredEntree($user->getKey()));
                 } catch (\Throwable $th) {
                     Bugsnag::notifyException($th);
                 }
@@ -486,7 +486,7 @@ class   EntreeOnboarding extends Onboarding
     public function selectedSchoolLocationList()
     {
 
-        return $this->school->schoolLocations->filter(function($location) {
+        return $this->school->schoolLocations->filter(function ($location) {
             return $this->isSelectedSchoolLocation($location->uuid);
         });
     }

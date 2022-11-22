@@ -7,6 +7,7 @@ use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use tcCore\School;
+use tcCore\SchoolLocation;
 use tcCore\Subject;
 use tcCore\User;
 
@@ -16,7 +17,9 @@ class TeacherRegisteredEntree extends Mailable
 
     public User $user;
 
-    public object $schoolLocation;
+    public int $userId;
+
+    public SchoolLocation $schoolLocation;
 
     public object $subjects;
 
@@ -27,7 +30,7 @@ class TeacherRegisteredEntree extends Mailable
      */
     public function __construct($userId)
     {
-        $this->user = User::find($userId);
+        $this->userId = $userId;
     }
 
     /**
@@ -37,8 +40,9 @@ class TeacherRegisteredEntree extends Mailable
      */
     public function build()
     {
-        $this->subjects = $this->user->subjects()->get();
-        $this->schoolLocation = $this->user->schoolLocation()->get()->first();
-        return $this->view('emails.teacher_registered_entree');//->from($this->demo->username);
+        $this->user = User::find($this->userId);
+        $this->subjects = $this->user->subjects;
+        $this->schoolLocation = $this->user->schoolLocation;
+        return $this->view('emails.teacher_registered_entree');
     }
 }

@@ -2,7 +2,7 @@
 	return [
 			'Geacht supportteam' => 'Geacht supportteam',
 
-			'Een nieuwe docent heeft zich met onderstaande gegevens aangemeld voor Test-Correct.' => 'Een nieuwe docent heeft zich met onderstaande gegevens aangemeld voor Test-Correct.',
+			'Een nieuwe docent heeft zich via Entree aangemeld voor Test-Correct.' => 'Een nieuwe docent heeft zich via Entree met onderstaande gegevens aangemeld voor Test-Correct.',
 
 			'Let op! De docent heeft een e-mailadres opgegeven dat al bestaat in de database!' => 'Let op! De docent heeft een e-mailadres opgegeven dat al bestaat in de database!',
 
