@@ -14,11 +14,11 @@
                 </tr>
                 <tr>
                     <td>{{ __("teacher_registered_entree.Aanhef") }}</td>
-                    @if($user->gender == 'male')
+                    @if(strtolower($user->gender) == 'male')
                         <td>{{ __("teacher_registered_entree.Meneer") }}</td>
-                    @elseif($user->gender == 'female')
+                    @elseif(strtolower($user->gender) == 'female')
                         <td>{{ __("teacher_registered_entree.Mevrouw") }}</td>
-                    @elseif($user->gender == 'different')
+                    @else
                         <td>{{$user->gender_different}}</td>
                     @endif
                 </tr>
