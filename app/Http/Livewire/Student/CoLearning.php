@@ -287,6 +287,9 @@ class CoLearning extends Component
             $this->noAnswerRatingAvailableForCurrentScreen = false;
 
             $this->setActiveAnswerRating($navigateDirection);
+
+            $this->writeDiscussingAnswerRatingToDatabase();
+
             $this->setWhichScoreSliderShouldBeShown();
 
             if ($this->answerRating->rating === null) {
@@ -409,5 +412,12 @@ class CoLearning extends Component
     public function getQuestionComponentNameProperty(): string
     {
         return str($this->answerRating->answer->question->type)->kebab()->prepend('co-learning.')->value;
+    }
+
+    private function writeDiscussingAnswerRatingToDatabase(): void
+    {
+        if($this->testParticipant->discussing_answer_rating_id !== $this->answerRatingId) {
+            $this->testParticipant->update(['discussing_answer_rating_id' => $this->answerRatingId]);
+        }
     }
 }
