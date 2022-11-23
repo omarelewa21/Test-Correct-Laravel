@@ -1,4 +1,4 @@
-<x-partials.co-learning-question-container :questionNumber="$questionNumber" :answerNumber="$answerNumber" :question="$question" >
+<x-partials.co-learning-question-container :question="$question" >
     <div class="w-full">
         <div class="relative" wire:key="editor-{{$answerRatingId}}">
             <x-input.group for="me" class="w-full disabled mt-4" >

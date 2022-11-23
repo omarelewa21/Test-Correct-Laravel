@@ -152,22 +152,24 @@ class CoLearning extends Component
         }
         $this->getAnswerRatings('previous');
 
-        $this->emit('getNextAnswerRating', [$this->answerRatingId, $this->questionFollowUpNumber, $this->answerFollowUpNumber]);
+        $this->emit('getNextAnswerRating', [$this->answerRatingId, $this->questionOrderNumber, $this->answerFollowUpNumber]);
     }
 
     public function goToNextAnswerRating(): void
     {
         $this->getAnswerRatings('next');
 
-        $this->emit('getNextAnswerRating', [$this->answerRatingId, $this->questionFollowUpNumber, $this->answerFollowUpNumber]);
+        $this->emit('getNextAnswerRating', [$this->answerRatingId, $this->questionOrderNumber, $this->answerFollowUpNumber]);
     }
 
     public function goToNextQuestion(): void
     {
+        $this->waitForTeacherNotificationEnabled = false ;
+
         $this->getAnswerRatings();
         $this->setQuestionRatingProperties();
 
-        $this->emit('getNextAnswerRating', [$this->answerRatingId, $this->questionFollowUpNumber, $this->answerFollowUpNumber]);
+        $this->emit('getNextAnswerRating', [$this->answerRatingId, $this->questionOrderNumber, $this->answerFollowUpNumber]);
     }
 
     /**
