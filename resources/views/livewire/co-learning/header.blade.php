@@ -2,7 +2,6 @@
 >
     <div class="py-2.5 px-6 flex h-full items-center justify-between">
         <div class="flex items-center space-x-4">
-            {{-- back button--}}
             <x-button.back-round wire:click="back()"></x-button.back-round>
             <h4>{{ __('co-learning.co_learning') }}: </h4>
             <h1>{{ $testName }}</h1>

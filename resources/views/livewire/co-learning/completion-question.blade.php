@@ -1,5 +1,4 @@
-<x-partials.co-learning-question-container :questionNumber="$questionNumber" :answerNumber="$answerNumber"
-                                           :question="$question">
+<x-partials.co-learning-question-container :question="$question">
     <div class="w-full">
         <div class="relative">
             <div class="flex items-start flex-wrap co-learning-completion">

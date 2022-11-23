@@ -32,7 +32,7 @@
 {{--                        @case('CompletionQuestion')--}}
 {{--                            <livewire:co-learning.completion-question--}}
 {{--                                    :answerRatingId="$this->answerRating->getKey()"--}}
-{{--                                    :questionNumber="$questionFollowUpNumber"--}}
+{{--                                    :questionNumber="$questionOrderNumber"--}}
 {{--                                    :answerNumber="$answerFollowUpNumber"--}}
 {{--                                    :wire:key="'ar-'. $this->answerRating->getKey()"--}}
 {{--                            />--}}
@@ -40,7 +40,7 @@
 {{--                        @case('DrawingQuestion')--}}
 {{--                            <livewire:co-learning.drawing-question--}}
 {{--                                    :answerRatingId="$this->answerRating->getKey()"--}}
-{{--                                    :questionNumber="$questionFollowUpNumber"--}}
+{{--                                    :questionNumber="$questionOrderNumber"--}}
 {{--                                    :answerNumber="$answerFollowUpNumber"--}}
 {{--                                    :wire:key="'ar-'. $this->answerRating->getKey()"--}}
 {{--                            />--}}
@@ -48,7 +48,7 @@
 {{--                        @case('OpenQuestion')--}}
 {{--                            <livewire:co-learning.open-question--}}
 {{--                                    :answerRatingId="$this->answerRating->getKey()"--}}
-{{--                                    :questionNumber="$questionFollowUpNumber"--}}
+{{--                                    :questionNumber="$questionOrderNumber"--}}
 {{--                                    :answerNumber="$answerFollowUpNumber"--}}
 {{--                                    :wire:key="'ar-'. $this->answerRating->getKey()"--}}
 {{--                            />--}}

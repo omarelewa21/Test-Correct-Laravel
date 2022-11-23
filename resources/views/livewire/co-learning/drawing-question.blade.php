@@ -1,6 +1,4 @@
-<x-partials.co-learning-question-container :questionNumber="$questionNumber"
-                                           :answerNumber="$answerNumber"
-                                           :question="$question"
+<x-partials.co-learning-question-container :question="$question"
 >
     <div class="w-full flex items-center justify-center">
         <div class="relative w-fit">
