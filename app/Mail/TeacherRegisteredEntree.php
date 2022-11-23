@@ -41,7 +41,7 @@ class TeacherRegisteredEntree extends Mailable
     public function build()
     {
         $this->user = User::find($this->userId);
-        $this->subjects = $this->user->subjects;
+        $this->subjects = $this->user->subjects()->get();
         $this->schoolLocation = $this->user->schoolLocation;
         return $this->view('emails.teacher_registered_entree');
     }
