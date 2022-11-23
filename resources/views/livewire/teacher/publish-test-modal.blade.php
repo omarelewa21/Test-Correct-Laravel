@@ -41,6 +41,14 @@
             </div>
         @endif
         <div>{{ __('test.publish_test_text') }}</div>
+
+        @notempty($testErrors)
+        <div class="flex flex-col gap-2.5 mt-2.5">
+            @foreach($testErrors as $title => $message)
+                <x-notification-message :title="$title" :message="$message"/>
+            @endforeach
+        </div>
+        @endnotempty
     </x-slot>
 
     <x-slot name="footer">
@@ -49,10 +57,17 @@
                 <span>{{ __('modal.cancel') }}</span>
             </x-button.text-button>
 
+            @notempty($testErrors)
             <x-button.cta wire:click="handle()">
                 <x-icon.publish/>
                 <span>{{ __('test.publish') }}</span>
             </x-button.cta>
+            @else
+                <x-button.cta :disabled="true">
+                    <x-icon.publish/>
+                    <span>{{ __('test.publish') }}</span>
+                </x-button.cta>
+            @endnotempty
         </div>
     </x-slot>
 </x-modal.base-modal>

@@ -65,4 +65,5 @@ return [
     'yes'                             => 'Ja',
     'no'                              => 'Nee',
     'Lees meer'                       => 'Lees meer',
+    'en'                              => 'en',
 ];
