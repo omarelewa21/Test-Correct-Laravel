@@ -41,6 +41,7 @@ class UpdateFileManagementRequest extends Request {
             'invite' => 'email:rfc,dns',
             'archived' => '',
             'test_builder_code' => 'max:4',
+            'test_upload_additional_option' => '',
         ];
     }
 

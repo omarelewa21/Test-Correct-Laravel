@@ -4,6 +4,7 @@ use Carbon\Carbon;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
+use tcCore\Http\Enums\TestUploadAdditionalOptions;
 use tcCore\Http\Helpers\SchoolHelper;
 use tcCore\Lib\Models\BaseModel;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -426,5 +427,12 @@ class FileManagement extends BaseModel
     protected function handleFilterTestBuilders($query, $val)
     {
         $query->whereIn('file_managements.test_builder_code', Arr::wrap($val));
+    }
+
+    public function getTestUploadAdditionalOptionsAttribute()
+    {
+        return collect(TestUploadAdditionalOptions::cases())->mapWithKeys(function ($enum) {
+            return [$enum->value => $enum->name];
+        });
     }
 }
