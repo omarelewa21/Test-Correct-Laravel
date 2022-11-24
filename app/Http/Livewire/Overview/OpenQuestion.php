@@ -26,7 +26,7 @@ class OpenQuestion extends Component
 
         $temp = (array) json_decode($this->answers[$this->question->uuid]['answer']);
         if (key_exists('value', $temp)) {
-            $this->answer = $temp['value'];
+            $this->answer = $this->isShortType() ? html_entity_decode($temp['value']) : $temp['value'];
         }
 
         $this->answered = $this->answers[$this->question->uuid]['answered'];
@@ -38,7 +38,7 @@ class OpenQuestion extends Component
 
     public function render()
     {
-        if ($this->question->subtype === 'short') {
+        if ($this->isShortType()) {
             return view('livewire.overview.open-question');
         }
 
@@ -48,5 +48,10 @@ class OpenQuestion extends Component
     public function isQuestionFullyAnswered(): bool
     {
         return true;
+    }
+    
+    private function isShortType()
+    {
+        return $this->question->subtype === 'short';
     }
 }

@@ -26,7 +26,7 @@ class OpenQuestion extends Component
 
         $temp = (array) json_decode($this->answers[$this->question->uuid]['answer']);
         if (key_exists('value', $temp)) {
-            $this->answer = $temp['value'];
+            $this->answer = $this->isShortType() ? html_entity_decode($temp['value']) : $temp['value'];
         }
 
 //        $this->attachments = $this->question->attachments;
@@ -35,7 +35,7 @@ class OpenQuestion extends Component
 
     public function updatedAnswer($value)
     {
-        $json = json_encode((object) ['value' => $this->answer]);
+        $json = json_encode((object) ['value' => $this->filter($value)]);
 
         Answer::updateJson($this->answers[$this->question->uuid]['id'], $json);
 
@@ -44,10 +44,29 @@ class OpenQuestion extends Component
 
     public function render()
     {
-        if ($this->question->subtype === 'short') {
+        if ($this->isShortType()) {
             return view('livewire.question.open-question');
         }
 
         return view('livewire.question.open-medium-question');
+    }
+
+    private function isShortType()
+    {
+        return $this->question->subtype === 'short';
+    }
+
+    /**
+     * filter answer value from xss and encode html entities
+     * 
+     * @param string $value
+     * 
+     * @return string
+     */
+    private function filter($value)
+    {
+        $value = clean($value);
+
+        return $this->isShortType() ? htmlentities($value) : $value;
     }
 }
