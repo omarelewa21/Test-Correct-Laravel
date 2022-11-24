@@ -244,6 +244,7 @@ class TestTakesController extends Controller {
             $testTake->append('scheduled_by_user_name');
         }
 
+        // Dit 335 regelige (!!!) bakbeest wordt geskipt met request voor nakijken per student
         if ($isInvigilator && is_array($request->get('with')) && in_array('participantStatus', $request->get('with'))) {
             if ($testTake->testTakeStatus->name == 'Taking test') {
                 $testTake->load('test.testQuestions.question', 'testParticipants.schoolClass', 'testParticipants.schoolClass.schoolLocation', 'testParticipants.schoolClass.schoolLocation.schoolLocationIps', 'testParticipants', 'testParticipants.user', 'testParticipants.testTakeEvents', 'testParticipants.testTakeEvents.testTakeEventType', 'testParticipants.testTakeStatus', 'testParticipants.answers');
@@ -1431,5 +1432,35 @@ class TestTakesController extends Controller {
             'code'        => $testTake->testTakeCode != null ? $testTake->testTakeCode->prefix . $testTake->testTakeCode->code : '',
             'directLink'  => $testTake->directLink
         ];
+    }
+
+    public function showForGrading($testTakeUuid, Request $request)
+    {
+        $testTake = TestTake::whereUuid($testTakeUuid)
+            ->with([
+                'test',
+                'testParticipants',
+                'testParticipants.user:id,name,name_first,name_suffix,uuid',
+                'test.testQuestions',
+                'test.testQuestions.question',
+            ])
+            ->first();
+
+        $testTake->test->testQuestions->each(function ($testQuestion) {
+            if ($testQuestion->question instanceof GroupQuestion) {
+                $testQuestion->question->loadRelated(true);
+            } else {
+                $testQuestion->question->loadRelated();
+            }
+        });
+
+        $testTake->testParticipants->each(function ($participant) {
+            $participant->user->setAppends([]);
+            $participant->setAppends([]);
+        });
+
+        $testTake->setAppends([]);
+
+        return Response::make($testTake);
     }
 }
