@@ -15,11 +15,11 @@ trait WithCloseable
 
     protected function getListeners()
     {
-        return [
+        return array_merge($this->listeners, [
             'close-question' => 'closeQuestion',
             'close-group'    => 'closeGroup',
             'refresh'        => 'render'
-        ];
+        ]);
     }
 
     public function mountWithCloseable()

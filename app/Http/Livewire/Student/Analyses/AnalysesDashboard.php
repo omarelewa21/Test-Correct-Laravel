@@ -4,13 +4,11 @@ namespace tcCore\Http\Livewire\Student\Analyses;
 
 use Livewire\Component;
 use tcCore\EducationLevel;
-use tcCore\Lib\Repositories\PValueRepository;
 use tcCore\Lib\Repositories\PValueTaxonomyBloomRepository;
 use tcCore\Lib\Repositories\PValueTaxonomyMillerRepository;
 use tcCore\Lib\Repositories\PValueTaxonomyRTTIRepository;
 use tcCore\Period;
 use tcCore\User;
-use function view;
 
 abstract class AnalysesDashboard extends Component
 {
@@ -26,26 +24,24 @@ abstract class AnalysesDashboard extends Component
 
     public $title = '';
 
+    public $taxonomyIdentifier;
+
+    public $showEmptyStateForPValueGraph = false;
+
     public $dataValues = [];
     public $dataKeys = [];
 
     protected $topItems; //todo generate Top Items with a algorithm
 
     protected $taxonomies = [
-        'Miller',
-        'RTTI',
-        'Bloom',
+        ['name' => 'Miller', 'height' => '150px'],
+        ['name' => 'RTTI', 'height' => '150px'],
+        ['name' => 'Bloom', 'height' => '200px'],
     ];
 
     abstract public function getDataProperty();
 
     abstract public function render();
-
-    abstract protected function getMillerData($modelId);
-
-    abstract protected function getRTTIData($modelId);
-
-    abstract protected function getBloomData($modelId);
 
     public function mount()
     {
@@ -83,6 +79,99 @@ abstract class AnalysesDashboard extends Component
                 break;
         }
         // abort(403);
+    }
+
+    protected function getMillerData($attainmentId)
+    {
+        return PValueTaxonomyMillerRepository::getPValueForStudentForAttainment(auth()->user(),
+            $attainmentId,
+            $this->getPeriodsByFilterValues(),
+            $this->getEducationLevelYearsByFilterValues(),
+            $this->getTeachersByFilterValues());
+    }
+
+    protected function getRTTIData($attainmentId)
+    {
+        return PValueTaxonomyRTTIRepository::getPValueForStudentForAttainment(auth()->user(),
+            $attainmentId,
+            $this->getPeriodsByFilterValues(),
+            $this->getEducationLevelYearsByFilterValues(),
+            $this->getTeachersByFilterValues());
+    }
+
+    protected function getBloomData($attainmentId)
+    {
+        return PValueTaxonomyBloomRepository::getPValueForStudentForAttainment(
+            auth()->user(),
+            $attainmentId,
+            $this->getPeriodsByFilterValues(),
+            $this->getEducationLevelYearsByFilterValues(),
+            $this->getTeachersByFilterValues());
+    }
+
+    public function getDataForGeneralGraph($subjectId, $taxonomy)
+    {
+        switch ($taxonomy) {
+            case 'Miller':
+                $data = $this->getMillerGeneralGraphData($subjectId);
+                break;
+            case 'RTTI':
+                $data = $this->getRTTIGeneralGraphData($subjectId);
+                break;
+            case 'Bloom':
+                $data = $this->getBloomGeneralGraphData($subjectId);
+                break;
+        }
+
+        return [
+            $showEmptyState = collect($data)->filter(fn($item) => $item[1] > 0)->isEmpty(),
+            $this->transformForGraph($data)
+        ];
+    }
+
+
+    protected function getMillerGeneralGraphData($subjectId)
+    {
+        return PValueTaxonomyMillerRepository::getPValueForStudentForAttainment(auth()->user(),
+            $subjectId,
+            $this->getPeriodsByFilterValues(),
+            $this->getEducationLevelYearsByFilterValues(),
+            $this->getTeachersByFilterValues());
+    }
+
+    protected function getRTTIGeneralGraphData($subjectId)
+    {
+        return PValueTaxonomyRTTIRepository::getPValueForStudentForAttainment(auth()->user(),
+            $subjectId,
+            $this->getPeriodsByFilterValues(),
+            $this->getEducationLevelYearsByFilterValues(),
+            $this->getTeachersByFilterValues());
+    }
+
+    protected function getBloomGeneralGraphData($subjectId)
+    {
+        return PValueTaxonomyBloomRepository::getPValueForStudentForAttainment(
+            auth()->user(),
+            $subjectId,
+            $this->getPeriodsByFilterValues(),
+            $this->getEducationLevelYearsByFilterValues(),
+            $this->getTeachersByFilterValues());
+    }
+
+    private function transformForGraph($data)
+    {
+        return collect($data)->map(function ($item) {
+            return [
+                'x'       => $item[0],
+                'value'   => $item[1],
+                'tooltip' => trans_choice(
+                    'student.tooltip_taxonomy_graph',
+                    $item[2], [
+                    'count_questions' => $item[2],
+                    'p_value'         => number_format($item[1], 2),
+                ])
+            ];
+        });
     }
 
     public function hasActiveFilters()
@@ -146,5 +235,16 @@ abstract class AnalysesDashboard extends Component
     protected function getTeachersByFilterValues()
     {
         return User::whereIn('id', $this->filters['teachers'])->get('id');
+    }
+
+    public function getFirstActiveForGeneralGraphTaxonomy()
+    {
+        foreach($this->taxonomies as $key => $taxonomy ) {
+            $data = $this->getDataForGeneralGraph($this->taxonomyIdentifier, $taxonomy['name']);
+            if (!$data[0]) {
+                return  $key;
+            }
+        }
+        return false;
     }
 }

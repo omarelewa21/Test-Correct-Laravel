@@ -6,8 +6,6 @@ use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 use tcCore\Answer;
 use tcCore\Http\Helpers\BaseHelper;
-use tcCore\Http\Livewire\Teacher\Questions\CmsBase;
-use tcCore\Http\Requests\Request;
 use tcCore\Http\Traits\WithAttachments;
 use tcCore\Http\Traits\WithCloseable;
 use tcCore\Http\Traits\WithGroups;

@@ -178,6 +178,39 @@ button.cta-button:disabled, a.cta-button:disabled {
     box-shadow: none;
 }
 
+.student-button {
+    color: var(--system-base);
+    background-color: var(--secondary);
+    background-image: radial-gradient(ellipse farthest-side at 10% 10%, rgba(195, 208, 237, .5) 0, rgba(195, 208, 237, 0) 100%);
+    background-size: 0px 0px;
+    background-repeat: no-repeat;
+    box-shadow: 0 1px 2px 1px rgba(0, 0, 0, .15);
+    transition: color 0.3s cubic-bezier(.215, .61, .355, 1);
+}
+
+.student-button:hover {
+    background-color: rgb(203, 219, 253);
+    background-size: 100% 100%;
+    box-shadow: 0 4px 10px 0 rgba(0, 0, 0, 0.1);
+    transition: all 0.3s cubic-bezier(.215, .61, .355, 1);
+}
+
+.student-button:active {
+    background: linear-gradient(90deg, rgba(239, 244, 254, 1) 0%, rgba(233, 239, 250, 1) 100%);
+    box-shadow: 0 4px 10px 0 rgba(0, 0, 0, 0.1);
+}
+
+.student-button:focus {
+    background: var(--system-student);
+    border: 1px solid #99AACE;
+}
+
+.student-button:disabled {
+    background: var(--light-grey);
+    color: var(--mid-grey);
+    box-shadow: none;
+}
+
 .select-button {
     border-radius: 10px;
     background: white;

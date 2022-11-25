@@ -116,37 +116,26 @@
         </div>
 
         {{-- Content --}}
-        <div class="flex flex-col pt-4 pb-16" style="min-height: 500px">
-            <div class="flex justify-between">
-                    <span class="note text-sm" wire:loading
-                          wire:target="filters,clearFilters,$set">{{  __('general.searching') }}</span>
+        <x-partials.overview-content-section :$results :pagination="true">
+            <x-slot name="resultMessage">
+                {{ trans_choice($this->getMessageKey($results->total()), $results->total(), ['count' => $results->total()]) }}
+            </x-slot>
 
-                <span class="note text-sm"
-                      wire:loading.remove
-                      wire:target="filters,clearFilters,$set">
-                        {{ trans_choice($this->getMessageKey($results->total()), $results->total(), ['count' => $results->total()]) }}
-                    </span>
+            <x-slot name="header">
                 @hasSection('create-test-button')
                     @yield('create-test-button')
                 @endif
-            </div>
-            <x-grid class="my-4">
-                @foreach(range(1, 6) as $value)
-                    <x-grid.loading-card
-                            :delay="$value"
-                            wire:loading.class.remove="hidden"
-                            wire:target="filters,clearFilters,$set"
-                    />
-                @endforeach
+            </x-slot>
 
+            <x-slot name="cards">
                 @foreach($results as $test)
                     <x-grid.test-card :test="$test" :mode="$cardMode ?? 'page'"/>
                 @endforeach
-            </x-grid>
-            {{ $results->links('components.partials.tc-paginator') }}
+            </x-slot>
 
             <livewire:context-menu.test-card/>
-        </div>
+        </x-partials.overview-content-section>
+
     </div>
 </div>
 @hasSection('detailSlide')

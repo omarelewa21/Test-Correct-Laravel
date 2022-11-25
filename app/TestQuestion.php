@@ -1,9 +1,12 @@
 <?php namespace tcCore;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use tcCore\Exceptions\QuestionException;
+use tcCore\Http\Controllers\TestQuestionsController;
+use tcCore\Http\Helpers\ContentSourceHelper;
 use tcCore\Http\Helpers\QuestionHelper;
 use tcCore\Http\Requests\UpdateTestQuestionRequest;
 use tcCore\Lib\Models\BaseModel;
@@ -200,6 +203,8 @@ class TestQuestion extends BaseModel {
 
         $testQuestion->setAttribute('uuid', Uuid::uuid4());
 
+        $this->duplicateQuestionsIfPublishedContent($testQuestion);
+
         if ($reorder === false) {
             $testQuestion->setCallbacks(false);
         }
@@ -258,6 +263,16 @@ class TestQuestion extends BaseModel {
         }
 
         return $query;
+    }
+
+    public function duplicateQuestionsIfPublishedContent($testQuestion): void
+    {
+        if (in_array($testQuestion->question->scope, ContentSourceHelper::PUBLISHABLE_SCOPES)) {
+            $request = new Request();
+            $request->merge(['scope' => null]);
+
+            (new TestQuestionsController)->updateFromWithin($testQuestion, $request);
+        }
     }
 
 }

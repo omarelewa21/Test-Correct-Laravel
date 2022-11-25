@@ -6,10 +6,10 @@ namespace tcCore\Http\Traits;
 
 trait WithSorting
 {
-    public $sortField;
-    public $sortDirection;
+    public string $sortField = 'id';
+    public string $sortDirection = 'desc';
 
-    public function sortBy($field)
+    public function sortBy($field): void
     {
         if ($this->sortField === $field) {
             $this->sortDirection = $this->sortDirection === 'asc' ? 'desc' : 'asc';

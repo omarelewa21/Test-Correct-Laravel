@@ -1,5 +1,5 @@
 <x-layouts.base>
-    @livewire('navigation-bar', ['main'=> 'Test', 'sub' => 'TestBank'])
+    @livewire('navigation.teacher-navigation-bar', ['main'=> 'Test', 'sub' => 'TestBank'])
 
     <main class="">
         {{ $slot }}

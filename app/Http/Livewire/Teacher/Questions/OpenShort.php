@@ -309,12 +309,9 @@ class OpenShort extends Component implements QuestionCms
         }
     }
 
-    // @TODO mag ik deze test zien;
-    // @TODO mag ik deze testQuestion editen?
-    // @TODO is deze test uberhaupt onderdeel van deze test?
     public function mount()
     {
-        $activeTest = Test::whereUuid($this->testId)->with('testAuthors', 'testAuthors.user')->first();
+        $activeTest = Test::whereUuid($this->testId)->with('testAuthors', 'testAuthors.user')->firstOrFail();
         Gate::authorize('isAuthorOfTest', [$activeTest]);
         $this->isChild = false;
         $this->setTaxonomyOptions();
@@ -1286,13 +1283,15 @@ class OpenShort extends Component implements QuestionCms
     public function addQuestionFromDirty($data)
     {
         if (!$this->completedMandatoryFields()) {
-            $this->dispatchBrowserEvent('show-dirty-question-modal', ['goingToExisting' => false, 'group' => $data['group']]);
+            $this->dispatchBrowserEvent('show-dirty-question-modal', ['goingToExisting' => false, 'group' => $data['group'], 'data' => $data]);
             return;
         }
 
         $this->save(false);
 
-        $data['group'] ? $this->dispatchBrowserEvent('continue-to-add-group') : $this->dispatchBrowserEvent('continue-to-new-slide');
+        $continueEvent = $data['group'] ?  'continue-to-add-group' : 'continue-to-new-slide';
+        $this->dispatchBrowserEvent($continueEvent, $data);
+
         if ($data['newSubQuestion']) {
             $this->emit('newGroupId', $this->testQuestionId);
         }

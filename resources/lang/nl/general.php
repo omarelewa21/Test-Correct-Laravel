@@ -64,6 +64,12 @@ return [
     'Kopie'                           => 'Kopie',
     'yes'                             => 'Ja',
     'no'                              => 'Nee',
+    'vanaf'                           => 'Vanaf',
+    'van'                             => 'Van',
+    'tot'                             => 'Tot',
+    'Behandelaar'                     => 'Behandelaar',
+    'Toetsenbakker'                   => 'Toetsenbakker',
+    'afname'                          => 'Afname',
     'Lees meer'                       => 'Lees meer',
     'en'                              => 'en',
 ];

@@ -16,6 +16,8 @@
 @import url("choices.css");
 @import url("datepicker.css");
 @import url("navigation-bar.css");
+@import url("score-slider.css");
+@import url("co-learning.css");
 
 
 @tailwind base;
@@ -675,4 +677,65 @@ ul ul ul {
 .grid .grid-card.archived span,
 .grid .grid-card.archived h3 {
     color: var(--note)!important;
+}
+
+.co-learning-break {
+    flex-basis: 100%;
+    height: 0;
+}
+
+.filemanagement-status {
+    --active-status-color: var(--colorcode-1);
+    --colorcode-1: #dddddd;
+    --colorcode-2: #555555;
+    --colorcode-3: #83DC92;
+    --colorcode-4: #248A35;
+    --colorcode-5: #BD7878;
+    --colorcode-6: #A92D2D;
+    --colorcode-7: #BDA178;
+    --colorcode-8: #BD893D;
+    --colorcode-9: #78BDA1;
+    --colorcode-10: #3CBD89;
+    --colorcode-11: #78ABBD;
+    --colorcode-12: #3D9BBC;
+    --colorcode-13: #788BBD;
+    --colorcode-14: #3D60BC;
+    --colorcode-15: #8778BD;
+    --colorcode-16: #5538BC;
+    --colorcode-17: #B478BD;
+    --colorcode-18: #AD39BF;
+    --colorcode-19: #BD789F;
+    --colorcode-20: #BE2E7F;
+    --colorcode-21: #932362;
+    --colorcode-22: #932336;
+    --colorcode-23: #936323;
+    --colorcode-24: #7A9323;
+    --colorcode-25: #269323;
+    --colorcode-26: #238B93;
+    --colorcode-27: #234F93;
+    --colorcode-28: #262393;
+    --colorcode-29: #5E2393;
+    --colorcode-30: #7D2393;
+    --colorcode-31: #932384;
+    --colorcode-32: #932369;
+    --colorcode-33: #EC3377;
+    --colorcode-34: #EC8133;
+    --colorcode-35: #ECE633;
+    --colorcode-36: #A3EC33;
+    --colorcode-37: #33EC47;
+    --colorcode-38: #33ECA0;
+    --colorcode-39: #33E9EC;
+    --colorcode-40: #3395EC;
+    --colorcode-41: #0386FA;
+    --colorcode-42: #F6FA03;
+    --colorcode-43: #E003FA;
+    --colorcode-44: #FA7303;
+    --colorcode-45: #FA0303;
+    --colorcode-46: #03FA25;
+    --colorcode-47: #E2E3E2;
+}
+
+.filemanagement-status.label {
+    color: var(--active-status-color);
+    background-color: var(--active-status-color);
 }
