@@ -66,6 +66,7 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
         'uuid'    => EfficientUuid::class,
         'intense' => 'boolean',
         'is_examcoordinator' => 'boolean',
+        'password_expiration_date' => 'datetime',
     ];
 
     /**
@@ -94,7 +95,7 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
     protected $fillable = [
         'sales_organization_id', 'school_id', 'school_location_id', 'username', 'name_first', 'name_suffix', 'name',
         'password', 'external_id', 'gender', 'time_dispensation', 'text2speech', 'abbreviation', 'note', 'demo',
-        'invited_by', 'account_verified', 'test_take_code_id', 'guest', 'send_welcome_email', 'is_examcoordinator', 'is_examcoordinator_for', 'force_password_change'
+        'invited_by', 'account_verified', 'test_take_code_id', 'guest', 'send_welcome_email', 'is_examcoordinator', 'is_examcoordinator_for', 'password_expiration_date'
     ];
 
 
@@ -2717,9 +2718,9 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
         }
 
         if(Auth::id() && Auth::id() !== $user->id) {
-            $user->force_password_change = 1;
+            $user->password_expiration_date = Carbon::now();
             return;
         }
-        $user->force_password_change = 0;
+        $user->password_expiration_date = null;
     }
 }

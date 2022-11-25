@@ -2,6 +2,7 @@
 
 namespace tcCore\Http\Livewire\Student;
 
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 use Livewire\WithPagination;
@@ -86,7 +87,12 @@ class Dashboard extends Component
 
     public function checkIfPasswordNeedsChanging()
     {
-        if(Auth::user()->force_password_change) {
+        $expiration_date = Auth::user()->password_expiration_date;
+
+        if(!$expiration_date) {
+            return;
+        }
+        if($expiration_date->lessThan(Carbon::now())) {
             $this->emit('openModal', 'force-password-change-modal');
         }
     }

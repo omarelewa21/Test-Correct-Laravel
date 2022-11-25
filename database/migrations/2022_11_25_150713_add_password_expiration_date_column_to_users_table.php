@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class AddForcePasswordChangeColumnToUsersTable extends Migration
+class AddPasswordExpirationDateColumnToUsersTable extends Migration
 {
     /**
      * Run the migrations.
@@ -14,7 +14,7 @@ class AddForcePasswordChangeColumnToUsersTable extends Migration
     public function up()
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->boolean('force_password_change')->default(false);
+            $table->timestamp('password_expiration_date')->nullable();
         });
     }
 
@@ -26,7 +26,7 @@ class AddForcePasswordChangeColumnToUsersTable extends Migration
     public function down()
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->dropColumn('force_password_change');
+            $table->dropColumn('password_expiration_date');
         });
     }
 }
