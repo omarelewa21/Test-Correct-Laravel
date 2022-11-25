@@ -58,10 +58,15 @@
     </x-slot>
 
     <x-slot name="footer">
-        <x-button.cta
-                class="inline"
-                wire:click="requestPasswordChange">
-            {{__("password-reset.Wachtwoord resetten")}}
-        </x-button.cta>
+        <div class="inline self-end">
+            <x-button.text-button class="mr-2"
+                    type="link" href="{{ route('student.dashboard.logout') }}">
+                {{__("auth.logout")}}
+            </x-button.text-button>
+            <x-button.cta
+                    wire:click="requestPasswordChange">
+                {{__("password-reset.Opnieuw instellen")}}
+            </x-button.cta>
+        </div>
     </x-slot>
 </x-modal.base-modal>

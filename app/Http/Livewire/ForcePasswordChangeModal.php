@@ -45,7 +45,6 @@ class ForcePasswordChangeModal extends ModalComponent
     {
         return false;
     }
-
     public static function closeModalOnClickAway(): bool
     {
         return false;
