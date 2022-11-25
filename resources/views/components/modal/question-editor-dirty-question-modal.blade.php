@@ -1,6 +1,6 @@
 <div id="dirty-modal"
      class="fixed inset-0 overflow-y-auto px-4 py-6 sm:px-0 z-[101]"
-     x-data="{dirtyModal: false, toExisting: false, isGroup: false, leavingTest: false}"
+     x-data="{dirtyModal: false, toExisting: false, isGroup: false, leavingTest: false, data: {}}"
      x-init="$watch('dirtyModal', (value) => {
                 if(!value) return;
                 $store.cms.processing = false;
@@ -22,7 +22,7 @@
                     return;
                 }
 
-                $dispatch('continue-to-new-slide')
+                $dispatch('continue-to-new-slide', data)
 
 
             }
@@ -40,7 +40,7 @@
      x-transition:leave="ease-in duration-100"
      x-transition:leave-start="opacity-100 scale-100"
      x-transition:leave-end="opacity-0 scale-90"
-     x-on:show-dirty-question-modal.window="dirtyModal = true; toExisting = $event.detail.goingToExisting ?? false; isGroup = $event.detail.group ?? false; leavingTest = $event.detail.leavingTest ?? false"
+     x-on:show-dirty-question-modal.window="dirtyModal = true; toExisting = $event.detail.goingToExisting ?? false; isGroup = $event.detail.group ?? false; leavingTest = $event.detail.leavingTest ?? false; data = $event.detail.data ?? {}"
 >
     <div x-show="dirtyModal" class="fixed inset-0 transform " x-on:click="dirtyModal = false"
          x-transition:enter="ease-out duration-100"

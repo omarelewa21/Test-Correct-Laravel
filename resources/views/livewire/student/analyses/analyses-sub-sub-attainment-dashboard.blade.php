@@ -12,7 +12,7 @@
                         {!!  \tcCore\Subject::whereUuid($subject)->first()->name !!}
                     </a>
                     <x-icon.chevron-small opacity="1"></x-icon.chevron-small>
-                    <a href="{{ route('student.analyses.subattainment.show', ['baseAttainment' => $parentParentAttainment->uuid, 'subject' => $subject]) }}">
+                    <a href="{{ route('student.analyses.attainment.show', ['baseAttainment' => $parentParentAttainment->uuid, 'subject' => $subject]) }}">
                       {{ $parentParentAttainment->name }}
                     </a>
                     <x-icon.chevron-small opacity="1"></x-icon.chevron-small>

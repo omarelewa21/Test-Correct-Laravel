@@ -19,7 +19,7 @@
                 <div class="password ">
                     <div class="input-group w-full mb-4 relative"
                          >
-                        <input id="password" wire:model="password" x-bind:type="showPassword ? 'text' : 'password'"
+                        <input id="password" wire:model.lazy="password" x-bind:type="showPassword ? 'text' : 'password'"
                                autocomplete="new-password"
                                class="form-input ">
                         <div @mouseenter="hoverPassword = true"
@@ -42,7 +42,7 @@
                     <div
                             class="input-group w-full mb-4 relative"
                             >
-                        <input id="password_confirm" wire:model="password_confirmation"
+                        <input id="password_confirm" wire:model.lazy="password_confirmation"
                                x-bind:type="showPassword ? 'text' : 'password'"
                                class="form-input ">
                         <div    @click="showPassword = !showPassword; hoverPassword = false; initialPreviewIconState = false"

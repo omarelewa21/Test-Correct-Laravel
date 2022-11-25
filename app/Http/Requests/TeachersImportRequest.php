@@ -120,7 +120,7 @@ class TeachersImportRequest extends Request {
      */
     public function withValidator($validator) {
         $validator->after(function ($validator) {
-            $data = $this->request->get('data');
+            $data = request('data');
             $teachers = collect(request('data'))->map(function ($row, $index) use ($validator, &$data) {
                 if (!array_key_exists('school_class', $row)) {
 

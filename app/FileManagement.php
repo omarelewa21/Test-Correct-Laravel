@@ -405,8 +405,8 @@ class FileManagement extends BaseModel
     public function getSubjectNameAttribute(): string
     {
         return $this->subject_id
-            ? $this->subject()->value('name')
-            : $this->subject;
+            ? $this->subject()->withTrashed()->value('name')
+            : $this->subject ?? '';
     }
 
     protected function handleSortingPlannedAt($query, $dir)

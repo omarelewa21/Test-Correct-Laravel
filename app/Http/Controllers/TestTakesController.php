@@ -13,6 +13,8 @@ use Illuminate\Support\Str;
 use Maatwebsite\Excel\Facades\Excel;
 use tcCore\AnswerRating;
 use tcCore\DiscussingParentQuestion;
+use tcCore\Events\CoLearningForceTakenAway;
+use tcCore\Events\CoLearningNextQuestion;
 use tcCore\GroupQuestion;
 use tcCore\Http\Helpers\BaseHelper;
 use tcCore\Http\Helpers\DemoHelper;
@@ -422,6 +424,10 @@ class TestTakesController extends Controller {
                                         $ratedAnswerRatingsPerTestParticipant[$testParticipantId] = 0;
                                     }
 
+                                    if(!$answer->is_answered) {
+                                        break; //new co learning, if answer is not answered, don't count it. it doesn't need to be rated during co-learning
+                                    }
+
                                     $activeAnswerRatingsPerTestParticipant[$testParticipantId] ++;
                                     if ($answerRating->getAttribute('rating') != null) {
                                         $ratedAnswerRatingsPerTestParticipant[$testParticipantId] ++;
@@ -702,7 +708,7 @@ class TestTakesController extends Controller {
                         $shuffledAnswers = array_combine(array_keys($shuffledAnswers), $values);
 
                         foreach ($shuffledAnswers as $testParticipant => $answer) {
-                            if ($answer->getAttribute('json') === null) {
+                            if ($answer->getAttribute('json') === null && !auth()->user()->schoolLocation->allow_new_co_learning) {
                                 continue;
                             }
 
@@ -728,6 +734,12 @@ class TestTakesController extends Controller {
                             $testParticipant->setAttribute('answer_id', null);
                             $testParticipant->save();
                         }
+
+                    }
+                }
+                if(auth()->user()->schoolLocation->allow_new_co_learning) {
+                    foreach ($testTake->testParticipants as $testParticipant) {
+                        CoLearningNextQuestion::dispatch($testParticipant->uuid);
                     }
                 }
             }
@@ -1281,12 +1293,14 @@ class TestTakesController extends Controller {
             $this->closeNonTimeDispensation($testTake, $request);
 
         } else {
-
             $testTake->fill($request->all());
 
             if ($testTake->save() !== false) {
                 $this->hydrateTestTakeWithHasNextQuestionAttribute($testTake);
 
+                if(auth()->user()->schoolLocation->allow_new_co_learning){
+                    $this->handleCoLearningForceTakeAway($testTake, $request);
+                }
 
                 return Response::make($testTake, 200);
             } else {
@@ -1431,5 +1445,12 @@ class TestTakesController extends Controller {
             'code'        => $testTake->testTakeCode != null ? $testTake->testTakeCode->prefix . $testTake->testTakeCode->code : '',
             'directLink'  => $testTake->directLink
         ];
+    }
+
+    private function handleCoLearningForceTakeAway($testTake, $request)
+    {
+        if($request->get('test_take_status_id') == 8 && !$request->get('skipped_discussion')){
+            $testTake->testParticipants->each(fn ($testParticipant) => CoLearningForceTakenAway::dispatch($testParticipant->uuid));
+        }
     }
 }

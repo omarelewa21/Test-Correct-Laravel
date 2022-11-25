@@ -16,6 +16,8 @@
 @import url("choices.css");
 @import url("datepicker.css");
 @import url("navigation-bar.css");
+@import url("score-slider.css");
+@import url("co-learning.css");
 
 
 @tailwind base;
@@ -675,6 +677,11 @@ ul ul ul {
 .grid .grid-card.archived span,
 .grid .grid-card.archived h3 {
     color: var(--note)!important;
+}
+
+.co-learning-break {
+    flex-basis: 100%;
+    height: 0;
 }
 
 .filemanagement-status {

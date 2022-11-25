@@ -13,12 +13,14 @@ module.exports = {
         'max-w-[600px]',
         'max-w-modal',
         'max-w-[720px]',
-        'mx-8'
+        'mx-8',
+        'bg-teacher-primary-light'
     ],
     theme: {
         extend: {
             colors: {
                 primary: '#004df5',
+                teacherPrimaryLight: '#4781ff',
                 secondary: '#CEDAF3',
                 sysbase: '#041f74',
                 bluegrey: '#c3d0ed',

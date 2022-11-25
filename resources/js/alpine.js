@@ -407,8 +407,10 @@ document.addEventListener('alpine:init', () => {
         handleVerticalScroll(el) {
             if (el.getAttribute('x-ref') !== this.activeSlide) return;
 
-            this.$refs.questionEditorSidebar.style.minHeight = 'auto';
-            this.$refs.questionEditorSidebar.style.height = 'auto';
+            if(!this.$store.questionBank.active) {
+                this.$refs.questionEditorSidebar.style.minHeight = 'auto';
+                this.$refs.questionEditorSidebar.style.height = 'auto';
+            }
 
             if (el.offsetHeight > this.drawer.offsetHeight) {
                 this.drawer.classList.add('overflow-auto');
@@ -466,16 +468,21 @@ document.addEventListener('alpine:init', () => {
             })
         },
         addQuestionToGroup(uuid) {
-            this.showAddQuestionSlide()
             this.$store.questionBank.inGroup = uuid;
+            this.showAddQuestionSlide(true, false)
         },
         addGroup(shouldCheckDirty = true) {
             if (this.emitAddToOpenShortIfNecessary(shouldCheckDirty, true, false)) {
                 this.$wire.addGroup();
             }
         },
-        showAddQuestionSlide(shouldCheckDirty = true) {
+        async showAddQuestionSlide(shouldCheckDirty = true, clearGroupUuid = true) {
             if (this.emitAddToOpenShortIfNecessary(shouldCheckDirty, false, false)) {
+                if(clearGroupUuid) {
+                    let questionBankLivewireComponent =  Livewire.find(this.drawer.querySelector('#question-bank').getAttribute('wire:id'))
+                    await questionBankLivewireComponent.clearInGroupProperty();
+                    this.$store.questionBank.inGroup = false;
+                }
                 this.next(this.$refs.home);
                 this.$dispatch('backdrop');
             }
@@ -486,7 +493,7 @@ document.addEventListener('alpine:init', () => {
         emitAddToOpenShortIfNecessary(shouldCheckDirty = true, group, newSubQuestion) {
             this.$dispatch('store-current-question');
             if (shouldCheckDirty && this.$store.cms.dirty) {
-                this.$wire.emitTo('teacher.questions.open-short', 'addQuestionFromDirty', {group, newSubQuestion});
+                this.$wire.emitTo('teacher.questions.open-short', 'addQuestionFromDirty', {group, newSubQuestion, groupUuid: this.$store.questionBank.inGroup});
                 return false;
             }
             return true;
@@ -1035,7 +1042,6 @@ document.addEventListener('alpine:init', () => {
                     series.tooltip().enabled(true)
 
                     dataRow = data[e.pointIndex];
-                    console.log(dataRow);
                     if (contentElement){
                         fillTooltipHtml()
                     }
@@ -1062,6 +1068,45 @@ document.addEventListener('alpine:init', () => {
         }
     ));
 
+
+    Alpine.data('sliderToggle', (model, sources) => (
+        {
+            buttonPosition: '0px',
+            value: model,
+            sources: sources,
+            handle: null,
+            init(){
+                this.handle = this.$el.querySelector('.slider-button-handle');
+                if(this.value === null){
+                    return;
+                }
+                this.$el.querySelector('.group').firstElementChild.classList.add('text-primary');
+
+                if(this.value !== '' && Object.keys(this.sources).includes(String(this.value))){
+                    this.activateButton(this.$el.querySelector('[data-id=\'' + this.value + '\']').parentElement);
+                } else {
+                    this.value = this.$el.querySelector('.group').firstElementChild.dataset.id;
+                }
+            },
+            clickButton(target){
+                this.activateButton(target);
+                this.value = target.firstElementChild.dataset.id;
+            },
+            hoverButton(target){
+                this.activateButton(target)
+            },
+            activateButton(target){
+                this.resetButtons(target)
+                this.buttonPosition = target.offsetLeft + 'px';
+                target.firstElementChild.classList.add('text-primary');
+                this.handle.classList.remove('hidden');
+            },
+            resetButtons(target) {
+                Array.from(target.parentElement.children).forEach(button => {
+                    button.firstElementChild.classList.remove('text-primary');
+                });
+            }
+        }));
 
     Alpine.data('expandableGraph', (id, modelId, taxonomy) => (
         {
@@ -1137,6 +1182,92 @@ document.addEventListener('alpine:init', () => {
             }
         }
     ));
+
+    Alpine.data('expandableGraphForGeneral', (id, modelId, taxonomy) => (
+        {
+            data: false,
+            modelId,
+            taxonomy,
+            containerId: 'chart-' + modelId + '-' + taxonomy,
+            id,
+            showEmptyState: false,
+            init() {
+                if (this.expanded) {
+                    this.updateGraph()
+                }
+            },
+            async updateGraph() {
+                if (!this.data) {
+                    [this.showEmptyState, this.data] = await this.$wire.getDataForGeneralGraph(this.modelId, this.taxonomy);
+
+                    this.renderGraph()
+                }
+            },
+            get expanded() {
+                return this.active === this.id
+            },
+            set expanded(value) {
+                if (value) {
+                    this.updateGraph()
+                }
+
+                this.active = value ? this.id : null
+            },
+            renderGraph: function () {
+                // create bar chart
+                var chart = anychart.bar();
+
+                // let data = this.data.map((item)=> {
+                //     return {
+                //         x: item[0],
+                //         value: item[1],
+                //         tooltip: item[2]
+                //     }
+                // })
+
+                var series = chart.bar(this.data);
+
+                series.stroke(this.getColor()).fill(this.getColor())
+
+                var tooltip = series.tooltip()
+
+                tooltip.title(false)
+                    .separator(false)
+                    .position('right')
+                    .anchor('left-center')
+                    .offsetX(5)
+                    .offsetY(0)
+                    .background('#FFFFFF')
+                    .fontColor('#000000')
+                    .format("{%tooltip}")
+
+                chart.tooltip().positionMode('point');
+                // set scale minimum
+                chart.yScale().minimum(0)
+                chart.yScale().maximum(1)
+
+                // chart.xScale()//.maximum(100)
+                chart.xAxis().stroke('#041F74')
+                chart.xAxis().stroke('none')
+
+
+                // set container id for the chart
+                chart.container(this.containerId);
+                // initiate chart drawing
+                chart.draw();
+            },
+            getColor: function () {
+                if (this.taxonomy == 'Bloom') {
+                    return '#E2DD10';
+                }
+                if (this.taxonomy == 'Miller') {
+                    return '#5043F6';
+                }
+                return '#2EBC4F';
+            }
+        }
+    ));
+
 
 
     Alpine.data('contextMenuButton', (context,uuid, contextData) => ({
