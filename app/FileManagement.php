@@ -405,7 +405,7 @@ class FileManagement extends BaseModel
     {
         return $this->subject_id
             ? $this->subject()->withTrashed()->value('name')
-            : $this->subject;
+            : $this->subject ?? '';
     }
 
     protected function handleSortingPlannedAt($query, $dir)
