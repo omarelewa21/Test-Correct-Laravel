@@ -17,5 +17,5 @@
         'Log in' => 'Log in',
         'Ben je een student?' => 'Are you a student?',
         'Kijk hier' => 'Look here',
-        'Uitleg tijdelijk wachtwoord' => 'The password you used to log in with is a temporary password and needs to be reset. Enter a new password, repeat and confirm.',
+        'Uitleg vervallen wachtwoord' => 'The password you used to log in has expired and needs to be reset. Enter a new password, repeat and confirm.',
     ];

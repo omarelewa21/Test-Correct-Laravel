@@ -17,7 +17,7 @@
         'Log in' => 'Log in',
         'Ben je een student?' => 'Ben je een student?',
         'Kijk hier' => 'Kijk hier',
-        'Uitleg tijdelijk wachtwoord' => 'Het wachtwoord waarmee je hebt ingelogd is een tijdelijk wachtwoord en moet gereset worden. Voer een nieuw wachtwoord in, herhaal deze en bevestig.'
+        'Uitleg vervallen wachtwoord' => 'Het wachtwoord waarmee je hebt ingelogd is vervallen en moet gereset worden. Voer een nieuw wachtwoord in, herhaal deze en bevestig.'
     ];
 
 ?>

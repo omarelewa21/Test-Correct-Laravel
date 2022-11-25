@@ -4,7 +4,7 @@
     </x-slot>
 
     <x-slot name="content">
-        <span>{{__('password-reset.Uitleg tijdelijk wachtwoord')}}</span>
+        <span>{{__('password-reset.Uitleg vervallen wachtwoord')}}</span>
         <div class="flex flex-col">
             <x-input.group
                     x-data="{showPassword: false, hoverPassword: false, initialPreviewIconState: true}"
