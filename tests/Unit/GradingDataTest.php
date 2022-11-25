@@ -47,17 +47,17 @@ class GradingDataTest extends TestCase
     /**
      * @test
      * */
-    public function can_retrieve_same_data_as_used_in_cake_but_better()
+    public function can_retrieve_same_data_as_used_in_cake_but_with_answer_ratings()
     {
         $testTakeResponse = $this->get($this->getTestTakeForGradingRequest());
 
-        $testTakeResponse->assertSuccessful();
+        dd($testTakeResponse->getOriginalContent());
     }
 
     /**
      * @test
      * */
-    public function can_retrieve_same_data_as_used_in_cake_but_better_part_2()
+    public function can_retrieve_same_data_as_used_in_cake_but_better()
     {
         /* -------- Old -------- */
         $testTakeResponse = $this->get($this->getTestTakeRequest());

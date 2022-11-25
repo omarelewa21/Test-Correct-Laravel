@@ -1441,6 +1441,8 @@ class TestTakesController extends Controller {
                 'test',
                 'testParticipants',
                 'testParticipants.user:id,name,name_first,name_suffix,uuid',
+                'testParticipants.answers',
+                'testParticipants.answers.answerRatings',
                 'test.testQuestions',
                 'test.testQuestions.question',
             ])
@@ -1454,12 +1456,17 @@ class TestTakesController extends Controller {
             }
         });
 
-        $testTake->testParticipants->each(function ($participant) {
+        $testParticipantAnswers = [];
+        $testTake->testParticipants->each(function ($participant) use (&$testParticipantAnswers) {
+            $testParticipantAnswers[$participant->uuid][] = $participant->answers;
+            unset($participant->answers);
+
             $participant->user->setAppends([]);
             $participant->setAppends([]);
         });
 
         $testTake->setAppends([]);
+        $testTake->testParticipantAnswers = $testParticipantAnswers;
 
         return Response::make($testTake);
     }
