@@ -18,9 +18,7 @@
     @else
         <script src="{{ mix('/js/ckeditor.js') }}" type="text/javascript"></script>
     @endif
-    @if(!is_null(Auth::user())&&Auth::user()->text2speech)
-        <link rel="stylesheet" type="text/css" href="{{ mix('/css/rs_tlc.css') }}" />
-    @endif
+
     @livewireStyles
     <link rel="stylesheet" href="{{ mix('/css/app.css') }}">
     @if(config('bugsnag.browser_key') != '')
