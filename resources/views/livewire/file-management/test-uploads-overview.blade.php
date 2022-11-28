@@ -143,8 +143,8 @@
                 <x-slot name="body">
                     @foreach($this->testUploads as $file)
                         <x-table.row class="cursor-pointer" wire:click="openDetail('{{ $file->uuid }}')">
-                            {{--1--}}<x-table.cell :slim="true" >
-                                        <span class="inline-flex rounded-sm border border-sysbase filemanagement-status label w-4 h-4"
+                            {{--1--}}<x-table.cell :slim="true" title="{{ $file->status->name }}">
+                                        <span class="inline-flex relative top-0.5 rounded-sm border border-sysbase filemanagement-status label w-4 h-4"
                                               style="--active-status-color: var(--{{ $file->status->colorcode }})"></span>
                                         {{ $file->status->name }}
                                     </x-table.cell>
