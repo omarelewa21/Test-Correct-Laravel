@@ -7257,23 +7257,6 @@ __webpack_require__(/*! ./pdf-download */ "./resources/js/pdf-download.js");
 
 window.ClassicEditors = [];
 
-addIdsToQuestionHtml = function addIdsToQuestionHtml() {
-  var id = 1;
-  var questionContainers = document.querySelectorAll('[questionHtml]');
-  setTimeout(function () {
-    questionContainers.forEach(function (item) {
-      var decendents = item.querySelectorAll('*');
-      decendents.forEach(function (decendent) {
-        if (decendent.tagName != 'MATH' && !decendent.closest('math')) {
-          decendent.id = 'questionhtml_' + id;
-          decendent.setAttribute('wire:key', 'questionhtml_' + id);
-          id += 1;
-        }
-      });
-    });
-  }, 1);
-};
-
 addRelativePaddingToBody = function addRelativePaddingToBody(elementId) {
   var extraPadding = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 0;
   document.getElementById(elementId).style.paddingTop = document.getElementById('header').offsetHeight + extraPadding + 'px';

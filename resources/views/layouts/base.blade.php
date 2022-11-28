@@ -33,7 +33,7 @@
 
 
 </head>
-<body id="body" class="flex flex-col min-h-screen" onload="addIdsToQuestionHtml()">
+<body id="body" class="flex flex-col min-h-screen">
 {{ $slot }}
 
 @livewireScripts
