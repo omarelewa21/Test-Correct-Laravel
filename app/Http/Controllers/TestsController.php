@@ -1,10 +1,13 @@
 <?php namespace tcCore\Http\Controllers;
 
+use Bugsnag\BugsnagLaravel\Facades\Bugsnag;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Str;
+use tcCore\Http\Helpers\BaseHelper;
 use tcCore\Http\Helpers\DemoHelper;
 use tcCore\Http\Requests;
 use tcCore\Http\Requests\DuplicateTestRequest;
@@ -25,19 +28,44 @@ class TestsController extends Controller {
 	 */
 	public function index(Request $request)
 	{
+         // @@ see TC-160
+        // we now alwas change the setting to make it faster and don't reverse it anymore
+        // as on a new server we might forget to update this setting and it doesn't do any harm to do this extra query
+        try { // added for compatibility with mariadb
+            \DB::select(\DB::raw("set session optimizer_switch='condition_fanout_filter=off';"));
+        } catch (\Exception $e){}
+
+        $tests = Test::filtered($request->get('filter', []), $request->get('order', []))->with('educationLevel', 'testKind', 'subject', 'author', 'author.school', 'author.schoolLocation')->paginate(15);
+
+        $tests->each(function ($test) {
+            $test->append('has_duplicates');
+        });
+		return Response::make($tests, 200);
+	}
+
+    /**
+     * Display a listing of the tests.
+     *
+     * @return Response
+     */
+    public function index2(Request $request)
+    {
         // @@ see TC-160
         // we now alwas change the setting to make it faster and don't reverse it anymore
         // as on a new server we might forget to update this setting and it doesn't do any harm to do this extra query
         try { // added for compatibility with mariadb
             \DB::select(\DB::raw("set session optimizer_switch='condition_fanout_filter=off';"));
         } catch (\Exception $e){}
-		$tests = Test::filtered($request->get('filter', []), $request->get('order', []))->with('educationLevel', 'testKind', 'subject', 'author', 'author.school', 'author.schoolLocation')->paginate(15);
+        $tests = Test::filtered2($request->get('filter', []), $request->get('order'))
+            ->with('educationLevel', 'testKind', 'subject', 'author', 'author.school', 'author.schoolLocation')
+            ->paginate(15);
 //		\DB::select(\DB::raw("set session optimizer_switch='condition_fanout_filter=on';"));
-        $tests->each(function($test) {
-            $test->append(    'has_duplicates');
+
+        $tests->each(function ($test) {
+            $test->append('has_duplicates');
         });
-		return Response::make($tests, 200);
-	}
+        return Response::make($tests, 200);
+    }
 
 	/**
 	 * Store a newly created test in storage.
@@ -68,6 +96,7 @@ class TestsController extends Controller {
 	{
 		$test->load('educationLevel', 'author', 'author.school', 'author.schoolLocation', 'subject', 'period', 'testKind','owner');
 		$test->append(    'has_duplicates');
+        $test->append('has_pdf_attachments');
 		return Response::make($test, 200);
 	}
 
@@ -116,52 +145,8 @@ class TestsController extends Controller {
 		}
 	}
 
-	public function maxScore(Test $test,$ignoreQuestions = []){
-        if(is_null($ignoreQuestions)){
-            $ignoreQuestions = [];
-        }
-        $testId = $test->id;
-        $maxScore = 0;
-        $questions = QuestionGatherer::getQuestionsOfTest($testId, true);
-        $carouselQuestions = QuestionGatherer::getCarouselQuestionsOfTest($testId);
-        $carouselQuestionIds = array_map(function($carouselQuestion){
-                                                return $carouselQuestion->getKey();
-                                                    }, $carouselQuestions);
-        $carouselQuestionChilds = [];
-        foreach ($questions as $key => $question) {
-            if(!stristr($key, '.')){
-                $this->addToMaxScore($maxScore,$question,$ignoreQuestions);
-                continue;
-            }
-            $arr = explode('.', $key);
-            if(!in_array($arr[0], $carouselQuestionIds)){
-                $this->addToMaxScore($maxScore,$question,$ignoreQuestions);
-                continue;
-            }
-            $carouselQuestionChilds[$arr[0]][$arr[1]] = $question;
-        }
-        foreach ($carouselQuestionChilds as $groupquestionId => $childArray) {
-            if(in_array($groupquestionId, $ignoreQuestions)){
-                continue;
-            }
-            $questionScore = current($childArray)->score;
-            $numberOfSubquestions = $carouselQuestions[$groupquestionId]->number_of_subquestions;
-            $maxScore += ($questionScore*$numberOfSubquestions);
-        }
-        return $maxScore;
-    }
-
-    private function addToMaxScore(&$maxScore,$question,$ignoreQuestions):void
-    {
-        if(in_array($question->getKey(), $ignoreQuestions)){
-            return;
-        }
-        $maxScore += $question->score;
-    }
-
     public function maxScoreResponse(Test $test){
-    	$maxScore = $this->maxScore($test);
-        return Response::make($maxScore, 200);
+        return Response::make($test->maxScore(), 200);
     }
 
     public function withTemporaryLogin(Test $test)
@@ -170,7 +155,7 @@ class TestsController extends Controller {
         $temporaryLogin = TemporaryLogin::createForUser(Auth()->user());
 
         $relativeUrl = sprintf('%s?redirect=%s',
-            route('auth.temporary-login-redirect',[$temporaryLogin->uuid],false),
+            route('auth.temporary-login.redirect',[$temporaryLogin->uuid],false),
             rawurlencode(route('teacher.test-preview', $test->uuid,false))
         );
         if(Str::startsWith($relativeUrl,'/')) {
@@ -180,5 +165,36 @@ class TestsController extends Controller {
         $response->url = sprintf('%s%s',config('app.base_url'),$relativeUrl);
 
         return  response()->json($response);
+    }
+
+    public function answerModelwithTemporaryLogin(Test $test)
+    {
+        $response = new \stdClass;
+        $temporaryLogin = TemporaryLogin::createForUser(Auth()->user());
+
+        $relativeUrl = sprintf('%s?redirect=%s',
+            route('auth.temporary-login.redirect',[$temporaryLogin->uuid],false),
+            rawurlencode(route('teacher.test-answer-model', $test->uuid,false))
+        );
+        if(Str::startsWith($relativeUrl,'/')) {
+            $relativeUrl = Str::replaceFirst('/', '', $relativeUrl);
+        }
+
+        $response->url = sprintf('%s%s',config('app.base_url'),$relativeUrl);
+
+        return  response()->json($response);
+    }
+
+    public function pdfWithTemporaryLogin(Test $test)
+    {
+        $temporaryLogin = TemporaryLogin::createForUser(Auth()->user());
+
+        return BaseHelper::createRedirectUrlWithTemporaryLoginUuid($temporaryLogin->uuid,route('teacher.preview.test_pdf', $test->uuid,false));
+    }
+    public function pdfPdfAttachmentsWithTemporaryLogin(Test $test)
+    {
+        $temporaryLogin = TemporaryLogin::createForUser(Auth()->user());
+
+        return BaseHelper::createRedirectUrlWithTemporaryLoginUuid($temporaryLogin->uuid,route('teacher.preview.test_pdf_attachments', $test->uuid,false));
     }
 }

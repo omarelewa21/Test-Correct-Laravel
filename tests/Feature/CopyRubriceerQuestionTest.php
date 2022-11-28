@@ -10,8 +10,9 @@ use tcCore\MatchingQuestion;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
-use Tests\Traits\TestTrait;
-use Tests\Traits\MatchingQuestionTrait;
+use tcCore\Traits\Dev\MultipleChoiceQuestionTrait;
+use tcCore\Traits\Dev\TestTrait;
+use tcCore\Traits\Dev\MatchingQuestionTrait;
 use Illuminate\Support\Facades\DB;
 
 class CopyRubriceerQuestionTest extends TestCase
@@ -19,6 +20,7 @@ class CopyRubriceerQuestionTest extends TestCase
     use DatabaseTransactions;
     use TestTrait;
     use MatchingQuestionTrait;
+    use MultipleChoiceQuestionTrait;
 
     private $originalTestId;
     private $originalQuestionId;

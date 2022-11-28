@@ -2,15 +2,22 @@
 
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Facades\Storage;
+use tcCore\Http\Helpers\BaseHelper;
+use tcCore\Http\Livewire\Teacher\Questions\OpenShort;
 use tcCore\Http\Requests;
 use tcCore\Http\Controllers\Controller;
 use tcCore\Answer;
+use tcCore\Question;
 use tcCore\Http\Requests\CreateAnswerRequest;
 use tcCore\Http\Requests\UpdateAnswerRequest;
+use tcCore\Http\Requests\SaveFeedbackRequest;
 use tcCore\Lib\Question\QuestionInterface;
 use tcCore\TestParticipant;
+use tcCore\AnswerFeedback;
+use Exception;
 
 class AnswersController extends Controller {
 
@@ -38,6 +45,8 @@ class AnswersController extends Controller {
 					foreach ($answers as $answer) {
 						if ($answer->question instanceof QuestionInterface) {
 							$answer->question->loadRelated();
+							$answer->has_feedback = sizeof($answer->feedback) > 0;
+							$answer->has_feedback_by_this_user = $answer->feedback()->where('user_id', auth()->id())->exists();
 						}
 					}
 				}
@@ -135,11 +144,89 @@ class AnswersController extends Controller {
 
     public function getDrawingAnswerUrl(Answer $answer)
     {
-        $url['url'] = config('app.url_login').'test_takes/'.$answer->getDrawingStoragePath().'?'.date('ymds');
+        $url['url'] = BaseHelper::getLoginUrl().'test_takes/'.$answer->getDrawingStoragePath().'?'.date('ymds');
         if (request('base64')) {
             $url['url'] = Storage::get($answer->getDrawingStoragePath());
         }
         return Response::make($url, 200);
 	}
+
+	/****************************** feedback ************************************/
+    public function loadFeedback(TestParticipant $testParticipant, Question $question, Request $request){
+		try{
+			$answer = Answer::where('test_participant_id', $testParticipant->id)->where('question_id', $question->id)->with('testParticipant', 'question')->first();
+			if($request->mode === 'write'){
+				$answer->load(['feedback' => function($q){
+					return $q->where('user_id', auth()->id())->limit(1);		// Getting feedback that has written by this user
+				}]);
+			}else{
+				$answer->load(['feedback' => function($q){
+					return $q->inRandomOrder()->take(3);						// Getting all feedback to show for reading (limit 3)
+				}]);
+			}
+            if($request->mode === 'write') {
+                $answer->question_is_writing_assignment_with_spellcheck_available = $question->isWritingAssignmentWithSpellCheckAvailable();
+                $answer->lang = $question->lang ?: Auth::user()->schoolLocation->getWscLanguageAttribute();
+            }
+			return response($answer, 200);
+        }catch (Exception $e){
+            return response($e->getMessage(), 500);
+        }
+    }
+
+	public function loadFeedbackByAnswer(Answer $answer, Request $request){
+		try{
+			if($request->mode === 'write'){
+				$answer->load(['feedback' => function($q){
+					return $q->where('user_id', auth()->id());
+				}]);
+			}else{
+				$answer->load('feedback');
+			}
+            $fullAnswer = $answer->load('testParticipant', 'question');
+            if($request->mode === 'write') {
+                $fullAnswer->question_is_writing_assignment = $answer->question->isWritingAssignment();
+                $fullAnswer->lang = $answer->question->lang ?: Auth::user()->schoolLocation->getWscLanguageAttribute();
+            }
+			return response($fullAnswer, 200);
+        }catch (Exception $e){
+            return response($e->getMessage(), 500);
+        }
+    }
+
+    public function saveFeedback(Answer $answer, SaveFeedbackRequest $request){
+        try{
+            if($answer->feedback()->where('user_id', auth()->id())->exists()){
+                $feedback = $answer->feedback()->where('user_id', auth()->id())->first();
+                $feedback->message = $request->message;
+                $feedback->save();
+            }else{
+				AnswerFeedback::create([
+                    'answer_id'     => $answer->id,
+                    'user_id'     	=> auth()->id(),
+                    'message'       => $request->message
+                ]);
+            }
+            return response(200);
+
+        }catch (Exception $e){
+            return response($e->getMessage(), 500);
+        }
+    }
+
+    public function deleteFeedback($feedback_id){
+        try{
+            $feedback = AnswerFeedback::whereUuid($feedback_id)->first();
+			if($feedback->user->id === auth()->id()){
+				$feedback->delete();
+				return response(200);
+			}else{
+				return response(401);
+			}
+            
+        }catch (Exception $e){
+            return response($e->getMessage(), 500);
+        }
+    }
 
 }

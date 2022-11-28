@@ -41,18 +41,32 @@ class addPeriodAndSchoolYearToVoSchools extends Command
      */
     public function handle()
     {
-         SchoolLocation::NoActivePeriodAtDate('2021-08-01')->activeOnly()->get()->each(function ($location) {
+        set_time_limit(0);
+        ini_set('memory_limit', '-1');
+
+        $year = Date("Y");
+        $nextYear = $year+1;
+        $locations = SchoolLocation::NoActivePeriodAtDate($year.'-08-01')->activeOnly()->get();
+        $bar = $this->output->createProgressBar($locations->count());
+         $locations->each(function ($location) use($year, $nextYear, $bar){
             $user = $location->users()->first();
             if ($user == null) {
                 $this->locationWithoutUser[] = $location->getKey();
             } else {
                 Auth::login($user);
-                $location->addSchoolYearAndPeriod('2021', '01-08-2021', '31-07-2022');
+                $location->addSchoolYearAndPeriod($year, '01-08-'.$year, '31-07-'.$nextYear);
+//                $this->info(
+//                    sprintf('added for school location %s (%d)', $location->name, $location->getKey())
+//                );
             }
+             $bar->advance();
         });
+         $bar->finish();
+         $this->info(sprintf('%s done',PHP_EOL));
         if ($this->locationWithoutUser) {
             $this->error(
-                sprintf("no new school year was created for location(s) with id: [%s]", implode($this->locationWithoutUser, ','))
+                sprintf("%s no new school year was created for location(s) with id: [%s]", PHP_EOL,implode(',',
+                    $this->locationWithoutUser))
             );
         }
 

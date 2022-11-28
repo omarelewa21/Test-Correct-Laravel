@@ -3,17 +3,20 @@
 namespace Tests\Feature;
 
 use Illuminate\Foundation\Testing\DatabaseTransactions;
+use tcCore\Question;
 use tcCore\Test;
 use tcCore\TestQuestion;
+use tcCore\TestTake;
 use tcCore\User;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
-use Tests\Traits\MultipleChoiceQuestionTrait;
-use Tests\Traits\OpenQuestionTrait;
-use Tests\Traits\TestTrait;
-use Tests\Traits\CompletionQuestionTrait;
-use Tests\Traits\GroupQuestionTrait;
+use tcCore\Traits\Dev\MultipleChoiceQuestionTrait;
+use tcCore\Traits\Dev\OpenQuestionTrait;
+use tcCore\Traits\Dev\TestTrait;
+use tcCore\Traits\Dev\CompletionQuestionTrait;
+use tcCore\Traits\Dev\GroupQuestionTrait;
+use tcCore\Traits\Dev\TestTakeTrait;
 
 class TestsControllerTest extends TestCase
 {
@@ -23,6 +26,7 @@ class TestsControllerTest extends TestCase
     use OpenQuestionTrait;
     use CompletionQuestionTrait;
     use GroupQuestionTrait;
+    use TestTakeTrait;
 
     private $originalTestId;
     private $originalQuestionId;
@@ -213,6 +217,63 @@ class TestsControllerTest extends TestCase
             $this->assertEquals(6,$groupQuestionQuestion->question->subject_id);
         }
     }
+
+    /** @test */
+    public function it_should_copy_test_when_test_is_taken()
+    {
+        $testId = 1;
+        $questionId = 11;
+        $test = Test::find($testId);
+        $systemTestId = $test->system_test_id;
+        $this->assertNull($systemTestId);
+        $origCount = Test::where('name',$test->name)->count();
+        $testQuestion = TestQuestion::where('question_id',$questionId)->where('test_id',$testId)->firstOrFail();
+        $uuidTestQuestion = $testQuestion->uuid;
+        $testTakeId = $this->initDefaultTestTake($testId);
+        $testTake = TestTake::find($testTakeId);
+        $testTakeUuid = $testTake->uuid;
+        $this->initTestTakeForClass1($testTakeUuid);
+//        $attributes = $this->getOpenQuestionAttributes(['test_id'=>$testId,'question'=>'open vraag van GM']);
+//        $this->editOpenQuestion($uuidTestQuestion,$attributes);
+//        $question = Question::where('derived_question_id',11)->first();
+//        $this->assertNotNull($question);
+//        $this->assertEquals('open vraag van GM',$question->getQuestionInstance()->question);
+        $systemTestId = Test::find($testId)->system_test_id;
+        $this->assertNotNull($systemTestId);
+        $newCount = Test::where('name',$test->name)->count();
+        $this->assertEquals(($origCount+1),$newCount);
+//        $question = Question::find(11);
+//        $this->assertEquals('<p>Open kort</p>',trim($question->getQuestionInstance()->question));
+    }
+
+    /** @test */
+
+    public function itShouldExecuteTestsControllerIndexWithoutErrors()
+    {
+        $attributes = [ "results"    => "60",
+                        "page"      => "1",
+                        "order"     => [
+                                        "id" => "desc"
+                                        ]
+                        ];
+//        $getRequest = self::authUserGetRequest(
+//            'api-c/test',
+//            $attributes,
+//            User::where('username', 'm.grunbauer@atscholen.nl')->first()
+//        );
+//        $response = $this->get($getRequest);
+//        $response->assertStatus(200);
+        $response = $this->get($this->authTeacherOneGetRequest('api-c/test',$attributes));
+        $response->assertStatus(200);
+        $user = User::where('username', 'd1@test-correct.nl')->first();
+
+        $user->school_id = 1;
+        $user->save();
+        $response = $this->get($this->authTeacherOneGetRequest('api-c/test',$attributes));
+        $response->assertStatus(200);
+    }
+
+
 
     private function setupScenario1(){
         $attributes = $this->getAttributesForTest1();

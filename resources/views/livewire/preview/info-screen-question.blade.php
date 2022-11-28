@@ -3,7 +3,7 @@
         <div class="flex flex-col body1 space-y-3">
             <span>{!! __('test_take.info_screen_question_bottom_text') !!}</span>
             <div wire:ignore>
-                {!! $question->getQuestionHtml() !!}
+                {!! $question->converted_question_html !!}
             </div>
         </div>
     </div>

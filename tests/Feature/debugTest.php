@@ -14,10 +14,10 @@ use tcCore\MulipleChoiceQuestion;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
-use Tests\Traits\TestTrait;
-use Tests\Traits\TestTakeTrait;
-use Tests\Traits\GroupQuestionTrait;
-use Tests\Traits\MultipleChoiceQuestionTrait;
+use tcCore\Traits\Dev\TestTrait;
+use tcCore\Traits\Dev\TestTakeTrait;
+use tcCore\Traits\Dev\GroupQuestionTrait;
+use tcCore\Traits\Dev\MultipleChoiceQuestionTrait;
 use Illuminate\Support\Facades\DB;
 use tcCore\Http\Helpers\ActingAsHelper;
 

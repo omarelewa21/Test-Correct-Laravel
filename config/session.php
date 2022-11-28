@@ -29,7 +29,7 @@ return [
 	|
 	*/
 
-	'lifetime' => 120,
+	'lifetime' => 200,
 
 	'expire_on_close' => false,
 
@@ -148,6 +148,8 @@ return [
 	|
 	*/
 
-	'secure' => env('SESSION_SECURE_COOKIE', null),
+	'secure' => env('SESSION_SECURE_COOKIE', true),
+
+	'same_site' => env('SESSION_SAME_SITE','strict'),
 
 ];

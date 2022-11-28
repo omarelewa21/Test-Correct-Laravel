@@ -4,13 +4,21 @@ use Bugsnag\BugsnagLaravel\Facades\Bugsnag;
 use Illuminate\Contracts\Mail\Mailer;
 use Illuminate\Auth\Passwords\TokenRepositoryInterface;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Response;
 use Illuminate\Mail\Message;
 use Illuminate\Support\Facades\Password;
 use tcCore\Http\Controllers\Controller;
+use tcCore\Http\Helpers\BaseHelper;
+use tcCore\Http\Traits\UserNotificationForController;
+use tcCore\Mail\PasswordChanged;
+use tcCore\Mail\PasswordChangedSelf;
+use tcCore\User;
 
 class PasswordController extends Controller {
-
+    use UserNotificationForController;
 	/**
 	 * Send a reset link to the given user.
 	 *
@@ -34,8 +42,8 @@ class PasswordController extends Controller {
             $token = Password::getRepository()->create($user);
 
 //            $url = $request->get('url', null);
-            $url = sprintf('%spassword-reset/?token=%%s',config('app.base_url'));
-            $urlLogin = config('app.url_login');
+            $url = sprintf('%slogin/?active_overlay=reset_password&token=%%s',config('app.base_url'));
+            $urlLogin = BaseHelper::getLoginUrl();
 
 			try {
 				$mailer->send('emails.password', compact('token', 'user', 'url', 'urlLogin'), function (Message $m) use ($user, $token) {
@@ -78,6 +86,7 @@ class PasswordController extends Controller {
 
 		switch ($response) {
 			case Password::PASSWORD_RESET:
+                $this->notifyUser($credentials['username']);
 				return Response::make("Ok", 200);
 			default:
 				return Response::make("Fail", 400);
@@ -97,5 +106,15 @@ class PasswordController extends Controller {
 
 		$user->save();
 	}
+
+    protected function notifyUser($userName)
+    {
+        try {
+            $user = User::where('username', $userName)->firstOrFail();
+            $this->sendPasswordChangedMail($user);
+        } catch (\Exception $e) {
+            //silent fail
+        }
+    }
 
 }

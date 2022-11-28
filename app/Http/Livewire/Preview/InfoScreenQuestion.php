@@ -3,12 +3,10 @@
 namespace tcCore\Http\Livewire\Preview;
 
 use Livewire\Component;
-use tcCore\Answer;
-use tcCore\Http\Traits\WithPreviewAttachments;
 use tcCore\Http\Traits\WithCloseable;
-use tcCore\Http\Traits\WithPreviewGroups;
 use tcCore\Http\Traits\WithNotepad;
-use tcCore\Http\Traits\WithQuestionTimer;
+use tcCore\Http\Traits\WithPreviewAttachments;
+use tcCore\Http\Traits\WithPreviewGroups;
 
 class InfoScreenQuestion extends Component
 {
@@ -23,13 +21,6 @@ class InfoScreenQuestion extends Component
 
     public $answer = '';
 
-    public function mount()
-    {
-        if($this->answers[$this->question->uuid]['answered']) {
-            $this->answer = 'seen';
-        }
-    }
-
     public function render()
     {
         return view('livewire.preview.info-screen-question');
@@ -37,8 +28,6 @@ class InfoScreenQuestion extends Component
 
     public function markAsSeen($questionUuid)
     {
-        $json = json_encode('seen');
-        Answer::updateJson($this->answers[$questionUuid]['id'], $json);
-    }
 
+    }
 }

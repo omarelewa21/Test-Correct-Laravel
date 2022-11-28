@@ -8,6 +8,7 @@ use tcCore\Http\Requests;
 use tcCore\Lib\Repositories\SchoolYearRepository;
 use tcCore\Http\Controllers\Controller;
 use tcCore\Subject;
+use tcCore\BaseSubject;
 use tcCore\Http\Requests\CreateSubjectRequest;
 use tcCore\Http\Requests\UpdateSubjectRequest;
 
@@ -21,8 +22,7 @@ class SubjectsController extends Controller
      */
     public function index(Request $request)
     {
-
-        $subjects = Subject::filtered($request->get('filter', []), $request->get('order', ['name' => 'asc']))->with('baseSubject');
+       $subjects = Subject::filtered($request->get('filter', []), $request->get('order', ['name' => 'asc']))->with('baseSubject');
 
         switch (strtolower($request->get('mode', 'paginate'))) {
             case 'all':

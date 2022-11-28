@@ -4,18 +4,27 @@ namespace tcCore\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Str;
 use tcCore\GroupQuestionQuestion;
+use tcCore\Http\Helpers\BaseHelper;
+use tcCore\Http\Traits\TestTakeNavigationForController;
+use tcCore\Http\Traits\WithStudentTestTakes;
 use tcCore\TestParticipant;
 use tcCore\TestTake;
+use tcCore\TemporaryLogin;
 use tcCore\TestTake as Test;
+use Ramsey\Uuid\Uuid;
 
 class TestTakeLaravelController extends Controller
 {
+    use TestTakeNavigationForController;
+    use WithStudentTestTakes;
+
     public function overview(TestTake $testTake, Request $request)
     {
         $testParticipant = TestParticipant::whereUserId(Auth::id())->whereTestTakeId($testTake->id)->first();
-        if (!$testParticipant->canSeeOverviewPage()) {
-            return redirect(config('app.url_login'));
+        if (!$testParticipant->canTakeTestTakeInPlayer()) {
+            return redirect(BaseHelper::getLoginUrl());
         }
 
         $current = $request->get('q') ?: '1';
@@ -37,8 +46,9 @@ class TestTakeLaravelController extends Controller
     public function show($testTake, Request $request)
     {
         $testParticipant = TestParticipant::whereUserId(Auth::id())->whereTestTakeId($testTake->id)->first();
-        if (!$testParticipant->startTestTake()) {
-            return redirect(config('app.url_login'));
+
+        if (!$testParticipant->canTakeTestTakeInPlayer()) {
+            return redirect(BaseHelper::getLoginUrl());
         }
 
         $data = self::getData($testParticipant, $testTake);
@@ -46,8 +56,8 @@ class TestTakeLaravelController extends Controller
         $nav = $this->getNavigationData($data, $answers);
         $data = $this->applyAnswerOrderForParticipant($data, $answers);
 
-        $current = (int) $request->get('q') ?: 1;
-        if($current < 1){
+        $current = (int)$request->get('q') ?: 1;
+        if ($current < 1) {
             $current = 1;
         } else if ($current > $nav->count()) {
             $current = $nav->count();
@@ -66,7 +76,7 @@ class TestTakeLaravelController extends Controller
         $result = [];
         $testParticipant
             ->answers
-            ->sortBy(function($answer) {
+            ->sortBy(function ($answer) {
                 return $answer->order;
             })
             ->each(function ($answer) use ($testTake, &$result, $testQuestions) {
@@ -77,7 +87,7 @@ class TestTakeLaravelController extends Controller
                 $groupCloseable = 0;
                 if ($question->is_subquestion) {
                     $groupQuestionQuestion = GroupQuestionQuestion::select('group_question_questions.group_question_id', 'questions.closeable')
-                        ->where('group_question_questions.question_id',$question->getKey())
+                        ->where('group_question_questions.question_id', $question->getKey())
                         ->whereIn('group_question_questions.group_question_id', function ($query) use ($testTake) {
                             $query->select('question_id')->from('test_questions')->where('test_id', $testTake->test_id);
                         })
@@ -104,21 +114,6 @@ class TestTakeLaravelController extends Controller
         return $result;
     }
 
-    public static function getData($testParticipant, $testTake)
-    {
-        return cache()->remember('data_test_take_' . $testTake->getKey(), now()->addMinutes(60), function () use ($testTake) {
-            $testTake->load('test','test.testQuestions', 'test.testQuestions.question', 'test.testQuestions.question.attachments');
-            return $testTake->test->testQuestions->flatMap(function ($testQuestion) {
-                $testQuestion->question->loadRelated();
-                if ($testQuestion->question->type === 'GroupQuestion') {
-                    return $testQuestion->question->groupQuestionQuestions->map(function ($item) {
-                        return $item->question;
-                    });
-                }
-                return collect([$testQuestion->question]);
-            });
-        });
-    }
 
     /**
      * @param $data
@@ -132,12 +127,15 @@ class TestTakeLaravelController extends Controller
                 return $question->uuid == $questionUuid;
             });
 
+            $closeable = $question->closeable;
+            $closeableAudio = $this->getCloseableAudio($question);
             return [
                 'uuid'      => $question->uuid,
                 'id'        => $question->id,
                 'answer_id' => $answer['id'],
                 'answered'  => $answer['answered'],
-                'closeable' => $question->closeable,
+                'closeable' => $closeable,
+                'closeable_audio' => $closeableAudio,
                 'closed'    => $answer['closed'],
                 'group'     => [
                     'id'        => $answer['group_id'],
@@ -152,8 +150,8 @@ class TestTakeLaravelController extends Controller
     private function applyAnswerOrderForParticipant($data, $answers)
     {
         $newData = collect([]);
-        collect($answers)->each(function($answer) use ($data, $newData) {
-            $newData->push($data->first(function($question) use ($data, $answer) {
+        collect($answers)->each(function ($answer) use ($data, $newData) {
+            $newData->push($data->first(function ($question) use ($data, $answer) {
                 return $question->id == $answer['question_id'];
             }));
         });
@@ -162,8 +160,102 @@ class TestTakeLaravelController extends Controller
 
     private function getCustomStylingFromQuestions($data)
     {
-        return $data->map(function($question) {
+        return $data->map(function ($question) {
             return $question->getQuestionInstance()->styling;
         })->unique()->implode(' ');
+    }
+
+    /**
+     * Quick access to test take for Student, Teacher and Invigilator
+     * @param tcCore\TestTake $testTake
+     */
+    public function directLink($testTakeUuid)
+    {
+        $notification=null;
+        $url=null;
+
+        if(!UUid::isValid($testTakeUuid) || TestTake::whereUuid($testTakeUuid)->doesntExist()){
+            $notification = __('teacher.test_not_found');
+            return $this->redirectToCorrectTakePage($notification);
+        }
+        
+        $user = Auth::user();
+        $testTake = TestTake::whereUuid($testTakeUuid)->with('test', 'testTakeStatus')->first();
+        if (!auth()->check()) {
+            session(['take' => $testTake->uuid]);
+            return redirect()->route('auth.login');
+        }
+
+        if($user->isA('student')){
+            // Student
+            return redirect()->route('student.waiting-room', ['take' => $testTake->uuid]);
+        }
+
+        if($user->isA('teacher') && $testTake->user_id === $user->id){
+            return $this->redirectTakeOwner($testTake);
+        }elseif($testTake->isInvigilator($user)){
+            return $this->redirectTakeInvigilator($testTake);
+        }else{
+            $notification = __('teacher.test_not_found');
+            return $this->redirectToCorrectTakePage($notification, $url);
+        }
+    }
+
+    private function redirectTakeOwner(TestTake $testTake){
+        $notification=null;
+        $url=null;
+
+        if($testTake->isAssessmentType()){
+            // is assignment
+            if($testTake->testTakeStatus->name == 'Taking test' || $testTake->testTakeStatus->name == 'Planned'){
+                $url = sprintf("test_takes/assessment_open_teacher/%s", $testTake->uuid);
+            }else{
+                $url = sprintf("test_takes/view/%s", $testTake->uuid);
+            }
+        }else{
+            if($testTake->testTakeStatus->name == 'Taking test'){
+                $url = "test_takes/surveillance";
+            }else{
+                $url = sprintf("test_takes/view/%s", $testTake->uuid);
+            }
+        }
+        return $this->redirectToCorrectTakePage($notification, $url);
+    }
+
+    private function redirectTakeInvigilator(TestTake $testTake){
+        $notification=null;
+        $url=null;
+
+        if($testTake->isAssessmentType()){
+            // is assignment
+            if($testTake->testTakeStatus->name == 'Taking test' || $testTake->testTakeStatus->name == 'Planned'){
+                $url = sprintf("test_takes/assessment_open_teacher/%s", $testTake->uuid);
+            }else{
+                $notification = __('teacher.take_not_accessible_toast_for_invigilator', ['testName' => $testTake->test->name]);
+            }
+        }else{
+            if($testTake->testTakeStatus->name == 'Planned'){
+                $url = sprintf("test_takes/view/%s", $testTake->uuid);
+            }elseif($testTake->testTakeStatus->name == 'Taking test'){
+                $url = "test_takes/surveillance";
+            }else{
+                $notification = __('teacher.take_not_accessible_toast_for_invigilator', ['testName' => $testTake->test->name]);
+            }
+        }
+        return $this->redirectToCorrectTakePage($notification, $url);
+    }
+
+    private function redirectToCorrectTakePage($notification=null, $url=null){
+        if($notification){
+            $options = TemporaryLogin::buildValidOptionObject('notification', [$notification => 'info']);
+        }else{
+            $options = TemporaryLogin::buildValidOptionObject('page', $url);
+        }
+
+        if (auth()->check()) {
+            return auth()->user()->redirectToCakeWithTemporaryLogin($options);
+        }else{
+            return redirect()->route('auth.login');
+        }
     }
 }

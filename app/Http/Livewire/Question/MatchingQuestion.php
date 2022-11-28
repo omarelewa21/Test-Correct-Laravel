@@ -2,6 +2,7 @@
 
 namespace tcCore\Http\Livewire\Question;
 
+use Illuminate\Support\Str;
 use Livewire\Component;
 use tcCore\Answer;
 use tcCore\Http\Traits\WithAttachments;
@@ -10,7 +11,6 @@ use tcCore\Http\Traits\WithGroups;
 use tcCore\Http\Traits\WithNotepad;
 use tcCore\Http\Traits\WithQuestionTimer;
 use tcCore\Http\Traits\WithUpdatingHandling;
-use tcCore\Question;
 
 class MatchingQuestion extends Component
 {
@@ -48,15 +48,53 @@ class MatchingQuestion extends Component
         $this->answer = $answer;
     }
 
-    public function updateOrder($value)
-    {
-        $dbstring = [];
-        foreach ($value as $key => $value) {
+    private function matchingUpdateValueOrder($dbstring, $values){
+        $databaseStruct = json_decode(
+            Answer::find($this->answers[$this->question->uuid]['id'])->json,
+            true);
+        foreach ($values as $key => $value) {
             if ($value['value'] == 'startGroep') {
                 $value['value'] = '';
             }
+
             foreach ($value['items'] as $items) {
-                $dbstring[$items['value']] = $value['value'];
+                if(in_array($value['value'], $dbstring) && !is_null($databaseStruct)){
+                    // value stored before in dbstring =>
+                    $prevStoredKeyInDbstring = array_search($value['value'], $dbstring);        // Get previous key from dbstring
+                    $prevStoredKeyInDatabase = array_search($value['value'], $databaseStruct);  // Get previous key from database
+
+                    if($prevStoredKeyInDatabase == -1){
+                        // value doesn't exist in database =>
+                        $dbstring[$prevStoredKeyInDbstring] = '';        // set previous key in dbstring to empty string
+                        $dbstring[$items['value']] = $value['value'];    // set new key to value
+                    }else{
+                        // value exists in database
+                        $dbstring[$prevStoredKeyInDbstring] = $value['value']; // set previous key in dbstring to value
+                        $dbstring[$items['value']] = '';                       // set new key to empty string
+                    }
+                }else{
+                    // value is not previously stored in dbstring
+                    $dbstring[$items['value']] = $value['value'];
+                }
+            }
+        }
+        return $dbstring;
+    }
+
+    public function updateOrder($values)
+    {
+        $dbstring = [];
+        if(Str::lower($this->question->subtype)  == "matching"){
+            $dbstring = $this->matchingUpdateValueOrder($dbstring, $values);
+        }
+        else{
+            foreach ($values as $key => $value) {
+                if ($value['value'] == 'startGroep') {
+                    $value['value'] = '';
+                }
+                foreach ($value['items'] as $items) {
+                    $dbstring[$items['value']] = $value['value'];
+                }
             }
         }
 

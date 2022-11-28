@@ -19,11 +19,13 @@ use tcCore\Http\Controllers\Testing\TestingController;
 
 // file name was api.php and is now apicake.php in order to make room for the direct access urls
 
+
 Route::post('/do_we_need_captcha',[AuthController::class,'doWeNeedCaptcha'])->name('user.doWeNeedCaptcha');
+Route::get('/auth/laravel_login_page', [AuthController::class, 'getLaravelLoginPage'])->name('auth.laravelLoginPage');
 
 Route::get('/edu-k', 'EduK\HomeController@index');
 Route::post('demo_account', 'DemoAccountController@store')->name('demo_account.store');
-//Route::get('config', 'ConfigController@show')->name('config.show');
+Route::get('config', 'ConfigController@show')->name('config.show');
 
 Route::get('/', 'HomeController@index');
 
@@ -45,7 +47,26 @@ Route::get('temporary_login/{tlid}', ['as' => 'user.temporary_login', 'uses'=>'U
 
 Route::get('check_for_deployment_maintenance',['uses' => 'DeploymentMaintenanceController@checkForMaintenance']);
 
+Route::group(['middleware' => ['api', 'bindings']], function() {
+    Route::get('info', [tcCore\Http\Controllers\InfoController::class, 'index']);
+    Route::post('info/removeDashboardInfo/{info}', [tcCore\Http\Controllers\InfoController::class,'removeDashboardInfo']);
+});
+
 Route::group(['middleware' => ['api', 'dl', 'authorize', 'authorizeBinds', 'bindings']], function(){
+    Route::post('/default_subjects_and_sections/import',[\tcCore\Http\Controllers\DefaultSubjectsAndSectionsController::class,'import'])->name('defaultSubjectsAndSections.import');
+    Route::post('/school_school_locations/import',[\tcCore\Http\Controllers\SchoolAndSchoolLocationsImportController::class,'import'])->name('schoolAndSchoolLocations.import');
+    Route::put('/add_default_subjects_and_sections_to_school_location/{schoolLocation}',[\tcCore\Http\Controllers\SchoolLocationsController::class,'addDefaultSubjectsAndSections'])->name('schoolLocation.addDefaultSubjectsAndSections');
+
+
+    Route::post('/temporary-login',[tcCore\Http\Controllers\TemporaryLoginController::class,'create'])->name('auth.temporary-login.create');
+
+    Route::get('info/{info}',[tcCore\Http\Controllers\InfoController::class,'show']);
+    Route::post('info',[tcCore\Http\Controllers\InfoController::class,'store']);
+    Route::put('info/{info}',[tcCore\Http\Controllers\InfoController::class,'update']);
+    Route::delete('info/{info}',[tcCore\Http\Controllers\InfoController::class,'delete']);
+
+
+    Route::get('role',[\tcCore\Http\Controllers\RolesController::class,'index']);
 
     Route::get('authors',['as' => 'authors','uses' => 'AuthorsController@index']);
     Route::get('/deployment',['uses' => 'DeploymentController@index']);
@@ -71,6 +92,7 @@ Route::group(['middleware' => ['api', 'dl', 'authorize', 'authorizeBinds', 'bind
 	Route::resource('test', 'TestsController', ['except' => ['create', 'edit']]);
 	Route::get('test_max_score/{test}','TestsController@maxScoreResponse')->name('test.max_score');
     Route::resource('cito_test','Cito\TestsController')->only(['index','show']);
+    Route::resource('exam_test','Exam\TestsController')->only(['index','show']);
 
     Route::get('shared_sections','SharedSectionsController@index');
 
@@ -130,13 +152,18 @@ Route::group(['middleware' => ['api', 'dl', 'authorize', 'authorizeBinds', 'bind
 	Route::post('filemanagement/{schoolLocation}/class',['as' => 'filemanagement.uploadclass','uses' => 'FileManagementController@storeClassUpload']);
     Route::post('filemanagement/{schoolLocation}/test',['as' => 'filemanagement.uploadtest','uses' => 'FileManagementController@storeTestUpload']);
 
+    Route::get('filemanagement/users',['as' => 'filemanagement.users','uses' => 'FileManagementUsersController@index']);
+    Route::get('filemanagement/schoollocations',['as' => 'filemanagement.schoollocations','uses' => 'FileManagementSchoolLocationsController@index']);
+    Route::get('filemanagement/educationlevels',['as' => 'filemanagement.educationlevels','uses' => 'FileManagementEducationLevelsController@index']);
+    Route::get('filemanagement/statuses',['as' => 'filemanagement.statuses','uses' => 'FileManagementController@getStatuses']);
+
     Route::get('filemanagement/',['as' => 'filemanagement.index','uses' => 'FileManagementController@index']);
     Route::get('filemanagement/form_id',['as' => 'filemanagement.form_id','uses' => 'FileManagementController@getFormId']);
     Route::get('filemanagement/{fileManagement}',['as' => 'filemanagement.view','uses' => 'FileManagementController@show']);
     Route::get('filemanagement/{fileManagement}/download',['as' => 'filemanagement.download','uses' => 'FileManagementController@download']);
     Route::put('filemanagement/{fileManagement}',['as' => 'filemanagement.update','uses' => 'FileManagementController@update']);
-    Route::get('filemanagement/statuses',['as' => 'filemanagement.statuses','uses' => 'FileManagementController@getStatuses']);
-
+    Route::get('test_take/get_surveillance_data', 'SurveillanceController@index')->name('test_take.get_surveillance_data');
+    Route::get('test_take/bust_surveillance_cache', 'SurveillanceController@destroy')->name('test_take.bust_surveillance_cache');
 
 	// Test take + children
 	Route::get('test_take/{test_take}/export', ['as' => 'test_take.export', 'uses' => 'TestTakesController@export']);
@@ -149,7 +176,12 @@ Route::group(['middleware' => ['api', 'dl', 'authorize', 'authorizeBinds', 'bind
     Route::post('test_take/{test_take}/rtti_export', ['as' => 'test_take.rtti_export', 'uses' => 'TestTakes\TestTakeRttiExportController@store']);
 
 	Route::post('test/{test}/with_temporary_login',  'TestsController@withTemporaryLogin')->name('test.with_short_code');
+    Route::post('test/answer_model/{test}/with_temporary_login',  'TestsController@answerModelwithTemporaryLogin')->name('test_answer_model.with_short_code');
+    Route::post('test/pdf/{test}/with_temporary_login',  'TestsController@pdfWithTemporaryLogin')->name('test_pdf.with_short_code');
+    Route::post('test/pdf-attachments/{test}/with_temporary_login',  'TestsController@pdfPdfAttachmentsWithTemporaryLogin')->name('test_pdf_attachments.with_short_code');
 	Route::post('test_take/{test_take}/with_temporary_login',  'TestTakesController@withTemporaryLogin')->name('test_take.with_short_code');
+	Route::post('test_take/pdf/{test_take}/with_temporary_login',  'TestTakesController@pdfWithTemporaryLogin')->name('test_take_pdf.with_short_code');
+    Route::post('test_take/answers/{test_take}/with_temporary_login',  'TestTakesController@AnswersWithTemporaryLogin')->name('test_take_answers.with_short_code');
 
 	// Test take children
 	Route::post('test_take/{test_take_id}/test_participant/{test_participant}/heartbeat', ['as' => 'test_take.test_participant.heartbeat', 'uses' => 'TestTakes\TestParticipantsController@heartbeat']);
@@ -160,6 +192,7 @@ Route::group(['middleware' => ['api', 'dl', 'authorize', 'authorizeBinds', 'bind
 
 	Route::get('test_take_max_score/{test_take}','TestTakesController@maxScoreResponse')->name('test_take.max_score');
 
+
     Route::get('test_take/{test_take}/attainment/analysis','TestTakes\TestTakeAttainmentAnalysisController@index')->name('test_take_attainment_analysis.index');
     Route::get('test_take/{test_take}/attainment/{attainment}/analysis','TestTakes\TestTakeAttainmentAnalysisController@show')->name('test_take_attainment_analysis.show');
 
@@ -168,6 +201,13 @@ Route::group(['middleware' => ['api', 'dl', 'authorize', 'authorizeBinds', 'bind
     Route::get('test_participant/{test_participant}/answers_and_status2019',['uses' => 'TestParticipants\Answers2019Controller@getAnswersAndStatus']);
 
     Route::get('test_participant/drawing_answer_url/{answer}',['uses' => 'TestParticipants\AnswersController@getDrawingAnswerUrl']);
+
+    // feedback
+    Route::get('test_participant/feedback/{test_participant}/{question}', 'TestParticipants\AnswersController@loadFeedback');
+    Route::get('test_participant/feedback_by_answer/{answer}', 'TestParticipants\AnswersController@loadFeedbackByAnswer');
+    Route::post('test_participant/feedback/{answer}', 'TestParticipants\AnswersController@saveFeedback');
+    Route::delete('test_participant/feedback/{feedback_id}', 'TestParticipants\AnswersController@deleteFeedback')
+	;
 
     Route::get('answers/drawing_answer/{answer}',['uses' => 'AnswersController@showDrawing']);
 
@@ -198,6 +238,7 @@ Route::group(['middleware' => ['api', 'dl', 'authorize', 'authorizeBinds', 'bind
 	// Subjects
 	Route::resource('subject', 'SubjectsController', ['except' => ['create', 'edit']]);
 	Route::resource('cito_subject','Cito\SubjectsController')->only(['index']);
+    Route::resource('exam_subject','Exam\SubjectsController')->only(['index']);
 
 	// Test kinds
 	Route::get('test_kind/list', ['as' => 'test_kind.list', 'uses' => 'TestKindsController@lists']);
@@ -208,10 +249,13 @@ Route::group(['middleware' => ['api', 'dl', 'authorize', 'authorizeBinds', 'bind
     Route::post('/school_class/importStudentsWithClasses/{schoolLocation}','SchoolClassesStudentImportController@store')->name('school_classes.import_with_classes');
     Route::put('/school_class/update_with_education_levels_for_main_classes', 'SchoolClassesController@updateWithEducationLevelsForMainClasses')->name('school_classes.update_with_education_levels_for_main_classes');
     Route::put('/school_class/update_with_education_levels_for_cluster_classes', 'SchoolClassesController@updateWithEducationLevelsForClusterClasses')->name('school_classes.update_with_education_levels_for_cluster_classes');
+    Route::put('/school_class/reset_passwords/{schoolClass}', 'SchoolClassesController@resetPasswords')->name('school_classes.reset_passwords');
 
     Route::get('school_class/list', ['as' => 'school_class.list', 'uses' => 'SchoolClassesController@lists']);
+    Route::get('school_class/forUser/{user}', 'SchoolClassesController@showForUser')->name('school_classes.for_user');
     Route::resource('school_class', 'SchoolClassesController', ['except' => ['create', 'edit']]);
 
+    Route::delete('school_class_mentor/{schoolClass}/{userUuid}','SchoolClassesController@deleteMentor')->name('school_class_mentor.delete');
 
     Route::get('invigilator/list', ['as' => 'invigilator.list', 'uses' => 'InvigilatorsController@lists']);
 
@@ -223,8 +267,11 @@ Route::group(['middleware' => ['api', 'dl', 'authorize', 'authorizeBinds', 'bind
     Route::resource('attachment', 'AttachmentsController', ['only' => ['index', 'show']]);
 
     Route::get('question/inlineimage/{image}',['uses' => 'QuestionsController@inlineimage']);
+    Route::get('/drawing-question/{answerUuid}/given-answer-png', [tcCore\Http\Controllers\QuestionsController::class, 'getDrawingQuestionGivenAnswerPng'])->name('api-c.drawing-question.givenanswerpng');
+    Route::get('/drawing-question/{drawingQuestion}/correction-model', [tcCore\Http\Controllers\QuestionsController::class, 'drawingQuestionCorrectionModelPng'])->name('api-c.drawing-question.correction-model');
+    Route::get('/drawing-question/{drawing_question}/background-image', [tcCore\Http\Controllers\QuestionsController::class, 'getDrawingQuestionBackgroundImageUpdated'])->name('api-c.drawing-question.background-image');
 
-	Route::resource('attainment', 'AttainmentsController', ['only' => ['index', 'show']]);
+    Route::resource('attainment', 'AttainmentsController', ['only' => ['index', 'show']]);
 
 	// Phase B
 	Route::resource('answer_rating', 'AnswerRatingsController', ['except' => ['create', 'edit']]);
@@ -232,15 +279,17 @@ Route::group(['middleware' => ['api', 'dl', 'authorize', 'authorizeBinds', 'bind
 	Route::resource('answer', 'AnswersController', ['only' => ['index', 'show']]);
 
 	// Users
+    Route::get('user/{user}/verify_password', 'UsersController@verifyPassword')->name('user.verify_password');
     Route::get('user/{user}/profile_image', ['as' => 'user.profile_image', 'uses' => 'UsersController@profileImage']);
     Route::get('user/send_welcome_email', ['as' => 'user.send_welcome_email', 'uses' => 'UsersController@sendWelcomeEmail']);
     Route::get('user/is_account_verified', ['as' => 'user.is_account_verified', 'uses' => 'UsersController@isAccountVerified']);
     Route::post('user/toggle_account_verified/{user}', ['as' => 'user.toggle_account_verified', 'uses' => 'UsersController@toggleAccountVerified']);
     Route::post('/user/import/{type}','UsersController@import')->name('user.import');
 
-    Route::get('/user/{user}/general_terms_log','UsersController@getGeneralTermsLogForUser')->name('user.getGeneralTermsLogForUser');
+    Route::get('/user/{user}/time_sensitive_records','UsersController@getTimeSensitiveUserRecords')->name('user.getTimeSensitiveUserRecords');
     Route::put('/user/{user}/general_terms_accepted','UsersController@setGeneralTermsLogAcceptedAtForUser')->name('user.setGeneralTermsLogAcceptedAtForUser');
 
+    Route::get('/user/{user}/return_to_laravel_url','UsersController@getReturnToLaravelUrl')->name('user.getReturnToLaravelUrl');
 
     Route::put('user/resend_onboarding_welcome_email', ['as' => 'user.send_onboarding_welcome_email', 'uses' => 'UsersController@sendOnboardingWelcomeEmail']);
     Route::resource('user', 'UsersController', ['except' => ['create', 'edit']]);
@@ -255,10 +304,15 @@ Route::group(['middleware' => ['api', 'dl', 'authorize', 'authorizeBinds', 'bind
     Route::resource('teacher', 'TeachersController', ['except' => ['create', 'edit']]);
 
     Route::post('/teacher/import/schoollocation','TeachersController@import')->name('teacher.import');
+    Route::get('/teacher/school_location_teacher_users/{school_location}','TeachersController@getSchoolLocationTeacherUser')->name('teacher.school-location-teacher-users');
 
     Route::post('/attainments/import','AttainmentImportController@import')->name('attainment.import');
     Route::post('/attainments_cito/import','AttainmentCitoImportController@import')->name('attainment_cito.import');
     Route::get('attainments/data','AttainmentCitoImportController@data')->name('attainment_cito.data');
+    Route::post('/attainments/upload','AttainmentImportController@upload')->name('attainment.upload');
+    Route::get('/attainments/export','AttainmentExportController@export')->name('attainment.export');
+    Route::post('/learning_goals/upload','LearningGoalImportController@upload')->name('learning_goal.upload');
+    Route::get('/learning_goals/export','LearningGoalExportController@export')->name('learning_goal.export');
 
     Route::get('demo_account/{user}', 'DemoAccountController@show')->name('demo_account.show');
     Route::put('demo_account/{user}', 'DemoAccountController@update')->name('demo_account.update');
@@ -275,11 +329,11 @@ Route::group(['middleware' => ['api', 'dl', 'authorize', 'authorizeBinds', 'bind
 
 	Route::resource('school', 'SchoolsController', ['except' => ['create', 'edit']]);
     Route::get('school_location/is_allowed_new_player_access', 'SchoolLocationsController@isAllowedNewPlayerAccess')->name('school_location.is_allowed_new_player_access');
-    Route::get('school_location/get_lvs_and_sso_options', 'SchoolLocationsController@getLvsAndSsoOptions')->name('school_location.get_lvs_and_sso_options');
+    Route::get('school_location/get_available_school_location_options', 'SchoolLocationsController@getAvailableSchoolLocationOptions')->name('school_location.get_available_school_location_options');
     Route::get('school_location/{school_location_id}/get_lvs_type', 'SchoolLocationsController@getLvsType')->name('school_location.get_lvs_type');
     // School children
     Route::resource('school_location', 'SchoolLocationsController', ['except' => ['create', 'edit']]);
-
+    Route::get('school_location/{id}/get_by_id', 'SchoolLocationsController@showById')->name('school_location.showById');
     // School location children
     Route::resource('school_location.school_class', 'SchoolLocations\SchoolClassesController', ['except' => ['create', 'edit']]);
     Route::resource('school_location.school_location_ip', 'SchoolLocations\SchoolLocationIpsController', ['except' => ['create', 'edit']]);
@@ -341,7 +395,7 @@ Route::group(['middleware' => ['api', 'dl', 'authorize', 'authorizeBinds', 'bind
     Route::get('shortcode','Api\ShortcodeController@store')->name('shortcode.store');
     Route::put('shortcodeclick/{shortcodeClick}','Api\ShortcodeClickController@update')->name('shortcodeClick.update');
 
-    Route::get('config/{variable_name}','ConfigController@show')->name('config.show');
+//    Route::get('config/{variable_name}','ConfigController@show')->name('config.show');
     // goes to the web part
     // Route::get('tlc/{shortcode}','ShortcodeController@registerClickAndRedirect')->name('shortcode.registerAndRedirect');
     Route::get('test_participant/{test_take}/is_allowed_inbrowser_testing','TestTakes\TestParticipantsController@is_allowed_inbrowser_testing')->name('testparticipant.is_allowed_inbrowser_testing.show');
@@ -351,5 +405,10 @@ Route::group(['middleware' => ['api', 'dl', 'authorize', 'authorizeBinds', 'bind
     Route::put('test_take/{test_take}/toggle_inbrowser_testing_for_all_participants','TestTakesController@toggleInbrowserTestingForAllParticipants')->name('test_takes.toggle_inbrowser_testing_for_all_participants');
 
     Route::post('/convert/html/pdf','PdfController@HtmlToPdf')->name('convert.htmltopdf');
+    Route::get('/convert/settings/{setting}','PdfController@getSetting')->name('convert.getSetting');
 
+    Route::put('support/register_take_over/{user}','SupportTakeOverLogController@store')->name('support_take_over_log.store');
+    Route::get('support/show/{user}','SupportTakeOverLogController@show')->name('support_take_over_log.show');
+    Route::get('support/index','SupportTakeOverLogController@index')->name('support_take_over_log.index');
+    Route::post('/user/{user}/update_trial_date','UsersController@updateTrialDate')->name('user.update_trial_date');
 });

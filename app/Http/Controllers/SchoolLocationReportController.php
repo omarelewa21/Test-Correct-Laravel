@@ -13,11 +13,11 @@ class SchoolLocationReportController extends Controller
 
     public function store()
     {
-        
-        // run realtime when not on production
-        if (config('app.url_login') !== 'https://portal.test-correct.nl/') {
-            \tcCore\SchoolLocationReport::updateAllLocationStats();
-        }
+        /** we don't do realtime reports any more as they are scheduled and becoming too big */
+//        // run realtime when not on production
+//        if (!in_array(config('app.url_login'),[ 'https://portal.test-correct.nl/'],true)) {
+//            \tcCore\SchoolLocationReport::updateAllLocationStats();
+//        }
 
         $file = storage_path($this->fileName);
         

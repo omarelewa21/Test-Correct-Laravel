@@ -7,12 +7,12 @@
 }
 
 .form-input:hover {
-    border: 1px solid var(--primary);
+    border-color: var(--primary);
 }
 
 .form-input:focus, .form-input:active {
     color: var(--primary);
-    border: 1px solid var(--primary);
+    border-color: var(--primary);
     outline: none;
 }
 

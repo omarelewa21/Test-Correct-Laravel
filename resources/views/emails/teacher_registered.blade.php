@@ -3,85 +3,89 @@
 @section('content')
     <tr>
         <td colspan="999" style="padding:20px;">
-            Geacht supportteam,<br/>
+            {{ __("teacher_registered.Geacht supportteam") }},<br/>
             <br/>
-            Een nieuwe docent heeft zich met onderstaande gegevens aangemeld voor Test-Correct.
+            {{ __("teacher_registered.Een nieuwe docent heeft zich met onderstaande gegevens aangemeld voor Test-Correct.") }}
             <br/>
             @if($withDuplicateEmailAddress)
-                <h3>“Let op! De docent heeft een e-mailadres opgegeven dat al bestaat in de database!"</h3>
-                Er is daarom ook geen nieuw account voor deze docent aangemaakt.<br/>
+                <h3>“{{ __("teacher_registered.Let op! De docent heeft een e-mailadres opgegeven dat al bestaat in de database!") }}"</h3>
+                {{ __("teacher_registered.Er is daarom ook geen nieuw account voor deze docent aangemaakt") }}.<br/>
             @endif
             @if($invitedByColleagueWithSameDomain)
-                <h3>Uitgenodigd door een collega van hetzelfde domein.</h3>
+                <h3>{{ __("teacher_registered.Uitgenodigd door een collega van hetzelfde domein") }}.</h3>
             @endif
             <table>
                 <tr>
-                    <td>School Locatie</td>
+                    <td>{{ __("teacher_registered.School Locatie") }}</td>
                     <td>{{ $demo->school_location }}</td>
                 </tr>
                 <tr>
-                    <td>Website Url</td>
+                    <td>{{ __("teacher_registered.Website Url") }}</td>
                     <td>{{ $demo->website_url }}</td>
                 </tr>
                 <tr>
-                    <td>Adres</td>
+                    <td>{{ __("teacher_registered.Adres") }}</td>
                     <td>{{ $demo->address }} {{ $demo->house_number }}</td>
 
                 </tr>
                 <tr>
-                    <td>Postcode</td>
+                    <td>{{ __("teacher_registered.Postcode") }}</td>
                     <td>{{ $demo->postcode }}</td>
                 </tr>
                 <tr>
-                    <td>Plaatsnaam</td>
+                    <td>{{ __("teacher_registered.Plaatsnaam") }}</td>
                     <td>{{ $demo->city }}</td>
                 </tr>
                 <tr>
-                    <td>Aanhef</td>
+                    <td>{{ __("teacher_registered.Aanhef") }}</td>
                     @if($demo->gender == 'male')
-                        <td>Meneer</td>
+                        <td>{{ __("teacher_registered.Meneer") }}</td>
                     @elseif($demo->gender == 'female')
-                        <td>Mevrouw</td>
+                        <td>{{ __("teacher_registered.Mevrouw") }}</td>
                     @elseif($demo->gender == 'different')
                         <td>{{$demo->gender_different}}</td>
                     @endif
                 </tr>
                 <tr>
-                    <td>Naam</td>
+                    <td>{{ __("teacher_registered.Naam") }}</td>
                     <td>{{ $demo->name_first }} {{ $demo->name_suffix }} {{ $demo->name }}</td>
                 </tr>
                 <tr>
-                    <td>Email</td>
+                    <td>{{ __("teacher_registered.Email") }}</td>
                     <td>{{ $demo->username }}</td>
                 </tr>
                 <tr>
-                    <td>Afkorting</td>
+                    <td>{{ __("teacher_registered.Afkorting") }}</td>
                     <td>{{ $demo->abbreviation }}</td>
                 </tr>
                 <tr>
-                    <td>Mobiel nummer</td>
+                    <td>{{ __("teacher_registered.Mobiel nummer") }}</td>
                     <td>{{ $demo->mobile }}</td>
                 </tr>
                 <tr>
-                    <td>Vakken (niveau)</td>
+                    <td>{{ __("teacher_registered.Level") }}</td>
+                    <td>{{ $demo->level }}</td>
+                </tr>
+                <tr>
+                    <td>{{ __("teacher_registered.Vakken (niveau)") }}</td>
                     <td>{{ $demo->subjects }}</td>
                 </tr>
                 <tr>
-                    <td>Hoe kent u ons</td>
+                    <td>{{ __("teacher_registered.Hoe kent u ons") }}</td>
                     <td>{{ $demo->how_did_you_hear_about_test_correct }}</td>
                 </tr>
                 <tr>
-                    <td>Opmerkingen</td>
+                    <td>{{ __("teacher_registered.Opmerkingen") }}</td>
                     <td>{{ $demo->remarks }}</td>
                 </tr>
                 <tr>
-                    <td>Tijdstip van aanmaken</td>
+                    <td>{{ __("teacher_registered.Tijdstip van aanmaken") }}</td>
                     <td>{{ $demo->created_at }}</td>
                 </tr>
             </table>
 
-            Met vriendelijke groet,<br/>
-            Test-Correct supportteam
+            {{ __("teacher_registered.Met vriendelijke groet") }},<br/>
+            {{ __("teacher_registered.Test-Correct supportteam") }}
         </td>
     </tr>
 @stop

@@ -15,7 +15,7 @@
              } ,100);
         "
     >
-        <div questionHtml wire:ignore>{!! $question->getQuestionHtml() !!}</div>
+        <div questionHtml wire:ignore>{!! $question->converted_question_html !!}</div>
         <div>
             <span>{!! __('test_take.instruction_ranking_question') !!}</span>
         </div>
@@ -24,7 +24,7 @@
             @foreach($answerStruct as $answer)
                 <x-drag-item id="ranking-{{$answer->value}}" sortId="{{ $answer->value }}"
                              wireKey="option-{{ $answer->value }}" selid="drag-box">
-                    {{ $answerText[$answer->value] }}
+                    {{ html_entity_decode($answerText[$answer->value]) }}
                 </x-drag-item>
             @endforeach
         </div>

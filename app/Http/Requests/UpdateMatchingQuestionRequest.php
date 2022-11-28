@@ -2,6 +2,7 @@
 
 use Illuminate\Routing\Route;
 use tcCore\MatchingQuestion;
+use Illuminate\Support\Str;
 
 class UpdateMatchingQuestionRequest extends UpdateQuestionRequest {
 
@@ -55,6 +56,22 @@ class UpdateMatchingQuestionRequest extends UpdateQuestionRequest {
 	public function sanitize()
 	{
 		return $this->all();
+	}
+	
+	public function getWithValidator($validator)
+	{
+		$validator->after(function ($validator) {
+            if(request()->route()->hasParameter('test_question')) {
+                $MatchingQuestion = request()->route()->parameter('test_question')->question;
+            } else if (request()->route()->hasParameter('group_question_question_id')){
+                $MatchingQuestion = request()->route()->parameter('group_question_question_id')->question;
+            }
+
+			if(Str::lower($MatchingQuestion->subtype) === 'classify'){
+				$answers = request()->input('answers');
+				MatchingQuestion::validateWithValidator($validator, $answers);
+			}
+        });
 	}
 
 }

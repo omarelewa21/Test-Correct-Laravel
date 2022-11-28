@@ -1,4 +1,6 @@
 <x-layouts.app>
+    <livewire:student.test-take-offline></livewire:student.test-take-offline>
+
     <div class="w-full flex flex-col mb-5 overview"
          x-data="{marginTop: 0}"
          x-on:unload="(function () {window.scrollTo(0, 0);})"
@@ -13,7 +15,7 @@
         </div>
         <div x-data="{showMe: true}"
              x-show="showMe"
-             x-on:force-taken-away-blur.window="showMe = !$event.detail.shouldBlur;console.log($event.detail)"
+             x-on:force-taken-away-blur.window="showMe = !$event.detail.shouldBlur;"
              class="w-full space-y-8 mt-40" :style="calculateMarginTop()">
             <h1 class="mb-7">{{ __('test_take.overview_review_answers') }}</h1>
             @push('styling')
@@ -103,7 +105,22 @@
             @endforeach
         </div>
 
-
+        <x-slot name="readspeaker">
+            @if(Auth::user()->text2speech)
+                <div class="Rectangle rs_clicklistenexclude rs_starter_button" onclick="ReadspeakerTlc.player.startRsPlayer()">
+                    <x-icon.rs-audio/>
+                    <div class="Lees-voor">
+                        {{ __('test_take.speak') }}
+                    </div>
+                </div>
+                <div id="readspeaker_button1" wire:ignore class="rs_skip rsbtn rs_preserve hidden" >
+                    <a rel="nofollow" class="rsbtn_play"  title="{{ __('test_take.speak') }}" href="//app-eu.readspeaker.com/cgi-bin/rsent?customerid=12749&amp;lang=nl_nl&amp;readclass=rs_readable">
+                        <span class="rsbtn_left rsimg rspart oval"><x-icon.rs-audio-inverse/></span>
+                        <span class="rsbtn_right rsimg rsplay rspart"></span>
+                    </a>
+                </div>
+            @endif
+        </x-slot>
         <x-slot name="footerbuttons">
             <x-button.text-button type="link"
                                   href="{{ $playerUrl }}?q=1"
@@ -117,10 +134,10 @@
             </x-button.cta>
         </x-slot>
         <x-slot name="testTakeManager">
-            <livewire:student.test-take :testTakeUuid="$uuid" :testParticipantId="$testParticipant->getKey()"/>
+            <livewire:student.test-take :testTakeUuid="$uuid" :testParticipantId="$testParticipant->getKey()" :testParticipantUuid="$testParticipant->uuid"/>
         </x-slot>
         <x-slot name="fraudDetection">
-            <livewire:student.fraud-detection :testParticipantId="$testParticipant->getKey()" :testTakeUuid="$uuid"/>
+            <livewire:student.fraud-detection :testParticipantId="$testParticipant->getKey()" :testParticipantUuid="$testParticipant->uuid" :testTakeUuid="$uuid"/>
         </x-slot>
     </div>
     @push('scripts')

@@ -11,11 +11,11 @@
 @props(['type' => 'link'])
 
 @if ($type === 'link')
-    <a {{ $attributes->merge(['href' => '#', 'class' => 'dropdown-item block px-4 py-2 hover:text-white focus:outline-none']) }} role="menuitem">
+    <a {{ $attributes->merge(['href' => '#', 'class' => 'dropdown-item block px-4 py-2 primary-hover base focus:outline-none bold']) }} role="menuitem">
         {{ $slot }}
     </a>
 @elseif ($type === 'button')
-    <button {{ $attributes->merge(['type' => 'button', 'class' => 'dropdown-item block w-full px-4 py-2 hover:text-white ']) }} role="menuitem">
+    <button {{ $attributes->merge(['type' => 'button', 'class' => 'dropdown-item block w-full px-4 py-2 primary-hover base bold']) }} role="menuitem">
         {{ $slot }}
     </button>
 @endif

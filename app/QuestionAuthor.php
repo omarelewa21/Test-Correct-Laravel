@@ -4,6 +4,7 @@ use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Queue;
+use tcCore\Http\Controllers\AuthorsController;
 use tcCore\Jobs\CountTeacherQuestions;
 use tcCore\Lib\Models\BaseModel;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -78,13 +79,18 @@ class QuestionAuthor extends CompositePrimaryKeyModel {
         return $this->belongsTo('tcCore\User');
     }
 
-    public static function addAuthorToQuestion($question) {
+    public static function addAuthorToQuestion($question,$authorId = false) {
         $question = $question->getQuestionInstance();
+        $userId = $authorId?:Auth::id();
+        if(Auth::user()->isInExamSchool()&&!$authorId){
+            $user = AuthorsController::getCentraalExamenAuthor();
+            $userId = $user?$user->getKey():Auth::id();
+        }
 
-        $questionAuthor = static::withTrashed()->where('user_id', Auth::id())->where('question_id', $question->getKey())->first();
+        $questionAuthor = static::withTrashed()->where('user_id', $userId)->where('question_id', $question->getKey())->first();
 
         if ($questionAuthor === null) {
-            $questionAuthor = new QuestionAuthor(['user_id' => Auth::id(), 'question_id' => $question->getKey()]);
+            $questionAuthor = new QuestionAuthor(['user_id' => $userId, 'question_id' => $question->getKey()]);
             if (!$questionAuthor->save()) {
                 return false;
             }

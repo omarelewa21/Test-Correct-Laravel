@@ -61,12 +61,23 @@ class TeachersImportRequest extends Request {
                             return $fail(sprintf('The user email address contains international characters  (%s).', $value));
                         }
                     }];
-                $extra_rule[sprintf('data.%d.external_id', $key)] = new SameSchoollocationSameUserNameDifferentExternalId($this->schoolLocation,$value['username']);
+                $extra_rule[sprintf('data.%d.external_id', $key)] = new SameSchoollocationSameUserNameDifferentExternalId($this->schoolLocation,$value['username'],true);
             }
             if ($this->hasEntry('username', $value)&&$this->hasEntry('school_class',$value)&&$this->hasEntry('subject',$value)) {
                 $extra_rule[sprintf('data.%d.subject', $key)] = [
                         new TeacherWithSchoolClassAndSubjectShouldNotExist($this->schoolLocation,$value),
                 ];
+            }
+            if ($this->hasEntry('username', $value)&&!$this->hasEntry('external_id', $value)) {
+                $extra_rule[sprintf('data.%d.username', $key)] = [  'required',
+                    'email:rfc,filter',
+                    new UsernameUniqueSchool($this->schoolLocation,'teacher'),
+                    new EmailDns,
+                    function ($attribute, $value, $fail) {
+                        if (!filter_var($value, FILTER_VALIDATE_EMAIL)) {
+                            return $fail(sprintf('The user email address contains international characters  (%s).', $value));
+                        }
+                    }];
             }
         }
         $rules = collect([
@@ -79,7 +90,6 @@ class TeachersImportRequest extends Request {
             'data.*.name' => 'required',
             'data.*.school_class' => 'required',
             'data.*.subject' => 'required',
-            'data.*.external_id' => 'required',
         ]);
         if ($extra_rule === []) {
             $mergedRules = $rules;
@@ -90,19 +100,7 @@ class TeachersImportRequest extends Request {
         return $mergedRules->toArray();
     }
 
-    protected function hasEntry($key,$arr)
-    {
-        if(!array_key_exists($key,$arr)){
-            return false;
-        }
-        if(is_null($arr[$key])){
-            return false;
-        }
-        if($arr[$key]==''){
-            return false;
-        }
-        return true;
-    }
+
 
     /**
      * Get the sanitized input for the request.
@@ -118,10 +116,11 @@ class TeachersImportRequest extends Request {
      *
      * @param \Illuminate\Validation\Validator $validator
      * @return void
+     * @noinspection UnsupportedStringOffsetOperationsInspection
      */
     public function withValidator($validator) {
         $validator->after(function ($validator) {
-            $data = $this->request->get('data');
+            $data = request('data');
             $teachers = collect(request('data'))->map(function ($row, $index) use ($validator, &$data) {
                 if (!array_key_exists('school_class', $row)) {
 

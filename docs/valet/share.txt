@@ -1,0 +1,6 @@
+
+~/.composer/vendor/laravel/valet/bin/ngrok http test-correct.test:80 -host-header=rewrite
+
+urls in .env vervangen
+in config/app.php
+    app('url')->forceRootUrl('http://[identifier].ngrok.io');

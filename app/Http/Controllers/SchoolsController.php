@@ -2,6 +2,7 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Response;
 use tcCore\Http\Requests\CreateSchoolRequest;
 use tcCore\Http\Requests\UpdateSchoolRequest;

@@ -13,10 +13,25 @@
         @endif
     </div>
     <div class="flex flex-col space-y-2">
-        <span>{{ __('student.logged_in_students') }}</span>
+        @if($waitingTestTake->test_take_status_id < \tcCore\TestTakeStatus::STATUS_DISCUSSED)
+            <span>{{ __('student.logged_in_students') }}</span>
+            <h6 x-text="activeStudents === 0 ? '' : activeStudents"></h6>
+        @else
+            <span>{{ __('student.to_review_until') }}</span>
+            @if($waitingTestTake->show_results)
+                <h6>{{ \Carbon\Carbon::parse($waitingTestTake->show_results)->format('d-m-Y H:i') }}</h6>
+            @else
+                <h6>{{ __('student.cant_review_anymore') }}</h6>
+            @endif
+        @endif
     </div>
     <div class="flex flex-col space-y-2">
-        <span>{{ __('student.clas(ses)') }}</span>
+        <span>{{ __('student.class(es)') }}</span>
+        <h6>
+            @foreach($participatingClasses as $class)
+                <span>{{ $class }}@if(!$loop->last), @endif</span>
+            @endforeach
+        </h6>
     </div>
     <div class="flex flex-col space-y-2">
         <span>{{ __('student.teacher') }}</span>
@@ -35,7 +50,7 @@
     </div>
     <div class="flex flex-col space-y-2">
         <span>{{ __('student.type') }}</span>
-        <x-partials.test-take-type-label type="{{ $waitingTestTake->retake }}"/>
+        <x-partials.test-take-type-label :type="$waitingTestTake->retake"/>
     </div>
 
 </div>

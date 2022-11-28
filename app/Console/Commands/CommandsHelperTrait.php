@@ -55,5 +55,9 @@ trait CommandsHelperTrait
     protected function runseeder()
     {
         Artisan::call('db:seed');
+        $command = 'setup_tests:scaffold';
+        if($this->getApplication()->has($command)) {
+            Artisan::call($command, ['user_id' => '1486']);
+        }
     }
 }

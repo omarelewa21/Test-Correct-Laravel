@@ -1,38 +1,41 @@
 <x-partials.question-container :number="$number" :question="$question">
     <div class="w-full">
         <div class="mb-4" wire:ignore>
-            {!! $question->getQuestionHtml()  !!}
+            {!! $question->converted_question_html  !!}
         </div>
         <div wire:ignore>
             <x-input.group class="w-full" label="{!! __('test_take.instruction_open_question') !!}">
                 <textarea id="{{ $editorId }}" name="{{ $editorId }}" wire:model.debounce.2000ms="answer"></textarea>
             </x-input.group>
         </div>
+        <div id="word-count-{{ $editorId }}" wire:ignore></div>
         @push('scripts')
         <script>
-            (function() {
-                var editor = CKEDITOR.instances['{{ $editorId }}']
+            document.addEventListener("DOMContentLoaded", () => {
+                var editor = ClassicEditors['{{ $editorId }}'];
                 if (editor) {
-                    editor.destroy(true)
+                    editor.destroy(true);
                 }
-                CKEDITOR.replace( '{{ $editorId }}', {
-                    removePlugins : 'pastefromword,advanced,simpleuploads,dropoff,copyformatting,image,pastetext,uploadwidget,uploadimage',
-                    extraPlugins : 'blockimagepaste,quicktable,ckeditor_wiris,autogrow',
-                    toolbar: [
-                        { name: 'basicstyles', items: [ 'Bold', 'Italic', 'Underline', 'Strike', 'Subscript', 'Superscript' ] },
-                        { name: 'paragraph', items: [ 'NumberedList', 'BulletedList' ] },
-                        { name: 'insert', items: [ 'Table' ] },
-                        { name: 'styles', items: ['Font', 'FontSize' ] },
-                        { name: 'wirisplugins', items: ['ckeditor_wiris_formulaEditor', 'ckeditor_wiris_formulaEditorChemistry']}
-                    ]
-                })
-                CKEDITOR.instances['{{ $editorId }}']
-                    .on('change',function(e){
-                        var textarea = document.getElementById('{{ $editorId }}')
-                        textarea.value =  e.editor.getData()
-                        textarea.dispatchEvent(new Event('input'))
-                    })
-            })()
+                ClassicEditor
+                    .create( document.querySelector( '#{{ $editorId }}' ),{
+                        autosave: {
+                            waitingTime: 300,
+                            save( editor ) {
+                                editor.updateSourceElement();
+                                editor.sourceElement.dispatchEvent(new Event('input'));
+                            }
+                        }
+                    } )
+                    .then( editor => {
+                        ClassicEditors['{{ $editorId }}'] = editor;
+                        const wordCountPlugin = editor.plugins.get( 'WordCount' );
+                        const wordCountWrapper = document.getElementById( 'word-count-{{ $editorId }}' );
+                        wordCountWrapper.appendChild( wordCountPlugin.wordCountContainer );
+                    } )
+                    .catch( error => {
+                        console.error( error );
+                    } );
+            });
         </script>
         @endpush
     </div>

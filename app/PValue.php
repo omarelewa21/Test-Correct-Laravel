@@ -91,7 +91,7 @@ class PValue extends BaseModel
 
     public function schoolClass()
     {
-        return $this->belongsTo('tcCore\SchoolClass');
+        return $this->belongsTo('tcCore\SchoolClass')->withTrashed();
     }
 
     public function educationLevel()
@@ -106,7 +106,7 @@ class PValue extends BaseModel
 
     public function users()
     {
-        return $this->hasMany('tcCore\PValueUser');
+        return $this->hasMany('tcCore\PValueUser')->withTrashed();
     }
 
     public function savePValueUsers()

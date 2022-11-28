@@ -22,7 +22,7 @@ Error: {{ $errMessage }}<br/>
 @endif
 @if(isset($server) && count($server))
 <br />
-    <b>Server gegevens</b><br />
+    <b>{{ __("exception.Server gegevens") }}</b><br />
     <ul>
         @foreach($server as $key => $value)
             <li>

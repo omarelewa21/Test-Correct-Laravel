@@ -95,13 +95,9 @@ class FileManagementController extends Controller
         DB::beginTransaction();
         try {
             if ($request->isForm()) {
-
                 $result = $this->handleFormSubmission($schoolLocation, $request, $form_id);
-
             } else {
-
                 $result = $this->handleFileUpload($request, $schoolLocation, $form_id);
-
             }
         } catch (\Exception $e) {
 
@@ -161,47 +157,15 @@ class FileManagementController extends Controller
     public function index(Requests\IndexFileManagementRequest $request)
     {
 
-        $files = FileManagement::whereNull('parent_id')
-            ->orderby('file_management_status_id')
-            ->with(['user', 'handler', 'status', 'status.parent']);
-
-        $user = Auth::user();
-
-        if ($user->hasRole('Teacher')) {
-            $files->where(function ($query) use ($user) {
-                $query->where('user_id', $user->getKey())
-                    ->orWhere('handledby', $user->getKey());
-            });
-            if ($user->isToetsenbakker()) {
-                $files->where('archived', false);
-            } else {
-//                $files->where('school_location_id', $user->school_location_id)
-//                    ->whereIN('file_management_status_id', [1, 2, 3, 4, 5, 6, 8]);
-                $files->where('school_location_id', $user->school_location_id);
-            }
-        } else if ($user->hasRole('Account manager')) {
-            $files->whereIn('school_location_id', (new SchoolHelper())->getRelatedSchoolLocationIds($user))
-                ->with(['schoolLocation']);
-            // we want to order by filemanagementstatus displayorder, but as it has the same fieldnames as file_managements table
-            // we can't use a join. Therefor we first get all the statusIds in the correct order and then order by them
-            $statusIds = FileManagementStatus::orderBy('displayorder')->pluck('id')->toArray();
-            $files->orderByRaw('FIELD(file_management_status_id,' . implode(',', $statusIds) . ')', 'asc');
-        }
-
-        if ($request->get('type')) {
-            $files->where('type', $request->get('type'));
-        }
-
-        $files->orderBy('file_managements.created_at', 'asc');
-
+        $builder = FileManagement::filtered(Auth::user(),$request->get('filter', []), $request->get('order', []));
 
         switch (strtolower($request->get('mode', 'paginate'))) {
             case 'all':
-                return Response::make($files->get(), 200);
+                return Response::make($builder->get(), 200);
                 break;
             case 'paginate':
             default:
-                return Response::make($files->paginate(15), 200);
+                return Response::make($builder->paginate(15), 200);
                 break;
         }
     }
@@ -237,10 +201,12 @@ class FileManagementController extends Controller
     {
         $data = [
             'id'                 => $form_id,
-            'origname'           => '',
-            'name'               => '',
+            'origname'           => $request->get('name'),
+            'subject'            => $request->get('subject'),
+            'name'               => $request->get('name'),
             'user_id'            => Auth::user()->getKey(),
             'school_location_id' => $schoolLocation->getKey(),
+            'test_name'          => $request->get('name'),
             'type'               => 'testupload',
             'typedetails'        => [// request data?
                 'test_kind_id'         => $request->get('test_kind_id'),

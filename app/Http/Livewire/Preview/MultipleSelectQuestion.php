@@ -3,13 +3,11 @@
 namespace tcCore\Http\Livewire\Preview;
 
 use Livewire\Component;
-use tcCore\Answer;
-use tcCore\Http\Traits\WithPreviewAttachments;
 use tcCore\Http\Traits\WithCloseable;
-use tcCore\Http\Traits\WithPreviewGroups;
 use tcCore\Http\Traits\WithNotepad;
+use tcCore\Http\Traits\WithPreviewAttachments;
+use tcCore\Http\Traits\WithPreviewGroups;
 use tcCore\Http\Traits\WithQuestionTimer;
-use tcCore\Question;
 
 class MultipleSelectQuestion extends Component
 {
@@ -33,17 +31,14 @@ class MultipleSelectQuestion extends Component
     {
         $this->selectable_answers = $this->question->selectable_answers;
 
-        if (!empty(json_decode($this->answers[$this->question->uuid]['answer']))) {
-            $this->answerStruct = json_decode($this->answers[$this->question->uuid]['answer'], true);
-        } else {
-            $this->question->multipleChoiceQuestionAnswers->each(function ($answers) use (&$map) {
-                $this->answerStruct[$answers->id] = 0;
-            });
-        }
+
+        $this->question->multipleChoiceQuestionAnswers->each(function ($answers) use (&$map) {
+            $this->answerStruct[$answers->id] = 0;
+        });
 
         $this->shuffledKeys = array_keys($this->answerStruct);
         if (!$this->question->isCitoQuestion()) {
-            if ($this->question->subtype != 'ARQ' && $this->question->subtype != 'TrueFalse') {
+            if ($this->question->subtype != 'ARQ' && $this->question->subtype != 'TrueFalse' && !$this->question->fix_order) {
                 shuffle($this->shuffledKeys);
             }
         }
@@ -63,10 +58,6 @@ class MultipleSelectQuestion extends Component
                 $this->answerStruct[$value] = 1;
             }
         }
-
-        $json = json_encode($this->answerStruct);
-
-        Answer::updateJson($this->answers[$this->question->uuid]['id'], $json);
 
         $this->answer = '';
     }

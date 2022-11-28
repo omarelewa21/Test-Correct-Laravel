@@ -3,6 +3,7 @@
 use Illuminate\Routing\Route;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
+use tcCore\TestQuestion;
 
 class UpdateTestQuestionRequest extends UpdateQuestionRequest {
 
@@ -15,11 +16,29 @@ class UpdateTestQuestionRequest extends UpdateQuestionRequest {
      *
      * @param Route $route
      */
-    function __construct(Route $route)
+    function __construct(Route $route = null)
     {
-        $this->testQuestion = $route->parameter('test_question');
-        $this->question = $this->testQuestion->question;
-        $this->route = $route;
+        if ($route instanceof Route) {
+            $this->testQuestion = $route->parameter('test_question');
+            $this->question = $this->testQuestion->question;
+            $this->route = $route;
+        }
+    }
+
+    public static function makeWithParams($test_question_id) {
+        $instance = new self();
+        $instance->testQuestion = TestQuestion::whereUUID($test_question_id)->first();
+        $instance->question = $instance->testQuestion->question;
+        return $instance;
+
+    }
+
+    public function messages(){
+        return [
+            'title.required' => 'A title is required',
+            'body.required'  => 'A message is required',
+        ];
+    
     }
 
     /**

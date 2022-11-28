@@ -26,7 +26,7 @@ class AddColumnFailureMessagesToUwlrSoapResults extends Migration
     public function down()
     {
         Schema::table('uwlr_soap_results', function (Blueprint $table) {
-           $table->removeColumn('failure_messages');
+           $table->dropColumn('failure_messages');
         });
     }
 }

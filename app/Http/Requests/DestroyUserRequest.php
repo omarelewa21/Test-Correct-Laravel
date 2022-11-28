@@ -15,7 +15,7 @@ class DestroyUserRequest extends Request {
 	{
 	    // @TODO no check on school or anything at this moment
 		$roles = $this->getUserRoles();
-		if (in_array('School manager', $roles)) {
+		if (in_array('School manager', $roles) || in_array('Administrator', $roles)) {
 			return true;
 		} else {
 			return false;

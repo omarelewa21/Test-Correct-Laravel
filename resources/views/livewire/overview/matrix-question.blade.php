@@ -1,6 +1,6 @@
 <x-partials.overview-question-container :number="$number" :question="$question" :answer="$answer">
     <div class="w-full">
-        <div wire:ignore>{!! $question->getQuestionHtml()  !!}</div>
+        <div wire:ignore>{!! $question->converted_question_html  !!}</div>
         <div class="mt-4 flex">
             <table class="border-collapse">
                 <thead>

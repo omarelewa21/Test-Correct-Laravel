@@ -278,7 +278,7 @@ h6 {
 .header-number {
     color: white;
     background: var(--mid-grey);
-    width: 30px;
+    min-width: 30px;
     height: 30px;
     line-height: 30px;
     text-align: center;
@@ -554,12 +554,12 @@ svg, .hair {
 }
 
 .form-input:hover {
-    border: 1px solid var(--primary);
+    border-color: var(--primary);
 }
 
 .form-input:focus, .form-input:active {
     color: var(--primary);
-    border: 1px solid var(--primary);
+    border-color: var(--primary);
     outline: none;
 }
 

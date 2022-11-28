@@ -2,6 +2,9 @@
 
 namespace tcCore\Http\Requests;
 
+use tcCore\CompletionQuestion;
+use tcCore\Http\Helpers\QuestionHelper;
+
 /**
  * Should not be called a request as it is only a helper
  */
@@ -51,13 +54,9 @@ class CreateCompletionQuestionRequest extends CreateQuestionRequest {
 	 */
 	public function getWithValidator($validator){
 		$validator->after(function ($validator) {
-			$question = request()->input('question');
-			if(!strstr($question, '[') && !strstr($question, ']')) {
-				$validator->errors()->add('question','U dient minimaal &eacute;&eacute;n woord tussen vierkante haakjes te plaatsen.');
-			}
-			if(request()->input('subtype') == 'completion' && strstr($question,'|')){
-				$validator->errors()->add('substype','U kunt geen |-teken gebruiken in de tekst of antwoord mogelijkheden');
-			}
+			$questionString = request()->input('question');
+            $subType = request()->input('subtype');
+            CompletionQuestion::validateWithValidator($validator,$questionString,$subType);
 		});
 	}
 

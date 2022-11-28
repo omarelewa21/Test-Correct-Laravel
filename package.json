@@ -10,21 +10,30 @@
         "production": "mix --production"
     },
     "devDependencies": {
-        "@tailwindcss/jit": "^0.1.10",
-        "autoprefixer": "^10.2.5",
+        "@tailwindcss/line-clamp": "^0.4.0",
+        "autoprefixer": "^10.4.7",
         "axios": "^0.21",
         "laravel-mix": "^6.0.6",
-        "livewire-sortable": "^0.2.2",
         "lodash": "^4.17.19",
-        "postcss": "^8.2.8",
-        "tailwindcss": "^2.0.4"
+        "postcss": "^8.4.14",
+        "tailwindcss": "^3.1.4"
     },
     "dependencies": {
-        "@wiris/mathtype-ckeditor4": "^7.26.1",
-        "alpinejs": "^2.8.2",
+        "@alpinejs/collapse": "^3.10.5",
+        "@alpinejs/intersect": "^3.9.6",
+        "@ryangjchandler/alpine-clipboard": "^2.2.0",
+        "@wiris/mathtype-ckeditor4": "^8.0.0",
+        "alpinejs": "^3.2.4",
+        "choices.js": "^10.1.0",
+        "filepond": "^4.30.3",
+        "filepond-plugin-file-validate-size": "^2.2.5",
+        "flatpickr": "^4.6.13",
         "jquery": "^2.1.1",
-        "strip-ansi": "^6.0.0",
+        "laravel-echo": "^1.11.0",
+        "plyr": "^3.6.12",
         "pusher-js": "^7.0.3",
-        "laravel-echo": "^1.11.0"
+        "sortablejs": "^1.15.0",
+        "strip-ansi": "^6.0.0",
+        "uuid": "^8.3.2"
     }
 }

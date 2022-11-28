@@ -10,15 +10,17 @@ class SameSchoollocationSameUserNameDifferentExternalId implements Rule
     private $schoolLocationId;
     private $userId = false;
     private $attribute;
+    private $ignoreEmpty;
     /**
      * Create a new rule instance.
      *
      * @return void
      */
-    public function __construct($schoolLocationId,$username)
+    public function __construct($schoolLocationId,$username,$ignoreEmpty = false)
     {
         $this->schoolLocationId = $schoolLocationId;
         $this->setUserId($username);
+        $this->ignoreEmpty = $ignoreEmpty;
     }
 
     /**
@@ -31,10 +33,15 @@ class SameSchoollocationSameUserNameDifferentExternalId implements Rule
     public function passes($attribute, $value)
     {
         $this->attribute = $attribute;
-        $row = \DB::table('school_location_user')->where('school_location_id', $this->schoolLocationId)
+        $builder = \DB::table('school_location_user')->where('school_location_id', $this->schoolLocationId)
             ->where('user_id','=',$this->userId)
-            ->where('external_id','!=', $value)
-            ->first();
+            ->where('external_id','!=', $value);
+        if(!$this->ignoreEmpty){
+            $builder = $builder->whereNotNull('external_id')
+                                ->where('external_id','!=', '');
+        }
+        $row = $builder->first();
+
         if(is_null($row)){
             return true;
         }

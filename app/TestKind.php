@@ -8,6 +8,8 @@ class TestKind extends BaseModel {
 
     use SoftDeletes;
 
+    const ASSESSMENT_TYPE = 4;
+
     /**
      * The attributes that should be mutated to dates.
      *

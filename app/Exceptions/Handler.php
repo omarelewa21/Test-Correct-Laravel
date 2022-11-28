@@ -25,6 +25,8 @@ class Handler extends ExceptionHandler
         HttpException::class,
         ModelNotFoundException::class,
         ValidationException::class,
+        DeploymentMaintenanceException::class,
+        CleanRedirectException::class,
     ];
 
     /**
@@ -49,23 +51,24 @@ class Handler extends ExceptionHandler
      */
     public function render($request, Throwable $e)
     {
-        if($e instanceof DeploymentMaintenanceException) {
+        if ($e instanceof DeploymentMaintenanceException) {
             if ($request->expectsJson()) {
                 return response()->json(['error' => strip_tags($e->getMessage())], 503);
             } else {
                 return response()
                     ->view('errors.deployment-maintenance', ['deployment' => $e->deployment], 503);
             }
-        } else if($e instanceof LivewireTestTakeClosedException){
-            return response()->make('Test taken away', 406);
         } else if ($this->isHttpException($e)) {
             return $this->renderHttpException($e);
-        } else if ($e instanceof QuestionException) {
+        } else if ($e instanceof QuestionException || $e instanceof SchoolAndSchoolLocationsImportException) {
             dispatch(
                 new SendExceptionMail($e->getMessage(), $e->getFile(), $e->getLine(), $e->getDetails())
             );
 
             throw new HttpResponseException(new Response($e), 422);
+        } else if($e instanceof CleanRedirectException){
+            return response()
+                ->view('clean-redirect', ['url' => $e->url], 301);
         } else {
             return parent::render($request, $e);
         }

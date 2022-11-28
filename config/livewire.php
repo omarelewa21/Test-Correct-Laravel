@@ -42,7 +42,7 @@ return [
     |
     */
 
-    'asset_url'  => null,
+    'asset_url' => null,
 
     /*
     |--------------------------------------------------------------------------
@@ -55,7 +55,7 @@ return [
     |
     */
 
-    'middleware_group'  => ['web', 'dll', 'forceTaken'],
+    'middleware_group' => ['web', 'dll', 'forceTaken'],
 
     /*
     |--------------------------------------------------------------------------
@@ -70,14 +70,17 @@ return [
     */
 
     'temporary_file_upload' => [
-        'disk' => null,        // Example: 'local', 's3'              Default: 'default'
-        'rules' => null,       // Example: ['file', 'mimes:png,jpg']  Default: ['required', 'file', 'max:12288'] (12MB)
-        'directory' => null,   // Example: 'tmp'                      Default  'livewire-tmp'
-        'middleware' => null,  // Example: 'throttle:5,1'             Default: 'throttle:60,1'
+        'disk'          => null,        // Example: 'local', 's3'              Default: 'default'
+        'rules'         => [
+            'mimes:pdf,mp3,mp4,png,jpeg,jpg,gif',
+            'max:'. \tcCore\Http\Helpers\BaseHelper::getMaxFileUploadSize()
+        ],       // Example: ['file', 'mimes:png,jpg']  Default: ['required', 'file', 'max:12288'] (12MB)
+        'directory'     => null,   // Example: 'tmp'                      Default  'livewire-tmp'
+        'middleware'    => '',  // Example: 'throttle:5,1'             Default: 'throttle:60,1'
         'preview_mimes' => [   // Supported file types for temporary pre-signed file URLs.
             'png', 'gif', 'bmp', 'svg', 'wav', 'mp4',
             'mov', 'avi', 'wmv', 'mp3', 'm4a',
-            'jpeg', 'mpga', 'webp', 'wma',
+            'jpeg', 'mpga', 'webp', 'wma', 'pdf', 'jpg'
         ],
     ],
 

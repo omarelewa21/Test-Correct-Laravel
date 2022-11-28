@@ -1,7 +1,7 @@
 <?php namespace tcCore;
 
-use Illuminate\Support\Facades\Queue;
-use tcCore\Jobs\PValues\UpdatePValueUsers;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Str;
 use tcCore\Lib\Models\BaseModel;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
@@ -51,11 +51,24 @@ class AppVersionInfo extends BaseModel
     public static function boot()
     {
         parent::boot();
-
+        static::creating(function (AppVersionInfo $appVersionInfo) {
+            $appVersionInfo->id = Str::uuid();
+            $appVersionInfo->user_id = Auth::id();
+        });
     }
 
     public function user()
     {
         return $this->belongsTo('tcCore\User');
+    }
+
+    public static function createFromSession()
+    {
+        self::create([
+            'version'              => session()->get('TLCVersion'),
+            'os'                   => session()->get('TLCOs'),
+            'headers'              => json_encode(session()->get('headers')),
+            'version_check_result' => session()->get('TLCVersioncheckResult'),
+        ]);
     }
 }

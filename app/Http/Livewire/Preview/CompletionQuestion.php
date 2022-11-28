@@ -3,11 +3,10 @@
 namespace tcCore\Http\Livewire\Preview;
 
 use Livewire\Component;
-use tcCore\Answer;
-use tcCore\Http\Traits\WithPreviewAttachments;
 use tcCore\Http\Traits\WithCloseable;
-use tcCore\Http\Traits\WithPreviewGroups;
 use tcCore\Http\Traits\WithNotepad;
+use tcCore\Http\Traits\WithPreviewAttachments;
+use tcCore\Http\Traits\WithPreviewGroups;
 
 class CompletionQuestion extends Component
 {
@@ -19,10 +18,6 @@ class CompletionQuestion extends Component
     public $answers;
     public $number;
 
-    public function mount()
-    {
-        $this->answer = (array)json_decode($this->answers[$this->question->uuid]['answer']);
-    }
 
     public function updatedAnswer($value, $field)
     {
@@ -33,14 +28,14 @@ class CompletionQuestion extends Component
     {
         $question->getQuestionHtml();
 
-        $question_text = $question->getQuestionHTML();
+        $question_text = $question->converted_question_html;
 
         $searchPattern = "/\[([0-9]+)\]/i";
         $replacementFunction = function ($matches) use ($question) {
             $tag_id = $matches[1] - 1; // the completion_question_answers list is 1 based but the inputs need to be 0 based
 
             return sprintf(
-                '<input wire:model.lazy="answer.%d" class="form-input mb-2 truncate text-center overflow-ellipsis" type="text" id="%s" style="width: 120px" x-ref="%s" @blur="$refs.%s.scrollLeft = 0" @input="$event.target.setAttribute(\'title\', $event.target.value);" wire:key="%s"/>',
+                '<input x-on:contextmenu="$event.preventDefault()" spellcheck="false" wire:model.lazy="answer.%d" class="form-input mb-2 truncate text-center overflow-ellipsis" type="text" id="%s" style="width: 120px" x-ref="%s" @blur="$refs.%s.scrollLeft = 0" @input="$event.target.setAttribute(\'title\', $event.target.value);" wire:key="%s"/>',
                 $tag_id,
                 'answer_' . $tag_id .'_'.$this->question->getKey(),
                 'comp_answer_' . $tag_id,
@@ -54,11 +49,7 @@ class CompletionQuestion extends Component
 
     private function multiHelper($question)
     {
-        if (empty($answerJson)) {
-            $answerJson = [];
-        }
-
-        $question_text = $question->getQuestionHtml();
+        $question_text = $question->converted_question_html;
 
 
         $tags = [];

@@ -1,8 +1,12 @@
 <?php namespace tcCore;
 
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use tcCore\Exceptions\QuestionException;
+use tcCore\Http\Controllers\TestQuestionsController;
+use tcCore\Http\Helpers\ContentSourceHelper;
 use tcCore\Http\Helpers\QuestionHelper;
 use tcCore\Http\Requests\UpdateTestQuestionRequest;
 use tcCore\Lib\Models\BaseModel;
@@ -139,6 +143,7 @@ class TestQuestion extends BaseModel {
                     // add new answers
                     $testQuestion->question->addAnswers($testQuestion, $totalData['answers']);
                 }
+                $testQuestion->addCloneAttachmentsIfAppropriate($questionAttributes);
             } else {
                 throw new QuestionException('Failed to create test question');
             }
@@ -170,12 +175,31 @@ class TestQuestion extends BaseModel {
         return $this->belongsTo('tcCore\Question', 'question_id');
     }
 
+    public function addCloneAttachmentsIfAppropriate($questionAttributes)
+    {
+        if(array_key_exists('clone_attachments',$questionAttributes) && !empty($questionAttributes['clone_attachments']) && is_array($questionAttributes['clone_attachments'])){
+            foreach($questionAttributes['clone_attachments'] as $cloneId){
+                $attachment = Attachment::whereUuid($cloneId)->first();
+                if(!$attachment){
+                    throw new QuestionException('Could not find the corresponding attachment');
+                }
+                $questionAttachment = new QuestionAttachment();
+                $questionAttachment->setAttribute('question_id', $this->question->getKey());
+                $questionAttachment->setAttribute('attachment_id', $attachment->getKey());
+                if(!$questionAttachment->save()){
+                    throw new QuestionException('Failed to clone the attachments');
+                }
+            }
+        }
+    }
 
     public function duplicate($parent, array $attributes = [], $reorder = true) {
         $testQuestion = $this->replicate();
         $testQuestion->fill($attributes);
 
         $testQuestion->setAttribute('uuid', Uuid::uuid4());
+
+        $this->duplicateQuestionsIfPublishedContent($testQuestion);
 
         if ($reorder === false) {
             $testQuestion->setCallbacks(false);
@@ -235,6 +259,16 @@ class TestQuestion extends BaseModel {
         }
 
         return $query;
+    }
+
+    public function duplicateQuestionsIfPublishedContent($testQuestion): void
+    {
+        if (in_array($testQuestion->question->scope, ContentSourceHelper::PUBLISHABLE_SCOPES)) {
+            $request = new Request();
+            $request->merge(['scope' => null]);
+
+            (new TestQuestionsController)->updateFromWithin($testQuestion, $request);
+        }
     }
 
 }

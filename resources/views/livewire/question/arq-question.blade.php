@@ -6,7 +6,7 @@
             </div>
             <div class="flex flex-row space-x-5">
                 <div class="flex flex-1 flex-col space-y-6" questionHtml wire:ignore>
-                    {!! $question->getQuestionHtml() !!}
+                    {!! $question->converted_question_html !!}
                 </div>
                 <div class="flex flex-1 flex-col">
                     <div>

@@ -4,6 +4,7 @@ use Carbon\Carbon;
 use Closure;
 use Illuminate\Contracts\Auth\Guard;
 use Livewire\Livewire;
+use tcCore\Http\Helpers\BaseHelper;
 use tcCore\Lib\User\Roles;
 use tcCore\User;
 
@@ -32,10 +33,10 @@ class DuplicateLoginLivewire {
                 session()->put('new_debounce_time', Carbon::now());
 
                 if (Livewire::isLivewireRequest()) {
-                    return response()->make('Duplicate login', 440);
+                    return abort(440,'Duplicate login');
                 }
 
-                return redirect()->to(config('app.url_login'));
+                return redirect()->to(BaseHelper::getLoginUrl());
             }
         }
 

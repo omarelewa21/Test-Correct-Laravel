@@ -2,7 +2,8 @@
     <div>
         <h1>{{ __('student.tests_to_discuss') }}</h1>
     </div>
-    <div class="content-section p-8" wire:init="loadTestTakesToDiscuss">
+    <div class="content-section p-8 relative flex" wire:init="loadTestTakesToDiscuss">
+        <x-loading/>
         @if($readyToLoad)
             @if($testTakes->count() == 0)
                 <p>{{ __('student.no_test_takes_to_discuss') }}</p>
@@ -14,13 +15,13 @@
                                          :direction="$sortField === 'tests.name' ? $sortDirection : null">
                             {{ __('student.test') }}
                         </x-table.heading>
-                        <x-table.heading width=""
+                        <x-table.heading width="150px"
                                          sortable
                                          wire:click="sortBy('subjects.name')"
                                          :direction="$sortField === 'subjects.name' ? $sortDirection : null">
                             {{ __('student.subject') }}
                         </x-table.heading>
-                        <x-table.heading width="130px" sortable wire:click="sortBy('test_takes.time_start')"
+                        <x-table.heading width="105px" sortable wire:click="sortBy('test_takes.time_start')"
                                          :direction="$sortField === 'test_takes.time_start' ? $sortDirection : null"
                                          textAlign="right">
                             {{ __('student.take_date') }}
@@ -40,9 +41,9 @@
                             <x-table.row class="cursor-pointer"
                                          wire:click="redirectToWaitingRoom('{!!$testTake->uuid !!}')"
                             >
-                                <x-table.cell>{{ $testTake->test_name }}</x-table.cell>
-                                <x-table.cell>{!! $testTake->subject_name !!}</x-table.cell>
-                                <x-table.cell class="text-right">
+                                <x-table.cell :withTooltip="true">{{ $testTake->test_name }}</x-table.cell>
+                                <x-table.cell :withTooltip="true">{!! $testTake->subject_name !!}</x-table.cell>
+                                <x-table.cell class="text-right text-sm">
                                     @if($testTake->time_start == \Carbon\Carbon::today())
                                         <span class="capitalize">{{ __('student.today') }}</span>
                                     @else
@@ -56,14 +57,14 @@
                                         class="text-right hidden lg:table-cell">{{ $testTake->weight }}
                                 </x-table.cell>
                                 <x-table.cell>
-                                    <x-partials.test-take-type-label type="{{ $testTake->retake }}"/>
+                                    <x-partials.test-take-type-label :type="$testTake->retake"/>
                                 </x-table.cell>
                                 <x-table.cell buttonCell class="text-right">
-                                    @if($testTake->test_take_status_id == \tcCore\TestTakeStatus::STATUS_DISCUSSING)
-                                        <x-button.cta>Bespreken</x-button.cta>
-                                    @else
-                                        <x-button.cta disabled>Bespreken</x-button.cta>
-                                    @endif
+{{--                                    @if($testTake->test_take_status_id == \tcCore\TestTakeStatus::STATUS_DISCUSSING)--}}
+                                        <x-button.cta selid="dashboard-start-take-button" wire:click="redirectToWaitingRoom('{!!$testTake->uuid !!}')">{{__("student.Bespreken")}}</x-button.cta>
+{{--                                    @else--}}
+{{--                                        <x-button.cta selid="dashboard-start-take-button" disabled>{{__("student.Bespreken")}}</x-button.cta>--}}
+{{--                                    @endif--}}
                                 </x-table.cell>
                             </x-table.row>
                         @endforeach

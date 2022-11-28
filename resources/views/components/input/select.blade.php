@@ -10,10 +10,18 @@
 
 @props([
     'placeholder' => null,
-    'trailingAddOn' => null,
+    'trailingAddOn' => null
 ])
 
-  <select {{ $attributes->merge(['class' => 'form-input '])}}>
+@php
+  $errorClass = '';
+
+  if($this->errorBag->has($attributes->wire('model')->value)) {
+    $errorClass = '!border !border-allred';
+    };
+@endphp
+
+  <select class="form-input {{ $errorClass }}{{ $attributes['class'] }}" {{ $attributes->except('class') }}>
     @if ($placeholder)
         <option value="">{{ $placeholder }}</option>
     @endif

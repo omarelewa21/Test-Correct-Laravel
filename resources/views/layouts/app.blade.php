@@ -1,12 +1,17 @@
 <x-layouts.base>
-    <header class="header top-0 px-8 xl:px-28 flex flex-wrap content-center fixed w-full z-20"
-            x-data="{}"
+
+    <header class="header top-0 px-8 xl:px-28 flex flex-wrap content-center fixed w-full z-20 main-shadow @if(\tcCore\Http\Helpers\GlobalStateHelper::getInstance()->hasActiveMaintenance()) maintenance-header-bg @endif @if(\tcCore\Http\Helpers\GlobalStateHelper::getInstance()->isOnDeploymentTesting()) deployment-testing-marker @endif"
+            x-data="{showToDashboard: false}"
             x-on:set-red-header-border.window="$el.classList.add('red-header-border')"
             x-on:remove-red-header-border.window="$el.classList.remove('red-header-border')"
+            x-on:show-to-dashboard.window="showToDashboard = true;"
         >
-        <a class="mr-4 flex" href="#">
+        <a class="mr-4 flex relative" href="#">
             <img class="" src="/svg/logos/Logo-Test-Correct-2.svg"
                  alt="Test-Correct">
+            @if(!session()->get('isInBrowser'))
+                <span class="note text-xs absolute min-w-max bottom-0 left-[60px]">{{ __('student.version') }}: {{ session()->get('TLCVersion') }}</span>
+            @endif
         </a>
 {{--        <div class="flex items-center">--}}
 {{--            <x-button.text-button type="link" href="{{ config('app.url_login') }}" class="rotate-svg-180">--}}
@@ -18,11 +23,16 @@
             @if(Auth::user()->isA('Teacher'))
                 <span class="bold">{{ Auth::user()->getNameFullAttribute() }}</span>
             @else
-            <x-dropdown label="{{ Auth::user()->getNameFullAttribute() }}">
-                <x-dropdown.item onclick="livewire.find(document.querySelector('[testtakemanager]').getAttribute('wire:id')).call('turnInModal')">
-                    Inleveren
-                </x-dropdown.item>
-            </x-dropdown>
+                <x-dropdown label="{{ Auth::user()->getNameFullAttribute() }}">
+                    <x-dropdown.item
+                            onclick="livewire.find(document.querySelector('[testtakemanager]').getAttribute('wire:id')).call('turnInModal')">
+                        {{ __("app.Inleveren") }}
+                    </x-dropdown.item>
+                    <x-dropdown.item x-show="showToDashboard"
+                                     onclick="livewire.find(document.querySelector('[testtakemanager]').getAttribute('wire:id')).call('returnToDashboard')">
+                        {{ __('app.Ga naar dashboard') }}
+                    </x-dropdown.item>
+                </x-dropdown>
             @endif
         </div>
     </header>
@@ -33,12 +43,14 @@
     <footer class="footer px-8 xl:px-28 flex content-center fixed w-full bottom-0 z-10">
 
         <div class="flex items-center">
-            {{ $fraudDetection }}
+            {{ $fraudDetection??'' }}
         </div>
-
+        <div class="flex items-center ml-auto space-x-4" >
+            {{ $readspeaker??'' }}
+        </div>
         <div class="flex items-center ml-auto space-x-6">
-            {{ $footerbuttons }}
+            {{ $footerbuttons ?? '' }}
         </div>
     </footer>
-    {{ $testTakeManager }}
+    {{ $testTakeManager ?? '' }}
 </x-layouts.base>

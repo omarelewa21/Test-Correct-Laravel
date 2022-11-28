@@ -64,44 +64,44 @@ where
 
 - all active users with date restriction (! you need to change school_years.year and users.created_at TWICE in order to get the current results)
 select 
-	school_locations.customer_code,
-	school_locations.name,
-	t.teacher_count,
-	s.students
+    school_locations.customer_code,
+    school_locations.name,
+    t.teacher_count,
+    s.students
 from
-	school_locations
-	inner join 
+    school_locations
+    inner join 
 (
 select 
-	count(users.id) as teacher_count, 
-	school_locations.id
+    count(users.id) as teacher_count, 
+    school_locations.id
 from
-	users
-	inner join school_locations on (school_locations.id = users.school_location_id)
+    users
+    inner join school_locations on (school_locations.id = users.school_location_id)
 where
-	users.id IN (
-		select distinct(user_id)  as user_id from teachers where deleted_at is null AND class_id in (
-			select 
-				distinct(school_classes.id) as school_classes_id
-			from
-				school_classes
-				inner join school_years on (school_classes.`school_year_id` = school_years.id)
-			where
-				school_classes.deleted_at is null AND
-				school_classes.demo = 0 AND
-				school_years.year = 2019 AND
-				school_years.deleted_at is null
+    users.id IN (
+        select distinct(user_id)  as user_id from teachers where deleted_at is null AND class_id in (
+            select 
+                distinct(school_classes.id) as school_classes_id
+            from
+                school_classes
+                inner join school_years on (school_classes.`school_year_id` = school_years.id)
+            where
+                school_classes.deleted_at is null AND
+                school_classes.demo = 0 AND
+                school_years.year = 2019 AND
+                school_years.deleted_at is null
 				
-		)
-	) AND
-	users.deleted_at is null AND
-	users.demo = 0 AND
-	users.username not like '%test-correct.nl' AND
-	users.created_at <= '2020-03-21'
+        )
+    ) AND
+    users.deleted_at is null AND
+    users.demo = 0 AND
+    users.username not like '%test-correct.nl' AND
+    users.created_at <= '2020-03-21'
 group by 
-	school_locations.customer_code,
-	school_locations.name,
-	school_locations.id
+    school_locations.customer_code,
+    school_locations.name,
+    school_locations.id
 ) t on t.id = school_locations.id
 inner join (
 select 
@@ -131,9 +131,58 @@ where
   users.deleted_at is null AND
   users.demo = 0 AND
   users.username not like '%test-correct.nl' AND
-  	users.created_at <= '2020-03-21'
+      users.created_at <= '2020-03-21'
 group by 
   school_locations.customer_code,
   school_locations.name,
   school_locations.id
 ) s on (s.id = school_locations.id)
+
+- weergave in toetsenbank
+
+Docent mag geen toetsen van andere school zien
+
+Docent mag geen demovak toetsen van andere docenten zien.
+
+Onder eigen toetsen wordt bedoeld: Toetsen die ooit door de docent zijn aangemaakt, dus ook degene die horen bij een vak dat meer gegeven wordt.
+
+Een docent heeft ‘toegang’ tot vakken die en een sectie delen.
+
+Het “eigendom” van een toets door een schoollocatie wordt bepaald door de sectie van het vak waar de toets toe behoort
+
+Docent zit in 1 schoollocatie en is geen onderdeel van een gedeelde sectie:
+
+Docent mag eigen toetsen (ook met vakken die op dit moment niet gegeven ) zien en die van sectiegenoten.
+
+Docent mag geen toetsen zien van sectiegenoten die vallen onder een andere sectie
+
+Docent mag geen toetsen zien van een andere schoollocatie (= toetsen die een subject hebben die vallen onder een sectie van een andere schoollocatie)
+
+Docent zit in 2 schoollocaties en is geen onderdeel van een gedeelde sectie:
+
+Docent mag eigen toetsen (van de actieve schoollocatie) zien en die van sectiegenoten (van de actieve schoollocatie)
+
+Docent mag eigen toetsen van de andere schoollocatie zien van vakken die in de actieve schoollocatie gegeven wordt
+
+Docent mag geen toetsen zien van sectiegenoten die vallen onder een andere sectie
+
+Docent mag geen toetsen zien van een andere schoollocatie, behalve die van hem/haarzelf
+
+Docent zit in 1 schoollocatie en is onderdeel van een gedeelde sectie:
+
+Docent mag eigen toetsen zien en die van sectiegenoten.
+
+Docent mag geen toetsen zien van sectiegenoten die vallen onder een andere sectie
+
+Docent mag toetsen zien van een andere schoollocatie als die vallen onder een gedeelde sectie en als de docent valt onder deze sectie
+
+Docent zit in 2 schoollocaties en is onderdeel van een gedeelde sectie:
+
+Docent mag eigen toetsen (van de actieve schoollocatie) zien en die van sectiegenoten (van de actieve schoollocatie)
+
+Docent mag eigen toetsen van de andere schoollocatie zien van vakken die in de actieve schoollocatie gegeven wordt
+
+Docent mag geen toetsen zien van sectiegenoten die vallen onder een andere sectie
+
+Docent mag toetsen zien van een andere schoollocatie als die vallen onder een gedeelde sectie en als de docent valt onder deze sectie
+

@@ -80,6 +80,16 @@ return [
             'driver' => 'errorlog',
             'level' => 'debug',
         ],
+        'loki' => [
+            'driver' => 'single',
+            'path' => storage_path('logs/monitoring/loki.log'),
+            'level' => 'info',
+            'formatter' => tcCore\Logging\LokiJson::class,
+            'formatter_with' => [
+                'batchMode' => 2
+            ],
+            'permission' => 0664
+        ]
     ],
 
 ];

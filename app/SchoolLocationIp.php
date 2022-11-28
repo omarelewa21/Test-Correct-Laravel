@@ -83,9 +83,9 @@ class SchoolLocationIp extends BaseModel {
 
     private function getSubmaskString() {
         if ($this->submask === null) {
-            $this->submask = pack('H*', base_convert(str_pad(str_repeat('1', $this->netmask), count($this->attributes['ip']) * 8, '0'), 2, 16));
+            return $this->attributes['ip'];
+            // $this->submask = pack('H*', base_convert(str_pad(str_repeat('1', $this->netmask), strlen($this->attributes['ip']) * 8, '0'), 2, 16));
         }
-
         return $this->submask;
     }
 

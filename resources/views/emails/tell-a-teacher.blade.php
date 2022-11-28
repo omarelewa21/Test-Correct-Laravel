@@ -158,11 +158,10 @@
                             </tr>
                             <tr width="100%">
                                 <td width="600px" style="width:600px;padding-left: 40px;padding-right: 40px;padding-bottom: 40px">
-                                    <h5 style="color: #fff; font-size: 20px; font-weight:700; padding-bottom: 16px">Je
-                                        collega {{$inviter}} nodigt je uit voor Test-Correct</h5>
+                                    <h5 style="color: #fff; font-size: 20px; font-weight:700; padding-bottom: 16px">{{ __("tell-a-teacher.Je collega") }} {{$inviter}} {{ __("tell-a-teacher.nodigt je uit voor Test-Correct") }}</h5>
                                     <table width="600px">
                                         <tr>
-                                            <td style="width: 100%; color: #ffffff">Samen met je collega's kun je:</td>
+                                            <td style="width: 100%; color: #ffffff">{{ __("tell-a-teacher.Samen met je collega's kun je") }}:</td>
                                         </tr>
                                         <tr>
                                             <td>
@@ -174,8 +173,7 @@
                                                                  alt=""/>
                                                         </td>
                                                         <td style="color: #ffffff">
-                                                    <span style="margin-bottom: 8px">Overleggen over de voortgang van jouw studenten en ervaringen
-                                                    delen.</span>
+                                                    <span style="margin-bottom: 8px">{{ __("tell-a-teacher.Overleggen over de voortgang van jouw studenten en ervaringen delen") }}.</span>
                                                         </td>
                                                     </tr>
                                                     <tr>
@@ -184,7 +182,7 @@
                                                                  src="{{config('app.base_url')}}img/icons/checkmark-small-white.png"
                                                                  alt=""/>
                                                         </td>
-                                                        <td style="color: #ffffff"><span>Gebruikmaken van elkaars toetsen en toetsvragen.</span>
+                                                        <td style="color: #ffffff"><span>{{ __("tell-a-teacher.Gebruikmaken van elkaars toetsen en toetsvragen") }}.</span>
                                                         </td>
                                                     </tr>
                                                 </table>
@@ -220,8 +218,7 @@
                                         align="center"><a
                                                 href="{{ config('app.base_url')}}inv/{{$shortcode}}?email={{$receivingEmailAddress}}"
                                                 target="_blank"
-                                                style="font-size: 16px; font-family: Helvetica, Arial, sans-serif; font-weight: normal; color: #ffffff; text-decoration: none; display: inline-block;">Maak
-                                            jouw account aan</a></td>
+                                                style="font-size: 16px; font-family: Helvetica, Arial, sans-serif; font-weight: normal; color: #ffffff; text-decoration: none; display: inline-block;">{{ __("tell-a-teacher.Maak jouw account aan") }}</a></td>
                                 </tr>
                             </table>
                         </td>

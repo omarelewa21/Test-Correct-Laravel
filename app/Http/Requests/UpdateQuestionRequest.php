@@ -106,6 +106,14 @@ class UpdateQuestionRequest extends Request {
 		return $validator;
 	}
 
+	public function messages(){
+        return [
+            'title.required' => 'A title is required',
+            'body.required'  => 'A message is required',
+        ];
+    
+    }
+
 	/**
 	 * Configure the validator instance.
 	 *
@@ -119,6 +127,7 @@ class UpdateQuestionRequest extends Request {
 		$extraRulesClass = $this->getExtraRulesClass($this->input('type'));
 		if (class_exists($extraRulesClass) && method_exists($extraRulesClass, 'getWithValidator')) {
 			(new $extraRulesClass($this->route))->getWithValidator($validator);
+			unset($validator->message);
 		}
 	}
 

@@ -1,0 +1,11 @@
+In custom build Classic Editor:
+Bold
+Italic
+Underline
+Strikethrough
+Subscript
+Superscript
+List
+Table
+Font family
+Font size

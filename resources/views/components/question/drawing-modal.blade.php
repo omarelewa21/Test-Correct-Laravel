@@ -28,19 +28,16 @@
         </a>
 
         <span id="{{ $this->playerInstance }}btn-export"></span>
-        <a x-on:click="
-                (function() {
-                    $wire.set('answer', {{ $this->playerInstance }}.getActiveImageBase64Encoded());
-                })();
-                document.getElementById('body').classList.remove('modal-open');
-                "
+        <a x-on:touchend.prevent="$wire.set('answer', {{ $this->playerInstance }}.getActiveImageBase64Encoded());document.getElementById('body').classList.remove('modal-open');"
+           x-on:click="$wire.set('answer', {{ $this->playerInstance }}.getActiveImageBase64Encoded());document.getElementById('body').classList.remove('modal-open');"
            class="btn highlight small ml5 pull-right" style="cursor: pointer;">
-            <span class="fa fa-check"></span> Opslaan
+            <span class="fa fa-check"></span> {{ __("drawing-modal.Opslaan") }}
         </a>
         <a class="btn grey small ml5 pull-right" style="cursor:pointer;" @click="opened = false;"
            x-on:click="document.getElementById('body').classList.remove('modal-open')"
+           x-on:touchend="opened = false"
         >
-            <span class="fa fa-remove"></span> Sluiten
+            <span class="fa fa-remove"></span> {{__("drawing-modal.Sluiten")}}
         </a>
 
         <a id="btn-color-blue" class="btn small p-0 w-7 h-7 mr2 pull-right {{ $this->playerInstance }}colorBtn"
@@ -80,6 +77,7 @@
     <div class="input-group w-full mt-4">
 
 <textarea id="{{ $this->playerInstance }}additional_text" wire:model="additionalText"
+          spellcheck="false"
           class="form-input"
           placeholder="Begeleidende tekst"></textarea>
     </div>
@@ -101,6 +99,10 @@
         }
 
         {{ $this->playerInstance }}.rerender();
+        @if(isset($this->question->grid) && $this->question->grid > 0) {
+            {{ $this->playerInstance }}.drawGrid({{ $this->question->grid }});
+        }
+        @endif
     </script>
     @endif
     @endpush

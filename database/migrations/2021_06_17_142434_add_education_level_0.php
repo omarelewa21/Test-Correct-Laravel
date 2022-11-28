@@ -3,6 +3,7 @@
 use Carbon\Carbon;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 use tcCore\EducationLevel;
 
@@ -15,13 +16,16 @@ class AddEducationLevel0 extends Migration
      */
     public function up()
     {
+        Schema::table('education_levels', function (Blueprint $table) {
+            $table->integer('attainment_education_level_id')->nullable();
+        });
         $el = EducationLevel::create([
             'name' => 'uwlr_education_level',
             'max_years' => 8
         ]);
-        $el->id = 0;
-        $el->save();
+
         $el->delete();
+        DB::statement('UPDATE education_levels SET id = 0  WHERE id = ? ', [$el->getKey()]);
     }
 
     /**

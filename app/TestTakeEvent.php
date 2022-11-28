@@ -1,5 +1,7 @@
 <?php namespace tcCore;
 
+use Bugsnag\BugsnagLaravel\Facades\Bugsnag;
+use Illuminate\Support\Facades\Auth;
 use tcCore\Events\NewTestTakeEventAdded;
 use tcCore\Events\RemoveFraudDetectionNotification;
 use tcCore\Lib\Models\BaseModel;
@@ -16,6 +18,7 @@ class TestTakeEvent extends BaseModel {
 
     protected $casts = [
         'uuid' => EfficientUuid::class,
+        'metadata' => 'array'
     ];
 
     /**
@@ -50,13 +53,49 @@ class TestTakeEvent extends BaseModel {
     {
         parent::boot();
 
+        static::saving(function(TestTakeEvent $testTakeEvent) {
+            if ($testTakeEvent->testTakeEventType->reason == "vm") {
+                try {
+                    $metadata = $testTakeEvent->metadata;
+                    switch ($metadata['software']) {
+                        case 0x15ad:
+                            $metadata['software'] = 'VMWare';
+                            break;
+                        case 0x0e0f:
+                            $metadata['software'] = 'VMWare';
+                            break;
+                        case 0x80ee:
+                            $metadata['software'] = 'Virtualbox';
+                            break;
+                        case 0x203a:
+                            $metadata['software'] = 'Parallels';
+                            break;
+                        case 0x46f4:
+                            $metadata['software'] = 'QEMU';
+                            break;
+                        default:
+                            $metadata['software'] = '???, vendor: ' . $metadata['software'];
+                            break;
+                    }
+                    $testTakeEvent->metadata = $metadata;
+                } catch (\Throwable $th) {
+                    Bugsnag::notifyException($th);
+                }
+
+            }
+
+            if ($testTakeEvent->shouldIgnoreEventRegistration()) {
+                return false;
+            }
+        });
+
         static::created(function(TestTakeEvent $testTakeEvent) {
-            NewTestTakeEventAdded::dispatch($testTakeEvent->testTake);
+            NewTestTakeEventAdded::dispatch($testTakeEvent->testTake->uuid);
         });
 
         static::saved(function(TestTakeEvent $testTakeEvent) {
             if ($testTakeEvent->confirmed == 1 && $testTakeEvent->getOriginal('confirmed') == 0) {
-                RemoveFraudDetectionNotification::dispatch($testTakeEvent->testParticipant);
+                RemoveFraudDetectionNotification::dispatch($testTakeEvent->testParticipant->uuid);
             }
         });
     }
@@ -136,12 +175,28 @@ class TestTakeEvent extends BaseModel {
         }
     }
 
-    public static function hasFraudBeenDetectedForParticipant($participantId)
+    public static function hasFraudBeenDetectedForParticipant($participantId, $showAlarmToStudent = true)
     {
-        return !!self::leftJoin('test_take_event_types', 'test_take_events.test_take_event_type_id', '=', 'test_take_event_types.id')
+        $query = self::leftJoin('test_take_event_types', 'test_take_events.test_take_event_type_id', '=', 'test_take_event_types.id')
             ->where('confirmed', 0)
             ->where('test_participant_id', $participantId)
-            ->where('requires_confirming', 1)
-            ->count();
+            ->where('requires_confirming', 1);
+        
+        if ($showAlarmToStudent) {
+            $query = $query->where('show_alarm_to_student', 1);
+        }
+            
+        return (bool)$query->count();
+    }
+
+    public function shouldIgnoreEventRegistration()
+    {
+        if ($this->testTake->test->isAssignment()){
+            if ($this->testTakeEventType->requires_confirming == 1) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

@@ -1,7 +1,9 @@
 <?php namespace tcCore\Http\Requests;
 
 use Illuminate\Routing\Route;
+use Illuminate\Support\Facades\Log;
 use tcCore\CompletionQuestion;
+use tcCore\Http\Helpers\QuestionHelper;
 
 class UpdateCompletionQuestionRequest extends UpdateQuestionRequest
 {
@@ -12,24 +14,17 @@ class UpdateCompletionQuestionRequest extends UpdateQuestionRequest
     private $completionQuestion;
 
     /**
-     *
-     * @param Route $route
-     */
-    function __construct(Route $route)
-    {
-        $this->completionQuestion = $route->parameter('completion_question');
-        if ($this->completionQuestion instanceof CompletionQuestion) {
-            $this->question = $this->completionQuestion->getQuestionInstance();
-        }
-    }
-
-    /**
      * Determine if the user is authorized to make this request.
      *
      * @return bool
      */
     public function authorize()
     {
+        $this->completionQuestion = $this->route->parameter('testQuestion')->question;
+        if ($this->completionQuestion instanceof CompletionQuestion) {
+            $this->question = $this->completionQuestion->getQuestionInstance();
+        }
+
         return true;
     }
 
@@ -68,13 +63,16 @@ class UpdateCompletionQuestionRequest extends UpdateQuestionRequest
     public function getWithValidator($validator)
     {
         $validator->after(function ($validator) {
-            $question = request()->input('question');
-            if (!strstr($question, '[') && !strstr($question, ']')) {
-                $validator->errors()->add('question', 'U dient minimaal &eacute;&eacute;n woord tussen vierkante haakjes te plaatsen.');
+            if(request()->route()->hasParameter('test_question')) {
+                $completionQuestion = request()->route()->parameter('test_question')->question;
+            } else if (request()->route()->hasParameter('group_question_question_id')){
+                $completionQuestion = request()->route()->parameter('group_question_question_id')->question;
             }
-            if (request()->input('subtype') == 'completion' && strstr($question, '|')) {
-                $validator->errors()->add('substype', 'U kunt geen |-teken gebruiken in de tekst of antwoord mogelijkheden');
-            }
+
+            $questionString = request()->input('question');
+            $subType = $completionQuestion->subtype;
+
+            CompletionQuestion::validateWithValidator($validator, $questionString, $subType);
         });
     }
 }

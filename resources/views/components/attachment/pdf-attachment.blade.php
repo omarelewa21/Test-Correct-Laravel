@@ -32,23 +32,18 @@ See https://github.com/adobe-type-tools/cmap-resources
     <link rel="resource" type="application/l10n" href="/pdf/locale/locale.properties">
     <script>
         <!-- MarkO: I took the original DEFAULT_URL out of the viewer.js file and added it here so we can overwrite it with our own -->
-        <?
-        if(isset($attachment_url)) {
-            print("var DEFAULT_URL = '" . $attachment_url . "';");
-        } else {
-            print("var DEFAULT_URL = '';");
-        }
-
-        if(isset($is_question_pdf) && $is_question_pdf) {
-            print("var studentButtons = true;");
-        } else {
-            print("var studentButtons = false;");
-        }
-        ?>
+        let DEFAULT_URL = '{{ $attachment_url ?? '' }}';
+        let studentButtons = @js(isset($is_question_pdf) && $is_question_pdf);
     </script>
     <script src="/pdf/pdf.js"></script>
     <script src="/pdf/viewer.js"></script>
     <script src="/pdf/tcViewer.js"></script>
+    @if(!is_null(Auth::user())&&Auth::user()->text2speech)
+    <link rel="stylesheet" type="text/css" href="{{ mix('/css/rs_tlc.css') }}" />
+    <link rel="stylesheet" type="text/css" href="{{ mix('/css/rs_tlc_pdf.css') }}" />
+    <script src="//cdn-eu.readspeaker.com/script/12749/webReader/webReader.js?pids=wr&amp;noDefaultSkin=1&mobile=0&amp;language={{Auth::user()->getLanguageReadspeaker()}}" type="text/javascript" id="rs_req_Init"></script>
+    <script src="{{ mix('/js/readspeaker_tlc.js') }}"></script>
+    @endif
 </head>
 
 <body tabindex="1" class="loadingInProgress">
@@ -210,6 +205,7 @@ See https://github.com/adobe-type-tools/cmap-resources
                         <button id="secondaryToolbarToggle" class="toolbarButton" title="Tools" tabindex="36" data-l10n-id="tools">
                             <span data-l10n-id="tools_label">Tools</span>
                         </button>
+
                     </div>
                     <div id="toolbarViewerMiddle">
                         <div class="splitToolbarButton">
@@ -222,22 +218,37 @@ See https://github.com/adobe-type-tools/cmap-resources
                             </button>
                         </div>
                         <span id="scaleSelectContainer" class="dropdownToolbarButton">
-                  <select id="scaleSelect" title="Zoom" tabindex="23" data-l10n-id="zoom">
-                    <option id="pageAutoOption" title="" value="auto" selected="selected" data-l10n-id="page_scale_auto">Automatic Zoom</option>
-                    <option id="pageActualOption" title="" value="page-actual" data-l10n-id="page_scale_actual">Actual Size</option>
-                    <option id="pageFitOption" title="" value="page-fit" data-l10n-id="page_scale_fit">Page Fit</option>
-                    <option id="pageWidthOption" title="" value="page-width" data-l10n-id="page_scale_width">Page Width</option>
-                    <option id="customScaleOption" title="" value="custom" disabled="disabled" hidden="true"></option>
-                    <option title="" value="0.5" data-l10n-id="page_scale_percent" data-l10n-args='{ "scale": 50 }'>50%</option>
-                    <option title="" value="0.75" data-l10n-id="page_scale_percent" data-l10n-args='{ "scale": 75 }'>75%</option>
-                    <option title="" value="1" data-l10n-id="page_scale_percent" data-l10n-args='{ "scale": 100 }'>100%</option>
-                    <option title="" value="1.25" data-l10n-id="page_scale_percent" data-l10n-args='{ "scale": 125 }'>125%</option>
-                    <option title="" value="1.5" data-l10n-id="page_scale_percent" data-l10n-args='{ "scale": 150 }'>150%</option>
-                    <option title="" value="2" data-l10n-id="page_scale_percent" data-l10n-args='{ "scale": 200 }'>200%</option>
-                    <option title="" value="3" data-l10n-id="page_scale_percent" data-l10n-args='{ "scale": 300 }'>300%</option>
-                    <option title="" value="4" data-l10n-id="page_scale_percent" data-l10n-args='{ "scale": 400 }'>400%</option>
-                  </select>
-                </span>
+                          <select id="scaleSelect" title="Zoom" tabindex="23" data-l10n-id="zoom">
+                            <option id="pageAutoOption" title="" value="auto" selected="selected" data-l10n-id="page_scale_auto">Automatic Zoom</option>
+                            <option id="pageActualOption" title="" value="page-actual" data-l10n-id="page_scale_actual">Actual Size</option>
+                            <option id="pageFitOption" title="" value="page-fit" data-l10n-id="page_scale_fit">Page Fit</option>
+                            <option id="pageWidthOption" title="" value="page-width" data-l10n-id="page_scale_width">Page Width</option>
+                            <option id="customScaleOption" title="" value="custom" disabled="disabled" hidden="true"></option>
+                            <option title="" value="0.5" data-l10n-id="page_scale_percent" data-l10n-args='{ "scale": 50 }'>50%</option>
+                            <option title="" value="0.75" data-l10n-id="page_scale_percent" data-l10n-args='{ "scale": 75 }'>75%</option>
+                            <option title="" value="1" data-l10n-id="page_scale_percent" data-l10n-args='{ "scale": 100 }'>100%</option>
+                            <option title="" value="1.25" data-l10n-id="page_scale_percent" data-l10n-args='{ "scale": 125 }'>125%</option>
+                            <option title="" value="1.5" data-l10n-id="page_scale_percent" data-l10n-args='{ "scale": 150 }'>150%</option>
+                            <option title="" value="2" data-l10n-id="page_scale_percent" data-l10n-args='{ "scale": 200 }'>200%</option>
+                            <option title="" value="3" data-l10n-id="page_scale_percent" data-l10n-args='{ "scale": 300 }'>300%</option>
+                            <option title="" value="4" data-l10n-id="page_scale_percent" data-l10n-args='{ "scale": 400 }'>400%</option>
+                          </select>
+                        </span>
+                        <div class="splitToolbarButtonSeparator"></div>
+                        @if(!is_null(Auth::user())&&Auth::user()->text2speech)
+                            <div class="Rectangle rs_clicklistenexclude rs_starter_button" onclick="ReadspeakerTlc.player.startRsPlayer();">
+                                <x-icon.rs-audio/>
+                                <div class="Lees-voor">
+                                    {{ __('test_take.speak') }}
+                                </div>
+                            </div>
+                            <div id="readspeaker_button1" wire:ignore class="rs_skip rsbtn rs_preserve hidden" >
+                                <a rel="nofollow" class="rsbtn_play"  title="{{ __('test_take.speak') }}" href="//app-eu.readspeaker.com/cgi-bin/rsent?customerid=12749&amp;lang=nl_nl&amp;readclass=rs_readable">
+                                    <span class="rsbtn_left rsimg rspart oval"><x-icon.rs-audio-inverse/></span>
+                                    <span class="rsbtn_right rsimg rsplay rspart"></span>
+                                </a>
+                            </div>
+                        @endif
                     </div>
                 </div>
                 <div id="loadingBar">
@@ -261,7 +272,7 @@ See https://github.com/adobe-type-tools/cmap-resources
         </menu>
 
         <div id="viewerContainer" tabindex="0">
-            <div id="viewer" class="pdfViewer"></div>
+            <div id="viewer" class="pdfViewer rs_readable"></div>
         </div>
 
         <div id="errorWrapper" hidden='true'>

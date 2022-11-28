@@ -12,10 +12,10 @@ use tcCore\DrawingQuestion;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
-use Tests\Traits\TestTrait;
-use Tests\Traits\DrawingQuestionTrait;
-use Tests\Traits\MultipleChoiceQuestionTrait;
-use Tests\Traits\GroupQuestionTrait;
+use tcCore\Traits\Dev\TestTrait;
+use tcCore\Traits\Dev\DrawingQuestionTrait;
+use tcCore\Traits\Dev\MultipleChoiceQuestionTrait;
+use tcCore\Traits\Dev\GroupQuestionTrait;
 use Illuminate\Support\Facades\DB;
 
 class AddToDatabaseTest extends TestCase

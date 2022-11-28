@@ -44,10 +44,10 @@ class AddActiveSchoolYearToSchoolsWithEducationLevelVOTest extends TestCase
     /** @test */
     public function it_should_return_without_a_schoolyear()
     {
-        $set = SchoolLocation::withoutSchoolYear('2021')->get()->filter(function ($schoolLocation) {
+        $set = SchoolLocation::withoutSchoolYear('1975')->get()->filter(function ($schoolLocation) {
             return $schoolLocation instanceof SchoolLocation;
         });
-        $this->assertCount(11, $set);
+        $this->assertCount(10, $set);
     }
 
     /** @test */
@@ -56,14 +56,14 @@ class AddActiveSchoolYearToSchoolsWithEducationLevelVOTest extends TestCase
         $set = SchoolLocation::activeOnly()->get()->filter(function ($schoolLocation) {
             return $schoolLocation instanceof SchoolLocation;
         });
-        $this->assertCount(11, $set);
+        $this->assertCount(10, $set);
 
         SchoolLocation::first()->setAttribute('activated', 0)->save();
 
         $set = SchoolLocation::activeOnly()->get()->filter(function ($schoolLocation) {
             return $schoolLocation instanceof SchoolLocation;
         });
-        $this->assertCount(10, $set);
+        $this->assertCount(9, $set);
     }
 
     /** @test */
@@ -72,7 +72,7 @@ class AddActiveSchoolYearToSchoolsWithEducationLevelVOTest extends TestCase
         $set = SchoolLocation::withoutSchoolYear('2020')->get()->filter(function ($schoolLocation) {
             return $schoolLocation instanceof SchoolLocation;
         });
-        $this->assertCount(4, $set);
+        $this->assertCount(6, $set);
     }
 
     /**
@@ -130,7 +130,6 @@ class AddActiveSchoolYearToSchoolsWithEducationLevelVOTest extends TestCase
 
         SchoolLocation::withoutSchoolYear('2021')->activeOnly()->voOnly()->get()->each(function ($location) {
             $user = $location->users()->first();
-
             Auth::login($user);
 
             $location->addSchoolYearAndPeriod('2021', '01-08-2021', '31-07-2022');
@@ -139,12 +138,12 @@ class AddActiveSchoolYearToSchoolsWithEducationLevelVOTest extends TestCase
         // er zitten 5 scholen in die van een nieuwe periode moeten worden voorzien;
 
         $this->assertEquals(
-            $startCountPeriod+5,
+            $startCountPeriod + 3,
             Period::count()
         );
 
         $this->assertEquals(
-            $startCountSchoolYear+5,
+            $startCountSchoolYear + 3,
             SchoolYear::count()
         );
     }
@@ -159,7 +158,7 @@ class AddActiveSchoolYearToSchoolsWithEducationLevelVOTest extends TestCase
         });
         $this->assertCount(0, $set);
     }
-    
+
     /** @test */
     public function it_should_return_a_correct_query()
     {
@@ -175,6 +174,7 @@ class AddActiveSchoolYearToSchoolsWithEducationLevelVOTest extends TestCase
     }
 
 
+
     /** @test */
     public function when_running_the_command_it_should_add_5_periods_and_school_years()
     {
@@ -186,12 +186,12 @@ class AddActiveSchoolYearToSchoolsWithEducationLevelVOTest extends TestCase
         // er zitten 11 scholen in die van een nieuwe periode moeten worden voorzien;
 
         $this->assertEquals(
-            $startCountPeriod+11,
+            $startCountPeriod + 7,
             Period::count()
         );
 
         $this->assertEquals(
-            $startCountSchoolYear+11,
+            $startCountSchoolYear + 7,
             SchoolYear::count()
         );
     }

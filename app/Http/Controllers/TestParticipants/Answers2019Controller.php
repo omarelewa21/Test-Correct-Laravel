@@ -64,6 +64,7 @@ class Answers2019Controller extends Controller
         $answers = Answer::where('test_participant_id', $testParticipant->getKey())->orderBy('order')
             ->with('answerParentQuestions', 'answerParentQuestions.groupQuestion')
             ->get();
+        $testTake->load(['test']);
         return Response::make([
             'answers' => $answers,
             'test_take' => $testTake,
@@ -153,7 +154,6 @@ class Answers2019Controller extends Controller
                         ]);
                     }
                 } else {
-                    logger(sprintf('geen numeric value for take_question_index %s', $request->input('take_question_index')));
                     $response = json_encode([
                         'success' => true,
                         'status' => 'done',

@@ -47,8 +47,6 @@ class CountSchoolTeachers extends Job implements ShouldQueue
 
         $count += $this->school->schoolLocations()->sum('count_teachers');
 
-        Log::debug('School #' . $this->school->getKey() . ' -> count_teachers: ' . $count);
-
         $this->school->setAttribute('count_teachers', $count);
         $this->school->save();
     }

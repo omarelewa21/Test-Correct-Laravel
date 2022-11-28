@@ -64,7 +64,7 @@ class MessageController extends Controller {
      */
     public function show(Message $message)
     {
-        $message['user_uuid'] = User::find($message['user_id'])->uuid;
+        $message['user_uuid'] = User::withTrashed()->find($message['user_id'])->uuid;
         return Response::make($message, 200);
     }
 

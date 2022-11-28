@@ -1,15 +1,17 @@
 <div class="question-indicator w-full" id="navigation-container">
     <div class="flex-col"
-         x-data="{ showSlider: false, scrollStep: 100, totalScrollWidth: 0, activeQuestion: @entangle('q') }"
+{{--         x-data="{ showSlider: false, scrollStep: 100, totalScrollWidth: 0, activeQuestion: @entangle('q') }"--}}
+         x-data="questionIndicator"
          x-ref="questionindicator"
+         x-global="indicatorData"
          x-init="$nextTick(() => {
                     $dispatch('current-updated', {'current': activeQuestion });
                     navScrollBar.querySelector('#active').scrollIntoView({behavior: 'smooth'});
+                     totalScrollWidth = $refs.navscrollbar.offsetWidth;
+                     navigationResizer.resize(indicatorData);
                     });
-                 totalScrollWidth = $refs.navscrollbar.offsetWidth;
-                 navigationResizer.resize($data);
                  "
-         x-on:resize.window.debounce.250ms="navigationResizer.resize($el.__x.$data);"
+         x-on:resize.window.debounce.250ms="navigationResizer.resize(indicatorData);"
          x-on:current-updated.window="navScrollBar.querySelector('#active').scrollIntoView({behavior: 'smooth'});"
          x-cloak
     >
@@ -39,7 +41,7 @@
                                  "
                          wire:key="nav_circle_for_q_{{$q['id']}}"
                     >
-                        <section selid="testtake-navitem" wire:key="nav_item{{$q['id']}}"
+                        <section selid="testtake-navitem" wire:key="nav_item{{$q['id']}}" wire:offline.attr="disabled"
                                  class="question-number rounded-full text-center cursor-pointer flex items-center justify-center
                                     {!! $key === ($this->q - 1) ? 'active' : ''!!}
                                  @if (!$q['answered'] && ($q['group']['closed'] || $q['closed']))
@@ -58,7 +60,7 @@
                                   class="align-middle px-1.5">{{ ++$key }}</span>
                         </section>
                         <div class="max-h-4 flex justify-center -ml-2 mt-1">
-                            @if($q['closeable'] && !$q['closed'])
+                            @if(($q['closeable']||$q['closeable_audio']) && !$q['closed'])
                                 <x-icon.unlocked/>
                             @elseif($q['closed'])
                                 <x-icon.locked/>
@@ -120,15 +122,16 @@
         @endpush
 
         <div class="flex space-x-6 ml-auto min-w-max justify-end items-center">
-            @if(Auth::user()->text2speech)
-                <div id="__ba_launchpad" class="hidden"></div>
-                <x-button.text-button @click="toggleBrowseAloud()">
-                    <x-icon.audio/>
-                    <span>{{ __('test_take.speak') }}</span>
-                </x-button.text-button>
-            @endif
+
             @if(!$isOverview)
-                <x-button.text-button wire:click="toOverview({{ $this->q }})" @click="$dispatch('show-loader')">
+                <x-button.text-button
+                        id="previewBtn"
+                        wire:loading.attr="disabled"
+                    onclick="typeof toOverview === 'function' ? toOverview({{$this->q}}) :
+                        livewire.find(document.querySelector('[test-take-player]').getAttribute('wire:id')).call('toOverview', {{$this->q}})
+                        "
+                    {{-- @click="$dispatch('show-loader')" --}}
+                    >
                     <x-icon.preview/>
                     <span>{{ __('test_take.overview') }}</span>
                 </x-button.text-button>
@@ -137,72 +140,23 @@
     </div>
 
     @if(Auth::user()->text2speech)
+        @push('styling')
+            <style>
+                #th_toolbar{
+                    display:none;
+                }
+            </style>
+        @endpush
+
         @push('scripts')
             <script>
-                function toggleBrowseAloud() {
-                    if (typeof BrowseAloud == 'undefined') {
-                        var s = document.createElement('script');
-                        s.src = 'https://www.browsealoud.com/plus/scripts/3.1.0/ba.js';
-                        s.integrity = "sha256-VCrJcQdV3IbbIVjmUyF7DnCqBbWD1BcZ/1sda2KWeFc= sha384-k2OQFn+wNFrKjU9HiaHAcHlEvLbfsVfvOnpmKBGWVBrpmGaIleDNHnnCJO4z2Y2H sha512-gxDfysgvGhVPSHDTieJ/8AlcIEjFbF3MdUgZZL2M5GXXDdIXCcX0CpH7Dh6jsHLOLOjRzTFdXASWZtxO+eMgyQ=="
-                        s.crossOrigin = 'anonymous';
-
-                        document.getElementsByTagName('BODY')[0].appendChild(s);
-                        waitForBrowseAloudAndThenRun();
-                    } else {
-                        _toggleBA();
+                window.addEventListener('update-footer-navigation', event => {
+                    if (typeof rspkr != 'undefined' && rspkr.ui.getActivePlayer()) {
+                            rspkr.ui.getActivePlayer().close();
                     }
-                }
-
-                function hideBrowseAloudButtons() {
-                    var shadowRoot = document.querySelector('div#__bs_entryDiv').querySelector('div').shadowRoot;
-                    var elementsToHide = ['th_translate', 'th_mp3Maker', 'ba-toggle-menu'];
-                    elementsToHide.forEach(function (id) {
-                        var el = shadowRoot.getElementById(id);
-                        if (el !== null) {
-                            shadowRoot.getElementById(id).setAttribute('style', 'display:none');
-                        }
-                    });
-
-                    var toolbar = shadowRoot.getElementById('th_toolbar');
-                    if (toolbar !== null) {
-                        toolbar.setAttribute('style', 'background-color: #fff');
-                    }
-
-                    [...shadowRoot.querySelectorAll('.th-browsealoud-toolbar-button__icon')].forEach(function (item) {
-                        item.setAttribute('style', 'fill : #515151');
-                    });
-                }
-
-                var _baTimer;
-                var tryIterator = 0;
-
-                function waitForBrowseAloudAndThenRun() {
-                    if (typeof BrowseAloud == 'undefined' || BrowseAloud.panel == 'undefined' || typeof BrowseAloud.panel.toggleBar == 'undefined') {
-                        _baTimer = setTimeout(function () {
-                                waitForBrowseAloudAndThenRun();
-                            },
-                            150);
-                    } else {
-                        clearTimeout(_baTimer);
-                        try {
-                            _toggleBA();
-                        } catch (e) {
-                            tryIterator++;
-                            if (tryIterator < 10) { // just stop when it still fails after 10 tries;
-                                setTimeout(function () {
-                                        waitForBrowseAloudAndThenRun();
-                                    },
-                                    150);
-                            }
-                        }
-                    }
-                }
-
-                function _toggleBA() {
-                    BrowseAloud.panel.toggleBar(!0);
-                    setTimeout(function () {
-                        hideBrowseAloudButtons();
-                    }, 1000);
+                });
+                if (typeof rspkr != 'undefined' && typeof rspkr.ui != 'undefined') {
+                    rspkr.ui.Tools.ClickListen.activate();
                 }
             </script>
         @endpush

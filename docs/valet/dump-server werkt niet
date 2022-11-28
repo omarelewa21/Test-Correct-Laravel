@@ -1,0 +1,54 @@
+maak in de root een LocalValetDriver.php aan:
+<?php
+
+
+class LocalValetDriver extends LaravelValetDriver
+{
+    /**
+    * Determine if the driver serves the request.
+    *
+    * @param  string  $sitePath
+    * @param  string  $siteName
+    * @param  string  $uri
+    * @return bool
+    */
+    public function serves($sitePath, $siteName, $uri)
+    {
+        return true;
+    }
+
+    /**
+    * Get the fully resolved path to the application's front controller.
+    *
+    * @param  string  $sitePath
+    * @param  string  $siteName
+    * @param  string  $uri
+    * @return string
+    */
+    public function frontControllerPath($sitePath, $siteName, $uri)
+    {
+        $_SERVER['VAR_DUMPER_FORMAT'] = 'server';
+        //$_SERVER['VAR_DUMPER_SERVER'] = 'tcp://127.0.0.1:9912';
+        return $sitePath.'/public/index.php';
+    }
+}
+
+vervang in vendor/symfony/var-dumper/Dumper/ServerDumper.php de dump method:
+public function dump(Data $data)
+    {
+        logger($this->connection->write($data));
+    }
+
+
+    voeg in vendor/symfony/var-dumper/Server/Connection@write:
+        $attempts = 0;
+        while(-1 == stream_socket_sendto($this->socket, $encodedPayload)){
+            if (-1 !== stream_socket_sendto($this->socket, $encodedPayload)) {
+                return true;
+            }
+            $attempts++;
+            if($attempts>1000){
+                break;
+            }
+        }
+

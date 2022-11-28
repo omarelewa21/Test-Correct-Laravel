@@ -25,13 +25,7 @@ class MultipleChoiceQuestion extends Component
 
     public $number;
 
-    public $arqStructure = [
-        ['A', 'test_take.correct', 'test_take.correct', 'test_take.correct_reason'],
-        ['B', 'test_take.correct', 'test_take.correct', 'test_take.incorrect_reason'],
-        ['C', 'test_take.correct', 'test_take.incorrect', 'test_take.not_applicable'],
-        ['D', 'test_take.incorrect', 'test_take.correct', 'test_take.not_applicable'],
-        ['E', 'test_take.incorrect', 'test_take.incorrect', 'test_take.not_applicable'],
-    ];
+    public $arqStructure = [];
 
     protected $listeners = ['questionUpdated' => 'questionUpdated'];
 
@@ -40,6 +34,7 @@ class MultipleChoiceQuestion extends Component
 
     public function mount()
     {
+        $this->arqStructure = \tcCore\MultipleChoiceQuestion::getArqStructure();
 
         if (!empty(json_decode($this->answers[$this->question->uuid]['answer']))) {
             $this->answerStruct = json_decode($this->answers[$this->question->uuid]['answer'], true);
@@ -54,7 +49,7 @@ class MultipleChoiceQuestion extends Component
 
         $this->shuffledKeys = array_keys($this->answerStruct);
         if (!$this->question->isCitoQuestion()) {
-            if ($this->question->subtype != 'ARQ' && $this->question->subtype != 'TrueFalse') {
+            if ($this->question->subtype != 'ARQ' && $this->question->subtype != 'TrueFalse' && !$this->question->fix_order) {
                 shuffle($this->shuffledKeys);
             }
         }

@@ -1,9 +1,17 @@
 <?php namespace tcCore\Providers;
 
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Str;
 use Livewire\Livewire;
+use tcCore\Http\Middleware\AuthenticatedAsStudent;
+use tcCore\Http\Middleware\AuthenticatedAsTeacher;
+use tcCore\Http\Middleware\DuplicateLogin;
+use tcCore\Http\Middleware\DuplicateLoginLivewire;
+use tcCore\Http\Middleware\TestTakeForceTakenAwayCheck;
+use tcCore\Test;
+use tcCore\User;
 
 class AppServiceProvider extends ServiceProvider {
 
@@ -16,7 +24,10 @@ class AppServiceProvider extends ServiceProvider {
 	{
         if (Str::of(config('app.base_url'))->contains('https')) {
             URL::forceScheme('https');
+            request()->server->set('HTTPS', 'on');
         }
+
+        $this->bootGates();
 	}
 
 	/**
@@ -44,7 +55,29 @@ class AppServiceProvider extends ServiceProvider {
         Livewire::addPersistentMiddleware([
             \tcCore\Http\Middleware\Authenticate::class,
             \tcCore\Http\Middleware\RedirectIfAuthenticated::class,
+            AuthenticatedAsStudent::class,
+            AuthenticatedAsTeacher::class,
+            DuplicateLogin::class,
+            DuplicateLoginLivewire::class,
+            TestTakeForceTakenAwayCheck::class,
         ]);
 	}
+
+    private function bootGates()
+    {
+        Gate::define('isAuthorOfTest', function (User $user, Test $test) {
+            return $test->canEdit($user);
+        });
+        Gate::define('canViewTestDetails', function (User $user, Test $test) {
+            return $test->canViewTestDetails($user);
+        });
+
+        Gate::define('useNewTakenTestsOverview', function (User $user) {
+            if ($user->isA('Teacher')) {
+                return $user->schoolLocation->allowNewTakenTestsPage;
+            }
+            return true;
+        });
+    }
 
 }

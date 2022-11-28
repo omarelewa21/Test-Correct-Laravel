@@ -1,7 +1,12 @@
 <?php namespace tcCore\Http\Middleware;
 
 use Closure;
+use Illuminate\Auth\AuthenticationException;
 use Illuminate\Contracts\Auth\Guard;
+use Illuminate\Session\TokenMismatchException;
+use Illuminate\Validation\UnauthorizedException;
+use Livewire\Livewire;
+use tcCore\Http\Helpers\BaseHelper;
 
 class Authenticate {
 
@@ -34,8 +39,12 @@ class Authenticate {
 	{
 		if ($this->auth->guest())
 		{
+            if (Livewire::isLivewireRequest()) {
+                return abort(401,'Unauthorized');
+            }
+
             if (! $request->expectsJson()) {
-                return redirect()->away(config('app.url_login'));
+                return redirect()->away(BaseHelper::getLoginUrl());
             }
 			return response('Unauthorized.', 401);
 		}

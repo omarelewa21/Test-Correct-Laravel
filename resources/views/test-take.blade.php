@@ -1,10 +1,16 @@
 <x-layouts.app>
+
+   <livewire:student.test-take-offline></livewire:student.test-take-offline>
+
+
     <div class="w-full flex flex-col mb-5"  selid="testtake-layout">
         @if($testParticipant->intense)
             <livewire:student.intense-observer :deviceId="$testParticipant->user_id" :sessionId="$testParticipant->id"></livewire:student.intense-observer>
         @endif
         <livewire:question.navigation  :nav="$nav" :testTakeUuid="$uuid"/>
-        <div>
+
+
+        <div class="test-take-questions">
             @push('styling')
                 <style>
                     {!! $styling !!}
@@ -79,6 +85,22 @@
                 </div>
             @endforeach
         </div>
+        <x-slot name="readspeaker">
+            @if(Auth::user()->text2speech)
+                <div class="Rectangle rs_clicklistenexclude rs_starter_button" onclick="ReadspeakerTlc.player.startRsPlayer()">
+                    <x-icon.rs-audio/>
+                    <div class="Lees-voor">
+                        {{ __('test_take.speak') }}
+                    </div>
+                </div>
+                <div id="readspeaker_button1" wire:ignore class="rs_skip rsbtn rs_preserve hidden" >
+                    <a rel="nofollow" class="rsbtn_play"  title="{{ __('test_take.speak') }}" href="//app-eu.readspeaker.com/cgi-bin/rsent?customerid=12749&amp;lang=nl_nl&amp;readclass=rs_readable">
+                        <span class="rsbtn_left rsimg rspart oval"><x-icon.rs-audio-inverse/></span>
+                        <span class="rsbtn_right rsimg rsplay rspart"></span>
+                    </a>
+                </div>
+            @endif
+        </x-slot>
         <x-slot name="footerbuttons">
             <div x-cloak x-data="{display :footerButtonData({{ $current }}, {{$nav->count()}})}" @update-footer-navigation.window="display= $event.detail.data" class="space-x-3">
                 <x-button.text-button x-show="display.prev"
@@ -88,9 +110,10 @@
                     <span>{{ __('test_take.previous_question') }}</span>
                 </x-button.text-button>
                 <x-button.cta x-show="display.turnin"
+                        id="overviewBtnFooter"
                         size="sm"
-                        onclick="livewire.find(document.querySelector('[test-take-player]').getAttribute('wire:id')).call('toOverview', {{ $nav->count() }})"
-                        @click="$dispatch('show-loader')"
+                        onclick="toOverview({{ $nav->count() }})"
+                        {{-- @click="$dispatch('show-loader')" --}}
                 >
                     <span>{{ __('test_take.overview') }}</span>
                 </x-button.cta>
@@ -103,10 +126,10 @@
             </div>
         </x-slot>
         <x-slot name="testTakeManager">
-            <livewire:student.test-take :testTakeUuid="$uuid" :testParticipantId="$testParticipant->getKey()"/>
+            <livewire:student.test-take :testTakeUuid="$uuid" :testParticipantId="$testParticipant->getKey()" :testParticipantUuid="$testParticipant->uuid"/>
         </x-slot>
         <x-slot name="fraudDetection">
-            <livewire:student.fraud-detection :testParticipantId="$testParticipant->getKey()" :testTakeUuid="$uuid"/>
+            <livewire:student.fraud-detection :testParticipantId="$testParticipant->getKey()" :testParticipantUuid="$testParticipant->uuid" :testTakeUuid="$uuid"/>
         </x-slot>
     </div>
     @push('scripts')
@@ -141,7 +164,22 @@
             }
             return data;
         }
+        function toOverview(q){
+                $question = @js($data)[q-1];
+                if($question['type'].toLowerCase() == 'openquestion' && $question['subtype'].toLowerCase() != 'short'){
+                    setTimeout(function(){
+                            livewire.find(document.querySelector('[test-take-player]').getAttribute('wire:id')).call('toOverview', q)
+                        }, 500)
+                }else{
+                    livewire.find(document.querySelector('[test-take-player]').getAttribute('wire:id')).call('toOverview', q)
+                }
+            }
     </script>
+        <script>
+            document.addEventListener("DOMContentLoaded", () => {
+                addTitleToImages('.test-take-questions',"{{__('Beschrijving afbeelding niet beschikbaar')}}");
+            });
+        </script>
     @endpush
 </x-layouts.app>
 

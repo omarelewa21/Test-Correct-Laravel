@@ -6,11 +6,14 @@ use Bugsnag\BugsnagLaravel\Facades\Bugsnag;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Str;
 use Livewire\Component;
 use Ramsey\Uuid\Uuid;
 use tcCore\BaseSubject;
 use tcCore\DemoTeacherRegistration;
+use tcCore\Http\Helpers\BaseHelper;
 use tcCore\Http\Requests\Request;
+use tcCore\SamlMessage;
 use tcCore\SchoolLocation;
 use tcCore\Shortcode;
 use tcCore\ShortcodeClick;
@@ -19,6 +22,8 @@ use tcCore\User;
 
 class Onboarding extends Component
 {
+
+    protected $allowedLevels = ['MBO','HO','PO','VO'];
     public $registration;
     public $email;
     public $password;
@@ -26,6 +31,7 @@ class Onboarding extends Component
     public $ref;
     public $invited_by;
     public $step = 1;
+    public $level;
 
     public $btnDisabled = true;
     public $confirmed;
@@ -41,30 +47,37 @@ class Onboarding extends Component
     public $subjectOptions = '';
     public $selectedSubjects = [];
     public $selectedSubjectsString = '';
+    public $domain = '';
+
+    public $entree_message = '';
+
+    public $showSubjects = true;
 
 
-    protected $queryString = ['step', 'email', 'confirmed', 'ref'];
+    protected $queryString = ['step', 'email', 'confirmed', 'ref','entree_message', 'level'];
 
-    protected $messages = [
-        'registration.name_first.required'      => 'Voornaam is verplicht',
-        'registration.name.required'            => 'Achternaam is verplicht',
-        'registration.gender.required'          => 'Geef uw geslacht op',
-        'password.required'                     => 'Wachtwoord is verplicht',
-        'password.min'                          => 'Wachtwoord moet langer zijn dan 8 karakters',
-        'password.regex'                        => 'Wachtwoord voldoet niet aan de eisen',
-        'password.same'                         => 'Wachtwoord komt niet overeen',
-        'registration.school_location.required' => 'Schoolnaam is verplicht',
-        'registration.website_url.required'     => 'Website is verplicht',
-        'registration.address.required'         => 'Adres is verplicht',
-        'registration.house_number.required'    => 'Huisnummer is verplicht',
-        'registration.house_number.regex'       => 'Huisnummer bevat geen nummer',
-        'registration.postcode.required'        => 'Postcode is verplicht',
-        'registration.postcode.min'             => 'Postcode is niet geldig',
-        'registration.postcode.regex'           => 'Postcode is niet geldig',
-        'registration.city.required'            => 'Plaatsnaam is verplicht',
-        'registration.username.required'        => 'E-mailadres is verplicht',
-        'registration.username.email'           => 'E-mailadres is niet geldig',
-    ];
+    protected function messages(){
+        return [
+            'registration.name_first.required'      => __('registration.name_first_required'),
+            'registration.name.required'            => __('registration.name_last_required'),
+            'registration.gender.required'          => __('registration.gender_required'),
+            'password.required'                     => __('registration.password_required'),
+            'password.min'                          => __('registration.password_min'),
+            'password.same'                         => __('registration.password_same'),
+            'registration.school_location.required' => __('registration.school_location_required'),
+            'registration.website_url.required'     => __('registration.website_url_required'),
+            'registration.address.required'         => __('registration.address_required'),
+            'registration.house_number.required'    => __('registration.house_number_required'),
+            'registration.house_number.regex'       => __('registration.house_number_regex'),
+            'registration.postcode.required'        => __('registration.postcode_required'),
+            'registration.postcode.min'             => __('registration.postcode_min'),
+            'registration.postcode.regex'           => __('registration.postcode_regex'),
+            'registration.city.required'            => __('registration.city_required'),
+            'registration.username.required'        => __('registration.username_required'),
+            'registration.username.email'           => __('registration.username_email'),
+            'domain.required'                       => __('registration.domain_required'),
+        ];
+    }
 
     public function rules()
     {
@@ -85,17 +98,22 @@ class Onboarding extends Component
             'registration.invitee'                      => 'sometimes',
             'password'                                  => 'sometimes',
             'registration.subjects'                     => 'sometimes',
+            'domain'                                    => 'sometimes',
         ];
 
         if ($this->step === 1) {
+            $extra1 = [];
+            if($this->useDomainInsteadOfSubjects()){
+                $extra1 = ['domain' => 'required'];
+            }
             return array_merge($default, [
                 'registration.gender'           => 'required|in:male,female,different',
                 'registration.gender_different' => 'sometimes',
                 'registration.name_first'       => 'required|string',
                 'registration.name'             => 'required|string',
                 'registration.name_suffix'      => 'sometimes',
-                'password'                      => 'required|min:8|regex:/\d/|regex:/[^a-zA-Z\d]/|same:password_confirmation',
-            ]);
+                'password'                      => 'required|same:password_confirmation|'. User::getPasswordLengthRule(),
+            ], $extra1);
         }
 
         return $default;
@@ -105,12 +123,22 @@ class Onboarding extends Component
     {
         return [
             'registration.school_location' => 'required',
-            'registration.website_url'     => 'required',
+            'registration.website_url'     => '',
             'registration.address'         => 'required',
             'registration.house_number'    => 'required|regex:/\d/',
             'registration.postcode'        => 'required|min:6|regex:/^[1-9][0-9]{3}\s?[a-zA-Z]{2}$/',
             'registration.city'            => 'required',
         ];
+    }
+
+    public function hasNoSubjects()
+    {
+        return $this->level === "PO";
+    }
+
+    public function useDomainInsteadOfSubjects()
+    {
+        return $this->level === "MBO" || $this->level === "HO";
     }
 
     public function mount()
@@ -119,12 +147,19 @@ class Onboarding extends Component
         $this->registration->username = $this->email;
         $this->registration->gender = 'male';
 
-        if (!$this->step != 1 || $this->step >= '4') {
+        if (!$this->step != 1 || $this->step > '4') {
             $this->step = 1;
         }
         if (!$this->email) {
             $this->email = '';
         }
+
+        if($this->level){
+            $this->level = Str::upper($this->level);
+        }
+
+        $this->setCorrectLevelToRegistration();
+
         if ($this->isUserConfirmedWithEmail()) {
             $this->confirmed = 0;
             $this->shouldDisplayEmail = true;
@@ -134,6 +169,20 @@ class Onboarding extends Component
             if (null !== $shortcodeId) {
                 $invited_by = Shortcode::where('id', $shortcodeId->shortcode_id)->first();
                 $this->registration->invitee = $invited_by->user_id;
+            }
+        }
+
+        if(request()->has('registerId')){
+            $samlMessage = SamlMessage::getSamlMessageIfValid(request()->get('registerId'));
+            if($samlMessage){
+                $data = $samlMessage->data;
+                if($data) {
+                    collect([['username', 'emailAddress'], ['name', 'lastName'], ['name_suffix', 'nameSuffix'],['name_first', 'firstName']])->eachSpread(function ($registrationKey, $entreeKey) use ($data) {
+                        if (property_exists($data, $entreeKey)) {
+                            $this->registration->$registrationKey = $data->$entreeKey;
+                        }
+                    });
+                }
             }
         }
 
@@ -154,8 +203,10 @@ class Onboarding extends Component
 
     public function render()
     {
-        $this->setSelectedSubjectsString();
-        $this->setSubjectOptions();
+        if(!$this->useDomainInsteadOfSubjects()) {
+            $this->setSelectedSubjectsString();
+            $this->setSubjectOptions();
+        }
         return view('livewire.onboarding')->layout('layouts.onboarding');
     }
 
@@ -168,24 +219,6 @@ class Onboarding extends Component
         }
     }
 
-    public function getMinDigitRuleProperty()
-    {
-        if (empty($this->password)) {
-            return 0;
-        } else {
-            return preg_match('/\d/', $this->password) ? true : false;
-        }
-    }
-
-    public function getSpecialCharRuleProperty()
-    {
-        if (empty($this->password)) {
-            return 0;
-        } else {
-            return preg_match('/[^a-zA-Z\d]/', $this->password) ? true : false;
-        }
-    }
-
     public function step1()
     {
         $this->validate();
@@ -194,7 +227,9 @@ class Onboarding extends Component
             return;
         }
         if ($this->ref != null && $this->isInvitedBySameDomain($this->registration->username)) {
-            $this->fillSchoolData($this->registration->invitee);
+            $inviter = User::find($this->registration->invitee);
+            $schoolInfo = SchoolLocation::find($inviter->school_location_id);
+            $this->fillSchoolData($schoolInfo);
         } else {
             $this->clearSchoolData();
         }
@@ -211,6 +246,13 @@ class Onboarding extends Component
             return;
         }
         $this->validate($this->rulesStep2());
+        if($this->hasNoSubjects()){
+            $this->registration->subjects = sprintf("%s: so no subjects",$this->level);
+        }
+        else if($this->useDomainInsteadOfSubjects()){
+            $this->registration->subjects = sprintf("%s:%s",$this->level,$this->domain);
+        }
+
         $this->registration->save();
         try {
             $this->newRegistration = $this->registration->addUserToRegistration($this->password, $this->registration->invitee, $this->ref);
@@ -221,9 +263,14 @@ class Onboarding extends Component
         }
     }
 
+    protected function setCorrectLevelToRegistration()
+    {
+        $this->registration->level = ($this->level && in_array($this->level,$this->allowedLevels)) ? $this->level : "VO";
+    }
+
     public function loginUser()
     {
-        $redirectUrl = config('app.url_login');
+        $redirectUrl = BaseHelper::getLoginUrl();
         if ($this->newRegistration) {
             $user = User::where('username', $this->registration->username)->first();
             if ($user) {
@@ -313,10 +360,9 @@ class Onboarding extends Component
         return $inviterDomain === explode('@', $username)[1];
     }
 
-    public function fillSchoolData($inviter)
+    public function fillSchoolData(SchoolLocation $schoolInfo)
     {
-        $inviter = User::find($inviter);
-        $schoolInfo = SchoolLocation::find($inviter->school_location_id);
+
         $this->registration->school_location = $schoolInfo->name;
         $this->registration->address = $schoolInfo->visit_address;
         $this->registration->postcode = $schoolInfo->visit_postal;
@@ -366,9 +412,10 @@ class Onboarding extends Component
 
     protected function setSubjectOptions()
     {
-        $subjects = BaseSubject::where('show_in_onboarding',true)->get()->pluck('name')->toArray();
+        $subjects = BaseSubject::where('show_in_onboarding',true)->forLevel($this->registration->level)->get()->pluck('name')->toArray();
         $subjects = array_unique($subjects);
         sort($subjects);
+//        $subjects = $this->translateSubjects($subjects);
         $subjects = array_diff($subjects,$this->selectedSubjects);
         $this->subjectOptions = json_encode($subjects,JSON_HEX_APOS);
     }
@@ -378,7 +425,15 @@ class Onboarding extends Component
         $this->selectedSubjectsString =  json_encode($this->selectedSubjects,JSON_HEX_APOS);
     }
 
+    private function translateSubjects($subjects)
+    {
+        return collect($subjects)->map(function($subject) {
+            return __('subject.'.$subject);
+        })->toArray();
+    }
 
-
-
+    public function finish()
+    {
+        $this->step = 4;
+    }
 }

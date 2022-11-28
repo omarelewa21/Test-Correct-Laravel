@@ -1,27 +1,33 @@
 <?php namespace tcCore;
 
+use Dyrynda\Database\Casts\EfficientUuid;
+use Exception;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
+use Ramsey\Uuid\Uuid;
 use tcCore\Exceptions\QuestionException;
 use tcCore\Http\Helpers\DemoHelper;
-use tcCore\Http\Requests\UpdateTestQuestionRequest;
+use tcCore\Http\Traits\WithQuestionFilteredHelpers;
 use tcCore\Lib\Models\MtiBaseModel;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
-use Dyrynda\Database\Casts\EfficientUuid;
-use Dyrynda\Database\Support\GeneratesUuid;
-use Ramsey\Uuid\Uuid;
+use tcCore\Scopes\QuestionAttainmentScope;
+use tcCore\Services\QuestionHtmlConverter;
+use tcCore\Traits\ExamSchoolQuestionTrait;
+use tcCore\Traits\UserContentAccessTrait;
 use tcCore\Traits\UuidTrait;
-use \Exception;
 
-class Question extends MtiBaseModel {
+class Question extends MtiBaseModel
+{
     use SoftDeletes;
     use UuidTrait;
+    use ExamSchoolQuestionTrait;
+    use UserContentAccessTrait;
+    use WithQuestionFilteredHelpers;
 
     protected $casts = [
-        'uuid' => EfficientUuid::class,
+        'uuid'                     => EfficientUuid::class,
+        'all_or_nothing'           => 'boolean',
+        'add_to_database_disabled' => 'boolean',
     ];
 
     public $mtiBaseClass = 'tcCore\Question';
@@ -29,6 +35,7 @@ class Question extends MtiBaseModel {
     public $mtiParentTable = 'questions';
 
 
+    const INLINE_IMAGE_PATTERN = '/custom/imageload.php?filename=';
 
     /**
      * The attributes that should be mutated to dates.
@@ -49,7 +56,31 @@ class Question extends MtiBaseModel {
      *
      * @var array
      */
-    protected $fillable = ['subject_id', 'education_level_id', 'type', 'question', 'education_level_year', 'score', 'decimal_score', 'note_type', 'rtti', 'bloom','miller','add_to_database','is_open_source_content', 'metadata', 'external_id','scope','styling','closeable','html_specialchars_encoded'];
+    protected $fillable = ['subject_id',
+        'education_level_id',
+        'type',
+        'question',
+        'education_level_year',
+        'score',
+        'decimal_score',
+        'note_type',
+        'rtti',
+        'bloom',
+        'miller',
+        'add_to_database',
+        'is_open_source_content',
+        'metadata',
+        'external_id',
+        'scope',
+        'styling',
+        'closeable',
+        'html_specialchars_encoded',
+        'is_subquestion',
+        'all_or_nothing',
+        'fix_order',
+        'owner_id',
+        'lang',
+    ];
 
     /**
      * The attributes excluded from the model's JSON form.
@@ -65,6 +96,8 @@ class Question extends MtiBaseModel {
      */
     protected $attainments = null;
 
+    protected $learning_goals = null;
+
     protected $tags = null;
 
     protected $onlyAddToDatabaseFieldIsModified = false;
@@ -75,7 +108,7 @@ class Question extends MtiBaseModel {
 
     public static function usesDeleteAndAddAnswersMethods($questionType)
     {
-        return collect(['completionquestion', 'matchingquestion', 'rankingquestion','matrixquestion','multiplechoicequestion'])->contains(strtolower($questionType));
+        return collect(['completionquestion', 'matchingquestion', 'rankingquestion', 'matrixquestion', 'multiplechoicequestion'])->contains(strtolower($questionType));
     }
 
     public function fill(array $attributes)
@@ -83,22 +116,22 @@ class Question extends MtiBaseModel {
         parent::fill($attributes);
 
         if (get_class($this) === 'tcCore\Question') {
-            if(array_key_exists('authors', $attributes)) {
+            if (array_key_exists('authors', $attributes)) {
                 $this->authors = $attributes['authors'];
-            } elseif(array_key_exists('add_author', $attributes) || array_key_exists('delete_author', $attributes)) {
+            } elseif (array_key_exists('add_author', $attributes) || array_key_exists('delete_author', $attributes)) {
                 $this->authors = $this->questionAuthors()->pluck('user_id')->all();
                 if (array_key_exists('add_author', $attributes)) {
                     array_push($this->authors, $attributes['add_author']);
                 }
 
                 if (array_key_exists('delete_author', $attributes)) {
-                    if(($key = array_search($attributes['delete_author'], $this->authors)) !== false) {
+                    if (($key = array_search($attributes['delete_author'], $this->authors)) !== false) {
                         unset($this->authors[$key]);
                     }
                 }
             }
 
-            if(array_key_exists('attainments', $attributes)) {
+            if (array_key_exists('attainments', $attributes)) {
                 if ($attributes['attainments'] == '') {
                     $attributes['attainments'] = [];
                 }
@@ -117,17 +150,38 @@ class Question extends MtiBaseModel {
                 }
 
                 $this->attainments = $attributes['attainments'];
-            } elseif(array_key_exists('add_attainment', $attributes) || array_key_exists('delete_attainment', $attributes)) {
+            } elseif (array_key_exists('add_attainment', $attributes) || array_key_exists('delete_attainment', $attributes)) {
                 $this->attainment = $this->questionAttainments()->pluck('attainment_id')->all();
                 if (array_key_exists('add_attainment', $attributes)) {
                     array_push($this->attainments, $attributes['add_attainment']);
                 }
 
                 if (array_key_exists('delete_attainment', $attributes)) {
-                    if(($key = array_search($attributes['delete_attainment'], $this->attainments)) !== false) {
+                    if (($key = array_search($attributes['delete_attainment'], $this->attainments)) !== false) {
                         unset($this->attainments[$key]);
                     }
                 }
+            }
+
+            if (array_key_exists('learning_goals', $attributes)) {
+                if ($attributes['learning_goals'] == '') {
+                    $attributes['learning_goals'] = [];
+                }
+
+                //TC-106
+                //convert learning_goals to an array if it is not an array
+                //because it is expected to be an array
+                if (!is_array($attributes['learning_goals'])) {
+                    $attributes['learning_goals'] = [$attributes['learning_goals']];
+                }
+
+                foreach ($attributes['learning_goals'] as $key => $value) {
+                    if (Uuid::isValid($value)) {
+                        $attributes['learning_goals'][$key] = LearningGoal::whereUuid($value)->first()->getKey();
+                    }
+                }
+
+                $this->learning_goals = $attributes['learning_goals'];
             }
 
             if (array_key_exists('tags', $attributes)) {
@@ -167,13 +221,17 @@ class Question extends MtiBaseModel {
         parent::boot();
 
         // Progress additional answers
-        static::created(function(Question $question)
-        {
+        static::creating(function (Question $question) {
+            self::addOwnerId($question->getQuestionInstance());
+        });
+        static::created(function (Question $question) {
             QuestionAuthor::addAuthorToQuestion($question);
         });
+        static::saving(function (Question $question) {
+            $question->handleExamPublishingQuestion();
+        });
 
-        static::saved(function(Question $question)
-        {
+        static::saved(function (Question $question) {
             if (get_class($question) === 'tcCore\Question') {
                 if ($question->authors !== null) {
                     $question->saveAuthors();
@@ -181,6 +239,10 @@ class Question extends MtiBaseModel {
 
                 if ($question->attainments !== null) {
                     $question->saveAttainments();
+                }
+
+                if ($question->learning_goals !== null) {
+                    $question->saveLearningGoals();
                 }
 
                 if ($question->tags !== null) {
@@ -202,7 +264,8 @@ class Question extends MtiBaseModel {
         return $this->hasMany('tcCore\TagRelation', 'tag_relation_id')->where('tag_relation_type', 'tcCore\Question');
     }
 
-    public function getQuestionInstance() {
+    public function getQuestionInstance()
+    {
         $questionInstance = $this;
 
         while ($this->parentInstance !== null && get_class($questionInstance) !== 'tcCore\Question') {
@@ -212,67 +275,101 @@ class Question extends MtiBaseModel {
         return $questionInstance;
     }
 
-    public function questionAttachments() {
+    public function questionAttachments()
+    {
         return $this->hasMany('tcCore\QuestionAttachment', 'question_id');
     }
 
-    public function attachments() {
+    public function attachments()
+    {
         return $this->belongsToMany('tcCore\Attachment', 'question_attachments', 'question_id', 'attachment_id')->withPivot([$this->getCreatedAtColumn(), $this->getUpdatedAtColumn(), $this->getDeletedAtColumn()])->wherePivot($this->getDeletedAtColumn(), null);
     }
 
-    public function subject() {
+    public function subject()
+    {
         return $this->belongsTo('tcCore\Subject', 'subject_id');
     }
 
-    public function educationLevel() {
+    public function educationLevel()
+    {
         return $this->belongsTo('tcCore\EducationLevel', 'education_level_id');
     }
 
-    public function questionAuthors() {
+    public function questionAuthors()
+    {
         return $this->hasMany('tcCore\QuestionAuthor', 'question_id');
     }
 
-    public function authors() {
-        return $this->belongsToMany('tcCore\User', 'question_authors', 'question_id', 'user_id')->withPivot([$this->getCreatedAtColumn(), $this->getUpdatedAtColumn(), $this->getDeletedAtColumn()])->wherePivot($this->getDeletedAtColumn(), null);
+    public function authors()
+    {
+        return $this->belongsToMany('tcCore\User', 'question_authors', 'question_id', 'user_id')
+            ->withTrashed()
+            ->withPivot([$this->getCreatedAtColumn(), $this->getUpdatedAtColumn(), $this->getDeletedAtColumn()])
+            ->wherePivot($this->getDeletedAtColumn(), null);
     }
 
-    public function groupQuestionQuestions() {
+    public function groupQuestionQuestions()
+    {
         return $this->hasMany('tcCore\GroupQuestionQuestion');
     }
 
-    public function questions() {
+    public function questions()
+    {
         return $this->belongsToMany('tcCore\Question', 'group_question_questions', 'group_question_id', 'question_id')->withPivot(['id', 'uuid', $this->getCreatedAtColumn(), $this->getUpdatedAtColumn(), $this->getDeletedAtColumn(), 'order', 'maintain_position'])->wherePivot($this->getDeletedAtColumn(), null);
     }
 
-    public function testQuestions() {
-            return $this->hasMany('tcCore\TestQuestion', 'question_id');
+    public function testQuestions()
+    {
+        return $this->hasMany('tcCore\TestQuestion', 'question_id');
     }
 
-    public function derivedQuestion() {
+    public function derivedQuestion()
+    {
         return $this->belongsTo('tcCore\Question', 'derived_question_id');
     }
 
-    public function questionAttainments() {
-        return $this->hasMany('tcCore\QuestionAttainment', 'question_id');
+    public function questionAttainments()
+    {
+        return $this->hasMany('tcCore\QuestionAttainment', 'question_id')->strict();
     }
 
-    public function attainments() {
+    public function questionLearningGoals()
+    {
+        return $this->hasMany('tcCore\QuestionLearningGoal', 'question_id')->strict();
+    }
+
+    public function attainments()
+    {
         return $this->belongsToMany('tcCore\Attainment', 'question_attainments')->withPivot([$this->getCreatedAtColumn(), $this->getUpdatedAtColumn(), $this->getDeletedAtColumn()])->wherePivot($this->getDeletedAtColumn(), null);
     }
 
-    public function testTakes() {
+    public function learningGoals()
+    {
+        return $this->belongsToMany('tcCore\LearningGoal', 'question_attainments')->withPivot([$this->getCreatedAtColumn(), $this->getUpdatedAtColumn(), $this->getDeletedAtColumn()])->wherePivot($this->getDeletedAtColumn(), null);
+    }
+
+    public function testTakes()
+    {
         return $this->hasMany('tcCore\TestTake', 'discussing_question_id');
     }
 
-    public function pValue() {
+    public function pValue()
+    {
         return $this->hasMany('tcCore\PValue');
     }
 
-    public function getChangedIds() {
+    public function owner()
+    {
+        return $this->belongsTo('tcCore\SchoolLocation', 'owner_id');
+    }
+
+    public function getChangedIds()
+    {
         return ['oldId' => $this->changedId, 'newId' => $this->getKey(), 'children' => $this->changedChildrenIds];
     }
 
-    public function duplicate(array $attributes, $ignore = null) {
+    public function duplicate(array $attributes, $ignore = null)
+    {
         $question = $this->replicate();
         $question->fill($attributes);
 
@@ -281,12 +378,10 @@ class Question extends MtiBaseModel {
         }
 
         $question->setAttribute('derived_question_id', $this->getKey());
-
         if (!$question->save()) {
             return false;
         }
-
-        foreach($this->questionAttachments as $questionAttachment) {
+        foreach ($this->questionAttachments as $questionAttachment) {
             if ($ignore instanceof Attachment && $ignore->getKey() == $questionAttachment->getAttribute('attachment_id')) {
                 continue;
             }
@@ -331,12 +426,15 @@ class Question extends MtiBaseModel {
             }
         }
 
+        collect(['attainments', 'learningGoals'])->each(fn($relation) => $this->addCurrentQuestionRelationToNewQuestion($question, $relation));
+
         return $question;
     }
 
-    protected function saveAuthors() {
+    protected function saveAuthors()
+    {
         $questionAuthors = $this->questionAuthors()->withTrashed()->get();
-        $this->syncTcRelation($questionAuthors, $this->authors, 'user_id', function($question, $userId) {
+        $this->syncTcRelation($questionAuthors, $this->authors, 'user_id', function ($question, $userId) {
             QuestionAuthor::create(['question_id' => $question->getKey(), 'user_id' => $userId]);
         });
 
@@ -345,18 +443,12 @@ class Question extends MtiBaseModel {
 
     protected function isClosedQuestion()
     {
-//        $question = $this;
-//        if (get_class($question) !== 'tcCore\Question') {
-//            $question = $this->getQuestionInstance();
-//        }
-//
-//        return $question->scope === 'cito';
         return $this->isCitoQuestion();
     }
 
     protected function allOrNothingQuestion()
     {
-        return $this->isCitoQuestion();
+        return $this->isCitoQuestion() || $this->all_or_nothing;
     }
 
     public function isCitoQuestion()
@@ -369,7 +461,19 @@ class Question extends MtiBaseModel {
         return $question->scope === 'cito';
     }
 
-    public function isDirtyAttainments() {
+    public function isWritingAssignment()
+    {
+        return $this instanceof OpenQuestion && $this->subtype === 'writing';
+    }
+
+    public function isWritingAssignmentWithSpellCheckAvailable()
+    {
+        return $this instanceof OpenQuestion && $this->subtype === 'writing' && $this->spell_check_available;
+    }
+
+    public function isDirtyAttainments()
+    {
+        return $this->isDirtyAttainmentsGeneric('attainments', 'questionAttainments');
         if ($this->attainments === null) {
             return false;
         }
@@ -396,16 +500,61 @@ class Question extends MtiBaseModel {
         }
     }
 
-    protected function saveAttainments() {
+    public function isDirtyLearningGoals()
+    {
+        return $this->isDirtyAttainmentsGeneric('learning_goals', 'questionLearningGoals');
+    }
+
+    public function isDirtyAttainmentsGeneric($globalName, $questionRelation)
+    {
+        if ($this->$globalName === null) {
+            return false;
+        }
+
+        $attainments = $this->$questionRelation()->pluck('attainment_id')->all();
+
+        /////////////////
+        //fix for TC-106
+        //also fixed in the fill() method, but somehow that doesn't work
+        //so we also fix it here, because this is where the error will start
+        if (!is_array($this->$globalName)) {
+            $this->$globalName = [$this->$globalName];
+        }
+
+        if (!is_array($attainments)) {
+            $attainments = [$attainments];
+        }
+        /////////////////
+
+        if (count($this->$globalName) != count($attainments) || array_diff($this->$globalName, $attainments)) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    protected function saveAttainments()
+    {
         $questionAttainments = $this->questionAttainments()->withTrashed()->get();
-        $this->syncTcRelation($questionAttainments, $this->attainments, 'attainment_id', function($question, $attainmentId) {
+        $this->syncTcRelation($questionAttainments, $this->attainments, 'attainment_id', function ($question, $attainmentId) {
             QuestionAttainment::create(['question_id' => $question->getKey(), 'attainment_id' => $attainmentId]);
         });
 
         $this->attainments = null;
     }
 
-    public function isDirtyTags() {
+    protected function saveLearningGoals()
+    {
+        $questionLearningGoals = $this->questionLearningGoals()->withTrashed()->get();
+        $this->syncTcRelation($questionLearningGoals, $this->learning_goals, 'attainment_id', function ($question, $attainmentId) {
+            QuestionLearningGoal::create(['question_id' => $question->getKey(), 'attainment_id' => $attainmentId]);
+        });
+
+        $this->learning_goals = null;
+    }
+
+    public function isDirtyTags()
+    {
         if ($this->tags === null) {
             return false;
         }
@@ -419,72 +568,74 @@ class Question extends MtiBaseModel {
         }
     }
 
-    public function isDirtyAnswerOptions($totalData){
-        if(!array_key_exists('answers',$totalData)){
+    public function isDirtyAnswerOptions($totalData)
+    {
+        if (!array_key_exists('answers', $totalData)) {
             return false;
         }
-        switch($this->type){
+        switch ($this->type) {
             case 'MatchingQuestion':
                 $requestAnswers = $this->convertMatchingAnswers($totalData['answers']);
-                try{
+                try {
                     $question = MatchingQuestion::findOrFail($this->id);
                     $answers = $this->convertMatchingAnswersFromQuestion($question);
-                    if($requestAnswers==$answers){
+                    if ($requestAnswers == $answers) {
                         return false;
                     }
-                }catch(Exception $e){
+                } catch (Exception $e) {
                     return true;
                 }
                 return true;
-            break;
+                break;
             case 'RankingQuestion':
                 $requestAnswers = $this->trimAnswerOptions($totalData['answers']);
-                try{
+                try {
                     $question = RankingQuestion::findOrFail($this->id);
                     $answers = $this->convertRankingAnswersFromQuestion($question);
-                    if($requestAnswers==$answers){
+                    if ($requestAnswers == $answers) {
                         return false;
                     }
-                }catch(Exception $e){
+                } catch (Exception $e) {
                     return true;
                 }
                 return true;
-            break;
+                break;
             case 'MultipleChoiceQuestion':
                 $requestAnswers = $this->trimAnswerOptions($totalData['answers']);
-                try{
+                try {
                     $question = MultipleChoiceQuestion::findOrFail($this->id);
                     $answers = $this->convertMultipleChoiceAnswersFromQuestion($question);
-                    if($requestAnswers==$answers){
+                    if ($requestAnswers == $answers) {
                         return false;
                     }
-                }catch(Exception $e){
+                } catch (Exception $e) {
                     return true;
                 }
                 return true;
-            break;
+                break;
             default:
                 return false;
-            break;
+                break;
         }
     }
 
-    protected function saveTags() {
+    protected function saveTags()
+    {
         $tags = $this->tagRelations()->withTrashed()->get();
-        $this->syncTcRelation($tags, $this->tags, 'tag_id', function($question, $tagId) {
+        $this->syncTcRelation($tags, $this->tags, 'tag_id', function ($question, $tagId) {
             TagRelation::create(['tag_relation_id' => $question->getKey(), 'tag_relation_type' => 'tcCore\Question', 'tag_id' => $tagId]);
         });
 
         $this->attainments = null;
     }
 
-    public function isUsed($ignoreRelationTo) {
+    public function isUsed($ignoreRelationTo)
+    {
 
 
         //$uses = Question::withTrashed()->where('derived_question_id', $this->getKey())->count();
 
         $uses = (new Question)->withTrashed()->where('derived_question_id', $this->getKey())->count();
-
         //Log::debug('Is used for question #'.$this->getKey());
         //Log::debug('Derived Questions = '.$uses);
 
@@ -524,352 +675,84 @@ class Question extends MtiBaseModel {
     }
 
 
-    public function isUsedInGroupQuestion($groupQuestionQuestionManager,$groupQuestionPivot)
+    public function isUsedInGroupQuestion($groupQuestionQuestionManager, $groupQuestionPivot)
     {
-        if($groupQuestionQuestionManager->isUsed()){
+        if ($groupQuestionQuestionManager->isUsed()) {
             return true;
         }
-        if($this->isUsed($groupQuestionPivot)){
+        if ($this->isUsed($groupQuestionPivot)) {
             return true;
         }
         return false;
     }
 
-    public function scopeOpensourceAndDemo($query, $filters = []){
-        $roles = $this->getUserRoles();
-
+    public function scopeDifferentScenariosAndDemo($query, $filters = [])
+    {
+//        $roles = $this->getUserRoles();
         $user = Auth::user();
-        $schoolLocation = SchoolLocation::find($user->getAttribute('school_location_id'));
-
-        if($schoolLocation->is_allowed_to_view_open_source_content == 1) {
-
-            $baseSubjectId = $user->subjects()->select('base_subject_id')->first();
-            $subjectIds = BaseSubject::find($baseSubjectId['base_subject_id'])->subjects()->select('id')->get();
-
-         //    $query->whereIn('subject_id',$subjectIds);
-
-
-            if(!isset($filters['is_open_source_content']) || $filters['is_open_source_content'] == 0) {
-                $query->whereIn('subject_id', function ($query) use ($user) {
-                    $user->subjects($query)->select('id');
-                });
-
-                $query->orWhere('is_open_source_content','=',1);
-
-            }elseif( $filters['is_open_source_content'] == 1 ) {
-                $query->whereIn('subject_id', function ($query) use ($user) {
-                    $user->subjects($query)->select('id');
-                });
-            }else{
-                $query->whereIn('subject_id',$subjectIds);
-                $query->where('is_open_source_content','=',1);
-            }
-
-        } else {
-            if ($user->isA('Teacher')) {
-                $subject = (new DemoHelper())->getDemoSubjectForTeacher($user);
-                $query->orWhere(function($q) use ($user, $subject){
-                    // subject id = $subject->getKey() together with being an owner through the question_authors table
-                    $q->where('subject_id',$subject->getKey());
-                    $q->whereIn('questions.id',$user->questionAuthors()->pluck('question_id'));
-                });
-                // or subect_id in list AND subject not $subject->getKey()
-                $query->orWhere(function($q) use ($user,$subject){
-                    $q->where('subject_id','<>',$subject->getKey());
-                    $q->whereIn('subject_id', function ($query) use ($user) {
-                        $user->subjectsIncludingShared($query)->select('id');
-                    });
+//        $schoolLocation = SchoolLocation::find($user->getAttribute('school_location_id'));
+        if ($user->isA('Teacher')) {
+            $subject = (new DemoHelper())->getDemoSubjectForTeacher($user);
+            $query->join($this->switchScopeFilteredSubQueryForDifferentScenarios($user, $subject), function ($join) {
+                $join->on('questions.id', '=', 't1.t2_id');
+            });
+            if (!is_null($subject)) {
+                $query->where(function ($q) use ($user, $subject) {
+                    $q->where(function ($query) use ($user, $subject) {
+                        $query->where('questions.subject_id', $subject->getKey())->whereIn('questions.id', $user->questionAuthors()->pluck('question_id'));
+                    })->orWhere('questions.subject_id', '<>', $subject->getKey());
                 });
             }
+//            $query->orWhere(function($q) use ($user, $subject){
+//                // subject id = $subject->getKey() together with being an owner through the question_authors table
+//                $q->where('subject_id',$subject->getKey());
+//                $q->whereIn('questions.id',$user->questionAuthors()->pluck('question_id'));
+//            });
+//            // or subject_id in list AND subject not $subject->getKey()
+//            $query->orWhere(function($q) use ($user,$subject){
+//                $q->where('subject_id','<>',$subject->getKey());
+//                $q->whereIn('subject_id', function ($query) use ($user) {
+//                    $user->subjectsIncludingShared($query)->select('id');
+//                });
+//            });
         }
+
         return $query;
     }
 
     public function scopeFiltered($query, $filters = [], $sorting = [])
     {
         $user = Auth::user();
-        $query = $this->opensourceAndDemo($query,$filters);
-        $joins = [];
+        $query = $this->differentScenariosAndDemo($query, $filters);
 
-        // Have to apply search filter first due to subquery left join with parameters
-        if (array_key_exists('search', $filters)) {
-            $value = $filters['search'];
+        [$query, $joins] = $this->handleSearchFilters($query, $filters);
 
-            // Decide whenever open question table has to be searched/joined
-            if (array_key_exists('type', $filters)) {
-                if (is_array($filters['type'])) {
-                    $types = array_map('strtolower', $filters['type']);
-                } else {
-                    $types = strtolower($filters['type']);
-                }
-
-                if ((is_array($types) && in_array('openquestion', $types) && count($types) === 1) || (!is_array($types) && $types == 'openquestion')) {
-                    $openQuestionOnly = true;
-                } else {
-                    $openQuestionOnly = false;
-                }
-
-                if ((is_array($types) && !in_array('openquestion', $types)) || (!is_array($types) && $types !== 'openquestion')) {
-                    $openQuestionDisabled = true;
-                } else {
-                    $openQuestionDisabled = false;
-                }
-            } else {
-                $openQuestionOnly = false;
-                $openQuestionDisabled = false;
-            }
-
-            if (!$openQuestionDisabled) {
-                $openQuestion = new OpenQuestion();
-            } else {
-                $openQuestion = null;
-            }
-
-            if (!is_array($value)) {
-                $value = [$value];
-            }
-
-            // Join tags
-            $tags = Tag::whereIn('name', $value)->pluck('name', 'id')->all();
-            if ($tags) {
-                $tags = array_map('strtolower', $tags);
-                $subQuery = DB::table('tag_relations')->where('deleted_at', null)->where('tag_relation_type', 'tcCore\Question')->whereIn('tag_id', array_keys($tags))->select(['tag_relation_id', DB::raw('CONCAT(\' \', GROUP_CONCAT(tag_id SEPARATOR \' \'), \' \') as tags')])->groupBy('tag_relation_id');
-                $query->leftJoin(DB::raw('(' . $subQuery->toSql() . ') as tags'), 'tags.tag_relation_id', '=', $this->getTable() . '.' . $this->getKeyName());
-                $query->mergeBindings($subQuery);
-            }
-
-            // Search terms + tags
-            foreach ($value as $v) {
-                if(!in_array(strtolower($v), $tags)) {
-                    $query->where(function ($query) use ($v, $openQuestionDisabled, $openQuestion) {
-                        $query->where('question', 'LIKE', '%' . $v . '%');
-                        if (!$openQuestionDisabled) {
-                            $query->orWhere(DB::raw('IFNULL(' . $openQuestion->getTable() . '.answer, \'\')'), 'LIKE', '%' . $v . '%');
-                        }
-                    });
-                } else {
-                    $tagId = array_search(strtolower($v), $tags);
-                    $query->where(function ($query) use ($v, $openQuestionDisabled, $openQuestion, $tagId) {
-                        $query->where('question', 'LIKE', '%' . $v . '%');
-                        if (!$openQuestionDisabled) {
-                            $query->orWhere(DB::raw('IFNULL(' . $openQuestion->getTable() . '.answer, \'\')'), 'LIKE', '%' . $v . '%');
-                        }
-                        $query->orWhere(DB::raw('IFNULL(tags.tags, \'\')'), 'LIKE', '% ' . $tagId . ' %');
-                    });
-                }
-            }
-
-            if (!$openQuestionOnly && !array_key_exists('subtype', $filters) && !$openQuestionDisabled) {
-                $query->leftJoin($openQuestion->getTable(), $openQuestion->getTable() . '.' . $openQuestion->getKeyName(), '=', $this->getTable() . '.' . $this->getKeyName());
-            } elseif ($openQuestionOnly && !array_key_exists('subtype', $filters)) {
-                $joins[] = 'openquestion';
-            }
-        }
-
-        foreach($filters as $key => $value) {
-            switch($key) {
-                case 'base_subject_id':
-
-                    if(isset($filters['source'])){
-                        switch($filters['source']){
-                            case 'schoolLocation': // only my colleages and me
-                                if(is_array($value)) {
-                                    $subjectIds = $user->subjects()->whereIn('base_subject_id', $value);
-                                } else {
-                                    $subjectIds = $user->subjects()->where('base_subject_id','=',$value);
-                                }
-                                $subjectIds = $subjectIds->pluck('id');
-                                $query->whereIn('subject_id',$subjectIds);
-                                break;
-                            case 'school': // including shared sections
-                                if(is_array($value)) {
-                                    $subjectIds = $user->subjectsOnlyShared()->whereIn('base_subject_id', $value);
-                                } else {
-                                    $subjectIds = $user->subjectsOnlyShared()->where('base_subject_id','=',$value);
-                                }
-                                $subjectIds = $subjectIds->pluck('id');
-                                $query->whereIn('subject_id',$subjectIds);
-                                break;
-                            default:
-                                if(is_array($value)) {
-                                    $subjectIds = $user->subjectsIncludingShared()->whereIn('base_subject_id', $value);
-                                } else {
-                                    $subjectIds = $user->subjectsIncludingShared()->where('base_subject_id','=',$value);
-                                }
-                                $subjectIds = $subjectIds->pluck('id');
-                                $query->whereIn('subject_id',$subjectIds);
-                                break;
-                        }
-                    } else {
-                        if(is_array($value)) {
-                            $subjectIds = $user->subjectsIncludingShared()->whereIn('base_subject_id', $value);
-                        } else {
-                            $subjectIds = $user->subjectsIncludingShared()->where('base_subject_id','=',$value);
-                        }
-                        $subjectIds = $subjectIds->pluck('id');
-                        $query->whereIn('subject_id',$subjectIds);
-                    }
-
-                    break;
-                case 'source':
-                    if(isset($filters['base_subject_id'])){
-                        // we don't have to do anything, cause here above already caught;
-                    } else {
-                        switch($filters['source']){
-                            case 'me': // i need to be the author
-                                $query->join('question_authors','questions.id','=','question_authors.question_id')
-                                    ->where('question_authors.user_id','=',$user->getKey());
-                                break;
-                            case 'schoolLocation': // only my colleages and me
-                                $query->whereIn('subject_id',$user->subjects()->pluck('id'));
-                                break;
-                            case 'school': // including shared sections
-                                $query->whereIn('subject_id',$user->subjectsOnlyShared()->pluck('id'));
-                                break;
-                            default:
-                                $query->whereIn('subject_id',$user->subjectsIncludingShared()->pluck('id'));
-                                break;
-                        }
-                    }
-                    break;
-                case 'id':
-                    if (is_array($value)) {
-                        $query->whereIn($this->table.'.id', $value);
-                    } else {
-                        $query->where($this->table.'.id', '=', $value);
-                    }
-                    break;
-                case 'subject_id':
-                    if (is_array($value)) {
-                        $query->whereIn('subject_id', $value);
-                    } else {
-                        $query->where('subject_id', '=', $value);
-                    }
-                    break;
-                case 'education_level_id':
-                    if (is_array($value)) {
-                        $query->whereIn('education_level_id', $value);
-                    } else {
-                        $query->where('education_level_id', '=', $value);
-                    }
-                    break;
-                case 'education_level_year':
-                    if (is_array($value)) {
-                        $query->whereIn('education_level_year', $value);
-                    } else {
-                        $query->where('education_level_year', '=', $value);
-                    }
-                    break;
-                case 'type':
-                    if (is_array($value)) {
-                        $filters['type'] = array_map('strtolower', $filters['type']);
-                        $query->whereIn('type', $value);
-                    } else {
-                        $filters['type'] = strtolower($filters['type']);
-                        $query->where('type', '=', $value);
-                    }
-                    break;
-                case 'subtype':
-                    $joinTable = null;
-                    if (is_array($filters['type']) && in_array($filters['type'], array('matchingquestion', 'multiplechoicequestion', 'completionquestion', 'openquestion'))) {
-                        break;
-                    }
-
-                    switch(strtolower($filters['type'])) {
-                        case 'matchingquestion':
-                        case 'multiplechoicequestion':
-                        case 'completionquestion':
-                        case 'openquestion':
-                            $joinTable = $filters['type'];
-                            break;
-                    }
-
-                    if ($joinTable !== null) {
-                        $joins[] = $joinTable;
-                    } else {
-                        break;
-                    }
-
-                    if (is_array($value)) {
-                        $query->whereIn('subtype', $value);
-                    }elseif(strtolower($value) == 'long'){
-                        $query->where('subtype', '=', 'long')->orWhere('subtype', '=', 'medium');
-                    } else {
-                        $query->where('subtype', '=', $value);
-                    }
-                    break;
-                case 'question':
-                    $query->where('question', 'LIKE', '%'.$value.'%');
-                    break;
-                case 'add_to_database':
-                    $query->where('add_to_database', '=', $value);
-                    break;
-                case 'is_subquestion':
-                    $query->where('is_subquestion', '=', $value);
-                    break;
-            }
-        }
-
-        foreach($sorting as $key => $value) {
-            switch(strtolower($value)) {
-                case 'id':
-                case 'type':
-                case 'question':
-                    $key = $value;
-                    $value = 'asc';
-                    break;
-                case 'asc':
-                case 'desc':
-                    break;
-                default:
-                    $value = 'asc';
-            }
-            switch(strtolower($key)) {
-                case 'id':
-                case 'type':
-                case 'question':
-                    $query->orderBy($key, $value);
-                    break;
-            }
-        }
-
-        $joins = array_unique($joins);
-        foreach($joins as $target) {
-            switch(strtolower($target)) {
-                case 'tests':
-                    $test = new Test();
-                    $query->join($test->getTable(), $test->getTable().'.'.$test->getKeyName(), '=', $this->getTable().'.test_id');
-                    break;
-                case 'matchingquestion':
-                    $matchingQuestion = new MatchingQuestion();
-                    $query->join($matchingQuestion->getTable(), $matchingQuestion->getTable().'.'.$matchingQuestion->getKeyName(), '=', $this->getTable().'.'.$this->getKeyName());
-                    break;
-                case 'multiplechoicequestion':
-                    $multipleChoiceQuestion = new MultipleChoiceQuestion();
-                    $query->join($multipleChoiceQuestion->getTable(), $multipleChoiceQuestion->getTable().'.'.$multipleChoiceQuestion->getKeyName(), '=', $this->getTable().'.'.$this->getKeyName());
-                    break;
-                case 'completionquestion':
-                    $completionQuestion = new CompletionQuestion();
-                    $query->join($completionQuestion->getTable(), $completionQuestion->getTable().'.'.$completionQuestion->getKeyName(), '=', $this->getTable().'.'.$this->getKeyName());
-                    break;
-                case 'openquestion':
-                    $openQuestion = new OpenQuestion();
-                    $query->join($openQuestion->getTable(), $openQuestion->getTable().'.'.$openQuestion->getKeyName(), '=', $this->getTable().'.'.$this->getKeyName());
-                    break;
-            }
-        }
+        $this->handleFilterParams($query, $user, $filters);
+        $this->handleFilteredSorting($query, $sorting);
+        $this->handleQueryJoins($query, array_unique($joins));
 
         return $query;
     }
 
-    public function performReorder($entities, $movedEntity, $attribute) {
+    public function scopePublishedFiltered($query, $filters = [], $sorting = [])
+    {
+        [$query, $joins] = $this->handleSearchFilters($query, $filters);
+
+        $this->handlePublishedFilterParams($query, $filters);
+        $this->handleFilteredSorting($query, $sorting);
+        $this->handleQueryJoins($query, array_unique($joins));
+        return $query;
+    }
+
+    public function performReorder($entities, $movedEntity, $attribute)
+    {
         $order = $movedEntity->getAttribute($attribute);
         $movedPrimaryKey = $movedEntity->getKey();
 
         $i = 1;
         if ($order) {
 
-            foreach($entities as $entity) {
+            foreach ($entities as $entity) {
                 $primaryKey = $entity->getKey();
                 if (is_array($primaryKey) && is_array($movedPrimaryKey)) {
                     $matched = true;
@@ -906,7 +789,7 @@ class Question extends MtiBaseModel {
                 $movedEntity->setReorder(true);
             }
         } else {
-            foreach($entities as $entity) {
+            foreach ($entities as $entity) {
                 $primaryKey = $entity->getKey();
                 if (is_array($primaryKey) && is_array($movedPrimaryKey)) {
                     $matched = true;
@@ -939,7 +822,8 @@ class Question extends MtiBaseModel {
         }
     }
 
-    public static function findByUuid($uuid) {
+    public static function findByUuid($uuid)
+    {
 
         return Question::whereUuid($uuid)->first();
 
@@ -991,7 +875,9 @@ class Question extends MtiBaseModel {
 //        return null;
     }
 
-    public function deleteAnswers(){}
+    public function deleteAnswers()
+    {
+    }
 
     /**
      * @param $mainQuestion either TestQuestion or GroupQuestionQuestion
@@ -999,39 +885,44 @@ class Question extends MtiBaseModel {
      * @return array
      * @throws \Exception
      */
-    public function addAnswers($mainQuestion, $answers){}
+    public function addAnswers($mainQuestion, $answers)
+    {
+    }
 
-    private function convertMatchingAnswers($answers){
+    private function convertMatchingAnswers($answers)
+    {
         $returnArray = [];
         foreach ($answers as $key => $answer) {
-            if($answer['left']==''){
+            if ($answer['left'] == '') {
                 continue;
             }
-            $this->addReturnArrayItemMatching($answer['left'],'LEFT',$returnArray);
-            $this->addReturnArrayItemMatching($answer['right'],'RIGHT',$returnArray);
+            $this->addReturnArrayItemMatching($answer['left'], 'LEFT', $returnArray);
+            $this->addReturnArrayItemMatching($answer['right'], 'RIGHT', $returnArray);
         }
         return $returnArray;
     }
 
-    private function convertMatchingAnswersFromQuestion($question){
+    private function convertMatchingAnswersFromQuestion($question)
+    {
         $returnArray = [];
         $answers = $question->matchingQuestionAnswers->toArray();
         foreach ($answers as $key => $answer) {
-            $returnArray[] = [ 'answer' => $answer['answer'],
-                                'type' => $answer['type'],
-                            ];
+            $returnArray[] = ['answer' => $answer['answer'],
+                              'type'   => $answer['type'],
+            ];
         }
         return $returnArray;
     }
 
-    protected function trimAnswerOptions($answers){
+    protected function trimAnswerOptions($answers)
+    {
         $returnArray = [];
         foreach ($answers as $key => $answer) {
-            if(!array_key_exists('answer',$answer)){
+            if (!array_key_exists('answer', $answer)) {
                 $returnArray[] = $answer;
                 continue;
             }
-            if($answer['answer']==''){
+            if ($answer['answer'] == '') {
                 continue;
             }
             $returnArray[] = $answer;
@@ -1040,34 +931,37 @@ class Question extends MtiBaseModel {
     }
 
 
-    private function convertRankingAnswersFromQuestion($question){
+    private function convertRankingAnswersFromQuestion($question)
+    {
         $answers = $question->rankingQuestionAnswers->toArray();
-        return $this->convertAnswersFromQuestion($answers,['order','answer']);
+        return $this->convertAnswersFromQuestion($answers, ['order', 'answer']);
     }
 
-    private function convertMultipleChoiceAnswersFromQuestion($question){
+    private function convertMultipleChoiceAnswersFromQuestion($question)
+    {
         $answers = $question->multipleChoiceQuestionAnswers->toArray();
         $ignoreOrder = false;
-        if($question->subtype=='TrueFalse'){
+        if ($question->subtype == 'TrueFalse') {
             $ignoreOrder = true;
         }
-        return $this->convertAnswersFromQuestion($answers,['order','answer','score'],$ignoreOrder);
+        return $this->convertAnswersFromQuestion($answers, ['order', 'answer', 'score'], $ignoreOrder);
     }
 
-    private function convertAnswersFromQuestion($answers,$params,$ignoreOrder = false){
+    private function convertAnswersFromQuestion($answers, $params, $ignoreOrder = false)
+    {
         $returnArray = [];
         foreach ($answers as $key => $answer) {
             $item = [];
             foreach ($params as $param) {
-                if($param=='order'&&$ignoreOrder){
+                if ($param == 'order' && $ignoreOrder) {
                     $item['order'] = 0;
                     continue;
                 }
-                if($param=='order'){
-                    $item['order'] = ($key+1);
+                if ($param == 'order') {
+                    $item['order'] = ($key + 1);
                     continue;
                 }
-                if(!array_key_exists($param, $answer)){
+                if (!array_key_exists($param, $answer)) {
                     throw new Exception('unknown answer key');
                     continue;
                 }
@@ -1078,13 +972,13 @@ class Question extends MtiBaseModel {
         return $returnArray;
     }
 
-    private function addReturnArrayItemMatching($answer,$type,&$returnArray):void
+    private function addReturnArrayItemMatching($answer, $type, &$returnArray): void
     {
-        $answers = explode("\n", str_replace(["\r\n","\n\r","\r"],"\n",$answer) );
+        $answers = explode("\n", str_replace(["\r\n", "\n\r", "\r"], "\n", $answer));
         foreach ($answers as $answerPart) {
-            $returnArray[] = [ 'answer' => $answerPart,
-                                'type' => $type,
-                            ];
+            $returnArray[] = ['answer' => $answerPart,
+                              'type'   => $type,
+            ];
         }
 
     }
@@ -1097,7 +991,7 @@ class Question extends MtiBaseModel {
 
     public function getCaptionAttribute()
     {
-        return __('test_take.'.Str::snake($this->type));;
+        return __('test_take.' . Str::snake($this->type));;
     }
 
     public function getQuestionCount()
@@ -1123,20 +1017,20 @@ class Question extends MtiBaseModel {
         return $request->all();
     }
 
-    public function updateWithRequest($request,$testQuestion)
+    public function updateWithRequest($request, $testQuestion)
     {
         $this->fill($this->getTotalDataForTestQuestionUpdate($request));
         $this->handleOnlyAddToDatabaseFieldIsModified($request);
-        $this->handleAnyOtherFieldsAreModified($testQuestion,$request);
+        $this->handleAnyOtherFieldsAreModified($testQuestion, $request);
         return $this;
     }
 
-    public function updateWithRequestGroup($request,$groupQuestionPivot,$groupQuestionQuestionManager)
+    public function updateWithRequestGroup($request, $groupQuestionPivot, $groupQuestionQuestionManager)
     {
         $totalData = $this->getTotalDataForTestQuestionUpdate($request);
         $this->fill($totalData);
         $this->handleOnlyAddToDatabaseFieldIsModified($request);
-        $this->handleAnyOtherFieldsAreModifiedWithinGroupQuestion($request,$groupQuestionPivot,$groupQuestionQuestionManager);
+        $this->handleAnyOtherFieldsAreModifiedWithinGroupQuestion($request, $groupQuestionPivot, $groupQuestionQuestionManager);
 
     }
 
@@ -1161,10 +1055,10 @@ class Question extends MtiBaseModel {
         }
     }
 
-    public function handleAnyOtherFieldsAreModified(TestQuestion $testQuestion,$request)
+    public function handleAnyOtherFieldsAreModified(TestQuestion $testQuestion, $request)
     {
-        if(!$this->needsToBeUpdated($request)){
-           return;
+        if (!$this->needsToBeUpdated($request)) {
+            return;
         }
         if ($this->isUsed($testQuestion)) {
             $this->handleDuplication($request);
@@ -1173,12 +1067,12 @@ class Question extends MtiBaseModel {
         $this->saveBothBaseModelAndQuestion();
     }
 
-    public function handleAnyOtherFieldsAreModifiedWithinGroupQuestion($request,$groupQuestionPivot,$groupQuestionQuestionManager)
+    public function handleAnyOtherFieldsAreModifiedWithinGroupQuestion($request, $groupQuestionPivot, $groupQuestionQuestionManager)
     {
-        if(!$this->needsToBeUpdated($request)){
+        if (!$this->needsToBeUpdated($request)) {
             return;
         }
-        if($this->isUsedInGroupQuestion($groupQuestionQuestionManager,$groupQuestionPivot)){
+        if ($this->isUsedInGroupQuestion($groupQuestionQuestionManager, $groupQuestionPivot)) {
             $this->handleDuplication($request);
             return;
         }
@@ -1190,17 +1084,15 @@ class Question extends MtiBaseModel {
     {
         $baseModel = $this->getQuestionInstance();
         $var = $baseModel->save();
-        if($var){
-            $var = $this->save();
-        }
         if (!$var) {
             throw new QuestionException('Failed to save question');
         }
+        $this->save();
     }
 
     public function getKeyAfterPossibleDuplicate()
     {
-        if(!$this->duplicateQuestionKey){
+        if (!$this->duplicateQuestionKey) {
             return $this->getKey();
         }
         return $this->duplicateQuestionKey;
@@ -1211,17 +1103,21 @@ class Question extends MtiBaseModel {
         $this->duplicateQuestionKey = false;
     }
 
-    public function handleAnswersAfterOwnerModelUpdate($ownerModel,$request){
+    public function handleAnswersAfterOwnerModelUpdate($ownerModel, $request)
+    {
         $baseModel = $this->getQuestionInstance();
-        if(!self::usesDeleteAndAddAnswersMethods($baseModel->type)){
+        if (!self::usesDeleteAndAddAnswersMethods($baseModel->type)) {
+            return;
+        }
+        if (!$this->needsToBeUpdated($request)) {
             return;
         }
         $totalData = $this->getTotalDataForTestQuestionUpdate($request);
-        if(!array_key_exists('answers',$totalData)){
+        if (!array_key_exists('answers', $totalData)) {
             return;
         }
         $this->deleteAnswers($this);
-        $this->addAnswers($ownerModel,$totalData['answers']);
+        $this->addAnswers($ownerModel, $totalData['answers']);
     }
 
     protected function handleDuplication($request)
@@ -1238,16 +1134,16 @@ class Question extends MtiBaseModel {
     public function onlyAddToDatabaseFieldNeedsToBeUpdated($request)
     {
         $baseModel = $this->getQuestionInstance($request);
-        if(!$this->needsToBeUpdated($request) ){
+        if (!$this->needsToBeUpdated($request)) {
             return false;
         }
-        if(count($this->getDirty()) > 0){
+        if (count($this->getDirty()) > 0) {
             return false;
         }
-        if(!array_key_exists('add_to_database', $baseModel->getDirty())){
+        if (!array_key_exists('add_to_database', $baseModel->getDirty())) {
             return false;
         }
-        if(count($baseModel->getDirty()) === 1){
+        if (count($baseModel->getDirty()) === 1) {
             return true;
         }
         return false;
@@ -1255,20 +1151,23 @@ class Question extends MtiBaseModel {
 
     public function needsToBeUpdated($request)
     {
-        if($this->onlyAddToDatabaseFieldIsModified){
+        if ($this->onlyAddToDatabaseFieldIsModified) {
             return false;
         }
-        if($this->isDirty()){
+        if ($this->isDirty()) {
             return true;
         }
         $baseModel = $this->getQuestionInstance();
-        if($baseModel->isDirty()){
+        if ($baseModel->isDirty()) {
             return true;
         }
-        if($baseModel->isDirtyAttainments()){
+        if ($baseModel->isDirtyAttainments()) {
             return true;
         }
-        if($baseModel->isDirtyTags()){
+        if ($baseModel->isDirtyLearningGoals()) {
+            return true;
+        }
+        if ($baseModel->isDirtyTags()) {
             return true;
         }
         return false;
@@ -1282,14 +1181,14 @@ class Question extends MtiBaseModel {
         }
     }
 
-    public function handleGroupDuplication($request,$groupQuestionQuestionManager,$groupQuestionPivot)
+    public function handleGroupDuplication($request, $groupQuestionQuestionManager, $groupQuestionPivot)
     {
         $totalData = $this->getTotalDataForTestQuestionUpdate($request);
         $this->fill($totalData);
-        if(!$this->isUsedInGroupQuestion($groupQuestionQuestionManager,$groupQuestionPivot)){
-             return;
+        if (!$this->isUsedInGroupQuestion($groupQuestionQuestionManager, $groupQuestionPivot)) {
+            return;
         }
-        if(!$this->needsToBeUpdated($request)){
+        if (!$this->needsToBeUpdated($request)) {
             return;
         }
         $testQuestion = $groupQuestionQuestionManager->prepareForChange($groupQuestionPivot);
@@ -1309,9 +1208,313 @@ class Question extends MtiBaseModel {
 
     public function getGroupQuestionPivotAfterPossibleDuplication($groupQuestionPivot)
     {
-        if($this->groupQuestionPivot){
+        if ($this->groupQuestionPivot) {
             return $this->groupQuestionPivot;
         }
         return $groupQuestionPivot;
+    }
+
+    public function convertInlineImageSources()
+    {
+        $questionHtmlConverter = new QuestionHtmlConverter($this->getQuestionHtml());
+
+        return $questionHtmlConverter->convertImageSourcesWithPatternToNamedRoute('inline-image', self::INLINE_IMAGE_PATTERN);
+    }
+
+    public function getConvertedQuestionHtmlAttribute()
+    {
+        return $this->convertInlineImageSources();
+    }
+
+    public function getQuestionAttainmentsAsArray()
+    {
+        return $this->questionAttainments->map(function ($relation) {
+            return $relation->attainment_id;
+        })->toArray();
+    }
+
+    public function getQuestionLearningGoalsAsArray()
+    {
+        return $this->questionLearningGoals->map(function ($relation) {
+            return $relation->attainment_id;
+        })->toArray();
+    }
+
+    private function getQueryGetItemsFromSchoolLocationAuthoredByUser($user)
+    {
+        return sprintf('select distinct t2.id as t2_id  /* select all questions from schoollocation authored by user */
+                                from
+                                   `questions` as t2
+                                        left join question_authors
+                                            on t2.id = question_authors.question_id
+                                        inner join (
+                                            select distinct subjects.id as subject_id
+                                            from subjects
+                                                left join sections
+                                                    on subjects.section_id = sections.id
+                                                left join school_location_sections as t9
+                                                    on t9.section_id = sections.id
+                                            where
+                                                subjects.deleted_at is null
+                                                and
+                                                t9.school_location_id = %d
+                                                        ) as s2
+                                                    on t2.subject_id = s2.subject_id
+                                            where question_authors.user_id = %d',
+            $user->school_location_id,
+            $user->id);
+    }
+
+    private function getQueryGetItemsFromSectionWithinSchoolLocation($user, $demoSubject)
+    {
+        return sprintf('select distinct t2.id as t2_id /* select tests from active schoollocation with subjects that fall under the section the user is member of */
+                                            from
+                                               `questions` as t2
+                                               inner join (
+                                                        select distinct t8.id as subject_id
+                                                        from subjects
+                                                            left join sections
+                                                                on subjects.section_id = sections.id
+                                                            left join subjects as t8
+                                                                on sections.id = t8.section_id
+                                                            left join school_location_sections as t9
+                                                                on t9.section_id = sections.id
+                                                            left join teachers
+                                                                on subjects.id = teachers.subject_id
+                                                        where
+                                                            subjects.deleted_at is null
+                                                                and
+                                                            teachers.user_id = %d
+                                                                and
+                                                            teachers.deleted_at is null
+                                                                and
+                                                            t9.school_location_id = %d
+                                                            ) as s2
+                                                    on t2.subject_id = s2.subject_id',
+            $user->id,
+            $user->school_location_id
+        );
+    }
+
+
+    private function getQueryGetItemsFromAllSchoolLocationsAuthoredByUserCurrentlyTaughtByUserInActiveSchoolLocation($user, $demoSubject)
+    {
+        return sprintf('select distinct t2.id as t2_id  /* select questions from all schoollocations authored by user and currently taught in active schoollocation */
+                                            from
+                                               `questions` as t2
+                                                    left join question_authors
+                                                        on t2.id = question_authors.question_id
+                                                    inner join (
+                                                         select distinct t3.id as subject_id
+                                                        from subjects
+                                                            left join sections
+                                                                on subjects.section_id = sections.id
+                                                            inner join subjects as t3
+                                                                on subjects.base_subject_id = t3.base_subject_id
+                                                            left join school_location_sections as t10
+                                                                on sections.id = t10.section_id
+                                                            left join teachers
+                                                                on subjects.id = teachers.subject_id
+                                                        where
+                                                            subjects.deleted_at is null
+                                                                and
+                                                            teachers.user_id = %d
+                                                                and
+                                                            teachers.deleted_at is null
+                                                                and
+                                                            t10.school_location_id = %d
+                                                        ) as s2
+                                                    on t2.subject_id = s2.subject_id
+                                            where question_authors.user_id = %d ',
+            $user->id,
+            $user->school_location_id,
+            $user->id
+        );
+    }
+
+    public function getTitleAttribute()
+    {
+        $withMath = strip_tags(html_entity_decode($this->getQuestionHtml()), ['math']);//,'msqrt','msub','msup','mo','mfrac','mrow','mi','mfenced','mroot','mover','munderover','mn','mtd','mtr','mtable','msrow','msline','mstack','mlongdiv','msgroup','mstyle','mmultiscripts','mprescripts','none','msubsup','munder','menclose','mtext','mspace']);
+
+        return preg_replace('/<math(.*)<\/math>/i', '', $withMath);
+    }
+
+    public function getTypeNameAttribute()
+    {
+        return __('question.' . Str::lower($this->type . ($this->subtype ?? '')));
+    }
+
+    public function getAuthorNamesString(): string
+    {
+        return $this->getAuthorNamesCollection()->implode(', ');
+    }
+
+    public function getAuthorNamesCollection()
+    {
+        return $this->getAuthorsWithMainFirst()->map(function ($author) {
+            return $author->getFullNameWithAbbreviatedFirstName();
+        });
+    }
+
+    public static function addOwnerIdToAllQuestions()
+    {
+        Question::withTrashed()
+            ->where(function ($query) {
+                $query->whereNotIn('type', ['BlaBla', 'BlaBla-2', 'BlaBla-3'])
+                    ->whereNull('owner_id');
+            })
+            ->chunkById(100, function ($questions) {
+                foreach ($questions as $question) {
+                    Question::whereId($question->id)
+                        ->withTrashed()
+                        ->update(['owner_id' =>
+                                      SchoolLocationSection::select('school_location_id')
+                                          ->where('section_id', function ($query) use ($question) {
+                                              $query->select('section_id')
+                                                  ->from((new Subject)->getTable())
+                                                  ->where('id', function ($query) use ($question) {
+                                                      $query->select('subject_id')
+                                                          ->from((new Question)->getTable())
+                                                          ->where('id', $question->id);
+                                                  });
+                                          })
+                                          ->first()
+                                          ->school_location_id
+                        ]);
+                }
+            });
+    }
+
+    private static function addOwnerId($question)
+    {
+        try {
+            $schoolLocationSection = SchoolLocationSection::select('school_location_id')
+                ->where('section_id', function ($query) use ($question) {
+                    $query->select('section_id')
+                        ->from((new Subject)->getTable())
+                        ->where('id', function ($query) use ($question) {
+                            $query->select('subject_id')
+                                ->from((new Question)->getTable())
+                                ->where('id', $question->id);
+                        });
+                })
+                ->first();
+
+            $question->owner_id = ($schoolLocationSection ? $schoolLocationSection->school_location_id : Auth::user()->school_location_id);
+        } catch (\Throwable $e) {
+            $question->owner_id = Auth::user()->school_location_id;
+        }
+    }
+
+    public function isType($type): bool
+    {
+        return Str::of($this->type)->lower()->contains(Str::lower($type));
+    }
+
+    public function isInTest($testUuid, $strict = false): bool
+    {
+        $test = Test::whereUuid($testUuid)->first();
+        if (!$test) {
+            return false;
+        }
+
+        if ($strict) {
+            return $test->testQuestions()->where('question_id', $this->getKey())->exists();
+        }
+
+        return $test->testQuestions()
+            ->selectRaw('1')
+            ->join('questions as q', 'q.id', '=', 'test_questions.question_id')
+            ->where('test_questions.question_id', $this->getKey())
+            ->orWhere('q.derived_question_id', $this->getKey())
+            ->exists();
+    }
+
+    public function hasCmsPreview()
+    {
+        return !$this->isType('matrix');
+    }
+
+    public function attachToParentInTest($testUuid, $testQuestionUuidForGroupQuestion = null)
+    {
+        $this->getConnectionModelToAttachTo($testUuid, $testQuestionUuidForGroupQuestion)->create([
+            'question_id'       => $this->getKey(),
+            'maintain_position' => 0,
+            'discuss'           => 1
+        ]);
+    }
+
+    private function getConnectionModelToAttachTo($testUuid, $testQuestionUuidForGroupQuestion)
+    {
+        if ($testQuestionUuidForGroupQuestion) {
+            $groupQuestionId = TestQuestion::whereUuid($testQuestionUuidForGroupQuestion)->pluck('question_id')->first();
+            $connectionModel = GroupQuestion::whereId($groupQuestionId)->firstOrFail()->groupQuestionQuestions();
+        } else {
+            $connectionModel = Test::whereUuid($testUuid)->firstOrFail()->testQuestions();
+        }
+
+        return $connectionModel;
+    }
+
+    public function needsCleanCopy(): bool
+    {
+        return filled($this->getQuestionInstance()->scope); // TODO: is this enough/too much?
+//        return $this->isNationalItem(); //TODO implement for creathlon & make dynamic
+    }
+
+    public function isNationalItem(): bool
+    {
+        return collect(Test::NATIONAL_ITEMBANK_SCOPES)->contains($this->getQuestionInstance()->scope);
+    }
+
+    public function createCleanCopy($education_level_id, $education_level_year, $subject_id, User $forUser)
+    {
+        $newQuestion = $this->duplicate($this->getAttributes());
+
+        $newQuestionInstance = $newQuestion->getQuestionInstance();
+        $newQuestionInstance->scope = null;
+        $newQuestionInstance->derived_question_id = null;
+        $newQuestionInstance->education_level_id = $education_level_id;
+        $newQuestionInstance->education_level_year = $education_level_year;
+        $newQuestionInstance->subject_id = $subject_id;
+        $newQuestionInstance->add_to_database = false;
+        $newQuestionInstance->add_to_database_disabled = true;
+        $newQuestionInstance->save();
+        QuestionAuthor::addAuthorToQuestion($newQuestion, $forUser->getKey());
+        $newQuestion->refresh();
+
+        if ($newQuestion->type == 'GroupQuestion') {
+            foreach ($newQuestion->groupQuestionQuestions as $key => $groupQuestionQuestion) {
+                $oldQuestionInGroup = $groupQuestionQuestion->question;
+                $newQuestionInGroup = $oldQuestionInGroup->createCleanCopy($education_level_id, $education_level_year, $subject_id, $forUser);
+                $groupQuestionQuestion->question_id = $newQuestionInGroup->id;
+                $groupQuestionQuestion->save();
+            }
+        }
+
+        return $newQuestion->fresh();
+    }
+
+    public function getAuthorsWithMainFirst()
+    {
+        return $this->authors()
+            ->get()
+            ->sortByDesc(function ($author) {
+                return $author->user_id === $this->author_id ? 1 : 0;
+            })
+            ->values();
+    }
+
+    private function addCurrentQuestionRelationToNewQuestion(Question $question, $relationName)
+    {
+        $pivotTable = 'question'.Str::ucfirst($relationName);
+
+        if($this->$pivotTable && $question->$pivotTable()->doesntExist()){
+            $params = $this->$pivotTable->map(function ($relation) use ($question) {
+                $relation->question_id = $question->getKey();
+                return $relation->toArray();
+            });
+            $question->$pivotTable()->createMany($params);
+        }
     }
 }

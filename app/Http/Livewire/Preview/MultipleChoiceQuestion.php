@@ -3,10 +3,10 @@
 namespace tcCore\Http\Livewire\Preview;
 
 use Livewire\Component;
-use tcCore\Http\Traits\WithPreviewAttachments;
 use tcCore\Http\Traits\WithCloseable;
-use tcCore\Http\Traits\WithPreviewGroups;
 use tcCore\Http\Traits\WithNotepad;
+use tcCore\Http\Traits\WithPreviewAttachments;
+use tcCore\Http\Traits\WithPreviewGroups;
 
 class MultipleChoiceQuestion extends Component
 {
@@ -24,13 +24,7 @@ class MultipleChoiceQuestion extends Component
 
     public $number;
 
-    public $arqStructure = [
-        ['A', 'test_take.correct', 'test_take.correct', 'test_take.correct_reason'],
-        ['B', 'test_take.correct', 'test_take.correct', 'test_take.incorrect_reason'],
-        ['C', 'test_take.correct', 'test_take.incorrect', 'test_take.not_applicable'],
-        ['D', 'test_take.incorrect', 'test_take.correct', 'test_take.not_applicable'],
-        ['E', 'test_take.incorrect', 'test_take.incorrect', 'test_take.not_applicable'],
-    ];
+    public $arqStructure = [];
 
     protected $listeners = ['questionUpdated' => 'questionUpdated'];
 
@@ -39,14 +33,14 @@ class MultipleChoiceQuestion extends Component
 
     public function mount()
     {
-
+        $this->arqStructure = \tcCore\MultipleChoiceQuestion::getArqStructure();
         $this->question->multipleChoiceQuestionAnswers->each(function ($answers) use (&$map) {
             $this->answerStruct[$answers->id] = 0;
         });
 
         $this->shuffledKeys = array_keys($this->answerStruct);
         if (!$this->question->isCitoQuestion()) {
-            if ($this->question->subtype != 'ARQ' && $this->question->subtype != 'TrueFalse') {
+            if ($this->question->subtype != 'ARQ' && $this->question->subtype != 'TrueFalse' && !$this->question->fix_order) {
                 shuffle($this->shuffledKeys);
             }
         }

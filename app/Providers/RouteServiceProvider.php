@@ -10,6 +10,7 @@ use tcCore\Address;
 use tcCore\Answer;
 use tcCore\Attachment;
 use tcCore\Attainment;
+use tcCore\BaseAttainment;
 use tcCore\BaseSubject;
 use tcCore\CompletionQuestion;
 use tcCore\Contact;
@@ -22,6 +23,7 @@ use tcCore\FileManagement;
 use tcCore\GradingScale;
 use tcCore\GroupQuestion;
 use tcCore\GroupQuestionQuestion;
+use tcCore\Info;
 use tcCore\InfoscreenQuestion;
 use tcCore\Invigilator;
 use tcCore\Lib\GroupQuestionQuestion\GroupQuestionQuestionManager;
@@ -77,6 +79,10 @@ class RouteServiceProvider extends ServiceProvider
     {
         parent::boot();
 
+        Route::model('info', 'tcCore\Info', function () {
+            throw new RouteModelBindingNotFoundHttpException('Info not found');
+        });
+
         Route::model('address', 'tcCore\Address', function () {
             throw new RouteModelBindingNotFoundHttpException('Address not found');
         });
@@ -129,6 +135,9 @@ class RouteServiceProvider extends ServiceProvider
             throw new RouteModelBindingNotFoundHttpException('Group question not found');
         });
 
+        /**
+         * @param id tcCore\TestQuestion::uuid
+         */
         Route::bind('group_question_question', function ($id) {
             try {
                 return \tcCore\Lib\GroupQuestionQuestion\GroupQuestionQuestionManager::getInstanceWithUuid($id);
@@ -288,6 +297,9 @@ class RouteServiceProvider extends ServiceProvider
         Route::model('maintenanceWhitelistIp', 'tcCore\MaintenanceWhitelistIp', function () {
             throw new RouteModelBindingNotFoundHttpException('MaintenanceWhitelistIp not found');
         });
+        Route::model('file_management', 'tcCore\FileManagement', function () {
+            throw new RouteModelBindingNotFoundHttpException('FileManagement not found');
+        });
 
         /**
          * Route::model('user_role','tcCore\UserRole', function() {
@@ -300,6 +312,10 @@ class RouteServiceProvider extends ServiceProvider
 //        });
 
         //UUID Route binding
+
+        Route::bind('info', function($item) {
+            return Info::whereUuid($item)->firstOrFail();
+        });
 
         Route::bind('school_year', function($item) {
             return SchoolYear::whereUuid($item)->firstOrFail();
@@ -359,9 +375,9 @@ class RouteServiceProvider extends ServiceProvider
              * a Test UUID, but a TestQuestion UUID that
              * should be handled as it were a 'group_question_question'
              * So now we handle both cases
-             * 
+             *
              * This inconsistency is also the case for 'question'
-             * 
+             *
              * Relates to TCP-833
              */
             $test = Test::whereUuid($item)->first();
@@ -369,8 +385,8 @@ class RouteServiceProvider extends ServiceProvider
                 return $test;
             }
 
-            $testQuestion = \tcCore\Lib\GroupQuestionQuestion\GroupQuestionQuestionManager::getInstanceWithUuid($item);
-            return $testQuestion->getQuestionLink()->test;
+            $groupQuestionQuestionManager = \tcCore\Lib\GroupQuestionQuestion\GroupQuestionQuestionManager::getInstanceWithUuid($item);
+            return $groupQuestionQuestionManager->getQuestionLink()->test;
         });
 
         Route::bind('onboarding_wizard', function($item) {
@@ -465,6 +481,14 @@ class RouteServiceProvider extends ServiceProvider
             return Attainment::whereUuid($item)->firstOrFail();
         });
 
+        Route::bind('baseAttainment', function($item) {
+            return BaseAttainment::whereUuid($item)->firstOrFail();
+        });
+
+        Route::bind('attachment', function($item) {
+            return Attachment::whereUuid($item)->firstOrFail();
+        });
+
         Route::bind('teacher', function($item) {
             return Teacher::whereUuid($item)->firstOrFail();
         });
@@ -501,7 +525,7 @@ class RouteServiceProvider extends ServiceProvider
             return Tag::whereUuid($item)->firstOrFail();
         });
 
-        Route::bind('fileManagement', function($item) {
+        Route::bind('file_management', function($item) {
             return FileManagement::whereUuid($item)->firstOrFail();
         });
 

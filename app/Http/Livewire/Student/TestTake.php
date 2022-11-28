@@ -5,6 +5,7 @@ namespace tcCore\Http\Livewire\Student;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
+use tcCore\Http\Helpers\BaseHelper;
 use tcCore\TemporaryLogin;
 use tcCore\TestParticipant;
 use tcCore\TestTakeEvent;
@@ -17,7 +18,9 @@ class TestTake extends Component
     public $testTakeUuid;
     public $showTurnInModal = false;
     public $testParticipantId;
+    public $testParticipantUuid;
     public $forceTakenAwayModal = false;
+    public $browserTestingDisabledModal = false;
 
     /** @var int
      *  time in milliseconds a notification is shown
@@ -27,11 +30,12 @@ class TestTake extends Component
     protected function getListeners()
     {
         return [
-            'set-force-taken-away'                                                                  => 'setForceTakenAway',
-            'checkConfirmedEvents'                                                                  => 'checkConfirmedEvents',
-            'echo-private:TestParticipant.' . $this->testParticipantId . ',.TestTakeForceTakenAway' => 'setForceTakenAway',
-            'echo-private:TestParticipant.' . $this->testParticipantId . ',.TestTakeReopened'       => 'testTakeReopened',
-            'studentInactive'                                                                       => 'handleInactiveStudent'
+            'set-force-taken-away'                                                                                  => 'setForceTakenAway',
+            'checkConfirmedEvents'                                                                                  => 'checkConfirmedEvents',
+            'echo-private:TestParticipant.' . $this->testParticipantUuid . ',.TestTakeForceTakenAway'               => 'setForceTakenAway',
+            'echo-private:TestParticipant.' . $this->testParticipantUuid . ',.TestTakeReopened'                     => 'testTakeReopened',
+            'echo-private:TestParticipant.' . $this->testParticipantUuid . ',.BrowserTestingDisabledForParticipant' => 'checkIfParticipantCanContinueWithoutApp',
+            'studentInactive'                                                                                       => 'handleInactiveStudent'
         ];
     }
 
@@ -45,7 +49,7 @@ class TestTake extends Component
         $this->showTurnInModal = true;
     }
 
-    public function TurnInTestTake()
+    public function TurnInTestTake($forceTaken = false)
     {
         $testParticipant = TestParticipant::whereId($this->testParticipantId)->first();
 
@@ -54,7 +58,12 @@ class TestTake extends Component
             //error handling
         }
 
-        $testParticipant->user->redirectToCakeWithTemporaryLogin();
+        // @TODO move this to returnToDashboard when all students use new env
+        if (Auth::user()->guest) {
+            $routeParameters = $this->getRouteParametersForGuest($forceTaken);
+            return redirect(route('auth.login', $routeParameters));
+        }
+        $this->returnToDashboard();
     }
 
     public function createTestTakeEvent($event)
@@ -65,11 +74,17 @@ class TestTake extends Component
             'test_take_event_type_id' => $eventType->getKey(),
         ]);
 
-        if ($eventType->requires_confirming) {
-            $this->emitTo('student.fraud-detection', 'setFraudDetected');
-        }
+        $currentTestTake = \tcCore\TestTake::whereUuid($this->testTakeUuid)->first();
+        $participant = TestParticipant::find($this->testParticipantId);
 
-        \tcCore\TestTake::whereUuid($this->testTakeUuid)->first()->testTakeEvents()->save($testTakeEvent);
+
+        if ($currentTestTake && $participant->shouldFraudNotificationsBeShown()) {
+            // turn off fraud detection;
+            if ($eventType->requires_confirming) {
+                $this->emitTo('student.fraud-detection', 'setFraudDetected');
+            }
+            $currentTestTake->testTakeEvents()->save($testTakeEvent);
+        }
     }
 
     private function getEventType($event)
@@ -114,6 +129,82 @@ class TestTake extends Component
         session()->invalidate();
         session()->regenerateToken();
 
-        $this->redirect(config('app.url_login'));
+        $this->redirect(BaseHelper::getLoginUrl());
+    }
+
+    private function browserTestingIsDisabled()
+    {
+        if (Auth::user()->guest) {
+            $parameters = [
+                'login_tab'          => 2,
+                'guest_message_type' => 'error',
+                'guest_message'      => 'no_browser_testing'
+            ];
+            return redirect(route('auth.login', $parameters));
+        }
+
+        $options = TemporaryLogin::buildValidOptionObject(
+            'notification',
+            [__('student.browser_testing_disabled_notification') => 'error']
+        );
+        $this->returnToDashboard($options);
+    }
+
+    public function checkIfParticipantCanContinueWithoutApp()
+    {
+        $participant = TestParticipant::findOrFail($this->testParticipantId);
+
+        if (!$participant->canUseBrowserTesting() && $participant->isInBrowser()) {
+            $this->browserTestingIsDisabled();
+        }
+    }
+
+    public function returnToDashboard($options = null)
+    {
+        if (Auth::user()->schoolLocation->allow_new_student_environment) {
+            return redirect(route('student.dashboard'));
+        }
+
+        Auth::user()->redirectToCakeWithTemporaryLogin($options);
+    }
+
+    private function getRouteParametersForGuest($forceTaken)
+    {
+        $parameters = [
+            'login_tab'          => 2,
+            'guest_message_type' => 'success',
+            'guest_message'      => 'done_with_test'
+        ];
+        if ($forceTaken) {
+            $parameters = [
+                    'guest_message_type' => 'error',
+                    'guest_message'      => 'removed_by_teacher'
+                ] + $parameters;
+        }
+
+        if (session()->get('TLCOs', null) == 'iOS') {
+            $parameters['device'] = 'ipad';
+        }
+
+        return $parameters;
+    }
+
+    public function shouldFraudNotificationsBeShown()
+    {
+        return ['shouldFraudNotificationsBeShown' => TestParticipant::find($this->testParticipantId)->shouldFraudNotificationsBeShown()];
+
+    }
+
+    public function showAssignmentElements()
+    {
+        $test = \tcCore\TestTake::whereUuid($this->testTakeUuid)
+            ->select('id', 'test_id')
+            ->with('test:id,test_kind_id')
+            ->first()
+            ->test;
+
+        if ($test->isAssignment()) {
+            $this->dispatchBrowserEvent('show-to-dashboard');
+        }
     }
 }

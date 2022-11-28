@@ -4,7 +4,7 @@
 'answer'
 ])
 
-<div class="flex flex-col p-8 sm:p-10 content-section" >
+<div class="flex flex-col p-8 sm:p-10 content-section rs_readable relative">
     <div class="question-title flex flex-wrap items-center question-indicator border-bottom mb-6">
         <div class="inline-flex question-number rounded-full text-center justify-center items-center {!! $this->answered ? 'complete': 'incomplete' !!}">
             <span class="align-middle cursor-default">{{ $number }}</span>
@@ -18,6 +18,9 @@
 
         <h1 class="inline-block ml-2 mr-6" selid="questiontitle"> {!! __($question->caption) !!} </h1>
         <h4 class="inline-block">{{ $question->score }} pt</h4>
+        @if($this->group)
+            <h1  class="inline-flex ml-2">{{ $this->group->name }}</h1>
+        @endif
         @if ($this->answered)
             @if($this->isQuestionFullyAnswered())
                 <x-answered/>
@@ -28,12 +31,22 @@
             <x-not-answered/>
         @endif
     </div>
+    @if($this->group)
+        <div class="mb-5" >{!! $this->group->question->converted_question_html !!}</div>
+    @endif
     <div class="flex flex-1 overview">
-        @if(!$this->closed)
-            {{ $slot }}
+        @if($question->closeable || ( !is_null($question->groupQuestion) && $question->groupQuestion->closeable) )
+            @if($this->closed)
+                <span>{{__('test_take.question_closed_text')}}</span>
+            @else
+                <span>{{__('test_take.question_closeable_text')}}</span>
+            @endif
         @else
-            <span>{{__('test_take.question_closed_text')}}</span>
+            <div class="questionContainer w-full">
+                {{ $slot }}
+            </div>
         @endif
     </div>
+    <div x-on:contextmenu="$event.preventDefault()" class="absolute z-10 w-full h-full left-0 top-0"></div>
 </div>
 

@@ -14,11 +14,13 @@ use tcCore\Http\Traits\UwlrImportHandlingForController;
 use tcCore\Lib\User\Factory;
 use tcCore\SchoolClass;
 use tcCore\SchoolClassImportLog;
+use tcCore\SchoolLocation;
 use tcCore\Subject;
 use tcCore\Teacher;
 use tcCore\Http\Requests\CreateTeacherRequest;
 use tcCore\Http\Requests\UpdateTeacherRequest;
 use tcCore\TeacherImportLog;
+use tcCore\TestTake;
 use tcCore\User;
 
 class TeachersController extends Controller
@@ -188,8 +190,8 @@ class TeachersController extends Controller
 
     protected function handleExternalId($user, $attributes)
     {
-        if (!array_key_exists('external_id', $attributes)) {
-            return;
+        if (!array_key_exists('external_id', $attributes)||empty($attributes['external_id'])) {
+            $attributes['external_id'] = '';
         }
         if (!array_key_exists('school_location_id', $attributes)) {
             return;
@@ -218,22 +220,51 @@ class TeachersController extends Controller
                         $allTeacherRecordsForThisTeacherAndClass->each->forceDelete();
 
                         foreach ($subjectValue as $subjectId => $checkboxValue) {
-                            $teacher = Teacher::create([
-                                'class_id'   => $schoolClassId,
+                            $oldTeacher = Teacher::where([
+                                'class_id' => $schoolClassId,
                                 'subject_id' => $subjectId,
-                                'user_id'    => Auth::id(),
-                            ]);
+                                'user_id' => Auth::id(),
+                            ])->withTrashed()->first();
+
+                            if(null !== $oldTeacher){
+                                if($oldTeacher->trashed()){
+                                    $oldTeacher->restore();
+                                }
+                                $teacher = $oldTeacher;
+                            } else {
+                                $teacher = Teacher::create([
+                                    'class_id' => $schoolClassId,
+                                    'subject_id' => $subjectId,
+                                    'user_id' => Auth::id(),
+                                ]);
+                            }
                             $this->updateImportLog(['checked' => 'on'], $teacher);
                             $updateCounter++;
                         }
                     } else {
                         $teacher = Teacher::where([
                             'class_id' => $schoolClassId,
-                            'user_id'  => Auth::id()
+                            'user_id' => Auth::id()
                         ])->first();
-                        $teacher->subject_id = $subjectValue;
-                        $teacher->save();
-                        $this->updateImportLog(['checked' => 'on'], $teacher);
+
+                        $oldTeacher = Teacher::where([
+                            'class_id' => $schoolClassId,
+                            'user_id'  => Auth::id(),
+                            'subject_id' => $subjectValue
+                        ])->withTrashed()->first();
+                        if(null !== $oldTeacher){
+                            if($oldTeacher->trashed()){
+                                $oldTeacher->restore();
+                            }
+                            if($oldTeacher->getKey() !== $teacher->getKey()) {
+                                $teacher->delete();
+                            }
+                            $this->updateImportLog(['checked' => 'on'], $oldTeacher);
+                        } else {
+                            $teacher->subject_id = $subjectValue;
+                            $teacher->save();
+                            $this->updateImportLog(['checked' => 'on'], $teacher);
+                        }
                         $updateCounter++;
                     }
                 }
@@ -275,4 +306,26 @@ class TeachersController extends Controller
 
     }
 
+    public function getSchoolLocationTeacherUser(Request $request, SchoolLocation $schoolLocation)
+    {
+        $test = $this->getTestFromTestTakeWithSubjectAndScope($request->get('testTakeUuid'));
+
+        if (filled($test->scope)) {
+            $query = Teacher::getTeacherUsersForSchoolLocationByBaseSubjectInCurrentYear(Auth::user()->schoolLocation, $test->subject->base_subject_id);
+        } else {
+            $query = Teacher::getTeacherUsersForSchoolLocationBySubjectInCurrentYear(Auth::user()->schoolLocation, $test->subject_id);
+        }
+
+        $teacherUsers = $query->get(['id','uuid', 'name', 'name_suffix', 'name_first'])->each(fn($user) => $user->append('name_full'));
+
+        return Response::make($teacherUsers, 200);
+    }
+
+    private function getTestFromTestTakeWithSubjectAndScope($testTakeUuid) {
+        return TestTake::whereUuid($testTakeUuid)
+            ->select(['id', 'test_id'])
+            ->with(['test:id,subject_id,scope', 'test.subject:id,base_subject_id'])
+            ->firstOrFail()
+            ->test;
+    }
 }

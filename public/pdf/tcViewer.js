@@ -16,7 +16,7 @@ function hideStudentOptions() {
 }
 
 
-hideOptions = studentButtons ? hideStudentOptions : hideGenericOptions;
+hideOptions = window.studentButtons ? hideStudentOptions : hideGenericOptions;
 
 if(window.attachEvent) {
     window.attachEvent('onload', hideOptions);

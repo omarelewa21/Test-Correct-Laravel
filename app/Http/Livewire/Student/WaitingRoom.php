@@ -5,35 +5,82 @@ namespace tcCore\Http\Livewire\Student;
 use Carbon\Carbon;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Str;
 use Livewire\Component;
 use Ramsey\Uuid\Uuid;
+use tcCore\Http\Helpers\AllowedAppType;
+use tcCore\Http\Helpers\AppVersionDetector;
+use tcCore\Http\Livewire\CoLearning\CompletionQuestion;
+use tcCore\Http\Traits\WithStudentAppVersionHandling;
 use tcCore\Http\Traits\WithStudentTestTakes;
+use tcCore\TemporaryLogin;
+use tcCore\TestKind;
 use tcCore\TestParticipant;
 use tcCore\TestTake;
+use tcCore\TestTakeEvent;
 use tcCore\TestTakeStatus;
 
 class WaitingRoom extends Component
 {
     use WithStudentTestTakes;
 
-    protected $listeners = ['start-test-take' => 'startTestTake'];
-    protected $queryString = ['take'];
+    protected function getListeners()
+    {
+        return [
+            'start-test-take'                                                                                              => 'startTestTake',
+            'is-test-take-open'                                                                                            => 'isTestTakeOpen',
+            'echo-private:TestParticipant.' . $this->testParticipant->uuid . ',.TestTakeOpenForInteraction'                => 'isTestTakeOpen',
+            'echo-private:TestParticipant.' . $this->testParticipant->uuid . ',.InbrowserTestingUpdatedForTestParticipant' => 'participantAppCheck',
+            'echo-private:TestParticipant.' . $this->testParticipant->uuid . ',.RemoveParticipantFromWaitingRoom'          => 'removeParticipantFromWaitingRoom',
+            'echo-private:TestParticipant.' . $this->testParticipant->uuid . ',.TestTakeForceTakenAway'                    => 'participantStatusChanged',
+            'echo-private:TestParticipant.' . $this->testParticipant->uuid . ',.TestTakeReopened'                          => 'participantStatusChanged',
+        ];
+    }
+
+    protected $queryString = [
+        'take',
+        'directly_to_review' => ['except' => false],
+        'origin'             => ['except' => '']
+    ];
+
     public $take;
+    public $directly_to_review = false;
+    public $origin = '';
+
     public $waitingTestTake;
     public $testParticipant;
     public $isTakeOpen;
     public $isTakeAlreadyTaken;
     public $countdownNumber = 3;
     public $testTakeStatusStage;
+    public $participatingClasses = [];
+
+    public $meetsAppRequirement = true;
+    public $needsApp;
+    public $appNeedsUpdate;
+    public $appNeedsUpdateDeadline;
+    public $appStatus;
 
     public function mount()
     {
         if (!isset($this->take) || !Uuid::isValid($this->take)) {
-            return redirect(route('student.dashboard'));
+            return $this->escortUserFromWaitingRoom();
         }
+
         $this->waitingTestTake = $this->getWaitingRoomTestTake();
         $this->testParticipant = TestParticipant::whereUserId(Auth::id())->whereTestTakeId($this->waitingTestTake->getKey())->first();
-        $this->testTakeStatusStage = $this->determineTestTakeStatusStage();
+        if (!$this->waitingTestTake || !$this->testParticipant) {
+            return $this->escortUserFromWaitingRoom();
+        }
+
+        if ($this->directly_to_review) {
+            $this->startReview();
+        }
+
+        $this->testTakeStatusStage = $this->waitingTestTake->determineTestTakeStage();
+        $this->participatingClasses = $this->getParticipatingClasses($this->waitingTestTake);
+
+        $this->participantAppCheck();
     }
 
     public function render()
@@ -44,6 +91,13 @@ class WaitingRoom extends Component
 
     public function startTestTake()
     {
+        if ($this->waitingTestTake->test_take_status_id === TestTakeStatus::STATUS_TAKING_TEST) {
+            if (!$this->testParticipant->isRejoiningTestTake(TestTakeStatus::STATUS_TAKING_TEST)) {
+                $this->testParticipant->test_take_status_id = TestTakeStatus::STATUS_TAKING_TEST;
+                $this->testParticipant->save();
+            }
+        }
+
         $this->redirectRoute('student.test-take-laravel', $this->take);
     }
 
@@ -57,22 +111,33 @@ class WaitingRoom extends Component
                 $this->isTakeOpen = false;
                 return;
             }
+            if ($this->waitingTestTake->test->isAssignment()) {
+                $this->isTakeOpen = $this->waitingTestTake->time_start <= now() && $this->waitingTestTake->time_end >= now();
+                return;
+            }
+
             $this->isTakeOpen = $testTakeStatus == TestTakeStatus::STATUS_TAKING_TEST;
         }
 
         if ($stage === 'discuss') {
             $this->isTakeOpen = $testTakeStatus == TestTakeStatus::STATUS_DISCUSSING;
         }
+
         if ($stage === 'review') {
             $showResults = TestTake::whereUuid($this->take)->value('show_results');
-            if ($showResults->gt(Carbon::now())) {
+            if ($this->canReviewTake($showResults)) {
                 $this->isTakeOpen = $testTakeStatus == TestTakeStatus::STATUS_DISCUSSED;
             } else {
                 $this->isTakeOpen = false;
             }
         }
         if ($stage === 'graded') {
-
+            $showResults = TestTake::whereUuid($this->take)->value('show_results');
+            if ($this->canOpenGradedTake($showResults)) {
+                $this->isTakeOpen = $testTakeStatus == TestTakeStatus::STATUS_RATED;
+            } else {
+                $this->isTakeOpen = false;
+            }
         }
     }
 
@@ -87,21 +152,114 @@ class WaitingRoom extends Component
             ->join('tests', 'test_takes.test_id', '=', 'tests.id')
             ->join('subjects', 'tests.subject_id', '=', 'subjects.id')
             ->where('test_takes.id', TestTake::whereUuid($this->take)->value('id'))
-            ->first();
+            ->firstOrFail();
     }
 
-    private function determineTestTakeStatusStage(): string
+    public function startDiscussing()
     {
-        $status = $this->waitingTestTake->test_take_status_id;
+        if ($this->waitingTestTake->discussion_type == 'OPEN_ONLY' && Auth::user()->schoolLocation->allow_new_co_learning) {
+            $this->destroyExistingCoLearningCompletionQuestionSession();
+            return redirect('/student/co-learning/' . $this->take);
+        }
 
-        $planned = [TestTakeStatus::STATUS_PLANNED, TestTakeStatus::STATUS_TEST_NOT_TAKEN, TestTakeStatus::STATUS_TAKING_TEST];
-        $discuss = [TestTakeStatus::STATUS_TAKEN, TestTakeStatus::STATUS_DISCUSSING];
-        $review = [TestTakeStatus::STATUS_DISCUSSED];
-        $graded = [TestTakeStatus::STATUS_RATED];
-        
-        if (in_array($status, $planned)) return 'planned';
-        if (in_array($status, $discuss)) return 'discuss';
-        if (in_array($status, $review)) return 'review';
-        if (in_array($status, $graded)) return 'graded';
+        $url = 'test_takes/discuss/' . $this->take;
+        $options = TemporaryLogin::buildValidOptionObject('page', $url);
+
+        Auth::user()->redirectToCakeWithTemporaryLogin($options);
+    }
+
+    public function destroyExistingCoLearningCompletionQuestionSession()
+    {
+        if (session()->has(CompletionQuestion::SESSION_KEY)) {
+            session()->forget(CompletionQuestion::SESSION_KEY);
+        }
+    }
+
+    public function startReview()
+    {
+        $url = 'test_takes/glance/' . $this->take;
+        $url = filled($this->origin) ? $url . '?origin=' . $this->origin : $url;
+        $options = TemporaryLogin::buildValidOptionObject('page', $url);
+
+        Auth::user()->redirectToCakeWithTemporaryLogin($options);
+    }
+
+    public function returnToGuestChoicePage()
+    {
+        session()->flush();
+        $this->testParticipant->available_for_guests = true;
+        $this->testParticipant->save();
+
+        session()->put('guest_take', $this->take);
+        session()->put('guest_data', [
+            'name'        => $this->testParticipant->user->name,
+            'name_first'  => $this->testParticipant->user->name_first,
+            'name_suffix' => $this->testParticipant->user->name_suffix
+        ]);
+        return redirect(route('guest-choice', ['take' => $this->take]));
+    }
+
+    public function removeParticipantFromWaitingRoom()
+    {
+        return $this->escortUserFromWaitingRoom();
+    }
+
+    private function escortUserFromWaitingRoom()
+    {
+        $redirect = redirect(route('student.dashboard'));
+
+        if (Auth::user()->guest) {
+            $redirect = redirect(route('auth.login', [
+                'login_tab'          => 2,
+                'guest_message_type' => 'error',
+                'guest_message'      => 'removed_by_teacher'
+            ]));
+        }
+
+        return $redirect;
+    }
+
+    public function participantAppCheck()
+    {
+        if ($this->testTakeStatusStage != 'planned') {
+            return $this->needsApp = false;
+        }
+
+        $this->appStatus = AppVersionDetector::isVersionAllowed(session()->get('headers'));
+
+        $this->needsApp = !!(!$this->testParticipant->canUseBrowserTesting());
+        $this->meetsAppRequirement = !!($this->appStatus != AllowedAppType::NOTALLOWED);
+        $this->appNeedsUpdate = !!($this->appStatus === AllowedAppType::NEEDSUPDATE);
+
+        if ($this->appNeedsUpdate) {
+            $this->appNeedsUpdateDeadline = AppVersionDetector::needsUpdateDeadline();
+        }
+    }
+
+    public function participantStatusChanged()
+    {
+        $this->isTestTakeOpen();
+    }
+
+    public function getButtonTextForPlannedTakes()
+    {
+        if ($this->testParticipant->test_take_status_id >= TestTakeStatus::STATUS_HANDED_IN) {
+            return __('student.test_already_taken');
+        }
+        return __('student.wait_for_test_take');
+    }
+
+    /**
+     * @param $showResults
+     * @return bool
+     */
+    private function canReviewTake($showResults): bool
+    {
+        return $showResults != null && $showResults->gt(Carbon::now());// && $this->testParticipant->hasRating();
+    }
+
+    private function canOpenGradedTake($showResults): bool
+    {
+        return $showResults != null && $showResults->gt(Carbon::now()) && $this->testParticipant->hasRating();
     }
 }

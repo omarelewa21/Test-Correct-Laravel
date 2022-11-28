@@ -1,0 +1,15 @@
+procedure:
+
+attainments tabel backuppen, question_attainments table backuppen
+
+Inloggen als Administrator.
+
+onder Database/attainments de excel met bestaande attainments uploaden.
+
+php artisan import:prepare_attainments (soft delete attainments die niet in de import zitten)
+
+php artisan import:attainments (importeert de bestaande)
+
+onder Database/attainments de excel met nieuwe attainments uploaden.
+
+php artisan import:attainments (importeert de nieuwe)

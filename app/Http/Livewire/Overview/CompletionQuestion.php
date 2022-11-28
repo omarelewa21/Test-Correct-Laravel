@@ -3,11 +3,14 @@
 namespace tcCore\Http\Livewire\Overview;
 
 use Livewire\Component;
+use tcCore\Http\Helpers\BaseHelper;
 use tcCore\Http\Traits\WithCloseable;
+use tcCore\Http\Traits\WithGroups;
+use tcCore\Question;
 
 class CompletionQuestion extends Component
 {
-    use WithCloseable;
+    use WithCloseable, WithGroups;
 
     protected $listeners = ['questionUpdated' => 'questionUpdated'];
 
@@ -23,14 +26,21 @@ class CompletionQuestion extends Component
     public function mount()
     {
         $this->answer = (array)json_decode($this->answers[$this->question->uuid]['answer']);
+        foreach ($this->answer as $key => $val) {
+            $this->answer[$key] = BaseHelper::transformHtmlCharsReverse($val);
+        }
         $this->answered = $this->answers[$this->question->uuid]['answered'];
+
+        if (!is_null($this->question->belongs_to_groupquestion_id)) {
+            $this->question->groupQuestion = Question::find($this->question->belongs_to_groupquestion_id);
+        }
     }
 
     private function completionHelper($question)
     {
         $question->getQuestionHtml();
 
-        $question_text = $question->getQuestionHTML();
+        $question_text = $question->converted_question_html;
 
         $replacementFunction = function ($matches) use ($question) {
             $tag_id = $matches[1] - 1; // the completion_question_answers list is 1 based but the inputs need to be 0 based
@@ -47,11 +57,7 @@ class CompletionQuestion extends Component
 
     private function multiHelper($question)
     {
-        if (empty($answerJson)) {
-            $answerJson = [];
-        }
-
-        $question_text = $question->getQuestionHtml();
+        $question_text = $question->converted_question_html;
 
 
         $tags = [];

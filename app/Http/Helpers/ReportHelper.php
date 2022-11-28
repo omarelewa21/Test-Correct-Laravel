@@ -7,11 +7,13 @@ namespace tcCore\Http\Helpers;
 use Carbon\Carbon;
 use tcCore\FileManagement;
 use tcCore\FileManagementStatusLog;
+use tcCore\GeneralTermsLog;
 use tcCore\Period;
 use tcCore\Question;
 use tcCore\QuestionAuthor;
 use tcCore\Role;
 use tcCore\SchoolLocation;
+use tcCore\SchoolLocationReport;
 use tcCore\SchoolLocationSchoolYear;
 use tcCore\Scopes\ArchivedScope;
 use tcCore\TestTake;
@@ -42,7 +44,6 @@ class ReportHelper
         if ($this->type === self::SCHOOLLOCATION) {
             $this->setCurrentPeriod();
         }
-
     }
 
     protected function setCurrentPeriod()
@@ -224,6 +225,46 @@ class ReportHelper
         return $this->nrTestTakesByStatusIdAndDays(7, $days);
     }
 
+    public function getSSOType(SchoolLocation $schoolLocation)
+    {
+        return $schoolLocation->sso_type;
+    }
+
+    public function getCustomerCode(SchoolLocation $schoolLocation)
+    {
+        return $schoolLocation->customer_code;
+    }
+
+    public function getLVSType(SchoolLocation $schoolLocation)
+    {
+        return $schoolLocation->lvs_type;
+    }
+
+    public function getSSOActive(SchoolLocation $schoolLocation)
+    {
+        return ($schoolLocation->sso_active === true) ? "true" : "false";
+    }
+
+    public function getIntense(SchoolLocation $schoolLocation)
+    {
+        return ($schoolLocation->intense === true) ? "true" : "false";
+    }
+
+    public function getLVSActiveNoMailAllowed(SchoolLocation $schoolLocation)
+    {
+        return ($schoolLocation->lvs_active_no_mail_allowed === true) ? "true" : "false";
+    }
+
+    public function getAllowInbrowserTesting(SchoolLocation $schoolLocation)
+    {
+        return ($schoolLocation->allow_inbrowser_testing === true) ? "true" : "false";
+    }
+
+    public function getLVSActive(SchoolLocation $schoolLocation)
+    {
+        return ($schoolLocation->lvs_active === true) ? "true" : "false";
+    }
+
     public function nrParticipantsTakenTest($days)
     {
 
@@ -243,6 +284,10 @@ class ReportHelper
         return $builder->count();
     }
 
+    public function dateGeneralTermsAccepted()
+    {
+        return GeneralTermsLog::whereUserId($this->reference->getKey())->value('accepted_at');
+    }
 
     public function nrUniqueStudentsTakenTest($days, $returnBuilder = false)
     {
@@ -381,5 +426,13 @@ class ReportHelper
         $this->addPeriodConstraintToBuilder($builder, $format, 'login_logs.created_at');
 
         return $builder->count();
+    }
+
+    public function dateTrialPeriodEnds()
+    {
+        if($trialPeriod = $this->reference->trialPeriodsWithSchoolLocationCheck) {
+            return $trialPeriod->trial_until;
+        }
+        return null;
     }
 }

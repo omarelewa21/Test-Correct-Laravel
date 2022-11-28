@@ -1,12 +1,19 @@
 <?php namespace tcCore;
 
 use Carbon\Carbon;
-use Illuminate\Foundation\Bus\DispatchesJobs;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Queue;
+use Ramsey\Uuid\Uuid;
+use tcCore\Events\InbrowserTestingUpdatedForTestParticipant;
+use tcCore\Events\NewTestTakeGraded;
+use tcCore\Events\NewTestTakeReviewable;
+use tcCore\Events\TestTakeOpenForInteraction;
+use tcCore\Events\TestTakeShowResultsChanged;
 use tcCore\Http\Helpers\DemoHelper;
+use tcCore\Http\Helpers\GlobalStateHelper;
 use tcCore\Jobs\CountTeacherLastTestTaken;
 use tcCore\Jobs\CountTeacherTestDiscussed;
 use tcCore\Jobs\CountTeacherTestTaken;
@@ -19,7 +26,6 @@ use tcCore\Jobs\SendExceptionMail;
 use tcCore\Lib\Repositories\SchoolYearRepository;
 use tcCore\Lib\TestParticipant\Factory;
 use Dyrynda\Database\Casts\EfficientUuid;
-use Dyrynda\Database\Support\GeneratesUuid;
 use tcCore\Scopes\ArchivedScope;
 use tcCore\Traits\Archivable;
 use tcCore\Traits\UuidTrait;
@@ -32,7 +38,8 @@ class TestTake extends BaseModel
     use Archivable;
 
     protected $casts = [
-        'uuid' => EfficientUuid::class,
+        'uuid'            => EfficientUuid::class,
+        'notify_students' => 'boolean',
     ];
 
     /**
@@ -54,8 +61,7 @@ class TestTake extends BaseModel
      *
      * @var array
      */
-
-    protected $fillable = ['test_id', 'test_take_status_id', 'period_id', 'retake', 'retake_test_take_id', 'time_start', 'time_end', 'location', 'weight', 'note', 'invigilator_note', 'show_results', 'discussion_type', 'is_rtti_test_take', 'exported_to_rtti', 'allow_inbrowser_testing'];
+    protected $fillable = ['test_id', 'test_take_status_id', 'period_id', 'retake', 'retake_test_take_id', 'time_start', 'time_end', 'location', 'weight', 'note', 'invigilator_note', 'show_results', 'discussion_type', 'is_rtti_test_take', 'exported_to_rtti', 'allow_inbrowser_testing', 'guest_accounts', 'skipped_discussion', 'notify_students', 'user_id', 'scheduled_by'];
 
     /**
      * The attributes excluded from the model's JSON form.
@@ -74,7 +80,7 @@ class TestTake extends BaseModel
      */
     protected $schoolClasses;
 
-    protected $appends = ['exported_to_rtti_formated'];
+    protected $appends = ['exported_to_rtti_formated','invigilators_acceptable','invigilators_unacceptable_message', 'directLink'];
 
     public static function boot()
     {
@@ -86,7 +92,6 @@ class TestTake extends BaseModel
             if ($test === null) {
                 return false;
             }
-
             if ($test->getAttribute('is_system_test') == 0) {
                 $systemTestId = $test->getAttribute('system_test_id');
                 if (empty($systemTestId)) {
@@ -104,6 +109,10 @@ class TestTake extends BaseModel
                 $testTake->setAttribute('is_discussed', true);
             }
 
+            if (Uuid::isValid($testTake->user_id)) {
+                $newUserId = User::whereUuid($testTake->user_id)->value('id');
+                $testTake->user_id = $newUserId ?? $testTake->getOriginal('user_id');
+            }
             return true;
         });
 
@@ -121,6 +130,8 @@ class TestTake extends BaseModel
                 if((int) $testTake->test_take_status_id === 8){
                     TestTakeStatusLog::where('test_take_id',$testTake->getKey())->where('test_take_status_id',7)->where('created_at','>=',Carbon::now()->subSeconds(120))->delete();
                 }
+
+                $testTake->updateGuestAvailabilityForParticipantsOnStatusChange();
             }
 
             if ($testTake->invigilators !== null) {
@@ -162,18 +173,24 @@ class TestTake extends BaseModel
                     // If school location of the test participant is not activated, do not allow switching to state Taking test of Discussing.
                     $activated = $testParticipant->schoolClass->schoolLocation->getAttribute('activated');
 
-                    if ($activated == true && $testParticipant->getAttribute('heartbeat_at') !== null && $testParticipant->getAttribute('heartbeat_at') >= $heartbeatDate) {
-                        $testParticipant->setAttribute('test_take_status_id', $testParticipantTestTakeStatus);
-                    } else {
-                        $testParticipant->setAttribute('test_take_status_id', $testNotTakenId);
-                    }
+                    //Disabled setting TestParticipant status to 3 if there is an recent heartbeat.
+                    // As this is done by the testparticipant actively the moment the student chooses a player
+                    //-Roan 20211008
+//                    if ($activated == true && $testParticipant->getAttribute('heartbeat_at') !== null && $testParticipant->getAttribute('heartbeat_at') >= $heartbeatDate) {
+//                        $testParticipant->setAttribute('test_take_status_id', $testParticipantTestTakeStatus);
+//                    } else {
+//                        $testParticipant->setAttribute('test_take_status_id', $testNotTakenId);
+//                    }
+                    $testParticipant->setAttribute('test_take_status_id', $testNotTakenId);
 
                     $testParticipant->save();
+
+                    TestTakeOpenForInteraction::dispatch($testParticipant->uuid);
                 }
             }
 
             if ($testTake->testTakeStatus->name === 'Taken' && $testTake->getAttribute('test_take_status_id') != $testTake->getOriginal('test_take_status_id')) {
-                $testTakeUnfinishedStatuses = TestTakeStatus::whereIn('name', ['Planned', 'Taking test', 'Taken'])->pluck('id', 'name')->all();
+                $testTakeUnfinishedStatuses = TestTakeStatus::whereIn('name', ['Planned', 'Taking test', 'Handed in', 'Taken'])->pluck('id', 'name')->all();
                 if (array_key_exists('Taken', $testTakeUnfinishedStatuses)) {
                     $testTakenStatusId = $testTakeUnfinishedStatuses['Taken'];
                     unset($testTakeUnfinishedStatuses[$testTakenStatusId]);
@@ -210,17 +227,19 @@ class TestTake extends BaseModel
 
                 $testTakeDiscussionNotAllowedStatusses = TestTakeStatus::whereIn('name', ['Planned', 'Test not taken', 'Taken away'])->pluck('id', 'name')->all();
 
-                $testTake->load('testParticipants', 'testParticipants.schoolClass', 'testParticipants.schoolClass.schoolLocation');
+                $testTake->load([   'testParticipants',
+                                    'testParticipants.schoolClass' => function($query){
+                                            return $query->withTrashed();
+                                    },
+                                    'testParticipants.schoolClass.schoolLocation'
+                                ]);
                 foreach ($testTake->testParticipants as $testParticipant) {
-                    $activated = $testParticipant->schoolClass->schoolLocation->getAttribute('activated');
-                    if ($activated != true) {
-                        if (!in_array($testParticipant->getAttribute('test_take_status_id'), $testTakeDiscussionNotAllowedStatusses) && $testParticipant->getAttribute('heartbeat_at') !== null && $testParticipant->getAttribute('heartbeat_at') >= $heartbeatDate) {
-                            $testParticipant->setAttribute('test_take_status_id', $testParticipantDiscussingStatus);
-                            $testParticipant->save();
-                        }
+                    if (!in_array($testParticipant->getAttribute('test_take_status_id'), $testTakeDiscussionNotAllowedStatusses)) {
+                        $testParticipant->setAttribute('test_take_status_id', $testParticipantDiscussingStatus);
+                        $testParticipant->save();
                     }
-
                     AnswerChecker::checkAnswerOfParticipant($testParticipant);
+                    TestTakeOpenForInteraction::dispatch($testParticipant->uuid);
                 }
             }
 
@@ -276,7 +295,13 @@ class TestTake extends BaseModel
             }
 
             if ($testTake->testTakeStatus->name === 'Rated' && $originalTestTakeStatus !== null && $originalTestTakeStatus->name !== 'Rated') {
-                Queue::later(300, new SendTestRatedMail($testTake));
+                if(GlobalStateHelper::getInstance()->isQueueAllowed()) {
+                    Queue::later(300, new SendTestRatedMail($testTake));
+                }
+
+                $testTake->testParticipants->each(function($participant) {
+                    NewTestTakeGraded::dispatch($participant->user()->value('uuid'));
+                });
             }
 
             if ($testTake->getAttribute('is_discussed') != $testTake->getOriginal('is_discussed')) {
@@ -293,23 +318,27 @@ class TestTake extends BaseModel
                 }
             }
 
-            if ($testTake->getAttribute('allow_inbrowser_testing') != $testTake->getOriginal('allow_inbrowser_testing')) {
-                TestParticipant::where('test_take_id', $testTake->getKey())->update(['allow_inbrowser_testing' => $testTake->getAttribute('allow_inbrowser_testing')]);
-            }
+            $testTake->handleInbrowserTestingChangesForParticipants();
+            $testTake->createTestTakeCodeIfNeeded();
+            $testTake->handleShowResultChanges();
+            $testTake->updateGuestRatingVisibilityWindow();
         });
 
         static::creating(function(TestTake $testTake) {
             if($testTake->school_location_id === null) {
                 $testTake->school_location_id = Auth::user()->school_location_id;
             }
+            $testTake->scheduled_by = auth()->id();
         });
 
         static::created(function (TestTake $testTake) {
+
             if ($testTake->schoolClasses !== null) {
                 $testTake->saveSchoolClassTestTakeParticipants();
             }
-
-            Queue::later(300, new SendTestPlannedMail($testTake->getKey()));
+            if($testTake->notify_students && GlobalStateHelper::getInstance()->isQueueAllowed()) {
+                Queue::later(300, new SendTestPlannedMail($testTake->getKey()));
+            }
         });
 
         static::deleted(function (TestTake $testTake) {
@@ -334,9 +363,14 @@ class TestTake extends BaseModel
         return $this->belongsTo('tcCore\Test');
     }
 
+    public function testTakeCode()
+    {
+        return $this->hasOne(TestTakeCode::class);
+    }
+
     public function user()
     {
-        return $this->belongsTo('tcCore\User');
+        return $this->belongsTo('tcCore\User')->withTrashed();
     }
 
     public function retakeTestTake()
@@ -386,13 +420,17 @@ class TestTake extends BaseModel
 
     public function schoolClasses()
     {
-        $id = $this->getKey();
-        return SchoolClass::select()->whereIn('id', function ($query) use ($id) {
-            $query->select('school_class_id')
-                ->from(with(new TestParticipant())->getTable())
-                ->where('test_take_id', $id)
-                ->where('deleted_at', null);
-        });
+        return SchoolClass::fromTestTakes($this->getKey());
+    }
+
+    public static function schoolClassesForMultiple($testTakeIds)
+    {
+        return SchoolClass::fromTestTakes($testTakeIds);
+    }
+
+    public function schoolLocation()
+    {
+        return $this->belongsTo(SchoolLocation::class);
     }
 
     public function invigilators()
@@ -402,31 +440,18 @@ class TestTake extends BaseModel
 
     public function invigilatorUsers()
     {
-        return $this->belongsToMany('tcCore\User', 'invigilators')->withPivot([$this->getCreatedAtColumn(), $this->getUpdatedAtColumn(), $this->getDeletedAtColumn()])->wherePivot($this->getDeletedAtColumn(), null);
+        return $this->belongsToMany('tcCore\User', 'invigilators')
+                ->withTrashed()
+                ->withPivot([$this->getCreatedAtColumn(), $this->getUpdatedAtColumn(), $this->getDeletedAtColumn()])
+                ->wherePivot($this->getDeletedAtColumn(), null);
     }
 
     public function isAllowedToView(User $userToCheck)
     {
-
-        $value = count(DB::select("select
-        `test_take_id`
-      from
-        `test_participants`
-      where
-        deleted_at is null AND
-        `school_class_id` in (
-            select
-            `class_id`
-          from
-            `teachers`
-          where
-            `user_id` = :userId AND
-            deleted_at is null
-        ) and test_take_id = :testTakeId",
-            ['userId' => $userToCheck->getKey(), 'testTakeId' => $this->getKey()]
-        ));
-
-        return ($value > 0 && $userToCheck->hasAccessToTest($this->test)) || $this->isInvigilator($userToCheck);
+        return ($this->hasParticipantsThatUserTeaches($userToCheck) && $userToCheck->hasAccessToTest($this->test))
+            || $this->isInvigilator($userToCheck)
+            || ($this->isScheduledByUser($userToCheck) || ($userToCheck->isValidExamCoordinator() && $this->school_location_id === $userToCheck->school_location_id))
+            || $this->isTakeOwner($userToCheck);
     }
 
     public function fill(array $attributes)
@@ -457,7 +482,6 @@ class TestTake extends BaseModel
     {
         $testTakeParticipantFactory = new Factory(new TestParticipant());
         $testParticipants = $testTakeParticipantFactory->generateMany($this->getKey(), ['school_class_ids' => $this->schoolClasses, 'test_take_status_id' => with(TestTakeStatus::where('name', 'Planned')->first())->getKey()]);
-//logger(print_r($testParticipants,true));
         $this->testParticipants()->saveMany($testParticipants);
         $this->schoolClasses = null;
     }
@@ -485,103 +509,14 @@ class TestTake extends BaseModel
                     });
             });
         } elseif (in_array('Teacher', $roles)) {
-            $query->where(function ($query) {
-                // 20200304 @CANBEDELETED
-                // -- ik ben de aanmaker van deze test
-                // op verzoek van Alex eruit gehaald in verband met uberhaupt verkeerde column name => is nu wel aangepast
-
-//                $query->whereIn('test_id', function ($query) {
-//                    $query->select('id')
-//                        ->from(with(new Test())->getTable())
-//                        ->where('author_id', Auth::id())
-//                        ->where('deleted_at', null);
-//                });
-                    // -- aanmaker van de test_take / inplanner
-                    $query->orWhere('test_takes.user_id', Auth::id())
-                    // -- in de lijst met surveillanten
-                    ->orWhereIn($this->getTable() . '.id', function ($query) {
-                        $query->select('test_take_id')
-                            ->from(with(new Invigilator())->getTable())
-                            ->where('user_id', Auth::id())
-                            ->where('deleted_at', null);
-                    })
-                    // -- ik heb toegang tot de lesgroep/klas van leerlingen && ik heb een bijpassend subject id
-                    ->orWhereIn($this->getTable() . '.id', function ($query) {
-                        $currentSchoolYearId = SchoolYearRepository::getCurrentSchoolYear()->getKey();
-                        $teacherTable = with((new Teacher)->getTable());
-                        $schoolClassTable = with((new SchoolClass())->getTable());
-                        $query->select('test_take_id')
-                            ->from(with(new TestParticipant())->getTable())
-                            ->whereNull('deleted_at')
-                            ->whereIn('school_class_id', function ($query) use ($teacherTable,$schoolClassTable,$currentSchoolYearId){
-                                $query->select('class_id')
-                                    ->from($teacherTable)
-                                    ->join($schoolClassTable, "$teacherTable.class_id",'=',"$schoolClassTable.id")
-                                    ->where('user_id', Auth::id())
-                                    ->where('school_year_id',$currentSchoolYearId)
-                                    ->whereNull("$teacherTable.deleted_at")
-                                    ->whereNull("$schoolClassTable.deleted_at");
-                            })
-                            ->whereIn($this->getTable() . '.id', function ($query) use ($teacherTable,$schoolClassTable,$currentSchoolYearId){
-                                $testTable = with(new Test())->getTable();
-                                $query
-                                    ->select($this->getTable().'.id')
-                                    ->from($this->getTable())
-                                    ->join($testTable, $testTable . '.id', '=', $this->getTable() . '.test_id')
-                                    ->whereNull($testTable.'.deleted_at')
-                                    ->whereIn($testTable . '.subject_id', function ($query) use ($teacherTable,$schoolClassTable,$currentSchoolYearId){
-                                        $query->select('subject_id')
-                                            ->from($teacherTable)
-                                            ->join($schoolClassTable, "$teacherTable.class_id",'=',"$schoolClassTable.id")
-                                            ->where('user_id', Auth::id())
-                                            ->where('school_year_id',$currentSchoolYearId)
-                                            ->whereNull("$teacherTable.deleted_at")
-                                            ->whereNull("$schoolClassTable.deleted_at");
-                                    });
-                            });
-                    });
-            });
-
-            // don't show demo tests from other teachers
             $user = Auth::user();
-            $query->where(function($query) use ($user) {
-                $query->where(function($query) use ($user) {
-                    $query->where($this->getTable().'.demo',1)
-                        ->where($this->getTable().'.user_id',$user->getKey());
-                })
-                    ->orWhere($this->getTable().'.demo',0);
+            $skipDefaults = $user->isValidExamCoordinator() && $this->hasRatedTestTakesFilter($filters);
+            $query->when(!$skipDefaults, function ($query) use ($user) {
+                $query->accessForTeacher($user)
+                    ->withoutDemoTeacherForUser($user)
+                    ->onlyTestsFromSubjectsOrIfDemoThenOnlyWhenOwner($user)
+                    ->when($user->isValidExamCoordinator(), fn($query) => $query->scheduledByExamCoordinator($user));
             });
-
-            // TC-158 only show testtakes from tests from other subjects or if demo subject dan ook zelf de eigenaar
-            $query->where(function($q) use ($user){
-                $subject = (new DemoHelper())->getDemoSubjectForTeacher($user);
-
-                //TCP-156
-                if ($subject === null) {
-                    if (config('app.url_login') == "https://testportal.test-correct.nl/" || config('app.url_login') == "https://portal.test-correct.nl/" || config('app.env') == "production") {
-                        dispatch(new SendExceptionMail("Er is iets mis met de demoschool op " . config('app.url_login') . "! \$subject is null in TestTake.php. Dit betekent dat docenten toetsen van andere docenten kunnen zien. Dit moet zo snel mogelijk opgelost worden!", __FILE__, 510, []));
-                    }
-                    return;
-                }
-
-                $q->whereIn($this->getTable() . '.id', function ($query) use ($subject, $user) {
-                    $testTable = with(new Test())->getTable();
-                    $query
-                        ->select($this->getTable().'.id')
-                        ->from($this->getTable())
-                        ->join($testTable, $testTable . '.id', '=', $this->getTable() . '.test_id')
-                        ->whereNull($testTable.'.deleted_at')
-                        ->where(function($query) use ($subject, $user, $testTable){
-                            $query->where(function($query) use ($testTable, $subject, $user) {
-                                $query->where($testTable . '.subject_id', $subject->getKey())
-                                    ->where($testTable . '.author_id', $user->getKey());
-                            })
-                                ->orWhere($testTable.'.subject_id','<>',$subject->getKey());
-                        });
-
-                });
-            });
-
         } elseif (in_array('Student', $roles)) {
             $query->whereIn($this->getTable() . '.id', function ($query) {
                 $query->select('test_take_id')
@@ -591,15 +526,23 @@ class TestTake extends BaseModel
             });
         }
 
-        $query->where($this->getTable().'.school_location_id', Auth::user()->school_location_id);
+        $query->belongsToSchoolLocation(Auth::user());
 
         $testTable = with(new Test())->getTable();
         $query->select($this->getTable() . '.*')
             ->join($testTable, $testTable . '.id', '=', $this->getTable() . '.test_id');
-        // 20200207 MF t zou kunnen dat er een kopie van een test wordt gemaakt voordat een test_take wordt gescheduled maar dat weet ik niet zeker, maar any how het zou niet nodig hoeven zijn dat test niet deleted is.
-        // ->where($testTable . '.' . with(new Test())->getDeletedAtColumn(), null);
+
         foreach ($filters as $key => $value) {
             switch ($key) {
+                case 'type_not_assessment':
+                    $query->typeNotAssessment();
+                    break;
+                case 'takeUuid':
+                    $query->where('test_takes.id', Self::whereUuid($value)->value('id'));
+                    break;
+                case 'type_assessment':
+                    $query->typeAssessment();
+                    break;
                 case 'user_id':
                     if (is_array($value)) {
                         $query->whereIn('user_id', $value);
@@ -614,42 +557,23 @@ class TestTake extends BaseModel
                         $query->where('test_id', '=', $value);
                     }
                     break;
-                // 5 feb 2020 TODO: als je dit vindt een maand na deze datum dan blokje verwijderen. uitgezet omdat scopeFiltered gebruikt wordt voor toets overzichten en je niet perse surveillant hoeft te zijn om een toets te kunnen openen, gegeven een bepaalde test_take_status.
-//                case 'invigilator_id':
-//                    $query->whereIn($this->getTable() . '.id', function ($query) use ($value) {
-//                        $query->select('test_take_id')
-//                            ->from(with(new Invigilator())->getTable())
-//                            ->where('deleted_at', null);
-//                        if (is_array($value)) {
-//                            $query->whereIn('user_id', $value);
-//                        } else {
-//                            $query->where('user_id', '=', $value);
-//                        }
-//                    });
-//                    break;
                 case 'period_id':
-                    if (is_array($value)) {
-                        $query->whereIn($this->getTable() . '.period_id', $value);
-                    } else {
-                        $query->where($this->getTable() . '.period_id', '=', $value);
+                    if (!is_array($value)) {
+                        $value = [$value];
                     }
+                    $query->whereIn($this->getTable().'.period_id', $value);
                     break;
                 case 'retake':
                     $query->where('retake', '=', $value);
                     break;
                 case 'retake_test_id':
-                    if (is_array($value)) {
-                        $query->whereIn('retake_test_take_id', $value);
-                    } else {
-                        $query->where('retake_test_take_id', '=', $value);
+                    if (!is_array($value)) {
+                        $value = [$value];
                     }
+                    $query->whereIn('retake_test_take_id', $value);
                     break;
                 case 'test_take_status_id':
-                    if (is_array($value)) {
-                        $query->whereIn('test_take_status_id', $value);
-                    } else {
-                        $query->where('test_take_status_id', '=', $value);
-                    }
+                    $query->whereIn('test_take_status_id', Arr::wrap($value));
                     break;
                 case 'time_start_from':
                     $query->where('time_start', '>=', $value);
@@ -737,9 +661,12 @@ class TestTake extends BaseModel
                     }
                     break;
                 case 'school_class_name':
-                        $query->whereIn($this->getTable() . '.id', TestParticipant::whereHas('schoolClass', function($q) use ($value){
-                                                                                                    $q->where('name', 'LIKE', '%' . $value . '%');
-                                                                                                })->distinct()->pluck('test_take_id'));
+                    $query->whereIn(
+                        $this->getTable().'.id',
+                        TestParticipant::whereHas('schoolClass', function ($q) use ($value) {
+                            $q->where('name', 'LIKE', '%'.$value.'%');
+                        })->distinct()
+                            ->pluck('test_take_id'));
                     break;
                 case 'location':
                     $query->where('location', 'LIKE', '%' . $value . '%');
@@ -748,27 +675,20 @@ class TestTake extends BaseModel
                     $query->where('weight', '=', $value);
                     break;
                 case 'subject_id':
-                    $query->whereIn( $this->getTable() . '.id',
-                                    function ($query) use ($value)
-                                    {
-                                        $testTable = with(new Test())->getTable();
-                                        $query
-                                            ->select($this->getTable().'.id')
-                                            ->from($this->getTable())
-                                            ->join($testTable, $testTable . '.id', '=', $this->getTable() . '.test_id')
-                                            ->whereNull($testTable.'.deleted_at')
-                                            ->where(
-                                                    function($query) use ($value, $testTable)
-                                                    {
-                                                        $query->where(
-                                                                        function($query) use ($testTable, $value)
-                                                                        {
-                                                                            $query->where($testTable . '.subject_id', $value);
-                                                                        }
-                                                                    );
-                                                    }
-                                                );
-                                    });
+                    $query->whereIn(
+                        $this->getTable() . '.id',
+                        TestTake::distinctTestTakesFromTests()
+                            ->when(is_array($value),
+                                fn($query) => $query->whereIn('tests.subject_id', $value),
+                                fn($query) => $query->where('tests.subject_id', $value)
+                            )
+                    );
+                    break;
+                case 'test_name':
+                    $query->whereIn(
+                        $this->getTable() . '.id',
+                        TestTake::distinctTestTakesFromTests()->where('tests.name', 'LIKE', "%$value%")
+                    );
                     break;
             }
         }
@@ -865,5 +785,440 @@ class TestTake extends BaseModel
     public function getExportedToRttiFormatedAttribute()
     {
         return array_key_exists('exported_to_rtti',$this->attributes) && $this->attributes['exported_to_rtti'] ? Carbon::parse($this->attributes['exported_to_rtti'])->format('d-m-Y H:i:s') : 'Nog niet geëxporteerd';
+    }
+
+    public function getInvigilatorsAcceptableAttribute()
+    {
+        if($this->hasValidInvigilators()){
+            return true;
+        }
+        return false;
+        if($this->hasRemovedInvigilators()){
+            $invigilatorsRemoved = true;
+        }
+    }
+
+    public function getInvigilatorsUnacceptableMessageAttribute()
+    {
+        if($this->hasValidInvigilators()){
+            return '';
+        }
+        if($this->hasRemovedInvigilators()){
+            return __('De surveilant is niet langer actief binnen Test-Correct');
+        }
+        return _('Er is geen surveillant gekoppeld');
+    }
+
+    public function getDirectLinkAttribute(){
+        return config('app.base_url') ."directlink/". $this->uuid;
+    }
+
+    private function createTestTakeCodeIfNeeded()
+    {
+        if ($this->testTakeCode()->count() === 0) {
+            $this->testTakeCode()->create();
+        }
+    }
+
+    public function determineTestTakeStage()
+    {
+        $status = $this->test_take_status_id;
+
+        $planned = [TestTakeStatus::STATUS_PLANNED, TestTakeStatus::STATUS_TEST_NOT_TAKEN, TestTakeStatus::STATUS_TAKING_TEST];
+        $discuss = [TestTakeStatus::STATUS_TAKEN, TestTakeStatus::STATUS_DISCUSSING];
+        $review = [TestTakeStatus::STATUS_DISCUSSED];
+        $graded = [TestTakeStatus::STATUS_RATED];
+
+        if (in_array($status, $planned)) return 'planned';
+        if (in_array($status, $discuss)) return 'discuss';
+        if (in_array($status, $review)) return 'review';
+        if (in_array($status, $graded)) return 'graded';
+
+        return null;
+    }
+
+    public static function getTestTakeWithSubjectNameAndTestName($testTakeId)
+    {
+        if (Uuid::isValid($testTakeId)) {
+            $testTakeId = TestTake::whereUuid($testTakeId)->value('id');
+        }
+        return TestTake::select('test_takes.*', 'subjects.name as subject_name', 'tests.name as test_name')
+            ->join('tests', 'test_takes.test_id', '=', 'tests.id')
+            ->join('subjects', 'tests.subject_id', '=', 'subjects.id')
+            ->where('test_takes.id', $testTakeId)
+            ->first();
+    }
+
+    private function updateGuestAvailabilityForParticipantsOnStatusChange()
+    {
+        $this->testParticipants->each(function($participant) {
+            if ($participant->user()->value('guest') == true) {
+                $participant->available_for_guests = true;
+                $participant->save();
+            }
+        });
+    }
+
+    private function handleInbrowserTestingChangesForParticipants()
+    {
+        if ($this->allow_inbrowser_testing != $this->getOriginal('allow_inbrowser_testing')) {
+            TestParticipant::where('test_take_id', $this->getKey())
+                ->get()
+                ->each(function ($participant) {
+                    $participant->setAttribute('allow_inbrowser_testing', $this->allow_inbrowser_testing)->save();
+                    InbrowserTestingUpdatedForTestParticipant::dispatch($participant->uuid);
+                });
+        }
+    }
+
+    private function handleShowResultChanges()
+    {
+        if ($this->show_results != $this->getOriginal('show_results')) {
+            TestTakeShowResultsChanged::dispatch($this->uuid);
+
+            $this->testParticipants->each(function($participant) {
+                NewTestTakeReviewable::dispatch($participant->user()->value('uuid'));
+            });
+        }
+    }
+
+    private function orUserHasAccessToSchoolClassParticipantsAndSubjectScope($query, User $user)
+    {
+        $query->orWhereIn($this->getTable().'.id', function ($query) use ($user) {
+            $currentSchoolYearId = SchoolYearRepository::getCurrentSchoolYear()->getKey();
+            $teacherTable = with((new Teacher)->getTable());
+            $schoolClassTable = with((new SchoolClass())->getTable());
+            $query->select('test_take_id')
+                ->from(with(new TestParticipant())->getTable())
+                ->whereNull('deleted_at')
+                ->whereIn('school_class_id',
+                    function ($query) use ($teacherTable, $schoolClassTable, $currentSchoolYearId, $user) {
+                        $query->select('class_id')
+                            ->from($teacherTable)
+                            ->join($schoolClassTable, "$teacherTable.class_id", '=', "$schoolClassTable.id")
+                            ->where('user_id', $user->id)
+                            ->where('school_year_id', $currentSchoolYearId)
+                            ->whereNull("$teacherTable.deleted_at");
+                          //  ->whereNull("$schoolClassTable.deleted_at");
+                    })
+                ->whereIn($this->getTable().'.id',
+                    function ($query) use ($teacherTable, $schoolClassTable, $currentSchoolYearId) {
+                        $testTable = with(new Test())->getTable();
+                        $query
+                            ->select($this->getTable().'.id')
+                            ->from($this->getTable())
+                            ->join($testTable, $testTable.'.id', '=', $this->getTable().'.test_id')
+                            ->whereNull($testTable.'.deleted_at')
+                            ->whereIn($testTable.'.subject_id',
+                                function ($query) use ($teacherTable, $schoolClassTable, $currentSchoolYearId) {
+                                    $query->select('subject_id')
+                                        ->from($teacherTable)
+                                        ->join($schoolClassTable, "$teacherTable.class_id", '=', "$schoolClassTable.id")
+                                        ->where('user_id', Auth::id())
+                                        ->where('school_year_id', $currentSchoolYearId)
+                                        ->whereNull("$teacherTable.deleted_at");
+                                       // ->whereNull("$schoolClassTable.deleted_at");
+                                });
+                    });
+        });
+        return $this;
+    }
+
+    private function orUserIsInvigilatorScope($query, User $user)
+    {
+        $query->orWhereIn($this->getTable().'.id', function ($query) use ($user) {
+            $query->select('test_take_id')
+                ->from(with(new Invigilator())->getTable())
+                ->where('user_id', $user->id)
+                ->where('deleted_at', null);
+        });
+        return $this;
+    }
+
+    private function orUserIsCreatorScope($query, User $user)
+    {
+        $query->orWhere('test_takes.user_id', $user->id);
+        return $this;
+    }
+
+    public function scopeAccessForTeacher($query, User $user)
+    {
+        $query->where(function ($query) use ($user) {
+            $this
+                ->orUserIsCreatorScope($query, $user)
+                ->orUserIsInvigilatorScope($query, $user)
+                ->orUserHasAccessToSchoolClassParticipantsAndSubjectScope($query, $user);
+        });
+    }
+
+    public function scopeBelongsToSchoolLocation($query, User $user)
+    {
+        $query->where($this->getTable().'.school_location_id', $user->school_location_id);
+    }
+
+    public function scopeWithoutDemoTeacherForUser($query, User $user)
+    {
+        $query->where(function ($query) use ($user) {
+            $query->where(function ($query) use ($user) {
+                $query->where($this->getTable().'.demo', 1)
+                    ->where($this->getTable().'.user_id', $user->getKey());
+            })->orWhere($this->getTable().'.demo', 0);
+        });
+    }
+
+    public function scopeOnlyTestsFromSubjectsOrIfDemoThenOnlyWhenOwner($query, User $user)
+    {
+        $query->where(function ($q) use ($user) {
+            $subject = (new DemoHelper())->getDemoSubjectForTeacher($user);
+            //TCP-156
+            if ($subject === null) {
+                if (config('app.url_login') == "https://testportal.test-correct.nl/" || config('app.url_login') == "https://testportal.test-correct.nl/" || config('app.env') == "production") {
+                    dispatch(new SendExceptionMail("Er is iets mis met de demoschool op ".config('app.url_login')."! \$subject is null in TestTake.php. Dit betekent dat docenten toetsen van andere docenten kunnen zien. Dit moet zo snel mogelijk opgelost worden!",
+                        __FILE__, 510, []));
+                }
+                return;
+            }
+
+            $q->whereIn($this->getTable().'.id', function ($query) use ($subject, $user) {
+                $testTable = with(new Test())->getTable();
+                $query
+                    ->select($this->getTable().'.id')
+                    ->from($this->getTable())
+                    ->join($testTable, $testTable.'.id', '=', $this->getTable().'.test_id')
+                    ->whereNull($testTable.'.deleted_at')
+                    ->where(function ($query) use ($subject, $user, $testTable) {
+                        $query->where(function ($query) use ($testTable, $subject, $user) {
+                            $query->where($testTable.'.subject_id', $subject->getKey())
+                                ->where($testTable.'.author_id', $user->getKey());
+                        })
+                            ->orWhere($testTable.'.subject_id', '<>', $subject->getKey());
+                    });
+
+            });
+        });
+    }
+
+    private function updateGuestRatingVisibilityWindow()
+    {
+        if (!$this->test_take_status_id == TestTakeStatus::STATUS_RATED || !$this->guest_accounts || $this->testTakeCode == null) {
+            return;
+        }
+
+        $this->testTakeCode->setAttribute('rating_visible_expiration', Carbon::now()->addMonths(2))->save();
+    }
+
+    public function reviewingIsPossible()
+    {
+        return $this->show_results && $this->show_results->gt(Carbon::now());
+    }
+
+    private function hasValidInvigilators()
+    {
+        foreach ($this->invigilatorUsers as $invigilator){
+            if(is_null($invigilator->deleted_at)){
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private function hasRemovedInvigilators(){
+        foreach ($this->invigilatorUsers as $invigilator){
+            if(!is_null($invigilator->deleted_at)){
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public function scopeTypeAssessment(Builder $query)
+    {
+        return $query->when(
+            !self::isJoined($query, 'tests'),
+            function($query) {
+                $query->join('tests', 'test_takes.test_id', 'tests.id');
+            }
+        )->where('tests.test_kind_id', TestKind::ASSESSMENT_TYPE);
+    }
+
+    public function scopeTypeNotAssessment(Builder $query)
+    {
+        return $query->when(
+            !self::isJoined($query, 'tests'),
+            function($query) {
+                $query->join('tests', 'test_takes.test_id', 'tests.id');
+            }
+        )->where('test_kind_id', '<>', TestKind::ASSESSMENT_TYPE);
+    }
+
+    public function scopeStatusPlanned(Builder $query)
+    {
+        return $query->where('test_take_status_id', TestTakeStatus::STATUS_PLANNED);
+    }
+
+    public function scopeStatusTakingTest(Builder $query)
+    {
+        return $query->where('test_take_status_id', TestTakeStatus::STATUS_TAKING_TEST);
+    }
+
+    public function scopeShouldStart(Builder $query)
+    {
+        return $query->where('time_start', '<', now())
+                    ->where('time_end','>',now());
+
+    }
+
+    public function scopeShouldEnd(Builder $query)
+    {
+        return $query->where('time_end', '<', now());
+    }
+
+    public function updateToTakingTest()
+    {
+        $this->test_take_status_id = TestTakeStatus::STATUS_TAKING_TEST;
+        $this->save();
+    }
+
+    public function updateToTaken()
+    {
+        $this->test_take_status_id = TestTakeStatus::STATUS_TAKEN;
+        $this->save();
+    }
+
+    public static function isJoined($query, $table)
+    {
+        $joins = $query->getQuery()->joins;
+        if ($joins == null) {
+            return false;
+        }
+
+        foreach ($joins as $join) {
+            if ($join->table == $table) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public function scopeGradedTakesWithParticipantForUser($query, $user = null, $withNullRating = true)
+    {
+        $user = $user ?? Auth::user();
+        $query->where(function ($query) {
+                $query->where('test_take_status_id', TestTakeStatus::STATUS_RATED);
+            })
+            ->whereIn('test_takes.id', function ($query) use ($withNullRating, $user) {
+                $query->select('test_take_id')
+                    ->from(with(new TestParticipant())->getTable())
+                    ->where('user_id', $user->getKey())
+                    ->where('deleted_at', null)
+                    ->when(!$withNullRating, function ($query) {
+                        $query->where(function ($query) {
+                            $query->whereNotNull('test_participants.rating')
+                                ->orWhere('test_participants.retake_rating', '!=', null);
+                        });
+                    });
+            })
+            ->with([
+                'testParticipants' => function ($query) use ($user) {
+                    $query->select('id', 'test_take_id', 'user_id', 'rating', 'retake_rating', 'updated_at')
+                        ->where('user_id', $user->getKey());
+                }]);
+    }
+
+    public function maxScore($ignoreQuestions = []){
+        foreach ($ignoreQuestions as $key=>$value){
+            if(!strstr($value,'.')){
+                continue;
+            }
+            $arr = explode('.',$value);
+            $ignoreQuestions[$key] = $arr[1];
+        }
+        return $this->test->maxScore($ignoreQuestions);
+    }
+
+    public function scopeWithCardAttributes($query, $attributes = null)
+    {
+        return $query
+            ->with(['test' => fn($query) => $query->withCount('testQuestions')])
+            ->with([
+                'user:id,name,name_first,name_suffix',
+                'test.subject:id,name',
+                'testParticipants:id,user_id,test_take_id,test_take_status_id,school_class_id',
+                'testParticipants.schoolClass:id,name',
+            ]);
+    }
+
+    public static function distinctTestTakesFromTests()
+    {
+        return TestTake::withoutGlobalScope(ArchivedScope::class)
+            ->select(['test_takes.id'])
+            ->join('tests', 'tests.id', '=', 'test_takes.test_id')
+            ->whereNull('tests.deleted_at')
+            ->distinct();
+    }
+
+    public static function redirectToDetail($testTakeUuid, $returnRoute = '')
+    {
+        $detailUrl = sprintf('test_takes/view/%s', $testTakeUuid);
+        $temporaryLogin = TemporaryLogin::createWithOptionsForUser(['page', 'return_route'], [$detailUrl, $returnRoute], auth()->user());
+
+        return redirect($temporaryLogin->createCakeUrl());
+    }
+
+    public function getParticipantTakenStats()
+    {
+        $this->loadMissing('testParticipants');
+        return [
+            'taken'    => $this->testParticipants->filter(function ($participant) {
+                return TestTakeStatus::testTakenStatusses()->contains($participant->test_take_status_id);
+            })->count(),
+
+            'notTaken' => $this->testParticipants->filter(function ($participant) {
+                return !TestTakeStatus::testTakenStatusses()->contains($participant->test_take_status_id);
+            })->count(),
+        ];
+    }
+
+    public function scopeScheduledByExamCoordinator($query, User $user)
+    {
+        return $query->orWhere('test_takes.scheduled_by', $user->getKey());
+    }
+
+    public function isScheduledByUser(User $user)
+    {
+        return $this->scheduled_by === $user->getKey();
+    }
+
+    public function getScheduledByUserNameAttribute()
+    {
+        return optional(User::select(['id', 'name', 'name_suffix', 'name_first'])->whereId($this->scheduled_by)->first())->name_full;
+    }
+
+    public function isAssessmentType()
+    {
+        return $this->test->test_kind_id == TestKind::ASSESSMENT_TYPE;
+    }
+
+    public function isTakeOwner(User $user): bool
+    {
+        return $this->user_id === $user->getKey();
+    }
+
+    private function hasRatedTestTakesFilter($filters): bool
+    {
+        if (!isset($filters['test_take_status_id'])) return false;
+
+        return $filters['test_take_status_id'] == (string)TestTakeStatus::STATUS_RATED;
+    }
+
+    private function hasParticipantsThatUserTeaches(User $user): bool
+    {
+        return TestParticipant::select('test_take_id')
+            ->whereIn('school_class_id',
+                Teacher::select('class_id')->whereUserId($user->getKey())
+            )
+            ->whereTestTakeId($this->getKey())
+            ->exists();
     }
 }

@@ -1,14 +1,23 @@
 <?php namespace tcCore;
 
+use Dyrynda\Database\Casts\EfficientUuid;
+use Illuminate\Support\Str;
+use Livewire\TemporaryUploadedFile;
+use Monolog\Handler\IFTTTHandler;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use tcCore\Lib\Models\BaseModel;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\File;
+use tcCore\Traits\UuidTrait;
 
 class Attachment extends BaseModel
 {
 
-    use SoftDeletes;
+    use SoftDeletes, UuidTrait;
+
+    protected $casts = [
+        'uuid' => EfficientUuid::class,
+    ];
 
     /**
      * The attributes that should be mutated to dates.
@@ -41,12 +50,23 @@ class Attachment extends BaseModel
         parent::boot();
 
         static::saved(function (Attachment $attachment) {
-            if ($attachment->file instanceof UploadedFile) {
-                $attachment->file->move(storage_path('attachments'), $attachment->getKey() . ' - ' . $attachment->getAttribute('file_name'));
-
+            if ($attachment->file instanceof TemporaryUploadedFile) {
+                rename(
+                    storage_path('attachments/'.$attachment->getAttribute('file_name')),
+                    storage_path('attachments/'.$attachment->getKey().' - '.$attachment->getAttribute('file_name'))
+                );
                 $original = $attachment->getOriginalPath();
                 if (File::exists($original)) {
                     File::delete($original);
+                }
+            } else {
+                if ($attachment->file instanceof UploadedFile) {
+                    $attachment->file->move(storage_path('attachments'),
+                        $attachment->getKey().' - '.$attachment->getAttribute('file_name'));
+                    $original = $attachment->getOriginalPath();
+                    if (File::exists($original)) {
+                        File::delete($original);
+                    }
                 }
             }
         });
@@ -61,14 +81,21 @@ class Attachment extends BaseModel
         });
     }
 
+    public function getRouteKeyName()
+    {
+        return 'uuid';
+    }
+
     public function getOriginalPath()
     {
-        return ((substr(storage_path('attachments'), -1) === DIRECTORY_SEPARATOR) ? storage_path('attachments') : storage_path('attachments') . DIRECTORY_SEPARATOR) . $this->getOriginal($this->getKeyName()) . ' - ' . $this->getOriginal('file_name');
+        return ((substr(storage_path('attachments'),
+                    -1) === DIRECTORY_SEPARATOR) ? storage_path('attachments') : storage_path('attachments').DIRECTORY_SEPARATOR).$this->getOriginal($this->getKeyName()).' - '.$this->getOriginal('file_name');
     }
 
     public function getCurrentPath()
     {
-        return ((substr(storage_path('attachments'), -1) === DIRECTORY_SEPARATOR) ? storage_path('attachments') : storage_path('attachments') . DIRECTORY_SEPARATOR) . $this->getKey() . ' - ' . $this->getAttribute('file_name');
+        return ((substr(storage_path('attachments'),
+                    -1) === DIRECTORY_SEPARATOR) ? storage_path('attachments') : storage_path('attachments').DIRECTORY_SEPARATOR).$this->getKey().' - '.$this->getAttribute('file_name');
     }
 
     public function questionAttachments()
@@ -78,13 +105,16 @@ class Attachment extends BaseModel
 
     public function questions()
     {
-        return $this->belongsToMany('tcCore\Question', 'question_attachments', 'attachment_id', 'question_id')->withPivot([$this->getCreatedAtColumn(), $this->getUpdatedAtColumn(), $this->getDeletedAtColumn()])->wherePivot($this->getDeletedAtColumn(), null);
+        return $this->belongsToMany('tcCore\Question', 'question_attachments', 'attachment_id',
+            'question_id')->withPivot([
+            $this->getCreatedAtColumn(), $this->getUpdatedAtColumn(), $this->getDeletedAtColumn()
+        ])->wherePivot($this->getDeletedAtColumn(), null);
     }
 
     /**
      * Fill the model with an array of attributes.
      *
-     * @param array $attributes
+     * @param  array  $attributes
      * @return $this
      *
      * @throws \Illuminate\Database\Eloquent\MassAssignmentException
@@ -93,7 +123,8 @@ class Attachment extends BaseModel
     {
         parent::fill($attributes);
 
-        if (is_array($attributes) && array_key_exists('attachment', $attributes) && $attributes['attachment'] instanceof UploadedFile) {
+        if (is_array($attributes) && array_key_exists('attachment',
+                $attributes) && $attributes['attachment'] instanceof UploadedFile) {
             $this->fillFile($attributes['attachment']);
         }
 
@@ -105,6 +136,10 @@ class Attachment extends BaseModel
         if ($file->isValid()) {
             $this->file = $file;
             $this->setAttribute('file_name', $file->getClientOriginalName());
+            if ($file instanceof TemporaryUploadedFile) {
+                $this->setAttribute('file_name', $file->hashName());
+            }
+
             $this->setAttribute('file_size', $file->getSize());
             $this->setAttribute('file_extension', $file->getClientOriginalExtension());
             $this->setAttribute('file_mime_type', $file->getMimeType());
@@ -123,8 +158,9 @@ class Attachment extends BaseModel
     protected function fileDiff($a, $b)
     {
         // Check if filesize is different
-        if (filesize($a) !== filesize($b))
+        if (filesize($a) !== filesize($b)) {
             return false;
+        }
 
         // Check if content is different
         $ah = fopen($a, 'rb');
@@ -186,22 +222,24 @@ class Attachment extends BaseModel
         preg_match($youtubeRegex, $this->link, $matches);
         if (!empty($matches['video_id'])) {
             $parts = parse_url($this->link);
-            parse_str($parts['query'], $query);
             $t = 0;
-            switch (true) {
-                case isset($query['t']):
-                    $t = $query['t'];
-                    break;
-                case isset($query['start']):
-                    $t = $query['start'];
-                    break;
+            if (!empty($parts['query'])) {
+                parse_str($parts['query'], $query);
+                switch (true) {
+                    case isset($query['t']):
+                        $t = $query['t'];
+                        break;
+                    case isset($query['start']):
+                        $t = $query['start'];
+                        break;
+                }
             }
             return sprintf('https://www.youtube.com/embed/%s?rel=0&start=%d', $matches['video_id'], $t);
         }
 
         preg_match($vimeoRegex, $this->link, $matches);
         if (!empty($matches['video_id'])) {
-            return 'https://player.vimeo.com/video/' . $matches['video_id'];
+            return 'https://player.vimeo.com/video/'.$matches['video_id'];
         }
 
         return false;
@@ -216,60 +254,60 @@ class Attachment extends BaseModel
         return $this->isPartOfQuestionForThisAnswer($answer);
     }
 
-    private function isPartOfQuestionForThisAnswer($answer){
+    private function isPartOfQuestionForThisAnswer($answer)
+    {
         $question = $answer->question;
+        if ($this->questionAttachments->pluck('question_id')->contains($question->getKey())) {
+            return true;
+        }
+        $testId = $answer->testParticipant->testTake->test->getKey();
+        return $this->questionAttachments->pluck('question_id')->contains($question->getGroupQuestionIdByTest($testId));
+    }
 
-        if ($question->is_subquestion) {
-            $testId = $answer->testParticipant->testTake->test->getKey();
-            return $this->questionAttachments->pluck('question_id')->contains($question->getGroupQuestionIdByTest($testId));
+    public function getFileType()
+    {
+        if ($this->type == 'video') {
+            return 'video';
+        }
+        $type = collect(explode('/', $this->file_mime_type))->first();
+
+        if ($type == 'application') {
+            return 'pdf';
         }
 
-        return $this->questionAttachments->pluck('question_id')->contains($question->getKey());
+        return $type;
     }
 
-    public function audioIsPausable()
+    public static function getVideoHost($link)
     {
-        return json_decode($this->json)->pausable;
+        $youtube = collect(['youtube.com', 'youtu.be']);
+        $vimeo = collect(['vimeo.com']);
+        $host = null;
+        $link = is_array($link) ? $link[0] : $link;
+
+        $youtube->each(function ($opt) use ($link, &$host) {
+            if (Str::contains($link, $opt)) {
+                $host = 'youtube';
+            }
+        });
+
+        $vimeo->each(function ($opt) use ($link, &$host) {
+            if (Str::contains($link, $opt)) {
+                $host = 'vimeo';
+            }
+        });
+
+        return $host;
     }
 
-    public function audioOnlyPlayOnce()
-    {
-        return json_decode($this->json)->play_once;
-    }
+    public function getSetting($setting, $questionId) {
+        $this->loadMissing('questionAttachments');
+        $questionAttachment = $this->questionAttachments->where('question_id', $questionId)->first();
+        $options = json_decode($questionAttachment->options);
 
-    public function audioTimeoutTime()
-    {
-        $json = null;
-        if ($this->json) {
-            $json = json_decode($this->json);
+        if($options != null && property_exists($options, $setting)) {
+            return $options->$setting;
         }
-
-        if ($json != null && property_exists($json, 'timeout')) {
-            return $json->timeout;
-        }
-
-        return null;
-    }
-
-    public function audioIsPlayedOnce()
-    {
-        session()->put('attachment_' . $this->getKey(), 1);
-    }
-
-    public function audioCanBePlayedAgain()
-    {
-        if (session()->get('attachment_' . $this->getKey())) {
-            return false;
-        }
-        return true;
-    }
-
-    public function audioHasCurrentTime()
-    {
-        $sessionValue = 'attachment_' . $this->getKey() . '_currentTime';
-        if (session()->get($sessionValue)) {
-            return session()->get($sessionValue);
-        }
-        return 0;
+        return false;
     }
 }

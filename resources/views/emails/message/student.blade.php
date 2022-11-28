@@ -3,17 +3,17 @@
 @section('content')
 <tr>
 <td colspan="999" style="padding:20px;">
-Beste {{ $receiver->getNameFullAttribute() }},<br/>
+    {{ __("student.Beste") }} {{ $receiver->getNameFullAttribute() }},<br/>
 <br/>
-{{ $sentMessage->user->getNameFullAttribute() }} heeft via Test-Correct het volgende bericht naar je gestuurd:<br/>
+{{ $sentMessage->user->getNameFullAttribute() }} {{ __("student.heeft via Test-Correct het volgende bericht naar je gestuurd") }}:<br/>
 <br/>
 {!! nl2br(e($sentMessage->message)) !!}
 <br/>
-Via <a href="{{$urlLogin}}">Test-Correct</a> kan je hierop reageren.<br/>
+{{ __("student.Via") }} <a href="{{$urlLogin}}">Test-Correct</a> {{ __("student.kan je hierop reageren") }}.<br/>
 <br/>
-Met een vriendelijke groet,<br/>
+{{ __("student.Met een vriendelijke groet") }},<br/>
 <br/>
-Test-Correct supportteam
+{{ __("student.Test-Correct supportteam") }}
 </td>
 </tr>
 @stop

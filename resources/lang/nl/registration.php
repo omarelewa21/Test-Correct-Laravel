@@ -1,0 +1,22 @@
+<?php
+return [
+    'name_first_required'      => 'Voornaam is verplicht',
+    'name_last_required'       => 'Achternaam is verplicht',
+    'gender_required'          => 'Geen aanhef gekozen',
+    'password_required'        => 'Wachtwoord is verplicht',
+    'password_min'             => 'Wachtwoord moet minimaal 8 karakters bevatten',
+    'password_regex'           => 'Wachtwoord voldoet niet aan de eisen',
+    'password_same'            => 'Wachtwoord komt niet overeen',
+    'school_location_required' => 'Schoolnaam is verplicht',
+    'website_url_required'     => 'Website is verplicht',
+    'address_required'         => 'Adres is verplicht',
+    'house_number_required'    => 'Huisnummer is verplicht',
+    'house_number_regex'       => 'Huisnummer bevat geen nummer',
+    'postcode_required'        => 'Postcode is verplicht',
+    'postcode_min'             => 'Postcode is niet geldig',
+    'postcode_regex'           => 'Postcode is niet geldig',
+    'city_required'            => 'Plaatsnaam is verplicht',
+    'username_required'        => 'E-mailadres is verplicht',
+    'username_email'           => 'E-mailadres is niet geldig',
+    'domain_required'          => 'Domein is verplicht',
+];

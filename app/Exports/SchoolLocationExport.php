@@ -23,7 +23,11 @@ class SchoolLocationExport implements WithEvents, FromCollection, WithHeadings,W
 
     public function headings(): array
     {
-        return array_keys(SchoolLocationReport::first()->toArray());
+        $search = 'company_id';
+        $replace = 'Company ID';
+        return array_map(function($v) use ($search, $replace) {
+            return $v == $search ? $replace : $v;
+        },array_keys(SchoolLocationReport::first()->toArray()));
     }
 
     public function collection()

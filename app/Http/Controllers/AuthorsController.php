@@ -4,30 +4,66 @@ namespace tcCore\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Response;
-use tcCore\Subject;
-use tcCore\Teacher;
-use tcCore\Test;
+use tcCore\TestAuthor;
 use tcCore\User;
 
 class AuthorsController extends Controller
 {
     public function index(Request $request)
     {
-        $builder = User::withTrashed()->whereIn('id', // find all users part of this selection
-            Teacher::with('user')->withTrashed()->whereIn('subject_id', // find the teachers with these subjects
-                Subject::withTrashed()->whereIn('section_id', // get all subjects belonging to the section memberships
-                    Auth::user()->sections()->select('sections.id')->where('demo',0) // get section memberships of this teacher where section is not part of the demo environment
-                )->select('subjects.id')
-            )->select('teachers.user_id')
-        )->groupBy('users.id');
-//
-//        $tests = Test::filtered($request->get('filter', []), $request->get('order', []))->with('author')->get();
-//        $authors = [];
-//        foreach ($tests as $test){
-//            $authors[] = $test->author;
-//        }
-//        $authors = array_unique($authors);
-        return Response::make($builder->get(), 200);
+        return response()->json($this->getBuilderWithAuthors());
     }
+
+    public function getBuilderWithAuthors()
+    {
+        $user = Auth::user();
+        if ($user->isPartOfSharedSection()) {
+            $builder = $this->getBuilderForOwnSubjectsAndSharedSections($user);
+        } else {
+            $builder = $this->getBuilderForOwnSubjects($user);
+        }
+        return $builder->toBase()->get();
+    }
+
+    public static function getCentraalExamenAuthor()
+    {
+        return User::where('username', config('custom.examschool_author'))->first();
+    }
+
+    public static function getNationalItemBankAuthor()
+    {
+        return User::where('username', config('custom.national_item_bank_school_author'))->first();
+    }
+
+    public static function getPublishableAuthorByCustomerCode($customerCode)
+    {
+        $lookupTable = (new self)->getPublishableAuthorCustomerCodesAndUsernames();
+
+        $username = $lookupTable[$customerCode] ?? false;
+
+        if(!$username){
+            return false;
+        }
+        return User::where('username', $username)->first();
+    }
+
+    private function getPublishableAuthorCustomerCodesAndUsernames()
+    {
+        return [
+            config('custom.examschool_customercode')                => config('custom.examschool_author'),
+            config('custom.national_item_bank_school_customercode') => config('custom.national_item_bank_school_author'),
+            config('custom.creathlon_school_customercode')          => config('custom.creathlon_school_author'),
+        ];
+    }
+
+    private function getBuilderForOwnSubjects($user)
+    {
+        return TestAuthor::schoolLocationAuthorUsers($user);
+    }
+
+    private function getBuilderForOwnSubjectsAndSharedSections($user)
+    {
+        return TestAuthor::schoolLocationAndSharedSectionsAuthorUsers($user);
+    }
+
 }

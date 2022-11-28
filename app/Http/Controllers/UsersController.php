@@ -8,14 +8,14 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Facades\Response;
-use PHPUnit\Util\Exception;
 use tcCore\BaseSubject;
 use tcCore\EmailConfirmation;
 use tcCore\Http\Helpers\ActingAsHelper;
-use tcCore\Http\Helpers\DemoHelper;
+use tcCore\Http\Helpers\BaseHelper;
 use tcCore\Http\Helpers\UserHelper;
 use tcCore\Http\Requests;
 use tcCore\Http\Requests\AllowOnlyAsTeacherRequest;
@@ -23,27 +23,25 @@ use tcCore\Http\Requests\DestroyUserRequest;
 use tcCore\Http\Requests\UpdatePasswordForUserRequest;
 use tcCore\Http\Requests\UserImportRequest;
 use tcCore\Http\Requests\UserMoveSchoolLocationRequest;
+use tcCore\Http\Traits\UserNotificationForController;
 use tcCore\Jobs\SendOnboardingWelcomeMail;
 use tcCore\Jobs\SendWelcomeMail;
-use tcCore\Jobs\SetSchoolYearForDemoClassToCurrent;
 use tcCore\Lib\Repositories\AverageRatingRepository;
 use tcCore\Lib\Repositories\PValueRepository;
 use tcCore\Lib\Repositories\TeacherRepository;
 use tcCore\Lib\User\Factory;
-use tcCore\LoginLog;
-use tcCore\OnboardingWizardUserStep;
-use tcCore\QtiModels\ResourceImport;
 use tcCore\Subject;
 use tcCore\TemporaryLogin;
+use tcCore\TrialPeriod;
 use tcCore\User;
 use tcCore\Http\Requests\CreateUserRequest;
 use tcCore\Http\Requests\UpdateUserRequest;
 use tcCore\Http\Helpers\SchoolHelper;
-use tcCore\School;
-use tcCore\SchoolClass;
+use tcCore\UserRole;
 
 class UsersController extends Controller
 {
+    use UserNotificationForController;
 
     /**
      * Display a listing of the users.
@@ -62,6 +60,9 @@ class UsersController extends Controller
         if (is_array($request->get('with')) && in_array('studentSchoolClasses', $request->get('with'))) {
             $users->with('studentSchoolClasses');
         }
+        if (is_array($request->get('with')) && in_array('trial_info', $request->get('with'))) {
+            $users = $users->with(['trialPeriods', 'trialPeriods.schoolLocation:id,name']);
+        }
 
         switch (strtolower($request->get('mode', 'paginate'))) {
             case 'all':
@@ -79,6 +80,11 @@ class UsersController extends Controller
                 $users = $users->paginate(15);
                 if (is_array($request->get('with')) && in_array('studentSubjectAverages', $request->get('with'))) {
                     AverageRatingRepository::getSubjectAveragesOfStudents($users);
+                }
+                if (is_array($request->get('with')) && in_array('trial_info', $request->get('with'))) {
+                    $users->each(function ($user) {
+                        return $user->trialSchoolLocations = $user->getTrialSchoolLocations();
+                    });
                 }
                 $users->transform(function (User $u) {
                     $u->is_temp_teacher = $u->getIsTempTeacher();
@@ -106,12 +112,12 @@ class UsersController extends Controller
         DB::beginTransaction();
         try {
             // get a corresponding teacher within the same new school location
-            $teacher = SchoolHelper::getSomeTeacherBySchoolLocationId($request->get('school_location_id'));
-            if (null === $teacher) {
+            $teacherOrSchoolManager = SchoolHelper::getSomeTeacherOrSchoolManagerBySchoolLocationId($request->get('school_location_id'));
+            if (null === $teacherOrSchoolManager) {
                 throw new \Exception(' target school must contain at least one teacher');
             }
 
-            ActingAsHelper::getInstance()->setUser($teacher);
+            ActingAsHelper::getInstance()->setUser($teacherOrSchoolManager);
 
             $userFactory = new Factory(new User());
             $newUser = $userFactory->generate(
@@ -213,7 +219,7 @@ class UsersController extends Controller
     public function sendOnboardingWelcomeEmail(AllowOnlyAsTeacherRequest $request)
     {
         try {
-            Mail::to(Auth::user()->getEmailForPasswordReset())->send(new SendOnboardingWelcomeMail(Auth::user()));
+            Mail::to(Auth::user()->getEmailForPasswordReset())->queue(new SendOnboardingWelcomeMail(Auth::user()));
         } catch (\Throwable $th) {
             Bugsnag::notifyException($th);
         }
@@ -225,7 +231,7 @@ class UsersController extends Controller
     {
         // indien emailConfirmation === null => doorverwijzen naar login pagina
         if ($emailConfirmation === null) {
-            return Response::redirectTo(config('app.url_login'));
+            return Response::redirectTo(BaseHelper::getLoginUrl());
         }
 
         // indien wel oke, gebruiker erbij zoeken en account_verified op nu zetten, vervolgens pagina weergeven met bevestiging en knop naar login pagina
@@ -260,7 +266,8 @@ class UsersController extends Controller
                             'teacher.subject',
                             'salesOrganization',
                             'school.schoolLocations',
-                            'schoolLocation'
+                            'schoolLocation',
+                            'trialPeriods'
                     );
 
         if (is_array($request->get('with')) && in_array('studentSubjectAverages', $request->get('with'))) {
@@ -319,6 +326,10 @@ class UsersController extends Controller
 
         }
 
+        if (Auth::user()->isA('Support') && is_array($request->get('with')) && in_array('sessionHash', $request->get('with'))) {
+            $user->makeVisible('session_hash');
+        }
+
         if($this->hasTeacherRole($user)){
             $externalId = $this->getExternalIdForSchoolLocationOfLoggedInUser($user);
             $user->teacher_external_id = $externalId;
@@ -339,7 +350,9 @@ class UsersController extends Controller
     {
 
         if ($request->has('password')) {
+            Log::stack(['loki'])->info("updateStudent@UsersController.php password reset");
             $user->setAttribute('password', \Hash::make($request->get('password')));
+            $this->sendPasswordChangedMail($user);
         }
 
         if ($user->save()) {
@@ -362,7 +375,9 @@ class UsersController extends Controller
         $user->fill($request->only('password'));
 
         if ($request->filled('password')) {
+            Log::stack(['loki'])->info("updatePasswordForUser@UsersController.php password reset");
             $user->setAttribute('password', \Hash::make($request->get('password')));
+            $this->sendPasswordChangedMail($user);
         }
 
         if ($user->save()) {
@@ -389,8 +404,9 @@ class UsersController extends Controller
         $user->fill($request->all());
 
         if ($request->filled('password')) {
-//		    logger('try updating passwrd '. $request->get('password'));
+            Log::stack(['loki'])->info("update@UsersController.php password reset");
             $user->setAttribute('password', \Hash::make($request->get('password')));
+            $this->sendPasswordChangedMail($user);
         }
 
         if ($user->save()) {
@@ -412,10 +428,16 @@ class UsersController extends Controller
         // for safety now disabled
         // @TODO fix security issue with deletion of users (as well update/ add and such)
 //	    return Response::make($user,200);
-        if ($user->delete()) {
-            return Response::make($user, 200);
-        } else {
-            return Response::make('Failed to delete user', 500);
+
+        try {
+            if ($user->delete()) {
+                UserRole::where('user_id', $user->id)->delete();
+                return Response::make($user, 200);
+            } else {
+                return Response::make('Failed to delete user', 500);
+            }
+        }catch(\Exception $e){
+            return Response::make($e->getMessage(),403);
         }
     }
 
@@ -437,7 +459,7 @@ class UsersController extends Controller
     public function isAccountVerified(Request $request)
     {
         $user = User::where('id', $request->user_id)->first();
-        if ($user->account_verified) {
+        if ($user && $user->account_verified) {
             return Response::make(true, 200);
         }
         return Response::make(null, 204);
@@ -470,7 +492,6 @@ class UsersController extends Controller
         try {
             $users = collect($request->all()['data'])->map(function ($row) use ($defaultData,$type) {
                 $attributes = array_merge($row, $defaultData);
-                logger($attributes);
 
                 $user = User::where('username', $attributes['username'])->first();
                 if ($user) {
@@ -501,7 +522,7 @@ class UsersController extends Controller
         return Response::make($users, 200);
     }
 
-    protected function handleExternalId($user,$attributes)
+    protected function handleExternalId(&$user,$attributes)
     {
         if(!array_key_exists('external_id',$attributes)){
             return;
@@ -515,7 +536,13 @@ class UsersController extends Controller
                 return;
             }
         }
+        foreach ($schoolLocations as $schoolLocation){
+            if((is_null($schoolLocation->pivot->external_id) || $schoolLocation->pivot->external_id == '') && $attributes['school_location_id']==$schoolLocation->id){
+                $user->allowedSchoolLocations()->detach($schoolLocation);
+            }
+        }
         $user->allowedSchoolLocations()->attach([$attributes['school_location_id'] => ['external_id' => $attributes['external_id']]]);
+        $user->external_id = $attributes['external_id'];
     }
 
     protected function getExternalIdForSchoolLocationOfLoggedInUser(User $user)
@@ -537,14 +564,61 @@ class UsersController extends Controller
         return false;
     }
 
-    public function getGeneralTermsLogForUser(User $user)
+    public function getTimeSensitiveUserRecords(User $user)
     {
-        return Response::make($user->generalTermsLog,200);
+        $records = [
+            'userGeneralTermsLog' => $user->generalTermsLog,
+            'trialPeriod' => $user->trialPeriodsWithSchoolLocationCheck
+            ];
+        return Response::make($records,200);
     }
 
     public function setGeneralTermsLogAcceptedAtForUser(User $user)
     {
         $user->generalTermsLog()->update(['accepted_at' => Carbon::now()]);
         return Response::make(true, 200);
+    }
+
+    public function verifyPassword(User $user)
+    {
+        if ($user->verifyPassword(request()->get('password'))) {
+            return Response::make($user, 200);
+        }
+        return Response::make('refused', 403);
+    }
+
+    public function getReturnToLaravelUrl(Request $request, User $user)
+    {
+        $parameters = [];
+        if ($state = $request->get('state')) {
+            if ($state == 'discussed') {
+                $parameters = ['login_tab' => 2, 'guest_message_type' => 'success', 'guest_message' => 'done_with_colearning'];
+            }
+            if ($state == 'glance') {
+                $parameters = ['login_tab' => 2, 'guest_message_type' => 'success', 'guest_message' => 'done_with_review'];
+            }
+        }
+
+        $url = [];
+        if ($user->guest) {
+            //Paste relative route behind config base url because route() defaults to https, making it break on non https envs
+            $relativeRoute = route('auth.login', $parameters, false);
+            $finalUrl = sprintf('%s%s', config('app.base_url'), substr($relativeRoute, 0, 1) === '/' ? substr($relativeRoute, 1) : $relativeRoute);
+            $url['url'] = $finalUrl;
+        }
+
+        return Response($url, 200);
+    }
+
+    public function updateTrialDate(Request $request, User $user)
+    {
+        $tp = TrialPeriod::whereUuid($request->get('user_trial_period_uuid'))->get();
+        if($tp->count()) {
+            $tp->first()->update([
+                'trial_until' => Carbon::parse($request->get('date'))->startOfDay()
+            ]);
+        }
+
+        return Response::make($user, 200);
     }
 }

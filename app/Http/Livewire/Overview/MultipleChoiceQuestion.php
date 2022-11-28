@@ -5,11 +5,12 @@ namespace tcCore\Http\Livewire\Overview;
 use Livewire\Component;
 use tcCore\Answer;
 use tcCore\Http\Traits\WithCloseable;
+use tcCore\Http\Traits\WithGroups;
 use tcCore\Question;
 
 class MultipleChoiceQuestion extends Component
 {
-    use WithCloseable;
+    use WithCloseable, WithGroups;
 
     public $question;
 
@@ -27,18 +28,14 @@ class MultipleChoiceQuestion extends Component
 
     public $number;
 
-    public $arqStructure = [
-        ['A', 'test_take.correct', 'test_take.correct', 'test_take.correct_reason'],
-        ['B', 'test_take.correct', 'test_take.correct', 'test_take.incorrect_reason'],
-        ['C', 'test_take.correct', 'test_take.incorrect', 'test_take.not_applicable'],
-        ['D', 'test_take.incorrect', 'test_take.correct', 'test_take.not_applicable'],
-        ['E', 'test_take.incorrect', 'test_take.incorrect', 'test_take.not_applicable'],
-    ];
+    public $arqStructure = [];
 
     public $answerText;
 
     public function mount()
     {
+        $this->arqStructure = \tcCore\MultipleChoiceQuestion::getArqStructure();
+
         if (!empty(json_decode($this->answers[$this->question->uuid]['answer']))) {
             $this->answerStruct = json_decode($this->answers[$this->question->uuid]['answer'], true);
             $this->answer = array_keys($this->answerStruct, 1)[0];
@@ -50,7 +47,7 @@ class MultipleChoiceQuestion extends Component
 
         $this->shuffledKeys = array_keys($this->answerStruct);
         if (!$this->question->isCitoQuestion()) {
-            if ($this->question->subtype != 'ARQ' && $this->question->subtype != 'TrueFalse') {
+            if ($this->question->subtype != 'ARQ' && $this->question->subtype != 'TrueFalse'  && !$this->question->fix_order) {
                 shuffle($this->shuffledKeys);
             }
         }
@@ -60,6 +57,10 @@ class MultipleChoiceQuestion extends Component
         });
 
         $this->answered = $this->answers[$this->question->uuid]['answered'];
+
+        if(!is_null($this->question->belongs_to_groupquestion_id)){
+            $this->question->groupQuestion = Question::find($this->question->belongs_to_groupquestion_id);
+        }
     }
 
     public function updatedAnswer($value)

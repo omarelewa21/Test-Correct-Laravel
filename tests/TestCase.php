@@ -4,6 +4,7 @@ namespace Tests;
 
 use Illuminate\Foundation\Testing\TestCase as BaseTestCase;
 use tcCore\Http\Helpers\ActingAsHelper;
+use tcCore\Lib\Question\Factory;
 use tcCore\SchoolClass;
 use tcCore\Student;
 use tcCore\Teacher;
@@ -34,9 +35,31 @@ abstract class TestCase extends BaseTestCase
     const USER_SCHOOLBEHEERDER_LOCATION1 = 'opensourceschoollocatie1schoolbeheerder@test-correct.nl';
     const USER_ADMIN = 'testadmin@teachandlearncompany.com';
 
+    const USER_STUDENT_ONE = 's1@test-correct.nl';
+    const USER_STUDENT_TWO = 's2@test-correct.nl';
+
+    public function login(User $user){
+        $this->actingAs($user);
+        session()->put('session_hash', $user->session_hash);
+    }
+
+    public static function getTeacherOne(){
+        return  User::where('username', '=', static::USER_TEACHER)->first();
+    }
+    public static function getTeacherTwo(): User
+    {
+        return  User::where('username', '=', static::USER_TEACHER_TWO)->first();
+    }
+    public static function getStudentOne(){
+        return  User::where('username', '=', static::USER_STUDENT_ONE)->first();
+    }
+    public static function getStudentTwo(){
+        return  User::where('username', '=', static::USER_STUDENT_TWO)->first();
+    }
+
     public static function getAuthRequestData($overrides = [])
     {
-        $user = \tcCore\User::where('username', '=', static::USER_TEACHER)->get()->first();
+        $user = User::where('username', '=', static::USER_TEACHER)->first();
         if (!$user->session_hash) {
             $user->session_hash = $user->generateSessionHash();
             $user->save();
@@ -49,8 +72,7 @@ abstract class TestCase extends BaseTestCase
 
     public static function getAuthRequestDataForAccountManager($overrides = [])
     {
-
-        $user = \tcCore\User::where('username', '=', static::USER_ACCOUNTMANAGER)->get()->first();
+        $user = User::where('username', '=', static::USER_ACCOUNTMANAGER)->first();
         if (!$user->session_hash) {
             $user->session_hash = $user->generateSessionHash();
             $user->save();
@@ -64,8 +86,7 @@ abstract class TestCase extends BaseTestCase
 
     public static function AuthBeheerderGetRequest($url, $params = [])
     {
-
-        $user = \tcCore\User::where('username', '=', static::USER_BEHEERDER)->get()->first();
+        $user = User::where('username', '=', static::USER_BEHEERDER)->get()->first();
         if (!$user->session_hash) {
             $user->session_hash = $user->generateSessionHash();
             $user->save();
@@ -82,7 +103,7 @@ abstract class TestCase extends BaseTestCase
 
     public static function AuthBeheerderGetRequestLocation3($url, $params = [])
     {
-        $user = \tcCore\User::where('username', '=', static::USER_SCHOOLBEHEERDER)->get()->first();
+        $user = User::where('username', '=', static::USER_SCHOOLBEHEERDER)->first();
         ActingAsHelper::getInstance()->setUser($user);
         if (!$user->session_hash) {
             $user->session_hash = $user->generateSessionHash();
@@ -99,7 +120,7 @@ abstract class TestCase extends BaseTestCase
 
     public static function AuthBeheerderGetRequestLocation1($url, $params = [])
     {
-        $user = \tcCore\User::where('username', '=', static::USER_SCHOOLBEHEERDER_LOCATION1)->get()->first();
+        $user = User::where('username', '=', static::USER_SCHOOLBEHEERDER_LOCATION1)->first();
         ActingAsHelper::getInstance()->setUser($user);
         if (!$user->session_hash) {
             $user->session_hash = $user->generateSessionHash();
@@ -117,7 +138,7 @@ abstract class TestCase extends BaseTestCase
 
     public static function getBeheerderAuthRequestData($overrides = [])
     {
-        $user = \tcCore\User::where('username', '=', static::USER_BEHEERDER)->get()->first();
+        $user = User::where('username', '=', static::USER_BEHEERDER)->first();
         if (!$user->session_hash) {
             $user->session_hash = $user->generateSessionHash();
             $user->save();
@@ -132,7 +153,7 @@ abstract class TestCase extends BaseTestCase
     public static function getSchoolBeheerderAuthRequestData($overrides = [])
     {
         return self::getUserAuthRequestData(
-            User::where('username', '=', static::USER_SCHOOLBEHEERDER)->get()->first(),
+            User::where('username', '=', static::USER_SCHOOLBEHEERDER)->first(),
             $overrides
         );
     }
@@ -140,7 +161,7 @@ abstract class TestCase extends BaseTestCase
     public static function AuthSchoolBeheerderGetRequest($url, $params = [])
     {
 
-        $user = \tcCore\User::where('username', '=', static::USER_SCHOOLBEHEERDER)->get()->first();
+        $user = User::where('username', '=', static::USER_SCHOOLBEHEERDER)->first();
         if (!$user->session_hash) {
             $user->session_hash = $user->generateSessionHash();
             $user->save();
@@ -158,7 +179,7 @@ abstract class TestCase extends BaseTestCase
     public static function getStudentOneAuthRequestData($overrides = [])
     {
         return self::getUserAuthRequestData(
-            User::where('username', 's1@test-correct.nl')->first(),
+            User::where('username', self::USER_STUDENT_ONE)->first(),
             $overrides
         );
     }
@@ -215,6 +236,15 @@ abstract class TestCase extends BaseTestCase
             $url,
             $params,
             User::where('username', 'd1@test-correct.nl')->first()
+        );
+    }
+
+    public static function authTeacherTwoGetRequest($url, $params = [])
+    {
+        return self::authUserGetRequest(
+            $url,
+            $params,
+            User::where('username', static::USER_TEACHER_TWO)->first()
         );
     }
 
@@ -405,4 +435,31 @@ abstract class TestCase extends BaseTestCase
         return $user->refresh();
     }
 
+    public function createOpenQuestion(array $attributes = [])
+    {
+        $defaultAttributes = [
+            'subject_id'                => 1,
+            'education_level_id'        => 1,
+            'question'                  => '<p>hoi</p>',
+            'education_level_year'      => '1',
+            'score'                     => '1',
+            'owner_id'                  => '1',
+            'decimal_score'             => '0',
+            'note_type'                 => 'NONE',
+            'add_to_database'           => '1',
+            'is_subquestion'            => '0',
+            'is_open_source_content'    => '1',
+            'closeable'                 => '0',
+            'html_specialchars_encoded' => '0',
+            'all_or_nothing'            => '0',
+            'fix_order'                 => '0',
+            'answer'                    => '<p>doei</p>'
+        ];
+        $attributes = array_merge($defaultAttributes, $attributes);
+
+        $question = Factory::makeQuestion('OpenQuestion');
+        $question->fill($attributes);
+        $question->save();
+        return $question;
+    }
 }

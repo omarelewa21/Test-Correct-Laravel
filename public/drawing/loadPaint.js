@@ -381,7 +381,7 @@ var App = function (prefix, width, backgroundImage) {
         };
     }
 
-    if (backgroundImage !== null) {
+    if (backgroundImage !== '') {
         var img = new Image(), element = canvas.getCanvas();
 
         img.src = backgroundImage;
@@ -450,6 +450,11 @@ var App = function (prefix, width, backgroundImage) {
             _this[func].call(this, e);
         }
     });
+
+    this.drawGrid = function(grid) {
+        grid = parseInt(grid);
+        canvas.showGrid(new Paint.Point(grid, grid), 'rgba(0, 0, 0, 0.2)');
+    }
 
     canvas.add(background);
 

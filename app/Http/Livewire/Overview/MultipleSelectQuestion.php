@@ -3,13 +3,13 @@
 namespace tcCore\Http\Livewire\Overview;
 
 use Livewire\Component;
-use tcCore\Answer;
 use tcCore\Http\Traits\WithCloseable;
+use tcCore\Http\Traits\WithGroups;
 use tcCore\Question;
 
 class MultipleSelectQuestion extends Component
 {
-    use WithCloseable;
+    use WithCloseable, WithGroups;
 
     public $question;
 
@@ -39,7 +39,7 @@ class MultipleSelectQuestion extends Component
 
         $this->shuffledKeys = array_keys($this->answerStruct);
         if (!$this->question->isCitoQuestion()) {
-            if ($this->question->subtype != 'ARQ' && $this->question->subtype != 'TrueFalse') {
+            if ($this->question->subtype != 'ARQ' && $this->question->subtype != 'TrueFalse' && !$this->question->fix_order) {
                 shuffle($this->shuffledKeys);
             }
         }
@@ -49,6 +49,10 @@ class MultipleSelectQuestion extends Component
         });
 
         $this->answered = $this->answers[$this->question->uuid]['answered'];
+
+        if(!is_null($this->question->belongs_to_groupquestion_id)){
+            $this->question->groupQuestion = Question::find($this->question->belongs_to_groupquestion_id);
+        }
     }
 
     public function render()

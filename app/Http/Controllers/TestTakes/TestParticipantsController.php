@@ -5,6 +5,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Response;
 use tcCore\AnswerRating;
+use tcCore\Events\InbrowserTestingUpdatedForTestParticipant;
 use tcCore\Http\Controllers\Controller;
 use tcCore\Http\Requests\CreateTestParticipantRequest;
 use tcCore\Http\Requests\HeartbeatTestParticipantRequest;
@@ -57,7 +58,10 @@ class TestParticipantsController extends Controller
                     //$query->where('test_take_id', $testTake->getKey());
                 }]);
 
-                $testParticipants = $testParticipants->get();
+                $testParticipants = $testParticipants->get()->sortBy(function ($testParticipant, $key) {
+                    return $testParticipant->user->name.$testParticipant->user->name_suffix.$testParticipant->user->name_first;
+                });
+
                 if ($isTeacherOrInvigilator && is_array($request->get('with')) && in_array('statistics', $request->get('with'))) {
                     $testParticipantUserIds = $testParticipants->pluck('id', 'user_id')->all();
                     $userHasRated = AnswerRating::where('type', 'STUDENT')->where('test_take_id', $testTake->getKey())->whereNotNull('rating')->distinct()->pluck('user_id')->all();
@@ -159,7 +163,7 @@ class TestParticipantsController extends Controller
                                 }
                             }
                         }
-                        
+
                         $testParticipant->setAttribute('score', $score);
                         $testParticipant->setAttribute('max_score', $maxScore);
                         if(!$this->validateForMaxScore($testParticipant)){
@@ -341,6 +345,7 @@ class TestParticipantsController extends Controller
      */
     public function update(TestTake $testTake, TestParticipant $testParticipant, UpdateTestParticipantRequest $request)
     {
+        $testParticipant->isRejoiningTestTake($request->get('test_take_status_id'));
         $testParticipant->fill($request->all());
         if ($testTake->testParticipants()->save($testParticipant) !== false) {
             return Response::make($testParticipant, 200);
@@ -380,9 +385,7 @@ class TestParticipantsController extends Controller
              ], 500);
          }
 
-        $answer_id = (int) $testTake->getKey();
-
-         if ($testParticipant->test_take_id !== $answer_id) {//$testTake->getKey()) {
+         if ($testParticipant->test_take_id !== $testTake->getKey()) {//$testTake->getKey()) {
             return Response::make('Test participant not found', 404);
         }
 //        $testParticipant->load('testTake', 'testTake.discussingParentQuestions', 'testTake.testTakeStatus', 'testTakeStatus', 'testTakeEvents', 'testTakeEvents.testTakeEventType');
@@ -391,8 +394,8 @@ class TestParticipantsController extends Controller
         $testParticipant->setAttribute('ip_address', $request->get('ip_address'));
 
 
-        if ($request->filled('answer_id')) {
-            $testParticipant->setAttribute('answer_id', $answer_id);
+        if ($request->filled('answer_id') && $answerId = Answer::whereUUid($request->get('answer_id'))->value('id')) {
+            $testParticipant->setAttribute('answer_id', $answerId);
         }
 
         if ($testParticipant->save() !== false) {
@@ -419,18 +422,13 @@ class TestParticipantsController extends Controller
     public function toggle_inbrowser_testing(TestTake $testTake, TestParticipant $testParticipant)
     {
         if (auth()->user()->schoolLocation->allow_inbrowser_testing) {
-            logger('allowed for school_location');
             if ($testTake->id === $testParticipant->test_take_id) {
-                logger('allowed for test_take_is vs participant');
                 if ($testTake->isAllowedToView(auth()->user())) {
-                    logger('allowed to view');
-
                     $testParticipant->update(['allow_inbrowser_testing' => ! $testParticipant->allow_inbrowser_testing]);
+                    InbrowserTestingUpdatedForTestParticipant::dispatch($testParticipant->uuid);
                 }
             }
         }
-
-
     }
 
     private function validateForMaxScore($testParticipant)

@@ -1,7 +1,7 @@
 <x-partials.overview-question-container :number="$number" :question="$question" :answer="$answer">
     <div class="w-full">
         <div class="relative">
-            {!!   $question->getQuestionHtml() !!}
+            {!!   $question->converted_question_html !!}
 
             <x-input.group for="me" class="w-full disabled mt-4">
                 <x-input.textarea

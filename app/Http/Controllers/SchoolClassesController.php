@@ -2,45 +2,62 @@
 
 namespace tcCore\Http\Controllers;
 
-use Carbon\Carbon;
-use Composer\Package\Package;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Response;
-use tcCore\EducationLevel;
-use tcCore\Http\Requests;
+use tcCore\Http\Helpers\UserHelper;
+use tcCore\Http\Requests\IndexSchoolClassRequest;
 use tcCore\Http\Requests\UpdateWithEducationLevelsForClusterClassesRequest;
 use tcCore\Http\Requests\UpdateWithEducationLevelsForMainClassesRequest;
 use tcCore\Http\Traits\UwlrImportHandlingForController;
 use tcCore\Lib\Repositories\AverageRatingRepository;
 use tcCore\Lib\Repositories\SchoolClassRepository;
-use tcCore\Lib\Repositories\SchoolYearRepository;
-use tcCore\School;
 use tcCore\SchoolClass;
-use tcCore\Http\Controllers\Controller;
 use tcCore\Http\Requests\CreateSchoolClassRequest;
 use tcCore\Http\Requests\UpdateSchoolClassRequest;
 use tcCore\Http\Helpers\SchoolHelper;
 use tcCore\SchoolClassImportLog;
+use tcCore\User;
 
 class SchoolClassesController extends Controller
 {
     use UwlrImportHandlingForController;
+    
     /**
      * Display a listing of the school classes.
-     * @param SchoolLocation $schoolLocation
-     * @param Request $request
-     * @return
+     * @param IndexSchoolClassRequest $request
+     * @return \Illuminate\Http\Response
      */
-    public function index(Requests\IndexSchoolClassRequest $request)
+    public function index(IndexSchoolClassRequest $request)
     {
         SchoolHelper::denyIfTempTeacher();
 
-        $schoolClasses = SchoolClass::filtered($request->get('filter', []),
-            $request->get('order', []))->with('schoolLocation', 'educationLevel', 'mentorUsers', 'managerUsers',
-            'studentUsers', 'educationLevel', 'schoolYear');
+        $schoolClasses = SchoolClass::filtered(
+            $request->get('filter', []),
+            $request->get('order', [])
+        )
+            ->with(
+                'schoolLocation',
+                'educationLevel',
+                'educationLevel',
+                'schoolYear'
+            )
+            ->withCount('studentUsers');
+
+        if($request->has('for_classes_overview') && $request->for_classes_overview){
+            $schoolClasses->with(['mentorUsers' => function($query){
+                $query->limit(1);
+            }]);
+        }else{
+            $schoolClasses->with(
+                'mentorUsers',
+                'managerUsers',
+                'studentUsers',
+            );
+        }
+        
         switch (strtolower($request->get('mode', 'paginate'))) {
             case 'all':
                 $schoolClasses = $schoolClasses->get();
@@ -83,8 +100,7 @@ class SchoolClassesController extends Controller
                 return Response::make($classes, 200);
                 break;
             case 'all_classes_for_location' :
-                $currentYear = SchoolYearRepository::getCurrentSchoolYear();
-                $classes = SchoolClass::where('school_location_id', Auth::user()->school_location_id)->where('school_year_id',optional($currentYear)->getKey())->orderBy('name', 'asc')->paginate(15);
+                $classes = SchoolClass::getAllClassesForSchoolLocation(Auth::user()->school_location_id, $request->get('order', []));
                 return Response::make($classes, 200 );
             case 'paginate':
             default:
@@ -137,9 +153,17 @@ class SchoolClassesController extends Controller
     public function show(SchoolClass $schoolClass, Request $request)
     {
         SchoolHelper::denyIfTempTeacher();
-
-        $schoolClass->load('schoolLocation', 'educationLevel', 'mentorUsers', 'managerUsers', 'studentUsers',
-            'educationLevel', 'schoolYear', 'teacher', 'teacher.user', 'teacher.subject');
+        $schoolClass->load( [       'schoolLocation',
+                                    'educationLevel',
+                                    'mentorUsers' ,
+                                    'managerUsers',
+                                    'studentUsers',
+                                    'educationLevel',
+                                    'schoolYear',
+                                    'teacher',
+                                    'teacher.user',
+                                    'teacher.subject'
+                                ]);
         if (is_array($request->get('with')) && in_array('schoolClassStats', $request->get('with'))) {
             AverageRatingRepository::getCountAndAveragesForSchoolClasses([$schoolClass]);
             SchoolClassRepository::getCompareSchoolClassToParallelSchoolClasses($schoolClass);
@@ -245,6 +269,22 @@ class SchoolClassesController extends Controller
         return JsonResource::make(['count' => $updateCounter], 200);
     }
 
+    public function deleteMentor(SchoolClass $schoolClass, $userUuid)
+    {
+        try{
+            $user = User::withTrashed()->whereUuid($userUuid)->first();
+        }catch (\Exception $e){
+            return Response::make('Failed to remove mentor, user not found', 500);
+        }
+
+        if ($schoolClass->mentors()->withTrashed()->where('user_id',$user->id)->delete() !== false) {
+            return Response::make($schoolClass, 200);
+        } else {
+            return Response::make('Failed to remove mentor', 500);
+        }
+
+    }
+
     /**
      * @param $value
      * @param $schoolClass
@@ -269,5 +309,31 @@ class SchoolClassesController extends Controller
             }
             $schoolClass->importLog()->save($importLog);
         }
+    }
+
+    public function showForUser(User $user, Request $request)
+    {
+        if ($user->isA('Teacher')) {
+            return Response::make($user->teacherSchoolClasses()->get());
+        }
+
+        if ($user->isA('Student')) {
+            return Response::make($user->studentSchoolClasses()->get());
+        }
+
+        return Response::make('No classes for user.', 404);
+    }
+
+    public function resetPasswords(Request $request, SchoolClass $class)
+    {
+        $authorized = ( Auth::user()->isA('School manager') || Auth::user()->isA('School management') );
+
+        if (!$authorized) {
+            abort(403);
+        }
+
+        $results = UserHelper::resetPasswordToExternalIdForClassIds($class->getKey());
+
+        return Response::json($results, 200);
     }
 }

@@ -1,0 +1,38 @@
+sudo apt update
+sudo apt install nginx
+# grafana install script
+# loki install script
+# promtail install script (with Test-Correct log monitoring removed)
+
+Change grafana config:
+#################################### Server ####################################
+[server]
+# Protocol (http, https, h2, socket)
+;protocol = http
+
+# The ip address to bind to, empty will bind to all interfaces
+http_addr = 127.0.0.1
+
+# The http port  to use
+;http_port = 3000
+
+# The public facing domain name used to access grafana from a browser
+domain = monitoring.test-correct.nl
+
+//
+
+#################################### Basic Auth ##########################
+[auth.basic]
+enabled = false
+
+//
+
+# The full public facing url you use in browser, used for redirects and emails
+# If you use reverse proxy and sub path specify full url (with sub path)
+root_url = %(protocol)s://%(domain)s:%(http_port)s/grafana/
+
+
+# removed the default config of nginx
+# created the monitoring.test-correct.nl nginx config
+# added the password in /etc/nginx/.htpasswd with permissions 6400 and root:www-data
+# symlink the nginx config from sites-available to sites-enabled

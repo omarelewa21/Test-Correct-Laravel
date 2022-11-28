@@ -1,8 +1,17 @@
-@props(['timeStart', 'uuid'])
+@props(['timeStart', 'timeEnd', 'uuid', 'isAssignment'])
 
-@if($timeStart == \Carbon\Carbon::today())
-    <x-button.cta size="sm" type="link"
-                  href="{{ route('student.waiting-room', ['take' => $uuid]) }}">{{ __('student.make') }}</x-button.cta>
+@if($isAssignment)
+    @if($timeStart <= now() && $timeEnd >= now())
+        <x-button.cta selid="dashboard-start-take-button" size="sm" type="link"
+                      href="{{ route('student.waiting-room', ['take' => $uuid]) }}">{{ __('student.make') }}</x-button.cta>
+    @else
+        <span class="italic text-sm lowercase">{{ __('student.planned') }}</span>
+    @endif
 @else
-    <span class="italic text-sm lowercase">{{ __('student.planned') }}</span>
+    @if($timeStart == \Carbon\Carbon::today())
+        <x-button.cta selid="dashboard-start-take-button" size="sm" type="link"
+                      href="{{ route('student.waiting-room', ['take' => $uuid]) }}">{{ __('student.make') }}</x-button.cta>
+    @else
+        <span class="italic text-sm lowercase">{{ __('student.planned') }}</span>
+    @endif
 @endif

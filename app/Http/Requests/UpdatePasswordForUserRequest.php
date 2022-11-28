@@ -67,7 +67,7 @@ class UpdatePasswordForUserRequest extends Request {
 	public function rules()
 	{
 		return [
-			'password' => 'required|confirmed',
+			'password' => 'required|confirmed|'. User::getPasswordLengthRule(),
 		];
 	}
 
@@ -80,5 +80,12 @@ class UpdatePasswordForUserRequest extends Request {
 	{
 		return $this->all();
 	}
+
+    public function attributes()
+    {
+        return [
+            'password' => __('auth.password')
+        ];
+    }
 
 }

@@ -1,10 +1,23 @@
 <?php
 
+if (array_key_exists('HTTP_ACCEPT_LANGUAGE', $_SERVER)) {
+    $language = substr($_SERVER['HTTP_ACCEPT_LANGUAGE'], 0, 2);
+    if ($language != 'nl') {
+        $lang = 'en';
+    } else {
+        $lang = $language;
+    }
+} else {
+    $lang = 'en';
+}
+
+$lang = 'nl'; // just to see if it works in dutch
 return [
 
     'url_login' => env('URL_LOGIN'),
+    'url_logout' => sprintf('%susers/logout_from_laravel', env('URL_LOGIN')),
 
-    'base_url' => env('BASE_URL',''),
+    'base_url' => env('BASE_URL', ''),
 
     /*
     |--------------------------------------------------------------------------
@@ -27,7 +40,7 @@ return [
     | services your application utilizes. Set this in your ".env" file.
     |
     */
-    'env'  => env('APP_ENV', 'production'),
+    'env' => env('APP_ENV', 'production'),
 
     /*
     |--------------------------------------------------------------------------
@@ -79,7 +92,7 @@ return [
     |
     */
 
-    'locale' => 'nl',
+    'locale' => $lang,
 
     /*
     |--------------------------------------------------------------------------
@@ -170,6 +183,10 @@ return [
         //zip file handling
         ZanySoft\Zip\ZipServiceProvider::class,
 
+        tcCore\Providers\BladeServiceProvider::class,
+        //Pdf renderer
+        Barryvdh\Snappy\ServiceProvider::class,
+        tcCore\Providers\MacrosServiceProvider::class,
     ],
 
     /*
@@ -221,6 +238,8 @@ return [
         'Excel'        => Maatwebsite\Excel\Facades\Excel::class,
 
         'Bugsnag' => Bugsnag\BugsnagLaravel\Facades\Bugsnag::class,
+        'PDF' => Barryvdh\Snappy\Facades\SnappyPdf::class,
+        'SnappyImage' => Barryvdh\Snappy\Facades\SnappyImage::class,
 
     ],
     'debug_blacklist' => [

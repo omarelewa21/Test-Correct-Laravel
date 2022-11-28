@@ -1,29 +1,26 @@
 <div class="question-indicator w-full">
     <div class="flex-col"
-         x-data="{ showSlider: false, scrollStep: 100, activeQuestion: @entangle('q') }"
+         x-data="questionIndicator"
          x-ref="questionindicator"
-         x-init="$nextTick(() => { $dispatch('current-updated', {'current': activeQuestion })} );
-                navigationResizer.resize($data);
-                "
-         x-on:resize.window.debounce.250ms="navigationResizer.resize($el.__x.$data);"
-         x-on:current-updated.window="
-               if(typeof objectToObserve !== 'undefined') {
-                    myIntersectionObserver.unobserve(objectToObserve);
-               }
-                objectToObserve = document.getElementById('active');
-                myIntersectionObserver.observe(objectToObserve);
-                objectToObserve.scrollIntoView({behavior: 'smooth', block: 'end', inline: 'center'});
-            "
+         x-global="indicatorData"
+         x-init="$nextTick(() => {
+                    $dispatch('current-updated', {'current': activeQuestion });
+                    navScrollBar.querySelector('#active').scrollIntoView({behavior: 'smooth'});
+                    totalScrollWidth = $refs.navscrollbar.offsetWidth;
+                    navigationResizer.resize(indicatorData);
+                    });"
+         x-on:resize.window.debounce.250ms="navigationResizer.resize(indicatorData);"
+         x-on:current-updated.window="navScrollBar.querySelector('#active').scrollIntoView({behavior: 'smooth'});"
          x-cloak
     >
         <div class="flex">
             <div class="flex slider-buttons relative -top-px z-10" x-ref="sliderbuttons" x-show="showSlider">
                 <button class="inline-flex base rotate-svg-180 w-8 h-8 hover:bg-white rounded-full transition items-center justify-center transform hover:scale-110"
-                        @click="$refs.navscrollbar.scrollTo({left: 0,behavior: 'smooth'})">
+                        @click="$refs.navscrollbar.scrollTo({left: 0,behavior: 'smooth'});startIntersectionCountdown()">
                     <x-icon.arrow-last/>
                 </button>
                 <button class="inline-flex base rotate-svg-180 w-8 h-8 hover:bg-white rounded-full transition items-center justify-center transform hover:scale-110"
-                        @click="$refs.navscrollbar.scrollTo({left: $refs.navscrollbar.scrollLeft - scrollStep,behavior: 'smooth'});">
+                        @click="$refs.navscrollbar.scrollTo({left: $refs.navscrollbar.scrollLeft - scrollStep,behavior: 'smooth'});startIntersectionCountdown()">
                     <x-icon.chevron/>
                 </button>
             </div>
@@ -41,7 +38,7 @@
                             <span class="align-middle px-1.5">{{ ++$key }}</span>
                         </section>
                         <div class="max-h-4 flex justify-center -ml-2 mt-1">
-                            @if($q['closeable'])
+                            @if($q['closeable']||$q['closeable_audio'])
                                 <x-icon.unlocked/>
                             @endif
                         </div>
@@ -60,37 +57,33 @@
             </div>
             <div class="flex slider-buttons relative -top-px z-10" x-ref="sliderbuttons" x-show="showSlider">
                 <button class="inline-flex base w-8 h-8 hover:bg-white rounded-full transition items-center justify-center transform hover:scale-110"
-                        @click="$refs.navscrollbar.scrollTo({left: $refs.navscrollbar.scrollLeft + scrollStep,behavior: 'smooth'})">
+                        @click="$refs.navscrollbar.scrollTo({left: $refs.navscrollbar.scrollLeft + scrollStep,behavior: 'smooth'});startIntersectionCountdown()">
                     <x-icon.chevron/>
                 </button>
                 <button class="inline-flex base w-8 h-8 hover:bg-white rounded-full transition items-center justify-center transform hover:scale-110"
-                        @click="$refs.navscrollbar.scrollTo({left: $refs.navscrollbar.offsetWidth,behavior: 'smooth'})">
+                        @click="$refs.navscrollbar.scrollTo({left: $refs.navscrollbar.offsetWidth,behavior: 'smooth'});startIntersectionCountdown()">
                     <x-icon.arrow-last/>
                 </button>
             </div>
         </div>
         @push('scripts')
             <script>
-                let timer
+                let intersectionCountdown;
+                let navScrollBar = document.getElementById('navscrollbar');
+                let navScrollBarOffset = navScrollBar.getBoundingClientRect().left;
 
-                function callback(entries) {
-
-                    for (const entry of entries) {
-                        if (!entry.isIntersecting) {
-                            timer = setTimeout(function () {
-                                entry.target.scrollIntoView({behavior: 'smooth', block: 'end', inline: 'center'});
-                            }, 5000)
-                        } else {
-                            clearTimeout(timer);
+                function startIntersectionCountdown() {
+                    clearInterval(intersectionCountdown);
+                    let seconds = 0;
+                    intersectionCountdown = setInterval(function () {
+                        if (seconds === 5) {
+                            clearInterval(intersectionCountdown);
+                            let left = navScrollBar.querySelector('#active').offsetLeft;
+                            navScrollBar.scrollTo({left: left - navScrollBarOffset, behavior: 'smooth'});
                         }
-                    }
+                        seconds++;
+                    }, 1000)
                 }
-
-                const myIntersectionObserver = new IntersectionObserver(callback, {
-                    root: document.getElementById('navscrollbar'),
-                    rootMargin: '9999px 0px 9999px 0px',
-                    threshold: 1
-                });
 
                 const navigationResizer = {
                     resize: function (object) {

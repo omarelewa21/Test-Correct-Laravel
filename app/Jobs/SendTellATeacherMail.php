@@ -19,6 +19,7 @@ class SendTellATeacherMail extends Mailable
     protected $receivingEmailAddress;
     protected $shortcode;
 
+
     /**
      * Create a new job instance.
      *
@@ -28,10 +29,20 @@ class SendTellATeacherMail extends Mailable
      */
     public function __construct(User $inviter, $inviteText, $receivingEmailAddress, $shortcode)
     {
+        $this->queue = 'mail';
         $this->inviter = $inviter;
         $this->inviteText = $inviteText;
         $this->receivingEmailAddress = $receivingEmailAddress;
         $this->shortcode = $shortcode;
+    }
+
+    public function render()
+    {
+        $this->inviter->fresh();
+        if(is_null($this->inviter)||!is_null($this->inviter->deleted_at)){
+            return false;
+        }
+        parent::render();
     }
 
     public function build()

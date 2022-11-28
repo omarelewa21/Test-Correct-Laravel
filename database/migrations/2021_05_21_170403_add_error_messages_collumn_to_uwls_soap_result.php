@@ -26,7 +26,7 @@ class AddErrorMessagesCollumnToUwlsSoapResult extends Migration
     public function down()
     {
         Schema::table('uwlr_soap_results', function (Blueprint $table) {
-            $table->removeColumn('error_messages');
+            $table->dropColumn('error_messages');
         });
     }
 }

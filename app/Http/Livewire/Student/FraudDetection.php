@@ -11,12 +11,12 @@ use tcCore\TestTakeStatus;
 class FraudDetection extends Component
 {
     public $fraudDetected = false;
-    public $testParticipantId, $testTakeUuid;
+    public $testParticipantId, $testParticipantUuid, $testTakeUuid;
 
 //    protected $listeners = ['setFraudDetected'];
     protected function getListeners() {
         return [
-            'echo-private:TestParticipant.'.$this->testParticipantId.',.RemoveFraudDetectionNotification' => 'isTestTakeEventConfirmed',
+            'echo-private:TestParticipant.'.$this->testParticipantUuid.',.RemoveFraudDetectionNotification' => 'isTestTakeEventConfirmed',
             'setFraudDetected' => 'shouldDisplayFraudMessage'
         ];
     }

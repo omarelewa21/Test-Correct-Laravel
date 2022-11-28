@@ -1,19 +1,31 @@
-@props(['active' => 'planned'])
-<div class="flex w-full mx-4 lg:mx-8 xl:mx-12 max-w-7xl space-x-4">
-    <div class="py-2 @if($active === 'planned') border-b-2 border-system-base border-primary-hover @endif">
-        <x-button.text-button type="link"
-                              href="{{ route('student.test-takes', ['tab' => 'planned']) }}">{{ __('student.planned') }}</x-button.text-button>
+@props(['active' => 'planned', 'disabled' => false])
+<div class="flex w-full px-4 lg:px-8 xl:px-24 space-x-4 menu">
+    <div>
+        @if(!$disabled)
+            <x-button.text-button class="{{ $active === 'planned' ? 'active' : '' }}" type="link" href="{{ route('student.test-takes', ['tab' => 'planned']) }}"><span>{{ __('student.planned') }}</span></x-button.text-button>
+        @else
+            <x-button.text-button class="{{ $active === 'planned' ? 'active' : '' }}" disabled class="cursor-pointer" type="link"><span>{{ __('student.planned') }}</span></x-button.text-button>
+        @endif
     </div>
-    <div class="py-2 @if($active === 'discuss') border-b-2 border-system-base border-primary-hover @endif">
-        <x-button.text-button type="link"
-                              href="{{ route('student.test-takes', ['tab' => 'discuss']) }}">{{ __('student.discuss') }}</x-button.text-button>
+    <div>
+        @if(!$disabled)
+        <x-button.text-button class="{{ $active === 'discuss' ? 'active' : '' }}" type="link" href="{{ route('student.test-takes', ['tab' => 'discuss']) }}"><span>{{ __('student.discuss') }}</span></x-button.text-button>
+            @else
+        <x-button.text-button class="{{ $active === 'discuss' ? 'active' : '' }}" type="link" disabled class="cursor-pointer"><span>{{ __('student.discuss') }}</span></x-button.text-button>
+        @endif
     </div>
-    <div class="py-2 @if($active === 'review') border-b-2 border-system-base border-primary-hover @endif">
-        <x-button.text-button type="link"
-                              href="{{ route('student.test-takes', ['tab' => 'review']) }}">{{ __('student.review') }}</x-button.text-button>
+    <div>
+        @if(!$disabled)
+        <x-button.text-button class="{{ $active === 'review' ? 'active' : '' }}" type="link" href="{{ route('student.test-takes', ['tab' => 'review']) }}"><span>{{ __('student.review') }}</span></x-button.text-button>
+            @else
+        <x-button.text-button class="{{ $active === 'review' ? 'active' : '' }}" type="link" disabled class="cursor-pointer"><span>{{ __('student.review') }}</span></x-button.text-button>
+        @endif
     </div>
-    <div class="py-2 @if($active === 'graded') border-b-2 border-system-base border-primary-hover @endif">
-        <x-button.text-button type="link"
-                              href="{{ route('student.test-takes', ['tab' => 'graded']) }}">{{ __('student.graded') }}</x-button.text-button>
+    <div>
+        @if(!$disabled)
+        <x-button.text-button class="{{ $active === 'graded' ? 'active' : '' }}" type="link" href="{{ route('student.test-takes', ['tab' => 'graded']) }}"><span>{{ __('student.graded') }}</span></x-button.text-button>
+        @else
+        <x-button.text-button class="{{ $active === 'graded' ? 'active' : '' }}" @endif type="link" disabled class="cursor-pointer"><span>{{ __('student.graded') }}</span></x-button.text-button>
+        @endif
     </div>
 </div>

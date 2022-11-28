@@ -2,15 +2,12 @@
 
 namespace tcCore\Http\Livewire\Overview;
 
-use Composer\Package\Package;
-use Illuminate\Support\Arr;
-use Illuminate\Support\Str;
 use Livewire\Component;
-use tcCore\Answer;
 use tcCore\Http\Traits\WithAttachments;
 use tcCore\Http\Traits\WithCloseable;
 use tcCore\Http\Traits\WithGroups;
 use tcCore\Http\Traits\WithNotepad;
+use tcCore\Question;
 
 class MatrixQuestion extends Component
 {
@@ -34,6 +31,10 @@ class MatrixQuestion extends Component
         if (!empty(json_decode($this->answers[$this->question->uuid]['answer']))) {
             $this->answerStruct = json_decode($this->answers[$this->question->uuid]['answer'], true);
             $this->answered = true;
+        }
+
+        if(!is_null($this->question->belongs_to_groupquestion_id)){
+            $this->question->groupQuestion = Question::find($this->question->belongs_to_groupquestion_id);
         }
 
     }

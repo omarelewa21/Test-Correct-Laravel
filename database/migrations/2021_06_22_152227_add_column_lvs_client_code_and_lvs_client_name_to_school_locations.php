@@ -34,7 +34,7 @@ class AddColumnLvsClientCodeAndLvsClientNameToSchoolLocations extends Migration
     public function down()
     {
         Schema::table('school_locations', function (Blueprint $table) {
-            $table->removeColumn([
+            $table->dropColumn([
                 'lvs_client_name',
                 'lvs_client_code'
             ]);

@@ -2,7 +2,8 @@
     <div>
         <h1>{{ __('student.upcoming_tests') }}</h1>
     </div>
-    <div class="content-section p-8">
+    <div class="content-section p-8 relative">
+        <x-loading/>
         @if($testTakes->count() == 0)
             <p>{{ __('student.no_upcoming_tests') }}</p>
         @else
@@ -19,14 +20,14 @@
                                      class="hidden xl:table-cell">{{ __('student.invigilators') }}</x-table.heading>
                     <x-table.heading width="150px"
                                      class="hidden xl:table-cell">{{ __('student.planner') }}</x-table.heading>
-                    <x-table.heading width=""
+                    <x-table.heading width="150px"
                                      sortable
                                      wire:click="sortBy('subjects.name')"
                                      :direction="$sortField === 'subjects.name' ? $sortDirection : null">
                         {{ __('student.subject') }}
                     </x-table.heading>
 
-                    <x-table.heading width="130px" sortable wire:click="sortBy('test_takes.time_start')"
+                    <x-table.heading width="105px" sortable wire:click="sortBy('test_takes.time_start')"
                                      :direction="$sortField === 'test_takes.time_start' ? $sortDirection : null"
                                      textAlign="right">
                         {{ __('student.take_date') }}
@@ -43,8 +44,8 @@
 
                         <x-table.row class="cursor-pointer"
                                      wire:click="redirectToWaitingRoom('{!!$testTake->uuid !!}')">
-                            <x-table.cell>{{ $testTake->test_name }}</x-table.cell>
-                            <x-table.cell
+                            <x-table.cell :withTooltip="true">{{ $testTake->test_name }}</x-table.cell>
+                            <x-table.cell :withTooltip="true"
                                     class="text-right hidden lg:table-cell">{{ $testTake->question_count }}
                             </x-table.cell>
                             <x-table.cell class="hidden xl:table-cell">
@@ -54,8 +55,8 @@
                             <x-table.cell class="hidden xl:table-cell">
                                 {{ $testTake->user()->withTrashed()->first()->getFullNameWithAbbreviatedFirstName() }}
                             </x-table.cell>
-                            <x-table.cell>{!! $testTake->subject_name !!}</x-table.cell>
-                            <x-table.cell class="text-right">
+                            <x-table.cell :withTooltip="true">{!! $testTake->subject_name !!}</x-table.cell>
+                            <x-table.cell class="text-right text-sm">
                                 @if($testTake->time_start == \Carbon\Carbon::today())
                                     <span class="capitalize">{{ __('student.today') }}</span>
                                 @else
@@ -66,11 +67,14 @@
                                     class="text-right hidden lg:table-cell">{{ $testTake->weight }}
                             </x-table.cell>
                             <x-table.cell>
-                                <x-partials.test-take-type-label type="{{ $testTake->retake }}"/>
+                                <x-partials.test-take-type-label :type="$testTake->retake"/>
                             </x-table.cell>
                             <x-table.cell buttonCell class="text-right">
                                 <x-partials.start-take-button :timeStart="$testTake->time_start"
-                                                              :uuid="$testTake->uuid"/>
+                                                              :timeEnd="$testTake->time_end"
+                                                              :uuid="$testTake->uuid"
+                                                              :isAssignment="$testTake->is_assignment"
+                                />
                             </x-table.cell>
                         </x-table.row>
                     @endforeach

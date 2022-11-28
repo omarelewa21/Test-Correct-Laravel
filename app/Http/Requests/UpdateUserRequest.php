@@ -20,6 +20,12 @@ class UpdateUserRequest extends Request {
 	 */
 	private $user;
     protected $schoolLocation;
+
+    protected function getAttributeNames() {
+        return [
+            'password' => __('auth.password')
+        ];
+    }
 	/**
 	 *
 	 * @param Route $route
@@ -73,6 +79,9 @@ class UpdateUserRequest extends Request {
             $extra_rule['external_id'] = new SchoolLocationUserExternalIdUpdate($this->schoolLocation,$this->user);
         }
 
+		if($this->has('is_examcoordinator') && $this->is_examcoordinator == 1){
+			$extra_rule['is_examcoordinator_for'] = 'required|in:NONE,SCHOOL,SCHOOL_LOCATION';
+		}
 
         $rules = collect([
             'username' => 'sometimes,required|email|unique:users,username,'.$this->user->getKey().','.$this->user->getKeyName().',deleted_at,NULL',
@@ -81,12 +90,13 @@ class UpdateUserRequest extends Request {
             'name' => '',
             'email' => '',
             'old_password' => 'sometimes|required|old_password:'.$this->user->getAttribute('password'),
-            'password' => '',
+            'password' => 'sometimes|'. User::getPasswordLengthRule(),
             'session_hash' => '',
             'api_key' => '',
             'external_id' => '',
             'gender' => '',
-            'abbreviation' => ''
+            'abbreviation' => '',
+			'is_examcoordinator' => 'boolean'
         ]);
 
         $mergedRules = $rules;
@@ -100,16 +110,20 @@ class UpdateUserRequest extends Request {
 	{
 		$validator = parent::getValidatorInstance();
 
-		$validator->sometimes('external_id', 'unique:users,external_id,'.$this->user->getKey().','.$this->user->getKeyName().',school_location_id,'.$this->user->getAttribute('school_location_id'), function($input) {
-			$schoolLocationId = $this->user->getAttribute('school_location_id');
-			return ((isset($input->school_location_id) && !empty($input->school_location_id)) || (!isset($input->school_location_id) && !empty($schoolLocationId)));
-		});
+		$validator->sometimes('external_id',
+                                'unique:users,external_id,'.$this->user->getKey().','.$this->user->getKeyName().',school_location_id,'.$this->user->getAttribute('school_location_id'),
+                                    function($input) {
+                                        $schoolLocationId = $this->user->getAttribute('school_location_id');
+                                        return ((isset($input->school_location_id) && !empty($input->school_location_id)) || (!isset($input->school_location_id) && !empty($schoolLocationId)));
+                                    }
+                                );
 
 		$validator->sometimes('external_id', 'unique:users,external_id,'.$this->user->getKey().','.$this->user->getKeyName().',school_id,'.$this->user->getAttribute('school_id'), function($input) {
 			$schoolId = $this->user->getAttribute('school_id');
 			return ((isset($input->school_id) && !empty($input->school_id)) || (!isset($input->school_id) && !empty($schoolId)));
 		});
 
+        $validator->setAttributeNames($this->getAttributeNames());
 
 		return $validator;
 	}
@@ -137,7 +151,7 @@ class UpdateUserRequest extends Request {
 			{
 				return Hash::check($value, $parameters[0]);
 			},
-			'Record does not match stored value'
+            __('auth.passwords_dont_match')
 		);
 
 		return $factory->make(
@@ -219,6 +233,10 @@ class UpdateUserRequest extends Request {
 						}
 					}
 				}
+			}
+
+			if(!array_key_exists('is_examcoordinator', $data) || $data['is_examcoordinator'] == 0){
+				$data['is_examcoordinator_for'] = NULL;
 			}
 
 			$this->merge($data);

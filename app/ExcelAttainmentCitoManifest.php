@@ -83,14 +83,14 @@ class ExcelAttainmentCitoManifest
                 return trim($a);
             })
             ->map(function($objective) use ($domain){
-                $letter = $domain{0};
+                $letter = $domain[0];
                 $nrRaw = substr($domain,1);
                 $nr = (int) $nrRaw;
 //        $code = sprintf('%s%s',$letter,$nr);
                 $short = sprintf('%s%s',$letter,$nr);;
                 $code = $domain;
                 $subcode = str_replace([$domain,$code, $short, $letter],'',$objective);
-                if($subcode && $subcode{0} !== '.' && (substr_count($subcode,'.') > 0 || (!is_numeric($subcode) && !in_array($subcode, ['a','b','c','d','e','f','g','h',]))) && substr($subcode,0,strlen($nr)) == $nr){
+                if($subcode && $subcode[0] !== '.' && (substr_count($subcode,'.') > 0 || (!is_numeric($subcode) && !in_array($subcode, ['a','b','c','d','e','f','g','h',]))) && substr($subcode,0,strlen($nr)) == $nr){
                     $subcode = substr($subcode,strlen($nr));
                 }
 
@@ -135,12 +135,12 @@ class ExcelAttainmentCitoManifest
             'kb' => 6,
             'gl/tl' => 4,
         ];
-        foreach($this->transformArrayStructureToArray($level) as $level) {
-            $level = trim($level);
-            if (!array_key_exists($level, $ar)) {
-                throw new \Exception(sprintf('Expected level %s unknown in class %s', $level, __CLASS__));
+        foreach($this->transformArrayStructureToArray($level) as $value) {
+            $value = trim($value);
+            if (!array_key_exists($value, $ar)) {
+                throw new \Exception(sprintf('Expected level %s unknown in class %s', $value, __CLASS__));
             }
-            $levels[] = $ar[$level];
+            $levels[] = $ar[$value];
         }
         return $levels;
     }

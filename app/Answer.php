@@ -3,7 +3,9 @@
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 use phpseclib\Crypt\Random;
+use tcCore\Exceptions\QuestionException;
 use tcCore\Lib\Models\BaseModel;
 use Dyrynda\Database\Casts\EfficientUuid;
 use Dyrynda\Database\Support\GeneratesUuid;
@@ -236,6 +238,11 @@ class Answer extends BaseModel
         return 'drawing_question_answers/' . $this->uuid;
     }
 
+    public function getDrawingStoragePathPng()
+    {
+        return sprintf('%s.png', $this->getDrawingStoragePath());
+    }
+
     public static function updateJson($answerId, $json)
     {
         Answer::whereId($answerId)->update(['json' => $json, 'done' => 1]);
@@ -244,5 +251,27 @@ class Answer extends BaseModel
     public static function registerTime(int $answerId,  int $timeToRegister)
     {
         DB::table('answers')->whereId($answerId)->increment('time', $timeToRegister);
+    }
+
+    public function feedback(){
+        return $this->hasMany(AnswerFeedback::class);
+    }
+
+    public function getViewBoxDimensionsFromSvg(): array
+    {
+        if (!($this->question instanceof DrawingQuestion)) {
+            throw new QuestionException('Trying to get SVG viewbox dimensions from a non-drawing question answer.');
+        }
+
+        $svg = Storage::get($this->getDrawingStoragePath());
+
+        $doc = new \DOMDocument;
+        $doc->loadXML($svg);
+        $svgNode = collect($doc->getElementsByTagName('svg'))->first();
+        $viewBox = $svgNode->getAttribute('viewBox');
+
+        [$x, $y, $width, $height] = sscanf($viewBox, '%s %s %s %s');
+
+        return ['x' => $x, 'y' => $y, 'width' => $width, 'height' => $height];
     }
 }

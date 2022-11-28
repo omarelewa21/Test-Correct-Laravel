@@ -19,7 +19,7 @@ $struct = [
 ];
 ?>
 
-<div class="mt-10 flex-1 p-8" id="uwlr-grid">
+<div class="mt-10 flex-1 p-8 mx-8 xl:mx-28" id="uwlr-grid">
     <div class="flex flex-1 justify-between">
         <div><h1>UWLR Grid</h1></div>
         <div class="flex-shrink-0">
@@ -56,6 +56,9 @@ $struct = [
                     <x-table.heading>
                         Code
                     </x-table.heading>
+                    <x-table.heading>
+                       Progress
+                    </x-table.heading>
                     <x-table.heading width="120px">
                         &nbsp;
                     </x-table.heading>
@@ -91,6 +94,11 @@ $struct = [
                             </x-table.cell>
                             <x-table.cell>
                                 {{ $set->client_code }}
+                            </x-table.cell>
+                            <x-table.cell>
+
+                                    {{ $set->import_progress }}
+
                             </x-table.cell>
                             <x-table.cell>
                                 @if($set->status !== 'PROCESSING')
@@ -150,7 +158,6 @@ $struct = [
 
 
         <x-slot name="footerbuttons">&nbsp;</x-slot>
-        <x-slot name="testTakeManager">&nbsp;</x-slot>
     </div>
     <x-modal wire:model="showImportModal" maxWidth="7xl">
         <x-slot name="title">Import</x-slot>

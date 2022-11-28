@@ -1,5 +1,6 @@
 <?php namespace tcCore;
 
+use Illuminate\Support\Facades\Auth;
 use tcCore\Lib\Models\BaseModel;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Dyrynda\Database\Casts\EfficientUuid;
@@ -101,5 +102,34 @@ class BaseSubject extends BaseModel {
         return $query;
     }
 
+    public function scopeForLevel($query, $level = null)
+    {
+        if ($level) {
+            return $query->where('level', 'like', '%' . $level . '%');
+        }
+        return $query;
+    }
+
+    public function scopeNationalItemBankFiltered($query) //todo unused?
+    {
+        return $query->whereIn('id',
+                Subject::nationalItemBankFiltered([], ['name' => 'asc'])
+                ->distinct()
+                ->pluck('base_subject_id')
+        );
+    }
+
+
+    public static function scopeCurrentForAuthUser($query)
+    {
+        return $query->whereIn('id', Subject::filtered(['user_current' => Auth::id()])->pluck('base_subject_id'));
+    }
+
+    // shouldn't this method be used for the scopeCurrentForAuthUser ???
+    // 20220913 By Erik maybe not as the scopeCurrentForAuthUser is also checking the current school period so that one might even be the better one, more restrictive
+    public static function getIdsForUserInCurrentSchoolLocation(User $user) : array
+    {
+        return $user->subjectsInCurrentLocation()->pluck('base_subject_id')->unique()->toArray();
+    }
 
 }

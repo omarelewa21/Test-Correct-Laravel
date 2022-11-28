@@ -8,15 +8,16 @@ CKEDITOR.plugins.addExternal('ckeditor_wiris', 'plugins/ckeditor_wiris/plugin.js
 
 
 CKEDITOR.editorConfig = function( config ) {
-    config.extraPlugins = 'clipboard,pastefromword,advanced,simpleuploads,quicktable,panelbutton,button,floatpanel,panel,ckeditor_wiris,autogrow';
+    config.extraPlugins = 'clipboard,pastefromword,pastefromgdocs,advanced,simpleuploads,quicktable,panelbutton,button,floatpanel,panel,ckeditor_wiris,autogrow';
     config.allowedContent = true;
     config.disableNativeSpellChecker = true;
 
-    config.filebrowserUploadUrl = '/custom/uploader.php?command=QuickUpload&type=Files';
+    config.filebrowserUploadUrl = '/cms/ckeditor_upload/files';
     // config.filebrowserUploadUrl = 'base64';
-    config.filebrowserImageUploadUrl = '/custom/uploader.php?command=QuickUpload&type=Images';
+    config.filebrowserImageUploadUrl = '/cms/ckeditor_upload/images';
     // config.filebrowserImageUploadUrl = 'base64';
-
+    config.simpleuploads_acceptedExtensions = "jpg|jpeg|gif|png";
+    config.fileTools_requestHeaders = {'X-CSRF-TOKEN': document.querySelector('meta[name="_token"]').content};
     config.toolbarCanCollapse = true;
 
     simpleuploads_acceptedExtensions : 'jpeg|jpg|png|PNG';
@@ -43,6 +44,7 @@ CKEDITOR.editorConfig = function( config ) {
     'Times New Roman/Times New Roman, Times, serif;' +
     'Verdana';
 
+    config.width = 'auto';
     config.toolbar = [
         { name: 'clipboard', items: [ 'Undo', 'Redo' ] },
         // { name: 'clipboard', items: [ 'PasteFromWord', '-', 'Undo', 'Redo' ] },
@@ -99,8 +101,8 @@ CKEDITOR.editorConfig = function( config ) {
 
 
 CKEDITOR.studentEditorConfig = {
-    removePlugins : 'pastefromword,advanced,simpleuploads,dropoff,copyformatting,image,pastetext,uploadwidget,uploadimage',
-    extraPlugins : 'blockimagepaste,quicktable,ckeditor_wiris',
+    removePlugins : 'pastefromword,pastefromgdocs,advanced,simpleuploads,dropoff,copyformatting,image,pastetext,uploadwidget,uploadimage',
+    extraPlugins : 'blockimagepaste,quicktable,ckeditor_wiris,wordcount,notification',
     toolbar: [
         { name: 'basicstyles', items: [ 'Bold', 'Italic', 'Underline', 'Strike', 'Subscript', 'Superscript' ] },
         { name: 'paragraph', items: [ 'NumberedList', 'BulletedList' ] },

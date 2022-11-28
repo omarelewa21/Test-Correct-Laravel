@@ -83,34 +83,86 @@
     z-index: -1;
 }
 
+.sortable-fallback,
 .drag-item.draggable-source--is-dragging {
     background-color: white;
-    border: 2px dashed var(--blue-grey);
-    color: white;
+    border-width: 0.1875rem!important;
+    border-style: dashed;
+    border-color:  var(--blue-grey);
+    opacity: 1!important;
 }
+
+/*These are the base properties for the drag item, both dragging and ghost in list*/
+.drag-item.sortable-chosen {
+    --drag-item-background-color: white;
+    --drag-item-border-width: 0.1875rem;
+    --drag-item-border-style: solid;
+    --drag-item-border-color:  var(--primary);
+    --drag-item-color: var(--system-base);
+    --drag-item-opacity: 1;
+    --drag-item-border-radius: .25rem;
+    background-color: var(--drag-item-background-color)!important;
+    color: var(--drag-item-color)!important;
+    opacity: var(--drag-item-opacity) !important;
+    border: var(--drag-item-border-width) var(--drag-item-border-style) var(--drag-item-border-color)!important;
+    border-radius: var(--drag-item-border-radius)!important;
+    padding-block: calc(.5rem - var(--drag-item-border-width));
+    padding-left: calc(1.5rem - var(--drag-item-border-width));
+}
+
+/*This is the ghost item still represented in the list of the item being dragged.*/
+.sortable-chosen.sortable-ghost,
 .drag-item.draggable--over {
-    background-color: white;
-    border: 2px dashed var(--primary);
-    color: white;
+    --drag-item-border-style: dotted;
+    --drag-item-opacity: .5;
+    --drag-item-color: var(--system-base);
+}
+.question-active.sortable-chosen {
+    --drag-item-color: var(--primary);
+}
+
+/*This is object currently being dragged.*/
+.drag-item.sortable-chosen.sortable-fallback.sortable-drag {
+    --drag-item-background-color: #F5F7FF;
+    --drag-item-color: var(--primary);
+}
+#sidebar-carousel-container .sortable-nogo,
+#sidebar-carousel-container .sortable-nogo .group-question-questions,
+#sidebar-carousel-container .sortable-nogo .text-sysbase,
+#sidebar-carousel-container .sortable-nogo.group-active .group-question-title-container,
+#sidebar-carousel-container .sortable-nogo.group-active .group-question-questions .primary {
+    --line-color-between-questions: var(--mid-grey)!important;
+    color: var(--line-color-between-questions)!important;
+}
+#sidebar-carousel-container .sortable-nogo .group-question-questions .bg-primary {
+    background-color: var(--line-color-between-questions);
+    border-color: var(--line-color-between-questions);
+}
+#sidebar-carousel-container .sortable-nogo :is(.question-button:not(.dummy), .reorder, .group-question-title-container):hover {
+    background-color: initial!important;
+    color: inherit!important;
+}
+
+.sortable-drawer .sortable-drag{
+    opacity: 0;
 }
 
 .draggable-container--over .drag-item.draggable-mirror {
     background-color: var(--primary-light);
-    border: 2px solid var(--primary);
+    border: 0.1875rem solid var(--primary);
     color: var(--primary);
     box-shadow: 0 3px 8px 0 rgba(77, 87, 143, 0.3);
 }
 .draggable-container--placed .drag-item.draggable-mirror {
     background-color: var(--primary);
-    border: 2px solid var(--primary);
+    border: 0.1875rem solid var(--primary);
     color: white;
     box-shadow: 0 3px 8px 0 rgba(77, 87, 143, 0.3);
 }
 
-
 .drag-item.draggable-mirror {
     background-color: var(--primary-light);
-    border: 2px solid var(--primary-light);
+    border: 0.1875rem solid var(--primary-light);
     color: var(--primary);
     box-shadow: 0 3px 8px 0 rgba(77, 87, 143, 0.3);
 }

@@ -15,6 +15,12 @@ class DrawingQuestionLaravelController extends Controller
     {
         $file = Storage::get($answer->getDrawingStoragePath());
 
+        if (substr($file, 0, 4) ==='<svg') {
+            header('Content-type: image/svg+xml');
+            echo $file;
+            die;
+        }
+
         return file_get_contents($file);
     }
 }

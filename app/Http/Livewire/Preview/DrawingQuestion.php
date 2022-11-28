@@ -2,14 +2,13 @@
 
 namespace tcCore\Http\Livewire\Preview;
 
-use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
-use tcCore\Answer;
-use tcCore\Http\Traits\WithPreviewAttachments;
+use tcCore\Http\Helpers\SvgHelper;
 use tcCore\Http\Traits\WithCloseable;
-use tcCore\Http\Traits\WithPreviewGroups;
 use tcCore\Http\Traits\WithNotepad;
+use tcCore\Http\Traits\WithPreviewAttachments;
+use tcCore\Http\Traits\WithPreviewGroups;
 
 class DrawingQuestion extends Component
 {
@@ -32,9 +31,23 @@ class DrawingQuestion extends Component
 
     public $backgroundImage;
 
+    public $answer_svg = null;
+    public $question_svg = null;
+    public $grid_svg = '0.00';
+    public $grid = '0';
+    public $usesNewDrawingTool = false;
+
     public function mount()
     {
         $this->initPlayerInstance();
+
+        $svgHelper = new SvgHelper($this->question->uuid);
+
+        $this->question_svg = $svgHelper->getQuestionSvg($this->question);
+
+        $this->grid_svg = $this->question->grid_svg;
+        $this->grid = $this->question->grid;
+        $this->usesNewDrawingTool = Auth::user()->schoolLocation()->value('allow_new_drawing_question');
 
         $this->backgroundImage = $this->question->getBackgroundImage();
     }
@@ -55,5 +68,10 @@ class DrawingQuestion extends Component
     private function initPlayerInstance()
     {
         $this->playerInstance = 'eppi_' . rand(1000, 9999999);
+    }
+
+    public function handleUpdateDrawingData()
+    {
+
     }
 }

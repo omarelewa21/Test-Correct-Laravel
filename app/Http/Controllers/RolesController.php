@@ -1,7 +1,9 @@
 <?php namespace tcCore\Http\Controllers;
 
+use Illuminate\Support\Facades\Response;
 use tcCore\Http\Requests;
 use tcCore\Http\Controllers\Controller;
+use tcCore\Http\Requests\IndexRoleRequest;
 use tcCore\Role;
 use tcCore\Http\Requests\CreateRoleRequest;
 use tcCore\Http\Requests\UpdateRoleRequest;
@@ -13,9 +15,9 @@ class RolesController extends Controller {
 	 *
 	 * @return Response
 	 */
-	public function index()
+	public function index(IndexRoleRequest $request)
 	{
-		//
+        return Response::make(Role::all(), 200);
 	}
 
 	/**

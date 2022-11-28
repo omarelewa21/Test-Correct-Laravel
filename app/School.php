@@ -56,7 +56,8 @@ class School extends BaseModel implements AccessCheckable {
      *
      * @var array
      */
-    protected $fillable = ['umbrella_organization_id', 'user_id', 'customer_code', 'name', 'main_address', 'main_postal', 'main_city', 'main_country', 'invoice_address', 'invoice_postal', 'invoice_city', 'invoice_country', 'external_main_code'];
+    protected $fillable = ['umbrella_organization_id', 'user_id', 'customer_code', 'name', 'main_address', 'main_postal', 'main_city', 'main_country', 'invoice_address', 'invoice_postal', 'invoice_city', 'invoice_country', 'external_main_code',
+        'main_phonenumber','internetaddress'];
 
     /**
      * The attributes excluded from the model's JSON form.
@@ -384,6 +385,19 @@ class School extends BaseModel implements AccessCheckable {
 
         foreach($filters as $key => $value) {
             switch($key) {
+                case 'combined_admin_grid_search':
+                    $query->when($value, function ($query, $value) {
+                        return $query->where(function ($query) use ($value) {
+                            $query->where('customer_code', 'LIKE', "%$value%")
+                                ->orWhere('name', 'like', "%$value%")
+                                ->orWhereIn('umbrella_organization_id',
+                                    UmbrellaOrganization::where('umbrella_organizations.name', 'LIKE', "%$value%")
+                                        ->select('id')
+                                )
+                                ->orWhere('external_main_code', 'like', "%$value%");
+                        });
+                    });
+                    break;
                 default:
                     break;
             }
@@ -405,7 +419,20 @@ class School extends BaseModel implements AccessCheckable {
             switch(strtolower($key)) {
                 case 'id':
                 case 'name':
+                case 'customer_code':
+                case 'main_city':
+                case 'external_main_code':
+                case 'count_questions':
                     $query->orderBy($key, $value);
+                    break;
+                case 'umbrella_organization_name':
+                    $query->orderBy(
+                        UmbrellaOrganization::select('umbrella_organizations.name')
+                            ->whereColumn('umbrella_organizations.id', 'schools.umbrella_organization_id')
+                            ->orderBy('umbrella_organizations.name', $value)
+                            ->take(1),
+                        $value
+                    );
                     break;
             }
         }
@@ -593,5 +620,8 @@ class School extends BaseModel implements AccessCheckable {
         }
     }
 
-
+    public function canDelete(User $user)
+    {
+        return $user->isA('Administrator');
+    }
 }

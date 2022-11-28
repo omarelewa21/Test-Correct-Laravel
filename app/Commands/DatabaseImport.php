@@ -13,7 +13,7 @@ class DatabaseImport
 {
     private static function checkEnv()
     {
-        if (!in_array(env('APP_ENV'), ['local', 'testing'])) {
+        if (!in_array(config('app.env'), ['local', 'testing'])) {
             exit();
         } else {
             return true;
@@ -27,7 +27,7 @@ class DatabaseImport
 
         $host = DB::connection()->getConfig('host');
         $portString = '';
-        if (strlen(env('DB_PORT')) > 1) {
+        if (strlen(config('connections.mysql.port')) > 1) {
             $portString = sprintf(' --port %d ', env('DB_PORT'));
             $host = explode(':', $host)[0];
         }
@@ -54,7 +54,6 @@ class DatabaseImport
                 $file
             );
         }
-
 
         $process = Process::fromShellCommandline($command);
         $process->run();
@@ -104,6 +103,15 @@ class DatabaseImport
 
         if (null !== $origUser) {
             Auth::loginUsingId($origUser->getKey());
+        }
+
+        $schoolLocations = SchoolLocation::all();
+        foreach ($schoolLocations as $schoolLocation){
+            if(!is_null($schoolLocation->allow_new_player_access)){
+                continue;
+            }
+            $schoolLocation->allow_new_player_access = true;
+            $schoolLocation->save();
         }
     }
 }

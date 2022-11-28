@@ -64,7 +64,7 @@ class UwlrFetcher extends Component
         $this->setSearchFields();
         $this->setSchoolYears();
 
-        if($this->uwlrDatasource[$this->currentSource]['school_year'] != 0) {
+        if($this->uwlrDatasource[$this->currentSource]['school_year']) {
             $this->schoolYear = $this->uwlrDatasource[$this->currentSource]['school_year'];
         }
     }
@@ -125,7 +125,9 @@ class UwlrFetcher extends Component
 
     public function fetch()
     {
+
         try {
+            set_time_limit(0);
             $helper = $this->getHelper();
 
             $this->report = $helper->getResultSet()->report();
@@ -173,7 +175,7 @@ class UwlrFetcher extends Component
 
     public function render()
     {
-        $rep = $this->report ? $this->report : [];
+        $rep = $this->report ?: [];
         return view('livewire.uwlr-fetcher')->with(['report' => $rep])->layout('layouts.app-admin');
     }
 }

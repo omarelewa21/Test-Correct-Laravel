@@ -1,9 +1,21 @@
 require('./bootstrap');
-require('alpinejs');
-require('livewire-sortable');
 require('./swipe');
+require('./livewire-sortablejs');
 require('./core');
 require('./notify');
+require('./alpine');
+require('./rich-text-editor');
+require('./drawing/drawing-question');
+require('./readspeaker_app');
+require('./attachment');
+require('./flatpickr');
+require('./navigation-bar');
+require('../../vendor/wire-elements/modal/resources/js/modal');
+require('./webspellchecker_tlc');
+require('./pdf-download');
+
+
+window.ClassicEditors = [];
 
 addIdsToQuestionHtml = function () {
     let id = 1;
@@ -12,9 +24,11 @@ addIdsToQuestionHtml = function () {
         questionContainers.forEach(function (item) {
             let decendents = item.querySelectorAll('*');
             decendents.forEach(function (decendent) {
-                decendent.id = 'questionhtml_' + id;
-                decendent.setAttribute('wire:key', 'questionhtml_' + id);
-                id += 1;
+                if(decendent.tagName != 'MATH' && !decendent.closest('math')) {
+                    decendent.id = 'questionhtml_' + id;
+                    decendent.setAttribute('wire:key', 'questionhtml_' + id);
+                    id += 1;
+                }
             })
         })
     }, 1);
@@ -29,7 +43,31 @@ makeHeaderMenuActive = function (elementId) {
 }
 
 isInputElement = function(target) {
-    return /^(?:input|textarea|select|button)$/i.test(target.tagName.toLowerCase());
+    if(/^(?:input|textarea|select|button)$/i.test(target.tagName.toLowerCase())){
+        return true;
+    }
+    if(typeof target.ckeditorInstance != "undefined"){
+        return true;
+    }
+    if((typeof ReadspeakerTlc != 'undefined')&&rsPageContainsCkeditor()){
+        return true;
+    }
+    return false;
+}
+
+rsPageContainsCkeditor = function() {
+    if(typeof ReadspeakerTlc == 'undefined'){
+        return false;
+    }
+    var questionContainer = document.querySelector('.rs_readable');
+    if(questionContainer == null){
+        return false;
+    }
+    var ckeditorNode = questionContainer.querySelector('.ck-editor__editable');
+    if(ckeditorNode != null){
+        return true;
+    }
+    return false;
 }
 
 handleScrollNavigation = function (evt) {
@@ -74,7 +112,7 @@ setTitlesOnLoad = function (el) {
     }
 }
 
-initializeIntenseWrapper = function (app_key, debug) {
+initializeIntenseWrapper = function (app_key, debug, deviceId, sessionId, code) {
     addScript('https://education.intense.solutions/collector/latest.uncompressed.js');
 
     var initializeInterval = setInterval(function() {
@@ -131,9 +169,219 @@ initializeIntenseWrapper = function (app_key, debug) {
         }
     }, 2000)
 
-    function addScript( src ) {
-        var s = document.createElement( 'script' );
-        s.setAttribute( 'src', src );
-        document.body.appendChild( s );
+    function addScript(src) {
+        var s = document.createElement('script');
+        s.setAttribute('src', src);
+        document.body.appendChild(s);
     }
+}
+
+dragElement = function (element) {
+    var pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
+    var uuid = element.id.replace('attachment-', '');
+    let newTop, newLeft;
+
+    const elementRect  = element.getBoundingClientRect();
+    const windowHeight = window.innerHeight
+    const windowWidth  = window.innerWidth
+
+    if (document.getElementById(element.id + "drag")) {
+        // if present, the header is where you move the DIV from:
+        document.getElementById(element.id + "drag").onmousedown = dragMouseDown;
+        document.getElementById(element.id + "drag").ontouchstart = dragMouseDown;
+    } else {
+        // otherwise, move the DIV from anywhere inside the DIV:
+        element.onmousedown = dragMouseDown;
+    }
+
+    function dragMouseDown(e) {
+        e = e || window.event;
+        // get the mouse cursor position at startup:
+        if (e.type === 'touchstart') {
+            pos3 = e.touches[0].clientX;
+            pos4 = e.touches[0].clientY;
+        } else {
+            pos3 = e.clientX;
+            pos4 = e.clientY;
+        }
+        document.onmouseup = closeDragElement;
+        document.ontouchend = closeDragElement;
+        // call a function whenever the cursor moves:
+        document.onmousemove = elementDrag;
+        document.ontouchmove = elementDrag;
+    }
+
+    function elementDrag(e) {
+        e = e || window.event;
+        
+        // calculate the new cursor position:
+        if (e.type === 'touchmove') {
+            pos1 = pos3 - e.touches[0].clientX;
+            pos2 = pos4 - e.touches[0].clientY;
+            pos3 = e.touches[0].clientX;
+            pos4 = e.touches[0].clientY;
+        } else {
+            pos1 = pos3 - e.clientX;
+            pos2 = pos4 - e.clientY;
+            pos3 = e.clientX;
+            pos4 = e.clientY;
+        }
+        // set the element's new position:
+        newTop  = (element.offsetTop - pos2);
+        newLeft = (element.offsetLeft - pos1);
+
+        element.style.top  = newTop  + "px";
+        element.style.left = newLeft + "px";
+
+    }
+
+    function closeDragElement(e) {
+        const rightEdge = newLeft + elementRect.width;
+
+        if(newTop  < 0){newTop  = 10}                                   // Check if the top edge is within window height boundaries
+        else if(newTop  > windowHeight-50){newTop = windowHeight-50}
+
+        if(rightEdge < 150){newLeft = 0}                              // Check if the right edge is within window width boundaries
+        else if(rightEdge > windowWidth-10){newLeft = 0}
+
+        // stop moving when mouse button is released:
+        window.dispatchEvent(new CustomEvent('set-new-position', {
+                'detail': {
+                    'uuid': uuid,
+                    'x': newTop,
+                    'y': newLeft
+                }
+            }
+        ));
+        document.onmouseup = null;
+        document.ontouchend = null;
+        document.onmousemove = null;
+        document.ontouchmove = null;
+    }
+}
+
+countPresentStudents = function (members)
+{
+    var activeStudents = 0;
+    members.each((member) => {
+        if (member.info.student) {
+            activeStudents++;
+        }
+    })
+
+    return activeStudents;
+}
+
+addTitleToImages = function(selector,title)
+{
+    var container = document.querySelector(selector);
+    if(container != null){
+        var images = container.querySelectorAll('img');
+        images.forEach(function(image) {
+            if(image.title==null||image.title==''){
+                image.title = title;
+            }
+        });
+    }
+}
+
+String.prototype.contains = function (text)
+{
+    if (text === '') return false;
+    return this.includes(text);
+}
+
+getClosestLivewireComponentByAttribute = function (element, attributeName) {
+    return livewire.find(element.closest(`[${attributeName}]`).getAttribute('wire:id'));
+}
+
+String.prototype.capitalize = function ()
+{
+    return this.charAt(0).toUpperCase() + this.slice(1);
+}
+
+clearClipboard = function () {
+    //source: https://stackoverflow.com/a/30810322
+    function fallbackCopyTextToClipboard(text) {
+        var textArea = document.createElement("textarea");
+        textArea.value = text;
+
+        // Avoid scrolling to bottom
+        textArea.style.top = "0";
+        textArea.style.left = "0";
+        textArea.style.position = "fixed";
+
+        document.body.appendChild(textArea);
+        textArea.focus();
+        textArea.select();
+
+        try {
+            var successful = document.execCommand("copy");
+            var msg = successful ? "successful" : "unsuccessful";
+        } catch (err) {
+        }
+
+        document.body.removeChild(textArea);
+    }
+    function copyTextToClipboard(text) {
+        return new Promise((resolve, reject) => {
+            if (!navigator.clipboard) {
+                fallbackCopyTextToClipboard(text);
+                resolve();
+            }
+            navigator.clipboard.writeText(text).then(() => {
+                resolve();
+            }).catch(() => { fallbackCopyTextToClipboard(text); resolve(); });
+        });
+    }
+
+    return copyTextToClipboard(' ');
+}
+
+preventNavigationByKeydown = function(event)
+{
+    return event.stopPropagation();
+}
+
+livewireMessageContainsModelName = (message, modelName) => {
+    return message.updateQueue.map(queue => {
+
+        if(typeof queue.payload?.name !== 'undefined') {
+            return queue.payload.name?.includes(modelName)
+        }
+        return String(queue.payload?.params[0])?.includes(modelName)
+    })[0];
+}
+
+questionCardOpenDetailsModal = (questionUuid, inTest) => {
+    Livewire.emit(
+        'openModal',
+        'teacher.question-detail-modal',
+        {questionUuid, inTest}
+    );
+}
+questionCardOpenGroup = (element, questionUuid, inTest) => {
+    element.closest('[group-container]')
+        .dispatchEvent(
+            new CustomEvent(
+                'show-group-details',
+                {detail: {questionUuid, inTest } }
+            )
+        );
+}
+
+addQuestionToTestFromTestCard = (button, questionUuid, showQuestionBankAddConfirmation) => {
+    document.querySelector('#question-bank')
+        .dispatchEvent(
+            new CustomEvent(
+                'add-question-to-test',
+                {
+                    detail: {
+                        button,
+                        questionUuid,
+                        showQuestionBankAddConfirmation
+                    }
+                }
+            )
+        )
 }

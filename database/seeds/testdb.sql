@@ -6477,20 +6477,29 @@ LOCK TABLES `education_levels` WRITE;
 
 INSERT INTO `education_levels` (`id`, `created_at`, `updated_at`, `deleted_at`, `name`, `max_years`, `uuid`)
 VALUES
-  (1,'2015-06-01 22:34:37','2015-06-01 22:34:31',NULL,'VWO',6,X'E9469229D68E4A988DAF73D0BF65618C'),
-  (2,'2015-06-01 22:34:37','2015-06-01 22:34:31',NULL,'Gymnasium',6,X'E98C7229C5A14EF186274B2526D5E0BA'),
-  (3,'2015-06-01 22:34:37','2015-06-01 22:34:31',NULL,'Havo',6,X'EC55E229CF9D411199F9E6A51267A810'),
-  (4,'2015-06-01 22:34:37','2015-06-01 22:34:31',NULL,'Mavo / Vmbo tl',5,X'ED41122906114F4199EA3F5F2AAB173B'),
-  (5,'2015-06-01 22:34:37','2015-06-01 22:34:31',NULL,'Vmbo gl',4,X'F22062299C764494B1EC3230258D2530'),
-  (6,'2015-06-01 22:34:37','2015-06-01 22:34:31',NULL,'Vmbo kb',4,X'F2D602299D3B4E649BC6B5B8B4EA676B'),
-  (7,'2015-06-01 22:34:37','2015-06-01 22:34:31',NULL,'Vmbo bb',4,X'F31B5229D1AF43A39829E321FA983B9A'),
-  (8,'2015-06-01 22:34:37','2015-06-01 22:34:31',NULL,'Lwoo',4,X'F35D82293C6F41DF95F2A64289FDBF2F'),
-  (9,'2015-06-01 22:34:37','2015-06-01 22:34:31',NULL,'Atheneum',4,X'F39EC229D3244688AA0A024691EFD2DE'),
-  (10,'2015-09-29 14:00:50','2015-09-29 14:00:50',NULL,'Mavo/Havo',2,X'F3FEA2296D6D4E52B22740F6FC862BC3'),
-  (11,'2015-09-29 14:01:19','2015-09-29 14:01:19',NULL,'Havo/VWO',2,X'F4425229C7CB4DA39D5F7FA126C242E8'),
-  (12,'0000-00-00 00:00:00','0000-00-00 00:00:00',NULL,'t/h',4,X'E8BE522974FA4A77AE9904E2B97D90CC'),
-  (13,'2018-06-12 00:00:00','2018-06-12 00:00:00',NULL,'h/v',6,X'F48A7229BE704FE8976B3625D3657E8E'),
-  (14,'2020-05-15 14:54:59','2020-05-15 14:54:59',NULL,'Demo',1,X'F4C94229D9BC4B1EB68BDC82C1583132');
+	(1,'2015-06-01 22:34:37','2015-06-01 22:34:31',NULL,'VWO',6,X'5C461C0DFCDF11EA92D95616569C777A'),
+	(2,'2015-06-01 22:34:37','2015-06-01 22:34:31',NULL,'Gymnasium',6,X'5C461EB5FCDF11EA92D95616569C777A'),
+	(3,'2015-06-01 22:34:37','2015-06-01 22:34:31',NULL,'Havo',6,X'5C461F89FCDF11EA92D95616569C777A'),
+	(4,'2015-06-01 22:34:37','2015-06-01 22:34:31',NULL,'Mavo / Vmbo tl',5,X'5C462024FCDF11EA92D95616569C777A'),
+	(5,'2015-06-01 22:34:37','2015-06-01 22:34:31',NULL,'Vmbo gl',4,X'5C462109FCDF11EA92D95616569C777A'),
+	(6,'2015-06-01 22:34:37','2015-06-01 22:34:31',NULL,'Vmbo kb',4,X'5C4621A4FCDF11EA92D95616569C777A'),
+	(7,'2015-06-01 22:34:37','2015-06-01 22:34:31',NULL,'Vmbo bb',4,X'5C462225FCDF11EA92D95616569C777A'),
+	(8,'2015-06-01 22:34:37','2015-06-01 22:34:31',NULL,'Lwoo',4,X'5C4633E0FCDF11EA92D95616569C777A'),
+	(9,'2015-06-01 22:34:37','2015-06-01 22:34:31',NULL,'Atheneum',4,X'5C46348CFCDF11EA92D95616569C777A'),
+	(10,'2015-09-29 14:00:50','2015-09-29 14:00:50',NULL,'Mavo/Havo',2,X'5C46350CFCDF11EA92D95616569C777A'),
+	(11,'2015-09-29 14:01:19','2015-09-29 14:01:19',NULL,'Havo/VWO',3,X'5C46358BFCDF11EA92D95616569C777A'),
+	(12,'0000-00-00 00:00:00','0000-00-00 00:00:00',NULL,'t/h',4,X'5C463609FCDF11EA92D95616569C777A'),
+	(13,'2018-06-12 00:00:00','2018-06-12 00:00:00',NULL,'h/v',6,X'5C463688FCDF11EA92D95616569C777A'),
+	(14,'2019-02-12 10:55:48','2019-02-12 10:55:48',NULL,'MBO-N1',4,X'5C463705FCDF11EA92D95616569C777A'),
+	(15,'2019-02-12 10:55:48','2019-02-12 10:55:48',NULL,'MBO-N2',4,X'5C463784FCDF11EA92D95616569C777A'),
+	(16,'2019-02-12 10:55:48','2019-02-12 10:55:48',NULL,'MBO-N3',4,X'5C4637FAFCDF11EA92D95616569C777A'),
+	(17,'2019-02-12 10:55:48','2019-02-12 10:55:48',NULL,'MBO-N4',4,X'5C46387BFCDF11EA92D95616569C777A'),
+	(18,'2020-04-28 18:16:40','2020-04-28 18:16:40',NULL,'HBO Bachelor',4,X'5C4638FAFCDF11EA92D95616569C777A'),
+	(21,'2020-04-28 18:16:40','2020-04-28 18:16:40',NULL,'HBO Master',2,X'5C463977FCDF11EA92D95616569C777A'),
+	(24,'2020-04-28 18:16:40','2020-04-28 18:16:40',NULL,'WO Bachelor',3,X'5C4639F3FCDF11EA92D95616569C777A'),
+	(27,'2020-04-28 18:16:40','2020-04-28 18:16:40',NULL,'WO Master',2,X'5C463A6CFCDF11EA92D95616569C777A'),
+	(30,'2020-05-06 11:41:50','2020-05-06 11:41:50',NULL,'Demo',1,X'5C463AEBFCDF11EA92D95616569C777A'),
+	(33,'2021-04-08 16:58:34','2021-04-08 16:58:34',NULL,'Groep',9,X'74B5093E67F5413FB142B8C66A61DF3C');
 
 /*!40000 ALTER TABLE `education_levels` ENABLE KEYS */;
 UNLOCK TABLES;
@@ -11789,7 +11798,7 @@ VALUES
   ('df4c6e42-9e98-4d68-902e-5d606d75e4aa','2020-05-15 14:54:19','2020-05-15 14:54:19',NULL,'4e3cf797-3566-4d69-866f-993da5320287','731a455a-5194-4760-ab50-a37518a51631','Klik hier als je alle stappen hebt gedaan','button_done','Goed gedaan!',NULL,'300','3000',5,X'45ECB22947B8498AB61602ED377B0C9F'),
   ('e8f6c3f0-daed-49e0-b930-6f0b45733316','2020-05-15 14:54:19','2020-05-15 14:54:19',NULL,'4e3cf797-3566-4d69-866f-993da5320287','2d75690f-4529-4b84-9bed-dbc5cbb3d9ec','Normeer en becijfer zelf een toets.','tour','https://hlp.sh/t/Z2p5D3O/dI7lBLzoUEd',NULL,NULL,NULL,4,X'4630C22966B549E88B68DD3B1E0CFE8A'),
   ('ea1b870a-af09-4b5b-8453-99940f828284','2020-05-15 14:54:19','2020-05-15 14:54:19',NULL,'4e3cf797-3566-4d69-866f-993da5320287','5d60c892-cca2-47e3-a368-8b9e793ca2a9','Klik hier als je alle stappen hebt gedaan','button_done','Gefeliciteerd! Je hebt nu de basis gezien van Test-Correct. Ga zo door!',NULL,'200','3000',5,X'467AC229393541D2835DFA3D3794272E'),
-  ('ea7821c8-bf44-4798-8e15-7fc700fd5ecb','2020-05-15 14:54:19','2020-05-15 14:54:19',NULL,'4e3cf797-3566-4d69-866f-993da5320287','47b667e0-1ae6-4bee-8d35-ab5a0872e998','Wat is CO-Learning?','video','https://www.youtube.com/watch?v=IE8pfZz5ZqM','https://support.test-correct.nl/knowledge/toets-bespreken-en-co-learning',NULL,NULL,1,X'46C77229B8824D1B9441F8F5B3479585'),
+  ('ea7821c8-bf44-4798-8e15-7fc700fd5ecb','2020-05-15 14:54:19','2020-05-15 14:54:19',NULL,'4e3cf797-3566-4d69-866f-993da5320287','47b667e0-1ae6-4bee-8d35-ab5a0872e998','Wat is CO-Learning?','video','https://www.youtube.com/watch?v=IE8pfZz5ZqM','https://support.test-correct.nl/knowledge/toets-bespreken-en-CO-Learning',NULL,NULL,1,X'46C77229B8824D1B9441F8F5B3479585'),
   ('eb3151b1-e56b-41bf-9910-2c0968e48bd9','2020-05-15 14:54:19','2020-05-15 14:54:19',NULL,'4e3cf797-3566-4d69-866f-993da5320287','731a455a-5194-4760-ab50-a37518a51631','Plan zelf een toets in','tour','https://hlp.sh/t/Z2p5D3O/Fb0MZi9dLii',NULL,NULL,NULL,2,X'4801C2294BC443529458AE7585008DA3'),
   ('fc22094c-de1a-429f-97d4-daecee6737b5','2020-05-15 14:54:19','2020-05-15 14:54:19',NULL,'4e3cf797-3566-4d69-866f-993da5320287','d2f570b9-5610-4790-9a15-f1e500ab8fb9','Construeer zelf een toets.','tour','https://hlp.sh/t/Z2p5D3O/zvoCaQAxNyW',NULL,NULL,NULL,2,X'48BF3229389D40ACBAE24A7ACA8A1549');
 
@@ -12069,7 +12078,7 @@ INSERT INTO `periods` (`id`, `created_at`, `updated_at`, `deleted_at`, `school_y
 VALUES
 	(1,'2018-12-21 16:00:57','2018-12-21 16:00:57',NULL,1,'2018','2018-12-21','2040-08-31',X'86CE8229A2114B608F3AA30348E08357'),
 	(2,'2019-02-25 14:39:08','2019-02-25 14:39:08',NULL,2,'2018','2018-08-31','2040-08-30',X'87361229B5804A18A24FB04D5101841E'),
-	(3,'2019-07-26 11:14:14','2019-07-26 11:14:14',NULL,3,'Periode 2020/2021','2020-07-01','2021-07-02',X'89801229E6624E14A0CB10EAA168F44F');
+	(3,'2019-07-26 11:14:14','2019-07-26 11:14:14',NULL,3,'Periode 2020/2021','2021-07-01','2022-07-02',X'89801229E6624E14A0CB10EAA168F44F');
 
 /*!40000 ALTER TABLE `periods` ENABLE KEYS */;
 UNLOCK TABLES;
@@ -12252,7 +12261,7 @@ VALUES
   (19,'2019-02-27 11:01:30','2019-02-27 11:02:00',NULL,2,1,'OpenQuestion','<p>Wat is correct?</p>\r\n',1,2,0,'NONE','','',NULL,0,0,NULL,0,NULL,NULL,NULL,NULL,X'69DB222929F746DEAF05645F77FA2AC4'),
   (20,'2019-02-27 11:02:49','2019-02-27 11:02:49',NULL,2,1,'MultipleChoiceQuestion','<p>Welke antwoord is juist?</p>\r\n',1,2,0,'NONE','','',NULL,1,0,NULL,0,NULL,NULL,NULL,NULL,X'6A255229C25C4E33B50FFA999DEC25CF'),
   (21,'2020-05-07 16:19:21','2020-05-07 16:19:21',NULL,2,1,'CompletionQuestion','<p>Bekijk de video in bijlage #1 en beantwoord daarna de onderstaande vragen.</p><p><br><br><br>Hoewel Test-Correct een volwaardig toetsingsplatform is, kenmerkt het zich vooral door de inzet van activerende werkvormen rondom het bespreken van de toets. Deze functionaliteit kun je terugvinden in de CO-Learning module.<br>Hieronder zie je drie dropdowns. Kies bij iedere dropdown het juiste antwoord.<br>De inzet van CO-Learning in je lessen zorgt voor drie evidente voordelen. Dit zijn:<br>Het [1] leerrendement. De leerstof beklijft beter en er ontstaat een dieper begrip van de gegeven leerdoelen.<br>Veel [2] nakijkwerk. Gemiddeld een reductie van meer dan 80% van het nakijkwerk bij open vragen!<br>Er is inzicht in het kennen en kunnen van de [3] t.o.v. de leerdoelen. Scores van de afgenomen toets worden naast de scores van de CO-Learning gelegd. Deze twee getallen samen geven inzicht in kennen (inzicht) en kunnen (gedrag en motivatie).</p>',1,5,0,'NONE',NULL,'',NULL,1,0,NULL,0,NULL,NULL,NULL,NULL,X'6A74122997EC4988982604C14FFE81B4'),
-  (22,'2020-05-07 16:20:07','2020-05-07 16:20:22',NULL,2,1,'OpenQuestion','<h1><strong>De CO-Learning module</strong></h1>\r\n\r\n<p>Het idee van peer-reviewing is niet nieuw.&nbsp;Docenten zien al langere tijd de voordelen van het betrekken van de klas bij het bespreken van geleverd materiaal vanuit de groep. De onderwijskundige meerwaarde hiervoor is evident. Zoals Professor Onderwijskunde John Hattie aangeeft in zijn analyse van vele onderzoeken:&nbsp;er zijn meerdere onderzoeken gedaan naar het verhoogd leerrendement wanneer je een student betrekt bij het beoordelen van zijn eigen werk of dat van een groepsgenoot. <em>(&ldquo;De impact van leren zichtbaar maken&rdquo;, John Hattie, ISBN:9789462342392, Bazalt Educatieve Uitgeverij) </em></p>\r\n\r\n<p><em><img src=\"https://portal.test-correct.nl/custom/imageload.php?filename=1hCAEJ645s-29092017-Erasmiaans-Toets-bespreken.jpg\" /></em></p>\r\n\r\n<p>Wat de CO-Learning module uniek maakt is dat het nu voor het eerst mogelijk is om een conventionele toets middels peer-reviewing na te kijken zonder dat de kwaliteit van het nakijken moet inboeten.&nbsp;Sterker nog:&nbsp;de kwaliteit van het correctiewerk neemt over het algemeen toe!</p>\r\n\r\n<p>--------------------------------------------------------------------------------------------------------------------------------------------------------------</p>\r\n\r\n<p>Leg uit hoe Test-Correct helpt bij de reductie van nakijkwerk bij open vragen.</p>\r\n',1,4,0,'NONE','','null',NULL,1,0,NULL,0,NULL,NULL,NULL,NULL,X'6ABEE2292B784350A1DC51F517627F0B'),
+  (22,'2020-05-07 16:20:07','2020-05-07 16:20:22',NULL,2,1,'OpenQuestion','<h1><strong>De CO-Learning module</strong></h1>\r\n\r\n<p>Het idee van peer-reviewing is niet nieuw.&nbsp;Docenten zien al langere tijd de voordelen van het betrekken van de klas bij het bespreken van geleverd materiaal vanuit de groep. De onderwijskundige meerwaarde hiervoor is evident. Zoals Professor Onderwijskunde John Hattie aangeeft in zijn analyse van vele onderzoeken:&nbsp;er zijn meerdere onderzoeken gedaan naar het verhoogd leerrendement wanneer je een student betrekt bij het beoordelen van zijn eigen werk of dat van een groepsgenoot. <em>(&ldquo;De impact van leren zichtbaar maken&rdquo;, John Hattie, ISBN:9789462342392, Bazalt Educatieve Uitgeverij) </em></p>\r\n\r\n<p><em><img src=\"https://testportal.test-correct.nl/custom/imageload.php?filename=1hCAEJ645s-29092017-Erasmiaans-Toets-bespreken.jpg\" /></em></p>\r\n\r\n<p>Wat de CO-Learning module uniek maakt is dat het nu voor het eerst mogelijk is om een conventionele toets middels peer-reviewing na te kijken zonder dat de kwaliteit van het nakijken moet inboeten.&nbsp;Sterker nog:&nbsp;de kwaliteit van het correctiewerk neemt over het algemeen toe!</p>\r\n\r\n<p>--------------------------------------------------------------------------------------------------------------------------------------------------------------</p>\r\n\r\n<p>Leg uit hoe Test-Correct helpt bij de reductie van nakijkwerk bij open vragen.</p>\r\n',1,4,0,'NONE','','null',NULL,1,0,NULL,0,NULL,NULL,NULL,NULL,X'6ABEE2292B784350A1DC51F517627F0B'),
   (23,'2020-05-07 16:21:51','2020-05-07 16:21:51',NULL,2,1,'MultipleChoiceQuestion','<p>Hoe ervaren studenten de CO-Learning?</p>\r\n',1,3,0,'NONE',NULL,'',NULL,1,0,NULL,0,NULL,NULL,NULL,NULL,X'6B08D229F07A40339F6B58F5EB578DD8'),
   (24,'2020-05-07 16:23:06','2020-05-07 16:23:06',NULL,2,1,'RankingQuestion','<p>In Test-Correct wordt er gewerkt in een bepaalde volgorde van handelingen. Hieronder staan de handelingen in willekeurige volgorde. Ze deze in de juiste volgorde.</p>\r\n',1,5,1,'NONE',NULL,'',NULL,1,0,NULL,0,NULL,NULL,NULL,NULL,X'6B4EE2299E64457E825733AF273C2920');
 
@@ -13271,9 +13280,10 @@ LOCK TABLES `school_locations` WRITE;
 
 INSERT INTO `school_locations` (`id`, `created_at`, `updated_at`, `deleted_at`, `user_id`, `number_of_teachers`, `number_of_students`, `school_id`, `grading_scale_id`, `customer_code`, `name`, `main_address`, `main_postal`, `main_city`, `main_country`, `invoice_address`, `invoice_postal`, `invoice_city`, `invoice_country`, `visit_address`, `visit_postal`, `visit_city`, `visit_country`, `count_active_licenses`, `count_active_teachers`, `count_expired_licenses`, `count_licenses`, `count_questions`, `count_students`, `count_teachers`, `count_tests`, `count_tests_taken`, `activated`, `is_rtti_school_location`, `external_main_code`, `external_sub_code`, `is_open_source_content_creator`, `is_allowed_to_view_open_source_content`, `count_text2speech`, `edu_ix_organisation_id`, `uuid`)
 VALUES
-	(1,'2018-12-21 15:51:39','2020-03-10 11:21:48',NULL,520,100,1000,1,1,'TC-tijdelijke-docentaccounts','Open source schoolocatie1','1','1','1','1','2','2','2','2','3','3','3','3',0,1,0,0,0,0,0,0,2,1,0,'8888','00',0,0,0,NULL,X'D5B682293CFD4884BB0A8209D33899FD'),
+	(1,'2018-12-21 15:51:39','2020-03-10 11:21:48',NULL,520,100,1000,1,1,'OUD TC-tijdelijke-docentaccounts','Open source schoolocatie1 oud','1','1','1','1','2','2','2','2','3','3','3','3',0,1,0,0,0,0,0,0,2,1,0,'8888','00',0,0,0,NULL,X'D5B682293CFD4884BB0A8209D33899FD'),
 	(2,'2019-02-25 14:36:39','2020-05-15 15:00:13',NULL,521,100,1000,3,1,'RS','RTTI School','1','1','1','1','2','2','2','2','3','3','3','3',0,2,0,0,4,7,3,2,2,1,1,'9999','00',0,1,1,NULL,X'D676A229E0DD49068F81524AF8D9E564'),
-	(3,'2019-07-26 10:06:22','2019-07-26 10:06:22',NULL,520,10,100,1,1,'standaard testschool','Standaard school','-','-','-','-','-','-','-','-','-','-','-','-',0,0,0,0,0,0,0,0,0,1,0,'','',0,0,0,NULL,X'D81BE229732C4BBD9BB357615B64C2CF');
+	(3,'2019-07-26 10:06:22','2019-07-26 10:06:22',NULL,520,10,100,1,1,'standaard testschool','Standaard school','-','-','-','-','-','-','-','-','-','-','-','-',0,0,0,0,0,0,0,0,0,1,0,'','',0,0,0,NULL,X'D81BE229732C4BBD9BB357615B64C2CF'),
+    (4,'2018-12-21 15:51:39','2020-03-10 11:21:48',NULL,520,100,1000,1,1,'TC-tijdelijke-docentaccounts','Open source schoolocatie1','1','1','1','1','2','2','2','2','3','3','3','3',0,1,0,0,0,0,0,0,2,1,0,'8888','00',0,0,0,NULL,X'8F346D1F3C8C11EC81BB0800271E8147');
 
 /*!40000 ALTER TABLE `school_locations` ENABLE KEYS */;
 UNLOCK TABLES;
@@ -13607,7 +13617,8 @@ VALUES
   (27,'2019-07-26 11:36:46','2019-07-26 11:36:46',NULL,1486,27,4,X'7BA9291B8B0811EB85C30800271E8147'),
   (28,'2018-12-21 17:01:16','2018-12-21 17:01:16',NULL,1486,28,1,X'7E7BB2848B0811EB85C30800271E8147'),
   (29,'2019-02-25 14:43:56','2019-02-25 14:43:56',NULL,1486,29,2,X'811B5FDA8B0811EB85C30800271E8147'),
-  (30,'2019-02-25 14:44:01','2019-02-25 14:44:01',NULL,1486,30,2,X'841F28158B0811EB85C30800271E8147');
+  (30,'2019-02-25 14:44:01','2019-02-25 14:44:01',NULL,1486,30,2,X'841F28158B0811EB85C30800271E8147'),
+  (31,'2019-02-25 14:44:01','2019-02-25 14:44:01',NULL,1496,1,1,X'6FD60C033C8511EC81BB0800271E8147');
 
 /*!40000 ALTER TABLE `teachers` ENABLE KEYS */;
 UNLOCK TABLES;

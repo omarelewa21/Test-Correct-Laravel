@@ -37,8 +37,6 @@ class CountUmbrellaOrganizationActiveLicenses extends Job implements ShouldQueue
     {
         $count = $this->umbrellaOrganization->schools()->sum('count_active_licenses');
 
-        Log::debug('Umbrella Organization #' . $this->umbrellaOrganization->getKey() . ' -> count_active_licenses: ' . $count);
-
         $this->umbrellaOrganization->setAttribute('count_active_licenses', $count);
         $this->umbrellaOrganization->save();
     }

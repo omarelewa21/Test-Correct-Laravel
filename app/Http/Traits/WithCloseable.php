@@ -15,22 +15,26 @@ trait WithCloseable
 
     protected function getListeners()
     {
-        return [
+        return array_merge($this->listeners, [
             'close-question' => 'closeQuestion',
-            'close-group' => 'closeGroup',
-            'refresh' => 'render'
-        ];
+            'close-group'    => 'closeGroup',
+            'refresh'        => 'render'
+        ]);
     }
 
     public function mountWithCloseable()
     {
-        if ($this->answers[$this->question->uuid]['closed'] || $this->answers[$this->question->uuid]['closed_group']) {
+        if (!empty($this->answers) && ($this->answers[$this->question->uuid]['closed'] || $this->answers[$this->question->uuid]['closed_group'])) {
             $this->closed = true;
         }
     }
 
     public function closeQuestion($nextQuestion = null)
     {
+        if (empty($this->answers)) {
+            return;
+        }
+
         $this->closed = Answer::whereId($this->answers[$this->question->uuid]['id'])->update(['closed' => 1]);
 
         if ($nextQuestion) {
@@ -46,11 +50,15 @@ trait WithCloseable
 
     public function closeGroup($nextQuestion = null)
     {
+        if (empty($this->answers)) {
+            return;
+        }
+
         $groupId = $this->group->id;
 
         $listOfQToRefresh = [];
         $q = 0;
-        $newAnswers = collect($this->answers)->map(function (&$answer) use ($groupId,&$listOfQToRefresh, &$q) {
+        $newAnswers = collect($this->answers)->map(function ($answer) use ($groupId,&$listOfQToRefresh, &$q) {
             $q++;
             if ($answer['group_id'] === $groupId) {
                 Answer::whereId($answer['id'])->update(['closed_group' => 1]);

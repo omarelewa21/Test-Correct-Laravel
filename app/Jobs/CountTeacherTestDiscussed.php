@@ -57,8 +57,6 @@ class CountTeacherTestDiscussed extends Job implements ShouldQueue
             ->join('tests', 'tests.id', '=', 'test_takes.test_id')
             ->join('test_participants', 'test_participants.test_take_id', '=', 'test_takes.id')->distinct('test_takes.id')->count('test_takes.id');
 
-        Log::debug('Teacher #'.$user->getKey().' -> count_tests_discussed: '.$count);
-
         $this->user->setAttribute('count_tests_discussed', $count);
         $this->user->save();
     }

@@ -51,7 +51,7 @@ class UserImportRequest extends Request {
             if(is_null(request()->type)){
                 break;
             }
-            if (array_key_exists('username', $value)) {
+            if ($this->hasEntry('username', $value)&&$this->hasEntry('external_id', $value)) {
                 if (request()->type == 'teacher') {
                     $extra_rule[sprintf('data.%d.username', $key)] = [  'required',
                                                                         'email:rfc,filter',
@@ -63,7 +63,7 @@ class UserImportRequest extends Request {
                                                                                 return $fail(sprintf('The user email address contains international characters  (%s).', $value));
                                                                             }
                                                                         }];
-                    $extra_rule[sprintf('data.%d.external_id', $key)] = new SameSchoollocationSameUserNameDifferentExternalId($this->schoolLocation,$value['username']);
+                    $extra_rule[sprintf('data.%d.external_id', $key)] = new SameSchoollocationSameUserNameDifferentExternalId($this->schoolLocation,$value['username'],false);
                 } else {
                     $extra_rule[sprintf('data.%d.external_id', $key)] = ['required',sprintf('unique:users,external_id,%s,username,school_location_id,%d', $value['username'],  $this->schoolLocation)];
                 }
@@ -79,7 +79,12 @@ class UserImportRequest extends Request {
             'data.*.name' => 'required',
             'data.*.external_id' => 'required',
         ]);
-        if ($extra_rule === []) {
+
+        if ($extra_rule === [] && request()->type == 'teacher') {
+            $mergedRules = $rules->merge([
+                'data.*.external_id' => '',
+            ]);
+        }elseif ($extra_rule === []) {
             $mergedRules = $rules->merge([
                 'data.*.external_id' => 'required',
             ]);
@@ -110,7 +115,7 @@ class UserImportRequest extends Request {
             if (request()->type == 'teacher') {
                 $this->usernameExternalIdCombinationUnique($validator);
             }
-            $data = $this->request->get('data');
+            $data = $this->request->all('data');
             $dataCollection = collect(request('data'));
             $unique = collect(request('data'))->unique();
             if ($unique->count() < $dataCollection->count()) {

@@ -1,4 +1,4 @@
-<div class="mt-10 flex-1 p-8">
+<div class="mt-10 flex-1 p-8 mx-8 xl:mx-28">
     <div class="flex flex-1 justify-between">
         <div><h1>UWLR Fetcher</h1></div>
         <div class="flex-shrink-0">
@@ -85,7 +85,6 @@
     @endif
 
     <x-slot name="footerbuttons">&nbsp;</x-slot>
-    <x-slot name="testTakeManager">&nbsp;</x-slot>
 
     <style>
         .lds-hourglass {

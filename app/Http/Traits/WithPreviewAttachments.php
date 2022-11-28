@@ -5,21 +5,52 @@ namespace tcCore\Http\Traits;
 
 use tcCore\Attachment;
 use tcCore\Http\Requests\Request;
+use tcCore\QuestionAttachment;
 
 trait WithPreviewAttachments
 {
     public $attachment;
+    protected $questionAttachment;
     public $audioCloseWarning = false;
     public $pressedPlay = false;
     public $timeout;
     public $questionId;
     public $attachmentType = '';
+    public $blockAttachments = false;
+    public $currentTimes = [];
 
-    public function showAttachment(Attachment $attachment)
+    public function booted()
     {
-        $this->attachment = $attachment;
-        $this->questionId = $this->group ? $this->group->uuid : $this->question->uuid;
-        $this->timeout = $this->attachment->audioTimeoutTime();
+        if($this->attachment) {
+            $type = $this->attachmentBelongsToTypeQuestion($this->attachment);
+
+            $id = $this->question->id;
+            if($type=='group') {
+                $id = $this->group->id;
+            }
+
+            $this->questionAttachment = $this->attachment->questionAttachments->where('question_id', $id)->first();
+        }
+    }
+
+    public function showAttachment($attachmentUuid)
+    {
+        if($this->audioCloseWarning){
+            return;
+        }
+        $this->attachment = Attachment::whereUuid($attachmentUuid)->first();
+        $attachment = $this->attachment;
+        $type = $this->attachmentBelongsToTypeQuestion($attachment);
+
+        $this->questionId = $this->question->uuid;
+        $id = $this->question->id;
+        if($type=='group'){
+            $this->questionId = $this->group->uuid;
+            $id = $this->group->id;
+        }
+
+        $this->questionAttachment = $this->attachment->questionAttachments->where('question_id', $id)->first();
+        $this->timeout = $this->questionAttachment->audioTimeoutTime();
         $this->attachmentType = $this->getAttachmentType($attachment);
     }
 
@@ -27,16 +58,16 @@ trait WithPreviewAttachments
     {
         if (optional($this->attachment)->file_mime_type == 'audio/mpeg') {
             if ($this->audioIsPlayedAndCanBePlayedAgain() && !$this->audioCloseWarning) {
-                if (!$this->attachment->audioIsPausable()) {
+                if (!$this->questionAttachment->audioIsPausable()) {
                     $this->audioCloseWarning = true;
                     return;
-                } else {
-                    $this->dispatchBrowserEvent('pause-audio-player');
                 }
             }
 
+            $this->dispatchBrowserEvent('pause-audio-player');
+
             if ($this->audioCloseWarning) {
-                $this->attachment->audioIsPlayedOnce();
+                $this->questionAttachment->audioIsPlayedOnce();
                 $this->audioCloseWarning = false;
             }
             if ($this->timeout != null) {
@@ -45,18 +76,26 @@ trait WithPreviewAttachments
             }
         }
 
-
+        $this->questionAttachment = null;
         $this->attachment = null;
     }
 
-    public function audioIsPlayedOnce(Attachment $attachment)
+    public function audioIsPlayedOnce()
     {
 
     }
 
-    public function audioStoreCurrentTime(Attachment $attachment, $currentTime)
+    public function audioStoreCurrentTime($attachmentUuid, $currentTime)
     {
+        $this->currentTimes[$attachmentUuid] = $currentTime;
+    }
 
+    public function getCurrentTime()
+    {
+        if(array_key_exists($this->attachment->uuid,$this->currentTimes)){
+            return $this->currentTimes[$this->attachment->uuid];
+        }
+        return 0;
     }
 
     public function updating(&$value)
@@ -66,9 +105,9 @@ trait WithPreviewAttachments
 
     private function audioIsPlayedAndCanBePlayedAgain()
     {
-        return $this->attachment->audioOnlyPlayOnce()
-            && $this->attachment->audioCanBePlayedAgain()
-            && ($this->attachment->audioHasCurrentTime()
+        return $this->questionAttachment->audioIsOnlyPlayableOnce()
+            && $this->questionAttachment->audioCanBePlayedAgain()
+            && ($this->questionAttachment->audioHasCurrentTime()
                 || $this->pressedPlay);
     }
 
@@ -100,4 +139,18 @@ trait WithPreviewAttachments
 
         return 'w-5/6 lg:w-4/6';
     }
+
+    private function attachmentBelongsToTypeQuestion($attachment)
+    {
+        if(is_null($this->group)){
+            return 'question';
+        }
+        $questions = $attachment->questions()->where('question_id',$this->group->getKey());
+        if($questions->count()>0){
+            return 'group';
+        }
+        return 'question';
+    }
+
+    public function registerExpirationTime() {}
 }

@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Queue;
+use Ramsey\Uuid\Uuid;
 use tcCore\BaseSubject;
 use tcCore\EducationLevel;
 use tcCore\Jobs\CountSchoolLocationActiveTeachers;
@@ -232,11 +233,13 @@ class ImportHelper
     {
         $size = memory_get_usage(true);
 
-        $unit=array('b','kb','mb','gb','tb','pb');
-        $usage = @round($size/pow(1024,($i=floor(log($size,1024)))),2).' '.$unit[$i];
-        logger(sprintf('[%s of %s] usage [%s] [%s seconds] [%d cacheHits] ', $line, $this->csv_data_lines, $usage, time()-$this->startTime, $this->cacheHit));
+        $unit = array('b', 'kb', 'mb', 'gb', 'tb', 'pb');
+        $usage = @round($size / pow(1024, ($i = floor(log($size, 1024)))), 2).' '.$unit[$i];
+        $this->importLog(sprintf('[%s of %s] usage [%s] [%s seconds] [%d cacheHits] ', $line, $this->csv_data_lines, $usage,
+            time() - $this->startTime, $this->cacheHit));
     }
 
+    /** @noinspection UnsupportedStringOffsetOperationsInspection */
     public function process()
     {
 
@@ -252,8 +255,7 @@ class ImportHelper
         $allClasses = [];
         $this->errorMessages = [];
 
-        $this->importLog('----- '.$this->csv_data_lines.' data lines in input file');
-        logger(sprintf('Total of %d lines to handle',$this->csv_data_lines));
+        $this->importLog(sprintf('Total of %d lines to handle', $this->csv_data_lines));
 
 
         try {
@@ -262,8 +264,8 @@ class ImportHelper
                     $column_index = array_flip($row);
                 } else {
 
-                    $this->importLog('Processing line '.$index);
                     $this->logMemoryUsage($index);
+                    $this->updateUwlrSoapResultProgress($index);
 
                     $external_main_code = $row[$column_index['Brincode']];
                     $external_sub_code = $row[$column_index['Locatiecode']];
@@ -315,11 +317,11 @@ class ImportHelper
                     }
 
 
-                    $student_email = $this->generateEmailAddress($student_external_code, $student_eckid);
+                    $student_email = $this->generateEmailAddress($student_external_code, Uuid::uuid4()->toString());
 
 ////                    $student_email = 'rtti_' . $student_external_code . '_' . $external_main_code . '_' . $external_sub_code . '@' . $this->email_domain;
                     $teacher_email = $this->generateEmailAddress('rtti_'.$teacher_external_code.'_'.$external_main_code.'_'.$external_sub_code,
-                        $teacher_eckid);
+                        Uuid::uuid4()->toString());
 
 
                     if (!in_array($study_year, range((now()->year - 10), (now()->year + 10)))) {
@@ -510,6 +512,7 @@ class ImportHelper
                         'username'           => $student_email, // moet email zijn?
                         'school_location_id' => $school_location_id,
                         'user_roles'         => [3],
+                        'send_welcome_email' => 1,
 
                     ];
 
@@ -548,7 +551,8 @@ class ImportHelper
                             $user = $user_collection->first();
                         }
                         if ($user == null && $teacher_eckid) {
-                            $user = User::findByEckIdAndSchoolLocationIdForTeacher($teacher_eckid, $school_location_id)->first();
+                            $user = User::findByEckIdAndSchoolLocationIdForTeacher($teacher_eckid,
+                                $school_location_id)->first();
                         }
 
                         if ($user === null) {
@@ -595,7 +599,8 @@ class ImportHelper
                                 'name'               => $teacher_name_last,
                                 'username'           => $teacher_email,
                                 'school_location_id' => $school_location_id,
-                                'user_roles'         => [1]
+                                'user_roles'         => [1],
+                                'send_welcome_email' => 1,
                             ];
 
                             $user_id = $this->createOrRestoreUser($user_data, 'teacher');
@@ -606,7 +611,7 @@ class ImportHelper
                                     'user_id'    => $user_id,
                                     'class_id'   => $school_class_id,
                                     'subject_id' => $subject_id
-                                ], $school_location_id,$class_name);
+                                ], $school_location_id, $class_name);
 
                                 $this->create_tally['teachers']++;
 
@@ -632,7 +637,7 @@ class ImportHelper
                         }
                     }
 
-                    $this->addToTeachersPerClass($teacher_id,$subject_id,$school_class_id);
+                    $this->addToTeachersPerClass($teacher_id, $subject_id, $school_class_id);
 
                     // collect teacher class combinations
                     $classTeacherCheck[$teacher_id] = $school_class_id;
@@ -722,9 +727,9 @@ class ImportHelper
                             // delete teachers where the subject is not in the import for the class
                             $deleted_teachers = Teacher::leftjoin('school_classes', 'school_classes.id', '=',
                                 'teachers.class_id')
-                                ->where(function($q){
+                                ->where(function ($q) {
                                     $q->where('school_classes.do_not_overwrite_from_interface', 0)
-                                    ->orWhereNull('school_classes.do_not_overwrite_from_interface');
+                                        ->orWhereNull('school_classes.do_not_overwrite_from_interface');
                                 })
                                 ->where('teachers.class_id', $class_id)
                                 ->whereNotIn('teachers.subject_id', $subject_ids)
@@ -740,9 +745,9 @@ class ImportHelper
                             $ids = SchoolClass::withoutGlobalScope('visibleOnly')
                                 ->select('id')
                                 ->where('school_location_id', $school_location_id)
-                                ->where(function($query) {
-                                    $query->where('do_not_overwrite_from_interface',0)
-                                    ->orWhereNull('do_not_overwrite_from_interface');
+                                ->where(function ($query) {
+                                    $query->where('do_not_overwrite_from_interface', 0)
+                                        ->orWhereNull('do_not_overwrite_from_interface');
                                 })
                                 ->where('school_year_id', $data['school_year_id'])
                                 ->whereNotIn('id', array_unique($class_ids))
@@ -763,8 +768,8 @@ class ImportHelper
 
                         GlobalStateHelper::getInstance()->setQueueAllowed(true);
                         $schoolLocation = SchoolLocation::find($school_location_id);
-                        StatisticsRepository::runForSchoolLocationAndRole($schoolLocation,'student');
-                        StatisticsRepository::runForSchoolLocationAndRole($schoolLocation,'teacher');
+                        StatisticsRepository::runForSchoolLocationAndRole($schoolLocation, 'student');
+                        StatisticsRepository::runForSchoolLocationAndRole($schoolLocation, 'teacher');
                     }
                 }
             }
@@ -803,7 +808,7 @@ class ImportHelper
         if (!App::runningUnitTests()) {
             DB::commit();
         }
-        logger(sprintf('DONE [%s seconds] [%d cacheHits] ',  time()-$this->startTime, $this->cacheHit));
+        $this->importLog(sprintf('DONE [%s seconds] [%d cacheHits] ', time() - $this->startTime, $this->cacheHit));
 
         $this->importLog('import done');
 
@@ -818,10 +823,11 @@ class ImportHelper
     }
 
     // $teacher_id is actually user_id;
-    protected function addToTeachersPerClass($teacher_id,$subject_id,$school_class_id)
+    protected function addToTeachersPerClass($teacher_id, $subject_id, $school_class_id)
     {
         if (isset($this->teachersPerClass[$teacher_id])) {
-            if (!in_array(['subject_id' => $subject_id, 'class_id' => $school_class_id], $this->teachersPerClass[$teacher_id])) {
+            if (!in_array(['subject_id' => $subject_id, 'class_id' => $school_class_id],
+                $this->teachersPerClass[$teacher_id])) {
                 $this->teachersPerClass[$teacher_id][] = [
                     'subject_id' => $subject_id, 'class_id' => $school_class_id
                 ];
@@ -1093,19 +1099,25 @@ class ImportHelper
     ) {
 
         $school_year_id = $this->cache(
-            function() use ($school_location_id, $year) {
+            function () use ($school_location_id, $year) {
                 return SchoolLocationSchoolYear::select('school_year_id')
                     ->leftjoin('school_years', 'school_years.id', '=', 'school_location_school_years.school_year_id')
                     ->whereNull('school_location_school_years.deleted_at')
                     ->where('school_location_school_years.school_location_id', '=', $school_location_id)
                     ->where('school_years.year', $year)
                     ->value('school_year_id');
-            },'school_year_id', [$school_location_id, $year]
+            }, 'school_year_id', [$school_location_id, $year]
         );
 
         if ($school_year_id != null) {
             return $this->cache(
-                function() use ($class_name, $school_location_id,$school_year_id, $education_level_year,$education_level_id) {
+                function () use (
+                    $class_name,
+                    $school_location_id,
+                    $school_year_id,
+                    $education_level_year,
+                    $education_level_id
+                ) {
                     return SchoolClass::withoutGlobalScope('visibleOnly')
                         ->where('name', $class_name)
                         ->where('school_location_id', $school_location_id)
@@ -1116,7 +1128,7 @@ class ImportHelper
                         ->value('id');
                 },
                 'schoolClass',
-                [$class_name, $school_location_id,$school_year_id, $education_level_year,$education_level_id]
+                [$class_name, $school_location_id, $school_year_id, $education_level_year, $education_level_id]
             );
         } else {
             return null;
@@ -1133,10 +1145,12 @@ class ImportHelper
         $user = null;
 
         if (!empty($user_data['eckid'])) {
-            if(strtolower($forRole) === 'teacher'){
-                $user = User::withTrashed()->findByEckidAndSchoolLocationIdForTeacher($user_data['eckid'],$user_data['school_location_id'])->first();
+            if (strtolower($forRole) === 'teacher') {
+                $user = User::withTrashed()->findByEckidAndSchoolLocationIdForTeacher($user_data['eckid'],
+                    $user_data['school_location_id'])->first();
             } else {
-                $user = User::withTrashed()->findByEckidAndSchoolLocationIdForUser($user_data['eckid'], $user_data['school_location_id'])->first();
+                $user = User::withTrashed()->findByEckidAndSchoolLocationIdForUser($user_data['eckid'],
+                    $user_data['school_location_id'])->first();
             }
         }
 
@@ -1150,21 +1164,28 @@ class ImportHelper
 
         if ($user != null) {
             $restored = false;
-            if($user->trashed() && $forRole === 'student'){
-                $this->create_tally['students']++;
+            if ($user->trashed()){
+                if($forRole === 'student') {
+                    $this->create_tally['students']++;
+                } else if($forRole === 'teacher') {
+                    $schoolLocation = SchoolLocation::find($user_data['school_location_id']);
+                    $user->addSchoolLocation($schoolLocation);
+                    $this->create_tally['teachers']++;
+
+                }
                 $user->restore();
                 $restored = true;
             }
 
-            foreach(['eckid','name_first','name'] as $key){
+            foreach (['eckid', 'name_first', 'name'] as $key) {
                 $user->$key = $user_data[$key];
             }
-            if(!$restored && $user->isDirty() && $forRole === 'student'){
+            if (!$restored && $user->isDirty() && $forRole === 'student') {
                 $this->update_tally['students']++;
             }
             $user->save();
 
-            if($forRole === 'student') {
+            if ($forRole === 'student') {
                 $this->raiseDoubleEntryError($user->eckid, $user->external_id, $user->school_location_id);
             }
 
@@ -1196,7 +1217,7 @@ class ImportHelper
             if ($user->isDirty()) {
                 $user->save();
             }
-            if($forRole === 'student') {
+            if ($forRole === 'student') {
                 $this->create_tally['students']++;
             }
         }
@@ -1209,20 +1230,20 @@ class ImportHelper
      * @param  type  $teacher_data
      * @return type
      */
-    public function createOrRestoreTeacher($teacher_data, $schoolLocationId,$className)
+    public function createOrRestoreTeacher($teacher_data, $schoolLocationId, $className)
     {
         $class_id = $teacher_data['class_id'];
         $user_id = $teacher_data['user_id'];
         $subject_id = $teacher_data['subject_id'];
 
         $teacher = $this->cache(
-            function() use ($class_id, $user_id, $subject_id) {
+            function () use ($class_id, $user_id, $subject_id) {
                 Teacher::withTrashed()
                     ->where('class_id', $class_id)
                     ->where('user_id', $user_id)
                     ->where('subject_id', $subject_id)
                     ->first();
-            },'createOrRestoreTeacher', [$class_id, $user_id, $subject_id]
+            }, 'createOrRestoreTeacher', [$class_id, $user_id, $subject_id]
         );
 
         if ($teacher != null) {
@@ -1230,10 +1251,13 @@ class ImportHelper
 
             return $teacher;
         }
-        $teacher = Teacher::withTrashed()
-            ->where('class_id', $teacher_data['class_id'])
-            ->where('user_id', $teacher_data['user_id'])
-            ->first();
+
+        $builder = Teacher::where('class_id', $teacher_data['class_id'])
+                    ->where('user_id', $teacher_data['user_id']);
+        $teacher = $builder->first();
+        if(null === $teacher){
+            $teacher = $builder->withTrashed()->first();
+        }
 
         if ($this->can_find_teacher_only_by_class_id && $teacher != null) {
             $teacher->restore();
@@ -1241,15 +1265,18 @@ class ImportHelper
 
             return $teacher;
         } else {
-            if($this->can_find_school_class_only_by_name && self::isDummySubject($subject_id)){
+            if ($this->can_find_school_class_only_by_name && self::isDummySubject($subject_id)) {
                 $teacher = null;
                 // try to find old teacher records by class name
-                $oldSchoolClass = self::getOldSchoolClassByNameOptionalyLeaveCurrentOut($schoolLocationId,$className,$teacher_data['class_id']);
-                if($oldSchoolClass) {
-                    Teacher::where('user_id', $teacher_data['user_id'])->where('class_id', $oldSchoolClass->getKey())->get()->each(function (Teacher $t) use (&$teacher, $teacher_data) {
+                $oldSchoolClass = self::getOldSchoolClassByNameOptionalyLeaveCurrentOut($schoolLocationId, $className,
+                    $teacher_data['class_id']);
+                if ($oldSchoolClass) {
+                    Teacher::where('user_id', $teacher_data['user_id'])->where('class_id',
+                        $oldSchoolClass->getKey())->get()->each(function (Teacher $t) use (&$teacher, $teacher_data) {
                         $teacher_data['subject_id'] = $t->subject_id;
                         $teacher = Teacher::Create($teacher_data);
-                        $this->addToTeachersPerClass($teacher_data['user_id'], $t->subject_id, $teacher_data['class_id']);
+                        $this->addToTeachersPerClass($teacher_data['user_id'], $t->subject_id,
+                            $teacher_data['class_id']);
                     });
                     if ($teacher) {
                         return $teacher;
@@ -1295,7 +1322,7 @@ class ImportHelper
             ->first();
 
         // uwlr
-        if(null !== $this->uwlr_soap_result_id) {
+        if (null !== $this->uwlr_soap_result_id) {
             $data['created_by'] = 'lvs';
         }
         if ($schoolClass === null && $this->can_find_school_class_only_by_name) {
@@ -1303,9 +1330,9 @@ class ImportHelper
         }
 
         if ($schoolClass) {
-            if($schoolClass->trashed()) {
+            if ($schoolClass->trashed()) {
                 $schoolClass->restore();
-                $schoolClass->craated_by = $data['lvs'];
+                $schoolClass->created_by = 'lvs';
                 $schoolClass->save();
             }
 
@@ -1326,7 +1353,8 @@ class ImportHelper
 
 
         if ($schoolClass === null) {
-            $oldSchoolClass = self::getOldSchoolClassByNameOptionalyLeaveCurrentOut($data['school_location_id'],$data['name']);
+            $oldSchoolClass = self::getOldSchoolClassByNameOptionalyLeaveCurrentOut($data['school_location_id'],
+                $data['name']);
 
             if ($oldSchoolClass) {
                 $data['education_level_id'] = $oldSchoolClass->education_level_id;
@@ -1345,17 +1373,22 @@ class ImportHelper
     public static function getOldSchoolClassByNameOptionalyLeaveCurrentOut($schooLlocationId, $name, $currentId = null)
     {
         $builder = SchoolClass::withoutGlobalScope('visibleOnly')
-            ->withTrashed()
+//            ->withTrashed()
             ->where('school_location_id', $schooLlocationId)
             ->where('name', $name)
             ->orderBy('created_at', 'desc');
-        if($currentId){
-            $builder->where('id','<>',$currentId);
+        if ($currentId) {
+            $builder->where('id', '<>', $currentId);
         }
+        $model = $builder->first();
+        if(null !== $model){
+            return $model;
+        }
+        $builder->withTrashed();
         return $builder->first();
     }
 
-     /**
+    /**
      * @param  type  $abbreviation
      * @param  type  $school_location_id
      * @return type
@@ -1427,7 +1460,7 @@ class ImportHelper
     protected function getEducationLevelMaxYearsForEducationLevelId($education_level_id)
     {
         return $this->cache(
-            function() use ($education_level_id) {
+            function () use ($education_level_id) {
                 return Educationlevel::withTrashed()->select('max_years')
                     ->where('id', $education_level_id)
                     ->value('max_years');
@@ -1454,7 +1487,7 @@ class ImportHelper
     public function getUserIdForLocation($external_id, $school_location_id, $eckId = null)
     {
         if ($eckId) {
-            if ($user_id = User::findByEckidAndSchoolLocationIdForUser($eckId, $school_location_id)->value('id')){
+            if ($user_id = User::findByEckidAndSchoolLocationIdForUser($eckId, $school_location_id)->value('id')) {
                 return $user_id;
             }
         }
@@ -1477,22 +1510,22 @@ class ImportHelper
     public function getUserIdForTeacherInLocation($external_id, $school_location_id, $eckId = null)
     {
         if ($eckId) {
-            $user = $this->cache(function() use ($eckId,$school_location_id) {
-                return User::findByEckidAndSchoolLocationIdForTeacher($eckId,$school_location_id)->value('id');
+            $user = $this->cache(function () use ($eckId, $school_location_id) {
+                return User::findByEckidAndSchoolLocationIdForTeacher($eckId, $school_location_id)->value('id');
             }, 'getUserIdForTeacherInLocationEckId', [$eckId]);
-            if($user){
+            if ($user) {
                 return $user;
             }
-            return $this->cache(function() use ($eckId,$school_location_id) {
+            return $this->cache(function () use ($eckId, $school_location_id) {
                 $users = User::filterByEckId($eckId)->get();
-                if($users->count() < 1){
+                if ($users->count() < 1) {
                     return null;
                 }
                 $schoolLocation = SchoolLocation::find($school_location_id);
-                $user = $users->first(function(User $user) use ($schoolLocation){
+                $user = $users->first(function (User $user) use ($schoolLocation) {
                     return optional($user->schoolLocation)->belongsToSameSchool($schoolLocation);
                 });
-                if($user){
+                if ($user) {
                     // this teacher belongs to the same school, so therefor it should be added to the school_location_user table
                     $user->addSchoolLocation($schoolLocation);
                     return $user->getKey();
@@ -1642,10 +1675,10 @@ class ImportHelper
         return $returnArray;
     }
 
-    private function generateEmailAddress($pattern, $eckId = null)
+    private function generateEmailAddress($pattern, $uniqueString = null)
     {
-        if (!empty($eckId)) {
-            $pattern = $eckId;
+        if (!empty($uniqueString)) {
+            $pattern = $uniqueString;
         }
 
         return sprintf('%s@%s', $pattern, $this->email_domain);
@@ -1665,16 +1698,22 @@ class ImportHelper
         }
     }
 
-    private function cache(callable $callable, string $entity, array $args) {
-        $key = implode('-',$args);
+    private function cache(callable $callable, string $entity, array $args)
+    {
+        $key = implode('-', $args);
         if (array_key_exists($entity, $this->cache) && array_key_exists($key, $this->cache[$entity])) {
-            $this->cacheHit ++;
-//            logger(sprintf('retrieved from cache %s %s', $entity, $key ));
+            $this->cacheHit++;
+//            $this->importLog(sprintf('retrieved from cache %s %s', $entity, $key ));
             return $this->cache[$entity][$key];
         }
         if ($value = $callable()) {
             $this->cache[$entity][$key] = $value;
         }
         return $value;
+    }
+
+    private function updateUwlrSoapResultProgress($index)
+    {
+        UwlrSoapResult::find($this->uwlr_soap_result_id)->updateProgress($index, $this->csv_data_lines);
     }
 }

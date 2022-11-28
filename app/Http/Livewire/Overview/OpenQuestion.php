@@ -3,13 +3,13 @@
 namespace tcCore\Http\Livewire\Overview;
 
 use Livewire\Component;
-use tcCore\Answer;
 use tcCore\Http\Traits\WithCloseable;
+use tcCore\Http\Traits\WithGroups;
 use tcCore\Question;
 
 class OpenQuestion extends Component
 {
-    use WithCloseable;
+    use WithCloseable, WithGroups;
 
     protected $listeners = ['questionUpdated' => 'questionUpdated'];
     public $answer = '';
@@ -29,6 +29,10 @@ class OpenQuestion extends Component
         }
 
         $this->answered = $this->answers[$this->question->uuid]['answered'];
+
+        if(!is_null($this->question->belongs_to_groupquestion_id)){
+            $this->question->groupQuestion = Question::find($this->question->belongs_to_groupquestion_id);
+        }
     }
 
     public function render()

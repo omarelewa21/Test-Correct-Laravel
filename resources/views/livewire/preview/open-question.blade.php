@@ -5,12 +5,14 @@
                 x-init="count = $refs.countme.value.length;"
                 class="relative"
         >
-            <div wire:ignore>{!!   $question->getQuestionHtml() !!}</div>
+            <div wire:ignore>{!!   $question->converted_question_html !!}</div>
 
             <div class="flex-col relative mt-4">
                 <x-input.group for="me" label="{!! __('test_take.instruction_open_question') !!}"
                                class="w-full">
                     <x-input.textarea
+                            x-on:contextmenu="$event.preventDefault()"
+                            spellcheck="false"
                             wire:key="textarea_{{ $question->id }}"
                             style="min-height:80px "
                             name="name"

@@ -1,0 +1,9 @@
+@import "~filepond/dist/filepond.min.css";
+.content-section[droppable] {
+    border: solid 3px transparent;
+    padding: calc(1.25rem - 3px) calc(1.75rem - 3px);
+}
+.content-section[droppable].dragover {
+    border: dashed 3px var(--primary);
+    background: var(--off-white);
+}

@@ -3,14 +3,15 @@
 namespace tcCore\Http\Livewire\Overview;
 
 use Livewire\Component;
-use tcCore\Answer;
 use tcCore\Http\Traits\WithAttachments;
 use tcCore\Http\Traits\WithCloseable;
+use tcCore\Http\Traits\WithGroups;
 use tcCore\Http\Traits\WithNotepad;
+use tcCore\Question;
 
 class RankingQuestion extends Component
 {
-    use WithAttachments, WithNotepad, WithCloseable;
+    use WithAttachments, WithNotepad, WithCloseable, WithGroups;
 
     public $uuid;
     public $answer;
@@ -44,6 +45,10 @@ class RankingQuestion extends Component
         }));
 
         $this->answered = $this->answers[$this->question->uuid]['answered'];
+
+        if(!is_null($this->question->belongs_to_groupquestion_id)){
+            $this->question->groupQuestion = Question::find($this->question->belongs_to_groupquestion_id);
+        }
     }
 
     public function render()

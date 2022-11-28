@@ -77,6 +77,17 @@ trait OpenQuestionTrait
         $response->assertStatus(200);
     }
 
+    private function editOpenQuestion($uuidTestQuestion,$attributes){
+        $url = 'api-c/test_question/'.$uuidTestQuestion;
+        $response = $this->put(
+            $url,
+            static::getTeacherOneAuthRequestData(
+                $attributes
+            )
+        );
+        $response->assertStatus(200);
+    }
+
 
 
 }

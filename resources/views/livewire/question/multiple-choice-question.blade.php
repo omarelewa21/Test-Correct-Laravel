@@ -1,6 +1,6 @@
 <x-partials.question-container :number="$number" :question="$question">
     <div class="w-full">
-        <div questionHtml wire:ignore>{!! $question->getQuestionHtml()  !!}</div>
+        <div questionHtml wire:ignore>{!! $question->converted_question_html  !!}</div>
         <div class="mt-4 space-y-2 w-1/2">
 
             @foreach( $this->shuffledKeys as $value)
