@@ -20,7 +20,7 @@
     @stack('styling')
 
 </head>
-<body id="body" class="min-h-screen test-print-pdf" onload="addIdsToQuestionHtml()">
+<body id="body" class="min-h-screen test-print-pdf">
 {{ $slot }}
 
 
