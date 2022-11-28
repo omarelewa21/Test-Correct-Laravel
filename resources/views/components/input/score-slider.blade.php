@@ -57,9 +57,32 @@
 
     <div class="flex relative min-w-[calc(10.375rem+12px)] max-w-[calc(16.75rem+30px)] h-12">
         @if($continuousScoreSlider)
-            <div class="flex w-full h-full justify-between items-center pl-[12px] pr-[15px]">
-                <input type="range" min="0" max="{{$maxScore}}" :step="allowHalfPoints ? 0.5 : 1" value="0"
-                       x-model="score">
+            <div class="flex w-full h-full justify-between items-center pl-[12px] pr-[15px]"
+                 x-data="{
+                    getSliderBackgroundSize(el) {
+                        var min = el.min || 0;
+                        var max = el.max || 100;
+                        var value = el.value;
+
+                        var size = (value - min) / (max - min) * 100;
+
+                        return size;
+                    },
+                    setSliderBackgroundSize(el) {
+                        el.style.setProperty('--slider-thumb-offset', `${ 25 / 100 * this.getSliderBackgroundSize(el) -12.5}px`)
+                        el.style.setProperty('--slider-background-size', `${this.getSliderBackgroundSize(el)}%`)
+                    }
+                 }"
+            >
+                <input type="range" min="0" max="{{$maxScore}}"
+                       :step="allowHalfPoints ? 0.5 : 1"
+                       x-model="score"
+                       class="score-slider-continuous-input"
+                       x-ref="score_slider_continuous_input"
+                       x-init="setSliderBackgroundSize($el); $nextTick(() => { setSliderBackgroundSize($el); })"
+                       x-on:input="setSliderBackgroundSize($el)"
+                       :class="{'hide-thumb': score === null}"
+                >
             </div>
         @else
             <div class="flex w-full h-full justify-between items-center pl-[12px] pr-[15px] space-x-[0.125rem]"
