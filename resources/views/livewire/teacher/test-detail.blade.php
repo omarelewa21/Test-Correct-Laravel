@@ -64,8 +64,9 @@
                 <div class="italic">{{ $this->test->abbreviation }}</div>
                 <div>{{ $this->test->authors_as_string }}</div>
             </div>
-            <div class="flex note text-sm">
+            <div class="flex flex-col note text-sm gap-1">
                 <span>{{ __('general.Laatst gewijzigd') }}: {{ \Carbon\Carbon::parse($this->test->updated_at)->format('d/m/\'y') }}</span>
+                <span class="ml-auto"><x-published-tag :published="$this->test->isPublished()"/></span>
             </div>
         </div>
         <div class="flex w-full justify-between mt-1 note text-sm">
@@ -76,7 +77,7 @@
         </div>
         @empty($this->mode)
             <div class="flex w-full justify-end mt-3 note text-sm space-x-2.5">
-                <x-actions.test-delete :uuid="$this->test->uuid"/>
+                <x-actions.test-delete :uuid="$this->uuid"/>
                 <x-actions.test-open-settings :uuid="$this->uuid"/>
                 <x-actions.test-open-edit :uuid="$this->uuid"/>
                 <x-actions.test-open-preview :uuid="$this->uuid"/>
@@ -84,7 +85,12 @@
                 <livewire:actions.test-make-pdf :uuid="$this->uuid"/>
                 <livewire:actions.test-duplicate-test :uuid="$this->uuid"/>
                 <livewire:actions.test-quick-take :uuid="$this->uuid"/>
-                <livewire:actions.test-plan-test :uuid="$this->uuid"/>
+
+                @if($this->test->isPublished())
+                    <livewire:actions.test-plan-test :uuid="$this->uuid"/>
+                @else
+                    <livewire:actions.test-make-published :uuid="$this->uuid"/>
+                @endif
             </div>
         @endempty
         <div class="flex w-full" x-show="testDetailBodyVisibility">

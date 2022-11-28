@@ -70,4 +70,6 @@ return [
     'Behandelaar'                     => 'Behandelaar',
     'Toetsenbakker'                   => 'Toetsenbakker',
     'afname'                          => 'Afname',
+    'Lees meer'                       => 'Lees meer',
+    'en'                              => 'en',
 ];

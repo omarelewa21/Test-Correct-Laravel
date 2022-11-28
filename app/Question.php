@@ -14,6 +14,7 @@ use tcCore\Scopes\QuestionAttainmentScope;
 use tcCore\Services\QuestionHtmlConverter;
 use tcCore\Traits\ExamSchoolQuestionTrait;
 use tcCore\Traits\UserContentAccessTrait;
+use tcCore\Traits\UserPublishing;
 use tcCore\Traits\UuidTrait;
 
 class Question extends MtiBaseModel
@@ -23,11 +24,13 @@ class Question extends MtiBaseModel
     use ExamSchoolQuestionTrait;
     use UserContentAccessTrait;
     use WithQuestionFilteredHelpers;
+    use UserPublishing;
 
     protected $casts = [
         'uuid'                     => EfficientUuid::class,
         'all_or_nothing'           => 'boolean',
         'add_to_database_disabled' => 'boolean',
+        'draft'                    => 'boolean',
     ];
 
     public $mtiBaseClass = 'tcCore\Question';
@@ -80,6 +83,7 @@ class Question extends MtiBaseModel
         'fix_order',
         'owner_id',
         'lang',
+        'draft',
     ];
 
     /**
@@ -1467,7 +1471,7 @@ class Question extends MtiBaseModel
         return collect(Test::NATIONAL_ITEMBANK_SCOPES)->contains($this->getQuestionInstance()->scope);
     }
 
-    public function createCleanCopy($education_level_id, $education_level_year, $subject_id, User $forUser)
+    public function createCleanCopy($education_level_id, $education_level_year, $subject_id, $draft, User $forUser)
     {
         $newQuestion = $this->duplicate($this->getAttributes());
 
@@ -1477,6 +1481,7 @@ class Question extends MtiBaseModel
         $newQuestionInstance->education_level_id = $education_level_id;
         $newQuestionInstance->education_level_year = $education_level_year;
         $newQuestionInstance->subject_id = $subject_id;
+        $newQuestionInstance->draft = $draft;
         $newQuestionInstance->add_to_database = false;
         $newQuestionInstance->add_to_database_disabled = true;
         $newQuestionInstance->save();
@@ -1486,7 +1491,7 @@ class Question extends MtiBaseModel
         if ($newQuestion->type == 'GroupQuestion') {
             foreach ($newQuestion->groupQuestionQuestions as $key => $groupQuestionQuestion) {
                 $oldQuestionInGroup = $groupQuestionQuestion->question;
-                $newQuestionInGroup = $oldQuestionInGroup->createCleanCopy($education_level_id, $education_level_year, $subject_id, $forUser);
+                $newQuestionInGroup = $oldQuestionInGroup->createCleanCopy($education_level_id, $education_level_year, $subject_id, $draft, $forUser);
                 $groupQuestionQuestion->question_id = $newQuestionInGroup->id;
                 $groupQuestionQuestion->save();
             }
@@ -1516,5 +1521,15 @@ class Question extends MtiBaseModel
             });
             $question->$pivotTable()->createMany($params);
         }
+    }
+
+    public function scopeDraft($query)
+    {
+        return $query->where('draft', true);
+    }
+
+    public function scopePublished($query)
+    {
+        return $query->where('draft', false);
     }
 }

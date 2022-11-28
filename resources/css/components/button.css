@@ -14,6 +14,9 @@
     outline: none;
 }
 
+.button-xs {
+    min-height: auto;
+}
 .button-sm {
     min-height: 40px;
 }

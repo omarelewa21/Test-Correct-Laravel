@@ -37,6 +37,7 @@ class TestsOverview extends Component
         'test-deleted'        => '$refresh',
         'test-added'          => '$refresh',
         'testSettingsUpdated' => '$refresh',
+        'test-updated'        => '$refresh',
     ];
 
     public function mount()
@@ -107,7 +108,7 @@ class TestsOverview extends Component
 
     private function getSchoolDatasource()
     {
-        return Test::filtered(
+        return Test::schoolFiltered(
             array_merge(
                 $this->cleanFilterForSearch($this->filters['school_location']),
                 ['owner_id' => auth()->user()->school_location_id]
@@ -115,7 +116,6 @@ class TestsOverview extends Component
             $this->sorting
         );
     }
-
 
     private function getNationalDatasource()
     {

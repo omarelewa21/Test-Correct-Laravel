@@ -65,6 +65,9 @@
     outline: none;
 }
 
+.button-xs {
+    min-height: auto;
+}
 .button-sm {
     min-height: 40px;
 }
@@ -535,8 +538,8 @@ button.cta-button:disabled, a.cta-button:disabled {
     --card-tag-border-color: var(--cta-primary);
     --card-tag-background-color: rgba(var(--cta-primary-rgb), .1);
 
-    padding: 6px 8px;
-    border-radius: 4px;
+    padding: 5px 8px;
+    border-radius: 5px;
     border: solid 1px;
     border-color: var(--card-tag-border-color);
     background-color: var(--card-tag-background-color);
@@ -6938,6 +6941,9 @@ video {
 }
 .gap-5{
   gap: 1.25rem;
+}
+.gap-1{
+  gap: 0.25rem;
 }
 .gap-\[15px\]{
   gap: 15px;

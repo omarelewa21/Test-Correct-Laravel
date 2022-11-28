@@ -1,8 +1,6 @@
 <div class="{{ $class ?? '' }}"
      x-data="{
-         makePDF: function() {
-                        $wire.emit('openModal', 'teacher.pdf-download-modal', {uuid: '{{$uuid}}'});
-                    }
+         makePDF: () => $wire.emit('openModal', 'teacher.pdf-download-modal', {uuid: @js($this->uuid) })
         }"
 >
     @if($variant == 'icon-button')

@@ -1,6 +1,7 @@
 {{--maxToolTipWidth 24rem = 24*16 = 384 px--}}
 @props([
     'alwaysLeft' => false,
+    'useClicks' => false
 ])
 
 <div x-data="{tooltip: false, maxToolTipWidth: 384, alwaysLeft: @js($alwaysLeft) }"
@@ -19,9 +20,15 @@
             }
         })
      "
-     @mouseover="tooltip = true"
-     @mouseleave="tooltip = false"
-     {{ $attributes->merge(['class' => 'relative bg-system-secondary rounded-full flex py-1.5 px-2']) }}
+     @if($useClicks)
+         @click="tooltip = !tooltip"
+         @click.outside="tooltip = false"
+     @else
+         @mouseover="tooltip = true"
+         @mouseleave="tooltip = false"
+     @endif
+
+     {{ $attributes->merge(['class' => 'relative cursor-pointer bg-system-secondary rounded-full flex py-1.5 px-2']) }}
 >
     <x-icon.questionmark-small/>
     <div x-show="tooltip"

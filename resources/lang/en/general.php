@@ -70,4 +70,6 @@ return [
     'Behandelaar'                     => 'Processor',
     'Toetsenbakker'                   => 'Test builder',
     'afname'                          => 'Take',
+    'Lees meer'                       => 'Learn more',
+    'en'                              => 'and',
 ];

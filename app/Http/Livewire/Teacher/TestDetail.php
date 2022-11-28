@@ -24,6 +24,7 @@ class TestDetail extends Component
     protected $listeners = [
         'test-deleted'        => 'redirectToTestOverview',
         'testSettingsUpdated' => '$refresh',
+        'test-updated'        => '$refresh',
     ];
 
     public function mount($uuid)
