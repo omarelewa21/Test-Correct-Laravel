@@ -18,6 +18,7 @@
 @import url("navigation-bar.css");
 @import url("score-slider.css");
 @import url("co-learning.css");
+@import url("rs_tlc.css");
 
 
 @tailwind base;
