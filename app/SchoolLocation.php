@@ -412,7 +412,7 @@ class SchoolLocation extends BaseModel implements AccessCheckable
                     $schoolLocation = $schoolLocation->addSchoolLocationExtras();
                 }
                 if (GlobalStateHelper::getInstance()->hasPreventDemoEnvironmentCreationForSchoolLocation() === false) {
-                    (new DemoHelper())->createDemoPartsForSchool($schoolLocation);
+                    (new DemoHelper())->createDemoForSchoolLocationIfNeeded($schoolLocation);
                 }
                 if ($origAuthUser) {
                     Auth::login($origAuthUser);

@@ -546,7 +546,7 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
                 DemoTeacherRegistration::registerIfApplicable($user);
 
                 $helper = new DemoHelper();
-                $helper->prepareDemoForNewTeacher($user->schoolLocation, $schoolYear, $user);
+                $helper->createDemoForTeacherIfNeeded($user);
             }
 
             // $user->isA('teacher') valt hier naar false om de een of andere reden?
@@ -2071,9 +2071,8 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
     {
         if ($this->addSchoolLocation($schoolLocation)) {
             ActingAsHelper::getInstance()->setUser($this);
-            $schoolYear = SchoolYearRepository::getCurrentSchoolYear();
             $helper = new DemoHelper();
-            $helper->prepareDemoForNewTeacher($schoolLocation, $schoolYear, $this);
+            $helper->createDemoForTeacherIfNeeded($this);
         }
     }
 

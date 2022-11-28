@@ -14,6 +14,7 @@ use tcCore\Http\Helpers\DemoHelper;
 use tcCore\Http\Helpers\SchoolHelper;
 use tcCore\Jobs\SendNotifyInviterMail;
 use tcCore\Jobs\SendOnboardingWelcomeMail;
+use tcCore\Lib\Repositories\SchoolYearRepository;
 use tcCore\Lib\User\Factory;
 use tcCore\Mail\TeacherRegistered;
 
@@ -147,8 +148,10 @@ class DemoTeacherRegistration extends Model
                     }
                 }
 
+                $demoHelper = new DemoHelper();
+                $demoHelper->createDemoForTeacherIfNeeded($user, true);
 
-                $demoHelper = (new DemoHelper())->setSchoolLocation($tempTeachersSchoolLocation);
+                $demoHelper->setSchoolLocation($tempTeachersSchoolLocation);
 
                 $teacher = Teacher::withTrashed()
                     ->firstOrNew([
