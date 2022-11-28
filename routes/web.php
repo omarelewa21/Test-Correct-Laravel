@@ -73,6 +73,7 @@ Route::middleware('auth')->group(function () {
     });
 
     Route::middleware(['dll', 'teacher'])->prefix('teacher')->name('teacher.')->group(function () {
+        Route::get('/analyses/{student_uuid}/{class_uuid}', tcCore\Http\Livewire\Teacher\Analyses\AnalysesOverviewDashboard::class)->name('analyses.show');
         Route::get('/preview/{test}', [tcCore\Http\Controllers\PreviewLaravelController::class, 'show'])->name('test-preview');
         Route::get('/preview/attachment/{attachment}/{question}', [tcCore\Http\Controllers\AttachmentsLaravelController::class, 'showPreview'])->name('preview.question-attachment-show');
         Route::get('/preview/attachment/pdf/{attachment}/{question}', [tcCore\Http\Controllers\PdfAttachmentsLaravelController::class, 'showPreview'])->name('preview.question-pdf-attachment-show');

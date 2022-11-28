@@ -2,6 +2,7 @@
 
 namespace tcCore\Http\Livewire\Student\Analyses;
 
+use http\QueryString;
 use Livewire\Component;
 use tcCore\EducationLevel;
 use tcCore\Lib\Repositories\PValueTaxonomyBloomRepository;
@@ -9,6 +10,7 @@ use tcCore\Lib\Repositories\PValueTaxonomyMillerRepository;
 use tcCore\Lib\Repositories\PValueTaxonomyRTTIRepository;
 use tcCore\Period;
 use tcCore\User;
+
 
 abstract class AnalysesDashboard extends Component
 {
@@ -38,6 +40,8 @@ abstract class AnalysesDashboard extends Component
         ['name' => 'RTTI', 'height' => '150px'],
         ['name' => 'Bloom', 'height' => '200px'],
     ];
+
+    protected $forUser;
 
     abstract public function getDataProperty();
 
@@ -83,7 +87,7 @@ abstract class AnalysesDashboard extends Component
 
     protected function getMillerData($attainmentId)
     {
-        return PValueTaxonomyMillerRepository::getPValueForStudentForAttainment(auth()->user(),
+        return PValueTaxonomyMillerRepository::getPValueForStudentForAttainment($this->getUser(),
             $attainmentId,
             $this->getPeriodsByFilterValues(),
             $this->getEducationLevelYearsByFilterValues(),
@@ -92,7 +96,7 @@ abstract class AnalysesDashboard extends Component
 
     protected function getRTTIData($attainmentId)
     {
-        return PValueTaxonomyRTTIRepository::getPValueForStudentForAttainment(auth()->user(),
+        return PValueTaxonomyRTTIRepository::getPValueForStudentForAttainment($this->getUser(),
             $attainmentId,
             $this->getPeriodsByFilterValues(),
             $this->getEducationLevelYearsByFilterValues(),
@@ -102,7 +106,7 @@ abstract class AnalysesDashboard extends Component
     protected function getBloomData($attainmentId)
     {
         return PValueTaxonomyBloomRepository::getPValueForStudentForAttainment(
-            auth()->user(),
+            $this->getUser(),
             $attainmentId,
             $this->getPeriodsByFilterValues(),
             $this->getEducationLevelYearsByFilterValues(),
@@ -132,7 +136,7 @@ abstract class AnalysesDashboard extends Component
 
     protected function getMillerGeneralGraphData($subjectId)
     {
-        return PValueTaxonomyMillerRepository::getPValueForStudentForAttainment(auth()->user(),
+        return PValueTaxonomyMillerRepository::getPValueForStudentForAttainment($this->getUser(),
             $subjectId,
             $this->getPeriodsByFilterValues(),
             $this->getEducationLevelYearsByFilterValues(),
@@ -141,7 +145,7 @@ abstract class AnalysesDashboard extends Component
 
     protected function getRTTIGeneralGraphData($subjectId)
     {
-        return PValueTaxonomyRTTIRepository::getPValueForStudentForAttainment(auth()->user(),
+        return PValueTaxonomyRTTIRepository::getPValueForStudentForAttainment($this->getUser(),
             $subjectId,
             $this->getPeriodsByFilterValues(),
             $this->getEducationLevelYearsByFilterValues(),
@@ -151,7 +155,7 @@ abstract class AnalysesDashboard extends Component
     protected function getBloomGeneralGraphData($subjectId)
     {
         return PValueTaxonomyBloomRepository::getPValueForStudentForAttainment(
-            auth()->user(),
+            $this->getUser(),
             $subjectId,
             $this->getPeriodsByFilterValues(),
             $this->getEducationLevelYearsByFilterValues(),
@@ -195,13 +199,13 @@ abstract class AnalysesDashboard extends Component
      */
     public function getFilterOptionsData(): void
     {
-        $this->periods = auth()->user()->schoolLocation->getPeriods()
+        $this->periods = $this->getUser()->schoolLocation->getPeriods()
             ->map(fn($period) => [
                 'value' => $period->id,
                 'label' => $period->name,
             ]);
 
-        $this->teachers = User::teachersForStudent(auth()->user())
+        $this->teachers = User::teachersForStudent($this->getUser())
             ->get()
             ->map(
                 function ($teacher) {
@@ -211,12 +215,12 @@ abstract class AnalysesDashboard extends Component
                     ];
                 }
             );
-        $this->educationLevelYears = EducationLevel::yearsForStudent(auth()->user())
+        $this->educationLevelYears = EducationLevel::yearsForStudent($this->getUser())
             ->map(
                 function ($year) {
                     return [
                         'value' => $year,
-                        'label' => (string)$year,
+                        'label' => (string) $year,
                     ];
                 }
             );
@@ -239,12 +243,25 @@ abstract class AnalysesDashboard extends Component
 
     public function getFirstActiveForGeneralGraphTaxonomy()
     {
-        foreach($this->taxonomies as $key => $taxonomy ) {
+        foreach ($this->taxonomies as $key => $taxonomy) {
             $data = $this->getDataForGeneralGraph($this->taxonomyIdentifier, $taxonomy['name']);
             if (!$data[0]) {
-                return  $key;
+                return $key;
             }
         }
         return false;
+    }
+
+    protected function getUser()
+    {
+        if (!$this->forUser) {
+            if (auth()->user()->isA('teacher') && request('student_uuid')) {
+                $this->forUser = User::whereUuid(request('student_uuid'))->first();
+            } else {
+                $this->forUser = auth()->user();
+            }
+        }
+
+        return $this->forUser;
     }
 }
