@@ -49,9 +49,9 @@ class GradingDataTest extends TestCase
      * */
     public function can_retrieve_same_data_as_used_in_cake_but_with_answer_ratings()
     {
-        $testTakeResponse = $this->get($this->getTestTakeForGradingRequest());
+        $testTakeResponse = $this->get($this->getTestTakeForGradingRequest())->assertSuccessful();
 
-        dd($testTakeResponse->getOriginalContent());
+//        dd($testTakeResponse->getOriginalContent());
     }
 
     /**

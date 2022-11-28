@@ -1503,7 +1503,7 @@ class TestTakesController extends Controller
 
         $testParticipantAnswers = [];
         $testTake->testParticipants->each(function ($participant) use (&$testParticipantAnswers) {
-            $testParticipantAnswers[$participant->uuid][] = $participant->answers;
+            $testParticipantAnswers[$participant->uuid] = $participant->answers;
             unset($participant->answers);
 
             $participant->user->setAppends([]);
