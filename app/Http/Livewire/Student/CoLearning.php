@@ -83,7 +83,6 @@ class CoLearning extends Component
 
         if (!$this->coLearningFinished) {
             $this->getAnswerRatings();
-            $this->setQuestionRatingProperties();
         }
         $this->updateHeartbeat(false);
     }
@@ -167,7 +166,6 @@ class CoLearning extends Component
         $this->waitForTeacherNotificationEnabled = false ;
 
         $this->getAnswerRatings();
-        $this->setQuestionRatingProperties();
 
         $this->emit('getNextAnswerRating', [$this->answerRatingId, $this->questionOrderNumber, $this->answerFollowUpNumber]);
     }
@@ -287,7 +285,10 @@ class CoLearning extends Component
             $this->noAnswerRatingAvailableForCurrentScreen = false;
 
             $this->setActiveAnswerRating($navigateDirection);
-            $this->setWhichScoreSliderShouldBeShown();
+
+            $this->writeDiscussingAnswerRatingToDatabase();
+
+            $this->setQuestionRatingProperties();
 
             if ($this->answerRating->rating === null) {
                 $this->rating = null;
@@ -409,5 +410,12 @@ class CoLearning extends Component
     public function getQuestionComponentNameProperty(): string
     {
         return str($this->answerRating->answer->question->type)->kebab()->prepend('co-learning.')->value;
+    }
+
+    private function writeDiscussingAnswerRatingToDatabase(): void
+    {
+        if($this->testParticipant->discussing_answer_rating_id !== $this->answerRatingId) {
+            $this->testParticipant->update(['discussing_answer_rating_id' => $this->answerRatingId]);
+        }
     }
 }

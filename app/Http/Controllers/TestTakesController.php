@@ -37,15 +37,17 @@ use tcCore\Exports\TestTakesExport;
 use \stdClass;
 use tcCore\User;
 
-class TestTakesController extends Controller {
+class TestTakesController extends Controller
+{
 
     /**
      * Helper Function - Check if a test has one or more open questions
      *
      * @return true if check has found one open questoin - else return false
      */
-    private function hasOpenQuestion($test_id){
-        return !! QuestionGatherer::getQuestionsOfTest($test_id, true)->search(function(Question $question){
+    private function hasOpenQuestion($test_id)
+    {
+        return !!QuestionGatherer::getQuestionsOfTest($test_id, true)->search(function (Question $question) {
             return !$question->canCheckAnswer();
         });
     }
@@ -56,7 +58,8 @@ class TestTakesController extends Controller {
      *
      * @return Response
      */
-    public function index(Request $request) {
+    public function index(Request $request)
+    {
         $testTakes = TestTake::filtered($request->get('filter', []), $request->get('order', []))
             ->with([
                 'test',
@@ -65,7 +68,7 @@ class TestTakesController extends Controller {
                 },
                 'test.author',
                 'retakeTestTake',
-                'user' => function ($query) {
+                'user'         => function ($query) {
                     $query->withTrashed();
                 },
                 'testTakeStatus',
@@ -127,8 +130,8 @@ class TestTakesController extends Controller {
                     $testTakeNotTaken = [];
                 } elseif (is_array($request->get('with')) && in_array('ownTestParticipant', $request->get('with'))) {
                     $testTakes->with(['testParticipants' => function ($query) use ($userId) {
-                            $query->where('user_id', $userId);
-                        }, 'testParticipants.testTakeStatus']);
+                        $query->where('user_id', $userId);
+                    }, 'testParticipants.testTakeStatus']);
                 }
 
                 $testTakes = $this->filterIfNeededForDemo($testTakes->paginate(15), true);
@@ -144,9 +147,9 @@ class TestTakesController extends Controller {
                         $testTakeNotTaken[$i] = 0;
                         foreach ($testTake->testParticipants as $testParticipant) {
                             if (in_array($testParticipant->testTakeStatus->getAttribute('name'), ['Handed in', 'Taken away', 'Taken', 'Discussing', 'Discussed'])) {
-                                $testTakeTaken[$i] ++;
+                                $testTakeTaken[$i]++;
                             } else {
-                                $testTakeNotTaken[$i] ++;
+                                $testTakeNotTaken[$i]++;
                             }
                         }
                     } elseif (is_array($request->get('with')) && in_array('ownTestParticipant', $request->get('with'))) {
@@ -190,7 +193,8 @@ class TestTakesController extends Controller {
      * @param CreateTestTakeRequest $request
      * @return Response
      */
-    public function store(CreateTestTakeRequest $request) {
+    public function store(CreateTestTakeRequest $request)
+    {
         $testTake = new TestTake();
         $testTake->fill($request->all());
         $testTake->setAttribute('user_id', Auth::id());
@@ -207,7 +211,8 @@ class TestTakesController extends Controller {
      * @param TestTake $testTake
      * @return Response
      */
-    public function show(TestTake $testTake, Request $request) {
+    public function show(TestTake $testTake, Request $request)
+    {
         $testTake->load([
             'test',
             'test.subject' => function ($query) {
@@ -357,13 +362,13 @@ class TestTakesController extends Controller {
 
                 return Response::make($testTake, 200);
             } elseif ($testTake->testTakeStatus->name == 'Discussing') {
-                $testTake->load(['discussingParentQuestions' => function ($query) {
-                        $query->orderBy('level');
-                    }, 'testParticipants', 'testParticipants.testTakeStatus', 'testParticipants.user', 'testParticipants.answers', 'testParticipants.answers.answerParentQuestions' => function ($query) {
-                        $query->orderBy('level');
-                    }, 'testParticipants.answers.answerRatings' => function ($query) use ($testTake) {
-                        $query->where('test_take_id', $testTake->getKey());
-                    }]);
+                $testTake->load(['discussingParentQuestions'                                                                                                                    => function ($query) {
+                    $query->orderBy('level');
+                }, 'testParticipants', 'testParticipants.testTakeStatus', 'testParticipants.user', 'testParticipants.answers', 'testParticipants.answers.answerParentQuestions' => function ($query) {
+                    $query->orderBy('level');
+                }, 'testParticipants.answers.answerRatings'                                                                                                                     => function ($query) use ($testTake) {
+                    $query->where('test_take_id', $testTake->getKey());
+                }]);
 
                 $questionId = $testTake->getAttribute('discussing_question_id');
                 if ($questionId != null) {
@@ -425,13 +430,13 @@ class TestTakesController extends Controller {
                                         $ratedAnswerRatingsPerTestParticipant[$testParticipantId] = 0;
                                     }
 
-                                    if(!$answer->is_answered) {
+                                    if (!$answer->is_answered) {
                                         break; //new co learning, if answer is not answered, don't count it. it doesn't need to be rated during co-learning
                                     }
 
-                                    $activeAnswerRatingsPerTestParticipant[$testParticipantId] ++;
+                                    $activeAnswerRatingsPerTestParticipant[$testParticipantId]++;
                                     if ($answerRating->getAttribute('rating') != null) {
-                                        $ratedAnswerRatingsPerTestParticipant[$testParticipantId] ++;
+                                        $ratedAnswerRatingsPerTestParticipant[$testParticipantId]++;
                                     }
                                 }
                             } elseif ($answerRating->getAttribute('type') === 'STUDENT' && $answerRating->getAttribute('rating') != null) {
@@ -453,7 +458,7 @@ class TestTakesController extends Controller {
                                         if (!array_key_exists($testParticipantId, $testParticipantAbnormalities)) {
                                             $testParticipantAbnormalities[$testParticipantId] = 0;
                                         }
-                                        $testParticipantAbnormalities[$testParticipantId] ++;
+                                        $testParticipantAbnormalities[$testParticipantId]++;
                                     }
                                 }
                             }
@@ -465,7 +470,7 @@ class TestTakesController extends Controller {
                                         if (!array_key_exists($testParticipantId, $testParticipantAbnormalities)) {
                                             $testParticipantAbnormalities[$testParticipantId] = 0;
                                         }
-                                        $testParticipantAbnormalities[$testParticipantId] ++;
+                                        $testParticipantAbnormalities[$testParticipantId]++;
                                     }
                                 }
                             }
@@ -518,14 +523,14 @@ class TestTakesController extends Controller {
             $testTakeStatusesRetake = TestTakeStatus::whereIn('name', ['Planned', 'Test not taken'])->pluck('id');
 
             $testTake->load(['testParticipants' => function ($query) use ($testTakeStatusesRetake) {
-                    $query->select(['id', 'created_at', 'updated_at', 'deleted_at', 'user_id', 'rating', 'retake_rating']);
-                }]);
+                $query->select(['id', 'created_at', 'updated_at', 'deleted_at', 'user_id', 'rating', 'retake_rating']);
+            }]);
 
             return Response::make($testTake, 200);
         } elseif ($isInvigilator && is_array($request->get('with')) && in_array('averages', $request->get('with'))) {
             $testTake->load(['testParticipants.answers', 'testParticipants.answers.answerRatings', 'testParticipants.answers.answerParentQuestions' => function ($query) {
-                    $query->orderBy('level');
-                }]);
+                $query->orderBy('level');
+            }]);
             $questions = QuestionGatherer::getQuestionsOfTest($testTake->getAttribute('test_id'), true);
 
             foreach ($questions as $answerQuestionId => $question) {
@@ -579,8 +584,8 @@ class TestTakesController extends Controller {
             return Response::make($testTake, 200);
         } elseif ($isInvigilator && $testTake->testTakeStatus->name == 'Discussing') {
             $testTake->load(['discussingParentQuestions' => function ($query) {
-                    $query->orderBy('level');
-                }]);
+                $query->orderBy('level');
+            }]);
             if ($testTake->getAttribute('discussing_question_id') != null) {
                 $testTake->setAttribute('discussing_question_uuid', Question::find($testTake->getAttribute('discussing_question_id'))->uuid);
             }
@@ -605,13 +610,14 @@ class TestTakesController extends Controller {
         return Response::make($testTake, 200);
     }
 
-    public function nextQuestion(TestTake $testTake) {
+    public function nextQuestion(TestTake $testTake)
+    {
         if ($testTake->testTakeStatus->name == 'Discussing') {
-            $testTake->load(['discussingParentQuestions' => function ($query) {
-                    $query->orderBy('level');
-                }, 'testParticipants', 'testParticipants.answers', 'testParticipants.answers.answerRatings' => function ($query) {
-                    $query->where('type', 'STUDENT');
-                }]);
+            $testTake->load(['discussingParentQuestions'                                                => function ($query) {
+                $query->orderBy('level');
+            }, 'testParticipants', 'testParticipants.answers', 'testParticipants.answers.answerRatings' => function ($query) {
+                $query->where('type', 'STUDENT');
+            }]);
 
             // Set next question
             $questionId = null;
@@ -709,7 +715,7 @@ class TestTakesController extends Controller {
                         $shuffledAnswers = array_combine(array_keys($shuffledAnswers), $values);
 
                         foreach ($shuffledAnswers as $testParticipant => $answer) {
-                            if ($answer->getAttribute('json') === null && !auth()->user()->schoolLocation->allow_new_co_learning) {
+                            if ($this->shouldSkipCreatingAnswerRatingForEmptyAnswer($answer, $testTake->discussion_type)) {
                                 continue;
                             }
 
@@ -738,7 +744,7 @@ class TestTakesController extends Controller {
 
                     }
                 }
-                if(auth()->user()->schoolLocation->allow_new_co_learning) {
+                if (auth()->user()->schoolLocation->allow_new_co_learning) {
                     foreach ($testTake->testParticipants as $testParticipant) {
                         CoLearningNextQuestion::dispatch($testParticipant->uuid);
                     }
@@ -752,13 +758,23 @@ class TestTakesController extends Controller {
         }
     }
 
+    private function shouldSkipCreatingAnswerRatingForEmptyAnswer($answer, $discussionType): bool
+    {
+        $allowNewCoLearning = auth()->user()->schoolLocation->allow_new_co_learning;
+
+        if($allowNewCoLearning && $discussionType === 'OPEN_ONLY') {
+            return false;
+        }
+
+        return $answer->getAttribute('json') === null;
+    }
+
     public function normalize(TestTake $testTake, NormalizeTestTakeRequest $request)
     {
         $testTake->load(['testParticipants', 'testParticipants.user', 'testParticipants.answers', 'testParticipants.answers.answerRatings', 'testParticipants.answers.answerParentQuestions' => function ($query) {
-                $query->orderBy('level');
-            }]);
+            $query->orderBy('level');
+        }]);
         $ignoreQuestions = $request->get('ignore_questions');
-
 
 
         if ($request->filled('ppp') || $request->filled('epp') || $request->filled('wanted_average') || $request->filled('n_term')) {
@@ -1034,11 +1050,11 @@ class TestTakesController extends Controller {
     {
         $questions = QuestionGatherer::getQuestionsOfTest($testTake->getAttribute('test_id'), true);
 
-        $testTake->load(['testParticipants', 'testParticipants.user', 'testParticipants.answers' => function ($query) {
-                $query->select(['id', 'created_at', 'updated_at', 'deleted_at', 'test_participant_id', 'question_id', 'order', 'time', 'done', 'final_rating', 'ignore_for_rating']);
-            }, 'testParticipants.answers.answerRatings', 'testParticipants.answers.answerParentQuestions' => function ($query) {
-                $query->orderBy('level');
-            }]);
+        $testTake->load(['testParticipants', 'testParticipants.user', 'testParticipants.answers'      => function ($query) {
+            $query->select(['id', 'created_at', 'updated_at', 'deleted_at', 'test_participant_id', 'question_id', 'order', 'time', 'done', 'final_rating', 'ignore_for_rating']);
+        }, 'testParticipants.answers.answerRatings', 'testParticipants.answers.answerParentQuestions' => function ($query) {
+            $query->orderBy('level');
+        }]);
 
         $sheet = [];
 
@@ -1166,8 +1182,8 @@ class TestTakesController extends Controller {
             if ($rScoreMax === 0) {
                 $rScore = '-';
             } else {
-                $rScore = (float) $rScore;
-                $rScore /= (float) $rScoreMax;
+                $rScore = (float)$rScore;
+                $rScore /= (float)$rScoreMax;
                 $rScore *= 100;
                 $rScore = round($rScore);
             }
@@ -1175,8 +1191,8 @@ class TestTakesController extends Controller {
             if ($t1ScoreMax === 0) {
                 $t1Score = '-';
             } else {
-                $t1Score = (float) $t1Score;
-                $t1Score /= (float) $t1ScoreMax;
+                $t1Score = (float)$t1Score;
+                $t1Score /= (float)$t1ScoreMax;
                 $t1Score *= 100;
                 $t1Score = round($t1Score);
             }
@@ -1184,8 +1200,8 @@ class TestTakesController extends Controller {
             if ($t2ScoreMax === 0) {
                 $t2Score = '-';
             } else {
-                $t2Score = (float) $t2Score;
-                $t2Score /= (float) $t2ScoreMax;
+                $t2Score = (float)$t2Score;
+                $t2Score /= (float)$t2ScoreMax;
                 $t2Score *= 100;
                 $t2Score = round($t2Score);
             }
@@ -1193,8 +1209,8 @@ class TestTakesController extends Controller {
             if ($iScoreMax === 0) {
                 $iScore = '-';
             } else {
-                $iScore = (float) $iScore;
-                $iScore /= (float) $iScoreMax;
+                $iScore = (float)$iScore;
+                $iScore /= (float)$iScoreMax;
                 $iScore *= 100;
                 $iScore = round($iScore);
             }
@@ -1202,8 +1218,8 @@ class TestTakesController extends Controller {
             if ($nScoreMax === 0) {
                 $nScore = '-';
             } else {
-                $nScore = (float) $nScore;
-                $nScore /= (float) $nScoreMax;
+                $nScore = (float)$nScore;
+                $nScore /= (float)$nScoreMax;
                 $nScore *= 100;
                 $nScore = round($nScore);
             }
@@ -1238,7 +1254,8 @@ class TestTakesController extends Controller {
      * @param UpdateTestTakeRequest $request
      * @return Response
      */
-    public function closeNonTimeDispensation(TestTake $testTake, UpdateTestTakeRequest $request) {
+    public function closeNonTimeDispensation(TestTake $testTake, UpdateTestTakeRequest $request)
+    {
 
         if (!isset($request['time_dispensation'])) {
             return $this->update($testTake, $request);
@@ -1249,10 +1266,10 @@ class TestTakesController extends Controller {
         // unless the student has not started the test yet
         //
         $closed_students = TestParticipant::join('users', 'test_participants.user_id', '=', 'users.id')
-                ->where('users.time_dispensation', 0)
-                ->where('test_participants.test_take_id', $testTake->id)
-                ->where('test_participants.test_take_status_id','=',3)
-                ->update(['test_participants.test_take_status_id' => 6]);
+            ->where('users.time_dispensation', 0)
+            ->where('test_participants.test_take_id', $testTake->id)
+            ->where('test_participants.test_take_status_id', '=', 3)
+            ->update(['test_participants.test_take_status_id' => 6]);
 
         //
         //   check if there are any students left doing the test, if not close test
@@ -1260,8 +1277,8 @@ class TestTakesController extends Controller {
         //
 
         $students_still_in_test = TestParticipant::where('test_participants.test_take_id', $testTake->id)
-                ->whereIn('test_participants.test_take_status_id', [3])
-                ->count();
+            ->whereIn('test_participants.test_take_status_id', [3])
+            ->count();
 
         if ($students_still_in_test == 0) {
 
@@ -1269,7 +1286,7 @@ class TestTakesController extends Controller {
 
             $request['test_take_status_id'] = 6;
 
-            $this->update($testTake,$request);
+            $this->update($testTake, $request);
 
         } else {
 
@@ -1300,7 +1317,7 @@ class TestTakesController extends Controller {
             if ($testTake->save() !== false) {
                 $this->hydrateTestTakeWithHasNextQuestionAttribute($testTake);
 
-                if(auth()->user()->schoolLocation->allow_new_co_learning){
+                if (auth()->user()->schoolLocation->allow_new_co_learning) {
                     $this->handleCoLearningForceTakeAway($testTake, $request);
                 }
 
@@ -1326,18 +1343,20 @@ class TestTakesController extends Controller {
         }
     }
 
-    public function maxScoreResponse(TestTake $testTake){
+    public function maxScoreResponse(TestTake $testTake)
+    {
         return Response::make($testTake->maxScore(), 200);
     }
 
-    private function hydrateTestTakeWithHasNextQuestionAttribute(TestTake $testTake) {
-        $testTake->load(['discussingParentQuestions' => function ($query) {
-                $query->orderBy('level');
-            }, 'testParticipants', 'testParticipants.testTakeStatus', 'testParticipants.user', 'testParticipants.answers', 'testParticipants.answers.answerParentQuestions' => function ($query) {
-                $query->orderBy('level');
-            }, 'testParticipants.answers.answerRatings' => function ($query) use ($testTake) {
-                $query->where('test_take_id', $testTake->getKey());
-            }]);
+    private function hydrateTestTakeWithHasNextQuestionAttribute(TestTake $testTake)
+    {
+        $testTake->load(['discussingParentQuestions'                                                                                                                    => function ($query) {
+            $query->orderBy('level');
+        }, 'testParticipants', 'testParticipants.testTakeStatus', 'testParticipants.user', 'testParticipants.answers', 'testParticipants.answers.answerParentQuestions' => function ($query) {
+            $query->orderBy('level');
+        }, 'testParticipants.answers.answerRatings'                                                                                                                     => function ($query) use ($testTake) {
+            $query->where('test_take_id', $testTake->getKey());
+        }]);
 
         $questionId = $testTake->getAttribute('discussing_question_id');
         $parents = null;
@@ -1365,7 +1384,8 @@ class TestTakesController extends Controller {
         // as on a new server we might forget to update this setting and it doesn't do any harm to do this extra query
         try { // added for compatibility with mariadb
             \DB::select(\DB::raw("set session optimizer_switch='condition_fanout_filter=off';"));
-        } catch (\Exception $e){}
+        } catch (\Exception $e) {
+        }
 
         if (Auth::user()->isA('teacher')) {
             $demoSubject = (new DemoHelper())->getDemoSubjectForTeacher(Auth::user());
@@ -1388,7 +1408,7 @@ class TestTakesController extends Controller {
 
     public function archive(TestTake $testTake)
     {
-        return  $testTake->archiveForUser(Auth::user());
+        return $testTake->archiveForUser(Auth::user());
     }
 
     public function unArchive(TestTake $testTake)
@@ -1396,33 +1416,36 @@ class TestTakesController extends Controller {
         return $testTake->unArchiveForUser(Auth::user());
     }
 
-    public function withTemporaryLogin(TestTake $testTake) {
+    public function withTemporaryLogin(TestTake $testTake)
+    {
 
         $temporaryLogin = TemporaryLogin::createWithOptionsForUser('app_details', request()->get('app_details'), auth()->user());
 
-        return BaseHelper::createRedirectUrlWithTemporaryLoginUuid($temporaryLogin->uuid,route('student.test-take-laravel', $testTake->uuid,false));
+        return BaseHelper::createRedirectUrlWithTemporaryLoginUuid($temporaryLogin->uuid, route('student.test-take-laravel', $testTake->uuid, false));
 
     }
 
-    public function pdfWithTemporaryLogin(TestTake $testTake) {
+    public function pdfWithTemporaryLogin(TestTake $testTake)
+    {
 
         $temporaryLogin = TemporaryLogin::createWithOptionsForUser('app_details', request()->get('app_details'), auth()->user());
 
-        return BaseHelper::createRedirectUrlWithTemporaryLoginUuid($temporaryLogin->uuid,route('teacher.preview.test_take_pdf', $testTake->uuid,false));
+        return BaseHelper::createRedirectUrlWithTemporaryLoginUuid($temporaryLogin->uuid, route('teacher.preview.test_take_pdf', $testTake->uuid, false));
 
     }
 
-    public function AnswersWithTemporaryLogin(TestTake $testTake) {
+    public function AnswersWithTemporaryLogin(TestTake $testTake)
+    {
 
         $temporaryLogin = TemporaryLogin::createWithOptionsForUser('app_details', request()->get('app_details'), auth()->user());
 
-        return BaseHelper::createRedirectUrlWithTemporaryLoginUuid($temporaryLogin->uuid,route('teacher.preview.test_take', $testTake->uuid,false));
+        return BaseHelper::createRedirectUrlWithTemporaryLoginUuid($temporaryLogin->uuid, route('teacher.preview.test_take', $testTake->uuid, false));
 
     }
 
     public function hasCarouselQuestion(TestTake $testTake)
     {
-        return response()->json(['has_carousel' =>  $testTake->hasCarousel()]);
+        return response()->json(['has_carousel' => $testTake->hasCarousel()]);
     }
 
     public function toggleInbrowserTestingForAllParticipants(TestTake $testTake)
@@ -1451,8 +1474,8 @@ class TestTakesController extends Controller {
 
     private function handleCoLearningForceTakeAway($testTake, $request)
     {
-        if($request->get('test_take_status_id') == 8 && !$request->get('skipped_discussion')){
-            $testTake->testParticipants->each(fn ($testParticipant) => CoLearningForceTakenAway::dispatch($testParticipant->uuid));
+        if ($request->get('test_take_status_id') == 8 && !$request->get('skipped_discussion')) {
+            $testTake->testParticipants->each(fn($testParticipant) => CoLearningForceTakenAway::dispatch($testParticipant->uuid));
         }
     }
 
