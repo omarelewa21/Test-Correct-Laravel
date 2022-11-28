@@ -78,7 +78,7 @@ class UserControllerTest extends TestCase
         $this->withoutExceptionHandling();
         $student = User::find(1483);
         $oldPassword = 'm.dehoogh@31.com';
-        $student->setAttribute('password', \Hash::make($oldPassword));
+        $student->setAttribute('password', $oldPassword);
         $student->save();
         $newPassword = 'm.dehoogh@31.comabc';
 

@@ -1959,9 +1959,15 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
         throw new AccessDeniedHttpException('Access to user denied');
     }
 
+    public function setPasswordAttribute($pw)
+    {
+        $this->attributes['password'] = Hash::needsRehash($pw) ? Hash::make($pw) : $pw;
+        return $this;
+    }
+
     public function resetAndSavePassword($pw)
     {
-        $this->password = bcrypt($pw);
+        $this->password = $pw;
         $this->save();
     }
 
