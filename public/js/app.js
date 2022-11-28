@@ -6859,6 +6859,7 @@ document.addEventListener('alpine:init', function () {
   alpinejs__WEBPACK_IMPORTED_MODULE_1__["default"].data('sliderToggle', function (model, sources) {
     return {
       buttonPosition: '0px',
+      buttonWidth: 'auto',
       value: model,
       sources: sources,
       handle: null,
@@ -6887,6 +6888,7 @@ document.addEventListener('alpine:init', function () {
       activateButton: function activateButton(target) {
         this.resetButtons(target);
         this.buttonPosition = target.offsetLeft + 'px';
+        this.buttonWidth = target.offsetWidth + 'px';
         target.firstElementChild.classList.add('text-primary');
         this.handle.classList.remove('hidden');
       },

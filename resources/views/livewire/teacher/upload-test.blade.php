@@ -39,9 +39,10 @@
                             <x-input.choices-select :multiple="false"
                                                     :options="[['value'=> 1, 'label' => 'engels'], ['value'=> 2, 'label' => 'frans']]"
                                                     :withSearch="true"
-                                                    placeholderText=""
+                                                    placeholderText="Selecteer een vak..."
                                                     wire:model="typedetails.subject_id"
-                                                    class="min-w-[200px]"
+                                                    class="super min-w-[200px]"
+                                                    searchPlaceholder="Selecteer een vak..."
                             />
                         </x-input.group>
                         <x-input.group class="col-span-5 lg:col-span-3" :label="__('teacher_registered.Level')">
@@ -68,6 +69,22 @@
                                                     wire:model="typedetails.test_kind_id"
                             />
                         </x-input.group>
+
+                        <div class="col-span-10 gap-4 flex flex-col">
+                            <div class="flex items-center gap-4">
+                                <span class="bold text-base">Bevat deze tpets cpntent van een uitgeverij?</span>
+                                <x-button.slider class="flex gap-2 items-center"
+                                                 :options="[__('general.yes'), __('general.no')]"
+                                                 wire:model="contains_publisher_content"
+                                                 buttonWidth="auto"
+                                />
+                            </div>
+                            <div class="notification warning stretched">
+                                <div class="title">Kaas</div>
+                                <div class="body">is lekker </div>
+                            </div>
+
+                        </div>
                     </div>
                 </x-slot>
             </x-accordion.block>

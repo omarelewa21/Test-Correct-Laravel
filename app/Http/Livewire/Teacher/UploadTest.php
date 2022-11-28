@@ -18,6 +18,7 @@ class UploadTest extends Component
     ];
     public $planned_at = null;
     public $name = 'Toetsnaam';
+    public bool|null $contains_publisher_content = null;
 
     public bool $tabOneComplete = false;
 
@@ -29,6 +30,10 @@ class UploadTest extends Component
     public function updated()
     {
 
+    }
+    public function updatingContainsPublisherContent($value)
+    {
+        $this->contains_publisher_content = $value === 'yes';
     }
 
     public function render()
