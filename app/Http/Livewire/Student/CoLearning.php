@@ -83,7 +83,6 @@ class CoLearning extends Component
 
         if (!$this->coLearningFinished) {
             $this->getAnswerRatings();
-            $this->setQuestionRatingProperties();
         }
         $this->updateHeartbeat(false);
     }
@@ -167,7 +166,6 @@ class CoLearning extends Component
         $this->waitForTeacherNotificationEnabled = false ;
 
         $this->getAnswerRatings();
-        $this->setQuestionRatingProperties();
 
         $this->emit('getNextAnswerRating', [$this->answerRatingId, $this->questionOrderNumber, $this->answerFollowUpNumber]);
     }
@@ -290,7 +288,7 @@ class CoLearning extends Component
 
             $this->writeDiscussingAnswerRatingToDatabase();
 
-            $this->setWhichScoreSliderShouldBeShown();
+            $this->setQuestionRatingProperties();
 
             if ($this->answerRating->rating === null) {
                 $this->rating = null;
