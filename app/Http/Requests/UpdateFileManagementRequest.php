@@ -40,6 +40,7 @@ class UpdateFileManagementRequest extends Request {
             'colorcode' => '',
             'invite' => 'email:rfc,dns',
             'archived' => '',
+            'test_builder_code' => 'max:4',
         ];
     }
 

@@ -46,7 +46,7 @@
             }
 
         }
-        addQuestionToTest = async (button, questionUuid, showQuestionBankAddConfirmation=false) => {
+        addQuestionToTest = async (button, questionUuid, showQuestionBankAddConfirmation = false) => {
             if(showQuestionBankAddConfirmation) return $wire.emit('openModal', 'teacher.add-sub-question-confirmation-modal', {questionUuid: questionUuid});
             button.disabled = true;
             var enableButton = await $wire.handleCheckboxClick(questionUuid);
@@ -59,6 +59,8 @@
      group-container
      x-on:show-group-details="showGroupDetailsQb($event.detail.questionUuid, $event.detail.inTest );"
      x-on:close-group-details="closeGroupDetailQb()"
+     x-on:add-question-to-test="addQuestionToTest($event.detail.button, $event.detail.questionUuid, $event.detail.showQuestionBankAddConfirmation)"
+     wire:ignore.self
 >
     <x-menu.tab.container >
         <x-menu.tab.item tab="personal" menu="questionBankOpenTab" >

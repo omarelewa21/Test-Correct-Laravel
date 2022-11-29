@@ -2,13 +2,7 @@
 
 namespace tcCore\Http\Livewire\Overview;
 
-use Illuminate\Routing\Route;
-use Illuminate\Support\Collection;
 use Livewire\Component;
-use tcCore\Answer;
-use tcCore\Http\Livewire\Student\TestTake;
-use tcCore\Question;
-use function Symfony\Component\String\s;
 
 class Navigation extends Component
 {

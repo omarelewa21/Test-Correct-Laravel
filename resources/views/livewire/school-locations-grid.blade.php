@@ -1,4 +1,4 @@
-<div class="mt-10 flex-1 " id="school-locations-grid" x-data="">
+<div class="flex-1 py-4 mx-8 " id="school-locations-grid" x-data="">
     <div class="flex flex-1 justify-between">
         <div><h1>{{ __('school_location.school_locations') }}</h1></div>
         <div class="flex-shrink-0">
@@ -204,11 +204,9 @@
                     @endforeach
                 </x-slot>
             </x-table>
-
         </div>
+    </div>
         <div class="pt-2">
             {{ $this->schoolLocations->links('components.partials.tc-paginator') }}
         </div>
-
-    </div>
 </div>

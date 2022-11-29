@@ -30,6 +30,9 @@ class MacrosServiceProvider extends ServiceProvider
         Str::macro('dotToPascal', function ($string) {
             return Str::of($string)->replace('.','_')->camel()->ucfirst();
         });
+        Str::macro('pascal', function ($string) {
+            return Str::of($string)->studly();
+        });
 
         Collection::macro('append', function (...$values) {
             return $this->push(...$values);

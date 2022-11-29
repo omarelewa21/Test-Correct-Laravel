@@ -13,7 +13,6 @@ use tcCore\Lib\Repositories\PValueRepository;
 use tcCore\Lib\Repositories\PValueTaxonomyBloomRepository;
 use tcCore\Lib\Repositories\PValueTaxonomyMillerRepository;
 use tcCore\Lib\Repositories\PValueTaxonomyRTTIRepository;
-use tcCore\Scopes\AttainmentScope;
 use tcCore\Subject;
 
 class AnalysesSubjectDashboard extends AnalysesDashboard
@@ -24,8 +23,16 @@ class AnalysesSubjectDashboard extends AnalysesDashboard
 
     public $attainmentMode;
 
-    public $showEmptyStateForPValueGraph = false;
+    public function mount(?Subject $subject = null)
+    {
+        parent::mount();
 
+        $this->subject = $subject;
+
+        $this->taxonomyIdentifier = $this->subject->id;
+
+        $this->setDefaultAttainmentMode();
+    }
 
     public function getAttainmentModeOptionsProperty()
     {
@@ -44,23 +51,9 @@ class AnalysesSubjectDashboard extends AnalysesDashboard
         }
     }
 
-    public function updatedAttainmentMode($value) {
-        session(['STUDENT_ANALYSES_ATTAINMENT_MODE' =>  $value]);
-    }
-
-//    protected $topItems = [
-//        3 => 'Schrijfvaardigheid',
-//        5 => 'Literatuur',
-//        6 => 'Oriëntatie op studie en beroep',
-//    ];
-
-    public function mount(?Subject $subject = null)
+    public function updatedAttainmentMode($value)
     {
-        parent::mount();
-
-        $this->subject = $subject;
-
-        $this->setDefaultAttainmentMode();
+        session(['STUDENT_ANALYSES_ATTAINMENT_MODE' => $value]);
     }
 
     private function setGeneralStats()
@@ -98,7 +91,7 @@ class AnalysesSubjectDashboard extends AnalysesDashboard
             if ($pValue->attainment_id) {
                 $link = route('student.analyses.attainment.show', [
                     'baseAttainment' => BaseAttainment::find($pValue->attainment_id)->uuid,
-                    'subject'    => $this->subject->uuid
+                    'subject'        => $this->subject->uuid
                 ]);
             }
             $attainmentTranslationLabel = $this->attainmentMode == 'LEARNING_GOAL'
@@ -121,30 +114,29 @@ class AnalysesSubjectDashboard extends AnalysesDashboard
         return $result;
     }
 
-
-    protected function getMillerData($attainmentId)
+    protected function getMillerGeneralGraphData($subjectId)
     {
-        return PValueTaxonomyMillerRepository::getPValueForStudentForAttainment(auth()->user(),
-            $attainmentId,
+        return PValueTaxonomyMillerRepository::getPValueForStudentForSubject(auth()->user(),
+            $subjectId,
             $this->getPeriodsByFilterValues(),
             $this->getEducationLevelYearsByFilterValues(),
             $this->getTeachersByFilterValues());
     }
 
-    protected function getRTTIData($attainmentId)
+    protected function getRTTIGeneralGraphData($subjectId)
     {
-        return PValueTaxonomyRTTIRepository::getPValueForStudentForAttainment(auth()->user(),
-            $attainmentId,
+        return PValueTaxonomyRTTIRepository::getPValueForStudentForSubject(auth()->user(),
+            $subjectId,
             $this->getPeriodsByFilterValues(),
             $this->getEducationLevelYearsByFilterValues(),
             $this->getTeachersByFilterValues());
     }
 
-    protected function getBloomData($attainmentId)
+    protected function getBloomGeneralGraphData($subjectId)
     {
-        return PValueTaxonomyBloomRepository::getPValueForStudentForAttainment(
+        return PValueTaxonomyBloomRepository::getPValueForStudentForSubject(
             auth()->user(),
-            $attainmentId,
+            $subjectId,
             $this->getPeriodsByFilterValues(),
             $this->getEducationLevelYearsByFilterValues(),
             $this->getTeachersByFilterValues());

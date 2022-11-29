@@ -1,12 +1,12 @@
 <div id="planned-body"
-     x-data="{startCountdown: false, isTakeOpen: @entangle('isTakeOpen'), countdownNumber: {{ $this->getCountdownNumber() }}, activeStudents: 0 }"
+     x-data="{startCountdown: false, isTakeOpen: @entangle('isTakeOpen'), countdownNumber: {{ $this->getCountdownNumber() }}, activeStudents: 0, presenceChannel: null}"
      x-init="
         addRelativePaddingToBody('planned-body');
         @if(!Auth::user()->guest)
         makeHeaderMenuActive('student-header-tests');
         @endif
 
-        var presenceChannel = Echo.join('presence-TestTake.{{ $waitingTestTake->uuid }}');
+        presenceChannel = Echo.join('presence-TestTake.{{ $waitingTestTake->uuid }}');
         presenceChannel.here((users) => {
             activeStudents = countPresentStudents(presenceChannel.subscription.members);
         }).joining((user) => {
