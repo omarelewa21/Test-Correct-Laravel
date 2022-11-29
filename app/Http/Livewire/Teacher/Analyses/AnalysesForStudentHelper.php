@@ -34,5 +34,18 @@ class AnalysesForStudentHelper
         ]);
     }
 
+    public function getRouteForSubAttainmentShow($baseAttainment, $subject) {
+        return route('student.analyses.subattainment.show', [
+            'baseAttainment' => $baseAttainment->uuid,
+            'subject'    => $subject,
+        ]);
+    }
+
+    public function getRouteForSubSubAttainmentShow($pValue, $subject){
+        return route('student.analyses.subsubattainment.show', [
+            'baseAttainment' => BaseAttainment::find($pValue->attainment_id)->uuid,
+            'subject'    => $subject,
+        ]);
+    }
 
 }

@@ -13,13 +13,6 @@ class AnalysesOverviewDashboard extends AnalysesDashboard
 {
     const FILTER_SESSION_KEY = 'TEACHER_ANALYSES_FILTER';
 
-    public function mount() {
-        $this->studentUuid =  request('student_uuid');
-        $this->classUuid = request('class_uuid');
-        parent::mount();
-
-    }
-
     public function getDataProperty()
     {
         $result = PValueRepository::getPValueForStudentBySubject(

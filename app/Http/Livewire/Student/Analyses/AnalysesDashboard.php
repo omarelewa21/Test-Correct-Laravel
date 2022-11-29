@@ -143,7 +143,7 @@ abstract class AnalysesDashboard extends Component
 
     protected function getMillerGeneralGraphData($subjectId)
     {
-        return PValueTaxonomyMillerRepository::getPValueForStudentForAttainment($this->getForUser(),
+        return PValueTaxonomyMillerRepository::getPValueForStudentForAttainment($this->getHelper()->getForUser(),
             $subjectId,
             $this->getPeriodsByFilterValues(),
             $this->getEducationLevelYearsByFilterValues(),
@@ -152,7 +152,7 @@ abstract class AnalysesDashboard extends Component
 
     protected function getRTTIGeneralGraphData($subjectId)
     {
-        return PValueTaxonomyRTTIRepository::getPValueForStudentForAttainment($this->getForUser(),
+        return PValueTaxonomyRTTIRepository::getPValueForStudentForAttainment($this->getHelper()->getForUser(),
             $subjectId,
             $this->getPeriodsByFilterValues(),
             $this->getEducationLevelYearsByFilterValues(),
@@ -162,7 +162,7 @@ abstract class AnalysesDashboard extends Component
     protected function getBloomGeneralGraphData($subjectId)
     {
         return PValueTaxonomyBloomRepository::getPValueForStudentForAttainment(
-            $this->getForUser(),
+            $this->getHelper()->getForUser(),
             $subjectId,
             $this->getPeriodsByFilterValues(),
             $this->getEducationLevelYearsByFilterValues(),

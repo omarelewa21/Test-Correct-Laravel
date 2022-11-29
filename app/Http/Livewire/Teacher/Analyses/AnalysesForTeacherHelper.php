@@ -14,7 +14,8 @@ class AnalysesForTeacherHelper
 
     private $classUuid;
 
-    public function __construct($studentUuid, $classUuid) {
+    public function __construct($studentUuid, $classUuid)
+    {
         $this->studentUuid = $studentUuid;
         $this->classUuid = $classUuid;
     }
@@ -38,11 +39,32 @@ class AnalysesForTeacherHelper
         ]);
     }
 
-    public function getRouteForSubjectShow($pValue){
+    public function getRouteForSubjectShow($pValue)
+    {
         return route('teacher.analyses.subject.show', [
             'student_uuid' => request('student_uuid'),
             'class_uuid'   => request('class_uuid'),
             'subject'      => Subject::find($pValue->subject_id)->uuid,
+        ]);
+    }
+
+    public function getRouteForSubAttainmentShow($baseAttainment, $subject)
+    {
+        return route('teacher.analyses.subattainment.show', [
+            'student_uuid'   => $this->studentUuid,
+            'class_uuid'     => $this->classUuid,
+            'baseAttainment' => $baseAttainment->uuid,
+            'subject'        => $subject,
+        ]);
+    }
+
+    public function getRouteForSubSubAttainmentShow($pValue, $subject)
+    {
+        return route('student.analyses.subsubattainment.show', [
+            'student_uuid'   => $this->studentUuid,
+            'class_uuid'     => $this->classUuid,
+            'baseAttainment' => BaseAttainment::find($pValue->attainment_id)->uuid,
+            'subject'        => $subject,
         ]);
     }
 

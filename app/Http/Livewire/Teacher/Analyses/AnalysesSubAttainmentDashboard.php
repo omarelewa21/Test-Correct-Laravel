@@ -26,6 +26,9 @@ class AnalysesSubAttainmentDashboard extends AnalysesDashboard
         $this->attainment = $baseAttainment;
         $this->taxonomyIdentifier = $this->attainment->id;
 
+        $this->studentUuid =  request('student_uuid');
+        $this->classUuid = request('class_uuid');
+
         parent::mount();
         if ($this->attainment) {
             $this->attainmentOrderNumber = $this->attainment->getOrderNumber();
@@ -41,7 +44,7 @@ class AnalysesSubAttainmentDashboard extends AnalysesDashboard
     public function getDataProperty()
     {
         $result = PValueRepository::getPValuePerSubAttainmentForStudentAndAttainment(
-            auth()->user(),
+            $this->getHelper()->getForUser(),
             $this->attainment,
             $this->getPeriodsByFilterValues(),
             $this->getEducationLevelYearsByFilterValues(),
@@ -53,10 +56,7 @@ class AnalysesSubAttainmentDashboard extends AnalysesDashboard
         $this->dataValues = $result->map(function ($pValue, $key) {
             $link = false;
             if ($pValue->attainment_id) {
-                $link = route('student.analyses.subsubattainment.show', [
-                    'baseAttainment' => BaseAttainment::find($pValue->attainment_id)->uuid,
-                    'subject'    => $this->subject,
-                ]);
+                $link = $this->getHelper()->getRouteForSubSubAttainmentShow($pValue, $this->subject);
             }
 
             return (object)[

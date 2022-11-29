@@ -18,7 +18,7 @@ trait WithAnalysesGeneralData
 
     private function setGeneralStats()
     {
-        $analysesHelper = new AnalysesGeneralDataHelper(Auth::user());
+        $analysesHelper = new AnalysesGeneralDataHelper($this->getHelper()->getForUser());
 
         $entity = ($this instanceof AnalysesSubjectDashboard) ? 'subject' : 'attainment';
         $method = 'getAllFor' . Str::ucfirst($entity);

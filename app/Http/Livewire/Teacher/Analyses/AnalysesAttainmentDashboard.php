@@ -19,6 +19,9 @@ class AnalysesAttainmentDashboard extends AnalysesDashboard
 
     public function mount(?BaseAttainment $baseAttainment=null)
     {
+        $this->studentUuid =  request('student_uuid');
+        $this->classUuid = request('class_uuid');
+
         $this->attainment = $baseAttainment;
 
         $this->taxonomyIdentifier = $this->attainment->id;
@@ -34,7 +37,7 @@ class AnalysesAttainmentDashboard extends AnalysesDashboard
     public function getDataProperty()
     {
         $result = PValueRepository::getPValuePerSubAttainmentForStudentAndAttainment(
-            auth()->user(),
+            $this->getHelper()->getForUser(),
             $this->attainment,
             $this->getPeriodsByFilterValues(),
             $this->getEducationLevelYearsByFilterValues(),
@@ -47,10 +50,7 @@ class AnalysesAttainmentDashboard extends AnalysesDashboard
 
             $link = false;
             if ($pValue->attainment_id) {
-                $link = route('student.analyses.subattainment.show', [
-                    'baseAttainment' => $baseAttainment->uuid,
-                    'subject'    => $this->subject,
-                ]);
+                $link = $this->getHelper()->getRouteForSubAttainmentShow($baseAttainment, $this->subject);
             }
 
             return (object)[
@@ -69,11 +69,12 @@ class AnalysesAttainmentDashboard extends AnalysesDashboard
         return $result;
     }
 
-
-
     public function redirectBack()
     {
-        return redirect(route('student.analyses.subject.show', $this->subject));
+        return redirect(route('teacher.analyses.subject.show', [
+            'student_uuid'   => $this->studentUuid,
+            'class_uuid'     => $this->classUuid,
+            'subject' =>$this->subject
+        ]));
     }
-
 }
