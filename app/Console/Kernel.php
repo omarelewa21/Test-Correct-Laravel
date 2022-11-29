@@ -30,6 +30,8 @@ class Kernel extends ConsoleKernel
 //			->daily();
         $schedule->command('school_location_report:update')
             ->dailyAt('02:00');
+        $schedule->command('schedule_mail_to_users_one_year_inactive')
+            ->weekly();
         $schedule->command('requestlog:clear 5 --silent')
             ->dailyAt('04:00');
         $schedule->command('telescope:prune')->daily();
