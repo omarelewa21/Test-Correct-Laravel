@@ -3,7 +3,6 @@
 namespace tcCore\Http\Livewire\Overview;
 
 use Livewire\Component;
-use tcCore\Answer;
 use tcCore\Http\Traits\WithCloseable;
 use tcCore\Http\Traits\WithGroups;
 use tcCore\Question;
@@ -26,7 +25,7 @@ class OpenQuestion extends Component
 
         $temp = (array) json_decode($this->answers[$this->question->uuid]['answer']);
         if (key_exists('value', $temp)) {
-            $this->answer = $this->isShortType() ? html_entity_decode($temp['value']) : $temp['value'];
+            $this->answer = $this->question->isSubType('short') ? html_entity_decode($temp['value']) : $temp['value'];
         }
 
         $this->answered = $this->answers[$this->question->uuid]['answered'];
@@ -38,7 +37,7 @@ class OpenQuestion extends Component
 
     public function render()
     {
-        if ($this->isShortType()) {
+        if ($this->question->isSubType('short')) {
             return view('livewire.overview.open-question');
         }
 
@@ -48,10 +47,5 @@ class OpenQuestion extends Component
     public function isQuestionFullyAnswered(): bool
     {
         return true;
-    }
-    
-    private function isShortType()
-    {
-        return $this->question->subtype === 'short';
     }
 }
