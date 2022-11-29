@@ -70,4 +70,5 @@ return [
     'Behandelaar'                     => 'Behandelaar',
     'Toetsenbakker'                   => 'Toetsenbakker',
     'afname'                          => 'Afname',
+    'jaar'                            => 'Jaar',
 ];

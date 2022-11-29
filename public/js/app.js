@@ -6422,6 +6422,14 @@ document.addEventListener('alpine:init', function () {
           var refreshChoices = function refreshChoices() {
             var selection = _this17.multiple ? _this17.value : [_this17.value];
             choices.clearStore();
+
+            if (_this17.config.placeholderValue.length > 0) {
+              var placeholderItem = choices._getTemplate('placeholder', _this17.config.placeholderValue);
+
+              placeholderItem.classList.add('truncate', 'min-w-[1rem]');
+              choices.itemList.append(placeholderItem);
+            }
+
             var options = _typeof(_this17.options) === 'object' ? Object.values(_this17.options) : _this17.options;
             choices.setChoices(options.map(function (_ref) {
               var value = _ref.value,
@@ -6473,6 +6481,16 @@ document.addEventListener('alpine:init', function () {
 
           _this17.$watch('options', function () {
             return refreshChoices();
+          });
+
+          _this17.$refs.select.addEventListener('showDropdown', function () {
+            if (_this17.$root.querySelector('.is-active')) {
+              _this17.$refs.chevron.style.left = _this17.$root.querySelector('.is-active').offsetWidth - 25 + 'px';
+            }
+          });
+
+          _this17.$refs.select.addEventListener('hideDropdown', function () {
+            _this17.$refs.chevron.style.left = 'auto';
           });
         });
       },
@@ -7172,8 +7190,10 @@ document.addEventListener('alpine:init', function () {
     };
   });
   alpinejs__WEBPACK_IMPORTED_MODULE_1__["default"].data('accordionBlock', function (key) {
+    var emitWhenSet = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
     return {
       id: null,
+      emitWhenSet: emitWhenSet,
       init: function init() {
         this.id = this.containerId + '-' + key;
       },
@@ -7184,6 +7204,14 @@ document.addEventListener('alpine:init', function () {
 
       set expanded(value) {
         this.active = value ? this.id : null;
+
+        if (value) {
+          this.$el.classList.remove('hover:shadow-hover');
+
+          if (this.emitWhenSet) {
+            Livewire.emit('accordion-update', this.id);
+          }
+        }
       }
 
     };
@@ -13619,7 +13647,7 @@ document.addEventListener('alpine:init', function () {
 
         this.picker = (0,flatpickr__WEBPACK_IMPORTED_MODULE_0__["default"])(this.$refs.datepickr, {
           locale: this.locale,
-          minDate: minDate == 'today' ? 'today' : false,
+          minDate: minDate !== null && minDate !== void 0 ? minDate : false,
           mode: this.mode,
           defaultDate: this.wireModel,
           // The displayed format is humanreadable, the used date is Y-m-d formatted;

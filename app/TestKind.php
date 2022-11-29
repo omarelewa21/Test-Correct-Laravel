@@ -1,14 +1,18 @@
 <?php namespace tcCore;
 
-use Illuminate\Database\Eloquent\Collection;
+use Dyrynda\Database\Casts\EfficientUuid;
 use tcCore\Lib\Models\BaseModel;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use tcCore\Traits\UuidTrait;
 
-class TestKind extends BaseModel {
+class TestKind extends BaseModel
+{
 
-    use SoftDeletes;
+    use SoftDeletes, UuidTrait;
 
     const ASSESSMENT_TYPE = 4;
+
+    protected $casts = ['uuid' => EfficientUuid::class];
 
     /**
      * The attributes that should be mutated to dates.
@@ -29,7 +33,7 @@ class TestKind extends BaseModel {
      *
      * @var array
      */
-    protected $fillable = ['name', 'weight'];
+    protected $fillable = ['name', 'has_weight'];
 
     /**
      * The attributes excluded from the model's JSON form.
@@ -41,7 +45,8 @@ class TestKind extends BaseModel {
     /**
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
-    public function tests() {
+    public function tests()
+    {
         return $this->hasMany('tcCore\Test');
     }
 }

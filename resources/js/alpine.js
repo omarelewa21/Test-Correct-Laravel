@@ -571,7 +571,6 @@ document.addEventListener('alpine:init', () => {
             // some new fancy way of setting a value when undefined
             window.registeredEventHandlers ??= []
 
-
             this.activeFiltersContainer = document.getElementById(filterContainer);
             this.multiple = multiple === 1;
             this.$nextTick(() => {
@@ -580,6 +579,11 @@ document.addEventListener('alpine:init', () => {
                 let refreshChoices = () => {
                     let selection = this.multiple ? this.value : [this.value]
                     choices.clearStore();
+                    if(this.config.placeholderValue.length > 0) {
+                        let placeholderItem = choices._getTemplate( 'placeholder', this.config.placeholderValue);
+                        placeholderItem.classList.add('truncate', 'min-w-[1rem]');
+                        choices.itemList.append(placeholderItem);
+                    }
                     let options = typeof this.options === 'object' ? Object.values(this.options) : this.options;
                     choices.setChoices(options.map(({value, label}) => ({
                         value,
@@ -617,6 +621,15 @@ document.addEventListener('alpine:init', () => {
 
                 this.$watch('value', () => refreshChoices());
                 this.$watch('options', () => refreshChoices());
+
+                this.$refs.select.addEventListener('showDropdown', () => {
+                    if(this.$root.querySelector('.is-active')) {
+                        this.$refs.chevron.style.left = (this.$root.querySelector('.is-active').offsetWidth - 25) +'px';
+                    }
+                });
+                this.$refs.select.addEventListener('hideDropdown', () => {
+                    this.$refs.chevron.style.left = 'auto'
+                });
             });
         },
 
@@ -1336,8 +1349,9 @@ document.addEventListener('alpine:init', () => {
         }
     }));
 
-    Alpine.data('accordionBlock', (key) => ({
+    Alpine.data('accordionBlock', (key, emitWhenSet = false) => ({
         id: null,
+        emitWhenSet,
         init() {
             this.id = this.containerId+'-'+key;
         },
@@ -1346,6 +1360,12 @@ document.addEventListener('alpine:init', () => {
         },
         set expanded(value) {
             this.active = value ? this.id : null
+            if(value) {
+                this.$el.classList.remove('hover:shadow-hover')
+                if(this.emitWhenSet) {
+                    Livewire.emit('accordion-update', this.id);
+                }
+            }
         },
     }));
 

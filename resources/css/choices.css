@@ -180,6 +180,11 @@
 .super.custom-choices .choices__inner {
     padding-left: 10px;
 }
+.super.custom-choices .choices__inner .choices__placeholder {
+    color: var(--mid-grey);
+    font-style: italic;
+    font-size: 14px;
+}
 
 .super.custom-choices .choices__list.choices__list--dropdown {
     top: -8px;

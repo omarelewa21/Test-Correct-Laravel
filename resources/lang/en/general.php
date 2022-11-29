@@ -70,4 +70,5 @@ return [
     'Behandelaar'                     => 'Processor',
     'Toetsenbakker'                   => 'Test builder',
     'afname'                          => 'Take',
+    'jaar'                            => 'Year',
 ];
