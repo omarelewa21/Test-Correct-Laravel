@@ -17,7 +17,7 @@ class ScheduleMailToUsersOneYearInactive extends Command
      *
      * @var string
      */
-    protected $signature = 'schedule_mail_to_users_one_year_inactive';
+    protected $signature = 'users_one_year_inactive:scheduled_mail';
 
     /**
      * The console command description.
@@ -59,10 +59,11 @@ class ScheduleMailToUsersOneYearInactive extends Command
              FROM mails_send AS ms
         ) AS ms
         ON (us.id=ms.user_id)
-        WHERE us.created_at > NOW() - INTERVAL 1 YEAR
+        WHERE us.created_at > NOW() - INTERVAL 2 YEAR
         AND (
               ll.date_created < NOW() - INTERVAL 1 YEAR
-              OR ll.date_created IS NULL
+              OR ll.date_created IS NULL 
+                AND us.created_at < NOW() - INTERVAL 1 YEAR
             )
         AND ur.role_id = 1
         AND (ms.mailable = '".SendInactiveUserMail::class."' 
@@ -76,12 +77,6 @@ class ScheduleMailToUsersOneYearInactive extends Command
         foreach ($arrayOfInactiveUsers as $inactiveUser){
             try {
                 Mail::to($inactiveUser->username)->queue(new SendInactiveUserMail($inactiveUser->id));
-                DB::table('mails_send')->insert([
-                    'user_id' => $inactiveUser->id,
-                    'mailable' => SendInactiveUserMail::class,
-                    'created_at' => NOW(),
-                    'updated_at' => NOW()
-                ]);
             } catch (\Throwable $th) {
                 Bugsnag::notifyException($th);
                 logger('failed'.$th);
