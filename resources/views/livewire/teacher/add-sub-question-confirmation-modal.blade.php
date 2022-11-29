@@ -15,7 +15,10 @@
             <x-button.text-button wire:click="$emit('closeModal')"><span>{{ __('teacher.Annuleer') }}</span>
             </x-button.text-button>
 
-            <x-button.cta @click="addToTest($el, '{{$questionUuid}}')">
+            <x-button.cta {{--@click="addToTest($el, '{{$questionUuid}}')"--}}
+                          x-on:click.stop="addQuestionToTestFromTestCard($el, '{{ $questionUuid }}', false )"
+                          wire:click="$emit('closeModal')"
+            >
                 <span>{{ __('teacher.add') }}</span>
             </x-button.cta>
         </div>

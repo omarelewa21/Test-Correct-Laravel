@@ -3,16 +3,13 @@
 namespace tcCore\Http\Livewire\Student\Analyses;
 
 use Livewire\Component;
-use tcCore\Attainment;
 use tcCore\BaseAttainment;
 use tcCore\EducationLevel;
 use tcCore\Http\Traits\WithAnalysesGeneralData;
-use tcCore\Lib\Repositories\PValueRepository;
 use tcCore\Lib\Repositories\PValueTaxonomyBloomRepository;
 use tcCore\Lib\Repositories\PValueTaxonomyMillerRepository;
 use tcCore\Lib\Repositories\PValueTaxonomyRTTIRepository;
 use tcCore\Period;
-use tcCore\Subject;
 use tcCore\User;
 
 class AnalysesSubSubAttainmentDashboard extends Component
@@ -39,6 +36,14 @@ class AnalysesSubSubAttainmentDashboard extends Component
 
     public $parentParentAttainment;
 
+    protected $taxonomies = [
+        ['name' => 'Miller', 'height' => '150px'],
+        ['name' => 'RTTI', 'height' => '150px'],
+        ['name' => 'Bloom', 'height' => '200px'],
+    ];
+
+    public $taxonomyIdentifier;
+
 
     public function hasActiveFilters()
     {
@@ -48,6 +53,7 @@ class AnalysesSubSubAttainmentDashboard extends Component
     public function mount(?BaseAttainment $baseAttainment = null)
     {
         $this->attainment = $baseAttainment;
+        $this->taxonomyIdentifier = $this->attainment->id;
         $this->parentAttainment = BaseAttainment::find($this->attainment->attainment_id);
         $this->parentParentAttainment = BaseAttainment::find($this->parentAttainment->attainment_id);
 
@@ -116,6 +122,42 @@ class AnalysesSubSubAttainmentDashboard extends Component
             );
     }
 
+    public function getDataForGeneralGraph($subjectId, $taxonomy)
+    {
+        switch ($taxonomy) {
+            case 'Miller':
+                $data = $this->getMillerAttainmentData($subjectId);
+                break;
+            case 'RTTI':
+                $data = $this->getRTTIAttainmentData($subjectId);
+                break;
+            case 'Bloom':
+                $data = $this->getBloomAttainmentData($subjectId);
+                break;
+        }
+
+        return [
+            $showEmptyState = collect($data)->filter(fn($item) => $item[1] > 0)->isEmpty(),
+            $this->transformForGraph($data)
+        ];
+    }
+
+    private function transformForGraph($data)
+    {
+        return collect($data)->map(function ($item) {
+            return [
+                'x'       => $item[0],
+                'value'   => $item[1],
+                'tooltip' => trans_choice(
+                    'student.tooltip_taxonomy_graph',
+                    $item[2], [
+                    'count_questions' => $item[2],
+                    'p_value'         => number_format($item[1], 2),
+                ])
+            ];
+        });
+    }
+
     public function redirectBack()
     {
         return redirect(
@@ -125,5 +167,59 @@ class AnalysesSubSubAttainmentDashboard extends Component
                 ]
             )
         );
+    }
+
+    protected function getMillerAttainmentData($subjectId)
+    {
+        return PValueTaxonomyMillerRepository::getPValueForStudentForAttainment(auth()->user(),
+            $subjectId,
+            $this->getPeriodsByFilterValues(),
+            $this->getEducationLevelYearsByFilterValues(),
+            $this->getTeachersByFilterValues());
+    }
+
+    protected function getRTTIAttainmentData($subjectId)
+    {
+        return PValueTaxonomyRTTIRepository::getPValueForStudentForAttainment(auth()->user(),
+            $subjectId,
+            $this->getPeriodsByFilterValues(),
+            $this->getEducationLevelYearsByFilterValues(),
+            $this->getTeachersByFilterValues());
+    }
+
+    protected function getBloomAttainmentData($subjectId)
+    {
+        return PValueTaxonomyBloomRepository::getPValueForStudentForAttainment(
+            auth()->user(),
+            $subjectId,
+            $this->getPeriodsByFilterValues(),
+            $this->getEducationLevelYearsByFilterValues(),
+            $this->getTeachersByFilterValues());
+    }
+
+    protected function getPeriodsByFilterValues()
+    {
+        return Period::whereIn('id', $this->filters['periods'])->get('id');
+    }
+
+    protected function getEducationLevelYearsByFilterValues()
+    {
+        return collect($this->filters['educationLevelYears'])->map(fn($levelYear) => ['id' => $levelYear]);
+    }
+
+    protected function getTeachersByFilterValues()
+    {
+        return User::whereIn('id', $this->filters['teachers'])->get('id');
+    }
+
+    public function getFirstActiveForGeneralGraphTaxonomy()
+    {
+        foreach($this->taxonomies as $key => $taxonomy ) {
+            $data = $this->getDataForGeneralGraph($this->taxonomyIdentifier, $taxonomy['name']);
+            if (!$data[0]) {
+                return  $key;
+            }
+        }
+        return false;
     }
 }

@@ -297,6 +297,9 @@ class RouteServiceProvider extends ServiceProvider
         Route::model('maintenanceWhitelistIp', 'tcCore\MaintenanceWhitelistIp', function () {
             throw new RouteModelBindingNotFoundHttpException('MaintenanceWhitelistIp not found');
         });
+        Route::model('file_management', 'tcCore\FileManagement', function () {
+            throw new RouteModelBindingNotFoundHttpException('FileManagement not found');
+        });
 
         /**
          * Route::model('user_role','tcCore\UserRole', function() {
@@ -522,7 +525,7 @@ class RouteServiceProvider extends ServiceProvider
             return Tag::whereUuid($item)->firstOrFail();
         });
 
-        Route::bind('fileManagement', function($item) {
+        Route::bind('file_management', function($item) {
             return FileManagement::whereUuid($item)->firstOrFail();
         });
 

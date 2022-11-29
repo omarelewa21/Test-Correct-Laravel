@@ -11,11 +11,11 @@ class CakeRedirectHelper
     protected ?string $uuid = null;
     protected ?string $page_number = null;
 
-    public static function redirectToCake(string $routeName, ?string $uuid = null, ?string $page_number = null) : void
+    public static function redirectToCake(string $routeName, ?string $uuid = null, ?string $page_number = null)
     {
         $helper = new self($routeName, $uuid, $page_number);
 
-        redirect($helper->createCakeUrl());
+        return redirect($helper->createCakeUrl());
     }
 
     public static function getCakeUrl(string $routeName, ?string $uuid = null, ?string $page_number = null) : string
@@ -115,13 +115,33 @@ class CakeRedirectHelper
             'school.delete' => [
                 'page'        => '/',
                 'page_action' => "School.delete('$this->uuid', 0)"
-            ]
+            ],
+
+            'files.class_uploads'     => '/file_management/classuploads',
+            'reports.marketing'       => [
+                'page'        => '/users/welcome',
+                'page_action' => 'window.location.href = "/users/marketing_report"',
+            ],
+            'reports.school_location' => [
+                'page'        => '/users/welcome',
+                'page_action' => 'window.location.href = "/users/school_location_report"',
+            ],
+
+            'database.umbrella_organizations' => '/umbrella_organisations',
+            'database.attainments_import'     => '/attainments',
+            'database.attainmentscito_import' => '/attainments_cito',
+
+            'qtiimport.index'      => '/qtiimport/index',
+            'qtiimport_cito'       => '/qtiimport_cito',
+            'qtiimport_batch_cito' => '/qtiimport_batch_cito',
+
+            'infos.index' => '/infos/index'
         ];
 
         return $lookUpArray[$this->routeName] ?? false;
     }
 
-    protected function createCakeUrl() : string
+    protected function createCakeUrl(): string
     {
         $cakeRedirectData = $this->getCakeUrlAndFollowupActionData();
 

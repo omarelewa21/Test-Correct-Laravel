@@ -159,7 +159,7 @@ class TestTakeOverview extends Component
     public function clearFilters($tab = null)
     {
         $this->dispatchBrowserEvent('clear-datepicker');
-        return $this->filters[$tab ?? $this->openTab] = [
+        $this->filters[$tab ?? $this->openTab] = [
             'test_take_status_id' => $this->getTestTakeStatusForFilter($tab),
             'archived'            => false,
             'test_name'           => '',

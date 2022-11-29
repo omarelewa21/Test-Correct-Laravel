@@ -2,8 +2,6 @@
 
 namespace tcCore\Http\Livewire\Question;
 
-use Composer\Package\Package;
-use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 use Livewire\Component;
 use tcCore\Answer;

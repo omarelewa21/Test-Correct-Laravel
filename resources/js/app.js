@@ -352,3 +352,36 @@ livewireMessageContainsModelName = (message, modelName) => {
         return String(queue.payload?.params[0])?.includes(modelName)
     })[0];
 }
+
+questionCardOpenDetailsModal = (questionUuid, inTest) => {
+    Livewire.emit(
+        'openModal',
+        'teacher.question-detail-modal',
+        {questionUuid, inTest}
+    );
+}
+questionCardOpenGroup = (element, questionUuid, inTest) => {
+    element.closest('[group-container]')
+        .dispatchEvent(
+            new CustomEvent(
+                'show-group-details',
+                {detail: {questionUuid, inTest } }
+            )
+        );
+}
+
+addQuestionToTestFromTestCard = (button, questionUuid, showQuestionBankAddConfirmation) => {
+    document.querySelector('#question-bank')
+        .dispatchEvent(
+            new CustomEvent(
+                'add-question-to-test',
+                {
+                    detail: {
+                        button,
+                        questionUuid,
+                        showQuestionBankAddConfirmation
+                    }
+                }
+            )
+        )
+}

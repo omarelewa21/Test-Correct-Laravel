@@ -482,6 +482,10 @@ class Test extends BaseModel
         $test = $this->replicate();
         $test->fill($attributes);
 
+        if(in_array($test->abbreviation, ContentSourceHelper::PUBLISHABLE_ABBREVIATIONS)) {
+            $test->abbreviation = 'COPY';
+        }
+
         if ($authorId !== null) {
             $test->setAttribute('author_id', $authorId);
         }
@@ -1026,7 +1030,7 @@ class Test extends BaseModel
 
     public static function findByUuid($uuid)
     {
-        return self::whereUuid($uuid)->first();
+        return self::whereUuid($uuid)->firstOrFail();
     }
 
     public function hasDuplicateQuestions()

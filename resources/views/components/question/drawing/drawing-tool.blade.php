@@ -292,20 +292,9 @@
                     <x-icon.preview/>
                     <x-icon.preview-off/>
                 </button>
-                @if(strtolower(session()->get('TLCOs',false)) === 'ios')
-                <div class="grid grid-rows-2 gap-0">
-                    <button class="shape-btn up-btn" title="{{ __('drawing-modal.Versleep volgorde') }}">
-                        <x-icon.arrow-small class="-rotate-90"/>
-                    </button>
-                    <button class="shape-btn down-btn" title="{{ __('drawing-modal.Versleep volgorde') }}">
-                        <x-icon.arrow-small class="rotate-90"/>
-                    </button>
-                </div>
-                @else
                 <button class="shape-btn drag-btn" selid="shape-drag-btn" title="{{ __('drawing-modal.Versleep volgorde') }}">
                     <x-icon.reorder/>
                 </button>
-                @endif
             </div>
         </div>
     </div>
