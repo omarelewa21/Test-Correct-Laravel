@@ -247,6 +247,7 @@ Route::group(['middleware' => ['api', 'dl', 'authorize', 'authorizeBinds', 'bind
     Route::post('/school_class/importStudentsWithClasses/{schoolLocation}','SchoolClassesStudentImportController@store')->name('school_classes.import_with_classes');
     Route::put('/school_class/update_with_education_levels_for_main_classes', 'SchoolClassesController@updateWithEducationLevelsForMainClasses')->name('school_classes.update_with_education_levels_for_main_classes');
     Route::put('/school_class/update_with_education_levels_for_cluster_classes', 'SchoolClassesController@updateWithEducationLevelsForClusterClasses')->name('school_classes.update_with_education_levels_for_cluster_classes');
+    Route::put('/school_class/reset_passwords/{schoolClass}', 'SchoolClassesController@resetPasswords')->name('school_classes.reset_passwords');
 
     Route::get('school_class/list', ['as' => 'school_class.list', 'uses' => 'SchoolClassesController@lists']);
     Route::get('school_class/forUser/{user}', 'SchoolClassesController@showForUser')->name('school_classes.for_user');

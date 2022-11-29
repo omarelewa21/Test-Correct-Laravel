@@ -1,0 +1,4 @@
+#co-learning-page .cke .cke_top,
+#co-learning-page .cke .cke_bottom {
+    display: none !important;
+}
