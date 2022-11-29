@@ -2,15 +2,16 @@
 
 @section('analyses.page.title')
     <h1 class="pt-10"> {{ __('header.Analyses') }} </h1>
+    @if($this->viewingAsTeacher())
+        <h2> {{ $this->getHelper()->getForUser()->name_full }}  </h2>
+    @endif
 @endsection
 
 
 
 
 @section('analyses.p-values-graph')
-    @if(auth()->user()->getKey() !== $this->getUser()->getKey())
-        <h1> {{ $this->getUser()->name_full }}  </h1>
-    @endif
+
     <x-content-section>
         <x-slot name="title">
             <div class="hidden">{{ $this->data }}</div>

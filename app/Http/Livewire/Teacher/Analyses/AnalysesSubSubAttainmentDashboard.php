@@ -1,6 +1,6 @@
 <?php
 
-namespace tcCore\Http\Livewire\Student\Analyses;
+namespace tcCore\Http\Livewire\Teacher\Analyses;
 
 use Livewire\Component;
 use tcCore\BaseAttainment;

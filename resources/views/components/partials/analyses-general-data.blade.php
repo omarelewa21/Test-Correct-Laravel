@@ -23,7 +23,8 @@
                 @else
                     <span>
                         {{ __('student.o.b.v. aantal vragen', ['count'=> $generalStats[$kind.'_questions']]) }}
-                        <span class="bold px-0.5">P {{ number_format($generalStats[$kind.'_pvalue_average'], 2) }}</span>
+                        <span
+                            class="bold px-0.5">P {{ number_format($generalStats[$kind.'_pvalue_average'], 2) }}</span>
                     </span>
                 @endif
                 <x-user-p-value-indicator :p-value="$generalStats[$kind.'_pvalue_average']"
@@ -34,11 +35,12 @@
             <div>{{ __('student.gemiddeld cijfer') }}</div>
             <div class="flex gap-4 items-center">
                 <x-mark-badge :rating="$generalStats[$kind.'_rating_average']"></x-mark-badge>
-
-                <x-button.text-button wire:click="showGrades">
-                    <span class="bold">{{ __('student.Bekijk cijferlijst') }}</span>
-                    <x-icon.arrow/>
-                </x-button.text-button>
+                @if (!$this->viewingAsTeacher())
+                    <x-button.text-button wire:click="showGrades">
+                        <span class="bold">{{ __('student.Bekijk cijferlijst') }}</span>
+                        <x-icon.arrow/>
+                    </x-button.text-button>
+                @endif
             </div>
         </div>
     </div>
@@ -56,10 +58,10 @@
     >
         @foreach($this->taxonomies as $key=> $taxonomy)
             <div
-                    x-data="expandableGraphForGeneral({{ $key }}, '{{ $this->taxonomyIdentifier}}', '{{ $taxonomy['name'] }}')"
-                    x-on:active-changed.window="if (id === $event.detail.id)  { expanded = true}"
-                    x-on:click="expanded = !expanded"
-                    class="cursor-pointer ml-10"
+                x-data="expandableGraphForGeneral({{ $key }}, '{{ $this->taxonomyIdentifier}}', '{{ $taxonomy['name'] }}')"
+                x-on:active-changed.window="if (id === $event.detail.id)  { expanded = true}"
+                x-on:click="expanded = !expanded"
+                class="cursor-pointer ml-10"
             >
                             <span :class="{ 'rotate-svg-90' : expanded }">
                                 <x-icon.chevron></x-icon.chevron>

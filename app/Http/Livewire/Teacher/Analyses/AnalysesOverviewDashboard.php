@@ -2,6 +2,7 @@
 
 namespace tcCore\Http\Livewire\Teacher\Analyses;
 
+use tcCore\Http\Livewire\Student\Analyses\AnalysesDashboard;
 use tcCore\Lib\Repositories\PValueRepository;
 use tcCore\Lib\Repositories\PValueTaxonomyBloomRepository;
 use tcCore\Lib\Repositories\PValueTaxonomyMillerRepository;
@@ -10,10 +11,19 @@ use tcCore\Subject;
 
 class AnalysesOverviewDashboard extends AnalysesDashboard
 {
+    const FILTER_SESSION_KEY = 'TEACHER_ANALYSES_FILTER';
+
+    public function mount() {
+        $this->studentUuid =  request('student_uuid');
+        $this->classUuid = request('class_uuid');
+        parent::mount();
+
+    }
+
     public function getDataProperty()
     {
         $result = PValueRepository::getPValueForStudentBySubject(
-            $this->getUser(),
+            $this->getHelper()->getForUser(),
             $this->getPeriodsByFilterValues(),
             $this->getEducationLevelYearsByFilterValues(),
             $this->getTeachersByFilterValues()
@@ -23,13 +33,13 @@ class AnalysesOverviewDashboard extends AnalysesDashboard
 
             $link = false;
             if ($pValue->subject_id) {
-                $link = route('student.analyses.subject.show', Subject::find($pValue->subject_id)->uuid);
+                $link = $this->getHelper()->getRouteForSubjectShow($pValue);
             }
 
-            return (object)[
+            return (object) [
                 'x'       => htmlspecialchars_decode($pValue->name),
-                'title'   =>  htmlspecialchars_decode($pValue->name),
-                'basedOn' => trans_choice('student.obv count questions', $pValue->cnt?? 0),
+                'title'   => htmlspecialchars_decode($pValue->name),
+                'basedOn' => trans_choice('student.obv count questions', $pValue->cnt ?? 0),
                 'value'   => number_format(($pValue->score > 0 ? $pValue->score : 0), 2),
                 'link'    => $link,
             ];
@@ -47,7 +57,7 @@ class AnalysesOverviewDashboard extends AnalysesDashboard
     protected function getMillerData($subjectId)
     {
         return PValueTaxonomyMillerRepository::getPValueForStudentForSubject(
-            $this->getUser(),
+            $this->getHelper()->getForUser(),
             $subjectId,
             $this->getPeriodsByFilterValues(),
             $this->getEducationLevelYearsByFilterValues(),
@@ -57,7 +67,7 @@ class AnalysesOverviewDashboard extends AnalysesDashboard
     protected function getRTTIData($subjectId)
     {
         return PValueTaxonomyRTTIRepository::getPValueForStudentForSubject(
-            $this->getUser(),
+            $this->getHelper()->getForUser(),
             $subjectId,
             $this->getPeriodsByFilterValues(),
             $this->getEducationLevelYearsByFilterValues(),
@@ -67,7 +77,7 @@ class AnalysesOverviewDashboard extends AnalysesDashboard
     protected function getBloomData($subjectId)
     {
         return PValueTaxonomyBloomRepository::getPValueForStudentForSubject(
-            $this->getUser(),
+            $this->getHelper()->getForUser(),
             $subjectId,
             $this->getPeriodsByFilterValues(),
             $this->getEducationLevelYearsByFilterValues(),

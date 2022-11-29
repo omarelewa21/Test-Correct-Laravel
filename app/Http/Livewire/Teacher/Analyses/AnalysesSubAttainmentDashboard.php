@@ -1,8 +1,9 @@
 <?php
 
-namespace tcCore\Http\Livewire\Student\Analyses;
+namespace tcCore\Http\Livewire\Teacher\Analyses;
 
 use tcCore\BaseAttainment;
+use tcCore\Http\Livewire\Student\Analyses\AnalysesDashboard;
 use tcCore\Http\Traits\WithAnalysesGeneralData;
 use tcCore\Lib\Repositories\PValueRepository;
 
