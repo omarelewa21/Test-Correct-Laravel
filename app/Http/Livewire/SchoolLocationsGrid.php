@@ -21,8 +21,6 @@ class SchoolLocationsGrid extends Component
     use CanLogout;
     use CanOrderGrid;
 
-    const PAGE_NUMBER_SESSION_KEY = 'school-grid-page-number';
-
     protected $schoolLocations;
 
     public $filters = [];
@@ -146,6 +144,6 @@ class SchoolLocationsGrid extends Component
             $this->cleanFilterForSearch($this->filters),
             [$this->orderByColumnName => $this->orderByDirection]
         )->with('school')
-            ->paginate(3, ['school_locations.*']);
+            ->paginate(15, ['school_locations.*']);
     }
 }
