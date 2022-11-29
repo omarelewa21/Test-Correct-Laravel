@@ -23,7 +23,6 @@ use tcCore\TestTakeStatus;
 class WaitingRoom extends Component
 {
     use WithStudentTestTakes;
-    const PAGE_NUMBER_SESSION_KEY = 'student-page-number';
 
     protected function getListeners()
     {

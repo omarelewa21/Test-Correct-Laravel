@@ -26,7 +26,6 @@ class SchoolLocationsGrid extends Component
     protected $schoolLocations;
 
     public $filters = [];
-    public $pageNumber;
     public bool $administrator;
 
     protected $listeners = [
@@ -147,6 +146,6 @@ class SchoolLocationsGrid extends Component
             $this->cleanFilterForSearch($this->filters),
             [$this->orderByColumnName => $this->orderByDirection]
         )->with('school')
-            ->paginate(15, ['school_locations.*']);
+            ->paginate(3, ['school_locations.*']);
     }
 }
