@@ -16,6 +16,7 @@
 		"doctrine/dbal": "^2.9",
 		"dyrynda/laravel-efficient-uuid": "^4.1",
 		"dyrynda/laravel-model-uuid": "^6.2",
+		"econea/nusoap": "^0.9.12",
 		"fideloper/proxy": "^4.0",
 		"iio/libmergepdf": "^4.0",
 		"laravel/framework": "^9.0",
