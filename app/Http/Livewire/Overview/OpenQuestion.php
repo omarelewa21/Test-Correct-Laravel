@@ -25,7 +25,7 @@ class OpenQuestion extends Component
 
         $temp = (array) json_decode($this->answers[$this->question->uuid]['answer']);
         if (key_exists('value', $temp)) {
-            $this->answer = $this->question->isSubType('short') ? html_entity_decode($temp['value']) : $temp['value'];
+            $this->answer = $temp['value'];
         }
 
         $this->answered = $this->answers[$this->question->uuid]['answered'];
