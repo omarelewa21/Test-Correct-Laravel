@@ -33,11 +33,6 @@ class SchoolLocationsGrid extends Component
         'school_location_deleted' => '$refresh',
     ];
 
-    public function updatedPage()
-    {
-        session([self::PAGE_NUMBER_SESSION_KEY => $this->page]);
-    }
-
     public function updatingAdministrator($value)
     {
         throw new \Exception('Manually updating the administrator property is not allowed.');
@@ -110,7 +105,6 @@ class SchoolLocationsGrid extends Component
     {
         $this->administrator = Auth::user()->isA('administrator');
         $this->setFilters();
-        $this->setPageNumber();
     }
 
     public function render()
@@ -154,12 +148,5 @@ class SchoolLocationsGrid extends Component
             [$this->orderByColumnName => $this->orderByDirection]
         )->with('school')
             ->paginate(15, ['school_locations.*']);
-    }
-
-    private function setPageNumber()
-    {
-        $this->page = request()->get('page');
-        session()->put(self::PAGE_NUMBER_SESSION_KEY, $this->page);
-        $this->gotoPage($this->page);
     }
 }
