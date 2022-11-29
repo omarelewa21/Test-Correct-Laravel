@@ -206,9 +206,7 @@ class TestTakeOverview extends Component
 
     private function setPageNumber()
     {
-        $this->page = request()->get('page');
-        session()->put(self::PAGE_NUMBER_KEY, $this->page);
-        $this->gotoPage($this->page);
+        session()->put(self::PAGE_NUMBER_SESSION_KEY, request()->get('page'));
     }
 
     /* End Helper methods */
