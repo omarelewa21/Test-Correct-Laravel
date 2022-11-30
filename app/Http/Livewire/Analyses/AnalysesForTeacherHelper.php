@@ -1,6 +1,6 @@
 <?php
 
-namespace tcCore\Http\Livewire\Teacher\Analyses;
+namespace tcCore\Http\Livewire\Analyses;
 
 use tcCore\BaseAttainment;
 use tcCore\Subject;
@@ -29,26 +29,34 @@ class AnalysesForTeacherHelper
         return $this->forUser;
     }
 
-    public function getRouteForAttainmentShow($pValue, Subject $subject): string
+    public function getRouteForDashboardShow()
+    {
+        return route('teacher.analyses.show', [
+            'student_uuid' => $this->studentUuid,
+            'class_uuid'   => $this->classUuid,
+        ]);
+    }
+
+    public function getRouteForSubjectShow(Subject $subject)
+    {
+        return route('teacher.analyses.subject.show', [
+            'student_uuid' => $this->studentUuid,
+            'class_uuid'   => $this->classUuid,
+            'subject'      => $subject->uuid,
+        ]);
+    }
+
+    public function getRouteForAttainmentShow(BaseAttainment $baseAttainment, Subject $subject): string
     {
         return route('teacher.analyses.attainment.show', [
             'student_uuid'   => $this->studentUuid,
             'class_uuid'     => $this->classUuid,
-            'baseAttainment' => BaseAttainment::find($pValue->attainment_id)->uuid,
+            'baseAttainment' => $baseAttainment->uuid,
             'subject'        => $subject->uuid,
         ]);
     }
 
-    public function getRouteForSubjectShow($pValue)
-    {
-        return route('teacher.analyses.subject.show', [
-            'student_uuid' => request('student_uuid'),
-            'class_uuid'   => request('class_uuid'),
-            'subject'      => Subject::find($pValue->subject_id)->uuid,
-        ]);
-    }
-
-    public function getRouteForSubAttainmentShow($baseAttainment, $subject)
+    public function getRouteForSubAttainmentShow(BaseAttainment $baseAttainment, $subject)
     {
         return route('teacher.analyses.subattainment.show', [
             'student_uuid'   => $this->studentUuid,
@@ -60,7 +68,7 @@ class AnalysesForTeacherHelper
 
     public function getRouteForSubSubAttainmentShow($pValue, $subject)
     {
-        return route('student.analyses.subsubattainment.show', [
+        return route('teacher.analyses.subsubattainment.show', [
             'student_uuid'   => $this->studentUuid,
             'class_uuid'     => $this->classUuid,
             'baseAttainment' => BaseAttainment::find($pValue->attainment_id)->uuid,
@@ -68,5 +76,13 @@ class AnalysesForTeacherHelper
         ]);
     }
 
+    public function getRouteForShowGrades()
+    {
+        throw new \Exception('Teacher has no route for show grades student from within analyses');
+    }
 
+    public function getLayout()
+    {
+        return 'layouts.app-teacher';
+    }
 }

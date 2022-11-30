@@ -1,11 +1,11 @@
 <?php
 
-namespace tcCore\Http\Livewire\Teacher\Analyses;
+namespace tcCore\Http\Livewire\Analyses;
 
 use tcCore\BaseAttainment;
-use tcCore\Http\Livewire\Student\Analyses\AnalysesDashboard;
 use tcCore\Http\Traits\WithAnalysesGeneralData;
 use tcCore\Lib\Repositories\PValueRepository;
+use tcCore\Subject;
 
 class AnalysesAttainmentDashboard extends AnalysesDashboard
 {
@@ -17,11 +17,8 @@ class AnalysesAttainmentDashboard extends AnalysesDashboard
 
     protected $queryString = 'subject';
 
-    public function mount(?BaseAttainment $baseAttainment=null)
+    public function mount(?BaseAttainment $baseAttainment = null)
     {
-        $this->studentUuid =  request('student_uuid');
-        $this->classUuid = request('class_uuid');
-
         $this->attainment = $baseAttainment;
 
         $this->taxonomyIdentifier = $this->attainment->id;
@@ -31,7 +28,7 @@ class AnalysesAttainmentDashboard extends AnalysesDashboard
     public function render()
     {
         $this->dispatchBrowserEvent('filters-updated');
-        return view('livewire.student.analyses.analyses-attainment-dashboard')->layout('layouts.student');
+        return view('livewire.analyses.analyses-attainment-dashboard')->layout('layouts.student');
     }
 
     public function getDataProperty()
@@ -53,7 +50,7 @@ class AnalysesAttainmentDashboard extends AnalysesDashboard
                 $link = $this->getHelper()->getRouteForSubAttainmentShow($baseAttainment, $this->subject);
             }
 
-            return (object)[
+            return (object) [
                 'x'       => $key + 1,
                 'title'   => $this->attainment->getSubNameWithNumber($key + 1),
                 'count'   => $pValue->cnt,
@@ -71,10 +68,10 @@ class AnalysesAttainmentDashboard extends AnalysesDashboard
 
     public function redirectBack()
     {
-        return redirect(route('teacher.analyses.subject.show', [
-            'student_uuid'   => $this->studentUuid,
-            'class_uuid'     => $this->classUuid,
-            'subject' =>$this->subject
-        ]));
+        return redirect(
+            $this->getHelper()->getRouteForSubjectShow(
+                Subject::whereUuid($this->subject)->first()
+            )
+        );
     }
 }

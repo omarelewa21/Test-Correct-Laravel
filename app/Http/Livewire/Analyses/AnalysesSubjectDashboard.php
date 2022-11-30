@@ -1,8 +1,7 @@
 <?php
 
-namespace tcCore\Http\Livewire\Student\Analyses;
+namespace tcCore\Http\Livewire\Analyses;
 
-use Illuminate\Support\Facades\Auth;
 use tcCore\Attainment;
 use tcCore\BaseAttainment;
 use tcCore\EducationLevel;
@@ -25,8 +24,7 @@ class AnalysesSubjectDashboard extends AnalysesDashboard
 
     public function mount(?Subject $subject = null)
     {
-        parent::mount();
-
+         parent::mount();
         $this->subject = $subject;
 
         $this->taxonomyIdentifier = $this->subject->id;
@@ -47,7 +45,7 @@ class AnalysesSubjectDashboard extends AnalysesDashboard
         if (session()->has('STUDENT_ANALYSES_ATTAINMENT_MODE')) {
             $this->attainmentMode = session()->get('STUDENT_ANALYSES_ATTAINMENT_MODE');
         } else {
-            $this->attainmentMode = EducationLevel::getAttainmentType(auth()->user());
+            $this->attainmentMode = EducationLevel::getAttainmentType($this->getHelper()->getForUser());
         }
     }
 
@@ -58,14 +56,14 @@ class AnalysesSubjectDashboard extends AnalysesDashboard
 
     private function setGeneralStats()
     {
-        $analysesHelper = new AnalysesGeneralDataHelper(Auth::user());
-        $this->generalStats = (array)$analysesHelper->getAllForSubject($this->subject, $this->filters);
+        $analysesHelper = new AnalysesGeneralDataHelper($this->getHelper()->getForUser());
+        $this->generalStats = (array) $analysesHelper->getAllForSubject($this->subject, $this->filters);
     }
 
     public function render()
     {
         $this->dispatchBrowserEvent('filters-updated');
-        return view('livewire.student.analyses.analyses-subject-dashboard')->layout('layouts.student');
+        return view('livewire.analyses.analyses-subject-dashboard')->layout('layouts.student');
     }
 
     private function attainmentModeIsLearningGoal()
@@ -76,7 +74,7 @@ class AnalysesSubjectDashboard extends AnalysesDashboard
     public function getDataProperty()
     {
         $result = PValueRepository::getPValuePerAttainmentForStudent(
-            auth()->user(),
+            $this->getHelper()->getForUser(),
             $this->getPeriodsByFilterValues(),
             $this->getEducationLevelYearsByFilterValues(),
             $this->getTeachersByFilterValues(),
@@ -89,16 +87,16 @@ class AnalysesSubjectDashboard extends AnalysesDashboard
         $this->dataValues = $result->map(function ($pValue, $key) {
             $link = false;
             if ($pValue->attainment_id) {
-                $link = route('student.analyses.attainment.show', [
-                    'baseAttainment' => BaseAttainment::find($pValue->attainment_id)->uuid,
-                    'subject'        => $this->subject->uuid
-                ]);
+                $link = $this->getHelper()->getRouteForAttainmentShow(
+                    BaseAttainment::findOrFail($pValue->attainment_id),
+                    $this->subject
+                );
             }
             $attainmentTranslationLabel = $this->attainmentMode == 'LEARNING_GOAL'
                 ? __('student.leerdoel met nummer', ['number' => $key + 1])
                 : __('student.eindterm met nummer', ['number' => $key + 1]);
 
-            return (object)[
+            return (object) [
                 'x'       => $key + 1,
                 'title'   => ucfirst($attainmentTranslationLabel),
                 'count'   => $pValue->cnt,
@@ -116,7 +114,8 @@ class AnalysesSubjectDashboard extends AnalysesDashboard
 
     protected function getMillerGeneralGraphData($subjectId)
     {
-        return PValueTaxonomyMillerRepository::getPValueForStudentForSubject(auth()->user(),
+        return PValueTaxonomyMillerRepository::getPValueForStudentForSubject(
+            $this->getHelper()->getForUser(),
             $subjectId,
             $this->getPeriodsByFilterValues(),
             $this->getEducationLevelYearsByFilterValues(),
@@ -125,7 +124,8 @@ class AnalysesSubjectDashboard extends AnalysesDashboard
 
     protected function getRTTIGeneralGraphData($subjectId)
     {
-        return PValueTaxonomyRTTIRepository::getPValueForStudentForSubject(auth()->user(),
+        return PValueTaxonomyRTTIRepository::getPValueForStudentForSubject(
+            $this->getHelper()->getForUser(),
             $subjectId,
             $this->getPeriodsByFilterValues(),
             $this->getEducationLevelYearsByFilterValues(),
@@ -135,7 +135,7 @@ class AnalysesSubjectDashboard extends AnalysesDashboard
     protected function getBloomGeneralGraphData($subjectId)
     {
         return PValueTaxonomyBloomRepository::getPValueForStudentForSubject(
-            auth()->user(),
+            $this->getHelper()->getForUser(),
             $subjectId,
             $this->getPeriodsByFilterValues(),
             $this->getEducationLevelYearsByFilterValues(),
@@ -144,11 +144,15 @@ class AnalysesSubjectDashboard extends AnalysesDashboard
 
     public function redirectBack()
     {
-        return redirect(route('student.analyses.show'));
+        return redirect(
+           $this->getHelper()->getRouteForDashboardShow()
+        );
     }
 
     public function showGrades()
     {
-        return redirect(route('student.test-takes', ['tab' => 'graded']));
+        return redirect(
+            $this->getHelper()->getRouteForShowGrades()
+        );
     }
 }

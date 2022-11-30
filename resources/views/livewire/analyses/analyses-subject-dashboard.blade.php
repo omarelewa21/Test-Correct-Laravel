@@ -1,4 +1,4 @@
-@extends('livewire.student.analyses.analyses-dashboard')
+@extends('livewire.analyses.analyses-dashboard')
 
 @section('analyses.header.title')
     <x-sticky-page-title class="top-20">
@@ -14,7 +14,12 @@
 
 @section('analyses.page.title')
     <div class="flex pt-5 justify-between">
-        <h1 class="flex pt-5"> {!! $subject->name !!} </h1>
+        <div class="flex flex-col pt-5">
+            <h1>{!! $subject->name !!}</h1>
+            @if($this->viewingAsTeacher())
+                <h2>{{ $this->getHelper()->getForUser()->name_full }}</h2>
+            @endif
+        </div>
         <x-button.primary class="hidden bg-purple-900 flex">Exporteren</x-button.primary>
     </div>
 @endsection
@@ -29,9 +34,9 @@
                 <x-empty-graph show="true"></x-empty-graph>
             </div>
         @else
-        <div class="flex flex-row">
+            <div class="flex flex-row">
                 <x-partials.analyses-general-data :generalStats="$generalStats"/>
-        </div>
+            </div>
         @endif
     </x-content-section>
 
@@ -43,10 +48,10 @@
         <h2 class="flex">{{ __('student.overzicht p-waardes') }}</h2>
         <div class="flex">
             <x-button.slider
-                    class="flex gap-2 items-center"
-                    label="{{  __('Weergave per') }}"
-                    :options="$this->attainmentModeOptions"
-                    wire:model="attainmentMode"
+                class="flex gap-2 items-center"
+                label="{{  __('Weergave per') }}"
+                :options="$this->attainmentModeOptions"
+                wire:model="attainmentMode"
             ></x-button.slider>
         </div>
     </div>

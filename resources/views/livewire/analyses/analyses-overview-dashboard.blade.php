@@ -1,9 +1,9 @@
-@extends('livewire.student.analyses.analyses-dashboard')
+@extends('livewire.analyses.analyses-dashboard')
 
 @section('analyses.page.title')
     <h1 class="pt-10"> {{ __('header.Analyses') }} </h1>
     @if($this->viewingAsTeacher())
-        <h2> {{ $this->getHelper()->getForUser()->name_full }}  </h2>
+        <h3> {{ $this->getHelper()->getForUser()->name_full }}  </h3>
     @endif
 @endsection
 

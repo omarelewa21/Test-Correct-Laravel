@@ -1,4 +1,4 @@
-@extends('livewire.student.analyses.analyses-dashboard')
+@extends('livewire.analyses.analyses-dashboard')
 
 @section('analyses.header.title')
     <x-sticky-page-title class="top-20">
@@ -12,20 +12,23 @@
                         {!!  \tcCore\Subject::whereUuid($subject)->first()->name !!}
                     </a>
                     <x-icon.chevron-small opacity="1"></x-icon.chevron-small>
-                    <a wire:click="redirectBack" class="cursor-pointer">
-                    {{ \tcCore\BaseAttainment::find($attainment->attainment_id)->name }}
-                    </a>
-                    <x-icon.chevron-small opacity="1">
-                    </x-icon.chevron-small>{{ $attainment->getSubNameWithNumber($attainmentOrderNumber) }}
+                    {{ $attainment->name }}
                 </span>
             </div>
         </div>
-
     </x-sticky-page-title>
 @endsection
 
 @section('analyses.page.title')
-    <h1 class="pt-10"> {{ $attainment->getSubNameWithNumber($attainmentOrderNumber)  }} </h1>
+    <div class="flex pt-5 justify-between">
+        <div class="flex flex-col">
+            <h1 class="flex pt-5"> {{ $attainment->name }} </h1>
+            @if($this->viewingAsTeacher())
+                <h3> {{ $this->getHelper()->getForUser()->name_full }}  </h3>
+            @endif
+        </div>
+        <x-button.primary class="hidden bg-purple-900 flex">Exporteren</x-button.primary>
+    </div>
 @endsection
 
 @section('analyses.p-values-graph')
@@ -33,12 +36,13 @@
         <h2 class="flex">{{ __('student.overzicht p-waardes') }}</h2>
     </div>
     <x-content-section>
+
         <x-slot name="title">
             <div class="hidden">{{ $this->data }}</div>
             @if ($attainment->is_learning_goal == 1)
-            {{ __('student.p waarde subsubleerdoelen') }}
-                @else
-                {{ __('student.p waarde subsubeindtermen') }}
+                {{__('student.p waarde subleerdoelen') }}
+            @else
+                {{__('student.p waarde subeindtermen') }}
             @endif
         </x-slot>
 
@@ -50,10 +54,6 @@
         >
         </div>
     </x-content-section>
-@endsection
-
-@section('analyses.page.title')
-    <h2 class="pt-4">Subleerdoel 4</h2>
 @endsection
 
 @section('analyses.attainment.description')
@@ -81,4 +81,8 @@
     </x-content-section>
 
     <div class="divider my-6"></div>
+@endsection
+
+@section('analyses.top-items.title')
+    {{--    {{ trans_choice('student.top subleerdoelen om aan te werken', count($this->topItems)) }}--}}
 @endsection

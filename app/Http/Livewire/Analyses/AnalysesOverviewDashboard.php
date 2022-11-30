@@ -1,8 +1,7 @@
 <?php
 
-namespace tcCore\Http\Livewire\Teacher\Analyses;
+namespace tcCore\Http\Livewire\Analyses;
 
-use tcCore\Http\Livewire\Student\Analyses\AnalysesDashboard;
 use tcCore\Lib\Repositories\PValueRepository;
 use tcCore\Lib\Repositories\PValueTaxonomyBloomRepository;
 use tcCore\Lib\Repositories\PValueTaxonomyMillerRepository;
@@ -11,8 +10,6 @@ use tcCore\Subject;
 
 class AnalysesOverviewDashboard extends AnalysesDashboard
 {
-    const FILTER_SESSION_KEY = 'TEACHER_ANALYSES_FILTER';
-
     public function getDataProperty()
     {
         $result = PValueRepository::getPValueForStudentBySubject(
@@ -26,7 +23,9 @@ class AnalysesOverviewDashboard extends AnalysesDashboard
 
             $link = false;
             if ($pValue->subject_id) {
-                $link = $this->getHelper()->getRouteForSubjectShow($pValue);
+                $link = $this->getHelper()->getRouteForSubjectShow(
+                    Subject::findOrFail($pValue->subject_id)
+                );
             }
 
             return (object) [
@@ -44,7 +43,7 @@ class AnalysesOverviewDashboard extends AnalysesDashboard
     public function render()
     {
         $this->dispatchBrowserEvent('filters-updated');//, ['newName' => $value]);
-        return view('livewire.student.analyses.analyses-overview-dashboard')->layout('layouts.student');;
+        return view('livewire.analyses.analyses-overview-dashboard')->layout($this->getHelper()->getLayout());;
     }
 
     protected function getMillerData($subjectId)

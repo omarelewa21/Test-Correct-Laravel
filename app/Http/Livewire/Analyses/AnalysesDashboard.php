@@ -1,12 +1,9 @@
 <?php
 
-namespace tcCore\Http\Livewire\Student\Analyses;
+namespace tcCore\Http\Livewire\Analyses;
 
-use http\QueryString;
 use Livewire\Component;
 use tcCore\EducationLevel;
-use tcCore\Http\Livewire\Teacher\Analyses\AnalysesForStudentHelper;
-use tcCore\Http\Livewire\Teacher\Analyses\AnalysesForTeacherHelper;
 use tcCore\Lib\Repositories\PValueTaxonomyBloomRepository;
 use tcCore\Lib\Repositories\PValueTaxonomyMillerRepository;
 use tcCore\Lib\Repositories\PValueTaxonomyRTTIRepository;
@@ -56,10 +53,11 @@ abstract class AnalysesDashboard extends Component
 
     public function mount()
     {
+        $this->studentUuid =  request('student_uuid');
+        $this->classUuid = request('class_uuid');
+
         $this->setFilters();
-
         $this->getFilterOptionsData();
-
         $this->getDataProperty();
     }
 
@@ -262,7 +260,7 @@ abstract class AnalysesDashboard extends Component
     protected function getHelper()
     {
         if (!$this->helper) {
-            if(true) {
+            if(auth()->user()->isA('teacher')) {
                 $this->helper = new AnalysesForTeacherHelper($this->studentUuid, $this->classUuid);
             } else {
                 $this->helper = new AnalysesForStudentHelper();
@@ -278,8 +276,6 @@ abstract class AnalysesDashboard extends Component
     public function updatingStudentUuid(){
         abort(403);
     }
-
-
 
     public function viewingAsTeacher()
     {
