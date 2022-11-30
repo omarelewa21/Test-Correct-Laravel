@@ -181,14 +181,22 @@ class Login extends Component
         };
 
         $user = auth()->user();
+        $route = $user->getTemporaryCakeLoginUrl();
         if ($user->isA('Student') && $user->schoolLocation->allow_new_student_environment) {
-            return redirect()->intended(route('student.dashboard'));
+            $route = route('student.dashboard');
         }
 //        if ($user->isA('Account manager')) {
 //            return redirect()->intended(route('uwlr.grid'));
 //        }
 
-        auth()->user()->redirectToCakeWithTemporaryLogin();
+        $expiration_date = $user->password_expiration_date;
+        if(!$expiration_date) {
+            return $this->redirect($route);
+        }
+        if($expiration_date->lessThan(Carbon::now())) {
+//            return $this->emit('openModal', 'force-password-change-modal'); //dit wil niet werken, waarschijnlijk mist de @livewire('livewire-ui-modal') ergens
+            return $this->redirect($route);
+        }
     }
 
     public function guestLogin()
