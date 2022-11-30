@@ -9,12 +9,14 @@ use tcCore\User;
 
 class ForcePasswordChangeModal extends ModalComponent
 {
+    public $oldPassword;
     public $newPassword;
     public $newPasswordRepeat;
 
     public function rules()
     {
         return [
+            'oldPassword' => 'required',
             'newPasswordRepeat' => 'required|same:newPassword',
             'newPassword'       => 'required|'. User::getPasswordLengthRule(),
         ];
@@ -27,9 +29,18 @@ class ForcePasswordChangeModal extends ModalComponent
 
     public function requestPasswordChange()
     {
+        $user = Auth::user();
+
+        if(!Hash::check($this->oldPassword, $user->password)) {
+            $this->addError('old-password-wrong', __('auth.passwords_dont_match'));
+            return;
+        }
+        if(Hash::check($this->newPassword, $user->password)) {
+            $this->addError('old-and-new-passwords-match', __('auth.old_and_new_passwords_match'));
+            return;
+        }
         $this->validate();
 
-        $user = Auth::user();
         $user->password = Hash::make($this->newPassword);
         $user->save();
         $this->closeModal();

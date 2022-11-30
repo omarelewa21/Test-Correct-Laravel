@@ -145,6 +145,7 @@ return [
     'newPassword.min'                                                                                => 'Je nieuwe wachtwoord is niet lang genoeg',
     'newPassword.regex'                                                                              => 'Je nieuwe wachtwoord voldoet niet aan het verplichte patroon',
     'passwords_dont_match'                                                                           => 'Het opgegeven huidige wachtwoord is incorrect',
+    'old_and_new_passwords_match'                                                                    => 'Het huidige en nieuwe wachtwoord komen overeen. Voer een ander wachtwoord in.',
     'test_code_quick_access'                                                                         => 'Vul de testcode in als deze bestaat om snel toegang te krijgen tot een test',
     'guest_account_not_allowed'                                                                      => 'gastaccounts zijn niet toegestaan voor deze test',
 ];
