@@ -4,6 +4,8 @@ namespace tcCore\Http\Livewire\Analyses;
 
 use tcCore\BaseAttainment;
 use tcCore\Http\Traits\WithAnalysesGeneralData;
+use tcCore\Lib\Repositories\TaxonomyRankingRepostitory;
+use tcCore\Subject;
 
 class AnalysesSubSubAttainmentDashboard extends AnalysesDashboard
 {
@@ -19,6 +21,8 @@ class AnalysesSubSubAttainmentDashboard extends AnalysesDashboard
 
     public $parentParentAttainment;
 
+    public $displayRankingPanel = false;
+
     public function getDataProperty()
     {
         return true;
@@ -32,7 +36,6 @@ class AnalysesSubSubAttainmentDashboard extends AnalysesDashboard
         $this->taxonomyIdentifier = $this->attainment->id;
         $this->parentAttainment = BaseAttainment::find($this->attainment->attainment_id);
         $this->parentParentAttainment = BaseAttainment::find($this->parentAttainment->attainment_id);
-
     }
 
     public function render()

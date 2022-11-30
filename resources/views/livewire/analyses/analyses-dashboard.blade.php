@@ -79,13 +79,13 @@
 
 
             <BR/>
- @if (false)
+ @if ($this->displayRankingPanel)
             <x-content-section>
                 <x-slot name="title">
                     @yield('analyses.top-items.title')
                 </x-slot>
                 <div class="flex" wire:ignore>
-                    @foreach($this->topItems as $modelId => $modelName)
+                    @foreach($this->topItems as $item)
                         <div x-data="{active:false}" class="md:w-1/3 mr-5">
                             <div class="-ml-2 flex space-x-2 pb-2 border-b-3 border-transparent active  items-center question-indicator">
                                 <section
@@ -93,24 +93,24 @@
                                 >
                                     <span class="align-middle px-1.5">{{ $loop->iteration }}</span>
                                 </section>
-                                <div class="flex text-lg bold flex-grow border-b-3  border-sysbase ">{{ $modelName }}</div>
+                                <div class="flex text-lg bold flex-grow border-b-3  border-sysbase ">{!! $item->title !!} </div>
 
                             </div>
                             @foreach($this->taxonomies as $key=> $taxonomy)
                                 <div
-                                        x-data="expandableGraph({{ $key }}, '{{ $modelId }}', '{{ $taxonomy }}')"
+                                        x-data="expandableGraph({{ $key }}, '{{ $item->id }}', '{{ $taxonomy['name'] }}')"
                                         x-on:click="expanded = !expanded"
                                         class="cursor-pointer ml-10"
                                 >
-                            <span :class="{ 'rotate-svg-90' : expanded }">
-                                <x-icon.chevron></x-icon.chevron>
-                            </span>
-                                    <span>{{ __('student.Taxonomy') }} {{ $taxonomy }} {{__('student.Methode') }}</span>
+                                    <span :class="{ 'rotate-svg-90' : expanded }">
+                                        <x-icon.chevron/>
+                                    </span>
+                                    <span>{{ __('student.Taxonomy') }} {{ $taxonomy['name'] }} {{__('student.Methode') }}</span>
                                     <div x-show="expanded">
-                                        <div wire:loading wire:target="getData({{ $modelId }}, '{{ $taxonomy }}')">
+                                        <div wire:loading wire:target="getData({{ $item->id }}, '{{ $taxonomy['name'] }}')">
                                             loading
                                         </div>
-                                        <div :id="containerId"></div>
+                                        <div :id="containerId"style="height: {{ $taxonomy['height'] }}">ex</div>
                                     </div>
                                 </div>
                             @endforeach

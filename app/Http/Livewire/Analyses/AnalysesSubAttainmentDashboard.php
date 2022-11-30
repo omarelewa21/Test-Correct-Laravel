@@ -5,6 +5,7 @@ namespace tcCore\Http\Livewire\Analyses;
 use tcCore\BaseAttainment;
 use tcCore\Http\Traits\WithAnalysesGeneralData;
 use tcCore\Lib\Repositories\PValueRepository;
+use tcCore\Lib\Repositories\TaxonomyRankingRepostitory;
 use tcCore\Subject;
 
 class AnalysesSubAttainmentDashboard extends AnalysesDashboard
@@ -35,6 +36,12 @@ class AnalysesSubAttainmentDashboard extends AnalysesDashboard
                 $this->parentAttainmentOrderNumber = $this->attainment->attainment->getOrderNumber();
             }
         }
+
+        $this->topItems = TaxonomyRankingRepostitory::getForAttainment(
+            $this->getHelper()->getForUser(),
+            Subject::whereUuid($this->subject)->first(),
+            $this->attainment
+        );
 
         $this->getFilterOptionsData();
     }
