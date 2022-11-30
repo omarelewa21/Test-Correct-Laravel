@@ -85,7 +85,7 @@
             </div>
         </div>
         <div class="flex flex-col bg-light-grey items-center justify-center py-12">
-            <div class="@if($showGrades) content-section @endif flex flex-col w-full max-w-2xl p-8 space-y-4">
+            <div class="content-section flex flex-col w-full max-w-2xl p-8 space-y-4">
                 @if($this->testTakeStatusStage != 'graded')
                     @if($this->testTakeStatusStage == 'planned')
                         <h4 class="px-3">{{ __('student.teacher_introduction_title') }}</h4>
@@ -105,25 +105,27 @@
                         </div>
                     @endif
                 @else
-                    @if ($showGrades)
-                        <h4 class="px-3">{{ __('student.your_grade') }}</h4>
-                        <div class="divider"></div>
-                        <div class="">
-                            <div class="relative w-full flex hover:font-bold py-5 px-3 rounded-10 base
-                                        multiple-choice-question transition ease-in-out duration-150 focus:outline-none
-                                        justify-between items-center -mt-4"
-                            >
-                                <span>{{ auth()->user()->getNameFullAttribute() }}</span>
-                                @if($testParticipant->rating)
-                                <span class="px-2 py-1 text-sm rounded-full {!! $this->getBgColorForTestParticipantRating($this->getRatingToDisplay($testParticipant)) !!}">
-                                    {{ $this->getRatingToDisplay($testParticipant) }}
+                    <h4 class="px-3">{{ __('student.your_grade') }}</h4>
+                    <div class="divider"></div>
+                    <div class="">
+                        <div class="relative w-full flex hover:font-bold py-5 px-3 rounded-10 base
+                                    multiple-choice-question transition ease-in-out duration-150 focus:outline-none
+                                    justify-between items-center -mt-4"
+                        >
+                            <span>{{ auth()->user()->getNameFullAttribute() }}</span>
+                            @if(!$showGrades)
+                                <span title="{{__('test_take.hide_grade_tooltip')}}">
+                                    {{ __('test_take.nvt') }}
                                 </span>
-                                @else
-                                    <span class="italic">Geen cijfer</span>
-                                @endif
-                            </div>
+                            @elseif($testParticipant->rating)
+                            <span class="px-2 py-1 text-sm rounded-full {!! $this->getBgColorForTestParticipantRating($this->getRatingToDisplay($testParticipant)) !!}">
+                                {{ $this->getRatingToDisplay($testParticipant) }}
+                            </span>
+                            @else
+                                <x-icon.time-dispensation class="text-inherit"/>
+                            @endif
                         </div>
-                    @endif
+                    </div>
                 @endif
                 @if($needsApp && !$meetsAppRequirement && !$this->testParticipant->isInBrowser())
                     <div class="flex w-full justify-center transition-all duration-300 mb-4">

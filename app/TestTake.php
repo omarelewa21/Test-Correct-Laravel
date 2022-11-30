@@ -1103,7 +1103,6 @@ class TestTake extends BaseModel
         $query->where(function ($query) {
                 $query->where('test_take_status_id', TestTakeStatus::STATUS_RATED);
             })
-            ->where('test_takes.show_grades', 1)
             ->whereIn('test_takes.id', function ($query) use ($withNullRating, $user) {
                 $query->select('test_take_id')
                     ->from(with(new TestParticipant())->getTable())

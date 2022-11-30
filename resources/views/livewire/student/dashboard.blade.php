@@ -143,12 +143,16 @@
                                             <x-partials.test-take-type-label :type="$testTake->retake"/>
                                         </x-table.cell>
                                         <x-table.cell class="text-right">
-                                            @if($testTake->testParticipants->first()->rating)
+                                            @if(!$testTake->show_grades)
+                                                <span title="{{__('test_take.hide_grade_tooltip')}}">
+                                                    {{ __('test_take.nvt') }}
+                                                </span>
+                                            @elseif($testTake->testParticipants->first()->rating)
                                                 <span class="px-2 py-1 text-sm rounded-full {!! $this->getBgColorForTestParticipantRating($this->getRatingToDisplay($testTake->testParticipants->first())) !!}">
                                                     {{ $this->getRatingToDisplay($testTake->testParticipants->first()) }}
                                                 </span>
                                             @else
-                                                -
+                                                <x-icon.time-dispensation class="text-inherit"/>
                                             @endif
                                         </x-table.cell>
                                     </x-table.row>
