@@ -37,7 +37,9 @@ abstract class AnalysesDashboard extends Component
     public $dataValues = [];
     public $dataKeys = [];
 
-    protected $topItems; //todo generate Top Items with a algorithm
+    public $topItems = [];
+
+    public $displayRankingPanel = true;
 
     protected $taxonomies = [
         ['name' => 'Miller', 'height' => '150px'],
@@ -92,7 +94,8 @@ abstract class AnalysesDashboard extends Component
 
     protected function getMillerData($attainmentId)
     {
-        return PValueTaxonomyMillerRepository::getPValueForStudentForAttainment($this->getForUser(),
+        return PValueTaxonomyMillerRepository::getPValueForStudentForAttainment(
+            $this->getHelper()->getForUser(),
             $attainmentId,
             $this->getPeriodsByFilterValues(),
             $this->getEducationLevelYearsByFilterValues(),
@@ -101,7 +104,8 @@ abstract class AnalysesDashboard extends Component
 
     protected function getRTTIData($attainmentId)
     {
-        return PValueTaxonomyRTTIRepository::getPValueForStudentForAttainment($this->getForUser(),
+        return PValueTaxonomyRTTIRepository::getPValueForStudentForAttainment(
+            $this->getHelper()->getForUser(),
             $attainmentId,
             $this->getPeriodsByFilterValues(),
             $this->getEducationLevelYearsByFilterValues(),
@@ -111,7 +115,7 @@ abstract class AnalysesDashboard extends Component
     protected function getBloomData($attainmentId)
     {
         return PValueTaxonomyBloomRepository::getPValueForStudentForAttainment(
-            $this->getForUser(),
+            $this->getHelper()->getForUser(),
             $attainmentId,
             $this->getPeriodsByFilterValues(),
             $this->getEducationLevelYearsByFilterValues(),

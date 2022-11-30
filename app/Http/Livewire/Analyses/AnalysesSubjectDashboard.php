@@ -12,6 +12,7 @@ use tcCore\Lib\Repositories\PValueRepository;
 use tcCore\Lib\Repositories\PValueTaxonomyBloomRepository;
 use tcCore\Lib\Repositories\PValueTaxonomyMillerRepository;
 use tcCore\Lib\Repositories\PValueTaxonomyRTTIRepository;
+use tcCore\Lib\Repositories\TaxonomyRankingRepostitory;
 use tcCore\Subject;
 
 class AnalysesSubjectDashboard extends AnalysesDashboard
@@ -24,10 +25,15 @@ class AnalysesSubjectDashboard extends AnalysesDashboard
 
     public function mount(?Subject $subject = null)
     {
-         parent::mount();
+        parent::mount();
         $this->subject = $subject;
 
         $this->taxonomyIdentifier = $this->subject->id;
+
+        $this->topItems = TaxonomyRankingRepostitory::getForSubject(
+            $this->getHelper()->getForUser(),
+            $this->subject
+        );
 
         $this->setDefaultAttainmentMode();
     }
@@ -145,7 +151,7 @@ class AnalysesSubjectDashboard extends AnalysesDashboard
     public function redirectBack()
     {
         return redirect(
-           $this->getHelper()->getRouteForDashboardShow()
+            $this->getHelper()->getRouteForDashboardShow()
         );
     }
 
