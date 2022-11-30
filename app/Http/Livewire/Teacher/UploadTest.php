@@ -5,6 +5,7 @@ namespace tcCore\Http\Livewire\Teacher;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
+use Livewire\TemporaryUploadedFile;
 use Livewire\WithFileUploads;
 use Ramsey\Uuid\Uuid;
 use tcCore\EducationLevel;
@@ -33,7 +34,7 @@ class UploadTest extends Component
     public bool $showDateWarning = false;
     public string $minimumTakeDate;
 
-    public $uploads;
+    public $uploads = [];
 
     public function getListeners()
     {
@@ -53,6 +54,7 @@ class UploadTest extends Component
     public function updated($name, $value)
     {
         $this->tabOneComplete = collect($this->testInfo)->reject(fn($item) => filled($item))->isEmpty();
+        $this->tabTwoComplete = collect($this->uploads)->isNotEmpty();
     }
 
     public function updatingContainsPublisherContent($value)
@@ -62,6 +64,7 @@ class UploadTest extends Component
 
     public function updatedTestInfoPlannedAt($value)
     {
+        $this->testInfo['planned_at'] = $this->testInfo['planned_at'] . ' 00:00:00';
         $this->showDateWarning = Carbon::parse($value)->isBefore(Carbon::parse($this->minimumTakeDate)->addDays(7));
     }
 

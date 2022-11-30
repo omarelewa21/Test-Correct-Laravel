@@ -13,5 +13,7 @@ return [
     'PDF'                    => 'PDF',
     'Word'                   => 'Word',
     'Geluidsfragment'        => 'Geluidsfragment',
+    'Controle'               => 'Controle',
+    'controle_text'          => 'Kloppen de gegevens? Heb je alle bestanden aangeleverd?',
 ];
 

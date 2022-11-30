@@ -102,28 +102,32 @@
                 </x-slot>
             </x-accordion.block>
 
-
-            <x-accordion.block :key="2" :disabled="!$tabOneComplete" :emitWhenSet="true" :upload="true" uploadModel="uploads">
+            <x-accordion.block :key="2" :disabled="!$tabOneComplete" :emitWhenSet="true" :upload="true"
+                               uploadModel="uploads">
                 <x-slot name="title">
                     <div class="flex gap-2 items-center">
-                        <x-number-circle
-                                x-bind:class="expanded ? 'text-white bg-sysbase group-hover:bg-primary group-hover:border-primary' : 'bg-transparent group-hover:text-primary group-hover:border-primary'">
-                            2
-                        </x-number-circle>
+                        @if($tabTwoComplete)
+                            <x-icon.checkmark-circle color="var(--cta-primary)" width="30" height="30"/>
+                        @else
+                            <x-number-circle
+                                    x-bind:class="expanded ? 'text-white bg-sysbase group-hover:bg-primary group-hover:border-primary' : 'bg-transparent group-hover:text-primary group-hover:border-primary'">
+                                2
+                            </x-number-circle>
+                        @endif
                         <h4 class="group-hover:text-primary transition-colors">@lang('upload.Bestanden aanleveren')</h4>
                     </div>
                 </x-slot>
                 <x-slot name="body">
                     <div class="flex flex-col w-full gap-4">
-                        <div>@lang('upload.upload_section_text')</div>
+                        <div class="text-lg">@lang('upload.upload_section_text')</div>
                         <div>
                             <span class="note text-xs">@lang('upload.upload_section_allowed')</span>
                             <div class="flex flex-wrap gap-x-4 gap-y-1">
                                 <div class="flex gap-1.5 items-center">
                                     <x-icon.image/>
                                     <div class="flex gap-1.5 items-center">
-                                            <span class="bold">@lang('upload.Afbeeldingen')</span>
-                                            <span class="note text-xs">(.jpg / .jpeg / .png / .gif)</span>
+                                        <span class="bold">@lang('upload.Afbeeldingen')</span>
+                                        <span class="note text-xs">(.jpg / .jpeg / .png / .gif)</span>
                                     </div>
                                 </div>
 
@@ -141,7 +145,7 @@
                                     </div>
                                 </div>
                                 <div class="flex gap-1.5 items-center">
-                                    <x-icon.audio/>
+                                    <x-icon.audiofile class="primary"/>
                                     <div class="flex gap-1.5 items-center">
                                         <span class="bold">@lang('upload.Geluidsfragment')</span>
                                         <span class="note text-xs">(.mp3 / .wav)</span>
@@ -150,30 +154,96 @@
                             </div>
                         </div>
 
+                        <div class="inline-flex flex-wrap">
+                            <div class="inline-flex flex-wrap" id="upload-dummies" wire:ignore></div>
+                            @if(count($this->uploads))
+                                @foreach($this->uploads as $upload)
+                                    <x-attachment.badge :upload="true"
+                                                        :attachment="$upload"
+                                                        :title="$upload->getClientOriginalName()"
+                                                        :deleteAction="sprintf('removeUpload(\'%s\')', $upload->getFilename())"
+                                                        :withNumber="false"
+                                    />
+                                @endforeach
+                            @endif
+                        </div>
+
+
                         <div class="flex items-center gap-2">
-                            <x-button.primary size="sm">
-                                <x-icon.attachment/>
-                                <span>@lang('cms.Bijlage toevoegen')</span>
-                            </x-button.primary>
+                            <label for="file-upload">
+                                <x-button.primary size="sm" type="link" class="cursor-pointer">
+                                    <x-icon.attachment/>
+                                    <span>@lang('cms.Bijlage toevoegen')</span>
+                                </x-button.primary>
+                                <input type="file" id="file-upload" multiple @change="handleFileSelect" class="hidden"
+                                       x-on:livewire-upload-start="console.log('start')"
+                                />
+                            </label>
                             <span class="italic">@lang('cms.Of sleep je bijlage over dit vak')</span>
                         </div>
 
+                        <template id="upload-badge">
+                            <div class="badge inline-flex relative border rounded-lg border-blue-grey items-center mr-4 mb-2 overflow-hidden"
+                                 wire:ignore>
+                                <div class="flex p-2 border-r border-blue-grey h-full items-center">
+                                    <x-icon.attachment/>
+                                </div>
+                                <div class="flex base items-center relative">
+                                    <span class="badge-name p-2 note italic max-w-[236px] truncate"></span>
+                                </div>
+                                <div class="absolute bg-bluegrey h-1.5 w-full bottom-0">
+                                    <div
+                                            class="bg-primary h-1.5"
+                                            style="transition: width 1s"
+                                            :style="`width: ${progress[$el.closest('.badge').id]}%;`"
+                                    >
+                                    </div>
+                                </div>
+                            </div>
+                        </template>
                     </div>
                 </x-slot>
             </x-accordion.block>
 
-            <x-accordion.block :key="3" :disabled="!$tabOneComplete || !$tabTwoComplete" :emitWhenSet="true">
+            <x-accordion.block :key="3" :disabled="false/*!$tabOneComplete || !$tabTwoComplete*/" :emitWhenSet="true">
                 <x-slot name="title">
                     <div class="flex gap-2 items-center">
                         <x-number-circle
-                                x-bind:class="expanded ? 'text-white bg-sysbase group-hover:bg-primary' : 'bg-transparent group-hover:text-primary group-hover:border-primary'">
+                                x-bind:class="expanded ? 'text-white bg-sysbase group-hover:bg-primary group-hover:border-primary' : 'bg-transparent group-hover:text-primary group-hover:border-primary'">
                             3
                         </x-number-circle>
-                        <h4 class="group-hover:text-primary transition-colors">Controle</h4>
+                        <h4 class="group-hover:text-primary transition-colors">@lang('upload.Controle')</h4>
                     </div>
                 </x-slot>
                 <x-slot name="body">
-                    body!
+                    <div class="flex flex-col w-full gap-4">
+                        <div class="text-lg">@lang('upload.controle_text')</div>
+                        <div class="flex">
+                            <div>
+                                <span class="text-base">@lang('upload.Toetsgegevens')</span>
+                                <div class="grid grid-cols-2 gap-x-6 gap-y-0.5">
+                                    <div class="flex items-center col-start-1 note text-sm"><span>Naam toets:</span></div>
+                                    <div class="flex items-center col-start-2 text-lg"><span>{{ $testInfo['name'] }}</span>
+                                    </div>
+                                    <div class="flex items-center col-start-1 note text-sm"><span>Afnamedatum:</span></div>
+                                    <div class="flex items-center col-start-2 text-lg"><span>{{ $testInfo['planned_at'] }}</span>
+                                    </div>
+                                    <div class="flex items-center col-start-1 note text-sm"><span>Vak:</span></div>
+                                    <div class="flex items-center col-start-2 text-lg"><span></span>
+                                    </div>
+                                    <div class="flex items-center col-start-1 note text-sm"><span>Niveau:</span></div>
+                                    <div class="flex items-center col-start-2 text-lg"><span>{{ $testInfo['name'] }}</span>
+                                    </div>
+                                    <div class="flex items-center col-start-1 note text-sm"><span>Jaar:</span></div>
+                                    <div class="flex items-center col-start-2 text-lg"><span>{{ $testInfo['name'] }}</span>
+                                    </div>
+                                    <div class="flex items-center col-start-1 note text-sm"><span>Type:</span></div>
+                                    <div class="flex items-center col-start-2 text-lg"><span>{{ $testInfo['name'] }}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </x-slot>
             </x-accordion.block>
         </x-accordion.container>

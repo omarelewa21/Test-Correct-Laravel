@@ -195,4 +195,17 @@ class BaseHelper
         }
         return route('auth.login',$queryAr);
     }
+
+    public static function getWorkableTypeFromUploadMime($mime)
+    {
+        if (str($mime)->startsWith('application')) {
+            if (str(explode('/', $mime)[1])->contains('word')) {
+                return 'word';
+            }
+
+            return 'pdf';
+        }
+
+        return collect(explode('/', $mime))->first();
+    }
 }

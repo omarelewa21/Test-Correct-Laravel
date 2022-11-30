@@ -1,10 +1,21 @@
 <div x-data="accordionBlock(@js($key), @js($emitWhenSet))"
+     id="accordion-block"
      role="region"
         @class([
-           'rounded-lg bg-white shadow',
+           'rounded-lg bg-white shadow relative',
            'accordion-disabled' => $disabled
            ])
+        x-bind:class="{' bg-primary/5 border-dashed border-primary border-4 rounded-10 -m-1 ': droppingFile}"
 >
+    @if($upload)
+        <div x-data="fileUpload(@js($uploadModel))"
+             x-on:drop="handleDrop()"
+             x-on:drop.prevent="handleFileDrop($event)"
+             x-on:dragover.prevent=""
+             x-on:dragenter.prevent="handleDragEnter()"
+             x-on:dragleave.prevent="handleDragLeave()"
+        >
+            @endif
     <div x-bind:id="id">
         <button
                 x-on:click="expanded = !expanded"
@@ -42,18 +53,7 @@
             {{ $body }}
         </div>
     </div>
-
-    @if($upload)
-        <input type="file" id="file-upload" multiple class="hidden" />
-
-        <script>
-            function fileUpload() {
-                return {
-                    isDropping: false,
-                    isUploading: false,
-                    progress: 0,
-                }
-            }
-        </script>
-    @endif
+@if($upload)
+        </div>
+        @endif
 </div>

@@ -2,17 +2,15 @@
     'title' => 'unkown',
     'upload',
     'attachment',
-    'disabled' => false
+    'disabled' => false,
+    'deleteAction' => null,
+    'withNumber' => true,
 ])
 
 @php
     $type =  '';
     if($upload) {
-        $type = collect(explode('/', $attachment->getMimeType()))->first();
-
-        if ($type == 'application') {
-            $type = 'pdf';
-        }
+        $type = \tcCore\Http\Helpers\BaseHelper::getWorkableTypeFromUploadMime($attachment->getMimeType());
     } else {
         $type = $attachment->getFileType();
     }
@@ -39,12 +37,14 @@
             <x-icon.audiofile/>
         @elseif($type == 'pdf')
             <x-icon.pdf/>
+        @elseif($type == 'word')
+            W
         @else
             <x-icon.attachment/>
         @endif
     </div>
     <div class="flex base items-center relative">
-        <span class="pl-2" x-text="index + ':'"></span>
+        @if($withNumber) <span class="pl-2" x-text="index + ':'"></span> @endif
         @if($type == 'video')
         <span class="p-2 text-base max-w-[200px] truncate"
               :class="{'text-midgrey': resolvingTitle}"
@@ -155,7 +155,12 @@
                     <div class="flex w-full h-px bg-blue-grey mb-2"></div>
                 @endif
                 <button class="flex items-center space-x-2 py-1 px-4 base hover:text-primary hover:bg-offwhite transition w-full"
+                        @if($deleteAction)
+                            @click="{{ $deleteAction }}"
+                        @else
                         @click="$dispatch('delete-modal', ['{{ $upload ? 'upload' : 'attachment'}}', '{{ $upload ? $attachment->getFileName() : $attachment->uuid }}'])"
+                        @endif
+
                 >
                     <x-icon.remove/>
                     <span class="text-base bold inherit">{{ __('cms.Verwijderen') }}</span>

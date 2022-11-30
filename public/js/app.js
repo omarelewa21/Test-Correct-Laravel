@@ -7194,6 +7194,7 @@ document.addEventListener('alpine:init', function () {
     return {
       id: null,
       emitWhenSet: emitWhenSet,
+      droppingFile: false,
       init: function init() {
         this.id = this.containerId + '-' + key;
       },
@@ -7214,6 +7215,68 @@ document.addEventListener('alpine:init', function () {
         }
       }
 
+    };
+  });
+  alpinejs__WEBPACK_IMPORTED_MODULE_1__["default"].data('fileUpload', function (uploadModel) {
+    return {
+      isDropping: false,
+      isUploading: false,
+      progress: {},
+      dragCounter: 0,
+      uploadModel: uploadModel,
+      handleFileSelect: function handleFileSelect(event) {
+        if (event.target.files.length) {
+          this.uploadFiles(event.target.files);
+        }
+      },
+      handleFileDrop: function handleFileDrop(event) {
+        if (event.dataTransfer.files.length > 0) {
+          this.uploadFiles(event.dataTransfer.files);
+        }
+      },
+      uploadFiles: function uploadFiles(files) {
+        var _this23 = this;
+
+        var $this = this;
+        this.isUploading = true;
+        var dummyContainer = this.$root.querySelector('#upload-dummies');
+        Array.from(files).forEach(function (file, key) {
+          var badgeId = "upload-badge-".concat(key);
+          var loadingBadge = $this.createLoadingBadge(file, badgeId);
+          dummyContainer.append(loadingBadge);
+          $this.progress[badgeId] = 0;
+          $this.$wire.upload(_this23.uploadModel, file, function (success) {
+            $this.progress[badgeId] = 0;
+            dummyContainer.querySelector("#".concat(badgeId)).remove();
+          }, function (error) {}, function (progress) {
+            $this.progress[badgeId] = event.detail.progress;
+          });
+        });
+      },
+      removeUpload: function removeUpload(filename) {
+        this.$wire.removeUpload(this.uploadModel, filename);
+      },
+      handleDragEnter: function handleDragEnter() {
+        this.dragCounter++;
+        this.droppingFile = true;
+      },
+      handleDragLeave: function handleDragLeave() {
+        this.dragCounter--;
+
+        if (this.dragCounter === 0) {
+          this.droppingFile = false;
+        }
+      },
+      handleDrop: function handleDrop() {
+        this.droppingFile = false;
+        this.dragCounter = 0;
+      },
+      createLoadingBadge: function createLoadingBadge(file, badgeId) {
+        var template = this.$root.querySelector("template#upload-badge").content.cloneNode(true);
+        template.firstElementChild.id = badgeId;
+        template.querySelector('.badge-name').innerText = file.name;
+        return template;
+      }
     };
   });
   alpinejs__WEBPACK_IMPORTED_MODULE_1__["default"].directive('global', function (el, _ref2) {
