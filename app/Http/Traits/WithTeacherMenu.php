@@ -52,7 +52,7 @@ trait WithTeacherMenu
     protected function tiles()
     {
         $tiles = $this->menus->where('hasItems', true)->mapWithKeys(function ($menuData, $menuName) {
-            $getter = $menuName . 'Tiles';
+            $getter = $menuName.'Tiles';
             return [$menuName => self::$getter()];
         });
 
@@ -176,22 +176,34 @@ trait WithTeacherMenu
     protected static function analysesTiles()
     {
         $tiles = [];
-        $tiles['my-students'] = [
-            'title'  => __('header.Mijn studenten'),
-            'action' => [
-                'directive'  => 'wire',
-                'method'     => 'cakeRedirect',
-                'parameters' => 'analyses.students'
-            ]
-        ];
-        $tiles['my-classes-analyses'] = [
-            'title'  => __('header.Mijn klassen'),
-            'action' => [
-                'directive'  => 'wire',
-                'method'     => 'cakeRedirect',
-                'parameters' => 'analyses.classes'
-            ]
-        ];
+
+        if (auth()->user()->schoolLocation->allow_analyses) {
+            $tiles['my-classes-analyses'] = [
+                'title'  => __('header.Mijn klassen'),
+                'action' => [
+                    'directive'  => 'wire',
+                    'method'     => 'cakeRedirect',
+                    'parameters' => 'new_analyses.classes'
+                ]
+            ];
+        } else {
+            $tiles['my-students'] = [
+                'title'  => __('header.Mijn studenten'),
+                'action' => [
+                    'directive'  => 'wire',
+                    'method'     => 'cakeRedirect',
+                    'parameters' => 'analyses.students'
+                ]
+            ];
+            $tiles['my-classes-analyses'] = [
+                'title'  => __('header.Mijn klassen'),
+                'action' => [
+                    'directive'  => 'wire',
+                    'method'     => 'cakeRedirect',
+                    'parameters' => 'analyses.classes'
+                ]
+            ];
+        }
         return $tiles;
     }
 }

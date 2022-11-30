@@ -1,10 +1,11 @@
 <?php
 
-namespace tcCore\Http\Livewire\Student\Analyses;
+namespace tcCore\Http\Livewire\Analyses;
 
 use tcCore\BaseAttainment;
 use tcCore\Http\Traits\WithAnalysesGeneralData;
 use tcCore\Lib\Repositories\PValueRepository;
+use tcCore\Subject;
 
 class AnalysesAttainmentDashboard extends AnalysesDashboard
 {
@@ -16,7 +17,7 @@ class AnalysesAttainmentDashboard extends AnalysesDashboard
 
     protected $queryString = 'subject';
 
-    public function mount(?BaseAttainment $baseAttainment=null)
+    public function mount(?BaseAttainment $baseAttainment = null)
     {
         $this->attainment = $baseAttainment;
 
@@ -27,13 +28,13 @@ class AnalysesAttainmentDashboard extends AnalysesDashboard
     public function render()
     {
         $this->dispatchBrowserEvent('filters-updated');
-        return view('livewire.student.analyses.analyses-attainment-dashboard')->layout('layouts.student');
+        return view('livewire.analyses.analyses-attainment-dashboard')->layout('layouts.student');
     }
 
     public function getDataProperty()
     {
         $result = PValueRepository::getPValuePerSubAttainmentForStudentAndAttainment(
-            auth()->user(),
+            $this->getHelper()->getForUser(),
             $this->attainment,
             $this->getPeriodsByFilterValues(),
             $this->getEducationLevelYearsByFilterValues(),
@@ -46,13 +47,10 @@ class AnalysesAttainmentDashboard extends AnalysesDashboard
 
             $link = false;
             if ($pValue->attainment_id) {
-                $link = route('student.analyses.subattainment.show', [
-                    'baseAttainment' => $baseAttainment->uuid,
-                    'subject'    => $this->subject,
-                ]);
+                $link = $this->getHelper()->getRouteForSubAttainmentShow($baseAttainment, $this->subject);
             }
 
-            return (object)[
+            return (object) [
                 'x'       => $key + 1,
                 'title'   => $this->attainment->getSubNameWithNumber($key + 1),
                 'count'   => $pValue->cnt,
@@ -68,11 +66,12 @@ class AnalysesAttainmentDashboard extends AnalysesDashboard
         return $result;
     }
 
-
-
     public function redirectBack()
     {
-        return redirect(route('student.analyses.subject.show', $this->subject));
+        return redirect(
+            $this->getHelper()->getRouteForSubjectShow(
+                Subject::whereUuid($this->subject)->first()
+            )
+        );
     }
-
 }

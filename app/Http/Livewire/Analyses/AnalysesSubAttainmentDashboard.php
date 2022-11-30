@@ -1,10 +1,11 @@
 <?php
 
-namespace tcCore\Http\Livewire\Student\Analyses;
+namespace tcCore\Http\Livewire\Analyses;
 
 use tcCore\BaseAttainment;
 use tcCore\Http\Traits\WithAnalysesGeneralData;
 use tcCore\Lib\Repositories\PValueRepository;
+use tcCore\Subject;
 
 class AnalysesSubAttainmentDashboard extends AnalysesDashboard
 {
@@ -25,6 +26,7 @@ class AnalysesSubAttainmentDashboard extends AnalysesDashboard
         $this->attainment = $baseAttainment;
         $this->taxonomyIdentifier = $this->attainment->id;
 
+
         parent::mount();
         if ($this->attainment) {
             $this->attainmentOrderNumber = $this->attainment->getOrderNumber();
@@ -40,7 +42,7 @@ class AnalysesSubAttainmentDashboard extends AnalysesDashboard
     public function getDataProperty()
     {
         $result = PValueRepository::getPValuePerSubAttainmentForStudentAndAttainment(
-            auth()->user(),
+            $this->getHelper()->getForUser(),
             $this->attainment,
             $this->getPeriodsByFilterValues(),
             $this->getEducationLevelYearsByFilterValues(),
@@ -52,13 +54,10 @@ class AnalysesSubAttainmentDashboard extends AnalysesDashboard
         $this->dataValues = $result->map(function ($pValue, $key) {
             $link = false;
             if ($pValue->attainment_id) {
-                $link = route('student.analyses.subsubattainment.show', [
-                    'baseAttainment' => BaseAttainment::find($pValue->attainment_id)->uuid,
-                    'subject'    => $this->subject,
-                ]);
+                $link = $this->getHelper()->getRouteForSubSubAttainmentShow($pValue, $this->subject);
             }
 
-            return (object)[
+            return (object) [
                 'x'       => $key + 1,
                 'title'   => $this->attainment->getSubSubNameWithNumber($key + 1),
                 'count'   => $pValue->cnt,
@@ -77,18 +76,15 @@ class AnalysesSubAttainmentDashboard extends AnalysesDashboard
     public function render()
     {
         $this->dispatchBrowserEvent('filters-updated');
-        return view('livewire.student.analyses.analyses-sub-attainment-dashboard')->layout('layouts.student');
+        return view('livewire.analyses.analyses-sub-attainment-dashboard')->layout('layouts.student');
     }
 
     public function redirectBack()
     {
-        $parentAttainment  = BaseAttainment::find($this->attainment->attainment_id);
-
         return redirect(
-            route(
-                'student.analyses.attainment.show',
-                ['baseAttainment' => $parentAttainment->uuid,
-                'subject' => $this->subject]
+            $this->getHelper()->getRouteForAttainmentShow(
+                BaseAttainment::findOrFail($this->attainment->attainment_id),
+                Subject::whereUuid($this->subject)->first()
             )
         );
     }

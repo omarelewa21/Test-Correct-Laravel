@@ -53,6 +53,7 @@ class CakeRedirectHelper
             'results.rated'               => '/test_takes/rated',
             'analyses.students'           => '/analyses/students_overview',
             'analyses.classes'            => '/analyses/school_classes_overview',
+            'new_analyses.classes'            => '/teacher_analyses',
             'classes.my_classes'          => '/teacher_classes',
             'classes.my_schoollocation'   => '/teacher_classes/school_location_classes',
             'update-password'             => [

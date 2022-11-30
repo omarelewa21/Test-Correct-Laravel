@@ -1,4 +1,4 @@
-@extends('livewire.student.analyses.analyses-dashboard')
+@extends('livewire.analyses.analyses-dashboard')
 
 @section('analyses.header.title')
     <x-sticky-page-title class="top-20">
@@ -30,6 +30,9 @@
 
 @section('analyses.page.title')
     <h2 class="pt-4">Subsubleerdoel 4</h2>
+    @if($this->viewingAsTeacher())
+        <h3> {{ $this->getHelper()->getForUser()->name_full }}  </h3>
+    @endif
 @endsection
 
 @section('analyses.attainment.description')

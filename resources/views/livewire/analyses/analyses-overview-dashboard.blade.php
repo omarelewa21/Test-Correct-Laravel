@@ -1,11 +1,17 @@
-@extends('livewire.student.analyses.analyses-dashboard')
+@extends('livewire.analyses.analyses-dashboard')
 
 @section('analyses.page.title')
-         <h1 class="pt-10"> {{ __('header.Analyses') }} </h1>
+    <h1 class="pt-10"> {{ __('header.Analyses') }} </h1>
+    @if($this->viewingAsTeacher())
+        <h3> {{ $this->getHelper()->getForUser()->name_full }}  </h3>
+    @endif
 @endsection
 
 
+
+
 @section('analyses.p-values-graph')
+
     <x-content-section>
         <x-slot name="title">
             <div class="hidden">{{ $this->data }}</div>
@@ -22,5 +28,5 @@
 @endsection
 
 @section('analyses.top-items.title')
-{{--    {{ trans_choice('student.top vakken om aan te werken', count($this->topItems)) }}--}}
+    {{--    {{ trans_choice('student.top vakken om aan te werken', count($this->topItems)) }}--}}
 @endsection

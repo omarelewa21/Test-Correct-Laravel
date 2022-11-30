@@ -1,6 +1,6 @@
 <?php
 
-namespace tcCore\Http\Livewire\Student\Analyses;
+namespace tcCore\Http\Livewire\Analyses;
 
 use Livewire\Component;
 use tcCore\EducationLevel;
@@ -10,9 +10,15 @@ use tcCore\Lib\Repositories\PValueTaxonomyRTTIRepository;
 use tcCore\Period;
 use tcCore\User;
 
+
 abstract class AnalysesDashboard extends Component
 {
     const FILTER_SESSION_KEY = 'STUDENT_ANALYSES_FILTER';
+
+    public $classUuid;
+    public $studentUuid;
+
+    protected $helper;
 
     public $educationLevelYears = [];
 
@@ -39,16 +45,19 @@ abstract class AnalysesDashboard extends Component
         ['name' => 'Bloom', 'height' => '200px'],
     ];
 
+    protected $forUser;
+
     abstract public function getDataProperty();
 
     abstract public function render();
 
     public function mount()
     {
+        $this->studentUuid =  request('student_uuid');
+        $this->classUuid = request('class_uuid');
+
         $this->setFilters();
-
         $this->getFilterOptionsData();
-
         $this->getDataProperty();
     }
 
@@ -83,7 +92,7 @@ abstract class AnalysesDashboard extends Component
 
     protected function getMillerData($attainmentId)
     {
-        return PValueTaxonomyMillerRepository::getPValueForStudentForAttainment(auth()->user(),
+        return PValueTaxonomyMillerRepository::getPValueForStudentForAttainment($this->getForUser(),
             $attainmentId,
             $this->getPeriodsByFilterValues(),
             $this->getEducationLevelYearsByFilterValues(),
@@ -92,7 +101,7 @@ abstract class AnalysesDashboard extends Component
 
     protected function getRTTIData($attainmentId)
     {
-        return PValueTaxonomyRTTIRepository::getPValueForStudentForAttainment(auth()->user(),
+        return PValueTaxonomyRTTIRepository::getPValueForStudentForAttainment($this->getForUser(),
             $attainmentId,
             $this->getPeriodsByFilterValues(),
             $this->getEducationLevelYearsByFilterValues(),
@@ -102,7 +111,7 @@ abstract class AnalysesDashboard extends Component
     protected function getBloomData($attainmentId)
     {
         return PValueTaxonomyBloomRepository::getPValueForStudentForAttainment(
-            auth()->user(),
+            $this->getForUser(),
             $attainmentId,
             $this->getPeriodsByFilterValues(),
             $this->getEducationLevelYearsByFilterValues(),
@@ -132,7 +141,7 @@ abstract class AnalysesDashboard extends Component
 
     protected function getMillerGeneralGraphData($subjectId)
     {
-        return PValueTaxonomyMillerRepository::getPValueForStudentForAttainment(auth()->user(),
+        return PValueTaxonomyMillerRepository::getPValueForStudentForAttainment($this->getHelper()->getForUser(),
             $subjectId,
             $this->getPeriodsByFilterValues(),
             $this->getEducationLevelYearsByFilterValues(),
@@ -141,7 +150,7 @@ abstract class AnalysesDashboard extends Component
 
     protected function getRTTIGeneralGraphData($subjectId)
     {
-        return PValueTaxonomyRTTIRepository::getPValueForStudentForAttainment(auth()->user(),
+        return PValueTaxonomyRTTIRepository::getPValueForStudentForAttainment($this->getHelper()->getForUser(),
             $subjectId,
             $this->getPeriodsByFilterValues(),
             $this->getEducationLevelYearsByFilterValues(),
@@ -151,7 +160,7 @@ abstract class AnalysesDashboard extends Component
     protected function getBloomGeneralGraphData($subjectId)
     {
         return PValueTaxonomyBloomRepository::getPValueForStudentForAttainment(
-            auth()->user(),
+            $this->getHelper()->getForUser(),
             $subjectId,
             $this->getPeriodsByFilterValues(),
             $this->getEducationLevelYearsByFilterValues(),
@@ -195,13 +204,13 @@ abstract class AnalysesDashboard extends Component
      */
     public function getFilterOptionsData(): void
     {
-        $this->periods = auth()->user()->schoolLocation->getPeriods()
+        $this->periods = $this->getHelper()->getForUser()->schoolLocation->getPeriods()
             ->map(fn($period) => [
                 'value' => $period->id,
                 'label' => $period->name,
             ]);
 
-        $this->teachers = User::teachersForStudent(auth()->user())
+        $this->teachers = User::teachersForStudent($this->getHelper()->getForUser())
             ->get()
             ->map(
                 function ($teacher) {
@@ -211,12 +220,12 @@ abstract class AnalysesDashboard extends Component
                     ];
                 }
             );
-        $this->educationLevelYears = EducationLevel::yearsForStudent(auth()->user())
+        $this->educationLevelYears = EducationLevel::yearsForStudent($this->getHelper()->getForUser())
             ->map(
                 function ($year) {
                     return [
                         'value' => $year,
-                        'label' => (string)$year,
+                        'label' => (string) $year,
                     ];
                 }
             );
@@ -239,12 +248,37 @@ abstract class AnalysesDashboard extends Component
 
     public function getFirstActiveForGeneralGraphTaxonomy()
     {
-        foreach($this->taxonomies as $key => $taxonomy ) {
+        foreach ($this->taxonomies as $key => $taxonomy) {
             $data = $this->getDataForGeneralGraph($this->taxonomyIdentifier, $taxonomy['name']);
             if (!$data[0]) {
-                return  $key;
+                return $key;
             }
         }
         return false;
+    }
+
+    protected function getHelper()
+    {
+        if (!$this->helper) {
+            if(auth()->user()->isA('teacher')) {
+                $this->helper = new AnalysesForTeacherHelper($this->studentUuid, $this->classUuid);
+            } else {
+                $this->helper = new AnalysesForStudentHelper();
+            }
+        }
+        return $this->helper;
+    }
+
+    public function updatingClassUuid(){
+        abort(403);
+    }
+
+    public function updatingStudentUuid(){
+        abort(403);
+    }
+
+    public function viewingAsTeacher()
+    {
+        return auth()->user()->getKey() !== $this->getHelper()->getForUser()->getKey();
     }
 }
