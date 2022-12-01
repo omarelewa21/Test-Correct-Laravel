@@ -4,6 +4,7 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Response;
+use Illuminate\Support\Str;
 use tcCore\Answer;
 use tcCore\Http\Requests;
 use tcCore\Http\Controllers\Controller;
@@ -22,10 +23,15 @@ class TestTakeRttiExportController extends Controller
 
     public function store(TestTake $testTake, Request $request)
     {
+        require app_path('/Lib/rtti_api/autoload.php');
+        require app_path('/Lib/rtti_api/nusoap.php');
+
         $testTake->load('test', 'testparticipants', 'test.testQuestions','test.testQuestions.question', 'schoolLocation');
         // see below for frontend handler
         $firstSchoolClass = $testTake->schoolClasses()->orderBy('name')->first();
         $informationError = null;
+        $result = null;
+        $rttiExportLog = null;
         try {
             $testCode = sprintf(
                 '%s|%s|%s|%s',
@@ -37,7 +43,6 @@ class TestTakeRttiExportController extends Controller
 
             // START SETTING DATA FOR SCHOOL SECTION
             $externalMainCode = $this->getExternalMainCode($testTake);
-            $rttiExportLog = null;
             try {
                 $auth['aut:autorisatie'] = [
                     'autorisatiesleutel' => config('rtti.autorisatiesleutel'),
@@ -60,29 +65,25 @@ class TestTakeRttiExportController extends Controller
                     config('rtti.wsdl_url'), true
                 );
                 $client->soap_defencoding = 'UTF-8';
+                $client->decode_utf8 = FALSE;
+
 
                 $result = $client->call(
                     'BrengLeerresultaten', [
-                    'leerresultaten_verzoek' => $leerresultatenVerzoek,
-                ], 'http://www.edustandaard.nl/leerresultaten/2/leerresultaten', 'leer:leerresultaten_verzoek', $auth
+                                'leerresultaten_verzoek' => $leerresultatenVerzoek,
+                            ], 'http://www.edustandaard.nl/leerresultaten/2/leerresultaten', 'leer:leerresultaten_verzoek', $auth
                 );
 
-                $rttiExportLog = RttiExportLog::create([
-                   'test_take_id' => $testTake->getKey(),
-                   'user_id' => Auth::id(),
-                    'export' => print_r($leerresultatenVerzoek,true),
-                    'result' => var_export($result,true),
-                    'error' => $client->getError(),
-                    'has_errors' => (bool) $client->getError()
-                ]);
             } catch (\Exception $e) {
                 $rttiExportLog = RttiExportLog::create([
                     'test_take_id' => $testTake->getKey(),
                     'user_id' => Auth::id(),
                     'export' => print_r($leerresultatenVerzoek,true),
-                    'result' => var_export($result,true),
+                    'result' => ($result) ? var_export($result,true) : '',
                     'error' => 'Fatal error '.$e->getMessage(),
                     'has_errors' => true,
+                    'response' => $client->response,
+                    'reference' => sprintf('rtti-%s-%s',Date('YmdHis'),Str::random(5)),
                 ]);
             }
 
@@ -93,26 +94,43 @@ class TestTakeRttiExportController extends Controller
                 'export' => print_r($leerresultatenVerzoek,true),
                 'error' => 'Fatal unknown error',
                 'has_errors' => true,
+                'response' => $client->response,
+                'reference' => sprintf('rtti-%s-%s',Date('YmdHis'),Str::random(5)),
             ]);
         }
 
+        $rttiExportLog ??= RttiExportLog::create([
+            'test_take_id' => $testTake->getKey(),
+            'user_id' => Auth::id(),
+            'export' => print_r($leerresultatenVerzoek,true),
+            'result' => var_export($result,true),
+            'error' => $client->getError(),
+            'has_errors' => (bool) $client->getError(),
+            'response' => $client->response,
+            'reference' => sprintf('rtti-%s-%s',Date('YmdHis'),Str::random(5)),
+        ]);
+
+
         // if there was an error, please send an email to support
         if($rttiExportLog->has_errors === true){
+
             // mailtje sturen
-            (new SendErrorMailToSupportJob(
+            dispatch(new SendErrorMailToSupportJob(
                 $rttiExportLog->error,
                 __("Error bij het exporteren van RTTI"),
                 [
                     'id' => $rttiExportLog->getKey(),
                     'test_take_id' => $rttiExportLog->test_take_id,
                     'user_id' => $rttiExportLog->user_id,
-                    'timestamp' => $rttiExportLog->created_at->format('Y-m-d H:i:s')
+                    'timestamp' => $rttiExportLog->created_at->format('Y-m-d H:i:s'),
+                    'reference' => $rttiExportLog->reference
                 ]));
             // feedback geven
             return Response::make(
-                __("Er is iets fout gegaan tijdens het exporteren van de gegevens naar RTTI. Neem contact op met de support desk van Test-Correct"),
+                __("test-take.Er is iets fout gegaan tijdens het exporteren van de gegevens naar RTTI. Neem contact op met de support desk van Test-Correct met als referentie",['reference' => $rttiExportLog->reference]),
                 400);
         }
+
         // feedback van succesvolle rtti export terugsturen
         return Response::make($rttiExportLog, 200);
     }
@@ -189,7 +207,7 @@ class TestTakeRttiExportController extends Controller
                     'afnamedatum' => $testTake->time_start->format('Y-m-d'),
                     'toetscode' => $testCode,
                     'toetsonderdeelcode' => $answer->question_id,
-                    'score' => $answer->final_rating
+                    'score' => $answer->final_rating ?? 6.0
                 ];
             });
 

@@ -413,11 +413,6 @@ class TestTake extends BaseModel
         return $this->hasMany('tcCore\TestRating');
     }
 
-    public function schoolLocation()
-    {
-        return $this->belongsTo(SchoolLocation::class);
-    }
-
     public function schoolClasses()
     {
         return SchoolClass::fromTestTakes($this->getKey());
