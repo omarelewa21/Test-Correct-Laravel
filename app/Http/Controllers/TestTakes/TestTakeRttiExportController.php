@@ -103,7 +103,7 @@ class TestTakeRttiExportController extends Controller
             'test_take_id' => $testTake->getKey(),
             'user_id' => Auth::id(),
             'export' => print_r($leerresultatenVerzoek,true),
-            'result' => var_export($result,true),
+            'result' => var_export($client->request,true),
             'error' => $client->getError(),
             'has_errors' => (bool) $client->getError(),
             'response' => $client->response,
@@ -190,7 +190,7 @@ class TestTakeRttiExportController extends Controller
         return [
             'toets' => [
                 'toetscode' => ['!' => $testCode],
-                'toetssonderdelen' => $toetsOnderdelenAr
+                'toetsonderdelen' => $toetsOnderdelenAr
             ],
         ];
     }
