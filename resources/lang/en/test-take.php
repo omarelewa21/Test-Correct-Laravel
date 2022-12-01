@@ -24,4 +24,5 @@ return [
     'Gearchiveerd'                                                                                                                => 'Archived',
     'Gedearchiveerd'                                                                                                              => 'Unarchived',
     'Studenten aanwezig/afwezig'                                                                                                  => 'Students present/absent',
+    'Er is iets fout gegaan tijdens het exporteren van de gegevens naar RTTI. Neem contact op met de support desk van Test-Correct met als referentie' => 'Something went wrong while exporting the data to RTTI. Please get in contact with the support desk of Test-Correct and mention the reference :reference'
 ];
