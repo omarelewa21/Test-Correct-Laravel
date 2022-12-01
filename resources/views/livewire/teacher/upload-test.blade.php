@@ -32,7 +32,7 @@
                         </x-input.group>
 
                         <x-input.group class="col-span-5 lg:col-span-3" :label="__('upload.Afnamedatum')">
-                            <x-input.datepicker class="bg-offwhite min-w-[200px]"
+                            <x-input.datepicker class="bg-offwhite min-w-[190px] w-full"
                                                 wire:model="testInfo.planned_at"
                                                 :minDate="$minimumTakeDate"
                             />
@@ -169,7 +169,7 @@
                         </div>
 
 
-                        <div class="flex items-center gap-2">
+                        <div class="flex flex-wrap items-center gap-2">
                             <label for="file-upload">
                                 <x-button.primary size="sm" type="link" class="cursor-pointer">
                                     <x-icon.attachment/>
@@ -218,30 +218,100 @@
                 <x-slot name="body">
                     <div class="flex flex-col w-full gap-4">
                         <div class="text-lg">@lang('upload.controle_text')</div>
-                        <div class="flex">
-                            <div>
-                                <span class="text-base">@lang('upload.Toetsgegevens')</span>
-                                <div class="grid grid-cols-2 gap-x-6 gap-y-0.5">
-                                    <div class="flex items-center col-start-1 note text-sm"><span>Naam toets:</span></div>
-                                    <div class="flex items-center col-start-2 text-lg"><span>{{ $testInfo['name'] }}</span>
+                        <div class="flex flex-col sm:flex-row gap-4">
+                            <div class="flex flex-col flex-1 gap-1">
+                                <span class="text-base bold">@lang('upload.Toetsgegevens')</span>
+                                <div class="grid grid-cols-2 gap-x-6 gap-y-0.5 grid-cols-[min-content,auto]">
+                                    <div class="flex items-center col-start-1 note text-sm">
+                                        <span class="leading-6">@lang('upload.Naam toets'):</span>
                                     </div>
-                                    <div class="flex items-center col-start-1 note text-sm"><span>Afnamedatum:</span></div>
-                                    <div class="flex items-center col-start-2 text-lg"><span>{{ $testInfo['planned_at'] }}</span>
+                                    <div class="flex items-center col-start-2 text-lg">
+                                        <span class="leading-6">{{ $testInfo['name'] }}</span>
                                     </div>
-                                    <div class="flex items-center col-start-1 note text-sm"><span>Vak:</span></div>
-                                    <div class="flex items-center col-start-2 text-lg"><span></span>
+                                    <div class="flex items-center col-start-1 note text-sm">
+                                        <span class="leading-6">@lang('upload.Afnamedatum'):</span>
                                     </div>
-                                    <div class="flex items-center col-start-1 note text-sm"><span>Niveau:</span></div>
-                                    <div class="flex items-center col-start-2 text-lg"><span>{{ $testInfo['name'] }}</span>
+                                    <div class="flex items-center col-start-2 text-lg">
+                                        <span class="leading-6">{{ $this->takeDateToDisplay }}</span>
                                     </div>
-                                    <div class="flex items-center col-start-1 note text-sm"><span>Jaar:</span></div>
-                                    <div class="flex items-center col-start-2 text-lg"><span>{{ $testInfo['name'] }}</span>
+                                    <div class="flex items-center col-start-1 note text-sm">
+                                        <span class="leading-6">@lang('teacher.subject'):</span>
                                     </div>
-                                    <div class="flex items-center col-start-1 note text-sm"><span>Type:</span></div>
-                                    <div class="flex items-center col-start-2 text-lg"><span>{{ $testInfo['name'] }}</span>
+                                    <div class="flex items-center col-start-2 text-lg">
+                                        <span class="leading-6">{{ $this->selectedSubject }}</span>
+                                    </div>
+                                    <div class="flex items-center col-start-1 note text-sm">
+                                        <span class="leading-6">@lang('teacher.niveau'):</span>
+                                    </div>
+                                    <div class="flex items-center col-start-2 text-lg">
+                                        <span class="leading-6">{{ $this->selectedLevel }}</span>
+                                    </div>
+                                    <div class="flex items-center col-start-1 note text-sm">
+                                        <span class="leading-6">@lang('general.jaar'):</span>
+                                    </div>
+                                    <div class="flex items-center col-start-2 text-lg">
+                                        <span class="leading-6">{{ $testInfo['education_level_year'] }}</span>
+                                    </div>
+                                    <div class="flex items-center col-start-1 note text-sm">
+                                        <span class="leading-6">@lang('teacher.type'):</span>
+                                    </div>
+                                    <div class="flex items-center col-start-2 text-lg">
+                                        <span class="leading-6">{{ $this->selectedTestKind }}</span>
                                     </div>
                                 </div>
                             </div>
+
+                            <div class="flex flex-col gap-1">
+                                <span class="bold mb-1">@lang('upload.Aangeleverde bestanden')</span>
+                                <div class="flex flex-col border-bluegrey">
+                                    <x-input.toggle-row-with-title container-class="border-t pt-[5px] pb-[5px]"
+                                                                   wire:model="checkInfo.question_model"
+                                    >
+                                        <span>@lang('upload.Vraagmodel')</span>
+                                    </x-input.toggle-row-with-title>
+                                    <x-input.toggle-row-with-title container-class="pt-[5px] pb-[5px]"
+                                                                   wire:model="checkInfo.answer_model"
+                                    >
+                                        <span>@lang('upload.Antwoordmodel')</span>
+                                    </x-input.toggle-row-with-title>
+                                    <x-input.toggle-row-with-title container-class="pt-[5px] pb-[5px]"
+                                                                   wire:model="checkInfo.attachments"
+                                    >
+                                        <span>@lang('cms.bijlagen')</span>
+                                    </x-input.toggle-row-with-title>
+                                    <x-input.toggle-row-with-title container-class="pt-[5px] pb-[5px]"
+                                                                   wire:model="checkInfo.elaboration_attachments"
+                                    >
+                                        <span>@lang('upload.Uitwerkbijlagen')</span>
+                                    </x-input.toggle-row-with-title>
+                                </div>
+
+                            </div>
+                        </div>
+
+                        <div>
+                            @if($this->checkedCorrectBoxes)
+                                <div class="notification info stretched px-2.5 py-1">
+                                    <div class="title text-center">
+                                        <x-icon.exclamation/>
+                                        <span>@lang('upload.check_correct_text')</span>
+                                    </div>
+                                </div>
+                            @else
+                                <div class="notification error stretched px-2.5 py-1">
+                                    <div class="title">
+                                        <x-icon.exclamation/>
+                                        <span>@lang('upload.check_warning_text')</span>
+                                    </div>
+                                </div>
+                            @endif
+                        </div>
+
+                        <div class="mt-2">
+                            <x-button.cta class="w-full justify-center">
+                                <x-icon.upload/>
+                                <span>@lang('upload.Toets uploaden')</span>
+                            </x-button.cta>
                         </div>
                     </div>
                 </x-slot>

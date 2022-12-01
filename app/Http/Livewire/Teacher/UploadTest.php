@@ -29,6 +29,13 @@ class UploadTest extends Component
         'contains_publisher_content' => null,
     ];
 
+    public array $checkInfo = [
+        'question_model'          => false,
+        'answer_model'            => false,
+        'attachments'             => false,
+        'elaboration_attachments' => false,
+    ];
+
     public bool $tabOneComplete = false;
     public bool $tabTwoComplete = false;
     public bool $showDateWarning = false;
@@ -64,7 +71,6 @@ class UploadTest extends Component
 
     public function updatedTestInfoPlannedAt($value)
     {
-        $this->testInfo['planned_at'] = $this->testInfo['planned_at'] . ' 00:00:00';
         $this->showDateWarning = Carbon::parse($value)->isBefore(Carbon::parse($this->minimumTakeDate)->addDays(7));
     }
 
@@ -87,34 +93,51 @@ class UploadTest extends Component
         $this->testInfo['planned_at'] = Carbon::now()->addMonth()->toDateString();
     }
 
-    public function getSubjectsProperty(): array
+    public function getSubjectsProperty(): \Countable
     {
         return Subject::filtered(
             ['user_current' => auth()->id()],
             ['name' => 'asc']
         )
-            ->select('uuid', 'name')
-            ->get()
-            ->map(fn($subject) => ['value' => $subject->uuid, 'label' => $subject->name])
-            ->toArray();
+            ->uuidOptionList();
     }
 
-    public function getEducationLevelsProperty(): array
+    public function getEducationLevelsProperty(): \Countable
     {
         return EducationLevel::filtered(['user_id' => auth()->id()], [])
-            ->select(['uuid', 'name'])
-            ->get()
-            ->map(fn($subject) => ['value' => $subject->uuid, 'label' => $subject->name])
-            ->toArray();
+            ->uuidOptionList();
     }
 
-    public function getTestKindsProperty(): array
+    public function getTestKindsProperty(): \Countable
     {
         return TestKind::orderBy('name')
-            ->select(['uuid', 'name'])
-            ->get()
-            ->map(fn($subject) => ['value' => $subject->uuid, 'label' => $subject->name])
-            ->toArray();
+            ->uuidOptionList();
+    }
+
+    public function getTakeDateToDisplayProperty(): string
+    {
+        Carbon::setlocale(config('app.locale'));
+        return Carbon::parse($this->testInfo['planned_at'] . ' 00:00:00')->format('j F Y');
+    }
+
+    public function getSelectedSubjectProperty(): string
+    {
+        return $this->getSelectedItem('subjects');
+    }
+
+    public function getSelectedLevelProperty(): string
+    {
+        return $this->getSelectedItem('educationLevels');
+    }
+
+    public function getSelectedTestKindProperty(): string
+    {
+        return $this->getSelectedItem('testKinds');
+    }
+
+    public function getCheckedCorrectBoxesProperty(): bool
+    {
+        return $this->checkInfo['answer_model'] && $this->checkInfo['question_model'];
     }
 
     public function accordionUpdate($value): void {}
@@ -123,11 +146,29 @@ class UploadTest extends Component
     {
         $this->testInfo = array_merge($this->testInfo, [
             'name'                       => 'kaas',
-            'subject_uuid'               => $this->subjects[0]['value'],
-            'education_level_uuid'       => $this->educationLevels[0]['value'],
+            'subject_uuid'               => $this->subjects->first()?->value,
+            'education_level_uuid'       => $this->educationLevels->first()?->value,
             'education_level_year'       => 3,
-            'test_kind_uuid'             => $this->testKinds[0]['value'],
+            'test_kind_uuid'             => $this->testKinds->first()?->value,
             'contains_publisher_content' => true,
         ]);
+    }
+
+    /**
+     * @param $property
+     * @return string
+     */
+    private function getSelectedItem($property): string
+    {
+        $identifier = str($property)->snake()->replaceLast('s', '_uuid')->value();
+
+        if (blank($this->testInfo[$identifier])) {
+            return '';
+        }
+        $selectedItem = collect($this->$property)->where('value', $this->testInfo[$identifier])->first();
+        if (!$selectedItem) {
+            return '';
+        }
+        return $selectedItem->label ?? '';
     }
 }

@@ -27,6 +27,12 @@ class MacrosServiceProvider extends ServiceProvider
             });
         });
 
+        EloquentBuilder::macro('uuidOptionList', function ($cols = ['uuid','name'], $labelCallback = null) {
+            return $this->get($cols)->map(function ($value) use ($labelCallback){
+                return (object) ['value' => $value->uuid, 'label' => ($labelCallback) ? $labelCallback($value) : $value->name];
+            });
+        });
+
         Str::macro('dotToPascal', function ($string) {
             return Str::of($string)->replace('.','_')->camel()->ucfirst();
         });

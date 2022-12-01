@@ -15,5 +15,12 @@ return [
     'Geluidsfragment'        => 'Geluidsfragment',
     'Controle'               => 'Controle',
     'controle_text'          => 'Kloppen de gegevens? Heb je alle bestanden aangeleverd?',
+    'Aangeleverde bestanden' => 'Aangeleverde bestanden',
+    'Vraagmodel'             => 'Vraagmodel',
+    'Antwoordmodel'          => 'Antwoordmodel',
+    'Uitwerkbijlagen'        => 'Uitwerkbijlagen',
+    'check_warning_text'     => 'Vraag- en antwoordmodel aanleven is verplicht. Voeg toe bij stap 2 en zet switcher aan.',
+    'check_correct_text'     => 'Vergeet niet aan te geven of je (uitwerk-)bijlagen hebt aangeleverd.',
+    'Toets uploaden'         => 'Toets uploaden',
 ];
 
