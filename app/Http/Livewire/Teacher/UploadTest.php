@@ -3,12 +3,15 @@
 namespace tcCore\Http\Livewire\Teacher;
 
 use Carbon\Carbon;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Str;
 use Livewire\Component;
 use Livewire\TemporaryUploadedFile;
 use Livewire\WithFileUploads;
 use Ramsey\Uuid\Uuid;
 use tcCore\EducationLevel;
+use tcCore\FileManagement;
 use tcCore\Http\Helpers\BaseHelper;
 use tcCore\Subject;
 use tcCore\TemporaryLogin;
@@ -116,8 +119,12 @@ class UploadTest extends Component
 
     public function getTakeDateToDisplayProperty(): string
     {
-        Carbon::setlocale(config('app.locale'));
-        return Carbon::parse($this->testInfo['planned_at'] . ' 00:00:00')->format('j F Y');
+        return $this->plannedAt->format('j F Y');
+    }
+
+    public function getPlannedAtProperty(): Carbon
+    {
+        return Carbon::parse($this->testInfo['planned_at'] . ' 00:00:00');
     }
 
     public function getSelectedSubjectProperty(): string
@@ -140,6 +147,23 @@ class UploadTest extends Component
         return $this->checkInfo['answer_model'] && $this->checkInfo['question_model'];
     }
 
+    public function getCheckWarningTextProperty(): string
+    {
+        if ($this->checkedCorrectBoxes) {
+            return 'check_correct_text';
+        }
+
+        if ($this->checkInfo['answer_model']) {
+            return 'check_warning_text_question';
+        }
+
+        if ($this->checkInfo['question_model']) {
+            return 'check_warning_text_answer';
+        }
+
+        return 'check_warning_text';
+    }
+
     public function accordionUpdate($value): void {}
 
     private function setDummyData()
@@ -151,6 +175,13 @@ class UploadTest extends Component
             'education_level_year'       => 3,
             'test_kind_uuid'             => $this->testKinds->first()?->value,
             'contains_publisher_content' => true,
+        ]);
+
+        $this->checkInfo = array_merge($this->checkInfo, [
+            'question_model'          => true,
+            'answer_model'            => true,
+            'attachments'             => true,
+            'elaboration_attachments' => true,
         ]);
     }
 
@@ -171,4 +202,91 @@ class UploadTest extends Component
         }
         return $selectedItem->label ?? '';
     }
+
+    public function finishProcess()
+    {
+        $typedetails = $this->getTypeDetailsForFileManagementModel();
+
+        $parentFM = $this->createParentFileManagementModel($typedetails);
+
+        collect($this->uploads)->each(function ($upload) use ($parentFM, $typedetails) {
+            $childId = Uuid::uuid4();
+            $uploadFileName = $this->getFileNameForUpload($upload, $childId);
+
+            $childFM = $this->createChildFileManagementModels($upload, $parentFM, $uploadFileName, $childId);
+
+            $upload->storeAs(
+                Auth::user()->school_location_id,
+                $uploadFileName,
+                'test_uploads'
+            );
+        });
+    }
+
+    private function getTypeDetailsForFileManagementModel(): Collection
+    {
+        return collect($this->testInfo)
+            ->reject(function ($item, $key) {
+                return collect(['planned_at', 'subject_uuid', 'education_level_uuid', 'test_kind_uuid'])->contains($key);
+            })
+            ->merge(collect([
+                'multiple'           => 0,
+                'form_id'            => $this->formUuid,
+                'correctiemodel'     => $this->checkInfo['answer_model'] ? 1 : 0,
+                'subject_id'         => Subject::whereUuid($this->testInfo['subject_uuid'])->value('id'),
+                'education_level_id' => EducationLevel::whereUuid($this->testInfo['education_level_uuid'])->value('id'),
+                'test_kind_id'       => TestKind::whereUuid($this->testInfo['test_kind_uuid'])->value('id'),
+            ]));
+    }
+
+    /**
+     * @param Collection $typedetails
+     * @return void
+     */
+    private function createParentFileManagementModel(Collection $typedetails): FileManagement
+    {
+        return FileManagement::create([
+            'id'                        => $this->formUuid,
+            'uuid'                      => Uuid::uuid4(),
+            'school_location_id'        => Auth::user()->school_location_id,
+            'user_id'                   => Auth::id(),
+            'origname'                  => $this->testInfo['name'],
+            'name'                      => $this->testInfo['name'],
+            'test_name'                 => $this->testInfo['name'],
+            'education_level_year'      => $this->testInfo['education_level_year'],
+            'type'                      => FileManagement::TYPE_TEST_UPLOAD,
+            'typedetails'               => $typedetails,
+            'file_management_status_id' => 1,
+            'planned_at'                => $this->plannedAt,
+            'subject_id'                => $typedetails['subject_id'],
+            'education_level_id'        => $typedetails['education_level_id'],
+            'test_kind_id'              => $typedetails['test_kind_id'],
+            'form_id'                   => $this->formUuid,
+        ]);
+    }
+
+    private function createChildFileManagementModels(TemporaryUploadedFile $upload, ?FileManagement $parentFM, string $storageFileName, string $childId): FileManagement
+    {
+        return FileManagement::create(
+            collect($parentFM->toArray())->merge([
+                'id'         => $childId,
+                'uuid'       => Uuid::uuid4(),
+                'origname'   => $upload->getClientOriginalName(),
+                'name'       => $storageFileName,
+                'parent_id'  => $parentFM->id,
+            ])
+                ->toArray()
+        );
+    }
+
+    private function getFileNameForUpload($upload, $uuid): string
+    {
+        return sprintf('%s-%s-%s.%s',
+            $uuid,
+            Str::random(5),
+            Str::slug($this->testInfo['name']),
+            pathinfo($upload->getClientOriginalName(), PATHINFO_EXTENSION)
+        );
+    }
+
 }

@@ -28,7 +28,7 @@
                 <x-slot name="body">
                     <div class="grid grid-cols-10 grid-flow-row w-full gap-4">
                         <x-input.group class="col-span-10 lg:col-span-7" :label="__('upload.Naam toets')">
-                            <x-input.text wire:model="testInfo.name"/>
+                            <x-input.text wire:model.debounce.300ms="testInfo.name"/>
                         </x-input.group>
 
                         <x-input.group class="col-span-5 lg:col-span-3" :label="__('upload.Afnamedatum')">
@@ -205,7 +205,7 @@
                 </x-slot>
             </x-accordion.block>
 
-            <x-accordion.block :key="3" :disabled="false/*!$tabOneComplete || !$tabTwoComplete*/" :emitWhenSet="true">
+            <x-accordion.block :key="3" :disabled="!$tabOneComplete || !$tabTwoComplete" :emitWhenSet="true">
                 <x-slot name="title">
                     <div class="flex gap-2 items-center">
                         <x-number-circle
@@ -275,12 +275,12 @@
                                         <span>@lang('upload.Antwoordmodel')</span>
                                     </x-input.toggle-row-with-title>
                                     <x-input.toggle-row-with-title container-class="pt-[5px] pb-[5px]"
-                                                                   wire:model="checkInfo.attachments"
+                                                                   wire:model.defer="checkInfo.attachments"
                                     >
                                         <span>@lang('cms.bijlagen')</span>
                                     </x-input.toggle-row-with-title>
                                     <x-input.toggle-row-with-title container-class="pt-[5px] pb-[5px]"
-                                                                   wire:model="checkInfo.elaboration_attachments"
+                                                                   wire:model.defer="checkInfo.elaboration_attachments"
                                     >
                                         <span>@lang('upload.Uitwerkbijlagen')</span>
                                     </x-input.toggle-row-with-title>
@@ -290,25 +290,21 @@
                         </div>
 
                         <div>
-                            @if($this->checkedCorrectBoxes)
-                                <div class="notification info stretched px-2.5 py-1">
-                                    <div class="title text-center">
-                                        <x-icon.exclamation/>
-                                        <span>@lang('upload.check_correct_text')</span>
-                                    </div>
+                            <div @class([
+                                        'notification stretched px-2.5 py-1',
+                                        'info' => $this->checkedCorrectBoxes,
+                                        'error' => !$this->checkedCorrectBoxes,
+                                        ])
+                            >
+                                <div class="title text-center">
+                                    <x-icon.exclamation/>
+                                    <span>@lang('upload.'.$this->checkWarningText)</span>
                                 </div>
-                            @else
-                                <div class="notification error stretched px-2.5 py-1">
-                                    <div class="title">
-                                        <x-icon.exclamation/>
-                                        <span>@lang('upload.check_warning_text')</span>
-                                    </div>
-                                </div>
-                            @endif
+                            </div>
                         </div>
 
                         <div class="mt-2">
-                            <x-button.cta class="w-full justify-center">
+                            <x-button.cta class="w-full justify-center" :disabled="!$this->checkedCorrectBoxes" wire:click="finishProcess">
                                 <x-icon.upload/>
                                 <span>@lang('upload.Toets uploaden')</span>
                             </x-button.cta>

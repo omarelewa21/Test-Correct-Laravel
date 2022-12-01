@@ -97,6 +97,12 @@ return [
 			'region'    => 'IAD',
 		],
 
+        'test_uploads' => [
+            'driver' => 'local',
+            'root' => storage_path('app/files'),
+            'throw' => true,
+        ]
+
 	],
 
 ];
