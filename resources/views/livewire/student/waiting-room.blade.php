@@ -92,7 +92,7 @@
                         <div class="divider"></div>
                         <div class="px-3">
                             @if($isTakeOpen)
-                                {!! $waitingTestTake->test->introduction ?: __('student.teacher_introduction_unavailable') !!}
+                                {!! nl2br($waitingTestTake->test->introduction) ?: __('student.teacher_introduction_unavailable') !!}
                             @else
                                 {{ __('student.teacher_introduction_long') }}
                             @endif
