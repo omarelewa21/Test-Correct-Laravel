@@ -56,11 +56,11 @@ class TaxonomyRankingRepostitory
                     ->orWhereNotNull('questions.rtti')
                     ->orWhereRaw("questions.rtti <> ''");
             })
+            ->filter($filters)
             ->groupBy('id', 'title')
             ->having('Z', '>', 5)
             ->orderBy('formula')
             ->take(3);
-        self::applyFilters($query, $filters);
 
         return $query->get();
     }
@@ -93,23 +93,23 @@ class TaxonomyRankingRepostitory
 
     public static function getForSubject(User $forUser, Subject $subject, $filters)
     {
-        $query = self::getQueryForAttainment($forUser, $subject)
+        $query = self::getQueryForAttainment($forUser, $subject, $filters)
             ->whereNull('attainments.attainment_id');
-        self::applyFilters($query, $filters);
+
 
         return $query->get();
     }
 
     public static function getForAttainment(User $forUser, Subject $subject, BaseAttainment $baseAttainment, $filters)
     {
-        $query = self::getQueryForAttainment($forUser, $subject)
+        $query = self::getQueryForAttainment($forUser, $subject, $filters)
             ->where('attainments.attainment_id', $baseAttainment->getKey());
-        self::applyFilters($query, $filters);
+
 
         return $query->get();
     }
 
-    private static function getQueryForAttainment(User $forUser, Subject $subject)
+    private static function getQueryForAttainment(User $forUser, Subject $subject, $filters)
     {
         return PValue::select(
             DB::raw('attainments.description as title'),
@@ -133,6 +133,7 @@ class TaxonomyRankingRepostitory
                     ->orWhereNotNull('questions.rtti')
                     ->orWhereRaw("questions.rtti <> ''");
             })
+            ->filter($filters['periods'], $filters['education_level_years'], $filters['teachers'])
             ->groupBy('id', 'title')
             ->having('Z', '>', 5)
             ->orderBy('formula')
@@ -140,38 +141,6 @@ class TaxonomyRankingRepostitory
             ->take(3);
     }
 
-    private static function applyFilters($query, $filters)
-    {
-        self::applyPeriodFilter($query, $filters['periods']);
-        self::applyEducationLevelYearFilter($query, $filters['education_level_years']);
-        self::applyTeacherFilter($query, $filters['teachers']);
-
-        return $query;
-    }
-
-    private static function applyPeriodFilter($query, $periods)
-    {
-        $query->when(
-            $periods->isNotEmpty(),
-            fn($q) => $q->whereIn('p_values.period_id', $periods->pluck('id'))
-        );
-    }
-
-    private static function applyEducationLevelYearFilter($query, $educationLevelYears)
-    {
-        $query->when(
-            $educationLevelYears->isNotEmpty(),
-            fn($q) => $q->whereIn('education_level_year', $educationLevelYears->pluck('id'))
-        );
-    }
-
-    private static function applyTeacherFilter($query, $teachers)
-    {
-        $query->when($teachers->isNotEmpty(), function ($q) use ($teachers) {
-            $q->join('p_value_users', 'p_value_users.p_value_id', '=', 'p_values.id')
-                ->whereIn('p_value_users.user_id', $teachers->pluck('id'));
-        });
-    }
 
 
 }

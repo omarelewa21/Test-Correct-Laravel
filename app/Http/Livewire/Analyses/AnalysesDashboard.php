@@ -38,6 +38,7 @@ abstract class AnalysesDashboard extends Component
 
     public $dataKeys = [];
 
+
 //    public $topItems = [];
 
     public $displayRankingPanel = true;
@@ -47,6 +48,10 @@ abstract class AnalysesDashboard extends Component
         ['name' => 'RTTI', 'height' => '150px'],
         ['name' => 'Bloom', 'height' => '200px'],
     ];
+
+    private $_education_level_years_by_filter_values = null;
+    private $_teachers_by_filter_values = null;
+    private $_period_by_filter_values = null;
 
     protected $forUser;
 
@@ -249,17 +254,18 @@ abstract class AnalysesDashboard extends Component
 
     protected function getPeriodsByFilterValues()
     {
-        return Period::whereIn('id', $this->filters['periods'])->get('id');
+        return $this->_periods_by_filter_values ??=  Period::whereIn('id', $this->filters['periods'])->get('id');
+
     }
 
     protected function getEducationLevelYearsByFilterValues()
     {
-        return collect($this->filters['educationLevelYears'])->map(fn($levelYear) => ['id' => $levelYear]);
+        return $this->_education_level_years_by_filter_values ??= collect($this->filters['educationLevelYears'])->map(fn($levelYear) => ['id' => $levelYear]);
     }
 
     protected function getTeachersByFilterValues()
     {
-        return User::whereIn('id', $this->filters['teachers'])->get('id');
+        return $this->_teachers_by_filter_values ??= User::whereIn('id', $this->filters['teachers'])->get('id');
     }
 
     public function getFirstActiveForGeneralGraphTaxonomy()
