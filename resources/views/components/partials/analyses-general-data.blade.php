@@ -58,7 +58,7 @@
     >
         @foreach($this->taxonomies as $key=> $taxonomy)
             <div
-                x-data="expandableGraphForGeneral({{ $key }}, '{{ $this->taxonomyIdentifier}}', '{{ $taxonomy['name'] }}')"
+                x-data="expandableGraphForGeneral({{ $key }}, '{{ $this->taxonomyIdentifier}}', '{{ $taxonomy['name'] }}', 'expandableGraphForGeneral')"
                 x-on:active-changed.window="if (id === $event.detail.id)  { expanded = true}"
                 x-on:click="expanded = !expanded"
                 class="cursor-pointer ml-10"

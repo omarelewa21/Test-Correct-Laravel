@@ -110,7 +110,7 @@
                                 </div>
                                 @foreach($this->taxonomies as $key=> $taxonomy)
                                     <div
-                                        x-data="expandableGraph({{ $key }}, '{{ $item->id }}', '{{ $taxonomy['name'] }}')"
+                                        x-data="expandableGraphForGeneral({{ $key }}, '{{ $item->id }}', '{{ $taxonomy['name'] }}', 'expandableGraph')"
                                         x-on:top-item-active-changed{{ $loop->index }}.window="if (id === $event.detail.id)  { expanded = true}"
                                         x-on:click="expanded = !expanded"
                                         class="cursor-pointer ml-10"

@@ -6356,7 +6356,7 @@ document.addEventListener('alpine:init', function () {
       }
     };
   });
-  alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data('expandableGraph', function (id, modelId, taxonomy) {
+  alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data('expandableGraphForGeneral', function (id, modelId, taxonomy, component) {
     return {
       data: false,
       modelId: modelId,
@@ -6372,113 +6372,33 @@ document.addEventListener('alpine:init', function () {
       updateGraph: function updateGraph() {
         var _this19 = this;
         return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee3() {
-          var _yield$_this19$$wire$, _yield$_this19$$wire$2;
+          var method, _yield$_this19$$wire$, _yield$_this19$$wire$2;
           return _regeneratorRuntime().wrap(function _callee3$(_context3) {
             while (1) {
               switch (_context3.prev = _context3.next) {
                 case 0:
                   if (_this19.data) {
-                    _context3.next = 8;
+                    _context3.next = 10;
                     break;
                   }
-                  _context3.next = 3;
-                  return _this19.$wire.getData(_this19.modelId, _this19.taxonomy);
-                case 3:
+                  method = 'getData';
+                  if (component == 'expandableGraphForGeneral') {
+                    method = 'getDataForGeneralGraph';
+                  }
+                  _context3.next = 5;
+                  return _this19.$wire.call(method, _this19.modelId, _this19.taxonomy);
+                case 5:
                   _yield$_this19$$wire$ = _context3.sent;
                   _yield$_this19$$wire$2 = _slicedToArray(_yield$_this19$$wire$, 2);
                   _this19.showEmptyState = _yield$_this19$$wire$2[0];
                   _this19.data = _yield$_this19$$wire$2[1];
                   _this19.renderGraph();
-                case 8:
+                case 10:
                 case "end":
                   return _context3.stop();
               }
             }
           }, _callee3);
-        }))();
-      },
-      get expanded() {
-        return this.active === this.id;
-      },
-      set expanded(value) {
-        if (value) {
-          this.updateGraph();
-        }
-        this.active = value ? this.id : null;
-      },
-      renderGraph: function renderGraph() {
-        // create bar chart
-        var chart = anychart.bar();
-
-        // create area series with passed data
-        var series = chart.bar(this.data);
-        series.stroke(this.getColor()).fill(this.getColor());
-        var tooltip = series.tooltip();
-        tooltip.title(false).separator(false).position('right').anchor('left-center').offsetX(5).offsetY(0).background('#FFFFFF').fontColor('#000000').format(function () {
-          return 'P ' + Math.abs(this.value).toLocaleString();
-        });
-        chart.tooltip().positionMode('point');
-        // set scale minimum
-        chart.yScale().minimum(0);
-        chart.yScale().maximum(1);
-        chart.xAxis().stroke('#041F74');
-        chart.xAxis().stroke('none');
-
-        // set container id for the chart
-        chart.container(this.containerId);
-        // initiate chart drawing
-        chart.draw();
-      },
-      getColor: function getColor() {
-        if (this.taxonomy == 'Bloom') {
-          return '#E2DD10';
-        }
-        if (this.taxonomy == 'Miller') {
-          return '#5043F6';
-        }
-        return '#2EBC4F';
-      }
-    };
-  });
-  alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data('expandableGraphForGeneral', function (id, modelId, taxonomy) {
-    return {
-      data: false,
-      modelId: modelId,
-      taxonomy: taxonomy,
-      containerId: 'chart-' + modelId + '-' + taxonomy,
-      id: id,
-      showEmptyState: false,
-      init: function init() {
-        if (this.expanded) {
-          this.updateGraph();
-        }
-      },
-      updateGraph: function updateGraph() {
-        var _this20 = this;
-        return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee4() {
-          var _yield$_this20$$wire$, _yield$_this20$$wire$2;
-          return _regeneratorRuntime().wrap(function _callee4$(_context4) {
-            while (1) {
-              switch (_context4.prev = _context4.next) {
-                case 0:
-                  if (_this20.data) {
-                    _context4.next = 8;
-                    break;
-                  }
-                  _context4.next = 3;
-                  return _this20.$wire.getDataForGeneralGraph(_this20.modelId, _this20.taxonomy);
-                case 3:
-                  _yield$_this20$$wire$ = _context4.sent;
-                  _yield$_this20$$wire$2 = _slicedToArray(_yield$_this20$$wire$, 2);
-                  _this20.showEmptyState = _yield$_this20$$wire$2[0];
-                  _this20.data = _yield$_this20$$wire$2[1];
-                  _this20.renderGraph();
-                case 8:
-                case "end":
-                  return _context4.stop();
-              }
-            }
-          }, _callee4);
         }))();
       },
       get expanded() {
@@ -6573,38 +6493,38 @@ document.addEventListener('alpine:init', function () {
       menuOffsetMarginTop: 56,
       menuOffsetMarginLeft: 224,
       handleIncomingEvent: function handleIncomingEvent(detail) {
-        var _this21 = this;
+        var _this20 = this;
         if (!this.contextMenuOpen) return this.openMenu(detail);
         this.closeMenu();
         setTimeout(function () {
-          _this21.openMenu(detail);
+          _this20.openMenu(detail);
         }, 150);
       },
       openMenu: function openMenu(detail) {
-        var _this22 = this;
-        return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee5() {
+        var _this21 = this;
+        return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee4() {
           var readyForShow;
-          return _regeneratorRuntime().wrap(function _callee5$(_context5) {
+          return _regeneratorRuntime().wrap(function _callee4$(_context4) {
             while (1) {
-              switch (_context5.prev = _context5.next) {
+              switch (_context4.prev = _context4.next) {
                 case 0:
-                  _this22.uuid = detail.uuid;
-                  _this22.correspondingButton = detail.button;
-                  _this22.contextData = detail.contextData;
-                  _this22.$root.style.top = detail.coords.top + _this22.menuOffsetMarginTop + 'px';
-                  _this22.$root.style.left = detail.coords.left - _this22.menuOffsetMarginLeft + 'px';
-                  _context5.next = 7;
-                  return _this22.$wire.setContextValues(_this22.uuid, _this22.contextData);
+                  _this21.uuid = detail.uuid;
+                  _this21.correspondingButton = detail.button;
+                  _this21.contextData = detail.contextData;
+                  _this21.$root.style.top = detail.coords.top + _this21.menuOffsetMarginTop + 'px';
+                  _this21.$root.style.left = detail.coords.left - _this21.menuOffsetMarginLeft + 'px';
+                  _context4.next = 7;
+                  return _this21.$wire.setContextValues(_this21.uuid, _this21.contextData);
                 case 7:
-                  readyForShow = _context5.sent;
-                  if (readyForShow) _this22.contextMenuOpen = true;
-                  _this22.contextMenuOpen = true;
+                  readyForShow = _context4.sent;
+                  if (readyForShow) _this21.contextMenuOpen = true;
+                  _this21.contextMenuOpen = true;
                 case 10:
                 case "end":
-                  return _context5.stop();
+                  return _context4.stop();
               }
             }
-          }, _callee5);
+          }, _callee4);
         }))();
       },
       closeMenu: function closeMenu() {
