@@ -6423,10 +6423,13 @@ document.addEventListener('alpine:init', function () {
             var selection = _this17.multiple ? _this17.value : [_this17.value];
             choices.clearStore();
 
-            if (_this17.config.placeholderValue.length > 0) {
+            if (_this17.config.placeholderValue.length > 0 && _this17.$root.classList.contains('super')) {
+              var _this17$$root$querySe;
+
               var placeholderItem = choices._getTemplate('placeholder', _this17.config.placeholderValue);
 
-              placeholderItem.classList.add('truncate', 'min-w-[1rem]');
+              placeholderItem.classList.add('truncate', 'min-w-[1rem]', 'placeholder');
+              (_this17$$root$querySe = _this17.$root.querySelector('.choices__placeholder.placeholder')) === null || _this17$$root$querySe === void 0 ? void 0 : _this17$$root$querySe.remove();
               choices.itemList.append(placeholderItem);
             }
 
@@ -6484,7 +6487,7 @@ document.addEventListener('alpine:init', function () {
           });
 
           _this17.$refs.select.addEventListener('showDropdown', function () {
-            if (_this17.$root.querySelector('.is-active')) {
+            if (_this17.$root.querySelector('.is-active.super')) {
               _this17.$refs.chevron.style.left = _this17.$root.querySelector('.is-active').offsetWidth - 25 + 'px';
             }
           });
@@ -7217,13 +7220,14 @@ document.addEventListener('alpine:init', function () {
 
     };
   });
-  alpinejs__WEBPACK_IMPORTED_MODULE_1__["default"].data('fileUpload', function (uploadModel) {
+  alpinejs__WEBPACK_IMPORTED_MODULE_1__["default"].data('fileUpload', function (uploadModel, rules) {
     return {
       isDropping: false,
       isUploading: false,
       progress: {},
       dragCounter: 0,
       uploadModel: uploadModel,
+      rules: rules,
       handleFileSelect: function handleFileSelect(event) {
         if (event.target.files.length) {
           this.uploadFiles(event.target.files);
@@ -7241,6 +7245,18 @@ document.addEventListener('alpine:init', function () {
         this.isUploading = true;
         var dummyContainer = this.$root.querySelector('#upload-dummies');
         Array.from(files).forEach(function (file, key) {
+          if (!_this23.fileHasAllowedExtension(file)) {
+            _this23.handleIncorrectFileUpload(file);
+
+            return;
+          }
+
+          if (_this23.fileTooLarge(file)) {
+            _this23.handleTooLargeOfAfile(file);
+
+            return;
+          }
+
           var badgeId = "upload-badge-".concat(key);
           var loadingBadge = $this.createLoadingBadge(file, badgeId);
           dummyContainer.append(loadingBadge);
@@ -7248,7 +7264,10 @@ document.addEventListener('alpine:init', function () {
           $this.$wire.upload(_this23.uploadModel, file, function (success) {
             $this.progress[badgeId] = 0;
             dummyContainer.querySelector("#".concat(badgeId)).remove();
-          }, function (error) {}, function (progress) {
+          }, function (error) {
+            Notify.notify("Er is iets misgegaan met het verwerken van '".concat(file.name, "'."), 'error');
+            dummyContainer.querySelector("#".concat(badgeId)).remove();
+          }, function (progress) {
             $this.progress[badgeId] = event.detail.progress;
           });
         });
@@ -7276,6 +7295,25 @@ document.addEventListener('alpine:init', function () {
         template.firstElementChild.id = badgeId;
         template.querySelector('.badge-name').innerText = file.name;
         return template;
+      },
+      getFileExtension: function getFileExtension(file) {
+        var filename = file.name;
+        return filename.substring(filename.lastIndexOf('.') + 1, filename.length) || filename;
+      },
+      fileHasAllowedExtension: function fileHasAllowedExtension(file) {
+        return this.rules.extensions.data.includes(this.getFileExtension(file));
+      },
+      handleIncorrectFileUpload: function handleIncorrectFileUpload(file) {
+        var message = this.rules.extensions.message.replace('%s', this.getFileExtension(file));
+        Notify.notify(message, 'error');
+      },
+      fileTooLarge: function fileTooLarge(file) {
+        console.log([file.size, this.rules.size.data, file.size > this.rules.size.data]);
+        return file.size > this.rules.size.data;
+      },
+      handleTooLargeOfAfile: function handleTooLargeOfAfile(file) {
+        var message = this.rules.size.message.replace('%s', file.name);
+        Notify.notify(message, 'error');
       }
     };
   });

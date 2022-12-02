@@ -38,7 +38,6 @@
     >
         <select x-ref="select" :multiple="multiple" placeholder="{{ $placeholderText }}"
                 id="{{$attributes['id']}}">
-            <option placeholder>Select an item</option>
         </select>
         <x-icon.chevron-small x-ref="chevron" class="choices-select-chevron absolute right-4 top-1/2 -translate-y-1/2 rotate-90 pointer-events-none" opacity="1"/>
     </div>

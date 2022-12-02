@@ -2,7 +2,7 @@
     <div class="question-editor-header header w-full " style="position:sticky;">
         <div class="flex gap-4 items-center">
             <x-button.back-round class="bg-white/20 hover:text-white" wire:click="back"/>
-            <h4 class="text-white">Toets uploaden {{ $this->formUuid }}</h4>
+            <h4 class="text-white">@lang('upload.Toets uploaden')</h4>
         </div>
         <div>
 
@@ -102,8 +102,13 @@
                 </x-slot>
             </x-accordion.block>
 
-            <x-accordion.block :key="2" :disabled="!$tabOneComplete" :emitWhenSet="true" :upload="true"
-                               uploadModel="uploads">
+            <x-accordion.block :key="2"
+                               :disabled="!$tabOneComplete"
+                               :emitWhenSet="true"
+                               :upload="true"
+                               uploadModel="uploads"
+                               :uploadRules="$this->uploadRules"
+            >
                 <x-slot name="title">
                     <div class="flex gap-2 items-center">
                         @if($tabTwoComplete)
@@ -304,7 +309,13 @@
                         </div>
 
                         <div class="mt-2">
-                            <x-button.cta class="w-full justify-center" :disabled="!$this->checkedCorrectBoxes" wire:click="finishProcess">
+                            <x-button.cta class="w-full justify-center"
+                                          :disabled="!$this->checkedCorrectBoxes"
+                                          wire:click="finishProcess"
+                                          wire:loading.attr="disabled"
+                                          wire:target="finishProcess"
+                                          x-on:click="$el.disabled = true"
+                            >
                                 <x-icon.upload/>
                                 <span>@lang('upload.Toets uploaden')</span>
                             </x-button.cta>
@@ -314,4 +325,7 @@
             </x-accordion.block>
         </x-accordion.container>
     </div>
+
+    <x-notification/>
+    @livewire('livewire-ui-modal');
 </div>

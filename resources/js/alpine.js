@@ -583,9 +583,10 @@ document.addEventListener('alpine:init', () => {
                 let refreshChoices = () => {
                     let selection = this.multiple ? this.value : [this.value]
                     choices.clearStore();
-                    if (this.config.placeholderValue.length > 0) {
+                    if (this.config.placeholderValue.length > 0 && this.$root.classList.contains('super') ) {
                         let placeholderItem = choices._getTemplate('placeholder', this.config.placeholderValue);
-                        placeholderItem.classList.add('truncate', 'min-w-[1rem]');
+                        placeholderItem.classList.add('truncate', 'min-w-[1rem]', 'placeholder');
+                        this.$root.querySelector('.choices__placeholder.placeholder')?.remove();
                         choices.itemList.append(placeholderItem);
                     }
                     let options = typeof this.options === 'object' ? Object.values(this.options) : this.options;
@@ -627,7 +628,7 @@ document.addEventListener('alpine:init', () => {
                 this.$watch('options', () => refreshChoices());
 
                 this.$refs.select.addEventListener('showDropdown', () => {
-                    if (this.$root.querySelector('.is-active')) {
+                    if (this.$root.querySelector('.is-active.super')) {
                         this.$refs.chevron.style.left = (this.$root.querySelector('.is-active').offsetWidth - 25) + 'px';
                     }
                 });
@@ -1373,12 +1374,13 @@ document.addEventListener('alpine:init', () => {
             }
         },
     }));
-    Alpine.data('fileUpload', (uploadModel) => ({
+    Alpine.data('fileUpload', (uploadModel, rules) => ({
         isDropping: false,
         isUploading: false,
         progress: {},
         dragCounter: 0,
         uploadModel,
+        rules,
         handleFileSelect(event) {
             if (event.target.files.length) {
                 this.uploadFiles(event.target.files)
@@ -1394,6 +1396,16 @@ document.addEventListener('alpine:init', () => {
             this.isUploading = true
             let dummyContainer = this.$root.querySelector('#upload-dummies');
             Array.from(files).forEach((file, key) => {
+                if(!this.fileHasAllowedExtension(file)) {
+                    this.handleIncorrectFileUpload(file);
+                    return;
+                }
+
+                if(this.fileTooLarge(file)) {
+                    this.handleTooLargeOfAfile(file);
+                    return;
+                }
+
                 let badgeId = `upload-badge-${key}`;
                 let loadingBadge = $this.createLoadingBadge(file, badgeId);
 
@@ -1408,6 +1420,8 @@ document.addEventListener('alpine:init', () => {
                         dummyContainer.querySelector(`#${badgeId}`).remove();
                     },
                     error => {
+                        Notify.notify(`Er is iets misgegaan met het verwerken van '${file.name}'.`, 'error');
+                        dummyContainer.querySelector(`#${badgeId}`).remove();
                     },
                     progress => {
                         $this.progress[badgeId] = event.detail.progress
@@ -1439,6 +1453,25 @@ document.addEventListener('alpine:init', () => {
 
             return template
         },
+        getFileExtension: function (file) {
+            let filename = file.name;
+            return filename.substring(filename.lastIndexOf('.') + 1, filename.length) || filename;
+        },
+        fileHasAllowedExtension(file) {
+            return this.rules.extensions.data.includes(this.getFileExtension(file));
+        },
+        handleIncorrectFileUpload(file) {
+            let message = this.rules.extensions.message.replace('%s', this.getFileExtension(file));
+            Notify.notify(message, 'error');
+        },
+        fileTooLarge(file) {
+            console.log([file.size , this.rules.size.data, file.size > this.rules.size.data])
+            return file.size > this.rules.size.data;
+        },
+        handleTooLargeOfAfile(file) {
+            let message = this.rules.size.message.replace('%s', file.name);
+            Notify.notify(message, 'error');
+        }
     }));
 
 

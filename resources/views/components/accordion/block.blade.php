@@ -8,14 +8,14 @@
         x-bind:class="{' bg-primary/5 border-dashed border-primary border-4 rounded-10 -m-1 ': droppingFile}"
 >
     @if($upload)
-        <div x-data="fileUpload(@js($uploadModel))"
-             x-on:drop="handleDrop()"
-             x-on:drop.prevent="handleFileDrop($event)"
+        <div x-data="fileUpload(@js($uploadModel), @js($uploadRules))"
+             x-on:drop="if(expanded) handleDrop()"
+             x-on:drop.prevent="if(expanded) handleFileDrop($event)"
              x-on:dragover.prevent=""
-             x-on:dragenter.prevent="handleDragEnter()"
-             x-on:dragleave.prevent="handleDragLeave()"
+             x-on:dragenter.prevent="if(expanded) handleDragEnter()"
+             x-on:dragleave.prevent="if(expanded) handleDragLeave()"
         >
-            @endif
+    @endif
     <div x-bind:id="id">
         <button
                 x-on:click="expanded = !expanded"

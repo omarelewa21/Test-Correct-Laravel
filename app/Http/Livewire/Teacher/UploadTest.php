@@ -11,17 +11,21 @@ use Livewire\TemporaryUploadedFile;
 use Livewire\WithFileUploads;
 use Ramsey\Uuid\Uuid;
 use tcCore\EducationLevel;
+use tcCore\Exceptions\UploadTestException;
 use tcCore\FileManagement;
 use tcCore\Http\Helpers\BaseHelper;
+use tcCore\Http\Helpers\CakeRedirectHelper;
 use tcCore\Subject;
-use tcCore\TemporaryLogin;
 use tcCore\TestKind;
 
 class UploadTest extends Component
 {
     use WithFileUploads;
 
-    public string $formUuid;
+    const CAKE_RETURN_ROUTE_SESSION_KEY = 'upload_test_cake_return_route';
+    const LARAVEL_RETURN_ROUTE_SESSION_KEY = 'upload_test_laravel_return_route';
+    const MAX_FILE_SIZE_IN_BYTES = 64000000;
+
     public array $testInfo = [
         'name'                       => '',
         'planned_at'                 => null,
@@ -38,23 +42,23 @@ class UploadTest extends Component
         'attachments'             => false,
         'elaboration_attachments' => false,
     ];
-
+    public string $formUuid;
     public bool $tabOneComplete = false;
     public bool $tabTwoComplete = false;
     public bool $showDateWarning = false;
     public string $minimumTakeDate;
+    public mixed $uploads = [];
+    public array $uploadRules = [];
 
-    public $uploads = [];
+    public $referrer;
 
-    public function getListeners()
-    {
-        return ['accordion-update' => 'accordionUpdate'];
-    }
+    protected $queryString = ['referrer'];
 
     public function mount()
     {
-        $this->formUuid = Uuid::uuid4();
+        $this->setFormUuid();
         $this->setDateProperties();
+        $this->setUploadRules();
 
         if (BaseHelper::notProduction()) {
             $this->setDummyData();
@@ -65,6 +69,13 @@ class UploadTest extends Component
     {
         $this->tabOneComplete = collect($this->testInfo)->reject(fn($item) => filled($item))->isEmpty();
         $this->tabTwoComplete = collect($this->uploads)->isNotEmpty();
+    }
+
+    public function updatedUploads($value)
+    {
+        $this->validate([
+            'uploads.*' => 'max:' . self::MAX_FILE_SIZE_IN_BYTES / 1000, /* Have to convert bytes to KBs */
+        ]);
     }
 
     public function updatingContainsPublisherContent($value)
@@ -84,7 +95,19 @@ class UploadTest extends Component
 
     public function back()
     {
-        return redirect(TemporaryLogin::createForUser(Auth::user())->createCakeUrl());
+        if (blank($this->referrer)) {
+            return CakeRedirectHelper::redirectToCake();
+        }
+
+        if ($this->referrer['type'] === 'cake') {
+            $routeName = CakeRedirectHelper::getRouteNameByUrl($this->referrer['page']);
+            return CakeRedirectHelper::redirectToCake($routeName);
+        }
+
+        if ($this->referrer['type'] === 'laravel') {
+            return redirect($this->referrer['page']);
+        }
+        return CakeRedirectHelper::redirectToCake();
     }
 
     /**
@@ -164,12 +187,10 @@ class UploadTest extends Component
         return 'check_warning_text';
     }
 
-    public function accordionUpdate($value): void {}
-
     private function setDummyData()
     {
         $this->testInfo = array_merge($this->testInfo, [
-            'name'                       => 'kaas',
+            'name'                       => 'Lekker uploaden!',
             'subject_uuid'               => $this->subjects->first()?->value,
             'education_level_uuid'       => $this->educationLevels->first()?->value,
             'education_level_year'       => 3,
@@ -207,41 +228,53 @@ class UploadTest extends Component
     {
         $typedetails = $this->getTypeDetailsForFileManagementModel();
 
-        $parentFM = $this->createParentFileManagementModel($typedetails);
+        $parentFileManagement = $this->createParentFileManagementModel($typedetails);
 
-        collect($this->uploads)->each(function ($upload) use ($parentFM, $typedetails) {
-            $childId = Uuid::uuid4();
-            $uploadFileName = $this->getFileNameForUpload($upload, $childId);
+        try {
+            collect($this->uploads)->each(function ($upload) use ($parentFileManagement, $typedetails) {
+                $childId = Uuid::uuid4();
+                $uploadFileName = $this->getFileNameForUpload($upload, $childId);
 
-            $childFM = $this->createChildFileManagementModels($upload, $parentFM, $uploadFileName, $childId);
+                $this->createChildFileManagementModels($upload, $parentFileManagement, $uploadFileName, $childId);
 
-            $upload->storeAs(
-                Auth::user()->school_location_id,
-                $uploadFileName,
-                'test_uploads'
-            );
-        });
+                $upload->storeAs(
+                    Auth::user()->school_location_id,
+                    $uploadFileName,
+                    'test_uploads'
+                );
+            });
+        } catch (UploadTestException $exception) {
+            \Bugsnag::notifyException($exception);
+            $this->dispatchBrowserEvent('notify', ['message' => __('auth.something_went_wrong'), 'error']);
+        }
+
+        $this->emit('openModal', 'teacher.upload-test-success-modal');
+
+        $this->setFormUuid();
     }
 
+    /**
+     * @return Collection
+     */
     private function getTypeDetailsForFileManagementModel(): Collection
     {
         return collect($this->testInfo)
             ->reject(function ($item, $key) {
                 return collect(['planned_at', 'subject_uuid', 'education_level_uuid', 'test_kind_uuid'])->contains($key);
             })
-            ->merge(collect([
+            ->merge([
                 'multiple'           => 0,
                 'form_id'            => $this->formUuid,
                 'correctiemodel'     => $this->checkInfo['answer_model'] ? 1 : 0,
                 'subject_id'         => Subject::whereUuid($this->testInfo['subject_uuid'])->value('id'),
                 'education_level_id' => EducationLevel::whereUuid($this->testInfo['education_level_uuid'])->value('id'),
                 'test_kind_id'       => TestKind::whereUuid($this->testInfo['test_kind_uuid'])->value('id'),
-            ]));
+            ]);
     }
 
     /**
      * @param Collection $typedetails
-     * @return void
+     * @return FileManagement
      */
     private function createParentFileManagementModel(Collection $typedetails): FileManagement
     {
@@ -265,20 +298,33 @@ class UploadTest extends Component
         ]);
     }
 
-    private function createChildFileManagementModels(TemporaryUploadedFile $upload, ?FileManagement $parentFM, string $storageFileName, string $childId): FileManagement
+    /**
+     * @param TemporaryUploadedFile $upload
+     * @param FileManagement|null $parentFileManagement
+     * @param string $storageFileName
+     * @param string $childId
+     * @return FileManagement
+     */
+    private function createChildFileManagementModels(TemporaryUploadedFile $upload, ?FileManagement $parentFileManagement, string $storageFileName, string $childId): FileManagement
     {
         return FileManagement::create(
-            collect($parentFM->toArray())->merge([
-                'id'         => $childId,
-                'uuid'       => Uuid::uuid4(),
-                'origname'   => $upload->getClientOriginalName(),
-                'name'       => $storageFileName,
-                'parent_id'  => $parentFM->id,
-            ])
-                ->toArray()
+            array_merge(
+                $parentFileManagement->toArray(),
+                [
+                    'id'        => $childId,
+                    'uuid'      => Uuid::uuid4(),
+                    'origname'  => $upload->getClientOriginalName(),
+                    'name'      => $storageFileName,
+                    'parent_id' => $parentFileManagement->id,
+                ])
         );
     }
 
+    /**
+     * @param $upload
+     * @param $uuid
+     * @return string
+     */
     private function getFileNameForUpload($upload, $uuid): string
     {
         return sprintf('%s-%s-%s.%s',
@@ -289,4 +335,19 @@ class UploadTest extends Component
         );
     }
 
+    public function setUploadRules(): void
+    {
+        $mimeString = config('livewire.temporary_file_upload.rules')[0];
+        $mimeArray = str(str($mimeString)->explode(':')[1])->explode(',')->toArray();
+
+        $this->uploadRules = [
+            'extensions' => ['data' => $mimeArray, 'message' => __('upload.upload_rule_extension')],
+            'size'       => ['data' => self::MAX_FILE_SIZE_IN_BYTES, 'message' => __('upload.upload_rule_size')]
+        ];
+    }
+
+    private function setFormUuid()
+    {
+        $this->formUuid = Uuid::uuid4();
+    }
 }
