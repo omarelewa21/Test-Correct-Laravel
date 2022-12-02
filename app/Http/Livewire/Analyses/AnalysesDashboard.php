@@ -35,9 +35,11 @@ abstract class AnalysesDashboard extends Component
     public $showEmptyStateForPValueGraph = false;
 
     public $dataValues = [];
+
     public $dataKeys = [];
 
-    public $topItems = [];
+
+//    public $topItems = [];
 
     public $displayRankingPanel = true;
 
@@ -47,9 +49,15 @@ abstract class AnalysesDashboard extends Component
         ['name' => 'Bloom', 'height' => '200px'],
     ];
 
+    private $_education_level_years_by_filter_values = null;
+    private $_teachers_by_filter_values = null;
+    private $_period_by_filter_values = null;
+
     protected $forUser;
 
     abstract public function getDataProperty();
+
+    abstract public function getTopItemsProperty();
 
     abstract public function render();
 
@@ -80,16 +88,22 @@ abstract class AnalysesDashboard extends Component
     {
         switch ($taxonomy) {
             case 'Miller':
-                return $this->getMillerData($subjectId);
+                $data = $this->getMillerData($subjectId);
                 break;
             case 'RTTI':
-                return $this->getRTTIData($subjectId);
+                $data = $this->getRTTIData($subjectId);
                 break;
             case 'Bloom':
-                return $this->getBloomData($subjectId);
+                $data = $this->getBloomData($subjectId);
+                break;
+            default:
+                abort(403);
                 break;
         }
-        // abort(403);
+        return [
+            $showEmptyState = collect($data)->filter(fn($item) => $item[1] > 0)->isEmpty(),
+            $this->transformForGraph($data)
+        ];
     }
 
     protected function getMillerData($attainmentId)
@@ -133,6 +147,9 @@ abstract class AnalysesDashboard extends Component
                 break;
             case 'Bloom':
                 $data = $this->getBloomGeneralGraphData($subjectId);
+                break;
+            default:
+                abort(403);
                 break;
         }
 
@@ -237,23 +254,35 @@ abstract class AnalysesDashboard extends Component
 
     protected function getPeriodsByFilterValues()
     {
-        return Period::whereIn('id', $this->filters['periods'])->get('id');
+        return $this->_periods_by_filter_values ??=  Period::whereIn('id', $this->filters['periods'])->get('id');
+
     }
 
     protected function getEducationLevelYearsByFilterValues()
     {
-        return collect($this->filters['educationLevelYears'])->map(fn($levelYear) => ['id' => $levelYear]);
+        return $this->_education_level_years_by_filter_values ??= collect($this->filters['educationLevelYears'])->map(fn($levelYear) => ['id' => $levelYear]);
     }
 
     protected function getTeachersByFilterValues()
     {
-        return User::whereIn('id', $this->filters['teachers'])->get('id');
+        return $this->_teachers_by_filter_values ??= User::whereIn('id', $this->filters['teachers'])->get('id');
     }
 
     public function getFirstActiveForGeneralGraphTaxonomy()
     {
         foreach ($this->taxonomies as $key => $taxonomy) {
             $data = $this->getDataForGeneralGraph($this->taxonomyIdentifier, $taxonomy['name']);
+            if (!$data[0]) {
+                return $key;
+            }
+        }
+        return false;
+    }
+
+    public function getFirstActiveForRankingTaxonomy($modelId)
+    {
+        foreach ($this->taxonomies as $key => $taxonomy) {
+            $data = $this->getData($modelId, $taxonomy['name']);
             if (!$data[0]) {
                 return $key;
             }

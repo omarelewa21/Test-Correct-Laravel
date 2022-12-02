@@ -37,13 +37,21 @@ class AnalysesSubAttainmentDashboard extends AnalysesDashboard
             }
         }
 
-        $this->topItems = TaxonomyRankingRepostitory::getForAttainment(
+        $this->getFilterOptionsData();
+    }
+
+    public function getTopItemsProperty()
+    {
+        return TaxonomyRankingRepostitory::getForAttainment(
             $this->getHelper()->getForUser(),
             Subject::whereUuid($this->subject)->first(),
-            $this->attainment
+            $this->attainment,
+            [
+                'periods'               => $this->getPeriodsByFilterValues(),
+                'education_level_years' => $this->getEducationLevelYearsByFilterValues(),
+                'teachers'              => $this->getTeachersByFilterValues(),
+            ]
         );
-
-        $this->getFilterOptionsData();
     }
 
     public function getDataProperty()

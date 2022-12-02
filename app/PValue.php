@@ -30,7 +30,10 @@ class PValue extends BaseModel
      *
      * @var array
      */
-    protected $fillable = ['answer_id', 'question_id', 'test_participant_id', 'period_id', 'subject_id', 'school_class_id', 'education_level_id', 'score', 'max_score', 'education_level_year'];
+    protected $fillable = [
+        'answer_id', 'question_id', 'test_participant_id', 'period_id', 'subject_id', 'school_class_id',
+        'education_level_id', 'score', 'max_score', 'education_level_year'
+    ];
 
     /**
      * The attributes excluded from the model's JSON form.
@@ -140,7 +143,7 @@ class PValue extends BaseModel
                 if (null !== $error) {
                     Bugsnag::notifyException(new \LogicException($error));
 
-                    dispatch_now(new SendExceptionMail($error,__FILE__,$line,[],'PValueUser error'));
+                    dispatch_now(new SendExceptionMail($error, __FILE__, $line, [], 'PValueUser error'));
 
 //                    Mail::raw($error, function ($message) {
 //                        $message->to(env("MAIL_DEV_ADDRESS"), 'Auto Error Mailer');
@@ -168,9 +171,11 @@ class PValue extends BaseModel
             try {
                 PValueAttainment::create(['attainment_id' => $attainment, 'p_value_id' => $pValue->getKey()]);
             } catch (\Throwable $th) {
-                $existingPValueAttainment = PValueAttainment::where(['attainment_id' => $attainment, 'p_value_id' => $pValue->getKey()]);
+                $existingPValueAttainment = PValueAttainment::where([
+                    'attainment_id' => $attainment, 'p_value_id' => $pValue->getKey()
+                ]);
                 if (is_null($existingPValueAttainment)) {
-                    $body = 'Error in PValue.php: The PValueUser could not be created but the PValueUser with attainment_id "' . $attainment . '" and p_value_id "' . $pValue->getKey() . '" could not be created!';
+                    $body = 'Error in PValue.php: The PValueUser could not be created but the PValueUser with attainment_id "'.$attainment.'" and p_value_id "'.$pValue->getKey().'" could not be created!';
 
                     Bugsnag::notifyException(new \LogicException($body));
 
@@ -206,7 +211,8 @@ class PValue extends BaseModel
 
         if (array_key_exists('attainments', $attributes)) {
             $this->attainments = $attributes['attainments'];
-        } elseif (array_key_exists('add_attainment', $attributes) || array_key_exists('delete_attainment', $attributes)) {
+        } elseif (array_key_exists('add_attainment', $attributes) || array_key_exists('delete_attainment',
+                $attributes)) {
             $this->attainments = $this->attainments()->pluck('attainment_id')->all();
             if (array_key_exists('add_attainment', $attributes)) {
                 array_push($this->attainments, $attributes['add_attainment']);
@@ -218,5 +224,34 @@ class PValue extends BaseModel
                 }
             }
         }
+    }
+
+    public function scopeFilter($query, $periods, $educationLevelYears, $teachers){
+        $query
+            ->periodFilter($periods)
+            ->educationLevelYearFilter($educationLevelYears)
+            ->teacherFilter($teachers);
+    }
+
+
+    public function scopePeriodFilter($query, $periods)
+    {
+        $query->when($periods->isNotEmpty(), fn($q) => $q->whereIn('p_values.period_id', $periods->pluck('id')));
+    }
+
+    public function scopeEducationLevelYearFilter($query, $educationLevelYears)
+    {
+        $query->when(
+            $educationLevelYears->isNotEmpty(),
+            fn($q) => $q->whereIn('education_level_year', $educationLevelYears->pluck('id'))
+        );
+    }
+
+    public function scopeTeacherFilter($query, $teachers)
+    {
+        $query->when($teachers->isNotEmpty(), function ($q) use ($teachers) {
+            $q->join('p_value_users', 'p_value_users.p_value_id', '=', 'p_values.id')
+                ->whereIn('p_value_users.user_id', $teachers->pluck('id'));
+        });
     }
 }
