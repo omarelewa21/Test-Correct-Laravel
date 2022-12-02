@@ -23,6 +23,11 @@ class AnalysesSubSubAttainmentDashboard extends AnalysesDashboard
 
     public $displayRankingPanel = false;
 
+    public function getTopItemsProperty()
+    {
+        return true;
+    }
+
     public function getDataProperty()
     {
         return true;

@@ -35,9 +35,10 @@ abstract class AnalysesDashboard extends Component
     public $showEmptyStateForPValueGraph = false;
 
     public $dataValues = [];
+
     public $dataKeys = [];
 
-    public $topItems = [];
+//    public $topItems = [];
 
     public $displayRankingPanel = true;
 
@@ -50,6 +51,8 @@ abstract class AnalysesDashboard extends Component
     protected $forUser;
 
     abstract public function getDataProperty();
+
+    abstract public function getTopItemsProperty();
 
     abstract public function render();
 
@@ -80,16 +83,22 @@ abstract class AnalysesDashboard extends Component
     {
         switch ($taxonomy) {
             case 'Miller':
-                return $this->getMillerData($subjectId);
+                $data = $this->getMillerData($subjectId);
                 break;
             case 'RTTI':
-                return $this->getRTTIData($subjectId);
+                $data = $this->getRTTIData($subjectId);
                 break;
             case 'Bloom':
-                return $this->getBloomData($subjectId);
+                $data = $this->getBloomData($subjectId);
+                break;
+            default:
+                abort(403);
                 break;
         }
-        // abort(403);
+        return [
+            $showEmptyState = collect($data)->filter(fn($item) => $item[1] > 0)->isEmpty(),
+            $this->transformForGraph($data)
+        ];
     }
 
     protected function getMillerData($attainmentId)
@@ -133,6 +142,9 @@ abstract class AnalysesDashboard extends Component
                 break;
             case 'Bloom':
                 $data = $this->getBloomGeneralGraphData($subjectId);
+                break;
+            default:
+                abort(403);
                 break;
         }
 
@@ -254,6 +266,17 @@ abstract class AnalysesDashboard extends Component
     {
         foreach ($this->taxonomies as $key => $taxonomy) {
             $data = $this->getDataForGeneralGraph($this->taxonomyIdentifier, $taxonomy['name']);
+            if (!$data[0]) {
+                return $key;
+            }
+        }
+        return false;
+    }
+
+    public function getFirstActiveForRankingTaxonomy($modelId)
+    {
+        foreach ($this->taxonomies as $key => $taxonomy) {
+            $data = $this->getData($modelId, $taxonomy['name']);
             if (!$data[0]) {
                 return $key;
             }

@@ -48,7 +48,7 @@
         </x-slot>
 
         @if ($this->showEmptyStateForGeneralStats())
-            <div class="flex flex-row min-h-[300px] relative">
+            <div class=" min-h-[300px] relative">
                 <x-empty-graph show="true"></x-empty-graph>
             </div>
         @else

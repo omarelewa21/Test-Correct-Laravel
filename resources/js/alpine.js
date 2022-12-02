@@ -1115,6 +1115,7 @@ document.addEventListener('alpine:init', () => {
             taxonomy,
             containerId: 'chart-' + modelId + '-' + taxonomy,
             id,
+            showEmptyState: false,
             init() {
                 if (this.expanded) {
                     this.updateGraph()
@@ -1122,9 +1123,11 @@ document.addEventListener('alpine:init', () => {
             },
             async updateGraph() {
                 if (!this.data) {
-                    this.data = await this.$wire.getData(this.modelId, this.taxonomy);
+                    [this.showEmptyState, this.data] = await this.$wire.getData(this.modelId, this.taxonomy);
+
                     this.renderGraph()
                 }
+
             },
             get expanded() {
                 return this.active === this.id
@@ -1163,6 +1166,9 @@ document.addEventListener('alpine:init', () => {
 
                 chart.tooltip().positionMode('point');
                 // set scale minimum
+                chart.yScale().minimum(0)
+                chart.yScale().maximum(1)
+
                 chart.xAxis().stroke('#041F74')
                 chart.xAxis().stroke('none')
 

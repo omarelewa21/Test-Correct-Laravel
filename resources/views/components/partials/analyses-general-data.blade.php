@@ -69,7 +69,8 @@
                 <span>{{ __('student.Taxonomy') }} {{ $taxonomy['name'] }} {{__('student.Methode') }}</span>
                 <div x-show="expanded">
                     <div wire:loading
-                         wire:target="getDataForGeneralGraph('{{ $this->taxonomyIdentifier }}', '{{ $taxonomy['name'] }}')">
+                         wire:target="getDataForGeneralGraph('{{ $this->taxonomyIdentifier }}', '{{ $taxonomy['name'] }}')"
+                    >
                         loading
                     </div>
                     <div :id="containerId" style="height: {{ $taxonomy['height'] }}">

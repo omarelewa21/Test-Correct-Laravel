@@ -30,12 +30,20 @@ class AnalysesSubjectDashboard extends AnalysesDashboard
 
         $this->taxonomyIdentifier = $this->subject->id;
 
-        $this->topItems = TaxonomyRankingRepostitory::getForSubject(
-            $this->getHelper()->getForUser(),
-            $this->subject
-        );
-
         $this->setDefaultAttainmentMode();
+    }
+
+    public function getTopItemsProperty()
+    {
+        return TaxonomyRankingRepostitory::getForSubject(
+            $this->getHelper()->getForUser(),
+            $this->subject,
+            [
+                'periods'               => $this->getPeriodsByFilterValues(),
+                'education_level_years' => $this->getEducationLevelYearsByFilterValues(),
+                'teachers'              => $this->getTeachersByFilterValues(),
+            ]
+        );
     }
 
     public function getAttainmentModeOptionsProperty()

@@ -6363,6 +6363,7 @@ document.addEventListener('alpine:init', function () {
       taxonomy: taxonomy,
       containerId: 'chart-' + modelId + '-' + taxonomy,
       id: id,
+      showEmptyState: false,
       init: function init() {
         if (this.expanded) {
           this.updateGraph();
@@ -6371,20 +6372,24 @@ document.addEventListener('alpine:init', function () {
       updateGraph: function updateGraph() {
         var _this19 = this;
         return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee3() {
+          var _yield$_this19$$wire$, _yield$_this19$$wire$2;
           return _regeneratorRuntime().wrap(function _callee3$(_context3) {
             while (1) {
               switch (_context3.prev = _context3.next) {
                 case 0:
                   if (_this19.data) {
-                    _context3.next = 5;
+                    _context3.next = 8;
                     break;
                   }
                   _context3.next = 3;
                   return _this19.$wire.getData(_this19.modelId, _this19.taxonomy);
                 case 3:
-                  _this19.data = _context3.sent;
+                  _yield$_this19$$wire$ = _context3.sent;
+                  _yield$_this19$$wire$2 = _slicedToArray(_yield$_this19$$wire$, 2);
+                  _this19.showEmptyState = _yield$_this19$$wire$2[0];
+                  _this19.data = _yield$_this19$$wire$2[1];
                   _this19.renderGraph();
-                case 5:
+                case 8:
                 case "end":
                   return _context3.stop();
               }
@@ -6414,6 +6419,8 @@ document.addEventListener('alpine:init', function () {
         });
         chart.tooltip().positionMode('point');
         // set scale minimum
+        chart.yScale().minimum(0);
+        chart.yScale().maximum(1);
         chart.xAxis().stroke('#041F74');
         chart.xAxis().stroke('none');
 
