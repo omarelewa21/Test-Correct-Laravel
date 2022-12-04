@@ -111,11 +111,11 @@
 
             <div class="flex flex-col space-y-4">
                 <div>
-                    <h4>{{ __('student.recent_grades') }}</h4>
+                    <h4>{{ __('student.recent_results') }}</h4>
                 </div>
                 <div class="content-section p-8">
                     @if($ratedTestTakes->count() == 0)
-                        <p>{{ __('student.no_recent_grades') }}</p>
+                        <p>{{ __('student.no_recent_results') }}</p>
                     @else
                         <x-table>
                             <x-slot name="head">
@@ -160,7 +160,7 @@
                 <div class="flex">
                     <x-button.primary class="ml-auto" type="link"
                                       href="{{ route('student.test-takes', ['tab' => 'graded']) }}">
-                        <span>{{ __('student.see_grades') }}</span>
+                        <span>{{ __('student.see_results') }}</span>
                         <x-icon.chevron/>
                     </x-button.primary>
                 </div>

@@ -28,7 +28,7 @@
             </div>
             <div wire:click="changeActiveTab('{{ $this->gradedTab }}')">
                 <x-button.text-button class="px-2 border-0 {{ $this->gradedTab === $tab ? 'active' : '' }}" withHover="true">
-                    <span>{{ __('student.graded') }}
+                    <span>{{ __('student.results') }}
                     </span>
                 </x-button.text-button>
             </div>

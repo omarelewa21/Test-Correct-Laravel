@@ -24,7 +24,7 @@
         <div class="px-3"><a href="#" class="text-button">{{ __("header.Gepland") }}</a></div>
         <div class="px-3"><a href="#" class="text-button">{{ __("header.CO-Learning") }}</a></div>
         <div class="px-3"><a href="#" class="text-button">{{ __("header.Inzien") }}</a></div>
-        <div class="px-3"><a href="#" class="text-button">{{ __("header.Becijferd") }}</a></div>
+        <div class="px-3"><a href="#" class="text-button">{{ __("header.Resultaten") }}</a></div>
     </div>
 </div>
 

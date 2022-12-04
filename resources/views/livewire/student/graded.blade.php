@@ -1,12 +1,12 @@
 <div class="flex flex-col space-y-4">
     <div>
-        <h1>{{ __('student.graded_tests') }}</h1>
+        <h1>{{ __('student.tests_results') }}</h1>
     </div>
     <div class="content-section p-8 relative" wire:init="loadRatings">
         <x-loading/>
         @if($readyToLoad)
             @if($testTakes->count() == 0)
-                <p>{{ __('student.no_recent_grades') }}</p>
+                <p>{{ __('student.no_recent_results') }}</p>
             @else
                 <x-table>
                     <x-slot name="head">

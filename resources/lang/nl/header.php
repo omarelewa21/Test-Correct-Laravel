@@ -18,7 +18,7 @@ return [
 
     'Inzien' => 'Inzien',
 
-    'Becijferd' => 'Becijferd',
+    'Resultaten' => 'Resultaten',
 
     'change_password' => 'Wachtwoord wijzigen',
 
