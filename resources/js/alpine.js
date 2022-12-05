@@ -629,7 +629,7 @@ document.addEventListener('alpine:init', () => {
                 this.$watch('options', () => refreshChoices());
 
                 this.$refs.select.addEventListener('showDropdown', () => {
-                    if (this.$root.querySelector('.is-active.super')) {
+                    if (this.$root.querySelector('.is-active') && this.$root.classList.contains('super')) {
                         this.$refs.chevron.style.left = (this.$root.querySelector('.is-active').offsetWidth - 25) + 'px';
                     }
                 });
