@@ -1517,4 +1517,9 @@ class Question extends MtiBaseModel
             $question->$pivotTable()->createMany($params);
         }
     }
+
+    public function isSubType($type): bool
+    {
+        return Str::lower($this->subtype) === Str::lower($type);
+    }
 }
