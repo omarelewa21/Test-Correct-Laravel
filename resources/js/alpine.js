@@ -583,7 +583,7 @@ document.addEventListener('alpine:init', () => {
                 let refreshChoices = () => {
                     let selection = this.multiple ? this.value : [this.value]
                     choices.clearStore();
-                    if (this.config.placeholderValue.length > 0 && this.$root.classList.contains('super') ) {
+                    if (this.config.placeholderValue.length > 0 && this.$root.classList.contains('super')) {
                         let placeholderItem = choices._getTemplate('placeholder', this.config.placeholderValue);
                         placeholderItem.classList.add('truncate', 'min-w-[1rem]', 'placeholder');
                         this.$root.querySelector('.choices__placeholder.placeholder')?.remove();
@@ -602,7 +602,8 @@ document.addEventListener('alpine:init', () => {
                 refreshChoices()
 
                 this.$refs.select.addEventListener('choice', (event) => {
-                    let eventValue = isNaN(parseInt(event.detail.choice.value)) ? event.detail.choice.value : parseInt(event.detail.choice.value);
+                    let eventValue = this.getValidatedEventValue(event);
+
                     if (!Array.isArray(this.value)) {
                         this.value = eventValue;
                         return;
@@ -678,7 +679,15 @@ document.addEventListener('alpine:init', () => {
 
         clearFilterPill(item) {
             return this.activeFiltersContainer.querySelector(this.getDataSelector(item))?.remove();
-        }
+        },
+        getValidatedEventValue: function (event) {
+            let eventValue = event.detail.choice.value;
+            // UUID values can be parseInt'd but then the value is only the first integers until a letter occurs. So this checks the length of the event value vs the parsed value;
+            if (Number.isInteger(parseInt(event.detail.choice.value)) && JSON.stringify(parseInt(event.detail.choice.value)).length === event.detail.choice.value.length) {
+                eventValue = parseInt(event.detail.choice.value);
+            }
+            return eventValue;
+        },
     }));
 
     Alpine.data('analysesSubjectsGraph', (data) => ({

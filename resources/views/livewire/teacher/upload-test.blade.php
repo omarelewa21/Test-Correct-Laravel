@@ -210,7 +210,7 @@
                 </x-slot>
             </x-accordion.block>
 
-            <x-accordion.block :key="3" :disabled="false/*!$tabOneComplete || !$tabTwoComplete*/" :emitWhenSet="true">
+            <x-accordion.block :key="3" :disabled="!$tabOneComplete || !$tabTwoComplete" :emitWhenSet="true">
                 <x-slot name="title">
                     <div class="flex gap-2 items-center">
                         <x-number-circle
