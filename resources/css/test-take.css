@@ -91,6 +91,10 @@
     border-color:  var(--blue-grey);
     opacity: 1!important;
 }
+.questionContainer .drag-item {
+    border: solid 3px transparent;
+    padding-block: 5px;
+}
 
 /*These are the base properties for the drag item, both dragging and ghost in list*/
 .drag-item.sortable-chosen {
@@ -107,7 +111,6 @@
     border: var(--drag-item-border-width) var(--drag-item-border-style) var(--drag-item-border-color)!important;
     border-radius: var(--drag-item-border-radius)!important;
     padding-block: calc(.5rem - var(--drag-item-border-width));
-    padding-left: calc(1.5rem - var(--drag-item-border-width));
 }
 
 /*This is the ghost item still represented in the list of the item being dragged.*/

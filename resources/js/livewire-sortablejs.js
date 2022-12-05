@@ -8,7 +8,6 @@ if (typeof window.Livewire === 'undefined') {
 window.Livewire.directive('sortable', (el, directive, component) => {
     // Only fire this handler on the "root" directive.
     if (directive.modifiers.length > 0) {
-        console.log('livewire-sortable: 11')
         return;
     }
 
@@ -37,7 +36,6 @@ window.Livewire.directive('sortable', (el, directive, component) => {
             },
         },
         onStart: (evt) => {
-            console.log('livewire-sortable: 40')
             if(evt.target.closest('.drawer')){
                 const chosen = evt.target.closest('.drawer').querySelector('.sortable-chosen');
                 const groups = evt.target.closest('.drawer').querySelectorAll('.draggable-group');
@@ -95,7 +93,6 @@ window.Livewire.directive('sortable-group', (el, directive, component) => {
         },
         forceFallback: true,
         onSort: () => {
-            console.log('livewire-sortable: 98')
             let masterEl = el.closest('[wire\\:sortable-group]');
             let groups = Array.from(masterEl.querySelectorAll('[wire\\:sortable-group\\.item-group]')).map((el, index) => {
                 return {
