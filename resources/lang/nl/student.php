@@ -152,6 +152,7 @@ return [
     'top vakken om aan te werken'                              => '{0}Geen relevante data beschikbaar voor top vak|{1}Top vak om aan te werken|[2,*] Top :count vakken om aan te werken',
     'top leerdoelen om aan te werken'                          => '{0}Geen relevante data beschikbaar voor top leerdoel|{1}Top leerdoel om aan te werken|[2,*] Top :count leerdoelen om aan te werken',
     'top subleerdoelen om aan te werken'                       => '{0}Geen relevante data beschikbaar voor top subleerdoel|{1}Top subleerdoel om aan te werken|[2,*] Top :count subleerdoelen om aan te werken',
+    'top sub subleerdoelen om aan te werken'                   =>'{0}Geen relevante data beschikbaar voor top subsubleerdoel|{1}Top subsubleerdoel om aan te werken|[2,*] Top :count subsubleerdoelen om aan te werken',
     'Methode'                                                  => 'methode',
     'Taxonomy'                                                 => 'Taxonomie',
     'attainment_tooltip_title'                                 => '{0}Geen relevante data beschikbaar|{1}o.b.v. 1 vraag|[2,*]o.b.v. :basedOn vragen',

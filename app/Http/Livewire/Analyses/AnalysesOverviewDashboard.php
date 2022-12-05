@@ -11,11 +11,15 @@ use tcCore\Subject;
 
 class AnalysesOverviewDashboard extends AnalysesDashboard
 {
-    public function mount()
+    public function getTopItemsProperty()
     {
-        parent::mount();
-        $this->topItems = TaxonomyRankingRepostitory::getForSubjects(
-            $this->getHelper()->getForUser()
+        return TaxonomyRankingRepostitory::getForSubjects(
+            $this->getHelper()->getForUser(),
+            [
+                'periods'               => $this->getPeriodsByFilterValues(),
+                'education_level_years' => $this->getEducationLevelYearsByFilterValues(),
+                'teachers'              => $this->getTeachersByFilterValues(),
+            ]
         );
     }
 

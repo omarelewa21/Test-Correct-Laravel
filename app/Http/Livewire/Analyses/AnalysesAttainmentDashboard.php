@@ -24,13 +24,20 @@ class AnalysesAttainmentDashboard extends AnalysesDashboard
 
         $this->taxonomyIdentifier = $this->attainment->id;
         parent::mount();
+    }
 
-        $this->topItems = TaxonomyRankingRepostitory::getForAttainment(
+    public function getTopItemsProperty()
+    {
+        return TaxonomyRankingRepostitory::getForAttainment(
             $this->getHelper()->getForUser(),
             Subject::whereUuid($this->subject)->first(),
-            $this->attainment
+            $this->attainment,
+            [
+                'periods'               => $this->getPeriodsByFilterValues(),
+                'education_level_years' => $this->getEducationLevelYearsByFilterValues(),
+                'teachers'              => $this->getTeachersByFilterValues(),
+            ]
         );
-
     }
 
     public function render()

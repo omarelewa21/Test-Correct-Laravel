@@ -58,7 +58,7 @@
     >
         @foreach($this->taxonomies as $key=> $taxonomy)
             <div
-                x-data="expandableGraphForGeneral({{ $key }}, '{{ $this->taxonomyIdentifier}}', '{{ $taxonomy['name'] }}')"
+                x-data="expandableGraphForGeneral({{ $key }}, '{{ $this->taxonomyIdentifier}}', '{{ $taxonomy['name'] }}', 'expandableGraphForGeneral')"
                 x-on:active-changed.window="if (id === $event.detail.id)  { expanded = true}"
                 x-on:click="expanded = !expanded"
                 class="cursor-pointer ml-10"
@@ -69,7 +69,8 @@
                 <span>{{ __('student.Taxonomy') }} {{ $taxonomy['name'] }} {{__('student.Methode') }}</span>
                 <div x-show="expanded">
                     <div wire:loading
-                         wire:target="getDataForGeneralGraph('{{ $this->taxonomyIdentifier }}', '{{ $taxonomy['name'] }}')">
+                         wire:target="getDataForGeneralGraph('{{ $this->taxonomyIdentifier }}', '{{ $taxonomy['name'] }}')"
+                    >
                         loading
                     </div>
                     <div :id="containerId" style="height: {{ $taxonomy['height'] }}">

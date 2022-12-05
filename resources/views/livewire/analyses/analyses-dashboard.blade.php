@@ -74,51 +74,79 @@
             @yield('analyses.attainment.description')
             @yield('analyses.general-data')
             @yield('analyses.p-values-graph')
-
-
-
-
             <BR/>
- @if ($this->displayRankingPanel)
-            <x-content-section>
-                <x-slot name="title">
-                    @yield('analyses.top-items.title')
-                </x-slot>
-                <div class="flex" wire:ignore>
-                    @foreach($this->topItems as $item)
-                        <div x-data="{active:false}" class="md:w-1/3 mr-5">
-                            <div class="-ml-2 flex space-x-2 pb-2 border-b-3 border-transparent active  items-center question-indicator">
-                                <section
-                                        class="question-number rounded-full text-center cursor-pointer flex items-center justify-center active"
-                                >
-                                    <span class="align-middle px-1.5">{{ $loop->iteration }}</span>
-                                </section>
-                                <div class="flex text-lg bold flex-grow border-b-3  border-sysbase ">{!! $item->title !!} </div>
+            @if ($this->displayRankingPanel)
+                <x-content-section class="w-full">
+                    <x-slot name="title">
+                        @yield('analyses.top-items.title')
+                    </x-slot>
 
-                            </div>
-                            @foreach($this->taxonomies as $key=> $taxonomy)
+                    @forelse($this->topItems as $item)
+                        @if($loop->first)
+                            <div class="flex flex-row">
+                        @endif
+                            <div
+                                x-data="{
+                                    active:false,
+                                    async init() {
+                                        let ready = await $wire.getFirstActiveForRankingTaxonomy({{ $item->id }});
+                                        if (ready !== false) {
+                                            $dispatch('top-item-active-changed{{ $loop->index }}', { id: ready })
+                                        }
+                                    }
+                                }"
+                                class="md:w-1/3 mr-5"
+                            >
                                 <div
-                                        x-data="expandableGraph({{ $key }}, '{{ $item->id }}', '{{ $taxonomy['name'] }}')"
+                                    class="-ml-2 flex space-x-2 pb-2 border-b-3 border-transparent active  items-center question-indicator">
+                                    <section
+                                        class="question-number rounded-full text-center cursor-pointer flex items-center justify-center active"
+                                    >
+                                        <span class="align-middle px-1.5">{{ $loop->iteration }}</span>
+                                    </section>
+                                    <div
+                                        class="flex text-lg bold flex-grow border-b-3  border-sysbase ">{!! $item->title !!} </div>
+
+                                </div>
+                                @foreach($this->taxonomies as $key=> $taxonomy)
+                                    <div
+                                        x-data="expandableGraphForGeneral({{ $key }}, '{{ $item->id }}', '{{ $taxonomy['name'] }}', 'expandableGraph')"
+                                        x-on:top-item-active-changed{{ $loop->index }}.window="if (id === $event.detail.id)  { expanded = true}"
                                         x-on:click="expanded = !expanded"
                                         class="cursor-pointer ml-10"
-                                >
+                                    >
                                     <span :class="{ 'rotate-svg-90' : expanded }">
                                         <x-icon.chevron/>
                                     </span>
-                                    <span>{{ __('student.Taxonomy') }} {{ $taxonomy['name'] }} {{__('student.Methode') }}</span>
-                                    <div x-show="expanded">
-                                        <div wire:loading wire:target="getData({{ $item->id }}, '{{ $taxonomy['name'] }}')">
-                                            loading
+                                        <span>{{ __('student.Taxonomy') }} {{ $taxonomy['name'] }} {{__('student.Methode') }}</span>
+                                        <div x-show="expanded">
+                                            <div
+                                                wire:loading
+                                                wire:target="getData({{ $item->id }}, '{{ $taxonomy['name'] }}')"
+                                            >
+                                                loading
+                                            </div>
+                                            <div wire:ignore :id="containerId"
+                                                 style="height: {{ $taxonomy['height'] }}">
+                                                <div x-show="showEmptyState" class="relative">
+                                                    <x-empty-taxonomy-graph></x-empty-taxonomy-graph>
+                                                </div>
+                                            </div>
                                         </div>
-                                        <div :id="containerId"style="height: {{ $taxonomy['height'] }}">ex</div>
                                     </div>
-                                </div>
-                            @endforeach
+                                @endforeach
+                            </div>
+                         @if($loop->last)
+                            </div>
+                        @endif
+                    @empty
+                        <div class="min-h-[300px] relative">
+                            <x-empty-graph show="true"></x-empty-graph>
                         </div>
-                    @endforeach
-                </div>
-            </x-content-section>
-     @endif
+                    @endforelse
+
+                </x-content-section>
+            @endif
         </div>
     </div>
 </div>

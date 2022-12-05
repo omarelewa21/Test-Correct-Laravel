@@ -70,7 +70,7 @@
         </x-slot>
 
         @if ($this->showEmptyStateForGeneralStats())
-            <div class="flex flex-row min-h-[300px] relative">
+            <div class="min-h-[300px] relative">
                 <x-empty-graph show="true"></x-empty-graph>
             </div>
         @else
@@ -84,5 +84,5 @@
 @endsection
 
 @section('analyses.top-items.title')
-    {{--    {{ trans_choice('student.top subleerdoelen om aan te werken', count($this->topItems)) }}--}}
+        {{ trans_choice('student.top subleerdoelen om aan te werken', count($this->topItems)) }}
 @endsection

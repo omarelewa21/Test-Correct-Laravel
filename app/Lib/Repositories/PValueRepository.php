@@ -380,12 +380,7 @@ class PValueRepository
                 $join->on('p_values.test_participant_id', '=', 'test_participants.id')
                     ->where('test_participants.user_id', '=', $user->getKey());
             })
-            ->when($periods->isNotEmpty(), fn($q) => $q->whereIn('p_values.period_id', $periods->pluck('id')))
-            ->when($educationLevelYears->isNotEmpty(), fn($q) => $q->whereIn('education_level_year', $educationLevelYears->pluck('id')))
-            ->when($teachers->isNotEmpty(), function ($q) use ($teachers) {
-                $q->join('p_value_users', 'p_value_users.p_value_id', '=', 'p_values.id')
-                    ->whereIn('p_value_users.user_id', $teachers->pluck('id'));
-            })
+            ->filter($periods, $educationLevelYears, $teachers)
             ->groupBy('subject_id');
 
         return Subject::filterForStudentCurrentSchoolYear($user)
@@ -409,12 +404,7 @@ class PValueRepository
                 $join->on('p_values.test_participant_id', '=', 'test_participants.id')
                     ->where('test_participants.user_id', '=', $user->getKey());
             })
-            ->when($periods->isNotEmpty(), fn($q) => $q->whereIn('p_values.period_id', $periods->pluck('id')))
-            ->when($educationLevelYears->isNotEmpty(), fn($q) => $q->whereIn('education_level_year', $educationLevelYears->pluck('id')))
-            ->when($teachers->isNotEmpty(), function ($q) use ($teachers) {
-                $q->join('p_value_users', 'p_value_users.p_value_id', '=', 'p_values.id')
-                    ->whereIn('p_value_users.user_id', $teachers->pluck('id'));
-            })
+            ->filter($periods, $educationLevelYears, $teachers)
             ->groupBy('attainment_id');
 
         return Attainment::withoutGlobalScope(AttainmentScope::class)
@@ -438,12 +428,7 @@ class PValueRepository
                 $join->on('p_values.test_participant_id', '=', 'test_participants.id')
                     ->where('test_participants.user_id', '=', $user->getKey());
             })
-            ->when($periods->isNotEmpty(), fn($q) => $q->whereIn('p_values.period_id', $periods->pluck('id')))
-            ->when($educationLevelYears->isNotEmpty(), fn($q) => $q->whereIn('education_level_year', $educationLevelYears->pluck('id')))
-            ->when($teachers->isNotEmpty(), function ($q) use ($teachers) {
-                $q->join('p_value_users', 'p_value_users.p_value_id', '=', 'p_values.id')
-                    ->whereIn('p_value_users.user_id', $teachers->pluck('id'));
-            })
+            ->filter($periods, $educationLevelYears, $teachers)
             ->whereIn('p_value_attainments.attainment_id', Attainment::withoutGlobalScope(AttainmentScope::class)->where('attainment_id', $attainment->getKey())->pluck('id'))
             ->groupBy('attainment_id');
 //            ->orderByRaw('is_learning_goal, education_level_id, attainments.code, attainments.subcode')

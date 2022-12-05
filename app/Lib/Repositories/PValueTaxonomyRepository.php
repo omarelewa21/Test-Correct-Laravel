@@ -85,7 +85,7 @@ abstract class PValueTaxonomyRepository
         return PValue::selectRaw(
             sprintf('
                 avg(p_values.score/p_values.max_score) as score,
-                count(questions.%s) as cnt, 
+                count(questions.%s) as cnt,
                 questions.%s as taxonomy',
                 $taxonomy,
                 $taxonomy
@@ -97,12 +97,7 @@ abstract class PValueTaxonomyRepository
                     ->where('test_participants.user_id', '=', $user->getKey());
             })
             ->join('questions', 'p_values.question_id', 'questions.id')
-            ->when($periods->isNotEmpty(), fn($q) => $q->whereIn('p_values.period_id', $periods->pluck('id')))
-            ->when($educationLevelYears->isNotEmpty(), fn($q) => $q->whereIn('education_level_year', $educationLevelYears->pluck('id')))
-            ->when($teachers->isNotEmpty(), function ($q) use ($teachers) {
-                $q->join('p_value_users', 'p_value_users.p_value_id', '=', 'p_values.id')
-                    ->whereIn('p_value_users.user_id', $teachers->pluck('id'));
-            })
+            ->filter($periods, $educationLevelYears, $teachers)
             ->where(function ($query) use ($taxonomy) {
                 $query->where(sprintf('questions.%s', $taxonomy), '<>', '')
                     ->orWhereNotNull(sprintf('questions.%s', $taxonomy));
