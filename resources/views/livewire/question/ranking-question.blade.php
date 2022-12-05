@@ -9,7 +9,7 @@
                  var rankingBody = document.querySelector('#rq{{$question->getKey()}}')
                     if(showMe) {
                         rankingBody.querySelectorAll('.drag-item').forEach(function(item) {
-                            item.style.width = rankingBody.offsetWidth+1+'px';
+{{--                            item.style.width = rankingBody.offsetWidth+1+'px';--}}
                         });
                     }
              } ,100);
