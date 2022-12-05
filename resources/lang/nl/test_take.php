@@ -79,5 +79,5 @@ return [
     'Read_out_loud'                                => 'Lees voor',
     'test_take.directlink_auth_fail'               => 'U bent niet aangesloten bij deze test, neem contact op met de testeigenaar voor dat probleem',
     'unarchive_test_take_first'                    => 'Dearchiveer deze toets afname om de details te bekijken.',
-
+    'update_to_taken'                              => 'Terug naar afgenomen',
 ];

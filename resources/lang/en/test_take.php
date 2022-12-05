@@ -76,4 +76,5 @@ return [
     'not_pausable_only_playable_once'              => 'This sound clip cannot be paused and can only be played once.',
     'test_take.directlink_auth_fail'               => 'You does not affiliate to this test take, please contact test owner for that problem',
     'unarchive_test_take_first'                    => 'Unarchive this test take to view the details.',
+    'update_to_taken'                              => 'Back to taken test'
 ];

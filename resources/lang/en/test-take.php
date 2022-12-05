@@ -18,6 +18,7 @@ return [
     'Open'                                                                                                                        => 'Open',
     'Antwoord PDF'                                                                                                                => 'Answer PDF',
     'Direct nakijken'                                                                                                             => 'Straight to scoring',
+    'Terug naar afgenomen'                                                                                                             => 'Straight to scoring',
     'Archiveren'                                                                                                                  => 'Archive',
     'Dearchiveren'                                                                                                                => 'Unarchive',
     'Inclusief gearchiveerde toetsen'                                                                                             => 'Include archived tests',
