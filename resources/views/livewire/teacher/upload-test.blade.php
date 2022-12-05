@@ -210,7 +210,7 @@
                 </x-slot>
             </x-accordion.block>
 
-            <x-accordion.block :key="3" :disabled="!$tabOneComplete || !$tabTwoComplete" :emitWhenSet="true">
+            <x-accordion.block :key="3" :disabled="false/*!$tabOneComplete || !$tabTwoComplete*/" :emitWhenSet="true">
                 <x-slot name="title">
                     <div class="flex gap-2 items-center">
                         <x-number-circle
@@ -271,23 +271,27 @@
                                 <div class="flex flex-col border-bluegrey">
                                     <x-input.toggle-row-with-title container-class="border-t pt-[5px] pb-[5px]"
                                                                    wire:model="checkInfo.question_model"
+                                                                   :toolTip="__('upload.question_model_tooltip')"
                                     >
-                                        <span>@lang('upload.Vraagmodel')</span>
+                                        <span class="mr-6">@lang('upload.Vraagmodel')</span>
                                     </x-input.toggle-row-with-title>
                                     <x-input.toggle-row-with-title container-class="pt-[5px] pb-[5px]"
                                                                    wire:model="checkInfo.answer_model"
+                                                                   :toolTip="__('upload.answer_model_tooltip')"
                                     >
-                                        <span>@lang('upload.Antwoordmodel')</span>
+                                        <span class="mr-6">@lang('upload.Antwoordmodel')</span>
                                     </x-input.toggle-row-with-title>
                                     <x-input.toggle-row-with-title container-class="pt-[5px] pb-[5px]"
                                                                    wire:model.defer="checkInfo.attachments"
+                                                                   :toolTip="__('upload.attachments_tooltip')"
                                     >
-                                        <span>@lang('cms.bijlagen')</span>
+                                        <span class="mr-6">@lang('cms.bijlagen')</span>
                                     </x-input.toggle-row-with-title>
                                     <x-input.toggle-row-with-title container-class="pt-[5px] pb-[5px]"
                                                                    wire:model.defer="checkInfo.elaboration_attachments"
+                                                                   :toolTip="__('upload.elaboration_attachment_model_tooltip')"
                                     >
-                                        <span>@lang('upload.Uitwerkbijlagen')</span>
+                                        <span class="mr-6">@lang('upload.Uitwerkbijlagen')</span>
                                     </x-input.toggle-row-with-title>
                                 </div>
 

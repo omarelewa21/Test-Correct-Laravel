@@ -1,0 +1,33 @@
+<?php
+return [
+    'Toetsgegevens'                 => 'Test information',
+    'Naam toets'                    => 'Test name',
+    'Afnamedatum'                   => 'Take date',
+    'content_check_text'            => 'Does this test contain publisher content?',
+    'date_warning_title'            => '',
+    'date_warning_body'             => 'De afnamedatum dat je hebt gekozen is in de nabije toekomst. Houd er rekening mee dat wij een aantal dagen de tijd nodig hebben om jouw toets te verwerken en de toets mogelijk vlak voor of op de afnamedatum klaar is.',
+    'Bestanden aanleveren'          => 'Supply files',
+    'upload_section_text'           => 'Lever je vraagmodel, antwoordmodel en eventuele (uitwerk)bijlagen aan. Zorg dat we alles krijgen om de toets volledig te kunnen aanleveren',
+    'upload_section_allowed'        => 'Allowed: max. 64MB per file',
+    'Afbeeldingen'                  => 'Images',
+    'PDF'                           => 'PDF',
+    'Word'                          => 'Word',
+    'Geluidsfragment'               => 'Sound fragments',
+    'Controle'                      => 'Check',
+    'controle_text'                 => '',
+    'Aangeleverde bestanden'        => 'Supplied files',
+    'Vraagmodel'                    => '',
+    'Antwoordmodel'                 => '',
+    'Uitwerkbijlagen'               => '',
+    'check_warning_text'            => '',
+    'check_warning_text_answer'     => '',
+    'check_warning_text_question'   => '',
+    'check_correct_text'            => '',
+    'Toets uploaden'                => 'Upload test',
+    'Toets geupload'                => 'Test uploaded',
+    'test_upload_succes_modal_text' => '',
+    'upload_rule_extension'         => 'Files with the extension .%s are not allowed.',
+    'upload_rule_size'              => 'The file \'%s\' is too large to upload.',
+
+];
+
