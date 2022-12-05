@@ -35,7 +35,7 @@ class OpenQuestion extends Component
 
     public function updatedAnswer($value)
     {
-        $json = json_encode((object) ['value' => $this->filter($value)]);
+        $json = json_encode((object) ['value' => $this->cleanData($value)]);
 
         Answer::updateJson($this->answers[$this->question->uuid]['id'], $json);
 
@@ -58,7 +58,7 @@ class OpenQuestion extends Component
      * 
      * @return string
      */
-    private function filter($value)
+    private function cleanData($value)
     {
         $value = clean($value);
 

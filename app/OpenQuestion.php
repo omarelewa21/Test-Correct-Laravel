@@ -97,6 +97,6 @@ class OpenQuestion extends Question implements QuestionInterface {
 
     public function isSubType($type): bool
     {
-        return Str::of($this->subtype)->lower()->contains(Str::lower($type));
+        return Str::lower($this->subtype) === Str::lower($type);
     }
 }
