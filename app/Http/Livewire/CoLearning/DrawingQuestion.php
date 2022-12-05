@@ -26,10 +26,7 @@ class DrawingQuestion extends CoLearningQuestion
     protected function handleGetAnswerData()
     {
         $answer = $this->answerRating->answer;
-        if ($answer->json) {
-            $this->answer = json_decode($answer->json)->answer;
-            $this->additionalText = json_decode($answer->json)->additional_text;
-        }
+
         if (!$this->answered) {
             return;
         }
