@@ -129,6 +129,9 @@ class TestTakeRttiExportController extends Controller
             return Response::make(
                 __("test-take.Er is iets fout gegaan tijdens het exporteren van de gegevens naar RTTI. Neem contact op met de support desk van Test-Correct met als referentie",['reference' => $rttiExportLog->reference]),
                 400);
+        } else {
+            $testTake->exported_to_rtti = Carbon::now();
+            $testTake->save();
         }
 
         // feedback van succesvolle rtti export terugsturen
