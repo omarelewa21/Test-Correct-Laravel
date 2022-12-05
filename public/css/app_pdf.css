@@ -7374,6 +7374,10 @@ video {
   --tw-text-opacity: 1;
   color: rgb(146 157 175 / var(--tw-text-opacity));
 }
+.text-sysbase{
+  --tw-text-opacity: 1;
+  color: rgb(4 31 116 / var(--tw-text-opacity));
+}
 .text-inherit{
   color: inherit;
 }
@@ -7384,10 +7388,6 @@ video {
 .text-note{
   --tw-text-opacity: 1;
   color: rgb(107 119 137 / var(--tw-text-opacity));
-}
-.text-sysbase{
-  --tw-text-opacity: 1;
-  color: rgb(4 31 116 / var(--tw-text-opacity));
 }
 .text-gray-500{
   --tw-text-opacity: 1;

@@ -60,9 +60,10 @@ class UploadTest extends Component
         $this->setDateProperties();
         $this->setUploadRules();
 
-        if (BaseHelper::notProduction()) {
+        //Dummy data to skip the filling of data of step 1, but this helper is active on testing aswel...
+        /*if (BaseHelper::notProduction()) {
             $this->setDummyData();
-        }
+        }*/
     }
 
     public function updated($name, $value)

@@ -5727,6 +5727,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
 
 
+
 window.Alpine = alpinejs__WEBPACK_IMPORTED_MODULE_1__["default"];
 alpinejs__WEBPACK_IMPORTED_MODULE_1__["default"].plugin(_ryangjchandler_alpine_clipboard__WEBPACK_IMPORTED_MODULE_4__["default"]);
 alpinejs__WEBPACK_IMPORTED_MODULE_1__["default"].plugin(_alpinejs_intersect__WEBPACK_IMPORTED_MODULE_3__["default"]);
@@ -6450,7 +6451,7 @@ document.addEventListener('alpine:init', function () {
           refreshChoices();
 
           _this17.$refs.select.addEventListener('choice', function (event) {
-            var eventValue = isNaN(parseInt(event.detail.choice.value)) ? event.detail.choice.value : parseInt(event.detail.choice.value);
+            var eventValue = _this17.getValidatedEventValue(event);
 
             if (!Array.isArray(_this17.value)) {
               _this17.value = eventValue;
@@ -6540,6 +6541,15 @@ document.addEventListener('alpine:init', function () {
         var _this$activeFiltersCo;
 
         return (_this$activeFiltersCo = this.activeFiltersContainer.querySelector(this.getDataSelector(item))) === null || _this$activeFiltersCo === void 0 ? void 0 : _this$activeFiltersCo.remove();
+      },
+      getValidatedEventValue: function getValidatedEventValue(event) {
+        var eventValue = event.detail.choice.value; // UUID values can be parseInt'd but then the value is only the first integers until a letter occurs. So this checks the length of the event value vs the parsed value;
+
+        if (Number.isInteger(parseInt(event.detail.choice.value)) && JSON.stringify(parseInt(event.detail.choice.value)).length === event.detail.choice.value.length) {
+          eventValue = parseInt(event.detail.choice.value);
+        }
+
+        return eventValue;
       }
     };
   });
