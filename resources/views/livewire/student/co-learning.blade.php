@@ -28,33 +28,6 @@
                             :answerNumber="$answerFollowUpNumber"
                             :wire:key="'ar-'. $this->answerRating->getKey()"
                             />
-{{--                    @switch($this->answerRating->answer->question->type)--}}
-{{--                        @case('CompletionQuestion')--}}
-{{--                            <livewire:co-learning.completion-question--}}
-{{--                                    :answerRatingId="$this->answerRating->getKey()"--}}
-{{--                                    :questionNumber="$questionOrderNumber"--}}
-{{--                                    :answerNumber="$answerFollowUpNumber"--}}
-{{--                                    :wire:key="'ar-'. $this->answerRating->getKey()"--}}
-{{--                            />--}}
-{{--                            @break--}}
-{{--                        @case('DrawingQuestion')--}}
-{{--                            <livewire:co-learning.drawing-question--}}
-{{--                                    :answerRatingId="$this->answerRating->getKey()"--}}
-{{--                                    :questionNumber="$questionOrderNumber"--}}
-{{--                                    :answerNumber="$answerFollowUpNumber"--}}
-{{--                                    :wire:key="'ar-'. $this->answerRating->getKey()"--}}
-{{--                            />--}}
-{{--                            @break--}}
-{{--                        @case('OpenQuestion')--}}
-{{--                            <livewire:co-learning.open-question--}}
-{{--                                    :answerRatingId="$this->answerRating->getKey()"--}}
-{{--                                    :questionNumber="$questionOrderNumber"--}}
-{{--                                    :answerNumber="$answerFollowUpNumber"--}}
-{{--                                    :wire:key="'ar-'. $this->answerRating->getKey()"--}}
-{{--                            />--}}
-{{--                            @break--}}
-{{--                        @default--}}
-{{--                    @endswitch--}}
                 </div>
             @endif
         </div>
