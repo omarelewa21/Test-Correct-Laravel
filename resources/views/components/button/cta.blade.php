@@ -11,7 +11,7 @@ $size = 'button-' . $size;
 ?>
 @if(isset($type) && $type == 'link')
     <a selid="{{ $selid }}" {{ $attributes->merge(['class' => 'button cta-button space-x-2.5 focus:outline-none ' . $rotateClass . ' ' .$size]) }}
-        @disabled($disabled)
+            @disabled($disabled)
     >
         {{ $slot }}
     </a>

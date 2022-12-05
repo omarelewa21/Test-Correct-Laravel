@@ -51,6 +51,9 @@ module.exports = {
             },
             maxWidth: {
                 'modal': '700px'
+            },
+            boxShadow: {
+                'hover': 'var(--hover-shadow)'
             }
         },
         keyframes: {

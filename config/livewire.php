@@ -72,7 +72,7 @@ return [
     'temporary_file_upload' => [
         'disk'          => null,        // Example: 'local', 's3'              Default: 'default'
         'rules'         => [
-            'mimes:pdf,mp3,mp4,png,jpeg,jpg,gif',
+            'mimes:pdf,mp3,png,jpeg,jpg,gif,doc,docx,wav',
             'max:'. \tcCore\Http\Helpers\BaseHelper::getMaxFileUploadSize()
         ],       // Example: ['file', 'mimes:png,jpg']  Default: ['required', 'file', 'max:12288'] (12MB)
         'directory'     => null,   // Example: 'tmp'                      Default  'livewire-tmp'

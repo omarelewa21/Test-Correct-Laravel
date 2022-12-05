@@ -8,7 +8,7 @@ use Illuminate\View\Component;
 class Container extends Component
 {
     public function __construct(
-        public $activeOnInit = 1
+        public $activeContainerKey
     ) {}
 
     public function render(): View

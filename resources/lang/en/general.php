@@ -72,4 +72,5 @@ return [
     'afname'                          => 'Take',
     'Lees meer'                       => 'Learn more',
     'en'                              => 'and',
+    'jaar'                            => 'Year',
 ];

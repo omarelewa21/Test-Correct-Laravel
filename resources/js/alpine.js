@@ -282,7 +282,7 @@ document.addEventListener('alpine:init', () => {
         },
         setIndex() {
             const parent = this.$root.parentElement;
-            if(parent === null) return;
+            if (parent === null) return;
             this.index = Array.prototype.indexOf.call(parent.children, this.$el) + 1;
         }
     }));
@@ -352,8 +352,8 @@ document.addEventListener('alpine:init', () => {
             if (this.gridSvg !== '' && this.gridSvg !== '0.00') {
                 gridSize = this.gridSvg;
 
-            }else if(this.isOldDrawing == false && (this.grid && this.grid !== '0') ){
-                gridSize = 1/parseInt(this.grid) * 14;    // This calculation is based on try and change to reach the closest formula that makes grid visualization same as old drawing
+            } else if (this.isOldDrawing == false && (this.grid && this.grid !== '0')) {
+                gridSize = 1 / parseInt(this.grid) * 14;    // This calculation is based on try and change to reach the closest formula that makes grid visualization same as old drawing
             }
             if (gridSize) {
                 makePreviewGrid(toolName.drawingApp, gridSize);
@@ -407,7 +407,7 @@ document.addEventListener('alpine:init', () => {
         handleVerticalScroll(el) {
             if (el.getAttribute('x-ref') !== this.activeSlide) return;
 
-            if(!this.$store.questionBank.active) {
+            if (!this.$store.questionBank.active) {
                 this.$refs.questionEditorSidebar.style.minHeight = 'auto';
                 this.$refs.questionEditorSidebar.style.height = 'auto';
             }
@@ -478,8 +478,8 @@ document.addEventListener('alpine:init', () => {
         },
         async showAddQuestionSlide(shouldCheckDirty = true, clearGroupUuid = true) {
             if (this.emitAddToOpenShortIfNecessary(shouldCheckDirty, false, false)) {
-                if(clearGroupUuid) {
-                    let questionBankLivewireComponent =  Livewire.find(this.drawer.querySelector('#question-bank').getAttribute('wire:id'))
+                if (clearGroupUuid) {
+                    let questionBankLivewireComponent = Livewire.find(this.drawer.querySelector('#question-bank').getAttribute('wire:id'))
                     await questionBankLivewireComponent.clearInGroupProperty();
                     this.$store.questionBank.inGroup = false;
                 }
@@ -493,7 +493,11 @@ document.addEventListener('alpine:init', () => {
         emitAddToOpenShortIfNecessary(shouldCheckDirty = true, group, newSubQuestion) {
             this.$dispatch('store-current-question');
             if (shouldCheckDirty && this.$store.cms.dirty) {
-                this.$wire.emitTo('teacher.questions.open-short', 'addQuestionFromDirty', {group, newSubQuestion, groupUuid: this.$store.questionBank.inGroup});
+                this.$wire.emitTo('teacher.questions.open-short', 'addQuestionFromDirty', {
+                    group,
+                    newSubQuestion,
+                    groupUuid: this.$store.questionBank.inGroup
+                });
                 return false;
             }
             return true;
@@ -536,8 +540,8 @@ document.addEventListener('alpine:init', () => {
             this.activeSlide = this.slides[index];
         },
         poll(interval) {
-            setTimeout(() =>{
-                if(this.activeSlide !== 'questionbank') {
+            setTimeout(() => {
+                if (this.activeSlide !== 'questionbank') {
                     let el = this.$root.querySelector(`[x-ref="${this.activeSlide}"]`);
                     if (el !== null) this.handleVerticalScroll(el);
                 }
@@ -571,7 +575,6 @@ document.addEventListener('alpine:init', () => {
             // some new fancy way of setting a value when undefined
             window.registeredEventHandlers ??= []
 
-
             this.activeFiltersContainer = document.getElementById(filterContainer);
             this.multiple = multiple === 1;
             this.$nextTick(() => {
@@ -580,6 +583,12 @@ document.addEventListener('alpine:init', () => {
                 let refreshChoices = () => {
                     let selection = this.multiple ? this.value : [this.value]
                     choices.clearStore();
+                    if (this.config.placeholderValue.length > 0 && this.$root.classList.contains('super') ) {
+                        let placeholderItem = choices._getTemplate('placeholder', this.config.placeholderValue);
+                        placeholderItem.classList.add('truncate', 'min-w-[1rem]', 'placeholder');
+                        this.$root.querySelector('.choices__placeholder.placeholder')?.remove();
+                        choices.itemList.append(placeholderItem);
+                    }
                     let options = typeof this.options === 'object' ? Object.values(this.options) : this.options;
                     choices.setChoices(options.map(({value, label}) => ({
                         value,
@@ -617,6 +626,15 @@ document.addEventListener('alpine:init', () => {
 
                 this.$watch('value', () => refreshChoices());
                 this.$watch('options', () => refreshChoices());
+
+                this.$refs.select.addEventListener('showDropdown', () => {
+                    if (this.$root.querySelector('.is-active.super')) {
+                        this.$refs.chevron.style.left = (this.$root.querySelector('.is-active').offsetWidth - 25) + 'px';
+                    }
+                });
+                this.$refs.select.addEventListener('hideDropdown', () => {
+                    this.$refs.chevron.style.left = 'auto'
+                });
             });
         },
 
@@ -787,7 +805,7 @@ document.addEventListener('alpine:init', () => {
                 let contentElement = null;
                 let dataRow = null;
 
-                chart.listen("pointMouseOver", (e) => series.tooltip().enabled(false) );
+                chart.listen("pointMouseOver", (e) => series.tooltip().enabled(false));
                 chart.listen("pointMouseOver", function (e) {
                     // get the data for the current point
                     dataRow = data[e.pointIndex];
@@ -797,6 +815,7 @@ document.addEventListener('alpine:init', () => {
                         fillTooltipHtml()
                     }
                 });
+
                 function fillTooltipHtml() {
                     if (!dataRow) return;
 
@@ -832,6 +851,7 @@ document.addEventListener('alpine:init', () => {
                         contentElement.appendChild(detailElement);
                     }
                 }
+
                 chart.tooltip().onDomReady(function (e) {
                     this.parentElement.style.border = '1px solid var(--blue-grey)';
                     this.parentElement.style.background = '#FFFFFF';
@@ -888,7 +908,6 @@ document.addEventListener('alpine:init', () => {
                 chart.xAxis(0).labels()
                     .fontWeight("bold")
                     .fontColor('#041f74')
-
 
 
                 for (var i = 0; series.getPoint(i).exists(); i++)
@@ -991,7 +1010,7 @@ document.addEventListener('alpine:init', () => {
                 let contentElement = null;
                 let dataRow = null
 
-                chart.listen("pointMouseOut", (e) => series.tooltip().enabled(false) );
+                chart.listen("pointMouseOut", (e) => series.tooltip().enabled(false));
 
                 function fillTooltipHtml() {
                     if (!dataRow) return;
@@ -1042,7 +1061,7 @@ document.addEventListener('alpine:init', () => {
                     series.tooltip().enabled(true)
 
                     dataRow = data[e.pointIndex];
-                    if (contentElement){
+                    if (contentElement) {
                         fillTooltipHtml()
                     }
 
@@ -1072,32 +1091,34 @@ document.addEventListener('alpine:init', () => {
     Alpine.data('sliderToggle', (model, sources) => (
         {
             buttonPosition: '0px',
+            buttonWidth: 'auto',
             value: model,
             sources: sources,
             handle: null,
-            init(){
+            init() {
                 this.handle = this.$el.querySelector('.slider-button-handle');
-                if(this.value === null){
+                if (this.value === null) {
                     return;
                 }
                 this.$el.querySelector('.group').firstElementChild.classList.add('text-primary');
 
-                if(this.value !== '' && Object.keys(this.sources).includes(String(this.value))){
+                if (this.value !== '' && Object.keys(this.sources).includes(String(this.value))) {
                     this.activateButton(this.$el.querySelector('[data-id=\'' + this.value + '\']').parentElement);
                 } else {
                     this.value = this.$el.querySelector('.group').firstElementChild.dataset.id;
                 }
             },
-            clickButton(target){
+            clickButton(target) {
                 this.activateButton(target);
                 this.value = target.firstElementChild.dataset.id;
             },
-            hoverButton(target){
+            hoverButton(target) {
                 this.activateButton(target)
             },
-            activateButton(target){
+            activateButton(target) {
                 this.resetButtons(target)
                 this.buttonPosition = target.offsetLeft + 'px';
+                this.buttonWidth = target.offsetWidth + 'px';
                 target.firstElementChild.classList.add('text-primary');
                 this.handle.classList.remove('hidden');
             },
@@ -1197,21 +1218,20 @@ document.addEventListener('alpine:init', () => {
     ));
 
 
-
-    Alpine.data('contextMenuButton', (context,uuid, contextData) => ({
+    Alpine.data('contextMenuButton', (context, uuid, contextData) => ({
         menuOpen: false,
         uuid,
         contextData,
         context,
         gridCard: null,
-        showEvent: context+'-context-menu-show',
-        closeEvent: context+'-context-menu-close',
+        showEvent: context + '-context-menu-show',
+        closeEvent: context + '-context-menu-close',
         init() {
             this.gridCard = this.$root.closest('.grid-card');
         },
         handle() {
             this.menuOpen = !this.menuOpen;
-            if(this.menuOpen) {
+            if (this.menuOpen) {
                 this.$dispatch(this.showEvent, {
                     uuid: this.uuid,
                     button: this.$root,
@@ -1262,17 +1282,124 @@ document.addEventListener('alpine:init', () => {
         }
     }));
 
-    Alpine.data('accordionBlock', (key) => ({
+    Alpine.data('accordionBlock', (key, emitWhenSet = false) => ({
         id: null,
+        emitWhenSet,
+        droppingFile: false,
         init() {
-            this.id = this.containerId+'-'+key;
+            this.id = this.containerId + '-' + key;
         },
         get expanded() {
             return this.active === this.id
         },
         set expanded(value) {
             this.active = value ? this.id : null
+            if (value) {
+                this.$el.classList.remove('hover:shadow-hover')
+                if (this.emitWhenSet) {
+                    Livewire.emit('accordion-update', this.id);
+                }
+            }
         },
+    }));
+    Alpine.data('fileUpload', (uploadModel, rules) => ({
+        isDropping: false,
+        isUploading: false,
+        progress: {},
+        dragCounter: 0,
+        uploadModel,
+        rules,
+        handleFileSelect(event) {
+            if (event.target.files.length) {
+                this.uploadFiles(event.target.files)
+            }
+        },
+        handleFileDrop(event) {
+            if (event.dataTransfer.files.length > 0) {
+                this.uploadFiles(event.dataTransfer.files)
+            }
+        },
+        uploadFiles(files) {
+            const $this = this
+            this.isUploading = true
+            let dummyContainer = this.$root.querySelector('#upload-dummies');
+            Array.from(files).forEach((file, key) => {
+                if(!this.fileHasAllowedExtension(file)) {
+                    this.handleIncorrectFileUpload(file);
+                    return;
+                }
+
+                if(this.fileTooLarge(file)) {
+                    this.handleTooLargeOfAfile(file);
+                    return;
+                }
+
+                let badgeId = `upload-badge-${key}`;
+                let loadingBadge = $this.createLoadingBadge(file, badgeId);
+
+                dummyContainer.append(loadingBadge);
+                $this.progress[badgeId] = 0;
+
+                $this.$wire.upload(
+                    this.uploadModel,
+                    file,
+                    success => {
+                        $this.progress[badgeId] = 0
+                        dummyContainer.querySelector(`#${badgeId}`).remove();
+                    },
+                    error => {
+                        Notify.notify(`Er is iets misgegaan met het verwerken van '${file.name}'.`, 'error');
+                        dummyContainer.querySelector(`#${badgeId}`).remove();
+                    },
+                    progress => {
+                        $this.progress[badgeId] = event.detail.progress
+                    })
+            });
+
+        },
+        removeUpload(filename) {
+            this.$wire.removeUpload(this.uploadModel, filename)
+        },
+        handleDragEnter() {
+            this.dragCounter++;
+            this.droppingFile = true;
+        },
+        handleDragLeave() {
+            this.dragCounter--;
+            if (this.dragCounter === 0) {
+                this.droppingFile = false
+            }
+        },
+        handleDrop() {
+            this.droppingFile = false
+            this.dragCounter = 0
+        },
+        createLoadingBadge(file, badgeId) {
+            let template = this.$root.querySelector("template#upload-badge").content.cloneNode(true);
+            template.firstElementChild.id = badgeId;
+            template.querySelector('.badge-name').innerText = file.name;
+
+            return template
+        },
+        getFileExtension: function (file) {
+            let filename = file.name;
+            return filename.substring(filename.lastIndexOf('.') + 1, filename.length) || filename;
+        },
+        fileHasAllowedExtension(file) {
+            return this.rules.extensions.data.includes(this.getFileExtension(file));
+        },
+        handleIncorrectFileUpload(file) {
+            let message = this.rules.extensions.message.replace('%s', this.getFileExtension(file));
+            Notify.notify(message, 'error');
+        },
+        fileTooLarge(file) {
+            console.log([file.size , this.rules.size.data, file.size > this.rules.size.data])
+            return file.size > this.rules.size.data;
+        },
+        handleTooLargeOfAfile(file) {
+            let message = this.rules.size.message.replace('%s', file.name);
+            Notify.notify(message, 'error');
+        }
     }));
 
 

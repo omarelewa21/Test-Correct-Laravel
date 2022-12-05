@@ -18,7 +18,7 @@
     <div class="flex items-center">
         @if($toolTip)
             <x-tooltip class="mr-2" :always-left="$tooltipAlwaysLeft">
-                <span class="text-base">{{ $toolTip }}</span>
+                <span class="text-base text-left">{{ $toolTip }}</span>
             </x-tooltip>
         @endif
         <label class="switch @if($small) small @endif">
