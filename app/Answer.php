@@ -236,7 +236,6 @@ class Answer extends BaseModel
     public function getJsonAttribute($json)
     {
         if( !is_null($json) && $this->question->isType('OpenQuestion') && $this->question->isSubType('short')){
-            Answer::whereId($this->id)->update(['json' => strip_tags($json)]);
             return strip_tags($json);
         }
         return $json;
