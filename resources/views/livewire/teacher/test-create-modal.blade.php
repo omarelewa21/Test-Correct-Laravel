@@ -11,13 +11,6 @@
                         </div>
                     </div>
                 @endif
-                @if($allowedEductionLevels->isEmpty())
-                    <div class="mb-4">
-                        <div class="notification warning max-w-full">
-                            {{ __('teacher.not_linked_to_education_levels') }}
-                        </div>
-                    </div>
-                @endif
                 <div class="email-section mb-4 w-full">
                     <div class="mb-4">
                         <div class="input-group w-full">
