@@ -1532,4 +1532,9 @@ class Question extends MtiBaseModel
     {
         return $query->where('draft', false);
     }
+
+    public function isSubType($type): bool
+    {
+        return Str::lower($this->subtype) === Str::lower($type);
+    }
 }
