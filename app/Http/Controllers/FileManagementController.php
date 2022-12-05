@@ -63,6 +63,7 @@ class FileManagementController extends Controller
         $originalEmail = property_exists($typeDetails, 'invite') ? $typeDetails->invite : '';
         $typeDetails->colorcode = $request->get('colorcode');
         $typeDetails->invite = $request->get('invite');
+        $typeDetails->test_upload_additional_option = $request->get('test_upload_additional_option');
         $fileManagement->typedetails = $typeDetails;
         if ($fileManagement->save() !== false) {
             $email = $request->get('invite');
@@ -180,13 +181,13 @@ class FileManagementController extends Controller
 
         $user = Auth::user();
         if ($user->hasRole('Account manager') || $user->isToetsenbakker()) {
+            $fileManagement->append('test_upload_additional_options');
             $fileManagement->statuses = FileManagementStatus::all();
         } else if ($user->hasRole('Teacher')) {
             if ($user->school_location_id != $fileManagement->school_location_id) {
                 return Response::make('not allowed', 403);
             }
         }
-
 
         return Response::make($fileManagement, 200);
     }
