@@ -113,12 +113,16 @@
                                     justify-between items-center -mt-4"
                         >
                             <span>{{ auth()->user()->getNameFullAttribute() }}</span>
-                            @if($testParticipant->rating)
+                            @if(!$showGrades)
+                                <span title="{{__('test_take.hide_grade_tooltip')}}">
+                                    {{ __('test_take.nvt') }}
+                                </span>
+                            @elseif($testParticipant->rating)
                             <span class="px-2 py-1 text-sm rounded-full {!! $this->getBgColorForTestParticipantRating($this->getRatingToDisplay($testParticipant)) !!}">
                                 {{ $this->getRatingToDisplay($testParticipant) }}
                             </span>
                             @else
-                                <span class="italic">Geen cijfer</span>
+                                <x-icon.time-dispensation class="text-inherit"/>
                             @endif
                         </div>
                     </div>

@@ -77,4 +77,6 @@ return [
     'test_take.directlink_auth_fail'               => 'You does not affiliate to this test take, please contact test owner for that problem',
     'unarchive_test_take_first'                    => 'Unarchive this test take to view the details.',
     'update_to_taken'                              => 'Back to taken test'
+    'nvt'                                          => 'N/A',
+    'hide_grade_tooltip'                           => "Formative assessment furthers insight and progression. There is no grade applicable for this test.",
 ];
