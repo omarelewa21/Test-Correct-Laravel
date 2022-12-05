@@ -82,14 +82,14 @@
                 <x-actions.test-open-edit :uuid="$this->uuid"/>
                 <x-actions.test-open-preview :uuid="$this->uuid"/>
 
-                <livewire:actions.test-make-pdf :uuid="$this->uuid"/>
-                <livewire:actions.test-duplicate-test :uuid="$this->uuid"/>
-                <livewire:actions.test-quick-take :uuid="$this->uuid"/>
+                <livewire:actions.test-make-pdf :uuid="$this->uuid" :wire:key="'make-pdf-'.$this->uuid"/>
+                <livewire:actions.test-duplicate-test :uuid="$this->uuid" :wire:key="'duplicate-test-'.$this->uuid"/>
+                <livewire:actions.test-quick-take :uuid="$this->uuid" :wire:key="'quick-take-'.$this->uuid"/>
 
                 @if($this->test->isPublished())
-                    <livewire:actions.test-plan-test :uuid="$this->uuid"/>
+                    <livewire:actions.test-plan-test :uuid="$this->uuid" :wire:key="'plan-test-'.$this->uuid"/>
                 @else
-                    <livewire:actions.test-make-published :uuid="$this->uuid"/>
+                    <livewire:actions.test-make-published :uuid="$this->uuid" :wire:key="'make-published'.$this->uuid"/>
                 @endif
             </div>
         @endempty
