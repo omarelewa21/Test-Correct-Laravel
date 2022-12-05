@@ -5727,7 +5727,6 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
 
 
-
 window.Alpine = alpinejs__WEBPACK_IMPORTED_MODULE_1__["default"];
 alpinejs__WEBPACK_IMPORTED_MODULE_1__["default"].plugin(_ryangjchandler_alpine_clipboard__WEBPACK_IMPORTED_MODULE_4__["default"]);
 alpinejs__WEBPACK_IMPORTED_MODULE_1__["default"].plugin(_alpinejs_intersect__WEBPACK_IMPORTED_MODULE_3__["default"]);
@@ -6488,7 +6487,9 @@ document.addEventListener('alpine:init', function () {
           });
 
           _this17.$refs.select.addEventListener('showDropdown', function () {
-            if (_this17.$root.querySelector('.is-active.super')) {
+            console.log(_this17.$root.classList);
+
+            if (_this17.$root.querySelector('.is-active') && _this17.$root.classList.contains('super')) {
               _this17.$refs.chevron.style.left = _this17.$root.querySelector('.is-active').offsetWidth - 25 + 'px';
             }
           });
