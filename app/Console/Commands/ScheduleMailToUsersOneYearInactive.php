@@ -62,8 +62,8 @@ class ScheduleMailToUsersOneYearInactive extends Command
         WHERE us.created_at > NOW() - INTERVAL 2 YEAR
         AND (
               ll.date_created < NOW() - INTERVAL 1 YEAR
-              OR ll.date_created IS NULL 
-                AND us.created_at < NOW() - INTERVAL 1 YEAR
+              OR ( ll.date_created IS NULL 
+                AND us.created_at < NOW() - INTERVAL 1 YEAR)
             )
         AND ur.role_id = 1
         AND (ms.mailable = '".SendInactiveUserMail::class."' 
