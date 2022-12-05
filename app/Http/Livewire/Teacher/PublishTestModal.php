@@ -2,6 +2,7 @@
 
 namespace tcCore\Http\Livewire\Teacher;
 
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use LivewireUI\Modal\ModalComponent;
@@ -41,25 +42,17 @@ class PublishTestModal extends ModalComponent
     private function handleErrorsInTest()
     {
         $test = Test::findByUuid($this->testUuid);
-        if ($duplicateIds = $test->getDuplicateQuestionIds()) {
-            $questionOrderInTest = $test->getQuestionOrderList();
-
-            $order = $duplicateIds->map(function ($questionId) use ($questionOrderInTest) {
-                return $questionOrderInTest[$questionId] ?? false;
-            })->sort();
-
-            $this->testErrors[__('test.duplicate_questions')] = trans_choice('test.duplicate_question_error_message', $order->toArray(),['questions' => $this->getJoinedValuesAsString($order)]);
+        $duplicateIds = $test->getDuplicateQuestionIds();
+        if (filled($duplicateIds)) {
+            $this->handleDuplicateIdsErrors($test, $duplicateIds);
         }
 
         if ($test->hasTooFewQuestionsInCarousel()) {
-            $carouselsWithTooFewQuestions = $this->getGroupQuestionNamesWithInsufficientSubQuestions($test)->map(fn($name) => "'$name'");
-
-            $this->testErrors[__('test.carousel_too_few_questions')] = trans_choice('cms.carousel_not_enough_questions_with_names', $carouselsWithTooFewQuestions->toArray(), ['questions' => $this->getJoinedValuesAsString($carouselsWithTooFewQuestions)]);
+            $this->handleTooFewQuestionsErrors($test);
         }
 
         if ($test->hasNotEqualScoresForSubQuestionsInCarousel()) {
-            $carouselsWithUnequalScores = $this->getGroupQuestionNamesWithUnequalSubQuestionScores($test);
-            $this->testErrors[__('test.carousel_unequal_scores')] = trans_choice('cms.carousel_subquestions_scores_differ_with_names', $carouselsWithUnequalScores->toArray(), ['questions' => $this->getJoinedValuesAsString($carouselsWithUnequalScores)]);
+            $this->handleNotEqualScoresErrors($test);
         }
     }
 
@@ -103,5 +96,42 @@ class PublishTestModal extends ModalComponent
             ->get()
             ->map(fn($group) => $group->count > 1 ? "'$group->name'" : false)
             ->filter(fn($group) => $group !== false);
+    }
+
+    /**
+     * @param Test $test
+     * @param Collection $duplicateIds
+     * @return void
+     */
+    private function handleDuplicateIdsErrors(Test $test, Collection $duplicateIds): void
+    {
+        $questionOrderInTest = $test->getQuestionOrderList();
+
+        $order = $duplicateIds->map(function ($questionId) use ($questionOrderInTest) {
+            return $questionOrderInTest[$questionId] ?? false;
+        })->sort();
+
+        $this->testErrors[__('test.duplicate_questions')] = trans_choice('test.duplicate_question_error_message', $order->toArray(), ['questions' => $this->getJoinedValuesAsString($order)]);
+    }
+
+    /**
+     * @param Test $test
+     * @return void
+     */
+    private function handleTooFewQuestionsErrors(Test $test): void
+    {
+        $carouselsWithTooFewQuestions = $this->getGroupQuestionNamesWithInsufficientSubQuestions($test)->map(fn($name) => "'$name'");
+
+        $this->testErrors[__('test.carousel_too_few_questions')] = trans_choice('cms.carousel_not_enough_questions_with_names', $carouselsWithTooFewQuestions->toArray(), ['questions' => $this->getJoinedValuesAsString($carouselsWithTooFewQuestions)]);
+    }
+
+    /**
+     * @param Test $test
+     * @return void
+     */
+    private function handleNotEqualScoresErrors(Test $test): void
+    {
+        $carouselsWithUnequalScores = $this->getGroupQuestionNamesWithUnequalSubQuestionScores($test);
+        $this->testErrors[__('test.carousel_unequal_scores')] = trans_choice('cms.carousel_subquestions_scores_differ_with_names', $carouselsWithUnequalScores->toArray(), ['questions' => $this->getJoinedValuesAsString($carouselsWithUnequalScores)]);
     }
 }
