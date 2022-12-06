@@ -65,7 +65,7 @@
                                                    :toolTip="__('teacher.exporteer_naar_rtti_online_tooltip')"
                                                    containerClass="border-t w-full lg:w-[calc(50%-0.5rem)]"
                     >
-                        <x-icon.web/>
+                        <x-icon.export/>
                         <span class="bold">{{ __('teacher.Exporteer naar RTTI Online') }} </span>
                     </x-input.toggle-row-with-title>
                 @endif
