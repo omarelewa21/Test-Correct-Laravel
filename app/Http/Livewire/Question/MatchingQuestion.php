@@ -111,7 +111,7 @@ class MatchingQuestion extends Component
         return view('livewire.question.matching-question');
     }
 
-    protected function getJsonToStore($answerObject): string
+    protected function getJsonToStore(array $answerObject): string
     {
         return json_encode($answerObject);
     }
