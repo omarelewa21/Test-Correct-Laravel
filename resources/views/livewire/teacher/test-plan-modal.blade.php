@@ -110,15 +110,6 @@
             </div>
             <div class="input-section">
                 <div class="toggles | flex flex-col lg:flex-row lg:gap-x-4 flex-wrap mb-4">
-                    @if($rttiExportAllowed)
-                        <x-input.toggle-row-with-title wire:model="request.is_rtti_test_take"
-                                                       :toolTip="__('teacher.exporteer_naar_rtti_online_tooltip')"
-                                                       containerClass="border-t w-full lg:w-[calc(50%-0.5rem)]"
-                        >
-                            <x-icon.web/>
-                            <span class="bold">{{ __('teacher.Exporteer naar RTTI Online') }} </span>
-                        </x-input.toggle-row-with-title>
-                    @endif
                     <x-input.toggle-row-with-title wire:model="request.allow_inbrowser_testing"
                                                    :toolTip="__('teacher.inbrowser_testing_tooltip')"
                                                    :disabled="$this->isAssessmentType() || !auth()->user()->schoolLocation->allow_inbrowser_testing"
@@ -144,6 +135,15 @@
                         <x-icon.send-mail/>
                         <span class="bold">{{ __('teacher.notify_students') }} </span>
                     </x-input.toggle-row-with-title>
+                    @if($rttiExportAllowed)
+                        <x-input.toggle-row-with-title wire:model="request.is_rtti_test_take"
+                                                       :toolTip="__('teacher.exporteer_naar_rtti_online_tooltip')"
+                                                       containerClass="border-t w-full lg:w-[calc(50%-0.5rem)]"
+                        >
+                            <x-icon.web/>
+                            <span class="bold">{{ __('teacher.Exporteer naar RTTI Online') }} </span>
+                        </x-input.toggle-row-with-title>
+                    @endif
                 </div>
             </div>
             <div class="input-section">
