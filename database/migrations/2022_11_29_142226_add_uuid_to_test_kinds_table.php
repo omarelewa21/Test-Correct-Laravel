@@ -8,7 +8,10 @@ use tcCore\TestKind;
 return new class extends Migration {
     public function up()
     {
-        DB::statement('ALTER TABLE test_kinds ADD uuid binary(16)');
+        if(!Schema::hasColumn('test_kinds', 'uuid')) {
+            DB::statement('ALTER TABLE test_kinds ADD uuid binary(16)');
+        }
+
         TestKind::all()->each(function ($testKind) {
             $testKind->uuid = $testKind->resolveUuid();
             $testKind->save();

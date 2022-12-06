@@ -6487,8 +6487,6 @@ document.addEventListener('alpine:init', function () {
           });
 
           _this17.$refs.select.addEventListener('showDropdown', function () {
-            console.log(_this17.$root.classList);
-
             if (_this17.$root.querySelector('.is-active') && _this17.$root.classList.contains('super')) {
               _this17.$refs.chevron.style.left = _this17.$root.querySelector('.is-active').offsetWidth - 25 + 'px';
             }
@@ -7939,7 +7937,7 @@ window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
 window.Pusher = __webpack_require__(/*! pusher-js */ "./node_modules/pusher-js/dist/web/pusher.js");
 window.Echo = new laravel_echo__WEBPACK_IMPORTED_MODULE_0__["default"]({
   broadcaster: 'pusher',
-  key: "fc18ed69b446aeb8c8a5",
+  key: "662d128370816e2bbb66",
   cluster: "eu",
   forceTLS: true
 });
