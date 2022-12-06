@@ -79,4 +79,11 @@ return [
 
     'notify_students'                                                                          => 'Leerlingen informeren',
     'notify_students_tooltip'                                                                  => 'Leerlingen via mail informeren over deze toetsafname.',
+
+    'not_linked_to_subjects'         => 'Toets construeren niet mogelijk omdat je niet aan vakken gekoppeld bent.',
+    'not_linked_to_education_levels' => 'Toets construeren niet mogelijk omdat je niet aan leerjaren gekoppeld bent.',
+
+    'Exporteer naar RTTI Online'    => 'Exporteer naar RTTI Online',
+    'exporteer_naar_rtti_online_tooltip' => 'Let op, normeren en becijferen gebeurt in RTTI-Online als dit aanstaat.',
+
 ];
