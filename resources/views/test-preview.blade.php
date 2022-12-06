@@ -31,7 +31,8 @@
                                 wire:key="'q-'.$testQuestion->uuid'q-'"
                         />
                     @elseif($testQuestion->type === 'MatchingQuestion')
-                        <livewire:preview.matching-question
+                        @php $componentName = sprintf('preview.matching-question%s', strtolower($testQuestion->subtype) === 'classify' ? '-classify' : '') @endphp
+                        <livewire:is :component="$componentName"
                                 :question="$testQuestion"
                                 :number="++$key"
                                 :testId="$testId"

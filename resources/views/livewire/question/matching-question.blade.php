@@ -18,10 +18,12 @@
                                 @if($option->correct_answer_id !== null)
                                     @if($answerStruct[$option->id] === '')
                                         <x-drag-item id="drag_item{{$question->getKey()}}-{{$option->id}}"
-                                                     wire:key="option-{{ $option->id }}" sortableHandle="false"
-                                                     wire:sortable-group.item="{{ $option->id }}" selid="drag-block"
+                                                     wire:key="option-{{ $option->id }}"
+                                                     sortableHandle="false"
+                                                     wire:sortable-group.item="{{ $option->id }}"
+                                                     selid="drag-block"
                                                      class="{{ empty($option->answer) || $option->answer == ' ' ? 'hidden' : '' }}"
-                                                     >
+                                        >
                                             {{ html_entity_decode($option->answer) }}
                                         </x-drag-item>
                                     @endif
@@ -31,28 +33,28 @@
                     </x-dropzone>
                 </div>
                 <div class="flex space-x-5 classified">
-                    @foreach ($question->matchingQuestionAnswers as $group)
-                        @if(  $group->correct_answer_id === null )
-                            <x-dropzone id="dropzone{{$question->getKey()}}-{{$group->id}}" type="classify"
-                                        title="{!! html_entity_decode($group->answer) !!}" wire:key="group-{{ $group->id }}"
-                                        wire:sortable.item="{{ $group->id }}">
-                                <div id="inner-dropzone{{$question->getKey()}}-{{$group->id}}"
-                                     class="flex flex-col w-full dropzone-height"
-                                     wire:sortable-group.item-group="{{ $group->id }}" selid="drag-block-input">
-                                    @foreach($shuffledAnswers as $option)
-                                        @if(  $option->correct_answer_id !== null )
-                                            @if($answerStruct[$option->id] == $group->id)
-                                                <x-drag-item id="drag_item{{$question->getKey()}}-{{$option->id}}"
-                                                             wire:key="option-{{ $option->id }}" sortableHandle="false"
-                                                             wire:sortable-group.item="{{ $option->id }}" selid="drag-block">
-                                                    {{ html_entity_decode($option->answer) }}
-                                                </x-drag-item>
-                                            @endif
-                                        @endif
-                                    @endforeach
-                                </div>
-                            </x-dropzone>
-                        @endif
+                    @foreach ($groupItemOrder as $groupId => $items)
+                        <x-dropzone id="dropzone{{$question->getKey()}}-{{$groupId}}"
+                                    type="classify"
+                                    title="{!! html_entity_decode($itemAnswerValues[$groupId]) !!}"
+                                    wire:key="group-{{ $groupId }}"
+                                    wire:sortable.item="{{ $groupId }}"
+                        >
+                            <div id="inner-dropzone{{$question->getKey()}}-{{$groupId}}"
+                                 class="flex flex-col w-full dropzone-height"
+                                 wire:sortable-group.item-group="{{ $groupId }}"
+                                 selid="drag-block-input"
+                            >
+                                @foreach($items as $item)
+                                    <x-drag-item id="drag_item{{$question->getKey()}}-{{$item['value']}}"
+                                                 wire:key="option-{{ $item['value'] }}" sortableHandle="false"
+                                                 wire:sortable-group.item="{{ $item['value'] }}"
+                                                 selid="drag-block">
+                                        {{ $itemAnswerValues[$item['value']] }}
+                                    </x-drag-item>
+                                @endforeach
+                            </div>
+                        </x-dropzone>
                     @endforeach
                 </div>
             </div>
@@ -95,7 +97,7 @@
                                         <div id="inner-dropzone{{$question->getKey()}}-{{$group->id}}"
                                              class="flex w-full dropzone-height"
                                              wire:sortable-group.item-group="{{ $group->id }}"
-                                        selid="drag-block-input">
+                                             selid="drag-block-input">
                                             @foreach($shuffledAnswers as $option)
                                                 @if(  $option->correct_answer_id !== null )
                                                     @if($answerStruct[$option->id] == $group->id)
@@ -103,7 +105,8 @@
                                                                 id="drag_item{{$question->getKey()}}-{{$option->id}}"
                                                                 wire:key="option-{{ $option->id }}"
                                                                 sortableHandle="false"
-                                                                wire:sortable-group.item="{{ $option->id }}" selid="drag-block">
+                                                                wire:sortable-group.item="{{ $option->id }}"
+                                                                selid="drag-block">
                                                             {{ html_entity_decode($option->answer) }}
                                                         </x-drag-item>
                                                     @endif
