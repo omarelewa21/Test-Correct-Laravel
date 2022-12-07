@@ -415,9 +415,7 @@ class AppVersionDetector
 
     public function getAppVersion(){
         AppVersionDetector::handleHeaderCheck();
-
-
-        return session()->all();
+        
         return ['TLCVersion' => session('TLCVersion', null)];
     }
 }
