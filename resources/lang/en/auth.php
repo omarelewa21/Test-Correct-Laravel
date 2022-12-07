@@ -127,4 +127,5 @@ return [
     'no_mail_attribute_found_in_saml_request_school_location_does_not_support_login_without_email'   => 'No mail address found in the saml request, please get in contact with the helpdesk',
     'test_code_quick_access'                                  => 'Fill in the test code if exists to quickly access a test',
     'guest_account_not_allowed'                               => 'guest accounts are not allowed for this test',
+    'now_login_with_new_password'                             => 'Now log in with your new password',
 ];

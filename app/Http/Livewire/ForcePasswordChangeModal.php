@@ -44,7 +44,13 @@ class ForcePasswordChangeModal extends ModalComponent
         $user->password = Hash::make($this->newPassword);
         $user->save();
         $this->closeModal();
-        return $this->dispatchBrowserEvent('password-changed-success', __('auth.password_changed_success'));
+        $this->dispatchBrowserEvent('notify',
+            [
+                'type' => 'guest_success',
+                'title' => __('auth.password_changed_success'),
+                'message' => __('auth.now_login_with_new_password'),
+            ]
+        );
     }
 
     public static function modalMaxWidth(): string

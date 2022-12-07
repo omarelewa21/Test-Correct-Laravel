@@ -148,4 +148,5 @@ return [
     'old_and_new_passwords_match'                                                                    => 'Het huidige en nieuwe wachtwoord komen overeen. Voer een ander wachtwoord in.',
     'test_code_quick_access'                                                                         => 'Vul de testcode in als deze bestaat om snel toegang te krijgen tot een test',
     'guest_account_not_allowed'                                                                      => 'gastaccounts zijn niet toegestaan voor deze test',
+    'now_login_with_new_password'                                                                    => 'Log nu in met je nieuwe wachtwoord',
 ];
