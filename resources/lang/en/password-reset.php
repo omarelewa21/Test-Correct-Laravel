@@ -12,7 +12,6 @@
         'Min. 1 speciaal' => 'Min. 1 special',
         'teken (bijv. $ of @)' => 'character (e.g. $ or @)',
         'Wachtwoord resetten' => 'Reset',
-        'Opnieuw instellen' => 'Reset password',
         'Heb je al een account?' => 'Do you already have an account?',
         'Log in' => 'Log in',
         'Ben je een student?' => 'Are you a student?',

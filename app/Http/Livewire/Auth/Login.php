@@ -185,6 +185,7 @@ class Login extends Component
         if ($user->isA('Student') && $user->schoolLocation->allow_new_student_environment) {
             $route = route('student.dashboard');
         }
+// Als dit ooit weer aangezet wordt, vergeet de redirect niet aan te passen naar zoiets als hierboven
 //        if ($user->isA('Account manager')) {
 //            return redirect()->intended(route('uwlr.grid'));
 //        }
@@ -194,9 +195,9 @@ class Login extends Component
             return $this->redirect($route);
         }
         if($expiration_date->lessThan(Carbon::now())) {
-//            return $this->emit('openModal', 'force-password-change-modal'); //dit wil niet werken, waarschijnlijk mist de @livewire('livewire-ui-modal') ergens
-            return $this->redirect($route);
+            return $this->emit('openModal', 'force-password-change-modal');
         }
+        return $this->redirect($route);
     }
 
     public function guestLogin()

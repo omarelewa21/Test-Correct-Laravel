@@ -94,12 +94,12 @@
     <x-slot name="footer">
         <div class="inline self-end">
             <x-button.text-button class="mr-2"
-                    type="link" href="{{ route('student.dashboard.logout') }}">
-                {{__("auth.logout")}}
+                    wire:click="$emit('closeModal')">
+                {{__("auth.back_to_login")}}
             </x-button.text-button>
             <x-button.cta
                     wire:click="requestPasswordChange">
-                {{__("password-reset.Opnieuw instellen")}}
+                {{__("password-reset.Wachtwoord resetten")}}
             </x-button.cta>
         </div>
     </x-slot>
