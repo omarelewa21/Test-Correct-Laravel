@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Str;
 use tcCore\FileManagement;
 use tcCore\FileManagementStatus;
+use tcCore\Http\Helpers\ActingAsHelper;
 use tcCore\Http\Helpers\SchoolHelper;
 use tcCore\Http\Requests;
 use tcCore\Http\Controllers\Controller;
@@ -20,15 +21,20 @@ use tcCore\Http\Requests\CreateTestUploadRequest;
 use tcCore\Http\Requests\ShowFileManagementRequest;
 use tcCore\Http\Requests\UpdateFileManagementRequest;
 use tcCore\Jobs\SendToetsenbakkerInviteMail;
+use tcCore\Lib\Repositories\PeriodRepository;
+use tcCore\Period;
 use tcCore\School;
 use tcCore\SchoolLocation;
 use tcCore\Teacher;
 use tcCore\Http\Requests\CreateTeacherRequest;
 use tcCore\Http\Requests\UpdateTeacherRequest;
+use tcCore\Test;
 use tcCore\UmbrellaOrganization;
+use tcCore\User;
 
 class FileManagementController extends Controller
 {
+    const STATUS_ID_APPROVED = 7;
 
     protected function getBasePath()
     {
@@ -300,4 +306,40 @@ class FileManagementController extends Controller
         return $child;
     }
 
+    public function duplicateTestToSchool(Request $request, FileManagement $fileManagement)
+    {
+
+        if($fileManagement->file_management_status_id !== self::STATUS_ID_APPROVED) {
+            return response()->json(['errors' => ['not allowed']])->setStatusCode(403);
+        }
+
+        $test_id = $fileManagement->test_id ?? 238;
+        //todo duplicate test from $fileManagement->test_id;
+        // .
+        // change 'openbaar maken' ????
+        //      add locked property
+
+
+
+        //set ActingAsHelper for getting the correct Period
+        ActingAsHelper::getInstance()->setUser($fileManagement->user);
+
+        //dont pass params to duplicate, but override later to make sure the questions get duplicated.
+        $test = Test::find($test_id)->duplicate([]);
+
+        $test->refresh();
+        $test->subject_id = $fileManagement->subject_id;
+        $test->period_id = PeriodRepository::getCurrentPeriod()->getKey();
+        $test->author_id = $fileManagement->user_id;
+        $test->owner_id = $fileManagement->school_location_id;
+        $test->save();
+
+    //todo override 'add to database disabled'
+        dd($test->listOfTakeableTestQuestions()->count());
+        dd(
+            $test->testQuestions->map->question->map->getQuestionInstance()
+        );
+
+        return response()->json(['status' => 'success'])->setStatusCode(200);
+    }
 }

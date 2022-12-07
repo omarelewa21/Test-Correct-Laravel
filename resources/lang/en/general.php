@@ -69,6 +69,7 @@ return [
     'tot'                             => 'Until',
     'Behandelaar'                     => 'Processor',
     'Toetsenbakker'                   => 'Test builder',
-    'afname'                          => 'Take',
+    'afname'                          => 'Take date',
     'jaar'                            => 'Year',
+    'aanvraag datum'                  => 'Request date',
 ];
