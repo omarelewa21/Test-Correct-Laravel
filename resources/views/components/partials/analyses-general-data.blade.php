@@ -61,6 +61,7 @@
                 x-data="expandableGraphForGeneral({{ $key }}, '{{ $this->taxonomyIdentifier}}', '{{ $taxonomy['name'] }}', 'expandableGraphForGeneral')"
                 x-on:active-changed.window="if (id === $event.detail.id)  { expanded = true}"
                 x-on:click="expanded = !expanded"
+                x-on:filters-updated.window="if (expanded) updateGraph(true)"
                 class="cursor-pointer ml-10"
             >
                             <span :class="{ 'rotate-svg-90' : expanded }">
@@ -74,7 +75,7 @@
                         loading
                     </div>
                     <div :id="containerId" style="height: {{ $taxonomy['height'] }}">
-                        <div x-show="showEmptyState" class="relative">
+                        <div x-show="showEmptyState" class="relative empty-state">
                             <x-empty-taxonomy-graph></x-empty-taxonomy-graph>
                         </div>
                     </div>

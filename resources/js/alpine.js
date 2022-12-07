@@ -282,7 +282,7 @@ document.addEventListener('alpine:init', () => {
         },
         setIndex() {
             const parent = this.$root.parentElement;
-            if(parent === null) return;
+            if (parent === null) return;
             this.index = Array.prototype.indexOf.call(parent.children, this.$el) + 1;
         }
     }));
@@ -352,8 +352,8 @@ document.addEventListener('alpine:init', () => {
             if (this.gridSvg !== '' && this.gridSvg !== '0.00') {
                 gridSize = this.gridSvg;
 
-            }else if(this.isOldDrawing == false && (this.grid && this.grid !== '0') ){
-                gridSize = 1/parseInt(this.grid) * 14;    // This calculation is based on try and change to reach the closest formula that makes grid visualization same as old drawing
+            } else if (this.isOldDrawing == false && (this.grid && this.grid !== '0')) {
+                gridSize = 1 / parseInt(this.grid) * 14;    // This calculation is based on try and change to reach the closest formula that makes grid visualization same as old drawing
             }
             if (gridSize) {
                 makePreviewGrid(toolName.drawingApp, gridSize);
@@ -407,7 +407,7 @@ document.addEventListener('alpine:init', () => {
         handleVerticalScroll(el) {
             if (el.getAttribute('x-ref') !== this.activeSlide) return;
 
-            if(!this.$store.questionBank.active) {
+            if (!this.$store.questionBank.active) {
                 this.$refs.questionEditorSidebar.style.minHeight = 'auto';
                 this.$refs.questionEditorSidebar.style.height = 'auto';
             }
@@ -478,8 +478,8 @@ document.addEventListener('alpine:init', () => {
         },
         async showAddQuestionSlide(shouldCheckDirty = true, clearGroupUuid = true) {
             if (this.emitAddToOpenShortIfNecessary(shouldCheckDirty, false, false)) {
-                if(clearGroupUuid) {
-                    let questionBankLivewireComponent =  Livewire.find(this.drawer.querySelector('#question-bank').getAttribute('wire:id'))
+                if (clearGroupUuid) {
+                    let questionBankLivewireComponent = Livewire.find(this.drawer.querySelector('#question-bank').getAttribute('wire:id'))
                     await questionBankLivewireComponent.clearInGroupProperty();
                     this.$store.questionBank.inGroup = false;
                 }
@@ -493,7 +493,11 @@ document.addEventListener('alpine:init', () => {
         emitAddToOpenShortIfNecessary(shouldCheckDirty = true, group, newSubQuestion) {
             this.$dispatch('store-current-question');
             if (shouldCheckDirty && this.$store.cms.dirty) {
-                this.$wire.emitTo('teacher.questions.open-short', 'addQuestionFromDirty', {group, newSubQuestion, groupUuid: this.$store.questionBank.inGroup});
+                this.$wire.emitTo('teacher.questions.open-short', 'addQuestionFromDirty', {
+                    group,
+                    newSubQuestion,
+                    groupUuid: this.$store.questionBank.inGroup
+                });
                 return false;
             }
             return true;
@@ -536,8 +540,8 @@ document.addEventListener('alpine:init', () => {
             this.activeSlide = this.slides[index];
         },
         poll(interval) {
-            setTimeout(() =>{
-                if(this.activeSlide !== 'questionbank') {
+            setTimeout(() => {
+                if (this.activeSlide !== 'questionbank') {
                     let el = this.$root.querySelector(`[x-ref="${this.activeSlide}"]`);
                     if (el !== null) this.handleVerticalScroll(el);
                 }
@@ -787,7 +791,7 @@ document.addEventListener('alpine:init', () => {
                 let contentElement = null;
                 let dataRow = null;
 
-                chart.listen("pointMouseOver", (e) => series.tooltip().enabled(false) );
+                chart.listen("pointMouseOver", (e) => series.tooltip().enabled(false));
                 chart.listen("pointMouseOver", function (e) {
                     // get the data for the current point
                     dataRow = data[e.pointIndex];
@@ -797,6 +801,7 @@ document.addEventListener('alpine:init', () => {
                         fillTooltipHtml()
                     }
                 });
+
                 function fillTooltipHtml() {
                     if (!dataRow) return;
 
@@ -832,6 +837,7 @@ document.addEventListener('alpine:init', () => {
                         contentElement.appendChild(detailElement);
                     }
                 }
+
                 chart.tooltip().onDomReady(function (e) {
                     this.parentElement.style.border = '1px solid var(--blue-grey)';
                     this.parentElement.style.background = '#FFFFFF';
@@ -888,7 +894,6 @@ document.addEventListener('alpine:init', () => {
                 chart.xAxis(0).labels()
                     .fontWeight("bold")
                     .fontColor('#041f74')
-
 
 
                 for (var i = 0; series.getPoint(i).exists(); i++)
@@ -991,7 +996,7 @@ document.addEventListener('alpine:init', () => {
                 let contentElement = null;
                 let dataRow = null
 
-                chart.listen("pointMouseOut", (e) => series.tooltip().enabled(false) );
+                chart.listen("pointMouseOut", (e) => series.tooltip().enabled(false));
 
                 function fillTooltipHtml() {
                     if (!dataRow) return;
@@ -1042,10 +1047,9 @@ document.addEventListener('alpine:init', () => {
                     series.tooltip().enabled(true)
 
                     dataRow = data[e.pointIndex];
-                    if (contentElement){
+                    if (contentElement) {
                         fillTooltipHtml()
                     }
-
                 });
 
 
@@ -1056,7 +1060,6 @@ document.addEventListener('alpine:init', () => {
                     contentElement = this.contentElement;
 
                     fillTooltipHtml();
-
                 });
 
                 /* prevent the content of the contentElement div
@@ -1075,27 +1078,27 @@ document.addEventListener('alpine:init', () => {
             value: model,
             sources: sources,
             handle: null,
-            init(){
+            init() {
                 this.handle = this.$el.querySelector('.slider-button-handle');
-                if(this.value === null){
+                if (this.value === null) {
                     return;
                 }
                 this.$el.querySelector('.group').firstElementChild.classList.add('text-primary');
 
-                if(this.value !== '' && Object.keys(this.sources).includes(String(this.value))){
+                if (this.value !== '' && Object.keys(this.sources).includes(String(this.value))) {
                     this.activateButton(this.$el.querySelector('[data-id=\'' + this.value + '\']').parentElement);
                 } else {
                     this.value = this.$el.querySelector('.group').firstElementChild.dataset.id;
                 }
             },
-            clickButton(target){
+            clickButton(target) {
                 this.activateButton(target);
                 this.value = target.firstElementChild.dataset.id;
             },
-            hoverButton(target){
+            hoverButton(target) {
                 this.activateButton(target)
             },
-            activateButton(target){
+            activateButton(target) {
                 this.resetButtons(target)
                 this.buttonPosition = target.offsetLeft + 'px';
                 target.firstElementChild.classList.add('text-primary');
@@ -1121,11 +1124,11 @@ document.addEventListener('alpine:init', () => {
                     this.updateGraph()
                 }
             },
-            async updateGraph() {
-                if (!this.data) {
+            async updateGraph(forceUpdate) {
+                if (!this.data || forceUpdate) {
                     var method = 'getData';
                     if (component == 'expandableGraphForGeneral') {
-                         method = 'getDataForGeneralGraph';
+                        method = 'getDataForGeneralGraph';
                     }
                     [this.showEmptyState, this.data] = await this.$wire.call(method, this.modelId, this.taxonomy);
                     this.renderGraph()
@@ -1143,16 +1146,10 @@ document.addEventListener('alpine:init', () => {
             },
             renderGraph: function () {
                 // create bar chart
+                var cssSelector = '#'+this.containerId+'>div:not(.empty-state)';
+                //
+                this.$root.querySelectorAll(cssSelector).forEach(node => node.remove())
                 var chart = anychart.bar();
-
-                // let data = this.data.map((item)=> {
-                //     return {
-                //         x: item[0],
-                //         value: item[1],
-                //         tooltip: item[2]
-                //     }
-                // })
-
                 var series = chart.bar(this.data);
 
                 series.stroke(this.getColor()).fill(this.getColor())
@@ -1177,8 +1174,6 @@ document.addEventListener('alpine:init', () => {
                 // chart.xScale()//.maximum(100)
                 chart.xAxis().stroke('#041F74')
                 chart.xAxis().stroke('none')
-
-
                 // set container id for the chart
                 chart.container(this.containerId);
                 // initiate chart drawing
@@ -1197,21 +1192,20 @@ document.addEventListener('alpine:init', () => {
     ));
 
 
-
-    Alpine.data('contextMenuButton', (context,uuid, contextData) => ({
+    Alpine.data('contextMenuButton', (context, uuid, contextData) => ({
         menuOpen: false,
         uuid,
         contextData,
         context,
         gridCard: null,
-        showEvent: context+'-context-menu-show',
-        closeEvent: context+'-context-menu-close',
+        showEvent: context + '-context-menu-show',
+        closeEvent: context + '-context-menu-close',
         init() {
             this.gridCard = this.$root.closest('.grid-card');
         },
         handle() {
             this.menuOpen = !this.menuOpen;
-            if(this.menuOpen) {
+            if (this.menuOpen) {
                 this.$dispatch(this.showEvent, {
                     uuid: this.uuid,
                     button: this.$root,
@@ -1265,7 +1259,7 @@ document.addEventListener('alpine:init', () => {
     Alpine.data('accordionBlock', (key) => ({
         id: null,
         init() {
-            this.id = this.containerId+'-'+key;
+            this.id = this.containerId + '-' + key;
         },
         get expanded() {
             return this.active === this.id

@@ -44,14 +44,14 @@ abstract class AnalysesDashboard extends Component
     public $displayRankingPanel = true;
 
     protected $taxonomies = [
-        ['name' => 'Miller', 'height' => '150px'],
-        ['name' => 'RTTI', 'height' => '150px'],
+        ['name' => 'Miller', 'height' => '170px'],
+        ['name' => 'RTTI', 'height' => '170px'],
         ['name' => 'Bloom', 'height' => '200px'],
     ];
 
     private $_education_level_years_by_filter_values = null;
     private $_teachers_by_filter_values = null;
-    private $_period_by_filter_values = null;
+    private $_periods_by_filter_values = null;
 
     protected $forUser;
 
@@ -74,6 +74,7 @@ abstract class AnalysesDashboard extends Component
     public function updatedFilters()
     {
         session([self::FILTER_SESSION_KEY => $this->filters]);
+        $this->dispatchBrowserEvent('filters-updated');
     }
 
     private function setFilters()
@@ -81,7 +82,6 @@ abstract class AnalysesDashboard extends Component
         session()->has(self::FILTER_SESSION_KEY)
             ? $this->filters = session()->get(self::FILTER_SESSION_KEY)
             : $this->clearFilters();
-
     }
 
     public function getData($subjectId, $taxonomy)
@@ -217,6 +217,8 @@ abstract class AnalysesDashboard extends Component
             'teachers'            => [],
         ];
 
+        $this->emit('filter-cleared');
+
         session([self::FILTER_SESSION_KEY => $this->filters]);
     }
 
@@ -255,7 +257,6 @@ abstract class AnalysesDashboard extends Component
     protected function getPeriodsByFilterValues()
     {
         return $this->_periods_by_filter_values ??=  Period::whereIn('id', $this->filters['periods'])->get('id');
-
     }
 
     protected function getEducationLevelYearsByFilterValues()

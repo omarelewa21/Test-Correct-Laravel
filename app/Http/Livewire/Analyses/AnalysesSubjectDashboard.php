@@ -76,7 +76,7 @@ class AnalysesSubjectDashboard extends AnalysesDashboard
 
     public function render()
     {
-        $this->dispatchBrowserEvent('filters-updated');
+//        $this->dispatchBrowserEvent('filters-updated');
         return view('livewire.analyses.analyses-subject-dashboard')->layout('layouts.student');
     }
 

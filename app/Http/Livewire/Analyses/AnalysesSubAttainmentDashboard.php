@@ -56,6 +56,7 @@ class AnalysesSubAttainmentDashboard extends AnalysesDashboard
 
     public function getDataProperty()
     {
+
         $result = PValueRepository::getPValuePerSubAttainmentForStudentAndAttainment(
             $this->getHelper()->getForUser(),
             $this->attainment,

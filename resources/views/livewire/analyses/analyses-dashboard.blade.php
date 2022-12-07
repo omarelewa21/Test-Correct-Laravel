@@ -126,8 +126,10 @@
                                             >
                                                 loading
                                             </div>
-                                            <div wire:ignore :id="containerId"
-                                                 style="height: {{ $taxonomy['height'] }}">
+                                            <div
+                                                 :id="containerId"
+                                                 style="height: {{ $taxonomy['height'] }}"
+                                            >
                                                 <div x-show="showEmptyState" class="relative">
                                                     <x-empty-taxonomy-graph></x-empty-taxonomy-graph>
                                                 </div>

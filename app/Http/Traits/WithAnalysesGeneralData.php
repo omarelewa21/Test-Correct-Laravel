@@ -11,9 +11,18 @@ trait WithAnalysesGeneralData
 {
     public $generalStats = [];
 
+    public function getListeners()
+    {
+        return $this->listeners + ['filter-cleared' => 'clearFiltersWithAnalysesGeneralData'];
+    }
+
     public function mountWithAnalysesGeneralData()
     {
         $this->setGeneralStats();
+    }
+
+    public function clearFiltersWithAnalysesGeneralData(){
+       $this->setGeneralStats();
     }
 
     private function setGeneralStats()

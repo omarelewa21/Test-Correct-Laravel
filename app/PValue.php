@@ -243,7 +243,7 @@ class PValue extends BaseModel
     {
         $query->when(
             $educationLevelYears->isNotEmpty(),
-            fn($q) => $q->whereIn('education_level_year', $educationLevelYears->pluck('id'))
+            fn($q) => $q->whereIn('p_values.education_level_year', $educationLevelYears->pluck('id'))
         );
     }
 

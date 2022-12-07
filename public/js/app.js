@@ -6369,7 +6369,7 @@ document.addEventListener('alpine:init', function () {
           this.updateGraph();
         }
       },
-      updateGraph: function updateGraph() {
+      updateGraph: function updateGraph(forceUpdate) {
         var _this19 = this;
         return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee3() {
           var method, _yield$_this19$$wire$, _yield$_this19$$wire$2;
@@ -6377,7 +6377,7 @@ document.addEventListener('alpine:init', function () {
             while (1) {
               switch (_context3.prev = _context3.next) {
                 case 0:
-                  if (_this19.data) {
+                  if (!(!_this19.data || forceUpdate)) {
                     _context3.next = 10;
                     break;
                   }
@@ -6412,16 +6412,12 @@ document.addEventListener('alpine:init', function () {
       },
       renderGraph: function renderGraph() {
         // create bar chart
+        var cssSelector = '#' + this.containerId + '>div:not(.empty-state)';
+        //
+        this.$root.querySelectorAll(cssSelector).forEach(function (node) {
+          return node.remove();
+        });
         var chart = anychart.bar();
-
-        // let data = this.data.map((item)=> {
-        //     return {
-        //         x: item[0],
-        //         value: item[1],
-        //         tooltip: item[2]
-        //     }
-        // })
-
         var series = chart.bar(this.data);
         series.stroke(this.getColor()).fill(this.getColor());
         var tooltip = series.tooltip();
@@ -6434,7 +6430,6 @@ document.addEventListener('alpine:init', function () {
         // chart.xScale()//.maximum(100)
         chart.xAxis().stroke('#041F74');
         chart.xAxis().stroke('none');
-
         // set container id for the chart
         chart.container(this.containerId);
         // initiate chart drawing
