@@ -5,7 +5,6 @@
      x-cloak
      x-on:resize.window.debounce.200ms="addRelativePaddingToBody('dashboard-body')"
      wire:ignore.self
-     wire:init="checkIfPasswordNeedsChanging"
 >
     <div class="flex my-10">
         <h1>{{ __('student.welcome_to_dashboard') }}</h1>

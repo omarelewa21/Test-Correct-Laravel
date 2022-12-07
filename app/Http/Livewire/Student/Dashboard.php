@@ -84,16 +84,4 @@ class Dashboard extends Component
         $temporaryLogin = TemporaryLogin::createWithOptionsForUser('page', '/messages', Auth::user());
         return redirect($temporaryLogin->createCakeUrl());
     }
-
-    public function checkIfPasswordNeedsChanging()
-    {
-        $expiration_date = Auth::user()->password_expiration_date;
-
-        if(!$expiration_date) {
-            return;
-        }
-        if($expiration_date->lessThan(Carbon::now())) {
-            $this->emit('openModal', 'force-password-change-modal');
-        }
-    }
 }
