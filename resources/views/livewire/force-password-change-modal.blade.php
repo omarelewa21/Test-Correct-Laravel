@@ -5,16 +5,17 @@
 
     <x-slot name="content">
         <span>{{__('password-reset.Uitleg vervallen wachtwoord')}}</span>
-        @if($errors->isNotEmpty())
-            <div class="flex flex-col gap-2.5 w-full">
-                @foreach($errors->all() as $error)
-                    <div class="notification error stretched w-full">
-                        <span class="title">{{ $error }}</span>
-                    </div>
-                @endforeach
-            </div>
-        @endif
-
+        <div>
+            @if($errors->isNotEmpty())
+                <div class="flex flex-col gap-2.5 w-full">
+                    @foreach($errors->all() as $error)
+                        <div class="notification error stretched w-full">
+                            <span class="title">{{ $error }}</span>
+                        </div>
+                    @endforeach
+                </div>
+            @endif
+        </div>
         <div class="flex flex-col">
             <x-input.group
                     x-data="{showPassword: false, hoverPassword: false, initialPreviewIconState: true}"
@@ -22,7 +23,8 @@
                     class="flex-1 relative pt-2">
                 <div @mouseenter="hoverPassword = true"
                      @mouseleave="hoverPassword = false"
-                     @click="showPassword = !showPassword; hoverPassword = false; initialPreviewIconState = false" wire:ignore>
+                     @click="showPassword = !showPassword; hoverPassword = false; initialPreviewIconState = false"
+                     wire:ignore>
                     <x-icon.preview-off
                             class="absolute bottom-3 right-3.5 primary-hover cursor-pointer"
                             x-bind:class="{'opacity-50' : initialPreviewIconState, 'hover:text-sysbase': (!showPassword && !hoverPassword)}"
@@ -46,7 +48,8 @@
                     class="flex-1 relative pt-2">
                 <div @mouseenter="hoverPassword = true"
                      @mouseleave="hoverPassword = false"
-                     @click="showPassword = !showPassword; hoverPassword = false; initialPreviewIconState = false" wire:ignore>
+                     @click="showPassword = !showPassword; hoverPassword = false; initialPreviewIconState = false"
+                     wire:ignore>
                     <x-icon.preview-off
                             class="absolute bottom-3 right-3.5 primary-hover cursor-pointer"
                             x-bind:class="{'opacity-50' : initialPreviewIconState, 'hover:text-sysbase': (!showPassword && !hoverPassword)}"
@@ -70,7 +73,8 @@
                     class="flex-1 relative pt-2">
                 <div @mouseenter="hoverPassword = true"
                      @mouseleave="hoverPassword = false"
-                     @click="showPassword = !showPassword; hoverPassword = false; initialPreviewIconState = false" wire:ignore>
+                     @click="showPassword = !showPassword; hoverPassword = false; initialPreviewIconState = false"
+                     wire:ignore>
                     <x-icon.preview-off
                             class="absolute bottom-3 right-3.5 primary-hover cursor-pointer"
                             x-bind:class="{'opacity-50' : initialPreviewIconState, 'hover:text-sysbase': (!showPassword && !hoverPassword)}"
@@ -94,7 +98,7 @@
     <x-slot name="footer">
         <div class="inline self-end">
             <x-button.text-button class="mr-2"
-                    wire:click="$emit('closeModal')">
+                                  wire:click="$emit('closeModal')">
                 {{__("auth.back_to_login")}}
             </x-button.text-button>
             <x-button.cta
