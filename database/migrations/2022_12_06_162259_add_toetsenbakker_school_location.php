@@ -7,8 +7,4 @@ return new class extends Migration {
     {
         \tcCore\FactoryScenarios\FactoryScenarioSchoolToetsenbakkerij::create();
     }
-
-    public function down() {
-
-    }
 };

@@ -126,6 +126,11 @@ class FileManagement extends BaseModel
         return $this->belongsTo(Subject::class, 'subject_id');
     }
 
+    public function test()
+    {
+        return $this->belongsTo(Test::class);
+    }
+
     public function scopeFiltered($query, $user, $filters = [], $sorting = [])
     {
         $query->whereNull('parent_id')

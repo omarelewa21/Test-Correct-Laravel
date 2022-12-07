@@ -16,6 +16,8 @@ class TestCreateModal extends ModalComponent
 
     public $request = [];
 
+    protected $createdTestId;
+
     public function mount()
     {
         if (Auth::user()->isValidExamCoordinator()) {
@@ -46,7 +48,8 @@ class TestCreateModal extends ModalComponent
         $test->setAttribute('author_id', Auth::id());
         $test->setAttribute('owner_id', Auth::user()->school_location_id);
         $test->save();
-        $this->showModal = false;
+
+        $this->performAfterSaveActions($test);
 
         redirect(
             route('teacher.question-editor',
@@ -70,4 +73,6 @@ class TestCreateModal extends ModalComponent
     {
         return view('livewire.teacher.test-create-modal');
     }
+
+    protected function performAfterSaveActions(Test $test) {}
 }

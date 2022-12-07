@@ -63,8 +63,8 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
     const MIN_PASSWORD_LENGTH = 8;
 
     protected $casts = [
-        'uuid'    => EfficientUuid::class,
-        'intense' => 'boolean',
+        'uuid'               => EfficientUuid::class,
+        'intense'            => 'boolean',
         'is_examcoordinator' => 'boolean',
     ];
 
@@ -566,13 +566,13 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
                 $user->mentorSchoolClasses ??= [];
             }
 
-            if($user->isDirty(['is_examcoordinator', 'is_examcoordinator_for'])) {
+            if ($user->isDirty(['is_examcoordinator', 'is_examcoordinator_for'])) {
                 $user->setAttribute('session_hash', '');
             }
         });
 
-        static::saved(function(User $user){
-            if($user->isA('Teacher')) {
+        static::saved(function (User $user) {
+            if ($user->isA('Teacher')) {
                 $user->handleExamCoordinatorChange();
             }
         });
@@ -1046,7 +1046,7 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
     public function scopeSubjectsInCurrentLocation($query)
     {
         $schoolLocationSectionIds = $this->schoolLocation->schoolLocationSections()->pluck('section_id');
-        return $this->subjects()->whereIn('section_id',$schoolLocationSectionIds);
+        return $this->subjects()->whereIn('section_id', $schoolLocationSectionIds);
     }
 
     public function subjects($query = null)
@@ -1278,7 +1278,7 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
 
     public function trialPeriodsWithSchoolLocationCheck()
     {
-        return $this->hasOne(TrialPeriod::class, 'user_id')->where('school_location_id',$this->school_location_id);
+        return $this->hasOne(TrialPeriod::class, 'user_id')->where('school_location_id', $this->school_location_id);
     }
 
     public function getOnboardingWizardSteps()
@@ -1772,7 +1772,7 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
                     );
                     break;
                 case 'without_guests':
-                    $query->when($value, function($query) {
+                    $query->when($value, function ($query) {
                         $query->withoutGuests();
                     });
                     break;
@@ -2662,12 +2662,13 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
         );
     }
 
-    public function loadPValueStatsForAllSubjects() {
+    public function loadPValueStatsForAllSubjects()
+    {
         $value = Subject::filterForStudent($this)->get()
-            ->map(fn ($subject) => PValueRepository::getPValuesForStudent($this,$subject))
-            ->map(fn ($user) => $user->developedAttainments)
+            ->map(fn($subject) => PValueRepository::getPValuesForStudent($this, $subject))
+            ->map(fn($user) => $user->developedAttainments)
             ->flatten()
-            ->groupBy(fn ($attainment) =>  $attainment->base_subject_id)
+            ->groupBy(fn($attainment) => $attainment->base_subject_id)
             ->map->avg(function ($attainment) {
                 return $attainment->total_p_value;
             })->mapWithKeys(fn($item, $key) => [BaseSubject::find($key)->name => $item]);
@@ -2682,8 +2683,8 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
             return false;
         }
 
-        return $this->allowedSchoolLocations()->each(function($location) {
-            if(!$location->hasTrialLicense() || $this->trialPeriods()->withSchoolLocation($location)->exists()) {
+        return $this->allowedSchoolLocations()->each(function ($location) {
+            if (!$location->hasTrialLicense() || $this->trialPeriods()->withSchoolLocation($location)->exists()) {
                 return true;
             }
             return $this->trialPeriods()->create([
@@ -2718,9 +2719,22 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
             ->get();
     }
 
-    public function getDefaultAttainmentMode() {
+    public function getDefaultAttainmentMode()
+    {
 //        SchoolClass::where('user_id', $this->id)
 
         return 'LEARNING_GOAL';
+    }
+
+    public function scopeToetsenbakkers($query)
+    {
+        return $query->whereIn(
+            'id',
+            SchoolLocationUser::select('user_id')
+                ->whereIn(
+                    'school_location_id',
+                    SchoolLocation::select('id')->where('customer_code', config('custom.TB_customer_code'))
+                )
+        );
     }
 }

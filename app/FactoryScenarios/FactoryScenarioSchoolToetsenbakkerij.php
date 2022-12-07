@@ -11,6 +11,7 @@ use tcCore\Factories\FactorySchoolLocation;
 use tcCore\Factories\FactorySchoolYear;
 use tcCore\Factories\FactorySection;
 use tcCore\Factories\FactoryUser;
+use tcCore\Rules\EmailDns;
 use tcCore\School;
 use tcCore\SchoolLocation;
 use tcCore\User;
@@ -54,7 +55,30 @@ class FactoryScenarioSchoolToetsenbakkerij extends FactoryScenarioSchool
         //create school location, add educationLevels
         $educationLevels = \tcCore\EducationLevel::whereNot('name', 'Demo')->pluck('id')->unique()->toArray();
 
-        $schoolLocation = FactorySchoolLocation::create($school, $factory->schoolLocationName, ['customer_code' => $factory->customer_code, 'user_id' => '520'])
+        $schoolLocation = FactorySchoolLocation::create(
+            $school,
+            $factory->schoolLocationName,
+            [
+                'customer_code'                      => $factory->customer_code,
+                'user_id'                            => '520',
+                'main_address'                       => 'Dotterbloemstraat 25',
+                'main_postal'                        => '3053 JV',
+                'main_city'                          => 'Rotterdam',
+                'main_countery'                      => 'Netherlands',
+                'invoice_address'                    => 'Dotterbloemstraat 25',
+                'invoice_postal'                     => '3053 JV',
+                'invoice_city'                       => 'Rotterdam',
+                'invoice_countery'                   => 'Netherlands',
+                'visit_address'                      => 'Dotterbloemstraat 25',
+                'visit_postal'                       => '3053 JV',
+                'visit_city'                         => 'Rotterdam',
+                'visit_countery'                     => 'Netherlands',
+                'keep_out_of_school_location_report' => true,
+                'allow_writing_assignment'           => true,
+                'show_national_item_bank'            => true,
+                'license_type'                       => SchoolLocation::LICENSE_TYPE_CLIENT
+            ]
+        )
             ->addEducationlevels($educationLevels)
             ->schoolLocation;
 
