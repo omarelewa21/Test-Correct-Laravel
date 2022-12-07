@@ -191,10 +191,7 @@ class Login extends Component
 //        }
 
         $expiration_date = $user->password_expiration_date;
-        if(!$expiration_date) {
-            return $this->redirect($route);
-        }
-        if($expiration_date->lessThan(Carbon::now())) {
+        if($expiration_date && $expiration_date->lessThan(Carbon::now())) {
             return $this->emit('openModal', 'force-password-change-modal');
         }
         return $this->redirect($route);
