@@ -45,7 +45,7 @@ class ScheduleMailToUsersOneYearInactive extends Command
     {
 
         $arrayOfInactiveUsers = DB::select("
-        SELECT us.id, us.username
+        SELECT us.id, us.username, sl.id as school, sl.activated
         FROM users AS us
         INNER JOIN user_roles AS ur ON (us.id=ur.user_id)
         LEFT JOIN (
@@ -59,6 +59,11 @@ class ScheduleMailToUsersOneYearInactive extends Command
              FROM mails_send AS ms
         ) AS ms
         ON (us.id=ms.user_id)
+        LEFT JOIN (
+             SELECT sl.activated, sl.id
+             FROM school_locations AS sl
+        ) AS sl
+        ON (us.school_location_id=sl.id)
         WHERE us.created_at > NOW() - INTERVAL 2 YEAR
         AND (
               ll.date_created < NOW() - INTERVAL 1 YEAR
@@ -66,8 +71,16 @@ class ScheduleMailToUsersOneYearInactive extends Command
                 AND us.created_at < NOW() - INTERVAL 1 YEAR)
             )
         AND ur.role_id = 1
-        AND (ms.mailable = '".SendInactiveUserMail::class."' 
-             OR ms.created_at IS NULL)");
+        AND sl.activated = 1
+        AND (
+                us.username NOT LIKE '%teachandlearncompany.com'
+                AND us.username NOT LIKE '%test-correct.nl'
+            )
+        AND (
+                ms.mailable = '".SendInactiveUserMail::class."' 
+                OR ms.created_at IS NULL
+             )
+             ");
 
 
         if (count($arrayOfInactiveUsers) === 0){
