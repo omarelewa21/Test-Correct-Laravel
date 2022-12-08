@@ -16,7 +16,7 @@ class TestCreateModalWithFile extends TestCreateModal
 
     public function mount(FileManagement $fileManagement = null)
     {
-        if (!auth()->user()->isToetsenbakker() || $fileManagement->has('test')) {
+        if (!auth()->user()->isToetsenbakker() || $fileManagement->test()->exists()) {
             abort(403);
         }
         $this->fileManagement = $fileManagement;
@@ -34,15 +34,15 @@ class TestCreateModalWithFile extends TestCreateModal
 
     public function getAllowedSubjects()
     {
-        return Subject::get(['id', 'name'])->keyBy('id');
+        return Subject::where('id', $this->fileManagement->subject_id)->get(['id', 'name'])->keyBy('id');
     }
 
     public function getAllowedPeriods()
     {
         return Period::currentlyActive()
             ->forSchoolLocation($this->fileManagement->schoolLocation)
-            ->get(['id', 'name', 'start_date', 'end_date'])->keyBy('id');
-
+            ->get(['id', 'name', 'start_date', 'end_date'])
+            ->keyBy('id');
     }
 
     public function getAllowedEducationLevels()
