@@ -29,10 +29,10 @@ class UploadTest extends Component
     public array $testInfo = [
         'name'                       => '',
         'planned_at'                 => null,
-        'subject_uuid'               => 0,
-        'education_level_uuid'       => 0,
-        'education_level_year'       => 0,
-        'test_kind_uuid'             => 0,
+        'subject_uuid'               => null,
+        'education_level_uuid'       => null,
+        'education_level_year'       => null,
+        'test_kind_uuid'             => null,
         'contains_publisher_content' => null,
     ];
 
