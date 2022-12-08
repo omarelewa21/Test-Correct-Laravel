@@ -47,7 +47,7 @@ class ScheduleMailToUsersOneYearInactive extends Command
         $arrayOfInactiveUsers = DB::select("
         SELECT us.id, us.username, sl.id as school, sl.activated
         FROM users AS us
-        INNER JOIN user_roles AS ur ON (us.id=ur.user_id)
+        LEFT JOIN user_roles AS ur ON (us.id=ur.user_id)
         LEFT JOIN (
              SELECT MAX(ll.created_at) AS date_created, ll.user_id
              FROM login_logs AS ll
