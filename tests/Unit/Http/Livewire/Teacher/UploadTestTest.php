@@ -3,18 +3,33 @@
 namespace Tests\Unit\Http\Livewire\Teacher;
 
 use Illuminate\Foundation\Testing\DatabaseTransactions;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 use Livewire\Livewire;
+use tcCore\EducationLevel;
 use tcCore\FileManagement;
-use tcCore\Http\Helpers\BaseHelper;
 use tcCore\Http\Livewire\Teacher\UploadTest;
+use tcCore\Subject;
+use tcCore\TestKind;
 use Tests\TestCase;
 
 class UploadTestTest extends TestCase
 {
     use DatabaseTransactions;
+
+    protected $subjectUuid;
+    protected $educationLevelUuid;
+    protected $testKindUuid;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        $this->actingAs(self::getTeacherOne());
+        $this->subjectUuid = Subject::filtered(['user_current' => self::getTeacherOne()->getKey()])->first()->uuid; /* Nederlands */
+        $this->educationLevelUuid = EducationLevel::filtered(['user_id' => self::getTeacherOne()->getKey()])->first()->uuid; /* VWO */
+        $this->testKindUuid = TestKind::orderBy('name')->first()->uuid; /* Formatief */
+    }
 
     /** @test */
     public function can_open_upload_test_page_with_livewire_component_as_teacher()
@@ -43,7 +58,7 @@ class UploadTestTest extends TestCase
 
         $file = UploadedFile::fake()->create('test_pdf.pdf');
 
-        $component = Livewire::test(UploadTest::class)
+        $component = $this->getTestableLivewire()
             ->set('testInfo.name', $testName)
             ->set('uploads', [$file])
             ->call('finishProcess')
@@ -68,7 +83,7 @@ class UploadTestTest extends TestCase
         $file = UploadedFile::fake()->create('test_pdf.pdf');
         $file2 = UploadedFile::fake()->create('test_pdf2.pdf');
 
-        $component = Livewire::test(UploadTest::class)
+        $component = $this->getTestableLivewire()
             ->set('testInfo.name', $testName)
             ->set('uploads', [$file, $file2])
             ->call('finishProcess')
@@ -77,6 +92,7 @@ class UploadTestTest extends TestCase
         $parent = FileManagement::whereName($testName)->with('children')->first();
 
         $parent->children->each(function ($child) {
+            $this->assertEquals($child->subject()->first()->getKey(), Subject::whereUuid($this->subjectUuid)->first()->getKey());
             $filePath = sprintf("%s/%s", self::getTeacherOne()->school_location_id, $child->name);
             Storage::disk('test_uploads')->assertExists($filePath);
         });
@@ -89,7 +105,7 @@ class UploadTestTest extends TestCase
         $testName = 'Hogere kaaskundigheid 101';
         $maxUploadSizeInKiloBytes = 64000;
 
-        $file = UploadedFile::fake()->create('test_pdf.pdf', $maxUploadSizeInKiloBytes+1);
+        $file = UploadedFile::fake()->create('test_pdf.pdf', $maxUploadSizeInKiloBytes + 1);
 
         $component = Livewire::test(UploadTest::class)
             ->set('testInfo.name', $testName)
@@ -107,7 +123,7 @@ class UploadTestTest extends TestCase
         $maxUploadSizeInKiloBytes = $component->get('uploadRules.size.data');
 
         $file2 = UploadedFile::fake()->create('test_pdf2.pdf');
-        $file = UploadedFile::fake()->create('test_pdf.pdf', $maxUploadSizeInKiloBytes+1);
+        $file = UploadedFile::fake()->create('test_pdf.pdf', $maxUploadSizeInKiloBytes + 1);
 
         $component->set('testInfo.name', $testName)
             ->set('uploads', [$file, $file2])
@@ -123,7 +139,7 @@ class UploadTestTest extends TestCase
         Storage::fake('test_uploads');
         $file = UploadedFile::fake()->create('test_pdf.pdf');
 
-        $component = Livewire::test(UploadTest::class)
+        $component = $this->getTestableLivewire()
             ->set('testInfo.name', $testName)
             ->set('uploads', [$file]);
 
@@ -134,5 +150,32 @@ class UploadTestTest extends TestCase
         $newFormUuid = $component->get('formUuid');
 
         $this->assertNotEquals($oldFormUuid, $newFormUuid);
+    }
+
+    /**
+     * @return \Livewire\Testing\TestableLivewire
+     */
+    private function getTestableLivewire(): \Livewire\Testing\TestableLivewire
+    {
+        $dummyData = collect([
+            'testInfo.name'                       => 'Lekker uploaden!',
+            'testInfo.subject_uuid'               => $this->subjectUuid,
+            'testInfo.education_level_uuid'       => $this->educationLevelUuid,
+            'testInfo.education_level_year'       => 3,
+            'testInfo.test_kind_uuid'             => $this->testKindUuid,
+            'testInfo.contains_publisher_content' => true,
+            'checkInfo.question_model'            => true,
+            'checkInfo.answer_model'              => true,
+            'checkInfo.attachments'               => true,
+            'checkInfo.elaboration_attachments'   => true,
+        ]);
+
+        $component = Livewire::test(UploadTest::class);
+
+        $dummyData->each(function ($value, $key) use ($component) {
+            $component->set($key, $value);
+        });
+
+        return $component;
     }
 }

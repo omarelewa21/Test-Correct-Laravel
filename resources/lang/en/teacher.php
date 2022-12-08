@@ -75,14 +75,11 @@ return [
     'test-type-Summatief'                                                                      => 'Summative',
     'test-type-Formatief'                                                                      => 'Formative',
     'test-type-Opdracht'                                                                       => 'Assignment',
-    'test-type-Oefentoets'                                                                     => 'Pratice test',
-
+    'test-type-Oefentoets'                                                                     => 'Practice test',
     'notify_students'                                                                          => 'Inform students',
     'notify_students_tooltip'                                                                  => 'Inform students about this test.',
-
-    'not_linked_to_subjects'         => 'Test constructing not possible because you are not linked to subjects.',
-    'not_linked_to_education_levels' => 'Test constructing not possible because you are not linked to education levels.',
-
-    'Exporteer naar RTTI Online'    => 'Export to RTTI Online',
-    'exporteer_naar_rtti_online_tooltip' => 'Be aware that norming and grading takes place in RTTI-Online when this is on',
+    'not_linked_to_subjects'                                                                   => 'Test constructing not possible because you are not linked to subjects.',
+    'not_linked_to_education_levels'                                                           => 'Test constructing not possible because you are not linked to education levels.',
+    'Exporteer naar RTTI Online'                                                               => 'Export to RTTI Online',
+    'exporteer_naar_rtti_online_tooltip'                                                       => 'Be aware that norming and grading takes place in RTTI-Online when this is on',
 ];
