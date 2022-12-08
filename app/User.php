@@ -85,6 +85,7 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
 
     const STUDENT_IMPORT_PASSWORD_PATTERN = 'S%dTC#2014';
     const TEACHER_IMPORT_PASSWORD_PATTERN = 'T%dTC#2014';
+    const USER_SETTINGS_SESSION_KEY = 'UserSettings';
 
     /**
      * The attributes that are mass assignable.
@@ -1337,7 +1338,18 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
 
     public function isToetsenbakker()
     {
-        return (bool)FileManagement::where('handledby', $this->getKey())->where('type', 'testupload')->count();
+        if (is_bool($this->hasUserSetting('isToetsenbakker'))) {
+            return $this->hasUserSetting('isToetsenbakker');
+        }
+
+        $isToetsenbakker = FileManagement::testUploads()->handledBy($this)->exists()
+            || SchoolLocationUser::whereUserId($this->getKey())
+                ->whereIn('school_location_id', SchoolLocation::select('id')->where('customer_code', config('custom.TB_customer_code')))
+                ->exists();
+
+        $this->putUserSetting('isToetsenbakker', $isToetsenbakker);
+
+        return $isToetsenbakker;
     }
 
     public function isTestCorrectUser()
@@ -2595,7 +2607,7 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
 
     public function getSearchFilterDefaultsTeacher()
     {
-        if (!$this->isA('teacher')) {
+        if (!$this->isA('teacher') || $this->isToetsenbakker()) {
             return [];
         }
 
@@ -2736,5 +2748,15 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
                     SchoolLocation::select('id')->where('customer_code', config('custom.TB_customer_code'))
                 )
         );
+    }
+
+    public function hasUserSetting(string $setting)
+    {
+        $userSettings = session()->get(self::USER_SETTINGS_SESSION_KEY, []);
+        return $userSettings[$setting] ?? null;
+    }
+    public function putUserSetting(string $setting, $value): void
+    {
+        session()->put(self::USER_SETTINGS_SESSION_KEY, [$setting => $value]);
     }
 }

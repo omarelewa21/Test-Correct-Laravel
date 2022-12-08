@@ -16,10 +16,10 @@ class TestCreateModalWithFile extends TestCreateModal
 
     public function mount(FileManagement $fileManagement = null)
     {
-        $this->fileManagement = $fileManagement;
-        if ($this->fileManagement->has('test')) {
+        if (!auth()->user()->isToetsenbakker() || $fileManagement->has('test')) {
             abort(403);
         }
+        $this->fileManagement = $fileManagement;
 
         parent::mount();
 

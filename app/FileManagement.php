@@ -440,4 +440,14 @@ class FileManagement extends BaseModel
             return [$enum->value => $enum->name];
         });
     }
+
+    public function scopeTestUploads($query)
+    {
+        return $query->where('type', 'testupload');
+    }
+
+    public function scopeHandledBy($query, User $user)
+    {
+        return $query->where('handledby', $user->getKey());
+    }
 }
