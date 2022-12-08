@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Str;
 use tcCore\FileManagement;
 use tcCore\FileManagementStatus;
+use tcCore\GroupQuestionQuestion;
 use tcCore\Http\Helpers\ActingAsHelper;
 use tcCore\Http\Helpers\SchoolHelper;
 use tcCore\Http\Requests;
@@ -23,12 +24,17 @@ use tcCore\Http\Requests\UpdateFileManagementRequest;
 use tcCore\Jobs\SendToetsenbakkerInviteMail;
 use tcCore\Lib\Repositories\PeriodRepository;
 use tcCore\Period;
+use tcCore\Question;
+use tcCore\QuestionAuthor;
 use tcCore\School;
 use tcCore\SchoolLocation;
 use tcCore\Teacher;
 use tcCore\Http\Requests\CreateTeacherRequest;
 use tcCore\Http\Requests\UpdateTeacherRequest;
+use tcCore\Http\Requests\DuplicateFileManagementTestRequest;
 use tcCore\Test;
+use tcCore\TestAuthor;
+use tcCore\TestQuestion;
 use tcCore\UmbrellaOrganization;
 use tcCore\User;
 
@@ -306,40 +312,70 @@ class FileManagementController extends Controller
         return $child;
     }
 
-    public function duplicateTestToSchool(Request $request, FileManagement $fileManagement)
+    public function duplicateTestToSchool(DuplicateFileManagementTestRequest $request, FileManagement $fileManagement)
     {
-
         if($fileManagement->file_management_status_id !== self::STATUS_ID_APPROVED) {
             return response()->json(['errors' => ['not allowed']])->setStatusCode(403);
         }
 
         $test_id = $fileManagement->test_id ?? 238;
+        $test = Test::find($test_id);
         //todo duplicate test from $fileManagement->test_id;
-        // .
-        // change 'openbaar maken' ????
-        //      add locked property
 
-
-
-        //set ActingAsHelper for getting the correct Period
         ActingAsHelper::getInstance()->setUser($fileManagement->user);
 
-        //dont pass params to duplicate, but override later to make sure the questions get duplicated.
-        $test = Test::find($test_id)->duplicate([]);
+        $duplicateTest = $test->duplicate([]);
+        $duplicateTest->refresh();
+        $duplicateTest->subject_id = $fileManagement->subject_id;
+        $duplicateTest->period_id = PeriodRepository::getCurrentPeriod()->getKey();
+        $duplicateTest->author_id = $fileManagement->user_id;
+        $duplicateTest->testAuthors()->forceDelete();
+        TestAuthor::addAuthorToTest($duplicateTest, $fileManagement->user_id);
+        $duplicateTest->owner_id = $fileManagement->school_location_id;
 
-        $test->refresh();
-        $test->subject_id = $fileManagement->subject_id;
-        $test->period_id = PeriodRepository::getCurrentPeriod()->getKey();
-        $test->author_id = $fileManagement->user_id;
-        $test->owner_id = $fileManagement->school_location_id;
-        $test->save();
+        if(!$duplicateTest->save()) {
+            return response()->json(['errors' => 'Failed to save duplicated test'])->setStatusCode(500);
+        }
 
-    //todo override 'add to database disabled'
-        dd($test->listOfTakeableTestQuestions()->count());
-        dd(
-            $test->testQuestions->map->question->map->getQuestionInstance()
-        );
+        $this->disableAddToDatabaseSettingForAllTestQuestions($duplicateTest);
+        $this->createQuestionAuthorRecordsForAllQuestions($duplicateTest, $fileManagement);
 
         return response()->json(['status' => 'success'])->setStatusCode(200);
+    }
+
+    private function createAllQuestionsOfTestQueryBuilder(Test $test)
+    {
+        $testQuestionsQuery = TestQuestion::select('question_id as id')->whereTestId($test->getKey());
+        $groupQuestionQuestionsQuery = GroupQuestionQuestion::select('question_id as id')->whereIn('group_question_id', $testQuestionsQuery);
+
+        return $testQuestionsQuery->unionAll($groupQuestionQuestionsQuery);
+    }
+
+    private function disableAddToDatabaseSettingForAllTestQuestions(Test $test) : bool
+    {
+        $allQuestionIdsQuery = $this->createAllQuestionsOfTestQueryBuilder($test);
+
+        $queryResult = Question::whereIn('id', $allQuestionIdsQuery)
+            ->update(['add_to_database_disabled' => 1]);
+
+        return $queryResult > 0;
+    }
+
+    private function createQuestionAuthorRecordsForAllQuestions(Test $test, FileManagement $fileManagement)
+    {
+        $allQuestionIds = $this->createAllQuestionsOfTestQueryBuilder($test)->get();
+
+        //force delete wrongfully duplicated records
+        $questionAuthors = QuestionAuthor::whereIn('question_id', $allQuestionIds)->forceDelete();
+
+        //create new records for the recipient teacher
+        QuestionAuthor::insert($allQuestionIds->map(function ($id) use ($fileManagement) {
+            return [
+                'user_id' => $fileManagement->user_id,
+                'question_id' => $id->id,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ];
+        })->toArray());
     }
 }
