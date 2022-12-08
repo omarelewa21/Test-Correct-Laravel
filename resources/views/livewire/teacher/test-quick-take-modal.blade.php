@@ -1,9 +1,9 @@
-<x-modal.new>
+<x-modal-new>
     <x-slot name="title">
         <h2>{{__("cms.Direct afnemen")}}</h2>
     </x-slot>
 
-    <x-slot name="content">
+    <x-slot name="body">
         <div class="flex flex-col gap-4">
             <div class="data | flex flex-col gap-x-4 gap-y-2.5">
                 <div class="flex w-full gap-4">
@@ -95,4 +95,4 @@
             </x-button.cta>
         </div>
     </x-slot>
-</x-modal.new>
+</x-modal-new>
