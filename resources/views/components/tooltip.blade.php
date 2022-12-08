@@ -30,7 +30,7 @@
          x-ref="tooltipdiv"
          x-cloak
          class="absolute max-w-sm w-max bg-off-white rounded-10 p-6 main-shadow z-50 flex top-8 left-1/2 -translate-x-1/2 text-sysbase cursor-default"
-         x-on:click.stop.prevent=""
+         x-on:click.stop=""
     >
         {{ $slot }}
     </div>
