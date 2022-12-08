@@ -1,4 +1,4 @@
-<x-modal.base-modal>
+<x-modal.new>
     <x-slot name="title">
         <h2>{{__("cms.Direct afnemen")}}</h2>
     </x-slot>
@@ -95,4 +95,4 @@
             </x-button.cta>
         </div>
     </x-slot>
-</x-modal.base-modal>
+</x-modal.new>
