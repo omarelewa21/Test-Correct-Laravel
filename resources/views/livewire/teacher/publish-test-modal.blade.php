@@ -4,8 +4,8 @@
             <h2>{{__("test.Wil je de toets publiceren")}}?</h2>
 
             <span>
-                <x-tooltip :always-left="true" :useClicks="true">
-                    <div class="block">
+                <x-tooltip :always-left="true">
+                    <div class="block text-left">
                         <span>{{ __('test.publish_test_explanation') }}</span>
                         <x-button.text-button class="text-base"
                                               size="xs"
