@@ -1,4 +1,4 @@
-<x-modal.base-modal>
+<x-modal.new>
     <x-slot name="title">
         <h2>{{__("cms.Direct afnemen")}}</h2>
     </x-slot>
@@ -37,7 +37,7 @@
             </div>
             <div class="toggles | flex flex-col lg:flex-row lg:gap-x-4 flex-wrap">
                 <x-input.toggle-row-with-title wire:model="testTake.allow_inbrowser_testing"
-                                               :toolTip="__('teacher.exporteer_naar_rtti_online_tooltip')"
+                                               :toolTip="__('teacher.inbrowser_testing_tooltip')"
                                                :disabled="$this->isAssessmentType()"
                                                containerClass="border-t w-full lg:w-[calc(50%-0.5rem)]"
                 >
@@ -95,4 +95,4 @@
             </x-button.cta>
         </div>
     </x-slot>
-</x-modal.base-modal>
+</x-modal.new>
