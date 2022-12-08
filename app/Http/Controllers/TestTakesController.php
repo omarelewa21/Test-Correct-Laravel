@@ -3,13 +3,9 @@
 namespace tcCore\Http\Controllers;
 
 use Carbon\Carbon;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Response;
-use Illuminate\Support\Str;
 use Maatwebsite\Excel\Facades\Excel;
 use tcCore\AnswerRating;
 use tcCore\DiscussingParentQuestion;
@@ -18,13 +14,10 @@ use tcCore\Events\CoLearningNextQuestion;
 use tcCore\GroupQuestion;
 use tcCore\Http\Helpers\BaseHelper;
 use tcCore\Http\Helpers\DemoHelper;
-use tcCore\Http\Requests;
 use tcCore\Http\Requests\NormalizeTestTakeRequest;
 use tcCore\Lib\Question\QuestionGatherer;
 use tcCore\Question;
 use tcCore\SchoolClass;
-use tcCore\Shortcode;
-use tcCore\Subject;
 use tcCore\TemporaryLogin;
 use tcCore\Test;
 use tcCore\TestTake;
@@ -32,10 +25,8 @@ use tcCore\TestParticipant;
 use tcCore\Http\Requests\CreateTestTakeRequest;
 use tcCore\Http\Requests\UpdateTestTakeRequest;
 use tcCore\TestTakeStatus;
-use tcCore\TestQuestion;
 use tcCore\Exports\TestTakesExport;
-use \stdClass;
-use tcCore\User;
+use tcCore\Http\Helpers\Normalize;
 
 class TestTakesController extends Controller
 {
@@ -771,279 +762,25 @@ class TestTakesController extends Controller
 
     public function normalize(TestTake $testTake, NormalizeTestTakeRequest $request)
     {
-        $testTake->load(['testParticipants', 'testParticipants.user', 'testParticipants.answers', 'testParticipants.answers.answerRatings', 'testParticipants.answers.answerParentQuestions' => function ($query) {
-            $query->orderBy('level');
-        }]);
-        $ignoreQuestions = $request->get('ignore_questions');
+        $normalize = new Normalize($testTake, $request);
 
-
-        if ($request->filled('ppp') || $request->filled('epp') || $request->filled('wanted_average') || $request->filled('n_term')) {
-            $testTake->setAttribute('ppp', null);
-            $testTake->setAttribute('epp', null);
-            $testTake->setAttribute('wanted_average', null);
-            $testTake->setAttribute('n_term', null);
-            $testTake->setAttribute('pass_mark', null);
+        if($request->filled('ppp')) {
+            $normalize->normBasedOnGoodPerPoint();
+        }
+        elseif($request->filled('epp')) {
+            $normalize->normBasedOnErrorsPerPoint();
+        }
+        elseif($request->filled('wanted_average')) {
+            $normalize->normBasedOnAverageMark();
+        }
+        elseif($request->filled('n_term') && $request->filled('pass_mark')) {
+            $normalize->normBasedOnNTermAndPassMark();
+        }
+        elseif($request->filled('n_term')) {
+            $normalize->normBasedOnNTerm();
         }
 
-        $questions = QuestionGatherer::getQuestionsOfTest($testTake->getAttribute('test_id'), true);
-        if (
-            (
-                (
-                    !$request->filled('ppp')
-                    && $testTake->getAttribute('ppp') === null
-                )
-                && (
-                    $request->filled('epp')
-                    || $testTake->getAttribute('epp')
-                )
-            )
-            || (
-                (
-                    !$request->filled('ppp')
-                    && $testTake->getAttribute('ppp') === null
-                    && !$request->filled('epp')
-                    && $testTake->getAttribute('epp') === null
-                    && !$request->filled('wanted_average')
-                    && $testTake->getAttribute('wanted_average') === null
-                )
-                && (
-                    $request->filled('n_term')
-                    || (
-                        $testTake->getAttribute('n_term') !== null
-                    )
-                )
-            )
-        ) {
-            // $totalScore = 0;
-            // foreach ($questions as $questionId => $question) {
-            //     if ($ignoreQuestions === null || !in_array($questionId, $ignoreQuestions)) {
-            //         $totalScore += $question->getAttribute('score');
-            //     }
-            // }
-            $totalScore = $testTake->maxScore($ignoreQuestions);
-        } else {
-            $totalScore = null;
-        }
-        $scores = [];
-        foreach ($testTake->testParticipants as $testParticipant) {
-            $score = 0;
-
-            foreach ($testParticipant->answers as $answer) {
-                $answerQuestionId = null;
-                foreach ($answer->answerParentQuestions as $answerParentQuestion) {
-                    if ($answerQuestionId !== null) {
-                        $answerQuestionId .= '.';
-                    }
-                    $answerQuestionId .= $answerParentQuestion->getAttribute('group_question_id');
-                }
-
-                if ($answerQuestionId !== null) {
-                    $answerQuestionId .= '.';
-                }
-                $answerQuestionId .= $answer->getAttribute('question_id');
-
-                if ($ignoreQuestions !== null && in_array($answerQuestionId, $ignoreQuestions)) {
-                    $answer->setAttribute('ignore_for_rating', true);
-                } else {
-                    $answer->setAttribute('ignore_for_rating', false);
-                    $answerScore = $answer->getAttribute('final_rating');
-
-                    if ($answerScore === null) {
-                        $answerScore = $answer->calculateFinalRating();
-                        if ($answerScore !== null) {
-                            $answer->setAttribute('final_rating', $answerScore);
-                        }
-                    }
-
-                    if ($score !== false && $answerScore !== null) {
-                        $score += $answerScore;
-                    } else {
-                        $score = false;
-                    }
-                }
-
-                $answer->save();
-            }
-
-            if (!$testParticipant->answers->isEmpty() && $score !== false) {
-                $scores[$testParticipant->getKey()] = $score;
-            }
-
-            $relations = $testParticipant->getRelations();
-            unset($relations['answers']);
-            $testParticipant->setRelations($relations);
-        }
-
-        if ($request->filled('ppp') || $testTake->getAttribute('ppp') !== null) {
-            $ppp = ($request->filled('ppp')) ? $request->get('ppp') : $testTake->getAttribute('ppp');
-            $testTake->setAttribute('ppp', $ppp);
-            if (!$request->filled('preview') || $request->get('preview') != true) {
-                $testTake->save();
-            }
-            foreach ($testTake->testParticipants as $testParticipant) {
-                if (array_key_exists($testParticipant->getKey(), $scores)) {
-                    $score = $scores[$testParticipant->getKey()];
-                    $rate = ($score / $ppp);
-                    if ($rate < 1) {
-                        $rate = 1;
-                    } elseif ($rate > 10) {
-                        $rate = 10;
-                    }
-
-                    $testParticipant->setAttribute('rating', round($rate, 1));
-                    if (!$request->filled('preview') || $request->get('preview') != true) {
-                        $testParticipant->save();
-                    }
-
-                    $testParticipant->setAttribute('score', $score);
-                }
-            }
-        } elseif ($request->filled('epp') || $testTake->getAttribute('epp') !== null) {
-            $epp = ($request->filled('epp')) ? $request->get('epp') : $testTake->getAttribute('epp');
-
-            $testTake->setAttribute('epp', $epp);
-            if (!$request->filled('preview') || $request->get('preview') != true) {
-                $testTake->save();
-            }
-
-            foreach ($testTake->testParticipants as $testParticipant) {
-                if (array_key_exists($testParticipant->getKey(), $scores)) {
-                    $score = $scores[$testParticipant->getKey()];
-                    $rate = 10 - (($totalScore - $score) / $epp);
-                    if ($rate < 1) {
-                        $rate = 1;
-                    } elseif ($rate > 10) {
-                        $rate = 10;
-                    }
-
-                    $testParticipant->setAttribute('rating', round($rate, 1));
-                    if (!$request->filled('preview') || $request->get('preview') != true) {
-                        $testParticipant->save();
-                    }
-
-                    $testParticipant->setAttribute('score', $score);
-                }
-            }
-        } elseif ($request->filled('wanted_average') || $testTake->getAttribute('wanted_average') !== null) {
-            $average = ($request->filled('wanted_average')) ? $request->get('wanted_average') : $testTake->getAttribute('wanted_average');
-            $testTake->setAttribute('wanted_average', $average);
-            if (!$request->filled('preview') || $request->get('preview') != true) {
-                $testTake->save();
-            }
-            if ($scores) {
-                $ppp = ((array_sum($scores) / count($scores)) / ($average - 1));
-                foreach ($testTake->testParticipants as $testParticipant) {
-                    if (array_key_exists($testParticipant->getKey(), $scores)) {
-                        $score = $scores[$testParticipant->getKey()];
-                        $rate = 1 + ($score / $ppp);
-                        if ($rate < 1) {
-                            $rate = 1;
-                        } elseif ($rate > 10) {
-                            $rate = 10;
-                        }
-
-                        $testParticipant->setAttribute('rating', round($rate, 1));
-                        if (!$request->filled('preview') || $request->get('preview') != true) {
-                            $testParticipant->save();
-                        }
-
-                        $testParticipant->setAttribute('score', $score);
-                    }
-                }
-            }
-        } elseif ($request->filled('n_term') && $request->filled('pass_mark') || ($testTake->getAttribute('n_term') !== null && $testTake->getAttribute('pass_mark') !== null)) {
-            $nTerm = ($request->filled('n_term')) ? $request->get('n_term') : $testTake->getAttribute('n_term');
-            $passMark = ($request->filled('pass_mark')) ? $request->get('pass_mark') : $testTake->getAttribute('pass_mark');
-            $testTake->setAttribute('n_term', $nTerm);
-            $testTake->setAttribute('pass_mark', $passMark);
-            if (!$request->filled('preview') || $request->get('preview') != true) {
-                $testTake->save();
-            }
-
-            foreach ($testTake->testParticipants as $testParticipant) {
-                if (array_key_exists($testParticipant->getKey(), $scores)) {
-                    $score = $scores[$testParticipant->getKey()];
-                    if (($score / $totalScore) < ($passMark / 100)) {
-                        if ($passMark <= 0) {
-                            $rate = 10;
-                        } elseif ($nTerm <= -3.5) {
-                            $rate = 1;
-                        } else {
-                            $rate = 1 + $score / (($totalScore * ($passMark / 100)) / (4.5 + ($nTerm - 1)));
-                        }
-                    } elseif (($score / $totalScore) > ($passMark / 100)) {
-                        if ($passMark >= 100) {
-                            $rate = 1;
-                        } elseif ($nTerm >= 5.5) {
-                            $rate = 10;
-                        } else {
-                            $rate = 10 - (($totalScore - $score) * ((4.5 - ($nTerm - 1)) / ($totalScore - ($totalScore * ($passMark / 100)))));
-                        }
-                    } else {
-                        $rate = (5.5 + $nTerm - 1);
-                    }
-
-                    $testParticipant->setAttribute('rating', round($rate, 1));
-                    if (!$request->filled('preview') || $request->get('preview') != true) {
-                        $testParticipant->save();
-                    }
-
-                    $testParticipant->setAttribute('score', $score);
-                }
-            }
-        } elseif ($request->filled('n_term') || $testTake->getAttribute('n_term') !== null) {
-            $nTerm = ($request->filled('n_term')) ? $request->get('n_term') : $testTake->getAttribute('n_term');
-
-            $testTake->setAttribute('n_term', $nTerm);
-            if (!$request->filled('preview') || $request->get('preview') != true) {
-                $testTake->save();
-            }
-
-            foreach ($testTake->testParticipants as $testParticipant) {
-                if (array_key_exists($testParticipant->getKey(), $scores)) {
-                    $score = $scores[$testParticipant->getKey()];
-                    $rate = (9.0 * ($score / $totalScore)) + $nTerm;
-
-                    if ($nTerm > 1) {
-                        $scoreMin = 1.0 + ($score * (9 / $totalScore) * 2);
-                        $scoreMax = 10 - (($totalScore - $score) * (9 / $totalScore) * 0.5);
-
-                        if ($scoreMin < $scoreMax && $rate > $scoreMin) {
-                            $rate = $scoreMin;
-                        } elseif ($scoreMin > $scoreMax && $rate > $scoreMax) {
-                            $rate = $scoreMax;
-                        }
-                    } elseif ($nTerm < 1) {
-                        $scoreMin = 1.0 + ($score * (9 / $totalScore) * 0.5);
-                        $scoreMax = 10 - (($totalScore - $score) * (9 / $totalScore) * 2);
-
-                        if ($scoreMin > $scoreMax && $rate < $scoreMin) {
-                            $rate = $scoreMin;
-                        } elseif ($scoreMin < $scoreMax && $rate < $scoreMax) {
-                            $rate = $scoreMax;
-                        }
-                    } else {
-                        $scoreMin = 1;
-                        $scoreMax = 10;
-
-                        if ($rate < $scoreMin) {
-                            $rate = $scoreMin;
-                        } elseif ($rate > $scoreMax) {
-                            $rate = $scoreMax;
-                        }
-                    }
-
-                    $testParticipant->setAttribute('rating', round($rate, 1));
-                    if (!$request->filled('preview') || $request->get('preview') != true) {
-                        $testParticipant->save();
-                    }
-
-                    $testParticipant->setAttribute('score', $score);
-                }
-            }
-        }
-
-        return Response::make($testTake, 200);
+        return Response::make($normalize->testTake, 200);
     }
 
     public function export(TestTake $testTake)
