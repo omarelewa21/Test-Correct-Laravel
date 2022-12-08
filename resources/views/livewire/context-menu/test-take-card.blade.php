@@ -1,4 +1,4 @@
-<x-menu.context-menu.base context="test-take-card">
+<x-menu.context-menu.base context="test-take-card" class="w-60">
 
     @if($this->hasArchiveOption())
         <x-menu.context-menu.button wire:click="openTestTake">
