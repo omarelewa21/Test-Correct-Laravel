@@ -59,11 +59,6 @@ class UploadTest extends Component
         $this->setFormUuid();
         $this->setDateProperties();
         $this->setUploadRules();
-
-        //Dummy data to skip the filling of data of step 1, but this helper is active on testing aswel...
-        /*if (BaseHelper::notProduction()) {
-            $this->setDummyData();
-        }*/
     }
 
     public function updated($name, $value)
@@ -138,7 +133,7 @@ class UploadTest extends Component
     public function getTestKindsProperty(): \Countable
     {
         return TestKind::orderBy('name')
-            ->uuidOptionList();
+            ->uuidOptionList(['uuid', 'name'], fn($label) => __('teacher.test-type-' . $label['name']));
     }
 
     public function getTakeDateToDisplayProperty(): string
@@ -186,25 +181,6 @@ class UploadTest extends Component
         }
 
         return 'check_warning_text';
-    }
-
-    private function setDummyData()
-    {
-        $this->testInfo = array_merge($this->testInfo, [
-            'name'                       => 'Lekker uploaden!',
-            'subject_uuid'               => $this->subjects->first()?->value,
-            'education_level_uuid'       => $this->educationLevels->first()?->value,
-            'education_level_year'       => 3,
-            'test_kind_uuid'             => $this->testKinds->first()?->value,
-            'contains_publisher_content' => true,
-        ]);
-
-        $this->checkInfo = array_merge($this->checkInfo, [
-            'question_model'          => true,
-            'answer_model'            => true,
-            'attachments'             => true,
-            'elaboration_attachments' => true,
-        ]);
     }
 
     /**
