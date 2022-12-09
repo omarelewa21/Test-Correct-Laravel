@@ -74,6 +74,7 @@
                 <x-input.toggle-row-with-title :small="true" :disabled="true"
                                                :toolTip="__('cms.close_after_answer_tooltip_text')"
                                                :checked="$question->closeable"
+                                               :tooltipAlwaysLeft="true"
                 >
                     <x-icon.locked/>
                     <span>{{ __('cms.Sluiten na beantwoorden') }}</span>
@@ -82,6 +83,7 @@
                 <x-input.toggle-row-with-title :small="true" :disabled="true"
                                                :toolTip="__('cms.make_public_tooltip_text')"
                                                :checked="$question->add_to_database"
+                                               :tooltipAlwaysLeft="true"
                 >
                     <x-icon.preview/>
                     <span>{{ __('cms.Openbaar maken') }}</span>
