@@ -341,8 +341,8 @@ class AppVersionDetector
 
         session([
             'headers' => $headers,
-            'OsVersion' => self::getOSVersion(),
-            'OsPlatform' => self::getOSPlatform(),
+            'UserOsVersion' => self::getUserOSVersion(),
+            'UserOsPlatform' => self::getUserOSPlatform(),
             'TLCVersion' => $version['app_version'],
             'TLCOs' => $version['os'],
             'TLCIsIos12' => (Str::lower($version['os']) === 'ios') ? AppVersionDetector::isIos12($headers) : false,
@@ -358,7 +358,7 @@ class AppVersionDetector
 //        $this->Session->write('TLCVersionCheckResult', $versionCheckResult);
     }
 
-    public static function getOSPlatform() 
+    public static function getUserOSPlatform() 
     { 
         $headers = self::getAllHeaders();
         $user_agent = $headers['user-agent'];
@@ -396,7 +396,7 @@ class AppVersionDetector
         return $os_platform;
     }
 
-    public static function getOSVersion()
+    public static function getUserOSVersion()
     {
         $headers = self::getAllHeaders();
         $version = null;
@@ -418,7 +418,7 @@ class AppVersionDetector
 
     public function getAppVersion(){
         AppVersionDetector::handleHeaderCheck();
-      
+      return session()->all();
         return ['TLCVersion' => session('TLCVersion', null)];
     }
 }
