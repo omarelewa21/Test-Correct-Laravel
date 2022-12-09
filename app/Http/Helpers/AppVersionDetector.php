@@ -410,7 +410,7 @@ class AppVersionDetector
         } elseif(preg_match($androidRegularExpression, $user_agent, $matches)) {
             $version = $matches[1];
         } elseif(preg_match($widowsRegularExpression, $user_agent, $matches, PREG_OFFSET_CAPTURE, 0)) {
-           return  $version = $matches[0][0];
+            $version = $matches[0][0];
         }
 
         return $version;
@@ -418,7 +418,7 @@ class AppVersionDetector
 
     public function getAppVersion(){
         AppVersionDetector::handleHeaderCheck();
-        return session()->all();
+      
         return ['TLCVersion' => session('TLCVersion', null)];
     }
 }
