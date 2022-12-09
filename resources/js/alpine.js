@@ -862,8 +862,9 @@ document.addEventListener('alpine:init', () => {
         }
     ));
 
-    Alpine.data('analysesAttainmentsGraph', (data) => ({
-            data,
+    Alpine.data('analysesAttainmentsGraph', (modelId) => ({
+            modelId,
+            data: false,
             colors: [
                 '#30BC51',
                 '#5043F6',
@@ -876,7 +877,17 @@ document.addEventListener('alpine:init', () => {
                 '#E12576',
                 '#24D2C5',
             ],
+            showEmptyState:false,
+            init() {
+                this.updateGraph();
+            },
+            async updateGraph() {
+                [this.showEmptyState, this.data] = await this.$wire.call('getDataForGraph');
+                this.renderGraph();
+            },
             renderGraph() {
+                var cssSelector = '#'+this.modelId+'>div:not(.empty-state)';
+                this.$root.querySelectorAll(cssSelector).forEach(node => node.remove())
                 var chart = anychart.column();
                 var series = chart.column(this.data);
                 var palette = anychart.palettes.distinctColors();
@@ -978,13 +989,9 @@ document.addEventListener('alpine:init', () => {
                 chart.interactivity("by-x");
 
                 // set container id for the chart
-                chart.container('pValueChart');
+                chart.container(this.modelId);
                 // initiate chart drawing
                 chart.draw();
-            },
-
-            init() {
-                this.renderGraph()
             },
 
             initTooltips(chart, data, series) {
@@ -1125,12 +1132,15 @@ document.addEventListener('alpine:init', () => {
                 }
             },
             async updateGraph(forceUpdate) {
+                console.log((new Date()).getTime() +'updateGraph'+ this.containerId)
                 if (!this.data || forceUpdate) {
                     var method = 'getData';
                     if (component == 'expandableGraphForGeneral') {
                         method = 'getDataForGeneralGraph';
                     }
                     [this.showEmptyState, this.data] = await this.$wire.call(method, this.modelId, this.taxonomy);
+                    console.log('emptyState for'+ this.containerId + ' : '+ this.showEmptyState);
+                    console.dir(JSON.parse(JSON.stringify(this.data)))
                     this.renderGraph()
                 }
             },
@@ -1145,6 +1155,7 @@ document.addEventListener('alpine:init', () => {
                 this.active = value ? this.id : null
             },
             renderGraph: function () {
+                console.log((new Date()).getTime() +'render: '+ this.containerId)
                 // create bar chart
                 var cssSelector = '#'+this.containerId+'>div:not(.empty-state)';
                 //

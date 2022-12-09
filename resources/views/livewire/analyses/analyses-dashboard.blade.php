@@ -91,7 +91,7 @@
                                     async init() {
                                         let ready = await $wire.getFirstActiveForRankingTaxonomy({{ $item->id }});
                                         if (ready !== false) {
-                                            $dispatch('top-item-active-changed{{ $loop->index }}', { id: ready })
+                                            $dispatch('top-item-active-changed{{  $item->id }}', { id: ready })
                                         }
                                     }
                                 }"
@@ -108,10 +108,11 @@
                                         class="flex text-lg bold flex-grow border-b-3  border-sysbase ">{!! $item->title !!} </div>
 
                                 </div>
+
                                 @foreach($this->taxonomies as $key=> $taxonomy)
                                     <div
                                         x-data="expandableGraphForGeneral({{ $key }}, '{{ $item->id }}', '{{ $taxonomy['name'] }}', 'expandableGraph')"
-                                        x-on:top-item-active-changed{{ $loop->index }}.window="if (id === $event.detail.id)  { expanded = true}"
+                                        x-on:top-item-active-changed{{  $item->id }}.window="if (id === $event.detail.id)  { expanded = true}"
                                         x-on:click="expanded = !expanded"
                                         class="cursor-pointer ml-10"
                                     >
@@ -126,11 +127,10 @@
                                             >
                                                 loading
                                             </div>
-                                            <div
-                                                 :id="containerId"
+                                            <div :id="containerId"
                                                  style="height: {{ $taxonomy['height'] }}"
                                             >
-                                                <div x-show="showEmptyState" class="relative">
+                                                <div x-show="showEmptyState" class="relative empty-state">
                                                     <x-empty-taxonomy-graph></x-empty-taxonomy-graph>
                                                 </div>
                                             </div>

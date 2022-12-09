@@ -1,5 +1,5 @@
 @if($show)
-    <div class="z-1 absolute inset-0 mb-[60px]">
+    <div {{ $attributes }} class="empty-state z-1 absolute inset-0 mb-[60px]">
         <div class="absolute inset-0 flex">
             <svg width="100%" viewBox="0 0 460 270" version="1.1" xmlns="http://www.w3.org/2000/svg"
                  xmlns:xlink="http://www.w3.org/1999/xlink">

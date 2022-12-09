@@ -6158,11 +6158,44 @@ document.addEventListener('alpine:init', function () {
       }
     };
   });
-  alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data('analysesAttainmentsGraph', function (data) {
+  alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data('analysesAttainmentsGraph', function (modelId) {
     return {
-      data: data,
+      modelId: modelId,
+      data: false,
       colors: ['#30BC51', '#5043F6', '#ECEE7D', '#6820CE', '#CB110E', '#F79D25', '#1B6112', '#43ACF5', '#E12576', '#24D2C5'],
+      showEmptyState: false,
+      init: function init() {
+        this.updateGraph();
+      },
+      updateGraph: function updateGraph() {
+        var _this19 = this;
+        return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee3() {
+          var _yield$_this19$$wire$, _yield$_this19$$wire$2;
+          return _regeneratorRuntime().wrap(function _callee3$(_context3) {
+            while (1) {
+              switch (_context3.prev = _context3.next) {
+                case 0:
+                  _context3.next = 2;
+                  return _this19.$wire.call('getDataForGraph');
+                case 2:
+                  _yield$_this19$$wire$ = _context3.sent;
+                  _yield$_this19$$wire$2 = _slicedToArray(_yield$_this19$$wire$, 2);
+                  _this19.showEmptyState = _yield$_this19$$wire$2[0];
+                  _this19.data = _yield$_this19$$wire$2[1];
+                  _this19.renderGraph();
+                case 7:
+                case "end":
+                  return _context3.stop();
+              }
+            }
+          }, _callee3);
+        }))();
+      },
       renderGraph: function renderGraph() {
+        var cssSelector = '#' + this.modelId + '>div:not(.empty-state)';
+        this.$root.querySelectorAll(cssSelector).forEach(function (node) {
+          return node.remove();
+        });
         var chart = anychart.column();
         var series = chart.column(this.data);
         var palette = anychart.palettes.distinctColors();
@@ -6243,12 +6276,9 @@ document.addEventListener('alpine:init', function () {
         chart.interactivity("by-x");
 
         // set container id for the chart
-        chart.container('pValueChart');
+        chart.container(this.modelId);
         // initiate chart drawing
         chart.draw();
-      },
-      init: function init() {
-        this.renderGraph();
       },
       initTooltips: function initTooltips(chart, data, series) {
         chart.tooltip().useHtml(true);
@@ -6370,35 +6400,38 @@ document.addEventListener('alpine:init', function () {
         }
       },
       updateGraph: function updateGraph(forceUpdate) {
-        var _this19 = this;
-        return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee3() {
-          var method, _yield$_this19$$wire$, _yield$_this19$$wire$2;
-          return _regeneratorRuntime().wrap(function _callee3$(_context3) {
+        var _this20 = this;
+        return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee4() {
+          var method, _yield$_this20$$wire$, _yield$_this20$$wire$2;
+          return _regeneratorRuntime().wrap(function _callee4$(_context4) {
             while (1) {
-              switch (_context3.prev = _context3.next) {
+              switch (_context4.prev = _context4.next) {
                 case 0:
-                  if (!(!_this19.data || forceUpdate)) {
-                    _context3.next = 10;
+                  console.log(new Date().getTime() + 'updateGraph' + _this20.containerId);
+                  if (!(!_this20.data || forceUpdate)) {
+                    _context4.next = 13;
                     break;
                   }
                   method = 'getData';
                   if (component == 'expandableGraphForGeneral') {
                     method = 'getDataForGeneralGraph';
                   }
-                  _context3.next = 5;
-                  return _this19.$wire.call(method, _this19.modelId, _this19.taxonomy);
-                case 5:
-                  _yield$_this19$$wire$ = _context3.sent;
-                  _yield$_this19$$wire$2 = _slicedToArray(_yield$_this19$$wire$, 2);
-                  _this19.showEmptyState = _yield$_this19$$wire$2[0];
-                  _this19.data = _yield$_this19$$wire$2[1];
-                  _this19.renderGraph();
-                case 10:
+                  _context4.next = 6;
+                  return _this20.$wire.call(method, _this20.modelId, _this20.taxonomy);
+                case 6:
+                  _yield$_this20$$wire$ = _context4.sent;
+                  _yield$_this20$$wire$2 = _slicedToArray(_yield$_this20$$wire$, 2);
+                  _this20.showEmptyState = _yield$_this20$$wire$2[0];
+                  _this20.data = _yield$_this20$$wire$2[1];
+                  console.log('emptyState for' + _this20.containerId + ' : ' + _this20.showEmptyState);
+                  console.dir(JSON.parse(JSON.stringify(_this20.data)));
+                  _this20.renderGraph();
+                case 13:
                 case "end":
-                  return _context3.stop();
+                  return _context4.stop();
               }
             }
-          }, _callee3);
+          }, _callee4);
         }))();
       },
       get expanded() {
@@ -6411,6 +6444,7 @@ document.addEventListener('alpine:init', function () {
         this.active = value ? this.id : null;
       },
       renderGraph: function renderGraph() {
+        console.log(new Date().getTime() + 'render: ' + this.containerId);
         // create bar chart
         var cssSelector = '#' + this.containerId + '>div:not(.empty-state)';
         //
@@ -6488,38 +6522,38 @@ document.addEventListener('alpine:init', function () {
       menuOffsetMarginTop: 56,
       menuOffsetMarginLeft: 224,
       handleIncomingEvent: function handleIncomingEvent(detail) {
-        var _this20 = this;
+        var _this21 = this;
         if (!this.contextMenuOpen) return this.openMenu(detail);
         this.closeMenu();
         setTimeout(function () {
-          _this20.openMenu(detail);
+          _this21.openMenu(detail);
         }, 150);
       },
       openMenu: function openMenu(detail) {
-        var _this21 = this;
-        return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee4() {
+        var _this22 = this;
+        return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee5() {
           var readyForShow;
-          return _regeneratorRuntime().wrap(function _callee4$(_context4) {
+          return _regeneratorRuntime().wrap(function _callee5$(_context5) {
             while (1) {
-              switch (_context4.prev = _context4.next) {
+              switch (_context5.prev = _context5.next) {
                 case 0:
-                  _this21.uuid = detail.uuid;
-                  _this21.correspondingButton = detail.button;
-                  _this21.contextData = detail.contextData;
-                  _this21.$root.style.top = detail.coords.top + _this21.menuOffsetMarginTop + 'px';
-                  _this21.$root.style.left = detail.coords.left - _this21.menuOffsetMarginLeft + 'px';
-                  _context4.next = 7;
-                  return _this21.$wire.setContextValues(_this21.uuid, _this21.contextData);
+                  _this22.uuid = detail.uuid;
+                  _this22.correspondingButton = detail.button;
+                  _this22.contextData = detail.contextData;
+                  _this22.$root.style.top = detail.coords.top + _this22.menuOffsetMarginTop + 'px';
+                  _this22.$root.style.left = detail.coords.left - _this22.menuOffsetMarginLeft + 'px';
+                  _context5.next = 7;
+                  return _this22.$wire.setContextValues(_this22.uuid, _this22.contextData);
                 case 7:
-                  readyForShow = _context4.sent;
-                  if (readyForShow) _this21.contextMenuOpen = true;
-                  _this21.contextMenuOpen = true;
+                  readyForShow = _context5.sent;
+                  if (readyForShow) _this22.contextMenuOpen = true;
+                  _this22.contextMenuOpen = true;
                 case 10:
                 case "end":
-                  return _context4.stop();
+                  return _context5.stop();
               }
             }
-          }, _callee4);
+          }, _callee5);
         }))();
       },
       closeMenu: function closeMenu() {
