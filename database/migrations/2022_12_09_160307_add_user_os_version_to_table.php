@@ -14,8 +14,8 @@ return new class extends Migration
     public function up()
     {
         Schema::table('app_version_infos', function (Blueprint $table) {
-            $table->string('os_version')->nullable();
-            $table->string('os_platform')->nullable();
+            $table->string('user_os')->nullable();
+            $table->string('user_os_version')->nullable();
         });
     }
 
@@ -27,8 +27,8 @@ return new class extends Migration
     public function down()
     {
         Schema::table('app_version_infos', function (Blueprint $table) {
-            $table->dropColumn('os_version');
-            $table->dropColumn('os_platform');
+            $table->dropColumn('user_os');
+            $table->dropColumn('user_os_version');
         });
     }
 };
