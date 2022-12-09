@@ -37,6 +37,8 @@ class AppVersionInfo extends BaseModel
         'user_id',
         'version',
         'os',
+        'os_platform',
+        'os_version',
         'headers',
         'version_check_result'
     ];
@@ -67,6 +69,8 @@ class AppVersionInfo extends BaseModel
         self::create([
             'version'              => session()->get('TLCVersion'),
             'os'                   => session()->get('TLCOs'),
+            'os_platform'         => session()->get('OsPlatform'),
+            'os_version'           => session()->get('OsVersion'),
             'headers'              => json_encode(session()->get('headers')),
             'version_check_result' => session()->get('TLCVersioncheckResult'),
         ]);

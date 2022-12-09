@@ -341,8 +341,10 @@ class AppVersionDetector
 
         session([
             'headers' => $headers,
-            'TLCVersion' => self::getOSVersion(),
-            'TLCOs' => self::getOSPlatform(),
+            'OsVersion' => self::getOSVersion(),
+            'OsPlatform' => self::getOSPlatform(),
+            'TLCVersion' => $version['app_version'],
+            'TLCOs' => $version['os'],
             'TLCIsIos12' => (Str::lower($version['os']) === 'ios') ? AppVersionDetector::isIos12($headers) : false,
         ]);
 
@@ -397,25 +399,26 @@ class AppVersionDetector
     public static function getOSVersion()
     {
         $headers = self::getAllHeaders();
-        $version = AppVersionDetector::detect($headers);
+        $version = null;
         $iosRegularExpression = '/ip(?:hone|[ao]d) os \K[\d_]+/i';
         $androidRegularExpression = '/Android ((\d+|\.)+[^,;]+)/';
+        $widowsRegularExpression = '/windows nt \K[\d_]+/i';
         $user_agent = $headers['user-agent'];
 
         if(preg_match($iosRegularExpression, $user_agent, $matches, PREG_OFFSET_CAPTURE, 0)) {
             $version = $matches[0][0];
         } elseif(preg_match($androidRegularExpression, $user_agent, $matches)) {
             $version = $matches[1];
-        } else {
-            $version = $version['os'];
-        } 
+        } elseif(preg_match($widowsRegularExpression, $user_agent, $matches, PREG_OFFSET_CAPTURE, 0)) {
+           return  $version = $matches[0][0];
+        }
 
         return $version;
     }
 
     public function getAppVersion(){
         AppVersionDetector::handleHeaderCheck();
-        
+        return session()->all();
         return ['TLCVersion' => session('TLCVersion', null)];
     }
 }
