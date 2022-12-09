@@ -9,27 +9,27 @@ class CakeRedirectHelper
 {
     protected string $routeName;
     protected ?string $uuid = null;
-    protected ?string $page_number = null;
+    protected ?string $page = null;
 
-    public static function redirectToCake(string $routeName, ?string $uuid = null, ?string $page_number = null)
+    public static function redirectToCake(string $routeName, ?string $uuid = null, ?string $page = null)
     {
-        $helper = new self($routeName, $uuid, $page_number);
+        $helper = new self($routeName, $uuid, $page);
 
         return redirect($helper->createCakeUrl());
     }
 
-    public static function getCakeUrl(string $routeName, ?string $uuid = null, ?string $page_number = null) : string
+    public static function getCakeUrl(string $routeName, ?string $uuid = null, ?string $page = null) : string
     {
-        $helper = new self($routeName, $uuid, $page_number);
+        $helper = new self($routeName, $uuid, $page);
 
         return $helper->createCakeUrl();
     }
 
-    protected function __construct(string $routeName, ?string $uuid = null, ?string $page_number = null)
+    protected function __construct(string $routeName, ?string $uuid = null, ?string $page = null)
     {
         $this->routeName = $routeName;
         $this->uuid = $uuid;
-        $this->page_number = $page_number;
+        $this->page = $page;
     }
 
     protected function getCakeUrlAndFollowupActionData()
@@ -88,7 +88,7 @@ class CakeRedirectHelper
             ],
             'school_location.view'   => [
                 'page'        => '/',
-                'page_number' => $this->page_number,
+                'page_number' => $this->page,
                 'page_action' => sprintf("Navigation.load('/school_locations/view/%s')", $this->uuid)
             ],
             'school_location.edit'   => [

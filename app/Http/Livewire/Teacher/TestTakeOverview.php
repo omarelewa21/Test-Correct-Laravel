@@ -30,8 +30,6 @@ class TestTakeOverview extends Component
     public $openTab = self::DEFAULT_OPEN_TAB;
     public $filters = [];
 
-    protected $queryString = ['openTab','page' => ['except' => '', 'as' => 'page']];
-
     /* Component lifecycle hooks */
     public function mount($stage)
     {
