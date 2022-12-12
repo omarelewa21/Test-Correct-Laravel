@@ -1,7 +1,7 @@
 <?php
 
 
-class LocalValetDriver extends \Valet\Drivers\LaravelValetDriver
+class LocalValetDriver extends LaravelValetDriver
 {
     /**
     * Determine if the driver serves the request.
