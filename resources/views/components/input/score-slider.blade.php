@@ -37,8 +37,7 @@
            if(value <= 0) {
             score = value = 0;
            }
-console.log(value);
-console.log(typeof value);
+
            score = value = allowHalfPoints ? Math.round(value*2)/2 : Math.round(value)
 
            if(timeOut){
