@@ -7797,7 +7797,7 @@ window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
 window.Pusher = __webpack_require__(/*! pusher-js */ "./node_modules/pusher-js/dist/web/pusher.js");
 window.Echo = new laravel_echo__WEBPACK_IMPORTED_MODULE_0__["default"]({
   broadcaster: 'pusher',
-  key: "fc18ed69b446aeb8c8a5",
+  key: "2149988ad52a600a2309",
   cluster: "eu",
   forceTLS: true
 });
@@ -11181,12 +11181,12 @@ var Entry = /*#__PURE__*/function (_sidebarComponent) {
       return [{
         element: this.entryContainer,
         events: {
-          "dragstart": {
+          "dragstart touchstart": {
             callback: function callback(evt) {
               evt.currentTarget.classList.add("dragging");
             }
           },
-          "dragend": {
+          "dragend touchend": {
             callback: function callback(evt) {
               _this2.updateDraggedElementPosition(evt);
             }
@@ -11584,7 +11584,7 @@ var Layer = /*#__PURE__*/function (_sidebarComponent2) {
       }, {
         element: this.sidebar,
         events: {
-          "dragover": {
+          "dragover touchmove": {
             callback: function callback(evt) {
               evt.preventDefault();
               if (!_this4.props.enabled) return;
@@ -11608,7 +11608,7 @@ var Layer = /*#__PURE__*/function (_sidebarComponent2) {
                 _this4.Canvas.layers[newGroupKey].shapes[shapeID] = _this4.Canvas.layers[oldGroupKey].shapes[shapeID]; // delete Canvas.layers[oldGroupKey].shapes[shapeID];
               }
 
-              var entryToInsertBefore = _this4.getEntryToInsertBefore(_this4.sidebar, evt.clientY).entry;
+              var entryToInsertBefore = _this4.getEntryToInsertBefore(_this4.sidebar, evt.clientY == null ? evt.touches[0].clientY : evt.clientY).entry;
 
               if (entryToInsertBefore == null) {
                 _this4.shapesGroup.appendChild(draggedEntry);
