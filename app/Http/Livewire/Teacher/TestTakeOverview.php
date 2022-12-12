@@ -19,6 +19,7 @@ class TestTakeOverview extends Component
         'norm'    => [TestTakeStatus::STATUS_DISCUSSED],
         'review'  => [TestTakeStatus::STATUS_RATED],
     ];
+    
     const TABS = ['taken', 'norm'];
     const PER_PAGE = 12;
     const ACTIVE_TAB_SESSION_KEY = 'test-take-overview-open-tab';
@@ -29,6 +30,7 @@ class TestTakeOverview extends Component
     public string $stage;
     public $openTab = self::DEFAULT_OPEN_TAB;
     public $filters = [];
+    protected $queryString = ['openTab'];
 
     /* Component lifecycle hooks */
     public function mount($stage)
