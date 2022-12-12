@@ -1,5 +1,5 @@
 <div cms-drawer
-     class="drawer flex z-[20]"
+     class="drawer flex z-[20] overflow-auto"
      selid="question-drawer"
      x-init="
         collapse = window.innerWidth < 1000;
