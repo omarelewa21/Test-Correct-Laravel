@@ -1126,7 +1126,8 @@ class Question extends MtiBaseModel
 
     protected function handleDuplication($request)
     {
-        $totalData = $this->getTotalDataForTestQuestionUpdate($request);
+        $totalData = $this->getQuestionDataBeforeDuplicationByRequest($request);
+
         $question = $this->duplicate($totalData);
         if ($question === false) {
             throw new QuestionException('Failed to duplicate question');
@@ -1531,5 +1532,17 @@ class Question extends MtiBaseModel
     public function scopePublished($query)
     {
         return $query->where('draft', false);
+    }
+
+
+    private function getQuestionDataBeforeDuplicationByRequest($request)
+    {
+        $totalData = $this->getTotalDataForTestQuestionUpdate($request);
+
+        if (array_key_exists('test_draft', $totalData)) {
+            $totalData['draft'] = $totalData['test_draft'];
+        }
+
+        return $totalData;
     }
 }

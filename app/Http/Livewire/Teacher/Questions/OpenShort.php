@@ -612,6 +612,8 @@ class OpenShort extends Component implements QuestionCms
         $request->merge($this->question);
         $request->filterInput();
 
+        $request = $this->handleDraftStatusOfTestForUpdate($request);
+
         if ($this->isPartOfGroupQuestion()) {
             $groupQuestionQuestion = GroupQuestionQuestion::whereUuid($this->groupQuestionQuestionId)->first();
             $groupQuestionQuestionManager = GroupQuestionQuestionManager::getInstanceWithUuid($this->testQuestionId);
@@ -1404,5 +1406,11 @@ class OpenShort extends Component implements QuestionCms
             "Laten zien" => __('cms.Laten zien'),
             "Doen"       => __('cms.Doen'),
         ];
+    }
+
+    private function handleDraftStatusOfTestForUpdate(CmsRequest $request): CmsRequest
+    {
+        $request->merge(['test_draft' => Test::whereUuid($this->testId)->value('draft')]);
+        return $request;
     }
 }
