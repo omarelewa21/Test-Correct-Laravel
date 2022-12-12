@@ -10,16 +10,16 @@ use tcCore\User;
 abstract class PValueTaxonomyRepository
 {
 
-    public static function getPValueForStudentForSubjectTaxonomy(User $user, $taxonomy, $subject_id, $periods = null, $educationLevelYears = null, $teachers = null)
+    public static function getPValueForStudentForSubjectTaxonomy(User $user, $taxonomy, $subject_id, $periods = null, $educationLevelYears = null, $teachers = null, $isLearningGoal=null)
     {
-        return self::getPValueForStudentTaxonomy($taxonomy, $user, $periods, $educationLevelYears, $teachers)
+        return self::getPValueForStudentTaxonomy($taxonomy, $user, $periods, $educationLevelYears, $teachers, $isLearningGoal)
             ->where('p_values.subject_id', $subject_id)
             ->get();
     }
 
-    public static function getPValueForStudentForAttainmentTaxonomy(User $user, $taxonomy, $attainment_id, $periods = null, $educationLevelYears = null, $teachers = null)
+    public static function getPValueForStudentForAttainmentTaxonomy(User $user, $taxonomy, $attainment_id, $periods = null, $educationLevelYears = null, $teachers = null, $isLearningGoal = null)
     {
-        return self::getPValueForStudentTaxonomy($taxonomy, $user, $periods, $educationLevelYears, $teachers)
+        return self::getPValueForStudentTaxonomy($taxonomy, $user, $periods, $educationLevelYears, $teachers, $isLearningGoal)
             ->join('p_value_attainments', 'p_values.id', '=', 'p_value_attainments.p_value_id')
             ->where('p_value_attainments.attainment_id', $attainment_id)
             ->get();
@@ -51,10 +51,10 @@ abstract class PValueTaxonomyRepository
         return collect($options)->mapWithKeys(fn($value) => [$value => ['score' => 0, 'count' => 0]])->toArray();
     }
 
-    public static function getPValueForStudentForAttainment(User $user, $attainment_id, $periods, $educationLevelYears, $teachers)
+    public static function getPValueForStudentForAttainment(User $user, $attainment_id, $periods, $educationLevelYears, $teachers, $isLearningGoal)
     {
         return self::fillTaxonomyResponseWithData(
-            self::getPValueForStudentForAttainmentTaxonomy($user, static::DATABASE_FIELD, $attainment_id, $periods, $educationLevelYears, $teachers),
+            self::getPValueForStudentForAttainmentTaxonomy($user, static::DATABASE_FIELD, $attainment_id, $periods, $educationLevelYears, $teachers, $isLearningGoal),
             self::createEmptyTaxonomyResponse(static::OPTIONS)
         );
     }
@@ -75,7 +75,7 @@ abstract class PValueTaxonomyRepository
      * @param $teachers
      * @return PValue
      */
-    public static function getPValueForStudentTaxonomy($taxonomy, User $user, $periods, $educationLevelYears, $teachers): Builder
+    public static function getPValueForStudentTaxonomy($taxonomy, User $user, $periods, $educationLevelYears, $teachers, $isLearningGoal): Builder
     {
         abort_if(!in_array($taxonomy, ['miller', 'bloom', 'rtti']),
             404,
@@ -97,7 +97,7 @@ abstract class PValueTaxonomyRepository
                     ->where('test_participants.user_id', '=', $user->getKey());
             })
             ->join('questions', 'p_values.question_id', 'questions.id')
-            ->filter($periods, $educationLevelYears, $teachers)
+            ->filter($periods, $educationLevelYears, $teachers, null)
             ->where(function ($query) use ($taxonomy) {
                 $query->where(sprintf('questions.%s', $taxonomy), '<>', '')
                     ->WhereNotNull(sprintf('questions.%s', $taxonomy));

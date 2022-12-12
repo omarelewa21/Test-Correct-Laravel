@@ -626,7 +626,7 @@ document.addEventListener('alpine:init', () => {
 
         removeFilterItem(item) {
             if (!Array.isArray(this.value)) return;
-            this.value = this.wireModel = this.value.filter(itemValue => itemValue !== item.value);
+            this.wireModel = this.value.filter(itemValue => itemValue !== item.value);
             this.clearFilterPill(item.value);
         },
 
@@ -886,7 +886,7 @@ document.addEventListener('alpine:init', () => {
                 this.renderGraph();
             },
             renderGraph() {
-                var cssSelector = '#'+this.modelId+'>div:not(.empty-state)';
+                var cssSelector = '#pValueChart>div:not(.empty-state)';
                 this.$root.querySelectorAll(cssSelector).forEach(node => node.remove())
                 var chart = anychart.column();
                 var series = chart.column(this.data);
@@ -989,7 +989,7 @@ document.addEventListener('alpine:init', () => {
                 chart.interactivity("by-x");
 
                 // set container id for the chart
-                chart.container(this.modelId);
+                chart.container('pValueChart');
                 // initiate chart drawing
                 chart.draw();
             },
@@ -1123,7 +1123,7 @@ document.addEventListener('alpine:init', () => {
             data: false,
             modelId,
             taxonomy,
-            containerId: 'chart-' + modelId + '-' + taxonomy,
+            containerId: 'chart-' + id + '-' + taxonomy,
             id,
             showEmptyState: false,
             init() {
@@ -1132,15 +1132,12 @@ document.addEventListener('alpine:init', () => {
                 }
             },
             async updateGraph(forceUpdate) {
-                console.log((new Date()).getTime() +'updateGraph'+ this.containerId)
                 if (!this.data || forceUpdate) {
                     var method = 'getData';
                     if (component == 'expandableGraphForGeneral') {
                         method = 'getDataForGeneralGraph';
                     }
                     [this.showEmptyState, this.data] = await this.$wire.call(method, this.modelId, this.taxonomy);
-                    console.log('emptyState for'+ this.containerId + ' : '+ this.showEmptyState);
-                    console.dir(JSON.parse(JSON.stringify(this.data)))
                     this.renderGraph()
                 }
             },
@@ -1155,7 +1152,6 @@ document.addEventListener('alpine:init', () => {
                 this.active = value ? this.id : null
             },
             renderGraph: function () {
-                console.log((new Date()).getTime() +'render: '+ this.containerId)
                 // create bar chart
                 var cssSelector = '#'+this.containerId+'>div:not(.empty-state)';
                 //

@@ -45,7 +45,6 @@ class AnalysesSubSubAttainmentDashboard extends AnalysesDashboard
 
     public function render()
     {
-        $this->dispatchBrowserEvent('filters-updated');
         return view('livewire.analyses.analyses-sub-sub-attainment-dashboard')->layout('layouts.student');
     }
 

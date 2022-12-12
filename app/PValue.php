@@ -226,17 +226,24 @@ class PValue extends BaseModel
         }
     }
 
-    public function scopeFilter($query, $periods, $educationLevelYears, $teachers){
+    public function scopeFilter($query, $periods, $educationLevelYears, $teachers, $isLearningGoal = null){
         $query
             ->periodFilter($periods)
             ->educationLevelYearFilter($educationLevelYears)
-            ->teacherFilter($teachers);
+            ->teacherFilter($teachers)
+            ->learningGoalOrAttainmentFilter($isLearningGoal);
     }
 
 
     public function scopePeriodFilter($query, $periods)
     {
         $query->when($periods->isNotEmpty(), fn($q) => $q->whereIn('p_values.period_id', $periods->pluck('id')));
+    }
+
+    public function scopeLearningGoalOrAttainmentFilter($query, $isLearningGoal = null) {
+        if (!is_null($isLearningGoal)) {
+            $query->where('attainments.is_learning_goal', $isLearningGoal);
+        }
     }
 
     public function scopeEducationLevelYearFilter($query, $educationLevelYears)

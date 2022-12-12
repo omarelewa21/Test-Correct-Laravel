@@ -5964,7 +5964,7 @@ document.addEventListener('alpine:init', function () {
       },
       removeFilterItem: function removeFilterItem(item) {
         if (!Array.isArray(this.value)) return;
-        this.value = this.wireModel = this.value.filter(function (itemValue) {
+        this.wireModel = this.value.filter(function (itemValue) {
           return itemValue !== item.value;
         });
         this.clearFilterPill(item.value);
@@ -6192,7 +6192,7 @@ document.addEventListener('alpine:init', function () {
         }))();
       },
       renderGraph: function renderGraph() {
-        var cssSelector = '#' + this.modelId + '>div:not(.empty-state)';
+        var cssSelector = '#pValueChart>div:not(.empty-state)';
         this.$root.querySelectorAll(cssSelector).forEach(function (node) {
           return node.remove();
         });
@@ -6276,7 +6276,7 @@ document.addEventListener('alpine:init', function () {
         chart.interactivity("by-x");
 
         // set container id for the chart
-        chart.container(this.modelId);
+        chart.container('pValueChart');
         // initiate chart drawing
         chart.draw();
       },
@@ -6391,7 +6391,7 @@ document.addEventListener('alpine:init', function () {
       data: false,
       modelId: modelId,
       taxonomy: taxonomy,
-      containerId: 'chart-' + modelId + '-' + taxonomy,
+      containerId: 'chart-' + id + '-' + taxonomy,
       id: id,
       showEmptyState: false,
       init: function init() {
@@ -6407,26 +6407,23 @@ document.addEventListener('alpine:init', function () {
             while (1) {
               switch (_context4.prev = _context4.next) {
                 case 0:
-                  console.log(new Date().getTime() + 'updateGraph' + _this20.containerId);
                   if (!(!_this20.data || forceUpdate)) {
-                    _context4.next = 13;
+                    _context4.next = 10;
                     break;
                   }
                   method = 'getData';
                   if (component == 'expandableGraphForGeneral') {
                     method = 'getDataForGeneralGraph';
                   }
-                  _context4.next = 6;
+                  _context4.next = 5;
                   return _this20.$wire.call(method, _this20.modelId, _this20.taxonomy);
-                case 6:
+                case 5:
                   _yield$_this20$$wire$ = _context4.sent;
                   _yield$_this20$$wire$2 = _slicedToArray(_yield$_this20$$wire$, 2);
                   _this20.showEmptyState = _yield$_this20$$wire$2[0];
                   _this20.data = _yield$_this20$$wire$2[1];
-                  console.log('emptyState for' + _this20.containerId + ' : ' + _this20.showEmptyState);
-                  console.dir(JSON.parse(JSON.stringify(_this20.data)));
                   _this20.renderGraph();
-                case 13:
+                case 10:
                 case "end":
                   return _context4.stop();
               }
@@ -6444,7 +6441,6 @@ document.addEventListener('alpine:init', function () {
         this.active = value ? this.id : null;
       },
       renderGraph: function renderGraph() {
-        console.log(new Date().getTime() + 'render: ' + this.containerId);
         // create bar chart
         var cssSelector = '#' + this.containerId + '>div:not(.empty-state)';
         //

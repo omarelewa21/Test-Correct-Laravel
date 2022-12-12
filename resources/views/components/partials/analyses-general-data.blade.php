@@ -51,7 +51,6 @@
          async init() {
            let ready = await $wire.getFirstActiveForGeneralGraphTaxonomy();
                 if (ready !== false) {
-                    console.log(ready);
                   $dispatch('active-changed', { id: ready })
                 }
             }

@@ -46,7 +46,7 @@
             @endif
         </x-slot>
 
-        <div id="pValueChart" style="height: 400px;" class="relative">
+        <div id="pValueChart" style="height: 400px;" class="relative" wire:ignore>
             <x-empty-graph :show="$this->showEmptyStateForPValueGraph"></x-empty-graph>
         </div>
         <div x-data="analysesAttainmentsGraph( @entangle('dataValues') )"

@@ -135,7 +135,7 @@ class TaxonomyRankingRepostitory
                     ->orWhereNotNull('questions.rtti')
                     ->orWhereRaw("questions.rtti <> ''");
             })
-            ->filter($filters['periods'], $filters['education_level_years'], $filters['teachers'])
+            ->filter($filters['periods'], $filters['education_level_years'], $filters['teachers'], $filters['isLearningGoal'])
             ->groupBy('id', 'title')
             ->having('Z', '>', 5)
             ->orderBy('formula', 'desc')

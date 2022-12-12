@@ -2,6 +2,7 @@
 
 namespace tcCore\Http\Livewire\Analyses;
 
+use tcCore\Http\Helpers\CakeRedirectHelper;
 use tcCore\Lib\Repositories\PValueRepository;
 use tcCore\Lib\Repositories\PValueTaxonomyBloomRepository;
 use tcCore\Lib\Repositories\PValueTaxonomyMillerRepository;
@@ -55,7 +56,6 @@ class AnalysesOverviewDashboard extends AnalysesDashboard
 
     public function render()
     {
-        $this->dispatchBrowserEvent('filters-updated');//, ['newName' => $value]);
         return view('livewire.analyses.analyses-overview-dashboard')->layout($this->getHelper()->getLayout());;
     }
 
@@ -87,5 +87,10 @@ class AnalysesOverviewDashboard extends AnalysesDashboard
             $this->getPeriodsByFilterValues(),
             $this->getEducationLevelYearsByFilterValues(),
             $this->getTeachersByFilterValues());
+    }
+
+    public function redirectTeacherBack()
+    {
+        return CakeRedirectHelper::redirectToCake('analyses.teacher', $this->classUuid);
     }
 }

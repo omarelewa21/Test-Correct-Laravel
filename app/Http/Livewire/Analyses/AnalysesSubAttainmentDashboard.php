@@ -50,13 +50,17 @@ class AnalysesSubAttainmentDashboard extends AnalysesDashboard
                 'periods'               => $this->getPeriodsByFilterValues(),
                 'education_level_years' => $this->getEducationLevelYearsByFilterValues(),
                 'teachers'              => $this->getTeachersByFilterValues(),
+                'isLearningGoal'        => $this->getIsLearningGoalFilter(),
             ]
         );
     }
 
     public function getDataProperty()
     {
+    }
 
+    public function getDataForGraph()
+    {
         $result = PValueRepository::getPValuePerSubAttainmentForStudentAndAttainment(
             $this->getHelper()->getForUser(),
             $this->attainment,
@@ -73,7 +77,7 @@ class AnalysesSubAttainmentDashboard extends AnalysesDashboard
                 $link = $this->getHelper()->getRouteForSubSubAttainmentShow($pValue, $this->subject);
             }
 
-            return (object) [
+            return (object)[
                 'x'       => $key + 1,
                 'title'   => $this->attainment->getSubSubNameWithNumber($key + 1),
                 'count'   => $pValue->cnt,
@@ -86,12 +90,14 @@ class AnalysesSubAttainmentDashboard extends AnalysesDashboard
             ];
         })->toArray();
 
-        return $result;
+        return [
+            $this->showEmptyStateForPValueGraph,
+            $this->dataValues,
+        ];
     }
 
     public function render()
     {
-        $this->dispatchBrowserEvent('filters-updated');
         return view('livewire.analyses.analyses-sub-attainment-dashboard')->layout('layouts.student');
     }
 

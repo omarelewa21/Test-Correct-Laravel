@@ -182,5 +182,5 @@ return [
     'analyses_graph_empty_state_no_eidtermen_of_leerdoelen'    => 'Je hebt geen toetsen gemaakt voor dit vak, of de toetsvragen zijn niet gekoppeld aan leerdoelen of eindtermen',
     'overzicht p-waardes'                                      => 'Overzicht P waardes',
     'analyses_taxonomy_graph_empty_state_method_not_available' => 'Niet gekoppeld aan deze methode',
-    'tooltip_taxonomy_graph'                                   => '{0} geen data beschikbaar |{1} P :p_value op basis van :count_questions vraag|{[2,*] P :p_value op basis van :count_questions vragen',
+    'tooltip_taxonomy_graph'                                   => '{0} geen data beschikbaar |{1} P :p_value op basis van :count_questions vraag|[2,*] P :p_value op basis van :count_questions vragen',
 ];

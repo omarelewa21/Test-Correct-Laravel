@@ -42,6 +42,7 @@ class AnalysesSubjectDashboard extends AnalysesDashboard
                 'periods'               => $this->getPeriodsByFilterValues(),
                 'education_level_years' => $this->getEducationLevelYearsByFilterValues(),
                 'teachers'              => $this->getTeachersByFilterValues(),
+                'isLearningGoal'        => $this->getIsLearningGoalFilter(),
             ]
         );
     }
@@ -77,7 +78,6 @@ class AnalysesSubjectDashboard extends AnalysesDashboard
 
     public function render()
     {
-//        $this->dispatchBrowserEvent('filters-updated');
         return view('livewire.analyses.analyses-subject-dashboard')->layout('layouts.student');
     }
 
