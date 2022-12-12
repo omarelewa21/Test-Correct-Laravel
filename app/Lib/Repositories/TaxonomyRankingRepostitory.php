@@ -2,7 +2,6 @@
 
 namespace tcCore\Lib\Repositories;
 
-use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use tcCore\BaseAttainment;
 use tcCore\PValue;
@@ -36,6 +35,8 @@ class TaxonomyRankingRepostitory
      */
     public static function getForSubjects(User $forUser, $filters)
     {
+        logger(__CLASS__.':'.__METHOD__);
+
         $query = PValue::select(
             DB::raw('subjects.name as title'),
             DB::raw('subjects.id as id'),
@@ -59,7 +60,8 @@ class TaxonomyRankingRepostitory
             ->filter($filters['periods'], $filters['education_level_years'], $filters['teachers'])
             ->groupBy('id', 'title')
             ->having('Z', '>', 5)
-            ->orderBy('formula')
+            ->orderBy('formula', 'desc')
+            ->orderBy('title')
             ->take(3);
 
         return $query->get();
@@ -133,14 +135,11 @@ class TaxonomyRankingRepostitory
                     ->orWhereNotNull('questions.rtti')
                     ->orWhereRaw("questions.rtti <> ''");
             })
-            ->filter($filters['periods'], $filters['education_level_years'], $filters['teachers'])
+            ->filter($filters['periods'], $filters['education_level_years'], $filters['teachers'], $filters['isLearningGoal'])
             ->groupBy('id', 'title')
             ->having('Z', '>', 5)
-            ->orderBy('formula')
+            ->orderBy('formula', 'desc')
             ->orderBy('title')
             ->take(3);
     }
-
-
-
 }

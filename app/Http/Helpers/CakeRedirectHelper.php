@@ -95,9 +95,9 @@ class CakeRedirectHelper
             'taken.test_taken'            => '/test_takes/taken_teacher',
             'taken.normalize_test'        => '/test_takes/to_rate',
             'results.rated'               => '/test_takes/rated',
-            'analyses.students'           => '/analyses/students_overview',
+            'analyses.teacher'            => sprintf('/teacher_analyses/view/%s', $this->uuid),
             'analyses.classes'            => '/analyses/school_classes_overview',
-            'new_analyses.classes'            => '/teacher_analyses',
+            'new_analyses.classes'        => '/teacher_analyses',
             'classes.my_classes'          => '/teacher_classes',
             'classes.my_schoollocation'   => '/teacher_classes/school_location_classes',
             'update-password'             => [

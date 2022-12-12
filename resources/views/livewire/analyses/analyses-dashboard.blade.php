@@ -80,22 +80,23 @@
                     <x-slot name="title">
                         @yield('analyses.top-items.title')
                     </x-slot>
-
-                    @forelse($this->topItems as $item)
+                    @forelse($this->topItems as $parentKey => $item)
                         @if($loop->first)
                             <div class="flex flex-row">
                         @endif
                             <div
-                                x-data="{
+                                    x-data="{
                                     active:false,
                                     async init() {
                                         let ready = await $wire.getFirstActiveForRankingTaxonomy({{ $item->id }});
                                         if (ready !== false) {
-                                            $dispatch('top-item-active-changed{{ $loop->index }}', { id: ready })
+                                            // this is a feature of javascript no explicite way to concat integers as a string;
+                                            let keyForContainerId = '' + {{ $parentKey+1 }} + (ready+1);
+                                            $dispatch('top-item-active-changed{{ $item->id }}', { id: keyForContainerId })
                                         }
                                     }
                                 }"
-                                class="md:w-1/3 mr-5"
+                                    class="md:w-1/3 mr-5"
                             >
                                 <div
                                     class="-ml-2 flex space-x-2 pb-2 border-b-3 border-transparent active  items-center question-indicator">
@@ -108,11 +109,13 @@
                                         class="flex text-lg bold flex-grow border-b-3  border-sysbase ">{!! $item->title !!} </div>
 
                                 </div>
+
                                 @foreach($this->taxonomies as $key=> $taxonomy)
                                     <div
-                                        x-data="expandableGraphForGeneral({{ $key }}, '{{ $item->id }}', '{{ $taxonomy['name'] }}', 'expandableGraph')"
-                                        x-on:top-item-active-changed{{ $loop->index }}.window="if (id === $event.detail.id)  { expanded = true}"
+                                        x-data="expandableGraphForGeneral({{ ($parentKey+1).$loop->iteration }}, '{{ $item->id }}', '{{ $taxonomy['name'] }}', 'expandableGraph')"
+                                        x-on:top-item-active-changed{{  $item->id }}.window="if (id == $event.detail.id)  { expanded = true}"
                                         x-on:click="expanded = !expanded"
+                                        x-on:filters-updated.window="if (expanded) {updateGraph(true)}"
                                         class="cursor-pointer ml-10"
                                     >
                                     <span :class="{ 'rotate-svg-90' : expanded }">
@@ -127,8 +130,9 @@
                                                 loading
                                             </div>
                                             <div wire:ignore :id="containerId"
-                                                 style="height: {{ $taxonomy['height'] }}">
-                                                <div x-show="showEmptyState" class="relative">
+                                                 style="height: {{ $taxonomy['height'] }}"
+                                            >
+                                                <div x-show="showEmptyState" class="relative empty-state">
                                                     <x-empty-taxonomy-graph></x-empty-taxonomy-graph>
                                                 </div>
                                             </div>

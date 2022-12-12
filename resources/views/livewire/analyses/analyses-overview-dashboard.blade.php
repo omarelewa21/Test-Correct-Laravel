@@ -1,7 +1,16 @@
 @extends('livewire.analyses.analyses-dashboard')
 
 @section('analyses.page.title')
-    <h1 class="pt-10"> {{ __('header.Analyses') }} </h1>
+    <x-sticky-page-title class="top-20">
+        <div class="flex items-center gap-4 ">
+            @if($this->viewingAsTeacher())
+                <x-button.back-round wire:click="redirectTeacherBack"/>
+            @endif
+            <div class="flex text-lg bold ">
+                <span>{{  __('header.Analyses') }} </span>
+            </div>
+        </div>
+    </x-sticky-page-title>
     @if($this->viewingAsTeacher())
         <h3> {{ $this->getHelper()->getForUser()->name_full }}  </h3>
     @endif
@@ -18,8 +27,9 @@
             {{ __('student.p waarde vakken') }}
         </x-slot>
 
-        <div id="pValueChart" style="height: 400px;"></div>
+        <div id="pValueChart" style="height: 400px;" wire:ignore></div>
         <div x-data="analysesSubjectsGraph( @entangle('dataValues') )"
+
              x-on:filters-updated.window="renderGraph"
         >
         </div>

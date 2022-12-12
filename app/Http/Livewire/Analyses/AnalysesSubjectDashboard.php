@@ -42,6 +42,7 @@ class AnalysesSubjectDashboard extends AnalysesDashboard
                 'periods'               => $this->getPeriodsByFilterValues(),
                 'education_level_years' => $this->getEducationLevelYearsByFilterValues(),
                 'teachers'              => $this->getTeachersByFilterValues(),
+                'isLearningGoal'        => $this->getIsLearningGoalFilter(),
             ]
         );
     }
@@ -66,17 +67,17 @@ class AnalysesSubjectDashboard extends AnalysesDashboard
     public function updatedAttainmentMode($value)
     {
         session(['STUDENT_ANALYSES_ATTAINMENT_MODE' => $value]);
+        $this->dispatchBrowserEvent('filters-updated');
     }
 
     private function setGeneralStats()
     {
         $analysesHelper = new AnalysesGeneralDataHelper($this->getHelper()->getForUser());
-        $this->generalStats = (array) $analysesHelper->getAllForSubject($this->subject, $this->filters);
+        $this->generalStats = (array)$analysesHelper->getAllForSubject($this->subject, $this->filters);
     }
 
     public function render()
     {
-        $this->dispatchBrowserEvent('filters-updated');
         return view('livewire.analyses.analyses-subject-dashboard')->layout('layouts.student');
     }
 
@@ -86,6 +87,10 @@ class AnalysesSubjectDashboard extends AnalysesDashboard
     }
 
     public function getDataProperty()
+    {
+    }
+
+    public function getDataForGraph()
     {
         $result = PValueRepository::getPValuePerAttainmentForStudent(
             $this->getHelper()->getForUser(),
@@ -110,7 +115,7 @@ class AnalysesSubjectDashboard extends AnalysesDashboard
                 ? __('student.leerdoel met nummer', ['number' => $key + 1])
                 : __('student.eindterm met nummer', ['number' => $key + 1]);
 
-            return (object) [
+            return (object)[
                 'x'       => $key + 1,
                 'title'   => ucfirst($attainmentTranslationLabel),
                 'count'   => $pValue->cnt,
@@ -123,7 +128,10 @@ class AnalysesSubjectDashboard extends AnalysesDashboard
             ];
         })->toArray();
 
-        return $result;
+        return [
+            $this->showEmptyStateForPValueGraph,
+            $this->dataValues,
+        ];
     }
 
     protected function getMillerGeneralGraphData($subjectId)

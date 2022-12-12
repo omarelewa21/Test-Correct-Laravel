@@ -641,7 +641,7 @@ document.addEventListener('alpine:init', () => {
 
         removeFilterItem(item) {
             if (!Array.isArray(this.value)) return;
-            this.value = this.wireModel = this.value.filter(itemValue => itemValue !== item.value);
+            this.wireModel = this.value.filter(itemValue => itemValue !== item.value);
             this.clearFilterPill(item.value);
         },
 
@@ -885,8 +885,9 @@ document.addEventListener('alpine:init', () => {
         }
     ));
 
-    Alpine.data('analysesAttainmentsGraph', (data) => ({
-            data,
+    Alpine.data('analysesAttainmentsGraph', (modelId) => ({
+            modelId,
+            data: false,
             colors: [
                 '#30BC51',
                 '#5043F6',
@@ -899,7 +900,17 @@ document.addEventListener('alpine:init', () => {
                 '#E12576',
                 '#24D2C5',
             ],
+            showEmptyState:false,
+            init() {
+                this.updateGraph();
+            },
+            async updateGraph() {
+                [this.showEmptyState, this.data] = await this.$wire.call('getDataForGraph');
+                this.renderGraph();
+            },
             renderGraph() {
+                var cssSelector = '#pValueChart>div:not(.empty-state)';
+                this.$root.querySelectorAll(cssSelector).forEach(node => node.remove())
                 var chart = anychart.column();
                 var series = chart.column(this.data);
                 var palette = anychart.palettes.distinctColors();
@@ -1006,10 +1017,6 @@ document.addEventListener('alpine:init', () => {
                 chart.draw();
             },
 
-            init() {
-                this.renderGraph()
-            },
-
             initTooltips(chart, data, series) {
                 chart.tooltip().useHtml(true);
                 chart.tooltip().title(false)
@@ -1073,7 +1080,6 @@ document.addEventListener('alpine:init', () => {
                     if (contentElement) {
                         fillTooltipHtml()
                     }
-
                 });
 
 
@@ -1084,7 +1090,6 @@ document.addEventListener('alpine:init', () => {
                     contentElement = this.contentElement;
 
                     fillTooltipHtml();
-
                 });
 
                 /* prevent the content of the contentElement div
@@ -1143,7 +1148,7 @@ document.addEventListener('alpine:init', () => {
             data: false,
             modelId,
             taxonomy,
-            containerId: 'chart-' + modelId + '-' + taxonomy,
+            containerId: 'chart-' + id + '-' + taxonomy,
             id,
             showEmptyState: false,
             init() {
@@ -1151,11 +1156,11 @@ document.addEventListener('alpine:init', () => {
                     this.updateGraph()
                 }
             },
-            async updateGraph() {
-                if (!this.data) {
+            async updateGraph(forceUpdate) {
+                if (!this.data || forceUpdate) {
                     var method = 'getData';
                     if (component == 'expandableGraphForGeneral') {
-                         method = 'getDataForGeneralGraph';
+                        method = 'getDataForGeneralGraph';
                     }
                     [this.showEmptyState, this.data] = await this.$wire.call(method, this.modelId, this.taxonomy);
                     this.renderGraph()
@@ -1173,16 +1178,10 @@ document.addEventListener('alpine:init', () => {
             },
             renderGraph: function () {
                 // create bar chart
+                var cssSelector = '#'+this.containerId+'>div:not(.empty-state)';
+                //
+                this.$root.querySelectorAll(cssSelector).forEach(node => node.remove())
                 var chart = anychart.bar();
-
-                // let data = this.data.map((item)=> {
-                //     return {
-                //         x: item[0],
-                //         value: item[1],
-                //         tooltip: item[2]
-                //     }
-                // })
-
                 var series = chart.bar(this.data);
 
                 series.stroke(this.getColor()).fill(this.getColor())
@@ -1207,8 +1206,6 @@ document.addEventListener('alpine:init', () => {
                 // chart.xScale()//.maximum(100)
                 chart.xAxis().stroke('#041F74')
                 chart.xAxis().stroke('none')
-
-
                 // set container id for the chart
                 chart.container(this.containerId);
                 // initiate chart drawing

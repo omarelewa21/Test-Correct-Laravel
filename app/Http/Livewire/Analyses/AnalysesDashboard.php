@@ -4,6 +4,7 @@ namespace tcCore\Http\Livewire\Analyses;
 
 use Livewire\Component;
 use tcCore\EducationLevel;
+use tcCore\LearningGoal;
 use tcCore\Lib\Repositories\PValueTaxonomyBloomRepository;
 use tcCore\Lib\Repositories\PValueTaxonomyMillerRepository;
 use tcCore\Lib\Repositories\PValueTaxonomyRTTIRepository;
@@ -44,14 +45,14 @@ abstract class AnalysesDashboard extends Component
     public $displayRankingPanel = true;
 
     protected $taxonomies = [
-        ['name' => 'Miller', 'height' => '150px'],
-        ['name' => 'RTTI', 'height' => '150px'],
+        ['name' => 'Miller', 'height' => '170px'],
+        ['name' => 'RTTI', 'height' => '170px'],
         ['name' => 'Bloom', 'height' => '200px'],
     ];
 
     private $_education_level_years_by_filter_values = null;
     private $_teachers_by_filter_values = null;
-    private $_period_by_filter_values = null;
+    private $_periods_by_filter_values = null;
 
     protected $forUser;
 
@@ -63,7 +64,7 @@ abstract class AnalysesDashboard extends Component
 
     public function mount()
     {
-        $this->studentUuid =  request('student_uuid');
+        $this->studentUuid = request('student_uuid');
         $this->classUuid = request('class_uuid');
 
         $this->setFilters();
@@ -74,6 +75,7 @@ abstract class AnalysesDashboard extends Component
     public function updatedFilters()
     {
         session([self::FILTER_SESSION_KEY => $this->filters]);
+        $this->dispatchBrowserEvent('filters-updated');
     }
 
     private function setFilters()
@@ -81,7 +83,6 @@ abstract class AnalysesDashboard extends Component
         session()->has(self::FILTER_SESSION_KEY)
             ? $this->filters = session()->get(self::FILTER_SESSION_KEY)
             : $this->clearFilters();
-
     }
 
     public function getData($subjectId, $taxonomy)
@@ -113,7 +114,22 @@ abstract class AnalysesDashboard extends Component
             $attainmentId,
             $this->getPeriodsByFilterValues(),
             $this->getEducationLevelYearsByFilterValues(),
-            $this->getTeachersByFilterValues());
+            $this->getTeachersByFilterValues(),
+            $this->getIsLearningGoalFilter()
+        );
+    }
+
+    protected function getIsLearningGoalFilter()
+    {
+        if (!property_exists($this, 'attainmentMode')) {
+            return null;
+        }
+
+        if ($this->attainmentMode === LearningGoal::TYPE) {
+            return 1;
+        }
+
+        return 0;
     }
 
     protected function getRTTIData($attainmentId)
@@ -123,7 +139,9 @@ abstract class AnalysesDashboard extends Component
             $attainmentId,
             $this->getPeriodsByFilterValues(),
             $this->getEducationLevelYearsByFilterValues(),
-            $this->getTeachersByFilterValues());
+            $this->getTeachersByFilterValues(),
+            $this->getIsLearningGoalFilter()
+        );
     }
 
     protected function getBloomData($attainmentId)
@@ -133,7 +151,9 @@ abstract class AnalysesDashboard extends Component
             $attainmentId,
             $this->getPeriodsByFilterValues(),
             $this->getEducationLevelYearsByFilterValues(),
-            $this->getTeachersByFilterValues());
+            $this->getTeachersByFilterValues(),
+            $this->getIsLearningGoalFilter()
+        );
     }
 
     public function getDataForGeneralGraph($subjectId, $taxonomy)
@@ -166,7 +186,9 @@ abstract class AnalysesDashboard extends Component
             $subjectId,
             $this->getPeriodsByFilterValues(),
             $this->getEducationLevelYearsByFilterValues(),
-            $this->getTeachersByFilterValues());
+            $this->getTeachersByFilterValues(),
+            $this->getIsLearningGoalFilter()
+        );
     }
 
     protected function getRTTIGeneralGraphData($subjectId)
@@ -175,7 +197,9 @@ abstract class AnalysesDashboard extends Component
             $subjectId,
             $this->getPeriodsByFilterValues(),
             $this->getEducationLevelYearsByFilterValues(),
-            $this->getTeachersByFilterValues());
+            $this->getTeachersByFilterValues(),
+            $this->getIsLearningGoalFilter()
+        );
     }
 
     protected function getBloomGeneralGraphData($subjectId)
@@ -185,7 +209,9 @@ abstract class AnalysesDashboard extends Component
             $subjectId,
             $this->getPeriodsByFilterValues(),
             $this->getEducationLevelYearsByFilterValues(),
-            $this->getTeachersByFilterValues());
+            $this->getTeachersByFilterValues(),
+            $this->getIsLearningGoalFilter()
+        );
     }
 
     private function transformForGraph($data)
@@ -217,6 +243,8 @@ abstract class AnalysesDashboard extends Component
             'teachers'            => [],
         ];
 
+        $this->emit('filter-cleared');
+
         session([self::FILTER_SESSION_KEY => $this->filters]);
     }
 
@@ -246,7 +274,7 @@ abstract class AnalysesDashboard extends Component
                 function ($year) {
                     return [
                         'value' => $year,
-                        'label' => (string) $year,
+                        'label' => (string)$year,
                     ];
                 }
             );
@@ -254,8 +282,7 @@ abstract class AnalysesDashboard extends Component
 
     protected function getPeriodsByFilterValues()
     {
-        return $this->_periods_by_filter_values ??=  Period::whereIn('id', $this->filters['periods'])->get('id');
-
+        return $this->_periods_by_filter_values ??= Period::whereIn('id', $this->filters['periods'])->get('id');
     }
 
     protected function getEducationLevelYearsByFilterValues()
@@ -293,7 +320,7 @@ abstract class AnalysesDashboard extends Component
     protected function getHelper()
     {
         if (!$this->helper) {
-            if(auth()->user()->isA('teacher')) {
+            if (auth()->user()->isA('teacher')) {
                 $this->helper = new AnalysesForTeacherHelper($this->studentUuid, $this->classUuid);
             } else {
                 $this->helper = new AnalysesForStudentHelper();
@@ -302,11 +329,13 @@ abstract class AnalysesDashboard extends Component
         return $this->helper;
     }
 
-    public function updatingClassUuid(){
+    public function updatingClassUuid()
+    {
         abort(403);
     }
 
-    public function updatingStudentUuid(){
+    public function updatingStudentUuid()
+    {
         abort(403);
     }
 
