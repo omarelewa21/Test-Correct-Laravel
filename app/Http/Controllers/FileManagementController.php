@@ -318,9 +318,7 @@ class FileManagementController extends Controller
             return response()->json(['errors' => ['not allowed']])->setStatusCode(403);
         }
 
-        $test_id = $fileManagement->test_id ?? 238;
-        $test = Test::find($test_id);
-        //todo duplicate test from $fileManagement->test_id;
+        $test = $fileManagement->test;
 
         ActingAsHelper::getInstance()->setUser($fileManagement->user);
 
