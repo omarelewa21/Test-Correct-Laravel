@@ -739,3 +739,7 @@ ul ul ul {
     color: var(--active-status-color);
     background-color: var(--active-status-color);
 }
+
+.anychart-credits {
+    display: none;
+}

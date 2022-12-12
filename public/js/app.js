@@ -6448,6 +6448,9 @@ document.addEventListener('alpine:init', function () {
           return node.remove();
         });
         var chart = anychart.bar();
+        // //
+        // //                 var credits = chart.credits();
+        //                 credits.enabled(false);
         var series = chart.bar(this.data);
         series.stroke(this.getColor()).fill(this.getColor());
         var tooltip = series.tooltip();
@@ -7083,7 +7086,6 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var filepond_plugin_file_validate_size__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(filepond_plugin_file_validate_size__WEBPACK_IMPORTED_MODULE_1__);
 /* harmony import */ var _smoothscroll_polyfill__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./smoothscroll-polyfill */ "./resources/js/smoothscroll-polyfill.js");
 /* harmony import */ var _smoothscroll_polyfill__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(_smoothscroll_polyfill__WEBPACK_IMPORTED_MODULE_2__);
-/* provided dependency */ var process = __webpack_require__(/*! process/browser.js */ "./node_modules/process/browser.js");
 window._ = __webpack_require__(/*! lodash */ "./node_modules/lodash/lodash.js");
 
 /**
@@ -7117,9 +7119,7 @@ FilePond.registerPlugin((filepond_plugin_file_validate_size__WEBPACK_IMPORTED_MO
 // require('./smoothscroll-polyfill');
 
 _smoothscroll_polyfill__WEBPACK_IMPORTED_MODULE_2___default().polyfill();
-anychart.onDocumentLoad(function () {
-  anychart.licenseKey(process.env.MIX_ANYCHART_LICENSE_KEY);
-});
+anychart.licenseKey("test-correct.nl-fd20379b-1da7f4b1");
 
 /***/ }),
 

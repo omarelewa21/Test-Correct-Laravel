@@ -877,7 +877,7 @@ document.addEventListener('alpine:init', () => {
                 '#E12576',
                 '#24D2C5',
             ],
-            showEmptyState:false,
+            showEmptyState: false,
             init() {
                 this.updateGraph();
             },
@@ -1153,10 +1153,13 @@ document.addEventListener('alpine:init', () => {
             },
             renderGraph: function () {
                 // create bar chart
-                var cssSelector = '#'+this.containerId+'>div:not(.empty-state)';
+                var cssSelector = '#' + this.containerId + '>div:not(.empty-state)';
                 //
                 this.$root.querySelectorAll(cssSelector).forEach(node => node.remove())
                 var chart = anychart.bar();
+// //
+// //                 var credits = chart.credits();
+//                 credits.enabled(false);
                 var series = chart.bar(this.data);
 
                 series.stroke(this.getColor()).fill(this.getColor())
