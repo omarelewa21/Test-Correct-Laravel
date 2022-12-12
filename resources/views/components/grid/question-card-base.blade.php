@@ -1,17 +1,9 @@
 <div {{ $attributes->merge(['class' => 'grid-card bg-white p-6 rounded-10 card-shadow hover:text-primary cursor-pointer relative', 'selid' => 'existing-question']) }}
      wire:key="questioncard-{{ $question->getQuestionInstance()->uuid }}-{{ $context }}"
      @if($question->isType('GroupQuestion'))
-         x-on:click="
-           $el.closest('[group-container]') /*@TODO:Fix this method call; The old method had a pointer to a different parent for some reason, now I force it go to to his direct parent; */
-                .dispatchEvent(
-                    new CustomEvent(
-                        'show-group-details',
-                         {detail: {questionUuid: '{{ $question->uuid }}', inTest: @js($inTest) }}
-                    )
-                );
-         "
+         x-on:click.stop="questionCardOpenGroup($el, @js($question->uuid), @js($inTest) )"
      @else
-         wire:click="openDetail('{{ $question->uuid }}', @js($inTest) )"
+         x-on:click.stop="questionCardOpenDetailsModal(@js($question->uuid), @js($inTest) )"
      @endif
 >
     <div class="flex w-full justify-between mb-2">
@@ -87,7 +79,7 @@
                         x-cloak
                         selid="existing-question-add-btn"
                         class="new-button button-primary w-10 items-center justify-center flex"
-                        x-on:click.stop="addQuestionToTest($el, '{{ $question->uuid }}', '{{$showQuestionBankAddConfirmation}}')"
+                        x-on:click.stop="addQuestionToTestFromTestCard($el, @js($question->uuid), @js($showQuestionBankAddConfirmation) )"
                 >
                     <x-icon.plus-2/>
                 </button>

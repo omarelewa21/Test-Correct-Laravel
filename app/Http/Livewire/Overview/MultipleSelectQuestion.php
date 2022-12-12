@@ -3,7 +3,6 @@
 namespace tcCore\Http\Livewire\Overview;
 
 use Livewire\Component;
-use tcCore\Answer;
 use tcCore\Http\Traits\WithCloseable;
 use tcCore\Http\Traits\WithGroups;
 use tcCore\Question;

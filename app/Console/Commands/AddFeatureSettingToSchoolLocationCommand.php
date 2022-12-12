@@ -17,6 +17,7 @@ class AddFeatureSettingToSchoolLocationCommand extends Command
         'allow_creathlon',
         'allow_new_taken_tests_page',
         'allow_analyses',
+        'allow_new_co_learning',
     ];
 
     public function handle()
@@ -28,11 +29,11 @@ class AddFeatureSettingToSchoolLocationCommand extends Command
 
         $schoolLocation = SchoolLocation::find($this->argument('schooLocationId'));
         if (!$schoolLocation) {
-            $this->error('No school location found with the specified ID: '. $this->argument('schooLocationId'));
+            $this->error('No school location found with the specified ID: ' . $this->argument('schooLocationId'));
             return false;
         }
 
-        if (!$this->confirm('Do you want to add the settings to: "'. $schoolLocation->name .'"?', true)) {
+        if (!$this->confirm('Do you want to add the settings to: "' . $schoolLocation->name . '"?', true)) {
             return false;
         }
 
@@ -41,7 +42,7 @@ class AddFeatureSettingToSchoolLocationCommand extends Command
         $this->addSettingsToSchoolLocation($schoolLocation);
 
         $endTally = $schoolLocation->featureSettings()->count();
-        $updatedSettings = (int) $endTally - $startTally;
+        $updatedSettings = (int)$endTally - $startTally;
 
         $this->info("$updatedSettings Feature setting(s) added");
         return true;

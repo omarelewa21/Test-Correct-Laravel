@@ -69,6 +69,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/analyses/attainment/{baseAttainment}', tcCore\Http\Livewire\Student\Analyses\AnalysesAttainmentDashboard::class)->name('analyses.attainment.show');
         Route::get('/analyses/sub-attainment/{baseAttainment}', tcCore\Http\Livewire\Student\Analyses\AnalysesSubAttainmentDashboard::class)->name('analyses.subattainment.show');
         Route::get('/analyses/sub-sub-attainment/{baseAttainment}', tcCore\Http\Livewire\Student\Analyses\AnalysesSubSubAttainmentDashboard::class)->name('analyses.subsubattainment.show');
+        Route::get('/co-learning/{test_take}', \tcCore\Http\Livewire\Student\CoLearning::class)->name('co-learning');
     });
 
     Route::middleware(['dll', 'teacher'])->prefix('teacher')->name('teacher.')->group(function () {
@@ -85,6 +86,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/preview/pdf/test_take/{test_take}', [tcCore\Http\Controllers\PrintTestController::class, 'showTestTake'])->name('preview.test_take_pdf');
         Route::get('/preview/pdf/test_attachments/{test}', [tcCore\Http\Controllers\PrintTestController::class, 'showTestPdfAttachments'])->name('preview.test_pdf_attachments');
         Route::get('/test_takes/{stage}', \tcCore\Http\Livewire\Teacher\TestTakeOverview::class)->name('test-takes');
+        Route::get('/upload_test', \tcCore\Http\Livewire\Teacher\UploadTest::class)->name('upload-tests');
     });
 
     Route::middleware(['dll', 'student'])->prefix('appapi')->name('appapi')->group(function () {
@@ -100,6 +102,7 @@ Route::middleware('auth')->group(function () {
     Route::middleware(['dll', 'accountManager'])->prefix('account-manager')->name('account-manager.')->group(function () {
         Route::get('/school-locations', \tcCore\Http\Livewire\SchoolLocationsGrid::class)->name('school-locations');
         Route::get('/schools', \tcCore\Http\Livewire\SchoolsGrid::class)->name('schools');
+        Route::get('/file-management/testuploads', \tcCore\Http\Livewire\FileManagement\TestUploadsOverview::class)->name('file-management.testuploads');
     });
 
     Route::middleware(['dll', 'administrator'])->prefix('admin')->name('admin.')->group(function () {

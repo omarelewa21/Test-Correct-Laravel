@@ -19,7 +19,7 @@ $struct = [
 ];
 ?>
 
-<div class="mt-10 flex-1 p-8" id="uwlr-grid">
+<div class="mt-10 flex-1 p-8 mx-8 xl:mx-28" id="uwlr-grid">
     <div class="flex flex-1 justify-between">
         <div><h1>UWLR Grid</h1></div>
         <div class="flex-shrink-0">

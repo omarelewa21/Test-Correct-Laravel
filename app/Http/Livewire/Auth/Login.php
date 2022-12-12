@@ -125,8 +125,6 @@ class Login extends Component
 
     public function mount()
     {
-        Auth::logout();
-
         if(session()->has('take')){
             $take = TestTake::whereUuid(session('take'))->with('testTakeCode')->first();
             if($take->testTakeCode){
@@ -134,6 +132,8 @@ class Login extends Component
             }
             $this->take = $take->uuid;
         }
+
+        Auth::logout();
 
         session()->invalidate();
         session()->regenerateToken();

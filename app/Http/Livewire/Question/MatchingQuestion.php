@@ -2,6 +2,7 @@
 
 namespace tcCore\Http\Livewire\Question;
 
+use Illuminate\Support\Str;
 use Livewire\Component;
 use tcCore\Answer;
 use tcCore\Http\Traits\WithAttachments;
@@ -10,8 +11,6 @@ use tcCore\Http\Traits\WithGroups;
 use tcCore\Http\Traits\WithNotepad;
 use tcCore\Http\Traits\WithQuestionTimer;
 use tcCore\Http\Traits\WithUpdatingHandling;
-use tcCore\Question;
-use Illuminate\Support\Str;
 
 class MatchingQuestion extends Component
 {

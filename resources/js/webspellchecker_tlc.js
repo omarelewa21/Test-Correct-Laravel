@@ -38,6 +38,11 @@ WebspellcheckerTlc = {
                 spellcheckLang: language,
                 localization: 'nl'
             });
+            instance.subscribe('problemCheckEnded', (event) => {
+                window.dispatchEvent(new CustomEvent('wsc-problems-count-updated-'+editor.name, {
+                    detail: { problemsCount: instance.getProblemsCount()}
+                }));
+            });
             try {
                 instance.setLang(language);
             }catch (e) {

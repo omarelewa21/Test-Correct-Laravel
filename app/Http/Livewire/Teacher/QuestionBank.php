@@ -366,4 +366,10 @@ class QuestionBank extends Component
         }
         return Question::filtered($this->getFilters());
     }
+
+    public function clearInGroupProperty(): bool
+    {
+        $this->skipRender();
+        return $this->inGroup = false;
+    }
 }

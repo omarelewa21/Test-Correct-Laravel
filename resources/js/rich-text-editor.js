@@ -21,6 +21,53 @@ RichTextEditor = {
             });
     },
 
+    initStudentCoLearning: function (editorId,lang= 'nl_NL',wsc = false) {
+        var editor = CKEDITOR.instances[editorId];
+        if (editor) {
+            editor.destroy(true)
+        }
+        if(wsc){
+            CKEDITOR.disableAutoInline = true;
+            CKEDITOR.config.removePlugins = 'scayt,wsc';
+        }
+        CKEDITOR.on('instanceReady', function(event) {
+            var editor = event.editor;
+            WebspellcheckerTlc.forTeacherQuestion(editor,lang,wsc);
+        });
+        CKEDITOR.replace(editorId, {
+            removePlugins: 'pastefromword,pastefromgdocs,advanced,simpleuploads,dropoff,copyformatting,image,pastetext,uploadwidget,uploadimage,elementspath',
+            extraPlugins: 'quicktable,ckeditor_wiris,autogrow,wordcount,notification',
+            wordcount: {
+                showWordCount: true,
+                showParagraphs: false,
+                showCharCount: true,
+                countSpacesAsChars: true,
+            },
+            autoGrow_maxHeight: 0,
+            toolbar: []
+        });
+        editor = CKEDITOR.instances[editorId];
+        editor.on('change', function (e) {
+            RichTextEditor.sendInputEventToEditor(editorId, e);
+        });
+        editor.on('instanceReady', function (e) {
+            setTimeout(() => {
+                document.getElementById('word-count-'+editorId).textContent = editor.wordCount.wordCount;
+                document.getElementById('char-count-'+editorId).textContent = editor.wordCount.charCount;
+            },300)
+            window.addEventListener('wsc-problems-count-updated-'+editorId, (e) => {
+                let problemCountSpan = document.getElementById('problem-count-'+editorId);
+                if(problemCountSpan){
+                    problemCountSpan.textContent = e.detail.problemsCount;
+                }
+            });
+            document.getElementById('cke_wordcount_'+editorId).classList.add('hidden');
+            document.querySelector('.cke_top').style.display = 'none !important';
+            document.querySelector('.cke_bottom').style.display = 'none !important';
+        });
+
+    },
+
     initCMS: function (editorId,lang= 'nl_NL',wsc = false) {
         var editor = CKEDITOR.instances[editorId];
         if (editor) {
