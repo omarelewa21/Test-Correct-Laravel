@@ -189,7 +189,7 @@ class FileManagementController extends Controller
      */
     public function show(ShowFileManagementRequest $request, FileManagement $fileManagement)
     {
-        $fileManagement->load(['user', 'handler', 'status', 'children', 'schoolLocation']);
+        $fileManagement->load(['user', 'handler', 'status', 'children', 'schoolLocation', 'test']);
 
         $user = Auth::user();
         if ($user->hasRole('Account manager') || $user->isToetsenbakker()) {

@@ -38,7 +38,7 @@
         @elseif($type == 'pdf')
             <x-icon.pdf/>
         @elseif($type == 'word')
-            W
+            <x-icon.word/>
         @else
             <x-icon.attachment/>
         @endif

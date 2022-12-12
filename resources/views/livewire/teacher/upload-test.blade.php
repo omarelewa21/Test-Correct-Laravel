@@ -143,7 +143,7 @@
                                     </div>
                                 </div>
                                 <div class="flex gap-1.5 items-center">
-                                    <x-icon.pdf-file/>
+                                    <x-icon.word/>
                                     <div class="flex gap-1.5 items-center">
                                         <span class="bold">@lang('upload.Word')</span>
                                         <span class="note text-xs">(.doc/ .docx)</span>
@@ -228,37 +228,37 @@
                                 <span class="text-base bold">@lang('upload.Toetsgegevens')</span>
                                 <div class="grid grid-cols-2 gap-x-6 gap-y-0.5 grid-cols-[min-content,auto]">
                                     <div class="flex items-center col-start-1 note text-sm">
-                                        <span class="leading-6">@lang('upload.Naam toets'):</span>
+                                        <span class="min-w-max leading-6">@lang('upload.Naam toets'):</span>
                                     </div>
                                     <div class="flex items-center col-start-2 text-lg">
                                         <span class="leading-6">{{ $testInfo['name'] }}</span>
                                     </div>
                                     <div class="flex items-center col-start-1 note text-sm">
-                                        <span class="leading-6">@lang('upload.Afnamedatum'):</span>
+                                        <span class="min-w-max leading-6">@lang('upload.Afnamedatum'):</span>
                                     </div>
                                     <div class="flex items-center col-start-2 text-lg">
                                         <span class="leading-6">{{ $this->takeDateToDisplay }}</span>
                                     </div>
                                     <div class="flex items-center col-start-1 note text-sm">
-                                        <span class="leading-6">@lang('teacher.subject'):</span>
+                                        <span class="min-w-max leading-6">@lang('teacher.subject'):</span>
                                     </div>
                                     <div class="flex items-center col-start-2 text-lg">
                                         <span class="leading-6">{{ $this->selectedSubject }}</span>
                                     </div>
                                     <div class="flex items-center col-start-1 note text-sm">
-                                        <span class="leading-6">@lang('teacher.niveau'):</span>
+                                        <span class="min-w-max leading-6">@lang('teacher.niveau'):</span>
                                     </div>
                                     <div class="flex items-center col-start-2 text-lg">
                                         <span class="leading-6">{{ $this->selectedLevel }}</span>
                                     </div>
                                     <div class="flex items-center col-start-1 note text-sm">
-                                        <span class="leading-6">@lang('general.jaar'):</span>
+                                        <span class="min-w-max leading-6">@lang('general.jaar'):</span>
                                     </div>
                                     <div class="flex items-center col-start-2 text-lg">
                                         <span class="leading-6">{{ $testInfo['education_level_year'] }}</span>
                                     </div>
                                     <div class="flex items-center col-start-1 note text-sm">
-                                        <span class="leading-6">@lang('teacher.type'):</span>
+                                        <span class="min-w-max leading-6">@lang('teacher.type'):</span>
                                     </div>
                                     <div class="flex items-center col-start-2 text-lg">
                                         <span class="leading-6">{{ $this->selectedTestKind }}</span>

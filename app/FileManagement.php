@@ -126,6 +126,11 @@ class FileManagement extends BaseModel
         return $this->belongsTo(Subject::class, 'subject_id');
     }
 
+    public function test()
+    {
+        return $this->belongsTo(Test::class);
+    }
+
     public function scopeFiltered($query, $user, $filters = [], $sorting = [])
     {
         $query->whereNull('parent_id')
@@ -434,5 +439,15 @@ class FileManagement extends BaseModel
         return collect(TestUploadAdditionalOptions::cases())->mapWithKeys(function ($enum) {
             return [$enum->value => $enum->name];
         });
+    }
+
+    public function scopeTestUploads($query)
+    {
+        return $query->where('type', 'testupload');
+    }
+
+    public function scopeHandledBy($query, User $user)
+    {
+        return $query->where('handledby', $user->getKey());
     }
 }
