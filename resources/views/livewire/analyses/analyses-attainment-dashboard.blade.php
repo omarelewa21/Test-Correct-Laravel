@@ -43,13 +43,13 @@
                 {{__('student.p waarde subeindtermen') }}
             @endif
         </x-slot>
-
-        <div id="pValueChart" style="height: 400px;" class="relative" wire:ignore>
-            <x-empty-graph :show="$this->showEmptyStateForPValueGraph"></x-empty-graph>
-        </div>
-        <div x-data="analysesAttainmentsGraph( @entangle('dataValues') )"
-             x-on:filters-updated.window="renderGraph"
+        <div x-data="analysesAttainmentsGraph( 'pValueChart' )"
+             x-on:filters-updated.window="updateGraph"
         >
+        <div id="pValueChart" style="height: 400px;" class="relative" wire:ignore>
+            <x-empty-graph x-show="showEmptyState" :show="true"></x-empty-graph>
+        </div>
+
         </div>
     </x-content-section>
 @endsection
