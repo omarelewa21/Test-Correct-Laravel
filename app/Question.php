@@ -80,6 +80,7 @@ class Question extends MtiBaseModel
         'fix_order',
         'owner_id',
         'lang',
+        'add_to_database_disabled',
     ];
 
     /**

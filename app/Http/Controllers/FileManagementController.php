@@ -22,6 +22,7 @@ use tcCore\Http\Requests\CreateTestUploadRequest;
 use tcCore\Http\Requests\ShowFileManagementRequest;
 use tcCore\Http\Requests\UpdateFileManagementRequest;
 use tcCore\Jobs\SendToetsenbakkerInviteMail;
+use tcCore\Lib\GroupQuestionQuestion\GroupQuestionQuestionManager;
 use tcCore\Lib\Repositories\PeriodRepository;
 use tcCore\Period;
 use tcCore\Question;
@@ -55,8 +56,8 @@ class FileManagementController extends Controller
     public function getFormId()
     {
         $formId = Str::uuid();
-        $fileManagement = FileManagement::where('form_id',$formId)->first();
-        if(is_null($fileManagement)){
+        $fileManagement = FileManagement::where('form_id', $formId)->first();
+        if (is_null($fileManagement)) {
             return Response($formId, 200);
         }
         return $this->getFormId();
@@ -170,7 +171,7 @@ class FileManagementController extends Controller
     public function index(Requests\IndexFileManagementRequest $request)
     {
 
-        $builder = FileManagement::filtered(Auth::user(),$request->get('filter', []), $request->get('order', []));
+        $builder = FileManagement::filtered(Auth::user(), $request->get('filter', []), $request->get('order', []));
 
         switch (strtolower($request->get('mode', 'paginate'))) {
             case 'all':
@@ -231,7 +232,7 @@ class FileManagementController extends Controller
                 'multiple'             => $request->get('multiple'),
                 'form_id'              => $request->get('form_id')
             ],
-            'form_id'           => $form_id,
+            'form_id'            => $form_id,
         ];
 
         $main = new FileManagement();
@@ -285,7 +286,7 @@ class FileManagementController extends Controller
             'form_id'            => $form_id
         ];
 
-        $parent = FileManagement::where('form_id',$form_id)->whereNull('parent_id')->first();
+        $parent = FileManagement::where('form_id', $form_id)->whereNull('parent_id')->first();
         $child = new FileManagement();
 
         $data['id'] = Str::uuid();
@@ -295,10 +296,10 @@ class FileManagementController extends Controller
         $origfileName = $file->getClientOriginalName();
         $nameOnly = explode('.', $origfileName)[0];
 
-        if(!is_null($parent)){
+        if (!is_null($parent)) {
             $fileName = sprintf('%s-%s-%s-%s.%s', date('YmdHis'), Str::random(5), Str::slug($parent->name), $parent->subject, pathinfo($origfileName, PATHINFO_EXTENSION));
             $data['typedetails'] = $parent->typedetails;
-        }else{
+        } else {
             $fileName = sprintf('%s-%s-%s.%s', date('YmdHis'), Str::random(5), $nameOnly, pathinfo($origfileName, PATHINFO_EXTENSION));
         }
         $file->move(sprintf('%s/%s', $this->getBasePath(), $schoolLocation->getKey()), $fileName);
@@ -314,7 +315,7 @@ class FileManagementController extends Controller
 
     public function duplicateTestToSchool(DuplicateFileManagementTestRequest $request, FileManagement $fileManagement)
     {
-        if($fileManagement->file_management_status_id !== self::STATUS_ID_APPROVED) {
+        if ($fileManagement->file_management_status_id !== self::STATUS_ID_APPROVED) {
             return response()->json(['errors' => ['not allowed']])->setStatusCode(403);
         }
 
@@ -324,18 +325,40 @@ class FileManagementController extends Controller
 
         $duplicateTest = $test->duplicate([]);
         $duplicateTest->refresh();
-        $duplicateTest->subject_id = $fileManagement->subject_id;
-        $duplicateTest->period_id = PeriodRepository::getCurrentPeriod()->getKey();
         $duplicateTest->author_id = $fileManagement->user_id;
         $duplicateTest->testAuthors()->forceDelete();
         TestAuthor::addAuthorToTest($duplicateTest, $fileManagement->user_id);
         $duplicateTest->owner_id = $fileManagement->school_location_id;
 
-        if(!$duplicateTest->save()) {
+        if (!$duplicateTest->save()) {
             return response()->json(['errors' => 'Failed to save duplicated test'])->setStatusCode(500);
         }
 
-        $this->disableAddToDatabaseSettingForAllTestQuestions($duplicateTest);
+
+        //todo duplicate testQuestions
+        foreach ($duplicateTest->testQuestions as $testQuestion) {
+            $request = new Request();
+            $params = [
+                'id'                       => $testQuestion->id,
+                'subject_id'               => $duplicateTest->subject_id,
+                'education_level_id'       => $duplicateTest->education_level_id,
+                'education_level_year'     => $duplicateTest->education_level_year,
+                'add_to_database_disabled' => true,
+            ];
+            $request = $request->merge($params);
+
+            $response = (new TestQuestionsController())->updateFromWithin($testQuestion, $request);
+            if ($testQuestion->question->type == 'GroupQuestion') {
+                $testQuestion = $testQuestion->fresh();
+                $groupQuestionQuestionManager = GroupQuestionQuestionManager::getInstanceWithUuid($testQuestion->uuid);
+                foreach ($testQuestion->question->groupQuestionQuestions as $groupQuestionQuestion) {
+                    $request = new Request();
+                    $request->merge($params);
+                    $response = (new GroupQuestionQuestionsController())->updateFromWithin($groupQuestionQuestionManager, $groupQuestionQuestion, $request);
+                }
+            }
+        }
+
         $this->createQuestionAuthorRecordsForAllQuestions($duplicateTest, $fileManagement);
 
         return response()->json(['status' => 'success'])->setStatusCode(200);
@@ -349,16 +372,6 @@ class FileManagementController extends Controller
         return $testQuestionsQuery->unionAll($groupQuestionQuestionsQuery);
     }
 
-    private function disableAddToDatabaseSettingForAllTestQuestions(Test $test) : bool
-    {
-        $allQuestionIdsQuery = $this->createAllQuestionsOfTestQueryBuilder($test);
-
-        $queryResult = Question::whereIn('id', $allQuestionIdsQuery)
-            ->update(['add_to_database_disabled' => 1]);
-
-        return $queryResult > 0;
-    }
-
     private function createQuestionAuthorRecordsForAllQuestions(Test $test, FileManagement $fileManagement)
     {
         $allQuestionIds = $this->createAllQuestionsOfTestQueryBuilder($test)->get();
@@ -369,10 +382,10 @@ class FileManagementController extends Controller
         //create new records for the recipient teacher
         QuestionAuthor::insert($allQuestionIds->map(function ($id) use ($fileManagement) {
             return [
-                'user_id' => $fileManagement->user_id,
+                'user_id'     => $fileManagement->user_id,
                 'question_id' => $id->id,
-                'created_at' => now(),
-                'updated_at' => now(),
+                'created_at'  => now(),
+                'updated_at'  => now(),
             ];
         })->toArray());
     }
