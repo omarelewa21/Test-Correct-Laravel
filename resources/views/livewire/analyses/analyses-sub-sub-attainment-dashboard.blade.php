@@ -1,10 +1,9 @@
 @extends('livewire.analyses.analyses-dashboard')
 
 @section('analyses.header.title')
-    <x-sticky-page-title class="top-20">
-        <div class="flex items-center gap-4 ">
-            <x-button.back-round wire:click="redirectBack"/>
-            <div class="flex text-lg bold">
+    <div class="flex items-center gap-4 ">
+        <x-button.back-round wire:click="redirectBack"/>
+        <div class="flex text-lg bold">
                 <span>
                     <a href="{{ route('student.analyses.show') }}">{{ __('header.Analyses') }}</a>
                     <x-icon.chevron-small opacity="1"></x-icon.chevron-small>
@@ -22,10 +21,8 @@
                      <x-icon.chevron-small opacity="1"></x-icon.chevron-small>
                     {{ $attainment->getSubSubNameWithNumber($attainment->getOrderNumber()) }}
                 </span>
-            </div>
         </div>
-
-    </x-sticky-page-title>
+    </div>
 @endsection
 
 @section('analyses.page.title')
