@@ -25,6 +25,9 @@ class AnalysesOverviewDashboard extends AnalysesDashboard
     }
 
     public function getDataProperty()
+    {}
+
+    public function getDataForGraph()
     {
         $result = PValueRepository::getPValueForStudentBySubject(
             $this->getHelper()->getForUser(),
@@ -32,6 +35,8 @@ class AnalysesOverviewDashboard extends AnalysesDashboard
             $this->getEducationLevelYearsByFilterValues(),
             $this->getTeachersByFilterValues()
         );
+
+        $this->showEmptyStateForPValueGraph = $result->filter(fn($item) => !is_null($item['score']))->isEmpty();
 
         $this->dataValues = $result->map(function ($pValue) {
 
@@ -51,7 +56,10 @@ class AnalysesOverviewDashboard extends AnalysesDashboard
             ];
         })->toArray();
 
-        return $result;
+        return [
+            $this->showEmptyStateForPValueGraph,
+            $this->dataValues,
+        ];
     }
 
     public function render()

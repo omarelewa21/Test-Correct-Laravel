@@ -244,6 +244,7 @@ abstract class AnalysesDashboard extends Component
         ];
 
         $this->emit('filter-cleared');
+        $this->emit('filters-updated');
 
         session([self::FILTER_SESSION_KEY => $this->filters]);
     }

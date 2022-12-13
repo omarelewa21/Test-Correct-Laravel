@@ -6005,11 +6005,44 @@ document.addEventListener('alpine:init', function () {
       }
     };
   });
-  alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data('analysesSubjectsGraph', function (data) {
+  alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data('analysesSubjectsGraph', function (modelId) {
     return {
-      data: data,
+      modelId: modelId,
+      data: [],
       colors: ['#30BC51', '#5043F6', '#ECEE7D', '#6820CE', '#CB110E', '#F79D25', '#1B6112', '#43ACF5', '#E12576', '#24D2C5'],
+      showEmptyState: false,
+      init: function init() {
+        this.updateGraph();
+      },
+      updateGraph: function updateGraph() {
+        var _this19 = this;
+        return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee3() {
+          var _yield$_this19$$wire$, _yield$_this19$$wire$2;
+          return _regeneratorRuntime().wrap(function _callee3$(_context3) {
+            while (1) {
+              switch (_context3.prev = _context3.next) {
+                case 0:
+                  _context3.next = 2;
+                  return _this19.$wire.call('getDataForGraph');
+                case 2:
+                  _yield$_this19$$wire$ = _context3.sent;
+                  _yield$_this19$$wire$2 = _slicedToArray(_yield$_this19$$wire$, 2);
+                  _this19.showEmptyState = _yield$_this19$$wire$2[0];
+                  _this19.data = _yield$_this19$$wire$2[1];
+                  _this19.renderGraph();
+                case 7:
+                case "end":
+                  return _context3.stop();
+              }
+            }
+          }, _callee3);
+        }))();
+      },
       renderGraph: function renderGraph() {
+        var cssSelector = '#pValueChart>div:not(.empty-state)';
+        this.$root.querySelectorAll(cssSelector).forEach(function (node) {
+          return node.remove();
+        });
         var chart = anychart.column();
         var series = chart.column(this.data);
         var palette = anychart.palettes.distinctColors();
@@ -6152,9 +6185,6 @@ document.addEventListener('alpine:init', function () {
         chart.tooltip().onBeforeContentChange(function () {
           return false;
         });
-      },
-      init: function init() {
-        this.renderGraph();
       }
     };
   });
@@ -6168,27 +6198,27 @@ document.addEventListener('alpine:init', function () {
         this.updateGraph();
       },
       updateGraph: function updateGraph() {
-        var _this19 = this;
-        return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee3() {
-          var _yield$_this19$$wire$, _yield$_this19$$wire$2;
-          return _regeneratorRuntime().wrap(function _callee3$(_context3) {
+        var _this20 = this;
+        return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee4() {
+          var _yield$_this20$$wire$, _yield$_this20$$wire$2;
+          return _regeneratorRuntime().wrap(function _callee4$(_context4) {
             while (1) {
-              switch (_context3.prev = _context3.next) {
+              switch (_context4.prev = _context4.next) {
                 case 0:
-                  _context3.next = 2;
-                  return _this19.$wire.call('getDataForGraph');
+                  _context4.next = 2;
+                  return _this20.$wire.call('getDataForGraph');
                 case 2:
-                  _yield$_this19$$wire$ = _context3.sent;
-                  _yield$_this19$$wire$2 = _slicedToArray(_yield$_this19$$wire$, 2);
-                  _this19.showEmptyState = _yield$_this19$$wire$2[0];
-                  _this19.data = _yield$_this19$$wire$2[1];
-                  _this19.renderGraph();
+                  _yield$_this20$$wire$ = _context4.sent;
+                  _yield$_this20$$wire$2 = _slicedToArray(_yield$_this20$$wire$, 2);
+                  _this20.showEmptyState = _yield$_this20$$wire$2[0];
+                  _this20.data = _yield$_this20$$wire$2[1];
+                  _this20.renderGraph();
                 case 7:
                 case "end":
-                  return _context3.stop();
+                  return _context4.stop();
               }
             }
-          }, _callee3);
+          }, _callee4);
         }))();
       },
       renderGraph: function renderGraph() {
@@ -6400,35 +6430,35 @@ document.addEventListener('alpine:init', function () {
         }
       },
       updateGraph: function updateGraph(forceUpdate) {
-        var _this20 = this;
-        return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee4() {
-          var method, _yield$_this20$$wire$, _yield$_this20$$wire$2;
-          return _regeneratorRuntime().wrap(function _callee4$(_context4) {
+        var _this21 = this;
+        return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee5() {
+          var method, _yield$_this21$$wire$, _yield$_this21$$wire$2;
+          return _regeneratorRuntime().wrap(function _callee5$(_context5) {
             while (1) {
-              switch (_context4.prev = _context4.next) {
+              switch (_context5.prev = _context5.next) {
                 case 0:
-                  if (!(!_this20.data || forceUpdate)) {
-                    _context4.next = 10;
+                  if (!(!_this21.data || forceUpdate)) {
+                    _context5.next = 10;
                     break;
                   }
                   method = 'getData';
                   if (component == 'expandableGraphForGeneral') {
                     method = 'getDataForGeneralGraph';
                   }
-                  _context4.next = 5;
-                  return _this20.$wire.call(method, _this20.modelId, _this20.taxonomy);
+                  _context5.next = 5;
+                  return _this21.$wire.call(method, _this21.modelId, _this21.taxonomy);
                 case 5:
-                  _yield$_this20$$wire$ = _context4.sent;
-                  _yield$_this20$$wire$2 = _slicedToArray(_yield$_this20$$wire$, 2);
-                  _this20.showEmptyState = _yield$_this20$$wire$2[0];
-                  _this20.data = _yield$_this20$$wire$2[1];
-                  _this20.renderGraph();
+                  _yield$_this21$$wire$ = _context5.sent;
+                  _yield$_this21$$wire$2 = _slicedToArray(_yield$_this21$$wire$, 2);
+                  _this21.showEmptyState = _yield$_this21$$wire$2[0];
+                  _this21.data = _yield$_this21$$wire$2[1];
+                  _this21.renderGraph();
                 case 10:
                 case "end":
-                  return _context4.stop();
+                  return _context5.stop();
               }
             }
-          }, _callee4);
+          }, _callee5);
         }))();
       },
       get expanded() {
@@ -6521,38 +6551,38 @@ document.addEventListener('alpine:init', function () {
       menuOffsetMarginTop: 56,
       menuOffsetMarginLeft: 224,
       handleIncomingEvent: function handleIncomingEvent(detail) {
-        var _this21 = this;
+        var _this22 = this;
         if (!this.contextMenuOpen) return this.openMenu(detail);
         this.closeMenu();
         setTimeout(function () {
-          _this21.openMenu(detail);
+          _this22.openMenu(detail);
         }, 150);
       },
       openMenu: function openMenu(detail) {
-        var _this22 = this;
-        return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee5() {
+        var _this23 = this;
+        return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee6() {
           var readyForShow;
-          return _regeneratorRuntime().wrap(function _callee5$(_context5) {
+          return _regeneratorRuntime().wrap(function _callee6$(_context6) {
             while (1) {
-              switch (_context5.prev = _context5.next) {
+              switch (_context6.prev = _context6.next) {
                 case 0:
-                  _this22.uuid = detail.uuid;
-                  _this22.correspondingButton = detail.button;
-                  _this22.contextData = detail.contextData;
-                  _this22.$root.style.top = detail.coords.top + _this22.menuOffsetMarginTop + 'px';
-                  _this22.$root.style.left = detail.coords.left - _this22.menuOffsetMarginLeft + 'px';
-                  _context5.next = 7;
-                  return _this22.$wire.setContextValues(_this22.uuid, _this22.contextData);
+                  _this23.uuid = detail.uuid;
+                  _this23.correspondingButton = detail.button;
+                  _this23.contextData = detail.contextData;
+                  _this23.$root.style.top = detail.coords.top + _this23.menuOffsetMarginTop + 'px';
+                  _this23.$root.style.left = detail.coords.left - _this23.menuOffsetMarginLeft + 'px';
+                  _context6.next = 7;
+                  return _this23.$wire.setContextValues(_this23.uuid, _this23.contextData);
                 case 7:
-                  readyForShow = _context5.sent;
-                  if (readyForShow) _this22.contextMenuOpen = true;
-                  _this22.contextMenuOpen = true;
+                  readyForShow = _context6.sent;
+                  if (readyForShow) _this23.contextMenuOpen = true;
+                  _this23.contextMenuOpen = true;
                 case 10:
                 case "end":
-                  return _context5.stop();
+                  return _context6.stop();
               }
             }
-          }, _callee5);
+          }, _callee6);
         }))();
       },
       closeMenu: function closeMenu() {

@@ -667,8 +667,9 @@ document.addEventListener('alpine:init', () => {
         }
     }));
 
-    Alpine.data('analysesSubjectsGraph', (data) => ({
-            data,
+    Alpine.data('analysesSubjectsGraph', (modelId) => ({
+            modelId,
+            data: [],
             colors: [
                 '#30BC51',
                 '#5043F6',
@@ -681,7 +682,17 @@ document.addEventListener('alpine:init', () => {
                 '#E12576',
                 '#24D2C5',
             ],
+            showEmptyState: false,
+            init() {
+                this.updateGraph();
+            },
+            async updateGraph() {
+                [this.showEmptyState, this.data] = await this.$wire.call('getDataForGraph');
+                this.renderGraph();
+            },
             renderGraph() {
+                var cssSelector = '#pValueChart>div:not(.empty-state)';
+                this.$root.querySelectorAll(cssSelector).forEach(node => node.remove())
                 var chart = anychart.column();
                 var series = chart.column(this.data);
                 var palette = anychart.palettes.distinctColors();
@@ -853,11 +864,6 @@ document.addEventListener('alpine:init', () => {
                 chart.tooltip().onBeforeContentChange(function () {
                     return false;
                 });
-            },
-
-
-            init() {
-                this.renderGraph()
             }
         }
     ));

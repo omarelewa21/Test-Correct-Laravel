@@ -27,15 +27,15 @@
 
     <x-content-section>
         <x-slot name="title">
-            <div class="hidden">{{ $this->data }}</div>
             {{ __('student.p waarde vakken') }}
         </x-slot>
 
-        <div id="pValueChart" style="height: 400px;" wire:ignore></div>
-        <div x-data="analysesSubjectsGraph( @entangle('dataValues') )"
 
-             x-on:filters-updated.window="renderGraph"
-        >
+        <div x-data="analysesSubjectsGraph('pValueChart')"
+             x-on:filters-updated.window="updateGraph"
+        >            <div id="pValueChart" style="height: 400px;" class="relative" wire:ignore>
+                <x-empty-graph x-show="showEmptyState" :show="true"></x-empty-graph>
+            </div>
         </div>
     </x-content-section>
 
