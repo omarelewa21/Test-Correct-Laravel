@@ -5012,11 +5012,11 @@ video {
 .-top-px{
   top: -1px;
 }
+.top-\[160px\]{
+  top: 160px;
+}
 .top-20{
   top: 5rem;
-}
-.top-\[100px\]{
-  top: 100px;
 }
 .top-4{
   top: 1rem;
@@ -5053,15 +5053,6 @@ video {
 }
 .top-\[var\(--header-height\)\]{
   top: var(--header-height);
-}
-.top-\[120px\]{
-  top: 120px;
-}
-.top-\[10px\]{
-  top: 10px;
-}
-.top-\[160px\]{
-  top: 160px;
 }
 .isolate{
   isolation: isolate;

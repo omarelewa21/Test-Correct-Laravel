@@ -4,6 +4,7 @@ use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use tcCore\Attainment;
 use tcCore\BaseSubject;
+use tcCore\EducationLevel;
 use tcCore\PValue;
 use tcCore\Scopes\AttainmentScope;
 use tcCore\Subject;
@@ -395,7 +396,6 @@ class PValueRepository
     public static function getPValuePerAttainmentForStudent(User $user, $periods, $educationLevelYears, $teachers, Subject $subject, $isLearningGoal = false)
     {
         $forSubject = $subject->id;
-
         $pValueQuery = PValue::SelectRaw('avg(score/max_score) as score')
             ->selectRaw('count(attainment_id) as cnt')
             ->addSelect(['attainment_id' => 'p_value_attainments.attainment_id'])
@@ -414,6 +414,7 @@ class PValueRepository
             })->whereIn('base_subject_id', Subject::select('base_subject_id')->where('id', $forSubject))
             ->whereNull('attainments.attainment_id')
             ->where('is_learning_goal', $isLearningGoal)
+            ->where('attainments.education_level_id', EducationLevel::getLatestForStudentWithSubject($user, $subject)->id)
             ->orderByRaw('is_learning_goal, education_level_id, attainments.code, attainments.subcode')
             ->get();
     }
