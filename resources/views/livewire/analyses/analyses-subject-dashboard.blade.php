@@ -56,7 +56,11 @@
     <x-content-section>
         <x-slot name="title">
             {{--            <div class="hidden">{{ $this->data }}</div>--}}
+            @if($this->attainmentMode === \tcCore\Attainment::TYPE)
+                {{ __('student.p waarde eindtermen') }}
+            @else
             {{ __('student.p waarde leerdoelen') }}
+            @endif
         </x-slot>
         <div x-data="analysesAttainmentsGraph('pValueChart')"
              x-on:filters-updated.window="updateGraph"
@@ -72,5 +76,9 @@
 
 
 @section('analyses.top-items.title')
+    @if($this->attainmentMode === \tcCore\Attainment::TYPE)
+        {{ trans_choice('student.top eindtermen om aan te werken', count($this->topItems)) }}
+    @else
     {{ trans_choice('student.top leerdoelen om aan te werken', count($this->topItems)) }}
+    @endif
 @endsection
