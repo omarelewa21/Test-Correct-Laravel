@@ -1,6 +1,6 @@
 <?php
 
-namespace tcCore\Http\Livewire\Teacher;
+namespace tcCore\Http\Livewire\Toetsenbakker;
 
 use tcCore\EducationLevel;
 use tcCore\FileManagement;
@@ -10,7 +10,7 @@ use tcCore\SchoolLocationEducationLevel;
 use tcCore\Subject;
 use tcCore\Test;
 
-class TestCreateModalWithFile extends TestCreateModal
+class TestCreateModal extends \tcCore\Http\Livewire\TestCreateModal
 {
     public $fileManagement = null;
 
@@ -23,13 +23,39 @@ class TestCreateModalWithFile extends TestCreateModal
 
         parent::mount();
 
-        $this->request = array_merge($this->request, $this->getRequestDefaults($fileManagement));
+        $this->extendPropertyDefaults();
     }
 
-    protected function performAfterSaveActions(Test $test)
+    /**
+     * @param FileManagement|null $fileManagement
+     * @return array
+     */
+    private function extendPropertyDefaults(): void
     {
+        $period = PeriodRepository::getCurrentPeriodForSchoolLocation($this->fileManagement->schoolLocation);
+
+        $this->request = array_merge(
+            $this->request,
+            [
+                'name'                 => $this->fileManagement->test_name,
+                'test_kind_id'         => $this->fileManagement->test_kind_id,
+                'subject_id'           => $this->fileManagement->subject_id,
+                'education_level_id'   => $this->fileManagement->education_level_id,
+                'education_level_year' => $this->fileManagement->education_level_year,
+                'period_id'            => $period->getKey(),
+            ]
+        );
+    }
+
+    /* Method overrides */
+    protected function createTestFromRequest(): Test
+    {
+        $test = parent::createTestFromRequest();
+
         $this->fileManagement->test_id = $test->getKey();
         $this->fileManagement->save();
+
+        return $test;
     }
 
     public function getAllowedSubjects()
@@ -55,21 +81,8 @@ class TestCreateModalWithFile extends TestCreateModal
             ->get(['id', 'name', 'max_years', 'uuid'])->keyBy('id');
     }
 
-    /**
-     * @param FileManagement|null $fileManagement
-     * @return array
-     */
-    private function getRequestDefaults(FileManagement $fileManagement): array
+    public function render()
     {
-        $period = PeriodRepository::getCurrentPeriodForSchoolLocation($fileManagement->schoolLocation);
-
-        return [
-            'name'                 => $fileManagement->test_name,
-            'test_kind_id'         => $fileManagement->test_kind_id,
-            'subject_id'           => $fileManagement->subject_id,
-            'education_level_id'   => $fileManagement->education_level_id,
-            'education_level_year' => $fileManagement->education_level_year,
-            'period_id'            => $period->getKey(),
-        ];
+        return view('livewire.teacher.test-create-modal');
     }
 }

@@ -195,7 +195,7 @@ class FileManagementController extends Controller
         $user = Auth::user();
         if ($user->hasRole('Account manager') || $user->isToetsenbakker()) {
             $fileManagement->append('test_upload_additional_options');
-            $fileManagement->statuses = FileManagementStatus::all();
+            $fileManagement->statuses = FileManagementStatus::when($user->isToetsenbakker(), fn($query) => $query->forToetsenbakkers())->get();
         } else if ($user->hasRole('Teacher')) {
             if ($user->school_location_id != $fileManagement->school_location_id) {
                 return Response::make('not allowed', 403);

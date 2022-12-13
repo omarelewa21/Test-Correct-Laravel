@@ -127,6 +127,7 @@ class Test extends BaseModel
         });
 
         static::deleted(function (Test $test) {
+            FileManagement::removeTestRelation($test);
             Queue::push(new CountTeacherTests($test->author));
         });
     }
@@ -215,6 +216,11 @@ class Test extends BaseModel
     public function period()
     {
         return $this->belongsTo('tcCore\Period');
+    }
+
+    public function fileManagement()
+    {
+        return $this->hasOne(FileManagement::class);
     }
 
     public function reorder($movedTestQuestion = null)

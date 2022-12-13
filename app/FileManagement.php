@@ -431,4 +431,9 @@ class FileManagement extends BaseModel
     {
         return $query->where('handledby', $user->getKey());
     }
+
+    public static function removeTestRelation(Test $test)
+    {
+        self::whereTestId($test->getKey())->update(['test_id' => null]);
+    }
 }
