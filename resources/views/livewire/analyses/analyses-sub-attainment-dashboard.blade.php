@@ -1,7 +1,6 @@
 @extends('livewire.analyses.analyses-dashboard')
 
 @section('analyses.header.title')
-    <x-sticky-page-title class="top-20">
         <div class="flex items-center gap-4 ">
             <x-button.back-round wire:click="redirectBack"/>
             <div class="flex text-lg bold">
@@ -20,8 +19,6 @@
                 </span>
             </div>
         </div>
-
-    </x-sticky-page-title>
 @endsection
 
 @section('analyses.page.title')

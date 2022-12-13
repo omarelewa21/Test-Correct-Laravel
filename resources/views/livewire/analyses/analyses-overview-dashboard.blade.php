@@ -1,7 +1,6 @@
 @extends('livewire.analyses.analyses-dashboard')
 
 @section('analyses.header.title')
-    <x-sticky-page-title class="top-20">
         <div class="flex items-center gap-4 ">
             @if($this->viewingAsTeacher())
                 <x-button.back-round wire:click="redirectTeacherBack"/>
@@ -10,7 +9,6 @@
                 <span>{{  __('header.Analyses') }} </span>
             </div>
         </div>
-    </x-sticky-page-title>
 @endsection
 
 @section('analyses.page.title')

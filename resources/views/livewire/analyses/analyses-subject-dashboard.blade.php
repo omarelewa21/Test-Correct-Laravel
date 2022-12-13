@@ -1,15 +1,12 @@
 @extends('livewire.analyses.analyses-dashboard')
 
 @section('analyses.header.title')
-    <x-sticky-page-title class="top-20">
-        <div class="flex items-center gap-4 ">
-            <x-button.back-round wire:click="redirectBack"/>
-            <div class="flex text-lg bold ">
-                <span>{{  __('header.Analyses') }} <x-icon.chevron-small opacity="1"></x-icon.chevron-small> {!! $subject->name !!} </span>
-            </div>
+    <div class="flex items-center gap-4 ">
+        <x-button.back-round wire:click="redirectBack"/>
+        <div class="flex text-lg bold ">
+            <span>{{  __('header.Analyses') }} <x-icon.chevron-small opacity="1"></x-icon.chevron-small> {!! $subject->name !!} </span>
         </div>
-
-    </x-sticky-page-title>
+    </div>
 @endsection
 
 @section('analyses.page.title')
@@ -48,25 +45,25 @@
         <h2 class="flex">{{ __('student.overzicht p-waardes') }}</h2>
         <div class="flex">
             <x-button.slider
-                class="flex gap-2 items-center"
-                label="{{  __('Weergave per') }}"
-                :options="$this->attainmentModeOptions"
-                wire:model="attainmentMode"
+                    class="flex gap-2 items-center"
+                    label="{{  __('Weergave per') }}"
+                    :options="$this->attainmentModeOptions"
+                    wire:model="attainmentMode"
             ></x-button.slider>
         </div>
     </div>
 
     <x-content-section>
         <x-slot name="title">
-{{--            <div class="hidden">{{ $this->data }}</div>--}}
+            {{--            <div class="hidden">{{ $this->data }}</div>--}}
             {{ __('student.p waarde leerdoelen') }}
         </x-slot>
         <div x-data="analysesAttainmentsGraph('pValueChart')"
              x-on:filters-updated.window="updateGraph"
         >
-        <div id="pValueChart" style="height: 400px;" class="relative" wire:ignore>
-            <x-empty-graph x-show="showEmptyState" :show="true"></x-empty-graph>
-        </div>
+            <div id="pValueChart" style="height: 400px;" class="relative" wire:ignore>
+                <x-empty-graph x-show="showEmptyState" :show="true"></x-empty-graph>
+            </div>
 
         </div>
     </x-content-section>
