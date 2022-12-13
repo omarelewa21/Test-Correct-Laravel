@@ -57,19 +57,19 @@ export class Entry extends sidebarComponent {
             {
                 element: this.entryContainer,
                 events: {
-                    "dragstart": {
+                    "dragstart touchstart": {
                         callback: (evt) => {
                             evt.currentTarget.classList.add("dragging");
                         },
                     },
-                    "dragend": {
+                    "dragend touchend": {
                         callback: (evt) => {
                             this.updateDraggedElementPosition(evt);
                         },
                     },
                     "mouseenter touchstart": {
                         callback: () => {
-                            this.svgShape.highlight();
+                            this.svgShape.highlight();  
                             // this.highlight();
                         },
                     },
@@ -379,8 +379,8 @@ export class Layer extends sidebarComponent {
                 events: {
                     "click": {
                         callback: this.enable,
-                        options: {once: true},
-                    }
+                        options: {once: true}, 
+                    } 
                 }
             },
             {
@@ -424,7 +424,7 @@ export class Layer extends sidebarComponent {
             {
                 element: this.sidebar,
                 events: {
-                    "dragover": {
+                    "dragover touchmove": {
                         callback: (evt) => {
                             evt.preventDefault();
                             if (!this.props.enabled) return;
@@ -443,7 +443,7 @@ export class Layer extends sidebarComponent {
                                 // delete Canvas.layers[oldGroupKey].shapes[shapeID];
                             }
 
-                            const entryToInsertBefore = this.getEntryToInsertBefore(this.sidebar, evt.clientY).entry;
+                            const entryToInsertBefore = this.getEntryToInsertBefore(this.sidebar, evt.clientY == null ?  evt.touches[0].clientY : evt.clientY).entry;
                             if (entryToInsertBefore == null) {
                                 this.shapesGroup.appendChild(draggedEntry);
                                 return;
