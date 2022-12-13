@@ -1402,7 +1402,6 @@ document.addEventListener('alpine:init', () => {
             Notify.notify(message, 'error');
         },
         fileTooLarge(file) {
-            console.log([file.size , this.rules.size.data, file.size > this.rules.size.data])
             return file.size > this.rules.size.data;
         },
         handleTooLargeOfAfile(file) {
