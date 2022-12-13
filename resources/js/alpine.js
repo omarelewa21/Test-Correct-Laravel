@@ -703,7 +703,7 @@ document.addEventListener('alpine:init', () => {
                 yScale.maximum(1.00)
                 yScale.ticks().interval(0.25)
                 chart.yAxis(0).labels().format(function () {
-                    return this.value == 0 ? 'P 0' : this.value.toFixed(2);
+                    return this.value == 0 ? 'P 0' : 'P ' + this.value.toFixed(2);
                 })
 
                 chart.yGrid().enabled(true);
@@ -904,7 +904,7 @@ document.addEventListener('alpine:init', () => {
                 yScale.maximum(1.00)
                 yScale.ticks().interval(0.25)
                 chart.yAxis(0).labels().format(function () {
-                    return this.value == 0 ? 'P 0' : this.value.toFixed(2);
+                    return this.value == 0 ? 'P 0' : 'P ' + this.value.toFixed(2);
                 })
 
                 chart.yGrid().enabled(true);
