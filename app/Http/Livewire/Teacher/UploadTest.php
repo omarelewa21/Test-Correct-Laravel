@@ -13,7 +13,7 @@ use Ramsey\Uuid\Uuid;
 use tcCore\EducationLevel;
 use tcCore\Exceptions\UploadTestException;
 use tcCore\FileManagement;
-use tcCore\Http\Helpers\BaseHelper;
+use tcCore\FileManagementStatus;
 use tcCore\Http\Helpers\CakeRedirectHelper;
 use tcCore\Subject;
 use tcCore\TestKind;
@@ -266,7 +266,7 @@ class UploadTest extends Component
             'education_level_year'      => $this->testInfo['education_level_year'],
             'type'                      => FileManagement::TYPE_TEST_UPLOAD,
             'typedetails'               => $typedetails,
-            'file_management_status_id' => 1,
+            'file_management_status_id' => FileManagementStatus::STATUS_PROVIDED,
             'planned_at'                => $this->plannedAt,
             'subject_id'                => $typedetails['subject_id'],
             'education_level_id'        => $typedetails['education_level_id'],

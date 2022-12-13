@@ -4,7 +4,7 @@ namespace tcCore\Http\Traits;
 
 trait WithTeacherMenu
 {
-    protected function menus()
+    public function menus()
     {
         $menus = [];
         $menus['dashboard'] = [
@@ -49,7 +49,7 @@ trait WithTeacherMenu
         return collect(json_decode(json_encode($menus)));
     }
 
-    protected function tiles()
+    public function tiles()
     {
         $tiles = $this->menus->where('hasItems', true)->mapWithKeys(function ($menuData, $menuName) {
             $getter = $menuName . 'Tiles';
