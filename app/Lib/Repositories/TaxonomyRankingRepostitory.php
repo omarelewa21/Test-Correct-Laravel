@@ -13,30 +13,27 @@ class TaxonomyRankingRepostitory
 {
     /**
      *  QUERY FOR SELECTING AND RANKING SUBJECTS TOP 3
-     * select subjects.name
-     * , p_values.subject_id
-     * , (1 - avg(p_values.score / p_values.max_score)) / (1 + sum(p_values.max_score) / 500) as formula
-     * , avg(p_values.score / p_values.max_score)                                             as W
-     * , sum(p_values.max_score)                                                              as Z
-     * from p_values
-     * inner join test_participants
-     * on (p_values.test_participant_id = test_participants.id)
-     * inner join subjects
-     * on (subjects.id = p_values.subject_id)
-     * inner join questions
-     * on (questions.id = p_values.question_id)
-     * where test_participants.user_id = 69000
-     * AND (questions.miller <> null or questions.miller <> '' or questions.bloom <> null or questions.bloom <> '' or
-     * questions.rtti <> null or questions.rtti <> '')
-     * group by p_values.subject_id, subjects.name
-     * having Z > 5
-     * order by formula
+     * select subjects.name                                                                        as title,
+     * subjects.id                                                                          as id,
+     * (1 - avg(p_values.score / p_values.max_score)) / (1 + sum(p_values.max_score) / 500) as formula,
+     * avg(p_values.score / p_values.max_score)                                             as W,
+     * sum(p_values.max_score)                                                              as Z
+     * from `p_values`
+     * inner join `test_participants` on `test_participants`.`id` = `p_values`.`test_participant_id`
+     * inner join `subjects` on `subjects`.`id` = `p_values`.`subject_id`
+     * inner join `questions` on `questions`.`id` = `p_values`.`question_id`
+     * where `test_participants`.`user_id` = 40215
+     * and ((`questions`.`miller` is not null and questions.miller <> '') and
+     * (`questions`.`bloom` is not null and questions.bloom <> '') and
+     * (`questions`.`rtti` is not null and questions.rtti <> ''))
+     * and `p_values`.`deleted_at` is null
+     * group by `id`, `title`
+     * having `Z` > 5
+     * order by `formula` desc, `title` asc
      * limit 3
      */
     public static function getForSubjects(User $forUser, $filters)
     {
-        logger(__CLASS__.':'.__METHOD__);
-
         $query = PValue::select(
             DB::raw('subjects.name as title'),
             DB::raw('subjects.id as id'),
@@ -49,13 +46,16 @@ class TaxonomyRankingRepostitory
             ->join('questions', 'questions.id', '=', 'p_values.question_id')
             ->where('test_participants.user_id', $forUser->getKey())
             ->where(function ($query) {
-                $query
-                    ->orWhereNotNull('questions.miller')
-                    ->orWhereRaw("questions.miller <> ''")
-                    ->orWhereNotNull('questions.bloom')
-                    ->orWhereRaw("questions.bloom <> ''")
-                    ->orWhereNotNull('questions.rtti')
-                    ->orWhereRaw("questions.rtti <> ''");
+                $query->where(function ($q) {
+                    $q->WhereNotNull('questions.miller')
+                        ->WhereRaw("questions.miller <> ''");
+                })->orWhere(function ($q) {
+                    $q->WhereNotNull('questions.bloom')
+                        ->WhereRaw("questions.bloom <> ''");
+                })->orWhere(function ($q) {
+                    $q->WhereNotNull('questions.rtti')
+                        ->WhereRaw("questions.rtti <> ''");
+                });
             })
             ->filter($filters['periods'], $filters['education_level_years'], $filters['teachers'])
             ->groupBy('id', 'title')
@@ -85,8 +85,9 @@ class TaxonomyRankingRepostitory
      * test_participants.user_id = 69000
      * AND    p_values.subject_id = 183
      * AND attainments.`attainment_id` is null
-     * AND (questions.miller <> null or questions.miller <> '' or questions.bloom <> null or questions.bloom <> '' or questions.rtti <> null or questions.rtti <> '')
-     *
+     * and ((`questions`.`miller` is not null and questions.miller <> '') and
+     * (`questions`.`bloom` is not null and questions.bloom <> '') and
+     * (`questions`.`rtti` is not null and questions.rtti <> ''))
      * group by attainments.id, attainments.description
      * having Z > 5
      * order by formula, description
@@ -127,13 +128,16 @@ class TaxonomyRankingRepostitory
             ->where('test_participants.user_id', $forUser->getKey())
             ->where('p_values.subject_id', $subject->getKey())
             ->where(function ($query) {
-                $query
-                    ->orWhereNotNull('questions.miller')
-                    ->orWhereRaw("questions.miller <> ''")
-                    ->orWhereNotNull('questions.bloom')
-                    ->orWhereRaw("questions.bloom <> ''")
-                    ->orWhereNotNull('questions.rtti')
-                    ->orWhereRaw("questions.rtti <> ''");
+                $query->where(function ($q) {
+                    $q->WhereNotNull('questions.miller')
+                        ->WhereRaw("questions.miller <> ''");
+                })->orWhere(function ($q) {
+                    $q->WhereNotNull('questions.bloom')
+                        ->WhereRaw("questions.bloom <> ''");
+                })->orWhere(function ($q) {
+                    $q->WhereNotNull('questions.rtti')
+                        ->WhereRaw("questions.rtti <> ''");
+                });
             })
             ->filter($filters['periods'], $filters['education_level_years'], $filters['teachers'], $filters['isLearningGoal'])
             ->groupBy('id', 'title')
