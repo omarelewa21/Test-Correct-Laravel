@@ -23,6 +23,7 @@ abstract class TestEditModal extends TestModal
         $this->setProperties($testUuid);
         parent::mount();
     }
+
     protected function setRequestPropertyDefaults(): void
     {
         [$testKind, $subject, $edLevel, $edYear, $period] = $this->getRequestPropertiesForTest($this->test);
@@ -54,13 +55,13 @@ abstract class TestEditModal extends TestModal
 
         $this->test->fill($this->request);
         $this->test->save();
+        $this->closeModal();
 
         return $this->test;
     }
 
     protected function finishSubmitting(Test $test): void
     {
-        $this->closeModal();
         $this->emit('testSettingsUpdated', $this->request);
     }
 

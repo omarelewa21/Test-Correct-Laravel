@@ -294,7 +294,7 @@ class TestsOverview extends Component
             $params = ['teacher.test-create-modal'];
             if (Uuid::isValid($this->file)) {
                 $params = [
-                    'teacher.test-create-modal-with-file',
+                    'toetsenbakker.test-create-modal',
                     ['fileManagement' => $this->file]
                 ];
             }
