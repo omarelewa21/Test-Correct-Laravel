@@ -83,7 +83,7 @@
                             <div class="flex items-center gap-4">
                                 <span class="bold text-base">@lang('upload.content_check_text')</span>
                                 <x-button.slider class="flex gap-2 items-center"
-                                                 :options="[__('general.yes'), __('general.no')]"
+                                                 :options="[1 => __('general.yes'), 0 => __('general.no')]"
                                                  wire:model="testInfo.contains_publisher_content"
                                                  buttonWidth="auto"
                                 />

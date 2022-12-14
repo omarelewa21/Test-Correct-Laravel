@@ -152,6 +152,45 @@ class UploadTestTest extends TestCase
         $this->assertNotEquals($oldFormUuid, $newFormUuid);
     }
 
+    /** @test */
+    public function can_fill_contains_publisher_content_column_is_true_in_database()
+    {
+        $this->actingAs(self::getTeacherOne());
+        $testName = 'Hogere kaaskundigheid 101';
+
+        Storage::fake('test_uploads');
+        $file = UploadedFile::fake()->create('test_pdf.pdf');
+
+        $component = $this->getTestableLivewire()
+            ->set('testInfo.name', $testName)
+            ->set('uploads', [$file])
+            ->call('finishProcess');
+
+        $parent = FileManagement::whereName($testName)->with('children')->first();
+
+        $this->assertTrue($parent->contains_publisher_content);
+    }
+
+    /** @test */
+    public function can_fill_contains_publisher_content_column_is_false_in_database()
+    {
+        $this->actingAs(self::getTeacherOne());
+        $testName = 'Hogere kaaskundigheid 101';
+
+        Storage::fake('test_uploads');
+        $file = UploadedFile::fake()->create('test_pdf.pdf');
+
+        $component = $this->getTestableLivewire()
+            ->set('testInfo.name', $testName)
+            ->set('testInfo.contains_publisher_content', false)
+            ->set('uploads', [$file])
+            ->call('finishProcess');
+
+        $parent = FileManagement::whereName($testName)->with('children')->first();
+
+        $this->assertFalse($parent->contains_publisher_content);
+    }
+
     /**
      * @return \Livewire\Testing\TestableLivewire
      */
