@@ -1,6 +1,6 @@
 <div class="w-full">
     <x-sticky-page-title @class([
-        'top-[160px]' => $this->viewingAsTeacher(),
+        'top-[150px]' => $this->viewingAsTeacher(),
         'top-20' => !$this->viewingAsTeacher(),
     ])>
         @yield('analyses.header.title')

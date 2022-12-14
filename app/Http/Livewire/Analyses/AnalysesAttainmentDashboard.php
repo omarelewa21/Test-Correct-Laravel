@@ -43,7 +43,7 @@ class AnalysesAttainmentDashboard extends AnalysesDashboard
 
     public function render()
     {
-        return view('livewire.analyses.analyses-attainment-dashboard')->layout('layouts.student');
+        return view('livewire.analyses.analyses-attainment-dashboard')->layout($this->getHelper()->getLayout());;
     }
 
     public function getDataProperty()
