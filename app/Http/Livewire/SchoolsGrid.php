@@ -124,6 +124,6 @@ class SchoolsGrid extends Component
             $this->cleanFilterForSearch($this->filters),
             [$this->orderByColumnName => $this->orderByDirection]
         )->with('umbrellaOrganization')
-            ->paginate(1, ['schools.*']);
+            ->paginate(15, ['schools.*']);
     }
 }
