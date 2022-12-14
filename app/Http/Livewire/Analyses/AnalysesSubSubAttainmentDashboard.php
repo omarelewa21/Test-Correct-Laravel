@@ -45,7 +45,7 @@ class AnalysesSubSubAttainmentDashboard extends AnalysesDashboard
 
     public function render()
     {
-        return view('livewire.analyses.analyses-sub-sub-attainment-dashboard')->layout('layouts.student');
+        return view('livewire.analyses.analyses-sub-sub-attainment-dashboard')->layout($this->getHelper()->getLayout());;
     }
 
     public function getDataForGeneralGraph($subjectId, $taxonomy)

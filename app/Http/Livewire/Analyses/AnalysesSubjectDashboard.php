@@ -78,7 +78,7 @@ class AnalysesSubjectDashboard extends AnalysesDashboard
 
     public function render()
     {
-        return view('livewire.analyses.analyses-subject-dashboard')->layout('layouts.student');
+        return view('livewire.analyses.analyses-subject-dashboard')->layout($this->getHelper()->getLayout());;
     }
 
     private function attainmentModeIsLearningGoal()
