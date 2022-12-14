@@ -180,9 +180,7 @@
                                     <x-icon.attachment/>
                                     <span>@lang('cms.Bijlage toevoegen')</span>
                                 </x-button.primary>
-                                <input type="file" id="file-upload" multiple @change="handleFileSelect" class="hidden"
-                                       x-on:livewire-upload-start="console.log('start')"
-                                />
+                                <input type="file" id="file-upload" multiple @change="handleFileSelect" class="hidden"/>
                             </label>
                             <span class="italic">@lang('cms.Of sleep je bijlage over dit vak')</span>
                         </div>
@@ -272,24 +270,28 @@
                                     <x-input.toggle-row-with-title container-class="border-t pt-[5px] pb-[5px]"
                                                                    wire:model="checkInfo.question_model"
                                                                    :toolTip="__('upload.question_model_tooltip')"
+                                                                   :tooltipAlwaysLeft="true"
                                     >
                                         <span class="mr-6">@lang('upload.Vraagmodel')</span>
                                     </x-input.toggle-row-with-title>
                                     <x-input.toggle-row-with-title container-class="pt-[5px] pb-[5px]"
                                                                    wire:model="checkInfo.answer_model"
                                                                    :toolTip="__('upload.answer_model_tooltip')"
+                                                                   :tooltipAlwaysLeft="true"
                                     >
                                         <span class="mr-6">@lang('upload.Antwoordmodel')</span>
                                     </x-input.toggle-row-with-title>
                                     <x-input.toggle-row-with-title container-class="pt-[5px] pb-[5px]"
                                                                    wire:model.defer="checkInfo.attachments"
                                                                    :toolTip="__('upload.attachments_tooltip')"
+                                                                   :tooltipAlwaysLeft="true"
                                     >
                                         <span class="mr-6">@lang('cms.bijlagen')</span>
                                     </x-input.toggle-row-with-title>
                                     <x-input.toggle-row-with-title container-class="pt-[5px] pb-[5px]"
                                                                    wire:model.defer="checkInfo.elaboration_attachments"
                                                                    :toolTip="__('upload.elaboration_attachment_model_tooltip')"
+                                                                   :tooltipAlwaysLeft="true"
                                     >
                                         <span class="mr-6">@lang('upload.Uitwerkbijlagen')</span>
                                     </x-input.toggle-row-with-title>

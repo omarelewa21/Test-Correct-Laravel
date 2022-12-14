@@ -171,7 +171,8 @@ class FileManagementController extends Controller
     public function index(Requests\IndexFileManagementRequest $request)
     {
 
-        $builder = FileManagement::filtered(Auth::user(), $request->get('filter', []), $request->get('order', []));
+        $builder = FileManagement::filtered(Auth::user(), $request->get('filter', []), $request->get('order', []))
+            ->with('subject');
 
         switch (strtolower($request->get('mode', 'paginate'))) {
             case 'all':
@@ -190,7 +191,7 @@ class FileManagementController extends Controller
      */
     public function show(ShowFileManagementRequest $request, FileManagement $fileManagement)
     {
-        $fileManagement->load(['user', 'handler', 'status', 'children', 'schoolLocation', 'test']);
+        $fileManagement->load(['user', 'handler', 'status', 'children', 'schoolLocation', 'test', 'subject']);
 
         $user = Auth::user();
         if ($user->hasRole('Account manager') || $user->isToetsenbakker()) {

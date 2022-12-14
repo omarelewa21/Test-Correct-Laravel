@@ -198,7 +198,7 @@ class UploadTest extends Component
         if (!$selectedItem) {
             return '';
         }
-        return $selectedItem->label ?? '';
+        return html_entity_decode($selectedItem->label) ?? '';
     }
 
     public function finishProcess()
