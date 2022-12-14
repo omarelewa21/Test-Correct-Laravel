@@ -65,7 +65,7 @@
                                         </span>
                                     @else
                                         <span class="text-sm rounded-full bg-grade">
-                                            <x-icon.time-dispensation class="text-white" wire:key="svg_{{$loop->iteration}}" :title="__('test_take.waiting_grade')"/>
+                                            <x-icon.time-dispensation class="text-white"/>
                                         </span>
                                     @endif
                                 </x-table.cell>
