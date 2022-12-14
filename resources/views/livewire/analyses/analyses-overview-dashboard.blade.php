@@ -32,7 +32,7 @@
 
 
         <div x-data="analysesSubjectsGraph('pValueChart')"
-             x-on:filters-updated.window="updateGraph"
+             x-on:filters-updated.window="updateGraph();"
         >            <div id="pValueChart" style="height: 400px;" class="relative" wire:ignore>
                 <x-empty-graph x-show="showEmptyState" :show="true"></x-empty-graph>
             </div>
