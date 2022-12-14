@@ -106,6 +106,7 @@ class CakeRedirectHelper
             ],
             'school.view'   => [
                 'page'        => '/',
+                'page_number' => $this->page,
                 'page_action' => sprintf("Navigation.load('/schools/view/%s')", $this->uuid)
             ],
             'school.edit'   => [

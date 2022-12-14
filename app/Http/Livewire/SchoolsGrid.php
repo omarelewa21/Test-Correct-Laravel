@@ -101,7 +101,7 @@ class SchoolsGrid extends Component
 
     public function viewSchool($uuid)
     {
-        return CakeRedirectHelper::redirectToCake('school.view', $uuid);
+        return CakeRedirectHelper::redirectToCake('school.view', $uuid, $this->page);
     }
 
     public function editSchool($uuid)
@@ -124,6 +124,6 @@ class SchoolsGrid extends Component
             $this->cleanFilterForSearch($this->filters),
             [$this->orderByColumnName => $this->orderByDirection]
         )->with('umbrellaOrganization')
-            ->paginate(15, ['schools.*']);
+            ->paginate(1, ['schools.*']);
     }
 }
