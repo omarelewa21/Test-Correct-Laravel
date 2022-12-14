@@ -78,4 +78,5 @@ return [
     'unarchive_test_take_first'                    => 'Unarchive this test take to view the details.',
     'nvt'                                          => 'N/A',
     'hide_grade_tooltip'                           => "Formative assessment furthers insight and progression. There is no grade applicable for this test.",
+    'waiting_grade'                                => "Currently checking & grading. Grade not yet available",
 ];

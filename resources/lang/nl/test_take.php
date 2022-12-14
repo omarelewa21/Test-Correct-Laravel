@@ -81,5 +81,5 @@ return [
     'unarchive_test_take_first'                    => 'Dearchiveer deze toets afname om de details te bekijken.',
     'nvt'                                          => 'N.v.t.',
     'hide_grade_tooltip'                           => 'Bij formatieve toetsen staan inzicht en voortgang centraal. Daarom zie je hier geen cijfer.',
-
+    'waiting_grade'                                => "Bezig met nakijken & becijferen. Cijfer nog niet beschikbaar",
 ];
