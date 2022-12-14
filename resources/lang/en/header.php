@@ -41,6 +41,7 @@ return [
     'Supportpagina' => 'Support page',
     'Automatisch uitloggen uitstellen' => 'Defer automatic logout',
     'Uploaden toets' => 'Upload test',
+    'Te verwerken Toetsen' => 'Tests to process',
 
     'Webinar' => 'Webinar',
     'Email' => 'E-mail',

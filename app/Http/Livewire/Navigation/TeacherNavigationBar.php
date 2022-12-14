@@ -66,16 +66,20 @@ class TeacherNavigationBar extends NavigationBar
 
     private function filterMenuForToetsenbakker()
     {
-        $this->menus = $this->menus->mapWithKeys(function ($menu, $menuName) {
-            if ($menuName === 'taken') {
-                $menu->hasItems = false;
-                $menu->action = (object)[
-                    'directive'  => 'wire',
-                    'method'     => 'laravelRedirect',
-                    'parameters' => route('teacher.file-management.testuploads')
-                ];
+        $this->tileGroups = $this->tileGroups->mapWithKeys(function ($tiles, $menuName) {
+            if ($menuName === 'tests') {
+                foreach($tiles as $tileName => $tile) {
+                    if($tileName === 'my-uploads') {
+                        $tile->action = (object)[
+                            'directive'  => 'wire',
+                            'method'     => 'laravelRedirect',
+                            'parameters' => route('teacher.file-management.testuploads')
+                        ];
+
+                    }
+                }
             }
-            return [$menuName => $menu];
+            return [$menuName => $tiles];
         });
 
     }
