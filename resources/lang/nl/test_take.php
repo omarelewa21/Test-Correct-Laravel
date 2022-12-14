@@ -82,5 +82,5 @@ return [
     'update_to_taken'                              => 'Terug naar afgenomen',
     'nvt'                                          => 'N.v.t.',
     'hide_grade_tooltip'                           => 'Bij formatieve toetsen staan inzicht en voortgang centraal. Daarom zie je hier geen cijfer.',
-
+    'waiting_grade'                                => "Bezig met nakijken & becijferen. Cijfer nog niet beschikbaar",
 ];

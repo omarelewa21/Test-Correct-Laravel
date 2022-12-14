@@ -152,7 +152,9 @@
                                                     {{ $this->getRatingToDisplay($testTake->testParticipants->first()) }}
                                                 </span>
                                             @else
-                                                <x-icon.time-dispensation class="text-inherit"/>
+                                                <span class="text-sm rounded-full bg-grade" style="background-color: #929daf">
+                                                    <x-icon.time-dispensation class="text-white" :title="__('test_take.waiting_grade')"/>
+                                                </span>
                                             @endif
                                         </x-table.cell>
                                     </x-table.row>

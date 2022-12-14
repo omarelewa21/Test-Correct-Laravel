@@ -245,3 +245,8 @@
 .Wirisformula {
     display: inline;
 }
+
+.bg-grade {
+    background-color: #929daf;
+    padding: 0.4rem 0.3rem;
+}
