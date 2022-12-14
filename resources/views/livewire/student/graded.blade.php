@@ -64,8 +64,8 @@
                                             {{ $this->getRatingToDisplay($testTake->testParticipants->first()) }}
                                         </span>
                                     @else
-                                        <span class="text-sm rounded-full bg-grade" style="background-color: #929daf">
-                                            <x-icon.time-dispensation class="text-white" :title="__('test_take.waiting_grade')"/>
+                                        <span class="text-sm rounded-full bg-grade">
+                                            <x-icon.time-dispensation class="text-white" wire:key="svg_{{$loop->iteration}}" :title="__('test_take.waiting_grade')"/>
                                         </span>
                                     @endif
                                 </x-table.cell>
