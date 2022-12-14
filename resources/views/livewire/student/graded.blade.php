@@ -65,7 +65,7 @@
                                         </span>
                                     @else
                                         <span class="text-sm rounded-full bg-grade">
-                                            <x-icon.time-dispensation class="text-white"/>
+                                            <x-icon.time-dispensation class="text-white" :title="__('test_take.waiting_grade')"/>
                                         </span>
                                     @endif
                                 </x-table.cell>
