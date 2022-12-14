@@ -31,7 +31,6 @@ class AnalysesSubAttainmentDashboard extends AnalysesDashboard
         parent::mount();
         if ($this->attainment) {
             $this->attainmentOrderNumber = $this->attainment->getOrderNumber();
-//            dd($this->attainmentOrderNumber);
             if ($this->attainment->attainment) {
                 $this->parentAttainmentOrderNumber = $this->attainment->attainment->getOrderNumber();
             }

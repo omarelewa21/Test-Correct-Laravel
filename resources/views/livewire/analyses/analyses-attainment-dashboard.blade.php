@@ -36,7 +36,6 @@
     <x-content-section>
 
         <x-slot name="title">
-            <div class="hidden">{{ $this->data }}</div>
             @if ($attainment->is_learning_goal == 1)
                 {{__('student.p waarde subleerdoelen') }}
             @else
