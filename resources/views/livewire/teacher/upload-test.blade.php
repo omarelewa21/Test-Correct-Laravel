@@ -60,12 +60,13 @@
                         </x-input.group>
                         <x-input.group class="col-span-2 lg:col-span-1" :label="__('general.jaar')">
                             <x-input.choices-select :multiple="false"
-                                                    :options="[['value'=> 1, 'label' => '1'], ['value'=> 2, 'label' => '2'], ['value'=> 2, 'label' => '3'], ['value'=> 2, 'label' => '4']]"
+                                                    :options="$this->educationLevelYears"
                                                     :withSearch="true"
                                                     :placeholderText="__('general.jaar')"
                                                     :searchPlaceholder="__('general.jaar')"
                                                     wire:model="testInfo.education_level_year"
                                                     class="super"
+                                                    wire:key="years-{{ count($this->educationLevelYears) }}"
                             />
                         </x-input.group>
                         <x-input.group class="col-span-3 lg:col-span-2" :label="__('teacher.type')">
