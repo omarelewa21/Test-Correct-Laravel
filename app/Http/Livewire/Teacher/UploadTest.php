@@ -130,6 +130,27 @@ class UploadTest extends Component
             ->uuidOptionList();
     }
 
+    public function getEducationLevelYearsProperty(): array
+    {
+        if ($this->hasSelectedEducationLevelYear()) {
+            return $this->educationLevelYearOptionsForSelectedLevel();
+        }
+
+        return [
+            ['value' => 1, 'label' => '1'],
+            ['value' => 2, 'label' => '2'],
+            ['value' => 3, 'label' => '3'],
+            ['value' => 4, 'label' => '4'],
+            ['value' => 5, 'label' => '5'],
+            ['value' => 6, 'label' => '6'],
+        ];
+    }
+
+    public function updatedTestInfoEducationLevelUuid($value)
+    {
+        $this->testInfo['education_level_year'] = null;
+    }
+
     public function getTestKindsProperty(): \Countable
     {
         return TestKind::orderBy('name')
@@ -327,5 +348,22 @@ class UploadTest extends Component
     private function setFormUuid()
     {
         $this->formUuid = Uuid::uuid4();
+    }
+
+    /**
+     * @return bool
+     */
+    private function hasSelectedEducationLevelYear(): bool
+    {
+        return is_string($this->testInfo['education_level_uuid']) && Uuid::isValid($this->testInfo['education_level_uuid']);
+    }
+
+    private function educationLevelYearOptionsForSelectedLevel(): array
+    {
+        $maxYears = EducationLevel::whereUuid($this->testInfo['education_level_uuid'])->first()->max_years;
+
+        return collect(range(1, $maxYears))
+            ->map(fn($value) => ['value' => (int)$value, 'label' => (string)$value])
+            ->toArray();
     }
 }
