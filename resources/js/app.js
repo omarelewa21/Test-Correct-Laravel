@@ -25,6 +25,12 @@ makeHeaderMenuActive = function (elementId) {
     document.getElementById(elementId).classList.add('active');
 }
 
+addCSRFTokenToEcho = function (token) {
+ if(typeof Echo.connector.pusher.config.auth !== 'undefined') {
+     Echo.connector.pusher.config.auth.headers['X-CSRF-TOKEN'] = token;
+ }
+}
+
 isInputElement = function(target) {
     if(/^(?:input|textarea|select|button)$/i.test(target.tagName.toLowerCase())){
         return true;

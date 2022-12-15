@@ -27,7 +27,7 @@
             <script src="https://wsc.test-correct.nl/wscservice/wscbundle/wscbundle.js"></script>
         @endif
         <script>
-            Echo.connector.pusher.config.auth.headers['X-CSRF-TOKEN'] = '{{ csrf_token() }}'
+            addCSRFTokenToEcho('{{ csrf_token() }}');
         </script>
     @endpush
 </x-layouts.base>
