@@ -2,6 +2,7 @@
 
 namespace tcCore\Http\Livewire\CoLearning;
 
+use Illuminate\Support\Str;
 use Livewire\Component;
 use tcCore\Answer;
 use tcCore\AnswerRating;
@@ -20,12 +21,16 @@ abstract class CoLearningQuestion extends Component
     public $answerRatingId;
     protected $answerRating;
 
+    public $originalUrl;
+
     protected $listeners = [
         'getNextAnswerRating' => 'initializeComponent',
     ];
 
     public function mount()
     {
+        $this->originalUrl = \Livewire::originalUrl();
+
         $this->initializeComponent();
     }
 
@@ -40,12 +45,22 @@ abstract class CoLearningQuestion extends Component
         $this->answerRating = AnswerRating::find($this->answerRatingId);
 
         $this->question = $this->answerRating->answer->question;
+
+        $this->redirectByWrongQuestionType();
+
         $this->answered = $this->answerRating->answer->isAnswered;
 
         $this->handleGetAnswerData();
 
         if(!is_null($this->question->belongs_to_groupquestion_id)){
             $this->question->groupQuestion = Question::find($this->question->belongs_to_groupquestion_id);
+        }
+    }
+
+    public function redirectByWrongQuestionType()
+    {
+        if(!Str::endsWith(get_class($this), $this->question->type)) {
+             return redirect($this->originalUrl);
         }
     }
 

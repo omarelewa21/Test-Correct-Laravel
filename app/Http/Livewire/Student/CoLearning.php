@@ -135,15 +135,11 @@ class CoLearning extends Component
             return;
         }
         $this->getAnswerRatings('previous');
-
-        $this->emit('getNextAnswerRating', [$this->answerRatingId, $this->questionOrderNumber, $this->answerFollowUpNumber]);
     }
 
     public function goToNextAnswerRating(): void
     {
         $this->getAnswerRatings('next');
-
-        $this->emit('getNextAnswerRating', [$this->answerRatingId, $this->questionOrderNumber, $this->answerFollowUpNumber]);
     }
 
     public function goToNextQuestion(): void
@@ -151,8 +147,6 @@ class CoLearning extends Component
         $this->waitForTeacherNotificationEnabled = false;
 
         $this->getAnswerRatings();
-
-        $this->emit('getNextAnswerRating', [$this->answerRatingId, $this->questionOrderNumber, $this->answerFollowUpNumber]);
     }
 
     /**
