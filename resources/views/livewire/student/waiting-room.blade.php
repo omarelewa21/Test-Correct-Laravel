@@ -173,7 +173,11 @@
         <div class="w-full h-full px-4 lg:px-8 xl:px-12 transition-all duration-500">
             <div class="flex h-full flex-col mx-auto max-w-7xl transition-all duration-500 pt-16">
                 <div class="flex flex-col mb-4">
-                    <span class="-mb-2">{{ __('student.planned_test') }}</span>
+                    @if($this->testTakeStatusStage === 'discuss')
+                        <span class="-mb-2">{{ __('student.discussing_test') }}</span>
+                    @else
+                        <span class="-mb-2">{{ __('student.planned_test') }}</span>
+                    @endif
                     <x-button.text-button class="rotate-svg-180"
                                           x-on:click="startCountdown = false; stopCountdownTimer($refs.root._x_dataStack[0])">
                         <x-icon.arrow/>
@@ -198,13 +202,15 @@
         <script>
             let countdownTimer;
 
-            function startCountdownTimer(data) {
+            function startCountdownTimer(data, listener = 'start-test-take') {
                 countdownTimer = setInterval(function () {
                     data.countdownNumber -= 1;
                     if (data.countdownNumber === 0) {
-                        Core.setAppTestConfigIfNecessary('{{ $testParticipant->uuid }}');
+                        if(listener === 'start-test-take') {
+                            Core.setAppTestConfigIfNecessary('{{ $testParticipant->uuid }}');
+                        }
                         clearClipboard().then(()=>{
-                            Livewire.emitTo('student.waiting-room', 'start-test-take');
+                            Livewire.emitTo('student.waiting-room', listener);
                         });
                         clearInterval(countdownTimer);
                     }

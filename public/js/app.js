@@ -7003,6 +7003,12 @@ makeHeaderMenuActive = function makeHeaderMenuActive(elementId) {
   document.getElementById(elementId).classList.add('active');
 };
 
+addCSRFTokenToEcho = function addCSRFTokenToEcho(token) {
+  if (typeof Echo.connector.pusher.config.auth !== 'undefined') {
+    Echo.connector.pusher.config.auth.headers['X-CSRF-TOKEN'] = token;
+  }
+};
+
 isInputElement = function isInputElement(target) {
   if (/^(?:input|textarea|select|button)$/i.test(target.tagName.toLowerCase())) {
     return true;
