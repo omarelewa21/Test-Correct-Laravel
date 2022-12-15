@@ -10,10 +10,10 @@
                 <x-slot name="icon"><x-icon.pdf-file/></x-slot>
                 <x-slot name="text">{{ __('test-take.Antwoord PDF') }}</x-slot>
             </x-menu.context-menu.button>
-            <!-- x-menu.context-menu.button wire:click="updateStatusToTaken">
+            <x-menu.context-menu.button wire:click="updateStatusToTaken">
                 <x-slot name="icon"><x-icon.arrow/></x-slot>
                 <x-slot name="text">{{ __('test_take.update_to_taken') }}</x-slot>
-            </x-menu.context-menu.button -->
+            </x-menu.context-menu.button>
         @endif
         @if($this->hasSkipDiscussing())
             <x-menu.context-menu.button wire:click="skipDiscussing">
