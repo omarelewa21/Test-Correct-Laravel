@@ -34,7 +34,7 @@
     @endif
     <x-slot name="testName">{{ $testTake->test->name }}</x-slot>
 
-    @if(!$coLearningFinished && $waitForTeacherNotificationEnabled)
+    @if(!$finishCoLearningButtonEnabled && $waitForTeacherNotificationEnabled)
         <div class="fixed min-w-max right-1/2 translate-x-1/2 top-[93px] px-2 shadow border informational rounded leading-7 bold flex items-center">
             <x-icon.time-dispensation/>
             <span class="ml-2">{{ __('co-learning.wait_for_teacher') }}</span>
