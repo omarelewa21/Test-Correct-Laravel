@@ -38,7 +38,7 @@
     @if($isTakeOpen)
         <div class="divider flex flex-1 pulse-left"></div>
         <div class="flex flex-col justify-center">
-            <x-button.cta wire:click="startReview" selid="start-review">
+            <x-button.cta x-on:click="startCountdown = true; startCountdownTimer($refs.root._x_dataStack[0], 'start-review');" selid="start-review">
                 <x-icon.preview/>
                 <span>{{ __('student.start_review') }}</span>
             </x-button.cta>
@@ -55,7 +55,7 @@
     @if($isTakeOpen)
         <div class="divider flex flex-1 pulse-left"></div>
         <div class="flex flex-col justify-center">
-            <x-button.cta wire:click="startReview" selid="start-review">
+            <x-button.cta x-on:click="startCountdown = true; startCountdownTimer($refs.root._x_dataStack[0], 'start-graded');" selid="start-review">
                 <x-icon.preview/>
                 <span>{{ __('student.start_review') }}</span>
             </x-button.cta>

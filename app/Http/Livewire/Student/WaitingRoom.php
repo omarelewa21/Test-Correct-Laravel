@@ -29,6 +29,8 @@ class WaitingRoom extends Component
         return [
             'start-test-take'                                                                                              => 'startTestTake',
             'start-discussing'                                                                                             => 'startDiscussing',
+            'start-review'                                                                                                 => 'startReview',
+            'start-graded'                                                                                                 => 'startReview',
             'is-test-take-open'                                                                                            => 'isTestTakeOpen',
             'echo-private:TestParticipant.' . $this->testParticipant->uuid . ',.TestTakeOpenForInteraction'                => 'isTestTakeOpen',
             'echo-private:TestParticipant.' . $this->testParticipant->uuid . ',.InbrowserTestingUpdatedForTestParticipant' => 'participantAppCheck',

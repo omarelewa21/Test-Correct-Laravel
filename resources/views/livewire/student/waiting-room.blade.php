@@ -175,6 +175,8 @@
                 <div class="flex flex-col mb-4">
                     @if($this->testTakeStatusStage === 'discuss')
                         <span class="-mb-2">{{ __('student.discussing_test') }}</span>
+                    @elseif($this->testTakeStatusStage === 'review' || $this->testTakeStatusStage === 'graded')
+                        <span class="-mb-2">{{ __('student.review_test') }}</span>
                     @else
                         <span class="-mb-2">{{ __('student.planned_test') }}</span>
                     @endif
