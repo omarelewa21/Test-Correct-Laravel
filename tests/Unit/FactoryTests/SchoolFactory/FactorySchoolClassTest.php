@@ -17,7 +17,6 @@ use Tests\TestCase;
 
 class FactorySchoolClassTest extends TestCase
 {
-    use DatabaseTransactions;
     use WithFaker;
 
     //add Mentors?
@@ -74,7 +73,7 @@ class FactorySchoolClassTest extends TestCase
         $this->assertEquals(1, $schoolClass->is_main_school_class);
         $this->assertEquals(0, $schoolClass->do_not_overwrite_from_interface);
     }
-    
+
     /** @test */
     public function can_add_students_to_school_class()
     {
@@ -96,7 +95,7 @@ class FactorySchoolClassTest extends TestCase
 
         $this->assertEquals(2, $schoolClassFactory->schoolClass->students->count());
     }
-    
+
     /** @test */
     public function can_add_teacher_to_school_class()
     {

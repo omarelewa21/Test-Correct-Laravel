@@ -24,7 +24,7 @@ use Tests\TestCase;
 
 class AttainmentTest extends TestCase
 {
-    use DatabaseTransactions;
+//    use DatabaseTransactions;
 
     /** @test */
     public function name_should_return_attainment_translation_with_order_number()

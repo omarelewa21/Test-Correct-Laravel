@@ -25,6 +25,11 @@ abstract class FactoryScenarioTest
         return $factory;
     }
 
+    /**
+     * @param string|null $testName
+     * @param User|null $user
+     * @return Test
+     */
     public static function createTest(string $testName = null, User $user = null) : Test
     {
         $factory = self::create($testName, $user);

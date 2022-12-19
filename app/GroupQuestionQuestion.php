@@ -1,13 +1,18 @@
 <?php namespace tcCore;
 
+use tcCore\Exceptions\QuestionException;
+use tcCore\Http\Helpers\QuestionHelper;
+use tcCore\Lib\GroupQuestionQuestion\GroupQuestionQuestionManager;
 use tcCore\Lib\Models\BaseModel;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Dyrynda\Database\Casts\EfficientUuid;
 use Dyrynda\Database\Support\GeneratesUuid;
 use Ramsey\Uuid\Uuid;
+use tcCore\Lib\Question\Factory;
 use tcCore\Traits\UuidTrait;
 
-class GroupQuestionQuestion extends BaseModel {
+class GroupQuestionQuestion extends BaseModel
+{
 
     use SoftDeletes;
     use UuidTrait;
@@ -51,17 +56,17 @@ class GroupQuestionQuestion extends BaseModel {
         parent::boot();
 
         // Progress additional answers
-        static::saved(function(GroupQuestionQuestion $groupQuestionQuestion) {
+        static::saved(function (GroupQuestionQuestion $groupQuestionQuestion) {
             if ($groupQuestionQuestion->doCallbacks() && ($groupQuestionQuestion->getOriginal('order') != $groupQuestionQuestion->getAttribute('order') || $groupQuestionQuestion->getOriginal('group_question_id') != $groupQuestionQuestion->getAttribute('group_question_id'))) {
                 $groupQuestionQuestion->groupQuestion->reorder($groupQuestionQuestion);
             }
         });
 
-        $metadataCallback = function(GroupQuestionQuestion $groupQuestionQuestion) {
+        $metadataCallback = function (GroupQuestionQuestion $groupQuestionQuestion) {
             if ($groupQuestionQuestion->doCallbacks()) {
                 $tests = $groupQuestionQuestion->groupQuestion->gatherAffectedTests();
 
-                foreach($tests as $test) {
+                foreach ($tests as $test) {
                     $test->performMetadata();
                 }
             }
@@ -73,23 +78,28 @@ class GroupQuestionQuestion extends BaseModel {
         static::deleted($metadataCallback);
     }
 
-    public function setCallbacks($callbacks) {
+    public function setCallbacks($callbacks)
+    {
         $this->callbacks = ($callbacks === true);
     }
 
-    public function doCallbacks() {
+    public function doCallbacks()
+    {
         return $this->callbacks;
     }
 
-    public function groupQuestion() {
+    public function groupQuestion()
+    {
         return $this->belongsTo('tcCore\Question', 'group_question_id');
     }
 
-    public function question() {
+    public function question()
+    {
         return $this->belongsTo('tcCore\Question', 'question_id');
     }
 
-    public function duplicate($parent, array $attributes = [], $callbacks = true) {
+    public function duplicate($parent, array $attributes = [], $callbacks = true)
+    {
         $groupQuestionQuestion = $this->replicate();
         $groupQuestionQuestion->fill($attributes);
 
@@ -110,8 +120,8 @@ class GroupQuestionQuestion extends BaseModel {
 
     public function scopeFiltered($query, $filters = [], $sorting = [])
     {
-        foreach($filters as $key => $value) {
-            switch($key) {
+        foreach ($filters as $key => $value) {
+            switch ($key) {
                 case 'group_question_id':
                     if (is_array($value)) {
                         $query->whereIn('group_question_id', $value);
@@ -129,8 +139,8 @@ class GroupQuestionQuestion extends BaseModel {
             }
         }
 
-        foreach($sorting as $key => $value) {
-            switch(strtolower($value)) {
+        foreach ($sorting as $key => $value) {
+            switch (strtolower($value)) {
                 case 'id':
                 case 'order':
                     $key = $value;
@@ -142,7 +152,7 @@ class GroupQuestionQuestion extends BaseModel {
                 default:
                     $value = 'asc';
             }
-            switch(strtolower($key)) {
+            switch (strtolower($key)) {
                 case 'id':
                 case 'order':
                     $query->orderBy($key, $value);
@@ -153,5 +163,50 @@ class GroupQuestionQuestion extends BaseModel {
         return $query;
     }
 
+    public static function store(GroupQuestionQuestionManager|TestQuestion $groupQuestionQuestionManager, array $questionProperties): GroupQuestionQuestion
+    {
+        if ($groupQuestionQuestionManager instanceof TestQuestion) {
+            $groupQuestionQuestionManager = GroupQuestionQuestionManager::getInstanceWithUuid($groupQuestionQuestionManager->uuid);
+        }
+        $groupQuestion = $groupQuestionQuestionManager->getQuestionLink()->question;
 
+        $question = Factory::makeQuestion($questionProperties['type']);
+        if (!$question) {
+            throw new QuestionException('Failed to create question with factory', 500);
+        }
+
+        $groupQuestionQuestion = new GroupQuestionQuestion();
+        $groupQuestionQuestion->fill($questionProperties);
+        $groupQuestionQuestion->setAttribute('group_question_id', $groupQuestion->getKey());
+
+        $qHelper = new QuestionHelper();
+        $questionData = [];
+        if ($questionProperties['type'] == 'CompletionQuestion') {
+            $questionData = $qHelper->getQuestionStringAndAnswerDetailsForSavingCompletionQuestion($questionProperties['question']);
+        }
+        $totalData = array_merge($questionProperties, $questionData);
+        $question->fill($totalData);
+
+        Question::setAttributesFromParentModel($question, $groupQuestion);
+
+        $question->getQuestionInstance()->setAttribute('is_subquestion', 1);
+
+        if (!$question->save()) {
+            throw new QuestionException('Failed to save question for group question', 500);
+        }
+
+        $groupQuestionQuestion->setAttribute('question_id', $question->getKey());
+
+        if (!$groupQuestionQuestion->save()) {
+            throw new QuestionException('Failed to create group question question', 500);
+        }
+
+        if (Question::usesDeleteAndAddAnswersMethods($questionProperties['type'])) {
+            $groupQuestionQuestion->question->addAnswers($groupQuestionQuestion, $totalData['answers']);
+        }
+
+        $groupQuestionQuestion->setAttribute('group_question_question_path', $groupQuestionQuestionManager->getGroupQuestionQuestionPath());
+
+        return $groupQuestionQuestion;
+    }
 }

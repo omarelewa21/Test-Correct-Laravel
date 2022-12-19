@@ -2,6 +2,7 @@
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 use tcCore\SchoolYear;
 use Ramsey\Uuid\Uuid;
@@ -62,7 +63,7 @@ class AddUuidColumn extends Migration
         'test_questions','onboarding_wizards','group_question_questions','file_managements','test_takes','test_participants','test_take_events','education_levels',
         'invigilators','students','open_questions','attainments','teachers','sales_organizations','umbrella_organizations','schools','licenses','messages', 'grading_scales',
         'base_subjects', 'tags','group_questions','infoscreen_questions','completion_questions','multiple_choice_questions','ranking_questions','matching_questions',
-        'drawing_questions','matrix_questions','questions','test_take_event_types','school_years',];
+        'drawing_questions','matrix_questions','questions','test_take_event_types','school_years','test_kinds'];
 
     /**
      * Run the migrations.
@@ -77,21 +78,23 @@ class AddUuidColumn extends Migration
         $this->down();
 
 
-        DB::beginTransaction();
+//        DB::beginTransaction();
         try {
 
             collect($this->tables)->unique()->each(function($tableName){
-                Schema::table($tableName, function (Blueprint $table) {
-                    $table->efficientUuid('uuid')->index()->unique()->nullable();
-                });
+                if (!Schema::hasColumn($tableName, 'uuid')) {
+                    Schema::table($tableName, function (Blueprint $table) {
+                        $table->efficientUuid('uuid')->index()->unique()->nullable();
+                    });
+                }
             });
 
         } catch (\Exception $e) {
-            DB::rollback();
+//            DB::rollback();
             logger('===== error with UUID STRUCTURE migration' . $e->getMessage());
             throw $e;
         }
-        DB::commit();
+//        DB::commit();
     }
 
     /**

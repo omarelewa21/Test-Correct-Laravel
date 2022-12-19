@@ -7,6 +7,9 @@ namespace Tests\Unit\Http\Helpers;
 use tcCore\Http\Helpers\EduIxService;
 use Tests\TestCase;
 
+/**
+ * @group ignore
+ */
 class EduIxServiceTest extends TestCase
 {
     private $service;

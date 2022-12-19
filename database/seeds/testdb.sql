@@ -24,9 +24,9 @@ SET NAMES utf8mb4;
 # Dump of table addresses
 # ------------------------------------------------------------
 
-DROP TABLE IF EXISTS `addresses`;
+DROP TABLE IF EXISTS addresses;
 
-CREATE TABLE `addresses` (
+CREATE TABLE addresses (
   `id` int unsigned NOT NULL AUTO_INCREMENT,
   `created_at` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
   `updated_at` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',

@@ -6,6 +6,7 @@ use tcCore\Factories\Traits\DoWhileLoggedInTrait;
 use tcCore\Factories\Traits\RandomCharactersGeneratable;
 use tcCore\Http\Helpers\ActingAsHelper;
 use tcCore\Lib\User\Factory;
+use tcCore\Role;
 use tcCore\SchoolLocation;
 use tcCore\User;
 
@@ -29,7 +30,6 @@ class FactoryUser
         } else {
             $username = 'AM+' . $factory->randomCharacters(4) . '@factory.test';
         }
-
         $factory->userProperties = array_merge($factory->definition(), [
             'name_first'   => 'Account',
             'name'         => 'Manager',
@@ -39,6 +39,7 @@ class FactoryUser
         ], $userProperties);
 
         $factory->createUser();
+
 
         return $factory;
     }
@@ -55,7 +56,7 @@ class FactoryUser
             'abbreviation'       => 'SM',
             'username'           => $username,
             'school_location_id' => $schoolLocation->getKey(),
-            'user_roles'         => [6], //school manager role == 6
+            'user_roles'         => [Role::SCHOOLMANAGER],
         ], $userProperties);
 
         $factory->createUser();
@@ -68,12 +69,12 @@ class FactoryUser
         $factory = new static;
 
         $schoolLocationId = $schoolLocation->getKey();
-        if(!isset(static::$teacherIterator[$schoolLocationId])){
+        if (!isset(static::$teacherIterator[$schoolLocationId])) {
             static::$teacherIterator[$schoolLocationId] = 0;
         }
-        $number = ++static::$teacherIterator[$schoolLocationId] ;
+        $number = self::getCountTeachersForCurrentSchool($schoolLocation) + 1;
 
-        if(!$numericName){
+        if (!$numericName) {
             $factory->createTeacherInfo($number, $schoolLocation);
         }
 
@@ -90,7 +91,7 @@ class FactoryUser
             $query->from('user_roles')->where('user_roles.role_id', 6)->select('user_roles.user_id');
         })->first();
 
-        $factory->doWhileLoggedIn(function() use ($factory){
+        $factory->doWhileLoggedIn(function () use ($factory) {
             $factory->createUser();
         }, $schoolManager);
 
@@ -107,11 +108,11 @@ class FactoryUser
 
         $firstName = $faker->firstName();
 
-        $this->teacherInfo =  [
-            'name_first'         => $firstName,
-            'name'               => 'Docent ' . $firstName,
-            'abbreviation'       => 'D' . $number,
-            'username'           => $schoolLocation->name . '_Docent' . $firstName . '@factory.test',
+        $this->teacherInfo = [
+            'name_first'   => $firstName,
+            'name'         => 'Docent ' . $firstName,
+            'abbreviation' => 'D' . $number,
+            'username'     => $schoolLocation->name . '_Docent' . $firstName . '@factory.test',
         ];
     }
 
@@ -125,15 +126,30 @@ class FactoryUser
         return $this;
     }
 
+    private static function getCountStudentsForCurrentSchool(SchoolLocation $schoolLocation)
+    {
+        return User::join('user_roles', 'users.id', 'user_roles.user_id')
+            ->where('school_location_id', $schoolLocation->getKey())
+            ->where('user_roles.role_id', 3)
+            ->count();
+    }
+
+    private static function getCountTeachersForCurrentSchool(SchoolLocation $schoolLocation)
+    {
+        return User::join('user_roles', 'users.id', 'user_roles.user_id')
+            ->join('school_location_user', 'users.id', 'school_location_user.user_id')
+            ->where('school_location_user.school_location_id', $schoolLocation->getKey())
+            ->where('user_roles.role_id', 1)
+            ->count();
+    }
+
     public static function createStudent(SchoolLocation $schoolLocation, array $userProperties = []): FactoryUser
     {
         $factory = new static;
 
         $schoolLocationId = $schoolLocation->getKey();
-        if(!isset(static::$studentIterator[$schoolLocationId])){
-            static::$studentIterator[$schoolLocationId] = 0;
-        }
-        $number = ++static::$studentIterator[$schoolLocationId];
+
+        $number = self::getCountStudentsForCurrentSchool($schoolLocation) + 1;
 
         $factory->userProperties = array_merge($factory->definition(), [
             'name_first'         => 'Student',
@@ -148,7 +164,7 @@ class FactoryUser
             $query->from('user_roles')->where('user_roles.role_id', 6)->select('user_roles.user_id');
         })->first();
 
-        $factory->doWhileLoggedIn(function() use ($factory){
+        $factory->doWhileLoggedIn(function () use ($factory) {
             $factory->createUser();
         }, $schoolManager);
 
@@ -181,4 +197,22 @@ class FactoryUser
         //  5 account manager //school/school_location have account manager tcCore\User as user_id in existing database.
         //  6 school manager
     }
+
+    public static function createAdmin(array $userProperties = []): FactoryUser
+    {
+        $factory = new static;
+
+        $factory->userProperties = array_merge($factory->definition(), [
+            'name_first'   => 'Jaap',
+            'name'         => 'Admin',
+            'abbreviation' => 'ADM',
+            'username'     => 'admin@factory.test',
+            'user_roles'   => [Role::ADMINISTRATOR],
+        ], $userProperties);
+
+        $factory->createUser();
+
+        return $factory;
+    }
+
 }

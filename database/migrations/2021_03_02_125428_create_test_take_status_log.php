@@ -13,14 +13,14 @@ class CreateTestTakeStatusLog extends Migration
      */
     public function up()
     {
-       
-            Schema::create('test_take_status_logs', function (Blueprint $table) {
+
+        Schema::create('test_take_status_logs', function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->integer('test_take_id');
             $table->integer('test_take_status_id');
             $table->timestamps();
-            });
-        
+        });
+
     }
 
     /**
@@ -30,6 +30,6 @@ class CreateTestTakeStatusLog extends Migration
      */
     public function down()
     {
-         Schema::dropIfExists('test_take_status_logs');
+        Schema::dropIfExists('test_take_status_logs');
     }
 }

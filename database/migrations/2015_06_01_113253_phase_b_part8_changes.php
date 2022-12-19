@@ -135,7 +135,7 @@ class PhaseBPart8Changes extends Migration {
             $table->integer('school_year_id')->unsigned()->index('fk_school_location_school_years_school_years1_idx');
             $table->timestamps();
             $table->softDeletes();
-            $table->primary(['school_location_id', 'school_year_id'], '');
+            $table->primary(['school_location_id', 'school_year_id'], 'pk_school_location_id_1');
             $table->foreign('school_location_id', 'fk_school_location_school_years_school_locations1')->references('id')->on('school_locations')->onUpdate('CASCADE')->onDelete('CASCADE');
             $table->foreign('school_year_id', 'fk_school_location_school_years_sections1')->references('id')->on('school_years')->onUpdate('CASCADE')->onDelete('CASCADE');
         });

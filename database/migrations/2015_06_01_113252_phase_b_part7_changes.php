@@ -90,7 +90,7 @@ class PhaseBPart7Changes extends Migration {
             $table->enum('type', ['FINANCE', 'TECHNICAL', 'IMPLEMENTATION', 'OTHER']);
             $table->timestamps();
             $table->softDeletes();
-            $table->primary(['umbrella_organization_id', 'contact_id', 'type'], '');
+            $table->primary(['umbrella_organization_id', 'contact_id', 'type'], 'pk_umbrella_organization_id');
             $table->foreign('umbrella_organization_id', 'fk_umbrella_organization_contacts_umbrella_organizations1')->references('id')->on('umbrella_organizations')->onUpdate('CASCADE')->onDelete('CASCADE');
             $table->foreign('contact_id', 'fk_umbrella_organization_contacts_contacts1')->references('id')->on('contacts')->onUpdate('CASCADE')->onDelete('CASCADE');
         });
@@ -164,7 +164,7 @@ class PhaseBPart7Changes extends Migration {
             $table->enum('type', ['FINANCE', 'TECHNICAL', 'IMPLEMENTATION', 'OTHER']);
             $table->timestamps();
             $table->softDeletes();
-            $table->primary(['school_location_id', 'contact_id', 'type'], '');
+            $table->primary(['school_location_id', 'contact_id', 'type'], 'pk_school_location_id');
             $table->foreign('school_location_id', 'fk_school_location_contacts_school_locations1')->references('id')->on('school_locations')->onUpdate('CASCADE')->onDelete('CASCADE');
             $table->foreign('contact_id', 'fk_school_location_contacts_contacts1')->references('id')->on('contacts')->onUpdate('CASCADE')->onDelete('CASCADE');
         });
@@ -228,7 +228,7 @@ class PhaseBPart7Changes extends Migration {
             $table->enum('type', ['MAIN', 'INVOICE', 'OTHER']);
             $table->timestamps();
             $table->softDeletes();
-            $table->primary(['address_id', 'umbrella_organization_id', 'type'], '');
+            $table->primary(['address_id', 'umbrella_organization_id', 'type'], 'pk_address_id');
             $table->foreign('address_id', 'fk_umbrella_organization_addresses_addresses1')->references('id')->on('addresses')->onUpdate('CASCADE')->onDelete('CASCADE');
             $table->foreign('umbrella_organization_id', 'fk_umbrella_organization_addresses_umbrella_organizations1')->references('id')->on('umbrella_organizations')->onUpdate('CASCADE')->onDelete('CASCADE');
         });
@@ -302,7 +302,7 @@ class PhaseBPart7Changes extends Migration {
             $table->enum('type', ['MAIN', 'INVOICE', 'VISIT', 'OTHER']);
             $table->timestamps();
             $table->softDeletes();
-            $table->primary(['address_id', 'school_location_id', 'type'], '');
+            $table->primary(['address_id', 'school_location_id', 'type'], 'pk_address_id_1');
             $table->foreign('address_id', 'fk_school_location_addresses_addresses1')->references('id')->on('addresses')->onUpdate('CASCADE')->onDelete('CASCADE');
             $table->foreign('school_location_id', 'fk_school_location_addresses_school_locations1')->references('id')->on('school_locations')->onUpdate('CASCADE')->onDelete('CASCADE');
         });

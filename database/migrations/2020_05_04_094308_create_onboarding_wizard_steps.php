@@ -40,6 +40,18 @@ class CreateOnboardingWizardSteps extends Migration
             OnboardingWizard::query()->truncate();
         }
 
+        if (!Schema::hasColumn('onboarding_wizards', 'uuid')) {
+            Schema::table('onboarding_wizards', function (Blueprint $table) {
+                $table->efficientUuid('uuid')->index()->unique()->nullable();
+            });
+        }
+
+        if (!Schema::hasColumn('onboarding_wizard_steps', 'uuid')) {
+            Schema::table('onboarding_wizard_steps', function (Blueprint $table) {
+                $table->efficientUuid('uuid')->index()->unique()->nullable();
+            });
+        }
+
         self::addData();
     }
     /**

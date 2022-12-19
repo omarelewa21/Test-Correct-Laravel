@@ -16,6 +16,15 @@ class SchoolYearRepository
         }
     }
 
+    public static function getCurrentSchoolYears()
+    {
+        $periods = PeriodRepository::getCurrentPeriods();
+        if ($periods) {
+            return $periods->map->schoolYear->unique();
+        }
+        return null;
+    }
+
     public static function getCurrentOrPreviousSchoolYear()
     {
         $period = PeriodRepository::getCurrentOrPreviousPeriod();
@@ -38,14 +47,14 @@ class SchoolYearRepository
             ->get(['school_years.*']);
 
         if ($schoolYears->isEmpty()) {
-                    return SchoolYear::join('periods AS school_year_periods', 'school_year_periods.school_year_id', '=', 'school_years.id')
-                        ->join('periods', 'periods.school_year_id', '=', 'school_years.id')
-                        ->join('ratings', 'periods.id', '=', 'ratings.period_id')
-                        ->where('ratings.user_id', '=', $student->getKey())
-                        ->groupBy('school_years.id')
-                        ->orderByRaw('MAX(`school_year_periods`.`end_date`) desc')
-                        ->limit(1)
-                        ->get(['school_years.*']);
+            return SchoolYear::join('periods AS school_year_periods', 'school_year_periods.school_year_id', '=', 'school_years.id')
+                ->join('periods', 'periods.school_year_id', '=', 'school_years.id')
+                ->join('ratings', 'periods.id', '=', 'ratings.period_id')
+                ->where('ratings.user_id', '=', $student->getKey())
+                ->groupBy('school_years.id')
+                ->orderByRaw('MAX(`school_year_periods`.`end_date`) desc')
+                ->limit(1)
+                ->get(['school_years.*']);
 
         }
 

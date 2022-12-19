@@ -26,7 +26,7 @@ use tcCore\User;
 
 class EntreeHelper
 {
-    CONST ENTREESTUDENTREDIRECT = 'https://www.test-correct.nl/welcome-student';
+    const ENTREESTUDENTREDIRECT = 'https://www.test-correct.nl/welcome-student';
 
     private $attr;
 
@@ -81,7 +81,7 @@ class EntreeHelper
     public static function initAndHandleFromRegisterWithEntreeAndTUser(User $user, $attr)
     {
 
-        $instance = new self($attr,'');
+        $instance = new self($attr, '');
         $instance->setContext('livewire');
         $instance->laravelUser = $user;
         $instance->emailMaybeEmpty = optional($user->location)->lvs_active_no_mail_allowed;
@@ -96,105 +96,105 @@ class EntreeHelper
 
     public function handleIfRegistering()
     {
-        if(!$this->isRegistering()){
+        if (!$this->isRegistering()) {
             return false;
         }
         $this->setLocationWithSamlAttributes();
-        if(config('entree.use_with_2_urls') && $url = $this->redirectIfSmallSetAndSsoAvailable(true)) {
+        if (config('entree.use_with_2_urls') && $url = $this->redirectIfSmallSetAndSsoAvailable(true)) {
             return $url;
         }
 
         $data = [
-            'emailAddress' => $this->getEmailFromAttributes(),
-            'role' => $this->getRoleFromAttributes(),
-            'encryptedEckId' => Crypt::encryptString($this->getEckIdFromAttributes()),
-            'brin' => $this->getBrinFromAttributes(),
-            'location' => $this->location,
-           'school' => $this->school,
-           'brin4ErrorDetected' => $this->brinFourErrorDetected,
-            'lastName' => $this->getLastNameFromAttributes(),
-            'nameSuffix' => $this->getSuffixFromAttributes(),
-            'firstName' => $this->getFirstNameFromAttributes(),
+            'emailAddress'       => $this->getEmailFromAttributes(),
+            'role'               => $this->getRoleFromAttributes(),
+            'encryptedEckId'     => Crypt::encryptString($this->getEckIdFromAttributes()),
+            'brin'               => $this->getBrinFromAttributes(),
+            'location'           => $this->location,
+            'school'             => $this->school,
+            'brin4ErrorDetected' => $this->brinFourErrorDetected,
+            'lastName'           => $this->getLastNameFromAttributes(),
+            'nameSuffix'         => $this->getSuffixFromAttributes(),
+            'firstName'          => $this->getFirstNameFromAttributes(),
         ];
 
-        $data = (object) $data;
+        $data = (object)$data;
 
-        if($url = $this->handleIfRegisteringAndNotATeacher($data)){
+        if ($url = $this->handleIfRegisteringAndNotATeacher($data)) {
             return $url;
         }
 
-        if($url = $this->handleIfRegisteringAndNoEckId($data)){
+        if ($url = $this->handleIfRegisteringAndNoEckId($data)) {
             return $url;
         }
 
-        if($url = $this->handleIfRegisteringAndNoBrincode($data)){
+        if ($url = $this->handleIfRegisteringAndNoBrincode($data)) {
             return $url;
         }
 
-        if($data->user = $this->handleIfRegisteringAndUserBasedOnEckId($data)){
-            if(!$data->user instanceof User AND is_string($data->user)){
+        if ($data->user = $this->handleIfRegisteringAndUserBasedOnEckId($data)) {
+            if (!$data->user instanceof User and is_string($data->user)) {
                 return $data->user;
             }
         }
 
-        if($url = $this->handleIfNonExistingEckIdButExistingEmail($data)){
+        if ($url = $this->handleIfNonExistingEckIdButExistingEmail($data)) {
             return $url;
         }
 
         $samlMessage = $this->createSamlMessageFromRegisterData($data);
-        return $this->redirectToUrlAndExit(route('onboarding.welcome.entree',['samlId' => $samlMessage->uuid]));
+        return $this->redirectToUrlAndExit(route('onboarding.welcome.entree', ['samlId' => $samlMessage->uuid]));
     }
 
     protected function getOnboardingUrlWithOptionalMessage($message = null, $entree = false, $params = [])
     {
         $route = 'onboarding.welcome';
-        if($entree){
+        if ($entree) {
             $route = 'onboarding.welcome.entree';
         }
         $queryAr = [];
-        if($message){
+        if ($message) {
             $queryAr['entree_message'] = $message;
         }
-        if(count($params)){
-            $queryAr = array_merge($params,$queryAr);
+        if (count($params)) {
+            $queryAr = array_merge($params, $queryAr);
         }
-        return route($route,$queryAr);
+        return route($route, $queryAr);
     }
 
     protected function handleIfRegisteringAndUserBasedOnEckId($data)
     {
-        if($user = User::filterByEckid(Crypt::decryptString($data->encryptedEckId))->first()){
+        if ($user = User::filterByEckid(Crypt::decryptString($data->encryptedEckId))->first()) {
 
-            if(!$user->isA('teacher')){
+            if (!$user->isA('teacher')) {
                 return $this->redirectToUrlAndExit(self::ENTREESTUDENTREDIRECT);
             }
 
-            if(!$user->hasImportMailAddress()){ // regular user
-                if($data->emailAddress){
-                    if($user2 = User::where('username',$data->emailAddress)->first()){
-                        if($user->getKey() != $user2->getKey()){
+            if (!$user->hasImportMailAddress()) { // regular user
+                if ($data->emailAddress) {
+                    if ($user2 = User::where('username', $data->emailAddress)->first()) {
+                        if ($user->getKey() != $user2->getKey()) {
                             return $this->redirectToUrlAndExit($this->getOnboardingUrlWithOptionalMessage(__('onboarding-welcome.Je entree account kan niet gebruikt worden om een account aan te maken in Test-Correct. Neem contact op met support.')));
                         }
                     }
                 }
 
                 $this->laravelUser = $user;
-                if($this->location) {
+                if ($this->location) {
                     if ($user->isAllowedToSwitchToSchoolLocation($this->location)) {
                         // account already correct
                         Auth::login($user);
-                        $url = $this->laravelUser->getRedirectUrlSplashOrStartAndLoginIfNeeded(['afterLoginMessage' => __('onboarding-welcome.Je bestaande Test-Correct account is al gekoppeld aan je Entree account. Je kunt vanaf nu ook inloggen met Entree.'),'internal_page' => '/users/welcome']);
+                        $url = $this->laravelUser->getRedirectUrlSplashOrStartAndLoginIfNeeded(['afterLoginMessage' => __('onboarding-welcome.Je bestaande Test-Correct account is al gekoppeld aan je Entree account. Je kunt vanaf nu ook inloggen met Entree.'), 'internal_page' => '/users/welcome']);
                         return $this->redirectToUrlAndExit($url);
                     }
                     // if in same school, add school location
                     $schoolFromSchoolLocation = $this->location->school;
                     if ($schoolFromSchoolLocation) {
-                        if($url = $this->handleIfRegisteringAndSchoolIsAllowed($user, $schoolFromSchoolLocation)){
+                        if ($url = $this->handleIfRegisteringAndSchoolIsAllowed($user, $schoolFromSchoolLocation)) {
                             return $url;
                         }
                     }
-                } else if ($this->school){
-                    if($url = $this->handleIfRegisteringAndSchoolIsAllowed($user,$this->school)){
+                } else if ($this->school) {
+                    if ($url = $this->handleIfRegisteringAndSchoolIsAllowed($user, $this->school)) {
                         return $url;
                     }
                 }
@@ -203,12 +203,12 @@ class EntreeHelper
                 return $this->redirectToUrlAndExit($url);
             }
 
-            if(!$data->emailAddress || substr_count($data->emailAddress,'@') < 1){
+            if (!$data->emailAddress || substr_count($data->emailAddress, '@') < 1) {
                 return $this->redirectToUrlAndExit($this->getOnboardingUrlWithOptionalMessage(__('onboarding-welcome.Je entree account kan niet gebruikt worden om een account aan te maken in Test-Correct. Neem contact op met support.')));
             }
 
-            if(!$this->location && $this->school){
-                if (! $user->isAllowedSchool($this->school)) {
+            if (!$this->location && $this->school) {
+                if (!$user->isAllowedSchool($this->school)) {
                     $url = BaseHelper::getLoginUrlWithOptionalMessage(__('onboarding-welcome.Je bestaande Test-Correct account kan niet geupdate worden. Neem contact op met support.'), true);
                     return $this->redirectToUrlAndExit($url);
                 }
@@ -221,14 +221,13 @@ class EntreeHelper
     }
 
 
-
     protected function handleIfRegisteringAndSchoolIsAllowed(User $user, School $school)
     {
-        if($user->isAllowedSchool($school)){
+        if ($user->isAllowedSchool($school)) {
             $user->school_location_id = $this->location->getKey();
             $user->save();
             $user->addSchoolLocationAndCreateDemoEnvironment($this->location);
-            $url = $this->laravelUser->getRedirectUrlSplashOrStartAndLoginIfNeeded(['afterLoginMessage' => __('onboarding-welcome.Je bestaande Test-Correct account is geupdate met de schoollocaties die we vanuit Entree hebben meegekregen. We hebben je in de schoollocatie gezet. Je kunt vanaf nu ook inloggen met Entree.', ['name' => $this->location->name]),'internal_page' => '/users/welcome']);
+            $url = $this->laravelUser->getRedirectUrlSplashOrStartAndLoginIfNeeded(['afterLoginMessage' => __('onboarding-welcome.Je bestaande Test-Correct account is geupdate met de schoollocaties die we vanuit Entree hebben meegekregen. We hebben je in de schoollocatie gezet. Je kunt vanaf nu ook inloggen met Entree.', ['name' => $this->location->name]), 'internal_page' => '/users/welcome']);
             return $this->redirectToUrlAndExit($url);
         }
         return false;
@@ -250,7 +249,7 @@ class EntreeHelper
         }
 
         // no brincode found
-        if($exit) {
+        if ($exit) {
             return $this->redirectIfUnknownBrinForRegistration();
         }
         return false;
@@ -264,9 +263,9 @@ class EntreeHelper
     protected function handleIfRegisteringAndNoEckId($data)
     {
         $eckId = Crypt::decryptString($data->encryptedEckId);
-        if(!$eckId || strlen($eckId) < 5){
+        if (!$eckId || strlen($eckId) < 5) {
             $samlMessage = $this->createSamlMessageFromRegisterData($data);
-            return $this->redirectToUrlAndExit($this->getOnboardingUrlWithOptionalMessage(__('onboarding-welcome.Je kunt geen Test-Correct account aanmaken via Entree. Vul dit formulier in om een account aan te maken'),false,['registerId' => $samlMessage->uuid]));
+            return $this->redirectToUrlAndExit($this->getOnboardingUrlWithOptionalMessage(__('onboarding-welcome.Je kunt geen Test-Correct account aanmaken via Entree. Vul dit formulier in om een account aan te maken'), false, ['registerId' => $samlMessage->uuid]));
         }
         return false;
     }
@@ -275,9 +274,9 @@ class EntreeHelper
     {
         $eckId = Crypt::decryptString($data->encryptedEckId);
 
-        if(!$user = User::findByEckId($eckId)->first()){
-            if($data->emailAddress){
-                if($user = User::where('username',$data->emailAddress)->first()){
+        if (!$user = User::findByEckId($eckId)->first()) {
+            if ($data->emailAddress) {
+                if ($user = User::where('username', $data->emailAddress)->first()) {
                     return $this->redirectToUrlAndExit($this->getOnboardingUrlWithOptionalMessage(__('onboarding-welcome.Je entree account kan niet gebruikt worden om een account aan te maken in Test-Correct. Neem contact op met support.')));
                 }
             }
@@ -288,7 +287,7 @@ class EntreeHelper
 
     protected function handleIfRegisteringAndNotATeacher($data)
     {
-        if($data->role !== 'teacher'){
+        if ($data->role !== 'teacher') {
             return $this->redirectToUrlAndExit(self::ENTREESTUDENTREDIRECT);
         }
         return false;
@@ -315,9 +314,12 @@ class EntreeHelper
 
     protected function transformAttributesIfNeededAndReturn($attr)
     {
-        $this->logger(sprintf('entering %s method: %s (line %d)',__FILE__,__METHOD__,__LINE__));
+        $this->logger(sprintf('entering %s method: %s (line %d)', __FILE__, __METHOD__, __LINE__));
         $loggerAttr = $attr;
-        $loggerAttr['eckId'] = (isset($loggerAttr['eckId'])) ? substr($loggerAttr['eckId'][0],-5) : '';
+        $loggerAttr['eckId'] = '';
+        if (!empty($attr['eckId'][0]) && is_string($attr['eckId'][0])) {
+            $loggerAttr['eckId'] = substr((string)$attr['eckId'][0], -5);
+        }
         $this->logger(json_encode($loggerAttr));
 
         // we may get employee, then we transfer it to teacher
@@ -331,14 +333,14 @@ class EntreeHelper
 
     public function tryAccountMatchingWhenNoMailAttributePresent(User $oldUserWhereWeWouldLikeToMergeTheImportAccountTo)
     {
-        $this->logger(sprintf('entering %s method: %s (line %d)',__FILE__,__METHOD__,__LINE__));
+        $this->logger(sprintf('entering %s method: %s (line %d)', __FILE__, __METHOD__, __LINE__));
         if (null == $this->laravelUser) {
             $this->setLaravelUser();
         }
 
         if (null == $this->laravelUser) {
             $this->addLogRows('tryAccountMatchingWhenNoMailAttributePresent');
-            $url = route('auth.login', ['tab' => 'fatalError', 'fatal_error_message' => 'auth.roles_do_not_match_up','block_back' => true,]);
+            $url = route('auth.login', ['tab' => 'fatalError', 'fatal_error_message' => 'auth.roles_do_not_match_up', 'block_back' => true,]);
             return $this->redirectToUrlAndExit($url);
         }
 
@@ -348,10 +350,11 @@ class EntreeHelper
 
     public function redirectIfBrinUnknown()
     {
-        $this->logger(sprintf('entering %s method: %s (line %d)',__FILE__,__METHOD__,__LINE__));
+        $this->logger(sprintf('entering %s method: %s (line %d)', __FILE__, __METHOD__, __LINE__));
         $this->setLocationWithSamlAttributes();
         if ($this->location == null) {
             $url = route('auth.login', ['tab' => 'login', 'entree_error_message' => 'auth.brin_not_found']);
+            // dit lijkt fout als Brin6 detecteerd als null dan wordt brinFourErrorDetected of true gezet;
             if ($this->brinFourErrorDetected) {
                 $url = route('auth.login', ['tab' => 'login', 'entree_error_message' => 'auth.brin_four_detected']);
             }
@@ -362,7 +365,7 @@ class EntreeHelper
 
     private function setLocationBasedOnBrinSixIfTheCase($brinZesCode)
     {
-        $this->logger(sprintf('entering %s method: %s (line %d)',__FILE__,__METHOD__,__LINE__));
+        $this->logger(sprintf('entering %s method: %s (line %d)', __FILE__, __METHOD__, __LINE__));
         $external_main_code = substr($brinZesCode, 0, 4);
         if (strlen($brinZesCode) === 6) {
             $external_sub_code = substr($brinZesCode, 4, 2);
@@ -377,7 +380,7 @@ class EntreeHelper
 
     protected function getSchoolLocationsBasedOnSchoolIdAndActiveEntreeSSO($schoolId)
     {
-        $this->logger(sprintf('entering %s method: %s (line %d)',__FILE__,__METHOD__,__LINE__));
+        $this->logger(sprintf('entering %s method: %s (line %d)', __FILE__, __METHOD__, __LINE__));
         return SchoolLocation::where('school_id', $schoolId)
             ->where('sso_type', SchoolLocation::SSO_ENTREE)
             ->where('sso_active', 1)
@@ -386,19 +389,19 @@ class EntreeHelper
 
     private function setLocationWithSamlAttributes()
     {
-        $this->logger(sprintf('entering %s method: %s (line %d)',__FILE__,__METHOD__,__LINE__));
+        $this->logger(sprintf('entering %s method: %s (line %d)', __FILE__, __METHOD__, __LINE__));
         if (null !== $this->location) {
             // we did run this method before
             return true;
         }
 
         $brinZesCode = $this->getBrinFromAttributes();
-        if(null === $brinZesCode){
+        if (null === $brinZesCode) {
             $this->brinFourErrorDetected = true;
             return false;
         }
 
-        if($this->setLocationBasedOnBrinSixIfTheCase($brinZesCode)){
+        if ($this->setLocationBasedOnBrinSixIfTheCase($brinZesCode)) {
             return true;
         }
 
@@ -499,8 +502,11 @@ class EntreeHelper
 
     private function getEckIdFromAttributes()
     {
-        $this->logger(sprintf('entering %s method: %s (line %d)',__FILE__,__METHOD__,__LINE__));
-        if(isset($this->attr['eckId']) && isset($this->attr['eckId'][0])) {
+        $this->logger(sprintf('entering %s method: %s (line %d)', __FILE__, __METHOD__, __LINE__));
+        if (isset($this->attr['eckId']) && isset($this->attr['eckId'][0])) {
+            if (is_array($this->attr['eckId'][0]) && empty($this->attr['eckId'][0])){
+                return '';
+            }
             return $this->attr['eckId'][0];
         }
         return null;
@@ -508,7 +514,7 @@ class EntreeHelper
 
     private function getBrinFromAttributes()
     {
-        $this->logger(sprintf('entering %s method: %s (line %d)',__FILE__,__METHOD__,__LINE__));
+        $this->logger(sprintf('entering %s method: %s (line %d)', __FILE__, __METHOD__, __LINE__));
         if (array_key_exists('nlEduPersonHomeOrganizationBranchId',
                 $this->attr) && $this->attr['nlEduPersonHomeOrganizationBranchId'][0]) {
             return $this->attr['nlEduPersonHomeOrganizationBranchId'][0];
@@ -523,10 +529,10 @@ class EntreeHelper
 
     private function getEmailFromAttributes()
     {
-        $this->logger(sprintf('entering %s method: %s (line %d)',__FILE__,__METHOD__,__LINE__));
-        if (array_key_exists('mail',$this->attr)
+        $this->logger(sprintf('entering %s method: %s (line %d)', __FILE__, __METHOD__, __LINE__));
+        if (array_key_exists('mail', $this->attr)
             && $this->attr['mail'][0]
-            && Str::contains($this->attr['mail'][0],'@')
+            && Str::contains($this->attr['mail'][0], '@')
             && $this->attr['mail'][0] !== 'fakeemail@test-correct.nl') {
             return $this->attr['mail'][0];
         }
@@ -567,7 +573,7 @@ class EntreeHelper
 
     private function getRoleFromAttributes()
     {
-        $this->logger(sprintf('entering %s method: %s (line %d)',__FILE__,__METHOD__,__LINE__));
+        $this->logger(sprintf('entering %s method: %s (line %d)', __FILE__, __METHOD__, __LINE__));
         if (array_key_exists('eduPersonAffiliation',
                 $this->attr) && $this->attr['eduPersonAffiliation'][0]) {
             return $this->attr['eduPersonAffiliation'][0];
@@ -581,42 +587,42 @@ class EntreeHelper
         $data->locationId = ($data->location) ? $data->location->getKey() : null;
         $data->school = null;
         $data->location = null;
-        $data->userId = (property_exists($data,'user') && $data->user) ? $data->user->getKey() : null;
+        $data->userId = (property_exists($data, 'user') && $data->user) ? $data->user->getKey() : null;
         $data->user = null;
         return SamlMessage::create([
-            'data' => $data,
-            'eck_id' => 'not needed',
+            'data'       => $data,
+            'eck_id'     => 'not needed',
             'message_id' => 'not needed',
         ]);
     }
 
     private function createSamlMessage()
     {
-        $this->logger(sprintf('entering %s method: %s (line %d)',__FILE__,__METHOD__,__LINE__));
+        $this->logger(sprintf('entering %s method: %s (line %d)', __FILE__, __METHOD__, __LINE__));
         $this->validateAttributes();
 
         return SamlMessage::create([
             'message_id' => $this->messageId,
-            'eck_id' => Crypt::encryptString($this->getEckIdFromAttributes()),
-            'email' => $this->getEmailFromAttributes(),
+            'eck_id'     => Crypt::encryptString($this->getEckIdFromAttributes()),
+            'email'      => $this->getEmailFromAttributes(),
         ]);
     }
 
     private function createSamlMessageWithEmptyEmail()
     {
-        $this->logger(sprintf('entering %s method: %s (line %d)',__FILE__,__METHOD__,__LINE__));
+        $this->logger(sprintf('entering %s method: %s (line %d)', __FILE__, __METHOD__, __LINE__));
         $this->validateAttributes();
 
         return SamlMessage::create([
             'message_id' => $this->messageId,
-            'eck_id' => Crypt::encryptString($this->getEckIdFromAttributes()),
-            'email' => '',
+            'eck_id'     => Crypt::encryptString($this->getEckIdFromAttributes()),
+            'email'      => '',
         ]);
     }
 
     private function validateAttributes()
     {
-        $this->logger(sprintf('entering %s method: %s (line %d)',__FILE__,__METHOD__,__LINE__));
+        $this->logger(sprintf('entering %s method: %s (line %d)', __FILE__, __METHOD__, __LINE__));
         if (!array_key_exists('eckId', $this->attr) || !array_key_exists(0, $this->attr['eckId'])) {
             logger('No eckId found');
             logger('==== credentials ====');
@@ -629,7 +635,7 @@ class EntreeHelper
             logger('No mail found');
             logger('==== credentials ====');
             $attr = $this->attr;
-            $attr['eckId last chars'] = substr($attr['eckId'][0],-5);
+            $attr['eckId last chars'] = substr($attr['eckId'][0], -5);
             unset($attr['eckId']);
             logger($attr);
             logger('=======');
@@ -642,7 +648,7 @@ class EntreeHelper
 
     public function blockIfReplayAttackDetected()
     {
-        $this->logger(sprintf('entering %s method: %s (line %d)',__FILE__,__METHOD__,__LINE__));
+        $this->logger(sprintf('entering %s method: %s (line %d)', __FILE__, __METHOD__, __LINE__));
         $message = SamlMessage::whereMessageId($this->messageId)->first();
         if ($message) {
             dd('preventing reuse of messageId');
@@ -656,7 +662,7 @@ class EntreeHelper
 
     public function redirectIfscenario5()
     {
-        $this->logger(sprintf('entering %s method: %s (line %d)',__FILE__,__METHOD__,__LINE__));
+        $this->logger(sprintf('entering %s method: %s (line %d)', __FILE__, __METHOD__, __LINE__));
         if ($this->hasLVS()) {
             return true;
         }
@@ -668,7 +674,7 @@ class EntreeHelper
 
     public function handleScenario5()
     {
-        $this->logger(sprintf('entering %s method: %s (line %d)',__FILE__,__METHOD__,__LINE__));
+        $this->logger(sprintf('entering %s method: %s (line %d)', __FILE__, __METHOD__, __LINE__));
         $this->validateAttributes();
         if ($url = $this->redirectIfBrinNotSso()) {
             return $url;
@@ -692,10 +698,9 @@ class EntreeHelper
         }
 
         // if user is in the system with another school location, then we need to redirect and show the error that there is no option to merge
-        if(User::findByEckId($this->getEckIdFromAttributes())->exists()){
+        if (User::findByEckId($this->getEckIdFromAttributes())->exists()) {
             $url = route('auth.login',
-                ['tab' => 'login', 'entree_error_message' => 'auth.user_not_in_same_school_please_contact_helpdesk']);
-            ;
+                ['tab' => 'login', 'entree_error_message' => 'auth.user_not_in_same_school_please_contact_helpdesk']);;
             return $this->redirectToUrlAndExit($url);
         }
         // redirect to maak koppelingscherm;
@@ -707,12 +712,12 @@ class EntreeHelper
 
     protected function handleEndRedirect($options = [])
     {
-        $this->logger(sprintf('entering %s method: %s (line %d)',__FILE__,__METHOD__,__LINE__));
+        $this->logger(sprintf('entering %s method: %s (line %d)', __FILE__, __METHOD__, __LINE__));
         // make sure the standard procedure is first handled before possible final redirect.
         $url = $this->laravelUser->getRedirectUrlSplashOrStartAndLoginIfNeeded($options);
 
         // check if there is a data collection which needds to be checked
-        if($this->finalRedirectTo){
+        if ($this->finalRedirectTo) {
             $url = $this->finalRedirectTo;
         }
 
@@ -721,27 +726,27 @@ class EntreeHelper
 
     protected function isTeacherBasedOnAttributes()
     {
-        $this->logger(sprintf('entering %s method: %s (line %d)',__FILE__,__METHOD__,__LINE__));
+        $this->logger(sprintf('entering %s method: %s (line %d)', __FILE__, __METHOD__, __LINE__));
         return strtolower($this->getRoleFromAttributes()) == 'teacher';
     }
 
     public function redirectIfSmallSetAndSsoAvailable($register = false)
     {
-        $this->logger(sprintf('entering %s method: %s (line %d)',__FILE__,__METHOD__,__LINE__));
+        $this->logger(sprintf('entering %s method: %s (line %d)', __FILE__, __METHOD__, __LINE__));
         $this->setLocationWithSamlAttributes();
         $this->hasActiveEntreeSSOBasedOnSchool = false;
-        if($this->school){
+        if ($this->school) {
             $this->hasActiveEntreeSSOBasedOnSchool = !!($this->getSchoolLocationsBasedOnSchoolIdAndActiveEntreeSSO($this->school->getKey())->count());
         }
         if (request()->get('set') !== 'full'
-                && (
+            && (
                 (optional($this->location)->sso_active == 1 && optional($this->location)->sso_type === SchoolLocation::SSO_ENTREE)
                 || $this->hasActiveEntreeSSOBasedOnSchool
-                )
-            ) {
+            )
+        ) {
             // we probably have a small set so go for the big set
             // we need an url to go to samle login with setting for the big set
-            $url = route('saml2_login', ['idpName' => 'entree', 'set' => 'full','entreeRegister' => $register, 'mId' => $this->mId]);
+            $url = route('saml2_login', ['idpName' => 'entree', 'set' => 'full', 'entreeRegister' => $register, 'mId' => $this->mId]);
             sleep(2);
             return $this->redirectToUrlAndExit($url);
         }
@@ -749,7 +754,7 @@ class EntreeHelper
 
     public function redirectIfBrinNotSso()
     {
-        $this->logger(sprintf('entering %s method: %s (line %d)',__FILE__,__METHOD__,__LINE__));
+        $this->logger(sprintf('entering %s method: %s (line %d)', __FILE__, __METHOD__, __LINE__));
         $this->setLocationWithSamlAttributes();
         if (optional($this->location)->sso_active != 1) {
             $url = route('auth.login',
@@ -760,7 +765,7 @@ class EntreeHelper
 
     public function redirectIfUserWasNotFoundForEckIdAndActiveLVS()
     {
-        $this->logger(sprintf('entering %s method: %s (line %d)',__FILE__,__METHOD__,__LINE__));
+        $this->logger(sprintf('entering %s method: %s (line %d)', __FILE__, __METHOD__, __LINE__));
         $this->validateAttributes();
         $this->setLocationWithSamlAttributes();
         $this->setLaravelUser();
@@ -779,7 +784,7 @@ class EntreeHelper
 
     public function redirectIfNoUserWasFoundForEckId()
     {
-        $this->logger(sprintf('entering %s method: %s (line %d)',__FILE__,__METHOD__,__LINE__));
+        $this->logger(sprintf('entering %s method: %s (line %d)', __FILE__, __METHOD__, __LINE__));
         $this->validateAttributes();
         $this->setLocationWithSamlAttributes();
         $this->setLaravelUser();
@@ -795,12 +800,12 @@ class EntreeHelper
 
     public function redirectIfUserNotInSameSchool()
     {
-        $this->logger(sprintf('entering %s method: %s (line %d)',__FILE__,__METHOD__,__LINE__));
+        $this->logger(sprintf('entering %s method: %s (line %d)', __FILE__, __METHOD__, __LINE__));
         $this->validateAttributes();
         if (null == $this->location) {
             $this->setLocationWithSamlAttributes();
         }
-        if(null != $this->location) {
+        if (null != $this->location) {
             if (null == $this->laravelUser) {
                 $this->setLaravelUser();
             }
@@ -826,7 +831,7 @@ class EntreeHelper
 
     public function redirectIfUserNotHasSameRole()
     {
-        $this->logger(sprintf('entering %s method: %s (line %d)',__FILE__,__METHOD__,__LINE__));
+        $this->logger(sprintf('entering %s method: %s (line %d)', __FILE__, __METHOD__, __LINE__));
         $this->validateAttributes();
 
         if (null == $this->location) {
@@ -860,7 +865,7 @@ class EntreeHelper
 
     public function handleScenario1($options = null)
     {
-        $this->logger(sprintf('entering %s method: %s (line %d)',__FILE__,__METHOD__,__LINE__));
+        $this->logger(sprintf('entering %s method: %s (line %d)', __FILE__, __METHOD__, __LINE__));
         $this->validateAttributes();
 
         if (null == $this->location) {
@@ -873,7 +878,7 @@ class EntreeHelper
 
         if (null == $this->laravelUser) {
             $this->addLogRows('handleScenario1');
-            $url = route('auth.login', ['tab' => 'fatalError', 'fatal_error_message' => 'auth.roles_do_not_match_up','block_back' => true]);
+            $url = route('auth.login', ['tab' => 'fatalError', 'fatal_error_message' => 'auth.roles_do_not_match_up', 'block_back' => true]);
             return $this->redirectToUrlAndExit($url);
         }
 
@@ -884,7 +889,7 @@ class EntreeHelper
 
     public function handleScenario2IfAddressIsKnownInOtherAccount()
     {
-        $this->logger(sprintf('entering %s method: %s (line %d)',__FILE__,__METHOD__,__LINE__));
+        $this->logger(sprintf('entering %s method: %s (line %d)', __FILE__, __METHOD__, __LINE__));
         $this->validateAttributes();
 
         if (null == $this->location) {
@@ -914,7 +919,7 @@ class EntreeHelper
 
     private function redirectIfRolesDontMatch(User $userOne, User $userTwo)
     {
-        $this->logger(sprintf('entering %s method: %s (line %d)',__FILE__,__METHOD__,__LINE__));
+        $this->logger(sprintf('entering %s method: %s (line %d)', __FILE__, __METHOD__, __LINE__));
         $rolePass = false;
 
         if ($userOne->isA('teacher') && $userTwo->isA('teacher')) {
@@ -927,19 +932,19 @@ class EntreeHelper
 
         if ($rolePass === false) {
             return $this->redirectToUrlAndExit(
-                    route('auth.login', [
-                        'tab' => 'fatalError', 'fatal_error_message' => 'auth.roles_do_not_match_up','block_back' => true,
-                    ])
-                );
+                route('auth.login', [
+                    'tab' => 'fatalError', 'fatal_error_message' => 'auth.roles_do_not_match_up', 'block_back' => true,
+                ])
+            );
         }
         return true;
     }
 
     private function handleMatchingWithinSchoolLocation(User $oldUser, User $user)
     {
-        $this->logger(sprintf('entering %s method: %s (line %d)',__FILE__,__METHOD__,__LINE__));
+        $this->logger(sprintf('entering %s method: %s (line %d)', __FILE__, __METHOD__, __LINE__));
         $result = $this->redirectIfRolesDontMatch($oldUser, $user);
-        if($result !== true){
+        if ($result !== true) {
             return $result;
         }
 
@@ -962,17 +967,16 @@ class EntreeHelper
     }
 
 
-
     public function copyEckIdNameNameSuffixNameFirstAndTransferClassesUpdateTestParticipantsAndDeleteUser(User $oldUser, User $user)
     {
-        $this->logger(sprintf('entering %s method: %s (line %d)',__FILE__,__METHOD__,__LINE__));
+        $this->logger(sprintf('entering %s method: %s (line %d)', __FILE__, __METHOD__, __LINE__));
         // move test participant to old user
         TestParticipant::where('user_id', $user->getKey())->update(['user_id' => $oldUser->getKey()]);
 
         $eckId = $user->eckId;
         $user->removeEckId();
-        if(!is_null($user->user_table_external_id)&&!empty($user->user_table_external_id)){
-            if($user->isA('teacher')) {
+        if (!is_null($user->user_table_external_id) && !empty($user->user_table_external_id)) {
+            if ($user->isA('teacher')) {
                 $oldUser->updateExternalIdWithSchoolLocation($user->user_table_external_id, $user->school_location_id);
             }
             $oldUser->external_id = $user->user_table_external_id;
@@ -991,9 +995,9 @@ class EntreeHelper
 
     private function handleMatchingTeachersInKoepel(User $oldUser, User $user)
     {
-        $this->logger(sprintf('entering %s method: %s (line %d)',__FILE__,__METHOD__,__LINE__));
+        $this->logger(sprintf('entering %s method: %s (line %d)', __FILE__, __METHOD__, __LINE__));
         $result = $this->redirectIfRolesDontMatch($oldUser, $user);
-        if($result !== true){
+        if ($result !== true) {
             return $result;
         }
 
@@ -1018,7 +1022,7 @@ class EntreeHelper
 
     private function handleUpdateUserWithSamlAttributes(): void
     {
-        $this->logger(sprintf('entering %s method: %s (line %d)',__FILE__,__METHOD__,__LINE__));
+        $this->logger(sprintf('entering %s method: %s (line %d)', __FILE__, __METHOD__, __LINE__));
         $emailFromEntree = false;
         if ($this->getEmailFromAttributes()) {
             $emailFromEntree = $this->getEmailFromAttributes();
@@ -1045,12 +1049,12 @@ class EntreeHelper
 
     private function redirectToUrlAndExit($url)
     {
-        $this->logger(sprintf('entering %s method: %s (line %d)',__FILE__,__METHOD__,__LINE__));
-        $this->logger('url '.$url);
+        $this->logger(sprintf('entering %s method: %s (line %d)', __FILE__, __METHOD__, __LINE__));
+        $this->logger('url ' . $url);
         if (App::runningUnitTests()) {
             return $url;
         }
-        if($this->context === 'livewire'){
+        if ($this->context === 'livewire') {
             return redirect()->to($url);
         }
 
@@ -1059,7 +1063,7 @@ class EntreeHelper
 
     public function setLaravelUser(): void
     {
-        $this->logger(sprintf('entering %s method: %s (line %d)',__FILE__,__METHOD__,__LINE__));
+        $this->logger(sprintf('entering %s method: %s (line %d)', __FILE__, __METHOD__, __LINE__));
 
         if (null == $this->laravelUser) {
             if (strtolower($this->getRoleFromAttributes()) == 'teacher') {
@@ -1090,16 +1094,16 @@ class EntreeHelper
             }
         }
 
-        $this->logger('laravel user id '.optional($this->laravelUser)->getKey());
+        $this->logger('laravel user id ' . optional($this->laravelUser)->getKey());
     }
 
     public function blockIfEckIdAttributeIsNotPresent()
     {
-        $this->logger(sprintf('entering %s method: %s (line %d)',__FILE__,__METHOD__,__LINE__));
-        if(!array_key_exists('eckId', $this->attr) || !array_key_exists(0, $this->attr['eckId'])){
+        $this->logger(sprintf('entering %s method: %s (line %d)', __FILE__, __METHOD__, __LINE__));
+        if (!array_key_exists('eckId', $this->attr) || !array_key_exists(0, $this->attr['eckId'])) {
             $url = route('auth.login',
                 [
-                    'tab' => 'login',
+                    'tab'                  => 'login',
                     'entree_error_message' => 'auth.no_eck_id_attribute_found_in_saml_request_school_location_does_not_support_login_without_email'
                 ]
             );
@@ -1109,14 +1113,14 @@ class EntreeHelper
 
     public function blockIfSchoolLvsActiveNoMailNotAllowedWhenMailAttributeIsNotPresent()
     {
-        $this->logger(sprintf('entering %s method: %s (line %d)',__FILE__,__METHOD__,__LINE__));
+        $this->logger(sprintf('entering %s method: %s (line %d)', __FILE__, __METHOD__, __LINE__));
         $this->emailMaybeEmpty = optional($this->location)->lvs_active_no_mail_allowed;
         $this->validateAttributes();
 
         if (!$this->emailMaybeEmpty && !($this->getEmailFromAttributes())) {
             $url = route('auth.login',
                 [
-                    'tab' => 'login',
+                    'tab'                  => 'login',
                     'entree_error_message' => 'auth.no_mail_attribute_found_in_saml_request_school_location_does_not_support_login_without_email'
                 ]
             );
@@ -1126,13 +1130,13 @@ class EntreeHelper
 
     public function redirectIfNoMailPresentScenario()
     {
-        $this->logger(sprintf('entering %s method: %s (line %d)',__FILE__,__METHOD__,__LINE__));
+        $this->logger(sprintf('entering %s method: %s (line %d)', __FILE__, __METHOD__, __LINE__));
         $userFromSamlRequest = User::findByEckId($this->getEckIdFromAttributes())->first();
         if ($this->emailMaybeEmpty && !($this->getEmailFromAttributes()) && optional($userFromSamlRequest)->hasImportMailAddress()) {
             $samlMessage = $this->createSamlMessageWithEmptyEmail();
 
             $url = route('auth.login', [
-                    'tab' => 'no_mail_present',
+                    'tab'  => 'no_mail_present',
                     'uuid' => $samlMessage->uuid
                 ]
             );
@@ -1152,13 +1156,13 @@ class EntreeHelper
 
     private function mergeAccountStrategies(User $userWhereWeWouldLikeToMergeTheImportAccountTo)
     {
-        $this->logger(sprintf('entering %s method: %s (line %d)',__FILE__,__METHOD__,__LINE__));
+        $this->logger(sprintf('entering %s method: %s (line %d)', __FILE__, __METHOD__, __LINE__));
         if ($this->laravelUser->isA('Student')) {
             if (!$this->laravelUser->inSchoolLocationAsUser($userWhereWeWouldLikeToMergeTheImportAccountTo)) {
                 $url = route('auth.login', [
-                    'tab' => 'fatalError',
+                    'tab'                 => 'fatalError',
                     'fatal_error_message' => 'auth.student_account_not_found_in_this_location',
-                    'block_back' => true
+                    'block_back'          => true
                 ]);
                 return $this->redirectToUrlAndExit($url);
             } else {

@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Symfony\Component\Process\Exception\ProcessFailedException;
 use Symfony\Component\Process\Process;
 use tcCore\Http\Helpers\ActingAsHelper;
 use tcCore\Http\Helpers\DemoHelper;
@@ -62,10 +63,13 @@ class DatabaseImport
     public static function migrate()
     {
         DatabaseImport::checkEnv();
-
-        $process = Process::fromShellCommandline('artisan migrate --force');
+        $process = Process::fromShellCommandline('php artisan migrate --force');
         $process->run();
 
+        if (!$process->isSuccessful()) {
+            throw new ProcessFailedException($process);
+            echo $process->getOutput();
+        }
 //        Artisan::call('migrate --force');
     }
 

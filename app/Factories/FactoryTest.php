@@ -50,21 +50,26 @@ class FactoryTest
      * Create a new test record
      * @return false|FactoryTest
      */
-    public static function create(User $user = null) : FactoryTest
+    public static function create(User $user = null, array $properties = []): FactoryTest
     {
         $testFactory = new self;
-        if(!$testFactory->user = $user){
+        if (!$testFactory->user = $user) {
             $testFactory->user = User::find(DEFAULT_TEACHER);
         }
 
-        $testProperties = $testFactory->testDefinition();
+        $testProperties = array_merge($testFactory->testDefinition(), $properties);
 
         $testFactory->test = new Test($testProperties);
         $testFactory->test->setAttribute('author_id', $testProperties['author_id']);
         $testFactory->test->setAttribute('owner_id', $testProperties['owner_id']);
+        $testFactory->test->setAttribute('is_system_test', $testProperties['is_system_test']);
 
         if (!$testFactory->test->save()) {
             return false;
+        }
+        if (in_array($testProperties['draft'], [0, false])) {
+            $testFactory->test->setAttribute('draft', false);
+            $testFactory->test->save();
         }
         return $testFactory;
     }
@@ -73,16 +78,16 @@ class FactoryTest
      * @param array $properties
      * @return $this FactoryTest
      */
-    public function setProperties(array $properties) : FactoryTest
+    public function setProperties(array $properties): FactoryTest
     {
-        foreach ($properties as $property => $value){
+        foreach ($properties as $property => $value) {
             $this->test->setAttribute($property, $value);
         }
         $this->test->save();
         return $this;
     }
 
-    public function addQuestions(array $questions) : FactoryTest
+    public function addQuestions(array $questions): FactoryTest
     {
         $this->questions = collect($questions)->each(function ($question) {
             $question->setTestModel($this->test);
@@ -114,7 +119,7 @@ class FactoryTest
         return $this;
     }
 
-    public function addRandomQuestions(int $amount = 1) : FactoryTest
+    public function addRandomQuestions(int $amount = 1): FactoryTest
     {
         $questions = [];
 
@@ -124,8 +129,8 @@ class FactoryTest
             FactoryQuestionOpenLong::class,
         ];
 
-        for($i = 0; $i < $amount; $i++){
-            $questions[] = $availableQuestions[rand(0,count($availableQuestions)-1)]::create();
+        for ($i = 0; $i < $amount; $i++) {
+            $questions[] = $availableQuestions[rand(0, count($availableQuestions) - 1)]::create();
         }
 
         $this->addQuestions($questions);
@@ -134,7 +139,7 @@ class FactoryTest
     }
 
 
-    public function getTestId() : int
+    public function getTestId(): int
     {
         if (!isset($this->test)) {
             return false;
@@ -142,17 +147,17 @@ class FactoryTest
         return $this->test->id;
     }
 
-    public function getTestModel() : Test
+    public function getTestModel(): Test
     {
         return $this->test;
     }
 
-    public function getPeriodModel() : Period
+    public function getPeriodModel(): Period
     {
         return $this->testPeriod;
     }
 
-    public function getSubjectModel() : Subject
+    public function getSubjectModel(): Subject
     {
         return $this->testSubject;
     }
@@ -171,17 +176,19 @@ class FactoryTest
         $this->testEducationLevel = FactoryEducationLevel::getFirstEducationLevelForUser($this->user);
 
         return [
-            "name" => $this->faker->word() . '-' . $this->faker->numberBetween(1000, 9999),
-            "abbreviation" => 'TEST',
-            "test_kind_id" => SUMMATIVE_TEST_KIND,
-            "subject_id" => $this->testSubject->id,
-            "education_level_id" => $this->testEducationLevel->id,
+            "name"                 => $this->faker->word() . '-' . $this->faker->numberBetween(1000, 9999),
+            "abbreviation"         => 'TEST',
+            "test_kind_id"         => SUMMATIVE_TEST_KIND,
+            "subject_id"           => $this->testSubject->id,
+            "education_level_id"   => $this->testEducationLevel->id,
             "education_level_year" => "1", //choose from range of 1 to $this->testEducationLevel->max_years
-            "period_id" => $this->testPeriod->id,
-            "shuffle" => "0", //(string) random_int(0,1),
-            "introduction" => "Default test introduction",
-            "author_id" => $this->user->id,  //Auth::id()
-            "owner_id" => $this->schoolLocationID,  //Auth::user()->school_location_id
+            "period_id"            => $this->testPeriod->id,
+            "shuffle"              => "0", //(string) random_int(0,1),
+            "introduction"         => "Default test introduction",
+            "author_id"            => $this->user->id,  //Auth::id()
+            "owner_id"             => $this->schoolLocationID,  //Auth::user()->school_location_id
+            "is_system_test"       => 0,
+            "draft"                => 1,
         ];
     }
 }

@@ -4,6 +4,7 @@ namespace tcCore\Factories;
 
 use tcCore\Factories\Traits\RandomCharactersGeneratable;
 use tcCore\School;
+use tcCore\UmbrellaOrganization;
 use tcCore\User;
 
 class FactorySchool
@@ -12,11 +13,13 @@ class FactorySchool
 
     public $school;
     public $accountManager;
+    public $umbrellaOrganization;
     protected $schoolName = '';
 
-    public static function create(string $schoolName = null, User $accountManager = null, array $schoolProperties = []): FactorySchool
+    public static function create(string $schoolName = null, User $accountManager = null, array $schoolProperties = [], UmbrellaOrganization $umbrellaOrganization = null): FactorySchool
     {
         $factory = new static;
+        $factory->umbrellaOrganization = $umbrellaOrganization;
 
         if ($schoolName === null) {
             $factory->schoolName = 'S-' . $factory->randomCharacters(5);
@@ -42,14 +45,14 @@ class FactorySchool
     protected function definition(): array
     {
         return [
-            'customer_code' => strtoupper($this->schoolName),
-            'name'          => $this->schoolName,
-            'main_address'  => 'Agrobusinespark 10',
-            'main_postal'   => '6708PV',
-            'main_city'     => 'Wageningen',
-            'main_country'  => 'Netherlands',
-//            'invoice_address' => 'factory adress',
-//            'user_id'         => $this->createAccountManager(),
+            'customer_code'            => strtoupper($this->schoolName),
+            'name'                     => $this->schoolName,
+            'main_address'             => 'Agrobusinespark 10',
+            'main_postal'              => '6708PV',
+            'main_city'                => 'Wageningen',
+            'main_country'             => 'Netherlands',
+            'invoice_address'          => 'factory adress',
+            'umbrella_organization_id' => $this->umbrellaOrganization?->getKey() ?? null,
         ];
     }
 

@@ -2,9 +2,15 @@
 
 namespace Tests;
 
+use Artisan;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\RefreshDatabaseState;
 use Illuminate\Foundation\Testing\TestCase as BaseTestCase;
+use tcCore\Console\Kernel;
+use tcCore\FactoryScenarios\FactoryScenarioSchoolSimple;
 use tcCore\Http\Helpers\ActingAsHelper;
 use tcCore\Lib\Question\Factory;
+use tcCore\Role;
 use tcCore\SchoolClass;
 use tcCore\Student;
 use tcCore\Teacher;
@@ -15,6 +21,58 @@ use tcCore\UserRole;
 abstract class TestCase extends BaseTestCase
 {
     use CreatesApplication;
+
+    use RefreshDatabase;
+
+    protected static $loadedScenario = false;
+
+
+    protected $loadScenario = false;
+
+
+    protected function refreshInMemoryDatabase()
+    {
+        if (!RefreshDatabaseState::$migrated) {
+            $this->artisan('migrate:fresh',
+                ["--path" => "database/migrations/sqlite/2023_01_11_100000_create_table.php"]
+            );
+
+            $this->app[Kernel::class]->setArtisan(null);
+
+            RefreshDatabaseState::$migrated = true;
+
+            ScenarioLoader::load($this->loadScenario);
+        }
+
+        if (!ScenarioLoader::isLoadedScenario($this->loadScenario)) {
+            RefreshDatabaseState::$migrated = false;
+            $this->refreshInMemoryDatabase();
+        }
+        $this->beginDatabaseTransaction();
+    }
+
+    protected function refreshTestDatabase()
+    {
+        if (!RefreshDatabaseState::$migrated) {
+            $this->artisan('migrate:fresh',
+                ["--path" => "database/migrations/sqlite/2023_01_11_100000_create_table.php"]
+            );
+
+            $this->app[Kernel::class]->setArtisan(null);
+
+            RefreshDatabaseState::$migrated = true;
+
+            ScenarioLoader::load($this->loadScenario);
+        }
+
+        if (!ScenarioLoader::isLoadedScenario($this->loadScenario)) {
+            RefreshDatabaseState::$migrated = false;
+            $this->refreshTestDatabase();
+        }
+
+        $this->beginDatabaseTransaction();
+    }
+
 
     /**
      * If true, setup has run at least once.
@@ -38,35 +96,52 @@ abstract class TestCase extends BaseTestCase
     const USER_STUDENT_ONE = 's1@test-correct.nl';
     const USER_STUDENT_TWO = 's2@test-correct.nl';
 
-    public function login(User $user){
+    /**
+     * @return bool
+     */
+    public static function isSetUpRun(): bool
+    {
+        return self::$setUpRun;
+    }
+
+    public function login(User $user)
+    {
         $this->actingAs($user);
         session()->put('session_hash', $user->session_hash);
     }
 
-    public static function getTeacherOne(){
-        return  User::where('username', '=', static::USER_TEACHER)->first();
-    }
-    public static function getTeacherTwo(): User
+    public static function getTeacherOne()
     {
-        return  User::where('username', '=', static::USER_TEACHER_TWO)->first();
-    }
-    public static function getStudentOne(){
-        return  User::where('username', '=', static::USER_STUDENT_ONE)->first();
-    }
-    public static function getStudentTwo(){
-        return  User::where('username', '=', static::USER_STUDENT_TWO)->first();
+        return User::where('username', '=', static::USER_TEACHER)->first();
     }
 
-    public static function getAuthRequestData($overrides = [])
+    public static function getTeacherTwo(): User
     {
-        $user = User::where('username', '=', static::USER_TEACHER)->first();
+        return User::where('username', '=', static::USER_TEACHER_TWO)->first();
+    }
+
+    public static function getStudentOne()
+    {
+        return User::where('username', '=', static::USER_STUDENT_ONE)->first();
+    }
+
+    public static function getStudentTwo()
+    {
+        return User::where('username', '=', static::USER_STUDENT_TWO)->first();
+    }
+
+    public static function getAuthRequestData($overrides = [], User $user = null)
+    {
+        if (!$user) {
+            $user = User::where('username', '=', static::USER_TEACHER)->first();
+        }
         if (!$user->session_hash) {
             $user->session_hash = $user->generateSessionHash();
             $user->save();
         }
         return array_merge([
             'session_hash' => $user->session_hash,
-            'user'         => static::USER_TEACHER,
+            'user'         => $user->username,
         ], $overrides);
     }
 
@@ -184,7 +259,7 @@ abstract class TestCase extends BaseTestCase
         );
     }
 
-    public static function getStudentXAuthRequestData($overrides = [], $studentNumber=null)
+    public static function getStudentXAuthRequestData($overrides = [], $studentNumber = null)
     {
         if ($studentNumber === null) {
             throw new \ErrorException('studentNumber is required;');
@@ -259,7 +334,7 @@ abstract class TestCase extends BaseTestCase
     public static function authUserGetRequest($url, $params, $user)
     {
         return sprintf(
-            '%s/?session_hash=%s&signature=%s&user=%s&%s',
+            'api-c/%s/?session_hash=%s&signature=%s&user=%s&%s',
             $url,
             $user->session_hash,
             '58500ec4dc43d4e57fb0c1b1edadc31086cba65cd8c7adc52aa22d569f9a89cf',
@@ -357,9 +432,9 @@ abstract class TestCase extends BaseTestCase
         return $user;
     }
 
-    protected function createStudent($password, $schoolLocation, $schoolClass = null, $nr=null)
+    protected function createStudent($password, $schoolLocation, $schoolClass = null, $nr = null)
     {
-        if ($nr ===  null) {
+        if ($nr === null) {
             throw new \ErrorException('parameter $nr is required');
         }
         $user = User::create([
@@ -409,7 +484,7 @@ abstract class TestCase extends BaseTestCase
     }
 
 
-    protected function createTeacher($password, $schoolLocation, $schoolClass=null)
+    protected function createTeacher($password, $schoolLocation, $schoolClass = null)
     {
         $user = User::create([
             'school_location_id' => $schoolLocation->getKey(),
@@ -418,7 +493,8 @@ abstract class TestCase extends BaseTestCase
             'name_first'         => $schoolLocation->name,
             'name'               => sprintf('teacher'),
             'api_key'            => sha1(time()),
-            'send_welcome_email' => 1
+            'send_welcome_email' => 1,
+            'user_roles'         => [Role::TEACHER],
         ]);
 
         if (!$user) {
@@ -426,11 +502,6 @@ abstract class TestCase extends BaseTestCase
         }
 
         $schoolClass = $this->setSchoolClassIfNull($schoolClass, $schoolLocation);
-
-        UserRole::create([
-            'user_id' => $user->getKey(),
-            'role_id' => 1
-        ]);
 
         Teacher::create([
             'user_id'    => $user->getKey(),

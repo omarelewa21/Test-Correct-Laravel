@@ -30,7 +30,7 @@ class FactoryQuestionMultipleChoice extends FactoryQuestion
     protected function calculatedQuestionProperties(): array
     {
         return [
-            'score' => $this->calculateTotalScore(),
+            'score'              => $this->calculateTotalScore(),
             'selectable_answers' => $this->calculateSelectableAnswers(),
         ];
     }
@@ -48,62 +48,49 @@ class FactoryQuestionMultipleChoice extends FactoryQuestion
     protected function definition()
     {
         //generate default question, with default answers, override answers later if provided.
-        return [
-            "add_to_database" => 1,
-            "bloom" => "",
-            "closeable" => 0,
-            "decimal_score" => 0,
-            "discuss" => 1,
-            "maintain_position" => 0,
-            "miller" => "",
-            "is_open_source_content" => 0,
-            "tags" => [],
-            "note_type" => "NONE",
-            "order" => 0,
-            "rtti" => "",
-            "subtype" => $this->questionSubType(),
-            "type" => "MultipleChoiceQuestion",
-            "attainments" => [],
-            "all_or_nothing" => false,
-            //The following can be overridden in child classes
-            "question" => $this->questionDefinition(),
-            "answers" => $this->answerDefinition(),
-            //The following need to be calculated/set before saving
-            "test_id" => 0,
-            "score" => 0,
-            "selectable_answers" => 0,
-        ];
+        return array_merge(
+            parent::definition(),
+            [
+                "selectable_answers" => 0,
+                "answers"            => $this->answerDefinition(),
+            ]
+        );
     }
 
-    protected function questionSubType()
+    public function questionSubType(): string
     {
         return "MultipleChoice";
     }
 
-    protected function questionDefinition()
+    public function questionDefinition()
     {
         return "<p>welk getal is groter dan 1?</p>\n";
     }
 
-    protected function answerDefinition()
+    public function answerDefinition()
     {
         return [
             0 => [
-                "order" => 1,
+                "order"  => 1,
                 "answer" => "een (1)",
-                "score" => 0,
+                "score"  => 0,
             ],
             1 => [
-                "order" => 2,
+                "order"  => 2,
                 "answer" => "twee (2)",
-                "score" => 2,
+                "score"  => 2,
             ],
             2 => [
-                "order" => 3,
+                "order"  => 3,
                 "answer" => "drie (3)",
-                "score" => 3,
+                "score"  => 3,
             ],
         ];
 
+    }
+
+    public function questionType(): string
+    {
+        return 'MultipleChoiceQuestion';
     }
 }
