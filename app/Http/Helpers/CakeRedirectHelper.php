@@ -9,7 +9,9 @@ class CakeRedirectHelper
 {
     protected function __construct(
         protected string  $searchValue,
-        protected ?string $uuid = null) {}
+        protected ?string $uuid = null)
+    {
+    }
 
     public static function redirectToCake(string $routeName = 'dashboard', ?string $uuid = null)
     {
@@ -158,7 +160,9 @@ class CakeRedirectHelper
                 'page_action' => "School.delete('$this->uuid', 0)"
             ],
 
-            'files.class_uploads'     => '/file_management/classuploads',
+            'files.class_uploads'                 => '/file_management/classuploads',
+            'files.view_testupload' => sprintf('/file_management/view_testupload/%s', $this->uuid),
+
             'reports.marketing'       => [
                 'page'        => '/users/welcome',
                 'page_action' => 'window.location.href = "/users/marketing_report"',
