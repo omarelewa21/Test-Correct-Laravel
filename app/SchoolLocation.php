@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Str;
 use Illuminate\Support\Arr;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
+use tcCore\Http\Enums\TestPackages;
 use tcCore\Http\Helpers\ActingAsHelper;
 use tcCore\Http\Helpers\DemoHelper;
 use tcCore\Http\Helpers\GlobalStateHelper;
@@ -98,7 +99,8 @@ class SchoolLocation extends BaseModel implements AccessCheckable
         'allow_new_student_environment', 'allow_new_question_editor',
         'keep_out_of_school_location_report',
         'main_phonenumber', 'internetaddress', 'show_exam_material', 'show_cito_quick_test_start', 'show_national_item_bank',
-        'allow_wsc', 'allow_writing_assignment', 'license_type', 'allow_creathlon', 'allow_new_taken_tests_page', 'allow_analyses', 'allow_new_co_learning',
+        'allow_wsc', 'allow_writing_assignment', 'license_type', 'allow_creathlon', 'allow_new_taken_tests_page', 'allow_analyses',
+        'allow_new_co_learning', 'test_package',
     ];
 
     /**
@@ -1349,6 +1351,27 @@ class SchoolLocation extends BaseModel implements AccessCheckable
     public function getAllowNewCoLearningAttribute() : bool
     {
         return $this->featureSettings()->getSetting('allow_new_co_learning')->exists();
+    }
+
+    public function setTestPackageAttribute(TestPackages|string|false $testPackage)
+    {
+        if(is_string($testPackage)){
+            $testPackage = TestPackages::from(Str::lower($testPackage));
+        }
+        if($testPackage === TestPackages::None || $testPackage === null){
+            $testPackage = false;
+        }
+
+        return $this->featureSettings()->setSetting('test_package', $testPackage);
+    }
+
+    public function getTestPackageAttribute()
+    {
+        if(!$testPackage = $this->featureSettings()->getSetting('test_package')->first()?->value) {
+            return TestPackages::None;
+        }
+
+        return TestPackages::tryFrom($testPackage);
     }
 
     public function canDelete(User $user)

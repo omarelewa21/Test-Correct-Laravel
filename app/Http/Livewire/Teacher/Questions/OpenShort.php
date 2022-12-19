@@ -20,6 +20,7 @@ use tcCore\Http\Controllers\TemporaryLoginController;
 use tcCore\Http\Controllers\TestQuestions\AttachmentsController;
 use tcCore\Http\Controllers\TestQuestionsController;
 use tcCore\Http\Controllers\TestsController;
+use tcCore\Http\Helpers\CakeRedirectHelper;
 use tcCore\Http\Helpers\QuestionHelper;
 use tcCore\Http\Interfaces\QuestionCms;
 use tcCore\Http\Requests\CreateAttachmentRequest;
@@ -570,6 +571,10 @@ class OpenShort extends Component implements QuestionCms
             }
             if ($this->referrer === 'teacher.test-detail') {
                 return redirect()->to(route($this->referrer, $this->testId));
+            }
+            if ($this->referrer === 'cake.filemanagement') {
+                $fileManagementUuid = Test::whereUuid($this->testId)->first()->fileManagement->uuid;
+                return CakeRedirectHelper::redirectToCake('files.view_testupload', $fileManagementUuid );
             }
         }
         $url = sprintf("tests/view/%s", $this->testId);

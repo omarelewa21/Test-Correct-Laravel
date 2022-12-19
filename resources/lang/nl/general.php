@@ -69,8 +69,9 @@ return [
     'tot'                             => 'Tot',
     'Behandelaar'                     => 'Behandelaar',
     'Toetsenbakker'                   => 'Toetsenbakker',
-    'afname'                          => 'Afname',
+    'afname'                          => 'Afname datum',
     'Lees meer'                       => 'Lees meer',
     'en'                              => 'en',
     'jaar'                            => 'Jaar',
+    'aanvraag datum'                  => 'Afname datum',
 ];

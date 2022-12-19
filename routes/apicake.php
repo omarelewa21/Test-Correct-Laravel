@@ -161,6 +161,7 @@ Route::group(['middleware' => ['api', 'dl', 'authorize', 'authorizeBinds', 'bind
     Route::get('filemanagement/form_id',['as' => 'filemanagement.form_id','uses' => 'FileManagementController@getFormId']);
     Route::get('filemanagement/{fileManagement}',['as' => 'filemanagement.view','uses' => 'FileManagementController@show']);
     Route::get('filemanagement/{fileManagement}/download',['as' => 'filemanagement.download','uses' => 'FileManagementController@download']);
+    Route::post('filemanagement/{fileManagement}/duplicate_test_to_school',['as' => 'filemanagement.duplicate-test-to-school','uses' => 'FileManagementController@duplicateTestToSchool']);
     Route::put('filemanagement/{fileManagement}',['as' => 'filemanagement.update','uses' => 'FileManagementController@update']);
     Route::get('test_take/get_surveillance_data', 'SurveillanceController@index')->name('test_take.get_surveillance_data');
     Route::get('test_take/bust_surveillance_cache', 'SurveillanceController@destroy')->name('test_take.bust_surveillance_cache');
@@ -293,6 +294,7 @@ Route::group(['middleware' => ['api', 'dl', 'authorize', 'authorizeBinds', 'bind
     Route::put('/user/{user}/general_terms_accepted','UsersController@setGeneralTermsLogAcceptedAtForUser')->name('user.setGeneralTermsLogAcceptedAtForUser');
 
     Route::get('/user/{user}/return_to_laravel_url','UsersController@getReturnToLaravelUrl')->name('user.getReturnToLaravelUrl');
+    Route::get('/user/toetsenbakkers','UsersController@toetsenbakkers')->name('user.toetsenbakkers');
 
     Route::put('user/resend_onboarding_welcome_email', ['as' => 'user.send_onboarding_welcome_email', 'uses' => 'UsersController@sendOnboardingWelcomeEmail']);
     Route::resource('user', 'UsersController', ['except' => ['create', 'edit']]);

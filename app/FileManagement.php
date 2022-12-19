@@ -57,25 +57,6 @@ class FileManagement extends BaseModel
     public static function boot()
     {
         parent::boot();
-//        static::created(function (FileManagement $fileManagement) {
-//            $fileManagement->refresh());
-//            FileManagementStatusLog::create([
-//                'file_management_id' => $fileManagement->getKey(),
-//                'file_management_status_id' => $fileManagement->file_management_status_id
-//            ]);
-//        });
-//
-//        static::updated(function (FileManagement $fileManagement) {
-//
-//            // logging statuses if changed
-//            if ($fileManagement->getOriginal('file_management_status_id') != $fileManagement->file_management_status_id) {
-//                FileManagementStatusLog::create([
-//                    'file_management_id' => $fileManagement->getKey(),
-//                    'file_management_status_id' => $fileManagement->file_management_status_id
-//                ]);
-//            }
-//        });
-
     }
 
     public function getTypedetailsAttribute($value)
@@ -127,6 +108,11 @@ class FileManagement extends BaseModel
         return $this->belongsTo(Subject::class, 'subject_id');
     }
 
+    public function test()
+    {
+        return $this->belongsTo(Test::class);
+    }
+
     public function scopeFiltered($query, $user, $filters = [], $sorting = [])
     {
         $query->whereNull('parent_id')
@@ -134,16 +120,18 @@ class FileManagement extends BaseModel
             ->select('file_managements.*');
 
         if ($user->hasRole('Teacher')) {
-            $query->where(function ($query) use ($user) {
-                $query->where('file_managements.user_id', $user->getKey())
-                    ->orWhere('file_managements.handledby', $user->getKey());
-            });
             if ($user->isToetsenbakker()) {
-                $query->where('file_managements.archived', false);
+                $query->where('file_managements.archived', false)
+                    ->whereNot('file_managements.file_management_status_id', FileManagementStatus::STATUS_PROVIDED);
             } else {
+                $query->where(function ($query) use ($user) {
+                    $query->where('file_managements.user_id', $user->getKey())
+                        ->orWhere('file_managements.handledby', $user->getKey());
+                });
                 $query->where('file_managements.school_location_id', $user->school_location_id);
             }
-        } else if ($user->hasRole('Account manager')) {
+        }
+        if ($user->hasRole('Account manager')) {
             $query->whereIn('file_managements.school_location_id', (new SchoolHelper())->getRelatedSchoolLocationIds($user));
         }
 
@@ -324,33 +312,27 @@ class FileManagement extends BaseModel
 
     public static function getBuilderForUsers(User $user, $type = 'testupload')
     {
-        $ids = FileManagement::where('type', $type)
-            ->whereIn('file_managements.school_location_id', (new SchoolHelper())->getRelatedSchoolLocationIds($user))
-            ->select('user_id', 'handledby')
-            ->get()
-            ->map(function (FileManagement $fm) {
-                return [$fm->user_id, $fm->handledby];
-            })
-            ->collapse();
-
-
-        return User::withTrashed()
-            ->whereIn('id', $ids)
-            ->select('id', 'name_first', 'name_suffix', 'name')
+        return User::select(['id', 'name_first', 'name_suffix', 'name'])
+            ->whereIn(
+                'id',
+                FileManagement::select('user_id')
+            )
+            ->withTrashed()
             ->groupBy('users.id')
             ->orderBy('name', 'asc');
     }
 
     public static function getBuilderForEducationLevels(User $user, $type = 'testupload')
     {
-        $ids = FileManagement::where('type', $type)
-            ->whereIn('file_managements.school_location_id', (new SchoolHelper())->getRelatedSchoolLocationIds($user))
-            ->pluck('education_level_id')
-            ->unique();
+        $idsQuery = FileManagement::distinct()
+            ->select('education_level_id')
+            ->where('type', $type)
+            ->whereIn('file_managements.school_location_id', (new SchoolHelper())->getRelatedSchoolLocationIds($user));
+
 
 
         return EducationLevel::withTrashed()
-            ->whereIn('id', $ids)
+            ->whereIn('id', $idsQuery)
             ->where('id', '<>', 0)
             ->orderBy('max_years', 'asc')
             ->orderBy('name', 'asc');
@@ -368,9 +350,13 @@ class FileManagement extends BaseModel
 
     public function redirectToDetail()
     {
+        $routeNamePrefix = str(Auth::user()->roles()->first()->value('name'))->kebab()->value();
         $temporaryLogin = TemporaryLogin::createWithOptionsForUser(
             ['page', 'return_route'],
-            ['file_management/view_testupload/' . $this->uuid, route('account-manager.file-management.testuploads', [], false)],
+            [
+                "file_management/view_testupload/{$this->uuid}",
+                route("{$routeNamePrefix}.file-management.testuploads", [], false)
+            ],
             Auth::user()
         );
 
@@ -435,5 +421,20 @@ class FileManagement extends BaseModel
         return collect(TestUploadAdditionalOptions::cases())->mapWithKeys(function ($enum) {
             return [$enum->value => $enum->name];
         });
+    }
+
+    public function scopeTestUploads($query)
+    {
+        return $query->where('type', 'testupload');
+    }
+
+    public function scopeHandledBy($query, User $user)
+    {
+        return $query->where('handledby', $user->getKey());
+    }
+
+    public static function removeTestRelation(Test $test)
+    {
+        self::whereTestId($test->getKey())->update(['test_id' => null]);
     }
 }

@@ -95,6 +95,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/preview/pdf/test_attachments/{test}', [tcCore\Http\Controllers\PrintTestController::class, 'showTestPdfAttachments'])->name('preview.test_pdf_attachments');
         Route::get('/test_takes/{stage}', \tcCore\Http\Livewire\Teacher\TestTakeOverview::class)->name('test-takes');
         Route::get('/upload_test', \tcCore\Http\Livewire\Teacher\UploadTest::class)->name('upload-tests');
+        Route::get('/file-management/testuploads', \tcCore\Http\Livewire\FileManagement\ToetsenbakkerUploadsOverview::class)->name('file-management.testuploads');
     });
 
     Route::middleware(['dll', 'student'])->prefix('appapi')->name('appapi')->group(function () {
