@@ -41,7 +41,7 @@
                 >
                     <x-icon.trash/>
                 </button>
-                <button wire:click="$emit('openModal', 'teacher.test-edit-modal', {testUuid: '{{ $this->testId }}'})"
+                <button wire:click="$emit('openModal', '{{ sprintf('%s.test-edit-modal', Auth::user()->isToetsenbakker() ? 'toetsenbakker' : 'teacher')}}', {testUuid: '{{ $this->testId }}'})"
                         class="new-button button-primary w-10"
                         title="{{ __('cms.Instellingen') }}"
                 >
