@@ -29,12 +29,6 @@
             >
                 <x-actions.test-delete variant="icon-button" :uuid="$this->testId"/>
                 <x-actions.test-open-settings variant="icon-button" :uuid="$this->testId"/>
-                <button wire:click="$emit('openModal', '{{ sprintf('%s.test-edit-modal', Auth::user()->isToetsenbakker() ? 'toetsenbakker' : 'teacher')}}', {testUuid: '{{ $this->testId }}'})"
-                        class="new-button button-primary w-10"
-                        title="{{ __('cms.Instellingen') }}"
-                >
-                    <x-icon.settings/>
-                </button>
                 <x-actions.test-open-preview variant="icon-button" :uuid="$this->testId"/>
                 <livewire:actions.test-make-pdf variant="icon-button" :uuid="$this->testId"/>
                 <livewire:actions.test-quick-take variant="icon-button" :uuid="$this->testId"/>
