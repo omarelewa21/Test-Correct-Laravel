@@ -964,15 +964,11 @@ class TestTake extends BaseModel
 
     public function scopeOnlyTestsFromSubjectsOrIfDemoThenOnlyWhenOwner($query, User $user)
     {
+
         $query->where(function ($q) use ($user) {
             $subject = (new DemoHelper())->getDemoSubjectForTeacher($user);
-            //TCP-156
             if ($subject === null) {
-                if (config('app.url_login') == "https://testportal.test-correct.nl/" || config('app.url_login') == "https://testportal.test-correct.nl/" || config('app.env') == "production") {
-                    dispatch(new SendExceptionMail("Er is iets mis met de demoschool op ".config('app.url_login')."! \$subject is null in TestTake.php. Dit betekent dat docenten toetsen van andere docenten kunnen zien. Dit moet zo snel mogelijk opgelost worden!",
-                        __FILE__, 510, []));
-                }
-                return;
+                return; // no demo environments any more for new teachers except for the temporary school location
             }
 
             $q->whereIn($this->getTable().'.id', function ($query) use ($subject, $user) {
