@@ -2,6 +2,8 @@
 
 namespace tcCore\Http\Livewire\CoLearning;
 
+use Bugsnag\Breadcrumbs\Breadcrumb;
+use Bugsnag\BugsnagLaravel\Facades\Bugsnag;
 use Illuminate\Support\Str;
 use Livewire\Component;
 use tcCore\Answer;
@@ -36,7 +38,7 @@ abstract class CoLearningQuestion extends Component
 
     public function initializeComponent($data = null)
     {
-        if(isset($data)) {
+        if (isset($data)) {
             $this->answerRatingId = $data[0];
             $this->questionNumber = $data[1];
             $this->answerNumber = $data[2];
@@ -52,21 +54,37 @@ abstract class CoLearningQuestion extends Component
 
         $this->handleGetAnswerData();
 
-        if(!is_null($this->question->belongs_to_groupquestion_id)){
+        if (!is_null($this->question->belongs_to_groupquestion_id)) {
             $this->question->groupQuestion = Question::find($this->question->belongs_to_groupquestion_id);
         }
     }
 
     public function redirectByWrongQuestionType()
     {
-        if(!Str::endsWith(get_class($this), $this->question->type)) {
-             return redirect($this->originalUrl);
+        //16-12-22 if no errors/Exceptions have happened here after half a year, remove the code.
+        if (!Str::endsWith(get_class($this), $this->question->type)) {
+            $tries = request()->all()['tries'] ?? 1;
+
+            if ($tries < 3) {
+                $tries++;
+                sleep(1);
+                header(sprintf('location: %s?tries=%s', $this->originalUrl, $tries));
+                exit;
+            }
+
+            Bugsnag::leaveBreadcrumb('answerRating', Breadcrumb::MANUAL_TYPE, ['answerRating' => $this->answerRating->id]);
+
+            Bugsnag::notifyException(new \Exception('CO-Learning [student]: Question component instantiated with wrong question type.'));
+
+            header(sprintf('location: /student/test-takes?tab=discuss'));
+            exit;
         }
+
     }
 
     abstract public function render();
 
-    abstract public function isQuestionFullyAnswered() : bool;
+    abstract public function isQuestionFullyAnswered(): bool;
 
     abstract protected function handleGetAnswerData();
 

@@ -185,4 +185,6 @@ return [
     'overzicht p-waardes'                                      => 'Overzicht P waardes',
     'analyses_taxonomy_graph_empty_state_method_not_available' => 'Niet gekoppeld aan deze methode',
     'tooltip_taxonomy_graph'                                   => '{0} geen data beschikbaar |{1} P :p_value op basis van :count_questions vraag|[2,*] P :p_value op basis van :count_questions vragen',
-];
+    'discussing_test'                                       => 'Te bespreken toets',
+    'review_test'                                           => 'Toets inzien',
+    ];

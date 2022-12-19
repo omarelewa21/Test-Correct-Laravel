@@ -70,7 +70,6 @@
 <script>
     Alpine.start();
     Core.init();
-    {{--Echo.connector.pusher.config.auth.headers['X-CSRF-TOKEN'] = '{{ csrf_token() }}'--}}
 </script>
 </body>
 </html>

@@ -146,4 +146,6 @@ return [
     'overzicht p-waardes'                                      => 'Overview P values',
     'analyses_taxonomy_graph_empty_state_method_not_available' => 'Method not available',
     'tooltip_taxonomy_graph'                                   => '{0} no data available |{1}P :p_value based on one question| [2,*] P :p_value base on :count_questions questions',
-];
+    'discussing_test'                                       => 'Discussing test',
+    'review_test'                                           => 'Reviewing test',
+    ];
