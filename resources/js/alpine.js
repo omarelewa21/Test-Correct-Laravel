@@ -891,6 +891,118 @@ document.addEventListener('alpine:init', () => {
         }
     ));
 
+    Alpine.data('analysesSubjectsTimeSeriesGraph', (modelId) => ({
+            modelId,
+            data: [],
+            colors: [
+                '#30BC51',
+                '#5043F6',
+                '#ECEE7D',
+                '#6820CE',
+                '#CB110E',
+                '#F79D25',
+                '#1B6112',
+                '#43ACF5',
+                '#E12576',
+                '#24D2C5',
+            ],
+            showEmptyState: false,
+            init() {
+                this.updateGraph();
+            },
+            async updateGraph() {
+                // [this.showEmptyState, this.data] = await this.$wire.call('getDataForGraph');
+
+
+                this.renderGraph();
+            },
+            renderGraph() {
+                let subjects = [
+                    'Nederland',
+                    'Frans',
+                    'Wiskunde',
+                    'Natuurkunde',
+                ];
+
+
+
+                    // set the data
+                let table = anychart.data.table();
+                table.addData([
+                    ['2016-01-01', 0.1, 1.0, 0.8, 0.5],
+                    ['2016-02-01', 0.2, 0.9, 0.8, 0.5],
+                    ['2016-03-01', 0.3, 0.8, 0.8, 0.5],
+                    ['2016-04-01', 0.4, 0.7, 0.8, 0.5],
+                    ['2016-05-01', 0.5, 0.7, 0.8, 0.5],
+                    ['2016-06-01', 0.6, 0.7, 0.8, 0.5],
+                    ['2016-07-01', 0.7, 0.7, 0.8, 0.5],
+                    ['2016-08-01', 0.8, 0.7, 0.8, 0.5],
+                    ['2016-09-01', 0.9, 0.7, 0.8, 0.5],
+                    ['2016-10-01', 1.0, 0.7, 0.8, 0.5],
+                    ['2016-11-01', 0.9, 0.7, 0.8, 0.5],
+                    ['2016-12-01', 0.8, 0.7, 0.8, 0.5],
+                ]);
+
+                // chart type
+                var chart = anychart.stock();
+                var yScale = chart.plot(0).yScale();
+                yScale.minimum(0);
+                yScale.maximum(1.00);
+                yScale.ticks().interval(0.25)
+
+                var line = chart.plot(0).lineMarker();
+                line.value(0);
+                line.stroke("2 var(--system-base)");
+
+                chart.plot(0).yAxis(0).labels().format(function () {
+                    return this.value == 0 ? 'P 0' : 'P ' + this.value.toFixed(2);
+                })
+
+                // access labels
+                let labels = chart.scroller().xAxis().labels();
+                let minorLabels = chart.scroller().xAxis().minorLabels();
+
+// set major labels text format
+                labels.format(function () {
+                    return "'" + anychart.format.dateTime(this.tickValue, "Y");
+                });
+// set labels color
+                labels.fontColor('var(--system-base)');
+                labels.fontWeight('bold');
+
+// set minor labels text format
+                minorLabels.format(function() {
+                    return anychart.format.dateTime(this.tickValue, 'MMM');
+                });
+
+// set minor color to selectedColorForScroller;
+                minorLabels.fontColor('var(--system-base) 0.5');
+//
+
+                chart.scroller().selectedFill('var(--system-base) 0.1');
+                chart.scroller().outlineStroke("var(--system-base)", 2);
+                chart.scroller().outline
+
+                subjects.forEach((el, index) =>{
+                    let cnt = index+1;
+                    let mapping = table.mapAs();
+                    mapping.addField('value', cnt);
+
+                    let series = chart.plot(0).line(mapping);
+                    series.name(el);
+                    series.stroke(this.colors[index]);
+                })
+
+
+                chart.title('');
+
+                chart.container(this.modelId);
+                chart.draw();
+            }
+        }
+    ));
+
+
     Alpine.data('analysesAttainmentsGraph', (modelId) => ({
             modelId,
             data: false,
