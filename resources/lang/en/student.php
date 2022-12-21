@@ -89,6 +89,8 @@ return [
     'discussing_test'                                       => 'Discussing test',
     'review_test'                                           => 'Reviewing test',
     'test_starts_in'                                        => 'Test starts in',
+    'discussing_starts_in'                                  => 'Test discussing starts in',
+    'review_starts_in'                                      => 'Test review starts in',
     'fill_in_test_code_from_teacher'                        => 'Fill in the test code the teacher is showing on the screen',
     'browser_testing_disabled_notification'                 => 'It\'s not allowed to make this test in the browser. Please start the Test-Correct app to make this test.',
     'participant_already_taken'                             => 'This participant is already chosen.',

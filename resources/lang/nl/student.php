@@ -127,6 +127,8 @@ return [
     'discussing_test'                                       => 'Te bespreken toets',
     'review_test'                                           => 'Toets inzien',
     'test_starts_in'                                        => 'Toets maken start in',
+    'discussing_starts_in'                                  => 'Toets bespreken start in',
+    'review_starts_in'                                      => 'Toets inzien start in',
     'fill_in_test_code_from_teacher'                        => 'Voer de toetscode in die de docent toont op het scherm',
     'browser_testing_disabled_notification'                 => 'Het is niet toegestaan om deze toets in de browser te maken. Start de Test-Correct app om deze toets te maken.',
     'participant_already_taken'                             => 'Dit gastprofiel is reeds gekozen.',

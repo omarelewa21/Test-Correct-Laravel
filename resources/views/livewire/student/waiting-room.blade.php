@@ -187,7 +187,13 @@
                     </x-button.text-button>
                 </div>
                 <div class="flex flex-col flex-1 w-full items-center mt-16 space-y-3">
-                    <span>{{ __('student.test_starts_in') }}</span>
+                    @if($this->testTakeStatusStage === 'discuss')
+                        <span>{{ __('student.discussing_starts_in') }}</span>
+                    @elseif($this->testTakeStatusStage === 'review' || $this->testTakeStatusStage === 'graded')
+                        <span>{{ __('student.review_starts_in') }}</span>
+                    @else
+                        <span>{{ __('student.test_starts_in') }}</span>
+                    @endif
                     <div class="flex w-28 h-28 justify-center items-center text-center bold border-4 border-system-base rounded-full"
                          style="font-size: 64px">
                         <span class="w-full" x-text="countdownNumber"></span>
