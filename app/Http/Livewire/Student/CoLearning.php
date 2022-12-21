@@ -42,6 +42,8 @@ class CoLearning extends Component
     protected $answerRatings = null;
     public $answeredAnswerRatingIds;
 
+    public $discussingQuestionId;
+
     protected $queryString = [
         'answerRatingId'     => ['as' => 'e'],
         'coLearningFinished' => ['except' => false, 'as' => 'b']
@@ -61,9 +63,9 @@ class CoLearning extends Component
     protected function getListeners()
     {
         return [
-            CoLearningForceTakenAway::channelSignature($this->testParticipant->uuid) => 'redirectToTestTakesInReview',
-            CoLearningNextQuestion::channelSignature($this->testParticipant->uuid)   => 'goToNextQuestion',
-            CoLearningPresence::channelSignature($this->testTake->uuid)              => 'updateHeartbeat',
+//            CoLearningForceTakenAway::channelSignature($this->testParticipant->uuid) => 'redirectToTestTakesInReview',
+//            CoLearningNextQuestion::channelSignature($this->testParticipant->uuid)   => 'goToActiveQuestion',
+//            CoLearningPresence::channelSignature($this->testTake->uuid)              => 'updateHeartbeat',
             'UpdateAnswerRating'                                                     => 'updateAnswerRating',
         ];
     }
@@ -71,6 +73,7 @@ class CoLearning extends Component
     public function mount(TestTake $test_take)
     {
         $this->testTake = $test_take;
+        $this->discussingQuestionId = $this->testTake->discussing_question_id;
         $this->questionOrderList = $this->testTake->test->getQuestionOrderList();
 
         $this->redirectIfNotStatusDiscussing();
@@ -95,6 +98,13 @@ class CoLearning extends Component
 
         return view('livewire.student.co-learning')
             ->layout('layouts.co-learning');
+    }
+
+    public function booted()
+    {
+        if($this->testTake->test_take_status_id > 7){
+            return $this->redirectToTestTakesInReview();
+        }
     }
 
     public function redirectToTestTakesInReview()
@@ -135,7 +145,7 @@ class CoLearning extends Component
         $this->getAnswerRatings('next');
     }
 
-    public function goToNextQuestion(): void
+    public function goToActiveQuestion(): void
     {
         $this->waitForTeacherNotificationEnabled = false;
 
@@ -271,6 +281,8 @@ class CoLearning extends Component
 
             $this->setQuestionRatingProperties();
 
+            $this->discussingQuestionId = $this->answerRating->answer->question_id;
+
             if ($this->answerRating->rating === null) {
                 $this->rating = null;
             } else {
@@ -357,6 +369,10 @@ class CoLearning extends Component
 
     public function updateHeartbeat($skipRender = true)
     {
+        if($this->testTake->discussing_question_id !== $this->discussingQuestionId) {
+            return $this->goToActiveQuestion();
+        }
+
         if ($skipRender) {
             $this->skipRender();
         }

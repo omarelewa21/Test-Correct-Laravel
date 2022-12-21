@@ -1372,7 +1372,7 @@ class TestTakesController extends Controller
 
         $someGluedUpVariable = $parentsGlue . $questionId;
         $newQuestionIdParents = QuestionGatherer::getNextQuestionId($testTake->getAttribute('test_id'), $someGluedUpVariable, in_array($testTake->getAttribute('discussion_type'), ['OPEN_ONLY']));
-        $testTake->setAttribute('has_next_question', (QuestionGatherer::getNextQuestionId($testTake->getAttribute('test_id'), $newQuestionIdParents, in_array($testTake->getAttribute('discussion_type'), ['OPEN_ONLY'])) !== false));
+        $testTake->setAttribute('has_next_question', $newQuestionIdParents !== false);
     }
 
     protected function filterIfNeededForDemo($data, $paginate = false)
