@@ -59,6 +59,8 @@ class OpenShort extends Component implements QuestionCms
 
     public $audioUploadOptions = [];
 
+    public $audioAttachmentOptions = [];
+
     public $uploads = [];
 
     public $attachments = [];
@@ -120,6 +122,7 @@ class OpenShort extends Component implements QuestionCms
 
     public $questionIndex;
 
+    public $question;
 
     /**
      * @var CmsInfoScreen|CmsMultipleChoice|CmsOpen|CmsRanking|CmsTrueFalse|null
@@ -426,6 +429,9 @@ class OpenShort extends Component implements QuestionCms
 
     public function updated($name, $value)
     {
+        logger('updated');
+        logger($name);
+        logger($value);
         $method = 'updated' . Str::dotToPascal($name);
         if ($this->obj && method_exists($this->obj, $method)) {
             $this->obj->$method($value);
@@ -671,12 +677,18 @@ class OpenShort extends Component implements QuestionCms
 
     public function handleAttachmentSettingChange($data, $attachmentUuid)
     {
+        //todo move saving to the saving of the question
+        // todo if attachment is dirty, force question to duplicate / make question dirty
+//        dd($this->obj);
+//        $this->question
         $attachment = $this->attachments->where('uuid', $attachmentUuid)->first();
         $questionAttachment = $attachment->questionAttachments->where('question_id', $this->questionId)->first();
 
         $currentJson = json_decode($questionAttachment->options, true);
         $json = array_merge($currentJson ?? [], $data);
 
+        //remove update and move to saving of question
+        $this->audioAttachmentOptions[$attachmentUuid] = $json;
         $questionAttachment->update(['options' => json_encode($json)]);
 
         $attachment->load(['questionAttachments']);
@@ -1010,13 +1022,16 @@ class OpenShort extends Component implements QuestionCms
 
     public function showQuestion($args)
     {
+        logger('foirst!');
         if (!$this->forceOpenNewQuestion && $this->needsSavingBeforeShowingQuestion($args['shouldSave'])) {
+            logger('here!;l');
             if (!$this->completedMandatoryFields()) {
                 return $this->leavingDirtyQuestion($args);
             }
             $this->loading = true;
             $this->save(false);
         }
+        logger('thirds;');
         $this->loading = true;
         $this->dispatchBrowserEvent('question-change', ['new' => $args['questionUuid'], 'old' => $this->testQuestionId]);
 

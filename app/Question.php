@@ -572,6 +572,18 @@ class Question extends MtiBaseModel
         }
     }
 
+    public function isDirtyAttachmentOptions() : bool
+    {
+//        dd($this->getOriginal('attachments'));
+
+        //todo write logic to determine if attachment options are dirty
+        if(true) {
+            return false;
+        }
+
+        return false;
+    }
+
     public function isDirtyAnswerOptions($totalData)
     {
         if (!array_key_exists('answers', $totalData)) {
@@ -1173,6 +1185,9 @@ class Question extends MtiBaseModel
             return true;
         }
         if ($baseModel->isDirtyTags()) {
+            return true;
+        }
+        if ($baseModel->isDirtyAttachmentOptions()) {
             return true;
         }
         return false;
