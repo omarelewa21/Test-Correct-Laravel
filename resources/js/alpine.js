@@ -536,7 +536,7 @@ document.addEventListener('alpine:init', () => {
             }, 750)
         },
         setActiveSlideProperty(position) {
-            let index = position / this.slideWidth > 2 ? 3 : position / this.slideWidth;
+            let index = position / this.slideWidth > 2 ? 3 : Math.round(position / this.slideWidth);
             this.activeSlide = this.slides[index];
         },
         poll(interval) {
