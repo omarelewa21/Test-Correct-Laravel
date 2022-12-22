@@ -12,6 +12,6 @@ class MultipleSelectQuestion extends \tcCore\Http\Livewire\TestPrint\MultipleSel
 {
     public function render()
     {
-        return view('livewire.test_opgaven_print.multiple-select-question');
+        return view('livewire.test_opgaven_print.multiple-choice-question');
     }
 }

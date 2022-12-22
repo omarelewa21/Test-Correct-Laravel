@@ -1,5 +1,5 @@
 <x-layouts.pdf-test-print>
-    <div class="w-full flex flex-col mb-5 overview">
+    <div class="w-full flex flex-col mb-5 overview test-print-opgaven-pdf">
         <div class="w-full space-y-8 mt-10">
             @push('styling')
                 <style>

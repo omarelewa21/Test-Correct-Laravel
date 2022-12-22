@@ -10,6 +10,15 @@ use tcCore\Question;
 
 class MultipleChoiceQuestion extends \tcCore\Http\Livewire\TestPrint\MultipleChoiceQuestion
 {
+    public $characters;
+
+    public function mount()
+    {
+        parent::mount();
+
+        $this->characters = range('A', 'Z');
+    }
+
     public function render()
     {
         if ($this->question->subtype == 'ARQ') {

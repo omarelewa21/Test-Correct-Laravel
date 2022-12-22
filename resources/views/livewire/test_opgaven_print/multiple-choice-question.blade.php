@@ -10,7 +10,10 @@
             @foreach( $this->answerStruct as $key => $value)
                 <div class="block mc-radio relative " style="vertical-align: top">
                     <div class="square-checkbox block relative align-middle">
-                        &nbsp;
+                        {{--&nbsp;--}}
+                        <div class="checkbox-character pdf-align-center mr-3">
+                            {!!  $loop->index <= 25 ? '&nbsp;' . $this->characters[$loop->index] : 'A'.$this->characters[$loop->index-26] !!}
+                        </div>
                     </div>
                     <label
                             for="link{{ $value }}"
@@ -25,7 +28,9 @@
                                 value="{{ $value }}"
                         >
                         <div class="w-full multiple-select-text">
-                            <div class="mc-radio-label-pdf">{!! $this->answerText[$key] !!}</div>
+                            <div class="mc-radio-label-pdf">
+                                {!! $this->answerText[$key] !!}
+                            </div>
                         </div>
                     </label>
                 </div>

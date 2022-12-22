@@ -22,7 +22,9 @@
                     @foreach( $question->multipleChoiceQuestionAnswers as $loopCount => $link)
                         <div class="block mc-radio relative">
                             <div class="round-checkbox">
-                                &nbsp;
+                                <div class="checkbox-character pdf-align-center mr-3">
+                                    {!!  $loop->index <= 25 ? '&nbsp;' . $this->characters[$loop->index] : 'A'.$this->characters[$loop->index-26] !!}
+                                </div>
                             </div>
                             <label
                                     class="arq-label absolute inline-block base multiple-choice-question"

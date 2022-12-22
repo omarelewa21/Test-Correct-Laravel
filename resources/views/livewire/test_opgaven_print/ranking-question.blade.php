@@ -10,9 +10,11 @@
             @foreach($answerStruct as $answer)
                 <div class="ranking-answer">
                     <div class="square-checkbox bold">
-                        {{ $loop->index+1 }}
+                        <div class="checkbox-number pdf-align-center mr-3">
+                            {!!  $loop->index+1 < 10 ? '&nbsp;' . $loop->index+1 : $loop->index+1 !!}
+                        </div>
                     </div>
-                    <div class="ranking-answer-textbox base "
+                    <div class="ranking-answer-textbox base " style="padding-bottom: 0; padding-top: 0.25rem"
                     >
                         <span class="mr-3 flex items-center pdf-align-center" >{!! $answerText[$answer->value] !!}</span>
                     </div>

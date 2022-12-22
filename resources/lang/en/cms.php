@@ -194,7 +194,7 @@ return [
     'toets_pdf'                                                                              => 'Test',
     'toets_pdf_omschrijving'                                                                 => 'Test with all questions. E.g. for taking on paper',
     'toets_opgaven_pdf'                                                                      => 'Assignments',
-    'toets_opgaven_pdf_omschrijving'                                                         => 'Test with all questions. E.g. for taking on paper',
+    'toets_opgaven_pdf_omschrijving'                                                         => 'All questions from the test without answering space',
     'pdf_exporteren'                                                                         => 'Export PDF',
     'Search...'                                                                              => 'Search...',
     'Direct afnemen'                                                                         => 'Quick start',
