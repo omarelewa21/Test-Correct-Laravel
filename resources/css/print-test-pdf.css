@@ -10,6 +10,11 @@
     margin-right: 0.5rem;
 }
 
+.test-print-pdf .test-print-opgaven-pdf .square-checkbox,
+.test-print-pdf .test-print-opgaven-pdf .round-checkbox {
+    font-weight: bold;
+}
+
 .test-print-pdf .square-checkbox {
     border-radius: 10px;
 }

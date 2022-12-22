@@ -193,6 +193,8 @@ return [
     'antwoorden_omschrijving'                                                                => 'All answers of students grouped',
     'toets_pdf'                                                                              => 'Test',
     'toets_pdf_omschrijving'                                                                 => 'Test with all questions. E.g. for taking on paper',
+    'toets_opgaven_pdf'                                                                      => 'Assignments',
+    'toets_opgaven_pdf_omschrijving'                                                         => 'Test with all questions. E.g. for taking on paper',
     'pdf_exporteren'                                                                         => 'Export PDF',
     'Search...'                                                                              => 'Search...',
     'Direct afnemen'                                                                         => 'Quick start',

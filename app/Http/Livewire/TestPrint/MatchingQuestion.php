@@ -47,7 +47,7 @@ class MatchingQuestion extends Component
         return view('livewire.test_print.matching-question');
     }
 
-    private function matchingSubTypeHandler()
+    protected function matchingSubTypeHandler()
     {
         $this->shuffledAnswerSets = $this->question->matchingQuestionAnswers->mapToGroups(function ($item, $key) {
             return [$item->type => $item->answer];
@@ -56,7 +56,7 @@ class MatchingQuestion extends Component
         });
     }
 
-    private function classifySubTypeHandler()
+    protected function classifySubTypeHandler()
     {
         [$this->answerGroups, $this->answerOptions] = $this->question->matchingQuestionAnswers->mapToGroups(function ($item, $key) {
             return [$item->type => $item->answer];
@@ -70,7 +70,7 @@ class MatchingQuestion extends Component
         $this->reorderAnswerOptions();
     }
 
-    private function reorderAnswerOptions()
+    protected function reorderAnswerOptions()
     {
         $count = $this->answerOptions->count();
 

@@ -21,6 +21,9 @@
                         case 'testpdf':
                             this.export_test_pdf();
                             break;
+                        case 'testopgavenpdf':
+                            this.export_test_opgaven_pdf();
+                            break;
                         case 'testtakepdf':
                             this.export_test_take_pdf();
                             break;
@@ -36,6 +39,11 @@
                     var windowReference = window.open();
                     windowReference.document.write(this.waitingScreenHtml);
                     windowReference.location = '{{ route('teacher.preview.test_pdf', ['test' => $test->uuid]) }}';
+                },
+                export_test_opgaven_pdf: function () {
+                    var windowReference = window.open();
+                    windowReference.document.write(this.waitingScreenHtml);
+                    windowReference.location = '{{ route('teacher.preview.test_opgaven_pdf', ['test' => $test->uuid]) }}';
                 },
                 export_test_take_pdf: function () {
                     var windowReference = window.open();
@@ -66,6 +74,23 @@
                 <div class="col-span-2">
                     {{ __('teacher.Kies een of meerdere onderdelen') }}
                 </div>
+
+                <button class="test-change-option transition"
+                        :class="{'active': selected('testopgavenpdf')}"
+                        @click="select('testopgavenpdf')"
+                >
+                    <div class="flex">
+                        <x-stickers.test-export-questions/>
+                    </div>
+
+                    <div x-show="selected('testopgavenpdf')">
+                        <x-icon.checkmark class="absolute top-2 right-2 overflow-visible"/>
+                    </div>
+                    <div class="ml-2.5 text-left">
+                        <span class="text-base bold">{{ __('cms.toets_opgaven_pdf') }}</span>
+                        <p class="note text-sm">{{ __('cms.toets_opgaven_pdf_omschrijving') }}</p>
+                    </div>
+                </button>
 
                 @if($testTake)
                     <button class="test-change-option transition"
