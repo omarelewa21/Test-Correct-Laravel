@@ -6216,6 +6216,7 @@ document.addEventListener('alpine:init', function () {
       modelId: modelId,
       data: [],
       colors: ['#30BC51', '#5043F6', '#ECEE7D', '#6820CE', '#CB110E', '#F79D25', '#1B6112', '#43ACF5', '#E12576', '#24D2C5'],
+      subjects: [],
       showEmptyState: false,
       init: function init() {
         this.updateGraph();
@@ -6223,14 +6224,22 @@ document.addEventListener('alpine:init', function () {
       updateGraph: function updateGraph() {
         var _this20 = this;
         return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee4() {
+          var _yield$_this20$$wire$, _yield$_this20$$wire$2;
           return _regeneratorRuntime().wrap(function _callee4$(_context4) {
             while (1) {
               switch (_context4.prev = _context4.next) {
                 case 0:
-                  // [this.showEmptyState, this.data] = await this.$wire.call('getDataForGraph');
-
+                  _context4.next = 2;
+                  return _this20.$wire.call('getDataForSubjectTimeSeriesGraph');
+                case 2:
+                  _yield$_this20$$wire$ = _context4.sent;
+                  _yield$_this20$$wire$2 = _slicedToArray(_yield$_this20$$wire$, 3);
+                  _this20.showEmptyState = _yield$_this20$$wire$2[0];
+                  _this20.data = _yield$_this20$$wire$2[1];
+                  _this20.subjects = _yield$_this20$$wire$2[2];
+                  debugger;
                   _this20.renderGraph();
-                case 1:
+                case 9:
                 case "end":
                   return _context4.stop();
               }
@@ -6240,11 +6249,9 @@ document.addEventListener('alpine:init', function () {
       },
       renderGraph: function renderGraph() {
         var _this21 = this;
-        var subjects = ['Nederland', 'Frans', 'Wiskunde', 'Natuurkunde'];
-
         // set the data
         var table = anychart.data.table();
-        table.addData([['2016-01-01', 0.1, 1.0, 0.8, 0.5], ['2016-02-01', 0.2, 0.9, 0.8, 0.5], ['2016-03-01', 0.3, 0.8, 0.8, 0.5], ['2016-04-01', 0.4, 0.7, 0.8, 0.5], ['2016-05-01', 0.5, 0.7, 0.8, 0.5], ['2016-06-01', 0.6, 0.7, 0.8, 0.5], ['2016-07-01', 0.7, 0.7, 0.8, 0.5], ['2016-08-01', 0.8, 0.7, 0.8, 0.5], ['2016-09-01', 0.9, 0.7, 0.8, 0.5], ['2016-10-01', 1.0, 0.7, 0.8, 0.5], ['2016-11-01', 0.9, 0.7, 0.8, 0.5], ['2016-12-01', 0.8, 0.7, 0.8, 0.5]]);
+        table.addData(this.data);
 
         // chart type
         var chart = anychart.stock();
@@ -6283,7 +6290,7 @@ document.addEventListener('alpine:init', function () {
         chart.scroller().selectedFill('var(--system-base) 0.1');
         chart.scroller().outlineStroke("var(--system-base)", 2);
         chart.scroller().outline;
-        subjects.forEach(function (el, index) {
+        this.subjects.forEach(function (el, index) {
           var cnt = index + 1;
           var mapping = table.mapAs();
           mapping.addField('value', cnt);

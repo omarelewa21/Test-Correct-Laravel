@@ -25,7 +25,8 @@ class AnalysesOverviewDashboard extends AnalysesDashboard
     }
 
     public function getDataProperty()
-    {}
+    {
+    }
 
     public function getDataForGraph()
     {
@@ -47,7 +48,7 @@ class AnalysesOverviewDashboard extends AnalysesDashboard
                 );
             }
 
-            return (object) [
+            return (object)[
                 'x'       => htmlspecialchars_decode($pValue->name),
                 'title'   => htmlspecialchars_decode($pValue->name),
                 'basedOn' => trans_choice('student.obv count questions', $pValue->cnt ?? 0),
@@ -100,5 +101,63 @@ class AnalysesOverviewDashboard extends AnalysesDashboard
     public function redirectTeacherBack()
     {
         return CakeRedirectHelper::redirectToCake('analyses.teacher', $this->classUuid);
+    }
+
+    public function getDataForSubjectTimeSeriesGraph()
+    {
+        $result = PValueRepository::getPValueForStudentBySubjectMonthTimeSeries(
+            $this->getHelper()->getForUser(),
+            $this->getPeriodsByFilterValues(),
+            $this->getEducationLevelYearsByFilterValues(),
+            $this->getTeachersByFilterValues()
+        );
+
+        dd($result);
+
+
+
+
+        collect($biology)->zip($CitoBiology);
+
+       ['2016-01', null, null, 1, null]
+
+
+                ['2016-01-01', 0,0,0,0 ],
+                ['2016-02-01', 0,0,0,0 ],
+                ['2016-03-01', 0,0,0,0 ],
+                ['2016-04-01', 0,0,0,0 ],
+                ['2016-05-01', 0,0,0,0 ],
+                ['2016-06-01', 0,0,0,0 ],
+                ['2016-07-01', 0,0,0,0 ],
+                ['2016-08-01', 0,0,0,0 ],
+                ['2016-09-01', 0,0,0,0 ],
+                ['2016-10-01', 0,0,0,0 ],
+                ['2016-11-01', 0,0,0,0 ],
+                ['2016-12-01', 0,0,0,0 ],
+
+
+
+        return [
+            false,
+            [
+                ['2016-01-01', 0.1, 0.9 ,0.8, 0.5],
+                ['2016-02-01', 0.2, 0.9, 0.8, 0.5],
+                ['2016-03-01', 0.3, 0.8, 0.8, 0.5],
+                ['2016-04-01', 0.4, 0.7, 0.8, 0.5],
+                ['2016-05-01', 0.5, 0.7, 0.8, 0.5],
+                ['2016-06-01', 0.6, 0.7, 0.8, 0.5],
+                ['2016-07-01', 0.7, 0.7, 0.8, 0.5],
+                ['2016-08-01', 0.8, 0.7, 0.8, 0.5],
+                ['2016-09-01', 0.9, 0.7, 0.8, 0.5],
+                ['2016-10-01', 1.0, 0.7, 0.8, 0.5],
+                ['2016-11-01', 0.9, 0.7, 0.8, 0.5],
+                ['2016-12-01', 0.8, 0.7, 0.8, 0.5],
+            ], [
+                'Nederland',
+                'Frans',
+                'Wiskunde',
+                'Natuurkunde',
+            ],
+        ];
     }
 }

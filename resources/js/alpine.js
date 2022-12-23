@@ -906,42 +906,21 @@ document.addEventListener('alpine:init', () => {
                 '#E12576',
                 '#24D2C5',
             ],
+            subjects: [],
             showEmptyState: false,
             init() {
                 this.updateGraph();
             },
             async updateGraph() {
-                // [this.showEmptyState, this.data] = await this.$wire.call('getDataForGraph');
-
+                [this.showEmptyState, this.data, this.subjects] = await this.$wire.call('getDataForSubjectTimeSeriesGraph');
+                debugger;
 
                 this.renderGraph();
             },
             renderGraph() {
-                let subjects = [
-                    'Nederland',
-                    'Frans',
-                    'Wiskunde',
-                    'Natuurkunde',
-                ];
-
-
-
                     // set the data
                 let table = anychart.data.table();
-                table.addData([
-                    ['2016-01-01', 0.1, 1.0, 0.8, 0.5],
-                    ['2016-02-01', 0.2, 0.9, 0.8, 0.5],
-                    ['2016-03-01', 0.3, 0.8, 0.8, 0.5],
-                    ['2016-04-01', 0.4, 0.7, 0.8, 0.5],
-                    ['2016-05-01', 0.5, 0.7, 0.8, 0.5],
-                    ['2016-06-01', 0.6, 0.7, 0.8, 0.5],
-                    ['2016-07-01', 0.7, 0.7, 0.8, 0.5],
-                    ['2016-08-01', 0.8, 0.7, 0.8, 0.5],
-                    ['2016-09-01', 0.9, 0.7, 0.8, 0.5],
-                    ['2016-10-01', 1.0, 0.7, 0.8, 0.5],
-                    ['2016-11-01', 0.9, 0.7, 0.8, 0.5],
-                    ['2016-12-01', 0.8, 0.7, 0.8, 0.5],
-                ]);
+                table.addData(this.data);
 
                 // chart type
                 var chart = anychart.stock();
@@ -983,7 +962,7 @@ document.addEventListener('alpine:init', () => {
                 chart.scroller().outlineStroke("var(--system-base)", 2);
                 chart.scroller().outline
 
-                subjects.forEach((el, index) =>{
+                this.subjects.forEach((el, index) =>{
                     let cnt = index+1;
                     let mapping = table.mapAs();
                     mapping.addField('value', cnt);

@@ -393,6 +393,35 @@ class PValueRepository
             ->get();
     }
 
+    public static function getPValueForStudentBySubjectMonthTimeSeries(User $user, $periods, $educationLevelYears, $teachers)
+    {
+        $pValueQuery = PValue::SelectRaw('avg(score/max_score) as score')
+            ->selectRaw('Month(p_values.created_at) as maand')
+            ->selectRaw('Year(p_values.created_at) as jaar')
+            ->selectRaw('count(subject_id) as cnt')
+            ->addSelect([
+                'serie'      => Subject::select('name')->whereColumn('id', 'p_values.subject_id')->limit(1),
+                'subject_id' => 'p_values.subject_id',
+            ])
+            ->join('test_participants', function ($join) use ($user) {
+                $join->on('p_values.test_participant_id', '=', 'test_participants.id')
+                    ->where('test_participants.user_id', '=', $user->getKey());
+            })
+            ->filter($periods, $educationLevelYears, $teachers)
+            ->groupBy('subject_id');
+
+        return Subject::filterForStudentCurrentSchoolYear($user)
+            ->selectRaw('t2.*')
+            ->selectRaw('maand')
+            ->selectRaw('jaar')
+            ->selectRaw('subjects.id, subjects.name')
+            ->leftJoinSub($pValueQuery, 't2', function ($join) {
+                $join->on('subjects.id', '=', 't2.subject_id');
+            })
+            ->orderByRaw('subjects.name')
+            ->get();
+    }
+
     public static function getPValuePerAttainmentForStudent(User $user, $periods, $educationLevelYears, $teachers, Subject $subject, $isLearningGoal = false)
     {
         $forSubject = $subject->id;

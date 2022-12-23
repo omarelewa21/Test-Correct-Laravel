@@ -5,9 +5,12 @@ use tcCore\Jobs\SendExceptionMail;
 use tcCore\Lib\Models\BaseModel;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Mail;
+use tcCore\Traits\TimeSerieTrait;
 
 class PValue extends BaseModel
 {
+
+    use TimeSerieTrait;
 
     use SoftDeletes;
 
