@@ -21,7 +21,8 @@ class FileManagement extends BaseModel
     use UuidTrait;
 
     protected $casts = [
-        'uuid' => EfficientUuid::class,
+        'uuid'                       => EfficientUuid::class,
+        'contains_publisher_content' => 'boolean',
     ];
 
     /**
@@ -44,7 +45,7 @@ class FileManagement extends BaseModel
      * @var array
      */
     protected $fillable = ['type', 'id', 'user_id', 'school_location_id', 'file_management_status_id', 'handledby', 'notes', 'name', 'origname', 'typedetails', 'parent_id', 'archived', 'form_id',
-        'class', 'subject', 'education_level_year', 'education_level_id', 'test_name', 'test_kind_id', 'orig_filenames', 'test_builder_code', 'planned_at', 'subject_id'];
+        'class', 'subject', 'education_level_year', 'education_level_id', 'test_name', 'test_kind_id', 'orig_filenames', 'test_builder_code', 'planned_at', 'subject_id', 'contains_publisher_content'];
 
     /**
      * The attributes excluded from the model's JSON form.

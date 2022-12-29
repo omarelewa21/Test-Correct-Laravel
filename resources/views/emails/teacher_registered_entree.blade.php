@@ -13,13 +13,13 @@
                     <td>{{ $schoolLocation->name }}</td>
                 </tr>
                 <tr>
-                    <td>{{ __("teacher_registered_entree.Aanhef") }}</td>
+                    <td gender="{{ $user->gender }}">{{ __("teacher_registered_entree.Aanhef") }}</td>
                     @if(strtolower($user->gender) == 'male')
-                        <td>{{ __("teacher_registered_entree.Meneer") }}</td>
+                        <td gender="male">{{ __("teacher_registered_entree.Meneer") }}</td>
                     @elseif(strtolower($user->gender) == 'female')
-                        <td>{{ __("teacher_registered_entree.Mevrouw") }}</td>
+                        <td gender="female">{{ __("teacher_registered_entree.Mevrouw") }}</td>
                     @else
-                        <td>{{$user->gender_different}}</td>
+                        <td gender="different">{{$user->gender_different}}</td>
                     @endif
                 </tr>
                 <tr>

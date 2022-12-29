@@ -1,5 +1,6 @@
 <?php namespace tcCore;
 
+use iio\libmergepdf\Exception;
 use tcCore\Lib\Models\BaseModel;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Dyrynda\Database\Casts\EfficientUuid;
@@ -190,7 +191,7 @@ class EducationLevel extends BaseModel
     {
         return $user->studentSchoolClasses()->get()
             ->map(function ($schoolClass) {
-                return (object) [
+                return (object)[
                     'educationLevel' => $schoolClass->educationLevel->name,
                     'attainmentType' => $schoolClass->educationLevel->getType($schoolClass),
                 ];
@@ -202,5 +203,24 @@ class EducationLevel extends BaseModel
     private function getType($schoolClass)
     {
         return $this->min_attainment_year <= $schoolClass->education_level_year ? Attainment::TYPE : LearningGoal::TYPE;
+    }
+
+    public static function getLatestForStudentWithSubject(User $user, Subject $subject)
+    {
+        if (!$user->isA('student')) {
+            throw new \ErrorException('method can only be called as a student');
+        }
+        $class = $user->studentSchoolClasses()
+            ->select('school_classes.*')
+            ->join('teachers', 'school_classes.id', '=', 'teachers.class_id')
+            ->where('teachers.subject_id', $subject->getKey())
+            ->orderBy('school_classes.created_at', 'desc')
+            ->limit(1)
+            ->first();
+        if (!$class) {
+            throw new \ErrorException('no school_class found for provided student and subject');
+        }
+
+        return $class->educationLevel;
     }
 }

@@ -18,8 +18,8 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use tcCore\Lib\Question\QuestionGatherer;
 use Dyrynda\Database\Casts\EfficientUuid;
 use Ramsey\Uuid\Uuid;
-use tcCore\Traits\PublishesNationalItemBankAndExamTests;
 use tcCore\Traits\PublishesTestsTrait;
+use tcCore\Traits\UserPublishing;
 use tcCore\Traits\UuidTrait;
 use tcCore\Traits\UserContentAccessTrait;
 
@@ -31,11 +31,13 @@ class Test extends BaseModel
     use UuidTrait;
     use PublishesTestsTrait;
     use UserContentAccessTrait;
+    use UserPublishing;
 
     const NATIONAL_ITEMBANK_SCOPES = ['cito', 'exam', 'ldt'];
 
     protected $casts = [
-        'uuid' => EfficientUuid::class,
+        'uuid'  => EfficientUuid::class,
+        'draft' => 'boolean',
     ];
 
     /**
@@ -58,7 +60,7 @@ class Test extends BaseModel
      *
      * @var array
      */
-    protected $fillable = ['subject_id', 'education_level_id', 'period_id', 'test_kind_id', 'name', 'abbreviation', 'education_level_year', 'kind', 'status', 'introduction', 'shuffle', 'is_open_source_content', 'demo', 'metadata', 'external_id', 'scope', 'published'];
+    protected $fillable = ['subject_id', 'education_level_id', 'period_id', 'test_kind_id', 'name', 'abbreviation', 'education_level_year', 'kind', 'status', 'introduction', 'shuffle', 'is_open_source_content', 'demo', 'metadata', 'external_id', 'scope', 'published', 'draft'];
 
     /**
      * The attributes excluded from the model's JSON form.
@@ -73,6 +75,10 @@ class Test extends BaseModel
     {
         parent::boot();
 
+        static::creating(function (Test $test) {
+            $test->draft = true;
+        });
+
         static::created(function (Test $test) {
             TestAuthor::addAuthorToTest($test, $test->author_id);
             Queue::push(new CountTeacherTests($test->author));
@@ -83,44 +89,15 @@ class Test extends BaseModel
             if ((count($dirty) > 1 && array_key_exists('system_test_id', $dirty)) || (count($dirty) > 0 && !array_key_exists('system_test_id', $dirty)) && !$test->getAttribute('is_system_test')) {
                 $test->setAttribute('system_test_id', null);
             }
+            if($test->isDirty('draft') && $test->isDraft() ) {
+
+            }
 
         });
 
         static::saved(function (Test $test) {
-            $test->handleTestPublishing(); // moved from saving as there is no id yet, which is needed to populate the test_authors table
-            $dirty = $test->getDirty();
-            if ($test->isDirty(['subject_id', 'education_level_id', 'education_level_year'])) {
-                $testQuestions = $test->testQuestions;
-                foreach ($testQuestions as $testQuestion) {
-                    if (($testQuestion->question->subject_id == $test->subject_id) &&
-                        ($testQuestion->question->education_level_id == $test->education_level_id) &&
-                        ($testQuestion->question->education_level_year == $test->education_level_year)
-                    ) {
-                        continue;
-                    }
-                    $request = new Request();
-                    $params = [
-                        'session_hash'         => Auth::user()->session_hash,
-                        'user'                 => Auth::user()->username,
-                        'id'                   => $testQuestion->id,
-                        'subject_id'           => $test->subject_id,
-                        'education_level_id'   => $test->education_level_id,
-                        'education_level_year' => $test->education_level_year
-                    ];
-                    $testQuestionQuestionId = $testQuestion->question->id;
-                    $request->merge($params);
-                    $response = (new TestQuestionsController())->updateFromWithin($testQuestion, $request);
-                    if ($testQuestion->question->type == 'GroupQuestion') {
-                        $testQuestion = $testQuestion->fresh();
-                        $groupQuestionQuestionManager = GroupQuestionQuestionManager::getInstanceWithUuid($testQuestion->uuid);
-                        foreach ($testQuestion->question->groupQuestionQuestions as $groupQuestionQuestion) {
-                            $request = new Request();
-                            $request->merge($params);
-                            $response = (new GroupQuestionQuestionsController())->updateFromWithin($groupQuestionQuestionManager, $groupQuestionQuestion, $request);
-                        }
-                    }
-                }
-            }
+            $test->handleTestPublishing();
+            $test->forwardPropertyChangesToDependentModels();
             $test->handlePublishingQuestionsOfTest();
             TestAuthor::addExamAuthorToTest($test);
             TestAuthor::addNationalItemBankAuthorToTest($test);
@@ -288,6 +265,7 @@ class Test extends BaseModel
 
         $query->whereIn('subject_id', $subjectIds);
         $query->whereIn('scope', Arr::wrap($scopes));
+        $query->published();
 
         $query->where(function ($q) use ($user) {
             return $q->where('published', true)
@@ -363,6 +341,7 @@ class Test extends BaseModel
 
         $query->whereIn('subject_id', $subjectIds);
         $query->where('published', true);
+        $query->where('draft', false);
 
         if (!array_key_exists('is_system_test', $filters)) {
             $query->where('is_system_test', '=', 0);
@@ -375,6 +354,12 @@ class Test extends BaseModel
         $query->where('demo', 0);
 
         return $query;
+    }
+
+    public function scopeSchoolFiltered($query, $filters = [], $sorting = [])
+    {
+        return $query->filtered($filters, $sorting)
+            ->published();
     }
 
     public function scopeFiltered($query, $filters = [], $sorting = [])
@@ -726,6 +711,9 @@ class Test extends BaseModel
                     break;
                 case 'owner_id':
                     $query->where('tests.owner_id', '=', $value);
+                    break;
+                case 'draft':
+                    $query->where('tests.draft', '=', $value);
                     break;
             }
         }
@@ -1163,5 +1151,64 @@ class Test extends BaseModel
         if (!$user->isValidExamCoordinator()) return false;
 
         return $this->owner_id === $user->school_location_id;
+    }
+
+    /**
+     * @return void
+     */
+    private function forwardPropertyChangesToDependentModels(): void
+    {
+        if ($this->isDirty(['subject_id', 'education_level_id', 'education_level_year', 'draft'])) {
+            $testQuestions = $this->testQuestions;
+            foreach ($testQuestions as $testQuestion) {
+                if ($this->propertiesAreInSyncWithQuestion($testQuestion->question)) {
+                    continue;
+                }
+                $request = new Request();
+                $params = [
+                    'session_hash'         => Auth::user()->session_hash,
+                    'user'                 => Auth::user()->username,
+                    'id'                   => $testQuestion->id,
+                    'subject_id'           => $this->subject_id,
+                    'education_level_id'   => $this->education_level_id,
+                    'education_level_year' => $this->education_level_year,
+                    'draft'                => $this->draft,
+                ];
+                $testQuestionQuestionId = $testQuestion->question->id;
+                $request->merge($params);
+                $response = (new TestQuestionsController())->updateFromWithin($testQuestion, $request);
+                if ($testQuestion->question->type == 'GroupQuestion') {
+                    $testQuestion = $testQuestion->fresh();
+                    $groupQuestionQuestionManager = GroupQuestionQuestionManager::getInstanceWithUuid($testQuestion->uuid);
+                    foreach ($testQuestion->question->groupQuestionQuestions as $groupQuestionQuestion) {
+                        $request = new Request();
+                        $request->merge($params);
+                        $response = (new GroupQuestionQuestionsController())->updateFromWithin($groupQuestionQuestionManager, $groupQuestionQuestion, $request);
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * @param $question
+     * @return bool
+     */
+    private function propertiesAreInSyncWithQuestion($question): bool
+    {
+        return ($question->subject_id == $this->subject_id) &&
+            ($question->education_level_id == $this->education_level_id) &&
+            ($question->education_level_year == $this->education_level_year) &&
+            ($question->draft == $this->draft);
+    }
+
+    public function scopeDraft($query)
+    {
+        return $query->where('draft', true);
+    }
+
+    public function scopePublished($query)
+    {
+        return $query->where('draft', false);
     }
 }

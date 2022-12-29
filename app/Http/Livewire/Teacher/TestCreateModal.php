@@ -30,8 +30,8 @@ class TestCreateModal extends ModalComponent
             'name'                 => '',
             'abbreviation'         => '',
             'test_kind_id'         => 3,
-            'subject_id'           => $this->allowedSubjects->first()->id,
-            'education_level_id'   => $this->allowedEductionLevels->first()->id,
+            'subject_id'           => $this->allowedSubjects->first()?->id,
+            'education_level_id'   => $this->allowedEductionLevels->first()?->id,
             'education_level_year' => 1,
             'period_id'            => Period::filtered(['current_school_year' => true])->first()->id ?? $this->allowedPeriods->first()->id,
             'shuffle'              => 0,
@@ -46,7 +46,6 @@ class TestCreateModal extends ModalComponent
         $test->setAttribute('author_id', Auth::id());
         $test->setAttribute('owner_id', Auth::user()->school_location_id);
         $test->save();
-        $this->showModal = false;
 
         redirect(
             route('teacher.question-editor',

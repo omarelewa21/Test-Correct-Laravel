@@ -233,6 +233,14 @@ class Answer extends BaseModel
         return !!$this->done;
     }
 
+    public function getJsonAttribute($json)
+    {
+        if( !is_null($json) && $this->question->isType('OpenQuestion') && $this->question->isSubType('short')){
+            return strip_tags($json);
+        }
+        return $json;
+    }
+
     public function getDrawingStoragePath()
     {
         return 'drawing_question_answers/' . $this->uuid;

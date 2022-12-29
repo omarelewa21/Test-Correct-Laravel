@@ -111,11 +111,11 @@
 
             <div class="flex flex-col space-y-4">
                 <div>
-                    <h4>{{ __('student.recent_grades') }}</h4>
+                    <h4>{{ __('student.recent_results') }}</h4>
                 </div>
                 <div class="content-section p-8">
                     @if($ratedTestTakes->count() == 0)
-                        <p>{{ __('student.no_recent_grades') }}</p>
+                        <p>{{ __('student.no_recent_results') }}</p>
                     @else
                         <x-table>
                             <x-slot name="head">
@@ -143,12 +143,18 @@
                                             <x-partials.test-take-type-label :type="$testTake->retake"/>
                                         </x-table.cell>
                                         <x-table.cell class="text-right">
-                                            @if($testTake->testParticipants->first()->rating)
+                                            @if(!$testTake->show_grades)
+                                                <span title="{{__('test_take.hide_grade_tooltip')}}">
+                                                    {{ __('test_take.nvt') }}
+                                                </span>
+                                            @elseif($testTake->testParticipants->first()->rating)
                                                 <span class="px-2 py-1 text-sm rounded-full {!! $this->getBgColorForTestParticipantRating($this->getRatingToDisplay($testTake->testParticipants->first())) !!}">
                                                     {{ $this->getRatingToDisplay($testTake->testParticipants->first()) }}
                                                 </span>
                                             @else
-                                                -
+                                                <span class="text-sm rounded-full bg-grade">
+                                                    <x-icon.time-dispensation class="text-white" :title="__('test_take.waiting_grade')"/>
+                                                </span>
                                             @endif
                                         </x-table.cell>
                                     </x-table.row>
@@ -160,7 +166,7 @@
                 <div class="flex">
                     <x-button.primary class="ml-auto" type="link"
                                       href="{{ route('student.test-takes', ['tab' => 'graded']) }}">
-                        <span>{{ __('student.see_grades') }}</span>
+                        <span>{{ __('student.see_results') }}</span>
                         <x-icon.chevron/>
                     </x-button.primary>
                 </div>

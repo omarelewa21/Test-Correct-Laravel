@@ -81,7 +81,10 @@
                                 <span>{{ trans_choice('cms.bijlage', $this->attachmentsCount) }}</span>
                             </div>
                         @endif
-                        <div class="inline-flex mx-2.5">
+                        <div class="inline-flex items-center gap-2.5 mx-2.5">
+                            <span>
+                                <x-published-tag :published="!$this->question['draft']"/>
+                            </span>
                             @if($this->question['closeable'])
                                 <x-icon.locked/>
                             @else

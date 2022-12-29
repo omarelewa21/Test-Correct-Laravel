@@ -29,24 +29,28 @@
                     </x-dropzone>
                 </div>
                 <div class="flex space-x-5 classified">
-                    @foreach ($question->matchingQuestionAnswers as $group)
-                        @if(  $group->correct_answer_id === null )
-                            <x-dropzone type="classify" title="{!! html_entity_decode($group->answer) !!}" wire:key="group-{{ $group->id }}"
-                                        wire:sortable.item="{{ $group->id }}">
-                                <div class="flex flex-col w-full dropzone-height" wire:sortable-group.item-group="{{ $group->id }}">
-                                    @foreach($shuffledAnswers as $option)
-                                        @if(  $option->correct_answer_id !== null )
-                                            @if($answerStruct[$option->id] == $group->id)
-                                                <x-drag-item wire:key="option-{{ $option->id }}" sortableHandle="false"
-                                                             wire:sortable-group.item="{{ $option->id }}">
-                                                    {{ html_entity_decode($option->answer) }}
-                                                </x-drag-item>
-                                            @endif
-                                        @endif
-                                    @endforeach
-                                </div>
-                            </x-dropzone>
-                        @endif
+                    @foreach ($groupItemOrder as $groupId => $items)
+                        <x-dropzone id="dropzone{{$question->getKey()}}-{{$groupId}}"
+                                    type="classify"
+                                    title="{!! html_entity_decode($itemAnswerValues[$groupId]) !!}"
+                                    wire:key="group-{{ $groupId }}"
+                                    wire:sortable.item="{{ $groupId }}"
+                        >
+                            <div id="inner-dropzone{{$question->getKey()}}-{{$groupId}}"
+                                 class="flex flex-col w-full dropzone-height"
+                                 wire:sortable-group.item-group="{{ $groupId }}"
+                                 selid="drag-block-input"
+                            >
+                                @foreach($items as $item)
+                                    <x-drag-item id="drag_item{{$question->getKey()}}-{{$item['value']}}"
+                                                 wire:key="option-{{ $item['value'] }}" sortableHandle="false"
+                                                 wire:sortable-group.item="{{ $item['value'] }}"
+                                                 selid="drag-block">
+                                        {{ $itemAnswerValues[$item['value']] }}
+                                    </x-drag-item>
+                                @endforeach
+                            </div>
+                        </x-dropzone>
                     @endforeach
                 </div>
             </div>

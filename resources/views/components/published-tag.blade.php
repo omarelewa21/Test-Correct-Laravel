@@ -1,0 +1,1 @@
+<span @class(['card-tag', 'grey' => !$published ])>{{ $published ? __('test.published') : __('test.unpublished') }}</span>

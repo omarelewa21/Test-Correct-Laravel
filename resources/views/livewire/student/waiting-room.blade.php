@@ -92,7 +92,7 @@
                         <div class="divider"></div>
                         <div class="px-3">
                             @if($isTakeOpen)
-                                {!! $waitingTestTake->test->introduction ?: __('student.teacher_introduction_unavailable') !!}
+                                {!! nl2br($waitingTestTake->test->introduction) ?: __('student.teacher_introduction_unavailable') !!}
                             @else
                                 {{ __('student.teacher_introduction_long') }}
                             @endif
@@ -113,12 +113,18 @@
                                     justify-between items-center -mt-4"
                         >
                             <span>{{ auth()->user()->getNameFullAttribute() }}</span>
-                            @if($testParticipant->rating)
+                            @if(!$showGrades)
+                                <span title="{{__('test_take.hide_grade_tooltip')}}">
+                                    {{ __('test_take.nvt') }}
+                                </span>
+                            @elseif($testParticipant->rating)
                             <span class="px-2 py-1 text-sm rounded-full {!! $this->getBgColorForTestParticipantRating($this->getRatingToDisplay($testParticipant)) !!}">
                                 {{ $this->getRatingToDisplay($testParticipant) }}
                             </span>
                             @else
-                                <span class="italic">Geen cijfer</span>
+                                <span class="text-sm rounded-full bg-grade" style="background-color: #929daf">
+                                    <x-icon.time-dispensation class="text-white" :title="__('test_take.waiting_grade')"/>
+                                </span>
                             @endif
                         </div>
                     </div>

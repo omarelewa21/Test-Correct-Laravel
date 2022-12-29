@@ -60,7 +60,7 @@ return [
     'question_bank_add_confirmation_sub_text'                                                  => 'De groep bevat bijlages en/of een omschrijving. Deze kunnen van belang zijn voor de vraag. Weet je zeker dat je deze groepsvraag als hoofdvraag wilt toevoegen',
     'add'                                                                                      => 'Toevoegen',
     'test_take_planned'                                                                        => 'Toets :testName is ingepland',
-    'test_take_assignment_planned'                                                             => 'Opdracht :testName is ingepland',     
+    'test_take_assignment_planned'                                                             => 'Opdracht :testName is ingepland',
     'copy_test_link'                                                                           => 'Kopieer toetslink',
     'copy_assignment_link'                                                                     => 'Kopieer opdrachtlink',
     'go_to_planned_test'                                                                       => 'Direct naar ingeplande toets',
@@ -69,14 +69,21 @@ return [
     'assignment_clipboard_copied'                                                              => 'Opdrachtlink gekopieerd',
     'take_not_accessible_toast_for_invigilator'                                                => 'De toets :testName is afgenomen en kan niet meer geopend worden',
     'test_not_found'                                                                           => 'De toetscode kan niet gevonden worden.',
-    'Klassen'                                          => 'Klassen',
-    'subject'                                          => 'Vak',
-    'type'                                             => 'Type',
-    'test-type-Summatief'                              => 'Summatief',
-    'test-type-Formatief'                              => 'Formatief',
-    'test-type-Opdracht'                               => 'Opdracht',
-    'test-type-Oefentoets'                             => 'Oefentoets',
+    'Klassen'                                                                                  => 'Klassen',
+    'subject'                                                                                  => 'Vak',
+    'type'                                                                                     => 'Type',
+    'test-type-Summatief'                                                                      => 'Summatief',
+    'test-type-Formatief'                                                                      => 'Formatief',
+    'test-type-Opdracht'                                                                       => 'Opdracht',
+    'test-type-Oefentoets'                                                                     => 'Oefentoets',
 
     'notify_students'                                                                          => 'Leerlingen informeren',
     'notify_students_tooltip'                                                                  => 'Leerlingen via mail informeren over deze toetsafname.',
+
+    'not_linked_to_subjects'         => 'Toets construeren niet mogelijk omdat je niet aan vakken gekoppeld bent.',
+    'not_linked_to_education_levels' => 'Toets construeren niet mogelijk omdat je niet aan leerjaren gekoppeld bent.',
+
+    'Exporteer naar RTTI Online'    => 'Exporteer naar RTTI Online',
+    'exporteer_naar_rtti_online_tooltip' => 'Let op, normeren en becijferen gebeurt in RTTI-Online als dit aanstaat.',
+
 ];
