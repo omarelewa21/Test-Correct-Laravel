@@ -1,6 +1,6 @@
 <x-modal.base-modal>
     <x-slot name="title">
-        <h2>{{__("teacher.Toets instellingen")}}</h2>
+        <h2>{{__("teacher.Toets informatie")}}</h2>
     </x-slot>
 
     <x-slot name="content">
