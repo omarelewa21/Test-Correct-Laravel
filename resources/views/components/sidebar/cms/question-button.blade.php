@@ -10,7 +10,7 @@
                 })
              $store.cms.scrollPos = document.querySelector('.drawer').scrollTop;
                 "
-     title="{{ $question->type }}"
+     title="{{ $title }}"
      style="max-width: 300px"
      data-order-number="{{ $loop }}"
      selid="question-list-entry"
