@@ -13,6 +13,7 @@ use tcCore\Http\Middleware\GuestChoice;
 use tcCore\Http\Middleware\LocaleMiddleware;
 use tcCore\Http\Middleware\Logging;
 use tcCore\Http\Middleware\RequestLogger;
+use tcCore\Http\Middleware\SetHeaders;
 use tcCore\Http\Middleware\TestTakeForceTakenAwayCheck;
 use tcCore\Http\Middleware\ValidGeneralTerms;
 use tcCore\Http\Middleware\ValidTrialPeriod;
@@ -35,6 +36,7 @@ class Kernel extends HttpKernel
         //'Illuminate\View\Middleware\ShareErrorsFromSession',
         RequestLogger::class,
         Logging::class,
+        SetHeaders::class
     ];
 
     /**
