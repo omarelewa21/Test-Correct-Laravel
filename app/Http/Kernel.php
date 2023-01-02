@@ -36,7 +36,6 @@ class Kernel extends HttpKernel
         //'Illuminate\View\Middleware\ShareErrorsFromSession',
         RequestLogger::class,
         Logging::class,
-        SetHeaders::class
     ];
 
     /**
@@ -83,6 +82,7 @@ class Kernel extends HttpKernel
             LocaleMiddleware::class,
             CheckForDeploymentMaintenance::class,
             AppDetection::class,
+            SetHeaders::class,
         ],
         'teacher' => [
             AuthenticatedAsTeacher::class,
