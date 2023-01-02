@@ -38,9 +38,10 @@ class TestTake extends BaseModel
     use Archivable;
 
     protected $casts = [
-        'uuid'            => EfficientUuid::class,
-        'notify_students' => 'boolean',
-        'show_grades'     => 'boolean'
+        'uuid'              => EfficientUuid::class,
+        'notify_students'   => 'boolean',
+        'show_grades'       => 'boolean',
+        'returned_to_taken' => 'boolean'
     ];
 
     /**
@@ -62,7 +63,7 @@ class TestTake extends BaseModel
      *
      * @var array
      */
-    protected $fillable = ['test_id', 'test_take_status_id', 'period_id', 'retake', 'retake_test_take_id', 'time_start', 'time_end', 'location', 'weight', 'note', 'invigilator_note', 'show_results', 'discussion_type', 'is_rtti_test_take', 'exported_to_rtti', 'allow_inbrowser_testing', 'guest_accounts', 'skipped_discussion', 'notify_students', 'user_id', 'scheduled_by','show_grades'];
+    protected $fillable = ['test_id', 'test_take_status_id', 'period_id', 'retake', 'retake_test_take_id', 'time_start', 'time_end', 'location', 'weight', 'note', 'invigilator_note', 'show_results', 'discussion_type', 'is_rtti_test_take', 'exported_to_rtti', 'allow_inbrowser_testing', 'guest_accounts', 'skipped_discussion', 'notify_students', 'user_id', 'scheduled_by', 'show_grades', 'returned_to_taken'];
 
     /**
      * The attributes excluded from the model's JSON form.
@@ -1079,6 +1080,7 @@ class TestTake extends BaseModel
         $this->discussion_type          = null;
         $this->show_results             = null;
         $this->skipped_discussion       = 0;
+        $this->returned_to_taken        = 1;
         $this->save();
     }
 
