@@ -349,7 +349,7 @@ class FileManagement extends BaseModel
 
     public function redirectToDetail()
     {
-        $routeNamePrefix = str(Auth::user()->roles()->first()->value('name'))->kebab()->value();
+        $routeNamePrefix = str(Auth::user()->roles->first()->name)->kebab()->value();
         $temporaryLogin = TemporaryLogin::createWithOptionsForUser(
             ['page', 'return_route'],
             [

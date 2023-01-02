@@ -26,5 +26,5 @@ return [
     'default_trial_days'                     => env('DEFAULT_TRIAL_DAYS', 14),
     'default_general_terms_days'             => env('DEFAULT_GENERAL_TERMS_DAYS', 14),
     'enable_additional_seeders'              => env('ENABLE_ADDITIONAL_SEEDERS', true),
-    'TB_customer_code'                       => env('TB_CUSTOMER_CODE', 'TC-BAKERY'),
+    'TB_customer_code'                       => env('TB_CUSTOMER_CODE', 'TBSC'),
 ];
