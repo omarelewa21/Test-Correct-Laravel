@@ -95,12 +95,12 @@ class UploadTest extends Component
             return CakeRedirectHelper::redirectToCake();
         }
 
-        if ($this->referrer['type'] === 'cake') {
-            $routeName = CakeRedirectHelper::getRouteNameByUrl($this->referrer['page']) ?? 'dashboard';
+        if ($this->referrer['type'] === 'cake' && filled($this->referrer['page'])) {
+            $routeName = CakeRedirectHelper::getRouteNameByUrl($this->referrer['page']);
             return CakeRedirectHelper::redirectToCake($routeName);
         }
 
-        if ($this->referrer['type'] === 'laravel') {
+        if ($this->referrer['type'] === 'laravel' && filled($this->referrer['page'])) {
             return redirect($this->referrer['page']);
         }
         return CakeRedirectHelper::redirectToCake();
