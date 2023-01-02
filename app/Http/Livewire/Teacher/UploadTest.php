@@ -96,7 +96,7 @@ class UploadTest extends Component
         }
 
         if ($this->referrer['type'] === 'cake') {
-            $routeName = CakeRedirectHelper::getRouteNameByUrl($this->referrer['page']);
+            $routeName = CakeRedirectHelper::getRouteNameByUrl($this->referrer['page']) ?? 'dashboard';
             return CakeRedirectHelper::redirectToCake($routeName);
         }
 
