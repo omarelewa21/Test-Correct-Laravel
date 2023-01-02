@@ -10,6 +10,9 @@
     {{--    <link href="https://unpkg.com/tailwindcss@^2/dist/tailwind.min.css" rel="stylesheet">--}}
     <script  src="https://cdn.anychart.com/releases/8.11.0/js/anychart-base.min.js"
             type="text/javascript"></script>
+    <script>
+        window.anychart || document.write("<script type='text/javascript' src='{{ asset('/js/anychart-base.min.js') }}'><\/script>")
+    </script>
     <script src="/ckeditor/ckeditor.js" type="text/javascript"></script>
     @if(!is_null(Auth::user())&&Auth::user()->canUseTeacherCkEditorWithWebSpellChecker())
         <script src="{{ mix('/js/ckeditor_teacher_wsc.js') }}" type="text/javascript"></script>
