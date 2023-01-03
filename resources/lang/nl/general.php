@@ -71,5 +71,5 @@ return [
     'Toetsenbakker'                   => 'Toetsenbakker',
     'afname'                          => 'Afname datum',
     'jaar'                            => 'Jaar',
-    'aanvraag datum'                  => 'Afname datum',
+    'aanvraag datum'                  => 'Aanvraag datum',
 ];
