@@ -21,7 +21,7 @@
     </div>
     <div class="flex w-full justify-between text-base mb-1">
         <div>
-            <span class="bold">{{ $test->subject->name }}</span>
+            <span class="bold">{!! $test->subject->name !!}</span>
             <span class="italic">{{ $test->abbreviation }}</span>
         </div>
         <div class="text-sm">
