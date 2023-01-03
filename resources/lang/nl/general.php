@@ -73,5 +73,5 @@ return [
     'Lees meer'                       => 'Lees meer',
     'en'                              => 'en',
     'jaar'                            => 'Jaar',
-    'aanvraag datum'                  => 'Afname datum',
+    'aanvraag datum'                  => 'Aanvraag datum',
 ];
