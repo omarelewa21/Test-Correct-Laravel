@@ -69,6 +69,11 @@ class BaseHelper
         return request()->getHost() === 'welcome.test-correct.nl';
     }
 
+    public static function getLivewireOriginalPath($request)
+    {
+        return json_decode($request->getContent())->fingerprint->path;
+    }
+
     public function addError($error)
     {
         $this->errors[] = $error;
