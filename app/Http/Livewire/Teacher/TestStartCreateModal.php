@@ -23,7 +23,8 @@ class TestStartCreateModal extends ModalComponent
     }
     public function goToUploadTest()
     {
-        return redirect(route('teacher.upload-tests', ['referrer' => ['type' => 'laravel', 'page' => \Livewire::originalUrl()]]));
+        $path = json_decode(request()->getContent())->fingerprint->path ?? '';
+        return redirect(route('teacher.upload-tests', ['referrer' => ['type' => 'laravel', 'page' => $path]]));
     }
 
     public static function modalMaxWidth(): string

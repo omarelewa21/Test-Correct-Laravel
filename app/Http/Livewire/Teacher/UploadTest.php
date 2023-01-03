@@ -92,7 +92,7 @@ class UploadTest extends Component
 
     public function back()
     {
-        if (blank($this->referrer)) {
+        if (blank($this->referrer) || blank($this->referrer['page'])) {
             return CakeRedirectHelper::redirectToCake();
         }
 
