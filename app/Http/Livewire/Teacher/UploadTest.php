@@ -91,16 +91,16 @@ class UploadTest extends Component
 
     public function back()
     {
-        if (blank($this->referrer)) {
+        if (blank($this->referrer) || blank($this->referrer['page'])) {
             return CakeRedirectHelper::redirectToCake();
         }
 
-        if ($this->referrer['type'] === 'cake' && filled($this->referrer['page'])) {
+        if ($this->referrer['type'] === 'cake') {
             $routeName = CakeRedirectHelper::getRouteNameByUrl($this->referrer['page']);
             return CakeRedirectHelper::redirectToCake($routeName);
         }
 
-        if ($this->referrer['type'] === 'laravel' && filled($this->referrer['page'])) {
+        if ($this->referrer['type'] === 'laravel') {
             return redirect($this->referrer['page']);
         }
         return CakeRedirectHelper::redirectToCake();
