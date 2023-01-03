@@ -2,6 +2,7 @@
 
 namespace tcCore\Http\Livewire\Teacher;
 
+use Bugsnag\BugsnagLaravel\Facades\Bugsnag;
 use Carbon\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
@@ -98,7 +99,10 @@ class UploadTest extends Component
 
         if ($this->referrer['type'] === 'cake') {
             $routeName = CakeRedirectHelper::getRouteNameByUrl($this->referrer['page']);
-            return CakeRedirectHelper::redirectToCake($routeName);
+            if($routeName){
+                return CakeRedirectHelper::redirectToCake($routeName);
+            }
+            Bugsnag::notifyException(new \Exception(sprintf('No route name found for referrer page `%s` in file %s line %d',$this->referrer['page'],__FILE__,__LINE__)));
         }
 
         if ($this->referrer['type'] === 'laravel') {
