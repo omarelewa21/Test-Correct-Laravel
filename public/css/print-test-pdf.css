@@ -262,6 +262,7 @@
 .test-print-pdf .header-line,
 .test-print-pdf .footer-line {
     width: -moz-available;
+    height: -webkit-min-content;
     height: -moz-min-content;
     height: min-content;
     border: 2px solid #041f74;

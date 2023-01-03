@@ -1,5 +1,5 @@
 @if($attachment)
-    <div id="attachment-{{$attachment->uuid}}"
+    <div id="attachment-{{$attachment->uuid}}drag"
          class="fixed z-30 shadow-lg border border-blue-grey rounded-10 bg-black disable-swipe-navigation {{ $this->getAttachmentModalSize() }}"
          x-data="{top: @entangle('positionTop'), left: @entangle('positionLeft'), uuid: '{{ $attachment->uuid }}'}"
          x-init="top = 50; left = 50; @if($this->attachmentType != 'audio') makeResizableDiv($el) @endif"
@@ -58,7 +58,7 @@
             @endif
         </div>
     <script>
-        dragElement(document.getElementById("attachment-{{ $attachment->uuid }}"));
+        dragElement(document.getElementById("attachment-{{ $attachment->uuid }}drag"));
     </script>
     </div>
 @endif
