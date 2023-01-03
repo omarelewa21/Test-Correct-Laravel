@@ -33,7 +33,7 @@
             </div>
             <span class="pvalue-indicator small" :style="'left:' + indicatorLeft"></span>
         </div>
-        <span class="text-xs text-midgrey">{{ $pValue->p_value * 100 }}</span>
+        <span class="text-xs text-midgrey">1.0</span>
     </div>
 
     <div class="flex items-center ml-4">
