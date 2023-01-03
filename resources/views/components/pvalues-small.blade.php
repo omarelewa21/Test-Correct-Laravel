@@ -6,7 +6,7 @@
          yellow: [2,6],
          green: [3,5],
          darkgreen: [4],
-         indicatorLeft: ({{ $pValue->p_value }} * 75 + 10) + '%'
+         indicatorLeft: ({{ $pValue->p_value }} * 100) + '%'
      }"
 >
     <div class="flex items-center min-w-[110px]">
