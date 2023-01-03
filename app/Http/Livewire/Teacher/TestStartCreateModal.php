@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 use LivewireUI\Modal\ModalComponent;
 use tcCore\Http\Controllers\TemporaryLoginController;
+use tcCore\Http\Helpers\BaseHelper;
 
 class TestStartCreateModal extends ModalComponent
 {
@@ -23,7 +24,7 @@ class TestStartCreateModal extends ModalComponent
     }
     public function goToUploadTest()
     {
-        $path = json_decode(request()->getContent())->fingerprint->path ?? '';
+        $path = BaseHelper::getLivewireOriginalPath(request()) ?? '';
         return redirect(route('teacher.upload-tests', ['referrer' => ['type' => 'laravel', 'page' => $path]]));
     }
 
