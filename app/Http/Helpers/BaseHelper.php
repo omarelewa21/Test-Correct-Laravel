@@ -101,6 +101,11 @@ class BaseHelper
         return !(str_contains(config('app.url_login'),'testportal') && (str_ends_with(config('app.url_login'),'.test') || str_ends_with(config('app.url_login'),'.test/')));
     }
 
+        public static function onLocal()
+    {
+        return str_contains(config('app.url_login'),'testportal') && (str_ends_with(config('app.url_login'),'.test') || str_ends_with(config('app.url_login'),'.test/'));
+    }
+
     public static function isRunningTestRefreshDb() {
         if(app()->runningInConsole()) {
             // we are running in the console
