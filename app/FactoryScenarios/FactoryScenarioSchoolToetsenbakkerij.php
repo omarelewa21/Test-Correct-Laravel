@@ -44,7 +44,7 @@ class FactoryScenarioSchoolToetsenbakkerij extends FactoryScenarioSchool
     public static function create()
     {
         $factory = new static;
-        if (SchoolLocation::where('name', $factory->schoolName)->exists()) {
+        if (SchoolLocation::where('name', $factory->schoolLocationName)->exists()) {
             throw new \Exception('Toetsenbakkerij school allready exists');
         }
 

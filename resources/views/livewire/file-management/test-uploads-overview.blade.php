@@ -75,6 +75,7 @@
                 <x-button.text-button class="ml-auto text-base"
                                       size="sm"
                                       wire:click="clearFilters()"
+                                      x-on:click="document.getElementById('testuploads-active-filters').innerHTML = '';"
                                       :disabled="!$this->hasActiveFilters()"
                 >
                     <span class="min-w-max">{{ __('teacher.Filters wissen') }}</span>
@@ -160,7 +161,7 @@
                             {{--3--}}<x-table.cell :slim="true" title="{{ $file->display_date }}">{{ $file->display_date }}</x-table.cell>
                             {{--4--}}<x-table.cell :slim="true" title="{{ $file->schoolLocation->name }}">{{ $file->schoolLocation->name }}</x-table.cell>
                             {{--5--}}<x-table.cell :slim="true" title="{{ $file->teacher?->name_full }}">{{ $file->teacher?->name_full }}</x-table.cell>
-                            {{--6--}}<x-table.cell :slim="true" title="{{ $file->subject_name }}">{{ $file->subject_name }}</x-table.cell>
+                            {{--6--}}<x-table.cell :slim="true" title="{{ $file->subject_name }}">{!! $file->subject_name !!}</x-table.cell>
                             {{--7--}}<x-table.cell :slim="true" title="{{ $file->test_name }}">{{ $file->test_name }}</x-table.cell>
                             {{--8--}}<x-table.cell :slim="true" title="{{ $file->schoolLocation->testPackage }}">{{ $file->schoolLocation->testPackage }}</x-table.cell>
                             {{--9--}}<x-table.cell :slim="true" title="{{ $file->handler?->name_full }}">{{ $file->handler?->name_full }}</x-table.cell>

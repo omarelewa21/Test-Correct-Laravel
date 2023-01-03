@@ -30,7 +30,7 @@ trait ToetsenbakkerTestActions
     {
         return EducationLevel::whereIn(
             'id',
-            SchoolLocationEducationLevel::select('school_location_id')
+            SchoolLocationEducationLevel::select('education_level_id')
                 ->where('school_location_id', $this->fileManagement->school_location_id)
         )
             ->get(['id', 'name', 'max_years', 'uuid'])->keyBy('id');
