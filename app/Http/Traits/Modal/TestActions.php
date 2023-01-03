@@ -65,7 +65,7 @@ trait TestActions
     public function getMaxEducationLevelYearProperty()
     {
         if ($this->request['education_level_id']) {
-            $maxYears = $this->allowedEductionLevels->where('id', $this->request['education_level_id'])->first()->max_years;
+            $maxYears = $this->allowedEductionLevels->where('id', $this->request['education_level_id'])->first()?->max_years;
         }
         return $maxYears ?? 6;
     }
