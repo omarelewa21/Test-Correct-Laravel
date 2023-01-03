@@ -8,6 +8,7 @@ use tcCore\EducationLevel;
 use tcCore\Period;
 use tcCore\SchoolLocationEducationLevel;
 use tcCore\Subject;
+use tcCore\Teacher;
 use tcCore\Test;
 use tcCore\TestKind;
 
@@ -15,7 +16,17 @@ trait ToetsenbakkerTestActions
 {
     public function getAllowedSubjects()
     {
-        return Subject::where('id', $this->fileManagement->subject_id)->get(['id', 'name'])->keyBy('id');
+        if (filled($this->fileManagement->subject_id)) {
+            return Subject::where('id', $this->fileManagement->subject_id)->get(['id', 'name'])->keyBy('id');
+        }
+        return Subject::whereIn(
+            'id',
+            Teacher::select('subject_id')
+                ->where('user_id', $this->fileManagement->user_id)
+        )
+            ->whereDemo(false)
+            ->get(['id', 'name'])
+            ->keyBy('id');
     }
 
     public function getAllowedPeriods()
