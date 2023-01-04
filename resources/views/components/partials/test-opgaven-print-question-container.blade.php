@@ -24,7 +24,7 @@
         </div>
     </div>
     @if($question->questionAttachments)
-        <livewire:test-print.question-attachments :attachments="$question->attachments" :attachment_counters="$this->attachment_counters ?? []"/>
+        <livewire:test-opgaven-print.question-attachments :attachments="$question->attachments" :attachment_counters="$this->attachment_counters ?? []"/>
     @endif
 </div>
 

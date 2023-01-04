@@ -1,8 +1,8 @@
 <x-partials.test-opgaven-print-question-container :number="$number" :question="$question">
     <div class="w-full">
-        <div class="italic">
-            {{__('test-pdf.multiple_choice_question_explanation')}}
-        </div>
+{{--        <div class="italic">--}}
+{{--            {{__('test-pdf.multiple_choice_question_explanation')}}--}}
+{{--        </div>--}}
         <div class="children-block-pdf">
             {!! $question->converted_question_html  !!}
         </div>

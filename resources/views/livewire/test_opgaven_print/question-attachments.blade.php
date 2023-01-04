@@ -25,7 +25,7 @@
 {{--                    <strong>{{ __('test-pdf.audio') }} {{ $attachment_counters['audio'][$attachment->getKey()] ?? '' }}</strong><br>--}}
                     <strong>{{ __('test-pdf.attachment') }} {{ $index + 1 }}: {{ __('test-pdf.audio') }}</strong><br>
                     <i style="margin-bottom: 0.5rem">"{{ $attachment->title }}"</i> <br>
-                    <span>{{ __('test-pdf.audio_text') }}</span>
+{{--                    <span>{{ __('test-pdf.audio_text') }}</span>--}}
                 </div>
                 @break
             @case('video')
@@ -43,7 +43,7 @@
 {{--                    <strong>{{ __('test-pdf.pdf') }} {{ $attachment_counters['pdf'][$attachment->getKey()] ?? '' }}</strong><br>--}}
                     <strong>{{ __('test-pdf.attachment') }} {{ $index + 1 }}: {{ __('test-pdf.pdf') }}</strong><br>
                     <i style="margin-bottom: 0.5rem">"{{ $attachment->title }}"</i> <br>
-                    <span>{{ __('test-pdf.pdf_text') }}</span>
+{{--                    <span>{{ __('test-pdf.pdf_text') }}</span>--}}
                 </div>
             @break
         @endswitch

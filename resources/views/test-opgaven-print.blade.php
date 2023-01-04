@@ -101,20 +101,20 @@
         </div>
     </div>
 
-    <span id="citation">
-        <div id="extraFooterLine" class="footer-line" style=""></div>
-        <table class="citation-table">
-            <tr>
-                <th>
-                    {{ __('test-pdf.citation') }}
-                </th>
-            </tr>
-            <tr>
-                <td>
-                    {{ __('test-pdf.citation_text') }}
-                </td>
-            </tr>
-        </table>
-    </span>
+{{--    <span id="citation">--}}
+{{--        <div id="extraFooterLine" class="footer-line" style=""></div>--}}
+{{--        <table class="citation-table">--}}
+{{--            <tr>--}}
+{{--                <th>--}}
+{{--                    {{ __('test-pdf.citation') }}--}}
+{{--                </th>--}}
+{{--            </tr>--}}
+{{--            <tr>--}}
+{{--                <td>--}}
+{{--                    {{ __('test-pdf.citation_text') }}--}}
+{{--                </td>--}}
+{{--            </tr>--}}
+{{--        </table>--}}
+{{--    </span>--}}
 
 </x-layouts.pdf-test-print>

@@ -1,9 +1,9 @@
 <x-partials.test-opgaven-print-question-container :number="$number" :question="$question">
 
     <div class="w-full space-y-3">
-        <div class="italic">
-            <span>{!! __('test-pdf.ARQ_question_explanation') !!}</span>
-        </div>
+{{--        <div class="italic">--}}
+{{--            <span>{!! __('test-pdf.ARQ_question_explanation') !!}</span>--}}
+{{--        </div>--}}
         <div class="flex flex-col space-y-5 xl:space-y-0 xl:flex-row xl:space-x-5">
             <div class="flex flex-1 flex-col children-block-pdf">
                 {!! $question->converted_question_html !!}

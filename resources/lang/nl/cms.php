@@ -204,7 +204,7 @@ return [
     'antwoorden'                                                                             => 'Antwoorden',
     'antwoorden_omschrijving'                                                                => 'Alle antwoorden van studenten gebundeld',
     'toets_pdf'                                                                              => 'Toets',
-    'toets_pdf_omschrijving'                                                                 => 'Toets met alle vragen. Bijv. voor afname op papier',
+    'toets_pdf_omschrijving'                                                                 => 'Alle vragen uit de toets met invulvelden',
     'toets_opgaven_pdf'                                                                      => 'Opgaven',
     'toets_opgaven_pdf_omschrijving'                                                         => 'Alle vragen uit de toets zonder invulvelden',
     'pdf_exporteren'                                                                         => 'Exporteer PDF',

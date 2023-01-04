@@ -34,7 +34,6 @@ class PrintTestController extends Controller
     public function showTest(Test $test, Request $request)
     {
         $this->test = $test;
-        logger(__METHOD__);
 
         return $this->createPdfDownload();
     }
@@ -42,7 +41,7 @@ class PrintTestController extends Controller
     public function showTestOpgaven(Test $test, Request $request)
     {
         $this->testOpgavenPdf = true;
-        logger(__METHOD__);
+
         return $this->showTest($test, $request);
     }
 
@@ -124,7 +123,9 @@ class PrintTestController extends Controller
 
     private function generateCoverPdf()
     {
-        $cover = (new Cover($this->test))->render();
+        $showCoverExplanationText = !$this->testOpgavenPdf;
+
+        $cover = (new Cover($this->test, $showCoverExplanationText))->render();
         $header = (new CoverHeader($this->test, $this->testTake))->render();
         $footer = (new CoverFooter($this->test, $this->testTake))->render();
 
