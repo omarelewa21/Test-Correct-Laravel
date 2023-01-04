@@ -240,7 +240,10 @@ class PValue extends BaseModel
 
     public function scopePeriodFilter($query, $periods)
     {
-        $query->when($periods->isNotEmpty(), fn($q) => $q->whereIn('p_values.period_id', $periods->pluck('id')));
+        $query->when(
+            $periods->isNotEmpty(),
+            fn($q) => $q->whereIn('p_values.period_id', $periods->pluck('id'))
+        );
     }
 
     public function scopeLearningGoalOrAttainmentFilter($query, $isLearningGoal = null) {

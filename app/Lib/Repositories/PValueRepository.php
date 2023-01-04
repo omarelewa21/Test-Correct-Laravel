@@ -393,33 +393,15 @@ class PValueRepository
             ->get();
     }
 
-    public static function getPValueForStudentBySubjectMonthTimeSeries(User $user, $periods, $educationLevelYears, $teachers)
+    public static function getPValueForStudentBySubjectDayDateTimeSeries(User $user, $periods, $educationLevelYears, $teachers)
     {
-        $pValueQuery = PValue::SelectRaw('avg(score/max_score) as score')
-            ->selectRaw('Month(p_values.created_at) as maand')
-            ->selectRaw('Year(p_values.created_at) as jaar')
-            ->selectRaw('count(subject_id) as cnt')
-            ->addSelect([
-                'serie'      => Subject::select('name')->whereColumn('id', 'p_values.subject_id')->limit(1),
-                'subject_id' => 'p_values.subject_id',
-            ])
-            ->join('test_participants', function ($join) use ($user) {
-                $join->on('p_values.test_participant_id', '=', 'test_participants.id')
-                    ->where('test_participants.user_id', '=', $user->getKey());
-            })
-            ->filter($periods, $educationLevelYears, $teachers)
-            ->groupBy('subject_id');
-
         return Subject::filterForStudentCurrentSchoolYear($user)
-            ->selectRaw('t2.*')
-            ->selectRaw('maand')
-            ->selectRaw('jaar')
-            ->selectRaw('subjects.id, subjects.name')
-            ->leftJoinSub($pValueQuery, 't2', function ($join) {
-                $join->on('subjects.id', '=', 't2.subject_id');
-            })
-            ->orderByRaw('subjects.name')
-            ->get();
+            ->crossJoinSub(self::getDayDateTimeSeriesQueryBuilder('2022-10-28', '2022-11-30'), 'dates')
+            ->leftJoinSub(self::getPValueScoresByDayDateWithSubjectId($user, $periods, $educationLevelYears, $teachers), 'p_value_query', function ($join) {
+                $join->on('gen_date', '=', 'p_value_created_at')
+                    ->on('subjects.id', '=', 'p_value_query.subject_id');
+            })->orderByRaw('name, gen_date')
+            ->get(['name', 'gen_date', 'score']);
     }
 
     public static function getPValuePerAttainmentForStudent(User $user, $periods, $educationLevelYears, $teachers, Subject $subject, $isLearningGoal = false)
@@ -472,5 +454,35 @@ class PValueRepository
             ->where('attainments.attainment_id', $attainment->id)
             ->orderByRaw('is_learning_goal, education_level_id, attainments.code, attainments.subcode')
             ->get();
+    }
+
+    private static function getDayDateTimeSeriesQueryBuilder($startDate, $endDate)
+    {
+        return DB::table(
+            DB::raw("           
+                        (select adddate('2018-01-01',t3*1000 + t2*100 + t1*10 + t0) gen_date from
+                        (select 0 t0 union select 1 union select 2 union select 3 union select 4 union select 5 union select 6 union select 7 union select 8 union select 9) t0,
+                        (select 0 t1 union select 1 union select 2 union select 3 union select 4 union select 5 union select 6 union select 7 union select 8 union select 9) t1,
+                        (select 0 t2 union select 1 union select 2 union select 3 union select 4 union select 5 union select 6 union select 7 union select 8 union select 9) t2,
+                        (select 0 t3 union select 1 union select 2 union select 3 union select 4 union select 5 union select 6 union select 7 union select 8 union select 9) t3
+                    ) p")
+        )->whereBetween('gen_date', [$startDate, $endDate]);
+    }
+
+    private static function getPValueScoresByDayDateWithSubjectId(User $user, $periods, $educationLevelYears, $teachers){
+        return PValue::SelectRaw('avg(score/max_score) as score')
+            ->selectRaw('date(p_values.created_at) as p_value_created_at')
+            ->addSelect([
+                'subject_id' => 'p_values.subject_id',
+            ])
+            ->join('test_participants', function ($join) use ($user) {
+                $join->on('p_values.test_participant_id', '=', 'test_participants.id')
+                    ->where('test_participants.user_id', '=', $user->getKey());
+            })
+            ->filter($periods, $educationLevelYears, $teachers)
+            ->groupBy([
+                'subject_id',
+                DB::raw('date(p_values.created_at)')
+            ]);
     }
 }

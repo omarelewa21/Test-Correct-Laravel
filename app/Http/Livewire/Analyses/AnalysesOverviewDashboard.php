@@ -105,59 +105,27 @@ class AnalysesOverviewDashboard extends AnalysesDashboard
 
     public function getDataForSubjectTimeSeriesGraph()
     {
-        $result = PValueRepository::getPValueForStudentBySubjectMonthTimeSeries(
+        $results = PValueRepository::getPValueForStudentBySubjectDayDateTimeSeries(
             $this->getHelper()->getForUser(),
             $this->getPeriodsByFilterValues(),
             $this->getEducationLevelYearsByFilterValues(),
             $this->getTeachersByFilterValues()
         );
 
-        dd($result);
+        $set = [];
+        $names = [];
+        foreach($results as $result) {
+            if (!in_array($result->name, $names)) {
+                $names[] = $result->name;
+                $prevScore = $result->score ?? 0;
+            }
+            $set[$result->gen_date][] = $prevScore = $result->score ?? $prevScore;
+        }
 
+        $newSet = collect($set)->map(function($arr, $key) {
+            return [$key, ...$arr];
+        })->values()->toArray();
 
-
-
-        collect($biology)->zip($CitoBiology);
-
-       ['2016-01', null, null, 1, null]
-
-
-                ['2016-01-01', 0,0,0,0 ],
-                ['2016-02-01', 0,0,0,0 ],
-                ['2016-03-01', 0,0,0,0 ],
-                ['2016-04-01', 0,0,0,0 ],
-                ['2016-05-01', 0,0,0,0 ],
-                ['2016-06-01', 0,0,0,0 ],
-                ['2016-07-01', 0,0,0,0 ],
-                ['2016-08-01', 0,0,0,0 ],
-                ['2016-09-01', 0,0,0,0 ],
-                ['2016-10-01', 0,0,0,0 ],
-                ['2016-11-01', 0,0,0,0 ],
-                ['2016-12-01', 0,0,0,0 ],
-
-
-
-        return [
-            false,
-            [
-                ['2016-01-01', 0.1, 0.9 ,0.8, 0.5],
-                ['2016-02-01', 0.2, 0.9, 0.8, 0.5],
-                ['2016-03-01', 0.3, 0.8, 0.8, 0.5],
-                ['2016-04-01', 0.4, 0.7, 0.8, 0.5],
-                ['2016-05-01', 0.5, 0.7, 0.8, 0.5],
-                ['2016-06-01', 0.6, 0.7, 0.8, 0.5],
-                ['2016-07-01', 0.7, 0.7, 0.8, 0.5],
-                ['2016-08-01', 0.8, 0.7, 0.8, 0.5],
-                ['2016-09-01', 0.9, 0.7, 0.8, 0.5],
-                ['2016-10-01', 1.0, 0.7, 0.8, 0.5],
-                ['2016-11-01', 0.9, 0.7, 0.8, 0.5],
-                ['2016-12-01', 0.8, 0.7, 0.8, 0.5],
-            ], [
-                'Nederland',
-                'Frans',
-                'Wiskunde',
-                'Natuurkunde',
-            ],
-        ];
+        return [false, $newSet, $names];
     }
 }

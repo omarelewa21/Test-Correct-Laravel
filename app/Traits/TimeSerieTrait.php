@@ -24,7 +24,7 @@ trait TimeSerieTrait
 {
     public function scopeJoinWithTimeSeries($query, $startDate, $endDate, $joinField)
     {
-        $qb = DB::select(
+        $qb = DB::query()->select(
             "
              
                     select gen_date from 
@@ -39,8 +39,6 @@ trait TimeSerieTrait
         )->whereBetween('gen_date between',['2015-10-28', '2015-10-30']);
 
         $query->leftJoin($qb,'gen_date', '=', $joinField);
-
-        $query()->dd();
 
         return $query;
     }

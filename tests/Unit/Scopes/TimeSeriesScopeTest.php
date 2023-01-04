@@ -10,6 +10,7 @@ namespace Tests\Unit\Scopes;
 
 use Carbon\Carbon;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
+use tcCore\Lib\Repositories\PValueRepository;
 use tcCore\PValue;
 use Tests\TestCase;
 use Tests\Unit\TimeSeries;
@@ -23,8 +24,14 @@ class TimeSeriesScopeTest extends TestCase
     /** @test */
     public function it_can_create_a_time_series_per_day()
     {
-        $qb = PValue::JoinWithTimeSeries(Carbon::parse('2015-10-28'), Carbon::parse('2015-10-28')->addDays(3), 'p_values.created_at')->where('id', 1);
-        dd($qb->dd());
+
+
+        $qb = PValue::take(10)->joinWithTimeSeries(
+            Carbon::parse('2015-10-28'),
+            Carbon::parse('2015-10-28')->addDays(3),
+            'p_values.created_at'
+        );//->where('id', 1);
+        dd($qb->get());
 
 
         $this->assertCount(30, $result);
