@@ -9,6 +9,43 @@
     border-style: dashed;
     margin-right: 0.5rem;
 }
+.test-print-pdf .test-print-opgaven-pdf .square-checkbox .checkbox-character,
+.test-print-pdf .test-print-opgaven-pdf .square-checkbox .checkbox-number{
+    margin-top: 0;
+    padding-bottom: 0;
+    padding-top: 0.25rem;
+}
+
+.test-print-pdf .test-print-opgaven-pdf .square-checkbox .checkbox-number{
+    margin-left: 0.5rem;
+}
+
+.test-print-pdf .test-print-opgaven-pdf .square-checkbox .checkbox-character{
+    margin-left: 0.35rem;
+}
+
+.test-print-pdf .test-print-opgaven-pdf .round-checkbox .checkbox-character,
+.test-print-pdf .test-print-opgaven-pdf .round-checkbox .checkbox-number{
+    margin-top: 0;
+    padding-bottom: 0;
+    padding-top: 0.25rem;
+}
+
+.test-print-pdf .test-print-opgaven-pdf .round-checkbox .checkbox-number{
+    margin-left: 0.5rem;
+}
+
+.test-print-pdf .test-print-opgaven-pdf .round-checkbox .checkbox-character{
+    margin-left: 0.40rem;
+}
+
+
+.test-print-pdf .test-print-opgaven-pdf .square-checkbox .checkbox-character,
+.test-print-pdf .test-print-opgaven-pdf .square-checkbox .checkbox-number,
+.test-print-pdf .test-print-opgaven-pdf .round-checkbox .checkbox-character,
+.test-print-pdf .test-print-opgaven-pdf .round-checkbox .checkbox-number{
+    font-weight: bold;
+}
 
 .test-print-pdf .square-checkbox {
     border-radius: 10px;
@@ -378,6 +415,17 @@
     padding-bottom: 0.25rem;
     padding-left: 50px
 }
+.test-print-pdf .test-print-opgaven-pdf .matching-textbox-container-right,
+.test-print-pdf .test-print-opgaven-pdf .matching-textbox-container-left {
+    height: 2.5rem;
+}
+
+
+.test-print-pdf .test-print-opgaven-pdf .matching-textbox-container-right {
+    text-align: left;
+    padding-bottom: 0rem;
+    padding-left: 0px;
+}
 
 .test-print-pdf .matching-textbox-container-left {
     text-align: left;
@@ -419,6 +467,15 @@
     display: inline-block;
     width: 32%;
     margin-right: 0.5rem;
+}
+.test-print-pdf margin-top-4 {
+    margin-top: 1rem;
+}
+
+.test-print-pdf .classify-group-title-opgave {
+    display: inline-block;
+    font-weight: bold;
+    text-align: left;
 }
 
 .test-print-pdf .classify-group-title {

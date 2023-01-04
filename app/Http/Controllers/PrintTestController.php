@@ -29,11 +29,20 @@ class PrintTestController extends Controller
     private $test = null;
     private $testTake = null;
 
+    private $testOpgavenPdf = false;
+
     public function showTest(Test $test, Request $request)
     {
         $this->test = $test;
 
         return $this->createPdfDownload();
+    }
+
+    public function showTestOpgaven(Test $test, Request $request)
+    {
+        $this->testOpgavenPdf = true;
+
+        return $this->showTest($test, $request);
     }
 
     public function showTestTake(TestTake $testTake, Request $request)
@@ -114,7 +123,9 @@ class PrintTestController extends Controller
 
     private function generateCoverPdf()
     {
-        $cover = (new Cover($this->test))->render();
+        $showCoverExplanationText = !$this->testOpgavenPdf;
+
+        $cover = (new Cover($this->test, $showCoverExplanationText))->render();
         $header = (new CoverHeader($this->test, $this->testTake))->render();
         $footer = (new CoverFooter($this->test, $this->testTake))->render();
 
@@ -139,7 +150,12 @@ class PrintTestController extends Controller
         $titleForPdfPage = __('test-pdf.printversion_test') . ' ' . $this->test->name . ' ' . Carbon::now()->format('d-m-Y H:i');
         view()->share('titleForPdfPage', $titleForPdfPage);
         ini_set('max_execution_time', '90');
-        $html = view('test-print', compact(['data', 'nav', 'styling', 'test', 'attachment_counters']))->render();
+
+        if(!$this->testOpgavenPdf) {
+            $html = view('test-print', compact(['data', 'nav', 'styling', 'test', 'attachment_counters']))->render();
+        } else {
+            $html = view('test-opgaven-print', compact(['data', 'nav', 'styling', 'test', 'attachment_counters']))->render();
+        }
 
         return PdfController::createTestPrintPdf($html, $header, $footer);
     }

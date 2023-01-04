@@ -192,7 +192,9 @@ return [
     'antwoorden'                                                                             => 'Answers',
     'antwoorden_omschrijving'                                                                => 'All answers of students grouped',
     'toets_pdf'                                                                              => 'Test',
-    'toets_pdf_omschrijving'                                                                 => 'Test with all questions. E.g. for taking on paper',
+    'toets_pdf_omschrijving'                                                                 => 'All questions from the test with answering space',
+    'toets_opgaven_pdf'                                                                      => 'Assignments',
+    'toets_opgaven_pdf_omschrijving'                                                         => 'All questions from the test without answering space',
     'pdf_exporteren'                                                                         => 'Export PDF',
     'Search...'                                                                              => 'Search...',
     'Direct afnemen'                                                                         => 'Quick start',
@@ -212,7 +214,6 @@ return [
     "construct_test"                                                                         => "Construct a test",
     "create_your_own_test"                                                                   => "Get started with creating your own test",
     "setup_your_own_test"                                                                    => "Set up your test with question groups and questions",
-
-    'attachment_uploading_message' => 'We\'re processing the attachment(s).',
-    'one_moment_please'            => 'One moment please  ',
+    'attachment_uploading_message'                                                           => 'We\'re processing the attachment(s).',
+    'one_moment_please'                                                                      => 'One moment please  ',
 ];

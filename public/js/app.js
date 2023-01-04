@@ -6499,7 +6499,7 @@ document.addEventListener('alpine:init', function () {
       },
       removeFilterItem: function removeFilterItem(item) {
         if (!Array.isArray(this.value)) return;
-        this.value = this.wireModel = this.value.filter(function (itemValue) {
+        this.wireModel = this.value.filter(function (itemValue) {
           return itemValue !== item.value;
         });
         this.clearFilterPill(item.value);
@@ -6552,11 +6552,49 @@ document.addEventListener('alpine:init', function () {
       }
     };
   });
-  alpinejs__WEBPACK_IMPORTED_MODULE_1__["default"].data('analysesSubjectsGraph', function (data) {
+  alpinejs__WEBPACK_IMPORTED_MODULE_1__["default"].data('analysesSubjectsGraph', function (modelId) {
     return {
-      data: data,
+      modelId: modelId,
+      data: [],
       colors: ['#30BC51', '#5043F6', '#ECEE7D', '#6820CE', '#CB110E', '#F79D25', '#1B6112', '#43ACF5', '#E12576', '#24D2C5'],
+      showEmptyState: false,
+      init: function init() {
+        this.updateGraph();
+      },
+      updateGraph: function updateGraph() {
+        var _this19 = this;
+
+        return _asyncToGenerator( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default().mark(function _callee3() {
+          var _yield$_this19$$wire$, _yield$_this19$$wire$2;
+
+          return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default().wrap(function _callee3$(_context3) {
+            while (1) {
+              switch (_context3.prev = _context3.next) {
+                case 0:
+                  _context3.next = 2;
+                  return _this19.$wire.call('getDataForGraph');
+
+                case 2:
+                  _yield$_this19$$wire$ = _context3.sent;
+                  _yield$_this19$$wire$2 = _slicedToArray(_yield$_this19$$wire$, 2);
+                  _this19.showEmptyState = _yield$_this19$$wire$2[0];
+                  _this19.data = _yield$_this19$$wire$2[1];
+
+                  _this19.renderGraph();
+
+                case 7:
+                case "end":
+                  return _context3.stop();
+              }
+            }
+          }, _callee3);
+        }))();
+      },
       renderGraph: function renderGraph() {
+        var cssSelector = '#pValueChart>div:not(.empty-state)';
+        this.$root.querySelectorAll(cssSelector).forEach(function (node) {
+          return node.remove();
+        });
         var chart = anychart.column();
         var series = chart.column(this.data);
         var palette = anychart.palettes.distinctColors();
@@ -6566,7 +6604,7 @@ document.addEventListener('alpine:init', function () {
         yScale.maximum(1.00);
         yScale.ticks().interval(0.25);
         chart.yAxis(0).labels().format(function () {
-          return this.value == 0 ? 'P 0' : this.value.toFixed(2);
+          return this.value == 0 ? 'P 0' : 'P ' + this.value.toFixed(2);
         });
         chart.yGrid().enabled(true);
         chart.xAxis(0).labels().fontWeight("bold").fontColor('#041f74').rotation(-60);
@@ -6709,17 +6747,52 @@ document.addEventListener('alpine:init', function () {
         chart.tooltip().onBeforeContentChange(function () {
           return false;
         });
-      },
-      init: function init() {
-        this.renderGraph();
       }
     };
   });
-  alpinejs__WEBPACK_IMPORTED_MODULE_1__["default"].data('analysesAttainmentsGraph', function (data) {
+  alpinejs__WEBPACK_IMPORTED_MODULE_1__["default"].data('analysesAttainmentsGraph', function (modelId) {
     return {
-      data: data,
+      modelId: modelId,
+      data: false,
       colors: ['#30BC51', '#5043F6', '#ECEE7D', '#6820CE', '#CB110E', '#F79D25', '#1B6112', '#43ACF5', '#E12576', '#24D2C5'],
+      showEmptyState: false,
+      init: function init() {
+        this.updateGraph();
+      },
+      updateGraph: function updateGraph() {
+        var _this20 = this;
+
+        return _asyncToGenerator( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default().mark(function _callee4() {
+          var _yield$_this20$$wire$, _yield$_this20$$wire$2;
+
+          return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default().wrap(function _callee4$(_context4) {
+            while (1) {
+              switch (_context4.prev = _context4.next) {
+                case 0:
+                  _context4.next = 2;
+                  return _this20.$wire.call('getDataForGraph');
+
+                case 2:
+                  _yield$_this20$$wire$ = _context4.sent;
+                  _yield$_this20$$wire$2 = _slicedToArray(_yield$_this20$$wire$, 2);
+                  _this20.showEmptyState = _yield$_this20$$wire$2[0];
+                  _this20.data = _yield$_this20$$wire$2[1];
+
+                  _this20.renderGraph();
+
+                case 7:
+                case "end":
+                  return _context4.stop();
+              }
+            }
+          }, _callee4);
+        }))();
+      },
       renderGraph: function renderGraph() {
+        var cssSelector = '#pValueChart>div:not(.empty-state)';
+        this.$root.querySelectorAll(cssSelector).forEach(function (node) {
+          return node.remove();
+        });
         var chart = anychart.column();
         var series = chart.column(this.data);
         var palette = anychart.palettes.distinctColors();
@@ -6729,7 +6802,7 @@ document.addEventListener('alpine:init', function () {
         yScale.maximum(1.00);
         yScale.ticks().interval(0.25);
         chart.yAxis(0).labels().format(function () {
-          return this.value == 0 ? 'P 0' : this.value.toFixed(2);
+          return this.value == 0 ? 'P 0' : 'P ' + this.value.toFixed(2);
         });
         chart.yGrid().enabled(true);
         chart.xAxis(0).labels().fontWeight("bold").fontColor('#041f74');
@@ -6807,9 +6880,6 @@ document.addEventListener('alpine:init', function () {
         chart.container('pValueChart'); // initiate chart drawing
 
         chart.draw();
-      },
-      init: function init() {
-        this.renderGraph();
       },
       initTooltips: function initTooltips(chart, data, series) {
         chart.tooltip().useHtml(true);
@@ -6929,98 +6999,12 @@ document.addEventListener('alpine:init', function () {
       }
     };
   });
-  alpinejs__WEBPACK_IMPORTED_MODULE_1__["default"].data('expandableGraph', function (id, modelId, taxonomy) {
+  alpinejs__WEBPACK_IMPORTED_MODULE_1__["default"].data('expandableGraphForGeneral', function (id, modelId, taxonomy, component) {
     return {
       data: false,
       modelId: modelId,
       taxonomy: taxonomy,
-      containerId: 'chart-' + modelId + '-' + taxonomy,
-      id: id,
-      init: function init() {
-        if (this.expanded) {
-          this.updateGraph();
-        }
-      },
-      updateGraph: function updateGraph() {
-        var _this19 = this;
-
-        return _asyncToGenerator( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default().mark(function _callee3() {
-          return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default().wrap(function _callee3$(_context3) {
-            while (1) {
-              switch (_context3.prev = _context3.next) {
-                case 0:
-                  if (_this19.data) {
-                    _context3.next = 5;
-                    break;
-                  }
-
-                  _context3.next = 3;
-                  return _this19.$wire.getData(_this19.modelId, _this19.taxonomy);
-
-                case 3:
-                  _this19.data = _context3.sent;
-
-                  _this19.renderGraph();
-
-                case 5:
-                case "end":
-                  return _context3.stop();
-              }
-            }
-          }, _callee3);
-        }))();
-      },
-
-      get expanded() {
-        return this.active === this.id;
-      },
-
-      set expanded(value) {
-        if (value) {
-          this.updateGraph();
-        }
-
-        this.active = value ? this.id : null;
-      },
-
-      renderGraph: function renderGraph() {
-        // create bar chart
-        var chart = anychart.bar(); // create area series with passed data
-
-        var series = chart.bar(this.data);
-        series.stroke(this.getColor()).fill(this.getColor());
-        var tooltip = series.tooltip();
-        tooltip.title(false).separator(false).position('right').anchor('left-center').offsetX(5).offsetY(0).background('#FFFFFF').fontColor('#000000').format(function () {
-          return 'P ' + Math.abs(this.value).toLocaleString();
-        });
-        chart.tooltip().positionMode('point'); // set scale minimum
-
-        chart.xAxis().stroke('#041F74');
-        chart.xAxis().stroke('none'); // set container id for the chart
-
-        chart.container(this.containerId); // initiate chart drawing
-
-        chart.draw();
-      },
-      getColor: function getColor() {
-        if (this.taxonomy == 'Bloom') {
-          return '#E2DD10';
-        }
-
-        if (this.taxonomy == 'Miller') {
-          return '#5043F6';
-        }
-
-        return '#2EBC4F';
-      }
-    };
-  });
-  alpinejs__WEBPACK_IMPORTED_MODULE_1__["default"].data('expandableGraphForGeneral', function (id, modelId, taxonomy) {
-    return {
-      data: false,
-      modelId: modelId,
-      taxonomy: taxonomy,
-      containerId: 'chart-' + modelId + '-' + taxonomy,
+      containerId: 'chart-' + id + '-' + taxonomy,
       id: id,
       showEmptyState: false,
       init: function init() {
@@ -7028,38 +7012,44 @@ document.addEventListener('alpine:init', function () {
           this.updateGraph();
         }
       },
-      updateGraph: function updateGraph() {
-        var _this20 = this;
+      updateGraph: function updateGraph(forceUpdate) {
+        var _this21 = this;
 
-        return _asyncToGenerator( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default().mark(function _callee4() {
-          var _yield$_this20$$wire$, _yield$_this20$$wire$2;
+        return _asyncToGenerator( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default().mark(function _callee5() {
+          var method, _yield$_this21$$wire$, _yield$_this21$$wire$2;
 
-          return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default().wrap(function _callee4$(_context4) {
+          return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default().wrap(function _callee5$(_context5) {
             while (1) {
-              switch (_context4.prev = _context4.next) {
+              switch (_context5.prev = _context5.next) {
                 case 0:
-                  if (_this20.data) {
-                    _context4.next = 8;
+                  if (!(!_this21.data || forceUpdate)) {
+                    _context5.next = 10;
                     break;
                   }
 
-                  _context4.next = 3;
-                  return _this20.$wire.getDataForGeneralGraph(_this20.modelId, _this20.taxonomy);
+                  method = 'getData';
 
-                case 3:
-                  _yield$_this20$$wire$ = _context4.sent;
-                  _yield$_this20$$wire$2 = _slicedToArray(_yield$_this20$$wire$, 2);
-                  _this20.showEmptyState = _yield$_this20$$wire$2[0];
-                  _this20.data = _yield$_this20$$wire$2[1];
+                  if (component == 'expandableGraphForGeneral') {
+                    method = 'getDataForGeneralGraph';
+                  }
 
-                  _this20.renderGraph();
+                  _context5.next = 5;
+                  return _this21.$wire.call(method, _this21.modelId, _this21.taxonomy);
 
-                case 8:
+                case 5:
+                  _yield$_this21$$wire$ = _context5.sent;
+                  _yield$_this21$$wire$2 = _slicedToArray(_yield$_this21$$wire$, 2);
+                  _this21.showEmptyState = _yield$_this21$$wire$2[0];
+                  _this21.data = _yield$_this21$$wire$2[1];
+
+                  _this21.renderGraph();
+
+                case 10:
                 case "end":
-                  return _context4.stop();
+                  return _context5.stop();
               }
             }
-          }, _callee4);
+          }, _callee5);
         }))();
       },
 
@@ -7077,13 +7067,14 @@ document.addEventListener('alpine:init', function () {
 
       renderGraph: function renderGraph() {
         // create bar chart
-        var chart = anychart.bar(); // let data = this.data.map((item)=> {
-        //     return {
-        //         x: item[0],
-        //         value: item[1],
-        //         tooltip: item[2]
-        //     }
-        // })
+        var cssSelector = '#' + this.containerId + '>div:not(.empty-state)'; //
+
+        this.$root.querySelectorAll(cssSelector).forEach(function (node) {
+          return node.remove();
+        });
+        var chart = anychart.bar(); // //
+        // //                 var credits = chart.credits();
+        //                 credits.enabled(false);
 
         var series = chart.bar(this.data);
         series.stroke(this.getColor()).fill(this.getColor());
@@ -7157,42 +7148,42 @@ document.addEventListener('alpine:init', function () {
       menuOffsetMarginTop: 56,
       menuOffsetMarginLeft: 224,
       handleIncomingEvent: function handleIncomingEvent(detail) {
-        var _this21 = this;
+        var _this22 = this;
 
         if (!this.contextMenuOpen) return this.openMenu(detail);
         this.closeMenu();
         setTimeout(function () {
-          _this21.openMenu(detail);
+          _this22.openMenu(detail);
         }, 150);
       },
       openMenu: function openMenu(detail) {
-        var _this22 = this;
+        var _this23 = this;
 
-        return _asyncToGenerator( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default().mark(function _callee5() {
+        return _asyncToGenerator( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default().mark(function _callee6() {
           var readyForShow;
-          return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default().wrap(function _callee5$(_context5) {
+          return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default().wrap(function _callee6$(_context6) {
             while (1) {
-              switch (_context5.prev = _context5.next) {
+              switch (_context6.prev = _context6.next) {
                 case 0:
-                  _this22.uuid = detail.uuid;
-                  _this22.correspondingButton = detail.button;
-                  _this22.contextData = detail.contextData;
-                  _this22.$root.style.top = detail.coords.top + _this22.menuOffsetMarginTop + 'px';
-                  _this22.$root.style.left = detail.coords.left - _this22.menuOffsetMarginLeft + 'px';
-                  _context5.next = 7;
-                  return _this22.$wire.setContextValues(_this22.uuid, _this22.contextData);
+                  _this23.uuid = detail.uuid;
+                  _this23.correspondingButton = detail.button;
+                  _this23.contextData = detail.contextData;
+                  _this23.$root.style.top = detail.coords.top + _this23.menuOffsetMarginTop + 'px';
+                  _this23.$root.style.left = detail.coords.left - _this23.menuOffsetMarginLeft + 'px';
+                  _context6.next = 7;
+                  return _this23.$wire.setContextValues(_this23.uuid, _this23.contextData);
 
                 case 7:
-                  readyForShow = _context5.sent;
-                  if (readyForShow) _this22.contextMenuOpen = true;
-                  _this22.contextMenuOpen = true;
+                  readyForShow = _context6.sent;
+                  if (readyForShow) _this23.contextMenuOpen = true;
+                  _this23.contextMenuOpen = true;
 
                 case 10:
                 case "end":
-                  return _context5.stop();
+                  return _context6.stop();
               }
             }
-          }, _callee5);
+          }, _callee6);
         }))();
       },
       closeMenu: function closeMenu() {
@@ -7248,20 +7239,20 @@ document.addEventListener('alpine:init', function () {
         }
       },
       uploadFiles: function uploadFiles(files) {
-        var _this23 = this;
+        var _this24 = this;
 
         var $this = this;
         this.isUploading = true;
         var dummyContainer = this.$root.querySelector('#upload-dummies');
         Array.from(files).forEach(function (file, key) {
-          if (!_this23.fileHasAllowedExtension(file)) {
-            _this23.handleIncorrectFileUpload(file);
+          if (!_this24.fileHasAllowedExtension(file)) {
+            _this24.handleIncorrectFileUpload(file);
 
             return;
           }
 
-          if (_this23.fileTooLarge(file)) {
-            _this23.handleTooLargeOfAfile(file);
+          if (_this24.fileTooLarge(file)) {
+            _this24.handleTooLargeOfAfile(file);
 
             return;
           }
@@ -7270,7 +7261,7 @@ document.addEventListener('alpine:init', function () {
           var loadingBadge = $this.createLoadingBadge(file, badgeId);
           dummyContainer.append(loadingBadge);
           $this.progress[badgeId] = 0;
-          $this.$wire.upload(_this23.uploadModel, file, function (success) {
+          $this.$wire.upload(_this24.uploadModel, file, function (success) {
             $this.progress[badgeId] = 0;
             dummyContainer.querySelector("#".concat(badgeId)).remove();
           }, function (error) {
@@ -7396,23 +7387,6 @@ __webpack_require__(/*! ./pdf-download */ "./resources/js/pdf-download.js");
 
 window.ClassicEditors = [];
 
-addIdsToQuestionHtml = function addIdsToQuestionHtml() {
-  var id = 1;
-  var questionContainers = document.querySelectorAll('[questionHtml]');
-  setTimeout(function () {
-    questionContainers.forEach(function (item) {
-      var decendents = item.querySelectorAll('*');
-      decendents.forEach(function (decendent) {
-        if (decendent.tagName != 'MATH' && !decendent.closest('math')) {
-          decendent.id = 'questionhtml_' + id;
-          decendent.setAttribute('wire:key', 'questionhtml_' + id);
-          id += 1;
-        }
-      });
-    });
-  }, 1);
-};
-
 addRelativePaddingToBody = function addRelativePaddingToBody(elementId) {
   var extraPadding = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 0;
   document.getElementById(elementId).style.paddingTop = document.getElementById('header').offsetHeight + extraPadding + 'px';
@@ -7420,6 +7394,12 @@ addRelativePaddingToBody = function addRelativePaddingToBody(elementId) {
 
 makeHeaderMenuActive = function makeHeaderMenuActive(elementId) {
   document.getElementById(elementId).classList.add('active');
+};
+
+addCSRFTokenToEcho = function addCSRFTokenToEcho(token) {
+  if (typeof Echo.connector.pusher.config.auth !== 'undefined') {
+    Echo.connector.pusher.config.auth.headers['X-CSRF-TOKEN'] = token;
+  }
 };
 
 isInputElement = function isInputElement(target) {
@@ -7947,9 +7927,7 @@ FilePond.registerPlugin((filepond_plugin_file_validate_size__WEBPACK_IMPORTED_MO
 
 
 _smoothscroll_polyfill__WEBPACK_IMPORTED_MODULE_2___default().polyfill();
-anychart.onDocumentLoad(function () {
-  anychart.licenseKey(process.env.MIX_ANYCHART_LICENSE_KEY);
-});
+anychart.licenseKey(process.env.MIX_ANYCHART_LICENSE_KEY);
 
 /***/ }),
 
@@ -11320,12 +11298,12 @@ var Entry = /*#__PURE__*/function (_sidebarComponent) {
       return [{
         element: this.entryContainer,
         events: {
-          "dragstart": {
+          "dragstart touchstart": {
             callback: function callback(evt) {
               evt.currentTarget.classList.add("dragging");
             }
           },
-          "dragend": {
+          "dragend touchend": {
             callback: function callback(evt) {
               _this2.updateDraggedElementPosition(evt);
             }
@@ -11723,7 +11701,7 @@ var Layer = /*#__PURE__*/function (_sidebarComponent2) {
       }, {
         element: this.sidebar,
         events: {
-          "dragover": {
+          "dragover touchmove": {
             callback: function callback(evt) {
               evt.preventDefault();
               if (!_this4.props.enabled) return;
@@ -11747,7 +11725,7 @@ var Layer = /*#__PURE__*/function (_sidebarComponent2) {
                 _this4.Canvas.layers[newGroupKey].shapes[shapeID] = _this4.Canvas.layers[oldGroupKey].shapes[shapeID]; // delete Canvas.layers[oldGroupKey].shapes[shapeID];
               }
 
-              var entryToInsertBefore = _this4.getEntryToInsertBefore(_this4.sidebar, evt.clientY).entry;
+              var entryToInsertBefore = _this4.getEntryToInsertBefore(_this4.sidebar, evt.clientY == null ? evt.touches[0].clientY : evt.clientY).entry;
 
               if (entryToInsertBefore == null) {
                 _this4.shapesGroup.appendChild(draggedEntry);
@@ -13815,7 +13793,7 @@ window.Livewire.directive('sortable', function (el, directive, component) {
       pull: false,
       put: false
     },
-    forceFallback: el.closest('.sortable-drawer') ? true : false,
+    forceFallback: true,
     store: {
       set: function set(sortable) {
         var items = sortable.toArray().map(function (value, index) {
