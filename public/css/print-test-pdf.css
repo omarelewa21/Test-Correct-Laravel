@@ -685,6 +685,7 @@
 }
 
 .test-print-pdf .image-container,
+.test-print-pdf .opgaven-image-container,
 .test-print-pdf .video-container,
 .test-print-pdf .pdf-container,
 .test-print-pdf .audio-container {
@@ -695,6 +696,7 @@
     vertical-align: top;
 }
 .test-print-pdf .image-container span,
+.test-print-pdf .opgaven-image-container span,
 .test-print-pdf .video-container span,
 .test-print-pdf .pdf-container span,
 .test-print-pdf .audio-container span {

@@ -93,7 +93,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/preview/pdf/test/{test}', [tcCore\Http\Controllers\PrintTestController::class, 'showTest'])->name('preview.test_pdf');
         Route::get('/preview/pdf/test_opgaven/{test}', [tcCore\Http\Controllers\PrintTestController::class, 'showTestOpgaven'])->name('preview.test_opgaven_pdf');
         Route::get('/preview/pdf/test_take/{test_take}', [tcCore\Http\Controllers\PrintTestController::class, 'showTestTake'])->name('preview.test_take_pdf');
-        Route::get('/preview/pdf/test_attachments/{test}', [tcCore\Http\Controllers\PrintTestController::class, 'showTestPdfAttachments'])->name('preview.test_pdf_attachments');
+        Route::get('/preview/pdf/test_attachments/{test}', [tcCore\Http\Controllers\PrintTestController::class, 'downloadTestAttachments'])->name('preview.test_attachments');
         Route::get('/test_takes/{stage}', \tcCore\Http\Livewire\Teacher\TestTakeOverview::class)->name('test-takes');
         Route::get('/upload_test', \tcCore\Http\Livewire\Teacher\UploadTest::class)->name('upload-tests');
         Route::get('/file-management/testuploads', \tcCore\Http\Livewire\FileManagement\ToetsenbakkerUploadsOverview::class)->name('file-management.testuploads');
