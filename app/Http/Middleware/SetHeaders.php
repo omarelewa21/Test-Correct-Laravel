@@ -18,11 +18,9 @@ class SetHeaders
     {
         $handle = $next($request);
         if (method_exists($handle, 'withHeaders')) { // don't do this for instance for Binary File Responses
-            return $next($request)
-                ->withHeaders([
-                    'X-Frame-Options' => 'SAMEORIGIN'
-                ]);
+            $handle->headers->set('X-Frame-Options', 'SAMEORIGIN');
         }
+
 
         return $handle;
     }
