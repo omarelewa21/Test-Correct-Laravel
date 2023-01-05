@@ -59,7 +59,7 @@
                                 </span>
                             @else
                                 <span aria-disabled="true" aria-label="{{ __('pagination.previous') }}">
-                                    <x-button.text-button class="px-2"  wire:click="gotoPage(1)"  aria-label="{{ __('pagination.previous') }}">
+                                    <x-button.text-button class="px-2" @click="$wire.gotoPage(1)" aria-label="{{ __('pagination.previous') }}">
                                         <x-icon.arrow-left/>
 
                                     </x-button.text-button>
