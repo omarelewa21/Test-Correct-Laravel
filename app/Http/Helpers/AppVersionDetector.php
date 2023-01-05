@@ -79,24 +79,6 @@ class AppVersionDetector
         ],
         "windowsElectron" => [
             "ok" => [
-                "3.2.3",
-                "3.2.3-beta.1",
-                "3.2.3-beta.2",
-                "3.2.3-beta.3",
-                "3.2.3-beta.4",
-                "3.2.3-beta.5",
-                "3.2.4",
-                "3.2.4-beta.1",
-                "3.2.4-beta.2",
-                "3.2.4-beta.3",
-                "3.2.4-beta.4",
-                "3.2.4-beta.5",
-                "3.2.5",
-                "3.2.5-beta.1",
-                "3.2.5-beta.2",
-                "3.2.5-beta.3",
-                "3.2.5-beta.4",
-                "3.2.5-beta.5",
                 "3.3.0",
                 "3.3.0-beta.1",
                 "3.3.0-beta.2",
@@ -105,6 +87,7 @@ class AppVersionDetector
                 "3.3.0-beta.5",
             ],
             "needsUpdate" => [
+                "3.2.3" => "2 maart 2023"
             ],
             "needsUpdateDeadline" => [
             ],
@@ -341,11 +324,11 @@ class AppVersionDetector
 //        $this->Session->write('TLCVersionCheckResult', $versionCheckResult);
     }
 
-    public static function getUserOSPlatform() 
-    { 
+    public static function getUserOSPlatform()
+    {
         $headers = self::getAllHeaders();
         $user_agent = $headers['user-agent'];
-        $os_platform  = "Unknown OS Platform"; 
+        $os_platform  = "Unknown OS Platform";
         $os_array     = array(
                               '/windows nt 10/i'      =>  'Windows 10',
                               '/windows nt 6.3/i'     =>  'Windows 8.1',
@@ -371,11 +354,11 @@ class AppVersionDetector
                               '/blackberry/i'         =>  'BlackBerry',
                               '/webos/i'              =>  'Mobile'
                         );
-    
+
         foreach ($os_array as $regex => $value)
             if (preg_match($regex, $user_agent))
                 $os_platform = $value;
-    
+
         return $os_platform;
     }
 
