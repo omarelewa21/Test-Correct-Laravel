@@ -79,6 +79,7 @@ return [
     'drawing-question-override-old-drawing'                                                  => 'This drawing question has been made in the old drawing editor. If you continue, the current drawing will be lost and has to be redrawn in the new drawing editor',
     'Opstellen'                                                                              => 'Set up',
     'Instellingen'                                                                           => 'Settings',
+    'Information'                                                                            => 'Information',
     'Algemeen'                                                                               => 'General',
     'Reden'                                                                                  => 'Reason',
     'Juiste reden'                                                                           => 'Correct reden',
