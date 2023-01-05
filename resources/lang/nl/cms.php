@@ -198,7 +198,7 @@ return [
     'test_nieuw_omschrijving'                                                                => 'De huidige toets en bijbehorende items worden gedupliceerd',
     'test_nieuw'                                                                             => 'Nieuwe toets maken',
     'Vraag informatie'                                                                       => 'Vraag informatie',
-    'alle bijlagen'                                                                          => 'Alle bijlagen van de toets',
+    'alle bijlagen'                                                                          => 'Alle bijlagen van de toets als een zip bestand',
     'antwoordmodellen'                                                                       => 'Antwoordmodellen',
     'antwoordmodellen_omschrijving'                                                          => 'Alle antwoordmodellen van toetsvragen gebundeld',
     'antwoorden'                                                                             => 'Antwoorden',

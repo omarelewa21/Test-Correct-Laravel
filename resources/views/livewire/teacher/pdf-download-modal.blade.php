@@ -1,6 +1,6 @@
 <x-modal.base-modal x-data="{
                 value : null,
-                activateAttachmentsLink: '{{ $testHasPdfAttachments }}',
+                activateAttachmentsLink: '{{ $test->attachments?->count() > 0 }}',
                 activateStudentAnswersLink: '{{ $testTakeHasAnswers }}',
                 waitingScreenHtml: PdfDownload.waitingScreenHtml('{{ $translation }}'),
                 select: function(option) {
@@ -15,8 +15,8 @@
                         return;
                     }
                     switch(value) {
-                        case 'attachments':
-                            $wire.emit('openModal', 'teacher.test-pdf-attachments-download-modal', {test: '{{$test->uuid}}'});
+                        case 'testattachments':
+                            this.export_test_attachments();
                             break;
                         case 'testpdf':
                             this.export_test_pdf();
@@ -44,6 +44,9 @@
                     var windowReference = window.open();
                     windowReference.document.write(this.waitingScreenHtml);
                     windowReference.location = '{{ route('teacher.preview.test_opgaven_pdf', ['test' => $test->uuid]) }}';
+                },
+                export_test_attachments: function () {
+                    window.open('{{ route('teacher.preview.test_attachments', ['test' => $test->uuid]) }}', '_blank');
                 },
                 export_test_take_pdf: function () {
                     var windowReference = window.open();
@@ -128,13 +131,13 @@
                     </button>
                 @endif
                 <button class="test-change-option transition"
-                        :class="{'active': selected('attachments') && activateAttachmentsLink, 'opacity-25': ! activateAttachmentsLink }"
-                        @click="activateAttachmentsLink ? select('attachments') : ''"
+                        :class="{'active': selected('testattachments') && activateAttachmentsLink, 'opacity-25': ! activateAttachmentsLink }"
+                        @click="activateAttachmentsLink ? select('testattachments') : ''"
                 >
                     <div>
                         <x-stickers.test-export-attachments/>
                     </div>
-                    <div x-show="selected('attachments') && activateAttachmentsLink">
+                    <div x-show="selected('testattachments') && activateAttachmentsLink">
                         <x-icon.checkmark class="absolute top-2 right-2 overflow-visible"/>
                     </div>
                     <div class="ml-2.5 text-left">

@@ -186,7 +186,7 @@ return [
     'test_nieuw_omschrijving'                                                                => 'The current test and its siblings will be duplicated',
     'test_nieuw'                                                                             => 'Duplicate as new test',
     'Vraag informatie'                                                                       => 'Question info',
-    'alle bijlagen'                                                                          => 'All attachments of the test',
+    'alle bijlagen'                                                                          => 'All attachments of the test as a zip file',
     'antwoordmodellen'                                                                       => 'Answermodels',
     'antwoordmodellen_omschrijving'                                                          => 'All answermodels of the testquestions grouped',
     'antwoorden'                                                                             => 'Answers',
