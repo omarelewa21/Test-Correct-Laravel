@@ -79,6 +79,7 @@ return [
     'drawing-question-override-old-drawing'                                                  => 'De tekenvraag is in de oude tekeneditor gemaakt. Als je verder gaat, gaan die wijzigingen verloren en dient de tekenvraag opnieuw gemaakt te worden in de nieuwe editor.',
     'Opstellen'                                                                              => 'Opstellen',
     'Instellingen'                                                                           => 'Instellingen',
+    'Information'                                                                            => 'Informatie',
     'Algemeen'                                                                               => 'Algemeen',
     'Reden'                                                                                  => 'Reden',
     'Juiste reden'                                                                           => 'Juiste reden',
