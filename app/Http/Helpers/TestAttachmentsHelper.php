@@ -38,31 +38,15 @@ class TestAttachmentsHelper extends BaseHelper
 
     protected function createDownloadWithCorrectHeaders()
     {
-
         if (!file_exists($this->filePath)) {
             throw new \Exception(
                 sprintf("%s: cannot open <%s>", __METHOD__, $this->filePath)
             );
         }
 
-        return response()->download($this->filePath, $this->fileName);
-
-        header("Pragma: public");
-        header("Expires: 0");
-        header("Cache-Control: must-revalidate, post-check=0, pre-check=0");
-        header("Cache-Control: public");
-        header("Content-Description: File Transfer");
-
-        header("Content-type: application/octet-stream");
-        header("Content-Disposition: attachment; filename=" . $this->fileName);
-        header("Content-Transfer-Encoding: binary");
-        header("Content-Length: " . filesize($this->filePath));
-
-        while (ob_get_level()) {
-            ob_end_clean();
-        }
-
-        return readfile($this->filePath);
+        return response()
+            ->download($this->filePath, $this->fileName)
+            ->deleteFileAfterSend();
     }
 
     protected function createZipArchiveWithTestAttachments(): void
