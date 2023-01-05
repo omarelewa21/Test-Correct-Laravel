@@ -26,7 +26,7 @@ class TestAttachmentsHelper extends BaseHelper
         return $instance->createDownloadWithCorrectHeaders();
     }
 
-    protected function createZipFileName() : void
+    protected function createZipFileName(): void
     {
         $this->fileName = sprintf(
             '%s_%s_%s.zip',
@@ -60,24 +60,35 @@ class TestAttachmentsHelper extends BaseHelper
             ob_end_clean();
         }
 
-        return @readfile($this->filePath);
+        return readfile($this->filePath);
     }
 
     protected function createZipArchiveWithTestAttachments(): void
     {
-        $this->tmpFile = tmpfile();
-        $this->filePath = stream_get_meta_data($this->tmpFile)['uri'];
+//        $this->tmpFile = tmpfile();
+//        $this->filePath = stream_get_meta_data($this->tmpFile)['uri'];
+
+        $attachmentZipFolderPath = storage_path('attachments_zip/');
+
+        if(!file_exists($attachmentZipFolderPath)) {
+            if (!mkdir($attachmentZipFolderPath) && !is_dir($attachmentZipFolderPath)) {
+                throw new \RuntimeException(sprintf('Directory "%s" was not created', $attachmentZipFolderPath));
+            }
+        }
+
+        $this->filePath = $attachmentZipFolderPath . $this->fileName;
 
         $this->zip = new \ZipArchive();
 
         //create zip file with ZipArchive::OVERWRITE flag to overwrite tmpfile
-        if ($this->zip->open($this->filePath, \ZipArchive::OVERWRITE) !== TRUE) {
+//        if ($this->zip->open($this->filePath, \ZipArchive::OVERWRITE) !== TRUE) {
+        if ($this->zip->open($this->filePath, \ZipArchive::CREATE) !== TRUE) {
             throw new \Exception(
                 sprintf("%s: cannot open <%s>", __METHOD__, $this->filePath)
             );
         }
 
-        if(!$this->test->attachments?->count()) {
+        if (!$this->test->attachments?->count()) {
             throw new \Exception(
                 sprintf("%s: cannot create zip, test doesn't have attachments", __METHOD__)
             );
@@ -93,8 +104,8 @@ class TestAttachmentsHelper extends BaseHelper
             $this->zip->addFile($attachment->getCurrentPath(), $attachment->title);
         });
 
-        if($this->linkAttachments->isNotEmpty()) {
-            $textContent = $this->linkAttachments->reduce(function($carry, $attachment) {
+        if ($this->linkAttachments->isNotEmpty()) {
+            $textContent = $this->linkAttachments->reduce(function ($carry, $attachment) {
                 $carry .= sprintf("%s\n%s\n%s", $attachment->title, $attachment->link, PHP_EOL);
                 return $carry;
             }, '');
