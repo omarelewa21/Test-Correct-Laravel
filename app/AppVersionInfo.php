@@ -41,6 +41,8 @@ class AppVersionInfo extends BaseModel
         'platform',
         'platform_version',
         'platform_type',
+        'browser_type',
+        'browser_version',
         'headers',
         'version_check_result'
     ];
@@ -73,6 +75,8 @@ class AppVersionInfo extends BaseModel
             'platform'             => session()->get('TLCPlatform'),
             'platform_version'     => session()->get('TLCPlatformVersion'),
             'platform_type'        => session()->get('TLCPlatformType'),
+            'browser_type'         => session()->get('TLCBrowserType', null),
+            'browser_version'      => session()->get('TLCBrowserVersion', null),
             'headers'              => json_encode(session()->get('headers')),
             'version_check_result' => session()->get('TLCVersioncheckResult'),
         ]);

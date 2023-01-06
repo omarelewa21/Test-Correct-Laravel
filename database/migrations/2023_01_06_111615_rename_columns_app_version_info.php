@@ -17,6 +17,8 @@ return new class extends Migration
             $table->renameColumn('os', 'platform');
             $table->renameColumn('user_os', 'platform_version');
             $table->string('platform_type')->nullable();
+            $table->string('browser_type')->nullable();
+            $table->string('browser_version')->nullable();
         });
     }
 
@@ -31,6 +33,8 @@ return new class extends Migration
             $table->renameColumn('platform', 'os');
             $table->renameColumn('platform_version', 'user_os');
             $table->dropColumn('platform_type');
+            $table->dropColumn('browser_type');
+            $table->dropColumn('browser_version');
         });
     }
 };

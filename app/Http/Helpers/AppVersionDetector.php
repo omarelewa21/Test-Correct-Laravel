@@ -1,6 +1,7 @@
 <?php
 namespace tcCore\Http\Helpers;
 
+use Browser;
 use Carbon\Carbon;
 use Illuminate\Support\Str;
 
@@ -325,7 +326,9 @@ class AppVersionDetector
             'TLCVersion' => 'unset version',
             'TLCPlatform' => 'unset platform',
             'TLCPlatformType' => 'unset platform type',
-            'TLCPlatformVersion' => 'unset platform version'
+            'TLCPlatformVersion' => 'unset platform version',
+            'TLCBrowserType' => 'unset browser type',
+            'TLCBrowserVersion' => 'unset browser version'
         ]);
 
         if (isset($headers['tlc'])) {
@@ -336,12 +339,26 @@ class AppVersionDetector
 
         $version = AppVersionDetector::detect($headers);
 
+        $platform = "";
+        if ($version['os'] != "unknown-") {
+            $platform = $version['os'];
+        } else {
+            $platform = Browser::platformFamily();
+
+            // prevent spoofing platform os by modifying user-agent
+            if (array_key_exists($platform, self::$osConversion)) {
+                $platform = "platform-conflict";
+            }
+        }
+
         session([
             'headers' => $headers,
-            'TLCVersion' => $version['app_version'],
-            'TLCPlatform' => $version['os'],
-            'TLCPlatformVersion' => $version['os_release'],
+            'TLCVersion' => $version['app_version'], // don't specify an alternative value since this value is used in the code for app checking
+            'TLCPlatform' => $platform,
+            'TLCPlatformVersion' => $version['os_release'] != "" ? $version['os_release'] : Browser::platformVersion(),
             'TLCPlatformType' => $version['app_type'],
+            'TLCBrowserType' => Browser::browserFamily(),
+            'TLCBrowserVersion' => Browser::browserVersion(),
             'TLCIsIos12' => (Str::lower($version['os']) === 'ios') ? AppVersionDetector::isIos12($headers) : false,
         ]);
 
