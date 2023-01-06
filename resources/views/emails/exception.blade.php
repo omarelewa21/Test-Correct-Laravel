@@ -4,10 +4,12 @@
 <tr>
 <td colspan="999" style="padding:20px;">
 Error: {{ $errMessage }}<br/>
+@if(isset($file) && isset($lineNr))
 <br/>
 {{ $file }} {{ $lineNr }}
 <br/>
-@if(count($details))
+@endif
+@if(isset($details) && count($details))
 <b>Details</b>
 <ul>
 @foreach($details as $key => $value)
@@ -18,6 +20,7 @@ Error: {{ $errMessage }}<br/>
 @endforeach
 </ul>
 @endif
+@if(isset($server) && count($server))
 <br />
     <b>{{ __("exception.Server gegevens") }}</b><br />
     <ul>
@@ -28,6 +31,7 @@ Error: {{ $errMessage }}<br/>
             </li>
         @endforeach
     </ul>
+@endif
 </td>
 </tr>
 @endsection

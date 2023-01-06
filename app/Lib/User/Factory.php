@@ -15,7 +15,7 @@ class Factory {
         $this->user = new User();
 
         if(isset($data['password'])){
-            $data['password'] = \Hash::make($data['password']);
+            $data['password'] = $data['password'];
         }
 
         $this->user->fill($data);
@@ -35,7 +35,7 @@ class Factory {
 
     public function generateNewPassword() {
         $password = Str::random(8);
-        $this->user->setAttribute('password', \Hash::make($password));
+        $this->user->setAttribute('password', $password);
         $this->user->save();
         return $password;
     }

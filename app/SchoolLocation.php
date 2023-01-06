@@ -37,12 +37,14 @@ use tcCore\Lib\User\Roles;
 use Dyrynda\Database\Casts\EfficientUuid;
 use tcCore\Mail\SendSamlNoMailAddressInRequestDetectedMail;
 use tcCore\Traits\UuidTrait;
+use tcCore\Traits\FeatureSettings;
 
 class SchoolLocation extends BaseModel implements AccessCheckable
 {
 
     use SoftDeletes;
     use UuidTrait;
+    use FeatureSettings;
 
     const LVS_MAGISTER = 'Magister';
     const LVS_SOMTODAY = 'SOMTODAY';
@@ -412,7 +414,7 @@ class SchoolLocation extends BaseModel implements AccessCheckable
                     $schoolLocation = $schoolLocation->addSchoolLocationExtras();
                 }
                 if (GlobalStateHelper::getInstance()->hasPreventDemoEnvironmentCreationForSchoolLocation() === false) {
-                    (new DemoHelper())->createDemoPartsForSchool($schoolLocation);
+                    (new DemoHelper())->createDemoForSchoolLocationIfNeeded($schoolLocation);
                 }
                 if ($origAuthUser) {
                     Auth::login($origAuthUser);
@@ -1307,18 +1309,6 @@ class SchoolLocation extends BaseModel implements AccessCheckable
         if ($this->isDirty('license_type') && $this->license_type === 'CLIENT') {
             TrialPeriod::where('school_location_id', $this->getKey())->delete();
         }
-    }
-
-    public function featureSettings()  //todo place into a trait, with abilities (can do this, or that)
-    {
-        return $this->morphMany(FeatureSetting::class, 'settingable');
-    }
-
-    public function getFeatureSettingsAttribute()
-    {
-        return $this->featureSettings()->getSettings()->mapWithKeys(function($item) {
-            return [$item->title => $item->value];
-        });
     }
 
     public function setAllowCreathlonAttribute(bool $boolean)

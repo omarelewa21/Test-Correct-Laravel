@@ -59,7 +59,7 @@ class ChangePassword extends Component
             return $this->addError('passwords-dont-match', __('auth.passwords_dont_match'));
         }
 
-        $user->password = Hash::make($this->newPassword);
+        $user->password = $this->newPassword;
         $user->save();
         $this->sendPasswordChangedMail($user);
         return $this->dispatchBrowserEvent('password-changed-success', __('auth.password_changed_success'));

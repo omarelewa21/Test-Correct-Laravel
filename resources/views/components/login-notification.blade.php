@@ -5,7 +5,7 @@
             this.messages.splice(this.messages.indexOf(message), 1)
         },
     }"
-        @notify.window="let message = $event.detail; console.log(messages); messages.push(message);"
+        @notify.window="let message = $event.detail; messages.push(message);"
         class="fixed inset-0 flex flex-col-reverse items-center px-4 py-6 pointer-events-none sm:p-6 sm:justify-start space-y-4"
         style="z-index:1000">
 

@@ -33,10 +33,8 @@
         <div>
             <span>{{ $test->authorsAsStringTwo }}</span>
         </div>
-        @if ($test->isCopy())
-            <div class="p-1 text-sm rounded uppercase text-muted border-2 bg-light-grey border-grey-500 text-gray-500">
-                {{ __('kopie') }}
-            </div>
-        @endif
+        <div>
+            <x-published-tag :published="$test->isPublished()"/>
+        </div>
     </div>
 </div>

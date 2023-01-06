@@ -26,5 +26,8 @@
             </script>
             <script src="https://wsc.test-correct.nl/wscservice/wscbundle/wscbundle.js"></script>
         @endif
+        <script>
+            addCSRFTokenToEcho('{{ csrf_token() }}');
+        </script>
     @endpush
 </x-layouts.base>

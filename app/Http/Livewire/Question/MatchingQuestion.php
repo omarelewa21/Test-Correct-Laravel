@@ -9,7 +9,6 @@ use tcCore\Http\Traits\WithAttachments;
 use tcCore\Http\Traits\WithCloseable;
 use tcCore\Http\Traits\WithGroups;
 use tcCore\Http\Traits\WithNotepad;
-use tcCore\Http\Traits\WithQuestionTimer;
 use tcCore\Http\Traits\WithUpdatingHandling;
 
 class MatchingQuestion extends Component
@@ -58,21 +57,21 @@ class MatchingQuestion extends Component
             }
 
             foreach ($value['items'] as $items) {
-                if(in_array($value['value'], $dbstring) && !is_null($databaseStruct)){
+                if (in_array($value['value'], $dbstring) && !is_null($databaseStruct)) {
                     // value stored before in dbstring =>
                     $prevStoredKeyInDbstring = array_search($value['value'], $dbstring);        // Get previous key from dbstring
                     $prevStoredKeyInDatabase = array_search($value['value'], $databaseStruct);  // Get previous key from database
 
-                    if($prevStoredKeyInDatabase == -1){
+                    if ($prevStoredKeyInDatabase == -1) {
                         // value doesn't exist in database =>
                         $dbstring[$prevStoredKeyInDbstring] = '';        // set previous key in dbstring to empty string
                         $dbstring[$items['value']] = $value['value'];    // set new key to value
-                    }else{
+                    } else {
                         // value exists in database
                         $dbstring[$prevStoredKeyInDbstring] = $value['value']; // set previous key in dbstring to value
                         $dbstring[$items['value']] = '';                       // set new key to empty string
                     }
-                }else{
+                } else {
                     // value is not previously stored in dbstring
                     $dbstring[$items['value']] = $value['value'];
                 }
@@ -84,10 +83,9 @@ class MatchingQuestion extends Component
     public function updateOrder($values)
     {
         $dbstring = [];
-        if(Str::lower($this->question->subtype)  == "matching"){
+        if (Str::lower($this->question->subtype) == "matching") {
             $dbstring = $this->matchingUpdateValueOrder($dbstring, $values);
-        }
-        else{
+        } else {
             foreach ($values as $key => $value) {
                 if ($value['value'] == 'startGroep') {
                     $value['value'] = '';
@@ -98,13 +96,13 @@ class MatchingQuestion extends Component
             }
         }
 
-        $json = json_encode($dbstring);
+        $json = $this->getJsonToStore($dbstring);
 
         Answer::updateJson($this->answers[$this->question->uuid]['id'], $json);
 
         $this->answerStruct = $dbstring;
 
-        $this->emitTo('question.navigation','current-question-answered', $this->number);
+        $this->emitTo('question.navigation', 'current-question-answered', $this->number);
     }
 
 
@@ -113,4 +111,8 @@ class MatchingQuestion extends Component
         return view('livewire.question.matching-question');
     }
 
+    protected function getJsonToStore(array $answerObject): string
+    {
+        return json_encode($answerObject);
+    }
 }

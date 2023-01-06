@@ -10,8 +10,8 @@
 
     <div {{ $attributes }}
          class="pdf-dropzone
-        @if(!$startGroup)  border-blue-grey bg-white w-full border-dashed border-2 rounded-2xl @else startGroup @endif
-        @if(isset($type) && $type == 'classify') p-1 @endif
+        @if(!$startGroup)  border-blue-grey bg-white w-full border-dashed border-2 @else startGroup @endif
+        @if(isset($type) && $type == 'classify') p-1 rounded-2xl @else rounded-10 @endif
             "
         @if($startGroup) style="min-height: 44px;" @elseif(isset($type) && $type == 'classify') @endif
     >{{ $slot }}</div>

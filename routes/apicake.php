@@ -174,6 +174,10 @@ Route::group(['middleware' => ['api', 'dl', 'authorize', 'authorizeBinds', 'bind
 	Route::put('test_take/{test_take}/un-archive','TestTakesController@unarchive')->name('test_take.un_archive');
 	Route::get('test_take/{test_take_uuid}/grading','TestTakesController@showForGrading')->name('test_take.grading');
 
+    Route::post('test_take/{test_take}/rtti_export', ['as' => 'test_take.rtti_export', 'uses' => 'TestTakes\TestTakeRttiExportController@store']);
+	Route::put('test_take/{test_take}/update-status-to-discussed','TestTakesController@updateStatusToDiscussed')->name('test_take.updateStatusToDiscussed');
+	Route::get('test_take/{test_take_uuid}/grading','TestTakesController@showForGrading')->name('test_take.grading');
+
 	Route::post('test/{test}/with_temporary_login',  'TestsController@withTemporaryLogin')->name('test.with_short_code');
     Route::post('test/answer_model/{test}/with_temporary_login',  'TestsController@answerModelwithTemporaryLogin')->name('test_answer_model.with_short_code');
     Route::post('test/pdf/{test}/with_temporary_login',  'TestsController@pdfWithTemporaryLogin')->name('test_pdf.with_short_code');
@@ -190,7 +194,7 @@ Route::group(['middleware' => ['api', 'dl', 'authorize', 'authorizeBinds', 'bind
 	Route::resource('test_take_event_type', 'TestTakeEventTypesController', ['except' => ['create', 'store', 'edit', 'update', 'destroy']]);
 
 	Route::get('test_take_max_score/{test_take}','TestTakesController@maxScoreResponse')->name('test_take.max_score');
-    
+
 
     Route::get('test_take/{test_take}/attainment/analysis','TestTakes\TestTakeAttainmentAnalysisController@index')->name('test_take_attainment_analysis.index');
     Route::get('test_take/{test_take}/attainment/{attainment}/analysis','TestTakes\TestTakeAttainmentAnalysisController@show')->name('test_take_attainment_analysis.show');

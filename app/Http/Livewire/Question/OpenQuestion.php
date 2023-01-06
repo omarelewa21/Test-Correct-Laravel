@@ -35,7 +35,7 @@ class OpenQuestion extends Component
 
     public function updatedAnswer($value)
     {
-        $json = json_encode((object) ['value' => $this->answer]);
+        $json = json_encode((object) ['value' => $this->cleanData($value)]);
 
         Answer::updateJson($this->answers[$this->question->uuid]['id'], $json);
 
@@ -44,10 +44,24 @@ class OpenQuestion extends Component
 
     public function render()
     {
-        if ($this->question->subtype === 'short') {
+        if ($this->question->isSubType('short')) {
             return view('livewire.question.open-question');
         }
 
         return view('livewire.question.open-medium-question');
+    }
+
+    /**
+     * filter answer value from xss and encode html entities
+     * 
+     * @param string $value
+     * 
+     * @return string
+     */
+    private function cleanData($value)
+    {
+        $value = clean($value);
+
+        return $this->question->isSubType('short') ? strip_tags($value) : $value;
     }
 }

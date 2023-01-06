@@ -99,4 +99,9 @@ class MatchingQuestionAnswer extends BaseModel {
 
         return $uses->count() > 0;
     }
+
+    public function isGroup(): bool
+    {
+        return blank($this->correct_answer_id);
+    }
 }

@@ -14,7 +14,7 @@ class Saml2Controller extends Controller
 {
     private function logger($data)
     {
-        logger($data);
+//        logger($data);
     }
 
     /**

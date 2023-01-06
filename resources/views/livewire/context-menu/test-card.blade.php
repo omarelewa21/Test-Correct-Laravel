@@ -3,6 +3,7 @@
         <div wire:key="test-context-menu-buttons-{{ $testUuid }}"
              class="flex flex-col"
         >
+            <livewire:actions.test-make-published :wire:key="'publish-'.$testUuid" :uuid="$testUuid" variant="context-menu" class="order-1"/>
         @if($showNonPublicItems && $mode !== 'cms')
             <livewire:actions.test-plan-test :wire:key="'plan-test-'.$testUuid" :uuid="$testUuid" variant="context-menu" class="order-1"/>
             <livewire:actions.test-quick-take :wire:key="'quick-take-'.$testUuid" :uuid="$testUuid" variant="context-menu" class="order-2"/>

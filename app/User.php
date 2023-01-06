@@ -47,6 +47,7 @@ use tcCore\Lib\User\Factory;
 use tcCore\Lib\User\Roles;
 use Dyrynda\Database\Casts\EfficientUuid;
 use tcCore\Traits\ExamCoordinator;
+use tcCore\Traits\FeatureSettings;
 use tcCore\Traits\UuidTrait;
 use Facades\tcCore\Http\Controllers\PreviewLaravelController;
 
@@ -57,8 +58,9 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
         SoftDeletes,
         Authorizable,
         CanResetPassword,
-        ExamCoordinator;
-    use UuidTrait;
+        ExamCoordinator,
+        UuidTrait,
+        FeatureSettings;
 
     const MIN_PASSWORD_LENGTH = 8;
 
@@ -546,7 +548,7 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
                 DemoTeacherRegistration::registerIfApplicable($user);
 
                 $helper = new DemoHelper();
-                $helper->prepareDemoForNewTeacher($user->schoolLocation, $schoolYear, $user);
+                $helper->createDemoForTeacherIfNeeded($user);
             }
 
             // $user->isA('teacher') valt hier naar false om de een of andere reden?
@@ -1959,9 +1961,15 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
         throw new AccessDeniedHttpException('Access to user denied');
     }
 
+    public function setPasswordAttribute($pw)
+    {
+        $this->attributes['password'] = Hash::needsRehash($pw) ? Hash::make($pw) : $pw;
+        return $this;
+    }
+
     public function resetAndSavePassword($pw)
     {
-        $this->password = bcrypt($pw);
+        $this->password = $pw;
         $this->save();
     }
 
@@ -2071,9 +2079,8 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
     {
         if ($this->addSchoolLocation($schoolLocation)) {
             ActingAsHelper::getInstance()->setUser($this);
-            $schoolYear = SchoolYearRepository::getCurrentSchoolYear();
             $helper = new DemoHelper();
-            $helper->prepareDemoForNewTeacher($schoolLocation, $schoolYear, $this);
+            $helper->createDemoForTeacherIfNeeded($this);
         }
     }
 
@@ -2722,5 +2729,15 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
 //        SchoolClass::where('user_id', $this->id)
 
         return 'LEARNING_GOAL';
+    }
+
+    public function setHasPublishedTestAttribute(bool $boolean)
+    {
+        return $this->featureSettings()->setSetting('has_published_test', $boolean);
+    }
+
+    public function getHasPublishedTestAttribute() : bool
+    {
+        return $this->featureSettings()->getSetting('has_published_test')->exists();
     }
 }

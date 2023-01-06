@@ -166,7 +166,9 @@ return [
     'Omschrijving'                                                                           => 'Description',
     'Deze vraaggroep afsluiten'                                                              => 'Close this question group',
     'carousel_not_enough_questions'                                                          => 'There are too few questions in the question carousel to use this test. Add more questions or adjust the amount of questions to ask on the test',
+    'carousel_not_enough_questions_with_names'                                               => 'There are too few questions in the question carousel: :questions to use this test. Add more questions or adjust the amount of questions to ask on the test|There are too few questions in the question carousels: :questions to use this test. Add more questions or adjust the amount of questions to ask on the test',
     'carousel_subquestions_scores_differ'                                                    => 'The questions in this group have different scores. No score can be calculated after taking the test. Adjust the points for each question in this group and make them equal.',
+    'carousel_subquestions_scores_differ_with_names'                                         => 'The questions in the carousel: :questions have different scores. No score can be calculated after taking the test. Adjust the points for each question and make them equal.|The questions in the carousels: :questions have different scores. No score can be calculated after taking the test. Adjust the points for each question and make them equal.',
     'begin_with_making_a_question'                                                           => 'Start with making a group or regular question.',
     'nieuwe'                                                                                 => 'new',
     'Wijzigingen niet opslaan'                                                               => 'Discard changes',
@@ -211,6 +213,6 @@ return [
     "create_your_own_test"                                                                   => "Get started with creating your own test",
     "setup_your_own_test"                                                                    => "Set up your test with question groups and questions",
 
-    'attachment_uploading_message'                                                           => 'We\'re processing the attachment(s).',
-    'one_moment_please'                                                                      => 'One moment please  ',
+    'attachment_uploading_message' => 'We\'re processing the attachment(s).',
+    'one_moment_please'            => 'One moment please  ',
 ];

@@ -1,4 +1,4 @@
-<x-menu.context-menu.base context="test-take-card">
+<x-menu.context-menu.base context="test-take-card" class="w-60">
 
     @if($this->hasArchiveOption())
         <x-menu.context-menu.button wire:click="openTestTake">
@@ -10,6 +10,10 @@
                 <x-slot name="icon"><x-icon.pdf-file/></x-slot>
                 <x-slot name="text">{{ __('test-take.Antwoord PDF') }}</x-slot>
             </x-menu.context-menu.button>
+            <!-- x-menu.context-menu.button wire:click="updateStatusToTaken">
+                <x-slot name="icon"><x-icon.arrow/></x-slot>
+                <x-slot name="text">{{ __('test_take.update_to_taken') }}</x-slot>
+            </x-menu.context-menu.button -->
         @endif
         @if($this->hasSkipDiscussing())
             <x-menu.context-menu.button wire:click="skipDiscussing">
@@ -20,7 +24,7 @@
         <x-menu.context-menu.button wire:click="archive">
             <x-slot name="icon"><x-icon.archive/></x-slot>
             <x-slot name="text">{{ __('test-take.Archiveren') }}</x-slot>
-        </x-menu.context-menu.button>
+        </x-menu.context-menu.button>   
     @endif
     @if($this->hasUnarchiveOption())
         <x-menu.context-menu.button wire:click="unarchive">

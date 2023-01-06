@@ -68,7 +68,7 @@ class EntreeHelper
 
     protected function logger($data)
     {
-        logger($data);
+        //logger($data);
     }
 
     private function retrieveDataFromSession()

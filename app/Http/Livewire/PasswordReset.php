@@ -83,7 +83,7 @@ class PasswordReset extends Component
 
 
         $response = Password::reset($credentials, function ($user, $password) {
-            $user->password = bcrypt($password);
+            $user->password = $password;
             $user->save();
         });
 

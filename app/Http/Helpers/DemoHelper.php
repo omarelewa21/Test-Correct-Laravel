@@ -9,8 +9,10 @@
 namespace tcCore\Http\Helpers;
 
 
+use Bugsnag\BugsnagLaravel\Facades\Bugsnag;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 use tcCore\Answer;
 use tcCore\BaseSubject;
 use tcCore\EducationLevel;
@@ -91,11 +93,11 @@ class DemoHelper
 
     public function getDemoSectionForSchoolLocation($schoolLocationId)
     {
-        $section = Section::join('school_location_sections',function ($join) {
-                                        $join->on('sections.id', '=', 'school_location_sections.section_id');
-                                 })->where('school_location_sections.school_location_id',$schoolLocationId)
-                                ->where('sections.name', self::SECTIONNAME)
-                                ->first();
+        $section = Section::join('school_location_sections', function ($join) {
+            $join->on('sections.id', '=', 'school_location_sections.section_id');
+        })->where('school_location_sections.school_location_id', $schoolLocationId)
+            ->where('sections.name', self::SECTIONNAME)
+            ->first();
         if ($section !== null) {
             return $this->getDemoSubjectIfExists($section);
         }
@@ -103,15 +105,11 @@ class DemoHelper
     }
 
 
-
     public function hasTeacherDemoSetup(User $user)
     {
         $this->setSchoolLocation($user->schoolLocation);
         $schoolClass = $this->getDemoClass();
         if ($schoolClass === null || Teacher::where('user_id', $user->getKey())->where('class_id', $schoolClass->getKey())->count() < 1) {
-            return false;
-        }
-        if (Test::where('name', $this->getTestNameForTeacher(null, $user))->count() < 1) {
             return false;
         }
         if (Teacher::where('user_id', $user->getKey())->where('class_id', $schoolClass->getKey())->first() == null) {
@@ -127,11 +125,13 @@ class DemoHelper
     {
         $helper = new DemoHelper();
 
-        if($schoolClass == null){
+        if (!$helper->hasSchoolDemoSetup($schoolLocation)) return;
+
+        if ($schoolClass == null) {
             $helper->setSchoolLocation($schoolLocation);
             $schoolClass = $helper->getDemoClass();
         }
-        if($schoolClass) {
+        if ($schoolClass) {
             $schoolYear = SchoolYearRepository::getCurrentSchoolYear();
             if ($schoolYear != null) {
                 if ($schoolClass->schoolYear != $schoolYear) {
@@ -143,6 +143,10 @@ class DemoHelper
 
     public function createDemoForTeacherIfNeeded(User $user, $dispatchSchoolYearEvent = false)
     {
+        if ($this->notInTemporaryTeacherSchoolLocation($user->schoolLocation)) {
+            return;
+        }
+
         if (!$this->hasTeacherDemoSetup($user)) {
             $this->createDemoForSchoolLocationIfNeeded($user->schoolLocation);
             $schoolYear = SchoolYearRepository::getCurrentSchoolYear();
@@ -165,50 +169,25 @@ class DemoHelper
 
     public function createDemoForSchoolLocationIfNeeded(SchoolLocation $schoolLocation)
     {
-        if(GlobalStateHelper::getInstance()->hasPreventDemoEnvironmentCreationForSchoolLocation() === false) {
+        if ($this->notInTemporaryTeacherSchoolLocation($schoolLocation)) {
+            return;
+        }
+
+        if (GlobalStateHelper::getInstance()->hasPreventDemoEnvironmentCreationForSchoolLocation() === false) {
             if (!$this->hasSchoolDemoSetup($schoolLocation)) {
                 $this->createDemoPartsForSchool($schoolLocation);
             }
         }
     }
 
-    public function createDemoPartsForSchool(SchoolLocation $schoolLocation)
-    {
-        $this->setSchoolLocation($schoolLocation);
-        // create demo section
-        $this->createDemoSectionIfNeeded();
-        // create demo subject (vak) if not existent
-        $this->createDemoSubjectIfNeeded();
-        // create demo teacher
-
-        $this->createDemoTeacherIfNeeded();
-        // create demo students
-        $this->createDemoStudentsIfNeeded();
-        // add education level to school
-        $this->addDemoEducationlevelToSchoolIfNeeded();
-    }
-
-    public function prepareDemoForNewTeacher(SchoolLocation $schoolLocation, SchoolYear $schoolYear, User $user)
-    {
-        if(GlobalStateHelper::getInstance()->hasPreventDemoEnvironmentCreationForSchoolLocation() === false) {
-            $currentQueueState = GlobalStateHelper::getInstance()->isQueueAllowed();
-            GlobalStateHelper::getInstance()->setQueueAllowed(false);
-            $this->setSchoolLocation($schoolLocation);
-            $schoolClass = $this->createDemoClassForSchoolLocationAndPopulate($schoolLocation, $schoolYear);
-            $teacher = $this->addTeacherToDemoClassIfNeeded($user, $schoolClass);
-            $students = $this->createDemoStudentsIfNeeded();
-            $baseDemoTest = $this->getBaseDemoTest();
-            $returnData = $this->createDemoTestsForTeacher($teacher, $students, $baseDemoTest, $schoolClass);
-            $returnData['teacher'] = $teacher;
-            GlobalStateHelper::getInstance()->setQueueAllowed($currentQueueState);
-            return $returnData;
-        }
-        return null;
-    }
 
     public function createDemoClassForSchoolLocationAndPopulate(SchoolLocation $schoolLocation, SchoolYear $schoolYear)
     {
-        if(GlobalStateHelper::getInstance()->hasPreventDemoEnvironmentCreationForSchoolLocation() === false) {
+        if ($this->notInTemporaryTeacherSchoolLocation($schoolLocation)) {
+            return;
+        }
+
+        if (GlobalStateHelper::getInstance()->hasPreventDemoEnvironmentCreationForSchoolLocation() === false) {
             $this->setSchoolLocation($schoolLocation);
             $schoolClass = $this->getDemoClass();
             if (!$schoolClass) {
@@ -224,7 +203,7 @@ class DemoHelper
 
             $students->each(function (User $s) use ($schoolClass) {
                 $attr = [
-                    'user_id' => $s->getKey(),
+                    'user_id'  => $s->getKey(),
                     'class_id' => $schoolClass->getKey()
                 ];
                 $student = Student::withTrashed()->firstOrCreate($attr);
@@ -240,6 +219,10 @@ class DemoHelper
 
     public function changeDemoUsersAsSchoolLocationCustomerCodeChanged(SchoolLocation $schoolLocation, $oldCustomerCode)
     {
+        if ($this->notInTemporaryTeacherSchoolLocation($schoolLocation)) {
+            return;
+        }
+
         $this->setSchoolLocation($schoolLocation);
 
         $userDetails = collect([
@@ -277,6 +260,45 @@ class DemoHelper
             ->first();
     }
 
+    protected function notInTemporaryTeacherSchoolLocation(SchoolLocation $schoolLocation)
+    {
+        // only create demo environment if teacher is in temporary teacher school location
+        return !SchoolHelper::isTempTeachersSchoolLocation($schoolLocation);
+    }
+
+    protected function createDemoPartsForSchool(SchoolLocation $schoolLocation)
+    {
+        $this->setSchoolLocation($schoolLocation);
+        // create demo section
+        $this->createDemoSectionIfNeeded();
+        // create demo subject (vak) if not existent
+        $this->createDemoSubjectIfNeeded();
+        // create demo teacher
+
+        $this->createDemoTeacherIfNeeded();
+        // create demo students
+        $this->createDemoStudentsIfNeeded();
+        // add education level to school
+        $this->addDemoEducationlevelToSchoolIfNeeded();
+    }
+
+    protected function prepareDemoForNewTeacher(SchoolLocation $schoolLocation, SchoolYear $schoolYear, User $user)
+    {
+        if (GlobalStateHelper::getInstance()->hasPreventDemoEnvironmentCreationForSchoolLocation() === false) {
+            $currentQueueState = GlobalStateHelper::getInstance()->isQueueAllowed();
+            GlobalStateHelper::getInstance()->setQueueAllowed(false);
+            $this->setSchoolLocation($schoolLocation);
+            $schoolClass = $this->createDemoClassForSchoolLocationAndPopulate($schoolLocation, $schoolYear);
+            $teacher = $this->addTeacherToDemoClassIfNeeded($user, $schoolClass);
+            $students = $this->createDemoStudentsIfNeeded();
+
+            $returnData['teacher'] = $teacher;
+            GlobalStateHelper::getInstance()->setQueueAllowed($currentQueueState);
+            return $returnData;
+        }
+        return null;
+    }
+
     protected function addDemoEducationlevelToSchoolIfNeeded()
     {
         $attr = [
@@ -284,7 +306,7 @@ class DemoHelper
             'education_level_id' => $this->getDemoEducationLevel()->getKey()
         ];
         $a = SchoolLocationEducationLevel::withTrashed()->firstOrCreate($attr);
-        if($a->trashed()){
+        if ($a->trashed()) {
             $a->restore();
         }
         return $a;
@@ -294,99 +316,31 @@ class DemoHelper
 
     protected function createDemoTestForTeacher(Teacher $teacher, Test $demoTest)
     {
-        $attributes = [
-            'name' => $this->getTestNameForTeacher($teacher),
-            'subject_id' => $teacher->subject->getKey(),
-//            'period_id' => PeriodRepository::getCurrentPeriod()->getKey(),
-            'abbreviation' => self::TESTABBR,
-            'education_level_year' => 1,
-            'demo' => true,
-            'author_id' => $teacher->user->getKey()
-        ];
-
-        $testQuery = Test::whereNull('deleted_at');
-        foreach ($attributes as $key => $val) {
-            $testQuery->where($key, $val);
-        }
-        $returnData = [
-            'new' => false,
-        ];
-        $test = $testQuery->first(); // is there a test with all these specs? if not create one
-        $periodId = PeriodRepository::getCurrentPeriod()->getKey();
-        if (!$test) {
-            $returnData['new'] = true;
-            $test = $demoTest->duplicate(
-                array_merge(
-                    $attributes,
-                    [
-                        'period_id' => $periodId,
-                        'education_level_id' => $this->getDemoEducationLevel()->getKey()
-                    ]
-                ),
-                $teacher->user->getKey()
-            );
-            $test->is_system_test = 0;
-            $test->save();
-        } else {
-            $test->period_id = $periodId;
-            $test->save();
-        }
-
-        $returnData['test'] = $test;
-        return $returnData;
+        throw new \Exception('demo test creation has been removed.');
     }
 
     protected function getBaseDemoTest()
     {
-
-        $test = Test::where('name', self::BASEDEMOTESTNAME)->orderBy('created_at', 'desc')->get()->first(function (Test $t) {
-            return TestTake::where('test_id', $t->getKey())->where('test_take_status_id', 9)->count() > 0;
-        });
-
-
-        if ($test === null) {
-            throw new \Exception('base demo test needs to be created with title ' . self::BASEDEMOTESTNAME);
-        }
-        return $test;
+        throw new \Exception('demo test creation has been removed.');
     }
-
-    protected function createDemoTestsForTeacher(Teacher $teacher, $students, Test $baseDemoTest, SchoolClass $schoolClass)
-    {
-        $data = $this->createDemoTestForTeacher($teacher, $baseDemoTest);
-
-        $periodId = PeriodRepository::getCurrentPeriod()->getKey();
-
-        $testTakes = TestTake::where('test_id', $baseDemoTest->getKey())->get()->transform(function (TestTake $testTake) use ($teacher, $students, $schoolClass, $periodId, $data) {
-            $helper = new TestTakeDuplicateHelper();
-            $data = $helper->collect($testTake->getKey(), $data['test']->getKey(), $teacher->user->getKey(), $students->pluck('id'), $schoolClass->getKey(), $periodId, $this->schoolLocation->getKey())->duplicate()->getNew();
-            return $data['testTake'];
-        });
-
-        return [
-            'new' => $data['new'],
-            'test' => $data['test'],
-            'testTakes' => $testTakes,
-        ];
-    }
-
 
     /** create demo class */
 
     protected function createDemoClassIfNeeded(SchoolYear $schoolYear)
     {
         $attr = [
-            'school_location_id' => $this->schoolLocation->getKey(),
-            'education_level_id' => $this->getDemoEducationLevel()->getKey(),
-            'school_year_id' => $schoolYear->getKey(),
-            'name' => self::CLASSNAME,
-            'education_level_year' => 1,
-            'is_main_school_class' => 0,
+            'school_location_id'              => $this->schoolLocation->getKey(),
+            'education_level_id'              => $this->getDemoEducationLevel()->getKey(),
+            'school_year_id'                  => $schoolYear->getKey(),
+            'name'                            => self::CLASSNAME,
+            'education_level_year'            => 1,
+            'is_main_school_class'            => 0,
             'do_not_overwrite_from_interface' => 1,
-            'demo' => 1,
+            'demo'                            => 1,
         ];
 
         $return = SchoolClass::withTrashed()->firstOrCreate($attr);
-        if($return->trashed()){
+        if ($return->trashed()) {
             $return->restore();
         }
         return $return;
@@ -396,7 +350,7 @@ class DemoHelper
     {
         $schoolClass->fill([
             'demo_restriction_overrule' => true,
-            'school_year_id' => $schoolYear->getKey()
+            'school_year_id'            => $schoolYear->getKey()
         ]);
         $schoolClass->save();
         return $schoolClass;
@@ -409,11 +363,11 @@ class DemoHelper
         $subject = $this->createDemoSubjectIfNeeded();
 
         $return = Teacher::withTrashed()->firstOrCreate([
-            'user_id' => $user->getKey(),
-            'class_id' => $schoolClass->getKey(),
+            'user_id'    => $user->getKey(),
+            'class_id'   => $schoolClass->getKey(),
             'subject_id' => $subject->getKey()
         ]);
-        if($return->trashed()){
+        if ($return->trashed()) {
             $return->restore();
         }
         return $return;
@@ -421,13 +375,7 @@ class DemoHelper
 
     public function getTestNameForTeacher(Teacher $teacher = null, User $user = null)
     {
-        if ($teacher === null && $user === null) {
-            throw new \Exception('There needs to be a teacher or user to get the name of the test');
-        }
-        if ($user === null) {
-            $user = $teacher->user;
-        }
-        return str_replace('  ', ' ', sprintf(self::TESTNAME, $user->name_first, $user->name_suffix, $user->name));
+        throw new \Exception('demo test creation has been removed.');
     }
 
     protected function createDemoTeacherIfNeeded()
@@ -437,15 +385,15 @@ class DemoHelper
             $userFactory = new Factory(new User());
 
             $user = $userFactory->generate([
-                'name_first' => ' ',
-                'name' => sprintf('%s %s', self::TEACHERLASTNAMEBASE, $this->schoolLocation->customer_code),
-                'abbreviation' => 'DD01',
-                'username' => $this->getUsername('teacher'),
-                'password' => ('Alblasserdam43'),
-                'user_roles' => [1],
+                'name_first'         => ' ',
+                'name'               => sprintf('%s %s', self::TEACHERLASTNAMEBASE, $this->schoolLocation->customer_code),
+                'abbreviation'       => 'DD01',
+                'username'           => $this->getUsername('teacher'),
+                'password'           => ('Alblasserdam43'),
+                'user_roles'         => [1],
                 'send_welcome_email' => 1,
                 'school_location_id' => $this->schoolLocation->getKey(),
-                'demo' => true,
+                'demo'               => true,
             ]);
         }
         return $user;
@@ -469,14 +417,14 @@ class DemoHelper
             if (!$user) {
                 $userFactory = new Factory(new User());
                 $user = $userFactory->generate([
-                    'name_first' => $u->nr,
-                    'name' => $u->nr,
-                    'external_id' => sprintf('D%s', $u->nr),
-                    'username' => $this->getUsername('student', $u->nr),
-                    'password' => $u->nr,
-                    'text2speech' => (int)$u->dyslexie,
-                    'time_dispensation' => (int)$u->dyslexie,
-                    'user_roles' => [3],
+                    'name_first'         => $u->nr,
+                    'name'               => $u->nr,
+                    'external_id'        => sprintf('D%s', $u->nr),
+                    'username'           => $this->getUsername('student', $u->nr),
+                    'password'           => $u->nr,
+                    'text2speech'        => (int)$u->dyslexie,
+                    'time_dispensation'  => (int)$u->dyslexie,
+                    'user_roles'         => [3],
                     'school_location_id' => $this->schoolLocation->getKey(),
                     'send_welcome_email' => 1,
 
@@ -490,7 +438,7 @@ class DemoHelper
                     ['user_id' => $user->getKey()],
                     ['price' => 0.0, 'active' => 1, 'acceptedby' => 0]
                 );
-                if($r->trashed()){
+                if ($r->trashed()) {
                     $r->restore();
                 }
                 $r = Text2SpeechLog::firstOrCreate(
@@ -512,7 +460,17 @@ class DemoHelper
             $typeName = 'docent';
         }
         if ($customer_code === null) $customer_code = $this->schoolLocation->customer_code;
-        return str_replace(' ', '-', sprintf('info+%s%s%s@test-correct.nl', $customer_code, $typeName, $nr));
+
+        $customer_code = $this->trimCustomerCodeForUsernameToFitInDatabase($customer_code);
+
+        $userName = str_replace(' ', '-', sprintf('info+%s%s%s@test-correct.nl', $customer_code, $typeName, $nr));
+
+        return $userName;
+    }
+
+    protected function trimCustomerCodeForUsernameToFitInDatabase($customer_code): string
+    {
+        return Str::limit($customer_code, 30, '');
     }
 
     /** section data */
@@ -538,11 +496,11 @@ class DemoHelper
         $s = SchoolLocationSection::withTrashed()->firstOrCreate(
             [
                 'school_location_id' => $this->schoolLocation->getKey(),
-                'section_id' => $section->getKey()
+                'section_id'         => $section->getKey()
             ],
             ['demo' => true,]
         );
-        if($s->trashed()){
+        if ($s->trashed()) {
             $s->restore();
         }
         $this->setSection($section);
@@ -552,12 +510,12 @@ class DemoHelper
     protected function getDemoEducationLevel()
     {
         $attr = [
-            'name' => self::EDUCATIONLEVELNAME,
+            'name'      => self::EDUCATIONLEVELNAME,
             'max_years' => 1
         ];
 
         $return = EducationLevel::withTrashed()->firstOrCreate($attr);
-        if($return->trashed()){
+        if ($return->trashed()) {
             $return->restore();
         }
         return $return;
@@ -576,7 +534,7 @@ class DemoHelper
         $baseSubject = BaseSubject::withTrashed()->firstOrCreate([
             'name' => self::SUBJECTNAME
         ]);
-        if($baseSubject->trashed()){
+        if ($baseSubject->trashed()) {
             $baseSubject->restore();
         }
         if (null === $this->section) {
@@ -586,11 +544,11 @@ class DemoHelper
 
         if ($subject == null) {
             $subject = Subject::create([
-                'section_id' => $this->section->getKey(),
+                'section_id'      => $this->section->getKey(),
                 'base_subject_id' => $baseSubject->getKey(),
-                'name' => self::SUBJECTNAME,
-                'abbreviation' => 'DV',
-                'demo' => true,
+                'name'            => self::SUBJECTNAME,
+                'abbreviation'    => 'DV',
+                'demo'            => true,
             ]);
         }
 

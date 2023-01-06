@@ -9,7 +9,7 @@ return [
     'Gepland' => 'Scheduled',
     'CO-Learning' => 'CO-Learning',
     'Inzien' => 'View',
-    'Becijferd' => 'Graded',
+    'Resultaten' => 'Results',
     'change_password' => 'Change password',
     'Toetsen' => 'Tests',
     'Ingepland' => 'Planned',
